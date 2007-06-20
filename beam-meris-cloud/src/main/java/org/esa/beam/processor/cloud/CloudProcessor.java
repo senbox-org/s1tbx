@@ -1,0 +1,286 @@
+/*
+ * $Id: CloudProcessor.java,v 1.11 2007/03/23 18:03:33 norman Exp $
+ *
+ * Copyright (C) 2004 by Brockmann Consult (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation. This program is distributed in the hope it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+package org.esa.beam.processor.cloud;
+
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
+import org.esa.beam.dataio.dimap.DimapProductConstants;
+import org.esa.beam.dataio.envisat.EnvisatConstants;
+import org.esa.beam.framework.dataio.ProductWriter;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.processor.cloud.internal.FrameSizeCalculator;
+import org.esa.beam.processor.cloud.internal.LinebasedFrameSizeCalculator;
+import org.esa.beam.processor.cloud.internal.util.PNHelper;
+import org.esa.beam.framework.processor.Processor;
+import org.esa.beam.framework.processor.ProcessorException;
+import org.esa.beam.framework.processor.ProcessorUtils;
+import org.esa.beam.framework.processor.Request;
+import org.esa.beam.framework.processor.ui.ProcessorUI;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.SystemUtils;
+
+import java.awt.Rectangle;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ * The <code>CloudProcessor</code> implements all specific functionality to calculate a cloud probability.
+ */
+public class CloudProcessor extends Processor {
+
+    public static final String PROCESSOR_NAME = "Cloud Probability Processor";
+    private static final String PROCESSOR_VERSION = "1.5";
+    private static final String PROCESSOR_COPYRIGHT = "Copyright (C) 2004 by ESA, FUB and Brockmann Consult";
+
+    public static final String DEFAULT_OUTPUT_DIR_NAME = "processor";
+    public static final String DEFAULT_OUTPUT_FORMAT = DimapProductConstants.DIMAP_FORMAT_NAME;
+    public static final String DEFAULT_OUTPUT_PRODUCT_NAME = "MER_CLOUD";
+
+    public static final String REQUEST_TYPE = "MER_L2_CLOUD";
+
+    private Product l1bProduct;
+    private Product cloudProduct;
+
+    private Logger _logger;
+
+    private CloudPN cloudNode;
+    private Band[] cloudNodeBands;
+    private FrameSizeCalculator frameSizeCalculator;
+    public static final String HELP_ID = "cloudScientificTool";
+
+    public CloudProcessor() {
+        _logger = Logger.getLogger(CloudConstants.LOGGER_NAME);
+        setDefaultHelpId(HELP_ID);
+
+    }
+
+    /**
+     * Initializes the processor. Override to perform processor specific initialization. Called by the framework after
+     * the loggining is initialized.
+     */
+    @Override
+    public void initProcessor() throws ProcessorException {
+        super.initProcessor();
+
+
+    }
+
+
+    @Override
+    public void process(ProgressMonitor pm) throws ProcessorException {
+        ProcessorUtils.setProcessorLoggingHandler(CloudConstants.DEFAULT_LOG_PREFIX, getRequest(),
+                                                  getName(), getVersion(), getCopyrightInformation());
+        try {
+            _logger.info(CloudConstants.LOG_MSG_START_REQUEST);
+
+            // check the request type
+            Request.checkRequestType(getRequest(), REQUEST_TYPE);
+
+            initCloudNode();
+
+            // create the output product
+            initOutputProduct();
+            prepareProcessing();
+
+            // and process the processor
+            processCloud(pm);
+
+            _logger.info(CloudConstants.LOG_MSG_SUCCESS);
+        } catch (Exception e) {
+            _logger.severe(CloudConstants.LOG_MSG_PROC_ERROR);
+            _logger.severe(e.getMessage());
+            throw new ProcessorException(e.getMessage(), e);
+        } finally {
+            try {
+                if (isAborted()) {
+                    deleteOutputProduct();
+                }
+            } finally {
+                closeProducts();
+                _logger.info(CloudConstants.LOG_MSG_FINISHED_REQUEST);
+            }
+        }
+    }
+
+    /**
+     * Retrieves the name of the processor
+     */
+    @Override
+    public String getName() {
+        return PROCESSOR_NAME;
+    }
+
+    /**
+     * Retrieves a version string of the processor
+     */
+    @Override
+    public String getVersion() {
+        return PROCESSOR_VERSION;
+    }
+
+    /**
+     * Retrieves copyright information of the processor
+     */
+    @Override
+    public String getCopyrightInformation() {
+        return PROCESSOR_COPYRIGHT;
+    }
+
+    /**
+     * Creates the UI for the processor. Override to perform processor specific
+     * UI initializations.
+     */
+    @Override
+    public ProcessorUI createUI() throws ProcessorException {
+        return new CloudProcessorUI();
+    }
+    ///////////////////////////////////////////////////////////////////////////
+    /////// END OF PUBLIC
+    ///////////////////////////////////////////////////////////////////////////
+
+    private void initCloudNode() throws ProcessorException {
+        installAuxdata();
+
+        // cloud node
+        final Map<String, String> cloudConfig = new HashMap<String, String>();
+        cloudConfig.put(CloudPN.CONFIG_FILE_NAME, "cloud_config.txt");
+//        cloudConfig.put(CloudPN.INVALID_EXPRESSION, "l1_flags.INVALID OR NOT l1_flags.LAND_OCEAN");
+        cloudConfig.put(CloudPN.INVALID_EXPRESSION, "l1_flags.INVALID");
+        cloudNode = new CloudPN();
+        try {
+            cloudNode.setUp(cloudConfig);
+        } catch (IOException e) {
+            throw new ProcessorException("Failed to initialise cloud source: " + e.getMessage(), e);
+        }
+    }
+
+    public void installAuxdata() {
+        // todo - bad code small! See other usages of Processor.installAuxdata.
+        String relPath = ".beam" + File.separator + getSymbolicName() + File.separator + "auxdata";
+        File defaultAuxdataDir = new File(SystemUtils.getUserHomeDir(), relPath);
+        String auxdataDirPath = System.getProperty(CloudPN.CLOUD_AUXDATA_DIR_PROPERTY,
+                                                   defaultAuxdataDir.getAbsolutePath());
+        File auxdataDir = new File(auxdataDirPath);
+        try {
+            URL codeSourceUrl = CloudProcessor.class.getProtectionDomain().getCodeSource().getLocation();
+            installAuxdata(codeSourceUrl, "auxdata/", auxdataDir.toURI().toURL());
+        } catch (IOException e) {
+            _logger.log(Level.SEVERE, "Not able to install auxdata.", e);
+        }
+    }
+
+
+    /**
+     * Creates the output product skeleton.
+     */
+    private void initOutputProduct() throws ProcessorException,
+                                            IOException {
+        l1bProduct = loadInputProduct(0);
+        cloudProduct = cloudNode.readProductNodes(l1bProduct, null);
+        cloudNodeBands = cloudProduct.getBands();
+
+        ProductUtils.copyFlagBands(l1bProduct, cloudProduct);
+//        PNHelper.copyAllBandsToProduct(l1bProduct, cloudProduct, true);
+        PNHelper.copyMiscData(l1bProduct, cloudProduct);
+        copyRequestMetaData(cloudProduct);
+
+        PNHelper.initWriter(getRequest().getOutputProductAt(0), cloudProduct, _logger);
+        _logger.info(CloudConstants.LOG_MSG_OUTPUT_CREATED);
+    }
+
+    private void prepareProcessing() throws Exception {
+        final int width = l1bProduct.getSceneRasterWidth();
+        final int height = l1bProduct.getSceneRasterHeight();
+
+        frameSizeCalculator = new LinebasedFrameSizeCalculator(width, height);
+        cloudNode.setFrameSizeCalculator(frameSizeCalculator);
+        cloudNode.startProcessing();
+    }
+
+    /**
+     * Performs the actual processing of the output product. Reads both input bands line
+     * by line, calculates the processor and writes the result to the output band
+     */
+    private void processCloud(ProgressMonitor pm) throws IOException {
+        final int frameCount = frameSizeCalculator.getFrameCount();
+
+        // Notify process listeners that processing has started
+        pm.beginTask("Generating Cloud product...", frameCount * 2);
+        try {
+            for (int frameNumber = 0; frameNumber < frameCount; frameNumber++) {
+                final Rectangle frameRect = frameSizeCalculator.getFrameRect(frameNumber);
+                _logger.info("processing Cloud frame: " + (frameNumber + 1) + "/" + frameCount);
+                PNHelper.copyBandData(cloudNodeBands, cloudProduct, frameRect, new SubProgressMonitor(pm, 1));
+                PNHelper.copyBandData(l1bProduct.getBand(EnvisatConstants.MERIS_L1B_FLAGS_DS_NAME), cloudProduct,
+                                      frameRect, new SubProgressMonitor(pm, 1));
+//                PNHelper.copyBandData(l1bProduct.getBands(), cloudProduct, frameRect);
+
+                // Notify process listeners about processing progress and
+                // check whether or not processing shall be terminated
+                if (pm.isCanceled()) {
+                    // Processing terminated!
+                    setCurrentStatus(CloudConstants.STATUS_ABORTED);
+                    // Immediately terminate now
+                    return;
+                }
+            }
+        } finally {
+            pm.done();
+        }
+    }
+
+    /**
+     * Closes any open products.
+     */
+    private void closeProducts() {
+        if (cloudProduct != null) {
+            cloudProduct.dispose();
+            cloudProduct = null;
+        }
+    }
+
+    private void deleteOutputProduct() throws ProcessorException {
+        if (cloudProduct != null) {
+            final ProductWriter writer = cloudProduct.getProductWriter();
+            if (writer != null) {
+                try {
+                    writer.deleteOutput();
+                } catch (IOException e) {
+                    _logger.warning("Failed to delete uncomplete output product: " + e.getMessage());
+                    Debug.trace(e);
+                    throw new ProcessorException("Failed to delete uncomplete output product.", e);
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Called by framework after a processing failure.
+     */
+    @Override
+    protected final void cleanupAfterFailure() {
+        closeProducts();
+    }
+}

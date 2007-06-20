@@ -1,0 +1,6 @@
+UTC|Universal Time Envisat Transport Format|12
+#
+~mjd        |DateTime|2000        |microseconds</>1000000<+>seconds</>86400<+>days
+days        |SLong   |days        |4|1|*|*
+seconds     |ULong   |seconds     |4|1|*|*
+microseconds|ULong   |microseconds|4|1|*|*

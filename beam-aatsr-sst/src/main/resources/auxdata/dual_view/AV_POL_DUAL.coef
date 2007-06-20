@@ -1,0 +1,23 @@
+# Source file: ATS_SST_AXVIEC20051205_102103_20020101_000000_20200101_000000.htm
+# Coefficients taken from record #77 of dataset AVERAGE_LUT which corresponds to
+#    - latitude zone POLAR_INDEX
+#    - across track band index 0 (center pixel)
+# For more information see http://envisat.esa.int/dataproducts/aatsr/CNTR2-7-1.htm
+#
+# This file uses Java property file syntax. It is
+# composed of lines which are key-value pairs in the form
+# 	<key> = <value>
+# The supported keys are:
+#	description - a short description of the coefficient set
+#	map.<x>     - definition of the coefficient map <x> as a
+#                 range of zero-based, scanline column indices
+#   <set>.<x>   - coefficient set corresponding to map.<x>
+#                 where <set> is one of c (day) or d (night).
+
+
+description = Average Polar Dual View
+
+# Map 0
+map.0 = 0, 511
+c.0	  = 4.55397, 5.59769, -3.26962, -3.30387, 1.95733
+d.0	  = 0.952765, 0.437266, -0.653424, 2.61203, -0.229391, 0.357714, -1.5279

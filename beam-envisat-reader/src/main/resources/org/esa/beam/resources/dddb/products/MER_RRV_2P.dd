@@ -1,0 +1,11 @@
+MER_RRV_2P|MERIS Extracted Vegetation Indices|
+#
+MPH                |@/records/MPH.dd                         |1247               |Main Product Header
+SPH                |@/records/meris/MER_RR__2P_sph.dd        |*                  |Level 2 SPH
+DSD                |@/records/DSD.dd                         |*                  |Data Set Descriptor array
+Quality_ADS        |@/records/meris/MER_RR__2P_ADSR_sq.dd    |Quality ADS        |Level 2 Summary Quality  ADS (SQ ADS)
+Scaling_Factor_GADS|@/records/meris/MER_RRV_2P_GADS_sfgi.dd  |Scaling Factor GADS|Level 2 GADS Scaling Factor and Offsets
+Tie_points_ADS     |@/records/meris/MER_RR__1P_ADSR_tie_pt.dd|Tie points ADS     |Level 2 ADS Tie Points Location & Aux. Data (L ADS)
+TOAVI              |@/records/meris/MER_RR__2P_MDSR_15.dd    |MDS TOAVI          |Level 2 MDS TOA Vegetable Index
+BOAVI              |@/records/meris/MER_RR__2P_MDSR_17.dd    |MDS BOAVI          |Level 2 MDS BOA Vegetable Index
+Flags              |@/records/meris/MER_RR__2P_MDSR_20.dd    |MDS Flags          |Level 2 MDS Flag

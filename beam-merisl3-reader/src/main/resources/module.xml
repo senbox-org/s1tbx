@@ -1,0 +1,45 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-merisl3-reader</symbolicName>
+    <version>1.0</version>
+    <name>MERIS Level-3 Product Reader</name>
+
+
+    <description>A reader for MERIS Binned Level-3 (netCDF) data products.</description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>beam-netcdf-reader</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat</module>
+        <optional>true</optional>
+    </dependency>
+
+    <categories>Reader,MERIS,VISAT,Level-3,NetCDF</categories>
+
+    <extension point="beam-visat:actions">
+        <action>
+            <id>importMerisBinnedL3Product</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>L3_ENV_MER</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <text>Import MERIS Binned Level-3 Product (or Subset)...</text>
+            <mnemonic>B</mnemonic>
+            <shortDescr>Import a MERIS Binned Level-3 (NetCDF) data product or product subset.</shortDescr>
+            <description>Import a MERIS Binned Level-3 (NetCDF) data product or product subset.</description>
+            <helpId>importMerisBinnedL3Product</helpId>
+            <placeAfter>importEnvisatProduct</placeAfter>
+        </action>
+    </extension>
+
+</module>

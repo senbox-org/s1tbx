@@ -1,0 +1,10 @@
+position_lat_long|Positioning Information in Latitude Longitude|*
+#
+tl_lat|SLong|(1e-6) degrees|4|1|*|Top left corner latitude|40a|
+tl_long|SLong|(1e-6) degrees|4|1|*|Top left corner longitude|40b|
+tr_lat|SLong|(1e-6) degrees|4|1|*|Top right corner latitude|40c|
+tr_long|SLong|(1e-6) degrees|4|1|*|Top right corner longitude|40d|
+br_lat|SLong|(1e-6) degrees|4|1|*|Bottom right corner latitude|40e|
+br_long|SLong|(1e-6) degrees|4|1|*|Bottom right corner longitude|40f|
+bl_lat|SLong|(1e-6) degrees|4|1|*|Bottom left corner latitude|40g|
+bl_long|SLong|(1e-6) degrees|4|1|*|Bottom left corner longitude|40h|

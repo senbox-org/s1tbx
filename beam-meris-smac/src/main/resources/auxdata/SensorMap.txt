@@ -1,0 +1,46 @@
+MERIS|radiance_1       |CONT|coef_MERIS1_CONT.dat	
+MERIS|radiance_1       |DES |coef_MERIS1_DES.dat	
+MERIS|radiance_2       |CONT|coef_MERIS2_CONT.dat	
+MERIS|radiance_2       |DES |coef_MERIS2_DES.dat	
+MERIS|radiance_3       |CONT|coef_MERIS3_CONT.dat	
+MERIS|radiance_3       |DES |coef_MERIS3_DES.dat	
+MERIS|radiance_4       |CONT|coef_MERIS4_CONT.dat	
+MERIS|radiance_4       |DES |coef_MERIS4_DES.dat
+MERIS|radiance_5       |CONT|coef_MERIS5_CONT.dat	
+MERIS|radiance_5       |DES |coef_MERIS5_DES.dat
+MERIS|radiance_6       |CONT|coef_MERIS6_CONT.dat	
+MERIS|radiance_6       |DES |coef_MERIS6_DES.dat
+MERIS|radiance_7       |CONT|coef_MERIS7_CONT.dat	
+MERIS|radiance_7       |DES |coef_MERIS7_DES.dat
+MERIS|radiance_8       |CONT|coef_MERIS8_CONT.dat	
+MERIS|radiance_8       |DES |coef_MERIS8_DES.dat
+MERIS|radiance_9       |CONT|coef_MERIS9_CONT.dat	
+MERIS|radiance_9       |DES |coef_MERIS9_DES.dat
+MERIS|radiance_10      |CONT|coef_MERIS10_CONT.dat	
+MERIS|radiance_10      |DES |coef_MERIS10_DES.dat
+MERIS|radiance_11      |CONT|coef_MERIS11_CONT.dat	
+MERIS|radiance_11      |DES |coef_MERIS11_DES.dat
+MERIS|radiance_12      |CONT|coef_MERIS12_CONT.dat	
+MERIS|radiance_12      |DES |coef_MERIS12_DES.dat
+MERIS|radiance_13      |CONT|coef_MERIS13_CONT.dat	
+MERIS|radiance_13      |DES |coef_MERIS13_DES.dat
+MERIS|radiance_14      |CONT|coef_MERIS14_CONT.dat	
+MERIS|radiance_14      |DES |coef_MERIS14_DES.dat
+MERIS|radiance_15      |CONT|coef_MERIS15_CONT.dat	
+MERIS|radiance_15      |DES |coef_MERIS15_DES.dat
+AATSR|reflec_nadir_1600|CONT|coef_ATSR2_1600_CONT.dat
+AATSR|reflec_nadir_1600|DES |coef_ATSR2_1600_DES.dat
+AATSR|reflec_nadir_0870|CONT|coef_ATSR2_865_CONT.dat
+AATSR|reflec_nadir_0870|DES |coef_ATSR2_865_DES.dat
+AATSR|reflec_nadir_0670|CONT|coef_ATSR2_670_CONT.dat
+AATSR|reflec_nadir_0670|DES |coef_ATSR2_670_DES.dat
+AATSR|reflec_nadir_0550|CONT|coef_ATSR2_550_CONT.dat
+AATSR|reflec_nadir_0550|DES |coef_ATSR2_550_DES.dat
+AATSR|reflec_fward_1600|CONT|coef_ATSR2_1600_CONT.dat
+AATSR|reflec_fward_1600|DES |coef_ATSR2_1600_DES.dat
+AATSR|reflec_fward_0870|CONT|coef_ATSR2_865_CONT.dat
+AATSR|reflec_fward_0870|DES |coef_ATSR2_865_DES.dat
+AATSR|reflec_fward_0670|CONT|coef_ATSR2_670_CONT.dat
+AATSR|reflec_fward_0670|DES |coef_ATSR2_670_DES.dat
+AATSR|reflec_fward_0550|CONT|coef_ATSR2_550_CONT.dat
+AATSR|reflec_fward_0550|DES |coef_ATSR2_550_DES.dat

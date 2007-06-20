@@ -1,0 +1,26 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>lib-netcdf</symbolicName>
+    <version>2.2.16</version>
+    <name>NetCDF Library</name>
+
+
+    <description>A wrapper module for libraries used to read data products in NetCDF format..</description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <lib>lib/netcdf.jar</lib>
+    </dependency>
+
+    <packaging>dir</packaging>
+
+    <categories>Library,NetCDF</categories>
+</module>

@@ -1,0 +1,3122 @@
+/*
+ * $Id: Product.java,v 1.3 2006/12/08 13:48:36 marcop Exp $
+ *
+ * Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation. This program is distributed in the hope it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+package org.esa.beam.framework.datamodel;
+
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.jexp.Namespace;
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Parser;
+import com.bc.jexp.Term;
+import com.bc.jexp.WritableNamespace;
+import com.bc.jexp.impl.ParserImpl;
+import com.bc.jexp.impl.Tokenizer;
+import org.esa.beam.framework.dataio.ProductFlipper;
+import org.esa.beam.framework.dataio.ProductProjectionBuilder;
+import org.esa.beam.framework.dataio.ProductReader;
+import org.esa.beam.framework.dataio.ProductSubsetBuilder;
+import org.esa.beam.framework.dataio.ProductSubsetDef;
+import org.esa.beam.framework.dataio.ProductWriter;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
+import org.esa.beam.framework.dataop.barithm.RasterDataEvalEnv;
+import org.esa.beam.framework.dataop.barithm.RasterDataLoop;
+import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
+import org.esa.beam.framework.dataop.barithm.SingleFlagSymbol;
+import org.esa.beam.framework.dataop.bitmask.BitmaskTermEvalContext;
+import org.esa.beam.framework.dataop.bitmask.DefaultBitmaskTermEvalContext;
+import org.esa.beam.framework.dataop.bitmask.DefaultFlagDataset;
+import org.esa.beam.framework.dataop.maptransf.MapInfo;
+import org.esa.beam.framework.dataop.maptransf.MapProjection;
+import org.esa.beam.framework.dataop.maptransf.MapTransform;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.ObjectUtils;
+import org.esa.beam.util.StopWatch;
+import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.math.MathUtils;
+
+import java.awt.geom.Point2D;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
+/**
+ * <code>Product</code> instances are an in-memory representation of a remote sensing data product. The product is more
+ * an abstract hull containing references to the data of the product or readers to retrieve the data on demant. The
+ * product itself does not hold the remote sensing data. Data products can contain multiple geophysical parameters
+ * stored as bands and can also have multiple metadata attributes. Also, a <code>Product</code> can contain any number
+ * of <code>TiePointGrids</code> holding the tie point data.
+ * <p/>
+ * <p>Every product can also have a product reader and writer assigned to it. The reader represents the data source from
+ * which a product was created, whereas the writer represents the data sink. Both, the source and the sink must not
+ * necessarily store data in the same format. Furthermore, it is not mandatory for a product to have both of them.
+ *
+ * @author Norman Fomferra
+ * @version $Revision: 1.3 $ $Date: 2006/12/08 13:48:36 $
+ */
+public class Product extends ProductNode {
+
+    public final static String METADATA_ROOT_NAME = "metadata";
+    public final static String HISTORY_ROOT_NAME = "history";
+
+
+    public final static String PROPERTY_NAME_FILE_LOCATION = "fileLocation";
+    public final static String PROPERTY_NAME_GEOCODING = "geoCoding";
+    public final static String PROPERTY_NAME_POINTING = "pointing";
+    public final static String PROPERTY_NAME_PRODUCT_TYPE = "productType";
+
+    /**
+     * The location file of this product.
+     */
+    private File _fileLocation;
+
+    /**
+     * The reader for this product. Once the reader is set, and can never be changed again.
+     */
+    private ProductReader _reader;
+
+    /**
+     * The writer for this product. The writer is an exchangeable property of a product.
+     */
+    private ProductWriter _writer;
+
+    /**
+     * The geo-coding of this product, if any.
+     */
+    private GeoCoding _geoCoding;
+
+    /**
+     * The list of product listeners.
+     */
+    private ArrayList _listeners;
+
+    /**
+     * This product's type ID.
+     */
+    private String _productType;
+
+    /**
+     * The scene width of the product
+     */
+    private final int _sceneRasterWidth;
+
+    /**
+     * The scene height of the product
+     */
+    private final int _sceneRasterHeight;
+
+    /**
+     * The start time of the first raster line.
+     */
+    private ProductData.UTC _startTime;
+
+    /**
+     * The start time of the first raster line.
+     */
+    private ProductData.UTC _endTime;
+
+    private final MetadataElement _metadataRoot;
+    private final ProductNodeList _bands;
+    private final ProductNodeList _tiePointGrids;
+    private final ProductNodeList _flagCodings;
+    private final ProductNodeList _bitmaskDefs;
+    private final ProductNodeList _pins;
+
+    /**
+     * The internal reference number of this product
+     */
+    private int _refNo;
+
+    /**
+     * The internal reference string of this product
+     */
+    private String _refStr;
+
+    /**
+     * The product manager which stores this product (can be null).
+     */
+    private ProductManager _productManager;
+    private int _bytePackedBitmaskRasterWidth;
+    private Map _cachedPixelMasks;
+
+    private PointingFactory _pointingFactory;
+
+    private String _quicklookBandName;
+
+    /**
+     * Creates a new product without any reader (in-memory product)
+     *
+     * @param name              the product name
+     * @param type              the product type
+     * @param sceneRasterWidth  the scene width in pixels for this data product
+     * @param sceneRasterHeight the scene height in pixels for this data product
+     */
+    public Product(final String name, final String type, final int sceneRasterWidth, final int sceneRasterHeight) {
+        this(name, type, sceneRasterWidth, sceneRasterHeight, null);
+    }
+
+    /**
+     * Constructs a new product with the given name and the given reader.
+     *
+     * @param name              the product identifier
+     * @param type              the product type
+     * @param sceneRasterWidth  the scene width in pixels for this data product
+     * @param sceneRasterHeight the scene height in pixels for this data product
+     * @param reader            the reader used to create this product and read data from it.
+     *
+     * @see org.esa.beam.framework.dataio.ProductReader
+     */
+    public Product(final String name, final String type, final int sceneRasterWidth, final int sceneRasterHeight,
+                   final ProductReader reader) {
+        this(null, name, type, sceneRasterWidth, sceneRasterHeight, reader);
+    }
+
+//    /**
+//     * Constructs a new product with the given URL and the given reader.
+//     *
+//     * @param fileLocation the product storage fileLocation
+//     * @param type the product type
+//     * @param sceneRasterWidth the scene width in pixels for this data product
+//     * @param sceneRasterHeight the scene height in pixels for this data product
+//     * @param reader the reader used to create this product and read data from it.
+//     * @see org.esa.beam.framework.dataio.ProductReader
+//     */
+//    public Product(File fileLocation, String type, int sceneRasterWidth, int sceneRasterHeight, ProductReader reader) {
+//        this(fileLocation, extractProductName(fileLocation), type, sceneRasterWidth, sceneRasterHeight, reader);
+//    }
+//
+
+    /**
+     * Internally used constructor. Is kept private to keep product name and file location consistent.
+     */
+    private Product(final File fileLocation, final String name, final String type, final int sceneRasterWidth,
+                    final int sceneRasterHeight,
+                    final ProductReader reader) {
+        super(name);
+        Guardian.assertNotNullOrEmpty("type", type);
+        _fileLocation = fileLocation;
+        _productType = type;
+        _reader = reader;
+        _sceneRasterWidth = sceneRasterWidth;
+        _sceneRasterHeight = sceneRasterHeight;
+        _metadataRoot = new MetadataElement(METADATA_ROOT_NAME);
+        _metadataRoot.setOwner(this);
+        _bands = new ProductNodeList(Band.class);
+        _tiePointGrids = new ProductNodeList(TiePointGrid.class);
+        _flagCodings = new ProductNodeList(FlagCoding.class);
+        _bitmaskDefs = new ProductNodeList(BitmaskDef.class);
+        _pins = new ProductNodeList(Pin.class);
+        _bytePackedBitmaskRasterWidth = sceneRasterWidth / 8;
+        if (sceneRasterWidth % 8 != 0) {
+            _bytePackedBitmaskRasterWidth++;
+        }
+        addProductNodeListener(createNameChangedHandler());
+    }
+
+    private ProductNodeListener createNameChangedHandler() {
+        return new ProductNodeListenerAdapter() {
+            @Override
+            public void nodeChanged(ProductNodeEvent event) {
+                if (ProductNode.PROPERTY_NAME_NAME.equalsIgnoreCase(event.getPropertyName())) {
+                    final String oldName = (String) event.getOldValue();
+                    final String newName = event.getSourceNode().getName();
+
+                    final String oldExternName = Tokenizer.createExternalName(oldName);
+                    final String newExternName = Tokenizer.createExternalName(newName);
+
+                    final ProductVisitorAdapter productVisitorAdapter = new ProductVisitorAdapter() {
+                        @Override
+                        public void visit(Product product) {
+                            product.setFileLocation(null);
+                        }
+
+                        @Override
+                        public void visit(TiePointGrid grid) {
+                            grid.updateExpression(oldExternName, newExternName);
+                        }
+
+                        @Override
+                        public void visit(Band band) {
+                            band.updateExpression(oldExternName, newExternName);
+                        }
+
+                        @Override
+                        public void visit(VirtualBand virtualBand) {
+                            virtualBand.updateExpression(oldExternName, newExternName);
+                        }
+
+                        @Override
+                        public void visit(BitmaskDef bitmaskDef) {
+                            bitmaskDef.updateExpression(oldExternName, newExternName);
+                        }
+                    };
+                    acceptVisitor(productVisitorAdapter);
+                }
+            }
+        };
+    }
+
+    /**
+     * Retrieves the disk location of this product. The return value can be <code>null</code> when the product has no
+     * disk location (pure virtual memory product)
+     */
+    public File getFileLocation() {
+        return _fileLocation;
+    }
+
+    /**
+     * Sets the file location for this product.
+     */
+    public void setFileLocation(final File fileLocation) {
+        _fileLocation = fileLocation;
+    }
+
+
+    /**
+     * Overwrites the <code>ProductNode.setOwner</code> method in order to throw an <code>IllegalStateException</code>,
+     * since products cannot have an owner.
+     */
+    @Override
+    protected void setOwner(final ProductNode owner) {
+        throw new IllegalStateException("a product can not have an owner");
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Attribute Query
+
+
+    /**
+     * Retrieves the product type.
+     */
+    public String getProductType() {
+        return _productType;
+    }
+
+    /**
+     * Sets the product type of this product.
+     *
+     * @param productType the product type.
+     */
+    public void setProductType(final String productType) {
+        Guardian.assertNotNullOrEmpty("productType", productType);
+        if (!ObjectUtils.equalObjects(_productType, productType)) {
+            final String oldType = _productType;
+            _productType = productType;
+            fireProductNodeChanged(PROPERTY_NAME_PRODUCT_TYPE, oldType);
+            setModified(true);
+        }
+    }
+
+    /**
+     * Sets the product reader which will be used to create this product in-memory represention from an external source
+     * and which will be used to (re-)load band rasters.
+     *
+     * @param reader the product reader.
+     *
+     * @throws IllegalArgumentException if the given reader is null.
+     */
+    public void setProductReader(final ProductReader reader) {
+        Guardian.assertNotNull("ProductReader", reader);
+        _reader = reader;
+    }
+
+    /**
+     * Returns the reader which was used to create this product in-memory represention from an external source and which
+     * will be used to (re-)load band rasters.
+     *
+     * @return the product reader, can be <code>null</code>
+     */
+    @Override
+    public ProductReader getProductReader() {
+        return _reader;
+    }
+
+    /**
+     * Sets the writer which will be used to write modifications of this product's in-memory represention to an external
+     * destination.
+     *
+     * @param writer the product writer, can be <code>null</code>
+     */
+    public void setProductWriter(final ProductWriter writer) {
+        _writer = writer;
+    }
+
+    /**
+     * Returns the writer which will be used to write modifications of this product's in-memory represention to an
+     * external destination.
+     *
+     * @return the product writer, can be <code>null</code>
+     */
+    @Override
+    public ProductWriter getProductWriter() {
+        return _writer;
+    }
+
+    /**
+     * Closes and clears this product's reader (if any).
+     *
+     * @throws IOException if an I/O error occurs
+     * @see #closeIO
+     */
+    public void closeProductReader() throws IOException {
+        if (_reader != null) {
+            _reader.close();
+            _reader = null;
+        }
+    }
+
+    /**
+     * Closes and clears this product's writer (if any).
+     *
+     * @throws IOException if an I/O error occurs
+     * @see #closeIO
+     */
+    public void closeProductWriter() throws IOException {
+        if (_writer != null) {
+            _writer.flush();
+            _writer.close();
+            _writer = null;
+        }
+    }
+
+    /**
+     * Closes the file I/O for this product. Calls in sequence <code>{@link #closeProductReader}</code>  and
+     * <code>{@link #closeProductWriter}</code>. The <code>{@link #dispose}</code> method is <b>not</b> called, but
+     * should be called if the product instance is no longer in use.
+     *
+     * @throws IOException if an I/O error occurs
+     * @see #closeProductReader
+     * @see #closeProductWriter
+     * @see #dispose
+     */
+    public void closeIO() throws IOException {
+        IOException eI = null, eO = null;
+        try {
+            closeProductReader();
+        } catch (IOException e) {
+            eI = e;
+        }
+        try {
+            closeProductWriter();
+        } catch (IOException e) {
+            eO = e;
+        }
+        if (eI != null) {
+            throw eI;
+        }
+        if (eO != null) {
+            throw eO;
+        }
+    }
+
+    /**
+     * Releases all of the resources used by this object instance and all of its owned children. Its primary use is to
+     * allow the garbage collector to perform a vanilla job.
+     * <p/>
+     * <p>This method should be called only if it is for sure that this object instance will never be used again. The
+     * results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
+     * </p>
+     * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
+     * </p>
+     * <p>This implementation also calls the <code>closeIO</code> in order to release all open I/O resources.
+     */
+    @Override
+    public void dispose() {
+        try {
+            closeIO();
+        } catch (IOException e) {
+        }
+
+        _reader = null;
+        _writer = null;
+
+        _bands.dispose();
+        _tiePointGrids.dispose();
+        _bitmaskDefs.dispose();
+        _flagCodings.dispose();
+        _pins.dispose();
+
+        if (_geoCoding != null) {
+            _geoCoding.dispose();
+            _geoCoding = null;
+        }
+
+        if (_cachedPixelMasks != null) {
+            _cachedPixelMasks.clear();
+            _cachedPixelMasks = null;
+        }
+
+        if (_listeners != null) {
+            _listeners.clear();
+            _listeners = null;
+        }
+
+        _fileLocation = null;
+    }
+
+    /**
+     * Gets the pointing factory associated with this data product.
+     *
+     * @return the pointing factory or null, if none
+     */
+    public PointingFactory getPointingFactory() {
+        return _pointingFactory;
+    }
+
+    /**
+     * Sets the pointing factory for this data product.
+     *
+     * @param pointingFactory the pointing factory
+     */
+    public void setPointingFactory(PointingFactory pointingFactory) {
+        _pointingFactory = pointingFactory;
+    }
+
+    /**
+     * Geo-codes this data product.
+     *
+     * @param geoCoding the geo-coding, if <code>null</code> geo-coding is removed
+     *
+     * @throws IllegalArgumentException <br>- if the given <code>GeoCoding</code> is a <code>TiePointGeoCoding</code>
+     *                                  and <code>latGrid</code> or <code>lonGrid</code> are not instances of tie point
+     *                                  grids in this product. <br>- if the given <code>GeoCoding</code> is a
+     *                                  <code>MapGeoCoding</code> and its <code>MapInfo</code> is <code>null</code>
+     *                                  <br>- if the given <code>GeoCoding</code> is a <code>MapGeoCoding</code> and the
+     *                                  <code>sceneWith</code> or <code>sceneHeight</code> of its <code>MapInfo</code>
+     *                                  is not equal to this products <code>sceneRasterWidth</code> or
+     *                                  <code>sceneRasterHeight</code>
+     */
+    public void setGeoCoding(final GeoCoding geoCoding) {
+        checkGeoCoding(geoCoding);
+        if (!ObjectUtils.equalObjects(_geoCoding, geoCoding)) {
+            _geoCoding = geoCoding;
+            fireProductNodeChanged(PROPERTY_NAME_GEOCODING);
+            setModified(true);
+        }
+    }
+
+    /**
+     * Returns the geo-coding used for this data product.
+     *
+     * @return the geo-coding, can be <code>null</code> if this product is not geo-coded.
+     */
+    public GeoCoding getGeoCoding() {
+        return _geoCoding;
+    }
+
+    /**
+     * Tests if all bands of this product are using a single, uniform geo-coding. Uniformity is tested by comparing
+     * the band's geo-coding against the geo-coding of this product using the {@link Object#equals(Object)} method.
+     * If this product does not have a geo-coding, the method returns false.
+     *
+     * @return true, if so
+     */
+    public boolean isUsingSingleGeoCoding() {
+        final GeoCoding geoCoding = getGeoCoding();
+        if (geoCoding == null) {
+            return false;
+        }
+
+        for (int i = 0; i < getNumBands(); i++) {
+            if (!geoCoding.equals(getBandAt(i).getGeoCoding())) {
+                return false;
+            }
+        }
+
+        for (int i = 0; i < getNumTiePointGrids(); i++) {
+            if (!geoCoding.equals(getTiePointGridAt(i).getGeoCoding())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Transfers the geo-coding of this product instance to the {@link Product destProduct} with respect to
+     * the given {@link ProductSubsetDef subsetDef}.
+     *
+     * @param destProduct the destination product
+     * @param subsetDef   the definition of the subset, may be <code>null</code>
+     *
+     * @return true, if the geo-coding could be transferred.
+     */
+    public boolean transferGeoCodingTo(final Product destProduct, final ProductSubsetDef subsetDef) {
+        final Scene srcScene = SceneFactory.createScene(this);
+        if (srcScene == null) {
+            return false;
+        }
+        final Scene destScene = SceneFactory.createScene(destProduct);
+        if (destScene == null) {
+            return false;
+        }
+        return srcScene.transferGeoCodingTo(destScene, subsetDef);
+    }
+
+    /**
+     * Returns the scene width in pixels for this data product.
+     *
+     * @return the scene width in pixels for this data product.
+     */
+    public int getSceneRasterWidth() {
+        return _sceneRasterWidth;
+    }
+
+    /**
+     * Returns the scene height in pixels for this data product.
+     *
+     * @return the scene height in pixels for this data product.
+     */
+    public int getSceneRasterHeight() {
+        return _sceneRasterHeight;
+    }
+
+    /**
+     * Gets the (sensing) start time associated with the first raster data line.
+     * <p/>
+     * <p>For Level-1/2 products this is
+     * the data-take time associated with the first raster data line.
+     * For Level-3 products, this could be the start time of first input product
+     * contributing data.</p>
+     *
+     * @return the sensing start time, can be null e.g. for non-swath products
+     */
+    public ProductData.UTC getStartTime() {
+        return _startTime;
+    }
+
+    /**
+     * Sets the (sensing) start time of this product.
+     * <p/>
+     * <p>For Level-1/2 products this is
+     * the data-take time associated with the first raster data line.
+     * For Level-3 products, this could be the start time of first input product
+     * contributing data.</p>
+     *
+     * @param startTime the sensing start time, can be null
+     */
+    public void setStartTime(final ProductData.UTC startTime) {
+        _startTime = startTime;
+    }
+
+    /**
+     * Gets the (sensing) stop time associated with the last raster data line.
+     * <p/>
+     * <p>For Level-1/2 products this is
+     * the data-take time associated with the last raster data line.
+     * For Level-3 products, this could be the end time of last input product
+     * contributing data.</p>
+     *
+     * @return the stop time , can be null e.g. for non-swath products
+     */
+    public ProductData.UTC getEndTime() {
+        return _endTime;
+    }
+
+    /**
+     * Sets the (sensing) stop time associated with the first raster data line.
+     * <p/>
+     * <p>For Level-1/2 products this is
+     * the data-take time associated with the last raster data line.
+     * For Level-3 products, this could be the end time of last input product
+     * contributing data.</p>
+     *
+     * @param endTime the sensing stop time, can be null
+     */
+    public void setEndTime(final ProductData.UTC endTime) {
+        _endTime = endTime;
+    }
+
+    /**
+     * Gets the (sensing) start time associated with the first raster data line.
+     *
+     * @return the sensing start time, can be null e.g. for non-swath products
+     *
+     * @deprecated use the more generic {@link #getStartTime} instead
+     */
+    public ProductData.UTC getSceneRasterStartTime() {
+        return getStartTime();
+    }
+
+    /**
+     * Sets the (sensing) start time associated with the first raster data line.
+     *
+     * @param sceneRasterStartTime the sensing start time, can be null
+     *
+     * @deprecated use the more generic {@link #setStartTime} instead
+     */
+    public void setSceneRasterStartTime(final ProductData.UTC sceneRasterStartTime) {
+        setStartTime(sceneRasterStartTime);
+    }
+
+    /**
+     * Gets the (sensing) stop time associated with the last raster data line.
+     *
+     * @return the stop time , can be null e.g. for non-swath products
+     *
+     * @deprecated use the more generic {@link #getEndTime} instead
+     */
+    public ProductData.UTC getSceneRasterStopTime() {
+        return getEndTime();
+    }
+
+    /**
+     * Sets the (sensing) stop time associated with the first raster data line.
+     *
+     * @param sceneRasterStopTime the sensing stop time, can be null
+     *
+     * @deprecated use the more generic {@link #setEndTime} instead
+     */
+    public void setSceneRasterStopTime(final ProductData.UTC sceneRasterStopTime) {
+        setEndTime(sceneRasterStopTime);
+    }
+
+
+    /**
+     * Retrieves the root element of the associated metadata.
+     */
+    public MetadataElement getMetadataRoot() {
+        return _metadataRoot;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Tie-point grid support
+
+    // @todo 2 nf/he - implement test cases for TiePointGrid support
+
+    /**
+     * Adds the given tie point grid to this product.
+     *
+     * @param tiePointGrid the tie point grid to added, ignored if <code>null</code>
+     */
+    public void addTiePointGrid(final TiePointGrid tiePointGrid) {
+        if (containsRasterDataNode(tiePointGrid.getName())) {
+            throw new IllegalArgumentException("The Product '" + getName() + "' already contains " +
+                                               "a tie point grid with the name '" + tiePointGrid.getName() + "'.");
+        }
+        addNamedNode(tiePointGrid, _tiePointGrids);
+    }
+
+    /**
+     * Removes the tie point grid from this product.
+     *
+     * @param tiePointGrid the tie point grid to be removed, ignored if <code>null</code>
+     */
+    public boolean removeTiePointGrid(final TiePointGrid tiePointGrid) {
+        return removeNamedNode(tiePointGrid, _tiePointGrids);
+    }
+
+    /**
+     * Returns the number of tie point grids contained in this product
+     */
+    public int getNumTiePointGrids() {
+        return _tiePointGrids.size();
+    }
+
+    /**
+     * Returns the tie point grid at the given index.
+     *
+     * @param index the tie point grid index
+     *
+     * @return the tie point grid at the given index
+     *
+     * @throws IndexOutOfBoundsException if the index is out of bounds
+     */
+    public TiePointGrid getTiePointGridAt(final int index) {
+        return (TiePointGrid) _tiePointGrids.getAt(index);
+    }
+
+    /**
+     * Returns a string array containing the names of the tie point grids contained in this product
+     *
+     * @return a string array containing the names of the tie point grids contained in this product. If this product has
+     *         no tie point grids a zero-length-array is returned.
+     */
+    public String[] getTiePointGridNames() {
+        return _tiePointGrids.getNames();
+    }
+
+    /**
+     * Returns an array of tie point grids contained in this product
+     *
+     * @return an array of tie point grids contained in this product. If this product has no  tie point grids a
+     *         zero-length-array is returned.
+     */
+    public TiePointGrid[] getTiePointGrids() {
+        final TiePointGrid[] tiePointGrids = new TiePointGrid[getNumTiePointGrids()];
+        for (int i = 0; i < tiePointGrids.length; i++) {
+            tiePointGrids[i] = getTiePointGridAt(i);
+        }
+        return tiePointGrids;
+    }
+
+    /**
+     * Returns the tie point grid with the given name.
+     *
+     * @param name the tie point grid name
+     *
+     * @return the tie point grid with the given name or <code>null</code> if a tie point grid with the given name is
+     *         not contained in this product.
+     */
+    public TiePointGrid getTiePointGrid(final String name) {
+        Guardian.assertNotNullOrEmpty("name", name);
+        return (TiePointGrid) _tiePointGrids.get(name);
+    }
+
+    /**
+     * Returns the index for the tie point grid with the given name.
+     *
+     * @param name the tie point grid name
+     *
+     * @return the tie point grid index or <code>-1</code> if a tie point grid with the given name is not contained in
+     *         this product.
+     *
+     * @throws IllegalArgumentException if the given name is <code>null</code> or empty.
+     */
+    public int getTiePointGridIndex(final String name) {
+        Guardian.assertNotNullOrEmpty("name", name);
+        return _tiePointGrids.indexOf(name);
+    }
+
+    /**
+     * Tests if a tie point grid with the given name is contained in this product.
+     *
+     * @param name the name, must not be <code>null</code>
+     *
+     * @return <code>true</code> if a tie point grid with the given name is contained in this product,
+     *         <code>false</code> otherwise
+     */
+    public boolean containsTiePointGrid(final String name) {
+        Guardian.assertNotNullOrEmpty("name", name);
+        return _tiePointGrids.contains(name);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Band support
+
+    /**
+     * Adds the given band to this product.
+     *
+     * @param band the band to added, must not be <code>null</code>
+     */
+    public void addBand(final Band band) {
+        Guardian.assertNotNull("band", band);
+        if (band.getSceneRasterWidth() != getSceneRasterWidth()
+            || band.getSceneRasterHeight() != getSceneRasterHeight()) {
+            throw new IllegalArgumentException("illegal raster dimensions");
+        }
+        if (containsRasterDataNode(band.getName())) {
+            throw new IllegalArgumentException("The Product '" + getName() + "' already contains " +
+                                               "a band with the name '" + band.getName() + "'.");
+        }
+        addNamedNode(band, _bands);
+    }
+
+    /**
+     * Creates a new band with the given name and data type and adds it to this product and returns it.
+     *
+     * @param bandName the new band's name
+     * @param dataType the raster data type, must be one of the multiple <code>ProductData.TYPE_<i>X</i></code>
+     *                 constants
+     *
+     * @return the new band which has just been added
+     */
+    public Band addBand(final String bandName, final int dataType) {
+        final Band band = new Band(bandName, dataType, getSceneRasterWidth(), getSceneRasterHeight());
+        addBand(band);
+        return band;
+    }
+
+    /**
+     * Removes the given band from this product.
+     *
+     * @param band the band to be removed, ignored if <code>null</code>
+     */
+    public boolean removeBand(final Band band) {
+        return removeNamedNode(band, _bands);
+    }
+
+    /**
+     * Returns the number of bands contained in this product.
+     */
+    public int getNumBands() {
+        return _bands.size();
+    }
+
+    /**
+     * Returns the band at the given index.
+     *
+     * @param index the band index
+     *
+     * @return the band at the given index
+     *
+     * @throws IndexOutOfBoundsException if the index is out of bounds
+     */
+    public Band getBandAt(final int index) {
+        return (Band) _bands.getAt(index);
+    }
+
+    /**
+     * Returns a string array containing the names of the bands contained in this product
+     *
+     * @return a string array containing the names of the bands contained in this product. If this product has no bands
+     *         a zero-length-array is returned.
+     */
+    public String[] getBandNames() {
+        return _bands.getNames();
+    }
+
+    /**
+     * Returns an array of bands contained in this product
+     *
+     * @return an array of bands contained in this product. If this product has no bands a zero-length-array is
+     *         returned.
+     */
+    public Band[] getBands() {
+        final Band[] bands = new Band[getNumBands()];
+        _bands.toArray(bands);
+        return bands;
+    }
+
+
+    /**
+     * Returns the band with the given name.
+     *
+     * @param name the band name
+     *
+     * @return the band with the given name or <code>null</code> if a band with the given name is not contained in this
+     *         product.
+     *
+     * @throws IllegalArgumentException if the given name is <code>null</code> or empty.
+     */
+    public Band getBand(final String name) {
+        Guardian.assertNotNullOrEmpty("name", name);
+        return (Band) _bands.get(name);
+    }
+
+    /**
+     * Returns the index for the band with the given name.
+     *
+     * @param name the band name
+     *
+     * @return the band index or <code>-1</code> if a band with the given name is not contained in this product.
+     *
+     * @throws IllegalArgumentException if the given name is <code>null</code> or empty.
+     */
+    public int getBandIndex(final String name) {
+        Guardian.assertNotNullOrEmpty("name", name);
+        return _bands.indexOf(name);
+    }
+
+    /**
+     * Tests if a band with the given name is contained in this product.
+     *
+     * @param name the name, must not be <code>null</code>
+     *
+     * @return <code>true</code> if a band with the given name is contained in this product, <code>false</code>
+     *         otherwise
+     *
+     * @throws IllegalArgumentException if the given name is <code>null</code> or empty.
+     */
+    public boolean containsBand(final String name) {
+        Guardian.assertNotNullOrEmpty("name", name);
+        return _bands.contains(name);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Raster data node  support
+
+    /**
+     * Tests if a raster data node with the given name is contained in this product. Raster data nodes can be bands or
+     * tie-point grids.
+     *
+     * @param name the name, must not be <code>null</code>
+     *
+     * @return <code>true</code> if a raster data node with the given name is contained in this product,
+     *         <code>false</code> otherwise
+     */
+    public boolean containsRasterDataNode(final String name) {
+        if (containsBand(name)) {
+            return true;
+        }
+        return containsTiePointGrid(name);
+    }
+
+    /**
+     * Gets the raster data node with the given name. The method first searches for bands with the given name, then for
+     * tie point grids. If neither bands nor tie point grids exist with the given name, <code>null</code> is returned.
+     *
+     * @param name the name, must not be <code>null</code>
+     *
+     * @return the raster data node with the given name or <code>null</code> if a raster data node with the given name
+     *         is not contained in this product.
+     */
+    public RasterDataNode getRasterDataNode(final String name) {
+        final RasterDataNode rasterDataNode = getBand(name);
+        if (rasterDataNode != null) {
+            return rasterDataNode;
+        }
+        return getTiePointGrid(name);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Flag-coding support
+
+    /**
+     * Adds the given flag coding to this product.
+     *
+     * @param flagCoding the flag coding to added, ignored if <code>null</code>
+     */
+    public void addFlagCoding(final FlagCoding flagCoding) {
+        addNamedNode(flagCoding, _flagCodings);
+    }
+
+    /**
+     * Removes the given flag coding from this product.
+     *
+     * @param flagCoding the flag coding to be removed, ignored if <code>null</code>
+     */
+    public boolean removeFlagCoding(final FlagCoding flagCoding) {
+        return removeNamedNode(flagCoding, _flagCodings);
+    }
+
+    /**
+     * Returns the number of flag codings contained in this product.
+     */
+    public int getNumFlagCodings() {
+        return _flagCodings.size();
+    }
+
+    /**
+     * Returns the flag coding at the given index.
+     *
+     * @param index the flag coding index
+     *
+     * @return the flag coding at the given index
+     *
+     * @throws IndexOutOfBoundsException if the index is out of bounds
+     */
+    public FlagCoding getFlagCodingAt(final int index) {
+        return (FlagCoding) _flagCodings.getAt(index);
+    }
+
+    /**
+     * Returns a string array containing the names of the flag codings contained in this product
+     *
+     * @return a string array containing the names of the flag codings contained in this product. If this product has no
+     *         flag coding a zero-length-array is returned.
+     */
+    public String[] getFlagCodingNames() {
+        return _flagCodings.getNames();
+    }
+
+    /**
+     * Returns the flag coding with the given name.
+     *
+     * @param name the flag coding name
+     *
+     * @return the flag coding with the given name or <code>null</code> if a flag coding with the given name is not
+     *         contained in this product.
+     */
+    public FlagCoding getFlagCoding(final String name) {
+        Guardian.assertNotNullOrEmpty("name", name);
+        return (FlagCoding) _flagCodings.get(name);
+    }
+
+    /**
+     * Tests if a flag coding with the given name is contained in this product.
+     *
+     * @param name the name, must not be <code>null</code>
+     *
+     * @return <code>true</code> if a flag coding with the given name is contained in this product, <code>false</code>
+     *         otherwise
+     */
+    public boolean containsFlagCoding(final String name) {
+        Guardian.assertNotNullOrEmpty("name", name);
+        return _flagCodings.contains(name);
+    }
+
+    /**
+     * Returns the names of all flags of all flag datasets contained this product.
+     * <p/>
+     * <p>A flag name contains the dataset (a band of this product) and the actual flag name as defined in the
+     * flag-coding associated with the dataset. The general format for the flag name strings returned is therefore
+     * <code>"<i>dataset</i>.<i>flag_name</i>"</code>.
+     * </p>
+     * <p>The method is used to find out which flags a product has in order to use them in bit-mask expressions.
+     *
+     * @return the array of all flag names. If this product does not support flags, an empty array is returned, but
+     *         never <code>null</code>.
+     *
+     * @see #createTerm(String)
+     */
+    public String[] getAllFlagNames() {
+        final List<String> l = new ArrayList<String>();
+        for (int i = 0; i < getNumBands(); i++) {
+            final Band band = getBandAt(i);
+            if (band.getFlagCoding() != null) {
+                for (int j = 0; j < band.getFlagCoding().getNumAttributes(); j++) {
+                    final MetadataAttribute attribute = band.getFlagCoding().getAttributeAt(j);
+                    l.add(band.getName() + "." + attribute.getName());
+                }
+            }
+        }
+        final String[] flagNames = new String[l.size()];
+        for (int i = 0; i < flagNames.length; i++) {
+            flagNames[i] = l.get(i).toString();
+        }
+        l.clear();
+        return flagNames;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Pixel Coordinate Tests
+
+    /**
+     * Tests if the given pixel position is within the product pixel bounds.
+     *
+     * @param x the x coordinate of the pixel position
+     * @param y the y coordinate of the pixel position
+     *
+     * @return true, if so
+     *
+     * @see #containsPixel(PixelPos)
+     */
+    public boolean containsPixel(final float x, final float y) {
+        return x >= 0.0f && x <= getSceneRasterWidth() &&
+               y >= 0.0f && y <= getSceneRasterHeight();
+    }
+
+    /**
+     * Tests if the given pixel position is within the product pixel bounds.
+     *
+     * @param pixelPos the pixel position, must not be null
+     *
+     * @return true, if so
+     *
+     * @see #containsPixel(float, float)
+     */
+    public boolean containsPixel(final PixelPos pixelPos) {
+        return containsPixel(pixelPos.x, pixelPos.y);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Pin support
+
+    public void addPin(final Pin pin) {
+        if (pin != null) {
+            final String name = pin.getName();
+            removePin(getPin(name));
+            addNamedNode(pin, _pins);
+            setSelectedPin(name);
+        }
+    }
+
+    public boolean removePin(final Pin pin) {
+        return removeNamedNode(pin, _pins);
+    }
+
+    /**
+     * Replacees or adds the given old pin with the given new pin.
+     *
+     * @param oldPin the pin to replace
+     * @param newPin the new pin
+     *
+     * @return <code>-2</code> if no Pin was replaced or added, <code>-1</code> if the new Pin was added because the
+     *         given old pin not exists in this product or the <code>insertIndex</code> if the oldPin was replaced.
+     */
+    public int replacePin(final Pin oldPin, final Pin newPin) {
+        if (newPin != null) {
+            final int insertIndex = indexOfPin(oldPin.getName());
+            if (insertIndex == -1) {
+                addPin(newPin);
+            } else {
+                removePin(oldPin);
+                _pins.insert(newPin, insertIndex);
+                newPin.setOwner(this);
+                setSelectedPin(newPin.getName());
+                fireNodeAdded(newPin);
+            }
+            return insertIndex;
+        } else {
+            return -2;
+        }
+    }
+
+    public int getNumPins() {
+        return _pins.size();
+    }
+
+    public Pin getPinAt(final int index) {
+        return (Pin) _pins.getAt(index);
+    }
+
+    public Pin getPin(final String name) {
+        return (Pin) _pins.get(name);
+    }
+
+    public boolean containsPin(final String name) {
+        return _pins.contains(name);
+    }
+
+    public int indexOfPin(final String name) {
+        return _pins.indexOf(name);
+    }
+
+    /**
+     * Gets all defined pins of this product.
+     *
+     * @return all defined pins of this product, never null
+     */
+    public Pin[] getPins() {
+        return (Pin[]) _pins.toArray(new Pin[getNumPins()]);
+    }
+
+    public String[] getPinNames() {
+        return _pins.getNames();
+    }
+
+    public void setSelectedPin(final int index) {
+        final Pin[] pins = getPins();
+        for (int i = 0; i < pins.length; i++) {
+            final Pin pin = pins[i];
+            pin.setSelected(i == index);
+        }
+    }
+
+    public void setSelectedPin(final String name) {
+        if (name == null) {
+            return;
+        }
+        final int index = indexOfPin(name);
+        if (index != -1) {
+            setSelectedPin(index);
+        }
+    }
+
+    public Pin getSelectedPin() {
+        final Pin[] pins = getPins();
+        for (int i = 0; i < pins.length; i++) {
+            final Pin pin = pins[i];
+            if (pin.isSelected()) {
+                return pin;
+            }
+        }
+        return null;
+    }
+
+    public Pin getPinForPixelPos(final float pixelX, final float pixelY) {
+        final GeoCoding geoCoding = getGeoCoding();
+        if (geoCoding != null && (geoCoding instanceof TiePointGeoCoding || geoCoding.canGetPixelPos())) {
+            final Pin[] pins = getPins();
+            for (int i = 0; i < pins.length; i++) {
+                final Pin pin = pins[i];
+                if (pin.containsPixelPos(pixelX, pixelY, geoCoding)) {
+                    return pin;
+                }
+            }
+        }
+        return null;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Bitmask definitions support
+
+    /**
+     * Adds the given bitmask definition to this product.
+     *
+     * @param bitmaskDef the bitmask definition to added, ignored if <code>null</code>
+     */
+    public void addBitmaskDef(final BitmaskDef bitmaskDef) {
+        addNamedNode(bitmaskDef, _bitmaskDefs);
+        if (StringUtils.isNullOrEmpty(bitmaskDef.getDescription())) {
+            final String defaultDescription = getSuitableBitmaskDefDescription(bitmaskDef);
+            bitmaskDef.setDescription(defaultDescription);
+        }
+    }
+
+    /**
+     * Moves the given bitmask definition to the given index.
+     *
+     * @param bitmaskdef the bitmask definition which is to move
+     * @param index      the destination index for the given bitmask definition
+     */
+    public void moveBitmaskDef(final BitmaskDef bitmaskdef, final int index) {
+        _bitmaskDefs.remove(bitmaskdef);
+        _bitmaskDefs.insert(bitmaskdef, index);
+    }
+
+    /**
+     * Removes the given bitmask definition from this product.
+     *
+     * @param bitmaskDef the bitmask definition to be removed, ignored if <code>null</code>
+     */
+    public boolean removeBitmaskDef(final BitmaskDef bitmaskDef) {
+        final boolean result = removeNamedNode(bitmaskDef, _bitmaskDefs);
+        final Band[] bands = getBands();
+        for (int i = 0; i < bands.length; i++) {
+            final BitmaskOverlayInfo bitmaskOverlayInfo = bands[i].getBitmaskOverlayInfo();
+            if (bitmaskOverlayInfo != null) {
+                bitmaskOverlayInfo.removeBitmaskDef(bitmaskDef);
+            }
+        }
+        final TiePointGrid[] grids = getTiePointGrids();
+        for (int i = 0; i < grids.length; i++) {
+            final BitmaskOverlayInfo bitmaskOverlayInfo = grids[i].getBitmaskOverlayInfo();
+            if (bitmaskOverlayInfo != null) {
+                bitmaskOverlayInfo.removeBitmaskDef(bitmaskDef);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Returns the number of bitmask definitions contained in this product.
+     */
+    public int getNumBitmaskDefs() {
+        return _bitmaskDefs.size();
+    }
+
+    /**
+     * Returns the bitmask definition at the given index.
+     *
+     * @param index the bitmask definition index
+     *
+     * @return the bitmask definition at the given index
+     *
+     * @throws IndexOutOfBoundsException if the index is out of bounds
+     */
+    public BitmaskDef getBitmaskDefAt(final int index) {
+        return (BitmaskDef) _bitmaskDefs.getAt(index);
+    }
+
+    /**
+     * Returns a string array containing the names of the bitmask definitions contained in this product.
+     *
+     * @return a string array containing the names of the bitmask definitions contained in this product. If this product
+     *         has no bitmask definitions a zero-length-array is returned.
+     */
+    public String[] getBitmaskDefNames() {
+        return _bitmaskDefs.getNames();
+    }
+
+    /**
+     * Returns the bitmask definition with the given name.
+     *
+     * @param name the bitmask definition name
+     *
+     * @return the bitmask definition with the given name or <code>null</code> if a bitmask definition with the given
+     *         name is not contained in this product.
+     */
+    public BitmaskDef getBitmaskDef(final String name) {
+        Guardian.assertNotNullOrEmpty("name", name);
+        return (BitmaskDef) _bitmaskDefs.get(name);
+    }
+
+    /**
+     * Returns an array of bitmask definitions contained in this product
+     *
+     * @return an array of bitmask definition contained in this product. If this product has no bitmask definitions a
+     *         zero-length-array is returned.
+     */
+    public BitmaskDef[] getBitmaskDefs() {
+        final BitmaskDef[] bitmaskDefs = new BitmaskDef[getNumBitmaskDefs()];
+        for (int i = 0; i < bitmaskDefs.length; i++) {
+            bitmaskDefs[i] = getBitmaskDefAt(i);
+        }
+        return bitmaskDefs;
+    }
+
+    /**
+     * Tests if a bitmask definition with the given name is contained in this product.
+     *
+     * @param name the name, must not be <code>null</code>
+     *
+     * @return <code>true</code> if a bitmask definition with the given name is contained in this product,
+     *         <code>false</code> otherwise
+     */
+    public boolean containsBitmaskDef(final String name) {
+        Guardian.assertNotNullOrEmpty("name", name);
+        return _bitmaskDefs.contains(name);
+    }
+
+    /**
+     * Tests if the given bitmask definition is contained in this container.
+     *
+     * @param def the bitmask definition, must not be <code>null</code>
+     *
+     * @return <code>true</code> if the bitmask definition is contained in this cotainer, <code>false</code> otherwise
+     */
+    public boolean containsBitmaskDef(final BitmaskDef def) {
+        if (def != null) {
+            final BitmaskDef containedDef = getBitmaskDef(def.getName());
+            return def == containedDef;
+        }
+        return false;
+    }
+
+    /**
+     * Checks whether or not the given bitmask definition is compatible with this product.
+     *
+     * @return <code>false</code> if the bitmask has a valid expression and(!) the flag name is not contained in this
+     *         data product, <code>true</code> otherwise.
+     */
+    public boolean isCompatibleBitmaskDef(final BitmaskDef bitmaskDef) {
+        try {
+            createTerm(bitmaskDef.getExpr());
+        } catch (ParseException e) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Checks whether or not the given bitmask term is compatible with this product.
+     *
+     * @return <code>false</code> if the bitmask has a valid expression and(!) the flag name is not contained in this
+     *         data product, <code>true</code> otherwise.
+     *
+     * @deprecated use {@link #isCompatibleTerm(com.bc.jexp.Term)} instead
+     */
+    public boolean isCompatibleBitmaskTerm(final org.esa.beam.framework.dataop.bitmask.BitmaskTerm term) {
+        if (term != null) {
+            final String[] termFlags = term.getReferencedFlagNames();
+            final String[] productFlags = getAllFlagNames();
+            for (int i = 0; i < termFlags.length; i++) {
+                if (!StringUtils.containsIgnoreCase(productFlags, termFlags[i])) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Checks whether or not the given term is compatible with this product.
+     *
+     * @return <code>false</code> if the term has an expression referencing nodes which are not contained in
+     *         this product, <code>true</code> otherwise.
+     */
+    public boolean isCompatibleTerm(final Term term) {
+        final RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
+        final Set<String> flags = new TreeSet<String>();
+        final Set<String> rasters = new TreeSet<String>();
+        for (int i = 0; i < refRasterDataSymbols.length; i++) {
+            final RasterDataSymbol refRasterDataSymbol = refRasterDataSymbols[i];
+            rasters.add(refRasterDataSymbol.getRaster().getName());
+            final String name = refRasterDataSymbol.getName();
+            if (isFlagSymbol(name)) {
+                final int index = name.indexOf('.');
+                flags.add(name.substring(index + 1));
+            }
+        }
+        final String[] flagNames = getAllFlagNames();
+        for (Iterator iterator = flags.iterator(); iterator.hasNext();) {
+            final String flagName = (String) iterator.next();
+            if (!StringUtils.containsIgnoreCase(flagNames, flagName)) {
+                return false;
+            }
+        }
+        final String[] rasterNames = StringUtils.addArrays(getBandNames(), getTiePointGridNames());
+        for (Iterator iterator = rasters.iterator(); iterator.hasNext();) {
+            final String rasterName = (String) iterator.next();
+            if (!StringUtils.containsIgnoreCase(rasterNames, rasterName)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Checks whether or not the given product is compatible with this product.
+     *
+     * @param product the product to compare with
+     * @param eps     the maximum lat/lon error in degree
+     *
+     * @return <code>false</code> if the scene dimensions or geocoding are different, <code>true</code> otherwise.
+     */
+    public boolean isCompatibleProduct(final Product product, final float eps) {
+        Guardian.assertNotNull("product", product);
+        if (this == product) {
+            return true;
+        }
+        if (getSceneRasterWidth() != product.getSceneRasterWidth()) {
+            return false;
+        }
+        if (getSceneRasterHeight() != product.getSceneRasterHeight()) {
+            return false;
+        }
+        if (getGeoCoding() == null && product.getGeoCoding() != null) {
+            return false;
+        }
+        if (getGeoCoding() != null) {
+            if (product.getGeoCoding() == null) {
+                return false;
+            }
+
+            final PixelPos pixelPos = new PixelPos();
+            final GeoPos geoPos1 = new GeoPos();
+            final GeoPos geoPos2 = new GeoPos();
+
+            pixelPos.x = 0.5f;
+            pixelPos.y = 0.5f;
+            getGeoCoding().getGeoPos(pixelPos, geoPos1);
+            product.getGeoCoding().getGeoPos(pixelPos, geoPos2);
+            if (!(equalsLatLon(geoPos1, geoPos2, eps))) {
+                return false;
+            }
+
+            pixelPos.x = getSceneRasterWidth() - 1 + 0.5f;
+            pixelPos.y = 0.5f;
+            getGeoCoding().getGeoPos(pixelPos, geoPos1);
+            product.getGeoCoding().getGeoPos(pixelPos, geoPos2);
+            if (!(equalsLatLon(geoPos1, geoPos2, eps))) {
+                return false;
+            }
+
+            pixelPos.x = 0.5f;
+            pixelPos.y = getSceneRasterHeight() - 1 + 0.5f;
+            getGeoCoding().getGeoPos(pixelPos, geoPos1);
+            product.getGeoCoding().getGeoPos(pixelPos, geoPos2);
+            if (!(equalsLatLon(geoPos1, geoPos2, eps))) {
+                return false;
+            }
+
+            pixelPos.x = getSceneRasterWidth() - 1 + 0.5f;
+            pixelPos.y = getSceneRasterHeight() - 1 + 0.5f;
+            getGeoCoding().getGeoPos(pixelPos, geoPos1);
+            product.getGeoCoding().getGeoPos(pixelPos, geoPos2);
+            if (!(equalsLatLon(geoPos1, geoPos2, eps))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean equalsLatLon(final GeoPos pos1, final GeoPos pos2, final float eps) {
+        if (!MathUtils.equalValues(pos1.lat, pos2.lat, eps)) {
+            return false;
+        }
+        return MathUtils.equalValues(pos1.lon, pos2.lon, eps);
+    }
+
+    /**
+     * Replaces the given old bitmask definition in this container with the given new bitmask definition. If the given
+     * old bitmask definition not contained in this container, the new bitmask definition was added. Ignored if the new
+     * bitmask definition is <code>null</code>.
+     *
+     * @param bitmaskDefOld the bitmask definition to be replaced.
+     * @param bitmaskDefNew the new bitmask definition.
+     */
+    public void replaceBitmaskDef(final BitmaskDef bitmaskDefOld, final BitmaskDef bitmaskDefNew) {
+        if (bitmaskDefNew != null) {
+            final int insertIndex = _bitmaskDefs.indexOf(bitmaskDefOld);
+            if (insertIndex == -1) {
+                addBitmaskDef(bitmaskDefNew);
+            } else {
+                _bitmaskDefs.remove(bitmaskDefOld);
+                _bitmaskDefs.insert(bitmaskDefNew, insertIndex);
+            }
+        }
+        final Band[] bands = getBands();
+        for (int i = 0; i < bands.length; i++) {
+            final BitmaskOverlayInfo overlayInfo = bands[i].getBitmaskOverlayInfo();
+            if (overlayInfo != null && overlayInfo.containsBitmaskDef(bitmaskDefOld)) {
+                overlayInfo.removeBitmaskDef(bitmaskDefOld);
+                overlayInfo.addBitmaskDef(bitmaskDefNew);
+            }
+        }
+        final TiePointGrid[] grids = getTiePointGrids();
+        for (int i = 0; i < grids.length; i++) {
+            final BitmaskOverlayInfo overlayInfo = grids[i].getBitmaskOverlayInfo();
+            if (overlayInfo != null && overlayInfo.containsBitmaskDef(bitmaskDefOld)) {
+                overlayInfo.removeBitmaskDef(bitmaskDefOld);
+                overlayInfo.addBitmaskDef(bitmaskDefNew);
+            }
+        }
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Bitmask - Support
+
+
+    // todo - (nf) not yet used, see methods below!
+    public static class PixelMask {
+
+        int _rasterWidth;
+        int _rasterHeight;
+        int _bytePackedRasterWidth;
+        byte[] _bitData;
+    }
+
+    // todo - make deprecated, will be replaced by new class PixelMask
+    public int getBytePackedBitmaskRasterWidth() {
+        return _bytePackedBitmaskRasterWidth;
+    }
+
+    /**
+     * Gets a cached valid pixel mask for the given ID.
+     *
+     * @param id the ID
+     *
+     * @return a cached valid pixel mask for the given ID or null
+     *
+     * @deprecated use {@link #getCachedPixelMask(String)} instead
+     */
+    public byte[] getValidMask(final Object id) {
+        return getCachedPixelMask(id.toString());
+    }
+
+    // todo - deprecate, replace by getCachedPixelMask(id:String):PixelMask
+
+    /**
+     * Gets a cached pixel mask for the given ID.
+     *
+     * @param id the ID
+     *
+     * @return a cached pixel mask for the given ID or null
+     *
+     * @see #createPixelMask(com.bc.jexp.Term)
+     * @see #createPixelMask(String)
+     */
+    private byte[] getCachedPixelMask(final String id) {
+        if (_cachedPixelMasks != null) {
+            return (byte[]) _cachedPixelMasks.get(id);
+        }
+        return null;
+    }
+
+    // todo - deprecate, replace by setCachedPixelMask(id:String, mask:PixelMask):void
+
+    /**
+     * Sets a cached pixel mask for the given ID.
+     *
+     * @param id        the ID
+     * @param pixelMask the pixel mask
+     *
+     * @see #createPixelMask(com.bc.jexp.Term)
+     * @see #createPixelMask(String)
+     */
+    private void setCachedPixelMask(final String id, final byte[] pixelMask) {
+        if (_cachedPixelMasks == null) {
+            _cachedPixelMasks = new HashMap();
+        }
+        if (pixelMask != null) {
+            _cachedPixelMasks.put(id, pixelMask);
+        } else {
+            _cachedPixelMasks.remove(id);
+        }
+    }
+
+    // todo - deprecate, replace by createPixelMask(expr:String):PixelMask
+
+    /**
+     * Creates a bit-packed mask for all pixels of the scene covered by this product.
+     * The given expression is considered to be boolean, if it evaluates to <code>true</code>
+     * the related bit in the mask is set.
+     *
+     * @param expression the boolean expression, e.g. "l2_flags.LAND && reflec_10 >= 0.0"
+     *
+     * @return a bit-packed mask for all pixels of the scene, never null
+     *
+     * @throws IOException if an I/O error occurs
+     * @see #createTerm(String)
+     * @see #createPixelMask(Term)
+     * @see #releasePixelMask(byte[])
+     */
+    public byte[] createPixelMask(final String expression) throws IOException {
+        try {
+            final Term term = getProduct().createTerm(expression);
+            return createPixelMask(term);
+        } catch (ParseException e) {
+            final IOException ioException = new IOException(
+                    "Unable to load the valid pixel mask, parse error: " + e.getMessage());
+            ioException.initCause(e);
+            throw ioException;
+        }
+    }
+
+    // todo - deprecate, replace by createPixelMask(term:Term):PixelMask
+
+    /**
+     * Creates a bit-packed mask for all pixels of the scene covered by this product.
+     * The given term is considered to be boolean, if it evaluates to <code>true</code>
+     * the related bit in the mask is set.
+     * <p>Since the masks created by this method are cached, the method {@link #releasePixelMask(byte[])}
+     * should be called in order to release it.
+     *
+     * @param term the boolean term, e.g. "l2_flags.LAND && reflec_10 >= 0.0"
+     *
+     * @return a bit-packed mask for all pixels of the scene, never null
+     *
+     * @throws IOException if an I/O error occurs
+     * @see #createPixelMask(String)
+     * @see #releasePixelMask(byte[])
+     */
+    public byte[] createPixelMask(final Term term) throws IOException {
+        final String id = term.toString();
+        byte[] validPixelMask = getCachedPixelMask(id);
+        if (validPixelMask != null) {
+            return validPixelMask;
+        }
+        Debug.trace("createPixelMask: " + id);
+        final int productWidth = getSceneRasterWidth();
+        final int productHeight = getSceneRasterHeight();
+        final int bytesPerLine = getBytePackedBitmaskRasterWidth();
+        final byte[] validMask = new byte[bytesPerLine * productHeight];
+
+        final StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
+        final RasterDataLoop loop = new RasterDataLoop(0, 0,
+                                                       productWidth, productHeight,
+                                                       new Term[]{term}, ProgressMonitor.NULL);
+        loop.forEachPixel(new RasterDataLoop.Body() {
+            public void eval(final RasterDataEvalEnv env, final int elemIndex) {
+                final int y = elemIndex / productWidth;
+                final int byteIndex = (elemIndex % productWidth) / 8 + y * bytesPerLine;
+                final int bitIndex = (elemIndex - y * productWidth) % 8;
+                if (term.evalB(env)) {
+                    validMask[byteIndex] |= (1 << bitIndex);
+                }
+            }
+        }, "Reading valid-pixel mask..."); /*I18N*/
+
+        setCachedPixelMask(id, validMask);
+
+        stopWatch.stopAndTrace("createPixelMask");
+
+        return validMask;
+    }
+
+    // todo - deprecate, replace by releasePixelMask(mask:PixelMask):void
+
+    /**
+     * Releases a pixel mask previously allocated with the <code>createPixelMask</code> methods.
+     *
+     * @param pixelMask the pixel mask to be released
+     *
+     * @see #createPixelMask(com.bc.jexp.Term)
+     * @see #createPixelMask(String)
+     */
+    public void releasePixelMask(final byte[] pixelMask) {
+        if (_cachedPixelMasks != null) {
+            for (Iterator iterator = _cachedPixelMasks.values().iterator(); iterator.hasNext();) {
+                byte[] cachedPixelMask = (byte[]) iterator.next();
+                if (pixelMask == cachedPixelMask) {
+                    iterator.remove();
+                }
+            }
+        }
+    }
+
+    /**
+     * Creates a bit-packed mask for all pixels of the scene covered by this product.
+     * The given term is considered to be boolean, if it evaluates to <code>true</code>
+     * the related bit in the mask is set.
+     * <p>Since the masks created by this method are cached, the method {@link #releasePixelMask(byte[])}
+     * should be called in order to release it.
+     *
+     * @param term the boolean term, e.g. "l2_flags.LAND && reflec_10 >= 0.0"
+     *
+     * @return a bit-packed mask for all pixels of the scene, never null
+     *
+     * @throws IOException if an I/O error occurs
+     * @see #createPixelMask(String)
+     * @see #releasePixelMask(byte[])
+     * @deprecated use {@link #createPixelMask(com.bc.jexp.Term)}
+     */
+    public byte[] ensureValidMask(final Term term) throws IOException {
+        return createPixelMask(term);
+    }
+
+    /**
+     * Creates a term tree by parsing an expression given as a text string. This convinience method simply
+     * returns a parsed term. For the syntax of expression please refer to the VISAT-Help in the chapter
+     * <pre>
+     *   VISAT
+     *    +- Tools
+     *      +- Product Generation Tools
+     *        +- Arithmetic Expression Editor
+     * </pre>
+     *
+     * @param expression a expression given as a text string
+     *
+     * @return a term parsed from the given expression string
+     *
+     * @throws ParseException if the expression could not successfully be parsed
+     */
+    public Term createTerm(final String expression) throws ParseException {
+        final Parser parser = createBandArithmeticParser();
+        return parser.parse(expression);
+    }
+
+    /**
+     * Creates a bit-mask term tree by parsing a bit-mask expression given as a text string. This convinience method
+     * simply returns <code>{@link org.esa.beam.framework.dataop.bitmask.BitmaskExpressionParser#parse BitmaskExpressionParser.parse(bitmaskExpression)}</code>.
+     * For the syntax of bit-mask expression please refer to the API documentation of the
+     * {@link org.esa.beam.framework.dataop.bitmask.BitmaskExpressionParser} class.
+     *
+     * @param bitmaskExpression a bit-mask expression given as a text string
+     *
+     * @return a bit-mask-term parsed from the given text string
+     *
+     * @throws org.esa.beam.framework.dataop.bitmask.BitmaskExpressionParseException
+     *          if the expression could not successfully be parsed
+     * @see #getAllFlagNames()
+     * @deprecated use {@link #createTerm(String)} instead
+     */
+    public static org.esa.beam.framework.dataop.bitmask.BitmaskTerm createBitmaskTerm(final String bitmaskExpression)
+            throws org.esa.beam.framework.dataop.bitmask.BitmaskExpressionParseException {
+        return org.esa.beam.framework.dataop.bitmask.BitmaskExpressionParser.parse(bitmaskExpression);
+    }
+
+    /**
+     * Creates a context in which the given bit-mask term can be evaluated. The evaluation is restricted to the
+     * specified region in pixels.
+     * <p/>
+     * <p> If bands are referenced in the given bit-mask expression which are currently not completely loaded, the
+     * method reloads the region from the data source in order to create the evaluation context.
+     * </p>
+     * <p> The {@link #createBitmaskTerm(String) <code>createBitmaskTerm</code>} method can be used to create a bit-mask
+     * term from a textual bit-mask expression.
+     *
+     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createBitmaskTerm(String) createBitmaskTerm}
+     *                    method
+     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
+     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
+     * @param width       the width of the spatial subset in pixel co-ordinates
+     * @param height      the height of the spatial subset in pixel co-ordinates
+     *
+     * @throws IOException if an I/O error occurs
+     * @see #createBitmaskTerm(String)
+     * @deprecated no replacement
+     */
+    public BitmaskTermEvalContext createBitmaskContext(
+            final org.esa.beam.framework.dataop.bitmask.BitmaskTerm bitmaskTerm,
+            final int offsetX,
+            final int offsetY,
+            final int width,
+            final int height) throws IOException {
+        final String[] flagDatasetNames = bitmaskTerm.getReferencedDatasetNames();
+        final DefaultFlagDataset[] flagDatasets = new DefaultFlagDataset[flagDatasetNames.length];
+        for (int i = 0; i < flagDatasetNames.length; i++) {
+            final String datasetName = flagDatasetNames[i];
+            final Band flagsBand = getProduct().getBand(datasetName);
+            if (flagsBand == null) {
+                throw new IllegalStateException(
+                        "flag dataset '"
+                        + datasetName
+                        + "' was referenced in bitmask expression but was not found in product");  /*I18N*/
+            }
+            final FlagCoding flagCoding = flagsBand.getFlagCoding();
+            if (flagCoding == null) {
+                throw new IllegalStateException(
+                        "flag dataset '"
+                        + datasetName
+                        + "' was referenced in bitmask expression but has no flags coding information"); /*I18N*/
+            }
+            ProductData flagSamples;
+            final boolean allPixels = offsetX == 0
+                                      && offsetY == 0
+                                      && width == flagsBand.getRasterWidth()
+                                      && height == flagsBand.getRasterHeight();
+            final ProductData bandRasterData = flagsBand.getRasterData();
+            if (bandRasterData != null) {
+                if (allPixels) {
+                    flagSamples = bandRasterData;
+                } else {
+                    flagSamples = flagsBand.createCompatibleRasterData(width, height);
+                    int sourcePos;
+                    int destPos = 0;
+                    final int maxX = offsetX + width - 1;
+                    final int maxY = offsetY + height - 1;
+                    for (int y = offsetY; y <= maxY; y++) {
+                        for (int x = offsetX; x <= maxX; x++) {
+                            sourcePos = y * flagsBand.getSceneRasterWidth() + x;
+                            flagSamples.setElemIntAt(destPos, bandRasterData.getElemIntAt(sourcePos));
+                            destPos++;
+                        }
+                    }
+                }
+            } else {
+                flagSamples = flagsBand.createCompatibleRasterData(width, height);
+                flagsBand.readRasterData(offsetX, offsetY, width, height, flagSamples, ProgressMonitor.NULL);
+                if (allPixels) {
+                    flagsBand.setRasterData(flagSamples);
+                    Debug.trace("Raster data for band '" + flagsBand.getName() + "' implicitely set");
+                }
+            }
+            flagDatasets[i] = DefaultFlagDataset.create(flagCoding, flagSamples);
+        }
+        return new DefaultBitmaskTermEvalContext(flagDatasets);
+    }
+
+    /**
+     * Creates a bit-mask by evaluating the given bit-mask term.
+     * <p/>
+     * <p> The method first creates an evaluation context for the given bit-mask term and the specified region and then
+     * evaluates the term for each pixel in the subset (line-by-line, X varies fastest). The result of each evaluation -
+     * the resulting bitmask - is stored in the given boolean array buffer <code>bitmask</code> in the same order as
+     * pixels appear in the given region. The buffer must at least have a length equal to <code>width * height</code>
+     * elements.
+     * </p>
+     * <p> If flag providing datasets are referenced in the given bit-mask expression which are currently not completely
+     * loaded, the method reloads the spatial subset from the data source in order to create the evaluation context.
+     * </p>
+     * <p> The {@link #createBitmaskTerm(String) <code>createBitmaskTerm</code>} method can be used to create a bit-mask
+     * term from a textual bit-mask expression.
+     *
+     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
+     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
+     * @param width       the width of the spatial subset in pixel co-ordinates
+     * @param height      the height of the spatial subset in pixel co-ordinates
+     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createBitmaskTerm(String) createBitmaskTerm}
+     *                    method
+     * @param bitmask     a buffer used to hold the results of the bit-mask evaluations for each pixel in the given
+     *                    spatial subset
+     *
+     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
+     * @deprecated use {@link #readBitmask(int, int, int, int, Term, boolean[])} instead
+     */
+    public void readBitmask(final int offsetX,
+                            final int offsetY,
+                            final int width,
+                            final int height,
+                            final org.esa.beam.framework.dataop.bitmask.BitmaskTerm bitmaskTerm,
+                            final boolean[] bitmask) throws IOException {
+        final BitmaskTermEvalContext bitmaskContext = createBitmaskContext(bitmaskTerm, offsetX, offsetY, width,
+                                                                           height);
+        final int n = width * height;
+        for (int i = 0; i < n; i++) {
+            bitmask[i] = bitmaskTerm.evaluate(bitmaskContext, i);
+        }
+        bitmaskContext.dispose();
+    }
+
+    /**
+     * Creates a bit-mask by evaluating the given bit-mask term.
+     * <p> The method first creates an evaluation context for the given bit-mask term and the specified region and then
+     * evaluates the term for each pixel in the subset (line-by-line, X varies fastest). The result of each evaluation -
+     * the resulting bitmask - is stored in the given boolean array buffer <code>bitmask</code> in the same order as
+     * pixels appear in the given region. The buffer must at least have a length equal to <code>width * height</code>
+     * elements.
+     * </p>
+     * <p> If flag providing datasets are referenced in the given bit-mask expression which are currently not completely
+     * loaded, the method reloads the spatial subset from the data source in order to create the evaluation context.
+     * </p>
+     * <p> The {@link #createTerm(String)} method can be used to create a bit-mask
+     * term from a textual bit-mask expression.
+     * </p>
+     *
+     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
+     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
+     * @param width       the width of the spatial subset in pixel co-ordinates
+     * @param height      the height of the spatial subset in pixel co-ordinates
+     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createTerm(String)} method
+     * @param bitmask     a buffer used to hold the results of the bit-mask evaluations for each pixel in the given
+     *                    spatial subset
+     *
+     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
+     * @see #createTerm(String)
+     * @deprecated use {@link #readBitmask(int, int, int, int, Term, boolean[], ProgressMonitor)} instead
+     */
+    public void readBitmask(final int offsetX,
+                            final int offsetY,
+                            final int width,
+                            final int height,
+                            final Term bitmaskTerm,
+                            final boolean[] bitmask) throws IOException {
+        readBitmask(offsetX, offsetY, width, height, bitmaskTerm, bitmask, ProgressMonitor.NULL);
+    }
+
+    /**
+     * Creates a bit-mask by evaluating the given bit-mask term.
+     * <p> The method first creates an evaluation context for the given bit-mask term and the specified region and then
+     * evaluates the term for each pixel in the subset (line-by-line, X varies fastest). The result of each evaluation -
+     * the resulting bitmask - is stored in the given boolean array buffer <code>bitmask</code> in the same order as
+     * pixels appear in the given region. The buffer must at least have a length equal to <code>width * height</code>
+     * elements.
+     * </p>
+     * <p> If flag providing datasets are referenced in the given bit-mask expression which are currently not completely
+     * loaded, the method reloads the spatial subset from the data source in order to create the evaluation context.
+     * </p>
+     * <p> The {@link #createTerm(String)} method can be used to create a bit-mask
+     * term from a textual bit-mask expression.
+     * </p>
+     *
+     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
+     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
+     * @param width       the width of the spatial subset in pixel co-ordinates
+     * @param height      the height of the spatial subset in pixel co-ordinates
+     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createTerm(String)} method
+     * @param bitmask     a buffer used to hold the results of the bit-mask evaluations for each pixel in the given
+     *                    spatial subset
+     * @param pm          a monitor to inform the user about progress
+     *
+     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
+     * @see #createTerm(String)
+     */
+    public void readBitmask(final int offsetX,
+                            final int offsetY,
+                            final int width,
+                            final int height,
+                            final Term bitmaskTerm,
+                            final boolean[] bitmask, ProgressMonitor pm) throws IOException {
+        // @todo 1 nf/he - check if a mask already is cached in product
+
+        final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY,
+                                                       width, height,
+                                                       new Term[]{bitmaskTerm}, pm);
+        loop.forEachPixel(new RasterDataLoop.Body() {
+            public void eval(final RasterDataEvalEnv env, final int elemIndex) {
+                bitmask[elemIndex] = bitmaskTerm.evalB(env);
+            }
+        });
+    }
+
+    /**
+     * Creates a bit-mask by evaluating the given bit-mask term.
+     * <p/>
+     * <p> The method first creates an evaluation context for the given bit-mask term and the specified region and then
+     * evaluates the term for each pixel in the subset (line-by-line, X varies fastest). The result of each evaluation -
+     * the resulting bitmask - is stored in the given boolean array buffer <code>bitmask</code> in the same order as
+     * pixels appear in the given region. The buffer must at least have a length equal to <code>width * height</code>
+     * elements.
+     * </p>
+     * <p> If flag providing datasets are referenced in the given bit-mask expression which are currently not completely
+     * loaded, the method reloads the spatial subset from the data source in order to create the evaluation context.
+     * </p>
+     * <p> The {@link #createBitmaskTerm(String) <code>createBitmaskTerm</code>} method can be used to create a bit-mask
+     * term from a textual bit-mask expression.
+     *
+     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
+     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
+     * @param width       the width of the spatial subset in pixel co-ordinates
+     * @param height      the height of the spatial subset in pixel co-ordinates
+     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createBitmaskTerm(String) createBitmaskTerm}
+     *                    method
+     * @param bitmask     a byte buffer used to hold the results of the bit-mask evaluations for each pixel in the given
+     *                    spatial subset
+     * @param trueValue   the byte value to be set if the bitmask-term evauates to <code>true</code>
+     * @param falseValue  the byte value to be set if the bitmask-term evauates to <code>false</code>
+     *
+     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
+     * @deprecated use {@link #readBitmask(int, int, int, int, Term, byte[], byte, byte)} instead.
+     */
+    public void readBitmask(final int offsetX,
+                            final int offsetY,
+                            final int width,
+                            final int height,
+                            final org.esa.beam.framework.dataop.bitmask.BitmaskTerm bitmaskTerm,
+                            final byte[] bitmask,
+                            final byte trueValue,
+                            final byte falseValue) throws IOException {
+        final BitmaskTermEvalContext bitmaskContext = createBitmaskContext(bitmaskTerm, offsetX, offsetY, width,
+                                                                           height);
+        for (int i = 0; i < bitmask.length; i++) {
+            if (bitmaskTerm.evaluate(bitmaskContext, i)) {
+                bitmask[i] = trueValue;
+            } else {
+                bitmask[i] = falseValue;
+            }
+        }
+        bitmaskContext.dispose();
+    }
+
+    /**
+     * Creates a bit-mask by evaluating the given bit-mask term.
+     * <p/>
+     * <p> The method first creates an evaluation context for the given bit-mask term and the specified region and then
+     * evaluates the term for each pixel in the subset (line-by-line, X varies fastest). The result of each evaluation -
+     * the resulting bitmask - is stored in the given boolean array buffer <code>bitmask</code> in the same order as
+     * pixels appear in the given region. The buffer must at least have a length equal to <code>width * height</code>
+     * elements.
+     * </p>
+     * <p> If flag providing datasets are referenced in the given bit-mask expression which are currently not completely
+     * loaded, the method reloads the spatial subset from the data source in order to create the evaluation context.
+     * </p>
+     * <p> The {@link #createTerm(String)} method can be used to create a bit-mask
+     * term from a textual bit-mask expression.
+     *
+     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
+     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
+     * @param width       the width of the spatial subset in pixel co-ordinates
+     * @param height      the height of the spatial subset in pixel co-ordinates
+     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createTerm(String)}
+     *                    method
+     * @param bitmask     a byte buffer used to hold the results of the bit-mask evaluations for each pixel in the given
+     *                    spatial subset
+     * @param trueValue   the byte value to be set if the bitmask-term evauates to <code>true</code>
+     * @param falseValue  the byte value to be set if the bitmask-term evauates to <code>false</code>
+     *
+     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
+     * @see #createTerm(String)
+     * @see #readBitmask(int, int, int, int, Term, int[], int, int)
+     * @deprecated use {@link #readBitmask(int, int, int, int, com.bc.jexp.Term, byte[], byte, byte, com.bc.ceres.core.ProgressMonitor)} instead
+     */
+    public synchronized void readBitmask(final int offsetX,
+                                         final int offsetY,
+                                         final int width,
+                                         final int height,
+                                         final Term bitmaskTerm,
+                                         final byte[] bitmask,
+                                         final byte trueValue,
+                                         final byte falseValue) throws IOException {
+        readBitmask(offsetX, offsetY, width, height, bitmaskTerm, bitmask, trueValue, falseValue, ProgressMonitor.NULL);
+    }
+
+
+    /**
+     * Creates a bit-mask by evaluating the given bit-mask term.
+     * <p/>
+     * <p> The method first creates an evaluation context for the given bit-mask term and the specified region and then
+     * evaluates the term for each pixel in the subset (line-by-line, X varies fastest). The result of each evaluation -
+     * the resulting bitmask - is stored in the given boolean array buffer <code>bitmask</code> in the same order as
+     * pixels appear in the given region. The buffer must at least have a length equal to <code>width * height</code>
+     * elements.
+     * </p>
+     * <p> If flag providing datasets are referenced in the given bit-mask expression which are currently not completely
+     * loaded, the method reloads the spatial subset from the data source in order to create the evaluation context.
+     * </p>
+     * <p> The {@link #createTerm(String)} method can be used to create a bit-mask
+     * term from a textual bit-mask expression.
+     *
+     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
+     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
+     * @param width       the width of the spatial subset in pixel co-ordinates
+     * @param height      the height of the spatial subset in pixel co-ordinates
+     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createTerm(String)}
+     *                    method
+     * @param bitmask     a byte buffer used to hold the results of the bit-mask evaluations for each pixel in the given
+     *                    spatial subset
+     * @param trueValue   the byte value to be set if the bitmask-term evauates to <code>true</code>
+     * @param falseValue  the byte value to be set if the bitmask-term evauates to <code>false</code>
+     *
+     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
+     * @see #createTerm(String)
+     * @see #readBitmask(int, int, int, int, Term, int[], int, int)
+     */
+    public synchronized void readBitmask(final int offsetX,
+                                         final int offsetY,
+                                         final int width,
+                                         final int height,
+                                         final Term bitmaskTerm,
+                                         final byte[] bitmask,
+                                         final byte trueValue,
+                                         final byte falseValue,
+                                         ProgressMonitor pm) throws IOException {
+        final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY,
+                                                       width, height,
+                                                       new Term[]{bitmaskTerm}, pm);
+        loop.forEachPixel(new RasterDataLoop.Body() {
+            public void eval(final RasterDataEvalEnv env, final int elemIndex) {
+                if (bitmaskTerm.evalB(env)) {
+                    bitmask[elemIndex] = trueValue;
+                } else {
+                    bitmask[elemIndex] = falseValue;
+                }
+            }
+        }, "Reading bitmask...");  /*I18N*/
+    }
+
+    /**
+     * Creates a bit-mask by evaluating the given bit-mask term.
+     * <p/>
+     * <p> The method works exactly as {@link #readBitmask(int,int,int,int,Term,byte[],byte,byte)}, but in this
+     * the bitmnask is represented by an array of integers to be filled.
+     *
+     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
+     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
+     * @param width       the width of the spatial subset in pixel co-ordinates
+     * @param height      the height of the spatial subset in pixel co-ordinates
+     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createBitmaskTerm(String) createBitmaskTerm}
+     *                    method
+     * @param bitmask     an integer buffer used to hold the results of the bit-mask evaluations for each pixel in the
+     *                    given spatial subset
+     * @param trueValue   the integer value to be set if the bitmask-term evauates to <code>true</code>
+     *
+     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
+     * @deprecated use {@link #readBitmask(int, int, int, int, com.bc.jexp.Term, int[], int, int)} instead
+     */
+    public void readBitmask(final int offsetX,
+                            final int offsetY,
+                            final int width,
+                            final int height,
+                            final org.esa.beam.framework.dataop.bitmask.BitmaskTerm bitmaskTerm,
+                            final int[] bitmask,
+                            final int trueValue,
+                            final int falseValue) throws IOException {
+        final BitmaskTermEvalContext bitmaskContext = createBitmaskContext(bitmaskTerm, offsetX, offsetY, width,
+                                                                           height);
+        for (int i = 0; i < bitmask.length; i++) {
+            if (bitmaskTerm.evaluate(bitmaskContext, i)) {
+                bitmask[i] = trueValue;
+            } else {
+                bitmask[i] = falseValue;
+            }
+        }
+        bitmaskContext.dispose();
+    }
+
+    /**
+     * Creates a bit-mask by evaluating the given bit-mask term.
+     * <p/>
+     * <p> The method works exactly like {@link #readBitmask(int, int, int, int, Term, byte[], byte, byte)},
+     * but in this method the bitmnask is represented by an array of integers to be filled.
+     *
+     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
+     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
+     * @param width       the width of the spatial subset in pixel co-ordinates
+     * @param height      the height of the spatial subset in pixel co-ordinates
+     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createTerm(String)}
+     *                    method
+     * @param bitmask     an integer buffer used to hold the results of the bit-mask evaluations for each pixel in the
+     *                    given spatial subset
+     * @param trueValue   the integer value to be set if the bitmask-term evauates to <code>true</code>
+     * @param falseValue  the integer value to be set if the bitmask-term evauates to <code>false</code>
+     *
+     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
+     * @see #createTerm(String)
+     * @see #readBitmask(int, int, int, int, Term, byte[], byte, byte)
+     */
+    public void readBitmask(final int offsetX,
+                            final int offsetY,
+                            final int width,
+                            final int height,
+                            final Term bitmaskTerm,
+                            final int[] bitmask,
+                            final int trueValue,
+                            final int falseValue) throws IOException {
+        readBitmask(offsetX, offsetY, width, height, bitmaskTerm, bitmask, trueValue, falseValue, ProgressMonitor.NULL);
+    }
+
+    /**
+     * Creates a bit-mask by evaluating the given bit-mask term.
+     * <p/>
+     * <p> The method works exactly like {@link #readBitmask(int, int, int, int, Term, byte[], byte, byte)},
+     * but in this method the bitmnask is represented by an array of integers to be filled.
+     *
+     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
+     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
+     * @param width       the width of the spatial subset in pixel co-ordinates
+     * @param height      the height of the spatial subset in pixel co-ordinates
+     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createTerm(String)}
+     *                    method
+     * @param bitmask     an integer buffer used to hold the results of the bit-mask evaluations for each pixel in the
+     *                    given spatial subset
+     * @param trueValue   the integer value to be set if the bitmask-term evauates to <code>true</code>
+     * @param falseValue  the integer value to be set if the bitmask-term evauates to <code>false</code>
+     * @param pm          a monitor to inform the user about progress
+     *
+     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
+     * @see #createTerm(String)
+     * @see #readBitmask(int, int, int, int, Term, byte[], byte, byte)
+     */
+    public void readBitmask(final int offsetX,
+                            final int offsetY,
+                            final int width,
+                            final int height,
+                            final Term bitmaskTerm,
+                            final int[] bitmask,
+                            final int trueValue,
+                            final int falseValue,
+                            ProgressMonitor pm) throws IOException {
+        final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY,
+                                                       width, height,
+                                                       new Term[]{bitmaskTerm}, pm);
+        loop.forEachPixel(new RasterDataLoop.Body() {
+            public void eval(final RasterDataEvalEnv env, final int elemIndex) {
+                if (bitmaskTerm.evalB(env)) {
+                    bitmask[elemIndex] = trueValue;
+                } else {
+                    bitmask[elemIndex] = falseValue;
+                }
+            }
+        });
+    }
+
+
+    /**
+     * Masks the given raster data for the specified region using the given bit-mask term. At each pixel position,
+     * where the given term evaluates to <code>false</code>, the given buffer is masked with zero.
+     * <p> The method simply delegates its call to <code>maskProductData(bitmaskTerm, offsetX, offsetY, width, height,
+     * rasterData, false, 0.0F)</code>.
+     * </p>
+     * <p> The {@link #createBitmaskTerm(String) <code>createBitmaskTerm</code>} method can be used to create a bit-mask
+     * term from a textual bit-mask expression.
+     *
+     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createBitmaskTerm(String) createBitmaskTerm}
+     *                    method
+     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
+     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
+     * @param width       the width of the spatial subset in pixel co-ordinates
+     * @param height      the height of the spatial subset in pixel co-ordinates
+     * @param rasterData  the raster data which is masked with  <code>0.0</code> if the term evaluates to
+     *                    <code>false</code> at a given pixel position
+     *
+     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
+     * @deprecated use {@link #maskProductData(int, int, int, int, com.bc.jexp.Term, ProductData, boolean, double)} instead
+     */
+    public void maskProductData(final int offsetX,
+                                final int offsetY,
+                                final int width,
+                                final int height,
+                                final org.esa.beam.framework.dataop.bitmask.BitmaskTerm bitmaskTerm,
+                                final ProductData rasterData) throws IOException {
+        maskProductData(offsetX, offsetY, width, height, bitmaskTerm, rasterData, false, 0.0F);
+    }
+
+    /**
+     * Masks the given raster data for the specified region using the a given bit-mask term.
+     * <p/>
+     * <p> The method first creates an evaluation context for the given bit-mask term and the specified region and then
+     * evaluates the term for each pixel in the subset (line-by-line, X varies fastest). If the bit-mask term evaluates
+     * to <code>termValue</code> at the current pixel position, then <code>maskValue</code> is set at the corrresponding
+     * position in <code>rasterData</code> instead of the original pixel value. If the bit-mask term does not forEachPixel
+     * to <code>bitmaskTermValue</code> then the original pixel value in <code>rasterData</code> remains unchanged. The
+     * buffer must at least have a length equal to <code>width * height</code> elements.
+     * </p>
+     * <p> If flag providing datasets are referenced in the given bit-mask expression which are currently not completely
+     * loaded, the method reloads the spatial subset from the data source in order to create the evaluation context.
+     * </p>
+     * <p> The {@link #createBitmaskTerm(String) <code>createBitmaskTerm</code>} method can be used to create a bit-mask
+     * term from a textual bit-mask expression.
+     *
+     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
+     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
+     * @param width       the width of the spatial subset in pixel co-ordinates
+     * @param height      the height of the spatial subset in pixel co-ordinates
+     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createBitmaskTerm(String) createBitmaskTerm}
+     *                    method
+     * @param rasterData  the raster data which is masked with  <code>maskPixelValue</code> if the term evaluates to
+     *                    <code>termValue</code> at a given pixel position
+     * @param termValue   the term evaluation value which controls the masking
+     * @param maskValue   the pixel value which is set if the term evaluates to <code>termValue</code>
+     *
+     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
+     * @deprecated use {@link #maskProductData(int, int, int, int, Term, ProductData, boolean, double)} with Term as parameter
+     */
+    public void maskProductData(final int offsetX,
+                                final int offsetY,
+                                final int width,
+                                final int height,
+                                final org.esa.beam.framework.dataop.bitmask.BitmaskTerm bitmaskTerm,
+                                final ProductData rasterData,
+                                final boolean termValue,
+                                final float maskValue) throws IOException {
+        final BitmaskTermEvalContext bitmaskContext = createBitmaskContext(bitmaskTerm, offsetX, offsetY, width,
+                                                                           height);
+        for (int i = 0; i < rasterData.getNumElems(); i++) {
+            if (bitmaskTerm.evaluate(bitmaskContext, i) == termValue) {
+                rasterData.setElemFloatAt(i, maskValue);
+            }
+        }
+        bitmaskContext.dispose();
+    }
+
+    /**
+     * Masks the given raster data for the specified region using the a given bit-mask term.
+     * <p> The method evaluates the term for each pixel in the subset (line-by-line, X varies fastest).
+     * If the bit-mask term evaluates to <code>termValue</code> at the current pixel position, then <code>maskValue</code> is set at the corrresponding
+     * position in <code>rasterData</code> instead of the original pixel value. If the bit-mask term does not forEachPixel
+     * to <code>termValue</code> then the original pixel value in <code>rasterData</code> remains unchanged. The
+     * buffer must at least have a length equal to <code>width * height</code> elements.
+     * </p>
+     * <p> The {@link #createTerm(String) createTerm} method can be used to create a bit-mask
+     * term from a textual bit-mask expression.
+     *
+     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
+     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
+     * @param width       the width of the spatial subset in pixel co-ordinates
+     * @param height      the height of the spatial subset in pixel co-ordinates
+     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createTerm(String) createTerm}
+     *                    method
+     * @param rasterData  the raster data which is masked with  <code>maskPixelValue</code> if the term evaluates to
+     *                    <code>termValue</code> at a given pixel position
+     * @param termValue   the term evaluation value which controls the masking
+     * @param maskValue   the pixel value which is set if the term evaluates to <code>termValue</code>
+     *
+     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
+     * @see #createTerm(String)
+     * @deprecated use {@link #maskProductData(int, int, int, int, Term, ProductData, boolean, double, ProgressMonitor)} instead
+     */
+    public void maskProductData(final int offsetX,
+                                final int offsetY,
+                                final int width,
+                                final int height,
+                                final Term bitmaskTerm,
+                                final ProductData rasterData,
+                                final boolean termValue,
+                                final double maskValue) throws IOException {
+        maskProductData(offsetX, offsetY,
+                        width, height,
+                        bitmaskTerm,
+                        rasterData,
+                        termValue, maskValue,
+                        ProgressMonitor.NULL);
+    }
+
+    /**
+     * Masks the given raster data for the specified region using the a given bit-mask term.
+     * <p> The method evaluates the term for each pixel in the subset (line-by-line, X varies fastest).
+     * If the bit-mask term evaluates to <code>termValue</code> at the current pixel position, then <code>maskValue</code> is set at the corrresponding
+     * position in <code>rasterData</code> instead of the original pixel value. If the bit-mask term does not forEachPixel
+     * to <code>termValue</code> then the original pixel value in <code>rasterData</code> remains unchanged. The
+     * buffer must at least have a length equal to <code>width * height</code> elements.
+     * </p>
+     * <p> The {@link #createTerm(String) createTerm} method can be used to create a bit-mask
+     * term from a textual bit-mask expression.
+     *
+     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
+     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
+     * @param width       the width of the spatial subset in pixel co-ordinates
+     * @param height      the height of the spatial subset in pixel co-ordinates
+     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createTerm(String) createTerm}
+     *                    method
+     * @param rasterData  the raster data which is masked with  <code>maskPixelValue</code> if the term evaluates to
+     *                    <code>termValue</code> at a given pixel position
+     * @param termValue   the term evaluation value which controls the masking
+     * @param maskValue   the pixel value which is set if the term evaluates to <code>termValue</code>
+     * @param pm          a monitor to inform the user about progress
+     *
+     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
+     * @see #createTerm(String)
+     */
+    public void maskProductData(final int offsetX,
+                                final int offsetY,
+                                final int width,
+                                final int height,
+                                final Term bitmaskTerm,
+                                final ProductData rasterData,
+                                final boolean termValue,
+                                final double maskValue,
+                                final ProgressMonitor pm) throws IOException {
+        final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY,
+                                                       width, height,
+                                                       new Term[]{bitmaskTerm},
+                                                       pm);
+        loop.forEachPixel(new RasterDataLoop.Body() {
+            public void eval(final RasterDataEvalEnv env, final int elemIndex) {
+                if (bitmaskTerm.evalB(env) == termValue) {
+                    rasterData.setElemDoubleAt(elemIndex, maskValue);
+                }
+            }
+        });
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Visitor-Pattern support
+
+    /**
+     * Accepts the given visitor. This method implements the well known 'Visitor' design pattern of the gang-of-four.
+     * The visitor pattern allows to define new operations on the product data model without the need to add more code
+     * to it. The new operation is implemented by the visitor.
+     * <p/>
+     * <p>The method subsequentially visits (calls <code>acceptVisitor</code> for) all bands, tie-point grids and flag
+     * codings. Finally it visits product metadata root element and calls <code>visitor.visit(this)</code>.
+     *
+     * @param visitor the visitor, must not be <code>null</code>
+     */
+    @Override
+    public void acceptVisitor(final ProductVisitor visitor) {
+        Guardian.assertNotNull("visitor", visitor);
+        for (int i = 0; i < getNumBands(); i++) {
+            getBandAt(i).acceptVisitor(visitor);
+        }
+        for (int i = 0; i < getNumTiePointGrids(); i++) {
+            getTiePointGridAt(i).acceptVisitor(visitor);
+        }
+        for (int i = 0; i < getNumFlagCodings(); i++) {
+            getFlagCodingAt(i).acceptVisitor(visitor);
+        }
+        for (int i = 0; i < getNumBitmaskDefs(); i++) {
+            getBitmaskDefAt(i).acceptVisitor(visitor);
+        }
+        getMetadataRoot().acceptVisitor(visitor);
+        visitor.visit(this);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Product listener support
+
+    /**
+     * Adds a <code>ProductNodeListener</code> to this product. The <code>ProductNodeListener</code> is informed each
+     * time a node in this product changes.
+     *
+     * @param listener the listener to be added
+     *
+     * @return boolean if listener was added or not
+     */
+    public boolean addProductNodeListener(final ProductNodeListener listener) {
+        if (listener != null) {
+            if (_listeners == null) {
+                _listeners = new ArrayList();
+            }
+            if (!_listeners.contains(listener)) {
+                _listeners.add(listener);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Removes a <code>ProductNodeListener</code> from this product.
+     */
+    public void removeProductNodeListener(final ProductNodeListener listener) {
+        if (listener != null && _listeners != null) {
+            _listeners.remove(listener);
+        }
+    }
+
+    protected boolean hasProductNodeListeners() {
+        return _listeners != null && _listeners.size() > 0;
+    }
+
+    protected void fireNodeChanged(final ProductNode sourceNode, final String propertyName) {
+        fireEvent(sourceNode, propertyName, null);
+    }
+
+    protected void fireNodeChanged(final ProductNode sourceNode, final String propertyName, final Object oldValue) {
+        fireEvent(sourceNode, propertyName, oldValue);
+    }
+
+    protected void fireNodeDataChanged(final DataNode sourceNode) {
+        fireEvent(sourceNode, ProductNodeEvent.NODE_DATA_CHANGED);
+    }
+
+    protected void fireNodeAdded(final ProductNode sourceNode) {
+        fireEvent(sourceNode, ProductNodeEvent.NODE_ADDED);
+    }
+
+    protected void fireNodeRemoved(final ProductNode sourceNode) {
+        fireEvent(sourceNode, ProductNodeEvent.NODE_REMOVED);
+    }
+
+    private void fireEvent(final ProductNode sourceNode, final int eventId) {
+        if (hasProductNodeListeners()) {
+            final ProductNodeEvent event = new ProductNodeEvent(sourceNode, eventId);
+            fireEvent(event);
+        }
+    }
+
+    private void fireEvent(final ProductNode sourceNode, final String propertyName, Object oldValue) {
+        if (hasProductNodeListeners()) {
+            final ProductNodeEvent event = new ProductNodeEvent(sourceNode, propertyName, oldValue);
+            fireEvent(event);
+        }
+    }
+
+    private void fireEvent(final ProductNodeEvent event) {
+        for (int i = 0; i < _listeners.size(); i++) {
+            final ProductNodeListener listener = (ProductNodeListener) _listeners.get(i);
+            fireEvent(listener, event);
+        }
+    }
+
+    private static void fireEvent(final ProductNodeListener listener, final ProductNodeEvent event) {
+        switch (event.getId()) {
+        case ProductNodeEvent.NODE_CHANGED:
+            listener.nodeChanged(event);
+            break;
+        case ProductNodeEvent.NODE_DATA_CHANGED:
+            listener.nodeDataChanged(event);
+            break;
+        case ProductNodeEvent.NODE_ADDED:
+            listener.nodeAdded(event);
+            break;
+        case ProductNodeEvent.NODE_REMOVED:
+            listener.nodeRemoved(event);
+            break;
+        }
+    }
+
+    /**
+     * Returns the reference number of this product.
+     */
+    public int getRefNo() {
+        return _refNo;
+    }
+
+    /**
+     * Sets the reference number.
+     *
+     * @param refNo the reference number to set must be in the range 1 .. Integer.MAX_VALUE
+     *
+     * @throws IllegalArgumentException if the refNo is out of range
+     * @throws IllegalStateException
+     */
+    public void setRefNo(final int refNo) {
+        Guardian.assertWithinRange("refNo", refNo, 1, Integer.MAX_VALUE);
+        if (_refNo != 0 && _refNo != refNo) {
+            throw new IllegalStateException("_refNo != 0 && _refNo != refNo");
+        }
+        _refNo = refNo;
+        _refStr = "[" + _refNo + "]";
+    }
+
+    public void resetRefNo() {
+        _refNo = 0;
+        _refStr = null;
+    }
+
+    /**
+     * Returns the reference string of this product.
+     */
+    String getRefStr() {
+        return _refStr;
+    }
+
+    /**
+     * Returns the product manager for this product.
+     *
+     * @return this product's manager, can be <code>null</code>
+     */
+    public ProductManager getProductManager() {
+        return _productManager;
+    }
+
+    /**
+     * Sets the product manager for this product. Called by a <code>PropductManager</code> to set the product's
+     * ownership.
+     *
+     * @param productManager this product's manager, can be <code>null</code>
+     */
+    void setProductManager(final ProductManager productManager) {
+        _productManager = productManager;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Utilities
+
+    /**
+     * @deprecated use {@link RGBImageProfile#isApplicableTo(Product)} instead
+     */
+    public boolean isCompatibleRGBImageProfile(final RGBImageProfile profile) {
+        Guardian.assertNotNull("profile", profile);
+        return profile.isApplicableTo(this);
+    }
+
+    /**
+     * Tests if the given band arithmetic expression can be computed using this product.
+     *
+     * @param expression the mathematical expression
+     *
+     * @return true, if the band arithmetic is compatible with this product
+     *
+     * @see #isCompatibleBandArithmeticExpression(String, com.bc.jexp.Parser)
+     */
+    public boolean isCompatibleBandArithmeticExpression(final String expression) {
+        return isCompatibleBandArithmeticExpression(expression, null);
+    }
+
+    /**
+     * Tests if the given band arithmetic expression can be computed using this product and a given expression parser.
+     *
+     * @param expression the band arithmetic expression
+     * @param parser     the expression parser to be used
+     *
+     * @return true, if the band arithmetic is compatible with this product
+     *
+     * @see #createBandArithmeticParser()
+     */
+    public boolean isCompatibleBandArithmeticExpression(final String expression, Parser parser) {
+        Guardian.assertNotNull("expression", expression);
+        if (parser == null) {
+            parser = createBandArithmeticParser();
+        }
+        final Term term;
+        try {
+            term = parser.parse(expression);
+        } catch (ParseException e) {
+            return false;
+        }
+        // expression was empty
+        if (term == null) {
+            return false;
+        }
+
+        final RasterDataSymbol[] termSymbols = BandArithmetic.getRefRasterDataSymbols(term);
+        for (int i = 0; i < termSymbols.length; i++) {
+            final RasterDataSymbol termSymbol = termSymbols[i];
+            final RasterDataNode refRaster = termSymbol.getRaster();
+            if (refRaster.getProduct() != this) {
+                return false;
+            }
+            if (termSymbol instanceof SingleFlagSymbol) {
+                final String[] flagNames = ((Band) refRaster).getFlagCoding().getFlagNames();
+                final String symbolName = termSymbol.getName();
+                final String flagName = symbolName.substring(symbolName.indexOf('.') + 1);
+                if (!StringUtils.containsIgnoreCase(flagNames, flagName)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+
+    /**
+     * Creates a parser for band arithmetic expressions.
+     * The parser created will use a namespace comprising all tie-point grids, bands and flags of this product.
+     *
+     * @return a parser for band arithmetic expressions for this product, never null
+     */
+    public Parser createBandArithmeticParser() {
+        final Namespace namespace = createBandArithmeticDefaultNamespace();
+        return new ParserImpl(namespace, false);
+    }
+
+    /**
+     * Creates a namespace to be used by parsers for band arithmetic expressions.
+     * The namespace created comprises all tie-point grids, bands and flags of this product.
+     *
+     * @return a namespace, never null
+     */
+    public WritableNamespace createBandArithmeticDefaultNamespace() {
+        return BandArithmetic.createDefaultNamespace(new Product[]{this});
+    }
+
+
+    /**
+     * Creates a subset of this product. The returned product represents a true spatial and spectral subset of this
+     * product, but it has not loaded any bands into memory. If name or desc are null or empty, the name and the
+     * description from this product was used.
+     *
+     * @param subsetDef the product subset definition
+     * @param name      the name for the new product
+     * @param desc      the description for the new product
+     *
+     * @return the product subset, or <code>null</code> if the product/subset combination is not valid
+     *
+     * @throws IOException if an I/O error occurs
+     */
+    public Product createSubset(final ProductSubsetDef subsetDef, final String name, final String desc) throws
+                                                                                                        IOException {
+        return ProductSubsetBuilder.createProductSubset(this, subsetDef, name, desc);
+    }
+
+
+    /**
+     * Creates a map-projected version of this product.
+     *
+     * @param mapInfo the map information
+     * @param name    the name for the new product
+     * @param desc    the description for the new product
+     *
+     * @return the product subset, or <code>null</code> if the product/subset combination is not valid
+     *
+     * @throws IOException if an I/O error occurs
+     */
+    public Product createProjectedProduct(final MapInfo mapInfo, final String name, final String desc) throws
+                                                                                                       IOException {
+        return ProductProjectionBuilder.createProductProjection(this, mapInfo, name, desc);
+    }
+
+    /**
+     * Creates flipped raster-data version of this product.
+     *
+     * @param flipType the flip type, see <code>{@link org.esa.beam.framework.dataio.ProductFlipper}</code>
+     * @param name     the name for the new product
+     * @param desc     the description for the new product
+     *
+     * @return the product subset, or <code>null</code> if the product/subset combination is not valid
+     *
+     * @throws IOException if an I/O error occurs
+     */
+    public Product createFlippedProduct(final int flipType, final String name, final String desc) throws IOException {
+        return ProductFlipper.createFlippedProduct(this, flipType, name, desc);
+    }
+
+    /**
+     * Returns an estimation of the product size in bytes (raw binary).
+     *
+     * @return an estimation of the product size in bytes.
+     *
+     * @deprecated use getRawStorageSize instead
+     */
+    public long getEstimatedProductSizeInBytes() {
+        return getRawStorageSize();
+    }
+
+    @Override
+    public void setModified(final boolean modified) {
+        super.setModified(modified);
+        if (!modified) {
+            for (int i = 0; i < getNumBands(); i++) {
+                getBandAt(i).setModified(false);
+            }
+            for (int i = 0; i < getNumTiePointGrids(); i++) {
+                getTiePointGridAt(i).setModified(false);
+            }
+            for (int i = 0; i < getNumFlagCodings(); i++) {
+                getFlagCodingAt(i).setModified(false);
+            }
+            for (int i = 0; i < getNumBitmaskDefs(); i++) {
+                getBitmaskDefAt(i).setModified(false);
+            }
+            final MetadataElement metadataRoot = getMetadataRoot();
+            metadataRoot.setModified(false);
+            _bands.clearRemovedList();
+            _bitmaskDefs.clearRemovedList();
+            _flagCodings.clearRemovedList();
+            _pins.clearRemovedList();
+            _tiePointGrids.clearRemovedList();
+        }
+    }
+
+
+    /**
+     * Gets an estimated, raw storage size in bytes of this product node.
+     *
+     * @param subsetDef if not <code>null</code> the subset may limit the size returned
+     *
+     * @return the size in bytes.
+     */
+    @Override
+    public long getRawStorageSize(final ProductSubsetDef subsetDef) {
+        long size = 0;
+        for (int i = 0; i < getNumBands(); i++) {
+            size += getBandAt(i).getRawStorageSize(subsetDef);
+        }
+        for (int i = 0; i < getNumTiePointGrids(); i++) {
+            size += getTiePointGridAt(i).getRawStorageSize(subsetDef);
+        }
+        for (int i = 0; i < getNumFlagCodings(); i++) {
+            size += getFlagCodingAt(i).getRawStorageSize(subsetDef);
+        }
+        for (int i = 0; i < getNumBitmaskDefs(); i++) {
+            size += getBitmaskDefAt(i).getRawStorageSize(subsetDef);
+        }
+        size += getMetadataRoot().getRawStorageSize(subsetDef);
+        return size;
+    }
+
+    /**
+     * Gets the name of the band suitable for quicklook generation.
+     *
+     * @return the name of the quicklook band, or null if none has been defined
+     */
+    public String getQuicklookBandName() {
+        return _quicklookBandName;
+    }
+
+    /**
+     * Sets the name of the band suitable for quicklook generation.
+     *
+     * @param quicklookBandName the name of the quicklook band, or null
+     */
+    public void setQuicklookBandName(String quicklookBandName) {
+        _quicklookBandName = quicklookBandName;
+    }
+
+//    private static String extractProductName(File file) {
+//        Guardian.assertNotNull("file", file);
+//        String filename = file.getName();
+//        int dotIndex = filename.indexOf('.');
+//        if (dotIndex > -1) {
+//            filename = filename.substring(0, dotIndex);
+//        }
+//        return filename;
+//    }
+
+
+    /**
+     * Creates a string containing all available information at the given pixel position. The string returned is a line
+     * separated text with each line containing a key/value pair.
+     *
+     * @param pixelX the pixel X co-ordinate
+     * @param pixelY the pixel Y co-ordinate
+     *
+     * @return the info string at the given position
+     */
+    public String createPixelInfoString(final int pixelX, final int pixelY) {
+        final StringBuffer sb = new StringBuffer(1024);
+
+        sb.append("Product:\t");
+        sb.append(getName() + "\n\n");
+
+        sb.append("Image-X:\t");
+        sb.append(pixelX);
+        sb.append("\tpixel\n");
+
+        sb.append("Image-Y:\t");
+        sb.append(pixelY);
+        sb.append("\tpixel\n");
+
+        if (getGeoCoding() != null) {
+            final PixelPos pt = new PixelPos(pixelX + 0.5f, pixelY + 0.5f);
+            final GeoPos geoPos = getGeoCoding().getGeoPos(pt, null);
+
+            sb.append("Longitude:\t");
+            sb.append(geoPos.getLonString());
+            sb.append("\tdegree\n");
+
+            sb.append("Latitude:\t");
+            sb.append(geoPos.getLatString());
+            sb.append("\tdegree\n");
+
+            if (getGeoCoding() instanceof MapGeoCoding) {
+                final MapGeoCoding mapGeoCoding = (MapGeoCoding) getGeoCoding();
+                final MapProjection mapProjection = mapGeoCoding.getMapInfo().getMapProjection();
+                final MapTransform mapTransform = mapProjection.getMapTransform();
+                final Point2D mapPoint = mapTransform.forward(geoPos, null);
+                final String mapUnit = mapProjection.getMapUnit();
+
+                sb.append("Map-X:\t");
+                sb.append(mapPoint.getX());
+                sb.append("\t" + mapUnit + "\n");
+
+                sb.append("Map-Y:\t");
+                sb.append(mapPoint.getY());
+                sb.append("\t" + mapUnit + "\n");
+            }
+        }
+
+        if (pixelX >= 0 && pixelX < getSceneRasterWidth()
+            && pixelY >= 0 && pixelY < getSceneRasterHeight()) {
+
+            sb.append("\n");
+
+            sb.append("BandName\tValue\tUnit\tWavelength\tUnit\tBandwidth\tUnit\n");
+            for (int i = 0; i < getNumBands(); i++) {
+                final Band band = getBandAt(i);
+                sb.append(band.getName());
+                sb.append(":\t");
+                sb.append(band.getPixelString(pixelX, pixelY));
+                sb.append("\t");
+                if (band.getUnit() != null) {
+                    sb.append(band.getUnit());
+                }
+                if (band.getSpectralWavelength() > 0.0) {
+                    sb.append("\t");
+                    sb.append(band.getSpectralWavelength());
+                    sb.append("\t");
+                    sb.append("nm");
+                    sb.append("\t");
+                    sb.append(band.getSpectralBandwidth());
+                    sb.append("\t");
+                    sb.append("nm");
+                }
+                sb.append("\n");
+            }
+
+            sb.append("\n");
+            for (int i = 0; i < getNumTiePointGrids(); i++) {
+                final TiePointGrid grid = getTiePointGridAt(i);
+                if (grid.hasRasterData()) {
+                    sb.append(grid.getName());
+                    sb.append(":\t");
+                    sb.append(grid.getPixelString(pixelX, pixelY));
+                    if (grid.getUnit() != null) {
+                        sb.append("\t");
+                        sb.append(grid.getUnit());
+                    }
+
+                    sb.append("\n");
+                }
+            }
+
+            for (int i = 0; i < getNumBands(); i++) {
+                final Band band = getBandAt(i);
+                final FlagCoding flagCoding = band.getFlagCoding();
+                if (flagCoding != null) {
+                    boolean ioException = false;
+                    final int[] flags = new int[1];
+                    if (band.hasRasterData()) {
+                        flags[0] = band.getPixelInt(pixelX, pixelY);
+                    } else {
+                        try {
+                            band.readPixels(pixelX, pixelY, 1, 1, flags, ProgressMonitor.NULL);
+                        } catch (IOException e) {
+                            ioException = true;
+                        }
+                    }
+                    sb.append("\n");
+                    if (ioException) {
+                        sb.append(RasterDataNode.IO_ERROR_TEXT);
+                    } else {
+                        for (int j = 0; j < flagCoding.getNumAttributes(); j++) {
+                            final MetadataAttribute flagAttr = flagCoding.getAttributeAt(j);
+                            final int mask = flagAttr.getData().getElemInt();
+                            final boolean flagSet = (flags[0] & mask) == mask;
+                            sb.append(band.getName());
+                            sb.append(".");
+                            sb.append(flagAttr.getName());
+                            sb.append(":\t");
+                            sb.append(flagSet ? "true" : "false");
+                            sb.append("\n");
+                        }
+                    }
+                }
+            }
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Gets all removed child nodes
+     */
+    public ProductNode[] getRemovedChildNodes() {
+        final ArrayList<ProductNode> removedNodes = new ArrayList<ProductNode>();
+        removedNodes.addAll(_bands.getRemovedNodes());
+        removedNodes.addAll(_bitmaskDefs.getRemovedNodes());
+        removedNodes.addAll(_flagCodings.getRemovedNodes());
+        removedNodes.addAll(_pins.getRemovedNodes());
+        removedNodes.addAll(_tiePointGrids.getRemovedNodes());
+        return removedNodes.toArray(new ProductNode[removedNodes.size()]);
+    }
+
+
+    private void checkGeoCoding(final GeoCoding geoCoding) {
+        if (geoCoding instanceof TiePointGeoCoding) {
+            final TiePointGeoCoding gc = (TiePointGeoCoding) geoCoding;
+            Guardian.assertSame("gc.getLatGrid()", gc.getLatGrid(), getTiePointGrid(gc.getLatGrid().getName()));
+            Guardian.assertSame("gc.getLonGrid()", gc.getLonGrid(), getTiePointGrid(gc.getLonGrid().getName()));
+        } else if (geoCoding instanceof MapGeoCoding) {
+            final MapGeoCoding gc = (MapGeoCoding) geoCoding;
+            final MapInfo mapInfo = gc.getMapInfo();
+            Guardian.assertNotNull("mapInfo", mapInfo);
+            Guardian.assertEquals("mapInfo.getSceneWidth()", mapInfo.getSceneWidth(), getSceneRasterWidth());
+            Guardian.assertEquals("mapInfo.getSceneHeight()", mapInfo.getSceneHeight(), getSceneRasterHeight());
+        }
+    }
+
+    /**
+     * Checks whether or not this product can be ortorectified.
+     *
+     * @return true if {@link Band#canBeOrthorectified()} returns true for all bands, false otherwise
+     */
+    public boolean canBeOrthorectified() {
+        for (int i = 0; i < getNumBands(); i++) {
+            if (!getBandAt(i).canBeOrthorectified()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Gets the {@link Pointing} for the given view mode identifier.
+     *
+     * @param viewModeId the view mode identifier, e.g. "NADIR", "FORWARD", "ORTHO"
+     *
+     * @return an appropriate pointing or null if no such exists
+     *
+     * @deprecated use {@link RasterDataNode#getPointing()} instead
+     */
+    public Pointing getPointing(final String viewModeId) {
+        Guardian.assertNotNull("viewModeId", viewModeId);
+        return createPointing(viewModeId);
+    }
+
+    /**
+     * Creates a new appropriate pointing instance for the given view mode identifier.
+     *
+     * @param viewModeId the view mode identifier, e.g. "NADIR", "FORWARD", "ORTHO"
+     *
+     * @return an appropriate pointing or null if no such exists
+     *
+     * @deprecated use {@link RasterDataNode#getPointing()} instead
+     */
+    protected Pointing createPointing(final String viewModeId) {
+        final GeoCoding geoCoding = getGeoCoding();
+        if (geoCoding == null) {
+            return null;
+        }
+        return new TiePointGridPointing(geoCoding,
+                                        getTiePointGrid("sun_zenith"),
+                                        getTiePointGrid("sun_azimuth"),
+                                        getTiePointGrid("view_zenith"),
+                                        getTiePointGrid("view_azimuth"),
+                                        getTiePointGrid("altitude"));
+    }
+
+    private String getSuitableBitmaskDefDescription(final BitmaskDef bitmaskDef) {
+
+        final String expr = bitmaskDef.getExpr();
+        if (StringUtils.isNullOrEmpty(expr)) {
+            return null;
+        }
+
+        final Term term;
+        try {
+            term = createBandArithmeticParser().parse(expr);
+        } catch (ParseException e) {
+            return null;
+        }
+
+        if (term instanceof Term.Ref) {
+            return getSuitableBitmaskDefDescription((Term.Ref) term);
+        }
+
+        if (term instanceof Term.NotB) {
+            final Term.NotB notTerm = ((Term.NotB) term);
+            final Term arg = notTerm.getArgs()[0];
+            if (arg instanceof Term.Ref) {
+                final String description = getSuitableBitmaskDefDescription((Term.Ref) arg);
+                if (description != null) {
+                    return "Not " + description;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private String getSuitableBitmaskDefDescription(Term.Ref ref) {
+        String description = null;
+        final String symbolName = ref.getSymbol().getName();
+        if (isFlagSymbol(symbolName)) {
+            final String[] strings = StringUtils.split(symbolName, new char[]{'.'}, true);
+            final String nodeName = strings[0];
+            final String flagName = strings[1];
+            final RasterDataNode rasterDataNode = getRasterDataNode(nodeName);
+            if (rasterDataNode instanceof Band) {
+                final FlagCoding flagCoding = ((Band) rasterDataNode).getFlagCoding();
+                if (flagCoding != null) {
+                    final MetadataAttribute attribute = flagCoding.getAttribute(flagName);
+                    if (attribute != null) {
+                        description = attribute.getDescription();
+                    }
+                }
+            }
+        } else {
+            final RasterDataNode rasterDataNode = getRasterDataNode(symbolName);
+            if (rasterDataNode != null) {
+                description = rasterDataNode.getDescription();
+            }
+        }
+        return description;
+    }
+
+    private static boolean isFlagSymbol(final String symbolName) {
+        return symbolName.indexOf('.') != -1;
+    }
+}
+
+
+
+
+
+

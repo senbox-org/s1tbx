@@ -1,0 +1,112 @@
+<html>
+<head>
+    <title>VISAT Help - Import MODIS</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            Import MODIS</td>
+        
+    <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" width="227" height="29" border=0></a></td>
+    </tr>
+</table>
+
+<h3>Import MODIS Product (or Subset)</h3>
+
+<h4>BEAM Implementation of the MODIS Product Reader</h4>
+
+<p>The version 2.3 of the BEAM software supports a subset of the products available of the NASA sensor MODIS,
+    both on the Aqua and Terra platform. These products can be imported into VISAT, used as input products in the
+    scientific data processors (where applicable) and accessed by Java developers using the Java product I/O framework.
+</p>
+
+<p>Due to the size of the MODIS products, especially in 250 m resolution, it is strongly recommended to work with
+    these products using a spatial subset.
+</p>
+
+<h4>Supported MODIS Data Products</h4>
+
+<p>The following MODIS data product types are supported by BEAM:
+</p>
+
+<table>
+    <tr><th>Product Type</th><th>Content</th><th>Description</th></tr>
+    <tr><td><code>MOD021KM</code><br><code>MYD021KM</code></td>
+        <td>MODIS/Terra/Aqua Calibrated Radiances 5-Min L1B Swath 1 km</td>
+        <td>This Level 1B product contains calibrated and geolocated radiances at-aperture for all 36 MODIS spectral
+            bands at 1km resolution.</td></tr>
+    <tr><td><code>MOD02HKM</code><br><code>MYD02HKM</code></td>
+        <td>MODIS/Terra/Aqua Calibrated Radiances 5-Min L1B Swath 500 m</td>
+        <td>This Level 1B product contains calibrated and geolocated radiances at-aperture for MODIS spectral bands 1
+            through 7 at 500m resolution.</td></tr>
+    <tr><td><code>MOD02QKM</code><br><code>MYD02QKM</code></td>
+        <td>MODIS/Terra/Aqua Calibrated Radiances 5-Min L1B Swath 250 m</td>
+        <td>This Level 1B product contains calibrated and geolocated radiances at-aperture for MODIS spectral bands 1
+            and 2 at 250m resolution.</td></tr>
+    <tr><td><code>MODOCL2</code><br><code>MYDOCL2</code></td>
+        <td>MODIS/Terra/Aqua Ocean Color Radiance Products 5-Min L2 Swath 1 km Day</td>
+        <td>The MODIS Level 2 ocean color water leaving radiance product, MxDOCL2, contains normalized water-leaving
+            radiance for 7 of the 36 wavelengths/spectral bands (Band 8 through 14, 412 through 618nm) of MODIS which
+            are used to derive nearly all the ocean products, ocean aerosol properties and clear water epsilons
+            (parameters numbers 1-12). This Level 2 data collection has daily coverage with a 1-km resolution at
+            nadir.</td></tr>
+    <tr><td><code>MODOCL2A</code><br><code>MYDOCL2A</code></td>
+        <td>MODIS/Terra/Aqua Ocean Color Derived Products Group 1 5-Min L2 Swath 1 km Day</td>
+        <td>This MODIS Level 2 Ocean Color Derived Products Group 1, MxDOCL2A, product contains the following ocean
+            products: chlorophyll derived from several different algorithms, phycobilin pigment concentrations,
+            chlorophyll fluorescence, suspended solids concentration, coccolith, calcite, coccolith corrected pigment
+            concentration and ocean water attenuation (ocean parameter number 13-25). This Level 2 product has daily
+            coverage with a l-km resolution at nadir.</td></tr>
+    <tr><td><code>MODOCL2B</code><br><code>MYDOCL2B</code></td>
+        <td>MODIS/Terra/Aqua Ocean Color Derived Products Group 2 5-Min L2 Swath 1 km Day</td>
+        <td>This MODIS Level 2 Ocean Color Derived Products Group 2, MxDOCL2B, product contains the following ocean
+            products: chlorophyll_a pigment concentration for Case 2 waters using 2 and 3 band algorithms,
+            photosynthetic available radiation (PAR) and absorbed radiation by phytoplankton (ARP), organic matter
+            concentration, total absorption at 5 wavebands, chlorophyll and gelbstoff absorption coefficients. (ocean
+            parameter number 26-36). This Level 2 product has daily coverage with a 1-km resolution at nadir.</td></tr>
+    <tr><td><code>MOD28L2</code><br><code>MYD28L2</code></td>
+        <td>MODIS/Terra/Aqua Sea Surface Temperature Products 5-Min L2 Swath 1 km</td>
+        <td>This MODIS Level 2 Sea Surface Temperature Product,MxD28L2, product provides a long wavelength (11-12um,
+            SST) sea surface temperature and a short wavelength sea surface temperature (3-4um, SST4) at 1-km resolution
+            over the global oceans. Day and night retrievals are provided as separate products for both SST and
+            SST4.</td></tr>
+</table>
+
+
+<h4>Geolocation of MODIS Products</h4>
+
+<p>Due to the operational mode of the MODIS sensor, all MODIS products available
+    from NASA experience "overlapping" scan lines. This is the so called "bow-tie" effect.
+    These artifacts will be automatically removed by map-projecting the MODIS products.
+</p>
+
+<p align="center"> <img src="images/MODISBowTieEffect.jpg" width="292" height="250" border=0> 
+</p>
+
+<p class="inote">
+    Since BEAM 3.5 this issue is solved by a special geo-coding.
+    So these artifacts do not occure any more even in not map-projected MODIS products.
+</p>
+
+
+<h4>MODIS Level 2 Products</h4>
+
+<p>The supported MODIS Level 2 products do not contain geo-location information. Instead, this
+    information is stored in an accompagnying quality control file (<code>MxDOCQC</code>). The BEAM software tries
+    to locate this file in the same directory as the Level 2 product resides. If the geo-location file is not
+    present, the Level 2 product will be opened as raw datasets without geo-coding.
+</p>
+
+<h4>MODIS Quality Flags</h4>
+
+<p>The current version of BEAM does not support flag coding of MODIS products and therefore bitmask overlays
+    are currently not possible.
+</p>
+
+
+<hr>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-avhrr-reader</symbolicName>
+    <version>1.0</version>
+    <name>AVHRR Product Reader</name>
+
+    <description>Enables BEAM to read AVHRR/3 Level-1b data products.</description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat</module>
+        <optional>true</optional>
+    </dependency>
+
+    <categories>Reader,AVHRR</categories>
+
+    <extension point="beam-visat:actions">
+        <action>
+            <id>importNoaaAvhrr3L1bProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>NOAA_AVHRR_3_L1B</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <text>Import NOAA-AVHRR/3 Level-1b Product (or Subset)...</text>
+            <mnemonic>V</mnemonic>
+            <shortDescr>Import a NOAA-AVHRR/3 Level-1b data product or product subset.</shortDescr>
+            <description>Import a NOAA-AVHRR/3 Level-1b data product or product subset.</description>
+            <helpId>importAvhrr3L1bProduct</helpId>
+            <largeIcon>icons/Import24.gif</largeIcon>
+        </action>
+    </extension>
+
+    <extension point="beam-core:rgbProfiles">
+        <rgbProfile>
+            <name>AVHRR/3 L1b - 3a,2,1, Day</name>
+            <red>radiance_3a</red>
+            <green>radiance_2</green>
+            <blue>radiance_1</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>AVHRR/3 L1b - 5,4,3b, Night</name>
+            <red>temp_5</red>
+            <green>temp_4</green>
+            <blue>temp_3b</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>AVHRR/3 L1b - 5,4,3b, Night, Inverse</name>
+            <red>-temp_5</red>
+            <green>-temp_4</green>
+            <blue>-temp_3b</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>AVHRR/3 L1b - Ionian, Day</name>
+            <red>radiance_1</red>
+            <green>radiance_2</green>
+            <blue>-radiance_4</blue>
+        </rgbProfile>
+    </extension>
+
+
+</module>

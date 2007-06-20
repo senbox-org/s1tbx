@@ -1,0 +1,4 @@
+cal_pulse_gm_vv_1|GM mode VV polarization calibration data for pulse 1, swaths SS1 to SS5.|*
+#
+nom_amplitude|Float|*|4|32|*|Nominal amplitude (ax,n,nom) for antenna row 1 to antenna row 32 (where x is the pulse number)|37a|
+nom_phase|Float|cycles|4|32|*|Nominal value of phase (fx,n,nom) for antenna row 1 to antenna row 32 (where x is the pulse number)|37b|

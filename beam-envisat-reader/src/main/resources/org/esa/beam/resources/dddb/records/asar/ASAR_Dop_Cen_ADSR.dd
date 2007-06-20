@@ -1,0 +1,9 @@
+ASAR_Dop_Cen_ADSR|Doppler Centroid Parameters|*
+#
+zero_doppler_time|@/types/UTC.dd|MJD                  |12|1|*|Zero Doppler azimuth time at which estimate applies|1|
+attach_flag      |UChar         |flag                 | 1|1|*|Attachment Flag (always set to zero for this ADSR)|2|
+slant_range_time |Float         |ns                   | 4|1|*|2-way slant range time origin (t0)|3|
+dop_coef         |Float         |HzHz/sHz/s2Hz/s3Hz/s4| 4|5|*|Doppler centroid coefficients as a function of slant range time: D0, D1, D2, D3, and D4. where Doppler Centroid = D0 + D1(tSR-t0) + D2(tSR-t0)2 + D3(tSR-t0)3 + D4(tSR-t0)4|4|
+dop_conf         |Float         |*                    | 4|1|*|Doppler Centroid Confidence Measure. Value between 0 and 1, 0 = poorest confidence, 1= highest confidence. If multiple Doppler Centroid estimates were performed, this value is the lowest confidence value attained.|5|
+dop_thresh_flag  |UChar         |flag                 | 1|1|*|Doppler Confidence Below Threshold Flag. 0 = confidence above threshold, Doppler Centroid calculated from data. 1 = confidence below threshold, Doppler Centroid calculated from orbit.|2|
+spare_1          |Spare         |*                    |13|1|*|Spare|6|

@@ -1,0 +1,19 @@
+ATS_MET_2P_meteo_user_prod|10-arcminute mds|*
+#
+dsr_time|@/types/UTC.dd|MJD|12|1|*|Nadir UTC time in MJD format|1|
+rec_qua_ind|SChar|*|1|1|*|Record Quality indicator|2|
+spare_1|Spare|*|3|1|*|Spare|3|
+lat|SLong|(1e-6) degrees|4|1|*|Latitude of 10 arcmin cell|4|
+lon|SLong|(1e-6) degrees|4|1|*|Longitude of 10 arcmin cell|5|
+sa_12bt_clr_nad|SLong|K/1000|4|1|*|Nadir spatially averaged 12 micron BT of all clear pixels 10 arcmin cells|6|
+sa_11bt_clr_nad|SLong|K/1000|4|1|*|Nadir spatially averaged 11 micron BT of all clear pixels in 10 arcmin cells|9|
+sa_37bt_clr_nad|SLong|K/1000|4|1|*|Nadir spatially averaged 3.7 micron BT of all clear pixels in 10 arcmin cells|10|
+sa_12bt_clr_for|SLong|K/1000|4|1|*|Forward spatially averaged 12 micron BT of all clear pixels in 10 arcmin cells|12|
+sa_11bt_clr_for|SLong|K/1000|4|1|*|Forward spatially averaged 11 micron BT of all clear pixels in 10 arcmin cells|13|
+sa_37bt_clr_for|SLong|K/1000|4|1|*|Forward spatially averaged 3.7 micron BT of all clear pixels in 10 arcmin cells|14|
+m_actrk_pix_num|SShort|none|2|1|*|Mean across-track pixel number|15|
+m_nad|SShort|K/100|2|1|*|Mean nadir-only SST 10 arcmin cells|16|
+pix_nad|UShort|none|2|1|*|Number of pixels in nadir-only average, 10 arcmin cells|17|
+m_dual_vw|SShort|K/100|2|1|*|Mean dual-view SST in 10 arcmin cells|18|
+pix_dual_vw|UShort|none|2|1|*|Number of pixels in dual-view average, 10 arcmin cells|19|
+ast_conf_flags|UShort|flags|2|2|*|AST confidence word|20|

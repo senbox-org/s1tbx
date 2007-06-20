@@ -1,0 +1,7 @@
+ATS_TOA_1P_MDSR_brgt|12 micron nadir view MDS|*
+#
+dsr_time     |@/types/UTC.dd |MJD        |12 |1   |* |Nadir UTC time in MJD format                                                                                                                                           |1  |
+quality_flag |UChar          |flag       |1  |1   |* |Quality Indicator (-1 for blank MDSR, 0 otherwise)                                                                                                                     |2  |
+spare_1      |Spare          |*          |3  |1   |* |Spare                                                                                                                                                                  |3  |
+img_scan_y   |SLong          |m          |4  |1   |* |image scan y coordinate                                                                                                                                                |4  |
+bt_rad_pix   |SShort         |K/100%/100 |2  |512 |* |BT or refectance for pixel 0 - 511(Units are K/100 for BT, %/100 for reflectance. Small negative values may be used to represent channel-specific exceptional values). |5  |

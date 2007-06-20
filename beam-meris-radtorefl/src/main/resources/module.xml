@@ -1,0 +1,52 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-meris-radtorefl</symbolicName>
+    <version>1.3</version>
+    <name>MERIS Radiance-to-Reflectance Processor</name>
+
+    <description>
+        The MERIS Radiance-To-Reflectance Processor converts TOA radiances into TOA reflectances.
+    </description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+    
+    <dependency>
+        <module>beam-processing</module>
+    </dependency>
+    <dependency>
+        <module>beam-envisat-reader</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat</module>
+        <optional>true</optional>
+    </dependency>
+
+    <categories>Application,Processor,MERIS</categories>
+
+    <extension point="beam-visat:actions">
+        <action>
+            <id>radtoreflScientificTool</id>
+            <class>org.esa.beam.visat.actions.ProcessorAction</class>
+            <processor>org.esa.beam.processor.radtorefl.RadToReflProcessor</processor>
+            <text>Radiance-To-Reflectance Processor (MERIS)....</text>
+            <shortDescr>Invoke the BEAM MERIS Radiance-To-Reflectance Conversion Processor.</shortDescr>
+            <mnemonic>R</mnemonic>
+            <parent>tools</parent>
+            <helpID>radtoreflScientificTool</helpID>
+            <placeAfter>sstScientificTool</placeAfter>
+        </action>
+    </extension>
+
+
+    <extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+            <path>doc/help/radToRefl.hs</path>
+        </helpSet>
+    </extension>
+
+</module>

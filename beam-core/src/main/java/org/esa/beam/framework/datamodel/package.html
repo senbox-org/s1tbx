@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>org.esa.beam.framework.datamodel</TITLE>
+<!--
+
+  $Id: package.html,v 1.1.1.1 2006/09/11 08:16:45 norman Exp $
+
+  Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
+
+  This program is free software; you can redistribute it and/or modify it
+  under the terms of the GNU General Public License as published by the
+  Free Software Foundation. This program is distributed in the hope it will
+  be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+  of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU General Public License for more details.
+
+-->
+</HEAD>
+
+<BODY bgColor=white>
+
+This package contains classes and interfaces used for an in-memory presentation
+of remote sensing data products.
+
+<p>The {@link org.esa.beam.framework.datamodel.Product} class plays a central role in this package and is used
+throughout the MERIS/(A)ATSR software in order represent data products of
+many different types.
+
+<p>Many of the classes in this package are superclasses of the {@link org.esa.beam.framework.datamodel.ProductNode},
+which acts as a base class for all data and metadata items contained in a product.
+The inheritance hierarchy is as follows:
+
+<dir>
+    <li>{@link org.esa.beam.framework.datamodel.ProductNode}</li>
+    <dir>
+        <li>{@link org.esa.beam.framework.datamodel.MetadataElement}</li>
+        <dir>
+            <li>{@link org.esa.beam.framework.datamodel.FlagCoding}</li>
+        </dir>
+        <li>{@link org.esa.beam.framework.datamodel.DataNode}</li>
+        <dir>
+            <dir>
+                <li>{@link org.esa.beam.framework.datamodel.MetadataAttribute}</li>
+            </dir>
+            <li>{@link org.esa.beam.framework.datamodel.RasterDataNode}</li>
+            <dir>
+                <li>{@link org.esa.beam.framework.datamodel.TiePointGrid}</li>
+                <li>{@link org.esa.beam.framework.datamodel.Band}</li>
+            </dir>
+        </dir>
+    <li>{@link org.esa.beam.framework.datamodel.Product <b>Product</b>}</li>
+</dir>
+
+
+<p>A strongly related package is {@link org.esa.beam.framework.dataio} which provides
+the data product I/O framework.
+
+@see org.esa.beam.framework.datamodel.Product
+@see org.esa.beam.framework.dataio
+
+</BODY>
+</HTML>

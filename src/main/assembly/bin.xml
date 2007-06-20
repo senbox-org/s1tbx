@@ -1,0 +1,141 @@
+<!-- BEAM binary distribution -->
+
+<assembly>
+    <id>bin</id>
+
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+    <formats>
+        <format>zip</format>
+        <format>dir</format>
+        <!-- used by installer-files.xml -->
+    </formats>
+
+    <files>
+        <file>
+            <source>readme.html</source>
+            <lineEnding>unix</lineEnding>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>VERSION.txt</source>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>LICENSE.txt</source>
+        </file>
+        <file>
+            <source>CHANGELOG.txt</source>
+        </file>
+    </files>
+
+    <fileSets>
+
+        <fileSet>
+            <directory>src/main/config</directory>
+            <outputDirectory>config</outputDirectory>
+        </fileSet>
+
+        <fileSet>
+            <directory>src/main/licenses</directory>
+            <outputDirectory>licenses</outputDirectory>
+        </fileSet>
+
+        <fileSet>
+            <directory>src/main/bin/common</directory>
+            <outputDirectory>bin</outputDirectory>
+            <includes>
+                <include>splash.png</include>
+            </includes>
+        </fileSet>
+
+        <fileSet>
+            <directory>src/main/bin/win</directory>
+            <outputDirectory>bin</outputDirectory>
+            <lineEnding>dos</lineEnding>
+            <includes>
+                <include>*.bat</include>
+            </includes>
+            <excludes>
+                <exclude>beam-cli-template.*</exclude>
+            </excludes>
+        </fileSet>
+
+        <fileSet>
+            <directory>src/main/bin/linux</directory>
+            <outputDirectory>bin</outputDirectory>
+            <lineEnding>unix</lineEnding>
+            <fileMode>0755</fileMode>
+            <directoryMode>0755</directoryMode>
+            <includes>
+                <include>*.sh</include>
+            </includes>
+            <excludes>
+                <exclude>beam-cli-template.*</exclude>
+            </excludes>
+        </fileSet>
+
+    </fileSets>
+
+
+    <moduleSets>
+
+        <!-- (1) Artifacts that go into 'bin', 'lib' or 'modules' -->
+        <moduleSet>
+            <binaries>
+                <outputDirectory>modules</outputDirectory>
+                <includeDependencies>false</includeDependencies>
+                <unpack>false</unpack>
+
+                <outputFileNameMapping>${artifactId}-${version}.${extension}</outputFileNameMapping>
+
+                <dependencySets>
+
+                    <!-- (1) Put packed launcher into 'bin' -->
+                    <dependencySet>
+                        <outputDirectory>bin</outputDirectory>
+                        <outputFileNameMapping>${artifactId}.${extension}</outputFileNameMapping>
+                        <includes>
+                            <include>com.bc.ceres:ceres-launcher</include>
+                        </includes>
+                    </dependencySet>
+
+                    <!-- (2) Put packed dependencies into 'lib' -->
+                    <dependencySet>
+                        <outputDirectory>lib</outputDirectory>
+                        <excludes>
+                            <exclude>com.bc.ceres:ceres-core</exclude>
+                            <exclude>com.bc.ceres:ceres-ui</exclude>
+                            <exclude>com.bc.ceres:ceres-launcher</exclude>
+                            <exclude>ncsa.hdf:lib-hdf</exclude>
+                            <exclude>ucar.netcdf:lib-netcdf</exclude>
+                            <exclude>org.esa.beam:*</exclude>
+                        </excludes>
+                    </dependencySet>
+
+                    <!-- (3) Put packed Ceres and BEAM artifacts into 'modules' -->
+                    <dependencySet>
+                        <outputDirectory>modules</outputDirectory>
+                        <includes>
+                            <include>com.bc.ceres:ceres-core</include>
+                            <include>com.bc.ceres:ceres-ui</include>
+                            <include>org.esa.beam:*</include>
+                        </includes>
+                        <excludes>
+                            <exclude>com.bc.ceres:ceres-launcher</exclude>
+                        </excludes>
+                    </dependencySet>
+
+                </dependencySets>
+            </binaries>
+
+            <excludes>
+                <!-- Exclude development support modules -->
+                <exclude>org.esa.beam:beam-integration-tests</exclude>
+                <exclude>org.esa.beam:beam-bootstrap</exclude>
+            </excludes>
+        </moduleSet>
+
+    </moduleSets>
+
+</assembly>

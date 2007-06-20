@@ -1,0 +1,105 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-envisat-reader</symbolicName>
+    <version>1.1-SNAPSHOT</version>
+    <name>Envisat Product Reader</name>
+
+
+    <description>Enables BEAM to read ENVISAT data products.</description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+
+    <changelog><![CDATA[
+       Changes in version 1.1:<br/>
+       [BEAM-620] Generify detection of product type<br/>
+       [BEAM-624] Support for AT1_NR__2P and AT2_NR__2P products in ENVISAT-format<br/>
+       ]]></changelog>
+
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat</module>
+        <optional>true</optional>
+    </dependency>
+
+    <categories>Reader,Envisat,MERIS,AATSR,ASAR,ERS</categories>
+
+    <extension point="beam-visat:actions">
+        <action>
+            <id>importEnvisatProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>ENVISAT</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <mnemonic>E</mnemonic>
+            <accelerator>control E</accelerator>
+            <shortDescr>Import an ENVISAT MERIS, AATSR or ASAR data product or product subset.</shortDescr>
+            <description>Import an ENVISAT MERIS, AATSR or ASAR data product or product subset.</description>
+            <largeIcon>icons/Import24.gif</largeIcon>
+        </action>
+        <action>
+            <id>importErsProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>ERS1/2</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <mnemonic>E</mnemonic>
+            <shortDescr>Import an ERS1/2 AATSR or SAR data product or product subset.</shortDescr>
+            <description>Import an ERS1/2 AATSR or SAR data product or product subset.</description>
+            <largeIcon>icons/Import24.gif</largeIcon>
+        </action>
+    </extension>
+
+    <extension point="beam-core:rgbProfiles">
+        <rgbProfile>
+            <name>AATSR L1b - Forward, Day</name>
+            <red>reflec_fward_0870</red>
+            <green>reflec_fward_0670</green>
+            <blue>reflec_fward_0550</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>AATSR L1b - Nadir, Day</name>
+            <red>reflec_nadir_0870</red>
+            <green>reflec_nadir_0670</green>
+            <blue>reflec_nadir_0550</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>MERIS L1b - 13,4,2</name>
+            <red>radiance_13</red>
+            <green>radiance_4</green>
+            <blue>radiance_2</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>MERIS L1b - 13,5,1</name>
+            <red>radiance_13</red>
+            <green>radiance_5</green>
+            <blue>radiance_1</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>MERIS L1b - High Quality</name>
+            <red>log(1.0 + 0.35 * radiance_2 + 0.60 * radiance_5 + radiance_6 + 0.13 * radiance_7)</red>
+            <green>log(1.0 + 0.21 * radiance_3 + 0.50 * radiance_4 + radiance_5 + 0.38 * radiance_6)</green>
+            <blue>log(1.0 + 0.21 * radiance_1 + 1.75 * radiance_2 + 0.47 * radiance_3 + 0.16 * radiance_4)</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>MERIS L2 - 13,5,1</name>
+            <red>reflec_13</red>
+            <green>reflec_5</green>
+            <blue>reflec_1</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>MERIS L2 - High Quality</name>
+            <red>log(0.05 + 0.35 * reflec_2 + 0.60 * reflec_5 + reflec_6 + 0.13 * reflec_7)</red>
+            <green>log(0.05 + 0.21 * reflec_3 + 0.50 * reflec_4 + reflec_5 + 0.38 * reflec_6)</green>
+            <blue>log(0.05 + 0.21 * reflec_1 + 1.75 * reflec_2 + 0.47 * reflec_3 + 0.16 * reflec_4)</blue>
+        </rgbProfile>
+
+    </extension>
+
+
+</module>

@@ -1,0 +1,14 @@
+parameter_codes|Data Set parameter codes|*
+#
+swst_code|UShort|code|2|5|*|Sampling Window Start time code of first processed line|29a|
+last_swst_code|UShort|code|2|5|*|Sampling Window Start time code of last processed line|29b|
+pri_code|UShort|code|2|5|*|Pulse Repetition Interval code|29c|
+tx_pulse_len_code|UShort|code|2|5|*|Tx pulse length|29d|
+tx_bw_code|UShort|code|2|5|*|Tx pulse bandwidth|29e|
+echo_win_len_code|UShort|code|2|5|*|Echo Window Length|29f|
+up_code|UShort|code|2|5|*|Upconverter Level - Upconverter gain set on the instrument|29g|
+down_code|UShort|code|2|5|*|Downconverter Level - Downconverter gain set on the instrument|29h|
+resamp_code|UShort|code|2|5|*|Resampling factor for echo data|29i|
+beam_adj_code|UShort|code|2|5|*|Beam adjustment delta|29j|
+beam_set_num_code|UShort|code|2|5|*|Antenna Beam Set Number|29k|
+tx_monitor_code|UShort|code|2|5|*|Auxiliary Tx Monitor Level|29l|

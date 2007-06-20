@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='ISO-8859-1'  ?>
+<!DOCTYPE toc PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp TOC Version 2.0//EN"
+        "http://java.sun.com/products/javahelp/toc_2_0.dtd">
+
+<toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
+
+    <tocitem text="Data Processors">
+        <tocitem text="Level 3 Binning Processor" target="binningTool">
+            <tocitem text="Overview" target="binningTool"/>
+            <tocitem text="Binning Processor" target="binningScientificTool"/>
+            <tocitem text="Binning Initialize Processor" target="binningInitializeTool"/>
+            <tocitem text="Binning Update Processor" target="binningUpdateTool"/>
+            <tocitem text="Binning Final Processor" target="binningFinalTool"/>
+            <tocitem text="Algorithm Description" target="binningAlgorithmDesc"/>
+        </tocitem>
+    </tocitem>
+</toc>

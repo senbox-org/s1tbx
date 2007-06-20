@@ -1,0 +1,5 @@
+MER_RR__2P_MDSR_1_13|Level 2 MDS(1) normalised surface reflectance|*
+#
+dsr_time|@/types/UTC.dd|MJD|12|1|*|Start Time of the measurement|1|
+quality_flag|UChar|flag|1|1|*|Quality Indicator (-1 for blank MDSR, 0 otherwise)|2|
+norm_surf_reflec_pix|UShort|*|2|sceneRasterWidth|*|Normalised surface reflectance pixels|3|

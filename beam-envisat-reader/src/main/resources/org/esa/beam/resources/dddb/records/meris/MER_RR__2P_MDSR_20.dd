@@ -1,0 +1,5 @@
+MER_RR__2P_MDSR_20|Level 2 MDS(20) flags|*
+#
+dsr_time    |@/types/UTC.dd|MJD   |12|1                 |*|Start Time of DSR                                 |1|
+quality_flag|UChar         |flag  |1 |1                 |*|Quality Indicator (-1 for blank MDSR, 0 otherwise)|2|
+pixel_info  |UChar         |counts|1 |3*sceneRasterWidth|*|Flags associated with pixels                      |3|

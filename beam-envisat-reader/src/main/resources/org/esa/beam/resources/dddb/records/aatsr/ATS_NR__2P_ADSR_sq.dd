@@ -1,0 +1,27 @@
+ATS_NR__2P_ADSR_sq|Summary Quality ADS|*
+#
+dsr_time|@/types/UTC.dd|MJD|12|1|*|Nadir UTC time in MJD format|1|
+attach_flag|UChar|flag|1|1|*|Attachment flag(set to 1 if all MDSRs corresponding to this ADSR are blank, set to 0 otherwise)|2|
+spare_1|Spare|*|3|1|*|Spare|3|
+scan_num|UShort|*|2|1|*|image scan number|4|
+pv_nad_null_pac|SShort|*|2|1|*|Packet Validation during nadir view number of scans null packet|5|
+pv_nad_fail_val|SShort|*|2|1|*|Packet Validation during nadir view number of scans failing basic validation|6|
+pv_nad_fail_crc_chk|SShort|*|2|1|*|Packet Validation during nadir view number of scans failing CRC check|7|
+pv_nad_show_buf_full|SShort|*|2|1|*|Packet Validation during nadir view number of scans showing buffers full|8|
+pv_nad_scan_jitt|SShort|*|2|1|*|Packet Validation during nadir view number of scans showing scan jitter|9|
+per_cloud_pix|SShort|0.01 %|2|1|*|percentage of cloudy pixels|10|
+per_ndvi_inv|SShort|0.01 %|2|1|*|percentage of NDVI invalid|11|
+per_sst_for_inv|SShort|0.01 %|2|1|*|percentage of SST (nadir view) invalid|12|
+per_sst_dual_inv|SShort|0.01 %|2|1|*|percentage of SST (dual view) invalid|13|
+pv_nad_scan_error|SShort|*|2|1|*|Packet Validation during nadir view number of scans - all other errors|14|
+pv_for_null_pac|SShort|*|2|1|*|Packet Validation during forward view number of scans null packet|15|
+pv_for_fail_val|SShort|*|2|1|*|Packet Validation during forward view number of scans failing basic validation|16|
+pv_for_fail_crc_chk|SShort|*|2|1|*|Packet Validation during forward view number of scans failing CRC check|17|
+pv_for_show_buf_full|SShort|*|2|1|*|Packet Validation during forward view number of scans showing buffers full|18|
+pv_for_scan_jitt|SShort|*|2|1|*|Packet Validation during forward view number of scans showing scan jitter|19|
+resv_char_5|SShort|*|2|1|*|reserved for future use|20|
+resv_char_6|SShort|*|2|1|*|reserved for future use|21|
+resv_char_7|SShort|*|2|1|*|reserved for future use|22|
+resv_char_8|SShort|*|2|1|*|reserved for future use|23|
+pv_for_scan_error|SShort|*|2|1|*|Packet Validation during forward view number of scans - all other errors|24|
+spare_2|Spare|*|28|1|*|Spare|25|

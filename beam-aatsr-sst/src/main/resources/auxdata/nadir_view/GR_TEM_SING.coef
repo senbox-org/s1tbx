@@ -1,0 +1,23 @@
+# Source file: ATS_SST_AXVIEC20051205_102103_20020101_000000_20200101_000000.htm
+# Coefficients taken from record #39 of dataset GRIDDED_LUT which corresponds to
+#    - latitude zone TEMPERATE_INDEX
+#    - across track band index 0 (center pixel)
+# For more information see http://envisat.esa.int/dataproducts/aatsr/CNTR2-7-1.htm
+#
+# This file uses Java property file syntax. It is
+# composed of lines which are key-value pairs in the form
+# 	<key> = <value>
+# The supported keys are:
+#	description - a short description of the coefficient set
+#	map.<x>     - definition of the coefficient map <x> as a
+#                 range of zero-based, scanline column indices
+#   <set>.<x>   - coefficient set corresponding to map.<x>
+#                 where <set> is one of c (day) or d (night).
+
+
+description = Gridded Temperate Single View
+
+# Map 0
+map.0 = 0, 511
+a.0	  = -1.49051, 3.41812, -2.41436
+b.0	  = 1.35865, 0.500534, -0.632311, 1.13122

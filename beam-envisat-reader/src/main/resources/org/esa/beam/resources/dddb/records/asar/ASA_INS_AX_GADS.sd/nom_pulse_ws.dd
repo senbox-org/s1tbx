@@ -1,0 +1,5 @@
+nom_pulse_ws|Nominal values of amplitude and phase of the transmitted chirp for WS Mode. Parameters repeated for each sub-swath (5 times), from swath SS1 to SS5:|*
+#
+pulse_amp_coeff|Float|-, s-1, s-2, s-3|4|4|*|4 pulse amplitude coefficients|45a|
+pulse_phs_coeff|Float|cyclesHz,Hz/s,Hz/s2|4|4|*|4 pulse phase coefficients|45b|
+pulse_duration|Float|s|4|1|*|Nominal pulse duration|45c|

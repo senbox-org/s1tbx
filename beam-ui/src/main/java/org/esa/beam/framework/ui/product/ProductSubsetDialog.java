@@ -1,0 +1,1028 @@
+/*
+ * $Id: ProductSubsetDialog.java,v 1.4 2007/01/16 14:56:08 olga Exp $
+ *
+ * Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation. This program is distributed in the hope it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+package org.esa.beam.framework.ui.product;
+
+import com.bc.ceres.core.Assert;
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Term;
+import org.esa.beam.framework.dataio.ProductSubsetDef;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
+import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
+import org.esa.beam.framework.param.ParamChangeEvent;
+import org.esa.beam.framework.param.ParamChangeListener;
+import org.esa.beam.framework.param.ParamGroup;
+import org.esa.beam.framework.param.Parameter;
+import org.esa.beam.framework.ui.GridBagUtils;
+import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.framework.ui.SliderBoxImageDisplay;
+import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.util.BeamConstants;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.math.MathUtils;
+
+import javax.media.jai.PlanarImage;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.SwingWorker;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.Rectangle;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
+/**
+ * A modal dialog used to specify data product subsets.
+ */
+public class ProductSubsetDialog extends ModalDialog {
+
+    private static final String MEM_LABEL_TEXT = "Estimated, raw storage size: "; /*I18N*/
+    private static final Color MEM_LABEL_WARN_COLOR = Color.red;
+    private static final Color MEM_LABEL_NORM_COLOR = Color.black;
+    private static final int MAX_THUMBNAIL_WIDTH = 148;
+    private static final int MIN_SUBSET_SIZE = 1;
+    private static final Font SMALL_PLAIN_FONT = new Font("SansSerif", Font.PLAIN, 10);
+    private static final Font SMALL_ITALIC_FONT = SMALL_PLAIN_FONT.deriveFont(Font.ITALIC);
+
+    private Product product;
+    private ProductSubsetDef productSubsetDef;
+    private ProductSubsetDef givenProductSubsetDef;
+    private JLabel memLabel;
+    private SpatialSubsetPane spatialSubsetPane;
+    private ProductNodeSubsetPane bandSubsetPane;
+    private ProductNodeSubsetPane tiePointGridSubsetPane;
+    private ProductNodeSubsetPane metadataSubsetPane;
+    private double memWarnLimit;
+    private static final double DEFAULT_MEM_WARN_LIMIT = 1000.0;
+
+    /**
+     * Constructs a new subset dialog.
+     *
+     * @param window  the parent window
+     * @param product the product for which the subset is to be specified, must not be <code>null</code>
+     */
+    public ProductSubsetDialog(Window window, Product product) {
+        this(window, product, DEFAULT_MEM_WARN_LIMIT);
+    }
+
+    /**
+     * Constructs a new subset dialog.
+     *
+     * @param window       the parent window
+     * @param product      the product for which the subset is to be specified, must not be <code>null</code>
+     * @param memWarnLimit the warning limit in megabytes
+     */
+    public ProductSubsetDialog(Window window, Product product, double memWarnLimit) {
+        this(window, product, null, memWarnLimit);
+    }
+
+    /**
+     * Constructs a new subset dialog.
+     *
+     * @param window           the parent window
+     * @param product          the product for which the subset is to be specified, must not be <code>null</code>
+     * @param productSubsetDef the initial product subset definition, can be <code>null</code>
+     */
+    public ProductSubsetDialog(Window window,
+                               Product product,
+                               ProductSubsetDef productSubsetDef) {
+        this(window, product, productSubsetDef, DEFAULT_MEM_WARN_LIMIT);
+    }
+
+    /**
+     * Constructs a new subset dialog.
+     *
+     * @param window           the parent window
+     * @param product          the product for which the subset is to be specified, must not be <code>null</code>
+     * @param productSubsetDef the initial product subset definition, can be <code>null</code>
+     * @param memWarnLimit     the warning limit in megabytes
+     */
+    public ProductSubsetDialog(Window window,
+                               Product product,
+                               ProductSubsetDef productSubsetDef,
+                               double memWarnLimit) {
+        super(window,
+              "Specify Product Subset", /*I18N*/
+              ModalDialog.ID_OK
+              | ModalDialog.ID_CANCEL
+              | ModalDialog.ID_HELP,
+              "subsetDialog");
+        Guardian.assertNotNull("product", product);
+        this.product = product;
+        givenProductSubsetDef = productSubsetDef;
+        this.productSubsetDef = new ProductSubsetDef("undefined");
+        this.memWarnLimit = memWarnLimit;
+        createUI();
+    }
+
+    public Product getProduct() {
+        return product;
+    }
+
+    public ProductSubsetDef getProductSubsetDef() {
+        return productSubsetDef;
+    }
+
+    @Override
+    protected void onOK() {
+        boolean ok;
+        ok = checkReferencedRastersIncluded();
+        if (!ok) {
+            return;
+        }
+        ok = checkFlagDatasetIncluded();
+        if (!ok) {
+            return;
+        }
+
+        spatialSubsetPane.cancelThumbnailLoader();
+        if (productSubsetDef != null && productSubsetDef.isEntireProductSelected()) {
+            productSubsetDef = null;
+        }
+        super.onOK();
+    }
+
+    private boolean checkReferencedRastersIncluded() {
+        final Set<String> notIncludedNames = new TreeSet<String>();
+        final List<String> includedNodeNames = Arrays.asList(productSubsetDef.getNodeNames());
+        for (int i = 0; i < includedNodeNames.size(); i++) {
+            final String nodeName = includedNodeNames.get(i);
+            final RasterDataNode rasterDataNode = product.getRasterDataNode(nodeName);
+            if (rasterDataNode != null) {
+                collectNotIncludedReferences(rasterDataNode, notIncludedNames);
+            }
+        }
+
+        boolean ok = true;
+        if (notIncludedNames.size() > 0) {
+            StringBuffer nameListText = new StringBuffer();  /*I18N*/
+            for (Iterator iterator = notIncludedNames.iterator(); iterator.hasNext();) {
+                nameListText.append("  '" + iterator.next() + "'\n");
+            }
+
+            final String pattern = "The following dataset(s) are referenced but not included\n" +
+                                   "in your current subset definition:\n" +
+                                   "{0}\n" +
+                                   "If you do not include these dataset(s) into your selection,\n" +
+                                   "you might get unexpected results while working with the\n" +
+                                   "resulting product.\n\n" +
+                                   "Do you wish to include the referenced dataset(s) into your\n" +
+                                   "subset definition?\n"; /*I18N*/
+            final MessageFormat format = new MessageFormat(pattern);
+            int status = JOptionPane.showConfirmDialog(this.getJDialog(),
+                                                       format.format(new Object[]{nameListText.toString()}),
+                                                       "Incomplete Subset Definition", /*I18N*/
+                                                       JOptionPane.YES_NO_CANCEL_OPTION);
+            if (status == JOptionPane.YES_OPTION) {
+                final String[] nodenames = notIncludedNames.toArray(new String[notIncludedNames.size()]);
+                productSubsetDef.addNodeNames(nodenames);
+                ok = true;
+            } else if (status == JOptionPane.NO_OPTION) {
+                ok = true;
+            } else if (status == JOptionPane.CANCEL_OPTION) {
+                ok = false;
+            }
+        }
+        return ok;
+    }
+
+    private void collectNotIncludedReferences(final RasterDataNode rasterDataNode, final Set<String> notIncludedNames) {
+        final RasterDataNode[] referencedNodes = getReferencedNodes(rasterDataNode);
+        for (int j = 0; j < referencedNodes.length; j++) {
+            final RasterDataNode referencedNode = referencedNodes[j];
+            final String name = referencedNode.getName();
+            if (!productSubsetDef.isNodeAccepted(name) && !notIncludedNames.contains(name)) {
+                notIncludedNames.add(name);
+                collectNotIncludedReferences(referencedNode, notIncludedNames);
+            }
+        }
+    }
+
+    private static RasterDataNode[] getReferencedNodes(final RasterDataNode node) {
+        final Product product = node.getProduct();
+        if (product != null) {
+            final List<String> expressions = new ArrayList<String>();
+            if (node.getValidPixelExpression() != null) {
+                expressions.add(node.getValidPixelExpression());
+            }
+            final BitmaskOverlayInfo bitmaskOverlayInfo = node.getBitmaskOverlayInfo();
+            if (bitmaskOverlayInfo != null) {
+                final BitmaskDef[] bitmaskDefs = bitmaskOverlayInfo.getBitmaskDefs();
+                for (int i = 0; i < bitmaskDefs.length; i++) {
+                    final BitmaskDef bitmaskDef = bitmaskDefs[i];
+                    if (bitmaskDef.getExpr() != null) {
+                        expressions.add(bitmaskDef.getExpr());
+                    }
+                }
+            }
+            final ROIDefinition roiDefinition = node.getROIDefinition();
+            if (roiDefinition != null) {
+                if (roiDefinition.getBitmaskExpr() != null) {
+                    expressions.add(roiDefinition.getBitmaskExpr());
+                }
+            }
+
+            if (node instanceof VirtualBand) {
+                final VirtualBand virtualBand = (VirtualBand) node;
+                expressions.add(virtualBand.getExpression());
+            }
+
+            final ArrayList<Term> termList = new ArrayList<Term>();
+            for (int i = 0; i < expressions.size(); i++) {
+                final String expression = (String) expressions.get(i);
+                try {
+                    final Term term = product.createTerm(expression);
+                    if (term != null) {
+                        termList.add(term);
+                    }
+                } catch (ParseException e) {
+                    // @todo se handle parse exception
+                    Debug.trace(e);
+                }
+            }
+
+            final Term[] terms = termList.toArray(new Term[termList.size()]);
+            final RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(terms);
+            return BandArithmetic.getRefRasters(refRasterDataSymbols);
+        }
+        return new RasterDataNode[0];
+    }
+
+    private boolean checkFlagDatasetIncluded() {
+
+        final String[] nodeNames = productSubsetDef.getNodeNames();
+        final List<String> flagDsNameList = new ArrayList<String>();
+        boolean flagDsInSubset = false;
+        for (int i = 0; i < product.getNumBands(); i++) {
+            Band band = product.getBandAt(i);
+            if (band.getFlagCoding() != null) {
+                flagDsNameList.add(band.getName());
+                if (StringUtils.contains(nodeNames, band.getName())) {
+                    flagDsInSubset = true;
+                }
+                break;
+            }
+        }
+
+        final int numFlagDs = flagDsNameList.size();
+        boolean ok = true;
+        if (numFlagDs > 0 && !flagDsInSubset) {
+            int status = JOptionPane.showConfirmDialog(this.getJDialog(),
+                                                       "No flag dataset selected.\n\n"
+                                                       + "If you do not include a flag dataset in the subset,\n"
+                                                       + "you will not be able to create bitmask overlays.\n\n"
+                                                       + "Do you wish to include the available flag dataset(s)\n"
+                                                       + "in the current subset?\n",
+                                                       "No Flag Dataset Selected",
+                                                       JOptionPane.YES_NO_CANCEL_OPTION);
+            if (status == JOptionPane.YES_OPTION) {
+                productSubsetDef.addNodeNames((String[]) flagDsNameList.toArray(new String[numFlagDs]));
+                ok = true;
+            } else if (status == JOptionPane.NO_OPTION) {
+                /* OK, no flag datasets wanted */
+                ok = true;
+            } else if (status == JOptionPane.CANCEL_OPTION) {
+                ok = false;
+            }
+        }
+
+        return ok;
+    }
+
+    @Override
+    protected void onCancel() {
+        spatialSubsetPane.cancelThumbnailLoader();
+        super.onCancel();
+    }
+
+    private void createUI() {
+
+        memLabel = new JLabel("####", JLabel.RIGHT);
+
+        JTabbedPane tabbedPane = new JTabbedPane();
+
+        spatialSubsetPane = createSpatialSubsetPane();
+        if (spatialSubsetPane != null) {
+            tabbedPane.addTab("Spatial Subset", spatialSubsetPane); /*I18N*/
+        }
+
+        bandSubsetPane = createBandSubsetPane();
+        if (bandSubsetPane != null) {
+            tabbedPane.addTab("Band Subset", bandSubsetPane); /*I18N*/
+        }
+
+        tiePointGridSubsetPane = createTiePointGridSubsetPane();
+        if (tiePointGridSubsetPane != null) {
+            tabbedPane.addTab("Tie-Point Grid Subset", tiePointGridSubsetPane); /*I18N*/
+        }
+
+        metadataSubsetPane = createAnnotationSubsetPane();
+        if (metadataSubsetPane != null) {
+            tabbedPane.addTab("Metadata Subset", metadataSubsetPane); /*I18N*/
+        }
+
+        tabbedPane.setPreferredSize(new Dimension(512, 320));
+        tabbedPane.setSelectedIndex(0);
+
+        JPanel contentPane = new JPanel(new BorderLayout(4, 4));
+
+        contentPane.add(tabbedPane, BorderLayout.CENTER);
+        contentPane.add(memLabel, BorderLayout.SOUTH);
+        setContent(contentPane);
+
+        updateSubsetDefNodeNameList();
+    }
+
+    protected SpatialSubsetPane createSpatialSubsetPane() {
+        return new SpatialSubsetPane();
+    }
+
+    protected ProductNodeSubsetPane createBandSubsetPane() {
+        Band[] bands = product.getBands();
+        if (bands.length == 0) {
+            return null;
+        }
+        return new ProductNodeSubsetPane(product.getBands(), true); /*I18N*/
+    }
+
+    protected ProductNodeSubsetPane createTiePointGridSubsetPane() {
+        TiePointGrid[] tiePointGrids = product.getTiePointGrids();
+        if (tiePointGrids.length == 0) {
+            return null;
+        }
+        return new ProductNodeSubsetPane(product.getTiePointGrids(),
+                                         new String[]{
+                                                 BeamConstants.LAT_DS_NAME,
+                                                 BeamConstants.LON_DS_NAME
+                                         }, true);
+    }
+
+    protected ProductNodeSubsetPane createAnnotationSubsetPane() {
+        final MetadataElement metadataRoot = product.getMetadataRoot();
+        final MetadataElement[] metadataElements = metadataRoot.getElements();
+        final String[] metaNodes;
+        if (metadataElements.length == 0) {
+            return null;
+        } else {
+            // metadata elements must be added to includeAlways list
+            // to ensure that they are selected if isIgnoreMetada is set to false
+            if (givenProductSubsetDef != null && !givenProductSubsetDef.isIgnoreMetadata()) {
+                metaNodes = new String[metadataElements.length];
+                for (int i = 0; i < metadataElements.length; i++) {
+                    final MetadataElement metadataElement = metadataElements[i];
+                    metaNodes[i] = metadataElement.getName();
+                }
+            } else {
+                metaNodes = new String[0];
+            }
+        }
+        final String[] includeNodes = StringUtils.addToArray(metaNodes, Product.HISTORY_ROOT_NAME);
+        return new ProductNodeSubsetPane(metadataElements, includeNodes, true);
+    }
+
+    private void updateSubsetDefRegion(int x1, int y1, int x2, int y2, int sx, int sy) {
+        productSubsetDef.setRegion(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+        productSubsetDef.setSubSampling(sx, sy);
+        updateMemDisplay();
+    }
+
+    private void updateSubsetDefNodeNameList() {
+        /* We don't use this option! */
+        productSubsetDef.setIgnoreMetadata(false);
+        productSubsetDef.setNodeNames(null);
+        if (bandSubsetPane != null) {
+            productSubsetDef.addNodeNames(bandSubsetPane.getSubsetNames());
+        }
+        if (tiePointGridSubsetPane != null) {
+            productSubsetDef.addNodeNames(tiePointGridSubsetPane.getSubsetNames());
+        }
+        if (metadataSubsetPane != null) {
+            productSubsetDef.addNodeNames(metadataSubsetPane.getSubsetNames());
+        }
+        updateMemDisplay();
+    }
+
+    private void updateMemDisplay() {
+        if (product != null) {
+            long storageMem = product.getRawStorageSize(productSubsetDef);
+            double factor = 1.0 / (1024 * 1024);
+            double megas = MathUtils.round(factor * storageMem, 10);
+            if (megas > memWarnLimit) {
+                memLabel.setForeground(MEM_LABEL_WARN_COLOR);
+            } else {
+                memLabel.setForeground(MEM_LABEL_NORM_COLOR);
+            }
+            memLabel.setText(MEM_LABEL_TEXT + megas + "M");
+        } else {
+            memLabel.setText(" ");
+        }
+    }
+
+    class SpatialSubsetPane extends JPanel
+            implements ActionListener, ParamChangeListener, SliderBoxImageDisplay.SliderBoxChangeListener {
+
+        private Parameter paramX1;
+        private Parameter paramY1;
+        private Parameter paramX2;
+        private Parameter paramY2;
+        private Parameter paramSX;
+        private Parameter paramSY;
+
+        private SliderBoxImageDisplay imageCanvas;
+        private JCheckBox fixSceneWidthCheck;
+        private JCheckBox fixSceneHeightCheck;
+        private JLabel subsetWidthLabel;
+        private JLabel subsetHeightLabel;
+        private int thumbNailSubSampling;
+        private JButton setToVisibleButton;
+        private JScrollPane imageScrollPane;
+        private SwingWorker thumbnailLoader;
+
+        public SpatialSubsetPane() {
+            initParameters();
+            createUI();
+        }
+
+        private void createUI() {
+
+            setThumbnailSubsampling();
+            final ProductSubsetDef psd = createThumbnailSubsetDef();
+
+            thumbnailLoader = new SwingWorker() {
+                private IOException exception;
+
+                @Override
+                protected Object doInBackground() throws Exception {
+                    exception = null;
+                    PlanarImage thumbnail = null;
+                    try {
+                        thumbnail = createThumbNailImage(psd, ProgressMonitor.NULL);
+                    } catch (IOException e) {
+                        exception = e;
+                    }
+                    return thumbnail;
+                }
+
+                @Override
+                protected void done() {
+                    super.done();
+                    String exceptionMsg = "Failed to create thumbnail image:\n";
+                    if (exception != null) {
+                        showErrorDialog(exceptionMsg + exception.getMessage());
+                    }
+
+                    PlanarImage thumbnail = null;
+                    try {
+                        thumbnail = (PlanarImage) get();
+                    } catch (Exception e) {
+                        // occures if sbuset dialog is canceled
+                        // dont show a message to user but we can log to the console
+                        Debug.trace("Thumbnail creation interrupted");
+                    }
+
+                    if (thumbnail != null) {
+                        imageCanvas.setImage(thumbnail);
+                    }
+
+                }
+
+            };
+            thumbnailLoader.execute();
+
+            Dimension imgSize = psd.getSceneRasterSize(product.getSceneRasterWidth(),
+                                                       product.getSceneRasterHeight());
+            imageCanvas = new SliderBoxImageDisplay(imgSize.width, imgSize.height, this);
+            imageCanvas.setSize(imgSize.width, imgSize.height);
+
+            imageScrollPane = new JScrollPane(imageCanvas);
+            imageScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+            imageScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+            imageScrollPane.getViewport().setExtentSize(new Dimension(MAX_THUMBNAIL_WIDTH, 2 * MAX_THUMBNAIL_WIDTH));
+
+            subsetWidthLabel = new JLabel("####", JLabel.RIGHT);
+            subsetHeightLabel = new JLabel("####", JLabel.RIGHT);
+
+            setToVisibleButton = new JButton("Use Preview");/*I18N*/
+            setToVisibleButton.setMnemonic('v');
+            setToVisibleButton.setToolTipText("Use coordinates of visible thumbnail area"); /*I18N*/
+            setToVisibleButton.addActionListener(this);
+
+            fixSceneWidthCheck = new JCheckBox("Fix full width");/*I18N*/
+            fixSceneWidthCheck.setMnemonic('w');/*I18N*/
+            fixSceneWidthCheck.setToolTipText("Checks whether or not to fix the full scene width"); /*I18N*/
+            fixSceneWidthCheck.addActionListener(this);
+
+            fixSceneHeightCheck = new JCheckBox("Fix full height");/*I18N*/
+            fixSceneHeightCheck.setMnemonic('h');/*I18N*/
+            fixSceneHeightCheck.setToolTipText("Checks whether or not to fix the full scene height"); /*I18N*/
+            fixSceneHeightCheck.addActionListener(this);
+
+            JPanel textInputPane = GridBagUtils.createPanel();
+            GridBagConstraints gbc = GridBagUtils.createConstraints("insets.left=7,anchor=WEST,fill=HORIZONTAL");
+
+            GridBagUtils.setAttributes(gbc, "insets.top=4");
+            GridBagUtils.addToPanel(textInputPane, new JLabel("Scene start X:"),
+                                    gbc, "gridx=0,gridy=0");/*I18N*/
+            GridBagUtils.addToPanel(textInputPane, UIUtils.createSpinner(paramX1, 25, "#0"),
+                                    gbc, "gridx=1,gridy=0");
+            GridBagUtils.setAttributes(gbc, "insets.top=0");
+            GridBagUtils.addToPanel(textInputPane, new JLabel("Scene start Y:"),
+                                    gbc, "gridx=0,gridy=1");/*I18N*/
+            GridBagUtils.addToPanel(textInputPane, UIUtils.createSpinner(paramY1, 25, "#0"),
+                                    gbc, "gridx=1,gridy=1");
+
+            GridBagUtils.setAttributes(gbc, "insets.top=4");
+            GridBagUtils.addToPanel(textInputPane, new JLabel("Scene end X:"),
+                                    gbc, "gridx=0,gridy=2");/*I18N*/
+            GridBagUtils.addToPanel(textInputPane, UIUtils.createSpinner(paramX2, 25, "#0"),
+                                    gbc, "gridx=1,gridy=2");
+            GridBagUtils.setAttributes(gbc, "insets.top=0");
+            GridBagUtils.addToPanel(textInputPane, new JLabel("Scene end Y:"),
+                                    gbc, "gridx=0,gridy=3");/*I18N*/
+            GridBagUtils.addToPanel(textInputPane, UIUtils.createSpinner(paramY2, 25, "#0"),
+                                    gbc, "gridx=1,gridy=3");
+
+            GridBagUtils.setAttributes(gbc, "insets.top=4");
+            GridBagUtils.addToPanel(textInputPane, new JLabel("Scene step X:"),
+                                    gbc, "gridx=0,gridy=4");/*I18N*/
+            GridBagUtils.addToPanel(textInputPane, UIUtils.createSpinner(paramSX, 1, "#0"),
+                                    gbc, "gridx=1,gridy=4");
+            GridBagUtils.setAttributes(gbc, "insets.top=0");
+            GridBagUtils.addToPanel(textInputPane, new JLabel("Scene step Y:"),
+                                    gbc, "gridx=0,gridy=5");/*I18N*/
+            GridBagUtils.addToPanel(textInputPane, UIUtils.createSpinner(paramSY, 1, "#0"),
+                                    gbc, "gridx=1,gridy=5");
+
+            GridBagUtils.setAttributes(gbc, "insets.top=4");
+            GridBagUtils.addToPanel(textInputPane, new JLabel("Subset scene width:"),
+                                    gbc, "gridx=0,gridy=6");/*I18N*/
+            GridBagUtils.addToPanel(textInputPane, subsetWidthLabel,
+                                    gbc, "gridx=1,gridy=6");
+
+            GridBagUtils.setAttributes(gbc, "insets.top=0");
+            GridBagUtils.addToPanel(textInputPane, new JLabel("Subset scene height:"),
+                                    gbc, "gridx=0,gridy=7");/*I18N*/
+            GridBagUtils.addToPanel(textInputPane, subsetHeightLabel,
+                                    gbc, "gridx=1,gridy=7");
+
+            GridBagUtils.setAttributes(gbc, "insets.top=4,gridwidth=1");
+            GridBagUtils.addToPanel(textInputPane, new JLabel("Source scene width:"),
+                                    gbc, "gridx=0,gridy=8");/*I18N*/
+            GridBagUtils.addToPanel(textInputPane, new JLabel(String.valueOf(product.getSceneRasterWidth()),
+                                                              JLabel.RIGHT),
+                                    gbc, "gridx=1,gridy=8");
+
+            GridBagUtils.setAttributes(gbc, "insets.top=0");
+            GridBagUtils.addToPanel(textInputPane, new JLabel("Source scene height:"),
+                                    gbc, "gridx=0,gridy=9");/*I18N*/
+            GridBagUtils.addToPanel(textInputPane, new JLabel(String.valueOf(product.getSceneRasterHeight()),
+                                                              JLabel.RIGHT),
+                                    gbc, "gridx=1,gridy=9");
+
+            GridBagUtils.setAttributes(gbc, "insets.top=7,gridwidth=1, gridheight=2");
+            GridBagUtils.addToPanel(textInputPane, setToVisibleButton,
+                                    gbc, "gridx=0,gridy=10");
+
+            GridBagUtils.setAttributes(gbc, "insets.top=7,gridwidth=1, gridheight=1");
+            GridBagUtils.addToPanel(textInputPane, fixSceneWidthCheck,
+                                    gbc, "gridx=1,gridy=10");
+
+            GridBagUtils.setAttributes(gbc, "insets.top=0,gridwidth=1");
+            GridBagUtils.addToPanel(textInputPane, fixSceneHeightCheck,
+                                    gbc, "gridx=1,gridy=11");
+
+            setLayout(new BorderLayout(7, 7));
+            add(imageScrollPane, BorderLayout.WEST);
+            add(textInputPane, BorderLayout.CENTER);
+            setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
+
+            updateUIState();
+            imageCanvas.scrollRectToVisible(imageCanvas.getSliderBoxBounds());
+        }
+
+        private void setThumbnailSubsampling() {
+            int w = product.getSceneRasterWidth();
+
+            thumbNailSubSampling = w / MAX_THUMBNAIL_WIDTH;
+            if (thumbNailSubSampling <= 1) {
+                thumbNailSubSampling = 1;
+            }
+        }
+
+        public void cancelThumbnailLoader() {
+            if (thumbnailLoader != null) {
+                thumbnailLoader.cancel(true);
+            }
+        }
+
+        public boolean isThumbnailLoaderCanceled() {
+            if (thumbnailLoader != null && thumbnailLoader.isCancelled()) {
+                return true;
+            }
+            return false;
+        }
+
+        public void sliderBoxChanged(Rectangle sliderBoxBounds) {
+            int x1 = sliderBoxBounds.x * thumbNailSubSampling;
+            int y1 = sliderBoxBounds.y * thumbNailSubSampling;
+            int x2 = x1 + sliderBoxBounds.width * thumbNailSubSampling;
+            int y2 = y1 + sliderBoxBounds.height * thumbNailSubSampling;
+            int w = product.getSceneRasterWidth();
+            int h = product.getSceneRasterHeight();
+            if (x1 < 0) {
+                x1 = 0;
+            }
+            if (x1 > w - 2) {
+                x1 = w - 2;
+            }
+            if (y1 < 0) {
+                y1 = 0;
+            }
+            if (y1 > h - 2) {
+                y1 = h - 2;
+            }
+            if (x2 < 1) {
+                x2 = 1;
+            }
+            if (x2 > w - 1) {
+                x2 = w - 1;
+            }
+            if (y2 < 1) {
+                y2 = 1;
+            }
+            if (y2 > h - 1) {
+                y2 = h - 1;
+            }
+            paramX1.setValue(x1, null);
+            paramY1.setValue(y1, null);
+            paramX2.setValue(x2, null);
+            paramY2.setValue(y2, null);
+        }
+
+        /**
+         * Invoked when an action occurs.
+         */
+        public void actionPerformed(ActionEvent e) {
+            if (e.getSource().equals(fixSceneWidthCheck)) {
+                imageCanvas.setImageWidthFixed(fixSceneWidthCheck.isSelected());
+                final boolean enable = !fixSceneWidthCheck.isSelected();
+                paramX1.setUIEnabled(enable);
+                paramX2.setUIEnabled(enable);
+            }
+            if (e.getSource().equals(fixSceneHeightCheck)) {
+                imageCanvas.setImageHeightFixed(fixSceneHeightCheck.isSelected());
+                final boolean enable = !fixSceneHeightCheck.isSelected();
+                paramY1.setUIEnabled(enable);
+                paramY2.setUIEnabled(enable);
+            }
+            if (e.getSource().equals(setToVisibleButton)) {
+                imageCanvas.setSliderBoxBounds(imageScrollPane.getViewport().getViewRect(), true);
+            }
+        }
+
+        /**
+         * Called if the value of a parameter changed.
+         *
+         * @param event the parameter change event
+         */
+        public void parameterValueChanged(ParamChangeEvent event) {
+            updateUIState();
+        }
+
+        private void initParameters() {
+
+            int w = product.getSceneRasterWidth();
+            int h = product.getSceneRasterHeight();
+
+            int x1 = 0;
+            int y1 = 0;
+            int x2 = w - 1;
+            int y2 = h - 1;
+            int sx = 1;
+            int sy = 1;
+
+            if (givenProductSubsetDef != null) {
+                Rectangle region = givenProductSubsetDef.getRegion();
+                if (region != null) {
+                    x1 = region.x;
+                    y1 = region.y;
+                    final int preX2 = x1 + region.width - 1;
+                    if (preX2 < x2) {
+                        x2 = preX2;
+                    }
+                    final int preY2 = y1 + region.height - 1;
+                    if (preY2 < y2) {
+                        y2 = preY2;
+                    }
+                }
+                sx = givenProductSubsetDef.getSubSamplingX();
+                sy = givenProductSubsetDef.getSubSamplingY();
+            }
+
+            final int wMin = MIN_SUBSET_SIZE;
+            final int hMin = MIN_SUBSET_SIZE;
+
+            paramX1 = new Parameter("source_x1", x1);
+            paramX1.getProperties().setDescription("Start X co-ordinate given in pixels"); /*I18N*/
+            paramX1.getProperties().setMinValue(0);
+            paramX1.getProperties().setMaxValue(w - wMin - 1);
+
+            paramY1 = new Parameter("source_y1", y1);
+            paramY1.getProperties().setDescription("Start Y co-ordinate given in pixels"); /*I18N*/
+            paramY1.getProperties().setMinValue(0);
+            paramY1.getProperties().setMaxValue(h - hMin - 1);
+
+            paramX2 = new Parameter("source_x2", x2);
+            paramX2.getProperties().setDescription("End X co-ordinate given in pixels");/*I18N*/
+            paramX2.getProperties().setMinValue(wMin - 1);
+            final Integer maxValue = w - 1;
+            paramX2.getProperties().setMaxValue(maxValue);
+
+            paramY2 = new Parameter("source_y2", y2);
+            paramY2.getProperties().setDescription("End Y co-ordinate given in pixels");/*I18N*/
+            paramY2.getProperties().setMinValue(hMin - 1);
+            paramY2.getProperties().setMaxValue(h - 1);
+
+            paramSX = new Parameter("source_sx", sx);
+            paramSX.getProperties().setDescription("Sub-sampling in X-direction given in pixels");/*I18N*/
+            paramSX.getProperties().setMinValue(1);
+            paramSX.getProperties().setMaxValue(w / wMin + 1);
+
+            paramSY = new Parameter("source_sy", sy);
+            paramSY.getProperties().setDescription("Sub-sampling in Y-direction given in pixels");/*I18N*/
+            paramSY.getProperties().setMinValue(1);
+            paramSY.getProperties().setMaxValue(h / hMin + 1);
+
+            ParamGroup pg = new ParamGroup();
+            pg.addParameter(paramX1);
+            pg.addParameter(paramY1);
+            pg.addParameter(paramX2);
+            pg.addParameter(paramY2);
+            pg.addParameter(paramSX);
+            pg.addParameter(paramSY);
+            pg.addParamChangeListener(this);
+        }
+
+        private void updateUIState() {
+            int x1 = ((Number) paramX1.getValue()).intValue();
+            int y1 = ((Number) paramY1.getValue()).intValue();
+            int x2 = ((Number) paramX2.getValue()).intValue();
+            int y2 = ((Number) paramY2.getValue()).intValue();
+            int sx = ((Number) paramSX.getValue()).intValue();
+            int sy = ((Number) paramSY.getValue()).intValue();
+
+            updateSubsetDefRegion(x1, y1, x2, y2, sx, sy);
+
+            Dimension s = productSubsetDef.getSceneRasterSize(product.getSceneRasterWidth(),
+                                                              product.getSceneRasterHeight());
+            subsetWidthLabel.setText(String.valueOf(s.getWidth()));
+            subsetHeightLabel.setText(String.valueOf(s.getHeight()));
+
+            int sliderBoxX1 = x1 / thumbNailSubSampling;
+            int sliderBoxY1 = y1 / thumbNailSubSampling;
+            int sliderBoxX2 = x2 / thumbNailSubSampling;
+            int sliderBoxY2 = y2 / thumbNailSubSampling;
+            int sliderBoxW = sliderBoxX2 - sliderBoxX1 + 1;
+            int sliderBoxH = sliderBoxY2 - sliderBoxY1 + 1;
+            imageCanvas.setSliderBoxBounds(sliderBoxX1, sliderBoxY1, sliderBoxW, sliderBoxH);
+        }
+
+        private PlanarImage createThumbNailImage(ProductSubsetDef psd, ProgressMonitor pm) throws IOException {
+            Assert.notNull(pm, "pm");
+            Product productSubset = product.createSubset(psd, null, null);
+
+            Band thumbNailBand = productSubset.getBandAt(0);
+            String thumbNailBandName = thumbNailBand.getName();
+
+            Debug.trace("ProductSubsetDialog: Reading thumbnail data for band '" + thumbNailBandName + "'...");
+            pm.beginTask("Creating thumbnail image", 3);
+            final PlanarImage planarImage;
+            try {
+                thumbNailBand.readRasterDataFully(new SubProgressMonitor(pm, 1));
+                Debug.trace("ProductSubsetDialog: Thumbnail data read.");
+
+                Debug.trace("ProductSubsetDialog: Creating thumbnail image for band '" + thumbNailBandName + "'...");
+
+                BufferedImage image = thumbNailBand.createRgbImage(new SubProgressMonitor(pm, 1));
+                Debug.trace("ProductSubsetDialog: Thumbnail image created.");
+
+                productSubset.dispose();
+                planarImage = PlanarImage.wrapRenderedImage(image);
+                pm.worked(1);
+            } finally {
+                pm.done();
+            }
+            return planarImage;
+        }
+
+        private ProductSubsetDef createThumbnailSubsetDef() {
+            ProductSubsetDef psd = new ProductSubsetDef("undefined");
+            psd.setIgnoreMetadata(false);
+            psd.setNodeNames(new String[]{getThumbnailBandName()});
+            psd.addNodeNames(getFlagBandNames());
+            psd.setSubSampling(thumbNailSubSampling, thumbNailSubSampling);
+            return psd;
+        }
+
+        private String[] getFlagBandNames() {
+            final List<String> flagBandNames = new ArrayList<String>();
+            for (int i = 0; i < product.getNumFlagCodings(); i++) {
+                for (int j = 0; j < product.getNumBands(); j++) {
+                    final Band band = product.getBandAt(j);
+                    if (band.getFlagCoding() == product.getFlagCodingAt(i)) {
+                        flagBandNames.add(band.getName());
+                    }
+                }
+            }
+            return (String[]) flagBandNames.toArray(new String[flagBandNames.size()]);
+        }
+
+        private String getThumbnailBandName() {
+            return ProductUtils.findSuitableQuicklookBandName(product);
+        }
+    }
+
+    class ProductNodeSubsetPane extends JPanel {
+
+        private Object[] _productNodes;
+        private String[] _includeAlways;
+        private List<JCheckBox> _checkers;
+        private JCheckBox _allCheck;
+        private JCheckBox _noneCheck;
+        private boolean _selected;
+
+        public ProductNodeSubsetPane(Object[] productNodes, boolean selected) {
+            this(productNodes, null, selected);
+        }
+
+        public ProductNodeSubsetPane(Object[] productNodes, String[] includeAlways, boolean selected) {
+            _productNodes = productNodes;
+            _includeAlways = includeAlways;
+            _selected = selected;
+            createUI();
+        }
+
+        void createUI() {
+
+            ActionListener productNodeCheckListener = new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    updateUIState();
+                }
+            };
+
+            _checkers = new ArrayList<JCheckBox>();
+            JPanel checkersPane = GridBagUtils.createPanel();
+            GridBagConstraints gbc = GridBagUtils.createConstraints("insets.left=4,anchor=WEST,fill=HORIZONTAL");
+            for (int i = 0; i < _productNodes.length; i++) {
+                ProductNode productNode = (ProductNode) _productNodes[i];
+
+                String name = productNode.getName();
+                JCheckBox productNodeCheck = new JCheckBox(name);
+                productNodeCheck.setSelected(_selected);
+                productNodeCheck.setFont(SMALL_PLAIN_FONT);
+                productNodeCheck.addActionListener(productNodeCheckListener);
+
+                if (_includeAlways != null
+                    && StringUtils.containsIgnoreCase(_includeAlways, name)) {
+                    productNodeCheck.setSelected(true);
+                    productNodeCheck.setEnabled(false);
+                } else if (givenProductSubsetDef != null) {
+                    productNodeCheck.setSelected(givenProductSubsetDef.containsNodeName(name));
+                }
+                _checkers.add(productNodeCheck);
+
+                String description = productNode.getDescription();
+                JLabel productNodeLabel = new JLabel(description != null ? description : " ");
+                productNodeLabel.setFont(SMALL_ITALIC_FONT);
+
+                GridBagUtils.addToPanel(checkersPane, productNodeCheck, gbc, "weightx=0,gridx=0,gridy=" + i);
+                GridBagUtils.addToPanel(checkersPane, productNodeLabel, gbc, "weightx=1,gridx=1,gridy=" + i);
+            }
+            // Add a last 'filler' row
+            GridBagUtils.addToPanel(checkersPane, new JLabel(" "), gbc,
+                                    "gridwidth=2,weightx=1,weighty=1,gridx=0,gridy=" + _productNodes.length);
+
+            ActionListener allCheckListener = new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    if (e.getSource() == _allCheck) {
+                        checkAllProductNodes(true);
+                    } else if (e.getSource() == _noneCheck) {
+                        checkAllProductNodes(false);
+                    }
+                    updateUIState();
+                }
+            };
+
+            _allCheck = new JCheckBox("Select all");
+            _allCheck.setName("SelectAll");
+            _allCheck.setMnemonic('a');
+            _allCheck.addActionListener(allCheckListener);
+
+            _noneCheck = new JCheckBox("Select none");
+            _noneCheck.setName("SelectNone");
+            _noneCheck.setMnemonic('n');
+            _noneCheck.addActionListener(allCheckListener);
+
+            JScrollPane scrollPane = new JScrollPane(checkersPane);
+            scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+            scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+            JPanel buttonRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 4));
+            buttonRow.add(_allCheck);
+            buttonRow.add(_noneCheck);
+
+            setLayout(new BorderLayout());
+            add(scrollPane, BorderLayout.CENTER);
+            add(buttonRow, BorderLayout.SOUTH);
+            setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
+
+            updateUIState();
+        }
+
+        void updateUIState() {
+            _allCheck.setSelected(areAllProductNodesChecked(true));
+            _noneCheck.setSelected(areAllProductNodesChecked(false));
+            updateSubsetDefNodeNameList();
+        }
+
+        String[] getSubsetNames() {
+            String[] names = new String[countChecked(true)];
+            int pos = 0;
+            for (int i = 0; i < _checkers.size(); i++) {
+                JCheckBox checker = (JCheckBox) _checkers.get(i);
+                if (checker.isSelected()) {
+                    ProductNode productNode = (ProductNode) _productNodes[i];
+                    names[pos] = productNode.getName();
+                    pos++;
+                }
+            }
+            return names;
+        }
+
+        void checkAllProductNodes(boolean checked) {
+            for (int i = 0; i < _checkers.size(); i++) {
+                JCheckBox checker = (JCheckBox) _checkers.get(i);
+                if (checker.isEnabled()) {
+                    checker.setSelected(checked);
+                }
+            }
+        }
+
+        boolean areAllProductNodesChecked(boolean checked) {
+            return countChecked(checked) == _checkers.size();
+        }
+
+        int countChecked(boolean checked) {
+            int counter = 0;
+            for (int i = 0; i < _checkers.size(); i++) {
+                JCheckBox checker = (JCheckBox) _checkers.get(i);
+                if (checker.isSelected() == checked) {
+                    counter++;
+                }
+            }
+            return counter;
+        }
+    }
+}

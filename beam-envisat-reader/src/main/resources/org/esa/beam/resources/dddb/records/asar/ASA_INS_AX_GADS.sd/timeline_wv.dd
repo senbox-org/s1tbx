@@ -1,0 +1,6 @@
+timeline_wv|Mode timelines for WV|*
+#
+swath_nums|UShort|*|2|7|*|Swath numbers (IS1 to IS7 or SS1 to SS5)|90a|
+m_values|UShort|*|2|7|*|M values (IS1 to IS7 or SS1 to SS5) M is the number of echo sampling PTIs in a cycle or subcycle|90b|
+r_values|UShort|*|2|7|*|R values (IS1 to IS7 or SS1 to SS5) R is the rank (i.e., the number of PRI between transmitted pulse and return echo)|90c|
+g_values|UShort|*|2|7|*|G values (IS1 to IS7 or SS1 to SS5) G is the number of cycles|90d|

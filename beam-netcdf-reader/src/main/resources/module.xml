@@ -1,0 +1,28 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-netcdf-reader</symbolicName>
+    <version>1.0</version>
+    <name>NetCDF Product Reader</name>
+    <description>
+        A product reader for NetCDF files conforming to the
+        Climate and Forecast (CF) metadata conventions.
+    </description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+    
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>lib-netcdf</module>
+    </dependency>
+
+    <packaging>dir</packaging>
+
+    <categories>Reader,NetCDF</categories>
+</module>

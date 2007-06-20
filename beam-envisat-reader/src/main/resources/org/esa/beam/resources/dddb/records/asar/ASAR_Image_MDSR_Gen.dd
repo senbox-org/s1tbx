@@ -1,0 +1,6 @@
+ASAR_Image_MDSR_Gen|Measurement Data Set 1|*
+#
+zero_doppler_time|@/types/UTC.dd|MJD |12|1               |*|Zero Doppler Time (MJD format)|1|
+quality_flag     |SChar         |flag| 1|1               |*|Quality Indicator (-1 for blank MDSR, 0 otherwise)|2|
+line_num         |ULong         |*   | 4|1               |*|Range line number. Numbered sequentially, for each product (or slice) first range line in MDS is 1|3|
+proc_data        |UShort        |*   | 2|sceneRasterWidth|*|SAR Processed Data. Real samples (detected products)|4|

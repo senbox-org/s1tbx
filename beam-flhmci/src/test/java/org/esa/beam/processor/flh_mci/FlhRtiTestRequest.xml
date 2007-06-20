@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<RequestList>
+    <Request type="FLH_RTI">
+        <Parameter name="wavelength_low"
+            value="664.314"/>
+        <Parameter name="wavelength_mid"
+            value="680.556"/>
+        <Parameter name="wavelength_high"
+            value="708.061"/>
+        <Parameter name="band_low"
+            value="radiance_6"/>
+        <Parameter name="band_mid"
+            value="radiance_7"/>
+        <Parameter name="band_high"
+            value="radiance_8"/>
+        <InputProduct URL="EnivisatTestFile_1"/>
+        <OutputProduct URL="FLH_RTI_1"/>
+    </Request>
+
+    <Request type="FLH_RTI">
+        <Parameter name="wavelength_low"
+            value="664.314"/>
+        <Parameter name="wavelength_mid"
+            value="680.556"/>
+        <Parameter name="wavelength_high"
+            value="708.061"/>
+        <Parameter name="band_low"
+            value="radiance_6"/>
+        <Parameter name="band_mid"
+            value="radiance_7"/>
+        <Parameter name="band_high"
+            value="radiance_8"/>
+        <InputProduct URL="EnivisatTestFile_2"
+            bitmask="not flags.INVALID"/>
+        <OutputProduct URL="FLH_RTI_2"/>
+    </Request>
+
+    <Request type="FLH_RTI">
+        <Parameter name="wavelength_low"
+            value="664.314"/>
+        <Parameter name="wavelength_mid"
+            value="680.556"/>
+        <Parameter name="wavelength_high"
+            value="708.061"/>
+        <Parameter name="band_low"
+            value="radiance_6"/>
+        <Parameter name="band_mid"
+            value="radiance_7"/>
+        <Parameter name="band_high"
+            value="radiance_8"/>
+        <InputProduct URL="EnivisatTestFile_3"
+            bitmask="flags.COASTLINE and not flags.INVALID"/>
+        <OutputProduct URL="FLH_RTI_3"/>
+    </Request>
+
+    <Request type="FLH_RTI">
+        <Parameter name="wavelength_low"
+            value="664.314"/>
+        <Parameter name="wavelength_mid"
+            value="680.556"/>
+        <Parameter name="wavelength_high"
+            value="708.061"/>
+        <Parameter name="band_low"
+            value="radiance_6"/>
+        <Parameter name="band_mid"
+            value="radiance_7"/>
+        <Parameter name="band_high"
+            value="radiance_8"/>
+        <InputProduct URL="EnivisatTestFile_4"
+            bitmask=""/>
+        <OutputProduct URL="FLH_RTI_4"/>
+    </Request>
+</RequestList>

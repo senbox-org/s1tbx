@@ -1,0 +1,33 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-processing</symbolicName>
+    <version>4.1-SNAPSHOT</version>
+    <name>BEAM Processing Library</name>
+
+    <description>A basic library used by all processors.</description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+
+    <changelog>
+        <![CDATA[From 4.0 to 4.1
+        <ul>
+        <li>[BEAM-616] Remove package org.esa.beam.framework.dataproc.</li>
+        </ul>]]>
+    </changelog>
+
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>beam-ui</module>
+    </dependency>
+
+    <categories>System,Library</categories>
+
+</module>

@@ -1,0 +1,16 @@
+ATS_NR__2P_flags|AATSR Level 2 Flags Codings
+#
+NADIR_SST_ONLY_VALID       |  0 | Nadir-only SST is valid
+NADIR_SST_ONLY_37_MY_VALID |  1 | Nadir-only SST retrieval includes 3.7 micron channel
+DUAL_SST_VALID             |  2 | Dual-view SST is valid
+DUAL_SST_VALID_37_MY       |  3 | Dual-view SST retrieval includes 3.7 micron channel
+LAND                       |  4 | Pixel is over land
+NADIR_CLOUD                |  5 | Nadir-view pixel is cloudy
+NADIR_BLANKING             |  6 | Nadir-view pixel has blanking pulse
+NADIR_COSMETIC             |  7 | Nadir-view pixel is cosmetic fill
+FWARD_CLOUD                |  8 | Forward-view pixel is cloudy
+FWARD_BLANKING             |  9 | Forward-view pixel has blanking pulse
+FWARD_COSMETIC             | 10 | Forward-view pixel is cosmetic fill
+CLOUDY_16_MY               | 11 | One or both views flagged cloudy by 1.6 micron test (daytime only)
+CLOUDY_11_12_MY            | 12 | Cloud flagged by 11 micron/12 micron nadir-forward test
+CLOUDY_HISTO               | 13 | One or both views flagged cloudy by infra-red histogram test

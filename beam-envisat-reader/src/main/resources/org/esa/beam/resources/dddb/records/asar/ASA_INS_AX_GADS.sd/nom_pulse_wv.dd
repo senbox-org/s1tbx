@@ -1,0 +1,5 @@
+nom_pulse_wv|Nominal values of amplitude and phase of the transmitted chirp for WV Mode. Parameters repeated for each swath (7 times), from swath IS1 to IS7:|*
+#
+pulse_amp_coeff|Float|-, s-1, s-2, s-3|4|4|*|4 pulse amplitude coefficients|44a|
+pulse_phs_coeff|Float|cyclesHz,Hz/s,Hz/s2|4|4|*|4 pulse phase coefficients|44b|
+pulse_duration|Float|s|4|1|*|Nominal pulse duration|44c|

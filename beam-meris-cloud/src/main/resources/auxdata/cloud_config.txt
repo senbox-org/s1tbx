@@ -1,0 +1,4 @@
+land=nn_config_land.txt
+ocean=nn_config_ocean.txt
+
+press_scale_height = 8340

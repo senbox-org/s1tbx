@@ -1,0 +1,7 @@
+ATS_TOA_1P_MDSR_cl|Cloud flag nadir view MDS|*
+#
+dsr_time      |@/types/UTC.dd |MJD   |12 |1   |* |Nadir UTC time in MJD format                       |1 |
+quality_flag  |UChar          |flag  |1  |1   |* |Quality Indicator (-1 for blank MDSR, 0 otherwise) |2 |
+spare_1       |Spare          |*     |3  |1   |* |Spare                                              |3 |
+img_scan_y    |SLong          |m     |4  |1   |* |image scan y coordinate                            |4 |
+cl_land_flags |UShort         |flags |2  |512 |* |cloud/land flags                                   |5 |

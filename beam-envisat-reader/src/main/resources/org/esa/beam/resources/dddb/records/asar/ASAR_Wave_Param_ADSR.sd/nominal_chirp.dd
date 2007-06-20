@@ -1,0 +1,4 @@
+nominal_chirp|Nominal Chirp|*
+#
+nom_chirp_amp|Float|-, s-1, s-2, s-3|4|4|*|4 nominal chirp amplitude coefficients|43a|
+nom_chirp_phs|Float|cycles,Hz,Hz/s,Hz/s2|4|4|*|4 nominal chirp phase coefficients|43b|

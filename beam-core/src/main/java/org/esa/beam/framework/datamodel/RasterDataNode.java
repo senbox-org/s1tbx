@@ -1,0 +1,2726 @@
+/*
+ * $Id: RasterDataNode.java,v 1.4 2007/03/19 15:52:28 marcop Exp $
+ *
+ * Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation. This program is distributed in the hope it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+package org.esa.beam.framework.datamodel;
+
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Term;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
+import org.esa.beam.framework.draw.Figure;
+import org.esa.beam.util.*;
+import org.esa.beam.util.math.*;
+
+import javax.media.jai.ROI;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.awt.image.IndexColorModel;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.LinkedList;
+
+/**
+ * The <code>RasterDataNode</code> class ist the abstract base class for all objects in the product package that contain
+ * rasterized data. i.e. <code>Band</code> and <code>TiePointGrid</code>. It unifies the access to raster data in the
+ * product model. A raster is considered as a rectangular raw data array with a fixed width and height. A raster data
+ * node can scale its raw raster data samples in order to return geophysically meaningful pixel values.
+ *
+ * @author Norman Fomferra
+ * @see #getRasterData()
+ * @see #getRasterWidth()
+ * @see #getRasterHeight()
+ * @see #isScalingApplied()
+ * @see #isLog10Scaled()
+ * @see #getScalingFactor()
+ * @see #getScalingOffset()
+ */
+public abstract class RasterDataNode extends DataNode implements Scaling {
+
+    public final static String PROPERTY_NAME_IMAGE_INFO = "imageInfo";
+    public final static String PROPERTY_NAME_BITMASK_OVERLAY_INFO = "bitmaskOverlayInfo";
+    public final static String PROPERTY_NAME_LOG_10_SCALED = "log10Scaled";
+    public final static String PROPERTY_NAME_ROI_DEFINITION = "roiDefinition";
+    public final static String PROPERTY_NAME_SCALING_FACTOR = "scalingFactor";
+    public final static String PROPERTY_NAME_SCALING_OFFSET = "scalingOffset";
+    public final static String PROPERTY_NAME_NO_DATA_VALUE = "noDataValue";
+    public final static String PROPERTY_NAME_NO_DATA_VALUE_USED = "noDataValueUsed";
+    public final static String PROPERTY_NAME_VALID_PIXEL_EXPRESSION = "validPixelExpression";
+    public final static String PROPERTY_NAME_GEOCODING = Product.PROPERTY_NAME_GEOCODING;
+
+    // todo DON'T USE ANYMORE IN BEAM 3.4
+    public final static String PROPERTY_NAME_VALID_MASK_TERM = "validMaskTerm";
+    // todo DON'T USE ANYMORE IN BEAM 3.4
+    public final static String PROPERTY_NAME_VALID_MASK_EXPRESSION = "validMaskExpression";
+
+    /**
+     * Text returned by the <code>{@link #getPixelString}</code> method if no data is available at the given pixel
+     * position.
+     */
+    public final static String NO_DATA_TEXT = "No data"; /*I18N*/
+    /**
+     * Text returned by the <code>{@link #getPixelString}</code> method if no data is available at the given pixel
+     * position.
+     */
+    public static final String INVALID_POS_TEXT = "Invalid pos."; /*I18N*/
+    /**
+     * Text returned by the <code>{@link #getPixelString}</code> method if pixel data was not loaded.
+     */
+    public static final String NOT_LOADED_TEXT = "Not loaded"; /*I18N*/
+    /**
+     * Text returned by the <code>{@link #getPixelString}</code> method if an I/O error occured while pixel data was
+     * reloaded.
+     */
+    public static final String IO_ERROR_TEXT = "I/O error"; /*I18N*/
+
+
+    /**
+     * The raster's width.
+     */
+    private final int _rasterWidth;
+
+    /**
+     * The raster's height.
+     */
+    private final int _rasterHeight;
+
+    private double _scalingFactor;
+    private double _scalingOffset;
+    private boolean _log10Scaled;
+    private boolean _scalingApplied;
+
+    private boolean _noDataValueUsed;
+    private ProductData _noData;
+    private double _geophysicalNoDataValue; // Dependent on _noDataValue
+    private String _validPixelExpression;
+
+    private byte[] _dataMask;
+    private Term _dataMaskTerm;
+    private boolean _dataMaskInProgress; // used to prevent from infinite recursion due to data reloading in data-mask terms
+
+    private GeoCoding _geoCoding;
+
+    // todo DON'T USE ANYMORE IN BEAM 3.4
+    private org.esa.beam.framework.dataop.bitmask.BitmaskTerm _validMaskTerm;
+
+    // @todo 1 nf/nf - v3.0: add min/max properties here
+
+    private ImageInfo _imageInfo;
+    private BitmaskOverlayInfo _bitmaskOverlayInfo;
+    private ROIDefinition _roiDefinition;
+
+    /**
+     * Should be set by readers only, don't copy this property for bands which use a product builder
+     */
+    private boolean _maskProductDataEnabled;
+
+    /**
+     * Number of bytes used for internal read buffer.
+     */
+    private static final int READ_BUFFER_MAX_SIZE = 8 * 1024 * 1024; // 8 MB
+    private Pointing _pointing;
+
+    /**
+     * Constructs an object of type <code>RasterDataNode</code>.
+     *
+     * @param name     the name of the new object
+     * @param dataType the data type used by the raster, must be one of the multiple <code>ProductData.TYPE_<i>X</i></code>
+     *                 constants, with the exception of <code>ProductData.TYPE_UINT32</code>
+     * @param width    the width of the raster in pixels
+     * @param height   the height of the raster in pixels
+     */
+    protected RasterDataNode(String name, int dataType, int width, int height) {
+        super(name, dataType, width * height);
+        if (dataType != ProductData.TYPE_INT8
+                && dataType != ProductData.TYPE_INT16
+                && dataType != ProductData.TYPE_INT32
+                && dataType != ProductData.TYPE_UINT8
+                && dataType != ProductData.TYPE_UINT16
+                && dataType != ProductData.TYPE_UINT32
+                && dataType != ProductData.TYPE_FLOAT32
+                && dataType != ProductData.TYPE_FLOAT64) {
+            throw new IllegalArgumentException("dataType is invalid");
+        }
+        _rasterWidth = width;
+        _rasterHeight = height;
+        _scalingFactor = 1.0;
+        _scalingOffset = 0.0;
+        _log10Scaled = false;
+        _scalingApplied = false;
+
+        _noData = null;
+        _noDataValueUsed = false;
+        _geophysicalNoDataValue = 0.0;
+        _validPixelExpression = null;
+
+        _dataMaskTerm = null;
+        _dataMask = null;
+        _dataMaskInProgress = false;
+    }
+
+    /**
+     * Returns the width in pixels of the scene represented by this product raster. By default, the method simply
+     * returns <code>getRasterWidth()</code>.
+     *
+     * @return the scene width in pixels
+     */
+    public int getSceneRasterWidth() {
+        return getRasterWidth();
+    }
+
+    /**
+     * Returns the height in pixels of the scene represented by this product raster. By default, the method simply
+     * returns <code>getRasterHeight()</code>.
+     *
+     * @return the scene height in pixels
+     */
+    public int getSceneRasterHeight() {
+        return getRasterHeight();
+    }
+
+    /**
+     * Returns the width of the raster used by this product raster.
+     *
+     * @return the width of the raster
+     */
+    public final int getRasterWidth() {
+        return _rasterWidth;
+    }
+
+    /**
+     * Returns the height of the raster used by this product raster.
+     *
+     * @return the height of the raster
+     */
+    public final int getRasterHeight() {
+        return _rasterHeight;
+    }
+
+    /**
+     * Returns the size of the raster for this band in bytes.
+     *
+     * @return the raster size in bytes
+     */
+    public long getRasterDataSizeInBytes() {
+        return getRasterWidth() * getRasterHeight() * ProductData.getElemSize(getDataType());
+    }
+
+    /**
+     * Returns the geo-coding of this {@link RasterDataNode}.
+     *
+     * @return the geo-coding
+     */
+    public GeoCoding getGeoCoding() {
+        if (_geoCoding == null) {
+            final Product product = getProduct();
+            if (product != null) {
+                return product.getGeoCoding();
+            }
+        }
+        return _geoCoding;
+    }
+
+    /**
+     * Sets the geo-coding for this {@link RasterDataNode}.
+     * Also sets the geo-coding of the parent {@link Product} if it has no geo-coding yet.
+     * <p>On property change, the method calls {@link #fireProductNodeChanged(String)} with the property
+     * name {@link #PROPERTY_NAME_GEOCODING}.</p>
+     *
+     * @param geoCoding the new geo-coding
+     * @see Product#setGeoCoding(GeoCoding)
+     */
+    public void setGeoCoding(final GeoCoding geoCoding) {
+        if (!ObjectUtils.equalObjects(geoCoding, _geoCoding)) {
+            _geoCoding = geoCoding;
+
+            // If our product has no geo-coding yet, it is set to the current one, if any
+            if (_geoCoding != null) {
+                final Product product = getProduct();
+                if (product != null && product.getGeoCoding() == null) {
+                    product.setGeoCoding(_geoCoding);
+                }
+            }
+            fireProductNodeChanged(PROPERTY_NAME_GEOCODING);
+        }
+    }
+
+    /**
+     * Creates a {@link Pointing} applicable for this raster.
+     *
+     * @return the pointing object, or null if a pointing is not available
+     */
+    protected Pointing createPointing() {
+        if (getGeoCoding() == null || getProduct() == null) {
+            return null;
+        }
+        final PointingFactory factory = getProduct().getPointingFactory();
+        if (factory == null) {
+            return null;
+        }
+        return factory.createPointing(this);
+    }
+
+    /**
+     * Gets a {@link Pointing} if one is available for this raster.
+     * The methods calls {@link #createPointing()} if a pointing has not been set so far or if its {@link GeoCoding} changed
+     * since the last creation of this raster's {@link Pointing} instance.
+     *
+     * @return the pointing object, or null if a pointing is not available
+     */
+    public Pointing getPointing() {
+        if (_pointing == null || _pointing.getGeoCoding() == getGeoCoding()) {
+            _pointing = createPointing();
+        }
+        return _pointing;
+    }
+
+    /**
+     * Tests if this raster data node can be orthorectified.
+     *
+     * @return true, if so
+     */
+    public boolean canBeOrthorectified() {
+        final Pointing pointing = getPointing();
+        return pointing != null && pointing.canGetViewDir();
+    }
+
+    /**
+     * Returns <code>true</code> if the pixel data contained in this band is "naturally" a floating point number type.
+     *
+     * @return true, if so
+     */
+    @Override
+    public boolean isFloatingPointType() {
+        return _scalingApplied || super.isFloatingPointType();
+    }
+
+    /**
+     * Returns the geophysical data type of this <code>RasterDataNode</code>. The value retuned is always one of the
+     * <code>ProductData.TYPE_XXX</code> constants.
+     *
+     * @return the geophysical data type
+     * @see ProductData
+     * @see #isScalingApplied()
+     */
+    public int getGeophysicalDataType() {
+        if (isScalingApplied()) {
+            if (ProductData.getElemSize(getDataType()) > 2) {
+                return ProductData.TYPE_FLOAT64;
+            } else {
+                return ProductData.TYPE_FLOAT32;
+            }
+        }
+        return getDataType();
+    }
+
+    /**
+     * Gets the scaling factor which is applied to raw {@link <code>ProductData</code>}. The default value is
+     * <code>1.0</code> (no factor).
+     *
+     * @return the scaling factor
+     * @see #isScalingApplied()
+     */
+    public final double getScalingFactor() {
+        return _scalingFactor;
+    }
+
+    /**
+     * Sets the scaling factor which is applied to raw {@link <code>ProductData</code>}.
+     *
+     * @param scalingFactor the scaling factor
+     * @see #isScalingApplied()
+     */
+    public final void setScalingFactor(double scalingFactor) {
+        if (_scalingFactor != scalingFactor) {
+            _scalingFactor = scalingFactor;
+            setScalingApplied();
+            fireProductNodeChanged(PROPERTY_NAME_SCALING_FACTOR);
+            setGeophysicalNoDataValue();
+            setModified(true);
+        }
+    }
+
+    /**
+     * Gets the scaling offset which is applied to raw {@link <code>ProductData</code>}. The default value is
+     * <code>0.0</code> (no offset).
+     *
+     * @return the scaling offset
+     * @see #isScalingApplied()
+     */
+    public final double getScalingOffset() {
+        return _scalingOffset;
+    }
+
+    /**
+     * Sets the scaling offset which is applied to raw {@link <code>ProductData</code>}.
+     *
+     * @param scalingOffset the scaling offset
+     * @see #isScalingApplied()
+     */
+    public final void setScalingOffset(double scalingOffset) {
+        if (_scalingOffset != scalingOffset) {
+            _scalingOffset = scalingOffset;
+            setScalingApplied();
+            fireProductNodeChanged(PROPERTY_NAME_SCALING_OFFSET);
+            setGeophysicalNoDataValue();
+            setModified(true);
+        }
+    }
+
+    /**
+     * Gets whether or not the {@link <code>ProductData</code>} of this band has a negative binominal distribution and
+     * thus the common logarithm (base 10) of the values is stored in the raw data. The default value is
+     * <code>false</code>.
+     *
+     * @return whether or not the data is logging-10 scaled
+     * @see #isScalingApplied()
+     */
+    public final boolean isLog10Scaled() {
+        return _log10Scaled;
+    }
+
+    /**
+     * Sets whether or not the {@link <code>ProductData</code>} of this band has a negative binominal distribution and
+     * thus the common logarithm (base 10) of the values is stored in the raw data.
+     *
+     * @param log10Scaled whether or not the data is logging-10 scaled
+     * @see #isScalingApplied()
+     */
+    public final void setLog10Scaled(boolean log10Scaled) {
+        if (_log10Scaled != log10Scaled) {
+            _log10Scaled = log10Scaled;
+            setScalingApplied();
+            setGeophysicalNoDataValue();
+            fireProductNodeChanged(PROPERTY_NAME_LOG_10_SCALED);
+            setModified(true);
+        }
+    }
+
+    /**
+     * Tests whether scaling of raw raster data values is applied before they are returned as geophysically meaningful
+     * pixel values. <p>The methods which return geophysical pixel values are all {@link #getPixels},  {@link
+     * #setPixels}, {@link #readPixels} and {@link #writePixels} methods as well as the
+     * <code>getPixel&lt;Type&gt;</code> and <code>setPixel&lt;Type&gt;</code> methods such as  {@link #getPixelFloat}
+     * and {@link #setPixelFloat}.
+     *
+     * @return <code>true</code> if a conversion is applyied to raw data samples before the are retuned.
+     * @see #getScalingOffset
+     * @see #getScalingFactor
+     * @see #isLog10Scaled
+     */
+    public final boolean isScalingApplied() {
+        return _scalingApplied;
+    }
+
+    /**
+     * Tests whether or not a no-data value has been specified. The no-data value is not-specified unless either
+     * {@link #setNoDataValue(double)} or {@link #setGeophysicalNoDataValue(double)} is called.
+     *
+     * @return true, if so
+     * @see #isNoDataValueUsed()
+     * @see #setNoDataValue(double)
+     */
+    public boolean isNoDataValueSet() {
+        return _noData != null;
+    }
+
+    /**
+     * Clears the no-data value, so that {@link #isNoDataValueSet()} will return <code>false</code>.
+     */
+    public void clearNoDataValue() {
+        _noData = null;
+        setGeophysicalNoDataValue();
+    }
+
+    /**
+     * Tests whether or not the no-data value is used.
+     * <p>The no-data value is used to determine valid pixels. For more information
+     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
+     * method.
+     *
+     * @return true, if so
+     * @see #setNoDataValueUsed(boolean)
+     * @see #isNoDataValueSet()
+     */
+    public boolean isNoDataValueUsed() {
+        return _noDataValueUsed;
+    }
+
+    /**
+     * Sets whether or not the no-data value is used.
+     * If the no-data value is enabled and the no-data value has not been set so far,
+     * a default no-data value it is set with a value of to zero.
+     * <p>The no-data value is used to determine valid pixels. For more information
+     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
+     * method.
+     * <p>On property change, the method calls {@link #fireProductNodeChanged(String)} with the property
+     * name {@link #PROPERTY_NAME_NO_DATA_VALUE_USED}.
+     *
+     * @param noDataValueUsed true, if so
+     * @see #isNoDataValueUsed()
+     */
+    public void setNoDataValueUsed(boolean noDataValueUsed) {
+        if (_noDataValueUsed != noDataValueUsed) {
+            _noDataValueUsed = noDataValueUsed;
+            resetDataMask();
+            setModified(true);
+            fireProductNodeChanged(PROPERTY_NAME_NO_DATA_VALUE_USED);
+        }
+    }
+
+    /**
+     * Gets the no-data value as a primitive <code>double</code>.
+     * <p>Note that the value returned is NOT necessarily the same as the value returned by
+     * {@link #getGeophysicalNoDataValue()} because no scaling is applied.
+     * <p>The no-data value is used to determine valid pixels. For more information
+     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
+     * method.
+     * <p>The method returns <code>0.0</code>, if no no-data value has been specified so far.
+     *
+     * @return the no-data value. It is returned as a <code>double</code> in order to cover all other numeric types.
+     * @see #setNoDataValue(double)
+     * @see #isNoDataValueSet()
+     */
+    public double getNoDataValue() {
+        return isNoDataValueSet() ? _noData.getElemDouble() : 0.0;
+    }
+
+    /**
+     * Sets the no-data value as a primitive <code>double</code>.
+     * <p>Note that the given value is related to the "raw", un-scaled raster data.
+     * In order to set the geophysical, scaled no-data value use the method
+     * {@link #setGeophysicalNoDataValue(double)}.
+     * <p>The no-data value is used to determine valid pixels. For more information
+     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
+     * method.
+     * <p>On property change, the method calls {@link #fireProductNodeChanged(String)} with the property
+     * name {@link #PROPERTY_NAME_NO_DATA_VALUE}.
+     *
+     * @param noDataValue the no-data value. It is passed as a <code>double</code> in order to cover all other numeric types.
+     * @see #getNoDataValue()
+     * @see #isNoDataValueSet()
+     */
+    public void setNoDataValue(final double noDataValue) {
+        if (_noData == null || getNoDataValue() != noDataValue) {
+            if (_noData == null) {
+                _noData = createCompatibleProductData(1);
+            }
+            _noData.setElemDouble(noDataValue);
+            setGeophysicalNoDataValue();
+            resetDataMask();
+            setModified(true);
+            fireProductNodeChanged(PROPERTY_NAME_NO_DATA_VALUE);
+        }
+    }
+
+    /**
+     * Gets the geophysical no-data value which is simply the scaled "raw" no-data value
+     * returned by {@link #getNoDataValue()}.
+     * <p>The no-data value is used to determine valid pixels. For more information
+     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
+     * method.
+     *
+     * @return the geophysical no-data value
+     * @see #setGeophysicalNoDataValue(double)
+     */
+    public double getGeophysicalNoDataValue() {
+        return _geophysicalNoDataValue;
+    }
+
+    /**
+     * Sets the geophysical no-data value which is simply the scaled "raw" no-data value
+     * returned by {@link #getNoDataValue()}.
+     * <p>The no-data value is used to determine valid pixels. For more information
+     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
+     * method.
+     * <p>On property change, the method calls {@link #fireProductNodeChanged(String)} with the property
+     * name {@link #PROPERTY_NAME_NO_DATA_VALUE}.
+     *
+     * @param noDataValue the new geophysical no-data value
+     * @see #setGeophysicalNoDataValue(double)
+     * @see #isNoDataValueSet()
+     */
+    public void setGeophysicalNoDataValue(double noDataValue) {
+        setNoDataValue(scaleInverse(noDataValue));
+    }
+
+    /**
+     * Gets the expression that is used to determine whether a pixel is valid or not.
+     * <p>The valid-pixel expression is used to determine valid pixels. For more information
+     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
+     * method.
+     *
+     * @return the valid mask expression.
+     */
+    public String getValidPixelExpression() {
+        return _validPixelExpression;
+    }
+
+    /**
+     * Sets the expression that is used to determine whether a pixel is valid or not.
+     * <p>The valid-pixel expression is used to determine valid pixels. For more information
+     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
+     * method.
+     * <p>On property change, the method calls {@link #fireProductNodeChanged(String)} with the property
+     * name {@link #PROPERTY_NAME_VALID_PIXEL_EXPRESSION}.
+     *
+     * @param validPixelExpression the valid mask expression, can be null
+     */
+    public void setValidPixelExpression(final String validPixelExpression) {
+        if (!ObjectUtils.equalObjects(_validPixelExpression, validPixelExpression)) {
+            _validPixelExpression = validPixelExpression;
+            setDefaultROIBitmaskExpr();
+            resetDataMask();
+            setModified(true);
+            fireProductNodeChanged(PROPERTY_NAME_VALID_PIXEL_EXPRESSION);
+        }
+    }
+
+    /**
+     * Tests whether or not this raster data node uses a data-mask in order to determine valid pixels. The method returns
+     * true if either {@link #isValidPixelExpressionSet()} or {@link #isNoDataValueUsed()} returns true.
+     * <p>The data-mask is used to determine valid pixels. For more information
+     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
+     * method.
+     *
+     * @return true, if so
+     * @see #getDataMask()
+     * @see #setDataMask(byte[])
+     * @see #ensureDataMaskIsAvailable()
+     */
+    public boolean isDataMaskUsed() {
+        return isValidPixelExpressionSet() || isNoDataValueUsed();
+    }
+
+    /**
+     * Gets the valid pixel mask which indicates if a pixel is valid or not. The method returns null if either
+     * no data-mask is used ({@link #isDataMaskUsed()} returns false) or if the data-mask hasn't been created so far.
+     * <p>The data-mask is used to determine valid pixels. For more information
+     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
+     * method.
+     *
+     * @return the valid pixel mask, <code>null</code> if not set.
+     * @see #setDataMask(byte[])
+     * @see #ensureDataMaskIsAvailable()
+     */
+    public byte[] getDataMask() {
+        return _dataMask;
+    }
+
+    /**
+     * Sets the valid pixel mask which indicates if a pixel is valid or not.
+     * <p>The data-mask is used to determine valid pixels. For more information
+     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
+     * method.
+     *
+     * @param dataMask the valid pixel mask, can be null.
+     * @see #getDataMask()
+     * @see #ensureDataMaskIsAvailable()
+     */
+    protected void setDataMask(final byte[] dataMask) {
+        _dataMask = dataMask;
+    }
+
+    /**
+     * Ensures that a data-mask, if any, is available, thus {@link #getDataMask()} returns a non-null value.
+     * The method shall be called once before the {@link #isPixelValid(int, int, javax.media.jai.ROI)} method is called.
+     * <p>The data-mask is used to determine valid pixels. For more information
+     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
+     * method.
+     *
+     * @throws IOException if an I/O error occurs
+     */
+    public void ensureDataMaskIsAvailable() throws IOException {
+        if (isDataMaskUsed() && getDataMask() == null) {
+            computeDataMask();
+        }
+    }
+
+    private void resetDataMask() {
+        final Product product = getProduct();
+        if (product != null) { // node might not have been added to product so far
+            product.releasePixelMask(getDataMask());
+        }
+        setDataMask(null);
+        setDataMaskTerm(null);
+    }
+
+    private Term getDataMaskTerm() {
+        return _dataMaskTerm;
+    }
+
+    private void setDataMaskTerm(Term dataMaskTerm) {
+        _dataMaskTerm = dataMaskTerm;
+    }
+
+    public String getDataMaskExpression() {
+        String dataMaskExpression = null;
+        if (isValidPixelExpressionSet()) {
+            dataMaskExpression = getValidPixelExpression();
+            if (isNoDataValueUsed()) {
+                dataMaskExpression += " && " + createFuzzyNotEqualExpression();
+            }
+        } else if (isNoDataValueUsed()) {
+            dataMaskExpression = createFuzzyNotEqualExpression();
+        }
+        return dataMaskExpression;
+    }
+
+    private String createFuzzyNotEqualExpression() {
+        return "fneq(" + BandArithmetic.createExternalName(getName()) + "," + getGeophysicalNoDataValue() + ")";
+    }
+
+    protected synchronized void computeDataMask() throws IOException {
+        if (_dataMaskInProgress) {
+            // prevent from infinite recursion due to data reloading in data-mask terms
+            return;
+        }
+        _dataMaskInProgress = true;
+        try {
+            recreateDataMaskImpl();
+        } finally {
+            _dataMaskInProgress = false;
+        }
+    }
+
+    protected synchronized void maskProductData(int offsetX, int offsetY, int width, int height,
+                                                ProductData rasterData, ProgressMonitor pm) throws IOException {
+        if (_dataMaskInProgress) {
+            // prevent from infinite recursion due to data reloading in data-mask terms
+            return;
+        }
+        _dataMaskInProgress = true;
+        try {
+            maskProductDataImpl(offsetX, offsetY, width, height, rasterData, pm);
+        } finally {
+            _dataMaskInProgress = false;
+        }
+    }
+
+    private void recreateDataMaskImpl() throws IOException {
+        _dataMask = null;
+        final Term dataMaskTerm = createDataMaskTerm();
+        if (dataMaskTerm != null) {
+            _dataMask = getProduct().createPixelMask(dataMaskTerm);
+        }
+    }
+
+    private void maskProductDataImpl(int offsetX, int offsetY, int width, int height, ProductData rasterData,
+                                     ProgressMonitor pm) throws IOException {
+        if (isDataMaskUsed()) { // todo nf/** - CHECK PERF: isn't it isValidPixelExpressionSet()?
+            final Product product = getProductSafe();
+            final Term term = createDataMaskTerm(); // todo nf/** - CHECK PERF: isn't it term from _validPixelExpression only?
+            product.maskProductData(offsetX, offsetY,
+                                    width, height,
+                                    term,
+                                    rasterData,
+                                    false,
+                                    isNoDataValueUsed() ? getNoDataValue() : 0.0,
+                                    pm);
+        }
+    }
+
+    private Term createDataMaskTerm() throws IOException {
+        final Product product = getProductSafe();
+        Term term = getDataMaskTerm();
+        if (term == null) {
+            final String dataMaskExpression = getDataMaskExpression();
+            if (dataMaskExpression != null) {
+                try {
+                    term = product.createTerm(dataMaskExpression);
+                } catch (ParseException e) {
+                    final IOException ioException = new IOException("Unable to create the valid pixel mask.\n" +
+                            "The expression\n" +
+                            "  '" + dataMaskExpression + "'\n" +
+                            "caused the following parse error:\n" +
+                            e.getMessage());
+                    ioException.initCause(e);
+                    throw ioException;
+                }
+                setDataMaskTerm(term);
+            }
+        }
+        return term;
+    }
+
+    /**
+     * Gets the bitmask term that is used to determine whether a pixel is valid or not.
+     *
+     * @return the valid-or-not bitmask term
+     * @deprecated use {@link #getValidPixelExpression()} instead
+     */
+    public org.esa.beam.framework.dataop.bitmask.BitmaskTerm getValidMaskTerm() {
+        return _validMaskTerm;
+    }
+
+    /**
+     * Sets the bitmask term that is used to determine whether a pixel is valid or not.
+     *
+     * @param validMaskTerm the valid-or-not bitmask term
+     * @deprecated use {@link #setValidPixelExpression(String)} instead.
+     */
+    public void setValidMaskTerm(org.esa.beam.framework.dataop.bitmask.BitmaskTerm validMaskTerm) {
+        if (!ObjectUtils.equalObjects(_validMaskTerm, validMaskTerm)) {
+            _validMaskTerm = validMaskTerm;
+            setModified(true);
+            fireProductNodeChanged(PROPERTY_NAME_VALID_MASK_TERM);
+        }
+    }
+
+    /**
+     * Replaces in the expression that this class contains
+     * all occurences of the oldExternalName with the given newExternalName.
+     *
+     * @param oldExternalName
+     * @param newExternalName
+     */
+    @Override
+    public void updateExpression(final String oldExternalName, final String newExternalName) {
+        if (_validPixelExpression == null) {
+            return;
+        }
+        final String expression = StringUtils.replaceWord(_validPixelExpression, oldExternalName, newExternalName);
+        if (!_validPixelExpression.equals(expression)) {
+            _validPixelExpression = expression;
+            setModified(true);
+        }
+
+        if (_roiDefinition != null) {
+            final String bitmaskExpr = _roiDefinition.getBitmaskExpr();
+            if (!StringUtils.isNullOrEmpty(bitmaskExpr) && bitmaskExpr.indexOf(oldExternalName) > -1) {
+                final String newBitmaskExpression = StringUtils.replaceWord(bitmaskExpr, oldExternalName,
+                                                                            newExternalName);
+                final ROIDefinition newRoiDef = _roiDefinition.createCopy();
+                newRoiDef.setBitmaskExpr(newBitmaskExpression);
+                // a new roi definition must be set to inform product node listeners because a roi image
+                // is only automatically updated if a product node listener is informed of changes.
+                // A roi definition is not a product node so that a product node listener can not be
+                // informed if an expression is changed.
+                setROIDefinition(newRoiDef);
+            }
+        }
+
+        super.updateExpression(oldExternalName, newExternalName);
+    }
+
+    @Override
+    protected void additionalNameCheck(String trimmedName) {
+        final Product product = getProduct();
+        if (product != null && product.containsRasterDataNode(trimmedName)) {
+            throw new IllegalArgumentException("The product '" + product.getName() + "' already contains " +
+                    "a raster data node with the name '" + trimmedName + "'.");
+        }
+    }
+
+    /**
+     * Gets the valid mask which indicates if a pixel is valid or not.
+     *
+     * @return the valid mask, <code>null</code> if not set.
+     * @deprecated use {@link #getDataMask()} instead
+     */
+    public byte[] getValidMask() {
+        return getDataMask();
+    }
+
+    /**
+     * Sets the valid mask which indicates if a pixel is valid or not.
+     *
+     * @param validMask the valid mask.
+     * @deprecated use {@link #setDataMask(byte[])} instead
+     */
+    protected void setValidMask(final byte[] validMask) {
+        setDataMask(validMask);
+    }
+
+
+    /**
+     * Gets a raster data holding this dataset's pixel data for an entire product scene. If the data has'nt been loaded
+     * so far the method returns <code>null</code>.
+     * <p/>
+     * <p>In oposite to the <code>getRasterData</code> method, this method returns raster data that has at least
+     * <code>getBandOutputRasterWidth()*getBandOutputRasterHeight()</code> elements of the given data type to store the
+     * scene's pixels.
+     *
+     * @return raster data covering the pixels for a complete scene
+     * @see #getRasterData
+     * @see #getRasterWidth
+     * @see #getRasterHeight
+     * @see #getSceneRasterWidth
+     * @see #getSceneRasterHeight
+     */
+    public abstract ProductData getSceneRasterData();
+
+
+    /**
+     * Returns true if the raster data of this <code>RasterDataNode</code> is loaded or elsewhere available, otherwise
+     * false.
+     */
+    public boolean hasRasterData() {
+        return getRasterData() != null;
+    }
+
+
+    /**
+     * Gets the raster data for this dataset. If the data has'nt been loaded so far the method returns
+     * <code>null</code>.
+     *
+     * @return the raster data for this band, or <code>null</code> if data has not been loaded
+     * @see #setRasterData
+     */
+    public ProductData getRasterData() {
+        return getData();
+    }
+
+    /**
+     * Sets the raster data of this dataset.
+     * <p/>
+     * <p> Note that this method does not copy data at all. If the supplied raster data is compatible with this product
+     * raster, then simply its reference is stored. Modifications in the supplied raster data will also affect this
+     * dataset's data!
+     *
+     * @param rasterData the raster data for this dataset
+     * @see #getRasterData()
+     */
+    public void setRasterData(ProductData rasterData) {
+        setData(rasterData);
+    }
+
+    /**
+     * Loads the raster data for this <code>RasterDataNode</code>. After this method has been called successfully,
+     * <code>hasRasterData()</code> should always return <code>true</code> and <code>getRasterData()</code> should
+     * always return a valid <code>ProductData</code> instance with at least <code>getRasterWidth()*getRasterHeight()</code>
+     * elements (samples).
+     * <p/>
+     * <p>The default implementation of this method does nothing.
+     *
+     * @throws IOException if an I/O error occurs
+     * @see #unloadRasterData()
+     * @deprecated use {@link #loadRasterData(com.bc.ceres.core.ProgressMonitor)} instead
+     */
+    public void loadRasterData() throws IOException {
+        loadRasterData(ProgressMonitor.NULL);
+    }
+
+    /**
+     * Loads the raster data for this <code>RasterDataNode</code>. After this method has been called successfully,
+     * <code>hasRasterData()</code> should always return <code>true</code> and <code>getRasterData()</code> should
+     * always return a valid <code>ProductData</code> instance with at least <code>getRasterWidth()*getRasterHeight()</code>
+     * elements (samples).
+     * <p/>
+     * <p>The default implementation of this method does nothing.
+     *
+     * @param pm a monitor to inform the user about progress
+     * @throws IOException if an I/O error occurs
+     * @see #unloadRasterData()
+     */
+    public void loadRasterData(ProgressMonitor pm) throws IOException {
+    }
+
+    /**
+     * Un-loads the raster data for this <code>RasterDataNode</code>.
+     * <p/>
+     * <p>It is up to the implementation whether after this method has been called successfully, the
+     * <code>hasRasterData()</code> method returns <code>false</code> or <code>true</code>.
+     * <p/>
+     * <p>The default implementation of this method does nothing.
+     *
+     * @see #loadRasterData()
+     */
+    public void unloadRasterData() {
+    }
+
+    /**
+     * Releases all of the resources used by this object instance and all of its owned children. Its primary use is to
+     * allow the garbage collector to perform a vanilla job.
+     * <p/>
+     * <p>This method should be called only if it is for sure that this object instance will never be used again. The
+     * results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
+     * <p/>
+     * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
+     */
+    @Override
+    public void dispose() {
+        _validMaskTerm = null;
+        _dataMask = null;
+        _dataMaskTerm = null;
+        if (_imageInfo != null) {
+            _imageInfo.dispose();
+            _imageInfo = null;
+        }
+        if (_bitmaskOverlayInfo != null) {
+            _bitmaskOverlayInfo.dispose();
+            _bitmaskOverlayInfo = null;
+        }
+        if (_roiDefinition != null) {
+            _roiDefinition.dispose();
+            _roiDefinition = null;
+        }
+        super.dispose();
+    }
+
+    /**
+     * Checks whether or not the pixel located at (x,y) is valid.
+     * A pixel is assumed to be valid either if  {@link #getDataMask()} returns null or
+     * or if the bit corresponding to (x,y) is set within the returned mask.
+     * <p>In order to set the valid pixel mask, the method {@link #ensureDataMaskIsAvailable()} shall
+     * be called before this method returns reasonable results.
+     * {@link #ensureDataMaskIsAvailable()} will ensure that a data-mask will be computed
+     * either {@link #isNoDataValueUsed()} returns true or if {@link #getValidPixelExpression()} returns a non-empty
+     * expression.
+     *
+     * @param x the X co-ordinate of the pixel location
+     * @param y the Y co-ordinate of the pixel location
+     * @return <code>true</code> if the pixel is valid
+     * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
+     * @see #isPixelValid(int, int, javax.media.jai.ROI)
+     * @see #setNoDataValueUsed(boolean)
+     * @see #setNoDataValue(double)
+     * @see #setValidPixelExpression(String)
+     */
+    public boolean isPixelValid(int x, int y) {
+        if (_dataMask == null) {
+            return true;
+        }
+        int rasterWidth = getProduct().getBytePackedBitmaskRasterWidth();
+        int byteIndex = y * rasterWidth + x / 8;
+        int bitIndex = x % 8;
+        return (_dataMask[byteIndex] & (1 << bitIndex)) != 0;
+    }
+
+    /**
+     * Checks whether or not the pixel located at (x,y) is valid.
+     * The method first test whether a pixel is valid by using the {@link #isPixelValid(int, int)} method,
+     * and secondly, if the pixel is within the ROI (if any).
+     *
+     * @param x   the X co-ordinate of the pixel location
+     * @param y   the Y co-ordinate of the pixel location
+     * @param roi the ROI, if null the method returns {@link #isPixelValid(int, int)}
+     * @return <code>true</code> if the pixel is valid
+     * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
+     * @see #isPixelValid(int, int)
+     * @see #setNoDataValueUsed(boolean)
+     * @see #setNoDataValue(double)
+     * @see #setValidPixelExpression(String)
+     */
+    public boolean isPixelValid(int x, int y, ROI roi) {
+        return isPixelValid(x, y) && (roi == null || roi.contains(x, y));
+    }
+
+    /**
+     * Returns the pixel located at (x,y) as an integer value.
+     *
+     * @param x the X co-ordinate of the pixel location
+     * @param y the Y co-ordinate of the pixel location
+     * @return the pixel value at (x,y)
+     * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
+     */
+    public abstract int getPixelInt(int x, int y);
+
+    /**
+     * Returns the pixel located at (x,y) as a float value.
+     *
+     * @param x the X co-ordinate of the pixel location
+     * @param y the Y co-ordinate of the pixel location
+     * @return the pixel value at (x,y)
+     * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
+     */
+    public abstract float getPixelFloat(int x, int y);
+
+    /**
+     * Returns the pixel located at (x,y) as a double value.
+     *
+     * @param x the X co-ordinate of the pixel location
+     * @param y the Y co-ordinate of the pixel location
+     * @return the pixel value at (x,y)
+     * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
+     */
+    public abstract double getPixelDouble(int x, int y);
+
+    /**
+     * Sets the pixel located at (x,y) to the given integer value.
+     *
+     * @param x          the X co-ordinate of the pixel location
+     * @param y          the Y co-ordinate of the pixel location
+     * @param pixelValue the new pixel value at (x,y)
+     * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
+     */
+    public abstract void setPixelInt(int x, int y, int pixelValue);
+
+    /**
+     * Sets the pixel located at (x,y) to the given float value.
+     *
+     * @param x          the X co-ordinate of the pixel location
+     * @param y          the Y co-ordinate of the pixel location
+     * @param pixelValue the new pixel value at (x,y)
+     * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
+     */
+    public abstract void setPixelFloat(int x, int y, float pixelValue);
+
+    /**
+     * Sets the pixel located at (x,y) to the given double value.
+     *
+     * @param x          the X co-ordinate of the pixel location
+     * @param y          the Y co-ordinate of the pixel location
+     * @param pixelValue the new pixel value at (x,y)
+     * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
+     */
+    public abstract void setPixelDouble(int x, int y, double pixelValue);
+
+
+    /**
+     * @deprecated use {@link #getPixels(int, int, int, int, int[], ProgressMonitor)}
+     */
+    public int[] getPixels(int x, int y, int w, int h, int[] pixels) {
+        return getPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
+    }
+
+    /**
+     * Retrieves the range of pixels specified by the coordinates as integer array. Throws exception when the data is
+     * not read from disk yet. If the given array is <code>null</code> a new one was created and returned.
+     *
+     * @param x      x offset into the band
+     * @param y      y offset into the band
+     * @param w      width of the pixel array to be read
+     * @param h      height of the pixel array to be read.
+     * @param pixels integer array to be filled with data
+     * @param pm     a monitor to inform the user about progress
+     */
+    public abstract int[] getPixels(int x, int y, int w, int h, int[] pixels, ProgressMonitor pm);
+
+    /**
+     * @deprecated use {@link #getPixels(int, int, int, int, float[], ProgressMonitor)}
+     */
+    public float[] getPixels(int x, int y, int w, int h, float[] pixels) {
+        return getPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
+    }
+
+    /**
+     * Retrieves the range of pixels specified by the coordinates as float array. Throws exception when the data is not
+     * read from disk yet. If the given array is <code>null</code> a new one was created and returned.
+     *
+     * @param x      x offset into the band
+     * @param y      y offset into the band
+     * @param w      width of the pixel array to be read
+     * @param h      height of the pixel array to be read.
+     * @param pixels float array to be filled with data
+     * @param pm     a monitor to inform the user about progress
+     */
+    public abstract float[] getPixels(int x, int y, int w, int h, float[] pixels, ProgressMonitor pm);
+
+    /**
+     * @deprecated use {@link #getPixels(int, int, int, int, double[], ProgressMonitor)}
+     */
+    public double[] getPixels(int x, int y, int w, int h, double[] pixels) {
+        return getPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
+    }
+
+    /**
+     * Retrieves the range of pixels specified by the coordinates as double array. Throws exception when the data is not
+     * read from disk yet. If the given array is <code>null</code> a new one is created and returned.
+     *
+     * @param x      x offset into the band
+     * @param y      y offset into the band
+     * @param w      width of the pixel array to be read
+     * @param h      height of the pixel array to be read.
+     * @param pixels double array to be filled with data
+     * @param pm     a monitor to inform the user about progress
+     */
+    public abstract double[] getPixels(int x, int y, int w, int h, double[] pixels, ProgressMonitor pm);
+
+
+    /**
+     * Sets a range of pixels specified by the coordinates as integer array. Copies the data to the memory buffer of
+     * data at the specified location. Throws exception when the target buffer is not in memory.
+     *
+     * @param x      x offset into the band
+     * @param y      y offset into the band
+     * @param w      width of the pixel array to be written
+     * @param h      height of the pixel array to be written.
+     * @param pixels integer array to be written
+     * @throws NullPointerException if this band has no raster data
+     */
+    public abstract void setPixels(int x, int y, int w, int h, int[] pixels);
+
+    /**
+     * Sets a range of pixels specified by the coordinates as float array. Copies the data to the memory buffer of data
+     * at the specified location. Throws exception when the target buffer is not in memory.
+     *
+     * @param x      x offset into the band
+     * @param y      y offset into the band
+     * @param w      width of the pixel array to be written
+     * @param h      height of the pixel array to be written.
+     * @param pixels float array to be written
+     * @throws NullPointerException if this band has no raster data
+     */
+    public abstract void setPixels(int x, int y, int w, int h, float[] pixels);
+
+    /**
+     * Sets a range of pixels specified by the coordinates as double array. Copies the data to the memory buffer of data
+     * at the specified location. Throws exception when the target buffer is not in memory.
+     *
+     * @param x      x offset into the band
+     * @param y      y offset into the band
+     * @param w      width of the pixel array to be written
+     * @param h      height of the pixel array to be written.
+     * @param pixels double array to be written
+     * @throws NullPointerException if this band has no raster data
+     */
+    public abstract void setPixels(int x, int y, int w, int h, double[] pixels);
+
+    /**
+     * @deprecated use {@link #readPixels(int, int, int, int, int[], ProgressMonitor)}
+     */
+    public int[] readPixels(int x, int y, int w, int h, int[] pixels) throws IOException {
+        return readPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
+    }
+
+    /**
+     * Retrieves the band data at the given offset (x, y), width and height as int data. If the data is already in
+     * memory, it merely copies the data to the buffer provided. If not, it calls the attached product reader to
+     * retrieve the data from the disk file. If the given buffer is <code>null</code> a new one was created and
+     * returned.
+     *
+     * @param x      x offset into the band
+     * @param y      y offset into the band
+     * @param w      width of the pixel array to be read
+     * @param h      height of the pixel array to be read
+     * @param pixels array to be filled with data
+     * @param pm     a progress monitor
+     * @return the pixels read
+     */
+    public abstract int[] readPixels(int x, int y, int w, int h, int[] pixels, ProgressMonitor pm) throws IOException;
+
+    /**
+     * @deprecated use {@link #readPixels(int, int, int, int, float[], ProgressMonitor)}
+     */
+    public float[] readPixels(int x, int y, int w, int h, float[] pixels) throws IOException {
+        return readPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
+    }
+
+    /**
+     * Retrieves the band data at the given offset (x, y), width and height as float data. If the data is already in
+     * memory, it merely copies the data to the buffer provided. If not, it calls the attached product reader to
+     * retrieve the data from the disk file. If the given buffer is <code>null</code> a new one was created and
+     * returned.
+     *
+     * @param x      x offset into the band
+     * @param y      y offset into the band
+     * @param w      width of the pixel array to be read
+     * @param h      height of the pixel array to be read
+     * @param pixels array to be filled with data
+     * @param pm     a progress monitor
+     * @return the pixels read
+     */
+    public abstract float[] readPixels(int x, int y, int w, int h, float[] pixels, ProgressMonitor pm) throws
+            IOException;
+
+    /**
+     * @deprecated use {@link #readPixels(int, int, int, int, double[], ProgressMonitor)}
+     */
+    public double[] readPixels(int x, int y, int w, int h, double[] pixels) throws IOException {
+        return readPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
+    }
+
+    /**
+     * Retrieves the band data at the given offset (x, y), width and height as double data. If the data is already in
+     * memory, it merely copies the data to the buffer provided. If not, it calls the attached product reader to
+     * retrieve the data from the disk file. If the given buffer is <code>null</code> a new one was created and
+     * returned.
+     *
+     * @param x      x offset into the band
+     * @param y      y offset into the band
+     * @param w      width of the pixel array to be read
+     * @param h      height of the pixel array to be read
+     * @param pixels array to be filled with data
+     * @param pm     a progress monitor
+     * @return the pixels read
+     */
+    public abstract double[] readPixels(int x, int y, int w, int h, double[] pixels, ProgressMonitor pm) throws
+            IOException;
+
+    /**
+     * Writes the range of given pixels specified to the specified coordinates as integers.
+     *
+     * @param x      x offset into the band
+     * @param y      y offset into the band
+     * @param w      width of the pixel array to be written
+     * @param h      height of the pixel array to be written
+     * @param pixels array of pixels to write
+     * @deprecated use {@link #writePixels(int, int, int, int, int[], ProgressMonitor)}
+     */
+    public void writePixels(int x, int y, int w, int h, int[] pixels) throws IOException {
+        writePixels(x, y, w, h, pixels, ProgressMonitor.NULL);
+    }
+
+    /**
+     * Writes the range of given pixels specified to the specified coordinates as integers.
+     *
+     * @param x      x offset into the band
+     * @param y      y offset into the band
+     * @param w      width of the pixel array to be written
+     * @param h      height of the pixel array to be written
+     * @param pixels array of pixels to write
+     * @param pm     a progress monitor
+     */
+    public abstract void writePixels(int x, int y, int w, int h, int[] pixels, ProgressMonitor pm) throws IOException;
+
+    /**
+     * Writes the range of given pixels specified to the specified coordinates as floats.
+     *
+     * @param x      x offset into the band
+     * @param y      y offset into the band
+     * @param w      width of the pixel array to be written
+     * @param h      height of the pixel array to be written
+     * @param pixels array of pixels to write
+     * @deprecated use {@link #writePixels(int, int, int, int, float[], ProgressMonitor)}
+     */
+    public synchronized void writePixels(int x, int y, int w, int h, float[] pixels) throws IOException {
+        writePixels(x, y, w, h, pixels, ProgressMonitor.NULL);
+    }
+
+    /**
+     * Writes the range of given pixels specified to the specified coordinates as floats.
+     *
+     * @param x      x offset into the band
+     * @param y      y offset into the band
+     * @param w      width of the pixel array to be written
+     * @param h      height of the pixel array to be written
+     * @param pixels array of pixels to write
+     * @param pm     a progress monitor
+     */
+    public abstract void writePixels(int x, int y, int w, int h, float[] pixels, ProgressMonitor pm) throws IOException;
+
+    /**
+     * Writes the range of given pixels specified to the specified coordinates as doubles.
+     *
+     * @param x      x offset into the band
+     * @param y      y offset into the band
+     * @param w      width of the pixel array to be written
+     * @param h      height of the pixel array to be written
+     * @param pixels double array to be filled with data
+     * @deprecated ise {@link #writePixels(int, int, int, int, double[], ProgressMonitor)}
+     */
+    public void writePixels(int x, int y, int w, int h, double[] pixels) throws IOException {
+        writePixels(x, y, w, h, pixels, ProgressMonitor.NULL);
+    }
+
+    /**
+     * Writes the range of given pixels specified to the specified coordinates as doubles.
+     *
+     * @param x      x offset into the band
+     * @param y      y offset into the band
+     * @param w      width of the pixel array to be written
+     * @param h      height of the pixel array to be written
+     * @param pixels array of pixels to write
+     * @param pm     a progress monitor
+     */
+    public abstract void writePixels(int x, int y, int w, int h, double[] pixels, ProgressMonitor pm) throws
+            IOException;
+
+    public boolean[] readValidMask(int x, int y, int w, int h, boolean[] validMask) throws IOException {
+        if (validMask == null) {
+            validMask = new boolean[w * h];
+        }
+        if (isValidPixelExpressionSet() || isNoDataValueUsed()) {
+            final Product product = getProduct();
+            final Term term = createDataMaskTerm();
+            product.readBitmask(x, y, w, h, term, validMask, ProgressMonitor.NULL);
+        } else {
+            Arrays.fill(validMask, true);
+        }
+        return validMask;
+    }
+
+    /**
+     * Reads the complete underlying raster data.
+     * <p/>
+     * <p>After this method has been called successfully, <code>hasRasterData()</code> should always return
+     * <code>true</code> and <code>getRasterData()</code> should always return a valid <code>ProductData</code> instance
+     * with at least <code>getRasterWidth()*getRasterHeight()</code> elements (samples).
+     * <p/>
+     * <p>In opposite to the <code>loadRasterData</code> method, the <code>readRasterDataFully</code> method always
+     * reloads the data of this product raster, independently of whether its has already been loaded or not.
+     *
+     * @throws java.io.IOException if an I/O error occurs
+     * @see #loadRasterData
+     * @deprecated use {@link #readRasterDataFully(ProgressMonitor)}
+     */
+    public void readRasterDataFully() throws IOException {
+        readRasterDataFully(ProgressMonitor.NULL);
+    }
+
+    /**
+     * Reads the complete underlying raster data.
+     * <p/>
+     * <p>After this method has been called successfully, <code>hasRasterData()</code> should always return
+     * <code>true</code> and <code>getRasterData()</code> should always return a valid <code>ProductData</code> instance
+     * with at least <code>getRasterWidth()*getRasterHeight()</code> elements (samples).
+     * <p/>
+     * <p>In opposite to the <code>loadRasterData</code> method, the <code>readRasterDataFully</code> method always
+     * reloads the data of this product raster, independently of whether its has already been loaded or not.
+     *
+     * @param pm a monitor to inform the user about progress
+     * @throws java.io.IOException if an I/O error occurs
+     * @see #loadRasterData
+     * @deprecated this method is neither thread save nor is it cool to store huge amounts of raster
+     *             data in this product element. Use
+     *             {@link #readRasterData(int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor) readRasterData}
+     *             instead to read raster data tile-wise.
+     */
+    public abstract void readRasterDataFully(ProgressMonitor pm) throws IOException;
+
+    /**
+     * Reads raster data from this dataset into the user-supplied raster data buffer.
+     * <p/>
+     * <p>This method always directly (re-)reads this band's data from its associated data source into the given data
+     * buffer.
+     *
+     * @param offsetX    the X-offset in the raster co-ordinates where reading starts
+     * @param offsetY    the Y-offset in the raster co-ordinates where reading starts
+     * @param width      the width of the raster data buffer
+     * @param height     the height of the raster data buffer
+     * @param rasterData a raster data buffer receiving the pixels to be read
+     * @throws java.io.IOException      if an I/O error occurs
+     * @throws IllegalArgumentException if the raster is null
+     * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
+     *                                  which this product raster belongs to, has no associated product reader
+     * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData
+     * @deprecated use {@link #readRasterData(int, int, int, int, ProductData, ProgressMonitor)}
+     */
+    public void readRasterData(int offsetX, int offsetY,
+                               int width, int height,
+                               ProductData rasterData) throws IOException {
+        readRasterData(offsetX, offsetY, width, height, rasterData, ProgressMonitor.NULL);
+    }
+
+    /**
+     * Reads raster data from this dataset into the user-supplied raster data buffer.
+     * <p/>
+     * <p>This method always directly (re-)reads this band's data from its associated data source into the given data
+     * buffer.
+     *
+     * @param offsetX    the X-offset in the raster co-ordinates where reading starts
+     * @param offsetY    the Y-offset in the raster co-ordinates where reading starts
+     * @param width      the width of the raster data buffer
+     * @param height     the height of the raster data buffer
+     * @param rasterData a raster data buffer receiving the pixels to be read
+     * @param pm         a monitor to inform the user about progress
+     * @throws java.io.IOException      if an I/O error occurs
+     * @throws IllegalArgumentException if the raster is null
+     * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
+     *                                  which this product raster belongs to, has no associated product reader
+     * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData
+     */
+    public abstract void readRasterData(int offsetX, int offsetY,
+                                        int width, int height,
+                                        ProductData rasterData,
+                                        ProgressMonitor pm) throws IOException;
+
+    /**
+     * Reads <i>geophysical</i> pixel values from this dataset into the user-supplied data buffer.
+     * <p>Geophysical pixel values are already {@link #isScalingApplied() scaled} (calibrated) and raster coordinates
+     * refer to the product's scene raster.
+     * <p>If this method applied to a
+     * {@link TiePointGrid}, it will read scaled and spatially interpolated pixel
+     * data.</p>
+     *
+     * @param offsetX    the X-offset in the scene raster co-ordinates where reading starts
+     * @param offsetY    the Y-offset in the scene raster co-ordinates where reading starts
+     * @param width      the width of the scene raster data buffer
+     * @param height     the height of the scene raster data buffer
+     * @param rasterData a raster data buffer receiving the pixels to be read
+     * @param pm         a monitor to inform the user about progress
+     * @throws java.io.IOException      if an I/O error occurs
+     * @throws IllegalArgumentException if the raster is null
+     * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
+     *                                  which this product raster belongs to, has no associated product reader
+     * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData
+     */
+    public void readPixels(int offsetX, int offsetY, int width, int height, ProductData rasterData, ProgressMonitor pm) throws IOException {
+
+        if (isScalingApplied()
+                || getSceneRasterWidth() != getRasterWidth()
+                || getSceneRasterHeight() != getRasterHeight()
+                || getDataType() != rasterData.getType()) {
+            if (rasterData.getType() == ProductData.TYPE_FLOAT32) {
+                readPixels(offsetX, offsetY, width, height, (float[]) rasterData.getElems(), pm);
+            } else if (rasterData.getType() == ProductData.TYPE_FLOAT64) {
+                readPixels(offsetX, offsetY, width, height, (double[]) rasterData.getElems(), pm);
+            } else if (rasterData.getType() == ProductData.TYPE_INT32) {
+                readPixels(offsetX, offsetY, width, height, (int[]) rasterData.getElems(), pm);
+            } else {
+                int[] intBuffer = new int[rasterData.getNumElems()];
+                readPixels(offsetX, offsetY, width, height, intBuffer, pm);
+                for (int i = 0; i < intBuffer.length; i++) {
+                    rasterData.setElemIntAt(i, intBuffer[i]);
+                }
+            }
+        } else {
+            readRasterData(offsetX, offsetY, width, height, rasterData, pm);
+        }
+    }
+
+    /**
+     * Writes the complete underlying raster data.
+     *
+     * @throws java.io.IOException if an I/O error occurs
+     * @deprecated use {@link #writeRasterDataFully(com.bc.ceres.core.ProgressMonitor)} instead
+     */
+    public void writeRasterDataFully() throws IOException {
+        writeRasterDataFully(ProgressMonitor.NULL);
+    }
+
+    /**
+     * Writes the complete underlying raster data.
+     *
+     * @param pm a monitor to inform the user about progress
+     * @throws java.io.IOException if an I/O error occurs
+     */
+    public abstract void writeRasterDataFully(ProgressMonitor pm) throws IOException;
+
+    /**
+     * Writes data from this product raster into the specified region of the user-supplied raster.
+     * <p/>
+     * <p> It is important to know that this method does not change this product raster's internal state nor does it
+     * write into this product raster's internal raster.
+     *
+     * @param rasterData a raster data buffer receiving the pixels to be read
+     * @param offsetX    the X-offset in raster co-ordinates where reading starts
+     * @param offsetY    the Y-offset in raster co-ordinates where reading starts
+     * @param width      the width of the raster data buffer
+     * @param height     the height of the raster data buffer
+     * @throws java.io.IOException      if an I/O error occurs
+     * @throws IllegalArgumentException if the raster is null
+     * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
+     *                                  which this product raster belongs to, has no associated product reader
+     * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData
+     * @deprecated use {@link #writeRasterData(int, int, int, int, ProductData, ProgressMonitor)} instead
+     */
+    public void writeRasterData(int offsetX, int offsetY, int width, int height, ProductData rasterData)
+            throws IOException {
+        writeRasterData(offsetX, offsetY, width, height, rasterData, ProgressMonitor.NULL);
+    }
+
+    /**
+     * Writes data from this product raster into the specified region of the user-supplied raster.
+     * <p/>
+     * <p> It is important to know that this method does not change this product raster's internal state nor does it
+     * write into this product raster's internal raster.
+     *
+     * @param rasterData a raster data buffer receiving the pixels to be read
+     * @param offsetX    the X-offset in raster co-ordinates where reading starts
+     * @param offsetY    the Y-offset in raster co-ordinates where reading starts
+     * @param width      the width of the raster data buffer
+     * @param height     the height of the raster data buffer
+     * @param pm         a monitor to inform the user about progress
+     * @throws java.io.IOException      if an I/O error occurs
+     * @throws IllegalArgumentException if the raster is null
+     * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
+     *                                  which this product raster belongs to, has no associated product reader
+     * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData
+     */
+    public abstract void writeRasterData(int offsetX, int offsetY,
+                                         int width, int height,
+                                         ProductData rasterData,
+                                         ProgressMonitor pm) throws IOException;
+
+    /**
+     * Creates raster data that is compatible to this dataset's data type. The data buffer returned contains exactly
+     * <code>getRasterWidth()*getRasterHeight()</code> elements of a compatible data type.
+     *
+     * @return raster data compatible with this product raster
+     * @see #createCompatibleSceneRasterData
+     */
+    public ProductData createCompatibleRasterData() {
+        return createCompatibleRasterData(getRasterWidth(), getRasterHeight());
+    }
+
+    /**
+     * Creates raster data that is compatible to this dataset's data type. The data buffer returned contains exactly
+     * <code>getBandOutputRasterWidth()*getBandOutputRasterHeight()</code> elements of a compatible data type.
+     *
+     * @return raster data compatible with this product raster
+     * @see #createCompatibleRasterData
+     */
+    public ProductData createCompatibleSceneRasterData() {
+        return createCompatibleRasterData(getSceneRasterWidth(), getSceneRasterHeight());
+    }
+
+    /**
+     * Creates raster data that is compatible to this dataset's data type. The data buffer returned contains exactly
+     * <code>width*height</code> elements of a compatible data type.
+     *
+     * @param width  the width of the raster data to be created
+     * @param height the height of the raster data to be created
+     * @return raster data compatible with this product raster
+     * @see #createCompatibleRasterData
+     * @see #createCompatibleSceneRasterData
+     */
+    public ProductData createCompatibleRasterData(int width, int height) {
+        return createCompatibleProductData(width * height);
+    }
+
+    /**
+     * Tests whether the given parameters specify a compatible raster or not.
+     *
+     * @return <code>true</code> if so
+     */
+    public boolean isCompatibleRasterData(ProductData rasterData, int w, int h) {
+        return rasterData != null
+                && rasterData.getType() == getDataType()
+                && rasterData.getNumElems() == w * h;
+    }
+
+    /**
+     * Throws an <code>IllegalArgumentException</code> if the given parameters dont specify a compatible raster.
+     *
+     * @throws IllegalArgumentException
+     */
+    public void checkCompatibleRasterData(ProductData rasterData, int w, int h) {
+        if (!isCompatibleRasterData(rasterData, w, h)) {
+            throw new IllegalArgumentException("invalid raster data buffer for '" + getName() + "'");
+        }
+    }
+
+    /**
+     * Determines whether this raster data node contains integer samples.
+     *
+     * @return true if this raster data node contains integer samples.
+     */
+    public boolean hasIntPixels() {
+        return ProductData.isIntType(getDataType());
+    }
+
+    /**
+     * Creates a transect profile for the given shape (-outline).
+     *
+     * @throws IOException if an I/O error occurs
+     */
+    public TransectProfileData createTransectProfileData(Shape shape) throws IOException {
+        return TransectProfileData.create(this, shape);
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // 'Visitor' pattern support
+
+    /**
+     * Accepts the given visitor. This method implements the well known 'Visitor' design pattern of the gang-of-four.
+     * The visitor pattern allows to define new operations on the product data model without the need to add more code
+     * to it. The new operation is implemented by the visitor.
+     *
+     * @param visitor the visitor, must not be <code>null</code>
+     */
+    @Override
+    public abstract void acceptVisitor(ProductVisitor visitor);
+
+    /**
+     * Gets the image information for image display.
+     *
+     * @return the image info or null
+     */
+    public ImageInfo getImageInfo() {
+        return _imageInfo;
+    }
+
+    /**
+     * Sets the image information for image display.
+     *
+     * @param imageInfo the image info, can be null
+     */
+    public void setImageInfo(ImageInfo imageInfo) {
+        if (_imageInfo != imageInfo) {
+            _imageInfo = imageInfo;
+            if (_imageInfo != null) {
+                _imageInfo.setScaling(this);
+            }
+            fireProductNodeChanged(PROPERTY_NAME_IMAGE_INFO);
+            setModified(true);
+        }
+    }
+
+    /**
+     * Gets the bitmask overlay info for image display
+     */
+    public BitmaskOverlayInfo getBitmaskOverlayInfo() {
+        return _bitmaskOverlayInfo;
+    }
+
+    /**
+     * Sets the bitmask overlay info for image display
+     */
+    public void setBitmaskOverlayInfo(BitmaskOverlayInfo bitmaskOverlayInfo) {
+        if (_bitmaskOverlayInfo != bitmaskOverlayInfo) {
+            _bitmaskOverlayInfo = bitmaskOverlayInfo;
+            fireProductNodeChanged(PROPERTY_NAME_BITMASK_OVERLAY_INFO);
+            setModified(true);
+        }
+    }
+
+    /**
+     * Gets the ROI definition for image display
+     */
+    public ROIDefinition getROIDefinition() {
+        return _roiDefinition;
+    }
+
+    /**
+     * Sets the ROI definition for image display
+     */
+    public void setROIDefinition(ROIDefinition roiDefinition) {
+        if (_roiDefinition != roiDefinition) {
+            _roiDefinition = roiDefinition;
+            fireProductNodeChanged(PROPERTY_NAME_ROI_DEFINITION);
+            setModified(true);
+        }
+    }
+
+    /**
+     * Returns whether or not a ROI is usable for this raster data node.
+     */
+    public boolean isROIUsable() {
+        return getROIDefinition() != null && getROIDefinition().isUsable();
+    }
+
+    /**
+     * Returns the image information for this raster data node.
+     * <p/>
+     * <p>The method simply returns the value of <code>ensureValidImageInfo(null, true)</code>.
+     *
+     * @return a valid image information instance, never <code>null</code>.
+     * @throws IOException if an I/O error occurs
+     * @see #ensureValidImageInfo(double[], boolean)
+     */
+    public ImageInfo ensureValidImageInfo() throws IOException {
+        return ensureValidImageInfo(null, true, ProgressMonitor.NULL);
+    }
+
+    /**
+     * Ensures that this raster data node has valid image information and returns it.
+     * <p/>
+     * <p>If no image information has been assigned before, the <code>{@link #createDefaultImageInfo}</code> method is
+     * called with the given parameters passed to this method.
+     *
+     * @param histoSkipAreas    only used, if new image info is created (see <code>{@link #createDefaultImageInfo}</code>
+     *                          method)
+     * @param ignoreInvalidZero only used, if new image info is created (see <code>{@link #createDefaultImageInfo}</code>
+     *                          method)
+     * @return a valid image information instance, never <code>null</code>.
+     * @throws IOException if an I/O error occurs
+     * @deprecated use {@link #ensureValidImageInfo(double[], boolean, ProgressMonitor)}
+     */
+    public ImageInfo ensureValidImageInfo(double[] histoSkipAreas, boolean ignoreInvalidZero) throws IOException {
+        return ensureValidImageInfo(histoSkipAreas, ignoreInvalidZero, ProgressMonitor.NULL);
+    }
+
+    /**
+     * Ensures that this raster data node has valid image information and returns it.
+     * <p/>
+     * <p>If no image information has been assigned before, the <code>{@link #createDefaultImageInfo}</code> method is
+     * called with the given parameters passed to this method.
+     *
+     * @param histoSkipAreas    only used, if new image info is created (see <code>{@link #createDefaultImageInfo}</code>
+     *                          method)
+     * @param ignoreInvalidZero only used, if new image info is created (see <code>{@link #createDefaultImageInfo}</code>
+     *                          method)
+     * @return a valid image information instance, never <code>null</code>.
+     * @throws IOException if an I/O error occurs
+     */
+    public ImageInfo ensureValidImageInfo(double[] histoSkipAreas, boolean ignoreInvalidZero, ProgressMonitor pm) throws
+            IOException {
+        ImageInfo imageInfo = getImageInfo();
+        if (imageInfo == null) {
+            imageInfo = createDefaultImageInfo(histoSkipAreas, ignoreInvalidZero, pm);
+            setImageInfo(imageInfo);
+        }
+        return imageInfo;
+    }
+
+    /**
+     * Creates a default image information instance.
+     * <p/>
+     * <p>An <code>IllegalStateException</code> is thrown in the case that this raster data node has no raster data.
+     *
+     * @param histoSkipAreas    the left (at index 0) and right (at index 1) normalized areas of the raster data
+     *                          histogram to be excluded when determining the value range for a linear constrast
+     *                          stretching. Can be <code>null</code>, in this case <code>{0.01, 0.04}</code> resp. 5% of
+     *                          the entire area is skipped.
+     * @param ignoreInvalidZero if <code>true</code> the method tries to exclude zero from the value range for a linear
+     *                          constrast stretching
+     * @return a valid image information instance, never <code>null</code>.
+     * @throws IOException if an I/O error occurs
+     * @deprecated use {@link #createDefaultImageInfo(double[], boolean, ProgressMonitor)}
+     */
+    public ImageInfo createDefaultImageInfo(double[] histoSkipAreas, boolean ignoreInvalidZero) throws IOException {
+        return createDefaultImageInfo(histoSkipAreas, ignoreInvalidZero, ProgressMonitor.NULL);
+    }
+
+    /**
+     * Creates a default image information instance.
+     * <p/>
+     * <p>An <code>IllegalStateException</code> is thrown in the case that this raster data node has no raster data.
+     *
+     * @param histoSkipAreas    the left (at index 0) and right (at index 1) normalized areas of the raster data
+     *                          histogram to be excluded when determining the value range for a linear constrast
+     *                          stretching. Can be <code>null</code>, in this case <code>{0.01, 0.04}</code> resp. 5% of
+     *                          the entire area is skipped.
+     * @param ignoreInvalidZero if <code>true</code> the method tries to exclude zero from the value range for a linear
+     *                          constrast stretching
+     * @param pm                a monitor to inform the user about progress
+     * @return a valid image information instance, never <code>null</code>.
+     * @throws IOException if an I/O error occurs
+     */
+    public ImageInfo createDefaultImageInfo(double[] histoSkipAreas, boolean ignoreInvalidZero,
+                                            ProgressMonitor pm) throws IOException {
+        final StopWatch stopWatch = new StopWatch();
+
+        stopWatch.start();
+        Histogram histogram = computeRasterDataHistogram(null, 512, null, pm);
+
+        stopWatch.stopAndTrace("RasterDataNode.createDefaultImageInfo, mark 1");
+        Debug.trace("histogram range         = " + histogram);
+        Debug.trace("histogram numBins       = " + histogram.getNumBins());
+        Debug.trace("histogram bin count sum = " + histogram.getBinCountsSum());
+        Debug.trace("histogram max bin count = " + histogram.getMaxBinCount());
+
+        return createDefaultImageInfo(histoSkipAreas, histogram, ignoreInvalidZero);
+    }
+
+    /**
+     * Creates an instance of a default image information.
+     * <p/>
+     * <p>An <code>IllegalStateException</code> is thrown in the case that this raster data node has no raster data.
+     *
+     * @param histoSkipAreas    the left (at index 0) and right (at index 1) normalized areas of the raster data
+     *                          histogram to be excluded when determining the value range for a linear constrast
+     *                          stretching. Can be <code>null</code>, in this case <code>{0.01, 0.04}</code> resp. 5% of
+     *                          the entire area is skipped.
+     * @param histogram         the histogram to create the image information.
+     * @param ignoreInvalidZero if <code>true</code> the method tries to exclude zero from the value range for a linear
+     *                          constrast stretching.
+     * @return a valid image information instance, never <code>null</code>.
+     */
+    public ImageInfo createDefaultImageInfo(double[] histoSkipAreas, Histogram histogram, boolean ignoreInvalidZero) {
+        final StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
+        final Range range;
+        if (histoSkipAreas != null) {
+            range = histogram.findRange(histoSkipAreas[0], histoSkipAreas[1], ignoreInvalidZero);
+        } else {
+            range = histogram.findRange(0.01, 0.04, ignoreInvalidZero);
+        }
+
+        stopWatch.stopAndTrace("RasterDataNode.createDefaultImageInfo, mark 2");
+        Debug.trace("histogram find range    = " + range);
+        stopWatch.start();
+
+        final double min, max;
+        if (range.getMin() != range.getMax()) {
+            min = scale(range.getMin());
+            max = scale(range.getMax());
+        } else {
+            min = scale(histogram.getMin());
+            max = scale(histogram.getMax());
+        }
+
+        double center = scale(0.5 * (scaleInverse(min) + scaleInverse(max)));
+        final ColorPaletteDef gradationCurve = new ColorPaletteDef(min, center, max);
+
+        ImageInfo imageInfo = new ImageInfo((float) scale(histogram.getMin()),
+                                            (float) scale(histogram.getMax()),
+                                            histogram.getBinCounts(),
+                                            256,
+                                            gradationCurve);
+
+        stopWatch.stopAndTrace("RasterDataNode.createDefaultImageInfo, mark 3");
+
+        return imageInfo;
+    }
+
+    /**
+     * Creates an image for this raster data node. The method simply returns <code>ProductUtils.createColorIndexedImage(this,
+     * null)</code>.
+     *
+     * @return a greyscale/palette-based image for this raster data node
+     * @throws IOException if the raster data is not loaded so far and reload causes an I/O error
+     * @see #setImageInfo
+     * @see org.esa.beam.util.ProductUtils#createColorIndexedImage
+     * @deprecated use {@link #createColorIndexedImage(ProgressMonitor)} instead
+     */
+    public BufferedImage createColorIndexedImage() throws IOException {
+        return createColorIndexedImage(ProgressMonitor.NULL);
+    }
+
+    /**
+     * Creates an image for this raster data node. The method simply returns <code>ProductUtils.createColorIndexedImage(this,
+     * null)</code>.
+     *
+     * @param pm a monitor to inform the user about progress
+     * @return a greyscale/palette-based image for this raster data node
+     * @throws IOException if the raster data is not loaded so far and reload causes an I/O error
+     * @see #setImageInfo
+     * @see org.esa.beam.util.ProductUtils#createColorIndexedImage
+     */
+    public BufferedImage createColorIndexedImage(ProgressMonitor pm) throws IOException {
+        return ProductUtils.createColorIndexedImage(this, pm);
+    }
+
+    /**
+     * Creates an RGB image for this raster data node. The method simply returns <code>ProductUtils.createRgbImage(new
+     * RasterDataNode[] {this});</code>.
+     *
+     * @return a greyscale/palette-based image for this raster data node
+     * @throws IOException if the raster data is not loaded so far and reload causes an I/O error
+     * @see #setImageInfo
+     * @see org.esa.beam.util.ProductUtils#createRgbImage
+     * @deprecated use {@link #createRgbImage(ProgressMonitor)} instead
+     */
+    public BufferedImage createRgbImage() throws IOException {
+        return createRgbImage(ProgressMonitor.NULL);
+    }
+
+    /**
+     * Creates an RGB image for this raster data node. The method simply returns <code>ProductUtils.createRgbImage(new
+     * RasterDataNode[] {this});</code>.
+     *
+     * @param pm a monitor to inform the user about progress
+     * @return a greyscale/palette-based image for this raster data node
+     * @throws IOException if the raster data is not loaded so far and reload causes an I/O error
+     * @see #setImageInfo
+     * @see org.esa.beam.util.ProductUtils#createRgbImage
+     */
+    public BufferedImage createRgbImage(ProgressMonitor pm) throws IOException {
+        return ProductUtils.createRgbImage(new RasterDataNode[]{this}, pm);
+    }
+
+    /**
+     * Creates a new ROI from the current ROI definition.
+     *
+     * @return a new ROI instance or null if no ROI definition is available
+     * @deprecated use {@link #createROI(ProgressMonitor)} instead
+     */
+    public ROI createROI() throws IOException {
+        return createROI(ProgressMonitor.NULL);
+    }
+
+    /**
+     * Creates a new ROI from the current ROI definition.
+     *
+     * @param pm a monitor to inform the user about progress
+     * @return a new ROI instance or null if no ROI definition is available
+     */
+    public ROI createROI(ProgressMonitor pm) throws IOException {
+        final BufferedImage bi = createROIImage(Color.red, pm);
+        return bi != null ? new ROI(bi, 1) : null;
+    }
+
+    /**
+     * Creates a new ROI image for the current ROI definition.
+     *
+     * @return a new ROI instance or null if no ROI definition is available
+     * @deprecated use {@link #createROIImage(java.awt.Color, com.bc.ceres.core.ProgressMonitor)} instead
+     */
+    public synchronized BufferedImage createROIImage(final Color color) throws IOException {
+        return createROIImage(color, ProgressMonitor.NULL);
+    }
+
+    /**
+     * Creates a new ROI image for the current ROI definition.
+     *
+     * @return a new ROI instance or null if no ROI definition is available
+     */
+    public synchronized BufferedImage createROIImage(final Color color, ProgressMonitor pm) throws IOException {
+        if (!isROIUsable()) {
+            return null;
+        }
+
+        Debug.trace("creating roi image");
+
+        final ROIDefinition roiDefinition = getROIDefinition();
+        Debug.assertNotNull(roiDefinition);
+
+        final byte b00 = (byte) 0;
+        final byte b01 = (byte) 1;
+        final byte bFF = (byte) 255;
+
+        final boolean orCombined = roiDefinition.isOrCombined();
+
+        final int w = getSceneRasterWidth();
+        final int h = getSceneRasterHeight();
+
+        // Create the result image
+        final IndexColorModel cm = new IndexColorModel(8, 2,
+                                                       new byte[]{b00, (byte) color.getRed()},
+                                                       new byte[]{b00, (byte) color.getGreen()},
+                                                       new byte[]{b00, (byte) color.getBlue()},
+                                                       0);
+        final BufferedImage bi = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_INDEXED, cm);
+
+        // The ROI's data buffer
+        final byte[] data = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
+        final int n = data.length;
+        // Nothing set so far
+        boolean dataValid = false;
+
+        int count = 0;
+        if (!StringUtils.isNullOrEmpty(roiDefinition.getBitmaskExpr()) && roiDefinition.isBitmaskEnabled()) {
+            count++;
+        }
+        if (roiDefinition.isValueRangeEnabled()) {
+            count++;
+        }
+        if (roiDefinition.isPinUseEnabled()) {
+            count++;
+        }
+        if (roiDefinition.isShapeEnabled() && roiDefinition.getShapeFigure() != null) {
+            count++;
+        }
+        if (roiDefinition.isInverted()) {
+            count++;
+        }
+        pm.beginTask("Computing ROI image...", count);
+
+        try {
+            //////////////////////////////////////////////////////////////////
+            // Step 1:  insert ROI pixels determined by bitmask expression
+            //
+            String bitmaskExpr = roiDefinition.getBitmaskExpr();
+            // Honour valid pixels only
+            if (!StringUtils.isNullOrEmpty(bitmaskExpr) && roiDefinition.isBitmaskEnabled()) {
+                final Product product = getProduct();
+                final Term term;
+                try {
+                    term = product.createTerm(bitmaskExpr);
+                } catch (ParseException e) {
+                    final IOException ioException = new IOException(
+                            "Could not create the ROI image because the bitmask expression\n" +
+                                    "'" + bitmaskExpr + "'\n" +
+                                    "is not a valid expression.");
+                    ioException.initCause(e);
+                    throw ioException;
+                }
+                product.readBitmask(0, 0, w, h, term, data, b01, b00, new SubProgressMonitor(pm, 1));
+                dataValid = true;
+            }
+
+            ///////////////////////////////////////////////////
+            // Step 2:  insert ROI pixels within value range
+            //
+            if (roiDefinition.isValueRangeEnabled()) {
+                final float min = roiDefinition.getValueRangeMin();
+                final float max = roiDefinition.getValueRangeMax();
+                RasterDataProcessor processor;
+                if (!dataValid) {
+                    processor = new RasterDataProcessor() {
+                        public void processRasterDataBuffer(ProductData buffer, int y0, int numLines,
+                                                            ProgressMonitor pm) throws IOException {
+                            final RasterDataDoubleList values = new RasterDataDoubleList(buffer);
+                            final IndexValidator pixelValidator = createPixelValidator(y0, null);
+                            final int n = values.getSize();
+                            final int i0 = y0 * getSceneRasterWidth();
+                            double v;
+                            pm.beginTask("Processing raster data...", n);
+                            try {
+                                for (int i = 0; i < n; i++) {
+                                    if (pixelValidator.validateIndex(i)) {
+                                        v = values.getDouble(i);
+                                        if (v >= min && v <= max) {
+                                            data[i0 + i] = b01;
+                                        }
+                                    }
+                                    pm.worked(1);
+                                }
+                            } finally {
+                                pm.done();
+                            }
+
+                        }
+                    };
+                } else if (orCombined) {
+                    processor = new RasterDataProcessor() {
+                        public void processRasterDataBuffer(ProductData buffer, int y0, int numLines,
+                                                            ProgressMonitor pm) throws IOException {
+                            final RasterDataDoubleList values = new RasterDataDoubleList(buffer);
+                            final IndexValidator pixelValidator = createPixelValidator(y0, null);
+                            final int n = values.getSize();
+                            final int i0 = y0 * getSceneRasterWidth();
+                            double v;
+                            pm.beginTask("Processing raster data", n);
+                            try {
+                                for (int i = 0; i < n; i++) {
+                                    if (pixelValidator.validateIndex(i)) {
+                                        if (data[i0 + i] == b00) {
+                                            v = values.getDouble(i);
+                                            if (v >= min && v <= max) {
+                                                data[i0 + i] = b01;
+                                            }
+                                        }
+                                    }
+                                    pm.worked(1);
+                                }
+                            } finally {
+                                pm.done();
+                            }
+                        }
+                    };
+                } else {
+                    processor = new RasterDataProcessor() {
+                        public void processRasterDataBuffer(ProductData buffer, int y0, int numLines,
+                                                            ProgressMonitor pm) throws IOException {
+                            final RasterDataDoubleList values = new RasterDataDoubleList(buffer);
+                            final IndexValidator pixelValidator = createPixelValidator(y0, null);
+                            final int n = values.getSize();
+                            final int i0 = y0 * getSceneRasterWidth();
+                            double v;
+                            pm.beginTask("Processing raster data...", n);
+                            try {
+                                for (int i = 0; i < n; i++) {
+                                    if (pixelValidator.validateIndex(i)) {
+                                        if (data[i0 + i] == b01) {
+                                            v = values.getDouble(i);
+                                            if (v < min || v > max) {
+                                                data[i0 + i] = b00;
+                                            }
+                                        }
+                                    }
+                                    pm.worked(1);
+                                }
+                            } finally {
+                                pm.done();
+                            }
+                        }
+                    };
+                }
+                processRasterData("Creating ROI image...", processor, new SubProgressMonitor(pm, 1));
+                dataValid = true;
+            }
+
+            ///////////////////////////////////////////////////
+            // Step 3:  insert ROI pixels for pins
+            //
+            if (roiDefinition.isPinUseEnabled()) {
+                final Pin[] pins = getProduct().getPins();
+                final int[] validIndexes = new int[pins.length];
+                for (int i = 0; i < pins.length; i++) {
+                    final PixelPos pixelPos = pins[i].getPixelPos();
+                    int x = (int) Math.floor(pixelPos.getX());
+                    int y = (int) Math.floor(pixelPos.getY());
+                    validIndexes[i] = -1;
+                    if (x >= 0 && x < w && y >= 0 && y < h) {
+                        validIndexes[i] = y * w + x;
+                    } else {
+                        validIndexes[i] = -1;
+                    }
+                }
+                int validIndex;
+                if (!dataValid || orCombined) {
+                    for (int i = 0; i < validIndexes.length; i++) {
+                        validIndex = validIndexes[i];
+                        if (validIndex != -1) {
+                            data[validIndex] = b01;
+                        }
+                    }
+                } else {
+                    Arrays.sort(validIndexes);
+                    int lastIndex = -1;
+                    for (int i = 0; i < validIndexes.length; i++) {
+                        int index = validIndexes[i];
+                        if (index != -1) {
+                            for (int j = lastIndex + 1; j < index; j++) {
+                                data[j] = b00;
+                            }
+                        }
+                        lastIndex = index;
+                    }
+                    for (int j = lastIndex + 1; j < data.length; j++) {
+                        data[j] = b00;
+                    }
+                }
+                dataValid = pins.length > 0;
+                pm.worked(1);
+            }
+
+            ///////////////////////////////////////////////////
+            // Step 4:  insert ROI pixels within shape
+            //
+            Figure roiShapeFigure = roiDefinition.getShapeFigure();
+            if (roiDefinition.isShapeEnabled() && roiShapeFigure != null) {
+                // @todo 1 nf/nf - save memory by just allocating the image for the shape's bounding box
+                final BufferedImage bi2 = new BufferedImage(w, h,
+                                                            BufferedImage.TYPE_BYTE_INDEXED,
+                                                            new IndexColorModel(8, 2,
+                                                                                new byte[]{b00, bFF},
+                                                                                new byte[]{b00, bFF},
+                                                                                new byte[]{b00, bFF}));
+                final Graphics2D graphics2D = bi2.createGraphics();
+                graphics2D.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                graphics2D.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DISABLE);
+                graphics2D.setColor(Color.white);
+                graphics2D.setStroke(new BasicStroke(1f));
+                if (!roiShapeFigure.isOneDimensional()) {
+                    graphics2D.fill(roiShapeFigure.getShape());
+                }
+                graphics2D.draw(roiShapeFigure.getShape());
+                graphics2D.dispose();
+                final byte[] data2 = ((DataBufferByte) bi2.getRaster().getDataBuffer()).getData();
+                if (!dataValid) {
+                    System.arraycopy(data2, 0, data, 0, n);
+                } else if (orCombined) {
+                    for (int i = 0; i < n; i++) {
+                        if (data[i] == b00 && data2[i] != b00) {
+                            data[i] = b01;
+                        }
+                    }
+                } else {
+                    for (int i = 0; i < n; i++) {
+                        if (data[i] == b01 && data2[i] == b00) {
+                            data[i] = b00;
+                        }
+                    }
+                }
+                pm.worked(1);
+            }
+
+            ////////////////////////////////
+            // Step 5:  invert ROI pixels
+            //
+            if (roiDefinition.isInverted()) {
+                for (int i = 0; i < n; i++) {
+                    data[i] = (data[i] == b00) ? b01 : b00;
+                }
+                pm.worked(1);
+            }
+        } finally {
+            pm.done();
+        }
+        return bi;
+    }
+
+    /**
+     * @deprecated use {@link #quantizeRasterData(double, double, double, com.bc.ceres.core.ProgressMonitor)} instead
+     */
+    public byte[] quantizeRasterData(final double newMin, final double newMax, final double gamma) throws IOException {
+        return quantizeRasterData(newMin, newMax, gamma, ProgressMonitor.NULL);
+    }
+
+    public byte[] quantizeRasterData(final double newMin, final double newMax, final double gamma,
+                                     ProgressMonitor pm) throws IOException {
+        final byte[] colorIndexes = new byte[getSceneRasterWidth() * getSceneRasterHeight()];
+        quantizeRasterData(newMin, newMax, gamma, colorIndexes, 0, 1, pm);
+        return colorIndexes;
+    }
+
+    /**
+     * @deprecated use {@link #quantizeRasterData(double, double, double, byte[], int, com.bc.ceres.core.ProgressMonitor)}
+     */
+    public void quantizeRasterData(double newMin, double newMax, final double gamma, byte[] rgbSamples,
+                                   int offset) throws IOException {
+        quantizeRasterData(newMin, newMax, gamma, rgbSamples, offset, 3, ProgressMonitor.NULL);
+    }
+
+    public void quantizeRasterData(double newMin, double newMax, final double gamma, byte[] rgbSamples, int offset,
+                                   ProgressMonitor pm) throws IOException {
+        quantizeRasterData(newMin, newMax, gamma, rgbSamples, offset, 3, pm);
+    }
+
+    private void quantizeRasterData(double newMin, double newMax, double gamma, byte[] samples, int offset, int stride,
+                                    ProgressMonitor pm) throws IOException {
+        final ProductData sceneRasterData = getSceneRasterData();
+        final double rawMin = scaleInverse(newMin);
+        final double rawMax = scaleInverse(newMax);
+        byte[] gammaCurve = null;
+        if (gamma != 0.0 && gamma != 1.0) {
+            gammaCurve = MathUtils.createGammaCurve(gamma, new byte[256]);
+        }
+        if (sceneRasterData != null) {
+            quantizeRasterData(sceneRasterData, rawMin, rawMax, samples, offset, stride, gammaCurve, pm);
+        } else {
+            quantizeRasterDataFromFile(rawMin, rawMax, samples, offset, stride, gammaCurve, pm);
+        }
+    }
+
+    /**
+     * Computes a histogram for the raw raster data contained in this data node within the given value range.
+     * <p/>
+     * <p/>
+     * Note that the histogram computed by this method can significantly differ from the one computed by {@link
+     * #computeRasterDataHistogram} if the raster data is {@link #isScalingApplied scaled}. Please also refer to method
+     * {@link #isLog10Scaled}.
+     *
+     * @param roi     an optional ROI, can be null
+     * @param numBins the number of bins in the resulting histogram
+     * @param range   the value range in which the histogram will be computed
+     * @return the resulting raw data histogram
+     * @see #isScalingApplied()
+     * @deprecated use {@link #computeRasterDataHistogram(ROI, int, Range, ProgressMonitor)}
+     */
+    public Histogram computeRasterDataHistogram(final ROI roi,
+                                                final int numBins,
+                                                Range range) throws IOException {
+        return computeRasterDataHistogramFromFile(roi, numBins, range, ProgressMonitor.NULL);
+    }
+
+    /**
+     * Computes a histogram for the raw raster data contained in this data node within the given value range.
+     * <p/>
+     * <p/>
+     * Note that the histogram computed by this method can significantly differ from the one computed by {@link
+     * #computeRasterDataHistogram} if the raster data is {@link #isScalingApplied scaled}. Please also refer to method
+     * {@link #isLog10Scaled}.
+     *
+     * @param roi     an optional ROI, can be null
+     * @param numBins the number of bins in the resulting histogram
+     * @param range   the value range in which the histogram will be computed
+     * @param pm      a monitor to inform the user about progress
+     * @return the resulting raw data histogram
+     * @see #isScalingApplied()
+     */
+    public Histogram computeRasterDataHistogram(final ROI roi,
+                                                final int numBins,
+                                                Range range, ProgressMonitor pm) throws IOException {
+        pm.beginTask("Computing histogram for '" + getName() + "'...", range == null ? 2 : 1);
+        try {
+            if (range == null) {
+                range = computeRasterDataRange(roi, new SubProgressMonitor(pm, 1));
+            }
+            final ProductData rasterData = getRasterData();
+            if (rasterData != null) {
+                return Histogram.computeHistogramGeneric(rasterData.getElems(),
+                                                         rasterData.isUnsigned(),
+                                                         createPixelValidator(0, roi),
+                                                         numBins,
+                                                         range,
+                                                         null,
+                                                         new SubProgressMonitor(pm, 1));
+            } else {
+                return computeRasterDataHistogramFromFile(roi, numBins, range, new SubProgressMonitor(pm, 1));
+            }
+        } finally {
+            pm.done();
+        }
+    }
+
+    /**
+     * Not implemented.
+     * <p/>
+     * Computes a range for the geophysical raster data ({@link #isScalingApplied scaled} raw data) contained in this
+     * data node within the given value range. <p>Note that the range computed by this method can significantly differ
+     * from the one computed by {@link #computeRasterDataRange} if the raster data is {@link #isScalingApplied scaled}.
+     * Please also refer to method {@link #isLog10Scaled}.
+     *
+     * @param roi an optional ROI, can be null
+     * @return the resulting histogram
+     * @see #isScalingApplied()
+     * @see #isLog10Scaled()
+     */
+    public Range computePixelRange(final ROI roi) {
+        throw new IllegalStateException("Not implemented, use computeRasterDataRange instead");
+    }
+
+    /**
+     * Computes a range for the raw raster data contained in this data node within the given value range. <p>Note that
+     * the range computed by this method can significantly differ from the one computed by {@link #computePixelRange} if
+     * the raster data is {@link #isScalingApplied scaled}. Please also refer to method {@link #isLog10Scaled}.
+     *
+     * @param roi an optional ROI, can be null
+     * @return the resulting histogram
+     * @see #isScalingApplied()
+     * @see #isLog10Scaled()
+     * @deprecated use {@link #computeRasterDataRange(javax.media.jai.ROI, com.bc.ceres.core.ProgressMonitor)} instead
+     */
+    public Range computeRasterDataRange(final ROI roi) throws IOException {
+        return computeRasterDataRange(roi, ProgressMonitor.NULL);
+    }
+
+    /**
+     * Computes a range for the raw raster data contained in this data node within the given value range. <p>Note that
+     * the range computed by this method can significantly differ from the one computed by {@link #computePixelRange} if
+     * the raster data is {@link #isScalingApplied scaled}. Please also refer to method {@link #isLog10Scaled}.
+     *
+     * @param roi an optional ROI, can be null
+     * @param pm  a monitor to inform the user about progress
+     * @return the resulting histogram
+     * @see #isScalingApplied()
+     * @see #isLog10Scaled()
+     */
+    public Range computeRasterDataRange(final ROI roi, ProgressMonitor pm) throws IOException {
+        final ProductData rasterData = getRasterData();
+        if (rasterData != null) {
+            return Range.computeRangeGeneric(rasterData.getElems(),
+                                             rasterData.isUnsigned(),
+                                             createPixelValidator(0, roi),
+                                             null, pm);
+        } else {
+            return computeRasterDataRangeFromFile(roi, pm);
+        }
+    }
+
+    /**
+     * Computes statistics for this raster data instance.
+     *
+     * @param roi on optional ROI, can be <code>null</code>
+     * @return the statistics
+     * @deprecated use {@link #computeStatistics(javax.media.jai.ROI, com.bc.ceres.core.ProgressMonitor)} instead
+     */
+    public Statistics computeStatistics(final ROI roi) throws IOException {
+        return computeStatistics(roi, ProgressMonitor.NULL);
+    }
+
+    /**
+     * Computes statistics for this raster data instance.
+     *
+     * @param roi on optional ROI, can be <code>null</code>
+     * @return the statistics
+     */
+    public Statistics computeStatistics(final ROI roi, ProgressMonitor pm) throws IOException {
+        final ProductData rasterData = getRasterData();
+        if (rasterData != null) {
+            return Statistics.computeStatisticsDouble(new RasterDataDoubleList(rasterData),
+                                                      createPixelValidator(0, roi),
+                                                      null, pm);
+        } else {
+            return computeStatisticsFromFile(roi, pm);
+        }
+    }
+
+
+    private Statistics computeStatisticsFromFile(final ROI roi, ProgressMonitor pm) throws IOException {
+        final LinkedList<Statistics> list = new LinkedList<Statistics>();
+        processRasterData("Computing statistics for raster '" + getDisplayName() + "'",
+                          new RasterDataProcessor() {
+                              public void processRasterDataBuffer(final ProductData buffer, final int y0,
+                                                                  final int numLines, ProgressMonitor pm) throws
+                                      IOException {
+                                  final RasterDataDoubleList values = new RasterDataDoubleList(buffer);
+                                  final IndexValidator pixelValidator = createPixelValidator(y0, roi);
+                                  final Statistics statistics = Statistics.computeStatisticsDouble(values,
+                                                                                                   pixelValidator,
+                                                                                                   null, pm);
+                                  list.add(statistics);
+                              }
+                          }, pm);
+        final Statistics[] statisticsArray = list.toArray(new Statistics[list.size()]);
+        return Statistics.computeStatistics(statisticsArray, null);
+    }
+
+    private Range computeRasterDataRangeFromFile(final ROI roi, ProgressMonitor pm) throws IOException {
+        final Range range = new Range(Double.MAX_VALUE, Double.MAX_VALUE * -1);
+        processRasterData("Computing value range for raster '" + getDisplayName() + "'",
+                          new RasterDataProcessor() {
+                              public void processRasterDataBuffer(ProductData buffer, int y0, int numLines,
+                                                                  ProgressMonitor pm) throws IOException {
+                                  final IndexValidator pixelValidator = createPixelValidator(y0, roi);
+                                  range.aggregate(buffer.getElems(), buffer.isUnsigned(),
+                                                  pixelValidator, pm);
+                              }
+                          }, pm);
+
+        return range;
+    }
+
+    private Histogram computeRasterDataHistogramFromFile(final ROI roi,
+                                                         final int numBins,
+                                                         final Range range,
+                                                         ProgressMonitor pm) throws IOException {
+        final Histogram histogram = new Histogram(new int[numBins], range.getMin(), range.getMax());
+        processRasterData("Computing histogram for raster '" + getDisplayName() + "'",
+                          new RasterDataProcessor() {
+                              public void processRasterDataBuffer(ProductData buffer, int y0, int numLines,
+                                                                  ProgressMonitor pm) throws IOException {
+                                  final IndexValidator pixelValidator = createPixelValidator(y0, roi);
+                                  histogram.aggregate(buffer.getElems(), buffer.isUnsigned(),
+                                                      pixelValidator, pm);
+                              }
+                          }, pm);
+        return histogram;
+    }
+
+    private void quantizeRasterDataFromFile(final double rawMin,
+                                            final double rawMax,
+                                            final byte[] samples,
+                                            final int offset,
+                                            final int stride,
+                                            final byte[] gammaCurve, ProgressMonitor pm) throws IOException {
+        processRasterData("Quantizing raster '" + getDisplayName() + "'",
+                          new RasterDataProcessor() {
+                              public void processRasterDataBuffer(ProductData buffer, int y0, int numLines,
+                                                                  ProgressMonitor pm) {
+                                  int pos = y0 * getRasterWidth() * stride;
+                                  quantizeRasterData(buffer, rawMin, rawMax, samples, pos + offset, stride, gammaCurve,
+                                                     pm);
+                              }
+                          }, pm);
+    }
+
+    private void processRasterData(String message, RasterDataProcessor processor, ProgressMonitor pm) throws
+            IOException {
+        Debug.trace("RasterDataNode.processRasterData: " + message);
+        int readBufferLineCount = getReadBufferLineCount();
+        ProductData readBuffer = null;
+        final int width = getRasterWidth();
+        final int height = getRasterHeight();
+        int numReadsMax = height / readBufferLineCount;
+        if (numReadsMax * readBufferLineCount < height) {
+            numReadsMax++;
+        }
+        Debug.trace("RasterDataNode.processRasterData: numReadsMax=" + numReadsMax +
+                ", readBufferLineCount=" + readBufferLineCount);
+        pm.beginTask(message, numReadsMax * 2);
+        try {
+            for (int i = 0; i < numReadsMax; i++) {
+                final int y0 = i * readBufferLineCount;
+                final int restheight = height - y0;
+                final int linesToRead = restheight > readBufferLineCount ? readBufferLineCount : restheight;
+                readBuffer = recycleOrCreateBuffer(getDataType(), width * linesToRead, readBuffer);
+                readRasterData(0, y0, width, linesToRead, readBuffer, new SubProgressMonitor(pm, 1));
+                processor.processRasterDataBuffer(readBuffer, y0, linesToRead, new SubProgressMonitor(pm, 1));
+                if (pm.isCanceled()) {
+                    break;
+                }
+            }
+        } finally {
+            pm.done();
+        }
+        Debug.trace("RasterDataNode.processRasterData: done");
+    }
+
+    private static ProductData recycleOrCreateBuffer(final int dataType, final int buffersize, ProductData readBuffer) {
+        if (readBuffer == null || readBuffer.getNumElems() != buffersize) {
+            readBuffer = ProductData.createInstance(dataType, buffersize);
+        }
+        return readBuffer;
+    }
+
+    /**
+     * Creates a validator which can be used to validate indexes of pixels in a flat raster data buffer.
+     *
+     * @param y0  the absolute line offset, zero based
+     * @param roi an optional ROI
+     * @return a new validator instance, never null
+     * @throws IOException
+     */
+    public IndexValidator createPixelValidator(int y0, final ROI roi) throws IOException {
+        if (isDataMaskUsed() || roi != null) {
+            if (isDataMaskUsed()) {
+                ensureDataMaskIsAvailable();
+            }
+            return new PixelValidator(y0, roi);
+        }
+        return IndexValidator.TRUE;
+    }
+
+
+    /**
+     * Applies the scaling <code>v * scalingFactor + scalingOffset</code> the the given input value. If the
+     * <code>log10Scaled</code> property is true, the result is taken to the power of 10 <i>after</i> the actual
+     * scaling.
+     *
+     * @param v the input value
+     * @return the scaled value
+     */
+    public final double scale(double v) {
+        v = v * _scalingFactor + _scalingOffset;
+        if (_log10Scaled) {
+            v = Math.pow(10.0, v);
+        }
+        return v;
+    }
+
+    /**
+     * Applies the inverse scaling <code>(v - scalingOffset) / scalingFactor</code> the the given input value. If the
+     * <code>log10Scaled</code> property is true, the common logarithm is applied to the input <i>before</i> the actual
+     * scaling.
+     *
+     * @param v the input value
+     * @return the scaled value
+     */
+    public final double scaleInverse(double v) {
+        if (_log10Scaled) {
+            v = MathUtils.log10(v);
+        }
+        return (v - _scalingOffset) / _scalingFactor;
+    }
+
+
+    private void setScalingApplied() {
+        _scalingApplied = getScalingFactor() != 1.0
+                || getScalingOffset() != 0.0
+                || isLog10Scaled();
+    }
+
+    /**
+     * Returns the pixel located at (x,y) as a string value.
+     *
+     * @param x the X co-ordinate of the pixel location
+     * @param y the Y co-ordinate of the pixel location
+     * @return the pixel value at (x,y) as string or an error message text
+     */
+    public String getPixelString(int x, int y) {
+        if (!isPixelInRange(x, y)) {
+            return INVALID_POS_TEXT;
+        }
+        if (hasRasterData()) {
+            try {
+                ensureDataMaskIsAvailable();
+            } catch (IOException e) {
+                return IO_ERROR_TEXT;
+            }
+            if (isPixelValid(x, y)) {
+                if (isFloatingPointType()) {
+                    return String.valueOf(getPixelFloat(x, y));
+                } else {
+                    return String.valueOf(getPixelInt(x, y));
+                }
+            } else {
+                return NO_DATA_TEXT;
+            }
+        } else {
+            try {
+                final boolean pixelValid = readValidMask(x, y, 1, 1, new boolean[1])[0];
+                if (pixelValid) {
+                    if (isFloatingPointType()) {
+                        final float[] pixel = readPixels(x, y, 1, 1, new float[1], ProgressMonitor.NULL);
+                        return String.valueOf(pixel[0]);
+                    } else {
+                        final int[] pixel = readPixels(x, y, 1, 1, new int[1], ProgressMonitor.NULL);
+                        return String.valueOf(pixel[0]);
+                    }
+                } else {
+                    return NO_DATA_TEXT;
+                }
+            } catch (IOException e) {
+                return IO_ERROR_TEXT;
+            }
+        }
+    }
+
+    /**
+     * Returns the pixel located at (x,y) as a string value.
+     *
+     * @param x      the X co-ordinate of the pixel location
+     * @param y      the Y co-ordinate of the pixel location
+     * @param reload if <code>true</code>, the single pixel value is reloaded, otherwise <code>{@link
+     *               #NOT_LOADED_TEXT}</code> is returned if raster data has not been loaded so far
+     * @return the pixel value at (x,y) as string or an error message text
+     * @deprecated use {@link #getPixelString(int, int)} instead
+     */
+    public String getPixelString(int x, int y, boolean reload) {
+        return getPixelString(x, y);
+    }
+
+    private boolean isPixelInRange(int x, int y) {
+        return x >= 0 && y >= 0 && x < getSceneRasterWidth() && y < getSceneRasterHeight();
+    }
+
+    private boolean isValidPixelExpressionSet() {
+        return getValidPixelExpression() != null && getValidPixelExpression().trim().length() > 0;
+    }
+
+    private int getReadBufferLineCount() {
+        final int sizePerLine = getRasterWidth() * ProductData.getElemSize(getDataType());
+        int bufferLineCount = READ_BUFFER_MAX_SIZE / sizePerLine;
+        if (bufferLineCount == 0) {
+            bufferLineCount = 1;
+        }
+        return bufferLineCount;
+    }
+
+    private static void quantizeRasterData(final ProductData sceneRasterData, final double rawMin, final double rawMax,
+                                           byte[] samples, int offset, int stride, byte[] resampleLUT,
+                                           ProgressMonitor pm) {
+        Quantizer.quantizeGeneric(sceneRasterData.getElems(), sceneRasterData.isUnsigned(), rawMin, rawMax, samples,
+                                  offset, stride, pm);
+        if (resampleLUT != null && resampleLUT.length == 256) {
+            for (int i = 0; i < samples.length; i++) {
+                samples[i] = resampleLUT[samples[i] & 0xff];
+            }
+        }
+    }
+
+    private void setDefaultROIBitmaskExpr() {
+        if (getValidPixelExpression() != null) {
+            ROIDefinition roiDefinition = getROIDefinition();
+            if (roiDefinition == null) {
+                roiDefinition = new ROIDefinition();
+                setROIDefinition(roiDefinition);
+            }
+            if (StringUtils.isNullOrEmpty(roiDefinition.getBitmaskExpr())) {
+                roiDefinition.setBitmaskExpr(getValidPixelExpression());
+            }
+        }
+    }
+
+    private void setGeophysicalNoDataValue() {
+        _geophysicalNoDataValue = scale(getNoDataValue());
+    }
+
+    public boolean isMaskProductDataEnabled() {
+        return _maskProductDataEnabled;
+    }
+
+    public void setMaskProductDataEnabled(boolean maskProductDataEnabled) {
+        _maskProductDataEnabled = maskProductDataEnabled;
+    }
+
+    public static interface RasterDataProcessor {
+
+        void processRasterDataBuffer(ProductData buffer, int y0, int numLines, ProgressMonitor pm) throws IOException;
+    }
+
+    public class PixelValidator implements IndexValidator {
+
+        private final int _y0;
+        private final ROI _roi;
+
+        /**
+         * Creates a new pixel index validator.
+         *
+         * @param y0  the line offset, zero based
+         * @param roi the roi, may be null
+         */
+        public PixelValidator(int y0, ROI roi) {
+            _y0 = y0;
+            _roi = roi;
+        }
+
+        public final boolean validateIndex(final int index) {
+            final int w = getSceneRasterWidth();
+            return isPixelValid(index % w, _y0 + index / w, _roi);
+        }
+    }
+
+    /**
+     * Adapts a  {@link org.esa.beam.util.math.DoubleList}
+     */
+    public class RasterDataDoubleList implements DoubleList {
+
+        private final ProductData _buffer;
+
+        public RasterDataDoubleList(ProductData buffer) {
+            _buffer = buffer;
+        }
+
+        public final int getSize() {
+            return _buffer.getNumElems();
+        }
+
+        public final double getDouble(int index) {
+            return scale(_buffer.getElemDoubleAt(index));
+        }
+    }
+
+}

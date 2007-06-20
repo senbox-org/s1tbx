@@ -1,0 +1,58 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-meris-cloud</symbolicName>
+    <version>1.5.1</version>
+    <name>MERIS Cloud Probability Processor</name>
+
+    <description>
+        The MERIS Cloud Probability Processor calculates a cloud probability for MERIS L1b pixels.        
+    </description>
+    <changelog>
+        <![CDATA[From 1.5 to 1.5.1
+        <ul>
+        <li>ValidExpression for land and ocean net, which can be changed.</li>
+        </ul>]]>
+    </changelog>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <dependency>
+        <module>beam-processing</module>
+    </dependency>
+    <dependency>
+        <module>beam-envisat-reader</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat</module>
+        <optional>true</optional>
+    </dependency>
+
+    <categories>Application,Processor,MERIS</categories>
+
+    <extension point="beam-visat:actions">
+        <action>
+            <id>cloudScientificTool</id>
+            <class>org.esa.beam.visat.actions.ProcessorAction</class>
+            <processor>org.esa.beam.processor.cloud.CloudProcessor</processor>
+            <text>Cloud Probability Processor (MERIS)...</text>
+            <shortDescr>Invoke the BEAM MERIS Cloud Probability Processor.</shortDescr>
+            <mnemonic>C</mnemonic>
+            <parent>tools</parent>
+            <helpID>flhMciScientificTool</helpID>
+            <placeAfter>createFilteredBand</placeAfter>
+        </action>
+    </extension>
+
+
+    <extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+            <path>doc/help/cloud.hs</path>
+        </helpSet>
+    </extension>
+
+</module>

@@ -1,0 +1,16 @@
+# testfile for sst coefficient sets
+#
+# the syntax is always 
+# 	key=value
+# allowed keys are:
+#	description - a short description of the coefficient set
+#	map.x - definition of a range of scanline pixels as coefficient set x
+#	a.x - coefficient set a for map x
+#	b.x - d.x same as a.x
+
+map.0=0, 124
+map.1=125, 511
+a.0=1.23, 2.34, 3.45
+b.0=5.67, 6.78, 8.89, 8.90
+a.1=0.12, 1.23, 2.34
+b.1=3.45, 4.56, 5.67, 6.78

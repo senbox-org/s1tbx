@@ -1,0 +1,43 @@
+ASA_CON_AX_GADS|Contains ASAR processor configuration data|+dsr_length
+#
+dsr_time|@/types/UTC.dd|MJD|12|1|*|Time of creation|1|
+dsr_length|ULong|bytes|4|1|*|Length of this DSR in bytes|2|
+thresh_chirp_broadening|Float|%|4|1|*|Threshold for setting the chirp quality flag. Maximum percentage broadening permitted in cross-correlation pulse width compared to theoretical width.|3|
+thresh_chirp_sidelobe|Float|dB|4|1|*|Threshold for setting the chirp quality flag - First sidelobe of the chirp cross correlation function|4|
+thresh_chirp_islr|Float|dB|4|1|*|Threshold for setting the chirp quality flag - ISLR of the chirp cross correlation function|5|
+thresh_input_mean|Float|*|4|1|*|Threshold for setting the mean of input data quality flag - For an expected mean value of x, this is the value T, such that the measured mean must fall between the x-T and x+T. Used for both I and Q channels.|6|
+thresh_input_std_dev|Float|*|4|1|*|Threshold for setting the standard deviation of input data quality flag - For an expected std. dev. value of y, this is the value D, such that the measured std. dev. must fall between the y-D and y+D. Used for both I and Q channels.|7|
+thresh_dop_cen|Float|*|4|1|*|Threshold for setting the Doppler Centroid quality flag - Threshold for Doppler Centroid confidence|8|
+thresh_dop_amb|Float|*|4|1|*|Threshold for setting the Doppler Centroid ambiguity quality flag - Threshold for setting the Doppler Centroid ambiguity confidence flag|9|
+thresh_output_mean|Float|*|4|1|*|Threshold for setting the mean of output data quality flag - For an expected mean value of x, this is the value T, such that the measured mean must fall between the x-T and x+T.|10|
+thresh_output_std_dev|Float|*|4|1|*|Threshold for setting the standard deviation of output data quality flag - For an expected std. dev. value of y, this is the value D, such that the measured std. dev. must fall between the y-D and y+D.|11|
+thresh_missing_lines|Float|*|4|1|*|Threshold for setting the missing lines quality flag - maximum percentage of missing lines to total lines.|12|
+thresh_gaps|Float|*|4|1|*|Threshold for setting the missing gaps quality flag - maximum number of gaps allowed.|13|
+spare_1|Spare|*|64|1|*|Spare|14|
+lines_per_gap|ULong|lines|4|1|*|Number of missing lines which constitute a gap|15|
+exp_im_mean|Float|*|4|1|*|Expected mean of I and Q samples for IM (and WV) SLC images|16|
+exp_im_std_dev|Float|*|4|1|*|Expected standard deviation of I and Q samples for IM (and WV) SLC images|17|
+exp_ap_mean|Float|*|4|1|*|Expected mean of I and Q samples for AP SLC images|18|
+exp_ap_std_dev|Float|*|4|1|*|Expected standard deviation of I and Q samples for AP SLC images|19|
+exp_imp_mean|Float|*|4|1|*|Expected mean of IM PRI samples|20|
+exp_imp_std_dev|Float|*|4|1|*|Expected standard deviation of IM PRI samples|21|
+exp_app_mean|Float|*|4|1|*|Expected mean of AP PRI samples|22|
+exp_app_std_dev|Float|*|4|1|*|Expected standard deviation of AP PRI samples|23|
+exp_imm_mean|Float|*|4|1|*|Expected mean of IMM samples|24|
+exp_imm_std_dev|Float|*|4|1|*|Expected standard deviation of IMM samples|25|
+exp_apm_mean|Float|*|4|1|*|Expected mean of APM samples|26|
+exp_apm_std_dev|Float|*|4|1|*|Expected standard deviation of APM samples|27|
+exp_wsm_mean|Float|*|4|1|*|Expected mean of WSM samples|28|
+exp_wsm_std_dev|Float|*|4|1|*|Expected standard deviation of WSM samples|29|
+exp_gm1_mean|Float|*|4|1|*|Expected mean of GM1 samples|30|
+exp_gm1_std_dev|Float|*|4|1|*|Expected standard deviation of GM1 samples|31|
+input_mean|Float|*|4|1|*|Expected  input mean|32|
+expected_input_std_dev|Float|*|4|1|*|Expected input standard deviation|33|
+look_conf_thresh|Float|*|4|2|*|Look image statistics confidence parameter thresholds (minimum and maximum)|34|
+inter_look_conf_thresh|Float|*|4|1|*|Inter-look confidence statistics confidence parameter threshold|35|
+az_cutoff_thresh|Float|*|4|1|*|Azimuth cut-off convergence measure threshold|36|
+az_cutoff_iterations_thresh|Float|*|4|1|*|Azimuth cut-off Iteration count overflow threshold|37|
+phs_peak_thresh|Float|*|4|1|*|Phase information confidence measure threshold for the spectral peak|38|
+phs_cross_thresh|Float|m|4|1|*|Phase information confidence measure threshold for the cross covariance peak offset|39|
+spare_2|Spare|*|64|1|*|Spare|40|
+spare_3|Spare|*|504|1|*|Spare|41|

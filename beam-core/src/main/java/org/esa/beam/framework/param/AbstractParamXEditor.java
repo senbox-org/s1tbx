@@ -1,0 +1,165 @@
+/*
+ * $Id: AbstractParamXEditor.java,v 1.1.1.1 2006/09/11 08:16:46 norman Exp $
+ *
+ * Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation. This program is distributed in the hope it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+package org.esa.beam.framework.param;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.net.URL;
+
+import javax.swing.AbstractButton;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+/**
+ * A <code>AbstractParamXEditor</code> is base class for editors which use special purpose editors for editing a
+ * parameter value. For example, the special purpose editor could be a color chooser or file chooser dialog. The special
+ * purpose editor is invoked by pressing the "..." button usually located to the right of the value display.
+ *
+ * @author Norman Fomferra
+ * @version $Revision: 1.1.1.1 $  $Date: 2006/09/11 08:16:46 $
+ */
+public abstract class AbstractParamXEditor extends AbstractParamEditor {
+
+    private XEditorPane _xEditorPane;
+    private static Icon _xEditorIcon;
+    private AbstractButton _xEditorButton;
+
+    /**
+     * Creates the object with a given parameter.
+     *
+     * @param parameter          the <code>Parameter</code> to be edited.
+     * @param useDefaultVerifier <code>true</code> if a default verifier should be used
+     */
+    protected AbstractParamXEditor(Parameter parameter, boolean useDefaultVerifier) {
+        super(parameter, useDefaultVerifier);
+    }
+
+    /**
+     * Gets the UI component used to edit the parameter's value.
+     */
+    public JComponent getEditorComponent() {
+        return _xEditorPane;
+    }
+
+    protected void initUI() {
+        super.initUI(); // creates the default label components for us
+        initUIChild();
+        _xEditorPane = new XEditorPane();
+        setName(_xEditorPane);
+        final JComponent editorComponentChild = getEditorComponentChild();
+        _xEditorPane.add(BorderLayout.CENTER, editorComponentChild);
+        final JPanel buttonPanel = new JPanel(new BorderLayout());
+        setName(buttonPanel);
+
+        final AbstractButton xEditorButton = getXEditorButton();
+        if (editorComponentChild instanceof JTextField) {
+            buttonPanel.add(BorderLayout.CENTER, xEditorButton);
+        } else {
+            final Dimension size = xEditorButton.getPreferredSize();
+            xEditorButton.setPreferredSize(new Dimension(size.width, size.width));
+            buttonPanel.add(BorderLayout.NORTH, xEditorButton);
+        }
+        _xEditorPane.add(BorderLayout.EAST, buttonPanel);
+    }
+
+    /**
+     * Tells the UI to update it's state.
+     * <p/>
+     * <p>Note: If you override this method, please call the super class version first.
+     */
+    public void updateUI() {
+        super.updateUI();
+        if (_xEditorPane.isEnabled() != isEnabled()) {
+            _xEditorPane.setEnabled(isEnabled());
+        }
+    }
+
+    protected abstract void initUIChild();
+
+    public abstract JComponent getEditorComponentChild();
+
+    protected abstract void invokeXEditor();
+
+    protected AbstractButton getXEditorButton() {
+        if (_xEditorButton == null) {
+            _xEditorButton = createXEditorButton();
+            setName(_xEditorButton);
+        }
+        return _xEditorButton;
+    }
+
+    protected AbstractButton createXEditorButton() {
+//        Icon icon = getXEditorIcon();
+//        AbstractButton button = ToolButtonFactory.createButton(icon, false);
+        final AbstractButton button = new JButton("...");
+        final Dimension size = new Dimension(26, 16);
+        button.setPreferredSize(size);
+        button.setMinimumSize(size);
+        button.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                invokeXEditor();
+            }
+        });
+        return button;
+    }
+
+    /**
+     * Gets the "standard" edit icon used for parameter editors.
+     */
+    protected Icon getXEditorIcon() {
+        if (_xEditorIcon == null) {
+            URL url = AbstractParamEditor.class.getResource("/org/esa/beam/resources/images/icons/Edit16.gif");
+            if (url != null) {
+                _xEditorIcon = new ImageIcon(url);
+            }
+        }
+        return _xEditorIcon;
+    }
+
+    protected String getXEditorTitle() {
+        String title = getParameter().getProperties().getLabel();
+        if (title == null) {
+            title = getParameter().getName();
+        }
+        return title;
+    }
+
+    class XEditorPane extends JPanel {
+
+        public XEditorPane() {
+            super(new BorderLayout(3, 3));
+        }
+
+        /**
+         * Overrides the JPanel setEnabled method to dispatch call to all components attached
+         *
+         * @param enabled boolean whether the componets are enabled or not
+         */
+        public void setEnabled(boolean enabled) {
+            super.setEnabled(enabled);
+            getEditorComponentChild().setEnabled(enabled);
+            getXEditorButton().setEnabled(enabled);
+        }
+    }
+}

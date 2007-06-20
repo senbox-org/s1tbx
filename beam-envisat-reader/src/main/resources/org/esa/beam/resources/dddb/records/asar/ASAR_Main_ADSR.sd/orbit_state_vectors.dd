@@ -1,0 +1,9 @@
+orbit_state_vectors|Orbit State Vectors|*
+#
+state_vect_time_1|@/types/UTC.dd|MJD     |12|1|*|Time of state vector|73a|
+x_pos_1          |SLong         |10 -2m  | 4|1|*|X position in Earth fixed reference frame|73b|
+y_pos_1          |SLong         |10 -2m  | 4|1|*|Y position in Earth fixed reference frame|73c|
+z_pos_1          |SLong         |10 -2m  | 4|1|*|Z position in Earth fixed reference frame|73d|
+x_vel_1          |SLong         |10 -5m/s| 4|1|*|X velocity relative to Earth fixed reference frame|73e|
+y_vel_1          |SLong         |10 -5m/s| 4|1|*|Y velocity relative to Earth fixed reference frame|73f|
+z_vel_1          |SLong         |10 -5m/s| 4|1|*|Z velocity relative to Earth fixed reference frame|73g|

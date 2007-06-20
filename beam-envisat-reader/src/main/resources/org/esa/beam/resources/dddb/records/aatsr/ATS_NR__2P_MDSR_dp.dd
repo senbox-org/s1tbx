@@ -1,0 +1,9 @@
+ATS_NR__2P_MDSR_dp|Distributed product MDS|*
+#
+dsr_time      |@/types/UTC.dd |MJD        |12 |1   |* |Nadir UTC time in MJD format                       |1 |
+quality_flag  |UChar          |flag       |1  |1   |* |Quality Indicator (-1 for blank MDSR, 0 otherwise) |2 |
+spare_1       |Spare          |*          |3  |1   |* |Spare                                              |3 |
+img_scan_y    |SLong          |m          |4  |1   |* |image scan y coordinate                            |4 |
+conf_wd_flags |UShort         |flags      |2  |512 |* |confidence words (Defined in Table 7.5.1.7.8 3)    |5 |
+nad_field     |SShort         |K/100      |2  |512 |* |nadir field (Note 1)                               |6 |
+comb_field    |SShort         |See Note 1 |2  |512 |* |combined field (Note 1)                            |7 |

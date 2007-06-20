@@ -1,0 +1,88 @@
+ATS_AR__2P_MDSR_sr_large|BT/TOA Sea record 50 km cell MDS|*
+#
+dsr_time|@/types/UTC.dd|MJD|12|1|*|Nadir UTC time in MJD format|1|
+quality_flag|UChar|flag|1|1|*|Quality Indicator (-1 for blank MDSR, 0 otherwise)|2|
+spare_1|Spare|*|3|1|*|Spare|3|
+lat|SLong|(1e-6) degrees|4|1|*|Latitude of cell|4|
+lon|SLong|(1e-6) degrees|4|1|*|Longitude of cell|5|
+m_actrk_pix_num|SShort|*|2|1|*|Mean across-track pixel number|6|
+pix_nad|SShort|*|2|1|*|Number of filled pixels in cell, nadir view|7|
+pix_ss_nad|SShort|*|2|1|*|Number of filled pixels in cell over sea surface, nadir view|8|
+clpix_ss_nad|SShort|*|2|1|*|Percentage of cloudy pixels in cell over sea surface, nadir view|9|
+sa_12bt_clr_nad|SLong|K/1000|4|1|*|Spatially averaged 12 micron BT of all clear pixels (nadir view)|10|
+sd_12bt_clr_nad|SLong|K/1000|4|1|*|Standard deviation of above|11|
+sa_11bt_clr_nad|SLong|K/1000|4|1|*|Spatially averaged 11 micron BT of all clear pixels (nadir view)|12|
+sd_11bt_clr_nad|SLong|K/1000|4|1|*|Standard deviation of above|13|
+sa_37bt_clr_nad|SLong|K/1000|4|1|*|Spatially averaged 3.7 micron BT of all clear pixels (nadir view)|14|
+sd_37bt_clr_nad|SLong|K/1000|4|1|*|Standard deviation of above|15|
+sa_16toa_clr_nad|SShort|%/100|2|1|*|Spatially averaged 1.6 micron TOA reflectance of all clear pixels (nadir view)|16|
+sd_16toa_clr_nad|SShort|%/100|2|1|*|Standard deviation of above|17|
+sa_87toa_clr_nad|SShort|%/100|2|1|*|Spatially averaged 0.87 micron TOA reflectance of all clear pixels (nadir view)|18|
+sd_87toa_clr_nad|SShort|%/100|2|1|*|Standard deviation of above|19|
+sa_67toa_clr_nad|SShort|%/100|2|1|*|Spatially averaged 0.67 micron TOA reflectance of all clear pixels (nadir view)|20|
+sd_67toa_clr_nad|SShort|%/100|2|1|*|Standard deviation of above|21|
+sa_55toa_clr_nad|SShort|%/100|2|1|*|Spatially averaged 0.55 micron TOA reflectance of all clear pixels (nadir view)|22|
+sd_55toa_clr_nad|SShort|%/100|2|1|*|Standard deviation of above|23|
+sa_12bt_cl_nad|SLong|K/1000|4|1|*|Spatially averaged 12 micron BT of all cloudy pixels (nadir view)|24|
+sd_12bt_cl_nad|SLong|K/1000|4|1|*|Standard deviation of above|25|
+sa_11bt_cl_nad|SLong|K/1000|4|1|*|Spatially averaged 11 micron BT of all cloudy pixels (nadir view)|26|
+sd_11bt_cl_nad|SLong|K/1000|4|1|*|Standard deviation of above|27|
+sa_37bt_cl_nad|SLong|K/1000|4|1|*|Spatially averaged 3.7 micron BT of all cloudy pixels (nadir view)|28|
+sd_37bt_cl_nad|SLong|K/1000|4|1|*|Standard deviation of above|29|
+sa_16toa_cl_nad|SShort|%/100|2|1|*|Spatially averaged 1.6 micron TOA reflectance of all cloudy pixels (nadir view)|30|
+sd_16toa_cl_nad|SShort|%/100|2|1|*|Standard deviation of above|31|
+sa_87toa_cl_nad|SShort|%/100|2|1|*|Spatially averaged 0.87 micron TOA reflectance of all cloudy pixels (nadir view)|32|
+sd_87toa_cl_nad|SShort|%/100|2|1|*|Standard deviation of above|33|
+sa_67toa_cl_nad|SShort|%/100|2|1|*|Spatially averaged 0.67 micron TOA reflectance of all cloudy pixels (nadir view)|34|
+sd_67toa_cl_nad|SShort|%/100|2|1|*|Standard deviation of above|35|
+sa_55toa_cl_nad|SShort|%/100|2|1|*|Spatially averaged 0.55 micron TOA reflectance of all cloudy pixels (nadir view)|36|
+sd_55toa_cl_nad|SShort|%/100|2|1|*|Standard deviation of above|37|
+fail_flag_nad|UShort|*|2|1|*|Pixel threshold failure flags for averages, nadir view|38|
+pix_for|SShort|*|2|1|*|Number of filled pixels in cell, forward view|39|
+pix_ss_for|SShort|*|2|1|*|Number of filled pixels in cell over sea surface, forward view|40|
+perc_cl_pix_ss_for|SShort|*|2|1|*|Percentage of cloudy pixels in cell over sea surface, forward view|41|
+sa_12bt_clr_for|SLong|K/1000|4|1|*|Spatially averaged 12 micron BT of all clear pixels (forward view)|42|
+sd_12bt_clr_for|SLong|K/1000|4|1|*|Standard deviation of above|43|
+sa_11bt_clr_for|SLong|K/1000|4|1|*|Spatially averaged 11 micron BT of all clear pixels (forward view)|44|
+sd_11bt_clr_for|SLong|K/1000|4|1|*|Standard deviation of above|45|
+sa_37bt_clr_for|SLong|K/1000|4|1|*|Spatially averaged 3.7 micron BT of all clear pixels (forward view)|46|
+sd_37bt_clr_for|SLong|K/1000|4|1|*|Standard deviation of above|47|
+sa_16toa_clr_for|SShort|%/100|2|1|*|Spatially averaged 1.6 micron TOA reflectance of all clear pixels (forward view)|48|
+sd_16toa_clr_for|SShort|%/100|2|1|*|Standard deviation of above|49|
+sa_87toa_clr_for|SShort|%/100|2|1|*|Spatially averaged 0.87 micron TOA reflectance of all clear pixels (forward view)|50|
+sd_87toa_clr_for|SShort|%/100|2|1|*|Standard deviation of above|51|
+sa_67toa_clr_for|SShort|%/100|2|1|*|Spatially averaged 0.67 micron TOA reflectance of all clear pixels (forward view)|52|
+sd_67toa_clr_for|SShort|%/100|2|1|*|Standard deviation of above|53|
+sa_55toa_clr_for|SShort|%/100|2|1|*|Spatially averaged 0.55 micron TOA reflectance of all clear pixels (forward view)|54|
+sd_55toa_clr_for|SShort|%/100|2|1|*|Standard deviation of above|55|
+sa_12bt_cl_for|SLong|K/1000|4|1|*|Spatially averaged 12 micron BT of all cloudy pixels (forward view)|56|
+sd_12bt_cl_for|SLong|K/1000|4|1|*|Standard deviation of above|57|
+sa_11bt_cl_for|SLong|K/1000|4|1|*|Spatially averaged 11 micron BT of all cloudy pixels (forward view)|58|
+sd_11bt_cl_for|SLong|K/1000|4|1|*|Standard deviation of above|59|
+sa_37bt_cl_for|SLong|K/1000|4|1|*|Spatially averaged 3.7 micron BT of all cloudy pixels (forward view)|60|
+sd_37bt_cl_for|SLong|K/1000|4|1|*|Standard deviation of above|61|
+sa_16toa_cl_for|SShort|%/100|2|1|*|Spatially averaged 1.6 micron TOA reflectance of all cloudy pixels (forward view)|62|
+sd_16toa_cl_for|SShort|%/100|2|1|*|Standard deviation of above|63|
+sa_87toa_cl_for|SShort|%/100|2|1|*|Spatially averaged 0.87 micron TOA reflectance of all cloudy pixels (forward view)|64|
+sd_87toa_cl_for|SShort|%/100|2|1|*|Standard deviation of above|65|
+sa_67toa_cl_for|SShort|%/100|2|1|*|Spatially averaged 0.67 micron TOA reflectance of all cloudy pixels (forward view)|66|
+sd_67toa_cl_for|SShort|%/100|2|1|*|Standard deviation of above|67|
+sa_55toa_cl_for|SShort|%/100|2|1|*|Spatially averaged 0.55 micron TOA reflectance of all cloudy pixels (forward view)|68|
+sd_55toa_cl_for|SShort|%/100|2|1|*|Standard deviation of above|69|
+fail_flag_for|UShort|*|2|1|*|Pixel threshold failure flags for averages, foward view|70|
+pix_nsig_nad|SShort|*|2|1|*|Number of filled pixels (N-Sigma), nadir view|71|
+pix_ss|SShort|%/100|2|1|*|Percentage filled pixels over sea surface|72|
+low_11bt_cl_nad|SShort|K/100|2|1|*|Lowest 11 micron BT of all cloudy pixels, nadir view|73|
+corr_12bt_nad|SShort|K/100|2|1|*|Corresponding 12 micron BT, nadir view|74|
+corr_37bt_nad|SShort|K/100|2|1|*|Corresponding 3.7 micron BT, nadir view|75|
+corr_16ref_nad|SShort|%/100|2|1|*|Corresponding 1.6 micron reflectance, nadir view|76|
+corr_87ref_nad|SShort|%/100|2|1|*|Corresponding 0.87 micron reflectance, nadir view|77|
+corr_67ref_nad|SShort|%/100|2|1|*|Corresponding 0.67 micron reflectance, nadir view|78|
+corr_55ref_nad|SShort|%/100|2|1|*|Corresponding 0.55 micron reflectance, nadir view|79|
+low_11bt_cl_for|SShort|K/100|2|1|*|Lowest 11 micron BT of all cloudy pixels, forward view|80|
+corr_12bt_for|SShort|K/100|2|1|*|Corresponding 12 micron BT, forward view|81|
+corr_37bt_for|SShort|K/100|2|1|*|Corresponding 3.7 micron BT, forward view|82|
+corr_16ref_for|SShort|%/100|2|1|*|Corresponding 1.6 micron reflectance, forward view|83|
+corr_87ref_for|SShort|%/100|2|1|*|Corresponding 0.87 micron reflectance, forward view|84|
+corr_67ref_for|SShort|%/100|2|1|*|Corresponding 0.67 micron reflectance, forward view|85|
+corr_55ref_for|SShort|%/100|2|1|*|Corresponding 0.55 micron reflectance, forward view|86|

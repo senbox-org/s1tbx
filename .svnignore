@@ -1,0 +1,14 @@
+*.ipr
+*.iml
+*.iws
+.project
+.classpath
+.settings
+target
+lib
+log
+config
+modules
+repository
+testdata
+build.properties

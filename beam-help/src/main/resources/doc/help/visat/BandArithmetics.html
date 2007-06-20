@@ -1,0 +1,132 @@
+<html>
+<head>
+    <title>VISAT Help - Band Arithmetics</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            Band Arithmetic</td>
+        
+    <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border=0 width="227" height="29"></a></td>
+    </tr>
+</table>
+
+
+<h3>Band Arithmetic</h3>
+
+<p>The band arithmetic tool is used to create new image sample values derived
+    from existing bands, tie-point grids and flags. The source data can originate
+    from all currently open and spatially compatible input products. The source
+    data is combined by an arithmetic expression to generate the target data. By
+    default, a new image view is automatically opened for the new sample values.
+    You can disable this behaviour in the preferences dialog.</p>
+
+<p>Please refer to the
+    <a href="ExpressionEditor.html">expression editor</a> documentation for the syntax and capablities of
+    expressions.</p>
+
+<p>After the new band has been created (or an existing has been overwritten), you can change to VISAT's
+    <a href="ProductBrowser.html">product browser</a> in order to open an image view in
+    order to inspect the resulting samples.</p>
+
+<p align="center"><img border="0" src="images/BandArithmetic.jpg" width="473" height="381"></p>
+
+<h4><span class="i1"><a name="targetProduct"></a></span>Target Product:</h4>
+
+<p>Select the target product for the band which will hold the resulting samples.</p>
+
+<p class="i1">
+    <b>Use new Product</b> checkbox<br>
+    Check here, whether to create a new product for a new band or to use an existing product in order to overwrite an
+    existing band.
+</p>
+
+<p class="i1">
+    <b>New...</b> button<br>
+    Opens the "new product" dialog, which lets you specify the new product's name and description as
+    well as it's parent (base) product.
+</p>
+
+<h4>Target Band:</h4>
+
+<p>Select the target band which will hold the resulting samples.</p>
+
+<p class="i1">
+    <a name="virtualBands"></a>
+    <b>Create virtual Band</b> checkbox<br>
+    If checked, a new <i>virtual band</i> is created instead of a normal band. In opposite to a real band,
+    the pixel data of a virtual band is <b>not</b> stored in a product and therefore the product requires less memory
+    when stored to disk. A virtual band always uses its mathematical band expression to re-create it's pixel values at
+    any
+    time the data is requested.<br>
+    The expression of a virtual band can be edited by opening the context menu over a selected virtual band (right-click
+    mouse)
+    in the product browser. Select <b>Edit virtual band expression</b> and modify the expression.
+</p>
+
+<p class="inote">
+    <b>Note:</b> If you create a virtual band, it is not possible to use the data sources of multiple products within
+    the same expression.
+    All data sources within an expression of a virtual band must originate from the parent product of the virtual band.
+</p>
+
+<p class="i1">
+    <b>Use new Band</b> checkbox<br>
+    Check here, whether to create a new band or to overwrite an existing band of an existing product.
+</p>
+
+<p class="i1">
+    <b>New...</b> button<br>
+    Opens the "new band" dialog, which lets you specify the new band's name and description.
+</p>
+
+<h4>Expression:</h4>
+
+<p> This field takes the arithmetic expression which is used to create new data
+    samples. Please refer to the <a href="ExpressionEditor.html">expression editor</a>
+    documentation for the syntax and capabilities of expressions. </p>
+
+<p class="i1">
+    <b>Edit Expression...</b> button<br>
+    Opens the <a href="ExpressionEditor.html">expression editor</a> which provides a
+    a convenient way to create valid arithmetic expressions.
+</p>
+
+<h4>Exception Handling:</h4>
+
+<p>
+    When arbitrary expressions are evaluated it can naturally happen that some kind
+    of numeric exceptions like <i>division by zero</i> occur. The options here are
+    provided to handle such situations.
+</p>
+
+<p class="i1">
+    <b>Warn, if any arithmetic exception is detected.</b> checkbox <br>
+    If checked, a dialog box is displayed after processing when arithmetic exceptions
+    have been detected. </p>
+
+<p class="i1">
+    <b>No-data value to be used on arithmetic exceptions:</b> checkbox<br>
+    If checked, the given <a href="NoDataValue.html">no-data value</a> is used as pixel value
+    at pixel positions where a arithmetic exception has been detected (e.g. division by zero).
+</p>
+
+<p class="i1">
+    <b>No-data value to be used on arithmetic exceptions:</b> edit field<br>
+    The <a href="NoDataValue.html">no-data value</a>.
+</p>
+
+<h4>OK Button</h4>
+
+<p>
+    Computes the new sample data and closes the dialog. Refer to the preferences dialog for an option to
+    specify whether or not to automatically open an image view for the new data samples.
+</p>
+
+<hr>
+</body>
+</html>

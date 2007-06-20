@@ -1,0 +1,49 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-mosaic</symbolicName>
+    <version>2.2</version>
+    <name>Level-3 Mosaic Processor</name>
+
+
+    <description>Provides an alternative level 3 algorithm that is able to create Moire-free images.</description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+
+    <dependency>
+        <module>beam-visat</module>
+        <optional>true</optional>
+    </dependency>
+    <dependency>
+        <module>beam-processing</module>
+    </dependency>
+
+    <categories>Application,Processor,Geometry,Level-3,MERIS,AVHRR,ATSR,Envisat,ERS,ASAR,VISAT</categories>
+
+    <extension point="beam-visat:actions">
+        <action>
+            <id>MosaicProcessorPlugIn</id>
+            <class>org.esa.beam.visat.actions.ProcessorAction</class>
+            <processor>org.esa.beam.processor.mosaic.MosaicProcessor</processor>
+            <text>Mosaic Processor....</text>
+            <shortDescr>Invoke the Mosaic Processor.</shortDescr>
+            <mnemonic>c</mnemonic>
+            <parent>tools</parent>
+            <helpID>mosaicScientificTool</helpID>
+            <placeAfter>flhMciScientificTool</placeAfter>
+        </action>
+    </extension>
+
+
+    <extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+            <path>doc/help/mosaic.hs</path>
+        </helpSet>
+    </extension>
+
+</module>

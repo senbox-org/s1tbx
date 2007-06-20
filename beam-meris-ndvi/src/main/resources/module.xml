@@ -1,0 +1,46 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-meris-ndvi</symbolicName>
+    <version>1.2</version>
+    <name>MERIS NDVI Processor</name>
+
+    <description>
+        The MERIS NDVI Processor calculates the Normalized Difference Vegetation Index
+        from a given MERIS Level 1b product.
+    </description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <dependency>
+        <module>beam-envisat-reader</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat</module>
+        <optional>true</optional>
+    </dependency>
+
+    <extension point="beam-visat:actions">
+        <action>
+            <id>NDVIProcessorPlugIn</id>
+            <class>org.esa.beam.visat.actions.ProcessorAction</class>
+            <processor>com.bc.beam.processor.ndvi.NdviProcessor</processor>
+            <text>NDVI Processor...</text>
+            <shortDescr>Invoke the NDVI Proessor Plugin.</shortDescr>
+            <mnemonic>N</mnemonic>
+            <parent>tools</parent>
+            <helpID>NDVIProcessorPlugIn</helpID>
+            <placeAfter>Binning</placeAfter>
+        </action>
+    </extension>
+
+    <extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+            <path>doc/help/NdviProcessor.hs</path>
+        </helpSet>
+    </extension>
+</module>

@@ -1,0 +1,5 @@
+MER_RR__1P_MDSR_16_IODD5|Level 1b MDS (16) Flags & Detector Index|*
+#
+dsr_time|@/types/UTC.dd|MJD|12|1|*|Start time of the Data Set Record|1|
+quality_flag|UChar|flag|1|1|*|Quality Indicator (-1 for blank MDSR, 0 otherwise)|2|
+pixel_info|UChar|*|1|2*sceneRasterWidth|*|Flags and spectral shift index|3|

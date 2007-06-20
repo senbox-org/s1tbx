@@ -1,0 +1,54 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-meris-smile</symbolicName>
+    <version>1.1</version>
+    <name>MERIS Smile Correction Processor</name>
+
+    <description>
+        The MERIS Smile Correction Processor is aimed to enable the user to calculate
+        smile corrected radiances from ENVISAT MERIS L1b products.
+    </description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+    
+
+    <dependency>
+        <module>beam-processing</module>
+    </dependency>
+    <dependency>
+        <module>beam-envisat-reader</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat</module>
+        <optional>true</optional>
+    </dependency>
+
+    <categories>Application,Processor,MERIS</categories>
+
+    <extension point="beam-visat:actions">
+        <action>
+            <id>smileScientificToolPlugIn</id>
+            <class>org.esa.beam.visat.actions.ProcessorAction</class>
+            <processor>org.esa.beam.processor.smile.SmileProcessor</processor>
+            <text>Smile Correction Processor (MERIS)...</text>
+            <shortDescr>Invoke the MERIS Smile Correction Processor.</shortDescr>
+            <mnemonic>M</mnemonic>
+            <parent>tools</parent>
+            <helpID>smileScientificToolPlugIn</helpID>
+            <placeAfter>radtoreflScientificTool</placeAfter>
+        </action>
+    </extension>
+
+
+    <extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+            <path>doc/help/smile.hs</path>
+        </helpSet>
+    </extension>
+
+</module>

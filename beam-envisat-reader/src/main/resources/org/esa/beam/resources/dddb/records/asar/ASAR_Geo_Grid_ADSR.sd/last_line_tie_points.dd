@@ -1,0 +1,7 @@
+last_line_tie_points|Last Line Tie Points|*
+#
+samp_numbers     |ULong|*             |4|11|*|Range sample number. Gives the range location of the grid points. First range sample is 1, last is M.|9a|
+slant_range_times|Float|ns            |4|11|*|2 way slant range time to range sample|9b|
+angles           |Float|deg.          |4|11|*|Incidence Angle at range sample|9c|
+lats             |SLong|(1e-6) degrees|4|11|*|geodetic latitude (positive north)|9d|
+longs            |SLong|(1e-6) degrees|4|11|*|geodetic longitude (positive east)|9e|

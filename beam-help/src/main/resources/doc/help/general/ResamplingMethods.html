@@ -1,0 +1,141 @@
+<html>
+<head>
+    <title>BEAM Help - Resampling Methods</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            Resampling Methods</td>
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border=0></a>
+        </td>
+    </tr>
+</table>
+
+<h3>Resampling Methods</h3>
+
+<p>
+    If a product is projected it comes up that the pixel centers of the target product generally not correspond to
+    the centers of the
+    pixels of the input product. Resampling entitles the process of determination and interpolation of pixels in the
+    source product for
+    computation of the pixel values in the target product. The effects of resampling will especially be visible
+    if the pixels in the target product are larger than the source pixels.<br>
+    BEAM provides three different resampling methods for this computation.
+</p>
+
+<h4>Nearest Neighbour</h4>
+
+<p>
+    Every pixel value in th output product is set to the nearest input pixel value.
+    <table align="center" width="80%">
+        <tr>
+            <th>Pros</th>
+            <th>Cons</th>
+        </tr>
+        <tr>
+            <td>Very simple, fast</td>
+            <td>Some pixels get lost and others are duplicated</td>
+        </tr>
+        <tr>
+            <td>No new values are calculated by interpolation</td>
+            <td>Loss of sharpness</td>
+        </tr>
+        <tr>
+            <td>Fast, compared to Cubic Convolution resampling</td>
+            <td></td>
+        </tr>
+    </table>
+    <br>
+    Following figure demonstrates the calculation of the new pixel value.
+    <p align="center">
+        <img src="../visat/images/NearestNeighbour_fig001.jpg" border=0>
+    </p>
+</p>
+
+<h4>Bi-linear Interpolation</h4>
+
+<p>
+    Calculation of the new pixel value is performed by the weight of the four surrounding pixels.
+    <table align="center" width="80%">
+        <tr>
+            <th>Pros</th><th>Cons</th>
+        </tr>
+        <tr>
+            <td>Extremas are balanced</td>
+            <td>Less contrast compared to Nearest Neighbour</td>
+        </tr>
+        <tr>
+            <td>Image losses sharpness compared to Nearest Neighbour</td>
+            <td>New values are calculated which are not present in the input product</td>
+        </tr>
+    </table>
+    <br>
+    Following figure demonstrates the calculation of the new pixel value.
+    <p align="center">
+        <img src="../visat/images/BilinearInterpolation_fig001.jpg" border=0>
+    </p>
+    The bilinear interpolation is performed by the following equation:
+    <p align="center">
+        <img src="../visat/images/BilinearInterpolation_eq001.jpg" border=0>
+    </p>
+</p>
+
+<h4>Cubic Convolution</h4>
+
+<p>
+    Calculation of the new pixel value is performed by weighting the 16 surrounding pixels.
+    <table align="center" width="80%">
+        <tr>
+            <th>Pros</th>
+            <th>Cons</th>
+        </tr>
+        <tr>
+            <td>Extremas are balanced</td>
+            <td>Less contrast compared to Nearest Neighbour</td>
+        </tr>
+        <tr>
+            <td>Image is sharper compared to Bi-linear Interpolation</td>
+            <td>New values are calculated which are not present in the input product</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>Slow, compared to Nearest Neighbour resampling</td>
+        </tr>
+
+    </table>
+</p>
+<br>
+Following figure demonstrates the calculation of the new pixel value.
+<p align="center">
+    <img src="../visat/images/CubicConvolution_fig001.jpg" border=0>
+</p>
+The bilinear interpolation is performed by the following equation:
+<p align="center">
+    <img src="../visat/images/CubicConvolution_eq001.jpg" border=0>
+</p>
+In the first step the average value for each line is calculated, afterwards the new pixel value is calculated with the
+four new average values P'(1) - P'(4) similar to the preceding calculation.
+
+<p></p>
+
+<h4>Visual Comparison of the Resampling Methods</h4>
+<table width="100%" border="0">
+    <tr>
+        <td align="center"><img src="../visat/images/ResamplingNN.jpg" border=0></td>
+        <td align="center"><img src="../visat/images/ResamplingBiLin.jpg" border=0></td>
+        <td align="center"><img src="../visat/images/ResamplingCubCon.jpg" border=0></td>
+    </tr>
+    <tr>
+        <td align="center"><b>Nearest Neighbour</b></td>
+        <td align="center"><b>Bi-linear Interpolation</b></td>
+        <td align="center"><b>Cubic Convolution</b></td>
+    </tr>
+</table>
+
+<hr>
+</body>
+</html>

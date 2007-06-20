@@ -1,0 +1,50 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-core</symbolicName>
+    <version>4.1-SNAPSHOT</version>
+    <name>BEAM Core Library</name>
+
+
+    <description>This is the base module of BEAM containing its core functionalities.</description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <dependency>
+        <module>ceres-core</module>
+    </dependency>
+
+    <changelog>
+        <![CDATA[<p>From 4.0 to 4.1:<br/>
+        [BEAM-615] Remove JAMA source code from BEAM<br/>
+        [BEAM-617] Add linear, spectral unmixing math API<br/>
+        [BEAM-628] Generic reading of geophysical raster data<br/>
+        </p>]]>
+    </changelog>
+
+
+    <activator>org.esa.beam.BeamCoreActivator</activator>
+
+    <categories>System,Library</categories>
+
+    <!--
+       todo - Describe configuration elements
+    -->
+    <extensionPoint id="parameterEditors"/>
+
+    <extensionPoint id="rgbProfiles">
+        <rgbProfile>
+            <name type="java.lang.String"/>
+            <red type="java.lang.String"/>
+            <green type="java.lang.String"/>
+            <blue type="java.lang.String"/>
+            <alpha type="java.lang.String"/>
+            <!-- optional -->
+        </rgbProfile>
+    </extensionPoint>
+
+
+</module>

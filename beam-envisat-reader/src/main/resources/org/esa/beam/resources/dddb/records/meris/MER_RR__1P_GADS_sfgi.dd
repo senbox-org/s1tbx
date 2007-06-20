@@ -1,0 +1,14 @@
+MER_RR__1P_GADS_sfgi|Level 1b GADS Scaling Factor and General Info|*
+#
+sf_alt|Float|*|4|1|*|scaling factor - altitude|1|
+sf_rough|Float|*|4|1|*|scaling factor - roughness|2|
+sf_zon_wind|Float|*|4|1|*|scaling factor - zonal wind|3|
+sf_merr_wind|Float|*|4|1|*|scaling factor - meridional wind|4|
+sf_atm_pres|Float|*|4|1|*|scaling factor - atmospheric pressure|5|
+sf_ozone|Float|*|4|1|*|scaling factor - ozone|6|
+sf_rel_hum|Float|*|4|1|*|scaling factor - relative humidity|7|
+sf_rad|Float|*|4|15|*|scaling factor - radiances|8|
+gain_set|UChar|*|1|5*16|*|Gain setting|9|
+samp_rate|ULong|(10-6) s|4|1|*|sampling rate|10|
+sun_spec_flux|Float|LU|4|15|*|Sun Spectral Flux (for bands 1-15)|11|
+spare_1|Spare|*|60|1|*|Spare|12|

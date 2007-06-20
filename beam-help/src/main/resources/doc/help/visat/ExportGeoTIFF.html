@@ -1,0 +1,42 @@
+<html>
+<head>
+    <title>VISAT Help - Export GeoTIFF</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            Export GeoTIFF</td>
+        
+    <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border=0 width="227" height="29"></a></td>
+    </tr>
+</table>
+
+
+<h3>Export GeoTIFF Product (or Subset)</h3>
+
+<p>This command allows to export the data of the current product to GeoTIFF file.</p>
+
+<p>GeoTIFF is an extension to the TIFF 6.0 specifiation. These image files contain
+    georeferencing and geocoding informations. A wide range of projected coordinate systems are supported
+    including UTM, US State Plane, and National Grids. Also GeoTIFF supports numerous projection types.
+    For further information have a look at the following documentations:
+    <ul>
+        <li><a href="http://www.remotesensing.org/geotiff/spec/geotiffhome.html">GeoTIFF Specification</a></li>
+        <li><a href="http://partners.adobe.com/public/developer/tiff/index.html">TIFF Specification</a></li>
+    </ul>
+<p></p>
+
+<h3>Constraints to created GeoTIFF product files</h3>
+<ul>
+    <li>Band rasters are always written as 32-bit float values.</li>
+    <li>Visat virtual bands are not exported.</li>
+    <li>For a list of supported projections, see the chapter <a href="../general/MapProjTable.html">Available Map
+        Projections</a>.</li>
+</ul>
+
+<hr>
+</body>
+</html>

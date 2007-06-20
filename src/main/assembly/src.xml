@@ -1,0 +1,28 @@
+<!-- BEAM source distribution -->
+<assembly>
+    <id>src</id>
+    <includeBaseDirectory>true</includeBaseDirectory>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <fileSets>
+        <fileSet>
+            <excludes>
+                <exclude>**/.cvsignore</exclude>
+                <exclude>**/*.ipr</exclude>
+                <exclude>**/*.iml</exclude>
+                <exclude>**/*.iws</exclude>
+                <exclude>**/.project</exclude>
+                <exclude>**/.classpath</exclude>
+                <exclude>**/.settings</exclude>
+                <exclude>**/target/**</exclude>
+                <exclude>**/CVS/**</exclude>
+                <exclude>modules/**</exclude>
+                <exclude>testdata/**</exclude>
+                <exclude>log/**</exclude>
+                <exclude>beam-installer/**</exclude>
+                <exclude>beam-integration-tests/**</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
+</assembly>

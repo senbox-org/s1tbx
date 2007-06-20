@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!DOCTYPE map
+        PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 2.0//EN"
+        "http://java.sun.com/products/javahelp/map_2_0.dtd">
+
+<map version="2.0">
+
+    <mapID target="binningTool" url="binning/BinningTool.html"/>
+    <mapID target="binningFinalTool" url="binning/BinningFinalTool.html"/>
+    <mapID target="binningInitializeTool" url="binning/BinningInitializeTool.html"/>
+    <mapID target="binningScientificTool" url="binning/BinningScientificTool.html"/>
+    <mapID target="binningUpdateTool" url="binning/BinningUpdateTool.html"/>
+    <mapID target="binningAlgorithmDesc" url="binning/BinningAlgorithmDescription.html"/>
+
+</map>

@@ -1,0 +1,6 @@
+output_statistics|Output Data Statistics|*
+#
+out_mean|Float|*|4|1|*|Output data mean Magnitude for detected products, real sample mean for SLC products|59a|
+out_imag_mean|Float|*|4|1|*|Output imaginary data mean Used for SLC products only (set to zero otherwise)|59b|
+out_std_dev|Float|*|4|1|*|Output data standard deviation Magnitude std. dev. for detected products, real sample std. dev. for SLC products|59c|
+out_imag_std_dev|Float|*|4|1|*|Output imaginary data standard deviation Used for SLC products only (set to zero otherwise)|59d|

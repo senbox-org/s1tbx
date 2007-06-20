@@ -1,0 +1,57 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-landsat-reader</symbolicName>
+    <version>1.0</version>
+    <name>Landsat TM Product Reader</name>
+    <description>
+        A product reader for Landsat TM 5 FAST files.
+    </description>
+
+    <vendor>Christian Berwanger (ai0263@umwelt-campus.de)</vendor>
+    <copyright>(C) 2006 by Brockmann Consult</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat</module>
+        <optional>true</optional>
+    </dependency>
+
+    <categories>Reader, Landsat</categories>
+
+    <extension point="beam-visat:actions">
+        <action>
+            <id>importLandsatTMProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <parent>import</parent>
+            <text>Import LANDSAT 5 TM Product (or Subset)...</text>
+            <formatName>FAST L5</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <mnemonic>L</mnemonic>
+            <shortDescr>Import a Landsat TM data product or product subset.</shortDescr>
+            <description>Import a Landsat TM data product or product subset.</description>
+            <helpId>importLandsatTMProduct</helpId>
+            <placeAfter>importTransectData</placeAfter>
+        </action>
+    </extension>
+
+    <extension point="beam-core:rgbProfiles">
+        <rgbProfile>
+            <name>LandsatTM 3,2,1</name>
+            <red>radiance_3_red_30m</red>
+            <green>radiance_2_green_30m</green>
+            <blue>radiance_1_blue_30m</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>LandsatTM 4,3,2</name>
+            <red>radiance_4_nearir_30m</red>
+            <green>radiance_3_red_30m</green>
+            <blue>radiance_2_green_30m</blue>
+        </rgbProfile>
+    </extension>
+
+</module>

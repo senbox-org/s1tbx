@@ -1,0 +1,94 @@
+<html>
+<head>
+    <title>VISAT Help - The Product Browser</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            VISAT's Product Browser</td>
+        
+    <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" width="227" height="29" border="0"></a>
+    </td>
+    </tr>
+</table>
+
+<h4><a name="productView"></a>Product View</h4>
+
+<p>If you create a new, open or import an existing data product, VISAT will put it into it's
+    open product list. The product list is a tree view with up to four root nodes for each open product:
+<ul>
+    <li>Bands - contains all measured spectral/geophysical and quality raster datasets of a product (mandatory)</li>
+    <li>Tie-point grids - contains all tie-point grid raster datasets (optional)</li>
+    <li>Flag Codings - contains flag coding metadata for quality flags datasets (optional)</li>
+    <li>Metadata - contains additional metadata (optional)</li>
+</ul>
+
+<p>
+    You can quickly open an <a href="ProductSceneView.html">image view</a> for a
+    band or tie-point grid by double-clicking on an item of the expanded product root nodes.
+    Accordingly a metadata view is opened if you click an item the flag coding or metadata nodes.
+    Please also refer to the <a href="NavigationWindow.html">Navigation Window</a> and the
+    the <a href="Toolbars.html#zoomtool">Zoom</a> and <a href="Toolbars.html#pannertool">Panner</a>
+    tools.
+</p>
+
+<p align="center"><img src="images/VisatOverview.jpg"></p>
+
+<p>The information concerning each pixel can be analysed interactively in the
+    pixel information view.</p>
+
+<br>
+
+<h4><a name="pixelView"></a>Pixel Info View</h4>
+
+<p>If you click on the tab 'Pixel View' on the left side of the VISAT window,
+    pixel information will be displayed while you move the mouse over the band image
+    view.</p>
+
+<p align="center"><img src="images/PixelView.jpg" width="260" height="894"></p>
+
+<p>You can un-dock each frame using the floating-button (<img src="images/icons/FloatingButton.gif" border=0>),
+    and dock it back by using the docking-button (<img src="images/icons/DockingButton.gif" border=0>) in the header
+    bar.</p>
+
+<p>The informations displayed belong to the current image pixel beneath the mouse pointer:
+    <ul>
+        <li><b>Geo-location:</b><br>
+            Displayes the image position, the geographic-location and also the map co-ordinates if the current
+            product is map-projected.
+        </li>
+        <li><b>Tie Point Grids:</b><br>
+            Shows the values of the tie-point grids.
+        </li>
+        <li><b>Time Info:</b><br>
+            The time information associated with the current liine.
+        </li>
+        <li><b>Bands:</b><br>
+            The value of the pixel beneath the mouse pointer.
+        </li>
+        <li><b>Flags:</b><br>
+            Displayes the state of the flags at the current pixel.
+        </li>
+    </ul>
+</p>
+
+<p>
+    If a pin is selected in the current image view you can select <b>Snap to selected pin</b>
+    in order to "freeze" the pixel info to the position of the currently selected pin.
+</p>
+
+<p class="inote">Note: Flag values are only displayed if a corresponding flag dataset has been loaded.
+    Use the right mouse button over a flag dataset in the product browser in order to load a flag dataset's sample
+    values.</p>
+
+<p class="inote">Note: In the <a href="PreferencesDialog.html">preferences dialog</a> you can deselect the
+    option that only pixel values of displayed or loaded bands are shown.</p>
+
+
+<hr>
+</body>
+</html>

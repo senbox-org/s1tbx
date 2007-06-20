@@ -1,0 +1,205 @@
+<html>
+<head>
+    <title>VISAT Help - Shapes and ROIs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            Shapes and ROIs (Regions of Interest)</td>
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border="0"></a></td>
+    </tr>
+</table>
+
+<h4>Region Of Interest (ROI) Definition Window</h4>
+
+<p>
+    When looking at satellite data image, you might be interested in a special region inside
+    the image. This region of interest (ROI) does not have to be
+    contiguous area of pixels; a ROI is allowed to be any number of independent pixels inside
+    the data.
+</p>
+
+<p>VISAT lets you define four different criteria for the definition of the ROI.
+    Use can use a geometric shapes which you can simply
+    draw on the image, include the pixels within a value range, covered by a bitmask and finally the pixels
+    selected by the currently <a href="PinManagement.html">defined pins</a>. The combination of
+    one or more of these criteria offers a great flexibility to select pixels that show
+    the features you are interested in.
+</p>
+
+<p>
+    <a name="roidefinitiondialog"></a>All that can be done in one dialog, the ROI Definition Window.
+</p>
+
+<p align="center"><img src="images/RoiDefinitionWindow.jpg"></p>
+
+<p>
+    To illustrate the available options in this dialog, they have all been activated.
+    Let's have a little closer look on this example.<br>
+    This ROI will be assembled from four criteria<br>
+    <ol>
+        <li>a geometric shape (which has to be created before, see <a href="#shapescreation">below</a>),</li>
+        <li>a value range (i.e. use values between 0.0 and 0.45), and</li>
+        
+  <li>a condition (a click on the <img src="images/NoNameButton.jpg" width="28" height="23">
+    button will bring up the <a href="ExpressionEditor.html">Expression Editor</a>).</li>
+        <li>a the pixels under the current pins</li>
+    </ol>
+    <br>
+    All these criteria will be combined with the logical OR (in this example). Additionally,
+    the 'Invert' check-box is activated. Inversion will cause all pixels being selected
+    that do <u>not</u> fit the above defined criteria.
+</p>
+
+<h4><a name="undoroiassignment"></a>Undo ROI assignment</h4>
+
+<p>
+    If you want to start over defining a ROI, click on the
+    <img src="images/icons/Undo24.gif">icon.
+    This will reset the dialog box to default values: all criteria deselected, value
+    range (disabled) from 0.0 to 1.0, bitmask criterion (disabled) erased.
+</p>
+
+<h4>Multiple Assignment to other Bands</h4>
+
+<p>
+    You can assign the current ROI definition to multiple other visible bands
+    of the selected product by clicking the <img src="images/icons/MultiAssign24.gif"> icon.
+    This will open a band chooser dialog where the bands can be selected. By pressing the <i>OK</i>
+    button the current ROI will be assigned to all selected bands.
+</p>
+
+<h4><a name="zoomtoroi"></a>Zoom To ROI </h4>
+
+<p>A click on the <img src="images/icons/ZoomTo24.gif"> icon in the centers the image view on the selected ROI. </p>
+<h4><a name="shapescreation"></a>Creation of ROIs from geometric shapes</h4>
+
+<p style="margin-bottom:3;">The creation of ROIs from shapes in VISAT includes two steps:</p>
+
+<ol style="margin-top:3;">
+    <li><a href="ImportTransectData.html">import</a> a transect or <a href="#drawingtools">draw</a> the shape</li>
+    <li> convert the shape into a ROI</li>
+</ol>
+
+<br>
+
+<p>
+    In VISAT you define geometric areas by drawing them into your image. For this
+    purpose, several <a href="#drawingtools">drawing tools</a> are available.<br>
+    The following figures show the necessary steps to create a ROI graphically:
+</p>
+
+<table width="100%" style="border-width:0;">
+    <tr>
+        <td style="border-width:0;">
+            <div align="center">
+                <p><img src="images/ShapeDrawing1.jpg"></p>
+
+                <p>Draw the shape (e.g. an ellipse):<br>
+                    select the tool either from the<br>
+                    main toolbar or from the<br>
+                    ROI Definition Window </p>
+            </div>
+        </td>
+        <td style="border-width:0;">
+            <div align="center">
+                <p><img src="images/ShapeDrawing2.jpg"></p>
+
+                <p>Assign Shape as ROI:<br>
+                    click on <img src="images/icons/ShapeToROI24.gif" alt="Assign Shape as ROI" border="0">
+                    in the <a href="Toolbars.html">main toolbar</a><br>
+                    or click on 'Apply' in the<br>
+                    ROI Definition Window </p>
+            </div>
+        </td>
+    </tr>
+</table>
+
+<p>
+    Once the ROI is created, you will be able to gather information about the affected
+    pixels in various dialogs. The <a href="StatisticsDialog.html">Statistics</a>,
+    <a href="HistogramDialog.html">Histogram</a>, and
+    <a href="ScatterplotDialog.html">Scatter Plot</a> dialogs will
+    have an active 'Compute for ROI' button then.
+</p>
+
+<h4><a name="graphicaltools"></a>Graphical tools</h4>
+
+<p>
+    <a name="selecttool"></a>Selection Tool
+    <img src="images/icons/SelectTool24.gif" alt="Selection Tool">
+</p>
+
+<ul>
+    This tool is enabled by default; you use it to point into the image and to
+    move the panning or zoom windows.
+</ul>
+
+<h4><a name="drawingtools"></a>Drawing tools</h4>
+
+<p>
+    The following tools help to draw geometric shapes. <br>
+
+<p class="inote"><b>Note:</b> Tf you want to add a shape to an existing shape, hold down the <i>Shift</i> key.<br>
+    To subtract a shape from an existing one, hold down the <i>Control</i> key.<br>
+    If you don't press one of these keys while drawing a shape, the new shape will replace
+    any existing one.
+</p>
+
+<p>
+    <a name="drawlinetool"></a>Draw Line Tool
+    <img src="images/icons/DrawLineTool24.gif" alt="Draw ROI Line">
+</p>
+
+<ul>
+    With this tool you draw a single line. <br>
+    Click for the start and for the end point.
+</ul>
+
+<p>
+    <a name="drawrectangletool"></a>Draw Rectangle Tool
+    <img src="images/icons/DrawRectangleTool24.gif" alt="Draw ROI Rectangle">
+</p>
+
+<ul>
+    Click for the start point, drag to the end point and release the mouse button.
+</ul>
+
+<p>
+    <a name="drawellipsetool"></a>Draw Ellipse Tool
+    <img src="images/icons/DrawEllipseTool24.gif" alt="Draw ROI Ellipse">
+</p>
+
+<ul>
+    The handling is similar to the rectangle tool: click for the start, drag to
+    the end point of the boundary rectangle and release the mouse button.
+</ul>
+
+<p>
+    <a name="drawpolylinetool"></a>Draw Polyline Tool
+    <img src="images/icons/DrawPolylineTool24.gif" alt="Draw ROI Polyline">
+</p>
+
+<ul>
+    With this tool you are able to draw a polyline, i.e. consecutive lines, each starting at the
+    end point of the previous line. Click for the start and for the end point, the end point will
+    be the start point of the following line. Double-click to terminate the polyline.
+</ul>
+
+<p>
+    <a name="drawpolygontool"></a>Draw Polygon Tool
+    <img src="images/icons/DrawPolygonTool24.gif" alt="Draw ROI Polygon">
+</p>
+
+<ul>
+    The handling of the polygon tool is somewhat similar to the polyline tool; except
+    that double-clicking will close the shape (a line from the end point of the last line will be drawn
+    to the start point of the first line). In effect, the shape defines a closed area.
+</ul>
+<hr>
+</body>
+</html>

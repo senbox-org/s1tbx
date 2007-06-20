@@ -1,0 +1,52 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-flhmci</symbolicName>
+    <version>1.6</version>
+    <name>MERIS FLH/MCI Processor</name>
+
+    <description>
+        The MERIS FLH/MCI Processor calculates the Fluorescence Line Height and 
+        the Maximum Chlorophyll Index by exploiting the height of a measurement over a specific baseline.
+    </description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <dependency>
+        <module>beam-visat</module>
+    </dependency>
+    <dependency>
+        <module>beam-processing</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat</module>
+        <optional>true</optional>
+    </dependency>
+
+    <categories>Application,Processor,MERIS,AVHRR</categories>
+
+    <extension point="beam-visat:actions">
+        <action>
+            <id>flhMciScientificTool</id>
+            <class>org.esa.beam.visat.actions.ProcessorAction</class>
+            <processor>org.esa.beam.processor.flh_mci.FlhMciProcessor</processor>
+            <text>FLH/MCI Processor...</text>
+            <shortDescr>Invoke the FLH/MCI processor.</shortDescr>
+            <mnemonic>F</mnemonic>
+            <parent>tools</parent>
+            <helpID>flhMciScientificTool</helpID>
+            <placeAfter>sstScientificTool</placeAfter>
+        </action>
+    </extension>
+
+    <extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+            <path>doc/help/flhmci.hs</path>
+        </helpSet>
+    </extension>
+
+</module>

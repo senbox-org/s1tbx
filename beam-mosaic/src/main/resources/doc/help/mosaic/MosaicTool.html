@@ -1,0 +1,48 @@
+<html>
+
+<head>
+    <title>BEAM Data Processors - Level 3 Mosaic Processor</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../../style.css">
+</head>
+
+<body>
+
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            Level 3 Mosaic Processor</td>
+        <td class="header" align="right"><a href="../../index.html"><img src="../images/beam_header.gif" border=0></a>
+        </td>
+    </tr>
+</table>
+
+<p>The main intention of the Mosaic Processor is to provide an alternative level 3 algorithm that is able to
+    create Moir&eacute;-free images. Especially when the pixel size of the input product(s) and the bin size of the
+    target L3 product are of the same order of magnitude, the Mosaic Processor yields better results than the Binning
+    Processor when exact statistics are not an requirement. Furthermore, the generated level 3 products are well
+    suited for the production of images (e.g. RGB compositions).</p>
+
+<p>Features of the Mosaic Processor:</p>
+<ul>
+    <li>Use of any number of <a href="MosaicAlgorithmSpecification.html#OV">output variables</a> for the level 3 output
+        product.
+        An output variable is defined by an expression, which computes the pixel values.</li>
+    <li>Definition of <a href="MosaicAlgorithmSpecification.html#VPC">valid pixel criteria</a> which include or exclude
+        pixels with certain
+        properties by using boolean expressions. All the defined criterias can be combined using the AND or OR.</li>
+    <li>If you are interested in how many times any of the criteria have been fulfilled for each pixel,
+        the counts of each criterion can be written into extra bands in the output product. Such extra bands
+        take the name of the criterion.</li>
+</ul>
+
+<p>Read more about the Mosaic Processor in these chapters:</p>
+
+<p><a href="MosaicAlgorithmSpecification.html">Mosaic Algorithm Specification</a></p>
+
+<p><a href="MosaicProcessorDescription.html">Mosaic Processor Specification</a></p>
+
+<br>
+
+</body>
+</html>

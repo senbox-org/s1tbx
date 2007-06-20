@@ -1,0 +1,26 @@
+<assembly>
+    <id>repository</id>
+
+    <formats>
+        <format>dir</format>
+    </formats>
+
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+
+    <moduleSets>
+        <moduleSet>
+            <includes>
+                <include>org.esa.beam:beam-landsat-reader</include>
+                <include>org.esa.beam:beam-meris-ndvi</include>
+            </includes>
+            <binaries>
+                <outputDirectory>repository</outputDirectory>
+                <includeDependencies>false</includeDependencies>
+                <unpack>false</unpack>
+            </binaries>
+        </moduleSet>
+
+    </moduleSets>
+
+</assembly>

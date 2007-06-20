@@ -1,0 +1,9 @@
+MER_RRC_2P_GADS_sfgi|Level 2 GADS Scaling Factor and Offsets|*
+#
+sf_cl_opt_thick|Float|*|4|1|*|scaling factor - Cloud optical thickness|1|
+sf_cloud_top_press|Float|*|4|1|*|scaling factor - Cloud Top Pressure|2|
+sf_wvapour|Float|*|4|1|*|scaling factor - Water vapour|3|
+off_cl_opt_thick|Float|*|4|1|*|offset-Cloud optical thickness|4|
+off_cloud_top_press|Float|hPa|4|1|*|offset - Cloud Top Pressure|5|
+off_wvapour|Float|g.cm-2|4|1|*|offset-Water vapour|6|
+spare_1|Spare|*|52|1|*|Spare|7|

@@ -1,0 +1,8 @@
+ASAR_SRGR_ADSR|Slant Range to Ground Range conversion parameters|*
+#
+zero_doppler_time  |@/types/UTC.dd|MJD                  |12|1|*|Zero Doppler Time in azimuth from which parameters apply|1|
+attach_flag        |UChar         |flag                 | 1|1|*|Attachment Flag (always set to zero for this ADSR)|2|
+slant_range_time   |Float         |ns                   | 4|1|*|2 way slant range time to first range sample|3|
+ground_range_origin|Float         |m                    | 4|1|*|Ground range origin of the polynomial (GR0) measured for the first pixel of the line.|4|
+srgr_coeff         |Float         |m, m-1, m-2, m-3, m-4| 4|5|*|The coefficients S0, S1, S2, S3, and S4 of the ground range to slant range conversion polynomial. Slant range = S0 + S1(GR-GR0) + S2 (GR-GR0)2 + S3(GR-GR0)3 + S4(GR-GR0)4|5|
+spare_1            |Spare         |*                    |14|1|*|Spare|6|

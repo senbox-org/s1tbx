@@ -1,0 +1,13 @@
+ATS_AR__2P_MDSR_sst_small|SST record 17 km cell MDS|*
+#
+dsr_time|@/types/UTC.dd|MJD|12|1|*|Nadir UTC time in MJD format|1|
+quality_flag|UChar|flag|1|1|*|Quality Indicator (-1 for blank MDSR, 0 otherwise)|2|
+spare_1|Spare|*|3|1|*|Spare|3|
+lat|SLong|(1e-6) degrees|4|1|*|Latitude of cell|4|
+lon|SLong|(1e-6) degrees|4|1|*|Longitude of cell|5|
+m_actrk_pix_num|SShort|*|2|1|*|Mean across-track pixel number|6|
+m_nad|SShort|K/100|2|1|*|mean nadir-only SST|7|
+pix_nad|UShort|*|2|1|*|Number of pixels in nadir-only average|8|
+m_dual_vw|SShort|K/100|2|1|*|mean dual-view SST|9|
+pix_dual_vw|UShort|*|2|1|*|Number of pixels in dual-view average|10|
+ast_conf_flags|UShort|flags|2|2|*|AST confidence word|11|

@@ -1,0 +1,143 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+    <TITLE>package com.bc.beam.usage.ndvi</TITLE>
+    <!--
+
+      $Id: package.html,v 1.1 2007/01/26 13:19:00 marcop Exp $
+
+      Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
+
+      This program is free software; you can redistribute it and/or modify it
+      under the terms of the GNU General Public License as published by the
+      Free Software Foundation. This program is distributed in the hope it will
+      be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+      of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+      See the GNU General Public License for more details.
+
+      You should have received a copy of the GNU General Public License
+      along with this program; if not, write to the Free Software
+      Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+    -->
+</HEAD>
+
+<BODY bgColor=white>
+
+The <code>{@link com.bc.beam.usage.ndvi}</code> package contains example code
+for a simple MERIS ndvi processor. This file will give a detailed step by step instruction on
+how to implement a scientific processor using the processor framework supplied by the
+MERIS/AATSR Toolbox.
+<p>
+    The example processor is invoked with a single commad line argument - the path to a
+    request file. See also <a HREF="#request_file_definition">Request File Definition</a>.
+    An example processing request file <a HREF="./NdviProcReq.xml">NdviProcReq.xml</a> is located next to the
+    source code files. You must modify the input product and output product paths according to your computers setup.
+
+<p>
+    Packages used in this example are:
+    <LD>
+        <LI>{@link org.esa.beam.framework.dataio Data I/O}</LI>
+        <LI>{@link org.esa.beam.framework.processor Processor framework}</LI>
+        <LI>{@link org.esa.beam.util Utility classes}</LI>
+    </LD>
+
+<h2>The ndvi processor main class - <code>@link org.esa.beam.examples.ndvi_processor.NdviProcessorMain
+    NdviProcessorMain</code></h2>
+
+This class implements the <code>main()</code> method of the processor to be able to invoke
+the processor from the command line. It is a general convention that every executable within the
+Toolbox project has a xxxMain.java file which contains the <code>main()</code> method. This
+makes it easier to navigate the code.
+<p>
+    This class implements just one method, the <code>main()</code> method. Within main, the ndvi
+    processor is created and the command line and the processor are passed to a <code>ProcessorRunner</code>.
+    Additionally there is some code for exception handling, but basically this is everything that's happening in main.
+
+<p>
+    The <code>{@link ProcessorRunner}</code> takes the further control of what happens to the processor.
+    It performs a lot of actions in the background which otherwise have to be programmed over and over
+    for each processor. The runner performs the following steps:
+<ul>
+    <li>Parse the command line</li>
+    <li>Load and parse the request file</li>
+    <li>Switches debug mode on when the appropriate command line parameter is set</li>
+    <li>Checks if the processor should run in interactive mode. If so
+        <ul>
+            <li>Initializes the processor with a request, if one is present</li>
+            <li>Creates the processor UI frame and attaches the processor to it</li>
+            <li>Attaches a progressbar to the processor and</li>
+            <li>runs the processor ui frame</li>
+        </ul>
+        If the processor should run in non interactive mode it:
+        <ul>
+            <li>Loops over all requests in the request file and for each request it</li>
+            <li>initializes the processor with the current request</li>
+            <li>logs the processor header (optionally)</li>
+            <li>logs the request and</li>
+            <li>runs the processor on the current request</li>
+        </ul>
+    </li>
+</ul>
+A special note should be take to the last paragraph: the processor runner can handle request files
+containing any number of requests and lets the processor perform all calculations in batch mode.
+
+<h2>The processor class - <code>{@link NdviProcessor}</code></h2>
+This class contains all of the ndvi processor specific functionality. It inherits from the abstract
+<code>{@link org.esa.beam.framework.processor.Processor}</code> class which is embedded in the processor framework.
+<p>
+    The only method that must be implemented by <code>NdviProcessor</code> is the <code>process</code> method. This
+    is the "worker-method". It is invoked by the framework each time a request has to be processed.
+
+<p>
+    A first step in the process method is checking the request type. See the <code>checkRequestType</code> method.
+    It can be seen how the base class functionality of the processor class is used to retrieve the
+    request processed, which is at this point automatically read from the request file, parsed and
+    (optionally) verified.
+
+<p>
+    The second thing to do is opening the input product denoted in the request. This happens in
+    the <code>loadInputProduct</code> method. Here, the functionality of the ProductIO framework is used to
+    read the input product skeleton (not the product data but metadata, product size, band names ...).
+    The class <code>ProductIO</code> automatically creates an object of type <code>Product</code> that
+    holds all this information. Note that <code>ProductIO</code> automatically decides which product type
+    the requested product is and which <code>ProductReader</code> to use. Once the input product is read,
+    the two bands needed for the ndvi calculation are requested from the product.
+
+<p>
+    Now the output product must be created. This happens in the <code>createOutputProduct</code> method. This method
+    reads the product width and height from the input product. Then an output product is created which at
+    this point is just an empty hull with a product type, product name and same dimensions as the input product.
+    Then the resulting ndvi band is added. The product now neither contains data nor has a disk representation,
+    it's pure virtual. Again, the <code>ProductIO</code> class supplies the product with an appropriate disk writer,
+    the default one in this example. And finally, the disk represenation is written out.
+
+
+<h2>The request file definition<a NAME="request_file_definition"></a></h2>
+All processors using the processor framework are "request-driven". A request is a xml-file defining one
+or more "processing requests". An example request file can be found in this examples directory.
+<p>
+    The request file must contain a few basic lines. These are:
+<ul>
+    <li>The xml header,</li>
+    <li>a request list tag and</li>
+    <li>a number of requests</li>
+</ul>
+All tags supported in a request file and understood by the request loader are defined in
+<code>{@link org.esa.beam.framework.processor.RequestTags}</code>. You can define any number of named parameters
+to customize processor requests.
+<p>
+    For future expansion, it is mandatory that every processor defines a request type, in this case
+    the type is defined by "NDVI_EXAMPLE".
+
+<p>
+    Then this simple example request just defines two more entrie, the input product and the output product.
+
+<p>
+    @see org.esa.beam.framework.dataio
+    @see org.esa.beam.framework.dataop
+    @see org.esa.beam.framework.processor
+    @see org.esa.beam.util
+
+</BODY>
+</HTML>

@@ -1,0 +1,55 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-aatsr-sst</symbolicName>
+    <version>1.4</version>
+    <name>AATSR SST Processor</name>
+
+    <description>
+        The BEAM AATSR SST Processor is aimed to enable the user to calculate the sea-surface temperature
+        from (A)ATSR brightness temperatures. The BEAM implementation is explicitely opened for the addition of
+        new coefficient sets.
+    </description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <dependency>
+        <module>beam-processing</module>
+    </dependency>
+    <dependency>
+        <module>beam-envisat-reader</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat</module>
+        <optional>true</optional>
+    </dependency>
+
+
+    <categories>Application,Processor,Envisat,AATSR</categories>
+
+    <extension point="beam-visat:actions">
+        <action>
+            <id>sstScientificTool</id>
+            <class>org.esa.beam.visat.actions.ProcessorAction</class>
+            <processor>org.esa.beam.processor.sst.SstProcessor</processor>
+            <text>SST Processor ((A)ATSR)...</text>
+            <shortDescr>Invoke the BEAM (A)ATSR SST Processor.</shortDescr>
+            <mnemonic>S</mnemonic>
+            <parent>tools</parent>
+            <helpID>sstScientificTool</helpID>
+            <placeAfter>createFilteredBand</placeAfter>
+        </action>
+    </extension>
+
+
+    <extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+            <path>doc/help/sst.hs</path>
+        </helpSet>
+    </extension>
+
+</module>

@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='ISO-8859-1'  ?>
+<!DOCTYPE toc
+        PUBLIC
+        "-//Sun Microsystems Inc.//DTD
+     JavaHelp TOC Version 2.0//EN"
+        "http://java.sun.com/products/javahelp/toc_2_0.dtd">
+
+<toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
+
+    <tocitem text="Data Processors">
+        <tocitem text="MERIS NDVI Processor" target="NDVIProcessorPlugIn">
+            <tocitem text="Algorithm Specification" target="algorithm"/>
+            <tocitem text="Processor Description" target="processor"/>
+        </tocitem>
+    </tocitem>
+
+</toc>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<RequestList>
+    <Request type="NDVI_EXAMPLE">
+        <!--
+            Parameters used for processing NDVI.
+            lower_band:     the red band used for processing NDVI.
+            upper_band:     the new IR band used for processing NDVI.
+            lower_factor:   the factor used for scaling the lower band.
+            upper_factor:   the factor used for scaling the upper band.
+        -->
+        <Parameter name="lower_band" value="radiance_6"/>
+        <Parameter name="upper_band" value="radiance_10"/>
+        <Parameter name="lower_factor" value="1.0"/>
+        <Parameter name="upper_factor" value="1.0"/>
+
+        <!--
+            The format of the output product.
+        -->
+        <Parameter name="output_format" value="BEAM-DIMAP"/>
+
+        <!--
+            The prefix for the log file.
+        -->
+        <Parameter name="log_prefix" value="ndvi"/>
+        <!--
+            Whether or not a extra log file should be written to
+            the ouput products directory.
+        -->
+        <Parameter name="log_to_output" value="true"/>
+
+        <!--
+            The path to the MERIS Level 1b input product.
+            The input product here is a MERIS file in raw ENVISAT format.
+        -->
+        <InputProduct path="C:\Projects\Data\MERIS\L1b\MER_RR__1PNPDK20020521_082210_000002702006_00107_01163_3805.N1"/>
+
+        <!--
+            The path to the NDVI output.
+            The output product is written in the BEAM-DIMAP format,
+            i.e. an XML header file (ndvi_example.dim) and an image file
+            containing the NDVI values in ENVI format (header/raw). You can
+            inspect the NDVI output product either in VISAT or in ENVI.
+        -->
+        <OutputProduct path="C:\Projects\Data\MERIS\NDVI\ndvi_example.dim"/>
+
+    </Request>
+</RequestList>
+

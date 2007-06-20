@@ -1,0 +1,93 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-binning</symbolicName>
+    <version>2.0</version>
+    <name>Level-3 Binning Processor</name>
+
+    <description>
+        The Level-3 Binning Processor distributes the contributions of a Level 2 pixels in satellite coordinates
+        to a fixed Level 3 grid using a geographic reference system.
+    </description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+    
+    <dependency>
+        <module>beam-visat</module>
+    </dependency>
+    <dependency>
+        <module>beam-processing</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat</module>
+        <optional>true</optional>
+    </dependency>
+
+
+    <categories>Application,Processor,Geometry,VISAT,Level-3,Envisat,MERIS,AATSR,AVHRR,CHRIS</categories>
+
+    <extension point="beam-visat:actions">
+        <action>
+            <id>Binning</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <text>Level-3 Binning</text>
+            <mnemonic>3</mnemonic>
+            <placeAfter>MosaicProcessorPlugIn</placeAfter>
+        </action>
+        <action>
+            <id>binningScientificTool</id>
+            <class>org.esa.beam.visat.actions.ProcessorAction</class>
+            <processor>org.esa.beam.processor.binning.OneShotL3Processor</processor>
+            <text>Binning Processor...</text>
+            <shortDescr>Invoke the Level-3 Processor.</shortDescr>
+            <mnemonic>B</mnemonic>
+            <parent>Binning</parent>
+            <helpID>binningScientificTool</helpID>
+        </action>
+        <action>
+            <id>binningInitializeTool</id>
+            <class>org.esa.beam.visat.actions.ProcessorAction</class>
+            <processor>org.esa.beam.processor.binning.InitL3Processor</processor>
+            <text>Create Bin Database...</text>
+            <shortDescr>Invoke the BEAM L3 Initialize Processor.</shortDescr>
+            <mnemonic>I</mnemonic>
+            <parent>Binning</parent>
+            <helpID>binningInitializeTool</helpID>
+            <placeAfter>binningScientificTool</placeAfter>
+        </action>
+        <action>
+            <id>binningUpdateTool</id>
+            <class>org.esa.beam.visat.actions.ProcessorAction</class>
+            <processor>org.esa.beam.processor.binning.UpdateL3Processor</processor>
+            <text>Update Bin Database...</text>
+            <shortDescr>Invoke the BEAM L3 Initialize Processor.</shortDescr>
+            <mnemonic>U</mnemonic>
+            <parent>Binning</parent>
+            <helpID>binningUpdateTool</helpID>
+            <placeAfter>binningInitializeTool</placeAfter>
+        </action>
+        <action>
+            <id>binningFinalTool</id>
+            <class>org.esa.beam.visat.actions.ProcessorAction</class>
+            <processor>org.esa.beam.processor.binning.FinalL3Processor</processor>
+            <text>Create final L3 Product...</text>
+            <shortDescr>Invoke the BEAM L3 Final Processor.</shortDescr>
+            <mnemonic>F</mnemonic>
+            <parent>Binning</parent>
+            <helpID>binningFinalTool</helpID>
+            <placeAfter>binningUpdateTool</placeAfter>
+        </action>
+    </extension>
+
+
+    <extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+            <path>doc/help/binning.hs</path>
+        </helpSet>
+    </extension>
+
+</module>

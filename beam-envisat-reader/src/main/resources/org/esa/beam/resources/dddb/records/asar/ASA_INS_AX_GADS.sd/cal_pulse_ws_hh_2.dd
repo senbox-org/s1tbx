@@ -1,0 +1,4 @@
+cal_pulse_ws_hh_2|WS mode HH polarization calibration data for pulse 2, swaths SS1 to SS5.|*
+#
+nom_amplitude|Float|*|4|32|*|Nominal amplitude (ax,n,nom) for antenna row 1 to antenna row 32 (where x is the pulse number)|32a|
+nom_phase|Float|cycles|4|32|*|Nominal value of phase (fx,n,nom) for antenna row 1 to antenna row 32 (where x is the pulse number)|32b|

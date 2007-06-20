@@ -1,0 +1,12 @@
+MER_LRC_2P|MERIS Extracted Cloud Thickness and Water Vapour for Meteo Users|
+#
+MPH                |@/records/MPH.dd                               |1247                  |Main Product Header
+SPH                |@/records/meris/MER_RR__2P_sph.dd              |*                     |Level 2 SPH
+DSD                |@/records/DSD.dd                               |*                     |Data Set Descriptor array
+Quality_ADS        |@/records/meris/MER_RR__2P_ADSR_sq.dd          |Quality ADS           |Level 2 Summary Quality ADS(SQ ADS)
+Scaling_Factor_GADS|@/records/meris/MER_RRC_2P_GADS_sfgi.dd        |Scaling Factor GADS   |Level 2 GADS Scaling Factor and Offsets
+Tie_points_ADS     |@/records/meris/MER_RR__1P_ADSR_tie_pt.dd      |Tie points ADS        |Level 2 ADS Tie Points Location & Aux. Data ( L ADS)
+Cloud_Type_OT      |@/records/meris/MER_LRC_2P_MDSR_cl_thick.dd    |MDS Cloud Type, OT    |Level 2 MDS Cloud Optical Thickness
+Cloud_Top_Pressure |@/records/meris/MER_LRC_2P_MDSR_cl_top_press.dd|MDS Cloud Top Pressure|Level 2 MDS Cloud Top Pressure
+Vapour_Content     |@/records/meris/MER_LRC_2P_MDSR_twv.dd         |MDS Vapour Content    |Level 2 MDS Total Water vapour
+Flags              |@/records/meris/MER_LRC_2P_MDSR_flag.dd        |MDS Flags             |Level 2 MDS Flags

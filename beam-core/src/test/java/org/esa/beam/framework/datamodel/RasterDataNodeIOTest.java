@@ -1,0 +1,270 @@
+/*
+ * $Id: RasterDataNodeIOTest.java,v 1.7 2007/03/19 15:52:28 marcop Exp $
+ *
+ * Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation. This program is distributed in the hope it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+package org.esa.beam.framework.datamodel;
+
+import com.bc.ceres.core.ProgressMonitor;
+import junit.framework.TestCase;
+import org.esa.beam.framework.dataio.AbstractProductReader;
+import org.esa.beam.framework.dataio.IllegalFileFormatException;
+import org.esa.beam.framework.dataio.ProductReader;
+import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.util.io.BeamFileFilter;
+
+import java.io.IOException;
+import java.util.Locale;
+
+public class RasterDataNodeIOTest extends TestCase {
+
+    public final static TestProductReaderPlugIn TPRPI = new TestProductReaderPlugIn();
+
+    private static final int SW = 5; // scene width
+    private static final int SH = 5; // scene height
+    private static final int GW = 3; // grid width
+    private static final int GH = 3; // grid height
+
+    private static final double SFAC = 2.5;
+    private static final double SOFF = -1.25;
+
+    private static final float DELTA = 1e-5f;
+
+    private static final String FLOAT_BAND_NAME = "float_band";
+    private static final String SCALED_INT_BAND_NAME = "scaled_int_band";
+    private static final String SYNT_FLOAT_BAND_NAME = "synt_float_band";
+    private static final String TIE_POINT_GRID_NAME = "tie_point_grid";
+    private static final String VIRT_BAND_NAME = "virt_band";
+    private static final String VIRT_BAND_EXPR = "float_band + 1.0";
+
+    private Product p;
+    private TestProductReader pr;
+
+    @Override
+    protected void setUp() {
+        p = createTestProduct();
+        pr = (TestProductReader) p.getProductReader();
+    }
+
+    public void testUseProductReader() throws IOException {
+        final ProductData bpd = ProductData.createInstance(ProductData.TYPE_FLOAT32, SW * SH);
+        final ProductData gpd = ProductData.createInstance(ProductData.TYPE_FLOAT32, GW * GH);
+
+        assertEquals(0, pr.getNumReads());
+
+        p.getTiePointGrid(TIE_POINT_GRID_NAME).readRasterData(0, 0, GW, GH, gpd, ProgressMonitor.NULL);
+        assertEquals(0, pr.getNumReads());
+
+        p.getBand(FLOAT_BAND_NAME).readRasterData(0, 0, SW, SH, bpd, ProgressMonitor.NULL);
+        assertEquals(1, pr.getNumReads());
+
+        p.getBand(FLOAT_BAND_NAME).ensureRasterData();
+        assertEquals(1, pr.getNumReads());
+
+        p.getBand(FLOAT_BAND_NAME).readRasterData(0, 0, SW, SH, bpd, ProgressMonitor.NULL);
+        assertEquals(2, pr.getNumReads());
+
+        p.getBand(VIRT_BAND_NAME).readRasterData(0, 0, SW, SH, bpd, ProgressMonitor.NULL);
+        assertEquals(2, pr.getNumReads());
+
+        p.getBand(FLOAT_BAND_NAME).unloadRasterData();
+        p.getBand(VIRT_BAND_NAME).readRasterData(0, 0, SW, SH, bpd, ProgressMonitor.NULL);
+        assertEquals(2 + SH, pr.getNumReads());
+
+        p.getBand(SYNT_FLOAT_BAND_NAME).readRasterData(0, 0, SW, SH, bpd, ProgressMonitor.NULL);
+        assertEquals(2 + SH, pr.getNumReads());
+
+        p.getBand(FLOAT_BAND_NAME).readRasterData(0, 0, SW, SH, bpd, ProgressMonitor.NULL);
+        assertEquals(3 + SH, pr.getNumReads());
+    }
+
+    public void testReadPixelsFromFloatBand() throws IOException {
+        Band b = p.getBand(FLOAT_BAND_NAME);
+        float[] floatElems = new float[SW * SH];
+        b.readPixels(0, 0, SW, SH, ProductData.createInstance(floatElems), ProgressMonitor.NULL);
+        int x, y;
+        x = 0;
+        y = 0;
+        assertEquals(getRawPixelValue(x, y), floatElems[i(y, x)], DELTA);
+        x = SW / 2;
+        y = SH / 2;
+        assertEquals(getRawPixelValue(x, y), floatElems[i(y, x)], DELTA);
+        x = SW - 1;
+        y = SH - 1;
+        assertEquals(getRawPixelValue(x, y), floatElems[i(y, x)], DELTA);
+    }
+
+    private int i(int y, int x) {
+        return y * SW + x;
+    }
+
+    public void testReadPixelsFromScaledIntBand() throws IOException {
+        Band b = p.getBand(SCALED_INT_BAND_NAME);
+        float[] floatElems = new float[SW * SH];
+        b.readPixels(0, 0, SW, SH, ProductData.createInstance(floatElems), ProgressMonitor.NULL);
+        int x, y;
+        x = 0;
+        y = 0;
+        assertEquals(SOFF + SFAC * getRawPixelValue(x, y), floatElems[i(y, x)], DELTA);
+        x = SW / 2;
+        y = SH / 2;
+        assertEquals(SOFF + SFAC * getRawPixelValue(x, y), floatElems[i(y, x)], DELTA);
+        x = SW - 1;
+        y = SH - 1;
+        assertEquals(SOFF + SFAC * getRawPixelValue(x, y), floatElems[i(y, x)], DELTA);
+    }
+
+    public void testReadPixelsFromTiePointGrid() throws IOException {
+        TiePointGrid g = p.getTiePointGrid(TIE_POINT_GRID_NAME);
+        float[] floatElems = new float[SW * SH];
+        g.readPixels(0, 0, SW, SH, ProductData.createInstance(floatElems), ProgressMonitor.NULL);
+        int x, y;
+        x = 0;
+        y = 0;
+        assertEquals(getTiePointValue(x / 2, y / 2), floatElems[i(y, x)], DELTA);
+        x = SW / 2;
+        y = SH / 2;
+        assertEquals(getTiePointValue(x / 2, y / 2), floatElems[i(y, x)], DELTA);
+        x = SW - 1;
+        y = SH - 1;
+        assertEquals(getTiePointValue(x / 2, y / 2), floatElems[i(y, x)], DELTA);
+
+        // test interpolated values
+        x = 1;
+        y = 1;
+        assertEquals(0.5f + getTiePointValue(x / 2, y / 2), floatElems[i(y, x)], DELTA);
+        x = SW / 2 + 1;
+        y = SH / 2 + 1;
+        assertEquals(0.5f + getTiePointValue(x / 2, y / 2), floatElems[i(y, x)], DELTA);
+        x = SW - 1 - 1;
+        y = SH - 1 - 1;
+        assertEquals(0.5f + getTiePointValue(x / 2, y / 2), floatElems[i(y, x)], DELTA);
+    }
+
+    private static int getRawPixelValue(int x, int y) {
+        return 1 + x + y;
+    }
+
+    private static float getTiePointValue(int i, int j) {
+        return 1.0f + 0.5f * (i + j);
+    }
+
+    private Product createTestProduct() {
+        Product p = new Product("p", "t", SW, SH, TPRPI.createReaderInstance());
+
+        final float[] tiePoints = new float[GW * GH];
+        for (int j = 0; j < GH; j++) {
+            for (int i = 0; i < GW; i++) {
+                tiePoints[j * GW + i] = getTiePointValue(i, j);
+            }
+        }
+        TiePointGrid tpg = new TiePointGrid(TIE_POINT_GRID_NAME,
+                                            GW, GH, 0.5f, 0.5f,
+                                            (SW - 1) / (float) (GW - 1), (SH - 1) / (float) (GH - 1),
+                                            tiePoints);
+        p.addTiePointGrid(tpg);
+
+        Band floatBand = new Band(FLOAT_BAND_NAME, ProductData.TYPE_FLOAT32, SW, SH);
+        p.addBand(floatBand);
+
+        Band scaledIntBand = new Band(SCALED_INT_BAND_NAME, ProductData.TYPE_UINT16, SW, SH);
+        scaledIntBand.setScalingFactor(SFAC);
+        scaledIntBand.setScalingOffset(SOFF);
+        p.addBand(scaledIntBand);
+
+        Band syntFloatBand = new Band(SYNT_FLOAT_BAND_NAME, ProductData.TYPE_FLOAT32, SW, SH);
+        syntFloatBand.setSynthetic(true);
+        syntFloatBand.ensureRasterData();
+        p.addBand(syntFloatBand);
+
+        VirtualBand virtBand = new VirtualBand(VIRT_BAND_NAME, ProductData.TYPE_FLOAT32, SW, SH, VIRT_BAND_EXPR);
+        p.addBand(virtBand);
+
+        return p;
+    }
+
+    private static class TestProductReaderPlugIn implements ProductReaderPlugIn {
+
+        public boolean canDecodeInput(Object input) {
+            return false;
+        }
+
+        public Class[] getInputTypes() {
+            return new Class[0];
+        }
+
+        public ProductReader createReaderInstance() {
+            return new TestProductReader(this);
+        }
+
+        public BeamFileFilter getProductFileFilter() {
+            return new BeamFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
+        }
+
+        public String[] getFormatNames() {
+            return new String[0];
+        }
+
+        public String[] getDefaultFileExtensions() {
+            return new String[0];
+        }
+
+        public String getDescription(Locale locale) {
+            return null;
+        }
+    }
+
+    private static class TestProductReader extends AbstractProductReader {
+
+        private int _numReads;
+
+        public TestProductReader(ProductReaderPlugIn readerPlugIn) {
+            super(readerPlugIn);
+        }
+
+        public int getNumReads() {
+            return _numReads;
+        }
+
+        @Override
+        protected Product readProductNodesImpl() throws IOException,
+                IllegalFileFormatException {
+            return null;
+        }
+
+        @Override
+        protected void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
+                                              int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
+                                              int destOffsetY, int destWidth, int destHeight,
+                                              ProductData destBuffer,
+                                              ProgressMonitor pm) throws IOException {
+            _numReads++;
+            pm.beginTask("Reading band raster data...", sourceHeight - sourceOffsetY);
+            try {
+                for (int sy = sourceOffsetY, j = 0; sy < sourceHeight; sy += sourceStepY, j++) {
+                    int dy = destOffsetX + j;
+                    for (int sx = sourceOffsetX, i = 0; sx < sourceWidth; sx += sourceStepX, i++) {
+                        int dx = destOffsetX + i;
+                        destBuffer.setElemFloatAt(dy * destWidth + dx, getRawPixelValue(sx, sy));
+                    }
+                    pm.worked(1);
+                }
+            } finally {
+                pm.done();
+            }
+        }
+
+    }
+}

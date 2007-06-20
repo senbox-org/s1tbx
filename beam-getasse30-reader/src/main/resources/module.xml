@@ -1,0 +1,41 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-getasse30-reader</symbolicName>
+    <version>1.0</version>
+    <name>GETASSE30 DEM Reader</name>
+
+
+    <description>Enables BEAM to read the GETASSE30 digital elevation model.</description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat</module>
+        <optional>true</optional>
+    </dependency>
+    
+
+    <categories>Reader,DEM,GETASSE30</categories>
+
+    <extension point="beam-visat:actions">
+        <action>
+            <id>importGETASSE30Product</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>GETASSE30</formatName>
+            <text>Import GETASSE30 DEM Tile (or Subset)...</text>
+            <mnemonic>G</mnemonic>
+            <shortDescr>Import a GETASSE30 DEM tile or tile subset.</shortDescr>
+            <description>Import a GETASSE30 DEM tile or tile subset.</description>
+            <helpId>importGETASSE30Product</helpId>
+        </action>
+    </extension>
+
+</module>

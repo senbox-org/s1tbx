@@ -1,0 +1,162 @@
+<html>
+<head>
+    <title>BEAM Data Processors</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            BEAM Data Processors</td>
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border=0></a>
+        </td>
+    </tr>
+</table>
+
+<h3>Introduction</h3>
+
+<p>Data processors are a special class of tools in BEAM. They are all driven by so called processing requests.
+    and can be invoked from the command line in batch mode or in interactive mode.
+    This section describes the common request file format and the command line arguments
+    common to all data processors in BEAM.</p>
+
+<h3><a name="ProcessingRequestConcept"></a>Processing Requests</h3>
+
+<p>A processing request file is an XML file containing all parameter needed to
+    run a specific processor. </p>
+
+<p>A processor can be invoked from the command-line and the processing request
+    file is passed as parameter to the program call. Alternatively, all processors
+    can be run with a graphical user interface (GUI). This allows for editing
+    the contents of the processing request file. </p>
+
+<p>Using the <b>Open</b>, <b>Save</b> and <b>Save as</b> menu items of a processor's GUI,
+    it is normally not necessary to edit processing request files manually. Using
+    a processor in interactive mode, the processor can handle only one processing
+    request file at a time. However, it is possible to invoke the processors in
+    non interactive mode. In this mode, the processor can handle any number of processing
+    requests in a request file so that it is possible to batch the processor. </p>
+
+<p>The processing request file contains some standard elements required for all
+    processors. The general structure of a processing request file is
+    <blockquote>
+        <code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;ISO-8859-1&quot;?&gt;<br>
+            &lt;RequestList&gt;</code>
+        <blockquote>
+            <code>&lt;Request type=&quot;SST&quot;&gt;<br>
+                &lt;/Request&gt;<br><br>
+                &lt;Request type=&quot;SST&quot;&gt;<br>
+                &lt;/Request&gt;<br><br>
+                ...</code>
+        </blockquote>
+        <code>&lt;/RequestList&gt;</code>
+    </blockquote>
+</p>
+
+<p>The first line in each file is the XML version specification and encoding.</p>
+
+<p> A processing request file can contain any number of single processing requests,
+    contained in a request list, i.e. in a <code>RequestList</code> element.
+    Single processing requests is defined in this list by <code>Request</code> elements.
+</p>
+
+
+<p>The predefined child elements of a <code>Request</code> element are:</p>
+
+<ul>
+    <li><code>&lt;InputProduct file=&quot;...&quot; format=&quot;...&quot; typeId=&quot;...&quot;/&gt;</code>
+        <blockquote>
+            Specifies an input product. The <code>file</code> attribute is mandatory. The <code>format</code>
+            attribute may describe a file format and is an optional attribute. The default value is
+            <code>BEAM-DIMAP</code>. Also, the
+            <code>typeId</code> attribute is optional and can contain a product type identifier string. Depending on the
+            processor type, there can be zero, one or multiple <code>InputProduct</code> elements in a request.
+        </blockquote>
+    </li>
+    <li><code>&lt;OutputProduct file=&quot;...&quot; format=&quot;...&quot; typeId=&quot;...&quot;/&gt;</code>
+        <blockquote>
+            Specifies an output product. The meaning of the attributes is the same as for the input products.
+        </blockquote>
+    </li>
+    <li><code>&lt;Parameter name=&quot;...&quot; value=&quot;...&quot;/&gt;</code>
+
+        <blockquote>
+            Specifies a processing parameter. The list of available parameter names and their value ranges is specific
+            for each processor.
+            Common to all processing requests are the
+            two parameters defining the logging behaviour of the processor:
+            <ul>
+                <li>&quot;log_prefix&quot;: defines the prefix of the log file to be written.
+                    The real name of the logfile consists of the prefix, a generation number
+                    (to be able to reuse the logfile name) and a unique identifier (to resolve
+                    file name conflicts). Logfiles are always written to the log directory
+                    of the BEAM installation.</li>
+                <li>&quot;log_to_output&quot;: a boolean parameter. When set to &quot;true&quot;,
+                    an additional logfile is written to the directory selected for the output
+                    product. </li>
+            </ul>
+        </blockquote>
+    </li>
+</ul>
+
+<h3><a name="CLI">Command Line Interface</a></h3>
+
+<p>When invoking a scientific processor from the command line,
+    the following syntax is used:
+</p>
+
+<p>
+    <code><b>&gt; <i>processor</i>.bat [options] [processing_request]</b></code> on Windows or <br>
+    <code><b>&gt; <i>processor</i>.sh [options] [processing_request]</b></code> on Unix Systems.<br>
+</p>
+
+<p>
+    Where <i>processor</i> is one of the names of BEAM's scientific tools.
+    The options can be one or more of the following:
+</p>
+
+<ul>
+    <li><code>-i</code> or <code>--interactive</code> - run the processor in interactive
+        mode (i.e. with graphical user interface).</li>
+    <li><code>-q</code> or <code>--quiet</code> - disable most logging messages.
+        Just severe errors are logged.</li>
+    <li><code>-v</code> or <code>--verbose</code> - enable most logging messages..</li>
+    <li><code>-d</code> or <code>--debug</code> - enable debug messages on the console.</li>
+</ul>
+
+<p>The processing request must be supplied when the processor runs in non-interactive mode.
+    In interactive mode, the request is an optional command line argument.</p>
+
+<h3><a name="GUI">Graphical User Interface</a></h3>
+
+<p>
+    All processors currently implemented share the same simple user interface
+    which is a main frame comprising common components such as a the file menu or the &quot;Run&quot; button
+    to invoke the processor and processor specific options such as I/O settings and processing parameters.
+</p>
+
+<p><img src="images/FileMenu.png">
+</p>
+
+<ul>
+    <li><b>Open Request</b>:
+        Opens a standard file dialog to open a request file. The processor specific
+        UI controls are set according to the content of the request file. During the
+        load operation, the request file is validated for correct value ranges.</li>
+    <li><b>Save Request</b>:
+        Saves the request currently edited.</li>
+    <li><b>Save Request As</b>:
+        Opens a standard file dialog to save the current request to another file.</li>
+    <li><b>New Request</b>:
+        Creates a new request with default parameter values set.</li>
+    <li><b>Exit: </b>
+        Quits the processor.</li>
+</ul>
+
+
+<hr>
+
+</body>
+</html>

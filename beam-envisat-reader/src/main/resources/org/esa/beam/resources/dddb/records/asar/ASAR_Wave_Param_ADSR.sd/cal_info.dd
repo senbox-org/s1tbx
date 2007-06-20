@@ -1,0 +1,6 @@
+cal_info|calibration pulse info: structure repeated 32 times, from row 1 to row 32|*
+#
+max_cal|Float|*|4|3|*|Max of Cal pulses 1, 2, and 3 amplitude|86a|
+avg_cal|Float|*|4|3|*|Average of Cal pulse 1, 2, and 3 amplitude over the 3 dB on either side of the max amplitude|86b|
+avg_val_1a|Float|*|4|1|*|Average of Cal pulse 1A over the sample window|86c|
+phs_cal|Float|degrees|4|4|*|Extracted phase for calibration pulse 1, 1A, 2, and 3|86d|

@@ -1,0 +1,7 @@
+mid_line_tie_points|Imagette Mid Line Tie Points|*
+#
+range_samp_nums_mid  |ULong|*             |4|3|*|Range sample number Gives the range location of the grid points. First range sample is 1,  is M (includes zero filled samples)|92a|
+slant_range_times_mid|Float|ns            |4|3|*|2 way slant range time to range sample|92b|
+inc_angles_mid       |Float|deg.          |4|3|*|Incidence Angle at range sample|92c|
+lats_mid             |SLong|(1e-6) degrees|4|3|*|geodetic latitude of range sample (positive north)|92d|
+longs_mid            |SLong|(1e-6) degrees|4|3|*|geodetic longitude of range sample (positive east)|92e|

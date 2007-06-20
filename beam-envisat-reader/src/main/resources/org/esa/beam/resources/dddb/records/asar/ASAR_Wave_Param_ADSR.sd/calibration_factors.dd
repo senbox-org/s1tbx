@@ -1,0 +1,4 @@
+calibration_factors|Calibration factors|*
+#
+proc_scaling_fact|Float|*|4|1|*|Processor scaling factor|55a|
+ext_cal_fact|Float|*|4|1|*|External Calibration Scaling Factor (mode/swath/polarization dependent)|55b|

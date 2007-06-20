@@ -1,0 +1,25 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>lib-hdf</symbolicName>
+    <name>HDF Library</name>
+    <version>2.3</version>
+    <packaging>dir</packaging>
+    <native>true</native>
+    <categories>Library,HDF</categories>
+
+    <description>A wrapper module for the native libraries used to read data products in HDF format.</description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <dependency>
+        <lib>lib/jhdf.jar</lib>
+    </dependency>
+    <dependency>
+        <lib>lib/jhdf5.jar</lib>
+    </dependency>
+
+</module>

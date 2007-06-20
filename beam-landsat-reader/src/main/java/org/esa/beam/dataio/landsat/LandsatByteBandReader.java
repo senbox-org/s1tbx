@@ -1,0 +1,85 @@
+/*
+ * $Id: LandsatByteBandReader.java,v 1.2 2007/02/09 09:35:18 marcop Exp $
+ *
+ * Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation. This program is distributed in the hope it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+package org.esa.beam.dataio.landsat;
+
+import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.framework.datamodel.ProductData;
+
+import javax.imageio.stream.ImageInputStream;
+import java.io.IOException;
+
+/**
+ * The class <code>LandsatByteBandReader</code> is an implementation of the abstract LandsatBandReader
+ * class to be able to read in byte oriented band data
+ */
+public final class LandsatByteBandReader extends LandsatBandReader {
+
+    private static final int pixelSize = 1;
+
+    /**
+     * @param width
+     * @param bandName
+     * @param stream
+     */
+    public LandsatByteBandReader(final int width, final String bandName,
+                                 final ImageInputStream stream) {
+        super(width, bandName, stream);
+    }
+
+    @Override
+    void readBandData(final int sourceOffsetX,
+                      final int sourceOffsetY,
+                      final int sourceWidth,
+                      final int sourceHeight,
+                      final int sourceStepX,
+                      final int sourceStepY,
+                      final int destOffsetX,
+                      final int destOffsetY,
+                      final int destWidth,
+                      final int destHeight,
+                      final ProductData destBuffer,
+                      ProgressMonitor pm) throws IOException {
+
+        setStreamPos(sourceOffsetX, sourceOffsetY, pixelSize);
+
+        final short[] targetData = (short[]) destBuffer.getElems();
+        final byte[] line = new byte[sourceWidth];
+
+        int targetIdx = 0;
+
+        pm.beginTask("Reading band '" + getBandName() + "'...", sourceHeight - 1);
+        try {
+            for (int y = 0; y < sourceHeight; y += sourceStepY) {
+                if (pm.isCanceled()) {
+                    break;
+                }
+                stream.readFully(line, 0, line.length);
+
+                for (int x = 0; x < sourceWidth; x += sourceStepX) {
+                    targetData[targetIdx] = (short) (Math.abs(line[x]) * multiplier);
+                    ++targetIdx;
+                }
+                updateStreamPos(width - sourceWidth, pixelSize);
+
+                pm.worked(1);
+            }
+        } finally {
+            pm.done();
+        }
+    }
+}

@@ -1,0 +1,95 @@
+<html>
+<head>
+    <title>VISAT Help - Available Map Projections</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            Available Map Projections</td>
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border=0></a></td>
+    </tr>
+</table>
+
+
+<p>The following table lists all map projections currently available in BEAM.</p>
+
+<table width="100%">
+    <tr>
+        <th>Projection Name</th>
+        <th>Parameters</th>
+        <th>Example Values</th>
+    </tr>
+    <tr>
+        <td><code>Geographic Lat/Lon</code></td>
+        <td><i>No parameters</i></td>
+        <td><i></i></td>
+    </tr>
+    <tr>
+        <td><code>UTM <i>zone</i></code></td>
+        <td><i>No parameters</i></td>
+        <td><i></i></td>
+    </tr>
+    <tr>
+        <td><code>UTM <i>zone</i>, South</code></td>
+        <td><i>No parameters</i></td>
+        <td><i></i></td>
+    </tr>
+    <tr>
+        <td><code>Transverse Mercator</code></td>
+        <td>
+            semi_major <i>[m]</i>, <br>
+            semi_minor <i>[m]</i>, <br>
+            latitude_of_origin <i>[degree]</i>, <br>
+            central_meridian <i>[degree]</i>, <br>
+            scale_factor <i>[-]</i>, <br>
+            false_easting <i>[m]</i>, <br>
+            false_northing <i>[m]</i>
+        </td>
+        <td>6378137.0,<br>6356752.3,<br>0.0,<br>0.0,<br>0.9996,<br>0.0,<br>0.0</td>
+    </tr>
+    <tr>
+        <td><code>Universal Polar Stereographic North</code></td>
+        <td><i>No parameters</i></td>
+        <td><i></i></td>
+    </tr>
+    <tr>
+        <td><code>Universal Polar Stereographic South</code></td>
+        <td><i>No parameters</i></td>
+        <td><i></i></td>
+    </tr>
+    <tr>
+        <td><code>Stereographic</code></td>
+        <td>
+            semi_major <i>[m]</i>, <br>
+            semi_minor <i>[m]</i>, <br>
+            central_parallel <i>[degree]</i>, <br>
+            central_meridian <i>[degree]</i>, <br>
+            scale_factor <i>[-]</i>, <br>
+            false_easting <i>[m]</i>, <br>
+            false_northing <i>[m]</i>
+        </td>
+        <td>6378137.0,<br>6356752.3,<br>45.0,<br>0.0,<br>0.994,<br>2000000.0,<br>2000000.0</td>
+    </tr>
+    <tr>
+        <td><code>Lambert Conformal Conic</code></td>
+        <td>
+            semi_major <i>[m]</i>, <br>
+            semi_minor <i>[m]</i>, <br>
+            latitude_of_origin <i>[degree]</i>, <br>
+            central_meridian <i>[degree]</i>, <br>
+            latitude_of_intersection_1 <i>[degree]</i>, <br>
+            latitude_of_intersection_2 <i>[degree]</i>, <br>
+            scale_factor <i>[-]</i>, <br>
+        </td>
+        <td>6378137.0,<br>6356752.3,<br>90.0,<br>0.0,<br>20.0,<br>60.0,<br>1.0</td>
+    </tr>
+</table>
+
+
+<hr>
+</body>
+</html>

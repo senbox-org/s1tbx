@@ -1,0 +1,70 @@
+<html>
+<head>
+    <title>BEAM Help</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header" width="100%">
+    <tr class="header">
+        <td class="header">&nbsp;
+            BEAM Help</td>
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border=0></a></td>
+    </tr>
+</table>
+
+<h3>BEAM Version 4.0</h3>
+
+
+<h4>Overview</h4>
+
+<p>BEAM, the Basic ENVISAT Toolbox for (A)ATSR and MERIS, is a collection of executable tools and Application
+    Programming Interfaces (APIs) which have been developed to facilitate the utilization, viewing and
+    processing of ENVISAT MERIS, AATSR and ASAR data. The purpose of the BEAM is not to duplicate existing
+    commercial packages, but to complement them with functions dedicated to the handling of ENVISAT MERIS and
+    AATSR products.</p>
+
+<p>The main components of the BEAM are:</p>
+<ul>
+    <li>VISAT - A visualization, analyzing and processing software</li>
+    <li>A set of scientific data processors running either from the command line or invoked by VISAT</li>
+    <li>A data product converter tool allowing a user to convert raw data products to RGB images, <a
+            href="../visat/ExportHDF.html">HDF-5</a> or
+        the <a href="BeamDimapFormat.html">BEAM-DIMAP</a> standard format</li>
+    <li>A Java&#153; API which provides ready-to-use components for remote sensing related application
+        development and plug-in points for new BEAM extensions</li>
+</ul>
+
+<h4>Standard Product Format</h4>
+
+<p>VISAT and the scientific data processors use a simple data input/output format,
+    which makes it easy to import ENVISAT data in other imaging applications. The
+    format is called <a href="http://www.spotimage.fr/dimap/spec/dimap.htm">DIMAP<sup>&reg;</sup></a>
+    and has been developed by SPOT-Image, France. The BEAM software uses a special
+    DIMAP profile called <a href="BeamDimapFormat.html">BEAM-DIMAP</a>, which has
+    the following characteristics:</p>
+<ul>
+    <li>A single product header (XML) containing the product meta-data</li>
+    <li>An associated data directory containing ENVI<sup>&reg;</sup>-compatible images for each band.</li>
+    <li>Each image in the directory is composed of a header file (ASCII text) and an image data file (flat binary)</li>
+</ul>
+
+
+<h4>Source Code</h4>
+
+<p>The complete BEAM software has been developed under the GNU public license
+    and comes with full source code (Java<sup>TM</sup>).</p>
+
+<h4>Supported Platforms</h4>
+
+<p>BEAM 4 is programmed in pure Java&#153; to allow a maximum portability. The
+    BEAM software has been successfully tested under MS Windows&#153;&nbsp;XP<sup>&reg;</sup>
+    as well as under Linux and Solaris<sup>&reg;</sup>; operating systems.
+    BEAM will be available for  Mac OS X as soon as Apple supports the
+    J2SE 6 platform.</p>
+
+<hr>
+
+</body>
+</html>

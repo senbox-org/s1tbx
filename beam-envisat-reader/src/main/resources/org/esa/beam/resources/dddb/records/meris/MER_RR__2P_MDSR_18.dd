@@ -1,0 +1,5 @@
+MER_RR__2P_MDSR_18|Level 2 MDS(18) surface pressure  PAR  cloud albedo|*
+#
+dsr_time|@/types/UTC.dd|MJD|12|1|*|Start Time of DSR|1|
+quality_flag|UChar|flag|1|1|*|Quality Indicator (-1 for blank MDSR, 0 otherwise)|2|
+par_sp_cl_albe_pix|UChar|W.m-2 or -|1|sceneRasterWidth|*|PAR or surface pressure or cloud albedo pixels|3|

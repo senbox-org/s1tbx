@@ -1,0 +1,69 @@
+/*
+ * $Id: CloudAlgorithmTest.java,v 1.6 2007/04/25 14:15:06 marcoz Exp $
+ *
+ * Copyright (C) 2006 by Brockmann Consult (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation. This program is distributed in the hope it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+package org.esa.beam.processor.cloud;
+
+import junit.framework.TestCase;
+import org.esa.beam.util.SystemUtils;
+
+import java.io.File;
+
+/**
+ * Created by marcoz.
+ *
+ * @author marcoz
+ * @version $Revision: 1.6 $ $Date: 2007/04/25 14:15:06 $
+ */
+public class CloudAlgorithmTest extends TestCase {
+
+    private CloudAlgorithm testAlgorithm;
+
+    /*
+      * @see junit.framework.TestCase#setUp()
+      */
+    @Override
+	protected void setUp() throws Exception {
+        new CloudProcessor().installAuxdata(); // just to extract auxdata
+        String symbolicName = "cloud-probability-processor";    // todo - get the symbolicName from processor
+        String relPath = ".beam" + File.separator + symbolicName + File.separator + "auxdata";
+        File defaultAuxdataDir = new File(SystemUtils.getUserHomeDir(), relPath);
+        String auxdataDirPath = System.getProperty(CloudPN.CLOUD_AUXDATA_DIR_PROPERTY,
+                                                   defaultAuxdataDir.getAbsolutePath());
+        testAlgorithm = new CloudAlgorithm(new File(auxdataDirPath), "nn_config_test.txt");
+    }
+
+    /*
+      * Test method for 'org.esa.beam.processor.cloud.CloudAlgorithm.computeCloud(double[])'
+      */
+    public void testComputeCloud() {
+        final double[] in = new double[]{0.0778002, 0.0695650, 0.0591455, 0.0545394,
+                0.0460968, 0.0415193, 0.0420742, 0.0421471,
+                0.0421236, 0.293535, 1012.98, 762.190,
+                0.622985, 0.996135, -0.0447822};
+
+        double out = testAlgorithm.computeCloud(in);
+        assertEquals("cloud NN result", 0.004993, out, 0.00001);
+    }
+
+    /*
+      * Test method for 'org.esa.beam.processor.cloud.CloudAlgorithm.nn2Probability(double)'
+      */
+    public void testNn2Probability() {
+        double probability = testAlgorithm.nn2Probability(0.004993);
+        assertEquals("probability", 0.01313, probability, 0.00001);
+    }
+
+}

@@ -1,0 +1,146 @@
+<html>
+<head>
+    <title>BEAM Data Processors - SST-NC</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            SST-NC - Processor Description</td>
+        <td class="header" align="right"><a href="../../index.html"><img src="../images/beam_header.gif" border=0></a>
+        </td>
+    </tr>
+</table>
+
+<h3>The SST In- and Output Parameters tab</h3>
+
+<p class="inote">Please note: The chapter <i><a href="../general.html">BEAM Scientific Data Processors</a></i>
+    provides a general description for all BEAM data processors. It describes the common graphical user interface (GUI),
+    the command-line interface and the common processing request file format.</p>
+
+<p align="center"><img src="images/SstPaths.png"></p>
+
+<ol>
+    <li><b>Input product file</b>: Select the input product file by either typing
+        the product path into the text field or by pressing the file selection button
+        <img src="images/FileDialogButton.png"> to invoke a
+        standard file dialog. </li>
+    <li><b>Output product file</b>: Select the output product file by either typing
+        the product path into the text field or by pressing the file selection button
+        <img src="images/FileDialogButton.png"> to invoke a
+        standard file dialog. </li>
+    <li><b>Output product format</b>: Select one of the available output product
+        formats. </li>
+    <li><b>Log filename prefix</b>: Select the prefix text used for the logfile
+        written during processing. For a complete description of the logging capabilities
+        please refer to <a href="../general.html#processor_loggin">the logging documentation</a>.</li>
+    <li><b>Extra log to output directory</b>: Select whether to write an additional
+        log file to the directory selected tfor the output product. </li>
+</ol>
+
+<h3>The SST Processing Parameters tab</h3>
+
+<p align="center"><img src="images/SstParams.png"></p>
+<ol>
+
+    <li><b>Generate dual-view sst</b>: Select whether to process the dual view SST
+        or not.</li>
+    <li><b>Coefficient file for dual view</b>:
+        Select one of the available coefficient sets for dual view processing.
+        The list shows the description strings of all coefficient files available.</li>
+
+    <li><b>Bitmask for dual-view</b>: Select a bitmask expression to be checked
+        during dual view processing. You can either type the expression manually to
+        the text field or use the bitmask expression editor by pressing the edit button
+        <img src="images/FileDialogButton.png"> to the right.</li>
+
+    <li><b>Generate nadir-view sst</b>: Select whether to process the nadir view
+        SST or not.</li>
+    <li><b>Coefficient file for nadir view</b>:
+        Select one of the available coefficient sets for nadir view processing.
+        The list shows the description strings of all coefficient files available.</li>
+
+    <li><b>Bitmask for nadir-view</b>: Select a bitmask expression to be checked
+        during nadir view processing. You can either type the expression manually
+        to the text field or use the bitmask expression editor by pressing the edit
+        button <img src="images/FileDialogButton.png"> to the
+        right.</li>
+    <li><b>Invalid pixel value</b>:
+        Select the value to be written to the output when the processor detects an
+        invalid condition (either by the pixel being masked out or by a processing
+        failure e.g division by zero).</li>
+</ol>
+
+<h3>The SST processing request file</h3>
+
+<p>
+    The following table describes the SST specific processing request file parameter.
+    For a detailed description of the processing request file concept and file specification please
+    look at the <a href="../general.html#ProcessingRequestConcept">general description section</a>.
+</p>
+
+<p>&nbsp;</p>
+
+
+<table>
+    <tr>
+        <th>Parameter name</th>
+        <th>Description</th>
+        <th>Type</th>
+        <th>Valueset</th>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>Request type. Mandatory attribute of the <code>Request</code> element</td>
+        <td>String</td>
+        <td>"SST"</td>
+    </tr>
+    <tr>
+        <td>process_dual_view_sst</td>
+        <td>Whether to process the dual view sst or not.</td>
+        <td>Boolean</td>
+        <td>&quot;true&quot; or &quot;false&quot;</td>
+    </tr>
+    <tr>
+        <td>dual_view_coeff_file</td>
+        <td>Absolute path to the dual view coefficient file to be used.</td>
+        <td>Path</td>
+        <td>-</td>
+    </tr>
+    <tr>
+        <td>dual_view_bitmask</td>
+        <td>Bitmask expression to be evaluated during dual view SST processing.</td>
+        <td>Bitmask</td>
+        <td>-</td>
+    </tr>
+    <tr>
+        <td>process_nadir_view_sst</td>
+        <td>Whether to process the nadir view sst or not.</td>
+        <td>Boolean</td>
+        <td>&quot;true&quot; or &quot;false&quot;</td>
+    </tr>
+    <tr>
+        <td>nadir_view_coeff_file</td>
+        <td>Absolute path to the nadir view coefficient file to be used.</td>
+        <td>Path</td>
+        <td>-</td>
+    </tr>
+    <tr>
+        <td>nadir_view_bitmask</td>
+        <td>Bitmask expression to be evaluated during nadir view SST processing.</td>
+        <td>Bitmask</td>
+        <td>-</td>
+    </tr>
+    <tr>
+        <td>invalid</td>
+        <td>Invalid pixel value.</td>
+        <td>Float</td>
+        <td>&gt;= 0.0</td>
+    </tr>
+</table>
+<hr>
+</body>
+</html>

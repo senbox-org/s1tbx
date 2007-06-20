@@ -1,0 +1,11 @@
+ATS_TOA_1P_ADSR_sa|Nadir view solar angles ADS|*
+#
+dsr_time            |@/types/UTC.dd |MJD  |12 |1  |* |Nadir UTC time in MJD format                      |1 |
+attach_flag         |UChar          |flag |1  |1  |* |Attachment Flag (always set to zero for this ADS) |2 |
+spare_1             |Spare          |*    |3  |1  |* |Spare                                             |3 |
+img_scan_y          |SLong          |m    |4  |1  |* |image scan y coordinate                           |4 |
+tie_pt_sol_elev     |SLong          |mdeg |4  |11 |* |tie point solar elevation                         |5 |
+tie_pt_sat_elev_nad |SLong          |mdeg |4  |11 |* |tie point satellite elevation nadir               |6 |
+tie_pt_sol_az       |SLong          |mdeg |4  |11 |* |tie point solar azimuth                           |7 |
+tie_pt_sat_azi      |SLong          |mdeg |4  |11 |* |tie point satellite azimuth                       |8 |
+spare_2             |Spare          |*    |20 |1  |* |Spare                                             |9 |

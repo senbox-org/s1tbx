@@ -1,0 +1,136 @@
+/*
+ * $Id: FloatingDialog.java,v 1.1 2006/10/10 14:47:35 norman Exp $
+ *
+ * Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation. This program is distributed in the hope it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+package com.bc.swing.dock;
+
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dialog;
+import java.awt.Frame;
+import java.awt.Window;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
+import javax.swing.Icon;
+import javax.swing.JDialog;
+
+/**
+ * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
+ * @version $Revision: 1.1 $ $Date: 2006/10/10 14:47:35 $
+ */
+public class FloatingDialog extends JDialog implements FloatingComponent {
+
+    private static final long serialVersionUID = 4032105256845729611L;
+
+    private static final FloatingComponentFactory _factory = new Factory();
+
+    private Component _content;
+    private DockableComponent _originator;
+
+    public FloatingDialog(Frame owner) {
+        super(owner);
+        installCloseHandler();
+    }
+
+    public FloatingDialog(Dialog owner) {
+        super(owner);
+        installCloseHandler();
+    }
+
+    public static FloatingComponentFactory getFactory() {
+        return _factory;
+    }
+
+    /////////////////////////////////////////////////////////////////////////
+    // FloatingComponent interface implementation
+
+    public Icon getIcon() {
+        return null;
+    }
+
+    public void setIcon(Icon icon) {
+    }
+
+    public DockableComponent getOriginator() {
+        return _originator;
+    }
+
+    public void setOriginator(DockableComponent floatableComponent) {
+        _originator = floatableComponent;
+    }
+
+    public Component getContent() {
+        return _content;
+    }
+
+    public void setContent(Component content) {
+        removeContent();
+        _content = content;
+        addContent();
+    }
+
+    public void close() {
+        setVisible(false);
+        removeContent();
+        dispose();
+    }
+
+    /////////////////////////////////////////////////////////////////////////
+    // private
+
+    private void addContent() {
+        if (_content != null) {
+            getContentPane().add(_content, BorderLayout.CENTER);
+        }
+    }
+
+    private void removeContent() {
+        if (_content != null) {
+            getContentPane().remove(_content);
+        }
+    }
+
+    private void installCloseHandler() {
+        setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+
+            public void windowIconified(WindowEvent e) {
+                getOriginator().setDocked(true);
+            }
+
+            public void windowClosing(WindowEvent e) {
+                getOriginator().setDocked(true);
+            }
+        });
+    }
+
+    private static class Factory implements FloatingComponentFactory {
+
+        private Factory() {
+        }
+
+        public FloatingComponent createFloatingComponent(Window owner) {
+            if (owner instanceof Frame) {
+                return new FloatingDialog((Frame) owner);
+            } else if (owner instanceof Dialog) {
+                return new FloatingDialog((Dialog) owner);
+            } else {
+                return new FloatingDialog((Frame) null);
+            }
+        }
+    }
+}

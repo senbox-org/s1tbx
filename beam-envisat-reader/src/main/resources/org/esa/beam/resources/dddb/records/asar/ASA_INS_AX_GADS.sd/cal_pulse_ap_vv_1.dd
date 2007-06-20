@@ -1,0 +1,4 @@
+cal_pulse_ap_vv_1|AP mode VV polarization calibration data for pulse 1, swaths IS1 to IS7.|*
+#
+nom_amplitude|Float|*|4|32|*|Nominal amplitude (ax,n,nom) for antenna row 1 to antenna row 32 (where x is the pulse number)|13a|
+nom_phase|Float|cycles|4|32|*|Nominal value of phase (fx,n,nom) for antenna row 1 to antenna row 32 (where x is the pulse number)|13b|

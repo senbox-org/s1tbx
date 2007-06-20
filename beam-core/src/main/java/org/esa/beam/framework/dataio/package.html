@@ -1,0 +1,36 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>org.esa.beam.framework.dataio</TITLE>
+<!--
+
+  $Id: package.html,v 1.1.1.1 2006/09/11 08:16:45 norman Exp $
+
+  Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
+
+  This program is free software; you can redistribute it and/or modify it
+  under the terms of the GNU General Public License as published by the
+  Free Software Foundation. This program is distributed in the hope it will
+  be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+  of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU General Public License for more details.
+
+-->
+</HEAD>
+
+<BODY bgColor=white>
+
+This package is defines the MERIS/(A)ATSR Toolbox product I/O framework.
+The product I/O framework is used to dynamically integrate new product readers and writers
+for different data formats into the MERIS/(A)ATSR Toolbox. A product reader or writer
+plug-ins implements the {@link org.esa.beam.framework.dataio.ProductReaderPlugIn} resp. {@link org.esa.beam.framework.dataio.ProductWriterPlugIn} interface.
+All plug-ins must be registered using the {@link org.esa.beam.framework.dataio.ProductIOPlugInManager} before they can
+be be accessed through the {@link org.esa.beam.framework.dataio.ProductIO} utility class.
+
+@see org.esa.beam.framework.dataio.ProductReaderPlugIn
+@see org.esa.beam.framework.dataio.ProductWriterPlugIn
+@see org.esa.beam.framework.dataio.ProductIOPlugInManager
+@see org.esa.beam.framework.dataio.ProductIO
+
+</BODY>
+</HTML>

@@ -1,0 +1,84 @@
+<html>
+<head>
+    <title>BEAM Data Processors - Cloud Probability</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            Cloud Probability- Processor Description</td>
+        <td class="header" align="right"><a href="../../index.html"><img src="../../visat/images/BeamHeader.gif"
+                                                                         border=0></a></td>
+    </tr>
+</table>
+
+<p class="inote">Please note: The chapter <i><a href="../general.html">BEAM Scientific Data Processors</a></i>
+    provides a general description for all BEAM data processors. It describes the common graphical user interface (GUI),
+    the command-line interface and the common processing request file format.</p>
+
+<h3>The Cloud Probability In- and Output Parameters tab</h3>
+
+<p align="center"><img src="images/CloudPathes.png"></p>
+<ol>
+    <li><b>Input product file</b>: Select the input product file by either typing
+        the product path into the text field or by pressing the file selection button
+        <img src="../images/FileDialogButton.jpg"> to invoke a
+        standard file dialog.</li>
+    <li><b>Output product file</b>: Select the output product file by either typing
+        the product path into the text field or by pressing the file selection button
+        <img src="../images/FileDialogButton.jpg"> to invoke a
+        standard file dialog. </li>
+    <li><b>Output product format</b>: Select one of the available output product
+        formats.</li>
+    <li><b>Extra log to output directory</b>: Select whether to write an additional
+        log file to the directory selected for the output product.</li>
+</ol>
+
+<h3>The Cloud Probability Processing Request File</h3>
+
+<p>The following table describes
+    the Cloud Probability processor specific processing request file contents. For a detailed description of the
+    processing request file concept and file specification please look at chapter
+    <i><a href="../general.html#ProcessingRequestConcept">Processing Request Files</a></i>.</p>
+
+<table width="100%">
+    <tr>
+        <th>Parameter name</th>
+        <th>Description</th>
+        <th>Type</th>
+        <th>Valueset</th>
+    </tr>
+    <tr>
+        <td>type</td>
+        <td>Request type. Mandatory attribute of the <code>Request</code> element</td>
+        <td>String</td>
+        <td>"MER_L2_CLOUD"</td>
+    </tr>
+</table>
+
+<h3>Advanced configuration</h3>
+
+<p>The algorithm uses two different neural nets. The first for usage over land and the second for usage
+ over the open ocean. By default every pixel which altitude is below -50m is treated as ocean.</p>
+ <p>This selection can be edited in the config files, which together with the neural nets are unpacked 
+ into a subdirectory of the user directory. The subdirectory used is 
+ <code>.beam/cloud-probability-processor/auxdata</code>
+ The file <code>cloud_config.txt</code> specifies which configuration for the land and the ocean case are used.
+ In the respective configuration files following properties are of interest:
+ <ul>
+ 	<li>The property <code>neural_net</code> specifies the filename of the neural net to use.</li>
+ 	<li>The property <code>validExpression</code> gives a boolean expression,
+	which is used to select between the land and the ocean net.<br/>
+	First the validExpression for land is evaluated and if <code>true</code> the land net is used.
+	As a second option the expression for the ocean net is evaluated.
+	If neither of the two expressions evaluate to true, the no-data value is set.
+	</li>
+ </ul>
+ </p>
+
+<hr>
+</body>
+</html>

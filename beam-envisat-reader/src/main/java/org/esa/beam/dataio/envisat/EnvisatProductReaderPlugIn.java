@@ -1,0 +1,132 @@
+/*
+ * $Id: EnvisatProductReaderPlugIn.java,v 1.5 2006/10/11 10:36:42 marcop Exp $
+ *
+ * Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation. This program is distributed in the hope it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+package org.esa.beam.dataio.envisat;
+
+import org.esa.beam.framework.dataio.ProductReader;
+import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.util.io.BeamFileFilter;
+
+import javax.imageio.stream.ImageInputStream;
+import java.io.File;
+import java.util.Locale;
+
+/**
+ * The <code>EnvisatProductReaderPlugIn</code> class is an implementation of the <code>ProductReaderPlugIn</code>
+ * interface exclusively for data products having the standard ESA/ENVISAT raw format.
+ * <p/>
+ * <p>XMLDecoder plug-ins are used to provide meta-information about a particular data format and to create instances of
+ * the actual reader objects.
+ *
+ * @author Norman Fomferra
+ * @version $Revision: 1.5 $ $Date: 2006/10/11 10:36:42 $
+ * @see org.esa.beam.dataio.envisat.EnvisatProductReader
+ */
+public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
+
+
+    /**
+     * Constructs a new ENVISAT product reader plug-in instance.
+     */
+    public EnvisatProductReaderPlugIn() {
+    }
+
+    /**
+     * Returns a string array containing the single entry <code>&quot;ENVISAT&quot;</code>.
+     */
+    public String[] getFormatNames() {
+        return new String[]{EnvisatConstants.ENVISAT_FORMAT_NAME};
+    }
+
+    /**
+     * Gets the default file extensions associated with each of the format names returned by the <code>{@link
+     * #getFormatNames}</code> method. <p>The string array returned shall always have the same lenhth as the array
+     * returned by the <code>{@link #getFormatNames}</code> method. <p>The extensions returned in the string array shall
+     * always include a leading colon ('.') character, e.g. <code>".hdf"</code>
+     *
+     * @return the default file extensions for this product I/O plug-in, never <code>null</code>
+     */
+    public String[] getDefaultFileExtensions() {
+        return new String[]{".N1", ".E1", ".E2"};
+    }
+
+    /**
+     * Gets a short description of this plug-in. If the given locale is set to <code>null</code> the default locale is
+     * used.
+     * <p/>
+     * <p> In a GUI, the description returned could be used as tool-tip text.
+     *
+     * @param name the local for the given decription string, if <code>null</code> the default locale is used
+     *
+     * @return a textual description of this product reader/writer
+     */
+    public String getDescription(Locale name) {
+        return "ENVISAT MERIS, AATSR and ASAR products";
+    }
+
+    /**
+     * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if
+     * it's content has the ENVISAT format by checking if the first bytes in the file equals the ENVISAT magic file
+     * string <code>PRODUCT=&quot;</code>.
+     * <p/>
+     * <p> ENVISAT product readers accept <code>java.lang.String</code> - a file path, <code>java.io.File</code> - an
+     * abstract file path or a <code>javax.imageio.stream.ImageInputStream</code> - an already opened image input
+     * stream.
+     *
+     * @param object the input object
+     *
+     * @return <code>true</code> if the given input is an object referencing a physical ENVISAT data source.
+     */
+    public boolean canDecodeInput(Object object) {
+        if (object instanceof String) {
+            return ProductFile.getProductType(new File((String) object)) != null;
+        } else if (object instanceof File) {
+            return ProductFile.getProductType((File) object) != null;
+        } else if (object instanceof ImageInputStream) {
+            return ProductFile.getProductType((ImageInputStream) object) != null;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Returns an array containing the classes that represent valid input types for an ENVISAT product reader.
+     * <p/>
+     * <p> Instances of the classes returned in this array are valid objects for the <code>readProductNodes</code>
+     * method of the <code>AbstractProductReader</code> class (the method will not throw an
+     * <code>InvalidArgumentException</code> in this case).
+     *
+     * @return an array containing valid input types, never <code>null</code>
+     *
+     * @see org.esa.beam.framework.dataio.AbstractProductReader#readProductNodes
+     */
+    public Class[] getInputTypes() {
+        return new Class[]{String.class, File.class, ImageInputStream.class};
+    }
+
+    /**
+     * Creates an instance of the actual ENVISAT product reader class.
+     *
+     * @return a new instance of the <code>EnvisatProductReader</code> class
+     */
+    public ProductReader createReaderInstance() {
+        return new EnvisatProductReader(this);
+    }
+
+    public BeamFileFilter getProductFileFilter() {
+        return new BeamFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
+    }
+}

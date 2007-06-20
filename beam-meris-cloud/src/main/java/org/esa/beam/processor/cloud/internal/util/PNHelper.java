@@ -1,0 +1,150 @@
+package org.esa.beam.processor.cloud.internal.util;
+
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
+import org.esa.beam.dataio.dimap.DimapProductConstants;
+import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.dataio.ProductWriter;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.processor.ProcessorConstants;
+import org.esa.beam.framework.processor.ProcessorException;
+import org.esa.beam.framework.processor.ProductRef;
+import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.StringUtils;
+
+import java.awt.Rectangle;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Logger;
+
+//TODO make this public API
+
+/**
+ * <p><i><b>IMPORTANT NOTE:</b>
+ * This class belongs to a preliminary API.
+ * It is not (yet) intended to be used by clients and may change in the future.</i></p>
+ */
+public class PNHelper {
+
+    /**
+     * Copies all bands from the source product to the destination product.
+     * Flag bands are only copied if requested.
+     *
+     * @param sourceProduct
+     * @param destinationProduct
+     * @param copyFlagbands
+     */
+    static public void copyAllBandsToProduct(Product sourceProduct, Product destinationProduct, boolean copyFlagbands) {
+        Band[] sourceBands = sourceProduct.getBands();
+        for (int i = 0; i < sourceBands.length; i++) {
+            Band sourceBand = sourceBands[i];
+            FlagCoding flagCoding = sourceBand.getFlagCoding();
+            if (flagCoding == null) {
+                Band destBand = ProductUtils.copyBand(sourceBand.getName(), sourceProduct, destinationProduct);
+                destBand.setNoDataValueUsed(sourceBand.isNoDataValueUsed());
+                destBand.setNoDataValue(sourceBand.getNoDataValue());
+            }
+        }
+        if (copyFlagbands && sourceProduct.getNumFlagCodings() > 0) {
+            ProductUtils.copyFlagBands(sourceProduct, destinationProduct);
+        }
+    }
+
+    /**
+     * Copies the band data int the given region from the source bands into the destination product.
+     *
+     * @param sourceBands
+     * @param destinationProduct
+     * @param frameRect
+     *
+     * @throws IOException
+     */
+    static public void copyBandData(Band[] sourceBands, Product destinationProduct, Rectangle frameRect,
+                                    ProgressMonitor pm) throws IOException {
+        pm.beginTask("Copying band data...", sourceBands.length);
+        try {
+            for (int bandIndex = 0; bandIndex < sourceBands.length; bandIndex++) {
+                Band sourceBand = sourceBands[bandIndex];
+                copyBandData(sourceBand, destinationProduct, frameRect, new SubProgressMonitor(pm, 1));
+            }
+        } finally {
+            pm.done();
+        }
+    }
+
+    /**
+     * Copies the band data int the given region from the source bands into the destination product.
+     *
+     * @param sourceBand
+     * @param destinationProduct
+     * @param frameRect
+     *
+     * @throws IOException
+     */
+    static public void copyBandData(Band sourceBand, Product destinationProduct, Rectangle frameRect,
+                                    ProgressMonitor pm) throws IOException {
+        Band destBand = destinationProduct.getBand(sourceBand.getName());
+        ProductData data = sourceBand.createCompatibleProductData(frameRect.width * frameRect.height);
+        pm.beginTask("Copying data of band '" + sourceBand.getName() + "'...", 2);
+        try {
+            sourceBand.readRasterData(frameRect.x, frameRect.y,
+                                      frameRect.width, frameRect.height,
+                                      data, new SubProgressMonitor(pm, 1));
+            destBand.writeRasterData(frameRect.x, frameRect.y,
+                                     frameRect.width, frameRect.height,
+                                     data, new SubProgressMonitor(pm, 1));
+        } finally {
+            pm.done();
+        }
+    }
+
+    /**
+     * Copies the tie point data, geocoding and the start and stop time.
+     *
+     * @param sourceProduct
+     * @param destinationProduct
+     */
+    static public void copyMiscData(Product sourceProduct, Product destinationProduct) {
+        // copy all tie point grids to output product
+        ProductUtils.copyTiePointGrids(sourceProduct, destinationProduct);
+        // copy geo-coding to the output product
+        ProductUtils.copyGeoCoding(sourceProduct, destinationProduct);
+        destinationProduct.setStartTime(sourceProduct.getStartTime());
+        destinationProduct.setEndTime(sourceProduct.getEndTime());
+    }
+
+    /**
+     * Creates a writer which is specified in the given productRef.
+     *
+     * @param productRef
+     * @param outputProduct
+     * @param logger
+     *
+     * @throws ProcessorException
+     * @throws IOException
+     */
+    static public void initWriter(ProductRef productRef, Product outputProduct, Logger logger) throws
+                                                                                               ProcessorException,
+                                                                                               IOException {
+        if (productRef == null) {
+            throw new ProcessorException("No output product in request");
+        }
+        File outputFile = new File(productRef.getFilePath());
+        String outputFileFormat = productRef.getFileFormat();
+        if (StringUtils.isNullOrEmpty(outputFileFormat)) {
+            outputFileFormat = DimapProductConstants.DIMAP_FORMAT_NAME;
+            logger.warning(ProcessorConstants.LOG_MSG_NO_OUTPUT_FORMAT);
+            logger.warning(ProcessorConstants.LOG_MSG_USING + outputFileFormat);
+        }
+        ProductWriter outputWriter = ProductIO.getProductWriter(outputFileFormat);
+        if (outputWriter == null) {
+            throw new ProcessorException("Invalid output product format: " + outputFileFormat);
+        }
+        outputProduct.setProductWriter(outputWriter);
+        outputWriter.writeProductNodes(outputProduct, outputFile);
+    }
+
+}

@@ -1,0 +1,73 @@
+<html>
+<head>
+    <title>VISAT Help - Edit Menu</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            Edit Menu</td>
+
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border="0" width="227"
+                                                                      height="29"></a></td>
+    </tr>
+</table>
+
+<h3>VISAT's Edit Menu</h3>
+
+<h4>Delete&nbsp;&nbsp;(Control-D)</h4>
+
+<p>
+    Deletes a selected object. This command currently works only for the bands of a product and therefore
+    the delete command is only enabled if a band has been selected in the product tree view or an
+    <a href="ProductSceneView.html">image view</a> has been activated.
+</p>
+
+<h4><a name="deleteShape"></a>Delete Shape &nbsp;&nbsp;<img src="images/icons/DeleteShapeTool24.gif"></h4>
+
+<p>Deletes a geometric shape in the current <a href="ProductSceneView.html">image view</a>.
+    The command is enabled only if a transect data (geometric shape figure) was <a href="ImportTransectData.html">imported</a>
+    or
+    <a href="ShapeAndROIHandling.html#drawingtools">drawn</a> in the current
+    <a href="ProductSceneView.html">image view</a>.</p>
+
+<h4><a name="deletePin"></a>Delete Pin &nbsp;&nbsp;<img src="images/icons/DeletePin24.gif"></h4>
+
+<p>Deletes a selected pin in the current <a href="ProductSceneView.html">image view</a>.
+    The command is enabled only a pin is selected. New pins are created using
+    the <a href="PinManagement.html#pinTool">pin tool</a>.
+</p>
+
+<h4><a name="shapeToRoi"></a>Shape To ROI &nbsp;&nbsp;<img src="images/icons/ShapeToROI24.gif"></h4>
+
+<p>Converts a geometric shape in the current <a href="ProductSceneView.html">image view</a>
+    to a region of interest (<a href="ShapeAndROIHandling.html">ROI</a>).
+    After a shape has become a ROI, a <a href="StatisticsDialog.html">statistical
+    analysis</a> can be performed on it.
+    The command is enabled only if a shape is available (see above).</p>
+
+<h4><a name="roiToShape"></a>ROI To Shape &nbsp;&nbsp;<img src="images/icons/ROIToShape24.gif"></h4>
+
+<p>Converts a ROI defined in the selected band into a geometric shape in the current <a href="ProductSceneView.html">image
+    view</a>.
+    After a ROI has become a shape, <a href="StatisticsDialog.html">statistical
+    analysis</a> requiring a geometric path, e.g. transect can be performed on it.
+    The command is enabled only if a ROI shape is defined in the displayed band.</p>
+
+<h4><a name="editProperties"></a>Properties...&nbsp;&nbsp;<img src="images/icons/Properties24.gif"></h4>
+
+<p>This menu item opens the <a href="PropertyEditor.html">property editor</a> which can be used to
+    edit the properties of a product, a tie-point grid or a (virtual) band.</p>
+
+<h4><a name="preferences"></a>Preferences...&nbsp;&nbsp;<img src="images/icons/Preferences24.gif">&nbsp;&nbsp;(Alt-P)
+</h4>
+
+<p>Opens VISAT's <a href="PreferencesDialog.html">preferences dialog</a> which lets your preferred VISAT options.</p>
+
+<hr>
+</body>
+</html>

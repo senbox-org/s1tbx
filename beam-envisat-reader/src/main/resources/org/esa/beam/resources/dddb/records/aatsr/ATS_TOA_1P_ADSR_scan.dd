@@ -1,0 +1,9 @@
+ATS_TOA_1P_ADSR_scan|Scan pixel x and y ADS|*
+#
+dsr_time       |@/types/UTC.dd |MJD  |12 |1  |*  |Scan UTC time in MJD format                       |1 |
+attach_flag    |UChar          |flag |1  |1  |*  |Attachment Flag (always set to zero for this ADS) |2 |
+spare_1        |Spare          |*    |3  |1  |*  |Spare                                             |3 |
+instr_scan_num |UShort         |*    |2  |1  |*  |instrument scan number                            |4 |
+tie_pix_x      |SLong          |m    |4  |99 |*  |tie pixel x coordinate                            |5 |
+tie_pix_y      |SLong          |m    |4  |99 |*  |tie pixel y coordinate                            |6 |
+spare_2        |Spare          |*    |20 |1  |*  |spare                                             |7 |

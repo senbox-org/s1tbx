@@ -1,0 +1,149 @@
+package org.esa.beam.visat.toolviews.stat;
+
+import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.datamodel.AbstractBand;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.ui.application.ToolView;
+import org.esa.beam.util.StringUtils;
+
+
+/**
+ * The information pane within the statistcs window.
+ *
+ * @author Marco Peters
+ */
+class InformationPane extends TextPagePane {
+
+    private static final String _DEFAULT_INFORMATION_TEXT = "No information available."; /*I18N*/
+    private static final String _TITLE_PREFIX = "Information";  /*I18N*/
+
+    public InformationPane(final ToolView parentDialog) {
+        super(parentDialog, _DEFAULT_INFORMATION_TEXT);
+    }
+
+    @Override
+    protected String getTitlePrefix() {
+        return _TITLE_PREFIX;
+    }
+
+    @Override
+    protected String createText() {
+        final StringBuffer sb = new StringBuffer(1024);
+
+        sb.append('\n');
+
+        if (getRaster() instanceof AbstractBand) {
+            final Band band = (Band) getRaster();
+
+            appendEntry(sb, "Name:", band.getName(), "");
+            appendEntry(sb, "Type:", "Band", "");
+            appendEntry(sb, "Description:", band.getDescription(), "");
+            appendEntry(sb, "Geophysical unit:", band.getUnit(), "");
+            appendEntry(sb, "Geophysical data type:", ProductData.getTypeString(band.getGeophysicalDataType()), "");
+            appendEntry(sb, "Raw data type:", ProductData.getTypeString(band.getDataType()), "");
+            appendEntry(sb, "Raster width:", String.valueOf(band.getRasterWidth()), "pixels");
+            appendEntry(sb, "Raster height:", String.valueOf(band.getRasterHeight()), "pixels");
+            appendEntry(sb, "Scaling factor:", String.valueOf(band.getScalingFactor()), "");
+            appendEntry(sb, "Scaling offset:", String.valueOf(band.getScalingOffset()), "");
+            appendEntry(sb, "Is log 10 scaled:", String.valueOf(band.isLog10Scaled()), "");
+            appendEntry(sb, "Is no-data value used:", String.valueOf(band.isNoDataValueUsed()), "");
+            appendEntry(sb, "No-data value:", String.valueOf(band.getNoDataValue()), "");
+            appendEntry(sb, "Geophysical no-data value:", String.valueOf(band.getGeophysicalNoDataValue()), "");
+            appendEntry(sb, "Valid pixel expression:", String.valueOf(band.getValidPixelExpression()), "");
+            appendEntry(sb, "Spectral band index:", String.valueOf(band.getSpectralBandIndex() + 1), "");
+            appendEntry(sb, "Wavelength:", String.valueOf(band.getSpectralWavelength()), "nm");
+            appendEntry(sb, "Bandwidth:", String.valueOf(band.getSpectralBandwidth()), "nm");
+            appendEntry(sb, "Solar flux:", String.valueOf(band.getSolarFlux()), "mW/(m^2*sr*nm)");
+
+        } else if (getRaster() instanceof TiePointGrid) {
+            final TiePointGrid grid = (TiePointGrid) getRaster();
+
+            appendEntry(sb, "Name:", grid.getName(), "");
+            appendEntry(sb, "Type:", "Tie Point Grid", "");
+            appendEntry(sb, "Description:", grid.getDescription(), "");
+            appendEntry(sb, "Geophysical unit:", grid.getUnit(), "");
+            appendEntry(sb, "Geophysical data type:", ProductData.getTypeString(grid.getGeophysicalDataType()), "");
+            appendEntry(sb, "Offset X:", String.valueOf(grid.getOffsetX()), "pixels");
+            appendEntry(sb, "Offset Y:", String.valueOf(grid.getOffsetY()), "pixels");
+            appendEntry(sb, "Sub-sampling X:", String.valueOf(grid.getSubSamplingX()), "pixels");
+            appendEntry(sb, "Sub-sampling Y:", String.valueOf(grid.getSubSamplingY()), "pixels");
+            appendEntry(sb, "Raster width:", String.valueOf(grid.getRasterWidth()), "tie points");
+            appendEntry(sb, "Raster height:", String.valueOf(grid.getRasterHeight()), "tie points");
+
+        }
+
+        final Product product = getProduct();
+
+        if(product == null) {
+            return _DEFAULT_INFORMATION_TEXT;
+        }
+        sb.append('\n');
+
+        appendEntry(sb, "Product name:", product.getName(), null);
+        appendEntry(sb, "Product type:", product.getProductType(), null);
+        appendEntry(sb, "Product description:", product.getDescription(), null);
+
+        final String productFormatName = getProductFormatName(product);
+        final String productFormatNameString = productFormatName != null ? productFormatName : "unknown";
+        appendEntry(sb, "Product format:", productFormatNameString, null);
+
+        appendEntry(sb, "Product file location:",
+                    product.getFileLocation() != null ? product.getFileLocation().getPath() : "Not yet saved", "");
+        appendEntry(sb, "Product scene width:", String.valueOf(product.getSceneRasterWidth()), "pixels");
+        appendEntry(sb, "Product scene height:", String.valueOf(product.getSceneRasterHeight()), "pixels");
+
+        final String startTimeString = product.getStartTime() != null ?
+                                       product.getStartTime().getElemString() : "Not available";
+        appendEntry(sb, "Product start time (UTC):", startTimeString, null);
+
+        final String stopTimeString = product.getEndTime() != null ?
+                                      product.getEndTime().getElemString() : "Not available";
+        appendEntry(sb, "Product end time (UTC):", stopTimeString, null);
+
+        return sb.toString();
+    }
+
+    private void appendEntry(final StringBuffer sb, final String label, final String value,
+                             final String unit) {
+        sb.append(String.format("%1$-30s \t", label));
+        sb.append(value);
+        if (StringUtils.isNotNullAndNotEmpty(unit)) {
+            sb.append("\t ").append(unit);
+        }
+        sb.append('\n');
+    }
+
+    private static String getProductFormatName(final Product product) {
+        final ProductReaderPlugIn readerPlugIn = product.getProductReader().getReaderPlugIn();
+        if (readerPlugIn != null) {
+            return getProductFormatName(readerPlugIn);
+        }
+        return null;
+    }
+
+    // todo - make this a method in ProductReader and ProductWriter
+    private static String getProductFormatName(final ProductReaderPlugIn readerPlugIn) {
+        final String[] formatNames = readerPlugIn.getFormatNames();
+        if (formatNames != null && formatNames.length > 0) {
+            return formatNames[0];
+        }
+        return null;
+    }
+
+    /**
+     * Notified when a node changed.
+     *
+     * @param event the product node which the listener to be notified
+     */
+    @Override
+    public void nodeChanged(final ProductNodeEvent event) {
+        if(event.getSourceNode() == getRaster() || event.getSourceNode() == getProduct()) {
+            updateContent();
+        }
+    }
+}
+

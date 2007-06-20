@@ -1,0 +1,83 @@
+<html>
+<head>
+    <title>VISAT Help - Create Filtered Band</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            Create Filtered Band</td>
+        
+    <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border=0 width="227" height="29"></a></td>
+    </tr>
+</table>
+
+<h3>Create Filtered Band</h3>
+
+<p>Filtered bands are created by applying convolution or non-linear filters to the selected band. Filters are used to
+    perform common image processing operations e.g. sharpening, blurring or edge enhancement.</p>
+
+<p class="inote">
+    <b>Note:</b>
+    When storing a product containig a filtered band, the data of the band is not stored to the product.
+    Only the information how to compute the data is stored. This behavior is similar to virtual bands.
+</p>
+
+<h4>VISAT supports the following filters</h4>
+
+<ul>
+    <li><b>Detect Lines</b><br>
+        Horizontal Edges, Vertical Edges, Left Diagonal Edges, Right Diagonal Edges, Compass Edge Detector, <br>
+        Roberts Cross North-East, Roberts Cross North-West, Roberts Cross North-East</li>
+    <li><b>Detect Gradients (Emboss)</b><br>
+        Sobel North, Sobel South, Sobel West, Sobel East, Sobel North East</li>
+    <li><b>Smooth and Blurr</b><br>
+        Arithmetic 3x3 Mean, Arithmetic 4x4 Mean, Arithmetic 5x5 Mean,
+        Low-Pass 3x3, Low-Pass 5x5</li>
+    <li><b>Sharpen</b><br>
+        High-Pass 3x3 #1, High-Pass 3x3 #2, High-Pass 5x5</li>
+    <li><b>Enhance Discontinuities</b><br>
+        Laplace 3x3, Laplace 5x5</li>
+    <li><b>Non-Linear Filters</b><br>
+        Minimum 3x3, Minimum 5x5, Maximum 3x3, Maximum 5x5, Mean 3x3, Mean 5x5, <br>
+        Median 3x3, Median 5x5, Standard Deviation 3x3, Standard Deviation 5x5, <br>
+        Root-Mean-Squar 3x3, Root-Mean-Squar 5x5</li>
+</ul>
+
+<h4>Example images</h4>
+
+<p align="center">
+    <table align="center">
+        <tr>
+            
+    <td> <img src="images/FilterCompassEdgeDetector.jpg" border=0 align="middle" width="491" height="368"> 
+      <p align="center">Compass Edge Detector Filter</p>
+            </td>
+            
+    <td> <img src="images/FilterLowPass5x5.jpg" border=0 align="middle" width="491" height="368"><br>
+
+                <p align="center">Low-Pass 5x5 Filter</p>
+            </td>
+        </tr>
+        <tr>
+            
+    <td> <img src="images/FilterHighPass3x3_2.jpg" border=0 align="middle" width="491" height="368">
+      <p align="center">High-Pass 3x3 #2 Filter</p>
+            </td>
+            
+    <td> <img src="images/FilterLaplace3x3.jpg" border=0 align="middle" width="491" height="368">
+      <p align="center">Laplace 3x3</p>
+            </td>
+        </tr>
+    </table>
+<p></p>
+<br>
+<br>
+<hr>
+</body>
+</html>
+

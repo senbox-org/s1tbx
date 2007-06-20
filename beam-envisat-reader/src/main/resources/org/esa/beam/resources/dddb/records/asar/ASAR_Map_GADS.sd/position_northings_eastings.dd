@@ -1,0 +1,10 @@
+position_northings_eastings|Positioning Information in Northings and Eastings|*
+#
+tl_northing|Float|m|4|1|*|Top left corner northing, meters;|39a|
+tl_easting|Float|m|4|1|*|Top left corner easting, meters;|39b|
+tr_northing|Float|m|4|1|*|Top right corner northing, meters;|39c|
+tr_easting|Float|m|4|1|*|Top right corner easting, meters;|39d|
+br_northing|Float|m|4|1|*|Bottom right corner northing, meters;|39e|
+br_easting|Float|m|4|1|*|Bottom right corner easting, meters;|39f|
+bl_northing|Float|m|4|1|*|Bottom left corner northing, meters;|39g|
+bl_easting|Float|m|4|1|*|Bottom left corner easting, meters;|39h|

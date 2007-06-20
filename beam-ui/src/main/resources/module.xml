@@ -1,0 +1,38 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-ui</symbolicName>
+    <version>4.1-SNAPSHOT</version>
+    <name>BEAM User Interface Library</name>
+    <activator>org.esa.beam.BeamUiActivator</activator>
+
+
+    <description>This module provides user interface components used e.g. by VISAT.</description>
+    <changelog>
+        <![CDATA[
+        <p>From 4.0 to 4.0.1
+        <ul>
+            <li>[BEAM-622] Use mouse wheel for zooming</li>
+            <li>[BEAM-614] Not possible to re-select item in Arithmetic Expression Editor</li>
+        </ul></p>
+        ]]>
+    </changelog>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>ceres-ui</module>
+    </dependency>
+
+    <categories>System,Library</categories>
+
+    <extensionPoint id="helpSets"/>
+
+</module>

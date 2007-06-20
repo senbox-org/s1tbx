@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.esa.beam</groupId>
+        <artifactId>beam</artifactId>
+        <version>4.1-SNAPSHOT</version>
+    </parent>
+
+    <name>HDF Library</name>
+    <groupId>ncsa.hdf</groupId>
+    <artifactId>lib-hdf</artifactId>
+    <version>2.3</version>
+
+    <dependencies>
+        <dependency>
+            <groupId>ncsa.hdf</groupId>
+            <artifactId>jhdf</artifactId>
+            <version>2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>ncsa.hdf</groupId>
+            <artifactId>jhdf5</artifactId>
+            <version>2.3</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-jars</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <stripVersion>true</stripVersion>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>ncsa.hdf</groupId>
+                                    <artifactId>jhdf</artifactId>
+                                    <version>2.3</version>
+                                    <outputDirectory>src/main/resources/lib</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>ncsa.hdf</groupId>
+                                    <artifactId>jhdf5</artifactId>
+                                    <version>2.3</version>
+                                    <outputDirectory>src/main/resources/lib</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack-natives</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>ncsa.hdf</groupId>
+                                    <artifactId>hdf-natives</artifactId>
+                                    <version>2.3</version>
+                                    <type>zip</type>
+                                    <outputDirectory>src/main/resources/lib</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

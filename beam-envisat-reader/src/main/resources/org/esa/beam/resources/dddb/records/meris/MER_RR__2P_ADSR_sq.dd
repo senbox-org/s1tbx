@@ -1,0 +1,23 @@
+MER_RR__2P_ADSR_sq|Level 2 ADS Summary Quality ADS (SQ ADS)|*
+#
+dsr_time|@/types/UTC.dd|MJD|12|1|*|Start time of the measurement|1|
+attach_flag|UChar|flag|1|1|*|Attachment Flag (set to 1 if all MDSRs corresponding to this ADSR are blank, set to zero otherwise)|2|
+perc_water_abs_aero|UChar|%|1|1|*|% of water pixels having absorbing aerosols|3|
+perc_water|UChar|%|1|1|*|% of water pixels|4|
+perc_ddv_land|UChar|%|1|1|*|% of DDV land pixels|5|
+perc_land|UChar|%|1|1|*|% of land pixels|6|
+perc_cloud|UChar|%|1|1|*|% of cloud pixels|7|
+perc_low_poly_press|UChar|%|1|1|*|% of pixels with low polynomial pressure|8|
+perc_low_neural_press|UChar|%|1|1|*|% of pixels with low Neural Network pressure|9|
+perc_out_ran_inp_wvapour|UChar|%|1|1|*|% of pixels with out of range inputs for water vapour proc.|10|
+per_out_ran_outp_wvapour|UChar|%|1|1|*|% of pixels with out of range outputs for water vapour proc.|11|
+perc_out_range_inp_cl|UChar|%|1|1|*|% of pixels with out of range inputs for Cloud proc.|12|
+perc_out_ran_outp_cl|UChar|%|1|1|*|% of pixels with out of range outputs for Cloud proc.|13|
+perc_in_ran_inp_land|UChar|%|1|1|*|% of pixels with out of range inputs for Land proc.|14|
+perc_out_ran_outp_land|UChar|%|1|1|*|% of pixels with out of range outputs for Land proc.|15|
+perc_out_ran_inp_ocean|UChar|%|1|1|*|% of pixels with out of range inputs for Ocean proc.|16|
+perc_out_ran_outp_ocean|UChar|%|1|1|*|% of pixels with out of range outputs for Ocean proc.|17|
+perc_out_ran_inp_case1|UChar|%|1|1|*|% of pixels with out of range inputs for Case 1 proc.|18|
+perc_out_ran_outp_case1|UChar|%|1|1|*|% of pixels with out of range outputs for Case 1 proc.|19|
+perc_out_ran_inp_case2|UChar|%|1|1|*|% of pixels with. out of range inputs for Case 2 proc.|20|
+perc_out_ran_outp_case2|UChar|%|1|1|*|% of pixels with. out of range outputs for Case 2 proc.|21|

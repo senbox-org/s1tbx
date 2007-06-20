@@ -1,0 +1,14 @@
+ATS_TOA_1P_ADSR_loc|Grid pixel latitude and longtitude  topographic corrections ADS|*
+#
+dsr_time       |@/types/UTC.dd |MJD            |12 |1  |* |Nadir UTC time in MJD format                                                                     |1  |
+attach_flag    |UChar          |flag           |1  |1  |* |Attachment Flag (set to 1 if all MDSRs corresponding to this ADSR are blank, set to 0 otherwise) |2  |
+spare_1        |Spare          |*              |3  |1  |* |Spare                                                                                            |3  |
+img_scan_y     |SLong          |m              |4  |1  |* |image scan y coordinate                                                                          |4  |
+tie_pt_lat     |SLong          |(1e-6) degrees |4  |23 |* |tie point latitudes                                                                              |5  |
+tie_pt_long    |SLong          |(1e-6) degrees |4  |23 |* |tie point longitudes                                                                             |6  |
+lat_corr_nadv  |SLong          |(1e-6) degrees |4  |23 |* |latitude corrections, nadir view                                                                 |7  |
+long_corr_nadv |SLong          |(1e-6) degrees |4  |23 |* |longitude corrections, nadir view                                                                |8  |
+lat_corr_forv  |SLong          |(1e-6) degrees |4  |23 |* |latitude corrections, forward view                                                               |9  |
+long_corr_forv |SLong          |(1e-6) degrees |4  |23 |* |longitude corrections, forward view                                                              |10 |
+topo_alt       |SShort         |metres         |2  |23 |* |Topographic Altitude                                                                             |11 |
+spare_2        |Spare          |*              |8  |1  |* |Spare                                                                                            |12 |

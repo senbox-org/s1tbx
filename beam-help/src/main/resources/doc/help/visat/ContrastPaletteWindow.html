@@ -1,0 +1,202 @@
+<html>
+<head>
+    <title>VISAT Help - The Contrast/Palette Window</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            The Contrast/Palette Window</td>
+        
+    <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border="0" width="227" height="29"></a></td>
+    </tr>
+</table>
+
+<p>
+    When you are looking at satellite data, you might be interested in a certain
+    area of the image. If this area shows few dynamics in the values, you'd like
+    to adjust the contrast or even assign colors to value ranges. This can all be
+    done with the contrast/palette dialog of VISAT. <br>
+    A click on the <img src="images/icons/ContrastStretch24.gif" alt="Contrast/Palette Window" border="0">
+    icon in the <a href="Toolbars.html">main toolbar</a> or selecting &quot;Contrast Stretch /Color Palette&quot;
+    from the <a href="ViewMenu.html">View</a> menu brings up the following window:
+</p>
+
+<p align="center"><img src="images/ContrastStretchInBwMode.jpg" width="672" height="475"></p>
+
+<p>
+    A histogram is used to visualize the distribution of sample values of the current band.
+    You can see three sliders on a greyscale color palette: a black one on the left,
+    a white one on the right, and a grey one in the middle. They all give their color
+    to the color palette. As the white diagonal line in the histogram indicates, the greyscale is
+    applied linearily to the band <a href="ProductSceneView.html">image view</a>.
+    Additionally, the number below the slider indicates the sample value assigned to the
+    position of the slider in the histogram.
+    You may also <a href="#valuechanging">exactly adjust</a> the slider sample value by clicking
+    on it's displayed text.
+    By moving a slider with the mouse you can easily change it's sample value. The colors in the palette
+    will change accordingly. You can also click between two sliders in order to move the nearest
+    slider of both under the mouse cursor. All changes of the color palette will enable the 'Apply' button
+    which you have to press in order to make changes effective.
+</p>
+
+<h4>Export of Color Palette Informations</h4>
+<ul>
+    <li>The color palette information used for the current image can be exported into an image file.<br>
+        Click the context menu item <a href="ExportColorLegend.html">Export Color Legend</a>
+        over an open image view in order export the color legend.<br></li>
+    <li>It can be also exported as a <a href="ExportColorPalette.html">Color Palette Table</a>.<br>
+        Choose from the <i>File</i> menu <i>Color Palette</i> to export the table as a *.csv or *.txt file.</li>
+</ul>
+
+
+<p>If the current view is a <a href="ProductSceneView.html#rgbSupport">RGB image view</a> the window switches into RGB
+    mode:
+
+<p align="center"><img src="images/ContrastStretchInRgbMode.jpg" width="672" height="475"></p>
+
+The contrast stretching functionality in RGB mode is exactly the same with the exception that it
+applies only to the selected RGB component. Additionally you can change the source band
+for each of the RGB components. Default (virtual) source bands are created from the RGB profiles set in the
+<a href="PreferencesDialog.html#rgbprofiles">preferences dialog</a>.
+
+<h4><a name="multiassign"></a>Multiple Assignment of Contrast Stretch / Color Palette Setting</h4>
+
+<p>
+    A click on the <img src="images/icons/MultiAssign24.gif"> icon opens a dialog where you can select
+    the bands to which you can assign the current color palette. If the destination band has a similar
+    pixel value range, the slider positions are exacly preserved otherwise they are proportionally distributed
+    over the valid range of the destination band.</p>
+<h4><a name="autoadjust"></a>Slider Auto-Adjustment</h4>
+
+<p>
+    A click on the <img src="images/icons/Auto95Percent24.gif">
+    icon adjusts the sliders to cover 95% of all pixels in the band.
+</p>
+
+<p>
+    A click on the <img src="images/icons/Auto100Percent24.gif">
+    icon adjusts the sliders to cover 100% (the full range) of all pixels in the band.
+</p>
+
+<p>
+    A click on the <img src="images/icons/EvenDistribution.gif">
+    icon distributes the inner sliders evenly between the first and the last slider.
+</p>
+
+<h4><a name="centeringsliders"></a>Moving slider positions</h4>
+
+<p> If you right-click on a slider, a context menu will pop up. The content of
+    this menu depends on the number of sliders currently present. Some entries are
+    disabled when the action cannot be performed.<br>
+    There you may choose from:<br>
+    - 'Add new gradient slider' which is described <a href="#creatingnewsliders">below</a>,<br>
+    - 'Remove gradient slider' removes the slider currently selected,<br>
+    - 'Center position': this will center the slider between the two adjacent ones,<br>
+    - 'Center gradient': this will assign the center color of the gradient between
+    the two adjacent sliders to the slider. </p>
+
+
+<h4><a name="valuechanging"></a>Exactly adjusting the sample value of a slider</h4>
+
+<p>
+    Double-click on the number below the slider. A dialog box appears where
+    you can enter a different value for the sample vlue.
+</p>
+
+<h4><a name="creatingnewsliders"></a>Creating new sliders</h4>
+
+<p>
+    Right-clicking into the color palette gives you a
+    context-menu 'Add new gradient slider'.
+</p>
+
+<h4><a name="zommingintohisto"></a>Zooming into the histogram</h4>
+
+<p>
+    Click on the <img src="images/icons/ZoomIn24V.gif">
+    icon to zoom in vertically or on the
+    <img src="images/icons/ZoomIn24H.gif">
+    icon to
+    zoom into the histogram horizontally.
+</p>
+
+<h4><a name="zommingoutofhisto"></a>Zooming out of the histogram</h4>
+
+<p>
+    Click on the <img src="images/icons/ZoomOut24V.gif">
+    icon to zoom out vertically or on the
+    <img src="images/icons/ZoomOut24H.gif">icon
+    to zoom out of the histogram horizontally.
+</p>
+
+<h4>RGB Image Enhancements</h4>
+
+<p>You can show/hide image enhancement pane by clicking the <img src="images/icons/ImageEnhancements24.gif">
+    icon.
+    It is enabled for RGB images only. The image enhancement comprise <b>gamma correction</b> and <b>histogram
+    matching</b>.
+</p>
+<h5>Gamma correction</h5>
+
+<p>A gamma value can be entered for each RGB component in order to adapt the transfer function
+    which quantizes (geophysical) source sample values to image sample values. For MERIS
+    L1b, a gamma value of 0.7 for the blue channel yields to more realistic results.
+</p>
+<h5>Histogram Matching</h5>
+
+<p>It is sometimes desirable to transform an image so that it's histogram matches that of a
+    specified functional form. It is now possible to apply an equalized or normalized
+    histogram matching to RGB images which can drastically improve image quality.
+
+</p>
+<h4><a name="assigncolourtoslider"></a>Coloring the <a href="ProductSceneView.html">image view</a></h4>
+
+<p>
+    If you click on a slider, a color chooser window appears. Select the color
+    you want to assign to that slider. Click OK. The color palette below the histogram
+    now shows a gradient from the new color to the one of the adjacent slider.
+    This function is not available if the current image is a RGB image.
+</p>
+
+
+<p align="center"><a name="dialog2"></a><img src="images/ContrastDialogAutoAdjust.jpg"></p>
+
+<p>
+    This screenshot shows the dialog after having:<br>
+    - auto-adjusted the histogram to 95%<br>
+    - clicked several times on the vertical zoom icon<br>
+    - added two more sliders<br>
+    - assigned colors to all sliders.
+</p>
+<h4><a name="importexportpalette"></a>Importing/Exporting the Contrast Stretch / Color Palette Settings</h4>
+
+<p>The Contrast palette Window offers the possibility to store the settings for later use. </p>
+
+<p class="inote">Note: VISAT's contrast stretch / color palette tool is now supported by a couple of predefined color
+    palettes. They are stored in <code><i>BEAM-install-dir</i>/auxdata/color_palettes</code>. For convenience, the
+    import/export file choosers in the contrast stretch / color palette dialog now use this folder by default.</p>
+
+<p>
+    Click the <img src="images/icons/Import24.gif"> icon to import color palette definition files and the <img
+        src="images/icons/Export24.gif">
+    icon to export the current contrast stretch / color palette settings.</p>
+
+<h4>Undoing your changes</h4>
+
+<p>Click on the <img src="images/icons/Undo24.gif">icon
+    to revert the dialog box to default values.
+</p>
+
+<h4><a name="contexthelp"></a>Context help</h4>
+
+<p>
+    Clicking on the <img src="images/icons/Help24.gif">
+    icon brings up the Help System with the contextual help page already opened.
+</p>
+<hr>
+</body>
+</html>

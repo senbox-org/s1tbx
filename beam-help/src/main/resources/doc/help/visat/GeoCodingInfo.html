@@ -1,0 +1,42 @@
+<html>
+<head>
+    <title>VISAT Help - Geo-Coding Information</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            Geo-Coding Information</td>
+        
+    <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border=0 width="227" height="29"></a></td>
+    </tr>
+</table>
+
+<h3>Geo-Coding Information</h3>
+
+<p>This dialog shows the geo-coding information for the selected data product. Geo-coding enables VISAT
+    to transform pixel co-odinates to geographical co-ordinates (WGS-84 datum) and vice versa. Geo-coding can be
+    either based on a map projection (product is geo-referenced) or based on tie point grids (product is geo-coded).
+    If a product is not geo-referenced, VISAT uses the tie point grids "latitude" and "longitude" for geo-coding.</p>
+
+<p>For tie point grid based geo-codings the transformation of a geographical co-ordinate to a pixel position is
+    more complicated than the other way round. VISAT uses either an iterative algorithm or a polynomial approximation
+    depending on the root mean square error (RMSE) of the approximation. If the RMSE is underneath half a pixel, the
+    approximation is used instead of the iteration because the latter can sometimes have no clear attraction point and
+    would yield to infinite looping.</p>
+
+<p class="inote"><b>Note:</b> A mouse right-click within the geo-coding information area
+    brings up a context menu with the item <i>Copy data to clipboard</i>.
+    This will copy the diagram data as tabulated text to the system clipboard.
+    The copied text can then be pasted directly into a spreadsheet application
+    (e.g. Microsoft&reg; Excel).</p>
+
+<blockquote> <img src="images/GeoCodingDialog.jpg" width="595" height="432"> </blockquote>
+
+
+<hr>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<html>
+<head>
+    <title>BEAM Data Processors - Cloud Probabilty Processor</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            Cloud Probability Processor</td>
+        <td class="header" align="right"><a href="../../index.html"><img src="../../visat/images/BeamHeader.gif"
+                                                                         border=0></a></td>
+    </tr>
+</table>
+
+<p>
+    The BEAM Cloud Probability Processor implements the detection of clouds in a MERIS L1b product.
+    The created output product contains one raster indicating the probability that the current pixel is a cloud pixel,
+    and three additional flags to the already present l1_falgs. The three flags indicate pixels which are cloudy
+    (probability &gt; 80%),
+    cloud free (probability &lt; 20%) or where it is uncertain (20% &lt; probability &lt; 80%).
+</p>
+
+<p><a href="CloudAlgorithmSpecification.html">Cloud Probability Algorithm Specification</a></p>
+
+<p><a href="CloudProcessorDescription.html">Cloud Probability Processor Documentation</a></p>
+<hr>
+</body>
+</html>

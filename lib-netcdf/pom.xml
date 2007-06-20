@@ -1,0 +1,54 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>beam</artifactId>
+        <groupId>org.esa.beam</groupId>
+        <version>4.1-SNAPSHOT</version>
+    </parent>
+
+    <groupId>ucar.netcdf</groupId>
+    <artifactId>lib-netcdf</artifactId>
+    <name>NetCDF Library</name>
+    <version>2.2.16</version>
+    <url>http://www.unidata.ucar.edu/software/netcdf-java/</url>
+
+    <dependencies>
+        <dependency>
+            <groupId>ucar.netcdf</groupId>
+            <artifactId>netcdf</artifactId>
+            <version>2.2.16</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-jars</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <stripVersion>true</stripVersion>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>ucar.netcdf</groupId>
+                                    <artifactId>netcdf</artifactId>
+                                    <version>2.2.16</version>
+                                    <outputDirectory>src/main/resources/lib</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

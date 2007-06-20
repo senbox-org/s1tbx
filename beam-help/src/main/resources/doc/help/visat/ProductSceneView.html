@@ -1,0 +1,103 @@
+<html>
+<head>
+    <title>VISAT Help - Image View</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            Image View</td>
+        
+    <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" width="227" height="29" border=0></a></td>
+    </tr>
+</table>
+
+<h3>Image View</h3>
+
+<p>
+    The image view displays the sample values of raster datasets such as bands and tie-point grids as an image.
+</p>
+
+<p align="center"><img src="images/ImageView.jpg" width="598" height="399"></p>
+
+<p style="margin-bottom:0;">In VISAT 3.0, the handling and inspection of products has been tremendously enhanced. Be
+    sure to get acquainted with the concept of the <a href="NavigationWindow.html">Navigation Window</a> and the <a
+        href="../Changelog30/GUIChanges.html">GUI enhancements</a>. Note that the image view window now has scrollbars.
+    So, if you adjust the size of the image view, you are also able to change the visible part of the image by moving
+    the scrollbars.<br>
+    In the bottom right corner of the image view window, there is a small button: <img
+        src="images/icons/ZoomZeroImageView.gif">. A click on this button will adjust the magnification of the image to
+    fit into the window. This has the same effect like using the &quot;<a href="NavigationWindow.html#zoomall">Zoom
+    All</a>&quot; icon of the Navigation Window.<br>
+    Besides this, there are two new important tools to navigate through an image
+    and to inspect pixels in detail:</p>
+<ul style="margin-top:0;">
+    <li><a href="Toolbars.html#pannertool">The Panner Tool</a></li>
+    <li><a href="Toolbars.html#zoomtool">The Zoom Tool</a></li>
+</ul>
+
+<p style="margin-bottom:0;"></p>
+<h4>Multiple Windows of the same band</h4>
+
+<p>It is now possible to open more than one window of the same band to have several views on the band. This can be done
+    by right-clicking on the band name in the <b>Product Scene View</b>. The windows will be numbered according to their
+    appearance:</p>
+
+<p><img src="images/MultipleImageViews.jpg" width="789" height="649"></p>
+<h4><a name="contextmenu"></a>Context Menu
+</h4>
+
+<p>When you right-click the mouse over the image view a popup menu comes up:
+</p>
+
+<p align="center"><img src="images/PopupMenuImageView.jpg" width="297" height="394"></p>
+
+<p style="margin-bottom:0;">Entries:</p>
+<ul style="margin-top:0;">
+    <li><b>Copy Pixel Info to Clipboard</b> - copies all sample values at the current
+        pixel position, their names and physical units (which you also can see in
+        the pixel view) to the clipboard</li>
+    <li><b>Delete Shape</b> - deletes the current geometric shape from this image
+        view, if there is any</li>
+    <li><b><a href="ExportImage.html">Export Displayed Image</a></b> - exports
+        the current image to an image file format (JPEG, PNG, TIFF, BMP)</li>
+    <li><b><a href="ExportROIOverlay.html">Export ROI Overlay</a></b>
+        - exports the current ROI overlay from this image view as a bitmask image</li>
+    <li><a href="ExportColorLegend.html"><b>Export Color Legend</b></a> - exports an image of the color legend</li>
+    <li><a href="ExportKml.html"><b>Export KML</b></a> - exports the current Image to a KML file supported by Google
+        Earth</li>
+    <li><b><a href="ShapeAndROIHandling.html">Show ROI Overlay</a></b>
+        - toggles the visibility state of the ROI overlay</li>
+    <li><b><a href="ExportROIPixels.html">Export ROI pixels</a></b> - export pixel values of a ROI to clipboard or file
+    </li>
+    <li><b><a href="ShowGraticuleOverlay.html">Show Graticule
+        Overlay</a></b> - toggles the visibility state of the graticule overlay</li>
+    <li><b><a href="PinManagement.html">Show Pin Overlay</a></b>
+        - toggles the visibility state of the pin overlay</li>
+    <li><b><a href="ProductSubsetDialog.html">Create Subset from View</a></b> - opens a new product subset dialog,
+        with predefined spatial subset scene by the actual image view</li>
+</ul>
+
+
+<p class="inote"><b>Note:</b> The <b>Copy Pixel Info to Clipboard</b> command copies information as tabulator-separated
+    text
+    into the clipboard and may therefore be pasted directly into a spreadsheet application (e.g. MS Excel).</p>
+
+
+<h4><a name="rgbSupport">RGB Image Support</a></h4>
+On creating an RGB image view you are prompted to select or create a <a href="RGBImageProfile.html">RGB-Profile</a>.
+You have also the possiblity to create new and change existing profiles in the
+<a href="PreferencesDialog.html#rgbprofiles">user preferences</a>.
+<p>
+
+<p class="inote"><b>Note:</b> The band to be used for each of the channels in the current RGB image view
+    can be changed at any time in the <a href="ContrastPaletteWindow.html#rgbSupport">Contrast Stretch / Color
+    Palette</a>
+    window.
+</p>
+
+<hr>
+</body>
+</html>
