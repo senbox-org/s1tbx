@@ -444,7 +444,7 @@ class ChrisFile {
     }
 
     private void determineScanLineLayout() {
-        final String chrisMode = getGlobalAttribute(ChrisConstants.CHRIS_MODE);
+        final String chrisMode = getGlobalAttribute(ChrisConstants.ATTR_NAME_CHRIS_MODE);
 
         if (!(scanLineLayoutData == null || chrisMode == null || scanLineLayoutData.get(chrisMode) == null)) {
             scanLineLayout = scanLineLayoutData.get(chrisMode);

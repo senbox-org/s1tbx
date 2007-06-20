@@ -18,6 +18,12 @@ public class ChrisConstants {
     public static final String READER_DESCRIPTION = "CHRIS/PROBA HDF4 Data Products";
     public static final String FORMAT_NAME = "CHRIS_PROBA";
 
+    public static final String ATTR_NAME_TARGET_NAME = "Target Name";
+    public static final String ATTR_NAME_TARGET_LAT = "Target Latitude";
+    public static final String ATTR_NAME_TARGET_LON = "Target Longitude";
+    public static final String ATTR_NAME_NOMINAL_FLY_BY_ZENITH_ANGLE = "Nominal Fly-by Zenith Angle";
+    public static final String ATTR_NAME_MINIMUM_ZENITH_ANGLE = "Minimum Zenith Angle";
+
     public static final String ATTR_NAME_CHRIS_MODE = "CHRIS Mode";
     public static final String ATTR_NAME_IMAGE_CENTRE_TIME = "Calculated Image Centre Time";
     public static final String ATTR_NAME_IMAGE_DATE = "Image Date";
@@ -32,7 +38,6 @@ public class ChrisConstants {
 
     public static final String NUMBER_OF_GROUND_LINES = "Number of Ground Lines";
     public static final String NUMBER_OF_SAMPLES = "Number of Samples";
-    public static final String CHRIS_MODE = "CHRIS Mode";
     public static final String IMAGE_NUMBER = "Image Number";
     public static final String VERTICALLY_FLIPPED = "Vertically Flipped";
 	public static final String CALIBRATION_DATA_UNITS = "Calibration Data Units";
