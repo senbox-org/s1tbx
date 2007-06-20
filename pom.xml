@@ -32,12 +32,10 @@
         </license>
     </licenses>
 
-    <!--
-        <scm>
-            <connection>scm:svn:http://svn.geotools.org/geotools/tags/2.2-RC3</connection>
-            <url>http://svn.geotools.org/geotools/tags/2.2-RC3</url>
-        </scm>
-    -->
+    <scm>
+        <connection>scm:svn:https://www.brockmann-consult.de/svn/os/beam-4.x/trunc</connection>
+        <url>https://www.brockmann-consult.de/svn/os/beam-4.x/trunc</url>
+    </scm>
 
     <modules>
         <module>beam-bootstrap</module>
