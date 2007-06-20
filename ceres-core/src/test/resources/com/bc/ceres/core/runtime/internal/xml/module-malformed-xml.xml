@@ -1,0 +1,7 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>malformed</symbolicName>
+    <dependency>
+    <moduleId>a-dependency</moduleId>
+    <!-- INVALID! Malformed XML. -->
+</module>

@@ -1,0 +1,562 @@
+package com.bc.ceres.core.runtime.internal;
+
+import com.bc.ceres.core.Assert;
+import com.bc.ceres.core.ServiceRegistry;
+import com.bc.ceres.core.ServiceRegistryFactory;
+import com.bc.ceres.core.runtime.Dependency;
+import com.bc.ceres.core.runtime.Extension;
+import com.bc.ceres.core.runtime.ExtensionPoint;
+import com.bc.ceres.core.runtime.Module;
+import com.bc.ceres.core.runtime.ModuleState;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
+/**
+ * A strategy which resolves module dependencies.
+ */
+public class ModuleResolver {
+
+    private ClassLoader moduleParentClassLoader;
+    private boolean resolvingLibs;
+    private Stack<String> moduleStack;
+
+    /**
+     * Constructs a new module resolver.
+     *
+     * @param moduleParentClassLoader the parent class loader for the module
+     * @param resolvingLibs           if true, libs are resolved
+     */
+    public ModuleResolver(ClassLoader moduleParentClassLoader, boolean resolvingLibs) {
+        Assert.notNull(moduleParentClassLoader, "moduleParentClassLoader");
+        this.moduleParentClassLoader = moduleParentClassLoader;
+        this.resolvingLibs = resolvingLibs;
+        this.moduleStack = new Stack<String>();
+    }
+
+    public void resolve(ModuleImpl module) throws ResolveException {
+        Assert.notNull(module, "module");
+        ModuleState previousState = module.getState();
+        initModuleDependencies(module);
+        if (module.getState() == ModuleState.RESOLVED) {
+            initModuleClassLoader(module);
+            initServiceRegistrys(module);
+            initRefCount(module);
+        }
+        if (module.hasResolveErrors()) {
+            module.setState(previousState);
+            String msg = String.format("Failed to resolve module [%s].", module.getSymbolicName());
+            throw new ResolveException(msg);
+        }
+    }
+
+    static class DependencyItem {
+        ModuleImpl module;
+        boolean optional;
+
+        public DependencyItem(ModuleImpl module, boolean optional) {
+            this.module = module;
+            this.optional = optional;
+        }
+    }
+
+    private void initModuleDependencies(ModuleImpl module) {
+        if (module.hasResolveErrors()) {
+            return;
+        }
+
+        if (module.getState() == ModuleState.INSTALLED) {
+
+            if (module.getModuleDependencies() == null) {
+                ModuleImpl[] resolvedModules = resolveModuleDependencies(module);
+                module.setModuleDependencies(resolvedModules);
+            }
+
+            if (module.getDeclaredLibs() == null) {
+                String[] declaredLibs = findDeclaredLibs(module);
+                module.setDeclaredLibs(declaredLibs);
+            }
+
+            if (module.getLibDependencies() == null) {
+                URL[] libDependencies = findLibDependencies(module);
+                module.setLibDependencies(libDependencies);
+            }
+
+            if (!module.hasResolveErrors()) {
+                module.setState(ModuleState.RESOLVED);
+            }
+        }
+    }
+
+    private ModuleImpl[] resolveModuleDependencies(ModuleImpl module) {
+
+        String moduleKey = module.getSymbolicName() + ":" + module.getVersion();
+        if (moduleStack.contains(moduleKey)) {
+            String message = createCyclicDependecyExceptionMessage(module);
+            module.addResolveError(new ResolveException(message));
+            return new ModuleImpl[0];
+        }
+
+        try {
+            moduleStack.push(moduleKey);
+            return resolveModuleDependenciesImpl(module);
+        } finally {
+            moduleStack.pop();
+        }
+    }
+
+    private String createCyclicDependecyExceptionMessage(ModuleImpl module) {
+        StringBuilder trace = new StringBuilder();
+        for (String s : moduleStack) {
+            trace.append('[').append(s).append(']');
+        }
+        return MessageFormat.format("Cyclic dependencies detected for module [{0}], trace: {1}", module.getSymbolicName(), trace);
+    }
+
+    private ModuleImpl[] resolveModuleDependenciesImpl(ModuleImpl module) {
+        DependencyItem[] moduleDependencies = findModuleDependencies(module);
+        List<ModuleImpl> resolvedModules = new ArrayList<ModuleImpl>(moduleDependencies.length);
+        for (DependencyItem dependencyItem : moduleDependencies) {
+            initModuleDependencies(dependencyItem.module);
+            if (dependencyItem.module.getState() == ModuleState.RESOLVED) {
+                resolvedModules.add(dependencyItem.module);
+            }
+            ResolveException[] resolveErrors = dependencyItem.module.getResolveErrors();
+            if (resolveErrors.length > 0) {
+                for (ResolveException resolveError : resolveErrors) {
+                    if (dependencyItem.optional) {
+                        module.addResolveWarning(resolveError);
+                    } else {
+                        module.addResolveError(resolveError);
+                    }
+                }
+            }
+            ResolveException[] resolveWarnings = dependencyItem.module.getResolveWarnings();
+            if (resolveWarnings.length > 0) {
+                for (ResolveException resolveWarning : resolveWarnings) {
+                    module.addResolveWarning(resolveWarning);
+                }
+            }
+        }
+        return resolvedModules.toArray(new ModuleImpl[resolvedModules.size()]);
+    }
+
+    private void initModuleClassLoader(ModuleImpl module) {
+        if (module.getClassLoader() == null) {
+
+            URL[] nativeLibs = getNativeLibs(module);
+            URL[] dependencyLibs = module.getLibDependencies();
+            if (dependencyLibs == null) {
+                dependencyLibs = new URL[0];
+            }
+            ClassLoader[] dependencyClassLoaders = getDependencyClassLoaders(module);
+
+            module.setClassLoader(new ModuleClassLoader(dependencyClassLoaders, dependencyLibs,
+                                                        nativeLibs, moduleParentClassLoader));
+        }
+    }
+
+    private ClassLoader[] getDependencyClassLoaders(ModuleImpl module) {
+        List<ClassLoader> dependencyCl = new ArrayList<ClassLoader>();
+        for (ModuleImpl moduleDependency : module.getModuleDependencies()) {
+            if (moduleDependency.getState() == ModuleState.RESOLVED) {
+                if (moduleDependency.getClassLoader() == null) {
+                    // Enter recursion
+                    initModuleClassLoader(moduleDependency);
+                }
+                dependencyCl.add(moduleDependency.getClassLoader());
+            }
+        }
+        return dependencyCl.toArray(new ClassLoader[dependencyCl.size()]);
+    }
+
+    private static URL[] getNativeLibs(ModuleImpl module) {
+        List<URL> libPaths = new ArrayList<URL>();
+        if (module.isNative()) {
+            File moduleDir = FileHelper.urlToFile(module.getLocation());
+            if (moduleDir.isDirectory()) {
+                String[] impliciteNativeLibs = module.getImpliciteNativeLibs();
+                for (String libPath : impliciteNativeLibs) {
+                    File libFile = new File(moduleDir, libPath);
+                    if (libFile.isFile() && libFile.canRead()) {
+                        libPaths.add(FileHelper.fileToUrl(libFile));
+                    } else {
+                        String msg = String.format("Native library [%s] found in module [%s] is not accessible.",
+                                                   libFile, module.getSymbolicName());
+                        module.addResolveWarning(new ResolveException(msg));
+                    }
+                }
+            }
+        }
+
+        return libPaths.toArray(new URL[libPaths.size()]);
+    }
+
+    private static void initRefCount(ModuleImpl module) {
+        module.incrementRefCount();
+        if (module.getModuleDependencies() != null) {
+            ModuleImpl[] moduleDependencies = module.getModuleDependencies();
+            for (ModuleImpl moduleDependency : moduleDependencies) {
+                // enter recursion
+                initRefCount(moduleDependency);
+            }
+        }
+    }
+
+    private URL[] findLibDependencies(ModuleImpl module) {
+        if (module.getLocation() == null) {
+            throw new IllegalStateException("module.getLocation() == null");
+        }
+        if (module.getModuleDependencies() == null) {
+            throw new IllegalStateException("module.getModuleDependencies() == null");
+        }
+        if (module.getDeclaredLibs() == null) {
+            throw new IllegalStateException("module.getDeclaredLibs() == null");
+        }
+        if (module.getImpliciteLibs() == null) {
+            throw new IllegalStateException("module.getImpliciteLibs() == null");
+        }
+
+        File moduleFile = FileHelper.urlToFile(module.getLocation());
+        if (moduleFile == null) {
+            return new URL[0];
+        }
+
+        List<URL> libDependencies = new ArrayList<URL>(16);
+
+        // add this module to the classpath
+        collectLibDependency(module, moduleFile, libDependencies);
+
+        // add all declared libs to the classpath
+        resolveLibs(module,
+                    moduleFile, resolvingLibs, libDependencies);
+
+        // add all implicite libs to the classpath
+        for (String impliciteLib : module.getImpliciteLibs()) {
+            collectLibDependency(module, new File(moduleFile, impliciteLib), libDependencies);
+        }
+
+        return libDependencies.toArray(new URL[0]);
+    }
+
+    private static void resolveLibs(ModuleImpl module, File moduleFile,
+                             boolean resolvingLibs, List<URL> libDependencies) {
+        Dependency[] declaredDependencies = module.getDeclaredDependencies();
+        for (Dependency dependency : declaredDependencies) {
+            if (dependency.getLibName() != null) {
+                boolean libResolved = false;
+                // look in this modules location
+                File file = resolveFile(moduleFile, dependency.getLibName(), resolvingLibs);
+                if (file != null) {
+                    collectLibDependency(module, file, libDependencies);
+                    libResolved = true;
+                } else {
+                    for (ModuleImpl moduleDependency : module.getModuleDependencies()) {
+                        // look in the modules dependencies' location
+                        File moduleDependencyFile = FileHelper.urlToFile(moduleDependency.getLocation());
+                        if (moduleDependencyFile != null) {
+                            File file2 = resolveFile(moduleDependencyFile, dependency.getLibName(), resolvingLibs);
+                            if (file2 != null) {
+                                collectLibDependency(module, file2, libDependencies);
+                                libResolved = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                // library is not resolved and we must resolve dependecies
+                if (!libResolved && resolvingLibs) {
+                    if (!dependency.isOptional()) {
+                        String msg = String.format("Mandatory library [%s] declared by module [%s] not found.",
+                                                   dependency.getLibName(),
+                                                   module.getSymbolicName());
+                        module.addResolveError(new ResolveException(msg));
+                    }
+                }
+            }
+        }
+    }
+
+    private static File resolveFile(File parent, String libPath, boolean checkExists) {
+        if (parent.isDirectory()) {
+            File file = new File(parent, libPath);
+            if (!checkExists || file.exists()) {
+                return file;
+            }
+        }
+        return null;
+    }
+
+    private static DependencyItem[] findModuleDependencies(ModuleImpl module) {
+        List<DependencyItem> list = new ArrayList<DependencyItem>(16);
+        collectDeclaredModuleDependencies(module, list);
+        collectImpliciteModuleDependencies(module, list);
+        return list.toArray(new DependencyItem[0]);
+    }
+
+
+    private static void collectDeclaredModuleDependencies(ModuleImpl module, List<DependencyItem> list) {
+        Dependency[] dependencies = module.getDeclaredDependencies();
+        for (Dependency dependency : dependencies) {
+            if (dependency.getModuleSymbolicName() != null) {
+                ModuleImpl[] dependencyModules = module.getRegistry().getModules(dependency.getModuleSymbolicName());
+                if (dependencyModules.length > 0) {
+                    if (dependency.getVersion() != null) {
+                        Version requiredVersion = Version.parseVersion(dependency.getVersion());
+                        ModuleImpl dependencyModule = findBestMatchingModuleVersion(requiredVersion, dependencyModules);
+                        if (dependencyModule != null) {
+                            collectDependencyModule(module, dependencyModule, dependency.isOptional(), list);
+                        } else if (!dependency.isOptional()) {
+                            String msg = String.format(
+                                    "Mandatory dependency [%s:%s] declared by module [%s] not found.",
+                                    dependency.getModuleSymbolicName(),
+                                    dependency.getVersion(),
+                                    module.getSymbolicName());
+                            module.addResolveError(new ResolveException(msg));
+                        }
+                    } else {
+                        if (dependencyModules.length > 0) {
+                            ModuleImpl dependencyModule = findLatestModuleVersion(dependencyModules);
+                            collectDependencyModule(module, dependencyModule, dependency.isOptional(), list);
+                        }
+                    }
+                } else if (!dependency.isOptional()) {
+                    String msg = String.format("Mandatory dependency [%s] declared by module [%s] not found.",
+                                               dependency.getModuleSymbolicName(),
+                                               module.getSymbolicName());
+                    module.addResolveError(new ResolveException(msg));
+                }
+            }
+        }
+    }
+
+    private static void collectImpliciteModuleDependencies(ModuleImpl module, List<DependencyItem> list) {
+        Extension[] extensions = module.getExtensions();
+        for (Extension extension : extensions) {
+            ExtensionPoint extensionPoint = extension.getExtensionPoint();
+            if (extensionPoint != null) {
+                collectDependencyModule(module, (ModuleImpl) extensionPoint.getDeclaringModule(), true, list);
+            } else {
+                String msg = String.format("Extension point [%s] used by module [%s] not found. Extension will be ignored.",
+                                           module.getSymbolicName(),
+                                           extension.getPoint());
+                module.addResolveWarning(new ResolveException(msg));
+            }
+        }
+    }
+
+    private static ModuleImpl findLatestModuleVersion(ModuleImpl[] modules) {
+        ModuleImpl latestModule = modules[0];
+        Version latestVersion = Version.parseVersion(latestModule.getVersion());
+        for (int i = 1; i < modules.length; i++) {
+            ModuleImpl module = modules[i];
+            Version version = Version.parseVersion(module.getVersion());
+            if (version.compareTo(latestVersion) > 0) {
+                latestModule = module;
+                latestVersion = version;
+            }
+        }
+        return latestModule;
+    }
+
+    private static Version[] getVersions(Module[] modules) {
+        Version[] versions = new Version[modules.length];
+        for (int i = 0; i < modules.length; i++) {
+            versions[i] = Version.parseVersion(modules[i].getVersion());
+        }
+        return versions;
+    }
+
+    private static ModuleImpl findBestMatchingModuleVersion(Version requiredVersion, ModuleImpl[] modules) {
+        Version[] versions = getVersions(modules);
+
+        for (int i = 0; i < modules.length; i++) {
+            ModuleImpl module = modules[i];
+            if (versions[i].compareTo(requiredVersion) == 0) {
+                return module;
+            }
+        }
+
+        ModuleImpl bestModule = findLatestModuleVersion(modules);
+        Version bestVersion = Version.parseVersion(bestModule.getVersion());
+        for (int i = 0; i < modules.length; i++) {
+            ModuleImpl module = modules[i];
+            Version version = versions[i];
+            if (version.compareTo(requiredVersion) == 0) {
+                bestModule = module;
+                break;
+            } else if (version.compareTo(requiredVersion) > 0
+                       && version.compareTo(bestVersion) < 0) {
+                bestModule = module;
+                bestVersion = version;
+            }
+        }
+
+        return bestModule;
+    }
+
+    private static String[] findDeclaredLibs(ModuleImpl module) {
+        Dependency[] dependencies = module.getDeclaredDependencies();
+        ArrayList<String> libNames = new ArrayList<String>(dependencies.length);
+        for (Dependency dependency : dependencies) {
+            // if dependency.getLibName() is not null we have a declared JAR dependency,
+            // otherwise it is expected that dependency.getModuleId() will return a non-null value
+            // which means we have a declared module dependency.
+            if (dependency.getLibName() != null) {
+                if (!libNames.contains(dependency.getLibName())) {
+                    libNames.add(dependency.getLibName());
+                }
+            }
+        }
+        return libNames.toArray(new String[0]);
+    }
+
+    private static void collectDependencyModule(ModuleImpl module, ModuleImpl dependencyModule, boolean optional, List<DependencyItem> dependencyItems) {
+        if (dependencyModule == module) {
+            return;
+        }
+        for (DependencyItem dependencyItem : dependencyItems) {
+            if (dependencyModule == dependencyItem.module) {
+                return;
+            }
+        }
+        dependencyItems.add(new DependencyItem(dependencyModule, optional));
+    }
+
+    private static void collectLibDependency(ModuleImpl module, File lib, List<URL> list) {
+        try {
+            URL url = convertToURL(lib);
+            if (!list.contains(url)) {
+                list.add(url);
+            }
+        } catch (MalformedURLException e) {
+            String msg = String.format("Library file path [%s] used by module [%s] cannot be converted to an URL.",
+                                       lib.getPath(),
+                                       module.getSymbolicName());
+            module.addResolveError(new ResolveException(msg, e));
+        }
+    }
+
+    private static URL convertToURL(File lib) throws MalformedURLException {
+        return lib.toURI().toURL();
+    }
+
+    private static void initServiceRegistrys(ModuleImpl module) throws ResolveException {
+        if (module.getLocation().getProtocol().equals("file")) {
+            File location = FileHelper.urlToFile(module.getLocation());
+            if (location != null && location.isDirectory()) {
+                File servicesDir = new File(location, "META-INF/services");
+                if (servicesDir.exists()) {
+                    File[] files = servicesDir.listFiles();
+                    Map<String, List<String>> servicesMap = new HashMap<String, List<String>>();
+                    for (File file : files) {
+                        String fileName = file.getName();
+                        BufferedReader reader = null;
+                        try {
+                            reader = new BufferedReader(new FileReader(file));
+                            collectServices(fileName, reader, servicesMap);
+                        } catch (IOException e) {
+                            throw new ResolveException(e.getMessage(), e);
+                        }finally{
+                            if (reader != null) {
+                                try {
+                                    reader.close();
+                                } catch (IOException e) {
+                                    // ignore
+                                }
+                            }
+                        }
+                    }
+                    registerServices(servicesMap, module);
+                }
+
+            } else if (module.getLocation().toExternalForm().toLowerCase().endsWith(".jar")) {
+                ZipInputStream inputStream = null;
+                try {
+                    URLConnection urlConnection = module.getLocation().openConnection();
+                    inputStream = new ZipInputStream(urlConnection.getInputStream());
+                    ZipEntry nextEntry = inputStream.getNextEntry();
+                    Map<String, List<String>> servicesMap = new HashMap<String, List<String>>();
+                    while (nextEntry != null) {
+                        if (nextEntry.getName().startsWith("META-INF/services/")) {
+                            String entryName = nextEntry.getName();
+                            byte[] bytes = new byte[(int) nextEntry.getSize()];
+                            int bytesRead = inputStream.read(bytes, 0, bytes.length);
+                            if (bytesRead > 0) {
+                                BufferedReader reader = new BufferedReader(
+                                        new InputStreamReader(new ByteArrayInputStream(bytes)));
+                                collectServices(entryName.substring(entryName.lastIndexOf('/') + 1, entryName.length()),
+                                                reader, servicesMap);
+                            }
+                        }
+                        nextEntry = inputStream.getNextEntry();
+                    }
+                    registerServices(servicesMap, module);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }finally{
+                    if (inputStream != null) {
+                        try {
+                            inputStream.close();
+                        } catch (IOException e) {
+                            // ignore
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+
+    private static void collectServices(String serviceName, BufferedReader reader,
+                                        Map<String, List<String>> servicesMap) throws IOException {
+        List<String> serviceImpls = new ArrayList<String>();
+        String serviceImpl = reader.readLine();
+        while (serviceImpl != null) {
+            serviceImpls.add(serviceImpl);
+            serviceImpl = reader.readLine();
+        }
+        servicesMap.put(serviceName, serviceImpls);
+    }
+
+    private static void registerServices(Map<String, List<String>> servicesMap, ModuleImpl module) throws ResolveException {
+        ServiceRegistryFactory factory = ServiceRegistryFactory.getInstance();
+        Set<Map.Entry<String, List<String>>> serviceSet = servicesMap.entrySet();
+        for (Map.Entry<String, List<String>> entry : serviceSet) {
+            try {
+                Class<?> serviceType = Class.forName(entry.getKey(), false, module.getClassLoader());
+                ServiceRegistry serviceRegistry = factory.getServiceRegistry(serviceType);
+                List<String> serviceList = entry.getValue();
+                for (String service : serviceList) {
+                    Object serviceImpl = Class.forName(service, false,
+                                                       module.getClassLoader()).newInstance();
+                    serviceRegistry.addService(serviceImpl);
+                }
+
+            } catch (ClassNotFoundException e) {
+                throw new ResolveException(e.getMessage(), e);
+            } catch (IllegalAccessException e) {
+                throw new ResolveException(e.getMessage(), e);
+            } catch (InstantiationException e) {
+                throw new ResolveException(e.getMessage(), e);
+            }
+        }
+    }
+
+}

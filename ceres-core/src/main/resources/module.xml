@@ -1,0 +1,37 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    
+    <symbolicName>ceres-core</symbolicName>
+    <version>0.6-SNAPSHOT</version>
+    <name>Ceres Runtime Library</name>
+    <activator>com.bc.ceres.core.runtime.internal.RuntimeActivator</activator>
+
+    <changelog>
+        <![CDATA[
+        <p><b>From 0.5 to 0.6</b></p>
+        <ul>
+           <li>[CERES-XXX]: Optional dependencies not correctly handled</li>
+           <li>[CERES-XXX]: Cyclic dependency detection needs simplification</li>
+           <li>[CERES-009]: Replace simple extension points by META-INF\services</li>
+           <li>[CERES-XXX]: TODO: Use Version class in Module interface</li>
+           <li>[CERES-XXX]: TODO: Configure excluded/included modules</li>
+           <li>[CERES-XXX]: TODO: Speed up module repository scanning</li>
+        </ul>]]>
+    </changelog>
+
+    <description>
+        The Ceres Runtime provides a platform for applications based on
+        updatable, versioned modules.
+    </description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://www.brockmann-consult.de/</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <categories>System,Library</categories>
+
+    <extensionPoint id="applications"/>
+
+</module>

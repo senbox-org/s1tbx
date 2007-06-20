@@ -1,0 +1,6 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>empty-version</symbolicName>
+    <!-- INVALID! 'version' must not be empty. -->
+    <version></version>
+</module>

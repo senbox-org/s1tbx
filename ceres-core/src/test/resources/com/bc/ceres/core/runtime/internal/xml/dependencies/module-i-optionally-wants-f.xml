@@ -1,0 +1,10 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>module-i</symbolicName>
+
+    <dependency>
+        <!-- f in turn has a dependency to a nonexistent module -->
+        <module>module-f</module>
+        <optional>true</optional>
+    </dependency>
+</module>

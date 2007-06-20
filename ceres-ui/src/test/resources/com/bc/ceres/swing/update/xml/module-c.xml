@@ -1,0 +1,23 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>module-c</symbolicName>
+    <description>This is Module C</description>
+
+    <dependency>
+        <module>module-b</module>
+    </dependency>
+    <categories>
+        Orange,Rain
+    </categories>
+
+    <extension id="e-cb11" point="module-b:ep-1">
+        <source>A</source>
+        <target>B</target>
+    </extension>
+    <extension id="e-cb12" point="module-b:ep-1"/>
+    <extension id="e-cb21" point="module-b:ep-2"/>
+    <extension id="e-cb31" point="module-b:ep-3"/>
+    <extension id="e-cb32" point="module-b:ep-3"/>
+    <extension id="e-cb33" point="module-b:ep-3"/>
+
+</module>

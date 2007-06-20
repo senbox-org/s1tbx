@@ -1,0 +1,155 @@
+package com.bc.ceres.swing.update;
+
+import com.bc.ceres.core.CoreException;
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
+import com.bc.ceres.core.runtime.Module;
+import com.bc.ceres.core.runtime.ModuleContext;
+import com.bc.ceres.core.runtime.ProxyConfig;
+import com.bc.ceres.core.runtime.internal.RepositoryScanner;
+import com.bc.ceres.core.runtime.internal.RuntimeActivator;
+
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
+
+public class DefaultModuleManager implements ModuleManager {
+
+    private ModuleContext context;
+    private URL repositoryUrl;
+    private ProxyConfig proxyConfig;
+    private Module[] installedModules;
+    private ArrayList<File> generatedFileList;
+
+    public DefaultModuleManager() {
+        this(RuntimeActivator.getInstance().getModuleContext());
+    }
+
+    public DefaultModuleManager(ModuleContext context) {
+        this.context = context;
+        this.proxyConfig = ProxyConfig.NULL;
+        this.generatedFileList = new ArrayList<File>(8);
+    }
+
+    public URL getRepositoryUrl() {
+        return repositoryUrl;
+    }
+
+    public void setRepositoryUrl(URL repositoryUrl) {
+        this.repositoryUrl = repositoryUrl;
+    }
+
+    public ProxyConfig getProxyConfig() {
+        return proxyConfig;
+    }
+
+    public void setProxyConfig(ProxyConfig proxyConfig) {
+        this.proxyConfig = proxyConfig;
+    }
+
+    public Module[] getInstalledModules() {
+        if (installedModules == null) {
+            installedModules = context.getModules();
+        }
+        return installedModules;
+    }
+
+    public Module[] getRepositoryModules(ProgressMonitor pm) throws CoreException {
+        if (repositoryUrl == null) {
+            throw new CoreException("Repository URL not set.");
+        }
+        context.getLogger().info("Connecting repository using " + repositoryUrl);
+        RepositoryScanner repositoryScanner = new RepositoryScanner(context.getLogger(), repositoryUrl, proxyConfig);
+        return repositoryScanner.scan(pm);
+    }
+
+    public Module installModule(Module newModule, ProgressMonitor pm) throws CoreException {
+        URL location = newModule.getLocation();
+        Module installedModule = context.installModule(location, proxyConfig, pm);
+        generatedFileList.add(new File(installedModule.getLocation().getPath()));
+        return installedModule;
+    }
+
+    public Module updateModule(Module oldModule, Module newModule, ProgressMonitor pm) throws CoreException {
+        pm.beginTask("Updating module", 100);
+        try {
+            Module installedModule = installModule(newModule, new SubProgressMonitor(pm, 50));
+            uninstallModule(oldModule, new SubProgressMonitor(pm, 50));
+            return installedModule;
+        } finally {
+            pm.done();
+        }
+    }
+
+    public void uninstallModule(Module oldModule, ProgressMonitor pm) throws CoreException {
+        oldModule.uninstall(pm);
+        File file = new File(oldModule.getLocation().getPath());
+        generatedFileList.add(new File(file.getParent(), file.getName() + ".uninstall"));
+    }
+
+    public void startTransaction() {
+        generatedFileList.clear();
+    }
+
+    public void endTransaction() {
+        generatedFileList.clear();
+    }
+
+    public void rollbackTransaction() {
+        for (File file : generatedFileList) {
+            try {
+                context.getLogger().info(String.format("Module manager rollback: Deleting file [%s]", file));
+                if (!file.delete()) {
+                    file.deleteOnExit();
+                }
+            } catch (Exception e) {
+                context.getLogger().severe(String.format("Module manager rollback: %s", e.getMessage()));
+            }
+        }
+    }
+
+// ============================
+// Reactivate if required
+// ============================
+//
+//    private static final String BEAMIID = "beamuid";
+//
+//    private URL createHashedRepositoryUrl() {
+//        URL url = repositoryUrl;
+//        try {
+//            if (repositoryUrl.getQuery() == null) {
+//                url = createHashedUrl(repositoryUrl);
+//            }
+//        } catch (Exception e) {
+//            // ignore
+//        }
+//        return url;
+//    }
+//
+//    private static URL createHashedUrl(URL repositoryUrl) throws MalformedURLException, BackingStoreException {
+//        if (repositoryUrl.getQuery() == null) {
+//            String query = BEAMIID + "=" + getUniqueHash();
+//            return new URL(repositoryUrl.toExternalForm() + "?" + query);
+//        }
+//        return repositoryUrl;
+//    }
+//
+//    private static String getUniqueHash()  {
+//        String beamiid;
+//        try {
+//            Preferences preferences = Preferences.userNodeForPackage(ModuleManager.class);
+//            beamiid = preferences.get(BEAMIID, "");
+//            if (beamiid.isEmpty()) {
+//                beamiid = Long.toHexString(System.nanoTime());
+//                preferences.put(BEAMIID, beamiid);
+//                preferences.flush();
+//            }
+//        } catch (Exception e) {
+//            beamiid = null;
+//        }
+//        return beamiid;
+//    }
+}

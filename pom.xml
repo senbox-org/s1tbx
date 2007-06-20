@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.bc.ceres</groupId>
+    <artifactId>ceres</artifactId>
+    <version>0.6-SNAPSHOT</version>
+    <name>Ceres</name>
+    <url>http://www.brockmann-consult.de/</url>
+
+    <description>
+        Ceres provides a runtime environment for applications composed of
+        versioned, updatable modules.
+    </description>
+
+    <packaging>pom</packaging>
+
+    <organization>
+        <name>Brockmann Consult GmbH</name>
+        <url>http://www.brockmann-consult.de</url>
+    </organization>
+
+    <inceptionYear>2007</inceptionYear>
+
+    <issueManagement>
+        <system>JIRA</system>
+        <url>http://www.brockmann-consult.de/beam-jira/browse/CERES</url>
+    </issueManagement>
+
+    <licenses>
+        <license>
+            <name>GNU General Public License (GPL)</name>
+            <url>http://www.gnu.org/licenses/gpl.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <modules>
+        <module>ceres-core</module>
+        <module>ceres-ui</module>
+        <module>ceres-deploy</module>
+        <module>ceres-launcher</module>
+        <module>ceres-site</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>3.8.1</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>xstream</groupId>
+                <artifactId>xstream</artifactId>
+                <version>1.2</version>
+            </dependency>
+            <dependency>
+                <groupId>xpp3</groupId>
+                <artifactId>xpp3</artifactId>
+                <version>1.1.3.3</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-launcher</artifactId>
+                <version>0.6-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-core</artifactId>
+                <version>0.6-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-ui</artifactId>
+                <version>0.6-SNAPSHOT</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                    <debug>true</debug>
+                    <fork>false</fork>
+                    <encoding>ISO-8859-1</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-eclipse-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <wtpversion>1.5</wtpversion>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <destDir>../modules/${artifactId}-${version}/apidoc</destDir>
+                    <!-- Creates an HTML version of each source file and adds links documentation -->
+                    <linksource>true</linksource>
+                    <excludePackageNames>
+                        *.internal;</excludePackageNames>
+                    <!-- Shuts off non-error and non-warning messages-->
+                    <quiet>true</quiet>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+
+    <developers>
+        <developer>
+            <id>norman</id>
+            <name>Norman Fomferra</name>
+            <email>norman.fomferra@brockmann-consult.de</email>
+            <organization>Brockmann Consult</organization>
+            <roles>
+                <role>Project Manager</role>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>marcop</id>
+            <name>Marco Peters</name>
+            <email>marco.peters@brockmann-consult.de</email>
+            <organization>Brockmann Consult</organization>
+            <roles>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+    </developers>
+
+</project>

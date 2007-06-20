@@ -1,0 +1,6 @@
+<!-- This is the minimal module -->
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>minimal-module</symbolicName>
+    <!-- VALID! If 'version' is omitted, "1.0" is assumed. -->
+</module>

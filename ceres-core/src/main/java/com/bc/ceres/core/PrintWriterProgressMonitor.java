@@ -1,0 +1,139 @@
+/*
+ * $Id: PrintWriterProgressMonitor.java,v 1.1 2007/03/28 10:43:29 norman Exp $
+ *
+ * Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation. This program is distributed in the hope it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+package com.bc.ceres.core;
+
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.text.MessageFormat;
+
+/**
+ * A progress monitor which prints progress using a {@link PrintWriter}.
+ */
+public class PrintWriterProgressMonitor implements ProgressMonitor {
+
+    private PrintWriter printWriter;
+    private boolean canceled;
+    private String taskName;
+    private String subTaskName;
+    private double totalWork;
+    private double currentWork;
+    private int printStepPercentage;
+    private int percentageWorked;
+    private int lastPercentagePrinted;
+
+    public PrintWriterProgressMonitor(OutputStream output) {
+        this(new PrintWriter(output, true));
+    }
+
+    public PrintWriterProgressMonitor(PrintWriter output) {
+        Assert.notNull(output, "output");
+        printWriter = output;
+        printStepPercentage = 10; // =10%
+    }
+
+    public String getTaskName() {
+        return taskName;
+    }
+
+    public void setTaskName(String taskName) {
+        this.taskName = taskName;
+    }
+
+    public String getSubTaskName() {
+        return subTaskName;
+    }
+
+    public void setSubTaskName(String subTaskName) {
+        this.subTaskName = subTaskName;
+    }
+
+    public int getPrintStepPercentage() {
+        return printStepPercentage;
+    }
+
+    public void setPrintStepPercentage(int printStepPercentage) {
+        this.printStepPercentage = printStepPercentage;
+    }
+
+    public int getPercentageWorked() {
+        return percentageWorked;
+    }
+
+    public void beginTask(String name, int totalWork) {
+        this.taskName = name;
+        this.totalWork = totalWork;
+        printStartMessage(printWriter);
+    }
+
+    public void done() {
+        printDoneMessage(printWriter);
+    }
+
+    public void worked(int work) {
+        internalWorked(work);
+    }
+
+    public void internalWorked(double work) {
+        currentWork += work;
+        percentageWorked = (int)(100.0 * currentWork / totalWork);
+        if (percentageWorked - lastPercentagePrinted >= getPrintStepPercentage()) {
+            printWorkedMessage(printWriter);
+            lastPercentagePrinted = percentageWorked;
+        }
+    }
+
+    public boolean isCanceled() {
+        return canceled;
+    }
+
+    public void setCanceled(boolean canceled) {
+        this.canceled = canceled;
+        if (isCanceled()) {
+            printCanceledMessage(printWriter);
+        }
+    }
+
+    protected void printStartMessage(PrintWriter pw) {
+        pw.printf(MessageFormat.format("{0}, started\n", getMessage()));
+    }
+
+    protected void printWorkedMessage(PrintWriter pw) {
+        pw.println(MessageFormat.format("{0}, {1}% worked", getMessage(), getPercentageWorked()));
+    }
+
+    protected void printDoneMessage(PrintWriter pw) {
+        pw.println(MessageFormat.format("{0}, done", getMessage()));
+    }
+
+    protected void printCanceledMessage(PrintWriter pw) {
+        pw.println(MessageFormat.format("{0}, cancelation requested", getMessage()));
+    }
+
+    protected String getMessage() {
+        boolean validTaskName = taskName != null && taskName.length() > 0 ;
+        boolean validSubTaskName = subTaskName != null && subTaskName.length() > 0;
+        String message = "";
+        if (validTaskName && validSubTaskName) {
+            message = taskName + " - " + subTaskName;
+        } else if (validTaskName) {
+            message = taskName;
+        } else if (validSubTaskName) {
+            message = subTaskName;
+        }
+        return message;
+    }
+}

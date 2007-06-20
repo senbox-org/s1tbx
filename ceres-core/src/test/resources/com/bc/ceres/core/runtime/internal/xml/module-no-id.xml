@@ -1,0 +1,4 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <!-- INVALID! 'id' is missing. -->
+</module>
