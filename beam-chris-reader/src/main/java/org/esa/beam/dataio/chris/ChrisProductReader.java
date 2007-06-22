@@ -201,7 +201,7 @@ public class ChrisProductReader extends AbstractProductReader {
     }
 
     private void addProductBands(final Product product) {
-        final String units = chrisFile.getGlobalAttribute(ChrisConstants.CALIBRATION_DATA_UNITS);
+        final String units = chrisFile.getGlobalAttribute(ChrisConstants.ATTR_NAME_CALIBRATION_DATA_UNITS);
 
         for (int i = 0; i < spectralBandCount; ++i) {
             final String name = getRadianceBandName(i);

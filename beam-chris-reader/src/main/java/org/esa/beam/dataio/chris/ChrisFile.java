@@ -428,19 +428,19 @@ class ChrisFile {
     }
 
     private void determineFlipping() {
-        final String imageNumber = getGlobalAttribute(ChrisConstants.IMAGE_NUMBER, "0");
+        final String imageNumber = getGlobalAttribute(ChrisConstants.ATTR_NAME_IMAGE_NUMBER, "0");
 
         flipped = imageNumber.startsWith("2") || imageNumber.startsWith("3");
-        globalAttributes.put(ChrisConstants.VERTICALLY_FLIPPED, Boolean.toString(flipped));
+        globalAttributes.put(ChrisConstants.ATTR_NAME_VERTICALLY_FLIPPED, Boolean.toString(flipped));
     }
 
     private void determineSceneRasterHeight() {
-        final int mphNumLines = getGlobalAttribute(ChrisConstants.NUMBER_OF_GROUND_LINES, Integer.MAX_VALUE);
+        final int mphNumLines = getGlobalAttribute(ChrisConstants.ATTR_NAME_NUMBER_OF_GROUND_LINES, Integer.MAX_VALUE);
         final int sdsNumLines = rciImageSds.dimSizes[1];
 
         sceneRasterHeight = Math.min(mphNumLines, sdsNumLines);
 
-        globalAttributes.put(ChrisConstants.NUMBER_OF_GROUND_LINES, Integer.toString(sceneRasterHeight));
+        globalAttributes.put(ChrisConstants.ATTR_NAME_NUMBER_OF_GROUND_LINES, Integer.toString(sceneRasterHeight));
     }
 
     private void determineScanLineLayout() {
@@ -452,7 +452,7 @@ class ChrisFile {
             scanLineLayout = new ScanLineLayout(0, rciImageSds.dimSizes[2], 0);
         }
 
-        globalAttributes.put(ChrisConstants.NUMBER_OF_SAMPLES, Integer.toString(scanLineLayout.imagePixelCount));
+        globalAttributes.put(ChrisConstants.ATTR_NAME_NUMBER_OF_SAMPLES, Integer.toString(scanLineLayout.imagePixelCount));
     }
 
     @SuppressWarnings("unchecked")
