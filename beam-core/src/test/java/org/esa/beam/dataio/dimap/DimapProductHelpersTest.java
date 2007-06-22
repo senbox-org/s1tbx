@@ -369,7 +369,11 @@ public class DimapProductHelpersTest extends TestCase {
                 new ByteArrayInputStream(xmlMapGeocodingStringStyleOldFormat.getBytes()));
 
         //test
-        final GeoCoding geoCoding = DimapProductHelpers.createGeoCoding(dom, _product)[0];
+        GeoCoding[] geoCodings = DimapProductHelpers.createGeoCoding(dom, _product);
+        assertNotNull(geoCodings);
+        assertEquals(1, geoCodings.length);
+
+        final GeoCoding geoCoding = geoCodings[0];
 
         assertNotNull(geoCoding);
         assertNotNull(geoCoding);
