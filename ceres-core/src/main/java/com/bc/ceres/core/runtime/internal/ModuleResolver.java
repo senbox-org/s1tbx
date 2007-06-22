@@ -1,32 +1,19 @@
 package com.bc.ceres.core.runtime.internal;
 
 import com.bc.ceres.core.Assert;
-import com.bc.ceres.core.ServiceRegistry;
-import com.bc.ceres.core.ServiceRegistryFactory;
 import com.bc.ceres.core.runtime.Dependency;
 import com.bc.ceres.core.runtime.Extension;
 import com.bc.ceres.core.runtime.ExtensionPoint;
 import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.core.runtime.ModuleState;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.Stack;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 /**
  * A strategy which resolves module dependencies.
@@ -56,7 +43,6 @@ public class ModuleResolver {
         initModuleDependencies(module);
         if (module.getState() == ModuleState.RESOLVED) {
             initModuleClassLoader(module);
-            initServiceRegistrys(module);
             initRefCount(module);
         }
         if (module.hasResolveErrors()) {
@@ -67,6 +53,7 @@ public class ModuleResolver {
     }
 
     static class DependencyItem {
+
         ModuleImpl module;
         boolean optional;
 
@@ -126,7 +113,8 @@ public class ModuleResolver {
         for (String s : moduleStack) {
             trace.append('[').append(s).append(']');
         }
-        return MessageFormat.format("Cyclic dependencies detected for module [{0}], trace: {1}", module.getSymbolicName(), trace);
+        return MessageFormat.format("Cyclic dependencies detected for module [{0}], trace: {1}",
+                                    module.getSymbolicName(), trace);
     }
 
     private ModuleImpl[] resolveModuleDependenciesImpl(ModuleImpl module) {
@@ -256,7 +244,7 @@ public class ModuleResolver {
     }
 
     private static void resolveLibs(ModuleImpl module, File moduleFile,
-                             boolean resolvingLibs, List<URL> libDependencies) {
+                                    boolean resolvingLibs, List<URL> libDependencies) {
         Dependency[] declaredDependencies = module.getDeclaredDependencies();
         for (Dependency dependency : declaredDependencies) {
             if (dependency.getLibName() != null) {
@@ -353,9 +341,10 @@ public class ModuleResolver {
             if (extensionPoint != null) {
                 collectDependencyModule(module, (ModuleImpl) extensionPoint.getDeclaringModule(), true, list);
             } else {
-                String msg = String.format("Extension point [%s] used by module [%s] not found. Extension will be ignored.",
-                                           module.getSymbolicName(),
-                                           extension.getPoint());
+                String msg = String.format(
+                        "Extension point [%s] used by module [%s] not found. Extension will be ignored.",
+                        extension.getPoint(),
+                        module.getSymbolicName());
                 module.addResolveWarning(new ResolveException(msg));
             }
         }
@@ -427,7 +416,8 @@ public class ModuleResolver {
         return libNames.toArray(new String[0]);
     }
 
-    private static void collectDependencyModule(ModuleImpl module, ModuleImpl dependencyModule, boolean optional, List<DependencyItem> dependencyItems) {
+    private static void collectDependencyModule(ModuleImpl module, ModuleImpl dependencyModule, boolean optional,
+                                                List<DependencyItem> dependencyItems) {
         if (dependencyModule == module) {
             return;
         }
@@ -456,107 +446,4 @@ public class ModuleResolver {
     private static URL convertToURL(File lib) throws MalformedURLException {
         return lib.toURI().toURL();
     }
-
-    private static void initServiceRegistrys(ModuleImpl module) throws ResolveException {
-        if (module.getLocation().getProtocol().equals("file")) {
-            File location = FileHelper.urlToFile(module.getLocation());
-            if (location != null && location.isDirectory()) {
-                File servicesDir = new File(location, "META-INF/services");
-                if (servicesDir.exists()) {
-                    File[] files = servicesDir.listFiles();
-                    Map<String, List<String>> servicesMap = new HashMap<String, List<String>>();
-                    for (File file : files) {
-                        String fileName = file.getName();
-                        BufferedReader reader = null;
-                        try {
-                            reader = new BufferedReader(new FileReader(file));
-                            collectServices(fileName, reader, servicesMap);
-                        } catch (IOException e) {
-                            throw new ResolveException(e.getMessage(), e);
-                        }finally{
-                            if (reader != null) {
-                                try {
-                                    reader.close();
-                                } catch (IOException e) {
-                                    // ignore
-                                }
-                            }
-                        }
-                    }
-                    registerServices(servicesMap, module);
-                }
-
-            } else if (module.getLocation().toExternalForm().toLowerCase().endsWith(".jar")) {
-                ZipInputStream inputStream = null;
-                try {
-                    URLConnection urlConnection = module.getLocation().openConnection();
-                    inputStream = new ZipInputStream(urlConnection.getInputStream());
-                    ZipEntry nextEntry = inputStream.getNextEntry();
-                    Map<String, List<String>> servicesMap = new HashMap<String, List<String>>();
-                    while (nextEntry != null) {
-                        if (nextEntry.getName().startsWith("META-INF/services/")) {
-                            String entryName = nextEntry.getName();
-                            byte[] bytes = new byte[(int) nextEntry.getSize()];
-                            int bytesRead = inputStream.read(bytes, 0, bytes.length);
-                            if (bytesRead > 0) {
-                                BufferedReader reader = new BufferedReader(
-                                        new InputStreamReader(new ByteArrayInputStream(bytes)));
-                                collectServices(entryName.substring(entryName.lastIndexOf('/') + 1, entryName.length()),
-                                                reader, servicesMap);
-                            }
-                        }
-                        nextEntry = inputStream.getNextEntry();
-                    }
-                    registerServices(servicesMap, module);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }finally{
-                    if (inputStream != null) {
-                        try {
-                            inputStream.close();
-                        } catch (IOException e) {
-                            // ignore
-                        }
-                    }
-                }
-
-            }
-        }
-    }
-
-    private static void collectServices(String serviceName, BufferedReader reader,
-                                        Map<String, List<String>> servicesMap) throws IOException {
-        List<String> serviceImpls = new ArrayList<String>();
-        String serviceImpl = reader.readLine();
-        while (serviceImpl != null) {
-            serviceImpls.add(serviceImpl);
-            serviceImpl = reader.readLine();
-        }
-        servicesMap.put(serviceName, serviceImpls);
-    }
-
-    private static void registerServices(Map<String, List<String>> servicesMap, ModuleImpl module) throws ResolveException {
-        ServiceRegistryFactory factory = ServiceRegistryFactory.getInstance();
-        Set<Map.Entry<String, List<String>>> serviceSet = servicesMap.entrySet();
-        for (Map.Entry<String, List<String>> entry : serviceSet) {
-            try {
-                Class<?> serviceType = Class.forName(entry.getKey(), false, module.getClassLoader());
-                ServiceRegistry serviceRegistry = factory.getServiceRegistry(serviceType);
-                List<String> serviceList = entry.getValue();
-                for (String service : serviceList) {
-                    Object serviceImpl = Class.forName(service, false,
-                                                       module.getClassLoader()).newInstance();
-                    serviceRegistry.addService(serviceImpl);
-                }
-
-            } catch (ClassNotFoundException e) {
-                throw new ResolveException(e.getMessage(), e);
-            } catch (IllegalAccessException e) {
-                throw new ResolveException(e.getMessage(), e);
-            } catch (InstantiationException e) {
-                throw new ResolveException(e.getMessage(), e);
-            }
-        }
-    }
-
 }

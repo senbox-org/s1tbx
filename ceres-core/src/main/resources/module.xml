@@ -1,6 +1,6 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
-    
+
     <symbolicName>ceres-core</symbolicName>
     <version>0.6-SNAPSHOT</version>
     <name>Ceres Runtime Library</name>
@@ -32,6 +32,14 @@
 
     <categories>System,Library</categories>
 
+    <!--
+       todo - describe
+    -->
     <extensionPoint id="applications"/>
+
+    <!--
+       todo - describe
+    -->
+    <extensionPoint id="serviceProviders"/>
 
 </module>

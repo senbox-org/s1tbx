@@ -7,15 +7,16 @@ import java.util.List;
  * @since 0.6
  */
 public interface ServiceRegistry<T> {
+
     Class<T> getServiceType();
 
     Set<T> getServices();
 
     T getService(String className);
 
-    void addService(T extension);
+    boolean addService(T service);
 
-    void removeService(T extension);
+    boolean removeService(T service);
 
     List<ServiceRegistryListener<T>> getListeners();
 

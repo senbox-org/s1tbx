@@ -54,6 +54,7 @@ public class ConfigurationElementImpl extends ConfigurationElementBaseImpl<Confi
             String extensionDefaultClassName = classAttributeValue;
             if (classAttributeValue != null) {
                 if (classAttributeValue.startsWith("@")) {
+                    // '@' is used to bind class name to an element, whose value is the actual class name value
                     extensionClassElementName = classAttributeValue.substring(1);
                     ConfigurationShemaElement extensionDefaultClassNameElement = shemaElement.getChild(
                             extensionClassElementName);
@@ -61,6 +62,7 @@ public class ConfigurationElementImpl extends ConfigurationElementBaseImpl<Confi
                         extensionDefaultClassName = extensionDefaultClassNameElement.getValue();
                     }
                 } else if (classAttributeValue.startsWith("#")) {
+                    // '#' is used to bind class name to an attribute, whose value is the actual class name value
                     extensionClassAttributeName = classAttributeValue.substring(1);
                 }
             }
@@ -116,10 +118,10 @@ public class ConfigurationElementImpl extends ConfigurationElementBaseImpl<Confi
         return instance;
     }
 
-    private <T>Class<T> getExtensionClass(Class<T> extensionType, Class<T> extensionDefaultClass,
+    private <T>Class<T> getExtensionClass(Class<T> extensionType,
+                                          Class<T> extensionDefaultClass,
                                           String extensionClassAttributeName,
-                                          String extensionClassElementName
-    ) throws CoreException {
+                                          String extensionClassElementName) throws CoreException {
         Class<T> extensionClass = null;
         String extensionClassName = null;
         if (extensionClassElementName != null) {

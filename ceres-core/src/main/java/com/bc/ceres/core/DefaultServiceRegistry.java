@@ -1,15 +1,19 @@
 package com.bc.ceres.core;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @since 0.6
  */
 public class DefaultServiceRegistry<T> implements ServiceRegistry<T> {
+
     private final Class<T> serviceType;
     private HashSet<T> services = new HashSet<T>(10);
+
     private ArrayList<ServiceRegistryListener<T>> listeners = new ArrayList<ServiceRegistryListener<T>>(3);
-    private boolean metaInfServicesInit;
 
     public DefaultServiceRegistry(Class<T> serviceType) {
         Assert.notNull(serviceType, "serviceType");
@@ -21,12 +25,10 @@ public class DefaultServiceRegistry<T> implements ServiceRegistry<T> {
     }
 
     public Set<T> getServices() {
-        maybeAddMetaInfServices();
         return (Set<T>) services.clone();
     }
 
     public T getService(String className) {
-        maybeAddMetaInfServices();
         for (T service : services) {
             if (service.getClass().getName().equals(className)) {
                 return service;
@@ -35,24 +37,27 @@ public class DefaultServiceRegistry<T> implements ServiceRegistry<T> {
         return null;
     }
 
-    public void addService(T service) {
+    public boolean addService(T service) {
         Assert.notNull(service, "service");
-        maybeAddMetaInfServices();
-        if (services.add(service)) {
+        if (!services.contains(service)) {
+            services.add(service);
             for (ServiceRegistryListener<T> listener : listeners) {
                 listener.serviceAdded(this, service);
             }
+            return true;
         }
+        return false;
     }
 
-    public void removeService(T service) {
+    public boolean removeService(T service) {
         Assert.notNull(service, "service");
-        maybeAddMetaInfServices();
         if (services.remove(service)) {
             for (ServiceRegistryListener<T> listener : listeners) {
                 listener.serviceRemoved(this, service);
             }
+            return true;
         }
+        return false;
     }
 
     public List<ServiceRegistryListener<T>> getListeners() {
@@ -67,20 +72,5 @@ public class DefaultServiceRegistry<T> implements ServiceRegistry<T> {
     public void removeListener(ServiceRegistryListener<T> listener) {
         Assert.notNull(listener, "listener");
         listeners.remove(listener);
-    }
-
-    private void maybeAddMetaInfServices() {
-        if (!metaInfServicesInit) {
-            metaInfServicesInit = true;
-            addMetaInfServices();
-        }
-    }
-
-    private void addMetaInfServices() {
-        ServiceLoader sl = ServiceLoader.load(getServiceType());
-        sl.reload();
-        for (Object service : sl) {
-            addService((T) service);
-        }
     }
 }

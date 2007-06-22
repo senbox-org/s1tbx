@@ -4,14 +4,9 @@ import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-/**
- * Created by IntelliJ  IDEA.
- * User: Norman
- * Date: 22.08.2006
- * Time: 09:53:25
- * To change this template use File | Settings | File Templates.
- */
+
 public class Config {
+
     private static final File TEST_DIR;
     private static final String TEST_DIRNAME = "testdirs";
 
