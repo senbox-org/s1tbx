@@ -17,11 +17,12 @@
 package org.esa.beam.dataio.dimap.spi;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Iterator;
 import java.util.Set;
 
 import org.esa.beam.util.Debug;
+import org.esa.beam.framework.dataio.ProductWriterPlugIn;
+import org.esa.beam.BeamCoreActivator;
 import com.bc.ceres.core.ServiceRegistryFactory;
 import com.bc.ceres.core.ServiceRegistry;
 
@@ -35,11 +36,14 @@ import com.bc.ceres.core.ServiceRegistry;
 
 public final class DimapPersistableSpiRegistry {
 
-    private static List<DimapPersistableSpi> persistableSpiList;
+    private ServiceRegistry<DimapPersistableSpi> providers;
     private static DimapPersistableSpiRegistry instance;
 
     private DimapPersistableSpiRegistry() {
-        persistableSpiList = new ArrayList<DimapPersistableSpi>(5);
+        providers = ServiceRegistryFactory.getInstance().getServiceRegistry(DimapPersistableSpi.class);
+        if (!BeamCoreActivator.isStarted()) {
+            BeamCoreActivator.loadServices(providers);
+        }
     }
 
     /**
@@ -63,16 +67,14 @@ public final class DimapPersistableSpiRegistry {
     }
 
     public void addPersistableSpi(DimapPersistableSpi spi) {
-        if(!isRegistered(spi)) {
-            persistableSpiList.add(spi);
-        }
+        providers.addService(spi);
     }
 
     public Iterator<DimapPersistableSpi> getPersistableSpis() {
-        return persistableSpiList.iterator();
+        return providers.getServices().iterator();
     }
 
     public boolean isRegistered(DimapPersistableSpi spi) {
-        return persistableSpiList.contains(spi);
+        return providers.getService(spi.getClass().getName()) != null;
     }
 }

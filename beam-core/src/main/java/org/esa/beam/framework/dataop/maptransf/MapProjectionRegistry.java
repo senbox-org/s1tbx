@@ -18,7 +18,7 @@ package org.esa.beam.framework.dataop.maptransf;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryFactory;
-import org.esa.beam.util.Debug;
+import org.esa.beam.BeamCoreActivator;
 import org.esa.beam.util.Guardian;
 
 import java.util.LinkedList;
@@ -30,19 +30,16 @@ import java.util.Set;
  */
 public class MapProjectionRegistry {
 
-    private static final List<MapTransformDescriptor> transformDescriptorList = new LinkedList<MapTransformDescriptor>();
-    private static final List<MapProjection> projectionList = new LinkedList<MapProjection>();
+    private static final ServiceRegistry<MapTransformDescriptor> descriptors;
+    private static final List<MapProjection> projectionList;
 
     static {
+        projectionList = new LinkedList<MapProjection>();
         ServiceRegistryFactory factory = ServiceRegistryFactory.getInstance();
-        ServiceRegistry<MapTransformDescriptor> transformRegistry = factory.getServiceRegistry(MapTransformDescriptor.class);
-        Set<MapTransformDescriptor> mapTransformSet = transformRegistry.getServices();
-        Debug.trace("registering map transform descriptors...");
-        for (MapTransformDescriptor descriptor : mapTransformSet) {
-            registerDescriptor(descriptor);
-            Debug.trace("map transform descriptor registered: " + descriptor.getClass().getName());
+        descriptors = factory.getServiceRegistry(MapTransformDescriptor.class);
+        if (!BeamCoreActivator.isStarted()) {
+            BeamCoreActivator.loadServices(descriptors);
         }
-
     }
 
     /**
@@ -99,10 +96,7 @@ public class MapProjectionRegistry {
      * @param descriptor the new map transformation descriptor
      */
     public static void registerDescriptor(MapTransformDescriptor descriptor) {
-        if (descriptor != null && !transformDescriptorList.contains(descriptor)) {
-            transformDescriptorList.add(descriptor);
-            descriptor.registerProjections();
-        }
+        descriptors.addService(descriptor);
     }
 
     /**
@@ -111,8 +105,7 @@ public class MapProjectionRegistry {
      * @return an array of all registered descriptors, never <code>null</code>
      */
     public static MapTransformDescriptor[] getDescriptors() {
-        return transformDescriptorList.toArray(
-                new MapTransformDescriptor[transformDescriptorList.size()]);
+        return descriptors.getServices().toArray(new MapTransformDescriptor[0]);
     }
 
     /**
@@ -124,9 +117,10 @@ public class MapProjectionRegistry {
      */
     public static MapTransformDescriptor getDescriptor(String typeID) {
         Guardian.assertNotNullOrEmpty("typeID", typeID);
-        for (MapTransformDescriptor transformDescriptor : transformDescriptorList) {
-            if (typeID.equalsIgnoreCase(transformDescriptor.getTypeID())) {
-                return transformDescriptor;
+        Set<MapTransformDescriptor> services = descriptors.getServices();
+        for (MapTransformDescriptor descriptor : services) {
+            if (typeID.equalsIgnoreCase(descriptor.getTypeID())) {
+                return descriptor;
             }
         }
         return null;

@@ -18,15 +18,14 @@ package org.esa.beam.framework.dataio;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryFactory;
+import org.esa.beam.BeamCoreActivator;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
-import org.esa.beam.util.logging.BeamLogManager;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
 
 /**
  * The <code>ProductIOPlugInManager</code> class is used to manage all registered reader and writer plug-ins.
@@ -39,9 +38,8 @@ import java.util.logging.Logger;
 public class ProductIOPlugInManager {
 
     private static ProductIOPlugInManager instance;
-    private final List<ProductReaderPlugIn> readerPlugIns;
-    private final List<ProductWriterPlugIn> writerPlugIns;
-    private static Logger logger = BeamLogManager.getSystemLogger();
+    private final ServiceRegistry<ProductReaderPlugIn> readerPlugIns;
+    private final ServiceRegistry<ProductWriterPlugIn> writerPlugIns;
 
     /**
      * Gets this's managers singleton instance.
@@ -49,21 +47,6 @@ public class ProductIOPlugInManager {
     public synchronized static ProductIOPlugInManager getInstance() {
         if (instance == null) {
             instance = new ProductIOPlugInManager();
-            ServiceRegistryFactory factory = ServiceRegistryFactory.getInstance();
-            ServiceRegistry<ProductReaderPlugIn> readerRegistry = factory.getServiceRegistry(ProductReaderPlugIn.class);
-            Set<ProductReaderPlugIn> readerServices = readerRegistry.getServices();
-            Debug.trace("registering product reader plugins...");
-            for (ProductReaderPlugIn plugIn : readerServices) {
-                instance.addReaderPlugIn(plugIn);
-                Debug.trace("product reader plugin registered: " + plugIn.getClass().getName());
-            }
-            ServiceRegistry<ProductWriterPlugIn> writerRegistry = factory.getServiceRegistry(ProductWriterPlugIn.class);
-            Set<ProductWriterPlugIn> writerServices = writerRegistry.getServices();
-            Debug.trace("registering product writer plugins...");
-            for (ProductWriterPlugIn plugIn : writerServices) {
-                instance.addWriterPlugIn(plugIn);
-                Debug.trace("product writer plugin registered: " + plugIn.getClass().getName());
-            }
         }
         return instance;
     }
@@ -75,7 +58,7 @@ public class ProductIOPlugInManager {
      * @return an iterator containing all registered reader plug-ins
      */
     public Iterator getAllReaderPlugIns() {
-        return readerPlugIns.iterator();
+        return readerPlugIns.getServices().iterator();
     }
 
     /**
@@ -88,7 +71,7 @@ public class ProductIOPlugInManager {
      */
     public Iterator getReaderPlugIns(String formatName) {
         Guardian.assertNotNull("formatName", formatName);
-        return getProductIOPlugIns(readerPlugIns, formatName);
+        return getProductIOPlugIns(readerPlugIns.getServices(), formatName);
     }
 
     /**
@@ -98,16 +81,7 @@ public class ProductIOPlugInManager {
      * @param readerPlugIn the reader plug-in to be added to this manager
      */
     public void addReaderPlugIn(ProductReaderPlugIn readerPlugIn) {
-        if (readerPlugIn != null) {
-            for (Object _readerPlugIn : readerPlugIns) {
-                ProductIOPlugIn productIOPlugIn = (ProductIOPlugIn) _readerPlugIn;
-                if (productIOPlugIn.equals(readerPlugIn) ||
-                    productIOPlugIn.getClass().equals(readerPlugIn.getClass())) {
-                    return;
-                }
-            }
-            readerPlugIns.add(readerPlugIn);
-        }
+        readerPlugIns.addService(readerPlugIn);
     }
 
     /**
@@ -119,7 +93,7 @@ public class ProductIOPlugInManager {
      * @return <code>true</code> if this manager contained the specified reader plug-in
      */
     public boolean removeReaderPlugIn(ProductReaderPlugIn readerPlugIn) {
-        return readerPlugIn != null && readerPlugIns.remove(readerPlugIn);
+        return readerPlugIns.removeService(readerPlugIn);
     }
 
     /**
@@ -129,7 +103,7 @@ public class ProductIOPlugInManager {
      * @return an iterator containing all registered writer plug-ins
      */
     public Iterator getAllWriterPlugIns() {
-        return writerPlugIns.iterator();
+        return writerPlugIns.getServices().iterator();
     }
 
     /**
@@ -142,7 +116,7 @@ public class ProductIOPlugInManager {
      */
     public Iterator getWriterPlugIns(String formatName) {
         Guardian.assertNotNull("formatName", formatName);
-        return getProductIOPlugIns(writerPlugIns, formatName);
+        return getProductIOPlugIns(writerPlugIns.getServices(), formatName);
     }
 
 
@@ -153,16 +127,7 @@ public class ProductIOPlugInManager {
      * @param writerPlugIn the writer plug-in to be added to this manager
      */
     public void addWriterPlugIn(ProductWriterPlugIn writerPlugIn) {
-
-        if (writerPlugIn != null) {
-            for (ProductWriterPlugIn productIOPlugIn : writerPlugIns) {
-                if (productIOPlugIn.equals(writerPlugIn) ||
-                    productIOPlugIn.getClass().equals(writerPlugIn.getClass())) {
-                    return;
-                }
-            }
-            writerPlugIns.add(writerPlugIn);
-        }
+        writerPlugIns.addService(writerPlugIn);
     }
 
     /**
@@ -174,7 +139,7 @@ public class ProductIOPlugInManager {
      * @return <code>true</code> if this manager contained the specified writer plug-in
      */
     public boolean removeWriterPlugIn(ProductWriterPlugIn writerPlugIn) {
-        return writerPlugIn != null && writerPlugIns.remove(writerPlugIn);
+        return writerPlugIns.removeService(writerPlugIn);
     }
 
     /**
@@ -207,18 +172,16 @@ public class ProductIOPlugInManager {
     /////// END OF PUBLIC
     ///////////////////////////////////////////////////////////////////////////
 
-    private static Iterator getProductIOPlugIns(List ioPlugIns, String formatName) {
+    private static Iterator getProductIOPlugIns(Set<? extends ProductIOPlugIn> ioPlugIns, String formatName) {
         Debug.assertNotNull(ioPlugIns);
         Debug.assertNotNull(formatName);
 
         List<ProductIOPlugIn> validPlugins = new ArrayList<ProductIOPlugIn>();
-        // Reverse iterate through list (LIFO order)
-        for (int i = ioPlugIns.size() - 1; i >= 0; --i) {
-            ProductIOPlugIn plugin = (ProductIOPlugIn) ioPlugIns.get(i);
-            String[] formatNames = plugin.getFormatNames();
+        for (ProductIOPlugIn plugIn : ioPlugIns) {
+            String[] formatNames = plugIn.getFormatNames();
             for (String otherFormatName : formatNames) {
                 if (otherFormatName.equalsIgnoreCase(formatName)) {
-                    validPlugins.add(plugin);
+                    validPlugins.add(plugIn);
                 }
             }
         }
@@ -229,7 +192,13 @@ public class ProductIOPlugInManager {
      * Protected constructor - singleton
      */
     protected ProductIOPlugInManager() {
-        readerPlugIns = new ArrayList<ProductReaderPlugIn>();
-        writerPlugIns = new ArrayList<ProductWriterPlugIn>();
+        ServiceRegistryFactory factory = ServiceRegistryFactory.getInstance();
+        readerPlugIns = factory.getServiceRegistry(ProductReaderPlugIn.class);
+        writerPlugIns = factory.getServiceRegistry(ProductWriterPlugIn.class);
+
+        if (!BeamCoreActivator.isStarted()) {
+            BeamCoreActivator.loadServices(readerPlugIns);
+            BeamCoreActivator.loadServices(writerPlugIns);
+        }
     }
 }

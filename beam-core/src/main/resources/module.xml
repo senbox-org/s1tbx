@@ -47,4 +47,13 @@
     </extensionPoint>
 
 
+    <extension point="ceres-core:serviceProviders">
+        <serviceProvider>org.esa.beam.dataio.dimap.spi.DimapPersistableSpi</serviceProvider>
+        <serviceProvider>org.esa.beam.framework.dataio.ProductReaderPlugIn</serviceProvider>
+        <serviceProvider>org.esa.beam.framework.dataio.ProductWriterPlugIn</serviceProvider>
+        <serviceProvider>org.esa.beam.framework.dataop.maptransf.MapTransformDescriptor</serviceProvider>
+        <serviceProvider>org.esa.beam.framework.dataop.dem.ElevationModelDescriptor</serviceProvider>
+        <serviceProvider>org.esa.beam.framework.datamodel.PointingFactory</serviceProvider>
+    </extension>
+
 </module>

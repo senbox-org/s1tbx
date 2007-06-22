@@ -16,12 +16,12 @@
  */
 package org.esa.beam.framework.datamodel;
 
-import java.util.HashMap;
-import java.util.Set;
-
-import com.bc.ceres.core.ServiceRegistryFactory;
 import com.bc.ceres.core.ServiceRegistry;
-import org.esa.beam.util.Debug;
+import com.bc.ceres.core.ServiceRegistryFactory;
+import org.esa.beam.BeamCoreActivator;
+import org.esa.beam.util.Guardian;
+
+import java.util.Set;
 
 /**
  * Created by Marco Peters.
@@ -33,7 +33,7 @@ public class PointingFactoryRegistry {
 
     private static PointingFactoryRegistry instance;
 
-    private final HashMap<String, PointingFactory> typeToFactoryMap = new HashMap<String, PointingFactory>();
+    private static ServiceRegistry<PointingFactory> typeToFactoryMap;
 
 
     private PointingFactoryRegistry() {
@@ -44,26 +44,30 @@ public class PointingFactoryRegistry {
         if (instance == null) {
             instance = new PointingFactoryRegistry();
             ServiceRegistryFactory factory = ServiceRegistryFactory.getInstance();
-            ServiceRegistry<PointingFactory> pointingRegistry = factory.getServiceRegistry(PointingFactory.class);
-            Set<PointingFactory> pointingFactorySet = pointingRegistry.getServices();
-            Debug.trace("registering pointing factories...");
-            for (PointingFactory pointingFactory : pointingFactorySet) {
-                instance.addFactory(pointingFactory);
-                Debug.trace("pointing factory registered: " + pointingFactory.getClass().getName());
+            typeToFactoryMap = factory.getServiceRegistry(PointingFactory.class);
+            if (!BeamCoreActivator.isStarted()) {
+                BeamCoreActivator.loadServices(typeToFactoryMap);
             }
         }
         return instance;
     }
 
     public PointingFactory getPointingFactory(String productType) {
-        return typeToFactoryMap.get(productType);
+        Guardian.assertNotNullOrEmpty("productType", productType);
+        Set<PointingFactory> services = typeToFactoryMap.getServices();
+        for (PointingFactory descriptor : services) {
+            String[] supportedProductTypes = descriptor.getSupportedProductTypes();
+            for (String supportedType : supportedProductTypes) {
+                if (productType.equalsIgnoreCase(supportedType)) {
+                    return descriptor;
+                }
+            }
+        }
+        return null;
     }
 
     public void addFactory(PointingFactory pointingFactory) {
-        String[] supportedProductTypes = pointingFactory.getSupportedProductTypes();
-        for (String productType : supportedProductTypes) {
-            typeToFactoryMap.put(productType, pointingFactory);
-        }
+            typeToFactoryMap.addService(pointingFactory);
     }
 
 }

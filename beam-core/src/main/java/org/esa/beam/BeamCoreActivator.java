@@ -17,6 +17,7 @@
 package org.esa.beam;
 
 import com.bc.ceres.core.CoreException;
+import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.runtime.Activator;
 import com.bc.ceres.core.runtime.ConfigurationElement;
 import com.bc.ceres.core.runtime.Extension;
@@ -30,6 +31,7 @@ import org.esa.beam.framework.datamodel.RGBImageProfileManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.logging.Level;
 
 /**
@@ -43,11 +45,26 @@ import java.util.logging.Level;
  */
 public class BeamCoreActivator implements Activator {
 
+    private static ModuleContext moduleContext;
+
+    public static boolean isStarted() {
+        return moduleContext != null;
+    }
+
+    public static <T> void loadServices(ServiceRegistry<T> registry)  {
+        ServiceLoader<T> serviceLoader = ServiceLoader.load(registry.getServiceType());
+        for (T service : serviceLoader) {
+            registry.addService(service);
+        }
+    }
+
     public void start(ModuleContext moduleContext) throws CoreException {
+        this.moduleContext = moduleContext;
         registerRGBProfiles(moduleContext);
     }
 
     public void stop(ModuleContext moduleContext) throws CoreException {
+        this.moduleContext = null;
     }
 
     private static void registerRGBProfiles(ModuleContext moduleContext) throws CoreException {

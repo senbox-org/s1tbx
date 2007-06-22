@@ -8,9 +8,11 @@ package org.esa.beam.framework.dataop.dem;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryFactory;
+import org.esa.beam.BeamCoreActivator;
 import org.esa.beam.util.Debug;
+import org.esa.beam.util.Guardian;
 
-import java.util.HashMap;
+import java.util.ServiceLoader;
 import java.util.Set;
 
 /**
@@ -23,41 +25,42 @@ import java.util.Set;
 public class ElevationModelRegistry {
 
     private static ElevationModelRegistry instance;
-    private final HashMap<String, ElevationModelDescriptor> map;
+    private final ServiceRegistry<ElevationModelDescriptor> descriptors;
 
     private ElevationModelRegistry() {
-        map = new HashMap<String, ElevationModelDescriptor>(3);
+        descriptors = ServiceRegistryFactory.getInstance().getServiceRegistry(ElevationModelDescriptor.class);
+        if (!BeamCoreActivator.isStarted()) {
+            BeamCoreActivator.loadServices(descriptors);
+        }
     }
 
     public synchronized static ElevationModelRegistry getInstance() {
         if (instance == null) {
             instance = new ElevationModelRegistry();
-
-            ServiceRegistryFactory factory = ServiceRegistryFactory.getInstance();
-            ServiceRegistry<ElevationModelDescriptor> demRegistry = factory.getServiceRegistry(ElevationModelDescriptor.class);
-            Set<ElevationModelDescriptor> demDescriptorSet = demRegistry.getServices();
-            Debug.trace("registering elevation model descriptors...");
-            for (ElevationModelDescriptor descriptor : demDescriptorSet) {
-                instance.addDescriptor(descriptor);
-                Debug.trace("elevation model descriptor registered: " + descriptor.getClass().getName());
-            }
         }
         return instance;
     }
 
     public void addDescriptor(ElevationModelDescriptor elevationModelDescriptor) {
-        map.put(elevationModelDescriptor.getName(), elevationModelDescriptor);
+        descriptors.addService(elevationModelDescriptor);
     }
 
     public void removeDescriptor(ElevationModelDescriptor elevationModelDescriptor) {
-        map.remove(elevationModelDescriptor.getName());
+        descriptors.removeService(elevationModelDescriptor);
     }
 
     public ElevationModelDescriptor getDescriptor(String demName) {
-        return map.get(demName);
+        Guardian.assertNotNullOrEmpty("demName", demName);
+        Set<ElevationModelDescriptor> services = descriptors.getServices();
+        for (ElevationModelDescriptor descriptor : services) {
+            if (demName.equalsIgnoreCase(descriptor.getName())) {
+                return descriptor;
+            }
+        }
+        return null;
     }
 
     public ElevationModelDescriptor[] getAllDescriptors() {
-        return map.values().toArray(new ElevationModelDescriptor[0]);
+        return descriptors.getServices().toArray(new ElevationModelDescriptor[0]);
     }
 }
