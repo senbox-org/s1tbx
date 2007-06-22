@@ -40,6 +40,10 @@ public class MapProjectionRegistry {
         if (!BeamCoreActivator.isStarted()) {
             BeamCoreActivator.loadServices(descriptors);
         }
+        Set<MapTransformDescriptor> services = descriptors.getServices();
+        for (MapTransformDescriptor descriptor : services) {
+            descriptor.registerProjections();               
+        }
     }
 
     /**
@@ -97,6 +101,7 @@ public class MapProjectionRegistry {
      */
     public static void registerDescriptor(MapTransformDescriptor descriptor) {
         descriptors.addService(descriptor);
+        descriptor.registerProjections();
     }
 
     /**
