@@ -30,7 +30,7 @@ class ModuleClassLoader extends URLClassLoader {
     }
 
     @Override
-    public String findLibrary(String libname) {
+    protected String findLibrary(String libname) {
         for (URL url : nativeUrls) {
             if (url.toExternalForm().endsWith(System.mapLibraryName(libname))) {
                 return FileHelper.urlToFile(url).getAbsolutePath();
@@ -46,6 +46,7 @@ class ModuleClassLoader extends URLClassLoader {
         }
         ClassLoader parent = getParent();
         if (parent instanceof ModuleClassLoader) {
+            // Must cast, otherwise we cannot call protected ClassLoader.findLibrary() method
             String path = ((ModuleClassLoader) parent).findLibrary(libname);
             if (path != null) {
                 return path;
@@ -56,21 +57,19 @@ class ModuleClassLoader extends URLClassLoader {
 
     @Override
     public URL findResource(final String name) {
-        URL resource = super.findResource(name);
-        if (resource != null) {
-            return resource;
-        }
         for (ClassLoader delegate : delegates) {
-            resource = delegate.getResource(name);
+            URL resource = delegate.getResource(name);
             if (resource != null) {
                 return resource;
             }
         }
-        return null;
+        return super.findResource(name);
     }
 
     @Override
     public Enumeration<URL> findResources(final String name) throws IOException {
+        // todo - check - first search in delegates???
+
         final Enumeration<URL> resources = super.findResources(name);
         if (delegates.length == 0) {
             return resources;
@@ -80,33 +79,19 @@ class ModuleClassLoader extends URLClassLoader {
         for (ClassLoader delegate : delegates) {
             urls.addAll(Collections.list(delegate.getResources(name)));
         }
-
-        final Iterator<URL> iterator = urls.iterator();
-        return new Enumeration<URL>() {
-            public boolean hasMoreElements() {
-                return iterator.hasNext();
-            }
-
-            public URL nextElement() {
-                return iterator.next();
-            }
-        };
+        return Collections.enumeration(urls) ;
     }
 
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        try {
-            return super.findClass(name);
-        } catch (ClassNotFoundException cne) {
-            for (ClassLoader delegate : delegates) {
-                try {
-                    return delegate.loadClass(name);
-                } catch (ClassNotFoundException e) {
-                    // ignore, we already have a ClassNotFoundException = cne
-                }
+        for (ClassLoader delegate : delegates) {
+            try {
+                return delegate.loadClass(name);
+            } catch (ClassNotFoundException e) {
+                // ignore, we still can try more
             }
-            throw cne;
         }
+        return super.findClass(name);
     }
 
     public ClassLoader[] getDelegates() {
