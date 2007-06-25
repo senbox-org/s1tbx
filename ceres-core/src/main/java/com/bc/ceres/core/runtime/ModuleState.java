@@ -44,6 +44,10 @@ public enum ModuleState {
         return value;
     }
 
+    public boolean is(ModuleState state) {
+        return (value & state.value) != 0;
+    }
+
     public boolean isOneOf(ModuleState state0, ModuleState... states) {
         int result = state0.value;
         for (ModuleState state : states) {
