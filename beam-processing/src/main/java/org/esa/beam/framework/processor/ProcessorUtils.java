@@ -40,39 +40,6 @@ public class ProcessorUtils {
 
     private static Logger _logger = BeamLogManager.getSystemLogger();
 
-    /**
-     * Creates a <code>BitmaskTerm</code> from the bitmask expression string passed in and validates that the product
-     * supplied can interpret the expression.
-     *
-     * @param bitmaskExpression the bitmask expression string
-     * @param prod              the product to interprete the bitmask
-     *
-     * @return a validated bitmask term
-     *
-     * @throws ProcessorException on any failure
-     * @deprecated use {@link #createTerm(String, org.esa.beam.framework.datamodel.Product)} instead
-     */
-    public static org.esa.beam.framework.dataop.bitmask.BitmaskTerm createBitmaskTerm(String bitmaskExpression, Product prod) throws ProcessorException {
-        Guardian.assertNotNull("bitmask expression", bitmaskExpression);
-        Guardian.assertNotNull("Product", prod);
-
-        org.esa.beam.framework.dataop.bitmask.BitmaskTerm term;
-
-        try {
-            // try to creat a bitmask term - checks the correct syntax of the expression string
-            term = Product.createBitmaskTerm(bitmaskExpression);
-            // asp product if it contains all data needed to forEachPixel the bitmask
-            if (!prod.isCompatibleBitmaskTerm(term)) {
-                throw new ProcessorException(
-                        "The bitmask: '" + bitmaskExpression + "' is not compatible with the product.\nPlease check the bitmask expression.");
-            }
-        } catch (org.esa.beam.framework.dataop.bitmask.BitmaskExpressionParseException e) {
-            throw new ProcessorException(
-                    "Unable to parse bitmask expression '" + bitmaskExpression + "':\n" + e.getMessage(), e);
-        }
-
-        return term;
-    }
 
     /**
      * Creates a <code>Term</code> from the expression string passed in and validates that the product

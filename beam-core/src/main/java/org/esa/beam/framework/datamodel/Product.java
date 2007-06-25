@@ -35,9 +35,6 @@ import org.esa.beam.framework.dataop.barithm.RasterDataEvalEnv;
 import org.esa.beam.framework.dataop.barithm.RasterDataLoop;
 import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
 import org.esa.beam.framework.dataop.barithm.SingleFlagSymbol;
-import org.esa.beam.framework.dataop.bitmask.BitmaskTermEvalContext;
-import org.esa.beam.framework.dataop.bitmask.DefaultBitmaskTermEvalContext;
-import org.esa.beam.framework.dataop.bitmask.DefaultFlagDataset;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.maptransf.MapProjection;
 import org.esa.beam.framework.dataop.maptransf.MapTransform;
@@ -1389,27 +1386,6 @@ public class Product extends ProductNode {
     }
 
     /**
-     * Checks whether or not the given bitmask term is compatible with this product.
-     *
-     * @return <code>false</code> if the bitmask has a valid expression and(!) the flag name is not contained in this
-     *         data product, <code>true</code> otherwise.
-     *
-     * @deprecated use {@link #isCompatibleTerm(com.bc.jexp.Term)} instead
-     */
-    public boolean isCompatibleBitmaskTerm(final org.esa.beam.framework.dataop.bitmask.BitmaskTerm term) {
-        if (term != null) {
-            final String[] termFlags = term.getReferencedFlagNames();
-            final String[] productFlags = getAllFlagNames();
-            for (int i = 0; i < termFlags.length; i++) {
-                if (!StringUtils.containsIgnoreCase(productFlags, termFlags[i])) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
      * Checks whether or not the given term is compatible with this product.
      *
      * @return <code>false</code> if the term has an expression referencing nodes which are not contained in
@@ -1770,149 +1746,6 @@ public class Product extends ProductNode {
     }
 
     /**
-     * Creates a bit-mask term tree by parsing a bit-mask expression given as a text string. This convinience method
-     * simply returns <code>{@link org.esa.beam.framework.dataop.bitmask.BitmaskExpressionParser#parse BitmaskExpressionParser.parse(bitmaskExpression)}</code>.
-     * For the syntax of bit-mask expression please refer to the API documentation of the
-     * {@link org.esa.beam.framework.dataop.bitmask.BitmaskExpressionParser} class.
-     *
-     * @param bitmaskExpression a bit-mask expression given as a text string
-     *
-     * @return a bit-mask-term parsed from the given text string
-     *
-     * @throws org.esa.beam.framework.dataop.bitmask.BitmaskExpressionParseException
-     *          if the expression could not successfully be parsed
-     * @see #getAllFlagNames()
-     * @deprecated use {@link #createTerm(String)} instead
-     */
-    public static org.esa.beam.framework.dataop.bitmask.BitmaskTerm createBitmaskTerm(final String bitmaskExpression)
-            throws org.esa.beam.framework.dataop.bitmask.BitmaskExpressionParseException {
-        return org.esa.beam.framework.dataop.bitmask.BitmaskExpressionParser.parse(bitmaskExpression);
-    }
-
-    /**
-     * Creates a context in which the given bit-mask term can be evaluated. The evaluation is restricted to the
-     * specified region in pixels.
-     * <p/>
-     * <p> If bands are referenced in the given bit-mask expression which are currently not completely loaded, the
-     * method reloads the region from the data source in order to create the evaluation context.
-     * </p>
-     * <p> The {@link #createBitmaskTerm(String) <code>createBitmaskTerm</code>} method can be used to create a bit-mask
-     * term from a textual bit-mask expression.
-     *
-     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createBitmaskTerm(String) createBitmaskTerm}
-     *                    method
-     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
-     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
-     * @param width       the width of the spatial subset in pixel co-ordinates
-     * @param height      the height of the spatial subset in pixel co-ordinates
-     *
-     * @throws IOException if an I/O error occurs
-     * @see #createBitmaskTerm(String)
-     * @deprecated no replacement
-     */
-    public BitmaskTermEvalContext createBitmaskContext(
-            final org.esa.beam.framework.dataop.bitmask.BitmaskTerm bitmaskTerm,
-            final int offsetX,
-            final int offsetY,
-            final int width,
-            final int height) throws IOException {
-        final String[] flagDatasetNames = bitmaskTerm.getReferencedDatasetNames();
-        final DefaultFlagDataset[] flagDatasets = new DefaultFlagDataset[flagDatasetNames.length];
-        for (int i = 0; i < flagDatasetNames.length; i++) {
-            final String datasetName = flagDatasetNames[i];
-            final Band flagsBand = getProduct().getBand(datasetName);
-            if (flagsBand == null) {
-                throw new IllegalStateException(
-                        "flag dataset '"
-                        + datasetName
-                        + "' was referenced in bitmask expression but was not found in product");  /*I18N*/
-            }
-            final FlagCoding flagCoding = flagsBand.getFlagCoding();
-            if (flagCoding == null) {
-                throw new IllegalStateException(
-                        "flag dataset '"
-                        + datasetName
-                        + "' was referenced in bitmask expression but has no flags coding information"); /*I18N*/
-            }
-            ProductData flagSamples;
-            final boolean allPixels = offsetX == 0
-                                      && offsetY == 0
-                                      && width == flagsBand.getRasterWidth()
-                                      && height == flagsBand.getRasterHeight();
-            final ProductData bandRasterData = flagsBand.getRasterData();
-            if (bandRasterData != null) {
-                if (allPixels) {
-                    flagSamples = bandRasterData;
-                } else {
-                    flagSamples = flagsBand.createCompatibleRasterData(width, height);
-                    int sourcePos;
-                    int destPos = 0;
-                    final int maxX = offsetX + width - 1;
-                    final int maxY = offsetY + height - 1;
-                    for (int y = offsetY; y <= maxY; y++) {
-                        for (int x = offsetX; x <= maxX; x++) {
-                            sourcePos = y * flagsBand.getSceneRasterWidth() + x;
-                            flagSamples.setElemIntAt(destPos, bandRasterData.getElemIntAt(sourcePos));
-                            destPos++;
-                        }
-                    }
-                }
-            } else {
-                flagSamples = flagsBand.createCompatibleRasterData(width, height);
-                flagsBand.readRasterData(offsetX, offsetY, width, height, flagSamples, ProgressMonitor.NULL);
-                if (allPixels) {
-                    flagsBand.setRasterData(flagSamples);
-                    Debug.trace("Raster data for band '" + flagsBand.getName() + "' implicitely set");
-                }
-            }
-            flagDatasets[i] = DefaultFlagDataset.create(flagCoding, flagSamples);
-        }
-        return new DefaultBitmaskTermEvalContext(flagDatasets);
-    }
-
-    /**
-     * Creates a bit-mask by evaluating the given bit-mask term.
-     * <p/>
-     * <p> The method first creates an evaluation context for the given bit-mask term and the specified region and then
-     * evaluates the term for each pixel in the subset (line-by-line, X varies fastest). The result of each evaluation -
-     * the resulting bitmask - is stored in the given boolean array buffer <code>bitmask</code> in the same order as
-     * pixels appear in the given region. The buffer must at least have a length equal to <code>width * height</code>
-     * elements.
-     * </p>
-     * <p> If flag providing datasets are referenced in the given bit-mask expression which are currently not completely
-     * loaded, the method reloads the spatial subset from the data source in order to create the evaluation context.
-     * </p>
-     * <p> The {@link #createBitmaskTerm(String) <code>createBitmaskTerm</code>} method can be used to create a bit-mask
-     * term from a textual bit-mask expression.
-     *
-     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
-     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
-     * @param width       the width of the spatial subset in pixel co-ordinates
-     * @param height      the height of the spatial subset in pixel co-ordinates
-     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createBitmaskTerm(String) createBitmaskTerm}
-     *                    method
-     * @param bitmask     a buffer used to hold the results of the bit-mask evaluations for each pixel in the given
-     *                    spatial subset
-     *
-     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
-     * @deprecated use {@link #readBitmask(int, int, int, int, Term, boolean[])} instead
-     */
-    public void readBitmask(final int offsetX,
-                            final int offsetY,
-                            final int width,
-                            final int height,
-                            final org.esa.beam.framework.dataop.bitmask.BitmaskTerm bitmaskTerm,
-                            final boolean[] bitmask) throws IOException {
-        final BitmaskTermEvalContext bitmaskContext = createBitmaskContext(bitmaskTerm, offsetX, offsetY, width,
-                                                                           height);
-        final int n = width * height;
-        for (int i = 0; i < n; i++) {
-            bitmask[i] = bitmaskTerm.evaluate(bitmaskContext, i);
-        }
-        bitmaskContext.dispose();
-    }
-
-    /**
      * Creates a bit-mask by evaluating the given bit-mask term.
      * <p> The method first creates an evaluation context for the given bit-mask term and the specified region and then
      * evaluates the term for each pixel in the subset (line-by-line, X varies fastest). The result of each evaluation -
@@ -1991,55 +1824,6 @@ public class Product extends ProductNode {
                 bitmask[elemIndex] = bitmaskTerm.evalB(env);
             }
         });
-    }
-
-    /**
-     * Creates a bit-mask by evaluating the given bit-mask term.
-     * <p/>
-     * <p> The method first creates an evaluation context for the given bit-mask term and the specified region and then
-     * evaluates the term for each pixel in the subset (line-by-line, X varies fastest). The result of each evaluation -
-     * the resulting bitmask - is stored in the given boolean array buffer <code>bitmask</code> in the same order as
-     * pixels appear in the given region. The buffer must at least have a length equal to <code>width * height</code>
-     * elements.
-     * </p>
-     * <p> If flag providing datasets are referenced in the given bit-mask expression which are currently not completely
-     * loaded, the method reloads the spatial subset from the data source in order to create the evaluation context.
-     * </p>
-     * <p> The {@link #createBitmaskTerm(String) <code>createBitmaskTerm</code>} method can be used to create a bit-mask
-     * term from a textual bit-mask expression.
-     *
-     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
-     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
-     * @param width       the width of the spatial subset in pixel co-ordinates
-     * @param height      the height of the spatial subset in pixel co-ordinates
-     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createBitmaskTerm(String) createBitmaskTerm}
-     *                    method
-     * @param bitmask     a byte buffer used to hold the results of the bit-mask evaluations for each pixel in the given
-     *                    spatial subset
-     * @param trueValue   the byte value to be set if the bitmask-term evauates to <code>true</code>
-     * @param falseValue  the byte value to be set if the bitmask-term evauates to <code>false</code>
-     *
-     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
-     * @deprecated use {@link #readBitmask(int, int, int, int, Term, byte[], byte, byte)} instead.
-     */
-    public void readBitmask(final int offsetX,
-                            final int offsetY,
-                            final int width,
-                            final int height,
-                            final org.esa.beam.framework.dataop.bitmask.BitmaskTerm bitmaskTerm,
-                            final byte[] bitmask,
-                            final byte trueValue,
-                            final byte falseValue) throws IOException {
-        final BitmaskTermEvalContext bitmaskContext = createBitmaskContext(bitmaskTerm, offsetX, offsetY, width,
-                                                                           height);
-        for (int i = 0; i < bitmask.length; i++) {
-            if (bitmaskTerm.evaluate(bitmaskContext, i)) {
-                bitmask[i] = trueValue;
-            } else {
-                bitmask[i] = falseValue;
-            }
-        }
-        bitmaskContext.dispose();
     }
 
     /**
@@ -2138,44 +1922,6 @@ public class Product extends ProductNode {
         }, "Reading bitmask...");  /*I18N*/
     }
 
-    /**
-     * Creates a bit-mask by evaluating the given bit-mask term.
-     * <p/>
-     * <p> The method works exactly as {@link #readBitmask(int,int,int,int,Term,byte[],byte,byte)}, but in this
-     * the bitmnask is represented by an array of integers to be filled.
-     *
-     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
-     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
-     * @param width       the width of the spatial subset in pixel co-ordinates
-     * @param height      the height of the spatial subset in pixel co-ordinates
-     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createBitmaskTerm(String) createBitmaskTerm}
-     *                    method
-     * @param bitmask     an integer buffer used to hold the results of the bit-mask evaluations for each pixel in the
-     *                    given spatial subset
-     * @param trueValue   the integer value to be set if the bitmask-term evauates to <code>true</code>
-     *
-     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
-     * @deprecated use {@link #readBitmask(int, int, int, int, com.bc.jexp.Term, int[], int, int)} instead
-     */
-    public void readBitmask(final int offsetX,
-                            final int offsetY,
-                            final int width,
-                            final int height,
-                            final org.esa.beam.framework.dataop.bitmask.BitmaskTerm bitmaskTerm,
-                            final int[] bitmask,
-                            final int trueValue,
-                            final int falseValue) throws IOException {
-        final BitmaskTermEvalContext bitmaskContext = createBitmaskContext(bitmaskTerm, offsetX, offsetY, width,
-                                                                           height);
-        for (int i = 0; i < bitmask.length; i++) {
-            if (bitmaskTerm.evaluate(bitmaskContext, i)) {
-                bitmask[i] = trueValue;
-            } else {
-                bitmask[i] = falseValue;
-            }
-        }
-        bitmaskContext.dispose();
-    }
 
     /**
      * Creates a bit-mask by evaluating the given bit-mask term.
@@ -2252,85 +1998,6 @@ public class Product extends ProductNode {
                 }
             }
         });
-    }
-
-
-    /**
-     * Masks the given raster data for the specified region using the given bit-mask term. At each pixel position,
-     * where the given term evaluates to <code>false</code>, the given buffer is masked with zero.
-     * <p> The method simply delegates its call to <code>maskProductData(bitmaskTerm, offsetX, offsetY, width, height,
-     * rasterData, false, 0.0F)</code>.
-     * </p>
-     * <p> The {@link #createBitmaskTerm(String) <code>createBitmaskTerm</code>} method can be used to create a bit-mask
-     * term from a textual bit-mask expression.
-     *
-     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createBitmaskTerm(String) createBitmaskTerm}
-     *                    method
-     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
-     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
-     * @param width       the width of the spatial subset in pixel co-ordinates
-     * @param height      the height of the spatial subset in pixel co-ordinates
-     * @param rasterData  the raster data which is masked with  <code>0.0</code> if the term evaluates to
-     *                    <code>false</code> at a given pixel position
-     *
-     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
-     * @deprecated use {@link #maskProductData(int, int, int, int, com.bc.jexp.Term, ProductData, boolean, double)} instead
-     */
-    public void maskProductData(final int offsetX,
-                                final int offsetY,
-                                final int width,
-                                final int height,
-                                final org.esa.beam.framework.dataop.bitmask.BitmaskTerm bitmaskTerm,
-                                final ProductData rasterData) throws IOException {
-        maskProductData(offsetX, offsetY, width, height, bitmaskTerm, rasterData, false, 0.0F);
-    }
-
-    /**
-     * Masks the given raster data for the specified region using the a given bit-mask term.
-     * <p/>
-     * <p> The method first creates an evaluation context for the given bit-mask term and the specified region and then
-     * evaluates the term for each pixel in the subset (line-by-line, X varies fastest). If the bit-mask term evaluates
-     * to <code>termValue</code> at the current pixel position, then <code>maskValue</code> is set at the corrresponding
-     * position in <code>rasterData</code> instead of the original pixel value. If the bit-mask term does not forEachPixel
-     * to <code>bitmaskTermValue</code> then the original pixel value in <code>rasterData</code> remains unchanged. The
-     * buffer must at least have a length equal to <code>width * height</code> elements.
-     * </p>
-     * <p> If flag providing datasets are referenced in the given bit-mask expression which are currently not completely
-     * loaded, the method reloads the spatial subset from the data source in order to create the evaluation context.
-     * </p>
-     * <p> The {@link #createBitmaskTerm(String) <code>createBitmaskTerm</code>} method can be used to create a bit-mask
-     * term from a textual bit-mask expression.
-     *
-     * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
-     * @param offsetY     the Y-offset of the spatial subset in pixel co-ordinates
-     * @param width       the width of the spatial subset in pixel co-ordinates
-     * @param height      the height of the spatial subset in pixel co-ordinates
-     * @param bitmaskTerm a bit-mask term, as returned by the {@link #createBitmaskTerm(String) createBitmaskTerm}
-     *                    method
-     * @param rasterData  the raster data which is masked with  <code>maskPixelValue</code> if the term evaluates to
-     *                    <code>termValue</code> at a given pixel position
-     * @param termValue   the term evaluation value which controls the masking
-     * @param maskValue   the pixel value which is set if the term evaluates to <code>termValue</code>
-     *
-     * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
-     * @deprecated use {@link #maskProductData(int, int, int, int, Term, ProductData, boolean, double)} with Term as parameter
-     */
-    public void maskProductData(final int offsetX,
-                                final int offsetY,
-                                final int width,
-                                final int height,
-                                final org.esa.beam.framework.dataop.bitmask.BitmaskTerm bitmaskTerm,
-                                final ProductData rasterData,
-                                final boolean termValue,
-                                final float maskValue) throws IOException {
-        final BitmaskTermEvalContext bitmaskContext = createBitmaskContext(bitmaskTerm, offsetX, offsetY, width,
-                                                                           height);
-        for (int i = 0; i < rasterData.getNumElems(); i++) {
-            if (bitmaskTerm.evaluate(bitmaskContext, i) == termValue) {
-                rasterData.setElemFloatAt(i, maskValue);
-            }
-        }
-        bitmaskContext.dispose();
     }
 
     /**

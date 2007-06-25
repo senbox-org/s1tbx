@@ -42,7 +42,6 @@ public class BitmaskDef extends ProductNode {
     private final static Color _DEFAULT_COLOR = Color.yellow;
 
     private String _expr;
-    private org.esa.beam.framework.dataop.bitmask.BitmaskTerm _term;
     private Color _color;
     private float _transparency;
 
@@ -61,26 +60,6 @@ public class BitmaskDef extends ProductNode {
         setExpr(expr);
         setColor(color);
         setTransparency(transparency);
-    }
-
-    /**
-     * Gets bitmask's boolean term (the compiled flag expression).
-     *
-     * @return the bitmask's boolean term, <code>null</code> if the expression is not valid.
-     *
-     * @see #getExpr
-     * @deprecated use {@link #getExpr()} and {@link Product#createTerm(String)} instead.
-     */
-    public org.esa.beam.framework.dataop.bitmask.BitmaskTerm getTerm() {
-        if (_term == null) {
-            final String expr = getExpr();
-            try {
-                _term = org.esa.beam.framework.dataop.bitmask.BitmaskExpressionParser.parse(expr);
-            } catch (org.esa.beam.framework.dataop.bitmask.BitmaskExpressionParseException e) {
-                Debug.trace(e);
-            }
-        }
-        return _term;
     }
 
     /**
@@ -104,7 +83,6 @@ public class BitmaskDef extends ProductNode {
     public void setExpr(String expr) {
         if (!ObjectUtils.equalObjects(expr, _expr)) {
             _expr = (expr != null) ? expr : "";
-            _term = null;
             fireProductNodeChanged(PROPERTY_NAME_EXPR);
             setModified(true);
         }
@@ -117,6 +95,7 @@ public class BitmaskDef extends ProductNode {
      * @param oldExternalName
      * @param newExternalName
      */
+    @Override
     public void updateExpression(final String oldExternalName, final String newExternalName) {
         if (_expr == null) {
             return;
@@ -199,6 +178,7 @@ public class BitmaskDef extends ProductNode {
      *
      * @param visitor the visitor
      */
+    @Override
     public void acceptVisitor(ProductVisitor visitor) {
         Guardian.assertNotNull("visitor", visitor);
         visitor.visit(this);
@@ -207,6 +187,7 @@ public class BitmaskDef extends ProductNode {
     /**
      * Returns whether or not this product node equals another object.
      */
+    @Override
     public boolean equals(Object object) {
         if (!super.equals(object)) {
             return false;
@@ -238,6 +219,7 @@ public class BitmaskDef extends ProductNode {
      *
      * @return the size in bytes.
      */
+    @Override
     public long getRawStorageSize(ProductSubsetDef subsetDef) {
         return 64 + _expr.length();
     }
@@ -305,10 +287,10 @@ public class BitmaskDef extends ProductNode {
      * <p/>
      * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
      */
+    @Override
     public void dispose() {
         _expr = null;
         _color = null;
-        _term = null;
         super.dispose();
     }
 }

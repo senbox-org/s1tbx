@@ -64,11 +64,6 @@ public class BandInfo extends DataItemInfo {
     private float _scalingFactor;
 
     /**
-     * Optional bit-mask expression (already parsed)
-     */
-    private org.esa.beam.framework.dataop.bitmask.BitmaskTerm _bitmaskTerm;
-
-    /**
      * Optional bit-mask expression
      */
     private String _validExpression;
@@ -77,33 +72,6 @@ public class BandInfo extends DataItemInfo {
      * Optional flag-coding (for flag datasets only)
      */
     private FlagCoding _flagCoding;
-
-
-    /**
-     * Constructs a new band information object.
-     *
-     * @deprecated use the other constructor instead
-     */
-    public BandInfo(String bandName,
-                    int dataType,
-                    int spectralBandIndex,
-                    int sampleModel,
-                    int scalingMethod,
-                    float scalingOffset,
-                    float scalingFactor,
-                    org.esa.beam.framework.dataop.bitmask.BitmaskTerm bitmaskTerm,
-                    FlagCoding flagCoding,
-                    String physicalUnit,
-                    String description) {
-        super(bandName, dataType, physicalUnit, description);
-        _spectralBandIndex = spectralBandIndex;
-        _sampleModel = sampleModel;
-        _scalingMethod = scalingMethod;
-        _scalingOffset = scalingOffset;
-        _scalingFactor = scalingFactor;
-        _bitmaskTerm = bitmaskTerm;
-        _flagCoding = flagCoding;
-    }
 
     /**
      * Constructs a new band information object.
@@ -168,15 +136,6 @@ public class BandInfo extends DataItemInfo {
      */
     public final float getScalingFactor() {
         return _scalingFactor;
-    }
-
-    /**
-     * Returns the optional bit-mask expression (already parsed).
-     *
-     * @deprecated use {@link #getValidExpression()} instead
-     */
-    public org.esa.beam.framework.dataop.bitmask.BitmaskTerm getBitmaskTerm() {
-        return _bitmaskTerm;
     }
 
     /**

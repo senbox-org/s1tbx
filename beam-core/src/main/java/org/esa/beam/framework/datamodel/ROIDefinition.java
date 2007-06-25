@@ -14,7 +14,6 @@ import java.awt.geom.PathIterator;
 import java.awt.geom.Rectangle2D;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
 
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.draw.Figure;
@@ -23,10 +22,8 @@ import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.XmlWriter;
-import org.esa.beam.util.logging.BeamLogManager;
 import org.jdom.Element;
 
-// @todo 1 nf/nf add detailed API docu
 // @todo 1 nf/nf make this class a ProductNode?
 
 /**
@@ -43,7 +40,6 @@ public class ROIDefinition implements Cloneable {
 
     private boolean _bitmaskEnabled;
     private String _bitmaskExpr;
-    private org.esa.beam.framework.dataop.bitmask.BitmaskTerm _bitmaskTerm;
 
     private boolean _pinUseEnabled;
 
@@ -86,37 +82,6 @@ public class ROIDefinition implements Cloneable {
     public void setBitmaskExpr(String bitmaskExpr) {
         Guardian.assertNotNull("bitmaskExpr", bitmaskExpr);
         _bitmaskExpr = bitmaskExpr;
-        _bitmaskTerm = null;
-    }
-
-    /**
-     * @return the bitmask Term
-     *
-     * @deprecated no replacement
-     */
-    public org.esa.beam.framework.dataop.bitmask.BitmaskTerm getBitmaskTerm() {
-        if (_bitmaskExpr != null) {
-            try {
-                _bitmaskTerm = org.esa.beam.framework.dataop.bitmask.BitmaskExpressionParser.parse(_bitmaskExpr);
-            } catch (org.esa.beam.framework.dataop.bitmask.BitmaskExpressionParseException e) {
-                _bitmaskTerm = null;
-                BeamLogManager.getSystemLogger().log(Level.INFO, "The expression '" + _bitmaskExpr + "'\n" +
-                                                                 "is not a parsable expression for BitmaskTerm.", e);
-            }
-        }
-        return _bitmaskTerm;
-    }
-
-    /**
-     * @param bitmaskTerm
-     *
-     * @deprecated no replacement
-     */
-    public void setBitmaskTerm(org.esa.beam.framework.dataop.bitmask.BitmaskTerm bitmaskTerm) {
-        if (bitmaskTerm != null && _bitmaskExpr == null) {
-            _bitmaskExpr = bitmaskTerm.toString();
-        }
-        _bitmaskTerm = bitmaskTerm;
     }
 
     public boolean isShapeEnabled() {
@@ -487,6 +452,5 @@ public class ROIDefinition implements Cloneable {
     public void dispose() {
         _shapeFigure = null;
         _bitmaskExpr = null;
-        _bitmaskTerm = null;
     }
 }

@@ -114,9 +114,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     private GeoCoding _geoCoding;
 
-    // todo DON'T USE ANYMORE IN BEAM 3.4
-    private org.esa.beam.framework.dataop.bitmask.BitmaskTerm _validMaskTerm;
-
     // @todo 1 nf/nf - v3.0: add min/max properties here
 
     private ImageInfo _imageInfo;
@@ -758,30 +755,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Gets the bitmask term that is used to determine whether a pixel is valid or not.
-     *
-     * @return the valid-or-not bitmask term
-     * @deprecated use {@link #getValidPixelExpression()} instead
-     */
-    public org.esa.beam.framework.dataop.bitmask.BitmaskTerm getValidMaskTerm() {
-        return _validMaskTerm;
-    }
-
-    /**
-     * Sets the bitmask term that is used to determine whether a pixel is valid or not.
-     *
-     * @param validMaskTerm the valid-or-not bitmask term
-     * @deprecated use {@link #setValidPixelExpression(String)} instead.
-     */
-    public void setValidMaskTerm(org.esa.beam.framework.dataop.bitmask.BitmaskTerm validMaskTerm) {
-        if (!ObjectUtils.equalObjects(_validMaskTerm, validMaskTerm)) {
-            _validMaskTerm = validMaskTerm;
-            setModified(true);
-            fireProductNodeChanged(PROPERTY_NAME_VALID_MASK_TERM);
-        }
-    }
-
-    /**
      * Replaces in the expression that this class contains
      * all occurences of the oldExternalName with the given newExternalName.
      *
@@ -954,7 +927,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     @Override
     public void dispose() {
-        _validMaskTerm = null;
         _dataMask = null;
         _dataMaskTerm = null;
         if (_imageInfo != null) {
