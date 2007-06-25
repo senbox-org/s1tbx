@@ -129,7 +129,6 @@ public class Parameter {
             _properties.setValueType(_value.getClass());
         }
 
-        // @todo 1 nf/nf - check: (nf) new from 11.12.2002: set default value
         if (_properties.getDefaultValue() == null && _value != null) {
             _properties.setDefaultValue(_value);
         }
