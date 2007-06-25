@@ -10,12 +10,14 @@
         <![CDATA[
         <p><b>From 0.5 to 0.6</b></p>
         <ul>
-           <li>[CERES-XXX]: Optional dependencies not correctly handled</li>
-           <li>[CERES-XXX]: Cyclic dependency detection needs simplification</li>
-           <li>[CERES-009]: Replace simple extension points by META-INF\services</li>
-           <li>[CERES-XXX]: TODO: Use Version class in Module interface</li>
-           <li>[CERES-XXX]: TODO: Configure excluded/included modules</li>
-           <li>[CERES-XXX]: TODO: Speed up module repository scanning</li>
+           <li>[CERES-001]: TODO: Normalisation of manifest text</li>
+           <li>[CERES-006]: TODO: Configure excluded/included modules</li>
+           <li>[CERES-007]: TODO: Use Version class in Module interface</li>
+           <li>[CERES-008]: Speed up module repository scanning</li>
+           <li>[CERES-009]: Replace simple extension points by META-INF/services</li>
+           <li>[CERES-011]: Support standard Java SPI mechanism</li>
+           <li>[CERES-012]: Cyclic dependency detection needs simplification</li>
+           <li>[CERES-013]: Optional dependencies not handled</li>
         </ul>]]>
     </changelog>
 

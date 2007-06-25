@@ -16,7 +16,7 @@
     <changelog>
         <![CDATA[From 0.5 to 0.5.1
         <ul>
-        <li>FIX: Module manager displayed wrong information text for modules on the repository.</li>
+           <li>[CERES-004]: "null" displayed instead of Changelog</li>
         </ul>]]>
     </changelog>
 
