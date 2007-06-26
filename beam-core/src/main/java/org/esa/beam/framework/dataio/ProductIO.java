@@ -291,7 +291,6 @@ public class ProductIO {
      *                   "BEAM-DIMAP" will be used
      *
      * @throws IOException if an IOException occurs
-     * @deprecated use {@link #writeProduct(org.esa.beam.framework.datamodel.Product, String, String, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static void writeProduct(Product product,
                                     String filePath,
@@ -337,7 +336,6 @@ public class ProductIO {
      * @param incremental switch the product writer in incremental mode or not.
      *
      * @throws IOException if an IOException occurs
-     * @deprecated use {@link #writeProduct(org.esa.beam.framework.datamodel.Product, java.io.File, String, boolean, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static void writeProduct(Product product,
                                     File file,
