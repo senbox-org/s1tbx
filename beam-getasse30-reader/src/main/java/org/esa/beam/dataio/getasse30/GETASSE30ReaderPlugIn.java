@@ -2,6 +2,7 @@ package org.esa.beam.dataio.getasse30;
 
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.util.io.BeamFileFilter;
 
 import java.io.File;
@@ -32,20 +33,18 @@ public class GETASSE30ReaderPlugIn implements ProductReaderPlugIn {
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
      * is capable of decoding the input's content.
      */
-    public boolean canDecodeInput(final Object input) {
+    public DecodeQualification getDecodeQualification(final Object input) {
         final File file = getInputFile(input);
         if (file != null) {
             final String fileName = file.getName().toLowerCase();
             final String[] extensions = getDefaultFileExtensions();
-            for (int i = 0; i < extensions.length; i++) {
-                final String extension = extensions[i];
-                if (fileName.endsWith(extension) &&
-                    !fileName.equals(extension)) {
-                    return true;
+            for (final String extension : extensions) {
+                if (fileName.endsWith(extension) && !fileName.equals(extension)) {
+                    return DecodeQualification.INTENDED;
                 }
             }
         }
-        return false;
+        return DecodeQualification.UNABLE;
     }
 
     public static File getInputFile(final Object input) {

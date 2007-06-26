@@ -19,6 +19,7 @@ package org.esa.beam.framework.ui;
 import java.io.File;
 
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.util.Guardian;
 
 /**
@@ -43,10 +44,11 @@ public class FormatedFileHistory extends FileHistory {
         _productReaderPlugIn = readerPlugIn;
     }
 
+    @Override
     protected boolean isValidItem(String item) {
         if (super.isValidItem(item)) {
             final File file = new File(item);
-            return _productReaderPlugIn.canDecodeInput(file);
+            return _productReaderPlugIn.getDecodeQualification(file) != DecodeQualification.UNABLE;
         }
         return false;
     }

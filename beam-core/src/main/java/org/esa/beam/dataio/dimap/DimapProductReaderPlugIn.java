@@ -16,6 +16,7 @@
  */
 package org.esa.beam.dataio.dimap;
 
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
@@ -73,7 +74,6 @@ public class DimapProductReaderPlugIn implements ProductReaderPlugIn {
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param name the local for the given decription string, if <code>null</code> the default locale is used
-     *
      * @return a textual description of this product reader/writer
      */
     public String getDescription(Locale name) {
@@ -88,10 +88,9 @@ public class DimapProductReaderPlugIn implements ProductReaderPlugIn {
      * - an abstract file path.
      *
      * @param object the input object
-     *
      * @return <code>true</code> if the given input is an object referencing a physical BEAM-DIMAP data source.
      */
-    public boolean canDecodeInput(Object object) {
+    public DecodeQualification getDecodeQualification(Object object) {
         File file = null;
         if (object instanceof String) {
             file = new File((String) object);
@@ -99,9 +98,9 @@ public class DimapProductReaderPlugIn implements ProductReaderPlugIn {
             file = (File) object;
         }
         if (file != null
-            && file.getPath().toLowerCase().endsWith(DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION)
-            && file.exists()
-            && file.isFile()) {
+                && file.getPath().toLowerCase().endsWith(DimapProductConstants.DIMAP_HEADER_FILE_EXTENSION)
+                && file.exists()
+                && file.isFile()) {
             FileReader fr = null;
             try {
                 // todo - URGENT: check this code!!! 80 charters are not enough, instead read until "<Dimap_Document" is found or EOF is reached or illegal text characters are detected
@@ -110,18 +109,22 @@ public class DimapProductReaderPlugIn implements ProductReaderPlugIn {
                 if (fr.read(cbuf) != -1) {
                     final String s = new String(cbuf);
                     fr.close();
-                    return s.indexOf("<Dimap_Document") != -1;
+                    if (s.indexOf("<Dimap_Document") != -1) {
+                        return DecodeQualification.INTENDED;
+                    }
                 }
             } catch (IOException e) {
+                // ignore
             }
             if (fr != null) {
                 try {
                     fr.close();
                 } catch (IOException e) {
+                    // ignore
                 }
             }
         }
-        return false;
+        return DecodeQualification.UNABLE;
     }
 
     /**
@@ -133,7 +136,8 @@ public class DimapProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return an array containing valid input types, never <code>null</code>
      */
-    public Class[] getInputTypes() {
+    public Class[] getInputTypes
+            () {
         return new Class[]{String.class, File.class};
     }
 
@@ -142,11 +146,13 @@ public class DimapProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return a new instance of the <code>DimapProductReader</code> class
      */
-    public ProductReader createReaderInstance() {
+    public ProductReader createReaderInstance
+            () {
         return new DimapProductReader(this);
     }
 
-    public BeamFileFilter getProductFileFilter() {
+    public BeamFileFilter getProductFileFilter
+            () {
         return dimapFileFilter;
     }
 }

@@ -144,7 +144,7 @@ public class SpectrumToolView extends AbstractToolView {
                     diagram.setYAxis(new DiagramAxis("", "1"));
                     setCurrentProductDiagram(diagram);
                 }
-                if (getSpectrumValues() == null) {
+                if (getSpectrumGraph() == null) {
                     setSelectedBands(getSpectralBands());
                 } else {
                     setAxesMinMaxAccumulatorsToAxesMinMax();
@@ -161,14 +161,14 @@ public class SpectrumToolView extends AbstractToolView {
     public void updateSpectrum(final int pixelX, final int pixelY) {
         currentX = pixelX;
         currentY = pixelY;
-        final SpectrumGraph spectrumValues = getSpectrumValues();
-        if (spectrumValues != null) {
+        final SpectrumGraph spectrumGraph = getSpectrumGraph();
+        if (spectrumGraph != null) {
             try {
-                spectrumValues.readValues(pixelX, pixelY);
+                spectrumGraph.readValues(pixelX, pixelY);
 
                 final DiagramAxis xAxis = getCurrentProductDiagram().getXAxis();
-                xMinAuto = Math.min(xMinAuto, spectrumValues.getXMin());
-                xMaxAuto = Math.max(xMaxAuto, spectrumValues.getXMax());
+                xMinAuto = Math.min(xMinAuto, spectrumGraph.getXMin());
+                xMaxAuto = Math.max(xMaxAuto, spectrumGraph.getXMax());
                 boolean xRangeValid = xMaxAuto > xMinAuto;
                 if (xRangeValid) {
                     xAxis.setValueRange(xMinAuto, xMaxAuto);
@@ -178,8 +178,8 @@ public class SpectrumToolView extends AbstractToolView {
                 }
 
                 final DiagramAxis yAxis = getCurrentProductDiagram().getYAxis();
-                yMinAuto = Math.min(yMinAuto, spectrumValues.getYMin());
-                yMaxAuto = Math.max(yMaxAuto, spectrumValues.getYMax());
+                yMinAuto = Math.min(yMinAuto, spectrumGraph.getYMin());
+                yMaxAuto = Math.max(yMaxAuto, spectrumGraph.getYMax());
                 boolean yRangeValid = yMaxAuto > yMinAuto;
                 if (yRangeValid) {
                     yAxis.setValueRange(yMinAuto, yMaxAuto);
@@ -243,17 +243,17 @@ public class SpectrumToolView extends AbstractToolView {
         setInvalidDiagramMessage("No pin selected.");
     }
 
-    private SpectrumGraph getSpectrumValues() {
+    private SpectrumGraph getSpectrumGraph() {
         final Diagram diagram = getCurrentProductDiagram();
         if (diagram != null) {
-            return (SpectrumGraph) diagram.getValues();
+            return (SpectrumGraph) diagram.getGraph();
         }
         return null;
     }
 
 
     private Band[] getSelectedBands() {
-        final SpectrumGraph spectrumValues = getSpectrumValues();
+        final SpectrumGraph spectrumValues = getSpectrumGraph();
         if (spectrumValues != null) {
             return spectrumValues.getBands();
         }
@@ -267,12 +267,12 @@ public class SpectrumToolView extends AbstractToolView {
             diagramCanvas.setMessageText("No spectral bands."); /*I18N*/
 //            diagram.setValues(null);
         } else {
-            SpectrumGraph spectrumValues = (SpectrumGraph) diagram.getValues();
+            SpectrumGraph spectrumValues = (SpectrumGraph) diagram.getGraph();
             if (spectrumValues != null) {
                 spectrumValues.setBands(selectedBands);
             } else {
                 spectrumValues = new SpectrumGraph(selectedBands);
-                diagram.setValues(spectrumValues);
+                diagram.setGraph(spectrumValues);
             }
             updateYUnit(selectedBands);
             resetAxesMinMaxAccumulators();

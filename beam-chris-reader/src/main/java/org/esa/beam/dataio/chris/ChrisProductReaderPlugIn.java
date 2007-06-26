@@ -16,6 +16,7 @@ import ncsa.hdf.hdflib.HDFConstants;
 import ncsa.hdf.hdflib.HDFException;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.logging.BeamLogManager;
 
@@ -51,9 +52,9 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
      * is capable of decoding the input's content.
      */
-    public boolean canDecodeInput(Object input) {
+    public DecodeQualification getDecodeQualification(Object input) {
         if (!isHDFLibraryAvailable()) {
-            return false;
+            return DecodeQualification.UNABLE;
         }
 
         final File file;
@@ -63,7 +64,7 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
         } else if (input instanceof File) {
             file = (File) input;
         } else {
-            return false;
+            return DecodeQualification.UNABLE;
         }
 
         // @todo 2 tb/tb write test for this logic!
@@ -72,7 +73,9 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
             try {
                 fileId = HDF4Lib.Hopen(file.getPath(), HDFConstants.DFACC_RDONLY);
                 if (fileId != -1) {
-                    return isChrisModeAttributeAvailable(file);
+                    if (isChrisModeAttributeAvailable(file)) {
+                        return DecodeQualification.SUITABLE;                   
+                    }
                 }
             } catch (Exception e) {
                 // nothing to do, return value is already false
@@ -87,7 +90,7 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
             }
         }
 
-        return false;
+        return DecodeQualification.UNABLE;
     }
 
     /**

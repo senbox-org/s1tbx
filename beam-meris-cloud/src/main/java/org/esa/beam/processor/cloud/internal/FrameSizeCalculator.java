@@ -12,10 +12,10 @@ import java.awt.Rectangle;
 
 /**
  * <p><i><b>IMPORTANT NOTE:</b>
- * This class belongs to a preliminary API.
- * It is not (yet) intended to be used by clients and may change in the future.</i></p>
- */
-public interface FrameSizeCalculator {
+ * This class not an API.
+ * It is not intended to be used by clients.</i>
+ * </p>
+ */public interface FrameSizeCalculator {
 
     public void addMinFrameSize(final int width, final int height);
 

@@ -20,6 +20,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FilterBand;
 import org.esa.beam.framework.datamodel.GeoCoding;
@@ -120,7 +121,7 @@ public class DimapProductReader extends AbstractProductReader {
             throw new IllegalArgumentException("unsupported input source: " + getInput());  /*I18N*/
         }
         final DimapProductReaderPlugIn readerPlugIn = new DimapProductReaderPlugIn();
-        if (!readerPlugIn.canDecodeInput(inputFile)) {
+        if (DecodeQualification.UNABLE.equals(readerPlugIn.getDecodeQualification(inputFile))) {
             throw new IOException("Not a '" + DimapProductConstants.DIMAP_FORMAT_NAME + "' product."); /*I18N*/
         }
 

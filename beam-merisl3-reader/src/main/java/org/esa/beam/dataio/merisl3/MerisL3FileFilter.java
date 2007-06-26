@@ -34,9 +34,9 @@ public class MerisL3FileFilter extends BeamFileFilter {
      * @return true, if so.
      */
     public static boolean isMerisBinnedL3Name(String name) {
-        return !name.startsWith("L3_ENV_MER_")
-               || name.indexOf("_GLOB_SI_") == -1
-               || !name.endsWith(MerisL3ProductReaderPlugIn.FILE_EXTENSION);
+        return name.startsWith("L3_ENV_MER_")
+              && name.indexOf("_GLOB_SI_") != -1
+               && name.endsWith(MerisL3ProductReaderPlugIn.FILE_EXTENSION);
     }
 
 }

@@ -5,6 +5,7 @@ import org.esa.beam.dataio.ceos.IllegalCeosFormatException;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -81,7 +82,7 @@ public class Avnir2ProductReader extends AbstractProductReader {
                                                     IllegalFileFormatException {
         final ProductReaderPlugIn readerPlugIn = getReaderPlugIn();
         final Object input = getInput();
-        if (!readerPlugIn.canDecodeInput(input)) {
+        if (readerPlugIn.getDecodeQualification(input) != DecodeQualification.UNABLE) {
             throw new IOException("Unsupported product format."); /*I18N*/
         }
         final File fileFromInput = getFileFromInput(getInput());

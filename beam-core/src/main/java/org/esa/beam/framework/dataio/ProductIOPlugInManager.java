@@ -57,7 +57,7 @@ public class ProductIOPlugInManager {
      *
      * @return an iterator containing all registered reader plug-ins
      */
-    public Iterator getAllReaderPlugIns() {
+    public Iterator<ProductReaderPlugIn> getAllReaderPlugIns() {
         return readerPlugIns.getServices().iterator();
     }
 
@@ -69,7 +69,7 @@ public class ProductIOPlugInManager {
      *
      * @return an iterator containing all reader plug-ins supporting the given format
      */
-    public Iterator getReaderPlugIns(String formatName) {
+    public Iterator<ProductReaderPlugIn> getReaderPlugIns(String formatName) {
         Guardian.assertNotNull("formatName", formatName);
         return getProductIOPlugIns(readerPlugIns.getServices(), formatName);
     }
@@ -102,7 +102,7 @@ public class ProductIOPlugInManager {
      *
      * @return an iterator containing all registered writer plug-ins
      */
-    public Iterator getAllWriterPlugIns() {
+    public Iterator<ProductWriterPlugIn> getAllWriterPlugIns() {
         return writerPlugIns.getServices().iterator();
     }
 
@@ -114,7 +114,7 @@ public class ProductIOPlugInManager {
      *
      * @return an iterator containing all writer plug-ins supporting the given format
      */
-    public Iterator getWriterPlugIns(String formatName) {
+    public Iterator<ProductWriterPlugIn> getWriterPlugIns(String formatName) {
         Guardian.assertNotNull("formatName", formatName);
         return getProductIOPlugIns(writerPlugIns.getServices(), formatName);
     }
@@ -172,12 +172,12 @@ public class ProductIOPlugInManager {
     /////// END OF PUBLIC
     ///////////////////////////////////////////////////////////////////////////
 
-    private static Iterator getProductIOPlugIns(Set<? extends ProductIOPlugIn> ioPlugIns, String formatName) {
+    private static <T extends ProductIOPlugIn> Iterator<T> getProductIOPlugIns(Set<T> ioPlugIns, String formatName) {
         Debug.assertNotNull(ioPlugIns);
         Debug.assertNotNull(formatName);
 
-        List<ProductIOPlugIn> validPlugins = new ArrayList<ProductIOPlugIn>();
-        for (ProductIOPlugIn plugIn : ioPlugIns) {
+        List<T> validPlugins = new ArrayList<T>();
+        for (T plugIn : ioPlugIns) {
             String[] formatNames = plugIn.getFormatNames();
             for (String otherFormatName : formatNames) {
                 if (otherFormatName.equalsIgnoreCase(formatName)) {

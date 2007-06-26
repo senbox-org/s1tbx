@@ -2,6 +2,7 @@ package org.esa.beam.dataio.getasse30;
 
 import junit.framework.TestCase;
 import org.esa.beam.framework.dataio.ProductReader;
+import org.esa.beam.framework.dataio.DecodeQualification;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -12,10 +13,12 @@ public class GETASSE30ReaderPlugInTest extends TestCase {
 
     private GETASSE30ReaderPlugIn _plugIn;
 
+    @Override
     protected void setUp() throws Exception {
         _plugIn = new GETASSE30ReaderPlugIn();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         _plugIn = null;
     }
@@ -27,8 +30,8 @@ public class GETASSE30ReaderPlugInTest extends TestCase {
     }
 
     private void testValidInput(final String s) {
-        assertTrue(_plugIn.canDecodeInput(s));
-        assertTrue(_plugIn.canDecodeInput(new File(s)));
+        assertTrue(_plugIn.getDecodeQualification(s) == DecodeQualification.INTENDED);
+        assertTrue(_plugIn.getDecodeQualification(new File(s)) == DecodeQualification.INTENDED);
     }
 
     public void testInvalidInputs() {
@@ -49,16 +52,16 @@ public class GETASSE30ReaderPlugInTest extends TestCase {
     }
 
     private void testInvalidInput(final String s) {
-        assertFalse(_plugIn.canDecodeInput(s));
-        assertFalse(_plugIn.canDecodeInput(new File(s)));
+        assertEquals(DecodeQualification.UNABLE, _plugIn.getDecodeQualification(s));
+        assertEquals(DecodeQualification.UNABLE, _plugIn.getDecodeQualification(new File(s)));
     }
 
     public void testThatOtherTypesCannotBeDecoded() throws MalformedURLException {
-        assertFalse(_plugIn.canDecodeInput(null));
+        assertEquals(DecodeQualification.UNABLE, _plugIn.getDecodeQualification(null));
         final URL url = new File("./GETASSE30/readme.txt").toURL();
-        assertFalse(_plugIn.canDecodeInput(url));
+        assertEquals(DecodeQualification.UNABLE, _plugIn.getDecodeQualification(url));
         final Object object = new Object();
-        assertFalse(_plugIn.canDecodeInput(object));
+        assertEquals(DecodeQualification.UNABLE, _plugIn.getDecodeQualification(object));
     }
 
     public void testCreateReaderInstance() {

@@ -26,6 +26,7 @@ import junit.framework.TestSuite;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.maptransf.IdentityTransformDescriptor;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
@@ -898,8 +899,8 @@ class DummyProductReader extends AbstractProductReader {
 
 class DummyProductReaderPlugIn implements ProductReaderPlugIn {
 
-    public boolean canDecodeInput(Object input) {
-        return false;
+    public DecodeQualification getDecodeQualification(Object input) {
+        return DecodeQualification.UNABLE;
     }
 
     public String[] getFormatNames() {

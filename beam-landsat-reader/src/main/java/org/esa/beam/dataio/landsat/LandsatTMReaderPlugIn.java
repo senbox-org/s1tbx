@@ -19,6 +19,7 @@ package org.esa.beam.dataio.landsat;
 
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.util.io.BeamFileFilter;
 
 import java.io.File;
@@ -44,22 +45,27 @@ public final class LandsatTMReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return <code> true </code> if the input data could be opened <code> false </code> if not
      */
-    public final boolean canDecodeInput(final Object input) {
-        final LandsatTMFile file;
+    public final DecodeQualification getDecodeQualification(final Object input) {
+        LandsatTMFile file = null;
         try {
             if (input instanceof String) {
                 file = new LandsatTMFile((String) input);
             } else if (input instanceof File) {
                 file = new LandsatTMFile((File) input);
             } else {
-                return false;
+                return DecodeQualification.UNABLE;
             }
-            boolean decodable = file.canDecodeInput();
-            file.close();
-            return decodable;
+            if(file.canDecodeInput()) {
+                return DecodeQualification.INTENDED;
+            }
         } catch (Throwable e) {
-            return false;
+            return DecodeQualification.UNABLE;
+        }finally {
+            if(file != null) {
+                file.close();
+            }
         }
+        return DecodeQualification.UNABLE;
     }
 
     /**

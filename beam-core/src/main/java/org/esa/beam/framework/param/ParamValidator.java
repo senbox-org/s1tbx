@@ -33,24 +33,22 @@ package org.esa.beam.framework.param;
 public interface ParamValidator {
 
     /**
-     * Converts the given text into a value taking the given parameter information into account. The method returns the
-     * special value <code>ParamValidator.PARSE_ERROR</code> if the conversion fails.
+     * Converts the given text into a value taking the given parameter information into account.
      *
      * @param parameter the parameter, must not be <code>null</code>
      * @param text      the text to be converted into a value, must not be <code>null</code>
      *
-     * @return the value represented by the text, or <code>ParamValidator.PARSE_ERROR</code> if a parse error occurs
+     * @return the value represented by the text
      */
     Object parse(Parameter parameter, String text) throws ParamParseException;
 
     /**
-     * Converts the given value into a text taking the given parameter information into account. The method returns the
-     * special value <code>ParamValidator.FORMAT_ERROR</code> if the conversion fails, but never <code>null</code>.
+     * Converts the given value into a text taking the given parameter information into account. 
      *
      * @param parameter the parameter, must not be <code>null</code>
      * @param value     the value to be converted into a text, can be <code>null</code>
      *
-     * @return the value represented by the text, shall NEVER be <code>null</code>.
+     * @return the value represented by the text, never <code>null</code>.
      */
     String format(Parameter parameter, Object value) throws ParamFormatException;
 

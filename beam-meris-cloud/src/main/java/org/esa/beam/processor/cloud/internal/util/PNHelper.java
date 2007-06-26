@@ -20,12 +20,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-//TODO make this public API
 
 /**
  * <p><i><b>IMPORTANT NOTE:</b>
- * This class belongs to a preliminary API.
- * It is not (yet) intended to be used by clients and may change in the future.</i></p>
+ * This class not an API.
+ * It is not intended to be used by clients.</i>
+ * </p>
  */
 public class PNHelper {
 

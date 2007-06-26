@@ -25,6 +25,8 @@ import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.esa.beam.util.Guardian;
 
@@ -41,82 +43,103 @@ public class Diagram {
     private static final Color DEFAULT_DIAGRAM_FG_COLOR = new Color(0, 0, 100);
     private static final Color DEFAULT_DIAGRAM_TEXT_COLOR = Color.black;
 
-    private DiagramGraph _graph;
-    private DiagramAxis _xAxis;
-    private DiagramAxis _yAxis;
+    private List<DiagramGraph> graphs;
+    private DiagramAxis xAxis;
+    private DiagramAxis yAxis;
 
     private final AxesPCL _axesPCL;
 
     private Font _font;
-    private int _textGap;
-    private int _majorTickLength;
-    private int _minorTickLength;
+    private int textGap;
+    private int majorTickLength;
+    private int minorTickLength;
     private boolean _valid;
 
     // Dependent properties
     //
-    private FontMetrics _fontMetrics;
-    private Rectangle _graphArea;
-    private String[] _yTickTexts;
-    private String[] _xTickTexts;
-    private int _maxYTickTextWidth;
+    private FontMetrics fontMetrics;
+    private Rectangle graphArea;
+    private String[] yTickTexts;
+    private String[] xTickTexts;
+    private int maxYTickTextWidth;
 
     public Diagram() {
+        graphs = new ArrayList<DiagramGraph>(3);
         _axesPCL = new AxesPCL();
         _font = new Font(DEFAULT_FONT_NAME, Font.PLAIN, DEFAULT_FONT_SIZE);
-        _textGap = 3;
-        _majorTickLength = 5;
-        _minorTickLength = 3;
+        textGap = 3;
+        majorTickLength = 5;
+        minorTickLength = 3;
     }
 
     public Diagram(DiagramAxis xAxis, DiagramAxis yAxis, DiagramGraph graph) {
         this();
         setXAxis(xAxis);
         setYAxis(yAxis);
-        setValues(graph);
+        setGraph(graph);
     }
 
     public DiagramAxis getXAxis() {
-        return _xAxis;
+        return xAxis;
     }
 
     public void setXAxis(DiagramAxis xAxis) {
         Guardian.assertNotNull("xAxis", xAxis);
-        DiagramAxis oldAxis = _xAxis;
+        DiagramAxis oldAxis = this.xAxis;
         if (oldAxis != xAxis) {
             if (oldAxis != null) {
                 oldAxis.removePropertyChangeListener(_axesPCL);
             }
-            _xAxis = xAxis;
-            _xAxis.addPropertyChangeListener(_axesPCL);
+            this.xAxis = xAxis;
+            this.xAxis.addPropertyChangeListener(_axesPCL);
             invalidate();
         }
     }
 
     public DiagramAxis getYAxis() {
-        return _yAxis;
+        return yAxis;
     }
 
     public void setYAxis(DiagramAxis yAxis) {
         Guardian.assertNotNull("yAxis", yAxis);
-        DiagramAxis oldAxis = _yAxis;
+        DiagramAxis oldAxis = this.yAxis;
         if (oldAxis != yAxis) {
             if (oldAxis != null) {
                 oldAxis.removePropertyChangeListener(_axesPCL);
             }
-            _yAxis = yAxis;
-            _yAxis.addPropertyChangeListener(_axesPCL);
+            this.yAxis = yAxis;
+            this.yAxis.addPropertyChangeListener(_axesPCL);
             invalidate();
         }
     }
 
-    public DiagramGraph getValues() {
-        return _graph;
+    public DiagramGraph[] getGraphs() {
+        return graphs.toArray(new DiagramGraph[0]);
     }
 
-    public void setValues(DiagramGraph graph) {
-        Guardian.assertNotNull("_values", graph);
-        _graph = graph;
+    public DiagramGraph getGraph() {
+        if (graphs.isEmpty()) {
+            return null;
+        }
+        return graphs.get(0);
+    }
+
+    public void setGraph(DiagramGraph graph) {
+        Guardian.assertNotNull("graph", graph);
+        graphs.clear();
+        graphs.add(graph);
+        invalidate();
+    }
+
+    public void addGraph(DiagramGraph graph) {
+        Guardian.assertNotNull("graph", graph);
+        graphs.add(graph);
+        invalidate();
+    }
+
+    public void removeGraph(DiagramGraph graph) {
+        Guardian.assertNotNull("graph", graph);
+        graphs.remove(graph);
         invalidate();
     }
 
@@ -130,11 +153,11 @@ public class Diagram {
     }
 
     public int getTextGap() {
-        return _textGap;
+        return textGap;
     }
 
     public void setTextGap(int textGap) {
-        _textGap = textGap;
+        this.textGap = textGap;
         invalidate();
     }
 
@@ -155,117 +178,99 @@ public class Diagram {
         Font oldFont = g2D.getFont();
         g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2D.setFont(_font);
-        _fontMetrics = g2D.getFontMetrics();
+        fontMetrics = g2D.getFontMetrics();
 
-        validate(g2D, x, y, width, height);
-        drawAxis(g2D, x, y, width, height);
-        drawGraph(g2D, x, y, width, height);
+        validate(x, y, width, height);
+        drawAxes(g2D, x, y, width, height);
+        drawGraph(g2D);
 
         g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAntiAliasingRenderingHint);
         g2D.setFont(oldFont);
     }
 
-    private void validate(Graphics2D g2D, int x, int y, int width, int height) {
+    private void validate(int x, int y, int width, int height) {
         if (isValid()) {
             return;
         }
 
-        _xTickTexts = _xAxis.createTickmarkTexts();
-        _yTickTexts = _yAxis.createTickmarkTexts();
+        xTickTexts = xAxis.createTickmarkTexts();
+        yTickTexts = yAxis.createTickmarkTexts();
 
         // define y-Axis _values
-        final int fontAscent = _fontMetrics.getAscent();
+        final int fontAscent = fontMetrics.getAscent();
 
-        _maxYTickTextWidth = 0;
-        for (int i = 0; i < _yTickTexts.length; i++) {
-            int sw = _fontMetrics.stringWidth(_yTickTexts[i]);
-            _maxYTickTextWidth = Math.max(_maxYTickTextWidth, sw);
+        maxYTickTextWidth = 0;
+        for (String yTickText : yTickTexts) {
+            int sw = fontMetrics.stringWidth(yTickText);
+            maxYTickTextWidth = Math.max(maxYTickTextWidth, sw);
         }
 
-        final int widthMaxX = _fontMetrics.stringWidth(_xTickTexts[_xTickTexts.length - 1]);
+        final int widthMaxX = fontMetrics.stringWidth(xTickTexts[xTickTexts.length - 1]);
 
-        int x1 = _textGap + fontAscent + _textGap + _maxYTickTextWidth + _textGap + _majorTickLength;
-        int y1 = _textGap + fontAscent / 2;
-        int x2 = x + width - (_textGap + widthMaxX / 2);
-        int y2 = y + height - (_textGap + fontAscent + _textGap + fontAscent + _textGap + _majorTickLength);
+        int x1 = textGap + fontAscent + textGap + maxYTickTextWidth + textGap + majorTickLength;
+        int y1 = textGap + fontAscent / 2;
+        int x2 = x + width - (textGap + widthMaxX / 2);
+        int y2 = y + height - (textGap + fontAscent + textGap + fontAscent + textGap + majorTickLength);
         final int w = x2 - x1 + 1;
         final int h = y2 - y1 + 1;
-        _graphArea = new Rectangle(x1, y1, w, h);
+        graphArea = new Rectangle(x1, y1, w, h);
         setValid(w > 0 && h > 0);
     }
 
-
-    private void drawGraph(Graphics2D g2D, int x, int y, int width, int height) {
+    private void drawGraph(Graphics2D g2D) {
         if (!isValid()) {
             return;
         }
 
         double xa, xb;
-        double xa1 = _xAxis.getMinValue();
-        double xa2 = _xAxis.getMaxValue();
-        double xb1 = _graphArea.x;
-        double xb2 = _graphArea.x + _graphArea.width;
+        double xa1 = xAxis.getMinValue();
+        double xa2 = xAxis.getMaxValue();
+        double xb1 = graphArea.x;
+        double xb2 = graphArea.x + graphArea.width;
 
         double ya, yb;
-        double ya1 = _yAxis.getMinValue();
-        double ya2 = _yAxis.getMaxValue();
-        double yb1 = _graphArea.y + _graphArea.height;
-        double yb2 = _graphArea.y;
+        double ya1 = yAxis.getMinValue();
+        double ya2 = yAxis.getMaxValue();
+        double yb1 = graphArea.y + graphArea.height;
+        double yb2 = graphArea.y;
 
         final Rectangle clipBounds = g2D.getClipBounds();
-        g2D.setClip(_graphArea.x, _graphArea.y, _graphArea.width, _graphArea.height);
+        g2D.setClip(graphArea.x, graphArea.y, graphArea.width, graphArea.height);
 
-        g2D.setColor(DEFAULT_DIAGRAM_FG_COLOR);
         int x1, y1, x2 = 0, y2 = 0;
         int n = 0;
-        if (_graph != null) {
-            n = _graph.getNumValues();
-        }
-//        System.out.println("Diagram.drawGraph");
-//        System.out.println("n = " + n);
-//        System.out.println("xa1 = " + xa1);
-//        System.out.println("ya1 = " + ya1);
-//        System.out.println("xa2 = " + xa2);
-//        System.out.println("ya2 = " + ya2);
-//        System.out.println("xb1 = " + xb1);
-//        System.out.println("yb1 = " + yb1);
-//        System.out.println("xb2 = " + xb2);
-//        System.out.println("yb2 = " + yb2);
-        for (int i = 0; i < n; i++) {
-            xa = _graph.getXValueAt(i);
-            ya = _graph.getYValueAt(i);
-            xb = xb1 + ((xa - xa1) * (xb2 - xb1)) / (xa2 - xa1);
-            yb = yb1 + ((ya - ya1) * (yb2 - yb1)) / (ya2 - ya1);
-            x1 = x2;
-            y1 = y2;
-            x2 = (int) Math.round(xb);
-            y2 = (int) Math.round(yb);
-            if (i > 0) {
-                g2D.drawLine(x1, y1, x2, y2);
+        DiagramGraph[] graphs = getGraphs();
+        for (DiagramGraph graph : graphs) {
+            g2D.setColor(DEFAULT_DIAGRAM_FG_COLOR);
+            n = graph.getNumValues();
+            for (int i = 0; i < n; i++) {
+                xa = graph.getXValueAt(i);
+                ya = graph.getYValueAt(i);
+                xb = xb1 + ((xa - xa1) * (xb2 - xb1)) / (xa2 - xa1);
+                yb = yb1 + ((ya - ya1) * (yb2 - yb1)) / (ya2 - ya1);
+                x1 = x2;
+                y1 = y2;
+                x2 = (int) Math.round(xb);
+                y2 = (int) Math.round(yb);
+                if (i > 0) {
+                    g2D.drawLine(x1, y1, x2, y2);
+                }
+                g2D.drawRect(x2 - 1, y2 - 1, 3, 3);
             }
-//            System.out.println("xa = " + xa);
-//            System.out.println("ya = " + ya);
-//            System.out.println("xb = " + xb);
-//            System.out.println("yb = " + yb);
-//            System.out.println("x1 = " + x1);
-//            System.out.println("y1 = " + y1);
-//            System.out.println("x2 = " + x2);
-//            System.out.println("y2 = " + y2);
-            g2D.drawRect(x2 - 1, y2 - 1, 3, 3);
         }
 
         g2D.setClip(clipBounds);
     }
 
-    private void drawAxis(Graphics2D g2D, int xOffset, int yOffset, int width, int height) {
+    private void drawAxes(Graphics2D g2D, int xOffset, int yOffset, int width, int height) {
         if (!isValid()) {
             return;
         }
 
         g2D.setColor(DEFAULT_DIAGRAM_BG_COLOR);
-        g2D.fillRect(_graphArea.x, _graphArea.y, _graphArea.width, _graphArea.height);
+        g2D.fillRect(graphArea.x, graphArea.y, graphArea.width, graphArea.height);
         g2D.setColor(Color.black);
-        g2D.drawRect(_graphArea.x, _graphArea.y, _graphArea.width, _graphArea.height);
+        g2D.drawRect(graphArea.x, graphArea.y, graphArea.width, graphArea.height);
 
         g2D.setColor(DEFAULT_DIAGRAM_TEXT_COLOR);
 
@@ -273,59 +278,60 @@ public class Diagram {
         int x0, y0, x1, x2, y1, y2, xMin, xMax, yMin, yMax, n, n1, n2;
         String text;
 
-        final int th = _fontMetrics.getAscent();
+        final int th = fontMetrics.getAscent();
+
         // draw X major tick lines
-        xMin = _graphArea.x;
-        xMax = _graphArea.x + _graphArea.width;
-        y1 = _graphArea.y + _graphArea.height;
-        n1 = _xAxis.getNumMajorTicks();
-        n2 = _xAxis.getNumMinorTicks();
+        xMin = graphArea.x;
+        xMax = graphArea.x + graphArea.width;
+        y1 = graphArea.y + graphArea.height;
+        n1 = xAxis.getNumMajorTicks();
+        n2 = xAxis.getNumMinorTicks();
         n = (n1 - 1) * (n2 + 1) + 1;
         for (int i = 0; i < n; i++) {
             x0 = xMin + (i * (xMax - xMin)) / (n - 1);
             if (i % (n2 + 1) == 0) {
-                y2 = y1 + _majorTickLength;
-                text = _xTickTexts[i / (n2 + 1)];
-                tw = _fontMetrics.stringWidth(text);
-                g2D.drawString(text, x0 - tw / 2, y2 + _textGap + _fontMetrics.getAscent());
+                y2 = y1 + majorTickLength;
+                text = xTickTexts[i / (n2 + 1)];
+                tw = fontMetrics.stringWidth(text);
+                g2D.drawString(text, x0 - tw / 2, y2 + textGap + fontMetrics.getAscent());
             } else {
-                y2 = y1 + _minorTickLength;
+                y2 = y1 + minorTickLength;
             }
             g2D.drawLine(x0, y1, x0, y2);
         }
 
         // draw Y major tick lines
-        x1 = _graphArea.x;
-        yMin = _graphArea.y;
-        yMax = _graphArea.y + _graphArea.height;
-        n1 = _yAxis.getNumMajorTicks();
-        n2 = _yAxis.getNumMinorTicks();
+        x1 = graphArea.x;
+        yMin = graphArea.y;
+        yMax = graphArea.y + graphArea.height;
+        n1 = yAxis.getNumMajorTicks();
+        n2 = yAxis.getNumMinorTicks();
         n = (n1 - 1) * (n2 + 1) + 1;
         for (int i = 0; i < n; i++) {
             y0 = yMin + (i * (yMax - yMin)) / (n - 1);
             if (i % (n2 + 1) == 0) {
-                x2 = x1 - _majorTickLength;
-                text = _yTickTexts[n1 - 1 - (i / (n2 + 1))];
-                tw = _fontMetrics.stringWidth(text);
-                g2D.drawString(text, x2 - _textGap - tw, y0 + th / 2);
+                x2 = x1 - majorTickLength;
+                text = yTickTexts[n1 - 1 - (i / (n2 + 1))];
+                tw = fontMetrics.stringWidth(text);
+                g2D.drawString(text, x2 - textGap - tw, y0 + th / 2);
             } else {
-                x2 = x1 - _minorTickLength;
+                x2 = x1 - minorTickLength;
             }
             g2D.drawLine(x1, y0, x2, y0);
         }
 
         // draw X axis name and unit
-        text = _xAxis.getName() + " [" + _xAxis.getUnit() + "]";
-        tw = _fontMetrics.stringWidth(text);
-        x1 = _graphArea.x + _graphArea.width / 2 - tw / 2;
-        y1 = yOffset + height - _textGap;
+        text = xAxis.getName() + " [" + xAxis.getUnit() + "]";
+        tw = fontMetrics.stringWidth(text);
+        x1 = graphArea.x + graphArea.width / 2 - tw / 2;
+        y1 = yOffset + height - textGap;
         g2D.drawString(text, x1, y1);
 
         // draw Y axis name and unit
-        text = _yAxis.getName() + " [" + _yAxis.getUnit() + "]";
-        tw = _fontMetrics.stringWidth(text);
-        x1 = _graphArea.x - _majorTickLength - _textGap - _maxYTickTextWidth - _textGap;
-        y1 = _graphArea.y + _graphArea.height / 2 + tw / 2;
+        text = yAxis.getName() + " [" + yAxis.getUnit() + "]";
+        tw = fontMetrics.stringWidth(text);
+        x1 = graphArea.x - majorTickLength - textGap - maxYTickTextWidth - textGap;
+        y1 = graphArea.y + graphArea.height / 2 + tw / 2;
         final AffineTransform oldTransform = g2D.getTransform();
         g2D.translate(x1, y1);
         g2D.rotate(-Math.PI / 2);

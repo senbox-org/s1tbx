@@ -16,6 +16,7 @@
  */
 package org.esa.beam.dataio.envisat;
 
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
@@ -70,7 +71,6 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param name the local for the given decription string, if <code>null</code> the default locale is used
-     *
      * @return a textual description of this product reader/writer
      */
     public String getDescription(Locale name) {
@@ -86,20 +86,24 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
      * abstract file path or a <code>javax.imageio.stream.ImageInputStream</code> - an already opened image input
      * stream.
      *
-     * @param object the input object
-     *
+     * @param input the input object
      * @return <code>true</code> if the given input is an object referencing a physical ENVISAT data source.
      */
-    public boolean canDecodeInput(Object object) {
-        if (object instanceof String) {
-            return ProductFile.getProductType(new File((String) object)) != null;
-        } else if (object instanceof File) {
-            return ProductFile.getProductType((File) object) != null;
-        } else if (object instanceof ImageInputStream) {
-            return ProductFile.getProductType((ImageInputStream) object) != null;
-        } else {
-            return false;
+    public DecodeQualification getDecodeQualification(Object input) {
+        if (input instanceof String) {
+            if (ProductFile.getProductType(new File((String) input)) != null) {
+                return DecodeQualification.INTENDED;
+            }
+        } else if (input instanceof File) {
+            if (ProductFile.getProductType((File) input) != null) {
+                return DecodeQualification.INTENDED;
+            }
+        } else if (input instanceof ImageInputStream) {
+            if (ProductFile.getProductType((ImageInputStream) input) != null) {
+                return DecodeQualification.INTENDED;
+            }
         }
+        return DecodeQualification.UNABLE;
     }
 
     /**
@@ -110,7 +114,6 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
      * <code>InvalidArgumentException</code> in this case).
      *
      * @return an array containing valid input types, never <code>null</code>
-     *
      * @see org.esa.beam.framework.dataio.AbstractProductReader#readProductNodes
      */
     public Class[] getInputTypes() {

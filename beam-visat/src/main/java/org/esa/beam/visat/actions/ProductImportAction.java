@@ -22,6 +22,7 @@ import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeList;
 import org.esa.beam.framework.ui.GridBagUtils;
@@ -300,7 +301,7 @@ public class ProductImportAction extends ExecCommand {
             visatApp.setStatusBarMessage("Reading from '" + file + "'..."); /*I18N*/
             visatApp.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-            if (readerPlugIn.canDecodeInput(file)) {
+            if (readerPlugIn.getDecodeQualification(file) != DecodeQualification.UNABLE) {
                 final ProductReader reader = readerPlugIn.createReaderInstance();
                 product = reader.readProductNodes(file, null);
             } else {
@@ -321,7 +322,7 @@ public class ProductImportAction extends ExecCommand {
         Iterator it = manager.getReaderPlugIns(format);
         if (it.hasNext()) {
             ProductReaderPlugIn plugIn = (ProductReaderPlugIn) it.next();
-            return plugIn.canDecodeInput(file);
+            return plugIn.getDecodeQualification(file) != DecodeQualification.UNABLE;
         }
         return false;
     }

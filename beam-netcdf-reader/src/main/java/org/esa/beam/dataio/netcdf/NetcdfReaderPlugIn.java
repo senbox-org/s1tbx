@@ -2,6 +2,7 @@ package org.esa.beam.dataio.netcdf;
 
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.util.io.BeamFileFilter;
 import ucar.nc2.NetcdfFile;
 
@@ -27,24 +28,24 @@ public class NetcdfReaderPlugIn implements ProductReaderPlugIn {
      * <li>the netCDF file has variables which can be interpreted as bands.</li>
      * </ul>
      */
-    public boolean canDecodeInput(final Object input) {
+    public DecodeQualification getDecodeQualification(final Object input) {
 
         String pathname = input.toString();
         if (!(pathname.endsWith(".nc") || pathname.endsWith(".NC"))) {
-            return false;
+            return DecodeQualification.UNABLE;
         }
 
         final NetcdfFile netcdfFile;
         try {
             netcdfFile = NetcdfFile.open(pathname);
         } catch (IOException e) {
-            return false;
+            return DecodeQualification.UNABLE;
         }
 
         try {
             final NcRasterDigest rasterDigest = NetcdfReaderUtils.createRasterDigest(netcdfFile.getRootGroup());
             if (rasterDigest == null) {
-                return false;
+                return DecodeQualification.UNABLE;
             }
         } finally {
             try {
@@ -54,7 +55,7 @@ public class NetcdfReaderPlugIn implements ProductReaderPlugIn {
             }
         }
 
-        return true;
+        return DecodeQualification.SUITABLE;
     }
 
     /**

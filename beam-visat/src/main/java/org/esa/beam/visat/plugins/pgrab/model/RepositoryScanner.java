@@ -8,6 +8,7 @@ package org.esa.beam.visat.plugins.pgrab.model;
 
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.dataio.DecodeQualification;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -36,7 +37,7 @@ public class RepositoryScanner {
             while (it.hasNext()) {
                 final ProductReaderPlugIn plugIn = (ProductReaderPlugIn) it.next();
 
-                if (plugIn.canDecodeInput(file)) {
+                if (plugIn.getDecodeQualification(file) != DecodeQualification.UNABLE) {
                     return true;
                 }
             }

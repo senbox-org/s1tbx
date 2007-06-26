@@ -60,7 +60,6 @@ public class ProductIO {
      * Gets a product reader for the given format name.
      *
      * @param formatName the product format name
-     *
      * @return a suitable product reader or <code>null</code> if none was found
      */
     public static ProductReader getProductReader(String formatName) {
@@ -77,7 +76,6 @@ public class ProductIO {
      * Gets an array of writer product file extensions for the given format name.
      *
      * @param formatName the format name
-     *
      * @return an array of extensions or null if the format does not exist
      */
     public static String[] getProducWritertExtensions(String formatName) {
@@ -94,7 +92,6 @@ public class ProductIO {
      * Gets a product writer for the given format name.
      *
      * @param formatName the product format name
-     *
      * @return a suitable product writer or <code>null</code> if none was found
      */
     public static ProductWriter getProductWriter(String formatName) {
@@ -128,10 +125,8 @@ public class ProductIO {
      *                    accept all data in the original data product.
      * @param formatNames a list of product format names defining the preference, if more than one reader
      *                    found in the registry is capable of decoding the file.
-     *
      * @return a data model as an in-memory representation of the given product file or <code>null</code>,
      *         if no appropriate reader was found for the given product file
-     *
      * @throws IOException if an I/O error occurs
      * @see #readProduct(String, ProductSubsetDef)
      * @see #readProduct(URL, ProductSubsetDef)
@@ -149,15 +144,21 @@ public class ProductIO {
         for (String formatName : formatNames) {
             final Iterator it = registry.getReaderPlugIns(formatName);
 
+            ProductReaderPlugIn selectedPlugIn = null;
             while (it.hasNext()) {
-                final ProductReaderPlugIn plugIn = (ProductReaderPlugIn) it.next();
-
-                if (plugIn.canDecodeInput(file)) {
-                    final ProductReader productReader = plugIn.createReaderInstance();
-
-                    if (productReader != null) {
-                        return productReader.readProductNodes(file, subsetDef);
-                    }
+                ProductReaderPlugIn plugIn = (ProductReaderPlugIn) it.next();
+                DecodeQualification decodeQualification = plugIn.getDecodeQualification(file);
+                if (decodeQualification == DecodeQualification.INTENDED) {
+                    selectedPlugIn = plugIn;
+                    break;
+                } else if (decodeQualification == DecodeQualification.SUITABLE) {
+                    selectedPlugIn = plugIn;
+                }
+            }
+            if (selectedPlugIn != null) {
+                ProductReader productReader = selectedPlugIn.createReaderInstance();
+                if (productReader != null) {
+                    return productReader.readProductNodes(file, subsetDef);
                 }
             }
         }
@@ -178,10 +179,8 @@ public class ProductIO {
      * @param filePath  the data product file path
      * @param subsetDef the optional spectral and spatial subset, can be <code>null</code> in order to accept all data
      *                  in the original data product.
-     *
      * @return a data model as an in-memory representation of the given product file or <code>null</code> if no
      *         appropriate reader was found for the given product file
-     *
      * @throws IOException if an I/O error occurs
      * @see #readProduct(File, ProductSubsetDef)
      * @see #readProduct(URL, ProductSubsetDef)
@@ -203,10 +202,8 @@ public class ProductIO {
      * @param file      the data product file
      * @param subsetDef the optional spectral and spatial subset, can be <code>null</code> in order to accept all data
      *                  in the original data product.
-     *
      * @return a data model as an in-memory representation of the given product file or <code>null</code> if no
      *         appropriate reader was found for the given product file
-     *
      * @throws IOException if an I/O error occurs
      * @see #readProduct(String, ProductSubsetDef)
      * @see #readProduct(URL, ProductSubsetDef)
@@ -227,17 +224,24 @@ public class ProductIO {
      * Returns a product reader instance for the given file if any registered product reader can decode the given file.
      *
      * @param file the file to decode.
-     *
      * @return a product reader for the given file or <code>null</code> if the file cannot be decoded.
      */
     public static ProductReader getProductReaderForFile(File file) {
         ProductIOPlugInManager registry = ProductIOPlugInManager.getInstance();
         Iterator it = registry.getAllReaderPlugIns();
+        ProductReaderPlugIn selectedPlugIn = null;
         while (it.hasNext()) {
             ProductReaderPlugIn plugIn = (ProductReaderPlugIn) it.next();
-            if (plugIn.canDecodeInput(file)) {
-                return plugIn.createReaderInstance();
+            DecodeQualification decodeQualification = plugIn.getDecodeQualification(file);
+            if (decodeQualification == DecodeQualification.INTENDED) {
+                selectedPlugIn = plugIn;
+                break;
+            } else if (decodeQualification == DecodeQualification.SUITABLE) {
+                selectedPlugIn = plugIn;
             }
+        }
+        if (selectedPlugIn != null) {
+            return selectedPlugIn.createReaderInstance();
         }
         return null;
     }
@@ -258,10 +262,8 @@ public class ProductIO {
      * @param url       the data product's URL
      * @param subsetDef the optional spectral and spatial subset, can be <code>null</code> in order to accept all data
      *                  in the original data product.
-     *
      * @return a data model as an in-memory representation of the given product file or <code>null</code> if no
      *         appropriate reader was found for the given product file
-     *
      * @throws IOException if an I/O error occurs
      * @see #readProduct(String, ProductSubsetDef)
      * @see #readProduct(File, ProductSubsetDef)
@@ -289,7 +291,6 @@ public class ProductIO {
      * @param filePath   the file path
      * @param formatName the name of a supported product format, e.g. "HDF5". If <code>null</code>, the default format
      *                   "BEAM-DIMAP" will be used
-     *
      * @throws IOException if an IOException occurs
      */
     public static void writeProduct(Product product,
@@ -311,7 +312,6 @@ public class ProductIO {
      * @param formatName the name of a supported product format, e.g. "HDF5". If <code>null</code>, the default format
      *                   "BEAM-DIMAP" will be used
      * @param pm         a monitor to inform the user about progress
-     *
      * @throws IOException if an IOException occurs
      */
     public static void writeProduct(Product product,
@@ -334,7 +334,6 @@ public class ProductIO {
      * @param formatName  the name of a supported product format, e.g. "HDF5". If <code>null</code>, the default format
      *                    "BEAM-DIMAP" will be used
      * @param incremental switch the product writer in incremental mode or not.
-     *
      * @throws IOException if an IOException occurs
      */
     public static void writeProduct(Product product,
@@ -358,7 +357,6 @@ public class ProductIO {
      *                    "BEAM-DIMAP" will be used
      * @param incremental switch the product writer in incremental mode or not.
      * @param pm          a monitor to inform the user about progress
-     *
      * @throws IOException if an IOException occurs
      */
     public static void writeProduct(Product product,
@@ -420,7 +418,7 @@ public class ProductIO {
             }
         }
 
-        if(bandsToWrite.size() > 0) {
+        if (bandsToWrite.size() > 0) {
             pm.beginTask("Writing bands of product '" + product.getName() + "'...", bandsToWrite.size());
             try {
                 for (int i = 0; i < bandsToWrite.size(); i++) {

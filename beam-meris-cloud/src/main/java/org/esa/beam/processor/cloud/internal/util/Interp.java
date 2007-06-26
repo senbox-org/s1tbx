@@ -9,11 +9,11 @@ package org.esa.beam.processor.cloud.internal.util;
 // TODO make this public API
 
 /**
- * <p><i><b>IMPORTANT NOTE:</b> 
- * This class belongs to a preliminary API. 
- * It is not (yet) intended to be used by clients and may change in the future.</i></p>
- */
-public class Interp {
+ * <p><i><b>IMPORTANT NOTE:</b>
+ * This class not an API.
+ * It is not intended to be used by clients.</i>
+ * </p>
+ */public class Interp {
 
     /**
      * The method returns a status code which can be one of the following values: <blockquote> 0 : Normal <br> 1 :

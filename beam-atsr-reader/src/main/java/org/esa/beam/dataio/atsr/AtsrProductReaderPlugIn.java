@@ -18,6 +18,7 @@ package org.esa.beam.dataio.atsr;
 
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.util.io.BeamFileFilter;
 
 import javax.imageio.stream.ImageInputStream;
@@ -42,16 +43,16 @@ public class AtsrProductReaderPlugIn implements ProductReaderPlugIn {
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
      * is capable of decoding the input's content.
      */
-    public boolean canDecodeInput(Object input) {
+    public DecodeQualification getDecodeQualification(Object input) {
         AtsrFileFactory factory = AtsrFileFactory.getInstance();
         if (input instanceof String) {
-            return factory.canDecodeInput((String) input);
+            return factory.getDecodeQualification((String) input);
         } else if (input instanceof File) {
-            return factory.canDecodeInput((File) input);
+            return factory.getDecodeQualification((File) input);
         } else if (input instanceof ImageInputStream) {
-            return factory.canDecodeInput((ImageInputStream) input);
+            return factory.getDecodeQualification((ImageInputStream) input);
         } else {
-            return false;
+            return DecodeQualification.UNABLE;
         }
     }
 

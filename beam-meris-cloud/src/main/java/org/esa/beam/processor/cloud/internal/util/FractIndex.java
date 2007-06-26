@@ -7,9 +7,10 @@
 package org.esa.beam.processor.cloud.internal.util;
 
 /**
- * <p><i><b>IMPORTANT NOTE:</b> 
- * This class belongs to a preliminary API. 
- * It is not (yet) intended to be used by clients and may change in the future.</i></p>
+ * <p><i><b>IMPORTANT NOTE:</b>
+ * This class not an API.
+ * It is not intended to be used by clients.</i>
+ * </p>
  */
 public final class FractIndex {
 

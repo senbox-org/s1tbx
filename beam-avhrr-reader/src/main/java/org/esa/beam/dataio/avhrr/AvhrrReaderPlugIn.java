@@ -16,6 +16,7 @@
  */
 package org.esa.beam.dataio.avhrr;
 
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
@@ -42,12 +43,12 @@ public class AvhrrReaderPlugIn implements ProductReaderPlugIn {
     public AvhrrReaderPlugIn() {
     }
 
-    public boolean canDecodeInput(Object input) {
+    public DecodeQualification getDecodeQualification(Object input) {
         File file = getInputFile(input);
-        if (file != null) {
-            return AvhrrReader.canOpenFile(file);
+        if (file != null && AvhrrReader.canOpenFile(file)) {
+            return DecodeQualification.INTENDED;
         }
-        return false;
+        return DecodeQualification.UNABLE;
     }
 
     public static File getInputFile(Object input) {
@@ -116,7 +117,6 @@ public class AvhrrReaderPlugIn implements ProductReaderPlugIn {
      * <p> In a GUI, the description returned could be used as tool-tip text.
      *
      * @param locale the local for the given decription string, if <code>null</code> the default locale is used
-     *
      * @return a textual description of this product reader/writer
      */
     public String getDescription(Locale locale) {

@@ -32,10 +32,12 @@ package org.esa.beam.framework.dataio;
 public interface ProductReaderPlugIn extends ProductIOPlugIn {
 
     /**
-     * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
-     * is capable of decoding the input's content.
+     * Gets the qualification of the product reader to decode a given input object.
+     *
+     * @param input the input object
+     * @return  the decode qualification
      */
-    boolean canDecodeInput(Object input);
+    DecodeQualification getDecodeQualification(Object input);
 
     /**
      * Returns an array containing the classes that represent valid input types for this reader.

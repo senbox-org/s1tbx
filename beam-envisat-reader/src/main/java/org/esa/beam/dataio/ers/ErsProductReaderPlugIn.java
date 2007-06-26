@@ -16,13 +16,8 @@
  */
 package org.esa.beam.dataio.ers;
 
-import org.esa.beam.dataio.envisat.EnvisatProductReader;
 import org.esa.beam.dataio.envisat.EnvisatProductReaderPlugIn;
-import org.esa.beam.dataio.envisat.ProductFile;
-import org.esa.beam.framework.dataio.ProductReader;
 
-import javax.imageio.stream.ImageInputStream;
-import java.io.File;
 import java.util.Locale;
 
 /**
@@ -76,54 +71,5 @@ public class ErsProductReaderPlugIn extends EnvisatProductReaderPlugIn {
     @Override
     public String getDescription(Locale name) {
         return "ERS1/2 AATSR and SAR products";
-    }
-
-    /**
-     * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if
-     * it's content has the ENVISAT format by checking if the first bytes in the file equals the ENVISAT magic file
-     * string <code>PRODUCT=&quot;</code>.
-     * <p/>
-     *
-     * @param object the input object
-     *
-     * @return <code>true</code> if the given input is an object referencing a physical ERS1/2 data source.
-     */
-    @Override
-    public boolean canDecodeInput(Object object) {
-        if (object instanceof String) {
-            return ProductFile.getProductType(new File((String) object)) != null;
-        } else if (object instanceof File) {
-            return ProductFile.getProductType((File) object) != null;
-        } else if (object instanceof ImageInputStream) {
-            return ProductFile.getProductType((ImageInputStream) object) != null;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Returns an array containing the classes that represent valid input types for an ERS1/2 product reader.
-     * <p/>
-     * <p> Instances of the classes returned in this array are valid objects for the <code>readProductNodes</code>
-     * method of the <code>AbstractProductReader</code> class (the method will not throw an
-     * <code>InvalidArgumentException</code> in this case).
-     *
-     * @return an array containing valid input types, never <code>null</code>
-     *
-     * @see org.esa.beam.framework.dataio.AbstractProductReader#readProductNodes
-     */
-    @Override
-    public Class[] getInputTypes() {
-        return new Class[]{String.class, File.class, ImageInputStream.class};
-    }
-
-    /**
-     * Creates an instance of the actual ENVISAT product reader class.
-     *
-     * @return a new instance of the <code>EnvisatProductReader</code> class
-     */
-    @Override
-    public ProductReader createReaderInstance() {
-        return new EnvisatProductReader(this);
     }
 }

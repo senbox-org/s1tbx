@@ -17,6 +17,7 @@
 package org.esa.beam.dataio.atsr;
 
 import org.esa.beam.util.Debug;
+import org.esa.beam.framework.dataio.DecodeQualification;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
@@ -45,8 +46,8 @@ class AtsrFileFactory implements AtsrConstants {
      *
      * @param path a string containing the path to the file
      */
-    public boolean canDecodeInput(String path) {
-        return canDecodeInput(new File(path));
+    public DecodeQualification getDecodeQualification(String path) {
+        return getDecodeQualification(new File(path));
     }
 
     /**
@@ -54,14 +55,13 @@ class AtsrFileFactory implements AtsrConstants {
      *
      * @param file a file
      */
-    public boolean canDecodeInput(File file) {
-        boolean bRet = false;
+    public DecodeQualification getDecodeQualification(File file) {
+        DecodeQualification bRet = DecodeQualification.UNABLE;
 
         try {
-            bRet = canDecodeInput(new FileImageInputStream(file));
+            bRet = getDecodeQualification(new FileImageInputStream(file));
         } catch (IOException e) {
-            bRet = false;
-            //Debug.trace(e);
+            // ignored
         }
         return bRet;
     }
@@ -71,29 +71,29 @@ class AtsrFileFactory implements AtsrConstants {
      *
      * @param inStream a stream to an open file
      */
-    public boolean canDecodeInput(final ImageInputStream inStream) {
-        boolean bRet = false;
+    public DecodeQualification getDecodeQualification(final ImageInputStream inStream) {
+        DecodeQualification bRet = DecodeQualification.UNABLE;
 
         // read the first 68 characters and check for atsr specific stuff
         final byte[] headerBegin = new byte[BYTE_ORDER_SIZE + PRODUCT_FILE_NAME_SIZE + INSTRUMENT_NAME_SIZE];
 
         try {
             if (inStream.length() < headerBegin.length) {
-                bRet = false;
+                bRet = DecodeQualification.UNABLE;
             } else {
                 inStream.readFully(headerBegin, 0, headerBegin.length);
                 final InputStreamReader reader = new InputStreamReader(new ByteArrayInputStream(headerBegin));
                 if (checkByteOrderField(reader)) {
                     if (checkProductFileNameField(reader)) {
                         if (checkInstrumentField(reader)) {
-                            bRet = true;
+                            bRet = DecodeQualification.INTENDED;
                         }
                     }
                 }
             }
         } catch (IOException e) {
             Debug.trace(e);
-            bRet = false;
+            bRet = DecodeQualification.UNABLE;
         } finally {
             try {
                 inStream.close();

@@ -1,13 +1,14 @@
 package org.esa.beam.processor.cloud.internal;
 
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.io.BeamFileFilter;
 
 /**
  * <p><i><b>IMPORTANT NOTE:</b>
- * This class belongs to a preliminary API.
- * It is not (yet) intended to be used by clients and may change in the future.</i>
+ * This class not an API.
+ * It is not intended to be used by clients.</i>
  * </p>
  */
 public abstract class ProcessingNodePlugIn implements ProductReaderPlugIn {
@@ -16,8 +17,11 @@ public abstract class ProcessingNodePlugIn implements ProductReaderPlugIn {
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
      * is capable of decoding the input's content.
      */
-    public boolean canDecodeInput(final Object input) {
-        return input == null || (input instanceof Product) || (input instanceof Product[]);
+    public DecodeQualification getDecodeQualification(final Object input) {
+        if(input == null || (input instanceof Product) || (input instanceof Product[])) {
+            return DecodeQualification.INTENDED;
+        }
+        return DecodeQualification.UNABLE;
     }
 
     /**

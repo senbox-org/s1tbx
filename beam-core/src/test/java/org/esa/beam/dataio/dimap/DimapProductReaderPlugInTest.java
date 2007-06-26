@@ -27,6 +27,7 @@ import junit.framework.TestSuite;
 import org.esa.beam.GlobalTestConfig;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductReader;
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.datamodel.Product;
 
 public class DimapProductReaderPlugInTest extends TestCase {
@@ -70,8 +71,8 @@ public class DimapProductReaderPlugInTest extends TestCase {
             final FileWriter writer = new FileWriter(file);
             writer.write("This file must contain the String '<Dimap_Document' to ensure this is a correct file format");
             writer.close();
-            assertEquals(true, _plugIn.canDecodeInput(file));
-            assertEquals(true, _plugIn.canDecodeInput(file.getPath()));
+            assertEquals(DecodeQualification.INTENDED, _plugIn.getDecodeQualification(file));
+            assertEquals(DecodeQualification.INTENDED, _plugIn.getDecodeQualification(file.getPath()));
             if (!file.delete()) {
                 file.deleteOnExit();
             }

@@ -19,10 +19,7 @@ package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
-import org.esa.beam.framework.dataio.AbstractProductReader;
-import org.esa.beam.framework.dataio.IllegalFileFormatException;
-import org.esa.beam.framework.dataio.ProductReader;
-import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.dataio.*;
 import org.esa.beam.util.io.BeamFileFilter;
 
 import java.io.IOException;
@@ -197,8 +194,8 @@ public class RasterDataNodeIOTest extends TestCase {
 
     private static class TestProductReaderPlugIn implements ProductReaderPlugIn {
 
-        public boolean canDecodeInput(Object input) {
-            return false;
+        public DecodeQualification getDecodeQualification(Object input) {
+            return DecodeQualification.UNABLE;
         }
 
         public Class[] getInputTypes() {

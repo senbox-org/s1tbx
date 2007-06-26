@@ -290,7 +290,7 @@ public abstract class ProductFile {
         try {
             productType = readProductType(dataInputStream);
         } catch (IOException e) {
-            Debug.trace(e);
+            // ignore
         }
 
         return productType;

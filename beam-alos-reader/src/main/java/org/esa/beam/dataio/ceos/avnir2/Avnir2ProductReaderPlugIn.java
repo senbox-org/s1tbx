@@ -2,6 +2,7 @@ package org.esa.beam.dataio.ceos.avnir2;
 
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 
@@ -27,14 +28,14 @@ public class Avnir2ProductReaderPlugIn implements ProductReaderPlugIn {
      *
      * @return true if this product reader can decode the given input, otherwise false.
      */
-    public boolean canDecodeInput(final Object input) {
+    public DecodeQualification getDecodeQualification(final Object input) {
         final File file = Avnir2ProductReader.getFileFromInput(input);
         if (file == null) {
-            return false;
+            return DecodeQualification.UNABLE;
         }
         final String filename = FileUtils.getFilenameWithoutExtension(file);
         if (!filename.startsWith(Avnir2Constants.VOLUME_FILE_PREFIX)) {
-            return false; // not the volume file
+            return DecodeQualification.UNABLE; // not the volume file
         }
 
         final File parentDir = file.getParentFile();
@@ -45,9 +46,11 @@ public class Avnir2ProductReaderPlugIn implements ProductReaderPlugIn {
                 }
             };
             final File[] files = parentDir.listFiles(filter);
-            return files != null && files.length >= _MINIMUM_FILES;
+            if (files != null && files.length >= _MINIMUM_FILES) {
+                return DecodeQualification.INTENDED;
+            }
         }
-        return false;
+        return DecodeQualification.UNABLE;
     }
 
     /**

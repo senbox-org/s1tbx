@@ -95,8 +95,11 @@ public class ProductIOPlugInManagerTest extends TestCase {
 
         }
 
-        public boolean canDecodeInput(Object input) {
-            return input instanceof String;
+        public DecodeQualification getDecodeQualification(Object input) {
+            if(input instanceof String) {
+                return DecodeQualification.INTENDED;
+            }
+            return DecodeQualification.UNABLE;
         }
     }
 
@@ -126,8 +129,11 @@ public class ProductIOPlugInManagerTest extends TestCase {
             return new BeamFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
         }
 
-        public boolean canDecodeInput(Object input) {
-            return input instanceof String;
+        public DecodeQualification getDecodeQualification(Object input) {
+             if(input instanceof String) {
+                return DecodeQualification.INTENDED;
+            }
+            return DecodeQualification.UNABLE;
         }
     }
 

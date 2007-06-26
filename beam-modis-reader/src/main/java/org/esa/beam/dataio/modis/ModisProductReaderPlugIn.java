@@ -15,6 +15,7 @@ package org.esa.beam.dataio.modis;
 import ncsa.hdf.hdflib.HDFLibrary;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.logging.BeamLogManager;
 
@@ -57,12 +58,12 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
      * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if it
      * is capable of decoding the input's content.
      */
-    public boolean canDecodeInput(Object input) {
+    public DecodeQualification getDecodeQualification(Object input) {
         if (!isHdf4LibAvailable()) {
-            return false;
+            return DecodeQualification.UNABLE;
         }
 
-        boolean bRet = false;
+        DecodeQualification bRet = DecodeQualification.UNABLE;
         File file = null;
 
         if (input instanceof String) {
@@ -74,8 +75,9 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
         if ((file != null) && (file.exists()) && (file.isFile())) {
             if (file.getPath().toLowerCase().endsWith(ModisConstants.DEFAULT_FILE_EXTENSION)) {
                 try {
-                    // getAbsolutPath() replaced by getPath()
-                    bRet = HDFLibrary.Hishdf(file.getPath());
+                    if(HDFLibrary.Hishdf(file.getPath())) {
+                        bRet = DecodeQualification.SUITABLE;
+                    }
                 } catch (Exception e) {
                     // nothing to do, return value is already false
                 }

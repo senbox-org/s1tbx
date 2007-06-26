@@ -19,6 +19,7 @@ package org.esa.beam.dataio.merisl3;
 
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.util.io.BeamFileFilter;
 import ucar.nc2.NetcdfFile;
 
@@ -62,21 +63,21 @@ public class MerisL3ProductReaderPlugIn implements ProductReaderPlugIn {
      * @return <code>true</code> if the given input is an object referencing a physical MERIS Binned Level-3
      *         data source.
      */
-    public boolean canDecodeInput(Object input) {
+    public DecodeQualification getDecodeQualification(Object input) {
         final String path = input.toString();
         final String name = new File(path).getName();
-        if (MerisL3FileFilter.isMerisBinnedL3Name(name)) {  // TODO - need this check?
-            return false;
+        if (!MerisL3FileFilter.isMerisBinnedL3Name(name)) {
+            return DecodeQualification.UNABLE;
         }
         final NetcdfFile netcdfFile;
         try {
             netcdfFile = NetcdfFile.open(path);
         } catch (IOException e) {
-            return false;
+            return DecodeQualification.UNABLE;
         }
-        try { // TODO - test if rank is equal to unity
+        try {
             if (netcdfFile.getRootGroup().findVariable("idx") == null) {
-                return false;
+                return DecodeQualification.UNABLE;
             }
         } finally {
             try {
@@ -85,7 +86,7 @@ public class MerisL3ProductReaderPlugIn implements ProductReaderPlugIn {
                 // ok
             }
         }
-        return true;
+        return DecodeQualification.INTENDED;
     }
 
     /**
