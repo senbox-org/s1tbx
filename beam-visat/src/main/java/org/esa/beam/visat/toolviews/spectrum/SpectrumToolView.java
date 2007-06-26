@@ -34,7 +34,7 @@ import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.diagram.Diagram;
 import org.esa.beam.framework.ui.diagram.DiagramAxis;
 import org.esa.beam.framework.ui.diagram.DiagramCanvas;
-import org.esa.beam.framework.ui.diagram.DiagramValues;
+import org.esa.beam.framework.ui.diagram.DiagramGraph;
 import org.esa.beam.framework.ui.product.BandChooser;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
@@ -161,7 +161,7 @@ public class SpectrumToolView extends AbstractToolView {
     public void updateSpectrum(final int pixelX, final int pixelY) {
         currentX = pixelX;
         currentY = pixelY;
-        final SpectrumValues spectrumValues = getSpectrumValues();
+        final SpectrumGraph spectrumValues = getSpectrumValues();
         if (spectrumValues != null) {
             try {
                 spectrumValues.readValues(pixelX, pixelY);
@@ -243,17 +243,17 @@ public class SpectrumToolView extends AbstractToolView {
         setInvalidDiagramMessage("No pin selected.");
     }
 
-    private SpectrumValues getSpectrumValues() {
+    private SpectrumGraph getSpectrumValues() {
         final Diagram diagram = getCurrentProductDiagram();
         if (diagram != null) {
-            return (SpectrumValues) diagram.getValues();
+            return (SpectrumGraph) diagram.getValues();
         }
         return null;
     }
 
 
     private Band[] getSelectedBands() {
-        final SpectrumValues spectrumValues = getSpectrumValues();
+        final SpectrumGraph spectrumValues = getSpectrumValues();
         if (spectrumValues != null) {
             return spectrumValues.getBands();
         }
@@ -267,11 +267,11 @@ public class SpectrumToolView extends AbstractToolView {
             diagramCanvas.setMessageText("No spectral bands."); /*I18N*/
 //            diagram.setValues(null);
         } else {
-            SpectrumValues spectrumValues = (SpectrumValues) diagram.getValues();
+            SpectrumGraph spectrumValues = (SpectrumGraph) diagram.getValues();
             if (spectrumValues != null) {
                 spectrumValues.setBands(selectedBands);
             } else {
-                spectrumValues = new SpectrumValues(selectedBands);
+                spectrumValues = new SpectrumGraph(selectedBands);
                 diagram.setValues(spectrumValues);
             }
             updateYUnit(selectedBands);
@@ -483,7 +483,7 @@ public class SpectrumToolView extends AbstractToolView {
     }
 
 
-    static class SpectrumValues implements DiagramValues {
+    static class SpectrumGraph implements DiagramGraph {
 
         private float[] _wavelengths;
         private Band[] _bands;
@@ -492,7 +492,7 @@ public class SpectrumToolView extends AbstractToolView {
         private final Range _valueRange;
         private final Range _wavelengthRange;
 
-        public SpectrumValues(Band[] bands) {
+        public SpectrumGraph(Band[] bands) {
             Debug.assertNotNull(bands);
             _ioBuffer = new float[1];
             _valueRange = new Range();

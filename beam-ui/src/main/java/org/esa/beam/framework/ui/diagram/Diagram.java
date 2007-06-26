@@ -30,18 +30,18 @@ import org.esa.beam.util.Guardian;
 
 /**
  * The <code>Diagram</code> class is used to plot simple X/Y graphs. Instances of this class are composed of
- * <code>{@link DiagramValues}</code> and two <code>{@link DiagramAxis}</code> objects for the X and Y axes.
+ * <code>{@link DiagramGraph}</code> and two <code>{@link DiagramAxis}</code> objects for the X and Y axes.
  */
 public class Diagram {
 
     // @todo 2 nf/he - see StatisticsDialog for similar declarations (code smell!)
-    private final static String _FONT_NAME = "Verdana";
-    private final static int _FONT_SIZE = 9;
-    private static final Color _DIAGRAM_BG_COLOR = new Color(200, 200, 255);
-    private static final Color _DIAGRAM_FG_COLOR = new Color(0, 0, 100);
-    private static final Color _DIAGRAM_TEXT_COLOR = Color.black;
+    private final static String DEFAULT_FONT_NAME = "Verdana";
+    private final static int DEFAULT_FONT_SIZE = 9;
+    private static final Color DEFAULT_DIAGRAM_BG_COLOR = new Color(200, 200, 255);
+    private static final Color DEFAULT_DIAGRAM_FG_COLOR = new Color(0, 0, 100);
+    private static final Color DEFAULT_DIAGRAM_TEXT_COLOR = Color.black;
 
-    private DiagramValues _values;
+    private DiagramGraph _graph;
     private DiagramAxis _xAxis;
     private DiagramAxis _yAxis;
 
@@ -63,17 +63,17 @@ public class Diagram {
 
     public Diagram() {
         _axesPCL = new AxesPCL();
-        _font = new Font(_FONT_NAME, Font.PLAIN, _FONT_SIZE);
+        _font = new Font(DEFAULT_FONT_NAME, Font.PLAIN, DEFAULT_FONT_SIZE);
         _textGap = 3;
         _majorTickLength = 5;
         _minorTickLength = 3;
     }
 
-    public Diagram(DiagramAxis xAxis, DiagramAxis yAxis, DiagramValues values) {
+    public Diagram(DiagramAxis xAxis, DiagramAxis yAxis, DiagramGraph graph) {
         this();
         setXAxis(xAxis);
         setYAxis(yAxis);
-        setValues(values);
+        setValues(graph);
     }
 
     public DiagramAxis getXAxis() {
@@ -110,13 +110,13 @@ public class Diagram {
         }
     }
 
-    public DiagramValues getValues() {
-        return _values;
+    public DiagramGraph getValues() {
+        return _graph;
     }
 
-    public void setValues(DiagramValues values) {
-        Guardian.assertNotNull("_values", values);
-        _values = values;
+    public void setValues(DiagramGraph graph) {
+        Guardian.assertNotNull("_values", graph);
+        _graph = graph;
         invalidate();
     }
 
@@ -215,11 +215,11 @@ public class Diagram {
         final Rectangle clipBounds = g2D.getClipBounds();
         g2D.setClip(_graphArea.x, _graphArea.y, _graphArea.width, _graphArea.height);
 
-        g2D.setColor(_DIAGRAM_FG_COLOR);
+        g2D.setColor(DEFAULT_DIAGRAM_FG_COLOR);
         int x1, y1, x2 = 0, y2 = 0;
         int n = 0;
-        if (_values != null) {
-            n = _values.getNumValues();
+        if (_graph != null) {
+            n = _graph.getNumValues();
         }
 //        System.out.println("Diagram.drawGraph");
 //        System.out.println("n = " + n);
@@ -232,8 +232,8 @@ public class Diagram {
 //        System.out.println("xb2 = " + xb2);
 //        System.out.println("yb2 = " + yb2);
         for (int i = 0; i < n; i++) {
-            xa = _values.getXValueAt(i);
-            ya = _values.getYValueAt(i);
+            xa = _graph.getXValueAt(i);
+            ya = _graph.getYValueAt(i);
             xb = xb1 + ((xa - xa1) * (xb2 - xb1)) / (xa2 - xa1);
             yb = yb1 + ((ya - ya1) * (yb2 - yb1)) / (ya2 - ya1);
             x1 = x2;
@@ -262,12 +262,12 @@ public class Diagram {
             return;
         }
 
-        g2D.setColor(_DIAGRAM_BG_COLOR);
+        g2D.setColor(DEFAULT_DIAGRAM_BG_COLOR);
         g2D.fillRect(_graphArea.x, _graphArea.y, _graphArea.width, _graphArea.height);
         g2D.setColor(Color.black);
         g2D.drawRect(_graphArea.x, _graphArea.y, _graphArea.width, _graphArea.height);
 
-        g2D.setColor(_DIAGRAM_TEXT_COLOR);
+        g2D.setColor(DEFAULT_DIAGRAM_TEXT_COLOR);
 
         int tw;
         int x0, y0, x1, x2, y1, y2, xMin, xMax, yMin, yMax, n, n1, n2;

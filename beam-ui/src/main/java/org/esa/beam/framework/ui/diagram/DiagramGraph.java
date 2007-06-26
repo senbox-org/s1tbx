@@ -18,7 +18,7 @@ package org.esa.beam.framework.ui.diagram;
 
 //@todo 1 nf/nf - class documentation
 
-public interface DiagramValues {
+public interface DiagramGraph {
 
     int getNumValues();
 
