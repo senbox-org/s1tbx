@@ -61,6 +61,7 @@ public abstract class AbstractParamXEditor extends AbstractParamEditor {
         return _xEditorPane;
     }
 
+    @Override
     protected void initUI() {
         super.initUI(); // creates the default label components for us
         initUIChild();
@@ -87,6 +88,7 @@ public abstract class AbstractParamXEditor extends AbstractParamEditor {
      * <p/>
      * <p>Note: If you override this method, please call the super class version first.
      */
+    @Override
     public void updateUI() {
         super.updateUI();
         if (_xEditorPane.isEnabled() != isEnabled()) {
@@ -156,6 +158,7 @@ public abstract class AbstractParamXEditor extends AbstractParamEditor {
          *
          * @param enabled boolean whether the componets are enabled or not
          */
+        @Override
         public void setEnabled(boolean enabled) {
             super.setEnabled(enabled);
             getEditorComponentChild().setEnabled(enabled);

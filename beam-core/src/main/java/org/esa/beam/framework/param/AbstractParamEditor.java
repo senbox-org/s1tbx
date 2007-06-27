@@ -42,9 +42,6 @@ import java.awt.event.ActionListener;
  */
 public abstract class AbstractParamEditor implements ParamEditor, ParamExceptionHandler {
 
-    /**
-     * @supplierRole parameter
-     */
     private final Parameter _parameter;
     private final DefaultInputVerifier _defaultInputVerifier;
     private JLabel _labelComponent;
@@ -242,9 +239,9 @@ public abstract class AbstractParamEditor implements ParamEditor, ParamException
             ((JComboBox) editorComponent).getEditor().selectAll();
         } else if (editorComponent instanceof JPanel) {
             final Component[] components = editorComponent.getComponents();
-            for (int i = 0; i < components.length; i++) {
-                if (components[i] instanceof JTextField) {
-                    final JTextField jTextField = ((JTextField) components[i]);
+            for (Component component : components) {
+                if (component instanceof JTextField) {
+                    final JTextField jTextField = ((JTextField) component);
                     jTextField.requestFocus();
                     jTextField.selectAll();
                     break;
@@ -306,6 +303,7 @@ public abstract class AbstractParamEditor implements ParamEditor, ParamException
          * @see JComponent#setInputVerifier
          * @see JComponent#getInputVerifier
          */
+        @Override
         public boolean verify(JComponent input) {
             Debug.trace("AbstractParamEditor: parameter '"
                         + getParameter().getName()
@@ -330,6 +328,7 @@ public abstract class AbstractParamEditor implements ParamEditor, ParamException
          * @see JComponent#setInputVerifier
          * @see JComponent#getInputVerifier
          */
+        @Override
         public boolean shouldYieldFocus(JComponent input) {
             Debug.trace("AbstractParamEditor: parameter '"
                         + getParameter().getName()

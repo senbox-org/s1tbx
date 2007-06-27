@@ -33,11 +33,6 @@ import org.esa.beam.framework.param.validators.StringValidator;
  */
 public class ParamValidatorRegistry {
 
-    /**
-     * @link aggregation
-     * @associates <{ParamValidator}>
-     * @supplierRole validators
-     */
     private static Map _validators = new java.util.Hashtable();
 
     static {

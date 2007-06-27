@@ -16,21 +16,15 @@
  */
 package org.esa.beam.framework.param;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import org.esa.beam.util.*;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
-
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.ObjectUtils;
-import org.esa.beam.util.PropertyMap;
-import org.esa.beam.util.StringUtils;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The <code>ParamProperties</code> class is used to store parameter attributes such as parameter type and description
@@ -95,7 +89,7 @@ public class ParamProperties {
      */
     public final static int FSM_FILES_AND_DIRECTORIES = JFileChooser.FILES_AND_DIRECTORIES;
 
-    private Map _propertyMap;
+    private Map<String, Object> _propertyMap;
     private PropertyChangeSupport _propertyChangeSupport;
 
     public ParamProperties() {
@@ -383,7 +377,7 @@ public class ParamProperties {
     }
 
     public void setPropertyValue(String key, boolean value) {
-        setPropertyValue(key, new Boolean(value));
+        setPropertyValue(key, Boolean.valueOf(value));
     }
 
     public void setPropertyValue(String key, int value) {
@@ -441,24 +435,19 @@ public class ParamProperties {
     }
 
     /**
-     * Returns a map of properties which starts with the given namePrefix. Any key in the returned map is a property
-     * name. Any value is the value object to the corresponding property name.
+     * Creates a subset of the properties in this map, containing only properties whose name start with the
+     * given <code>namePrefix</code>.
      *
      * @param namePrefix the name prefix
-     *
-     * @return Returns a map of properties which starts with the given namePrefix. Never <code>null</code>
+     * @return the map subset
      */
-    public Map getProperties(final String namePrefix) {
-        final HashMap properties = new HashMap();
-        final Set entrySet = _propertyMap.entrySet();
-        for (Iterator iterator = entrySet.iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            final Object key = entry.getKey();
-            if (key instanceof String) {
-                String sKey = (String) key;
-                if (sKey.startsWith(namePrefix)) {
-                    properties.put(sKey, entry.getValue());
-                }
+    public Map<String, Object> getProperties(final String namePrefix) {
+        final HashMap<String, Object> properties = new HashMap<String, Object>();
+        final Set<Map.Entry<String, Object>> entrySet = _propertyMap.entrySet();
+        for (Map.Entry<String, Object> entry : entrySet) {
+            final String key = entry.getKey();
+            if (key.startsWith(namePrefix)) {
+                properties.put(key, entry.getValue());
             }
         }
         return properties;
@@ -469,7 +458,6 @@ public class ParamProperties {
      * method returns <code>null</code>.
      *
      * @param key the attribute key, must not be <code>null</code>
-     *
      * @return the attribute value
      */
     public Object getPropertyValue(String key) {
@@ -491,7 +479,6 @@ public class ParamProperties {
      *
      * @param key          the attribute key, must not be <code>null</code>
      * @param defaultValue the default value which is returned if an attribute with the given name was not found
-     *
      * @return the attribute value
      */
     public boolean getPropertyValue(String key, boolean defaultValue) {
@@ -504,7 +491,6 @@ public class ParamProperties {
      *
      * @param key          the attribute key, must not be <code>null</code>
      * @param defaultValue the default value which is returned if an attribute with the given name was not found
-     *
      * @return the attribute value
      */
     public int getPropertyValue(String key, int defaultValue) {
@@ -517,7 +503,6 @@ public class ParamProperties {
      *
      * @param key          the attribute key, must not be <code>null</code>
      * @param defaultValue the default value which is returned if an attribute with the given name was not found
-     *
      * @return the attribute value
      */
     public double getPropertyValue(String key, double defaultValue) {
@@ -530,7 +515,6 @@ public class ParamProperties {
      *
      * @param key          the attribute key, must not be <code>null</code>
      * @param defaultValue the default value which is returned if an attribute with the given name was not found
-     *
      * @return the attribute value
      */
     public Class getPropertyValue(String key, Class defaultValue) {
@@ -543,7 +527,6 @@ public class ParamProperties {
      *
      * @param key          the attribute key, must not be <code>null</code>
      * @param defaultValue the default value which is returned if an attribute with the given name was not found
-     *
      * @return the attribute value
      */
     public String getPropertyValue(String key, String defaultValue) {
@@ -556,7 +539,6 @@ public class ParamProperties {
      *
      * @param key          the attribute key, must not be <code>null</code>
      * @param defaultValue the default value which is returned if an attribute with the given name was not found
-     *
      * @return the attribute value
      */
     public Object getPropertyValue(String key, Object defaultValue) {
@@ -608,11 +590,11 @@ public class ParamProperties {
      *
      * @param map the map whose mappings are to be initially placed in the new map, can be <code>null</code>.
      */
-    protected Map createPropertyMap(Map map) {
+    protected Map<String, Object> createPropertyMap(Map<String, Object> map) {
         if (map != null) {
-            return new HashMap(map);
+            return new HashMap<String, Object>(map);
         }
-        return new HashMap();
+        return new HashMap<String, Object>();
     }
 
     /**
@@ -622,9 +604,7 @@ public class ParamProperties {
      * editor classes. The default implementation simply returns  <code>getClass().getClassLoader().loadClass(className)</code>.
      *
      * @param className the fully qualified name of the class
-     *
      * @return the resulting Class object
-     *
      * @throws ClassNotFoundException if the class was not found
      */
     protected Class loadClass(String className) throws ClassNotFoundException {
@@ -658,7 +638,7 @@ public class ParamProperties {
             if (value instanceof Boolean) {
                 booleanValue = (Boolean) value;
             } else if (value instanceof String) {
-                booleanValue = new Boolean(value.toString());
+                booleanValue = Boolean.valueOf(value.toString());
                 setPropertyValue(key, booleanValue);
             }
         }
