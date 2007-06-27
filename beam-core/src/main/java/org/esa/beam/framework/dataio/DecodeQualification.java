@@ -9,7 +9,7 @@ public enum DecodeQualification {
      */
     INTENDED,
     /**
-     * The reader is suitable to decode a given input, but not specific.
+     * The reader is suitable to decode a given input, but has not specifically been designed for it.
      */
     SUITABLE,
     /**
