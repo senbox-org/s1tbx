@@ -19,6 +19,7 @@
 
     <changelog>
         <![CDATA[<p>From 4.0 to 4.1:<br/>
+        [BEAM-607] Make "canDecodeInput" return more information<br/>
         [BEAM-615] Remove JAMA source code from BEAM<br/>
         [BEAM-617] Add linear, spectral unmixing math API<br/>
         [BEAM-628] Generic reading of geophysical raster data<br/>
