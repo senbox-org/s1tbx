@@ -440,7 +440,7 @@ class ChrisFile {
 
         flipped = imageNumber.startsWith("2") || imageNumber.startsWith("3");
         if (flipped) {
-            globalAttributes.put(ChrisConstants.ATTR_NAME_IMAGE_FLIPPED_ALONG_TRACK, ChrisConstants.ATTR_VALUE_TRUE);
+            globalAttributes.put(ChrisConstants.ATTR_NAME_IMAGE_FLIPPED_ALONG_TRACK, "Yes");
         }
     }
 
