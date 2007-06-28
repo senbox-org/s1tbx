@@ -31,7 +31,7 @@ public class ChrisConstants {
     public static final String ATTR_NAME_TARGET_LON = "Target Longitude";
     public static final String ATTR_NAME_TARGET_LAT = "Target Latitude";
     public static final String ATTR_NAME_TARGET_ALT = "Target Altitude";
-    public static final String ATTR_NAME_NOMINAL_FLY_BY_ZENITH_ANGLE = "Nominal Fly-by Zenith Angle";
+    public static final String ATTR_NAME_FLY_BY_ZENITH_ANGLE = "Fly-by Zenith Angle";
     public static final String ATTR_NAME_MINIMUM_ZENITH_ANGLE = "Minimum Zenith Angle";
     public static final String ATTR_NAME_SOLAR_ZENITH_ANGLE = "Solar Zenith Angle";
     public static final String ATTR_NAME_FLY_BY_TIME = "Fly-by Time";
