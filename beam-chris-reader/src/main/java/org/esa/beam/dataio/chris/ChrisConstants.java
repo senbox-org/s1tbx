@@ -48,13 +48,15 @@ public class ChrisConstants {
     public static final String ATTR_NAME_CALIBRATION_DATA_UNITS = "Calibration Data Units";
     public static final String ATTR_NAME_CHRIS_TEMPERATURE = "CHRIS Temperature";
     public static final String ATTR_NAME_MASK_KEY_INFORMATION = "Mask Key Information";
-    public static final String ATTR_NAME_VERTICALLY_FLIPPED = "Vertically Flipped";
+    public static final String ATTR_NAME_IMAGE_FLIPPED_ALONG_TRACK = "Image Flipped Along-Track";
 
     public static final String ATTR_NAME_SLIT_CORRECTION_APPLIED = "Slit Correction Applied";
     public static final String ATTR_NAME_NOISE_REDUCTION_APPLIED = "Noise Reduction Applied";
     public static final String ATTR_NAME_ANGLES_USED_FOR_DESTRIPING = "Angles Used for Destriping";
 
-    // Scientific data sets
+    public static final String ATTR_VALUE_TRUE = "Yes";
+
+    // Scientific data set names
     static final String SDS_NAME_RCI_IMAGE = "RCI Image";
     static final String SDS_NAME_MASK = "Saturation/Reset Mask";
 

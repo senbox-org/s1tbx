@@ -9,8 +9,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.*;
 import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.Vector;
 
 class ChrisFile {
 
@@ -160,7 +165,8 @@ class ChrisFile {
             }
         } catch (HDFException e) {
             final IOException ioe = new IOException(
-                    MessageFormat.format("Failed to read data from band #{0} of ''{1}''", bandIndex + 1, rciImageSds.name));
+                    MessageFormat.format("Failed to read data from band #{0} of ''{1}''", bandIndex + 1,
+                                         rciImageSds.name));
             ioe.initCause(e);
             throw ioe;
         }
@@ -319,7 +325,8 @@ class ChrisFile {
         }
     }
 
-    private static void collectAttribute(int sdId, int index, Map<String, String> globalAttributes) throws HDFException {
+    private static void collectAttribute(int sdId, int index, Map<String, String> globalAttributes) throws
+                                                                                                    HDFException {
         final String[] nameBuffer = new String[]{createEmptyString(256)};
         final int[] attributeInfo = new int[16];
         HDF4Lib.SDattrinfo(sdId, index, nameBuffer, attributeInfo);
@@ -331,7 +338,7 @@ class ChrisFile {
         if (numberType == HDFConstants.DFNT_CHAR || numberType == HDFConstants.DFNT_UCHAR8) {
             byte[] data = new byte[arrayLength];
             HDF4Lib.SDreadattr(sdId, index, data);
-            globalAttributes.put(name.trim(), new String(data));
+            globalAttributes.put(name.trim(), new String(data).trim());
         }
     }
 
@@ -366,7 +373,8 @@ class ChrisFile {
 
             return new Sds(sdsName, sdsId, dataType, dimSizesCopy);
         } catch (HDFException e) {
-            final IOException ioe = new IOException(MessageFormat.format("Failed to access HDF dataset ''{0}''", sdsName));
+            final IOException ioe = new IOException(
+                    MessageFormat.format("Failed to access HDF dataset ''{0}''", sdsName));
             ioe.initCause(e);
             throw ioe;
         }
@@ -390,8 +398,8 @@ class ChrisFile {
 
         if (sds != null) {
             if (sds.dimSizes[0] != rciSds.dimSizes[0]
-                    || sds.dimSizes[1] != rciSds.dimSizes[1]
-                    || sds.dimSizes[2] != rciSds.dimSizes[2]) {
+                || sds.dimSizes[1] != rciSds.dimSizes[1]
+                || sds.dimSizes[2] != rciSds.dimSizes[2]) {
                 throw new IOException("Inconsistent RCI image and quality mask data");
             }
             if (sds.dataType != HDFConstants.DFNT_INT16) {
@@ -407,21 +415,21 @@ class ChrisFile {
         final String processingVersion;
 
         switch (numAttributes) {
-            case 22:
-                processingVersion = "3.0";
-                break;
-            case 23:
-                processingVersion = "3.1";
-                break;
-            case 25:
-                processingVersion = "4.0";
-                break;
-            case 26:
-                processingVersion = "4.1";
-                break;
-            default:
-                processingVersion = "unkown";
-                break;
+        case 22:
+            processingVersion = "3.0";
+            break;
+        case 23:
+            processingVersion = "3.1";
+            break;
+        case 25:
+            processingVersion = "4.0";
+            break;
+        case 26:
+            processingVersion = "4.1";
+            break;
+        default:
+            processingVersion = "unkown";
+            break;
         }
 
         globalAttributes.put("Processing Version", processingVersion);
@@ -431,7 +439,9 @@ class ChrisFile {
         final String imageNumber = getGlobalAttribute(ChrisConstants.ATTR_NAME_IMAGE_NUMBER, "0");
 
         flipped = imageNumber.startsWith("2") || imageNumber.startsWith("3");
-        globalAttributes.put(ChrisConstants.ATTR_NAME_VERTICALLY_FLIPPED, Boolean.toString(flipped));
+        if (flipped) {
+            globalAttributes.put(ChrisConstants.ATTR_NAME_IMAGE_FLIPPED_ALONG_TRACK, ChrisConstants.ATTR_VALUE_TRUE);
+        }
     }
 
     private void determineSceneRasterHeight() {
@@ -452,7 +462,8 @@ class ChrisFile {
             scanLineLayout = new ScanLineLayout(0, rciImageSds.dimSizes[2], 0);
         }
 
-        globalAttributes.put(ChrisConstants.ATTR_NAME_NUMBER_OF_SAMPLES, Integer.toString(scanLineLayout.imagePixelCount));
+        globalAttributes.put(ChrisConstants.ATTR_NAME_NUMBER_OF_SAMPLES,
+                             Integer.toString(scanLineLayout.imagePixelCount));
     }
 
     @SuppressWarnings("unchecked")
@@ -470,7 +481,8 @@ class ChrisFile {
                 final int imagePixelCount = Integer.valueOf(record[2]);
                 final int trailingPixelCount = Integer.valueOf(record[3]);
 
-                scanLineLayoutData.put(record[0], new ScanLineLayout(leadingPixelCount, imagePixelCount, trailingPixelCount));
+                scanLineLayoutData.put(record[0],
+                                       new ScanLineLayout(leadingPixelCount, imagePixelCount, trailingPixelCount));
             }
         } catch (IOException e) {
             // todo - warning
@@ -485,6 +497,7 @@ class ChrisFile {
 
 
     private static class Sds {
+
         final String name;
         final int sdsId;
         final int dataType;
