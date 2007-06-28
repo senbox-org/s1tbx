@@ -52,6 +52,7 @@ public class ChrisConstants {
 
     public static final String ATTR_NAME_SLIT_CORRECTION_APPLIED = "Slit Correction Applied";
     public static final String ATTR_NAME_NOISE_REDUCTION_APPLIED = "Noise Reduction Applied";
+    public static final String ATTR_NAME_ANGLES_USED_FOR_DESTRIPING = "Angles Used for Destriping";
 
     // Scientific data sets
     static final String SDS_NAME_RCI_IMAGE = "RCI Image";
