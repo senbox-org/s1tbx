@@ -544,28 +544,32 @@ public class ProductUtilsTest extends TestCase {
         } catch (NullPointerException expected) {
         }
 
-        final FlagCoding source = new FlagCoding("source");
-        source.addFlag("a", 1, "condition a is true");
-        source.addFlag("b", 2, "condition b is true");
+        final MetadataElement source = new MetadataElement("source");
+        final FlagCoding sourceChild = new FlagCoding("child");
+        sourceChild.addFlag("a", 1, "condition a is true");
+        sourceChild.addFlag("b", 2, "condition b is true");
+        source.addElement(sourceChild);
 
-        final FlagCoding target = new FlagCoding("target");
+        final MetadataElement target = new MetadataElement("target");
         ProductUtils.copyElementsAndAttributes(source, target);
 
-        assertNotNull(target.getFlag("a"));
-        assertNotNull(target.getFlag("b"));
+        final MetadataElement targetChild = target.getElement("child");
+        assertNotSame(sourceChild, targetChild);
+        assertNotSame(sourceChild.getAttribute("a"), targetChild.getAttribute("a"));
+        assertNotSame(sourceChild.getAttribute("b"), targetChild.getAttribute("b"));
+        assertNotSame(sourceChild.getAttribute("a").getData(), targetChild.getAttribute("a").getData());
+        assertNotSame(sourceChild.getAttribute("b").getData(), targetChild.getAttribute("b").getData());
 
-        assertEquals("a", target.getFlag("a").getName());
-        assertEquals("condition a is true", target.getFlag("a").getDescription());
-        assertEquals(1, target.getFlag("a").getData().getElemInt());
+        assertNotNull(targetChild.getAttribute("a"));
+        assertNotNull(targetChild.getAttribute("b"));
 
-        assertEquals("b", target.getFlag("b").getName());
-        assertEquals("condition b is true", target.getFlag("b").getDescription());
-        assertEquals(2, target.getFlag("b").getData().getElemInt());
+        assertEquals("a", targetChild.getAttribute("a").getName());
+        assertEquals("condition a is true", targetChild.getAttribute("a").getDescription());
+        assertEquals(1, targetChild.getAttribute("a").getData().getElemInt());
 
-        assertNotSame(source.getFlag("a"), target.getFlag("a"));
-        assertNotSame(source.getFlag("b"), target.getFlag("b"));
-        assertNotSame(source.getFlag("a").getData(), target.getFlag("a").getData());
-        assertNotSame(source.getFlag("b").getData(), target.getFlag("b").getData());
+        assertEquals("b", targetChild.getAttribute("b").getName());
+        assertEquals("condition b is true", targetChild.getAttribute("b").getDescription());
+        assertEquals(2, targetChild.getAttribute("b").getData().getElemInt());
     }
 }
 
