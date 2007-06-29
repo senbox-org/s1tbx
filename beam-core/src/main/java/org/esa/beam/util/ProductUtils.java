@@ -989,20 +989,20 @@ public class ProductUtils {
             copyFlagCoding(sourceFlagCoding, target);
         }
     }
-    
+
     /**
-     * Copies the given sorce flag coding to the target product
-     * 
+     * Copies the given source flag coding to the target product
+     *
      * @param sourceFlagCoding the source flag coding
-     * @param target the target product
+     * @param target           the target product
      */
     public static void copyFlagCoding(FlagCoding sourceFlagCoding, Product target) {
-    	FlagCoding flagCoding = new FlagCoding(sourceFlagCoding.getName());
+        FlagCoding flagCoding = new FlagCoding(sourceFlagCoding.getName());
         flagCoding.setDescription(sourceFlagCoding.getDescription());
         target.addFlagCoding(flagCoding);
-        cloneFlags(sourceFlagCoding, flagCoding);
+        copyElementsAndAttributes(sourceFlagCoding, flagCoding);
     }
-    
+
     /**
      * Copies bit-mask definitions from the target product into the source product. The method will
      * only copy those bit-mask definitions which are valid in the context of the target product.
@@ -1855,37 +1855,24 @@ public class ProductUtils {
         return geoPath;
     }
 
-    private static void cloneFlags(FlagCoding sourceFlagCoding, FlagCoding destFlagCoding) {
-        cloneMetadataElementsAndAttributes(sourceFlagCoding, destFlagCoding, 1);
-    }
-
-    private static void cloneMetadataElementsAndAttributes(MetadataElement sourceRoot, MetadataElement destRoot,
-                                                           int level) {
-        cloneMetadataElements(sourceRoot, destRoot, level);
-        cloneMetadataAttributes(sourceRoot, destRoot);
-    }
-
-    private static void cloneMetadataElements(MetadataElement sourceRoot, MetadataElement destRoot, int level) {
-        for (int i = 0; i < sourceRoot.getNumElements(); i++) {
-            MetadataElement sourceElement = sourceRoot.getElementAt(i);
-            if (level > 0) {
-                MetadataElement element = new MetadataElement(sourceElement.getName());
-                element.setDescription(sourceElement.getDescription());
-                destRoot.addElement(element);
-                cloneMetadataElementsAndAttributes(sourceElement, element, level + 1);
-            }
+    /**
+     * Copies all metadata elements and attributes of the source element to the target element.
+     * The copied elements and attributes are deeply cloned.
+     *
+     * @param source the source element.
+     * @param target the target element.
+     *
+     * @throws NullPointerException if the source or the target element is {@code null}.
+     */
+    public static void copyElementsAndAttributes(MetadataElement source, MetadataElement target) {
+        if (target == null) {
+            throw new NullPointerException("target == null");
         }
-    }
-
-    private static void cloneMetadataAttributes(MetadataElement sourceRoot, MetadataElement destRoot) {
-        for (int i = 0; i < sourceRoot.getNumAttributes(); i++) {
-            MetadataAttribute sourceAttribute = sourceRoot.getAttributeAt(i);
-            MetadataAttribute attribute = new MetadataAttribute(sourceAttribute.getName(),
-                                                                sourceAttribute.getData(),
-                                                                sourceAttribute.isReadOnly());
-            attribute.setUnit(sourceAttribute.getUnit());
-            attribute.setDescription(sourceAttribute.getDescription());
-            destRoot.addAttribute(attribute);
+        for (final MetadataElement element : source.getElements()) {
+            target.addElement(element.createDeepClone());
+        }
+        for (final MetadataAttribute attribute : source.getAttributes()) {
+            target.addAttribute(attribute.createDeepClone());
         }
     }
 
@@ -2473,7 +2460,7 @@ public class ProductUtils {
                 lon = geoPoints[i].getLon();
                 if (Float.isNaN(lon)) {
                     continue;
-}
+                }
                 if (lon < minLon) {
                     minLon = lon;
                 }

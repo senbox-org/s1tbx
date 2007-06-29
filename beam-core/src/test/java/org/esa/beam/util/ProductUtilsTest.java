@@ -21,14 +21,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 
 import java.awt.Rectangle;
@@ -532,6 +525,47 @@ public class ProductUtilsTest extends TestCase {
         assertEquals(new PixelPos(2.5f, 22.5f), rectBoundary[7]);
         assertEquals(new PixelPos(2.5f, 17.5f), rectBoundary[8]);
         assertEquals(new PixelPos(2.5f, 10.5f), rectBoundary[9]);
+    }
+
+    public void testCopyMetadataElementsAndAttributes() {
+        try {
+            ProductUtils.copyElementsAndAttributes(null, null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+        try {
+            ProductUtils.copyElementsAndAttributes(new MetadataElement("source"), null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+        try {
+            ProductUtils.copyElementsAndAttributes(null, new MetadataElement("target"));
+            fail();
+        } catch (NullPointerException expected) {
+        }
+
+        final FlagCoding source = new FlagCoding("source");
+        source.addFlag("a", 1, "condition a is true");
+        source.addFlag("b", 2, "condition b is true");
+
+        final FlagCoding target = new FlagCoding("target");
+        ProductUtils.copyElementsAndAttributes(source, target);
+
+        assertNotNull(target.getFlag("a"));
+        assertNotNull(target.getFlag("b"));
+
+        assertEquals("a", target.getFlag("a").getName());
+        assertEquals("condition a is true", target.getFlag("a").getDescription());
+        assertEquals(1, target.getFlag("a").getData().getElemInt());
+
+        assertEquals("b", target.getFlag("b").getName());
+        assertEquals("condition b is true", target.getFlag("b").getDescription());
+        assertEquals(2, target.getFlag("b").getData().getElemInt());
+
+        assertNotSame(source.getFlag("a"), target.getFlag("a"));
+        assertNotSame(source.getFlag("b"), target.getFlag("b"));
+        assertNotSame(source.getFlag("a").getData(), target.getFlag("a").getData());
+        assertNotSame(source.getFlag("b").getData(), target.getFlag("b").getData());
     }
 }
 
