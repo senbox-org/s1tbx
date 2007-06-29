@@ -50,7 +50,7 @@ public class ChrisConstants {
     public static final String ATTR_NAME_MASK_KEY_INFORMATION = "Mask Key Information";
     public static final String ATTR_NAME_IMAGE_FLIPPED_ALONG_TRACK = "Image Flipped Along-Track";
 
-    public static final String ATTR_NAME_SLIT_CORRECTION_APPLIED = "Slit Correction Applied";
+    public static final String ATTR_NAME_NOISE_REDUCTION_SOURCES = "Noise Reduction Sources";
     public static final String ATTR_NAME_NOISE_REDUCTION_APPLIED = "Noise Reduction Applied";
 
     // Scientific data set names
