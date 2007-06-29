@@ -16,31 +16,21 @@
  */
 package org.esa.beam.visat.toolviews.spectrum;
 
-import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.DataNode;
-import org.esa.beam.framework.datamodel.Pin;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListener;
-import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.PixelPositionListener;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
-import org.esa.beam.framework.ui.diagram.*;
+import org.esa.beam.framework.ui.diagram.Diagram;
+import org.esa.beam.framework.ui.diagram.DiagramCanvas;
 import org.esa.beam.framework.ui.product.BandChooser;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
-import org.esa.beam.util.math.IndexValidator;
 import org.esa.beam.util.math.MathUtils;
-import org.esa.beam.util.math.Range;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.*;
@@ -52,15 +42,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.RenderedImage;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Vector;
-
-// @todo 1 nf/nf - add Popupmenu for data to clipboard export
-
 
 /**
  * A window which displays product spectra.
@@ -72,29 +56,25 @@ public class SpectrumToolView extends AbstractToolView {
 
     private static final String MSG_NO_SPECTRAL_BANDS = "No spectral bands.";   /*I18N*/
 
-    private Map<Product, PixelPositionListener> productToPixelPosListenerMap;
-    private PinSelectionListener pinSelectionListener;
+    private Map<Product, CursorSpectrumPPL> cursorSpectrumPPLMap;
+    private ProductSceneView currentView;
     private Product currentProduct;
-    private final HashMap<Product, Diagram> productToDiagramMap;
-    private final ProductNodeListenerAdapter propertyChangedHandler;
+    private final HashMap<Product, SpectraDiagram> productToDiagramMap;
+    private final ProductNodeListenerAdapter productNodeHandler;
     private DiagramCanvas diagramCanvas;
-    private double xMinAuto;
-    private double xMaxAuto;
-    private double yMinAuto;
-    private double yMaxAuto;
     private AbstractButton filterButton;
-    private int currentX;
-    private int currentY;
     private boolean tipShown;
     private String originalDescriptorTitle;
-    private AbstractButton showSingleSelectPinSpectrumButton;
-
+    private AbstractButton showSpectraForSelectedPinsButton;
+    private AbstractButton showSpectraForAllPinsButton;
+    private AbstractButton showSpectrumForCursorButton;
+    private AbstractButton showAveragePinSpectrumButton;
+    private AbstractButton showSpectraLabelsButton;
 
     public SpectrumToolView() {
-        pinSelectionListener = new PinSelectionListener();
-        productToDiagramMap = new HashMap<Product, Diagram>();
-        propertyChangedHandler = createPropertyChangedHandler();
-
+        productToDiagramMap = new HashMap<Product, SpectraDiagram>();
+        productNodeHandler = new ProductNodeHandler();
+        cursorSpectrumPPLMap = new HashMap<Product, CursorSpectrumPPL>();
     }
 
     public void setDiagram(Diagram diagram) {
@@ -109,81 +89,78 @@ public class SpectrumToolView extends AbstractToolView {
         diagramCanvas.setDiagram(diagram);
     }
 
+    public ProductSceneView getCurrentView() {
+        return currentView;
+    }
+
+    public void setCurrentView(ProductSceneView view) {
+        if (originalDescriptorTitle != null) {
+            originalDescriptorTitle = getDescriptor().getTitle();
+        }
+        ProductSceneView oldView = currentView;
+        currentView = view;
+        if (oldView != currentView) {
+            if (currentView != null) {
+                setCurrentProduct(currentView.getProduct());
+            }
+            updateUIState();
+        }
+    }
+
     public Product getCurrentProduct() {
         return currentProduct;
     }
 
-    public void setCurrentProduct(Product currentProduct) {
-        if (originalDescriptorTitle != null) {
-            originalDescriptorTitle = getDescriptor().getTitle();
-        }
-        Product oldValue = this.currentProduct;
-        if (oldValue != currentProduct) {
-            if (oldValue != null) {
-                oldValue.removeProductNodeListener(propertyChangedHandler);
+    public void setCurrentProduct(Product product) {
+        Product oldProduct = currentProduct;
+        currentProduct = product;
+        if (currentProduct != oldProduct) {
+            if (oldProduct != null) {
+                oldProduct.removeProductNodeListener(productNodeHandler);
             }
-            this.currentProduct = currentProduct;
-            if (this.currentProduct != null) {
-                this.currentProduct.addProductNodeListener(propertyChangedHandler);
-                Diagram diagram = getCurrentProductDiagram();
+            if (currentProduct != null) {
+                currentProduct.addProductNodeListener(productNodeHandler);
+                SpectraDiagram diagram = getSpectraDiagram();
                 if (diagram == null) {
-                    diagram = new Diagram();
-                    diagram.setXAxis(new DiagramAxis("Wavelength", "nm"));
-                    diagram.setYAxis(new DiagramAxis("", "1"));
-                    setCurrentProductDiagram(diagram);
+                    diagram = new SpectraDiagram(currentProduct);
+                    setSpectraDiagram(diagram);
                 }
-                if (getSpectrumGraph() == null) {
-                    setSelectedBands(getSpectralBands());
-                } else {
-                    setAxesMinMaxAccumulatorsToAxesMinMax();
-                }
+                diagram.setBands(getAvailableSpectralBands());
+                diagram.setAxesMinMaxAccumulatorsToAxesMinMax();
                 diagramCanvas.setDiagram(diagram);
-                setTitle(getDescriptor().getTitle() + " - " + this.currentProduct.getProductRefString());
-            } else {
-                setTitle(getDescriptor().getTitle());
             }
-            filterButton.setEnabled(this.currentProduct != null);
+            updateUIState();
+            updateTitle();
         }
     }
 
-    public void updateSpectrum(final int pixelX, final int pixelY) {
-        currentX = pixelX;
-        currentY = pixelY;
-        final SpectrumGraph spectrumGraph = getSpectrumGraph();
-        if (spectrumGraph != null) {
-            try {
-                spectrumGraph.readValues(pixelX, pixelY);
+    private void updateTitle() {
+        if (currentProduct != null) {
+            setTitle(getDescriptor().getTitle() + " - " + currentView.getProduct().getProductRefString());
+        } else {
+            setTitle(getDescriptor().getTitle());
+        }
+    }
 
-                final DiagramAxis xAxis = getCurrentProductDiagram().getXAxis();
-                xMinAuto = Math.min(xMinAuto, spectrumGraph.getXMin());
-                xMaxAuto = Math.max(xMaxAuto, spectrumGraph.getXMax());
-                boolean xRangeValid = xMaxAuto > xMinAuto;
-                if (xRangeValid) {
-                    xAxis.setValueRange(xMinAuto, xMaxAuto);
-                    xAxis.setOptimalSubDivision(4, 6, 5);
-                } else {
-                    setInvalidDiagramMessage("All X-values are zero."); /*I18N*/
-                }
+    private void updateUIState() {
+        boolean hasView = getCurrentView() != null;
+        boolean hasProduct = getCurrentProduct() != null;
+        boolean hasSelectedPins = getCurrentProduct() != null && getCurrentProduct().getSelectedPin() != null;
+        boolean hasPins = getCurrentProduct() != null && getCurrentProduct().getNumPins() > 0;
 
-                final DiagramAxis yAxis = getCurrentProductDiagram().getYAxis();
-                yMinAuto = Math.min(yMinAuto, spectrumGraph.getYMin());
-                yMaxAuto = Math.max(yMaxAuto, spectrumGraph.getYMax());
-                boolean yRangeValid = yMaxAuto > yMinAuto;
-                if (yRangeValid) {
-                    yAxis.setValueRange(yMinAuto, yMaxAuto);
-                    yAxis.setOptimalSubDivision(3, 6, 5);
-                } else {
-                    setInvalidDiagramMessage("All Y-values are zero."); /*I18N*/
-                }
-                if (xRangeValid && yRangeValid) {
-                    setInvalidDiagramMessage(null);
-                }
-            } catch (IOException e) {
-                setInvalidDiagramMessage("I/O error: " + e.getMessage());
-            }
-            if (isSnapToPinSelected() && getCurrentProduct().getSelectedPin() == null) {
-                setNoPinSelected();
-            }
+        filterButton.setEnabled(hasProduct);
+        showSpectrumForCursorButton.setEnabled(hasView);
+        showSpectraForSelectedPinsButton.setEnabled(hasSelectedPins);
+        showSpectraForAllPinsButton.setEnabled(hasPins);
+        showAveragePinSpectrumButton.setEnabled(hasPins); // todo - hasSpectraGraphs
+        showSpectraLabelsButton.setEnabled(hasProduct);   // todo - hasSpectraGraphs
+        diagramCanvas.setEnabled(hasProduct);    // todo - hasSpectraGraphs
+    }
+
+    public void updateCursorSpectrum(final int pixelX, final int pixelY) {
+        SpectraDiagram currentProductDiagram = getSpectraDiagram();
+        if (currentProductDiagram.getBands().length > 0) {
+            currentProductDiagram.updateSpectra(pixelX, pixelY);
             diagramCanvas.repaint();
         } else {
             diagramCanvas.setMessageText(MSG_NO_SPECTRAL_BANDS);
@@ -208,87 +185,27 @@ public class SpectrumToolView extends AbstractToolView {
         final PixelPos pos = pin.getPixelPos();
         final int x = MathUtils.floorInt(pos.x);
         final int y = MathUtils.floorInt(pos.y);
-        updateSpectrum(x, y);
+        updateCursorSpectrum(x, y);
     }
 
-    public void setAxesMinMaxAccumulatorsToAxesMinMax() {
-        Diagram diagram = getCurrentProductDiagram();
-        if (diagram != null) {
-            Debug.assertNotNull(diagram.getXAxis());
-            Debug.assertNotNull(diagram.getYAxis());
-            xMinAuto = diagram.getXAxis().getMinValue();
-            xMaxAuto = diagram.getXAxis().getMaxValue();
-            yMinAuto = diagram.getYAxis().getMinValue();
-            yMaxAuto = diagram.getYAxis().getMaxValue();
-        }
-    }
-
-    public boolean isSnapToPinSelected() {
-        return showSingleSelectPinSpectrumButton.isSelected();
-    }
 
     public void setNoPinSelected() {
         setInvalidDiagramMessage("No pin selected.");
     }
 
-    private SpectrumGraph getSpectrumGraph() {
-        final Diagram diagram = getCurrentProductDiagram();
-        if (diagram != null) {
-            return (SpectrumGraph) diagram.getGraph();
-        }
-        return null;
-    }
-
-
-    private Band[] getSelectedBands() {
-        final SpectrumGraph spectrumValues = getSpectrumGraph();
-        if (spectrumValues != null) {
-            return spectrumValues.getBands();
-        }
-        return null;
-    }
-
-    private void setSelectedBands(Band[] selectedBands) {
-        Diagram diagram = getCurrentProductDiagram();
-        Debug.assertTrue(diagram != null);
-        if (selectedBands == null || selectedBands.length == 0) {
-            diagramCanvas.setMessageText("No spectral bands."); /*I18N*/
-        } else {
-            SpectrumGraph spectrumValues = (SpectrumGraph) diagram.getGraph();
-            if (spectrumValues != null) {
-                spectrumValues.setBands(selectedBands);
-            } else {
-                spectrumValues = new SpectrumGraph(selectedBands);
-                diagram.setGraph(spectrumValues);
-            }
-            updateYUnit(selectedBands);
-            resetAxesMinMaxAccumulators();
-        }
-    }
-
-    private void updateYUnit(final Band[] selectedBands) {
-        final Diagram diagram = getCurrentProductDiagram();
-        diagram.getYAxis().setUnit(getUnit(selectedBands));
+    private void updateYUnit() {
+        getSpectraDiagram().updateYUnit();
         diagramCanvas.repaint();
     }
 
-    private static String getUnit(final Band[] bands) {
-        String unit = null;
-        for (final Band band : bands) {
-            if (unit == null) {
-                unit = band.getUnit();
-            } else if (!unit.equals(band.getUnit())) {
-                unit = " mixed units "; /*I18N*/
-                break;
-            }
-        }
-        return unit != null ? unit : "?";
+    private Band[] getSelectedSpectralBands() {
+        return getSpectraDiagram().getBands();
     }
 
-    private Band[] getSpectralBands() {
-        Debug.assertNotNull(currentProduct);
-        Band[] bands = currentProduct.getBands();
-        Vector<Band> spectralBands = new Vector<Band>();
+    private Band[] getAvailableSpectralBands() {
+        Debug.assertNotNull(getCurrentProduct());
+        Band[] bands = getCurrentProduct().getBands();
+        ArrayList<Band> spectralBands = new ArrayList<Band>();
         for (Band band : bands) {
             if (band.getSpectralWavelength() > 0.0) {
                 spectralBands.add(band);
@@ -302,10 +219,10 @@ public class SpectrumToolView extends AbstractToolView {
         if (!tipShown) {
             VisatApp.getApp().showInfoDialog("Spectrum Tip",
                                              "Tip: If you press the SHIFT key while moving the mouse cursor over \n" +
-                                             "an image, VISAT adjusts the diagram axes to the local values at the\n" +
-                                             "current pixel position, if you release the SHIFT key again, then the\n" +
-                                             "min/max are accumulated again.", /*I18N*/
-                                                                               SUPPRESS_MESSAGE_KEY);
+                                                     "an image, VISAT adjusts the diagram axes to the local values at the\n" +
+                                                     "current pixel position, if you release the SHIFT key again, then the\n" +
+                                                     "min/max are accumulated again.", /*I18N*/
+                                                                                       SUPPRESS_MESSAGE_KEY);
             tipShown = true;
         }
     }
@@ -316,107 +233,87 @@ public class SpectrumToolView extends AbstractToolView {
         filterButton.setEnabled(false);
         filterButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if (currentProduct != null) {
-                    Band[] allBandNames = getSpectralBands();
-                    Band[] selectedBands = getSelectedBands();
-                    if (selectedBands == null) {
-                        selectedBands = allBandNames;
-                    }
-                    BandChooser bandChooser = new BandChooser(getWindowAncestor(), "Available Spectral Bands",
-                                                              getDescriptor().getHelpId(),
-                                                              allBandNames, selectedBands);
-                    if (bandChooser.show() == ModalDialog.ID_OK) {
-                        setSelectedBands(bandChooser.getSelectedBands());
-                        updateSpectrum(currentX, currentY);
-                    }
-                }
+                selectSpectralBands();
             }
         });
 
-        AbstractButton showCursorSpectrumButton = ToolButtonFactory.createButton(new AbstractAction("showCursorSpectrum") {
+        showSpectrumForCursorButton = ToolButtonFactory.createButton(new AbstractAction("showCursorSpectrum") {
             public void actionPerformed(ActionEvent e) {
-
+                  reconfigureDisplayedSpectra();
             }
         }, true);
-        showCursorSpectrumButton.setText("C");
-        showCursorSpectrumButton.setToolTipText("Show spectrum at cursor position.");
+        showSpectrumForCursorButton.setText("C");
+        showSpectrumForCursorButton.setToolTipText("Show spectrum at cursor position.");
 
-        AbstractAction showSingleSelectPinSpectrumAction = new AbstractAction("showSingleSelectPinSpectrum") {
+        showSpectraForSelectedPinsButton = ToolButtonFactory.createButton(new AbstractAction("showSpectraForSelectedPins") {
             public void actionPerformed(ActionEvent e) {
-                if (((AbstractButton)e.getSource()).isSelected()) {
-                    resetAxesMinMaxAccumulators();
-                    setSpectrumToSelectedPin();
-                }
-            }
-        };
-        showSingleSelectPinSpectrumButton = ToolButtonFactory.createButton(showSingleSelectPinSpectrumAction, true);
-        showSingleSelectPinSpectrumButton.setText("SP");
-        showSingleSelectPinSpectrumButton.setToolTipText("Show spectrum of single selected pin.");
-
-        AbstractButton showMultiSelectPinSpectraButton = ToolButtonFactory.createButton(new AbstractAction("showMultiSelectPinSpectra") {
-            public void actionPerformed(ActionEvent e) {
-
+                reconfigureDisplayedSpectra();
             }
         }, true);
-        showMultiSelectPinSpectraButton.setText("MP");
-        showMultiSelectPinSpectraButton.setToolTipText("Show spectra of multiple selected pins.");
+        showSpectraForSelectedPinsButton.setText("SP");
+        showSpectraForSelectedPinsButton.setToolTipText("Show spectrum of selected pins.");
 
-        AbstractButton showAllPinSpectraButton = ToolButtonFactory.createButton(new AbstractAction("showAllPinSpectra") {
+        showSpectraForAllPinsButton = ToolButtonFactory.createButton(new AbstractAction("showSpectraForAllPins") {
             public void actionPerformed(ActionEvent e) {
-
+                reconfigureDisplayedSpectra();
             }
         }, true);
-        showAllPinSpectraButton.setText("AP");
-        showAllPinSpectraButton.setToolTipText("Show spectra of all pins.");
+        showSpectraForAllPinsButton.setText("AP");
+        showSpectraForAllPinsButton.setToolTipText("Show spectra of all pins.");
 
-        AbstractButton showAverageSpectrumButton = ToolButtonFactory.createButton(new AbstractAction("showAverageSpectrum") {
+        showAveragePinSpectrumButton = ToolButtonFactory.createButton(new AbstractAction("showAverageSpectrum") {
             public void actionPerformed(ActionEvent e) {
-
+                // todo - implement
+                JOptionPane.showMessageDialog(null, "Not implemented");
             }
         }, true);
-        showAverageSpectrumButton.setText("Av");
-        showAverageSpectrumButton.setToolTipText("Show average spectrum of pin spectra.");
+        showAveragePinSpectrumButton.setText("Av");
+        showAveragePinSpectrumButton.setToolTipText("Show average spectrum of all pin spectra.");
 
-        AbstractButton showPinLabelsButton = ToolButtonFactory.createButton(new AbstractAction("showPinLabels") {
+        showSpectraLabelsButton = ToolButtonFactory.createButton(new AbstractAction("showPinLabels") {
             public void actionPerformed(ActionEvent e) {
-
+                // todo - implement
+                JOptionPane.showMessageDialog(null, "Not implemented");
             }
         }, true);
-        showPinLabelsButton.setText("L");
-        showPinLabelsButton.setToolTipText("Show pin labels.");
+        showSpectraLabelsButton.setText("L");
+        showSpectraLabelsButton.setToolTipText("Show pin labels.");
+
+        AbstractButton exportSpectraButton = ToolButtonFactory.createButton(new AbstractAction("exportSpectra") {
+            public void actionPerformed(ActionEvent e) {
+                // todo - implement
+                JOptionPane.showMessageDialog(null, "Not implemented");
+            }
+        }, true);
+        exportSpectraButton.setText("Ex");
+        exportSpectraButton.setToolTipText("Export spectra to text file.");
 
         AbstractButton helpButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Help24.gif"), false);
         helpButton.setToolTipText("Help."); /*I18N*/
 
         ButtonGroup bg = new ButtonGroup();
-        bg.add(showSingleSelectPinSpectrumButton);
-        bg.add(showMultiSelectPinSpectraButton);
-        bg.add(showAllPinSpectraButton);
+        bg.add(showSpectraForSelectedPinsButton);
+        bg.add(showSpectraForAllPinsButton);
 
         final JPanel buttonPane = GridBagUtils.createPanel();
         final GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.fill = GridBagConstraints.NONE;
+        gbc.insets.top = 2;
         gbc.gridy = 0;
         buttonPane.add(filterButton, gbc);
         gbc.gridy++;
-        gbc.insets.top = 2;
-        buttonPane.add(showCursorSpectrumButton, gbc);
+        buttonPane.add(showSpectrumForCursorButton, gbc);
         gbc.gridy++;
-        gbc.insets.top = 6;
-        buttonPane.add(showSingleSelectPinSpectrumButton, gbc);
-        gbc.insets.top = 2;
+        buttonPane.add(showSpectraForSelectedPinsButton, gbc);
         gbc.gridy++;
-        buttonPane.add(showMultiSelectPinSpectraButton, gbc);
+        buttonPane.add(showSpectraForAllPinsButton, gbc);
         gbc.gridy++;
-        buttonPane.add(showAllPinSpectraButton, gbc);
+        buttonPane.add(showAveragePinSpectrumButton, gbc);
         gbc.gridy++;
-        gbc.insets.top = 6;
-        buttonPane.add(showAverageSpectrumButton, gbc);
+        buttonPane.add(showSpectraLabelsButton, gbc);
         gbc.gridy++;
-        gbc.insets.top = 2;
-        buttonPane.add(showPinLabelsButton, gbc);
-        gbc.insets.top = 0;
+        buttonPane.add(exportSpectraButton, gbc);
 
         gbc.gridy++;
         gbc.insets.bottom = 0;
@@ -458,270 +355,142 @@ public class SpectrumToolView extends AbstractToolView {
 
         final ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
         if (view != null) {
-            registerSelectedProductSceneView(view);
+            handleViewActivated(view);
         } else {
-            setCurrentProduct(null);
+            setCurrentView(view);
         }
 
         return mainPane;
     }
 
-    private ProductNodeListenerAdapter createPropertyChangedHandler() {
-        return new ProductNodeListenerAdapter() {
-            @Override
-            public void nodeChanged(final ProductNodeEvent event) {
-                final String propertyName = event.getPropertyName();
-                if (propertyName.equals(DataNode.PROPERTY_NAME_UNIT)) {
-                    updateYUnit(getSelectedBands());
-                } else if (propertyName.equals(Band.PROPERTY_NAME_SPECTRAL_WAVELENGTH)) {
-                    recreateCurrentDiagram(event);
-                }
-            }
-
-            @Override
-            public void nodeAdded(final ProductNodeEvent event) {
-                recreateCurrentDiagram(event);
-            }
-
-            @Override
-            public void nodeRemoved(final ProductNodeEvent event) {
-                recreateCurrentDiagram(event);
-            }
-        };
-    }
-
-    private void recreateCurrentDiagram(final ProductNodeEvent event) {
-        if (currentProduct != null) {
-            final ProductNode sourceNode = event.getSourceNode();
-            if (sourceNode instanceof Band) {
-                recreateCurrentDiagram();
-            }
+    private void selectSpectralBands() {
+        Band[] allBandNames = getAvailableSpectralBands();
+        Band[] selectedBands = getSelectedSpectralBands();
+        if (selectedBands == null) {
+            selectedBands = allBandNames;
+        }
+        BandChooser bandChooser = new BandChooser(getWindowAncestor(), "Available Spectral Bands",
+                                                  getDescriptor().getHelpId(),
+                                                  allBandNames, selectedBands);
+        if (bandChooser.show() == ModalDialog.ID_OK) {
+            getSpectraDiagram().setBands(bandChooser.getSelectedBands());
         }
     }
 
     private void recreateCurrentDiagram() {
-        // Note: this is a brute-force method, but it works :-)
-        setCurrentProductDiagram(null);
-        final Product currentProduct = this.currentProduct;
-        setCurrentProduct(null);
-        setCurrentProduct(currentProduct);
+        // brute-force diagram recreation
+        ProductSceneView view = getCurrentView();
+        setCurrentView(null);
+        setCurrentView(view);
     }
 
-    private Diagram getCurrentProductDiagram() {
+    private SpectraDiagram getSpectraDiagram() {
         Debug.assertNotNull(currentProduct);
         return productToDiagramMap.get(currentProduct);
     }
 
-    private void setCurrentProductDiagram(final Diagram diagram) {
+    private void setSpectraDiagram(final SpectraDiagram newDiagram) {
         Debug.assertNotNull(currentProduct);
-        if (diagram != null) {
-            productToDiagramMap.put(currentProduct, diagram);
+        SpectraDiagram oldDiagram;
+        if (newDiagram != null) {
+            oldDiagram = productToDiagramMap.put(currentProduct, newDiagram);
         } else {
-            productToDiagramMap.remove(currentProduct);
+            oldDiagram = productToDiagramMap.remove(currentProduct);
+        }
+        if (oldDiagram != null && oldDiagram != newDiagram) {
+            oldDiagram.dispose();
         }
     }
 
     public void resetAxesMinMaxAccumulators() {
-        xMinAuto = +Double.MAX_VALUE;
-        xMaxAuto = -Double.MAX_VALUE;
-        yMinAuto = +Double.MAX_VALUE;
-        yMaxAuto = -Double.MAX_VALUE;
+        getSpectraDiagram().resetAxesMinMaxAccumulators();
         getContentPane().repaint();
     }
 
-    static class SpectrumGraph implements DiagramGraph {
-
-        private float[] wavelengths;
-        private Band[] bands;
-        private float[] values;
-        private final float[] ioBuffer;
-        private final Range valueRange;
-        private final Range wavelengthRange;
-        private SpectrumGraphStyle style;
-
-        public SpectrumGraph(Band[] bands) {
-            Debug.assertNotNull(bands);
-            ioBuffer = new float[1];
-            valueRange = new Range();
-            wavelengthRange = new Range();
-            setBands(bands);
-            style = new SpectrumGraphStyle();
+    private CursorSpectrumPPL getOrCreateCursorSpectrumPPL(Product product) {
+        CursorSpectrumPPL ppl = getCursorSpectrumPPL(product);
+        if (ppl == null) {
+            ppl = new CursorSpectrumPPL(product);
+            cursorSpectrumPPLMap.put(product, ppl);
         }
-
-        public int getNumValues() {
-            return bands.length;
-        }
-
-        public String getLabelAt(int index) {
-            return getYValueAt(index) + " @ " + getXValueAt(index) + "nm";
-        }
-
-        public double getXValueAt(int index) {
-            return wavelengths[index];
-        }
-
-        public double getYValueAt(int index) {
-            return values[index];
-        }
-
-        public double getXMin() {
-            return wavelengthRange.getMin();
-        }
-
-        public double getXMax() {
-            return wavelengthRange.getMax();
-        }
-
-        public double getYMin() {
-            return valueRange.getMin();
-        }
-
-        public double getYMax() {
-            return valueRange.getMax();
-        }
-
-        public Band[] getBands() {
-            return bands;
-        }
-
-        public void setBands(Band[] bands) {
-            Debug.assertNotNull(bands);
-            this.bands = bands.clone();
-            Arrays.sort(this.bands, new Comparator<Band>() {
-                public int compare(Band band1, Band band2) {
-                    final float v = band1.getSpectralWavelength() - band2.getSpectralWavelength();
-                    return v < 0.0F ? -1 : v > 0.0F ? 1 : 0;
-                }
-            });
-            if (wavelengths == null || wavelengths.length != this.bands.length) {
-                wavelengths = new float[this.bands.length];
-            }
-            if (values == null || values.length != this.bands.length) {
-                values = new float[this.bands.length];
-            }
-            for (int i = 0; i < wavelengths.length; i++) {
-                wavelengths[i] = this.bands[i].getSpectralWavelength();
-                values[i] = 0f;
-            }
-            Range.computeRangeFloat(wavelengths, IndexValidator.TRUE, wavelengthRange, ProgressMonitor.NULL);
-            Range.computeRangeFloat(values, IndexValidator.TRUE, valueRange, ProgressMonitor.NULL);
-        }
-
-        public void readValues(int pixelX, int pixelY) throws IOException {
-            Debug.assertNotNull(bands);
-            for (int i = 0; i < bands.length; i++) {
-                final Band band = bands[i];
-                values[i] = band.readPixels(pixelX, pixelY, 1, 1, ioBuffer, ProgressMonitor.NULL)[0];
-            }
-            Range.computeRangeFloat(values, IndexValidator.TRUE, valueRange, ProgressMonitor.NULL);
-        }
-
-        public DiagramGraphStyle getStyle() {
-            return style;
-        }
-
+        return ppl;
     }
 
-    private static class SpectrumGraphStyle implements DiagramGraphStyle {
-        Color color;
-        boolean showingPoints;
-        Color pointColor;
-        Stroke stroke;
-
-        public SpectrumGraphStyle() {
-            color = Color.BLACK;
-            pointColor = Color.WHITE;
-            showingPoints = true;
-            stroke = new BasicStroke(1.0f);
-        }
-
-        public Color getColor() {
-            return color;
-        }
-
-        public void setColor(Color color) {
-            this.color = color;
-        }
-
-        public Color getPointColor() {
-            return pointColor;
-        }
-
-        public void setPointColor(Color pointColor) {
-            this.pointColor = pointColor;
-        }
-
-        public boolean isShowingPoints() {
-            return showingPoints;
-        }
-
-        public void setShowingPoints(boolean showingPoints) {
-            this.showingPoints = showingPoints;
-        }
-
-        public Stroke getStroke() {
-            return stroke;
-        }
-
-        public void setStroke(Stroke stroke) {
-            this.stroke = stroke;
-        }
-
-    }
-
-
-    /**
-     * Tells a plug-in to update its component tree (if any) since the Java look-and-feel has changed.
-     * <p/>
-     * <p>If a plug-in uses top-level containers such as dialogs or frames, implementors of this method should invoke
-     * <code>SwingUtilities.updateComponentTreeUI()</code> on such containers.
-     */
-    public void updateComponentTreeUI() {
-    }
-
-
-    private PinSelectionListener getPinSelectionListener() {
-        return pinSelectionListener;
-    }
-
-
-    private PixelPositionListener getPixelPositionListener(Product product) {
-        assert productToPixelPosListenerMap != null;
-        return productToPixelPosListenerMap.get(product);
-    }
-
-    private PixelPositionListener registerPixelPositionListener(Product product) {
-        if (productToPixelPosListenerMap == null) {
-            productToPixelPosListenerMap = new HashMap<Product, PixelPositionListener>();
-        }
-        PixelPositionListener listener = getPixelPositionListener(product);
-        if (listener == null) {
-            listener = new SpectrumPPL(product);
-            productToPixelPosListenerMap.put(product, listener);
-        }
-        return listener;
+    private CursorSpectrumPPL getCursorSpectrumPPL(Product product) {
+        return cursorSpectrumPPLMap.get(product);
     }
 
     private boolean isVisible() {
         return getControl().isVisible();
     }
 
-    private void registerSelectedProductSceneView(final ProductSceneView view) {
-        final Product product = view.getProduct();
-        view.addPixelPositionListener(registerPixelPositionListener(product));
-        product.addProductNodeListener(getPinSelectionListener());
-        setCurrentProduct(product);
-        if (isSnapToPinSelected()) {
-            setSpectrumToSelectedPin();
-        }
+    private boolean isShowingCursorSpectrum() {
+        return showSpectrumForCursorButton.isSelected();
     }
 
-    private void deregisterProductSceneView(final ProductSceneView view) {
-        final Product product = view.getProduct();
-        view.removePixelPositionListener(getPixelPositionListener(product));
-        product.removeProductNodeListener(getPinSelectionListener());
-        setCurrentProduct(null);
+    private boolean isShowingPinSpectra() {
+        return isShowingSpectraForSelectedPinsButton() || isShowingSpectraForAllPinsButton();
     }
+
+    private boolean isShowingSpectraForAllPinsButton() {
+        return showSpectraForAllPinsButton.isSelected();
+    }
+
+    private void reconfigureDisplayedSpectra() {
+        SpectraDiagram spectraDiagram = getSpectraDiagram();
+
+        if (isShowingCursorSpectrum()) {
+            SpectrumGraph spectrumGraph = spectraDiagram.getCursorSpectrumGraph();
+            if (spectrumGraph == null) {
+                spectrumGraph = new SpectrumGraph(null, spectraDiagram.getBands());
+                spectraDiagram.addGraph(spectrumGraph);
+            }
+        } else {
+            SpectrumGraph spectrumGraph = spectraDiagram.getCursorSpectrumGraph();
+            if (spectrumGraph != null) {
+                spectraDiagram.removeGraph(spectrumGraph);
+            }
+        }
+
+        if (isShowingSpectraForSelectedPinsButton()) {
+            Pin[] pins = getCurrentProduct().getPins();
+            for (Pin pin : pins) {
+                SpectrumGraph spectrumGraph = spectraDiagram.getSpectrumGraph(pin);
+                if (spectrumGraph != null) {
+                    if (!pin.isSelected()) {
+                        spectraDiagram.removeGraph(spectrumGraph);
+                    }
+                } else {
+                    if (pin.isSelected()) {
+                    } else {
+                    }
+                }
+            }
+        } else if (isShowingSpectraForAllPinsButton()) {
+
+        }
+
+
+    }
+
+    private boolean isShowingSpectraForSelectedPinsButton() {
+        return showSpectraForSelectedPinsButton.isSelected();
+    }
+
+    private void handleViewActivated(final ProductSceneView view) {
+        final Product product = view.getProduct();
+        view.addPixelPositionListener(getOrCreateCursorSpectrumPPL(product));
+        setCurrentView(view);
+    }
+
+    private void handleViewDeactivated(final ProductSceneView view) {
+        final Product product = view.getProduct();
+        view.removePixelPositionListener(getCursorSpectrumPPL(product));
+        setCurrentView(null);
+    }
+
+    /////////////////////////////////////////////////////////////////////////
+    // View change handling
 
     private class SpectrumIFL extends InternalFrameAdapter {
 
@@ -729,8 +498,7 @@ public class SpectrumToolView extends AbstractToolView {
         public void internalFrameActivated(InternalFrameEvent e) {
             final Container contentPane = e.getInternalFrame().getContentPane();
             if (contentPane instanceof ProductSceneView) {
-                final ProductSceneView view = (ProductSceneView) contentPane;
-                registerSelectedProductSceneView(view);
+                handleViewActivated((ProductSceneView) contentPane);
             }
         }
 
@@ -738,17 +506,19 @@ public class SpectrumToolView extends AbstractToolView {
         public void internalFrameDeactivated(InternalFrameEvent e) {
             final Container contentPane = e.getInternalFrame().getContentPane();
             if (contentPane instanceof ProductSceneView) {
-                final ProductSceneView view = (ProductSceneView) contentPane;
-                deregisterProductSceneView(view);
+                handleViewDeactivated((ProductSceneView) contentPane);
             }
         }
     }
 
-    private class SpectrumPPL implements PixelPositionListener {
+    /////////////////////////////////////////////////////////////////////////
+    // Pixel position change handling
+
+    private class CursorSpectrumPPL implements PixelPositionListener {
 
         private final Product _product;
 
-        public SpectrumPPL(Product product) {
+        public CursorSpectrumPPL(Product product) {
             _product = product;
         }
 
@@ -756,12 +526,14 @@ public class SpectrumToolView extends AbstractToolView {
             return _product;
         }
 
-        public void pixelPosChanged(RenderedImage sourceImage, int pixelX, int pixelY, boolean pixelPosValid,
+        public void pixelPosChanged(RenderedImage sourceImage,
+                                    int pixelX,
+                                    int pixelY,
+                                    boolean pixelPosValid,
                                     MouseEvent e) {
             if (isActive()) {
-                setCurrentProduct(getProduct());
                 if (pixelPosValid) {
-                    updateSpectrum(pixelX, pixelY);
+                    updateCursorSpectrum(pixelX, pixelY);
                 } else {
                     setInvalidDiagramMessage("Pixel position invalid."); /*I18N*/
                 }
@@ -778,52 +550,67 @@ public class SpectrumToolView extends AbstractToolView {
         }
 
         private boolean isActive() {
-            return isVisible() && !isSnapToPinSelected();
+            return isVisible() && isShowingCursorSpectrum();
         }
+
     }
 
-    private class PinSelectionListener implements ProductNodeListener {
+    /////////////////////////////////////////////////////////////////////////
+    // Product change handling
 
-        public void nodeChanged(ProductNodeEvent event) {
-            if (isActive()) {
-                if (!Pin.PROPERTY_NAME_SELECTED.equals(event.getPropertyName())) {
-                    return;
+    private class ProductNodeHandler extends ProductNodeListenerAdapter {
+        @Override
+        public void nodeChanged(final ProductNodeEvent event) {
+            if (!isActive()) {
+                return;
+            }
+            if (event.getSourceNode() instanceof Band) {
+                final String propertyName = event.getPropertyName();
+                if (propertyName.equals(DataNode.PROPERTY_NAME_UNIT)) {
+                    updateYUnit();
+                } else if (propertyName.equals(Band.PROPERTY_NAME_SPECTRAL_WAVELENGTH)) {
+                    recreateCurrentDiagram();
                 }
-                updatePin(event);
-            }
-        }
-
-        public void nodeDataChanged(ProductNodeEvent event) {
-            if (isActive()) {
-                updatePin(event);
-            }
-        }
-
-        public void nodeAdded(ProductNodeEvent event) {
-            if (isActive()) {
-                updatePin(event);
-            }
-        }
-
-        public void nodeRemoved(ProductNodeEvent event) {
-            if (isActive()) {
-                ProductNode sourceNode = event.getSourceNode();
-                if (sourceNode instanceof Pin && ((Pin) sourceNode).isSelected()) {
-                    setNoPinSelected();
+            } else if (event.getSourceNode() instanceof Pin) {
+                if (isShowingPinSpectra()) {
+                    reconfigureDisplayedSpectra();
                 }
             }
+            updateUIState();
         }
 
-        private void updatePin(ProductNodeEvent event) {
-            final ProductNode sourceNode = event.getSourceNode();
-            if (sourceNode instanceof Pin && ((Pin) sourceNode).isSelected()) {
-                final Pin pin = ((Pin) sourceNode);
-                setSpectrumForPin(pin);
+        @Override
+        public void nodeAdded(final ProductNodeEvent event) {
+            if (!isActive()) {
+                return;
             }
+            if (event.getSourceNode() instanceof Band) {
+                recreateCurrentDiagram();
+            } else if (event.getSourceNode() instanceof Pin) {
+                if (isShowingPinSpectra()) {
+                    reconfigureDisplayedSpectra();
+                }
+            }
+            updateUIState();
+        }
+
+        @Override
+        public void nodeRemoved(final ProductNodeEvent event) {
+            if (!isActive()) {
+                return;
+            }
+            if (event.getSourceNode() instanceof Band) {
+                recreateCurrentDiagram();
+            } else if (event.getSourceNode() instanceof Pin) {
+                if (isShowingPinSpectra()) {
+                    reconfigureDisplayedSpectra();
+                }
+            }
+            updateUIState();
         }
 
         private boolean isActive() {
-            return isVisible() && isSnapToPinSelected();
+            return isVisible() && getCurrentProduct() != null;
         }
     }
 }

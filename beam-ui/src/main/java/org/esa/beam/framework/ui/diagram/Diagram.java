@@ -112,6 +112,7 @@ public class Diagram {
         return graphs.toArray(new DiagramGraph[0]);
     }
 
+    @Deprecated
     public DiagramGraph getGraph() {
         if (graphs.isEmpty()) {
             return null;
@@ -119,6 +120,7 @@ public class Diagram {
         return graphs.get(0);
     }
 
+    @Deprecated
     public void setGraph(DiagramGraph graph) {
         Guardian.assertNotNull("graph", graph);
         graphs.clear();
