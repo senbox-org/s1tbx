@@ -19,11 +19,14 @@ package org.esa.beam.visat.toolviews.pin;
 import junit.framework.TestCase;
 
 import org.esa.beam.framework.datamodel.PinSymbol;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.GeoPos;
 
 public class PinDialogTest extends TestCase {
 
     public void test() {
-        PinDialog pinDialog = new PinDialog(null, null);
+        PinDialog pinDialog = new PinDialog(null, new Product("x", "y", 10, 10));
 
         pinDialog.setDescription("descrip");
         assertEquals("descrip", pinDialog.getDescription());
@@ -34,6 +37,11 @@ public class PinDialogTest extends TestCase {
         pinDialog.setLon(5.7f);
         assertEquals(5.7f, pinDialog.getLon(), 1e-15);
 
+        GeoPos geoPos = pinDialog.getGeoPos();
+        assertNotNull(geoPos);
+        assertEquals(3.6f, geoPos.lat, 1e-6f);
+        assertEquals(5.7f, geoPos.lon, 1e-6f);
+
         pinDialog.setName("name");
         assertEquals("name", pinDialog.getName());
 
@@ -41,10 +49,15 @@ public class PinDialogTest extends TestCase {
         assertEquals("label", pinDialog.getLabel());
 
         pinDialog.setPixelX(2);
-        assertEquals(2.5f, pinDialog.getPixelX(), 1e-15);
+        assertEquals(2, pinDialog.getPixelX());
 
         pinDialog.setPixelY(14);
-        assertEquals(14.5f, pinDialog.getPixelY(), 1e-15);
+        assertEquals(14, pinDialog.getPixelY());
+
+        PixelPos pixelPos = pinDialog.getPixelPos();
+        assertNotNull(pixelPos);
+        assertEquals(2.5f, pixelPos.x, 1e-6f);
+        assertEquals(14.5f, pixelPos.y, 1e-6f);
 
         assertNotNull(pinDialog.getPinSymbol());
         final PinSymbol defaultPinSymbol = PinSymbol.createDefaultPinSymbol();

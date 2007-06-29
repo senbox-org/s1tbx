@@ -17,6 +17,8 @@
 
 package com.bc.layer;
 
+import com.bc.view.ViewModel;
+
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 
@@ -63,8 +65,9 @@ public interface LayerModel {
     /**
      * Draws all visible layers of this model.
      * @param g2d the 2D graphics context
+     * @param viewModel the current view model
      */
-    void draw(Graphics2D g2d);
+    void draw(Graphics2D g2d, ViewModel viewModel);
 
     /**
      * Releases all resources held by this model.

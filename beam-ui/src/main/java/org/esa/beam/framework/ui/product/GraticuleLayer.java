@@ -7,6 +7,7 @@
 package org.esa.beam.framework.ui.product;
 
 import com.bc.layer.AbstractLayer;
+import com.bc.view.ViewModel;
 import org.esa.beam.framework.datamodel.Graticule;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
@@ -111,7 +112,7 @@ public class GraticuleLayer extends AbstractLayer {
         fireLayerChanged();
     }
 
-    public void draw(Graphics2D g2d) {
+    public void draw(Graphics2D g2d, ViewModel viewModel) {
         if (_graticule == null) {
             _graticule = Graticule.create(_raster,
                                           _resAuto,

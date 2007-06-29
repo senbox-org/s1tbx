@@ -266,7 +266,7 @@ public class GraphicsPane extends JComponent implements ScrollableView {
         // create a new Graphics because we shall not alter the Graphics passed in
         final Graphics2D g2dClone = (Graphics2D) g2d.create();
         transformGraphics(g2dClone, true);
-        getLayerModel().draw(g2dClone);
+        getLayerModel().draw(g2dClone, viewModel);
         g2dClone.dispose();
     }
 

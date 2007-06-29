@@ -547,6 +547,8 @@ public final class DimapProductConstants {
     public final static String TAG_PIN_DESCRIPTION = "FORMAT_DESCRIPTION";
     public final static String TAG_PIN_LATITUDE = "LATITUDE";
     public final static String TAG_PIN_LONGITUDE = "LONGITUDE";
+    public final static String TAG_PIN_PIXEL_X = "PIXEL_X";
+    public final static String TAG_PIN_PIXEL_Y = "PIXEL_Y";
     public final static String TAG_PIN_FILL_COLOR = "FillColor";
     public final static String TAG_PIN_OUTLINE_COLOR = "OutlineColor";
 

@@ -17,6 +17,8 @@
 
 package com.bc.layer;
 
+import com.bc.view.ViewModel;
+
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -30,14 +32,14 @@ import java.util.List;
  */
 public class DefaultLayerModel implements LayerModel {
 
-    private List layerList;
-    private List listenerList;
+    private List<Layer> layerList;
+    private List<LayerModelChangeListener> listenerList;
     private LayerChangeHandler layerChangeHandler;
     private boolean layerModelChangeFireingSuspended;
 
     public DefaultLayerModel() {
-        layerList = new ArrayList();
-        listenerList = new ArrayList();
+        layerList = new ArrayList<Layer>();
+        listenerList = new ArrayList<LayerModelChangeListener>();
         layerChangeHandler = new LayerChangeHandler();
     }
 
@@ -77,17 +79,17 @@ public class DefaultLayerModel implements LayerModel {
         }
     }
 
-    public void draw(Graphics2D g2d) {
+    public void draw(Graphics2D g2d, ViewModel viewModel) {
         final int n = getLayerCount();
         for (int i = 0; i < n; i++) {
             if (getLayer(i).isVisible()) {
-                getLayer(i).draw(g2d);
+                getLayer(i).draw(g2d, viewModel);
             }
         }
     }
 
     public Layer[] getLayers() {
-        return (Layer[]) layerList.toArray(new Layer[layerList.size()]);
+        return layerList.toArray(new Layer[layerList.size()]);
     }
 
     public int getLayerCount() {
@@ -95,7 +97,7 @@ public class DefaultLayerModel implements LayerModel {
     }
 
     public Layer getLayer(int index) {
-        return (Layer) layerList.get(index);
+        return layerList.get(index);
     }
 
     public void addLayer(Layer layer) {
@@ -118,7 +120,7 @@ public class DefaultLayerModel implements LayerModel {
      * Gets all layer manager listeners of this layer.
      */
     public LayerModelChangeListener[] getLayerModelChangeListeners() {
-        return (LayerModelChangeListener[]) listenerList.toArray(new LayerModelChangeListener[listenerList.size()]);
+        return listenerList.toArray(new LayerModelChangeListener[listenerList.size()]);
     }
 
     /**
@@ -141,16 +143,16 @@ public class DefaultLayerModel implements LayerModel {
 
     public void fireLayerModelChanged() {
         if (!isLayerModelChangeFireingSuspended()) {
-            for (int i = 0; i < listenerList.size(); i++) {
-                ((LayerModelChangeListener) listenerList.get(i)).handleLayerModelChanged(this);
+            for (LayerModelChangeListener l : listenerList) {
+                l.handleLayerModelChanged(this);
             }
         }
     }
 
     protected void fireLayerAdded(Layer layer) {
         if (!isLayerModelChangeFireingSuspended()) {
-            for (int i = 0; i < listenerList.size(); i++) {
-                ((LayerModelChangeListener) listenerList.get(i)).handleLayerAdded(this, layer);
+            for (LayerModelChangeListener l : listenerList) {
+                l.handleLayerAdded(this, layer);
             }
             fireLayerModelChanged();
         }
@@ -158,8 +160,8 @@ public class DefaultLayerModel implements LayerModel {
 
     protected void fireLayerRemoved(Layer layer) {
         if (!isLayerModelChangeFireingSuspended()) {
-            for (int i = 0; i < listenerList.size(); i++) {
-                ((LayerModelChangeListener) listenerList.get(i)).handleLayerRemoved(this, layer);
+            for (LayerModelChangeListener l : listenerList) {
+                l.handleLayerRemoved(this, layer);
             }
             fireLayerModelChanged();
         }
@@ -167,8 +169,8 @@ public class DefaultLayerModel implements LayerModel {
 
     protected void fireLayerChanged(Layer layer) {
         if (!isLayerModelChangeFireingSuspended()) {
-            for (int i = 0; i < listenerList.size(); i++) {
-                ((LayerModelChangeListener) listenerList.get(i)).handleLayerChanged(this, layer);
+            for (LayerModelChangeListener l : listenerList) {
+                l.handleLayerChanged(this, layer);
             }
             fireLayerModelChanged();
         }

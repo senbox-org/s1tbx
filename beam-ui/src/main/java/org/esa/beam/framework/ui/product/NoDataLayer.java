@@ -8,6 +8,7 @@ package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.layer.AbstractLayer;
+import com.bc.view.ViewModel;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.PropertyMap;
@@ -40,7 +41,7 @@ public class NoDataLayer extends AbstractLayer {
         return _raster;
     }
 
-    public void draw(Graphics2D g2d) {
+    public void draw(Graphics2D g2d, ViewModel viewModel) {
         if (getNoDataImage() == null) {
             return;
         }

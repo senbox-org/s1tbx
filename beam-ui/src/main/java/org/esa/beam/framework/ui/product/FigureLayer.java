@@ -21,6 +21,7 @@ import org.esa.beam.util.Guardian;
 import org.esa.beam.util.PropertyMap;
 
 import com.bc.layer.AbstractLayer;
+import com.bc.view.ViewModel;
 
 public class FigureLayer extends AbstractLayer {
 
@@ -207,8 +208,9 @@ public class FigureLayer extends AbstractLayer {
      * The graphics context expects world coordinates.
      *
      * @param g2d the 2D graphics context, never null
+     * @param viewModel
      */
-    public void draw(final Graphics2D g2d) {
+    public void draw(final Graphics2D g2d, ViewModel viewModel) {
         for (int i = 0; i < _figures.size(); i++) {
             final Figure figure = (Figure) _figures.get(i);
             figure.draw(g2d);

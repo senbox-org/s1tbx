@@ -16,8 +16,6 @@
  */
 package org.esa.beam.framework.ui.diagram;
 
-//@todo 1 nf/nf - class documentation
-
 public interface DiagramGraph {
 
     int getNumValues();
@@ -35,4 +33,6 @@ public interface DiagramGraph {
     double getYMin();
 
     double getYMax();
+
+    DiagramGraphStyle getStyle();
 }

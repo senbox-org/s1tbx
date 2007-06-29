@@ -33,11 +33,6 @@ public class PinToolAction extends ToolAction {
     @Override
     public void updateState(final CommandEvent event) {
         ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
-        GeoCoding geoCoding = null;
-        if (view != null && view.getProduct() != null) {
-            geoCoding = view.getProduct().getGeoCoding();
-        }
-        setEnabled(geoCoding != null && geoCoding.canGetPixelPos());
+        setEnabled(view != null);
     }
-
 }

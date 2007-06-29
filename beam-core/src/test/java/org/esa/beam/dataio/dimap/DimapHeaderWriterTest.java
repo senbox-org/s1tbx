@@ -242,13 +242,11 @@ public class DimapHeaderWriterTest extends TestCase {
 
         final Pin pin2 = new Pin("pin2");
         pin2.setDescription("desc2");
-        pin2.setLatitude(4);
-        pin2.setLongitude(8);
+        pin2.setGeoPos(new GeoPos(4,8));
         _product.addPin(pin2);
 
         final Pin pin3 = new Pin("pin3");
-        pin3.setLatitude(-23.1234f);
-        pin3.setLongitude(-80.543f);
+        pin3.setGeoPos(new GeoPos(-23.1234f, -80.543f));
         _product.addPin(pin3);
     }
 

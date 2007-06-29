@@ -41,7 +41,7 @@ import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.Guardian;
 import org.esa.beam.util.math.MathUtils;
 
 /**
@@ -49,7 +49,7 @@ import org.esa.beam.util.math.MathUtils;
  */
 public class PinDialog extends ModalDialog {
 
-    private final Product _selectedProduct;
+    private final Product _product;
     private Parameter _paramName;
     private Parameter _paramLabel;
     private Parameter _paramUsePixelPos;
@@ -62,18 +62,26 @@ public class PinDialog extends ModalDialog {
     private JLabel _symbolLabel;
     private Parameter _paramColorOutline;
     private Parameter _paramColorFill;
+    private boolean canGetPixelPos;
+    private boolean canGetGeoPos;
+    private boolean adjusting;
 
 
     public PinDialog(final Window parent, final Product product) {
         super(parent, "New Pin", ModalDialog.ID_OK_CANCEL, null); /*I18N*/
-
-        _selectedProduct = product;
+        Guardian.assertNotNull("product", product);
+        _product = product;
         initParameter();
         creatUI();
     }
 
+    public Product getProduct() {
+        return _product;
+    }
+
+    @Override
     protected void onOK() {
-        if (!_selectedProduct.containsPixel(getPixelX(), getPixelY())) {
+        if (!_product.containsPixel(getPixelX(), getPixelY())) {
             showInformationDialog("The pin cannot be set because\n" +
                                   "its pixel coordinate is out of bounds."); /*I18N*/
             return;
@@ -102,7 +110,7 @@ public class PinDialog extends ModalDialog {
     }
 
     public boolean isUsePixelPos() {
-        return ((Boolean) _paramUsePixelPos.getValue()).booleanValue();
+        return (Boolean) _paramUsePixelPos.getValue();
     }
 
     /**
@@ -112,39 +120,67 @@ public class PinDialog extends ModalDialog {
      * @param usePixelPos whether or not to use the pixel co-ordinates instead of geographic co-ordinates
      */
     public void setUsePixelPos(boolean usePixelPos) {
-        _paramUsePixelPos.setValue(new Boolean(usePixelPos && _selectedProduct != null), null);
+        _paramUsePixelPos.setValue(usePixelPos, null);
     }
 
     public float getLat() {
-        return ((Float) _paramLat.getValue()).floatValue();
+        return (Float) _paramLat.getValue();
     }
 
     public void setLat(float lat) {
-        _paramLat.setValue(new Float(lat), null);
+        _paramLat.setValue(lat, null);
     }
 
     public float getLon() {
-        return ((Float) _paramLon.getValue()).floatValue();
+        return (Float) _paramLon.getValue();
     }
 
     public void setLon(float lon) {
-        _paramLon.setValue(new Float(lon), null);
+        _paramLon.setValue(lon, null);
     }
 
-    public float getPixelX() {
-        return ((Integer) _paramPixelX.getValue()).floatValue() + 0.5f;
+    public GeoPos getGeoPos() {
+        return new GeoPos(getLat(), getLon());
+    }
+
+    public void setGeoPos(GeoPos geoPos) {
+        if (geoPos != null) {
+            setLat(geoPos.lat);
+            setLon(geoPos.lon);
+        } else {
+            setLat(0.0f);
+            setLon(0.0f);
+        }
+    }
+
+    public PixelPos getPixelPos() {
+        return new PixelPos(getPixelX() + 0.5f, getPixelY() + 0.5f);
+    }
+
+    public void setPixelPos(PixelPos pixelPos) {
+        if (pixelPos != null) {
+            setPixelX(MathUtils.floorInt(pixelPos.x));
+            setPixelY(MathUtils.floorInt(pixelPos.y));
+        } else {
+            setPixelX(0);
+            setPixelY(0);
+        }
+    }
+
+    public int getPixelX() {
+        return (Integer) _paramPixelX.getValue();
     }
 
     public void setPixelX(int pixelX) {
-        _paramPixelX.setValue(new Integer(pixelX), null);
+        _paramPixelX.setValue(pixelX, null);
     }
 
-    public float getPixelY() {
-        return ((Integer) _paramPixelY.getValue()).floatValue() + 0.5f;
+    public int getPixelY() {
+        return (Integer) _paramPixelY.getValue();
     }
 
     public void setPixelY(int pixelY) {
-        _paramPixelY.setValue(new Integer(pixelY), null);
+        _paramPixelY.setValue(pixelY, null);
     }
 
     public String getDescription() {
@@ -168,7 +204,10 @@ public class PinDialog extends ModalDialog {
     }
 
     private void initParameter() {
-        boolean isGeocodetProduct = _selectedProduct != null && _selectedProduct.getGeoCoding() != null;
+        GeoCoding geoCoding = _product.getGeoCoding();
+        boolean hasGeoCoding = geoCoding != null;
+        canGetPixelPos = hasGeoCoding &&  geoCoding.canGetPixelPos();
+        canGetGeoPos = hasGeoCoding &&  geoCoding.canGetGeoPos();
 
         _paramName = new Parameter("paramName", "");
         _paramName.getProperties().setLabel("Name");/*I18N*/
@@ -176,9 +215,10 @@ public class PinDialog extends ModalDialog {
         _paramLabel = new Parameter("paramLabel", "");
         _paramLabel.getProperties().setLabel("Label");/*I18N*/
 
-        _paramUsePixelPos = new Parameter("paramUsePixelPos", new Boolean(false));
+        boolean usePixelPos = !hasGeoCoding;
+        _paramUsePixelPos = new Parameter("paramUsePixelPos", usePixelPos);
         _paramUsePixelPos.getProperties().setLabel("Use pixel position");/*I18N*/
-        _paramUsePixelPos.setUIEnabled(isGeocodetProduct);
+        _paramUsePixelPos.setUIEnabled(canGetPixelPos || canGetGeoPos);
         _paramUsePixelPos.addParamChangeListener(new ParamChangeListener() {
             public void parameterValueChanged(ParamChangeEvent event) {
                 boolean value = isUsePixelPos();
@@ -191,34 +231,36 @@ public class PinDialog extends ModalDialog {
 
         ParamChangeListener geoChangeListener = new ParamChangeListener() {
             public void parameterValueChanged(ParamChangeEvent event) {
-                updatePixelValues();
+                updatePixelPos();
             }
         };
 
-        _paramLat = new Parameter("paramLat", new Float(0));
+        _paramLat = new Parameter("paramLat", 0.0f);
         _paramLat.getProperties().setLabel("Lat");/*I18N*/
         _paramLat.getProperties().setPhysicalUnit("deg"); /*I18N*/
+        _paramLat.setUIEnabled(!usePixelPos);
         _paramLat.addParamChangeListener(geoChangeListener);
 
-        _paramLon = new Parameter("paramLon", new Float(0));
+        _paramLon = new Parameter("paramLon", 0.0f);
         _paramLon.getProperties().setLabel("Lon");/*I18N*/
         _paramLon.getProperties().setPhysicalUnit("deg");/*I18N*/
+        _paramLon.setUIEnabled(!usePixelPos);
         _paramLon.addParamChangeListener(geoChangeListener);
 
         ParamChangeListener pixelChangeListener = new ParamChangeListener() {
             public void parameterValueChanged(ParamChangeEvent event) {
-                updateGeoValues();
+                updateGeoPos();
             }
         };
 
-        _paramPixelX = new Parameter("paramPixelX", new Integer(0));
+        _paramPixelX = new Parameter("paramPixelX", 0);
         _paramPixelX.getProperties().setLabel("Pixel X");
-        _paramPixelX.setUIEnabled(isGeocodetProduct);
+        _paramPixelX.setUIEnabled(usePixelPos);
         _paramPixelX.addParamChangeListener(pixelChangeListener);
 
-        _paramPixelY = new Parameter("paramPixelY", new Integer(0));
+        _paramPixelY = new Parameter("paramPixelY", 0);
         _paramPixelY.getProperties().setLabel("Pixel Y");
-        _paramPixelY.setUIEnabled(isGeocodetProduct);
+        _paramPixelY.setUIEnabled(usePixelPos);
         _paramPixelY.addParamChangeListener(pixelChangeListener);
 
         _paramDescription = new Parameter("paramDesc", "");
@@ -251,6 +293,7 @@ public class PinDialog extends ModalDialog {
     private void creatUI() {
 
         _symbolLabel = new JLabel() {
+            @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 if (g instanceof Graphics2D) {
@@ -365,39 +408,24 @@ public class PinDialog extends ModalDialog {
         symbolPanel.add(_symbolLabel, gbc);
         gbc.insets.left = 0;
 
-
         return symbolPanel;
     }
 
-    private void updatePixelValues() {
-        if (isUsePixelPos()) {
-            return;
+    private void updatePixelPos() {
+        if (canGetPixelPos && !adjusting) {
+            adjusting = true;
+            PixelPos pixelPos = _product.getGeoCoding().getPixelPos(getGeoPos(), null);
+            setPixelPos(pixelPos);
+            adjusting = false;
         }
-        if (!ProductUtils.canGetPixelPos(_selectedProduct)) {
-            return;
-        }
-        GeoCoding geoCoding = _selectedProduct.getGeoCoding();
-        GeoPos geoPos = new GeoPos();
-        geoPos.lon = ((Float) _paramLon.getValue()).floatValue();
-        geoPos.lat = ((Float) _paramLat.getValue()).floatValue();
-        PixelPos pixelPos = geoCoding.getPixelPos(geoPos, null);
-        _paramPixelX.setValue(new Integer(MathUtils.floorInt(pixelPos.getX())), null);
-        _paramPixelY.setValue(new Integer(MathUtils.floorInt(pixelPos.getY())), null);
     }
 
-    private void updateGeoValues() {
-        if (!isUsePixelPos()) {
-            return;
+    private void updateGeoPos() {
+        if (canGetGeoPos && !adjusting) {
+            adjusting = true;
+            GeoPos geoPos = _product.getGeoCoding().getGeoPos(getPixelPos(), null);
+            setGeoPos(geoPos);
+            adjusting = false;
         }
-        if (!ProductUtils.canGetPixelPos(_selectedProduct)) {
-            return;
-        }
-        GeoCoding geoCoding = _selectedProduct.getGeoCoding();
-        PixelPos pixelPos = new PixelPos();
-        pixelPos.x = ((Integer) _paramPixelX.getValue()).floatValue() + 0.5f;
-        pixelPos.y = ((Integer) _paramPixelY.getValue()).floatValue() + 0.5f;
-        GeoPos geoPos = geoCoding.getGeoPos(pixelPos, null);
-        _paramLon.setValue(new Float(geoPos.getLon()), null);
-        _paramLat.setValue(new Float(geoPos.getLat()), null);
     }
 }

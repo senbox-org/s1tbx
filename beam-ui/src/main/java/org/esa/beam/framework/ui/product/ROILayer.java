@@ -8,6 +8,7 @@ package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.layer.AbstractLayer;
+import com.bc.view.ViewModel;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.util.Debug;
@@ -77,7 +78,7 @@ public class ROILayer extends AbstractLayer {
         fireLayerChanged();
     }
 
-    public void draw(Graphics2D g2d) {
+    public void draw(Graphics2D g2d, ViewModel viewModel) {
         if (_roiImage == null) {
             return;
         }

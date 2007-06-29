@@ -17,6 +17,8 @@
 
 package com.bc.layer;
 
+import com.bc.view.ViewModel;
+
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 
@@ -79,8 +81,9 @@ public interface Layer {
      * Draws the layer using the given 2D graphics context.
      * The graphics context expects world coordinates.
      * @param g2d the 2D graphics context, never null
+     * @param viewModel the view model
      */
-    void draw(Graphics2D g2d);
+    void draw(Graphics2D g2d, ViewModel viewModel);
 
     /**
      * Releases all resources of this layer and it's children.

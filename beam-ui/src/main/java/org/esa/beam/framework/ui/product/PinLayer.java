@@ -6,13 +6,8 @@
  */
 package org.esa.beam.framework.ui.product;
 
-import java.awt.AlphaComposite;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Composite;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
+import java.awt.*;
+import java.awt.font.GlyphVector;
 import java.awt.geom.Rectangle2D;
 
 import org.esa.beam.framework.datamodel.Pin;
@@ -21,6 +16,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.PropertyMap;
 
 import com.bc.layer.AbstractLayer;
+import com.bc.view.ViewModel;
 
 public class PinLayer extends AbstractLayer {
 
@@ -34,7 +30,7 @@ public class PinLayer extends AbstractLayer {
 
     public PinLayer(Product product) {
         _product = product;
-        _textFont = new Font("SansSerif", Font.PLAIN, 12);
+        _textFont = new Font("Helvetica", Font.BOLD, 14);
         _textEnabled = true;
         _textFgColor = Color.white;
         _textBgColor = Color.black;
@@ -54,12 +50,20 @@ public class PinLayer extends AbstractLayer {
         fireLayerChanged();
     }
 
-    public void draw(Graphics2D g2d) {
-        for (int i = 0; i < _product.getNumPins(); i++) {
-            final Pin pin = _product.getPinAt(i);
+    public void draw(Graphics2D g2d, ViewModel viewModel) {
+        Object oldAntialiasing = g2d.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
+        Object oldTextAntialiasing = g2d.getRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING);
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+        double viewScale = viewModel.getViewScale();
+        Pin[] pins = _product.getPins();
+        for (Pin pin : pins) {
             final PixelPos pixelPos = pin.getPixelPos();
             if (pixelPos != null) {
                 g2d.translate(pixelPos.getX(), pixelPos.getY());
+                g2d.scale(1.0/viewScale, 1.0/viewScale);
+
                 if (pin.isSelected()) {
                     pin.getSymbol().drawSelected(g2d);
                 } else {
@@ -70,45 +74,39 @@ public class PinLayer extends AbstractLayer {
                     drawTextLabel(g2d, pin);
                 }
 
+                g2d.scale(viewScale, viewScale);
                 g2d.translate(-pixelPos.getX(), -pixelPos.getY());
             }
         }
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAntialiasing);
+        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, oldTextAntialiasing);
     }
 
     private void drawTextLabel(Graphics2D g2d, Pin pin) {
 
         final String label = pin.getLabel();
 
-        final Rectangle2D labelBounds = g2d.getFontMetrics().getStringBounds(label, g2d);
+        g2d.setFont(_textFont);
 
-        final double width = labelBounds.getWidth() * 1.1;
-        final double height = labelBounds.getHeight();
-        final Rectangle shapeBounds = pin.getSymbol().getShape().getBounds();
-        final double x = shapeBounds.getX() + 0.5 * (shapeBounds.getWidth() - width);
-        final double y = shapeBounds.getY() + 4;
+        GlyphVector glyphVector = _textFont.createGlyphVector(g2d.getFontRenderContext(), label);
+        Rectangle2D logicalBounds = glyphVector.getLogicalBounds();
+        float tx = (float) (logicalBounds.getX() - 0.5 * logicalBounds.getWidth());
+        float ty = (float) (1.0 + logicalBounds.getHeight());
+        Shape outline = glyphVector.getOutline(tx, ty);
 
-        final Rectangle2D r = new Rectangle2D.Double(x, y, width, height);
-        final float tx =  0.5f * (float)(shapeBounds.getWidth() - labelBounds.getWidth());
-        final float ty =  0.5f * (float)(r .getY() + r.getHeight() + labelBounds.getHeight() - 2);
-
-        if (_textBgTransparency < 1.0f) {
-            Composite oldComposite = null;
-            if (_textBgTransparency > 0.0f) {
-                oldComposite = g2d.getComposite();
-                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f - _textBgTransparency));
-            }
-
-            g2d.setPaint(_textBgColor);
-            g2d.setStroke(new BasicStroke(0));
-            g2d.fill(r);
-
-            if (oldComposite != null) {
-                g2d.setComposite(oldComposite);
-            }
+        int[] alphas = new int[] {64, 128, 192, 255};
+        for (int i = 0; i < alphas.length; i++) {
+            BasicStroke selectionStroke = new BasicStroke((float)(alphas.length - i));
+            Color selectionColor = new Color(_textBgColor.getRed(),
+                                             _textBgColor.getGreen(),
+                                             _textBgColor.getGreen(),
+                                             alphas[i]);
+            g2d.setStroke(selectionStroke);
+            g2d.setPaint(selectionColor);
+            g2d.draw(outline);
         }
 
-        g2d.setFont(_textFont);
         g2d.setPaint(_textFgColor);
-        g2d.drawString(label, tx, ty);
+        g2d.fill(outline);
     }
 }

@@ -540,7 +540,7 @@ public class ImageDisplay extends GraphicsPane {
         for (int i = 1; i < layerCount; i++) {
             final Layer layer = layerModel.getLayer(i);
             if (layer.isVisible()) {
-                layer.draw(g2d);
+                layer.draw(g2d, getViewModel());
             }
         }
     }
@@ -559,7 +559,7 @@ public class ImageDisplay extends GraphicsPane {
             return;
         }
 
-        getImageLayer().draw(g2d);
+        getImageLayer().draw(g2d, getViewModel());
         drawImageBorder(g2d);
     }
 

@@ -18,11 +18,7 @@ package org.esa.beam.framework.datamodel;
 
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.XmlHelper;
-import org.esa.beam.util.XmlWriter;
+import org.esa.beam.util.*;
 import org.jdom.Element;
 
 import java.awt.Color;
@@ -42,44 +38,45 @@ import java.awt.Shape;
  */
 public class Pin extends ProductNode {
 
-    public final static String PROPERTY_NAME_PINSYMBOL = "pinSymbol";
-    public final static String PROPERTY_NAME_LATITUDE = "latitude";
-    public final static String PROPERTY_NAME_LONGITUDE = "longitude";
+    public final static String PROPERTY_NAME_GEOPOS = "geoPos";
+    public final static String PROPERTY_NAME_PIXELPOS = "pixelPos";
     public final static String PROPERTY_NAME_SELECTED = "selected";
+    public final static String PROPERTY_NAME_PINSYMBOL = "pinSymbol";
 
     private String label;
-    private float _longitude;
-    private float _latitude;
-    private boolean _selected;
-    private PinSymbol _symbol;
+    private PixelPos pixelPos;
+    private GeoPos geoPos;
+    private boolean active;
+    private boolean selected;
+    private PinSymbol symbol;
 
-
-    /**
-     * Constructs a new product node with the given name.
-     *
-     * @param name the node name, must not be <code>null</code>
-     *
-     * @throws java.lang.IllegalArgumentException
-     *          if the given name is not a valid node identifier
-     */
     public Pin(String name) {
-        super(name);
-        setLabel(generateLabel(name));
-        setSymbol(PinSymbol.createDefaultPinSymbol());
+        this(name, generateLabel(name), new PixelPos(0,0));
     }
 
-    public Pin(final String name, final String label, final String description, final float lat,
-               final float lon, final PinSymbol pinSymbol) {
-        this(name);
-        if (label != null) {
-            setLabel(label);
+    public Pin(String name, String label, PixelPos pixelPos) {
+        this(name, label, "", pixelPos, null, PinSymbol.createDefaultPinSymbol());
+    }
+
+    public Pin(String name, String label, GeoPos geoPos) {
+        this(name, label, "", null, geoPos, PinSymbol.createDefaultPinSymbol());
+    }
+
+    public Pin(String name,
+               String label,
+               String description,
+               PixelPos pixelPos,
+               GeoPos geoPos,
+               PinSymbol pinSymbol) {
+        super(name);
+        if (pixelPos == null && geoPos == null) {
+            throw new IllegalArgumentException("pixelPos == null && geoPos == null");
         }
+        setLabel(label);
         setDescription(description);
-        setLatitude(lat);
-        setLongitude(lon);
-        if (pinSymbol != null) {
-            setSymbol(pinSymbol);
-        }
+        setPixelPos(pixelPos);
+        setGeoPos(geoPos);
+        setSymbol(pinSymbol);
     }
 
     /**
@@ -104,9 +101,9 @@ public class Pin extends ProductNode {
      * Gets an estimated, raw storage size in bytes of this product node.
      *
      * @param subsetDef if not <code>null</code> the subset may limit the size returned
-     *
      * @return the size in bytes.
      */
+    @Override
     public long getRawStorageSize(ProductSubsetDef subsetDef) {
         return 256;
     }
@@ -118,76 +115,69 @@ public class Pin extends ProductNode {
      *
      * @param visitor the visitor
      */
+    @Override
     public void acceptVisitor(ProductVisitor visitor) {
     }
 
     public PinSymbol getSymbol() {
-        return _symbol;
+        return symbol;
     }
 
     public void setSymbol(final PinSymbol symbol) {
         Guardian.assertNotNull("symbol", symbol);
-        if (_symbol != symbol) {
-            _symbol = symbol;
+        if (this.symbol != symbol) {
+            this.symbol = symbol;
             fireProductNodeChanged(PROPERTY_NAME_PINSYMBOL);
         }
     }
 
-    public float getLongitude() {
-        return _longitude;
-    }
-
-    public void setLongitude(final float longitude) {
-        if (_longitude != longitude) {
-            _longitude = longitude;
-            fireProductNodeChanged(PROPERTY_NAME_LONGITUDE);
-        }
-    }
-
-    public float getLatitude() {
-        return _latitude;
-    }
-
-    public void setLatitude(final float latitude) {
-        if (_latitude != latitude) {
-            _latitude = latitude;
-            fireProductNodeChanged(PROPERTY_NAME_LATITUDE);
-        }
-    }
-
     public boolean isSelected() {
-        return _selected;
+        return selected;
     }
 
     public void setSelected(boolean selected) {
-        if (_selected != selected) {
-            _selected = selected;
+        if (this.selected != selected) {
+            this.selected = selected;
             fireProductNodeChanged(PROPERTY_NAME_SELECTED);
         }
     }
 
-    public boolean containsPixelPos(float pixelX, float pixelY, GeoCoding geoCoding) {
+    /** @deprecated no replacement, pin symbols are not in raster coordinates anymore */
+    public boolean isPixelPosContainedInSymbolShape(float pixelX, float pixelY) {
         Shape shape = getSymbol().getShape();
         if (shape != null) {
-            PixelPos pinPixelPos = getPixelPos(geoCoding);
-            double x = pixelX - pinPixelPos.getX();
-            double y = pixelY - pinPixelPos.getY();
-            PixelPos refPoint = _symbol.getRefPoint();
-            if (refPoint != null) {
-                x += refPoint.getX();
-                y += refPoint.getY();
+            PixelPos pixelPos = getPixelPos();
+            if (pixelPos != null) {
+                double x = pixelX - pixelPos.getX();
+                double y = pixelY - pixelPos.getY();
+                PixelPos refPoint = symbol.getRefPoint();
+                if (refPoint != null) {
+                    x += refPoint.getX();
+                    y += refPoint.getY();
+                }
+                return shape.contains(x, y);
             }
-            return shape.contains(x, y);
         }
         return false;
     }
 
-    private PixelPos getPixelPos(GeoCoding geoCoding) {
-        if (geoCoding != null) {
-            final GeoPos geoPos = new GeoPos(getLatitude(), getLongitude());
-            return geoCoding.getPixelPos(geoPos, null);
+
+    public GeoPos getGeoPos() {
+        if (geoPos == null
+                && getProduct() != null
+                && getProduct().getGeoCoding() != null
+                && getProduct().getGeoCoding().canGetGeoPos()) {
+            geoPos = getProduct().getGeoCoding().getGeoPos(pixelPos, null);
         }
-        return null;
+        return new GeoPos(geoPos.lat , geoPos.lon);
+    }
+
+    public void setPixelPos(PixelPos pixelPos) {
+        if (ObjectUtils.equalObjects(this.pixelPos, pixelPos)) {
+            return;
+        }
+        this.pixelPos = pixelPos;
+        fireProductNodeChanged(PROPERTY_NAME_PIXELPOS);
     }
 
     /**
@@ -195,39 +185,53 @@ public class Pin extends ProductNode {
      *
      * @return the pixel position or null if the product to which this pin was added has no {@link
      *         <code>GeoCoding</code>} or the GeoCoding cannot provide the correct pixel position.
-     *
      * @see GeoCoding#canGetPixelPos()
      */
     public PixelPos getPixelPos() {
-        PixelPos pos = null;
-        final Product product = getProduct();
-        if (product != null) {
-            final GeoCoding geoCoding = product.getGeoCoding();
-            if (geoCoding != null) {
-                pos = getPixelPos(geoCoding);
-            }
+        if (pixelPos == null
+                && getProduct() != null
+                && getProduct().getGeoCoding() != null
+                && getProduct().getGeoCoding().canGetPixelPos()) {
+            pixelPos = getProduct().getGeoCoding().getPixelPos(geoPos, null);
         }
-        return pos;
+        return new PixelPos(pixelPos.x , pixelPos.y);
     }
 
+
+    public void setGeoPos(GeoPos geoPos) {
+        if (ObjectUtils.equalObjects(this.geoPos, geoPos)) {
+            return;
+        }
+        this.geoPos = geoPos;
+        fireProductNodeChanged(PROPERTY_NAME_GEOPOS);
+    }
+
+    // todo - move this method into a new DimapPersistable
     public void writeXML(XmlWriter writer, int indent) {
         Guardian.assertNotNull("writer", writer);
         Guardian.assertGreaterThan("indent", indent, -1);
         String[] pinTags = XmlWriter.createTags(indent, DimapProductConstants.TAG_PIN,
-                new String[][]{
-                    new String[]{DimapProductConstants.ATTRIB_NAME, getName()}
-                });
+                                                new String[][]{
+                                                        new String[]{DimapProductConstants.ATTRIB_NAME, getName()}
+                                                });
         writer.println(pinTags[0]);
         indent++;
         writer.printLine(indent, DimapProductConstants.TAG_PIN_LABEL, getLabel());
         writer.printLine(indent, DimapProductConstants.TAG_PIN_DESCRIPTION, getDescription());
-        writer.printLine(indent, DimapProductConstants.TAG_PIN_LATITUDE, _latitude);
-        writer.printLine(indent, DimapProductConstants.TAG_PIN_LONGITUDE, _longitude);
-        writeColor(DimapProductConstants.TAG_PIN_FILL_COLOR, indent, (Color) _symbol.getFillPaint(), writer);
-        writeColor(DimapProductConstants.TAG_PIN_OUTLINE_COLOR, indent, (Color) _symbol.getOutlinePaint(), writer);
+        if (getGeoPos() != null) {
+            writer.printLine(indent, DimapProductConstants.TAG_PIN_LATITUDE, getGeoPos().lat);
+            writer.printLine(indent, DimapProductConstants.TAG_PIN_LONGITUDE, getGeoPos().lon);
+        }
+        if (getPixelPos() != null) {
+            writer.printLine(indent, DimapProductConstants.TAG_PIN_PIXEL_X, getPixelPos().x);
+            writer.printLine(indent, DimapProductConstants.TAG_PIN_PIXEL_Y, getPixelPos().y);
+        }
+        writeColor(DimapProductConstants.TAG_PIN_FILL_COLOR, indent, (Color) symbol.getFillPaint(), writer);
+        writeColor(DimapProductConstants.TAG_PIN_OUTLINE_COLOR, indent, (Color) symbol.getOutlinePaint(), writer);
         writer.println(pinTags[1]);
     }
 
+    // todo - move this method into a new DimapPersistable
     private void writeColor(final String tagName, final int indent, final Color color, final XmlWriter writer) {
         String[] colorTags = XmlWriter.createTags(indent, tagName);
         writer.println(colorTags[0]);
@@ -235,52 +239,56 @@ public class Pin extends ProductNode {
         writer.println(colorTags[1]);
     }
 
+    // todo - move this method into a new DimapPersistable
+
+    /**
+     * @throws NullPointerException     if element is null
+     * @throws IllegalArgumentException if element is invalid
+     */
     public static Pin createPin(Element element) {
-        //@todo 1 he/he - exception werfen und dort wo die methode verwendet wird auswerten.
-        // Z.B. im ProdcutReader einen Warnings Vector einbauen der diese
-        // fehlermeldung sammelt. Anschließend können diese Fehlermeldungen ausgewertet
-        // und geloggt werden.
-        final String message = "failed to create pin: " + SystemUtils.LS;
-        if (element == null) {
-            Debug.trace(message + "element is null.");
-            return null;
-        }
         if (!DimapProductConstants.TAG_PIN.equals(element.getName())) {
-            Debug.trace(message + "element is not a pin element.");
-            return null;
+            throw new IllegalArgumentException("Element '" + DimapProductConstants.TAG_PIN + "' expected.");
         }
         final String name = element.getAttributeValue(DimapProductConstants.ATTRIB_NAME);
+        if (name == null) {
+            throw new IllegalArgumentException("Missing attribute '" + DimapProductConstants.ATTRIB_NAME + "'.");
+        }
+        if (!Pin.isValidNodeName(name)) {
+            throw new IllegalArgumentException("Invalid pin name '" + name + "'.");
+        }
+
         final String label = element.getChildTextTrim(DimapProductConstants.TAG_PIN_LABEL);
         final String description = element.getChildTextTrim(DimapProductConstants.TAG_PIN_DESCRIPTION);
-        final String latitude = element.getChildTextTrim(DimapProductConstants.TAG_PIN_LATITUDE);
-        final String longitude = element.getChildTextTrim(DimapProductConstants.TAG_PIN_LONGITUDE);
 
-// TODO 1 i get a null pointer exception here - so, check for null pointers and then set create to false
-// TODO 1 Sabine -> checlk if this is correct behaviour
+        final String latText = element.getChildTextTrim(DimapProductConstants.TAG_PIN_LATITUDE);
+        final String lonText = element.getChildTextTrim(DimapProductConstants.TAG_PIN_LONGITUDE);
+        final String pixelXText = element.getChildTextTrim(DimapProductConstants.TAG_PIN_PIXEL_X);
+        final String pixelYText = element.getChildTextTrim(DimapProductConstants.TAG_PIN_PIXEL_Y);
 
-        if ((name == null) || (latitude == null) || (longitude == null)) {
-            Debug.trace("Element does not contain all required parameter!");
-            return null;
+        GeoPos geoPos = null;
+        if (latText != null && lonText != null) {
+            try {
+                float lat = Float.parseFloat(latText);
+                float lon = Float.parseFloat(lonText);
+                geoPos = new GeoPos(lat, lon);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Invalid geo-position.");
+            }
         }
 
-        boolean create = true;
-        if (!Pin.isValidNodeName(name)) {
-            Debug.trace(message + "'" + name + "' is not a valid name for a pin");
-            create = false;
+        PixelPos pixelPos = null;
+        if (pixelXText != null && pixelYText != null) {
+            try {
+                int pixelX = Integer.parseInt(pixelXText);
+                int pixelY = Integer.parseInt(pixelYText);
+                pixelPos = new PixelPos(pixelX, pixelY);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Invalid pixel-position.");
+            }
         }
-        float lat = 0;
-        try {
-            lat = Float.parseFloat(latitude);
-        } catch (NumberFormatException e) {
-            Debug.trace(message + "illegal latitude value: " + latitude);
-            create = false;
-        }
-        float lon = 0;
-        try {
-            lon = Float.parseFloat(longitude);
-        } catch (NumberFormatException e) {
-            Debug.trace(message + "illegal longitude value: " + longitude);
-            create = false;
+
+        if (geoPos == null && pixelPos == null) {
+            throw new IllegalArgumentException("Neither geo-position nor pixel-position given.");
         }
 
         PinSymbol pinSymbol = PinSymbol.createDefaultPinSymbol();
@@ -294,21 +302,18 @@ public class Pin extends ProductNode {
             pinSymbol.setOutlinePaint(outlineColor);
         }
 
-        if (create) {
-            Pin pin = new Pin(name);
-            if (label != null) {
-                pin.setLabel(label);
-            }
-            pin.setLatitude(lat);
-            pin.setLongitude(lon);
-            pin.setDescription(description);
-            pin.setSymbol(pinSymbol);
-            return pin;
-        } else {
-            return null;
+        Pin pin = new Pin(name);
+        if (label != null) {
+            pin.setLabel(label);
         }
+        pin.setPixelPos(pixelPos);
+        pin.setGeoPos(geoPos);
+        pin.setDescription(description);
+        pin.setSymbol(pinSymbol);
+        return pin;
     }
 
+    // todo - move this method into a new DimapPersistable
     private static Color createColor(Element elem) {
         if (elem != null) {
             Element colorElem = elem.getChild(DimapProductConstants.TAG_COLOR);
@@ -325,10 +330,6 @@ public class Pin extends ProductNode {
         return null;
     }
 
-    public GeoPos getGeoPos() {
-        return new GeoPos(getLatitude(), getLongitude());
-    }
-
     /**
      * Releases all of the resources used by this object instance and all of its owned children. Its primary use is to
      * allow the garbage collector to perform a vanilla job.
@@ -338,15 +339,16 @@ public class Pin extends ProductNode {
      * <p/>
      * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
      */
+    @Override
     public void dispose() {
-        if (_symbol != null) {
-            _symbol.dispose();
-            _symbol = null;
+        if (symbol != null) {
+            symbol.dispose();
+            symbol = null;
         }
         super.dispose();
     }
 
-    private String generateLabel(String name) {
+    private static String generateLabel(String name) {
         return name.replace('_', ' ');
     }
 }

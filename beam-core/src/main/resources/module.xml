@@ -23,7 +23,8 @@
         [BEAM-615] Remove JAMA source code from BEAM<br/>
         [BEAM-617] Add linear, spectral unmixing math API<br/>
         [BEAM-628] Generic reading of geophysical raster data<br/>
-        [BEAM-630] Remove deprecated bitmask package and references<br>
+        [BEAM-630] Remove deprecated bitmask package and references<br/>
+        [BEAM-631] Revise product pin management API<br/>
         </p>]]>
     </changelog>
 

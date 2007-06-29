@@ -265,7 +265,6 @@ public class PixelInfoToolView extends AbstractToolView {
         private void updatePin(ProductNodeEvent event) {
             final ProductNode sourceNode = event.getSourceNode();
             if (sourceNode instanceof Pin && ((Pin) sourceNode).isSelected()) {
-//                final Pin pin = ((Pin) sourceNode);
                 setToSelectedPin();
             }
         }

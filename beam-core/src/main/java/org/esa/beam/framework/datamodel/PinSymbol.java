@@ -16,22 +16,14 @@
  */
 package org.esa.beam.framework.datamodel;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Paint;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.Shape;
-import java.awt.Stroke;
+import org.esa.beam.framework.draw.ShapeFigure;
+import org.esa.beam.util.Guardian;
+
+import javax.swing.ImageIcon;
+import java.awt.*;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
-
-import javax.swing.ImageIcon;
-
-import org.esa.beam.framework.draw.ShapeFigure;
-import org.esa.beam.util.Guardian;
 
 /**
  * This class represents a <code>{@link Pin}</code>'s shape.
@@ -41,9 +33,12 @@ import org.esa.beam.util.Guardian;
  */
 public class PinSymbol extends ShapeFigure {
 
-    private final static String _ATTRIB_NAME = "pinSymbolName";
-    private final static String _ATTRIB_KEY_ICON = "ICON";
-    private final static String _ATTRIB_KEY_REF_POINT = "REF_POINT";
+    private final static String ATTRIB_NAME = "pinSymbolName";
+    private final static String ATTRIB_KEY_ICON = "ICON";
+    private final static String ATTRIB_KEY_REF_POINT = "REF_POINT";
+
+    private static final float SELECTION_SCALING = 3.0f;
+    private static final Color SELECTION_COLOR =  new Color(255, 255, 0, 200);
 
     public PinSymbol(String name, Shape shape) {
         super(shape, false, null);
@@ -54,41 +49,60 @@ public class PinSymbol extends ShapeFigure {
         draw(g2d, true);
     }
 
+    @Override
     public void draw(Graphics2D g2d) {
         draw(g2d, false);
     }
 
     private void draw(Graphics2D g2d, boolean selected) {
-        Object oldAntialiasing = g2d.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        PixelPos refPoint = getRefPoint();
-        g2d.translate(-refPoint.getX(), -refPoint.getY());
-        if (selected) {
-            drawSelection(g2d);
-        }
-        super.draw(g2d);
-        g2d.translate(refPoint.getX(), refPoint.getY());
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAntialiasing);
-    }
 
-    private void drawSelection(Graphics2D g2d) {
-        final Stroke oldStroke = g2d.getStroke();
-        final Color oldColor = g2d.getColor();
-        g2d.setStroke(new BasicStroke(1));
-        g2d.setColor(new Color(100, 100, 0, 150));
-        final Rectangle bounds = getShape().getBounds();
-        bounds.grow(2, 2);
-        bounds.setLocation(bounds.x + 1, bounds.y + 1);
-        g2d.draw(bounds);
-        g2d.setColor(new Color(255, 255, 0, 150));
-        bounds.setLocation(bounds.x - 1, bounds.y - 1);
-        g2d.draw(bounds);
-        g2d.setColor(oldColor);
-        g2d.setStroke(oldStroke);
+        PixelPos refPoint = getRefPoint();
+        double x0 = refPoint.getX();
+        double y0 = refPoint.getY();
+
+        g2d.translate(-x0, -y0);
+
+        if (selected) {
+            Stroke outlineStroke = getOutlineStroke();
+            Paint outlinePaint = getOutlinePaint();
+            Paint fillPaint = getFillPaint();
+
+            float lineWidth = 1.0f;
+            if (outlineStroke instanceof BasicStroke) {
+                BasicStroke basicStroke = (BasicStroke) outlineStroke;
+                lineWidth = basicStroke.getLineWidth();
+            }
+            if (lineWidth < 1.0f) {
+                lineWidth = 1.0f;
+            }
+
+            setFillPaint(null);
+
+            int[] alphas = new int[] {64, 128, 192};
+            for (int i = 0; i < alphas.length; i++) {
+
+                BasicStroke selectionStroke = new BasicStroke(lineWidth + 2 * (alphas.length - i));
+                Color selectionColor = new Color(SELECTION_COLOR.getRed(),
+                                                 SELECTION_COLOR.getGreen(),
+                                                 SELECTION_COLOR.getBlue(),
+                                                 alphas[i]);
+
+                setOutlineStroke(selectionStroke);
+                setOutlinePaint(selectionColor);
+                super.draw(g2d);
+            }
+
+            setOutlinePaint(outlinePaint);
+            setOutlineStroke(outlineStroke);
+            setFillPaint(fillPaint);
+        }
+
+        super.draw(g2d);
+        g2d.translate(x0, y0);
     }
 
     public String getName() {
-        Object attribute = getAttribute(_ATTRIB_NAME);
+        Object attribute = getAttribute(ATTRIB_NAME);
         if (attribute instanceof String) {
             return (String) attribute;
         }
@@ -97,7 +111,7 @@ public class PinSymbol extends ShapeFigure {
 
     public void setName(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
-        setAttribute(_ATTRIB_NAME, name);
+        setAttribute(ATTRIB_NAME, name);
     }
 
     public Stroke getOutlineStroke() {
@@ -149,7 +163,7 @@ public class PinSymbol extends ShapeFigure {
     }
 
     public ImageIcon getIcon() {
-        Object attribute = getAttribute(_ATTRIB_KEY_ICON);
+        Object attribute = getAttribute(ATTRIB_KEY_ICON);
         if (attribute instanceof ImageIcon) {
             return (ImageIcon) attribute;
         }
@@ -157,30 +171,30 @@ public class PinSymbol extends ShapeFigure {
     }
 
     public void setIcon(ImageIcon icon) {
-        setAttribute(_ATTRIB_KEY_ICON, icon);
+        setAttribute(ATTRIB_KEY_ICON, icon);
     }
 
     public PixelPos getRefPoint() {
-        Object attribute = getAttribute(_ATTRIB_KEY_REF_POINT);
-        if (attribute == null) {
-            attribute = new PixelPos();
+        Object attribute = getAttribute(ATTRIB_KEY_REF_POINT);
+        if (attribute instanceof PixelPos) {
+            return (PixelPos) attribute;
         }
-        return (PixelPos) attribute;
+        return new PixelPos();
     }
 
     public void setRefPoint(PixelPos refPoint) {
         Guardian.assertNotNull("refPoint", refPoint);
-        setAttribute(_ATTRIB_KEY_REF_POINT, refPoint);
+        setAttribute(ATTRIB_KEY_REF_POINT, refPoint);
     }
 
     public static PinSymbol createDefaultPinSymbol() {
         // define symbol constants
         //
-        final float r = 10.0f;
-        final float h = 20.0f;
+        final float r = 14.0f;
+        final float h = 24.0f;
         final Paint fillPaint = new Color(128, 128, 255);
         final Paint outlinePaint = new Color(0, 0, 64);
-        final float strokeWidth = 0.5f;
+        final float lineWidth = 1.0f;
 
         // create symbol shape
         //
@@ -204,7 +218,7 @@ public class PinSymbol extends ShapeFigure {
         pinSymbol.setFillPaint(fillPaint);
         pinSymbol.setFilled(true);
         pinSymbol.setOutlinePaint(outlinePaint);
-        pinSymbol.setOutlineStroke(new BasicStroke(strokeWidth));
+        pinSymbol.setOutlineStroke(new BasicStroke(lineWidth));
         pinSymbol.setRefPoint(new PixelPos(0, h));
 //        pinSymbol.setRefPoint(new PixelPos(-strokeWidth, h - strokeWidth));
         return pinSymbol;

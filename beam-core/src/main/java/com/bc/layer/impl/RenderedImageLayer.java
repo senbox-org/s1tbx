@@ -34,6 +34,7 @@ import java.awt.image.WritableRaster;
 import javax.media.jai.PlanarImage;
 
 import com.bc.layer.AbstractLayer;
+import com.bc.view.ViewModel;
 
 /**
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
@@ -96,7 +97,7 @@ public class RenderedImageLayer extends AbstractLayer {
         }
     }
 
-    public void draw(Graphics2D g2d) {
+    public void draw(Graphics2D g2d, ViewModel viewModel) {
         if (_image == null) {
             return;
         }

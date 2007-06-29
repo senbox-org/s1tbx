@@ -17,6 +17,7 @@
         From 4.0 to 4.0.1
         <ul>
             <li>[BEAM-613] Product not shown in product tree view.</li>
+            <li>[BEAM-482] Pins shall not be selected by default.</li>
         </ul>]]>
     </changelog>
 

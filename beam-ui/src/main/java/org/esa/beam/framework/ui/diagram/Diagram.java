@@ -16,19 +16,14 @@
  */
 package org.esa.beam.framework.ui.diagram;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
+import org.esa.beam.util.Guardian;
+
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.List;
 import java.util.ArrayList;
-
-import org.esa.beam.util.Guardian;
+import java.util.List;
 
 /**
  * The <code>Diagram</code> class is used to plot simple X/Y graphs. Instances of this class are composed of
@@ -47,13 +42,13 @@ public class Diagram {
     private DiagramAxis xAxis;
     private DiagramAxis yAxis;
 
-    private final AxesPCL _axesPCL;
+    private final AxesPCL axesPCL;
 
-    private Font _font;
+    private Font font;
     private int textGap;
     private int majorTickLength;
     private int minorTickLength;
-    private boolean _valid;
+    private boolean valid;
 
     // Dependent properties
     //
@@ -65,8 +60,8 @@ public class Diagram {
 
     public Diagram() {
         graphs = new ArrayList<DiagramGraph>(3);
-        _axesPCL = new AxesPCL();
-        _font = new Font(DEFAULT_FONT_NAME, Font.PLAIN, DEFAULT_FONT_SIZE);
+        axesPCL = new AxesPCL();
+        font = new Font(DEFAULT_FONT_NAME, Font.PLAIN, DEFAULT_FONT_SIZE);
         textGap = 3;
         majorTickLength = 5;
         minorTickLength = 3;
@@ -88,10 +83,10 @@ public class Diagram {
         DiagramAxis oldAxis = this.xAxis;
         if (oldAxis != xAxis) {
             if (oldAxis != null) {
-                oldAxis.removePropertyChangeListener(_axesPCL);
+                oldAxis.removePropertyChangeListener(axesPCL);
             }
             this.xAxis = xAxis;
-            this.xAxis.addPropertyChangeListener(_axesPCL);
+            this.xAxis.addPropertyChangeListener(axesPCL);
             invalidate();
         }
     }
@@ -105,10 +100,10 @@ public class Diagram {
         DiagramAxis oldAxis = this.yAxis;
         if (oldAxis != yAxis) {
             if (oldAxis != null) {
-                oldAxis.removePropertyChangeListener(_axesPCL);
+                oldAxis.removePropertyChangeListener(axesPCL);
             }
             this.yAxis = yAxis;
-            this.yAxis.addPropertyChangeListener(_axesPCL);
+            this.yAxis.addPropertyChangeListener(axesPCL);
             invalidate();
         }
     }
@@ -144,11 +139,11 @@ public class Diagram {
     }
 
     public Font getFont() {
-        return _font;
+        return font;
     }
 
     public void setFont(Font font) {
-        _font = font;
+        this.font = font;
         invalidate();
     }
 
@@ -162,11 +157,11 @@ public class Diagram {
     }
 
     public boolean isValid() {
-        return _valid;
+        return valid;
     }
 
     public void setValid(boolean valid) {
-        _valid = valid;
+        this.valid = valid;
     }
 
     public void invalidate() {
@@ -177,7 +172,7 @@ public class Diagram {
         Object oldAntiAliasingRenderingHint = g2D.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
         Font oldFont = g2D.getFont();
         g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2D.setFont(_font);
+        g2D.setFont(font);
         fontMetrics = g2D.getFontMetrics();
 
         validate(x, y, width, height);
@@ -241,7 +236,8 @@ public class Diagram {
         int n = 0;
         DiagramGraph[] graphs = getGraphs();
         for (DiagramGraph graph : graphs) {
-            g2D.setColor(DEFAULT_DIAGRAM_FG_COLOR);
+            g2D.setStroke(graph.getStyle().getStroke());
+            g2D.setColor(graph.getStyle().getColor());
             n = graph.getNumValues();
             for (int i = 0; i < n; i++) {
                 xa = graph.getXValueAt(i);
@@ -255,7 +251,20 @@ public class Diagram {
                 if (i > 0) {
                     g2D.drawLine(x1, y1, x2, y2);
                 }
-                g2D.drawRect(x2 - 1, y2 - 1, 3, 3);
+            }
+            if (graph.getStyle().isShowingPoints()) {
+                for (int i = 0; i < n; i++) {
+                    xa = graph.getXValueAt(i);
+                    ya = graph.getYValueAt(i);
+                    xb = xb1 + ((xa - xa1) * (xb2 - xb1)) / (xa2 - xa1);
+                    yb = yb1 + ((ya - ya1) * (yb2 - yb1)) / (ya2 - ya1);
+                    x2 = (int) Math.round(xb);
+                    y2 = (int) Math.round(yb);
+                    g2D.setColor(graph.getStyle().getPointColor());
+                    g2D.fillRect(x2 - 1, y2 - 1, 3, 3);
+                    g2D.setColor(graph.getStyle().getColor());
+                    g2D.drawRect(x2 - 1, y2 - 1, 3, 3);
+                }
             }
         }
 

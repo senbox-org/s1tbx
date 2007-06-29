@@ -265,18 +265,20 @@ public class ExportKmzFileAction extends ExecCommand {
 
         String pinKml = "";
         Pin[] pins = product.getPins();
-        for (int i = 0; i < pins.length; i++) {
-            Pin pin = pins[i];
-            pinKml += "<Placemark>\n"
-                      + "  <name>" + pin.getLabel() + "</name>\n"
-                      + "  <Point>\n"
-                      + "    <coordinates>"
-                      + pin.getLongitude()
-                      + ","
-                      + pin.getLatitude()
-                      + ",0</coordinates>\n"
-                      + "  </Point>\n"
-                      + "</Placemark>\n";
+        for (Pin pin : pins) {
+            GeoPos geoPos = pin.getGeoPos();
+            if (geoPos != null) {
+                pinKml += String.format(
+                        "<Placemark>\n"
+                                + "  <name>%s</name>\n"
+                                + "  <Point>\n"
+                                + "    <coordinates>%f,%f,0</coordinates>\n"
+                                + "  </Point>\n"
+                                + "</Placemark>\n",
+                        pin.getLabel(),
+                        geoPos.lon,
+                        geoPos.lat);
+            }
         }
 
         String name;

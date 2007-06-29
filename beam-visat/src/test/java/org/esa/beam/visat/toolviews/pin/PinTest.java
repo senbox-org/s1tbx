@@ -24,12 +24,7 @@ import java.util.Vector;
 import junit.framework.TestCase;
 
 import org.esa.beam.dataio.dimap.DimapProductConstants;
-import org.esa.beam.framework.datamodel.Pin;
-import org.esa.beam.framework.datamodel.PinSymbol;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListener;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.XmlWriter;
 import org.jdom.Element;
@@ -84,41 +79,33 @@ public class PinTest extends TestCase {
 
         _product.addPin(pin1);
         assertEquals(1, _product.getNumPins());
+        assertEquals(2, _events.size());
+        assertEquals(2, _eventTypes.size());
+
+        pin1.setDescription("descPin1");
+        assertEquals(1, _product.getNumPins());
+        assertEquals(3, _events.size());
+        assertEquals(3, _eventTypes.size());
+
+        pin1.setGeoPos(new GeoPos(4, 4));
+        assertEquals(1, _product.getNumPins());
         assertEquals(4, _events.size());
         assertEquals(4, _eventTypes.size());
 
-        pin1.setDescription("descPin1");
+        pin1.setSymbol(new PinSymbol("symb1", new Line2D.Float(4, 5, 6, 7)));
         assertEquals(1, _product.getNumPins());
         assertEquals(5, _events.size());
         assertEquals(5, _eventTypes.size());
 
-        pin1.setLatitude(4);
-        assertEquals(1, _product.getNumPins());
-        assertEquals(6, _events.size());
-        assertEquals(6, _eventTypes.size());
-
-        pin1.setLongitude(4);
-        assertEquals(1, _product.getNumPins());
-        assertEquals(7, _events.size());
-        assertEquals(7, _eventTypes.size());
-
-        pin1.setSymbol(new PinSymbol("symb1", new Line2D.Float(4, 5, 6, 7)));
-        assertEquals(1, _product.getNumPins());
-        assertEquals(8, _events.size());
-        assertEquals(8, _eventTypes.size());
-
         _product.removePin(pin1);
         assertEquals(0, _product.getNumPins());
-        assertEquals(9, _events.size());
-        assertEquals(9, _eventTypes.size());
+        assertEquals(6, _events.size());
+        assertEquals(6, _eventTypes.size());
 
 
         final String[] expectedEventTypes = new String[]{
             _NODE_CHANGED,
-            _NODE_CHANGED,
             _NODE_ADDED,
-            _NODE_CHANGED,
-            _NODE_CHANGED,
             _NODE_CHANGED,
             _NODE_CHANGED,
             _NODE_CHANGED,
@@ -131,12 +118,9 @@ public class PinTest extends TestCase {
 
         final String[] expectedPropertyNames = new String[]{
             ProductNode.PROPERTY_NAME_OWNER,
-            ProductNode.PROPERTY_NAME_MODIFIED,
             null,
-            Pin.PROPERTY_NAME_SELECTED,
             ProductNode.PROPERTY_NAME_DESCRIPTION,
-            Pin.PROPERTY_NAME_LATITUDE,
-            Pin.PROPERTY_NAME_LONGITUDE,
+            Pin.PROPERTY_NAME_GEOPOS,
             Pin.PROPERTY_NAME_PINSYMBOL,
             null
         };
@@ -177,8 +161,7 @@ public class PinTest extends TestCase {
 
     public void testWriteXML_DifferentValidIndent() {
         Pin pin = new Pin("pinName");
-        pin.setLatitude(4f);
-        pin.setLongitude(87f);
+        pin.setGeoPos(new GeoPos(4f, 87f));
         pin.setDescription("pindescription");
         pin.setSymbol(PinSymbol.createDefaultPinSymbol());
 
@@ -223,21 +206,41 @@ public class PinTest extends TestCase {
         final float pinLat = 5.7f;
         final float pinLon = 23.4f;
 
-        assertNull(Pin.createPin(null));
+        try {
+            Pin.createPin(null);
+            fail("NullPointerException expexcted");
+        } catch (NullPointerException e) {
+            // OK
+        }
 
         Element pinElem = new Element(DimapProductConstants.TAG_PIN);
 
-        assertNull(Pin.createPin(pinElem));
+        try {
+            Pin.createPin(pinElem);
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException e) {
+            // OK
+        }
 
         pinElem.setAttribute(DimapProductConstants.ATTRIB_NAME, pinName);
 
-        assertNull(Pin.createPin(pinElem));
+        try {
+            Pin.createPin(pinElem);
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException e) {
+            // OK
+        }
 
         final Element latElem = new Element(DimapProductConstants.TAG_PIN_LATITUDE);
         latElem.setText(String.valueOf(pinLat));
         pinElem.addContent(latElem);
 
-        assertNull(Pin.createPin(pinElem));
+        try {
+            Pin.createPin(pinElem);
+            fail("IllegalArgumentException expected");
+        } catch (Exception e) {
+            // OK
+        }
 
         final Element lonElem = new Element(DimapProductConstants.TAG_PIN_LONGITUDE);
         lonElem.setText(String.valueOf(pinLon));
@@ -247,8 +250,8 @@ public class PinTest extends TestCase {
         assertNotNull("pin must be not null", pin);
         assertEquals(pinName, pin.getName());
         assertNull(pin.getDescription());
-        assertEquals(pinLat, pin.getLatitude(), 1e-15f);
-        assertEquals(pinLon, pin.getLongitude(), 1e-15f);
+        assertEquals(pinLat, pin.getGeoPos().lat, 1e-15f);
+        assertEquals(pinLon, pin.getGeoPos().lon, 1e-15f);
 
         final Element descElem = new Element(DimapProductConstants.TAG_PIN_DESCRIPTION);
         descElem.setText(pinDesc);
@@ -258,8 +261,8 @@ public class PinTest extends TestCase {
         assertNotNull("pin must be not null", pin);
         assertEquals(pinName, pin.getName());
         assertEquals(pinDesc, pin.getDescription());
-        assertEquals(pinLat, pin.getLatitude(), 1e-15f);
-        assertEquals(pinLon, pin.getLongitude(), 1e-15f);
+        assertEquals(pinLat, pin.getGeoPos().lat, 1e-15f);
+        assertEquals(pinLon, pin.getGeoPos().lon, 1e-15f);
 
         final Element fillElem = new Element(DimapProductConstants.TAG_PIN_FILL_COLOR);
         Element colorElem = new Element(DimapProductConstants.TAG_COLOR);
@@ -283,8 +286,8 @@ public class PinTest extends TestCase {
         assertNotNull("pin must be not null", pin);
         assertEquals(pinName, pin.getName());
         assertEquals(pinDesc, pin.getDescription());
-        assertEquals(pinLat, pin.getLatitude(), 1e-15f);
-        assertEquals(pinLon, pin.getLongitude(), 1e-15f);
+        assertEquals(pinLat, pin.getGeoPos().lat, 1e-15f);
+        assertEquals(pinLon, pin.getGeoPos().lon, 1e-15f);
         PinSymbol symbol = pin.getSymbol();
         assertNotNull(symbol);
         assertEquals(Color.red, symbol.getFillPaint());

@@ -24,6 +24,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 
 import com.bc.layer.AbstractLayer;
+import com.bc.view.ViewModel;
 
 /**
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
@@ -52,14 +53,14 @@ public class GridLayer extends AbstractLayer {
         return rectangle;
     }
 
-    public void draw(Graphics2D g2d) {
+    public void draw(Graphics2D g2d, ViewModel viewModel) {
 
         final Graphics2D graphics = (Graphics2D) g2d.create();
 
         final int majorColCountTot = majorColCount * minorColCount;
         final int minorRowCountTot = majorRowCount * minorRowCount;
         float dashSize = (float) Math.max(rectangle.getWidth() / majorColCountTot,
-                rectangle.getHeight() / minorRowCountTot) / 5.0f;
+                                          rectangle.getHeight() / minorRowCountTot) / 5.0f;
         if (dashSize < 1.0f) {
             dashSize = 1.0f;
         }
