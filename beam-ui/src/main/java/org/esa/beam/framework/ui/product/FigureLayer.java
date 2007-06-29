@@ -76,7 +76,7 @@ public class FigureLayer extends AbstractLayer {
 
         _figureAttributes.put(Figure.OUTLINED_KEY, outlined ? Boolean.TRUE : Boolean.FALSE);
         _figureAttributes.put(Figure.OUTL_COMPOSITE_KEY, outlComp);
-        _figureAttributes.put(Figure.OUTL_PAINT_KEY, outlColor);
+        _figureAttributes.put(Figure.OUTL_COLOR_KEY, outlColor);
         _figureAttributes.put(Figure.OUTL_STROKE_KEY, new BasicStroke(outlWidth));
 
         _figureAttributes.put(Figure.FILLED_KEY, filled ? Boolean.TRUE : Boolean.FALSE);

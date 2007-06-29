@@ -227,7 +227,7 @@ public class Pin extends ProductNode {
             writer.printLine(indent, DimapProductConstants.TAG_PIN_PIXEL_Y, getPixelPos().y);
         }
         writeColor(DimapProductConstants.TAG_PIN_FILL_COLOR, indent, (Color) symbol.getFillPaint(), writer);
-        writeColor(DimapProductConstants.TAG_PIN_OUTLINE_COLOR, indent, (Color) symbol.getOutlinePaint(), writer);
+        writeColor(DimapProductConstants.TAG_PIN_OUTLINE_COLOR, indent, (Color) symbol.getOutlineColor(), writer);
         writer.println(pinTags[1]);
     }
 
@@ -299,7 +299,7 @@ public class Pin extends ProductNode {
         }
         Color outlineColor = createColor(element.getChild(DimapProductConstants.TAG_PIN_OUTLINE_COLOR));
         if (outlineColor != null) {
-            pinSymbol.setOutlinePaint(outlineColor);
+            pinSymbol.setOutlineColor(outlineColor);
         }
 
         Pin pin = new Pin(name);

@@ -76,7 +76,7 @@ public interface Figure extends Drawable, Cloneable, Serializable {
      * The attribute key used to determine which fill pattern to use for the out-line. The value must be an instance of
      * <code>java.awt.Paint</code>.
      */
-    public static final String OUTL_PAINT_KEY = "outl_paint";
+    public static final String OUTL_COLOR_KEY = "outl_color";
     /**
      * The attribute key used to determine which stroke to use for the out-line. The value must be an instance of
      * <code>java.awt.Stroke</code>.

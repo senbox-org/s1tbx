@@ -5,35 +5,36 @@ import org.esa.beam.framework.ui.diagram.DiagramGraphStyle;
 import java.awt.Color;
 import java.awt.Stroke;
 import java.awt.BasicStroke;
+import java.awt.Paint;
 
 
 class SpectrumGraphStyle implements DiagramGraphStyle {
-    Color color;
+    Color outlineColor;
     boolean showingPoints;
-    Color pointColor;
-    Stroke stroke;
+    Paint fillPaint;
+    Stroke outlineStroke;
 
     public SpectrumGraphStyle() {
-        color = Color.BLACK;
-        pointColor = Color.WHITE;
+        outlineColor = Color.BLACK;
+        fillPaint = Color.WHITE;
         showingPoints = true;
-        stroke = new BasicStroke(1.0f);
+        outlineStroke = new BasicStroke(1.0f);
     }
 
-    public Color getColor() {
-        return color;
+    public Color getOutlineColor() {
+        return outlineColor;
     }
 
-    public void setColor(Color color) {
-        this.color = color;
+    public void setOutlineColor(Color outlineColor) {
+        this.outlineColor = outlineColor;
     }
 
-    public Color getPointColor() {
-        return pointColor;
+    public Paint getFillPaint() {
+        return fillPaint;
     }
 
-    public void setPointColor(Color pointColor) {
-        this.pointColor = pointColor;
+    public void setFillPaint(Paint fillPaint) {
+        this.fillPaint = fillPaint;
     }
 
     public boolean isShowingPoints() {
@@ -44,12 +45,12 @@ class SpectrumGraphStyle implements DiagramGraphStyle {
         this.showingPoints = showingPoints;
     }
 
-    public Stroke getStroke() {
-        return stroke;
+    public Stroke getOutlineStroke() {
+        return outlineStroke;
     }
 
-    public void setStroke(Stroke stroke) {
-        this.stroke = stroke;
+    public void setOutlineStroke(Stroke stroke) {
+        this.outlineStroke = stroke;
     }
 
 }

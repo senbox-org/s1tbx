@@ -24,7 +24,7 @@ class SpectrumGraph implements DiagramGraph {
     private float[] wavelengths;
     private final Range energyRange;
     private final Range wavelengthRange;
-    private SpectrumGraphStyle style;
+    private SpectrumGraphStyle spectrumGraphStylestyle;
 
     public SpectrumGraph(Pin pin, Band[] bands) {
         Debug.assertNotNull(bands);
@@ -33,11 +33,15 @@ class SpectrumGraph implements DiagramGraph {
         energyRange = new Range();
         wavelengthRange = new Range();
         setBands(bands);
-        style = new SpectrumGraphStyle();
+        spectrumGraphStylestyle = new SpectrumGraphStyle();
     }
 
     public Pin getPin() {
         return pin;
+    }
+
+    public SpectrumGraphStyle getSpectrumGraphStylestyle() {
+        return spectrumGraphStylestyle;
     }
 
     public int getNumValues() {
@@ -113,7 +117,7 @@ class SpectrumGraph implements DiagramGraph {
     }
 
     public DiagramGraphStyle getStyle() {
-        return style;
+        return getSpectrumGraphStylestyle();
     }
 
     public void dispose() {

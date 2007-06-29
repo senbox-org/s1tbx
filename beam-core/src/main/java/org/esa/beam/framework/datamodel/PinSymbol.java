@@ -37,7 +37,6 @@ public class PinSymbol extends ShapeFigure {
     private final static String ATTRIB_KEY_ICON = "ICON";
     private final static String ATTRIB_KEY_REF_POINT = "REF_POINT";
 
-    private static final float SELECTION_SCALING = 3.0f;
     private static final Color SELECTION_COLOR =  new Color(255, 255, 0, 200);
 
     public PinSymbol(String name, Shape shape) {
@@ -64,7 +63,7 @@ public class PinSymbol extends ShapeFigure {
 
         if (selected) {
             Stroke outlineStroke = getOutlineStroke();
-            Paint outlinePaint = getOutlinePaint();
+            Color outlineColor = getOutlineColor();
             Paint fillPaint = getFillPaint();
 
             float lineWidth = 1.0f;
@@ -88,11 +87,11 @@ public class PinSymbol extends ShapeFigure {
                                                  alphas[i]);
 
                 setOutlineStroke(selectionStroke);
-                setOutlinePaint(selectionColor);
+                setOutlineColor(selectionColor);
                 super.draw(g2d);
             }
 
-            setOutlinePaint(outlinePaint);
+            setOutlineColor(outlineColor);
             setOutlineStroke(outlineStroke);
             setFillPaint(fillPaint);
         }
@@ -126,16 +125,16 @@ public class PinSymbol extends ShapeFigure {
         setAttribute(OUTL_STROKE_KEY, outlineStroke);
     }
 
-    public Paint getOutlinePaint() {
-        Object attribute = getAttribute(OUTL_PAINT_KEY);
-        if (attribute instanceof Paint) {
-            return (Paint) attribute;
+    public Color getOutlineColor() {
+        Object attribute = getAttribute(OUTL_COLOR_KEY);
+        if (attribute instanceof Color) {
+            return (Color) attribute;
         }
         return null;
     }
 
-    public void setOutlinePaint(Paint outlinePaint) {
-        setAttribute(OUTL_PAINT_KEY, outlinePaint);
+    public void setOutlineColor(Color outlineColor) {
+        setAttribute(OUTL_COLOR_KEY, outlineColor);
     }
 
     public Paint getFillPaint() {
@@ -193,7 +192,7 @@ public class PinSymbol extends ShapeFigure {
         final float r = 14.0f;
         final float h = 24.0f;
         final Paint fillPaint = new Color(128, 128, 255);
-        final Paint outlinePaint = new Color(0, 0, 64);
+        final Color outlineColor = new Color(0, 0, 64);
         final float lineWidth = 1.0f;
 
         // create symbol shape
@@ -217,7 +216,7 @@ public class PinSymbol extends ShapeFigure {
         final PinSymbol pinSymbol = new PinSymbol("Default", symbolShape);
         pinSymbol.setFillPaint(fillPaint);
         pinSymbol.setFilled(true);
-        pinSymbol.setOutlinePaint(outlinePaint);
+        pinSymbol.setOutlineColor(outlineColor);
         pinSymbol.setOutlineStroke(new BasicStroke(lineWidth));
         pinSymbol.setRefPoint(new PixelPos(0, h));
 //        pinSymbol.setRefPoint(new PixelPos(-strokeWidth, h - strokeWidth));

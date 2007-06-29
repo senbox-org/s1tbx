@@ -197,7 +197,7 @@ public class PinDialog extends ModalDialog {
 
     public void setPinSymbol(PinSymbol symbol) {
         Color fillColor = (Color) symbol.getFillPaint();
-        Color outlineColor = (Color) symbol.getOutlinePaint();
+        Color outlineColor = (Color) symbol.getOutlineColor();
         _paramColorFill.setValue(fillColor, null);
         _paramColorOutline.setValue(outlineColor, null);
         _symbol = symbol;
@@ -275,13 +275,13 @@ public class PinDialog extends ModalDialog {
             public void parameterValueChanged(ParamChangeEvent event) {
                 if (_symbol != null) {
                     _symbol.setFillPaint((Paint) _paramColorFill.getValue());
-                    _symbol.setOutlinePaint((Paint) _paramColorOutline.getValue());
+                    _symbol.setOutlineColor((Color) _paramColorOutline.getValue());
                 }
                 _symbolLabel.repaint();
             }
         };
 
-        _paramColorOutline = new Parameter("outlineColor", _symbol.getOutlinePaint());
+        _paramColorOutline = new Parameter("outlineColor", _symbol.getOutlineColor());
         _paramColorOutline.getProperties().setLabel("Outline color");
         _paramColorOutline.addParamChangeListener(colorChangelistener);
 

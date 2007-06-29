@@ -71,7 +71,7 @@ public class Diagram {
         this();
         setXAxis(xAxis);
         setYAxis(yAxis);
-        setGraph(graph);
+        addGraph(graph);
     }
 
     public DiagramAxis getXAxis() {
@@ -137,6 +137,11 @@ public class Diagram {
     public void removeGraph(DiagramGraph graph) {
         Guardian.assertNotNull("graph", graph);
         graphs.remove(graph);
+        invalidate();
+    }
+
+    public void removeAllGraphs() {
+        graphs.clear();
         invalidate();
     }
 
@@ -238,8 +243,8 @@ public class Diagram {
         int n = 0;
         DiagramGraph[] graphs = getGraphs();
         for (DiagramGraph graph : graphs) {
-            g2D.setStroke(graph.getStyle().getStroke());
-            g2D.setColor(graph.getStyle().getColor());
+            g2D.setStroke(graph.getStyle().getOutlineStroke());
+            g2D.setColor(graph.getStyle().getOutlineColor());
             n = graph.getNumValues();
             for (int i = 0; i < n; i++) {
                 xa = graph.getXValueAt(i);
@@ -254,6 +259,7 @@ public class Diagram {
                     g2D.drawLine(x1, y1, x2, y2);
                 }
             }
+            g2D.setStroke(new BasicStroke(1.0f));
             if (graph.getStyle().isShowingPoints()) {
                 for (int i = 0; i < n; i++) {
                     xa = graph.getXValueAt(i);
@@ -262,9 +268,9 @@ public class Diagram {
                     yb = yb1 + ((ya - ya1) * (yb2 - yb1)) / (ya2 - ya1);
                     x2 = (int) Math.round(xb);
                     y2 = (int) Math.round(yb);
-                    g2D.setColor(graph.getStyle().getPointColor());
+                    g2D.setPaint(graph.getStyle().getFillPaint());
                     g2D.fillRect(x2 - 1, y2 - 1, 3, 3);
-                    g2D.setColor(graph.getStyle().getColor());
+                    g2D.setColor(graph.getStyle().getOutlineColor());
                     g2D.drawRect(x2 - 1, y2 - 1, 3, 3);
                 }
             }

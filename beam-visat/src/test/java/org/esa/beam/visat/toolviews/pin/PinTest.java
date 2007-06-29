@@ -291,7 +291,7 @@ public class PinTest extends TestCase {
         PinSymbol symbol = pin.getSymbol();
         assertNotNull(symbol);
         assertEquals(Color.red, symbol.getFillPaint());
-        assertEquals(Color.blue, symbol.getOutlinePaint());
+        assertEquals(Color.blue, symbol.getOutlineColor());
     }
 
     public void testLabelSettings() {

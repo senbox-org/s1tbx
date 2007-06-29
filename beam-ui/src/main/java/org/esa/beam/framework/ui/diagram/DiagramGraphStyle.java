@@ -2,14 +2,15 @@ package org.esa.beam.framework.ui.diagram;
 
 import java.awt.Color;
 import java.awt.Stroke;
+import java.awt.Paint;
 
 public interface DiagramGraphStyle {
 
     boolean isShowingPoints();
 
-    Color getPointColor();
+    Paint getFillPaint();
 
-    Stroke getStroke();
+    Stroke getOutlineStroke();
 
-    Color getColor();
+    Color getOutlineColor();
 }

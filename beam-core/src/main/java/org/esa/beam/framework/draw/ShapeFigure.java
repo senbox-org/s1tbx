@@ -193,7 +193,7 @@ public class ShapeFigure extends AbstractFigure {
 
         Object value = null;
 
-        value = getAttribute(OUTL_PAINT_KEY);
+        value = getAttribute(OUTL_COLOR_KEY);
         if (value instanceof Paint) {
             paintNew = (Paint) value;
             paintOld = g2d.getPaint();

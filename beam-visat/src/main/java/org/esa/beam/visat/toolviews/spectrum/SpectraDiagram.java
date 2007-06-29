@@ -20,6 +20,7 @@ class SpectraDiagram extends Diagram {
 
     public SpectraDiagram(Product product) {
         this.product = product;
+        this.bands = new Band[0];
         setXAxis(new DiagramAxis("Wavelength", "nm"));
         setYAxis(new DiagramAxis("", "1"));
     }
@@ -70,13 +71,13 @@ class SpectraDiagram extends Diagram {
     private void updateGraph(SpectrumGraph spectrumGraph, int pixelX, int pixelY) {
         try {
             spectrumGraph.readValues(pixelX, pixelY);
-            handleGraphDataChanged(spectrumGraph);
+            adjustAxes(spectrumGraph);
         } catch (IOException e) {
             // todo - handle!
         }
     }
 
-    private void handleGraphDataChanged(SpectrumGraph spectrumGraph) {
+    private void adjustAxes(SpectrumGraph spectrumGraph) {
         final DiagramAxis xAxis = getXAxis();
         xMinAccum = Math.min(xMinAccum, spectrumGraph.getXMin());
         xMaxAccum = Math.max(xMaxAccum, spectrumGraph.getXMax());
@@ -103,7 +104,7 @@ class SpectraDiagram extends Diagram {
         }
     }
 
-    public void resetAxesMinMaxAccumulators() {
+    public void resetMinMaxAccumulators() {
         xMinAccum = +Double.MAX_VALUE;
         xMaxAccum = -Double.MAX_VALUE;
         yMinAccum = +Double.MAX_VALUE;
