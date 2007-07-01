@@ -1,4 +1,4 @@
-package org.esa.beam.visat.toolviews.spectrum;
+package org.esa.beam.framework.ui.diagram;
 
 import org.esa.beam.framework.ui.diagram.DiagramGraphStyle;
 
@@ -8,13 +8,13 @@ import java.awt.BasicStroke;
 import java.awt.Paint;
 
 
-class SpectrumGraphStyle implements DiagramGraphStyle {
-    Color outlineColor;
-    boolean showingPoints;
-    Paint fillPaint;
-    Stroke outlineStroke;
+public class DefaultDiagramGraphStyle implements DiagramGraphStyle {
+    private Color outlineColor;
+    private boolean showingPoints;
+    private Paint fillPaint;
+    private Stroke outlineStroke;
 
-    public SpectrumGraphStyle() {
+    public DefaultDiagramGraphStyle() {
         outlineColor = Color.BLACK;
         fillPaint = Color.WHITE;
         showingPoints = true;

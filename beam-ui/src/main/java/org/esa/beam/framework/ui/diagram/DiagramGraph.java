@@ -18,9 +18,11 @@ package org.esa.beam.framework.ui.diagram;
 
 public interface DiagramGraph {
 
-    int getNumValues();
+    String getXName();
 
-    String getLabelAt(int index);
+    String getYName();
+
+    int getNumValues();
 
     double getXValueAt(int index);
 

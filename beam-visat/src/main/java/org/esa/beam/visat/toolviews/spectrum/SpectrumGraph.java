@@ -2,6 +2,7 @@ package org.esa.beam.visat.toolviews.spectrum;
 
 import org.esa.beam.framework.ui.diagram.DiagramGraph;
 import org.esa.beam.framework.ui.diagram.DiagramGraphStyle;
+import org.esa.beam.framework.ui.diagram.DefaultDiagramGraphStyle;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.util.math.Range;
@@ -24,7 +25,7 @@ class SpectrumGraph implements DiagramGraph {
     private float[] wavelengths;
     private final Range energyRange;
     private final Range wavelengthRange;
-    private SpectrumGraphStyle spectrumGraphStylestyle;
+    private DefaultDiagramGraphStyle style;
 
     public SpectrumGraph(Pin pin, Band[] bands) {
         Debug.assertNotNull(bands);
@@ -33,23 +34,23 @@ class SpectrumGraph implements DiagramGraph {
         energyRange = new Range();
         wavelengthRange = new Range();
         setBands(bands);
-        spectrumGraphStylestyle = new SpectrumGraphStyle();
+        style = new DefaultDiagramGraphStyle();
     }
 
     public Pin getPin() {
         return pin;
     }
 
-    public SpectrumGraphStyle getSpectrumGraphStylestyle() {
-        return spectrumGraphStylestyle;
+    public String getXName() {
+        return "Wavelength";
+    }
+
+    public String getYName() {
+        return pin != null ? pin.getLabel() : "Cursor";
     }
 
     public int getNumValues() {
         return bands.length;
-    }
-
-    public String getLabelAt(int index) {
-        return getYValueAt(index) + " @ " + getXValueAt(index) + "nm";
     }
 
     public double getXValueAt(int index) {
@@ -97,7 +98,7 @@ class SpectrumGraph implements DiagramGraph {
         }
         for (int i = 0; i < wavelengths.length; i++) {
             wavelengths[i] = this.bands[i].getSpectralWavelength();
-            energies[i] = 0f;
+            energies[i] = 0.0f;
         }
         Range.computeRangeFloat(wavelengths, IndexValidator.TRUE, wavelengthRange, ProgressMonitor.NULL);
         Range.computeRangeFloat(energies, IndexValidator.TRUE, energyRange, ProgressMonitor.NULL);
@@ -117,7 +118,7 @@ class SpectrumGraph implements DiagramGraph {
     }
 
     public DiagramGraphStyle getStyle() {
-        return getSpectrumGraphStylestyle();
+        return style;
     }
 
     public void dispose() {
