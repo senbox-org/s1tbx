@@ -21,6 +21,8 @@ import java.io.LineNumberReader;
 import java.io.Reader;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * A <code>CsvReader</code> instance is used read text files with CSV (comma separated values) format.
@@ -133,6 +135,22 @@ public class CsvReader extends LineNumberReader {
         return tokens;
     }
 
+    public double[] readDoubleRecord() throws IOException {
+        String[] stringRecord = readRecord();
+        if (stringRecord == null) {
+            return null;
+        }
+        double[] doubleRecord = new double[stringRecord.length];
+        for (int i = 0; i < doubleRecord.length; i++) {
+            try {
+                doubleRecord[i] = Double.parseDouble(stringRecord[i]);
+            } catch (NumberFormatException e) {
+                throw new IOException(e);
+            }
+        }
+        return doubleRecord;
+    }
+
     /**
      * Reads the complete file from the current position on. If the <code>readLineRecord</code> has not previously been
      * called the method reads all records from the beginning of the file. For empty files, the method returns an vector
@@ -142,13 +160,29 @@ public class CsvReader extends LineNumberReader {
      *         passed to the constructor
      *
      * @throws IOException if an I/O error occurs
+     * @deprecated use #readStringRecords
      */
-    public Vector readAllRecords() throws IOException {
-        Vector vector = new Vector();
+    public Vector<String[]> readAllRecords() throws IOException {
+        Vector<String[]> vector = new Vector<String[]>(256);
         String[] record;
         while ((record = readRecord()) != null) {
             vector.add(record);
         }
+        vector.trimToSize();
+        return vector;
+    }
+
+    public List<String[]> readStringRecords() throws IOException {
+        return readAllRecords();
+    }
+
+    public List<double[]> readDoubleRecords() throws IOException {
+        ArrayList<double[]> vector = new ArrayList<double[]>(256);
+        double[] record;
+        while ((record = readDoubleRecord()) != null) {
+            vector.add(record);
+        }
+        vector.trimToSize();
         return vector;
     }
 }

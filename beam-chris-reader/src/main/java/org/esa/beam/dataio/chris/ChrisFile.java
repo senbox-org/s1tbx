@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
+import java.util.List;
 
 class ChrisFile {
 
@@ -473,8 +474,8 @@ class ChrisFile {
         final CsvReader csvReader = new CsvReader(inputStreamReader, new char[]{','}, true, "#");
 
         try {
-            final Vector<String[]> recordVector = csvReader.readAllRecords();
-            scanLineLayoutData = new HashMap<String, ScanLineLayout>();
+            final List<String[]> recordVector = csvReader.readStringRecords();
+            scanLineLayoutData = new HashMap<String, ScanLineLayout>(recordVector.size());
 
             for (final String[] record : recordVector) {
                 final int leadingPixelCount = Integer.valueOf(record[1]);

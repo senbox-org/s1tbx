@@ -24,7 +24,7 @@ import org.esa.beam.util.io.CsvReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
-import java.util.Vector;
+import java.util.List;
 
 public class EnvisatConstantsTest extends TestCase {
 
@@ -115,13 +115,13 @@ public class EnvisatConstantsTest extends TestCase {
         existsInFile(EnvisatConstants.AATSR_L2_BAND_NAMES, "/bands/ATS_NR__2P.dd");
     }
 
-    private LineNumberReader createLineReader(String resourcePath) throws IOException {
+    private static LineNumberReader createLineReader(String resourcePath) throws IOException {
         return new LineNumberReader(new InputStreamReader(DDDB.getDatabaseResource(resourcePath).openStream()));
     }
 
-    private void existsInFile(String[] expectedValues, String resourcePath) throws IOException {
+    private static void existsInFile(String[] expectedValues, String resourcePath) throws IOException {
         CsvReader csvReader = new CsvReader(createLineReader(resourcePath), new char[]{'|'}, true, "#");
-        Vector recordSet = csvReader.readAllRecords();
+        List<String[]> recordSet = csvReader.readStringRecords();
         try {
             for (String expectedValue : expectedValues) {
                 assertTrue("expected '" + expectedValue + "' in " + resourcePath,
@@ -132,9 +132,8 @@ public class EnvisatConstantsTest extends TestCase {
         }
     }
 
-    private boolean existsInRecordSet(String expectedValue, Vector recordSet, int column) {
-        for (int i = 0; i < recordSet.size(); i++) {
-            String[] record = (String[]) recordSet.elementAt(i);
+    private static boolean existsInRecordSet(String expectedValue, List<String[]> recordSet, int column) {
+        for (String[] record : recordSet) {
             if (expectedValue.equals(record[column])) {
                 return true;
             }
@@ -142,11 +141,11 @@ public class EnvisatConstantsTest extends TestCase {
         return false;
     }
 
-    private void testProductTypeExistsInFirstLine(String resourcePath, String productType) throws IOException {
+    private static void testProductTypeExistsInFirstLine(String resourcePath, String productType) throws IOException {
         LineNumberReader reader = createLineReader(resourcePath);
         String line = reader.readLine();
         reader.close();
         assertNotNull(line);
-        assertTrue(line.indexOf(productType) != -1);
+        assertTrue(line.contains(productType));
     }
 }

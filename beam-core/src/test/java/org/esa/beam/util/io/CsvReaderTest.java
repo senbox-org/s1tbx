@@ -19,7 +19,9 @@ package org.esa.beam.util.io;
 
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.Vector;
+import java.io.IOException;
+import java.util.List;
+import java.util.ArrayList;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -29,8 +31,8 @@ import org.esa.beam.util.ArrayUtils;
 
 public class CsvReaderTest extends TestCase {
 
-    private CsvReader _reader;
-    private Vector _expectedVector;
+    private CsvReader reader;
+    private List<String[]> expectedRecords;
 
     public CsvReaderTest(String testName) {
         super(testName);
@@ -40,9 +42,10 @@ public class CsvReaderTest extends TestCase {
         return new TestSuite(CsvReaderTest.class);
     }
 
+    @Override
     protected void setUp() {
-        _expectedVector = new Vector();
-        _expectedVector.add(
+        expectedRecords = new ArrayList<String[]>(6);
+        expectedRecords.add(
                 new String[]{"radiance_4",
                              "Radiance_MDS(4).3",
                              "*",
@@ -52,7 +55,7 @@ public class CsvReaderTest extends TestCase {
                              "Scaling_Factor_GADS.8.4",
                              "*",
                              "*"});
-        _expectedVector.add(
+        expectedRecords.add(
                 new String[]{"radiance_5",
                              "Radiance_MDS(5).3",
                              "*",
@@ -62,7 +65,7 @@ public class CsvReaderTest extends TestCase {
                              "Scaling_Factor_GADS.8.5",
                              "*",
                              "*"});
-        _expectedVector.add(
+        expectedRecords.add(
                 new String[]{"radiance_6",
                              "Radiance_MDS(6).3",
                              "*",
@@ -72,7 +75,7 @@ public class CsvReaderTest extends TestCase {
                              "Scaling_Factor_GADS.8.6",
                              "*",
                              "*"});
-        _expectedVector.add(
+        expectedRecords.add(
                 new String[]{"radiance_7",
                              "Radiance_MDS(7).3",
                              "*",
@@ -87,10 +90,7 @@ public class CsvReaderTest extends TestCase {
                                          "radiance_5   |Radiance_MDS(5).3 |*   |Float|Linear_Scale|0.0|Scaling_Factor_GADS.8.5 |*|*\n" +
                                          "radiance_6   |Radiance_MDS(6).3 |*   |Float|Linear_Scale|0.0|Scaling_Factor_GADS.8.6 |*|*\n" +
                                          "radiance_7   |Radiance_MDS(7).3 |*   |Float|Linear_Scale|0.0|Scaling_Factor_GADS.8.7 |*|*\n");
-        _reader = new CsvReader(reader, new char[]{'|'});
-    }
-
-    protected void tearDown() {
+        this.reader = new CsvReader(reader, new char[]{'|'});
     }
 
     public void testGetSeparators() {
@@ -108,33 +108,31 @@ public class CsvReaderTest extends TestCase {
     }
 
     public void testReadAllRecords() {
-        Vector actualVector = null;
+        List<String[]> actualVector = null;
         try {
-            actualVector = _reader.readAllRecords();
+            actualVector = reader.readStringRecords();
         } catch (java.io.IOException e) {
             fail("no java.io.IOException expected");
         }
 
-        assertEquals(actualVector.size(), _expectedVector.size());
+        assertEquals(actualVector.size(), expectedRecords.size());
         for (int i = 0; i < actualVector.size(); i++) {
-            ArrayUtils.equalArrays((String[]) actualVector.get(i), (String[]) _expectedVector.get(i));
+            ArrayUtils.equalArrays(actualVector.get(i), expectedRecords.get(i));
         }
     }
 
     public void testReadRecord() {
-        String[] expStrArray;
 
-        for (int i = 0; i < _expectedVector.size(); i++) {
-            expStrArray = (String[]) _expectedVector.get(i);
+        for (String[] expectedRecord : expectedRecords) {
             try {
-                assertEquals(true, ArrayUtils.equalArrays(expStrArray, _reader.readRecord()));
-            } catch (java.io.IOException e) {
+                assertEquals(true, ArrayUtils.equalArrays(expectedRecord, reader.readRecord()));
+            } catch (IOException e) {
                 fail("no java.io.IOException expected");
             }
         }
 
         try {
-            assertNull(_reader.readRecord());
+            assertNull(reader.readRecord());
         } catch (java.io.IOException ex) {
             fail("no java.io.IOException expected");
         }
