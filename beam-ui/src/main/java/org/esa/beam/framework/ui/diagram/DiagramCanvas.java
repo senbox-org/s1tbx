@@ -16,17 +16,14 @@
  */
 package org.esa.beam.framework.ui.diagram;
 
-import java.awt.Color;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Insets;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 
 import javax.swing.JPanel;
+import javax.swing.event.MouseInputAdapter;
 
 import org.esa.beam.util.ObjectUtils;
 
@@ -36,55 +33,54 @@ import org.esa.beam.util.ObjectUtils;
  */
 public class DiagramCanvas extends JPanel {
 
-    private Diagram _diagram;
-    private String _messageText;
-    private Insets _insets;
+    private Diagram diagram;
+    private String messageText;
+    private Insets insets;
+    private DiagramGraph selectedGraph;
+    private Point dragPoint;
 
     public DiagramCanvas() {
         addComponentListener(new ComponentAdapter() {
             /**
              * Invoked when the component's size changes.
              */
+            @Override
             public void componentResized(ComponentEvent e) {
-                if (_diagram != null) {
-                    _diagram.invalidate();
+                if (diagram != null) {
+                    diagram.invalidate();
                 }
             }
         });
-    }
-
-    /**
-     * Creates a new <code>JPanel</code> with a double buffer and a flow layout.
-     */
-    public DiagramCanvas(Diagram diagram) {
-        this();
-        _diagram = diagram;
+        MouseInputAdapter mouseHandler = new IndicatorHandler();
+        addMouseListener(mouseHandler);
+        addMouseMotionListener(mouseHandler);
     }
 
     public Diagram getDiagram() {
-        return _diagram;
+        return diagram;
     }
 
     public void setDiagram(Diagram diagram) {
-        Diagram oldValue = _diagram;
+        Diagram oldValue = this.diagram;
         if (oldValue != diagram) {
-            _diagram = diagram;
+            this.diagram = diagram;
             repaint();
         }
     }
 
     public String getMessageText() {
-        return _messageText;
+        return messageText;
     }
 
     public void setMessageText(String messageText) {
-        String oldValue = _messageText;
+        String oldValue = this.messageText;
         if (!ObjectUtils.equalObjects(oldValue, messageText)) {
-            _messageText = messageText;
+            this.messageText = messageText;
             repaint();
         }
     }
 
+    @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (!(g instanceof Graphics2D)) {
@@ -94,30 +90,68 @@ public class DiagramCanvas extends JPanel {
         final Graphics2D g2D = (Graphics2D) g;
         g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        _insets = getInsets(_insets);
-        final int width = getWidth() - (_insets.left + _insets.right);
-        final int height = getHeight() - (_insets.top + _insets.bottom);
-        final int x0 = _insets.left;
-        final int y0 = _insets.top;
+        insets = getInsets(insets);
+        final int width = getWidth() - (insets.left + insets.right);
+        final int height = getHeight() - (insets.top + insets.bottom);
+        final int x0 = insets.left;
+        final int y0 = insets.top;
 
-        if (_diagram != null) {
-            _diagram.draw(g2D, x0, y0, width, height);
+        if (diagram != null) {
+            diagram.draw(g2D, x0, y0, width, height);
         }
 
-        if (_messageText != null) {
-            final FontMetrics fontMetrics = g2D.getFontMetrics();
-            final Rectangle2D stringBounds = fontMetrics.getStringBounds(_messageText, g2D);
-            double x = x0 + stringBounds.getX() + (width - stringBounds.getWidth()) / 2;
-            double y = y0 + stringBounds.getY() + (height - stringBounds.getHeight()) / 2;
-            g2D.setColor(new Color(255, 127, 127));
-            g2D.fillRect((int) x - 2, (int) y - 2,
-                         (int) stringBounds.getWidth() + 4,
-                         (int) stringBounds.getHeight() + 4);
-            g2D.setColor(Color.black);
-            g2D.drawRect((int) x - 2, (int) y - 2,
-                         (int) stringBounds.getWidth() + 4,
-                         (int) stringBounds.getHeight() + 4);
-            g2D.drawString(_messageText, (int) x, (int) (y + fontMetrics.getAscent()));
+        if (messageText != null) {
+            drawTextBox(g2D, this.messageText, x0 + width / 2, x0 + height / 2);
+        }
+
+        if (dragPoint != null && selectedGraph != null) {
+            drawTextBox(g2D, selectedGraph.getYName(), dragPoint.x, dragPoint.y);
+        }
+    }
+
+    private void drawTextBox(Graphics2D g2D, String text, int x0, int y0) {
+        final FontMetrics fontMetrics = g2D.getFontMetrics();
+        final Rectangle2D stringBounds = fontMetrics.getStringBounds(text, g2D);
+        double x = x0 - stringBounds.getWidth() / 2;
+        double y = y0 + stringBounds.getY() - stringBounds.getHeight() / 2;
+        g2D.setColor(new Color(255, 192, 192));
+        g2D.fillRect((int) x - 2, (int) y - 2,
+                     (int) stringBounds.getWidth() + 4,
+                     (int) stringBounds.getHeight() + 4);
+        g2D.setColor(Color.black);
+        g2D.drawRect((int) x - 2, (int) y - 2,
+                     (int) stringBounds.getWidth() + 4,
+                     (int) stringBounds.getHeight() + 4);
+        g2D.drawString(text, (int) x, (int) (y + fontMetrics.getAscent()));
+    }
+
+    private class IndicatorHandler extends MouseInputAdapter {
+
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            if (getDiagram() == null) {
+                return;
+            }
+            if (selectedGraph == null) {
+                selectedGraph = getDiagram().getClosestGraph(e.getX(), e.getY());
+            }
+            System.out.println("selectedGraph = " + selectedGraph);
+            if (selectedGraph != null) {
+                dragPoint = e.getPoint();
+                // todo
+            } else {
+                dragPoint = null;
+                // todo
+            }
+            repaint();
+        }
+
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            selectedGraph = null;
+            dragPoint = null;
+            repaint();
         }
     }
 }

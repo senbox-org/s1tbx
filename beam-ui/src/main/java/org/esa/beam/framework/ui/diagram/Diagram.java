@@ -20,6 +20,8 @@ import org.esa.beam.util.Guardian;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -41,6 +43,7 @@ public class Diagram {
     private List<DiagramGraph> graphs;
     private DiagramAxis xAxis;
     private DiagramAxis yAxis;
+    private boolean drawGrid;
 
     private final AxesPCL axesPCL;
 
@@ -72,6 +75,14 @@ public class Diagram {
         setXAxis(xAxis);
         setYAxis(yAxis);
         addGraph(graph);
+    }
+
+    public boolean isDrawGrid() {
+        return drawGrid;
+    }
+
+    public void setDrawGrid(boolean drawGrid) {
+        this.drawGrid = drawGrid;
     }
 
     public DiagramAxis getXAxis() {
@@ -279,6 +290,73 @@ public class Diagram {
         g2D.setClip(clipBounds);
     }
 
+
+    private  class SP {
+        private double xa1;
+        private double xa2;
+        private double xb1;
+        private double xb2;
+        private double ya1;
+        private double ya2;
+        private double yb1;
+        private double yb2;
+
+        public SP() {
+            xa1 = xAxis.getMinValue();
+            xa2 = xAxis.getMaxValue();
+            xb1 = graphArea.x;
+            xb2 = graphArea.x + graphArea.width;
+
+            ya1 = yAxis.getMinValue();
+            ya2 = yAxis.getMaxValue();
+            yb1 = graphArea.y + graphArea.height;
+            yb2 = graphArea.y;
+        }
+
+        public void visitPoints(DiagramGraph graph, PointVisitor v) {
+            double xa, xb;
+            double ya, yb;
+            double x1, y1;
+            int n = graph.getNumValues();
+            for (int i = 0; i < n; i++) {
+                xa = graph.getXValueAt(i);
+                ya = graph.getYValueAt(i);
+                xb = xb1 + ((xa - xa1) * (xb2 - xb1)) / (xa2 - xa1);
+                yb = yb1 + ((ya - ya1) * (yb2 - yb1)) / (ya2 - ya1);
+                v.point(graph, new Point2D.Double(xb, yb));
+            }
+        }
+        public void visitLineSegments(DiagramGraph graph, LineSegmentVisitor v) {
+            double xa, xb;
+            double ya, yb;
+            double x1, y1;
+            double x2=0, y2=0;
+            int n = graph.getNumValues();
+            for (int i = 0; i < n; i++) {
+                xa = graph.getXValueAt(i);
+                ya = graph.getYValueAt(i);
+                xb = xb1 + ((xa - xa1) * (xb2 - xb1)) / (xa2 - xa1);
+                yb = yb1 + ((ya - ya1) * (yb2 - yb1)) / (ya2 - ya1);
+                x1 = x2;
+                y1 = y2;
+                x2 = xb;
+                y2 = yb;
+                if (i > 0) {
+                    v.line(graph, new Line2D.Double(x1, y1, x2, y2));
+                }
+            }
+        }
+    }
+
+    private static interface LineSegmentVisitor {
+        void line(DiagramGraph graph, Line2D line);
+    }
+
+    private static interface PointVisitor {
+        void point(DiagramGraph graph, Point2D point);
+    }
+
+
     private void drawAxes(Graphics2D g2D, int xOffset, int yOffset, int width, int height) {
         if (!isValid()) {
             return;
@@ -286,10 +364,6 @@ public class Diagram {
 
         g2D.setColor(DEFAULT_DIAGRAM_BG_COLOR);
         g2D.fillRect(graphArea.x, graphArea.y, graphArea.width, graphArea.height);
-        g2D.setColor(Color.black);
-        g2D.drawRect(graphArea.x, graphArea.y, graphArea.width, graphArea.height);
-
-        g2D.setColor(DEFAULT_DIAGRAM_TEXT_COLOR);
 
         int tw;
         int x0, y0, x1, x2, y1, y2, xMin, xMax, yMin, yMax, n, n1, n2;
@@ -300,11 +374,15 @@ public class Diagram {
         // draw X major tick lines
         xMin = graphArea.x;
         xMax = graphArea.x + graphArea.width;
+        yMin = graphArea.y;
+        yMax = graphArea.y + graphArea.height;
+
         y1 = graphArea.y + graphArea.height;
         n1 = xAxis.getNumMajorTicks();
         n2 = xAxis.getNumMinorTicks();
         n = (n1 - 1) * (n2 + 1) + 1;
         for (int i = 0; i < n; i++) {
+            g2D.setColor(DEFAULT_DIAGRAM_TEXT_COLOR);
             x0 = xMin + (i * (xMax - xMin)) / (n - 1);
             if (i % (n2 + 1) == 0) {
                 y2 = y1 + majorTickLength;
@@ -315,16 +393,17 @@ public class Diagram {
                 y2 = y1 + minorTickLength;
             }
             g2D.drawLine(x0, y1, x0, y2);
+            g2D.setColor(DEFAULT_DIAGRAM_BG_COLOR.darker());
+            g2D.drawLine(x0, y1, x0, yMin);
         }
 
         // draw Y major tick lines
         x1 = graphArea.x;
-        yMin = graphArea.y;
-        yMax = graphArea.y + graphArea.height;
         n1 = yAxis.getNumMajorTicks();
         n2 = yAxis.getNumMinorTicks();
         n = (n1 - 1) * (n2 + 1) + 1;
         for (int i = 0; i < n; i++) {
+            g2D.setColor(DEFAULT_DIAGRAM_TEXT_COLOR);
             y0 = yMin + (i * (yMax - yMin)) / (n - 1);
             if (i % (n2 + 1) == 0) {
                 x2 = x1 - majorTickLength;
@@ -335,7 +414,12 @@ public class Diagram {
                 x2 = x1 - minorTickLength;
             }
             g2D.drawLine(x1, y0, x2, y0);
+            g2D.setColor(DEFAULT_DIAGRAM_BG_COLOR.darker());
+            g2D.drawLine(x1, y0, xMax, y0);
         }
+
+        g2D.setColor(Color.black);
+        g2D.drawRect(graphArea.x, graphArea.y, graphArea.width, graphArea.height);
 
         // draw X axis name and unit
         text = xAxis.getName() + " [" + xAxis.getUnit() + "]";
@@ -344,7 +428,7 @@ public class Diagram {
         y1 = yOffset + height - textGap;
         g2D.drawString(text, x1, y1);
 
-        // draw Y axis name and unit
+        // draw Y axis name and unit    
         text = yAxis.getName() + " [" + yAxis.getUnit() + "]";
         tw = fontMetrics.stringWidth(text);
         x1 = graphArea.x - majorTickLength - textGap - maxYTickTextWidth - textGap;
@@ -356,6 +440,20 @@ public class Diagram {
         g2D.setTransform(oldTransform);
     }
 
+    public DiagramGraph getClosestGraph(final int x, final int y) {
+        double minDist = Double.MAX_VALUE;
+        SP sp = new SP();
+        DiagramGraph closestGraph = null;
+        for (DiagramGraph graph : getGraphs()) {
+            MinDistanceComputer v = new MinDistanceComputer(x, y);
+            sp.visitLineSegments(graph, v);
+            if (v.getMinDist() < minDist) {
+                closestGraph = graph;
+                 minDist = v.getMinDist();
+            }
+        }
+        return closestGraph;
+    }
 
     private class AxesPCL implements PropertyChangeListener {
 
@@ -368,4 +466,30 @@ public class Diagram {
             invalidate();
         }
     }
+
+    private static class MinDistanceComputer implements LineSegmentVisitor {
+        private double minDist;
+        private final double x;
+        private final double y;
+
+        public MinDistanceComputer(double x, double y) {
+            this.x = x;
+            this.y = y;
+            minDist = Double.MAX_VALUE;
+        }
+
+        public double getMinDist() {
+            return minDist;
+        }
+
+        public void line(DiagramGraph graph, Line2D line) {
+            double v = line.ptSegDist(x, y);
+            if (v < minDist) {
+                minDist = v;
+            }
+        }
+
+    }
+
+
 }
