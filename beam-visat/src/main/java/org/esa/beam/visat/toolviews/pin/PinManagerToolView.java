@@ -424,7 +424,7 @@ public class PinManagerToolView extends AbstractToolView {
         String[] uniquePinNameAndLabel = createUniquePinNameAndLabel(product, 0, 0);
         Pin newPin = new Pin(uniquePinNameAndLabel[0],
                              uniquePinNameAndLabel[1],
-                             new GeoPos());
+                             new PixelPos(0,0));
         if (showEditPinDialog(getWindowAncestor(), product, newPin)) {
             makePinNameUnique(newPin);
             product.addPin(newPin);
@@ -1096,8 +1096,8 @@ public class PinManagerToolView extends AbstractToolView {
         pinDialog.setName(pin.getName());
         pinDialog.setLabel(pin.getLabel());
         pinDialog.setDescription(pin.getDescription() != null ? pin.getDescription() : "");
-        pinDialog.setGeoPos(pin.getGeoPos());
         pinDialog.setPixelPos(pin.getPixelPos());
+        pinDialog.setGeoPos(pin.getGeoPos());
         pinDialog.setPinSymbol(pin.getSymbol());
         boolean ok = (pinDialog.show() == PinDialog.ID_OK);
         if (ok) {
