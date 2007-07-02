@@ -48,7 +48,7 @@ public class Pin extends ProductNode {
     private GeoPos geoPos;
     private boolean selected;
     private PinSymbol symbol;
-  
+
     public Pin(String name, String label, PixelPos pixelPos) {
         this(name, label, "", pixelPos, null, PinSymbol.createDefaultPinSymbol());
     }
@@ -348,9 +348,5 @@ public class Pin extends ProductNode {
             symbol = null;
         }
         super.dispose();
-    }
-
-    private static String generateLabel(String name) {
-        return name.replace('_', ' ');
     }
 }
