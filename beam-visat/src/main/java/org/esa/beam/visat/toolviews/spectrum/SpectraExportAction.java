@@ -87,11 +87,17 @@ class SpectraExportAction extends AbstractAction {
                                                   "The file\n" + selectedFile + "\nalready exists.\nOverwrite?",
                                                   "File exists", JOptionPane.YES_NO_CANCEL_OPTION);
                 if (i == JOptionPane.CANCEL_OPTION) {
+                    // Canceled
                     selectedFile = null;
                     break;
                 } else if (i == JOptionPane.YES_OPTION) {
+                    // Overwrite existing file
                     break;
                 }
+            } else {
+                // Canceled
+                selectedFile = null;
+                break;
             }
         }
         if (selectedFile != null) {
