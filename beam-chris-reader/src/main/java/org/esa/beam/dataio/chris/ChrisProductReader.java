@@ -18,6 +18,7 @@ import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.dataio.chris.internal.DropoutCorrection;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +26,7 @@ import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.DateFormat;
 import java.util.Date;
+import java.awt.Rectangle;
 
 /**
  * Reader for CHRIS products.
@@ -74,8 +76,8 @@ public class ChrisProductReader extends AbstractProductReader {
         corrected = new boolean[spectralBandCount];
 
         maskRefinement = new MaskRefinement(1.5);
-        dropoutCorrection = new DropoutCorrection(DropoutCorrection.N_VERTICAL, NEIGHBOUR_BAND_COUNT,
-                sceneRasterWidth, sceneRasterHeight);
+        dropoutCorrection = new DropoutCorrection(DropoutCorrection.N2, NEIGHBOUR_BAND_COUNT,
+                                                  sceneRasterWidth, sceneRasterHeight);
 
         return createProduct();
     }
@@ -126,7 +128,8 @@ public class ChrisProductReader extends AbstractProductReader {
                 loadRadianceAndMaskData(bandIndex);
                 pm.worked(1);
 
-                dropoutCorrection.perform(radianceData, maskData, bandIndex, 0, 0, sceneRasterWidth, sceneRasterHeight);
+                dropoutCorrection.perform(radianceData, maskData, bandIndex,
+                                          new Rectangle(0, 0, sceneRasterWidth, sceneRasterHeight));
                 corrected[bandIndex] = true;
 
                 pm.worked(1);
@@ -142,7 +145,7 @@ public class ChrisProductReader extends AbstractProductReader {
             }
             for (int i = 0; i < targetHeight; ++i) {
                 System.arraycopy(data, sceneOffset + i * sceneRasterWidth,
-                        targetBuffer.getElems(), i * targetWidth, targetWidth);
+                                 targetBuffer.getElems(), i * targetWidth, targetWidth);
             }
 
             pm.worked(1);

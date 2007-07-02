@@ -1,6 +1,8 @@
-package org.esa.beam.dataio.chris;
+package org.esa.beam.dataio.chris.internal;
 
 import com.bc.ceres.core.Assert;
+
+import java.awt.Rectangle;
 
 /**
  * The class {@code DropoutCorrection} encapsulates the dropout correction
@@ -9,13 +11,15 @@ import com.bc.ceres.core.Assert;
  * @author Ralf Quast
  * @version $Revision: 1.5 $ $Date: 2007/04/18 16:01:35 $
  */
-class DropoutCorrection {
+public class DropoutCorrection {
 
-    public static final double[] N_VERTICAL = {0, 1, 0, 0, 0, 0, 0, 1, 0};
+    public static final double[] N2 = {0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0};
+    public static final double[] N4 = {0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0};
+    public static final double[] N8 = {0.7, 1.0, 0.7, 1.0, 0.0, 1.0, 0.7, 1.0, 0.7};
 
-    private static final int NEIGHBOURHOOD_WIDTH = 3;
-    private static final int NEIGHBOURHOOD_HEIGHT = 3;
-    private static final int NEIGHBOURHOOD_SIZE = NEIGHBOURHOOD_WIDTH * NEIGHBOURHOOD_HEIGHT;
+    private static final int N_WIDTH = 3;
+    private static final int N_HEIGHT = 3;
+    private static final int N_SIZE = N_WIDTH * N_HEIGHT;
 
     private static final short VALID = 0;
     private static final short DROPOUT = 1;
@@ -38,9 +42,9 @@ class DropoutCorrection {
      * @param sourceWidth
      * @param sourceHeight
      */
-    public DropoutCorrection(final double[] neighbourhoodMatrix, final int neighbourhoodBandCount,
-                             final int sourceWidth, final int sourceHeight) {
-        Assert.argument(neighbourhoodMatrix.length == NEIGHBOURHOOD_SIZE);
+    public DropoutCorrection(double[] neighbourhoodMatrix, int neighbourhoodBandCount,
+                             int sourceWidth, int sourceHeight) {
+        Assert.argument(neighbourhoodMatrix.length == N_SIZE);
         Assert.argument(neighbourhoodMatrix[4] == 0.0);
         Assert.argument(neighbourhoodBandCount >= 0);
 
@@ -56,14 +60,8 @@ class DropoutCorrection {
      *
      * @param data
      * @param mask
-     * @param xOffset
-     * @param yOffset
-     * @param width
-     * @param height
      */
-    public void perform(final int[][] data, final short[][] mask, final int bandIndex,
-                        final int xOffset, final int yOffset, final int width, final int height) {
-
+    public void perform(int[][] data, short[][] mask, int bandIndex, Rectangle rectangle) {
         Assert.argument(data.length == mask.length);
         Assert.argument(data[bandIndex].length == mask[bandIndex].length);
 
@@ -71,8 +69,8 @@ class DropoutCorrection {
 
         // x = offset of current row
         // y = offset of current column 
-        for (int y = yOffset; y < yOffset + height; y++) {
-            for (int x = xOffset; x < xOffset + width; x++) {
+        for (int y = rectangle.y; y < rectangle.y + rectangle.height; ++y) {
+            for (int x = rectangle.x; x < rectangle.x + rectangle.width; ++x) {
                 // offset of current pixel
                 final int yx = y * sourceWidth + x;
 
@@ -87,33 +85,33 @@ class DropoutCorrection {
                     int nIndex = 0;
 
                     // ny = current row of neighbourhood matrix
-                    for (int ny = y - 1; ny <= y + 1; ny++) {
-                        if (ny < 0 || ny >= sourceHeight) {
+                    for (int i = y - 1; i <= y + 1; ++i) {
+                        if (i < 0 || i >= sourceHeight) {
                             // this is not an adjacent row, so
-                            nIndex += NEIGHBOURHOOD_WIDTH;
+                            nIndex += N_WIDTH;
                             continue;
                         }
 
                         // nx = current column of neighbourhood matrix
-                        for (int nx = x - 1; nx <= x + 1; nx++, nIndex++) {
-                            if (nx < 0 || nx >= sourceWidth) {
+                        for (int j = x - 1; j <= x + 1; ++j, nIndex++) {
+                            if (j < 0 || j >= sourceWidth) {
                                 // this is not an adjacent column, so
                                 continue;
                             }
                             // offset of neighbourhood matrix element
-                            final int nyx = ny * sourceWidth + nx;
+                            final int ij = i * sourceWidth + j;
 
                             if (neighbourhoodMatrix[nIndex] != 0.0) {
-                                switch (mask[bandIndex][nyx]) {
+                                switch (mask[bandIndex][ij]) {
                                     case VALID:
-                                        w[nIndex] = neighbourhoodMatrix[nIndex] * calculateWeight(yx, nyx, data, mask, bandIndex);
+                                        w[nIndex] = neighbourhoodMatrix[nIndex] * calculateWeight(yx, ij, data, mask, bandIndex);
                                         ws += w[nIndex];
-                                        xc += data[bandIndex][nyx] * w[nIndex];
+                                        xc += data[bandIndex][ij] * w[nIndex];
                                         break;
 
                                     case SATURATED:
                                         ws2 += neighbourhoodMatrix[nIndex];
-                                        xc2 += data[bandIndex][nyx] * neighbourhoodMatrix[nIndex];
+                                        xc2 += data[bandIndex][ij] * neighbourhoodMatrix[nIndex];
                                         break;
                                 }
                             }
@@ -146,9 +144,9 @@ class DropoutCorrection {
             int lowerBand = bandIndex - (k + 1);
 
             if (lowerBand > 0 &&
-                    mask[lowerBand][yx] == VALID &&
-                    mask[lowerBand][nyx] == VALID &&
-                    data[lowerBand][yx] != 0) {
+                mask[lowerBand][yx] == VALID &&
+                mask[lowerBand][nyx] == VALID &&
+                data[lowerBand][yx] != 0) {
                 final double d = (data[lowerBand][yx] - data[lowerBand][nyx]);
 
                 sum += d * d;
@@ -157,9 +155,9 @@ class DropoutCorrection {
 
             int upperBand = bandIndex + (k + 1);
             if (upperBand < mask.length &&
-                    mask[upperBand][yx] == VALID &&
-                    mask[upperBand][nyx] == VALID &&
-                    data[upperBand][yx] != 0) {
+                mask[upperBand][yx] == VALID &&
+                mask[upperBand][nyx] == VALID &&
+                data[upperBand][yx] != 0) {
                 final double d = (data[upperBand][yx] - data[upperBand][nyx]);
 
                 sum += d * d;
@@ -175,25 +173,6 @@ class DropoutCorrection {
         } else {
             return 1.0;
         }
-    }
-
-    private static boolean isAnyAdjacentBandUsable(final int offset,
-                                                   final int count,
-                                                   final int stride,
-                                                   final short[] mask) {
-        int l = offset;
-        int h = offset;
-
-        for (int k = 0; k < count; ++k) {
-            l -= stride;
-            h += stride;
-
-            if (l > 0 && mask[l] == VALID || h < mask.length && mask[h] == VALID) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
 }

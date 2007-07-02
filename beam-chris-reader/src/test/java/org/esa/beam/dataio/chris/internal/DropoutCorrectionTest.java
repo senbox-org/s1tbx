@@ -1,6 +1,8 @@
-package org.esa.beam.dataio.chris;
+package org.esa.beam.dataio.chris.internal;
 
 import junit.framework.TestCase;
+
+import java.awt.Rectangle;
 
 /**
  * Tests for class {@link DropoutCorrection}.
@@ -17,7 +19,7 @@ public class DropoutCorrectionTest extends TestCase {
         final int adjacentBandCount = 1;
 
         final DropoutCorrection dropoutCorrection = new DropoutCorrection(weights, adjacentBandCount, 3, 3);
-        dropoutCorrection.perform(data, mask, 1, 0, 0, 3, 3);
+        dropoutCorrection.perform(data, mask, 1, new Rectangle(0, 0, 3, 3));
 
         assertEquals(0.0, data[0][0], 0.0);
         assertEquals(0.0, data[0][1], 0.0);
@@ -44,7 +46,7 @@ public class DropoutCorrectionTest extends TestCase {
         data[1][4] = 1;
         mask[1][4] = 1;
 
-        dropoutCorrection.perform(data, mask, 1, 0, 0, 3, 3);
+        dropoutCorrection.perform(data, mask, 1, new Rectangle(0, 0, 3, 3));
 
         assertEquals(0.0, data[0][4], 0.0);
         assertEquals(0, data[1][4]);
@@ -62,7 +64,7 @@ public class DropoutCorrectionTest extends TestCase {
         data[0][4] = 1;
         mask[0][4] = 1;
 
-        dropoutCorrection.perform(data, mask, 1, 0, 0, 3, 3);
+        dropoutCorrection.perform(data, mask, 1, new Rectangle(0, 0, 3, 3));
 
         assertEquals(0.0, data[1][4], 0.0);
         assertEquals(5, mask[1][4]);
@@ -71,7 +73,7 @@ public class DropoutCorrectionTest extends TestCase {
         mask[1][1] = 1;
         mask[1][4] = 0;
 
-        dropoutCorrection.perform(data, mask, 1, 0, 0, 3, 3);
+        dropoutCorrection.perform(data, mask, 1, new Rectangle(0, 0, 3, 3));
 
         assertEquals(0.0, data[1][1], 0.0);
         assertEquals(5, mask[1][1]);
