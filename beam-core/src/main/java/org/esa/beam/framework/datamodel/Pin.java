@@ -46,14 +46,9 @@ public class Pin extends ProductNode {
     private String label;
     private PixelPos pixelPos;
     private GeoPos geoPos;
-    private boolean active;
     private boolean selected;
     private PinSymbol symbol;
-
-    public Pin(String name) {
-        this(name, generateLabel(name), new PixelPos(0,0));
-    }
-
+  
     public Pin(String name, String label, PixelPos pixelPos) {
         this(name, label, "", pixelPos, null, PinSymbol.createDefaultPinSymbol());
     }
@@ -233,7 +228,7 @@ public class Pin extends ProductNode {
             writer.printLine(indent, DimapProductConstants.TAG_PIN_PIXEL_Y, getPixelPos().y);
         }
         writeColor(DimapProductConstants.TAG_PIN_FILL_COLOR, indent, (Color) symbol.getFillPaint(), writer);
-        writeColor(DimapProductConstants.TAG_PIN_OUTLINE_COLOR, indent, (Color) symbol.getOutlineColor(), writer);
+        writeColor(DimapProductConstants.TAG_PIN_OUTLINE_COLOR, indent, symbol.getOutlineColor(), writer);
         writer.println(pinTags[1]);
     }
 
@@ -263,13 +258,16 @@ public class Pin extends ProductNode {
             throw new IllegalArgumentException("Invalid pin name '" + name + "'.");
         }
 
-        final String label = element.getChildTextTrim(DimapProductConstants.TAG_PIN_LABEL);
-        final String description = element.getChildTextTrim(DimapProductConstants.TAG_PIN_DESCRIPTION);
+        String label = element.getChildTextTrim(DimapProductConstants.TAG_PIN_LABEL);
+        if (label == null) {
+            label = name;
+        }
+        String description = element.getChildTextTrim(DimapProductConstants.TAG_PIN_DESCRIPTION);
 
-        final String latText = element.getChildTextTrim(DimapProductConstants.TAG_PIN_LATITUDE);
-        final String lonText = element.getChildTextTrim(DimapProductConstants.TAG_PIN_LONGITUDE);
-        final String pixelXText = element.getChildTextTrim(DimapProductConstants.TAG_PIN_PIXEL_X);
-        final String pixelYText = element.getChildTextTrim(DimapProductConstants.TAG_PIN_PIXEL_Y);
+         String latText = element.getChildTextTrim(DimapProductConstants.TAG_PIN_LATITUDE);
+         String lonText = element.getChildTextTrim(DimapProductConstants.TAG_PIN_LONGITUDE);
+         String pixelXText = element.getChildTextTrim(DimapProductConstants.TAG_PIN_PIXEL_X);
+         String pixelYText = element.getChildTextTrim(DimapProductConstants.TAG_PIN_PIXEL_Y);
 
         GeoPos geoPos = null;
         if (latText != null && lonText != null) {
@@ -308,12 +306,10 @@ public class Pin extends ProductNode {
             pinSymbol.setOutlineColor(outlineColor);
         }
 
-        Pin pin = new Pin(name);
+        Pin pin = geoPos != null ? new Pin(name, label, geoPos) : new Pin(name, label, pixelPos);
         if (label != null) {
             pin.setLabel(label);
         }
-        pin.setPixelPos(pixelPos);
-        pin.setGeoPos(geoPos);
         pin.setDescription(description);
         pin.setSymbol(pinSymbol);
         return pin;

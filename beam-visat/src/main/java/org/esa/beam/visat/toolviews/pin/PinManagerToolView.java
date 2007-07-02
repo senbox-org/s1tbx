@@ -842,19 +842,15 @@ public class PinManagerToolView extends AbstractToolView {
                     if (columnIndexes[indexForDesc] >= 0 && strings.length > columnIndexes[indexForDesc]) {
                         desc = strings[columnIndexes[indexForDesc]];
                     }
-                    String label = null;
+                    String label = name;
                     if (columnIndexes[indexForLabel] >= 0 && strings.length > columnIndexes[indexForLabel]) {
                         label = strings[columnIndexes[indexForLabel]];
                     }
-                    Pin pin = new Pin(name);
-                    if (pin != null) {
-                        if (label != null) {
-                            pin.setLabel(label);
-                        }
+                    Pin pin = new Pin(name, label, new GeoPos(lat, lon));
+                    if (desc != null) {
                         pin.setDescription(desc);
-                        pin.setGeoPos(new GeoPos(lat, lon));
-                        pins.add(pin);
                     }
+                    pins.add(pin);
                 } else {
                     throw new IOException("Invalid pin file format:\n" +
                             "data row " + row + ": values for 'Name', 'Lon' and 'Lat' must be given.");   /*I18N*/

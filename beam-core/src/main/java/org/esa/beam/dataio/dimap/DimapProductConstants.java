@@ -85,7 +85,7 @@ public final class DimapProductConstants {
      * new tag added:<br>
      * &lt;Pin&gt;<br>
      * and inside:<br>
-     * &lt;FORMAT_DESCRIPTION&gt;
+     * &lt;DESCRIPTION&gt;
      * &lt;LATITUDE&gt;
      * &lt;LONGITUDE&gt;<br> </td> </tr>
      * <tr> <td valign="top">1.3.0</td>
@@ -536,7 +536,7 @@ public final class DimapProductConstants {
 
     // BEAM-Dimap bitmask definition tags
     public final static String TAG_BITMASK_DEFINITION = "Bitmask_Definition";
-    public final static String TAG_BITMASK_DESCRIPTION = "FORMAT_DESCRIPTION";
+    public final static String TAG_BITMASK_DESCRIPTION = "DESCRIPTION";
     public final static String TAG_BITMASK_EXPRESSION = "EXPRESSION";
     public final static String TAG_BITMASK_COLOR = TAG_COLOR;
     public final static String TAG_BITMASK_TRANSPARENCY = "TRANSPARENCY";
@@ -544,7 +544,7 @@ public final class DimapProductConstants {
     // BEAM-Dimap pin tags
     public final static String TAG_PIN = "Pin";
     public final static String TAG_PIN_LABEL = "LABEL";
-    public final static String TAG_PIN_DESCRIPTION = "FORMAT_DESCRIPTION";
+    public final static String TAG_PIN_DESCRIPTION = "DESCRIPTION";
     public final static String TAG_PIN_LATITUDE = "LATITUDE";
     public final static String TAG_PIN_LONGITUDE = "LONGITUDE";
     public final static String TAG_PIN_PIXEL_X = "PIXEL_X";

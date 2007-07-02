@@ -237,16 +237,14 @@ public class DimapHeaderWriterTest extends TestCase {
     }
 
     private void addPinsToProduct() {
-        final Pin pin1 = new Pin("pin1");
+        final Pin pin1 = new Pin("pin1", "pin1", new GeoPos());
         _product.addPin(pin1);
 
-        final Pin pin2 = new Pin("pin2");
+        final Pin pin2 = new Pin("pin2", "pin2", new GeoPos(4,8));
         pin2.setDescription("desc2");
-        pin2.setGeoPos(new GeoPos(4,8));
         _product.addPin(pin2);
 
-        final Pin pin3 = new Pin("pin3");
-        pin3.setGeoPos(new GeoPos(-23.1234f, -80.543f));
+        final Pin pin3 = new Pin("pin3", "pin3", new GeoPos(-23.1234f, -80.543f));
         _product.addPin(pin3);
     }
 
@@ -256,7 +254,7 @@ public class DimapHeaderWriterTest extends TestCase {
                 rasterDimensions +
                 "    <Pin name=\"pin1\">" + _ls +
                 "        <LABEL>pin1</LABEL>" + _ls +
-                "        <FORMAT_DESCRIPTION />" + _ls +
+                "        <DESCRIPTION />" + _ls +
                 "        <LATITUDE>0.0</LATITUDE>" + _ls +
                 "        <LONGITUDE>0.0</LONGITUDE>" + _ls +
                 "        <FillColor>" + _ls +
@@ -268,7 +266,7 @@ public class DimapHeaderWriterTest extends TestCase {
                 "    </Pin>" + _ls +
                 "    <Pin name=\"pin2\">" + _ls +
                 "        <LABEL>pin2</LABEL>" + _ls +
-                "        <FORMAT_DESCRIPTION>desc2</FORMAT_DESCRIPTION>" + _ls +
+                "        <DESCRIPTION>desc2</DESCRIPTION>" + _ls +
                 "        <LATITUDE>4.0</LATITUDE>" + _ls +
                 "        <LONGITUDE>8.0</LONGITUDE>" + _ls +
                 "        <FillColor>" + _ls +
@@ -280,7 +278,7 @@ public class DimapHeaderWriterTest extends TestCase {
                 "    </Pin>" + _ls +
                 "    <Pin name=\"pin3\">" + _ls +
                 "        <LABEL>pin3</LABEL>" + _ls +
-                "        <FORMAT_DESCRIPTION />" + _ls +
+                "        <DESCRIPTION />" + _ls +
                 "        <LATITUDE>-23.1234</LATITUDE>" + _ls +
                 "        <LONGITUDE>-80.543</LONGITUDE>" + _ls +
                 "        <FillColor>" + _ls +

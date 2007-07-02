@@ -71,7 +71,7 @@ public class PinTest extends TestCase {
     }
 
     public void testPinEvents() {
-        final Pin pin1 = new Pin("pin1");
+        final Pin pin1 = new Pin("pinName", "pinLabel", new GeoPos());
 
         assertEquals(0, _product.getNumPins());
         assertEquals(0, _events.size());
@@ -134,7 +134,7 @@ public class PinTest extends TestCase {
     }
 
     public void testWriteXML_XmlWriterIsNull() {
-        Pin pin = new Pin("pinName");
+        Pin pin = new Pin("pinName", "pinLabel", new GeoPos());
 
         try {
             pin.writeXML(null, 1);
@@ -147,7 +147,7 @@ public class PinTest extends TestCase {
     }
 
     public void testWriteXML_IndentIsSmallerThanZero() {
-        Pin pin = new Pin("pinName");
+        Pin pin = new Pin("pinName", "pinLabel", new GeoPos());
 
         try {
             pin.writeXML(new XmlWriter(new StringWriter(), false), -1);
@@ -160,17 +160,16 @@ public class PinTest extends TestCase {
     }
 
     public void testWriteXML_DifferentValidIndent() {
-        Pin pin = new Pin("pinName");
-        pin.setGeoPos(new GeoPos(4f, 87f));
-        pin.setDescription("pindescription");
+        Pin pin = new Pin("pinName", "pinLabel", new GeoPos(4f, 87f));
+        pin.setDescription("pinDescription");
         pin.setSymbol(PinSymbol.createDefaultPinSymbol());
 
         StringWriter stringWriter = new StringWriter();
         pin.writeXML(new XmlWriter(stringWriter, false), 0);
         String expected = "" +
                           "<Pin name=\"pinName\">" + _ls +
-                          "    <LABEL>pinName</LABEL>" + _ls +
-                          "    <FORMAT_DESCRIPTION>pindescription</FORMAT_DESCRIPTION>" + _ls +
+                          "    <LABEL>pinLabel</LABEL>" + _ls +
+                          "    <DESCRIPTION>pinDescription</DESCRIPTION>" + _ls +
                           "    <LATITUDE>4.0</LATITUDE>" + _ls +
                           "    <LONGITUDE>87.0</LONGITUDE>" + _ls +
                           "    <FillColor>" + _ls +
@@ -186,8 +185,8 @@ public class PinTest extends TestCase {
         pin.writeXML(new XmlWriter(stringWriter, false), 3);
         expected = "" +
                    "            <Pin name=\"pinName\">" + _ls +
-                   "                <LABEL>pinName</LABEL>" + _ls +
-                   "                <FORMAT_DESCRIPTION>pindescription</FORMAT_DESCRIPTION>" + _ls +
+                   "                <LABEL>pinLabel</LABEL>" + _ls +
+                   "                <DESCRIPTION>pinDescription</DESCRIPTION>" + _ls +
                    "                <LATITUDE>4.0</LATITUDE>" + _ls +
                    "                <LONGITUDE>87.0</LONGITUDE>" + _ls +
                    "                <FillColor>" + _ls +
@@ -295,7 +294,7 @@ public class PinTest extends TestCase {
     }
 
     public void testLabelSettings() {
-        Pin p = new Pin("rallamann");
+        Pin p = new Pin("rallamann", "rallamann", new GeoPos());
         assertEquals("rallamann", p.getName());
         assertEquals("rallamann", p.getLabel());
 
@@ -309,9 +308,5 @@ public class PinTest extends TestCase {
         p.setLabel("");
         assertEquals("", p.getLabel());
 
-        // name --> label by replacing '_' with ' '
-        Pin p2 = new Pin("pin_2");
-        assertEquals("pin_2", p2.getName());
-        assertEquals("pin 2", p2.getLabel());
     }
 }
