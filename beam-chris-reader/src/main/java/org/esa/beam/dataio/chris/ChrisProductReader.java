@@ -38,7 +38,7 @@ import java.awt.Rectangle;
  */
 public class ChrisProductReader extends AbstractProductReader {
 
-    private static final int NEIGHBOUR_BAND_COUNT = 5;
+    private static final int NEIGHBOUR_BAND_COUNT = 2;
 
     private ChrisFile chrisFile;
 
@@ -76,8 +76,7 @@ public class ChrisProductReader extends AbstractProductReader {
         corrected = new boolean[spectralBandCount];
 
         maskRefinement = new MaskRefinement(1.5);
-        dropoutCorrection = new DropoutCorrection(DropoutCorrection.N2, NEIGHBOUR_BAND_COUNT,
-                                                  sceneRasterWidth, sceneRasterHeight);
+        dropoutCorrection = new DropoutCorrection(2, NEIGHBOUR_BAND_COUNT, sceneRasterWidth, sceneRasterHeight, true);
 
         return createProduct();
     }

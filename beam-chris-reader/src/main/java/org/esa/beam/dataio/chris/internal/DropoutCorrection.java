@@ -9,13 +9,13 @@ import java.awt.Rectangle;
  * algorithm developed by Luis Gomez Chova.
  *
  * @author Ralf Quast
- * @version $Revision: 1.5 $ $Date: 2007/04/18 16:01:35 $
+ * @version $Revision: $ $Date: $
  */
 public class DropoutCorrection {
 
-    public static final double[] N2 = {0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0};
-    public static final double[] N4 = {0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0};
-    public static final double[] N8 = {0.7, 1.0, 0.7, 1.0, 0.0, 1.0, 0.7, 1.0, 0.7};
+    public static final double[] M2 = {0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0};
+    public static final double[] M4 = {0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0};
+    public static final double[] M8 = {0.7, 1.0, 0.7, 1.0, 0.0, 1.0, 0.7, 1.0, 0.7};
 
     private static final int N_WIDTH = 3;
     private static final int N_HEIGHT = 3;
@@ -24,34 +24,50 @@ public class DropoutCorrection {
     private static final short VALID = 0;
     private static final short DROPOUT = 1;
     private static final short SATURATED = 2;
-    private static final short CORRECTED_DROPOUT = 5;
-    private static final short CORRECTED_DROPOUT_SATURATED = 7;
+    private static final short CORRECTED_DROPOUT = 4;
 
-    private double[] neighbourhoodMatrix;
-    private int neighbourhoodBandCount;
+    private double[] matrix;
+    private int neighbourBandCount;
     private final int sourceWidth;
     private final int sourceHeight;
+    private final boolean cosmetic;
 
+
+    public DropoutCorrection(int type, int neighbourBandCount, int sourceWidth, int sourceHeight) {
+        this(type, neighbourBandCount, sourceWidth, sourceHeight, false);
+    }
 
     /**
      * Constructor.
      * todo - complete
      *
-     * @param neighbourhoodMatrix
-     * @param neighbourhoodBandCount
+     * @param type
+     * @param neighbourBandCount
      * @param sourceWidth
      * @param sourceHeight
+     * @param cosmetic
      */
-    public DropoutCorrection(double[] neighbourhoodMatrix, int neighbourhoodBandCount,
-                             int sourceWidth, int sourceHeight) {
-        Assert.argument(neighbourhoodMatrix.length == N_SIZE);
-        Assert.argument(neighbourhoodMatrix[4] == 0.0);
-        Assert.argument(neighbourhoodBandCount >= 0);
+    public DropoutCorrection(int type, int neighbourBandCount, int sourceWidth, int sourceHeight,
+                             boolean cosmetic) {
+        Assert.argument(type == 2 || type == 4 || type == 8);
+        Assert.argument(neighbourBandCount >= 0);
 
-        this.neighbourhoodMatrix = neighbourhoodMatrix;
-        this.neighbourhoodBandCount = neighbourhoodBandCount;
+        switch (type) {
+        case 2 :
+            this.matrix = M2;
+            break;
+        case 4 :
+            this.matrix = M4;
+            break;
+        case 8 :
+            this.matrix = M8;
+            break;
+        }
+
+        this.neighbourBandCount = neighbourBandCount;
         this.sourceWidth = sourceWidth;
         this.sourceHeight = sourceHeight;
+        this.cosmetic = cosmetic;
     }
 
     /**
@@ -65,7 +81,7 @@ public class DropoutCorrection {
         Assert.argument(data.length == mask.length);
         Assert.argument(data[bandIndex].length == mask[bandIndex].length);
 
-        final double[] w = new double[neighbourhoodMatrix.length];
+        final double[] w = new double[matrix.length];
 
         // x = offset of current row
         // y = offset of current column 
@@ -101,18 +117,19 @@ public class DropoutCorrection {
                             // offset of neighbourhood matrix element
                             final int ij = i * sourceWidth + j;
 
-                            if (neighbourhoodMatrix[nIndex] != 0.0) {
+                            if (matrix[nIndex] != 0.0) {
                                 switch (mask[bandIndex][ij]) {
-                                    case VALID:
-                                        w[nIndex] = neighbourhoodMatrix[nIndex] * calculateWeight(yx, ij, data, mask, bandIndex);
-                                        ws += w[nIndex];
-                                        xc += data[bandIndex][ij] * w[nIndex];
-                                        break;
+                                case VALID:
+                                    w[nIndex] = matrix[nIndex] * calculateWeight(yx, ij, data, mask,
+                                                                                 bandIndex);
+                                    ws += w[nIndex];
+                                    xc += data[bandIndex][ij] * w[nIndex];
+                                    break;
 
-                                    case SATURATED:
-                                        ws2 += neighbourhoodMatrix[nIndex];
-                                        xc2 += data[bandIndex][ij] * neighbourhoodMatrix[nIndex];
-                                        break;
+                                case SATURATED:
+                                    ws2 += matrix[nIndex];
+                                    xc2 += data[bandIndex][ij] * matrix[nIndex];
+                                    break;
                                 }
                             }
                         }
@@ -120,10 +137,14 @@ public class DropoutCorrection {
 
                     if (ws > 0.0) {
                         data[bandIndex][yx] = (int) (xc / ws);
-                        mask[bandIndex][yx] = CORRECTED_DROPOUT;
+                        if (!cosmetic) {
+                            mask[bandIndex][yx] = CORRECTED_DROPOUT;
+                        }
                     } else if (ws2 > 0.0) {
                         data[bandIndex][yx] = (int) (xc2 / ws2);
-                        mask[bandIndex][yx] = CORRECTED_DROPOUT_SATURATED;
+                        if (!cosmetic) {
+                            mask[bandIndex][yx] = SATURATED;
+                        }
                     } else {
                         data[bandIndex][yx] = 0;
                     }
@@ -140,7 +161,7 @@ public class DropoutCorrection {
         double sum = 0.0;
         int validCount = 0;
 
-        for (int k = 0; k < neighbourhoodBandCount; ++k) {
+        for (int k = 0; k < neighbourBandCount; ++k) {
             int lowerBand = bandIndex - (k + 1);
 
             if (lowerBand > 0 &&
