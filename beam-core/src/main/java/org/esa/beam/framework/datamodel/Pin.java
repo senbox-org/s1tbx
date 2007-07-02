@@ -169,6 +169,9 @@ public class Pin extends ProductNode {
                 && getProduct().getGeoCoding().canGetGeoPos()) {
             geoPos = getProduct().getGeoCoding().getGeoPos(pixelPos, null);
         }
+        if (geoPos == null) {
+            return null;
+        }
         return new GeoPos(geoPos.lat , geoPos.lon);
     }
 
@@ -193,6 +196,9 @@ public class Pin extends ProductNode {
                 && getProduct().getGeoCoding() != null
                 && getProduct().getGeoCoding().canGetPixelPos()) {
             pixelPos = getProduct().getGeoCoding().getPixelPos(geoPos, null);
+        }
+        if (pixelPos == null) {
+            return null;
         }
         return new PixelPos(pixelPos.x , pixelPos.y);
     }
