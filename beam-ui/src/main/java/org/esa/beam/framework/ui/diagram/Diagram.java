@@ -17,11 +17,10 @@
 package org.esa.beam.framework.ui.diagram;
 
 import org.esa.beam.util.Guardian;
+import org.esa.beam.util.math.Range;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
+import java.awt.geom.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -60,6 +59,7 @@ public class Diagram {
     private String[] yTickTexts;
     private String[] xTickTexts;
     private int maxYTickTextWidth;
+    private RectTransform transform;
 
     public Diagram() {
         graphs = new ArrayList<DiagramGraph>(3);
@@ -75,6 +75,10 @@ public class Diagram {
         setXAxis(xAxis);
         setYAxis(yAxis);
         addGraph(graph);
+    }
+
+    public RectTransform getTransform() {
+        return transform;
     }
 
     public boolean isDrawGrid() {
@@ -186,10 +190,8 @@ public class Diagram {
         setValid(false);
     }
 
-    public void draw(Graphics2D g2D, int x, int y, int width, int height) {
-        Object oldAntiAliasingRenderingHint = g2D.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
+    public void render(Graphics2D g2D, int x, int y, int width, int height) {
         Font oldFont = g2D.getFont();
-        g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2D.setFont(font);
         fontMetrics = g2D.getFontMetrics();
 
@@ -197,7 +199,6 @@ public class Diagram {
         drawAxes(g2D, x, y, width, height);
         drawGraph(g2D);
 
-        g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAntiAliasingRenderingHint);
         g2D.setFont(oldFont);
     }
 
@@ -227,6 +228,15 @@ public class Diagram {
         final int w = x2 - x1 + 1;
         final int h = y2 - y1 + 1;
         graphArea = new Rectangle(x1, y1, w, h);
+
+        transform = null;
+        if (w > 0 && h > 0) {
+            transform = new RectTransform(new Range(xAxis.getMinValue(), xAxis.getMaxValue()),
+                                   new Range(yAxis.getMinValue(), yAxis.getMaxValue()),
+                                   new Range(graphArea.x, graphArea.x + graphArea.width),
+                                   new Range(graphArea.y + graphArea.height, graphArea.y));
+        }
+
         setValid(w > 0 && h > 0);
     }
 
@@ -235,127 +245,47 @@ public class Diagram {
             return;
         }
 
-        double xa, xb;
-        double xa1 = xAxis.getMinValue();
-        double xa2 = xAxis.getMaxValue();
-        double xb1 = graphArea.x;
-        double xb2 = graphArea.x + graphArea.width;
-
-        double ya, yb;
-        double ya1 = yAxis.getMinValue();
-        double ya2 = yAxis.getMaxValue();
-        double yb1 = graphArea.y + graphArea.height;
-        double yb2 = graphArea.y;
-
         final Rectangle clipBounds = g2D.getClipBounds();
         g2D.setClip(graphArea.x, graphArea.y, graphArea.width, graphArea.height);
 
-        int x1, y1, x2 = 0, y2 = 0;
-        int n = 0;
+        Point2D.Double a = new Point2D.Double();
+        Point2D.Double b1 = new Point2D.Double();
+        Point2D.Double b2 = new Point2D.Double();
         DiagramGraph[] graphs = getGraphs();
         for (DiagramGraph graph : graphs) {
             g2D.setStroke(graph.getStyle().getOutlineStroke());
             g2D.setColor(graph.getStyle().getOutlineColor());
-            n = graph.getNumValues();
+            int n = graph.getNumValues();
             for (int i = 0; i < n; i++) {
-                xa = graph.getXValueAt(i);
-                ya = graph.getYValueAt(i);
-                xb = xb1 + ((xa - xa1) * (xb2 - xb1)) / (xa2 - xa1);
-                yb = yb1 + ((ya - ya1) * (yb2 - yb1)) / (ya2 - ya1);
-                x1 = x2;
-                y1 = y2;
-                x2 = (int) Math.round(xb);
-                y2 = (int) Math.round(yb);
+                double xa = graph.getXValueAt(i);
+                double ya = graph.getYValueAt(i);
+                a.setLocation(xa, ya);
+                b1.setLocation(b2);
+                transform.transformA2B(a, b2);
                 if (i > 0) {
-                    g2D.drawLine(x1, y1, x2, y2);
+                    g2D.draw(new Line2D.Double(b1, b2));
                 }
             }
-            g2D.setStroke(new BasicStroke(1.0f));
+            g2D.setStroke(new BasicStroke(0.5f));
             if (graph.getStyle().isShowingPoints()) {
                 for (int i = 0; i < n; i++) {
-                    xa = graph.getXValueAt(i);
-                    ya = graph.getYValueAt(i);
-                    xb = xb1 + ((xa - xa1) * (xb2 - xb1)) / (xa2 - xa1);
-                    yb = yb1 + ((ya - ya1) * (yb2 - yb1)) / (ya2 - ya1);
-                    x2 = (int) Math.round(xb);
-                    y2 = (int) Math.round(yb);
+                    double xa = graph.getXValueAt(i);
+                    double ya = graph.getYValueAt(i);
+                    a.setLocation(xa, ya);
+                    transform.transformA2B(a, b1);
+                    Rectangle2D.Double r = new Rectangle2D.Double(b1.getX() - 1.5,
+                                                                  b1.getY() - 1.5,
+                                                                  3.0, 3.0);
                     g2D.setPaint(graph.getStyle().getFillPaint());
-                    g2D.fillRect(x2 - 1, y2 - 1, 3, 3);
+                    g2D.fill(r);
                     g2D.setColor(graph.getStyle().getOutlineColor());
-                    g2D.drawRect(x2 - 1, y2 - 1, 3, 3);
+                    g2D.draw(r);
                 }
             }
         }
 
         g2D.setClip(clipBounds);
     }
-
-
-    private  class SP {
-        private double xa1;
-        private double xa2;
-        private double xb1;
-        private double xb2;
-        private double ya1;
-        private double ya2;
-        private double yb1;
-        private double yb2;
-
-        public SP() {
-            xa1 = xAxis.getMinValue();
-            xa2 = xAxis.getMaxValue();
-            xb1 = graphArea.x;
-            xb2 = graphArea.x + graphArea.width;
-
-            ya1 = yAxis.getMinValue();
-            ya2 = yAxis.getMaxValue();
-            yb1 = graphArea.y + graphArea.height;
-            yb2 = graphArea.y;
-        }
-
-        public void visitPoints(DiagramGraph graph, PointVisitor v) {
-            double xa, xb;
-            double ya, yb;
-            double x1, y1;
-            int n = graph.getNumValues();
-            for (int i = 0; i < n; i++) {
-                xa = graph.getXValueAt(i);
-                ya = graph.getYValueAt(i);
-                xb = xb1 + ((xa - xa1) * (xb2 - xb1)) / (xa2 - xa1);
-                yb = yb1 + ((ya - ya1) * (yb2 - yb1)) / (ya2 - ya1);
-                v.point(graph, new Point2D.Double(xb, yb));
-            }
-        }
-        public void visitLineSegments(DiagramGraph graph, LineSegmentVisitor v) {
-            double xa, xb;
-            double ya, yb;
-            double x1, y1;
-            double x2=0, y2=0;
-            int n = graph.getNumValues();
-            for (int i = 0; i < n; i++) {
-                xa = graph.getXValueAt(i);
-                ya = graph.getYValueAt(i);
-                xb = xb1 + ((xa - xa1) * (xb2 - xb1)) / (xa2 - xa1);
-                yb = yb1 + ((ya - ya1) * (yb2 - yb1)) / (ya2 - ya1);
-                x1 = x2;
-                y1 = y2;
-                x2 = xb;
-                y2 = yb;
-                if (i > 0) {
-                    v.line(graph, new Line2D.Double(x1, y1, x2, y2));
-                }
-            }
-        }
-    }
-
-    private static interface LineSegmentVisitor {
-        void line(DiagramGraph graph, Line2D line);
-    }
-
-    private static interface PointVisitor {
-        void point(DiagramGraph graph, Point2D point);
-    }
-
 
     private void drawAxes(Graphics2D g2D, int xOffset, int yOffset, int width, int height) {
         if (!isValid()) {
@@ -428,7 +358,7 @@ public class Diagram {
         y1 = yOffset + height - textGap;
         g2D.drawString(text, x1, y1);
 
-        // draw Y axis name and unit    
+        // draw Y axis name and unit
         text = yAxis.getName() + " [" + yAxis.getUnit() + "]";
         tw = fontMetrics.stringWidth(text);
         x1 = graphArea.x - majorTickLength - textGap - maxYTickTextWidth - textGap;
@@ -442,14 +372,29 @@ public class Diagram {
 
     public DiagramGraph getClosestGraph(final int x, final int y) {
         double minDist = Double.MAX_VALUE;
-        SP sp = new SP();
+
+        Point2D.Double a = new Point2D.Double();
+        Point2D.Double b1 = new Point2D.Double();
+        Point2D.Double b2 = new Point2D.Double();
         DiagramGraph closestGraph = null;
         for (DiagramGraph graph : getGraphs()) {
-            MinDistanceComputer v = new MinDistanceComputer(x, y);
-            sp.visitLineSegments(graph, v);
-            if (v.getMinDist() < minDist) {
+            double minDistGraph = Double.MAX_VALUE;
+            int n = graph.getNumValues();
+            for (int i = 0; i < n; i++) {
+                a.setLocation(graph.getXValueAt(i), graph.getYValueAt(i));
+                b1.setLocation(b2);
+                transform.transformA2B(a, b2);
+                if (i > 0) {
+                    Line2D.Double segment = new Line2D.Double(b1, b2);
+                    double v = segment.ptSegDist(x, y);
+                    if (v < minDistGraph) {
+                        minDistGraph = v;
+                    }
+                }
+            }
+            if (minDistGraph < minDist) {
+                minDist = minDistGraph;
                 closestGraph = graph;
-                 minDist = v.getMinDist();
             }
         }
         return closestGraph;
@@ -467,29 +412,41 @@ public class Diagram {
         }
     }
 
-    private static class MinDistanceComputer implements LineSegmentVisitor {
-        private double minDist;
-        private final double x;
-        private final double y;
+    public static class RectTransform {
+        private AffineTransform transformA2B;
+        private AffineTransform transformB2A;
 
-        public MinDistanceComputer(double x, double y) {
-            this.x = x;
-            this.y = y;
-            minDist = Double.MAX_VALUE;
-        }
+        public RectTransform(Range ax, Range ay,
+                             Range bx, Range by) {
+            double ax1 = ax.getMin();
+            double ax2 = ax.getMax();
+            double ay1 = ay.getMin();
+            double ay2 = ay.getMax();
 
-        public double getMinDist() {
-            return minDist;
-        }
+            double bx1 = bx.getMin();
+            double bx2 = bx.getMax();
+            double by1 = by.getMin();
+            double by2 = by.getMax();
 
-        public void line(DiagramGraph graph, Line2D line) {
-            double v = line.ptSegDist(x, y);
-            if (v < minDist) {
-                minDist = v;
+            transformA2B = new AffineTransform();
+            transformA2B.translate(bx1 - ax1 * (bx2 - bx1) / (ax2 - ax1),
+                                   by1 - ay1 * (by2 - by1) / (ay2 - ay1));
+            transformA2B.scale((bx2 - bx1) / (ax2 - ax1),
+                               (by2 - by1) / (ay2 - ay1));
+
+            try {
+                transformB2A = transformA2B.createInverse();
+            } catch (NoninvertibleTransformException e) {
+                throw new IllegalArgumentException();
             }
         }
 
+        public Point2D transformA2B(Point2D a, Point2D b) {
+            return transformA2B.transform(a, b);
+        }
+
+        public Point2D transformB2A(Point2D b, Point2D a) {
+            return transformB2A.transform(b, a);
+        }
     }
-
-
 }

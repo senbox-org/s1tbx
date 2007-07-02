@@ -16,16 +16,17 @@
  */
 package org.esa.beam.framework.ui.diagram;
 
+import org.esa.beam.util.ObjectUtils;
+
+import javax.swing.JPanel;
+import javax.swing.event.MouseInputAdapter;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
-
-import javax.swing.JPanel;
-import javax.swing.event.MouseInputAdapter;
-
-import org.esa.beam.util.ObjectUtils;
+import java.awt.geom.Point2D;
+import java.awt.geom.Ellipse2D;
 
 /**
  * The <code>DiagramCanvas</code> class is a UI component used to display simple X/Y plots represented by objects of
@@ -97,7 +98,7 @@ public class DiagramCanvas extends JPanel {
         final int y0 = insets.top;
 
         if (diagram != null) {
-            diagram.draw(g2D, x0, y0, width, height);
+            diagram.render(g2D, x0, y0, width, height);
         }
 
         if (messageText != null) {
@@ -105,24 +106,70 @@ public class DiagramCanvas extends JPanel {
         }
 
         if (dragPoint != null && selectedGraph != null) {
-            drawTextBox(g2D, selectedGraph.getYName(), dragPoint.x, dragPoint.y);
+            Diagram.RectTransform transform = diagram.getTransform();
+            Point2D a = transform.transformB2A(dragPoint, null);
+            double x = a.getX();
+            if (x < selectedGraph.getXMin()) {
+                x = selectedGraph.getXMin();
+            }
+            if (x > selectedGraph.getXMax()) {
+                x = selectedGraph.getXMax();
+            }
+            double y = getY(selectedGraph, x);
+            Point2D b = transform.transformA2B(new Point2D.Double(x, y), null);
+
+            g2D.setStroke(new BasicStroke(1.0f));
+            g2D.setColor(Color.BLACK);
+            Ellipse2D.Double marker = new Ellipse2D.Double(b.getX() - 3,
+                                                           b.getY() - 3,
+                                                           6, 6);
+            g2D.draw(marker);
+            String text = selectedGraph.getYName() + ": x = " + x + ", y = " + y + ")";
+            drawTextBox(g2D, text, 10, 10);
         }
     }
 
     private void drawTextBox(Graphics2D g2D, String text, int x0, int y0) {
         final FontMetrics fontMetrics = g2D.getFontMetrics();
-        final Rectangle2D stringBounds = fontMetrics.getStringBounds(text, g2D);
-        double x = x0 - stringBounds.getWidth() / 2;
-        double y = y0 + stringBounds.getY() - stringBounds.getHeight() / 2;
+        final Rectangle2D textBounds = fontMetrics.getStringBounds(text, g2D);
+        Rectangle2D.Double r = new Rectangle2D.Double(x0 + textBounds.getX() - 2, 
+                                                      y0 + textBounds.getY() - 2,
+                                                      textBounds.getWidth() + 4,
+                                                      textBounds.getHeight() + 4);
+//        if (r.getMaxX() > getWidth()) {
+//            r.setRect(getWidth() - r.getWidth(), r.getY(), r.getWidth(), r.getHeight());
+//        }
+//        if (r.getMinX() < 0) {
+//            r.setRect(0, r.getY(), r.getWidth(), r.getHeight());
+//        }
+//        if (r.getMaxY() > getHeight()) {
+//            r.setRect(r.getX(), getHeight() - r.getHeight(), r.getWidth(), r.getHeight());
+//        }
+//        if (r.getMinY() < 0) {
+//            r.setRect(r.getX(), 0, r.getWidth(), r.getHeight());
+//        }
         g2D.setColor(new Color(255, 192, 192));
-        g2D.fillRect((int) x - 2, (int) y - 2,
-                     (int) stringBounds.getWidth() + 4,
-                     (int) stringBounds.getHeight() + 4);
+        g2D.fill(r);
         g2D.setColor(Color.black);
-        g2D.drawRect((int) x - 2, (int) y - 2,
-                     (int) stringBounds.getWidth() + 4,
-                     (int) stringBounds.getHeight() + 4);
-        g2D.drawString(text, (int) x, (int) (y + fontMetrics.getAscent()));
+        g2D.draw(r);
+        g2D.drawString(text, (int) x0, (int) (y0 + fontMetrics.getAscent()));
+    }
+
+    public double getY(DiagramGraph graph, double x) {
+        int n = graph.getNumValues();
+        double x1, y1, x2 = 0, y2 = 0;
+        for (int i = 0; i < n; i++) {
+            x1 = x2;
+            y1 = y2;
+            x2 = graph.getXValueAt(i);
+            y2 = graph.getYValueAt(i);
+            if (i > 0) {
+                if (x >= x1 && x <= x2) {
+                    return y1 + (x - x1) / (x2 - x1) * (y2 - y1);
+                }
+            }
+        }
+        throw new IllegalArgumentException("x out of bounds: " + x);
     }
 
     private class IndicatorHandler extends MouseInputAdapter {
@@ -138,10 +185,8 @@ public class DiagramCanvas extends JPanel {
             System.out.println("selectedGraph = " + selectedGraph);
             if (selectedGraph != null) {
                 dragPoint = e.getPoint();
-                // todo
             } else {
                 dragPoint = null;
-                // todo
             }
             repaint();
         }
