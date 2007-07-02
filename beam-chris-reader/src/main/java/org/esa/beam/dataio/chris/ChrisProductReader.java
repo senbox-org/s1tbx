@@ -214,7 +214,7 @@ public class ChrisProductReader extends AbstractProductReader {
             band.setSpectralBandwidth(chrisFile.getBandwidth(i));
             band.setUnit(units);
             band.setDescription(MessageFormat.format("Radiance of band {0}", i + 1));
-            band.setValidPixelExpression(new StringBuilder(getMaskBandName(i)).append(" != 1 && ").append(getMaskBandName(i)).append(" != 2").toString());
+            band.setValidPixelExpression(new StringBuilder(getMaskBandName(i)).append(" == 0").toString());
         }
         for (int i = 0; i < spectralBandCount; ++i) {
             final String name = getMaskBandName(i);
