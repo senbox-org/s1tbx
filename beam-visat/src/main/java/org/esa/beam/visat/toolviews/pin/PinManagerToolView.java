@@ -988,7 +988,9 @@ public class PinManagerToolView extends AbstractToolView {
                 _rowIndex = rowIndex;
                 if (_rowIndex >= 0 && _rowIndex < pinTable.getRowCount()) {
                     GeoPos geoPos = getPinAt(_rowIndex).getGeoPos();
-                    pinTable.setToolTipText(geoPos.getLonString() + " / " + geoPos.getLatString());
+                    if (geoPos != null) {
+                        pinTable.setToolTipText(geoPos.getLonString() + " / " + geoPos.getLatString());
+                    }
                 }
             }
         }
@@ -1002,10 +1004,8 @@ public class PinManagerToolView extends AbstractToolView {
             final int index = e.getToIndex();
             switch (index) {
                 case 0:
+                case 1:
                     minWidth = 40;
-                    break;
-                case 2:
-                    minWidth = 200;
                     break;
                 default:
                     minWidth = 80;

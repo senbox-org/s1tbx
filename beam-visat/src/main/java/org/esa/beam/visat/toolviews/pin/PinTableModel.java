@@ -15,14 +15,12 @@ package org.esa.beam.visat.toolviews.pin;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.util.math.MathUtils;
 
-import javax.swing.JTable;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 import java.io.IOException;
@@ -30,31 +28,35 @@ import java.io.IOException;
 public class PinTableModel implements TableModel {
 
     public static final String[] DEFAULT_COLUMN_NAMES = new String[]{"X", "Y", "Lon", "Lat", "Label"};
-    public static final Class[] DEFAULT_COLUMN_TYPES = new Class[]{Float.class, Float.class, Float.class, Float.class, String.class};
-    private final Product _product;
-    private final Band[] _selectedBands;
-    private final TiePointGrid[] _selectedGrids;
+    public static final Class[] DEFAULT_COLUMN_TYPES = new Class[]{String.class,
+            String.class,
+            String.class,
+            String.class,
+            String.class};
+    private final Product product;
+    private final Band[] selectedBands;
+    private final TiePointGrid[] selectedGrids;
 
     public PinTableModel(Product product, Band[] selectedBands, TiePointGrid[] selectedGrids) {
-        _product = product;
-        _selectedBands = selectedBands;
-        _selectedGrids = selectedGrids;
+        this.product = product;
+        this.selectedBands = selectedBands;
+        this.selectedGrids = selectedGrids;
     }
 
     public int getRowCount() {
-        if (_product != null) {
-            return _product.getNumPins();
+        if (product != null) {
+            return product.getNumPins();
         }
         return 0;
     }
 
     public int getColumnCount() {
         int count = DEFAULT_COLUMN_NAMES.length;
-        if (_selectedBands != null) {
-            count += _selectedBands.length;
+        if (selectedBands != null) {
+            count += selectedBands.length;
         }
-        if (_selectedGrids != null) {
-            count += _selectedGrids.length;
+        if (selectedGrids != null) {
+            count += selectedGrids.length;
         }
         return count;
     }
@@ -65,11 +67,11 @@ public class PinTableModel implements TableModel {
         }
         int newIndex = columnIndex - DEFAULT_COLUMN_NAMES.length;
         if (newIndex < getNumSelectedBands()) {
-            return _selectedBands[newIndex].getName();
+            return selectedBands[newIndex].getName();
         }
         newIndex -= getNumSelectedBands();
-        if (_selectedGrids != null && newIndex < _selectedGrids.length) {
-            return _selectedGrids[newIndex].getName();
+        if (selectedGrids != null && newIndex < selectedGrids.length) {
+            return selectedGrids[newIndex].getName();
         }
         return "?";
     }
@@ -86,30 +88,34 @@ public class PinTableModel implements TableModel {
     }
 
     public Object getValueAt(int rowIndex, int columnIndex) {
-        if (_product != null) {
-            final int width = _product.getSceneRasterWidth();
-            final int height = _product.getSceneRasterHeight();
-            Pin pin = _product.getPinAt(rowIndex);
+        if (product != null) {
+            final int width = product.getSceneRasterWidth();
+            final int height = product.getSceneRasterHeight();
+            Pin pin = product.getPinAt(rowIndex);
+
             if (columnIndex == 0) {
-                return pin.getPixelPos().x;
+                return pin.getPixelPos() != null ? String.valueOf(pin.getPixelPos().x) : "Not available";
             } else if (columnIndex == 1) {
-                return pin.getPixelPos().y;
+                return pin.getPixelPos() != null ? String.valueOf(pin.getPixelPos().y) : "Not available";
             } else if (columnIndex == 2) {
-                return pin.getGeoPos().lon;
+                return pin.getGeoPos() != null ? String.valueOf(pin.getGeoPos().lon) : "Not available";
             } else if (columnIndex == 3) {
-                return pin.getGeoPos().lat;
+                return pin.getGeoPos() != null ? String.valueOf(pin.getGeoPos().lat) : "Not available";
             } else if (columnIndex == 4) {
                 return pin.getLabel();
             } else {
                 int newIndex = columnIndex - 5;
                 PixelPos pixelPos = pin.getPixelPos();
+                if (pixelPos == null) {
+                    return "No-data";
+                }
                 final int x = MathUtils.floorInt(pixelPos.getX());
                 final int y = MathUtils.floorInt(pixelPos.getY());
                 if (x < 0 || x >= width || y < 0 || y >= height) {
                     return "No-data";
                 }
                 if (newIndex < getNumSelectedBands()) {
-                    final Band band = _selectedBands[newIndex];
+                    final Band band = selectedBands[newIndex];
                     if (band.isPixelValid(x, y)) {
                         float[] value = null;
                         try {
@@ -123,8 +129,8 @@ public class PinTableModel implements TableModel {
                     }
                 }
                 newIndex -= getNumSelectedBands();
-                if (_selectedGrids != null && newIndex < _selectedGrids.length) {
-                    final TiePointGrid grid = _selectedGrids[newIndex];
+                if (selectedGrids != null && newIndex < selectedGrids.length) {
+                    final TiePointGrid grid = selectedGrids[newIndex];
                     float[] value = null;
                     try {
                         value = grid.readPixels(x, y, 1, 1, value, ProgressMonitor.NULL);
@@ -135,7 +141,7 @@ public class PinTableModel implements TableModel {
                 }
             }
         }
-        return "?";
+        return "";
     }
 
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
@@ -148,6 +154,6 @@ public class PinTableModel implements TableModel {
     }
 
     private int getNumSelectedBands() {
-        return _selectedBands != null ? _selectedBands.length : 0;
+        return selectedBands != null ? selectedBands.length : 0;
     }
 }
