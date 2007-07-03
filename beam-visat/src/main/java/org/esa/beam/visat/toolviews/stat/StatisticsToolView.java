@@ -37,12 +37,12 @@ public class StatisticsToolView extends AbstractToolView {
 
     private static String[] _helpIDs = {
             "informationDialog",
-            "geoCodingInfo",
+            "geoCodingInfoDialog",
             "statisticsDialog",
             "histogramDialog",
             "scatterplotDialog",
             "profilePlotDialog",
-            "coordinateList"
+            "coordinateListDialog"
     };
 
     public static final Color DIAGRAM_BG_COLOR = new Color(200, 200, 255);

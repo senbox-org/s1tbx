@@ -66,13 +66,13 @@
                 <tocitem text="Product Pin Manager" target="showPinManagerWnd"/>
                 <tocitem text="Band ROI Definition" target="showROIDefWnd"/>
                 <tocitem text="Product Spectrum" target="showSpectrumWnd"/>
-                <tocitem text="Product/Band Properties" target="informationDialog"/>
-                <tocitem text="Product/Band Geo-Coding Information" target="geoCodingInfo"/>
-                <tocitem text="Band Statistics" target="statisticsToolView"/>
+                <tocitem text="Product/Band Information" target="informationDialog"/>
+                <tocitem text="Product/Band Geo-Coding Information" target="geoCodingInfoDialog"/>
+                <tocitem text="Band Statistics" target="statisticsDialog"/>
                 <tocitem text="Band Histogram" target="histogramDialog"/>
                 <tocitem text="Band Scatter Plot" target="scatterplotDialog"/>
                 <tocitem text="Band Transect Profile Plot" target="profilePlotDialog"/>
-                <tocitem text="Band Transect Co-ordinate List" target="coordinateList"/>
+                <tocitem text="Band Transect Co-ordinate List" target="coordinateListDialog"/>
                 <tocitem text="Compute ROI Area" target="computeRoiArea"/>
             </tocitem>
 

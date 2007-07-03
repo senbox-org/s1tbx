@@ -70,14 +70,13 @@
     <mapID target="showPinManagerWnd" url="visat/PinManagement.html"/>
     <mapID target="noDataOverlay" url="visat/NoDataOverlay.html"/>
     <mapID target="noDataValue" url="visat/NoDataValue.html"/>
-    <mapID target="informationDialog" url="visat/PropertiesDialog.html"/>
-    <mapID target="geoCodingInfo" url="visat/GeoCodingInfo.html"/>
-    <mapID target="geoCodingInfoDialog" url="visat/PropertiesDialog.html"/>
-    <mapID target="statisticsToolView" url="visat/StatisticsDialog.html"/>
+    <mapID target="informationDialog" url="visat/InformationDialog.html"/>
+    <mapID target="geoCodingInfoDialog" url="visat/GeoCodingInfo.html"/>
+    <mapID target="statisticsDialog" url="visat/StatisticsDialog.html"/>
     <mapID target="histogramDialog" url="visat/HistogramDialog.html"/>
     <mapID target="scatterplotDialog" url="visat/ScatterplotDialog.html"/>
     <mapID target="profilePlotDialog" url="visat/ProfilePlotDialog.html"/>
-    <mapID target="coordinateList" url="visat/CoordinateListDialog.html"/>
+    <mapID target="coordinateListDialog" url="visat/CoordinateListDialog.html"/>
     <mapID target="computeRoiArea" url="visat/computeRoiArea.html"/>
     <mapID target="createFilteredBand" url="visat/CreateFilteredBand.html"/>
     <mapID target="bitmaskEditor" url="visat/BitmaskEditor.html"/>

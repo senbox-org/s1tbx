@@ -911,7 +911,7 @@
             <context>band,tiePointGrid</context>
             <smallIcon>icons/Statistics16.gif</smallIcon>
             <largeIcon>icons/Statistics24.gif</largeIcon>
-            <helpId>statisticsToolView</helpId>
+            <helpId>statisticsDialog</helpId>
         </action>
 
         <action>
@@ -971,7 +971,7 @@
             <context>band,tiePointGrid</context>
             <smallIcon></smallIcon>
             <largeIcon></largeIcon>
-            <helpId>coordinateList</helpId>
+            <helpId>coordinateListDialog</helpId>
         </action>
 
         <action>
