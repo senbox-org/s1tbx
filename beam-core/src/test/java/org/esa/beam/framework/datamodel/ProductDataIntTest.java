@@ -16,32 +16,24 @@
  */
 package org.esa.beam.framework.datamodel;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
-import org.esa.beam.GlobalTestConfig;
-import org.esa.beam.util.SystemUtils;
+import java.io.File;
+import java.io.IOException;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.FileImageOutputStream;
-import java.io.File;
-import java.io.IOException;
+
+import junit.framework.TestCase;
+
+import org.esa.beam.GlobalTestConfig;
+import org.esa.beam.util.SystemUtils;
 
 public class ProductDataIntTest extends TestCase {
 
     private FileImageInputStream _inputStream;
     private FileImageOutputStream _outputStream;
 
-    public ProductDataIntTest(String name) {
-        super(name);
-    }
-
-    public static Test suite() {
-        return new TestSuite(ProductDataIntTest.class);
-    }
-
-    protected void setUp() {
+    @Override
+	protected void setUp() {
         File outputFile = GlobalTestConfig.getBeamTestDataOutputFile("ProductData");
         outputFile.mkdirs();
         File streamFile = new File(outputFile, "stream.img");
@@ -55,7 +47,8 @@ public class ProductDataIntTest extends TestCase {
         assertNotNull(_outputStream);
     }
 
-    protected void tearDown() {
+    @Override
+	protected void tearDown() {
         try {
             _inputStream.close();
             _outputStream.close();
@@ -74,6 +67,7 @@ public class ProductDataIntTest extends TestCase {
         assertEquals(2147483647.0F, instance.getElemFloat(), 0.0e-12F);
         assertEquals(2147483647.0D, instance.getElemDouble(), 0.0e-12D);
         assertEquals("2147483647", instance.getElemString());
+        assertEquals(true, instance.getElemBoolean());
         assertEquals(1, instance.getNumElems());
         Object data = instance.getElems();
         assertEquals(true, data instanceof int[]);
@@ -122,6 +116,9 @@ public class ProductDataIntTest extends TestCase {
         assertEquals("-1", instance.getElemStringAt(0));
         assertEquals("2147483647", instance.getElemStringAt(1));
         assertEquals("-2147483648", instance.getElemStringAt(2));
+        assertEquals(true, instance.getElemBooleanAt(0));
+        assertEquals(true, instance.getElemBooleanAt(1));
+        assertEquals(true, instance.getElemBooleanAt(2));
         assertEquals(3, instance.getNumElems());
         Object data2 = instance.getElems();
         assertEquals(true, data2 instanceof int[]);
@@ -157,7 +154,7 @@ public class ProductDataIntTest extends TestCase {
                 String.valueOf(Integer.MIN_VALUE),
                 String.valueOf(0),
         });
-
+        
         assertEquals(Integer.MAX_VALUE, pd.getElemIntAt(0));
         assertEquals(Integer.MIN_VALUE, pd.getElemIntAt(1));
         assertEquals(0, pd.getElemIntAt(2));

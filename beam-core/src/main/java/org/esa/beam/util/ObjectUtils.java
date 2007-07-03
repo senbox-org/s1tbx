@@ -67,6 +67,8 @@ public final class ObjectUtils {
                 return Arrays.equals((float[]) object1, (float[]) object2);
             } else if ((object1 instanceof double[]) && (object2 instanceof double[])) {
                 return Arrays.equals((double[]) object1, (double[]) object2);
+            } else if ((object1 instanceof boolean[]) && (object2 instanceof boolean[])) {
+                return Arrays.equals((boolean[]) object1, (boolean[]) object2);
             } else if ((object1 instanceof Object[]) && (object2 instanceof Object[])) {
                 Object[] array1 = (Object[]) object1;
                 Object[] array2 = (Object[]) object2;

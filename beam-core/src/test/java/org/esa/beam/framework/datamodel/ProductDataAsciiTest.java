@@ -23,9 +23,7 @@ import java.io.IOException;
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.FileImageOutputStream;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.esa.beam.GlobalTestConfig;
 import org.esa.beam.util.SystemUtils;
@@ -36,15 +34,8 @@ public class ProductDataAsciiTest extends TestCase {
     private FileImageOutputStream _outputStream;
     private FileImageInputStream _inputStream;
 
-    public ProductDataAsciiTest(String name) {
-        super(name);
-    }
-
-    public static Test suite() {
-        return new TestSuite(ProductDataAsciiTest.class);
-    }
-
-    protected void setUp() {
+    @Override
+	protected void setUp() {
         File outputFile = GlobalTestConfig.getBeamTestDataOutputFile("ProductData");
         outputFile.mkdirs();
         File streamFile = new File(outputFile, "stream.img");
@@ -58,7 +49,8 @@ public class ProductDataAsciiTest extends TestCase {
         assertNotNull(_outputStream);
     }
 
-    protected void tearDown() {
+    @Override
+	protected void tearDown() {
         try {
             _inputStream.close();
             _outputStream.close();
@@ -84,6 +76,7 @@ public class ProductDataAsciiTest extends TestCase {
         assertEquals(35.0F, instance.getElemFloat(), 0.0e-12F);
         assertEquals(35.0D, instance.getElemDouble(), 0.0e-12D);
         assertEquals("#", instance.getElemString());
+        assertEquals(true, instance.getElemBoolean());
         assertEquals(1, instance.getNumElems());
         Object data = instance.getElems();
         assertEquals(true, data instanceof byte[]);

@@ -42,7 +42,8 @@ public class ProductDataByteTest extends TestCase {
         return new TestSuite(ProductDataByteTest.class);
     }
 
-    protected void setUp() {
+    @Override
+	protected void setUp() {
         File outputFile = GlobalTestConfig.getBeamTestDataOutputFile("ProductData");
         outputFile.mkdirs();
         File streamFile = new File(outputFile, "stream.img");
@@ -56,7 +57,8 @@ public class ProductDataByteTest extends TestCase {
         assertNotNull(_outputStream);
     }
 
-    protected void tearDown() {
+    @Override
+	protected void tearDown() {
         try {
             _inputStream.close();
             _outputStream.close();
@@ -104,8 +106,8 @@ public class ProductDataByteTest extends TestCase {
     }
 
     public void testConstructor() {
-        ProductData instance = ProductData.createInstance(ProductData.TYPE_INT8, 3);
-        instance.setElems(new byte[]{-1, 127, -128});
+        ProductData instance = ProductData.createInstance(ProductData.TYPE_INT8, 4);
+        instance.setElems(new byte[]{-1, 127, -128, 0});
 
         assertEquals(ProductData.TYPE_INT8, instance.getType());
         assertEquals(-1, instance.getElemIntAt(0));
@@ -123,27 +125,30 @@ public class ProductDataByteTest extends TestCase {
         assertEquals("-1", instance.getElemStringAt(0));
         assertEquals("127", instance.getElemStringAt(1));
         assertEquals("-128", instance.getElemStringAt(2));
-        assertEquals(3, instance.getNumElems());
+        assertEquals(true, instance.getElemBooleanAt(0));
+        assertEquals(true, instance.getElemBooleanAt(1));
+        assertEquals(false, instance.getElemBooleanAt(3));
+        assertEquals(4, instance.getNumElems());
         Object data2 = instance.getElems();
         assertEquals(true, data2 instanceof byte[]);
-        assertEquals(3, ((byte[]) data2).length);
+        assertEquals(4, ((byte[]) data2).length);
         assertEquals(false, instance.isScalar());
         assertEquals(true, instance.isInt());
-        assertEquals("-1,127,-128", instance.toString());
+        assertEquals("-1,127,-128,0", instance.toString());
 
-        ProductData expectedEqual = ProductData.createInstance(ProductData.TYPE_INT8, 3);
-        expectedEqual.setElems(new byte[]{-1, 127, -128});
+        ProductData expectedEqual = ProductData.createInstance(ProductData.TYPE_INT8, 4);
+        expectedEqual.setElems(new byte[]{-1, 127, -128, 0});
         assertEquals(true, instance.equalElems(expectedEqual));
 
-        ProductData expectedUnequal = ProductData.createInstance(ProductData.TYPE_INT8, 3);
-        expectedUnequal.setElems(new byte[]{-1, 127, -127});
+        ProductData expectedUnequal = ProductData.createInstance(ProductData.TYPE_INT8, 4);
+        expectedUnequal.setElems(new byte[]{-1, 127, -127, 0});
         assertEquals(false, instance.equalElems(expectedUnequal));
 
 //        StreamTest
         ProductData dataFromStream = null;
         try {
             instance.writeTo(_outputStream);
-            dataFromStream = ProductData.createInstance(ProductData.TYPE_INT8, 3);
+            dataFromStream = ProductData.createInstance(ProductData.TYPE_INT8, 4);
             dataFromStream.readFrom(_inputStream);
         } catch (IOException e) {
             fail("IOException not expected");
