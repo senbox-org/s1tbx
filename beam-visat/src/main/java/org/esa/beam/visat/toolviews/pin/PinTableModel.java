@@ -28,11 +28,6 @@ import java.io.IOException;
 public class PinTableModel implements TableModel {
 
     public static final String[] DEFAULT_COLUMN_NAMES = new String[]{"X", "Y", "Lon", "Lat", "Label"};
-    public static final Class[] DEFAULT_COLUMN_TYPES = new Class[]{String.class,
-            String.class,
-            String.class,
-            String.class,
-            String.class};
     private final Product product;
     private final Band[] selectedBands;
     private final TiePointGrid[] selectedGrids;
@@ -77,9 +72,6 @@ public class PinTableModel implements TableModel {
     }
 
     public Class getColumnClass(int columnIndex) {
-        if (columnIndex < DEFAULT_COLUMN_TYPES.length) {
-            return DEFAULT_COLUMN_TYPES[columnIndex];
-        }
         return String.class;
     }
 
@@ -94,13 +86,13 @@ public class PinTableModel implements TableModel {
             Pin pin = product.getPinAt(rowIndex);
 
             if (columnIndex == 0) {
-                return pin.getPixelPos() != null ? String.valueOf(pin.getPixelPos().x) : "Not available";
+                return pin.getPixelPos() != null ? toText(pin.getPixelPos().x, 10.0f) : "n.a.";
             } else if (columnIndex == 1) {
-                return pin.getPixelPos() != null ? String.valueOf(pin.getPixelPos().y) : "Not available";
+                return pin.getPixelPos() != null ? toText(pin.getPixelPos().y, 10.0f) : "n.a.";
             } else if (columnIndex == 2) {
-                return pin.getGeoPos() != null ? String.valueOf(pin.getGeoPos().lon) : "Not available";
+                return pin.getGeoPos() != null ? toText(pin.getGeoPos().lon, 1000.0f) : "n.a.";
             } else if (columnIndex == 3) {
-                return pin.getGeoPos() != null ? String.valueOf(pin.getGeoPos().lat) : "Not available";
+                return pin.getGeoPos() != null ? toText(pin.getGeoPos().lat, 1000.0f) : "n.a.";
             } else if (columnIndex == 4) {
                 return pin.getLabel();
             } else {
@@ -142,6 +134,10 @@ public class PinTableModel implements TableModel {
             }
         }
         return "";
+    }
+
+    private String toText(float x, float roundFactor) {
+        return String.valueOf(MathUtils.round(x, roundFactor));
     }
 
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
