@@ -2,14 +2,9 @@ package com.bc.ceres.core.runtime.internal;
 
 import com.bc.ceres.core.CoreException;
 import static com.bc.ceres.core.runtime.Constants.MODULE_MANIFEST_NAME;
+import com.bc.ceres.core.runtime.ProxyConfig;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.MessageFormat;
@@ -59,7 +54,7 @@ public class ModuleReader {
         if (manifestUrl == null) {
             throw new CoreException("Not a module URL: [" + locationUrl + "]");
         }
-        final ModuleImpl module = readFromManifest(manifestUrl);
+        final ModuleImpl module = readFromManifest(manifestUrl, ProxyConfig.NULL);
         initModule(module, locationUrl, FileHelper.urlToFile(locationUrl));
         return module;
     }
@@ -75,13 +70,13 @@ public class ModuleReader {
             // Note: reader is closed in readFromXML
             return new ModuleManifestParser().parse(reader);
         } catch (FileNotFoundException e) {
-            throw new CoreException("Module manifest ["+manifestFile+"] not found", e);
+            throw new CoreException("Module manifest [" + manifestFile + "] not found", e);
         }
     }
 
-    public ModuleImpl readFromManifest(URL manifestUrl) throws CoreException {
+    public ModuleImpl readFromManifest(URL manifestUrl, ProxyConfig proxyConfig) throws CoreException {
         try {
-            final URLConnection urlConnection = manifestUrl.openConnection();
+            final URLConnection urlConnection = UrlHelper.openConnection(manifestUrl, proxyConfig, "GET");
             final InputStream stream = urlConnection.getInputStream();
             // Note: stream is closed in readFromXML
             return new ModuleManifestParser().parse(stream);

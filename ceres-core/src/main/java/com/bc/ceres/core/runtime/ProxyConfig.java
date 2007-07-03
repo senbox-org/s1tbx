@@ -2,12 +2,6 @@ package com.bc.ceres.core.runtime;
 
 import com.bc.ceres.core.Assert;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.URL;
-import java.net.URLConnection;
-
 public class ProxyConfig {
     public static final ProxyConfig NULL = new ProxyConfig();
 
@@ -66,19 +60,6 @@ public class ProxyConfig {
         this.password = password;
     }
 
-    public URLConnection openConnection(URL url) throws IOException {
-        URLConnection urlConnection;
-        if (this == NULL) {
-            urlConnection = url.openConnection();
-        } else {
-            urlConnection = url.openConnection(createProxy());
-            if (isAuthorizationUsed()) {
-                addProxyAuthorization(urlConnection);
-            }
-        }
-        return urlConnection;
-    }
-
     public String getScrambledPassword() {
         if (password.length > 0) {
             return scramble(new String(password));
@@ -126,18 +107,22 @@ public class ProxyConfig {
         return new String(chars);
     }
 
-    private Proxy createProxy() {
-        InetSocketAddress socketAddress = new InetSocketAddress(getHost(), getPort());
-        return new Proxy(Proxy.Type.HTTP, socketAddress);
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof ProxyConfig) {
+            ProxyConfig proxyConfig = (ProxyConfig) obj;
+            return host.equals(proxyConfig.host)
+                    && port == proxyConfig.port
+                    && authorizationUsed == proxyConfig.authorizationUsed;
+        }
+        return super.equals(obj);
     }
 
-    private void addProxyAuthorization(URLConnection urlConnection) {
-        // from http://floatingsun.net/articles/java-proxy.html
-        String s = getUsername() + ':' + new String(getPassword());
-        byte[] bytes = s.getBytes();
-        urlConnection.setRequestProperty("Proxy-Authorization",
-                                         "Basic " +
-                                                 new sun.misc.BASE64Encoder().encode(bytes));
+    @Override
+    public int hashCode() {
+        return host.hashCode() + port;
     }
-
 }

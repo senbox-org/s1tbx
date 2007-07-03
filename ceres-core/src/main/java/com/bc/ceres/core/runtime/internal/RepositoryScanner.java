@@ -48,7 +48,12 @@ public class RepositoryScanner {
         List<Module> repositoryModules = new ArrayList<Module>(64);
         progressMonitor.beginTask("Retrieving module information from repository", 100);
         progressMonitor.setSubTaskName("Connecting...");
-        final URLConnection urlConnection = proxyConfig != null ? proxyConfig.openConnection(url) : url.openConnection();
+        final URLConnection urlConnection;
+        if (url.getProtocol().equalsIgnoreCase("http")) {
+            urlConnection = UrlHelper.openConnection(url, proxyConfig, "GET");
+        } else {
+            urlConnection = url.openConnection();
+        }
         progressMonitor.worked(10);
         final InputStream inputStream = urlConnection.getInputStream();
         final InputStreamReader reader = new InputStreamReader(inputStream);
@@ -108,7 +113,7 @@ public class RepositoryScanner {
         final ModuleImpl module;
         try {
             URL manifestUrl = new URL(urlBase + Constants.MODULE_MANIFEST_NAME );
-            module = new ModuleReader(logger).readFromManifest(manifestUrl);
+            module = new ModuleReader(logger).readFromManifest(manifestUrl, proxyConfig);
         } catch (CoreException e) {
             logger.warning(String.format("Repository entry [%s] is invalid: %s", moduleName, e.getMessage()));
             return;
@@ -130,12 +135,12 @@ public class RepositoryScanner {
         repositoryModules.add(repositoryModule);
     }
 
-    private static Module createRepositoryModule(ModuleImpl module, String urlBase, String archiveName) {
+    private  Module createRepositoryModule(ModuleImpl module, String urlBase, String archiveName) {
         URL archiveUrl;
         URLConnection urlConnection;
         try {
             archiveUrl = new URL(urlBase + archiveName);
-            urlConnection = archiveUrl.openConnection();
+            urlConnection = UrlHelper.openConnection(archiveUrl, proxyConfig, "HEAD");
             urlConnection.connect();
         } catch (IOException e) {
             return null;
@@ -143,27 +148,15 @@ public class RepositoryScanner {
         int contentLength = urlConnection.getContentLength();
         long lastModified = urlConnection.getLastModified();
 
-        URL aboutUrl = null;
-        InputStream inputStream = null;
-        try {
-            aboutUrl = new URL(urlBase + "about.html");
-            inputStream = aboutUrl.openStream();
-        } catch (IOException e) {
-            aboutUrl = null;
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
+        String aboutUrlString = urlBase + "about.html";
+        if (!UrlHelper.existsResource(aboutUrlString, proxyConfig)) {
+            aboutUrlString = null;
         }
 
         module.setLocation(archiveUrl);
         module.setContentLength(contentLength);
         module.setLastModified(lastModified);
-        module.setAboutUrl(aboutUrl != null ? aboutUrl.toExternalForm() : null);
+        module.setAboutUrl(aboutUrlString);
         return module;
     }
 

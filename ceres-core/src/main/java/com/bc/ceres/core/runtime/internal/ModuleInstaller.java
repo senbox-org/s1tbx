@@ -46,7 +46,7 @@ public class ModuleInstaller {
             try {
                 logger.info(MessageFormat.format("Downloading [{0}] to [{1}]...", url, tempFile.getName()));
                 pm.setSubTaskName(MessageFormat.format("Downloading [{0}]", fileName));
-                URLConnection urlConnection = proxyConfig.openConnection(url);
+                URLConnection urlConnection = UrlHelper.openConnection(url, proxyConfig, "GET");
                 FileHelper.copy(urlConnection, tempFile, new SubProgressMonitor(pm, 90));
 
                 logger.info(MessageFormat.format("Copying [{0}] to [{1}]...", tempFile, fileName));
