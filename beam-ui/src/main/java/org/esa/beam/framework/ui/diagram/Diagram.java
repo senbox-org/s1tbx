@@ -190,6 +190,10 @@ public class Diagram {
         setValid(false);
     }
 
+    public Rectangle getGraphArea() {
+        return new Rectangle(graphArea);
+    }
+
     public void render(Graphics2D g2D, int x, int y, int width, int height) {
         Font oldFont = g2D.getFont();
         g2D.setFont(font);
@@ -197,7 +201,7 @@ public class Diagram {
 
         validate(x, y, width, height);
         drawAxes(g2D, x, y, width, height);
-        drawGraph(g2D);
+        drawGraphs(g2D);
 
         g2D.setFont(oldFont);
     }
@@ -240,7 +244,7 @@ public class Diagram {
         setValid(w > 0 && h > 0);
     }
 
-    private void drawGraph(Graphics2D g2D) {
+    private void drawGraphs(Graphics2D g2D) {
         if (!isValid()) {
             return;
         }
@@ -448,5 +452,11 @@ public class Diagram {
         public Point2D transformB2A(Point2D b, Point2D a) {
             return transformB2A.transform(b, a);
         }
+    }
+
+    public void dispose() {
+        xAxis = null;
+        yAxis = null;
+        graphs.clear();
     }
 }

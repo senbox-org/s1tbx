@@ -6,8 +6,12 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.diagram.Diagram;
 import org.esa.beam.framework.ui.diagram.DiagramAxis;
 import org.esa.beam.framework.ui.diagram.DiagramGraph;
+import org.esa.beam.framework.ui.diagram.DefaultDiagramGraphStyle;
 
 import java.io.IOException;
+import java.awt.Paint;
+import java.awt.Color;
+import java.awt.BasicStroke;
 
 
 class SpectraDiagram extends Diagram {
@@ -43,11 +47,47 @@ class SpectraDiagram extends Diagram {
         return null;
     }
 
+    public void addCursorSpectrumGraph() {
+        final SpectrumGraph cursorSpectrumGraph = getCursorSpectrumGraph();
+        if (cursorSpectrumGraph == null) {
+            addSpectrumGraph(null);
+        }
+    }
+
+    public void addSpectrumGraph(Pin pin) {
+        SpectrumGraph spectrumGraph = new SpectrumGraph(pin, getBands());
+        DefaultDiagramGraphStyle style = (DefaultDiagramGraphStyle) spectrumGraph.getStyle();
+        if (pin != null) {
+            Paint fillPaint = pin.getSymbol().getFillPaint();
+            if (fillPaint instanceof Color) {
+                style.setOutlineColor(((Color) fillPaint).darker());
+            } else {
+                style.setOutlineColor(pin.getSymbol().getOutlineColor());
+            }
+            style.setOutlineStroke(pin.getSymbol().getOutlineStroke());
+            style.setFillPaint(fillPaint);
+        } else {
+            style.setOutlineColor(Color.BLACK);
+            style.setOutlineStroke(new BasicStroke(1.5f));
+            style.setFillPaint(Color.WHITE);
+        }
+        addGraph(spectrumGraph);
+    }
+
+    public void removeCursorSpectrumGraph() {
+        final SpectrumGraph cursorSpectrumGraph = getCursorSpectrumGraph();
+        if (cursorSpectrumGraph != null) {
+            removeGraph(cursorSpectrumGraph);
+        }
+    }
+
     public void setBands(Band[] bands) {
         this.bands = bands;
         for (DiagramGraph graph : getGraphs()) {
             ((SpectrumGraph) graph).setBands(bands);
         }
+        resetMinMaxAccumulators();
+        getYAxis().setUnit(getUnit(this.bands));
     }
 
     public void setAxesMinMaxAccumulatorsToAxesMinMax() {
@@ -125,6 +165,7 @@ class SpectraDiagram extends Diagram {
         return unit != null ? unit : "?";
     }
 
+    @Override
     public void dispose() {
         if (product != null) {
             product = null;
@@ -134,6 +175,7 @@ class SpectraDiagram extends Diagram {
                 spectrumGraph.dispose();
             }
         }
+        super.dispose();
     }
 
 }

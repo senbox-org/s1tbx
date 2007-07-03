@@ -24,9 +24,11 @@ import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Rectangle2D;
-import java.awt.geom.Point2D;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.geom.Line2D;
+import java.text.DecimalFormat;
 
 /**
  * The <code>DiagramCanvas</code> class is a UI component used to display simple X/Y plots represented by objects of
@@ -88,8 +90,8 @@ public class DiagramCanvas extends JPanel {
             return;
         }
 
-        final Graphics2D g2D = (Graphics2D) g;
-        g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        final Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         insets = getInsets(insets);
         final int width = getWidth() - (insets.left + insets.right);
@@ -98,61 +100,79 @@ public class DiagramCanvas extends JPanel {
         final int y0 = insets.top;
 
         if (diagram != null) {
-            diagram.render(g2D, x0, y0, width, height);
+            diagram.render(g2d, x0, y0, width, height);
+            if (dragPoint != null && selectedGraph != null) {
+                drawValueIndicator(g2d);
+            }
         }
 
         if (messageText != null) {
-            drawTextBox(g2D, this.messageText, x0 + width / 2, x0 + height / 2);
-        }
-
-        if (dragPoint != null && selectedGraph != null) {
-            Diagram.RectTransform transform = diagram.getTransform();
-            Point2D a = transform.transformB2A(dragPoint, null);
-            double x = a.getX();
-            if (x < selectedGraph.getXMin()) {
-                x = selectedGraph.getXMin();
-            }
-            if (x > selectedGraph.getXMax()) {
-                x = selectedGraph.getXMax();
-            }
-            double y = getY(selectedGraph, x);
-            Point2D b = transform.transformA2B(new Point2D.Double(x, y), null);
-
-            g2D.setStroke(new BasicStroke(1.0f));
-            g2D.setColor(Color.BLACK);
-            Ellipse2D.Double marker = new Ellipse2D.Double(b.getX() - 3,
-                                                           b.getY() - 3,
-                                                           6, 6);
-            g2D.draw(marker);
-            String text = selectedGraph.getYName() + ": x = " + x + ", y = " + y + ")";
-            drawTextBox(g2D, text, 10, 10);
+            drawTextBox(g2d, this.messageText, x0 + width / 2, y0 + height / 2, new Color(255, 192, 102));
         }
     }
 
-    private void drawTextBox(Graphics2D g2D, String text, int x0, int y0) {
+    private void drawValueIndicator(Graphics2D g2d) {
+        Diagram.RectTransform transform = diagram.getTransform();
+        Point2D a = transform.transformB2A(dragPoint, null);
+        double x = a.getX();
+        if (x < selectedGraph.getXMin()) {
+            x = selectedGraph.getXMin();
+        }
+        if (x > selectedGraph.getXMax()) {
+            x = selectedGraph.getXMax();
+        }
+        final Stroke oldStroke = g2d.getStroke();
+        final Color oldColor = g2d.getColor();
+
+        double y = getY(selectedGraph, x);
+        Point2D b = transform.transformA2B(new Point2D.Double(x, y), null);
+
+        g2d.setStroke(new BasicStroke(1.0f));
+        g2d.setColor(Color.BLACK);
+        Ellipse2D.Double marker = new Ellipse2D.Double(b.getX() - 4.0, b.getY() - 4.0, 8.0, 8.0);
+        g2d.draw(marker);
+
+        g2d.setColor(Color.GRAY);
+        g2d.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{6, 6}, 12));
+        final Rectangle graphArea = diagram.getGraphArea();
+        g2d.draw(new Line2D.Double( b.getX(), graphArea.y + graphArea.height, b.getX(), b.getY()));
+        g2d.draw(new Line2D.Double( graphArea.x, b.getY(), b.getX(), b.getY()));
+
+        DecimalFormat decimalFormat = new DecimalFormat("0.#####E0");
+        String text = selectedGraph.getYName() + ": x = " + decimalFormat.format(x) + ", y = " + decimalFormat.format(y);
+
+        g2d.setStroke(oldStroke);
+        g2d.setColor(oldColor);
+
+        drawTextBox(g2d, text, graphArea.x + 6, graphArea.y + 6 + 16, new Color(255, 255, 255, 128));
+    }
+
+    private void drawTextBox(Graphics2D g2D, String text, int x0, int y0, Color color) {
+
         final FontMetrics fontMetrics = g2D.getFontMetrics();
         final Rectangle2D textBounds = fontMetrics.getStringBounds(text, g2D);
-        Rectangle2D.Double r = new Rectangle2D.Double(x0 + textBounds.getX() - 2, 
-                                                      y0 + textBounds.getY() - 2,
-                                                      textBounds.getWidth() + 4,
-                                                      textBounds.getHeight() + 4);
-//        if (r.getMaxX() > getWidth()) {
-//            r.setRect(getWidth() - r.getWidth(), r.getY(), r.getWidth(), r.getHeight());
-//        }
-//        if (r.getMinX() < 0) {
-//            r.setRect(0, r.getY(), r.getWidth(), r.getHeight());
-//        }
-//        if (r.getMaxY() > getHeight()) {
-//            r.setRect(r.getX(), getHeight() - r.getHeight(), r.getWidth(), r.getHeight());
-//        }
-//        if (r.getMinY() < 0) {
-//            r.setRect(r.getX(), 0, r.getWidth(), r.getHeight());
-//        }
-        g2D.setColor(new Color(255, 192, 192));
+        Rectangle2D.Double r = new Rectangle2D.Double(x0 + textBounds.getX() - 2.0,
+                                                      y0 + textBounds.getY() - 2.0,
+                                                      textBounds.getWidth() + 4.0,
+                                                      textBounds.getHeight() + 4.0);
+
+        if (r.getMaxX() > getWidth()) {
+            r.setRect(getWidth() - r.getWidth(), r.getY(), r.getWidth(), r.getHeight());
+        }
+        if (r.getMinX() < 0) {
+            r.setRect(0, r.getY(), r.getWidth(), r.getHeight());
+        }
+        if (r.getMaxY() > getHeight()) {
+            r.setRect(r.getX(), getHeight() - r.getHeight(), r.getWidth(), r.getHeight());
+        }
+        if (r.getMinY() < 0) {
+            r.setRect(r.getX(), 0, r.getWidth(), r.getHeight());
+        }
+        g2D.setColor(color);
         g2D.fill(r);
         g2D.setColor(Color.black);
         g2D.draw(r);
-        g2D.drawString(text, (int) x0, (int) (y0 + fontMetrics.getAscent()));
+        g2D.drawString(text, x0, y0);
     }
 
     public double getY(DiagramGraph graph, double x) {
@@ -182,7 +202,6 @@ public class DiagramCanvas extends JPanel {
             if (selectedGraph == null) {
                 selectedGraph = getDiagram().getClosestGraph(e.getX(), e.getY());
             }
-            System.out.println("selectedGraph = " + selectedGraph);
             if (selectedGraph != null) {
                 dragPoint = e.getPoint();
             } else {

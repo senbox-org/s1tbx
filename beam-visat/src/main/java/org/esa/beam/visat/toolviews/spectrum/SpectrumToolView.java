@@ -16,12 +16,7 @@
  */
 package org.esa.beam.visat.toolviews.spectrum;
 
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.DataNode;
-import org.esa.beam.framework.datamodel.Pin;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
@@ -29,17 +24,10 @@ import org.esa.beam.framework.ui.PixelPositionListener;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.diagram.DiagramCanvas;
-import org.esa.beam.framework.ui.diagram.DiagramGraph;
-import org.esa.beam.framework.ui.diagram.DiagramGraphIO;
-import org.esa.beam.framework.ui.diagram.DiagramGraphStyle;
-import org.esa.beam.framework.ui.diagram.DefaultDiagramGraphStyle;
 import org.esa.beam.framework.ui.product.BandChooser;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.Debug;
-import org.esa.beam.util.PropertyMap;
-import org.esa.beam.util.io.BeamFileChooser;
-import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.AbstractAction;
@@ -53,20 +41,15 @@ import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
-import java.awt.Paint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.RenderedImage;
-import java.io.IOException;
-import java.io.File;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -81,18 +64,18 @@ public class SpectrumToolView extends AbstractToolView {
 
     private static final String MSG_NO_SPECTRAL_BANDS = "No spectral bands.";   /*I18N*/
 
-    private Map<Product, CursorSpectrumPPL> cursorSpectrumPPLMap;
     private ProductSceneView currentView;
     private Product currentProduct;
+    private Map<Product, CursorSpectrumPPL> cursorSpectrumPPLMap;
     private final HashMap<Product, SpectraDiagram> productToDiagramMap;
     private final ProductNodeListenerAdapter productNodeHandler;
     private DiagramCanvas diagramCanvas;
     private AbstractButton filterButton;
     private boolean tipShown;
     private String originalDescriptorTitle;
+    private AbstractButton showSpectrumForCursorButton;
     private AbstractButton showSpectraForSelectedPinsButton;
     private AbstractButton showSpectraForAllPinsButton;
-    private AbstractButton showSpectrumForCursorButton;
     private AbstractButton showAveragePinSpectrumButton;
     private int pixelX;
     private int pixelY;
@@ -142,6 +125,7 @@ public class SpectrumToolView extends AbstractToolView {
                 }
             }
             if (currentProduct == null) {
+                diagramCanvas.setDiagram(null);
                 diagramCanvas.setMessageText("No product selected."); /*I18N*/
             } else {
                 diagramCanvas.setMessageText(null);
@@ -174,6 +158,7 @@ public class SpectrumToolView extends AbstractToolView {
     }
 
     public void updateSpectra(int pixelX, int pixelY) {
+        diagramCanvas.setMessageText(null);
         this.pixelX = pixelX;
         this.pixelY = pixelY;
         SpectraDiagram spectraDiagram = getSpectraDiagram();
@@ -319,11 +304,28 @@ public class SpectrumToolView extends AbstractToolView {
             HelpSys.enableHelpKey(mainPane, getDescriptor().getHelpId());
         }
 
-        // Add an internal frame listsner to VISAT so that we can update our
+        // Add an internal frame listener to VISAT so that we can update our
         // spectrum dialog with the information of the currently activated
         // product scene view.
         //
         VisatApp.getApp().addInternalFrameListener(new SpectrumIFL());
+
+        VisatApp.getApp().getProductManager().addListener(new ProductManager.ProductManagerListener() {
+            public void productAdded(ProductManager.ProductManagerEvent event) {
+                // ignored
+            }
+
+            public void productRemoved(ProductManager.ProductManagerEvent event) {
+                final Product product = event.getProduct();
+                cursorSpectrumPPLMap.remove(product);
+                if(getCurrentProduct() == product) {
+                    setSpectraDiagram(null);
+                    setCurrentView(null);
+                    setCurrentProduct(null);
+                }
+
+            }
+        });
 
 
         final ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
@@ -363,6 +365,7 @@ public class SpectrumToolView extends AbstractToolView {
         } else {
             oldDiagram = productToDiagramMap.remove(currentProduct);
         }
+        diagramCanvas.setDiagram(newDiagram);
         if (oldDiagram != null && oldDiagram != newDiagram) {
             oldDiagram.dispose();
         }
@@ -395,69 +398,41 @@ public class SpectrumToolView extends AbstractToolView {
     }
 
     private boolean isShowingPinSpectra() {
-        return isShowingSpectraForSelectedPinsButton() || isShowingSpectraForAllPinsButton();
+        return isShowingSpectraForSelectedPins() || isShowingSpectraForAllPins();
     }
 
-    private boolean isShowingSpectraForAllPinsButton() {
+    private boolean isShowingSpectraForAllPins() {
         return showSpectraForAllPinsButton.isSelected();
     }
 
 
     private void recreateSpectraDiagram() {
-        SpectraDiagram spectraDiagram = getSpectraDiagram();
-        if (spectraDiagram != null) {
-            spectraDiagram.dispose();
-        }
+        SpectraDiagram spectraDiagram = new SpectraDiagram(getCurrentProduct());
 
-        spectraDiagram = new SpectraDiagram(getCurrentProduct());
-
-        if (isShowingCursorSpectrum()) {
-            addSpectrumGraph(spectraDiagram, null);
-        }
-
-        if (isShowingSpectraForSelectedPinsButton()) {
+        if (isShowingSpectraForSelectedPins()) {
             Pin[] pins = getCurrentProduct().getPins();
             for (Pin pin : pins) {
                 if (pin.isSelected()) {
-                    addSpectrumGraph(spectraDiagram, pin);
+                    spectraDiagram.addSpectrumGraph( pin);
                 }
             }
-        } else if (isShowingSpectraForAllPinsButton()) {
+        } else if (isShowingSpectraForAllPins()) {
             Pin[] pins = getCurrentProduct().getPins();
             for (Pin pin : pins) {
-                addSpectrumGraph(spectraDiagram, pin);
+                spectraDiagram.addSpectrumGraph( pin);
             }
+        }
+
+        if (isShowingCursorSpectrum()) {
+            spectraDiagram.addCursorSpectrumGraph();
         }
 
         spectraDiagram.setBands(getAvailableSpectralBands());
-        spectraDiagram.resetMinMaxAccumulators();
-        spectraDiagram.updateYUnit();
         spectraDiagram.updateSpectra(pixelX, pixelY);
         setSpectraDiagram(spectraDiagram);
-        diagramCanvas.setDiagram(spectraDiagram);
     }
 
-    private static void addSpectrumGraph(SpectraDiagram spectraDiagram, Pin pin) {
-        SpectrumGraph spectrumGraph = new SpectrumGraph(pin, spectraDiagram.getBands());
-        DefaultDiagramGraphStyle style = (DefaultDiagramGraphStyle) spectrumGraph.getStyle();
-        if (pin != null) {
-            Paint fillPaint = pin.getSymbol().getFillPaint();
-            if (fillPaint instanceof Color) {
-                style.setOutlineColor(((Color) fillPaint).darker());
-            } else {
-                style.setOutlineColor(pin.getSymbol().getOutlineColor());
-            }
-            style.setOutlineStroke(pin.getSymbol().getOutlineStroke());
-            style.setFillPaint(fillPaint);
-        } else {
-            style.setOutlineColor(Color.BLACK);
-            style.setOutlineStroke(new BasicStroke(1.5f));
-            style.setFillPaint(Color.WHITE);
-        }
-        spectraDiagram.addGraph(spectrumGraph);
-    }
-
-    private boolean isShowingSpectraForSelectedPinsButton() {
+    private boolean isShowingSpectraForSelectedPins() {
         return showSpectraForSelectedPinsButton.isSelected();
     }
 
@@ -515,22 +490,23 @@ public class SpectrumToolView extends AbstractToolView {
                                     int pixelY,
                                     boolean pixelPosValid,
                                     MouseEvent e) {
+            diagramCanvas.setMessageText(null);
             if (isActive()) {
                 if (pixelPosValid) {
-                    diagramCanvas.setMessageText(null);
+                    getSpectraDiagram().addCursorSpectrumGraph();
                     updateSpectra(pixelX, pixelY);
-                } else {
-                    diagramCanvas.setMessageText("Pixel position invalid.");
                 }
-                if (e.isShiftDown()) {
-                    resetAxesMinMaxAccumulators();
-                }
+            }
+            if (e.isShiftDown()) {
+                resetAxesMinMaxAccumulators();
             }
         }
 
         public void pixelPosNotAvailable(RenderedImage sourceImage) {
+
             if (isActive()) {
-                diagramCanvas.setMessageText("Pixel position not available.");
+                getSpectraDiagram().removeCursorSpectrumGraph();
+                diagramCanvas.repaint();
             }
         }
 
