@@ -405,6 +405,7 @@ public class BasicApp {
     private void initMainFrame() {
         _mainFrame = new MainFrame();
         _mainFrame.setTitle(getMainFrameTitle());
+        _mainFrame.setName("mainFrame" + getAppName());
         _mainFrame.setDefaultCloseOperation(MainFrame.DO_NOTHING_ON_CLOSE);
         _mainFrame.addWindowListener(new WindowAdapter() {
 
