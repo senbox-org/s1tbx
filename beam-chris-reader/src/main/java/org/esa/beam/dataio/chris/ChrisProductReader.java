@@ -14,19 +14,25 @@ package org.esa.beam.dataio.chris;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.dataio.chris.internal.DropoutCorrection;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.BitmaskDef;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.dataio.chris.internal.DropoutCorrection;
 
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.ParseException;
-import java.text.DateFormat;
 import java.util.Date;
-import java.awt.Rectangle;
 
 /**
  * Reader for CHRIS products.
@@ -76,7 +82,7 @@ public class ChrisProductReader extends AbstractProductReader {
         corrected = new boolean[spectralBandCount];
 
         maskRefinement = new MaskRefinement(1.5);
-        dropoutCorrection = new DropoutCorrection(2, NEIGHBOUR_BAND_COUNT, sceneRasterWidth, sceneRasterHeight, true);
+        dropoutCorrection = new DropoutCorrection(2, sceneRasterWidth, sceneRasterHeight, true);
 
         return createProduct();
     }
@@ -127,14 +133,13 @@ public class ChrisProductReader extends AbstractProductReader {
                 loadRadianceAndMaskData(bandIndex);
                 pm.worked(1);
 
-                dropoutCorrection.perform(radianceData, maskData, bandIndex,
+                dropoutCorrection.perform(radianceData, maskData, bandIndex, NEIGHBOUR_BAND_COUNT,
                                           new Rectangle(0, 0, sceneRasterWidth, sceneRasterHeight));
-                corrected[bandIndex] = true;
+                corrected[bandIndex] = false;
 
                 pm.worked(1);
             }
 
-            final int sceneOffset = sourceOffsetY * sceneRasterWidth + sourceOffsetX;
             Object data;
 
             if (destBand.getName().startsWith("rad")) {
@@ -143,7 +148,7 @@ public class ChrisProductReader extends AbstractProductReader {
                 data = maskData[bandIndex];
             }
             for (int i = 0; i < targetHeight; ++i) {
-                System.arraycopy(data, sceneOffset + i * sceneRasterWidth,
+                System.arraycopy(data, (sourceOffsetY + i) * sceneRasterWidth + sourceOffsetX,
                                  targetBuffer.getElems(), i * targetWidth, targetWidth);
             }
 
@@ -242,7 +247,8 @@ public class ChrisProductReader extends AbstractProductReader {
                 for (final Flags flag : Flags.values()) {
                     product.addBitmaskDef(
                             new BitmaskDef(
-                                    new StringBuilder(name.replace("mask", "radiance")).append("_").append(flag.toString()).toString(),
+                                    new StringBuilder(name.replace("mask", "radiance")).append("_").append(
+                                            flag.toString()).toString(),
                                     flag.getDescription(),
                                     new StringBuilder(name).append(".").append(flag.toString()).toString(),
                                     flag.getColor(),
@@ -286,7 +292,8 @@ public class ChrisProductReader extends AbstractProductReader {
 
         if (radianceData[bandIndex] == null) {
             radianceData[bandIndex] = new int[length];
-            chrisFile.readRciImageData(bandIndex, 0, 0, 1, 1, sceneRasterWidth, sceneRasterHeight, radianceData[bandIndex]);
+            chrisFile.readRciImageData(bandIndex, 0, 0, 1, 1, sceneRasterWidth, sceneRasterHeight,
+                                       radianceData[bandIndex]);
         }
 
         if (maskData[bandIndex] == null) {
@@ -296,7 +303,8 @@ public class ChrisProductReader extends AbstractProductReader {
                 chrisFile.readMaskData(bandIndex, 0, 0, 1, 1, sceneRasterWidth, sceneRasterHeight, maskData[bandIndex]);
             }
 
-            maskRefinement.perform(radianceData[bandIndex], sceneRasterWidth, maskData[bandIndex], 0, 0, sceneRasterWidth);
+            maskRefinement.perform(radianceData[bandIndex], sceneRasterWidth, maskData[bandIndex], 0, 0,
+                                   sceneRasterWidth);
         }
     }
 

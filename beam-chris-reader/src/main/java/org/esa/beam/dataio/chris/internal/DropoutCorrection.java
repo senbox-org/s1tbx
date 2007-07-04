@@ -3,6 +3,7 @@ package org.esa.beam.dataio.chris.internal;
 import com.bc.ceres.core.Assert;
 
 import java.awt.Rectangle;
+import static java.lang.Math.*;
 
 /**
  * The class {@code DropoutCorrection} encapsulates the dropout correction
@@ -17,24 +18,22 @@ public class DropoutCorrection {
     public static final double[] M4 = {0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0};
     public static final double[] M8 = {0.7, 1.0, 0.7, 1.0, 0.0, 1.0, 0.7, 1.0, 0.7};
 
-    private static final int N_WIDTH = 3;
-    private static final int N_HEIGHT = 3;
-    private static final int N_SIZE = N_WIDTH * N_HEIGHT;
+    private static final int M_WIDTH = 3;
+    private static final int M_HEIGHT = 3;
 
     private static final short VALID = 0;
     private static final short DROPOUT = 1;
     private static final short SATURATED = 2;
     private static final short CORRECTED_DROPOUT = 4;
 
-    private double[] matrix;
-    private int neighbourBandCount;
-    private final int sourceWidth;
-    private final int sourceHeight;
+    private double[] weights;
+    private final int sceneWidth;
+    private final int sceneHeight;
     private final boolean cosmetic;
 
 
-    public DropoutCorrection(int type, int neighbourBandCount, int sourceWidth, int sourceHeight) {
-        this(type, neighbourBandCount, sourceWidth, sourceHeight, false);
+    public DropoutCorrection(int type, int sourceWidth, int sourceHeight) {
+        this(type, sourceWidth, sourceHeight, false);
     }
 
     /**
@@ -42,31 +41,27 @@ public class DropoutCorrection {
      * todo - complete
      *
      * @param type
-     * @param neighbourBandCount
      * @param sourceWidth
      * @param sourceHeight
      * @param cosmetic
      */
-    public DropoutCorrection(int type, int neighbourBandCount, int sourceWidth, int sourceHeight,
-                             boolean cosmetic) {
+    public DropoutCorrection(int type, int sourceWidth, int sourceHeight, boolean cosmetic) {
         Assert.argument(type == 2 || type == 4 || type == 8);
-        Assert.argument(neighbourBandCount >= 0);
 
         switch (type) {
         case 2 :
-            this.matrix = M2;
+            this.weights = M2;
             break;
         case 4 :
-            this.matrix = M4;
+            this.weights = M4;
             break;
         case 8 :
-            this.matrix = M8;
+            this.weights = M8;
             break;
         }
 
-        this.neighbourBandCount = neighbourBandCount;
-        this.sourceWidth = sourceWidth;
-        this.sourceHeight = sourceHeight;
+        this.sceneWidth = sourceWidth;
+        this.sceneHeight = sourceHeight;
         this.cosmetic = cosmetic;
     }
 
@@ -77,58 +72,77 @@ public class DropoutCorrection {
      * @param data
      * @param mask
      */
-    public void perform(int[][] data, short[][] mask, int bandIndex, Rectangle rectangle) {
+    public void perform(int[][] data, short[][] mask, int bandIndex, int neighboringBandCount, Rectangle rectangle) {
         Assert.argument(data.length == mask.length);
         Assert.argument(data[bandIndex].length == mask[bandIndex].length);
 
-        final double[] w = new double[matrix.length];
+        int imax = min(bandIndex + neighboringBandCount, data.length - 1);
+        int imin = max(bandIndex - neighboringBandCount, 0);
 
-        // x = offset of current row
-        // y = offset of current column 
-        for (int y = rectangle.y; y < rectangle.y + rectangle.height; ++y) {
-            for (int x = rectangle.x; x < rectangle.x + rectangle.width; ++x) {
+        int[][] nd = new int[imax - imin][];
+        short[][] nm = new short[imax - imin][];
+
+        for (int i = imin, j = 0; i <= imax; ++i) {
+            if (i != bandIndex) {
+                nd[j] = data[i];
+                nm[j] = mask[i];
+                ++j;
+            }
+        }
+
+        perform(data[bandIndex], mask[bandIndex], nd, nm, data[bandIndex], mask[bandIndex], rectangle);
+    }
+
+    /**
+     * Performs the dropout correction.
+     * todo - complete
+     *
+     * @param sourceData
+     * @param sourceMask
+     */
+    public void perform(int[] sourceData, short[] sourceMask, int[][] neighborData, short[][] neighborMask,
+                        int[] targetData, short[] targetMask,
+                        Rectangle targetRectangle) {
+        Assert.argument(sourceData.length == sourceMask.length);
+
+        final double[] w = new double[weights.length];
+
+        for (int y = targetRectangle.y; y < targetRectangle.y + targetRectangle.height; ++y) {
+            for (int x = targetRectangle.x; x < targetRectangle.x + targetRectangle.width; ++x) {
                 // offset of current pixel
-                final int yx = y * sourceWidth + x;
+                final int xy = y * sceneWidth + x;
 
-                if (mask[bandIndex][yx] == DROPOUT) {
+                targetData[xy] = sourceData[xy];
+                targetMask[xy] = sourceMask[xy];
+
+                if (sourceMask[xy] == DROPOUT) {
                     double ws = 0.0;
                     double xc = 0.0;
 
                     double ws2 = 0.0;
                     double xc2 = 0.0;
 
-                    // offset of neighbourhood pixel
-                    int nIndex = 0;
+                    int imin = (y - 1 < 0) ? 1 : 0;
+                    int imax = (y + 1 < sceneHeight) ? M_HEIGHT : M_HEIGHT - 1;
+                    int jmin = (x - 1 < 0) ? 1 : 0;
+                    int jmax = (x + 1 < sceneWidth) ? M_WIDTH : M_WIDTH - 1;
 
-                    // ny = current row of neighbourhood matrix
-                    for (int i = y - 1; i <= y + 1; ++i) {
-                        if (i < 0 || i >= sourceHeight) {
-                            // this is not an adjacent row, so
-                            nIndex += N_WIDTH;
-                            continue;
-                        }
+                    for (int i = imin; i < imax; ++i) {
+                        for (int j = jmin; j < jmax; ++j) {
+                            final int ij = i * M_WIDTH + j;
+                            final int ni = xy + (j - 1) + (i - 1) * sceneWidth;
 
-                        // nx = current column of neighbourhood matrix
-                        for (int j = x - 1; j <= x + 1; ++j, nIndex++) {
-                            if (j < 0 || j >= sourceWidth) {
-                                // this is not an adjacent column, so
-                                continue;
-                            }
-                            // offset of neighbourhood matrix element
-                            final int ij = i * sourceWidth + j;
-
-                            if (matrix[nIndex] != 0.0) {
-                                switch (mask[bandIndex][ij]) {
+                            if (weights[ij] != 0.0) {
+                                switch (sourceMask[ni]) {
                                 case VALID:
-                                    w[nIndex] = matrix[nIndex] * calculateWeight(yx, ij, data, mask,
-                                                                                 bandIndex);
-                                    ws += w[nIndex];
-                                    xc += data[bandIndex][ij] * w[nIndex];
+                                    w[ij] = weights[ij] * calculateWeight(xy, ni, neighborData, neighborMask);
+                                    ws += w[ij];
+                                    xc += sourceData[ni] * w[ij];
                                     break;
 
                                 case SATURATED:
-                                    ws2 += matrix[nIndex];
-                                    xc2 += data[bandIndex][ij] * matrix[nIndex];
+                                    ws2 += weights[ij];
+                                    xc2 += sourceData[ni] * weights[ij];
                                     break;
                                 }
                             }
@@ -136,61 +150,37 @@ public class DropoutCorrection {
                     }
 
                     if (ws > 0.0) {
-                        data[bandIndex][yx] = (int) (xc / ws);
+                        targetData[xy] = (int) (xc / ws);
                         if (!cosmetic) {
-                            mask[bandIndex][yx] = CORRECTED_DROPOUT;
+                            targetMask[xy] = CORRECTED_DROPOUT;
                         }
                     } else if (ws2 > 0.0) {
-                        data[bandIndex][yx] = (int) (xc2 / ws2);
+                        targetData[xy] = (int) (xc2 / ws2);
                         if (!cosmetic) {
-                            mask[bandIndex][yx] = SATURATED;
+                            targetMask[xy] = SATURATED;
                         }
                     } else {
-                        data[bandIndex][yx] = 0;
+                        targetData[xy] = 0;
                     }
                 }
             }
         }
     }
 
-    private double calculateWeight(final int yx,
-                                   final int nyx,
-                                   final int[][] data,
-                                   final short[][] mask,
-                                   final int bandIndex) {
+    private double calculateWeight(int index, int neighborIndex, int[][] data, short[][] mask) {
         double sum = 0.0;
-        int validCount = 0;
+        int count = 0;
 
-        for (int k = 0; k < neighbourBandCount; ++k) {
-            int lowerBand = bandIndex - (k + 1);
-
-            if (lowerBand > 0 &&
-                mask[lowerBand][yx] == VALID &&
-                mask[lowerBand][nyx] == VALID &&
-                data[lowerBand][yx] != 0) {
-                final double d = (data[lowerBand][yx] - data[lowerBand][nyx]);
+        for (int i = 0; i < data.length; ++i) {
+            if (mask[i][index] == VALID && mask[i][neighborIndex] == VALID && data[i][index] != 0) {
+                final double d = (data[i][index] - data[i][neighborIndex]);
 
                 sum += d * d;
-                ++validCount;
-            }
-
-            int upperBand = bandIndex + (k + 1);
-            if (upperBand < mask.length &&
-                mask[upperBand][yx] == VALID &&
-                mask[upperBand][nyx] == VALID &&
-                data[upperBand][yx] != 0) {
-                final double d = (data[upperBand][yx] - data[upperBand][nyx]);
-
-                sum += d * d;
-                ++validCount;
+                ++count;
             }
         }
-
-        if (validCount > 0) {
-            final double eps = 1.0E-52;
-            final double rms = Math.sqrt(sum / validCount);
-
-            return 1.0 / (eps + rms); // avoid an infinite return value for sum -> 0
+        if (count > 0) {
+            return 1.0 / (1.0E-52 + sqrt(sum / count)); // avoid an infinite return value for sum -> 0
         } else {
             return 1.0;
         }
