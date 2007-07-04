@@ -43,20 +43,21 @@ class MaskRefinement {
     /**
      * Refines the mask associated with the given radiance raster data.
      *
-     * @param data          the radiance raster data.
-     * @param dataWidth  the number of radiance data raster columns.
-     * @param mask          the mask raster data. May cover only part of the radiance data raster.
-     * @param maskXOffset the offset between the first radiance data and mask data raster columns.
-     * @param maskYOffset the offset between the first radiance data and mask data raster row.
-     * @param maskWidth  the number of mask data raster columns.
+     * @param data        the radiance raster data.
+     * @param dataWidth   the number of radiance data raster columns.
+     * @param mask        the mask raster data. May cover only part of the radiance data raster.
+     * @param maskOffsetX the offset between the first radiance data and mask data raster columns.
+     * @param maskOffsetY the offset between the first radiance data and mask data raster row.
+     * @param maskWidth   the number of mask data raster columns.
      */
     public void perform(final int[] data, final int dataWidth,
-    			final short[] mask, final int maskXOffset, final int maskYOffset, final int maskWidth) {
+                        final short[] mask, final int maskOffsetX, final int maskOffsetY, final int maskWidth) {
         final double [] hf = new double[dataWidth - 1];
         final double [] lf = new double[dataWidth / 2 - 1];
-        final int oddColOffset = maskXOffset % 2;
+        final int oddColOffset = maskOffsetX % 2;
 
-        for (int maskLineStart = 0, dataLineStart = maskYOffset*dataWidth; maskLineStart < mask.length; maskLineStart += maskWidth, dataLineStart += dataWidth) {
+        for (int maskLineStart = 0, dataLineStart = maskOffsetY * dataWidth; maskLineStart < mask.length; maskLineStart += maskWidth, dataLineStart += dataWidth)
+        {
             adjacentDifference(data, dataLineStart, hf);
             adjacentDifferenceEven(data, dataLineStart, lf);
 
@@ -82,10 +83,10 @@ class MaskRefinement {
      * slice of an array. Here, a slice is defined by the offset of its first
      * element and the stride to reach the next element.
      *
-     * @param values  the array.
-     * @param offset  the offset.
-     * @param stride  the stride.
-     * @param diffs the absolute differences.
+     * @param values the array.
+     * @param offset the offset.
+     * @param stride the stride.
+     * @param diffs  the absolute differences.
      */
     static void adjacentDifference(final int[] values, final int offset, final int stride, final double[] diffs) {
         for (int i = offset, j = 0; j < diffs.length; i += stride, ++j) {
@@ -98,7 +99,9 @@ class MaskRefinement {
      * Returns the median of an array of {@code int} values.
      *
      * @param values the values.
+     *
      * @return the median value.
+     *
      * @throws IllegalArgumentException if {@code values} is empty.
      * @throws NullPointerException     if {@code values} is {@code null}.
      */
