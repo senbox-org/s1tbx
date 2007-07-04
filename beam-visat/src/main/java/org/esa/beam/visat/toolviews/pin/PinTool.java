@@ -195,39 +195,46 @@ public class PinTool extends AbstractTool {
         double selViewY = (selPixelY - pixelY0) * viewScale;
         Rectangle2D.Double selViewRect = new Rectangle2D.Double(selViewX, selViewY, viewScale, viewScale);
 
+        // Compare with pin insertion points (which are in product raster pixel coordinates)
+        //
         double epsilon = 4.0; // view units!
         Pin[] pins = productSceneView.getProduct().getPins();
         for (final Pin pin : pins) {
+            // Convert pin pixel to view coordinates
             PixelPos pinPixelPos = pin.getPixelPos();
             double pinViewX = (pinPixelPos.getX() - pixelX0) * viewScale;
             double pinViewY = (pinPixelPos.getY() - pixelY0) * viewScale;
+            // Use a rectangular region around the insertion point for comparision
             final Rectangle2D.Double pinViewRect = new Rectangle2D.Double(pinViewX - 0.5 * epsilon,
                                                                           pinViewY - 0.5 * epsilon,
                                                                           epsilon, epsilon);
-            System.out.println("pinViewRect = " + pinViewRect);
             if (pinViewRect.intersects(selViewRect)) {
                 return pin;
             }
         }
 
+        // Now compare against pin symbols (which are in view coordinates).
+        // Depending on the symbol used, this may be more or less expensive.
+        //
         for (final Pin pin : pins) {
             PinSymbol symbol = pin.getSymbol();
+
+            // Convert pin pixel to view coordinates
             PixelPos pinPixelPos = pin.getPixelPos();
             double pinViewX = (pinPixelPos.getX() - pixelX0) * viewScale;
             double pinViewY = (pinPixelPos.getY() - pixelY0) * viewScale;
-
+            // Use the pixel dimension in view units (=viewScale) relative to the pin insertion point
             final Rectangle2D.Double relViewRect = new Rectangle2D.Double(selViewX - pinViewX,
                                                  selViewY - pinViewY,
                                                  viewScale, viewScale);
+            // Move using symbol insertion point.
             PixelPos refPoint = symbol.getRefPoint();
             if (refPoint != null) {
                 relViewRect.x +=  refPoint.getX();
                 relViewRect.y +=  refPoint.getY();
             }
-            System.out.println("relViewRect = " + relViewRect);
 
-            Shape shape = symbol.getShape();
-            if (shape.intersects(relViewRect)) {
+            if (symbol.getShape().intersects(relViewRect)) {
                 return pin;
             }
         }
