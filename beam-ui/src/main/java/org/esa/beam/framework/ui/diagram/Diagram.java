@@ -31,11 +31,10 @@ import java.util.List;
  */
 public class Diagram {
 
-    private final static String DEFAULT_FONT_NAME = "Verdana";
-    private final static int DEFAULT_FONT_SIZE = 9;
-    private static final Color DEFAULT_DIAGRAM_BG_COLOR = new Color(200, 200, 255);
-    private static final Color DEFAULT_DIAGRAM_FG_COLOR = new Color(0, 0, 100);
-    private static final Color DEFAULT_DIAGRAM_TEXT_COLOR = Color.black;
+    public final static String DEFAULT_FONT_NAME = "Verdana";
+    public final static int DEFAULT_FONT_SIZE = 9;
+    public static final Color DEFAULT_FOREGROUND_COLOR = Color.BLACK;
+    public static final Color DEFAULT_BACKGROUND_COLOR = new Color(210, 210, 255);
 
     // Main components: graphs + axes
     private List<DiagramGraph> graphs;
@@ -46,8 +45,14 @@ public class Diagram {
     private boolean drawGrid;
     private Font font;
     private int textGap;
+    private Color textColor;
     private int majorTickLength;
     private int minorTickLength;
+    private Color majorGridColor;
+    private Color minorGridColor;
+    private Color foregroundColor;
+    private Color backgroundColor;
+
 
     // Change management
     private ArrayList<DiagramChangeListener> changeListeners;
@@ -71,6 +76,11 @@ public class Diagram {
         textGap = 3;
         majorTickLength = 5;
         minorTickLength = 3;
+        foregroundColor = DEFAULT_FOREGROUND_COLOR;
+        backgroundColor = DEFAULT_BACKGROUND_COLOR;
+        minorGridColor = DEFAULT_BACKGROUND_COLOR.brighter();
+        majorGridColor = DEFAULT_BACKGROUND_COLOR.darker();
+        textColor = DEFAULT_FOREGROUND_COLOR;
         changeListeners = new ArrayList<DiagramChangeListener>(3);
         disableChangeEventMerging();
     }
@@ -187,6 +197,28 @@ public class Diagram {
         }
     }
 
+    public Color getMajorGridColor() {
+        return majorGridColor;
+    }
+
+    public void setMajorGridColor(Color majorGridColor) {
+        if (!ObjectUtils.equalObjects(this.majorGridColor, majorGridColor)) {
+            this.majorGridColor = majorGridColor;
+            invalidate();
+        }
+    }
+
+    public Color getMinorGridColor() {
+        return minorGridColor;
+    }
+
+    public void setMinorGridColor(Color minorGridColor) {
+        if (!ObjectUtils.equalObjects(this.minorGridColor, minorGridColor)) {
+            this.minorGridColor = minorGridColor;
+            invalidate();
+        }
+    }
+
     public int getTextGap() {
         return textGap;
     }
@@ -215,22 +247,23 @@ public class Diagram {
         return new Rectangle(graphArea);
     }
 
-    public void render(Graphics2D g2D, int x, int y, int width, int height) {
-        Font oldFont = g2D.getFont();
-        g2D.setFont(font);
-        fontMetrics = g2D.getFontMetrics();
+    public void render(Graphics2D g2d, int x, int y, int width, int height) {
+        Font oldFont = g2d.getFont();
+        g2d.setFont(font);
 
-        validate(x, y, width, height);
-        drawAxes(g2D, x, y, width, height);
-        drawGraphs(g2D);
+        if (!isValid()) {
+            validate(g2d, x, y, width, height);
+        }
+        if (isValid()) {
+            drawAxes(g2d, x, y, width, height);
+            drawGraphs(g2d);
+        }
 
-        g2D.setFont(oldFont);
+        g2d.setFont(oldFont);
     }
 
-    private void validate(int x, int y, int width, int height) {
-        if (isValid()) {
-            return;
-        }
+    private void validate(Graphics2D g2d, int x, int y, int width, int height) {
+        fontMetrics = g2d.getFontMetrics();
 
         xTickTexts = xAxis.createTickmarkTexts();
         yTickTexts = yAxis.createTickmarkTexts();
@@ -265,21 +298,20 @@ public class Diagram {
         setValid(w > 0 && h > 0);
     }
 
-    private void drawGraphs(Graphics2D g2D) {
-        if (!isValid()) {
-            return;
-        }
+    private void drawGraphs(Graphics2D g2d) {
+        final Stroke oldStroke = g2d.getStroke();
+        final Color oldColor = g2d.getColor();
+        final Rectangle oldClip = g2d.getClipBounds();
 
-        final Rectangle clipBounds = g2D.getClipBounds();
-        g2D.setClip(graphArea.x, graphArea.y, graphArea.width, graphArea.height);
+        g2d.setClip(graphArea.x, graphArea.y, graphArea.width, graphArea.height);
 
         Point2D.Double a = new Point2D.Double();
         Point2D.Double b1 = new Point2D.Double();
         Point2D.Double b2 = new Point2D.Double();
         DiagramGraph[] graphs = getGraphs();
         for (DiagramGraph graph : graphs) {
-            g2D.setStroke(graph.getStyle().getOutlineStroke());
-            g2D.setColor(graph.getStyle().getOutlineColor());
+            g2d.setStroke(graph.getStyle().getOutlineStroke());
+            g2d.setColor(graph.getStyle().getOutlineColor());
             int n = graph.getNumValues();
             for (int i = 0; i < n; i++) {
                 double xa = graph.getXValueAt(i);
@@ -288,10 +320,10 @@ public class Diagram {
                 b1.setLocation(b2);
                 transform.transformA2B(a, b2);
                 if (i > 0) {
-                    g2D.draw(new Line2D.Double(b1, b2));
+                    g2d.draw(new Line2D.Double(b1, b2));
                 }
             }
-            g2D.setStroke(new BasicStroke(0.5f));
+            g2d.setStroke(new BasicStroke(0.5f));
             if (graph.getStyle().isShowingPoints()) {
                 for (int i = 0; i < n; i++) {
                     double xa = graph.getXValueAt(i);
@@ -301,24 +333,27 @@ public class Diagram {
                     Rectangle2D.Double r = new Rectangle2D.Double(b1.getX() - 1.5,
                                                                   b1.getY() - 1.5,
                                                                   3.0, 3.0);
-                    g2D.setPaint(graph.getStyle().getFillPaint());
-                    g2D.fill(r);
-                    g2D.setColor(graph.getStyle().getOutlineColor());
-                    g2D.draw(r);
+                    g2d.setPaint(graph.getStyle().getFillPaint());
+                    g2d.fill(r);
+                    g2d.setColor(graph.getStyle().getOutlineColor());
+                    g2d.draw(r);
                 }
             }
         }
 
-        g2D.setClip(clipBounds);
+        g2d.setStroke(oldStroke);
+        g2d.setColor(oldColor);
+        g2d.setClip(oldClip);
     }
 
-    private void drawAxes(Graphics2D g2D, int xOffset, int yOffset, int width, int height) {
-        if (!isValid()) {
-            return;
-        }
+    private void drawAxes(Graphics2D g2d, int xOffset, int yOffset, int width, int height) {
+        final Stroke oldStroke = g2d.getStroke();
+        final Color oldColor = g2d.getColor();
 
-        g2D.setColor(DEFAULT_DIAGRAM_BG_COLOR);
-        g2D.fillRect(graphArea.x, graphArea.y, graphArea.width, graphArea.height);
+        g2d.setStroke(new BasicStroke(1.0f));
+
+        g2d.setColor(backgroundColor);
+        g2d.fillRect(graphArea.x, graphArea.y, graphArea.width, graphArea.height);
 
         int tw;
         int x0, y0, x1, x2, y1, y2, xMin, xMax, yMin, yMax, n, n1, n2;
@@ -337,19 +372,22 @@ public class Diagram {
         n2 = xAxis.getNumMinorTicks();
         n = (n1 - 1) * (n2 + 1) + 1;
         for (int i = 0; i < n; i++) {
-            g2D.setColor(DEFAULT_DIAGRAM_TEXT_COLOR);
             x0 = xMin + (i * (xMax - xMin)) / (n - 1);
             if (i % (n2 + 1) == 0) {
                 y2 = y1 + majorTickLength;
                 text = xTickTexts[i / (n2 + 1)];
                 tw = fontMetrics.stringWidth(text);
-                g2D.drawString(text, x0 - tw / 2, y2 + textGap + fontMetrics.getAscent());
+                g2d.setColor(textColor);
+                g2d.drawString(text, x0 - tw / 2, y2 + textGap + fontMetrics.getAscent());
+                g2d.setColor(majorGridColor);
+                g2d.drawLine(x0, y1, x0, yMin);
             } else {
                 y2 = y1 + minorTickLength;
+                g2d.setColor(minorGridColor);
+                g2d.drawLine(x0, y1, x0, yMin);
             }
-            g2D.drawLine(x0, y1, x0, y2);
-            g2D.setColor(DEFAULT_DIAGRAM_BG_COLOR.darker());
-            g2D.drawLine(x0, y1, x0, yMin);
+            g2d.setColor(foregroundColor);
+            g2d.drawLine(x0, y1, x0, y2);
         }
 
         // draw Y major tick lines
@@ -358,41 +396,62 @@ public class Diagram {
         n2 = yAxis.getNumMinorTicks();
         n = (n1 - 1) * (n2 + 1) + 1;
         for (int i = 0; i < n; i++) {
-            g2D.setColor(DEFAULT_DIAGRAM_TEXT_COLOR);
             y0 = yMin + (i * (yMax - yMin)) / (n - 1);
             if (i % (n2 + 1) == 0) {
                 x2 = x1 - majorTickLength;
                 text = yTickTexts[n1 - 1 - (i / (n2 + 1))];
                 tw = fontMetrics.stringWidth(text);
-                g2D.drawString(text, x2 - textGap - tw, y0 + th / 2);
+                g2d.setColor(textColor);
+                g2d.drawString(text, x2 - textGap - tw, y0 + th / 2);
+                g2d.setColor(majorGridColor);
+                g2d.drawLine(x1, y0, xMax, y0);
             } else {
                 x2 = x1 - minorTickLength;
+                g2d.setColor(minorGridColor);
+                g2d.drawLine(x1, y0, xMax, y0);
             }
-            g2D.drawLine(x1, y0, x2, y0);
-            g2D.setColor(DEFAULT_DIAGRAM_BG_COLOR.darker());
-            g2D.drawLine(x1, y0, xMax, y0);
+            g2d.setColor(foregroundColor);
+            g2d.drawLine(x1, y0, x2, y0);
         }
 
-        g2D.setColor(Color.black);
-        g2D.drawRect(graphArea.x, graphArea.y, graphArea.width, graphArea.height);
+        g2d.setColor(foregroundColor);
+        g2d.drawRect(graphArea.x, graphArea.y, graphArea.width, graphArea.height);
 
         // draw X axis name and unit
-        text = xAxis.getName() + " [" + xAxis.getUnit() + "]";
+        text = getAxisText(xAxis);
         tw = fontMetrics.stringWidth(text);
         x1 = graphArea.x + graphArea.width / 2 - tw / 2;
         y1 = yOffset + height - textGap;
-        g2D.drawString(text, x1, y1);
+        g2d.setColor(textColor);
+        g2d.drawString(text, x1, y1);
 
         // draw Y axis name and unit
-        text = yAxis.getName() + " [" + yAxis.getUnit() + "]";
+        text = getAxisText(yAxis);
         tw = fontMetrics.stringWidth(text);
         x1 = graphArea.x - majorTickLength - textGap - maxYTickTextWidth - textGap;
         y1 = graphArea.y + graphArea.height / 2 + tw / 2;
-        final AffineTransform oldTransform = g2D.getTransform();
-        g2D.translate(x1, y1);
-        g2D.rotate(-Math.PI / 2);
-        g2D.drawString(text, 0, 0);
-        g2D.setTransform(oldTransform);
+        final AffineTransform oldTransform = g2d.getTransform();
+        g2d.translate(x1, y1);
+        g2d.rotate(-Math.PI / 2);
+        g2d.setColor(textColor);
+        g2d.drawString(text, 0, 0);
+        g2d.setTransform(oldTransform);
+
+        g2d.setStroke(oldStroke);
+        g2d.setColor(oldColor);
+    }
+
+    private String getAxisText(DiagramAxis axis) {
+        StringBuilder sb = new StringBuilder();
+        if (axis.getName() != null && axis.getName().length() > 0) {
+            sb.append(axis.getName());
+        }
+        if (axis.getUnit() != null && axis.getUnit().length() > 0) {
+            sb.append(" [");
+            sb.append(axis.getUnit());
+            sb.append("]");
+        }
+        return sb.toString();
     }
 
     public DiagramGraph getClosestGraph(final int x, final int y) {
@@ -423,11 +482,6 @@ public class Diagram {
             }
         }
         return closestGraph;
-    }
-
-    public void fireAxisChanged(DiagramAxis axis) {
-        // todo
-        fireDiagramChanged();
     }
 
     private void fireDiagramChanged() {

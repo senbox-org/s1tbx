@@ -97,22 +97,8 @@ public class DiagramAxis implements Serializable {
         return minValue;
     }
 
-    private void setMinValue(double minValue) {
-        if (this.minValue != minValue) {
-            this.minValue = minValue;
-            invalidate();
-        }
-    }
-
     public double getMaxValue() {
         return maxValue;
-    }
-
-    private void setMaxValue(double maxValue) {
-        if (this.maxValue != maxValue) {
-            this.maxValue = maxValue;
-            invalidate();
-        }
     }
 
     public void setValueRange(double minValue, double maxValue) {
