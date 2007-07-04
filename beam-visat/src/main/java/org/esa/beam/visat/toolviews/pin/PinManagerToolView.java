@@ -616,6 +616,9 @@ public class PinManagerToolView extends AbstractToolView {
     }
 
     private static boolean makePinNameUnique(Product product, Pin pin) {
+        if (product.getPin(pin.getName()) == pin) {
+            return false;            
+        }
         String name0 = pin.getName();
         String name = name0;
         int id = 1;
