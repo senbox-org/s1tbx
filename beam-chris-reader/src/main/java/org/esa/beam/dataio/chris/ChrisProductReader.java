@@ -15,6 +15,7 @@ package org.esa.beam.dataio.chris;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.chris.internal.DropoutCorrection;
+import org.esa.beam.dataio.chris.internal.MaskRefinement;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.datamodel.Band;
@@ -29,6 +30,8 @@ import org.esa.beam.util.io.FileUtils;
 import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.ParseException;
@@ -44,17 +47,13 @@ import java.util.Date;
  */
 public class ChrisProductReader extends AbstractProductReader {
 
-    private static final int NEIGHBOUR_BAND_COUNT = 2;
+    private static final int NEIGHBORING_BAND_COUNT = 1;
 
     private ChrisFile chrisFile;
 
     private int sceneRasterWidth;
     private int sceneRasterHeight;
     private int spectralBandCount;
-
-//    private int[][] radianceData;
-//    private short[][] maskData;
-    private boolean[] corrected;
 
     private MaskRefinement maskRefinement;
     private DropoutCorrection dropoutCorrection;
@@ -77,12 +76,8 @@ public class ChrisProductReader extends AbstractProductReader {
         sceneRasterHeight = chrisFile.getSceneRasterHeight();
         spectralBandCount = chrisFile.getSpectralBandCount();
 
-//        radianceData = new int[spectralBandCount][];
-//        maskData = new short[spectralBandCount][];
-        corrected = new boolean[spectralBandCount];
-
         maskRefinement = new MaskRefinement(1.5);
-        dropoutCorrection = new DropoutCorrection(2, sceneRasterWidth, sceneRasterHeight, true);
+        dropoutCorrection = new DropoutCorrection(2, true);
 
         return createProduct();
     }
@@ -94,7 +89,7 @@ public class ChrisProductReader extends AbstractProductReader {
                                           int sourceHeight,
                                           int sourceStepX,
                                           int sourceStepY,
-                                          Band destBand,
+                                          Band targetBand,
                                           int targetOffsetX,
                                           int targetOffsetY,
                                           int targetWidth,
@@ -106,70 +101,65 @@ public class ChrisProductReader extends AbstractProductReader {
         Assert.state(sourceWidth == targetWidth, "sourceWidth != targetWidth");
         Assert.state(sourceHeight == targetHeight, "sourceHeight != targetHeight");
 
-        final int bandIndex = destBand.getSpectralBandIndex();
+        final int bandIndex = targetBand.getSpectralBandIndex();
 
-        Assert.state(bandIndex >= 0, "bandIndex < 0");
-        Assert.state(bandIndex < spectralBandCount, "bandIndex >= chrisFile.getSpectralBandCount()");
+        int tileOffsetY = sourceOffsetY;
+        int tileHeight = sourceHeight;
 
-        pm.beginTask(MessageFormat.format("Preparing band {0}...", bandIndex + 1), getWorkload(bandIndex));
-
-        int y = sourceOffsetY;
-        int height = sourceHeight;
-
-        if (y > 0) {
-            y -= 1;
-            height += 1;
+        if (tileOffsetY > 0) {
+            tileOffsetY -= 1;
+            tileHeight += 1;
         }
-        if (y + height < sceneRasterHeight) {
-            height += 1;
+        if (tileOffsetY + tileHeight < sceneRasterHeight) {
+            tileHeight += 1;
         }
 
-        final Rectangle sourceRectangle = new Rectangle(0, y, sceneRasterWidth, height);
-        int[][] radianceData = new int[spectralBandCount][];
-        short[][] maskData = new short[spectralBandCount][];
+        final int minBandIndex = max(bandIndex - NEIGHBORING_BAND_COUNT, 0);
+        final int maxBandIndex = min(bandIndex + NEIGHBORING_BAND_COUNT, spectralBandCount - 1);
+
+        final int[][] nr = new int[maxBandIndex - minBandIndex][sceneRasterWidth * tileHeight];
+        final short[][] nm = new short[maxBandIndex - minBandIndex][sceneRasterWidth * tileHeight];
+
+        final int[] radianceData = new int[sceneRasterWidth * tileHeight];
+        final short[] maskData = new short[sceneRasterWidth * tileHeight];
 
         try {
-            if (!corrected[bandIndex]) {
-                for (int i = 1; i <= NEIGHBOUR_BAND_COUNT; ++i) {
-                    if (pm.isCanceled()) {
-                        break;
-                    }
-                    final int lowerNeighbour = bandIndex - i;
-                    if (lowerNeighbour >= 0) {
-                        loadRadianceAndMaskData(lowerNeighbour, radianceData, maskData, sourceRectangle);
-                    }
-                    pm.worked(1);
-                    final int upperNeighbour = bandIndex + i;
-                    if (upperNeighbour < spectralBandCount) {
-                        loadRadianceAndMaskData(upperNeighbour, radianceData, maskData, sourceRectangle);
-                    }
-                    pm.worked(1);
+            pm.beginTask(MessageFormat.format("Preparing band {0}...", bandIndex + 1), maxBandIndex - minBandIndex + 3);
+
+            for (int i = minBandIndex, j = 0; i <= maxBandIndex; ++i) {
+                if (i != bandIndex) {
+                    readTile(i, tileOffsetY, tileHeight, nr[j], nm[j]);
+                    ++j;
+                } else {
+                    readTile(i, tileOffsetY, tileHeight, radianceData, maskData);
                 }
-                loadRadianceAndMaskData(bandIndex, radianceData, maskData, sourceRectangle);
-                pm.worked(1);
-
-                dropoutCorrection.perform(radianceData, maskData, bandIndex, NEIGHBOUR_BAND_COUNT,
-                                          new Rectangle(sourceOffsetX, sourceOffsetY - y, sourceWidth, sourceHeight));
-                corrected[bandIndex] = false;
-
                 pm.worked(1);
             }
 
-            Object data;
+            final Object data;
 
-            if (destBand.getName().startsWith("rad")) {
-                data = radianceData[bandIndex];
+            if (targetBand.getName().startsWith("rad")) {
+                final Rectangle sourceRectangle = new Rectangle(0, 0, sceneRasterWidth, tileHeight);
+                final Rectangle targetRectangle = new Rectangle(sourceOffsetX,
+                                                                sourceOffsetY - tileOffsetY,
+                                                                targetWidth,
+                                                                targetHeight);
+
+                dropoutCorrection.perform(radianceData, maskData, nr, nm, sourceRectangle, radianceData, maskData,
+                                          targetRectangle);
+                data = radianceData;
             } else {
-                data = maskData[bandIndex];
+                data = maskData;
             }
+            pm.worked(1);
+            
             for (int i = 0; i < targetHeight; ++i) {
-                System.arraycopy(data, (sourceOffsetY - y + i) * sceneRasterWidth + sourceOffsetX,
+                System.arraycopy(data, (sourceOffsetY - tileOffsetY + i) * sceneRasterWidth + sourceOffsetX,
                                  targetBuffer.getElems(), i * targetWidth, targetWidth);
             }
 
             pm.worked(1);
         } finally {
-            System.out.println("14.32");
             pm.done();
         }
     }
@@ -234,7 +224,7 @@ public class ChrisProductReader extends AbstractProductReader {
             band.setSpectralWavelength(chrisFile.getWavelength(i));
             band.setSpectralBandwidth(chrisFile.getBandwidth(i));
             band.setUnit(units);
-            band.setDescription(MessageFormat.format("Radiance of band {0}", i + 1));
+            band.setDescription(MessageFormat.format("Radiance of spectral band {0}", i + 1));
             band.setValidPixelExpression(new StringBuilder(getMaskBandName(i)).append(" == 0").toString());
         }
         for (int i = 0; i < spectralBandCount; ++i) {
@@ -242,7 +232,9 @@ public class ChrisProductReader extends AbstractProductReader {
             final Band band = product.addBand(name, ProductData.TYPE_INT16);
 
             band.setSpectralBandIndex(i);
-            band.setDescription(MessageFormat.format("Quality mask of band {0}", i + 1));
+            band.setSpectralWavelength(chrisFile.getWavelength(i));
+            band.setSpectralBandwidth(chrisFile.getBandwidth(i));
+            band.setDescription(MessageFormat.format("Quality mask of spectral band {0}", i + 1));
         }
     }
 
@@ -295,51 +287,13 @@ public class ChrisProductReader extends AbstractProductReader {
         return MessageFormat.format("mask_{0}", i + 1);
     }
 
-    private int getWorkload(final int bandIndex) {
-        if (corrected[bandIndex]) {
-            return 1;
-        }
-
-        return 2 * NEIGHBOUR_BAND_COUNT + 3;
-    }
-
-//    private void loadRadianceAndMaskData(final int bandIndex) throws IOException {
-//        final int length = sceneRasterWidth * sceneRasterHeight;
-//
-//        if (radianceData[bandIndex] == null) {
-//            radianceData[bandIndex] = new int[length];
-//            chrisFile.readRciImageData(bandIndex, 0, 0, 1, 1, sceneRasterWidth, sceneRasterHeight,
-//                                       radianceData[bandIndex]);
-//        }
-//
-//        if (maskData[bandIndex] == null) {
-//            maskData[bandIndex] = new short[length];
-//
-//            if (chrisFile.hasMask()) {
-//                chrisFile.readMaskData(bandIndex, 0, 0, 1, 1, sceneRasterWidth, sceneRasterHeight, maskData[bandIndex]);
-//            }
-//
-//            maskRefinement.perform(radianceData[bandIndex], sceneRasterWidth, maskData[bandIndex], 0, 0,
-//                                   sceneRasterWidth);
-//        }
-//    }
-
-    private void loadRadianceAndMaskData(int bandIndex, int[][] radianceData, short[][] maskData, Rectangle rectangle) throws IOException {
-        final int length = sceneRasterWidth * rectangle.height;
-
-        radianceData[bandIndex] = new int[length];
-        chrisFile.readRciImageData(bandIndex, 0, rectangle.y, 1, 1,
-                                   sceneRasterWidth, rectangle.height,
-                                   radianceData[bandIndex]);
-
-        maskData[bandIndex] = new short[length];
-
+    private void readTile(int bandIndex, int tileOffsetY, int tileHeight, int[] data, short[] mask)
+            throws IOException {
+        chrisFile.readRciImageData(bandIndex, 0, tileOffsetY, 1, 1, sceneRasterWidth, tileHeight, data);
         if (chrisFile.hasMask()) {
-            chrisFile.readMaskData(bandIndex, 0, rectangle.y, 1, 1, sceneRasterWidth, rectangle.height, maskData[bandIndex]);
+            chrisFile.readMaskData(bandIndex, 0, tileOffsetY, 1, 1, sceneRasterWidth, tileHeight, mask);
         }
-
-        maskRefinement.perform(radianceData[bandIndex], sceneRasterWidth, maskData[bandIndex], 0, 0,
-                               sceneRasterWidth);
+        maskRefinement.refine(data, mask, sceneRasterWidth);
     }
 
 }

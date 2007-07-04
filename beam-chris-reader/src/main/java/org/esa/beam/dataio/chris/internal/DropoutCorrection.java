@@ -27,13 +27,11 @@ public class DropoutCorrection {
     private static final short CORRECTED_DROPOUT = 4;
 
     private double[] weights;
-    private final int sceneWidth;
-    private final int sceneHeight;
     private final boolean cosmetic;
 
 
-    public DropoutCorrection(int type, int sourceWidth, int sourceHeight) {
-        this(type, sourceWidth, sourceHeight, false);
+    public DropoutCorrection(int type) {
+        this(type, false);
     }
 
     /**
@@ -41,11 +39,9 @@ public class DropoutCorrection {
      * todo - complete
      *
      * @param type
-     * @param sourceWidth
-     * @param sourceHeight
      * @param cosmetic
      */
-    public DropoutCorrection(int type, int sourceWidth, int sourceHeight, boolean cosmetic) {
+    public DropoutCorrection(int type, boolean cosmetic) {
         Assert.argument(type == 2 || type == 4 || type == 8);
 
         switch (type) {
@@ -60,37 +56,7 @@ public class DropoutCorrection {
             break;
         }
 
-        this.sceneWidth = sourceWidth;
-        this.sceneHeight = sourceHeight;
         this.cosmetic = cosmetic;
-    }
-
-    /**
-     * Performs the dropout correction.
-     * todo - complete
-     *
-     * @param data
-     * @param mask
-     */
-    public void perform(int[][] data, short[][] mask, int bandIndex, int neighboringBandCount, Rectangle rectangle) {
-        Assert.argument(data.length == mask.length);
-        Assert.argument(data[bandIndex].length == mask[bandIndex].length);
-
-        int imax = min(bandIndex + neighboringBandCount, data.length - 1);
-        int imin = max(bandIndex - neighboringBandCount, 0);
-
-        int[][] nd = new int[imax - imin][];
-        short[][] nm = new short[imax - imin][];
-
-        for (int i = imin, j = 0; i <= imax; ++i) {
-            if (i != bandIndex) {
-                nd[j] = data[i];
-                nm[j] = mask[i];
-                ++j;
-            }
-        }
-
-        perform(data[bandIndex], mask[bandIndex], nd, nm, data[bandIndex], mask[bandIndex], rectangle);
     }
 
     /**
@@ -101,7 +67,7 @@ public class DropoutCorrection {
      * @param sourceMask
      */
     public void perform(int[] sourceData, short[] sourceMask, int[][] neighborData, short[][] neighborMask,
-                        int[] targetData, short[] targetMask,
+                        Rectangle sourceRectangle, int[] targetData, short[] targetMask,
                         Rectangle targetRectangle) {
         Assert.argument(sourceData.length == sourceMask.length);
 
@@ -110,7 +76,7 @@ public class DropoutCorrection {
         for (int y = targetRectangle.y; y < targetRectangle.y + targetRectangle.height; ++y) {
             for (int x = targetRectangle.x; x < targetRectangle.x + targetRectangle.width; ++x) {
                 // offset of current pixel
-                final int xy = y * sceneWidth + x;
+                final int xy = y * sourceRectangle.width + x;
 
                 targetData[xy] = sourceData[xy];
                 targetMask[xy] = sourceMask[xy];
@@ -122,27 +88,30 @@ public class DropoutCorrection {
                     double ws2 = 0.0;
                     double xc2 = 0.0;
 
-                    int imin = (y - 1 < 0) ? 1 : 0;
-                    int imax = (y + 1 < sceneHeight) ? M_HEIGHT : M_HEIGHT - 1;
-                    int jmin = (x - 1 < 0) ? 1 : 0;
-                    int jmax = (x + 1 < sceneWidth) ? M_WIDTH : M_WIDTH - 1;
-
-                    for (int i = imin; i < imax; ++i) {
-                        for (int j = jmin; j < jmax; ++j) {
+                    for (int i = 0; i < M_HEIGHT; ++i) {
+                        final int ny = y + (i - 1);
+                        if (ny < sourceRectangle.y || ny >= sourceRectangle.y + sourceRectangle.height) {
+                            continue;
+                        }
+                        for (int j = 0; j < M_WIDTH; ++j) {
+                            final int nx = x + (j - 1);
+                            if (nx < sourceRectangle.x || nx >= sourceRectangle.x + sourceRectangle.width) {
+                                continue;
+                            }
                             final int ij = i * M_WIDTH + j;
-                            final int ni = xy + (j - 1) + (i - 1) * sceneWidth;
+                            final int nxy = ny * sourceRectangle.width + nx;
 
                             if (weights[ij] != 0.0) {
-                                switch (sourceMask[ni]) {
+                                switch (sourceMask[nxy]) {
                                 case VALID:
-                                    w[ij] = weights[ij] * calculateWeight(xy, ni, neighborData, neighborMask);
+                                    w[ij] = weights[ij] * calculateWeight(xy, nxy, neighborData, neighborMask);
                                     ws += w[ij];
-                                    xc += sourceData[ni] * w[ij];
+                                    xc += sourceData[nxy] * w[ij];
                                     break;
 
                                 case SATURATED:
                                     ws2 += weights[ij];
-                                    xc2 += sourceData[ni] * weights[ij];
+                                    xc2 += sourceData[nxy] * weights[ij];
                                     break;
                                 }
                             }

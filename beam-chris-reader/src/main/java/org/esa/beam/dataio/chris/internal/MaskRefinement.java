@@ -1,24 +1,25 @@
-package org.esa.beam.dataio.chris;
+package org.esa.beam.dataio.chris.internal;
 
 import java.util.Arrays;
 
 /**
  * The class {@code MaskRefinement} encapsulates the mask refinement
- * algorithm developed by Luis Gomez Chova
+ * algorithm developed by Luis Gomez Chova.
  *
  * @author Ralf Quast
  * @version $Revision: 1.5 $ $Date: 2007/04/18 16:01:35 $
  */
-class MaskRefinement {
+public class MaskRefinement {
 
     private double acceptanceThreshold;
+    private double acceptanceThresholdSquareRoot;
 
     /**
      * Constructor.
      *
      * @param acceptanceThreshold the acceptance threshold.
      */
-    public MaskRefinement(final double acceptanceThreshold) {
+    public MaskRefinement(double acceptanceThreshold) {
         setAcceptanceThreshold(acceptanceThreshold);
     }
 
@@ -34,36 +35,32 @@ class MaskRefinement {
     /**
      * Sets the acceptance threshold.
      *
-     * @param acceptanceThreshold the acceptance threshold.
+     * @param threshold the acceptance threshold.
      */
-    public final void setAcceptanceThreshold(final double acceptanceThreshold) {
-        this.acceptanceThreshold = Math.sqrt(acceptanceThreshold);
+    public final void setAcceptanceThreshold(double threshold) {
+        acceptanceThreshold = threshold;
+        acceptanceThresholdSquareRoot = Math.sqrt(threshold);
     }
 
     /**
      * Refines the mask associated with the given radiance raster data.
      *
-     * @param data        the radiance raster data.
-     * @param dataWidth   the number of radiance data raster columns.
-     * @param mask        the mask raster data. May cover only part of the radiance data raster.
-     * @param maskOffsetX the offset between the first radiance data and mask data raster columns.
-     * @param maskOffsetY the offset between the first radiance data and mask data raster row.
-     * @param maskWidth   the number of mask data raster columns.
+     * @param radianceData the radiance raster data.
+     * @param maskData     the mask raster data. On output holds the refined mask.
+     * @param rasterWidth  the number of raster data columns.
      */
-    public void perform(final int[] data, final int dataWidth,
-                        final short[] mask, final int maskOffsetX, final int maskOffsetY, final int maskWidth) {
-        final double [] hf = new double[dataWidth - 1];
-        final double [] lf = new double[dataWidth / 2 - 1];
-        final int oddColOffset = maskOffsetX % 2;
+    public void refine(int[] radianceData, short[] maskData, int rasterWidth) {
+        final double [] hf = new double[rasterWidth - 1];
+        final double [] lf = new double[rasterWidth / 2 - 1];
 
-        for (int maskLineStart = 0, dataLineStart = maskOffsetY * dataWidth; maskLineStart < mask.length; maskLineStart += maskWidth, dataLineStart += dataWidth) {
-            adjacentDifference(data, dataLineStart, hf);
-            adjacentDifferenceEven(data, dataLineStart, lf);
+        for (int i = 0; i < maskData.length; i += rasterWidth) {
+            adjacentDifference(radianceData, i, hf);
+            adjacentDifferenceEven(radianceData, i, lf);
 
-            if (median(hf) > median(lf) * acceptanceThreshold) {
-                // Mark all pixels in odd raster columns as drop-out noise
-                for (int k = oddColOffset; k < maskWidth; k += 2) {
-                    mask[maskLineStart + k] = 1;
+            if (median(hf) > median(lf) * acceptanceThresholdSquareRoot) {
+                // mark all pixels in odd raster columns as dropout noise
+                for (int j = 0; j < rasterWidth; j += 2) {
+                    maskData[i + j] = 1;
                 }
             }
         }
@@ -87,12 +84,11 @@ class MaskRefinement {
      * @param stride the stride.
      * @param diffs  the absolute differences.
      */
-    static void adjacentDifference(final int[] values, final int offset, final int stride, final double[] diffs) {
+    static void adjacentDifference(int[] values, int offset, int stride, double[] diffs) {
         for (int i = offset, j = 0; j < diffs.length; i += stride, ++j) {
             diffs[j] = Math.abs(values[i + stride] - values[i]);
         }
     }
-
 
     /**
      * Returns the median of an array of {@code int} values.
@@ -104,7 +100,7 @@ class MaskRefinement {
      * @throws IllegalArgumentException if {@code values} is empty.
      * @throws NullPointerException     if {@code values} is {@code null}.
      */
-    static double median(final double[] values) {
+    static double median(double[] values) {
         if (values == null) {
             throw new NullPointerException("values == null");
         }
@@ -112,20 +108,19 @@ class MaskRefinement {
             throw new IllegalArgumentException("values.length == 0");
         }
 
-        final double[] doubles = new double[values.length];
-
-        System.arraycopy(values, 0, doubles, 0, values.length);
+        final double[] doubles = Arrays.copyOf(values, values.length);
         Arrays.sort(doubles);
 
-        final int halfLength = values.length >> 1;
+        final int half = values.length >> 1;
+        final double median;
 
-        if (halfLength << 1 == values.length) {
-            // even
-            return 0.5 * (doubles[halfLength - 1] + doubles[halfLength]);
+        if (half << 1 == values.length) {
+            median = 0.5 * (doubles[half - 1] + doubles[half]);
         } else {
-            // odd
-            return doubles[halfLength];
+            median = doubles[half];
         }
+
+        return median;
     }
 
 }

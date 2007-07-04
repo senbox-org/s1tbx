@@ -1,6 +1,7 @@
-package org.esa.beam.dataio.chris;
+package org.esa.beam.dataio.chris.internal;
 
 import junit.framework.TestCase;
+import org.esa.beam.dataio.chris.internal.MaskRefinement;
 
 /**
  * Tests for class {@link MaskRefinement}.
@@ -9,6 +10,7 @@ import junit.framework.TestCase;
  * @version $Revision: 1.5 $ $Date: 2007/04/18 16:01:35 $
  */
 public class MaskRefinementTest extends TestCase {
+
     final static int ROW_COUNT = 2;
     final static int COL_COUNT = 10;
 
@@ -23,7 +25,7 @@ public class MaskRefinementTest extends TestCase {
         }
 
         final MaskRefinement maskRefinement = new MaskRefinement(1.5);
-        maskRefinement.perform(data, COL_COUNT, mask, 0, 0, COL_COUNT);
+        maskRefinement.refine(data, mask, COL_COUNT);
 
         assertEquals(0, mask[0]);
         assertEquals(0, mask[1]);
@@ -55,7 +57,7 @@ public class MaskRefinementTest extends TestCase {
             }
         }
 
-        maskRefinement.perform(data, COL_COUNT, mask, 0, 0, COL_COUNT);
+        maskRefinement.refine(data, mask, COL_COUNT);
 
         assertEquals(1, mask[0]);
         assertEquals(0, mask[1]);
