@@ -79,6 +79,7 @@ public class SpectrumToolView extends AbstractToolView {
     private AbstractButton showAveragePinSpectrumButton;
     private int pixelX;
     private int pixelY;
+    private AbstractButton showGridButton;
 
     public SpectrumToolView() {
         productNodeHandler = new ProductNodeHandler();
@@ -148,13 +149,18 @@ public class SpectrumToolView extends AbstractToolView {
         boolean hasProduct = getCurrentProduct() != null;
         boolean hasSelectedPins = getCurrentProduct() != null && getCurrentProduct().getSelectedPin() != null;
         boolean hasPins = getCurrentProduct() != null && getCurrentProduct().getNumPins() > 0;
-
+        boolean hasDiagram = diagramCanvas.getDiagram() != null;
         filterButton.setEnabled(hasProduct);
         showSpectrumForCursorButton.setEnabled(hasView);
         showSpectraForSelectedPinsButton.setEnabled(hasSelectedPins);
         showSpectraForAllPinsButton.setEnabled(hasPins);
         showAveragePinSpectrumButton.setEnabled(hasPins); // todo - hasSpectraGraphs
+        showGridButton.setEnabled(hasDiagram);
         diagramCanvas.setEnabled(hasProduct);    // todo - hasSpectraGraphs
+
+        if (diagramCanvas.getDiagram() != null) {
+            showGridButton.setSelected(diagramCanvas.getDiagram().getDrawGrid());
+        }
     }
 
     public void updateSpectra(int pixelX, int pixelY) {
@@ -243,6 +249,14 @@ public class SpectrumToolView extends AbstractToolView {
         showAveragePinSpectrumButton.setText("Av");
         showAveragePinSpectrumButton.setToolTipText("Show average spectrum of all pin spectra.");
 
+        showGridButton = ToolButtonFactory.createButton(new AbstractAction("showGrid") {
+            public void actionPerformed(ActionEvent e) {
+                 diagramCanvas.getDiagram().setDrawGrid(showGridButton.isSelected());
+            }
+        }, true);
+        showGridButton.setText("Gr");
+        showGridButton.setToolTipText("Show diagram grid.");
+
         AbstractButton exportSpectraButton = ToolButtonFactory.createButton(new SpectraExportAction(this), false);
         exportSpectraButton.setText("Ex");
         exportSpectraButton.setToolTipText("Export spectra to text file.");
@@ -269,6 +283,8 @@ public class SpectrumToolView extends AbstractToolView {
         buttonPane.add(showSpectraForAllPinsButton, gbc);
         gbc.gridy++;
         buttonPane.add(showAveragePinSpectrumButton, gbc);
+        gbc.gridy++;
+        buttonPane.add(showGridButton, gbc);
         gbc.gridy++;
         buttonPane.add(exportSpectraButton, gbc);
 

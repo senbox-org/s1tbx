@@ -71,11 +71,11 @@ public class Diagram {
 
     public Diagram() {
         graphs = new ArrayList<DiagramGraph>(3);
-        drawGrid = false;
         font = new Font(DEFAULT_FONT_NAME, Font.PLAIN, DEFAULT_FONT_SIZE);
         textGap = 3;
         majorTickLength = 5;
         minorTickLength = 3;
+        drawGrid = true;
         foregroundColor = DEFAULT_FOREGROUND_COLOR;
         backgroundColor = DEFAULT_BACKGROUND_COLOR;
         minorGridColor = DEFAULT_BACKGROUND_COLOR.brighter();
@@ -218,6 +218,29 @@ public class Diagram {
     public void setMinorGridColor(Color minorGridColor) {
         if (!ObjectUtils.equalObjects(this.minorGridColor, minorGridColor)) {
             this.minorGridColor = minorGridColor;
+            invalidate();
+        }
+    }
+
+    public Color getForegroundColor() {
+        return foregroundColor;
+    }
+
+    public void setForegroundColor(Color foregroundColor) {
+        if (!ObjectUtils.equalObjects(this.foregroundColor, foregroundColor)) {
+            this.foregroundColor = foregroundColor;
+            invalidate();
+        }
+    }
+
+    public Color getBackgroundColor() {
+        return backgroundColor;
+    }
+
+    public void setBackgroundColor(Color backgroundColor) {
+        this.backgroundColor = backgroundColor;
+        if (!ObjectUtils.equalObjects(this.backgroundColor, backgroundColor)) {
+            this.backgroundColor = backgroundColor;
             invalidate();
         }
     }

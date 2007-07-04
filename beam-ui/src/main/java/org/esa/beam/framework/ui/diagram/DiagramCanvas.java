@@ -137,12 +137,12 @@ public class DiagramCanvas extends JPanel {
         Point2D b = transform.transformA2B(new Point2D.Double(x, y), null);
 
         g2d.setStroke(new BasicStroke(1.0f));
-        g2d.setColor(Color.BLACK);
+        g2d.setColor(diagram.getForegroundColor());
         Ellipse2D.Double marker = new Ellipse2D.Double(b.getX() - 4.0, b.getY() - 4.0, 8.0, 8.0);
         g2d.draw(marker);
 
-        g2d.setColor(Color.GRAY);
         g2d.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{6, 6}, 12));
+        g2d.setColor(diagram.getForegroundColor());
         final Rectangle graphArea = diagram.getGraphArea();
         g2d.draw(new Line2D.Double( b.getX(), graphArea.y + graphArea.height, b.getX(), b.getY()));
         g2d.draw(new Line2D.Double( graphArea.x, b.getY(), b.getX(), b.getY()));
