@@ -52,8 +52,8 @@ public class ChrisProductReader extends AbstractProductReader {
     private int sceneRasterHeight;
     private int spectralBandCount;
 
-    private int[][] radianceData;
-    private short[][] maskData;
+//    private int[][] radianceData;
+//    private short[][] maskData;
     private boolean[] corrected;
 
     private MaskRefinement maskRefinement;
@@ -77,8 +77,8 @@ public class ChrisProductReader extends AbstractProductReader {
         sceneRasterHeight = chrisFile.getSceneRasterHeight();
         spectralBandCount = chrisFile.getSpectralBandCount();
 
-        radianceData = new int[spectralBandCount][];
-        maskData = new short[spectralBandCount][];
+//        radianceData = new int[spectralBandCount][];
+//        maskData = new short[spectralBandCount][];
         corrected = new boolean[spectralBandCount];
 
         maskRefinement = new MaskRefinement(1.5);
@@ -125,6 +125,8 @@ public class ChrisProductReader extends AbstractProductReader {
         }
 
         final Rectangle sourceRectangle = new Rectangle(0, y, sceneRasterWidth, height);
+        int[][] radianceData = new int[spectralBandCount][];
+        short[][] maskData = new short[spectralBandCount][];
 
         try {
             if (!corrected[bandIndex]) {
@@ -134,16 +136,16 @@ public class ChrisProductReader extends AbstractProductReader {
                     }
                     final int lowerNeighbour = bandIndex - i;
                     if (lowerNeighbour >= 0) {
-                        loadRadianceAndMaskData(lowerNeighbour, sourceRectangle);
+                        loadRadianceAndMaskData(lowerNeighbour, radianceData, maskData, sourceRectangle);
                     }
                     pm.worked(1);
                     final int upperNeighbour = bandIndex + i;
                     if (upperNeighbour < spectralBandCount) {
-                        loadRadianceAndMaskData(upperNeighbour, sourceRectangle);
+                        loadRadianceAndMaskData(upperNeighbour, radianceData, maskData, sourceRectangle);
                     }
                     pm.worked(1);
                 }
-                loadRadianceAndMaskData(bandIndex, sourceRectangle);
+                loadRadianceAndMaskData(bandIndex, radianceData, maskData, sourceRectangle);
                 pm.worked(1);
 
                 dropoutCorrection.perform(radianceData, maskData, bandIndex, NEIGHBOUR_BAND_COUNT,
@@ -167,6 +169,7 @@ public class ChrisProductReader extends AbstractProductReader {
 
             pm.worked(1);
         } finally {
+            System.out.println("14.32");
             pm.done();
         }
     }
@@ -300,28 +303,28 @@ public class ChrisProductReader extends AbstractProductReader {
         return 2 * NEIGHBOUR_BAND_COUNT + 3;
     }
 
-    private void loadRadianceAndMaskData(final int bandIndex) throws IOException {
-        final int length = sceneRasterWidth * sceneRasterHeight;
+//    private void loadRadianceAndMaskData(final int bandIndex) throws IOException {
+//        final int length = sceneRasterWidth * sceneRasterHeight;
+//
+//        if (radianceData[bandIndex] == null) {
+//            radianceData[bandIndex] = new int[length];
+//            chrisFile.readRciImageData(bandIndex, 0, 0, 1, 1, sceneRasterWidth, sceneRasterHeight,
+//                                       radianceData[bandIndex]);
+//        }
+//
+//        if (maskData[bandIndex] == null) {
+//            maskData[bandIndex] = new short[length];
+//
+//            if (chrisFile.hasMask()) {
+//                chrisFile.readMaskData(bandIndex, 0, 0, 1, 1, sceneRasterWidth, sceneRasterHeight, maskData[bandIndex]);
+//            }
+//
+//            maskRefinement.perform(radianceData[bandIndex], sceneRasterWidth, maskData[bandIndex], 0, 0,
+//                                   sceneRasterWidth);
+//        }
+//    }
 
-        if (radianceData[bandIndex] == null) {
-            radianceData[bandIndex] = new int[length];
-            chrisFile.readRciImageData(bandIndex, 0, 0, 1, 1, sceneRasterWidth, sceneRasterHeight,
-                                       radianceData[bandIndex]);
-        }
-
-        if (maskData[bandIndex] == null) {
-            maskData[bandIndex] = new short[length];
-
-            if (chrisFile.hasMask()) {
-                chrisFile.readMaskData(bandIndex, 0, 0, 1, 1, sceneRasterWidth, sceneRasterHeight, maskData[bandIndex]);
-            }
-
-            maskRefinement.perform(radianceData[bandIndex], sceneRasterWidth, maskData[bandIndex], 0, 0,
-                                   sceneRasterWidth);
-        }
-    }
-
-    private void loadRadianceAndMaskData(int bandIndex, Rectangle rectangle) throws IOException {
+    private void loadRadianceAndMaskData(int bandIndex, int[][] radianceData, short[][] maskData, Rectangle rectangle) throws IOException {
         final int length = sceneRasterWidth * rectangle.height;
 
         radianceData[bandIndex] = new int[length];
