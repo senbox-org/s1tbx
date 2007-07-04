@@ -34,6 +34,8 @@ import org.esa.beam.visat.VisatApp;
 import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
 import java.awt.*;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 /**
  * A tool used to create (single click), select (single click on a pin) or edit (double click on a pin) the pins
@@ -182,33 +184,50 @@ public class PinTool extends AbstractTool {
     }
 
 
-    public Pin getPinForPixelPos(final float pixelX, final float pixelY) {
+    public Pin getPinForPixelPos(final int selPixelX, final int selPixelY) {
         ProductSceneView productSceneView = getProductSceneView();
         ViewModel viewModel = productSceneView.getImageDisplay().getViewModel();
+
+        double pixelX0 = viewModel.getModelOffsetX();
+        double pixelY0 = viewModel.getModelOffsetY();
         double viewScale = viewModel.getViewScale();
+        double selViewX = (selPixelX - pixelX0) * viewScale;
+        double selViewY = (selPixelY - pixelY0) * viewScale;
+        Rectangle2D.Double selViewRect = new Rectangle2D.Double(selViewX, selViewY, viewScale, viewScale);
+
         double epsilon = 4.0; // view units!
-        final Pin[] pins = productSceneView.getProduct().getPins();
+        Pin[] pins = productSceneView.getProduct().getPins();
         for (final Pin pin : pins) {
-            PixelPos pixelPos = pin.getPixelPos();
-            double dx = viewScale * (pixelX - pixelPos.getX()); // view units!
-            double dy = viewScale * (pixelY - pixelPos.getY()); // view units!
-            if (dx * dx + dy * dy < epsilon * epsilon) {
+            PixelPos pinPixelPos = pin.getPixelPos();
+            double pinViewX = (pinPixelPos.getX() - pixelX0) * viewScale;
+            double pinViewY = (pinPixelPos.getY() - pixelY0) * viewScale;
+            final Rectangle2D.Double pinViewRect = new Rectangle2D.Double(pinViewX - 0.5 * epsilon,
+                                                                          pinViewY - 0.5 * epsilon,
+                                                                          epsilon, epsilon);
+            System.out.println("pinViewRect = " + pinViewRect);
+            if (pinViewRect.intersects(selViewRect)) {
                 return pin;
             }
         }
 
         for (final Pin pin : pins) {
             PinSymbol symbol = pin.getSymbol();
-            PixelPos pixelPos = pin.getPixelPos();
-            double dx = viewScale * (pixelX - pixelPos.getX()); // view units!
-            double dy = viewScale * (pixelY - pixelPos.getY()); // view units!
+            PixelPos pinPixelPos = pin.getPixelPos();
+            double pinViewX = (pinPixelPos.getX() - pixelX0) * viewScale;
+            double pinViewY = (pinPixelPos.getY() - pixelY0) * viewScale;
+
+            final Rectangle2D.Double relViewRect = new Rectangle2D.Double(selViewX - pinViewX,
+                                                 selViewY - pinViewY,
+                                                 viewScale, viewScale);
             PixelPos refPoint = symbol.getRefPoint();
             if (refPoint != null) {
-                dx += refPoint.getX();
-                dy += refPoint.getY();
+                relViewRect.x +=  refPoint.getX();
+                relViewRect.y +=  refPoint.getY();
             }
+            System.out.println("relViewRect = " + relViewRect);
+
             Shape shape = symbol.getShape();
-            if (shape.contains(dx, dy)) {
+            if (shape.intersects(relViewRect)) {
                 return pin;
             }
         }
