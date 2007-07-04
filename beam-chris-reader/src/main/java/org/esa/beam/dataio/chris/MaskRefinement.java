@@ -56,8 +56,7 @@ class MaskRefinement {
         final double [] lf = new double[dataWidth / 2 - 1];
         final int oddColOffset = maskOffsetX % 2;
 
-        for (int maskLineStart = 0, dataLineStart = maskOffsetY * dataWidth; maskLineStart < mask.length; maskLineStart += maskWidth, dataLineStart += dataWidth)
-        {
+        for (int maskLineStart = 0, dataLineStart = maskOffsetY * dataWidth; maskLineStart < mask.length; maskLineStart += maskWidth, dataLineStart += dataWidth) {
             adjacentDifference(data, dataLineStart, hf);
             adjacentDifferenceEven(data, dataLineStart, lf);
 

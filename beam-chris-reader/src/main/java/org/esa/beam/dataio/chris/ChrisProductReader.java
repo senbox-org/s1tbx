@@ -113,6 +113,19 @@ public class ChrisProductReader extends AbstractProductReader {
 
         pm.beginTask(MessageFormat.format("Preparing band {0}...", bandIndex + 1), getWorkload(bandIndex));
 
+        int y = sourceOffsetY;
+        int height = sourceHeight;
+
+        if (y > 0) {
+            y -= 1;
+            height += 1;
+        }
+        if (y + height < sceneRasterHeight) {
+            height += 1;
+        }
+
+        final Rectangle sourceRectangle = new Rectangle(0, y, sceneRasterWidth, height);
+
         try {
             if (!corrected[bandIndex]) {
                 for (int i = 1; i <= NEIGHBOUR_BAND_COUNT; ++i) {
@@ -121,20 +134,20 @@ public class ChrisProductReader extends AbstractProductReader {
                     }
                     final int lowerNeighbour = bandIndex - i;
                     if (lowerNeighbour >= 0) {
-                        loadRadianceAndMaskData(lowerNeighbour);
+                        loadRadianceAndMaskData(lowerNeighbour, sourceRectangle);
                     }
                     pm.worked(1);
                     final int upperNeighbour = bandIndex + i;
                     if (upperNeighbour < spectralBandCount) {
-                        loadRadianceAndMaskData(upperNeighbour);
+                        loadRadianceAndMaskData(upperNeighbour, sourceRectangle);
                     }
                     pm.worked(1);
                 }
-                loadRadianceAndMaskData(bandIndex);
+                loadRadianceAndMaskData(bandIndex, sourceRectangle);
                 pm.worked(1);
 
                 dropoutCorrection.perform(radianceData, maskData, bandIndex, NEIGHBOUR_BAND_COUNT,
-                                          new Rectangle(0, 0, sceneRasterWidth, sceneRasterHeight));
+                                          new Rectangle(sourceOffsetX, sourceOffsetY - y, sourceWidth, sourceHeight));
                 corrected[bandIndex] = false;
 
                 pm.worked(1);
@@ -148,7 +161,7 @@ public class ChrisProductReader extends AbstractProductReader {
                 data = maskData[bandIndex];
             }
             for (int i = 0; i < targetHeight; ++i) {
-                System.arraycopy(data, (sourceOffsetY + i) * sceneRasterWidth + sourceOffsetX,
+                System.arraycopy(data, (sourceOffsetY - y + i) * sceneRasterWidth + sourceOffsetX,
                                  targetBuffer.getElems(), i * targetWidth, targetWidth);
             }
 
@@ -306,6 +319,24 @@ public class ChrisProductReader extends AbstractProductReader {
             maskRefinement.perform(radianceData[bandIndex], sceneRasterWidth, maskData[bandIndex], 0, 0,
                                    sceneRasterWidth);
         }
+    }
+
+    private void loadRadianceAndMaskData(int bandIndex, Rectangle rectangle) throws IOException {
+        final int length = sceneRasterWidth * rectangle.height;
+
+        radianceData[bandIndex] = new int[length];
+        chrisFile.readRciImageData(bandIndex, 0, rectangle.y, 1, 1,
+                                   sceneRasterWidth, rectangle.height,
+                                   radianceData[bandIndex]);
+
+        maskData[bandIndex] = new short[length];
+
+        if (chrisFile.hasMask()) {
+            chrisFile.readMaskData(bandIndex, 0, rectangle.y, 1, 1, sceneRasterWidth, rectangle.height, maskData[bandIndex]);
+        }
+
+        maskRefinement.perform(radianceData[bandIndex], sceneRasterWidth, maskData[bandIndex], 0, 0,
+                               sceneRasterWidth);
     }
 
 }
