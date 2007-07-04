@@ -32,7 +32,7 @@ p {
 
 .code {
     color: blue;
-    font-family: courier new, courier, Monospaced;
+    font-family: courier new, courier, monospaced,cursive;
     text-align: left;
     font-weight: normal;
     text-decoration: none;
