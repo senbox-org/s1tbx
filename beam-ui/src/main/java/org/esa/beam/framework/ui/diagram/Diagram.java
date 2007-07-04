@@ -108,12 +108,15 @@ public class Diagram {
         return transform;
     }
 
-    public boolean isDrawGrid() {
+    public boolean getDrawGrid() {
         return drawGrid;
     }
 
     public void setDrawGrid(boolean drawGrid) {
-        this.drawGrid = drawGrid;
+        if (this.drawGrid != drawGrid) {
+            this.drawGrid = drawGrid;
+            invalidate();
+        }
     }
 
     public DiagramAxis getXAxis() {
@@ -379,12 +382,16 @@ public class Diagram {
                 tw = fontMetrics.stringWidth(text);
                 g2d.setColor(textColor);
                 g2d.drawString(text, x0 - tw / 2, y2 + textGap + fontMetrics.getAscent());
-                g2d.setColor(majorGridColor);
-                g2d.drawLine(x0, y1, x0, yMin);
+                if (drawGrid) {
+                    g2d.setColor(majorGridColor);
+                    g2d.drawLine(x0, y1, x0, yMin);
+                }
             } else {
                 y2 = y1 + minorTickLength;
-                g2d.setColor(minorGridColor);
-                g2d.drawLine(x0, y1, x0, yMin);
+                if (drawGrid) {
+                    g2d.setColor(minorGridColor);
+                    g2d.drawLine(x0, y1, x0, yMin);
+                }
             }
             g2d.setColor(foregroundColor);
             g2d.drawLine(x0, y1, x0, y2);
@@ -403,12 +410,16 @@ public class Diagram {
                 tw = fontMetrics.stringWidth(text);
                 g2d.setColor(textColor);
                 g2d.drawString(text, x2 - textGap - tw, y0 + th / 2);
-                g2d.setColor(majorGridColor);
-                g2d.drawLine(x1, y0, xMax, y0);
+                if (drawGrid) {
+                    g2d.setColor(majorGridColor);
+                    g2d.drawLine(x1, y0, xMax, y0);
+                }
             } else {
                 x2 = x1 - minorTickLength;
-                g2d.setColor(minorGridColor);
-                g2d.drawLine(x1, y0, xMax, y0);
+                if (drawGrid) {
+                    g2d.setColor(minorGridColor);
+                    g2d.drawLine(x1, y0, xMax, y0);
+                }
             }
             g2d.setColor(foregroundColor);
             g2d.drawLine(x1, y0, x2, y0);
