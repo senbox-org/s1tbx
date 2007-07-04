@@ -968,7 +968,7 @@ public class BasicApp {
 
         boolean mustUpdateComponentTreeUI = initLookAndFeel();
 
-        final UIDefaults uiDefaults = UIManager.getDefaults();
+        final UIDefaults uiDefaults = UIManager.getLookAndFeel().getDefaults();
         // Don't remove this out-commented code, its useful to find out default UI key/value pairs
         //        Enumeration enum = uiDefaults.keys();
         //        while (enum.hasMoreElements()) {

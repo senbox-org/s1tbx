@@ -239,7 +239,15 @@ public class ToolButtonFactory {
         }
 
         private Color getDefaultBackground() {
-            return UIManager.getDefaults().getColor("Button.background");
+            Color color = null;
+            String[] keys = new String[] {"Button.background", "Label.background", "Panel.background"};
+            for (String key : keys) {
+                color = UIManager.getLookAndFeel().getDefaults().getColor(key);
+            }
+            if (color == null) {
+                color = new Color(238, 238, 238);
+            }            
+            return color;
         }
     }
 }
