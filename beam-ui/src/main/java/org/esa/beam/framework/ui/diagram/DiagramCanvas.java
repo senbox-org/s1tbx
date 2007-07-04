@@ -41,8 +41,10 @@ public class DiagramCanvas extends JPanel {
     private Insets insets;
     private DiagramGraph selectedGraph;
     private Point dragPoint;
+    private DiagramChangeHandler diagramChangeHandler;
 
     public DiagramCanvas() {
+        diagramChangeHandler = new DiagramChangeHandler();
         addComponentListener(new ComponentAdapter() {
             /**
              * Invoked when the component's size changes.
@@ -64,9 +66,16 @@ public class DiagramCanvas extends JPanel {
     }
 
     public void setDiagram(Diagram diagram) {
-        Diagram oldValue = this.diagram;
-        if (oldValue != diagram) {
+        Diagram oldDiagram = this.diagram;
+        if (oldDiagram != diagram) {
+            if (oldDiagram != null) {
+                oldDiagram.removeChangeListener(diagramChangeHandler);
+            }
             this.diagram = diagram;
+            if (this.diagram != null) {
+                diagram.addChangeListener(diagramChangeHandler);
+            }
+            firePropertyChange("diagram", oldDiagram, diagram);
             repaint();
         }
     }
@@ -215,6 +224,12 @@ public class DiagramCanvas extends JPanel {
         public void mouseReleased(MouseEvent e) {
             selectedGraph = null;
             dragPoint = null;
+            repaint();
+        }
+    }
+
+    private class DiagramChangeHandler implements DiagramChangeListener {
+        public void diagramChanged(Diagram diagram) {
             repaint();
         }
     }

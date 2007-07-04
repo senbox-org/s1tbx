@@ -164,7 +164,6 @@ public class SpectrumToolView extends AbstractToolView {
         SpectraDiagram spectraDiagram = getSpectraDiagram();
         if (spectraDiagram.getBands().length > 0) {
             spectraDiagram.updateSpectra(pixelX, pixelY);
-            diagramCanvas.repaint();
         } else {
             diagramCanvas.setMessageText(MSG_NO_SPECTRAL_BANDS);
         }

@@ -88,17 +88,7 @@ class SpectraDiagram extends Diagram {
         }
         resetMinMaxAccumulators();
         getYAxis().setUnit(getUnit(this.bands));
-    }
-
-    public void setAxesMinMaxAccumulatorsToAxesMinMax() {
-        xMinAccum = getXAxis().getMinValue();
-        xMaxAccum = getXAxis().getMaxValue();
-        yMinAccum = getYAxis().getMinValue();
-        yMaxAccum = getYAxis().getMaxValue();
-    }
-
-    public void updateYUnit() {
-        getYAxis().setUnit(getUnit(bands));
+        invalidate();
     }
 
     public void updateSpectra(final int pixelX, final int pixelY) {
@@ -106,6 +96,7 @@ class SpectraDiagram extends Diagram {
         for (DiagramGraph graph : graphs) {
             updateGraph((SpectrumGraph) graph, pixelX, pixelY);
         }
+        invalidate();
     }
 
     private void updateGraph(SpectrumGraph spectrumGraph, int pixelX, int pixelY) {
@@ -118,29 +109,35 @@ class SpectraDiagram extends Diagram {
     }
 
     private void adjustAxes(SpectrumGraph spectrumGraph) {
-        final DiagramAxis xAxis = getXAxis();
-        xMinAccum = Math.min(xMinAccum, spectrumGraph.getXMin());
-        xMaxAccum = Math.max(xMaxAccum, spectrumGraph.getXMax());
-        boolean xRangeValid = xMaxAccum > xMinAccum;
-        if (xRangeValid) {
-            xAxis.setValueRange(xMinAccum, xMaxAccum);
-            xAxis.setOptimalSubDivision(4, 6, 5);
-        } else {
-            // todo - handle!
-        }
+        try {
+            enableChangeEventMerging();
 
-        final DiagramAxis yAxis = getYAxis();
-        yMinAccum = Math.min(yMinAccum, spectrumGraph.getYMin());
-        yMaxAccum = Math.max(yMaxAccum, spectrumGraph.getYMax());
-        boolean yRangeValid = yMaxAccum > yMinAccum;
-        if (yRangeValid) {
-            yAxis.setValueRange(yMinAccum, yMaxAccum);
-            yAxis.setOptimalSubDivision(3, 6, 5);
-        } else {
-            // todo - handle!
-        }
-        if (xRangeValid && yRangeValid) {
-            // todo - handle!
+            final DiagramAxis xAxis = getXAxis();
+            xMinAccum = Math.min(xMinAccum, spectrumGraph.getXMin());
+            xMaxAccum = Math.max(xMaxAccum, spectrumGraph.getXMax());
+            boolean xRangeValid = xMaxAccum > xMinAccum;
+            if (xRangeValid) {
+                xAxis.setValueRange(xMinAccum, xMaxAccum);
+                xAxis.setOptimalSubDivision(4, 6, 5);
+            } else {
+                // todo - handle!
+            }
+
+            final DiagramAxis yAxis = getYAxis();
+            yMinAccum = Math.min(yMinAccum, spectrumGraph.getYMin());
+            yMaxAccum = Math.max(yMaxAccum, spectrumGraph.getYMax());
+            boolean yRangeValid = yMaxAccum > yMinAccum;
+            if (yRangeValid) {
+                yAxis.setValueRange(yMinAccum, yMaxAccum);
+                yAxis.setOptimalSubDivision(3, 6, 5);
+            } else {
+                // todo - handle!
+            }
+            if (xRangeValid && yRangeValid) {
+                // todo - handle!
+            }
+        } finally {
+            disableChangeEventMerging();
         }
     }
 
@@ -149,6 +146,13 @@ class SpectraDiagram extends Diagram {
         xMaxAccum = -Double.MAX_VALUE;
         yMinAccum = +Double.MAX_VALUE;
         yMaxAccum = -Double.MAX_VALUE;
+    }
+
+    public void resetMinMaxAccumulatorsFromAxes() {
+        xMinAccum = getXAxis().getMinValue();
+        xMaxAccum = getXAxis().getMaxValue();
+        yMinAccum = getYAxis().getMinValue();
+        yMaxAccum = getYAxis().getMaxValue();
     }
 
 

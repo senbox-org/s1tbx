@@ -24,179 +24,86 @@ import junit.framework.TestCase;
 
 public class DiagramAxisTest extends TestCase {
 
-    DiagramAxis _diagramAxis;
-    DiagramAxisPropertyChangeListener _axisPropertyChangeListener;
+    DiagramAxis diagramAxis;
+    private EventCounter eventCounter;
 
     public DiagramAxisTest(String s) {
         super(s);
     }
 
+    @Override
     public void setUp() {
-        _axisPropertyChangeListener = new DiagramAxisPropertyChangeListener();
-        _diagramAxis = new DiagramAxis();
-        _diagramAxis.addPropertyChangeListener(_axisPropertyChangeListener);
-    }
-
-    public void tearDown() {
-        if (_diagramAxis != null) {
-            _diagramAxis.removePropertyChangeListener(_axisPropertyChangeListener);
-            _diagramAxis = null;
-        }
-        _axisPropertyChangeListener = null;
-    }
-
-    public void testDiagramAxisPCL() {
-        _axisPropertyChangeListener.propertyChange(new PropertyChangeEvent(this, "PCL", "testold", "testnew"));
-        assertNotNull(_axisPropertyChangeListener.getEvents());
-        _axisPropertyChangeListener.reset();
-        assertNull(_axisPropertyChangeListener.getEvents());
+        Diagram diagram = new Diagram();
+        diagramAxis = new DiagramAxis();
+        diagram.setXAxis(diagramAxis);
+        eventCounter = new EventCounter();
+        diagram.addChangeListener(eventCounter);
     }
 
     public void testProperties() {
 
-        _axisPropertyChangeListener.reset();
-        _diagramAxis.setName("bibo");
-        assertEquals("bibo", _diagramAxis.getName());
-        PropertyChangeEvent[] events = _axisPropertyChangeListener.getEvents();
-        assertNotNull(events);
-        assertEquals(1, events.length);
-        assertEquals("name", events[0].getPropertyName());
-        assertEquals(null, events[0].getOldValue());
-        assertEquals("bibo", events[0].getNewValue());
+        eventCounter.reset();
+        diagramAxis.setName("bibo");
+        assertEquals("bibo", diagramAxis.getName());
+        assertEquals(1, eventCounter.counts);
 
-        _axisPropertyChangeListener.reset();
-        _diagramAxis.setName(null);
-        assertEquals(null, _diagramAxis.getName());
-        events = _axisPropertyChangeListener.getEvents();
-        assertNotNull(events);
-        assertEquals(1, events.length);
-        assertEquals("name", events[0].getPropertyName());
-        assertEquals("bibo", events[0].getOldValue());
-        assertEquals(null, events[0].getNewValue());
+        diagramAxis.setName(null);
+        assertEquals(null, diagramAxis.getName());
+        assertEquals(2, eventCounter.counts);
 
-        _axisPropertyChangeListener.reset();
-        _diagramAxis.setUnit("bibo");
-        assertEquals("bibo", _diagramAxis.getUnit());
-        events = _axisPropertyChangeListener.getEvents();
-        assertNotNull(events);
-        assertEquals(1, events.length);
-        assertEquals("unit", events[0].getPropertyName());
-        assertEquals(null, events[0].getOldValue());
-        assertEquals("bibo", events[0].getNewValue());
+        diagramAxis.setUnit("bibo");
+        assertEquals("bibo", diagramAxis.getUnit());
+        assertEquals(3, eventCounter.counts);
 
-        _axisPropertyChangeListener.reset();
-        _diagramAxis.setUnit(null);
-        assertEquals(null, _diagramAxis.getUnit());
-        events = _axisPropertyChangeListener.getEvents();
-        assertNotNull(events);
-        assertEquals(1, events.length);
-        assertEquals("unit", events[0].getPropertyName());
-        assertEquals("bibo", events[0].getOldValue());
-        assertEquals(null, events[0].getNewValue());
+        diagramAxis.setUnit(null);
+        assertEquals(null, diagramAxis.getUnit());
+        assertEquals(4, eventCounter.counts);
 
-        _axisPropertyChangeListener.reset();
-        assertEquals(1.0, _diagramAxis.getUnitFactor(), 1e-10);
-        _diagramAxis.setUnitFactor(0.5);
-        assertEquals(0.5, _diagramAxis.getUnitFactor(), 1e-10);
-        events = _axisPropertyChangeListener.getEvents();
-        assertNotNull(events);
-        assertEquals(1, events.length);
-        assertEquals("unitFactor", events[0].getPropertyName());
-        assertEquals(new Double(1.0), events[0].getOldValue());
-        assertEquals(new Double(0.5), events[0].getNewValue());
+        assertEquals(1.0, diagramAxis.getUnitFactor(), 1e-10);
+        diagramAxis.setUnitFactor(0.5);
+        assertEquals(0.5, diagramAxis.getUnitFactor(), 1e-10);
+        assertEquals(5, eventCounter.counts);
 
-        _axisPropertyChangeListener.reset();
-        _diagramAxis.setNumMajorTicks(5);
-        assertEquals(5, _diagramAxis.getNumMajorTicks());
-        events = _axisPropertyChangeListener.getEvents();
-        assertNotNull(events);
-        assertEquals(1, events.length);
-        assertEquals("numMajorTicks", events[0].getPropertyName());
-        assertEquals(new Integer(3), events[0].getOldValue());
-        assertEquals(new Integer(5), events[0].getNewValue());
+        diagramAxis.setNumMajorTicks(5);
+        assertEquals(5, diagramAxis.getNumMajorTicks());
+        assertEquals(6, eventCounter.counts);
 
-        _axisPropertyChangeListener.reset();
-        _diagramAxis.setNumMinorTicks(3);
-        assertEquals(3, _diagramAxis.getNumMinorTicks());
-        events = _axisPropertyChangeListener.getEvents();
-        assertNotNull(events);
-        assertEquals(1, events.length);
-        assertEquals("numMinorTicks", events[0].getPropertyName());
-        assertEquals(new Integer(5), events[0].getOldValue());
-        assertEquals(new Integer(3), events[0].getNewValue());
+        diagramAxis.setNumMinorTicks(3);
+        assertEquals(3, diagramAxis.getNumMinorTicks());
+        assertEquals(7, eventCounter.counts);
 
-        _axisPropertyChangeListener.reset();
-        _diagramAxis.setValueRange(13.1, 16.2);
-        assertEquals(16.2, _diagramAxis.getMaxValue(), 1e-9);
-        assertEquals(13.1, _diagramAxis.getMinValue(), 1e-9);
-        events = _axisPropertyChangeListener.getEvents();
-        assertNotNull(events);
-        assertEquals(2, events.length);
-        assertEquals("minValue", events[0].getPropertyName());
-        assertEquals(new Double(0), events[0].getOldValue());
-        assertEquals(new Double(13.1), events[0].getNewValue());
-        assertEquals("maxValue", events[1].getPropertyName());
-        assertEquals(new Double(100), events[1].getOldValue());
-        assertEquals(new Double(16.2), events[1].getNewValue());
+        diagramAxis.setValueRange(13.1, 16.2);
+        assertEquals(16.2, diagramAxis.getMaxValue(), 1e-9);
+        assertEquals(13.1, diagramAxis.getMinValue(), 1e-9);
+        assertEquals(8, eventCounter.counts);
 
-        _axisPropertyChangeListener.reset();
         try {
-            _diagramAxis.setValueRange(14.1, 11.2);
+            diagramAxis.setValueRange(14.1, 11.2);
             fail();
         } catch (Exception e) {
             assertEquals("java.lang.IllegalArgumentException", e.getClass().getName());
         }
-        assertNull(_axisPropertyChangeListener.getEvents());
+        assertEquals(8, eventCounter.counts);
     }
 
     public void testSetSubDivision() {
-        _axisPropertyChangeListener.reset();
-        _diagramAxis.setSubDivision(12.4, 83.6, 7, 4);
-        assertEquals(12.4, _diagramAxis.getMinValue(), 1e-9);
-        assertEquals(83.6, _diagramAxis.getMaxValue(), 1e-9);
-        assertEquals(7, _diagramAxis.getNumMajorTicks());
-        assertEquals(4, _diagramAxis.getNumMinorTicks());
-        PropertyChangeEvent[] events = _axisPropertyChangeListener.getEvents();
-        assertNotNull(events);
-        assertEquals(4, events.length);
-        assertEquals("minValue", events[0].getPropertyName());
-        assertEquals(new Double(0), events[0].getOldValue());
-        assertEquals(new Double(12.4), events[0].getNewValue());
-        assertEquals("maxValue", events[1].getPropertyName());
-        assertEquals(new Double(100), events[1].getOldValue());
-        assertEquals(new Double(83.6), events[1].getNewValue());
-        assertEquals("numMajorTicks", events[2].getPropertyName());
-        assertEquals(new Integer(3), events[2].getOldValue());
-        assertEquals(new Integer(7), events[2].getNewValue());
-        assertEquals("numMinorTicks", events[3].getPropertyName());
-        assertEquals(new Integer(5), events[3].getOldValue());
-        assertEquals(new Integer(4), events[3].getNewValue());
+        diagramAxis.setSubDivision(12.4, 83.6, 7, 4);
+        assertEquals(12.4, diagramAxis.getMinValue(), 1e-9);
+        assertEquals(83.6, diagramAxis.getMaxValue(), 1e-9);
+        assertEquals(7, diagramAxis.getNumMajorTicks());
+        assertEquals(4, diagramAxis.getNumMinorTicks());
+        assertEquals(3, eventCounter.counts);
     }
 
     public void testSetOptimalSubDivision() {
-        _diagramAxis.setValueRange(13.1, 16.2);
-
-        _axisPropertyChangeListener.reset();
-        _diagramAxis.setOptimalSubDivision(4, 6, 8);
-        assertEquals(16.5, _diagramAxis.getMaxValue(), 1e-9);
-        assertEquals(12.75, _diagramAxis.getMinValue(), 1e-9);
-        assertEquals(6, _diagramAxis.getNumMajorTicks());
-        assertEquals(8, _diagramAxis.getNumMinorTicks());
-        PropertyChangeEvent[] events = _axisPropertyChangeListener.getEvents();
-        assertNotNull(events);
-        assertEquals(4, events.length);
-        assertEquals("minValue", events[0].getPropertyName());
-        assertEquals(new Double(13.1), events[0].getOldValue());
-        assertEquals(new Double(12.75), events[0].getNewValue());
-        assertEquals("maxValue", events[1].getPropertyName());
-        assertEquals(new Double(16.2), events[1].getOldValue());
-        assertEquals(new Double(16.5), events[1].getNewValue());
-        assertEquals("numMajorTicks", events[2].getPropertyName());
-        assertEquals(new Integer(3), events[2].getOldValue());
-        assertEquals(new Integer(6), events[2].getNewValue());
-        assertEquals("numMinorTicks", events[3].getPropertyName());
-        assertEquals(new Integer(5), events[3].getOldValue());
-        assertEquals(new Integer(8), events[3].getNewValue());
+        diagramAxis.setValueRange(13.1, 16.2);
+        assertEquals(1, eventCounter.counts);
+        diagramAxis.setOptimalSubDivision(4, 6, 8);
+        assertEquals(16.5, diagramAxis.getMaxValue(), 1e-9);
+        assertEquals(12.75, diagramAxis.getMinValue(), 1e-9);
+        assertEquals(6, diagramAxis.getNumMajorTicks());
+        assertEquals(8, diagramAxis.getNumMinorTicks());
+        assertEquals(4, eventCounter.counts);
     }
 
     public void testGetOptimalTickDistance() {
@@ -237,6 +144,16 @@ public class DiagramAxisTest extends TestCase {
             if (_events != null) {
                 _events.clear();
             }
+        }
+    }
+
+    private static class EventCounter implements DiagramChangeListener {
+        int counts = 0;
+        public void reset() {
+                       counts = 0;
+        }
+        public void diagramChanged(Diagram diagram) {
+            counts++;
         }
     }
 }

@@ -17,6 +17,9 @@
 package org.esa.beam.framework.ui.diagram;
 
 public interface DiagramGraph {
+    Diagram getDiagram();
+
+    void setDiagram(Diagram diagram);
 
     String getXName();
 
@@ -37,4 +40,6 @@ public interface DiagramGraph {
     double getYMax();
 
     DiagramGraphStyle getStyle();
+
+    void dispose();
 }

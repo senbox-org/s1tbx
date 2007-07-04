@@ -17,12 +17,11 @@
 package org.esa.beam.framework.ui.diagram;
 
 import org.esa.beam.util.Guardian;
+import org.esa.beam.util.ObjectUtils;
 import org.esa.beam.util.math.Range;
 
 import java.awt.*;
 import java.awt.geom.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,28 +31,32 @@ import java.util.List;
  */
 public class Diagram {
 
-    // @todo 2 nf/he - see StatisticsDialog for similar declarations (code smell!)
     private final static String DEFAULT_FONT_NAME = "Verdana";
     private final static int DEFAULT_FONT_SIZE = 9;
     private static final Color DEFAULT_DIAGRAM_BG_COLOR = new Color(200, 200, 255);
     private static final Color DEFAULT_DIAGRAM_FG_COLOR = new Color(0, 0, 100);
     private static final Color DEFAULT_DIAGRAM_TEXT_COLOR = Color.black;
 
+    // Main components: graphs + axes
     private List<DiagramGraph> graphs;
     private DiagramAxis xAxis;
     private DiagramAxis yAxis;
+
+    // Visual properties
     private boolean drawGrid;
-
-    private final AxesPCL axesPCL;
-
     private Font font;
     private int textGap;
     private int majorTickLength;
     private int minorTickLength;
+
+    // Change management
+    private ArrayList<DiagramChangeListener> changeListeners;
+    private int numMergedChangeEvents;
+
+    // Internal properties
     private boolean valid;
 
-    // Dependent properties
-    //
+    // Computed internal properties
     private FontMetrics fontMetrics;
     private Rectangle graphArea;
     private String[] yTickTexts;
@@ -63,11 +66,25 @@ public class Diagram {
 
     public Diagram() {
         graphs = new ArrayList<DiagramGraph>(3);
-        axesPCL = new AxesPCL();
+        drawGrid = false;
         font = new Font(DEFAULT_FONT_NAME, Font.PLAIN, DEFAULT_FONT_SIZE);
         textGap = 3;
         majorTickLength = 5;
         minorTickLength = 3;
+        changeListeners = new ArrayList<DiagramChangeListener>(3);
+        disableChangeEventMerging();
+    }
+
+    public void enableChangeEventMerging() {
+        numMergedChangeEvents = 0;
+    }
+
+    public void disableChangeEventMerging() {
+        final boolean changeEventsMerged = numMergedChangeEvents > 0;
+        numMergedChangeEvents = -1;
+        if (changeEventsMerged) {
+            invalidate();
+        }
     }
 
     public Diagram(DiagramAxis xAxis, DiagramAxis yAxis, DiagramGraph graph) {
@@ -95,13 +112,12 @@ public class Diagram {
 
     public void setXAxis(DiagramAxis xAxis) {
         Guardian.assertNotNull("xAxis", xAxis);
-        DiagramAxis oldAxis = this.xAxis;
-        if (oldAxis != xAxis) {
-            if (oldAxis != null) {
-                oldAxis.removePropertyChangeListener(axesPCL);
+        if (this.xAxis != xAxis) {
+            if (this.xAxis != null) {
+                this.xAxis.setDiagram(null);
             }
             this.xAxis = xAxis;
-            this.xAxis.addPropertyChangeListener(axesPCL);
+            this.xAxis.setDiagram(this);
             invalidate();
         }
     }
@@ -112,13 +128,12 @@ public class Diagram {
 
     public void setYAxis(DiagramAxis yAxis) {
         Guardian.assertNotNull("yAxis", yAxis);
-        DiagramAxis oldAxis = this.yAxis;
-        if (oldAxis != yAxis) {
-            if (oldAxis != null) {
-                oldAxis.removePropertyChangeListener(axesPCL);
+        if (this.yAxis != yAxis) {
+            if (this.yAxis != null) {
+                this.yAxis.setDiagram(null);
             }
             this.yAxis = yAxis;
-            this.yAxis.addPropertyChangeListener(axesPCL);
+            this.yAxis.setDiagram(this);
             invalidate();
         }
     }
@@ -127,37 +142,38 @@ public class Diagram {
         return graphs.toArray(new DiagramGraph[0]);
     }
 
-    @Deprecated
-    public DiagramGraph getGraph() {
-        if (graphs.isEmpty()) {
-            return null;
-        }
-        return graphs.get(0);
+    public int getGraphCount() {
+        return graphs.size();
     }
 
-    @Deprecated
-    public void setGraph(DiagramGraph graph) {
-        Guardian.assertNotNull("graph", graph);
-        graphs.clear();
-        graphs.add(graph);
-        invalidate();
+    public DiagramGraph getGraph(int index) {
+        return graphs.get(index);
     }
 
     public void addGraph(DiagramGraph graph) {
         Guardian.assertNotNull("graph", graph);
-        graphs.add(graph);
-        invalidate();
+        if (graphs.add(graph)) {
+            graph.setDiagram(this);
+            invalidate();
+        }
     }
 
     public void removeGraph(DiagramGraph graph) {
         Guardian.assertNotNull("graph", graph);
-        graphs.remove(graph);
-        invalidate();
+        if (graphs.remove(graph)) {
+            graph.setDiagram(null);
+            invalidate();
+        }
     }
 
     public void removeAllGraphs() {
-        graphs.clear();
-        invalidate();
+        if (getGraphCount() > 0) {
+            for (DiagramGraph graph : graphs) {
+                graph.setDiagram(null);
+            }
+            graphs.clear();
+            invalidate();
+        }
     }
 
     public Font getFont() {
@@ -165,8 +181,10 @@ public class Diagram {
     }
 
     public void setFont(Font font) {
-        this.font = font;
-        invalidate();
+        if (!ObjectUtils.equalObjects(this.font, font)) {
+            this.font = font;
+            invalidate();
+        }
     }
 
     public int getTextGap() {
@@ -174,8 +192,10 @@ public class Diagram {
     }
 
     public void setTextGap(int textGap) {
-        this.textGap = textGap;
-        invalidate();
+        if (!ObjectUtils.equalObjects(this.font, font)) {
+            this.textGap = textGap;
+            invalidate();
+        }
     }
 
     public boolean isValid() {
@@ -188,6 +208,7 @@ public class Diagram {
 
     public void invalidate() {
         setValid(false);
+        fireDiagramChanged();
     }
 
     public Rectangle getGraphArea() {
@@ -236,9 +257,9 @@ public class Diagram {
         transform = null;
         if (w > 0 && h > 0) {
             transform = new RectTransform(new Range(xAxis.getMinValue(), xAxis.getMaxValue()),
-                                   new Range(yAxis.getMinValue(), yAxis.getMaxValue()),
-                                   new Range(graphArea.x, graphArea.x + graphArea.width),
-                                   new Range(graphArea.y + graphArea.height, graphArea.y));
+                                          new Range(yAxis.getMinValue(), yAxis.getMaxValue()),
+                                          new Range(graphArea.x, graphArea.x + graphArea.width),
+                                          new Range(graphArea.y + graphArea.height, graphArea.y));
         }
 
         setValid(w > 0 && h > 0);
@@ -404,15 +425,35 @@ public class Diagram {
         return closestGraph;
     }
 
-    private class AxesPCL implements PropertyChangeListener {
+    public void fireAxisChanged(DiagramAxis axis) {
+        // todo
+        fireDiagramChanged();
+    }
 
-        /**
-         * This method gets called when a bound property is changed.
-         *
-         * @param evt A PropertyChangeEvent object describing the event source and the property that has changed.
-         */
-        public void propertyChange(PropertyChangeEvent evt) {
-            invalidate();
+    private void fireDiagramChanged() {
+        if (numMergedChangeEvents == -1) {
+            final DiagramChangeListener[] listeners = getChangeListeners();
+            for (DiagramChangeListener listener : listeners) {
+                listener.diagramChanged(this);
+            }
+        } else {
+            numMergedChangeEvents++;
+        }
+    }
+
+    public DiagramChangeListener[] getChangeListeners() {
+        return changeListeners.toArray(new DiagramChangeListener[0]);
+    }
+
+    public void addChangeListener(DiagramChangeListener listener) {
+        if (listener != null) {
+            changeListeners.add(listener);
+        }
+    }
+
+    public void removeChangeListener(DiagramChangeListener listener) {
+        if (listener != null) {
+            changeListeners.remove(listener);
         }
     }
 
@@ -455,8 +496,18 @@ public class Diagram {
     }
 
     public void dispose() {
-        xAxis = null;
-        yAxis = null;
-        graphs.clear();
+        // first disable listening to what will happen next!
+        changeListeners.clear();
+
+        // remove main components
+        removeAllGraphs();
+        if (xAxis != null) {
+            xAxis.setDiagram(null);
+            xAxis = null;
+        }
+        if (yAxis != null) {
+            yAxis.setDiagram(null);
+            yAxis = null;
+        }
     }
 }

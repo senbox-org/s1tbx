@@ -2,19 +2,18 @@ package org.esa.beam.framework.ui.diagram;
 
 import org.esa.beam.util.math.Range;
 import org.esa.beam.util.math.IndexValidator;
+import org.esa.beam.util.ObjectUtils;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 
-public class DefaultDiagramGraph implements DiagramGraph {
+public class DefaultDiagramGraph extends AbstractDiagramGraph  {
+
     private String xName;
     private double[] xValues;
     private String yName;
     private double[] yValues;
-
     private Range xRange;
     private Range yRange;
-
-    private DiagramGraphStyle style;
 
     public DefaultDiagramGraph() {
     }
@@ -35,7 +34,10 @@ public class DefaultDiagramGraph implements DiagramGraph {
 
     public void setXName(String xName) {
         Assert.notNull(xName, "xName");
-        this.xName = xName;
+        if (!ObjectUtils.equalObjects(this.xName,  xName)) {
+            this.xName = xName;
+            invalidate();
+        }
     }
 
     public String getYName() {
@@ -44,7 +46,10 @@ public class DefaultDiagramGraph implements DiagramGraph {
 
     public void setYName(String yName) {
         Assert.notNull(yName, "yName");
-        this.yName = yName;
+        if (!ObjectUtils.equalObjects(this.yName,  yName)) {
+            this.yName = yName;
+            invalidate();
+        }
     }
 
     public double[] getXValues() {
@@ -60,10 +65,13 @@ public class DefaultDiagramGraph implements DiagramGraph {
         Assert.notNull(yValues, "yValues");
         Assert.argument(xValues.length > 1, "xValues.length > 1");
         Assert.argument(xValues.length == yValues.length, "xValues.length == yValues.length");
-        this.xValues = xValues;
-        this.yValues = yValues;
-        this.xRange = Range.computeRangeDouble(xValues, IndexValidator.TRUE, null, ProgressMonitor.NULL);
-        this.yRange = Range.computeRangeDouble(yValues, IndexValidator.TRUE, null, ProgressMonitor.NULL);
+        if (!ObjectUtils.equalObjects(this.xValues,  xValues) || !ObjectUtils.equalObjects(this.yValues,  yValues)) {
+            this.xValues = xValues;
+            this.yValues = yValues;
+            this.xRange = Range.computeRangeDouble(xValues, IndexValidator.TRUE, null, ProgressMonitor.NULL);
+            this.yRange = Range.computeRangeDouble(yValues, IndexValidator.TRUE, null, ProgressMonitor.NULL);
+            invalidate();
+        }
     }
 
     public int getNumValues() {
@@ -94,14 +102,10 @@ public class DefaultDiagramGraph implements DiagramGraph {
         return yRange.getMax();
     }
 
-    public void setStyle(DiagramGraphStyle style) {
-        this.style = style;
-    }
-
-    public DiagramGraphStyle getStyle() {
-        if (style == null) {
-            style = new DefaultDiagramGraphStyle();
-        }
-        return style;
+    @Override
+    public void dispose() {
+        xValues = null;
+        yValues = null;
+        super.dispose();
     }
 }

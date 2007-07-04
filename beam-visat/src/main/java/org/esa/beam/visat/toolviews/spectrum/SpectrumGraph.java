@@ -3,6 +3,7 @@ package org.esa.beam.visat.toolviews.spectrum;
 import org.esa.beam.framework.ui.diagram.DiagramGraph;
 import org.esa.beam.framework.ui.diagram.DiagramGraphStyle;
 import org.esa.beam.framework.ui.diagram.DefaultDiagramGraphStyle;
+import org.esa.beam.framework.ui.diagram.AbstractDiagramGraph;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.util.math.Range;
@@ -17,7 +18,7 @@ import java.io.IOException;
 import com.bc.ceres.core.ProgressMonitor;
 
 
-class SpectrumGraph implements DiagramGraph {
+class SpectrumGraph extends AbstractDiagramGraph {
 
     private Pin pin;
     private Band[] bands;
@@ -25,7 +26,6 @@ class SpectrumGraph implements DiagramGraph {
     private float[] wavelengths;
     private final Range energyRange;
     private final Range wavelengthRange;
-    private DefaultDiagramGraphStyle style;
 
     public SpectrumGraph(Pin pin, Band[] bands) {
         Debug.assertNotNull(bands);
@@ -34,7 +34,6 @@ class SpectrumGraph implements DiagramGraph {
         energyRange = new Range();
         wavelengthRange = new Range();
         setBands(bands);
-        style = new DefaultDiagramGraphStyle();
     }
 
     public Pin getPin() {
@@ -115,14 +114,15 @@ class SpectrumGraph implements DiagramGraph {
             energies[i] = band.readPixels(pixelX, pixelY, 1, 1, new float[1], ProgressMonitor.NULL)[0];
         }
         Range.computeRangeFloat(energies, IndexValidator.TRUE, energyRange, ProgressMonitor.NULL);
+        // no invalidate() call here, SpectrumDiagram does this
     }
 
-    public DiagramGraphStyle getStyle() {
-        return style;
-    }
-
+    @Override
     public void dispose() {
         pin = null;
         bands = null;
+        energies = null;
+        wavelengths = null;
+        super.dispose();
     }
 }
