@@ -388,11 +388,6 @@ public class SpectrumToolView extends AbstractToolView {
         }
     }
 
-    public void resetAxesMinMaxAccumulators() {
-        getSpectraDiagram().resetMinMaxAccumulators();
-        getContentPane().repaint();
-    }
-
     private CursorSpectrumPPL getOrCreateCursorSpectrumPPL(Product product) {
         CursorSpectrumPPL ppl = getCursorSpectrumPPL(product);
         if (ppl == null) {
@@ -515,7 +510,7 @@ public class SpectrumToolView extends AbstractToolView {
                 }
             }
             if (e.isShiftDown()) {
-                resetAxesMinMaxAccumulators();
+                getSpectraDiagram().adjustAxes(true);
             }
         }
 

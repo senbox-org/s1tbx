@@ -60,6 +60,10 @@ public class Diagram {
 
     // Internal properties
     private boolean valid;
+    private double xMinAccum;
+    private double xMaxAccum;
+    private double yMinAccum;
+    private double yMaxAccum;
 
     // Computed internal properties
     private FontMetrics fontMetrics;
@@ -83,6 +87,15 @@ public class Diagram {
         textColor = DEFAULT_FOREGROUND_COLOR;
         changeListeners = new ArrayList<DiagramChangeListener>(3);
         disableChangeEventMerging();
+        resetMinMaxAccumulators();
+    }
+
+    public Diagram(DiagramAxis xAxis, DiagramAxis yAxis, DiagramGraph graph) {
+        this();
+        setXAxis(xAxis);
+        setYAxis(yAxis);
+        addGraph(graph);
+        resetMinMaxAccumulatorsFromAxes();
     }
 
     public void enableChangeEventMerging() {
@@ -95,13 +108,6 @@ public class Diagram {
         if (changeEventsMerged) {
             invalidate();
         }
-    }
-
-    public Diagram(DiagramAxis xAxis, DiagramAxis yAxis, DiagramGraph graph) {
-        this();
-        setXAxis(xAxis);
-        setYAxis(yAxis);
-        addGraph(graph);
     }
 
     public RectTransform getTransform() {
@@ -516,6 +522,55 @@ public class Diagram {
             }
         }
         return closestGraph;
+    }
+
+    public void adjustAxes(boolean reset) {
+        if (reset) {
+            resetMinMaxAccumulators();
+        }
+        for (DiagramGraph graph : graphs) {
+            adjustAxes(graph);
+        }
+    }
+
+    protected void adjustAxes(DiagramGraph graph) {
+        try {
+            enableChangeEventMerging();
+
+            final DiagramAxis xAxis = getXAxis();
+            xMinAccum = Math.min(xMinAccum, graph.getXMin());
+            xMaxAccum = Math.max(xMaxAccum, graph.getXMax());
+            boolean xRangeValid = xMaxAccum > xMinAccum;
+            if (xRangeValid) {
+                xAxis.setValueRange(xMinAccum, xMaxAccum);
+                xAxis.setOptimalSubDivision(4, 6, 5);
+            }
+
+            final DiagramAxis yAxis = getYAxis();
+            yMinAccum = Math.min(yMinAccum, graph.getYMin());
+            yMaxAccum = Math.max(yMaxAccum, graph.getYMax());
+            boolean yRangeValid = yMaxAccum > yMinAccum;
+            if (yRangeValid) {
+                yAxis.setValueRange(yMinAccum, yMaxAccum);
+                yAxis.setOptimalSubDivision(3, 6, 5);
+            }
+        } finally {
+            disableChangeEventMerging();
+        }
+    }
+
+    public void resetMinMaxAccumulators() {
+        xMinAccum = +Double.MAX_VALUE;
+        xMaxAccum = -Double.MAX_VALUE;
+        yMinAccum = +Double.MAX_VALUE;
+        yMaxAccum = -Double.MAX_VALUE;
+    }
+
+    public void resetMinMaxAccumulatorsFromAxes() {
+        xMinAccum = getXAxis().getMinValue();
+        xMaxAccum = getXAxis().getMaxValue();
+        yMinAccum = getYAxis().getMinValue();
+        yMaxAccum = getYAxis().getMaxValue();
     }
 
     private void fireDiagramChanged() {

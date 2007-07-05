@@ -3,24 +3,20 @@ package org.esa.beam.visat.toolviews.spectrum;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.ui.diagram.DefaultDiagramGraphStyle;
 import org.esa.beam.framework.ui.diagram.Diagram;
 import org.esa.beam.framework.ui.diagram.DiagramAxis;
 import org.esa.beam.framework.ui.diagram.DiagramGraph;
-import org.esa.beam.framework.ui.diagram.DefaultDiagramGraphStyle;
 
-import java.io.IOException;
-import java.awt.Paint;
-import java.awt.Color;
 import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Paint;
+import java.io.IOException;
 
 
 class SpectraDiagram extends Diagram {
     private Product product;
     private Band[] bands;
-    private double xMinAccum;
-    private double xMaxAccum;
-    private double yMinAccum;
-    private double yMaxAccum;
 
     public SpectraDiagram(Product product) {
         this.product = product;
@@ -86,75 +82,23 @@ class SpectraDiagram extends Diagram {
         for (DiagramGraph graph : getGraphs()) {
             ((SpectrumGraph) graph).setBands(bands);
         }
-        resetMinMaxAccumulators();
         getYAxis().setUnit(getUnit(this.bands));
+        adjustAxes(true);
         invalidate();
     }
 
-    public void updateSpectra(final int pixelX, final int pixelY) {
+    public void updateSpectra(int pixelX, int pixelY) {
         DiagramGraph[] graphs = getGraphs();
         for (DiagramGraph graph : graphs) {
-            updateGraph((SpectrumGraph) graph, pixelX, pixelY);
+            try {
+                ((SpectrumGraph) graph).readValues(pixelX, pixelY);
+            } catch (IOException e) {
+                // ignore
+            }
         }
+        adjustAxes(false);
         invalidate();
     }
-
-    private void updateGraph(SpectrumGraph spectrumGraph, int pixelX, int pixelY) {
-        try {
-            spectrumGraph.readValues(pixelX, pixelY);
-            adjustAxes(spectrumGraph);
-        } catch (IOException e) {
-            // todo - handle!
-        }
-    }
-
-    private void adjustAxes(SpectrumGraph spectrumGraph) {
-        try {
-            enableChangeEventMerging();
-
-            final DiagramAxis xAxis = getXAxis();
-            xMinAccum = Math.min(xMinAccum, spectrumGraph.getXMin());
-            xMaxAccum = Math.max(xMaxAccum, spectrumGraph.getXMax());
-            boolean xRangeValid = xMaxAccum > xMinAccum;
-            if (xRangeValid) {
-                xAxis.setValueRange(xMinAccum, xMaxAccum);
-                xAxis.setOptimalSubDivision(4, 6, 5);
-            } else {
-                // todo - handle!
-            }
-
-            final DiagramAxis yAxis = getYAxis();
-            yMinAccum = Math.min(yMinAccum, spectrumGraph.getYMin());
-            yMaxAccum = Math.max(yMaxAccum, spectrumGraph.getYMax());
-            boolean yRangeValid = yMaxAccum > yMinAccum;
-            if (yRangeValid) {
-                yAxis.setValueRange(yMinAccum, yMaxAccum);
-                yAxis.setOptimalSubDivision(3, 6, 5);
-            } else {
-                // todo - handle!
-            }
-            if (xRangeValid && yRangeValid) {
-                // todo - handle!
-            }
-        } finally {
-            disableChangeEventMerging();
-        }
-    }
-
-    public void resetMinMaxAccumulators() {
-        xMinAccum = +Double.MAX_VALUE;
-        xMaxAccum = -Double.MAX_VALUE;
-        yMinAccum = +Double.MAX_VALUE;
-        yMaxAccum = -Double.MAX_VALUE;
-    }
-
-    public void resetMinMaxAccumulatorsFromAxes() {
-        xMinAccum = getXAxis().getMinValue();
-        xMaxAccum = getXAxis().getMaxValue();
-        yMinAccum = getYAxis().getMinValue();
-        yMaxAccum = getYAxis().getMaxValue();
-    }
-
 
     private static String getUnit(final Band[] bands) {
         String unit = null;
@@ -176,7 +120,7 @@ class SpectraDiagram extends Diagram {
             bands = null;
             for (DiagramGraph graph : getGraphs()) {
                 SpectrumGraph spectrumGraph = (SpectrumGraph) graph;
-                spectrumGraph.dispose();
+                spectrumGraph.dispose();   // todo - care! is SpectraDiagram always owner of its graphs?
             }
         }
         super.dispose();
