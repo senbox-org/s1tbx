@@ -1404,47 +1404,20 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                                         ProgressMonitor pm) throws IOException;
 
     /**
-     * Reads <i>geophysical</i> pixel values from this dataset into the user-supplied data buffer.
-     * <p>Geophysical pixel values are already {@link #isScalingApplied() scaled} (calibrated) and raster coordinates
-     * refer to the product's scene raster.
-     * <p>If this method applied to a
-     * {@link TiePointGrid}, it will read scaled and spatially interpolated pixel
-     * data.</p>
+     * Reads raster values from this dataset into the user-supplied data buffer.
+     * Raster coordinates refer to the product's scene raster.
+     * <p>If necessary this method will read spatially interpolated pixel data.</p>
      *
-     * @param offsetX    the X-offset in the scene raster co-ordinates where reading starts
-     * @param offsetY    the Y-offset in the scene raster co-ordinates where reading starts
-     * @param width      the width of the scene raster data buffer
-     * @param height     the height of the scene raster data buffer
+     * @param rectangle  the rectangle in scene raster co-ordinates of the data buffer
      * @param rasterData a raster data buffer receiving the pixels to be read
      * @param pm         a monitor to inform the user about progress
      * @throws java.io.IOException      if an I/O error occurs
      * @throws IllegalArgumentException if the raster is null
      * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
      *                                  which this product raster belongs to, has no associated product reader
-     * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData
      */
-    public void readPixels(int offsetX, int offsetY, int width, int height, ProductData rasterData, ProgressMonitor pm) throws IOException {
-
-        if (isScalingApplied()
-                || getSceneRasterWidth() != getRasterWidth()
-                || getSceneRasterHeight() != getRasterHeight()
-                || getDataType() != rasterData.getType()) {
-            if (rasterData.getType() == ProductData.TYPE_FLOAT32) {
-                readPixels(offsetX, offsetY, width, height, (float[]) rasterData.getElems(), pm);
-            } else if (rasterData.getType() == ProductData.TYPE_FLOAT64) {
-                readPixels(offsetX, offsetY, width, height, (double[]) rasterData.getElems(), pm);
-            } else if (rasterData.getType() == ProductData.TYPE_INT32) {
-                readPixels(offsetX, offsetY, width, height, (int[]) rasterData.getElems(), pm);
-            } else {
-                int[] intBuffer = new int[rasterData.getNumElems()];
-                readPixels(offsetX, offsetY, width, height, intBuffer, pm);
-                for (int i = 0; i < intBuffer.length; i++) {
-                    rasterData.setElemIntAt(i, intBuffer[i]);
-                }
-            }
-        } else {
-            readRasterData(offsetX, offsetY, width, height, rasterData, pm);
-        }
+    public void readRaster(Rectangle rectangle, ProductData rasterData, ProgressMonitor pm) throws IOException {
+    	readRasterData(rectangle.x, rectangle.y, rectangle.width, rectangle.height, rasterData, pm);
     }
     
     /**

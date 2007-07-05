@@ -17,13 +17,20 @@
 
 package org.esa.beam.framework.datamodel;
 
-import com.bc.ceres.core.ProgressMonitor;
-import junit.framework.TestCase;
-import org.esa.beam.framework.dataio.*;
-import org.esa.beam.util.io.BeamFileFilter;
-
+import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.Locale;
+
+import junit.framework.TestCase;
+
+import org.esa.beam.framework.dataio.AbstractProductReader;
+import org.esa.beam.framework.dataio.DecodeQualification;
+import org.esa.beam.framework.dataio.IllegalFileFormatException;
+import org.esa.beam.framework.dataio.ProductReader;
+import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.util.io.BeamFileFilter;
+
+import com.bc.ceres.core.ProgressMonitor;
 
 public class RasterDataNodeIOTest extends TestCase {
 
@@ -48,11 +55,13 @@ public class RasterDataNodeIOTest extends TestCase {
 
     private Product p;
     private TestProductReader pr;
+    private Rectangle rectangle;
 
     @Override
     protected void setUp() {
         p = createTestProduct();
         pr = (TestProductReader) p.getProductReader();
+        rectangle = new Rectangle(0, 0, SW, SH);
     }
 
     public void testUseProductReader() throws IOException {
@@ -90,7 +99,7 @@ public class RasterDataNodeIOTest extends TestCase {
     public void testReadPixelsFromFloatBand() throws IOException {
         Band b = p.getBand(FLOAT_BAND_NAME);
         float[] floatElems = new float[SW * SH];
-        b.readPixels(0, 0, SW, SH, ProductData.createInstance(floatElems), ProgressMonitor.NULL);
+        b.readRaster(rectangle, ProductData.createInstance(floatElems), ProgressMonitor.NULL);
         int x, y;
         x = 0;
         y = 0;
@@ -110,23 +119,23 @@ public class RasterDataNodeIOTest extends TestCase {
     public void testReadPixelsFromScaledIntBand() throws IOException {
         Band b = p.getBand(SCALED_INT_BAND_NAME);
         float[] floatElems = new float[SW * SH];
-        b.readPixels(0, 0, SW, SH, ProductData.createInstance(floatElems), ProgressMonitor.NULL);
+        b.readRaster(rectangle, ProductData.createInstance(floatElems), ProgressMonitor.NULL);
         int x, y;
         x = 0;
         y = 0;
-        assertEquals(SOFF + SFAC * getRawPixelValue(x, y), floatElems[i(y, x)], DELTA);
+        assertEquals(getRawPixelValue(x, y), floatElems[i(y, x)], DELTA);
         x = SW / 2;
         y = SH / 2;
-        assertEquals(SOFF + SFAC * getRawPixelValue(x, y), floatElems[i(y, x)], DELTA);
+        assertEquals(getRawPixelValue(x, y), floatElems[i(y, x)], DELTA);
         x = SW - 1;
         y = SH - 1;
-        assertEquals(SOFF + SFAC * getRawPixelValue(x, y), floatElems[i(y, x)], DELTA);
+        assertEquals(getRawPixelValue(x, y), floatElems[i(y, x)], DELTA);
     }
 
     public void testReadPixelsFromTiePointGrid() throws IOException {
         TiePointGrid g = p.getTiePointGrid(TIE_POINT_GRID_NAME);
         float[] floatElems = new float[SW * SH];
-        g.readPixels(0, 0, SW, SH, ProductData.createInstance(floatElems), ProgressMonitor.NULL);
+        g.readRaster(rectangle, ProductData.createInstance(floatElems), ProgressMonitor.NULL);
         int x, y;
         x = 0;
         y = 0;
