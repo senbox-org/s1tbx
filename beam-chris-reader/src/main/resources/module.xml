@@ -15,7 +15,7 @@
 
     <changelog>
         <![CDATA[
-        <p>Version 1.3
+        <p>Changes in Version 1.3
         <ul>
         <li>[CBOX-28] Predefined RGB profiles for all CHRIS modes</li>
         <li>[CBOX-30] Make pins available for CHRIS data products</li>
@@ -23,7 +23,7 @@
         <li>[CBOX-32] Dropout correction should be cosmetic only</li>
         </ul>
         </p>
-        <p>Version 1.2
+        <p>Changes in Version 1.2
         <ul>
         <li>[CBOX-22] No thumbnail image in subset dialog</li>
         <li>[CBOX-23] Imported subsets are scrambled</li>
