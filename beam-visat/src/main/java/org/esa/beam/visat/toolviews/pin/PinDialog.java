@@ -300,13 +300,11 @@ public class PinDialog extends ModalDialog {
                     Graphics2D g2d = (Graphics2D) g;
                     final PixelPos refPoint = _symbol.getRefPoint();
                     Rectangle2D bounds = _symbol.getBounds();
-                    g2d.scale(1.9, 1.9);
                     double tx = refPoint.getX() - bounds.getX() / 2;
                     double ty = refPoint.getY() - bounds.getY() / 2;
                     g2d.translate(tx, ty);
                     _symbol.draw(g2d);
                     g2d.translate(-tx, -ty);
-                    g2d.scale(1 / 1.9, 1 / 1.9);
                 }
             }
         };
