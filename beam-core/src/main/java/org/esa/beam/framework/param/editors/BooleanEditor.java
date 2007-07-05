@@ -50,7 +50,7 @@ public class BooleanEditor extends AbstractParamEditor {
     protected void initUI() {
         // do not call super.initUI() since we don't want any labels to be created
         _checkBox = new JCheckBox();
-        setName(_checkBox);
+        nameEditorComponent(_checkBox);
         if (getParameter().getProperties().getLabel() != null) {
             _checkBox.setText(getParameter().getProperties().getLabel());
         }

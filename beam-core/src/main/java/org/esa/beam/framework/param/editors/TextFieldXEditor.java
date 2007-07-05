@@ -69,6 +69,7 @@ public abstract class TextFieldXEditor extends AbstractParamXEditor {
 
         if (numRows <= 1) {
             JTextField textComponent = new JTextField();
+            nameEditorComponent(textComponent);
             // Configure text field
             //
             if (numCols <= 0) {
@@ -80,6 +81,7 @@ public abstract class TextFieldXEditor extends AbstractParamXEditor {
             setTextComponent(textComponent);
         } else {
             JTextArea textComponent = new JTextArea();
+            nameEditorComponent(textComponent);
             textComponent.setRows(numRows);
             if (numCols > 0) {
                 textComponent.setColumns(numCols);
@@ -94,8 +96,6 @@ public abstract class TextFieldXEditor extends AbstractParamXEditor {
         _textComponent.setEnabled(enabled);
         _component.setEnabled(enabled);
         String toolTiptext = getParameter().getProperties().getDescription();
-        setName(_textComponent);
-        setName(_component);
         _textComponent.setText(getParameter().getValueAsText());
         _textComponent.setToolTipText(toolTiptext);
         _textComponent.setInputVerifier(getDefaultInputVerifier());
@@ -103,11 +103,10 @@ public abstract class TextFieldXEditor extends AbstractParamXEditor {
 
     private void setTextComponent(JTextComponent textComponent) {
         _textComponent = textComponent;
-        setName(_textComponent);
         if (_textComponent instanceof JTextArea) {
             _textComponent.setBorder(null);
             _component = new JScrollPane(_textComponent);
-            setName(_component);
+            nameComponent(textComponent, "ScrollPane");
         } else {
             _component = _textComponent;
         }

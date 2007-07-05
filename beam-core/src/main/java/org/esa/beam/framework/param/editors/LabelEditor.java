@@ -46,7 +46,7 @@ public class LabelEditor extends AbstractParamEditor {
 
     protected void initUI() {
         _label = new JLabel();
-        setName(_label);
+        nameEditorComponent(_label);
         _label.setText(getParameter().getValueAsText());
         if (getParameter().getProperties().getDescription() != null) {
             _label.setToolTipText(getParameter().getProperties().getDescription());

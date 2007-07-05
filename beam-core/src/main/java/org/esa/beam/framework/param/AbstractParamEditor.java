@@ -18,13 +18,7 @@ package org.esa.beam.framework.param;
 
 import org.esa.beam.util.Debug;
 
-import javax.swing.InputVerifier;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.text.JTextComponent;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -84,18 +78,7 @@ public abstract class AbstractParamEditor implements ParamEditor, ParamException
      */
     public void setLabelComponent(JLabel labelComponent) {
         _labelComponent = labelComponent;
-        setName(_labelComponent);
-    }
-
-    protected void setName(final Component comp) {
-        if (comp != null) {
-            String label = getParameter().getProperties().getLabel();
-            if (label != null && label.length() > 0) {
-                comp.setName(label);
-            } else {
-                comp.setName(getParameter().getName());
-            }
-        }
+        nameLabelComponent(_labelComponent);
     }
 
     /**
@@ -110,7 +93,7 @@ public abstract class AbstractParamEditor implements ParamEditor, ParamException
      */
     public void setPhysUnitLabelComponent(JLabel labelComponent) {
         _physUnitLabelComponent = labelComponent;
-        setName(_physUnitLabelComponent);
+        nameUnitComponent(_physUnitLabelComponent);
     }
 
     protected void setDefaultLabelComponent(boolean ensureTrailingColon) {
@@ -180,7 +163,7 @@ public abstract class AbstractParamEditor implements ParamEditor, ParamException
     /**
      * Initialized the UI of this editor. Called only once within this editor's constructor.
      * <p/>
-     * <p> The default implementation creates a label components for the parameter's "label" and "physicalUnit"
+     * <p> The default implementation creates a label component for the parameter's "label" and "physicalUnit"
      * properties.
      */
     protected void initUI() {
@@ -269,7 +252,6 @@ public abstract class AbstractParamEditor implements ParamEditor, ParamException
      * side-effects.
      *
      * @param textComponent the text component which provides the parameter value.
-     *
      * @return <code>true</code> if so
      */
     protected boolean checkParameterValue(JTextComponent textComponent) {
@@ -297,17 +279,15 @@ public abstract class AbstractParamEditor implements ParamEditor, ParamException
          * indicating the status of the argument's input.
          *
          * @param input the JComponent to verify
-         *
          * @return <code>true</code> when valid, <code>false</code> when invalid
-         *
          * @see JComponent#setInputVerifier
          * @see JComponent#getInputVerifier
          */
         @Override
         public boolean verify(JComponent input) {
             Debug.trace("AbstractParamEditor: parameter '"
-                        + getParameter().getName()
-                        + "': DefaultInputVerifier.verify called");
+                    + getParameter().getName()
+                    + "': DefaultInputVerifier.verify called");
 
             if (input instanceof JTextComponent) {
                 return checkParameterValue((JTextComponent) input);
@@ -322,17 +302,15 @@ public abstract class AbstractParamEditor implements ParamEditor, ParamException
          * transfered normally; if it returns <code>false</code>, then the focus remains in the argument component.
          *
          * @param input the JComponent to verify
-         *
          * @return <code>true</code> when valid, <code>false</code> when invalid
-         *
          * @see JComponent#setInputVerifier
          * @see JComponent#getInputVerifier
          */
         @Override
         public boolean shouldYieldFocus(JComponent input) {
             Debug.trace("AbstractParamEditor: parameter '"
-                        + getParameter().getName()
-                        + "': DefaultInputVerifier.shouldYieldFocus called");
+                    + getParameter().getName()
+                    + "': DefaultInputVerifier.shouldYieldFocus called");
             if (!_settingValue && input instanceof JTextComponent) {
                 _settingValue = true;
                 boolean success = setParameterValue((JTextComponent) input);
@@ -347,8 +325,8 @@ public abstract class AbstractParamEditor implements ParamEditor, ParamException
          */
         public void actionPerformed(ActionEvent event) {
             Debug.trace("AbstractParamEditor: parameter '"
-                        + getParameter().getName()
-                        + "': DefaultInputVerifier.actionPerformed called");
+                    + getParameter().getName()
+                    + "': DefaultInputVerifier.actionPerformed called");
             if (event.getSource() instanceof JTextComponent) {
                 setParameterValue((JTextComponent) event.getSource());
             }
@@ -370,6 +348,25 @@ public abstract class AbstractParamEditor implements ParamEditor, ParamException
      */
     public JComponent getComponent() {
         return getEditorComponent();
+    }
+
+
+    protected void nameLabelComponent(JComponent component) {
+        nameComponent(component, "Label");
+    }
+
+    protected void nameEditorComponent(JComponent component) {
+        nameComponent(component, "Editor");
+    }
+
+    protected void nameUnitComponent(JComponent component) {
+        nameComponent(component, "Unit");
+    }
+
+    protected void nameComponent(JComponent component, String suffix) {
+        if (component != null && component.getName() == null) {
+            component.setName(getParameter().getName() + "." + suffix);
+        }
     }
 }
 

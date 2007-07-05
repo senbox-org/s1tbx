@@ -51,7 +51,7 @@ public class ColorEditor extends AbstractParamXEditor {
 
     protected void initUIChild() {
         _colorDisplay = new ColorDisplay();
-        setName(_colorDisplay);
+        nameComponent(_colorDisplay, "ColorDisplay");
     }
 
     public void updateUI() {

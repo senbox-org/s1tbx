@@ -45,7 +45,7 @@ public class ParamEditorsTest extends TestCase {
 
         final JComponent editorComponent = booleanEditor.getEditorComponent();
         assertEquals(JCheckBox.class.getName(), editorComponent.getClass().getName());
-        assertEquals(LABEL_NAME, editorComponent.getName());
+        assertEquals("theParamName.Editor", editorComponent.getName());
         assertNull(booleanEditor.getLabelComponent());
         assertNull(booleanEditor.getPhysUnitLabelComponent());
     }
@@ -65,8 +65,8 @@ public class ParamEditorsTest extends TestCase {
 
         final JComponent editorComponent = comboBoxEditor.getEditorComponent();
         assertEquals(JComboBox.class.getName(), editorComponent.getClass().getName());
-        assertEquals(LABEL_NAME, editorComponent.getName());
-        assertEquals(LABEL_NAME, comboBoxEditor.getLabelComponent().getName());
+        assertEquals("theParamName.Editor", editorComponent.getName());
+        assertEquals("theParamName.Label", comboBoxEditor.getLabelComponent().getName());
         assertEquals(LABEL_NAME + ": ", comboBoxEditor.getLabelComponent().getText());
         assertNull(comboBoxEditor.getPhysUnitLabelComponent());
     }
@@ -84,7 +84,7 @@ public class ParamEditorsTest extends TestCase {
 
         final JComponent editorComponent = labelEditor.getEditorComponent();
         assertEquals(JLabel.class.getName(), editorComponent.getClass().getName());
-        assertEquals(LABEL_NAME, editorComponent.getName());
+        assertEquals("theParamName.Editor", editorComponent.getName());
         assertNull(labelEditor.getLabelComponent());
         assertNull(labelEditor.getPhysUnitLabelComponent());
     }
@@ -101,12 +101,12 @@ public class ParamEditorsTest extends TestCase {
         final ListEditor listEditor = (ListEditor) editor;
 
         final JComponent editorComponent = listEditor.getEditorComponent();
-        assertEquals(LABEL_NAME, editorComponent.getName());
+        assertEquals("theParamName.ScrollPane", editorComponent.getName());
         assertEquals(JScrollPane.class.getName(), editorComponent.getClass().getName());
         final Component listComp = ((JScrollPane) editorComponent).getViewport().getView();
-        assertEquals(LABEL_NAME, listComp.getName());
+        assertEquals("theParamName.Editor", listComp.getName());
         assertEquals(JList.class.getName(), listComp.getClass().getName());
-        assertEquals(LABEL_NAME, listEditor.getLabelComponent().getName());
+        assertEquals("theParamName.Label", listEditor.getLabelComponent().getName());
         assertEquals(LABEL_NAME + ": ", listEditor.getLabelComponent().getText());
         assertNull(listEditor.getPhysUnitLabelComponent());
     }
@@ -122,11 +122,11 @@ public class ParamEditorsTest extends TestCase {
         final TextFieldEditor textFieldEditor = (TextFieldEditor) editor;
 
         final JComponent editorComponent = textFieldEditor.getEditorComponent();
-        assertEquals(LABEL_NAME, editorComponent.getName());
+        assertEquals("theParamName.Editor", editorComponent.getName());
         assertEquals(JTextField.class.getName(), editorComponent.getClass().getName());
-        assertEquals(LABEL_NAME, textFieldEditor.getLabelComponent().getName());
+        assertEquals("theParamName.Label", textFieldEditor.getLabelComponent().getName());
         assertEquals(LABEL_NAME + ": ", textFieldEditor.getLabelComponent().getText());
-        assertEquals(LABEL_NAME, textFieldEditor.getPhysUnitLabelComponent().getName());
+        assertEquals("theParamName.Unit", textFieldEditor.getPhysUnitLabelComponent().getName());
         assertEquals(" " + UNIT_NAME, textFieldEditor.getPhysUnitLabelComponent().getText());
     }
 
@@ -141,22 +141,22 @@ public class ParamEditorsTest extends TestCase {
         final ColorEditor colorEditor = (ColorEditor) editor;
 
         final JComponent editorComponent = colorEditor.getEditorComponent();
-        assertEquals(LABEL_NAME, editorComponent.getName());
+        assertEquals("theParamName.XEditor", editorComponent.getName());
         assertEquals(JPanel.class.getName(), editorComponent.getClass().getSuperclass().getName());
         final Component[] components = editorComponent.getComponents();
         assertEquals(2, components.length);
-        assertEquals(LABEL_NAME, components[0].getName());
-        assertEquals(LABEL_NAME, components[1].getName());
+        assertEquals("theParamName.ColorDisplay", components[0].getName());
+        assertEquals("theParamName.ButtonPanel", components[1].getName());
         assertEquals(org.esa.beam.framework.param.editors.ColorEditor.ColorDisplay.class.getName(),
                      components[0].getClass().getName());
         assertEquals(JPanel.class.getName(), components[1].getClass().getName());
         final JPanel buttonPanel = ((JPanel) components[1]);
         assertEquals(1, buttonPanel.getComponentCount());
         assertEquals(JButton.class.getName(), buttonPanel.getComponents()[0].getClass().getName());
-        assertEquals(LABEL_NAME, ((JPanel) components[1]).getComponents()[0].getName());
-        assertEquals(LABEL_NAME, colorEditor.getLabelComponent().getName());
+        assertEquals("theParamName.Button", ((JPanel) components[1]).getComponents()[0].getName());
+        assertEquals("theParamName.Label", colorEditor.getLabelComponent().getName());
         assertEquals(LABEL_NAME + ": ", colorEditor.getLabelComponent().getText());
-        assertEquals(LABEL_NAME, colorEditor.getPhysUnitLabelComponent().getName());
+        assertEquals("theParamName.Unit", colorEditor.getPhysUnitLabelComponent().getName());
         assertEquals(" " + UNIT_NAME, colorEditor.getPhysUnitLabelComponent().getText());
     }
 
@@ -171,20 +171,20 @@ public class ParamEditorsTest extends TestCase {
         final FileEditor fileEditor = (FileEditor) editor;
 
         final JComponent editorComponent = fileEditor.getEditorComponent();
-        assertEquals(LABEL_NAME, editorComponent.getName());
+        assertEquals("theParamName.XEditor", editorComponent.getName());
         assertEquals(JPanel.class.getName(), editorComponent.getClass().getSuperclass().getName());
         final Component[] components = editorComponent.getComponents();
         assertEquals(2, components.length);
-        assertEquals(LABEL_NAME, components[0].getName());
-        assertEquals(LABEL_NAME, components[1].getName());
+        assertEquals("theParamName.Editor", components[0].getName());
+        assertEquals("theParamName.ButtonPanel", components[1].getName());
         assertEquals(JTextField.class.getName(), components[0].getClass().getName());
         assertEquals(JPanel.class.getName(), components[1].getClass().getName());
         final JPanel buttonPanel = ((JPanel) components[1]);
         assertEquals(1, buttonPanel.getComponentCount());
         assertEquals(JButton.class.getName(), buttonPanel.getComponents()[0].getClass().getName());
-        assertEquals(LABEL_NAME, fileEditor.getLabelComponent().getName());
+        assertEquals("theParamName.Label", fileEditor.getLabelComponent().getName());
         assertEquals(LABEL_NAME + ": ", fileEditor.getLabelComponent().getText());
-        assertEquals(LABEL_NAME, fileEditor.getPhysUnitLabelComponent().getName());
+        assertEquals("theParamName.Unit", fileEditor.getPhysUnitLabelComponent().getName());
         assertEquals(" " + UNIT_NAME, fileEditor.getPhysUnitLabelComponent().getText());
     }
 

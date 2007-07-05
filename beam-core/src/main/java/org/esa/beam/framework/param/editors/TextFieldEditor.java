@@ -16,9 +16,9 @@
  */
 package org.esa.beam.framework.param.editors;
 
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
+import org.esa.beam.framework.param.AbstractParamEditor;
+import org.esa.beam.framework.param.ParamProperties;
+import org.esa.beam.framework.param.Parameter;
 
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
@@ -26,10 +26,9 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.EtchedBorder;
 import javax.swing.text.JTextComponent;
-
-import org.esa.beam.framework.param.AbstractParamEditor;
-import org.esa.beam.framework.param.ParamProperties;
-import org.esa.beam.framework.param.Parameter;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 
 /**
  * An editor which uses a {@link javax.swing.JTextField} or {@link javax.swing.JTextArea}.
@@ -38,7 +37,7 @@ public class TextFieldEditor extends AbstractParamEditor {
 
     private JTextComponent _textComponent;
     private JComponent _component;
-    private FocusListener _focusListener ;
+    private FocusListener _focusListener;
 
 
     public TextFieldEditor(Parameter parameter) {
@@ -57,8 +56,6 @@ public class TextFieldEditor extends AbstractParamEditor {
 
         _textComponent = textComponent;
 
-        setName(_textComponent);
-
         if (_textComponent != null) {
             _focusListener = createFocusListener();
             _textComponent.addFocusListener(_focusListener);
@@ -67,9 +64,9 @@ public class TextFieldEditor extends AbstractParamEditor {
         if (_textComponent instanceof JTextArea) {
             _textComponent.setBorder(null);
             final JScrollPane pane = new JScrollPane(_textComponent);
+            nameComponent(_component, "ScrollPane");
             pane.setMinimumSize(_textComponent.getPreferredSize());
             _component = pane;
-            setName(_component);
         } else {
             _component = _textComponent;
         }
@@ -88,13 +85,14 @@ public class TextFieldEditor extends AbstractParamEditor {
      *
      * @return a {@link javax.swing.JTextField} componet or a {@link javax.swing.JTextArea} wrapped with e.g. a {@link
      *         JScrollPane}.
-     *
      * @see #getEditorComponent()
      */
+    @Override
     public JComponent getComponent() {
         return _component;
     }
 
+    @Override
     protected void initUI() {
         super.initUI(); // creates the default label components for us
 
@@ -104,6 +102,7 @@ public class TextFieldEditor extends AbstractParamEditor {
 
         if (numRows <= 1) {
             JTextField textComponent = new JTextField();
+            nameEditorComponent(textComponent);
             // Configure text field
             //
             if (numCols <= 0) {
@@ -134,6 +133,7 @@ public class TextFieldEditor extends AbstractParamEditor {
             setTextComponent(textComponent);
         } else {
             JTextArea textComponent = new JTextArea();
+            nameEditorComponent(textComponent);
             textComponent.setRows(numRows);
             if (numCols > 0) {
                 textComponent.setColumns(numCols);
@@ -160,6 +160,7 @@ public class TextFieldEditor extends AbstractParamEditor {
         return getParameter().getProperties();
     }
 
+    @Override
     public void updateUI() {
         super.updateUI();
         String text = getParameter().getValueAsText();
@@ -183,14 +184,16 @@ public class TextFieldEditor extends AbstractParamEditor {
 
         if (selectAll) {
             return new FocusAdapter() {
+                @Override
                 public void focusGained(final FocusEvent e) {
                     final JTextComponent tc = ((JTextComponent) e.getComponent());
                     tc.setCaretPosition(tc.getText().length());
                     tc.moveCaretPosition(0);
                 }
             };
-        }  else {
-            return new FocusAdapter(){};
+        } else {
+            return new FocusAdapter() {
+            };
         }
     }
 }

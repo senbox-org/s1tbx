@@ -50,7 +50,7 @@ public class RadioButtonEditor extends AbstractParamEditor {
     protected void initUI() {
         // do not call super.initUI() since we don't want any labels to be created
         _radioButton = new JRadioButton();
-        setName(_radioButton);
+        nameEditorComponent(_radioButton);
         if (getParameter().getProperties().getLabel() != null) {
             _radioButton.setText(getParameter().getProperties().getLabel());
         }

@@ -65,9 +65,9 @@ public class ListEditor extends AbstractParamEditor {
         setDefaultLabelComponent(true);
 
         _list = new JList();
-        setName(_list);
+        nameEditorComponent(_list);
         _listScrollPane = new JScrollPane(_list);
-        setName(_listScrollPane);
+        nameComponent(_listScrollPane, "ScrollPane");
 
         // Configure scroll pane
         //

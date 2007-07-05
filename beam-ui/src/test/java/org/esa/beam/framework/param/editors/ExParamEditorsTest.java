@@ -39,20 +39,19 @@ public class ExParamEditorsTest extends TestCase {
         final BooleanExpressionEditor bitmaskExprEditor = (BooleanExpressionEditor) editor;
 
         final JComponent editorComponent = bitmaskExprEditor.getEditorComponent();
-        assertEquals(LABEL_NAME, editorComponent.getName());
-        assertEquals(JPanel.class.getName(), editorComponent.getClass().getSuperclass().getName());
+        assertEquals("theParamName.XEditor", editorComponent.getName());
         final Component[] components = editorComponent.getComponents();
         assertEquals(2, components.length);
-        assertEquals(LABEL_NAME, components[0].getName());
-        assertEquals(LABEL_NAME, components[1].getName());
+        assertEquals("theParamName.Editor", components[0].getName());
+        assertEquals("theParamName.ButtonPanel", components[1].getName());
         assertEquals(JTextField.class.getName(), components[0].getClass().getName());
         assertEquals(JPanel.class.getName(), components[1].getClass().getName());
         final JPanel buttonPanel = ((JPanel) components[1]);
         assertEquals(1, buttonPanel.getComponentCount());
         assertEquals(JButton.class.getName(), buttonPanel.getComponents()[0].getClass().getName());
-        assertEquals(LABEL_NAME, bitmaskExprEditor.getLabelComponent().getName());
+        assertEquals("theParamName.Label", bitmaskExprEditor.getLabelComponent().getName());
         assertEquals(LABEL_NAME + ": ", bitmaskExprEditor.getLabelComponent().getText());
-        assertEquals(LABEL_NAME, bitmaskExprEditor.getPhysUnitLabelComponent().getName());
+        assertEquals("theParamName.Unit", bitmaskExprEditor.getPhysUnitLabelComponent().getName());
         assertEquals(" " + UNIT_NAME, bitmaskExprEditor.getPhysUnitLabelComponent().getText());
     }
 

@@ -66,11 +66,11 @@ public abstract class AbstractParamXEditor extends AbstractParamEditor {
         super.initUI(); // creates the default label components for us
         initUIChild();
         _xEditorPane = new XEditorPane();
-        setName(_xEditorPane);
+        nameComponent(_xEditorPane, "XEditor");
         final JComponent editorComponentChild = getEditorComponentChild();
         _xEditorPane.add(BorderLayout.CENTER, editorComponentChild);
         final JPanel buttonPanel = new JPanel(new BorderLayout());
-        setName(buttonPanel);
+        nameComponent(buttonPanel, "ButtonPanel");
 
         final AbstractButton xEditorButton = getXEditorButton();
         if (editorComponentChild instanceof JTextField) {
@@ -105,7 +105,6 @@ public abstract class AbstractParamXEditor extends AbstractParamEditor {
     protected AbstractButton getXEditorButton() {
         if (_xEditorButton == null) {
             _xEditorButton = createXEditorButton();
-            setName(_xEditorButton);
         }
         return _xEditorButton;
     }
@@ -114,6 +113,7 @@ public abstract class AbstractParamXEditor extends AbstractParamEditor {
 //        Icon icon = getXEditorIcon();
 //        AbstractButton button = ToolButtonFactory.createButton(icon, false);
         final AbstractButton button = new JButton("...");
+        nameComponent(button, "Button");
         final Dimension size = new Dimension(26, 16);
         button.setPreferredSize(size);
         button.setMinimumSize(size);

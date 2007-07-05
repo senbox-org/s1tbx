@@ -68,7 +68,7 @@ public class ComboBoxEditor extends AbstractParamEditor {
         setDefaultLabelComponent(true);
 
         _comboBox = new JComboBox();
-        setName(_comboBox);
+        nameEditorComponent(_comboBox);
 
         // Configure combo box
         if (getParameter().getProperties().getDescription() != null) {
