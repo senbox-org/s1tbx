@@ -1,14 +1,21 @@
 package org.esa.beam.framework.ui.diagram;
 
+import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.io.BeamFileChooser;
+import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.CsvReader;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
+import javax.swing.JOptionPane;
+import java.awt.Component;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DiagramGraphIO {
+    public static final BeamFileFilter CSV_FILE_FILTER = new BeamFileFilter("CSV", ".csv", "CSV (plain text)");
+    public static final BeamFileFilter SPECTRA_CSV_FILE_FILTER = new BeamFileFilter("Spectra-CSV", ".csv", "Spectra CSV");
+
+    public static final String DIAGRAM_GRAPH_IO_LAST_DIR_KEY = "diagramGraphIO.lastDir";
 
     public static DiagramGraph[] readGraphs(Reader reader) throws IOException {
 
@@ -131,4 +138,98 @@ public class DiagramGraphIO {
         return true;
     }
 
+
+    public static DiagramGraph[] readGraphs(Component parentComponent,
+                                            String title,
+                                            BeamFileFilter[] fileFilters,
+                                            PropertyMap preferences) {
+        File selectedFile = selectGraphFile(parentComponent, title, fileFilters, preferences, true);
+        if (selectedFile != null) {
+            try {
+                FileReader fileReader = new FileReader(selectedFile);
+                try {
+                    return readGraphs(fileReader);
+                } finally {
+                    fileReader.close();
+                }
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(parentComponent, "I/O error: " + e.getMessage());
+            }
+        }
+        return new DiagramGraph[0];
+    }
+
+    public static void writeGraphs(Component parentComponent,
+                                   String title,
+                                   BeamFileFilter[] fileFilters,
+                                   PropertyMap preferences,
+                                   DiagramGraph[] graphs) {
+        if (graphs.length == 0) {
+            JOptionPane.showMessageDialog(parentComponent, "Nothing to save.");
+            return;
+        }
+        File selectedFile = selectGraphFile(parentComponent, title, fileFilters, preferences, false);
+        if (selectedFile != null) {
+
+            try {
+                FileWriter fileWriter = new FileWriter(selectedFile);
+                try {
+                    writeGraphs(graphs, fileWriter);
+                } finally {
+                    fileWriter.close();
+                }
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(parentComponent, "I/O error: " + e.getMessage());
+            }
+        }
+    }
+
+    private static File selectGraphFile(Component parentComponent,
+                                        String title,
+                                        BeamFileFilter[] fileFilters,
+                                        PropertyMap preferences,
+                                        boolean open) {
+        String lastDirPath = preferences.getPropertyString(DIAGRAM_GRAPH_IO_LAST_DIR_KEY, ".");
+        BeamFileChooser fileChooser = new BeamFileChooser(new File(lastDirPath));
+        fileChooser.setAcceptAllFileFilterUsed(true);
+        fileChooser.setDialogTitle(title);
+        for (BeamFileFilter fileFilter : fileFilters) {
+            fileChooser.addChoosableFileFilter(fileFilter);
+        }
+        fileChooser.setFileFilter(fileFilters[0]);
+        if (open) {
+            fileChooser.setDialogType(BeamFileChooser.OPEN_DIALOG);
+        } else {
+            fileChooser.setDialogType(BeamFileChooser.SAVE_DIALOG);
+        }
+        File selectedFile;
+        while (true) {
+            int i = fileChooser.showDialog(parentComponent, null);
+            if (i == BeamFileChooser.APPROVE_OPTION) {
+                selectedFile = fileChooser.getSelectedFile();
+                if (open || !selectedFile.exists()) {
+                    break;
+                }
+                i = JOptionPane.showConfirmDialog(parentComponent,
+                                                  "The file\n" + selectedFile + "\nalready exists.\nOverwrite?",
+                                                  "File exists", JOptionPane.YES_NO_CANCEL_OPTION);
+                if (i == JOptionPane.CANCEL_OPTION) {
+                    // Canceled
+                    selectedFile = null;
+                    break;
+                } else if (i == JOptionPane.YES_OPTION) {
+                    // Overwrite existing file
+                    break;
+                }
+            } else {
+                // Canceled
+                selectedFile = null;
+                break;
+            }
+        }
+        if (selectedFile != null) {
+            preferences.setPropertyString(DIAGRAM_GRAPH_IO_LAST_DIR_KEY, selectedFile.getParent());
+        }
+        return selectedFile;
+    }
 }
