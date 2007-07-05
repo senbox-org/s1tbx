@@ -17,20 +17,20 @@
         <![CDATA[
         <p>Version 1.3
         <ul>
-        <li>Optimized IO in order to require less memory</li>
-        <li>Corrected wrong valid-pixel expression</li>
+        <li>[CBOX-30] Make pins available for CHRIS data products</li>
+        <li>[CBOX-31] Optimize raster data input in order to require less memory</li>
+        <li>[CBOX-32] Dropout correction should be cosmetic only</li>
         </ul>
         </p>
         <p>Version 1.2
         <ul>
-        <li>Corrected wrong subset reading</li>
-        <li>Improved IO reliability</li>
-        <li>Corrected wrong bitmask definitions</li>
-        <li>Corrected wrong valid pixel expression</li>
-        <li>Modified dropout correction</li>
-        <li>Corrected wrong scaling of radiance values</li>
+        <li>[CBOX-22] No thumbnail image in subset dialog</li>
+        <li>[CBOX-23] Imported subsets are scrambled</li>
+        <li>[CBOX-24] Calibration coefficients are applied twice</li>
+        <li>[CBOX-25] Dropout and saturated flags are reversed</li>
         </ul>
-        </p>]]>
+        </p>
+        ]]>
     </changelog>
 
     <dependency>
@@ -43,7 +43,7 @@
         <module>beam-visat</module>
         <optional>true</optional>
     </dependency>
-    
+
 
     <categories>Reader,CHRIS</categories>
 
