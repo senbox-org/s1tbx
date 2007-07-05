@@ -71,6 +71,7 @@ public class ToolButtonFactory {
 
     public static AbstractButton createButton(Action action, boolean toggle) {
         AbstractButton button = createButton(toggle);
+        setButtonName(button, action);
         button.setAction(action);
         configure(button);
         return button;
@@ -250,4 +251,18 @@ public class ToolButtonFactory {
             return color;
         }
     }
+
+
+    private static void setButtonName(AbstractButton button, Action action) {
+        if (button.getName() == null) {
+            String name = action.getValue(Action.ACTION_COMMAND_KEY).toString();
+            if (name == null) {
+                name = action.getValue(Action.NAME).toString();
+            }
+            if (name != null) {
+                button.setName(name);
+            }
+        }
+    }
+
 }

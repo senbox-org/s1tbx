@@ -21,7 +21,11 @@ public class DefaultDocViewPane extends AbstractPageComponentPane {
     @Override
     protected JComponent createControl() {
         JComponent pageComponentControl = getPageComponent().getControl();
+        if (pageComponentControl.getName() == null) {
+            pageComponentControl.setName(getPageComponent().getId()+ ".Control");
+        }
         internalFrame = new JInternalFrame();
+        internalFrame.setName(getPageComponent().getId()+ ".Pane");
         configureControl();
         internalFrame.getContentPane().add(pageComponentControl, BorderLayout.CENTER);
         internalFrame.addInternalFrameListener(new InternalFrameHandler());

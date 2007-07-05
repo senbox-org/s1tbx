@@ -207,6 +207,7 @@ public class SpectrumToolView extends AbstractToolView {
     @Override
     public JComponent createControl() {
         filterButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Filter24.gif"), false);
+        filterButton.setName("filter");
         filterButton.setEnabled(false);
         filterButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -262,6 +263,7 @@ public class SpectrumToolView extends AbstractToolView {
         exportSpectraButton.setToolTipText("Export spectra to text file.");
 
         AbstractButton helpButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Help24.gif"), false);
+        helpButton.setName("help");
         helpButton.setToolTipText("Help."); /*I18N*/
 
         ButtonGroup bg = new ButtonGroup();

@@ -44,6 +44,7 @@ public class DiagramCanvas extends JPanel {
     private DiagramChangeHandler diagramChangeHandler;
 
     public DiagramCanvas() {
+        setName("diagram");
         diagramChangeHandler = new DiagramChangeHandler();
         addComponentListener(new ComponentAdapter() {
             /**
