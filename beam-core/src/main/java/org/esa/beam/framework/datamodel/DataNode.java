@@ -56,7 +56,8 @@ public abstract class DataNode extends ProductNode {
             && dataType != ProductData.TYPE_FLOAT32
             && dataType != ProductData.TYPE_FLOAT64
             && dataType != ProductData.TYPE_ASCII
-            && dataType != ProductData.TYPE_UTC) {
+            && dataType != ProductData.TYPE_UTC
+            && dataType != ProductData.TYPE_BOOLEAN) {
             throw new IllegalArgumentException("dataType is invalid");
         }
         if (numElems < 1) {
