@@ -255,9 +255,16 @@ public class ToolButtonFactory {
 
     private static void setButtonName(AbstractButton button, Action action) {
         if (button.getName() == null) {
-            String name = action.getValue(Action.ACTION_COMMAND_KEY).toString();
-            if (name == null) {
-                name = action.getValue(Action.NAME).toString();
+            String name = null;
+
+            Object value = action.getValue(Action.ACTION_COMMAND_KEY);
+            if (value != null) {
+                name = value.toString();
+            } else {
+                value = action.getValue(Action.NAME);
+                if (value != null) {
+                    name = value.toString();
+                }
             }
             if (name != null) {
                 button.setName(name);

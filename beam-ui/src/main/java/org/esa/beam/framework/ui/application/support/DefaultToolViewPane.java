@@ -26,10 +26,10 @@ public class DefaultToolViewPane extends AbstractPageComponentPane {
     @Override
     protected JComponent createControl() {
         dockableFrame = new DockableFrame();
-        dockableFrame.setName(getPageComponent().getId()+ ".Pane");
         dockableFrame.setKey(getPageComponent().getId());
         configureControl(true);
         dockableFrame.addDockableFrameListener(new DockableFrameHandler());
+        nameComponent(dockableFrame, "Pane");
         return dockableFrame;
     }
 
@@ -151,7 +151,7 @@ public class DefaultToolViewPane extends AbstractPageComponentPane {
                 pageComponentControl = new JLabel(message);
             }
             if (pageComponentControl.getName() == null) {
-                pageComponentControl.setName(getPageComponent().getId()+ ".Control");
+                nameComponent(pageComponentControl, "Control");        
             }
             dockableFrame.getContentPane().add(pageComponentControl, BorderLayout.CENTER);
             pageComponentControlCreated = true;
