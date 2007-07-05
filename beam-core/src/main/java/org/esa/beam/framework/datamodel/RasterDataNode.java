@@ -149,7 +149,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                 && dataType != ProductData.TYPE_UINT16
                 && dataType != ProductData.TYPE_UINT32
                 && dataType != ProductData.TYPE_FLOAT32
-                && dataType != ProductData.TYPE_FLOAT64) {
+                && dataType != ProductData.TYPE_FLOAT64
+                && dataType != ProductData.TYPE_BOOLEAN) {
             throw new IllegalArgumentException("dataType is invalid");
         }
         _rasterWidth = width;
@@ -1445,7 +1446,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             readRasterData(offsetX, offsetY, width, height, rasterData, pm);
         }
     }
-
+    
     /**
      * Writes the complete underlying raster data.
      *
