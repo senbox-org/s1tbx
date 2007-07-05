@@ -62,7 +62,9 @@ public class RasterDataSymbol implements Symbol {
     }
 
     public void setData(final Object data) {
-        if (data instanceof float[]) {
+    	if (ProductData.class.isAssignableFrom(data.getClass())) {
+    		_data = (ProductData) data;
+    	}else if (data instanceof float[]) {
             _data = ProductData.createInstance((float[]) data);
         } else if (data instanceof int[]) {
             _data = ProductData.createInstance((int[]) data);

@@ -215,6 +215,14 @@ public class BandArithmetic {
      * @return a default namespace, never <code>null</code>
      */
     public static WritableNamespace createDefaultNamespace(Product[] products, int defaultProductIndex) {
+        return createDefaultNamespace(products, defaultProductIndex,
+        		new ProductPrefixProvider() {
+					public String getPrefix(Product product) {
+						return getProductNodeNamePrefix(product);
+					}});
+    }    
+
+    public static WritableNamespace createDefaultNamespace(Product[] products, int defaultProductIndex, ProductPrefixProvider p) {
         Guardian.assertNotNullOrEmpty("products", products);
         Guardian.assertWithinRange("defaultProductIndex", defaultProductIndex, 0, products.length);
 
@@ -226,7 +234,7 @@ public class BandArithmetic {
         // Register symbols for multiple products using a name prefix
         if (products.length > 1) {
             for (Product product : products) {
-                registerProductSymbols(namespace, product, getProductNodeNamePrefix(product));
+                registerProductSymbols(namespace, product, p.getPrefix(product));
             }
         }
 
@@ -415,5 +423,9 @@ public class BandArithmetic {
         void extendNamespace(WritableNamespace namespace,
                              Product product,
                              String namePrefix);
+    }
+    
+    public static interface ProductPrefixProvider {
+    	String getPrefix(Product product);
     }
 }

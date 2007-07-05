@@ -16,11 +16,11 @@
  */
 package org.esa.beam.framework.dataop.barithm;
 
+import org.esa.beam.framework.datamodel.RasterDataNode;
+
 import com.bc.jexp.EvalEnv;
 import com.bc.jexp.EvalException;
 import com.bc.jexp.Term;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.RasterDataNode;
 
 /**
  * Represents a read-only symbol. A symbol can be a named constant or variable.
@@ -43,29 +43,25 @@ public class SingleFlagSymbol extends RasterDataSymbol {
         _flagMask = flagMask;
     }
 
-    public int getRetType() {
+    @Override
+	public int getRetType() {
         return Term.TYPE_B;
     }
 
-    public void setData(final Object data) {
-        if (data instanceof int[]) {
-            _data = ProductData.createInstance((int[]) data);
-        } else {
-            throw new IllegalArgumentException("illegal data type");
-        }
-    }
-
-    public boolean evalB(final EvalEnv env) throws EvalException {
+    @Override
+	public boolean evalB(final EvalEnv env) throws EvalException {
         final int elemIndex = ((RasterDataEvalEnv) env).getElemIndex();
         return (_data.getElemIntAt(elemIndex) & _flagMask) == _flagMask;
     }
 
-    public int evalI(final EvalEnv env) throws EvalException {
+    @Override
+	public int evalI(final EvalEnv env) throws EvalException {
         final int elemIndex = ((RasterDataEvalEnv) env).getElemIndex();
         return (_data.getElemIntAt(elemIndex) & _flagMask) == _flagMask ? 1 : 0;
     }
 
-    public double evalD(final EvalEnv env) throws EvalException {
+    @Override
+	public double evalD(final EvalEnv env) throws EvalException {
         final int elemIndex = ((RasterDataEvalEnv) env).getElemIndex();
         return (_data.getElemIntAt(elemIndex) & _flagMask) == _flagMask ? 1.0 : 0.0;
     }
