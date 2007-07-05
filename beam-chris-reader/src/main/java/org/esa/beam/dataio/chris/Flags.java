@@ -1,6 +1,6 @@
 package org.esa.beam.dataio.chris;
 
-import java.awt.*;
+import java.awt.Color;
 
 /**
  * The enumeration type {@code Flags} is a representation of

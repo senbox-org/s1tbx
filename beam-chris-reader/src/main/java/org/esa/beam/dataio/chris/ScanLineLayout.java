@@ -12,7 +12,6 @@ class ScanLineLayout {
     final int imagePixelCount;
     final int trailingPixelCount;
 
-
     public ScanLineLayout(int precedingPixelCount, int imagePixelCount, int trailingPixelCount) {
         this.leadingPixelCount = precedingPixelCount;
         this.imagePixelCount = imagePixelCount;

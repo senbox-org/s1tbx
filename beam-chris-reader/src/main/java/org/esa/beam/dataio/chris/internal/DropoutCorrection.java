@@ -3,7 +3,7 @@ package org.esa.beam.dataio.chris.internal;
 import com.bc.ceres.core.Assert;
 
 import java.awt.Rectangle;
-import static java.lang.Math.*;
+import static java.lang.Math.sqrt;
 
 /**
  * The class {@code DropoutCorrection} encapsulates the dropout correction
@@ -13,6 +13,8 @@ import static java.lang.Math.*;
  * @version $Revision: $ $Date: $
  */
 public class DropoutCorrection {
+
+    public enum Type {VERTICAL, FOUR_CONNECTED, EIGHT_CONNECTED}
 
     public static final double[] M2 = {0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0};
     public static final double[] M4 = {0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0};
@@ -27,31 +29,35 @@ public class DropoutCorrection {
     private static final short CORRECTED_DROPOUT = 4;
 
     private double[] weights;
-    private final boolean cosmetic;
+    private boolean cosmetic;
 
 
-    public DropoutCorrection(int type) {
+    /**
+     * Constructs an instance of this class, which performs a non-cosmetic
+     * dropout correction.
+     *
+     * @param type
+     */
+    public DropoutCorrection(Type type) {
         this(type, false);
     }
 
     /**
-     * Constructor.
-     * todo - complete
+     * Constructs an instance of this class.
      *
-     * @param type
-     * @param cosmetic
+     * @param type     the correction type.
+     * @param cosmetic indicates if the dropout correction should be cosmetic only.
+     *                 If {@code true} the mask data are not modified.
      */
-    public DropoutCorrection(int type, boolean cosmetic) {
-        Assert.argument(type == 2 || type == 4 || type == 8);
-
+    public DropoutCorrection(Type type, boolean cosmetic) {
         switch (type) {
-        case 2 :
+        case VERTICAL:
             this.weights = M2;
             break;
-        case 4 :
+        case FOUR_CONNECTED:
             this.weights = M4;
             break;
-        case 8 :
+        case EIGHT_CONNECTED:
             this.weights = M8;
             break;
         }
@@ -61,27 +67,26 @@ public class DropoutCorrection {
 
     /**
      * Performs the dropout correction.
-     * todo - complete
      *
-     * @param sourceData
-     * @param sourceMask
+     * @param rciData      the RCI raster data.
+     * @param maskData     the mask raster data.
+     * @param rasterWidth  the raster width.
+     * @param rasterHeight the raster height.
+     * @param roi          the rater region of interest.
+     *
+     * @throws IllegalArgumentException if RCI and mask data arrays do not have the same length.
      */
-    public void perform(int[] sourceData, short[] sourceMask, int[][] neighborData, short[][] neighborMask,
-                        Rectangle sourceRectangle, int[] targetData, short[] targetMask,
-                        Rectangle targetRectangle) {
-        Assert.argument(sourceData.length == sourceMask.length);
+    public void perform(int[][] rciData, short[][] maskData, int rasterWidth, int rasterHeight, Rectangle roi) {
+        Assert.argument(rciData.length == maskData.length);
 
         final double[] w = new double[weights.length];
 
-        for (int y = targetRectangle.y; y < targetRectangle.y + targetRectangle.height; ++y) {
-            for (int x = targetRectangle.x; x < targetRectangle.x + targetRectangle.width; ++x) {
+        for (int y = roi.y; y < roi.y + roi.height; ++y) {
+            for (int x = roi.x; x < roi.x + roi.width; ++x) {
                 // offset of current pixel
-                final int xy = y * sourceRectangle.width + x;
+                final int xy = y * rasterWidth + x;
 
-                targetData[xy] = sourceData[xy];
-                targetMask[xy] = sourceMask[xy];
-
-                if (sourceMask[xy] == DROPOUT) {
+                if (maskData[0][xy] == DROPOUT) {
                     double ws = 0.0;
                     double xc = 0.0;
 
@@ -90,28 +95,28 @@ public class DropoutCorrection {
 
                     for (int i = 0; i < M_HEIGHT; ++i) {
                         final int ny = y + (i - 1);
-                        if (ny < sourceRectangle.y || ny >= sourceRectangle.y + sourceRectangle.height) {
+                        if (ny < 0 || ny >= rasterHeight) {
                             continue;
                         }
                         for (int j = 0; j < M_WIDTH; ++j) {
                             final int nx = x + (j - 1);
-                            if (nx < sourceRectangle.x || nx >= sourceRectangle.x + sourceRectangle.width) {
+                            if (nx < 0 || nx >= rasterWidth) {
                                 continue;
                             }
                             final int ij = i * M_WIDTH + j;
-                            final int nxy = ny * sourceRectangle.width + nx;
+                            final int nxy = ny * rasterWidth + nx;
 
                             if (weights[ij] != 0.0) {
-                                switch (sourceMask[nxy]) {
+                                switch (maskData[0][nxy]) {
                                 case VALID:
-                                    w[ij] = weights[ij] * calculateWeight(xy, nxy, neighborData, neighborMask);
+                                    w[ij] = weights[ij] * calculateWeight(xy, nxy, rciData, maskData);
                                     ws += w[ij];
-                                    xc += sourceData[nxy] * w[ij];
+                                    xc += rciData[0][nxy] * w[ij];
                                     break;
 
                                 case SATURATED:
                                     ws2 += weights[ij];
-                                    xc2 += sourceData[nxy] * weights[ij];
+                                    xc2 += rciData[0][nxy] * weights[ij];
                                     break;
                                 }
                             }
@@ -119,40 +124,37 @@ public class DropoutCorrection {
                     }
 
                     if (ws > 0.0) {
-                        targetData[xy] = (int) (xc / ws);
+                        rciData[0][xy] = (int) (xc / ws);
                         if (!cosmetic) {
-                            targetMask[xy] = CORRECTED_DROPOUT;
+                            maskData[0][xy] = CORRECTED_DROPOUT;
                         }
                     } else if (ws2 > 0.0) {
-                        targetData[xy] = (int) (xc2 / ws2);
+                        rciData[0][xy] = (int) (xc2 / ws2);
                         if (!cosmetic) {
-                            targetMask[xy] = SATURATED;
+                            maskData[0][xy] = SATURATED;
                         }
                     } else {
-                        targetData[xy] = 0;
+                        rciData[0][xy] = 0;
                     }
                 }
             }
         }
     }
 
-    private double calculateWeight(int index, int neighborIndex, int[][] data, short[][] mask) {
+    private double calculateWeight(int index, int neighborIndex, int[][] radianceData, short[][] maskData) {
         double sum = 0.0;
         int count = 0;
 
-        for (int i = 0; i < data.length; ++i) {
-            if (mask[i][index] == VALID && mask[i][neighborIndex] == VALID && data[i][index] != 0) {
-                final double d = (data[i][index] - data[i][neighborIndex]);
+        for (int i = 1; i < radianceData.length; ++i) {
+            if (maskData[i][index] == VALID && maskData[i][neighborIndex] == VALID && radianceData[i][index] != 0) {
+                final double d = (radianceData[i][index] - radianceData[i][neighborIndex]);
 
                 sum += d * d;
                 ++count;
             }
         }
-        if (count > 0) {
-            return 1.0 / (1.0E-52 + sqrt(sum / count)); // avoid an infinite return value for sum -> 0
-        } else {
-            return 1.0;
-        }
+
+        return count > 0 ? 1.0 / (1.0E-52 + sqrt(sum / count)) : 1.0;
     }
 
 }

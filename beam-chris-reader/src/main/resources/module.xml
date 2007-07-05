@@ -15,9 +15,10 @@
 
     <changelog>
         <![CDATA[
-        <p>Version 1.3-SNAPSHOT
+        <p>Version 1.3
         <ul>
-        <li>Corrected valid-pixel expression</li>
+        <li>Optimized IO in order to require less memory</li>
+        <li>Corrected wrong valid-pixel expression</li>
         </ul>
         </p>
         <p>Version 1.2

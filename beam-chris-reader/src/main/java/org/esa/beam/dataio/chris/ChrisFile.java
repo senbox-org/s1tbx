@@ -12,11 +12,10 @@ import java.io.InputStreamReader;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Vector;
-import java.util.List;
 
 class ChrisFile {
 
@@ -32,13 +31,15 @@ class ChrisFile {
     private int sceneRasterHeight;
     private boolean flipped;
 
-    private static Map<String, ScanLineLayout> scanLineLayoutData;
+    private Map<String, ScanLineLayout> scanLineLayoutMap;
 
     public ChrisFile(File file) {
         this.file = file;
-
-        if (scanLineLayoutData == null) {
-            loadScanLineLayoutData();
+        
+        try {
+            scanLineLayoutMap = readScanLineLayoutMap();
+        } catch (IOException e) {
+            // ignore
         }
     }
 
@@ -142,14 +143,14 @@ class ChrisFile {
         return maskSds != null;
     }
 
-    public void readRciImageData(int bandIndex,
-                                 int offsetX,
-                                 int offsetY,
-                                 int stepX,
-                                 int stepY,
-                                 int width,
-                                 int height,
-                                 int[] data) throws IOException {
+    public void readRciData(int bandIndex,
+                            int offsetX,
+                            int offsetY,
+                            int stepX,
+                            int stepY,
+                            int width,
+                            int height,
+                            int[] data) throws IOException {
         try {
             offsetX += scanLineLayout.leadingPixelCount;
             if (flipped) {
@@ -457,8 +458,8 @@ class ChrisFile {
     private void determineScanLineLayout() {
         final String chrisMode = getGlobalAttribute(ChrisConstants.ATTR_NAME_CHRIS_MODE);
 
-        if (!(scanLineLayoutData == null || chrisMode == null || scanLineLayoutData.get(chrisMode) == null)) {
-            scanLineLayout = scanLineLayoutData.get(chrisMode);
+        if (!(scanLineLayoutMap == null || chrisMode == null || scanLineLayoutMap.get(chrisMode) == null)) {
+            scanLineLayout = scanLineLayoutMap.get(chrisMode);
         } else {
             scanLineLayout = new ScanLineLayout(0, rciImageSds.dimSizes[2], 0);
         }
@@ -468,28 +469,28 @@ class ChrisFile {
     }
 
     @SuppressWarnings("unchecked")
-    private static void loadScanLineLayoutData() {
+    private static Map<String, ScanLineLayout> readScanLineLayoutMap() throws IOException {
         final InputStream inputStream = ChrisFile.class.getResourceAsStream("scanLineLayout.csv");
         final InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
         final CsvReader csvReader = new CsvReader(inputStreamReader, new char[]{','}, true, "#");
 
         try {
-            final List<String[]> recordVector = csvReader.readStringRecords();
-            scanLineLayoutData = new HashMap<String, ScanLineLayout>(recordVector.size());
+            final List<String[]> recordList = csvReader.readStringRecords();
+            final Map<String, ScanLineLayout> scanLineLayoutMap = new HashMap<String, ScanLineLayout>(
+                    recordList.size());
 
-            for (final String[] record : recordVector) {
-                final int leadingPixelCount = Integer.valueOf(record[1]);
-                final int imagePixelCount = Integer.valueOf(record[2]);
-                final int trailingPixelCount = Integer.valueOf(record[3]);
+            for (final String[] record : recordList) {
+                final int leadingPixelCount = Integer.parseInt(record[1]);
+                final int imagePixelCount = Integer.parseInt(record[2]);
+                final int trailingPixelCount = Integer.parseInt(record[3]);
 
-                scanLineLayoutData.put(record[0],
-                                       new ScanLineLayout(leadingPixelCount, imagePixelCount, trailingPixelCount));
+                scanLineLayoutMap.put(record[0],
+                                      new ScanLineLayout(leadingPixelCount, imagePixelCount, trailingPixelCount));
             }
-        } catch (IOException e) {
-            // todo - warning
+            return scanLineLayoutMap;
         } finally {
             try {
-                inputStreamReader.close();
+                csvReader.close();
             } catch (IOException ignored) {
                 // ignore
             }

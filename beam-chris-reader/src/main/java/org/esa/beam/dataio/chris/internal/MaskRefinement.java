@@ -45,17 +45,17 @@ public class MaskRefinement {
     /**
      * Refines the mask associated with the given radiance raster data.
      *
-     * @param radianceData the radiance raster data.
-     * @param maskData     the mask raster data. On output holds the refined mask.
-     * @param rasterWidth  the number of raster data columns.
+     * @param rciData     the radiance raster data.
+     * @param maskData    the mask raster data. On output holds the refined mask.
+     * @param rasterWidth the number of raster data columns.
      */
-    public void refine(int[] radianceData, short[] maskData, int rasterWidth) {
+    public void refine(int[] rciData, short[] maskData, int rasterWidth) {
         final double [] hf = new double[rasterWidth - 1];
         final double [] lf = new double[rasterWidth / 2 - 1];
 
         for (int i = 0; i < maskData.length; i += rasterWidth) {
-            adjacentDifference(radianceData, i, hf);
-            adjacentDifferenceEven(radianceData, i, lf);
+            adjacentDifference(rciData, i, hf);
+            adjacentDifferenceEven(rciData, i, lf);
 
             if (median(hf) > median(lf) * acceptanceThresholdSquareRoot) {
                 // mark all pixels in odd raster columns as dropout noise
