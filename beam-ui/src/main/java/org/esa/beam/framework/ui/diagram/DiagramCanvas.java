@@ -60,6 +60,7 @@ public class DiagramCanvas extends JPanel {
         MouseInputAdapter mouseHandler = new IndicatorHandler();
         addMouseListener(mouseHandler);
         addMouseMotionListener(mouseHandler);
+        setPreferredSize(new Dimension(320, 200));
     }
 
     public Diagram getDiagram() {
