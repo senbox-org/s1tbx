@@ -91,7 +91,7 @@ public class DropoutCorrection {
     }
 
     /**
-     * Performs the dropout correction for a given region of interest.
+     * Computes the dropout correction for a given region of interest.
      *
      * @param rciData      the RCI raster data. The first array must hold the data which
      *                     are to be corrected.
@@ -103,12 +103,12 @@ public class DropoutCorrection {
      *
      * @throws IllegalArgumentException if RCI and mask data arrays do not have the same length.
      */
-    public void correct(int[][] rciData, short[][] maskData, int rasterWidth, int rasterHeight, Rectangle roi) {
-        correct(rciData, maskData, rasterWidth, rasterHeight, roi, rciData[0], maskData[0], roi.x, roi.y, roi.width);
+    public void compute(int[][] rciData, short[][] maskData, int rasterWidth, int rasterHeight, Rectangle roi) {
+        compute(rciData, maskData, rasterWidth, rasterHeight, roi, rciData[0], maskData[0], roi.x, roi.y, roi.width);
     }
 
     /**
-     * Performs the dropout correction for a given region of interest.
+     * Compute the dropout correction for a given region of interest.
      *
      * @param sourceRciData  the source RCI raster data. The first array must hold the data
      *                       which are to be corrected.
@@ -116,7 +116,7 @@ public class DropoutCorrection {
      *                       which are to be corrected.
      * @param sourceWidth    the width of the source raster.
      * @param sourceHeight   the height of the source raster.
-     * @param sourceRoi      the region of interest inside the source raster.
+     * @param roi            the region of interest inside the source raster.
      * @param targetRciData  the target RCI raster data. May be the same as the first array
      *                       of {@code sourceRciData}.
      * @param targetMaskData the target mask raster data. May be the same as the first array
@@ -127,22 +127,23 @@ public class DropoutCorrection {
      *
      * @throws IllegalArgumentException if RCI and mask data arrays do not have the same length.
      */
-    public void correct(int[][] sourceRciData,
-                         short[][] sourceMaskData,
-                         int sourceWidth,
-                         int sourceHeight,
-                         Rectangle sourceRoi,
-                         int[] targetRciData,
-                         short[] targetMaskData,
-                         int targetOffsetX,
-                         int targetOffsetY,
-                         int targetWidth) {
+    public void compute(int[][] sourceRciData,
+                        short[][] sourceMaskData,
+                        int sourceWidth,
+                        int sourceHeight,
+                        Rectangle roi,
+                        int[] targetRciData,
+                        short[] targetMaskData,
+                        int targetOffsetX,
+                        int targetOffsetY,
+                        int targetWidth) {
         Assert.argument(sourceRciData.length == sourceMaskData.length);
+        Assert.argument(targetRciData.length == targetMaskData.length);
 
         final double[] w = new double[weights.length];
 
-        for (int sy = sourceRoi.y, ty = targetOffsetY; sy < sourceRoi.y + sourceRoi.height; ++sy, ++ ty) {
-            for (int sx = sourceRoi.x, tx = targetOffsetX; sx < sourceRoi.x + sourceRoi.width; ++sx, ++ tx) {
+        for (int sy = roi.y, ty = targetOffsetY; sy < roi.y + roi.height; ++sy, ++ ty) {
+            for (int sx = roi.x, tx = targetOffsetX; sx < roi.x + roi.width; ++sx, ++ tx) {
                 final int sxy = sy * sourceWidth + sx;
                 final int txy = ty * targetWidth + tx;
 

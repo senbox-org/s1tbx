@@ -36,7 +36,7 @@ public class DropoutCorrectionTest extends TestCase {
         mask[1][4] = 1;
 
         final Rectangle roi = new Rectangle(0, 0, 3, 3);
-        dropoutCorrection.correct(new int[][]{data[1], data[0], data[2]},
+        dropoutCorrection.compute(new int[][]{data[1], data[0], data[2]},
                                   new short[][]{mask[1], mask[0], mask[2]}, 3, 3, roi);
 
         assertEquals(1, data[1][4]);
@@ -45,7 +45,7 @@ public class DropoutCorrectionTest extends TestCase {
         data[0][0] = 0;
         mask[0][0] = 1;
 
-        dropoutCorrection.correct(new int[][]{data[0], data[1]},
+        dropoutCorrection.compute(new int[][]{data[0], data[1]},
                                   new short[][]{mask[0], mask[1]}, 3, 3, roi);
 
         assertEquals(1, data[0][0]);
@@ -54,7 +54,7 @@ public class DropoutCorrectionTest extends TestCase {
         data[2][8] = 0;
         mask[2][8] = 1;
 
-        dropoutCorrection.correct(new int[][]{data[2], data[1]},
+        dropoutCorrection.compute(new int[][]{data[2], data[1]},
                                   new short[][]{mask[2], mask[1]}, 3, 3, roi);
 
         assertEquals(1, data[2][8]);

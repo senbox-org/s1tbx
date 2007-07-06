@@ -273,7 +273,7 @@ public class ChrisProductReader extends AbstractProductReader {
                 }
                 pm.worked(1);
             }
-            dropoutCorrection.correct(rciData, maskData, sceneRasterWidth, tileHeight,
+            dropoutCorrection.compute(rciData, maskData, sceneRasterWidth, tileHeight,
                                       new Rectangle(targetOffsetX, targetOffsetY, targetWidth, targetHeight));
             pm.worked(3);
 
