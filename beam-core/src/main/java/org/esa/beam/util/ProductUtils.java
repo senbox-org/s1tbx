@@ -374,17 +374,13 @@ public class ProductUtils {
         try {
             for (int i = 0; i < rasterDataNodes.length; i++) {
                 pm.setSubTaskName(singleBand ? singleMessage : progressMessages[i]);
-                if (pm.isCanceled()) {
-                    throw createUserTerminationException();
-                }
+                checkCanceled(pm);
                 final RasterDataNode raster = rasterDataNodes[i];
 
                 final ImageInfo imageInfo;
                 if (raster.getImageInfo() == null) {
                     final Range range = raster.computeRasterDataRange(null, new SubProgressMonitor(pm, 1));
-                    if (pm.isCanceled()) {
-                        throw createUserTerminationException();
-                    }
+                    checkCanceled(pm);
                     final Histogram histogram = raster.computeRasterDataHistogram(null, 512, range,
                                                                                   new SubProgressMonitor(pm, 1));
                     imageInfo = raster.createDefaultImageInfo(null, histogram, true);
@@ -397,16 +393,12 @@ public class ProductUtils {
                 final double newMax = imageInfo.getMaxDisplaySample();
                 final double gamma = imageInfo.getGamma();
 
-                if (pm.isCanceled()) {
-                    throw createUserTerminationException();
-                }
+                checkCanceled(pm);
                 raster.quantizeRasterData(newMin, newMax, gamma, rgbSamples, singleBand ? 0 : 2 - i,
                                           new SubProgressMonitor(pm, 1));
             }
 
-            if (pm.isCanceled()) {
-                throw createUserTerminationException();
-            }
+            checkCanceled(pm);
             if (singleBand) {
                 final RasterDataNode raster = rasterDataNodes[0];
                 final Color[] palette = raster.getImageInfo().getColorPalette();
@@ -447,6 +439,12 @@ public class ProductUtils {
 
         stopWatch.stopAndTrace("ProductUtils.createRgbImage");
         return bufferedImage;
+    }
+
+    private static void checkCanceled(ProgressMonitor pm) throws IOException {
+        if (pm.isCanceled()) {
+            throw createUserTerminationException();
+        }
     }
 
     private static IOException createUserTerminationException() {

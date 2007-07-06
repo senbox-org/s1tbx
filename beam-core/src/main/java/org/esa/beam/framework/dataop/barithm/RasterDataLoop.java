@@ -19,7 +19,6 @@ package org.esa.beam.framework.dataop.barithm;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.jexp.Term;
-
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.util.Guardian;
@@ -40,30 +39,11 @@ import java.util.Set;
  */
 public class RasterDataLoop {
 
-    private final RasterDataEvalEnv _rasterDataEvalEnv;
-    private final Term[] _terms;
-    private final RasterRegion[] _rasterRegions;
-    private final boolean _lineBased;
+    private final RasterDataEvalEnv rasterDataEvalEnv;
+    private final Term[] terms;
+    private final RasterRegion[] rasterRegions;
     private ProgressMonitor pm;
 
-    /**
-     * Creates an instance of this class for the given region and terms.
-     *
-     * @param offsetX      the X-offset of the region.
-     * @param offsetY      the Y-offset of the region.
-     * @param regionWidth  the width of the region.
-     * @param regionHeight the height of the region.
-     * @param terms        an array of terms.
-     *
-     * @deprecated
-     */
-    public RasterDataLoop(final int offsetX,
-                          final int offsetY,
-                          final int regionWidth,
-                          final int regionHeight,
-                          final Term[] terms) {
-        this(new RasterDataEvalEnv(offsetX, offsetY, regionWidth, regionHeight), terms, ProgressMonitor.NULL);
-    }
 
     /**
      * Creates an instance of this class for the given region and terms.
@@ -80,7 +60,7 @@ public class RasterDataLoop {
                           final int regionWidth,
                           final int regionHeight,
                           final Term[] terms,
-                          ProgressMonitor pm) {
+                          final ProgressMonitor pm) {
         this(new RasterDataEvalEnv(offsetX, offsetY, regionWidth, regionHeight), terms, pm);
     }
 
@@ -89,70 +69,43 @@ public class RasterDataLoop {
      *
      * @param rasterDataEvalEnv the raster data evaluation environment passed to the term evaluation
      * @param terms             an array of terms.
-     *
-     * @deprecated
-     */
-    public RasterDataLoop(final RasterDataEvalEnv rasterDataEvalEnv,
-                          final Term[] terms) {
-        this(rasterDataEvalEnv, terms, ProgressMonitor.NULL);
-    }
-
-    /**
-     * Creates an instance of this class for the given region and terms.
-     *
-     * @param rasterDataEvalEnv the raster data evaluation environment passed to the term evaluation
-     * @param terms             an array of terms.
      * @param pm                a monitor to inform the user about progress
      */
     public RasterDataLoop(final RasterDataEvalEnv rasterDataEvalEnv,
-                          final Term[] terms, ProgressMonitor pm) {
-    	this(rasterDataEvalEnv, terms, true, pm);
-    }
-    /**
-     * Creates an instance of this class for the given region and terms.
-     *
-     * @param rasterDataEvalEnv the raster data evaluation environment passed to the term evaluation
-     * @param terms             an array of terms.
-     * @param lineBased         if set to <code>false</code> the whole region is read at once.
-     * @param pm                a monitor to inform the user about progress
-     */
-    public RasterDataLoop(final RasterDataEvalEnv rasterDataEvalEnv,
-                          final Term[] terms, boolean lineBased, ProgressMonitor pm) {
+                          final Term[] terms,
+                          final ProgressMonitor pm) {
+        Guardian.assertNotNull("rasterDataEvalEnv", rasterDataEvalEnv);
+        Guardian.assertNotNull("pm", pm);
+        checkTerms(terms);
         checkRegion(rasterDataEvalEnv.getOffsetX(),
                     rasterDataEvalEnv.getOffsetY(),
                     rasterDataEvalEnv.getRegionWidth(),
                     rasterDataEvalEnv.getRegionHeight(),
                     terms);
-        _rasterDataEvalEnv = rasterDataEvalEnv;
-        _terms = terms;
-        _lineBased = lineBased;
-        if (_lineBased) {
-        	_rasterRegions = createRasterRegions(terms, rasterDataEvalEnv.getRegionWidth(), 1);
-        } else {
-        	_rasterRegions = createRasterRegions(terms, rasterDataEvalEnv.getRegionWidth(),
-        			rasterDataEvalEnv.getRegionHeight());
-        }
+        this.rasterDataEvalEnv = rasterDataEvalEnv;
+        this.terms = terms;
+        this.rasterRegions = createRasterRegions(terms, rasterDataEvalEnv.getRegionWidth(), 1);
         this.pm = pm;
     }
 
     public int getOffsetX() {
-        return _rasterDataEvalEnv.getOffsetX();
+        return rasterDataEvalEnv.getOffsetX();
     }
 
     public int getOffsetY() {
-        return _rasterDataEvalEnv.getOffsetY();
+        return rasterDataEvalEnv.getOffsetY();
     }
 
     public int getRegionWidth() {
-        return _rasterDataEvalEnv.getRegionWidth();
+        return rasterDataEvalEnv.getRegionWidth();
     }
 
     public int getRegionHeight() {
-        return _rasterDataEvalEnv.getRegionHeight();
+        return rasterDataEvalEnv.getRegionHeight();
     }
 
     public Term[] getTerms() {
-        return _terms;
+        return terms;
     }
 
     /**
@@ -160,7 +113,6 @@ public class RasterDataLoop {
      * This method just delegates to {@link #forEachPixel(Body, String) forEachPixel(body, null)}.
      *
      * @param body the object whose <code>eval</code> method is called.
-     *
      * @throws IOException if the raster data could not be read.
      */
     public void forEachPixel(final Body body) throws IOException {
@@ -172,7 +124,6 @@ public class RasterDataLoop {
      *
      * @param body    the object whose <code>eval</code> method is called.
      * @param message the progress message
-     *
      * @throws IOException if the raster data could not be read.
      */
     public void forEachPixel(final Body body, String message) throws IOException {
@@ -181,53 +132,50 @@ public class RasterDataLoop {
         final int offsetY = getOffsetY();
         final int width = getRegionWidth();
         final int height = getRegionHeight();
-        final RasterDataEvalEnv env = _rasterDataEvalEnv;
+        final RasterDataEvalEnv env = rasterDataEvalEnv;
         int pixelIndex = 0;
         message = (message == null) ? "Computing pixels..." : message;
         pm.beginTask(message, (height - offsetY) * 2);
         try {
-			if (!_lineBased) {
-				readRegion(offsetY, height, new SubProgressMonitor(pm, 1));
-			}
-			for (int y = offsetY; y < offsetY + height; y++) {
-				if (pm.isCanceled()) {
-					break;
-				}
-				if (_lineBased) {
-					readRegion(y, 1, new SubProgressMonitor(pm, 1));
-				}
-				env.setPixelY(y);
-				for (int x = 0; x < width; x++) {
-					final int elemIndex = _lineBased ? x : pixelIndex;
-					env.setElemIndex(elemIndex);
-					env.setPixelX(offsetX + x);
-					body.eval(env, pixelIndex);
-					pixelIndex++;
-				}
-				pm.worked(1);
-			}
-		} finally {
-			pm.done();
-		}
+            for (int y = offsetY; y < offsetY + height; y++) {
+                if (pm.isCanceled()) {
+                    break;
+                }
+                readRegion(y, 1, new SubProgressMonitor(pm, 1));
+                env.setPixelY(y);
+                for (int x = 0; x < width; x++) {
+                    env.setElemIndex(x);
+                    env.setPixelX(offsetX + x);
+                    body.eval(env, pixelIndex);
+                    pixelIndex++;
+                }
+                pm.worked(1);
+            }
+        } finally {
+            pm.done();
+        }
     }
 
-	private void readRegion(final int offsetY, final int height, ProgressMonitor pm) throws IOException {
-		for (int i = 0; i < _rasterRegions.length; i++) {
-		    _rasterRegions[i].readRegion(getOffsetX(), offsetY, getRegionWidth(), height, pm);
-		}
-	}
+    private void readRegion(final int offsetY, final int height, ProgressMonitor pm) throws IOException {
+        for (RasterRegion rasterRegion : rasterRegions) {
+            rasterRegion.readRegion(getOffsetX(), offsetY, getRegionWidth(), height, pm);
+        }
+    }
+
+    private static void checkTerms(Term[] terms) {
+        Guardian.assertNotNull("terms", terms);
+        for (final Term term : terms) {
+            Guardian.assertNotNull("term", term);
+        }
+    }
 
     private static void checkRegion(final int offsetX, final int offsetY,
                                     final int width, final int height,
                                     final Term[] terms) {
-        for (int i = 0; i < terms.length; i++) {
-            final Term term = terms[i];
-            if (term == null) { // todo nf/se - check why can this be null?
-                continue;
-            }
+        for (final Term term : terms) {
             final RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
-            for (int j = 0; j < refRasterDataSymbols.length; j++) {
-                final RasterDataNode raster = refRasterDataSymbols[j].getRaster();
+            for (RasterDataSymbol refRasterDataSymbol : refRasterDataSymbols) {
+                final RasterDataNode raster = refRasterDataSymbol.getRaster();
                 final int rasterWidth = raster.getSceneRasterWidth();
                 final int rasterHeight = raster.getSceneRasterHeight();
                 if (rasterWidth < (offsetX + width) || rasterHeight < (offsetY + height)) {
@@ -240,20 +188,18 @@ public class RasterDataLoop {
     private static RasterRegion[] createRasterRegions(final Term[] terms, final int width, final int height) {
         final Set<RasterDataSymbol> rasterSymbolSet = new HashSet<RasterDataSymbol>();
         for (final Term term : terms) {
-            if (term != null) { // todo nf/se - check why can this be null?
-                final RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
-                for (RasterDataSymbol symbol : refRasterDataSymbols) {
-                    rasterSymbolSet.add(symbol);
-                }
+            final RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
+            for (RasterDataSymbol symbol : refRasterDataSymbols) {
+                rasterSymbolSet.add(symbol);
             }
         }
 
         List<RasterRegion> rasterRegions = new ArrayList<RasterRegion>(rasterSymbolSet.size());
         for (RasterDataSymbol symbol : rasterSymbolSet) {
-        	RasterRegion rasterRegion = RasterRegion.createRasterRegion(symbol.getRaster(), width, height);
-			rasterRegions.add(rasterRegion);
-        	symbol.setData(rasterRegion.getData().getElems());
-		}
+            RasterRegion rasterRegion = RasterRegion.createRasterRegion(symbol.getRaster(), width, height);
+            rasterRegions.add(rasterRegion);
+            symbol.setData(rasterRegion.getData().getElems());
+        }
         return rasterRegions.toArray(new RasterRegion[rasterRegions.size()]);
     }
 
@@ -269,7 +215,6 @@ public class RasterDataLoop {
          *
          * @param env        the {@link RasterDataEvalEnv} which must be used by any term to be evaluated.
          * @param pixelIndex the current, relative pixel index
-         *
          * @see RasterDataLoop#forEachPixel(RasterDataLoop.Body)
          */
         void eval(final RasterDataEvalEnv env, final int pixelIndex);
@@ -283,17 +228,16 @@ public class RasterDataLoop {
 
         /**
          * @param rasterNode the <code>RasterDataNode</code> for the created <code>RasterRegion</code>
-         * @param width the width of the line
-         * @param height the height of the line
-         *
+         * @param width      the width of the line
+         * @param height     the height of the line
          * @return an instance of <code>RasterRegion</code>
          */
         static RasterRegion createRasterRegion(final RasterDataNode rasterNode, final int width, final int height) {
             final ProductData data;
             if (rasterNode.isFloatingPointType()) {
-                data = ProductData.createInstance(ProductData.TYPE_FLOAT32, width*height);
+                data = ProductData.createInstance(ProductData.TYPE_FLOAT32, width * height);
             } else {
-                data = ProductData.createInstance(ProductData.TYPE_INT32, width*height);
+                data = ProductData.createInstance(ProductData.TYPE_INT32, width * height);
             }
             return new RasterRegion(rasterNode, data);
         }
@@ -302,7 +246,7 @@ public class RasterDataLoop {
          * Creates an instance of this class.
          *
          * @param rasterNode the <code>RasterDataNode</code>
-         * @param regionData   the <code>RasterDataNode</code> associated with this object.
+         * @param regionData the <code>RasterDataNode</code> associated with this object.
          */
         private RasterRegion(final RasterDataNode rasterNode, final ProductData regionData) {
             _rasterNode = rasterNode;
@@ -320,12 +264,11 @@ public class RasterDataLoop {
         /**
          * Reads a region into the internal data array.
          *
-         * @param x the x-offset to start reading the region
-         * @param y the y-offset to start reading the region
-         * @param w the width of the region
-         * @param h the height of the region
+         * @param x  the x-offset to start reading the region
+         * @param y  the y-offset to start reading the region
+         * @param w  the width of the region
+         * @param h  the height of the region
          * @param pm progress monitor
-         *
          * @throws java.io.IOException is thrown if reading data fails.
          */
         void readRegion(final int x, final int y, final int w, final int h, ProgressMonitor pm) throws IOException {

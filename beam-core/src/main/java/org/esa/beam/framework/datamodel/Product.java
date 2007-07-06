@@ -1713,8 +1713,6 @@ public class Product extends ProductNode {
                             final int height,
                             final Term bitmaskTerm,
                             final boolean[] bitmask, ProgressMonitor pm) throws IOException {
-        // @todo 1 nf/he - check if a mask already is cached in product
-
         final RasterDataLoop loop = new RasterDataLoop(offsetX, offsetY,
                                                        width, height,
                                                        new Term[]{bitmaskTerm}, pm);

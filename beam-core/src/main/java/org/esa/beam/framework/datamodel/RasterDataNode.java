@@ -1349,7 +1349,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param pm a monitor to inform the user about progress
      * @throws java.io.IOException if an I/O error occurs
      * @see #loadRasterData
-     * @deprecated this method is neither thread save nor is it cool to store huge amounts of raster
+     * @deprecated this method is neither thread save nor is it a good idea to store huge amounts of raster
      *             data in this product element. Use
      *             {@link #readRasterData(int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor) readRasterData}
      *             instead to read raster data tile-wise.
@@ -1979,7 +1979,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                             final int n = values.getSize();
                             final int i0 = y0 * getSceneRasterWidth();
                             double v;
-                            pm.beginTask("Processing raster data...", n);
+                            pm.beginTask("Processing raster data", n);
                             try {
                                 for (int i = 0; i < n; i++) {
                                     if (pixelValidator.validateIndex(i)) {
@@ -2032,7 +2032,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                             final int n = values.getSize();
                             final int i0 = y0 * getSceneRasterWidth();
                             double v;
-                            pm.beginTask("Processing raster data...", n);
+                            pm.beginTask("Processing raster data", n);
                             try {
                                 for (int i = 0; i < n; i++) {
                                     if (pixelValidator.validateIndex(i)) {
