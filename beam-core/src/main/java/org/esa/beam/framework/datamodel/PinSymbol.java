@@ -223,41 +223,4 @@ public class PinSymbol extends ShapeFigure {
         return pinSymbol;
     }
 
-
-    public static PinSymbol createDefaultPinSymbol2() {
-        // define symbol constants
-        //
-        final float r = 14.0f;
-        final float h = 24.0f;
-        final Paint fillPaint = new Color(128, 128, 255);
-        final Color outlineColor = new Color(0, 0, 64);
-        final float lineWidth = 1.0f;
-
-        // create symbol shape
-        //
-        final float h34 = 3 * h / 4;
-        final float h14 = 1 * h / 4;
-        final GeneralPath path = new GeneralPath();
-        path.moveTo(0, h);
-        path.lineTo(h34 - 1, h14 - 1);
-        path.lineTo(h34 + 1, h14 + 1);
-        path.closePath();
-        final Ellipse2D.Float knob = new Ellipse2D.Float(h34 - r / 2, h14 - r / 2, r, r);
-        final Area needle = new Area(path);
-        needle.subtract(new Area(knob));
-        final GeneralPath symbolShape = new GeneralPath();
-        symbolShape.append(needle, false);
-        symbolShape.append(knob, false);
-
-        // create symbol
-        //
-        final PinSymbol pinSymbol = new PinSymbol("Default", symbolShape);
-        pinSymbol.setFillPaint(fillPaint);
-        pinSymbol.setFilled(true);
-        pinSymbol.setOutlineColor(outlineColor);
-        pinSymbol.setOutlineStroke(new BasicStroke(lineWidth));
-        pinSymbol.setRefPoint(new PixelPos(0, h));
-//        pinSymbol.setRefPoint(new PixelPos(-strokeWidth, h - strokeWidth));
-        return pinSymbol;
-    }
 }
