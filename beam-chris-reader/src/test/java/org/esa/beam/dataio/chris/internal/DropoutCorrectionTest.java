@@ -30,7 +30,7 @@ public class DropoutCorrectionTest extends TestCase {
     }
 
     public void testDropoutCorrection() {
-        final DropoutCorrection dropoutCorrection = new DropoutCorrection(DropoutCorrection.Type.FOUR_CONNECTED);
+        final DropoutCorrection dropoutCorrection = new DropoutCorrection();
 
         data[1][4] = 0;
         mask[1][4] = 1;

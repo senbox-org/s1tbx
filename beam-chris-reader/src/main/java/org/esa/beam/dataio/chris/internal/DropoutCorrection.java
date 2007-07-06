@@ -14,7 +14,26 @@ import static java.lang.Math.sqrt;
  */
 public class DropoutCorrection {
 
-    public enum Type {VERTICAL, FOUR_CONNECTED, EIGHT_CONNECTED}
+    /**
+     * The dropout correction types.
+     */
+    public enum Type {
+
+        /**
+         * This type includes the two neighboring pixels in along-track direction
+         * only.
+         */
+        TWO,
+        /**
+         * This type includes the two neighboring pixels in both along and across
+         * track directions, giving a total of four pixels.
+         */
+        FOUR,
+        /**
+         * This type includes all eight surrounding pixels.
+         */
+        EIGHT
+    }
 
     public static final double[] M2 = {0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0};
     public static final double[] M4 = {0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0};
@@ -31,10 +50,16 @@ public class DropoutCorrection {
     private double[] weights;
     private boolean cosmetic;
 
+    /**
+     * Constructs the default instance of this class.
+     */
+    public DropoutCorrection() {
+        this(Type.FOUR);
+    }
 
     /**
-     * Constructs an instance of this class, which performs a non-cosmetic
-     * dropout correction.
+     * Constructs an instance of this class which performs a non-cosmetic
+     * dropout correction with the given type.
      *
      * @param type
      */
@@ -51,13 +76,13 @@ public class DropoutCorrection {
      */
     public DropoutCorrection(Type type, boolean cosmetic) {
         switch (type) {
-        case VERTICAL:
+        case TWO:
             this.weights = M2;
             break;
-        case FOUR_CONNECTED:
+        case FOUR:
             this.weights = M4;
             break;
-        case EIGHT_CONNECTED:
+        case EIGHT:
             this.weights = M8;
             break;
         }
