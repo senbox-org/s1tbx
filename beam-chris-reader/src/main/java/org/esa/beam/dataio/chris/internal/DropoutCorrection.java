@@ -103,7 +103,7 @@ public class DropoutCorrection {
      *
      * @throws IllegalArgumentException if RCI and mask data arrays do not have the same length.
      */
-    public final void correct(int[][] rciData, short[][] maskData, int rasterWidth, int rasterHeight, Rectangle roi) {
+    public void correct(int[][] rciData, short[][] maskData, int rasterWidth, int rasterHeight, Rectangle roi) {
         correct(rciData, maskData, rasterWidth, rasterHeight, roi, rciData[0], maskData[0], roi.x, roi.y, roi.width);
     }
 
@@ -127,7 +127,7 @@ public class DropoutCorrection {
      *
      * @throws IllegalArgumentException if RCI and mask data arrays do not have the same length.
      */
-    private void correct(int[][] sourceRciData,
+    public void correct(int[][] sourceRciData,
                          short[][] sourceMaskData,
                          int sourceWidth,
                          int sourceHeight,
