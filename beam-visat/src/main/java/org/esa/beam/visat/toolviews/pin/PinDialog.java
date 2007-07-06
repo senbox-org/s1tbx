@@ -65,6 +65,7 @@ public class PinDialog extends ModalDialog {
     private boolean canGetPixelPos;
     private boolean canGetGeoPos;
     private boolean adjusting;
+    private boolean _symbolChanged;
 
 
     public PinDialog(final Window parent, final Product product) {
@@ -87,10 +88,23 @@ public class PinDialog extends ModalDialog {
             return;
         }
         if (Pin.isValidNodeName(getName())) {
+            if (_symbolChanged) {
+                // Create new symbol instance so an event is fired by pin when new symbol is set.
+                updateSymbolInstance();
+            }
             super.onOK();
         } else {
             showInformationDialog("'" + getName() + "' is not a valid pin name."); /*I18N*/
         }
+    }
+
+    private void updateSymbolInstance() {
+        PinSymbol symbol = PinSymbol.createDefaultPinSymbol();
+        symbol.setOutlineColor(_symbol.getOutlineColor());
+        symbol.setOutlineStroke(_symbol.getOutlineStroke());
+        symbol.setFillPaint(_symbol.getFillPaint());
+        symbol.setFilled(_symbol.isFilled());
+        _symbol = symbol;
     }
 
     public String getName() {
@@ -273,11 +287,10 @@ public class PinDialog extends ModalDialog {
 
         ParamChangeListener colorChangelistener = new ParamChangeListener() {
             public void parameterValueChanged(ParamChangeEvent event) {
-                if (_symbol != null) {
-                    _symbol.setFillPaint((Paint) _paramColorFill.getValue());
-                    _symbol.setOutlineColor((Color) _paramColorOutline.getValue());
-                }
+                _symbol.setFillPaint((Paint) _paramColorFill.getValue());
+                _symbol.setOutlineColor((Color) _paramColorOutline.getValue());
                 _symbolLabel.repaint();
+                _symbolChanged = true;
             }
         };
 
