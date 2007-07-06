@@ -91,27 +91,62 @@ public class DropoutCorrection {
     }
 
     /**
-     * Performs the dropout correction.
+     * Performs the dropout correction for a given region of interest.
      *
-     * @param rciData      the RCI raster data.
-     * @param maskData     the mask raster data.
+     * @param rciData      the RCI raster data. The first array must hold the data which
+     *                     are to be corrected.
+     * @param maskData     the mask raster data. The first array must hold the data which
+     *                     are to be corrected.
      * @param rasterWidth  the raster width.
      * @param rasterHeight the raster height.
-     * @param roi          the rater region of interest.
+     * @param roi          the region of interest inside the source raster.
      *
      * @throws IllegalArgumentException if RCI and mask data arrays do not have the same length.
      */
-    public void perform(int[][] rciData, short[][] maskData, int rasterWidth, int rasterHeight, Rectangle roi) {
-        Assert.argument(rciData.length == maskData.length);
+    public final void correct(int[][] rciData, short[][] maskData, int rasterWidth, int rasterHeight, Rectangle roi) {
+        correct(rciData, maskData, rasterWidth, rasterHeight, roi, rciData[0], maskData[0], roi.x, roi.y, roi.width);
+    }
+
+    /**
+     * Performs the dropout correction for a given region of interest.
+     *
+     * @param sourceRciData  the source RCI raster data. The first array must hold the data
+     *                       which are to be corrected.
+     * @param sourceMaskData the source mask raster data. The first array must hold the data
+     *                       which are to be corrected.
+     * @param sourceWidth    the width of the source raster.
+     * @param sourceHeight   the height of the source raster.
+     * @param sourceRoi      the region of interest inside the source raster.
+     * @param targetRciData  the target RCI raster data. May be the same as the first array
+     *                       of {@code sourceRciData}.
+     * @param targetMaskData the target mask raster data. May be the same as the first array
+     *                       of {@code sourceMaskData}.
+     * @param targetOffsetX  the across-track offset inside the target raster.
+     * @param targetOffsetY  the along-track offset inside the target raster.
+     * @param targetWidth    the width of the target raster.
+     *
+     * @throws IllegalArgumentException if RCI and mask data arrays do not have the same length.
+     */
+    private void correct(int[][] sourceRciData,
+                         short[][] sourceMaskData,
+                         int sourceWidth,
+                         int sourceHeight,
+                         Rectangle sourceRoi,
+                         int[] targetRciData,
+                         short[] targetMaskData,
+                         int targetOffsetX,
+                         int targetOffsetY,
+                         int targetWidth) {
+        Assert.argument(sourceRciData.length == sourceMaskData.length);
 
         final double[] w = new double[weights.length];
 
-        for (int y = roi.y; y < roi.y + roi.height; ++y) {
-            for (int x = roi.x; x < roi.x + roi.width; ++x) {
-                // offset of current pixel
-                final int xy = y * rasterWidth + x;
+        for (int sy = sourceRoi.y, ty = targetOffsetY; sy < sourceRoi.y + sourceRoi.height; ++sy, ++ ty) {
+            for (int sx = sourceRoi.x, tx = targetOffsetX; sx < sourceRoi.x + sourceRoi.width; ++sx, ++ tx) {
+                final int sxy = sy * sourceWidth + sx;
+                final int txy = ty * targetWidth + tx;
 
-                if (maskData[0][xy] == DROPOUT) {
+                if (sourceMaskData[0][sxy] == DROPOUT) {
                     double ws = 0.0;
                     double xc = 0.0;
 
@@ -119,60 +154,64 @@ public class DropoutCorrection {
                     double xc2 = 0.0;
 
                     for (int i = 0; i < M_HEIGHT; ++i) {
-                        final int ny = y + (i - 1);
-                        if (ny < 0 || ny >= rasterHeight) {
+                        final int ny = sy + (i - 1);
+                        if (ny < 0 || ny >= sourceHeight) {
                             continue;
                         }
                         for (int j = 0; j < M_WIDTH; ++j) {
-                            final int nx = x + (j - 1);
-                            if (nx < 0 || nx >= rasterWidth) {
+                            final int nx = sx + (j - 1);
+                            if (nx < 0 || nx >= sourceWidth) {
                                 continue;
                             }
                             final int ij = i * M_WIDTH + j;
-                            final int nxy = ny * rasterWidth + nx;
+                            final int nxy = ny * sourceWidth + nx;
 
                             if (weights[ij] != 0.0) {
-                                switch (maskData[0][nxy]) {
+                                switch (sourceMaskData[0][nxy]) {
                                 case VALID:
-                                    w[ij] = weights[ij] * calculateWeight(xy, nxy, rciData, maskData);
+                                    w[ij] = weights[ij] * calculateWeight(sxy, nxy, sourceRciData, sourceMaskData);
                                     ws += w[ij];
-                                    xc += rciData[0][nxy] * w[ij];
+                                    xc += sourceRciData[0][nxy] * w[ij];
                                     break;
 
                                 case SATURATED:
                                     ws2 += weights[ij];
-                                    xc2 += rciData[0][nxy] * weights[ij];
+                                    xc2 += sourceRciData[0][nxy] * weights[ij];
                                     break;
                                 }
                             }
                         }
                     }
-
                     if (ws > 0.0) {
-                        rciData[0][xy] = (int) (xc / ws);
+                        targetRciData[txy] = (int) (xc / ws);
                         if (!cosmetic) {
-                            maskData[0][xy] = CORRECTED_DROPOUT;
+                            targetMaskData[txy] = CORRECTED_DROPOUT;
                         }
-                    } else if (ws2 > 0.0) {
-                        rciData[0][xy] = (int) (xc2 / ws2);
-                        if (!cosmetic) {
-                            maskData[0][xy] = SATURATED;
+                    } else { // all neighbors are saturated
+                        if (ws2 > 0.0) {
+                            targetRciData[txy] = (int) (xc2 / ws2);
+                            if (!cosmetic) {
+                                targetMaskData[txy] = SATURATED;
+                            }
+                        } else { // all neighbors are dropouts
+                            targetRciData[txy] = 0;
                         }
-                    } else {
-                        rciData[0][xy] = 0;
                     }
+                } else { // not a dropout
+                    targetRciData[txy] = sourceRciData[0][sxy];
+                    targetMaskData[txy] = sourceMaskData[0][sxy];
                 }
             }
         }
     }
 
-    private double calculateWeight(int index, int neighborIndex, int[][] radianceData, short[][] maskData) {
+    private double calculateWeight(int index, int neighborIndex, int[][] rciData, short[][] maskData) {
         double sum = 0.0;
         int count = 0;
 
-        for (int i = 1; i < radianceData.length; ++i) {
-            if (maskData[i][index] == VALID && maskData[i][neighborIndex] == VALID && radianceData[i][index] != 0) {
-                final double d = (radianceData[i][index] - radianceData[i][neighborIndex]);
+        for (int i = 1; i < rciData.length; ++i) {
+            if (maskData[i][index] == VALID && maskData[i][neighborIndex] == VALID && rciData[i][index] != 0) {
+                final double d = (rciData[i][index] - rciData[i][neighborIndex]);
 
                 sum += d * d;
                 ++count;

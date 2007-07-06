@@ -84,7 +84,7 @@ public class ChrisProductReader extends AbstractProductReader {
         maskBands = new Band[spectralBandCount];
 
         maskRefinement = new MaskRefinement(1.5);
-        dropoutCorrection = new DropoutCorrection(DropoutCorrection.Type.VERTICAL, true);
+        dropoutCorrection = new DropoutCorrection(DropoutCorrection.Type.TWO, true);
 
         final String name = FileUtils.getFilenameWithoutExtension(inputFile);
         final String type = "CHRIS_M" + chrisFile.getGlobalAttribute(ChrisConstants.ATTR_NAME_CHRIS_MODE, 0);
@@ -273,7 +273,7 @@ public class ChrisProductReader extends AbstractProductReader {
                 }
                 pm.worked(1);
             }
-            dropoutCorrection.perform(rciData, maskData, sceneRasterWidth, tileHeight,
+            dropoutCorrection.correct(rciData, maskData, sceneRasterWidth, tileHeight,
                                       new Rectangle(targetOffsetX, targetOffsetY, targetWidth, targetHeight));
             pm.worked(3);
 
