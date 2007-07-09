@@ -222,15 +222,36 @@ public class ChrisProductReader extends AbstractProductReader {
         for (int i = 0; i < spectralBandCount; ++i) {
             maskBands[i].setFlagCoding(flagCoding);
             for (final Flags flag : Flags.values()) {
-                product.addBitmaskDef(
-                        new BitmaskDef(
-                                new StringBuilder(rciBands[i].getName()).append("_").append(flag).toString(),
-                                flag.getDescription(),
-                                new StringBuilder(maskBands[i].getName()).append(".").append(flag).toString(),
-                                flag.getColor(),
-                                flag.getTransparency()));
+                product.addBitmaskDef(new BitmaskDef(
+                        new StringBuilder(rciBands[i].getName()).append("_").append(flag).toString(),
+                        flag.getDescription(),
+                        new StringBuilder(maskBands[i].getName()).append(".").append(flag).toString(),
+                        flag.getColor(),
+                        flag.getTransparency()));
             }
         }
+        defineCompositeBitmask(product, Flags.DROPOUT, "Spectrum dropout",
+                               "Spectrum contains a dropout pixel");
+        defineCompositeBitmask(product, Flags.SATURATED, "Spectrum saturated",
+                               "Spectrum contains a saturated pixel");
+        defineCompositeBitmask(product, Flags.CORRECTED, "Spectrum corrected",
+                               "Spectrum contains a corrected dropout pixel");
+    }
+
+    private void defineCompositeBitmask(Product product, Flags flag, String name, String description) {
+        final StringBuilder expression = new StringBuilder();
+        for (int i = 0; i < spectralBandCount; ++i) {
+            if (i > 0) {
+                expression.append(" || ");
+            }
+            expression.append(maskBands[i].getName()).append(".").append(Flags.DROPOUT);
+        }
+        product.addBitmaskDef(new BitmaskDef(
+                name,
+                description,
+                expression.toString(),
+                flag.getColor(),
+                flag.getTransparency()));
     }
 
     private void readRciBandRasterData(int bandIndex,
