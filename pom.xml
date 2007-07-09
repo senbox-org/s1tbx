@@ -319,9 +319,6 @@
                 <artifactId>maven-surefire-report-plugin</artifactId>
             </plugin>
             <plugin>
-                <artifactId>maven-source-plugin</artifactId>
-            </plugin>
-            <plugin>
                 <artifactId>maven-idea-plugin</artifactId>
                 <configuration>
                     <downloadSources>true</downloadSources>
@@ -394,11 +391,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
-                    <destDir>../modules/${artifactId}-${version}/apidoc</destDir>
+                    <destDir>../target/site/apidocs/${artifactId}-${version}/apidoc</destDir>
                     <!-- Creates an HTML version of each source file and adds links documentation -->
                     <linksource>true</linksource>
                     <excludePackageNames>
-                        *.internal;org.esa.beam.visat.toolviews.*;org.esa.beam.visat.actions.*;org.esa.beam.visat.plugins.*;org.esa.beam.visat.dialogs.*;org.esa.beam.examples.*;org.esa.beam.dataio.*;org.esa.beam.processor.*;org.esa.beam.pconvert</excludePackageNames>
+                        *.internal;org.esa.beam.visat.toolviews.*;org.esa.beam.visat.actions.*;org.esa.beam.visat.plugins.*;org.esa.beam.visat.dialogs.*;org.esa.beam.examples.*;org.esa.beam.dataio.*;org.esa.beam.processor.*;com.bc.beam.processor.*;org.esa.beam.pconvert</excludePackageNames>
                     <!-- Shuts off non-error and non-warning messages-->
                     <quiet>true</quiet>
                 </configuration>
