@@ -17,7 +17,7 @@ public class LinearSpectralUnmixingTest extends TestCase {
     public void testUnmixing() throws IOException {
 
         Matrix endmembers = Matrix.read(getResourceReader("endmember-spectra.csv"));
-        LinearSpectralUnmixing mlm = new LinearSpectralUnmixing(endmembers);
+        SpectralUnmixing mlm = new LinearSpectralUnmixing(endmembers);
 
         Matrix spectra = Matrix.read(getResourceReader("pixel-spectra.csv"));
 

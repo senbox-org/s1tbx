@@ -25,7 +25,7 @@ import Jama.Matrix;
  * @author Helmut Schiller, GKSS
  * @since 4.1
  */
-public class LinearSpectralUnmixing {
+public class LinearSpectralUnmixing implements SpectralUnmixing {
 
     private final Matrix endMembers;
     private final Matrix ATAinv;

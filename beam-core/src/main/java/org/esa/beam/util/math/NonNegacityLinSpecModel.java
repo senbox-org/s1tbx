@@ -8,7 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 
-public class NonNegacityLinSpecModel {
+public class NonNegacityLinSpecModel  implements SpectralUnmixing {
 
     private int nchem, nmemb;
     private LinearSpectralUnmixing[][] trialModels;
