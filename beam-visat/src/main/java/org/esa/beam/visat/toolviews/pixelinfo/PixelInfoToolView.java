@@ -38,6 +38,7 @@ public class PixelInfoToolView extends AbstractToolView {
 
     public JComponent createControl() {
         _pinCheckbox = new JCheckBox("Snap to selected pin");
+        _pinCheckbox.setName("pinCheckbox");
         _pinCheckbox.setSelected(false);
         _pinCheckbox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
