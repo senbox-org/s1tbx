@@ -389,6 +389,7 @@ public class MapProjectionDialog extends ModalDialog {
         gbc.gridy = ++line;
 
         JButton buttonOutputParams = new JButton("Output Parameters...");
+        buttonOutputParams.setName("outputParamsButton");
         buttonOutputParams.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
@@ -397,6 +398,7 @@ public class MapProjectionDialog extends ModalDialog {
         });
 
         _buttonProjectParams = new JButton("Projection Parameters...");
+        _buttonProjectParams.setName("projectParamsButton");
         _buttonProjectParams.setEnabled(false);
         _buttonProjectParams.addActionListener(new ActionListener() {
 
