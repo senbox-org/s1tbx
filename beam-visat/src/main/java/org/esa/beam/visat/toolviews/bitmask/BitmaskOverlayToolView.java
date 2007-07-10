@@ -841,6 +841,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
     public JComponent createControl() {
 
         bitmaskDefTable = new BitmaskDefTable();
+        bitmaskDefTable.setName("bitmaskDefTable");
         bitmaskDefTable.getModel().addTableModelListener(new TableModelListener() {
 
             public void tableChanged(final TableModelEvent e) {
@@ -873,8 +874,10 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         final JPanel mainPane = new JPanel(new BorderLayout(4, 4));
         mainPane.add(tableScrollPane, BorderLayout.CENTER);
         mainPane.add(showCompatibleCheck, BorderLayout.SOUTH);
+        showCompatibleCheck.setName("showCompatibleCheck");
 
         applyButton = new JButton("Apply");        /*I18N*/
+        applyButton.setName("applyButton");
         applyButton.setToolTipText("Apply bitmask changes."); /*I18N*/
         applyButton.setMnemonic('A');
         applyButton.addActionListener(new ActionListener() {
@@ -885,6 +888,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         });
 
         newButton = createButton("icons/New24.gif");
+        newButton.setName("newButton");
         newButton.setToolTipText("Create and add new bitmask."); /*I18N*/
         newButton.addActionListener(new ActionListener() {
 
@@ -894,6 +898,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         });
 
         copyButton = createButton("icons/Copy24.gif");
+        copyButton.setName("copyButton");
         copyButton.setToolTipText("Copy and add existing bitmask."); /*I18N*/
         copyButton.addActionListener(new ActionListener() {
 
@@ -903,6 +908,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         });
 
         editButton = createButton("icons/Edit24.gif");
+        editButton.setName("editButton");
         editButton.setToolTipText("Edit selected bitmask."); /*I18N*/
         editButton.addActionListener(new ActionListener() {
 
@@ -912,6 +918,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         });
 
         removeButton = createButton("icons/Remove24.gif");
+        removeButton.setName("removeButton");
         removeButton.setToolTipText("Remove selected bitmask."); /*I18N*/
         removeButton.addActionListener(new ActionListener() {
 
@@ -922,6 +929,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         });
 
         importButton = createButton("icons/Import24.gif");
+        importButton.setName("importButton");
         importButton.setToolTipText("Import bitmask from text file."); /*I18N*/
         importButton.addActionListener(new ActionListener() {
 
@@ -932,6 +940,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         });
 
         exportButton = createButton("icons/Export24.gif");
+        exportButton.setName("exportButton");
         exportButton.setToolTipText("Export bitmask to text file."); /*I18N*/
         exportButton.addActionListener(new ActionListener() {
 
@@ -941,6 +950,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         });
 
         importNButton = createButton("icons/ImportN24.gif");
+        importNButton.setName("importNButton");
         importNButton.setToolTipText("Import all bitmask definitions from XML file."); /*I18N*/
         importNButton.addActionListener(new ActionListener() {
 
@@ -951,6 +961,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         });
 
         exportNButton = createButton("icons/ExportN24.gif");
+        exportNButton.setName("exportNButton");
         exportNButton.setToolTipText("Export all bitmask definitions to XML file."); /*I18N*/
         exportNButton.addActionListener(new ActionListener() {
 
@@ -960,6 +971,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         });
 
         moveUpButton = createButton("icons/Up24.gif");
+        moveUpButton.setName("moveUpButton");
         moveUpButton.setToolTipText("Moves selected entry up."); /*I18N*/
         moveUpButton.addActionListener(new ActionListener() {
 
@@ -969,6 +981,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
         });
 
         moveDownButton = createButton("icons/Down24.gif");
+        moveDownButton.setName("moveDownButton");
         moveDownButton.setToolTipText("Moves selected entry down."); /*I18N*/
         moveDownButton.addActionListener(new ActionListener() {
 
@@ -979,7 +992,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
 
 
         final AbstractButton helpButton = createButton("icons/Help24.gif");
-
+        helpButton.setName("helpButton");
         if (getDescriptor().getHelpId() != null) {
             HelpSys.enableHelpKey(this.getContentPane(), getDescriptor().getHelpId());
             HelpSys.enableHelpOnButton(helpButton, getDescriptor().getHelpId());

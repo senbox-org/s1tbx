@@ -372,7 +372,7 @@ public class ContrastStretchToolView extends AbstractToolView {
                                                        });
 
         _applyButton = new JButton("Apply");
-        _applyButton.setName("Apply");
+        _applyButton.setName("ApplyButton");
         _applyButton.setMnemonic('A');
         _applyButton.addActionListener(new ActionListener() {
 
@@ -382,7 +382,7 @@ public class ContrastStretchToolView extends AbstractToolView {
         });
 
         _resetButton = createButton("icons/Undo24.gif");
-        _resetButton.setName("Reset");
+        _resetButton.setName("ResetButton");
         _resetButton.setToolTipText("Reset to default values"); /*I18N*/
         _resetButton.addActionListener(new ActionListener() {
 
@@ -392,7 +392,7 @@ public class ContrastStretchToolView extends AbstractToolView {
         });
 
         _multiApplyButton = createButton("icons/MultiAssignBands24.gif");
-        _multiApplyButton.setName("MultiApply");
+        _multiApplyButton.setName("MultiApplyButton");
         _multiApplyButton.setToolTipText("Apply to other bands"); /*I18N*/
         _multiApplyButton.addActionListener(new ActionListener() {
 
@@ -402,7 +402,7 @@ public class ContrastStretchToolView extends AbstractToolView {
         });
 
         _importButton = createButton("icons/Import24.gif");
-        _importButton.setName("Import");
+        _importButton.setName("ImportButton");
         _importButton.setToolTipText("Import settings from text file."); /*I18N*/
         _importButton.addActionListener(new ActionListener() {
 
@@ -413,7 +413,7 @@ public class ContrastStretchToolView extends AbstractToolView {
         _importButton.setEnabled(true);
 
         _exportButton = createButton("icons/Export24.gif");
-        _exportButton.setName("Export");
+        _exportButton.setName("ExportButton");
         _exportButton.setToolTipText("Export settings to text file."); /*I18N*/
         _exportButton.addActionListener(new ActionListener() {
 
@@ -424,7 +424,7 @@ public class ContrastStretchToolView extends AbstractToolView {
         _exportButton.setEnabled(true);
 
         _autoStretch95Button = createButton("icons/Auto95Percent24.gif");
-        _autoStretch95Button.setName("AutoStretch95");
+        _autoStretch95Button.setName("AutoStretch95Button");
         _autoStretch95Button.setToolTipText("Auto-adjust to 95% of all pixels"); /*I18N*/
         _autoStretch95Button.addActionListener(new ActionListener() {
 
@@ -434,7 +434,7 @@ public class ContrastStretchToolView extends AbstractToolView {
         });
 
         _autoStretch100Button = createButton("icons/Auto100Percent24.gif");
-        _autoStretch100Button.setName("AutoStretch100");
+        _autoStretch100Button.setName("AutoStretch100Button");
         _autoStretch100Button.setToolTipText("Auto-adjust to 100% of all pixels"); /*I18N*/
         _autoStretch100Button.addActionListener(new ActionListener() {
 
@@ -444,6 +444,7 @@ public class ContrastStretchToolView extends AbstractToolView {
         });
 
         _zoomInVButton = createButton("icons/ZoomIn24V.gif");
+        _zoomInVButton.setName("zoomInVButton");
         _zoomInVButton.setToolTipText("Stretch histogram vertically"); /*I18N*/
         _zoomInVButton.addActionListener(new ActionListener() {
 
@@ -453,6 +454,7 @@ public class ContrastStretchToolView extends AbstractToolView {
         });
 
         _zoomOutVButton = createButton("icons/ZoomOut24V.gif");
+        _zoomOutVButton.setName("zoomOutVButton");
         _zoomOutVButton.setToolTipText("Shrink histogram vertically"); /*I18N*/
         _zoomOutVButton.addActionListener(new ActionListener() {
 
@@ -462,6 +464,7 @@ public class ContrastStretchToolView extends AbstractToolView {
         });
 
         _zoomInHButton = createButton("icons/ZoomIn24H.gif");
+        _zoomInHButton.setName("zoomInHButton");
         _zoomInHButton.setToolTipText("Stretch histogram horizontally"); /*I18N*/
         _zoomInHButton.addActionListener(new ActionListener() {
 
@@ -471,6 +474,7 @@ public class ContrastStretchToolView extends AbstractToolView {
         });
 
         _zoomOutHButton = createButton("icons/ZoomOut24H.gif");
+        _zoomOutHButton.setName("zoomOutHButton");
         _zoomOutHButton.setToolTipText("Shrink histogram horizontally"); /*I18N*/
         _zoomOutHButton.addActionListener(new ActionListener() {
 
@@ -480,6 +484,7 @@ public class ContrastStretchToolView extends AbstractToolView {
         });
 
         _evenDistButton = createButton("icons/EvenDistribution24.gif");
+        _evenDistButton.setName("evenDistButton");
         _evenDistButton.setToolTipText("Distribute sliders evenly between first and last slider"); /*I18N*/
         _evenDistButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -488,6 +493,7 @@ public class ContrastStretchToolView extends AbstractToolView {
         });
 
         _imageEnhancementsButton = createToggleButton("icons/ImageEnhancements24.gif");
+        _imageEnhancementsButton.setName("imageEnhancementsButton");
         _imageEnhancementsButton.setToolTipText("Show/hide image enhancements pane"); /*I18N*/
         _imageEnhancementsButton.addActionListener(new ActionListener() {
 
@@ -502,6 +508,7 @@ public class ContrastStretchToolView extends AbstractToolView {
 
         AbstractButton helpButton = createButton("icons/Help24.gif");
         helpButton.setToolTipText("Help."); /*I18N*/
+        helpButton.setName("helpButton");
 
         final JPanel buttonPane = GridBagUtils.createPanel();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -548,6 +555,9 @@ public class ContrastStretchToolView extends AbstractToolView {
         _redButton = new JRadioButton("Red ");
         _greenButton = new JRadioButton("Green ");
         _blueButton = new JRadioButton("Blue ");
+        _redButton.setName("redButton");
+        _greenButton.setName("greenButton");
+        _blueButton.setName("blueButton");
 
         final ButtonGroup rgbButtonGroup = new ButtonGroup();
         rgbButtonGroup.add(_redButton);

@@ -207,7 +207,7 @@ public class SpectrumToolView extends AbstractToolView {
     @Override
     public JComponent createControl() {
         filterButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Filter24.gif"), false);
-        filterButton.setName("filter");
+        filterButton.setName("filterButton");
         filterButton.setEnabled(false);
         filterButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -220,6 +220,7 @@ public class SpectrumToolView extends AbstractToolView {
                 recreateSpectraDiagram();
             }
         }, true);
+        showSpectrumForCursorButton.setName("showSpectrumForCursorButton");
         showSpectrumForCursorButton.setSelected(true);
         showSpectrumForCursorButton.setText("C");
         showSpectrumForCursorButton.setToolTipText("Show spectrum at cursor position.");
@@ -229,6 +230,7 @@ public class SpectrumToolView extends AbstractToolView {
                 recreateSpectraDiagram();
             }
         }, true);
+        showSpectraForSelectedPinsButton.setName("showSpectraForSelectedPinsButton");
         showSpectrumForCursorButton.setSelected(true);
         showSpectraForSelectedPinsButton.setText("SP");
         showSpectraForSelectedPinsButton.setToolTipText("Show spectrum of selected pins.");
@@ -238,6 +240,7 @@ public class SpectrumToolView extends AbstractToolView {
                 recreateSpectraDiagram();
             }
         }, true);
+        showSpectraForAllPinsButton.setName("showSpectraForAllPinsButton");
         showSpectraForAllPinsButton.setText("AP");
         showSpectraForAllPinsButton.setToolTipText("Show spectra of all pins.");
 
@@ -247,6 +250,7 @@ public class SpectrumToolView extends AbstractToolView {
                 JOptionPane.showMessageDialog(null, "Not implemented");
             }
         }, true);
+        showAveragePinSpectrumButton.setName("showAveragePinSpectrumButton");
         showAveragePinSpectrumButton.setText("Av");
         showAveragePinSpectrumButton.setToolTipText("Show average spectrum of all pin spectra.");
 
@@ -255,15 +259,17 @@ public class SpectrumToolView extends AbstractToolView {
                  diagramCanvas.getDiagram().setDrawGrid(showGridButton.isSelected());
             }
         }, true);
+        showGridButton.setName("showGridButton");
         showGridButton.setText("Gr");
         showGridButton.setToolTipText("Show diagram grid.");
 
         AbstractButton exportSpectraButton = ToolButtonFactory.createButton(new SpectraExportAction(this), false);
         exportSpectraButton.setText("Ex");
         exportSpectraButton.setToolTipText("Export spectra to text file.");
+        exportSpectraButton.setName("exportSpectraButton");
 
         AbstractButton helpButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Help24.gif"), false);
-        helpButton.setName("help");
+        helpButton.setName("helpButton");
         helpButton.setToolTipText("Help."); /*I18N*/
 
         ButtonGroup bg = new ButtonGroup();

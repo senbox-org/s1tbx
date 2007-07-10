@@ -117,6 +117,7 @@ public class PinManagerToolView extends AbstractToolView {
     @Override
     public JComponent createControl() {
         pinTable = new JTable();
+        pinTable.setName("pinTable");
         pinTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         pinTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         pinTable.setRowSelectionAllowed(true);
@@ -151,6 +152,7 @@ public class PinManagerToolView extends AbstractToolView {
         });
 
         newButton = createButton("icons/New24.gif");
+        newButton.setName("newButton");
         newButton.setToolTipText("Create and add new pin."); /*I18N*/
         newButton.addActionListener(new ActionListener() {
 
@@ -160,6 +162,7 @@ public class PinManagerToolView extends AbstractToolView {
         });
 
         copyButton = createButton("icons/Copy24.gif");
+        copyButton.setName("copyButton");
         copyButton.setToolTipText("Copy an existing pin."); /*I18N*/
         copyButton.addActionListener(new ActionListener() {
 
@@ -169,6 +172,7 @@ public class PinManagerToolView extends AbstractToolView {
         });
 
         editButton = createButton("icons/Edit24.gif");
+        editButton.setName("editButton");
         editButton.setToolTipText("Edit selected pin."); /*I18N*/
         editButton.addActionListener(new ActionListener() {
 
@@ -178,6 +182,7 @@ public class PinManagerToolView extends AbstractToolView {
         });
 
         removeButton = createButton("icons/Remove24.gif");
+        removeButton.setName("removeButton");
         removeButton.setToolTipText("Remove selected pins."); /*I18N*/
         removeButton.addActionListener(new ActionListener() {
 
@@ -187,6 +192,7 @@ public class PinManagerToolView extends AbstractToolView {
         });
 
         importButton = createButton("icons/Import24.gif");
+        importButton.setName("importButton");
         importButton.setToolTipText("Import the first pin from XML or text file."); /*I18N*/
         importButton.addActionListener(new ActionListener() {
 
@@ -197,6 +203,7 @@ public class PinManagerToolView extends AbstractToolView {
         });
 
         exportButton = createButton("icons/Export24.gif");
+        exportButton.setName("exportButton");
         exportButton.setToolTipText("Export the selected pins to XML file."); /*I18N*/
         exportButton.addActionListener(new ActionListener() {
 
@@ -207,6 +214,7 @@ public class PinManagerToolView extends AbstractToolView {
         });
 
         importNButton = createButton("icons/ImportN24.gif");
+        importNButton.setName("importNButton");
         importNButton.setToolTipText("Import all pins from XML or text file."); /*I18N*/
         importNButton.addActionListener(new ActionListener() {
 
@@ -217,6 +225,7 @@ public class PinManagerToolView extends AbstractToolView {
         });
 
         exportNButton = createButton("icons/ExportN24.gif");
+        exportNButton.setName("exportNButton");
         exportNButton.setToolTipText("Export all pins to XML file."); /*I18N*/
         exportNButton.addActionListener(new ActionListener() {
 
@@ -228,6 +237,7 @@ public class PinManagerToolView extends AbstractToolView {
         });
 
         filterButton = createButton("icons/Filter24.gif");
+        filterButton.setName("filterButton");
         filterButton.setToolTipText("Filter pixel data to be displayed in table."); /*I18N*/
         filterButton.addActionListener(new ActionListener() {
 
@@ -253,6 +263,7 @@ public class PinManagerToolView extends AbstractToolView {
         });
 
         exportTableButton = createButton("icons/ExportTable.gif");
+        exportTableButton.setName("exportTableButton");
         exportTableButton.setToolTipText("Export pixel data at pin to flat text file."); /*I18N*/
         exportTableButton.addActionListener(new ActionListener() {
 
@@ -263,6 +274,7 @@ public class PinManagerToolView extends AbstractToolView {
         });
 
         zoomToPinButton = createButton("icons/ZoomTo24.gif");
+        zoomToPinButton.setName("zoomToPinButton");
         zoomToPinButton.setToolTipText("Zoom to selected pin."); /*I18N*/
         zoomToPinButton.addActionListener(new ActionListener() {
 
@@ -272,6 +284,7 @@ public class PinManagerToolView extends AbstractToolView {
         });
 
         AbstractButton helpButton = createButton("icons/Help24.gif");
+        helpButton.setName("helpButton");
 
         final JPanel buttonPane = GridBagUtils.createPanel();
         final GridBagConstraints gbc = new GridBagConstraints();

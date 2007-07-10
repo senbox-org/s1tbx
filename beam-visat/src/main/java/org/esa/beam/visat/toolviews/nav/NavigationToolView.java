@@ -138,6 +138,7 @@ public class NavigationToolView extends AbstractToolView {
 
         _zoomInButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomIn24.gif"), false);
         _zoomInButton.setToolTipText("Zoom in."); /*I18N*/
+        _zoomInButton.setName("zoomInButton");
         _zoomInButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 zoom(getCurrentImageDisplay().getViewModel().getViewScale() * ZOOM_FACTOR);
@@ -146,6 +147,7 @@ public class NavigationToolView extends AbstractToolView {
 
         _zoomZeroButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomZero24.gif"), false);
         _zoomZeroButton.setToolTipText("Actual Pixels."); /*I18N*/
+        _zoomZeroButton.setName("zoomZeroButton");
         _zoomZeroButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 zoom(1.0);
@@ -153,6 +155,7 @@ public class NavigationToolView extends AbstractToolView {
         });
 
         _zoomOutButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomOut24.gif"), false);
+        _zoomOutButton.setName("zoomOutButton");
         _zoomOutButton.setToolTipText("Zoom out."); /*I18N*/
         _zoomOutButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
@@ -161,6 +164,7 @@ public class NavigationToolView extends AbstractToolView {
         });
 
         _zoomAllButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomAll24.gif"), false);
+        _zoomAllButton.setName("zoomAllButton");
         _zoomAllButton.setToolTipText("Zoom all."); /*I18N*/
         _zoomAllButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
@@ -170,6 +174,7 @@ public class NavigationToolView extends AbstractToolView {
 
         _syncViewsButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Chain24.gif"), true);
         _syncViewsButton.setToolTipText("Synchronize compatible product views."); /*I18N*/
+        _syncViewsButton.setName("syncViewsButton");
         _syncViewsButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 maybeSynchronizeCompatibleProductViews();
@@ -178,6 +183,7 @@ public class NavigationToolView extends AbstractToolView {
 
         AbstractButton helpButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Help24.gif"), false);
         helpButton.setToolTipText("Help."); /*I18N*/
+        helpButton.setName("helpButton");
 
 
         final JPanel eastPane = GridBagUtils.createPanel();

@@ -258,7 +258,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
         _applyButton = new JButton("Apply");
         _applyButton.setToolTipText("Assign ROI to selected band"); /*I18N*/
         _applyButton.setMnemonic('A');
-        _applyButton.setName("Apply");
+        _applyButton.setName("ApplyButton");
         _applyButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -268,7 +268,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
 
         _undoButton = createButton("icons/Undo24.gif");
         _undoButton.setToolTipText("Undo ROI assignment"); /*I18N*/
-        _undoButton.setName("Undo");
+        _undoButton.setName("UndoButton");
         _undoButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -278,7 +278,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
 
         _multiAssignToBandsButton = createButton("icons/MultiAssignBands24.gif");
         _multiAssignToBandsButton.setToolTipText("Apply to other bands"); /*I18N*/
-        _multiAssignToBandsButton.setName("AssignToBands");
+        _multiAssignToBandsButton.setName("AssignToBandsButton");
         _multiAssignToBandsButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -288,7 +288,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
 
         _multiAssignToProductsButton = createButton("icons/MultiAssignProducts24.gif");
         _multiAssignToProductsButton.setToolTipText("Apply to other products"); /*I18N*/
-        _multiAssignToProductsButton.setName("MultiAssign");
+        _multiAssignToProductsButton.setName("MultiAssignButton");
         _multiAssignToProductsButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -298,7 +298,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
 
         _resetButton = createButton("icons/Undo24.gif");
         _resetButton.setToolTipText("Reset ROI to default values"); /*I18N*/
-        _resetButton.setName("Reset");
+        _resetButton.setName("ResetButton");
         _resetButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -308,7 +308,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
 
         _importButton = createButton("icons/Import24.gif");
         _importButton.setToolTipText("Import ROI from text file."); /*I18N*/
-        _importButton.setName("Import");
+        _importButton.setName("ImportButton");
         _importButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -319,7 +319,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
 
         _exportButton = createButton("icons/Export24.gif");
         _exportButton.setToolTipText("Export ROI to text file."); /*I18N*/
-        _exportButton.setName("Export");
+        _exportButton.setName("ExportButton");
         _exportButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -330,7 +330,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
 
         _zoomToButton = createButton("icons/ZoomTo24.gif");
         _zoomToButton.setToolTipText("Zoom to ROI."); /*I18N*/
-        _zoomToButton.setName("Zoom");
+        _zoomToButton.setName("ZoomButton");
         _zoomToButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -340,7 +340,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
         _zoomToButton.setEnabled(false);
 
         final AbstractButton helpButton = createButton("icons/Help24.gif");
-        helpButton.setName("Help");
+        helpButton.setName("HelpButton");
 
         final JPanel buttonPane = GridBagUtils.createPanel();
         final GridBagConstraints gbc = new GridBagConstraints();
