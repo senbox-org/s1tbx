@@ -80,13 +80,20 @@ public class WorldMapToolView extends AbstractToolView {
         final AbstractButton helpButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Help24.gif"),
                                                                          false);
         helpButton.setToolTipText("Help."); /*I18N*/
+        helpButton.setName("helpButton");
 
         final JRadioButton zoom1 = new JRadioButton("1 x");
+        zoom1.setName("zoom1");
         final JRadioButton zoom2 = new JRadioButton("2 x");
+        zoom2.setName("zoom2");
         final JRadioButton zoom4 = new JRadioButton("4 x");
+        zoom4.setName("zoom4");
         final JRadioButton zoom8 = new JRadioButton("8 x");
+        zoom8.setName("zoom8");
         final JRadioButton zoom16 = new JRadioButton("16 x");
+        zoom16.setName("zoom16");
         final JRadioButton zoom32 = new JRadioButton("32 x");
+        zoom32.setName("zoom32");
         final ActionListener listener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 setCursor(Cursor.WAIT_CURSOR);
@@ -135,11 +142,13 @@ public class WorldMapToolView extends AbstractToolView {
         zoomGroup.add(zoom32);
 
         _checkBoxAuto = new JCheckBox("Autoc.");
+        _checkBoxAuto.setName("checkBoxAuto");
         _checkBoxAuto.setToolTipText("Automatically center selected product");/*I18N*/
         _checkBoxAuto.setSelected(true);
         _checkBoxAuto.setEnabled(false);
 
         final JCheckBox checkBoxHighRes = new JCheckBox("High-Res.");
+        checkBoxHighRes.setName("checkBoxHighRes");
         checkBoxHighRes.setToolTipText("Use high resolution image");/*I18N*/
         checkBoxHighRes.setSelected(false);
         checkBoxHighRes.setEnabled(true);
@@ -154,6 +163,7 @@ public class WorldMapToolView extends AbstractToolView {
         });
 
         final JButton buttonCenter = new JButton("Center");
+        buttonCenter.setName("buttonCenter");
         buttonCenter.setToolTipText("Center selected product"); /*I18N*/
         buttonCenter.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
