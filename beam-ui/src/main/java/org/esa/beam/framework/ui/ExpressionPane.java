@@ -563,6 +563,7 @@ public class ExpressionPane extends JPanel {
     protected void createUI() {
 
         codeArea = new JTextArea(10, 40);
+        codeArea.setName("codeArea");
         codeArea.setLineWrap(true);
         codeArea.setWrapStyleWord(true);
         codeArea.setFont(exprTextAreaFont);
@@ -582,6 +583,7 @@ public class ExpressionPane extends JPanel {
         });
 
         actionPane = createActionPane();
+        actionPane.setName("actionPane");
 
         messageLabel = new JLabel();
         messageLabel.setFont(getFont().deriveFont(10.0F));
@@ -619,6 +621,9 @@ public class ExpressionPane extends JPanel {
             final JButton andButton = createInsertButton("@ and @");
             final JButton orButton = createInsertButton("@ or @");
             final JButton notButton = createInsertButton("not @");
+            andButton.setName("andButton");
+            orButton.setName("orButton");
+            notButton.setName("notButton");
 
             add(patternPane, andButton, gbc);
             gbc.gridy++;
@@ -631,6 +636,10 @@ public class ExpressionPane extends JPanel {
             final JButton minusButton = createInsertButton("@ - @");
             final JButton mulButton = createInsertButton("@ * @");
             final JButton divButton = createInsertButton("@ / @");
+            plusButton.setName("plusButton");
+            minusButton.setName("minusButton");
+            mulButton.setName("mulButton");
+            divButton.setName("divButton");
 
             add(patternPane, plusButton, gbc);
             gbc.gridy++;
@@ -645,9 +654,13 @@ public class ExpressionPane extends JPanel {
         final String[] functionNames = getFunctionTemplates();
 
         final JButton parenButton = createInsertButton("(@)");
+        parenButton.setName("parenButton");
         final JComboBox functBox = createInsertComboBox("Functions...", functionNames);
         final JComboBox operBox = createInsertComboBox("Operators...", OPERATOR_PATTERNS);
         final JComboBox constBox = createInsertComboBox("Constants...", CONSTANT_LITERALS);
+        functBox.setName("functBox");
+        operBox.setName("operBox");
+        constBox.setName("constBox");
 
         add(patternPane, parenButton, gbc);
         gbc.gridy++;
@@ -828,6 +841,7 @@ public class ExpressionPane extends JPanel {
 
         protected void createUI() {
             selAllButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/SelectAll24.gif"), false);
+            selAllButton.setName("selAllButton");
             selAllButton.setToolTipText("Select all"); /*I18N*/
             selAllButton.addActionListener(new ActionListener() {
 
@@ -837,6 +851,7 @@ public class ExpressionPane extends JPanel {
             });
 
             clearButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Remove24.gif"), false);
+            clearButton.setName("clearButton");
             clearButton.setToolTipText("Clear");   /*I18N*/
             clearButton.addActionListener(new ActionListener() {
 
@@ -847,6 +862,7 @@ public class ExpressionPane extends JPanel {
 
 
             undoButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Undo24.gif"), false);
+            undoButton.setName("undoButton");
             undoButton.setToolTipText("Undo");   /*I18N*/
             undoButton.addActionListener(new ActionListener() {
 
@@ -856,6 +872,7 @@ public class ExpressionPane extends JPanel {
             });
 
             historyUpButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/HistoryUp24.gif"), false);
+            historyUpButton.setName("historyUpButton");
             historyUpButton.setToolTipText("Scroll history up");   /*I18N*/
             historyUpButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -868,6 +885,7 @@ public class ExpressionPane extends JPanel {
 
             historyDownButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/HistoryDown24.gif"),
                                                                false);
+            historyDownButton.setName("historyDownButton");
             historyDownButton.setToolTipText("Scroll history down");  /*I18N*/
             historyDownButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
