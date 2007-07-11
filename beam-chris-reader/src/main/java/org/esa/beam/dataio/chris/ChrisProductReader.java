@@ -193,7 +193,7 @@ public class ChrisProductReader extends AbstractProductReader {
             band.setSpectralBandwidth(chrisFile.getBandwidth(i));
             band.setUnit(units);
             band.setDescription(MessageFormat.format("Radiance of spectral band {0}", i + 1));
-            band.setValidPixelExpression(MessageFormat.format("mask_{0} == 0", i + 1));
+            band.setValidPixelExpression(MessageFormat.format("mask_{0} == 0 || mask_{0} == 4", i + 1));
 
             rciBands[i] = band;
         }
