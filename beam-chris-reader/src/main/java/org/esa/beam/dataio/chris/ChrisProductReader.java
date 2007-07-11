@@ -244,7 +244,7 @@ public class ChrisProductReader extends AbstractProductReader {
             if (i > 0) {
                 expression.append(" || ");
             }
-            expression.append(maskBands[i].getName()).append(".").append(Flags.DROPOUT);
+            expression.append(maskBands[i].getName()).append(".").append(flag);
         }
         product.addBitmaskDef(new BitmaskDef(
                 name,
