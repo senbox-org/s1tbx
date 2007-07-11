@@ -147,6 +147,9 @@ public class DropoutCorrection {
                 final int sxy = sy * sourceWidth + sx;
                 final int txy = ty * targetWidth + tx;
 
+                targetRciData[txy] = sourceRciData[0][sxy];
+                targetMaskData[txy] = sourceMaskData[0][sxy];
+
                 if (sourceMaskData[0][sxy] == DROPOUT) {
                     double ws = 0.0;
                     double xc = 0.0;
@@ -198,9 +201,6 @@ public class DropoutCorrection {
                             targetRciData[txy] = 0;
                         }
                     }
-                } else { // not a dropout
-                    targetRciData[txy] = sourceRciData[0][sxy];
-                    targetMaskData[txy] = sourceMaskData[0][sxy];
                 }
             }
         }
