@@ -16,7 +16,13 @@
  */
 package org.esa.beam.visat.toolviews.spectrum;
 
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.DataNode;
+import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductManager;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
@@ -30,7 +36,6 @@ import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.Debug;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -77,9 +82,10 @@ public class SpectrumToolView extends AbstractToolView {
     private AbstractButton showSpectraForSelectedPinsButton;
     private AbstractButton showSpectraForAllPinsButton;
     private AbstractButton showAveragePinSpectrumButton;
+    private AbstractButton showGridButton;
+    private AbstractButton showGraphPointsButton;
     private int pixelX;
     private int pixelY;
-    private AbstractButton showGridButton;
 
     public SpectrumToolView() {
         productNodeHandler = new ProductNodeHandler();
@@ -156,6 +162,7 @@ public class SpectrumToolView extends AbstractToolView {
         showSpectraForAllPinsButton.setEnabled(hasPins);
         showAveragePinSpectrumButton.setEnabled(hasPins); // todo - hasSpectraGraphs
         showGridButton.setEnabled(hasDiagram);
+        showGraphPointsButton.setEnabled(hasDiagram);
         diagramCanvas.setEnabled(hasProduct);    // todo - hasSpectraGraphs
 
         if (diagramCanvas.getDiagram() != null) {
@@ -215,56 +222,65 @@ public class SpectrumToolView extends AbstractToolView {
             }
         });
 
-        showSpectrumForCursorButton = ToolButtonFactory.createButton(new AbstractAction("showCursorSpectrum") {
+        showSpectrumForCursorButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/CursorSpectrum24.gif"), true);
+        showSpectrumForCursorButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 recreateSpectraDiagram();
             }
-        }, true);
+        });
         showSpectrumForCursorButton.setName("showSpectrumForCursorButton");
         showSpectrumForCursorButton.setSelected(true);
-        showSpectrumForCursorButton.setText("C");
         showSpectrumForCursorButton.setToolTipText("Show spectrum at cursor position.");
 
-        showSpectraForSelectedPinsButton = ToolButtonFactory.createButton(new AbstractAction("showSpectraForSelectedPins") {
+        showSpectraForSelectedPinsButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/SelectedPinSpectra24.gif"), true);
+        showSpectraForSelectedPinsButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 recreateSpectraDiagram();
             }
-        }, true);
+        });
         showSpectraForSelectedPinsButton.setName("showSpectraForSelectedPinsButton");
-        showSpectrumForCursorButton.setSelected(true);
-        showSpectraForSelectedPinsButton.setText("SP");
         showSpectraForSelectedPinsButton.setToolTipText("Show spectrum of selected pins.");
 
-        showSpectraForAllPinsButton = ToolButtonFactory.createButton(new AbstractAction("showSpectraForAllPins") {
+        showSpectraForAllPinsButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/PinSpectra24.gif"), true);
+        showSpectraForAllPinsButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 recreateSpectraDiagram();
             }
-        }, true);
+        });
         showSpectraForAllPinsButton.setName("showSpectraForAllPinsButton");
-        showSpectraForAllPinsButton.setText("AP");
         showSpectraForAllPinsButton.setToolTipText("Show spectra of all pins.");
 
-        showAveragePinSpectrumButton = ToolButtonFactory.createButton(new AbstractAction("showAverageSpectrum") {
+        showAveragePinSpectrumButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/AverageSpectrum24.gif"), true);
+        showAveragePinSpectrumButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // todo - implement
                 JOptionPane.showMessageDialog(null, "Not implemented");
             }
-        }, true);
+        });
         showAveragePinSpectrumButton.setName("showAveragePinSpectrumButton");
-        showAveragePinSpectrumButton.setText("Av");
         showAveragePinSpectrumButton.setToolTipText("Show average spectrum of all pin spectra.");
 
-        showGridButton = ToolButtonFactory.createButton(new AbstractAction("showGrid") {
+        showGridButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/SpectrumGrid24.gif"), true);
+        showGridButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                 diagramCanvas.getDiagram().setDrawGrid(showGridButton.isSelected());
+                diagramCanvas.getDiagram().setDrawGrid(showGridButton.isSelected());
             }
-        }, true);
+        });
         showGridButton.setName("showGridButton");
-        showGridButton.setText("Gr");
         showGridButton.setToolTipText("Show diagram grid.");
 
-        AbstractButton exportSpectraButton = ToolButtonFactory.createButton(new SpectraExportAction(this), false);
-        exportSpectraButton.setText("Ex");
+        showGraphPointsButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/GraphPoints24.gif"), true);
+        showGraphPointsButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                // todo - implement
+                JOptionPane.showMessageDialog(null, "Not implemented");
+            }
+        });
+        showGraphPointsButton.setName("showGraphPointsButton");
+        showGraphPointsButton.setToolTipText("Show graph points grid.");
+
+        AbstractButton exportSpectraButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Export24.gif"), false);
+        exportSpectraButton.addActionListener(new SpectraExportAction(this));
         exportSpectraButton.setToolTipText("Export spectra to text file.");
         exportSpectraButton.setName("exportSpectraButton");
 
@@ -293,6 +309,8 @@ public class SpectrumToolView extends AbstractToolView {
         buttonPane.add(showAveragePinSpectrumButton, gbc);
         gbc.gridy++;
         buttonPane.add(showGridButton, gbc);
+        gbc.gridy++;
+        buttonPane.add(showGraphPointsButton, gbc);
         gbc.gridy++;
         buttonPane.add(exportSpectraButton, gbc);
 
