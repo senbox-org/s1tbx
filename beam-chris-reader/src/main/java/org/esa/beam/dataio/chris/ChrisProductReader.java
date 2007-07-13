@@ -26,7 +26,6 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.io.FileUtils;
 
-import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 import static java.lang.Math.max;
@@ -230,15 +229,15 @@ public class ChrisProductReader extends AbstractProductReader {
                         flag.getTransparency()));
             }
         }
-        defineCompositeBitmask(product, Flags.DROPOUT, "Spectrum dropout",
-                               "Spectrum contains a dropout pixel");
-        defineCompositeBitmask(product, Flags.SATURATED, "Spectrum saturated",
-                               "Spectrum contains a saturated pixel");
-        defineCompositeBitmask(product, Flags.CORRECTED, "Spectrum corrected",
-                               "Spectrum contains a corrected dropout pixel");
+        defineSpectrumBitmask(product, Flags.DROPOUT, "Spectrum dropout",
+                              "Spectrum contains a dropout pixel");
+        defineSpectrumBitmask(product, Flags.SATURATED, "Spectrum saturated",
+                              "Spectrum contains a saturated pixel");
+        defineSpectrumBitmask(product, Flags.CORRECTED, "Spectrum corrected",
+                              "Spectrum contains a corrected dropout pixel");
     }
 
-    private void defineCompositeBitmask(Product product, Flags flag, String name, String description) {
+    private void defineSpectrumBitmask(Product product, Flags flag, String name, String description) {
         final StringBuilder expression = new StringBuilder();
         for (int i = 0; i < spectralBandCount; ++i) {
             if (i > 0) {
@@ -294,8 +293,10 @@ public class ChrisProductReader extends AbstractProductReader {
                 }
                 pm.worked(1);
             }
+            /*
             dropoutCorrection.compute(rciData, maskData, sceneRasterWidth, tileHeight,
                                       new Rectangle(targetOffsetX, targetOffsetY, targetWidth, targetHeight));
+            */
             pm.worked(3);
 
             for (int i = 0; i < targetHeight; ++i) {
