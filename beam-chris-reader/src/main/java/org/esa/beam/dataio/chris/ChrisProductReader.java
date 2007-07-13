@@ -34,6 +34,7 @@ import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.Date;
+import java.awt.Rectangle;
 
 /**
  * Reader for CHRIS products.
@@ -293,10 +294,9 @@ public class ChrisProductReader extends AbstractProductReader {
                 }
                 pm.worked(1);
             }
-            /*
             dropoutCorrection.compute(rciData, maskData, sceneRasterWidth, tileHeight,
                                       new Rectangle(targetOffsetX, targetOffsetY, targetWidth, targetHeight));
-            */
+
             pm.worked(3);
 
             for (int i = 0; i < targetHeight; ++i) {

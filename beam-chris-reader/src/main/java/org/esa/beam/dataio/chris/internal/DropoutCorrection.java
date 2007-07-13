@@ -104,7 +104,7 @@ public class DropoutCorrection {
      * @throws IllegalArgumentException if RCI and mask data arrays do not have the same length.
      */
     public void compute(int[][] rciData, short[][] maskData, int rasterWidth, int rasterHeight, Rectangle roi) {
-        compute(rciData, maskData, rasterWidth, rasterHeight, roi, rciData[0], maskData[0], roi.x, roi.y, roi.width);
+        compute(rciData, maskData, rasterWidth, rasterHeight, roi, rciData[0], maskData[0], roi.x, roi.y, rasterWidth);
     }
 
     /**
