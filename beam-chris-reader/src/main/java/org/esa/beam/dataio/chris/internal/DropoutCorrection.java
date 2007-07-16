@@ -23,21 +23,49 @@ public class DropoutCorrection {
          * This type includes the two neighboring pixels in along-track direction
          * only.
          */
-        VERTICAL,
+        VERTICAL {
+            @Override
+            public double[] getWeights() {
+                return new double[]{0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0};
+            }
+
+            @Override
+            public String toString() {
+                return "Vertical";
+            }
+        },
         /**
          * This type includes the two neighboring pixels in both along and across
-         * track directions, giving a total of four pixels.
+         * track directions, giving a total of four neighboring pixels.
          */
-        FOUR,
+        FOUR_CONNECTED {
+            @Override
+            public double[] getWeights() {
+                return new double[]{0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0};
+            }
+
+            @Override
+            public String toString() {
+                return "4-Connected";
+            }
+        },
         /**
          * This type includes all eight surrounding pixels.
          */
-        EIGHT
-    }
+        EIGHT_CONNECTED {
+            @Override
+            public double[] getWeights() {
+                return new double[]{0.7, 1.0, 0.7, 1.0, 0.0, 1.0, 0.7, 1.0, 0.7};
+            }
 
-    public static final double[] M2 = {0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0};
-    public static final double[] M4 = {0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0};
-    public static final double[] M8 = {0.7, 1.0, 0.7, 1.0, 0.0, 1.0, 0.7, 1.0, 0.7};
+            @Override
+            public String toString() {
+                return "8-Connected";
+            }
+        };
+
+        public abstract double[] getWeights();
+    }
 
     private static final int M_WIDTH = 3;
     private static final int M_HEIGHT = 3;
@@ -54,7 +82,7 @@ public class DropoutCorrection {
      * Constructs the default instance of this class.
      */
     public DropoutCorrection() {
-        this(Type.FOUR);
+        this(Type.FOUR_CONNECTED);
     }
 
     /**
@@ -75,18 +103,7 @@ public class DropoutCorrection {
      *                 If {@code true} the mask data are not modified.
      */
     public DropoutCorrection(Type type, boolean cosmetic) {
-        switch (type) {
-        case VERTICAL:
-            this.weights = M2;
-            break;
-        case FOUR:
-            this.weights = M4;
-            break;
-        case EIGHT:
-            this.weights = M8;
-            break;
-        }
-
+        this.weights = type.getWeights();
         this.cosmetic = cosmetic;
     }
 
