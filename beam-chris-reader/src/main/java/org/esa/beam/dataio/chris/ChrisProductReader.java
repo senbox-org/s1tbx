@@ -26,6 +26,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.io.FileUtils;
 
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 import static java.lang.Math.max;
@@ -34,7 +35,6 @@ import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.Date;
-import java.awt.Rectangle;
 
 /**
  * Reader for CHRIS products.
@@ -156,10 +156,13 @@ public class ChrisProductReader extends AbstractProductReader {
         final MetadataElement element = new MetadataElement(ChrisConstants.MPH_NAME);
 
         for (final String name : chrisFile.getGlobalAttributeNames()) {
-            if (!ChrisConstants.ATTR_NAME_KEY_TO_MASK.equals(name)) {
-                final ProductData data = ProductData.createInstance(chrisFile.getGlobalAttribute(name));
-                element.addAttribute(new MetadataAttribute(name, data, true));
+            if (ChrisConstants.ATTR_NAME_KEY_TO_MASK.equals(name)) {
+                continue;
             }
+
+            final String globalAttribute = chrisFile.getGlobalAttribute(name);
+            final ProductData data = ProductData.createInstance(globalAttribute);
+            element.addAttribute(new MetadataAttribute(name, data, true));
         }
 
         product.getMetadataRoot().addElement(element);

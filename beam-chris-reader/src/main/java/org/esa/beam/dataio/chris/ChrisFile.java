@@ -233,7 +233,7 @@ class ChrisFile {
     }
 
     public String getGlobalAttribute(String key) {
-        return globalAttributes.get(key).trim();
+        return globalAttributes.get(key);
     }
 
     public String getGlobalAttribute(String key, String defaultValue) {
