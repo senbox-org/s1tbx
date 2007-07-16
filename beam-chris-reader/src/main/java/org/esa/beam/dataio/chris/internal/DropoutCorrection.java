@@ -23,7 +23,7 @@ public class DropoutCorrection {
          * This type includes the two neighboring pixels in along-track direction
          * only.
          */
-        TWO,
+        VERTICAL,
         /**
          * This type includes the two neighboring pixels in both along and across
          * track directions, giving a total of four pixels.
@@ -76,7 +76,7 @@ public class DropoutCorrection {
      */
     public DropoutCorrection(Type type, boolean cosmetic) {
         switch (type) {
-        case TWO:
+        case VERTICAL:
             this.weights = M2;
             break;
         case FOUR:
