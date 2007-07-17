@@ -4,17 +4,22 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.NullProgressMonitor;
 import com.bc.ceres.core.ProgressMonitor;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.StringTokenizer;
 
 /**
  * A progress monitor which uses a splash screen.
  */
 public class SplashScreenProgressMonitor extends NullProgressMonitor {
+    private static final String CONFIG_KEY_SPLASH_IMAGE = "splash.image";
     private static final String CONFIG_KEY_SPLASH_PROGRESS_BAR_COLOR = "splash.progressBar.color";
     private static final String CONFIG_KEY_SPLASH_PROGRESS_BAR_AREA = "splash.progressBar.area";
 
-    private SplashScreen splashScreen;
+    private Splash splashScreen;
     private String taskName;
     private String subTaskName;
     private double totalWork;
@@ -39,36 +44,45 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
         try {
             SplashScreen splashScreen = SplashScreen.getSplashScreen();
             if (splashScreen != null) {
-                return new SplashScreenProgressMonitor(splashScreen);
+                return new SplashScreenProgressMonitor(new AwtSplash(splashScreen));
             }
         } catch (Throwable t) {
-            // ok, splashscreens are not supported
+            // ok, AWT splashscreen are not supported
         }
+        String imageFilePath = getConfigurationValue(CONFIG_KEY_SPLASH_IMAGE);
+        if (imageFilePath != null) {
+            BufferedImage bufferedImage = loadImage(imageFilePath);
+            if (bufferedImage != null) {
+                return new SplashScreenProgressMonitor(new CeresSplash(bufferedImage));
+            }
+        }
+
+
         return ProgressMonitor.NULL;
     }
 
-    public SplashScreenProgressMonitor(SplashScreen splashScreen) {
+    public SplashScreenProgressMonitor(Splash splashScreen) {
         Assert.notNull(splashScreen, "splashScreen");
         this.splashScreen = splashScreen;
 
         font = new Font("Verdana", Font.ITALIC, 10);
         fontColor = Color.WHITE;
 
-        graphics = splashScreen.createGraphics();
+        graphics = this.splashScreen.createGraphics();
         graphics.setFont(font);
         graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        Dimension size = splashScreen.getSize();
+        Dimension size = this.splashScreen.getSize();
         splashArea = new Rectangle(size);
         message = "";
 
-        progressBarColor = getConfiguredProgressBarColor();
+        progressBarColor = getConfiguredSplashProgressBarColor();
         if (progressBarColor == null) {
             progressBarColor = Color.GREEN;
         }
 
-        progressBarArea = getConfiguredProgressBarArea();
+        progressBarArea = getConfiguredSplashProgressBarArea();
         if (progressBarArea != null) {
             progressBarHeight = progressBarArea.height;
         } else {
@@ -80,7 +94,7 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
         }
     }
 
-    public SplashScreen getSplashScreen() {
+    public Splash getSplash() {
         return splashScreen;
     }
 
@@ -196,7 +210,15 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
         graphics.drawString(message, 4, progressBarArea.y - 4);
     }
 
-    private static Color getConfiguredProgressBarColor() {
+    private static BufferedImage loadImage(String imageFilePath) {
+        try {
+            return ImageIO.read(new File(imageFilePath));
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    private static Color getConfiguredSplashProgressBarColor() {
         String areaStr = getConfigurationValue(CONFIG_KEY_SPLASH_PROGRESS_BAR_COLOR);
         StringTokenizer st = new StringTokenizer(areaStr, ",");
         int n = st.countTokens();
@@ -216,7 +238,7 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
         return null;
     }
 
-    private static Rectangle getConfiguredProgressBarArea() {
+    private static Rectangle getConfiguredSplashProgressBarArea() {
         String areaStr = getConfigurationValue(CONFIG_KEY_SPLASH_PROGRESS_BAR_AREA);
         StringTokenizer st = new StringTokenizer(areaStr, ",");
         int n = st.countTokens();
@@ -237,5 +259,107 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
         String contextId = System.getProperty(DefaultRuntimeConfig.CONFIG_KEY_CERES_CONTEXT,
                                               DefaultRuntimeConfig.DEFAULT_CERES_CONTEXT);
         return System.getProperty(contextId + '.' + key);
+    }
+
+    public static interface Splash {
+        boolean isVisible();
+
+        void close();
+
+        void update();
+
+        Graphics2D createGraphics();
+
+        Dimension getSize();
+
+        Rectangle getBounds();
+    }
+
+    private static class AwtSplash implements Splash {
+        private final SplashScreen splashScreen;
+
+        public AwtSplash(SplashScreen splashScreen) {
+            this.splashScreen = splashScreen;
+        }
+
+        public void close() {
+            splashScreen.close();
+        }
+
+        public boolean isVisible() {
+            return splashScreen.isVisible();
+        }
+
+        public void update() {
+            splashScreen.update();
+        }
+
+
+        public Graphics2D createGraphics() {
+            return splashScreen.createGraphics();
+        }
+
+        public Dimension getSize() {
+            return splashScreen.getSize();
+        }
+
+        public Rectangle getBounds() {
+            return splashScreen.getBounds();
+        }
+    }
+
+    private static class CeresSplash extends Window implements Splash {
+        private BufferedImage image0;
+        private BufferedImage image;
+
+        public CeresSplash(BufferedImage image) {
+            super(null);
+            image0 = image;
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            Rectangle bounds = new Rectangle((screenSize.width - image.getWidth()) / 2,
+                                        (screenSize.height - image.getHeight()) / 2,
+                                        image.getWidth(),
+                                        image.getHeight());
+            if (image.getRaster().getNumBands() == 4) {
+                try {
+                    Robot robot = new Robot(getGraphicsConfiguration().getDevice());
+                    BufferedImage screen = robot.createScreenCapture(bounds);
+                    Graphics2D graphics = screen.createGraphics();
+                    graphics.drawImage(image, null, 0, 0);
+                    graphics.dispose();
+                    this.image0 = screen;
+                } catch (AWTException e) {
+                    // ok, no transparency
+                }
+            }
+            setBounds(bounds);
+            setVisible(true);
+        }
+
+        public void close() {
+            dispose();
+            image0 = null;
+            image = null;
+        }
+
+        public void update() {
+            repaint();
+        }
+
+        public Graphics2D createGraphics() throws IllegalStateException {
+            if (image == null) {
+                Dimension dim = getSize();
+                image = new BufferedImage(dim.width, dim.height, BufferedImage.TYPE_INT_ARGB);
+            }
+            return image.createGraphics();
+        }
+
+        @Override
+        public void update(Graphics g) {
+            g.drawImage(image0, 0, 0, null);
+            if (image != null) {
+                g.drawImage(image, 0, 0, null);
+            }
+        }
     }
 }
