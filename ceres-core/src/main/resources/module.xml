@@ -7,17 +7,20 @@
     <activator>com.bc.ceres.core.runtime.internal.RuntimeActivator</activator>
 
     <changelog>
+        <!--
+           <li>[CERES-001] TODO: Normalisation of manifest text</li>
+           <li>[CERES-006] TODO: Configure excluded/included modules</li>
+           <li>[CERES-007] TODO: Use Version class in Module interface</li>
+        -->
         <![CDATA[
         <p><b>From 0.5 to 0.6</b></p>
         <ul>
-           <li>[CERES-001]: TODO: Normalisation of manifest text</li>
-           <li>[CERES-006]: TODO: Configure excluded/included modules</li>
-           <li>[CERES-007]: TODO: Use Version class in Module interface</li>
-           <li>[CERES-008]: Speed up module repository scanning</li>
-           <li>[CERES-009]: Replace simple extension points by META-INF/services</li>
-           <li>[CERES-011]: Support standard Java SPI mechanism</li>
-           <li>[CERES-012]: Cyclic dependency detection needs simplification</li>
-           <li>[CERES-013]: Optional dependencies not handled</li>
+           <li>[CERES-008] Speed up module repository scanning</li>
+           <li>[CERES-009] Replace simple extension points by META-INF/services</li>
+           <li>[CERES-011] Support standard Java SPI mechanism</li>
+           <li>[CERES-012] Cyclic dependency detection needs simplification</li>
+           <li>[CERES-013] Optional dependencies not handled</li>
+           <li>[CERES-014] Provide custom splash screen implementation</li>
         </ul>]]>
     </changelog>
 
