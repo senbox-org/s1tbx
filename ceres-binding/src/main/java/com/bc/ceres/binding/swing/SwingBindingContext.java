@@ -190,12 +190,27 @@ public class SwingBindingContext {
 
             ValueDefinition valueDefinition = valueContainer.getValueDefinition(propertyName);
             if (valueDefinition.getInterval() != null) {
-                if (Number.class.isAssignableFrom(valueDefinition.getType())) {
+                Class<?> type = valueDefinition.getType();
+                
+                if (Number.class.isAssignableFrom(type)) {
                     Number defaultValue = (Number) valueDefinition.getDefaultValue();
                     double min = valueDefinition.getInterval().getMin();
                     double max = valueDefinition.getInterval().getMax();
                     // todo - get step size from interval
-                    spinner.setModel(new SpinnerNumberModel(defaultValue.doubleValue(), min, max, 1));
+
+                    if (type == Byte.class) {
+                        spinner.setModel(new SpinnerNumberModel(defaultValue, (byte) min, (byte) max, 1));
+                    } else if (type == Short.class) {
+                        spinner.setModel(new SpinnerNumberModel(defaultValue, (short) min, (short) max, 1));
+                    } else if (type == Integer.class) {
+                        spinner.setModel(new SpinnerNumberModel(defaultValue, (int) min, (int) max, 1));
+                    } else if (type == Long.class) {
+                        spinner.setModel(new SpinnerNumberModel(defaultValue, (long) min, (long) max, 1));
+                    } else if (type == Float.class) {
+                        spinner.setModel(new SpinnerNumberModel(defaultValue, (float) min, (float) max, 1));
+                    } else {
+                        spinner.setModel(new SpinnerNumberModel(defaultValue, min, max, 1));
+                    }
                 }
             } else if (valueDefinition.getValueSet() != null) {
                 spinner.setModel(new SpinnerListModel(valueDefinition.getValueSet().getItems()));
