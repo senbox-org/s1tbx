@@ -233,15 +233,4 @@ public interface Module {
      * @see ClassLoader#getResources(String)
      */
     Enumeration<URL> getResources(String name) throws IOException;
-
-// Introduce not before usage of JRE 1.6 is agreed.
-    /*
-     * Creates a new service loader for the given service type, using this
-     * module's {@link ClassLoader class loader}.
-     *
-     * @param service The interface or abstract class representing the service
-     *
-     * @return A new service loader
-    <S> ServiceLoader<S> getServices(Class<S> service);
-*/
 }
