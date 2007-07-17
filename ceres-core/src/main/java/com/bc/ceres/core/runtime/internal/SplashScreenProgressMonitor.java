@@ -3,6 +3,7 @@ package com.bc.ceres.core.runtime.internal;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.NullProgressMonitor;
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.runtime.RuntimeConfig;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -37,15 +38,16 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
 
     /**
      * Creates a {@link SplashScreenProgressMonitor} only if a splash screen exists.
+     * @param config 
      *
      * @return an instance of {@link SplashScreenProgressMonitor} or {@link NullProgressMonitor}
      */
-    public static ProgressMonitor createProgressMonitor() {
-        String imageFilePath = getConfigurationValue(CONFIG_KEY_SPLASH_IMAGE);
+    public static ProgressMonitor createProgressMonitor(RuntimeConfig config) {
+        String imageFilePath = config.getContextProperty(CONFIG_KEY_SPLASH_IMAGE);
         if (imageFilePath != null) {
             BufferedImage bufferedImage = loadImage(imageFilePath);
             if (bufferedImage != null) {
-                return new SplashScreenProgressMonitor(new CeresSplash(bufferedImage));
+                return new SplashScreenProgressMonitor(new CeresSplash(bufferedImage), config);
             }
         } else {
             SplashScreen splashScreen = null;
@@ -55,13 +57,13 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
                 //
             }
             if (splashScreen != null) {
-                return new SplashScreenProgressMonitor(new AwtSplash(splashScreen));
+                return new SplashScreenProgressMonitor(new AwtSplash(splashScreen), config);
             }
         }
         return ProgressMonitor.NULL;
     }
 
-    public SplashScreenProgressMonitor(Splash splashScreen) {
+    public SplashScreenProgressMonitor(Splash splashScreen, RuntimeConfig config) {
         Assert.notNull(splashScreen, "splashScreen");
         this.splashScreen = splashScreen;
 
@@ -77,12 +79,12 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
         splashArea = new Rectangle(size);
         message = "";
 
-        progressBarColor = getConfiguredSplashProgressBarColor();
+        progressBarColor = getConfiguredSplashProgressBarColor(config);
         if (progressBarColor == null) {
             progressBarColor = Color.GREEN;
         }
 
-        progressBarArea = getConfiguredSplashProgressBarArea();
+        progressBarArea = getConfiguredSplashProgressBarArea(config);
         if (progressBarArea != null) {
             progressBarHeight = progressBarArea.height;
         } else {
@@ -173,7 +175,7 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
         graphics.fill(splashArea);
 
         graphics.setPaintMode();
-        // paintMessage();
+//         paintMessage();
         paintBar();
 
         splashScreen.update();
@@ -218,8 +220,8 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
         }
     }
 
-    private static Color getConfiguredSplashProgressBarColor() {
-        String areaStr = getConfigurationValue(CONFIG_KEY_SPLASH_PROGRESS_BAR_COLOR);
+    private static Color getConfiguredSplashProgressBarColor(RuntimeConfig config) {
+        String areaStr = config.getContextProperty(CONFIG_KEY_SPLASH_PROGRESS_BAR_COLOR);
         StringTokenizer st = new StringTokenizer(areaStr, ",");
         int n = st.countTokens();
         if (n == 3 || n == 4) {
@@ -238,8 +240,8 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
         return null;
     }
 
-    private static Rectangle getConfiguredSplashProgressBarArea() {
-        String areaStr = getConfigurationValue(CONFIG_KEY_SPLASH_PROGRESS_BAR_AREA);
+    private static Rectangle getConfiguredSplashProgressBarArea(RuntimeConfig config) {
+        String areaStr = config.getContextProperty(CONFIG_KEY_SPLASH_PROGRESS_BAR_AREA);
         StringTokenizer st = new StringTokenizer(areaStr, ",");
         int n = st.countTokens();
         if (n == 4) {
@@ -253,12 +255,6 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
             }
         }
         return null;
-    }
-
-    private static String getConfigurationValue(String key) {
-        String contextId = System.getProperty(DefaultRuntimeConfig.CONFIG_KEY_CERES_CONTEXT,
-                                              DefaultRuntimeConfig.DEFAULT_CERES_CONTEXT);
-        return System.getProperty(contextId + '.' + key);
     }
 
     public static interface Splash {

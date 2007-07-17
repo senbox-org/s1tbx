@@ -47,7 +47,7 @@ public final class RuntimeFactory {
      * @return a module runtime instance
      */
     public static ModuleRuntime createRuntime(RuntimeConfig config, String[] commandLineArgs) {
-        ProgressMonitor progressMonitor = createProgressMonitor();
+        ProgressMonitor progressMonitor = createProgressMonitor(config);
         return createRuntime(config, commandLineArgs, progressMonitor);
     }
 
@@ -73,10 +73,10 @@ public final class RuntimeFactory {
      *
      * @return A progress monitor.
      */
-    public static ProgressMonitor createProgressMonitor() {
+    public static ProgressMonitor createProgressMonitor(RuntimeConfig config) {
         try {
             Class.forName("java.awt.SplashScreen");
-            return SplashScreenProgressMonitor.createProgressMonitor();
+            return SplashScreenProgressMonitor.createProgressMonitor(config);
         } catch (ClassNotFoundException e) {
             return ProgressMonitor.NULL;
         }
