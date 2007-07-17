@@ -105,6 +105,7 @@
                         <outputDirectory>lib</outputDirectory>
                         <excludes>
                             <exclude>com.bc.ceres:ceres-core</exclude>
+                            <exclude>com.bc.ceres:ceres-binding</exclude>
                             <exclude>com.bc.ceres:ceres-ui</exclude>
                             <exclude>com.bc.ceres:ceres-launcher</exclude>
                             <exclude>ncsa.hdf:lib-hdf</exclude>
@@ -118,6 +119,7 @@
                         <outputDirectory>modules</outputDirectory>
                         <includes>
                             <include>com.bc.ceres:ceres-core</include>
+                            <include>com.bc.ceres:ceres-binding</include>
                             <include>com.bc.ceres:ceres-ui</include>
                             <include>org.esa.beam:*</include>
                         </includes>
@@ -130,8 +132,7 @@
             </binaries>
 
             <excludes>
-                <!-- Exclude development support modules -->
-                <exclude>org.esa.beam:beam-integration-tests</exclude>
+                <!-- Exclude development bootstrap module -->
                 <exclude>org.esa.beam:beam-bootstrap</exclude>
             </excludes>
         </moduleSet>
