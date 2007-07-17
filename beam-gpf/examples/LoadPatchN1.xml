@@ -1,0 +1,21 @@
+<graph>
+    <id>LoadWrite</id>
+    <node>
+        <id>load</id>
+        <operator>org.esa.beam.framework.gpf.operators.common.ReadProductOp$Spi</operator>
+        <parameters>
+            <filePath>${inputFile1}</filePath>
+        </parameters>
+    </node>
+    <node>
+        <id>write</id>
+        <operator>org.esa.beam.framework.gpf.operators.meris.N1PatcherOp$Spi</operator>
+        <sources>
+            <input>load</input>
+        </sources>
+        <parameters>
+            <originalFilePath>${inputFile1}</originalFilePath>
+            <patchFilePath>${outputFile1}</patchFilePath>
+        </parameters>
+    </node>
+</graph>

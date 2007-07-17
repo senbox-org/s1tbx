@@ -1,0 +1,24 @@
+<graph>
+    <id>RGBChain</id>
+    <node>
+        <id>load</id>
+        <operator>org.esa.beam.framework.gpf.operators.common.ReadProductOp$Spi</operator>
+        <parameters>
+            <filePath>${inputFile}</filePath>
+        </parameters>
+    </node>
+    <node>
+        <id>rgb</id>
+        <operator>org.esa.beam.framework.gpf.operators.common.WriteRGBOp$Spi</operator>
+        <sources>
+            <input>load</input>
+        </sources>
+        <parameters>
+            <filePath>${outputFile}</filePath>
+            <formatName>png</formatName>
+            <red>6</red>
+            <green>4</green>
+            <blue>1</blue>
+        </parameters>
+    </node>
+</graph>

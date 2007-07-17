@@ -1,0 +1,75 @@
+<graph>
+    <id>subsetNdviRGBChain2</id>
+    <node>
+        <id>load</id>
+        <operator>org.esa.beam.framework.gpf.operators.common.ReadProductOp$Spi</operator>
+        <parameters>
+            <filePath>${inputFile1}</filePath>
+        </parameters>
+    </node>
+
+    <node>
+        <id>subset</id>
+        <operator>org.esa.beam.framework.gpf.operators.common.SubsetOp$Spi</operator>
+        <sources>
+            <input>load</input>
+        </sources>
+        <parameters>
+            <region>
+                <x>50</x>
+                <y>50</y>
+                <width>500</width>
+                <height>500</height>
+            </region>
+            <flagBandList>l1_flags</flagBandList>
+        </parameters>
+    </node>
+
+    <node>
+        <id>ndvi</id>
+        <operator>org.esa.beam.framework.gpf.operators.meris.NdviOp$Spi</operator>
+        <sources>
+            <input>subset</input>
+        </sources>
+    </node>
+
+    <node>
+        <id>write</id>
+        <operator>org.esa.beam.framework.gpf.operators.common.WriteProductOp$Spi</operator>
+        <sources>
+            <input>ndvi</input>
+        </sources>
+        <parameters>
+            <filePath>${outputFile1}</filePath>
+        </parameters>
+    </node>
+
+    <node>
+        <id>subset2</id>
+        <operator>org.esa.beam.framework.gpf.operators.common.SubsetOp$Spi</operator>
+        <sources>
+            <input>subset</input>
+        </sources>
+        <parameters>
+            <bandList>radiance_2,radiance_5,radiance_8</bandList>
+            <subSamplingX>5</subSamplingX>
+            <subSamplingY>5</subSamplingY>
+        </parameters>
+    </node>
+
+    <node>
+        <id>rgb</id>
+        <operator>org.esa.beam.framework.gpf.operators.common.WriteRGBOp$Spi</operator>
+        <sources>
+            <input>subset2</input>
+        </sources>
+        <parameters>
+            <filePath>${outputFile2}</filePath>
+            <formatName>tiff</formatName>
+            <red>3</red>
+            <green>2</green>
+            <blue>1</blue>
+        </parameters>
+    </node>
+
+</graph>

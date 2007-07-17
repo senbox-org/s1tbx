@@ -1,0 +1,24 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-gpf</symbolicName>
+    <version>1.0-SNAPSHOT</version>
+    <name>BEAM Graph Processing Framework (GPF)</name>
+
+    <dependency>
+        <module>ceres-binding</module>
+    </dependency>
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+
+    <categories>System,Application,Processing</categories>
+
+    <extension point="ceres-core:applications">
+        <application id="GraphProcessor" class="org.esa.beam.framework.gpf.graph.GraphProcessorMain"/>
+    </extension>
+
+    <extension point="ceres-core:serviceProviders">
+        <serviceProvider>org.esa.beam.framework.gpf.OperatorSpi</serviceProvider>
+    </extension>
+
+</module>

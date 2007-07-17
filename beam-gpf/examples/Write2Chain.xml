@@ -1,0 +1,40 @@
+<graph>
+    <id>LoadWrite</id>
+    <node>
+        <id>load</id>
+        <operator>org.esa.beam.framework.gpf.operators.common.ReadProductOp$Spi</operator>
+        <parameters>
+            <filePath>${inputFile1}</filePath>
+        </parameters>
+    </node>
+
+    <node>
+        <id>ndvi</id>
+        <operator>org.esa.beam.framework.gpf.operators.meris.NdviOp$Spi</operator>
+        <sources>
+            <input>load</input>
+        </sources>
+    </node>
+
+    <node>
+        <id>write</id>
+        <operator>org.esa.beam.framework.gpf.operators.common.WriteProductOp$Spi</operator>
+        <sources>
+            <input>load</input>
+        </sources>
+        <parameters>
+            <filePath>${outputFile1}</filePath>
+        </parameters>
+    </node>
+
+    <node>
+        <id>write2</id>
+        <operator>org.esa.beam.framework.gpf.operators.common.WriteProductOp$Spi</operator>
+        <sources>
+            <input>ndvi</input>
+        </sources>
+        <parameters>
+            <filePath>${outputFile2}</filePath>
+        </parameters>
+    </node>
+</graph>

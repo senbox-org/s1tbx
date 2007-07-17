@@ -1,0 +1,62 @@
+<graph>
+    <id>subsetNdvi</id>
+    <node>
+        <id>load</id>
+        <operator>org.esa.beam.framework.gpf.operators.common.ReadProductOp$Spi</operator>
+        <parameters>
+            <filePath>${inputFile}</filePath>
+        </parameters>
+    </node>
+
+    <node>
+        <id>subset</id>
+        <operator>org.esa.beam.framework.gpf.operators.common.SubsetOp$Spi</operator>
+        <sources>
+            <input>load</input>
+        </sources>
+        <parameters>
+            <region>
+                <x>50</x>
+                <y>50</y>
+                <width>500</width>
+                <height>500</height>
+            </region>
+            <flagBandList>l1_flags</flagBandList>
+        </parameters>
+    </node>
+
+    <node>
+        <id>ndvi</id>
+        <operator>org.esa.beam.framework.gpf.operators.meris.NdviOp$Spi</operator>
+        <sources>
+            <input>subset</input>
+        </sources>
+    </node>
+
+    <node>
+        <id>write</id>
+        <operator>org.esa.beam.framework.gpf.operators.common.WriteProductOp$Spi</operator>
+        <sources>
+            <input>ndvi</input>
+        </sources>
+        <parameters>
+            <filePath>${outputFile1}</filePath>
+        </parameters>
+    </node>
+
+    <node>
+        <id>rgb</id>
+        <operator>org.esa.beam.framework.gpf.operators.common.WriteRGBOp$Spi</operator>
+        <sources>
+            <input>subset</input>
+        </sources>
+        <parameters>
+            <filePath>${outputFile2}</filePath>
+            <formatName>bmp</formatName>
+            <red>8</red>
+            <green>5</green>
+            <blue>2</blue>
+        </parameters>
+    </node>
+
+</graph>

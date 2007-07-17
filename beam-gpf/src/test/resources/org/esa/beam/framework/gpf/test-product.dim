@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<Dimap_Document name="test-product.dim">
+    <Metadata_Id>
+        <METADATA_FORMAT version="2.2.0">DIMAP</METADATA_FORMAT>
+        <METADATA_PROFILE>BEAM-DATAMODEL-V1</METADATA_PROFILE>
+    </Metadata_Id>
+    <Dataset_Id>
+        <DATASET_SERIES>BEAM-PRODUCT</DATASET_SERIES>
+        <DATASET_NAME>test-product</DATASET_NAME>
+    </Dataset_Id>
+    <Production>
+        <DATASET_PRODUCER_NAME />
+        <PRODUCT_TYPE>unmixed</PRODUCT_TYPE>
+    </Production>
+    <Raster_Dimensions>
+        <NCOLS>348</NCOLS>
+        <NROWS>285</NROWS>
+        <NBANDS>4</NBANDS>
+    </Raster_Dimensions>
+    <Data_Access>
+        <DATA_FILE_FORMAT>ENVI</DATA_FILE_FORMAT>
+        <DATA_FILE_FORMAT_DESC>ENVI File Format</DATA_FILE_FORMAT_DESC>
+        <DATA_FILE_ORGANISATION>BAND_SEPARATE</DATA_FILE_ORGANISATION>
+        <Data_File>
+            <DATA_FILE_PATH href="test-product.data/forrest_abundance.hdr" />
+            <BAND_INDEX>0</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="test-product.data/cropland_abundance.hdr" />
+            <BAND_INDEX>1</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="test-product.data/cloud_abundance.hdr" />
+            <BAND_INDEX>2</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="test-product.data/ocean_abundance.hdr" />
+            <BAND_INDEX>3</BAND_INDEX>
+        </Data_File>
+    </Data_Access>
+    <Image_Display>
+        <Band_Statistics>
+            <BAND_INDEX>0</BAND_INDEX>
+            <STX_MIN>-11.4297695</STX_MIN>
+            <STX_MAX>1.3023089</STX_MAX>
+            <HISTOGRAM>1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,2,0,0,0,0,0,0,0,3,1,0,0,0,0,0,0,0,0,0,1,0,0,2,0,0,2,0,0,1,0,0,0,2,1,2,0,1,0,0,0,0,0,0,0,0,2,2,1,0,0,1,3,1,1,3,0,1,2,0,1,1,2,1,0,1,0,0,0,0,1,0,0,1,2,0,1,0,4,2,3,1,3,3,1,1,0,0,1,3,2,2,0,1,1,2,1,2,0,0,0,2,1,1,0,1,4,2,5,1,1,1,0,2,0,1,1,1,1,0,3,2,0,0,2,1,0,4,1,2,0,0,0,2,0,1,0,0,1,3,0,2,0,2,0,2,1,2,1,2,5,4,0,5,0,0,3,2,1,2,3,1,2,1,2,4,4,6,1,4,2,0,5,2,0,1,1,2,0,5,0,1,3,4,2,4,3,5,3,2,0,3,5,4,3,4,1,1,3,7,3,2,3,4,2,1,4,4,1,5,4,4,5,4,3,1,3,3,6,4,2,3,7,2,3,4,5,2,3,2,4,2,6,4,1,3,3,1,5,4,6,3,4,3,3,6,3,2,8,2,8,3,3,7,5,4,12,5,2,7,8,8,4,4,5,7,8,6,10,12,15,9,7,6,10,8,12,10,12,8,7,6,8,11,7,12,10,18,15,12,8,16,19,27,7,25,12,14,13,18,30,17,22,14,20,16,25,24,19,34,27,26,30,28,19,29,28,22,41,34,28,41,32,37,33,46,40,35,35,40,29,34,43,42,33,51,43,56,44,43,41,47,57,51,66,48,55,64,57,57,63,68,54,52,51,74,36,65,78,84,71,76,66,71,70,75,65,69,80,72,64,74,59,63,70,83,63,65,56,92,88,83,97,82,79,71,83,77,76,87,105,75,68,76,95,105,93,121,106,110,134,124,142,145,198,193,278,343,427,569,714,770,928,879,801,943,1161,1761,2445,1918,1047,1243,1624,1098,889,1008,1052,1268,1378,1578,1693,1920,2059,2194,2541,2767,2959,3263,3252,3384,3350,3267,3237,3085,3005,2864,2835,2613,2385,2286,1909,1816,1496,1172,1026,766,621,481,382,260,204,144,105,72,55,42,21,12,5,2,2</HISTOGRAM>
+            <NUM_COLORS>256</NUM_COLORS>
+            <Color_Palette_Point>
+                <SAMPLE>-2.900271659484133</SAMPLE>
+                <COLOR red="0" green="0" blue="0" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>-0.99792009673547</SAMPLE>
+                <COLOR red="128" green="128" blue="128" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>0.9044314660131931</SAMPLE>
+                <COLOR red="255" green="255" blue="255" alpha="255" />
+            </Color_Palette_Point>
+            <GAMMA>1.0</GAMMA>
+        </Band_Statistics>
+        <Band_Statistics>
+            <BAND_INDEX>1</BAND_INDEX>
+            <STX_MIN>-5.176478</STX_MIN>
+            <STX_MAX>0.52039796</STX_MAX>
+            <HISTOGRAM>1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,1,0,0,1,0,0,2,1,0,3,0,0,0,1,1,0,0,0,2,1,0,0,0,1,0,1,0,0,0,0,3,0,2,1,1,0,0,0,0,3,2,2,1,1,1,2,0,1,2,3,0,1,1,1,1,1,2,3,2,1,0,0,1,1,1,0,2,1,3,1,0,0,4,3,2,0,1,0,5,0,4,3,2,0,2,0,0,2,0,1,3,1,4,2,0,3,0,1,0,1,0,1,2,0,3,3,1,1,1,1,1,1,1,1,1,1,1,3,3,0,0,2,2,2,4,2,1,4,0,2,2,1,1,4,2,0,0,0,4,1,4,1,0,3,5,1,8,8,3,2,3,2,0,0,5,3,6,4,3,2,1,2,0,1,3,0,5,0,7,3,6,5,3,1,3,4,5,4,2,3,5,0,5,1,2,3,5,3,4,2,7,5,1,2,4,5,4,2,7,7,4,5,3,8,1,6,4,8,12,4,10,10,2,7,4,10,8,5,3,9,11,11,7,5,9,9,11,14,14,11,15,10,10,14,13,11,15,17,11,17,14,13,16,12,12,20,20,17,19,13,15,20,8,19,23,13,24,27,19,11,18,28,24,25,24,21,27,18,19,27,18,14,20,28,37,28,21,32,25,22,22,22,38,27,35,40,22,29,37,37,40,28,36,52,46,42,49,49,41,74,64,72,67,74,66,64,67,89,73,90,109,61,91,115,99,121,112,142,143,149,128,165,225,205,187,239,222,315,281,313,338,364,385,390,399,440,464,449,536,528,538,571,607,630,674,592,702,747,754,747,767,786,801,821,818,887,863,816,938,921,883,912,973,980,1018,1019,972,1031,1003,959,1063,1066,1074,1035,1042,1015,1044,1010,984,1006,992,1006,1033,1051,965,1035,966,1020,963,1029,999,1008,970,996,961,945,927,941,908,902,880,836,890,827,841,838,860,868,793,821,795,781,818,792,812,786,832,778,794,893,914,881,943,981,1053,1523,1732,1367,1037,961,915,732,407,304,294,266,272,278,230,278,390,323,285,154,138,80,84,65,75,72,53,26,12,15,15,11,8,6,4,3,3,5,5,2,2,2,1,0,2,1,1,1,0,2</HISTOGRAM>
+            <NUM_COLORS>256</NUM_COLORS>
+            <Color_Palette_Point>
+                <SAMPLE>-1.9052249679807574</SAMPLE>
+                <COLOR red="0" green="0" blue="0" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>-0.9650179151794873</SAMPLE>
+                <COLOR red="128" green="128" blue="128" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>-0.02481086237821728</SAMPLE>
+                <COLOR red="255" green="255" blue="255" alpha="255" />
+            </Color_Palette_Point>
+            <GAMMA>1.0</GAMMA>
+        </Band_Statistics>
+        <Band_Statistics>
+            <BAND_INDEX>2</BAND_INDEX>
+            <STX_MIN>-0.36435026</STX_MIN>
+            <STX_MAX>14.304882</STX_MAX>
+            <HISTOGRAM>5,1,7,25,79,402,301,202,315,523,439,854,1809,1953,1767,1363,1135,831,903,883,679,702,662,643,632,721,788,866,883,891,997,991,1071,1042,1092,1216,1240,1246,1424,1488,1498,1673,1727,1967,1915,2074,2100,2152,2263,2292,2209,2242,2159,2069,2033,2098,2057,1950,1802,1746,1719,1722,1615,1656,1549,1497,1370,1312,1234,1074,962,907,765,602,488,435,347,321,277,251,235,203,199,149,135,124,122,130,101,89,82,72,67,61,71,62,84,73,71,58,66,60,61,69,69,45,47,51,53,57,53,59,53,52,49,39,50,49,47,55,51,52,37,37,31,55,45,38,51,42,39,37,36,39,38,38,38,30,30,30,31,36,26,32,40,36,30,32,34,21,21,34,34,26,21,18,35,18,19,34,19,25,26,14,21,17,21,24,17,19,22,19,21,31,15,13,17,12,19,21,15,14,12,24,12,14,17,12,13,18,14,11,11,10,9,10,11,13,14,8,14,13,21,7,8,15,8,6,10,6,4,12,6,7,5,5,9,9,11,6,4,12,3,6,11,3,3,3,6,5,7,5,9,2,8,4,1,8,3,3,4,2,2,3,11,8,7,2,6,0,3,2,2,1,2,0,1,1,6,5,0,3,7,5,4,6,2,2,5,4,5,3,0,2,3,0,5,3,3,6,1,2,6,1,1,2,2,0,0,3,4,5,0,1,2,5,3,4,1,4,3,1,2,0,4,0,5,2,6,2,3,5,0,2,4,4,2,1,2,1,1,3,0,2,1,1,1,1,1,2,3,1,3,4,2,2,1,0,2,1,2,3,0,1,1,0,1,0,0,3,1,0,0,0,1,3,1,0,0,1,0,0,2,0,1,2,0,3,3,2,1,0,1,2,1,0,4,3,0,1,2,3,0,0,1,2,0,1,4,0,1,2,1,0,4,1,6,1,0,0,0,1,3,2,0,1,2,1,0,0,0,0,2,0,0,0,1,1,2,1,1,1,2,0,2,1,2,0,0,0,1,3,0,0,0,1,2,0,0,2,1,1,0,1,1,0,0,1,0,0,0,0,2,0,0,0,1,1,0,0,1,0,1,0,0,0,2,1,0,0,0,0,0,0,0,1,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1</HISTOGRAM>
+            <NUM_COLORS>256</NUM_COLORS>
+            <Color_Palette_Point>
+                <SAMPLE>0.008110717288218439</SAMPLE>
+                <COLOR red="0" green="0" blue="0" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>1.2257716023013927</SAMPLE>
+                <COLOR red="128" green="128" blue="128" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>2.443432487314567</SAMPLE>
+                <COLOR red="255" green="255" blue="255" alpha="255" />
+            </Color_Palette_Point>
+            <GAMMA>1.0</GAMMA>
+        </Band_Statistics>
+        <Band_Statistics>
+            <BAND_INDEX>3</BAND_INDEX>
+            <STX_MIN>-0.83319044</STX_MIN>
+            <STX_MAX>3.253157</STX_MAX>
+            <HISTOGRAM>1,1,0,0,1,0,2,0,1,0,1,3,0,3,3,0,4,2,5,4,9,5,9,12,8,11,10,35,13,22,28,45,32,26,49,52,53,67,84,74,97,141,125,142,146,178,189,259,225,257,295,314,360,410,417,438,462,521,507,576,642,646,662,682,729,764,794,775,804,866,860,873,888,895,874,950,913,937,937,941,947,943,979,928,967,974,995,996,1023,979,957,940,979,946,985,1021,1035,987,1019,978,978,972,939,944,985,863,890,897,853,911,863,858,802,865,858,822,745,741,779,751,768,698,724,727,698,724,614,616,641,670,585,581,612,559,609,571,551,555,561,500,469,484,449,390,334,313,289,257,200,203,177,178,173,151,167,139,131,131,96,105,109,87,89,99,92,100,92,72,87,94,88,73,92,79,89,65,81,95,91,63,77,87,76,83,88,63,64,75,77,80,69,80,66,65,70,63,84,72,58,66,71,58,71,58,72,80,79,62,64,74,71,76,94,65,79,80,105,80,111,161,294,460,328,232,296,439,607,650,1011,1616,1469,683,585,570,836,733,650,518,485,448,568,339,138,112,86,90,101,80,84,69,72,77,58,80,65,62,80,64,66,61,77,69,54,60,50,44,44,62,46,45,47,43,47,32,31,33,38,45,23,28,28,16,28,32,24,12,12,20,13,15,19,23,15,14,11,14,9,13,16,8,8,4,10,5,12,11,8,4,7,6,4,6,7,7,2,7,4,3,6,5,6,4,3,5,1,0,3,3,3,3,4,1,2,6,3,3,4,6,3,1,2,9,2,4,2,1,2,1,4,5,1,6,1,1,2,1,0,2,4,0,0,1,1,1,4,2,1,1,4,4,2,1,0,1,2,4,3,2,2,0,6,3,0,1,6,1,3,1,1,3,2,6,1,0,0,0,0,1,1,3,3,2,3,3,0,1,1,1,0,1,0,2,0,1,3,1,0,1,2,2,4,4,1,1,0,0,1,0,1,1,1,0,2,0,1,2,2,0,0,2,0,3,1,0,0,0,0,1,0,0,0,0,1,1,1,0,2,2,2,0,1,0,0,0,2,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1</HISTOGRAM>
+            <NUM_COLORS>256</NUM_COLORS>
+            <Color_Palette_Point>
+                <SAMPLE>-0.49798226077109575</SAMPLE>
+                <COLOR red="0" green="0" blue="0" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>0.29614188079722226</SAMPLE>
+                <COLOR red="128" green="128" blue="128" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>1.0902660223655403</SAMPLE>
+                <COLOR red="255" green="255" blue="255" alpha="255" />
+            </Color_Palette_Point>
+            <GAMMA>1.0</GAMMA>
+        </Band_Statistics>
+    </Image_Display>
+    <Image_Interpretation>
+        <Spectral_Band_Info>
+            <BAND_INDEX>0</BAND_INDEX>
+            <BAND_DESCRIPTION />
+            <BAND_NAME>forrest_abundance</BAND_NAME>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>1</BAND_INDEX>
+            <BAND_DESCRIPTION />
+            <BAND_NAME>cropland_abundance</BAND_NAME>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>2</BAND_INDEX>
+            <BAND_DESCRIPTION />
+            <BAND_NAME>cloud_abundance</BAND_NAME>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>3</BAND_INDEX>
+            <BAND_DESCRIPTION />
+            <BAND_NAME>ocean_abundance</BAND_NAME>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>0.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+        </Spectral_Band_Info>
+    </Image_Interpretation>
+</Dimap_Document>
