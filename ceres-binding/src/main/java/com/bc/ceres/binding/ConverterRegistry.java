@@ -47,8 +47,8 @@ public class ConverterRegistry {
         return ConverterRegistry.instance;
     }
 
-    public Converter setConverter(Class<?> type) {
-        return converters.get(type);
+    public void setConverter(Class<?> type, Converter converter) {
+        converters.put(type, converter);
     }
 
     public Converter getConverter(Class<?> type) {
