@@ -1,0 +1,56 @@
+package com.bc.ceres.binding.converters;
+
+import com.bc.ceres.binding.ConversionException;
+
+/**
+ * Created by IntelliJ IDEA.
+ *
+ * @author Ralf Quast
+ * @version $Revision$ $Date$
+ */
+public class EnumConverterTest extends AbstractConverterTest {
+
+    private enum Tests {
+
+        TEST1 {
+            @Override
+            public String toString() {
+                return "Test 1";
+            }
+        },
+        TEST2 {
+            @Override
+            public String toString() {
+                return "Test 2";
+            }
+        },
+        TEST3 {
+            @Override
+            public String toString() {
+                return "Test 3";
+            }
+        }
+    }
+
+    public EnumConverterTest() {
+        super(new EnumConverter<Tests>(Tests.class));
+    }
+
+    @Override
+    public void testConverter() throws ConversionException {
+        testValueType(Tests.class);
+
+        testParseSuccess(Tests.TEST1, "TEST1");
+        testParseSuccess(Tests.TEST2, "TEST2");
+        testParseSuccess(Tests.TEST3, "TEST3");
+        testParseSuccess(null, "");
+
+        testFormatSuccess("Test 1", Tests.TEST1);
+        testFormatSuccess("Test 2", Tests.TEST2);
+        testFormatSuccess("Test 3", Tests.TEST3);
+        testFormatSuccess("", null);
+
+        assertNullCorrectlyHandled();
+    }
+
+}
