@@ -64,6 +64,8 @@ public class DeployMain {
             return;
         }
 
+        repositoryDir.mkdirs();
+
         info(String.format("Deploying modules of [%s] to [%s]...", modulesDir, repositoryDir));
 
         int deployedModuleCount = 0;
