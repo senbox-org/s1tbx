@@ -9,10 +9,8 @@ package org.esa.beam.framework.dataop.dem;
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryFactory;
 import org.esa.beam.BeamCoreActivator;
-import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 
-import java.util.ServiceLoader;
 import java.util.Set;
 
 /**

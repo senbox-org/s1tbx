@@ -28,10 +28,10 @@ import com.bc.ceres.core.runtime.ModuleRuntime;
 import com.bc.ceres.core.runtime.ModuleState;
 import org.esa.beam.framework.datamodel.RGBImageProfile;
 import org.esa.beam.framework.datamodel.RGBImageProfileManager;
+import org.esa.beam.util.SystemUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ServiceLoader;
 import java.util.logging.Level;
 
 /**
@@ -52,8 +52,8 @@ public class BeamCoreActivator implements Activator {
     }
 
     public static <T> void loadServices(ServiceRegistry<T> registry)  {
-        ServiceLoader<T> serviceLoader = ServiceLoader.load(registry.getServiceType());
-        for (T service : serviceLoader) {
+        Iterable<T> iterable = SystemUtils.loadServices(registry.getServiceType());
+        for (T service : iterable) {
             registry.addService(service);
         }
     }
