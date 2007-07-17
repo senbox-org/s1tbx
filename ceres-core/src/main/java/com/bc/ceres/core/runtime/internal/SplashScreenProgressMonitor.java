@@ -41,23 +41,23 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
      * @return an instance of {@link SplashScreenProgressMonitor} or {@link NullProgressMonitor}
      */
     public static ProgressMonitor createProgressMonitor() {
-        try {
-            SplashScreen splashScreen = SplashScreen.getSplashScreen();
-            if (splashScreen != null) {
-                return new SplashScreenProgressMonitor(new AwtSplash(splashScreen));
-            }
-        } catch (Throwable t) {
-            // ok, AWT splashscreen are not supported
-        }
         String imageFilePath = getConfigurationValue(CONFIG_KEY_SPLASH_IMAGE);
         if (imageFilePath != null) {
             BufferedImage bufferedImage = loadImage(imageFilePath);
             if (bufferedImage != null) {
                 return new SplashScreenProgressMonitor(new CeresSplash(bufferedImage));
             }
+        } else {
+            SplashScreen splashScreen = null;
+            try {
+                splashScreen = SplashScreen.getSplashScreen();
+            } catch (Throwable t) {
+                //
+            }
+            if (splashScreen != null) {
+                return new SplashScreenProgressMonitor(new AwtSplash(splashScreen));
+            }
         }
-
-
         return ProgressMonitor.NULL;
     }
 
@@ -309,17 +309,19 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
     }
 
     private static class CeresSplash extends Window implements Splash {
-        private BufferedImage image0;
-        private BufferedImage image;
+        private BufferedImage bufferImage;
+        private BufferedImage backgroundImage;
+        private BufferedImage updateImage;
+        private Graphics2D bufferGraphics;
 
         public CeresSplash(BufferedImage image) {
             super(null);
-            image0 = image;
+            backgroundImage = image;
             Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
             Rectangle bounds = new Rectangle((screenSize.width - image.getWidth()) / 2,
-                                        (screenSize.height - image.getHeight()) / 2,
-                                        image.getWidth(),
-                                        image.getHeight());
+                                             (screenSize.height - image.getHeight()) / 2,
+                                             image.getWidth(),
+                                             image.getHeight());
             if (image.getRaster().getNumBands() == 4) {
                 try {
                     Robot robot = new Robot(getGraphicsConfiguration().getDevice());
@@ -327,19 +329,26 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
                     Graphics2D graphics = screen.createGraphics();
                     graphics.drawImage(image, null, 0, 0);
                     graphics.dispose();
-                    this.image0 = screen;
+                    this.backgroundImage = screen;
                 } catch (AWTException e) {
                     // ok, no transparency
                 }
             }
+            bufferImage = new BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_INT_ARGB);
+            bufferGraphics = bufferImage.createGraphics();
             setBounds(bounds);
             setVisible(true);
         }
 
         public void close() {
-            dispose();
-            image0 = null;
-            image = null;
+            if (bufferGraphics != null) {
+                dispose();
+                bufferGraphics.dispose();
+                bufferGraphics = null;
+                bufferImage = null;
+                backgroundImage = null;
+                updateImage = null;
+            }
         }
 
         public void update() {
@@ -347,19 +356,20 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
         }
 
         public Graphics2D createGraphics() throws IllegalStateException {
-            if (image == null) {
+            if (updateImage == null) {
                 Dimension dim = getSize();
-                image = new BufferedImage(dim.width, dim.height, BufferedImage.TYPE_INT_ARGB);
+                updateImage = new BufferedImage(dim.width, dim.height, BufferedImage.TYPE_INT_ARGB);
             }
-            return image.createGraphics();
+            return updateImage.createGraphics();
         }
 
         @Override
         public void update(Graphics g) {
-            g.drawImage(image0, 0, 0, null);
-            if (image != null) {
-                g.drawImage(image, 0, 0, null);
+            bufferGraphics.drawImage(backgroundImage, null, 0,0);
+            if (updateImage != null) {
+                bufferGraphics.drawImage(updateImage, null, 0,0);
             }
+            g.drawImage(bufferImage, 0,0, null);
         }
     }
 }
