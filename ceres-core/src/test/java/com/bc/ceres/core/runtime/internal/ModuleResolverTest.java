@@ -168,7 +168,10 @@ public class ModuleResolverTest extends TestCase {
         assertTrue(clE instanceof ModuleClassLoader);
         ModuleClassLoader mclE = (ModuleClassLoader) clE;
         URL[] dependencyUrls = mclE.getURLs();
-        assertTrue(dependencyUrls[0].sameFile(getModule("module-e").getLocation()));
+        assertTrue(dependencyUrls.length > 0);
+        URL location = getModule("module-e").getLocation();
+        URL dependencyUrl = dependencyUrls[0];
+        assertTrue(dependencyUrl.sameFile(location));
 
         File expectedFile;
         File actualFile;
