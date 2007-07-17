@@ -4,7 +4,7 @@ import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.ConversionException;
 
 /**
- * Created by IntelliJ IDEA.
+ * Class for converting enumeration types.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$
