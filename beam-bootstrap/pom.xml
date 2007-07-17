@@ -69,7 +69,7 @@
         </dependency>
         <dependency>
             <groupId>com.sun.media</groupId>
-            <artifactId>jai_imageio</artifactId>
+            <artifactId>jai-imageio</artifactId>
         </dependency>
         <dependency>
             <groupId>com.sun.media</groupId>

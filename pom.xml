@@ -44,6 +44,7 @@
         <module>beam-ui</module>
         <module>beam-pconvert</module>
         <module>beam-visat</module>
+        <module>beam-gpf</module>
         <module>beam-processing</module>
         <module>beam-help</module>
 
@@ -95,6 +96,12 @@
 
             <dependency>
                 <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-binding</artifactId>
+                <version>0.6-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-ui</artifactId>
                 <version>0.6-SNAPSHOT</version>
             </dependency>
@@ -104,6 +111,11 @@
             <dependency>
                 <groupId>org.esa.beam</groupId>
                 <artifactId>beam-core</artifactId>
+                <version>4.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.esa.beam</groupId>
+                <artifactId>beam-gpf</artifactId>
                 <version>4.1-SNAPSHOT</version>
             </dependency>
             <dependency>
@@ -166,7 +178,7 @@
             </dependency>
             <dependency>
                 <groupId>com.sun.media</groupId>
-                <artifactId>jai_imageio</artifactId>
+                <artifactId>jai-imageio</artifactId>
                 <version>1.0-01</version>
             </dependency>
             <dependency>
@@ -222,27 +234,27 @@
             <dependency>
                 <groupId>com.jidesoft</groupId>
                 <artifactId>jide-dock</artifactId>
-                <version>1.9.3.04</version>
+                <version>1.9.5.04</version>
             </dependency>
             <dependency>
                 <groupId>com.jidesoft</groupId>
                 <artifactId>jide-action</artifactId>
-                <version>1.9.3.04</version>
+                <version>1.9.5.04</version>
             </dependency>
             <dependency>
                 <groupId>com.jidesoft</groupId>
                 <artifactId>jide-grids</artifactId>
-                <version>1.9.3.04</version>
+                <version>1.9.5.04</version>
             </dependency>
             <dependency>
                 <groupId>com.jidesoft</groupId>
                 <artifactId>jide-components</artifactId>
-                <version>1.9.3.04</version>
+                <version>1.9.5.04</version>
             </dependency>
             <dependency>
                 <groupId>com.jidesoft</groupId>
                 <artifactId>jide-common</artifactId>
-                <version>1.9.3.04</version>
+                <version>1.9.5.04</version>
             </dependency>
 
             <!-- xStream Libraries ############################################# -->
@@ -284,7 +296,7 @@
 
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.2-SNAPSHOT</version>
+                <version>2.2-beta-1</version>
                 <configuration>
                     <descriptors>
                         <!--<descriptor>src/main/assembly/src.xml</descriptor>-->
@@ -409,7 +421,7 @@
         <pluginRepository>
             <id>apache.org</id>
             <name>Maven Plugin Snapshots</name>
-            <url>http://people.apache.org/maven-repository</url>
+            <url>http://people.apache.org/repo/m2-snapshot-repository</url>
             <releases>
                 <enabled>false</enabled>
             </releases>

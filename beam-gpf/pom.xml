@@ -5,38 +5,27 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <artifactId>beam</artifactId>
+        <groupId>org.esa.beam</groupId>
+        <version>4.1-SNAPSHOT</version>
+    </parent>
+
     <name>BEAM Graph Processing Framework (GPF)</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-gpf</artifactId>
     <version>4.1-SNAPSHOT</version>
-
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
             <groupId>org.esa.beam</groupId>
             <artifactId>beam-core</artifactId>
-            <version>4.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.bc.ceres</groupId>
             <artifactId>ceres-binding</artifactId>
-            <version>0.6-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
-                    <debug>true</debug>
-                    <fork>false</fork>
-                    <encoding>ISO-8859-1</encoding>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>
