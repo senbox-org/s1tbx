@@ -13,14 +13,11 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.DocumentEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.Array;
-
 
 // todo  - this class needs a refactoring
 // todo - extract AbstractBinding classes
@@ -72,8 +69,9 @@ public class SwingBindingContext {
 
     public void bind(JRadioButton radioButton, String propertyName) {
         radioButton.setName(propertyName);
-        SwingBindingContext.RadioButtonBinding radioButtonBinding = new SwingBindingContext.RadioButtonBinding(propertyName,
-                                                                                                      radioButton);
+        SwingBindingContext.RadioButtonBinding radioButtonBinding = new SwingBindingContext.RadioButtonBinding(
+                propertyName,
+                radioButton);
         radioButton.addActionListener(radioButtonBinding);
         radioButtonBinding.adjustWidget();
     }
@@ -191,16 +189,15 @@ public class SwingBindingContext {
             this.spinner = spinner;
 
             ValueDefinition valueDefinition = valueContainer.getValueDefinition(propertyName);
-            if(valueDefinition.getInterval() != null) {
-                if(Number.class.isAssignableFrom(valueDefinition.getType())) {
+            if (valueDefinition.getInterval() != null) {
+                if (Number.class.isAssignableFrom(valueDefinition.getType())) {
                     Number defaultValue = (Number) valueDefinition.getDefaultValue();
                     double min = valueDefinition.getInterval().getMin();
                     double max = valueDefinition.getInterval().getMax();
                     // todo - get step size from interval
-                    spinner.setModel(new SpinnerNumberModel(defaultValue, min, max, 1));
+                    spinner.setModel(new SpinnerNumberModel(defaultValue.doubleValue(), min, max, 1));
                 }
-
-            }else if (valueDefinition.getValueSet() != null) {
+            } else if (valueDefinition.getValueSet() != null) {
                 spinner.setModel(new SpinnerListModel(valueDefinition.getValueSet().getItems()));
             }
         }
