@@ -15,9 +15,9 @@ import static java.lang.Math.sqrt;
 public class DropoutCorrection {
 
     /**
-     * The dropout correction types.
+     * The dropout correction neighborhood types.
      */
-    public enum Type {
+    public enum Neigborhood {
 
         /**
          * This type includes the two neighboring pixels in along-track direction
@@ -38,7 +38,7 @@ public class DropoutCorrection {
          * This type includes the two neighboring pixels in both along and across
          * track directions, giving a total of four neighboring pixels.
          */
-        FOUR_CONNECTED {
+        FOUR {
             @Override
             public double[] getWeights() {
                 return new double[]{0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0};
@@ -52,7 +52,7 @@ public class DropoutCorrection {
         /**
          * This type includes all eight surrounding pixels.
          */
-        EIGHT_CONNECTED {
+        EIGHT {
             @Override
             public double[] getWeights() {
                 return new double[]{0.7, 1.0, 0.7, 1.0, 0.0, 1.0, 0.7, 1.0, 0.7};
@@ -82,28 +82,28 @@ public class DropoutCorrection {
      * Constructs the default instance of this class.
      */
     public DropoutCorrection() {
-        this(Type.FOUR_CONNECTED);
+        this(Neigborhood.FOUR);
     }
 
     /**
      * Constructs an instance of this class which performs a non-cosmetic
-     * dropout correction with the given type.
+     * dropout correction with the given neighborhood type.
      *
-     * @param type
+     * @param neigborhood
      */
-    public DropoutCorrection(Type type) {
-        this(type, false);
+    public DropoutCorrection(Neigborhood neigborhood) {
+        this(neigborhood, false);
     }
 
     /**
      * Constructs an instance of this class.
      *
-     * @param type     the correction type.
-     * @param cosmetic indicates if the dropout correction should be cosmetic only.
-     *                 If {@code true} the mask data are not modified.
+     * @param neigborhood the neighborhood type.
+     * @param cosmetic    indicates if the dropout correction should be cosmetic only.
+     *                    If {@code true} the mask data are not modified.
      */
-    public DropoutCorrection(Type type, boolean cosmetic) {
-        this.weights = type.getWeights();
+    public DropoutCorrection(Neigborhood neigborhood, boolean cosmetic) {
+        this.weights = neigborhood.getWeights();
         this.cosmetic = cosmetic;
     }
 
