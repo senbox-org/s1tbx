@@ -35,10 +35,6 @@ public class Radiance2TemperatureCalibrator implements RadianceCalibrator {
 
 	public Radiance2TemperatureCalibrator(double constant1, double constant2,
 			double vc) {
-		System.out.println("Radiance2TemperatureCalibrator");
-		System.out.println("C1 " + constant1);
-		System.out.println("C2 " + constant2);
-		System.out.println("VC " + vc);
 		this.constant1 = constant1;
 		this.constant2 = constant2;
 		this.c2vc = C2 * vc;
