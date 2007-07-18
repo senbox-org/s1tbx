@@ -1,18 +1,8 @@
 #! /bin/sh
 
-export BEAM4_HOME=$USER_INSTALL_DIR$
-export JAVA_HOME=$JAVA_HOME$
+export BEAM4_HOME=${installer:sys.installationDir}
 
-if [ -z "$DOLLAR${JAVA_HOME}" ]; then
-    echo
-    echo Error: JAVA_HOME not found in your environment.
-    echo Please set the JAVA_HOME variable in your environment to match the
-    echo location of your Java installation
-    echo
-    exit 1
-fi
-
-if [ -z "$DOLLAR${BEAM4_HOME}" ]; then
+if [ -z "$BEAM4_HOME" ]; then
     echo
     echo Error: BEAM4_HOME not found in your environment.
     echo Please set the BEAM4_HOME variable in your environment to match the
@@ -21,13 +11,12 @@ if [ -z "$DOLLAR${BEAM4_HOME}" ]; then
     exit 2
 fi
 
-"$DOLLAR${JAVA_HOME}/bin/java" \
+"${installer:sys.installationDir}/jre/bin/java" \
     -Xmx1024M \
-    "-splash:$DOLLAR${BEAM4_HOME}/bin/splash.png" \
     -Dceres.context=beam \
     -Dceres.debug=true \
-    "-Dbeam.home=$DOLLAR${BEAM4_HOME}" \
-    -jar "$DOLLAR${BEAM4_HOME}/bin/ceres-launcher.jar" "$DOLLAR$@"
+    "-Dbeam.home=$BEAM4_HOME" \
+    -jar "$BEAM4_HOME/bin/ceres-launcher.jar" "$@"
 
 exit 0
 

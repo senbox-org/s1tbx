@@ -1,15 +1,6 @@
 @echo off
 
-set BEAM4_HOME=$USER_INSTALL_DIR$
-set JAVA_HOME=$JAVA_HOME$
-
-if not "%BEAM4_HOME%" == "" goto OkBeamHome
-set BEAM4_HOME=$USER_INSTALL_DIR$
-:OkBeamHome
-
-if not "%JAVA_HOME%" == "" goto OkJavaHome
-JAVA_HOME=$JAVA_HOME$
-:OkJavaHome
+set BEAM4_HOME=${installer:sys.installationDir}
 
 echo.
 @echo Welcome to the BEAM command-line interface!
@@ -27,4 +18,4 @@ echo.
 @echo Typing the name of the tool will output its usage information.
 echo.
 
-prompt $DOLLAR$G$DOLLAR$S
+prompt $G$S
