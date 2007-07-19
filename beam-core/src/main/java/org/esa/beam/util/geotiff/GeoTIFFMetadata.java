@@ -16,17 +16,16 @@
  */
 package org.esa.beam.util.geotiff;
 
-import java.io.PrintWriter;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
+import com.sun.media.imageio.plugins.tiff.BaselineTIFFTagSet;
+import com.sun.media.imageio.plugins.tiff.GeoTIFFTagSet;
+import com.sun.media.imageio.plugins.tiff.TIFFTag;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
-import com.sun.media.imageio.plugins.tiff.BaselineTIFFTagSet;
-import com.sun.media.imageio.plugins.tiff.GeoTIFFTagSet;
-import com.sun.media.imageio.plugins.tiff.TIFFTag;
+import java.io.PrintWriter;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class GeoTIFFMetadata {
 
@@ -62,7 +61,7 @@ public class GeoTIFFMetadata {
     private double[] _modelTransformation;
 
     private int _numGeoKeyEntries;
-    private SortedMap _geoKeyEntries;
+    private SortedMap<Integer, KeyEntry> _geoKeyEntries;
 
     private int _numGeoDoubleParams;
     private double[] _geoDoubleParams;
@@ -79,7 +78,7 @@ public class GeoTIFFMetadata {
     }
 
     public GeoTIFFMetadata(final int geoTIFFVersion, final int keyRevisionMajor, final int keyRevisionMinor) {
-        _geoKeyEntries = new TreeMap();
+        _geoKeyEntries = new TreeMap<Integer, KeyEntry>();
         _geoDoubleParams = new double[ARRAY_ELEM_INCREMENT];
         _geoAsciiParams = new StringBuffer();
         _modelTiePoints = new TiePoint[ARRAY_ELEM_INCREMENT];
@@ -180,11 +179,15 @@ public class GeoTIFFMetadata {
     }
 
     public KeyEntry getGeoKeyEntryAt(int index) {
-        return ((KeyEntry[]) _geoKeyEntries.values().toArray(new KeyEntry[_geoKeyEntries.size()]))[index];
+        return getGeoKeyEntries()[index];
+    }
+
+    public KeyEntry[] getGeoKeyEntries() {
+        return _geoKeyEntries.values().toArray(new KeyEntry[_geoKeyEntries.size()]);
     }
 
     public KeyEntry getGeoKeyEntry(int keyID) {
-        return (KeyEntry) _geoKeyEntries.get(keyID);
+        return _geoKeyEntries.get(keyID);
     }
 
     public boolean hasGeoKeyEntry(int keyID) {
@@ -250,8 +253,8 @@ public class GeoTIFFMetadata {
 
     public void addGeoDoubleParams(int keyID, double[] values) {
         addGeoDoubleParamsRef(keyID, values.length);
-        for (int i = 0; i < values.length; i++) {
-            addDoubleParam(values[i]);
+        for (double value : values) {
+            addDoubleParam(value);
         }
     }
 
@@ -290,8 +293,7 @@ public class GeoTIFFMetadata {
         final Element ifd2 = createIFD();
         ifd1.setAttribute(IIO_TIFF_TAGSETS_ATT_NAME, ifd2.getAttributeValue(IIO_TIFF_TAGSETS_ATT_NAME));
         final Element[] childElems = (Element[]) ifd2.getChildren().toArray(new Element[0]);
-        for (int i = 0; i < childElems.length; i++) {
-            Element child = childElems[i];
+        for (Element child : childElems) {
             ifd2.removeContent(child);
             ifd1.addContent(child);
         }
@@ -457,7 +459,7 @@ public class GeoTIFFMetadata {
         ifd.setAttribute(
                 IIO_TIFF_TAGSETS_ATT_NAME,
                 BaselineTIFFTagSet.class.getName() + "," +
-                GeoTIFFTagSet.class.getName());
+                        GeoTIFFTagSet.class.getName());
         if (isModelPixelScaleSet()) {
             ifd.addContent(createModelPixelScaleElement());
         }
@@ -480,8 +482,8 @@ public class GeoTIFFMetadata {
     }
 
     private boolean isModelPixelScaleSet() {
-        for (int i = 0; i < _modelPixelScale.length; i++) {
-            if (_modelPixelScale[i] != 0.0 && _modelPixelScale[i] != 1.0) {
+        for (double scale : _modelPixelScale) {
+            if (scale != 0.0 && scale != 1.0) {
                 return true;
             }
         }
@@ -493,8 +495,8 @@ public class GeoTIFFMetadata {
     }
 
     private boolean isModelTransformationSet() {
-        for (int i = 0; i < _modelTransformation.length; i++) {
-            if (_modelTransformation[i] != 0.0) {
+        for (double trans : _modelTransformation) {
+            if (trans != 0.0) {
                 return true;
             }
         }
@@ -507,8 +509,8 @@ public class GeoTIFFMetadata {
         field.addContent(data);
         for (int i = 0; i < _numGeoKeyEntries; i++) {
             final int[] values = getGeoKeyEntryAt(i).data;
-            for (int j = 0; j < values.length; j++) {
-                Element keyEntry = createShortElement(values[j]);
+            for (int value : values) {
+                Element keyEntry = createShortElement(value);
                 data.addContent(keyEntry);
             }
         }
@@ -586,8 +588,8 @@ public class GeoTIFFMetadata {
     }
 
     private void addDoubleElements(Element data, final double[] values) {
-        for (int j = 0; j < values.length; j++) {
-            Element keyEntry = createDoubleElement(values[j]);
+        for (double value : values) {
+            Element keyEntry = createDoubleElement(value);
             data.addContent(keyEntry);
         }
     }

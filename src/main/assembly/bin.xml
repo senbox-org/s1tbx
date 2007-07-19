@@ -148,6 +148,7 @@
             <excludes>
                 <!-- Exclude development bootstrap module -->
                 <exclude>org.esa.beam:beam-bootstrap</exclude>
+                <exclude>org.esa.beam:beam-installer</exclude>
             </excludes>
         </moduleSet>
 
