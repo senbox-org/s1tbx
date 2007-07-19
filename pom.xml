@@ -55,10 +55,13 @@
         <module>beam-meris-smac</module>
         <module>beam-meris-smile</module>
         <module>beam-meris-radtorefl</module>
+        <module>beam-meris-ndvi</module>
         <module>beam-aatsr-sst</module>
         <module>beam-flhmci</module>
         <module>beam-mosaic</module>
         <module>beam-binning</module>
+        <module>beam-unmix</module>
+        <module>beam-cluster</module>
 
         <module>beam-avhrr-reader</module>
         <module>beam-atsr-reader</module>
@@ -68,15 +71,13 @@
         <module>beam-getasse30-reader</module>
         <module>beam-envisat-reader</module>
         <module>beam-modis-reader</module>
+        <module>beam-chris-reader</module>
+        <module>beam-landsat-reader</module>
         <module>beam-geotiff-writer</module>
         <module>beam-hdf5-writer</module>
 
         <module>lib-hdf</module>
         <module>lib-netcdf</module>
-        <module>beam-chris-reader</module>
-
-        <module>beam-landsat-reader</module>
-        <module>beam-meris-ndvi</module>
 
     </modules>
 
@@ -387,10 +388,21 @@
                                 </includes>
                             </filterSet>
                         </template>
+                        <template>
+                            <source>src/main/bin/macosx/beam-cli-template.command</source>
+                            <lineEnding>unix</lineEnding>
+                            <outputDirectory>target/${artifactId}-${version}-bin.dir/bin</outputDirectory>
+                            <outputFileNamePattern>@{filterBaseName}.@{sourceExtension}</outputFileNamePattern>
+                            <filterSet>
+                                <directory>src/main/filters</directory>
+                                <includes>
+                                    <include>*.properties</include>
+                                </includes>
+                            </filterSet>
+                        </template>
                     </templates>
                 </configuration>
             </plugin>
-            <!-- toooooooooooo slow (nf)
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -403,7 +415,6 @@
                     </execution>
                 </executions>
             </plugin>
-            -->
         </plugins>
     </build>
 
