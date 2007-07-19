@@ -20,22 +20,17 @@ import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.AbstractOperator;
-import org.esa.beam.framework.gpf.AbstractOperatorSpi;
-import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.ParameterConverter;
-import org.esa.beam.framework.gpf.Raster;
+import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.ui.diagram.DiagramGraph;
 import org.esa.beam.framework.ui.diagram.DiagramGraphIO;
 import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.LinearSpectralUnmixing;
-import org.esa.beam.util.math.SpectralUnmixing;
 import org.esa.beam.util.math.NonNegacityLinSpecModel;
+import org.esa.beam.util.math.SpectralUnmixing;
 
 import java.awt.Rectangle;
 import java.io.File;
@@ -69,7 +64,7 @@ public class SpectralUnmixingOp extends AbstractOperator implements ParameterCon
     @Parameter
     File endmemberFile;
 
-    @Parameter(valueSet={LINEAR_MODEL_NAME, NON_NEGACITY_MODEL_NAME}, defaultValue = LINEAR_MODEL_NAME)
+    @Parameter(valueSet = {LINEAR_MODEL_NAME, NON_NEGACITY_MODEL_NAME}, defaultValue = LINEAR_MODEL_NAME)
     String unmixingModelName;
 
     @Parameter(pattern = "[a-zA-Z_0-9]*", notNull = true, defaultValue = "_abundance")
@@ -145,13 +140,12 @@ public class SpectralUnmixingOp extends AbstractOperator implements ParameterCon
             loadEndmemberFile();
         }
 
-
         if (sourceBandNames == null || sourceBandNames.length == 0) {
             Band[] bands = sourceProduct.getBands();
-            ArrayList<String> bandNameList =  new ArrayList<String>();
+            ArrayList<String> bandNameList = new ArrayList<String>();
             for (Band band : bands) {
                 if (band.getSpectralWavelength() > 0) {
-                   bandNameList.add(band.getName());
+                    bandNameList.add(band.getName());
                 }
             }
             sourceBandNames = bandNameList.toArray(new String[0]);
@@ -186,6 +180,9 @@ public class SpectralUnmixingOp extends AbstractOperator implements ParameterCon
             targetBands[j] = targetProduct.addBand(endmembers[j].getName() + targetBandNameSuffix, ProductData.TYPE_FLOAT32);
         }
 
+        ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
+        ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
+
         double[][] doubles = new double[numSourceBands][numEndmembers];
         for (int j = 0; j < numEndmembers; j++) {
             Endmember endmember = endmembers[j];
@@ -201,9 +198,9 @@ public class SpectralUnmixingOp extends AbstractOperator implements ParameterCon
                 doubles[i][j] = radiations[k];
             }
         }
-        if(NON_NEGACITY_MODEL_NAME.equals(unmixingModelName)) {
+        if (NON_NEGACITY_MODEL_NAME.equals(unmixingModelName)) {
             spectralUnmixing = new NonNegacityLinSpecModel(new Matrix(doubles));
-        }else {
+        } else {
             spectralUnmixing = new LinearSpectralUnmixing(new Matrix(doubles));
         }
         return targetProduct;
@@ -348,7 +345,6 @@ public class SpectralUnmixingOp extends AbstractOperator implements ParameterCon
             super(SpectralUnmixingOp.class, "SpectralUnmixing");
         }
     }
-
 
 
 }
