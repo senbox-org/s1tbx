@@ -18,9 +18,6 @@ import java.io.*;
 public class ScriptPatcherAction extends AbstractInstallOrUninstallAction {
 
     private String scriptDirPath = "bin";
-    private boolean writingLog = false;
-    private String logFilename = "install.log";
-    private File scriptDir;
 
     public ScriptPatcherAction() {
     }
@@ -33,29 +30,11 @@ public class ScriptPatcherAction extends AbstractInstallOrUninstallAction {
         this.scriptDirPath = scriptDirPath;
     }
 
-    public String getLogFilename() {
-        return replaceVariables(logFilename);
-    }
-
-    public void setLogFilename(String logFilename) {
-        this.logFilename = logFilename;
-    }
-
-    public boolean isWritingLog() {
-        return writingLog;
-    }
-
-    public void setWritingLog(boolean writingLog) {
-        this.writingLog = writingLog;
-    }
-
     public boolean install(InstallerContext context) throws UserCanceledException {
 
 
         File installationDirectory = context.getInstallationDirectory();
-        scriptDir = new File(installationDirectory, scriptDirPath);
-
-        PrintWriter logWriter = getLogWriter(context);
+        File scriptDir = new File(installationDirectory, scriptDirPath);
 
         File[] files = scriptDir.listFiles(new FileFilter() {
             public boolean accept(File file) {
@@ -72,23 +51,22 @@ public class ScriptPatcherAction extends AbstractInstallOrUninstallAction {
             for (int i = 0; i < files.length; i++) {
                 File file = files[i];
                 try {
-                    patchFile(context, file);
-                    logWriter.println(file + " patched");
+                    patchFile(file);
                 } catch (IOException e) {
-                    logWriter.println(file + " patching failed: " + e.getMessage());
+                    System.err.println(file + " patching failed: " + e.getMessage());
                 }
                 progressInterface.setPercentCompleted(((i + 1) * 100) / files.length);
             }
             progressInterface.setStatusMessage("");
         }
-        logWriter.close();
         return true;
     }
 
-    private void patchFile(InstallerContext context, File file) throws IOException {
+    private void patchFile(File file) throws IOException {
 
         long l = file.length();
         if (l >= Integer.MAX_VALUE) {
+            System.err.println(file + " too big");
             return;
         }
 
@@ -106,30 +84,7 @@ public class ScriptPatcherAction extends AbstractInstallOrUninstallAction {
         }
     }
 
-
-    private PrintWriter getLogWriter(InstallerContext context) throws UserCanceledException {
-        PrintWriter logWriter = null;
-        if (writingLog && logFilename.length() > 0) {
-            try {
-                File file = new File(scriptDir, logFilename);
-                logWriter = new PrintWriter(new FileWriter(file));
-                context.registerUninstallFile(file);
-            } catch (IOException e) {
-                // ok
-            }
-        }
-        if (logWriter == null) {
-            logWriter = new PrintWriter(new OutputStreamWriter(System.out));
-        }
-        return logWriter;
-    }
-
     public boolean uninstall(UninstallerContext context) throws UserCanceledException {
         return true;
-    }
-
-    @Override
-    public void rollback(InstallerContext installerContext) {
-        super.rollback(installerContext);
     }
 }
