@@ -104,7 +104,7 @@ public class GeoTIFFProductWriter extends AbstractProductWriter {
             nodeNames.add(geoCoding.getLonGrid().getName());
         }
         final ProductSubsetDef subsetDef = new ProductSubsetDef();
-        subsetDef.setNodeNames((String[]) nodeNames.toArray(new String[nodeNames.size()]));
+        subsetDef.setNodeNames(nodeNames.toArray(new String[nodeNames.size()]));
         subsetDef.setIgnoreMetadata(false);
         return sourceProduct.createSubset(subsetDef, "temp", "");
     }

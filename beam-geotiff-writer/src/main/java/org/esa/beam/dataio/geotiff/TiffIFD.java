@@ -8,6 +8,8 @@ import org.esa.beam.util.geotiff.GeoTIFFMetadata;
 
 import javax.imageio.stream.ImageOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 /**
@@ -36,9 +38,8 @@ class TiffIFD {
         final TiffDirectoryEntry[] entries = _entrySet.getEntries();
         new TiffShort(entries.length).write(ios);
         long entryPosition = ios.getStreamPosition();
-        for (int i = 0; i < entries.length; i++) {
+        for (TiffDirectoryEntry entry : entries) {
             ios.seek(entryPosition);
-            final TiffDirectoryEntry entry = entries[i];
             entry.write(ios);
             entryPosition += TiffDirectoryEntry.BYTES_PER_ENTRY;
         }
@@ -67,8 +68,7 @@ class TiffIFD {
     public long getRequiredReferencedValuesSize() {
         final TiffDirectoryEntry[] entries = _entrySet.getEntries();
         long size = 0;
-        for (int i = 0; i < entries.length; i++) {
-            final TiffDirectoryEntry entry = entries[i];
+        for (final TiffDirectoryEntry entry : entries) {
             if (entry.mustValuesBeReferenced()) {
                 size += entry.getValuesSizeInBytes();
             }
@@ -79,8 +79,8 @@ class TiffIFD {
     public long getRequiredSizeForStrips() {
         final TiffLong[] counts = ((TiffLong[]) getEntry(TiffTag.STRIP_BYTE_COUNTS).getValues());
         long size = 0;
-        for (int i = 0; i < counts.length; i++) {
-            size += counts[i].getValue();
+        for (TiffLong count : counts) {
+            size += count.getValue();
         }
         return size;
     }
@@ -92,8 +92,7 @@ class TiffIFD {
     private void computeOffsets(final long ifdOffset) {
         final TiffDirectoryEntry[] entries = _entrySet.getEntries();
         long valuesOffset = computeStartOffsetForValues(entries.length, ifdOffset);
-        for (int i = 0; i < entries.length; i++) {
-            final TiffDirectoryEntry entry = entries[i];
+        for (final TiffDirectoryEntry entry : entries) {
             if (entry.mustValuesBeReferenced()) {
                 entry.setValuesOffset(valuesOffset);
                 valuesOffset += entry.getValuesSizeInBytes();
@@ -147,10 +146,11 @@ class TiffIFD {
         if (geoTIFFMetadata == null) {
             return;
         }
+        geoTIFFMetadata.dump(new PrintWriter(new OutputStreamWriter(System.out), true));
         final int numEntries = geoTIFFMetadata.getNumGeoKeyEntries();
         final TiffShort[] directoryTagValues = new TiffShort[numEntries * 4];
-        final ArrayList doubleValues = new ArrayList();
-        final ArrayList asciiValues = new ArrayList();
+        final ArrayList<TiffDouble> doubleValues = new ArrayList<TiffDouble>();
+        final ArrayList<TiffAscii> asciiValues = new ArrayList<TiffAscii>();
         for (int i = 0; i < numEntries; i++) {
             final GeoTIFFMetadata.KeyEntry entry = geoTIFFMetadata.getGeoKeyEntryAt(i);
             final int[] data = entry.getData();
@@ -158,22 +158,24 @@ class TiffIFD {
                 directoryTagValues[i * 4 + j] = new TiffShort(data[j]);
             }
             if (data[1] == TiffTag.GeoDoubleParamsTag.getValue()) {
+                directoryTagValues[i * 4 + 3] = new TiffShort(doubleValues.size());
                 final double[] geoDoubleParams = geoTIFFMetadata.getGeoDoubleParams(data[0]);
-                for (int j = 0; j < geoDoubleParams.length; j++) {
-                    doubleValues.add(new TiffDouble(geoDoubleParams[j]));
+                for (double geoDoubleParam : geoDoubleParams) {
+                    doubleValues.add(new TiffDouble(geoDoubleParam));
                 }
             }
             if (data[1] == TiffTag.GeoAsciiParamsTag.getValue()) {
+                directoryTagValues[i * 4 + 3] = new TiffShort(doubleValues.size());
                 asciiValues.add(new TiffAscii(geoTIFFMetadata.getGeoAsciiParam(data[0])));
             }
         }
         setEntry(new TiffDirectoryEntry(TiffTag.GeoKeyDirectoryTag, directoryTagValues));
         if (doubleValues.size() > 0) {
-            final TiffDouble[] tiffDoubles = (TiffDouble[]) doubleValues.toArray(new TiffDouble[doubleValues.size()]);
+            final TiffDouble[] tiffDoubles = doubleValues.toArray(new TiffDouble[doubleValues.size()]);
             setEntry(new TiffDirectoryEntry(TiffTag.GeoDoubleParamsTag, tiffDoubles));
         }
         if (asciiValues.size() > 0) {
-            final TiffAscii[] tiffAsciies = (TiffAscii[]) asciiValues.toArray(new TiffAscii[asciiValues.size()]);
+            final TiffAscii[] tiffAsciies = asciiValues.toArray(new TiffAscii[asciiValues.size()]);
             setEntry(new TiffDirectoryEntry(TiffTag.GeoAsciiParamsTag, tiffAsciies));
         }
         final int numModelTiePoints = geoTIFFMetadata.getNumModelTiePoints();
@@ -197,8 +199,8 @@ class TiffIFD {
                 new TiffDouble(geoTIFFMetadata.getModelPixelScaleZ()),
         };
 
-        for (int i = 0; i < pixelScaleValues.length; i++) {
-            if (pixelScaleValues[i].getValue() != 0.0 && pixelScaleValues[i].getValue() != 1.0) {
+        for (TiffDouble pixelScaleValue : pixelScaleValues) {
+            if (pixelScaleValue.getValue() != 0.0 && pixelScaleValue.getValue() != 1.0) {
                 setEntry(new TiffDirectoryEntry(TiffTag.ModelPixelScaleTag, pixelScaleValues));
                 break;
             }

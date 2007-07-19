@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-geotiff-writer</symbolicName>
-    <version>1.0</version>
+    <version>1.1</version>
     <name>GeoTIFF Product Writer</name>
 
     <description>Enables BEAM to write data products as GeoTiff files.</description>
@@ -12,7 +12,11 @@
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
-
+    <changelog>
+        <![CDATA[<p>From 1.0 to 1.1:<br/>
+        [BEAM-648] GeoTIFF parameters written in wrong order<br/>
+        </p>]]>
+    </changelog>        
 
     <dependency>
         <module>beam-core</module>
