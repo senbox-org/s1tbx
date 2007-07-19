@@ -18,4 +18,6 @@ echo.
 @echo Typing the name of the tool will output its usage information.
 echo.
 
+cd "%BEAM4_HOME%"
+
 prompt $G$S
