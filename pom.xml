@@ -42,6 +42,7 @@
              its only purpose is to construct a class path for VISAT
         -->
         <module>beam-bootstrap</module>
+        <module>beam-installer</module>
 
         <module>beam-core</module>
         <module>beam-ui</module>
