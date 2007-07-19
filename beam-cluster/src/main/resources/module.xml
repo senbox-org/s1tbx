@@ -1,0 +1,13 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+
+    <symbolicName>beam-cluster-op</symbolicName>
+    <version>1.0-SNAPSHOT</version>
+    <name>beam-cluster-op</name>
+    <description>BEAM GPF Module beam-cluster-op</description>
+
+    <extension point="beam-gpf:processingOperators">
+        <processingOperator class="org.esa.beam.cluster.ClusterAnalysisOp$Spi"/>
+    </extension>
+
+</module>
