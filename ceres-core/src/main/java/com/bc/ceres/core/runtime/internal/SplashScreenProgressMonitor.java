@@ -38,8 +38,8 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
 
     /**
      * Creates a {@link SplashScreenProgressMonitor} only if a splash screen exists.
-     * @param config 
      *
+     * @param config
      * @return an instance of {@link SplashScreenProgressMonitor} or {@link NullProgressMonitor}
      */
     public static ProgressMonitor createProgressMonitor(RuntimeConfig config) {
@@ -318,21 +318,10 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
                                              (screenSize.height - image.getHeight()) / 2,
                                              image.getWidth(),
                                              image.getHeight());
-            if (image.getRaster().getNumBands() == 4) {
-                try {
-                    Robot robot = new Robot(getGraphicsConfiguration().getDevice());
-                    BufferedImage screen = robot.createScreenCapture(bounds);
-                    Graphics2D graphics = screen.createGraphics();
-                    graphics.drawImage(image, null, 0, 0);
-                    graphics.dispose();
-                    this.backgroundImage = screen;
-                } catch (AWTException e) {
-                    // ok, no transparency
-                }
-            }
             bufferImage = new BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_INT_ARGB);
             bufferGraphics = bufferImage.createGraphics();
             setBounds(bounds);
+            setAlwaysOnTop(true);
             setVisible(true);
         }
 
@@ -361,11 +350,11 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
 
         @Override
         public void update(Graphics g) {
-            bufferGraphics.drawImage(backgroundImage, null, 0,0);
+            bufferGraphics.drawImage(backgroundImage, null, 0, 0);
             if (updateImage != null) {
-                bufferGraphics.drawImage(updateImage, null, 0,0);
+                bufferGraphics.drawImage(updateImage, null, 0, 0);
             }
-            g.drawImage(bufferImage, 0,0, null);
+            g.drawImage(bufferImage, 0, 0, null);
         }
     }
 }
