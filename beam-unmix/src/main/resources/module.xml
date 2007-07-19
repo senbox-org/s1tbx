@@ -1,0 +1,45 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-unmix</symbolicName>
+    <version>4.1-SNAPSHOT</version>
+    <name>Spectral Unmixing</name>
+
+    <description>
+        Spectral unmixing tool.
+    </description>
+
+    <changelog>
+        <![CDATA[ ]]>
+    </changelog>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+
+    <!--<activator>org.esa.beam.unmix.Activator</activator>-->
+
+    <dependency>
+        <module>beam-visat</module>
+        <optional>true</optional>
+    </dependency>
+    <dependency>
+        <module>beam-gpf</module>
+    </dependency>
+
+    <categories>VISAT</categories>
+
+    <extension point="beam-visat:actions">
+        <action>
+            <id>spectralUnmixing</id>
+            <helpID>spectralUnmixing</helpID>
+            <class>org.esa.beam.unmixing.visat.SpectralUnmixingAction</class>
+            <parent>tools</parent>
+            <text>Spectral Unmixing...</text>
+            <mnemonic>U</mnemonic>
+        </action>
+    </extension>
+
+</module>
