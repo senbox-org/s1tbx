@@ -23,7 +23,7 @@ public class DropoutCorrection {
          * This type includes the two neighboring pixels in along-track direction
          * only.
          */
-        VERTICAL {
+        N2 {
             @Override
             public double[] getWeights() {
                 return new double[]{0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0};
@@ -38,7 +38,7 @@ public class DropoutCorrection {
          * This type includes the two neighboring pixels in both along and across
          * track directions, giving a total of four neighboring pixels.
          */
-        FOUR {
+        N4 {
             @Override
             public double[] getWeights() {
                 return new double[]{0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0};
@@ -52,7 +52,7 @@ public class DropoutCorrection {
         /**
          * This type includes all eight surrounding pixels.
          */
-        EIGHT {
+        N8 {
             @Override
             public double[] getWeights() {
                 return new double[]{0.7, 1.0, 0.7, 1.0, 0.0, 1.0, 0.7, 1.0, 0.7};
@@ -82,7 +82,7 @@ public class DropoutCorrection {
      * Constructs the default instance of this class.
      */
     public DropoutCorrection() {
-        this(Neigborhood.FOUR);
+        this(Neigborhood.N4);
     }
 
     /**

@@ -84,7 +84,7 @@ public class ChrisProductReader extends AbstractProductReader {
         maskBands = new Band[spectralBandCount];
 
         maskRefinement = new MaskRefinement(1.5);
-        dropoutCorrection = new DropoutCorrection(DropoutCorrection.Neigborhood.FOUR, true);
+        dropoutCorrection = new DropoutCorrection(DropoutCorrection.Neigborhood.N4, true);
 
         final String name = FileUtils.getFilenameWithoutExtension(inputFile);
         final String type = "CHRIS_M" + chrisFile.getGlobalAttribute(ChrisConstants.ATTR_NAME_CHRIS_MODE, 0);
