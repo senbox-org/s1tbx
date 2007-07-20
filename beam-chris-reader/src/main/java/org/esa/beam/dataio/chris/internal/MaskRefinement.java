@@ -110,6 +110,7 @@ public class MaskRefinement {
 
         final double[] doubles = Arrays.copyOf(values, values.length);
         Arrays.sort(doubles);
+        // todo - implement method for finding the right value which does not sort the whole array
 
         final int half = values.length >> 1;
         final double median;
