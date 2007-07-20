@@ -32,6 +32,10 @@
             <artifactId>ceres-ui</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.bc.ceres</groupId>
+            <artifactId>ceres-binding</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.jidesoft</groupId>
             <artifactId>jide-dock</artifactId>
         </dependency>

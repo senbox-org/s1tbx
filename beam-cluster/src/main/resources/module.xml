@@ -3,11 +3,41 @@
 
     <symbolicName>beam-cluster-op</symbolicName>
     <version>1.0-SNAPSHOT</version>
-    <name>beam-cluster-op</name>
-    <description>BEAM GPF Module beam-cluster-op</description>
+    <name>BEAM Cluster Analysis</name>
 
-    <extension point="beam-gpf:processingOperators">
-        <processingOperator class="org.esa.beam.cluster.ClusterAnalysisOp$Spi"/>
+    <description>
+        The cluster analysis tool is used too ...
+    </description>
+
+    <changelog>
+        <![CDATA[ ]]>
+    </changelog>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <dependency>
+        <module>beam-visat</module>
+        <optional>true</optional>
+    </dependency>
+    <dependency>
+        <module>beam-gpf</module>
+    </dependency>
+
+    <categories>VISAT,Processing</categories>
+
+    <extension point="beam-visat:actions">
+        <action>
+            <id>clusterAnalysis</id>
+            <helpID>clusterAnalysis</helpID>
+            <class>org.esa.beam.cluster.visat.ClusterAnalysisAction</class>
+            <parent>tools</parent>
+            <text>Cluster Analysis...</text>
+            <mnemonic>C</mnemonic>
+        </action>
     </extension>
 
 </module>
