@@ -113,7 +113,8 @@ public class ModalDialog {
         } else {
             throw new IllegalArgumentException("'parent' must be either a dialog or a frame");
         }
-        _dialog.addComponentListener(createResizeListener());
+        // todo - enable if we at the end need it
+//        _dialog.addComponentListener(createResizeListener());
         _buttonMask = buttonMask;
         setButtonID(0);
         createUI(otherButtons);
@@ -428,17 +429,18 @@ public class ModalDialog {
         JOptionPane.showMessageDialog(getJDialog(), message, getJDialog().getTitle(), messageType);
     }
 
-    private ComponentAdapter createResizeListener() {
-        return new ComponentAdapter() {
-
-            public void componentResized(ComponentEvent e) {
-                if (_minimumSize != null) {
-                    final Dimension size = e.getComponent().getSize();
-                    size.height = _minimumSize.height > size.height ? _minimumSize.height : size.height;
-                    size.width = _minimumSize.width > size.width ? _minimumSize.width : size.width;
-                    e.getComponent().setSize(size);
-                }
-            }
-        };
-    }
+// todo - enable if we at the end need it
+//    private ComponentAdapter createResizeListener() {
+//        return new ComponentAdapter() {
+//
+//            public void componentResized(ComponentEvent e) {
+//                if (_minimumSize != null) {
+//                    final Dimension size = e.getComponent().getSize();
+//                    size.height = _minimumSize.height > size.height ? _minimumSize.height : size.height;
+//                    size.width = _minimumSize.width > size.width ? _minimumSize.width : size.width;
+//                    e.getComponent().setSize(size);
+//                }
+//            }
+//        };
+//    }
 }
