@@ -2,6 +2,7 @@ package org.esa.beam.dataio.geotiff;
 
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.geotiff.GeoTIFFMetadata;
@@ -25,6 +26,7 @@ class TiffIFD {
     private final TiffDirectoryEntrySet _entrySet;
     private static final int _BYTES_FOR_NEXT_IFD_OFFSET = 4;
     private static final int _BYTES_FOR_NUMBER_OF_ENTRIES = 2;
+    private int maxElemSizeBandDataType;
 
     public TiffIFD(final Product product) {
         _entrySet = new TiffDirectoryEntrySet();
@@ -47,7 +49,7 @@ class TiffIFD {
     }
 
     private void writeNextIfdOffset(final ImageOutputStream ios, final long ifdOffset, final long nextIfdOffset) throws
-                                                                                                                 IOException {
+            IOException {
         ios.seek(getPosForNextIfdOffset(ifdOffset));
         new TiffLong(nextIfdOffset).write(ios);
     }
@@ -120,24 +122,28 @@ class TiffIFD {
         _entrySet.set(entry);
     }
 
+    public int getMaxElemSizeBandDataType() {
+        return maxElemSizeBandDataType;
+    }
+
     private void initEntrys(final Product product) {
+        maxElemSizeBandDataType = getMaxElemSizeBandDataType(product);
         final int width = product.getSceneRasterWidth();
         final int height = product.getSceneRasterHeight();
         setEntry(new TiffDirectoryEntry(TiffTag.IMAGE_WIDTH, new TiffLong(width)));
         setEntry(new TiffDirectoryEntry(TiffTag.IMAGE_LENGTH, new TiffLong(height)));
-        setEntry(new TiffDirectoryEntry(TiffTag.BITS_PER_SAMPLE, createBitsPerSampleValues(product)));
+        setEntry(new TiffDirectoryEntry(TiffTag.BITS_PER_SAMPLE, calculateBitsPerSample(product)));
         setEntry(new TiffDirectoryEntry(TiffTag.COMPRESSION, new TiffShort(1)));
         setEntry(new TiffDirectoryEntry(TiffTag.PHOTOMETRIC_INTERPRETATION, TiffCode.PHOTOMETRIC_BLACK_IS_ZERO));
-        setEntry(new TiffDirectoryEntry(TiffTag.STRIP_OFFSETS, createStripOffsets()));
+        setEntry(new TiffDirectoryEntry(TiffTag.STRIP_OFFSETS, calculateStripOffsets()));
         setEntry(new TiffDirectoryEntry(TiffTag.SAMPLES_PER_PIXEL, new TiffShort(product.getNumBands())));
         setEntry(new TiffDirectoryEntry(TiffTag.ROWS_PER_STRIP, new TiffLong(height)));
         setEntry(new TiffDirectoryEntry(TiffTag.STRIP_BYTE_COUNTS, calculateStripByteCounts()));
-        //todo: getPixelSize for resolution
         setEntry(new TiffDirectoryEntry(TiffTag.X_RESOLUTION, new TiffRational(1, 1)));
         setEntry(new TiffDirectoryEntry(TiffTag.Y_RESOLUTION, new TiffRational(1, 1)));
         setEntry(new TiffDirectoryEntry(TiffTag.RESOLUTION_UNIT, new TiffShort(1)));
         setEntry(new TiffDirectoryEntry(TiffTag.PLANAR_CONFIGURATION, TiffCode.PLANAR_CONFIG_PLANAR));
-        setEntry(new TiffDirectoryEntry(TiffTag.SAMPLE_FORMAT, createSampleFormatValues(product)));
+        setEntry(new TiffDirectoryEntry(TiffTag.SAMPLE_FORMAT, calculateSampleFormat(product)));
         addGeoTiffTags(product);
     }
 
@@ -207,52 +213,89 @@ class TiffIFD {
         }
     }
 
-    private TiffShort[] createSampleFormatValues(final Product product) {
+    private static int getMaxElemSizeBandDataType(final Product product) {
         final Band[] bands = product.getBands();
-        final TiffShort[] tiffValues = new TiffShort[bands.length];
-        for (int i = 0; i < bands.length; i++) {
-            tiffValues[i] = TiffCode.SAMPLE_FORMAT_FLOAT;
-            // remarked because geotiff product writer must write all bands as floats
-//            tiffValues[i] = TiffCode.getSampleFormat(TiffType.getTiffTypeFrom(bands[i]));
+        int dataType = -1;
+        int maxSize = 0;
+        for (Band band : bands) {
+            int dt = band.getGeophysicalDataType();
+            int es = ProductData.getElemSize(dt);
+            if (es > maxSize && ProductData.isFloatingPointType(dt)) {
+                dataType = dt;
+                maxSize = es;
+            }
         }
+        if (dataType != -1) {
+            return dataType;
+        }
+        dataType = ProductData.TYPE_UINT8;
+        maxSize = 1;
+        for (Band band : bands) {
+            int dt = band.getGeophysicalDataType();
+            int es = ProductData.getElemSize(dt);
+            if (es > maxSize) {
+                dataType = dt;
+                maxSize = es;
+            }
+        }
+        return dataType;
+    }
+
+    private TiffShort[] calculateSampleFormat(final Product product) {
+        int dataType = getMaxElemSizeBandDataType();
+        TiffShort sampleFormat;
+        if (ProductData.isIntType(dataType)) {
+            sampleFormat = TiffCode.SAMPLE_FORMAT_INT;
+        } else if (ProductData.isUIntType(dataType)) {
+            sampleFormat = TiffCode.SAMPLE_FORMAT_UINT;
+        } else {
+            sampleFormat = TiffCode.SAMPLE_FORMAT_FLOAT;
+        }
+
+        final TiffShort[] tiffValues = new TiffShort[product.getNumBands()];
+        for (int i = 0; i < tiffValues.length; i++) {
+            tiffValues[i] = sampleFormat;
+        }
+
         return tiffValues;
     }
 
     private TiffLong[] calculateStripByteCounts() {
-        final TiffLong[] tiffValues = new TiffLong[getBitsPerSampleValues().length];
+        TiffValue[] bitsPerSample = getBitsPerSampleValues();
+        final TiffLong[] tiffValues = new TiffLong[bitsPerSample.length];
         for (int i = 0; i < tiffValues.length; i++) {
-            final long stripSize = getWidth() * getHeight() * getBytesPerSample(i);
-            tiffValues[i] = new TiffLong(stripSize);
+            long byteCount = getByteCount(bitsPerSample, i);
+            tiffValues[i] = new TiffLong(byteCount);
         }
         return tiffValues;
     }
 
-    private TiffLong[] createStripOffsets() {
-        final TiffLong[] tiffValues = new TiffLong[getBitsPerSampleValues().length];
+    private TiffLong[] calculateStripOffsets() {
+        TiffValue[] bitsPerSample = getBitsPerSampleValues();
+        final TiffLong[] tiffValues = new TiffLong[bitsPerSample.length];
         long offset = 0;
         for (int i = 0; i < tiffValues.length; i++) {
             tiffValues[i] = new TiffLong(offset);
-            final int bytesPerSample = getBytesPerSample(i);
-            offset += getWidth() * getHeight() * bytesPerSample;
+            long byteCount = getByteCount(bitsPerSample, i);
+            offset += byteCount;
         }
         return tiffValues;
     }
 
-    private TiffShort[] createBitsPerSampleValues(final Product product) {
-        final Band[] bands = product.getBands();
-        final TiffShort[] tiffValues = new TiffShort[bands.length];
-        for (int i = 0; i < bands.length; i++) {
-            tiffValues[i] = new TiffShort(32);
-            // remarked because geotiff product writer must write all bands as floats
-//            final TiffShort tiffType = TiffType.getTiffTypeFrom(bands[i]);
-//            tiffValues[i] = new TiffShort(TiffType.getBytesForType(tiffType) * 8);
-        }
-        return tiffValues;
+    private long getByteCount(TiffValue[] bitsPerSample, int i) {
+        long bytesPerSample = ((TiffShort) bitsPerSample[i]).getValue() / 8;
+        long byteCount = getWidth() * getHeight() * bytesPerSample;
+        return byteCount;
     }
 
-    private int getBytesPerSample(final int i) {
-        final TiffValue[] bitsPerSample = getBitsPerSampleValues();
-        return ((TiffShort) bitsPerSample[i]).getValue() / 8;
+    private TiffShort[] calculateBitsPerSample(final Product product) {
+        int dataType = getMaxElemSizeBandDataType();
+        int elemSize = ProductData.getElemSize(dataType);
+        final TiffShort[] tiffValues = new TiffShort[product.getNumBands()];
+        for (int i = 0; i < tiffValues.length; i++) {
+            tiffValues[i] = new TiffShort(8 * elemSize);
+        }
+        return tiffValues;
     }
 
     private TiffValue[] getBitsPerSampleValues() {

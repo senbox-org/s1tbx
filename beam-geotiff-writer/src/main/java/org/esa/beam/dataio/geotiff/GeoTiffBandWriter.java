@@ -74,7 +74,6 @@ class GeoTiffBandWriter {
      * @param regionY      the Y-offset in the band's raster co-ordinates
      * @param regionWidth  the width of region to be written given in the band's raster co-ordinates
      * @param regionHeight the height of region to be written given in the band's raster co-ordinates
-     *
      * @throws java.io.IOException      if an I/O error occurs
      * @throws IllegalArgumentException if the number of elements source buffer not equals <code>sourceWidth *
      *                                  sourceHeight</code> or the source region is out of the band's raster
@@ -91,6 +90,7 @@ class GeoTiffBandWriter {
         if (!_tempProduct.containsBand(sourceBand.getName())) {
             throw new IllegalArgumentException("'" + sourceBand.getName() + "' is not a band of the product");
         }
+        int maxElemSizeBandDataType = _ifd.getMaxElemSizeBandDataType();
         final int stripIndex = _tempProduct.getBandIndex(sourceBand.getName());
         final TiffValue[] offsetValues = _ifd.getEntry(TiffTag.STRIP_OFFSETS).getValues();
         final long stripOffset = ((TiffLong) offsetValues[stripIndex]).getValue();
@@ -103,13 +103,57 @@ class GeoTiffBandWriter {
 
         pm.beginTask("Writing band '" + sourceBand.getName() + "'...", regionHeight);
         try {
-            final float[] floats = new float[regionWidth];
             for (int y = 0; y < regionHeight; y++) {
                 _ios.seek(startOffset + y * sourceWidthBytes);
-                for (int x = 0; x < regionWidth; x++) {
-                    floats[x] = (float) sourceBand.scale(regionData.getElemDoubleAt(y * regionWidth + x));
+                if (maxElemSizeBandDataType == ProductData.TYPE_UINT8) {
+                    final byte[] data = new byte[regionWidth];
+                    for (int x = 0; x < regionWidth; x++) {
+                        data[x] = (byte) regionData.getElemUIntAt(y * regionWidth + x);
+                    }
+                    _ios.write(data);
+                } else if (maxElemSizeBandDataType == ProductData.TYPE_INT8) {
+                    final byte[] data = new byte[regionWidth];
+                    for (int x = 0; x < regionWidth; x++) {
+                        data[x] = (byte) regionData.getElemIntAt(y * regionWidth + x);
+                    }
+                    _ios.write(data);
+                } else if (maxElemSizeBandDataType == ProductData.TYPE_UINT16) {
+                    final short[] data = new short[regionWidth];
+                    for (int x = 0; x < regionWidth; x++) {
+                        data[x] = (short) regionData.getElemUIntAt(y * regionWidth + x);
+                    }
+                    _ios.writeShorts(data, 0, regionWidth);
+                } else if (maxElemSizeBandDataType == ProductData.TYPE_INT16) {
+                    final short[] data = new short[regionWidth];
+                    for (int x = 0; x < regionWidth; x++) {
+                        data[x] = (short) regionData.getElemIntAt(y * regionWidth + x);
+                    }
+                    _ios.writeShorts(data, 0, regionWidth);
+                } else if (maxElemSizeBandDataType == ProductData.TYPE_UINT32) {
+                    final int[] data = new int[regionWidth];
+                    for (int x = 0; x < regionWidth; x++) {
+                        data[x] = (int) regionData.getElemUIntAt(y * regionWidth + x);
+                    }
+                    _ios.writeInts(data, 0, regionWidth);
+                } else if (maxElemSizeBandDataType == ProductData.TYPE_INT32) {
+                    final int[] data = new int[regionWidth];
+                    for (int x = 0; x < regionWidth; x++) {
+                        data[x] = regionData.getElemIntAt(y * regionWidth + x);
+                    }
+                    _ios.writeInts(data, 0, regionWidth);
+                } else if (maxElemSizeBandDataType == ProductData.TYPE_FLOAT32) {
+                    final float[] data = new float[regionWidth];
+                    for (int x = 0; x < regionWidth; x++) {
+                        data[x] = (float) sourceBand.scale(regionData.getElemDoubleAt(y * regionWidth + x));
+                    }
+                    _ios.writeFloats(data, 0, regionWidth);
+                } else if (maxElemSizeBandDataType == ProductData.TYPE_FLOAT64) {
+                    final double[] data = new double[regionWidth];
+                    for (int x = 0; x < regionWidth; x++) {
+                        data[x] = sourceBand.scale(regionData.getElemDoubleAt(y * regionWidth + x));
+                    }
+                    _ios.writeDoubles(data, 0, regionWidth);
                 }
-                _ios.writeFloats(floats, 0, regionWidth);
                 pm.worked(1);
             }
         } finally {

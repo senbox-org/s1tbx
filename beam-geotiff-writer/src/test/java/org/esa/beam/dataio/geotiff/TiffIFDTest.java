@@ -40,7 +40,7 @@ public class TiffIFDTest extends TestCase {
         }
     }
 
-    public void testTiffIFDCreation() throws Exception {
+    public void testTiffIFDCreationMixedTypes() throws Exception {
         _product.addBand("b1", ProductData.TYPE_UINT8);
         _product.addBand("b2", ProductData.TYPE_UINT16);
         _product.addBand("b3", ProductData.TYPE_UINT32);
@@ -48,7 +48,6 @@ public class TiffIFDTest extends TestCase {
         _product.addBand("b5", ProductData.TYPE_INT16);
         _product.addBand("b6", ProductData.TYPE_INT32);
         _product.addBand("b7", ProductData.TYPE_FLOAT32);
-        _product.addBand("b8", ProductData.TYPE_FLOAT64);
 
 
         final TiffIFD ifd = new TiffIFD(_product);
@@ -57,23 +56,17 @@ public class TiffIFDTest extends TestCase {
         final double[] expWidth = new double[]{WIDTH};
         final double[] expHeight = new double[]{HEIGHT};
         final double[] expBitsPerSample = new double[]{
-                32, 32, 32, 32, 32, 32, 32, 32
-                // remarked because geotiff product writer must write all bands as floats
-//            8, 16, 32, 8, 16, 32, 32, 64
+                32, 32, 32, 32, 32, 32, 32,
         };
         final double[] expCompression = new double[]{1};
         final double[] expPhotoInter = new double[]{TiffCode.PHOTOMETRIC_BLACK_IS_ZERO.getValue()};
         final double[] expStripOffsets = new double[]{
-                0, 800, 1600, 2400, 3200, 4000, 4800, 5600
-                // remarked because geotiff product writer must write all bands as floats
-//            0, 200, 600, 1400, 1600, 2000, 2800, 3600
+                0, 800, 1600, 2400, 3200, 4000, 4800,
         };
         final double[] expSamplesPerPixel = new double[]{_product.getNumBands()};
         final double[] expRowsPerStrip = new double[]{HEIGHT};
         final double[] expStripByteCounts = new double[]{
-                800, 800, 800, 800, 800, 800, 800, 800
-                // remarked because geotiff product writer must write all bands as floats
-//            200, 400, 800, 200, 400, 800, 800, 1600
+                800, 800, 800, 800, 800, 800, 800,
         };
         final double[] expPlanarConfig = new double[]{TiffCode.PLANAR_CONFIG_PLANAR.getValue()};
         final double[] expSampleFormat = new double[]{
@@ -84,16 +77,69 @@ public class TiffIFDTest extends TestCase {
                 TiffCode.SAMPLE_FORMAT_FLOAT.getValue(),
                 TiffCode.SAMPLE_FORMAT_FLOAT.getValue(),
                 TiffCode.SAMPLE_FORMAT_FLOAT.getValue(),
-                TiffCode.SAMPLE_FORMAT_FLOAT.getValue(),
-                // remarked because geotiff product writer must write all bands as floats
-//            TiffCode.SAMPLE_FORMAT_UINT.getValue(),
-//            TiffCode.SAMPLE_FORMAT_UINT.getValue(),
-//            TiffCode.SAMPLE_FORMAT_UINT.getValue(),
-//            TiffCode.SAMPLE_FORMAT_INT.getValue(),
-//            TiffCode.SAMPLE_FORMAT_INT.getValue(),
-//            TiffCode.SAMPLE_FORMAT_INT.getValue(),
-//            TiffCode.SAMPLE_FORMAT_FLOAT.getValue(),
-//            TiffCode.SAMPLE_FORMAT_FLOAT.getValue()
+        };
+        final double[] expXResolution = new double[]{1 / 1};
+        final double[] expYResolution = new double[]{1 / 1};
+        final double[] expResolutionUnit = new double[]{1};
+
+
+        checkTag(TiffTag.IMAGE_WIDTH, TiffLong.class, expWidth, null, ifd);
+        checkTag(TiffTag.IMAGE_LENGTH, TiffLong.class, expHeight, null, ifd);
+        checkTag(TiffTag.BITS_PER_SAMPLE, TiffShort[].class, expBitsPerSample, null, ifd);
+        checkTag(TiffTag.COMPRESSION, TiffShort.class, expCompression, null, ifd);
+        checkTag(TiffTag.PHOTOMETRIC_INTERPRETATION, TiffShort.class, expPhotoInter, null, ifd);
+        checkTag(TiffTag.STRIP_OFFSETS, TiffLong[].class, expStripOffsets, null, ifd);
+        checkTag(TiffTag.SAMPLES_PER_PIXEL, TiffShort.class, expSamplesPerPixel, null, ifd);
+        checkTag(TiffTag.ROWS_PER_STRIP, TiffLong.class, expRowsPerStrip, null, ifd);
+        checkTag(TiffTag.STRIP_BYTE_COUNTS, TiffLong[].class, expStripByteCounts, null, ifd);
+        checkTag(TiffTag.PLANAR_CONFIGURATION, TiffShort.class, expPlanarConfig, null, ifd);
+        checkTag(TiffTag.SAMPLE_FORMAT, TiffShort[].class, expSampleFormat, null, ifd);
+        checkTag(TiffTag.X_RESOLUTION, TiffRational.class, expXResolution, null, ifd);
+        checkTag(TiffTag.Y_RESOLUTION, TiffRational.class, expYResolution, null, ifd);
+        checkTag(TiffTag.RESOLUTION_UNIT, TiffShort.class, expResolutionUnit, null, ifd);
+
+
+        final long ifdSize = ifd.getRequiredIfdSize();
+        final long expRequiredReferencedValuesSize =
+                computeRequiredValuesSize(expBitsPerSample, expStripOffsets, expStripByteCounts, expSampleFormat,
+                                          expXResolution, expYResolution);
+        final long referencedValuesSize = ifd.getRequiredReferencedValuesSize();
+        final long sizeForStrips = ifd.getRequiredSizeForStrips();
+        final long expEntireSize = ifdSize + referencedValuesSize + sizeForStrips;
+
+        assertEquals(2 + 12 * 14 + 4, ifdSize);
+        assertEquals(expRequiredReferencedValuesSize, referencedValuesSize);
+        assertEquals(sumOf(expStripByteCounts), sizeForStrips);
+        assertEquals(expEntireSize, ifd.getRequiredEntireSize());
+    }
+
+    public void testTiffIFDCreationUByte() throws Exception {
+        _product.addBand("b1", ProductData.TYPE_UINT8);
+        _product.addBand("b2", ProductData.TYPE_UINT8);
+        _product.addBand("b3", ProductData.TYPE_UINT8);
+
+        final TiffIFD ifd = new TiffIFD(_product);
+
+
+        final double[] expWidth = new double[]{WIDTH};
+        final double[] expHeight = new double[]{HEIGHT};
+        final double[] expBitsPerSample = new double[]{
+                8, 8, 8,
+        };
+        final double[] expCompression = new double[]{1};
+        final double[] expPhotoInter = new double[]{TiffCode.PHOTOMETRIC_BLACK_IS_ZERO.getValue()};
+        final double[] expStripOffsets = new double[]{
+                0, 200, 400,
+        };
+        final double[] expSamplesPerPixel = new double[]{_product.getNumBands()};
+        final double[] expRowsPerStrip = new double[]{HEIGHT};
+        final double[] expStripByteCounts = new double[]{
+                200, 200,
+        };
+        final double[] expPlanarConfig = new double[]{TiffCode.PLANAR_CONFIG_PLANAR.getValue()};
+        final double[] expSampleFormat = new double[]{
+                TiffCode.SAMPLE_FORMAT_UINT.getValue(),
+                TiffCode.SAMPLE_FORMAT_UINT.getValue(),
         };
         final double[] expXResolution = new double[]{1 / 1};
         final double[] expYResolution = new double[]{1 / 1};

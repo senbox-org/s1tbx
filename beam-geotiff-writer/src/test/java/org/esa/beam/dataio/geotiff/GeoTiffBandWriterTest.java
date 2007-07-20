@@ -68,21 +68,15 @@ public class GeoTiffBandWriterTest extends TestCase {
         assertEquals(expSize, _ios.length());
         _ios.seek(offsets[0].getValue());
         for (int j = 0; j < _WIDTH * _HEIGHT; j++) {
-            assertEquals("band at [0] - " + "index at [" + j + "]", startValues[0] + j, _ios.readFloat(), 1e-6);
-            // remarked because geotiff product writer must write all bands as floats
-//            assertEquals("band at [0] - " + "index at [" + j + "]", startValues[0] + j, _ios.readUnsignedInt());
+            assertEquals("band at [0] - " + "index at [" + j + "]", startValues[0] + j, _ios.readUnsignedInt());
         }
         _ios.seek(offsets[1].getValue());
         for (int j = 0; j < _WIDTH * _HEIGHT; j++) {
-            assertEquals("band at [1] - " + "index at [" + j + "]", startValues[1] + j, _ios.readFloat(), 1e-6);
-            // remarked because geotiff product writer must write all bands as floats
-//            assertEquals("band at [1] - " + "index at [" + j + "]", startValues[1] + j, _ios.readUnsignedShort());
+            assertEquals("band at [1] - " + "index at [" + j + "]", startValues[1] + j, _ios.readUnsignedInt());
         }
         _ios.seek(offsets[2].getValue());
         for (int j = 0; j < _WIDTH * _HEIGHT; j++) {
-            assertEquals("band at [2] - " + "index at [" + j + "]", startValues[2] + j, _ios.readFloat(), 1e-6);
-            // remarked because geotiff product writer must write all bands as floats
-//            assertEquals("band at [2] - " + "index at [" + j + "]", startValues[2] + j, _ios.readUnsignedInt());
+            assertEquals("band at [2] - " + "index at [" + j + "]", startValues[2] + j, _ios.readUnsignedInt());
         }
     }
 
@@ -108,9 +102,7 @@ public class GeoTiffBandWriterTest extends TestCase {
         _ios.seek(stripOffsets[0].getValue());
         for (int j = 0; j < _WIDTH * _HEIGHT; j++) {
             final int expValue = (startValue + j) & 0x000000FF;
-            assertEquals("index at [" + j + "]", expValue, _ios.readFloat(), 1e-6);
-            // remarked because geotiff product writer must write all bands as floats
-//            assertEquals("index at [" + j + "]", expValue, _ios.readUnsignedByte());
+            assertEquals("index at [" + j + "]", expValue, _ios.readUnsignedByte());
         }
     }
 
@@ -136,9 +128,7 @@ public class GeoTiffBandWriterTest extends TestCase {
         _ios.seek(offsets[0].getValue());
         for (int j = 0; j < _WIDTH * _HEIGHT; j++) {
             final int expValue = (startValue + j) & 0x0000FFFF;
-            assertEquals("index at [" + j + "]", expValue, _ios.readFloat(), 1e-6);
-            // remarked because geotiff product writer must write all bands as floats
-//            assertEquals("index at [" + j + "]", expValue, _ios.readUnsignedShort());
+            assertEquals("index at [" + j + "]", expValue, _ios.readUnsignedShort());
         }
     }
 
@@ -164,9 +154,7 @@ public class GeoTiffBandWriterTest extends TestCase {
         _ios.seek(offsets[0].getValue());
         for (int j = 0; j < _WIDTH * _HEIGHT; j++) {
             final long expValue = (startValue + j);
-            assertEquals("index at [" + j + "]", expValue, _ios.readFloat(), 1e-6);
-            // remarked because geotiff product writer must write all bands as floats
-//            assertEquals("index at [" + j + "]", expValue, _ios.readUnsignedInt());
+            assertEquals("index at [" + j + "]", expValue, _ios.readUnsignedInt());
         }
     }
 
@@ -192,9 +180,7 @@ public class GeoTiffBandWriterTest extends TestCase {
         _ios.seek(offsets[0].getValue());
         for (int j = 0; j < _WIDTH * _HEIGHT; j++) {
             final byte expValue = (byte) (startValue + j);
-            assertEquals("index at [" + j + "]", expValue, _ios.readFloat(), 1e-6);
-            // remarked because geotiff product writer must write all bands as floats
-//            assertEquals("index at [" + j + "]", expValue, _ios.readByte());
+            assertEquals("index at [" + j + "]", expValue, _ios.readByte());
         }
     }
 
@@ -220,9 +206,7 @@ public class GeoTiffBandWriterTest extends TestCase {
         _ios.seek(offsets[0].getValue());
         for (int j = 0; j < _WIDTH * _HEIGHT; j++) {
             final short expValue = (short) (startValue + j);
-            assertEquals("index at [" + j + "]", expValue, _ios.readFloat(), 1e-6);
-            // remarked because geotiff product writer must write all bands as floats
-//            assertEquals("index at [" + j + "]", expValue, _ios.readShort());
+            assertEquals("index at [" + j + "]", expValue, _ios.readShort());
         }
     }
 
@@ -248,9 +232,7 @@ public class GeoTiffBandWriterTest extends TestCase {
         _ios.seek(offsets[0].getValue());
         for (int j = 0; j < _WIDTH * _HEIGHT; j++) {
             final int expValue = startValue + j;
-            assertEquals("index at [" + j + "]", expValue, _ios.readFloat(), 1e-6);
-            // remarked because geotiff product writer must write all bands as floats
-//            assertEquals("index at [" + j + "]", expValue, _ios.readInt());
+            assertEquals("index at [" + j + "]", expValue, _ios.readInt());
         }
     }
 
@@ -302,9 +284,7 @@ public class GeoTiffBandWriterTest extends TestCase {
         _ios.seek(offsets[0].getValue());
         for (int j = 0; j < _WIDTH * _HEIGHT; j++) {
             final double expValue = startValue + j;
-            assertEquals("index at [" + j + "]", expValue, _ios.readFloat(), 1.0e-6);
-            // remarked because geotiff product writer must write all bands as floats
-//            assertEquals("index at [" + j + "]", expValue, _ios.readDouble(), 1.0e-6);
+            assertEquals("index at [" + j + "]", expValue, _ios.readDouble(), 1.0e-6);
         }
     }
 
@@ -415,9 +395,7 @@ public class GeoTiffBandWriterTest extends TestCase {
         assertEquals(expSize, _ios.length());
         _ios.seek(offsets[0].getValue());
         for (int j = 0; j < _WIDTH * _HEIGHT; j++) {
-            assertEquals("index at [" + j + "]", startValue + j, _ios.readFloat(), 1e-6);
-            // remarked because geotiff product writer must write all bands as floats
-//            assertEquals("index at [" + j + "]", startValue + j, _ios.readInt());
+            assertEquals("index at [" + j + "]", startValue + j, _ios.readInt());
         }
     }
 
