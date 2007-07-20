@@ -49,7 +49,7 @@ public class OperatorProductReader implements ProductReader {
     }
 
     public Object getInput() {
-        return operatorContext;
+        return operatorContext.getSourceProducts();
     }
 
     public ProductReaderPlugIn getReaderPlugIn() {
