@@ -49,7 +49,7 @@ class SpectralUnmixingForm extends JPanel {
         constrained = new JCheckBox("Perform constrained unmixing");
         sourceBandNames = new JList();
         sourceBandNames.setModel(formModel.getBandListModel());
-        alterSourceProduct = new JCheckBox("Modify input product");
+        alterSourceProduct = new JCheckBox("Alter input product, don't create output product");
         targetBandNameSuffix = new JTextField();
         unmixingModelName = new JComboBox();
 

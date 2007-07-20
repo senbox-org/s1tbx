@@ -180,8 +180,10 @@ public class SpectralUnmixingOp extends AbstractOperator implements ParameterCon
             targetBands[j] = targetProduct.addBand(endmembers[j].getName() + targetBandNameSuffix, ProductData.TYPE_FLOAT32);
         }
 
-        ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
-        ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
+        if (sourceProduct != targetProduct) {
+            ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
+            ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
+        }
 
         double[][] doubles = new double[numSourceBands][numEndmembers];
         for (int j = 0; j < numEndmembers; j++) {
