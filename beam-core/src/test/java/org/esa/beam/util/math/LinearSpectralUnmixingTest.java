@@ -17,11 +17,11 @@ public class LinearSpectralUnmixingTest extends TestCase {
     public void testUnmixing() throws IOException {
 
         Matrix endmembers = Matrix.read(getResourceReader("endmember-spectra.csv"));
-        SpectralUnmixing mlm = new LinearSpectralUnmixing(endmembers);
+        SpectralUnmixing mlm = new UnconstrainedLSU(endmembers);
 
         Matrix spectra = Matrix.read(getResourceReader("pixel-spectra.csv"));
 
-        Matrix abundUnconstrBeam = mlm.unmixUnconstrained(spectra);
+        Matrix abundUnconstrBeam = mlm.unmix(spectra);
         Matrix abundUnconstrEnvi = Matrix.read(getResourceReader("abundances-unconstr-envi.csv"));
         Matrix abundUnconstrExpected = Matrix.read(getResourceReader("abundances-unconstr-expected.csv"));
         assertEquals("Difference of abundances (BEAM minus ENVI, unconstrained)",
@@ -33,7 +33,8 @@ public class LinearSpectralUnmixingTest extends TestCase {
                      maxAbs(abundUnconstrBeam.minus(abundUnconstrExpected)),
                      1e-7);
 
-        Matrix abundConstrBeam = mlm.unmixConstrained(spectra);
+        SpectralUnmixing mlmC = new ConstrainedLSU(endmembers);
+        Matrix abundConstrBeam = mlmC.unmix(spectra);
         Matrix abundConstrEnvi = Matrix.read(getResourceReader("abundances-constr-envi.csv"));
         Matrix abundConstrExpected = Matrix.read(getResourceReader("abundances-constr-expected.csv"));
         assertEquals("Difference of abundances (BEAM minus ENVI, constrained)",

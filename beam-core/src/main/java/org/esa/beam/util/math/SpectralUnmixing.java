@@ -10,16 +10,7 @@ public interface SpectralUnmixing {
      * @param specs the spectra, nrow = # of spectral channels, ncol= # of spectra to be unmixed
      * @return the abundances, nrow = # of endmembers, ncol = # of unmixed spectra
      */
-    Matrix unmixUnconstrained(Matrix specs);
-
-    /**
-     * Gets the abundances of given spectra by performing a constrained, linear unmixing.
-     * The constraint is sum(abundances)=1 for each pixel.
-     *
-     * @param specs nrow = # of spectral channels, ncol= # of spectra to be unmixed
-     * @return the abundances, nrow = # of endmembers, ncol = # of unmixed spectra
-     */
-    Matrix unmixConstrained(Matrix specs);
+    Matrix unmix(Matrix specs);
 
     /**
      * Gets the spectra for given abundances.

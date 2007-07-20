@@ -25,24 +25,18 @@ import Jama.Matrix;
  * @author Helmut Schiller, GKSS
  * @since 4.1
  */
-public class LinearSpectralUnmixing implements SpectralUnmixing {
+public class UnconstrainedLSU implements SpectralUnmixing {
 
     private final Matrix endMembers;
-    private final Matrix ATAinv;
     private final Matrix Apinv;
-    private final Matrix Z;
-
 
     /**
      * Constructs a new <code>LinearSpectralUnmixing</code> for the given matrix.
      * @param endMembers the matrix of end-members, nrow = # of spectral channels, ncol = # of endmembers
      */
-    public LinearSpectralUnmixing(Matrix endMembers) {
-
+    public UnconstrainedLSU(Matrix endMembers) {
         this.endMembers = endMembers;
-        this.ATAinv = (((endMembers.transpose()).times(endMembers))).inverse();
         this.Apinv = endMembers.inverse();
-        this.Z = new Matrix(1, endMembers.getColumnDimension(), 1.);
     }
 
     /**
@@ -51,32 +45,11 @@ public class LinearSpectralUnmixing implements SpectralUnmixing {
      * @param specs the spectra, nrow = # of spectral channels, ncol= # of spectra to be unmixed
      * @return the abundances, nrow = # of endmembers, ncol = # of unmixed spectra
      */
-    public Matrix unmixUnconstrained(Matrix specs) {
+    public Matrix unmix(Matrix specs) {
         if (specs.getRowDimension() != endMembers.getRowDimension()) {
             throw new IllegalArgumentException("specs.getRowDimension() != endmembers.getRowDimension()");
         }
         return this.Apinv.times(specs);
-    }
-
-    /**
-     * Gets the abundances of given spectra by performing a constrained, linear unmixing.
-     * The constraint is sum(abundances)=1 for each pixel.
-     *
-     * @param specs nrow = # of spectral channels, ncol= # of spectra to be unmixed
-     * @return the abundances, nrow = # of endmembers, ncol = # of unmixed spectra
-     */
-    public Matrix unmixConstrained(Matrix specs) {
-        if (specs.getRowDimension() != endMembers.getRowDimension()) {
-            throw new IllegalArgumentException("specs.getRowDimension() != endmembers.getRowDimension()");
-        }
-        Matrix res, hr;
-        Matrix au = unmixUnconstrained(specs);
-        hr = this.ATAinv.times(Z.transpose()).times(
-                Z.times(ATAinv).times(Z.transpose()).inverse()).times(
-                Z.times(au).minus(
-                        (new Matrix(1, specs.getColumnDimension(), 1.))));
-        res = au.minus(hr);
-        return res;
     }
 
     /**

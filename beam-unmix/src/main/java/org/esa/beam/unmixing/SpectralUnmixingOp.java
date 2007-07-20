@@ -26,11 +26,12 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.ui.diagram.DiagramGraph;
 import org.esa.beam.framework.ui.diagram.DiagramGraphIO;
-import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.math.LinearSpectralUnmixing;
-import org.esa.beam.util.math.NonNegacityLinSpecModel;
+import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.math.ConstrainedLSU;
+import org.esa.beam.util.math.FullyConstrainedLSU;
 import org.esa.beam.util.math.SpectralUnmixing;
+import org.esa.beam.util.math.UnconstrainedLSU;
 
 import java.awt.Rectangle;
 import java.io.File;
@@ -43,8 +44,9 @@ import java.util.ArrayList;
  */
 public class SpectralUnmixingOp extends AbstractOperator implements ParameterConverter {
 
-    private final String LINEAR_MODEL_NAME = "Linear";
-    private final String NON_NEGACITY_MODEL_NAME = "Non-Negacity Linear";
+    private final String TYPE_1 = "Unconstrained LSU";
+    private final String TYPE_2 = "Constrained LSU";
+    private final String TYPE_3 = "Fully Constrained LSU";
 
     @SourceProduct
     Product sourceProduct;
@@ -64,18 +66,14 @@ public class SpectralUnmixingOp extends AbstractOperator implements ParameterCon
     @Parameter
     File endmemberFile;
 
-    @Parameter(valueSet = {LINEAR_MODEL_NAME, NON_NEGACITY_MODEL_NAME}, defaultValue = LINEAR_MODEL_NAME)
+    @Parameter(valueSet = {TYPE_1, TYPE_2, TYPE_3}, defaultValue = TYPE_2)
     String unmixingModelName;
 
     @Parameter(pattern = "[a-zA-Z_0-9]*", notNull = true, defaultValue = "_abundance")
     String targetBandNameSuffix;
 
-    @Parameter(defaultValue = "true")
-    boolean constrained;
-
     @Parameter(defaultValue = "1.0e-2")
     double epsilon;
-
 
     private transient Band[] sourceBands;
     private transient Band[] targetBands;
@@ -200,10 +198,15 @@ public class SpectralUnmixingOp extends AbstractOperator implements ParameterCon
                 doubles[i][j] = radiations[k];
             }
         }
-        if (NON_NEGACITY_MODEL_NAME.equals(unmixingModelName)) {
-            spectralUnmixing = new NonNegacityLinSpecModel(new Matrix(doubles));
-        } else {
-            spectralUnmixing = new LinearSpectralUnmixing(new Matrix(doubles));
+
+        if (TYPE_1.equals(unmixingModelName)) {
+            spectralUnmixing = new UnconstrainedLSU(new Matrix(doubles));
+        } else if (TYPE_2.equals(unmixingModelName)) {
+            spectralUnmixing = new ConstrainedLSU(new Matrix(doubles));
+        } else if (TYPE_3.equals(unmixingModelName)) {
+            spectralUnmixing = new FullyConstrainedLSU(new Matrix(doubles));
+        } else if (unmixingModelName == null) {
+            spectralUnmixing = new UnconstrainedLSU(new Matrix(doubles));
         }
         return targetProduct;
     }
@@ -298,12 +301,13 @@ public class SpectralUnmixingOp extends AbstractOperator implements ParameterCon
 
     private double[][] unmix(double[][] ia) {
         Matrix im = new Matrix(ia);
-        Matrix om;
-        if (constrained) {
-            om = spectralUnmixing.unmixConstrained(im);
-        } else {
-            om = spectralUnmixing.unmixUnconstrained(im);
-        }
+        Matrix om = spectralUnmixing.unmix(im);
+        return om.getArray();
+    }
+
+    private double[][] mix(double[][] ia) {
+        Matrix im = new Matrix(ia);
+        Matrix om = spectralUnmixing.mix(im);
         return om.getArray();
     }
 

@@ -29,7 +29,7 @@
         <module>beam-gpf</module>
     </dependency>
 
-    <categories>VISAT</categories>
+    <categories>VISAT,Processing</categories>
 
     <extension point="beam-visat:actions">
         <action>

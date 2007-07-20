@@ -2,19 +2,13 @@ package org.esa.beam.util.math;
 
 import Jama.Matrix;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-
-
-public class NonNegacityLinSpecModel  implements SpectralUnmixing {
+public class FullyConstrainedLSU  implements SpectralUnmixing {
 
     private int nchem, nmemb;
-    private LinearSpectralUnmixing[][] trialModels;
+    private UnconstrainedLSU[][] trialModels;
     private boolean[][][] sortedemcombs;
 
-    public NonNegacityLinSpecModel(Matrix endmembs) {
+    public FullyConstrainedLSU(Matrix endmembs) {
 
         this.nchem = endmembs.getRowDimension();
         this.nmemb = endmembs.getColumnDimension();
@@ -46,7 +40,7 @@ public class NonNegacityLinSpecModel  implements SpectralUnmixing {
             //System.out.println(numbin[k]);
         }
         sortedemcombs = new boolean[nmemb][][];
-        trialModels = new LinearSpectralUnmixing[nmemb][];
+        trialModels = new UnconstrainedLSU[nmemb][];
         for (int nem = nmemb - 1; nem >= 0; nem--) {
             int nc = 0;
             for (int p = 0; p < nposs; p++) {
@@ -56,7 +50,7 @@ public class NonNegacityLinSpecModel  implements SpectralUnmixing {
             }
             //System.out.println(nmemb-nem-1+"  "+nc);
             sortedemcombs[nmemb - nem - 1] = new boolean[nc][nmemb];
-            trialModels[nmemb - nem - 1] = new LinearSpectralUnmixing[nc];
+            trialModels[nmemb - nem - 1] = new ConstrainedLSU[nc];
         }
         for (int nem = nmemb - 1; nem >= 0; nem--) {
             int nc = 0;
@@ -66,7 +60,7 @@ public class NonNegacityLinSpecModel  implements SpectralUnmixing {
                         sortedemcombs[nmemb - nem - 1][nc][m] = emcombs[p][m];
                     }
                     Matrix trem = extractCols(endmembs, sortedemcombs[nmemb - nem - 1][nc]);
-                    trialModels[nmemb - nem - 1][nc] = new LinearSpectralUnmixing(trem);
+                    trialModels[nmemb - nem - 1][nc] = new UnconstrainedLSU(trem);
                     //System.out.print(nmemb-nem-1+"  "+nc+"  ");
                     //for(int m=0; m<nmemb; m++) System.out.print(sortedemcombs[nmemb-nem-1][nc][m]+"  ");
                     //System.out.println();
@@ -75,11 +69,8 @@ public class NonNegacityLinSpecModel  implements SpectralUnmixing {
             }
         }
     }
-//	private int nchem, nmemb;
-//	private LinPixSpecModel[][] trialModels;
-//	private boolean[][][]  sortedemcombs;
 
-    private Matrix unmix(Matrix specs, boolean abusum1) {
+    private Matrix unmix0(Matrix specs) {
         // endlos bei negativen spektren- oder endmembs-anteilen
         Matrix res = new Matrix(nmemb, specs.getColumnDimension());
         for (int nspek = 0; nspek < specs.getColumnDimension(); nspek++) {
@@ -95,11 +86,7 @@ public class NonNegacityLinSpecModel  implements SpectralUnmixing {
                 double err[] = new double[nmods];
                 for (int m = 0; m < nmods; m++) {
                     //System.out.println(nc+"  "+m+"  "+nmods);
-                    if (abusum1) {
-                        abuc[m] = trialModels[nc][m].unmixConstrained(singlesp);
-                    } else {
-                        abuc[m] = trialModels[nc][m].unmixUnconstrained(singlesp);
-                    }
+                    abuc[m] = trialModels[nc][m].unmix(singlesp);
                     for (int k = 0; k < abuc[m].getRowDimension(); k++) {
                         if (abuc[m].get(k, 0) < 0.) {
                             allabupos[m] = false;
@@ -146,22 +133,13 @@ public class NonNegacityLinSpecModel  implements SpectralUnmixing {
         return res;
     }
 
-    public Matrix unmixUnconstrained(Matrix specs) {
-        // specs-dim gegen nchem testen!!!!!!!!!!!!
-        return unmix(specs, false);
+    public Matrix unmix(Matrix specs) {
+        return unmix0(specs);
     }
 
-
-    public Matrix unmixConstrained(Matrix specs) {
-
-        return unmix(specs, true);
-        // );
+    public Matrix mix(Matrix abundances) {
+        return trialModels[0][0].mix(abundances);
     }
-
-    public Matrix mix(Matrix abund) {
-        return trialModels[0][0].mix(abund);
-    }
-
 
     private Matrix extractCols(Matrix M, boolean[] take) {
         int hm = 0;
@@ -185,28 +163,6 @@ public class NonNegacityLinSpecModel  implements SpectralUnmixing {
         return new Matrix(res);
     }
 
-    private Matrix extractRows(Matrix M, boolean[] take) {
-        int hm = 0;
-        int nrow = M.getRowDimension();
-        int ncol = M.getColumnDimension();
-        for (int i = 0; i < take.length; i++) {
-            if (take[i]) {
-                hm++;
-            }
-        }
-        double[][] res = new double[hm][ncol];
-        int tr = 0;
-        for (int ir = 0; ir < nrow; ir++) {
-            if (take[ir]) {
-                for (int ic = 0; ic < ncol; ic++) {
-                    res[tr][ic] = M.get(ir, ic);
-                }
-                tr++;
-            }
-        }
-        return new Matrix(res);
-    }
-
     static int posp(int n) {
         int res = 1;
         for (int i = 0; i < n; i++) {
@@ -225,76 +181,4 @@ public class NonNegacityLinSpecModel  implements SpectralUnmixing {
         return res;
     }
 
-
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        Matrix endmembs;
-        try {
-            endmembs = Matrix.read(new BufferedReader(new FileReader(
-                    "endmembs.malres")));
-            NonNegacityLinSpecModel mlm = new NonNegacityLinSpecModel(endmembs);
-            Matrix specs = Matrix.read(new BufferedReader(new FileReader(
-                    "specs.malres")));
-            Matrix abucon = mlm.unmixConstrained(specs.getMatrix(0, 5, 10, 10));
-            //Matrix abucon = mlm.unmixUnconstrained(specs);
-            //Matrix abucon = mlm.unmixConstrained(specs);
-            abucon.transpose().print(12, 5);
-            Matrix specnocon = mlm.mix(abucon);
-            specnocon.transpose().print(12, 5);
-//			Matrix diffspecnocon = specnocon.minus(specs);
-//			// diffspecnocon.transpose().print(12, 5);
-//			Matrix abunconstr = Matrix.read(new BufferedReader(new FileReader(
-//					"abunconstr.orig")));
-//			// abunconstr.minus(abunocon).transpose().print(15, 10);
-//			System.out.println("   no constraint abunddiff  "
-//					+ maxabs(abunconstr.minus(abunocon)));
-//
-//			Matrix abucon = mlm.unmixConstrained(specs);
-//			// abucon.transpose().print(12, 5);
-//			Matrix speccon = mlm.mix(abucon, endmembs);
-//			Matrix diffspeccon = speccon.minus(specs);
-//			// diffspecnocon.transpose().print(12, 5);
-//			Matrix abconstr = Matrix.read(new BufferedReader(new FileReader(
-//					"abconstr.orig")));
-//			// abconstr.minus(abucon).transpose().print(15, 10);
-//			System.out.println("\nsum 1 constraint abunddiff  "
-//					+ maxabs(abconstr.minus(abucon)));
-//
-//			double[][] bei=new double[2][3];
-//			System.out.println(bei.length+"   "+bei[0].length);
-//
-//
-//			int nrow = abucon.getRowDimension();
-//			int ncol = abucon.getColumnDimension();
-//			double[][] abucons = abucon.getArray();
-//			double maxd1 = -1.;
-//			for (int ic = 0; ic < ncol; ic++) {
-//				double sum = 0.;
-//				for (int ir = 0; ir < nrow; ir++) {
-//					sum += abucons[ir][ic];
-//				}
-//				double ad = Math.abs(sum - 1.);
-//				if (ad > maxd1)
-//					maxd1 = ad;
-//			}
-//			System.out.println("\nsum 1 constraint diff  " + maxd1);
-//
-//
-//			Matrix abuNCLS = mlm.unmixNCLS(specs);
-//			abuNCLS.transpose().print(12, 5);
-//			//Matrix speccon = mlm.mix(abucon, endmembs);
-//			//Matrix diffspeccon = speccon.minus(specs);
-//			// diffspecnocon.transpose().print(12, 5);
-
-
-        } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
 }

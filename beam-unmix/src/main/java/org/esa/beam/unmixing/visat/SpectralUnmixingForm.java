@@ -12,7 +12,6 @@ class SpectralUnmixingForm extends JPanel {
     EndmemberForm endmemberForm;
     JTextField inputProductName;
     JTextField outputProductName;
-    JCheckBox constrained;
     JList sourceBandNames;
     JCheckBox alterSourceProduct;
     JTextField targetBandNameSuffix;
@@ -32,7 +31,6 @@ class SpectralUnmixingForm extends JPanel {
     private void bindComponents() {
         SwingBindingContext bindingContext = new SwingBindingContext(formModel.getOperatorValueContainer());
 
-        bindingContext.bind(constrained, "constrained");
         bindingContext.bind(unmixingModelName, "unmixingModelName");
         bindingContext.bind(alterSourceProduct, "alterSourceProduct");
         bindingContext.bind(targetBandNameSuffix, "targetBandNameSuffix");
@@ -46,7 +44,6 @@ class SpectralUnmixingForm extends JPanel {
         inputProductName = new JTextField(formModel.getInputProduct().getName());
         inputProductName.setEditable(false);
         outputProductName = new JTextField(formModel.getInputProduct().getName() + "_unmixed");
-        constrained = new JCheckBox("Perform constrained unmixing");
         sourceBandNames = new JList();
         sourceBandNames.setModel(formModel.getBandListModel());
         alterSourceProduct = new JCheckBox("Alter input product, don't create output product");
@@ -161,12 +158,6 @@ class SpectralUnmixingForm extends JPanel {
         gbc.gridwidth = 2;
         gbc.weightx = 1;
         ioPanel.add(alterSourceProduct, gbc);
-
-        gbc.gridy++;
-        gbc.gridx = 0;
-        gbc.gridwidth = 2;
-        gbc.weightx = 1;
-        ioPanel.add(constrained, gbc);
 
         // spacer
         gbc.gridy++;
