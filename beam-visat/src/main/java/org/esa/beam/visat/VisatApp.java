@@ -115,8 +115,21 @@ import java.util.concurrent.Executors;
  * @version $Revision: 1.107 $ $Date: 2007/04/23 13:51:01 $
  */
 public final class VisatApp extends BasicApp {
-
-    private static final Module module = VisatActivator.getInstance().getModuleContext().getModule();
+    static {
+        VisatActivator activator = VisatActivator.getInstance();
+        if (activator != null) {
+            Module module = activator.getModuleContext().getModule();
+            APP_SYMBOLIC_NAME = module.getSymbolicName();
+            APP_VERSION = module.getVersion();
+            APP_COPYRIGHTINFO = module.getVersion();
+            APP_LOGGER_NAME = module.getSymbolicName();
+        } else {
+            APP_SYMBOLIC_NAME = "beam-visat";
+            APP_VERSION = "4";
+            APP_COPYRIGHTINFO = "";
+            APP_LOGGER_NAME = "beam-visat";
+        }
+    }
 
     /**
      * Application Name
@@ -125,19 +138,19 @@ public final class VisatApp extends BasicApp {
     /**
      * Application symbolic name
      */
-    public static final String APP_SYMBOLIC_NAME = module.getSymbolicName();
+    public static final String APP_SYMBOLIC_NAME;
     /**
      * Application Version
      */
-    public static final String APP_VERSION = module.getVersion();
+    public static final String APP_VERSION;
     /**
      * Application Copyright Information
      */
-    public static final String APP_COPYRIGHTINFO = module.getVersion();
+    public static final String APP_COPYRIGHTINFO;
     /**
      * The name of the system logger for VISAT
      */
-    public static final String APP_LOGGER_NAME = module.getSymbolicName();
+    public static final String APP_LOGGER_NAME;
     /**
      * VISAT's plug-in directory
      */
