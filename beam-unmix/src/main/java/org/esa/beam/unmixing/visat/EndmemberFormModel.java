@@ -5,6 +5,7 @@ import org.esa.beam.unmixing.Endmember;
 import org.esa.beam.unmixing.SpectralUnmixingOp;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.io.BeamFileFilter;
+import org.esa.beam.visat.VisatApp;
 
 import javax.swing.*;
 import javax.swing.event.ListDataEvent;
@@ -47,7 +48,8 @@ class EndmemberFormModel {
         endmemberDiagram.setYAxis(new DiagramAxis("Radiation", ""));
         endmemberDiagram.setDrawGrid(false);
         propertyChangeSupport = new PropertyChangeSupport(this);
-        preferences = new PropertyMap();  // todo - get from VISAT
+        VisatApp app = VisatApp.getApp();
+        preferences = app != null ? app.getPreferences() : new PropertyMap();
     }
 
     public Endmember[] getEndmembers() {
