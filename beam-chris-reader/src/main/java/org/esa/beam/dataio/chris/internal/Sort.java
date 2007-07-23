@@ -11,16 +11,17 @@ public class Sort {
     /**
      * Returns the nth smallest element of an array.
      *
-     * @param a the array. Note that this array is modified so that all elements
-     *          with array index less than n are less than a[n] and all elements
-     *          with array index greater than n are greater than a[n].
+     * @param a the array.
      * @param n the ordinal number of the array element to be found.
      *
-     * @return the nth smallest array element.
+     * @return the nth smalles array element.  Note that on return the
+     *         input array is arranged so that all elements with array
+     *         index {@code i < n} are less than the returned element
+     *         while all elements with index {@code i > n} are greater.
      *
      * @throws NullPointerException     if the array is {@code null}.
      * @throws IllegalArgumentException if the array is empty.
-     * @throws IllegalArgumentException if {@code n <0}.
+     * @throws IllegalArgumentException if {@code n < 0}.
      * @throws IllegalArgumentException if {@code n >= a.length}.
      */
     public static double nthElement(double a[], int n) {
@@ -30,18 +31,19 @@ public class Sort {
     /**
      * Returns the nth smallest element of an array.
      *
-     * @param a     the array. Note that this array is modified so that all elements
-     *              with array index less than n are less than a[n] and all elements
-     *              with array index greater than n are greater than a[n].
+     * @param a     the array.
      * @param n     the ordinal number of the array element to be found.
      * @param first the index of the first array element to be considered.
      * @param last  the index of the last array element to be considered.
      *
-     * @return the nth smalles array element.
+     * @return the nth smalles array element.  Note that on return the
+     *         input array is arranged so that all elements with array
+     *         index {@code i < n} are less than the returned element
+     *         while all elements with index {@code i > n} are greater.
      *
      * @throws NullPointerException     if the array is {@code null}.
      * @throws IllegalArgumentException if the array is empty.
-     * @throws IllegalArgumentException if {@code n <0}.
+     * @throws IllegalArgumentException if {@code n < 0}.
      * @throws IllegalArgumentException if {@code n >= a.length}.
      * @throws IllegalArgumentException if {@code first < 0}.
      * @throws IllegalArgumentException if {@code last >= a.length}.
