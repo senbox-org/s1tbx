@@ -485,6 +485,7 @@ public final class DefaultRuntimeConfig implements RuntimeConfig {
                     consoleHandler = new ConsoleHandler();
                 }
                 consoleHandler.setFormatter(formatter);
+                consoleHandler.setLevel(logLevel);
                 logger.addHandler(consoleHandler);
             }
             String userHomePath = getProperty("user.home", ".");
@@ -494,6 +495,7 @@ public final class DefaultRuntimeConfig implements RuntimeConfig {
             try {
                 FileHandler fileHandler = new FileHandler(logFilePattern);
                 fileHandler.setFormatter(formatter);
+                fileHandler.setLevel(logLevel);
                 logger.addHandler(fileHandler);
             } catch (IOException e) {
                 System.err.println("Error: Failed to create log file: " + logFilePattern);
