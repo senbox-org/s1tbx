@@ -82,6 +82,7 @@ public class OperatorProductReader implements ProductReader {
         }
     }
 
+    // todo - write a test for this method!
     private void readRectangleTiled(Band targetBand, Rectangle targetTileRectangle, ProductData targetBuffer,
                                     ProgressMonitor pm) throws IOException {
         java.util.List<Rectangle> affectedRectangles = operatorContext.getAffectedRectangles(targetTileRectangle);
@@ -113,6 +114,7 @@ public class OperatorProductReader implements ProductReader {
         }
     }
 
+    // todo - write a test for this method!
     private void copyIntersection(ProductData sourceBuffer, Rectangle sourceRectangle,
                                   ProductData targetBuffer, Rectangle targetRectangle) {
 
@@ -124,7 +126,7 @@ public class OperatorProductReader implements ProductReader {
 
         int sourceIndex = sourceRectangle.width * sourceOffsetY + sourceOffsetX;
         int targetIndex = targetRectangle.width * targetOffsetY + targetOffsetX;
-        if (intersection.width == targetRectangle.width) {
+        if (sourceRectangle.width == targetRectangle.width) {
             System.arraycopy(sourceBuffer.getElems(), sourceIndex,
                              targetBuffer.getElems(), targetIndex,
                              intersection.width * intersection.height);
@@ -132,7 +134,7 @@ public class OperatorProductReader implements ProductReader {
             for (int y = targetOffsetY; y < targetOffsetY + intersection.height; y++) {
                 System.arraycopy(sourceBuffer.getElems(), sourceIndex,
                                  targetBuffer.getElems(), targetIndex,
-                                 sourceRectangle.width);
+                                 intersection.width);
                 sourceIndex += sourceRectangle.width;
                 targetIndex += targetRectangle.width;
             }
