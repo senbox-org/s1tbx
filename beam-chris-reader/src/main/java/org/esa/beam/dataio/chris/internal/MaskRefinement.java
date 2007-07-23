@@ -108,20 +108,7 @@ public class MaskRefinement {
             throw new IllegalArgumentException("values.length == 0");
         }
 
-        final double[] doubles = Arrays.copyOf(values, values.length);
-        Arrays.sort(doubles);
-        // todo - implement method for finding the right value which does not sort the whole array
-
-        final int half = values.length >> 1;
-        final double median;
-
-        if (half << 1 == values.length) {
-            median = 0.5 * (doubles[half - 1] + doubles[half]);
-        } else {
-            median = doubles[half];
-        }
-
-        return median;
+        return Sort.nthElement(Arrays.copyOf(values, values.length), values.length >> 1);
     }
 
 }

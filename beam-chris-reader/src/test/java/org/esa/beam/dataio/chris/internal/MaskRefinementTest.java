@@ -1,7 +1,6 @@
 package org.esa.beam.dataio.chris.internal;
 
 import junit.framework.TestCase;
-import org.esa.beam.dataio.chris.internal.MaskRefinement;
 
 /**
  * Tests for class {@link MaskRefinement}.
@@ -126,8 +125,8 @@ public class MaskRefinementTest extends TestCase {
         }
 
         assertEquals(1.0, MaskRefinement.median(new double[]{1.0}), 0.0);
-        assertEquals(2.0, MaskRefinement.median(new double[]{1.0, 2.0, 3.0}), 0.0);
-        assertEquals(2.5, MaskRefinement.median(new double[]{1.0, 2.0, 3.0, 4.0}), 0.0);
+        assertEquals(2.0, MaskRefinement.median(new double[]{2.0, 1.0, 3.0}), 0.0);
+        assertEquals(3.0, MaskRefinement.median(new double[]{3.0, 1.0, 4.0, 2.0, 5.0}), 0.0);
     }
 
 }
