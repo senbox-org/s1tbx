@@ -4,6 +4,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.TileCache;
+import org.esa.beam.util.logging.BeamLogManager;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,7 +40,7 @@ public class TileCacheImpl implements TileCache {
         minimumTileSize = DEFAULT_MINIMUM_TILE_SIZE;
         memoryCapacity = DEFAULT_MEMORY_CAPACITY;
         memoryLoadFactor = DEFAULT_MEMORY_LOAD_FACTOR;
-        logger = Logger.getAnonymousLogger();
+        logger = BeamLogManager.getSystemLogger();
     }
 
     public long getCurrentMemory() {
