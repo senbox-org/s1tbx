@@ -343,7 +343,7 @@ public final class VisatApp extends BasicApp {
               APP_VERSION,
               APP_COPYRIGHTINFO,
               null,
-              APP_LOGGER_NAME);
+              null);
     }
 
 
