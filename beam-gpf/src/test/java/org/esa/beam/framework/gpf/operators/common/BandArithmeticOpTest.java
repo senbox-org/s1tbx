@@ -73,6 +73,27 @@ public class BandArithmeticOpTest extends TestCase {
 		assertTrue(Arrays.equals(expectedValues, floatValues));
 	}
 	
+	public void testScaledInputBand() throws Exception {
+		Map<String, Object> parameters = new HashMap<String, Object>();
+		BandArithmeticOp.BandDescriptor[] bandDescriptors = new BandArithmeticOp.BandDescriptor[1];
+		bandDescriptors[0] = createBandDescription("aBandName", "band3", ProductData.TYPESTRING_FLOAT32);
+		parameters.put("bandDescriptors", bandDescriptors);
+		Product sourceProduct = createTestProduct(4,4);
+		Product targetProduct = GPF.createProduct("BandArithmetic", parameters, sourceProduct, ProgressMonitor.NULL);
+		
+		assertNotNull(targetProduct);
+		Band band = targetProduct.getBand("aBandName");
+		assertNotNull(band);
+		assertEquals("aDescription", band.getDescription());
+		assertEquals(ProductData.TYPE_FLOAT32, band.getDataType());
+		
+		float[] floatValues = new float[16];
+		band.readPixels(0, 0, 4, 4, floatValues, ProgressMonitor.NULL);
+		float[] expectedValues  = new float[16];
+		Arrays.fill(expectedValues, 3.0f);
+		assertTrue(Arrays.equals(expectedValues, floatValues));
+	}
+	
 	public void testTwoSourceBandsOneTargetBand() throws Exception {
 		Product sourceProduct = createTestProduct(4, 4);
 		Map<String, Object> parameters = new HashMap<String, Object>();
@@ -157,6 +178,13 @@ public class BandArithmeticOpTest extends TestCase {
 		float[] floatValues  = new float[w*h];
 		Arrays.fill(floatValues, 2.5f);
 		band2.setData(ProductData.createInstance(floatValues));
+		
+		Band band3 = testProduct.addBand("band3", ProductData.TYPE_INT16);
+		band3.setScalingFactor(0.5);
+		band3.setSynthetic(true);
+		short[] shortValues  = new short[w*h];
+		Arrays.fill(shortValues, (short)6);
+		band3.setData(ProductData.createInstance(shortValues));
 		return testProduct;
 	}
 }

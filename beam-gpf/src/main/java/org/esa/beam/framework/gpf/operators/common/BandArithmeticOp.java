@@ -142,8 +142,20 @@ public class BandArithmeticOp extends AbstractOperator implements ParameterConve
 		RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
 		for (RasterDataSymbol symbol : refRasterDataSymbols) {
 			Raster raster = getRaster(symbol.getRaster(), rect);
-			ProductData dataBuffer = raster.getDataBuffer();
-			symbol.setData(dataBuffer);
+			if (raster.getRasterDataNode().isScalingApplied()) {
+				ProductData dataBuffer = ProductData.createInstance(ProductData.TYPE_FLOAT32, raster.getWidth() * raster.getHeight());
+				int dataBufferIndex = 0;
+				for (int y = rect.y; y < rect.y + rect.height; y++) {
+					for (int x = rect.x; x < rect.x+rect.width; x++) {
+						dataBuffer.setElemFloatAt(dataBufferIndex, raster.getFloat(x, y));
+						dataBufferIndex++;
+					}
+				}
+				symbol.setData(dataBuffer);
+			} else {
+				ProductData dataBuffer = raster.getDataBuffer();
+				symbol.setData(dataBuffer);
+			}
 		}
 		final ProductData targetData = targetRaster.getDataBuffer();
 
