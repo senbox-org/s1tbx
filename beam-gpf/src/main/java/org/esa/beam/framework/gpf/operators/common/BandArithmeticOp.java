@@ -41,8 +41,11 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.jexp.Namespace;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Parser;
+import com.bc.jexp.Symbol;
 import com.bc.jexp.Term;
+import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.ParserImpl;
+import com.bc.jexp.impl.SymbolFactory;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 
 /**
@@ -61,17 +64,25 @@ public class BandArithmeticOp extends AbstractOperator implements ParameterConve
 		public String validExpression;
 		public String noDataValue;
 	}
+	
+	public static class Variable {
+		public String name;
+		public String type;
+		public String value;
+	}
 
 	@Parameter
 	private String productName = "ExpressionProduct";
 	@Parameter
 	private BandDescriptor[] bandDescriptors;
+	@Parameter
+	private Variable[] variables;
 	@TargetProduct
 	private Product targetProduct;
 	@SourceProducts
 	private Product[] sourceProducts;
 	
-	private Namespace namespace;
+	private WritableNamespace namespace;
 	
 	public BandArithmeticOp(OperatorSpi spi) {
         super(spi);
@@ -104,6 +115,20 @@ public class BandArithmeticOp extends AbstractOperator implements ParameterConve
 				return "$" + idForSourceProduct + ".";
 			}
 		});
+		if (variables != null) {
+			for (Variable variable : variables) {
+				if (ProductData.isFloatingPointType(ProductData.getType(variable.type))) {
+					Symbol symbol = SymbolFactory.createConstant(variable.name, Double.parseDouble(variable.value));
+					namespace.registerSymbol(symbol);
+				} else if (ProductData.isIntType(ProductData.getType(variable.type))) {
+					Symbol symbol = SymbolFactory.createConstant(variable.name, Long.parseLong(variable.value));
+					namespace.registerSymbol(symbol);
+				} else if (ProductData.TYPESTRING_BOOLEAN.equals(variable.type)) {
+					Symbol symbol = SymbolFactory.createConstant(variable.name, Boolean.parseBoolean(variable.value));
+					namespace.registerSymbol(symbol);
+				}
+			}
+		}
 		for (BandDescriptor bandDescriptor : bandDescriptors) {
 			Band band = targetProduct.addBand(bandDescriptor.name, ProductData.getType(bandDescriptor.type));
 			if (StringUtils.isNotNullAndNotEmpty(bandDescriptor.description)) {
