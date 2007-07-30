@@ -53,25 +53,28 @@ public class SwingBindingContext {
 
     public void bind(final JTextField textField, final String propertyName) {
         textField.setName(propertyName);
-        SwingBindingContext.TextFieldBinding textFieldBinding = new SwingBindingContext.TextFieldBinding(textField,
-                                                                                                         propertyName);
+        TextFieldBinding textFieldBinding = new SwingBindingContext.TextFieldBinding(textField, propertyName);
         textField.addActionListener(textFieldBinding);
+        textFieldBinding.adjustWidget();
+    }
+
+    public void bind(final JFormattedTextField textField, final String propertyName) {
+        textField.setName(propertyName);
+        FormattedTextFieldBinding textFieldBinding = new FormattedTextFieldBinding(textField, propertyName);
+        textField.addPropertyChangeListener("value", textFieldBinding);
         textFieldBinding.adjustWidget();
     }
 
     public void bind(final JCheckBox checkBox, final String propertyName) {
         checkBox.setName(propertyName);
-        SwingBindingContext.CheckBoxBinding checkBoxBinding = new SwingBindingContext.CheckBoxBinding(propertyName,
-                                                                                                      checkBox);
+        CheckBoxBinding checkBoxBinding = new CheckBoxBinding(propertyName, checkBox);
         checkBox.addActionListener(checkBoxBinding);
         checkBoxBinding.adjustWidget();
     }
 
     public void bind(JRadioButton radioButton, String propertyName) {
         radioButton.setName(propertyName);
-        SwingBindingContext.RadioButtonBinding radioButtonBinding = new SwingBindingContext.RadioButtonBinding(
-                propertyName,
-                radioButton);
+        RadioButtonBinding radioButtonBinding = new RadioButtonBinding(propertyName, radioButton);
         radioButton.addActionListener(radioButtonBinding);
         radioButtonBinding.adjustWidget();
     }
@@ -80,8 +83,7 @@ public class SwingBindingContext {
     public void bind(final JList list, final String propertyName, final boolean selectionIsValue) {
         list.setName(propertyName);
         if (selectionIsValue) {
-            SwingBindingContext.ListSelectionBinding binding = new SwingBindingContext.ListSelectionBinding(list,
-                                                                                                            propertyName);
+            ListSelectionBinding binding = new ListSelectionBinding(list, propertyName);
             list.addListSelectionListener(binding);
             binding.adjustWidget();
         } else {
@@ -91,7 +93,7 @@ public class SwingBindingContext {
 
     public void bind(final JSpinner spinner, final String propertyName) {
         spinner.setName(propertyName);
-        SwingBindingContext.SpinnerBinding binding = new SwingBindingContext.SpinnerBinding(propertyName, spinner);
+        SpinnerBinding binding = new SpinnerBinding(propertyName, spinner);
         spinner.addChangeListener(binding);
         binding.adjustWidget();
 
@@ -99,8 +101,7 @@ public class SwingBindingContext {
 
     public void bind(final JComboBox comboBox, final String propertyName) {
         comboBox.setName(propertyName);
-        SwingBindingContext.ComboBoxBinding comboBoxBinding = new SwingBindingContext.ComboBoxBinding(propertyName,
-                                                                                                      comboBox);
+        ComboBoxBinding comboBoxBinding = new ComboBoxBinding(propertyName, comboBox);
         comboBox.addActionListener(comboBoxBinding);
         comboBoxBinding.adjustWidget();
     }
@@ -191,7 +192,7 @@ public class SwingBindingContext {
             ValueDefinition valueDefinition = valueContainer.getValueDefinition(propertyName);
             if (valueDefinition.getInterval() != null) {
                 Class<?> type = valueDefinition.getType();
-                
+
                 if (Number.class.isAssignableFrom(type)) {
                     Number defaultValue = (Number) valueDefinition.getDefaultValue();
                     double min = valueDefinition.getInterval().getMin();
@@ -312,6 +313,34 @@ public class SwingBindingContext {
                 String text = valueContainer.getAsText(getPropertyName());
                 textField.setText(text);
             } catch (ConversionException e) {
+                handleError(textField, e);
+            }
+        }
+    }
+
+    class FormattedTextFieldBinding extends SwingBindingContext.AbstractBinding implements PropertyChangeListener {
+
+        private final JFormattedTextField textField;
+
+        public FormattedTextFieldBinding(JFormattedTextField textField, String propertyName) {
+            super(propertyName);
+            this.textField = textField;
+        }
+
+        public void propertyChange(PropertyChangeEvent e) {
+            try {
+                valueContainer.setValue(getPropertyName(), textField.getValue());
+            } catch (Exception e1) {
+                handleError(textField, e1);
+            }
+        }
+
+        @Override
+        protected void adjustWidgetImpl() {
+            try {
+                Object value = valueContainer.getValue(getPropertyName());
+                textField.setValue(value);
+            } catch (Exception e) {
                 handleError(textField, e);
             }
         }

@@ -13,6 +13,7 @@ import javax.swing.JList;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.JFormattedTextField;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 
@@ -80,6 +81,32 @@ public class SwingBindingContextTest extends TestCase {
         assertEquals("Samson", textField.getText());
     }
 
+    public void testBindFormattedTextFieldToString() throws ValidationException {
+        JFormattedTextField textField = new JFormattedTextField();
+        binding.bind(textField, "stringValue");
+
+        assertEquals("stringValue", textField.getName());
+
+        textField.setValue("Bibo");
+        assertEquals("Bibo", valueContainer.getValue("stringValue"));
+
+        valueContainer.setValue("stringValue", "Samson");
+        assertEquals("Samson", textField.getValue());
+    }
+
+    public void testBindFormattedTextFieldToDouble() throws ValidationException {
+        JFormattedTextField textField = new JFormattedTextField();
+        binding.bind(textField, "doubleValue");
+
+        assertEquals("doubleValue", textField.getName());
+
+        textField.setValue(3.14);
+        assertEquals(3.14, valueContainer.getValue("doubleValue"));
+
+        valueContainer.setValue("doubleValue", 2.71);
+        assertEquals(2.71, textField.getValue());
+    }
+
     public void testBindCheckBox() throws ValidationException {
         JCheckBox checkBox = new JCheckBox();
         binding.bind(checkBox, "booleanValue");
@@ -122,6 +149,7 @@ public class SwingBindingContextTest extends TestCase {
     private static class TestPojo {
         boolean booleanValue;
         int intValue;
+        double doubleValue;
         String stringValue;
         int[] listValue;
     }
