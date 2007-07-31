@@ -16,15 +16,22 @@
  */
 package org.esa.beam.framework.gpf.operators.common;
 
-import java.awt.Rectangle;
-
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Parser;
+import com.bc.jexp.Symbol;
+import com.bc.jexp.Term;
+import com.bc.jexp.WritableNamespace;
+import com.bc.jexp.impl.ParserImpl;
+import com.bc.jexp.impl.SymbolFactory;
+import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic.ProductPrefixProvider;
 import org.esa.beam.framework.dataop.barithm.RasterDataEvalEnv;
 import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
-import org.esa.beam.framework.dataop.barithm.BandArithmetic.ProductPrefixProvider;
 import org.esa.beam.framework.gpf.AbstractOperator;
 import org.esa.beam.framework.gpf.AbstractOperatorSpi;
 import org.esa.beam.framework.gpf.Operator;
@@ -37,16 +44,7 @@ import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.StringUtils;
 
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.jexp.Namespace;
-import com.bc.jexp.ParseException;
-import com.bc.jexp.Parser;
-import com.bc.jexp.Symbol;
-import com.bc.jexp.Term;
-import com.bc.jexp.WritableNamespace;
-import com.bc.jexp.impl.ParserImpl;
-import com.bc.jexp.impl.SymbolFactory;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+import java.awt.Rectangle;
 
 /**
  * Created by marcoz.
@@ -63,7 +61,10 @@ public class BandArithmeticOp extends AbstractOperator implements ParameterConve
 		public String type;
 		public String validExpression;
 		public String noDataValue;
-	}
+        public Integer spectralBandIndex;
+        public Float spectralWavelength;
+        public Float spectralBandwidth;
+    }
 	
 	public static class Variable {
 		public String name;
@@ -71,8 +72,8 @@ public class BandArithmeticOp extends AbstractOperator implements ParameterConve
 		public String value;
 	}
 
-	@Parameter
-	private String productName = "ExpressionProduct";
+	@Parameter(defaultValue = "ExpressionProduct")
+	private String productName;
 	@Parameter
 	private BandDescriptor[] bandDescriptors;
 	@Parameter
@@ -146,7 +147,16 @@ public class BandArithmeticOp extends AbstractOperator implements ParameterConve
 					throw new OperatorException("Bad value for NoDataValue given: " +  bandDescriptor.noDataValue, e);
 				}
 			}
-		}
+            if (bandDescriptor.spectralBandIndex != null) {
+                band.setSpectralBandIndex(bandDescriptor.spectralBandIndex);
+            }
+            if (bandDescriptor.spectralWavelength != null) {
+                band.setSpectralWavelength(bandDescriptor.spectralWavelength);
+            }
+            if (bandDescriptor.spectralBandwidth != null) {
+                band.setSpectralBandwidth(bandDescriptor.spectralBandwidth);
+            }
+        }
 		
 		return targetProduct;
 	}
