@@ -73,7 +73,7 @@ public class BandArithmeticOp extends AbstractOperator implements ParameterConve
 	}
 
 	@Parameter(defaultValue = "ExpressionProduct")
-	private String productName;
+	private String productName = "ExpressionProduct";
 	@Parameter
 	private BandDescriptor[] bandDescriptors;
 	@Parameter
