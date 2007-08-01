@@ -5,7 +5,7 @@ import Jama.Matrix;
 public class FullyConstrainedLSU  implements SpectralUnmixing {
 
     private int nchem, nmemb;
-    private UnconstrainedLSU[][] trialModels;
+    private SpectralUnmixing[][] trialModels;
     private boolean[][][] sortedemcombs;
 
     public FullyConstrainedLSU(Matrix endmembs) {
@@ -40,7 +40,7 @@ public class FullyConstrainedLSU  implements SpectralUnmixing {
             //System.out.println(numbin[k]);
         }
         sortedemcombs = new boolean[nmemb][][];
-        trialModels = new UnconstrainedLSU[nmemb][];
+        trialModels = new ConstrainedLSU[nmemb][];
         for (int nem = nmemb - 1; nem >= 0; nem--) {
             int nc = 0;
             for (int p = 0; p < nposs; p++) {
@@ -60,7 +60,7 @@ public class FullyConstrainedLSU  implements SpectralUnmixing {
                         sortedemcombs[nmemb - nem - 1][nc][m] = emcombs[p][m];
                     }
                     Matrix trem = extractCols(endmembs, sortedemcombs[nmemb - nem - 1][nc]);
-                    trialModels[nmemb - nem - 1][nc] = new UnconstrainedLSU(trem);
+                    trialModels[nmemb - nem - 1][nc] = new ConstrainedLSU(trem);
                     //System.out.print(nmemb-nem-1+"  "+nc+"  ");
                     //for(int m=0; m<nmemb; m++) System.out.print(sortedemcombs[nmemb-nem-1][nc][m]+"  ");
                     //System.out.println();
