@@ -57,7 +57,7 @@ public final class LandsatByteBandReader extends LandsatBandReader {
 
         setStreamPos(sourceOffsetX, sourceOffsetY, pixelSize);
 
-        final short[] targetData = (short[]) destBuffer.getElems();
+        final byte[] targetData = (byte[]) destBuffer.getElems();
         final byte[] line = new byte[sourceWidth];
 
         int targetIdx = 0;
@@ -71,7 +71,7 @@ public final class LandsatByteBandReader extends LandsatBandReader {
                 stream.readFully(line, 0, line.length);
 
                 for (int x = 0; x < sourceWidth; x += sourceStepX) {
-                    targetData[targetIdx] = (short) (Math.abs(line[x]) * multiplier);
+                    targetData[targetIdx] = line[x];
                     ++targetIdx;
                 }
                 updateStreamPos(width - sourceWidth, pixelSize);

@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-landsat-reader</symbolicName>
-    <version>1.0</version>
+    <version>1.1</version>
     <name>Landsat TM Product Reader</name>
     <description>
         A product reader for Landsat TM 5 FAST files.
@@ -12,7 +12,12 @@
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
-
+	<changelog>
+        <![CDATA[<p>From 1.0 to 1.1:<br/>
+            [BEAM-653] Landsat reads the raw data (unsigned bytes) wrong<br/>
+        </p>]]>
+    </changelog>
+    
     <dependency>
         <module>beam-core</module>
     </dependency>

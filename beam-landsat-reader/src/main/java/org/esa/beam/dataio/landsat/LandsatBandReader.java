@@ -14,8 +14,6 @@ import java.io.IOException;
 public abstract class LandsatBandReader {
 
     private final String bandName;
-    private final long startOffset;
-    final float multiplier;
     final ImageInputStream stream;
     final int width;
 
@@ -28,22 +26,11 @@ public abstract class LandsatBandReader {
      * @param mult
      * @param stream
      */
-    LandsatBandReader(final int width, final String bandName, final int offset, final float mult,
+    LandsatBandReader(final int width, final String bandName,
                       final ImageInputStream stream) {
         this.bandName = bandName;
-        startOffset = offset;
-        multiplier = mult;
         this.stream = stream;
         this.width = width;
-    }
-
-    LandsatBandReader(final int width, final String bandName, final int offset,
-                      final ImageInputStream stream) {
-        this(width, bandName, offset, (float) 1, stream);
-    }
-
-    LandsatBandReader(final int width, final String bandName, final ImageInputStream stream) {
-        this(width, bandName, 0, (float) 1, stream);
     }
 
     /**
@@ -92,7 +79,6 @@ public abstract class LandsatBandReader {
                                                                                                    IOException {
         // calculate offset in stream and wind to position
         long currentOffset = (sourceOffsetY * width + sourceOffsetX) * pixelSize;
-        currentOffset += startOffset;
         stream.seek(currentOffset);
     }
 

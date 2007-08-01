@@ -111,8 +111,8 @@ final class LandsatTMReader extends AbstractProductReader {
     private void addBands(final LandsatHeader landsatHeader, final int height, final int width,
                           final String formatName) {
 
-        final int dataType = ProductData.TYPE_INT16;
-        List<Band> reflectanceCollection = new ArrayList<Band>();
+        final int dataType = ProductData.TYPE_UINT8;
+//        List<Band> reflectanceCollection = new ArrayList<Band>();
         for (int i = 0; i < landsatHeader.getNumberOfBands(); i++) {
             final LandsatTMBand band = landsatTM.getBandAt(i);
 
@@ -131,27 +131,28 @@ final class LandsatTMReader extends AbstractProductReader {
             radBand.setUnit(LandsatConstants.Unit.RADIANCE.toString());
             product.addBand(radBand);
 
-            Band reflBand;
-            if (band.isThermal()) {
-                final double k1 = LandsatConstants.Thermal.K1.getConstant();
-                final double k2 = LandsatConstants.Thermal.K2.getConstant();
-                reflBand = new VirtualBand("temp_" + band.getIndex(), dataType, width, height,
-                                           k2 + " / log((" + k1 + "/" + radBand.getName() + " )+1 )");
-                reflBand.setUnit(LandsatConstants.Unit.KELVIN.toString());
-            } else {
-                reflBand = new VirtualBand("refl_" + band.getIndex(), dataType, width, height,
-                                           radBand.getName() + " * PI * " +
-                                           Math.pow(landsatHeader.getEarthSunDistance(),
-                                                    2) + " / (" + band.getSolarFlux() + " * " + Math.cos(
-                                                   (90 - landsatHeader.getGeoData().getSunElevationAngle())) + " ) *" + 1000);
-                reflBand.setUnit(LandsatConstants.Unit.REFLECTANCE.toString());
-            }
-            reflectanceCollection.add(reflBand);
+            //TODO refl bands removed (temporarily?)
+//            Band reflBand;
+//            if (band.isThermal()) {
+//                final double k1 = LandsatConstants.Thermal.K1.getConstant();
+//                final double k2 = LandsatConstants.Thermal.K2.getConstant();
+//                reflBand = new VirtualBand("temp_" + band.getIndex(), dataType, width, height,
+//                                           k2 + " / log((" + k1 + "/" + radBand.getName() + " )+1 )");
+//                reflBand.setUnit(LandsatConstants.Unit.KELVIN.toString());
+//            } else {
+//                reflBand = new VirtualBand("refl_" + band.getIndex(), dataType, width, height,
+//                                           radBand.getName() + " * PI * " +
+//                                           Math.pow(landsatHeader.getEarthSunDistance(),
+//                                                    2) + " / (" + band.getSolarFlux() + " * " + Math.cos(
+//                                                   (90 - landsatHeader.getGeoData().getSunElevationAngle())) + " ) *" + 1000);
+//                reflBand.setUnit(LandsatConstants.Unit.REFLECTANCE.toString());
+//            }
+//            reflectanceCollection.add(reflBand);
         }
-        for (Iterator<Band> iter = reflectanceCollection.iterator(); iter.hasNext();) {
-            final Band element = iter.next();
-            product.addBand(element);
-        }
+//        for (Iterator<Band> iter = reflectanceCollection.iterator(); iter.hasNext();) {
+//            final Band element = iter.next();
+//            product.addBand(element);
+//        }
     }
 
 
