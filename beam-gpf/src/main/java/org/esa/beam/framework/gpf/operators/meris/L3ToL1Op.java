@@ -17,7 +17,6 @@
 package org.esa.beam.framework.gpf.operators.meris;
 
 import java.awt.Rectangle;
-import java.io.IOException;
 
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoCoding;
@@ -67,11 +66,16 @@ public class L3ToL1Op extends AbstractOperator {
         targetProduct = new Product("L1", "L1", width, height);
 
         Band[] l3Bands = l3Product.getBands();
-        for (Band l3Band : l3Bands) {
-            Band newBand = targetProduct.addBand(l3Band.getName(), l3Band.getDataType());
-            ProductUtils.copySpectralAttributes(l3Band, newBand);
-            newBand.setNoDataValueUsed(l3Band.isNoDataValueUsed());
-            newBand.setNoDataValue(l3Band.getNoDataValue());
+        for (Band sourceBand : l3Bands) {
+            Band targetBand = targetProduct.addBand(sourceBand.getName(), sourceBand.getDataType());
+            ProductUtils.copySpectralAttributes(sourceBand, targetBand);
+            targetBand.setDescription(sourceBand.getDescription());
+            targetBand.setUnit(sourceBand.getUnit());
+            targetBand.setScalingFactor(sourceBand.getScalingFactor());
+            targetBand.setScalingOffset(sourceBand.getScalingOffset());
+            targetBand.setLog10Scaled(sourceBand.isLog10Scaled());
+            targetBand.setNoDataValueUsed(sourceBand.isNoDataValueUsed());
+            targetBand.setNoDataValue(sourceBand.getNoDataValue());
         }
         return targetProduct;
     }
@@ -81,30 +85,51 @@ public class L3ToL1Op extends AbstractOperator {
     	
     	Rectangle rectangle = targetRaster.getRectangle();
     	Band srcBand = l3Product.getBand(targetRaster.getRasterDataNode().getName());
+    	
+    	PixelPos l1PixelPos = new PixelPos();
+        PixelPos l3PixelPos = new PixelPos();
+        GeoPos geoPos = new GeoPos();
+        
+        Rectangle l3Rect = findL3Rectangle(rectangle, srcBand);
+        Raster srcRaster = getRaster(srcBand, l3Rect);
+        
+    	pm.beginTask("compute", rectangle.height);
         try {
-        	pm.beginTask("compute", rectangle.height);
-            PixelPos l1PixelPos = new PixelPos();
-            PixelPos l3PixelPos = new PixelPos();
-            GeoPos geoPos = new GeoPos();
             for (int y = rectangle.y; y < rectangle.y + rectangle.height; y++) {
                 l1PixelPos.y = y;
                 for (int x = rectangle.x; x < rectangle.x + rectangle.width; x++) {
                     l1PixelPos.x = x;
                     l1GeoCoding.getGeoPos(l1PixelPos, geoPos);
                     l3GeoCoding.getPixelPos(geoPos, l3PixelPos);
-                    double[] srcValue = srcBand.readPixels((int) l3PixelPos.x, (int) l3PixelPos.y, 1, 1, (double[])null, ProgressMonitor.NULL);
-//                    Rectangle l3Rect = new Rectangle((int) l3PixelPos.x, (int) l3PixelPos.y, 1, 1);
-//					Raster srcRaster = getRaster(srcBand, l3Rect);
-//                    targetRaster.setDouble(x, y, srcRaster.getDouble((int) l3PixelPos.x, (int) l3PixelPos.y));
-					targetRaster.setDouble(x, y, srcValue[0]);
+                    targetRaster.setDouble(x, y, srcRaster.getDouble(Math.round(l3PixelPos.x), Math.round(l3PixelPos.y)));
                 }
                 pm.worked(1);
             }
-        }catch (IOException e) {
-        	throw new OperatorException(e);
         } finally {
         	pm.done();
         }
+    }
+    
+    private Rectangle findL3Rectangle(Rectangle l1Rectangle, Band srcBand) {
+    	PixelPos bottomLeft = new PixelPos(l1Rectangle.x, l1Rectangle.y);
+        PixelPos l3PixelPos = l3GeoCoding.getPixelPos(l1GeoCoding.getGeoPos(bottomLeft, null), null);
+        Rectangle l3Rectangle = new Rectangle(Math.round(l3PixelPos.x), Math.round(l3PixelPos.y), 1, 1);
+        
+        PixelPos bottomRight = new PixelPos(l1Rectangle.x+l1Rectangle.width, l1Rectangle.y);
+        l3PixelPos = l3GeoCoding.getPixelPos(l1GeoCoding.getGeoPos(bottomRight, null), l3PixelPos);
+        l3Rectangle.add(l3PixelPos.x, l3PixelPos.y);
+        
+        PixelPos topRight = new PixelPos(l1Rectangle.x+l1Rectangle.width, l1Rectangle.y+l1Rectangle.height);
+        l3PixelPos = l3GeoCoding.getPixelPos(l1GeoCoding.getGeoPos(topRight, null), l3PixelPos);
+        l3Rectangle.add(l3PixelPos.x, l3PixelPos.y);
+        
+        PixelPos topLeft = new PixelPos(l1Rectangle.x, l1Rectangle.y+l1Rectangle.height);
+        l3PixelPos = l3GeoCoding.getPixelPos(l1GeoCoding.getGeoPos(topLeft, null), l3PixelPos);
+        l3Rectangle.add(l3PixelPos.x, l3PixelPos.y);
+        
+        l3Rectangle.grow(2, 2);
+        Rectangle sceneRectangle = new Rectangle(srcBand.getSceneRasterWidth(), srcBand.getSceneRasterHeight());
+        return l3Rectangle.intersection(sceneRectangle);
     }
 
     public static class Spi extends AbstractOperatorSpi {
