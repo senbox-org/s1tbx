@@ -19,6 +19,7 @@ package org.esa.beam.framework.gpf.operators.meris;
 import java.awt.Rectangle;
 
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
@@ -76,6 +77,11 @@ public class RRToFRSOp extends AbstractOperator {
             targetBand.setLog10Scaled(sourceBand.isLog10Scaled());
             targetBand.setNoDataValueUsed(sourceBand.isNoDataValueUsed());
             targetBand.setNoDataValue(sourceBand.getNoDataValue());
+            if (sourceBand.getFlagCoding() != null) {
+                FlagCoding srcFlagCoding = sourceBand.getFlagCoding();
+                ProductUtils.copyFlagCoding(srcFlagCoding, targetProduct);
+                targetBand.setFlagCoding(targetProduct.getFlagCoding(srcFlagCoding.getName()));
+            }
         }
         return targetProduct;
     }
@@ -88,33 +94,26 @@ public class RRToFRSOp extends AbstractOperator {
     	
     	pm.beginTask("compute", frsRectangle.height);
         
-            PixelPos frsPixelPos = new PixelPos();
-            PixelPos rrPixelPos = new PixelPos();
-            GeoPos geoPos = new GeoPos();
-            
-            frsPixelPos.y = frsRectangle.y;
-            frsPixelPos.x = frsRectangle.x;
-            frsGeoCoding.getGeoPos(frsPixelPos, geoPos);
-            rrGeoCoding.getPixelPos(geoPos, rrPixelPos);
-            Rectangle rrRectangle = new Rectangle(Math.round(rrPixelPos.x), Math.round(rrPixelPos.y), frsRectangle.width/4, frsRectangle.height/4);
-            rrRectangle.grow(2, 2);
+            PixelPos frsPixelPos = new PixelPos(frsRectangle.x, frsRectangle.y);
+            GeoPos geoPos = frsGeoCoding.getGeoPos(frsPixelPos, null);
+            PixelPos rrPixelPos = rrGeoCoding.getPixelPos(geoPos, null);
+            final int xStart = Math.round(rrPixelPos.x);
+			final int yStart = Math.round(rrPixelPos.y);
+			Rectangle rrRectangle = new Rectangle(xStart, yStart, frsRectangle.width/4, frsRectangle.height/4);
+            rrRectangle.grow(4, 4);
             Rectangle sceneRectangle = new Rectangle(rrSrcBand.getSceneRasterWidth(), rrSrcBand.getSceneRasterHeight());
             rrRectangle =  rrRectangle.intersection(sceneRectangle);
             
-            System.out.println("RR: "+rrRectangle.toString());
-            System.out.println("FRS:"+frsRectangle.toString());
+//            System.out.println("RR: "+rrRectangle.toString());
+//            System.out.println("FRS:"+frsRectangle.toString());
             Raster srcRaster = getRaster(rrSrcBand, rrRectangle);
             
-            int rrY = rrRectangle.y;
-            int rrX = rrRectangle.x;
-            int iy = 0;
-            int ix = 0;
-            
         try {
-        	
+        	int rrY = yStart;
+            int iy = 0;
             for (int y = frsRectangle.y; y < frsRectangle.y + frsRectangle.height; y++) {
-            	rrX = rrRectangle.x;
-            	ix = 0;
+            	int rrX = xStart;
+            	int ix = 0;
                 for (int x = frsRectangle.x; x < frsRectangle.x + frsRectangle.width; x++) {
                 	double d = srcRaster.getDouble(rrX, rrY);
                 	targetRaster.setDouble(x, y, d);
@@ -133,9 +132,6 @@ public class RRToFRSOp extends AbstractOperator {
 				}
                 pm.worked(1);
             }
-//        }catch (Exception e) {
-//        	e.printStackTrace();
-//        	System.out.println("foof");
         } finally {
         	pm.done();
         }

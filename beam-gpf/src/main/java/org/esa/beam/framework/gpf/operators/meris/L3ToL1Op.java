@@ -17,8 +17,10 @@
 package org.esa.beam.framework.gpf.operators.meris;
 
 import java.awt.Rectangle;
+import java.io.IOException;
 
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
@@ -76,6 +78,11 @@ public class L3ToL1Op extends AbstractOperator {
             targetBand.setLog10Scaled(sourceBand.isLog10Scaled());
             targetBand.setNoDataValueUsed(sourceBand.isNoDataValueUsed());
             targetBand.setNoDataValue(sourceBand.getNoDataValue());
+            if (sourceBand.getFlagCoding() != null) {
+                FlagCoding srcFlagCoding = sourceBand.getFlagCoding();
+                ProductUtils.copyFlagCoding(srcFlagCoding, targetProduct);
+                targetBand.setFlagCoding(targetProduct.getFlagCoding(srcFlagCoding.getName()));
+            }
         }
         return targetProduct;
     }
@@ -102,10 +109,16 @@ public class L3ToL1Op extends AbstractOperator {
                     l1GeoCoding.getGeoPos(l1PixelPos, geoPos);
                     l3GeoCoding.getPixelPos(geoPos, l3PixelPos);
                     targetRaster.setDouble(x, y, srcRaster.getDouble(Math.round(l3PixelPos.x), Math.round(l3PixelPos.y)));
+                    
+//                    double[] srcValue = srcBand.readPixels((int) l3PixelPos.x, (int) l3PixelPos.y, 1, 1, (double[])null, ProgressMonitor.NULL);
+//					targetRaster.setDouble(x, y, srcValue[0]);
                 }
                 pm.worked(1);
             }
-        } finally {
+//        } catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+		} finally {
         	pm.done();
         }
     }
