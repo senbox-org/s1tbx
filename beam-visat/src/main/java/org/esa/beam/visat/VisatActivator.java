@@ -10,6 +10,7 @@ import org.esa.beam.framework.ui.application.ToolViewDescriptor;
 import org.esa.beam.framework.ui.application.ToolViewDescriptorRegistry;
 import org.esa.beam.framework.ui.command.Command;
 import org.esa.beam.util.Debug;
+import org.esa.beam.util.SystemUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,6 +62,10 @@ public class VisatActivator implements Activator, ToolViewDescriptorRegistry {
 
         ServiceRegistryFactory factory = ServiceRegistryFactory.getInstance();
         ServiceRegistry<VisatPlugIn> visatPluginRegistry = factory.getServiceRegistry(VisatPlugIn.class);
+        Iterable<VisatPlugIn> iterable = SystemUtils.loadServices(VisatPlugIn.class, getClass().getClassLoader());
+        for (VisatPlugIn service : iterable) {
+            visatPluginRegistry.addService(service);
+        }
         Set<VisatPlugIn> visatPlugins = visatPluginRegistry.getServices();
         pluginRegistry = new ArrayList<VisatPlugIn>();
         Debug.trace("registering visat plugins...");
