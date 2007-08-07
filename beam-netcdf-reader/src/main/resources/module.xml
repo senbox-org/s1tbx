@@ -22,7 +22,5 @@
         <module>lib-netcdf</module>
     </dependency>
 
-    <packaging>dir</packaging>
-
     <categories>Reader,NetCDF</categories>
 </module>
