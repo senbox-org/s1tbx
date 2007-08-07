@@ -60,13 +60,13 @@ public class PropertyFileParameterPage extends ParameterPage {
     public static final String DEFAULT_PAGE_TITLE = "Processing Parameters";
 
 
-    private final String _defaultPropertyText;
-    private final File _defaultPropertyFile;
+    private final String defaultPropertyText;
+    private final File defaultPropertyFile;
 
-    private String _storedPropertyText;
-    private JTextArea _textArea;
-    private AbstractButton _saveButton;
-    private AbstractButton _restoreDefaultsButton;
+    private String storedPropertyText;
+    private JTextArea textArea;
+    private AbstractButton saveButton;
+    private AbstractButton restoreDefaultsButton;
 
     /**
      * Creates a parameter page for editing a property file.
@@ -95,8 +95,8 @@ public class PropertyFileParameterPage extends ParameterPage {
     public PropertyFileParameterPage(final ParamGroup paramGroup) {
         super(paramGroup);
         setTitle(DEFAULT_PAGE_TITLE);
-        _defaultPropertyFile = getCurrentPropertyFile();
-        _defaultPropertyText = getDefaultPropertyFileText(_defaultPropertyFile);
+        defaultPropertyFile = getCurrentPropertyFile();
+        defaultPropertyText = getDefaultPropertyFileText(defaultPropertyFile);
     }
 
     /**
@@ -162,7 +162,7 @@ public class PropertyFileParameterPage extends ParameterPage {
         }
         app.addRequestValidator(new RequestValidator() {
             public boolean validateRequest(final Processor processor, final Request request) {
-                if (!_storedPropertyText.equals(_textArea.getText())) {
+                if (!storedPropertyText.equals(textArea.getText())) {
                     // here is parameter OK, not to confuse the user
                     app.showInfoDialog("Parameter file is modified.\n" +
                                        "Unable to start processing.\n" +
@@ -184,9 +184,9 @@ public class PropertyFileParameterPage extends ParameterPage {
      * @return the UI component displayed as page of the {@link MultiPageProcessorUI}.
      */
     public JComponent createUI() {
-        _textArea = new JTextArea();
-        final JScrollPane textPane = new JScrollPane(_textArea);
-        textPane.setPreferredSize(new Dimension(600, 250));
+        textArea = new JTextArea();
+        final JScrollPane textPane = new JScrollPane(textArea);
+        textPane.setPreferredSize(new Dimension(400, 300));
         final JPanel panel = GridBagUtils.createDefaultEmptyBorderPanel();
         final GridBagConstraints gbc = GridBagUtils.createConstraints(null);
         gbc.gridy = 0;
@@ -200,21 +200,21 @@ public class PropertyFileParameterPage extends ParameterPage {
         gbc.gridwidth = 3;
         panel.add(param.getEditor().getLabelComponent(), gbc);
 
-        _saveButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Save16.gif"), false);
-        _saveButton.setEnabled(false);
-        _saveButton.setToolTipText("Saves the edited parameters");
-        _saveButton.addActionListener(createSaveButtonListener());
+        saveButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Save16.gif"), false);
+        saveButton.setEnabled(false);
+        saveButton.setToolTipText("Saves the edited parameters");
+        saveButton.addActionListener(createSaveButtonListener());
 
-        _restoreDefaultsButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Undo16.gif"), false);
-        _restoreDefaultsButton.setEnabled(false);
-        _restoreDefaultsButton.setToolTipText("Restores the processor default parameters");
-        _restoreDefaultsButton.addActionListener(createRestoreDefaultsButtonListener());
+        restoreDefaultsButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Undo16.gif"), false);
+        restoreDefaultsButton.setEnabled(false);
+        restoreDefaultsButton.setToolTipText("Restores the processor default parameters");
+        restoreDefaultsButton.addActionListener(createRestoreDefaultsButtonListener());
 
         gbc.gridy++;
         gbc.gridwidth = 1;
         gbc.weightx = 0;
-        panel.add(_saveButton, gbc);
-        panel.add(_restoreDefaultsButton, gbc);
+        panel.add(saveButton, gbc);
+        panel.add(restoreDefaultsButton, gbc);
 
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1;
@@ -227,7 +227,7 @@ public class PropertyFileParameterPage extends ParameterPage {
         gbc.insets.top = 5;
         panel.add(textPane, gbc);
 
-        _textArea.addKeyListener(createPropertyFileEditorKeyListener());
+        textArea.addKeyListener(createPropertyFileEditorKeyListener());
 
         // init text area
         loadPropertyFile();
@@ -266,8 +266,8 @@ public class PropertyFileParameterPage extends ParameterPage {
     private void loadPropertyFile() {
         final boolean successLoading = readPropertyFile();
         if (successLoading) {
-            _saveButton.setEnabled(false);
-            _restoreDefaultsButton.setEnabled(!getCurrentPropertyFile().equals(_defaultPropertyFile));
+            saveButton.setEnabled(false);
+            restoreDefaultsButton.setEnabled(!getCurrentPropertyFile().equals(defaultPropertyFile));
         }
     }
 
@@ -279,8 +279,8 @@ public class PropertyFileParameterPage extends ParameterPage {
         try {
             final FileReader in = new FileReader(propertyFile);
             try {
-                _textArea.read(in, getCurrentPropertyFile());
-                _storedPropertyText = _textArea.getText();
+                textArea.read(in, getCurrentPropertyFile());
+                storedPropertyText = textArea.getText();
             } finally {
                 in.close();
             }
@@ -305,8 +305,8 @@ public class PropertyFileParameterPage extends ParameterPage {
     private KeyListener createPropertyFileEditorKeyListener() {
         return new KeyAdapter() {
             public void keyTyped(final KeyEvent e) {
-                _saveButton.setEnabled(true);
-                _restoreDefaultsButton.setEnabled(!_textArea.getText().equals(_defaultPropertyText));
+                saveButton.setEnabled(true);
+                restoreDefaultsButton.setEnabled(!textArea.getText().equals(defaultPropertyText));
             }
         };
     }
@@ -326,8 +326,8 @@ public class PropertyFileParameterPage extends ParameterPage {
                                                                  "Do you really want to reload the default parameters file?\n" +
                                                                  "All current settings will be lost.");
                 if (answer == JOptionPane.YES_OPTION) {
-                    setPropertyFileParameter(_defaultPropertyFile);
-                    _restoreDefaultsButton.setEnabled(false);
+                    setPropertyFileParameter(defaultPropertyFile);
+                    restoreDefaultsButton.setEnabled(false);
                 }
             }
         };
@@ -346,8 +346,8 @@ public class PropertyFileParameterPage extends ParameterPage {
                 pw.close();
             }
             getParamGroup().getParameter(PROPERTY_FILE_PARAM_NAME).setValue(propertyFile, null);
-            _saveButton.setEnabled(false);
-            _storedPropertyText = _textArea.getText();
+            saveButton.setEnabled(false);
+            storedPropertyText = textArea.getText();
         }
     }
 
@@ -355,8 +355,8 @@ public class PropertyFileParameterPage extends ParameterPage {
         File propertyFile = getCurrentPropertyFile();
         final ProcessorApp app = getApp();
         if (app != null) {
-            while (propertyFile.equals(_defaultPropertyFile) || !app.promptForOverwrite(propertyFile)) {
-                if (propertyFile.equals(_defaultPropertyFile)) {
+            while (propertyFile.equals(defaultPropertyFile) || !app.promptForOverwrite(propertyFile)) {
+                if (propertyFile.equals(defaultPropertyFile)) {
                     final String msgText = "It is not allowed to overwrite the default parameters file.\n" +
                                            "Please choose a different file name.";
                     if (getApp() != null) {
@@ -394,11 +394,11 @@ public class PropertyFileParameterPage extends ParameterPage {
     }
 
     private void writePropertyFile(final PrintWriter out) {
-        for (int lineNumber = 0; lineNumber < _textArea.getLineCount(); lineNumber++) {
+        for (int lineNumber = 0; lineNumber < textArea.getLineCount(); lineNumber++) {
             try {
-                final int start = _textArea.getLineStartOffset(lineNumber);
-                final int len = _textArea.getLineEndOffset(lineNumber) - start;
-                final String line = _textArea.getText(start, len);
+                final int start = textArea.getLineStartOffset(lineNumber);
+                final int len = textArea.getLineEndOffset(lineNumber) - start;
+                final String line = textArea.getText(start, len);
                 final String lineWithoutCRorLF = line.replaceAll("[\\n\\r]", "");
                 out.println(lineWithoutCRorLF);
             } catch (BadLocationException e) {
@@ -413,7 +413,7 @@ public class PropertyFileParameterPage extends ParameterPage {
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new FileReader(propertyFile));
-            String line = null;
+            String line;
             while ((line = reader.readLine()) != null) {
                 sb.append(line);
                 sb.append(System.getProperty("line.separator", "\n"));
@@ -453,6 +453,9 @@ public class PropertyFileParameterPage extends ParameterPage {
     private void setPropertyFileParameter(final File propertyFile) {
         if (propertyFile != null) {
             getParamGroup().getParameter(PROPERTY_FILE_PARAM_NAME).setValue(propertyFile, null);
+            textArea.setText(defaultPropertyText);
+            textArea.setSelectionStart(0);
+            textArea.setSelectionEnd(0);
         }
     }
 
