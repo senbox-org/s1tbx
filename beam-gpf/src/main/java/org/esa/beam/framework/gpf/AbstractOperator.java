@@ -105,7 +105,7 @@ public abstract class AbstractOperator implements Operator {
      *
      * @param rasterDataNode the raster data node of a data product, e.g. a {@link org.esa.beam.framework.datamodel.Band} or {@link org.esa.beam.framework.datamodel.TiePointGrid}.
      * @param rectangle      the raster rectangle in pixel coordinates
-     * @param dataBuffer     a data buffer to be reused by the tile, its size must be equal to <code>tileRectangle.width * tileRectangle.height</code>
+     * @param dataBuffer     a data buffer to be reused by the raster, its size must be equal to <code>tileRectangle.width * tileRectangle.height</code>
      *
      * @return a tile which will reuse the given data buffer
      */
