@@ -74,7 +74,9 @@ public class Node {
      * Returns the <code>NodeSource</code> at the given index position
      *
      * @param index the index of the <code>NodeSource</code> to return
+     *
      * @return the <code>NodeSource</code> at the given index position
+     *
      * @throws IndexOutOfBoundsException if index is out of range
      */
     public NodeSource getSource(int index) throws IndexOutOfBoundsException {
@@ -106,18 +108,38 @@ public class Node {
         this.configuration = configuration;
     }
 
+    /**
+     * A list of {@link NodeSource}s.
+     */
     public static class SourceList {
 
         private List<NodeSource> sourceList = new ArrayList<NodeSource>();
 
+        /**
+         * Gets all {@link NodeSource}s.
+         *
+         * @return the {@link NodeSource}s
+         */
         public NodeSource[] getSources() {
             return sourceList.toArray(new NodeSource[sourceList.size()]);
         }
 
+        /**
+         * Gets the {@link NodeSource} at the given index.
+         *
+         * @param index the index
+         *
+         * @return the {@link NodeSource}
+         */
         public NodeSource getSource(int index) {
             return sourceList.get(index);
         }
 
+        /**
+         * Adds a {@link NodeSource} to this list.
+         *
+         * @param source the {@link NodeSource}
+         */
         public void addSource(NodeSource source) {
             sourceList.add(source);
         }
