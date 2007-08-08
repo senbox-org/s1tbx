@@ -16,14 +16,13 @@
  */
 package org.esa.beam.framework.gpf;
 
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.ProductData;
-
-import java.util.logging.Logger;
-import java.awt.*;
-
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+
+import java.awt.Rectangle;
+import java.util.logging.Logger;
 
 /**
  * The context in which operators are executed.
@@ -57,16 +56,17 @@ public interface OperatorContext {
     Product[] getSourceProducts();
 
     /**
-     * Gets the source product using the specified name.
+     * Gets the source product using the specified id.
      *
      * @param id the identifier
-     * @return the source product, or <code>null</code> if not found
+     *
+     * @return the source product, or {@code null} if not found
      */
     Product getSourceProduct(String id);
 
     /**
-     * Gets the identifiers for the given source product.
-     * 
+     * Gets the identifier for the given source product.
+     *
      * @return the identifier
      */
     String getIdForSourceProduct(Product product);
@@ -76,25 +76,29 @@ public interface OperatorContext {
      *
      * @param rasterDataNode the raster data node of a data product, e.g. a {@link org.esa.beam.framework.datamodel.Band} or {@link org.esa.beam.framework.datamodel.TiePointGrid}.
      * @param tileRectangle  the tile rectangle in pixel coordinates
-     * @param pm a monitor to observe progress
-     * @return a tile.
+     * @param pm             a monitor to observe progress
      *
-     * {@see ProgressMonitor}
+     * @return a tile
+     *
+     * @see ProgressMonitor
      */
-    Raster getRaster(RasterDataNode rasterDataNode, Rectangle tileRectangle, ProgressMonitor pm) throws OperatorException;
+    Raster getRaster(RasterDataNode rasterDataNode, Rectangle tileRectangle, ProgressMonitor pm) throws
+                                                                                                 OperatorException;
 
     /**
      * Gets a {@link Raster} for a given band and rectangle.
      *
      * @param rasterDataNode the raster data node of a data product, e.g. a {@link org.esa.beam.framework.datamodel.Band} or {@link org.esa.beam.framework.datamodel.TiePointGrid}.
      * @param tileRectangle  the tile rectangle in pixel coordinates
-     * @param dataBuffer a data buffer to be reused by the tile, its size must be equal to <code>tileRectangle.width * tileRectangle.height</code>.
-     * @param pm a monitor to observe progress
+     * @param dataBuffer     a data buffer to be reused by the tile, its size must be equal to {@code tileRectangle.width * tileRectangle.height}.
+     * @param pm             a monitor to observe progress
+     *
      * @return a tile which will reuse the given data buffer
      *
-     * {@see ProgressMonitor}     *
+     * @see ProgressMonitor
      */
-    Raster getRaster(RasterDataNode rasterDataNode, Rectangle tileRectangle, ProductData dataBuffer, ProgressMonitor pm) throws OperatorException;
+    Raster getRaster(RasterDataNode rasterDataNode, Rectangle tileRectangle, ProductData dataBuffer,
+                     ProgressMonitor pm) throws OperatorException;
 
     /**
      * Gets a logger for the operator.
