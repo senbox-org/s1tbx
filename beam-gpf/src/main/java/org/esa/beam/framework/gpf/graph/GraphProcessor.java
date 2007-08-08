@@ -8,12 +8,12 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.ParameterConverter;
 import org.esa.beam.framework.gpf.internal.DefaultParameterConverter;
-import org.esa.beam.framework.gpf.internal.TileComputingStrategy;
 import org.esa.beam.framework.gpf.internal.OperatorContextInitializer;
 import org.esa.beam.framework.gpf.internal.ParameterInjector;
+import org.esa.beam.framework.gpf.internal.TileComputingStrategy;
 import org.esa.beam.framework.gpf.support.RectangleIterator;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
@@ -35,26 +35,37 @@ public class GraphProcessor {
 
 
     /**
-     * Creates a GraphProcessor.
+     * Creates a new instance og {@code GraphProcessor}.
      */
     public GraphProcessor() {
         observerList = new ArrayList<GraphProcessingObserver>();
         logger = Logger.getAnonymousLogger();
     }
 
+    /**
+     * Gets the logger.
+     *
+     * @return the logger
+     */
     public Logger getLogger() {
         return logger;
     }
 
+    /**
+     * Sets a logger.
+     *
+     * @param logger a logger
+     */
     public void setLogger(Logger logger) {
         this.logger = logger;
     }
 
     /**
-     * Adds an observer to the this graph manager. {@link GraphProcessingObserver}s are informed about
+     * Adds an observer to this graph propcessor. {@link GraphProcessingObserver}s are informed about
      * processing steps of the currently running processing graph.
      *
      * @param processingObserver the observer
+     *
      * @see GraphProcessingObserver
      */
     public void addObserver(GraphProcessingObserver processingObserver) {
@@ -62,7 +73,7 @@ public class GraphProcessor {
     }
 
     /**
-     * Gets all observers currentyl added.
+     * Gets all observers currentyl attached to this {@code GraphProcessor}.
      *
      * @return the observers
      */
@@ -70,6 +81,14 @@ public class GraphProcessor {
         return observerList.toArray(new GraphProcessingObserver[observerList.size()]);
     }
 
+    /**
+     * Executes the given {@link Graph}.
+     *
+     * @param graph the {@link Graph}
+     * @param pm    a progress monitor. Can be used to signal progress.
+     *
+     * @throws GraphException if any error occrues during execution
+     */
     public void executeGraph(Graph graph, ProgressMonitor pm) throws GraphException {
         GraphContext graphContext;
         try {
@@ -82,6 +101,16 @@ public class GraphProcessor {
         }
     }
 
+    /**
+     * Creates an {@link GraphContext} for the given {@link Graph}.
+     *
+     * @param graph the {@link Graph} to create the {@link GraphContext} for
+     * @param pm    a progress monitor. Can be used to signal progress.
+     *
+     * @return the created {@link GraphContext}
+     *
+     * @throws GraphException if any error occrues during creation of the context, e.g. the graph is empty
+     */
     public GraphContext createGraphContext(Graph graph, ProgressMonitor pm) throws GraphException {
 
         if (graph.getNodeCount() == 0) {
@@ -100,6 +129,11 @@ public class GraphProcessor {
         }
     }
 
+    /**
+     * Disposes the given {@link GraphContext}.
+     *
+     * @param graphContext the {@link GraphContext} to dispose
+     */
     public void disposeGraphContext(GraphContext graphContext) {
         Deque<NodeContext> initNodeContextDeque = graphContext.getInitNodeContextDeque();
         while (!initNodeContextDeque.isEmpty()) {
@@ -109,7 +143,14 @@ public class GraphProcessor {
         }
     }
 
-
+    /**
+     * Executes the given {@link GraphContext}.
+     *
+     * @param graphContext the {@link GraphContext} to execute
+     * @param pm           a progress monitor. Can be used to signal progress.
+     *
+     * @throws GraphException if any error occrues during execution
+     */
     public void executeGraphContext(GraphContext graphContext, ProgressMonitor pm) throws GraphException {
         fireProcessingStarted(graphContext);
 
@@ -153,7 +194,7 @@ public class GraphProcessor {
                 Node sourceNode = graph.getNode(source.getSourceNodeId());
                 if (sourceNode == null) {
                     throw new GraphException("Missing source. Node Id: " + node.getId()
-                            + " Source Id: " + source.getSourceNodeId());
+                                             + " Source Id: " + source.getSourceNodeId());
                 }
                 graphContext.getNodeContext(sourceNode).incrementReferenceCount();
                 source.setSourceNode(sourceNode);  // todo - use getNodeContext()
@@ -178,7 +219,7 @@ public class GraphProcessor {
     }
 
     private void initNodeContext(GraphContext graphContext, final NodeContext nodeContext, ProgressMonitor pm) throws
-            GraphException {
+                                                                                                               GraphException {
         try {
             NodeSource[] sources = nodeContext.getNode().getSources();
             pm.beginTask("Creating operator", sources.length + 4);
@@ -232,6 +273,7 @@ public class GraphProcessor {
 
 
     private static class Xpp3DomParameterInjector implements ParameterInjector {
+
         private final NodeContext nodeContext;
 
         public Xpp3DomParameterInjector(NodeContext nodeContext) {
