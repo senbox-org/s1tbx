@@ -14,6 +14,7 @@ public interface OperatorSpi {
     /**
      * Gets the operator class.
      * The operator class must be public and provide a public zero-argument constructor.
+     *
      * @return the operator class
      */
     Class<? extends Operator> getOperatorClass();
@@ -34,6 +35,7 @@ public interface OperatorSpi {
 
     /**
      * Gets a copyright note for the {@link Operator}.
+     *
      * @return a copyright note
      */
     String getCopyright();
