@@ -2,6 +2,7 @@ package org.esa.beam.framework.gpf.graph;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.runtime.RuntimeRunnable;
+import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 
 import java.awt.Rectangle;
 import java.io.FileInputStream;
@@ -13,8 +14,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import org.esa.beam.framework.gpf.OperatorSpiRegistry;
-
 /**
  * Used to execute a processing {@link Graph} defined
  * in an XML file. Use the following command line argumetns to substitute template
@@ -22,8 +21,8 @@ import org.esa.beam.framework.gpf.OperatorSpiRegistry;
  * <p/>
  * <ul>
  * <li>-i &#60inputproductfile1&#62,&#60inputproductfile2&#62,... : substitutes
- * ${inputproductfile1}, ${inputproductfile1}, ... with the given file paths.
- * <li>-o -o &#60outputfile1&#62,&#60outputfile1&#62,... : substitues
+ * ${inputproductfile1}, ${inputproductfile2}, ... with the given file paths.
+ * <li>-o -o &#60outputfile1&#62,&#60outputfile2&#62,... : substitues
  * ${outputfile1}, ${outputfile2}, ... with the given file paths.
  * <li>-v variablename=value : substitutes ${variablename} with the given value.
  * <li>-p &#60propertiesfile&#62
@@ -34,10 +33,23 @@ import org.esa.beam.framework.gpf.OperatorSpiRegistry;
  */
 public class GraphProcessorMain implements RuntimeRunnable {
 
+    /**
+     * The main entry point when started as an application.
+     *
+     * @param args the command line arguments
+     */
     public static void main(String[] args) {
         run(args, ProgressMonitor.NULL);
     }
 
+    /**
+     * The main entry point when started as a Ceres module.
+     *
+     * @param object parameters to run this instance, expected as {@code String[]}
+     * @param pm     a progress monitor. Can be used to signal progress.
+     *
+     * @throws Exception if any error occures
+     */
     public void run(Object object, ProgressMonitor pm) throws Exception {
         String[] args = new String[0];
         if (object instanceof String[]) {
@@ -45,7 +57,6 @@ public class GraphProcessorMain implements RuntimeRunnable {
         }
 
         run(args, pm);
-
     }
 
     private static void run(String[] args, ProgressMonitor pm) {
@@ -96,7 +107,6 @@ public class GraphProcessorMain implements RuntimeRunnable {
         System.out.println("-o <outputFile1>,<outputFile2>,...");
         System.out.println("-v <variableName>=<value>");
         System.out.println("-p <propertiesFile>");
-
     }
 
     private static Properties parseArgs(String[] args) {
