@@ -17,8 +17,8 @@ import java.io.Writer;
 import java.util.Map;
 
 /**
- * The <code>GraphIO</code> class contains methods for the
- * serialization/deserialization of XML-based <code>Graph</code> definitions.
+ * The {@link GraphIO} class contains methods for the
+ * serialization/deserialization of XML-based {@link Graph} definitions.
  *
  * @author Maximilian Aulinger
  * @author Norman Fomferra
@@ -27,7 +27,10 @@ import java.util.Map;
 public class GraphIO {
 
     /**
-     * Serializes the given <code>Graph</code> into XML
+     * Serializes the given {@code graph} into XML
+     *
+     * @param graph  the {@code graph} to write into XML
+     * @param writer the writer to use for serialization.
      */
     public static void write(Graph graph, Writer writer) {
         XStream xStream = initXstream();
@@ -35,9 +38,11 @@ public class GraphIO {
     }
 
     /**
-     * Deserializes a <code>Graph</code> from an XML Reader.
+     * Deserializes a {@code graph} from an XML Reader.
      *
-     * @return the deserialized <code>Graph</code>
+     * @param reader the readerto use for deserialization
+     *
+     * @return the deserialized <code>graph</code>
      */
     public static Graph read(Reader reader) {
         return read(reader, null);
@@ -45,13 +50,14 @@ public class GraphIO {
 
 
     /**
-     * Deserializes a <code>Graph</code> from a XML Reader using a mapping
+     * Deserializes a {@link Graph} from a XML Reader using a mapping
      * for the substitution of template variables inside the XML-based
-     * <code>Graph</code> definition.
+     * {@link Graph} definition.
      *
-     * @param reader    the XML Reader
-     * @param variables a mapping from template variable names to their String values.
-     * @return the deserialized <code>Graph</code>
+     * @param reader    the XML reader
+     * @param variables a mapping from template variable names to their string values.
+     *
+     * @return the deserialized <code>graph</code>
      */
     public static Graph read(Reader reader, Map variables) {
         XStream xStream = initXstream();
@@ -65,6 +71,8 @@ public class GraphIO {
 
     /**
      * Creates and initializes the underlying serialization tool XStream.
+     *
+     * @return an initilalized instance of {@link XStream}
      */
     private static XStream initXstream() {
         XStream xStream = new XStream();
