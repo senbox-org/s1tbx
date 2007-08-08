@@ -6,6 +6,7 @@ import com.bc.ceres.core.Assert;
  * Base class for operator SPIs.
  */
 public abstract class AbstractOperatorSpi implements OperatorSpi {
+
     private String name;
     private String version;
     private String description;
@@ -31,6 +32,11 @@ public abstract class AbstractOperatorSpi implements OperatorSpi {
         return operatorClass;
     }
 
+    /**
+     * Sets the class of the {@link Operator}.
+     *
+     * @param operatorClass the class of the {@link Operator}
+     */
     public void setOperatorClass(Class<? extends Operator> operatorClass) {
         this.operatorClass = operatorClass;
     }
@@ -42,6 +48,11 @@ public abstract class AbstractOperatorSpi implements OperatorSpi {
         return name;
     }
 
+    /**
+     * Sets the name of the {@link Operator}
+     *
+     * @param name the name of the {@link Operator}
+     */
     public void setName(String name) {
         this.name = name;
     }
@@ -53,6 +64,11 @@ public abstract class AbstractOperatorSpi implements OperatorSpi {
         return author;
     }
 
+    /**
+     * Sets the name of the author
+     *
+     * @param author the authors name
+     */
     public void setAuthor(String author) {
         this.author = author;
     }
@@ -64,6 +80,11 @@ public abstract class AbstractOperatorSpi implements OperatorSpi {
         return copyright;
     }
 
+    /**
+     * Sets the copyright note.
+     *
+     * @param copyright the copyright note
+     */
     public void setCopyright(String copyright) {
         this.copyright = copyright;
     }
@@ -75,6 +96,11 @@ public abstract class AbstractOperatorSpi implements OperatorSpi {
         return description;
     }
 
+    /**
+     * Sets a short description of the {@link Operator}.
+     *
+     * @param description a short description
+     */
     public void setDescription(String description) {
         this.description = description;
     }
@@ -86,6 +112,11 @@ public abstract class AbstractOperatorSpi implements OperatorSpi {
         return version;
     }
 
+    /**
+     * Sets the version number of the {@link Operator}.
+     *
+     * @param version the version number
+     */
     public void setVersion(String version) {
         this.version = version;
     }
