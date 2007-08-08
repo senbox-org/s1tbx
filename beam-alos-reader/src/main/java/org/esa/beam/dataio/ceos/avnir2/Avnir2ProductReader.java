@@ -95,13 +95,12 @@ public class Avnir2ProductReader extends AbstractProductReader {
             ioException.initCause(e);
             throw ioException;
         }
-        if (product != null) {
-            product.setProductReader(this);
-            product.setModified(false);
-        }
+        product.setProductReader(this);
+        product.setModified(false);
 
         return product;
     }
+
     /**
      * {@inheritDoc}
      */
