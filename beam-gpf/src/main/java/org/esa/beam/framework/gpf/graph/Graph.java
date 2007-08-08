@@ -19,6 +19,8 @@ public class Graph {
 
     /**
      * Constructs an empty graph with the given <code>id</code>.
+     *
+     * @param id the id of the graph
      */
     public Graph(String id) {
         this.id = id;
@@ -26,18 +28,27 @@ public class Graph {
     }
 
     /**
-     * Returns the Graph's id
+     * Gets the graph's id
+     *
+     * @return the id of the graph
      */
     public Object getId() {
         return id;
     }
 
+    /**
+     * Gets the number nodes contained by this graph.
+     *
+     * @return the number nodes
+     */
     public int getNodeCount() {
         return nodeList.size();
     }
 
     /**
      * Adds a <code>Node</code> to the graph
+     *
+     * @param node a node
      *
      * @throws IllegalArgumentException if the id of the given node is already in use
      */
@@ -49,29 +60,34 @@ public class Graph {
     }
 
     /**
-     * Removes the <code>Node</code> with the given <code>id</code> from the
-     * <code>Graph</code> if present.
+     * Removes the {@link Node} with the given {@code id} from this graph if present.
      *
-     * @param id the id of the <code>Node</code> to be removed
-     * @return <code>true</code> if the <code>Graph</code> contains a
-     *         <code>Node</code> with the given id. Else <code>false</code>.
+     * @param id the id of the {@link Node} to be removed
+     *
+     * @return {@code true<} if the graph contains a {@link Node} with the given {@code id}. Else {@code false}.
      */
     public boolean removeNode(String id) {
         return nodeList.remove(getNode(id));
     }
 
+    /**
+     * Gets the {@link Node} at the given index.
+     *
+     * @param index the index
+     *
+     * @return the node at the given index
+     */
     public Node getNode(int index) {
         return nodeList.get(index);
     }
 
     /**
-     * Returns the {@link Node} with the given <code>id</code> or
-     * <code>null</code> if the <code>Graph</code> contains no respective
-     * <code>Node</code>.
+     * Returns the {@link Node} with the given {@code id} or
+     * {@code null} if the graph contains no respective {@link Node}.
      *
      * @param id the id of the Node to be removed
-     * @return <code>true</code> if the <code>Graph</code> contains a
-     *         <code>Node</code> with the given id. Else <code>false</code>.
+     *
+     * @return {@code true} if the graph contains a {@link Node} with the given {@code id}. Else {@code false}.
      */
     public Node getNode(String id) {
         for (Node node : nodeList) {
@@ -83,7 +99,9 @@ public class Graph {
     }
 
     /**
-     * Returns an array containing all Nodes in this <code>Graph</code>.
+     * Returns an array containing all nodes in this graph.
+     *
+     * @return an array of all nodes
      */
     public Node[] getNodes() {
         return nodeList.toArray(new Node[nodeList.size()]);
