@@ -25,11 +25,30 @@ public interface OperatorSpi {
      */
     String getName();
 
+    /**
+     * The name of the author of the {@link Operator} this SPI is responsible for.
+     *
+     * @return the authors name
+     */
     String getAuthor();
 
+    /**
+     * Gets a copyright note for the {@link Operator}.
+     * @return a copyright note
+     */
     String getCopyright();
 
+    /**
+     * Gets a short description of the {@link Operator}.
+     *
+     * @return description of the operator
+     */
     String getDescription();
 
+    /**
+     * Gets the version number of the {@link Operator}.
+     *
+     * @return the version number
+     */
     String getVersion();
 }
