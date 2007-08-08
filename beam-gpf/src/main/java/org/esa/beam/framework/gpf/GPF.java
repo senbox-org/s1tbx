@@ -16,21 +16,53 @@ import java.util.TreeMap;
 
 public class GPF {
 
-    private static final String SOURCE_PRODUCT_FIELD_NAME = "sourceProduct";
+    /**
+     * An unmodifiable empty {@link Map Map}.
+     * Can be used for convenience as a parameter for {@code createProduct()} if no
+     * parameters are needed for the operator.
+     *
+     * @see #createProduct(String, Map, ProgressMonitor) createProduct(String, Map, ProgressMonitor)
+     * @see #createProduct(String, Map, Product, ProgressMonitor) createProduct(String, Map, Product, ProgressMonitor)
+     * @see #createProduct(String, Map, Product[], ProgressMonitor) createProduct(String, Map, Product[], ProgressMonitor)
+     * @see #createProduct(String, Map, Map, ProgressMonitor) createProduct(String, Map, Map, ProgressMonitor)
+     */
     public static final Map<String, Object> NO_PARAMS = Collections.unmodifiableMap(new TreeMap<String, Object>());
+
+    /**
+     * An unmodifiable empty {@link Map Map}.
+     * Can be used for convenience as a parameter for {@code createProduct()} if no
+     * source products are needed for the operator.
+     *
+     * @see #createProduct(String, Map, ProgressMonitor) createProduct(String, Map, ProgressMonitor)
+     * @see #createProduct(String, Map, Product, ProgressMonitor) createProduct(String, Map, Product, ProgressMonitor)
+     * @see #createProduct(String, Map, Product[], ProgressMonitor) createProduct(String, Map, Product[], ProgressMonitor)
+     * @see #createProduct(String, Map, Map, ProgressMonitor) createProduct(String, Map, Map, ProgressMonitor)
+     */
     public static final Map<String, Product> NO_SOURCES = Collections.unmodifiableMap(new TreeMap<String, Product>());
 
+    private static final String SOURCE_PRODUCT_FIELD_NAME = "sourceProduct";
     private static GPF defaultInstance = new GPF(new TileCacheImpl());
+
     private TileCache tileCache;
 
     private GPF(TileCache tileCache) {
         this.tileCache = tileCache;
     }
 
+    /**
+     * Gets the default singelton instance.
+     *
+     * @return the singelton instance
+     */
     public static GPF getDefaultInstance() {
         return defaultInstance;
     }
 
+    /**
+     * Gets the {@link TileCache tile cache}.
+     *
+     * @return the tile cache
+     */
     public TileCache getTileCache() {
         return tileCache;
     }
