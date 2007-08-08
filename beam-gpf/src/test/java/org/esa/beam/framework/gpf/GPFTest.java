@@ -80,7 +80,7 @@ public class GPFTest extends TestCase {
          * Called by {@link #initialize(org.esa.beam.framework.gpf.OperatorContext, com.bc.ceres.core.ProgressMonitor)} after the {@link org.esa.beam.framework.gpf.OperatorContext}
          * is stored.
          *
-         * @param pm a progress monitor. Can be used to signal pregress.
+         * @param pm a progress monitor. Can be used to signal progress.
          * @return the target product
          * @see #initialize(org.esa.beam.framework.gpf.OperatorContext, com.bc.ceres.core.ProgressMonitor)
          */
