@@ -29,56 +29,62 @@ public class OperatorContextInitializer {
     public static void initOperatorContext(DefaultOperatorContext operatorContext,
                                            ParameterInjector injector,
                                            ProgressMonitor pm) throws OperatorException {
-        OperatorSpi operatorSpi = operatorContext.getOperatorSpi();
-        if (operatorSpi == null) {
-            String operatorName = operatorContext.getOperatorName();
-            if (operatorName == null || operatorName.isEmpty()) {
-                throw new IllegalStateException("operatorSpiClassName == null || operatorSpiClassName.isEmpty()");
-            }
-            operatorSpi = OperatorSpiRegistry.getInstance().getOperatorSpi(operatorName);
-            if (operatorSpi == null) {
-                throw new OperatorException(String.format("Unknown operator [%s].", operatorName));
-            }
-            operatorContext.setOperatorSpi(operatorSpi);
-        }
-        pm.worked(1);
+    	pm.beginTask("initializing operator contex", 5);
+    	try {
+    		OperatorSpi operatorSpi = operatorContext.getOperatorSpi();
+    		if (operatorSpi == null) {
+    			String operatorName = operatorContext.getOperatorName();
+    			if (operatorName == null || operatorName.isEmpty()) {
+    				throw new IllegalStateException("operatorSpiClassName == null || operatorSpiClassName.isEmpty()");
+    			}
+    			operatorSpi = OperatorSpiRegistry.getInstance().getOperatorSpi(operatorName);
+    			if (operatorSpi == null) {
+    				throw new OperatorException(String.format("Unknown operator [%s].", operatorName));
+    			}
+    			operatorContext.setOperatorSpi(operatorSpi);
+    		}
+    		pm.worked(1);
 
-        Operator operator;
-        try {
-            Constructor<? extends Operator> constructor = operatorSpi.getOperatorClass().getDeclaredConstructor(OperatorSpi.class);
-            operator = constructor.newInstance(operatorSpi);
-            operatorContext.setOperator(operator);
-        } catch (Throwable e) {
-            throw new OperatorException(String.format("Failed to create instance of operator [%s].", operatorSpi.getName()), e);
-        }
-        pm.worked(1);
+    		Operator operator;
+    		try {
+    			Constructor<? extends Operator> constructor = operatorSpi.getOperatorClass().getDeclaredConstructor(OperatorSpi.class);
+    			operator = constructor.newInstance(operatorSpi);
+    			operatorContext.setOperator(operator);
+    		} catch (Throwable e) {
+    			throw new OperatorException(String.format("Failed to create instance of operator [%s].", operatorSpi.getName()), e);
+    		}
+    		pm.worked(1);
 
-        initAnnotatedSourceProductFields(operatorContext);
+    		initAnnotatedSourceProductFields(operatorContext);
 
-        operatorContext.setParameterFields(getParameterFields(operator));
+    		operatorContext.setParameterFields(getParameterFields(operator));
 
-        injector.injectParameters(operator);
-        pm.worked(1);
+    		injector.injectParameters(operator);
+    		pm.worked(1);
 
-        Product targetProduct = operator.initialize(operatorContext, new SubProgressMonitor(pm, 1));
-        if (targetProduct == null) {
-            throw new OperatorException(String.format("Operator [%s] has no target product.", operatorSpi.getName()));
-        }
+    		Product targetProduct = operator.initialize(operatorContext, new SubProgressMonitor(pm, 1));
+    		if (targetProduct == null) {
+    			throw new OperatorException(String.format("Operator [%s] has no target product.", operatorSpi.getName()));
+    		}
 
-        initTargetProductFieldIfNotDone(operator, targetProduct);
+    		initTargetProductFieldIfNotDone(operator, targetProduct);
 
-        // This is an important piece of code!
-        // It connects the target products of the graph with a special
-        // product reader adapter OperatorProductReader.
-        //
-        operatorContext.setTargetProduct(targetProduct);
-        ProductReader oldProductReader = targetProduct.getProductReader();
-        if (oldProductReader == null) {
-            OperatorProductReader operatorProductReader = new OperatorProductReader(operatorContext);
-            targetProduct.setProductReader(operatorProductReader);
-        }
+    		// This is an important piece of code!
+    		// It connects the target products of the graph with a special
+    		// product reader adapter OperatorProductReader.
+    		//
+    		operatorContext.setTargetProduct(targetProduct);
+    		ProductReader oldProductReader = targetProduct.getProductReader();
+    		if (oldProductReader == null) {
+    			OperatorProductReader operatorProductReader = new OperatorProductReader(operatorContext);
+    			targetProduct.setProductReader(operatorProductReader);
+    		}
 
-        initTileComputerIfNotSet(operatorContext);
+    		initTileComputerIfNotSet(operatorContext);
+    		pm.worked(1);
+    	} finally {
+    		pm.done();
+    	}
     }
 
 	private static void initTileComputerIfNotSet(DefaultOperatorContext operatorContext) {
