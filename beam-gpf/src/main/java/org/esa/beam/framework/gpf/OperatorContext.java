@@ -34,7 +34,10 @@ import com.bc.ceres.core.ProgressMonitor;
  * @since 4.1
  */
 public interface OperatorContext {
+
     /**
+     * Gets the {@link Operator} this context belongs to.
+     *
      * @return the operator
      */
     Operator getOperator();
