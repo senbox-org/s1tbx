@@ -114,9 +114,7 @@ public class PrismProductReader extends AbstractProductReader {
             ioException.initCause(e);
             throw ioException;
         }
-        if (product != null) {
-            product.setProductReader(this);
-        }
+        product.setProductReader(this);
         product.setModified(false);
         return product;
     }
