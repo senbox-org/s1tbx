@@ -52,6 +52,10 @@ public interface EnvisatConstants {
      */
     String MERIS_RR_L1B_PRODUCT_TYPE_NAME = "MER_RR__1P";
     /**
+     * Product type ID for MERIS full resolution full swath L1b products.
+     */
+    String MERIS_FRS_L1B_PRODUCT_TYPE_NAME = "MER_FRS_1P";
+    /**
      * Product type ID for MERIS full resolution full swath geo/ortho-corrected L1b products.
      */
     String MERIS_FSG_L1B_PRODUCT_TYPE_NAME = "MER_FSG_1P";
