@@ -51,8 +51,8 @@ public class SmileCorrectionAlgorithm {
                                                       double[/*15*/] corrRadiances) {
         double r0, r1, r2, rc, dl, dr;
         int i0, i1, i2;
-        for (int i = 0; i < bandIndexes.length; i++) {
-            i0 = bandIndexes[i];
+        for (int bandIndexe : bandIndexes) {
+            i0 = bandIndexe;
             // perform irradiance correction
             r0 = radiances[i0] / detectorE0s[i0];
             rc = r0 * theoretE0s[i0];

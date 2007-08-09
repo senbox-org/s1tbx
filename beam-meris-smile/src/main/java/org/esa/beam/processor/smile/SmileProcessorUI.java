@@ -19,6 +19,7 @@ package org.esa.beam.processor.smile;
 import org.esa.beam.dataio.envisat.EnvisatConstants;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamGroup;
@@ -34,7 +35,6 @@ import org.esa.beam.framework.processor.RequestElementFactoryException;
 import org.esa.beam.framework.processor.ui.AbstractProcessorUI;
 import org.esa.beam.framework.processor.ui.ProcessorApp;
 import org.esa.beam.framework.ui.GridBagUtils;
-import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
@@ -185,9 +185,9 @@ public class SmileProcessorUI extends AbstractProcessorUI {
         return new ParamChangeListener() {
             public void parameterValueChanged(final ParamChangeEvent event) {
                 final Parameter parameter = event.getParameter();
-                if (parameter.getName() == SmileConstants.INPUT_PRODUCT_PARAM_NAME) {
+                if (parameter.getName().equals(SmileConstants.INPUT_PRODUCT_PARAM_NAME)) {
                     checkForValidInputProduct(parameter);
-                } else if (parameter.getName() == SmileConstants.OUTPUT_PRODUCT_PARAM_NAME) {
+                } else if (parameter.getName().equals(SmileConstants.OUTPUT_PRODUCT_PARAM_NAME)) {
                     if (hasParameterEmptyString(parameter)) {
                         getApp().showWarningDialog("No output product specified.");  /*I18N*/
                     }
@@ -355,7 +355,7 @@ public class SmileProcessorUI extends AbstractProcessorUI {
             return;
         }
         String msg = null;
-        Product product = null;
+        Product product;
         try {
             product = ProductIO.readProduct(file, null);
             if (product != null) {
@@ -386,10 +386,6 @@ public class SmileProcessorUI extends AbstractProcessorUI {
 
     private static boolean hasParameterEmptyString(final Parameter parameter) {
         final String valueAsText = parameter.getValueAsText();
-        if (valueAsText.trim().length() <= 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return valueAsText.trim().length() <= 0;
     }
 }

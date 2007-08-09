@@ -60,13 +60,11 @@ import java.util.logging.Logger;
 public class SmileProcessor extends Processor {
 
     public static final String PROCESSOR_NAME = "BEAM Smile Correction Processor";
-    public static final String VERSION_STRING = "1.1";
+    public static final String VERSION_STRING = "1.1.1-SNAPSHOT";
     public static final String COPYRIGHT_INFO = "Copyright (C) 2002-2004 by Brockmann Consult (info@brockmann-consult.de)";
 
     public static final double SPECTRAL_BAND_SF_FACTOR = 1.1;
 
-    private final static String _VALID_FR_PRODUCT_TYPE = EnvisatConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME;
-    private final static String _VALID_RR_PRODUCT_TYPE = EnvisatConstants.MERIS_RR_L1B_PRODUCT_TYPE_NAME;
     private final static String _DETECTOR_INDEX_BAND_NAME = EnvisatConstants.MERIS_L1B_BAND_NAMES[EnvisatConstants.MERIS_L1B_BAND_NAMES.length - 1];
 
     private Product _inputProduct;
@@ -134,7 +132,6 @@ public class SmileProcessor extends Processor {
                     copyRequiredBandDataThatIsNotProcessed(new SubProgressMonitor(pm, 1));
                     if (pm.isCanceled()) {
                         setCurrentStatus(SmileConstants.STATUS_ABORTED);
-                        return;
                     }
                 }
             } finally {
@@ -308,7 +305,7 @@ public class SmileProcessor extends Processor {
         _includeAllSpectralBands = true;
         Parameter includeAllParam = request.getParameter(SmileConstants.PARAM_NAME_OUTPUT_INCLUDE_ALL_SPECTRAL_BANDS);
         if (includeAllParam != null) {
-            _includeAllSpectralBands = Boolean.valueOf(includeAllParam.getValueAsText()).booleanValue();
+            _includeAllSpectralBands = Boolean.valueOf(includeAllParam.getValueAsText());
             _logger.info(SmileConstants.LOG_MSG_INCLUDE_ALL_BANDS);
         }
 
@@ -317,8 +314,8 @@ public class SmileProcessor extends Processor {
         if (bandsToProcessParam != null) {
             _bandNamesToProcessIn = (String[]) bandsToProcessParam.getValue();
             _logger.info(SmileConstants.LOG_MSG_PROCESS_BANDS);
-            for (int n = 0; n < _bandNamesToProcessIn.length; n++) {
-                _logger.info("...... '" + _bandNamesToProcessIn[n] + "'");
+            for (String a_bandNamesToProcessIn : _bandNamesToProcessIn) {
+                _logger.info("...... '" + a_bandNamesToProcessIn + "'");
             }
         } else {
             _logger.warning(SmileConstants.LOG_MSG_NO_BANDS);
@@ -382,8 +379,7 @@ public class SmileProcessor extends Processor {
         } else {
             bandNames = _bandNamesToProcessIn;
         }
-        for (int i = 0; i < bandNames.length; i++) {
-            String bandName = bandNames[i];
+        for (String bandName : bandNames) {
             ProductUtils.copyBand(bandName, _inputProduct, _outputProduct);
 
             final Band band = _outputProduct.getBand(bandName);
@@ -424,8 +420,7 @@ public class SmileProcessor extends Processor {
         _logger.info(SmileConstants.LOG_MSG_COPY_UNPROCESSED_BANDS);
 
         if (_includeAllSpectralBands) {
-            for (int i = 0; i < EnvisatConstants.MERIS_L1B_SPECTRAL_BAND_NAMES.length; i++) {
-                String bandName = EnvisatConstants.MERIS_L1B_SPECTRAL_BAND_NAMES[i];
+            for (String bandName : EnvisatConstants.MERIS_L1B_SPECTRAL_BAND_NAMES) {
                 if (!StringUtils.contains(_bandNamesToProcessIn, bandName)) {
                     copyBandData(bandName, _inputProduct, _outputProduct, pm);
                 }
@@ -469,11 +464,10 @@ public class SmileProcessor extends Processor {
         // @todo 3 he/he - move this code block to another method
         assert _bandNamesToProcessIn != null;
         final Set<Integer> bandIndexSet = new HashSet<Integer>();
-        for (int i = 0; i < _bandNamesToProcessIn.length; i++) {
-            final String bandNameToProcess = _bandNamesToProcessIn[i];
+        for (final String bandNameToProcess : _bandNamesToProcessIn) {
             final int index = _inputProduct.getBandIndex(bandNameToProcess);
             if (index >= 0) {
-                bandIndexSet.add(new Integer(index));
+                bandIndexSet.add(index);
             }
         }
         int[] _bandIndexesToProcessIn = intSetToSortedIntArray(bandIndexSet);
@@ -535,8 +529,8 @@ public class SmileProcessor extends Processor {
                     detectorIndexValid = (detectorIndex >= 0 && detectorIndex < detectorWLsTable.length);
                     correctionPossible = validPixelFlagLine[col] && detectorIndexValid;
                     if (correctionPossible) {
-                        for (int i = 0; i < bandIndexesRequired.length; i++) {
-                            bandIndex = bandIndexesRequired[i];
+                        for (int aBandIndexesRequired : bandIndexesRequired) {
+                            bandIndex = aBandIndexesRequired;
                             radiances[bandIndex] = getRadianceLine(bandIndex)[col];
                         }
 
@@ -564,8 +558,8 @@ public class SmileProcessor extends Processor {
                                                                                 detectorE0s,
                                                                                 corrRadiances);
 
-                        for (int i = 0; i < _bandIndexesToProcessIn.length; i++) {
-                            bandIndex = _bandIndexesToProcessIn[i];
+                        for (int a_bandIndexesToProcessIn : _bandIndexesToProcessIn) {
+                            bandIndex = a_bandIndexesToProcessIn;
                             getRadianceLine(bandIndex)[col] = corrRadiances[bandIndex];
                         }
                     }
@@ -608,16 +602,15 @@ public class SmileProcessor extends Processor {
 
         final Set<Integer> bandIndexSet = new HashSet<Integer>();
 
-        for (int i = 0; i < bandIndexesToProcess.length; i++) {
-            final int bandIndex = bandIndexesToProcess[i];
-            bandIndexSet.add(new Integer(bandIndex));
+        for (final int bandIndex : bandIndexesToProcess) {
+            bandIndexSet.add(bandIndex);
             if (landShouldCorrect[bandIndex]) {
-                bandIndexSet.add(new Integer(landIndexes1[bandIndex]));
-                bandIndexSet.add(new Integer(landIndexes2[bandIndex]));
+                bandIndexSet.add(landIndexes1[bandIndex]);
+                bandIndexSet.add(landIndexes2[bandIndex]);
             }
             if (waterShouldCorrect[bandIndex]) {
-                bandIndexSet.add(new Integer(waterIndexes1[bandIndex]));
-                bandIndexSet.add(new Integer(waterIndexes2[bandIndex]));
+                bandIndexSet.add(waterIndexes1[bandIndex]);
+                bandIndexSet.add(waterIndexes2[bandIndex]);
             }
         }
         return intSetToSortedIntArray(bandIndexSet);
@@ -632,8 +625,7 @@ public class SmileProcessor extends Processor {
 
         pm.beginTask("Reading radiance lines...", bandIndexes.length);
         try {
-            for (int i = 0; i < bandIndexes.length; i++) {
-                final int bandIndex = bandIndexes[i];
+            for (final int bandIndex : bandIndexes) {
                 double[] radianceLine = getRadianceLine(bandIndex);
                 _inputProduct.getBandAt(bandIndex).readPixels(0, lineIndex, radianceLine.length, 1, radianceLine,
                                                               new SubProgressMonitor(pm, 1));
@@ -651,14 +643,13 @@ public class SmileProcessor extends Processor {
                                       IOException {
         assert _inputProduct != null;
         final String productType = _inputProduct.getProductType();
-        if (_VALID_FR_PRODUCT_TYPE.equals(productType)) {
+        if (productType.startsWith("MER_F")) {
             _auxData = SmileAuxData.loadFRAuxData();
-        } else if (_VALID_RR_PRODUCT_TYPE.equals(productType)) {
+        } else if (productType.startsWith("MER_R")) {
             _auxData = SmileAuxData.loadRRAuxData();
         } else {
-            throw new ProcessorException("The input product type '" + _inputProduct.getProductType() +
-                                         "' is not '" + _VALID_FR_PRODUCT_TYPE +
-                                         "' and or '" + _VALID_RR_PRODUCT_TYPE + "'."); /*I18N*/
+            throw new ProcessorException("No auxillary data found for input product of type '"
+                                         + _inputProduct.getProductType() + "'"); /*I18N*/
         }
     }
 
@@ -668,8 +659,7 @@ public class SmileProcessor extends Processor {
 
     private void initRadianceLineCache(final int[] bandsIndexes, final int width) {
         _radianceLineCache = new double[EnvisatConstants.MERIS_L1B_NUM_SPECTRAL_BANDS][];
-        for (int i = 0; i < bandsIndexes.length; i++) {
-            int neededBandsIndex = bandsIndexes[i];
+        for (int neededBandsIndex : bandsIndexes) {
             _radianceLineCache[neededBandsIndex] = new double[width];
         }
     }
@@ -701,9 +691,9 @@ public class SmileProcessor extends Processor {
     private static int[] intSetToSortedIntArray(final Set<Integer> set) {
         int[] bandIndexes = new int[set.size()];
         Integer[] a = new Integer[bandIndexes.length];
-        a = (Integer[]) set.toArray(a);
+        a = set.toArray(a);
         for (int i = 0; i < a.length; i++) {
-            bandIndexes[i] = a[i].intValue();
+            bandIndexes[i] = a[i];
         }
         Arrays.sort(bandIndexes);
         return bandIndexes;
