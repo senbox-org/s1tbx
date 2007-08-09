@@ -48,7 +48,6 @@ public class DefaultOperatorContext implements OperatorComputationContext {
         this.operatorName = operatorName;
         this.sourceProductList = new ArrayList<Product>(3);
         this.sourceProductMap = new HashMap<String, Product>(3);
-        this.layoutRectangles = new ArrayList<Rectangle>();
     }
 
     /**
