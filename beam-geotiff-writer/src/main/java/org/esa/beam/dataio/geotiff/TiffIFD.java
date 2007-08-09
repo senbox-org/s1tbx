@@ -244,10 +244,10 @@ class TiffIFD {
     private TiffShort[] calculateSampleFormat(final Product product) {
         int dataType = getMaxElemSizeBandDataType();
         TiffShort sampleFormat;
-        if (ProductData.isIntType(dataType)) {
-            sampleFormat = TiffCode.SAMPLE_FORMAT_INT;
-        } else if (ProductData.isUIntType(dataType)) {
+        if (ProductData.isUIntType(dataType)) {
             sampleFormat = TiffCode.SAMPLE_FORMAT_UINT;
+        } else if (ProductData.isIntType(dataType)) {
+            sampleFormat = TiffCode.SAMPLE_FORMAT_INT;
         } else {
             sampleFormat = TiffCode.SAMPLE_FORMAT_FLOAT;
         }
