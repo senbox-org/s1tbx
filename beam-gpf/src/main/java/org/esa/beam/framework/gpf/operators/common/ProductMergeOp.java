@@ -26,6 +26,8 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 
+import java.awt.Rectangle;
+import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -166,26 +168,15 @@ public class ProductMergeOp extends AbstractOperator implements ParameterConvert
         bandMapping.clear();
     }
 
-    // todo - remove method after testing
-//    public void computeTile(Band band, Rectangle rectangle,
-//                            ProductData destBuffer, ProgressMonitor pm) throws OperatorException {
-//
-//        Band srcBand = bandMapping.get(band);
-//        try {
-//            srcBand.readRasterData(rectangle.x, rectangle.y, rectangle.width,
-//                                   rectangle.height, destBuffer, pm);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            throw new OperatorException(e);
-//        }
-//    }
-
     @Override
     public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+    	Rectangle rectangle = targetRaster.getRectangle();
         Band sourceBand = bandMapping.get(targetRaster.getRasterDataNode());
-        getRaster(sourceBand,
-        		targetRaster.getRectangle(),
-        		targetRaster.getDataBuffer());
+        Raster sourceRaster = getRaster(sourceBand, rectangle);
+        
+        // copy, because the databuffer is for computeAllBands not correctly (re)used
+        final int length = rectangle.width * rectangle.height;
+        System.arraycopy(sourceRaster.getDataBuffer().getElems(), 0, targetRaster.getDataBuffer().getElems(), 0, length);
     }
 
 
