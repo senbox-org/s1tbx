@@ -18,7 +18,11 @@ package org.esa.beam.framework.datamodel;
 
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.util.*;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.ObjectUtils;
+import org.esa.beam.util.XmlHelper;
+import org.esa.beam.util.XmlWriter;
 import org.jdom.Element;
 
 import java.awt.Color;
@@ -283,8 +287,8 @@ public class Pin extends ProductNode {
         PixelPos pixelPos = null;
         if (pixelXText != null && pixelYText != null) {
             try {
-                int pixelX = Integer.parseInt(pixelXText);
-                int pixelY = Integer.parseInt(pixelYText);
+                float pixelX = Float.parseFloat(pixelXText);
+                float pixelY = Float.parseFloat(pixelYText);
                 pixelPos = new PixelPos(pixelX, pixelY);
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException("Invalid pixel-position.");
