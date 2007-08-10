@@ -13,9 +13,9 @@
 package org.esa.beam.dataio.modis;
 
 import ncsa.hdf.hdflib.HDFLibrary;
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.logging.BeamLogManager;
 
@@ -41,7 +41,9 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
         try {
             return Class.forName("ncsa.hdf.hdflib.HDFLibrary") != null;
         } catch (ClassNotFoundException e) {
+            // ignore
         } catch (LinkageError e) {
+            // ignore
         }
         return false;
     }
@@ -75,7 +77,7 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
         if ((file != null) && (file.exists()) && (file.isFile())) {
             if (file.getPath().toLowerCase().endsWith(ModisConstants.DEFAULT_FILE_EXTENSION)) {
                 try {
-                    if(HDFLibrary.Hishdf(file.getPath())) {
+                    if (HDFLibrary.Hishdf(file.getPath())) {
                         bRet = DecodeQualification.SUITABLE;
                     }
                 } catch (Exception e) {
