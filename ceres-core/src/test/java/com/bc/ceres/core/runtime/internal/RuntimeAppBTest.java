@@ -1,15 +1,18 @@
 package com.bc.ceres.core.runtime.internal;
 
-import junit.framework.TestCase;
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.ServiceRegistryFactory;
 import com.bc.ceres.core.ServiceRegistry;
-import com.bc.ceres.core.runtime.RuntimeConfigException;
-import com.bc.ceres.core.runtime.Module;
+import com.bc.ceres.core.ServiceRegistryFactory;
 import com.bc.ceres.core.runtime.Constants;
+import com.bc.ceres.core.runtime.Module;
+import com.bc.ceres.core.runtime.RuntimeConfigException;
+import junit.framework.TestCase;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -55,10 +58,21 @@ public class RuntimeAppBTest extends TestCase {
         assertNotNull(map.get("a-spi-host-module-jar"));
         assertNotNull(map.get("a-spi-client-module-jar"));
         assertNotNull(map.get("a-native-module"));
-        assertNotNull(map.get("a-native-module"));
         assertNotNull(map.get("an-empty-module-dir"));
         assertNotNull(map.get("an-empty-module-jar"));
         assertNotNull(map.get(Constants.SYSTEM_MODULE_NAME));
+
+        Module nativeModule = map.get("a-native-module");
+        if (nativeModule instanceof ModuleImpl) {
+            ModuleImpl nativeModuleImpl = (ModuleImpl) nativeModule;
+            String[] impliciteNativeLibs = nativeModuleImpl.getImpliciteNativeLibs();
+            List<String> libNames = new ArrayList<String>();
+            for (String libPath : impliciteNativeLibs) {
+                libNames.add(new File(libPath).getName());
+            }
+            assertTrue(libNames.contains(System.mapLibraryName("jhdf")));
+            assertTrue(libNames.contains(System.mapLibraryName("jhdf5")));
+        }
 
     }
 
