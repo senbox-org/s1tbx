@@ -91,17 +91,22 @@
 
     </fileSets>
 
-
     <moduleSets>
 
         <!-- (1) Artifacts that go into 'bin', 'lib' or 'modules' -->
         <moduleSet>
             <binaries>
-                <outputDirectory>modules</outputDirectory>
                 <includeDependencies>false</includeDependencies>
                 <unpack>false</unpack>
 
+                <outputDirectory>modules</outputDirectory>
                 <outputFileNameMapping>${artifactId}-${version}.${extension}</outputFileNameMapping>
+
+                <excludes>
+                    <!-- Exclude development bootstrap module -->
+                    <exclude>org.esa.beam:beam-bootstrap</exclude>
+                    <exclude>org.esa.beam:beam-installer</exclude>
+                </excludes>
 
                 <dependencySets>
 
@@ -117,15 +122,26 @@
                     <!-- (2) Put packed dependencies into 'lib' -->
                     <dependencySet>
                         <outputDirectory>lib</outputDirectory>
-                        <excludes>
-                            <exclude>com.bc.ceres:ceres-core</exclude>
-                            <exclude>com.bc.ceres:ceres-binding</exclude>
-                            <exclude>com.bc.ceres:ceres-ui</exclude>
-                            <exclude>com.bc.ceres:ceres-launcher</exclude>
-                            <exclude>ncsa.hdf:lib-hdf</exclude>
-                            <exclude>ucar.netcdf:lib-netcdf</exclude>
-                            <exclude>org.esa.beam:*</exclude>
-                        </excludes>
+                        <includes>
+                            <include>com.bc:bc-jnn</include>
+                            <include>com.sun.media:clibwrapper-jiio</include>
+                            <include>com.install4j:i4jruntime</include>
+                            <include>javax.media.jai:jai-codec</include>
+                            <include>javax.media.jai:jai-core</include>
+                            <include>com.sun.media:jai-imageio</include>
+                            <include>Jama:Jama</include>
+                            <include>jdom:jdom</include>
+                            <include>javax.help:jhall</include>
+                            <include>com.jidesoft:jide-action</include>
+                            <include>com.jidesoft:jide-common</include>
+                            <include>com.jidesoft:jide-components</include>
+                            <include>com.jidesoft:jide-dock</include>
+                            <include>com.jidesoft:jide-grids</include>
+                            <include>junit:junit</include>
+                            <include>javax.media.jai:mlibwrapper-jai</include>
+                            <include>xstream:xstream</include>
+                            <include>xpp3:xpp3</include>
+                        </includes>
                     </dependencySet>
 
                     <!-- (3) Put packed Ceres and BEAM artifacts into 'modules' -->
@@ -145,11 +161,6 @@
                 </dependencySets>
             </binaries>
 
-            <excludes>
-                <!-- Exclude development bootstrap module -->
-                <exclude>org.esa.beam:beam-bootstrap</exclude>
-                <exclude>org.esa.beam:beam-installer</exclude>
-            </excludes>
         </moduleSet>
 
     </moduleSets>
