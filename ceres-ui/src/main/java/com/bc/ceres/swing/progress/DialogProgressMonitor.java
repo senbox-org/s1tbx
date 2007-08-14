@@ -103,13 +103,13 @@ public class DialogProgressMonitor implements com.bc.ceres.core.ProgressMonitor 
         currentWork += work;
         currentWorkUI = (int) (totalWorkUI * currentWork / totalWork);
         if (currentWorkUI > lastWorkUI) {
+            lastWorkUI = currentWorkUI;
             runInUI(new Runnable() {
                 public void run() {
                     if (progressDialog != null) {
                         int progress = progressDialog.getMinimum() + currentWorkUI;
                         progressDialog.setProgress(progress);
                     }
-                    lastWorkUI = currentWorkUI;
                 }
             });
         }
