@@ -18,7 +18,6 @@
        Changes in version 1.1:<br/>
        [BEAM-620] Generify detection of product type<br/>
        [BEAM-624] Support for AT1_NR__2P and AT2_NR__2P products in ENVISAT-format<br/>
-       Changes in version 1.2:<br/>
        [BEAM-656] Support for MERIS band subset<br/>
        ]]></changelog>
 
