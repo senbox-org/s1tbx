@@ -443,9 +443,8 @@ public class DDDB {
                             pixelDataReader = productFile.getRecordReader(fieldRef.getDatasetName());
                             pixelDataFieldIndex = fieldRef.getFieldIndex();
                         } catch (IOException e) {
-                            throw new DDDBException("failed to create pixel data reader for dataset " /*I18N*/
-                                                    + fieldRef.getDatasetName()
-                                                    + ": " + e.getMessage());
+                            Debug.trace("DDDB: " + e.getMessage());
+                            continue;
                         }
                     }
 

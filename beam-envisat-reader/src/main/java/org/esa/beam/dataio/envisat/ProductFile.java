@@ -643,9 +643,11 @@ public abstract class ProductFile {
      *
      * @param datasetName the dataset name
      *
-     * @throws java.io.IOException if an I/O error occurs
+     * @throws java.io.IOException if an appropriate DSD could not be found in the product file
+     * @throws org.esa.beam.dataio.envisat.DDDBException
+     *          if a database I/O error occurs
      */
-    public RecordReader getRecordReader(String datasetName) throws IOException {
+    public RecordReader getRecordReader(String datasetName) throws IOException, DDDBException {
 
         // See if we have the record reader in the cache
         String datasetNameUC = datasetName.toUpperCase();
@@ -665,7 +667,7 @@ public abstract class ProductFile {
         // Now get the record info for the dataset from the DDDB
         RecordInfo recordInfo = readRecordInfo(datasetName);
         if (recordInfo == null) {
-            throw new IOException("no record info found for dataset with name '" + datasetName + "'");
+            throw new DDDBException("no record info found for dataset with name '" + datasetName + "'");
         }
 
         // Create a new record reader...

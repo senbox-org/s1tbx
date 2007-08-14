@@ -241,12 +241,11 @@ public class EnvisatProductReader extends AbstractProductReader {
         Debug.assertNotNull(product);
 
         BandLineReader[] bandLineReaders = _productFile.getBandLineReaders();
-        for (int i = 0; i < bandLineReaders.length; i++) {
-            BandLineReader bandLineReader = bandLineReaders[i];
+        for (BandLineReader bandLineReader : bandLineReaders) {
             if (!bandLineReader.isTiePointBased()) {
                 if (!(bandLineReader instanceof BandLineReader.Virtual)) {
                     if (bandLineReader.getPixelDataReader().getDSD().getDatasetSize() == 0 ||
-                        bandLineReader.getPixelDataReader().getDSD().getNumRecords() == 0) {
+                            bandLineReader.getPixelDataReader().getDSD().getNumRecords() == 0) {
                         continue;
                     }
                 }
@@ -308,12 +307,11 @@ public class EnvisatProductReader extends AbstractProductReader {
             }
         }
         if (flagDsList.size() > 0) {
-            for (int i = 0; i < flagDsList.size(); i++) {
-                Band flagDs = (Band) flagDsList.get(i);
+            for (Band flagDs : flagDsList) {
                 String flagDsName = flagDs.getName();
                 BitmaskDef[] bitmaskDefs = _productFile.createDefaultBitmaskDefs(flagDsName);
-                for (int j = 0; j < bitmaskDefs.length; j++) {
-                    product.addBitmaskDef(bitmaskDefs[j]);
+                for (BitmaskDef bitmaskDef : bitmaskDefs) {
+                    product.addBitmaskDef(bitmaskDef);
                 }
             }
         }
@@ -325,8 +323,7 @@ public class EnvisatProductReader extends AbstractProductReader {
             Band band = product.getBandAt(i);
             final String[] bitmaskNames = getDefaultBitmaskNames(band.getName());
             if (bitmaskNames != null) {
-                for (int j = 0; j < bitmaskNames.length; j++) {
-                    String bitmaskName = bitmaskNames[j];
+                for (String bitmaskName : bitmaskNames) {
                     final BitmaskDef bitmaskDef = product.getBitmaskDef(bitmaskName);
                     if (bitmaskDef != null) {
                         BitmaskOverlayInfo bitmaskOverlayInfo = band.getBitmaskOverlayInfo();
@@ -369,8 +366,7 @@ public class EnvisatProductReader extends AbstractProductReader {
 
     private void addTiePointGridsToProduct(Product product) throws IOException {
         BandLineReader[] bandLineReaders = getProductFile().getBandLineReaders();
-        for (int i = 0; i < bandLineReaders.length; i++) {
-            BandLineReader bandLineReader = bandLineReaders[i];
+        for (BandLineReader bandLineReader : bandLineReaders) {
             if (bandLineReader.isTiePointBased()) {
                 TiePointGrid tiePointGrid = createTiePointGrid(bandLineReader);
                 product.addTiePointGrid(tiePointGrid);
@@ -458,16 +454,16 @@ public class EnvisatProductReader extends AbstractProductReader {
         Debug.assertNotNull(_productFile);
         Debug.assertNotNull(product);
         String[] datasetNames = _productFile.getValidDatasetNames();
-        for (int i = 0; i < datasetNames.length; i++) {
-            DSD dsd = _productFile.getDSD(datasetNames[i]);
+        for (String datasetName : datasetNames) {
+            DSD dsd = _productFile.getDSD(datasetName);
             if (dsd.getDatasetType() == EnvisatConstants.DS_TYPE_ANNOTATION
-                || dsd.getDatasetType() == EnvisatConstants.DS_TYPE_GLOBAL_ANNOTATION) {
-                RecordReader recordReader = _productFile.getRecordReader(datasetNames[i]);
+                    || dsd.getDatasetType() == EnvisatConstants.DS_TYPE_GLOBAL_ANNOTATION) {
+                RecordReader recordReader = _productFile.getRecordReader(datasetName);
                 if (recordReader.getNumRecords() == 1) {
-                    MetadataElement table = createDatasetTable(datasetNames[i], recordReader);
+                    MetadataElement table = createDatasetTable(datasetName, recordReader);
                     product.getMetadataRoot().addElement(table);
                 } else if (recordReader.getNumRecords() > 1) {
-                    MetadataElement group = createMetadataTableGroup(datasetNames[i], recordReader);
+                    MetadataElement group = createMetadataTableGroup(datasetName, recordReader);
                     product.getMetadataRoot().addElement(group);
                 }
             }
