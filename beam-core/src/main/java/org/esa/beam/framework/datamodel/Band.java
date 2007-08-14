@@ -75,8 +75,6 @@ public class Band extends AbstractBand {
 
     /**
      * If this band contains flag data, this is the flag coding.
-     *
-     * @supplierRole flagCoding
      */
     private FlagCoding _flagCoding;
 
@@ -128,6 +126,14 @@ public class Band extends AbstractBand {
             fireProductNodeChanged(PROPERTY_NAME_FLAG_CODING);
             setModified(true);
         }
+    }
+
+    /**
+     * Tests whether or not this band is a flag band (<code>getFlagCoding() != null</code>).
+     * @return <code>true</code> if so
+     */
+    public boolean isFlagBand() {
+        return getFlagCoding() != null;
     }
 
     /**
