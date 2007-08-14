@@ -17,9 +17,9 @@
 package org.esa.beam.processor.cloud;
 
 import junit.framework.TestCase;
-import org.esa.beam.util.SystemUtils;
 
 import java.io.File;
+import java.net.URL;
 
 /**
  * Created by marcoz.
@@ -35,14 +35,10 @@ public class CloudAlgorithmTest extends TestCase {
       * @see junit.framework.TestCase#setUp()
       */
     @Override
-	protected void setUp() throws Exception {
-        new CloudProcessor().installAuxdata(); // just to extract auxdata
-        String symbolicName = "cloud-probability-processor";    // todo - get the symbolicName from processor
-        String relPath = ".beam" + File.separator + symbolicName + File.separator + "auxdata";
-        File defaultAuxdataDir = new File(SystemUtils.getUserHomeDir(), relPath);
-        String auxdataDirPath = System.getProperty(CloudPN.CLOUD_AUXDATA_DIR_PROPERTY,
-                                                   defaultAuxdataDir.getAbsolutePath());
-        testAlgorithm = new CloudAlgorithm(new File(auxdataDirPath), "nn_config_test.txt");
+    protected void setUp() throws Exception {
+        URL auxdataDirUrl = getClass().getResource("/auxdata/nn_config_test.txt");
+        File auxdataDir = new File(auxdataDirUrl.toURI()).getParentFile();
+        testAlgorithm = new CloudAlgorithm(auxdataDir, "nn_config_test.txt");
     }
 
     /*
