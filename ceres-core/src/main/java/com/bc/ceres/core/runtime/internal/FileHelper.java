@@ -243,7 +243,7 @@ public class FileHelper {
                         targetFile.mkdir();
                         pm.worked(1);
                     } else {
-                        copy(zipFile, zipEntry, targetFile, new SubProgressMonitor(pm, 1));
+                        copy(zipFile, zipEntry, targetFile, SubProgressMonitor.create(pm, 1));
                     }
                     entries.add(entryName);
                 }
@@ -290,7 +290,7 @@ public class FileHelper {
                 try {
                     zipOutputStream.putNextEntry(zipEntry);
                     copy(inputStream, zipOutputStream, entryName, (int) sourceFile.length(),
-                         new SubProgressMonitor(pm, 1));
+                         SubProgressMonitor.create(pm, 1));
                     zipOutputStream.closeEntry();
                     entries.add(entryName);
                 } finally {

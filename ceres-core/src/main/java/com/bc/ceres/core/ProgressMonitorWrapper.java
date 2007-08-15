@@ -35,8 +35,8 @@ public abstract class ProgressMonitorWrapper implements ProgressMonitor {
      *
      * @see ProgressMonitor#beginTask(String, int)
      */
-    public void beginTask(String name, int totalWork) {
-        progressMonitor.beginTask(name, totalWork);
+    public void beginTask(String taskName, int totalWork) {
+        progressMonitor.beginTask(taskName, totalWork);
     }
 
     /**
@@ -92,8 +92,8 @@ public abstract class ProgressMonitorWrapper implements ProgressMonitor {
      *
      * @see ProgressMonitor#setCanceled(boolean)
      */
-    public void setCanceled(boolean b) {
-        progressMonitor.setCanceled(b);
+    public void setCanceled(boolean canceled) {
+        progressMonitor.setCanceled(canceled);
     }
 
     /**
@@ -104,8 +104,8 @@ public abstract class ProgressMonitorWrapper implements ProgressMonitor {
      *
      * @see ProgressMonitor#setTaskName(String)
      */
-    public void setTaskName(String name) {
-        progressMonitor.setTaskName(name);
+    public void setTaskName(String taskName) {
+        progressMonitor.setTaskName(taskName);
     }
 
     /**
@@ -116,8 +116,8 @@ public abstract class ProgressMonitorWrapper implements ProgressMonitor {
      *
      * @see ProgressMonitor#setSubTaskName(String)
      */
-    public void setSubTaskName(String name) {
-        progressMonitor.setSubTaskName(name);
+    public void setSubTaskName(String subTaskName) {
+        progressMonitor.setSubTaskName(subTaskName);
     }
 
     /**

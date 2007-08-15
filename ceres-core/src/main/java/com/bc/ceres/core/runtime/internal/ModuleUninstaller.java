@@ -50,7 +50,7 @@ public class ModuleUninstaller {
             String moduleFileName = uninstallMarker.substring(0,
                                                               uninstallMarker.length() - RuntimeImpl.UNINSTALL_FILE_SUFFIX.length());
             File moduleFile = new File(moduleDir, moduleFileName);
-            boolean deleted = uninstallModuleFile(moduleFile, new SubProgressMonitor(pm, 1));
+            boolean deleted = uninstallModuleFile(moduleFile, SubProgressMonitor.create(pm, 1));
             if (deleted) {
                 File uninstallMarkerFile = new File(moduleDir, uninstallMarker);
                 uninstallMarkerFile.delete();

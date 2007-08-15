@@ -940,14 +940,14 @@ public class ModuleManagerPane extends JPanel {
                     pm.setTaskName(actionText);
                     if (actionItem.getAction() == ModuleItem.Action.INSTALL) {
                         moduleManager.installModule(actionItem.getRepositoryModule(),
-                                                    new SubProgressMonitor(pm, 1));
+                                                    SubProgressMonitor.create(pm, 1));
                     } else if (actionItem.getAction() == ModuleItem.Action.UPDATE) {
                         moduleManager.updateModule(actionItem.getModule(),
                                                    actionItem.getRepositoryModule(),
-                                                   new SubProgressMonitor(pm, 1));
+                                                   SubProgressMonitor.create(pm, 1));
                     } else if (actionItem.getAction() == ModuleItem.Action.UNINSTALL) {
                         moduleManager.uninstallModule(actionItem.getModule(),
-                                                      new SubProgressMonitor(pm, 1));
+                                                      SubProgressMonitor.create(pm, 1));
                     }
                     if (pm.isCanceled()) {
                         throw new CanceledException();

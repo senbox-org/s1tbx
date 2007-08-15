@@ -67,7 +67,7 @@ public class RepositoryScanner {
             }
             progressMonitor.worked(10);
             if (hrefs.length > 0) {
-                collectModules(hrefs, repositoryModules, new SubProgressMonitor(progressMonitor, 80));
+                collectModules(hrefs, repositoryModules, SubProgressMonitor.create(progressMonitor, 80));
             } else {
                 progressMonitor.worked(80);
             }

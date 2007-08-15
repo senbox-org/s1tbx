@@ -47,11 +47,11 @@ public class ModuleInstaller {
                 logger.info(MessageFormat.format("Downloading [{0}] to [{1}]...", url, tempFile.getName()));
                 pm.setSubTaskName(MessageFormat.format("Downloading [{0}]", fileName));
                 URLConnection urlConnection = UrlHelper.openConnection(url, proxyConfig, "GET");
-                FileHelper.copy(urlConnection, tempFile, new SubProgressMonitor(pm, 90));
+                FileHelper.copy(urlConnection, tempFile, SubProgressMonitor.create(pm, 90));
 
                 logger.info(MessageFormat.format("Copying [{0}] to [{1}]...", tempFile, fileName));
                 pm.setSubTaskName(MessageFormat.format("Copying [{0}]", fileName));
-                FileHelper.copy(tempFile, targetFile, new SubProgressMonitor(pm, 10));
+                FileHelper.copy(tempFile, targetFile, SubProgressMonitor.create(pm, 10));
             } finally {
                 if (!tempFile.delete()) {
                     logger.warning(MessageFormat.format("Failed to delete file [{0}], reason unknown.", tempFile));

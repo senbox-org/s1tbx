@@ -76,8 +76,8 @@ public class DefaultModuleManager implements ModuleManager {
     public Module updateModule(Module oldModule, Module newModule, ProgressMonitor pm) throws CoreException {
         pm.beginTask("Updating module", 100);
         try {
-            Module installedModule = installModule(newModule, new SubProgressMonitor(pm, 50));
-            uninstallModule(oldModule, new SubProgressMonitor(pm, 50));
+            Module installedModule = installModule(newModule, SubProgressMonitor.create(pm, 50));
+            uninstallModule(oldModule, SubProgressMonitor.create(pm, 50));
             return installedModule;
         } finally {
             pm.done();

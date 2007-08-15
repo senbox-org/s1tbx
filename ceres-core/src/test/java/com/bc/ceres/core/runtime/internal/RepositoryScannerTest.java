@@ -12,6 +12,7 @@ import junit.framework.TestCase;
 
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.NullProgressMonitor;
+import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.core.runtime.ProxyConfig;
 
@@ -22,7 +23,7 @@ public class RepositoryScannerTest
         extends TestCase {
 
     Logger NO_LOGGER = Logger.getAnonymousLogger();
-    NullProgressMonitor NO_PM = new NullProgressMonitor();
+    ProgressMonitor NO_PM = ProgressMonitor.NULL;
     ProxyConfig NO_PROXY = ProxyConfig.NULL;
 
     public void testNullArgConvention() throws IOException, CoreException {

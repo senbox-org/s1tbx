@@ -92,19 +92,19 @@ public class RuntimeImpl implements ModuleRuntime {
 
         try {
             progressMonitor.setSubTaskName("Loading modules");
-            loadModules(new SubProgressMonitor(progressMonitor, 10));
+            loadModules(SubProgressMonitor.create(progressMonitor, 10));
             initSystemModule();
             progressMonitor.worked(5); // = 5%
 
             progressMonitor.setSubTaskName("Resolving modules");
-            resolveModules(new SubProgressMonitor(progressMonitor, 5));  // = 15%
+            resolveModules(SubProgressMonitor.create(progressMonitor, 5));  // = 15%
 
             progressMonitor.setSubTaskName("Starting modules");
-            startModules(new SubProgressMonitor(progressMonitor, 55)); // = 70%
+            startModules(SubProgressMonitor.create(progressMonitor, 55)); // = 70%
             registerShutdownHook();
 
             progressMonitor.setSubTaskName("Running application");
-            runApplication(new SubProgressMonitor(progressMonitor, 30)); // = 100%
+            runApplication(SubProgressMonitor.create(progressMonitor, 30)); // = 100%
         } finally {
             progressMonitor.done();
         }
@@ -151,7 +151,7 @@ public class RuntimeImpl implements ModuleRuntime {
         pm.beginTask("Loading modules", 3);
         try {
             if (config.getModulesDirPath() != null) {
-                uninstallModules(new SubProgressMonitor(pm, 1));
+                uninstallModules(SubProgressMonitor.create(pm, 1));
             } else {
                 pm.worked(1);
             }
@@ -161,12 +161,12 @@ public class RuntimeImpl implements ModuleRuntime {
             ModuleLoader moduleLoader = new ModuleLoader(getLogger());
 
             if (config.getModulesDirPath() != null) {
-                loadModulesFromModulesDir(moduleLoader, new SubProgressMonitor(pm, 1));
+                loadModulesFromModulesDir(moduleLoader, SubProgressMonitor.create(pm, 1));
             } else {
                 pm.worked(1);
             }
 
-            loadModulesFromClasspath(moduleLoader, new SubProgressMonitor(pm, 1));
+            loadModulesFromClasspath(moduleLoader, SubProgressMonitor.create(pm, 1));
 
         } finally {
             pm.done();

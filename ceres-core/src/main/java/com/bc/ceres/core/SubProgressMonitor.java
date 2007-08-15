@@ -7,7 +7,7 @@ package com.bc.ceres.core;
  *     try {
  *         pm.beginTask("Main Task", 100);
  *         doSomeWork(pm, 30);
- *         SubProgressMonitor subMonitor= new SubProgressMonitor(pm, 40);
+ *         SubProgressMonitor subMonitor= SubProgressMonitor.create(pm, 40);
  *         try {
  *             subMonitor.beginTask("", 300);
  *             doSomeWork(subMonitor, 300);
@@ -20,8 +20,7 @@ package com.bc.ceres.core;
  *     }
  * </pre>
  * <p/>
- * This class can be used without OSGi running.
- * </p><p>
+ * <p>
  * This class may be instantiated or subclassed by clients.
  * </p>
  */
@@ -49,7 +48,25 @@ public class SubProgressMonitor extends ProgressMonitorWrapper {
     private boolean usedUp = false;
     private boolean hasSubTask = false;
     private int style;
-    private String mainTaskLabel;
+    private String taskName;
+    private int totalWork;
+    private long t0;
+    private final static boolean traceTimeStat = Boolean.getBoolean("com.bc.ceres.core.SubProgressMonitor.traceTimeStat");
+
+    /**
+     * Creates a progress monitor based on the passed in parent monitor. If the parent monitor is {@link ProgressMonitor#NULL},
+     * <code>monitor</code> is returned, otherwise a new <code>SubProgressMonitor</code> is created.
+     * @param monitor the parent progress monitor
+     * @param ticks   the number of work ticks allocated from the
+     *                parent monitor
+     * @return a progress monitor
+     */
+    public static ProgressMonitor create(ProgressMonitor monitor, int ticks) {
+        if (monitor == ProgressMonitor.NULL) {
+            return monitor;
+        }
+        return new SubProgressMonitor(monitor, ticks);
+    }
 
     /**
      * Creates a new sub-progress monitor for the given monitor. The sub
@@ -96,42 +113,57 @@ public class SubProgressMonitor extends ProgressMonitorWrapper {
       * <code> is specified, then the given string will be prepended to
       * every string passed to <code>subTask(String)</code>.
       */
-    public void beginTask(String name, int totalWork) {
+    @Override
+    public void beginTask(String taskName, int totalWork) {
         nestedBeginTasks++;
         // Ignore nested begin task calls.
         if (nestedBeginTasks > 1) {
             return;
         }
+        t0 = System.currentTimeMillis();
+        this.taskName = taskName;
+        this.totalWork = totalWork;
         // be safe:  if the argument would cause math errors (zero or
         // negative), just use 0 as the scale.  This disables progress for
         // this submonitor.
         scale = totalWork <= 0 ? 0 : (double) parentTicks / (double) totalWork;
-        if ((style & PREPEND_MAIN_LABEL_TO_SUBTASK) != 0) {
-            mainTaskLabel = name;
-        }
     }
 
     /* (Intentionally not javadoc'd)
       * Implements the method <code>ProgressMonitor.done</code>.
       */
+    @Override
     public void done() {
         // Ignore if more done calls than beginTask calls or if we are still
         // in some nested beginTasks
-        if (nestedBeginTasks == 0 || --nestedBeginTasks > 0)
+        if (nestedBeginTasks == 0 || --nestedBeginTasks > 0) {
             return;
+        }
         // Send any remaining ticks and clear out the subtask text
         double remaining = parentTicks - sentToParent;
-        if (remaining > 0)
+        if (remaining > 0) {
             super.internalWorked(remaining);
+        }
         //clear the sub task if there was one
-        if (hasSubTask)
+        if (hasSubTask) {
             setSubTaskName(""); //$NON-NLS-1$
+        }
         sentToParent = 0;
+
+        if (traceTimeStat) {
+            long dt = System.currentTimeMillis() - t0;
+            System.out.println("Task '" + taskName + "':");
+            System.out.println("  ParemtTicks:      " + parentTicks);
+            System.out.println("  Total work:       " + totalWork);
+            System.out.println("  Total time:       " + dt + " ms");
+            System.out.println("  Time / work unit: " + ((double)dt / (double)totalWork) + " ms");
+        }
     }
 
     /* (Intentionally not javadoc'd)
       * Implements the internal method <code>ProgressMonitor.internalWorked</code>.
       */
+    @Override
     public void internalWorked(double work) {
         if (usedUp || nestedBeginTasks != 1) {
             return;
@@ -148,14 +180,15 @@ public class SubProgressMonitor extends ProgressMonitorWrapper {
     /* (Intentionally not javadoc'd)
       * Implements the method <code>ProgressMonitor.subTask</code>.
       */
-    public void setSubTaskName(String name) {
+    @Override
+    public void setSubTaskName(String subTaskName) {
         if ((style & SUPPRESS_SUBTASK_LABEL) != 0) {
             return;
         }
         hasSubTask = true;
-        String label = name;
-        if ((style & PREPEND_MAIN_LABEL_TO_SUBTASK) != 0 && mainTaskLabel != null && mainTaskLabel.length() > 0) {
-            label = mainTaskLabel + ' ' + label;
+        String label = subTaskName;
+        if ((style & PREPEND_MAIN_LABEL_TO_SUBTASK) != 0 && taskName != null && taskName.length() > 0) {
+            label = taskName + ' ' + label;
         }
         super.setSubTaskName(label);
     }
@@ -163,6 +196,7 @@ public class SubProgressMonitor extends ProgressMonitorWrapper {
     /* (Intentionally not javadoc'd)
       * Implements the method <code>ProgressMonitor.worked</code>.
       */
+    @Override
     public void worked(int work) {
         internalWorked(work);
 	}

@@ -103,7 +103,7 @@ public class ModuleLoader {
                     URL locationUrl = FileHelper.fileToUrl(moduleFile);
                     if (!visitedLocations.contains(locationUrl)) {
                         try {
-                            ModuleImpl module = loadModule(moduleFile, new SubProgressMonitor(pm, 1));
+                            ModuleImpl module = loadModule(moduleFile, SubProgressMonitor.create(pm, 1));
                             moduleList.add(module);
                             visitedLocations.add(locationUrl);
                             toWork = 0;
@@ -131,7 +131,7 @@ public class ModuleLoader {
                 logger.info(MessageFormat.format("Unpacking [{0}]...", moduleFile.getName()));
                 File archiveFile = moduleFile;
                 try {
-                    moduleFile = unpack(archiveFile, module.isNative(), new SubProgressMonitor(pm, 1));
+                    moduleFile = unpack(archiveFile, module.isNative(), SubProgressMonitor.create(pm, 1));
                 } catch (IOException e) {
                     throw new CoreException("Failed to install module [" + moduleFile + "]", e);
                 } finally {
