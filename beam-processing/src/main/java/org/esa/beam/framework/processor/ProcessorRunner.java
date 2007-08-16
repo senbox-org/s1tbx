@@ -209,7 +209,7 @@ public class ProcessorRunner {
                 for (int i = 0; i < numRequests; i++) {
                     progressMonitor.setSubTaskName("Request " + (i + 1) + " of " + numRequests + "...");
                     _processor.processRequest(_requestLoader.getRequestAt(i),
-                                              new SubProgressMonitor(progressMonitor, 1));
+                                              SubProgressMonitor.create(progressMonitor, 1));
                     if (_processor.isAborted()) {
                         break;
                     }

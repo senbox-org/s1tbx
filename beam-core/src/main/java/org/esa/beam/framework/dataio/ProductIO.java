@@ -426,7 +426,7 @@ public class ProductIO {
                         break;
                     }
                     Band band = bandsToWrite.get(i);
-                    band.writeRasterDataFully(new SubProgressMonitor(pm, 1));
+                    band.writeRasterDataFully(SubProgressMonitor.create(pm, 1));
                 }
             } finally {
                 pm.done();

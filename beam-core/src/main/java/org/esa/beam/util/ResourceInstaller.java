@@ -60,9 +60,9 @@ public class ResourceInstaller {
     public void install(String patternString, ProgressMonitor pm) {
         try {
             pm.beginTask("Installing resource data: ", 2);
-            scanner.scan(new SubProgressMonitor(pm, 1));
+            scanner.scan(SubProgressMonitor.create(pm, 1));
             URL[] resources = scanner.getResourcesByPattern(patternString);
-            copyResources(resources, new SubProgressMonitor(pm, 1));
+            copyResources(resources, SubProgressMonitor.create(pm, 1));
         } finally {
             pm.done();
         }

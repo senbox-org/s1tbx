@@ -343,10 +343,10 @@ public class Histogram extends Range {
         Guardian.assertNotNull("validator", validator);
         final int numValues = values.length;
         final int[] binVals = new int[numBins];
-        pm.beginTask("Computing histogram ...", range == null ? 2 : 1);
+        pm.beginTask("Computing histogram", range == null ? 2 : 1);
         try {
             if (range == null) {
-                range = computeRangeByte(values, validator, range, new SubProgressMonitor(pm, 1));
+                range = computeRangeByte(values, validator, range, SubProgressMonitor.create(pm, 1));
             }
             final int min = MathUtils.floorInt(range.getMin());
             final int max = MathUtils.floorInt(range.getMax());
@@ -354,8 +354,8 @@ public class Histogram extends Range {
             int value;
             int binIndex;
 
-            SubProgressMonitor subPm = new SubProgressMonitor(pm, 1);
-            subPm.beginTask("Computing histogram ...", numValues);
+            ProgressMonitor subPm = SubProgressMonitor.create(pm, 1);
+            subPm.beginTask("Computing histogram", numValues);
             try {
                 for (int i = 0; i < numValues; i++) {
                     if (validator.validateIndex(i)) {
@@ -433,18 +433,18 @@ public class Histogram extends Range {
         Guardian.assertNotNull("validator", validator);
         final int numValues = values.length;
         final int[] binVals = new int[numBins];
-        pm.beginTask("Computing histogram ...", range == null ? 2 : 1);
+        pm.beginTask("Computing histogram", range == null ? 2 : 1);
         try {
             if (range == null) {
-                range = computeRangeUByte(values, validator, range, new SubProgressMonitor(pm, 1));
+                range = computeRangeUByte(values, validator, range, SubProgressMonitor.create(pm, 1));
             }
             final int min = MathUtils.floorInt(range.getMin());
             final int max = MathUtils.floorInt(range.getMax());
             final int delta = max > min ? max - min : 1;
             int value;
             int binIndex;
-            SubProgressMonitor subPm = new SubProgressMonitor(pm, 1);
-            subPm.beginTask("Computing histogram ...", numValues);
+            ProgressMonitor subPm = SubProgressMonitor.create(pm, 1);
+            subPm.beginTask("Computing histogram", numValues);
             try {
                 for (int i = 0; i < numValues; i++) {
                     if (validator.validateIndex(i)) {
@@ -521,18 +521,18 @@ public class Histogram extends Range {
         Guardian.assertNotNull("validator", validator);
         final int numValues = values.length;
         final int[] binVals = new int[numBins];
-        pm.beginTask("Computing histogram ...", range == null ? 2 : 1);
+        pm.beginTask("Computing histogram", range == null ? 2 : 1);
         try {
             if (range == null) {
-                range = computeRangeShort(values, validator, range, new SubProgressMonitor(pm, 1));
+                range = computeRangeShort(values, validator, range, SubProgressMonitor.create(pm, 1));
             }
             final int min = MathUtils.floorInt(range.getMin());
             final int max = MathUtils.floorInt(range.getMax());
             final int delta = max > min ? max - min : 1;
             int value;
             int binIndex;
-            SubProgressMonitor subPm = new SubProgressMonitor(pm, 1);
-            subPm.beginTask("Computing histogram ...", numValues);
+            ProgressMonitor subPm = SubProgressMonitor.create(pm, 1);
+            subPm.beginTask("Computing histogram", numValues);
             try {
                 for (int i = 0; i < numValues; i++) {
                     if (validator.validateIndex(i)) {
@@ -610,18 +610,18 @@ public class Histogram extends Range {
         Guardian.assertNotNull("validator", validator);
         final int numValues = values.length;
         final int[] binVals = new int[numBins];
-        pm.beginTask("Computing histogram ...", range == null ? 2 : 1);
+        pm.beginTask("Computing histogram", range == null ? 2 : 1);
         try {
             if (range == null) {
-                range = computeRangeUShort(values, validator, range, new SubProgressMonitor(pm, 1));
+                range = computeRangeUShort(values, validator, range, SubProgressMonitor.create(pm, 1));
             }
             final int min = MathUtils.floorInt(range.getMin());
             final int max = MathUtils.floorInt(range.getMax());
             final int delta = max > min ? max - min : 1;
             int value;
             int binIndex;
-            SubProgressMonitor subPm = new SubProgressMonitor(pm, 1);
-            subPm.beginTask("Computing histogram ...", numValues);
+            ProgressMonitor subPm = SubProgressMonitor.create(pm, 1);
+            subPm.beginTask("Computing histogram", numValues);
             try {
                 for (int i = 0; i < numValues; i++) {
                     if (validator.validateIndex(i)) {
@@ -701,10 +701,10 @@ public class Histogram extends Range {
         Guardian.assertNotNull("validator", validator);
         final int numValues = values.length;
         final int[] binVals = new int[numBins];
-        pm.beginTask("Computing histogram ...", range == null ? 2 : 1);
+        pm.beginTask("Computing histogram", range == null ? 2 : 1);
         try {
             if (range == null) {
-                range = computeRangeInt(values, validator, range, new SubProgressMonitor(pm, 1));
+                range = computeRangeInt(values, validator, range, SubProgressMonitor.create(pm, 1));
             }
             final long min = MathUtils.floorLong(range.getMin());
             final long max = MathUtils.floorLong(range.getMax());
@@ -713,8 +713,8 @@ public class Histogram extends Range {
             final double offset = -scale * min;
             int value;
             int binIndex;
-            SubProgressMonitor subPm = new SubProgressMonitor(pm, 1);
-            subPm.beginTask("Computing histogram ...", numValues);
+            ProgressMonitor subPm = SubProgressMonitor.create(pm, 1);
+            subPm.beginTask("Computing histogram", numValues);
             try {
                 for (int i = 0; i < numValues; i++) {
                     if (validator.validateIndex(i)) {
@@ -793,18 +793,18 @@ public class Histogram extends Range {
         Guardian.assertNotNull("validator", validator);
         final int numValues = values.length;
         final int[] binVals = new int[numBins];
-        pm.beginTask("Computing histogram ...", range == null ? 2 : 1);
+        pm.beginTask("Computing histogram", range == null ? 2 : 1);
         try {
             if (range == null) {
-                range = computeRangeUInt(values, validator, range, new SubProgressMonitor(pm, 1));
+                range = computeRangeUInt(values, validator, range, SubProgressMonitor.create(pm, 1));
             }
             final long min = MathUtils.floorLong(range.getMin());
             final long max = MathUtils.floorLong(range.getMax());
             final long delta = max > min ? max - min : 1;
             long value;
             int binIndex;
-            SubProgressMonitor subPm = new SubProgressMonitor(pm, 1);
-            subPm.beginTask("Computing histogram ...", numValues);
+            ProgressMonitor subPm = SubProgressMonitor.create(pm, 1);
+            subPm.beginTask("Computing histogram", numValues);
             try {
                 for (int i = 0; i < numValues; i++) {
                     if (validator.validateIndex(i)) {
@@ -884,10 +884,10 @@ public class Histogram extends Range {
         Guardian.assertNotNull("validator", validator);
         final int numValues = values.length;
         final int[] binVals = new int[numBins];
-        pm.beginTask("Computing histogram ...", range == null ? 2 : 1);
+        pm.beginTask("Computing histogram", range == null ? 2 : 1);
         try {
             if (range == null) {
-                range = computeRangeFloat(values, validator, range, new SubProgressMonitor(pm, 1));
+                range = computeRangeFloat(values, validator, range, SubProgressMonitor.create(pm, 1));
             }
             final float min = (float) range.getMin();
             final float max = (float) range.getMax();
@@ -896,8 +896,8 @@ public class Histogram extends Range {
             final float offset = -scale * min;
             float value;
             int binIndex;
-            SubProgressMonitor subPm = new SubProgressMonitor(pm, 1);
-            subPm.beginTask("Computing histogram ...", numValues);
+            ProgressMonitor subPm = SubProgressMonitor.create(pm, 1);
+            subPm.beginTask("Computing histogram", numValues);
             try {
                 for (int i = 0; i < numValues; i++) {
                     if (validator.validateIndex(i)) {
@@ -979,10 +979,10 @@ public class Histogram extends Range {
         Guardian.assertNotNull("validator", validator);
         final int numValues = values.length;
         final int[] binVals = new int[numBins];
-        pm.beginTask("Computing histogram ...", range == null ? 2 : 1);
+        pm.beginTask("Computing histogram", range == null ? 2 : 1);
         try {
             if (range == null) {
-                range = computeRangeDouble(values, validator, range, new SubProgressMonitor(pm, 1));
+                range = computeRangeDouble(values, validator, range, SubProgressMonitor.create(pm, 1));
             }
             final double min = range.getMin();
             final double max = range.getMax();
@@ -991,8 +991,8 @@ public class Histogram extends Range {
             final double offset = -scale * min;
             double value;
             int binIndex;
-            SubProgressMonitor subPm = new SubProgressMonitor(pm, 1);
-            subPm.beginTask("Computing histogram ...", numValues);
+            ProgressMonitor subPm = SubProgressMonitor.create(pm, 1);
+            subPm.beginTask("Computing histogram", numValues);
             try {
                 for (int i = 0; i < numValues; i++) {
                     if (validator.validateIndex(i)) {
@@ -1072,18 +1072,18 @@ public class Histogram extends Range {
         Guardian.assertNotNull("validator", validator);
         final int numValues = values.getSize();
         final int[] binVals = new int[numBins];
-        pm.beginTask("Computing histogram ...", range == null ? 2 : 1);
+        pm.beginTask("Computing histogram", range == null ? 2 : 1);
         try {
             if (range == null) {
-                range = computeRangeDouble(values, validator, range, new SubProgressMonitor(pm, 1));
+                range = computeRangeDouble(values, validator, range, SubProgressMonitor.create(pm, 1));
             }
             final double min = range.getMin();
             final double max = range.getMax();
             final double delta = max - min;
             double value;
             int binIndex;
-            SubProgressMonitor subPm = new SubProgressMonitor(pm, 1);
-            subPm.beginTask("Computing histogram ...", numValues);
+            ProgressMonitor subPm = SubProgressMonitor.create(pm, 1);
+            subPm.beginTask("Computing histogram", numValues);
             try {
                 for (int i = 0; i < numValues; i++) {
                     if (validator.validateIndex(i)) {

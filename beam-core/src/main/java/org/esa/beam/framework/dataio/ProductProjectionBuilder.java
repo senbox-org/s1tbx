@@ -264,7 +264,7 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
         pm.beginTask("Performing map-transformation...", 1);
         try {
             readBandRasterDataImpl(destBand, destOffsetX, destOffsetY, destWidth, destHeight, destBuffer,
-                                   new SubProgressMonitor(pm, 1));
+                                   SubProgressMonitor.create(pm, 1));
         } finally {
             pm.done();
         }

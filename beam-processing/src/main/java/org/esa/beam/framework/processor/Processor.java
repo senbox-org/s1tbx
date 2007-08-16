@@ -554,7 +554,7 @@ public abstract class Processor {
             if (ProductData.isIntType(geophysicalDataType)) {
                 int[] ints = new int[width];
                 for (int line = 0; line < height; line++) {
-                    sourceBand.readPixels(0, line, width, 1, ints, new SubProgressMonitor(pm, 1));
+                    sourceBand.readPixels(0, line, width, 1, ints, SubProgressMonitor.create(pm, 1));
                     destBand.writePixels(0, line, width, 1, ints, ProgressMonitor.NULL);
                     pm.worked(1);
                     if (pm.isCanceled()) {
@@ -564,7 +564,7 @@ public abstract class Processor {
             } else if (geophysicalDataType == ProductData.TYPE_FLOAT32) {
                 float[] floats = new float[width];
                 for (int line = 0; line < height; line++) {
-                    sourceBand.readPixels(0, line, width, 1, floats, new SubProgressMonitor(pm, 1));
+                    sourceBand.readPixels(0, line, width, 1, floats, SubProgressMonitor.create(pm, 1));
                     destBand.writePixels(0, line, width, 1, floats, ProgressMonitor.NULL);
                     pm.worked(1);
                     if (pm.isCanceled()) {
@@ -575,7 +575,7 @@ public abstract class Processor {
             } else if (geophysicalDataType == ProductData.TYPE_FLOAT64) {
                 double[] doubles = new double[width];
                 for (int line = 0; line < height; line++) {
-                    sourceBand.readPixels(0, line, width, 1, doubles, new SubProgressMonitor(pm, 1));
+                    sourceBand.readPixels(0, line, width, 1, doubles, SubProgressMonitor.create(pm, 1));
                     destBand.writePixels(0, line, width, 1, doubles, ProgressMonitor.NULL);
                     pm.worked(1);
                     if (pm.isCanceled()) {

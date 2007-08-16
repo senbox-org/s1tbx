@@ -199,18 +199,20 @@ public class ProductUtils {
 
         stopWatch.start();
         BufferedImage overlayBIm;
-        pm.beginTask("Creating overlayed image...", 2);
+        boolean hasOverlays = getBitmaskDefs(raster) != null;
+        pm.beginTask("Creating overlayed image...", rasterDataNodes.length + (hasOverlays ? 1 : 0));
         try {
             if (rasterDataNodes.length == 1) {
-                overlayBIm = raster.createRgbImage(new SubProgressMonitor(pm, 1));
+                overlayBIm = raster.createRgbImage(SubProgressMonitor.create(pm, rasterDataNodes.length));
                 // todo frequently check with new VM releases whether or not we can use a
                 // 1-byte-per-pixel color indexed image because this saves memory.
                 // But was unstable and much slower in java 1.4, 1.5 and also 1.6-rc.
                 // overlayBIm = createColorIndexedImage(rasterDataNodes[0]);
             } else {
-                overlayBIm = createRgbImage(rasterDataNodes, new SubProgressMonitor(pm, 1));
+                overlayBIm = createRgbImage(rasterDataNodes, SubProgressMonitor.create(pm, rasterDataNodes.length));
             }
             stopWatch.stopAndTrace("ProductSceneView.createOverlayedImage: base RGB image created");
+
             final boolean doEqualize = ImageInfo.HISTOGRAM_MATCHING_EQUALIZE.equalsIgnoreCase(histogramMatching);
             final boolean doNormalize = ImageInfo.HISTOGRAM_MATCHING_NORMALIZE.equalsIgnoreCase(histogramMatching);
             if (doEqualize || doNormalize) {
@@ -226,10 +228,12 @@ public class ProductUtils {
                 overlayBIm = sourcePIm.getAsBufferedImage();
             }
 
-            // @todo 3 nf/nf - check: for RGB, BitmaskOverlayInfo is always taken from the red raster?
-            stopWatch.start();
-            overlayBIm = overlayBitmasks(raster, overlayBIm, new SubProgressMonitor(pm, 1));
-            stopWatch.stopAndTrace("ProductSceneView.createOverlayedImage: overlays added");
+            if (hasOverlays) {
+                // @todo 3 nf/nf - check: for RGB, BitmaskOverlayInfo is always taken from the red raster?
+                stopWatch.start();
+                overlayBIm = overlayBitmasks(raster, overlayBIm, SubProgressMonitor.create(pm, 1));
+                stopWatch.stopAndTrace("ProductSceneView.createOverlayedImage: overlays added");
+            }
 
             JAIDebug.trace("overlayBIm", overlayBIm);
         } finally {
@@ -358,13 +362,12 @@ public class ProductUtils {
         BufferedImage bufferedImage = null;
         int progressMax;
         if (singleBand) {
-            progressMax = 1;
+            progressMax = 2;
         } else {
             progressMax = 3;
         }
-        for (int i = 0; i < rasterDataNodes.length; i++) {
-            final RasterDataNode node = rasterDataNodes[i];
-            if (node != null && node.getImageInfo() == null) {
+        for (final RasterDataNode node : rasterDataNodes) {
+            if (node.getImageInfo() == null) {
                 progressMax += 2;
             }
         }
@@ -379,10 +382,19 @@ public class ProductUtils {
 
                 final ImageInfo imageInfo;
                 if (raster.getImageInfo() == null) {
-                    final Range range = raster.computeRasterDataRange(null, new SubProgressMonitor(pm, 1));
+// todo - Proformance boost. But better change SubProgressMonitor implementation.
+//                    final Range range = raster.computeRasterDataRange(null, SubProgressMonitor.create(pm, 1));
+                    final Range range = raster.computeRasterDataRange(null, ProgressMonitor.NULL);
+                    pm.worked(1);
+
                     checkCanceled(pm);
+// todo - Proformance boost. But better change SubProgressMonitor implementation.
+//                    final Histogram histogram = raster.computeRasterDataHistogram(null, 512, range,
+//                                                                                  SubProgressMonitor.create(pm, 1));
                     final Histogram histogram = raster.computeRasterDataHistogram(null, 512, range,
-                                                                                  new SubProgressMonitor(pm, 1));
+                                                                                  ProgressMonitor.NULL);
+                    pm.worked(1);
+
                     imageInfo = raster.createDefaultImageInfo(null, histogram, true);
                     raster.setImageInfo(imageInfo);
                 } else {
@@ -394,8 +406,12 @@ public class ProductUtils {
                 final double gamma = imageInfo.getGamma();
 
                 checkCanceled(pm);
+// todo - Proformance boost. But better change SubProgressMonitor implementation.
+//                raster.quantizeRasterData(newMin, newMax, gamma, rgbSamples, singleBand ? 0 : 2 - i,
+//                                          SubProgressMonitor.create(pm, 1));
                 raster.quantizeRasterData(newMin, newMax, gamma, rgbSamples, singleBand ? 0 : 2 - i,
-                                          new SubProgressMonitor(pm, 1));
+                                          ProgressMonitor.NULL);
+                pm.worked(1);
             }
 
             checkCanceled(pm);
@@ -419,6 +435,7 @@ public class ProductUtils {
                     rgbSamples[i + 1] = g[colorIndex];
                     rgbSamples[i + 2] = r[colorIndex];
                 }
+                pm.worked(1);
             }
 
             // Create a BufferedImage of type TYPE_3BYTE_BGR (the fastest type)
@@ -1364,8 +1381,8 @@ public class ProductUtils {
         pm.beginTask("Creating scatter plot image...", rasterH * 3);
         try {
             for (int y = 0; y < rasterH; y++) {
-                raster1.readPixels(0, y, rasterW, 1, line1, new SubProgressMonitor(pm, 1));
-                raster2.readPixels(0, y, rasterW, 1, line2, new SubProgressMonitor(pm, 1));
+                raster1.readPixels(0, y, rasterW, 1, line1, SubProgressMonitor.create(pm, 1));
+                raster2.readPixels(0, y, rasterW, 1, line2, SubProgressMonitor.create(pm, 1));
                 for (int x = 0; x < rasterW; x++) {
                     final int index = y * rasterW + x;
                     if (pixelValidator1.validateIndex(index) && pixelValidator2.validateIndex(index)) {
@@ -1472,13 +1489,13 @@ public class ProductUtils {
                 final RasterDataNode[] rasterNodes = BandArithmetic.getRefRasters(rasterSymbols);
 
                 // Ensures that all the raster data which are needed to create overlays are loaded
-                SubProgressMonitor subPm = new SubProgressMonitor(pm, 1);
+                ProgressMonitor subPm = SubProgressMonitor.create(pm, 1);
                 subPm.beginTask("Reading raster data...", rasterNodes.length);
                 try {
                     for (int j = 0; j < rasterNodes.length; j++) {
                         RasterDataNode rasterNode = rasterNodes[j];
                         if (!rasterNode.hasRasterData()) {
-                            rasterNode.readRasterDataFully(new SubProgressMonitor(subPm, 1));
+                            rasterNode.readRasterDataFully(SubProgressMonitor.create(subPm, 1));
                         } else {
                             subPm.worked(1);
                         }
@@ -1489,7 +1506,7 @@ public class ProductUtils {
 
                 final byte[] alphaData = new byte[w * h];
                 product.readBitmask(0, 0, w, h, term, alphaData, (byte) (255 * bitmaskDef.getAlpha()), (byte) 0,
-                                    new SubProgressMonitor(pm, 1));
+                                    SubProgressMonitor.create(pm, 1));
 
                 Debug.trace("ProductSceneView: creating bitmask overlay '" + bitmaskDef.getName() + "'...");
                 BufferedImage alphaBIm = ImageUtils.createGreyscaleColorModelImage(w, h, alphaData);
@@ -1537,12 +1554,8 @@ public class ProductUtils {
                                                                     IOException {
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        final BitmaskOverlayInfo bitmaskOverlayInfo = raster.getBitmaskOverlayInfo();
-        if (bitmaskOverlayInfo == null) {
-            return overlayBIm;
-        }
-        final BitmaskDef[] bitmaskDefs = bitmaskOverlayInfo.getBitmaskDefs();
-        if (bitmaskDefs.length == 0) {
+        BitmaskDef[] bitmaskDefs = getBitmaskDefs(raster);
+        if (bitmaskDefs == null) {
             return overlayBIm;
         }
 
@@ -1583,7 +1596,7 @@ public class ProductUtils {
 
                 Debug.trace("ProductSceneView: creating bitmask overlay '" + bitmaskDef.getName() + "'...");
                 final RasterDataLoop loop = new RasterDataLoop(0, 0, w, h, new Term[]{term},
-                                                               new SubProgressMonitor(pm, 1));
+                                                               SubProgressMonitor.create(pm, 1));
                 loop.forEachPixel(new RasterDataLoop.Body() {
                     public void eval(RasterDataEvalEnv env, int pixelIndex) {
                         if (term.evalB(env)) {
@@ -1616,6 +1629,17 @@ public class ProductUtils {
         }
         stopWatch.stopAndTrace("overlay Bitmask");
         return overlayBIm;
+    }
+
+    private static BitmaskDef[] getBitmaskDefs(RasterDataNode raster) {
+        final BitmaskOverlayInfo bitmaskOverlayInfo = raster.getBitmaskOverlayInfo();
+        if (bitmaskOverlayInfo != null) {
+            BitmaskDef[] bitmaskDefs = bitmaskOverlayInfo.getBitmaskDefs();
+            if (bitmaskDefs.length > 0) {
+                return bitmaskDefs;
+            }
+        }
+        return null;
     }
 
     public static GeoPos getCenterGeoPos(final Product product) {

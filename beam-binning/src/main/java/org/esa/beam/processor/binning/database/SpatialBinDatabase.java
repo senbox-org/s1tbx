@@ -54,10 +54,10 @@ public class SpatialBinDatabase extends AbstractBinDatabase {
             createStore();
             pm.worked(1);
 
-            binSpatial(new SubProgressMonitor(pm, 1));
+            binSpatial(SubProgressMonitor.create(pm, 1));
 
             if (context.algorithmNeedsFinishSpatial()) {
-                finishSpatial(new SubProgressMonitor(pm, 1));
+                finishSpatial(SubProgressMonitor.create(pm, 1));
             }
         } finally {
             pm.done();

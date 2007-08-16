@@ -235,10 +235,10 @@ public abstract class AbstractBand extends RasterDataNode {
         try {
             if (hasRasterData()) {
                 pm.beginTask("Reading pixels...", 1);
-                pixels = getPixels(x, y, w, h, pixels, new SubProgressMonitor(pm, 1));
+                pixels = getPixels(x, y, w, h, pixels, SubProgressMonitor.create(pm, 1));
             } else {
                 pm.beginTask("Reading pixels...", 2);
-                final ProductData rawData = readSubRegionRasterData(x, y, w, h, new SubProgressMonitor(pm, 1));
+                final ProductData rawData = readSubRegionRasterData(x, y, w, h, SubProgressMonitor.create(pm, 1));
                 final int n = w * h;
                 pixels = ensureMinLengthArray(pixels, n);
                 if (!isScalingApplied() && rawData.getElems() instanceof float[]) {

@@ -270,7 +270,7 @@ public class BasicApp {
             configureDockingManager();
             pm.worked(1);
 
-            initClient(new SubProgressMonitor(pm, 1));
+            initClient(SubProgressMonitor.create(pm, 1));
 
             pm.setSubTaskName("Initialising UI components...");
             configureCommandsByResourceBundle();
@@ -281,7 +281,7 @@ public class BasicApp {
             initFrameIcon();
             pm.worked(1);
 
-            initClientUI(new SubProgressMonitor(pm, 1));
+            initClientUI(SubProgressMonitor.create(pm, 1));
 
             pm.setSubTaskName("Applying UI preferences...");
             applyPreferences();

@@ -236,7 +236,7 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
             pm.beginTask("Reading sub sampled raster data...", 2 * (sourceMaxY - sourceMinY));
             for (int sourceY = sourceMinY; sourceY <= sourceMaxY; sourceY += sourceStepY) {
                 sourceBand.readRasterData(sourceOffsetX, sourceY, sourceWidth, 1, lineBuffer,
-                                          new SubProgressMonitor(pm, 1));
+                                          SubProgressMonitor.create(pm, 1));
                 if (sourceStepX == 1) {
                     copyData(lineBuffer, 0, destBuffer, destPos, destWidth);
                 } else {

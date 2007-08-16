@@ -319,11 +319,11 @@ class ScatterPlotPane extends PagePane {
             protected IOException doInBackground() throws Exception {
                 pm.beginTask("Computing scatter plot...", 2);
                 try {
-                    computeAutoMinMax(VAR1, raster1, roi, new SubProgressMonitor(pm, 1));
+                    computeAutoMinMax(VAR1, raster1, roi, SubProgressMonitor.create(pm, 1));
                     if (pm.isCanceled()) {
                         return null;
                     }
-                    computeAutoMinMax(VAR2, raster2, roi, new SubProgressMonitor(pm, 1));
+                    computeAutoMinMax(VAR2, raster2, roi, SubProgressMonitor.create(pm, 1));
                     if (pm.isCanceled()) {
                         return null;
                     }

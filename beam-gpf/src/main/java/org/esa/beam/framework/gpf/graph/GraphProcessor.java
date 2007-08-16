@@ -93,8 +93,8 @@ public class GraphProcessor {
         GraphContext graphContext;
         try {
             pm.beginTask("Executing processing graph", 100);
-            graphContext = createGraphContext(graph, new SubProgressMonitor(pm, 10));
-            executeGraphContext(graphContext, new SubProgressMonitor(pm, 90));
+            graphContext = createGraphContext(graph, SubProgressMonitor.create(pm, 10));
+            executeGraphContext(graphContext, SubProgressMonitor.create(pm, 90));
             disposeGraphContext(graphContext);
         } finally {
             pm.done();
@@ -122,7 +122,7 @@ public class GraphProcessor {
             GraphContext graphContext = new GraphContext(graph, logger);
             initNodeDependencies(graphContext);
             pm.worked(10);
-            initOutput(graphContext, new SubProgressMonitor(pm, 90));
+            initOutput(graphContext, SubProgressMonitor.create(pm, 90));
             return graphContext;
         } finally {
             pm.done();
@@ -209,7 +209,7 @@ public class GraphProcessor {
             for (Node node : graphContext.getGraph().getNodes()) {
                 NodeContext nodeContext = graphContext.getNodeContext(node);
                 if (nodeContext.isOutput()) {
-                    initNodeContext(graphContext, nodeContext, new SubProgressMonitor(pm, 1));
+                    initNodeContext(graphContext, nodeContext, SubProgressMonitor.create(pm, 1));
                     graphContext.addOutputNodeContext(nodeContext);
                 }
             }
@@ -230,7 +230,7 @@ public class GraphProcessor {
 
             for (NodeSource source : sources) {
                 NodeContext sourceNodeContext = graphContext.getNodeContext(source.getSourceNode());
-                initNodeContext(graphContext, sourceNodeContext, new SubProgressMonitor(pm, 1));
+                initNodeContext(graphContext, sourceNodeContext, SubProgressMonitor.create(pm, 1));
                 nodeContext.addSourceProduct(source.getName(), sourceNodeContext.getTargetProduct());
             }
 

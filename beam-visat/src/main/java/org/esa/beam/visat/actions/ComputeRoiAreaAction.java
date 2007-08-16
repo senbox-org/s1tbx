@@ -98,7 +98,7 @@ public class ComputeRoiAreaAction extends ExecCommand {
         int numPixels;
         try {
             try {
-                roi = raster.createROI(new SubProgressMonitor(pm, 1));
+                roi = raster.createROI(SubProgressMonitor.create(pm, 1));
             } catch (IOException e) {
                 VisatApp.getApp().showErrorDialog(DIALOG_TITLE,
                                                   errMsgBase + "An I/O error occured:\n" + e.getMessage());
@@ -137,7 +137,7 @@ public class ComputeRoiAreaAction extends ExecCommand {
             pixelAreaMax = -Double.MAX_VALUE;
             numPixels = 0;
 
-            ProgressMonitor subPm = new SubProgressMonitor(pm, 1);
+            ProgressMonitor subPm = SubProgressMonitor.create(pm, 1);
             subPm.beginTask("Computing ROI area...", h);
             try {
                 for (int y = 0; y < h; y++) {

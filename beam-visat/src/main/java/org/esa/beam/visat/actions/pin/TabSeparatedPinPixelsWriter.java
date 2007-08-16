@@ -88,7 +88,7 @@ class TabSeparatedPinPixelsWriter {
 
                 if (pixels != null) {
                     writeHeaderLine(printWriter, geoCoding, bands, (pixelRelevanceInformation != null));
-                    ProgressMonitor subPm = new SubProgressMonitor(pm, 1);
+                    ProgressMonitor subPm = SubProgressMonitor.create(pm, 1);
                     subPm.beginTask("Writing pixel data...", pixels.length);
                     try {
                         for (int i = 0; i < pixels.length; i++) {

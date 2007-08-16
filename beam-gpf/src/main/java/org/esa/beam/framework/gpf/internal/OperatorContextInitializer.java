@@ -62,7 +62,7 @@ public class OperatorContextInitializer {
     		injector.injectParameters(operator);
     		pm.worked(1);
 
-    		Product targetProduct = operator.initialize(operatorContext, new SubProgressMonitor(pm, 1));
+    		Product targetProduct = operator.initialize(operatorContext, SubProgressMonitor.create(pm, 1));
     		if (targetProduct == null) {
     			throw new OperatorException(String.format("Operator [%s] has no target product.", operatorSpi.getName()));
     		}

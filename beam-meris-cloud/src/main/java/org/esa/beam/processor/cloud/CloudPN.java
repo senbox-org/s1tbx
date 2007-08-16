@@ -266,33 +266,33 @@ public class CloudPN extends ProcessingNode {
 
         pm.beginTask("Processing frame...", 10 + frameSize);
         try {
-            szaGrid.readPixels(frameX, frameY, frameW, frameH, szaScanLine, new SubProgressMonitor(pm, 1));
-            saaGrid.readPixels(frameX, frameY, frameW, frameH, saaScanLine, new SubProgressMonitor(pm, 1));
-            vzaGrid.readPixels(frameX, frameY, frameW, frameH, vzaScanLine, new SubProgressMonitor(pm, 1));
-            vaaGrid.readPixels(frameX, frameY, frameW, frameH, vaaScanLine, new SubProgressMonitor(pm, 1));
-            pressGrid.readPixels(frameX, frameY, frameW, frameH, pressScanLine, new SubProgressMonitor(pm, 1));
-            altitudeGrid.readPixels(frameX, frameY, frameW, frameH, altitudeScanLine, new SubProgressMonitor(pm, 1));
+            szaGrid.readPixels(frameX, frameY, frameW, frameH, szaScanLine, SubProgressMonitor.create(pm, 1));
+            saaGrid.readPixels(frameX, frameY, frameW, frameH, saaScanLine, SubProgressMonitor.create(pm, 1));
+            vzaGrid.readPixels(frameX, frameY, frameW, frameH, vzaScanLine, SubProgressMonitor.create(pm, 1));
+            vaaGrid.readPixels(frameX, frameY, frameW, frameH, vaaScanLine, SubProgressMonitor.create(pm, 1));
+            pressGrid.readPixels(frameX, frameY, frameW, frameH, pressScanLine, SubProgressMonitor.create(pm, 1));
+            altitudeGrid.readPixels(frameX, frameY, frameW, frameH, altitudeScanLine, SubProgressMonitor.create(pm, 1));
 
 
-            SubProgressMonitor subPM = new SubProgressMonitor(pm, 1);
+            ProgressMonitor subPM = SubProgressMonitor.create(pm, 1);
             try {
                 subPM.beginTask("Reading radiance bands...", radianceBands.length);
                 for (int i = 0; i < radianceBands.length; i++) {
                     final Band radianceBand = radianceBands[i];
                     radianceBand.readPixels(frameX, frameY, frameW, frameH, radianceScanLine[i],
-                                            new SubProgressMonitor(pm, 1));
+                                            SubProgressMonitor.create(pm, 1));
                 }
             } finally {
                 subPM.done();
             }
-            detectorBand.readPixels(frameX, frameY, frameW, frameH, detectorScanLine, new SubProgressMonitor(pm, 1));
+            detectorBand.readPixels(frameX, frameY, frameW, frameH, detectorScanLine, SubProgressMonitor.create(pm, 1));
 
             getSourceProduct().readBitmask(frameX, frameY, frameW, frameH, validLandTerm, validLandScanLine,
-                    new SubProgressMonitor(pm, 1));
+                    SubProgressMonitor.create(pm, 1));
             getSourceProduct().readBitmask(frameX, frameY, frameW, frameH, validOceanTerm, validOceanScanLine,
-                    new SubProgressMonitor(pm, 1));
+                    SubProgressMonitor.create(pm, 1));
             getSourceProduct().readBitmask(frameX, frameY, frameW, frameH, landTerm, landScanLine,
-                                           new SubProgressMonitor(pm, 1));
+                                           SubProgressMonitor.create(pm, 1));
 
             ProductData data = getFrameData(cloudBand);
             short[] cloudScanLine = (short[]) data.getElems();

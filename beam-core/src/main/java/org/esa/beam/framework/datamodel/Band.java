@@ -270,9 +270,9 @@ public class Band extends AbstractBand {
         ProductReader reader = product.getProductReaderSafe();
         pm.beginTask("Reading raster data...", isMaskProductDataEnabled() ? 2 : 1);
         try {
-            reader.readBandRasterData(this, offsetX, offsetY, width, height, rasterData, new SubProgressMonitor(pm, 1));
+            reader.readBandRasterData(this, offsetX, offsetY, width, height, rasterData, SubProgressMonitor.create(pm, 1));
             if (isMaskProductDataEnabled()) {
-                maskProductData(offsetX, offsetY, width, height, rasterData, new SubProgressMonitor(pm, 1));
+                maskProductData(offsetX, offsetY, width, height, rasterData, SubProgressMonitor.create(pm, 1));
             }
         } finally {
             pm.done();
@@ -358,9 +358,9 @@ public class Band extends AbstractBand {
                         break;
                     }
                     reader.readBandRasterData(this, 0, y, getRasterWidth(), 1, rasterData,
-                                              new SubProgressMonitor(pm, 1));
+                                              SubProgressMonitor.create(pm, 1));
                     writer.writeBandRasterData(this, 0, y, getRasterWidth(), 1, rasterData,
-                                               new SubProgressMonitor(pm, 1));
+                                               SubProgressMonitor.create(pm, 1));
                 }
             } finally {
                 pm.done();

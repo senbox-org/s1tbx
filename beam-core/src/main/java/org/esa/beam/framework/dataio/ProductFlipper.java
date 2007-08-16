@@ -223,7 +223,7 @@ public class ProductFlipper extends AbstractProductBuilder {
                         break;
                     }
                     sourceY = destOffsetY + j;
-                    sourceBand.readPixels(0, sourceY, sourceW, 1, line, new SubProgressMonitor(pm, 1));
+                    sourceBand.readPixels(0, sourceY, sourceW, 1, line, SubProgressMonitor.create(pm, 1));
                     for (int i = 0; i < destWidth; i++) {
                         sourceX = sourceW - (destOffsetX + i + 1);
                         destBuffer.setElemFloatAt(j * destWidth + i, line[sourceX]);
@@ -235,7 +235,7 @@ public class ProductFlipper extends AbstractProductBuilder {
                         break;
                     }
                     sourceY = sourceH - (destOffsetY + j + 1);
-                    sourceBand.readPixels(0, sourceY, sourceW, 1, line, new SubProgressMonitor(pm, 1));
+                    sourceBand.readPixels(0, sourceY, sourceW, 1, line, SubProgressMonitor.create(pm, 1));
                     for (int i = 0; i < destWidth; i++) {
                         sourceX = destOffsetX + i;
                         destBuffer.setElemFloatAt(j * destWidth + i, line[sourceX]);
@@ -247,7 +247,7 @@ public class ProductFlipper extends AbstractProductBuilder {
                         break;
                     }
                     sourceY = sourceH - (destOffsetY + j + 1);
-                    sourceBand.readPixels(0, sourceY, sourceW, 1, line, new SubProgressMonitor(pm, 1));
+                    sourceBand.readPixels(0, sourceY, sourceW, 1, line, SubProgressMonitor.create(pm, 1));
                     for (int i = 0; i < destWidth; i++) {
                         sourceX = sourceW - (destOffsetX + i + 1);
                         destBuffer.setElemFloatAt(j * destWidth + i, line[sourceX]);

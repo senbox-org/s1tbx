@@ -1959,7 +1959,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                     ioException.initCause(e);
                     throw ioException;
                 }
-                product.readBitmask(0, 0, w, h, term, data, b01, b00, new SubProgressMonitor(pm, 1));
+                product.readBitmask(0, 0, w, h, term, data, b01, b00, SubProgressMonitor.create(pm, 1));
                 dataValid = true;
             }
 
@@ -2051,7 +2051,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                         }
                     };
                 }
-                processRasterData("Creating ROI image...", processor, new SubProgressMonitor(pm, 1));
+                processRasterData("Creating ROI image...", processor, SubProgressMonitor.create(pm, 1));
                 dataValid = true;
             }
 
@@ -2241,7 +2241,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         pm.beginTask("Computing histogram for '" + getName() + "'...", range == null ? 2 : 1);
         try {
             if (range == null) {
-                range = computeRasterDataRange(roi, new SubProgressMonitor(pm, 1));
+                range = computeRasterDataRange(roi, SubProgressMonitor.create(pm, 1));
             }
             final ProductData rasterData = getRasterData();
             if (rasterData != null) {
@@ -2251,9 +2251,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                                                          numBins,
                                                          range,
                                                          null,
-                                                         new SubProgressMonitor(pm, 1));
+                                                         SubProgressMonitor.create(pm, 1));
             } else {
-                return computeRasterDataHistogramFromFile(roi, numBins, range, new SubProgressMonitor(pm, 1));
+                return computeRasterDataHistogramFromFile(roi, numBins, range, SubProgressMonitor.create(pm, 1));
             }
         } finally {
             pm.done();
@@ -2432,8 +2432,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                 final int restheight = height - y0;
                 final int linesToRead = restheight > readBufferLineCount ? readBufferLineCount : restheight;
                 readBuffer = recycleOrCreateBuffer(getDataType(), width * linesToRead, readBuffer);
-                readRasterData(0, y0, width, linesToRead, readBuffer, new SubProgressMonitor(pm, 1));
-                processor.processRasterDataBuffer(readBuffer, y0, linesToRead, new SubProgressMonitor(pm, 1));
+                readRasterData(0, y0, width, linesToRead, readBuffer, SubProgressMonitor.create(pm, 1));
+                processor.processRasterDataBuffer(readBuffer, y0, linesToRead, SubProgressMonitor.create(pm, 1));
                 if (pm.isCanceled()) {
                     break;
                 }

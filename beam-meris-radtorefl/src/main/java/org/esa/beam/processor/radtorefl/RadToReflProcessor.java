@@ -86,7 +86,7 @@ public class RadToReflProcessor extends Processor {
                     throw new ProcessorException(RadToReflConstants.LOG_MSG_UNSUPPORTED_PRODUCT);
                 }
 
-                createOutputProduct(new SubProgressMonitor(pm, 1));
+                createOutputProduct(SubProgressMonitor.create(pm, 1));
 
                 if (pm.isCanceled()) {
                     setCurrentStatus(ProcessorConstants.STATUS_ABORTED);
@@ -97,7 +97,7 @@ public class RadToReflProcessor extends Processor {
 
                 for (int i = 0; i < inputBandList.size(); i++) {
                     try {
-                        processBand(inputBandList.get(i), new SubProgressMonitor(pm, 1));
+                        processBand(inputBandList.get(i), SubProgressMonitor.create(pm, 1));
                         if (pm.isCanceled()) {
                             setCurrentStatus(ProcessorConstants.STATUS_ABORTED);
                             return;
@@ -362,7 +362,7 @@ public class RadToReflProcessor extends Processor {
                         return;
                     }
                     final Band radianceBand = inputBandList.get(i);
-                    copyBandData(radianceBand.getName(), inputProduct, outputProduct, new SubProgressMonitor(pm, 1));
+                    copyBandData(radianceBand.getName(), inputProduct, outputProduct, SubProgressMonitor.create(pm, 1));
                 }
             }
             copyFlagBandData(inputProduct, outputProduct, pm);
@@ -407,8 +407,8 @@ public class RadToReflProcessor extends Processor {
                      rasterHeight * 2);
         try {
             for (int y = 0; y < rasterHeight; y++) {
-                inputBand.readPixels(0, y, rasterWidth, 1, rad, new SubProgressMonitor(pm, 1));
-                sunZenithBand.readPixels(0, y, rasterWidth, 1, sza, new SubProgressMonitor(pm, 1));
+                inputBand.readPixels(0, y, rasterWidth, 1, rad, SubProgressMonitor.create(pm, 1));
+                sunZenithBand.readPixels(0, y, rasterWidth, 1, sza, SubProgressMonitor.create(pm, 1));
 
                 RsMathUtils.radianceToReflectance(rad, sza, inputBand.getSolarFlux(), rad);
                 reflectanceBand.writePixels(0, y, rasterWidth, 1, rad, ProgressMonitor.NULL);

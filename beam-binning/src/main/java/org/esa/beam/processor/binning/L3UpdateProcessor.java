@@ -244,7 +244,7 @@ public class L3UpdateProcessor extends L3SubProcessor {
                         pm.worked(1);
 
                         // perform the temporal binning
-                        processTemporal(spatialDB, new SubProgressMonitor(pm, 1));
+                        processTemporal(spatialDB, SubProgressMonitor.create(pm, 1));
 
                         // add this successfully processed product to the database
                         context.addProductProcessed(product.getName());

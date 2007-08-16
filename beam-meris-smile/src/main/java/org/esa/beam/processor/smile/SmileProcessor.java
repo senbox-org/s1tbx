@@ -110,26 +110,26 @@ public class SmileProcessor extends Processor {
             createBitmaskTermProcess(SmileConstants.BITMASK_TERM_PROCESS);
             pm. beginTask("Computing smile correction...", _includeAllSpectralBands ? 4 : 3);
             try {
-                processSmileCorrection(new SubProgressMonitor(pm, 1));
+                processSmileCorrection(SubProgressMonitor.create(pm, 1));
                 if (pm.isCanceled()) {
                     setCurrentStatus(SmileConstants.STATUS_ABORTED);
                     return;
                 }
                 pm.setSubTaskName("Copying flag band data...");
-                copyFlagBandData(new SubProgressMonitor(pm, 1));
+                copyFlagBandData(SubProgressMonitor.create(pm, 1));
                 if (pm.isCanceled()) {
                     setCurrentStatus(SmileConstants.STATUS_ABORTED);
                     return;
                 }
                 pm.setSubTaskName("Copying detector index band data...");
-                copyDetectorIndexBandData(new SubProgressMonitor(pm, 1));
+                copyDetectorIndexBandData(SubProgressMonitor.create(pm, 1));
                 if (pm.isCanceled()) {
                     setCurrentStatus(SmileConstants.STATUS_ABORTED);
                     return;
                 }
                 if (_includeAllSpectralBands) {
                     pm.setSubTaskName("Copying other spectral band data...");
-                    copyRequiredBandDataThatIsNotProcessed(new SubProgressMonitor(pm, 1));
+                    copyRequiredBandDataThatIsNotProcessed(SubProgressMonitor.create(pm, 1));
                     if (pm.isCanceled()) {
                         setCurrentStatus(SmileConstants.STATUS_ABORTED);
                     }
@@ -628,7 +628,7 @@ public class SmileProcessor extends Processor {
             for (final int bandIndex : bandIndexes) {
                 double[] radianceLine = getRadianceLine(bandIndex);
                 _inputProduct.getBandAt(bandIndex).readPixels(0, lineIndex, radianceLine.length, 1, radianceLine,
-                                                              new SubProgressMonitor(pm, 1));
+                                                              SubProgressMonitor.create(pm, 1));
             }
         } finally {
             pm.done();

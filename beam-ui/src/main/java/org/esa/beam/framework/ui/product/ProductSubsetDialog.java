@@ -838,12 +838,12 @@ public class ProductSubsetDialog extends ModalDialog {
             pm.beginTask("Creating thumbnail image", 3);
             final PlanarImage planarImage;
             try {
-                thumbNailBand.readRasterDataFully(new SubProgressMonitor(pm, 1));
+                thumbNailBand.readRasterDataFully(SubProgressMonitor.create(pm, 1));
                 Debug.trace("ProductSubsetDialog: Thumbnail data read.");
 
                 Debug.trace("ProductSubsetDialog: Creating thumbnail image for band '" + thumbNailBandName + "'...");
 
-                BufferedImage image = thumbNailBand.createRgbImage(new SubProgressMonitor(pm, 1));
+                BufferedImage image = thumbNailBand.createRgbImage(SubProgressMonitor.create(pm, 1));
                 Debug.trace("ProductSubsetDialog: Thumbnail image created.");
 
                 productSubset.dispose();

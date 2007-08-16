@@ -557,7 +557,7 @@ public class ProcessorApp extends BasicApp {
                 pm.setSubTaskName(message);
 
                 Request _currentRequest = (Request) aRequestList;
-                _processor.processRequest(_currentRequest, new SubProgressMonitor(pm, 1));
+                _processor.processRequest(_currentRequest, SubProgressMonitor.create(pm, 1));
                 if (pm.isCanceled()) {
                     break;
                 }

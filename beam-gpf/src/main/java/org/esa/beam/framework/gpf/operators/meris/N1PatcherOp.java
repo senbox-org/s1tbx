@@ -230,7 +230,7 @@ public class N1PatcherOp extends AbstractOperator {
         try {
             band.readRasterData(rectangle.x, rectangle.y, rectangle.width,
                                 rectangle.height, destBuffer,
-                                new SubProgressMonitor(pm, 1));
+                                SubProgressMonitor.create(pm, 1));
             short[] bandData = (short[]) destBuffer.getElems();
 
             byte[] buf = new byte[rectangle.height * DSR_BYTE_SIZE];

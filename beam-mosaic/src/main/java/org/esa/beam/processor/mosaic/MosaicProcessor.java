@@ -132,15 +132,15 @@ public class MosaicProcessor extends Processor {
         final boolean isUpdate = getRequest().getNumInputProducts() > 0;
         pm.beginTask("Initializing output product...", isUpdate ? 2 : 3); /*I18N*/
         try {
-            loadInputProductAt(0, new SubProgressMonitor(pm, 1));
+            loadInputProductAt(0, SubProgressMonitor.create(pm, 1));
             if (!isUpdateMode()) {
-                tryToCreateOutputProductPhysically(new SubProgressMonitor(pm, 1));
+                tryToCreateOutputProductPhysically(SubProgressMonitor.create(pm, 1));
             }
             if (pm.isCanceled()) {
                 return;
             }
             pm.setSubTaskName("Updating output product...");   /*I18N*/
-            updateOutputProduct(new SubProgressMonitor(pm, 1));
+            updateOutputProduct(SubProgressMonitor.create(pm, 1));
         } finally {
             if (pm.isCanceled()) {
                 setCurrentStatus(ProcessorConstants.STATUS_ABORTED);
@@ -461,7 +461,7 @@ public class MosaicProcessor extends Processor {
             for (int i = 0; i < bands.length; i++) {
                 Band band = bands[i];
                 if (!(band instanceof VirtualBand)) {
-                    SubProgressMonitor subPm = new SubProgressMonitor(pm, 1);
+                    ProgressMonitor subPm = SubProgressMonitor.create(pm, 1);
                     subPm.beginTask("Initializing band '" + band.getName() + "'...", sceneHeight);
                     try {
                         final ProductData rasterData = band.createCompatibleRasterData(sceneWidth, 1);
@@ -469,7 +469,7 @@ public class MosaicProcessor extends Processor {
                             rasterData.setElemDoubleAt(x, band.getNoDataValue());
                         }
                         for (int y = 0; y < sceneHeight; y++) {
-                            band.writeRasterData(0, y, sceneWidth, 1, rasterData, new SubProgressMonitor(pm, 1));
+                            band.writeRasterData(0, y, sceneWidth, 1, rasterData, SubProgressMonitor.create(pm, 1));
                             if (subPm.isCanceled()) {
                                 return false;
                             }
@@ -621,7 +621,7 @@ public class MosaicProcessor extends Processor {
                             success = false;
                             continue;
                         }
-                    } else if (!loadInputProductAt(i, new SubProgressMonitor(pm, 1))) {
+                    } else if (!loadInputProductAt(i, SubProgressMonitor.create(pm, 1))) {
                         success = false;
                         continue;
                     }
@@ -630,7 +630,7 @@ public class MosaicProcessor extends Processor {
                         break;
                     }
                     try {
-                        success = processInputProduct(new SubProgressMonitor(pm, 1));
+                        success = processInputProduct(SubProgressMonitor.create(pm, 1));
                     } catch (ProcessorException e) {
                         success = false;
                         throw e;
@@ -684,7 +684,7 @@ public class MosaicProcessor extends Processor {
 
             if (_projectionMode) {
                 return updateOutputProductWithIntersectingProduct(_currentInputProduct, inputMapInfo,
-                                                                  new SubProgressMonitor(pm, 1));
+                                                                  SubProgressMonitor.create(pm, 1));
             } else {
                 final int height = _currentInputProduct.getSceneRasterHeight();
                 final int width = _currentInputProduct.getSceneRasterWidth();
@@ -708,7 +708,7 @@ public class MosaicProcessor extends Processor {
                     }
 
                     final boolean success = updateOutputProductWithIntersectingProduct(subset, inputMapInfo,
-                                                                                       new SubProgressMonitor(pm, 1));
+                                                                                       SubProgressMonitor.create(pm, 1));
                     if (!success) {
                         return false;
                     }

@@ -141,7 +141,7 @@ public class RasterDataLoop {
                 if (pm.isCanceled()) {
                     break;
                 }
-                readRegion(y, 1, new SubProgressMonitor(pm, 1));
+                readRegion(y, 1, SubProgressMonitor.create(pm, 1));
                 env.setPixelY(y);
                 for (int x = 0; x < width; x++) {
                     env.setElemIndex(x);

@@ -97,7 +97,7 @@ public class OperatorProductReader implements ProductReader {
                 }
                 Raster subRaster;
                 try {
-                    subRaster = operatorContext.getRaster(targetBand, subRect, new SubProgressMonitor(pm, 50));
+                    subRaster = operatorContext.getRaster(targetBand, subRect, SubProgressMonitor.create(pm, 50));
                 } catch (OperatorException e) {
                     if (e.getCause() instanceof IOException) {
                         throw (IOException) e.getCause();
@@ -105,7 +105,7 @@ public class OperatorProductReader implements ProductReader {
                     throw new IOException(e.getMessage(), e);
                 }
 
-                readRectangle(targetBand, subRect, subRaster.getDataBuffer(), new SubProgressMonitor(pm, 50));
+                readRectangle(targetBand, subRect, subRaster.getDataBuffer(), SubProgressMonitor.create(pm, 50));
 
                 copyIntersection(subRaster.getDataBuffer(), subRect, targetBuffer, targetTileRectangle);
             }

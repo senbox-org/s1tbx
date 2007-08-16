@@ -104,14 +104,14 @@ public class PixelGeoCoding extends AbstractGeoCoding {
                                                                                                               IOException {
         try {
             pm.beginTask("Preparing data for pixel based geo-coding...", 3);
-            _latGrid = PixelGrid.create(latBand, new SubProgressMonitor(pm, 1));
-            _lonGrid = PixelGrid.create(lonBand, new SubProgressMonitor(pm, 1));
+            _latGrid = PixelGrid.create(latBand, SubProgressMonitor.create(pm, 1));
+            _lonGrid = PixelGrid.create(lonBand, SubProgressMonitor.create(pm, 1));
             if (validMask != null && validMask.trim().length() > 0) {
                 fillInvalidGaps(_latGrid.getRasterWidth(),
                                 _latGrid.getRasterHeight(),
                                 new ValidMaskPixelValidator(latBand.getProduct(), validMask),
                                 (float[]) _latGrid.getDataElems(),
-                                (float[]) _lonGrid.getDataElems(), new SubProgressMonitor(pm, 1));
+                                (float[]) _lonGrid.getDataElems(), SubProgressMonitor.create(pm, 1));
             }
         } finally {
             pm.done();

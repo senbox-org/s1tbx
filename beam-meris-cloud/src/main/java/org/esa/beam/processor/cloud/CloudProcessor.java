@@ -231,9 +231,9 @@ public class CloudProcessor extends Processor {
             for (int frameNumber = 0; frameNumber < frameCount; frameNumber++) {
                 final Rectangle frameRect = frameSizeCalculator.getFrameRect(frameNumber);
                 _logger.info("processing Cloud frame: " + (frameNumber + 1) + "/" + frameCount);
-                PNHelper.copyBandData(cloudNodeBands, cloudProduct, frameRect, new SubProgressMonitor(pm, 1));
+                PNHelper.copyBandData(cloudNodeBands, cloudProduct, frameRect, SubProgressMonitor.create(pm, 1));
                 PNHelper.copyBandData(l1bProduct.getBand(EnvisatConstants.MERIS_L1B_FLAGS_DS_NAME), cloudProduct,
-                                      frameRect, new SubProgressMonitor(pm, 1));
+                                      frameRect, SubProgressMonitor.create(pm, 1));
 //                PNHelper.copyBandData(l1bProduct.getBands(), cloudProduct, frameRect);
 
                 // Notify process listeners about processing progress and

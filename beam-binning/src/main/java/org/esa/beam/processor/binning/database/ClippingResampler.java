@@ -146,7 +146,7 @@ public class ClippingResampler extends SpatialBinDatabase {
             createStore();
             pm.worked(1);
 
-            resample(new SubProgressMonitor(pm, 1));
+            resample(SubProgressMonitor.create(pm, 1));
         } finally {
             pm.done();
         }

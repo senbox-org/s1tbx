@@ -120,7 +120,7 @@ public class GETASSE30Reader extends AbstractProductReader {
         try {
             final short[] elems = (short[]) destBuffer.getElems();
             readRasterDataImpl(elems, sourceOffsetY, sourceOffsetX, sourceStepX, sourceStepY, destWidth, destHeight,
-                               new SubProgressMonitor(pm, 1));
+                               SubProgressMonitor.create(pm, 1));
             maskInt32Extrema(elems);
         } finally {
             pm.done();

@@ -341,7 +341,7 @@ public class PropertyEditor {
                                 final ProductSceneView productSceneView = getProductSceneView(internalFrame);
                                 final NoDataLayer noDataLayer = getNoDataLayer(productSceneView);
                                 final BufferedImage noDataImage = noDataLayer.createNoDataImage(
-                                        new SubProgressMonitor(pm, 1));
+                                        SubProgressMonitor.create(pm, 1));
                                 noDataLayer.setNoDataImage(noDataImage);
                             } else {
                                 pm.worked(1);

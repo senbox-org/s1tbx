@@ -92,7 +92,7 @@ public class WriteProductOp extends AbstractOperator {
             try {
             	ProductData dataBuffer = targetRaster.getDataBuffer();
                 getRaster(band, rectangle, dataBuffer);                
-                band.writeRasterData(rectangle.x, rectangle.y, rectangle.width, rectangle.height, dataBuffer, new SubProgressMonitor(pm, 1));
+                band.writeRasterData(rectangle.x, rectangle.y, rectangle.width, rectangle.height, dataBuffer, SubProgressMonitor.create(pm, 1));
             } catch (IOException e) {
                 Throwable cause = e.getCause();
                 if (cause instanceof OperatorException) {

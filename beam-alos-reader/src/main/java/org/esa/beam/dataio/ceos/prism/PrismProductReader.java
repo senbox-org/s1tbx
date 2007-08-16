@@ -181,7 +181,7 @@ public class PrismProductReader extends AbstractProductReader {
                                              ccdSourceWidth, sourceHeight,
                                              sourceStepX, sourceStepY,
                                              destBuffer,
-                                             destOffsetX, destWidth, new SubProgressMonitor(pm, 1));
+                                             destOffsetX, destWidth, SubProgressMonitor.create(pm, 1));
             }
         } catch (IllegalCeosFormatException e) {
             final IOException ioException = new IOException(e.getMessage());

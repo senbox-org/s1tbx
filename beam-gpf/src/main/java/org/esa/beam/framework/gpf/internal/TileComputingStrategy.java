@@ -40,17 +40,17 @@ public class TileComputingStrategy {
         pm.beginTask("Computing raster...", 20);
         try {
             Raster targetRaster = operatorContext.getRaster(targetRasterDataNode, targetRectangle, targetBuffer,
-                                                            new SubProgressMonitor(pm, 10));
+                                                            SubProgressMonitor.create(pm, 10));
 
             if (implementationInfo.isBandMethodImplemented()) {
                 // Prefer a provided implementation of Operator.computeBand()
                 if (mustCompute(targetRectangle, targetRasterDataNode)) {
-                    operator.computeBand(targetRaster, new SubProgressMonitor(pm, 10));
+                    operator.computeBand(targetRaster, SubProgressMonitor.create(pm, 10));
                 }
             } else {
                 // No other choice, we have to use Operator.computeAllBands()
                 if (mustCompute(targetRectangle, operatorContext.getTargetProduct().getBands())) {
-                    operator.computeAllBands(targetRectangle, new SubProgressMonitor(pm, 10));
+                    operator.computeAllBands(targetRectangle, SubProgressMonitor.create(pm, 10));
                 }
             }
         } finally {
@@ -77,14 +77,14 @@ public class TileComputingStrategy {
                 for (Band band : targetProduct.getBands()) {
                     if (mustCompute(targetRectangle, band)) {
                         Tile tile = tileCache.createTile(band, targetRectangle, null);
-                        operator.computeBand(tile.getRaster(), new SubProgressMonitor(pm, 1));
+                        operator.computeBand(tile.getRaster(), SubProgressMonitor.create(pm, 1));
                     } else {
                         // todo - find a clean solution for operators where target and source product are the same
                         for (Product sourceProduct : operatorContext.getSourceProducts()) {
                             if (sourceProduct == targetProduct) {
                                 Tile tile = tileCache.getTile(band, targetRectangle);
                                 assert(tile != null);
-                                operator.computeBand(tile.getRaster(), new SubProgressMonitor(pm, 1));
+                                operator.computeBand(tile.getRaster(), SubProgressMonitor.create(pm, 1));
                                 break;
                             }
                         }

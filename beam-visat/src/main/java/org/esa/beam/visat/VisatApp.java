@@ -1673,7 +1673,7 @@ public final class VisatApp extends BasicApp {
         pm.beginTask(message, 2);
         try {
             if (mustLoadData) {
-                loadProductRasterDataImpl(raster, new SubProgressMonitor(pm, 1));
+                loadProductRasterDataImpl(raster, SubProgressMonitor.create(pm, 1));
                 if (!raster.hasRasterData()) {
                     return null;
                 }
@@ -1689,9 +1689,9 @@ public final class VisatApp extends BasicApp {
                 layerModel = null;
             }
             if (layerModel != null) {
-                productSceneImage = ProductSceneImage.create(raster, layerModel, new SubProgressMonitor(pm, 1));
+                productSceneImage = ProductSceneImage.create(raster, layerModel, SubProgressMonitor.create(pm, 1));
             } else {
-                productSceneImage = ProductSceneImage.create(raster, new SubProgressMonitor(pm, 1));
+                productSceneImage = ProductSceneImage.create(raster, SubProgressMonitor.create(pm, 1));
             }
         } catch (OutOfMemoryError e) {
             showOutOfMemoryErrorDialog("The image view could not be created.");
@@ -1742,9 +1742,9 @@ public final class VisatApp extends BasicApp {
         ProductSceneImage productSceneImage = null;
         try {
             rgbBands = allocateRgbBands(product, rgbaExpressions, getDataAutoLoadLimit(),
-                                        new SubProgressMonitor(pm, 1));
+                                        SubProgressMonitor.create(pm, 1));
             productSceneImage = ProductSceneImage.create(rgbBands[0].band, rgbBands[1].band, rgbBands[2].band,
-                                                         new SubProgressMonitor(pm, 1));
+                                                         SubProgressMonitor.create(pm, 1));
             final RGBImageProfile selectedProfile = profilePane.getSelectedProfile();
             final String name = selectedProfile != null ? selectedProfile.getName().replace("_", " ") : "";
             productSceneImage.setName(name);
@@ -1789,7 +1789,7 @@ public final class VisatApp extends BasicApp {
                 final RGBBand rgbBand = rgbBands[i];
                 if (!rgbBand.band.hasRasterData()) {
                     pm.setSubTaskName("Loading RGB channel '" + rgbBand.band.getName() + "'...");
-                    rgbBand.band.loadRasterData(new SubProgressMonitor(pm, 1));
+                    rgbBand.band.loadRasterData(SubProgressMonitor.create(pm, 1));
                     rgbBand.dataLoaded = true;
                 } else {
                     pm.worked(1);

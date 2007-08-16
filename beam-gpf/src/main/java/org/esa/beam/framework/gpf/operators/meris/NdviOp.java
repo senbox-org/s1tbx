@@ -135,9 +135,9 @@ public class NdviOp extends CachingOperator {
                 // read the input data scanline-wise
                 try {
                     _lowerInputBand.readPixels(destOffsetX, destOffsetY + y, width, 1, lower,
-                                               new SubProgressMonitor(pm, 1));
+                                               SubProgressMonitor.create(pm, 1));
                     _upperInputBand.readPixels(destOffsetX, destOffsetY + y, width, 1, upper,
-                                               new SubProgressMonitor(pm, 1));
+                                               SubProgressMonitor.create(pm, 1));
 
                 } catch (IOException e) {
                     throw new OperatorException(e);

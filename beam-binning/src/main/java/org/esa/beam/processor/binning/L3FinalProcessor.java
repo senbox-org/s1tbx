@@ -76,13 +76,13 @@ public class L3FinalProcessor extends L3SubProcessor {
                 pm.worked(1);
                 if (context.algorithmNeedsInterpretation()) {
                     try {
-                        interpreteAlgorithm(new SubProgressMonitor(pm, 1));
+                        interpreteAlgorithm(SubProgressMonitor.create(pm, 1));
                     } finally {
                         deleteFinalDatabase();
                     }
                 } else {
                     exportBinDatabase(temporalDB, createProjection(), outputProductRef, getOutputBandNames(),
-                                      getMetadata(), new SubProgressMonitor(pm, 1));
+                                      getMetadata(), SubProgressMonitor.create(pm, 1));
                 }
             } finally {
                 deleteTemporalDatabase();
@@ -99,10 +99,10 @@ public class L3FinalProcessor extends L3SubProcessor {
         pm.beginTask("Interpreting algorithm...", 2);
         try {
             createFinalDatabase();
-            processBinIterpretation(new SubProgressMonitor(pm, 1));
+            processBinIterpretation(SubProgressMonitor.create(pm, 1));
 
             exportBinDatabase(finalDB, createProjection(), outputProductRef, getOutputBandNames(),
-                              getMetadata(), new SubProgressMonitor(pm, 1));
+                              getMetadata(), SubProgressMonitor.create(pm, 1));
         } finally {
             pm.done();
         }
@@ -305,14 +305,14 @@ public class L3FinalProcessor extends L3SubProcessor {
         boolean aborted;
         try {
             if (tailorOutputProduct) {
-                exporter.estimateExportRegion(new SubProgressMonitor(pm, 1));
+                exporter.estimateExportRegion(SubProgressMonitor.create(pm, 1));
             } else {
                 exporter.setExportRegion(context.getBorder());
             }
             aborted = false;
             try {
                 exporter.createOutputProduct(productRef, bandNames, metadata);
-                aborted = exporter.outputBinDatabase(context.getLocator(), new SubProgressMonitor(pm, 1));
+                aborted = exporter.outputBinDatabase(context.getLocator(), SubProgressMonitor.create(pm, 1));
             } catch (IOException e) {
                 throw new ProcessorException("Couldn't export product: " + e.getMessage(), e);
             } finally {

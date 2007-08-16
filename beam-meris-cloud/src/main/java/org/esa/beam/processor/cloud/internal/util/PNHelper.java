@@ -68,7 +68,7 @@ public class PNHelper {
         try {
             for (int bandIndex = 0; bandIndex < sourceBands.length; bandIndex++) {
                 Band sourceBand = sourceBands[bandIndex];
-                copyBandData(sourceBand, destinationProduct, frameRect, new SubProgressMonitor(pm, 1));
+                copyBandData(sourceBand, destinationProduct, frameRect, SubProgressMonitor.create(pm, 1));
             }
         } finally {
             pm.done();
@@ -92,10 +92,10 @@ public class PNHelper {
         try {
             sourceBand.readRasterData(frameRect.x, frameRect.y,
                                       frameRect.width, frameRect.height,
-                                      data, new SubProgressMonitor(pm, 1));
+                                      data, SubProgressMonitor.create(pm, 1));
             destBand.writeRasterData(frameRect.x, frameRect.y,
                                      frameRect.width, frameRect.height,
-                                     data, new SubProgressMonitor(pm, 1));
+                                     data, SubProgressMonitor.create(pm, 1));
         } finally {
             pm.done();
         }

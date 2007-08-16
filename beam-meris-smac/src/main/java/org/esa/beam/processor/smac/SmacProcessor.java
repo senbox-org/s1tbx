@@ -163,7 +163,7 @@ public class SmacProcessor extends Processor {
                     _logger.severe(e.getMessage());
                 }
 
-                createOutputProduct(new SubProgressMonitor(pm, 1));
+                createOutputProduct(SubProgressMonitor.create(pm, 1));
                 if (pm.isCanceled()) {
                     setCurrentStatus(ProcessorConstants.STATUS_ABORTED);
                     return;
@@ -179,12 +179,12 @@ public class SmacProcessor extends Processor {
                         // And we definitely decide which product type and dispacth appropriate.
                         if (ObjectUtils.equalObjects(_sensorType, SensorCoefficientManager.MERIS_NAME)) {
                             if (_useMerisADS) {
-                                processMerisBandWithADS(_inputBandList.elementAt(i), new SubProgressMonitor(pm, 1));
+                                processMerisBandWithADS(_inputBandList.elementAt(i), SubProgressMonitor.create(pm, 1));
                             } else {
-                                processMerisBand(_inputBandList.elementAt(i), new SubProgressMonitor(pm, 1));
+                                processMerisBand(_inputBandList.elementAt(i), SubProgressMonitor.create(pm, 1));
                             }
                         } else if (ObjectUtils.equalObjects(_sensorType, SensorCoefficientManager.AATSR_NAME)) {
-                            processAatsrBand(_inputBandList.elementAt(i), new SubProgressMonitor(pm, 1));
+                            processAatsrBand(_inputBandList.elementAt(i), SubProgressMonitor.create(pm, 1));
                         } else {
                             pm.worked(1);
                         }
@@ -763,11 +763,11 @@ public class SmacProcessor extends Processor {
             // loop over all scanlines
             for (int y = 0; y < spectralBand.getSceneRasterHeight(); y++) {
                 // read scanline
-                spectralBand.readPixels(0, y, width, 1, toa, new SubProgressMonitor(pm, 1));
-                _szaBand.readPixels(0, y, width, 1, sza, new SubProgressMonitor(pm, 1));
-                _saaBand.readPixels(0, y, width, 1, saa, new SubProgressMonitor(pm, 1));
-                _vzaBand.readPixels(0, y, width, 1, vza, new SubProgressMonitor(pm, 1));
-                _vaaBand.readPixels(0, y, width, 1, vaa, new SubProgressMonitor(pm, 1));
+                spectralBand.readPixels(0, y, width, 1, toa, SubProgressMonitor.create(pm, 1));
+                _szaBand.readPixels(0, y, width, 1, sza, SubProgressMonitor.create(pm, 1));
+                _saaBand.readPixels(0, y, width, 1, saa, SubProgressMonitor.create(pm, 1));
+                _vzaBand.readPixels(0, y, width, 1, vza, SubProgressMonitor.create(pm, 1));
+                _vaaBand.readPixels(0, y, width, 1, vaa, SubProgressMonitor.create(pm, 1));
 
                 // scale radiances to reflectances
                 toa = RsMathUtils.radianceToReflectance(toa, sza, spectralBand.getSolarFlux(), toa);
@@ -851,15 +851,15 @@ public class SmacProcessor extends Processor {
             for (int y = 0; y < height; y++) {
                 // read scanline
                 // -------------
-                band.readPixels(0, y, width, 1, toa, new SubProgressMonitor(pm, 1));
-                _szaBand.readPixels(0, y, width, 1, sza, new SubProgressMonitor(pm, 1));
-                _saaBand.readPixels(0, y, width, 1, saa, new SubProgressMonitor(pm, 1));
-                _vzaBand.readPixels(0, y, width, 1, vza, new SubProgressMonitor(pm, 1));
-                _vaaBand.readPixels(0, y, width, 1, vaa, new SubProgressMonitor(pm, 1));
-                _wvBand.readPixels(0, y, width, 1, uh2o, new SubProgressMonitor(pm, 1));
-                _o3Band.readPixels(0, y, width, 1, uo3, new SubProgressMonitor(pm, 1));
-                _pressBand.readPixels(0, y, width, 1, press, new SubProgressMonitor(pm, 1));
-                _elevBand.readPixels(0, y, width, 1, elev, new SubProgressMonitor(pm, 1));
+                band.readPixels(0, y, width, 1, toa, SubProgressMonitor.create(pm, 1));
+                _szaBand.readPixels(0, y, width, 1, sza, SubProgressMonitor.create(pm, 1));
+                _saaBand.readPixels(0, y, width, 1, saa, SubProgressMonitor.create(pm, 1));
+                _vzaBand.readPixels(0, y, width, 1, vza, SubProgressMonitor.create(pm, 1));
+                _vaaBand.readPixels(0, y, width, 1, vaa, SubProgressMonitor.create(pm, 1));
+                _wvBand.readPixels(0, y, width, 1, uh2o, SubProgressMonitor.create(pm, 1));
+                _o3Band.readPixels(0, y, width, 1, uo3, SubProgressMonitor.create(pm, 1));
+                _pressBand.readPixels(0, y, width, 1, press, SubProgressMonitor.create(pm, 1));
+                _elevBand.readPixels(0, y, width, 1, elev, SubProgressMonitor.create(pm, 1));
 
                 // scale radiance to reflectance
                 // -------------------------------
@@ -984,11 +984,11 @@ public class SmacProcessor extends Processor {
             // loop over all scanlines
             for (int y = 0; y < band.getSceneRasterHeight(); y++) {
                 // read scanline
-                band.readPixels(0, y, width, 1, toa, new SubProgressMonitor(pm, 1));
-                szaBand.readPixels(0, y, width, 1, sza, new SubProgressMonitor(pm, 1));
-                saaBand.readPixels(0, y, width, 1, saa, new SubProgressMonitor(pm, 1));
-                vzaBand.readPixels(0, y, width, 1, vza, new SubProgressMonitor(pm, 1));
-                vaaBand.readPixels(0, y, width, 1, vaa, new SubProgressMonitor(pm, 1));
+                band.readPixels(0, y, width, 1, toa, SubProgressMonitor.create(pm, 1));
+                szaBand.readPixels(0, y, width, 1, sza, SubProgressMonitor.create(pm, 1));
+                saaBand.readPixels(0, y, width, 1, saa, SubProgressMonitor.create(pm, 1));
+                vzaBand.readPixels(0, y, width, 1, vza, SubProgressMonitor.create(pm, 1));
+                vaaBand.readPixels(0, y, width, 1, vaa, SubProgressMonitor.create(pm, 1));
 
                 // scale sun and view elevation to zenith angles
                 sza = RsMathUtils.elevationToZenith(sza, sza);

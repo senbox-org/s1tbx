@@ -112,7 +112,7 @@ public final class FlhMciProcessor extends Processor {
 
                 // create output product
                 // ---------------------
-                createOutputProduct(new SubProgressMonitor(pm, 1));
+                createOutputProduct(SubProgressMonitor.create(pm, 1));
                 if (pm.isCanceled()) {
                     setCurrentStatus(ProcessorConstants.STATUS_ABORTED);
                     return;
@@ -129,7 +129,7 @@ public final class FlhMciProcessor extends Processor {
                 // process lineheight and optionally slope
                 // ---------------------------------------
                 pm.setSubTaskName("Computing line height and slope");
-                processLineheightAndSlope(new SubProgressMonitor(pm, 1));
+                processLineheightAndSlope(SubProgressMonitor.create(pm, 1));
             } finally {
                 try {
                     if (isAborted()) {

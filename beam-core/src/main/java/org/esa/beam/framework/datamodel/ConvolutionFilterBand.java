@@ -65,7 +65,7 @@ public class ConvolutionFilterBand extends FilterBand {
         pm.beginTask("Reading band data", 2);
         try {
             source.readPixels(offsetX, offsetY, width, height, (double[]) sourceData.getElems(),
-                              new SubProgressMonitor(pm, 1));
+                              SubProgressMonitor.create(pm, 1));
 
             final int kx0 = _kernel.getXOrigin();
             final int ky0 = _kernel.getYOrigin();
@@ -77,7 +77,7 @@ public class ConvolutionFilterBand extends FilterBand {
             double targetValue;
             int numSourceValues;
 
-            SubProgressMonitor subPm = new SubProgressMonitor(pm, 1);
+            ProgressMonitor subPm = SubProgressMonitor.create(pm, 1);
             subPm.beginTask("Applying filter...", height);
             try {
                 for (int y = 0; y < height; y++) {

@@ -159,10 +159,10 @@ public class SstProcessor extends Processor {
             try {
                 // and now process
                 if (_processDual) {
-                    processDual(new SubProgressMonitor(pm, 1));
+                    processDual(SubProgressMonitor.create(pm, 1));
                 }
                 if (_processNadir && !isAborted()) {
-                    processNadir(new SubProgressMonitor(pm, 1));
+                    processNadir(SubProgressMonitor.create(pm, 1));
                 }
             }
             finally {

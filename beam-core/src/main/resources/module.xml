@@ -25,7 +25,8 @@
         [BEAM-628] Generic reading of geophysical raster data<br/>
         [BEAM-630] Remove deprecated bitmask package and references<br/>
         [BEAM-631] Revise product pin management API<br/>
-        [BEAM-639] Extend ProductData with a Boolean data type<br/>
+        [BEAM-639] Extend ProductData class with a Boolean data type<br/>
+        [BEAM-660] Speedup image creation process<br/>
         </p>]]>
     </changelog>
 
