@@ -125,7 +125,6 @@
                         <includes>
                             <include>com.bc:bc-jnn</include>
                             <include>com.sun.media:clibwrapper-jiio</include>
-                            <include>com.install4j:i4jruntime</include>
                             <include>javax.media.jai:jai-codec</include>
                             <include>javax.media.jai:jai-core</include>
                             <include>com.sun.media:jai-imageio</include>
@@ -153,9 +152,6 @@
                             <include>com.bc.ceres:ceres-ui</include>
                             <include>org.esa.beam:*</include>
                         </includes>
-                        <excludes>
-                            <exclude>com.bc.ceres:ceres-launcher</exclude>
-                        </excludes>
                     </dependencySet>
 
                 </dependencySets>
