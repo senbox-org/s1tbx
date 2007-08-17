@@ -22,6 +22,7 @@ import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.jidesoft.action.CommandBar;
 import com.jidesoft.action.CommandMenuBar;
 import com.jidesoft.swing.JideMenu;
+import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.param.ParamGroup;
 import org.esa.beam.framework.param.ParamProperties;
 import org.esa.beam.framework.param.Parameter;
@@ -36,7 +37,6 @@ import org.esa.beam.framework.processor.RequestValidator;
 import org.esa.beam.framework.processor.RequestWriter;
 import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.ui.UIUtils;
-import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.SystemUtils;
@@ -131,6 +131,17 @@ public class ProcessorApp extends BasicApp {
     }
 
     /**
+     * Gets the associated processor.
+     *
+     * @return the processor
+     *
+     * @since 4.1
+     */
+    public Processor getProcessor() {
+        return _processor;
+    }
+
+    /**
      * Constructs the object with given processor
      *
      * @param processor the processor run by the ProcessorApp
@@ -222,6 +233,7 @@ public class ProcessorApp extends BasicApp {
      * This method can be overridden in order to initialize a client user interface. It is called from the {@link
      * #startUp()} method before the {@link #applyPreferences()} is called and before an optional splash-screen closes
      * and the main frame becomes visible.
+     *
      * @param pm
      */
     @Override
