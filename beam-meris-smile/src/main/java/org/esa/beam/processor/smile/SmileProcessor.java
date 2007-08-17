@@ -38,16 +38,13 @@ import org.esa.beam.framework.processor.ui.ProcessorUI;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -104,7 +101,7 @@ public class SmileProcessor extends Processor {
             loadInputProduct();
             setProcessingParameters();
             installAuxdata();
-            loadAuxData();
+            loadAuxdata();
             createOutputProduct();
             createBitmaskTermLand(SmileConstants.BITMASK_TERM_LAND);
             createBitmaskTermProcess(SmileConstants.BITMASK_TERM_PROCESS);
@@ -256,19 +253,9 @@ public class SmileProcessor extends Processor {
         return _processingMessage;
     }
 
-    public void installAuxdata() {
-        // todo - bad code small! See other usages of Processor.installAuxdata.
-        String relPath = ".beam" + File.separator + getSymbolicName() + File.separator + "auxdata";
-        File defaultAuxdataDir = new File(SystemUtils.getUserHomeDir(), relPath);
-        String auxdataDirPath = System.getProperty(SmileConstants.AUXDATA_DIR_PROPERTY,
-                                                   defaultAuxdataDir.getAbsolutePath());
-        File auxdataDir = new File(auxdataDirPath);
-        try {
-            URL codeSourceUrl = SmileProcessor.class.getProtectionDomain().getCodeSource().getLocation();
-            installAuxdata(codeSourceUrl, "auxdata/", auxdataDir.toURI().toURL());
-        } catch (IOException e) {
-            _logger.log(Level.SEVERE, "Not able to install auxdata.", e);
-        }
+    public void installAuxdata() throws ProcessorException {
+        setAuxdataInstallDir(SmileConstants.AUXDATA_DIR_PROPERTY, getDefaultAuxdataInstallDir());
+        super.installAuxdata();
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -639,14 +626,14 @@ public class SmileProcessor extends Processor {
     // Aux Data   >>>>>>>>>>>
     // **********************
 
-    private void loadAuxData() throws ProcessorException,
+    private void loadAuxdata() throws ProcessorException,
                                       IOException {
         assert _inputProduct != null;
         final String productType = _inputProduct.getProductType();
         if (productType.startsWith("MER_F")) {
-            _auxData = SmileAuxData.loadFRAuxData();
+            _auxData = SmileAuxData.loadFRAuxData(getAuxdataInstallDir());
         } else if (productType.startsWith("MER_R")) {
-            _auxData = SmileAuxData.loadRRAuxData();
+            _auxData = SmileAuxData.loadRRAuxData(getAuxdataInstallDir());
         } else {
             throw new ProcessorException("No auxillary data found for input product of type '"
                                          + _inputProduct.getProductType() + "'"); /*I18N*/

@@ -18,7 +18,6 @@ package org.esa.beam.util;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import org.esa.beam.util.logging.BeamLogManager;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -26,7 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.logging.Level;
+import java.security.CodeSource;
 
 /**
  * Installls resources from a given source to a given target.
@@ -37,7 +36,7 @@ import java.util.logging.Level;
 public class ResourceInstaller {
 
     private ResourceScanner scanner;
-    private URL targetUrl;
+    private File targetDir;
 
     /**
      * Creates an instance with a given source to a given target.
@@ -45,19 +44,40 @@ public class ResourceInstaller {
      * @param sourceUrl     the source
      * @param relSourcePath
      * @param targetUrl     the target
+     * @deprecated use {@link #ResourceInstaller(java.net.URL, String, java.io.File)} instead
      */
     public ResourceInstaller(URL sourceUrl, String relSourcePath, URL targetUrl) {
-        this.targetUrl = targetUrl;
-        scanner = new ResourceScanner(new URL[]{sourceUrl}, relSourcePath);
+        this(sourceUrl,relSourcePath, toFile(targetUrl));
+    }
+
+    private static File toFile(URL targetUrl) {
+        try {
+            return new File(targetUrl.toURI());
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("targetUrl", e);
+        }
     }
 
     /**
-     * Installs all resources found, matching the given pattern
+     * Creates an instance with a given source to a given target.
+     *
+     * @param sourceBaseUrl the source's base URL
+     * @param sourceRelPath the source's relative path
+     * @param targetDir     the target directory
+     */
+    public ResourceInstaller(URL sourceBaseUrl, String sourceRelPath, File targetDir) {
+        this.targetDir = targetDir;
+        scanner = new ResourceScanner(new URL[]{sourceBaseUrl}, sourceRelPath);
+    }
+
+    /**
+     * Installs all resources found, matching the given pattern. Existing resources are left as-is
+     * and are not overwritten.
      *
      * @param patternString the pattern
      * @param pm
      */
-    public void install(String patternString, ProgressMonitor pm) {
+    public void install(String patternString, ProgressMonitor pm) throws IOException {
         try {
             pm.beginTask("Installing resource data: ", 2);
             scanner.scan(SubProgressMonitor.create(pm, 1));
@@ -68,17 +88,12 @@ public class ResourceInstaller {
         }
     }
 
-    private void copyResources(URL[] resources, ProgressMonitor pm) {
+    private void copyResources(URL[] resources, ProgressMonitor pm) throws IOException {
         pm.beginTask("Copying resource data...", resources.length);
         for (URL resource : resources) {
             String relFilePath = scanner.getRelativePath(resource);
 
-            File targetFile = null;
-            try {
-                targetFile = new File(new File(targetUrl.toURI()), relFilePath);
-            } catch (URISyntaxException e) {
-                // should not come here
-            }
+            File targetFile = new File(targetDir, relFilePath);
             if (!targetFile.exists() && !resource.toExternalForm().endsWith("/")) {
                 InputStream is = null;
                 FileOutputStream fos = null;
@@ -93,10 +108,6 @@ public class ResourceInstaller {
                         fos.write(bytes, 0, bytesRead);
                         bytesRead = is.read(bytes);
                     }
-                } catch (IOException e) {
-                    BeamLogManager.getSystemLogger().log(Level.WARNING,
-                                                         "Not able to copy resource [" + resource + "] to user directory",
-                                                         e);
                 } finally {
                     if (is != null) {
                         try {
@@ -116,5 +127,16 @@ public class ResourceInstaller {
             }
             pm.worked(1);
         }
+    }
+
+    public static URL getSourceUrl(Class aClass) {
+        CodeSource codeSource = aClass.getProtectionDomain().getCodeSource();
+        URL sourceLocation;
+        if (codeSource != null) {
+            sourceLocation = codeSource.getLocation();
+        } else {
+            sourceLocation = aClass.getResource("/");
+        }
+        return sourceLocation;
     }
 }

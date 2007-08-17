@@ -37,7 +37,6 @@ import org.esa.beam.processor.smac.ui.SmacRequestEditor;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ObjectUtils;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.math.RsMathUtils;
 
@@ -46,7 +45,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Vector;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -152,7 +150,8 @@ public class SmacProcessor extends Processor {
                 // -------------------------------------
                 createBitmaskExpression();
 
-                File smacAuxDir = installAuxdata();
+                installAuxdata();
+                File smacAuxDir = getAuxdataInstallDir();
 
                 String auxPathString = smacAuxDir.toString();
                 try {
@@ -293,26 +292,15 @@ public class SmacProcessor extends Processor {
         return 2;
     }
 
+    public void installAuxdata() throws ProcessorException {
+        setAuxdataInstallDir(SmacConstants.SMAC_AUXDATA_DIR_PROPERTY, getDefaultAuxdataInstallDir());
+        super.installAuxdata();
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     //////// END OF PUBLIC
     ///////////////////////////////////////////////////////////////////////////
 
-    public File installAuxdata() {
-        // todo - bad code small! See other usages of Processor.installAuxdata.
-        String relPath = ".beam" + File.separator + getSymbolicName() + File.separator + "auxdata";
-        File defaultAuxdataDir = new File(SystemUtils.getUserHomeDir(), relPath);
-        String auxdataDirPath = System.getProperty(SmacConstants.SMAC_AUXDATA_DIR_PROPERTY,
-                                                   defaultAuxdataDir.getAbsolutePath());
-        File smacAuxDir = new File(auxdataDirPath);
-
-        try {
-            URL codeSourceUrl = SmacProcessor.class.getProtectionDomain().getCodeSource().getLocation();
-            installAuxdata(codeSourceUrl, "auxdata/", smacAuxDir.toURI().toURL());
-        } catch (IOException e) {
-            _logger.log(Level.SEVERE, "Not able to install auxdata.", e);
-        }
-        return smacAuxDir;
-    }
 
     /**
      * Creates a bitmask expression depending on the processor type. For AATSR, two bitmask expressions are needed
@@ -408,16 +396,16 @@ public class SmacProcessor extends Processor {
             throw new ProcessorException(SmacConstants.LOG_MSG_NO_INPUT_BANDS);
         }
 
-        for (int n = 0; n < bandNames.length; n++) {
-            band = _inputProduct.getBand(bandNames[n]);
+        for (String bandName : bandNames) {
+            band = _inputProduct.getBand(bandName);
             if (band == null) {
-                _logger.warning("The requested band '" + bandNames[n] + "' is not contained in the input product!");
+                _logger.warning("The requested band '" + bandName + "' is not contained in the input product!");
             } else {
                 if (band.getSpectralBandIndex() != -1) {
                     _inputBandList.add(band);
                 } else {
                     _logger.warning(
-                            "The requested band '" + bandNames[n] + "' is not a spectral band! It is excluded from processing");
+                            "The requested band '" + bandName + "' is not a spectral band! It is excluded from processing");
                 }
             }
         }
@@ -1038,14 +1026,14 @@ public class SmacProcessor extends Processor {
         // DELETE
         param = getRequest().getParameter(SmacConstants.AEROSOL_OPTICAL_DEPTH_PARAM_NAME);
         checkParamNotNull(param, SmacConstants.AEROSOL_OPTICAL_DEPTH_PARAM_NAME);
-        _tau_aero_550 = ((Float) (param.getValue())).floatValue();
+        _tau_aero_550 = (Float) (param.getValue());
         // DELETE
 
         // check for MERIS ads flag
         // DELETE
         param = getRequest().getParameter(SmacConstants.USE_MERIS_ADS_PARAM_NAME);
         checkParamNotNull(param, SmacConstants.USE_MERIS_ADS_PARAM_NAME);
-        _useMerisADS = ((Boolean) param.getValue()).booleanValue();
+        _useMerisADS = (Boolean) param.getValue();
         // DELETE
 
         // load the other parameters only if needed
@@ -1055,21 +1043,21 @@ public class SmacProcessor extends Processor {
             // water vapour content
             param = getRequest().getParameter(SmacConstants.RELATIVE_HUMIDITY_PARAM_NAME);
             checkParamNotNull(param, SmacConstants.RELATIVE_HUMIDITY_PARAM_NAME);
-            _u_h2o = ((Float) (param.getValue())).floatValue();
+            _u_h2o = (Float) (param.getValue());
             // DELETE
 
             // DELETE
             // ozone content
             param = getRequest().getParameter(SmacConstants.OZONE_CONTENT_PARAM_NAME);
             checkParamNotNull(param, SmacConstants.OZONE_CONTENT_PARAM_NAME);
-            _u_o3 = ((Float) (param.getValue())).floatValue();
+            _u_o3 = (Float) (param.getValue());
             // DELETE
 
             // DELETE
             // surface pressure
             param = getRequest().getParameter(SmacConstants.SURFACE_AIR_PRESSURE_PARAM_NAME);
             checkParamNotNull(param, SmacConstants.SURFACE_AIR_PRESSURE_PARAM_NAME);
-            _surf_press = ((Float) (param.getValue())).floatValue();
+            _surf_press = (Float) (param.getValue());
             // DELETE
         }
 
@@ -1088,7 +1076,7 @@ public class SmacProcessor extends Processor {
             _logger.warning(ProcessorConstants.LOG_MSG_USING + "0.0");
             _invalidPixel = 0.f;
         } else {
-            _invalidPixel = ((Float) param.getValue()).floatValue();
+            _invalidPixel = (Float) param.getValue();
         }
         // DELETE
     }
@@ -1126,8 +1114,8 @@ public class SmacProcessor extends Processor {
         boolean bRet = false;
         int bandIndex;
 
-        for (int n = 0; n < _aatsrMDSIndices.length; n++) {
-            bandIndex = _aatsrMDSIndices[n];
+        for (int _aatsrMDSIndice : _aatsrMDSIndices) {
+            bandIndex = _aatsrMDSIndice;
             if (ObjectUtils.equalObjects(band.getName(), EnvisatConstants.AATSR_L1B_BAND_NAMES[bandIndex])) {
                 bRet = true;
                 break;

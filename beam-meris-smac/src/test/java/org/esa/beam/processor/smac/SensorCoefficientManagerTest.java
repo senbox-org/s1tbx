@@ -20,7 +20,7 @@ package org.esa.beam.processor.smac;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.esa.beam.util.SystemUtils;
+import org.esa.beam.GlobalTestConfig;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,19 +29,25 @@ import java.net.URL;
 
 public class SensorCoefficientManagerTest extends TestCase {
 
-    private final File _auxdataDir;
+    private File _auxdataDir;
+    private String oldAuxdataPath;
 
 
-    public SensorCoefficientManagerTest(String testName) throws IOException {
-        super(testName);
-        new SmacProcessor().installAuxdata(); // just to extract auxdata
-        String relPath = ".beam" + File.separator + "beam-smac-processor" + File.separator + "auxdata";
-        File defaultAuxdataDir = new File(SystemUtils.getUserHomeDir(), relPath);
-        String auxdataDirPath = System.getProperty(SmacConstants.SMAC_AUXDATA_DIR_PROPERTY,
-                                                   defaultAuxdataDir.getAbsolutePath());
-        _auxdataDir = new File(auxdataDirPath);
+    @Override
+     protected void setUp() throws Exception {
+         oldAuxdataPath = System.getProperty(SmacConstants.SMAC_AUXDATA_DIR_PROPERTY, "");
+         String path = new File(GlobalTestConfig.getBeamTestDataOutputDirectory(), "auxdata/smac").getPath();
+         System.setProperty(SmacConstants.SMAC_AUXDATA_DIR_PROPERTY, path);
+         SmacProcessor processor = new SmacProcessor();
+         processor.installAuxdata(); // just to extract auxdata
+         _auxdataDir = processor.getAuxdataInstallDir();
+         assertEquals(path, _auxdataDir.getPath());
+     }
+
+    @Override
+    protected void tearDown() throws Exception {
+        System.setProperty(SmacConstants.SMAC_AUXDATA_DIR_PROPERTY, oldAuxdataPath);
     }
-
     public static Test suite() {
         return new TestSuite(SensorCoefficientManagerTest.class);
     }
@@ -116,7 +122,7 @@ public class SensorCoefficientManagerTest extends TestCase {
         }
 
         // if we set a valid url - return something when we ask for it :-)
-        URL url = null;
+        URL url;
         try {
 //            url = new URL("file", "", _location);
             url = _auxdataDir.toURL();

@@ -36,7 +36,6 @@ import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.*;
@@ -54,12 +53,10 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
 
 
 /**
@@ -1188,27 +1185,19 @@ public class ContrastStretchToolView extends AbstractToolView {
         }
     }
 
-
     private void installAuxData() {
-        try {
-            // todo - bad code small! See other usages of ResourceInstaller.
-            URL codeSourceUrl = BeamUiActivator.class.getProtectionDomain().getCodeSource().getLocation();
-            URL targetUrl = getIODir().toURI().toURL();
-
-            final ResourceInstaller resourceInstaller = new ResourceInstaller(codeSourceUrl, "auxdata/color_palettes/",
-                                                                              targetUrl);
-            ProgressMonitorSwingWorker swingWorker = new ProgressMonitorSwingWorker(_contrastStretchPane, "Installing Auxdata") {
-                @Override
-                protected Object doInBackground(com.bc.ceres.core.ProgressMonitor progressMonitor) throws Exception {
-                    resourceInstaller.install(".*.cpd", progressMonitor);
-                    auxDataInstalled = true;
-                    return Boolean.TRUE;
-                }
-            };
-            swingWorker.executeWithBlocking();
-        } catch (MalformedURLException e) {
-            BeamLogManager.getSystemLogger().log(Level.SEVERE, "Not able to install auxdata.", e);
-        }
+        URL codeSourceUrl = BeamUiActivator.class.getProtectionDomain().getCodeSource().getLocation();
+        final ResourceInstaller resourceInstaller = new ResourceInstaller(codeSourceUrl, "auxdata/color_palettes/",
+                                                                          getIODir());
+        ProgressMonitorSwingWorker swingWorker = new ProgressMonitorSwingWorker(_contrastStretchPane, "Installing Auxdata") {
+            @Override
+            protected Object doInBackground(com.bc.ceres.core.ProgressMonitor progressMonitor) throws Exception {
+                resourceInstaller.install(".*.cpd", progressMonitor);
+                auxDataInstalled = true;
+                return Boolean.TRUE;
+            }
+        };
+        swingWorker.executeWithBlocking();
     }
 
 }

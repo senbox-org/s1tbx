@@ -36,13 +36,10 @@ import org.esa.beam.framework.processor.ui.ProcessorUI;
 import org.esa.beam.processor.sst.ui.SstUI;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -115,7 +112,7 @@ public class SstProcessor extends Processor {
     public SstProcessor() {
         _processDual = false;
         _processNadir = false;
-        _invalidPixel = SstConstants.DEFAULT_INVALID_PIXEL.floatValue();
+        _invalidPixel = SstConstants.DEFAULT_INVALID_PIXEL;
         _loader = new SstCoefficientLoader();
         _logger = Logger.getLogger(SstConstants.LOGGER_NAME);
         setDefaultHelpId(HELP_ID);
@@ -239,24 +236,14 @@ public class SstProcessor extends Processor {
         return "Generating pixels for SST";
     }
 
+    public void installAuxdata() throws ProcessorException {
+        setAuxdataInstallDir(SstConstants.AUXDATA_DIR_PROPERTY, getDefaultAuxdataInstallDir());
+        super.installAuxdata();
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     /////// END OF PUBLIC
     ///////////////////////////////////////////////////////////////////////////
-
-    private void installAuxdata() {
-        // todo - bad code small! See other usages of Processor.installAuxdata.
-        String relPath = ".beam" + File.separator + getSymbolicName() + File.separator + "auxdata";
-        File defaultAuxdataDir = new File(SystemUtils.getUserHomeDir(), relPath);
-        String auxdataDirPath = System.getProperty(SstConstants.AUXDATA_DIR_PROPERTY,
-                                                   defaultAuxdataDir.getAbsolutePath());
-        File auxdataDir = new File(auxdataDirPath);
-        try {
-            URL codeSourceUrl = SstProcessor.class.getProtectionDomain().getCodeSource().getLocation();
-            installAuxdata(codeSourceUrl, "auxdata/", auxdataDir.toURI().toURL());
-        } catch (IOException e) {
-            _logger.log(Level.SEVERE, "Not able to install auxdata.", e);
-        }
-    }
 
     /**
      * Loads all parameters from the request.
@@ -293,7 +280,7 @@ public class SstProcessor extends Processor {
         Parameter param = request.getParameter(SstConstants.PROCESS_DUAL_VIEW_SST_PARAM_NAME);
         if (param != null) {
             // check boolean parameter
-            if (((Boolean) param.getValue()).booleanValue()) {
+            if ((Boolean) param.getValue()) {
                 // now try to read the coefficient file parameter
                 param = request.getParameter(SstConstants.DUAL_VIEW_COEFF_FILE_PARAM_NAME);
                 if (param != null) {
@@ -322,7 +309,7 @@ public class SstProcessor extends Processor {
         Parameter param = request.getParameter(SstConstants.PROCESS_NADIR_VIEW_SST_PARAM_NAME);
         if (param != null) {
             // check boolean parameter
-            if (((Boolean) param.getValue()).booleanValue()) {
+            if ((Boolean) param.getValue()) {
                 // now try to read the coefficient file parameter
                 param = request.getParameter(SstConstants.NADIR_VIEW_COEFF_FILE_PARAM_NAME);
                 if (param != null) {
@@ -347,12 +334,12 @@ public class SstProcessor extends Processor {
         Parameter param = getRequest().getParameter(SstConstants.INVALID_PIXEL_PARAM_NAME);
 
         if (param != null) {
-            _invalidPixel = ((Float) param.getValue()).floatValue();
+            _invalidPixel = (Float) param.getValue();
             _logger.info("invalid pixel value: " + _invalidPixel);
         } else {
             _logger.warning("Parameter '" + SstConstants.INVALID_PIXEL_PARAM_NAME + "' not set");
             _logger.warning(ProcessorConstants.LOG_MSG_USING + SstConstants.DEFAULT_INVALID_PIXEL);
-            _invalidPixel = SstConstants.DEFAULT_INVALID_PIXEL.floatValue();
+            _invalidPixel = SstConstants.DEFAULT_INVALID_PIXEL;
         }
     }
 
@@ -436,7 +423,7 @@ public class SstProcessor extends Processor {
      * @return the tie point grid loaded
      */
     private TiePointGrid loadTiePtGrid(String gridName) throws ProcessorException {
-        TiePointGrid grid = null;
+        TiePointGrid grid;
 
         grid = _inputProduct.getTiePointGrid(gridName);
         if (grid == null) {

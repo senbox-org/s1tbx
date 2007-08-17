@@ -23,25 +23,21 @@ import org.esa.beam.dataio.envisat.EnvisatConstants;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.processor.cloud.internal.FrameSizeCalculator;
-import org.esa.beam.processor.cloud.internal.LinebasedFrameSizeCalculator;
-import org.esa.beam.processor.cloud.internal.util.PNHelper;
 import org.esa.beam.framework.processor.Processor;
 import org.esa.beam.framework.processor.ProcessorException;
 import org.esa.beam.framework.processor.ProcessorUtils;
 import org.esa.beam.framework.processor.Request;
 import org.esa.beam.framework.processor.ui.ProcessorUI;
+import org.esa.beam.processor.cloud.internal.FrameSizeCalculator;
+import org.esa.beam.processor.cloud.internal.LinebasedFrameSizeCalculator;
+import org.esa.beam.processor.cloud.internal.util.PNHelper;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.SystemUtils;
 
 import java.awt.Rectangle;
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -175,19 +171,9 @@ public class CloudProcessor extends Processor {
         }
     }
 
-    public void installAuxdata() {
-        // todo - bad code small! See other usages of Processor.installAuxdata.
-        String relPath = ".beam" + File.separator + getSymbolicName() + File.separator + "auxdata";
-        File defaultAuxdataDir = new File(SystemUtils.getUserHomeDir(), relPath);
-        String auxdataDirPath = System.getProperty(CloudPN.CLOUD_AUXDATA_DIR_PROPERTY,
-                                                   defaultAuxdataDir.getAbsolutePath());
-        File auxdataDir = new File(auxdataDirPath);
-        try {
-            URL codeSourceUrl = CloudProcessor.class.getProtectionDomain().getCodeSource().getLocation();
-            installAuxdata(codeSourceUrl, "auxdata/", auxdataDir.toURI().toURL());
-        } catch (IOException e) {
-            _logger.log(Level.SEVERE, "Not able to install auxdata.", e);
-        }
+    public void installAuxdata() throws ProcessorException {
+        setAuxdataInstallDir(CloudPN.CLOUD_AUXDATA_DIR_PROPERTY, getDefaultAuxdataInstallDir());
+        super.installAuxdata();
     }
 
 

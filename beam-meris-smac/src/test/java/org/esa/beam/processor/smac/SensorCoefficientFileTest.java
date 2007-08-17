@@ -20,7 +20,7 @@ package org.esa.beam.processor.smac;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.esa.beam.util.SystemUtils;
+import org.esa.beam.GlobalTestConfig;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -29,15 +29,23 @@ import java.io.IOException;
 public class SensorCoefficientFileTest extends TestCase {
 
     private File smacAuxDir;
+    private String oldAuxdataPath;
 
-    public SensorCoefficientFileTest(String testName) {
-        super(testName);
-        new SmacProcessor().installAuxdata(); // just to extract auxdata
-        String relPath = ".beam" + File.separator + "beam-smac-processor" + File.separator + "auxdata";
-        File defaultAuxdataDir = new File(SystemUtils.getUserHomeDir(), relPath);
-        String auxdataDirPath = System.getProperty(SmacConstants.SMAC_AUXDATA_DIR_PROPERTY,
-                                                   defaultAuxdataDir.getAbsolutePath());
-        smacAuxDir = new File(auxdataDirPath);
+
+    @Override
+    protected void setUp() throws Exception {
+        oldAuxdataPath = System.getProperty(SmacConstants.SMAC_AUXDATA_DIR_PROPERTY, "");
+        String path = new File(GlobalTestConfig.getBeamTestDataOutputDirectory(), "auxdata/smac").getPath();
+        System.setProperty(SmacConstants.SMAC_AUXDATA_DIR_PROPERTY, path);
+        SmacProcessor processor = new SmacProcessor();
+        processor.installAuxdata(); // just to extract auxdata
+        smacAuxDir = processor.getAuxdataInstallDir();
+        assertEquals(path, smacAuxDir.getPath());
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        System.setProperty(SmacConstants.SMAC_AUXDATA_DIR_PROPERTY, oldAuxdataPath);
     }
 
     public static Test suite() {

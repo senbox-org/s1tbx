@@ -30,13 +30,16 @@ import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ResourceInstaller;
 import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.SystemUtils;
 
-import javax.swing.*;
+import javax.swing.JFrame;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 /**
@@ -66,9 +69,8 @@ public abstract class Processor {
      * @link aggregation
      */
     private List<ProcessorStatusListener> _processorStatusListeners;
-
-    /** @link dependency */
-    /*# ProcessorUI lnkProcessorUI; */
+    private File _auxdataInstallDir;
+    private File _defaultAuxdataInstallDir;
 
     /**
      * Retrieves the current request.
@@ -115,6 +117,7 @@ public abstract class Processor {
      * Initializes the processor. Override to perform processor specific initializations.
      *
      * @param request the request to be processed next
+     *
      * @throws IllegalArgumentException when called with null argument
      */
     public void setRequest(Request request) {
@@ -259,6 +262,7 @@ public abstract class Processor {
      * informed each time a processor in this processor runner fire an event.
      *
      * @param listener the listener to be added
+     *
      * @return boolean if listener was added or not
      */
     public boolean addProcessorStatusListener(ProcessorStatusListener listener) {
@@ -345,6 +349,7 @@ public abstract class Processor {
      * Gets a progress message for the request passed in. Override this method if you need custom messaging.
      *
      * @param request
+     *
      * @return a progress message, never null
      */
     public String getProgressMessage(Request request) {
@@ -373,8 +378,7 @@ public abstract class Processor {
     protected synchronized void fireStatusChanged(int oldStatus) {
         if (_processorStatusListeners != null && _processorStatusListeners.size() > 0) {
             ProcessorStatusEvent event = new ProcessorStatusEvent(this, oldStatus);
-            for (int i = 0; i < _processorStatusListeners.size(); i++) {
-                ProcessorStatusListener listener = _processorStatusListeners.get(i);
+            for (ProcessorStatusListener listener : _processorStatusListeners) {
                 fireStatusChanged(listener, event);
             }
         }
@@ -421,7 +425,7 @@ public abstract class Processor {
     }
 
     protected Product loadInputProduct(int index) throws ProcessorException,
-            IOException {
+                                                         IOException {
         final Request request = getRequest();
         int numInputProducts = request.getNumInputProducts();
 
@@ -469,8 +473,8 @@ public abstract class Processor {
      * Copies the flags bands data from input to output product
      */
     protected final void copyFlagBandData(Product inputProduct, Product outputProduct, ProgressMonitor pm) throws
-            IOException,
-            ProcessorException {
+                                                                                                           IOException,
+                                                                                                           ProcessorException {
         if (inputProduct.getNumFlagCodings() > 0) {
             // loop over bands and check if they have a flags coding attached
             for (int n = 0; n < inputProduct.getNumBands(); n++) {
@@ -488,6 +492,7 @@ public abstract class Processor {
      * @param inputProduct  the product that contains the source bands
      * @param outputProduct the product that contains the destination bands
      * @param pm            a monitor to inform the user about progress
+     *
      * @throws IOException
      * @throws ProcessorException
      */
@@ -495,9 +500,8 @@ public abstract class Processor {
                                       Product inputProduct,
                                       Product outputProduct,
                                       ProgressMonitor pm) throws IOException,
-            ProcessorException {
-        for (int i = 0; i < bandNames.length; i++) {
-            String bandName = bandNames[i];
+                                                                 ProcessorException {
+        for (String bandName : bandNames) {
             copyBandData(bandName, inputProduct, outputProduct, pm);
         }
     }
@@ -509,13 +513,14 @@ public abstract class Processor {
      * @param inputProduct  the product that should contain the source band.
      * @param outputProduct the product that should contain the destination band.
      * @param pm            a monitor to inform the user about progress
+     *
      * @throws IOException
      * @throws ProcessorException
      */
     protected void copyBandData(String bandName,
                                 Product inputProduct,
                                 Product outputProduct, ProgressMonitor pm) throws ProcessorException,
-            IOException {
+                                                                                  IOException {
         final String m0 = "Unable to copy band data because ";
         final String m1 = "the sourceProduct '";
         final String m2 = "' does not contain a band named '"; /*I18N*/
@@ -590,11 +595,38 @@ public abstract class Processor {
     }
 
 
+    /**
+     * @deprecated use {@link #installAuxdata(java.net.URL, String, java.io.File)} instead
+     */
     protected void installAuxdata(URL sourceLocation, String relSourcePath, URL targetLocation) {
-        // todo - bad code small! See other usages of ResourceInstaller.
-        final ResourceInstaller resourceInstaller = new ResourceInstaller(sourceLocation, relSourcePath, targetLocation);
-        if (getParentFrame() != null) {
-            ProgressMonitorSwingWorker swingWorker = new ProgressMonitorSwingWorker(getParentFrame(), "Installing Auxdata") {
+        try {
+            installAuxdata(sourceLocation, relSourcePath, new File(targetLocation.toURI()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void installAuxdata() throws ProcessorException {
+        try {
+            File auxdataInstallDir = getAuxdataInstallDir();
+            if (auxdataInstallDir == null) {
+                auxdataInstallDir = getDefaultAuxdataInstallDir();
+                setAuxdataInstallDir(auxdataInstallDir);
+            }
+            installAuxdata(ResourceInstaller.getSourceUrl(getClass()), "auxdata/", auxdataInstallDir);
+        } catch (IOException e) {
+            throw new ProcessorException("Failed to install auxdata.", e);
+        }
+    }
+
+    protected void installAuxdata(URL sourceLocation, String sourceRelPath, File auxdataInstallDir) throws IOException {
+        final ResourceInstaller resourceInstaller = new ResourceInstaller(sourceLocation, sourceRelPath,
+                                                                          auxdataInstallDir);
+        if (getParentFrame() != null) { // UI-mode?
+            ProgressMonitorSwingWorker swingWorker = new ProgressMonitorSwingWorker(getParentFrame(),
+                                                                                    "Installing Auxdata") {
                 @Override
                 protected Object doInBackground(ProgressMonitor progressMonitor) throws Exception {
                     resourceInstaller.install(".*", progressMonitor);
@@ -602,9 +634,45 @@ public abstract class Processor {
                 }
             };
             swingWorker.executeWithBlocking();
-        } else {
+            // cause former exception possibly thrown in doInBackground() to be thrown again
+            try {
+                swingWorker.get();
+            } catch (InterruptedException e) {
+                throw new IOException(e.getMessage());
+            } catch (ExecutionException e) {
+                if (e.getCause() instanceof IOException) {
+                    throw (IOException) e.getCause();
+                } else if (e.getCause() instanceof RuntimeException) {
+                    throw (RuntimeException) e.getCause();
+                } else {
+                    throw new RuntimeException(e.getCause());
+                }
+            }
+        } else { // command-line mode
             resourceInstaller.install(".*", new NullProgressMonitor());
         }
+    }
+
+    public File getDefaultAuxdataInstallDir() {
+        if (_defaultAuxdataInstallDir == null) {
+            String relPath = ".beam" + File.separator + getSymbolicName() + File.separator + "auxdata";
+            _defaultAuxdataInstallDir = new File(SystemUtils.getUserHomeDir(), relPath);
+        }
+        return _defaultAuxdataInstallDir;
+    }
+
+    public File getAuxdataInstallDir() {
+        return _auxdataInstallDir;
+    }
+
+    protected void setAuxdataInstallDir(File auxdataInstallDir) {
+        _auxdataInstallDir = auxdataInstallDir;
+    }
+
+    protected void setAuxdataInstallDir(String auxdataDirPropertyName, File defaultAuxdataInstallDir) {
+        Guardian.assertNotNullOrEmpty("auxdataDirPropertyName", auxdataDirPropertyName);
+        String auxdataDirPath = System.getProperty(auxdataDirPropertyName, defaultAuxdataInstallDir.getAbsolutePath());
+        setAuxdataInstallDir(new File(auxdataDirPath));
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -614,19 +682,19 @@ public abstract class Processor {
     private static void fireStatusChanged(ProcessorStatusListener listener, ProcessorStatusEvent event) {
         listener.handleProcessingStateChanged(event);
         switch (event.getNewStatus()) {
-            case ProcessorConstants.STATUS_STARTED:
-                listener.handleProcessingStarted(event);
-                break;
-            case ProcessorConstants.STATUS_COMPLETED:
-            case ProcessorConstants.STATUS_COMPLETED_WITH_WARNING:
-                listener.handleProcessingCompleted(event);
-                break;
-            case ProcessorConstants.STATUS_ABORTED:
-                listener.handleProcessingAborted(event);
-                break;
-            case ProcessorConstants.STATUS_FAILED:
-                listener.handleProcessingFailed(event);
-                break;
+        case ProcessorConstants.STATUS_STARTED:
+            listener.handleProcessingStarted(event);
+            break;
+        case ProcessorConstants.STATUS_COMPLETED:
+        case ProcessorConstants.STATUS_COMPLETED_WITH_WARNING:
+            listener.handleProcessingCompleted(event);
+            break;
+        case ProcessorConstants.STATUS_ABORTED:
+            listener.handleProcessingAborted(event);
+            break;
+        case ProcessorConstants.STATUS_FAILED:
+            listener.handleProcessingFailed(event);
+            break;
         }
     }
 

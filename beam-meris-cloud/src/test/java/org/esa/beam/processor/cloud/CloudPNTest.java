@@ -1,6 +1,7 @@
 package org.esa.beam.processor.cloud;
 
 import junit.framework.TestCase;
+import org.esa.beam.framework.processor.ProcessorException;
 import org.esa.beam.util.math.MathUtils;
 
 import java.io.IOException;
@@ -12,9 +13,9 @@ public class CloudPNTest extends TestCase {
     private CloudPN cloudPn;
 
     @Override
-	public void setUp() throws IOException {
+	public void setUp() throws IOException, ProcessorException {
         new CloudProcessor().installAuxdata(); // just to extract auxdata
-        Map cloudConfig = new HashMap();
+        Map<String,String> cloudConfig = new HashMap<String, String>();
         cloudConfig.put(CloudPN.CONFIG_FILE_NAME, "cloud_config.txt");
         cloudPn = new CloudPN();
         cloudPn.setUp(cloudConfig);

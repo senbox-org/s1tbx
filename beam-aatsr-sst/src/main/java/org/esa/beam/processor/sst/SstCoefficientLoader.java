@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URI;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -87,16 +86,13 @@ public class SstCoefficientLoader {
 
         _logger.fine("Reading coefficient file: '" + coeffFile.getPath() + "'");
 
-        InputStream inStream = null;
-        try {
-            inStream = new FileInputStream(new File(coeffFile.toURI()));
-        } catch (URISyntaxException e) {
-            // convert zo IOException
-            throw new IOException("Not able to load file : [" + coeffFile.toExternalForm() + "]", e);
-        }
+        InputStream inStream = coeffFile.openStream();
         _props.clear();
-        _props.load(inStream);
-        inStream.close();
+        try {
+            _props.load(inStream);
+        } finally {
+            inStream.close();
+        }
 
         SstCoefficientSet set = new SstCoefficientSet();
 

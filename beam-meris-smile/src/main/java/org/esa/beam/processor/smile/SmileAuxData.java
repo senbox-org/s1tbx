@@ -45,21 +45,23 @@ public class SmileAuxData {
     private double[/*15*/] _theoreticalSunSpectralFluxes;
     private double[][/*15*/] _detectorWavelengths;
     private double[][/*15*/] _detectorSunSpectralFluxes;
-    private final static File auxdataDir;
+    private final File auxdataDir;
 
-    static {
+    private static File getDefaultAuxdataDir() {
         String symbolicName = "beam-smile-correction-processor"; // todo - get the symbolicName from processor
         String relPath = ".beam" + File.separator + symbolicName + File.separator + "auxdata";
         File defaultAuxdataDir = new File(SystemUtils.getUserHomeDir(), relPath);
         String auxdataDirPath = System.getProperty(SmileConstants.AUXDATA_DIR_PROPERTY,
                                                    defaultAuxdataDir.getAbsolutePath());
-        auxdataDir = new File(auxdataDirPath);
+        return new File(auxdataDirPath);
     }
 
-    private SmileAuxData(final String detectorWavelengthsFilename,
+    private SmileAuxData(File auxdataDir,
+                         final String detectorWavelengthsFilename,
                          final String detectorSunSpectralFluxesFilename,
                          final int numRows,
                          final int numCols) throws IOException {
+        this.auxdataDir = auxdataDir;
         loadBandInfos();
         loadDetectorData(detectorWavelengthsFilename, detectorSunSpectralFluxesFilename, numRows, numCols);
     }
@@ -104,15 +106,29 @@ public class SmileAuxData {
         return _detectorSunSpectralFluxes;
     }
 
+    /** @deprecated use {@link #loadRRAuxData(java.io.File)}
+     */
     public static SmileAuxData loadRRAuxData() throws IOException {
-        return new SmileAuxData(_CENTRAL_WAVELEN_RR_FILENAME,
+        return loadRRAuxData(getDefaultAuxdataDir());
+    }
+
+    public static SmileAuxData loadRRAuxData(File auxdataDir) throws IOException {
+        return new SmileAuxData(auxdataDir,
+                                _CENTRAL_WAVELEN_RR_FILENAME,
                                 _SUN_SPECTRAL_FLUX_RR_FILENAME,
                                 _NUM_DETECTORS_RR,
                                 EnvisatConstants.MERIS_L1B_NUM_SPECTRAL_BANDS);
     }
 
+    /** @deprecated use {@link #loadFRAuxData(java.io.File)}
+     */
     public static SmileAuxData loadFRAuxData() throws IOException {
-        return new SmileAuxData(_CENTRAL_WAVELEN_FR_FILENAME,
+        return loadFRAuxData(getDefaultAuxdataDir());
+    }
+
+    public static SmileAuxData loadFRAuxData(File auxdataDir) throws IOException {
+        return new SmileAuxData(auxdataDir,
+                                _CENTRAL_WAVELEN_FR_FILENAME,
                                 _SUN_SPECTRAL_FLUX_FR_FILENAME,
                                 _NUM_DETECTORS_FR,
                                 EnvisatConstants.MERIS_L1B_NUM_SPECTRAL_BANDS);
@@ -150,7 +166,7 @@ public class SmileAuxData {
         _detectorSunSpectralFluxes = loadFlatAuxDataFile(detectorSunSpectralFluxesFilename, numRows, numCols);
     }
 
-    private static double[][] loadFlatAuxDataFile(final String auxFileName, final int numRows, final int numCols) throws
+    private double[][] loadFlatAuxDataFile(final String auxFileName, final int numRows, final int numCols) throws
                                                                                                                   IOException {
         BufferedReader reader = openFlatAuxDataFile(auxFileName);
         double[][] tableData = new double[numRows][numCols];
@@ -168,7 +184,7 @@ public class SmileAuxData {
         return tableData;
     }
 
-    private static BufferedReader openFlatAuxDataFile(String fileName) throws IOException {
+    private  BufferedReader openFlatAuxDataFile(String fileName) throws IOException {
         assert fileName != null;
         assert fileName.length() > 0;
         return new BufferedReader(new FileReader(new File(auxdataDir, fileName)));

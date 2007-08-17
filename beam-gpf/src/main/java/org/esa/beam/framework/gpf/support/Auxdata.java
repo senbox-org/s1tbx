@@ -58,8 +58,7 @@ public class Auxdata {
     }
 
     private void installAuxdata(URL sourceLocation, String relSourcePath) throws IOException {
-        final URL targetLocation = defaultAuxdataDir.toURI().toURL();
-        ResourceInstaller resourceInstaller = new ResourceInstaller(sourceLocation, relSourcePath, targetLocation);
+        ResourceInstaller resourceInstaller = new ResourceInstaller(sourceLocation, relSourcePath, defaultAuxdataDir);
         resourceInstaller.install(".*", new NullProgressMonitor());
     }
 }

@@ -16,12 +16,11 @@
  */
 package org.esa.beam.processor.sst.ui;
 
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamGroup;
@@ -30,6 +29,7 @@ import org.esa.beam.framework.param.ParamValidateException;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.param.editors.BooleanExpressionEditor;
 import org.esa.beam.framework.processor.DefaultRequestElementFactory;
+import org.esa.beam.framework.processor.Processor;
 import org.esa.beam.framework.processor.ProcessorConstants;
 import org.esa.beam.framework.processor.ProcessorException;
 import org.esa.beam.framework.processor.ProcessorUtils;
@@ -38,15 +38,11 @@ import org.esa.beam.framework.processor.Request;
 import org.esa.beam.framework.processor.ui.AbstractProcessorUI;
 import org.esa.beam.framework.processor.ui.ProcessorApp;
 import org.esa.beam.framework.ui.GridBagUtils;
-import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.processor.sst.SstCoefficientLoader;
 import org.esa.beam.processor.sst.SstConstants;
-import org.esa.beam.processor.sst.SstProcessor;
 import org.esa.beam.processor.sst.SstRequestElementFactory;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
-import org.esa.beam.util.ResourceInstaller;
-import org.esa.beam.util.SystemUtils;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -110,12 +106,13 @@ public class SstUI extends AbstractProcessorUI implements ParamChangeListener {
      */
     public JComponent getGuiComponent() {
         if (_tabbedPane == null) {
-            installAuxdata();
             try {
+                installAuxdata();
                 scanCoefficientFiles();
-            } catch (IOException e) {
-                e.printStackTrace();
-                _logger.log(Level.SEVERE, "Failed to load SST auxdata: " + e.getMessage(), e);
+            } catch (Exception e) {
+                String msg = "Failed to initiallize SST auxdata: " + e.getMessage();
+                _logger.log(Level.SEVERE, msg, e);
+                getApp().showErrorDialog("SST Processor", msg);
             }
             scanWriterFormatStrings();
             createParamGroup();
@@ -223,28 +220,10 @@ public class SstUI extends AbstractProcessorUI implements ParamChangeListener {
     /////// END OF PUBLIC
     ///////////////////////////////////////////////////////////////////////////
 
-    private void installAuxdata() {
-        String relPath = ".beam" + File.separator + "beam-sst-processor" + File.separator + "auxdata";
-        File defaultAuxdataDir = new File(SystemUtils.getUserHomeDir(), relPath);
-        String auxdataDirPath = System.getProperty(SstConstants.AUXDATA_DIR_PROPERTY,
-                                                   defaultAuxdataDir.getAbsolutePath());
-        auxdataDir = new File(auxdataDirPath);
-        try {
-            // todo - bad code small! See other usages of ResourceInstaller.
-            URL codeSourceUrl = SstProcessor.class.getProtectionDomain().getCodeSource().getLocation();
-            final ResourceInstaller resourceInstaller = new ResourceInstaller(codeSourceUrl, "auxdata/",
-                                                                              auxdataDir.toURI().toURL());
-            ProgressMonitorSwingWorker swingWorker = new ProgressMonitorSwingWorker(null, "Installing Auxdata") {
-                @Override
-                protected Object doInBackground(ProgressMonitor progressMonitor) throws Exception {
-                    resourceInstaller.install(".*", progressMonitor);
-                    return Boolean.TRUE;
-                }
-            };
-            swingWorker.executeWithBlocking();
-        } catch (IOException e) {
-            _logger.log(Level.SEVERE, "Not able to install auxdata.", e);
-        }
+    private void installAuxdata() throws ProcessorException {
+        Processor processor = getApp().getProcessor();
+        processor.installAuxdata();
+        auxdataDir = processor.getAuxdataInstallDir();
     }
 
 
@@ -458,7 +437,7 @@ public class SstUI extends AbstractProcessorUI implements ParamChangeListener {
             param.setValue(file, null);
 
             // check if file exists and is file
-            if ((file != null) && file.exists() && file.isFile()) {
+            if (file.exists() && file.isFile()) {
                 try {
                     Product inProduct = ProductIO.readProduct(prodRef.getFile(), null);
                     if (inProduct != null) {
@@ -501,7 +480,7 @@ public class SstUI extends AbstractProcessorUI implements ParamChangeListener {
         Parameter toUpdate = _paramGroup.getParameter(SstConstants.PROCESS_DUAL_VIEW_SST_PARAM_NAME);
 
         if (param != null) {
-            if (((Boolean) param.getValue()).booleanValue()) {
+            if ((Boolean) param.getValue()) {
                 toUpdate.setValue(Boolean.TRUE, null);
                 enableDualViewParameters(true, request);
             } else {
@@ -518,14 +497,14 @@ public class SstUI extends AbstractProcessorUI implements ParamChangeListener {
         Parameter param = _paramGroup.getParameter(SstConstants.PROCESS_DUAL_VIEW_SST_PARAM_NAME);
         Parameter nadirParam = _paramGroup.getParameter(SstConstants.PROCESS_NADIR_VIEW_SST_PARAM_NAME);
 
-        if (((Boolean) param.getValue()).booleanValue()) {
-            enableDualViewParameters(true, null);
-        } else {
+        if (!(Boolean) param.getValue()) {
             enableDualViewParameters(false, null);
             // prevent that both get switched off at the same time
-            if (!((Boolean) nadirParam.getValue()).booleanValue()) {
+            if (!(Boolean) nadirParam.getValue()) {
                 enableNadirViewParameters(true, null);
             }
+        } else {
+            enableDualViewParameters(true, null);
         }
     }
 
@@ -538,7 +517,7 @@ public class SstUI extends AbstractProcessorUI implements ParamChangeListener {
 
         toUpdate = _paramGroup.getParameter(SstConstants.PROCESS_DUAL_VIEW_SST_PARAM_NAME);
         try {
-            toUpdate.setValue(new Boolean(enabled));
+            toUpdate.setValue(enabled);
         } catch (ParamValidateException e) {
             _logger.severe("Unable to validate parameter '" + SstConstants.PROCESS_DUAL_VIEW_SST_PARAM_NAME + "'");
             Debug.trace(e);
@@ -556,7 +535,7 @@ public class SstUI extends AbstractProcessorUI implements ParamChangeListener {
 
                 fileParam.setValue(file, null);
 
-                String description = null;
+                String description;
                 try {
                     description = _loader.getDescription(file.toURI().toURL());
                     if ((description != null) && (description.length() > 0)) {
@@ -591,7 +570,7 @@ public class SstUI extends AbstractProcessorUI implements ParamChangeListener {
         Parameter toUpdate = _paramGroup.getParameter(SstConstants.PROCESS_NADIR_VIEW_SST_PARAM_NAME);
 
         if (param != null) {
-            if (((Boolean) param.getValue()).booleanValue()) {
+            if ((Boolean) param.getValue()) {
                 toUpdate.setValue(Boolean.TRUE, null);
                 enableNadirViewParameters(true, request);
             } else {
@@ -609,14 +588,15 @@ public class SstUI extends AbstractProcessorUI implements ParamChangeListener {
         Parameter dualParam = _paramGroup.getParameter(SstConstants.PROCESS_DUAL_VIEW_SST_PARAM_NAME);
 
 
-        if (((Boolean) param.getValue()).booleanValue()) {
+        if ((Boolean) param.getValue()) {
             enableNadirViewParameters(true, null);
         } else {
             enableNadirViewParameters(false, null);
             // prevent that both get switched off at the same time
-            if (!((Boolean) dualParam.getValue()).booleanValue()) {
-                enableDualViewParameters(true, null);
+            if ((Boolean) dualParam.getValue()) {
+                return;
             }
+            enableDualViewParameters(true, null);
         }
     }
 
@@ -633,7 +613,7 @@ public class SstUI extends AbstractProcessorUI implements ParamChangeListener {
 
         toUpdate = _paramGroup.getParameter(SstConstants.PROCESS_NADIR_VIEW_SST_PARAM_NAME);
         try {
-            toUpdate.setValue(new Boolean(enabled));
+            toUpdate.setValue(enabled);
         } catch (ParamValidateException e) {
             _logger.severe("Unable to validate parameter '" + SstConstants.PROCESS_NADIR_VIEW_SST_PARAM_NAME + "'");
             Debug.trace(e);
@@ -651,7 +631,7 @@ public class SstUI extends AbstractProcessorUI implements ParamChangeListener {
 
                 fileParam.setValue(file, null);
 
-                String description = null;
+                String description;
                 try {
                     description = _loader.getDescription(file.toURI().toURL());
                     if ((description != null) && (description.length() > 0)) {
@@ -689,7 +669,7 @@ public class SstUI extends AbstractProcessorUI implements ParamChangeListener {
 
         param = _paramGroup.getParameter(SstConstants.PROCESS_DUAL_VIEW_SST_PARAM_NAME);
         request.addParameter(param);
-        if (((Boolean) param.getValue()).booleanValue()) {
+        if ((Boolean) param.getValue()) {
             // only need to add the parameter when dual view shall be processed
             request.addParameter(_paramGroup.getParameter(SstConstants.DUAL_VIEW_COEFF_FILE_PARAM_NAME));
             request.addParameter(_paramGroup.getParameter(SstConstants.DUAL_VIEW_BITMASK_PARAM_NAME));
@@ -697,7 +677,7 @@ public class SstUI extends AbstractProcessorUI implements ParamChangeListener {
 
         param = _paramGroup.getParameter(SstConstants.PROCESS_NADIR_VIEW_SST_PARAM_NAME);
         request.addParameter(param);
-        if (((Boolean) param.getValue()).booleanValue()) {
+        if ((Boolean) param.getValue()) {
             // only need to add the parameter when nadir view shall be processed
             request.addParameter(_paramGroup.getParameter(SstConstants.NADIR_VIEW_COEFF_FILE_PARAM_NAME));
             request.addParameter(_paramGroup.getParameter(SstConstants.NADIR_VIEW_BITMASK_PARAM_NAME));
@@ -864,7 +844,7 @@ public class SstUI extends AbstractProcessorUI implements ParamChangeListener {
         if (!nadirDir.exists()) {
             throw new FileNotFoundException("file not found: " + nadirDir);
         }
-        String[] nadirFileStrings = null;
+        String[] nadirFileStrings;
         String description;
         File coeffFile;
         Vector<String> descVector = new Vector<String>();
@@ -875,8 +855,8 @@ public class SstUI extends AbstractProcessorUI implements ParamChangeListener {
         }
 
         // loop over list to check for existing files
-        for (int i = 0; i < nadirFileStrings.length; i++) {
-            coeffFile = new File(nadirDir, nadirFileStrings[i]);
+        for (String nadirFileString : nadirFileStrings) {
+            coeffFile = new File(nadirDir, nadirFileString);
             if (coeffFile.exists() && coeffFile.isFile()) {
                 try {
                     description = _loader.getDescription(coeffFile.toURI().toURL());
@@ -909,7 +889,7 @@ public class SstUI extends AbstractProcessorUI implements ParamChangeListener {
         if (!dualDir.exists()) {
             throw new FileNotFoundException("file not found: " + dualDir);
         }
-        String[] dualFileStrings = null;
+        String[] dualFileStrings;
         String description;
         File coeffFile;
         Vector<String> descVector = new Vector<String>();
@@ -978,11 +958,7 @@ public class SstUI extends AbstractProcessorUI implements ParamChangeListener {
     private static boolean hasParameterEmptyString(final Parameter parameter) {
         final String valueAsText = parameter.getValueAsText();
 
-        if (valueAsText.trim().length() <= 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return valueAsText.trim().length() <= 0;
     }
 
     /**
