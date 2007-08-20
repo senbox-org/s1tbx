@@ -71,10 +71,9 @@ public class GeoTIFFMetadata {
     public static final String IIO_IMAGE_FORMAT_NAME = "TIFF";
 
     public GeoTIFFMetadata() {
-        this(
-                DEFAULT_GEOTIFF_VERSION,
-                DEFAULT_KEY_REVISION_MAJOR,
-                DEFAULT_KEY_REVISION_MINOR);
+        this(DEFAULT_GEOTIFF_VERSION,
+             DEFAULT_KEY_REVISION_MAJOR,
+             DEFAULT_KEY_REVISION_MINOR);
     }
 
     public GeoTIFFMetadata(final int geoTIFFVersion, final int keyRevisionMajor, final int keyRevisionMinor) {
@@ -133,6 +132,18 @@ public class GeoTIFFMetadata {
         _modelPixelScale[0] = x;
         _modelPixelScale[1] = y;
         _modelPixelScale[2] = z;
+    }
+
+    public double[] getModelPixelScale() {
+        return _modelPixelScale.clone();
+    }
+
+    public void setModelTransformation(double[] matrix) {
+        System.arraycopy(matrix, 0, _modelTransformation, 0, 16);
+    }
+
+    public double[] getModelTransformation() {
+        return _modelTransformation.clone();
     }
 
     public int getNumModelTiePoints() {

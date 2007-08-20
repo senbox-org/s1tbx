@@ -16,6 +16,7 @@
         <![CDATA[<p>From 1.0 to 1.1:<br/>
             [BEAM-648] GeoTIFF parameters written in wrong order<br/>
             [BEAM-649] GeoTIFF writes FLOAT32 bands only<br/>
+            [BEAM-666] GeoTIFF writer ignores orientation angle<br/>
         </p>]]>
     </changelog>
 

@@ -184,33 +184,44 @@ class TiffIFD {
             final TiffAscii[] tiffAsciies = asciiValues.toArray(new TiffAscii[asciiValues.size()]);
             setEntry(new TiffDirectoryEntry(TiffTag.GeoAsciiParamsTag, tiffAsciies));
         }
-        final int numModelTiePoints = geoTIFFMetadata.getNumModelTiePoints();
-        final TiffDouble[] tiePoints = new TiffDouble[numModelTiePoints * 6];
-        for (int i = 0; i < numModelTiePoints; i++) {
-            final GeoTIFFMetadata.TiePoint modelTiePoint = geoTIFFMetadata.getModelTiePointAt(i);
-            final double[] data = modelTiePoint.getData();
-            for (int j = 0; j < data.length; j++) {
-                tiePoints[i * 6 + j] = new TiffDouble(data[j]);
+        double[] modelTransformation = geoTIFFMetadata.getModelTransformation();
+        if (!isZeroArray(modelTransformation)) {
+            setEntry(new TiffDirectoryEntry(TiffTag.ModelTransformationTag, toTiffDoubles(modelTransformation)));
+        } else {
+            double[] modelPixelScale = geoTIFFMetadata.getModelPixelScale();
+            if (!isZeroArray(modelPixelScale)) {
+                setEntry(new TiffDirectoryEntry(TiffTag.ModelPixelScaleTag, toTiffDoubles(modelPixelScale)));
+            }
+            final int numModelTiePoints = geoTIFFMetadata.getNumModelTiePoints();
+            if (numModelTiePoints > 0) {
+                final TiffDouble[] tiePoints = new TiffDouble[numModelTiePoints * 6];
+                for (int i = 0; i < numModelTiePoints; i++) {
+                    final GeoTIFFMetadata.TiePoint modelTiePoint = geoTIFFMetadata.getModelTiePointAt(i);
+                    final double[] data = modelTiePoint.getData();
+                    for (int j = 0; j < data.length; j++) {
+                        tiePoints[i * 6 + j] = new TiffDouble(data[j]);
+                    }
+                }
+                setEntry(new TiffDirectoryEntry(TiffTag.ModelTiepointTag, tiePoints));
             }
         }
-        setEntry(new TiffDirectoryEntry(TiffTag.ModelTiepointTag, tiePoints));
-
-        setPixelScaleIfSpecified(geoTIFFMetadata);
     }
 
-    private void setPixelScaleIfSpecified(final GeoTIFFMetadata geoTIFFMetadata) {
-        final TiffDouble[] pixelScaleValues = new TiffDouble[]{
-                new TiffDouble(geoTIFFMetadata.getModelPixelScaleX()),
-                new TiffDouble(geoTIFFMetadata.getModelPixelScaleY()),
-                new TiffDouble(geoTIFFMetadata.getModelPixelScaleZ()),
-        };
+    private static TiffDouble[] toTiffDoubles(double[] a) {
+        final TiffDouble[] td = new TiffDouble[a.length];
+        for (int i = 0; i < a.length; i++) {
+            td[i] = new TiffDouble(a[i]);
+        }
+        return td;
+    }
 
-        for (TiffDouble pixelScaleValue : pixelScaleValues) {
-            if (pixelScaleValue.getValue() != 0.0 && pixelScaleValue.getValue() != 1.0) {
-                setEntry(new TiffDirectoryEntry(TiffTag.ModelPixelScaleTag, pixelScaleValues));
-                break;
+    private static boolean isZeroArray(double[] a) {
+        for (double v : a) {
+            if (v != 0.0) {
+                return false;
             }
         }
+        return true;
     }
 
     private static int getMaxElemSizeBandDataType(final Product product) {

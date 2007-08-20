@@ -87,6 +87,7 @@ class TiffTag {
     public final static int Copyright = 33432;
     public final static TiffShort ModelTiepointTag = new TiffShort(33922);
     public final static TiffShort ModelPixelScaleTag = new TiffShort(33550);
+    public final static TiffShort ModelTransformationTag = new TiffShort(34264);
     public final static TiffShort GeoKeyDirectoryTag = new TiffShort(34735);
     public final static TiffShort GeoDoubleParamsTag = new TiffShort(34736);
     public final static TiffShort GeoAsciiParamsTag = new TiffShort(34737);
