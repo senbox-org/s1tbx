@@ -20,7 +20,7 @@ import org.esa.beam.util.Guardian;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * A type-safe list for elements of the type <code>ProductNode</code>.
@@ -30,9 +30,9 @@ import java.util.Vector;
  */
 public final class ProductNodeList {
 
-    private final Class _elemType;
-    private final List _nodes;
-    private final List _removedNodes;
+    private final Class<? extends ProductNode> _elemType;
+    private final List<ProductNode> _nodes;
+    private final List<ProductNode> _removedNodes;
 
     /**
      * Constructs a new list named nodes.
@@ -44,20 +44,17 @@ public final class ProductNodeList {
     /**
      * Constructs a new list named nodes.
      */
-    public ProductNodeList(final Class elemType) {
+    public ProductNodeList(final Class<? extends ProductNode> elemType) {
         Guardian.assertNotNull("elemType", elemType);
-        if (!ProductNode.class.isAssignableFrom(elemType)) {
-            throw new IllegalArgumentException("'elemType' is not a ProductNode type");
-        }
         _elemType = elemType;
-        _nodes = new Vector();
-        _removedNodes = new Vector();
+        _nodes = new ArrayList<ProductNode>();
+        _removedNodes = new ArrayList<ProductNode>();
     }
 
     /**
      * Gets the element type of this list.
      */
-    public Class getElemType() {
+    public Class<? extends ProductNode> getElemType() {
         return _elemType;
     }
 
@@ -74,7 +71,7 @@ public final class ProductNodeList {
      * @param index the index, must be in the range zero to <code>size()</code>
      */
     public final ProductNode getAt(int index) {
-        return (ProductNode) _nodes.get(index);
+        return _nodes.get(index);
     }
 
     /**
@@ -83,9 +80,9 @@ public final class ProductNodeList {
      * @return a string array containing all node names, never <code>null</code>
      */
     public final String[] getNames() {
-        String[] names = new String[size()];
-        for (int i = 0; i < size(); i++) {
-            names[i] = getAt(i).getName();
+        String[] names = new String[_nodes.size()];
+        for (int i = 0; i < _nodes.size(); i++) {
+            names[i] = _nodes.get(i).getName();
         }
         return names;
     }
@@ -98,9 +95,9 @@ public final class ProductNodeList {
      * @see ProductNode#getDisplayName()
      */
     public String[] getDisplayNames() {
-        String[] displayNames = new String[size()];
-        for (int i = 0; i < size(); i++) {
-            displayNames[i] = getAt(i).getDisplayName();
+        String[] displayNames = new String[_nodes.size()];
+        for (int i = 0; i < _nodes.size(); i++) {
+            displayNames[i] = _nodes.get(i).getDisplayName();
         }
         return displayNames;
     }
@@ -117,7 +114,7 @@ public final class ProductNodeList {
      */
     public final ProductNode get(String name) {
         int index = indexOf(name);
-        return index >= 0 ? getAt(index) : null;
+        return index >= 0 ? _nodes.get(index) : null;
     }
 
     /**
@@ -133,9 +130,9 @@ public final class ProductNodeList {
      */
     public ProductNode getByDisplayName(String displayName) {
         Guardian.assertNotNull("displayName", displayName);
-        for (int i = 0; i < size(); i++) {
-            if (getAt(i).getDisplayName().equals(displayName)) {
-                return getAt(i);
+        for (ProductNode node : _nodes) {
+            if (node.getDisplayName().equals(displayName)) {
+                return node;
             }
         }
         return  null;
@@ -289,7 +286,7 @@ public final class ProductNodeList {
      * @return an array containing the elements of the list. never <code>null</code>
      */
     public final ProductNode[] toArray(ProductNode[] array) {
-        return (ProductNode[]) _nodes.toArray(array);
+        return _nodes.toArray(array);
     }
 
     /**
@@ -302,8 +299,8 @@ public final class ProductNodeList {
      * @throws IndexOutOfBoundsException if the given array is to small.
      */
     public final void copyInto(ProductNode[] array) {
-        for (int i = 0; i < array.length; i++) {
-            add(array[i]);
+        for (ProductNode node : array) {
+            add(node);
         }
     }
 
@@ -343,8 +340,8 @@ public final class ProductNodeList {
     }
 
     private void disposeRemovedList() {
-        for (int i = 0; i < _removedNodes.size(); i++) {
-            ((ProductNode) _removedNodes.get(i)).dispose();
+        for (ProductNode removedNode : _removedNodes) {
+            removedNode.dispose();
         }
         clearRemovedList();
     }
