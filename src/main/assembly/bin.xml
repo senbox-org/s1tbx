@@ -138,7 +138,7 @@
                             <include>com.jidesoft:jide-grids</include>
                             <include>junit:junit</include>
                             <include>javax.media.jai:mlibwrapper-jai</include>
-                            <include>xstream:xstream</include>
+                            <include>com.thoughtworks.xstream:xstream</include>
                             <include>xpp3:xpp3</include>
                         </includes>
                     </dependencySet>
