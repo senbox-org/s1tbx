@@ -554,7 +554,7 @@ public class PinManagerToolView extends AbstractToolView {
                 for (Pin pin : pins) {
                     boolean selected = false;
                     for (int selectedIndex : selectedIndexes) {
-                        if (selectedIndex <= product.getNumPins() && pin == product.getPinAt(selectedIndex)) {
+                        if (selectedIndex < product.getNumPins() && pin == product.getPinAt(selectedIndex)) {
                             selected = true;
                             break;
                         }
@@ -599,17 +599,27 @@ public class PinManagerToolView extends AbstractToolView {
         }
         int numPinsOutOfBounds = 0;
         int numPinsRenamed = 0;
+        int numInvalids = 0;
         for (Pin pin : pins) {
             if (makePinNameUnique(product, pin)) {
                 numPinsRenamed++;
             }
 
             final PixelPos pixelPos;
-            if(pin.getPixelPos() != null) {
+            if(product.getGeoCoding() != null && pin.getGeoPos() != null) {
+                pixelPos = product.getGeoCoding().getPixelPos(pin.getGeoPos(), null);
+            }else if(pin.getPixelPos() != null){
                 pixelPos = pin.getPixelPos();
             }else {
-                pixelPos = product.getGeoCoding().getPixelPos(pin.getGeoPos(), null);
+                pixelPos = new PixelPos();
+                pixelPos.setInvalid();
             }
+
+            if(!pixelPos.isValid()){
+                numInvalids++;
+                continue;
+            }
+
             if (product.containsPixel(pixelPos)) {
                 product.addPin(pin);
             } else {
@@ -618,6 +628,11 @@ public class PinManagerToolView extends AbstractToolView {
             if (!allPins) {
                 break; // import only the first one
             }
+        }
+
+        if (numInvalids > 0) {
+            showWarningDialog("One or more pins have not been imported,\n" +
+                    "because they can not be assigned to a product without a geo-coding."); /*I18N*/
         }
         if (numPinsRenamed > 0) {
             showWarningDialog("One or more pins have been renamed,\n" +
