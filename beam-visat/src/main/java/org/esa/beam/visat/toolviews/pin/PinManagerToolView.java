@@ -554,7 +554,7 @@ public class PinManagerToolView extends AbstractToolView {
                 for (Pin pin : pins) {
                     boolean selected = false;
                     for (int selectedIndex : selectedIndexes) {
-                        if (pin == product.getPinAt(selectedIndex)) {
+                        if (selectedIndex <= product.getNumPins() && pin == product.getPinAt(selectedIndex)) {
                             selected = true;
                             break;
                         }
@@ -603,7 +603,13 @@ public class PinManagerToolView extends AbstractToolView {
             if (makePinNameUnique(product, pin)) {
                 numPinsRenamed++;
             }
-            final PixelPos pixelPos = product.getGeoCoding().getPixelPos(pin.getGeoPos(), null);
+
+            final PixelPos pixelPos;
+            if(pin.getPixelPos() != null) {
+                pixelPos = pin.getPixelPos();
+            }else {
+                pixelPos = product.getGeoCoding().getPixelPos(pin.getGeoPos(), null);
+            }
             if (product.containsPixel(pixelPos)) {
                 product.addPin(pin);
             } else {
