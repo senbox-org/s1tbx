@@ -969,8 +969,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             return true;
         }
         int rasterWidth = getProduct().getBytePackedBitmaskRasterWidth();
-        int byteIndex = y * rasterWidth + x / 8;
-        int bitIndex = x % 8;
+        final int byteIndex = y * rasterWidth + x / 8;
+        final int bitIndex = x % 8;
         return (_dataMask[byteIndex] & (1 << bitIndex)) != 0;
     }
 
