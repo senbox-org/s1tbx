@@ -416,6 +416,7 @@ public class Product extends ProductNode {
         try {
             closeIO();
         } catch (IOException e) {
+            // ignore
         }
 
         _reader = null;
@@ -1025,7 +1026,7 @@ public class Product extends ProductNode {
         }
         final String[] flagNames = new String[l.size()];
         for (int i = 0; i < flagNames.length; i++) {
-            flagNames[i] = l.get(i).toString();
+            flagNames[i] = l.get(i);
         }
         l.clear();
         return flagNames;
@@ -1142,19 +1143,6 @@ public class Product extends ProductNode {
         return selectedPins.toArray(new Pin[0]);
     }
 
-    /**
-     * @deprecated no replacement, pin symbols are not in raster coordinates anymore
-     */
-    public Pin getPinForPixelPos(final float pixelX, final float pixelY) {
-        final Pin[] pins = getPins();
-        for (final Pin pin : pins) {
-            if (pin.isPixelPosContainedInSymbolShape(pixelX, pixelY)) {
-                return pin;
-            }
-        }
-        return null;
-    }
-
     //////////////////////////////////////////////////////////////////////////
     // Bitmask definitions support
 
@@ -1190,15 +1178,15 @@ public class Product extends ProductNode {
     public boolean removeBitmaskDef(final BitmaskDef bitmaskDef) {
         final boolean result = removeNamedNode(bitmaskDef, _bitmaskDefs);
         final Band[] bands = getBands();
-        for (int i = 0; i < bands.length; i++) {
-            final BitmaskOverlayInfo bitmaskOverlayInfo = bands[i].getBitmaskOverlayInfo();
+        for (Band band : bands) {
+            final BitmaskOverlayInfo bitmaskOverlayInfo = band.getBitmaskOverlayInfo();
             if (bitmaskOverlayInfo != null) {
                 bitmaskOverlayInfo.removeBitmaskDef(bitmaskDef);
             }
         }
         final TiePointGrid[] grids = getTiePointGrids();
-        for (int i = 0; i < grids.length; i++) {
-            final BitmaskOverlayInfo bitmaskOverlayInfo = grids[i].getBitmaskOverlayInfo();
+        for (TiePointGrid grid : grids) {
+            final BitmaskOverlayInfo bitmaskOverlayInfo = grid.getBitmaskOverlayInfo();
             if (bitmaskOverlayInfo != null) {
                 bitmaskOverlayInfo.removeBitmaskDef(bitmaskDef);
             }
@@ -1321,15 +1309,15 @@ public class Product extends ProductNode {
             }
         }
         final String[] flagNames = getAllFlagNames();
-        for (Iterator iterator = flags.iterator(); iterator.hasNext();) {
-            final String flagName = (String) iterator.next();
+        for (String flag : flags) {
+            final String flagName = (String) flag;
             if (!StringUtils.containsIgnoreCase(flagNames, flagName)) {
                 return false;
             }
         }
         final String[] rasterNames = StringUtils.addArrays(getBandNames(), getTiePointGridNames());
-        for (Iterator iterator = rasters.iterator(); iterator.hasNext();) {
-            final String rasterName = (String) iterator.next();
+        for (String raster : rasters) {
+            final String rasterName = (String) raster;
             if (!StringUtils.containsIgnoreCase(rasterNames, rasterName)) {
                 return false;
             }
@@ -1428,16 +1416,16 @@ public class Product extends ProductNode {
             }
         }
         final Band[] bands = getBands();
-        for (int i = 0; i < bands.length; i++) {
-            final BitmaskOverlayInfo overlayInfo = bands[i].getBitmaskOverlayInfo();
+        for (Band band : bands) {
+            final BitmaskOverlayInfo overlayInfo = band.getBitmaskOverlayInfo();
             if (overlayInfo != null && overlayInfo.containsBitmaskDef(bitmaskDefOld)) {
                 overlayInfo.removeBitmaskDef(bitmaskDefOld);
                 overlayInfo.addBitmaskDef(bitmaskDefNew);
             }
         }
         final TiePointGrid[] grids = getTiePointGrids();
-        for (int i = 0; i < grids.length; i++) {
-            final BitmaskOverlayInfo overlayInfo = grids[i].getBitmaskOverlayInfo();
+        for (TiePointGrid grid : grids) {
+            final BitmaskOverlayInfo overlayInfo = grid.getBitmaskOverlayInfo();
             if (overlayInfo != null && overlayInfo.containsBitmaskDef(bitmaskDefOld)) {
                 overlayInfo.removeBitmaskDef(bitmaskDefOld);
                 overlayInfo.addBitmaskDef(bitmaskDefNew);
@@ -1459,7 +1447,7 @@ public class Product extends ProductNode {
     }
 
     // todo - make deprecated, will be replaced by new class PixelMask
-    public int getBytePackedBitmaskRasterWidth() {
+    public final int getBytePackedBitmaskRasterWidth() {
         return _bytePackedBitmaskRasterWidth;
     }
 
@@ -1610,24 +1598,6 @@ public class Product extends ProductNode {
     }
 
     /**
-     * Creates a bit-packed mask for all pixels of the scene covered by this product.
-     * The given term is considered to be boolean, if it evaluates to <code>true</code>
-     * the related bit in the mask is set.
-     * <p>Since the masks created by this method are cached, the method {@link #releasePixelMask(byte[])}
-     * should be called in order to release it.
-     *
-     * @param term the boolean term, e.g. "l2_flags.LAND && reflec_10 >= 0.0"
-     * @return a bit-packed mask for all pixels of the scene, never null
-     * @throws IOException if an I/O error occurs
-     * @see #createPixelMask(String)
-     * @see #releasePixelMask(byte[])
-     * @deprecated use {@link #createPixelMask(com.bc.jexp.Term)}
-     */
-    public byte[] ensureValidMask(final Term term) throws IOException {
-        return createPixelMask(term);
-    }
-
-    /**
      * Creates a term tree by parsing an expression given as a text string. This convinience method simply
      * returns a parsed term. For the syntax of expression please refer to the VISAT-Help in the chapter
      * <pre>
@@ -1717,8 +1687,8 @@ public class Product extends ProductNode {
                                                        width, height,
                                                        new Term[]{bitmaskTerm}, pm);
         loop.forEachPixel(new RasterDataLoop.Body() {
-            public void eval(final RasterDataEvalEnv env, final int elemIndex) {
-                bitmask[elemIndex] = bitmaskTerm.evalB(env);
+            public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
+                bitmask[pixelIndex] = bitmaskTerm.evalB(env);
             }
         });
     }
@@ -1807,11 +1777,11 @@ public class Product extends ProductNode {
                                                        width, height,
                                                        new Term[]{bitmaskTerm}, pm);
         loop.forEachPixel(new RasterDataLoop.Body() {
-            public void eval(final RasterDataEvalEnv env, final int elemIndex) {
+            public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
                 if (bitmaskTerm.evalB(env)) {
-                    bitmask[elemIndex] = trueValue;
+                    bitmask[pixelIndex] = trueValue;
                 } else {
-                    bitmask[elemIndex] = falseValue;
+                    bitmask[pixelIndex] = falseValue;
                 }
             }
         }, "Reading bitmask...");  /*I18N*/
@@ -1973,9 +1943,9 @@ public class Product extends ProductNode {
                                                        new Term[]{bitmaskTerm},
                                                        pm);
         loop.forEachPixel(new RasterDataLoop.Body() {
-            public void eval(final RasterDataEvalEnv env, final int elemIndex) {
+            public void eval(final RasterDataEvalEnv env, final int pixelIndex) {
                 if (bitmaskTerm.evalB(env) == termValue) {
-                    rasterData.setElemDoubleAt(elemIndex, maskValue);
+                    rasterData.setElemDoubleAt(pixelIndex, maskValue);
                 }
             }
         });
