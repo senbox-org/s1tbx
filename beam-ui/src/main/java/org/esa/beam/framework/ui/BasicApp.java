@@ -381,11 +381,14 @@ public class BasicApp {
         getMainFrame().getDockingManager().setStepDelay(0);
         getMainFrame().getDockingManager().setUndoLimit(0);
         getMainFrame().getDockingManager().setFloatable(true);
-        getMainFrame().getDockingManager().setShowGripper(true);
+        getMainFrame().getDockingManager().setShowGripper(false);
+        getMainFrame().getDockingManager().setDragGripperOnly(false);
         getMainFrame().getDockingManager().setContinuousLayout(true);
         getMainFrame().getDockingManager().setHideFloatingFramesWhenDeactivate(true);
         getMainFrame().getDockingManager().setHideFloatingFramesOnSwitchOutOfApplication(true);
-        getMainFrame().getDockingManager().setOutlineMode(DockingManager.PARTIAL_OUTLINE_MODE);
+//        getMainFrame().getDockingManager().setOutlineMode(DockingManager.PARTIAL_OUTLINE_MODE);
+//        getMainFrame().getDockingManager().setOutlineMode(DockingManager.MIX_OUTLINE_MODE);
+        getMainFrame().getDockingManager().setOutlineMode(DockingManager.FULL_OUTLINE_MODE);
     }
 
     private void configureLayoutPersitence() {
