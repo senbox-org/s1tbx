@@ -48,16 +48,16 @@ public class PinDialogTest extends TestCase {
         pinDialog.setLabel("label");
         assertEquals("label", pinDialog.getLabel());
 
-        pinDialog.setPixelX(2);
-        assertEquals(2, pinDialog.getPixelX());
+        pinDialog.setPixelX(2.3F);
+        assertEquals(2.3F, pinDialog.getPixelX(), 1e-6F);
 
-        pinDialog.setPixelY(14);
-        assertEquals(14, pinDialog.getPixelY());
+        pinDialog.setPixelY(14.1F);
+        assertEquals(14.1F, pinDialog.getPixelY(), 1e-6F);
 
         PixelPos pixelPos = pinDialog.getPixelPos();
         assertNotNull(pixelPos);
-        assertEquals(2.5f, pixelPos.x, 1e-6f);
-        assertEquals(14.5f, pixelPos.y, 1e-6f);
+        assertEquals(2.3F, pixelPos.x, 1e-6F);
+        assertEquals(14.1F, pixelPos.y, 1e-6F);
 
         assertNotNull(pinDialog.getPinSymbol());
         final PinSymbol defaultPinSymbol = PinSymbol.createDefaultPinSymbol();

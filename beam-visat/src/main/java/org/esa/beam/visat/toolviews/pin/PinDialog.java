@@ -168,32 +168,32 @@ public class PinDialog extends ModalDialog {
     }
 
     public PixelPos getPixelPos() {
-        return new PixelPos(getPixelX() + 0.5f, getPixelY() + 0.5f);
+        return new PixelPos(getPixelX(), getPixelY());
     }
 
     public void setPixelPos(PixelPos pixelPos) {
         if (pixelPos != null) {
-            setPixelX(MathUtils.floorInt(pixelPos.x));
-            setPixelY(MathUtils.floorInt(pixelPos.y));
+            setPixelX(pixelPos.x);
+            setPixelY(pixelPos.y);
         } else {
-            setPixelX(0);
-            setPixelY(0);
+            setPixelX(0.0F);
+            setPixelY(0.0F);
         }
     }
 
-    public int getPixelX() {
-        return (Integer) _paramPixelX.getValue();
+    public float getPixelX() {
+        return (Float) _paramPixelX.getValue();
     }
 
-    public void setPixelX(int pixelX) {
+    public void setPixelX(float pixelX) {
         _paramPixelX.setValue(pixelX, null);
     }
 
-    public int getPixelY() {
-        return (Integer) _paramPixelY.getValue();
+    public float getPixelY() {
+        return (Float) _paramPixelY.getValue();
     }
 
-    public void setPixelY(int pixelY) {
+    public void setPixelY(float pixelY) {
         _paramPixelY.setValue(pixelY, null);
     }
 
@@ -267,12 +267,12 @@ public class PinDialog extends ModalDialog {
             }
         };
 
-        _paramPixelX = new Parameter("paramPixelX", 0);
+        _paramPixelX = new Parameter("paramPixelX", 0.0F);
         _paramPixelX.getProperties().setLabel("Pixel X");
         _paramPixelX.setUIEnabled(usePixelPos);
         _paramPixelX.addParamChangeListener(pixelChangeListener);
 
-        _paramPixelY = new Parameter("paramPixelY", 0);
+        _paramPixelY = new Parameter("paramPixelY", 0.0F);
         _paramPixelY.getProperties().setLabel("Pixel Y");
         _paramPixelY.setUIEnabled(usePixelPos);
         _paramPixelY.addParamChangeListener(pixelChangeListener);
@@ -350,7 +350,7 @@ public class PinDialog extends ModalDialog {
         GridBagUtils.addToPanel(dialogPane, _paramPixelX.getEditor().getComponent(), gbc, "weightx=1");
         gbc.insets.right += 2;
         gbc.insets.left -= 2;
-        GridBagUtils.addToPanel(dialogPane, new JLabel(".5"), gbc, "weightx=0");
+        GridBagUtils.addToPanel(dialogPane, new JLabel(""), gbc, "weightx=0");
         gbc.insets.left += 2;
         gbc.insets.left += space;
         GridBagUtils.addToPanel(dialogPane, _paramLon.getEditor().getLabelComponent(), gbc, "weightx=0");
@@ -364,7 +364,7 @@ public class PinDialog extends ModalDialog {
         GridBagUtils.addToPanel(dialogPane, _paramPixelY.getEditor().getComponent(), gbc, "weightx=1");
         gbc.insets.right += 2;
         gbc.insets.left -= 2;
-        GridBagUtils.addToPanel(dialogPane, new JLabel(".5"), gbc, "weightx=0");
+        GridBagUtils.addToPanel(dialogPane, new JLabel(""), gbc, "weightx=0");
         gbc.insets.left += 2;
         gbc.insets.left += space;
         GridBagUtils.addToPanel(dialogPane, _paramLat.getEditor().getLabelComponent(), gbc, "weightx=0");

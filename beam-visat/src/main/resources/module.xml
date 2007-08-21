@@ -10,15 +10,19 @@
     </description>
 
     <changelog>
-        <![CDATA[From 4.0.1 to 4.1
-        <ul>
-        <li>[BEAM-603] Select multiple pins</li>
-        </ul>
-        From 4.0 to 4.0.1
-        <ul>
-            <li>[BEAM-613] Product not shown in product tree view.</li>
-            <li>[BEAM-482] Pins shall not be selected by default.</li>
-        </ul>]]>
+        <![CDATA[
+        From 4.0 to 4.1<br>
+        [BEAM-482] Pins shall not be selected by default<br/>
+        [BEAM-603] Select multiple pins<br/>
+        [BEAM-613] Product not shown in product tree view<br/>
+        [BEAM-632] Make pins available for all product types<br/>
+        [BEAM-633] Ask before removing pins<br/>
+        [BEAM-634] Make pin size independent of zoom factor<br/>
+        [BEAM-636] Make pin labels nicer<br/>
+        [BEAM-660] Speedup image creation process<br/>
+        [BEAM-671] Pin pixel coordinates should be floating point numbers<br/>
+        [BEAM-672] Include spectral unmixing tool<br/>
+        ]]>
     </changelog>
 
     <vendor>Brockmann Consult GmbH</vendor>
@@ -26,7 +30,6 @@
     <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
-
 
     <activator>org.esa.beam.visat.VisatActivator</activator>
 
