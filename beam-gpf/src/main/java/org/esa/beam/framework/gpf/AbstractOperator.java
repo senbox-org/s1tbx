@@ -1,13 +1,13 @@
 package org.esa.beam.framework.gpf;
 
-import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.Band;
+import java.awt.Rectangle;
+import java.util.logging.Logger;
+
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 
-import java.awt.Rectangle;
-import java.util.logging.Logger;
+import com.bc.ceres.core.ProgressMonitor;
 
 /**
  * The abstract base class for all operators.
@@ -163,49 +163,6 @@ public abstract class AbstractOperator implements Operator {
                                 ProgressMonitor pm) throws OperatorException {
         throw new OperatorException("not implemented");
     }
-
-    /**
-     * Computes a new tile. Reads raster data from the data source specified by the given destination
-     * band into the given in-memory buffer and region. Clients must implement
-     * this method to provide the calculation of the output raster data for the
-     * given region and band.<p/>
-     * <h3>Destination band</h3>
-     * The destination band is used to identify the data source from which this
-     * method transfers the sample values into the given destination buffer. The
-     * method does not modify the given destination band at all. <p/>
-     * <h3>Destination region</h3>
-     * The given destination region specified by the {@code rectangle},
-     * The destination region should always specify a sub-region of the band's
-     * scene raster. <p/>
-     * <h3>Destination buffer</h3>
-     * The number of elements in the buffer must exactly match
-     * {@code rectangle.width * rectangle.height}. The pixel values read
-     * are stored in line-by-line order, so the raster X co-ordinate varies
-     * faster than the Y co-ordinate.
-     * <p/>
-     * <p>Clients are adviced to use the progress monitor {@code pm} if the method may take
-     * a while to finish. The progress monitor informs the framework about the progress being made.</p>
-     *
-     * @param band          the destination band which identifies the data source from
-     *                      which to read the sample values
-     * @param tileRectangle a rectangle specifying the region to be computed
-     * @param dataBuffer    the destination buffer which receives the sample values to be
-     *                      read
-     * @param pm            a progress monitor. Can be used to signal progress.
-     *
-     * @throws OperatorException        if some kind of error occure during computing (optional)
-     * @throws IllegalArgumentException if the number of elements destination buffer not equals
-     *                                  <code>destWidth destHeight</code> or the destination region
-     *                                  is out of the band's scene raster
-     * @see org.esa.beam.framework.datamodel.Band#getSceneRasterWidth()
-     * @see org.esa.beam.framework.datamodel.Band#getSceneRasterHeight()
-     * @deprecated use {@link Operator#computeBand(Raster, ProgressMonitor)}
-     */
-    protected void computeTile(Band band, Rectangle tileRectangle, ProductData dataBuffer, ProgressMonitor pm)
-            throws OperatorException {
-        throw new OperatorException("not implemented");
-    }
-
 
     /**
      * {@inheritDoc}

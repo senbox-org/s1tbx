@@ -111,10 +111,6 @@ public class N1PatcherOp extends AbstractOperator {
         super(spi);
     }
 
-    public Product getTargetProduct() {
-        return targetProduct;
-    }
-
     @Override
     public Product initialize(ProgressMonitor pm) throws OperatorException {
 
@@ -270,7 +266,8 @@ public class N1PatcherOp extends AbstractOperator {
         return null;
     }
 
-    public void dispose() {
+    @Override
+	public void dispose() {
         try {
             targetProduct.closeIO();
             inputStream.close();

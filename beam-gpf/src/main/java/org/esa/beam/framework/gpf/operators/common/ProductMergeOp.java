@@ -27,7 +27,6 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 
 import java.awt.Rectangle;
-import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -164,11 +163,6 @@ public class ProductMergeOp extends AbstractOperator implements ParameterConvert
     }
 
     @Override
-    public void dispose() {
-        bandMapping.clear();
-    }
-
-    @Override
     public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
     	Rectangle rectangle = targetRaster.getRectangle();
         Band sourceBand = bandMapping.get(targetRaster.getRasterDataNode());
@@ -179,6 +173,10 @@ public class ProductMergeOp extends AbstractOperator implements ParameterConvert
         System.arraycopy(sourceRaster.getDataBuffer().getElems(), 0, targetRaster.getDataBuffer().getElems(), 0, length);
     }
 
+    @Override
+    public void dispose() {
+        bandMapping.clear();
+    }
 
     public class BandDesc {
         String product;

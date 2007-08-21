@@ -86,7 +86,7 @@ public class GraphProcessorTest extends TestCase {
     }
 
     @SuppressWarnings("null")
-    public void testTwoOpsExecutionOrder() throws IOException, GraphException {
+    public void testTwoOpsExecutionOrder() throws Exception {
         GraphProcessor processor = new GraphProcessor();
 
         Graph graph = new Graph("chain1");
@@ -110,7 +110,7 @@ public class GraphProcessorTest extends TestCase {
         TestOps.clearCalls();
     }
 
-    public void testThreeOpsExecutionOrder() throws IOException, GraphException {
+    public void testThreeOpsExecutionOrder() throws Exception {
         Graph graph = new Graph("graph");
 
         Node node1 = new Node("node1", "Op1");
@@ -136,7 +136,7 @@ public class GraphProcessorTest extends TestCase {
         TestOps.clearCalls();
     }
 
-    public void testAnnotationsProcessed() throws IOException, GraphException {
+    public void testAnnotationsProcessed() throws Exception {
         GraphProcessor processor = new GraphProcessor();
 
         Graph graph = new Graph("graph");

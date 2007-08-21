@@ -14,26 +14,36 @@
  */
 package org.esa.beam.cluster;
 
-import com.bc.ceres.core.ProgressMonitor;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
-import de.gkss.hs.datev2004.Clucov;
-import de.gkss.hs.datev2004.DataSet;
-import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.gpf.*;
+import java.awt.Rectangle;
+import java.io.IOException;
+import java.util.Set;
+
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.gpf.AbstractOperator;
+import org.esa.beam.framework.gpf.AbstractOperatorSpi;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.ParameterConverter;
+import org.esa.beam.framework.gpf.Raster;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.framework.gpf.support.CachingOperator;
-import org.esa.beam.framework.gpf.support.ProductDataCache;
 
-import java.awt.*;
-import java.io.IOException;
-import java.util.Set;
+import com.bc.ceres.core.ProgressMonitor;
+import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+
+import de.gkss.hs.datev2004.Clucov;
+import de.gkss.hs.datev2004.DataSet;
 
 /**
  * The CLUCOV operator implementation.
  */
-public class ClusterAnalysisOp extends CachingOperator implements ParameterConverter {
+public class ClusterAnalysisOp extends AbstractOperator implements ParameterConverter {
     @SourceProduct
     Product sourceProduct;
     @TargetProduct
@@ -65,11 +75,8 @@ public class ClusterAnalysisOp extends CachingOperator implements ParameterConve
         }
     }
 
-    public boolean isComputingAllBandsAtOnce() {
-        return false;
-    }
-
-    public Product createTargetProduct(ProgressMonitor progressMonitor) throws OperatorException {
+    @Override
+    protected Product initialize(ProgressMonitor pm) throws OperatorException {
         featureBands = new Band[featureBandNames.length];
         for (int i = 0; i < featureBandNames.length; i++) {
             String featureBandName = featureBandNames[i];
@@ -96,8 +103,8 @@ public class ClusterAnalysisOp extends CachingOperator implements ParameterConve
         return targetProduct;
     }
 
-    @SuppressWarnings("unused")
-    public void computeTile(Band band, Rectangle rectangle, ProductDataCache cache, ProgressMonitor pm) throws OperatorException {
+    @Override
+    public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
         if (clucov == null) {
             try {
                 computeClusters();
@@ -107,15 +114,14 @@ public class ClusterAnalysisOp extends CachingOperator implements ParameterConve
             }
         }
 
-        if (band == groupBand)  {
-            int width = sourceProduct.getSceneRasterWidth();
+        if (targetRaster.getRasterDataNode() == groupBand)  {
+        	Rectangle rectangle = targetRaster.getRectangle();
+        	final int sourceWidth = sourceProduct.getSceneRasterWidth();
             DataSet ds = clucov.ds;
-            ProductData data = cache.createData(groupBand);
-            for (int y = 0; y < rectangle.height; y++) {
-                for (int x = 0; x < rectangle.width; x++) {
-                    int bufferIndex = y * rectangle.width + x;
-                    int dsIndex = (rectangle.y + y) * width + rectangle.x + x;
-                    data.setElemIntAt(bufferIndex, ds.group[dsIndex]);
+            for (int y = rectangle.y; y < rectangle.y + rectangle.height; y++) {
+                for (int x = rectangle.x; x < rectangle.x + rectangle.width; x++) {
+                    int dsIndex = y * sourceWidth + x;
+                    targetRaster.setDouble(x, y, ds.group[dsIndex]);
                 }
             }
         }
@@ -168,8 +174,10 @@ public class ClusterAnalysisOp extends CachingOperator implements ParameterConve
         clucov.run();
     }
 
-    public void dispose() {
+    @Override
+	public void dispose() {
         // todo - add any clean-up code here
+    	clucov = null;
     }
 
     /**

@@ -27,7 +27,7 @@ public class GraphIOTest extends TestCase {
         OperatorSpiRegistry.getInstance().removeOperatorSpi(operatorSpi3);
     }
 
-    public void testEmptyChain() throws GraphException {
+    public void testEmptyChain() throws Exception {
         Graph chain1 = new Graph("myEmptyChain");
 
         Graph chain2 = doIO(chain1);

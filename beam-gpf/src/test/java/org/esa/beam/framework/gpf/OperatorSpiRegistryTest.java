@@ -3,7 +3,6 @@ package org.esa.beam.framework.gpf;
 import junit.framework.TestCase;
 import org.esa.beam.framework.gpf.annotations.OperatorAlias;
 import org.esa.beam.framework.gpf.AbstractOperatorSpi;
-import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 
 /**

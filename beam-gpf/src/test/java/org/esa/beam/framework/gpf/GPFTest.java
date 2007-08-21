@@ -67,8 +67,6 @@ public class GPFTest extends TestCase {
     }
 
     public static class FooOp extends AbstractOperator {
-        private Band targetBand;
-
         @TargetProduct Product targetProduct;
         @SourceProduct Product sourceProduct;
 
@@ -84,7 +82,8 @@ public class GPFTest extends TestCase {
          * @return the target product
          * @see #initialize(org.esa.beam.framework.gpf.OperatorContext, com.bc.ceres.core.ProgressMonitor)
          */
-        protected Product initialize(ProgressMonitor pm) throws OperatorException {
+        @Override
+		protected Product initialize(ProgressMonitor pm) throws OperatorException {
             Product product = new Product("X", "Y", sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
             String[] bandNames = sourceProduct.getBandNames();
             for (String s : bandNames) {

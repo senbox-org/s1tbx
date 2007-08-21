@@ -17,7 +17,6 @@
 package org.esa.beam.framework.gpf.operators.meris;
 
 import java.awt.Rectangle;
-import java.io.IOException;
 
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;

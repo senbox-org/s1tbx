@@ -44,7 +44,7 @@ public abstract class MerisBasisOp extends AbstractOperator {
 	 * @param sourceProduct
 	 * @param name
 	 * @param type
-	 * @return
+	 * @return targetProduct
 	 */
 	public Product createCompatibleProduct(Product sourceProduct, String name, String type) {
 		final int sceneWidth = sourceProduct.getSceneRasterWidth();
