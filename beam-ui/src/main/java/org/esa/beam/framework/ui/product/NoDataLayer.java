@@ -114,7 +114,7 @@ public class NoDataLayer extends AbstractLayer {
         final byte[] imageDataBuffer = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
         pm.beginTask("Creating no-data image", height);
         try {
-            getRaster().ensureDataMaskIsAvailable();
+            getRaster().ensureValidMaskComputed(ProgressMonitor.NULL);
             for (int y = 0; y < height; y++) {
                 if (pm.isCanceled()) {
                     break;

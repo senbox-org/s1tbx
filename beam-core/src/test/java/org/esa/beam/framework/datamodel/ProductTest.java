@@ -35,6 +35,7 @@ import org.esa.beam.framework.dataop.maptransf.MapTransform;
 import org.esa.beam.util.BeamConstants;
 import org.esa.beam.util.ObjectUtils;
 import org.esa.beam.util.ProductUtilsTest;
+import org.esa.beam.util.BitRaster;
 import org.esa.beam.util.io.BeamFileFilter;
 
 import java.io.IOException;
@@ -742,15 +743,11 @@ public class ProductTest extends TestCase {
 
 
         final Term term = product.createTerm("flags.f1");
-        final byte[] validMask = product.createPixelMask(term);
+        final BitRaster validMask = product.createValidMask(term, ProgressMonitor.NULL);
 
-
-        final byte[] expectedValidMask = convertToBytes(new int[]{
-                0xB2, 0xF6, 0x01,
-                0xD5, 0x53, 0x02,
-        });
-
-        assertEquals(true, ObjectUtils.equalObjects(expectedValidMask, validMask));
+        for (int i = 0; i < elems.length; i++) {
+            assertEquals(elems[i] == 1, validMask.isSet(i));
+        }
     }
 
     public void testMaskProductData() throws ParseException,

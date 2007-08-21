@@ -31,11 +31,8 @@ public abstract class AbstractBand extends RasterDataNode {
     public static final String VIEW_MODE_FORWARD = "FORWARD";
     public static final String VIEW_MODE_NADIR = "NADIR";
 
-    private String _viewModeId;
-
     public AbstractBand(String name, int dataType, int width, int height) {
         super(name, dataType, width, height);
-        initViewModeId();
     }
 
     /**
@@ -733,21 +730,7 @@ public abstract class AbstractBand extends RasterDataNode {
     public abstract long getRawStorageSize(ProductSubsetDef subsetDef);
 
     /**
-     * (Re-)Computes this band's data using the given arithmetic expression.
-     *
-     * @param expression      the arithmetic expression string, e.g. "1 + log(radiance_5 / radiance_13)"
-     * @param sourceProducts  the list of source products possibly referenced in the expression
-     * @param checkInvalids   if true, the method recognizes numerically invalid values (NaN, Infinity)
-     * @param useInvalidValue if true, numerically invalid values (NaN, Infinity) are set to <code>invalidValue</code>,
-     *                        ignored if <code>checkInvalids = false</code>
-     * @param invalidValue    the value used in place of  numerically invalid values if <code>useInvalidValue =
-     *                        true</code>, ignored if  <code>checkInvalids = false</code>
-     *
-     * @return the number of invalid pixels, zero if  <code>checkInvalids = false</code>
-     *
-     * @throws IOException    if an I/O error occurs
-     * @throws ParseException if the expression syntax is invalid
-     * @deprecated {@link #computeBand(String, Product[], boolean, boolean, double, com.bc.ceres.core.ProgressMonitor)}
+     * @see  #computeBand(String, Product[], boolean, boolean, double, com.bc.ceres.core.ProgressMonitor)
      */
     public int computeBand(final String expression,
                            final Product[] sourceProducts,
@@ -805,27 +788,14 @@ public abstract class AbstractBand extends RasterDataNode {
                                                            pm);
 
         setRasterData(targetRasterData);
-        if (isDataMaskUsed()) {
-            computeDataMask();
+        // todo - NaN values created in BandArithmetic.computeBand are ignored if
+        // todo - although isValidMaskUsed() returns true (nf 2007-08-21) 
+        if (isValidMaskUsed()) {
+            computeValidMask(ProgressMonitor.NULL);
         }
 
         fireProductNodeDataChanged();
         return numInvalids;
-    }
-
-    /**
-     * @deprecated no replacement, {@link Pointing}s are now created using a {@link PointingFactory}
-     */
-    public String getViewModeId() {
-        return _viewModeId;
-    }
-
-    /**
-     * @deprecated no replacement, {@link Pointing}s are now created using a {@link PointingFactory}
-     */
-    public void setViewModeId(String viewModeId) {
-        Guardian.assertNotNull("viewModeId", viewModeId);
-        _viewModeId = viewModeId;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -842,10 +812,6 @@ public abstract class AbstractBand extends RasterDataNode {
             throw new IllegalStateException("raster data not loaded");
         }
         return getRasterData();
-    }
-
-    private void initViewModeId() {
-        setViewModeId(getViewModeId(getName()));
     }
 
     public String getViewModeId(final String bandName) {

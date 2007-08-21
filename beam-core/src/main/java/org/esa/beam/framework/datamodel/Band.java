@@ -23,7 +23,7 @@ import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.util.Guardian;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.io.IOException;
 
 
@@ -130,6 +130,7 @@ public class Band extends AbstractBand {
 
     /**
      * Tests whether or not this band is a flag band (<code>getFlagCoding() != null</code>).
+     *
      * @return <code>true</code> if so
      */
     public boolean isFlagBand() {
@@ -318,10 +319,20 @@ public class Band extends AbstractBand {
             rasterData = createCompatibleRasterData(getRasterWidth(), getRasterHeight());
         }
 
-        readRasterData(0, 0, getRasterWidth(), getRasterHeight(), rasterData, pm);
-        setRasterData(rasterData);
-        if (isDataMaskUsed()) {
-            computeDataMask();
+        pm.beginTask("Loading raster data", 100);
+
+        try {
+            readRasterData(0, 0, getRasterWidth(), getRasterHeight(),
+                           rasterData,
+                           SubProgressMonitor.create(pm, isValidMaskUsed() ? 60 : 100));
+            setRasterData(rasterData);
+            // todo - NaN values created in BandArithmetic.computeBand are ignored if
+            // todo - although isValidMaskUsed() returns true (nf 2007-08-21)
+            if (isValidMaskUsed()) {
+                computeValidMask(SubProgressMonitor.create(pm, 40));
+            }
+        } finally {
+            pm.done();
         }
     }
 

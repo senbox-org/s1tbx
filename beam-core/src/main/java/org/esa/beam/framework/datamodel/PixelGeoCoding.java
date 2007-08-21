@@ -14,6 +14,8 @@ import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
+import org.esa.beam.util.BitRaster;
+import org.esa.beam.util.math.IndexValidator;
 
 import java.io.IOException;
 
@@ -100,16 +102,17 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         initData(latBand, lonBand, validMask, pm);
     }
 
-    private void initData(final Band latBand, final Band lonBand, final String validMask, ProgressMonitor pm) throws
+    private void initData(final Band latBand, final Band lonBand, final String validMaskExpr, ProgressMonitor pm) throws
                                                                                                               IOException {
         try {
-            pm.beginTask("Preparing data for pixel based geo-coding...", 3);
+            pm.beginTask("Preparing data for pixel based geo-coding...", 4);
             _latGrid = PixelGrid.create(latBand, SubProgressMonitor.create(pm, 1));
             _lonGrid = PixelGrid.create(lonBand, SubProgressMonitor.create(pm, 1));
-            if (validMask != null && validMask.trim().length() > 0) {
+            if (validMaskExpr != null && validMaskExpr.trim().length() > 0) {
+                final BitRaster validMask = latBand.getProduct().createValidMask(validMaskExpr, SubProgressMonitor.create(pm, 1));
                 fillInvalidGaps(_latGrid.getRasterWidth(),
                                 _latGrid.getRasterHeight(),
-                                new ValidMaskPixelValidator(latBand.getProduct(), validMask),
+                                new RasterDataNode.ValidMaskValidator(_latGrid.getRasterHeight(), 0, validMask),
                                 (float[]) _latGrid.getDataElems(),
                                 (float[]) _lonGrid.getDataElems(), SubProgressMonitor.create(pm, 1));
             }
@@ -121,7 +124,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
     /**
      * <p>Fills the gaps in the given latitude and longitude data buffers.
      * The method shall fill in reasonable a latitude and longitude value at all positions where
-     * {@link PixelValidator#validateIndex(int, int) validator.validateIndex(x,y)} returns false.</p>
+     * {@link IndexValidator#validateIndex(int) validator.validateIndex(pixelIndex)} returns false.</p>
      * <p/>
      * <p>The default implementation uses the underlying {@link #getPixelPosEstimator() estimator} (if any)
      * to find default values for the gaps.</p>
@@ -135,7 +138,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      */
     protected void fillInvalidGaps(final int w,
                                    final int h,
-                                   final PixelValidator validator,
+                                   final IndexValidator validator,
                                    final float[] latElems,
                                    final float[] lonElems, ProgressMonitor pm) {
         if (_pixelPosEstimator != null) {
@@ -145,8 +148,8 @@ public class PixelGeoCoding extends AbstractGeoCoding {
                 GeoPos geoPos = new GeoPos();
                 for (int y = 0; y < h; y++) {
                     for (int x = 0; x < w; x++) {
-                        if (!validator.validateIndex(x, y)) {
-                            int i = y * w + x;
+                        int i = y * w + x;
+                        if (!validator.validateIndex(i)) {
                             pixelPos.x = x;
                             pixelPos.y = y;
                             geoPos = _pixelPosEstimator.getGeoPos(pixelPos, geoPos);
@@ -727,29 +730,6 @@ public class PixelGeoCoding extends AbstractGeoCoding {
             return "Result[" + x + ", " + y + ", " + delta + "]";
         }
     }
-
-    public static interface PixelValidator {
-
-        boolean validateIndex(final int x, final int y);
-    }
-
-    private static class ValidMaskPixelValidator implements PixelValidator {
-
-        private final byte[] _dataMask;
-        private final int _dataMaskRasterWidth;
-
-        public ValidMaskPixelValidator(final Product product, final String validMask) throws IOException {
-            _dataMask = product.createPixelMask(validMask);
-            _dataMaskRasterWidth = product.getBytePackedBitmaskRasterWidth();
-        }
-
-        public boolean validateIndex(final int x, final int y) {
-            final int byteIndex = y * _dataMaskRasterWidth + (x >> 3); // (x / 8)
-            final int bitIndex = x % 8;
-            return (_dataMask[byteIndex] & (1 << bitIndex)) != 0;
-        }
-    }
-
 
     /**
      * Gets the datum, the reference point or surface against which {@link GeoPos} measurements are made.

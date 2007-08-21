@@ -995,7 +995,7 @@ public class MosaicProcessor extends Processor {
                 for (int j = 0; j < refRasters.length; j++) {
                     RasterDataNode refRaster = refRasters[j];
                     try {
-                        refRaster.ensureDataMaskIsAvailable();
+                        refRaster.ensureValidMaskComputed(ProgressMonitor.NULL);
                     } catch (IOException e) {
                         _logger.warning("failed to load valid-data-mask for band '" + refRaster.getName() + "'");
                     }

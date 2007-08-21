@@ -153,7 +153,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         final int sourceMaxY = sourceMinY + sourceHeight - 1;
         int destArrayPos = 0;
 
-        destBand.ensureDataMaskIsAvailable();
+        destBand.ensureValidMaskComputed(ProgressMonitor.NULL);
 
         pm.beginTask("Reading band '" + destBand.getName() + "'...", (sourceMaxY - sourceMinY) + 1);
         // For each scan in the data source

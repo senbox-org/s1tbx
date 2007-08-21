@@ -62,11 +62,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public final static String PROPERTY_NAME_VALID_PIXEL_EXPRESSION = "validPixelExpression";
     public final static String PROPERTY_NAME_GEOCODING = Product.PROPERTY_NAME_GEOCODING;
 
-    // todo DON'T USE ANYMORE IN BEAM 3.4
-    public final static String PROPERTY_NAME_VALID_MASK_TERM = "validMaskTerm";
-    // todo DON'T USE ANYMORE IN BEAM 3.4
-    public final static String PROPERTY_NAME_VALID_MASK_EXPRESSION = "validMaskExpression";
-
     /**
      * Text returned by the <code>{@link #getPixelString}</code> method if no data is available at the given pixel
      * position.
@@ -105,12 +100,12 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     private boolean _noDataValueUsed;
     private ProductData _noData;
-    private double _geophysicalNoDataValue; // Dependent on _noDataValue
+    private double _geophysicalNoDataValue; // invariant, depending on _noData
     private String _validPixelExpression;
 
-    private byte[] _dataMask;
-    private Term _dataMaskTerm;
-    private boolean _dataMaskInProgress; // used to prevent from infinite recursion due to data reloading in data-mask terms
+    private BitRaster _validMask;
+    private Term _validMaskTerm;
+    private boolean _validMaskInProgress; // used to prevent from infinite recursion due to data reloading in data-mask terms
 
     private GeoCoding _geoCoding;
 
@@ -165,9 +160,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         _geophysicalNoDataValue = 0.0;
         _validPixelExpression = null;
 
-        _dataMaskTerm = null;
-        _dataMask = null;
-        _dataMaskInProgress = false;
+        _validMaskTerm = null;
+        _validMask = null;
+        _validMaskInProgress = false;
     }
 
     /**
@@ -474,7 +469,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public void setNoDataValueUsed(boolean noDataValueUsed) {
         if (_noDataValueUsed != noDataValueUsed) {
             _noDataValueUsed = noDataValueUsed;
-            resetDataMask();
+            resetValidMask();
             setModified(true);
             fireProductNodeChanged(PROPERTY_NAME_NO_DATA_VALUE_USED);
         }
@@ -519,7 +514,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             }
             _noData.setElemDouble(noDataValue);
             setGeophysicalNoDataValue();
-            resetDataMask();
+            resetValidMask();
             setModified(true);
             fireProductNodeChanged(PROPERTY_NAME_NO_DATA_VALUE);
         }
@@ -582,7 +577,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (!ObjectUtils.equalObjects(_validPixelExpression, validPixelExpression)) {
             _validPixelExpression = validPixelExpression;
             setDefaultROIBitmaskExpr();
-            resetDataMask();
+            resetValidMask();
             setModified(true);
             fireProductNodeChanged(PROPERTY_NAME_VALID_PIXEL_EXPRESSION);
         }
@@ -596,27 +591,27 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * method.
      *
      * @return true, if so
-     * @see #getDataMask()
-     * @see #setDataMask(byte[])
-     * @see #ensureDataMaskIsAvailable()
+     * @see #getValidMask()
+     * @see #setValidMask(BitRaster)
+     * @see #ensureValidMaskComputed(com.bc.ceres.core.ProgressMonitor)
      */
-    public boolean isDataMaskUsed() {
+    public boolean isValidMaskUsed() {
         return isValidPixelExpressionSet() || isNoDataValueUsed();
     }
 
     /**
      * Gets the valid pixel mask which indicates if a pixel is valid or not. The method returns null if either
-     * no data-mask is used ({@link #isDataMaskUsed()} returns false) or if the data-mask hasn't been created so far.
+     * no data-mask is used ({@link #isValidMaskUsed()} returns false) or if the data-mask hasn't been created so far.
      * <p>The data-mask is used to determine valid pixels. For more information
      * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
      * method.
      *
      * @return the valid pixel mask, <code>null</code> if not set.
-     * @see #setDataMask(byte[])
-     * @see #ensureDataMaskIsAvailable()
+     * @see #setValidMask(org.esa.beam.util.BitRaster)
+     * @see #ensureValidMaskComputed(com.bc.ceres.core.ProgressMonitor)
      */
-    public byte[] getDataMask() {
-        return _dataMask;
+    public BitRaster getValidMask() {
+        return _validMask;
     }
 
     /**
@@ -625,44 +620,45 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
      * method.
      *
-     * @param dataMask the valid pixel mask, can be null.
-     * @see #getDataMask()
-     * @see #ensureDataMaskIsAvailable()
+     * @param validMask the valid pixel mask, can be null.
+     * @see #getValidMask()
+     * @see #ensureValidMaskComputed(com.bc.ceres.core.ProgressMonitor)
      */
-    protected void setDataMask(final byte[] dataMask) {
-        _dataMask = dataMask;
+    protected void setValidMask(final BitRaster validMask) {
+        _validMask = validMask;
     }
 
     /**
-     * Ensures that a data-mask, if any, is available, thus {@link #getDataMask()} returns a non-null value.
+     * Ensures that a data-mask, if any, is available, thus {@link #getValidMask()} returns a non-null value.
      * The method shall be called once before the {@link #isPixelValid(int, int, javax.media.jai.ROI)} method is called.
      * <p>The data-mask is used to determine valid pixels. For more information
      * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
      * method.
      *
      * @throws IOException if an I/O error occurs
+     * @param pm
      */
-    public void ensureDataMaskIsAvailable() throws IOException {
-        if (isDataMaskUsed() && getDataMask() == null) {
-            computeDataMask();
+    public void ensureValidMaskComputed(ProgressMonitor pm) throws IOException {
+        if (isValidMaskUsed() && getValidMask() == null) {
+            computeValidMask(pm);
         }
     }
 
-    private void resetDataMask() {
+    private void resetValidMask() {
         final Product product = getProduct();
         if (product != null) { // node might not have been added to product so far
-            product.releasePixelMask(getDataMask());
+            product.releaseValidMask(getValidMask());
         }
-        setDataMask(null);
-        setDataMaskTerm(null);
+        setValidMask(null);
+        setValidMaskTerm(null);
     }
 
-    private Term getDataMaskTerm() {
-        return _dataMaskTerm;
+    private Term getValidMaskTerm() {
+        return _validMaskTerm;
     }
 
-    private void setDataMaskTerm(Term dataMaskTerm) {
-        _dataMaskTerm = dataMaskTerm;
+    private void setValidMaskTerm(Term dataMaskTerm) {
+        _validMaskTerm = dataMaskTerm;
     }
 
     public String getDataMaskExpression() {
@@ -682,46 +678,46 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         return "fneq(" + BandArithmetic.createExternalName(getName()) + "," + getGeophysicalNoDataValue() + ")";
     }
 
-    protected synchronized void computeDataMask() throws IOException {
-        if (_dataMaskInProgress) {
-            // prevent from infinite recursion due to data reloading in data-mask terms
+    protected synchronized void computeValidMask(ProgressMonitor pm) throws IOException {
+        if (_validMaskInProgress) {
+            // prevent from infinite recursion due to data reloading in evaluation of valid-mask terms
             return;
         }
-        _dataMaskInProgress = true;
+        _validMaskInProgress = true;
         try {
-            recreateDataMaskImpl();
+            computeValidMaskImpl(pm);
         } finally {
-            _dataMaskInProgress = false;
+            _validMaskInProgress = false;
         }
     }
 
     protected synchronized void maskProductData(int offsetX, int offsetY, int width, int height,
                                                 ProductData rasterData, ProgressMonitor pm) throws IOException {
-        if (_dataMaskInProgress) {
-            // prevent from infinite recursion due to data reloading in data-mask terms
+        if (_validMaskInProgress) {
+            // prevent from infinite recursion due to data reloading in evaluation of valid-mask terms
             return;
         }
-        _dataMaskInProgress = true;
+        _validMaskInProgress = true;
         try {
             maskProductDataImpl(offsetX, offsetY, width, height, rasterData, pm);
         } finally {
-            _dataMaskInProgress = false;
+            _validMaskInProgress = false;
         }
     }
 
-    private void recreateDataMaskImpl() throws IOException {
-        _dataMask = null;
-        final Term dataMaskTerm = createDataMaskTerm();
-        if (dataMaskTerm != null) {
-            _dataMask = getProduct().createPixelMask(dataMaskTerm);
+    private void computeValidMaskImpl(ProgressMonitor pm) throws IOException {
+        _validMask = null;
+        final Term term = createValidMaskTerm();
+        if (term != null) {
+            _validMask = getProduct().createValidMask(term, pm);
         }
     }
 
     private void maskProductDataImpl(int offsetX, int offsetY, int width, int height, ProductData rasterData,
                                      ProgressMonitor pm) throws IOException {
-        if (isDataMaskUsed()) { // todo nf/** - CHECK PERF: isn't it isValidPixelExpressionSet()?
+        if (isValidMaskUsed()) { // todo nf/** - CHECK PERF: isn't it isValidPixelExpressionSet()?
             final Product product = getProductSafe();
-            final Term term = createDataMaskTerm(); // todo nf/** - CHECK PERF: isn't it term from _validPixelExpression only?
+            final Term term = createValidMaskTerm(); // todo nf/** - CHECK PERF: isn't it term from _validPixelExpression only?
             product.maskProductData(offsetX, offsetY,
                                     width, height,
                                     term,
@@ -732,9 +728,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         }
     }
 
-    private Term createDataMaskTerm() throws IOException {
+    private Term createValidMaskTerm() throws IOException {
         final Product product = getProductSafe();
-        Term term = getDataMaskTerm();
+        Term term = getValidMaskTerm();
         if (term == null) {
             final String dataMaskExpression = getDataMaskExpression();
             if (dataMaskExpression != null) {
@@ -749,7 +745,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                     ioException.initCause(e);
                     throw ioException;
                 }
-                setDataMaskTerm(term);
+                setValidMaskTerm(term);
             }
         }
         return term;
@@ -799,27 +795,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                     "a raster data node with the name '" + trimmedName + "'.");
         }
     }
-
-    /**
-     * Gets the valid mask which indicates if a pixel is valid or not.
-     *
-     * @return the valid mask, <code>null</code> if not set.
-     * @deprecated use {@link #getDataMask()} instead
-     */
-    public byte[] getValidMask() {
-        return getDataMask();
-    }
-
-    /**
-     * Sets the valid mask which indicates if a pixel is valid or not.
-     *
-     * @param validMask the valid mask.
-     * @deprecated use {@link #setDataMask(byte[])} instead
-     */
-    protected void setValidMask(final byte[] validMask) {
-        setDataMask(validMask);
-    }
-
 
     /**
      * Gets a raster data holding this dataset's pixel data for an entire product scene. If the data has'nt been loaded
@@ -874,16 +849,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Loads the raster data for this <code>RasterDataNode</code>. After this method has been called successfully,
-     * <code>hasRasterData()</code> should always return <code>true</code> and <code>getRasterData()</code> should
-     * always return a valid <code>ProductData</code> instance with at least <code>getRasterWidth()*getRasterHeight()</code>
-     * elements (samples).
-     * <p/>
-     * <p>The default implementation of this method does nothing.
-     *
-     * @throws IOException if an I/O error occurs
-     * @see #unloadRasterData()
-     * @deprecated use {@link #loadRasterData(com.bc.ceres.core.ProgressMonitor)} instead
+     * @see #loadRasterData(com.bc.ceres.core.ProgressMonitor)
      */
     public void loadRasterData() throws IOException {
         loadRasterData(ProgressMonitor.NULL);
@@ -928,8 +894,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     @Override
     public void dispose() {
-        _dataMask = null;
-        _dataMaskTerm = null;
+        _validMask = null;
+        _validMaskTerm = null;
         if (_imageInfo != null) {
             _imageInfo.dispose();
             _imageInfo = null;
@@ -947,11 +913,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Checks whether or not the pixel located at (x,y) is valid.
-     * A pixel is assumed to be valid either if  {@link #getDataMask()} returns null or
+     * A pixel is assumed to be valid either if  {@link #getValidMask()} returns null or
      * or if the bit corresponding to (x,y) is set within the returned mask.
-     * <p>In order to set the valid pixel mask, the method {@link #ensureDataMaskIsAvailable()} shall
+     * <p>In order to set the valid pixel mask, the method {@link #ensureValidMaskComputed(com.bc.ceres.core.ProgressMonitor)} shall
      * be called before this method returns reasonable results.
-     * {@link #ensureDataMaskIsAvailable()} will ensure that a data-mask will be computed
+     * {@link #ensureValidMaskComputed(com.bc.ceres.core.ProgressMonitor)} will ensure that a data-mask will be computed
      * either {@link #isNoDataValueUsed()} returns true or if {@link #getValidPixelExpression()} returns a non-empty
      * expression.
      *
@@ -965,13 +931,36 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #setValidPixelExpression(String)
      */
     public boolean isPixelValid(int x, int y) {
-        if (_dataMask == null) {
-            return true;
+        if (_validMask != null) {
+            return _validMask.isSet(x, y);
         }
-        int rasterWidth = getProduct().getBytePackedBitmaskRasterWidth();
-        final int byteIndex = y * rasterWidth + x / 8;
-        final int bitIndex = x % 8;
-        return (_dataMask[byteIndex] & (1 << bitIndex)) != 0;
+        return true;
+    }
+
+    /**
+     * Checks whether or not the pixel located at (x,y) is valid.
+     * A pixel is assumed to be valid either if  {@link #getValidMask()} returns null or
+     * or if the bit corresponding to (x,y) is set within the returned mask.
+     * <p>In order to set the valid pixel mask, the method {@link #ensureValidMaskComputed(com.bc.ceres.core.ProgressMonitor)} shall
+     * be called before this method returns reasonable results.
+     * {@link #ensureValidMaskComputed(com.bc.ceres.core.ProgressMonitor)} will ensure that a data-mask will be computed
+     * either {@link #isNoDataValueUsed()} returns true or if {@link #getValidPixelExpression()} returns a non-empty
+     * expression.
+     *
+     * @param pixelIndex the linear pixel index in the range 0 to width * height - 1
+     * @return <code>true</code> if the pixel is valid
+     * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
+     * @see #isPixelValid(int, int, javax.media.jai.ROI)
+     * @see #setNoDataValueUsed(boolean)
+     * @see #setNoDataValue(double)
+     * @see #setValidPixelExpression(String)
+     * @since 4.1
+     */
+    public boolean isPixelValid(int pixelIndex) {
+        if (_validMask != null) {
+            return _validMask.isSet(pixelIndex);
+        }
+        return true;
     }
 
     /**
@@ -1310,7 +1299,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         }
         if (isValidPixelExpressionSet() || isNoDataValueUsed()) {
             final Product product = getProduct();
-            final Term term = createDataMaskTerm();
+            final Term term = createValidMaskTerm();
             product.readBitmask(x, y, w, h, term, validMask, ProgressMonitor.NULL);
         } else {
             Arrays.fill(validMask, true);
@@ -1417,9 +1406,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *                                  which this product raster belongs to, has no associated product reader
      */
     public void readRaster(Rectangle rectangle, ProductData rasterData, ProgressMonitor pm) throws IOException {
-    	readRasterData(rectangle.x, rectangle.y, rectangle.width, rectangle.height, rasterData, pm);
+        readRasterData(rectangle.x, rectangle.y, rectangle.width, rectangle.height, rasterData, pm);
     }
-    
+
     /**
      * Writes the complete underlying raster data.
      *
@@ -2454,19 +2443,28 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * Creates a validator which can be used to validate indexes of pixels in a flat raster data buffer.
      *
-     * @param y0  the absolute line offset, zero based
-     * @param roi an optional ROI
+     * @param lineOffset the absolute line offset, zero based
+     * @param roi        an optional ROI
      * @return a new validator instance, never null
      * @throws IOException
      */
-    public IndexValidator createPixelValidator(int y0, final ROI roi) throws IOException {
-        if (isDataMaskUsed() || roi != null) {
-            if (isDataMaskUsed()) {
-                ensureDataMaskIsAvailable();
-            }
-            return new PixelValidator(y0, roi);
+    public IndexValidator createPixelValidator(int lineOffset, final ROI roi) throws IOException {
+        if (isValidMaskUsed()) {
+            ensureValidMaskComputed(ProgressMonitor.NULL);
         }
-        return IndexValidator.TRUE;
+        final BitRaster validMask = getValidMask();
+        final int rasterWidth = getSceneRasterWidth();
+        if (validMask != null && roi != null) {
+            return new DelegatingValidator(
+                    new ValidMaskValidator(rasterWidth, lineOffset, validMask),
+                    new RoiValidator(rasterWidth, lineOffset, roi));
+        } else if (validMask != null) {
+            return new ValidMaskValidator(rasterWidth, lineOffset, validMask);
+        } else if (roi != null) {
+            return new RoiValidator(rasterWidth, lineOffset, roi);
+        } else {
+            return IndexValidator.TRUE;
+        }
     }
 
 
@@ -2521,7 +2519,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         }
         if (hasRasterData()) {
             try {
-                ensureDataMaskIsAvailable();
+                ensureValidMaskComputed(ProgressMonitor.NULL);
             } catch (IOException e) {
                 return IO_ERROR_TEXT;
             }
@@ -2627,25 +2625,51 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         void processRasterDataBuffer(ProductData buffer, int y0, int numLines, ProgressMonitor pm) throws IOException;
     }
 
-    public class PixelValidator implements IndexValidator {
+    final static class DelegatingValidator implements IndexValidator {
+        private final IndexValidator validator1;
+        private final IndexValidator validator2;
 
-        private final int _y0;
-        private final ROI _roi;
-
-        /**
-         * Creates a new pixel index validator.
-         *
-         * @param y0  the line offset, zero based
-         * @param roi the roi, may be null
-         */
-        public PixelValidator(int y0, ROI roi) {
-            _y0 = y0;
-            _roi = roi;
+        public DelegatingValidator(IndexValidator validator1, IndexValidator validator2) {
+            this.validator1 = validator1;
+            this.validator2 = validator2;
         }
 
-        public final boolean validateIndex(final int index) {
-            final int w = getSceneRasterWidth();
-            return isPixelValid(index % w, _y0 + index / w, _roi);
+        public boolean validateIndex(int pixelIndex) {
+            return validator1.validateIndex(pixelIndex)
+                    && validator2.validateIndex(pixelIndex);
+        }
+    }
+
+    final static class ValidMaskValidator implements IndexValidator {
+        private final int pixelOffset;
+        private final BitRaster validMask;
+
+        public ValidMaskValidator(int rasterWidth, int lineOffset, BitRaster validMask) {
+            this.pixelOffset = rasterWidth * lineOffset;
+            this.validMask = validMask;
+        }
+
+        public final boolean validateIndex(final int pixelIndex) {
+            return validMask.isSet(pixelOffset + pixelIndex);
+        }
+    }
+
+    final static class RoiValidator implements IndexValidator {
+
+        private final int rasterWidth;
+        private final int lineOffset;
+        private final ROI roi;
+
+        public RoiValidator(int rasterWidth, int lineOffset, ROI roi) {
+            this.rasterWidth = rasterWidth;
+            this.lineOffset = lineOffset;
+            this.roi = roi;
+        }
+
+        public boolean validateIndex(int pixelIndex) {
+            final int x = pixelIndex % rasterWidth;
+            final int y = lineOffset + pixelIndex / rasterWidth;
+            return roi.contains(x, y);
         }
     }
 
@@ -2666,6 +2690,62 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
         public final double getDouble(int index) {
             return scale(_buffer.getElemDoubleAt(index));
+        }
+    }
+
+
+
+
+
+
+    /////////////////////////////////////////////////////////////////////////
+    // Deprecated API
+    /////////////////////////////////////////////////////////////////////////
+
+    /** @deprecated no replacement */
+    private byte[] dataMask;
+
+    /** @deprecated in 4.1, use {@link #isValidMaskUsed()} */
+    public boolean isDataMaskUsed() {
+        return isValidMaskUsed();
+    }
+    /** @deprecated in 4.1, use {@link #getValidMask()} */
+    public byte[] getDataMask() {
+        return dataMask;
+    }
+    /** @deprecated in 4.1, use {@link #setValidMask(org.esa.beam.util.BitRaster)} */
+    protected void setDataMask(final byte[] dataMask) {
+        this.dataMask = dataMask;
+    }
+    /** @deprecated in 4.1, use {@link #ensureValidMaskComputed(com.bc.ceres.core.ProgressMonitor)} */
+    public void ensureDataMaskIsAvailable() throws IOException {
+        ensureValidMaskComputed(ProgressMonitor.NULL);
+    }
+    /** @deprecated in 4.1, use {@link #computeValidMask} */
+    protected synchronized void computeDataMask() throws IOException {
+        computeValidMask(ProgressMonitor.NULL);
+    }
+
+    /** @deprecated in 4.1, use {@link RasterDataNode#createPixelValidator(int, javax.media.jai.ROI)}  */
+    public class PixelValidator implements IndexValidator {
+
+        private final int _y0;
+        private final ROI _roi;
+
+        /**
+         * Creates a new pixel index validator.
+         *
+         * @param y0  the line offset, zero based
+         * @param roi the roi, may be null
+         */
+        public PixelValidator(int y0, ROI roi) {
+            _y0 = y0;
+            _roi = roi;
+        }
+
+        public final boolean validateIndex(final int index) {
+            final int w = getSceneRasterWidth();
+            return isPixelValid(index % w, _y0 + index / w, _roi);
         }
     }
 

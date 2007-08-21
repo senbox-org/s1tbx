@@ -277,14 +277,14 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
                                         final int destHeight,
                                         final ProductData destBuffer,
                                         final ProgressMonitor pm) throws IOException {
-        final Band sourceBand = (Band) _bandMap.get(destBand);
+        final Band sourceBand = _bandMap.get(destBand);
         Debug.assertNotNull(sourceBand);
         Debug.assertTrue(getSubsetDef() == null);
 
         final int sourceWidth = sourceBand.getSceneRasterWidth();
         final int sourceHeight = sourceBand.getSceneRasterHeight();
 
-        sourceBand.ensureDataMaskIsAvailable();
+        sourceBand.ensureValidMaskComputed(ProgressMonitor.NULL);
 
         final GeoCoding sourceGeoCoding = getSourceGeoCoding(sourceBand);
 
@@ -381,7 +381,7 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
                                          final int destOffsetX,
                                          final int destOffsetY,
                                          final PixelPos[] sourceLineCoords) {
-        final Band sourceBand = (Band) _bandMap.get(destBand);
+        final Band sourceBand = _bandMap.get(destBand);
         Debug.assertNotNull(sourceBand);
         Debug.assertTrue(getSubsetDef() == null);
 
@@ -689,7 +689,7 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
         public Object createObject(int line) throws IOException {
             final int lineWidth = _sourceBand.getSceneRasterWidth();
             final float[] floats = new float[lineWidth];
-            _sourceBand.ensureDataMaskIsAvailable();
+            _sourceBand.ensureValidMaskComputed(ProgressMonitor.NULL);
             _sourceBand.readPixels(0, line, lineWidth, 1, floats, ProgressMonitor.NULL);
             return floats;
         }
