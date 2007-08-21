@@ -208,7 +208,7 @@ public final class ProductNodeList {
      *
      * @return a collection of all removed product nodes.
      */
-    public Collection getRemovedNodes() {
+    public Collection<ProductNode> getRemovedNodes() {
         return _removedNodes;
     }
 
