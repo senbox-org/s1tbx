@@ -460,7 +460,7 @@ public class PinManagerToolView extends AbstractToolView {
         String[] uniquePinNameAndLabel = createUniquePinNameAndLabel(product, 0, 0);
         Pin newPin = new Pin(uniquePinNameAndLabel[0],
                              uniquePinNameAndLabel[1],
-                             new PixelPos(0,0));
+                             new PixelPos(0, 0));
         if (showEditPinDialog(getWindowAncestor(), product, newPin)) {
             makePinNameUnique(newPin);
             product.addPin(newPin);
@@ -501,7 +501,7 @@ public class PinManagerToolView extends AbstractToolView {
         final Pin pins[] = product.getSelectedPins();
         int i = JOptionPane.showConfirmDialog(getWindowAncestor(),
                                               "Do you really want to remove " + pins.length + " selected pin(s)?\n" +
-                                                      "This action can not be undone.",
+                                              "This action can not be undone.",
                                               getDescriptor().getTitle() + " - Remove Pins",
                                               JOptionPane.OK_CANCEL_OPTION);
         if (i == JOptionPane.OK_OPTION) {
@@ -539,7 +539,7 @@ public class PinManagerToolView extends AbstractToolView {
     private void makePinNameUnique(Pin newPin) {
         if (makePinNameUnique(product, newPin)) {
             showWarningDialog("Pin has been renamed to '" + newPin.getName() + "',\n" +
-                    "because a pin with the former name already exists.");
+                              "because a pin with the former name already exists.");
         }
     }
 
@@ -629,17 +629,17 @@ public class PinManagerToolView extends AbstractToolView {
             }
 
             final PixelPos pixelPos;
-            if(product.getGeoCoding() != null && pin.getGeoPos() != null) {
+            if (product.getGeoCoding() != null && pin.getGeoPos() != null) {
                 pixelPos = product.getGeoCoding().getPixelPos(pin.getGeoPos(), null);
                 pin.setPixelPos(pixelPos);  // change pixel-pos accordingly to geo-pos
-            }else if(pin.getPixelPos() != null){
+            } else if (pin.getPixelPos() != null) {
                 pixelPos = pin.getPixelPos();
-            }else {
+            } else {
                 pixelPos = new PixelPos();
                 pixelPos.setInvalid();
             }
 
-            if(!pixelPos.isValid()){
+            if (!pixelPos.isValid()) {
                 numInvalids++;
                 continue;
             }
@@ -656,26 +656,26 @@ public class PinManagerToolView extends AbstractToolView {
 
         if (numInvalids > 0) {
             showWarningDialog("One or more pins have not been imported,\n" +
-                    "because they can not be assigned to a product without a geo-coding."); /*I18N*/
+                              "because they can not be assigned to a product without a geo-coding."); /*I18N*/
         }
         if (numPinsRenamed > 0) {
             showWarningDialog("One or more pins have been renamed,\n" +
-                    "because their former names are already existing."); /*I18N*/
+                              "because their former names are already existing."); /*I18N*/
         }
         if (numPinsOutOfBounds > 0) {
             if (numPinsOutOfBounds == pins.length) {
                 showErrorDialog("No pins have been imported, because their pixel\n" +
-                        "positions are outside the product's bounds."); /*I18N*/
+                                "positions are outside the product's bounds."); /*I18N*/
             } else {
                 showErrorDialog(numPinsOutOfBounds + " pins have not been imported, because their pixel\n" +
-                        "positions are outside the product's bounds."); /*I18N*/
+                                "positions are outside the product's bounds."); /*I18N*/
             }
         }
     }
 
     private static boolean makePinNameUnique(Product product, Pin pin) {
         if (product.getPin(pin.getName()) == pin) {
-            return false;            
+            return false;
         }
         String name0 = pin.getName();
         String name = name0;
@@ -795,10 +795,8 @@ public class PinManagerToolView extends AbstractToolView {
         for (int row = 0; row < rowCount; row++) {
             final Pin pin = product.getPinAt(row);
             pw.print(pin.getName() + "\t");
-            pw.print(pin.getPixelPos().getX() + "\t");
-            pw.print(pin.getPixelPos().getY() + "\t");
-            pw.print(pin.getGeoPos().getLat() + "\t");
-            pw.print(pin.getGeoPos().getLon() + "\t");
+            writePixelPos(pin, pw);
+            writeGeoPos(pin, pw);
             pw.print(pin.getLabel() + "\t");
             pw.print(pin.getDescription() + "\t");
             for (int col = columnCountMin; col < columnCount; col++) {
@@ -809,6 +807,26 @@ public class PinManagerToolView extends AbstractToolView {
         }
 
         pw.close();
+    }
+
+    private void writeGeoPos(Pin pin, PrintWriter pw) {
+        if (pin.getGeoPos() != null) {
+            pw.print(pin.getGeoPos().getLat() + "\t");
+            pw.print(pin.getGeoPos().getLon() + "\t");
+        }else {
+            pw.print("n.a." + "\t");
+            pw.print("n.a." + "\t");
+        }
+    }
+
+    private void writePixelPos(Pin pin, PrintWriter pw) {
+        if (pin.getPixelPos() != null) {
+            pw.print(pin.getPixelPos().getX() + "\t");
+            pw.print(pin.getPixelPos().getY() + "\t");
+        }else {
+            pw.print("n.a." + "\t");
+            pw.print("n.a." + "\t");
+        }
     }
 
     private static void writePinsToFile(Pin[] pins, File outputFile) throws IOException {
@@ -870,7 +888,7 @@ public class PinManagerToolView extends AbstractToolView {
                 int labelIndex = StringUtils.indexOf(strings, LABEL_COL_NAME);
                 if (nameIndex == -1 || lonIndex == -1 || latIndex == -1) {
                     throw new IOException("Invalid pin file format:\n" +
-                            "at least the columns 'Name', 'Lon' and 'Lat' must be given.");
+                                          "at least the columns 'Name', 'Lon' and 'Lat' must be given.");
                 }
                 biggestIndex = biggestIndex > nameIndex ? biggestIndex : nameIndex;
                 biggestIndex = biggestIndex > lonIndex ? biggestIndex : lonIndex;
@@ -890,14 +908,14 @@ public class PinManagerToolView extends AbstractToolView {
                         lon = Float.parseFloat(strings[columnIndexes[indexForLon]]);
                     } catch (NumberFormatException e) {
                         throw new IOException("Invalid pin file format:\n" +
-                                "data row " + row + ": value for 'Lon' is invalid");      /*I18N*/
+                                              "data row " + row + ": value for 'Lon' is invalid");      /*I18N*/
                     }
                     float lat;
                     try {
                         lat = Float.parseFloat(strings[columnIndexes[indexForLat]]);
                     } catch (NumberFormatException e) {
                         throw new IOException("Invalid pin file format:\n" +
-                                "data row " + row + ": value for 'Lat' is invalid");      /*I18N*/
+                                              "data row " + row + ": value for 'Lat' is invalid");      /*I18N*/
                     }
                     String desc = null;
                     if (columnIndexes[indexForDesc] >= 0 && strings.length > columnIndexes[indexForDesc]) {
@@ -914,7 +932,7 @@ public class PinManagerToolView extends AbstractToolView {
                     pins.add(pin);
                 } else {
                     throw new IOException("Invalid pin file format:\n" +
-                            "data row " + row + ": values for 'Name', 'Lon' and 'Lat' must be given.");   /*I18N*/
+                                          "data row " + row + ": values for 'Name', 'Lon' and 'Lat' must be given.");   /*I18N*/
                 }
             }
         }
@@ -1064,12 +1082,12 @@ public class PinManagerToolView extends AbstractToolView {
             int minWidth;
             final int index = e.getToIndex();
             switch (index) {
-                case 0:
-                case 1:
-                    minWidth = 40;
-                    break;
-                default:
-                    minWidth = 80;
+            case 0:
+            case 1:
+                minWidth = 40;
+                break;
+            default:
+                minWidth = 80;
             }
             TableColumnModel columnModel = (TableColumnModel) e.getSource();
             columnModel.getColumn(index).setPreferredWidth(minWidth);
@@ -1192,6 +1210,7 @@ public class PinManagerToolView extends AbstractToolView {
      *
      * @param product  must be given and must contain a geocoding.
      * @param pixelPos must be given.
+     *
      * @return the geographical position which is equivalent to the given pixel position or <code>null</code> if the
      *         given pixel position is outside of the given product or the geocoding cannot get geographical positions.
      */
