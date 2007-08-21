@@ -307,24 +307,6 @@ class ExportPinPixelsDialog extends ModalDialog {
     }
 
     /**
-     * @deprecated use (@link #show(String, Product)) instead.
-     */
-    int show(final String pinLabel) {
-        final ProductSceneView view = visatApp.getSelectedProductSceneView();
-        if (view != null) {
-            product = view.getProduct();
-        }
-        return show(pinLabel, product);
-    }
-
-    /**
-     * @deprecated use {@link #show(String,Product)} instead.
-     */
-    public int show() {
-        return super.show();
-    }
-
-    /**
      * Extracts an integer value "size" out of a String size x size
      */
     private int extractRegionSize(final String userSelectedRegionSize) {

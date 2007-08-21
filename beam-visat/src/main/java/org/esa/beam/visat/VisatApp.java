@@ -265,18 +265,6 @@ public final class VisatApp extends BasicApp {
      * default value for preference save product history (History) or not
      */
     public static final boolean DEFAULT_VALUE_SAVE_PRODUCT_HISTORY = true;
-    /**
-     * @deprecated use {@link RGBImageProfile#RED_BAND_NAME} instead
-     */
-    public static final String VIRTUAL_RED_BAND_NAME = RGBImageProfile.RED_BAND_NAME;
-    /**
-     * @deprecated use {@link RGBImageProfile#GREEN_BAND_NAME} instead
-     */
-    public static final String VIRTUAL_GREEN_BAND_NAME = RGBImageProfile.GREEN_BAND_NAME;
-    /**
-     * @deprecated use {@link RGBImageProfile#BLUE_BAND_NAME} instead
-     */
-    public static final String VIRTUAL_BLUE_BAND_NAME = RGBImageProfile.BLUE_BAND_NAME;
 
     public static final String ERROR_MESSAGE_PRODUCT_IS_ALREADY_OPENED = "The product is already open.\n"
                                                                          + "A product can only be opened once."; /*I18N*/
@@ -517,16 +505,6 @@ public final class VisatApp extends BasicApp {
     public VisatPreferencesDialog getPreferencesDialog() {
         return preferencesDialog;
     }
-
-// <old-UI>
-//    /**
-//     * @return the product browser pane which also contains the pixel info view tab.
-//     * @deprecated
-//     */
-//    public JTabbedPane getBrowserPane() {
-//        return _browserPane;
-//    }
-// </old-UI>
 
     /**
      * @return the scrollable desktop pane used by VISAT
@@ -1385,27 +1363,6 @@ public final class VisatApp extends BasicApp {
     }
 
     /**
-     * Loads the raster data for the given data node.
-     *
-     * @param raster
-     *
-     * @deprecated use {@link RasterDataNode#readRasterDataFully() raster.readRasterDataFully()}  instead
-     */
-    public synchronized boolean loadProductRasterData(final RasterDataNode raster) {
-        final SwingWorker<Boolean, Object> worker = new SwingWorker<Boolean, Object>() {
-            @Override
-            protected Boolean doInBackground() throws Exception {
-                return loadProductRasterDataImpl(raster, ProgressMonitor.NULL) ? Boolean.TRUE : Boolean.FALSE;
-            }
-        };
-        worker.execute();
-        // CAUTION: Here, worker is possibly still working in doInBackground()!!!
-
-        // @todo 1 nf/nf - ERROR: this is NOT always true!
-        return true;
-    }
-
-    /**
      * Shows VISAT's about box.
      */
     public static synchronized void showAboutBox() {
@@ -2133,18 +2090,6 @@ public final class VisatApp extends BasicApp {
         }
         plugInManager.updatePluginsComponentTreeUI();
         getCommandManager().updateComponentTreeUI();
-    }
-
-    /**
-     * Do not use this method! It is public as an implementation side-effect and provided for internal use only.
-     *
-     * @deprecated provided for internal, temporarily use only
-     */
-    public void showCommandNotImplemented(final CommandEvent event) {
-        final String commandID = event.getCommand().getCommandID();
-        showErrorDialog("Command not implemented",
-                        "Sorry, the command '" + commandID + "' is a VISAT Version 1.0 feature.\n"
-                        + "It is not implemented in this beta release.");
     }
 
     private Product getSelectedProductChecked() {

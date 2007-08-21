@@ -55,7 +55,7 @@ public class ConvolutionFilterBand extends FilterBand {
      * @throws IllegalArgumentException if the raster is null
      * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
      *                                  which this product raster belongs to, has no associated product reader
-     * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData
+     * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData(Band, int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor) 
      */
     @Override
     public void readRasterData(int offsetX, int offsetY, int width, int height, ProductData rasterData,

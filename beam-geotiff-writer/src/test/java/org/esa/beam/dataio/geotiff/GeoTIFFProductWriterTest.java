@@ -16,6 +16,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import com.bc.ceres.core.ProgressMonitor;
+
 public class GeoTIFFProductWriterTest extends TestCase {
 
     private static final String FILENAME = "temp.tif";
@@ -40,7 +42,6 @@ public class GeoTIFFProductWriterTest extends TestCase {
     public void testGeoTIFFProductWriterCreation() {
         final GeoTIFFProductWriter productWriter = new GeoTIFFProductWriter(new GeoTIFFProductWriterPlugIn());
 
-        assertTrue(productWriter.isProgressListeningEnabled());
         assertNotNull(productWriter.getWriterPlugIn());
     }
 
@@ -74,8 +75,8 @@ public class GeoTIFFProductWriterTest extends TestCase {
         final int width = product.getSceneRasterWidth();
         final int height = product.getSceneRasterHeight();
         final Band[] bands = product.getBands();
-        for (int i = 0; i < bands.length; i++) {
-            _productWriter.writeBandRasterData(bands[i], 0, 0, width, height, bands[i].getData());
+        for (Band band : bands) {
+            _productWriter.writeBandRasterData(band, 0, 0, width, height, band.getData(), ProgressMonitor.NULL);
         }
     }
 

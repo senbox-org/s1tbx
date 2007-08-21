@@ -117,23 +117,6 @@ public class GeoTIFFProductWriter extends AbstractProductWriter {
                                     final int sourceOffsetY,
                                     final int sourceWidth,
                                     final int sourceHeight,
-                                    final ProductData sourceBuffer) throws IOException {
-
-        writeBandRasterData(sourceBand,
-                            sourceOffsetX, sourceOffsetY,
-                            sourceWidth, sourceHeight,
-                            sourceBuffer,
-                            ProgressMonitor.NULL);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void writeBandRasterData(final Band sourceBand,
-                                    final int sourceOffsetX,
-                                    final int sourceOffsetY,
-                                    final int sourceWidth,
-                                    final int sourceHeight,
                                     final ProductData sourceBuffer,
                                     ProgressMonitor pm) throws IOException {
 

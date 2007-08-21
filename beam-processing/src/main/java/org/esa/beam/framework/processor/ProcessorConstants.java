@@ -40,13 +40,6 @@ public interface ProcessorConstants {
     String OUTPUT_FORMAT_LABELTEXT = "Output product format"; /*I18N*/
     // Default value for output format parameter description
     String OUTPUT_FORMAT_DESCRIPTION = "Select one of the available output product formats."; /*I18N*/
-
-    /**
-     * Default directory path parameter
-     * @deprecated no replacement
-     */
-    String DEFAULT_DIR_PATH = "";
-
     // parameter name for the parameter log_file
     String LOG_FILE_PARAM_NAME = "log_file"; /*I18N*/
     // default value for label for parameter logging file

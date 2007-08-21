@@ -44,7 +44,7 @@ abstract public class L3SubProcessor {
     }
 
     /**
-     * @deprecated use {@link #process(com.bc.ceres.core.ProgressMonitor)} isntead
+     * @deprecated in 4.0, implement {@link #process(com.bc.ceres.core.ProgressMonitor)}
      */
     public void process() throws ProcessorException {
         process(ProgressMonitor.NULL);

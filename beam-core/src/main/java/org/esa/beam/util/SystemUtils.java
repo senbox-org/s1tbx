@@ -306,7 +306,7 @@ public class SystemUtils {
      *
      * @return the auxdata directory
      *
-     * @deprecated use {@link ResourceScanner} instead
+     * @deprecated in 4.0, use {@link ResourceScanner} instead
      */
     public static File getBeamAuxdataDir() {
         CodeSource cs = SystemUtils.class.getProtectionDomain().getCodeSource();

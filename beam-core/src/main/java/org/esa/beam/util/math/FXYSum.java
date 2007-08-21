@@ -174,31 +174,6 @@ public class FXYSum {
         /*8*/ FXY.X4Y4,
     };
 
-    /**
-     * @deprecated use {@link #FXY_LINEAR} instead
-     */
-    public static final FXY[] FXY_BI_LINEAR_SPARE = FXY_LINEAR;
-
-    /**
-     * @deprecated use {@link #FXY_QUADRATIC} instead
-     */
-    public static final FXY[] FXY_BI_QUADRIC_SPARE = FXY_QUADRATIC;
-
-    /**
-     * @deprecated use {@link #FXY_CUBIC} instead
-     */
-    public static final FXY[] FXY_BI_CUBIC_SPARE = FXY_CUBIC;
-
-    /**
-     * @deprecated use {@link #FXY_QUADRATIC} instead
-     */
-    public static final FXY[] FXY_QUADRIC = FXY_QUADRATIC;
-
-    /**
-     * @deprecated use {@link #FXY_BI_QUADRATIC} instead
-     */
-    public static final FXY[] FXY_BI_QUADRIC = FXY_BI_QUADRATIC;
-
     private final FXY[] _f;
     private final double[] _c;
     private final int _order;
@@ -288,16 +263,6 @@ public class FXYSum {
         return _order;
     }
 
-    /**
-     * Gets the root mean square error.
-     *
-     * @return the root mean square error
-     *
-     * @deprecated use {@link #getRootMeanSquareError()} instead
-     */
-    public double getRMSE() {
-        return getRootMeanSquareError();
-    }
 
     /**
      * Gets the root mean square error.
@@ -370,13 +335,6 @@ public class FXYSum {
     }
 
     /**
-     * @deprecated use {@link #approximate(double[][], int[])} instead
-     */
-    public void approximate(double[][] data, int[] indices, double eps) {
-        approximate(data, indices);
-    }
-
-    /**
      * Returns this sum of function terms as human-readable C-code.
      *
      * @param fname the name of the function z(x,y) = sum(C[i]*F[i](x,y), i, n)
@@ -391,15 +349,6 @@ public class FXYSum {
         appendCFunctionCodeBody(fname, x, y, sb);
         appendCFunctionCodeEnd(fname, x, y, sb);
         return sb.toString();
-    }
-
-    /**
-     * @deprecated
-     */
-    protected StringBuffer createCFunctionCodeStart(final String fname, final String x, final String y) {
-        final StringBuffer sb = new StringBuffer(256 + getNumTerms() * 10);
-        appendCFunctionCodeStart(fname, x, y, sb);
-        return sb;
     }
 
     protected void appendCFunctionCodeStart(final String fname, final String x, final String y, StringBuffer sb) {

@@ -222,34 +222,6 @@ public class L3Context {
         return _gridCellSize;
     }
 
-    /**
-     * @deprecated use getBorder() instead
-     */
-    public float getLatMin() {
-        return _latMin;
-    }
-
-    /**
-     * @deprecated use getBorder() instead
-     */
-    public float getLatMax() {
-        return _latMax;
-    }
-
-    /**
-     * @deprecated use getBorder() instead
-     */
-    public float getLonMin() {
-        return _lonMin;
-    }
-
-    /**
-     * @deprecated use getBorder() instead
-     */
-    public float getLonMax() {
-        return _lonMax;
-    }
-
     public Rectangle2D getBorder() {
         return new Rectangle2D.Float(_lonMin, _latMin, _lonMax - _lonMin, _latMax - _latMin);
     }

@@ -70,11 +70,4 @@ public class Ellipsoid {
             throw new IllegalStateException(e);
         }
     }
-
-    /**
-     * @deprecated use {@link #clone()} instead. A Datum is immutable, you should not need to clone it.
-     */
-    public Ellipsoid createDeepClone() {
-        return (Ellipsoid) clone();
-    }
 }

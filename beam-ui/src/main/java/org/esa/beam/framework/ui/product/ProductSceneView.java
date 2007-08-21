@@ -96,36 +96,24 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
     private ProductSceneImage sceneImage;
 
     /**
-     * Constructs a color indexed image view for the given product raster.
-     *
-     * @param raster     the product raster, must not be null
-     * @param layerModel the layer model to be reused, must not be null
-     *
-     * @deprecated use {@link #ProductSceneView(ProductSceneImage)} instead
+     * @deprecated in 4.1, use {@link #ProductSceneView(ProductSceneImage)} instead
+     * @see ProductSceneImage#create(org.esa.beam.framework.datamodel.RasterDataNode, com.bc.layer.LayerModel, com.bc.ceres.core.ProgressMonitor)
      */
     public ProductSceneView(RasterDataNode raster, LayerModel layerModel) throws IOException {
         this(ProductSceneImage.create(raster, layerModel, ProgressMonitor.NULL));
     }
 
     /**
-     * Constructs a color indexed image view for the given product raster.
-     *
-     * @param raster the product raster, must not be null
-     *
-     * @deprecated use {@link #ProductSceneView(ProductSceneImage)} instead
+     * @deprecated in 4.1, use {@link #ProductSceneView(ProductSceneImage)} instead
+     * @see ProductSceneImage#create(org.esa.beam.framework.datamodel.RasterDataNode, com.bc.ceres.core.ProgressMonitor)
      */
     public ProductSceneView(RasterDataNode raster) throws IOException {
         this(ProductSceneImage.create(raster, ProgressMonitor.NULL));
     }
 
     /**
-     * Constructs an RGB image view for the given raster datasets.
-     *
-     * @param redRaster   the product raster used for the red color component, must not be null
-     * @param greenRaster the product raster used for the green color component, must not be null
-     * @param blueRaster  the product raster used for the blue color component, must not be null
-     *
-     * @deprecated use {@link #ProductSceneView(ProductSceneImage)} instead
+     * @deprecated in 4.1, use {@link #ProductSceneView(ProductSceneImage)} instead
+     * @see ProductSceneImage#create(org.esa.beam.framework.datamodel.RasterDataNode, org.esa.beam.framework.datamodel.RasterDataNode, org.esa.beam.framework.datamodel.RasterDataNode, com.bc.ceres.core.ProgressMonitor)
      */
     public ProductSceneView(RasterDataNode redRaster,
                             RasterDataNode greenRaster,
@@ -378,7 +366,7 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
     }
 
     /**
-     * @deprecated use {@link #updateROIImage(boolean, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.1, use {@link #updateROIImage(boolean, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public void updateROIImage(boolean recreate) throws IOException {
         updateROIImage(recreate, ProgressMonitor.NULL);
@@ -570,13 +558,6 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
      */
     public void setStatusMessage(String message) {
         getImageDisplay().setStatusMessage(message);
-    }
-
-    /**
-     * @deprecated use {@link #addFigure}
-     */
-    public void addROIFigure(Figure figure) {
-        addFigure(figure);
     }
 
     /**

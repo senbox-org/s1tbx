@@ -92,14 +92,6 @@ public class GETASSE30ElevationModel implements ElevationModel, Resampling.Raste
         return RASTER_HEIGHT;
     }
 
-    public boolean isNoDataValueUsed() {
-        return true;
-    }
-
-    public float getNoDataValue() {
-        return _descriptor.getNoDataValue();
-    }
-
     public float getSample(int pixelX, int pixelY) throws IOException {
         final int tileXIndex = pixelX / NUM_PIXELS_PER_TILE;
         final int tileYIndex = pixelY / NUM_PIXELS_PER_TILE;

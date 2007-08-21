@@ -209,18 +209,6 @@ public class ProcessingNodeTest extends TestCase {
             return product;
         }
 
-        /**
-         * @deprecated
-         */
-        public void readBandRasterData(Band destBand, int destOffsetX, int destOffsetY, int destWidth, int destHeight,
-                                       ProductData destBuffer) throws IOException {
-            readBandRasterData(destBand,
-                               destOffsetX, destOffsetY,
-                               destWidth, destHeight,
-                               destBuffer,
-                               ProgressMonitor.NULL);
-        }
-
         public void readBandRasterData(Band destBand, int destOffsetX, int destOffsetY, int destWidth, int destHeight,
                                        ProductData destBuffer, ProgressMonitor pm) throws IOException {
             pm.beginTask("Reading raster data", destHeight);

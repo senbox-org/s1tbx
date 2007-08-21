@@ -551,12 +551,5 @@ public class MathUtils {
         }
         return rectangles;
     }
-
-    /**
-     * @deprecated Use {@link #subdivideRectangle(int, int, int, int, int)} instead :-)
-     */
-    public static Rectangle[] sudivideRectangle(int width, int height, int numTilesX, int numTilesY, int extraBorder) {
-        return subdivideRectangle(width, height, numTilesX, numTilesY, extraBorder);
-    }
 }
 

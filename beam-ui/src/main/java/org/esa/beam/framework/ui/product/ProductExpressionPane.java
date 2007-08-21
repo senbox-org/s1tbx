@@ -65,13 +65,6 @@ public class ProductExpressionPane extends ExpressionPane {
         init();
     }
 
-    /**
-     * @deprecated use {@link #createBooleanExpressionPane(org.esa.beam.framework.datamodel.Product[], org.esa.beam.framework.datamodel.Product, org.esa.beam.util.PropertyMap)}  instead
-     */
-    public static ProductExpressionPane createBitmaskExpressionPane(Product product, PropertyMap preferences) {
-        return createBooleanExpressionPane(new Product[]{product}, product, preferences);
-    }
-
     public static ProductExpressionPane createBooleanExpressionPane(Product[] products, Product currentProduct,
                                                                     PropertyMap preferences) {
         return new ProductExpressionPane(true, products, currentProduct, preferences);

@@ -75,30 +75,9 @@ public class RGBImageProfile implements ConfigurableExtension {
     public final static String PROPERTY_KEY_INTERNAL = "internal";
 
     /**
-     * Preferences key for rgb profile entries
+     * Preferences key for RGB profile entries
      */
     public final static String PROPERTY_KEY_PREFIX_RGB_PROFILE = "rgbProfile";
-    /**
-     * @deprecated no replacement
-     */
-    public final static String PROPERTY_KEY_SUFFIX_PRODUCT_TYPES = "productTypes";
-    /**
-     * @deprecated use {@link #PROPERTY_KEY_RED} instead
-     */
-    public final static String PROPERTY_KEY_SUFFIX_RED_EXPRESSION = PROPERTY_KEY_RED;
-    /**
-     * @deprecated use {@link #PROPERTY_KEY_GREEN} instead
-     */
-    public final static String PROPERTY_KEY_SUFFIX_GREEN_EXPRESSION = PROPERTY_KEY_GREEN;
-    /**
-     * @deprecated use {@link #PROPERTY_KEY_BLUE} instead
-     */
-    public final static String PROPERTY_KEY_SUFFIX_BLUE_EXPRESSION = PROPERTY_KEY_BLUE;
-    /**
-     * @deprecated use {@link #PROPERTY_KEY_INTERNAL} instead
-     */
-    public final static String PROPERTY_KEY_SUFFIX_INTERNAL = PROPERTY_KEY_INTERNAL;
-
 
     private final static int R = 0;
     private final static int G = 1;

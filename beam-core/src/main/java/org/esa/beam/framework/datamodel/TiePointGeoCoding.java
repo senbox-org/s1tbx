@@ -652,73 +652,8 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         return _normalizedLonGrid;
     }
 
-    /////////////////////////////////////////////////////////////////////////
-    // Deprecated methods
-
-    /**
-     * @deprecated use {@link #isCrossingMeridianAt180()} instead
-     */
-    public boolean isNormalized() {
-        return _normalized;
-    }
-
     float getNormalizedLonMin() {
         return _normalizedLonMin;
-    }
-
-    /**
-     * @deprecated no replacement, will be removed from public interface (unit-testing only)
-     */
-    public float getNormalizedLonMax() {
-        return _normalizedLonMax;
-    }
-
-    /**
-     * @deprecated no replacement
-     */
-    public void setNormalizedLonMax(float normalizedLonMax) {
-        _normalizedLonMax = normalizedLonMax;
-    }
-
-    /**
-     * @return <code>getApproximation(0).getFX()</code>
-     *
-     * @deprecated use {@link #getApproximation} and {@link org.esa.beam.framework.datamodel.TiePointGeoCoding.Approximation#getFX()} instead
-     */
-    public FXYSum getXApprox() {
-        return getApproximation(0).getFX();
-    }
-
-    /**
-     * @return <code>getApproximation(0).getFY()</code>
-     *
-     * @deprecated use {@link #getApproximation} and {@link org.esa.beam.framework.datamodel.TiePointGeoCoding.Approximation#getFY()} instead
-     */
-    public FXYSum getYApprox() {
-        return getApproximation(0).getFY();
-    }
-
-    /**
-     * @return always true
-     *
-     * @deprecated no replacements
-     */
-    public boolean isUsingApprox() {
-        return true;
-    }
-
-    /**
-     * @deprecated use {@link #getPixelPos(GeoPos, PixelPos)} instead
-     */
-    public PixelPos getApproxPixelPos(GeoPos geoPos, PixelPos pixelPos) {
-        return getPixelPos(geoPos, pixelPos);
-    }
-
-    /**
-     * @deprecated use {@link #getPixelPos(GeoPos, PixelPos)} instead
-     */
-    public PixelPos getNonApproxPixelPos(final GeoPos geoPos, PixelPos pixelPos) {
-        return getPixelPos(geoPos, pixelPos);
     }
 
     /**

@@ -63,10 +63,6 @@ public class ProductUtils {
     private static final int[] RGB_BAND_OFFSETS = new int[]{
             2, 1, 0
     };
-    /**
-     * @deprecated use {@link Product#HISTORY_ROOT_NAME} instead
-     */
-    public static final String NODE_NAME_HISTORY = "History";
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Basic Image Creation Routines
@@ -111,29 +107,7 @@ public class ProductUtils {
     }
 
     /**
-     * Creates an image from the given <code>{@link org.esa.beam.framework.datamodel.RasterDataNode}</code>s. If no
-     * bitmasks are defined, a non-overlayed image is created.
-     * <p/>
-     * <p>Depending on the number of <code>RasterDataNode</code>s given in the array a greyscale/palette-based or RGB
-     * image is created.
-     * <p/>
-     * <p>The method uses the image display information given by the <code>{@link org.esa.beam.framework.datamodel.ImageInfo
-     * ImageInfo}</code> and <code>{@link org.esa.beam.framework.datamodel.BitmaskOverlayInfo BitmaskOverlayInfo}</code>
-     * properties of each of the bands.
-     *
-     * @param rasterDataNodes   the array of raster data nodes to be used for image creation, if length is one a
-     *                          greyscale/palette-based image is created, if the length is three, a RGB image is
-     *                          created
-     * @param histogramMatching the optional histogram matching to be performed: can be either
-     *                          <code>ImageInfo.HISTOGRAM_MATCHING_EQUALIZE</code> or <code>ImageInfo.HISTOGRAM_MATCHING_NORMALIZE</code>.
-     *                          If this parameter is <code>null</code> or any other value, no histogram matching is
-     *                          applied.
-     * @return a greyscale/palette-based or RGB image depending on the number of raster data nodes given
-     * @throws IOException if the given raster data is not loaded and reload causes an I/O error
-     * @see RasterDataNode#setImageInfo
-     * @see RasterDataNode#setBitmaskOverlayInfo
-     * @see org.esa.beam.framework.datamodel.ImageInfo
-     * @deprecated use {@link #createOverlayedImage(RasterDataNode[], String, ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #createOverlayedImage(RasterDataNode[], String, ProgressMonitor)} instead
      */
     public static RenderedImage createOverlayedImage(final RasterDataNode[] rasterDataNodes,
                                                      final String histogramMatching) throws IOException {
@@ -223,16 +197,7 @@ public class ProductUtils {
     }
 
     /**
-     * Creates a greyscale image from the given <code>{@link org.esa.beam.framework.datamodel.RasterDataNode}</code>.
-     * <p/>
-     * <p>The method uses the given raster data node's image information (an instance of <code>{@link
-     * org.esa.beam.framework.datamodel.ImageInfo}</code>) to create the image.
-     *
-     * @param rasterDataNode the raster data node, must not be <code>null</code>
-     * @return the color indexed image
-     * @throws IOException if the given raster data is not loaded and reload causes an I/O error
-     * @see RasterDataNode#setImageInfo
-     * @deprecated use {@link #createColorIndexedImage(RasterDataNode, ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #createColorIndexedImage(RasterDataNode, ProgressMonitor)} instead
      */
     public static BufferedImage createColorIndexedImage(final RasterDataNode rasterDataNode) throws IOException {
         return createColorIndexedImage(rasterDataNode, ProgressMonitor.NULL);
@@ -283,15 +248,7 @@ public class ProductUtils {
     }
 
     /**
-     * Creates a RGB image from the given array of <code>{@link org.esa.beam.framework.datamodel.RasterDataNode}</code>s.
-     * The given array <code>rasterDataNodes</code> contain three raster data nodes to be used for the red, green and
-     * blue components of the RGB image to be created.
-     *
-     * @param rasterDataNodes an array of exactly three raster nodes to be used for the R,G and B component.
-     * @return the RGB image
-     * @throws IOException if the given raster data is not loaded and reload causes an I/O error
-     * @see RasterDataNode#setImageInfo
-     * @deprecated use {@link #createRgbImage(org.esa.beam.framework.datamodel.RasterDataNode[], com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #createRgbImage(org.esa.beam.framework.datamodel.RasterDataNode[], com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static BufferedImage createRgbImage(final RasterDataNode[] rasterDataNodes) throws IOException {
         return createRgbImage(rasterDataNodes, ProgressMonitor.NULL);
@@ -1192,21 +1149,7 @@ public class ProductUtils {
     }
 
     /**
-     * Creates a scatter plot image from two raster data nodes.
-     *
-     * @param raster1    the first raster data node
-     * @param sampleMin1 the minimum sample value to be considered in the first raster
-     * @param sampleMax1 the maximum sample value to be considered in the first raster
-     * @param raster2    the second raster data node
-     * @param sampleMin2 the minimum sample value to be considered in the second raster
-     * @param sampleMax2 the maximum sample value to be considered in the second raster
-     * @param roi        an otional ROI to be used for the computation
-     * @param width      the width of the output image
-     * @param height     the height of the output image
-     * @param background the background color of the output image
-     * @param image      an image to be used as output image, if <code>null</code> a new image is created
-     * @return the scatter plot image
-     * @deprecated use {@link #createScatterPlotImage(RasterDataNode, float, float, RasterDataNode, float, float, ROI, int, int, Color, BufferedImage, ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #createScatterPlotImage(RasterDataNode, float, float, RasterDataNode, float, float, ROI, int, int, Color, BufferedImage, ProgressMonitor)} instead
      */
     public static BufferedImage createScatterPlotImage(final RasterDataNode raster1,
                                                        final float sampleMin1,
@@ -1353,14 +1296,7 @@ public class ProductUtils {
     }
 
     /**
-     * Draws all the activated bitmasks to the given ovelayPIm image.
-     * The returned image is a new instance of planar image, not the given image!
-     *
-     * @param raster     the raster data node which contains all the activated bitmask definitions
-     * @param overlayPIm the source image which is used as base image for all the overlays.
-     * @return a new planar image which contains the source image and all the activated bitmasks.
-     * @throws IOException if any reading process fails.
-     * @deprecated use {@link #overlayBitmasks(org.esa.beam.framework.datamodel.RasterDataNode, javax.media.jai.PlanarImage, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #overlayBitmasks(org.esa.beam.framework.datamodel.RasterDataNode, javax.media.jai.PlanarImage, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static PlanarImage overlayBitmasks(RasterDataNode raster, PlanarImage overlayPIm) throws IOException {
         return overlayBitmasks(raster, overlayPIm, ProgressMonitor.NULL);
@@ -1452,13 +1388,7 @@ public class ProductUtils {
     }
 
     /**
-     * Draws all the activated bitmasks to the given ovelayBIm image.
-     *
-     * @param raster     the raster data node which contains all the activated bitmask definitions
-     * @param overlayBIm the source image which is used as base image for all the overlays.
-     * @return the modified given overlaBImm which contains all the activated bitmasks.
-     * @throws IOException if any reading process fails.
-     * @deprecated use {@link #overlayBitmasks(org.esa.beam.framework.datamodel.RasterDataNode, java.awt.image.BufferedImage, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #overlayBitmasks(org.esa.beam.framework.datamodel.RasterDataNode, java.awt.image.BufferedImage, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static BufferedImage overlayBitmasks(final RasterDataNode raster, final BufferedImage overlayBIm) throws
             IOException {
@@ -2364,59 +2294,6 @@ public class ProductUtils {
         }
     }
 
-    /////////////////////////////////////////////////////////////////////////
-    // Deprecated methods
-
-    /**
-     * @deprecated Don't use this method anymore! Please use {@link #createGeoBoundaryPaths} instead.
-     */
-    public static GeneralPath createGeoBoundaryPath(Product product) {
-        final Rectangle rect = new Rectangle(0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());
-        final int step = Math.min(rect.width, rect.height) / 8;
-        return createGeoBoundaryPath(product, rect, step > 0 ? step : 1);
-    }
-
-    /**
-     * @deprecated Don't use this method anymore! Please use {@link #createGeoBoundaryPaths} instead.
-     */
-    public static GeneralPath createGeoBoundaryPath(Product product, Rectangle rect, int step) {
-        GeoPos[] geoPoints = createGeoBoundary(product, rect, step);
-        GeneralPath path = new GeneralPath(GeneralPath.WIND_NON_ZERO, geoPoints.length + 8);
-        if (geoPoints.length > 1) {
-            path.moveTo(geoPoints[0].getLon(), geoPoints[0].getLat());
-            for (int i = 1; i < geoPoints.length; i++) {
-                path.lineTo(geoPoints[i].getLon(), geoPoints[i].getLat());
-            }
-            path.closePath();
-        }
-        return path;
-    }
-
-    /**
-     * Adds bands to the given destination product.
-     *
-     * @param sourceProduct      the source product as the source for the band specifications. Must be not
-     *                           <code>null</code>.
-     * @param destinationProduct the destination product to receive the bands created. Must be not <code>null</code>.
-     * @param subsetDef          ignored
-     * @return a map which contains the mapping from destination bands to the source bands. Never <code>null</code>.
-     * @deprecated use {@link #copyBandsForGeomTransform} instead
-     */
-    public static Map addBandsToProduct(final Product sourceProduct,
-                                        final Product destinationProduct,
-                                        final ProductSubsetDef subsetDef) {
-        final HashMap addedBands = new HashMap();
-        copyBandsForGeomTransform(sourceProduct, destinationProduct, 0, addedBands);
-        return addedBands;
-    }
-
-    /**
-     * @deprecated use {@link #normalizeGeoPolygon} instead
-     */
-    public static int normalizeGeoBoundary(GeoPos[] polygon) {
-        return normalizeGeoPolygon(polygon);
-    }
-
     static ArrayList assemblePathList(GeoPos[] geoPoints) {
         final GeneralPath path = new GeneralPath(GeneralPath.WIND_NON_ZERO, geoPoints.length + 8);
         final ArrayList pathList = new ArrayList();
@@ -2456,4 +2333,34 @@ public class ProductUtils {
         }
         return pathList;
     }
+
+
+    /////////////////////////////////////////////////////////////////////////
+    // Deprecated API
+
+    /**
+     * @deprecated in 3.x, use {@link #createGeoBoundaryPaths}
+     */
+    public static GeneralPath createGeoBoundaryPath(Product product) {
+        final Rectangle rect = new Rectangle(0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());
+        final int step = Math.min(rect.width, rect.height) / 8;
+        return createGeoBoundaryPath(product, rect, step > 0 ? step : 1);
+    }
+
+    /**
+     * @deprecated in 3.x, use {@link #createGeoBoundaryPaths}
+     */
+    public static GeneralPath createGeoBoundaryPath(Product product, Rectangle rect, int step) {
+        GeoPos[] geoPoints = createGeoBoundary(product, rect, step);
+        GeneralPath path = new GeneralPath(GeneralPath.WIND_NON_ZERO, geoPoints.length + 8);
+        if (geoPoints.length > 1) {
+            path.moveTo(geoPoints[0].getLon(), geoPoints[0].getLat());
+            for (int i = 1; i < geoPoints.length; i++) {
+                path.lineTo(geoPoints[i].getLon(), geoPoints[i].getLat());
+            }
+            path.closePath();
+        }
+        return path;
+    }
+
 }

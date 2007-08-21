@@ -1044,7 +1044,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
 
     /**
-     * @deprecated use {@link #getPixels(int, int, int, int, int[], ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #getPixels(int, int, int, int, int[], ProgressMonitor)}
      */
     public int[] getPixels(int x, int y, int w, int h, int[] pixels) {
         return getPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1064,7 +1064,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public abstract int[] getPixels(int x, int y, int w, int h, int[] pixels, ProgressMonitor pm);
 
     /**
-     * @deprecated use {@link #getPixels(int, int, int, int, float[], ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #getPixels(int, int, int, int, float[], ProgressMonitor)}
      */
     public float[] getPixels(int x, int y, int w, int h, float[] pixels) {
         return getPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1084,7 +1084,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public abstract float[] getPixels(int x, int y, int w, int h, float[] pixels, ProgressMonitor pm);
 
     /**
-     * @deprecated use {@link #getPixels(int, int, int, int, double[], ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #getPixels(int, int, int, int, double[], ProgressMonitor)}
      */
     public double[] getPixels(int x, int y, int w, int h, double[] pixels) {
         return getPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1144,7 +1144,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public abstract void setPixels(int x, int y, int w, int h, double[] pixels);
 
     /**
-     * @deprecated use {@link #readPixels(int, int, int, int, int[], ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #readPixels(int, int, int, int, int[], ProgressMonitor)}
      */
     public int[] readPixels(int x, int y, int w, int h, int[] pixels) throws IOException {
         return readPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1167,7 +1167,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public abstract int[] readPixels(int x, int y, int w, int h, int[] pixels, ProgressMonitor pm) throws IOException;
 
     /**
-     * @deprecated use {@link #readPixels(int, int, int, int, float[], ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #readPixels(int, int, int, int, float[], ProgressMonitor)}
      */
     public float[] readPixels(int x, int y, int w, int h, float[] pixels) throws IOException {
         return readPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1191,7 +1191,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             IOException;
 
     /**
-     * @deprecated use {@link #readPixels(int, int, int, int, double[], ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #readPixels(int, int, int, int, double[], ProgressMonitor)}
      */
     public double[] readPixels(int x, int y, int w, int h, double[] pixels) throws IOException {
         return readPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1215,14 +1215,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             IOException;
 
     /**
-     * Writes the range of given pixels specified to the specified coordinates as integers.
-     *
-     * @param x      x offset into the band
-     * @param y      y offset into the band
-     * @param w      width of the pixel array to be written
-     * @param h      height of the pixel array to be written
-     * @param pixels array of pixels to write
-     * @deprecated use {@link #writePixels(int, int, int, int, int[], ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #writePixels(int, int, int, int, int[], ProgressMonitor)}
      */
     public void writePixels(int x, int y, int w, int h, int[] pixels) throws IOException {
         writePixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1241,14 +1234,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public abstract void writePixels(int x, int y, int w, int h, int[] pixels, ProgressMonitor pm) throws IOException;
 
     /**
-     * Writes the range of given pixels specified to the specified coordinates as floats.
-     *
-     * @param x      x offset into the band
-     * @param y      y offset into the band
-     * @param w      width of the pixel array to be written
-     * @param h      height of the pixel array to be written
-     * @param pixels array of pixels to write
-     * @deprecated use {@link #writePixels(int, int, int, int, float[], ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #writePixels(int, int, int, int, float[], ProgressMonitor)}
      */
     public synchronized void writePixels(int x, int y, int w, int h, float[] pixels) throws IOException {
         writePixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1267,14 +1253,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public abstract void writePixels(int x, int y, int w, int h, float[] pixels, ProgressMonitor pm) throws IOException;
 
     /**
-     * Writes the range of given pixels specified to the specified coordinates as doubles.
-     *
-     * @param x      x offset into the band
-     * @param y      y offset into the band
-     * @param w      width of the pixel array to be written
-     * @param h      height of the pixel array to be written
-     * @param pixels double array to be filled with data
-     * @deprecated ise {@link #writePixels(int, int, int, int, double[], ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #writePixels(int, int, int, int, double[], ProgressMonitor)}
      */
     public void writePixels(int x, int y, int w, int h, double[] pixels) throws IOException {
         writePixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1308,18 +1287,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Reads the complete underlying raster data.
-     * <p/>
-     * <p>After this method has been called successfully, <code>hasRasterData()</code> should always return
-     * <code>true</code> and <code>getRasterData()</code> should always return a valid <code>ProductData</code> instance
-     * with at least <code>getRasterWidth()*getRasterHeight()</code> elements (samples).
-     * <p/>
-     * <p>In opposite to the <code>loadRasterData</code> method, the <code>readRasterDataFully</code> method always
-     * reloads the data of this product raster, independently of whether its has already been loaded or not.
-     *
-     * @throws java.io.IOException if an I/O error occurs
-     * @see #loadRasterData
-     * @deprecated use {@link #readRasterDataFully(ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #readRasterDataFully(ProgressMonitor)}
      */
     public void readRasterDataFully() throws IOException {
         readRasterDataFully(ProgressMonitor.NULL);
@@ -1338,7 +1306,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param pm a monitor to inform the user about progress
      * @throws java.io.IOException if an I/O error occurs
      * @see #loadRasterData
-     * @deprecated this method is neither thread save nor is it a good idea to store huge amounts of raster
+     * @deprecated in 4.0, this method is neither thread save nor is it a good idea to store huge amounts of raster
      *             data in this product element. Use
      *             {@link #readRasterData(int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor) readRasterData}
      *             instead to read raster data tile-wise.
@@ -1346,22 +1314,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public abstract void readRasterDataFully(ProgressMonitor pm) throws IOException;
 
     /**
-     * Reads raster data from this dataset into the user-supplied raster data buffer.
-     * <p/>
-     * <p>This method always directly (re-)reads this band's data from its associated data source into the given data
-     * buffer.
-     *
-     * @param offsetX    the X-offset in the raster co-ordinates where reading starts
-     * @param offsetY    the Y-offset in the raster co-ordinates where reading starts
-     * @param width      the width of the raster data buffer
-     * @param height     the height of the raster data buffer
-     * @param rasterData a raster data buffer receiving the pixels to be read
-     * @throws java.io.IOException      if an I/O error occurs
-     * @throws IllegalArgumentException if the raster is null
-     * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
-     *                                  which this product raster belongs to, has no associated product reader
-     * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData
-     * @deprecated use {@link #readRasterData(int, int, int, int, ProductData, ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #readRasterData(int, int, int, int, ProductData, ProgressMonitor)}
      */
     public void readRasterData(int offsetX, int offsetY,
                                int width, int height,
@@ -1385,7 +1338,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @throws IllegalArgumentException if the raster is null
      * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
      *                                  which this product raster belongs to, has no associated product reader
-     * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData
+     * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData(Band, int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor)
      */
     public abstract void readRasterData(int offsetX, int offsetY,
                                         int width, int height,
@@ -1410,10 +1363,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Writes the complete underlying raster data.
-     *
-     * @throws java.io.IOException if an I/O error occurs
-     * @deprecated use {@link #writeRasterDataFully(com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #writeRasterDataFully(com.bc.ceres.core.ProgressMonitor)}
      */
     public void writeRasterDataFully() throws IOException {
         writeRasterDataFully(ProgressMonitor.NULL);
@@ -1428,22 +1378,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public abstract void writeRasterDataFully(ProgressMonitor pm) throws IOException;
 
     /**
-     * Writes data from this product raster into the specified region of the user-supplied raster.
-     * <p/>
-     * <p> It is important to know that this method does not change this product raster's internal state nor does it
-     * write into this product raster's internal raster.
-     *
-     * @param rasterData a raster data buffer receiving the pixels to be read
-     * @param offsetX    the X-offset in raster co-ordinates where reading starts
-     * @param offsetY    the Y-offset in raster co-ordinates where reading starts
-     * @param width      the width of the raster data buffer
-     * @param height     the height of the raster data buffer
-     * @throws java.io.IOException      if an I/O error occurs
-     * @throws IllegalArgumentException if the raster is null
-     * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
-     *                                  which this product raster belongs to, has no associated product reader
-     * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData
-     * @deprecated use {@link #writeRasterData(int, int, int, int, ProductData, ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #writeRasterData(int, int, int, int, ProductData, ProgressMonitor)} instead
      */
     public void writeRasterData(int offsetX, int offsetY, int width, int height, ProductData rasterData)
             throws IOException {
@@ -1466,7 +1401,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @throws IllegalArgumentException if the raster is null
      * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
      *                                  which this product raster belongs to, has no associated product reader
-     * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData
+     * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData(Band, int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor)
      */
     public abstract void writeRasterData(int offsetX, int offsetY,
                                          int width, int height,
@@ -1644,18 +1579,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Ensures that this raster data node has valid image information and returns it.
-     * <p/>
-     * <p>If no image information has been assigned before, the <code>{@link #createDefaultImageInfo}</code> method is
-     * called with the given parameters passed to this method.
-     *
-     * @param histoSkipAreas    only used, if new image info is created (see <code>{@link #createDefaultImageInfo}</code>
-     *                          method)
-     * @param ignoreInvalidZero only used, if new image info is created (see <code>{@link #createDefaultImageInfo}</code>
-     *                          method)
-     * @return a valid image information instance, never <code>null</code>.
-     * @throws IOException if an I/O error occurs
-     * @deprecated use {@link #ensureValidImageInfo(double[], boolean, ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #ensureValidImageInfo(double[], boolean, ProgressMonitor)}
      */
     public ImageInfo ensureValidImageInfo(double[] histoSkipAreas, boolean ignoreInvalidZero) throws IOException {
         return ensureValidImageInfo(histoSkipAreas, ignoreInvalidZero, ProgressMonitor.NULL);
@@ -1685,19 +1609,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Creates a default image information instance.
-     * <p/>
-     * <p>An <code>IllegalStateException</code> is thrown in the case that this raster data node has no raster data.
-     *
-     * @param histoSkipAreas    the left (at index 0) and right (at index 1) normalized areas of the raster data
-     *                          histogram to be excluded when determining the value range for a linear constrast
-     *                          stretching. Can be <code>null</code>, in this case <code>{0.01, 0.04}</code> resp. 5% of
-     *                          the entire area is skipped.
-     * @param ignoreInvalidZero if <code>true</code> the method tries to exclude zero from the value range for a linear
-     *                          constrast stretching
-     * @return a valid image information instance, never <code>null</code>.
-     * @throws IOException if an I/O error occurs
-     * @deprecated use {@link #createDefaultImageInfo(double[], boolean, ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #createDefaultImageInfo(double[], boolean, ProgressMonitor)}
      */
     public ImageInfo createDefaultImageInfo(double[] histoSkipAreas, boolean ignoreInvalidZero) throws IOException {
         return createDefaultImageInfo(histoSkipAreas, ignoreInvalidZero, ProgressMonitor.NULL);
@@ -1787,14 +1699,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Creates an image for this raster data node. The method simply returns <code>ProductUtils.createColorIndexedImage(this,
-     * null)</code>.
-     *
-     * @return a greyscale/palette-based image for this raster data node
-     * @throws IOException if the raster data is not loaded so far and reload causes an I/O error
-     * @see #setImageInfo
-     * @see org.esa.beam.util.ProductUtils#createColorIndexedImage
-     * @deprecated use {@link #createColorIndexedImage(ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #createColorIndexedImage(ProgressMonitor)} instead
      */
     public BufferedImage createColorIndexedImage() throws IOException {
         return createColorIndexedImage(ProgressMonitor.NULL);
@@ -1815,14 +1720,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Creates an RGB image for this raster data node. The method simply returns <code>ProductUtils.createRgbImage(new
-     * RasterDataNode[] {this});</code>.
-     *
-     * @return a greyscale/palette-based image for this raster data node
-     * @throws IOException if the raster data is not loaded so far and reload causes an I/O error
-     * @see #setImageInfo
-     * @see org.esa.beam.util.ProductUtils#createRgbImage
-     * @deprecated use {@link #createRgbImage(ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #createRgbImage(ProgressMonitor)} instead
      */
     public BufferedImage createRgbImage() throws IOException {
         return createRgbImage(ProgressMonitor.NULL);
@@ -1843,10 +1741,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Creates a new ROI from the current ROI definition.
-     *
-     * @return a new ROI instance or null if no ROI definition is available
-     * @deprecated use {@link #createROI(ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #createROI(ProgressMonitor)} instead
      */
     public ROI createROI() throws IOException {
         return createROI(ProgressMonitor.NULL);
@@ -1864,10 +1759,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Creates a new ROI image for the current ROI definition.
-     *
-     * @return a new ROI instance or null if no ROI definition is available
-     * @deprecated use {@link #createROIImage(java.awt.Color, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #createROIImage(java.awt.Color, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public synchronized BufferedImage createROIImage(final Color color) throws IOException {
         return createROIImage(color, ProgressMonitor.NULL);
@@ -2146,7 +2038,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * @deprecated use {@link #quantizeRasterData(double, double, double, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #quantizeRasterData(double, double, double, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public byte[] quantizeRasterData(final double newMin, final double newMax, final double gamma) throws IOException {
         return quantizeRasterData(newMin, newMax, gamma, ProgressMonitor.NULL);
@@ -2160,7 +2052,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * @deprecated use {@link #quantizeRasterData(double, double, double, byte[], int, com.bc.ceres.core.ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #quantizeRasterData(double, double, double, byte[], int, com.bc.ceres.core.ProgressMonitor)}
      */
     public void quantizeRasterData(double newMin, double newMax, final double gamma, byte[] rgbSamples,
                                    int offset) throws IOException {
@@ -2189,19 +2081,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Computes a histogram for the raw raster data contained in this data node within the given value range.
-     * <p/>
-     * <p/>
-     * Note that the histogram computed by this method can significantly differ from the one computed by {@link
-     * #computeRasterDataHistogram} if the raster data is {@link #isScalingApplied scaled}. Please also refer to method
-     * {@link #isLog10Scaled}.
-     *
-     * @param roi     an optional ROI, can be null
-     * @param numBins the number of bins in the resulting histogram
-     * @param range   the value range in which the histogram will be computed
-     * @return the resulting raw data histogram
-     * @see #isScalingApplied()
-     * @deprecated use {@link #computeRasterDataHistogram(ROI, int, Range, ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #computeRasterDataHistogram(ROI, int, Range, ProgressMonitor)}
      */
     public Histogram computeRasterDataHistogram(final ROI roi,
                                                 final int numBins,
@@ -2267,15 +2147,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Computes a range for the raw raster data contained in this data node within the given value range. <p>Note that
-     * the range computed by this method can significantly differ from the one computed by {@link #computePixelRange} if
-     * the raster data is {@link #isScalingApplied scaled}. Please also refer to method {@link #isLog10Scaled}.
-     *
-     * @param roi an optional ROI, can be null
-     * @return the resulting histogram
-     * @see #isScalingApplied()
-     * @see #isLog10Scaled()
-     * @deprecated use {@link #computeRasterDataRange(javax.media.jai.ROI, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #computeRasterDataRange(javax.media.jai.ROI, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public Range computeRasterDataRange(final ROI roi) throws IOException {
         return computeRasterDataRange(roi, ProgressMonitor.NULL);
@@ -2305,11 +2177,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Computes statistics for this raster data instance.
-     *
-     * @param roi on optional ROI, can be <code>null</code>
-     * @return the statistics
-     * @deprecated use {@link #computeStatistics(javax.media.jai.ROI, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #computeStatistics(javax.media.jai.ROI, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public Statistics computeStatistics(final ROI roi) throws IOException {
         return computeStatistics(roi, ProgressMonitor.NULL);
@@ -2552,20 +2420,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         }
     }
 
-    /**
-     * Returns the pixel located at (x,y) as a string value.
-     *
-     * @param x      the X co-ordinate of the pixel location
-     * @param y      the Y co-ordinate of the pixel location
-     * @param reload if <code>true</code>, the single pixel value is reloaded, otherwise <code>{@link
-     *               #NOT_LOADED_TEXT}</code> is returned if raster data has not been loaded so far
-     * @return the pixel value at (x,y) as string or an error message text
-     * @deprecated use {@link #getPixelString(int, int)} instead
-     */
-    public String getPixelString(int x, int y, boolean reload) {
-        return getPixelString(x, y);
-    }
-
     private boolean isPixelInRange(int x, int y) {
         return x >= 0 && y >= 0 && x < getSceneRasterWidth() && y < getSceneRasterHeight();
     }
@@ -2702,7 +2556,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     // Deprecated API
     /////////////////////////////////////////////////////////////////////////
 
-    /** @deprecated no replacement */
+    /** @deprecated in 4.1, no replacement */
     private byte[] dataMask;
 
     /** @deprecated in 4.1, use {@link #isValidMaskUsed()} */

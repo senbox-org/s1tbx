@@ -304,24 +304,6 @@ public class BandArithmetic {
     }
 
     /**
-     * Creates a prefixed symbol name for the given product and product node name.
-     *
-     * @param product  the product, can be <code>null</code>
-     * @param nodeName the product node's name
-     *
-     * @return a symbol name, if <code>product != null</code> a product prefix is added to the node name
-     *
-     * @deprecated use {@link #getProductNodeNamePrefix(org.esa.beam.framework.datamodel.Product)} to construct product symbol names
-     */
-    public static String createSymbolName(Product product, String nodeName) {
-        if (product != null) {
-            return getProductNodeNamePrefix(product) + nodeName;
-        } else {
-            return "";
-        }
-    }
-
-    /**
      * Gets a symbol name prefix for the names of bands, tie point grids, flags, etc. of the given product.
      * The prefix is of the general form <code>"$<i>refNo</i>."</code> where <i>refNo</i> is the product's reference
      * number returned by {@link org.esa.beam.framework.datamodel.Product#getRefNo()}.

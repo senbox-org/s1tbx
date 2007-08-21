@@ -141,45 +141,6 @@ public class TiePointGrid extends RasterDataNode {
     /**
      * Constructs a new <code>TiePointGrid</code> with the given tie point grid properties.
      *
-     * @param name         the name of the new object
-     * @param gridWidth    the width of the tie-point grid in pixels
-     * @param gridHeight   the height of the tie-point grid in pixels
-     * @param offsetX      the X co-ordinate of the first (upper-left) tie-point in pixels
-     * @param offsetY      the Y co-ordinate of the first (upper-left) tie-point in pixels
-     * @param subSamplingX the sub-sampling in X-direction given in the pixel co-ordinates of the data product to which
-     *                     this tie-pint grid belongs to. Must not be less than one.
-     * @param subSamplingY the sub-sampling in X-direction given in the pixel co-ordinates of the data product to which
-     *                     this tie-pint grid belongs to. Must not be less than one.
-     * @param tiePoints    the tie-point data values, must be an array of the size <code>gridWidth * gridHeight</code>
-     * @param cycleMin     the minimum of a cyclic variable (e.g. -180 for an angle valid in the range -180 to +180 degrees)
-     * @param cycleMax     the maximum of a cyclic variable (e.g. +180 for an angle valid in the range -180 to +180 degrees)
-     *
-     * @deprecated use (@link #TiePointGrid(String, int, int, float, float, float, float, float[], int)} instead
-     */
-    public TiePointGrid(String name,
-                        int gridWidth,
-                        int gridHeight,
-                        float offsetX,
-                        float offsetY,
-                        float subSamplingX,
-                        float subSamplingY,
-                        float[] tiePoints,
-                        float cycleMin,
-                        float cycleMax) {
-        this(name,
-             gridWidth,
-             gridHeight,
-             offsetX,
-             offsetY,
-             subSamplingX,
-             subSamplingY,
-             tiePoints,
-             convertCycleToDiscont(cycleMin, cycleMax));
-    }
-
-    /**
-     * Constructs a new <code>TiePointGrid</code> with the given tie point grid properties.
-     *
      * @param name           the name of the new object
      * @param gridWidth      the width of the tie-point grid in pixels
      * @param gridHeight     the height of the tie-point grid in pixels
@@ -718,7 +679,7 @@ public class TiePointGrid extends RasterDataNode {
      * @throws IllegalArgumentException if the raster is null
      * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
      *                                  which this product raster belongs to, has no associated product reader
-     * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData
+     * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData(Band, int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor) 
      */
     @Override
     public void readRasterData(int offsetX, int offsetY, int width, int height, ProductData rasterData,
@@ -765,45 +726,6 @@ public class TiePointGrid extends RasterDataNode {
     @Override
     public void writeRasterDataFully(ProgressMonitor pm) throws IOException {
         raisePixelsAreReadOnlyError();
-    }
-
-    /**
-     * Writes a rectangular region of interpolated pixel values.
-     *
-     * @param x0     The X co-ordinate of the upper left pixel location, given in the pixel co-ordinates of the data product
-     *               to which this tie-pint grid belongs to.
-     * @param y0     The Y co-ordinate of the upper left pixel location, given in the pixel co-ordinates of the data product
-     *               to which this tie-pint grid belongs to.
-     * @param sx     The X step, given in the pixel co-ordinates of the data product to which this tie-pint grid belongs to.
-     * @param sy     The Y step, given in the pixel co-ordinates of the data product to which this tie-pint grid belongs to.
-     * @param nx     The number of pixels to be visited in X-direction
-     * @param ny     The number of pixels to be visited in Y-direction
-     * @param pixels an array of samples, must at least hava the size <code>nx*ny + pos + 1</code>, if
-     *               <code>null</code>, an array of the size <code>nx*ny</code> is created and used.
-     * @param pos    the position within the samples array where the writing begins
-     *
-     * @return the given samples array, never <code>null</code>
-     *
-     * @throws IllegalArgumentException       if <code>samples</code> is <code>null</code> and <code>pos</code> is not
-     *                                        zero
-     * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds of the scene's pixel co-odinates
-     * @deprecated removed from public API
-     */
-    public float[] interpolatePixels(int x0, int y0, int sx, int sy, int nx, int ny, float[] pixels, int pos) {
-        if (pixels == null) {
-            if (pos != 0) {
-                throw new IllegalArgumentException("'pixels' is null but 'pos' is not zero");
-            }
-            pixels = new float[nx * ny];
-        }
-        final int x1 = x0 + sx * nx - 1;
-        final int y1 = y0 + sy * ny - 1;
-        for (int y = y0; y <= y1; y += sy) {
-            for (int x = x0; x <= x1; x += sx) {
-                pixels[pos++] = getPixelFloat(x, y);
-            }
-        }
-        return pixels;
     }
 
     // ////////////////////////////////////////////////////////////////////////
@@ -910,84 +832,6 @@ public class TiePointGrid extends RasterDataNode {
                                     base.getSubSamplingX(),
                                     base.getSubSamplingY(),
                                     cosTiePoints);
-    }
-
-    /**
-     * @deprecated use the {@link TiePointGrid#TiePointGrid(String, int, int, float, float, float, float, float[], int) TiePointGrid constructors} directly
-     */
-    public static TiePointGrid createTiePointGrid(String bandName,
-                                                  int gridWidth,
-                                                  int gridHeight,
-                                                  float offsetX,
-                                                  float offsetY,
-                                                  float subSamplingX,
-                                                  float subSamplingY,
-                                                  float[] tiePoints,
-                                                  final boolean greatCircleGrid) {
-        if (greatCircleGrid) {
-            return new TiePointGrid(bandName,
-                                    gridWidth,
-                                    gridHeight,
-                                    offsetX,
-                                    offsetY,
-                                    subSamplingX,
-                                    subSamplingY,
-                                    tiePoints,
-                                    DISCONT_AT_180);
-        }
-        return new TiePointGrid(bandName,
-                                gridWidth,
-                                gridHeight,
-                                offsetX,
-                                offsetY,
-                                subSamplingX,
-                                subSamplingY,
-                                tiePoints);
-
-    }
-
-    /**
-     * Sets the limits of the cyclic behaviour. (Only -180f to 180f, 0.0f to 360.0f or equal values are supported)
-     *
-     * @param cycleMin minimum value of a cycle
-     * @param cycleMax maximum value of a cycle
-     *
-     * @deprecated use (@link #TiePointGrid(String, int, int, float, float, float, float, float[], int)) for creating a
-     *             TiePointGrid with cyclic behaviour or (@link #setDiscontinuity(int)) to set the discontinuity mode.
-     */
-    public void setCyclicLimits(float cycleMin, float cycleMax) {
-        _discontinuity = convertCycleToDiscont(cycleMin, cycleMax);
-    }
-
-    /**
-     * Determines whether or not this tie point grid contains angles.
-     *
-     * @deprecated use {@link #getDiscontinuity()} instead
-     */
-    public boolean isCyclic() {
-        return (_discontinuity != DISCONT_NONE);
-    }
-
-    /**
-     * @deprecated use (@link #getDiscontinuity()) for getting informations on cyclic behaviour.
-     */
-    protected float getCycleMin() {
-        if (_discontinuity == DISCONT_AT_180) {
-            return -180.0f;
-        }
-        return 0.0f;
-    }
-
-    /**
-     * @deprecated use (@link #getDiscontinuity()) for getting informations on cyclic behaviour.
-     */
-    protected float getCycleMax() {
-        if (_discontinuity == DISCONT_AT_180) {
-            return 180.0f;
-        } else if (_discontinuity == DISCONT_AT_360) {
-            return 360.0f;
-        }
-        return 0.0f;
     }
 
     protected static int[] ensureMinLengthArray(int[] array, int length) {

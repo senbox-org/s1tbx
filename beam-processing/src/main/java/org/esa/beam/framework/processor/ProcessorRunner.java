@@ -87,16 +87,12 @@ public class ProcessorRunner {
         return runProcessor(args, processor, processor.getDefaultHelpSetPath(), processor.getDefaultHelpId());
     }
 
-    /**
-     * @deprecated {@link Processor}s now know their default helpset and help ID.
-     */
-    public static boolean runProcessor(final String[] args,
+    private static boolean runProcessor(final String[] args,
                                        final Processor processor,
                                        final String helpsetPath,
                                        final String helpID) {
         Locale.setDefault(Locale.ENGLISH); // Force usage of english locale
         BeamLogManager.setSystemLoggerName("beam.processor");
-
 
         final ProcessorRunner runner = new ProcessorRunner();
         runner.setHelpID(helpID);

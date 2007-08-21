@@ -39,23 +39,10 @@ public class ResourceInstaller {
     private File targetDir;
 
     /**
-     * Creates an instance with a given source to a given target.
-     *
-     * @param sourceUrl     the source
-     * @param relSourcePath
-     * @param targetUrl     the target
-     * @deprecated use {@link #ResourceInstaller(java.net.URL, String, java.io.File)} instead
+     * @deprecated in 4.1, use {@link #ResourceInstaller(java.net.URL, String, java.io.File)} instead
      */
     public ResourceInstaller(URL sourceUrl, String relSourcePath, URL targetUrl) {
-        this(sourceUrl,relSourcePath, toFile(targetUrl));
-    }
-
-    private static File toFile(URL targetUrl) {
-        try {
-            return new File(targetUrl.toURI());
-        } catch (URISyntaxException e) {
-            throw new IllegalArgumentException("targetUrl", e);
-        }
+        this(sourceUrl, relSourcePath, toFile(targetUrl));
     }
 
     /**
@@ -139,4 +126,13 @@ public class ResourceInstaller {
         }
         return sourceLocation;
     }
+
+    private static File toFile(URL targetUrl) {
+        try {
+            return new File(targetUrl.toURI());
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("targetUrl", e);
+        }
+    }
+
 }

@@ -234,30 +234,6 @@ public class ImageDisplay extends GraphicsPane {
         this.interpolation = interpolation;
     }
 
-    /**
-     * Gets whether or not to fill the background with the current background color in any case before the image is
-     * painted.
-     *
-     * @return if <code>true</code> background is filled in any case
-     *
-     * @deprecated use {@link #isOpaque} instead
-     */
-    public boolean isForcingBackgroundFill() {
-        return isOpaque();
-    }
-
-    /**
-     * Sets whether or not to fill the background with the current background color in any case before the image is
-     * painted.
-     *
-     * @param forcingBackgroundFill if <code>true</code> background is filled in any case
-     *
-     * @deprecated use {@link #setOpaque} instead
-     */
-    public void setForcingBackgroundFill(boolean forcingBackgroundFill) {
-        setOpaque(forcingBackgroundFill);
-    }
-
     public PixelInfoFactory getPixelInfoFactory() {
         return _pixelInfoFactory;
     }
@@ -281,17 +257,6 @@ public class ImageDisplay extends GraphicsPane {
     }
 
     /**
-     * Gets the source image.
-     *
-     * @return the source image, can be <code>null</code>
-     *
-     * @deprecated use {@link #getImage()} instead
-     */
-    public RenderedImage getSourceImage() {
-        return getImage();
-    }
-
-    /**
      * Sets the source image to a new <code>RenderedImage</code> and updates the internal state of this image display
      * component due to to the new image properties.
      *
@@ -311,36 +276,6 @@ public class ImageDisplay extends GraphicsPane {
 
         repaint();
         firePropertyChange("image", oldImage, getImage());
-    }
-
-    /**
-     * Sets the image origin to the specified offset in pixels. Provides panning of the source image.
-     *
-     * @param originX the new image X origin in pixels
-     * @param originY the new image Y origin in pixels
-     *
-     * @deprecated use {@link #getViewModel()} instead
-     */
-    public final void setImageOrigin(int originX, int originY) {
-        getViewModel().setModelOffset(originX, originY);
-    }
-
-    /**
-     * Returns the X origin of the source image within this component in pixels.
-     *
-     * @deprecated use {@link #getViewModel()} instead
-     */
-    public final int getImageOriginX() {
-        return (int) Math.floor(getViewModel().getModelOffsetX());
-    }
-
-    /**
-     * Returns the Y origin of the source image within this component in pixels.
-     *
-     * @deprecated use {@link #getViewModel()} instead
-     */
-    public final int getImageOriginY() {
-        return (int) Math.floor(getViewModel().getModelOffsetY());
     }
 
     /**

@@ -120,7 +120,7 @@ public class MerisL3ProductReader extends AbstractProductReader {
     }
 
     /**
-     * The template method which is called by the {@link org.esa.beam.framework.dataio.AbstractProductReader#readBandRasterDataImpl}
+     * The template method which is called by the {@link org.esa.beam.framework.dataio.AbstractProductReader#readBandRasterDataImpl(int, int, int, int, int, int, org.esa.beam.framework.datamodel.Band, int, int, int, int, org.esa.beam.framework.datamodel.ProductData, com.bc.ceres.core.ProgressMonitor)} }
      * method after an optional spatial subset has been applied to the input parameters.
      * <p/>
      * <p>The destination band, buffer and region parameters are exactly the ones passed to the original {@link

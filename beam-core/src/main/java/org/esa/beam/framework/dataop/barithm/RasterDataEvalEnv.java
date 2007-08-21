@@ -39,13 +39,6 @@ public class RasterDataEvalEnv implements EvalEnv {
     private int _elemIndex;
 
     /**
-     * @deprecated use {@link  RasterDataEvalEnv#RasterDataEvalEnv(int, int, int, int)} instead
-     */
-    public RasterDataEvalEnv() {
-        this(0, 0, 1, 1);
-    }
-
-    /**
      * Constructs a new environment for the given raster data region.
      *
      * @param offsetX      the x-offset of the raster region
@@ -148,14 +141,5 @@ public class RasterDataEvalEnv implements EvalEnv {
      */
     public void setElemIndex(int elemIndex) {
         _elemIndex = elemIndex;
-    }
-
-    /**
-     * Increments the index of the current data element by one.
-     *
-     * @deprecated use {@link #setElemIndex(int)} instead
-     */
-    public void incrementElemIndex() {
-        _elemIndex++;
     }
 }

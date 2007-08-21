@@ -141,7 +141,7 @@ public class Pin extends ProductNode {
         }
     }
 
-    /** @deprecated no replacement, pin symbols are not in raster coordinates anymore */
+    /** @deprecated in 4.1, no replacement. Pin symbols are not in raster coordinates anymore */
     public boolean isPixelPosContainedInSymbolShape(float pixelX, float pixelY) {
         Shape shape = getSymbol().getShape();
         if (shape != null) {

@@ -434,20 +434,4 @@ public class L3UpdateProcessor extends L3SubProcessor {
         getLogger().warning(L3Constants.LOG_MSG_EXCLUDED);
         return false;
     }
-
-    /**
-     * Checks if the product border coordinates somehow are contained in the desired database range
-     *
-     * @deprecated do not overwrite this method because is is never used by the processor and will be removed soon.
-     */
-    protected boolean binningBorderIncludeProduct(GeoPos[] productBorder) {
-        final Rectangle2D dbBorder = context.getBorder();
-
-        for (int n = 0; n < productBorder.length; n++) {
-            if (dbBorder.contains(productBorder[n].lon, productBorder[n].lat)) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

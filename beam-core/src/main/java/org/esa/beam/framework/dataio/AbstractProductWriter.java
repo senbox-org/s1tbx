@@ -19,8 +19,6 @@ package org.esa.beam.framework.dataio;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProgressListener;
-import org.esa.beam.framework.datamodel.ProgressListenerList;
 import org.esa.beam.util.Guardian;
 
 import java.io.IOException;
@@ -49,14 +47,6 @@ public abstract class AbstractProductWriter implements ProductWriter {
      * The output object
      */
     private Object _output;
-    /**
-     * Is product listening enabled
-     */
-    private boolean _processListeningEnabled;
-    /**
-     * The progress listener list
-     */
-    private ProgressListenerList _progressListenerList;
 
     /**
      * Constructs a <code>EnviProductWriter</code>. Since no output destination is set, the <code>setOutput</code>
@@ -70,7 +60,6 @@ public abstract class AbstractProductWriter implements ProductWriter {
     public AbstractProductWriter(ProductWriterPlugIn writerPlugIn) {
         Guardian.assertNotNull("writerPlugIn", writerPlugIn);
         _writerPlugIn = writerPlugIn;
-        _processListeningEnabled = true;
     }
 
     /**
@@ -80,36 +69,6 @@ public abstract class AbstractProductWriter implements ProductWriter {
      */
     public ProductWriterPlugIn getWriterPlugIn() {
         return _writerPlugIn;
-    }
-
-    /**
-     * Returns the progress listener list associated with this writer.
-     *
-     * @return the progress listener list, can be <code>null</code>
-     *
-     * @deprecated progress is now indicated by a {@link com.bc.ceres.core.ProgressMonitor} given as
-     *             parmater to the concerning method
-     */
-    public ProgressListenerList getProgressListenerList() {
-        return _progressListenerList;
-    }
-
-    /**
-     * Enables resp. disables process listening for this reader. By default, a reader should enable progress listening.
-     *
-     * @param enabled enables resp. disables process listening
-     */
-    public void setProgressListeningEnabled(boolean enabled) {
-        _processListeningEnabled = enabled;
-    }
-
-    /**
-     * Returns whether process listening is enbaled for this reader.
-     *
-     * @return <code>true</code> if so
-     */
-    public boolean isProgressListeningEnabled() {
-        return _processListeningEnabled;
     }
 
     /**
@@ -167,85 +126,6 @@ public abstract class AbstractProductWriter implements ProductWriter {
     protected abstract void writeProductNodesImpl() throws IOException;
 
     /**
-     * Adds a new process listener to this product writer. Process listeners are informed while the data of the product
-     * is written to the output destination. <p> A product writer shall inform all registered listeners every time a
-     * non-ignorable ammount of memory (in terms of computation time) is written out.
-     *
-     * @param listener the new listener to be added, <code>null</code> values are ignored
-     */
-    public void addProgressListener(ProgressListener listener) {
-        if (listener == null) {
-            return;
-        }
-        if (_progressListenerList == null) {
-            _progressListenerList = new ProgressListenerList();
-        }
-        _progressListenerList.addProgressListener(listener);
-    }
-
-    /**
-     * Removes an existing process listener from this product writer.
-     *
-     * @param listener the listener to be removed, <code>null</code> values are ignored
-     */
-    public void removeProgressListener(ProgressListener listener) {
-        if (listener == null || _progressListenerList == null) {
-            return;
-        }
-        _progressListenerList.removeProgressListener(listener);
-    }
-
-    /**
-     * Notifies all registered progress listeners the the write process started. This utility method should be used by
-     * concrete product writer implementations in order to signal that the writing process started.
-     *
-     * @param processDescription a textual description of the process started
-     * @param minProgressValue   the minimum progress value
-     * @param maxProgressValue   the maximum progress value
-     *
-     * @return <code>true</code> if the writing process can be started, <code>false</code> indicates an error and the
-     *         writer should not continue writing
-     */
-    protected boolean fireProcessStarted(String processDescription, int minProgressValue, int maxProgressValue) {
-        if (_processListeningEnabled && _progressListenerList != null) {
-            return _progressListenerList.fireProcessStarted(processDescription,
-                                                            minProgressValue,
-                                                            maxProgressValue);
-        }
-        return true;
-    }
-
-    /**
-     * Notifies all registered progress listeners the the write process is in progress. This utility method should be
-     * used by concrete product writer implementations in order to signal that the writing process is in progress.
-     *
-     * @param currentProgressValue the current progress value which should be a value in the range passed to the
-     *                             <code>fireProcessStarted</code> method
-     *
-     * @return <code>true</code> if the process can be continued, <code>false</code> indicates an error and the writer
-     *         should not continue writing
-     */
-    protected boolean fireProcessInProgress(int currentProgressValue) {
-        if (_processListeningEnabled && _progressListenerList != null) {
-            return _progressListenerList.fireProcessInProgress(currentProgressValue);
-        }
-        return true;
-    }
-
-    /**
-     * Notifies all registered progress listeners the the write process has ended. This utility method should be used by
-     * concrete product writer implementations in order to signal that the writing process is finished.
-     *
-     * @param success <code>true</code> if reading was successful, <code>false</code> if an error occured or the user
-     *                terminated the write process.
-     */
-    protected void fireProcessEnded(boolean success) {
-        if (_processListeningEnabled && _progressListenerList != null) {
-            _progressListenerList.fireProcessEnded(success);
-        }
-    }
-
-    /**
      * Utility method which ensures that an output is assigned to this writer.
      *
      * @throws IllegalStateException if no output was set (output is <code>null</code>).
@@ -265,8 +145,8 @@ public abstract class AbstractProductWriter implements ProductWriter {
      */
     protected boolean isInstanceOfValidOutputType(Object output) {
         Class[] outputTypes = getWriterPlugIn().getOutputTypes();
-        for (int i = 0; i < outputTypes.length; i++) {
-            if (outputTypes[i].isInstance(output)) {
+        for (Class outputType : outputTypes) {
+            if (outputType.isInstance(output)) {
                 return true;
             }
         }

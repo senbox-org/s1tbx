@@ -11,7 +11,7 @@ import com.bc.ceres.core.ProgressMonitor;
 public class Quantizer {
 
     /**
-     * @deprecated use {@link #quantizeGeneric(Object, boolean, double, double, byte[], int, int, ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #quantizeGeneric(Object, boolean, double, double, byte[], int, int, ProgressMonitor)} instead
      */
     public static void quantizeGeneric(final Object srcValues,
                                        final boolean srcUnsigned,
@@ -65,7 +65,7 @@ public class Quantizer {
     }
 
     /**
-     * @deprecated use {@link #quantizeByte(byte[], int, int, byte[], int, int, ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #quantizeByte(byte[], int, int, byte[], int, int, ProgressMonitor)} instead
      */
     public static void quantizeByte(final byte[] srcValues,
                                     final int srcMin,
@@ -115,7 +115,7 @@ public class Quantizer {
     }
 
     /**
-     * @deprecated use {@link #quantizeUByte(byte[], int, int, byte[], int, int, ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #quantizeUByte(byte[], int, int, byte[], int, int, ProgressMonitor)} instead
      */
     public static void quantizeUByte(final byte[] srcValues,
                                      final int srcMin,
@@ -165,7 +165,7 @@ public class Quantizer {
     }
 
     /**
-     * @deprecated use {@link #quantizeShort(short[], int, int, byte[], int, int, ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #quantizeShort(short[], int, int, byte[], int, int, ProgressMonitor)} instead
      */
     public static void quantizeShort(final short[] srcValues,
                                      final int srcMin,
@@ -215,7 +215,7 @@ public class Quantizer {
     }
 
     /**
-     * @deprecated use {@link #quantizeUShort(short[], int, int, byte[], int, int, ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #quantizeUShort(short[], int, int, byte[], int, int, ProgressMonitor)} instead
      */
     public static void quantizeUShort(final short[] srcValues,
                                       final int srcMin,
@@ -265,7 +265,7 @@ public class Quantizer {
     }
 
     /**
-     * @deprecated use {@link #quantizeInt(int[], int, int, byte[], int, int, ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #quantizeInt(int[], int, int, byte[], int, int, ProgressMonitor)} instead
      */
     public static void quantizeInt(final int[] srcValues,
                                    final int srcMin,
@@ -315,7 +315,7 @@ public class Quantizer {
     }
 
     /**
-     * @deprecated use {@link #quantizeUInt(int[], long, long, byte[], int, int, ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #quantizeUInt(int[], long, long, byte[], int, int, ProgressMonitor)} instead
      */
     public static void quantizeUInt(final int[] srcValues,
                                     final long srcMin,
@@ -365,7 +365,7 @@ public class Quantizer {
     }
 
     /**
-     * @deprecated use {@link #quantizeFloat(float[], float, float, byte[], int, int, ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #quantizeFloat(float[], float, float, byte[], int, int, ProgressMonitor)} instead
      */
     public static void quantizeFloat(final float[] srcValues,
                                      final float srcMin,
@@ -415,7 +415,7 @@ public class Quantizer {
     }
 
     /**
-     * @deprecated use {@link #quantizeDouble(double[], double, double, byte[], int, int, ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #quantizeDouble(double[], double, double, byte[], int, int, ProgressMonitor)} instead
      */
     public static void quantizeDouble(final double[] srcValues,
                                       final double srcMin,
@@ -466,7 +466,7 @@ public class Quantizer {
     }
 
     /**
-     * @deprecated use {@link #quantizeDouble(DoubleList, double, double, byte[], int, int, ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #quantizeDouble(DoubleList, double, double, byte[], int, int, ProgressMonitor)} instead
      */
     public static void quantizeDouble(final DoubleList srcValues,
                                       final double srcMin,

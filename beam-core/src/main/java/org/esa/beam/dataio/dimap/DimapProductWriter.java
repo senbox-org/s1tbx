@@ -50,13 +50,6 @@ import java.util.Map;
  */
 public class DimapProductWriter extends AbstractProductWriter {
 
-    /**
-     * The character encoding of the resulting xml file.
-     *
-     * @deprecated No replacement.
-     */
-    public final String XML_CHAR_ENCODING = "ISO-8859-1";
-
     private File _outputDir;
     private File _outputFile;
     private Map _bandOutputStreams;
@@ -93,6 +86,7 @@ public class DimapProductWriter extends AbstractProductWriter {
      * @throws IllegalArgumentException if <code>output</code> type is not one of the supported output sources.
      * @throws java.io.IOException      if an I/O error occurs
      */
+    @Override
     protected void writeProductNodesImpl() throws IOException {
         final Object output = getOutput();
 
@@ -147,22 +141,6 @@ public class DimapProductWriter extends AbstractProductWriter {
         if (_outputFile != null) {
             getSourceProduct().setName(FileUtils.getFilenameWithoutExtension(_outputFile));
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @deprecated use {@link #writeBandRasterData(Band, int, int, int, int, ProductData, ProgressMonitor)} instead
-     */
-    public void writeBandRasterData(Band sourceBand,
-                                    int sourceOffsetX, int sourceOffsetY,
-                                    int sourceWidth, int sourceHeight,
-                                    ProductData sourceBuffer) throws IOException {
-        writeBandRasterData(sourceBand,
-                            sourceOffsetX, sourceOffsetY,
-                            sourceWidth, sourceHeight,
-                            sourceBuffer,
-                            ProgressMonitor.NULL);
     }
 
     /**

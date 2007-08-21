@@ -278,26 +278,6 @@ public class Request implements Serializable {
     }
 
     /**
-     * Retrieves an array of parameter by name.
-     *
-     * @param name the parameter name to be found. Must not be null or empty
-     *
-     * @return an array of parameter with the given name. Returns never null.
-     *
-     * @deprecated No replacement. Parameter names should be unique within a request.
-     */
-    public Parameter[] getParameters(String name) {
-        Guardian.assertNotNullOrEmpty("name", name);
-        final ArrayList<Parameter> parameters = new ArrayList<Parameter>();
-        for (final Parameter param : _parameters) {
-            if (name.equals(param.getName())) {
-                parameters.add(param);
-            }
-        }
-        return parameters.toArray(new Parameter[0]);
-    }
-
-    /**
      * Retrieves an array of all the parameters of this request.
      *
      * @return an array of parameter. Returns never null.

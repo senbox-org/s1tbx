@@ -32,7 +32,6 @@ public class ProcessorConstantsTest extends TestCase {
 
     public void testOutputProductConstants() {
         assertEquals("output_product", ProcessorConstants.OUTPUT_PRODUCT_PARAM_NAME);
-        assertEquals("", ProcessorConstants.DEFAULT_DIR_PATH);
     }
 
     public void testOutputFormatConstants() {

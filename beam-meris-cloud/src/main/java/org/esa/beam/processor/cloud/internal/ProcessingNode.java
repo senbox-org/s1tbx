@@ -285,51 +285,6 @@ public abstract class ProcessingNode implements ProductReader {
      *                                  frameH</code> or the destination region is out of the band's scene raster
      * @see org.esa.beam.framework.datamodel.Band#getSceneRasterWidth()
      * @see org.esa.beam.framework.datamodel.Band#getSceneRasterHeight()
-     * @deprecated use {@link #readBandRasterData(org.esa.beam.framework.datamodel.Band, int, int, int, int, org.esa.beam.framework.datamodel.ProductData, com.bc.ceres.core.ProgressMonitor)}
-     */
-    public void readBandRasterData(final Band targetBand,
-                                   final int frameX,
-                                   final int frameY,
-                                   final int frameW,
-                                   final int frameH,
-                                   final ProductData targetData) throws IOException {
-        readFrameData(targetBand, frameX, frameY, frameW, frameH, targetData);
-    }
-
-    /**
-     * Reads raster data from the data source specified by the given destination band into the given in-memory buffer
-     * and region.
-     * <p/>
-     * <h3>Destination band</h3> The destination band is used to identify the data source from which this method
-     * transfers the sample values into the given destination buffer. The method does not modify the given destination
-     * band at all. If this product reader has a <code>ProductSubsetDef</code> instance attached to it, the method
-     * should also consider the specified spatial subset and sub-sampling (if any) applied to the destination band.
-     * <p/>
-     * <h3>Destination region</h3> The given destination region specified by the <code>frameX</code>,
-     * <code>frameY</code>, <code>frameW</code> and <code>frameH</code> parameters are given in the band's
-     * raster co-ordinates of the raster which results <i>after</i> applying the optional spatial subset and
-     * sub-sampling given by the <code>ProductSubsetDef</code> instance to the <i>data source</i>. If no spatial subset
-     * and sub-sampling is specified, the destination co-ordinates are identical with the source co-ordinates. The
-     * destination region should always specify a sub-region of the band's scene raster.
-     * <p/>
-     * <h3>Destination buffer</h3> The first element of the destination buffer corresponds to the given
-     * <code>frameX</code> and <code>frameY</code> of the destination region. The offset parameters are
-     * <b>not</b> an offset within the buffer.<br> The number of elements in the buffer exactly be <code>frameW *
-     * frameH</code>. The pixel values read are stored in line-by-line order, so the raster X co-ordinate varies
-     * faster than the Y co-ordinate.
-     *
-     * @param targetBand the destination band which identifies the data source from which to read the sample values
-     * @param frameX     the X-offset in the band's raster co-ordinates
-     * @param frameY     the Y-offset in the band's raster co-ordinates
-     * @param frameW     the frameW of region to be read given in the band's raster co-ordinates
-     * @param frameH     the frameH of region to be read given in the band's raster co-ordinates
-     * @param targetData the destination buffer which receives the sample values to be read
-     *
-     * @throws java.io.IOException      if an I/O error occurs
-     * @throws IllegalArgumentException if the number of elements destination buffer not equals <code>frameW *
-     *                                  frameH</code> or the destination region is out of the band's scene raster
-     * @see org.esa.beam.framework.datamodel.Band#getSceneRasterWidth()
-     * @see org.esa.beam.framework.datamodel.Band#getSceneRasterHeight()
      */
     public void readBandRasterData(final Band targetBand,
                                    final int frameX,

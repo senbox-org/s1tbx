@@ -192,8 +192,7 @@ public class L3RequestElementFactory implements RequestElementFactory {
      * Creates an input product parameter set to the default path.
      */
     public ProductRef createDefaultInputProductRef() {
-        File defaultInPath = new File(SystemUtils.getUserHomeDir(), L3Constants.DEFAULT_DIR_PATH);
-        return new ProductRef(defaultInPath);
+        return new ProductRef(SystemUtils.getUserHomeDir());
     }
 
     /**

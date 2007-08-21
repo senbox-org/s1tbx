@@ -82,11 +82,4 @@ public class Datum implements Cloneable {
             throw new IllegalStateException(e);
         }
     }
-
-    /**
-     * @deprecated use {@link #clone()} instead. A Datum is immutable, you should not need to clone it.
-     */
-    public Datum createDeepClone() {
-        return (Datum) clone();
-    }
 }

@@ -160,7 +160,7 @@ public class CsvReader extends LineNumberReader {
      *         passed to the constructor
      *
      * @throws IOException if an I/O error occurs
-     * @deprecated use #readStringRecords
+     * @deprecated in 4.0, use #readStringRecords
      */
     public Vector<String[]> readAllRecords() throws IOException {
         Vector<String[]> vector = new Vector<String[]>(256);

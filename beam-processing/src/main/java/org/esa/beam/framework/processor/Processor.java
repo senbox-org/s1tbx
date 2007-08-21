@@ -184,9 +184,7 @@ public abstract class Processor {
     ///////////////////////////////////////////////////////////////////////////
 
     /**
-     * Worker method. Override to perform processor specific processing
-     *
-     * @deprecated override {@link #process(com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, override {@link #process(com.bc.ceres.core.ProgressMonitor)} instead
      */
     public void process() throws ProcessorException {
         _logger.warning("This processor uses a deprectated API.");
@@ -225,11 +223,7 @@ public abstract class Processor {
     public abstract String getCopyrightInformation();
 
     /**
-     * Template method. Performa all actions needed to process one request. The following steps are run: <ul>
-     * <li>setRequest(request)</li> <li>logHeader()</li> <li>logRequest()</li> <li>process()</li> </ul> Additionally the
-     * method traces the processor state according to the success or failure of the processing
-     *
-     * @deprecated use {@link #processRequest(Request, ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #processRequest(Request, ProgressMonitor)}
      */
     public void processRequest(Request request) throws ProcessorException {
         processRequest(request, ProgressMonitor.NULL);
@@ -596,7 +590,7 @@ public abstract class Processor {
 
 
     /**
-     * @deprecated use {@link #installAuxdata(java.net.URL, String, java.io.File)} instead
+     * @deprecated in 4.1, use {@link #installAuxdata(java.net.URL, String, java.io.File)} instead
      */
     protected void installAuxdata(URL sourceLocation, String relSourcePath, URL targetLocation) {
         try {

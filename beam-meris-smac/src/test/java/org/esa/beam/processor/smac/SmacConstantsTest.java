@@ -129,6 +129,5 @@ public class SmacConstantsTest extends TestCase {
     public void testFileNameAndPathConstants() {
         assertEquals("smac_out.dim", SmacConstants.DEFAULT_FILE_NAME);
         assertEquals("beam.processor.smac", SmacConstants.LOGGER_NAME);
-        assertEquals("", SmacConstants.DEFAULT_DIR_PATH);
     }
 }

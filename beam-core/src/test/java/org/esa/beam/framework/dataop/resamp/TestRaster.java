@@ -27,12 +27,4 @@ class TestRaster implements Resampling.Raster {
     public float getSample(int x, int y) {
         return array[y][x];
     }
-
-    public boolean isNoDataValueUsed() {
-        return false;
-    }
-
-    public float getNoDataValue() {
-        return 0; 
-    }
 }

@@ -48,9 +48,7 @@ abstract class AtsrBandReader {
     }
 
     /**
-     * Reads the band data from file.
-     *
-     * @deprecated
+     * @deprecated in 4.0, use {@link #readBandData(int, int, int, int, int, int, int, int, int, int, org.esa.beam.framework.datamodel.ProductData, com.bc.ceres.core.ProgressMonitor)} 
      */
     void readBandData(int sourceOffsetX, int sourceOffsetY,
                                int sourceWidth, int sourceHeight,

@@ -221,7 +221,7 @@ public class ImageUtils {
     //  quantizeRasterData<Type>
 
     /**
-     * @deprecated use {@link org.esa.beam.util.math.Quantizer#quantizeByte} instead
+     * @deprecated in 4.0, use {@link org.esa.beam.util.math.Quantizer#quantizeByte} instead
      */
     public static void quantizeSamplesByte(final byte[] samples,
                                            final int min,
@@ -233,7 +233,7 @@ public class ImageUtils {
     }
 
     /**
-     * @deprecated use {@link org.esa.beam.util.math.Quantizer#quantizeUByte} instead
+     * @deprecated in 4.0, use {@link org.esa.beam.util.math.Quantizer#quantizeUByte} instead
      */
     public static void quantizeSamplesUByte(final byte[] samples,
                                             final int min,
@@ -245,7 +245,7 @@ public class ImageUtils {
     }
 
     /**
-     * @deprecated use {@link org.esa.beam.util.math.Quantizer#quantizeShort} instead
+     * @deprecated in 4.0, use {@link org.esa.beam.util.math.Quantizer#quantizeShort} instead
      */
     public static void quantizeSamplesShort(final short[] samples,
                                             final int min,
@@ -257,7 +257,7 @@ public class ImageUtils {
     }
 
     /**
-     * @deprecated use {@link org.esa.beam.util.math.Quantizer#quantizeUShort} instead
+     * @deprecated in 4.0, use {@link org.esa.beam.util.math.Quantizer#quantizeUShort} instead
      */
     public static void quantizeSamplesUShort(final short[] samples,
                                              final int min,
@@ -269,7 +269,7 @@ public class ImageUtils {
     }
 
     /**
-     * @deprecated use {@link org.esa.beam.util.math.Quantizer#quantizeInt} instead
+     * @deprecated in 4.0, use {@link org.esa.beam.util.math.Quantizer#quantizeInt} instead
      */
     public static void quantizeSamplesInt(final int[] samples,
                                           final int min,
@@ -281,7 +281,7 @@ public class ImageUtils {
     }
 
     /**
-     * @deprecated use {@link org.esa.beam.util.math.Quantizer#quantizeUInt} instead
+     * @deprecated in 4.0, use {@link org.esa.beam.util.math.Quantizer#quantizeUInt} instead
      */
     public static void quantizeSamplesUInt(final int[] samples,
                                            final long min,
@@ -293,7 +293,7 @@ public class ImageUtils {
     }
 
     /**
-     * @deprecated use {@link org.esa.beam.util.math.Quantizer#quantizeFloat} instead
+     * @deprecated in 4.0, use {@link org.esa.beam.util.math.Quantizer#quantizeFloat} instead
      */
     public static void quantizeSamplesFloat(final float[] samples,
                                             final float min,
@@ -305,7 +305,7 @@ public class ImageUtils {
     }
 
     /**
-     * @deprecated use {@link org.esa.beam.util.math.Quantizer#quantizeDouble} instead
+     * @deprecated in 4.0, use {@link org.esa.beam.util.math.Quantizer#quantizeDouble} instead
      */
     public static void quantizeSamplesDouble(final double[] samples,
                                              final double min,

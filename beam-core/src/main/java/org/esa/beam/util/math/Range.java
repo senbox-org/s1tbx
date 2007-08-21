@@ -90,7 +90,7 @@ public class Range {
     }
 
     /**
-     * @deprecated
+     * @deprecated in 4.0, use {@link #aggregate(Object, boolean, IndexValidator, com.bc.ceres.core.ProgressMonitor)} 
      */
     public void aggregate(final Object values, boolean unsigned,
                           final IndexValidator validator) {
@@ -107,19 +107,8 @@ public class Range {
     }
 
     /**
-     * Computes the value range for the values in the given <code>byte</code> array. The array elements are interpreted
-     * as <i>signed</i> byte values. Values at a given index <code>i</code> for which <code>validator.validate(i)</code>
-     * returns <code>false</code> are excluded from the computation.
-     *
-     * @param values    the array whose value range to compute
-     * @param validator used to validate the array indexes, must not be <code>null</code>. Use {@link
-     *                  IndexValidator#TRUE} instead.
-     * @param range     if not <code>null</code>, used as return value, otherwise a new instance is created
-     *
-     * @return the value range for the given array
-     *
      * @see #computeRangeUByte
-     * @deprecated use {@link #computeRangeByte(byte[], IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #computeRangeByte(byte[], IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)}
      */
     public static Range computeRangeByte(final byte[] values,
                                          final IndexValidator validator,
@@ -151,19 +140,8 @@ public class Range {
     }
 
     /**
-     * Computes the value range for the values in the given <code>byte</code> array. The array elements are interpreted
-     * as <i>unsigned</i> byte values. Values at a given index <code>i</code> for which
-     * <code>validator.validate(i)</code> returns <code>false</code> are excluded from the computation.
-     *
-     * @param values    the array whose value range to compute
-     * @param validator used to validate the array indexes, must not be <code>null</code>. Use {@link
-     *                  IndexValidator#TRUE} instead.
-     * @param range     if not <code>null</code>, used as return value, otherwise a new instance is created
-     *
-     * @return the value range for the given array
-     *
      * @see #computeRangeUByte
-     * @deprecated use {@link #computeRangeUByte(byte[], IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #computeRangeUByte(byte[], IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)}
      */
     public static Range computeRangeUByte(final byte[] values,
                                           final IndexValidator validator,
@@ -196,19 +174,8 @@ public class Range {
     }
 
     /**
-     * Computes the value range for the values in the given <code>short</code> array. The array elements are interpreted
-     * as <i>signed</i> short values. Values at a given index <code>i</code> for which
-     * <code>validator.validate(i)</code> returns <code>false</code> are excluded from the computation.
-     *
-     * @param values    the array whose value range to compute
-     * @param validator used to validate the array indexes, must not be <code>null</code>. Use {@link
-     *                  IndexValidator#TRUE} instead.
-     * @param range     if not <code>null</code>, used as return value, otherwise a new instance is created
-     *
-     * @return the value range for the given array
-     *
      * @see #computeRangeUShort
-     * @deprecated use {@link #computeRangeShort(short[], IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #computeRangeShort(short[], IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static Range computeRangeShort(final short[] values,
                                           final IndexValidator validator,
@@ -240,19 +207,8 @@ public class Range {
     }
 
     /**
-     * Computes the value range for the values in the given <code>short</code> array. The array elements are interpreted
-     * as <i>unsigned</i> short values. Values at a given index <code>i</code> for which
-     * <code>validator.validate(i)</code> returns <code>false</code> are excluded from the computation.
-     *
-     * @param values    the array whose value range to compute
-     * @param validator used to validate the array indexes, must not be <code>null</code>. Use {@link
-     *                  IndexValidator#TRUE} instead.
-     * @param range     if not <code>null</code>, used as return value, otherwise a new instance is created
-     *
-     * @return the value range for the given array
-     *
      * @see #computeRangeShort
-     * @deprecated use {@link #computeRangeUShort(short[], IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #computeRangeUShort(short[], IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)}
      */
     public static Range computeRangeUShort(final short[] values,
                                            final IndexValidator validator,
@@ -282,19 +238,8 @@ public class Range {
     }
 
     /**
-     * Computes the value range for the values in the given <code>int</code> array. The array elements are interpreted
-     * as <i>signed</i> int values. Values at a given index <code>i</code> for which <code>validator.validate(i)</code>
-     * returns <code>false</code> are excluded from the computation.
-     *
-     * @param values    the array whose value range to compute
-     * @param validator used to validate the array indexes, must not be <code>null</code>. Use {@link
-     *                  IndexValidator#TRUE} instead.
-     * @param range     if not <code>null</code>, used as return value, otherwise a new instance is created
-     *
-     * @return the value range for the given array
-     *
      * @see #computeRangeUInt
-     * @deprecated use {@link #computeRangeInt(int[], IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #computeRangeInt(int[], IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static Range computeRangeInt(final int[] values,
                                         final IndexValidator validator,
@@ -326,19 +271,8 @@ public class Range {
     }
 
     /**
-     * Computes the value range for the values in the given <code>int</code> array. The array elements are interpreted
-     * as <i>unsigned</i> int values. Values at a given index <code>i</code> for which
-     * <code>validator.validate(i)</code> returns <code>false</code> are excluded from the computation.
-     *
-     * @param values    the array whose value range to compute
-     * @param validator used to validate the array indexes, must not be <code>null</code>. Use {@link
-     *                  IndexValidator#TRUE} instead.
-     * @param range     if not <code>null</code>, used as return value, otherwise a new instance is created
-     *
-     * @return the value range for the given array
-     *
      * @see #computeRangeInt
-     * @deprecated use {@link #computeRangeUInt(int[], IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #computeRangeUInt(int[], IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)}
      */
     public static Range computeRangeUInt(final int[] values,
                                          final IndexValidator validator,
@@ -370,19 +304,8 @@ public class Range {
     }
 
     /**
-     * Computes the value range for the values in the given <code>float</code> array. Values at a given index
-     * <code>i</code> for which <code>validator.validate(i)</code> returns <code>false</code> are excluded from the
-     * computation.
-     *
-     * @param values    the array whose value range to compute
-     * @param validator used to validate the array indexes, must not be <code>null</code>. Use {@link
-     *                  IndexValidator#TRUE} instead.
-     * @param range     if not <code>null</code>, used as return value, otherwise a new instance is created
-     *
-     * @return the value range for the given array
-     *
      * @see #computeRangeDouble
-     * @deprecated use {@link #computeRangeFloat(float[], IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #computeRangeFloat(float[], IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)}
      */
     public static Range computeRangeFloat(final float[] values,
                                           final IndexValidator validator,
@@ -414,19 +337,8 @@ public class Range {
     }
 
     /**
-     * Computes the value range for the values in the given <code>double</code> array. Values at a given index
-     * <code>i</code> for which <code>validator.validate(i)</code> returns <code>false</code> are excluded from the
-     * computation.
-     *
-     * @param values    the array whose value range to compute
-     * @param validator used to validate the array indexes, must not be <code>null</code>. Use {@link
-     *                  IndexValidator#TRUE} instead.
-     * @param range     if not <code>null</code>, used as return value, otherwise a new instance is created
-     *
-     * @return the value range for the given array
-     *
      * @see #computeRangeFloat
-     * @deprecated use {@link #computeRangeDouble(double[], IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #computeRangeDouble(double[], IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static Range computeRangeDouble(final double[] values,
                                            final IndexValidator validator,
@@ -458,19 +370,8 @@ public class Range {
     }
 
     /**
-     * Computes the value range for the values in the given <code>Range.DoubleList</code>. Values at a given index
-     * <code>i</code> for which <code>validator.validate(i)</code> returns <code>false</code> are excluded from the
-     * computation.
-     *
-     * @param values    the <code>Range.DoubleList</code> whose value range to compute
-     * @param validator used to validate the indexes, must not be <code>null</code>. Use {@link IndexValidator#TRUE}
-     *                  instead.
-     * @param range     if not <code>null</code>, used as return value, otherwise a new instance is created
-     *
-     * @return the value range for the given values
-     *
      * @see #computeRangeDouble
-     * @deprecated use {@link #computeRangeDouble(DoubleList, IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #computeRangeDouble(DoubleList, IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static Range computeRangeDouble(final DoubleList values,
                                            final IndexValidator validator,
@@ -531,22 +432,8 @@ public class Range {
 
 
     /**
-     * Computes the value range for the values in the given <code>Object</code>. Values at a given index <code>i</code>
-     * for which <code>validator.validate(i)</code> returns <code>false</code> are excluded from the computation.<br>
-     * <br> Supportet types for the values object: <blockquote> <code>byte[], short[], int[], float[], double[], {@link
-     * DoubleList}</code></blockquote>
-     *
-     * @param values    the <code>Object</code> whose value range to compute
-     * @param unsigned  if true interprete all the values as unsignet type.
-     * @param validator used to validate the indexes, must not be <code>null</code>. Use {@link IndexValidator#TRUE}
-     *                  instead.
-     * @param range     if not <code>null</code>, used as return value, otherwise a new instance is created
-     *
-     * @return the value range for the given values
-     *
-     * @throws IllegalArgumentException if the given object is not an istance of the supported types.
      * @see #computeRangeDouble
-     * @deprecated use {@link #computeRangeGeneric(Object, boolean, IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #computeRangeGeneric(Object, boolean, IndexValidator, Range, com.bc.ceres.core.ProgressMonitor)}
      */
     public static Range computeRangeGeneric(final Object values,
                                             boolean unsigned,

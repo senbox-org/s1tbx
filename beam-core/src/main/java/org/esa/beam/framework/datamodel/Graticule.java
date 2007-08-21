@@ -49,25 +49,6 @@ public class Graticule {
     }
 
     /**
-     * @deprecated don't use it, it always returns null
-     */
-    public Shape getShape() {
-        return null;
-    }
-
-    /**
-     * @deprecated use {@link #create(Product, boolean, int, float, float)} instead
-     */
-    public static Graticule create(Product product,
-                                   float latMajorStep,
-                                   float lonMajorStep,
-                                   int numParallelsMax,
-                                   int numMeridiansMax) {
-        return create(product, true, 100, 0f, 0f);
-    }
-
-
-    /**
      * Creates a graticule for the given product.
      *
      * @param product              the product

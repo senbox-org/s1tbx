@@ -765,58 +765,6 @@ public abstract class ProductFile {
     }
 
     /**
-     * Logs a debug message to this product's logging sink. <p> If no logging sink has been defined for the product the
-     * method does nothing.
-     *
-     * @param message the logging message
-     *
-     * @see #getLogger()
-     * @deprecated use <code>getLogger().finest(message)</code> instead
-     */
-    protected final void logDebug(String message) {
-        getLogger().finest(message);
-    }
-
-    /**
-     * Logs an info message to this product's logging sink. <p> If no logging sink has been defined for the product the
-     * method does nothing.
-     *
-     * @param message the logging message
-     *
-     * @see #getLogger()
-     * @deprecated use <code>getLogger().info(message)</code> instead
-     */
-    protected final void logInfo(String message) {
-        getLogger().info(message);
-    }
-
-    /**
-     * Logs a warning message to this product's logging sink. <p> If no logging sink has been defined for the product
-     * the method does nothing.
-     *
-     * @param message the logging message
-     *
-     * @see #getLogger()
-     * @deprecated use <code>getLogger().warning(message)</code> instead
-     */
-    protected final void logWarning(String message) {
-        getLogger().warning(message);
-    }
-
-    /**
-     * Logs an error message to this product's logging sink. <p> If no logging sink has been defined for the product the
-     * method does nothing.
-     *
-     * @param message the logging message
-     *
-     * @see #getLogger()
-     * @deprecated use <code>getLogger().severe(message)</code> instead
-     */
-    protected final void logError(String message) {
-        getLogger().severe(message);
-    }
-
-    /**
      * This method is called after the main product header has been read in successfully.
      * <p/>
      * <p> Sub-classes should set product specific parameters in the <code>parameters</code> argument. The parameters

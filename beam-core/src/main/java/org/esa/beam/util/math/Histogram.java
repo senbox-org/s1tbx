@@ -295,20 +295,8 @@ public class Histogram extends Range {
 
 
     /**
-     * Computes the histogram for the values in the given <code>byte</code> array in the given value range. The array
-     * elements are interpreted as <i>signed</i> byte values. Values at a given index <code>i</code> for which
-     * <code>validator.validate(i)</code> returns <code>false</code> are excluded from the computation.
-     *
-     * @param values    the array whose histogram to compute
-     * @param validator used to validate the array indexes, must not be <code>null</code>. Use {@link
-     *                  IndexValidator#TRUE} instead.
-     * @param numBins   the number of bins for the histogram
-     * @param range     the value range, if <code>null</code> the range is automatically computed
-     *
-     * @return the histogram for the given array
-     *
      * @see #computeHistogramUByte
-     * @deprecated use {@link #computeHistogramByte(byte[], IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #computeHistogramByte(byte[], IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static Histogram computeHistogramByte(final byte[] values,
                                                  final IndexValidator validator,
@@ -385,20 +373,8 @@ public class Histogram extends Range {
     }
 
     /**
-     * Computes the histogram for the values in the given <code>byte</code> array in the given value range. The array
-     * elements are interpreted as <i>unsigned</i> byte values. Values at a given index <code>i</code> for which
-     * <code>validator.validate(i)</code> returns <code>false</code> are excluded from the computation.
-     *
-     * @param values    the array whose histogram to compute
-     * @param validator used to validate the array indexes, must not be <code>null</code>. Use {@link
-     *                  IndexValidator#TRUE} instead.
-     * @param numBins   the number of bins for the histogram
-     * @param range     the value range, if <code>null</code> the range is automatically computed
-     *
-     * @return the histogram for the given array
-     *
      * @see #computeHistogramByte
-     * @deprecated use {@link #computeHistogramUByte(byte[], IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #computeHistogramUByte(byte[], IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static Histogram computeHistogramUByte(final byte[] values,
                                                   final IndexValidator validator,
@@ -474,20 +450,8 @@ public class Histogram extends Range {
     }
 
     /**
-     * Computes the histogram for the values in the given <code>short</code> array in the given value range. The array
-     * elements are interpreted as <i>signed</i> short values. Values at a given index <code>i</code> for which
-     * <code>validator.validate(i)</code> returns <code>false</code> are excluded from the computation.
-     *
-     * @param values    the array whose histogram to compute
-     * @param validator used to validate the array indexes, must not be <code>null</code>. Use {@link
-     *                  IndexValidator#TRUE} instead.
-     * @param numBins   the number of bins for the histogram
-     * @param range     the value range, if <code>null</code> the range is automatically computed
-     *
-     * @return the histogram for the given array
-     *
      * @see #computeHistogramUShort
-     * @deprecated use {@link #computeHistogramShort(short[], IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #computeHistogramShort(short[], IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)}
      */
     public static Histogram computeHistogramShort(final short[] values,
                                                   final IndexValidator validator,
@@ -562,20 +526,8 @@ public class Histogram extends Range {
     }
 
     /**
-     * Computes the histogram for the values in the given <code>short</code> array in the given value range. The array
-     * elements are interpreted as <i>unsigned</i> short values. Values at a given index <code>i</code> for which
-     * <code>validator.validate(i)</code> returns <code>false</code> are excluded from the computation.
-     *
-     * @param values    the array whose histogram to compute
-     * @param validator used to validate the array indexes, must not be <code>null</code>. Use {@link
-     *                  IndexValidator#TRUE} instead.
-     * @param numBins   the number of bins for the histogram
-     * @param range     the value range, if <code>null</code> the range is automatically computed
-     *
-     * @return the histogram for the given array
-     *
      * @see #computeHistogramShort
-     * @deprecated use {@link #computeHistogramUShort(short[], IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #computeHistogramUShort(short[], IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static Histogram computeHistogramUShort(final short[] values,
                                                    final IndexValidator validator,
@@ -651,21 +603,8 @@ public class Histogram extends Range {
     }
 
     /**
-     * Computes the histogram for the values in the given <code>int</code> array in the given value range. The array
-     * elements are interpreted as <i>signed</i> byte values. Values at a given index <code>i</code> for which
-     * <code>validator.validate(i)</code> returns <code>false</code> are excluded from the computation.
-     *
-     * @param values    the array whose histogram to compute
-     * @param validator used to validate the array indexes, must not be <code>null</code>. Use {@link
-     *                  IndexValidator#TRUE} instead.
-     * @param numBins   the number of bins for the histogram
-     * @param range     the value range, if <code>null</code> the range is automatically computed
-     * @param histogram a histogram instance to be reused, can be <code>null</code>
-     *
-     * @return the histogram for the given array
-     *
      * @see #computeHistogramUInt
-     * @deprecated use {@link #computeHistogramInt(int[], IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #computeHistogramInt(int[], IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static Histogram computeHistogramInt(final int[] values,
                                                 final IndexValidator validator,
@@ -745,20 +684,8 @@ public class Histogram extends Range {
     }
 
     /**
-     * Computes the histogram for the values in the given <code>int</code> array in the given value range. The array
-     * elements are interpreted as <i>unsigned</i> byte values. Values at a given index <code>i</code> for which
-     * <code>validator.validate(i)</code> returns <code>false</code> are excluded from the computation.
-     *
-     * @param values    the array whose histogram to compute
-     * @param validator used to validate the array indexes, must not be <code>null</code>. Use {@link
-     *                  IndexValidator#TRUE} instead.
-     * @param range     the value range, if <code>null</code> the range is automatically computed
-     * @param histogram a histogram instance to be reused, can be <code>null</code>
-     *
-     * @return the histogram for the given array of values
-     *
      * @see #computeHistogramInt
-     * @deprecated use {@link #computeHistogramUInt(int[], IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #computeHistogramUInt(int[], IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static Histogram computeHistogramUInt(final int[] values,
                                                  final IndexValidator validator,
@@ -834,21 +761,8 @@ public class Histogram extends Range {
     }
 
     /**
-     * Computes the histogram for the values in the given <code>float</code> array in the given value range. Values at a
-     * given index <code>i</code> for which <code>validator.validate(i)</code> returns <code>false</code> are excluded
-     * from the computation.
-     *
-     * @param values    the array whose histogram to compute
-     * @param validator used to validate the array indexes, must not be <code>null</code>. Use {@link
-     *                  IndexValidator#TRUE} instead.
-     * @param numBins   the number of bins for the histogram
-     * @param range     the value range, if <code>null</code> the range is automatically computed
-     * @param histogram a histogram instance to be reused, can be <code>null</code>
-     *
-     * @return the histogram for the given array of values
-     *
      * @see #computeHistogramDouble
-     * @deprecated use {@link #computeHistogramFloat(float[], IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #computeHistogramFloat(float[], IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static Histogram computeHistogramFloat(final float[] values,
                                                   final IndexValidator validator,
@@ -929,21 +843,8 @@ public class Histogram extends Range {
     }
 
     /**
-     * Computes the histogram for the values in the given <code>double</code> array in the given value range. Values at
-     * a given index <code>i</code> for which <code>validator.validate(i)</code> returns <code>false</code> are excluded
-     * from the computation.
-     *
-     * @param values    the array whose histogram to compute
-     * @param validator used to validate the array indexes, must not be <code>null</code>. Use {@link
-     *                  IndexValidator#TRUE} instead.
-     * @param numBins   the number of bins for the histogram
-     * @param range     the value range, if <code>null</code> the range is automatically computed
-     * @param histogram a histogram instance to be reused, can be <code>null</code>
-     *
-     * @return the histogram for the given array of values
-     *
      * @see #computeHistogramFloat
-     * @deprecated use {@link #computeHistogramDouble(double[], IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #computeHistogramDouble(double[], IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static Histogram computeHistogramDouble(final double[] values,
                                                    final IndexValidator validator,
@@ -1024,20 +925,8 @@ public class Histogram extends Range {
     }
 
     /**
-     * Computes the histogram for the values in the given <code>Histogram.DoubleList</code> in the given value range.
-     * Values at a given index <code>i</code> for which <code>validator.validate(i)</code> returns <code>false</code>
-     * are excluded from the computation.
-     *
-     * @param values    the <code>Histogram.DoubleList</code> whose histogram to compute
-     * @param validator used to validate the indexes, must not be <code>null</code>. Use {@link IndexValidator#TRUE}
-     *                  instead.
-     * @param numBins   the number of bins for the histogram
-     * @param range     the value range, if <code>null</code> the range is automatically computed
-     *
-     * @return the histogram for the given values
-     *
      * @see #computeHistogramByte
-     * @deprecated use {@link #computeHistogramDouble(DoubleList, IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #computeHistogramDouble(DoubleList, IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)}
      */
     public static Histogram computeHistogramDouble(final DoubleList values,
                                                    final IndexValidator validator,
@@ -1116,20 +1005,8 @@ public class Histogram extends Range {
 
 
     /**
-     * Computes the histogram for the values in the given <code>Histogram.DoubleList</code> in the given value range.
-     * Values at a given index <code>i</code> for which <code>validator.validate(i)</code> returns <code>false</code>
-     * are excluded from the computation.
-     *
-     * @param values    the <code>Histogram.DoubleList</code> whose histogram to compute
-     * @param validator used to validate the indexes, must not be <code>null</code>. Use {@link IndexValidator#TRUE}
-     *                  instead.
-     * @param numBins   the number of bins for the histogram
-     * @param range     the value range, if <code>null</code> the range is automatically computed
-     *
-     * @return the histogram for the given values
-     *
      * @see #computeHistogramByte
-     * @deprecated use {@link #computeHistogramGeneric(Object, boolean, IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #computeHistogramGeneric(Object, boolean, IndexValidator, int, Range, Histogram, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static Histogram computeHistogramGeneric(final Object values,
                                                     final boolean unsigned,

@@ -153,8 +153,6 @@ public class PixelInfoView extends JPanel {
 
     /**
      * Sets the filter to be used to filter the displayed bands. <p/>
-     * IMPORTANT: If a display filter was set the
-     * method {@link #setShowOnlyLoadedBands} has no effect. The given display filter will be used instead.
      *
      * @param displayFilter the filter, can be null
      */
@@ -175,20 +173,6 @@ public class PixelInfoView extends JPanel {
      */
     public DisplayFilter getDisplayFilter() {
         return _displayFilter;
-    }
-
-    /**
-     * @deprecated use {@link #setDisplayFilter} instead
-     */
-    public void setShowOnlyLoadedBands(boolean showOnlyLoadedBands) {
-        if (_showOnlyLoadedBands != showOnlyLoadedBands) {
-            _showOnlyLoadedBands = showOnlyLoadedBands;
-            if (getCurrentProduct() != null) {
-                resetBandTableModel();
-                updateDataDisplay();
-                clearSelectionInRasterTables();
-            }
-        }
     }
 
     public void setShowPixelPosDecimals(boolean showPixelPosDecimals) {

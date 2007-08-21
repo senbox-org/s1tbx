@@ -61,22 +61,8 @@ public class VirtualBand extends Band {
     public static final String PROPERTY_NAME_CHECK_INVALIDS = "checkInvalids";
     public static final String PROPERTY_NAME_EXPRESSION = "expression";
 
-    /**
-     * @deprecated use {@link RasterDataNode#PROPERTY_NAME_NO_DATA_VALUE} instead
-     */
-    public static final String PROPERTY_NAME_INVALID_VALUE = "invalidValue";
-    /**
-     * @deprecated use {@link RasterDataNode#PROPERTY_NAME_NO_DATA_VALUE_USED} instead
-     */
-    public static final String PROPERTY_NAME_USE_INVALID_VALUE = "useInvalidValue";
-
     private String _expression;
     private Map<ProductData, Term> _termMap;
-
-    /**
-     * @deprecated
-     */
-    private ProgressListener _progressListener;
     private boolean _checkInvalids;
     private int _numInvalidPixels;
 
@@ -127,20 +113,6 @@ public class VirtualBand extends Band {
             setModified(true);
         }
         super.updateExpression(oldExternalName, newExternalName);
-    }
-
-    /**
-     * @deprecated no replacement
-     */
-    public ProgressListener getProgressListener() {
-        return _progressListener;
-    }
-
-    /**
-     * @deprecated no replacement
-     */
-    public void setProgressListener(final ProgressListener progressListener) {
-        _progressListener = progressListener;
     }
 
     public boolean getCheckInvalids() {
@@ -304,7 +276,7 @@ public class VirtualBand extends Band {
      * @throws IllegalArgumentException if the raster is null
      * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
      *                                  which this product raster belongs to, has no associated product reader
-     * @see ProductReader#readBandRasterData
+     * @see ProductReader#readBandRasterData(Band, int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor) 
      */
     @Override
     public void writeRasterData(final int offsetX, final int offsetY, final int width, final int height,
@@ -366,51 +338,8 @@ public class VirtualBand extends Band {
      */
     @Override
     public void dispose() {
-        _progressListener = null;
         disposeTermMap();
         super.dispose();
-    }
-
-    /**
-     * @deprecated use {@link RasterDataNode#isNoDataValueUsed()} instead
-     */
-    public boolean getUseInvalidValue() {
-        return isNoDataValueUsed();
-    }
-
-    /**
-     * @deprecated use {@link RasterDataNode#setNoDataValueUsed(boolean)} instead
-     */
-    public void setUseInvalidValue(final boolean useInvalidValue) {
-        setNoDataValueUsed(useInvalidValue);
-    }
-
-    /**
-     * @deprecated use {@link RasterDataNode#isNoDataValueUsed} instead
-     */
-    public boolean isInvalidValueUsed() {
-        return isNoDataValueUsed();
-    }
-
-    /**
-     * @deprecated use {@link RasterDataNode#setNoDataValueUsed} instead
-     */
-    public void setInvalidValueUsed(final boolean invalidValueUsed) {
-        setNoDataValueUsed(invalidValueUsed);
-    }
-
-    /**
-     * @deprecated use {@link RasterDataNode#getNoDataValue} instead
-     */
-    public float getInvalidValue() {
-        return (float) getNoDataValue();
-    }
-
-    /**
-     * @deprecated use {@link RasterDataNode#setNoDataValue} instead
-     */
-    public void setInvalidValue(final float invalidValue) {
-        setNoDataValue(invalidValue);
     }
 
     private Term getTerm(final ProductData pd) throws ParseException {

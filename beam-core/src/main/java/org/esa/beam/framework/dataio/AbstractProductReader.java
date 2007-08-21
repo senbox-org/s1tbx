@@ -168,53 +168,11 @@ public abstract class AbstractProductReader implements ProductReader {
     protected abstract Product readProductNodesImpl() throws IOException,
                                                              IllegalFileFormatException;
 
-
     /**
      * Reads raster data from the data source specified by the given destination band into the given in-memory buffer
      * and region.
      * <p/>
-     * <p>For a complete description, please refer to the {@link ProductReader#readBandRasterData interface definition}
-     * of this method.
-     * <p/>
-     * <p>The <code>AbstractProductReader</code> implements this method using the <i>Template Method</i> pattern. The
-     * template method in this case is the abstract method to which the call is delegated after an optional spatial
-     * subset given by {@link #getSubsetDef()} has been applied to the input parameters.
-     *
-     * @param destBand    the destination band which identifies the data source from which to read the sample values
-     * @param destOffsetX the X-offset in the band's raster co-ordinates
-     * @param destOffsetY the Y-offset in the band's raster co-ordinates
-     * @param destWidth   the width of region to be read given in the band's raster co-ordinates
-     * @param destHeight  the height of region to be read given in the band's raster co-ordinates
-     * @param destBuffer  the destination buffer which receives the sample values to be read
-     *
-     * @throws IOException              if an I/O error occurs
-     * @throws IllegalArgumentException if the number of elements destination buffer not equals <code>destWidth *
-     *                                  destHeight</code> or the destination region is out of the band's raster
-     * @see #readBandRasterDataImpl
-     * @see #getSubsetDef()
-     * @see ProductReader#readBandRasterData
-     * @see org.esa.beam.framework.datamodel.Band#getRasterWidth()
-     * @see org.esa.beam.framework.datamodel.Band#getRasterHeight()
-     * @deprecated use {@link #readBandRasterData(org.esa.beam.framework.datamodel.Band, int, int, int, int, org.esa.beam.framework.datamodel.ProductData, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public void readBandRasterData(Band destBand,
-                                   int destOffsetX,
-                                   int destOffsetY,
-                                   int destWidth,
-                                   int destHeight,
-                                   ProductData destBuffer) throws IOException {
-        readBandRasterData(destBand,
-                           destOffsetX, destOffsetY,
-                           destWidth, destHeight,
-                           destBuffer,
-                           ProgressMonitor.NULL);
-    }
-
-    /**
-     * Reads raster data from the data source specified by the given destination band into the given in-memory buffer
-     * and region.
-     * <p/>
-     * <p>For a complete description, please refer to the {@link ProductReader#readBandRasterData interface definition}
+     * <p>For a complete description, please refer to the {@link ProductReader#readBandRasterData(org.esa.beam.framework.datamodel.Band, int, int, int, int, org.esa.beam.framework.datamodel.ProductData, com.bc.ceres.core.ProgressMonitor)}  interface definition}
      * of this method.
      * <p/>
      * <p>The <code>AbstractProductReader</code> implements this method using the <i>Template Method</i> pattern. The
@@ -232,9 +190,9 @@ public abstract class AbstractProductReader implements ProductReader {
      * @throws IOException              if an I/O error occurs
      * @throws IllegalArgumentException if the number of elements destination buffer not equals <code>destWidth *
      *                                  destHeight</code> or the destination region is out of the band's raster
-     * @see #readBandRasterDataImpl
+     * @see #readBandRasterDataImpl(int, int, int, int, int, int, org.esa.beam.framework.datamodel.Band, int, int, int, int, org.esa.beam.framework.datamodel.ProductData, com.bc.ceres.core.ProgressMonitor)
      * @see #getSubsetDef()
-     * @see ProductReader#readBandRasterData
+     * @see ProductReader#readBandRasterData(org.esa.beam.framework.datamodel.Band, int, int, int, int, org.esa.beam.framework.datamodel.ProductData, com.bc.ceres.core.ProgressMonitor)
      * @see org.esa.beam.framework.datamodel.Band#getRasterWidth()
      * @see org.esa.beam.framework.datamodel.Band#getRasterHeight()
      */
@@ -284,55 +242,6 @@ public abstract class AbstractProductReader implements ProductReader {
                                destWidth,
                                destHeight,
                                destBuffer, pm);
-    }
-
-    /**
-     * The template method which is called by the method after an optional spatial subset has been applied to the input
-     * parameters.
-     * <p/>
-     * <p>The destination band, buffer and region parameters are exactly the ones passed to the original  call. Since
-     * the <code>destOffsetX</code> and <code>destOffsetY</code> parameters are already taken into acount in the
-     * <code>sourceOffsetX</code> and <code>sourceOffsetY</code> parameters, an implementor of this method is free to
-     * ignore them.
-     *
-     * @param sourceOffsetX the absolute X-offset in source raster co-ordinates
-     * @param sourceOffsetY the absolute Y-offset in source raster co-ordinates
-     * @param sourceWidth   the width of region providing samples to be read given in source raster co-ordinates
-     * @param sourceHeight  the height of region providing samples to be read given in source raster co-ordinates
-     * @param sourceStepX   the sub-sampling in X direction within the region providing samples to be read
-     * @param sourceStepY   the sub-sampling in Y direction within the region providing samples to be read
-     * @param destBand      the destination band which identifies the data source from which to read the sample values
-     * @param destOffsetX   the X-offset in the band's raster co-ordinates
-     * @param destOffsetY   the Y-offset in the band's raster co-ordinates
-     * @param destWidth     the width of region to be read given in the band's raster co-ordinates
-     * @param destHeight    the height of region to be read given in the band's raster co-ordinates
-     * @param destBuffer    the destination buffer which receives the sample values to be read
-     *
-     * @throws IOException if an I/O error occurs
-     * @see #readBandRasterData
-     * @see #getSubsetDef
-     * @deprecated use {@link #readBandRasterData(org.esa.beam.framework.datamodel.Band, int, int, int, int, org.esa.beam.framework.datamodel.ProductData, com.bc.ceres.core.ProgressMonitor)}
-     */
-    protected void readBandRasterDataImpl(int sourceOffsetX,
-                                                   int sourceOffsetY,
-                                                   int sourceWidth,
-                                                   int sourceHeight,
-                                                   int sourceStepX,
-                                                   int sourceStepY,
-                                                   Band destBand,
-                                                   int destOffsetX,
-                                                   int destOffsetY,
-                                                   int destWidth,
-                                                   int destHeight,
-                                                   ProductData destBuffer) throws IOException {
-        readBandRasterDataImpl(sourceOffsetX, sourceOffsetY,
-                               sourceWidth, sourceHeight,
-                               sourceStepX, sourceStepY,
-                               destBand,
-                               destOffsetX, destOffsetY,
-                               destWidth, destHeight,
-                               destBuffer,
-                               ProgressMonitor.NULL);
     }
 
     /**
@@ -485,38 +394,4 @@ public abstract class AbstractProductReader implements ProductReader {
                name.equalsIgnoreCase("long") ||
                name.equalsIgnoreCase("longitude");
     }
-
-    /////////////////////////////////////////////////////////////////////////
-    // Deprecated
-
-
-    /**
-     * Tests if the given name if the name of a tie point grid which contains values of a geographical great circle.
-     * In this case it is assumed that the grid contains value between -180 and +180 degrees and that this saltus
-     * can occur between two tie-points.
-     *
-     * @param name the grid name
-     *
-     * @return true, if so
-     *
-     * @deprecated Not used in BEAM anymore. Use or override {@link #getGridDiscontinutity(String)} instead
-     */
-    protected boolean isNameOfGreatCircleGrid(String name) {
-        return isNameOfLongitudeGrid(name);
-    }
-
-    /**
-     * Tests if the given name is the name of a langitude raster.
-     *
-     * @param name the grid name
-     *
-     * @return true, if so
-     *
-     * @deprecated Not used in BEAM anymore. Use or override {@link #getGridDiscontinutity(String)} instead
-     */
-    protected boolean isLongitudeRasterName(String name) {
-        return isNameOfLongitudeGrid(name);
-    }
-
-
 }

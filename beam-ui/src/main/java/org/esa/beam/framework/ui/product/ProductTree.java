@@ -179,29 +179,6 @@ public class ProductTree extends JTree implements PopupMenuFactory {
     }
 
     /**
-     * Updates the nodes for the given product.
-     *
-     * @param product the product whose nodes should be updated
-     *
-     * @deprecated it is not necessary to use this method anymore.The product tree updates its nodes automatically.
-     */
-    public void updateProductNodes(final Product product) {
-        //@todo 3 se/se - auf specielle Änderungen im tree eingehen. Z.B. hinzufügen eines Bandes...
-        final DefaultMutableTreeNode productNode = createProductTreeNode(product);
-        final DefaultMutableTreeNode productTreeNode = getTreeNodeFor(product, getRootTreeNode());
-        if (productTreeNode != null) {
-            productTreeNode.removeAllChildren();
-            final int count = productNode.getChildCount();
-            // note from (se): Count must be final because "productNode.getChildCount()" decrease itself
-            // when the child was added to an other node.
-            for (int i = 0; i < count; i++) {
-                productTreeNode.add((DefaultMutableTreeNode) productNode.getChildAt(0));
-            }
-            getTreeModel().nodeStructureChanged(productTreeNode);
-        }
-    }
-
-    /**
      * Removes a  product from this product tree component. The method fires a 'productRemoved' event to all listeners.
      *
      * @param product the product to be removed.

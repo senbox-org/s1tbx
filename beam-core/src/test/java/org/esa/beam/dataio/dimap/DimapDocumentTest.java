@@ -857,8 +857,6 @@ public class DimapDocumentTest extends TestCase {
      * @param product the data product
      *
      * @return a DOM in BEAM-DIMAP format
-     *
-     * @deprecated
      */
     private final static Document createDOM(Product product, String nameDataDirectory) {
         return new TestDOMBuilder(product, nameDataDirectory).createDOM();

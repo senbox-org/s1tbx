@@ -92,13 +92,6 @@ public class MapInfo implements Cloneable {
         _mapProjection.alterMapTransform(_datum.getEllipsoid());
     }
 
-    /**
-     * @deprecated replaced by {@link #getMapProjection}
-     */
-    public MapProjection getProjection() {
-        return _mapProjection;
-    }
-
     public final MapProjection getMapProjection() {
         return _mapProjection;
     }
@@ -210,20 +203,6 @@ public class MapInfo implements Cloneable {
         _sceneSizeFitted = sceneSizeFitted;
     }
 
-    /**
-     * @deprecated use {@link #getNoDataValue} instead
-     */
-    public float getInvalidValue() {
-        return (float) getNoDataValue();
-    }
-
-    /**
-     * @deprecated use {@link #setNoDataValue} instead
-     */
-    public void setInvalidValue(float invalidValue) {
-        setNoDataValue(invalidValue);
-    }
-
     public final double getNoDataValue() {
         return _noDataValue;
     }
@@ -306,27 +285,5 @@ public class MapInfo implements Cloneable {
 
     public MapInfo createDeepClone() {
         return (MapInfo) clone();
-    }
-
-    /**
-     * @deprecated no replacement
-     */
-    public void assign(MapInfo mapInfo) {
-        setProjection((MapProjection) mapInfo.getMapProjection().clone());
-        setDatum(mapInfo.getDatum());
-        setPixelX(mapInfo.getPixelX());
-        setPixelY(mapInfo.getPixelY());
-        setEasting(mapInfo.getEasting());
-        setNorthing(mapInfo.getNorthing());
-        setPixelSizeX(mapInfo.getPixelSizeX());
-        setPixelSizeY(mapInfo.getPixelSizeY());
-        setOrientation(mapInfo.getOrientation());
-        setSceneWidth(mapInfo.getSceneWidth());
-        setSceneHeight(mapInfo.getSceneHeight());
-        setSceneSizeFitted(mapInfo.isSceneSizeFitted());
-        setNoDataValue(mapInfo.getNoDataValue());
-        setOrthorectified(mapInfo.isOrthorectified());
-        setElevationModelName(mapInfo.getElevationModelName());
-        setResampling(mapInfo.getResampling());
     }
 }

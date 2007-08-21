@@ -171,28 +171,6 @@ public class GeoPos {
     }
 
     /**
-     * Normalizes the given latitude so that it is in the range -90 to +90 degree and returns it.
-     *
-     * @param lat the latitude in degree
-     *
-     * @return the normalized latitude
-     *
-     * @deprecated no replacement, latitude values actually cannot be normalized. Don't use this method at all!
-     */
-    public static float normalizeLat(float lat) {
-        if (lat < -360.0F || lat > 360.0F) {
-            lat %= 360.0F;
-        }
-        if (lat < -90.0F) {
-            lat = 180.0F + lat;
-        }
-        if (lat > 90.0F) {
-            lat = 180.0F - lat;
-        }
-        return lat;
-    }
-
-    /**
      * Normalizes the given longitude so that it is in the range -180 to +180 degree and returns it.
      * Note that -180 will remain as is, although -180 is equivalent to +180 degrees.
      *

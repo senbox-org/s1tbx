@@ -79,16 +79,6 @@ public abstract class SmacAbstractProcessor {
     }
 
     /**
-     * Sets the parent processor, the one who drives this object.
-     *
-     * @param parent the parent processor
-     * @deprecated np replacement
-     */
-    public void setParentProcessor(Processor parent) {
-        Guardian.assertNotNull("parent", parent);
-    }
-
-    /**
      * Sets the input product and the request for the current processing.
      *
      * @param input the input product to be processed

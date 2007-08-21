@@ -106,7 +106,7 @@ public class SmileAuxData {
         return _detectorSunSpectralFluxes;
     }
 
-    /** @deprecated use {@link #loadRRAuxData(java.io.File)}
+    /** @deprecated in 4.0, use {@link #loadRRAuxData(java.io.File)}
      */
     public static SmileAuxData loadRRAuxData() throws IOException {
         return loadRRAuxData(getDefaultAuxdataDir());
@@ -120,7 +120,7 @@ public class SmileAuxData {
                                 EnvisatConstants.MERIS_L1B_NUM_SPECTRAL_BANDS);
     }
 
-    /** @deprecated use {@link #loadFRAuxData(java.io.File)}
+    /** @deprecated in 4.0, use {@link #loadFRAuxData(java.io.File)}
      */
     public static SmileAuxData loadFRAuxData() throws IOException {
         return loadFRAuxData(getDefaultAuxdataDir());

@@ -165,12 +165,6 @@ public class TiePointGeoCodingTest2 extends TestCase {
         assertTrue(Float.isNaN(ts.gc.normalizeLon(lonMin - delta)));
         assertFalse(Float.isNaN(ts.gc.normalizeLon(lonMin)));
         assertFalse(Float.isNaN(ts.gc.normalizeLon(lonMin + delta)));
-
-        // Test around lonMax
-        float lonMax = Math.min(+180, ts.gc.getNormalizedLonMax());
-        assertFalse(Float.isNaN(ts.gc.normalizeLon(lonMax - delta)));
-        assertFalse(Float.isNaN(ts.gc.normalizeLon(lonMax)));
-        assertTrue(Float.isNaN(ts.gc.normalizeLon(lonMax + delta)));
     }
 
 

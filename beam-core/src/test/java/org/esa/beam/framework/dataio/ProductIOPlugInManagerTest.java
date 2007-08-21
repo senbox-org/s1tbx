@@ -260,12 +260,6 @@ public class ProductIOPlugInManagerTest extends TestCase {
         public void writeBandRasterData(Band sourceBand,
                                         int sourceOffsetX, int sourceOffsetY,
                                         int sourceWidth, int sourceHeight,
-                                        ProductData sourceBuffer) throws IOException {
-        }
-
-        public void writeBandRasterData(Band sourceBand,
-                                        int sourceOffsetX, int sourceOffsetY,
-                                        int sourceWidth, int sourceHeight,
                                         ProductData sourceBuffer, ProgressMonitor pm) throws IOException {
         }
 
@@ -288,12 +282,6 @@ public class ProductIOPlugInManagerTest extends TestCase {
         @Override
         protected void writeProductNodesImpl() throws IOException {
         }
-
-        public void writeBandRasterData(Band sourceBand,
-                                        int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
-                                        ProductData sourceBuffer) throws IOException {
-        }
-
 
         public void writeBandRasterData(Band sourceBand,
                                         int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,

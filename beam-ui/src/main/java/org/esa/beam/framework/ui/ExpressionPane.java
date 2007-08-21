@@ -357,7 +357,7 @@ public class ExpressionPane extends JPanel {
 
         String oldCode = getCode();
 
-        int newCaretPos = 0;
+        int newCaretPos;
 
         StringBuffer sb = new StringBuffer(oldCode.length() + 2 * pattern.length());
 
@@ -465,23 +465,6 @@ public class ExpressionPane extends JPanel {
             }
         });
         return button;
-    }
-
-    /**
-     * @deprecated no replacement
-     */
-    public JComboBox createInsertComboBox(final String[] patterns) {
-        final JComboBox comboBox = new JComboBox(patterns);
-        comboBox.setFont(insertCompFont);
-        comboBox.setEditable(false);
-        comboBox.setForeground(insertCompColor);
-        comboBox.addActionListener(new ActionListener() {
-
-            public void actionPerformed(ActionEvent e) {
-                insertCodePattern((String) comboBox.getSelectedItem());
-            }
-        });
-        return comboBox;
     }
 
     private JComboBox createInsertComboBox(final String title, final String[] patterns) {
@@ -690,8 +673,8 @@ public class ExpressionPane extends JPanel {
         }
         // remove double values
         Set<String> set = new HashSet<String>();
-        for (int i = 0; i < functionNames.length; i++) {
-            set.add(functionNames[i]);
+        for (String functionName : functionNames) {
+            set.add(functionName);
         }
         functionNames = (String[]) set.toArray(new String[set.size()]);
         Arrays.sort(functionNames);
@@ -753,7 +736,7 @@ public class ExpressionPane extends JPanel {
             return;
         }
 
-        String message = "";
+        String message;
         Color foreground = Color.BLACK;
         if (code.indexOf(PLACEHOLDER) >= 0) {
             lastErrorMessage = "Replace '@' by inserting an element.";   /*I18N*/

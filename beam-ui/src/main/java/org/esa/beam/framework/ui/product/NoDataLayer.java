@@ -80,12 +80,7 @@ public class NoDataLayer extends AbstractLayer {
     }
 
     /**
-     * Creates an image of the no-data layer.
-     *
-     * @return the image
-     *
-     * @throws IOException
-     * @deprecated use {@link #createNoDataImage(com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.1 use {@link #createNoDataImage(com.bc.ceres.core.ProgressMonitor)} instead
      */
     public BufferedImage createNoDataImage() throws IOException {
         return createNoDataImage(ProgressMonitor.NULL);

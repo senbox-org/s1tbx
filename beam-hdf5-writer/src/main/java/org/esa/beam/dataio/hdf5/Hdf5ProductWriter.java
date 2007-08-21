@@ -190,51 +190,6 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
     }
 
     /**
-     * Writes raster data from the given in-memory source buffer into the data sink specified by the given source band
-     * and region.
-     * <p/>
-     * <h3>Source band</h3> The source band is used to identify the data sink in which this method transfers the sample
-     * values given in the source buffer. The method does not modify the pixel data of the given source band at all.
-     * <p/>
-     * <h3>Source buffer</h3> The first element of the source buffer corresponds to the given <code>sourceOffsetX</code>
-     * and <code>sourceOffsetY</code> of the source region. These parameters are an offset within the band's raster data
-     * and <b>not</b> an offset within the source buffer.<br> The number of elements in the buffer must be exactly be
-     * <code>sourceWidth * sourceHeight</code>. The pixel values to be writte are considered to be stored in
-     * line-by-line order, so the raster X co-ordinate varies faster than the Y.
-     * <p/>
-     * <h3>Source region</h3> The given destination region specified by the <code>sourceOffsetX</code>,
-     * <code>sourceOffsetY</code>, <code>sourceWidth</code> and <code>sourceHeight</code> parameters is given in the
-     * source band's raster co-ordinates. These co-ordinates are identical with the destination raster co-ordinates
-     * since product writers do not support spectral or spatial subsets.
-     *
-     * @param sourceBand    the source band which identifies the data sink to which to write the sample values
-     * @param sourceBuffer  the source buffer which provides the sample values to be written
-     * @param sourceOffsetX the X-offset in the band's raster co-ordinates
-     * @param sourceOffsetY the Y-offset in the band's raster co-ordinates
-     * @param sourceWidth   the width of region to be written given in the band's raster co-ordinates
-     * @param sourceHeight  the height of region to be written given in the band's raster co-ordinates
-     *
-     * @throws IOException              if an I/O error occurs
-     * @throws IllegalArgumentException if the number of elements source buffer not equals <code>sourceWidth *
-     *                                  sourceHeight</code> or the source region is out of the band's raster
-     * @see org.esa.beam.framework.datamodel.Band#getRasterWidth()
-     * @see org.esa.beam.framework.datamodel.Band#getRasterHeight()
-     * @deprecated use {@link #writeBandRasterData(Band, int, int, int, int, ProductData, ProgressMonitor)} instead
-     */
-    public void writeBandRasterData(Band sourceBand,
-                                    int sourceOffsetX,
-                                    int sourceOffsetY,
-                                    int sourceWidth,
-                                    int sourceHeight,
-                                    ProductData sourceBuffer) throws IOException {
-        writeBandRasterData(sourceBand,
-                            sourceOffsetX, sourceOffsetY,
-                            sourceWidth, sourceHeight,
-                            sourceBuffer,
-                            ProgressMonitor.NULL);
-    }
-
-    /**
      * {@inheritDoc}
      */
     public void writeBandRasterData(Band sourceBand,

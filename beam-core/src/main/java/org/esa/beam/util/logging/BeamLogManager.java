@@ -193,18 +193,6 @@ public class BeamLogManager {
         return beamFormatter;
     }
 
-
-    /**
-     * Removes all logging handlers from the root logger.
-     * By default, all BEAM log messages are echoed to the console.
-     * Call this method if you don't want this behaviour.
-     *
-     * @deprecated Use {@link #removeRootLoggerHandlers} instead.
-     */
-    public static void removeAllLoggingHandlers() {
-        removeRootLoggerHandlers();
-    }
-
     /**
      * Removes all logging handlers from the root logger.
      * By default, all BEAM log messages are echoed to the console.
@@ -236,39 +224,5 @@ public class BeamLogManager {
         printWriter.println("conditions. See the GNU Library General Public License for details.");
         printWriter.println();
         return stringWriter.toString();
-    }
-
-
-    /**
-     * @param appName       the application name
-     * @param appVersion    the application version string
-     * @param copyrightInfo the application copyright information
-     * @param consoleEcho
-     *
-     * @return the system logger
-     *
-     * @deprecated use {@link #createFormatter(String, String, String)}, {@link #configureSystemLogger(java.util.logging.Formatter, boolean)}, {@link #getSystemLogger()} instead
-     */
-    public static Logger createSystemLogger(String appName,
-                                            String appVersion,
-                                            String copyrightInfo,
-                                            boolean consoleEcho) {
-        final BeamFormatter formatter = createFormatter(appName, appVersion, copyrightInfo);
-        configureSystemLogger(formatter, consoleEcho);
-        return getSystemLogger();
-    }
-
-    /**
-     * Creates the system logger for an application. The Logger has one Console handler attached and a Cache handler.
-     * The console handler has a beam formatter attached.
-     *
-     * @return the system logger
-     *
-     * @deprecated use {@link #configureSystemLogger(java.util.logging.Formatter, boolean)} instead
-     */
-    public static Logger createSystemLogger(Formatter formatter,
-                                            boolean consoleEcho) {
-        configureSystemLogger(formatter, consoleEcho);
-        return getSystemLogger();
     }
 }

@@ -332,7 +332,7 @@ public class ProductImportAction extends ExecCommand {
         private static final long serialVersionUID = -8122437634943074658L;
 
         private JButton _subsetButton;
-        private Product _product;
+        private Product _subsetProduct;
 
         private JLabel _sizeLabel;
 
@@ -340,15 +340,12 @@ public class ProductImportAction extends ExecCommand {
             createUI();
         }
 
-        public Product getSubsetProduct() {
-            return _product;
-        }
-
         /**
-         * @deprecated
+         * File chooser only returns a product, if a product subset was created.
+         * @return the product subset or null
          */
-        public Product getProduct() {
-            return _product;
+        public Product getSubsetProduct() {
+            return _subsetProduct;
         }
 
         @Override
@@ -433,7 +430,7 @@ public class ProductImportAction extends ExecCommand {
         }
 
         private void clearCurrentProduct() {
-            _product = null;
+            _subsetProduct = null;
         }
 
         private void openProductSubsetDialog() {
@@ -457,7 +454,7 @@ public class ProductImportAction extends ExecCommand {
         }
 
         private boolean openProductSubsetDialog(Product product) {
-            _product = null;
+            _subsetProduct = null;
             boolean approve = false;
             if (product != null) {
                 VisatApp visatApp = VisatApp.getApp();
@@ -470,8 +467,8 @@ public class ProductImportAction extends ExecCommand {
                                                                              true);
                     newProductDialog.setSubsetDef(productSubsetDialog.getProductSubsetDef());
                     if (newProductDialog.show() == NewProductDialog.ID_OK) {
-                        _product = newProductDialog.getResultProduct();
-                        approve = _product != null;
+                        _subsetProduct = newProductDialog.getResultProduct();
+                        approve = _subsetProduct != null;
                         if (!approve && newProductDialog.getException() != null) {
                             visatApp.showErrorDialog("The product subset could not be created:\n" +
                                                      newProductDialog.getException().getMessage());

@@ -122,14 +122,6 @@ public class MapProjection implements Cloneable {
     }
 
     /**
-     * @deprecated use {@link #clone()} instead
-     */
-    public MapProjection createDeepClone() {
-        return (MapProjection) clone();
-    }
-
-
-    /**
      * Alters the underlying map transformation by changing the values of the transform parameters named
      * "semi_major" and "semi_minor" (if any) to the ones of the supplied ellipsoid.
      *

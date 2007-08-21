@@ -540,7 +540,7 @@ public class SmacRequestParameterPool {
      * Creates a <code>ProductRef</code> pointing to the smac default input product
      */
     private static ProductRef createDefaultInputProduct() {
-        return new ProductRef(new File(SmacConstants.DEFAULT_DIR_PATH));
+        return new ProductRef(new File(""));
     }
 
     /**

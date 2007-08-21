@@ -1518,42 +1518,6 @@ public class BasicApp {
     }
 
     /**
-     * @deprecated use <code>getLogger().log(level, message)</code> instead.
-     */
-    public final void log(String message) {
-        logInfo(message);
-    }
-
-    /**
-     * @deprecated use <code>getLogger().finest(message)</code> instead.
-     */
-    public final void logDebug(String message) {
-        _logger.finest(message);
-    }
-
-    /**
-     * @deprecated use <code>getLogger().info(message)</code> instead.
-     */
-    public final void logInfo(String message) {
-        _logger.info(message);
-    }
-
-    /**
-     * @deprecated use <code>getLogger().warning(message)</code> instead.
-     */
-    public final void logWarning(String message) {
-        _logger.warning(message);
-    }
-
-    /**
-     * @deprecated use <code>getLogger().severe(message)</code> instead.
-     */
-    public final void logError(String message) {
-        _logger.severe(message);
-    }
-
-
-    /**
      * Prompts a question dialog asking the user whether or not he/she wants to overwrite an existing file. If the given
      * file does not exists, the question dialog does not comes up.
      *

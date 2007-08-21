@@ -45,16 +45,6 @@ public class BitmaskDef extends ProductNode {
     private Color _color;
     private float _transparency;
 
-    /**
-     * @param name
-     *
-     * @deprecated use {@link #BitmaskDef(String, String, String, Color, float) BitmaskDef(name, description, expr, color, transparency)}
-     *             instead.
-     */
-    public BitmaskDef(String name) {
-        this(name, null, "", null, 0.5F);
-    }
-
     public BitmaskDef(String name, String description, String expr, Color color, float transparency) {
         super(name, description);
         setExpr(expr);

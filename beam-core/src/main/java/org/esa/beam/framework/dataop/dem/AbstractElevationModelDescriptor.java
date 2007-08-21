@@ -50,13 +50,6 @@ public abstract class AbstractElevationModelDescriptor implements ElevationModel
     }
 
     /**
-     * @deprecated use {@link #getDemInstallDir} instead
-     */
-    public File getDemAuxdataDir() {
-        return getDemInstallDir();
-    }
-
-    /**
      * Gets the DEM properties file "${BEAM-HOME}/beam-core/auxdata/dem/${DEM}/dem.properties".
      */
     public File getDemPropertiesFile() {

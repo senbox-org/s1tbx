@@ -151,25 +151,6 @@ public class ProcessorApp extends BasicApp {
     }
 
     /**
-     * @deprecated Use {@link #getRequestValidators()} instead.
-     */
-    public RequestValidator getRequestValidator() {
-        return _requestValidator;
-    }
-
-    /**
-     * @deprecated Use {@link #addRequestValidator(RequestValidator)} and {@link #removeRequestValidator(RequestValidator)}
-     *             instead.
-     */
-    public void setRequestValidator(RequestValidator requestValidator) {
-        if (requestValidator == null) {
-            removeRequestValidator(_requestValidator);
-        } else {
-            addRequestValidator(requestValidator);
-        }
-    }
-
-    /**
      * @return never <code>null</code>
      */
     public RequestValidator[] getRequestValidators() {

@@ -112,55 +112,11 @@ public class ProductFlipper extends AbstractProductBuilder {
         super.close();
     }
 
-
     /**
      * Reads raster data from the data source specified by the given destination band into the given in-memory buffer
      * and region.
      * <p/>
-     * <p>For a complete description, please refer to the {@link ProductReader#readBandRasterData interface definition}
-     * of this method.
-     * <p/>
-     * <p>The <code>AbstractProductReader</code> implements this method using the <i>Template Method</i> pattern. The
-     * template method in this case is the abstract method to which the call is delegated after an optional spatial
-     * subset given by {@link #getSubsetDef()} has been applied to the input parameters.
-     *
-     * @param destBand    the destination band which identifies the data source from which to read the sample values
-     * @param destOffsetX the X-offset in the band's raster co-ordinates
-     * @param destOffsetY the Y-offset in the band's raster co-ordinates
-     * @param destWidth   the width of region to be read given in the band's raster co-ordinates
-     * @param destHeight  the height of region to be read given in the band's raster co-ordinates
-     * @param destBuffer  the destination buffer which receives the sample values to be read
-     *
-     * @throws IOException              if an I/O error occurs
-     * @throws IllegalArgumentException if the number of elements destination buffer not equals <code>destWidth *
-     *                                  destHeight</code> or the destination region is out of the band's raster
-     * @see #readBandRasterDataImpl
-     * @see #getSubsetDef()
-     * @see ProductReader#readBandRasterData
-     * @see org.esa.beam.framework.datamodel.Band#getRasterWidth()
-     * @see org.esa.beam.framework.datamodel.Band#getRasterHeight()
-     * @deprecated
-     */
-    @Override
-    public void readBandRasterData(Band destBand,
-                                   int destOffsetX,
-                                   int destOffsetY,
-                                   int destWidth,
-                                   int destHeight,
-                                   ProductData destBuffer) throws IOException {
-
-        readBandRasterData(destBand,
-                           destOffsetX, destOffsetY,
-                           destWidth, destHeight,
-                           destBuffer,
-                           ProgressMonitor.NULL);
-    }
-
-    /**
-     * Reads raster data from the data source specified by the given destination band into the given in-memory buffer
-     * and region.
-     * <p/>
-     * <p>For a complete description, please refer to the {@link ProductReader#readBandRasterData interface definition}
+     * <p>For a complete description, please refer to the {@link ProductReader#readBandRasterData(org.esa.beam.framework.datamodel.Band, int, int, int, int, org.esa.beam.framework.datamodel.ProductData, com.bc.ceres.core.ProgressMonitor)}  interface definition}
      * of this method.
      * <p/>
      * <p>The <code>AbstractProductReader</code> implements this method using the <i>Template Method</i> pattern. The
@@ -180,7 +136,7 @@ public class ProductFlipper extends AbstractProductBuilder {
      *                                  destHeight</code> or the destination region is out of the band's raster
      * @see #readBandRasterDataImpl
      * @see #getSubsetDef()
-     * @see ProductReader#readBandRasterData
+     * @see ProductReader#readBandRasterData(org.esa.beam.framework.datamodel.Band, int, int, int, int, org.esa.beam.framework.datamodel.ProductData, com.bc.ceres.core.ProgressMonitor)
      * @see org.esa.beam.framework.datamodel.Band#getRasterWidth()
      * @see org.esa.beam.framework.datamodel.Band#getRasterHeight()
      */

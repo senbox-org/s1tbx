@@ -100,42 +100,13 @@ public class PropertyFileParameterPage extends ParameterPage {
     }
 
     /**
-     * Creates a parameter page for editing a property file.
-     * The constructor creates a {@link ParamGroup paramGroup} which contains a parameter with the name
-     * {@link PropertyFileParameterPage#PROPERTY_FILE_PARAM_NAME} of type <code>java.io.File</code>.
-     *
-     * @param propertyFile        the property file
-     * @param defaultPropertyText the default properties. The user can always switch back to these properties.
-     *
-     * @see org.esa.beam.framework.processor.ProcessorConstants
-     * @deprecated use {@link PropertyFileParameterPage#PropertyFileParameterPage(java.io.File)} )
-     */
-    public PropertyFileParameterPage(final File propertyFile, final String defaultPropertyText) {
-        this(createDefaultParamGroup(propertyFile));
-    }
-
-    /**
-     * Creates a parameter page for editing a property file.
-     * The {@link ParamGroup paramGroup} must contain a parameter with the name
-     * {@link PropertyFileParameterPage#PROPERTY_FILE_PARAM_NAME} of type <code>java.io.File</code>.
-     *
-     * @param paramGroup          the paramGroup to create the UI from
-     * @param defaultPropertyText the default properties. The user can always switch back to these properties.
-     *
-     * @see org.esa.beam.framework.processor.ProcessorConstants
-     * @deprecated use {@link PropertyFileParameterPage#PropertyFileParameterPage(ParamGroup)} )
-     */
-    public PropertyFileParameterPage(final ParamGroup paramGroup, final String defaultPropertyText) {
-        this(paramGroup);
-    }
-
-    /**
      * Sets the parameter values by these given with the {@link Request request}.
      *
      * @param request the request to obtain the parameters
      *
      * @throws ProcessorException if an error occured
      */
+    @Override
     public void setUIFromRequest(final Request request) throws ProcessorException {
         setPropertyFileParameter(request);
     }
@@ -147,6 +118,7 @@ public class PropertyFileParameterPage extends ParameterPage {
      *
      * @throws ProcessorException if an error occured
      */
+    @Override
     public void initRequestFromUI(final Request request) throws ProcessorException {
         request.addParameter(getParamGroup().getParameter(PROPERTY_FILE_PARAM_NAME));
     }
@@ -154,6 +126,7 @@ public class PropertyFileParameterPage extends ParameterPage {
     /**
      * Sets the processor app for the UI
      */
+    @Override
     public void setApp(final ProcessorApp app) {
         super.setApp(app);
         final ParamGroup paramGroup = getParamGroup();
@@ -183,6 +156,7 @@ public class PropertyFileParameterPage extends ParameterPage {
      *
      * @return the UI component displayed as page of the {@link MultiPageProcessorUI}.
      */
+    @Override
     public JComponent createUI() {
         textArea = new JTextArea();
         final JScrollPane textPane = new JScrollPane(textArea);
@@ -304,6 +278,7 @@ public class PropertyFileParameterPage extends ParameterPage {
 
     private KeyListener createPropertyFileEditorKeyListener() {
         return new KeyAdapter() {
+            @Override
             public void keyTyped(final KeyEvent e) {
                 saveButton.setEnabled(true);
                 restoreDefaultsButton.setEnabled(!textArea.getText().equals(defaultPropertyText));

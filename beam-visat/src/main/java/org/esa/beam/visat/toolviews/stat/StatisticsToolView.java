@@ -30,11 +30,6 @@ public class StatisticsToolView extends AbstractToolView {
     public static final int PROFILEPLOT_TAB_INDEX = 5;
     public static final int COORDLIST_TAB_INDEX = 6;
 
-    /**
-     * @deprecated use {@link #INFORMATION_TAB_INDEX} instead
-     */
-    public static final int PROPERTIES_TAB_INDEX = INFORMATION_TAB_INDEX;
-
     private static String[] _helpIDs = {
             "informationDialog",
             "geoCodingInfoDialog",
@@ -69,6 +64,7 @@ public class StatisticsToolView extends AbstractToolView {
         _tabbedPane.setSelectedIndex(tabIndex);
     }
 
+    @Override
     public JComponent createControl() {
 
         _tabbedPane = new JTabbedPane();

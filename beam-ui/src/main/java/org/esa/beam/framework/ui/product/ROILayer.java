@@ -44,7 +44,7 @@ public class ROILayer extends AbstractLayer {
     }
 
     /**
-     * @deprecated use {@link #updateROIImage(boolean, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.1, use {@link #updateROIImage(boolean, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public void updateROIImage(boolean recreate) throws IOException {
         updateROIImage(recreate, ProgressMonitor.NULL);

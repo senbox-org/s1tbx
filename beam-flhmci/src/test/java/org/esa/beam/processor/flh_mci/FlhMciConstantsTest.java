@@ -58,7 +58,6 @@ public class FlhMciConstantsTest extends TestCase {
      * Tests the correctness of all default path values set.
      */
     public void testDefaultPathValues() {
-        assertEquals("", FlhMciConstants.DEFAULT_DIR_PATH);
         assertEquals("flh_mci_out.dim", FlhMciConstants.DEFAULT_FILE_NAME);
     }
 

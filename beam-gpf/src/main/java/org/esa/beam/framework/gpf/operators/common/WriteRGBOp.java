@@ -90,10 +90,12 @@ public class WriteRGBOp extends AbstractOperator {
         rgbChannelNodes[rgbIndex] = targetBand;
     }
 
+    @Override
     public Product getTargetProduct() {
         return targetProduct;
     }
 
+    @Override
     public void computeTile(Band band, Rectangle rectangle, ProductData destBuffer, ProgressMonitor pm) throws OperatorException {
         Band sourceBand = bandMap.get(band);
         try {

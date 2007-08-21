@@ -167,20 +167,6 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                  destWidth * destHeight);
     }
 
-    /**
-     * @deprecated {@link #readBandRasterDataRegion(org.esa.beam.framework.datamodel.Band, int, int, int, int, org.esa.beam.framework.datamodel.ProductData, com.bc.ceres.core.ProgressMonitor)}
-     */
-    private void readBandRasterDataRegion(Band sourceBand,
-                                          int sourceOffsetX, int sourceOffsetY,
-                                          int sourceWidth, int sourceHeight,
-                                          ProductData destBuffer) throws IOException {
-        sourceBand.readRasterData(sourceOffsetX,
-                                  sourceOffsetY,
-                                  sourceWidth,
-                                  sourceHeight,
-                                  destBuffer);
-    }
-
     private void readBandRasterDataRegion(Band sourceBand,
                                           int sourceOffsetX, int sourceOffsetY,
                                           int sourceWidth, int sourceHeight,
@@ -191,32 +177,6 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                                   sourceWidth,
                                   sourceHeight,
                                   destBuffer, pm);
-    }
-
-    /**
-     * Reads a subsampled bandraster.
-     *
-     * @deprecated use {@link #readBandRasterDataSubSampling(org.esa.beam.framework.datamodel.Band, int, int, int, int, int, int, org.esa.beam.framework.datamodel.ProductData, int, com.bc.ceres.core.ProgressMonitor)}
-     */
-    private void readBandRasterDataSubSampling(Band sourceBand,
-                                               int sourceOffsetX, int sourceOffsetY,
-                                               int sourceWidth, int sourceHeight,
-                                               int sourceStepX, int sourceStepY,
-                                               ProductData destBuffer,
-                                               int destWidth) throws IOException {
-        final int sourceMinY = sourceOffsetY;
-        final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
-        ProductData lineBuffer = ProductData.createInstance(destBuffer.getType(), sourceWidth);
-        int destPos = 0;
-        for (int sourceY = sourceMinY; sourceY <= sourceMaxY; sourceY += sourceStepY) {
-            sourceBand.readRasterData(sourceOffsetX, sourceY, sourceWidth, 1, lineBuffer);
-            if (sourceStepX == 1) {
-                copyData(lineBuffer, 0, destBuffer, destPos, destWidth);
-            } else {
-                copyLine(lineBuffer, 0, sourceWidth, sourceStepX, destBuffer, destPos);
-            }
-            destPos += destWidth;
-        }
     }
 
     /**

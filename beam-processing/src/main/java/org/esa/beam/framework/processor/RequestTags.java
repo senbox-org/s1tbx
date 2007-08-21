@@ -33,11 +33,11 @@ public class RequestTags {
     public static final String ATTRIB_NAME = "name";
     public static final String ATTRIB_VALUE = "value";
     /**
-     * @deprecated use ATTRIB_FILE instead
+     * @deprecated in 4.0, use ATTRIB_FILE instead
      */
     public static final String ATTRIB_URL = "URL";
     /**
-     * @deprecated use ATTRIB_FILE instead
+     * @deprecated in 4.0, use ATTRIB_FILE instead
      */
     public static final String ATTRIB_PATH = "path";
     public static final String ATTRIB_FILE = "file";

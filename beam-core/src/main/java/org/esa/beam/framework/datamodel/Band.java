@@ -63,16 +63,6 @@ public class Band extends AbstractBand {
     public final static String PROPERTY_NAME_SPECTRAL_BANDWIDTH = "spectralBandwidth";
     public final static String PROPERTY_NAME_SPECTRAL_WAVELENGTH = "spectralWavelength";
 
-
-    /**
-     * @deprecated use {@link #PROPERTY_NAME_SPECTRAL_BANDWIDTH} instead
-     */
-    public final static String PROPERTY_NAME_SPECTRAL_BAND_WIDTH = PROPERTY_NAME_SPECTRAL_BANDWIDTH;
-    /**
-     * @deprecated use {@link #PROPERTY_NAME_SPECTRAL_WAVELENGTH} instead
-     */
-    public final static String PROPERTY_NAME_SPECTRAL_WAVE_LENGTH = PROPERTY_NAME_SPECTRAL_WAVELENGTH;
-
     /**
      * If this band contains flag data, this is the flag coding.
      */
@@ -249,7 +239,7 @@ public class Band extends AbstractBand {
      * @throws IllegalArgumentException if the raster is null
      * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to which
      *                                  this product raster belongs to, has no associated product reader
-     * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData
+     * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData(Band, int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor) 
      */
     @Override
     public void readRasterData(int offsetX, int offsetY, int width, int height, ProductData rasterData,

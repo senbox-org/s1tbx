@@ -81,24 +81,6 @@ public interface Resampling {
         int getHeight();
 
         /**
-         * Tests whether or not the "no-data-value" is used.
-         *
-         * @return true, if so
-         *
-         * @deprecated the preferred way to indicate missing data is to let {@link #getSample(int, int)} return {@link Float#NaN}
-         */
-        boolean isNoDataValueUsed();
-
-        /**
-         * Gets the value which indicates missing data.
-         *
-         * @return the no-data-value
-         *
-         * @deprecated the preferred way to indicate missing data is to let {@link #getSample(int, int)} return {@link Float#NaN}
-         */
-        float getNoDataValue();
-
-        /**
          * Gets the sample value at the given raster position or {@link Float#NaN}.
          *
          * @param x the pixel's X-coordinate

@@ -242,21 +242,7 @@ public class Statistics {
     }
 
     /**
-     * Computes the statistics for the given values.
-     *
-     * @param values     an array of a primitive type (such as <code>float[]</code>) or an instance of {@link
-     *                   DoubleList}. Must not be null.
-     * @param unsigned   if true, integer type arrays are considered to contain unsigned values, e.g. a
-     *                   <code>byte[]</code> element is considered to be in the range 0...255
-     * @param validator  a validator used validate a the indexes <code>0...values.length - 1</code>, must not be
-     *                   <code>null</code>. Use {@link IndexValidator#TRUE} instead.
-     * @param statistics the instance to be modified and returned. If null, a new instance will be created, set and
-     *                   returned.
-     *
-     * @return a new statistics instance if <code>statistics</code> is null, or the modified instance
-     *         <code>statistics</code>
-     *
-     * @deprecated use {@link #computeStatisticsGeneric(Object, boolean, IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #computeStatisticsGeneric(Object, boolean, IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static Statistics computeStatisticsGeneric(final Object values, boolean unsigned,
                                                       final IndexValidator validator,
@@ -323,7 +309,7 @@ public class Statistics {
 
     /**
      * @see #computeStatisticsGeneric
-     * @deprecated use {@link #computeStatisticsByte(byte[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #computeStatisticsByte(byte[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static Statistics computeStatisticsByte(final byte[] values, final IndexValidator validator,
                                                    Statistics statistics) {
@@ -341,7 +327,7 @@ public class Statistics {
 
     /**
      * @see #computeStatisticsGeneric
-     * @deprecated use {@link #computeStatisticsUByte(byte[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #computeStatisticsUByte(byte[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static Statistics computeStatisticsUByte(final byte[] values, final IndexValidator validator,
                                                     Statistics statistics) {
@@ -359,7 +345,7 @@ public class Statistics {
 
     /**
      * @see #computeStatisticsGeneric
-     * @deprecated use {@link #computeStatisticsShort(short[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #computeStatisticsShort(short[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static Statistics computeStatisticsShort(final short[] values, final IndexValidator validator,
                                                     Statistics statistics) {
@@ -377,7 +363,7 @@ public class Statistics {
 
     /**
      * @see #computeStatisticsGeneric
-     * @deprecated use {@link #computeStatisticsUShort(short[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #computeStatisticsUShort(short[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static Statistics computeStatisticsUShort(final short[] values, final IndexValidator validator,
                                                      Statistics statistics) {
@@ -395,7 +381,7 @@ public class Statistics {
 
     /**
      * @see #computeStatisticsGeneric
-     * @deprecated use {@link #computeStatisticsInt(int[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #computeStatisticsInt(int[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static Statistics computeStatisticsInt(final int[] values, final IndexValidator validator,
                                                   Statistics statistics) {
@@ -413,7 +399,7 @@ public class Statistics {
 
     /**
      * @see #computeStatisticsGeneric
-     * @deprecated {@link #computeStatisticsUInt(int[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, {@link #computeStatisticsUInt(int[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static Statistics computeStatisticsUInt(final int[] values, final IndexValidator validator,
                                                    Statistics statistics) {
@@ -431,7 +417,7 @@ public class Statistics {
 
     /**
      * @see #computeStatisticsGeneric
-     * @deprecated {@link #computeStatisticsLong(long[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #computeStatisticsLong(long[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static Statistics computeStatisticsLong(final long[] values, final IndexValidator validator,
                                                    Statistics statistics) {
@@ -449,7 +435,7 @@ public class Statistics {
 
     /**
      * @see #computeStatisticsGeneric
-     * @deprecated use {@link #computeStatisticsULong(long[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #computeStatisticsULong(long[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static Statistics computeStatisticsULong(final long[] values, final IndexValidator validator,
                                                     Statistics statistics) {
@@ -467,7 +453,7 @@ public class Statistics {
 
     /**
      * @see #computeStatisticsGeneric
-     * @deprecated use {@link #computeStatisticsFloat(float[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #computeStatisticsFloat(float[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static Statistics computeStatisticsFloat(final float[] values, final IndexValidator validator,
                                                     Statistics statistics) {
@@ -485,7 +471,7 @@ public class Statistics {
 
     /**
      * @see #computeStatisticsGeneric
-     * @deprecated use {@link #computeStatisticsDouble(double[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #computeStatisticsDouble(double[], IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static Statistics computeStatisticsDouble(final double[] values, final IndexValidator validator,
                                                      Statistics statistics) {
@@ -503,7 +489,7 @@ public class Statistics {
 
     /**
      * @see #computeStatisticsGeneric
-     * @deprecated use {@link #computeStatisticsDouble(DoubleList, IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #computeStatisticsDouble(DoubleList, IndexValidator, Statistics, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static Statistics computeStatisticsDouble(final DoubleList values, final IndexValidator validator,
                                                      Statistics statistics) {
