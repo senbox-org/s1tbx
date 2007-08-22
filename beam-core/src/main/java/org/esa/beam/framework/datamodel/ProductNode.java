@@ -37,15 +37,11 @@ public abstract class ProductNode {
     public final static String PROPERTY_NAME_DESCRIPTION = "description";
     public final static String PROPERTY_NAME_MODIFIED = "modified";
 
-    /**
-     * @supplierRole owner
-     */
+    private Product _product;
     private ProductNode _owner;
-
     private String _name;
     private String _description;
     private boolean _modified;
-
 
     /**
      * Constructs a new product node with the given name.
@@ -80,12 +76,15 @@ public abstract class ProductNode {
 
     /**
      * Sets the the owner node of this node.
+     * <p>Overrides shall finally call <code>super.setOwner(owner)</code>.
+     * </p>
      *
      * @param owner the new owner
      */
     protected void setOwner(ProductNode owner) {
         if (owner != _owner) {
             _owner = owner;
+            _product = null;
             fireProductNodeChanged(PROPERTY_NAME_OWNER);
             setModified(true);
         }
@@ -243,14 +242,17 @@ public abstract class ProductNode {
      * @throws IllegalStateException if this node does not belong to a product
      */
     public Product getProduct() {
-        ProductNode owner = this;
-        do {
-            if (owner instanceof Product) {
-                return (Product) owner;
-            }
-            owner = owner.getOwner();
-        } while (owner != null);
-        return null;
+        if (_product == null) {
+            ProductNode owner = this;
+            do {
+                if (owner instanceof Product) {
+                    _product = (Product) owner;
+                    break;
+                }
+                owner = owner.getOwner();
+            } while (owner != null);
+        }
+        return _product;
     }
 
     /**
@@ -514,42 +516,6 @@ public abstract class ProductNode {
      */
     public void removeFromFile(ProductWriter productWriter) {
     }
-
-// todo - check if we really need this stuff
-//    /**
-//     * Binds this node to the given product node. The method simply calls
-//     * <pre>
-//     * this.setOwner(productNode);
-//     * </pre>
-//     * <p>This method can be used to create temporary, uni-directional ownerships between this node and another one.
-//     * Use the {@link #unbind()} method to cancel the ownership.</p>
-//     * <p/>
-//     * <p>The method throws an IllegalStateException if this node is already bound.</p>
-//     *
-//     * @param productNode the product node
-//     *
-//     * @throws IllegalStateException if this node is already bound
-//     */
-//    public void bindTo(ProductNode productNode) {
-//        Guardian.assertNotNull("productNode", productNode);
-//        if (getOwner() != null) {
-//            throw new IllegalStateException("node already bound to " + getOwner());
-//        }
-//        setOwner(productNode);
-//    }
-//
-//    /**
-//     * Unbinds the given product node to this node. The method simply calls
-//     * <pre>
-//     * productNode.setOwner(null);
-//     * </pre>
-//     * <p>This method is used to cancel a temporary, uni-directional ownership between this node and another one
-//     * created by the {@link #bindTo(ProductNode)} method.
-//     */
-//    public void unbind() {
-//        setOwner(null);
-//    }
-
 }
 
 
