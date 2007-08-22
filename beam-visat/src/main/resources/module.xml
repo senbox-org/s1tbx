@@ -22,6 +22,7 @@
         [BEAM-660] Speedup image creation process<br/>
         [BEAM-671] Pin pixel coordinates should be floating point numbers<br/>
         [BEAM-672] Include spectral unmixing tool<br/>
+        [BEAM-673] Allow for multiple spectra in spectrum view<br/>
         ]]>
     </changelog>
 
