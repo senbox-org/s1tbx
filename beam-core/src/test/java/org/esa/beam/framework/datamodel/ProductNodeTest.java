@@ -34,7 +34,7 @@ public class ProductNodeTest extends TestCase {
     protected void setUp() {
     }
 
-    public void testSetOwnerToNullAfterFireNodeRemoved() {
+    public void testSetOwnerToNullAfterNodeRemoval() {
         final ProductNode[] owner = new Product[1];
         final Product product = new Product("product", "t", 10, 10);
         product.addProductNodeListener(new ProductNodeListenerAdapter() {
@@ -57,6 +57,36 @@ public class ProductNodeTest extends TestCase {
         // node was removed, the owner of the node
         // must be set to null
         assertNull(addedBand.getOwner());
+    }
+
+    public void testSetProductToNullAfterNodeRemoval() {
+
+        Band band = new Band("b", ProductData.TYPE_INT16, 10, 10);
+
+        assertNull(band.getOwner());
+        assertNull(band.getProduct());
+
+        final Product p1 = new Product("p1", "t", 10, 10);
+        p1.addBand(band);
+
+        assertSame(p1, band.getOwner());
+        assertSame(p1, band.getProduct());
+
+        p1.removeBand(band);
+
+        assertNull(band.getOwner());
+        assertNull(band.getProduct());
+
+        final Product p2 = new Product("p2", "t", 10, 10);
+        p2.addBand(band);
+
+        assertSame(p2, band.getOwner());
+        assertSame(p2, band.getProduct());
+
+        p2.removeBand(band);
+
+        assertNull(band.getOwner());
+        assertNull(band.getProduct());
     }
 
     public void testSetName() {
