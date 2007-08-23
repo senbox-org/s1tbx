@@ -18,14 +18,7 @@ package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.layer.LayerModel;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListener;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.draw.ShapeFigure;
 import org.esa.beam.framework.ui.BasicImageView;
@@ -35,19 +28,10 @@ import org.esa.beam.framework.ui.command.CommandUIFactory;
 import org.esa.beam.framework.ui.tool.DrawingEditor;
 import org.esa.beam.framework.ui.tool.Tool;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.PropertyMap;
-import org.esa.beam.util.PropertyMapChangeListener;
-import org.esa.beam.util.StopWatch;
+import org.esa.beam.util.*;
 
 import javax.swing.JPopupMenu;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Area;
 import java.awt.image.RenderedImage;
@@ -62,9 +46,9 @@ import java.util.ArrayList;
  * dataset.
  */
 public class ProductSceneView extends BasicImageView implements ProductNodeView,
-                                                                DrawingEditor,
-                                                                PropertyMapChangeListener,
-                                                                PixelInfoFactory {
+        DrawingEditor,
+        PropertyMapChangeListener,
+        PixelInfoFactory {
 
     /**
      * Property name for antialiased graphics drawing
@@ -96,24 +80,24 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
     private ProductSceneImage sceneImage;
 
     /**
-     * @deprecated in 4.1, use {@link #ProductSceneView(ProductSceneImage)} instead
      * @see ProductSceneImage#create(org.esa.beam.framework.datamodel.RasterDataNode, com.bc.layer.LayerModel, com.bc.ceres.core.ProgressMonitor)
+     * @deprecated in 4.1, use {@link #ProductSceneView(ProductSceneImage)} instead
      */
     public ProductSceneView(RasterDataNode raster, LayerModel layerModel) throws IOException {
         this(ProductSceneImage.create(raster, layerModel, ProgressMonitor.NULL));
     }
 
     /**
-     * @deprecated in 4.1, use {@link #ProductSceneView(ProductSceneImage)} instead
      * @see ProductSceneImage#create(org.esa.beam.framework.datamodel.RasterDataNode, com.bc.ceres.core.ProgressMonitor)
+     * @deprecated in 4.1, use {@link #ProductSceneView(ProductSceneImage)} instead
      */
     public ProductSceneView(RasterDataNode raster) throws IOException {
         this(ProductSceneImage.create(raster, ProgressMonitor.NULL));
     }
 
     /**
-     * @deprecated in 4.1, use {@link #ProductSceneView(ProductSceneImage)} instead
      * @see ProductSceneImage#create(org.esa.beam.framework.datamodel.RasterDataNode, org.esa.beam.framework.datamodel.RasterDataNode, org.esa.beam.framework.datamodel.RasterDataNode, com.bc.ceres.core.ProgressMonitor)
+     * @deprecated in 4.1, use {@link #ProductSceneView(ProductSceneImage)} instead
      */
     public ProductSceneView(RasterDataNode redRaster,
                             RasterDataNode greenRaster,
@@ -192,7 +176,6 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
      * Gets the product raster with the specified index.
      *
      * @param index the zero-based product raster index
-     *
      * @return the product raster with the given index
      */
     public RasterDataNode getRasterAt(int index) {
@@ -395,7 +378,9 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
                 commandUIFactory.addContextDependentMenuItems("pin", popupMenu);
             }
         }
-        commandUIFactory.addContextDependentMenuItems("subsetFromView", popupMenu);
+        if (commandUIFactory != null) {
+            commandUIFactory.addContextDependentMenuItems("subsetFromView", popupMenu);
+        }
         return popupMenu;
     }
 
@@ -427,7 +412,6 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
      *
      * @param pixelX the pixel X co-ordinate
      * @param pixelY the pixel Y co-ordinate
-     *
      * @return the info string at the given position
      */
     public String createPixelInfoString(int pixelX, int pixelY) {
@@ -484,15 +468,15 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
         getImageDisplay().setImageBorderColor(imageBorderColor);
         getImageDisplay().setBackground(backgroundColor);
         getImageDisplay().setAntialiasing(antialiasing ?
-                                          RenderingHints.VALUE_ANTIALIAS_ON :
-                                          RenderingHints.VALUE_ANTIALIAS_OFF);
+                RenderingHints.VALUE_ANTIALIAS_ON :
+                RenderingHints.VALUE_ANTIALIAS_OFF);
         getImageDisplay().setInterpolation(interpolation.equalsIgnoreCase(IMAGE_INTERPOLATION_BICUBIC) ?
-                                           RenderingHints.VALUE_INTERPOLATION_BICUBIC :
-                                           interpolation.equalsIgnoreCase(IMAGE_INTERPOLATION_BILINEAR) ?
-                                           RenderingHints.VALUE_INTERPOLATION_BILINEAR :
-                                           interpolation.equalsIgnoreCase(IMAGE_INTERPOLATION_NEAREST_NEIGHBOUR) ?
-                                           RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR :
-                                           null);
+                RenderingHints.VALUE_INTERPOLATION_BICUBIC :
+                interpolation.equalsIgnoreCase(IMAGE_INTERPOLATION_BILINEAR) ?
+                        RenderingHints.VALUE_INTERPOLATION_BILINEAR :
+                        interpolation.equalsIgnoreCase(IMAGE_INTERPOLATION_NEAREST_NEIGHBOUR) ?
+                                RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR :
+                                null);
     }
 
     private void setNoDataProperties(PropertyMap propertyMap) {
@@ -629,7 +613,6 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
      * Gets all figures having an attribute with the given name.
      *
      * @param name the attribute name
-     *
      * @return the figure array which is empty if no figures where found, never <code>null</code>
      */
     public Figure[] getFiguresWithAttribute(String name) {
@@ -641,7 +624,6 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
      *
      * @param name  the attribute name, must not be <code>null</code>
      * @param value the attribute value, must not be <code>null</code>
-     *
      * @return the figure array which is empty if no figures where found, never <code>null</code>
      */
     public Figure[] getFiguresWithAttribute(String name, Object value) {
