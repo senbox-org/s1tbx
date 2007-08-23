@@ -19,20 +19,10 @@ package org.esa.beam.dataio.dimap;
 import org.esa.beam.dataio.dimap.spi.DimapPersistable;
 import org.esa.beam.dataio.dimap.spi.DimapPersistence;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.esa.beam.framework.dataop.maptransf.Ellipsoid;
-import org.esa.beam.framework.dataop.maptransf.MapInfo;
-import org.esa.beam.framework.dataop.maptransf.MapProjection;
-import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
-import org.esa.beam.framework.dataop.maptransf.MapTransform;
-import org.esa.beam.framework.dataop.maptransf.MapTransformDescriptor;
+import org.esa.beam.framework.dataop.maptransf.*;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.XmlHelper;
+import org.esa.beam.util.*;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.math.FXYSum;
@@ -50,11 +40,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -71,7 +57,6 @@ public class DimapProductHelpers {
      * Creates a in-memory data product represenation from the given DOM (BEAM-DIMAP format).
      *
      * @param dom the DOM in BEAM-DIMAP format
-     *
      * @return an in-memory data product represenation
      */
     public final static Product createProduct(Document dom) {
@@ -85,10 +70,8 @@ public class DimapProductHelpers {
      * @param dom      the JDOM in BEAM-DIMAP format
      * @param product  the product to retrieve the data files for
      * @param inputDir the directory where to search for the data files
-     *
      * @return a <code>Map</code> object which contains all the band data references from the given jDom.<br> Returns
      *         an empty <code>Map</code> if the jDom does not contain band data files
-     *
      * @throws IllegalArgumentException if one of the parameters is null.
      */
     public final static Map getBandDataFiles(final Document dom, final Product product, final File inputDir) throws IllegalArgumentException {
@@ -137,9 +120,7 @@ public class DimapProductHelpers {
      *
      * @param dom              the DOM in BEAM-DIMAP format
      * @param tiePointGridName the name of the tie point grid
-     *
      * @return the <code>String</code> object which points to the data for the tie point grid.
-     *
      * @throws IllegalArgumentException if the parameter dom is null or the parameter tiePointGridName is null or empty
      */
     public final static String getTiePointDataFile(Document dom, String tiePointGridName) throws IllegalArgumentException {
@@ -267,7 +248,7 @@ public class DimapProductHelpers {
                 }
             } else {
                 Debug.trace("DimapProductHelpers.ProductBuilder.createGeoCoding(): " +
-                            "the tag <" + tagCoordRefSys + "> contains no tag <" + tagHorizontalCs + ">"); /*I18N*/
+                        "the tag <" + tagCoordRefSys + "> contains no tag <" + tagHorizontalCs + ">"); /*I18N*/
             }
             // 1. fallback: try to find a TiePointGeoCoding
             final Element tpgElem = coordRefSysElem.getChild(DimapProductConstants.TAG_GEOCODING_TIE_POINT_GRIDS);
@@ -299,7 +280,7 @@ public class DimapProductHelpers {
                 }
             } else {
                 Debug.trace("DimapProductHelpers.ProductBuilder.createGeoCoding(): " +
-                            "the coordinate reference system tag contains no horizontal coordinat system tag"); /*I18N*/
+                        "the coordinate reference system tag contains no horizontal coordinat system tag"); /*I18N*/
             }
             // 2. fallback: try to find a MapGeoCoding
             final Element mapElem = coordRefSysElem.getChild(DimapProductConstants.TAG_GEOCODING_MAP);
@@ -356,13 +337,13 @@ public class DimapProductHelpers {
                 }
             } else {
                 Debug.trace("DimapProductHelpers.ProductBuilder.createGeoCoding(): neither '" /*I18N*/
-                            + DimapProductConstants.TAG_GEOCODING_TIE_POINT_GRIDS + "' nor '" /*I18N*/
-                            + DimapProductConstants.TAG_GEOCODING_MAP + "' found in '" /*I18N*/
-                            + tagCoordRefSys + "' element"); /*I18N*/
+                        + DimapProductConstants.TAG_GEOCODING_TIE_POINT_GRIDS + "' nor '" /*I18N*/
+                        + DimapProductConstants.TAG_GEOCODING_MAP + "' found in '" /*I18N*/
+                        + tagCoordRefSys + "' element"); /*I18N*/
             }
         } else {
             Debug.trace("DimapProductHelpers.ProductBuilder.createGeoCoding(): missing '" /*I18N*/
-                        + tagCoordRefSys + "' element"); /*I18N*/
+                    + tagCoordRefSys + "' element"); /*I18N*/
         }
 
         // 3. fallback: try to create a TiePointGeoCoding from "latitude" and "longitude"
@@ -601,7 +582,6 @@ public class DimapProductHelpers {
      * Creates a {@link FileFilter} for BEAM-DIMAP files.
      *
      * @return a FileFilter for use with a {@link javax.swing.JFileChooser}
-     *
      * @see org.esa.beam.util.io.BeamFileChooser
      */
     public static FileFilter createDimapFileFilter() {
@@ -613,7 +593,6 @@ public class DimapProductHelpers {
      * Creates a parsed {@link Document} from the given {@link InputStream inputStream}.
      *
      * @param inputStream the stream to be parsed
-     *
      * @return a parsed inputStream
      */
     public static Document createDom(final InputStream inputStream) {
@@ -636,9 +615,7 @@ public class DimapProductHelpers {
      * Converts a given BEAM <code>unit</code> into a DIMAP conform unit.
      *
      * @param unit a BEAM unit
-     *
      * @return the converted unit
-     *
      * @see DimapProductHelpers#convertDimapUnitToBeamUnit(String)
      */
     public static String convertBeamUnitToDimapUnit(final String unit) {
@@ -659,9 +636,7 @@ public class DimapProductHelpers {
      * Converts a given DIMAP <code>unit</code> into a BEAM conform unit.
      *
      * @param unit a DIMAP unit
-     *
      * @return the converted unit
-     *
      * @see DimapProductHelpers#convertBeamUnitToDimapUnit(String)
      */
     public static String convertDimapUnitToBeamUnit(final String unit) {
@@ -719,6 +694,7 @@ public class DimapProductHelpers {
                 final Element pinElem = (Element) children.get(i);
                 final Pin pin = Pin.createPin(pinElem);
                 if (pin != null) {
+                    pin.updatePixelPos(product.getGeoCoding());
                     product.addPin(pin);
                 }
             }
@@ -785,12 +761,12 @@ public class DimapProductHelpers {
                 final ProductData data;
                 if (type == ProductData.TYPE_ASCII) {
                     data = ProductData.createInstance(attValue);
-                } else if (type == ProductData.TYPE_UTC){
+                } else if (type == ProductData.TYPE_UTC) {
                     if (attValue.contains(",")) {
                         // *************************************************
                         // this case is necesarry for backward compatibility
                         // *************************************************
-                    final String[] dataValues = StringUtils.csvToArray(attValue);
+                        final String[] dataValues = StringUtils.csvToArray(attValue);
                         data = ProductData.createInstance(type);
                         data.setElems(dataValues);
                     } else {
@@ -799,7 +775,7 @@ public class DimapProductHelpers {
                             utc = ProductData.UTC.parse(attValue);
                         } catch (ParseException e) {
                             Debug.trace(e);
-                        } finally{
+                        } finally {
                             data = utc;
                         }
                     }

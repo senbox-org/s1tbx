@@ -18,11 +18,7 @@ package org.esa.beam.framework.datamodel;
 
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.ObjectUtils;
-import org.esa.beam.util.XmlHelper;
-import org.esa.beam.util.XmlWriter;
+import org.esa.beam.util.*;
 import org.jdom.Element;
 
 import java.awt.Color;
@@ -141,7 +137,9 @@ public class Pin extends ProductNode {
         }
     }
 
-    /** @deprecated in 4.1, no replacement. Pin symbols are not in raster coordinates anymore */
+    /**
+     * @deprecated in 4.1, no replacement. Pin symbols are not in raster coordinates anymore
+     */
     public boolean isPixelPosContainedInSymbolShape(float pixelX, float pixelY) {
         Shape shape = getSymbol().getShape();
         if (shape != null) {
@@ -162,16 +160,13 @@ public class Pin extends ProductNode {
 
 
     public GeoPos getGeoPos() {
-        if (geoPos == null
-                && getProduct() != null
-                && getProduct().getGeoCoding() != null
-                && getProduct().getGeoCoding().canGetGeoPos()) {
+        if (geoPos == null && canComputeGeoPos()) {
             geoPos = getProduct().getGeoCoding().getGeoPos(pixelPos, null);
         }
         if (geoPos == null) {
             return null;
         }
-        return new GeoPos(geoPos.lat , geoPos.lon);
+        return new GeoPos(geoPos.lat, geoPos.lon);
     }
 
     public void setPixelPos(PixelPos pixelPos) {
@@ -190,18 +185,14 @@ public class Pin extends ProductNode {
      * @see GeoCoding#canGetPixelPos()
      */
     public PixelPos getPixelPos() {
-        if (pixelPos == null
-                && getProduct() != null
-                && getProduct().getGeoCoding() != null
-                && getProduct().getGeoCoding().canGetPixelPos()) {
+        if (pixelPos == null && canComputePixelPos()) {
             pixelPos = getProduct().getGeoCoding().getPixelPos(geoPos, null);
         }
         if (pixelPos == null) {
             return null;
         }
-        return new PixelPos(pixelPos.x , pixelPos.y);
+        return new PixelPos(pixelPos.x, pixelPos.y);
     }
-
 
     public void setGeoPos(GeoPos geoPos) {
         if (ObjectUtils.equalObjects(this.geoPos, geoPos)) {
@@ -300,7 +291,6 @@ public class Pin extends ProductNode {
         }
 
         PinSymbol pinSymbol = PinSymbol.createDefaultPinSymbol();
-
         Color fillColor = createColor(element.getChild(DimapProductConstants.TAG_PIN_FILL_COLOR));
         if (fillColor != null) {
             pinSymbol.setFillPaint(fillColor);
@@ -310,25 +300,7 @@ public class Pin extends ProductNode {
             pinSymbol.setOutlineColor(outlineColor);
         }
 
-        Pin pin;
-        if (geoPos != null){
-            pin = new Pin(name, label, geoPos);
-            if(pixelPos != null) {
-                pin.setPixelPos(pixelPos);
-            }
-        }
-        else {
-            pin = new Pin(name, label, pixelPos);
-            if(geoPos != null) {
-                pin.setGeoPos(geoPos);
-            }
-        }
-        if (label != null) {
-            pin.setLabel(label);
-        }
-        pin.setDescription(description);
-        pin.setSymbol(pinSymbol);
-        return pin;
+        return new Pin(name, label, description, pixelPos, geoPos, pinSymbol);
     }
 
     // todo - move this method into a new DimapPersistable
@@ -364,5 +336,25 @@ public class Pin extends ProductNode {
             symbol = null;
         }
         super.dispose();
+    }
+
+
+    private boolean canComputeGeoPos() {
+        return (getProduct() != null
+                && getProduct().getGeoCoding() != null
+                && getProduct().getGeoCoding().canGetGeoPos());
+    }
+
+    private boolean canComputePixelPos() {
+        return (getProduct() != null
+                && getProduct().getGeoCoding() != null
+                && getProduct().getGeoCoding().canGetPixelPos());
+    }
+
+    public void updatePixelPos(GeoCoding geoCoding) {
+        if (getGeoPos() != null && geoCoding != null && geoCoding.canGetPixelPos()) {
+            PixelPos pixelPos = geoCoding.getPixelPos(getGeoPos(), null);
+            setPixelPos(pixelPos);
+        }
     }
 }
