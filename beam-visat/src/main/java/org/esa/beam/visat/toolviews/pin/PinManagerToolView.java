@@ -30,7 +30,11 @@ import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.BandChooser;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.util.*;
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.XmlWriter;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
@@ -41,18 +45,37 @@ import org.jdom.input.DOMBuilder;
 import org.xml.sax.SAXException;
 
 import javax.swing.*;
-import javax.swing.event.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.InternalFrameAdapter;
+import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.MouseInputAdapter;
+import javax.swing.event.TableColumnModelEvent;
+import javax.swing.event.TableColumnModelListener;
 import javax.swing.table.TableColumnModel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.Point;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.RandomAccessFile;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -790,8 +813,8 @@ public class PinManagerToolView extends AbstractToolView {
             pw.print(pin.getGeoPos().getLat() + "\t");
             pw.print(pin.getGeoPos().getLon() + "\t");
         } else {
-            pw.print("n.a." + "\t");
-            pw.print("n.a." + "\t");
+            pw.print(Float.NaN + "\t");
+            pw.print(Float.NaN + "\t");
         }
     }
 
@@ -800,8 +823,8 @@ public class PinManagerToolView extends AbstractToolView {
             pw.print(pin.getPixelPos().getX() + "\t");
             pw.print(pin.getPixelPos().getY() + "\t");
         } else {
-            pw.print("n.a." + "\t");
-            pw.print("n.a." + "\t");
+            pw.print(Float.NaN + "\t");
+            pw.print(Float.NaN + "\t");
         }
     }
 
