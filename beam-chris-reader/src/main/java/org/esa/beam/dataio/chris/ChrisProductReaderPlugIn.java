@@ -74,7 +74,7 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
                 fileId = HDF4Lib.Hopen(file.getPath(), HDFConstants.DFACC_RDONLY);
                 if (fileId != -1) {
                     if (isChrisModeAttributeAvailable(file)) {
-                        return DecodeQualification.INTENDED;                   
+                        return DecodeQualification.INTENDED;
                     }
                 }
             } catch (Exception e) {

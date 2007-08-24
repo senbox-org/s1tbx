@@ -4,7 +4,7 @@ import java.awt.Color;
 
 /**
  * The enumeration type {@code Flags} is a representation of
- * the product flags used by CHRIS.
+ * the flags used by CHRIS images.
  *
  * @author Ralf Quast
  * @version $Revision: $ $Date: $

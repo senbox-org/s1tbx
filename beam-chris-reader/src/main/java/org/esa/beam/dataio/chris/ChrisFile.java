@@ -53,7 +53,7 @@ class ChrisFile {
             sdId = HDF4Lib.SDstart(file.getPath(), HDFConstants.DFACC_RDONLY);
             HDF4Lib.Vstart(fileId);
             globalAttributes = readGlobalAttributes(sdId);
-            rciImageSds = openRciImageSds(sdId);
+            rciImageSds = openRciSds(sdId);
             maskSds = openMaskSds(sdId, rciImageSds);
             modeInfo = readModeInfo(fileId);
             gainInfoMap = readGainInfo(fileId);
@@ -125,14 +125,14 @@ class ChrisFile {
         return modeInfo[bandIndex][0];
     }
 
-    public double getGainValue(int bandIndex) {
+    public String getGainValue(int bandIndex) {
         final float gainSetting = modeInfo[bandIndex][2];
 
         if (gainInfoMap.containsKey(gainSetting)) {
-            return gainInfoMap.get(gainSetting);
+            return String.valueOf(gainInfoMap.get(gainSetting));
         }
 
-        return 1.0;
+        return "unknown";
     }
 
     public float getBandwidth(int bandIndex) {
@@ -382,7 +382,7 @@ class ChrisFile {
         }
     }
 
-    private static Sds openRciImageSds(int sdId) throws IOException {
+    private static Sds openRciSds(int sdId) throws IOException {
         final Sds sds = openSds(sdId, ChrisConstants.SDS_NAME_RCI_IMAGE, true);
 
         if (sds.dimSizes.length != 3) {
@@ -499,7 +499,6 @@ class ChrisFile {
 
 
     private static class Sds {
-
         final String name;
         final int sdsId;
         final int dataType;

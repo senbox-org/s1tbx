@@ -153,7 +153,7 @@ public class ChrisProductReader extends AbstractProductReader {
     }
 
     private void setMetadataElements(final Product product) {
-        final MetadataElement element = new MetadataElement(ChrisConstants.MPH_NAME);
+        final MetadataElement mph = new MetadataElement(ChrisConstants.MPH_NAME);
 
         for (final String name : chrisFile.getGlobalAttributeNames()) {
             if (ChrisConstants.ATTR_NAME_KEY_TO_MASK.equals(name)) {
@@ -162,10 +162,18 @@ public class ChrisProductReader extends AbstractProductReader {
 
             final String globalAttribute = chrisFile.getGlobalAttribute(name);
             final ProductData data = ProductData.createInstance(globalAttribute);
-            element.addAttribute(new MetadataAttribute(name, data, true));
+            mph.addAttribute(new MetadataAttribute(name, data, true));
         }
+        final MetadataElement gainValues = new MetadataElement("Gain Values");
+        for (int i = 0; i < chrisFile.getSpectralBandCount(); i++) {
+            final ProductData data = ProductData.createInstance(chrisFile.getGainValue(i));
+            final String name = MessageFormat.format("radiance_{0}", i + 1);
+            
+            gainValues.addAttribute(new MetadataAttribute(name, data, true));
+        }
+        mph.addElement(gainValues);
 
-        product.getMetadataRoot().addElement(element);
+        product.getMetadataRoot().addElement(mph);
     }
 
     private void setStartAndEndTimes(final Product product) {
@@ -289,11 +297,11 @@ public class ChrisProductReader extends AbstractProductReader {
             for (int i = minBandIndex, j = 1; i <= maxBandIndex; ++i) {
                 if (i != bandIndex) {
                     // mask refinement requires a full-width tile
-                    readTile(i, rciData[j], maskData[j], 0, tileOffsetY, sceneRasterWidth, tileHeight);
+                    readFullWidthTile(i, rciData[j], maskData[j], tileOffsetY, tileHeight);
                     ++j;
                 } else {
                     // mask refinement requires a full-width tile
-                    readTile(i, rciData[0], maskData[0], 0, tileOffsetY, sceneRasterWidth, tileHeight);
+                    readFullWidthTile(i, rciData[0], maskData[0], tileOffsetY, tileHeight);
                 }
                 pm.worked(1);
             }
@@ -326,7 +334,7 @@ public class ChrisProductReader extends AbstractProductReader {
             final short[] maskData = new short[sceneRasterWidth * targetHeight];
 
             // mask refinement requires a full-width tile
-            readTile(bandIndex, rciData, maskData, 0, targetOffsetY, sceneRasterWidth, targetHeight);
+            readFullWidthTile(bandIndex, rciData, maskData, targetOffsetY, targetHeight);
 
             for (int i = 0; i < targetHeight; ++i) {
                 System.arraycopy(maskData, targetOffsetX + i * sceneRasterWidth, targetBuffer.getElems(),
@@ -338,32 +346,30 @@ public class ChrisProductReader extends AbstractProductReader {
         }
     }
 
-    private void readTile(int bandIndex,
-                          int[] rciData,
-                          short[] maskData,
-                          int tileOffsetX,
-                          int tileOffsetY,
-                          int tileWidth,
-                          int tileHeight)
+    private void readFullWidthTile(int bandIndex,
+                                   int[] rciData,
+                                   short[] maskData,
+                                   int tileOffsetY,
+                                   int tileHeight)
             throws IOException {
         final Band rciBand = rciBands[bandIndex];
         final Band maskBand = maskBands[bandIndex];
 
         if (maskBand.hasRasterData()) {
-            System.arraycopy(maskBand.getRasterData().getElems(), tileOffsetX + tileOffsetY * tileWidth,
+            System.arraycopy(maskBand.getRasterData().getElems(), tileOffsetY * sceneRasterWidth,
                              maskData, 0, maskData.length);
             if (rciBand.hasRasterData()) {
-                System.arraycopy(rciBand.getRasterData().getElems(), tileOffsetX + tileOffsetY * tileWidth,
+                System.arraycopy(rciBand.getRasterData().getElems(), tileOffsetY * sceneRasterWidth,
                                  rciData, 0, rciData.length);
             } else {
-                chrisFile.readRciData(bandIndex, 0, tileOffsetY, 1, 1, tileWidth, tileHeight, rciData);
+                chrisFile.readRciData(bandIndex, 0, tileOffsetY, 1, 1, sceneRasterWidth, tileHeight, rciData);
             }
         } else {
-            chrisFile.readRciData(bandIndex, tileOffsetX, tileOffsetY, 1, 1, tileWidth, tileHeight, rciData);
+            chrisFile.readRciData(bandIndex, 0, tileOffsetY, 1, 1, sceneRasterWidth, tileHeight, rciData);
             if (chrisFile.hasMask()) {
-                chrisFile.readMaskData(bandIndex, tileOffsetX, tileOffsetY, 1, 1, tileWidth, tileHeight, maskData);
+                chrisFile.readMaskData(bandIndex, 0, tileOffsetY, 1, 1, sceneRasterWidth, tileHeight, maskData);
             }
-            maskRefinement.refine(rciData, maskData, tileWidth);
+            maskRefinement.refine(rciData, maskData, sceneRasterWidth);
         }
     }
 
