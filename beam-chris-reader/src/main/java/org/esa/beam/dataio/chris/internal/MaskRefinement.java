@@ -108,7 +108,7 @@ public class MaskRefinement {
             throw new IllegalArgumentException("values.length == 0");
         }
 
-        return Algorithm.nthElement(Arrays.copyOf(values, values.length), values.length >> 1);
+        return Sorter.nthElement(Arrays.copyOf(values, values.length), values.length >> 1);
     }
 
 }

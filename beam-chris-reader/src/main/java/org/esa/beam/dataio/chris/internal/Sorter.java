@@ -1,12 +1,12 @@
 package org.esa.beam.dataio.chris.internal;
 
 /**
- * Utility class.
+ * Utility class for sorting numbers.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$
  */
-public class Algorithm {
+public class Sorter {
 
     /**
      * Returns the nth smallest element of an array.
