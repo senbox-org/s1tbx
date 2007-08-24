@@ -19,7 +19,6 @@ package org.esa.beam.framework.datamodel;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.jexp.*;
 import com.bc.jexp.impl.ParserImpl;
-import com.bc.jexp.impl.Tokenizer;
 import org.esa.beam.framework.dataio.*;
 import org.esa.beam.framework.dataop.barithm.*;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
@@ -211,8 +210,8 @@ public class Product extends ProductNode {
                     final String oldName = (String) event.getOldValue();
                     final String newName = event.getSourceNode().getName();
 
-                    final String oldExternName = Tokenizer.createExternalName(oldName);
-                    final String newExternName = Tokenizer.createExternalName(newName);
+                    final String oldExternName = BandArithmetic.createExternalName(oldName);
+                    final String newExternName = BandArithmetic.createExternalName(newName);
 
                     final ProductVisitorAdapter productVisitorAdapter = new ProductVisitorAdapter() {
                         @Override
@@ -1264,15 +1263,13 @@ public class Product extends ProductNode {
         }
         final String[] flagNames = getAllFlagNames();
         for (String flag : flags) {
-            final String flagName =  flag;
-            if (!StringUtils.containsIgnoreCase(flagNames, flagName)) {
+            if (!StringUtils.containsIgnoreCase(flagNames, flag)) {
                 return false;
             }
         }
         final String[] rasterNames = StringUtils.addArrays(getBandNames(), getTiePointGridNames());
         for (String raster : rasters) {
-            final String rasterName = raster;
-            if (!StringUtils.containsIgnoreCase(rasterNames, rasterName)) {
+            if (!StringUtils.containsIgnoreCase(rasterNames, raster)) {
                 return false;
             }
         }
@@ -1387,12 +1384,12 @@ public class Product extends ProductNode {
         }
     }
 
-
-
     //////////////////////////////////////////////////////////////////////////
     // Valid-mask Support
 
-    /** @deprecated in 4.1, no replacement */
+    /**
+     * @deprecated in 4.1, no replacement
+     */
     public final int getBytePackedBitmaskRasterWidth() {
         int _bytePackedBitmaskRasterWidth = getSceneRasterWidth() / 8;
         if (getSceneRasterWidth() % 8 != 0) {
@@ -1401,7 +1398,9 @@ public class Product extends ProductNode {
         return _bytePackedBitmaskRasterWidth;
     }
 
-    /** @deprecated in 4.1, use {@link #getValidMask(String)}  */
+    /**
+     * @deprecated in 4.1, use {@link #getValidMask(String)}
+     */
     public byte[] getValidMask(final Object id) {
         try {
             return createPixelMask(id.toString());
@@ -1410,17 +1409,23 @@ public class Product extends ProductNode {
         }
     }
 
-    /** @deprecated in 4.1, use {@link #createValidMask(String, com.bc.ceres.core.ProgressMonitor)}   */
+    /**
+     * @deprecated in 4.1, use {@link #createValidMask(String, com.bc.ceres.core.ProgressMonitor)}
+     */
     public byte[] createPixelMask(final String expression) throws IOException {
         return createValidMask(expression, ProgressMonitor.NULL).createBytePackedBitmaskRasterData();
     }
 
-    /** @deprecated in 4.1, use {@link #createValidMask(com.bc.jexp.Term, com.bc.ceres.core.ProgressMonitor)}   */
+    /**
+     * @deprecated in 4.1, use {@link #createValidMask(com.bc.jexp.Term, com.bc.ceres.core.ProgressMonitor)}
+     */
     public byte[] createPixelMask(final Term term) throws IOException {
         return createValidMask(term, ProgressMonitor.NULL).createBytePackedBitmaskRasterData();
     }
 
-    /** @deprecated in 4.1, use {@link #releaseValidMask(org.esa.beam.util.BitRaster)}    */
+    /**
+     * @deprecated in 4.1, use {@link #releaseValidMask(org.esa.beam.util.BitRaster)}
+     */
     public void releasePixelMask(final byte[] pixelMask) {
         // do nothing
     }
@@ -1493,7 +1498,7 @@ public class Product extends ProductNode {
      * should be called in order to release it.
      *
      * @param term the boolean term, e.g. "l2_flags.LAND && reflec_10 >= 0.0"
-     * @param pm a progress monitor
+     * @param pm   a progress monitor
      * @return a bit-packed mask for all pixels of the scene, never null
      * @throws IOException if an I/O error occurs
      * @see #createValidMask(String, com.bc.ceres.core.ProgressMonitor)
@@ -2226,7 +2231,7 @@ public class Product extends ProductNode {
         final StringBuffer sb = new StringBuffer(1024);
 
         sb.append("Product:\t");
-        sb.append(getName() + "\n\n");
+        sb.append(getName()).append("\n\n");
 
         sb.append("Image-X:\t");
         sb.append(pixelX);
@@ -2257,11 +2262,11 @@ public class Product extends ProductNode {
 
                 sb.append("Map-X:\t");
                 sb.append(mapPoint.getX());
-                sb.append("\t" + mapUnit + "\n");
+                sb.append("\t").append(mapUnit).append("\n");
 
                 sb.append("Map-Y:\t");
                 sb.append(mapPoint.getY());
-                sb.append("\t" + mapUnit + "\n");
+                sb.append("\t").append(mapUnit).append("\n");
             }
         }
 

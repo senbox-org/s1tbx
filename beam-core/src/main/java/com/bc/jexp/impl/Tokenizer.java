@@ -85,29 +85,29 @@ public final class Tokenizer {
      * The keywords regognized by this tokenizer.
      */
     private final static String[] _keywords = new String[]{
-        "and", "or", "not", "true", "false"
+            "and", "or", "not", "true", "false"
     };
 
     /**
      * The special tokens regognized by this tokenizer.
      */
     private final static String[] _specialTokens = new String[]{
-        "==", "<=", ">=", "!=", "&&", "||", "<<", ">>"
+            "==", "<=", ">=", "!=", "&&", "||", "<<", ">>"
     };
 
     /**
      * The ordinary characters regognized by this tokenizer.
      */
     private final static char[] _ordinaryChars = new char[]{
-        '(', ')', '{', '}', '[', ']',
-        ',', ':',
-        '<', '>',
-        '=',
-        '!', '?',
-        '"',
-        '|', '&', '%', '$',
-        '+', '-', '*', '/',
-        '^', '~'
+            '(', ')', '{', '}', '[', ']',
+            ',', ':',
+            '<', '>',
+            '=',
+            '!', '?',
+            '"',
+            '|', '&', '%', '$',
+            '+', '-', '*', '/',
+            '^', '~'
     };
 
 
@@ -250,11 +250,11 @@ public final class Tokenizer {
         } else if (isNumberStart()) {
             eatNumber();
         } else {
-            for (int j = 0; j < _specialTokens.length; j++) {
-                final int n = _specialTokens[j].length();
+            for (String specialToken : _specialTokens) {
+                final int n = specialToken.length();
                 int i = _pos;
                 for (; i < _pos + n; i++) {
-                    if (isEos(i) || _specialTokens[j].charAt(i - _pos) != peek(i)) {
+                    if (isEos(i) || specialToken.charAt(i - _pos) != peek(i)) {
                         break;
                     }
                 }
@@ -281,20 +281,18 @@ public final class Tokenizer {
     }
 
     /**
-     * Tests whether or not the given name is valid external name. Valid names have a length greater than zero,
+     * Tests whether or not the given name is a valid external name. Valid names have a length greater than zero,
      * start with a letter or underscore followed by letters, digits or underscores.
-     * The keywords are not alowed as external names.
+     * The keywords are not allowed as external names.
      *
      * @param name the name to test
-     *
      * @return <code>true</code> if the name is a valid external name, <code>false</code> otherwise
      */
     public static boolean isExternalName(final String name) {
         if (name == null || name.length() == 0) {
             return false;
         }
-        for (int i = 0; i < _keywords.length; i++) {
-            final String keyword = _keywords[i];
+        for (final String keyword : _keywords) {
             if (keyword.equalsIgnoreCase(name)) {
                 return false;
             }
@@ -311,7 +309,6 @@ public final class Tokenizer {
      * the name is escaped with single quotes.
      *
      * @param name the name
-     *
      * @return a valid external name
      */
     public static String createExternalName(final String name) {
@@ -350,12 +347,12 @@ public final class Tokenizer {
         } while (isNamePart());
 
         final String name = _token.toString();
-        for (int i = 0; i < _keywords.length; i++) {
+        for (String keyword : _keywords) {
             final boolean isEqual;
             if (_caseSensitive) {
-                isEqual = name.equals(_keywords[i]);
+                isEqual = name.equals(keyword);
             } else {
-                isEqual = name.equalsIgnoreCase(_keywords[i]);
+                isEqual = name.equalsIgnoreCase(keyword);
             }
             if (isEqual) {
                 _type = TT_KEYWORD;
@@ -532,7 +529,7 @@ public final class Tokenizer {
 
     private boolean isExpPartStart() {
         return (isChar('e') || isChar('E'))
-               && (isDigit(_pos + 1) || isSignAndDigit(_pos + 1));
+                && (isDigit(_pos + 1) || isSignAndDigit(_pos + 1));
     }
 
     private boolean isDot() {
@@ -577,9 +574,9 @@ public final class Tokenizer {
 
     private boolean isHexDigit(final int i) {
         return !isEos(i)
-               && (Character.isDigit(peek(i))
-                   || (peek(i) >= 'a' && peek(i) <= 'f')
-                   || (peek(i) >= 'A' && peek(i) <= 'F'));
+                && (Character.isDigit(peek(i))
+                || (peek(i) >= 'a' && peek(i) <= 'f')
+                || (peek(i) >= 'A' && peek(i) <= 'F'));
     }
 
     private static boolean isOctDigit(final char ch) {

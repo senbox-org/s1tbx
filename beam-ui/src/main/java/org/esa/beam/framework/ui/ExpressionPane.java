@@ -16,13 +16,9 @@
  */
 package org.esa.beam.framework.ui;
 
-import com.bc.jexp.Function;
-import com.bc.jexp.Namespace;
-import com.bc.jexp.ParseException;
-import com.bc.jexp.Parser;
-import com.bc.jexp.Term;
+import com.bc.jexp.*;
 import com.bc.jexp.impl.NamespaceImpl;
-import com.bc.jexp.impl.Tokenizer;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.PropertyMap;
 
@@ -30,25 +26,13 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
-import java.util.Stack;
-import java.util.ArrayList;
 
 /**
  * The expression pane is a UI component which is used to edit mathematical expressions. There are four methods which
@@ -74,69 +58,69 @@ public class ExpressionPane extends JPanel {
     private static final int PLACEHOLDER_LEN = PLACEHOLDER.length();
 
     private static final String[] CONSTANT_LITERALS = new String[]{
-        "PI",
-        "E",
-        "NaN",
-        "true",
-        "false",
-        "X",
-        "Y",
-        "0.5",
-        "0.0",
-        "1.0",
-        "2.0",
-        "0",
-        "1",
-        "2",
+            "PI",
+            "E",
+            "NaN",
+            "true",
+            "false",
+            "X",
+            "Y",
+            "0.5",
+            "0.0",
+            "1.0",
+            "2.0",
+            "0",
+            "1",
+            "2",
     };
 
     private static final String[] OPERATOR_PATTERNS = new String[]{
-        "@ ? @ : @",
-        "@ || @",
-        "@ or @",
-        "@ && @",
-        "@ and @",
-        "@ < @",
-        "@ <= @",
-        "@ > @",
-        "@ >= @",
-        "@ == @",
-        "@ <= @",
-        "@ | @",
-        "@ ^ @",
-        "@ & @",
-        "@ + @",
-        "@ - @",
-        "@ * @",
-        "@ / @",
-        "@ % @",
-        "+@",
-        "-@",
-        "~@",
-        "!@",
-        "not @"
+            "@ ? @ : @",
+            "@ || @",
+            "@ or @",
+            "@ && @",
+            "@ and @",
+            "@ < @",
+            "@ <= @",
+            "@ > @",
+            "@ >= @",
+            "@ == @",
+            "@ <= @",
+            "@ | @",
+            "@ ^ @",
+            "@ & @",
+            "@ + @",
+            "@ - @",
+            "@ * @",
+            "@ / @",
+            "@ % @",
+            "+@",
+            "-@",
+            "~@",
+            "!@",
+            "not @"
     };
 
     private static final String[] FUNCTION_NAMES = new String[]{
-        "sqrt(@)",
-        "pow(@,@)",
-        "exp(@)",
-        "log(@)",
-        "min(@,@)",
-        "max(@,@)",
-        "rad(@)",
-        "deg(@)",
-        "sign(@)",
-        "abs(@)",
-        "sin(@)",
-        "cos(@)",
-        "tan(@)",
-        "asin(@)",
-        "acos(@)",
-        "atan(@)",
-        "atan2(@,@)",
-        "ampl(@,@)",
-        "phase(@,@)"
+            "sqrt(@)",
+            "pow(@,@)",
+            "exp(@)",
+            "log(@)",
+            "min(@,@)",
+            "max(@,@)",
+            "rad(@)",
+            "deg(@)",
+            "sign(@)",
+            "abs(@)",
+            "sin(@)",
+            "cos(@)",
+            "tan(@)",
+            "asin(@)",
+            "acos(@)",
+            "atan(@)",
+            "atan2(@,@)",
+            "ampl(@,@)",
+            "phase(@,@)"
     };
 
     private static Font exprTextAreaFont = new Font("Courier", Font.PLAIN, 12);
@@ -468,7 +452,7 @@ public class ExpressionPane extends JPanel {
     }
 
     private JComboBox createInsertComboBox(final String title, final String[] patterns) {
-        ArrayList<String> itemList =  new ArrayList<String>();
+        ArrayList<String> itemList = new ArrayList<String>();
         itemList.add(title);
         itemList.addAll(Arrays.asList(patterns));
         final JComboBox comboBox = new JComboBox(itemList.toArray());
@@ -478,7 +462,7 @@ public class ExpressionPane extends JPanel {
         comboBox.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-                if(comboBox.getSelectedIndex() != 0) {
+                if (comboBox.getSelectedIndex() != 0) {
                     insertCodePattern((String) comboBox.getSelectedItem());
                     comboBox.setSelectedIndex(0);
                 }
@@ -524,7 +508,7 @@ public class ExpressionPane extends JPanel {
                 final int index = patternList.locationToIndex(e.getPoint());
                 if (index >= 0) {
                     final String value = (String) patternList.getModel().getElementAt(index);
-                    final String pattern = Tokenizer.createExternalName(value);
+                    final String pattern = BandArithmetic.createExternalName(value);
                     insertCodePattern(pattern);
                     patternList.clearSelection();
                 }
@@ -676,7 +660,7 @@ public class ExpressionPane extends JPanel {
         for (String functionName : functionNames) {
             set.add(functionName);
         }
-        functionNames = (String[]) set.toArray(new String[set.size()]);
+        functionNames = set.toArray(new String[set.size()]);
         Arrays.sort(functionNames);
         return functionNames;
     }
@@ -737,7 +721,7 @@ public class ExpressionPane extends JPanel {
         }
 
         String message;
-        Color foreground = Color.BLACK;
+        Color foreground;
         if (code.indexOf(PLACEHOLDER) >= 0) {
             lastErrorMessage = "Replace '@' by inserting an element.";   /*I18N*/
             message = lastErrorMessage;
