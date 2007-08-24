@@ -23,16 +23,25 @@ import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
+import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ImageDisplay;
 import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.application.ApplicationPage;
+import org.esa.beam.framework.ui.application.ToolView;
+import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.framework.ui.application.support.AbstractToolView;
-import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.InternalFrameAdapter;
@@ -510,7 +519,11 @@ public class NavigationToolView extends AbstractToolView {
                 final boolean showNavigationWin = VisatApp.getApp().getPreferences().getPropertyBool(
                         VisatApp.PROPERTY_KEY_AUTO_SHOW_NAVIGATION, true);
                 if (showNavigationWin) {
-                    VisatApp.getApp().getPage().showToolView(NavigationToolView.ID);
+                    ApplicationPage page = VisatApp.getApp().getPage();
+                    ToolView toolView = page.getToolView(NavigationToolView.ID);
+                    if(toolView != null && !toolView.getDescriptor().isVisible()) {
+                        page.showToolView(NavigationToolView.ID);
+                    }
                 }
             }
         }
