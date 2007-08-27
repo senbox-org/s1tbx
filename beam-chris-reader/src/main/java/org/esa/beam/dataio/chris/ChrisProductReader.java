@@ -164,16 +164,61 @@ public class ChrisProductReader extends AbstractProductReader {
             final ProductData data = ProductData.createInstance(globalAttribute);
             mph.addAttribute(new MetadataAttribute(name, data, true));
         }
-        final MetadataElement gainValues = new MetadataElement("Gain Values");
+
+        final MetadataElement modeInfo = new MetadataElement("Mode Information");
         for (int i = 0; i < chrisFile.getSpectralBandCount(); i++) {
-            final ProductData data = ProductData.createInstance(chrisFile.getGainValue(i));
             final String name = MessageFormat.format("radiance_{0}", i + 1);
-            
-            gainValues.addAttribute(new MetadataAttribute(name, data, true));
+            final MetadataElement element = new MetadataElement(name);
+
+            MetadataAttribute attribute = new MetadataAttribute("Cut-on Wavelength", ProductData.TYPE_FLOAT32);
+            attribute.getData().setElemFloat(chrisFile.getWlLow(i));
+            attribute.setDescription("Cut-on wavelength");
+            attribute.setUnit("nm");
+            element.addAttribute(attribute);
+
+            attribute = new MetadataAttribute("Cut-off Wavelength", ProductData.TYPE_FLOAT32);
+            attribute.getData().setElemFloat(chrisFile.getWlHigh(i));
+            attribute.setDescription("Cut-off wavelength");
+            attribute.setUnit("nm");
+            element.addAttribute(attribute);
+
+            attribute = new MetadataAttribute("Central Wavelength", ProductData.TYPE_FLOAT32);
+            attribute.getData().setElemFloat(chrisFile.getWavelength(i));
+            attribute.setDescription("Central wavelength");
+            attribute.setUnit("nm");
+            element.addAttribute(attribute);
+
+            attribute = new MetadataAttribute("Bandwidth", ProductData.TYPE_FLOAT32);
+            attribute.getData().setElemFloat(chrisFile.getBandwidth(i));
+            attribute.setDescription("Cut-off minus cut-on wavelength");
+            attribute.setUnit("nm");
+            element.addAttribute(attribute);
+
+            attribute = new MetadataAttribute("Gain Setting", ProductData.TYPE_INT32);
+            attribute.getData().setElemInt(chrisFile.getGainSetting(i));
+            attribute.setDescription("CHRIS analogue electronics gain setting");
+            element.addAttribute(attribute);
+
+            attribute = new MetadataAttribute("Gain Value", ProductData.TYPE_FLOAT32);
+            attribute.getData().setElemFloat(chrisFile.getGainValue(i));
+            attribute.setDescription("Relative analogue gain");
+            element.addAttribute(attribute);
+
+            attribute = new MetadataAttribute("Low Row", ProductData.TYPE_INT32);
+            attribute.getData().setElemInt(chrisFile.getLowRow(i));
+            attribute.setDescription("CCD row number for the cut-on wavelength");
+            element.addAttribute(attribute);
+
+            attribute = new MetadataAttribute("High Row", ProductData.TYPE_INT32);
+            attribute.getData().setElemInt(chrisFile.getHighRow(i));
+            attribute.setDescription("CCD row number for the cut-off wavelength");
+            element.addAttribute(attribute);
+
+            modeInfo.addElement(element);
         }
-        mph.addElement(gainValues);
 
         product.getMetadataRoot().addElement(mph);
+        product.getMetadataRoot().addElement(modeInfo);
     }
 
     private void setStartAndEndTimes(final Product product) {
@@ -224,7 +269,7 @@ public class ChrisProductReader extends AbstractProductReader {
     private void setFlagCodingsAndDefineBitmasks(final Product product) {
         final FlagCoding flagCoding = new FlagCoding("CHRIS");
 
-        for (Flags flag : Flags.values()) {
+        for (final Flags flag : Flags.values()) {
             flagCoding.addFlag(flag.toString(), flag.getMask(), flag.getDescription());
         }
 

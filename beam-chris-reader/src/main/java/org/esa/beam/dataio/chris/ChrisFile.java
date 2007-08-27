@@ -25,7 +25,7 @@ class ChrisFile {
     private Sds rciImageSds;
     private Sds maskSds;
     private Map<String, String> globalAttributes;
-    private Map<Float, Float> gainInfoMap;
+    private Map<Integer, Float> gainInfoMap;
     private float[][] modeInfo;
     private ScanLineLayout scanLineLayout;
     private int sceneRasterHeight;
@@ -121,22 +121,42 @@ class ChrisFile {
         return rciImageSds.dimSizes[0];
     }
 
-    public float getWavelength(int bandIndex) {
+    public float getWlLow(int bandIndex) {
         return modeInfo[bandIndex][0];
     }
 
-    public String getGainValue(int bandIndex) {
-        final float gainSetting = modeInfo[bandIndex][2];
+    public float getWlHigh(int bandIndex) {
+        return modeInfo[bandIndex][0];
+    }
 
-        if (gainInfoMap.containsKey(gainSetting)) {
-            return String.valueOf(gainInfoMap.get(gainSetting));
-        }
-
-        return "unknown";
+    public float getWavelength(int bandIndex) {
+        return modeInfo[bandIndex][2];
     }
 
     public float getBandwidth(int bandIndex) {
-        return modeInfo[bandIndex][1];
+        return modeInfo[bandIndex][3];
+    }
+
+    public int getGainSetting(int bandIndex) {
+        return (int) modeInfo[bandIndex][4];
+    }
+
+    public float getGainValue(int bandIndex) {
+        final int gainSetting = getGainSetting(bandIndex);
+
+        if (gainInfoMap.containsKey(gainSetting)) {
+            return gainInfoMap.get(gainSetting);
+        }
+
+        return Float.NaN;
+    }
+
+    public int getLowRow(int bandIndex) {
+        return (int) modeInfo[bandIndex][5];
+    }
+
+    public int getHighRow(int bandIndex) {
+        return (int) modeInfo[bandIndex][6];
     }
 
     public boolean hasMask() {
@@ -265,7 +285,7 @@ class ChrisFile {
             HDF4Lib.VSQuerycount(vdataId, numRecordsBuffer);
             int numRecords = numRecordsBuffer[0];
 
-            float[][] modeInfo = new float[numRecords][3];
+            float[][] modeInfo = new float[numRecords][7];
             HDF4Lib.VSsetfields(vdataId, ChrisConstants.VS_NAME_MODE_FIELDS);
             for (int i = 0; i < numRecords; i++) {
                 HDF4Lib.VSseek(vdataId, i);
@@ -278,10 +298,10 @@ class ChrisFile {
         }
     }
 
-    private static Map<Float, Float> readGainInfo(int fileId) throws HDFException {
+    private static Map<Integer, Float> readGainInfo(int fileId) throws HDFException {
         final int refNo = HDF4Lib.VSfind(fileId, ChrisConstants.VS_NAME_GAIN_INFO);
         if (refNo == 0) {
-            return new HashMap<Float, Float>();
+            return new HashMap<Integer, Float>();
         }
 
         final int vdataId = HDF4Lib.VSattach(fileId, refNo, "r");
@@ -290,14 +310,14 @@ class ChrisFile {
             HDF4Lib.VSQuerycount(vdataId, recordCountBuffer);
             final int recordCount = recordCountBuffer[0];
 
-            final Map<Float, Float> gainInfoMap = new HashMap<Float, Float>(recordCount);
+            final Map<Integer, Float> gainInfoMap = new HashMap<Integer, Float>(recordCount);
             final float[] record = new float[2];
 
             HDF4Lib.VSsetfields(vdataId, ChrisConstants.VS_NAME_GAIN_FIELDS);
             for (int i = 0; i < recordCount; i++) {
                 HDF4Lib.VSseek(vdataId, i);
                 HDF4Lib.VSread(vdataId, record);
-                gainInfoMap.put(record[0], record[1]);
+                gainInfoMap.put((int) record[0], record[1]);
             }
 
             return gainInfoMap;
@@ -510,6 +530,7 @@ class ChrisFile {
             this.dataType = dataType;
             this.dimSizes = dimSizes;
         }
+
     }
 
 }
