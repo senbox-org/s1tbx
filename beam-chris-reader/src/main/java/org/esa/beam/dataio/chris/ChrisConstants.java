@@ -34,6 +34,7 @@ public class ChrisConstants {
     public static final String ATTR_NAME_FLY_BY_ZENITH_ANGLE = "Fly-by Zenith Angle";
     public static final String ATTR_NAME_MINIMUM_ZENITH_ANGLE = "Minimum Zenith Angle";
     public static final String ATTR_NAME_SOLAR_ZENITH_ANGLE = "Solar Zenith Angle";
+    public static final String ATTR_NAME_SOLAR_AZIMUTH_ANGLE = "Solar Azimuth Angle";
     public static final String ATTR_NAME_FLY_BY_TIME = "Fly-by Time";
     public static final String ATTR_NAME_IMAGE_CENTRE_TIME = "Calculated Image Centre Time";
     public static final String ATTR_NAME_OBSERVATION_ZENITH_ANGLE = "Observation Zenith Angle";

@@ -16,6 +16,7 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.chris.internal.DropoutCorrection;
 import org.esa.beam.dataio.chris.internal.MaskRefinement;
+import org.esa.beam.dataio.chris.internal.SunPositionCalculator;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BitmaskDef;
@@ -34,6 +35,7 @@ import static java.lang.Math.min;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -92,8 +94,8 @@ public class ChrisProductReader extends AbstractProductReader {
         final Product product = new Product(name, type, sceneRasterWidth, sceneRasterHeight, this);
         product.setFileLocation(chrisFile.getFile());
 
-        setMetadataElements(product);
         setStartAndEndTimes(product);
+        setMetadataElements(product);
         setRciAndMaskBands(product);
         setFlagCodingsAndDefineBitmasks(product);
 
@@ -152,6 +154,22 @@ public class ChrisProductReader extends AbstractProductReader {
         throw new IllegalArgumentException(MessageFormat.format("Unsupported input: {0}", input));
     }
 
+    private void setStartAndEndTimes(final Product product) {
+        final String dateStr = chrisFile.getGlobalAttribute(ChrisConstants.ATTR_NAME_IMAGE_DATE, "2000-01-01");
+        final String timeStr = chrisFile.getGlobalAttribute(ChrisConstants.ATTR_NAME_IMAGE_CENTRE_TIME, "00:00:00");
+
+        try {
+            final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
+            final Date date = dateFormat.parse(dateStr + " " + timeStr);
+            final ProductData.UTC utc = ProductData.UTC.create(date, 0);
+
+            product.setStartTime(utc);
+            product.setEndTime(utc);
+        } catch (ParseException e) {
+            // todo - warning
+        }
+    }
+
     private void setMetadataElements(final Product product) {
         final MetadataElement mph = new MetadataElement(ChrisConstants.MPH_NAME);
 
@@ -159,10 +177,13 @@ public class ChrisProductReader extends AbstractProductReader {
             if (ChrisConstants.ATTR_NAME_KEY_TO_MASK.equals(name)) {
                 continue;
             }
-
             final String globalAttribute = chrisFile.getGlobalAttribute(name);
             final ProductData data = ProductData.createInstance(globalAttribute);
             mph.addAttribute(new MetadataAttribute(name, data, true));
+
+            if (ChrisConstants.ATTR_NAME_SOLAR_ZENITH_ANGLE.equals(name)) {
+                addSolarAzimuthAngleIfPossible(product, mph);
+            }
         }
 
         final MetadataElement modeInfo = new MetadataElement("Mode Information");
@@ -171,13 +192,13 @@ public class ChrisProductReader extends AbstractProductReader {
             final MetadataElement element = new MetadataElement(name);
 
             MetadataAttribute attribute = new MetadataAttribute("Cut-on Wavelength", ProductData.TYPE_FLOAT32);
-            attribute.getData().setElemFloat(chrisFile.getWlLow(i));
+            attribute.getData().setElemFloat(chrisFile.getCutOnWavelength(i));
             attribute.setDescription("Cut-on wavelength");
             attribute.setUnit("nm");
             element.addAttribute(attribute);
 
             attribute = new MetadataAttribute("Cut-off Wavelength", ProductData.TYPE_FLOAT32);
-            attribute.getData().setElemFloat(chrisFile.getWlHigh(i));
+            attribute.getData().setElemFloat(chrisFile.getCutOffWavelength(i));
             attribute.setDescription("Cut-off wavelength");
             attribute.setUnit("nm");
             element.addAttribute(attribute);
@@ -221,19 +242,18 @@ public class ChrisProductReader extends AbstractProductReader {
         product.getMetadataRoot().addElement(modeInfo);
     }
 
-    private void setStartAndEndTimes(final Product product) {
-        final String dateStr = chrisFile.getGlobalAttribute(ChrisConstants.ATTR_NAME_IMAGE_DATE, "2000-01-01");
-        final String timeStr = chrisFile.getGlobalAttribute(ChrisConstants.ATTR_NAME_IMAGE_CENTRE_TIME, "00:00:00");
-
+    private void addSolarAzimuthAngleIfPossible(final Product product, final MetadataElement element) {
         try {
-            final DateFormat dateFormat = ProductData.UTC.createDateFormat("yyyy-MM-dd HH:mm:ss");
-            final Date date = dateFormat.parse(dateStr + " " + timeStr);
-            final ProductData.UTC utc = ProductData.UTC.create(date, 0);
+            final Calendar calendar = product.getStartTime().getAsCalendar();
+            final double lat = Double.parseDouble(chrisFile.getGlobalAttribute(ChrisConstants.ATTR_NAME_TARGET_LAT));
+            final double lon = Double.parseDouble(chrisFile.getGlobalAttribute(ChrisConstants.ATTR_NAME_TARGET_LON));
 
-            product.setStartTime(utc);
-            product.setEndTime(utc);
-        } catch (ParseException e) {
-            // todo - warning
+            final double saa = SunPositionCalculator.calculate(calendar, lat, -lon).getAzimuthAngle();
+            final ProductData data = ProductData.createInstance(String.format("%05.2f", saa));
+
+            element.addAttribute(new MetadataAttribute(ChrisConstants.ATTR_NAME_SOLAR_AZIMUTH_ANGLE, data, true));
+        } catch (Exception e) {
+            // ignore
         }
     }
 

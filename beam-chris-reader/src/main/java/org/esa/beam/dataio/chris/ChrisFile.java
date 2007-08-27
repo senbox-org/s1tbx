@@ -121,11 +121,11 @@ class ChrisFile {
         return rciImageSds.dimSizes[0];
     }
 
-    public float getWlLow(int bandIndex) {
+    public float getCutOnWavelength(int bandIndex) {
         return modeInfo[bandIndex][0];
     }
 
-    public float getWlHigh(int bandIndex) {
+    public float getCutOffWavelength(int bandIndex) {
         return modeInfo[bandIndex][0];
     }
 
