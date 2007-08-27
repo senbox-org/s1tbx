@@ -17,6 +17,7 @@
         <![CDATA[
         <p>Changes in Version 1.3
         <ul>
+        <li>[CBOX-26] Gains and coefficients are not included in metadata</li>
         <li>[CBOX-28] Predefined RGB profiles for all CHRIS modes</li>
         <li>[CBOX-29] Predefined bit mask for indicating spectrum quality</li>        
         <li>[CBOX-30] Make pins available for CHRIS data products</li>
