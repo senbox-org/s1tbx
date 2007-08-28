@@ -20,7 +20,6 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProgressListener;
 
 import java.io.IOException;
 
@@ -67,7 +66,6 @@ public interface ProductReader {
      *                  <code>ImageInputStream</code> or other <code>Object</code> to use for future decoding.
      * @param subsetDef a spectral or spatial subset (or both) of the product. If <code>null</code>, the entire product
      *                  is read in
-     *
      * @throws IllegalArgumentException   if <code>input</code> is <code>null</code> or it's type is not one of the
      *                                    supported input sources.
      * @throws IOException                if an I/O error occurs
@@ -75,7 +73,14 @@ public interface ProductReader {
      */
     Product readProductNodes(Object input,
                              ProductSubsetDef subsetDef) throws IOException,
-                                                                IllegalFileFormatException;
+            IllegalFileFormatException;
+
+// todo, see BEAM-680
+//    void readTiePointGridRasterData(TiePointGrid tpg,
+//                            int destOffsetX, int destOffsetY,
+//                            int destWidth, int destHeight,
+//                            ProductData destBuffer, ProgressMonitor pm) throws IOException;
+
 
     /**
      * Reads raster data from the data source specified by the given destination band into the given in-memory buffer
@@ -105,7 +110,6 @@ public interface ProductReader {
      * @param destWidth   the width of region to be read given in the band's raster co-ordinates
      * @param destHeight  the height of region to be read given in the band's raster co-ordinates
      * @param destBuffer  the destination buffer which receives the sample values to be read
-     *
      * @throws IOException              if an I/O error occurs
      * @throws IllegalArgumentException if the number of elements destination buffer not equals <code>destWidth *
      *                                  destHeight</code> or the destination region is out of the band's scene raster
