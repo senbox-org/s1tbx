@@ -16,15 +16,15 @@
  */
 package org.esa.beam.util.io;
 
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.StringUtils;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.StringUtils;
 
 /**
  * This class provides additional functionality in handling with files. All methods in this class dealing with
@@ -42,7 +42,7 @@ public class FileUtils {
      *
      * @param file the file whose extension is to be extracted.
      *
-     * @return the extension string which always and includes a leading dot. Returns <code>null</code> if the file has
+     * @return the extension string which always includes a leading dot. Returns <code>null</code> if the file has
      *         no extension.
      */
     public static String getExtension(File file) {
@@ -251,7 +251,7 @@ public class FileUtils {
      */
     public static String getFileNameFromPath(String path) {
         Guardian.assertNotNullOrEmpty("path", path);
-        String fileName = null;
+        String fileName;
         int lastChar = path.lastIndexOf(File.separator);
         if (lastChar >= 0) {
             fileName = path.substring(lastChar + 1, path.length());
