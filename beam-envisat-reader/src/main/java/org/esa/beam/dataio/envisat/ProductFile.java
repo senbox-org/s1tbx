@@ -1107,7 +1107,7 @@ public abstract class ProductFile {
         final byte[] magicBytes = new byte[EnvisatConstants.MAGIC_STRING.length() + EnvisatConstants.PRODUCT_TYPE_STRLEN];
         String productType = null;
 
-        if (dataInputStream.length() >= magicBytes.length) {
+        //if (dataInputStream.length() >= magicBytes.length) {
             dataInputStream.seek(0);
             dataInputStream.mark();
             dataInputStream.readFully(magicBytes);
@@ -1117,7 +1117,7 @@ public abstract class ProductFile {
             if (magicString.startsWith(EnvisatConstants.MAGIC_STRING)) {
                 productType = magicString.substring(EnvisatConstants.MAGIC_STRING.length());
             }
-        }
+        //}
 
         return productType;
     }

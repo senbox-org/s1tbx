@@ -22,8 +22,16 @@ import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.util.io.BeamFileFilter;
 
 import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.MemoryCacheImageInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Enumeration;
 import java.util.Locale;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * The <code>EnvisatProductReaderPlugIn</code> class is an implementation of the <code>ProductReaderPlugIn</code>
@@ -61,7 +69,7 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
      * @return the default file extensions for this product I/O plug-in, never <code>null</code>
      */
     public String[] getDefaultFileExtensions() {
-        return new String[]{".N1", ".E1", ".E2"};
+        return new String[]{".N1", ".E1", ".E2", ".zip", ".gz"};
     }
 
     /**
@@ -91,11 +99,29 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
      */
     public DecodeQualification getDecodeQualification(Object input) {
         if (input instanceof String) {
+            // @todo 1 tb/tb check for zip extension and handle accordingly
             if (ProductFile.getProductType(new File((String) input)) != null) {
                 return DecodeQualification.INTENDED;
             }
         } else if (input instanceof File) {
-            if (ProductFile.getProductType((File) input) != null) {
+            final File inputFile = (File) input;
+            if (ProductFile.getProductType(inputFile) != null) {
+                return DecodeQualification.INTENDED;
+            }
+
+            final InputStream inputStream = getCompressedInputStream(inputFile);
+            if (inputStream == null) {
+                return DecodeQualification.UNABLE;
+            }
+
+            final ImageInputStream dataInputStream = new MemoryCacheImageInputStream(inputStream);
+            final String productType = ProductFile.getProductType(dataInputStream);
+            try {
+                dataInputStream.close();
+                inputStream.close();
+            } catch (IOException ignore) {
+            }
+            if (productType != null) {
                 return DecodeQualification.INTENDED;
             }
         } else if (input instanceof ImageInputStream) {
@@ -105,6 +131,7 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
         }
         return DecodeQualification.UNABLE;
     }
+
 
     /**
      * Returns an array containing the classes that represent valid input types for an ENVISAT product reader.
@@ -131,5 +158,39 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
 
     public BeamFileFilter getProductFileFilter() {
         return new BeamFileFilter(getFormatNames()[0], getDefaultFileExtensions(), getDescription(null));
+    }
+
+    /**
+     * Retrieves an inputStream from a compressed file
+     *
+     * @param inputFile the input file
+     * @return an inputStream if decoding is possible, else null
+     */
+    static InputStream getCompressedInputStream(File inputFile) {
+        final ZipFile productZip;
+        final ZipEntry zipEntry;
+        InputStream inputStream;
+
+        try {
+            if (inputFile.getName().endsWith(".gz")) {
+                final FileInputStream fileStream = new FileInputStream(inputFile);
+                inputStream = new GZIPInputStream(fileStream);
+            } else {
+                productZip = new ZipFile(inputFile, ZipFile.OPEN_READ);
+                if (productZip.size() != 1) {
+                    return null;
+                }
+                final Enumeration<? extends ZipEntry> entries = productZip.entries();
+                zipEntry = entries.nextElement();
+                if (zipEntry == null || zipEntry.isDirectory()) {
+                    return null;
+                }
+                inputStream = productZip.getInputStream(zipEntry);
+            }
+        } catch (IOException e) {
+            return null;
+        }
+
+        return inputStream;
     }
 }

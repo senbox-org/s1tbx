@@ -11,5 +11,7 @@ public class EnvisatProductReaderPluginTest extends TestCase {
         assertEquals(".N1", defaultFileExtensions[0]);
         assertEquals(".E1", defaultFileExtensions[1]);
         assertEquals(".E2", defaultFileExtensions[2]);
+        assertEquals(".zip", defaultFileExtensions[3]);
+        assertEquals(".gz", defaultFileExtensions[4]);
     }
 }
