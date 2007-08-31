@@ -4,30 +4,13 @@ import com.bc.ceres.core.runtime.RuntimeConfig;
 import com.bc.ceres.core.runtime.RuntimeConfigException;
 import com.bc.ceres.util.TemplateReader;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.URL;
 import java.security.CodeSource;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.FileHandler;
+import java.util.*;
+import java.util.logging.*;
 import java.util.logging.Formatter;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
 
 public final class DefaultRuntimeConfig implements RuntimeConfig {
 
@@ -161,7 +144,7 @@ public final class DefaultRuntimeConfig implements RuntimeConfig {
         setAutoDetectProperties();
     }
 
-    private void initContext() throws RuntimeConfigException {
+    private void initContext() {
 
         // Initialize context identifier. Mandatory.
         contextId = System.getProperty(CONFIG_KEY_CERES_CONTEXT, DEFAULT_CERES_CONTEXT);
@@ -342,15 +325,35 @@ public final class DefaultRuntimeConfig implements RuntimeConfig {
             try {
                 Properties fileProperties = new Properties();
                 fileProperties.load(stream);
+                // @todo check tests - code was not backward compatible with Java 5
+                // so i changed it - but this is not the only place of uncompatibilty
                 // add default properties so that they override file properties
-                Set<String> propertyNames = fileProperties.stringPropertyNames();
-                for (String propertyName : propertyNames) {
-                    String propertyValue = fileProperties.getProperty(propertyName);
-                    if (!isPropertySet(propertyName)) {
-                        setProperty(propertyName, propertyValue);
-                        trace(String.format("Configuration property [%s] added", propertyName));
-                    } else {
-                        trace(String.format("Configuration property [%s] ignored", propertyName));
+                //Set<String> propertyNames = fileProperties.stringPropertyNames();
+//                for (String propertyName : propertyNames) {
+//                    String propertyValue = fileProperties.getProperty(propertyName);
+//                    if (!isPropertySet(propertyName)) {
+//                        setProperty(propertyName, propertyValue);
+//                        trace(String.format("Configuration property [%s] added", propertyName));
+//                    } else {
+//                        trace(String.format("Configuration property [%s] ignored", propertyName));
+//                    }
+//                }
+
+                Enumeration<?> enumeration = fileProperties.propertyNames();
+                while (enumeration.hasMoreElements()) {
+                    final Object key = enumeration.nextElement();
+                    if (key instanceof String) {
+                        final Object value = fileProperties.get(key);
+                        if (value instanceof String) {
+                            final String keyString = (String) key;
+                            String propertyValue = fileProperties.getProperty(keyString);
+                            if (!isPropertySet(keyString)) {
+                                setProperty(keyString, propertyValue);
+                                trace(String.format("Configuration property [%s] added", keyString));
+                            } else {
+                                trace(String.format("Configuration property [%s] ignored", keyString));
+                            }
+                        }
                     }
                 }
             } finally {
@@ -358,7 +361,7 @@ public final class DefaultRuntimeConfig implements RuntimeConfig {
             }
         } catch (IOException e) {
             throw new RuntimeConfigException(String.format("Failed to load configuration [%s]", configFilePath),
-                                             e);
+                    e);
         }
     }
 
