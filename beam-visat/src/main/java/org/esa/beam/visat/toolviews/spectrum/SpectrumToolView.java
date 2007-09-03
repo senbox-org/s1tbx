@@ -192,7 +192,9 @@ public class SpectrumToolView extends AbstractToolView {
         ArrayList<Band> spectralBands = new ArrayList<Band>(15);
         for (Band band : bands) {
             if (band.getSpectralWavelength() > 0.0) {
-                spectralBands.add(band);
+                if (!band.isFlagBand()) {
+                    spectralBands.add(band);
+                }
             }
         }
         return spectralBands.toArray(new Band[spectralBands.size()]);
@@ -203,10 +205,10 @@ public class SpectrumToolView extends AbstractToolView {
         if (!tipShown) {
             VisatApp.getApp().showInfoDialog("Spectrum Tip",
                                              "Tip: If you press the SHIFT key while moving the mouse cursor over \n" +
-                                                     "an image, VISAT adjusts the diagram axes to the local values at the\n" +
-                                                     "current pixel position, if you release the SHIFT key again, then the\n" +
-                                                     "min/max are accumulated again.", /*I18N*/
-                                                                                       SUPPRESS_MESSAGE_KEY);
+                                             "an image, VISAT adjusts the diagram axes to the local values at the\n" +
+                                             "current pixel position, if you release the SHIFT key again, then the\n" +
+                                             "min/max are accumulated again.", /*I18N*/
+                                                                               SUPPRESS_MESSAGE_KEY);
             tipShown = true;
         }
     }
@@ -222,7 +224,8 @@ public class SpectrumToolView extends AbstractToolView {
             }
         });
 
-        showSpectrumForCursorButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/CursorSpectrum24.gif"), true);
+        showSpectrumForCursorButton = ToolButtonFactory.createButton(
+                UIUtils.loadImageIcon("icons/CursorSpectrum24.gif"), true);
         showSpectrumForCursorButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 recreateSpectraDiagram();
@@ -232,25 +235,28 @@ public class SpectrumToolView extends AbstractToolView {
         showSpectrumForCursorButton.setSelected(true);
         showSpectrumForCursorButton.setToolTipText("Show spectrum at cursor position.");
 
-        showSpectraForSelectedPinsButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/SelectedPinSpectra24.gif"), true);
+        showSpectraForSelectedPinsButton = ToolButtonFactory.createButton(
+                UIUtils.loadImageIcon("icons/SelectedPinSpectra24.gif"), true);
         showSpectraForSelectedPinsButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 recreateSpectraDiagram();
             }
         });
         showSpectraForSelectedPinsButton.setName("showSpectraForSelectedPinsButton");
-        showSpectraForSelectedPinsButton.setToolTipText("Show spectrum of selected pins.");
+        showSpectraForSelectedPinsButton.setToolTipText("Show spectra for selected pins.");
 
-        showSpectraForAllPinsButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/PinSpectra24.gif"), true);
+        showSpectraForAllPinsButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/PinSpectra24.gif"),
+                                                                     true);
         showSpectraForAllPinsButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 recreateSpectraDiagram();
             }
         });
         showSpectraForAllPinsButton.setName("showSpectraForAllPinsButton");
-        showSpectraForAllPinsButton.setToolTipText("Show spectra of all pins.");
+        showSpectraForAllPinsButton.setToolTipText("Show spectra for all pins.");
 
-        showAveragePinSpectrumButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/AverageSpectrum24.gif"), true);
+        showAveragePinSpectrumButton = ToolButtonFactory.createButton(
+                UIUtils.loadImageIcon("icons/AverageSpectrum24.gif"), true);
         showAveragePinSpectrumButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 // todo - implement
@@ -279,7 +285,8 @@ public class SpectrumToolView extends AbstractToolView {
         showGraphPointsButton.setName("showGraphPointsButton");
         showGraphPointsButton.setToolTipText("Show graph points grid.");
 
-        AbstractButton exportSpectraButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Export24.gif"), false);
+        AbstractButton exportSpectraButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Export24.gif"),
+                                                                            false);
         exportSpectraButton.addActionListener(new SpectraExportAction(this));
         exportSpectraButton.setToolTipText("Export spectra to text file.");
         exportSpectraButton.setName("exportSpectraButton");
@@ -359,7 +366,7 @@ public class SpectrumToolView extends AbstractToolView {
             public void productRemoved(ProductManager.ProductManagerEvent event) {
                 final Product product = event.getProduct();
                 cursorSpectrumPPLMap.remove(product);
-                if(getCurrentProduct() == product) {
+                if (getCurrentProduct() == product) {
                     setSpectraDiagram(null);
                     setCurrentView(null);
                     setCurrentProduct(null);
@@ -449,13 +456,13 @@ public class SpectrumToolView extends AbstractToolView {
             Pin[] pins = getCurrentProduct().getPins();
             for (Pin pin : pins) {
                 if (pin.isSelected()) {
-                    spectraDiagram.addSpectrumGraph( pin);
+                    spectraDiagram.addSpectrumGraph(pin);
                 }
             }
         } else if (isShowingSpectraForAllPins()) {
             Pin[] pins = getCurrentProduct().getPins();
             for (Pin pin : pins) {
-                spectraDiagram.addSpectrumGraph( pin);
+                spectraDiagram.addSpectrumGraph(pin);
             }
         }
 
@@ -556,6 +563,7 @@ public class SpectrumToolView extends AbstractToolView {
     // Product change handling
 
     private class ProductNodeHandler extends ProductNodeListenerAdapter {
+
         @Override
         public void nodeChanged(final ProductNodeEvent event) {
             if (!isActive()) {
@@ -564,7 +572,7 @@ public class SpectrumToolView extends AbstractToolView {
             if (event.getSourceNode() instanceof Band) {
                 final String propertyName = event.getPropertyName();
                 if (propertyName.equals(DataNode.PROPERTY_NAME_UNIT)
-                        || propertyName.equals(Band.PROPERTY_NAME_SPECTRAL_WAVELENGTH)) {
+                    || propertyName.equals(Band.PROPERTY_NAME_SPECTRAL_WAVELENGTH)) {
                     recreateSpectraDiagram();
                 }
             } else if (event.getSourceNode() instanceof Pin) {
