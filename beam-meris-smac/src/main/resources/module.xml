@@ -10,7 +10,8 @@
     <changelog>
         <![CDATA[From 1.4 to 1.5
         <ul>
-        <li>Parameter 'aux_coeff_dir' removed from request file.</li>
+        <li>[BEAM-593] Auxdata path is not updated</li>
+        <li>[BEAM-682] The SMAC Processor cannot cope with 'MER_FRS_1P' files</li>
         </ul>]]>
     </changelog>
 

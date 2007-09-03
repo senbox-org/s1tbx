@@ -11,6 +11,7 @@
         <![CDATA[From 1.5 to 1.5.1
         <ul>
         <li>ValidExpression for land and ocean net, which can be changed.</li>
+        <li>[BEAM-691] The Cloud Probability processor cannot cope with 'MER_FRS_1P' files.</li>
         </ul>]]>
     </changelog>
 
