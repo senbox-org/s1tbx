@@ -19,6 +19,9 @@ package org.esa.beam.processor.smac.ui;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.esa.beam.dataio.envisat.EnvisatConstants;
+import org.esa.beam.framework.param.ParamParseException;
+import org.esa.beam.framework.param.ParamValidateException;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.processor.ProcessorConstants;
 import org.esa.beam.framework.processor.ProductRef;
@@ -122,16 +125,33 @@ public class SmacRequestEditorDataModulTest extends TestCase {
         assertNotNull(_dataModul.getRequest().getParameter(name));
 
         Request request = new Request();
-        request.addParameter(createParameter(name, SmacConstants.PRODUCT_TYPES[1]));
+        request.addParameter(createParameter(name, EnvisatConstants.MERIS_RR_L1B_PRODUCT_TYPE_NAME));
         _dataModul.setRequest(request);
         Parameter parameter = _dataModul.getRequest().getParameter(name);
-        assertEquals(SmacConstants.PRODUCT_TYPES[1], parameter.getValueAsText());
+        assertEquals(EnvisatConstants.MERIS_RR_L1B_PRODUCT_TYPE_NAME, parameter.getValueAsText());
 
         request = new Request();
-        request.addParameter(createParameter(name, SmacConstants.PRODUCT_TYPES[0]));
+        request.addParameter(createParameter(name, EnvisatConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME));
         _dataModul.setRequest(request);
         parameter = _dataModul.getRequest().getParameter(name);
-        assertEquals(SmacConstants.PRODUCT_TYPES[0], parameter.getValueAsText());
+        assertEquals(EnvisatConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME, parameter.getValueAsText());
+
+        request = new Request();
+        request.addParameter(createParameter(name, EnvisatConstants.MERIS_FRS_L1B_PRODUCT_TYPE_NAME));
+        _dataModul.setRequest(request);
+        parameter = _dataModul.getRequest().getParameter(name);
+        assertEquals(EnvisatConstants.MERIS_FRS_L1B_PRODUCT_TYPE_NAME, parameter.getValueAsText());
+
+        parameter = createParameter(name, EnvisatConstants.MERIS_FRS_L1B_PRODUCT_TYPE_NAME);
+        try {
+            parameter.setValueAsText("ABCD");
+            fail("ParamValidateException expected!");
+        } catch (ParamParseException e) {
+            // ignore
+        } catch (ParamValidateException e) {
+            // ignore
+        }
+        assertEquals(EnvisatConstants.MERIS_FRS_L1B_PRODUCT_TYPE_NAME, parameter.getValueAsText());
     }
 
     public void testSetRequest_Bands() {

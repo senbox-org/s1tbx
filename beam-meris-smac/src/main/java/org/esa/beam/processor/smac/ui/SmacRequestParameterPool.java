@@ -45,10 +45,10 @@ import org.esa.beam.util.math.RsMathUtils;
 import javax.swing.JComponent;
 import java.io.File;
 import java.io.IOException;
-import java.util.Vector;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.ArrayList;
+import java.util.Vector;
 import java.util.logging.Logger;
 
 /**
@@ -283,12 +283,10 @@ public class SmacRequestParameterPool {
      * @param type the product type
      */
     private void toggleMerisECMWFButton(String type) {
-        String meris_fr = SmacConstants.PRODUCT_TYPES[0];
-        String meris_rr = SmacConstants.PRODUCT_TYPES[1];
         Parameter ecmwfParam = getParameter(SmacConstants.USE_MERIS_ADS_PARAM_NAME);
         ecmwfParam.setValue(Boolean.FALSE, null);
         JComponent component = ecmwfParam.getEditor().getComponent();
-        if ((meris_fr.equals(type)) || (meris_rr.equals(type))) {
+        if (SmacUtils.isSupportedMerisProductType(type)) {
             component.setEnabled(true);
         } else {
             component.setEnabled(false);
@@ -346,8 +344,7 @@ public class SmacRequestParameterPool {
         addNewParam(SmacConstants.DEFAULT_REFLECT_FOR_INVALID_PIX_PARAM_NAME, request);
         // check which bitmask expression
         Parameter prodType = getParameter(SmacConstants.PRODUCT_TYPE_PARAM_NAME);
-        if (prodType.getValueAsText().equals(SmacConstants.PRODUCT_TYPES[0]) ||
-            prodType.getValueAsText().equals(SmacConstants.PRODUCT_TYPES[1])) {
+        if (SmacUtils.isSupportedMerisProductType(prodType.getValueAsText())) {
             // meris
             addNewParam(SmacConstants.BITMASK_PARAM_NAME, request);
         } else {

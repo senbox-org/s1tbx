@@ -28,7 +28,7 @@
             <id>NDVIProcessorPlugIn</id>
             <class>org.esa.beam.visat.actions.ProcessorAction</class>
             <processor>com.bc.beam.processor.ndvi.NdviProcessor</processor>
-            <text>NDVI Processor...</text>
+            <text>NDVI Processor (MERIS)...</text>
             <shortDescr>Invoke the NDVI Proessor Plugin.</shortDescr>
             <mnemonic>N</mnemonic>
             <parent>tools</parent>

@@ -92,6 +92,10 @@ public class SmacConstants implements ProcessorConstants {
 
     /**
      * Describes all available input product types.
+     * @deprecated in 4.1, to check if a given product type is supported use
+     * {@link SmacUtils#isSupportedProductType(String)} or
+     * {@link SmacUtils#isSupportedMerisProductType(String)} or
+     * {@link SmacUtils#isSupportedAatsrProductType(String)}
      */
     public static final String[] PRODUCT_TYPES = new String[]{
             EnvisatConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME,
@@ -150,6 +154,7 @@ public class SmacConstants implements ProcessorConstants {
 
     /**
      * Default value for product type parameter valueSet
+     * @deprecated in 4.1, no replacement
      */
     public static final String[] DEFAULT_PRODUCT_TYPE_VALUESET = PRODUCT_TYPES;
     /**
@@ -163,7 +168,7 @@ public class SmacConstants implements ProcessorConstants {
     /**
      * Default value for product type parameter defaultValue
      */
-    public static final String DEFAULT_PRODUCT_TYPE_DEFAULTVALUE = PRODUCT_TYPES[0];
+    public static final String DEFAULT_PRODUCT_TYPE_DEFAULTVALUE = EnvisatConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME;
 
     /**
      * Default value for bands parameter valueSet
@@ -208,7 +213,7 @@ public class SmacConstants implements ProcessorConstants {
     /**
      * Default value for default reflectance for invalid pixels parameter defaultValue
      */
-    public static final Float DEFAULT_DEFREFLECT_DEFAULTVALUE = new Float(0.0);
+    public static final Float DEFAULT_DEFREFLECT_DEFAULTVALUE = 0.0f;
     /**
      * Default value for default reflectance for invalid pixels parameter label
      */
@@ -220,7 +225,7 @@ public class SmacConstants implements ProcessorConstants {
     /**
      * Default value for default reflectance for invalid pixels parameter maxValue
      */
-    public static final Float DEFAULT_DEFREFLECT_MAXVALUE = new Float(1);
+    public static final Float DEFAULT_DEFREFLECT_MAXVALUE = 1.0f;
     /**
      * Default value for default reflectance for invalid pixels parameter valueUnit
      */
@@ -229,11 +234,11 @@ public class SmacConstants implements ProcessorConstants {
     /**
      * Default value for water vapour parameter defaultValue
      */
-    public static final Float DEFAULT_H2O_DEFAULTVALUE = new Float(3.f);
+    public static final Float DEFAULT_H2O_DEFAULTVALUE = 3.0f;
     /**
      * Default value for water vapour parameter maxValue
      */
-    public static final Float DEFAULT_H2O_MAXVALUE = new Float(7.f);
+    public static final Float DEFAULT_H2O_MAXVALUE = 7.0f;
     /**
      * Default value for water vapour parameter label
      */
@@ -250,11 +255,11 @@ public class SmacConstants implements ProcessorConstants {
     /**
      * Default value for ozone content parameter defaultValue
      */
-    public static final Float DEFAULT_OZONECONTENT_DEFAULTVALUE = new Float(0.150f);
+    public static final Float DEFAULT_OZONECONTENT_DEFAULTVALUE = 0.150f;
     /**
      * Default value for ozone content parameter maxValue
      */
-    public static final Float DEFAULT_OZONECONTENT_MAXVALUE = new Float(1.f);
+    public static final Float DEFAULT_OZONECONTENT_MAXVALUE = 1.0f;
     /**
      * Default value for ozone content parameter label
      */
@@ -271,15 +276,15 @@ public class SmacConstants implements ProcessorConstants {
     /**
      * Default value for surface air pressure parameter defaultValue
      */
-    public static final Float DEFAULT_SURF_AIR_PRESS_DEFAULTVALUE = new Float(1013);
+    public static final Float DEFAULT_SURF_AIR_PRESS_DEFAULTVALUE = 1013.0f;
     /**
      * Default value for surface air pressure parameter minValue
      */
-    public static final Float DEFAULT_SURF_AIR_PRESS_MINVALUE = new Float(100);
+    public static final Float DEFAULT_SURF_AIR_PRESS_MINVALUE = 100.0f;
     /**
      * Default value for surface air pressure parameter maxValue
      */
-    public static final Float DEFAULT_SURF_AIR_PRESS_MAXVALUE = new Float(1100);
+    public static final Float DEFAULT_SURF_AIR_PRESS_MAXVALUE = 1100.0f;
     /**
      * Default value for surface air pressure parameter label
      */
@@ -296,15 +301,15 @@ public class SmacConstants implements ProcessorConstants {
     /**
      * Default value for horizontal visibility parameter defaultValue
      */
-    public static final Float DEFAULT_HORIZ_VIS_DEFAULTVALUE = new Float(39.2);
+    public static final Float DEFAULT_HORIZ_VIS_DEFAULTVALUE = 39.2f;
     /**
      * Default value for horizontal visibility parameter minValue
      */
-    public static final Float DEFAULT_MIN_HORIZ_VIS_MINVALUE = new Float(3.92);
+    public static final Float DEFAULT_MIN_HORIZ_VIS_MINVALUE = 3.92f;
     /**
      * Default value for horizontal visibility parameter maxValue
      */
-    public static final Float DEFAULT_MAX_HORIZ_VIS_MAXVALUE = new Float(100);
+    public static final Float DEFAULT_MAX_HORIZ_VIS_MAXVALUE = 100.0f;
     /**
      * Default value for horizontal visibility parameter label
      */
@@ -321,15 +326,15 @@ public class SmacConstants implements ProcessorConstants {
     /**
      * Default value for aerosol optical depth parameter defaultValue
      */
-    public static final Float DEFAULT_AER_OPT_DEPTH_DEFAULTVALUE = new Float(0.2);
+    public static final Float DEFAULT_AER_OPT_DEPTH_DEFAULTVALUE = 0.2f;
     /**
      * Default value for aerosol optical depth parameter minValue
      */
-    public static final Float DEFAULT_AER_OPT_DEPTH_MINVALUE = new Float(0.0784);
+    public static final Float DEFAULT_AER_OPT_DEPTH_MINVALUE = 0.0784f;
     /**
      * Default value for aerosol optical depth parameter maxValue
      */
-    public static final Float DEFAULT_AER_OPT_DEPTH_MAXVALUE = new Float(2);
+    public static final Float DEFAULT_AER_OPT_DEPTH_MAXVALUE = 2.0f;
     /**
      * Default value for aerosol optical depth parameter label
      */

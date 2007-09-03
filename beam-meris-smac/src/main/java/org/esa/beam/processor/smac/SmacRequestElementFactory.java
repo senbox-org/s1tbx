@@ -20,6 +20,7 @@ import org.esa.beam.framework.param.ParamProperties;
 import org.esa.beam.framework.param.ParamValidateException;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.param.editors.BooleanExpressionEditor;
+import org.esa.beam.framework.param.validators.StringValidator;
 import org.esa.beam.framework.processor.DefaultRequestElementFactory;
 import org.esa.beam.framework.processor.ProductRef;
 import org.esa.beam.framework.processor.RequestElementFactory;
@@ -40,7 +41,7 @@ import java.util.Map;
  */
 public class SmacRequestElementFactory implements RequestElementFactory {
 
-    private final Map _paramInfoMap = new HashMap();
+    private final Map<String,ParamProperties> _paramInfoMap = new HashMap<String, ParamProperties>();
 
     private final DefaultRequestElementFactory _defaultFactory = DefaultRequestElementFactory.getInstance();
 
@@ -169,7 +170,7 @@ public class SmacRequestElementFactory implements RequestElementFactory {
      *          when the parameter name is not specified as valid name
      */
     public ParamProperties getParamProperties(String parameterName) throws IllegalArgumentException {
-        ParamProperties paramProps = (ParamProperties) _paramInfoMap.get(parameterName);
+        ParamProperties paramProps = _paramInfoMap.get(parameterName);
         if (paramProps == null) {
             throw new IllegalArgumentException("Invalid parameter name '" + parameterName + "'.");
         }
@@ -248,8 +249,9 @@ public class SmacRequestElementFactory implements RequestElementFactory {
 
     private ParamProperties createParamInfoProductType() {
         ParamProperties paramProps = _defaultFactory.createStringParamProperties();
-        paramProps.setValueSetBound(true);
-        paramProps.setValueSet(SmacConstants.DEFAULT_PRODUCT_TYPE_VALUESET);
+//        paramProps.setValueSetBound(true);
+        paramProps.setValidatorClass(SmacProductTypeValidator.class);
+//        paramProps.setValueSet(SmacConstants.DEFAULT_PRODUCT_TYPE_VALUESET);  // can be removed
         paramProps.setLabel(SmacConstants.DEFAULT_PRODUCT_TYPE_LABELTEXT);
         paramProps.setDescription(SmacConstants.DEFAULT_PRODUCT_TYPE_DESCRIPTION);
         paramProps.setDefaultValue(SmacConstants.DEFAULT_PRODUCT_TYPE_DEFAULTVALUE);
@@ -271,7 +273,7 @@ public class SmacRequestElementFactory implements RequestElementFactory {
 
     private ParamProperties createParamInfoUseMerisEcmwfData() {
         ParamProperties paramProps = _defaultFactory.createBooleanParamProperties();
-        paramProps.setDefaultValue(new Boolean(true));
+        paramProps.setDefaultValue(true);
         paramProps.setLabel(SmacConstants.DEFAULT_USEMERIS_LABELTEXT);
         paramProps.setDescription(SmacConstants.DEFAULT_USEMERIS_DESCRIPTION);
         return paramProps;
@@ -351,4 +353,17 @@ public class SmacRequestElementFactory implements RequestElementFactory {
         return paramProps;
     }
 
+    public static class SmacProductTypeValidator extends StringValidator {
+
+        @Override
+        public void validate(Parameter parameter, Object value) throws ParamValidateException {
+            if(String.class.isInstance(value)) {
+                String productType = (String) value;
+                if(!SmacUtils.isSupportedProductType(productType)) {
+                    throw new ParamValidateException(parameter,
+                                                     SmacConstants.LOG_MSG_UNSUPPORTED_INPUT_1 + productType + SmacConstants.LOG_MSG_UNSUPPORTED_INPUT_2);
+                }
+            }
+        }
+    }
 }

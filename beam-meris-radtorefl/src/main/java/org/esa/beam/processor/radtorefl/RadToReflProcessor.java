@@ -95,9 +95,9 @@ public class RadToReflProcessor extends Processor {
 
                 pm.setSubTaskName(RadToReflConstants.LOG_MSG_PROC_START);
 
-                for (int i = 0; i < inputBandList.size(); i++) {
+                for (Band band : inputBandList) {
                     try {
-                        processBand(inputBandList.get(i), SubProgressMonitor.create(pm, 1));
+                        processBand(band, SubProgressMonitor.create(pm, 1));
                         if (pm.isCanceled()) {
                             setCurrentStatus(ProcessorConstants.STATUS_ABORTED);
                             return;
@@ -109,8 +109,7 @@ public class RadToReflProcessor extends Processor {
                 }
             } finally {
                 cleanUp();
-//                pc.fireProcessEnded();
-                pm.isCanceled();
+                pm.done();
             }
         } catch (IOException e) {
             throw new ProcessorException("An I/O error occured:\n" + e.getMessage(), e);
@@ -209,11 +208,10 @@ public class RadToReflProcessor extends Processor {
      * @return <code>true</code> if the specified <code>Product</code>
      *         is suitable for processing; <code>false</code> otherwise.
      */
-    public static final boolean isValidInputProduct(final Product product) {
+    public static boolean isValidInputProduct(final Product product) {
         final String type = product.getProductType();
 
-        return type.equalsIgnoreCase(EnvisatConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME) ||
-               type.equalsIgnoreCase(EnvisatConstants.MERIS_RR_L1B_PRODUCT_TYPE_NAME);
+        return EnvisatConstants.MERIS_L1_TYPE_PATTERN.matcher(type).matches();
     }
 
 
@@ -226,9 +224,9 @@ public class RadToReflProcessor extends Processor {
      * @return <code>true</code> if the specified name denotes a <code>Band</code>
      *         suitable for processing; <code>false</code> otherwise.
      */
-    public static final boolean isValidInputBand(final String name) {
-        for (int i = 0; i < EnvisatConstants.MERIS_L1B_SPECTRAL_BAND_NAMES.length; ++i) {
-            if (EnvisatConstants.MERIS_L1B_SPECTRAL_BAND_NAMES[i].equals(name)) {
+    public static boolean isValidInputBand(final String name) {
+        for (String bandName : EnvisatConstants.MERIS_L1B_SPECTRAL_BAND_NAMES) {
+            if (bandName.equals(name)) {
                 return true;
             }
         }
@@ -268,9 +266,7 @@ public class RadToReflProcessor extends Processor {
         }
         inputBandList.clear();
 
-        for (int i = 0; i < inputBandNames.length; i++) {
-            final String name = inputBandNames[i];
-
+        for (final String name : inputBandNames) {
             if (isValidInputBand(name)) {
                 final Band band = inputProduct.getBand(name);
 
@@ -322,13 +318,11 @@ public class RadToReflProcessor extends Processor {
     private void createOutputProductBands(ProgressMonitor pm) throws IOException,
                                                                      ProcessorException {
         if (copyInputBands) {
-            for (int i = 0; i < inputBandList.size(); i++) {
-                final Band band = inputBandList.get(i);
+            for (final Band band : inputBandList) {
                 ProductUtils.copyBand(band.getName(), inputProduct, outputProduct);
             }
         }
-        for (int i = 0; i < inputBandList.size(); i++) {
-            final Band inputBand = inputBandList.get(i);
+        for (final Band inputBand : inputBandList) {
             final Band outputBand = new Band(outputBandName(inputBand.getName()),
                                              inputBand.getGeophysicalDataType(), inputBand.getSceneRasterWidth(),
                                              inputBand.getSceneRasterHeight());
@@ -357,12 +351,11 @@ public class RadToReflProcessor extends Processor {
         pm.beginTask("Copying band data...", inputBandList.size() + 1);
         try {
             if (copyInputBands) {
-                for (int i = 0; i < inputBandList.size(); i++) {
+                for (Band band : inputBandList) {
                     if (pm.isCanceled()) {
                         return;
                     }
-                    final Band radianceBand = inputBandList.get(i);
-                    copyBandData(radianceBand.getName(), inputProduct, outputProduct, SubProgressMonitor.create(pm, 1));
+                    copyBandData(band.getName(), inputProduct, outputProduct, SubProgressMonitor.create(pm, 1));
                 }
             }
             copyFlagBandData(inputProduct, outputProduct, pm);
@@ -441,9 +434,9 @@ public class RadToReflProcessor extends Processor {
 
         par = getRequest().getParameter(RadToReflConstants.COPY_INPUT_BANDS_PARAM_NAME);
         if (par != null) {
-            copyInputBands = ((Boolean) par.getValue()).booleanValue();
+            copyInputBands = (Boolean) par.getValue();
         } else {
-            copyInputBands = RadToReflConstants.COPY_INPUT_BANDS_PARAM_DEFAULT.booleanValue();
+            copyInputBands = RadToReflConstants.COPY_INPUT_BANDS_PARAM_DEFAULT;
         }
     }
 

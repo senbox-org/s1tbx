@@ -16,44 +16,43 @@ import org.esa.beam.dataio.envisat.EnvisatConstants;
 import org.esa.beam.framework.processor.ProcessorException;
 import org.esa.beam.util.Guardian;
 
+import java.util.regex.Pattern;
+
 public class SmacUtils {
 
-     /**
-     * Converts the sensor type given by the request to a string that can be understood by the
-     * <code>SensorCoefficientManager</code>.
-     *
-     * @param productType the request type string
-     *
-     * @throws ProcessorException on unsupported input product type
-     */
-    public static String getSensorType(String productType) throws ProcessorException {
-        Guardian.assertNotNull("productType", productType);
-        String sensorType = null;
+    private static Pattern AATSR_L1_TOA_TYPE_PATTERN = Pattern.compile("ATS_TOA_1P");
 
-        if (EnvisatConstants.AATSR_L1B_TOA_PRODUCT_TYPE_NAME.equalsIgnoreCase(productType)) {
-            sensorType = SensorCoefficientManager.AATSR_NAME;
-        } else if (EnvisatConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME.equalsIgnoreCase(productType)) {
-            sensorType = SensorCoefficientManager.MERIS_NAME;
-        } else if (EnvisatConstants.MERIS_RR_L1B_PRODUCT_TYPE_NAME.equalsIgnoreCase(productType)) {
-            sensorType = SensorCoefficientManager.MERIS_NAME;
-        } else {
-            throw new ProcessorException(
-                    SmacConstants.LOG_MSG_UNSUPPORTED_INPUT_1 + productType + SmacConstants.LOG_MSG_UNSUPPORTED_INPUT_2);
-        }
+    /**
+    * Converts the sensor type given by the request to a string that can be understood by the
+    * <code>SensorCoefficientManager</code>.
+    *
+    * @param productType the request type string
+    *
+    * @throws ProcessorException on unsupported input product type
+    */
+   public static String getSensorType(String productType) throws ProcessorException {
+       Guardian.assertNotNull("productType", productType);
 
-        return sensorType;
+       if (isSupportedAatsrProductType(productType)) {
+           return SensorCoefficientManager.AATSR_NAME;
+       } else if (isSupportedMerisProductType(productType)) {
+           return SensorCoefficientManager.MERIS_NAME;
+       } else {
+           throw new ProcessorException(
+                   SmacConstants.LOG_MSG_UNSUPPORTED_INPUT_1 + productType + SmacConstants.LOG_MSG_UNSUPPORTED_INPUT_2);
+       }
+   }
+
+    public static boolean isSupportedMerisProductType(String productType) {
+        return EnvisatConstants.MERIS_L1_TYPE_PATTERN.matcher(productType).matches();
+    }
+
+    public static boolean isSupportedAatsrProductType(String productType) {
+        return AATSR_L1_TOA_TYPE_PATTERN.matcher(productType).matches();
     }
 
     public static boolean isSupportedProductType(String productType) {
         Guardian.assertNotNull("productType", productType);
-        boolean bRet = true;
-
-        try {
-            getSensorType(productType);
-        } catch (ProcessorException e) {
-            bRet = false;
-        }
-
-        return bRet;
+       return isSupportedAatsrProductType(productType) || isSupportedMerisProductType(productType);
     }
 }

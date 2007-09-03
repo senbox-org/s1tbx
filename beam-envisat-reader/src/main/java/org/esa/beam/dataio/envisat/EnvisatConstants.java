@@ -22,6 +22,7 @@ import org.esa.beam.util.StringUtils;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 /**
  * This interface is a container for constants specific for ENVISAT-products.
@@ -79,6 +80,13 @@ public interface EnvisatConstants {
      * Product type ID for AATSR L2 products.
      */
     String AATSR_L2_NR_PRODUCT_TYPE_NAME = "ATS_NR__2P";
+
+    /**
+     * A pattern which matches MERIS L1b product types
+     *
+     * @see java.util.regex.Matcher
+     */
+    Pattern MERIS_L1_TYPE_PATTERN = Pattern.compile("MER_..._1P");
 
     /**
      * The size of all main product headers (MPH) in bytes. The value is <code>1247</code>.

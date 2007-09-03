@@ -17,6 +17,7 @@
 package org.esa.beam.processor.smac.ui;
 
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
+import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.Parameter;
@@ -30,8 +31,8 @@ import org.esa.beam.framework.processor.ui.AbstractProcessorUI;
 import org.esa.beam.framework.processor.ui.ProcessorApp;
 import org.esa.beam.framework.ui.BorderLayoutUtils;
 import org.esa.beam.framework.ui.GridBagUtils;
-import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.processor.smac.SmacConstants;
+import org.esa.beam.processor.smac.SmacUtils;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 
@@ -161,8 +162,7 @@ public class SmacRequestEditor extends AbstractProcessorUI {
      * Sets the bitmask editor to the type passed in
      */
     public void setBitmaskEditor(String type) {
-        if ((SmacConstants.PRODUCT_TYPES[0].equals(type)) ||
-            (SmacConstants.PRODUCT_TYPES[1].equals(type))) {
+        if (SmacUtils.isSupportedMerisProductType(type)) {
             // meris
             _parametersContainer.remove(_aatsrBitmaskExpressionEditor2);
             _parametersContainer.remove(_aatsrBitmaskExpressionLabel2);

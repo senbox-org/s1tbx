@@ -82,13 +82,13 @@ public class NdviProcessor extends Processor {
     public static final String LOWER_BAND_PARAM_DEFAULT = "radiance_6";
 
     public static final String LOWER_FACTOR_PARAM_NAME = "lower_factor";
-    public static final Float LOWER_FACTOR_PARAM_DEFAULT = new Float(1.0f);
+    public static final Float LOWER_FACTOR_PARAM_DEFAULT = 1.0f;
 
     public static final String UPPER_BAND_PARAM_NAME = "upper_band";
     public static final String UPPER_BAND_PARAM_DEFAULT = "radiance_10";
 
     public static final String UPPER_FACTOR_PARAM_NAME = "upper_factor";
-    public static final Float UPPER_FACTOR_PARAM_DEFAULT = new Float(1.0f);
+    public static final Float UPPER_FACTOR_PARAM_DEFAULT = 1.0f;
 
     // Fields
     private Product _inputProduct;
@@ -100,8 +100,8 @@ public class NdviProcessor extends Processor {
     private Band _l1FlagsOutputBand;
     private Band _ndviFlagsOutputBand;
     private Logger _logger;
-    private float _upperFactor = UPPER_FACTOR_PARAM_DEFAULT.floatValue();
-    private float _lowerFactor = LOWER_FACTOR_PARAM_DEFAULT.floatValue();
+    private float _upperFactor = UPPER_FACTOR_PARAM_DEFAULT;
+    private float _lowerFactor = LOWER_FACTOR_PARAM_DEFAULT;
     private String _upperBandName = UPPER_BAND_PARAM_DEFAULT;
     private String _lowerBandName = LOWER_BAND_PARAM_DEFAULT;
 
@@ -126,8 +126,8 @@ public class NdviProcessor extends Processor {
             final Request request = getRequest();
             Request.checkRequestType(request, REQUEST_TYPE);
 
-            _lowerFactor = ((Float) request.getParameter(LOWER_FACTOR_PARAM_NAME).getValue()).floatValue();
-            _upperFactor = ((Float) request.getParameter(UPPER_FACTOR_PARAM_NAME).getValue()).floatValue();
+            _lowerFactor = (Float) request.getParameter(LOWER_FACTOR_PARAM_NAME).getValue();
+            _upperFactor = (Float) request.getParameter(UPPER_FACTOR_PARAM_NAME).getValue();
 
             _upperBandName = request.getParameter(UPPER_BAND_PARAM_NAME).getValueAsText();
             _lowerBandName = request.getParameter(LOWER_BAND_PARAM_NAME).getValueAsText();
@@ -468,9 +468,7 @@ public class NdviProcessor extends Processor {
     }
 
     private static boolean isMerisL1Type(final String productType) {
-        return EnvisatConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME.equalsIgnoreCase(productType)
-               || EnvisatConstants.MERIS_FSG_L1B_PRODUCT_TYPE_NAME.equalsIgnoreCase(productType)
-               || EnvisatConstants.MERIS_RR_L1B_PRODUCT_TYPE_NAME.equalsIgnoreCase(productType);
+        return EnvisatConstants.MERIS_L1_TYPE_PATTERN.matcher(productType).matches();
     }
 
 }

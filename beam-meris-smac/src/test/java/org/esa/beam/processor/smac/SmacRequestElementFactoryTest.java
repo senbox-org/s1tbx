@@ -22,6 +22,8 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.esa.beam.dataio.envisat.EnvisatConstants;
 import org.esa.beam.framework.param.ParamProperties;
+import org.esa.beam.framework.param.ParamValidateException;
+import org.esa.beam.framework.param.ParamValidator;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.param.editors.FileEditor;
 import org.esa.beam.framework.param.editors.TextFieldEditor;
@@ -32,7 +34,6 @@ import org.esa.beam.util.ArrayUtils;
 import org.esa.beam.util.SystemUtils;
 
 import java.io.File;
-import java.net.MalformedURLException;
 
 public class SmacRequestElementFactoryTest extends TestCase {
 
@@ -204,7 +205,8 @@ public class SmacRequestElementFactoryTest extends TestCase {
         assertEquals("Continental", paramInfo.getDefaultValue());
     }
 
-    public void testGetParamInfoFor_product_type() {
+    public void testGetParamInfoFor_product_type() throws IllegalAccessException, InstantiationException,
+                                                          ParamValidateException, RequestElementFactoryException {
         String name = SmacConstants.PRODUCT_TYPE_PARAM_NAME;
         ParamProperties paramInfo = _smacReqElemFactory.getParamProperties(name);
         assertNotNull(paramInfo);
@@ -214,14 +216,21 @@ public class SmacRequestElementFactoryTest extends TestCase {
         assertEquals(String.class, paramInfo.getValueType());
         String[] expStrArr = new String[]{
             EnvisatConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME,
+            EnvisatConstants.MERIS_FRS_L1B_PRODUCT_TYPE_NAME,
+            EnvisatConstants.MERIS_FRG_L1B_PRODUCT_TYPE_NAME,
             EnvisatConstants.MERIS_RR_L1B_PRODUCT_TYPE_NAME,
             EnvisatConstants.AATSR_L1B_TOA_PRODUCT_TYPE_NAME
         };
-        assertEquals(true, ArrayUtils.equalArrays(expStrArr, paramInfo.getValueSet()));
-        assertEquals(true, paramInfo.isValueSetBound());
         assertNotNull(paramInfo.getLabel());
         assertNotNull(paramInfo.getDescription());
         assertEquals(EnvisatConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME, paramInfo.getDefaultValue());
+
+        ParamValidator validator = (ParamValidator) paramInfo.getValidatorClass().newInstance();
+        Parameter parameter = _smacReqElemFactory.createParameter(SmacConstants.PRODUCT_TYPE_PARAM_NAME,
+                                                                  EnvisatConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME);
+        for (String type : expStrArr) {
+           validator.validate(parameter, type);
+        }
     }
 
     public void testGetParamInfoFor_tau_aero_550() {

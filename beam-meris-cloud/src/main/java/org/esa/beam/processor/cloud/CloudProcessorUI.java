@@ -35,7 +35,6 @@ import org.esa.beam.framework.processor.ui.ProcessorApp;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
-import org.esa.beam.util.StringUtils;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -57,10 +56,6 @@ public class CloudProcessorUI extends AbstractProcessorUI {
     private ParamGroup _paramGroup;
     private File _requestFile;
     private CloudRequestElementFactory _factory;
-    private final static String[] VALID_INPUT_TYPES = new String[]{
-            EnvisatConstants.MERIS_RR_L1B_PRODUCT_TYPE_NAME,
-            EnvisatConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME
-    };
     private final Logger _logger;
 
     /**
@@ -328,11 +323,7 @@ public class CloudProcessorUI extends AbstractProcessorUI {
     private static boolean hasParameterEmptyString(final Parameter parameter) {
         final String valueAsText = parameter.getValueAsText();
 
-        if (valueAsText.trim().length() <= 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return valueAsText.trim().length() <= 0;
     }
 
     private void checkForValidInputProduct(final Parameter parameter) {
@@ -348,12 +339,12 @@ public class CloudProcessorUI extends AbstractProcessorUI {
             return;
         }
         String msg = null;
-        Product product = null;
+        Product product;
         try {
             product = ProductIO.readProduct(file, null);
             if (product != null) {
                 final String productType = product.getProductType();
-                final boolean isValidType = StringUtils.contains(VALID_INPUT_TYPES, productType);
+                final boolean isValidType = EnvisatConstants.MERIS_L1_TYPE_PATTERN.matcher(productType).matches();
                 if (!isValidType) {
                     msg = "The specified input product is not of the expected type.\n" +
                           "The type of the product must be 'MERIS_L1b'.";           /*I18N*/

@@ -21,7 +21,6 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.param.editors.ComboBoxEditor;
-import org.esa.beam.framework.processor.ProcessorUtils;
 import org.esa.beam.framework.processor.ProductRef;
 import org.esa.beam.framework.processor.RequestElementFactoryException;
 import org.esa.beam.util.SystemUtils;
