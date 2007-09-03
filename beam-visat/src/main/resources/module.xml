@@ -23,6 +23,8 @@
         [BEAM-671] Pin pixel coordinates should be floating point numbers<br/>
         [BEAM-672] Include spectral unmixing tool<br/>
         [BEAM-673] Allow for multiple spectra in spectrum view<br/>
+        [BEAM-677] Support for ground control points (GCPs)<br/>
+        [BEAM-678] Change pin location by dragging<br/>
         ]]>
     </changelog>
 
