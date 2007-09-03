@@ -1,5 +1,5 @@
 /*
- * $Id: PinToolAction.java,v 1.1 2007/04/19 10:16:12 marcop Exp $
+ * $Id: PlacemarkToolAction.java,v 1.1 2007/04/19 10:16:12 marcop Exp $
  *
  * Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
  *
@@ -16,19 +16,11 @@
  */
 package org.esa.beam.visat.actions;
 
-import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.VisatApp;
-import org.esa.beam.visat.actions.ToolAction;
 
-/**
- * Created by Marco Peters.
- *
- * @author Marco Peters
- * @version $Revision: 1.1 $ $Date: 2007/04/19 10:16:12 $
- */
-public class PinToolAction extends ToolAction {
+public class PlacemarkToolAction extends ToolAction {
 
     @Override
     public void updateState(final CommandEvent event) {

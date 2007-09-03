@@ -17,20 +17,45 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.jexp.*;
+import com.bc.jexp.Namespace;
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Parser;
+import com.bc.jexp.Term;
+import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.ParserImpl;
-import org.esa.beam.framework.dataio.*;
-import org.esa.beam.framework.dataop.barithm.*;
+import org.esa.beam.framework.dataio.ProductFlipper;
+import org.esa.beam.framework.dataio.ProductProjectionBuilder;
+import org.esa.beam.framework.dataio.ProductReader;
+import org.esa.beam.framework.dataio.ProductSubsetBuilder;
+import org.esa.beam.framework.dataio.ProductSubsetDef;
+import org.esa.beam.framework.dataio.ProductWriter;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
+import org.esa.beam.framework.dataop.barithm.RasterDataEvalEnv;
+import org.esa.beam.framework.dataop.barithm.RasterDataLoop;
+import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
+import org.esa.beam.framework.dataop.barithm.SingleFlagSymbol;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.maptransf.MapProjection;
 import org.esa.beam.framework.dataop.maptransf.MapTransform;
-import org.esa.beam.util.*;
+import org.esa.beam.util.BitRaster;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.ObjectUtils;
+import org.esa.beam.util.StopWatch;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
 
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * <code>Product</code> instances are an in-memory representation of a remote sensing data product. The product is more
@@ -108,11 +133,13 @@ public class Product extends ProductNode {
     private ProductData.UTC _endTime;
 
     private final MetadataElement _metadataRoot;
-    private final ProductNodeList _bands;
-    private final ProductNodeList _tiePointGrids;
-    private final ProductNodeList _flagCodings;
-    private final ProductNodeList _bitmaskDefs;
-    private final ProductNodeList _pins;
+    private final ProductNodeList<Band> _bands;
+    private final ProductNodeList<TiePointGrid> _tiePointGrids;
+    private final ProductNodeList<FlagCoding> _flagCodings;
+    private final ProductNodeList<BitmaskDef> _bitmaskDefs;
+
+    private final ProductNodeGroup<Pin> pinGroup;
+    private final ProductNodeGroup<Pin> gcpGroup;
 
     /**
      * The internal reference number of this product
@@ -194,11 +221,13 @@ public class Product extends ProductNode {
         _sceneRasterHeight = sceneRasterHeight;
         _metadataRoot = new MetadataElement(METADATA_ROOT_NAME);
         _metadataRoot.setOwner(this);
-        _bands = new ProductNodeList(Band.class);
-        _tiePointGrids = new ProductNodeList(TiePointGrid.class);
-        _flagCodings = new ProductNodeList(FlagCoding.class);
-        _bitmaskDefs = new ProductNodeList(BitmaskDef.class);
-        _pins = new ProductNodeList(Pin.class);
+        _bands = new ProductNodeList<Band>();
+        _tiePointGrids = new ProductNodeList<TiePointGrid>();
+        _flagCodings = new ProductNodeList<FlagCoding>();
+        _bitmaskDefs = new ProductNodeList<BitmaskDef>();
+
+        pinGroup = new ProductNodeGroup<Pin>(this, "pins", "The group which stores all product pins.");
+        gcpGroup = new ProductNodeGroup<Pin>(this, "pins", "The group which stores all product pins.");
         addProductNodeListener(createNameChangedHandler());
     }
 
@@ -423,7 +452,8 @@ public class Product extends ProductNode {
         _tiePointGrids.dispose();
         _bitmaskDefs.dispose();
         _flagCodings.dispose();
-        _pins.dispose();
+        pinGroup.dispose();
+        gcpGroup.dispose();
 
         if (_geoCoding != null) {
             _geoCoding.dispose();
@@ -660,7 +690,7 @@ public class Product extends ProductNode {
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public TiePointGrid getTiePointGridAt(final int index) {
-        return (TiePointGrid) _tiePointGrids.getAt(index);
+        return _tiePointGrids.getAt(index);
     }
 
     /**
@@ -696,7 +726,7 @@ public class Product extends ProductNode {
      */
     public TiePointGrid getTiePointGrid(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
-        return (TiePointGrid) _tiePointGrids.get(name);
+        return _tiePointGrids.get(name);
     }
 
     /**
@@ -783,7 +813,7 @@ public class Product extends ProductNode {
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public Band getBandAt(final int index) {
-        return (Band) _bands.getAt(index);
+        return _bands.getAt(index);
     }
 
     /**
@@ -819,7 +849,7 @@ public class Product extends ProductNode {
      */
     public Band getBand(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
-        return (Band) _bands.get(name);
+        return _bands.get(name);
     }
 
     /**
@@ -899,7 +929,9 @@ public class Product extends ProductNode {
      * @param flagCoding the flag coding to be removed, ignored if <code>null</code>
      */
     public boolean removeFlagCoding(final FlagCoding flagCoding) {
-        return removeNamedNode(flagCoding, _flagCodings);
+        boolean success = removeNamedNode(flagCoding, _flagCodings);
+        // todo - remove from referencing bands too? (nf - 2007-08-24)
+        return success;
     }
 
     /**
@@ -917,7 +949,7 @@ public class Product extends ProductNode {
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public FlagCoding getFlagCodingAt(final int index) {
-        return (FlagCoding) _flagCodings.getAt(index);
+        return _flagCodings.getAt(index);
     }
 
     /**
@@ -939,7 +971,7 @@ public class Product extends ProductNode {
      */
     public FlagCoding getFlagCoding(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
-        return (FlagCoding) _flagCodings.get(name);
+        return _flagCodings.get(name);
     }
 
     /**
@@ -1014,87 +1046,96 @@ public class Product extends ProductNode {
     }
 
     //////////////////////////////////////////////////////////////////////////
+    // GCP support
+
+    /**
+     * Gets the group of ground-control points (GCPs).
+     * @return the GCP group.
+     */
+    public ProductNodeGroup<Pin> getGcpGroup() {
+        return gcpGroup;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
     // Pin support
 
-    public void addPin(final Pin pin) {
-        Guardian.assertNotNull("pin", pin);
-        addNamedNode(pin, _pins);
+    /**
+     * Gets the group of pins.
+     * @return the pin group.
+     */
+    public ProductNodeGroup<Pin> getPinGroup() {
+        return pinGroup;
     }
 
+    /** @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API. */
+    public boolean addPin(final Pin pin) {
+        return pinGroup.add(pin);
+    }
+
+    /** @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API. */
     public boolean removePin(final Pin pin) {
-        Guardian.assertNotNull("pin", pin);
-        return removeNamedNode(pin, _pins);
+        return pinGroup.remove(pin);
     }
 
+    /** @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API. */
     public int getNumPins() {
-        return _pins.size();
+        return pinGroup.getNodeCount();
     }
 
+    /** @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API. */
     public Pin getPinAt(final int index) {
-        return (Pin) _pins.getAt(index);
+        return pinGroup.get(index);
     }
 
+    /** @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API. */
     public Pin getPin(final String name) {
-        return (Pin) _pins.get(name);
+        return pinGroup.get(name);
     }
 
+    /** @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API. */
     public boolean containsPin(final String name) {
-        return _pins.contains(name);
+        return pinGroup.contains(name);
     }
 
+    /** @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API. */
     public int getPinIndex(final String name) {
-        return _pins.indexOf(name);
+        return pinGroup.indexOf(name);
     }
 
     /**
      * Gets all defined pins of this product.
      *
      * @return all defined pins of this product, never null
+    * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()}
      */
     public Pin[] getPins() {
-        return (Pin[]) _pins.toArray(new Pin[getNumPins()]);
+        return pinGroup.toArray(new Pin[0]);
     }
 
+    /** @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API. */
     public String[] getPinNames() {
-        return _pins.getNames();
+        return pinGroup.getNodeNames();
     }
 
+    /** @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API. */
     public void setSelectedPin(final int index) {
-        final Pin[] pins = getPins();
-        for (int i = 0; i < pins.length; i++) {
-            final Pin pin = pins[i];
-            pin.setSelected(i == index);
-        }
+        pinGroup.setSelectedNode(index);
     }
 
+    /** @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API. */
     public void setSelectedPin(final String name) {
-        if (name == null) {
-            return;
-        }
-        final int index = getPinIndex(name);
-        if (index != -1) {
-            setSelectedPin(index);
-        }
+        pinGroup.setSelectedNode(name);
     }
 
+    /** @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API. */
     public Pin getSelectedPin() {
-        final Pin[] pins = getPins();
-        for (final Pin pin : pins) {
-            if (pin.isSelected()) {
-                return pin;
-            }
-        }
-        return null;
+        return pinGroup.getSelectedNode();
     }
 
+    /** @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API. */
     public Pin[] getSelectedPins() {
-        ArrayList<Pin> selectedPins = new ArrayList<Pin>(getNumPins());
-        for (final Pin pin : getPins()) {
-            if (pin.isSelected()) {
-                selectedPins.add(pin);
-            }
-        }
-        return selectedPins.toArray(new Pin[0]);
+        Collection<Pin> selectedNodes = pinGroup.getSelectedNodes();
+        return selectedNodes.toArray(new Pin[0]);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -1106,11 +1147,11 @@ public class Product extends ProductNode {
      * @param bitmaskDef the bitmask definition to added, ignored if <code>null</code>
      */
     public void addBitmaskDef(final BitmaskDef bitmaskDef) {
-        addNamedNode(bitmaskDef, _bitmaskDefs);
         if (StringUtils.isNullOrEmpty(bitmaskDef.getDescription())) {
             final String defaultDescription = getSuitableBitmaskDefDescription(bitmaskDef);
             bitmaskDef.setDescription(defaultDescription);
         }
+        addNamedNode(bitmaskDef, _bitmaskDefs);
     }
 
     /**
@@ -1131,21 +1172,18 @@ public class Product extends ProductNode {
      */
     public boolean removeBitmaskDef(final BitmaskDef bitmaskDef) {
         final boolean result = removeNamedNode(bitmaskDef, _bitmaskDefs);
-        final Band[] bands = getBands();
-        for (Band band : bands) {
+        removeBitmaskDef(getBands(), bitmaskDef);
+        removeBitmaskDef(getTiePointGrids(), bitmaskDef);
+        return result;
+    }
+
+    private void removeBitmaskDef(RasterDataNode[] bands, BitmaskDef bitmaskDef) {
+        for (RasterDataNode band : bands) {
             final BitmaskOverlayInfo bitmaskOverlayInfo = band.getBitmaskOverlayInfo();
             if (bitmaskOverlayInfo != null) {
                 bitmaskOverlayInfo.removeBitmaskDef(bitmaskDef);
             }
         }
-        final TiePointGrid[] grids = getTiePointGrids();
-        for (TiePointGrid grid : grids) {
-            final BitmaskOverlayInfo bitmaskOverlayInfo = grid.getBitmaskOverlayInfo();
-            if (bitmaskOverlayInfo != null) {
-                bitmaskOverlayInfo.removeBitmaskDef(bitmaskDef);
-            }
-        }
-        return result;
     }
 
     /**
@@ -1163,7 +1201,7 @@ public class Product extends ProductNode {
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public BitmaskDef getBitmaskDefAt(final int index) {
-        return (BitmaskDef) _bitmaskDefs.getAt(index);
+        return _bitmaskDefs.getAt(index);
     }
 
     /**
@@ -1185,7 +1223,7 @@ public class Product extends ProductNode {
      */
     public BitmaskDef getBitmaskDef(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
-        return (BitmaskDef) _bitmaskDefs.get(name);
+        return _bitmaskDefs.get(name);
     }
 
     /**
@@ -1939,12 +1977,16 @@ public class Product extends ProductNode {
     }
 
     private void fireEvent(final ProductNodeEvent event) {
-        for (ProductNodeListener listener : _listeners) {
-            fireEvent(listener, event);
+        fireEvent(event, _listeners.toArray(new ProductNodeListener[0]));
+    }
+
+    static void fireEvent(final ProductNodeEvent event, final ProductNodeListener[] productNodeListeners) {
+        for (ProductNodeListener listener : productNodeListeners) {
+            fireEvent(event, listener);
         }
     }
 
-    private static void fireEvent(final ProductNodeListener listener, final ProductNodeEvent event) {
+    static void fireEvent(final ProductNodeEvent event, final ProductNodeListener listener) {
         switch (event.getId()) {
             case ProductNodeEvent.NODE_CHANGED:
                 listener.nodeChanged(event);
@@ -2159,8 +2201,9 @@ public class Product extends ProductNode {
             _bands.clearRemovedList();
             _bitmaskDefs.clearRemovedList();
             _flagCodings.clearRemovedList();
-            _pins.clearRemovedList();
             _tiePointGrids.clearRemovedList();
+            pinGroup.clearRemovedList();
+            gcpGroup.clearRemovedList();
         }
     }
 
@@ -2360,8 +2403,9 @@ public class Product extends ProductNode {
         removedNodes.addAll(_bands.getRemovedNodes());
         removedNodes.addAll(_bitmaskDefs.getRemovedNodes());
         removedNodes.addAll(_flagCodings.getRemovedNodes());
-        removedNodes.addAll(_pins.getRemovedNodes());
         removedNodes.addAll(_tiePointGrids.getRemovedNodes());
+        removedNodes.addAll(pinGroup.getRemovedNodes());
+        removedNodes.addAll(gcpGroup.getRemovedNodes());
         return removedNodes.toArray(new ProductNode[removedNodes.size()]);
     }
 

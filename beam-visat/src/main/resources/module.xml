@@ -187,7 +187,22 @@
             <title>Pin Manager</title>
             <mnemonic>a</mnemonic>
             <accelerator>ctrl alt A</accelerator>
-            <description>Manage pins of a selected image view.</description>
+            <description>Manage pins of a data product.</description>
+            <smallIcon>/org/esa/beam/resources/images/icons/PinManager16.gif</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/PinManager24.gif</largeIcon>
+            <!--<helpId>TODO</helpId>-->
+            <initState>HIDDEN</initState>
+            <initSide>SOUTH</initSide>
+            <initIndex>0</initIndex>
+        </toolView>
+
+        <toolView>
+            <id>org.esa.beam.visat.toolviews.pin.GcpManagerToolView</id>
+            <class>org.esa.beam.visat.toolviews.pin.GcpManagerToolView</class>
+            <title>GCP Manager</title>
+            <mnemonic>c</mnemonic>
+            <accelerator>ctrl alt G</accelerator>
+            <description>Manage ground control points of a data product.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/PinManager16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/PinManager24.gif</largeIcon>
             <!--<helpId>TODO</helpId>-->
@@ -1190,6 +1205,22 @@
         </action>
 
         <action>
+            <id>showGcpOverlay</id>
+            <class>org.esa.beam.visat.actions.ShowGcpOverlayAction</class>
+            <placeAfter>showPinOverlay</placeAfter>
+            <parent>view</parent>
+            <text>Show GCP Overlay</text>
+            <toggle>true</toggle>
+            <separatorAfter>false</separatorAfter>
+            <shortDescr>Show GCP overlay</shortDescr>
+            <description>Show GCP overlay for the selected image</description>
+            <smallIcon>icons/PinOverlay16.gif</smallIcon>
+            <largeIcon>icons/PinOverlay24.gif</largeIcon>
+            <context>image</context>
+            <helpId>showGcpOverlay</helpId>
+        </action>
+
+        <action>
             <id>deleteSelectedPin</id>
             <class>org.esa.beam.visat.actions.DeletePinAction</class>
             <placeAfter>delete</placeAfter>
@@ -1278,7 +1309,7 @@
 
         <action>
             <id>pinTool</id>
-            <class>org.esa.beam.visat.actions.PinToolAction</class>
+            <class>org.esa.beam.visat.actions.PlacemarkToolAction</class>
             <tool>org.esa.beam.visat.toolviews.pin.PinTool</tool>
             <parent>tools</parent>
             <placeAfter>pannerTool</placeAfter>
@@ -1289,6 +1320,22 @@
             <selected>false</selected>
             <!--<context>image</context>-->
             <helpId>pinTool</helpId>
+        </action>
+
+       <action>
+            <id>gcpTool</id>
+            <class>org.esa.beam.visat.actions.PlacemarkToolAction</class>
+            <tool>org.esa.beam.visat.toolviews.pin.GcpTool</tool>
+            <parent>tools</parent>
+            <placeAfter>pinTool</placeAfter>
+            <placeBefore>drawLineTool</placeBefore>
+            <text>GCP Tool</text>
+            <shortDescr>Sets, edits or deletes GCPs</shortDescr>
+            <description>Sets, edits or deletes GCPs</description>
+            <largeIcon>icons/PinTool24.gif</largeIcon>
+            <selected>false</selected>
+            <!--<context>image</context>-->
+            <helpId>gcpTool</helpId>
         </action>
 
         <action>

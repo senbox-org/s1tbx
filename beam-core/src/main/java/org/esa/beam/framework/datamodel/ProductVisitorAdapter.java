@@ -67,4 +67,7 @@ public class ProductVisitorAdapter implements ProductVisitor {
 
     public void visit(BitmaskDef bitmaskDef) {
     }
+
+    public void visit(ProductNodeGroup group) {
+    }
 }

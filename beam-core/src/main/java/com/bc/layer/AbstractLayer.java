@@ -30,14 +30,14 @@ import java.util.Map;
  */
 public abstract class AbstractLayer implements Layer {
 
-    private List listenerList;
-    private Map propertyMap;
+    private List<LayerChangeListener> listenerList;
+    private Map<String,Object> propertyMap;
     private boolean layerChangeFireingSuspended;
 
     protected AbstractLayer() {
-        this.listenerList = new ArrayList();
-        this.propertyMap = new HashMap();
-        setName("");
+        this.listenerList = new ArrayList<LayerChangeListener>();
+        this.propertyMap = new HashMap<String, Object>();
+        setName(getClass().getName());
         setVisible(true);
         setSelected(false);
         setBoundingBox(new Rectangle());
@@ -159,7 +159,7 @@ public abstract class AbstractLayer implements Layer {
      * Gets all layer manager listeners of this layer.
      */
     public LayerChangeListener[] getLayerChangeListeners() {
-        return (LayerChangeListener[]) listenerList.toArray(new LayerChangeListener[listenerList.size()]);
+        return listenerList.toArray(new LayerChangeListener[listenerList.size()]);
     }
 
     /**
@@ -182,8 +182,8 @@ public abstract class AbstractLayer implements Layer {
 
     public void fireLayerChanged() {
         if (!isLayerChangeFireingSuspended()) {
-            for (int i = 0; i < listenerList.size(); i++) {
-                ((LayerChangeListener) listenerList.get(i)).handleLayerChanged(this);
+            for (LayerChangeListener aListenerList : listenerList) {
+                aListenerList.handleLayerChanged(this);
             }
         }
     }

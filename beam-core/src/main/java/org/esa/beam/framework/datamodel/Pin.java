@@ -18,7 +18,11 @@ package org.esa.beam.framework.datamodel;
 
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.util.*;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.ObjectUtils;
+import org.esa.beam.util.XmlHelper;
+import org.esa.beam.util.XmlWriter;
 import org.jdom.Element;
 
 import java.awt.Color;
@@ -40,19 +44,23 @@ public class Pin extends ProductNode {
 
     public final static String PROPERTY_NAME_GEOPOS = "geoPos";
     public final static String PROPERTY_NAME_PIXELPOS = "pixelPos";
-    public final static String PROPERTY_NAME_SELECTED = "selected";
     public final static String PROPERTY_NAME_PINSYMBOL = "pinSymbol";
 
     private String label;
     private PixelPos pixelPos;
     private GeoPos geoPos;
-    private boolean selected;
     private PinSymbol symbol;
 
+    /**
+     * @deprecated in 4.1, use {@link Pin#Pin(String, String, String, PixelPos, GeoPos, PinSymbol)}
+     */
     public Pin(String name, String label, PixelPos pixelPos) {
         this(name, label, "", pixelPos, null, PinSymbol.createDefaultPinSymbol());
     }
 
+    /**
+     * @deprecated in 4.1, use {@link Pin#Pin(String, String, String, PixelPos, GeoPos, PinSymbol)}
+     */
     public Pin(String name, String label, GeoPos geoPos) {
         this(name, label, "", null, geoPos, PinSymbol.createDefaultPinSymbol());
     }
@@ -96,6 +104,7 @@ public class Pin extends ProductNode {
      * Gets an estimated, raw storage size in bytes of this product node.
      *
      * @param subsetDef if not <code>null</code> the subset may limit the size returned
+     *
      * @return the size in bytes.
      */
     @Override
@@ -123,17 +132,6 @@ public class Pin extends ProductNode {
         if (this.symbol != symbol) {
             this.symbol = symbol;
             fireProductNodeChanged(PROPERTY_NAME_PINSYMBOL);
-        }
-    }
-
-    public boolean isSelected() {
-        return selected;
-    }
-
-    public void setSelected(boolean selected) {
-        if (this.selected != selected) {
-            this.selected = selected;
-            fireProductNodeChanged(PROPERTY_NAME_SELECTED);
         }
     }
 
@@ -182,6 +180,7 @@ public class Pin extends ProductNode {
      *
      * @return the pixel position or null if the product to which this pin was added has no {@link
      *         <code>GeoCoding</code>} or the GeoCoding cannot provide the correct pixel position.
+     *
      * @see GeoCoding#canGetPixelPos()
      */
     public PixelPos getPixelPos() {
@@ -202,28 +201,33 @@ public class Pin extends ProductNode {
         fireProductNodeChanged(PROPERTY_NAME_GEOPOS);
     }
 
-    // todo - move this method into a new DimapPersistable
     public void writeXML(XmlWriter writer, int indent) {
         Guardian.assertNotNull("writer", writer);
         Guardian.assertGreaterThan("indent", indent, -1);
-        String[] pinTags = XmlWriter.createTags(indent, DimapProductConstants.TAG_PIN,
+        String[] pinTags = XmlWriter.createTags(indent, DimapProductConstants.TAG_PLACEMARK,
                                                 new String[][]{
                                                         new String[]{DimapProductConstants.ATTRIB_NAME, getName()}
                                                 });
         writer.println(pinTags[0]);
         indent++;
-        writer.printLine(indent, DimapProductConstants.TAG_PIN_LABEL, getLabel());
-        writer.printLine(indent, DimapProductConstants.TAG_PIN_DESCRIPTION, getDescription());
+        writer.printLine(indent, DimapProductConstants.TAG_PLACEMARK_LABEL, getLabel());
+        writer.printLine(indent, DimapProductConstants.TAG_PLACEMARK_DESCRIPTION, getDescription());
         if (getGeoPos() != null) {
-            writer.printLine(indent, DimapProductConstants.TAG_PIN_LATITUDE, getGeoPos().lat);
-            writer.printLine(indent, DimapProductConstants.TAG_PIN_LONGITUDE, getGeoPos().lon);
+            writer.printLine(indent, DimapProductConstants.TAG_PLACEMARK_LATITUDE, getGeoPos().lat);
+            writer.printLine(indent, DimapProductConstants.TAG_PLACEMARK_LONGITUDE, getGeoPos().lon);
         }
         if (getPixelPos() != null) {
-            writer.printLine(indent, DimapProductConstants.TAG_PIN_PIXEL_X, getPixelPos().x);
-            writer.printLine(indent, DimapProductConstants.TAG_PIN_PIXEL_Y, getPixelPos().y);
+            writer.printLine(indent, DimapProductConstants.TAG_PLACEMARK_PIXEL_X, getPixelPos().x);
+            writer.printLine(indent, DimapProductConstants.TAG_PLACEMARK_PIXEL_Y, getPixelPos().y);
         }
-        writeColor(DimapProductConstants.TAG_PIN_FILL_COLOR, indent, (Color) symbol.getFillPaint(), writer);
-        writeColor(DimapProductConstants.TAG_PIN_OUTLINE_COLOR, indent, symbol.getOutlineColor(), writer);
+        Color fillColor = (Color) symbol.getFillPaint();
+        if (fillColor != null) {
+            writeColor(DimapProductConstants.TAG_PLACEMARK_FILL_COLOR, indent, fillColor, writer);
+        }
+        Color outlineColor = symbol.getOutlineColor();
+        if (outlineColor != null) {
+            writeColor(DimapProductConstants.TAG_PLACEMARK_OUTLINE_COLOR, indent, outlineColor, writer);
+        }
         writer.println(pinTags[1]);
     }
 
@@ -235,34 +239,44 @@ public class Pin extends ProductNode {
         writer.println(colorTags[1]);
     }
 
-    // todo - move this method into a new DimapPersistable
+    // todo - move this methods away from here
+
+    public static Pin createGcp(Element element) {
+        return createPlacemark(element, PinSymbol.createDefaultGcpSymbol());
+    }
+
+    public static Pin createPin(Element element) {
+        return createPlacemark(element, PinSymbol.createDefaultPinSymbol());
+    }
 
     /**
      * @throws NullPointerException     if element is null
      * @throws IllegalArgumentException if element is invalid
      */
-    public static Pin createPin(Element element) {
-        if (!DimapProductConstants.TAG_PIN.equals(element.getName())) {
-            throw new IllegalArgumentException("Element '" + DimapProductConstants.TAG_PIN + "' expected.");
+    public static Pin createPlacemark(Element element, PinSymbol symbol) {
+        if (!DimapProductConstants.TAG_PLACEMARK.equals(element.getName()) &&
+            !DimapProductConstants.TAG_PIN.equals(element.getName())) {
+            throw new IllegalArgumentException("Element '" + DimapProductConstants.TAG_PLACEMARK + "' or '" +
+                                               DimapProductConstants.TAG_PIN + "' expected.");
         }
         final String name = element.getAttributeValue(DimapProductConstants.ATTRIB_NAME);
         if (name == null) {
             throw new IllegalArgumentException("Missing attribute '" + DimapProductConstants.ATTRIB_NAME + "'.");
         }
         if (!Pin.isValidNodeName(name)) {
-            throw new IllegalArgumentException("Invalid pin name '" + name + "'.");
+            throw new IllegalArgumentException("Invalid placemark name '" + name + "'.");
         }
 
-        String label = element.getChildTextTrim(DimapProductConstants.TAG_PIN_LABEL);
+        String label = element.getChildTextTrim(DimapProductConstants.TAG_PLACEMARK_LABEL);
         if (label == null) {
             label = name;
         }
-        String description = element.getChildTextTrim(DimapProductConstants.TAG_PIN_DESCRIPTION);
+        String description = element.getChildTextTrim(DimapProductConstants.TAG_PLACEMARK_DESCRIPTION);
 
-        String latText = element.getChildTextTrim(DimapProductConstants.TAG_PIN_LATITUDE);
-        String lonText = element.getChildTextTrim(DimapProductConstants.TAG_PIN_LONGITUDE);
-        String pixelXText = element.getChildTextTrim(DimapProductConstants.TAG_PIN_PIXEL_X);
-        String pixelYText = element.getChildTextTrim(DimapProductConstants.TAG_PIN_PIXEL_Y);
+        String latText = element.getChildTextTrim(DimapProductConstants.TAG_PLACEMARK_LATITUDE);
+        String lonText = element.getChildTextTrim(DimapProductConstants.TAG_PLACEMARK_LONGITUDE);
+        String pixelXText = element.getChildTextTrim(DimapProductConstants.TAG_PLACEMARK_PIXEL_X);
+        String pixelYText = element.getChildTextTrim(DimapProductConstants.TAG_PLACEMARK_PIXEL_Y);
 
         GeoPos geoPos = null;
         if (latText != null && lonText != null) {
@@ -290,17 +304,16 @@ public class Pin extends ProductNode {
             throw new IllegalArgumentException("Neither geo-position nor pixel-position given.");
         }
 
-        PinSymbol pinSymbol = PinSymbol.createDefaultPinSymbol();
-        Color fillColor = createColor(element.getChild(DimapProductConstants.TAG_PIN_FILL_COLOR));
+        Color fillColor = createColor(element.getChild(DimapProductConstants.TAG_PLACEMARK_FILL_COLOR));
         if (fillColor != null) {
-            pinSymbol.setFillPaint(fillColor);
+            symbol.setFillPaint(fillColor);
         }
-        Color outlineColor = createColor(element.getChild(DimapProductConstants.TAG_PIN_OUTLINE_COLOR));
+        Color outlineColor = createColor(element.getChild(DimapProductConstants.TAG_PLACEMARK_OUTLINE_COLOR));
         if (outlineColor != null) {
-            pinSymbol.setOutlineColor(outlineColor);
+            symbol.setOutlineColor(outlineColor);
         }
 
-        return new Pin(name, label, description, pixelPos, geoPos, pinSymbol);
+        return new Pin(name, label, description, pixelPos, geoPos, symbol);
     }
 
     // todo - move this method into a new DimapPersistable

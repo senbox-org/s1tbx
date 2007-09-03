@@ -18,7 +18,14 @@ package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.layer.LayerModel;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.draw.ShapeFigure;
 import org.esa.beam.framework.ui.BasicImageView;
@@ -28,10 +35,19 @@ import org.esa.beam.framework.ui.command.CommandUIFactory;
 import org.esa.beam.framework.ui.tool.DrawingEditor;
 import org.esa.beam.framework.ui.tool.Tool;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
-import org.esa.beam.util.*;
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.PropertyMapChangeListener;
+import org.esa.beam.util.StopWatch;
 
 import javax.swing.JPopupMenu;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Area;
 import java.awt.image.RenderedImage;
@@ -307,6 +323,14 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
         sceneImage.getPinLayer().setVisible(enabled);
     }
 
+    public boolean isGcpOverlayEnabled() {
+        return sceneImage.getGcpLayer().isVisible();
+    }
+
+    public void setGcpOverlayEnabled(boolean enabled) {
+        sceneImage.getGcpLayer().setVisible(enabled);
+    }
+
     public boolean isROIOverlayEnabled() {
         return sceneImage.getROILayer().isVisible();
     }
@@ -373,7 +397,7 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
         JPopupMenu popupMenu = super.createPopupMenu(event.getComponent());
         Product product = getProduct();
         CommandUIFactory commandUIFactory = getCommandUIFactory();
-        if (product.getSelectedPin() != null) {
+        if (product.getPinGroup().getSelectedNode() != null) {
             if (commandUIFactory != null) {
                 commandUIFactory.addContextDependentMenuItems("pin", popupMenu);
             }
@@ -440,6 +464,7 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
         setGraticuleProperties(propertyMap);
         setFigureProperties(propertyMap);
         setPinProperties(propertyMap);
+        setGcpProperties(propertyMap);
         setROIProperties(propertyMap);
         //}}
         layerModel.setLayerModelChangeFireingSuspended(suspendedOld);
@@ -495,6 +520,13 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
      */
     private void setPinProperties(PropertyMap propertyMap) {
         sceneImage.getPinLayer().setProperties(propertyMap);
+    }
+
+    /**
+     * Sets multiple GCP layer display properties.
+     */
+    private void setGcpProperties(PropertyMap propertyMap) {
+        sceneImage.getGcpLayer().setProperties(propertyMap);
     }
 
     private void setFigureProperties(PropertyMap propertyMap) {
@@ -672,8 +704,8 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
     }
 
     public void fireImageUpdated() {
-        for (int i = 0; i < _imageUpdateListenerList.size(); i++) {
-            (_imageUpdateListenerList.get(i)).handleImageUpdated(this);
+        for (ImageUpdateListener a_imageUpdateListenerList : _imageUpdateListenerList) {
+            a_imageUpdateListenerList.handleImageUpdated(this);
         }
     }
 

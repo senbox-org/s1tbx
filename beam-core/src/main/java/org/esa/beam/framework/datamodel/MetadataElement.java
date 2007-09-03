@@ -29,19 +29,9 @@ import org.esa.beam.util.Guardian;
  */
 public class MetadataElement extends ProductNode {
 
-    /**
-     * @link aggregation
-     * @associates <{MetadataAttribute}>
-     * @supplierRole attributes
-     */
-    private ProductNodeList _attributes;
+    private ProductNodeList<MetadataAttribute> _attributes;
 
-    /**
-     * @link aggregation
-     * @associates <{MetadataElement}>
-     * @supplierRole groups
-     */
-    private ProductNodeList _elements;
+    private ProductNodeList<MetadataElement> _elements;
 
     //////////////////////////////////////////////////////////////////////////
     // Constructors
@@ -68,7 +58,7 @@ public class MetadataElement extends ProductNode {
             return;
         }
         if (_elements == null) {
-            _elements = new ProductNodeList(MetadataElement.class);
+            _elements = new ProductNodeList<MetadataElement>();
         }
         addNamedNode(element, _elements);
     }
@@ -112,7 +102,7 @@ public class MetadataElement extends ProductNode {
         if (_elements == null) {
             throw new IndexOutOfBoundsException();
         }
-        return (MetadataElement) _elements.getAt(index);
+        return _elements.getAt(index);
     }
 
     /**
@@ -155,7 +145,7 @@ public class MetadataElement extends ProductNode {
         if (_elements == null) {
             return null;
         }
-        return (MetadataElement) _elements.get(name);
+        return _elements.get(name);
     }
 
     /**
@@ -187,12 +177,13 @@ public class MetadataElement extends ProductNode {
             return;
         }
         if (_attributes == null) {
-            _attributes = new ProductNodeList(MetadataAttribute.class);
+            _attributes = new ProductNodeList<MetadataAttribute>();
         }
         // only add if the list does not contain it already
-        if (!_attributes.contains(attribute.getName())) {
-            addNamedNode(attribute, _attributes);
+        if (_attributes.contains(attribute.getName())) {
+            return;
         }
+        addNamedNode(attribute, _attributes);
     }
 
     /**
@@ -239,7 +230,7 @@ public class MetadataElement extends ProductNode {
         if (_attributes == null) {
             throw new IndexOutOfBoundsException();
         }
-        return (MetadataAttribute) _attributes.getAt(index);
+        return _attributes.getAt(index);
     }
 
     /**
@@ -277,7 +268,7 @@ public class MetadataElement extends ProductNode {
         if (_attributes == null) {
             return null;
         }
-        return (MetadataAttribute) _attributes.get(name);
+        return _attributes.get(name);
     }
 
     /**
@@ -453,13 +444,11 @@ public class MetadataElement extends ProductNode {
         MetadataElement clone = new MetadataElement(getName());
         clone.setDescription(getDescription());
         MetadataAttribute[] attributes = getAttributes();
-        for (int i = 0; i < attributes.length; i++) {
-            MetadataAttribute attribute = attributes[i];
+        for (MetadataAttribute attribute : attributes) {
             clone.addAttribute(attribute.createDeepClone());
         }
         MetadataElement[] elements = getElements();
-        for (int i = 0; i < elements.length; i++) {
-            MetadataElement element = elements[i];
+        for (MetadataElement element : elements) {
             clone.addElement(element.createDeepClone());
         }
         return clone;

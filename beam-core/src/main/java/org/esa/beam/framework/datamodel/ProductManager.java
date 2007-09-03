@@ -32,19 +32,16 @@ public class ProductManager {
     private final static int _PRODUCT_ADDED = 1;
     private final static int _PRODUCT_REMOVED = 2;
 
-    private Vector _listeners;
+    private Vector<ProductManagerListener> _listeners;
 
-    /**
-     * @supplierRole products
-     */
-    private final ProductNodeList _products;
+    private final ProductNodeList<Product> _products;
 
 
     /**
      * Constructs an product manager with an empty list of products.
      */
     public ProductManager() {
-        _products = new ProductNodeList(Product.class);
+        _products = new ProductNodeList<Product>();
     }
 
     /**
@@ -58,7 +55,7 @@ public class ProductManager {
      * Returns the product at the given index.
      */
     public Product getProductAt(int index) {
-        return (Product) _products.getAt(index);
+        return _products.getAt(index);
     }
 
     /**
@@ -86,7 +83,7 @@ public class ProductManager {
      * @return an array containing the products, never <code>null</code>, but the array can have zero length
      */
     public Product[] getProducts() {
-        return (Product[]) _products.toArray(new Product[getNumProducts()]);
+        return _products.toArray(new Product[getNumProducts()]);
     }
 
     /**
@@ -96,14 +93,14 @@ public class ProductManager {
         if (displayName == null) {
             return null;
         }
-        return (Product) _products.getByDisplayName(displayName);
+        return _products.getByDisplayName(displayName);
     }
 
     /**
      * Returns the product with the given name.
      */
     public Product getProduct(String name) {
-        return (Product) _products.get(name);
+        return _products.get(name);
     }
 
     /**
@@ -165,8 +162,8 @@ public class ProductManager {
      */
     public void removeAllProducts() {
         final Product[] products = getProducts();
-        for (int i = 0; i < products.length; i++) {
-            removeProduct(products[i]);
+        for (Product product : products) {
+            removeProduct(product);
         }
     }
 
@@ -210,7 +207,7 @@ public class ProductManager {
     public boolean addListener(ProductManagerListener listener) {
         if (listener != null) {
             if (_listeners == null) {
-                _listeners = new Vector();
+                _listeners = new Vector<ProductManagerListener>();
             }
             if (!_listeners.contains(listener)) {
                 _listeners.add(listener);
@@ -236,8 +233,7 @@ public class ProductManager {
     private void fireEvent(Product sourceProduct, int eventId) {
         if (hasListeners()) {
             ProductManagerEvent event = new ProductManagerEvent(sourceProduct);
-            for (int i = 0; i < _listeners.size(); i++) {
-                ProductManagerListener listener = (ProductManagerListener) _listeners.get(i);
+            for (ProductManagerListener listener : _listeners) {
                 fireEvent(eventId, listener, event);
             }
         }

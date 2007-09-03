@@ -1,7 +1,5 @@
 package org.esa.beam.visat.actions;
 
-import com.bc.layer.Layer;
-import com.bc.layer.LayerModel;
 import com.sun.media.jai.codec.ImageCodec;
 import com.sun.media.jai.codec.ImageEncoder;
 import org.esa.beam.framework.datamodel.GeoCoding;
@@ -11,14 +9,14 @@ import org.esa.beam.framework.datamodel.MapGeoCoding;
 import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.dataop.maptransf.IdentityTransformDescriptor;
+import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.ImageDisplay;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
-import org.esa.beam.framework.ui.product.PinLayer;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
@@ -207,17 +205,6 @@ public class ExportKmzFileAction extends ExecCommand {
         final double viewScaleOld = imageDisplay.getViewModel().getViewScale();
         imageDisplay.getViewModel().setModelOffset(0, 0, 1.0);
 
-        LayerModel layerModel = imageDisplay.getLayerModel();
-        int layerCount = layerModel.getLayerCount();
-        Layer pinLayer = null;
-        for (int i = 0; i < layerCount && pinLayer == null; i++) {
-            Layer layer = layerModel.getLayer(i);
-            if (layer instanceof PinLayer) {
-                pinLayer = layer;
-                layerModel.removeLayer(layer);
-            }
-        }
-
         if (isNoDataTranparent) {
             bi = new BufferedImage(imageDisplay.getImageWidth(),
                                    imageDisplay.getImageHeight(),
@@ -243,7 +230,6 @@ public class ExportKmzFileAction extends ExecCommand {
         }
         imageDisplay.getViewModel().setModelOffset(modelOffsetXOld,
                                                    modelOffsetYOld, viewScaleOld);
-        layerModel.addLayer(pinLayer);
 
         return bi;
     }
@@ -264,7 +250,8 @@ public class ExportKmzFileAction extends ExecCommand {
 
 
         String pinKml = "";
-        Pin[] pins = product.getPins();
+        ProductNodeGroup<Pin> pinGroup = product.getPinGroup();
+        Pin[] pins = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
         for (Pin pin : pins) {
             GeoPos geoPos = pin.getGeoPos();
             if (geoPos != null) {

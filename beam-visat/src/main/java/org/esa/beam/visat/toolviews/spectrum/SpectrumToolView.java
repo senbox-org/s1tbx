@@ -22,6 +22,7 @@ import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.GridBagUtils;
@@ -153,8 +154,9 @@ public class SpectrumToolView extends AbstractToolView {
     private void updateUIState() {
         boolean hasView = getCurrentView() != null;
         boolean hasProduct = getCurrentProduct() != null;
-        boolean hasSelectedPins = getCurrentProduct() != null && getCurrentProduct().getSelectedPin() != null;
-        boolean hasPins = getCurrentProduct() != null && getCurrentProduct().getNumPins() > 0;
+        ProductNodeGroup<Pin> pinGroup = getCurrentProduct().getPinGroup();
+        boolean hasSelectedPins = getCurrentProduct() != null && pinGroup.getSelectedNode() != null;
+        boolean hasPins = getCurrentProduct() != null && pinGroup.getNodeCount() > 0;
         boolean hasDiagram = diagramCanvas.getDiagram() != null;
         filterButton.setEnabled(hasProduct);
         showSpectrumForCursorButton.setEnabled(hasView);
@@ -453,14 +455,16 @@ public class SpectrumToolView extends AbstractToolView {
         SpectraDiagram spectraDiagram = new SpectraDiagram(getCurrentProduct());
 
         if (isShowingSpectraForSelectedPins()) {
-            Pin[] pins = getCurrentProduct().getPins();
+            ProductNodeGroup<Pin> pinGroup = getCurrentProduct().getPinGroup();
+            Pin[] pins = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
             for (Pin pin : pins) {
                 if (pin.isSelected()) {
                     spectraDiagram.addSpectrumGraph(pin);
                 }
             }
         } else if (isShowingSpectraForAllPins()) {
-            Pin[] pins = getCurrentProduct().getPins();
+            ProductNodeGroup<Pin> pinGroup = getCurrentProduct().getPinGroup();
+            Pin[] pins = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
             for (Pin pin : pins) {
                 spectraDiagram.addSpectrumGraph(pin);
             }

@@ -84,4 +84,11 @@ public interface ProductVisitor {
      * @param bitmaskDef the bitmask definition to be visited
      */
     void visit(BitmaskDef bitmaskDef);
+
+    /**
+     * Visits a node group.
+     *
+     * @param group the group to be visited
+     */
+    void visit(ProductNodeGroup group);
 }

@@ -16,20 +16,6 @@
  */
 package org.esa.beam.visat.toolviews.pin;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.Paint;
-import java.awt.Window;
-import java.awt.geom.Rectangle2D;
-
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.text.JTextComponent;
-
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Pin;
@@ -41,90 +27,111 @@ import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.framework.ui.PlacemarkDescriptor;
+import org.esa.beam.framework.ui.product.PinDescriptor;
 import org.esa.beam.util.Guardian;
-import org.esa.beam.util.math.MathUtils;
+
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.text.JTextComponent;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.Paint;
+import java.awt.Window;
+import java.awt.geom.Rectangle2D;
 
 /**
  * A dialog used to create new pins or edit existing pins.
  */
 public class PinDialog extends ModalDialog {
 
-    private final Product _product;
-    private Parameter _paramName;
-    private Parameter _paramLabel;
-    private Parameter _paramUsePixelPos;
-    private Parameter _paramLat;
-    private Parameter _paramLon;
-    private Parameter _paramPixelX;
-    private Parameter _paramPixelY;
-    private Parameter _paramDescription;
-    private PinSymbol _symbol;
-    private JLabel _symbolLabel;
-    private Parameter _paramColorOutline;
-    private Parameter _paramColorFill;
+    private final Product product;
+    private Parameter paramName;
+    private Parameter paramLabel;
+    private Parameter paramUsePixelPos;
+    private Parameter paramLat;
+    private Parameter paramLon;
+    private Parameter paramPixelX;
+    private Parameter paramPixelY;
+    private Parameter paramDescription;
+    private PinSymbol symbol;
+    private JLabel symbolLabel;
+    private Parameter paramColorOutline;
+    private Parameter paramColorFill;
     private boolean canGetPixelPos;
     private boolean canGetGeoPos;
     private boolean adjusting;
-    private boolean _symbolChanged;
+    private boolean symbolChanged;
+    private PlacemarkDescriptor placemarkDescriptor;
 
 
+    /** @deprecated in 4.1, use {@link #PinDialog(Window, Product, PlacemarkDescriptor)} instead */
     public PinDialog(final Window parent, final Product product) {
-        super(parent, "New Pin", ModalDialog.ID_OK_CANCEL, null); /*I18N*/
+        this(parent, product, PinDescriptor.INSTANCE);
+    }
+
+    public PinDialog(final Window parent, final Product product, final PlacemarkDescriptor placemarkDescriptor) {
+        super(parent, "New " + placemarkDescriptor.getRoleLabel(), ModalDialog.ID_OK_CANCEL, null); /*I18N*/
         Guardian.assertNotNull("product", product);
-        _product = product;
+        this.product = product;
+        this.placemarkDescriptor = placemarkDescriptor;
         initParameter();
         creatUI();
     }
 
     public Product getProduct() {
-        return _product;
+        return product;
     }
 
     @Override
     protected void onOK() {
-        if (!_product.containsPixel(getPixelX(), getPixelY())) {
-            showInformationDialog("The pin cannot be set because\n" +
+        if (!product.containsPixel(getPixelX(), getPixelY())) {
+            showInformationDialog("The " + placemarkDescriptor.getRoleLabel() + " cannot be set because\n" +
                                   "its pixel coordinate is out of bounds."); /*I18N*/
             return;
         }
         if (Pin.isValidNodeName(getName())) {
-            if (_symbolChanged) {
+            if (symbolChanged) {
                 // Create new symbol instance so an event is fired by pin when new symbol is set.
                 updateSymbolInstance();
             }
             super.onOK();
         } else {
-            showInformationDialog("'" + getName() + "' is not a valid pin name."); /*I18N*/
+            showInformationDialog("'" + getName() + "' is not a valid " + placemarkDescriptor.getRoleLabel() + " name."); /*I18N*/
         }
     }
 
     private void updateSymbolInstance() {
         PinSymbol symbol = PinSymbol.createDefaultPinSymbol();
-        symbol.setOutlineColor(_symbol.getOutlineColor());
-        symbol.setOutlineStroke(_symbol.getOutlineStroke());
-        symbol.setFillPaint(_symbol.getFillPaint());
-        symbol.setFilled(_symbol.isFilled());
-        _symbol = symbol;
+        symbol.setOutlineColor(this.symbol.getOutlineColor());
+        symbol.setOutlineStroke(this.symbol.getOutlineStroke());
+        symbol.setFillPaint(this.symbol.getFillPaint());
+        symbol.setFilled(this.symbol.isFilled());
+        this.symbol = symbol;
     }
 
     public String getName() {
-        return _paramName.getValueAsText();
+        return paramName.getValueAsText();
     }
 
     public void setName(String name) {
-        _paramName.setValueAsText(name, null);
+        paramName.setValueAsText(name, null);
     }
 
     public String getLabel() {
-        return _paramLabel.getValueAsText();
+        return paramLabel.getValueAsText();
     }
 
     public void setLabel(String label) {
-        _paramLabel.setValueAsText(label, null);
+        paramLabel.setValueAsText(label, null);
     }
 
     public boolean isUsePixelPos() {
-        return (Boolean) _paramUsePixelPos.getValue();
+        return (Boolean) paramUsePixelPos.getValue();
     }
 
     /**
@@ -134,23 +141,23 @@ public class PinDialog extends ModalDialog {
      * @param usePixelPos whether or not to use the pixel co-ordinates instead of geographic co-ordinates
      */
     public void setUsePixelPos(boolean usePixelPos) {
-        _paramUsePixelPos.setValue(usePixelPos, null);
+        paramUsePixelPos.setValue(usePixelPos, null);
     }
 
     public float getLat() {
-        return (Float) _paramLat.getValue();
+        return (Float) paramLat.getValue();
     }
 
     public void setLat(float lat) {
-        _paramLat.setValue(lat, null);
+        paramLat.setValue(lat, null);
     }
 
     public float getLon() {
-        return (Float) _paramLon.getValue();
+        return (Float) paramLon.getValue();
     }
 
     public void setLon(float lon) {
-        _paramLon.setValue(lon, null);
+        paramLon.setValue(lon, null);
     }
 
     public GeoPos getGeoPos() {
@@ -182,64 +189,64 @@ public class PinDialog extends ModalDialog {
     }
 
     public float getPixelX() {
-        return (Float) _paramPixelX.getValue();
+        return (Float) paramPixelX.getValue();
     }
 
     public void setPixelX(float pixelX) {
-        _paramPixelX.setValue(pixelX, null);
+        paramPixelX.setValue(pixelX, null);
     }
 
     public float getPixelY() {
-        return (Float) _paramPixelY.getValue();
+        return (Float) paramPixelY.getValue();
     }
 
     public void setPixelY(float pixelY) {
-        _paramPixelY.setValue(pixelY, null);
+        paramPixelY.setValue(pixelY, null);
     }
 
     public String getDescription() {
-        return _paramDescription.getValueAsText();
+        return paramDescription.getValueAsText();
     }
 
     public void setDescription(String description) {
-        _paramDescription.setValueAsText(description, null);
+        paramDescription.setValueAsText(description, null);
     }
 
     public PinSymbol getPinSymbol() {
-        return _symbol;
+        return symbol;
     }
 
     public void setPinSymbol(PinSymbol symbol) {
         Color fillColor = (Color) symbol.getFillPaint();
-        Color outlineColor = (Color) symbol.getOutlineColor();
-        _paramColorFill.setValue(fillColor, null);
-        _paramColorOutline.setValue(outlineColor, null);
-        _symbol = symbol;
+        Color outlineColor = symbol.getOutlineColor();
+        paramColorFill.setValue(fillColor, null);
+        paramColorOutline.setValue(outlineColor, null);
+        this.symbol = symbol;
     }
 
     private void initParameter() {
-        GeoCoding geoCoding = _product.getGeoCoding();
+        GeoCoding geoCoding = product.getGeoCoding();
         boolean hasGeoCoding = geoCoding != null;
         canGetPixelPos = hasGeoCoding &&  geoCoding.canGetPixelPos();
         canGetGeoPos = hasGeoCoding &&  geoCoding.canGetGeoPos();
 
-        _paramName = new Parameter("paramName", "");
-        _paramName.getProperties().setLabel("Name");/*I18N*/
+        paramName = new Parameter("paramName", "");
+        paramName.getProperties().setLabel("Name");/*I18N*/
 
-        _paramLabel = new Parameter("paramLabel", "");
-        _paramLabel.getProperties().setLabel("Label");/*I18N*/
+        paramLabel = new Parameter("paramLabel", "");
+        paramLabel.getProperties().setLabel("Label");/*I18N*/
 
         boolean usePixelPos = !hasGeoCoding;
-        _paramUsePixelPos = new Parameter("paramUsePixelPos", usePixelPos);
-        _paramUsePixelPos.getProperties().setLabel("Use pixel position");/*I18N*/
-        _paramUsePixelPos.setUIEnabled(canGetPixelPos || canGetGeoPos);
-        _paramUsePixelPos.addParamChangeListener(new ParamChangeListener() {
+        paramUsePixelPos = new Parameter("paramUsePixelPos", usePixelPos);
+        paramUsePixelPos.getProperties().setLabel("Use pixel position");/*I18N*/
+        paramUsePixelPos.setUIEnabled(canGetPixelPos || canGetGeoPos);
+        paramUsePixelPos.addParamChangeListener(new ParamChangeListener() {
             public void parameterValueChanged(ParamChangeEvent event) {
                 boolean value = isUsePixelPos();
-                _paramLat.setUIEnabled(!value);
-                _paramLon.setUIEnabled(!value);
-                _paramPixelX.setUIEnabled(value);
-                _paramPixelY.setUIEnabled(value);
+                paramLat.setUIEnabled(!value);
+                paramLon.setUIEnabled(!value);
+                paramPixelX.setUIEnabled(value);
+                paramPixelY.setUIEnabled(value);
             }
         });
 
@@ -249,17 +256,17 @@ public class PinDialog extends ModalDialog {
             }
         };
 
-        _paramLat = new Parameter("paramLat", 0.0f);
-        _paramLat.getProperties().setLabel("Lat");/*I18N*/
-        _paramLat.getProperties().setPhysicalUnit("deg"); /*I18N*/
-        _paramLat.setUIEnabled(!usePixelPos);
-        _paramLat.addParamChangeListener(geoChangeListener);
+        paramLat = new Parameter("paramLat", 0.0f);
+        paramLat.getProperties().setLabel("Lat");/*I18N*/
+        paramLat.getProperties().setPhysicalUnit("deg"); /*I18N*/
+        paramLat.setUIEnabled(!usePixelPos);
+        paramLat.addParamChangeListener(geoChangeListener);
 
-        _paramLon = new Parameter("paramLon", 0.0f);
-        _paramLon.getProperties().setLabel("Lon");/*I18N*/
-        _paramLon.getProperties().setPhysicalUnit("deg");/*I18N*/
-        _paramLon.setUIEnabled(!usePixelPos);
-        _paramLon.addParamChangeListener(geoChangeListener);
+        paramLon = new Parameter("paramLon", 0.0f);
+        paramLon.getProperties().setLabel("Lon");/*I18N*/
+        paramLon.getProperties().setPhysicalUnit("deg");/*I18N*/
+        paramLon.setUIEnabled(!usePixelPos);
+        paramLon.addParamChangeListener(geoChangeListener);
 
         ParamChangeListener pixelChangeListener = new ParamChangeListener() {
             public void parameterValueChanged(ParamChangeEvent event) {
@@ -267,110 +274,114 @@ public class PinDialog extends ModalDialog {
             }
         };
 
-        _paramPixelX = new Parameter("paramPixelX", 0.0F);
-        _paramPixelX.getProperties().setLabel("Pixel X");
-        _paramPixelX.setUIEnabled(usePixelPos);
-        _paramPixelX.addParamChangeListener(pixelChangeListener);
+        paramPixelX = new Parameter("paramPixelX", 0.0F);
+        paramPixelX.getProperties().setLabel("Pixel X");
+        paramPixelX.setUIEnabled(usePixelPos);
+        paramPixelX.addParamChangeListener(pixelChangeListener);
 
-        _paramPixelY = new Parameter("paramPixelY", 0.0F);
-        _paramPixelY.getProperties().setLabel("Pixel Y");
-        _paramPixelY.setUIEnabled(usePixelPos);
-        _paramPixelY.addParamChangeListener(pixelChangeListener);
+        paramPixelY = new Parameter("paramPixelY", 0.0F);
+        paramPixelY.getProperties().setLabel("Pixel Y");
+        paramPixelY.setUIEnabled(usePixelPos);
+        paramPixelY.addParamChangeListener(pixelChangeListener);
 
-        _paramDescription = new Parameter("paramDesc", "");
-        _paramDescription.getProperties().setLabel("Description"); /*I18N*/
-        _paramDescription.getProperties().setNumRows(3);
+        paramDescription = new Parameter("paramDesc", "");
+        paramDescription.getProperties().setLabel("Description"); /*I18N*/
+        paramDescription.getProperties().setNumRows(3);
 
-        if (_symbol == null) {
-            _symbol = PinSymbol.createDefaultPinSymbol();
+        if (symbol == null) {
+            symbol = placemarkDescriptor.createDefaultSymbol();
         }
 
         ParamChangeListener colorChangelistener = new ParamChangeListener() {
             public void parameterValueChanged(ParamChangeEvent event) {
-                _symbol.setFillPaint((Paint) _paramColorFill.getValue());
-                _symbol.setOutlineColor((Color) _paramColorOutline.getValue());
-                _symbolLabel.repaint();
-                _symbolChanged = true;
+                symbol.setFillPaint((Paint) paramColorFill.getValue());
+                symbol.setOutlineColor((Color) paramColorOutline.getValue());
+                symbolLabel.repaint();
+                symbolChanged = true;
             }
         };
 
-        _paramColorOutline = new Parameter("outlineColor", _symbol.getOutlineColor());
-        _paramColorOutline.getProperties().setLabel("Outline color");
-        _paramColorOutline.addParamChangeListener(colorChangelistener);
+        paramColorOutline = new Parameter("outlineColor", symbol.getOutlineColor());
+        paramColorOutline.getProperties().setLabel("Outline color");
+        paramColorOutline.getProperties().setNullValueAllowed(true);
+        paramColorOutline.addParamChangeListener(colorChangelistener);
+        paramColorOutline.setUIEnabled(symbol.getIcon() == null);
 
-        _paramColorFill = new Parameter("fillColor", _symbol.getFillPaint());
-        _paramColorFill.getProperties().setLabel("Fill color");
-        _paramColorFill.addParamChangeListener(colorChangelistener);
+        paramColorFill = new Parameter("fillColor", symbol.getFillPaint());
+        paramColorFill.getProperties().setLabel("Fill color");
+        paramColorFill.getProperties().setNullValueAllowed(true);
+        paramColorFill.addParamChangeListener(colorChangelistener);
+        paramColorFill.setUIEnabled(symbol.getIcon() == null);
     }
 
     private void creatUI() {
 
-        _symbolLabel = new JLabel() {
+        symbolLabel = new JLabel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 if (g instanceof Graphics2D) {
                     Graphics2D g2d = (Graphics2D) g;
-                    final PixelPos refPoint = _symbol.getRefPoint();
-                    Rectangle2D bounds = _symbol.getBounds();
+                    final PixelPos refPoint = symbol.getRefPoint();
+                    Rectangle2D bounds = symbol.getBounds();
                     double tx = refPoint.getX() - bounds.getX() / 2;
                     double ty = refPoint.getY() - bounds.getY() / 2;
                     g2d.translate(tx, ty);
-                    _symbol.draw(g2d);
+                    symbol.draw(g2d);
                     g2d.translate(-tx, -ty);
                 }
             }
         };
-        _symbolLabel.setPreferredSize(new Dimension(40, 40));
+        symbolLabel.setPreferredSize(new Dimension(40, 40));
 
         JPanel dialogPane = GridBagUtils.createPanel();
         final GridBagConstraints gbc = GridBagUtils.createDefaultConstraints();
 
         gbc.gridy++;
         gbc.gridwidth = 1;
-        GridBagUtils.addToPanel(dialogPane, _paramName.getEditor().getLabelComponent(), gbc);
+        GridBagUtils.addToPanel(dialogPane, paramName.getEditor().getLabelComponent(), gbc);
         gbc.gridwidth = 4;
-        GridBagUtils.addToPanel(dialogPane, _paramName.getEditor().getComponent(), gbc,
+        GridBagUtils.addToPanel(dialogPane, paramName.getEditor().getComponent(), gbc,
                                 "weightx=1, fill=HORIZONTAL");
         gbc.gridy++;
         gbc.gridwidth = 1;
-        GridBagUtils.addToPanel(dialogPane, _paramLabel.getEditor().getLabelComponent(), gbc);
+        GridBagUtils.addToPanel(dialogPane, paramLabel.getEditor().getLabelComponent(), gbc);
         gbc.gridwidth = 4;
-        GridBagUtils.addToPanel(dialogPane, _paramLabel.getEditor().getComponent(), gbc,
+        GridBagUtils.addToPanel(dialogPane, paramLabel.getEditor().getComponent(), gbc,
                                 "weightx=1, fill=HORIZONTAL");
         gbc.gridy++;
         gbc.gridwidth = 5;
-        GridBagUtils.addToPanel(dialogPane, _paramUsePixelPos.getEditor().getComponent(), gbc);
+        GridBagUtils.addToPanel(dialogPane, paramUsePixelPos.getEditor().getComponent(), gbc);
 
         final int space = 30;
         gbc.gridy++;
-        GridBagUtils.addToPanel(dialogPane, _paramPixelX.getEditor().getLabelComponent(), gbc,
+        GridBagUtils.addToPanel(dialogPane, paramPixelX.getEditor().getLabelComponent(), gbc,
                                 "weightx=0, gridwidth=1");
         gbc.insets.right -= 2;
-        GridBagUtils.addToPanel(dialogPane, _paramPixelX.getEditor().getComponent(), gbc, "weightx=1");
+        GridBagUtils.addToPanel(dialogPane, paramPixelX.getEditor().getComponent(), gbc, "weightx=1");
         gbc.insets.right += 2;
         gbc.insets.left -= 2;
         GridBagUtils.addToPanel(dialogPane, new JLabel(""), gbc, "weightx=0");
         gbc.insets.left += 2;
         gbc.insets.left += space;
-        GridBagUtils.addToPanel(dialogPane, _paramLon.getEditor().getLabelComponent(), gbc, "weightx=0");
+        GridBagUtils.addToPanel(dialogPane, paramLon.getEditor().getLabelComponent(), gbc, "weightx=0");
         gbc.insets.left -= space;
-        GridBagUtils.addToPanel(dialogPane, _paramLon.getEditor().getComponent(), gbc, "weightx=1");
-        GridBagUtils.addToPanel(dialogPane, _paramLon.getEditor().getPhysUnitLabelComponent(), gbc, "weightx=0");
+        GridBagUtils.addToPanel(dialogPane, paramLon.getEditor().getComponent(), gbc, "weightx=1");
+        GridBagUtils.addToPanel(dialogPane, paramLon.getEditor().getPhysUnitLabelComponent(), gbc, "weightx=0");
 
         gbc.gridy++;
-        GridBagUtils.addToPanel(dialogPane, _paramPixelY.getEditor().getLabelComponent(), gbc);
+        GridBagUtils.addToPanel(dialogPane, paramPixelY.getEditor().getLabelComponent(), gbc);
         gbc.insets.right -= 2;
-        GridBagUtils.addToPanel(dialogPane, _paramPixelY.getEditor().getComponent(), gbc, "weightx=1");
+        GridBagUtils.addToPanel(dialogPane, paramPixelY.getEditor().getComponent(), gbc, "weightx=1");
         gbc.insets.right += 2;
         gbc.insets.left -= 2;
         GridBagUtils.addToPanel(dialogPane, new JLabel(""), gbc, "weightx=0");
         gbc.insets.left += 2;
         gbc.insets.left += space;
-        GridBagUtils.addToPanel(dialogPane, _paramLat.getEditor().getLabelComponent(), gbc, "weightx=0");
+        GridBagUtils.addToPanel(dialogPane, paramLat.getEditor().getLabelComponent(), gbc, "weightx=0");
         gbc.insets.left -= space;
-        GridBagUtils.addToPanel(dialogPane, _paramLat.getEditor().getComponent(), gbc, "weightx=1");
-        GridBagUtils.addToPanel(dialogPane, _paramLat.getEditor().getPhysUnitLabelComponent(), gbc, "weightx=0");
+        GridBagUtils.addToPanel(dialogPane, paramLat.getEditor().getComponent(), gbc, "weightx=1");
+        GridBagUtils.addToPanel(dialogPane, paramLat.getEditor().getPhysUnitLabelComponent(), gbc, "weightx=0");
 
 
         final int symbolSpace = 10;
@@ -380,14 +391,14 @@ public class PinDialog extends ModalDialog {
         GridBagUtils.addToPanel(dialogPane, createSymbolPane(), gbc, "fill=NONE, gridwidth=5, weightx=0");
 
         gbc.gridy++;
-        GridBagUtils.addToPanel(dialogPane, _paramDescription.getEditor().getLabelComponent(), gbc, "fill=BOTH");
+        GridBagUtils.addToPanel(dialogPane, paramDescription.getEditor().getLabelComponent(), gbc, "fill=BOTH");
         gbc.insets.top -= symbolSpace;
         gbc.gridy++;
-        GridBagUtils.addToPanel(dialogPane, _paramDescription.getEditor().getComponent(), gbc, "weighty=1");
+        GridBagUtils.addToPanel(dialogPane, paramDescription.getEditor().getComponent(), gbc, "weighty=1");
 
         setContent(dialogPane);
 
-        final JComponent editorComponent = _paramName.getEditor().getEditorComponent();
+        final JComponent editorComponent = paramName.getEditor().getEditorComponent();
         if (editorComponent instanceof JTextComponent) {
             JTextComponent tc = (JTextComponent) editorComponent;
             tc.selectAll();
@@ -402,21 +413,21 @@ public class PinDialog extends ModalDialog {
 
         gbc.gridy = 0;
         gbc.gridx = 0;
-        symbolPanel.add(_paramColorFill.getEditor().getLabelComponent(), gbc);
+        symbolPanel.add(paramColorFill.getEditor().getLabelComponent(), gbc);
         gbc.gridx = 1;
-        symbolPanel.add(_paramColorFill.getEditor().getComponent(), gbc);
+        symbolPanel.add(paramColorFill.getEditor().getComponent(), gbc);
 
         gbc.gridy = 1;
         gbc.gridx = 0;
-        symbolPanel.add(_paramColorOutline.getEditor().getLabelComponent(), gbc);
+        symbolPanel.add(paramColorOutline.getEditor().getLabelComponent(), gbc);
         gbc.gridx = 1;
-        symbolPanel.add(_paramColorOutline.getEditor().getComponent(), gbc);
+        symbolPanel.add(paramColorOutline.getEditor().getComponent(), gbc);
 
         gbc.gridy = 0;
         gbc.gridx = 2;
         gbc.gridheight = 2;
         gbc.insets.left = 10;
-        symbolPanel.add(_symbolLabel, gbc);
+        symbolPanel.add(symbolLabel, gbc);
         gbc.insets.left = 0;
 
         return symbolPanel;
@@ -425,7 +436,7 @@ public class PinDialog extends ModalDialog {
     private void updatePixelPos() {
         if (canGetPixelPos && !adjusting) {
             adjusting = true;
-            PixelPos pixelPos = _product.getGeoCoding().getPixelPos(getGeoPos(), null);
+            PixelPos pixelPos = placemarkDescriptor.updatePixelPos(product.getGeoCoding(), getGeoPos(), getPixelPos());
             setPixelPos(pixelPos);
             adjusting = false;
         }
@@ -434,9 +445,33 @@ public class PinDialog extends ModalDialog {
     private void updateGeoPos() {
         if (canGetGeoPos && !adjusting) {
             adjusting = true;
-            GeoPos geoPos = _product.getGeoCoding().getGeoPos(getPixelPos(), null);
+            GeoPos geoPos = placemarkDescriptor.updateGeoPos(product.getGeoCoding(), getPixelPos(), getGeoPos());
             setGeoPos(geoPos);
             adjusting = false;
         }
+    }
+
+    public static boolean showEditPinDialog(Window parent, Product product, Pin pin,
+                                            PlacemarkDescriptor placemarkDescriptor) {
+        final PinDialog pinDialog = new PinDialog(parent, product, placemarkDescriptor);
+        String titel = pin.getProduct() == null ? "New" : "Edit"; /*I18N*/
+        titel = titel + " " + placemarkDescriptor.getRoleLabel();
+        pinDialog.getJDialog().setTitle(titel);
+        pinDialog.setName(pin.getName());
+        pinDialog.setLabel(pin.getLabel());
+        pinDialog.setDescription(pin.getDescription() != null ? pin.getDescription() : "");
+        pinDialog.setPixelPos(pin.getPixelPos());
+        pinDialog.setGeoPos(pin.getGeoPos());
+        pinDialog.setPinSymbol(pin.getSymbol());
+        boolean ok = (pinDialog.show() == ID_OK);
+        if (ok) {
+            pin.setName(pinDialog.getName());
+            pin.setLabel(pinDialog.getLabel());
+            pin.setDescription(pinDialog.getDescription());
+            pin.setGeoPos(pinDialog.getGeoPos());
+            pin.setPixelPos(pinDialog.getPixelPos());
+            pin.setSymbol(pinDialog.getPinSymbol());
+        }
+        return ok;
     }
 }

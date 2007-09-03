@@ -45,6 +45,13 @@ public interface LayerModel {
     Layer getLayer(int index);
 
     /**
+     * Gets the layer by its name.
+     * @param name the name of the layer to retrieve
+     * @return the layer with the given name, or {@code null} if not found
+     */
+    Layer getLayer(String name);
+
+    /**
      * Adds a new layer to this model.
      * @param layer the new layer, must not be null
      */
@@ -106,4 +113,5 @@ public interface LayerModel {
      * Notifies all listeners about a layer model change.
      */
     void fireLayerModelChanged();
+
 }

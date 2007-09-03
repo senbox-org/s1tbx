@@ -8,7 +8,8 @@ package org.esa.beam.framework.datamodel;
 
 import org.esa.beam.util.Guardian;
 
-// @todo 1 nf/nf make this class a ProductNode?
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The <code>BitmaskOverlayInfo</code> class manages a list of <code>{@link BitmaskDef}</code>s.
@@ -18,7 +19,7 @@ import org.esa.beam.util.Guardian;
  */
 public class BitmaskOverlayInfo implements Cloneable {
 
-    private ProductNodeList _bitmaskDefs;
+    private List<BitmaskDef> _bitmaskDefs;
 
     public BitmaskOverlayInfo() {
     }
@@ -29,7 +30,7 @@ public class BitmaskOverlayInfo implements Cloneable {
     public void addBitmaskDef(BitmaskDef bitmaskDef) {
         if (bitmaskDef != null) {
             if (_bitmaskDefs == null) {
-                _bitmaskDefs = new ProductNodeList(BitmaskDef.class);
+                _bitmaskDefs = new ArrayList<BitmaskDef>(3);
             }
             _bitmaskDefs.add(bitmaskDef);
         }
@@ -52,7 +53,7 @@ public class BitmaskOverlayInfo implements Cloneable {
         if (_bitmaskDefs == null) {
             return new BitmaskDef[0];
         }
-        return (BitmaskDef[]) _bitmaskDefs.toArray(new BitmaskDef[_bitmaskDefs.size()]);
+        return _bitmaskDefs.toArray(new BitmaskDef[_bitmaskDefs.size()]);
     }
 
     /**
@@ -76,7 +77,15 @@ public class BitmaskOverlayInfo implements Cloneable {
      *         <code>false</code>
      */
     public boolean containsBitmaskDef(String bitmaskName) {
-        return _bitmaskDefs != null && _bitmaskDefs.contains(bitmaskName);
+        if (_bitmaskDefs != null) {
+            BitmaskDef[] bitmaskDefs = getBitmaskDefs();
+            for (BitmaskDef bitmaskDef : bitmaskDefs) {
+                if (bitmaskDef.getName().equalsIgnoreCase(bitmaskName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -90,7 +99,6 @@ public class BitmaskOverlayInfo implements Cloneable {
      */
     public void dispose() {
         if (_bitmaskDefs != null) {
-            _bitmaskDefs.dispose();
             _bitmaskDefs = null;
         }
     }

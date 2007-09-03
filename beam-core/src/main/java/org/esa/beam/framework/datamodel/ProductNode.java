@@ -42,6 +42,8 @@ public abstract class ProductNode {
     private String _name;
     private String _description;
     private boolean _modified;
+    public final static String PROPERTY_NAME_SELECTED = "selected";
+    private boolean selected;
 
     /**
      * Constructs a new product node with the given name.
@@ -515,6 +517,17 @@ public abstract class ProductNode {
      * @param productWriter the product writer to be used to remove this node from the underlying file.
      */
     public void removeFromFile(ProductWriter productWriter) {
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        if (this.selected != selected) {
+            this.selected = selected;
+            fireProductNodeChanged(PROPERTY_NAME_SELECTED);
+        }
     }
 }
 

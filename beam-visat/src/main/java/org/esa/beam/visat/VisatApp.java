@@ -60,8 +60,9 @@ import org.esa.beam.framework.ui.application.ApplicationPage;
 import org.esa.beam.framework.ui.application.ApplicationWindow;
 import org.esa.beam.framework.ui.application.ToolViewDescriptor;
 import org.esa.beam.framework.ui.command.Command;
-import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.CommandManager;
+import org.esa.beam.framework.ui.product.GcpDescriptor;
+import org.esa.beam.framework.ui.product.PinDescriptor;
 import org.esa.beam.framework.ui.product.ProductMetadataView;
 import org.esa.beam.framework.ui.product.ProductNodeView;
 import org.esa.beam.framework.ui.product.ProductSceneImage;
@@ -80,7 +81,6 @@ import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.visat.actions.ToolAction;
-import org.esa.beam.visat.toolviews.pin.PinTool;
 
 import javax.swing.*;
 import javax.swing.event.InternalFrameEvent;
@@ -1336,7 +1336,7 @@ public final class VisatApp extends BasicApp {
 
             @Override
             protected void done() {
-                ProductSceneImage productSceneImage = null;
+                ProductSceneImage productSceneImage;
                 try {
                     productSceneImage = get();
                 } catch (Exception e) {
@@ -1410,7 +1410,7 @@ public final class VisatApp extends BasicApp {
         if (getProductManager().getNumProducts() == 0) {
             return null;
         }
-        final ProductNodeList products = new ProductNodeList(Product.class);
+        final ProductNodeList<Product> products = new ProductNodeList<Product>();
         products.copyInto(getProductManager().getProducts());
         final Product selectedProduct = getSelectedProduct();
         if (selectedProduct == null) {
@@ -1528,7 +1528,7 @@ public final class VisatApp extends BasicApp {
             saveADS = getPreferences().getPropertyBool(PROPERTY_KEY_SAVE_PRODUCT_ANNOTATIONS, saveADS);
         }
         final MetadataElement metadataRoot = product.getMetadataRoot();
-        final ProductNodeList metadataElements = new ProductNodeList(MetadataElement.class);
+        final ProductNodeList<MetadataElement> metadataElements = new ProductNodeList<MetadataElement>();
         if (metadataRoot != null) {
             if (!saveProductHeaders) {
                 MetadataElement element = metadataRoot.getElement("MPH");
@@ -1742,8 +1742,7 @@ public final class VisatApp extends BasicApp {
         }
         if (storageMem < dataAutoLoadMemLimit) {
             pm.beginTask("Loading RGB channels...", rgbBands.length);
-            for (int i = 0; i < rgbBands.length; i++) {
-                final RGBBand rgbBand = rgbBands[i];
+            for (final RGBBand rgbBand : rgbBands) {
                 if (!rgbBand.band.hasRasterData()) {
                     pm.setSubTaskName("Loading RGB channel '" + rgbBand.band.getName() + "'...");
                     rgbBand.band.loadRasterData(SubProgressMonitor.create(pm, 1));
@@ -2164,7 +2163,8 @@ public final class VisatApp extends BasicApp {
                 "showROIOverlay",
                 "showShapeOverlay",
                 "showGraticuleOverlay",
-                PinTool.CMD_ID_SHOW_PIN_OVERLAY,
+                PinDescriptor.INSTANCE.getShowLayerCommandId(),
+                GcpDescriptor.INSTANCE.getShowLayerCommandId(),
         });
 
         return toolBar;
@@ -2200,6 +2200,7 @@ public final class VisatApp extends BasicApp {
                 "zoomTool",
                 "pannerTool",
                 "pinTool",
+                "gcpTool",
                 "drawLineTool",
                 "drawRectangleTool",
                 "drawEllipseTool",

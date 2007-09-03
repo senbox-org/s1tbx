@@ -22,7 +22,7 @@ import java.util.List;
 
 public class LinkedListProductVisitor implements ProductVisitor {
 
-    private List _visitedList = new LinkedList();
+    private List<String> _visitedList = new LinkedList<String>();
 
     public LinkedListProductVisitor() {
     }
@@ -59,7 +59,11 @@ public class LinkedListProductVisitor implements ProductVisitor {
         _visitedList.add(bitmaskDef.getName());
     }
 
-    public List getVisitedList() {
+    public void visit(ProductNodeGroup group) {
+        _visitedList.add(group.getName());
+    }
+
+    public List<String> getVisitedList() {
         return _visitedList;
     }
 }

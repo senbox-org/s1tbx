@@ -22,11 +22,27 @@ import com.bc.jexp.ParseException;
 import com.bc.jexp.Term;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.draw.Figure;
-import org.esa.beam.util.*;
-import org.esa.beam.util.math.*;
+import org.esa.beam.util.BitRaster;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.ObjectUtils;
+import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.StopWatch;
+import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.math.DoubleList;
+import org.esa.beam.util.math.Histogram;
+import org.esa.beam.util.math.IndexValidator;
+import org.esa.beam.util.math.MathUtils;
+import org.esa.beam.util.math.Quantizer;
+import org.esa.beam.util.math.Range;
+import org.esa.beam.util.math.Statistics;
 
 import javax.media.jai.ROI;
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
@@ -1940,7 +1956,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             // Step 3:  insert ROI pixels for pins
             //
             if (roiDefinition.isPinUseEnabled()) {
-                final Pin[] pins = getProduct().getPins();
+                ProductNodeGroup<Pin> pinGroup = getProduct().getPinGroup();
+                final Pin[] pins = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
                 final int[] validIndexes = new int[pins.length];
                 for (int i = 0; i < pins.length; i++) {
                     final PixelPos pixelPos = pins[i].getPixelPos();
@@ -1955,8 +1972,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                 }
                 int validIndex;
                 if (!dataValid || orCombined) {
-                    for (int i = 0; i < validIndexes.length; i++) {
-                        validIndex = validIndexes[i];
+                    for (int validIndexe : validIndexes) {
+                        validIndex = validIndexe;
                         if (validIndex != -1) {
                             data[validIndex] = b01;
                         }
@@ -1964,8 +1981,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                 } else {
                     Arrays.sort(validIndexes);
                     int lastIndex = -1;
-                    for (int i = 0; i < validIndexes.length; i++) {
-                        int index = validIndexes[i];
+                    for (int index : validIndexes) {
                         if (index != -1) {
                             for (int j = lastIndex + 1; j < index; j++) {
                                 data[j] = b00;

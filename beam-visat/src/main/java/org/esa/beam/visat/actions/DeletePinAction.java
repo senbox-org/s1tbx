@@ -19,11 +19,11 @@ public class DeletePinAction extends ExecCommand {
         if (product == null) {
             return;
         }
-        final Pin selectedPin = product.getSelectedPin();
+        final Pin selectedPin = product.getPinGroup().getSelectedNode();
         if (selectedPin == null) {
             return;
         }
-        product.removePin(selectedPin);
+        product.getPinGroup().remove(selectedPin);
         updateState();
     }
 
@@ -32,7 +32,7 @@ public class DeletePinAction extends ExecCommand {
         final ProductSceneView productSceneView = VisatApp.getApp().getSelectedProductSceneView();
         boolean enabled = productSceneView != null
                           && productSceneView.getProduct() != null
-                          && productSceneView.getProduct().getSelectedPin() != null;
+                          && productSceneView.getProduct().getPinGroup().getSelectedNode() != null;
         setEnabled(enabled);
     }
 }

@@ -27,7 +27,6 @@ import com.bc.jexp.impl.ParserImpl;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeList;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
@@ -79,7 +78,7 @@ public class BandArithmetikDialog extends ModalDialog {
     private Parameter _paramNoDataValue;
     private Product _targetProduct;
     private Band _targetBand;
-    private ProductNodeList _productsList;
+    private ProductNodeList<Product> _productsList;
     private JButton _newProductButton;
     private JButton _newBandButton;
     private String _oldSelectedProduct;
@@ -89,7 +88,7 @@ public class BandArithmetikDialog extends ModalDialog {
     private Parameter _paramWarnOnErrors;
     private Parameter _paramCreateVirtualBand;
 
-    public BandArithmetikDialog(final VisatApp visatApp, Product currentProduct, ProductNodeList productsList,
+    public BandArithmetikDialog(final VisatApp visatApp, Product currentProduct, ProductNodeList<Product> productsList,
                                 String helpId) {
         super(visatApp.getMainFrame(), "Band Arithmethic", ModalDialog.ID_OK_CANCEL_HELP, helpId); /* I18N */
         Guardian.assertNotNull("currentProduct", currentProduct);
@@ -110,7 +109,7 @@ public class BandArithmetikDialog extends ModalDialog {
         return _productsList;
     }
 
-    public void setTargetProduct(Product targetProduct, ProductNodeList productsList) {
+    public void setTargetProduct(Product targetProduct, ProductNodeList<Product> productsList) {
         Guardian.assertNotNull("targetProduct", targetProduct);
         Guardian.assertNotNull("productsList", productsList);
         Guardian.assertGreaterThan("productsList must be not empty", productsList.size(), 0);
@@ -119,7 +118,7 @@ public class BandArithmetikDialog extends ModalDialog {
 
         _paramProduct.getProperties().setValueSetBound(false);
         _paramProduct.setValueSet(_productsList.getDisplayNames());
-        if (((Boolean) _paramUseNewProduct.getValue()).booleanValue()) {
+        if ((Boolean) _paramUseNewProduct.getValue()) {
             _paramProduct.setValue("", null);
         } else {
             _paramProduct.setValue(_targetProduct.getDisplayName(), null);
@@ -156,9 +155,9 @@ public class BandArithmetikDialog extends ModalDialog {
 
     @Override
     protected void onOK() {
-        final boolean checkInvalids = ((Boolean) _paramWarnOnErrors.getValue()).booleanValue();
-        final boolean noDataValueUsed = ((Boolean) _paramNoDataValueUsed.getValue()).booleanValue();
-        final float noDataValue = ((Float) _paramNoDataValue.getValue()).floatValue();
+        final boolean checkInvalids = (Boolean) _paramWarnOnErrors.getValue();
+        final boolean noDataValueUsed = (Boolean) _paramNoDataValueUsed.getValue();
+        final float noDataValue = (Float) _paramNoDataValue.getValue();
 
         _targetBand.setImageInfo(null);
         _targetBand.setGeophysicalNoDataValue(noDataValue);
@@ -323,13 +322,13 @@ public class BandArithmetikDialog extends ModalDialog {
     }
 
     private boolean isUseNewBand() {
-        return ((Boolean) _paramUseNewBand.getValue()).booleanValue();
+        return (Boolean) _paramUseNewBand.getValue();
     }
 
     private void initParameter() {
         final ParamChangeListener paramChangeListener = createParamChangeListener();
 
-        _paramUseNewProduct = new Parameter(_PARAM_NAME_USE_NEW_PRODUCT, new Boolean(false));
+        _paramUseNewProduct = new Parameter(_PARAM_NAME_USE_NEW_PRODUCT, false);
         _paramUseNewProduct.getProperties().setLabel("Use new Product"); /*I18N*/
         _paramUseNewProduct.addParamChangeListener(paramChangeListener);
 
@@ -339,11 +338,11 @@ public class BandArithmetikDialog extends ModalDialog {
         _paramProduct.getProperties().setLabel("Target Product"); /*I18N*/
         _paramProduct.addParamChangeListener(paramChangeListener);
 
-        _paramCreateVirtualBand = new Parameter(_PARAM_NAME_CREATE_VIRTUAL_BAND, new Boolean(false));
+        _paramCreateVirtualBand = new Parameter(_PARAM_NAME_CREATE_VIRTUAL_BAND, false);
         _paramCreateVirtualBand.getProperties().setLabel("Create virtual Band"); /*I18N*/
         _paramCreateVirtualBand.addParamChangeListener(paramChangeListener);
 
-        _paramUseNewBand = new Parameter(_PARAM_NAME_USE_NEW_BAND, new Boolean(true));
+        _paramUseNewBand = new Parameter(_PARAM_NAME_USE_NEW_BAND, true);
         _paramUseNewBand.getProperties().setLabel("Use new Band"); /*I18N*/
         _paramUseNewBand.addParamChangeListener(paramChangeListener);
 
@@ -360,15 +359,15 @@ public class BandArithmetikDialog extends ModalDialog {
 //        _paramExpression.getProperties().setEditorClass(ArithmetikExpressionEditor.class);
 //        _paramExpression.getProperties().setValidatorClass(BandArithmeticExprValidator.class);
 
-        _paramWarnOnErrors = new Parameter("warnOnArithmErrorParam", new Boolean(true));
+        _paramWarnOnErrors = new Parameter("warnOnArithmErrorParam", true);
         _paramWarnOnErrors.getProperties().setLabel("Warn, if any arithmetic exception is detected"); /*I18N*/
         _paramWarnOnErrors.addParamChangeListener(paramChangeListener);
 
-        _paramNoDataValueUsed = new Parameter("noDataValueUsedParam", new Boolean(true));
+        _paramNoDataValueUsed = new Parameter("noDataValueUsedParam", true);
         _paramNoDataValueUsed.getProperties().setLabel("No-data value to be used on arithmetic exceptions: "); /*I18N*/
         _paramNoDataValueUsed.addParamChangeListener(paramChangeListener);
 
-        _paramNoDataValue = new Parameter("noDataValueParam", new Float(0.0F));
+        _paramNoDataValue = new Parameter("noDataValueParam", 0.0F);
         _paramNoDataValue.setUIEnabled(false);
 
         setArithmetikValues();
@@ -437,7 +436,7 @@ public class BandArithmetikDialog extends ModalDialog {
     }
 
     private void updateUIState(String parameterName) {
-        boolean useNewProduct = ((Boolean) _paramUseNewProduct.getValue()).booleanValue();
+        boolean useNewProduct = (Boolean) _paramUseNewProduct.getValue();
         final String productDisplayName = _paramProduct.getValueAsText();
         boolean productIsSelected = productDisplayName != null && productDisplayName.length() > 0;
         String[] bandValueSet = _paramBand.getProperties().getValueSet();
@@ -449,7 +448,7 @@ public class BandArithmetikDialog extends ModalDialog {
         _paramUseNewBand.setUIEnabled(!createVirtualBand && productIsSelected && paramBandHasValidValueSet);
         _paramBand.setUIEnabled(!isUseNewBand() && productIsSelected);
         _newBandButton.setEnabled(isUseNewBand() && productIsSelected);
-        _paramNoDataValue.setUIEnabled(((Boolean) _paramNoDataValueUsed.getValue()).booleanValue());
+        _paramNoDataValue.setUIEnabled((Boolean) _paramNoDataValueUsed.getValue());
         if (parameterName == null) {
             return;
         }
@@ -475,9 +474,9 @@ public class BandArithmetikDialog extends ModalDialog {
             _paramBand.setValue(isUseNewBand() ? "" : _oldSelectedBand, null);
         } else if (parameterName.equals(_PARAM_NAME_PRODUCT)) {
             _oldSelectedBand = null;
-            _paramUseNewBand.setValue(new Boolean(true), null);
+            _paramUseNewBand.setValue(true, null);
             String selectedProdcutDisplayName = _paramProduct.getValueAsText();
-            Product product = (Product) _productsList.getByDisplayName(selectedProdcutDisplayName);
+            Product product = _productsList.getByDisplayName(selectedProdcutDisplayName);
             if (product != null) {
                 if (useNewProduct) {
                     showErrorDialog("A product with the name '" + selectedProdcutDisplayName + "' already exists.\n"
@@ -526,13 +525,12 @@ public class BandArithmetikDialog extends ModalDialog {
     private String[] getTargetBandNames() {
         final List<String> names = new ArrayList<String>();
         final Band[] bands = _targetProduct.getBands();
-        for (int i = 0; i < bands.length; i++) {
-            final Band band = bands[i];
+        for (final Band band : bands) {
             if (!(band instanceof VirtualBand)) {
                 names.add(band.getName());
             }
         }
-        return (String[]) names.toArray(new String[names.size()]);
+        return names.toArray(new String[names.size()]);
     }
 
     private void setArithmetikValues() {
@@ -555,7 +553,7 @@ public class BandArithmetikDialog extends ModalDialog {
             Debug.trace("BandArithmetikDialog.getCompatibleProducts:");
             Debug.trace("  comparing: " + _targetProduct.getName());
             for (int i = 0; i < _productsList.size(); i++) {
-                final Product product = (Product) _productsList.getAt(i);
+                final Product product = _productsList.getAt(i);
                 if (_targetProduct != product) {
                     Debug.trace("  with:      " + product.getDisplayName());
                     final boolean compatibleProduct = _targetProduct.isCompatibleProduct(product, geolocationEps);
@@ -566,7 +564,7 @@ public class BandArithmetikDialog extends ModalDialog {
                 }
             }
         }
-        return (Product[]) compatibleProducts.toArray(new Product[compatibleProducts.size()]);
+        return compatibleProducts.toArray(new Product[compatibleProducts.size()]);
     }
 
     private ParamChangeListener createParamChangeListener() {
@@ -582,7 +580,7 @@ public class BandArithmetikDialog extends ModalDialog {
         return new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-                final ProductNode product = _productsList.getByDisplayName(_oldSelectedProduct);
+                final Product product = _productsList.getByDisplayName(_oldSelectedProduct);
                 final int selectedSourceIndex = _productsList.indexOf(product);
 
                 final NewProductDialog dialog = new NewProductDialog(getJDialog(),
@@ -683,8 +681,7 @@ public class BandArithmetikDialog extends ModalDialog {
             final RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
             final String targetBandName = _paramBand.getValueAsText();
             if (_targetProduct != null && _targetProduct.containsRasterDataNode(targetBandName)) {
-                for (int i = 0; i < refRasterDataSymbols.length; i++) {
-                    final RasterDataSymbol refRasterDataSymbol = refRasterDataSymbols[i];
+                for (final RasterDataSymbol refRasterDataSymbol : refRasterDataSymbols) {
                     final String refRasterName = refRasterDataSymbol.getRaster().getName();
                     if (targetBandName.equalsIgnoreCase(refRasterName)) {
                         return true;
@@ -698,7 +695,7 @@ public class BandArithmetikDialog extends ModalDialog {
     }
 
     private boolean getCreateVirtualBand() {
-        return ((Boolean) _paramCreateVirtualBand.getValue()).booleanValue();
+        return (Boolean) _paramCreateVirtualBand.getValue();
     }
 
     private float getGeolocationEps() {

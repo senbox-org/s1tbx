@@ -21,6 +21,7 @@ import com.bc.ceres.swing.progress.DialogProgressMonitor;
 import com.bc.jexp.ParseException;
 import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.SelectExportMethodDialog;
 import org.esa.beam.framework.ui.UIUtils;
@@ -76,7 +77,7 @@ public class ExportPinPixelsAction extends ExecCommand {
         boolean enabled = false;
         final Product product = getSelectedProduct();
         if (product != null) {
-            enabled = product.getNumPins() > 0;
+            enabled = product.getPinGroup().getNodeCount() > 0;
         }
         setEnabled(enabled);
     }
@@ -99,7 +100,7 @@ public class ExportPinPixelsAction extends ExecCommand {
         product = getSelectedProduct();
 
         ensureThatAPinIsSelected(product);
-        final Pin selectedPin = product.getSelectedPin();
+        final Pin selectedPin = product.getPinGroup().getSelectedNode();
         VisatApp visatApp = VisatApp.getApp();
         if (dialog == null) {
             dialog = new ExportPinPixelsDialog(visatApp, product);
@@ -146,8 +147,8 @@ public class ExportPinPixelsAction extends ExecCommand {
      * Ensures that a pin is selected in the given product.
      */
     private static void ensureThatAPinIsSelected(final Product product) {
-        if (product.getSelectedPin() == null) {
-            product.getPinAt(0).setSelected(true);
+        if (product.getPinGroup().getSelectedNode() == null) {
+            product.getPinGroup().get(0).setSelected(true);
         }
     }
 
@@ -246,9 +247,10 @@ public class ExportPinPixelsAction extends ExecCommand {
 
         final Pin[] exportPins;
         if (dialog.isExportSelectedPinOnly()) {
-            exportPins = new Pin[]{product.getSelectedPin()};
+            exportPins = new Pin[]{product.getPinGroup().getSelectedNode()};
         } else {
-            exportPins = product.getPins();
+            ProductNodeGroup<Pin> pinGroup = product.getPinGroup();
+            exportPins = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
         }
 
         final int regionSize = dialog.getRegionSize();

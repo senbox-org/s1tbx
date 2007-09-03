@@ -19,18 +19,18 @@ package org.esa.beam.visat.actions;
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.runtime.ConfigurationElement;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeList;
+import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.NewProductDialog;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSubsetDialog;
-import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
@@ -103,7 +103,7 @@ public class ProductImportAction extends ExecCommand {
 
         Boolean configBoolean = getConfigBoolean(config, "useAllFileFilter");
         if (configBoolean != null) {
-            useAllFileFilter = configBoolean.booleanValue();
+            useAllFileFilter = configBoolean;
         }
 
         // if properties are not set, set the defaults
@@ -461,7 +461,7 @@ public class ProductImportAction extends ExecCommand {
                 JFrame mainFrame = visatApp.getMainFrame();
                 ProductSubsetDialog productSubsetDialog = new ProductSubsetDialog(mainFrame, product, memWarnLimit);
                 if (productSubsetDialog.show() == ProductSubsetDialog.ID_OK) {
-                    ProductNodeList products = new ProductNodeList(Product.class);
+                    ProductNodeList<Product> products = new ProductNodeList<Product>();
                     products.add(product);
                     NewProductDialog newProductDialog = new NewProductDialog(visatApp.getMainFrame(), products, 0,
                                                                              true);

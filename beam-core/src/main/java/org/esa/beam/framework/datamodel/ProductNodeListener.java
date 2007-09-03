@@ -24,11 +24,6 @@ package org.esa.beam.framework.datamodel;
  */
 public interface ProductNodeListener {
 
-    /**
-     * @link dependency
-     * @stereotype use
-     */
-    /*#ProductNodeEvent lnkProductNodeEvent;*/
 
     /**
      * Notified when a node changed.

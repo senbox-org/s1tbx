@@ -676,13 +676,13 @@ public class DimapProductHelpersTest extends TestCase {
 
     private String createXMLString(final int[] notAccepted) {
         Arrays.sort(notAccepted);
-        final Vector vector = new Vector();
+        final Vector<String> vector = new Vector<String>();
         for (int i = 0; i < _xmlMapGeocodingStringStyleV1_4_0.length; i++) {
             if (Arrays.binarySearch(notAccepted, i) < 0) {
                 vector.add(_xmlMapGeocodingStringStyleV1_4_0[i]);
             }
         }
-        final String[] strings = (String[]) vector.toArray(new String[vector.size()]);
+        final String[] strings = vector.toArray(new String[vector.size()]);
         return StringUtils.arrayToString(strings, "");
     }
 }

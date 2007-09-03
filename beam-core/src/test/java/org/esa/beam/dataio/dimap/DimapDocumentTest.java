@@ -16,6 +16,24 @@
  */
 package org.esa.beam.dataio.dimap;
 
+import com.bc.jexp.ParseException;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import org.esa.beam.GlobalTestTools;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.framework.dataop.maptransf.LambertConformalConicDescriptor;
+import org.esa.beam.framework.dataop.maptransf.MapInfo;
+import org.esa.beam.framework.dataop.maptransf.MapProjection;
+import org.esa.beam.framework.dataop.maptransf.MapTransform;
+import org.esa.beam.framework.draw.ShapeFigure;
+import org.esa.beam.util.BeamConstants;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.StringUtils;
+import org.jdom.Document;
+import org.jdom.Element;
+
 import java.awt.Color;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
@@ -30,41 +48,6 @@ import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
-import org.esa.beam.GlobalTestTools;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
-import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
-import org.esa.beam.framework.datamodel.ColorPaletteDef;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.TiePointGeoCoding;
-import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.datamodel.VirtualBand;
-import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.esa.beam.framework.dataop.maptransf.LambertConformalConicDescriptor;
-import org.esa.beam.framework.dataop.maptransf.MapInfo;
-import org.esa.beam.framework.dataop.maptransf.MapProjection;
-import org.esa.beam.framework.dataop.maptransf.MapTransform;
-import org.esa.beam.framework.draw.ShapeFigure;
-import org.esa.beam.util.BeamConstants;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.StringUtils;
-import org.jdom.Document;
-import org.jdom.Element;
-
-import com.bc.jexp.ParseException;
 
 public class DimapDocumentTest extends TestCase {
 
@@ -710,24 +693,26 @@ public class DimapDocumentTest extends TestCase {
         pw.println("            <BAND_INDEX>0</BAND_INDEX>");
         pw.println("        </ROI_Definition>");
         pw.println("    </Image_Display>");
-        pw.println("    <Bitmask_Definition name=\"name1\">");
-        pw.println("        <DESCRIPTION value=\"bitmask.description1\" />");
-        pw.println("        <EXPRESSION value=\"bitmask.expression1\" />");
-        pw.println("        <COLOR red=\"0\" green=\"0\" blue=\"0\" alpha=\"255\" />");
-        pw.println("        <TRANSPARENCY value=\"1.0\" />");
-        pw.println("    </Bitmask_Definition>");
-        pw.println("    <Bitmask_Definition name=\"name2\">");
-        pw.println("        <DESCRIPTION value=\"bitmask.description2\" />");
-        pw.println("        <EXPRESSION value=\"bitmask.expression2\" />");
-        pw.println("        <COLOR red=\"0\" green=\"0\" blue=\"255\" alpha=\"255\" />");
-        pw.println("        <TRANSPARENCY value=\"0.75\" />");
-        pw.println("    </Bitmask_Definition>");
-        pw.println("    <Bitmask_Definition name=\"name3\">");
-        pw.println("        <DESCRIPTION value=\"bitmask.description3\" />");
-        pw.println("        <EXPRESSION value=\"bitmask.expression3\" />");
-        pw.println("        <COLOR red=\"0\" green=\"255\" blue=\"0\" alpha=\"255\" />");
-        pw.println("        <TRANSPARENCY value=\"0.2341\" />");
-        pw.println("    </Bitmask_Definition>");
+        pw.println("    <Bitmask_Definitions>");
+        pw.println("        <Bitmask_Definition name=\"name1\">");
+        pw.println("            <DESCRIPTION value=\"bitmask.description1\" />");
+        pw.println("            <EXPRESSION value=\"bitmask.expression1\" />");
+        pw.println("            <COLOR red=\"0\" green=\"0\" blue=\"0\" alpha=\"255\" />");
+        pw.println("            <TRANSPARENCY value=\"1.0\" />");
+        pw.println("        </Bitmask_Definition>");
+        pw.println("        <Bitmask_Definition name=\"name2\">");
+        pw.println("            <DESCRIPTION value=\"bitmask.description2\" />");
+        pw.println("            <EXPRESSION value=\"bitmask.expression2\" />");
+        pw.println("            <COLOR red=\"0\" green=\"0\" blue=\"255\" alpha=\"255\" />");
+        pw.println("            <TRANSPARENCY value=\"0.75\" />");
+        pw.println("        </Bitmask_Definition>");
+        pw.println("        <Bitmask_Definition name=\"name3\">");
+        pw.println("            <DESCRIPTION value=\"bitmask.description3\" />");
+        pw.println("            <EXPRESSION value=\"bitmask.expression3\" />");
+        pw.println("            <COLOR red=\"0\" green=\"255\" blue=\"0\" alpha=\"255\" />");
+        pw.println("            <TRANSPARENCY value=\"0.2341\" />");
+        pw.println("        </Bitmask_Definition>");
+        pw.println("    </Bitmask_Definitions>");
         pw.println("    <Image_Interpretation>");
         pw.println("        <Spectral_Band_Info>");
         pw.println("            <BAND_INDEX>0</BAND_INDEX>");

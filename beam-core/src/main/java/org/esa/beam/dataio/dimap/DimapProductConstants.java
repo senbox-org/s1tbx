@@ -251,7 +251,7 @@ public final class DimapProductConstants {
      *         have canged the output of uInt8, uInt16, uInt32 and UTC Values.
      *         <ul>
      *             <li>
-     *                 Now the unsigned values are written als unsigned Values.<br>
+     *                 Now the unsigned values are written as unsigned Values.<br>
      *                 Formally the large unsigned values was written as complementary<br>
      *                 negative values.
      *             </li>
@@ -264,9 +264,38 @@ public final class DimapProductConstants {
      *         In this Version it ist possible to open older formats too.
      *     </td>
      * </tr>
+     * <tr> <td valign="top">2.3.0</td>
+     * <td> Since version 4.1 BEAM supports ground control points (GCPs),
+     * though the management of pins was redesgined. Pins and GCPs are stored in seperate groups.<br>
+     * New tags:<br>
+     * <pre>
+     * <b>Pin_Group</b>
+     *  &lt;Pin_Group&gt;
+     *    &lt;Placemark&gt;
+     *    &lt;/Placemark&gt;
+     *  &lt;/Pin_Group&gt;
+     * <b>Gcp_Group</b>
+     *  &lt;Gcp_Group&gt;
+     *    &lt;Placemark&gt;
+     *    &lt;/Placemark&gt;
+     *  &lt;/Gcp_Group&gt;
+     * </pre>
+     * </td></tr>
+     * <tr> <td> </td>
+     * <td> To harmonize the structur of the xml tree the Bitmask_Definition tag was moved to
+     * to a new surrounding tag.
+     * New tag:<br>
+     * <pre>
+     * <b>Bitmask_Definitions</b>
+     *  &lt;Bitmask_Definitions&gt;
+     *    &lt;Bitmask_Definition&gt;
+     *    &lt;/Bitmask_Definition&gt;
+     *  &lt;/Bitmask_Definitions&gt;
+     * </pre>
+     * </td></tr>
      * </table>
      */
-    public final static String DIMAP_CURRENT_VERSION = "2.2.0";
+    public final static String DIMAP_CURRENT_VERSION = "2.3.0";
 
     // BEAM-Dimap default text
     public final static String DIMAP_METADATA_PROFILE = "BEAM-DATAMODEL-V1";
@@ -535,22 +564,47 @@ public final class DimapProductConstants {
     public final static String TAG_METADATA_ATTRIBUTE = "MDATTR";
 
     // BEAM-Dimap bitmask definition tags
+    public final static String TAG_BITMASK_DEFINITIONS = "Bitmask_Definitions";
     public final static String TAG_BITMASK_DEFINITION = "Bitmask_Definition";
     public final static String TAG_BITMASK_DESCRIPTION = "DESCRIPTION";
     public final static String TAG_BITMASK_EXPRESSION = "EXPRESSION";
     public final static String TAG_BITMASK_COLOR = TAG_COLOR;
     public final static String TAG_BITMASK_TRANSPARENCY = "TRANSPARENCY";
 
+    // BEAM-Dimap placemark tags
+    public final static String TAG_PLACEMARK = "Placemark";
+    public final static String TAG_PLACEMARK_LABEL = "LABEL";
+    public final static String TAG_PLACEMARK_DESCRIPTION = "DESCRIPTION";
+    public final static String TAG_PLACEMARK_LATITUDE = "LATITUDE";
+    public final static String TAG_PLACEMARK_LONGITUDE = "LONGITUDE";
+    public final static String TAG_PLACEMARK_PIXEL_X = "PIXEL_X";
+    public final static String TAG_PLACEMARK_PIXEL_Y = "PIXEL_Y";
+    public final static String TAG_PLACEMARK_FILL_COLOR = "FillColor";
+    public final static String TAG_PLACEMARK_OUTLINE_COLOR = "OutlineColor";
+
     // BEAM-Dimap pin tags
+    public final static String TAG_PIN_GROUP = "Pin_Group";
     public final static String TAG_PIN = "Pin";
-    public final static String TAG_PIN_LABEL = "LABEL";
-    public final static String TAG_PIN_DESCRIPTION = "DESCRIPTION";
-    public final static String TAG_PIN_LATITUDE = "LATITUDE";
-    public final static String TAG_PIN_LONGITUDE = "LONGITUDE";
-    public final static String TAG_PIN_PIXEL_X = "PIXEL_X";
-    public final static String TAG_PIN_PIXEL_Y = "PIXEL_Y";
-    public final static String TAG_PIN_FILL_COLOR = "FillColor";
-    public final static String TAG_PIN_OUTLINE_COLOR = "OutlineColor";
+
+    // BEAM-Dimap gcp tags
+    public final static String TAG_GCP_GROUP = "Gcp_Group";
+
+    /**@deprecated in 4.1, use {@link #TAG_PLACEMARK_LABEL} */
+    public final static String TAG_PIN_LABEL = TAG_PLACEMARK_LABEL;
+    /**@deprecated in 4.1, use {@link #TAG_PLACEMARK_DESCRIPTION} */
+    public final static String TAG_PIN_DESCRIPTION = TAG_PLACEMARK_DESCRIPTION;
+    /**@deprecated in 4.1, use {@link #TAG_PLACEMARK_LATITUDE} */
+    public final static String TAG_PIN_LATITUDE = TAG_PLACEMARK_LATITUDE;
+    /**@deprecated in 4.1, use {@link #TAG_PLACEMARK_LONGITUDE} */
+    public final static String TAG_PIN_LONGITUDE = TAG_PLACEMARK_LONGITUDE;
+    /**@deprecated in 4.1, use {@link #TAG_PLACEMARK_PIXEL_X} */
+    public final static String TAG_PIN_PIXEL_X = TAG_PLACEMARK_PIXEL_X;
+    /**@deprecated in 4.1, use {@link #TAG_PLACEMARK_PIXEL_Y} */
+    public final static String TAG_PIN_PIXEL_Y = TAG_PLACEMARK_PIXEL_Y;
+    /**@deprecated in 4.1, use {@link #TAG_PLACEMARK_FILL_COLOR} */
+    public final static String TAG_PIN_FILL_COLOR = TAG_PLACEMARK_FILL_COLOR;
+    /**@deprecated in 4.1, use {@link #TAG_PLACEMARK_OUTLINE_COLOR} */
+    public final static String TAG_PIN_OUTLINE_COLOR = TAG_PLACEMARK_OUTLINE_COLOR;
 
     // attribute
     public final static String ATTRIB_RED = "red";

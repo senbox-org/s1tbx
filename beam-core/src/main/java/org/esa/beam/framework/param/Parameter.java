@@ -16,13 +16,12 @@
  */
 package org.esa.beam.framework.param;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-
-import javax.swing.event.EventListenerList;
-
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.PropertyMap;
+
+import javax.swing.event.EventListenerList;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 /**
  * A <code>Parameter</code> is a named item which has a value of type <code>Object</code>.
@@ -48,9 +47,6 @@ public class Parameter {
      */
     private final String _name;
 
-    /**
-     * @supplierRole properties
-     */
     private ParamProperties _properties;
 
     /**
@@ -60,8 +56,6 @@ public class Parameter {
 
     /**
      * The list of parameter change listeners.
-     *
-     * @supplierRole listenerList
      */
     private EventListenerList _listenerList;
 
@@ -70,10 +64,6 @@ public class Parameter {
      */
     private PropertyChangeListener _propertyChangeListener;
 
-    /**
-     * @supplierCardinality 0..1
-     * @supplierRole editor
-     */
     private ParamEditor _editor;
 
     /**
@@ -81,10 +71,6 @@ public class Parameter {
      */
     private boolean _uiEnabled;
 
-    /**
-     * @supplierCardinality 0..1
-     * @supplierRole validator
-     */
     private ParamValidator _validator;
 
     public Parameter(String name) {

@@ -23,7 +23,6 @@ import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
-import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.Debug;
 import org.esa.beam.visat.VisatApp;
 
@@ -83,7 +82,7 @@ class ExportPinPixelsDialog extends ModalDialog {
      * <code>true</code> if the user has selected "Use arithmetic expression".
      */
     boolean isUseExpression() {
-        return ((Boolean) paramUseExpression.getValue()).booleanValue();
+        return (Boolean) paramUseExpression.getValue();
     }
 
     /**
@@ -145,7 +144,7 @@ class ExportPinPixelsDialog extends ModalDialog {
         paramExpression.getProperties().setNumRows(3);
         paramExpression.setUIEnabled(false);
 
-        paramUseExpression = new Parameter(_PARAM_NAME_USE_ARTIHMETIC_EXPRESSION, new Boolean(false));
+        paramUseExpression = new Parameter(_PARAM_NAME_USE_ARTIHMETIC_EXPRESSION, false);
         paramUseExpression.getProperties().setLabel("Use expression"); /* I18N */
         paramUseExpression.addParamChangeListener(paramChangeListener);
     }
@@ -271,7 +270,7 @@ class ExportPinPixelsDialog extends ModalDialog {
      * Updates the UI elements.
      */
     private void updateUIState() {
-        final boolean useExpression = ((Boolean) paramUseExpression.getValue()).booleanValue();
+        final boolean useExpression = (Boolean) paramUseExpression.getValue();
         paramExpression.setUIEnabled(useExpression);
         editExpressionButton.setEnabled(useExpression);
         buttonUseExpressionAsFilter.setEnabled(useExpression);
@@ -280,7 +279,7 @@ class ExportPinPixelsDialog extends ModalDialog {
 
     protected boolean verifyUserInput() {
         final String expression = paramExpression.getValueAsText();
-        final boolean useExpression = ((Boolean) paramUseExpression.getValue()).booleanValue();
+        final boolean useExpression = (Boolean) paramUseExpression.getValue();
         if (useExpression && !isValidExpression(expression)) {
             VisatApp.getApp().showErrorDialog(
                     "Please check the expression you have entered.\nIt is not valid."); /* I18N */
@@ -299,7 +298,7 @@ class ExportPinPixelsDialog extends ModalDialog {
      */
     public int show(final String pinLabel, final Product product) {
         pinLabelTextField.setText(pinLabel);
-        boolean onlyOnePin = (this.product.getNumPins() == 1);
+        boolean onlyOnePin = (this.product.getPinGroup().getNodeCount() == 1);
         buttonExportSelectedPin.setSelected(onlyOnePin);
         buttonExportAllPins.setEnabled(!onlyOnePin);
         this.product = product;
@@ -311,8 +310,7 @@ class ExportPinPixelsDialog extends ModalDialog {
      */
     private int extractRegionSize(final String userSelectedRegionSize) {
         final String[] extractedRegion = userSelectedRegionSize.split("x");
-        int extractedRegionSize = new Integer(extractedRegion[0].trim()).intValue();
-        return extractedRegionSize;
+        return new Integer(extractedRegion[0].trim());
     }
 
     /**
@@ -361,7 +359,6 @@ class ExportPinPixelsDialog extends ModalDialog {
                     Debug.trace("BandArithmetikDialog: expression is: " + pep.getCode()); /* I18N */
                 }
                 pep.dispose();
-                pep = null;
             }
         };
     }

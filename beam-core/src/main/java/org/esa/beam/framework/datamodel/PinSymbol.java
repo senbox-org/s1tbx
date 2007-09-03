@@ -20,7 +20,13 @@ import org.esa.beam.framework.draw.ShapeFigure;
 import org.esa.beam.util.Guardian;
 
 import javax.swing.ImageIcon;
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Paint;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
@@ -37,11 +43,16 @@ public class PinSymbol extends ShapeFigure {
     private final static String ATTRIB_KEY_ICON = "ICON";
     private final static String ATTRIB_KEY_REF_POINT = "REF_POINT";
 
-    private static final Color SELECTION_COLOR =  new Color(255, 255, 0, 200);
+    private static final Color SELECTION_COLOR = new Color(255, 255, 0, 200);
 
     public PinSymbol(String name, Shape shape) {
         super(shape, false, null);
         setName(name);
+    }
+
+    public PinSymbol(String name, ImageIcon icon) {
+        this(name, new Rectangle(0, 0, icon.getIconWidth(), icon.getIconHeight()));
+        setIcon(icon);
     }
 
     public void drawSelected(Graphics2D g2d) {
@@ -95,8 +106,12 @@ public class PinSymbol extends ShapeFigure {
             setOutlineStroke(outlineStroke);
             setFillPaint(fillPaint);
         }
-
-        super.draw(g2d);
+        ImageIcon icon = getIcon();
+        if (icon != null) {
+            g2d.drawImage(icon.getImage(), null, null);
+        } else {
+            super.draw(g2d);
+        }
         g2d.translate(x0, y0);
     }
 
@@ -158,7 +173,7 @@ public class PinSymbol extends ShapeFigure {
     }
 
     public void setFilled(boolean fill) {
-        setAttribute(FILLED_KEY, new Boolean(fill));
+        setAttribute(FILLED_KEY, Boolean.valueOf(fill));
     }
 
     public ImageIcon getIcon() {
@@ -187,11 +202,6 @@ public class PinSymbol extends ShapeFigure {
     }
 
     public static PinSymbol createDefaultPinSymbol() {
-        // define symbol constants
-        //
-        final Paint fillPaint = new Color(128, 128, 255);
-        final Color outlineColor = new Color(0, 0, 64);
-        final float lineWidth = 1.0f;
 
         // create symbol shape
         //
@@ -213,14 +223,42 @@ public class PinSymbol extends ShapeFigure {
 
         // create symbol
         //
-        final PinSymbol pinSymbol = new PinSymbol("Default", symbolShape);
-        pinSymbol.setFillPaint(fillPaint);
+        final PinSymbol pinSymbol = new PinSymbol("Pin-Symbol", symbolShape);
+        pinSymbol.setFillPaint(new Color(128, 128, 255));
         pinSymbol.setFilled(true);
-        pinSymbol.setOutlineColor(outlineColor);
-        pinSymbol.setOutlineStroke(new BasicStroke(lineWidth));
+        pinSymbol.setOutlineColor(new Color(0, 0, 64));
+        pinSymbol.setOutlineStroke(new BasicStroke(1.0f));
         pinSymbol.setRefPoint(new PixelPos(0, h));
-//        pinSymbol.setRefPoint(new PixelPos(-strokeWidth, h - strokeWidth));
         return pinSymbol;
     }
 
+    public static PinSymbol createDefaultGcpSymbol() {
+
+//        // create symbol shape
+//        //
+//        final float r = 20.0f;
+//        final GeneralPath path = new GeneralPath();
+//        path.moveTo(-r/2, 0);
+//        path.lineTo(+r/2, 0);
+//        path.closePath();
+//        path.moveTo(0, -r/2);
+//        path.lineTo(0, +r/2);
+//        path.closePath();
+//
+//        // create symbol
+//        //
+//        final PinSymbol pinSymbol = new PinSymbol("GCP-Symbol", path);
+//        pinSymbol.setFillPaint(new Color(255, 255, 255));
+//        pinSymbol.setFilled(true);
+//        pinSymbol.setOutlineColor(new Color(255, 255, 0));
+//        pinSymbol.setOutlineStroke(new BasicStroke(1.0f));
+//        pinSymbol.setRefPoint(new PixelPos(0, 0));
+//        return pinSymbol;
+
+        ImageIcon icon = new ImageIcon(PinSymbol.class.getResource("GcpShape.png"));
+        PinSymbol pinSymbol = new PinSymbol("GCP-Symbol", icon);
+        pinSymbol.setRefPoint(new PixelPos(icon.getIconWidth() * 0.5f, icon.getIconHeight() * 0.5f));
+        return pinSymbol;
+
+    }
 }

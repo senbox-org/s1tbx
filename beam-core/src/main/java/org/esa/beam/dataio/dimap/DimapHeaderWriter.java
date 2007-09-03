@@ -87,15 +87,34 @@ public final class DimapHeaderWriter extends XmlWriter {
         writeImageInterpretationElements(indent);
         writeAnnotatonDataSet(indent);
         writePins(indent);
+        writeGcps(indent);
         print(tags[1]);
         close();
     }
 
     protected void writePins(int indent) {
-        final Pin[] pins = _product.getPins();
-        for (int i = 0; i < pins.length; i++) {
-            final Pin pin = pins[i];
-            pin.writeXML(this, indent);
+        ProductNodeGroup<Pin> pinGroup = _product.getPinGroup();
+        final Pin[] pins = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
+        final String[] pinGroupTags = createTags(indent, DimapProductConstants.TAG_PIN_GROUP);
+        if(pins.length > 0) {
+            println(pinGroupTags[0]);
+            for (final Pin pin : pins) {
+                pin.writeXML(this, indent + 1);
+            }
+            println(pinGroupTags[1]);
+        }
+    }
+
+    protected void writeGcps(int indent) {
+        ProductNodeGroup<Pin> gcpGroup = _product.getGcpGroup();
+        final Pin[] gcps = gcpGroup.toArray(new Pin[gcpGroup.getNodeCount()]);
+        final String[] gcpGroupTags = createTags(indent, DimapProductConstants.TAG_GCP_GROUP);
+        if(gcps.length > 0) {
+            println(gcpGroupTags[0]);
+            for (final Pin gcp : gcps) {
+                gcp.writeXML(this, indent + 1);
+            }
+            println(gcpGroupTags[1]);
         }
     }
 
@@ -113,9 +132,8 @@ public final class DimapHeaderWriter extends XmlWriter {
         if (elementes == null) {
             return;
         }
-        for (int i = 0; i < elementes.length; i++) {
-            final MetadataElement element = elementes[i];
-            String[][] attributes = null;
+        for (final MetadataElement element : elementes) {
+            String[][] attributes;
             final String description = element.getDescription();
             if (description != null) {
                 attributes = new String[2][];
@@ -140,8 +158,7 @@ public final class DimapHeaderWriter extends XmlWriter {
         if (attributes == null) {
             return;
         }
-        for (int i = 0; i < attributes.length; i++) {
-            final MetadataAttribute attribute = attributes[i];
+        for (final MetadataAttribute attribute : attributes) {
             final Vector<String[]> xmlAttribs = new Vector<String[]>();
             xmlAttribs.add(new String[]{DimapProductConstants.ATTRIB_NAME, attribute.getName()});
             final String description = attribute.getDescription();
@@ -177,7 +194,7 @@ public final class DimapHeaderWriter extends XmlWriter {
             println(iiTags[0]);
             for (int i = 0; i < bands.length; i++) {
                 final Band band = bands[i];
-                if(band instanceof FilterBand) {
+                if (band instanceof FilterBand) {
                     final DimapPersistable persistable = DimapPersistence.getPersistable(band);
                     if(persistable != null) {
                         final Element xmlFromObject = persistable.createXmlFromObject(band);
@@ -228,10 +245,14 @@ public final class DimapHeaderWriter extends XmlWriter {
     }
 
     protected void writeBitmaskDefinitions(int indent) { //übernommen
-        final String[] defNames = _product.getBitmaskDefNames();
-        for (int i = 0; i < defNames.length; i++) {
-            final BitmaskDef bitmaskDef = _product.getBitmaskDef(defNames[i]);
-            bitmaskDef.writeXML(this, indent);
+        final BitmaskDef[] bitmaskDefs = _product.getBitmaskDefs();
+        if (bitmaskDefs.length > 0) {
+            final String[] bdTags = createTags(indent, DimapProductConstants.TAG_BITMASK_DEFINITIONS);
+            println(bdTags[0]);
+            for (BitmaskDef bitmaskDef : bitmaskDefs) {
+                bitmaskDef.writeXML(this, indent + 1);
+            }
+            println(bdTags[1]);
         }
     }
 
@@ -357,7 +378,7 @@ public final class DimapHeaderWriter extends XmlWriter {
         }
         pw.printLine(indent + 1, DimapProductConstants.TAG_ROI_ONE_DIMENSIONS, rd.getShapeFigure().isOneDimensional());
         StringWriter sw = null;
-        String type = null;
+        String type;
         String values = null;
         if (shape instanceof Line2D.Float) {
             final Line2D.Float line = (Line2D.Float) shape;
@@ -436,13 +457,13 @@ public final class DimapHeaderWriter extends XmlWriter {
             }
         }
 
-        String[][] attributes = null;
+        String[][] attributes;
 
-        if (type != null && values != null) {
+        if (values != null) {
             attributes = new String[2][];
             attributes[0] = new String[]{DimapProductConstants.ATTRIB_TYPE, type};
             attributes[1] = new String[]{DimapProductConstants.ATTRIB_VALUE, values};
-        } else if (type != null && values == null) {
+        } else {
             attributes = new String[1][];
             attributes[0] = new String[]{DimapProductConstants.ATTRIB_TYPE, type};
         }
@@ -453,10 +474,8 @@ public final class DimapHeaderWriter extends XmlWriter {
         }
 
         if (segments == null || segments.length() == 0) {
-            if (attributes != null) {
                 pw.printLine(indent + 1, DimapProductConstants.TAG_SHAPE_FIGURE, attributes, null);
-            }
-        } else if (attributes != null) {
+        } else {
             final String[] figTags = createTags(indent + 1, DimapProductConstants.TAG_SHAPE_FIGURE, attributes);
             pw.println(figTags[0]);
             pw.print(segments);
@@ -549,15 +568,15 @@ public final class DimapHeaderWriter extends XmlWriter {
 
     protected void writeFlagCoding(int indent) {
         final String[] codingNames = _product.getFlagCodingNames();
-        for (int i = 0; i < codingNames.length; i++) {
+        for (String codingName : codingNames) {
             final String[][] attributes = new String[1][];
-            attributes[0] = new String[]{DimapProductConstants.ATTRIB_NAME, codingNames[i]};
+            attributes[0] = new String[]{DimapProductConstants.ATTRIB_NAME, codingName};
             final String[] fcTags = createTags(indent, DimapProductConstants.TAG_FLAG_CODING, attributes);
             println(fcTags[0]);
-            final FlagCoding flagCoding = _product.getFlagCoding(codingNames[i]);
+            final FlagCoding flagCoding = _product.getFlagCoding(codingName);
             final String[] flagNames = flagCoding.getFlagNames();
-            for (int j = 0; j < flagNames.length; j++) {
-                final MetadataAttribute flag = flagCoding.getFlag(flagNames[j]);
+            for (String flagName : flagNames) {
+                final MetadataAttribute flag = flagCoding.getFlag(flagName);
                 final String[] fTags = createTags(indent + 1, DimapProductConstants.TAG_FLAG);
                 println(fTags[0]);
                 printLine(indent + 2, DimapProductConstants.TAG_FLAG_NAME, flag.getName());

@@ -18,6 +18,7 @@ package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.layer.DefaultLayerModel;
+import com.bc.layer.Layer;
 import com.bc.layer.LayerModel;
 import com.bc.layer.impl.RenderedImageLayer;
 import org.esa.beam.framework.datamodel.ImageInfo;
@@ -129,6 +130,10 @@ public class ProductSceneImage {
         this.histogramMatching = histogramMatching;
     }
 
+    Layer getLayer(String name) {
+        return layerModel.getLayer(name);
+    }
+
     NoDataLayer getNoDataLayer() {
         return (NoDataLayer) layerModel.getLayer(1);
     }
@@ -145,8 +150,12 @@ public class ProductSceneImage {
         return (GraticuleLayer) layerModel.getLayer(4);
     }
 
-    PinLayer getPinLayer() {
-        return (PinLayer) layerModel.getLayer(5);
+    PlacemarkLayer getPinLayer() {
+        return (PlacemarkLayer) layerModel.getLayer(5);
+    }
+
+    PlacemarkLayer getGcpLayer() {
+        return (PlacemarkLayer) layerModel.getLayer(6);
     }
 
     /**
@@ -172,7 +181,8 @@ public class ProductSceneImage {
         layerModel.addLayer(new FigureLayer());
         layerModel.addLayer(new ROILayer(getRaster()));
         layerModel.addLayer(new GraticuleLayer(getProduct(), getRaster()));
-        layerModel.addLayer(new PinLayer(getProduct()));
+        layerModel.addLayer(new PlacemarkLayer(getProduct(), PinDescriptor.INSTANCE));
+        layerModel.addLayer(new PlacemarkLayer(getProduct(), GcpDescriptor.INSTANCE));
         return layerModel;
     }
 
@@ -187,7 +197,8 @@ public class ProductSceneImage {
         FigureLayer figureLayer = (FigureLayer) layerModel.getLayer(2);
         ROILayer roiLayer = (ROILayer) layerModel.getLayer(3);
         GraticuleLayer graticuleLayer = (GraticuleLayer) layerModel.getLayer(4);
-        PinLayer pinLayer = (PinLayer) layerModel.getLayer(5);
+        PlacemarkLayer pinLayer = (PlacemarkLayer) layerModel.getLayer(5);
+        PlacemarkLayer gcpLayer = (PlacemarkLayer) layerModel.getLayer(6);
 
         imageLayer.setVisible(true);
         noDataLayer.setVisible(false);
@@ -195,9 +206,13 @@ public class ProductSceneImage {
         roiLayer.setVisible(false);
         graticuleLayer.setVisible(false);
         pinLayer.setVisible(false);
+        pinLayer.setTextEnabled(true);
+        gcpLayer.setVisible(false);
+        gcpLayer.setTextEnabled(false);
     }
 
     private RenderedImage createImage(ProgressMonitor pm) throws IOException {
         return ProductUtils.createOverlayedImage(rasters, histogramMatching, pm);
     }
+
 }

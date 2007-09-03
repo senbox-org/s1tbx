@@ -18,9 +18,9 @@ package org.esa.beam.framework.datamodel;
 
 import org.esa.beam.util.Guardian;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.ArrayList;
 
 /**
  * A type-safe list for elements of the type <code>ProductNode</code>.
@@ -28,34 +28,33 @@ import java.util.ArrayList;
  * @author Norman Fomferra
  * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:45 $
  */
-public final class ProductNodeList {
+public final class ProductNodeList<T extends ProductNode> {
 
-    private final Class<? extends ProductNode> _elemType;
-    private final List<ProductNode> _nodes;
-    private final List<ProductNode> _removedNodes;
+    private final List<T> _nodes;
+    private final List<T> _removedNodes;
 
     /**
      * Constructs a new list named nodes.
      */
     public ProductNodeList() {
-        this(ProductNode.class);
+        _nodes = new ArrayList<T>();
+        _removedNodes = new ArrayList<T>();
     }
 
     /**
      * Constructs a new list named nodes.
+     * @deprecated in 4.1, not required anymore
      */
-    public ProductNodeList(final Class<? extends ProductNode> elemType) {
-        Guardian.assertNotNull("elemType", elemType);
-        _elemType = elemType;
-        _nodes = new ArrayList<ProductNode>();
-        _removedNodes = new ArrayList<ProductNode>();
+    public ProductNodeList(final Class<T> elemType) {
+        this();
     }
 
     /**
      * Gets the element type of this list.
+     * @deprecated in 4.1, not required anymore
      */
     public Class<? extends ProductNode> getElemType() {
-        return _elemType;
+        return ProductNode.class;
     }
 
     /**
@@ -70,7 +69,7 @@ public final class ProductNodeList {
      *
      * @param index the index, must be in the range zero to <code>size()</code>
      */
-    public final ProductNode getAt(int index) {
+    public final T getAt(int index) {
         return _nodes.get(index);
     }
 
@@ -112,7 +111,7 @@ public final class ProductNodeList {
      *
      * @throws IllegalArgumentException if the name is <code>null</code>
      */
-    public final ProductNode get(String name) {
+    public final T get(String name) {
         int index = indexOf(name);
         return index >= 0 ? _nodes.get(index) : null;
     }
@@ -128,9 +127,9 @@ public final class ProductNodeList {
      * @throws IllegalArgumentException if the display name is <code>null</code>
      * @see ProductNode#getDisplayName()
      */
-    public ProductNode getByDisplayName(String displayName) {
+    public T getByDisplayName(String displayName) {
         Guardian.assertNotNull("displayName", displayName);
-        for (ProductNode node : _nodes) {
+        for (T node : _nodes) {
             if (node.getDisplayName().equals(displayName)) {
                 return node;
             }
@@ -160,7 +159,7 @@ public final class ProductNodeList {
      *
      * @throws IllegalArgumentException if the node is <code>null</code>
      */
-    public final boolean contains(ProductNode node) {
+    public final boolean contains(T node) {
         if (node == null) {
             return false;
         }
@@ -174,8 +173,8 @@ public final class ProductNodeList {
      *
      * @return true if the node was added, otherwise false.
      */
-    public final boolean add(ProductNode node) {
-        if (node != null && _elemType.isInstance(node)) {
+    public final boolean add(T node) {
+        if (node != null) {
             return _nodes.add(node);
         }
         return false;
@@ -190,8 +189,8 @@ public final class ProductNodeList {
      *
      * @throws ArrayIndexOutOfBoundsException if the index was invalid.
      */
-    public final void insert(ProductNode node, int index) {
-        if (node != null && _elemType.isInstance(node)) {
+    public final void insert(T node, int index) {
+        if (node != null) {
             _nodes.add(index, node);
         }
     }
@@ -208,7 +207,7 @@ public final class ProductNodeList {
      *
      * @return a collection of all removed product nodes.
      */
-    public Collection<ProductNode> getRemovedNodes() {
+    public Collection<T> getRemovedNodes() {
         return _removedNodes;
     }
 
@@ -221,7 +220,7 @@ public final class ProductNodeList {
      * @return <code>true</code> if the node is a member of this list and could successfully be removed,
      *         <code>false</code> otherwise
      */
-    public final boolean remove(ProductNode node) {
+    public final boolean remove(T node) {
         if (node != null) {
             _removedNodes.add(node);
             return _nodes.remove(node);
@@ -257,10 +256,10 @@ public final class ProductNodeList {
      *
      * @param filter the product node filter to be used, if <code>null</code> a clone of this list is created
      */
-    public ProductNodeList createSubset(ProductNodeFilter filter) {
-        ProductNodeList list = new ProductNodeList(_elemType);
+    public ProductNodeList<T> createSubset(ProductNodeFilter filter) {
+        ProductNodeList<T> list = new ProductNodeList<T>();
         for (int i = 0; i < size(); i++) {
-            ProductNode node = getAt(i);
+            T node = getAt(i);
             if (filter.accept(node)) {
                 list.add(node);
             }
@@ -274,7 +273,7 @@ public final class ProductNodeList {
      * @return a string array containing all node names, never <code>null</code>
      */
     public final ProductNode[] toArray() {
-        return toArray(new ProductNode[0]);
+        return _nodes.toArray(new ProductNode[0]);
     }
 
     /**
@@ -285,7 +284,7 @@ public final class ProductNodeList {
      *
      * @return an array containing the elements of the list. never <code>null</code>
      */
-    public final ProductNode[] toArray(ProductNode[] array) {
+    public final T[] toArray(T[] array) {
         return _nodes.toArray(array);
     }
 
@@ -298,8 +297,8 @@ public final class ProductNodeList {
      * @throws NullPointerException      if the given array is null.
      * @throws IndexOutOfBoundsException if the given array is to small.
      */
-    public final void copyInto(ProductNode[] array) {
-        for (ProductNode node : array) {
+    public final void copyInto(T[] array) {
+        for (T node : array) {
             add(node);
         }
     }
@@ -334,13 +333,13 @@ public final class ProductNodeList {
      *
      * @throws IllegalArgumentException if the node is <code>null</code>
      */
-    public final int indexOf(ProductNode node) {
+    public final int indexOf(T node) {
         Guardian.assertNotNull("node", node);
         return _nodes.indexOf(node);
     }
 
     private void disposeRemovedList() {
-        for (ProductNode removedNode : _removedNodes) {
+        for (T removedNode : _removedNodes) {
             removedNode.dispose();
         }
         clearRemovedList();

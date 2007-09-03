@@ -1,25 +1,36 @@
 package org.esa.beam.visat.toolviews.pixelinfo;
 
-import org.esa.beam.framework.ui.application.support.AbstractToolView;
+import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.PixelInfoView;
 import org.esa.beam.framework.ui.PixelPositionListener;
+import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.visat.VisatApp;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.math.MathUtils;
+import org.esa.beam.visat.VisatApp;
 
-import javax.swing.*;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JInternalFrame;
+import javax.swing.JPanel;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-import java.util.HashMap;
-import java.awt.*;
-import java.awt.image.RenderedImage;
-import java.awt.event.ActionListener;
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeListener;
+import java.awt.image.RenderedImage;
 import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.HashMap;
 
 /**
  * The tool window which displays the pixel info view.
@@ -121,7 +132,7 @@ public class PixelInfoToolView extends AbstractToolView {
     private void setToSelectedPin() {
         if (_currentView != null) {
             final Product product = _currentView.getProduct();
-            final Pin pin = product.getSelectedPin();
+            final Pin pin = product.getPinGroup().getSelectedNode();
             if (pin == null) {
                 _pixelInfoView.updatePixelValues(_currentView, -1, -1, false);
             } else {

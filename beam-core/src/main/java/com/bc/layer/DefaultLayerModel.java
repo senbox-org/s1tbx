@@ -100,6 +100,17 @@ public class DefaultLayerModel implements LayerModel {
         return layerList.get(index);
     }
 
+    public Layer getLayer(String name) {
+        Layer foundLayer = null;
+        for (Layer layer : layerList) {
+            if(name.equals(layer.getName())) {
+                foundLayer = layer;
+                break;
+            }
+        }
+        return foundLayer;
+    }
+
     public void addLayer(Layer layer) {
         if (layer != null && !layerList.contains(layer)) {
             layerList.add(layer);

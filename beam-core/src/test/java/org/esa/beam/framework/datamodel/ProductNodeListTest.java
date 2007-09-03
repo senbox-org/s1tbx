@@ -23,12 +23,11 @@ import junit.framework.TestSuite;
 
 public class ProductNodeListTest extends TestCase {
 
-    private ProductNodeList _nodeList;
+    private ProductNodeList<MetadataAttribute> _nodeList;
     private MetadataAttribute _attribute1;
     private MetadataAttribute _attribute2;
     private MetadataAttribute _attribute3;
     private MetadataAttribute _attribute4;
-//    private ProductNode _owner;
 
     public ProductNodeListTest(String testName) {
         super(testName);
@@ -39,15 +38,7 @@ public class ProductNodeListTest extends TestCase {
     }
 
     protected void setUp() {
-//        _owner = new ProductNode("namedNode") {
-//            public long getRawStorageSize(ProductSubsetDef subsetDef) {
-//                return 120;
-//            }
-//            public void acceptVisitor(ProductVisitor visitor) {
-//            }
-//        };
-//        _nodeList = new ProductNodeList(_owner, MetadataAttribute.class);
-        _nodeList = new ProductNodeList(MetadataAttribute.class);
+        _nodeList = new ProductNodeList<MetadataAttribute>();
         _attribute1 = new MetadataAttribute("attribute1", ProductData.createInstance(ProductData.TYPE_INT32), true);
         _attribute2 = new MetadataAttribute("attribute2", ProductData.createInstance(ProductData.TYPE_INT32), true);
         _attribute3 = new MetadataAttribute("attribute3", ProductData.createInstance(ProductData.TYPE_INT32), true);

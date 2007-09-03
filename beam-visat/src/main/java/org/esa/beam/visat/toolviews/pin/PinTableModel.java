@@ -19,6 +19,7 @@ import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.ui.PlacemarkDescriptor;
 import org.esa.beam.util.math.MathUtils;
 
 import javax.swing.event.TableModelListener;
@@ -28,11 +29,15 @@ import java.io.IOException;
 public class PinTableModel implements TableModel {
 
     public static final String[] DEFAULT_COLUMN_NAMES = new String[]{"X", "Y", "Lon", "Lat", "Label"};
+
+    private final PlacemarkDescriptor placemarkDescriptor;
     private final Product product;
     private final Band[] selectedBands;
     private final TiePointGrid[] selectedGrids;
 
-    public PinTableModel(Product product, Band[] selectedBands, TiePointGrid[] selectedGrids) {
+    public PinTableModel(PlacemarkDescriptor placemarkDescriptor, Product product, Band[] selectedBands,
+                         TiePointGrid[] selectedGrids) {
+        this.placemarkDescriptor = placemarkDescriptor;
         this.product = product;
         this.selectedBands = selectedBands;
         this.selectedGrids = selectedGrids;
@@ -40,7 +45,7 @@ public class PinTableModel implements TableModel {
 
     public int getRowCount() {
         if (product != null) {
-            return product.getNumPins();
+            return placemarkDescriptor.getPlacemarkGroup(product).getNodeCount();
         }
         return 0;
     }
@@ -83,7 +88,7 @@ public class PinTableModel implements TableModel {
         if (product != null) {
             final int width = product.getSceneRasterWidth();
             final int height = product.getSceneRasterHeight();
-            Pin pin = product.getPinAt(rowIndex);
+            Pin pin = placemarkDescriptor.getPlacemarkGroup(product).get(rowIndex);
 
             if (columnIndex == 0) {
                 return pin.getPixelPos() != null ? toText(pin.getPixelPos().x, 10.0f) : "n.a.";

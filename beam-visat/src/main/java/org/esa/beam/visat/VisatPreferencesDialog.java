@@ -19,17 +19,31 @@ package org.esa.beam.visat;
 
 import com.bc.ceres.swing.update.ConnectionConfigData;
 import com.bc.ceres.swing.update.ConnectionConfigPane;
-import org.esa.beam.framework.param.*;
-import org.esa.beam.framework.ui.*;
+import org.esa.beam.framework.param.ParamChangeEvent;
+import org.esa.beam.framework.param.ParamChangeListener;
+import org.esa.beam.framework.param.ParamExceptionHandler;
+import org.esa.beam.framework.param.ParamGroup;
+import org.esa.beam.framework.param.ParamProperties;
+import org.esa.beam.framework.param.Parameter;
+import org.esa.beam.framework.ui.GridBagUtils;
+import org.esa.beam.framework.ui.PixelInfoView;
+import org.esa.beam.framework.ui.RGBImageProfilePane;
+import org.esa.beam.framework.ui.SuppressibleOptionPane;
+import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.config.ConfigDialog;
 import org.esa.beam.framework.ui.config.DefaultConfigPage;
 import org.esa.beam.framework.ui.product.FigureLayer;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
+import static org.esa.beam.visat.VisatApp.*;
 import org.esa.beam.visat.actions.ShowModuleManagerAction;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.UIManager;
 import java.awt.*;
 import java.util.prefs.Preferences;
 
@@ -53,6 +67,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
         layerPropertiesPage.addSubPage(new NoDataOverlayPage());
         layerPropertiesPage.addSubPage(new GraticuleOverlayPage());
         layerPropertiesPage.addSubPage(new PinOverlayPage());
+        layerPropertiesPage.addSubPage(new GCPOverlayPage());
         layerPropertiesPage.addSubPage(new ShapeFigureOverlayPage());
         layerPropertiesPage.addSubPage(new ROIOverlayPage());
         addRootPage(layerPropertiesPage);
@@ -76,53 +91,52 @@ public class VisatPreferencesDialog extends ConfigDialog {
         }
 
         protected void initConfigParams(ParamGroup configParams) {
-            _suppressibleOptionPane = VisatApp.getApp().getSuppressibleOptionPane();
+            _suppressibleOptionPane = getApp().getSuppressibleOptionPane();
             _unsupressParam = new Parameter("unsuppress", Boolean.FALSE);
             _unsupressParam.getProperties().setLabel("Show all suppressed tips and messages again");/*I18N*/
 
             Parameter param;
 
-            param = new Parameter(VisatApp.PROPERTY_KEY_LOW_MEMORY_LIMIT, new Integer(20));
+            param = new Parameter(PROPERTY_KEY_LOW_MEMORY_LIMIT, 20);
             param.getProperties().setLabel("On low memory, warn if free RAM falls below: "); /*I18N*/
             param.getProperties().setPhysicalUnit("M"); /*I18N*/
-            param.getProperties().setMinValue(new Integer(0));
-            param.getProperties().setMaxValue(new Integer(500));
+            param.getProperties().setMinValue(0);
+            param.getProperties().setMaxValue(500);
             configParams.addParameter(param);
 
-            param = new Parameter(VisatApp.PROPERTY_KEY_AUTO_LOAD_DATA_LIMIT,
-                                  new Integer(VisatApp.PROPERTY_DEFAULT_AUTO_LOAD_DATA_LIMIT));
+            param = new Parameter(PROPERTY_KEY_AUTO_LOAD_DATA_LIMIT,
+                                  PROPERTY_DEFAULT_AUTO_LOAD_DATA_LIMIT);
             param.getProperties().setLabel("On image open, load raster data only if size is below: ");/*I18N*/
             param.getProperties().setPhysicalUnit("M"); /*I18N*/
-            param.getProperties().setMinValue(new Integer(0));
-            param.getProperties().setMaxValue(new Integer(1000));
+            param.getProperties().setMinValue(0);
+            param.getProperties().setMaxValue(1000);
             configParams.addParameter(param);
 
-            param = new Parameter(VisatApp.PROPERTY_KEY_AUTO_UNLOAD_DATA, Boolean.TRUE);
+            param = new Parameter(PROPERTY_KEY_AUTO_UNLOAD_DATA, Boolean.TRUE);
             param.getProperties().setLabel("On image close, unload raster data"); /*I18N*/
             configParams.addParameter(param);
 
-            param = new Parameter(VisatApp.PROPERTY_KEY_AUTO_SHOW_NEW_BANDS, Boolean.TRUE);
+            param = new Parameter(PROPERTY_KEY_AUTO_SHOW_NEW_BANDS, Boolean.TRUE);
             param.getProperties().setLabel("Open image view for new (virtual) bands"); /*I18N*/
             configParams.addParameter(param);
 
-            param = new Parameter(VisatApp.PROPERTY_KEY_AUTO_SHOW_NAVIGATION, Boolean.TRUE);
+            param = new Parameter(PROPERTY_KEY_AUTO_SHOW_NAVIGATION, Boolean.TRUE);
             param.getProperties().setLabel("Show navigation window when image views are opened"); /*I18N*/
             configParams.addParameter(param);
 
-            param = new Parameter(VisatApp.PROPERTY_KEY_BIG_PRODUCT_SIZE, new Integer(100));
+            param = new Parameter(PROPERTY_KEY_BIG_PRODUCT_SIZE, 100);
             param.getProperties().setLabel("On product open, warn if product size exceeds: "); /*I18N*/
             param.getProperties().setPhysicalUnit("M"); /*I18N*/
-            param.getProperties().setMinValue(new Integer(10));
-            param.getProperties().setMaxValue(new Integer(1000));
+            param.getProperties().setMinValue(10);
+            param.getProperties().setMaxValue(1000);
             configParams.addParameter(param);
 
             param = new Parameter(PixelInfoView.PROPERTY_KEY_SHOW_ONLY_LOADED_OR_DISPLAYED_BAND_PIXEL_VALUES,
-                                  new Boolean(
-                                          PixelInfoView.PROPERTY_DEFAULT_SHOW_ONLY_LOADED_OR_DISPLAYED_BAND_PIXEL_VALUES));
+                                  PixelInfoView.PROPERTY_DEFAULT_SHOW_ONLY_LOADED_OR_DISPLAYED_BAND_PIXEL_VALUES);
             param.getProperties().setLabel("Show only pixel values of loaded or displayed bands"); /*I18N*/
             configParams.addParameter(param);
 
-            param = new Parameter(VisatApp.PROPERTY_KEY_VERSION_CHECK_ENABLED, Boolean.TRUE);
+            param = new Parameter(PROPERTY_KEY_VERSION_CHECK_ENABLED, Boolean.TRUE);
             param.getProperties().setLabel("Check for new version on VISAT start"); /*I18N*/
             configParams.addParameter(param);
         }
@@ -139,11 +153,11 @@ public class VisatPreferencesDialog extends ConfigDialog {
             gbc = GridBagUtils.createConstraints("fill=HORIZONTAL, anchor=WEST, weightx=1, gridy=1");
             gbc.gridy++;
 
-            param = getConfigParam(VisatApp.PROPERTY_KEY_AUTO_SHOW_NAVIGATION);
+            param = getConfigParam(PROPERTY_KEY_AUTO_SHOW_NAVIGATION);
             displaySettingsPane.add(param.getEditor().getEditorComponent(), gbc);
             gbc.gridy++;
 
-            param = getConfigParam(VisatApp.PROPERTY_KEY_AUTO_SHOW_NEW_BANDS);
+            param = getConfigParam(PROPERTY_KEY_AUTO_SHOW_NEW_BANDS);
             displaySettingsPane.add(param.getEditor().getEditorComponent(), gbc);
             gbc.gridy++;
 
@@ -159,7 +173,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             gbc = GridBagUtils.createConstraints("fill=HORIZONTAL, anchor=WEST, weightx=1, gridy=1");
             gbc.gridy++;
 
-            param = getConfigParam(VisatApp.PROPERTY_KEY_BIG_PRODUCT_SIZE);
+            param = getConfigParam(PROPERTY_KEY_BIG_PRODUCT_SIZE);
             GridBagUtils.addToPanel(memorySettingsPane, param.getEditor().getLabelComponent(), gbc, "weightx=0");
             GridBagUtils.addToPanel(memorySettingsPane, param.getEditor().getEditorComponent(), gbc, "weightx=1");
             GridBagUtils.addToPanel(memorySettingsPane, param.getEditor().getPhysUnitLabelComponent(), gbc,
@@ -168,21 +182,21 @@ public class VisatPreferencesDialog extends ConfigDialog {
 
             gbc.insets.top = _LINE_INSET_TOP;
 
-            param = getConfigParam(VisatApp.PROPERTY_KEY_LOW_MEMORY_LIMIT);
+            param = getConfigParam(PROPERTY_KEY_LOW_MEMORY_LIMIT);
             GridBagUtils.addToPanel(memorySettingsPane, param.getEditor().getLabelComponent(), gbc, "weightx=0");
             GridBagUtils.addToPanel(memorySettingsPane, param.getEditor().getEditorComponent(), gbc, "weightx=1");
             GridBagUtils.addToPanel(memorySettingsPane, param.getEditor().getPhysUnitLabelComponent(), gbc,
                                     "weightx=0");
             gbc.gridy++;
 
-            param = getConfigParam(VisatApp.PROPERTY_KEY_AUTO_LOAD_DATA_LIMIT);
+            param = getConfigParam(PROPERTY_KEY_AUTO_LOAD_DATA_LIMIT);
             GridBagUtils.addToPanel(memorySettingsPane, param.getEditor().getLabelComponent(), gbc, "weightx=0");
             GridBagUtils.addToPanel(memorySettingsPane, param.getEditor().getEditorComponent(), gbc, "weightx=1");
             GridBagUtils.addToPanel(memorySettingsPane, param.getEditor().getPhysUnitLabelComponent(), gbc,
                                     "weightx=0");
             gbc.gridy++;
 
-            param = getConfigParam(VisatApp.PROPERTY_KEY_AUTO_UNLOAD_DATA);
+            param = getConfigParam(PROPERTY_KEY_AUTO_UNLOAD_DATA);
             GridBagUtils.addToPanel(memorySettingsPane, param.getEditor().getEditorComponent(), gbc, "gridwidth=3");
             gbc.gridy++;
 
@@ -194,7 +208,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             gbc = GridBagUtils.createConstraints("fill=HORIZONTAL, anchor=WEST, weightx=1, gridy=1");
             gbc.gridy++;
 
-            param = getConfigParam(VisatApp.PROPERTY_KEY_VERSION_CHECK_ENABLED);
+            param = getConfigParam(PROPERTY_KEY_VERSION_CHECK_ENABLED);
             otherSettingsPane.add(param.getEditor().getEditorComponent(), gbc);
             gbc.gridy++;
 
@@ -220,7 +234,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
         }
 
         public void onOK() {
-            if (((Boolean) _unsupressParam.getValue()).booleanValue()) {
+            if ((Boolean) _unsupressParam.getValue()) {
                 _suppressibleOptionPane.unSuppressDialogs();
             }
         }
@@ -233,7 +247,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
 
     public static class AppearancePage extends DefaultConfigPage {
 
-        private static final String PROPERTY_KEY_APP_UI_LAF_CLASS_NAME = VisatApp.PROPERTY_KEY_APP_UI_LAF;
+        private static final String PROPERTY_KEY_APP_UI_LAF_CLASS_NAME = PROPERTY_KEY_APP_UI_LAF;
         private static final String PROPERTY_KEY_APP_UI_LAF_NAME = PROPERTY_KEY_APP_UI_LAF_CLASS_NAME + ".name";
 
         public AppearancePage() {
@@ -251,18 +265,18 @@ public class VisatPreferencesDialog extends ConfigDialog {
 
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 
-            param = new Parameter(VisatApp.PROPERTY_KEY_APP_UI_USE_SYSTEM_FONT_SETTINGS, Boolean.TRUE);
+            param = new Parameter(PROPERTY_KEY_APP_UI_USE_SYSTEM_FONT_SETTINGS, Boolean.TRUE);
             param.getProperties().setLabel("Use system font settings");
             param.addParamChangeListener(paramChangeListener);
             configParams.addParameter(param);
 
-            param = new Parameter(VisatApp.PROPERTY_KEY_APP_UI_FONT_NAME, "SansSerif");
+            param = new Parameter(PROPERTY_KEY_APP_UI_FONT_NAME, "SansSerif");
             param.getProperties().setValueSet(ge.getAvailableFontFamilyNames());
             param.getProperties().setValueSetBound(true);
             param.getProperties().setLabel("Font name");
             configParams.addParameter(param);
 
-            param = new Parameter(VisatApp.PROPERTY_KEY_APP_UI_FONT_SIZE, new Integer(9));
+            param = new Parameter(PROPERTY_KEY_APP_UI_FONT_SIZE, 9);
             param.getProperties().setValueSet(new String[]{"8", "9", "10", "11", "12", "13", "14", "15", "16"});
             param.getProperties().setValueSetBound(false);
             param.getProperties().setLabel("Font size");
@@ -291,7 +305,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             gbc.gridy = 0;
             gbc.insets.bottom = 10;
 
-            param = getConfigParam(VisatApp.PROPERTY_KEY_APP_UI_USE_SYSTEM_FONT_SETTINGS);
+            param = getConfigParam(PROPERTY_KEY_APP_UI_USE_SYSTEM_FONT_SETTINGS);
             gbc.weightx = 0;
             gbc.gridwidth = 2;
             fontPane.add(param.getEditor().getEditorComponent(), gbc);
@@ -299,14 +313,14 @@ public class VisatPreferencesDialog extends ConfigDialog {
             gbc.gridy++;
             gbc.insets.bottom = 4;
 
-            param = getConfigParam(VisatApp.PROPERTY_KEY_APP_UI_FONT_NAME);
+            param = getConfigParam(PROPERTY_KEY_APP_UI_FONT_NAME);
             gbc.weightx = 0;
             fontPane.add(param.getEditor().getLabelComponent(), gbc);
             gbc.weightx = 1;
             fontPane.add(param.getEditor().getEditorComponent(), gbc);
             gbc.gridy++;
 
-            param = getConfigParam(VisatApp.PROPERTY_KEY_APP_UI_FONT_SIZE);
+            param = getConfigParam(PROPERTY_KEY_APP_UI_FONT_SIZE);
             gbc.weightx = 0;
             fontPane.add(param.getEditor().getLabelComponent(), gbc);
             gbc.weightx = 1;
@@ -343,10 +357,10 @@ public class VisatPreferencesDialog extends ConfigDialog {
 
         @Override
         public void updatePageUI() {
-            Parameter param1 = getConfigParam(VisatApp.PROPERTY_KEY_APP_UI_USE_SYSTEM_FONT_SETTINGS);
-            boolean enabled = !((Boolean) param1.getValue()).booleanValue();
-            getConfigParam(VisatApp.PROPERTY_KEY_APP_UI_FONT_NAME).setUIEnabled(enabled);
-            getConfigParam(VisatApp.PROPERTY_KEY_APP_UI_FONT_SIZE).setUIEnabled(enabled);
+            Parameter param1 = getConfigParam(PROPERTY_KEY_APP_UI_USE_SYSTEM_FONT_SETTINGS);
+            boolean enabled = !(Boolean) param1.getValue();
+            getConfigParam(PROPERTY_KEY_APP_UI_FONT_NAME).setUIEnabled(enabled);
+            getConfigParam(PROPERTY_KEY_APP_UI_FONT_SIZE).setUIEnabled(enabled);
         }
 
         @Override
@@ -524,8 +538,8 @@ public class VisatPreferencesDialog extends ConfigDialog {
                     g2d.setColor(Color.blue);
                     g2d.drawRect(pixel.x, pixel.y, pixel.width, pixel.height);
 
-                    final float offsetX = ((Float) _paramOffsetX.getValue()).floatValue();
-                    final float offsetY = ((Float) _paramOffsetY.getValue()).floatValue();
+                    final float offsetX = (Float) _paramOffsetX.getValue();
+                    final float offsetY = (Float) _paramOffsetY.getValue();
                     final int posX = Math.round(pixelSize * offsetX + pixel.x);
                     final int posY = Math.round(pixelSize * offsetY + pixel.y);
                     drawPos(g2d, posX, posY);
@@ -553,29 +567,28 @@ public class VisatPreferencesDialog extends ConfigDialog {
             };
 
             final ParamProperties propertiesX = new ParamProperties(Float.class);
-            propertiesX.setDefaultValue(new Float(VisatApp.PROPERTY_DEFAULT_PIXEL_OFFSET_FOR_DISPLAY));
-            propertiesX.setMinValue(new Float(0));
-            propertiesX.setMaxValue(new Float(1f));
+            propertiesX.setDefaultValue(new Float(PROPERTY_DEFAULT_PIXEL_OFFSET_FOR_DISPLAY));
+            propertiesX.setMinValue(0.0f);
+            propertiesX.setMaxValue(1.0f);
             propertiesX.setLabel("Relative pixel-X offset");
-            _paramOffsetX = new Parameter(VisatApp.PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_X, propertiesX);
+            _paramOffsetX = new Parameter(PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_X, propertiesX);
             _paramOffsetX.addParamChangeListener(paramChangeListener);
             configParams.addParameter(_paramOffsetX);
 
 
             final ParamProperties propertiesY = new ParamProperties(Float.class);
-            propertiesY.setDefaultValue(new Float(VisatApp.PROPERTY_DEFAULT_PIXEL_OFFSET_FOR_DISPLAY));
-            propertiesY.setMinValue(new Float(0));
-            propertiesY.setMaxValue(new Float(1f));
+            propertiesY.setDefaultValue(new Float(PROPERTY_DEFAULT_PIXEL_OFFSET_FOR_DISPLAY));
+            propertiesY.setMinValue(0.0f);
+            propertiesY.setMaxValue(1.0f);
             propertiesY.setLabel("Relative pixel-Y offset");
-            _paramOffsetY = new Parameter(VisatApp.PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_Y, propertiesY);
+            _paramOffsetY = new Parameter(PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_Y, propertiesY);
             _paramOffsetY.addParamChangeListener(paramChangeListener);
             configParams.addParameter(_paramOffsetY);
 
             final ParamProperties propShowDecimals = new ParamProperties(Boolean.class);
-            propShowDecimals.setDefaultValue(
-                    new Boolean(VisatApp.PROPERTY_DEFAULT_PIXEL_OFFSET_FOR_DISPLAY_SHOW_DECIMALS));
+            propShowDecimals.setDefaultValue(PROPERTY_DEFAULT_PIXEL_OFFSET_FOR_DISPLAY_SHOW_DECIMALS);
             propShowDecimals.setLabel("Show floating-point image coordinates");
-            _paramShowDecimals = new Parameter(VisatApp.PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_SHOW_DECIMALS,
+            _paramShowDecimals = new Parameter(PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_SHOW_DECIMALS,
                                                propShowDecimals);
             configParams.addParameter(_paramShowDecimals);
         }
@@ -590,34 +603,30 @@ public class VisatPreferencesDialog extends ConfigDialog {
         protected void initConfigParams(ParamGroup configParams) {
             Parameter param;
 
-            Boolean value = new Boolean(VisatApp.DEFAULT_VALUE_SAVE_PRODUCT_HEADERS);
-            param = new Parameter(VisatApp.PROPERTY_KEY_SAVE_PRODUCT_HEADERS, value);
+            param = new Parameter(PROPERTY_KEY_SAVE_PRODUCT_HEADERS, DEFAULT_VALUE_SAVE_PRODUCT_HEADERS);
             param.getProperties().setLabel("Save product header (MPH, SPH)"); /*I18N*/
             param.addParamChangeListener(new ParamChangeListener() {
                 public void parameterValueChanged(ParamChangeEvent event) {
-                    Parameter configParam = getConfigParam(VisatApp.PROPERTY_KEY_SAVE_PRODUCT_ANNOTATIONS);
-                    boolean b = ((Boolean) event.getParameter().getValue()).booleanValue();
+                    Parameter configParam = getConfigParam(PROPERTY_KEY_SAVE_PRODUCT_ANNOTATIONS);
+                    boolean b = (Boolean) event.getParameter().getValue();
                     configParam.setUIEnabled(b);
                     if (!b) {
-                        configParam.setValue(new Boolean(false), null);
+                        configParam.setValue(false, null);
                     }
                 }
             });
             configParams.addParameter(param);
 
 
-            value = new Boolean(VisatApp.DEFAULT_VALUE_SAVE_PRODUCT_HISTORY);
-            param = new Parameter(VisatApp.PROPERTY_KEY_SAVE_PRODUCT_HISTORY, value);
+            param = new Parameter(PROPERTY_KEY_SAVE_PRODUCT_HISTORY, DEFAULT_VALUE_SAVE_PRODUCT_HISTORY);
             param.getProperties().setLabel("Save product history (History)"); /*I18N*/
             configParams.addParameter(param);
 
-            value = new Boolean(VisatApp.DEFAULT_VALUE_SAVE_PRODUCT_ANNOTATIONS);
-            param = new Parameter(VisatApp.PROPERTY_KEY_SAVE_PRODUCT_ANNOTATIONS, value);
+            param = new Parameter(PROPERTY_KEY_SAVE_PRODUCT_ANNOTATIONS, DEFAULT_VALUE_SAVE_PRODUCT_ANNOTATIONS);
             param.getProperties().setLabel("Save product annotation datasets (ADS)"); /*I18N*/
             configParams.addParameter(param);
 
-            value = new Boolean(VisatApp.DEFAULT_VALUE_SAVE_INCREMENTAL);
-            param = new Parameter(VisatApp.PROPERTY_KEY_SAVE_INCREMENTAL, value);
+            param = new Parameter(PROPERTY_KEY_SAVE_INCREMENTAL, DEFAULT_VALUE_SAVE_INCREMENTAL);
             param.getProperties().setLabel("Use incremental Save"); /*I18N*/
             configParams.addParameter(param);
         }
@@ -635,19 +644,19 @@ public class VisatPreferencesDialog extends ConfigDialog {
             gbc = GridBagUtils.createConstraints("fill=HORIZONTAL,anchor=WEST, weightx=1");
 
             gbc.gridy = 0;
-            param = getConfigParam(VisatApp.PROPERTY_KEY_SAVE_PRODUCT_HEADERS);
+            param = getConfigParam(PROPERTY_KEY_SAVE_PRODUCT_HEADERS);
             beamDimap.add(param.getEditor().getEditorComponent(), gbc);
             gbc.gridy++;
 
-            param = getConfigParam(VisatApp.PROPERTY_KEY_SAVE_PRODUCT_HISTORY);
+            param = getConfigParam(PROPERTY_KEY_SAVE_PRODUCT_HISTORY);
             beamDimap.add(param.getEditor().getEditorComponent(), gbc);
             gbc.gridy++;
 
-            param = getConfigParam(VisatApp.PROPERTY_KEY_SAVE_PRODUCT_ANNOTATIONS);
+            param = getConfigParam(PROPERTY_KEY_SAVE_PRODUCT_ANNOTATIONS);
             GridBagUtils.addToPanel(beamDimap, param.getEditor().getEditorComponent(), gbc);
             gbc.gridy++;
 
-            param = getConfigParam(VisatApp.PROPERTY_KEY_SAVE_INCREMENTAL);
+            param = getConfigParam(PROPERTY_KEY_SAVE_INCREMENTAL);
             GridBagUtils.addToPanel(beamDimap, param.getEditor().getEditorComponent(), gbc);
             gbc.gridy++;
 
@@ -712,11 +721,11 @@ public class VisatPreferencesDialog extends ConfigDialog {
             ParamGroup group = configParams;
             Parameter param;
 
-            param = new Parameter(VisatApp.PROPERTY_KEY_JAI_TILE_CACHE_CAPACITY, new Integer(256));
+            param = new Parameter(PROPERTY_KEY_JAI_TILE_CACHE_CAPACITY, 256);
             param.getProperties().setLabel("Tile cache capacity"); /*I18N*/
             param.getProperties().setPhysicalUnit("M"); /*I18N*/
-            param.getProperties().setMinValue(new Integer(32));
-            param.getProperties().setMaxValue(new Integer(16384));
+            param.getProperties().setMinValue(32);
+            param.getProperties().setMaxValue(16384);
             configParams.addParameter(param);
 
             param = new Parameter(ProductSceneView.PROPERTY_KEY_IMAGE_INTERPOLATION,
@@ -745,7 +754,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             });
             group.addParameter(param);
 
-            param = new Parameter("image.border.size", new Double(ProductSceneView.DEFAULT_IMAGE_BORDER_SIZE));
+            param = new Parameter("image.border.size", ProductSceneView.DEFAULT_IMAGE_BORDER_SIZE);
             param.getProperties().setLabel("Image border size"); /*I18N*/
             group.addParameter(param);
 
@@ -797,7 +806,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
 
             gbc.insets.top = 3 * _LINE_INSET_TOP;
 
-            param = getConfigParam(VisatApp.PROPERTY_KEY_JAI_TILE_CACHE_CAPACITY);
+            param = getConfigParam(PROPERTY_KEY_JAI_TILE_CACHE_CAPACITY);
             gbc.weightx = 0;
             pageUI.add(param.getEditor().getLabelComponent(), gbc);
             gbc.weightx = 1;
@@ -864,7 +873,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
         }
 
         public void updatePageUI() {
-            boolean enabled = ((Boolean) getConfigParam("image.border.shown").getValue()).booleanValue();
+            boolean enabled = (Boolean) getConfigParam("image.border.shown").getValue();
             setConfigParamUIEnabled("image.border.size", enabled);
             setConfigParamUIEnabled("image.border.color", enabled);
         }
@@ -890,36 +899,36 @@ public class VisatPreferencesDialog extends ConfigDialog {
             param.getProperties().setLabel("Compute latitude and longitude steps"); /*I18N*/
             configParams.addParameter(param);
 
-            param = new Parameter("graticule.res.pixels", new Integer(128));
+            param = new Parameter("graticule.res.pixels", 128);
             param.getProperties().setLabel("Average grid size in pixels"); /*I18N*/
-            param.getProperties().setMinValue(new Integer(16));
-            param.getProperties().setMaxValue(new Integer(512));
+            param.getProperties().setMinValue(16);
+            param.getProperties().setMaxValue(512);
             configParams.addParameter(param);
 
-            param = new Parameter("graticule.res.lat", new Double(1.0));
+            param = new Parameter("graticule.res.lat", 1.0);
             param.getProperties().setLabel("Latitude step (dec. degree)"); /*I18N*/
-            param.getProperties().setMinValue(new Double(0.01));
-            param.getProperties().setMaxValue(new Double(90));
+            param.getProperties().setMinValue(0.01);
+            param.getProperties().setMaxValue(90.0);
             configParams.addParameter(param);
 
-            param = new Parameter("graticule.res.lon", new Double(1.0));
+            param = new Parameter("graticule.res.lon", 1.0);
             param.getProperties().setLabel("Longitude step (dec. degree)"); /*I18N*/
-            param.getProperties().setMinValue(new Double(0.01));
-            param.getProperties().setMaxValue(new Double(180));
+            param.getProperties().setMinValue(0.01);
+            param.getProperties().setMaxValue(180.0);
             configParams.addParameter(param);
 
             param = new Parameter("graticule.line.color", new Color(204, 204, 255));
             param.getProperties().setLabel("Line color"); /*I18N*/
             configParams.addParameter(param);
 
-            param = new Parameter("graticule.line.width", new Double(0.5));
+            param = new Parameter("graticule.line.width", 0.5);
             param.getProperties().setLabel("Line width"); /*I18N*/
             configParams.addParameter(param);
 
-            param = new Parameter("graticule.line.transparency", new Double(0));
+            param = new Parameter("graticule.line.transparency", 0.0);
             param.getProperties().setLabel("Line transparency"); /*I18N*/
-            param.getProperties().setMinValue(new Double(0));
-            param.getProperties().setMaxValue(new Double(1));
+            param.getProperties().setMinValue(0.0);
+            param.getProperties().setMaxValue(1.0);
             configParams.addParameter(param);
 
             param = new Parameter("graticule.text.enabled", Boolean.TRUE);
@@ -935,10 +944,10 @@ public class VisatPreferencesDialog extends ConfigDialog {
             param.getProperties().setLabel("Text background color"); /*I18N*/
             configParams.addParameter(param);
 
-            param = new Parameter("graticule.text.bg.transparency", new Double(0.7));
+            param = new Parameter("graticule.text.bg.transparency", 0.7);
             param.getProperties().setLabel("Text background transparency"); /*I18N*/
-            param.getProperties().setMinValue(new Double(0));
-            param.getProperties().setMaxValue(new Double(1));
+            param.getProperties().setMinValue(0.0);
+            param.getProperties().setMaxValue(1.0);
             configParams.addParameter(param);
         }
 
@@ -1062,12 +1071,12 @@ public class VisatPreferencesDialog extends ConfigDialog {
         }
 
         public void updatePageUI() {
-            final boolean resAuto = ((Boolean) getConfigParam("graticule.res.auto").getValue()).booleanValue();
+            final boolean resAuto = (Boolean) getConfigParam("graticule.res.auto").getValue();
             getConfigParam("graticule.res.pixels").setUIEnabled(resAuto);
             getConfigParam("graticule.res.lat").setUIEnabled(!resAuto);
             getConfigParam("graticule.res.lon").setUIEnabled(!resAuto);
 
-            final boolean textEnabled = ((Boolean) getConfigParam("graticule.text.enabled").getValue()).booleanValue();
+            final boolean textEnabled = (Boolean) getConfigParam("graticule.text.enabled").getValue();
             getConfigParam("graticule.text.fg.color").setUIEnabled(textEnabled);
             getConfigParam("graticule.text.bg.color").setUIEnabled(textEnabled);
             getConfigParam("graticule.text.bg.transparency").setUIEnabled(textEnabled);
@@ -1102,10 +1111,10 @@ public class VisatPreferencesDialog extends ConfigDialog {
             param.getProperties().setLabel("Text background color"); /*I18N*/
             configParams.addParameter(param);
 
-            param = new Parameter("pin.text.bg.transparency", new Double(0.7));
+            param = new Parameter("pin.text.bg.transparency", 0.7);
             param.getProperties().setLabel("Text background transparency"); /*I18N*/
-            param.getProperties().setMinValue(new Double(0));
-            param.getProperties().setMaxValue(new Double(1));
+            param.getProperties().setMinValue(0.0);
+            param.getProperties().setMaxValue(1.0);
             configParams.addParameter(param);
         }
 
@@ -1160,10 +1169,103 @@ public class VisatPreferencesDialog extends ConfigDialog {
         }
 
         public void updatePageUI() {
-            final boolean textEnabled = ((Boolean) getConfigParam("pin.text.enabled").getValue()).booleanValue();
+            final boolean textEnabled = (Boolean) getConfigParam("pin.text.enabled").getValue();
             getConfigParam("pin.text.fg.color").setUIEnabled(textEnabled);
             getConfigParam("pin.text.bg.color").setUIEnabled(textEnabled);
             getConfigParam("pin.text.bg.transparency").setUIEnabled(textEnabled);
+        }
+    }
+
+    public static class GCPOverlayPage extends DefaultConfigPage {
+
+        public GCPOverlayPage() {
+            setTitle("GCP Layer"); /*I18N*/
+        }
+
+        protected void initConfigParams(ParamGroup configParams) {
+            Parameter param;
+
+            final ParamChangeListener paramChangeListener = new ParamChangeListener() {
+                public void parameterValueChanged(ParamChangeEvent event) {
+                    updatePageUI();
+                }
+            };
+
+            param = new Parameter("gcp.text.enabled", Boolean.TRUE);
+            param.addParamChangeListener(paramChangeListener);
+            param.getProperties().setLabel("Show text labels"); /*I18N*/
+            configParams.addParameter(param);
+
+            param = new Parameter("gcp.text.fg.color", Color.white);
+            param.getProperties().setLabel("Text foreground color"); /*I18N*/
+            configParams.addParameter(param);
+
+            param = new Parameter("gcp.text.bg.color", Color.black);
+            param.getProperties().setLabel("Text background color"); /*I18N*/
+            configParams.addParameter(param);
+
+            param = new Parameter("gcp.text.bg.transparency", 0.7);
+            param.getProperties().setLabel("Text background transparency"); /*I18N*/
+            param.getProperties().setMinValue(0.0);
+            param.getProperties().setMaxValue(1.0);
+            configParams.addParameter(param);
+        }
+
+        protected void initPageUI() {
+            JPanel pageUI = createPageUI();
+            setPageUI(pageUI);
+        }
+
+        private JPanel createPageUI() {
+            Parameter param;
+
+            JPanel pageUI = GridBagUtils.createPanel();
+            //pageUI.setBorder(UIUtils.createGroupBorder("Graticule Overlay")); /*I18N*/
+
+            GridBagConstraints gbc = GridBagUtils.createConstraints("fill=HORIZONTAL,anchor=WEST");
+            gbc.gridy = 0;
+
+            gbc.insets.top = _LINE_INSET_TOP;
+
+            param = getConfigParam("gcp.text.enabled");
+            gbc.weightx = 0;
+            gbc.gridwidth = 2;
+            gbc.weightx = 1;
+            pageUI.add(param.getEditor().getEditorComponent(), gbc);
+            gbc.gridwidth = 1;
+            gbc.gridy++;
+
+            gbc.insets.top = _LINE_INSET_TOP;
+
+            param = getConfigParam("gcp.text.fg.color");
+            gbc.weightx = 0;
+            pageUI.add(param.getEditor().getLabelComponent(), gbc);
+            gbc.weightx = 1;
+            pageUI.add(param.getEditor().getEditorComponent(), gbc);
+            gbc.gridy++;
+
+            param = getConfigParam("gcp.text.bg.color");
+            gbc.weightx = 0;
+            pageUI.add(param.getEditor().getLabelComponent(), gbc);
+            gbc.weightx = 1;
+            pageUI.add(param.getEditor().getEditorComponent(), gbc);
+            gbc.gridy++;
+
+            param = getConfigParam("gcp.text.bg.transparency");
+            gbc.weightx = 0;
+            pageUI.add(param.getEditor().getLabelComponent(), gbc);
+            gbc.weightx = 1;
+            pageUI.add(param.getEditor().getEditorComponent(), gbc);
+            gbc.gridy++;
+
+            return createPageUIContentPane(pageUI);
+        }
+
+        public void updatePageUI() {
+            final boolean textEnabled = (Boolean) getConfigParam("gcp.text.enabled").getValue();
+            getConfigParam("gcp.text.fg.color").setUIEnabled(textEnabled);
+            getConfigParam("gcp.text.bg.color").setUIEnabled(textEnabled);
+            getConfigParam("gcp.text.bg.transparency").setUIEnabled(textEnabled);
         }
     }
 
@@ -1184,38 +1286,36 @@ public class VisatPreferencesDialog extends ConfigDialog {
                 }
             };
 
-            param = new Parameter("shape.outlined", new Boolean(FigureLayer.DEFAULT_SHAPE_OUTLINED));
+            param = new Parameter("shape.outlined", FigureLayer.DEFAULT_SHAPE_OUTLINED);
             param.getProperties().setLabel("Outline shape"); /*I18N*/
             param.addParamChangeListener(paramChangeListener);
             group.addParameter(param);
 
-            param = new Parameter("shape.outl.transparency",
-                                  new Double(FigureLayer.DEFAULT_SHAPE_OUTL_TRANSPARENCY));
+            param = new Parameter("shape.outl.transparency", FigureLayer.DEFAULT_SHAPE_OUTL_TRANSPARENCY);
             param.getProperties().setLabel("Shape outline transparency"); /*I18N*/
-            param.getProperties().setMinValue(new Double(0.0));
-            param.getProperties().setMaxValue(new Double(0.95));
+            param.getProperties().setMinValue(0.0);
+            param.getProperties().setMaxValue(0.95);
             group.addParameter(param);
 
             param = new Parameter("shape.outl.color", FigureLayer.DEFAULT_SHAPE_OUTL_COLOR);
             param.getProperties().setLabel("Shape outline color"); /*I18N*/
             group.addParameter(param);
 
-            param = new Parameter("shape.outl.width", new Double(FigureLayer.DEFAULT_SHAPE_OUTL_WIDTH));
+            param = new Parameter("shape.outl.width", FigureLayer.DEFAULT_SHAPE_OUTL_WIDTH);
             param.getProperties().setLabel("Shape outline width"); /*I18N*/
-            param.getProperties().setMinValue(new Double(0.0));
-            param.getProperties().setMaxValue(new Double(50));
+            param.getProperties().setMinValue(0.0);
+            param.getProperties().setMaxValue(50.0);
             group.addParameter(param);
 
-            param = new Parameter("shape.filled", new Boolean(FigureLayer.DEFAULT_SHAPE_FILLED));
+            param = new Parameter("shape.filled", FigureLayer.DEFAULT_SHAPE_FILLED);
             param.getProperties().setLabel("Fill shape"); /*I18N*/
             param.addParamChangeListener(paramChangeListener);
             group.addParameter(param);
 
-            param = new Parameter("shape.fill.transparency",
-                                  new Double(FigureLayer.DEFAULT_SHAPE_FILL_TRANSPARENCY));
+            param = new Parameter("shape.fill.transparency", FigureLayer.DEFAULT_SHAPE_FILL_TRANSPARENCY);
             param.getProperties().setLabel("Shape fill transparency"); /*I18N*/
-            param.getProperties().setMinValue(new Double(0.0));
-            param.getProperties().setMaxValue(new Double(0.95));
+            param.getProperties().setMinValue(0.0);
+            param.getProperties().setMaxValue(0.95);
             group.addParameter(param);
 
             param = new Parameter("shape.fill.color", FigureLayer.DEFAULT_SHAPE_FILL_COLOR);
@@ -1296,12 +1396,12 @@ public class VisatPreferencesDialog extends ConfigDialog {
         }
 
         public void updatePageUI() {
-            boolean outlined = ((Boolean) getConfigParam("shape.outlined").getValue()).booleanValue();
+            boolean outlined = (Boolean) getConfigParam("shape.outlined").getValue();
             setConfigParamUIEnabled("shape.outl.transparency", outlined);
             setConfigParamUIEnabled("shape.outl.color", outlined);
             setConfigParamUIEnabled("shape.outl.width", outlined);
 
-            boolean filled = ((Boolean) getConfigParam("shape.filled").getValue()).booleanValue();
+            boolean filled = (Boolean) getConfigParam("shape.filled").getValue();
             setConfigParamUIEnabled("shape.fill.transparency", filled);
             setConfigParamUIEnabled("shape.fill.color", filled);
         }
@@ -1321,10 +1421,10 @@ public class VisatPreferencesDialog extends ConfigDialog {
             param.getProperties().setLabel("ROI color"); /*I18N*/
             group.addParameter(param);
 
-            param = new Parameter("roi.transparency", new Double(0.5));
+            param = new Parameter("roi.transparency", 0.5);
             param.getProperties().setLabel("ROI transparency"); /*I18N*/
-            param.getProperties().setMinValue(new Double(0.0));
-            param.getProperties().setMaxValue(new Double(0.95));
+            param.getProperties().setMinValue(0.0);
+            param.getProperties().setMaxValue(0.95);
             group.addParameter(param);
         }
 
@@ -1380,10 +1480,10 @@ public class VisatPreferencesDialog extends ConfigDialog {
             param.getProperties().setLabel("No-data overlay color"); /*I18N*/
             group.addParameter(param);
 
-            param = new Parameter("noDataOverlay.transparency", new Double(0.3));
+            param = new Parameter("noDataOverlay.transparency", 0.3);
             param.getProperties().setLabel("No-data overlay transparency"); /*I18N*/
-            param.getProperties().setMinValue(new Double(0.0));
-            param.getProperties().setMaxValue(new Double(0.95));
+            param.getProperties().setMinValue(0.0);
+            param.getProperties().setMaxValue(0.95);
             group.addParameter(param);
         }
 
@@ -1433,7 +1533,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
         protected void initConfigParams(ParamGroup configParams) {
             Parameter param;
 
-            param = new Parameter(VisatApp.PROPERTY_KEY_APP_LOG_ENABLED, Boolean.FALSE);
+            param = new Parameter(PROPERTY_KEY_APP_LOG_ENABLED, Boolean.FALSE);
             param.addParamChangeListener(new ParamChangeListener() {
 
                 public void parameterValueChanged(ParamChangeEvent event) {
@@ -1448,27 +1548,27 @@ public class VisatPreferencesDialog extends ConfigDialog {
 //            param.getProperties().setLabel("Logfile path");
 //            configParams.addParameter(param);
 
-            param = new Parameter(VisatApp.PROPERTY_KEY_APP_LOG_PREFIX, new String("visat"));
+            param = new Parameter(PROPERTY_KEY_APP_LOG_PREFIX, "visat");
             param.getProperties().setFileSelectionMode(ParamProperties.FSM_FILES_ONLY);
             param.getProperties().setLabel("Log filename prefix");
             configParams.addParameter(param);
 
-            param = new Parameter(VisatApp.PROPERTY_KEY_APP_LOG_ECHO, Boolean.FALSE);
+            param = new Parameter(PROPERTY_KEY_APP_LOG_ECHO, Boolean.FALSE);
             param.getProperties().setLabel("Echo log output (effective only with console)"); /*I18N*/
             configParams.addParameter(param);
 
-            param = new Parameter(VisatApp.PROPERTY_KEY_APP_LOG_LEVEL, SystemUtils.LLS_INFO);
+            param = new Parameter(PROPERTY_KEY_APP_LOG_LEVEL, SystemUtils.LLS_INFO);
             param.getProperties().setLabel("Log level"); /*I18N*/
             param.getProperties().setReadOnly(true);
             configParams.addParameter(param);
 
-            param = new Parameter(VisatApp.PROPERTY_KEY_APP_DEBUG_ENABLED, Boolean.FALSE);
+            param = new Parameter(PROPERTY_KEY_APP_DEBUG_ENABLED, Boolean.FALSE);
             param.getProperties().setLabel("Log extra debugging information"); /*I18N*/
             param.addParamChangeListener(new ParamChangeListener() {
                 public void parameterValueChanged(ParamChangeEvent event) {
-                    Parameter configParam = getConfigParam(VisatApp.PROPERTY_KEY_APP_LOG_LEVEL);
+                    Parameter configParam = getConfigParam(PROPERTY_KEY_APP_LOG_LEVEL);
                     if (configParam != null) {
-                        boolean isLogDebug = ((Boolean) event.getParameter().getValue()).booleanValue();
+                        boolean isLogDebug = (Boolean) event.getParameter().getValue();
                         if (isLogDebug) {
                             configParam.setValue(SystemUtils.LLS_DEBUG, null);
                         } else {
@@ -1495,13 +1595,13 @@ public class VisatPreferencesDialog extends ConfigDialog {
             gbc.gridy = 0;
 
 
-            param = getConfigParam(VisatApp.PROPERTY_KEY_APP_LOG_ENABLED);
+            param = getConfigParam(PROPERTY_KEY_APP_LOG_ENABLED);
             gbc.insets.top = _LINE_INSET_TOP;
             gbc.gridwidth = 2;
             logConfigPane.add(param.getEditor().getEditorComponent(), gbc);
             gbc.gridy++;
 
-            param = getConfigParam(VisatApp.PROPERTY_KEY_APP_LOG_PREFIX);
+            param = getConfigParam(PROPERTY_KEY_APP_LOG_PREFIX);
             gbc.gridwidth = 1;
             gbc.weightx = 0;
             logConfigPane.add(param.getEditor().getLabelComponent(), gbc);
@@ -1509,18 +1609,18 @@ public class VisatPreferencesDialog extends ConfigDialog {
             logConfigPane.add(param.getEditor().getEditorComponent(), gbc);
             gbc.gridy++;
 
-            param = getConfigParam(VisatApp.PROPERTY_KEY_APP_LOG_ECHO);
+            param = getConfigParam(PROPERTY_KEY_APP_LOG_ECHO);
             gbc.gridwidth = 2;
             logConfigPane.add(param.getEditor().getEditorComponent(), gbc);
             gbc.gridy++;
 
-            param = getConfigParam(VisatApp.PROPERTY_KEY_APP_DEBUG_ENABLED);
+            param = getConfigParam(PROPERTY_KEY_APP_DEBUG_ENABLED);
             gbc.gridwidth = 2;
             logConfigPane.add(param.getEditor().getEditorComponent(), gbc);
             gbc.gridy++;
 
             GridBagUtils.setAttributes(gbc, "gridwidth=1,weightx=0");
-            param = getConfigParam(VisatApp.PROPERTY_KEY_APP_LOG_LEVEL);
+            param = getConfigParam(PROPERTY_KEY_APP_LOG_LEVEL);
             gbc.gridwidth = 1;
             gbc.weightx = 0;
             logConfigPane.add(param.getEditor().getLabelComponent(), gbc);
@@ -1539,12 +1639,11 @@ public class VisatPreferencesDialog extends ConfigDialog {
         }
 
         public void updatePageUI() {
-            boolean enabled = ((Boolean) getConfigParam(
-                    VisatApp.PROPERTY_KEY_APP_LOG_ENABLED).getValue()).booleanValue();
-            setConfigParamUIEnabled(VisatApp.PROPERTY_KEY_APP_LOG_PREFIX, enabled);
-            setConfigParamUIEnabled(VisatApp.PROPERTY_KEY_APP_LOG_ECHO, enabled);
-            setConfigParamUIEnabled(VisatApp.PROPERTY_KEY_APP_DEBUG_ENABLED, enabled);
-            setConfigParamUIEnabled(VisatApp.PROPERTY_KEY_APP_LOG_LEVEL, enabled);
+            boolean enabled = (Boolean) getConfigParam(PROPERTY_KEY_APP_LOG_ENABLED).getValue();
+            setConfigParamUIEnabled(PROPERTY_KEY_APP_LOG_PREFIX, enabled);
+            setConfigParamUIEnabled(PROPERTY_KEY_APP_LOG_ECHO, enabled);
+            setConfigParamUIEnabled(PROPERTY_KEY_APP_DEBUG_ENABLED, enabled);
+            setConfigParamUIEnabled(PROPERTY_KEY_APP_LOG_LEVEL, enabled);
         }
     }
 
@@ -1584,12 +1683,12 @@ public class VisatPreferencesDialog extends ConfigDialog {
         }
 
         protected void initConfigParams(ParamGroup configParams) {
-            Parameter param = new Parameter(VisatApp.PROPERTY_KEY_GEOLOCATION_EPS,
-                                            new Float(VisatApp.PROPERTY_DEFAULT_GEOLOCATION_EPS));
+            Parameter param = new Parameter(PROPERTY_KEY_GEOLOCATION_EPS,
+                                            new Float(PROPERTY_DEFAULT_GEOLOCATION_EPS));
             param.getProperties().setLabel("If their geo-locations differ less than: ");/*I18N*/
             param.getProperties().setPhysicalUnit("deg"); /*I18N*/
-            param.getProperties().setMinValue(new Float(0.0f));
-            param.getProperties().setMaxValue(new Float(360.0f));
+            param.getProperties().setMinValue(0.0f);
+            param.getProperties().setMaxValue(360.0f);
             configParams.addParameter(param);
         }
 
@@ -1601,7 +1700,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             productCompatibility.setBorder(UIUtils.createGroupBorder("Product Compatibility")); /*I18N*/
             gbc = GridBagUtils.createConstraints("fill=HORIZONTAL, anchor=WEST, weightx=1, gridy=1");
 
-            param = getConfigParam(VisatApp.PROPERTY_KEY_GEOLOCATION_EPS);
+            param = getConfigParam(PROPERTY_KEY_GEOLOCATION_EPS);
             gbc.insets.bottom += 8;
             gbc.gridwidth = 3;
             productCompatibility.add(new JLabel("Consider products as spatially compatible:"), gbc); /*I18N*/

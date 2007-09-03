@@ -19,10 +19,20 @@ package org.esa.beam.dataio.dimap;
 import org.esa.beam.dataio.dimap.spi.DimapPersistable;
 import org.esa.beam.dataio.dimap.spi.DimapPersistence;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.dataop.maptransf.*;
+import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.framework.dataop.maptransf.Ellipsoid;
+import org.esa.beam.framework.dataop.maptransf.MapInfo;
+import org.esa.beam.framework.dataop.maptransf.MapProjection;
+import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
+import org.esa.beam.framework.dataop.maptransf.MapTransform;
+import org.esa.beam.framework.dataop.maptransf.MapTransformDescriptor;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
-import org.esa.beam.util.*;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.XmlHelper;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.math.FXYSum;
@@ -40,7 +50,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -676,6 +691,7 @@ public class DimapProductHelpers {
             addDisplayInfosToBandsAndTiePointGrids(product);
             addAnnotationDataset(product);
             addPins(product);
+            addGcps(product);
             addPointingFactory(product);
             return product;
         }
@@ -688,14 +704,37 @@ public class DimapProductHelpers {
         }
 
         private void addPins(Product product) {
-            final List children = getRootElement().getChildren(DimapProductConstants.TAG_PIN);
-            final int size = children.size();
-            for (int i = 0; i < size; i++) {
-                final Element pinElem = (Element) children.get(i);
+            Element pinGroup = getRootElement().getChild(DimapProductConstants.TAG_PIN_GROUP);
+            List pinElements;
+            if(pinGroup != null) {
+                pinElements = pinGroup.getChildren(DimapProductConstants.TAG_PLACEMARK);
+            }else {
+                // get pins of old DIMAP files prior version 2.3
+                pinElements = getRootElement().getChildren(DimapProductConstants.TAG_PIN);
+            }
+            for (Object pinElement : pinElements) {
+                final Element pinElem = (Element) pinElement;
                 final Pin pin = Pin.createPin(pinElem);
                 if (pin != null) {
                     pin.updatePixelPos(product.getGeoCoding());
-                    product.addPin(pin);
+                    product.getPinGroup().add(pin);
+                }
+            }
+        }
+
+        private void addGcps(Product product) {
+            Element gcpGroupElement = getRootElement().getChild(DimapProductConstants.TAG_GCP_GROUP);
+            List gcpElements ;
+            if(gcpGroupElement != null) {
+                gcpElements = gcpGroupElement.getChildren(DimapProductConstants.TAG_PLACEMARK);
+            }else {
+                gcpElements = Collections.EMPTY_LIST;
+            }
+            for (Object gcpElement : gcpElements) {
+                final Element gcpElem = (Element) gcpElement;
+                final Pin gcp = Pin.createGcp(gcpElem);
+                if (gcp != null) {
+                    product.getGcpGroup().add(gcp);
                 }
             }
         }
@@ -1068,8 +1107,14 @@ public class DimapProductHelpers {
         }
 
         private void addBitmaskDefinitions(Product product) {
-            final List children = getRootElement().getChildren(DimapProductConstants.TAG_BITMASK_DEFINITION);
-            for (Iterator iterator = children.iterator(); iterator.hasNext();) {
+            final Element bitmaskDefs = getRootElement().getChild(DimapProductConstants.TAG_BITMASK_DEFINITIONS);
+            List bitmaskDefList;
+            if(bitmaskDefs != null) {
+                bitmaskDefList = bitmaskDefs.getChildren(DimapProductConstants.TAG_BITMASK_DEFINITION);
+            }else {
+                bitmaskDefList = getRootElement().getChildren(DimapProductConstants.TAG_BITMASK_DEFINITION);
+            }
+            for (Iterator iterator = bitmaskDefList.iterator(); iterator.hasNext();) {
                 final Element bitmaskDefElem = (Element) iterator.next();
                 final BitmaskDef bitmaskDef = BitmaskDef.createBitmaskDef(bitmaskDefElem);
                 if (bitmaskDef != null) {

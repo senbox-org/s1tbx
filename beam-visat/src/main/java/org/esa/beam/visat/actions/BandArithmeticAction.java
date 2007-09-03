@@ -8,7 +8,6 @@ import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.dialogs.BandArithmetikDialog;
 
-
 import javax.swing.SwingUtilities;
 
 /**
@@ -42,9 +41,9 @@ public class BandArithmeticAction extends ExecCommand {
     private void openBandArithmeticDialog(final VisatApp visatApp, final String helpId) {
 
         final Product[] prods = visatApp.getProductManager().getProducts();
-        final ProductNodeList products = new ProductNodeList(Product.class);
-        for (int i = 0; i < prods.length; i++) {
-            products.add(prods[i]);
+        final ProductNodeList<Product> products = new ProductNodeList<Product>();
+        for (Product prod : prods) {
+            products.add(prod);
         }
         if (_bandArithmetikDialog == null) {
             _bandArithmetikDialog = new BandArithmetikDialog(visatApp,

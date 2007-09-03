@@ -5,6 +5,7 @@ import com.bc.layer.LayerModelChangeAdapter;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.draw.ShapeFigure;
+import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamException;
@@ -23,7 +24,6 @@ import org.esa.beam.framework.ui.product.BandChooser;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.ProductTreeListener;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
@@ -508,7 +508,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
                     continue;
                 }
                 final ROIDefinition newRoiDefinition = currentRoiDefinition.createCopy();
-                if (currentRoiDefinition.isPinUseEnabled() && selectedProduct.getNumPins() == 0) {
+                if (currentRoiDefinition.isPinUseEnabled() && selectedProduct.getPinGroup().getNodeCount() == 0) {
                     newRoiDefinition.setPinUseEnabled(false);
                 }
 
@@ -862,7 +862,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
         final boolean shapesCritSet = (Boolean) _shapesEnabledParam.getValue();
         boolean bitmaskCritPossible = false;
         boolean bitmaskCritSet = (Boolean) _bitmaskEnabledParam.getValue();
-        final boolean pinCritPossible = getProduct() != null && getProduct().getNumPins() > 0;
+        final boolean pinCritPossible = getProduct() != null && getProduct().getPinGroup().getNodeCount() > 0;
         boolean pinCritSet = (Boolean) _pinsEnabledParam.getValue();
 
         if (roiPossible) {
