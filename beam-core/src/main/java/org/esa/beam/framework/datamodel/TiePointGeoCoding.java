@@ -27,7 +27,7 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 
 /**
- * A geo-coding based on two tie-point grids. One grid stores the latitude tie-points, the other stores the longitide
+ * A geo-coding based on two tie-point grids. One grid stores the latitude tie-points, the other stores the longitude
  * tie-points.
  */
 public class TiePointGeoCoding extends AbstractGeoCoding {
@@ -603,9 +603,9 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
 
         float sumLat = 0.0f;
         float sumLon = 0.0f;
-        for (int i = 0; i < data.length; i++) {
-            sumLat += data[i][0];
-            sumLon += data[i][1];
+        for (final double[] point : data) {
+            sumLat += point[0];
+            sumLon += point[1];
         }
         float centerLon = sumLon / data.length;
         float centerLat = sumLat / data.length;
@@ -615,9 +615,9 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
 
     private static float getMaxSquareDistance(final double[][] data, float centerLat, float centerLon) {
         float maxSquareDistance = 0.0f;
-        for (int i = 0; i < data.length; i++) {
-            final float dLat = (float) data[i][0] - centerLat;
-            final float dLon = (float) data[i][1] - centerLon;
+        for (final double[] point : data) {
+            final float dLat = (float) point[0] - centerLat;
+            final float dLon = (float) point[1] - centerLon;
             final float squareDistance = dLat * dLat + dLon * dLon;
             if (squareDistance > maxSquareDistance) {
                 maxSquareDistance = squareDistance;
@@ -636,8 +636,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
             }
         } else {
             float minSquareDistance = Float.MAX_VALUE;
-            for (int i = 0; i < approximations.length; i++) {
-                Approximation a = approximations[i];
+            for (final Approximation a : approximations) {
                 final float squareDistance = a.getSquareDistance(lat, lon);
                 if (squareDistance < minSquareDistance && squareDistance < a.getMinSquareDistance()) {
                     minSquareDistance = squareDistance;
@@ -645,6 +644,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
                 }
             }
         }
+
         return approximation;
     }
 
