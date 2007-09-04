@@ -1,23 +1,27 @@
 package org.esa.beam.framework.gpf.operators.meris;
 
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.framework.gpf.annotations.Parameter;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.AbstractOperator;
-import org.esa.beam.framework.gpf.AbstractOperatorSpi;
+import java.awt.Rectangle;
+import java.io.File;
+import java.io.IOException;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
-import java.awt.*;
-import java.io.File;
-import java.io.IOException;
+
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.gpf.AbstractOperator;
+import org.esa.beam.framework.gpf.AbstractOperatorSpi;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.Raster;
+import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.SourceProduct;
+import org.esa.beam.framework.gpf.annotations.TargetProduct;
+
+import com.bc.ceres.core.ProgressMonitor;
 
 /**
  * The <code>N1PatcherOp</code> copies an existing N1 file
@@ -80,8 +84,6 @@ public class N1PatcherOp extends AbstractOperator {
 
     private static final int DSD_DSR_SIZE_OFFSET = 228;
 
-
-    private static final int DSR_BYTE_SIZE = 2255;
     private static final int DSR_HEADER_SIZE = 13;
 
     private byte[] mph;
@@ -103,18 +105,20 @@ public class N1PatcherOp extends AbstractOperator {
 
     private ImageInputStream inputStream;
     private ImageOutputStream outputStream;
-
+    
+    @SourceProduct(alias="input")
+    private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
 
-    private N1PatcherOp(Spi spi) {
+    
+    public N1PatcherOp(OperatorSpi spi) {
         super(spi);
     }
 
     @Override
     public Product initialize(ProgressMonitor pm) throws OperatorException {
-
-        targetProduct = getContext().getSourceProduct("input");
+        targetProduct = sourceProduct;
         try {
             inputStream = new FileImageInputStream(new File(originalFilePath));
             outputStream = new FileImageOutputStream(new File(patchFilePath));
@@ -214,9 +218,10 @@ public class N1PatcherOp extends AbstractOperator {
         return new String(buf, offset, length);
     }
 
-    public void computeTile(Band band, Rectangle rectangle,
-                            ProductData destBuffer, ProgressMonitor pm)
-            throws OperatorException {
+    @Override
+    public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+    	Band band = (Band) targetRaster.getRasterDataNode();
+    	Rectangle rectangle = targetRaster.getRectangle();
         DatasetDescriptor descriptor = getDatasetDescriptorForBand(band);
         if (descriptor == null) {
             return;
@@ -224,18 +229,17 @@ public class N1PatcherOp extends AbstractOperator {
 
         pm.beginTask("Patching product...", rectangle.height + 1);
         try {
-            band.readRasterData(rectangle.x, rectangle.y, rectangle.width,
-                                rectangle.height, destBuffer,
-                                SubProgressMonitor.create(pm, 1));
-            short[] bandData = (short[]) destBuffer.getElems();
+        	ProductData dataBuffer = targetRaster.getDataBuffer();
+            getRaster(band, rectangle, dataBuffer); 
+            short[] bandData = (short[]) dataBuffer.getElems();
 
-            byte[] buf = new byte[rectangle.height * DSR_BYTE_SIZE];
-            final long dsrOffset = descriptor.dsOffset + rectangle.y * DSR_BYTE_SIZE;
+            byte[] buf = new byte[rectangle.height * descriptor.dsrSize];
+            final long dsrOffset = descriptor.dsOffset + rectangle.y * descriptor.dsrSize;
             inputStream.seek(dsrOffset);
             inputStream.read(buf);
             outputStream.seek(dsrOffset);
             for (int y = 0; y < rectangle.height; y++) {
-                outputStream.write(buf, y * DSR_BYTE_SIZE, DSR_HEADER_SIZE);
+                outputStream.write(buf, y * descriptor.dsrSize, DSR_HEADER_SIZE);
                 for (int x = rectangle.width - 1; x >= 0; x--) {
                     outputStream.writeShort(bandData[x + y * rectangle.width]);
                 }
