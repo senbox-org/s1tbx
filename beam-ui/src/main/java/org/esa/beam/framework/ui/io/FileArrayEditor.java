@@ -121,20 +121,20 @@ public final class FileArrayEditor {
     private void createUi() {
         // the label
         final JLabel label = new JLabel(_label + ":");
-        setName(label);
+        setName(label, _label);
 
         // the list
         _listComponent = new JList();
-        setName(_listComponent);
+        setName(_listComponent, _label);
         JScrollPane scrollPane = new JScrollPane(_listComponent);
-        setName(scrollPane);
+        setName(scrollPane, _label);
         scrollPane.setPreferredSize(_listPreferredSize);
 
         // the add button
         final JButton addButton = (JButton) ToolButtonFactory.createButton(
                 UIUtils.loadImageIcon("icons/Plus16.gif"),
                 false);
-        setName(addButton);
+        setName(addButton, "addButton");
         addButton.addActionListener(
                 new ActionListener() {
 
@@ -145,7 +145,7 @@ public final class FileArrayEditor {
         // the remove button
         final JButton removeButton = (JButton) ToolButtonFactory.createButton(
                 UIUtils.loadImageIcon("icons/Minus16.gif"), false);
-        setName(removeButton);
+        setName(removeButton, "removeButton");
         removeButton.addActionListener(
                 new ActionListener() {
 
@@ -156,13 +156,13 @@ public final class FileArrayEditor {
 
         // the button panel
         final JPanel buttonPanel = new JPanel();
-        setName(buttonPanel);
+        setName(buttonPanel, _label);
         buttonPanel.add(addButton);
         buttonPanel.add(removeButton);
 
         // the base panel
         _basePanel = GridBagUtils.createDefaultEmptyBorderPanel();
-        setName(_basePanel);
+        setName(_basePanel, _label);
         final GridBagConstraints gbc = GridBagUtils.createConstraints(null);
         gbc.anchor = GridBagConstraints.WEST;
         gbc.weightx = 1;
@@ -180,8 +180,8 @@ public final class FileArrayEditor {
 
     }
 
-    private void setName(final Component comp) {
-        comp.setName(_label);
+    private void setName(final Component comp, String name) {
+        comp.setName(name);
     }
 
     /**

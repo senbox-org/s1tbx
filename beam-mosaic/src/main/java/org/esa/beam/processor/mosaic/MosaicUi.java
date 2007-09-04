@@ -349,8 +349,9 @@ public class MosaicUi extends AbstractProcessorUI {
                         final File file = (File) files.get(i);
                         final Product product = loadProduct(file, messages);
                         if (product != null) {
-                            final int step = (int) Math.max(16,
-                                                            (product.getSceneRasterWidth() + product.getSceneRasterHeight()) / 250);
+                            final int step = Math.max(16,
+                                                      (product.getSceneRasterWidth() +
+                                                       product.getSceneRasterHeight()) / 250);
                             final GeoPos[] geoBoundary = ProductUtils.createGeoBoundary(product, step);
                             geoBoundaries.add(geoBoundary);
                         }
@@ -369,10 +370,10 @@ public class MosaicUi extends AbstractProcessorUI {
                 } else {
                     if (messages.size() > 0) {
                         String warningMessage = "There where errors during scanning of input products."; /*I18N*/
-                        String[] warningDetails = (String[]) messages.toArray(new String[0]);
+                        String[] warningDetails = messages.toArray(new String[0]);
                         getApp().showWarningsDialog(warningMessage, warningDetails);
                     }
-                    _inputProductBoundaries = (GeoPos[][]) geoBoundaries.toArray(new GeoPos[0][]);
+                    _inputProductBoundaries = geoBoundaries.toArray(new GeoPos[0][]);
                     if (isWorldMapWindowVisible() && _displayInputProductsCheck.isSelected()) {
                         _worldMapWindow.setPathesToDisplay(_inputProductBoundaries);
                     }
@@ -630,7 +631,7 @@ public class MosaicUi extends AbstractProcessorUI {
     }
 
     private Component createNewVariableButton() {
-        _newVariableButton = createButton("icons/Plus24.gif");
+        _newVariableButton = createButton("icons/Plus24.gif", "newVariable");
         _newVariableButton.setToolTipText("Add new processing variable"); /*I18N*/
         _newVariableButton.addActionListener(new ActionListener() {
 
@@ -643,7 +644,7 @@ public class MosaicUi extends AbstractProcessorUI {
     }
 
     private Component createRemoveVariableButton() {
-        _removeVariableButton = createButton("icons/Minus24.gif");
+        _removeVariableButton = createButton("icons/Minus24.gif", "removeVariable");
         _removeVariableButton.setToolTipText("Remove selected rows."); /*I18N*/
         _removeVariableButton.addActionListener(new ActionListener() {
 
@@ -655,7 +656,7 @@ public class MosaicUi extends AbstractProcessorUI {
     }
 
     private Component createMoveVariableUpButton() {
-        _moveVariableUpButton = createButton("icons/MoveUp24.gif");
+        _moveVariableUpButton = createButton("icons/MoveUp24.gif", "moveVariableUp");
         _moveVariableUpButton.setToolTipText("Move up selected rows."); /*I18N*/
         _moveVariableUpButton.addActionListener(new ActionListener() {
 
@@ -667,7 +668,7 @@ public class MosaicUi extends AbstractProcessorUI {
     }
 
     private Component createMoveVariableDownButton() {
-        _moveVariableDownButton = createButton("icons/MoveDown24.gif");
+        _moveVariableDownButton = createButton("icons/MoveDown24.gif", "moveVariableDown");
         _moveVariableDownButton.setToolTipText("Move down selected rows."); /*I18N*/
         _moveVariableDownButton.addActionListener(new ActionListener() {
 
@@ -679,7 +680,7 @@ public class MosaicUi extends AbstractProcessorUI {
     }
 
     private Component createBandFilterButton() {
-        _variableFilterButton = createButton("icons/Copy16.gif");
+        _variableFilterButton = createButton("icons/Copy16.gif", "bandButton");
         _variableFilterButton.setToolTipText("Choose the bands to process"); /*I18N*/
         _variableFilterButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -689,8 +690,8 @@ public class MosaicUi extends AbstractProcessorUI {
                     final Band[] allBands = exampleProduct.getBands();
                     final List dataVector = ((DefaultTableModel) _variablesTable.getModel()).getDataVector();
                     final List<Band> existingBands = new ArrayList<Band>();
-                    for (int i = 0; i < dataVector.size(); i++) {
-                        List row = (List) dataVector.get(i);
+                    for (Object aDataVector : dataVector) {
+                        List row = (List) aDataVector;
                         final String name = (String) row.get(0);
                         final String expression = (String) row.get(1);
                         if (name == null || expression == null
@@ -702,11 +703,10 @@ public class MosaicUi extends AbstractProcessorUI {
                     }
                     final BandChooser bandChooser = new BandChooser(getApp().getMainFrame(), "Band Chooser", "",
                                                                     allBands, /*I18N*/
-                                                                    (Band[]) existingBands.toArray(new Band[0]));
+                                                                    existingBands.toArray(new Band[0]));
                     if (bandChooser.show() == ModalDialog.ID_OK) {
                         final Band[] selectedBands = bandChooser.getSelectedBands();
-                        for (int i = 0; i < selectedBands.length; i++) {
-                            Band selectedBand = selectedBands[i];
+                        for (Band selectedBand : selectedBands) {
                             if (!existingBands.contains(selectedBand)) {
                                 final String name = selectedBand.getName();
                                 addRow(_variablesTable, new Object[]{name, name});
@@ -716,8 +716,8 @@ public class MosaicUi extends AbstractProcessorUI {
                         }
                         final int[] rowsToRemove = new int[0];
                         final List newDataVector = ((DefaultTableModel) _variablesTable.getModel()).getDataVector();
-                        for (int i = 0; i < existingBands.size(); i++) {
-                            String bandName = ((Band) existingBands.get(i)).getName();
+                        for (Band existingBand : existingBands) {
+                            String bandName = existingBand.getName();
                             final int rowIndex = getBandRow(newDataVector, bandName);
                             if (rowIndex > -1) {
                                 ArrayUtils.addToArray(rowsToRemove, rowIndex);
@@ -732,7 +732,7 @@ public class MosaicUi extends AbstractProcessorUI {
     }
 
     private Component createNewConditionButton() {
-        _newConditionsButton = createButton("icons/Plus24.gif");
+        _newConditionsButton = createButton("icons/Plus24.gif", "newCondition");
         _newConditionsButton.setToolTipText("Add new processing condition"); /*I18N*/
         _newConditionsButton.addActionListener(new ActionListener() {
 
@@ -745,7 +745,7 @@ public class MosaicUi extends AbstractProcessorUI {
     }
 
     private Component createRemoveConditionButton() {
-        _removeConditionButton = createButton("icons/Minus24.gif");
+        _removeConditionButton = createButton("icons/Minus24.gif", "removeCondition");
         _removeConditionButton.setToolTipText("Remove selected rows."); /*I18N*/
         _removeConditionButton.addActionListener(new ActionListener() {
 
@@ -757,7 +757,7 @@ public class MosaicUi extends AbstractProcessorUI {
     }
 
     private Component createMoveConditionUpButton() {
-        _moveConditionUpButton = createButton("icons/MoveUp24.gif");
+        _moveConditionUpButton = createButton("icons/MoveUp24.gif", "moveConditionUp");
         _moveConditionUpButton.setToolTipText("Move up selected rows."); /*I18N*/
         _moveConditionUpButton.addActionListener(new ActionListener() {
 
@@ -769,7 +769,7 @@ public class MosaicUi extends AbstractProcessorUI {
     }
 
     private Component createMoveConditionDownButton() {
-        _moveConditionDownButton = createButton("icons/MoveDown24.gif");
+        _moveConditionDownButton = createButton("icons/MoveDown24.gif", "moveConditionDown");
         _moveConditionDownButton.setToolTipText("Move down selected rows."); /*I18N*/
         _moveConditionDownButton.addActionListener(new ActionListener() {
 
@@ -793,24 +793,22 @@ public class MosaicUi extends AbstractProcessorUI {
     }
 
     private static void moveRowsUp(final JTable table, final int[] rows) {
-        for (int i = 0; i < rows.length; i++) {
-            if (rows[i] == 0) {
+        for (int row1 : rows) {
+            if (row1 == 0) {
                 return;
             }
         }
         table.removeEditor();
-        for (int i = 0; i < rows.length; i++) {
-            int row = rows[i];
+        for (int row : rows) {
             ((DefaultTableModel) table.getModel()).moveRow(row, row, row - 1);
-            rows[i]--;
         }
         selectRows(table, rows);
     }
 
     private static void moveRowsDown(final JTable table, final int[] rows) {
         final int maxRow = table.getRowCount() - 1;
-        for (int i = 0; i < rows.length; i++) {
-            if (rows[i] == maxRow) {
+        for (int row1 : rows) {
+            if (row1 == maxRow) {
                 return;
             }
         }
@@ -834,8 +832,7 @@ public class MosaicUi extends AbstractProcessorUI {
     private static void selectRows(final JTable table, final int[] rows) {
         final ListSelectionModel selectionModel = table.getSelectionModel();
         selectionModel.clearSelection();
-        for (int i = 0; i < rows.length; i++) {
-            int row = rows[i];
+        for (int row : rows) {
             selectionModel.addSelectionInterval(row, row);
         }
     }
@@ -874,8 +871,10 @@ public class MosaicUi extends AbstractProcessorUI {
         return -1;
     }
 
-    private static AbstractButton createButton(final String path) {
-        return ToolButtonFactory.createButton(UIUtils.loadImageIcon(path), false);
+    private static AbstractButton createButton(final String path, String name) {
+        AbstractButton button = ToolButtonFactory.createButton(UIUtils.loadImageIcon(path), false);
+        button.setName(name);
+        return button;
     }
 
     private void initParameters() {
@@ -890,6 +889,7 @@ public class MosaicUi extends AbstractProcessorUI {
             try {
                 _logToOutputParameter = _reqElemFac.createLogToOutputParameter("false");
             } catch (ParamValidateException e) {
+                // ignore
             }
             _logPrefixParameter = _reqElemFac.createDefaultLogPatternParameter(MosaicConstants.DEFAULT_LOG_PREFIX);
 
@@ -1442,8 +1442,8 @@ public class MosaicUi extends AbstractProcessorUI {
     }
 
     private static boolean isValidUtmZone(int zone, int[] validZones) {
-        for (int i = 0; i < validZones.length; i++) {
-            if (validZones[i] == zone) {
+        for (int validZone : validZones) {
+            if (validZone == zone) {
                 return true;
             }
         }
@@ -1512,8 +1512,8 @@ public class MosaicUi extends AbstractProcessorUI {
         request.addOutputProduct(ProcessorUtils.createProductRef(outputFile, DimapProductConstants.DIMAP_FORMAT_NAME));
 
         final List files = _inputProductEditor.getFiles();
-        for (int i = 0; i < files.size(); i++) {
-           request.addInputProduct(new ProductRef((File) files.get(i)));
+        for (Object file : files) {
+            request.addInputProduct(new ProductRef((File) file));
         }
 
         if (MosaicUtils.isTrue(_paramUpdateMode)) { // update mode
@@ -1556,8 +1556,8 @@ public class MosaicUi extends AbstractProcessorUI {
 
             // processing parameters
             final List variablesData = ((DefaultTableModel) _variablesTable.getModel()).getDataVector();
-            for (int i = 0; i < variablesData.size(); i++) {
-                final List row = (List) variablesData.get(i);
+            for (Object aVariablesData : variablesData) {
+                final List row = (List) aVariablesData;
                 final String name = (String) row.get(0);
                 final String expression = (String) row.get(1);
                 request.addParameter(
@@ -1566,8 +1566,8 @@ public class MosaicUi extends AbstractProcessorUI {
             final String operator = _paramConditionsOperator.getValueAsText();
             request.addParameter(_reqElemFac.createParameter(_paramConditionsOperator.getName(), operator));
             final List conditionsData = ((DefaultTableModel) _conditionsTable.getModel()).getDataVector();
-            for (int i = 0; i < conditionsData.size(); i++) {
-                final List row = (List) conditionsData.get(i);
+            for (Object aConditionsData : conditionsData) {
+                final List row = (List) aConditionsData;
                 final String name = (String) row.get(0);
                 final String expression = (String) row.get(1);
                 final Boolean isOutput;
@@ -1702,8 +1702,8 @@ public class MosaicUi extends AbstractProcessorUI {
         final DefaultTableModel conditionsModel = (DefaultTableModel) _conditionsTable.getModel();
 
         final List variables = MosaicUtils.extractVariables(parameters);
-        for (int i = 0; i < variables.size(); i++) {
-            MosaicUtils.MosaicIoChannel channel = (MosaicUtils.MosaicIoChannel) variables.get(i);
+        for (Object variable1 : variables) {
+            MosaicUtils.MosaicIoChannel channel = (MosaicUtils.MosaicIoChannel) variable1;
             final MosaicUtils.MosaicVariable variable = channel.getVariable();
             final String name = variable.getName();
             final String expression = variable.getExpression();
