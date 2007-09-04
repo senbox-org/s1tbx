@@ -54,7 +54,7 @@ public class SmacProcessor extends Processor {
 
     public static final String PROCESSOR_NAME = "BEAM SMAC Processor";
     private static final String _merisBandPrefix = "reflec";  // was "reflectance" in version 1.0 - 1.2
-    private static final String _version = "1.5";
+    private static final String _version = "1.5.1";
     private static final String _copyright = "Copyright (C) 2002-2007 by Brockmann Consult (info@brockmann-consult.de)";
     private static final int _merisSzaIndex = 6;    // DELETE
     private static final int _merisSaaIndex = 7;    // DELETE
