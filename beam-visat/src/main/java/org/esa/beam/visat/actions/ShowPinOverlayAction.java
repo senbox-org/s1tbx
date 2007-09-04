@@ -10,11 +10,10 @@ public class ShowPinOverlayAction extends ExecCommand {
     @Override
     public void actionPerformed(CommandEvent event) {
         ProductSceneView productSceneView = VisatApp.getApp().getSelectedProductSceneView();
-        if (productSceneView == null) {
-            return;
+        if (productSceneView != null) {
+            productSceneView.setPinOverlayEnabled(isSelected());
+            VisatApp.getApp().updateState();
         }
-        productSceneView.setPinOverlayEnabled(isSelected());
-        VisatApp.getApp().updateState();
     }
 
     @Override
