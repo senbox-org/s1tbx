@@ -1,17 +1,22 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-meris-smac</symbolicName>
-    <version>1.5</version>
+    <version>1.5.1-SNAPSHOT</version>
     <name>MERIS SMAC Atmospheric Correction</name>
 
     <description>
         The MERIS SMAC Processor performs the Simplified Method for Atmospheric Correction.
     </description>
     <changelog>
-        <![CDATA[From 1.4 to 1.5
+        <![CDATA[
+        From 1.5 to 1.5.1<br>
+        This version needs the latest beam-envisat-reader module (Version 1.1-SNAPSHOT)
+        <ul>
+        <li>[BEAM-682] The SMAC Processor cannot cope with 'MER_FRS_1P' files</li>
+        </ul>]]>
+        From 1.4 to 1.5
         <ul>
         <li>[BEAM-593] Auxdata path is not updated</li>
-        <li>[BEAM-682] The SMAC Processor cannot cope with 'MER_FRS_1P' files</li>
         </ul>]]>
     </changelog>
 
