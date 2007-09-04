@@ -206,7 +206,8 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
                         lon += 360;
                         approximation = getBestApproximation(approximations, lat, lon);
                     }
-                } else {
+                }
+                if (approximation != null) {
                     pixelPos.x = (float) approximation.getFX().computeZ(lat, lon);
                     pixelPos.y = (float) approximation.getFY().computeZ(lat, lon);
                 }
@@ -223,7 +224,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
      *
      * @return the normalized latitude value, <code>Float.NaN</code> else
      */
-    public static final float normalizeLat(float lat) {
+    public static float normalizeLat(float lat) {
         if (lat < -90 || lat > 90) {
             return Float.NaN;
         }
