@@ -17,7 +17,7 @@
     
     <changelog>
         <![CDATA[From 1.1 to 1.1.1<br>
-        This version needs the latest beam-envisat-reader module (Version 1.1-SNAPSHOT)
+        This version needs the latest beam-envisat-reader module (Version 1.1-20070904)
         <ul>
         <li>[BEAM-652] Smile correction cannot be applied to MER_FRS data</li>
         </ul>
