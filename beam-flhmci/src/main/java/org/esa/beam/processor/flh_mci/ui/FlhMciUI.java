@@ -21,6 +21,7 @@ import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamGroup;
@@ -36,7 +37,6 @@ import org.esa.beam.framework.processor.Request;
 import org.esa.beam.framework.processor.ui.AbstractProcessorUI;
 import org.esa.beam.framework.processor.ui.ProcessorApp;
 import org.esa.beam.framework.ui.GridBagUtils;
-import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.processor.flh_mci.FlhMciConstants;
 import org.esa.beam.processor.flh_mci.FlhMciProcessor;
 import org.esa.beam.processor.flh_mci.FlhMciRequestElementFactory;
@@ -60,6 +60,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Vector;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener {
 
@@ -754,8 +755,8 @@ public class FlhMciUI extends AbstractProcessorUI implements ParamChangeListener
 
         String currentPreset = _paramGroup.getParameter(FlhMciConstants.PRESET_PARAM_NAME).getValueAsText();
 
-        if (productType.equals(BeamConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME)
-            || productType.equals(BeamConstants.MERIS_RR_L1B_PRODUCT_TYPE_NAME)) {
+        Pattern l1bTypePattern = Pattern.compile("MER_..._1P");
+        if (l1bTypePattern.matcher(productType).matches()) {
             // meris l1b - check for preset. L2 presets are invalid in this context
             if ((currentPreset.equals(FlhMciConstants.PRESET_PARAM_VALUE_SET[0]))
                 || (currentPreset.equals(FlhMciConstants.PRESET_PARAM_VALUE_SET[2]))) {
