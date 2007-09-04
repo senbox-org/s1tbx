@@ -16,7 +16,8 @@
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
     
     <changelog>
-        <![CDATA[From 1.1 to 1.1.1
+        <![CDATA[From 1.1 to 1.1.1<br>
+        This version needs the latest beam-envisat-reader module (Version 1.1-SNAPSHOT)
         <ul>
         <li>[BEAM-652] Smile correction cannot be applied to MER_FRS data</li>
         </ul>
