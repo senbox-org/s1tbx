@@ -275,7 +275,7 @@ public class RuntimeActivator implements Activator {
                     s = s.substring(0, i);
                 }
                 s = s.trim();
-                if (!s.isEmpty()) {
+                if (s.length() > 0) {
                     classNames.add(s);
                 }
             }
