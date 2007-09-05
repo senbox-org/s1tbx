@@ -428,9 +428,6 @@ public class PropertyFileParameterPage extends ParameterPage {
     private void setPropertyFileParameter(final File propertyFile) {
         if (propertyFile != null) {
             getParamGroup().getParameter(PROPERTY_FILE_PARAM_NAME).setValue(propertyFile, null);
-            textArea.setText(defaultPropertyText);
-            textArea.setSelectionStart(0);
-            textArea.setSelectionEnd(0);
         }
     }
 
