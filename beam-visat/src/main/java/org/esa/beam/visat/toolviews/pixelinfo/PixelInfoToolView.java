@@ -89,8 +89,31 @@ public class PixelInfoToolView extends AbstractToolView {
         pixelInfoViewPanel.add(_pinCheckbox, BorderLayout.SOUTH);
 
         VisatApp.getApp().addInternalFrameListener(new PixelInfoIFL());
+        initOpenedFrames();
 
         return pixelInfoViewPanel;
+    }
+
+    private void initOpenedFrames() {
+        JInternalFrame[] internalFrames = VisatApp.getApp().getAllInternalFrames();
+        for (JInternalFrame internalFrame : internalFrames) {
+            Container contentPane = internalFrame.getContentPane();
+            if (contentPane instanceof ProductSceneView) {
+                initView((ProductSceneView)contentPane);
+            }
+        }
+    }
+
+    private void initView(ProductSceneView productSceneView) {
+        productSceneView.addPixelPositionListener(registerPPL(productSceneView));
+        final Product product = productSceneView.getProduct();
+        product.addProductNodeListener(getOrCreatePinSelectionChangedListener());
+        if (isSnapToPin()) {
+            setToSelectedPin();
+        }
+        if(productSceneView == VisatApp.getApp().getSelectedProductSceneView()){
+            _currentView = productSceneView;
+        }
     }
 
     private void setPixelOffsetY(final PropertyMap preferences) {
@@ -166,13 +189,7 @@ public class PixelInfoToolView extends AbstractToolView {
         public void internalFrameOpened(InternalFrameEvent e) {
             Container contentPane = e.getInternalFrame().getContentPane();
             if (contentPane instanceof ProductSceneView) {
-                _currentView = (ProductSceneView) contentPane;
-                _currentView.addPixelPositionListener(registerPPL(_currentView));
-                final Product product = _currentView.getProduct();
-                product.addProductNodeListener(getOrCreatePinSelectionChangedListener());
-                if (isSnapToPin()) {
-                    setToSelectedPin();
-                }
+                initView((ProductSceneView) contentPane);
             }
         }
 
@@ -268,7 +285,7 @@ public class PixelInfoToolView extends AbstractToolView {
         public void nodeRemoved(ProductNodeEvent event) {
             if (isExecute()) {
                 ProductNode sourceNode = event.getSourceNode();
-                if (sourceNode instanceof Pin && ((Pin) sourceNode).isSelected()) {
+                if (sourceNode instanceof Pin && sourceNode.isSelected()) {
                     setToSelectedPin();
                 }
             }
@@ -276,7 +293,7 @@ public class PixelInfoToolView extends AbstractToolView {
 
         private void updatePin(ProductNodeEvent event) {
             final ProductNode sourceNode = event.getSourceNode();
-            if (sourceNode instanceof Pin && ((Pin) sourceNode).isSelected()) {
+            if (sourceNode instanceof Pin && sourceNode.isSelected()) {
                 setToSelectedPin();
             }
         }

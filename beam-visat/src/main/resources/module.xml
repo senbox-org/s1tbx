@@ -25,6 +25,7 @@
         [BEAM-673] Allow for multiple spectra in spectrum view<br/>
         [BEAM-677] Support for ground control points (GCPs)<br/>
         [BEAM-678] Change pin location by dragging<br/>
+        [BEAM-684] Pixel-info view functions only if initially visible<br/>
         ]]>
     </changelog>
 
