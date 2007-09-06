@@ -96,7 +96,7 @@ public class PropertyFileParameterPage extends ParameterPage {
         super(paramGroup);
         setTitle(DEFAULT_PAGE_TITLE);
         defaultPropertyFile = getCurrentPropertyFile();
-        defaultPropertyText = getDefaultPropertyFileText(defaultPropertyFile);
+        defaultPropertyText = getPropertyFileText(defaultPropertyFile);
     }
 
     /**
@@ -383,7 +383,7 @@ public class PropertyFileParameterPage extends ParameterPage {
         }
     }
 
-    private String getDefaultPropertyFileText(File propertyFile) {
+    private String getPropertyFileText(File propertyFile) {
         final StringBuffer sb = new StringBuffer();
         BufferedReader reader = null;
         try {
@@ -395,7 +395,7 @@ public class PropertyFileParameterPage extends ParameterPage {
             }
         } catch (IOException e) {
             Debug.trace(e);
-            final String msgText = "Not able to load default parameters from file: \n"
+            final String msgText = "Not able to load parameters from file: \n"
                                    + e.getMessage();
             if (getApp() != null) {
                 getApp().showErrorDialog(getTitle(), msgText);
@@ -428,6 +428,11 @@ public class PropertyFileParameterPage extends ParameterPage {
     private void setPropertyFileParameter(final File propertyFile) {
         if (propertyFile != null) {
             getParamGroup().getParameter(PROPERTY_FILE_PARAM_NAME).setValue(propertyFile, null);
+            boolean success = readPropertyFile();
+            if (success) {
+                saveButton.setEnabled(false);
+                restoreDefaultsButton.setEnabled(!getCurrentPropertyFile().equals(defaultPropertyFile));
+            }
         }
     }
 
