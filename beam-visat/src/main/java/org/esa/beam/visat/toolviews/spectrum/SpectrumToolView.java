@@ -16,14 +16,7 @@
  */
 package org.esa.beam.visat.toolviews.spectrum;
 
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.DataNode;
-import org.esa.beam.framework.datamodel.Pin;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductManager;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
@@ -37,21 +30,11 @@ import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.Debug;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.AbstractButton;
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -154,9 +137,8 @@ public class SpectrumToolView extends AbstractToolView {
     private void updateUIState() {
         boolean hasView = getCurrentView() != null;
         boolean hasProduct = getCurrentProduct() != null;
-        ProductNodeGroup<Pin> pinGroup = getCurrentProduct().getPinGroup();
-        boolean hasSelectedPins = getCurrentProduct() != null && pinGroup.getSelectedNode() != null;
-        boolean hasPins = getCurrentProduct() != null && pinGroup.getNodeCount() > 0;
+        boolean hasSelectedPins = hasProduct && getCurrentProduct().getPinGroup().getSelectedNode() != null;
+        boolean hasPins = hasProduct && getCurrentProduct().getPinGroup().getNodeCount() > 0;
         boolean hasDiagram = diagramCanvas.getDiagram() != null;
         filterButton.setEnabled(hasProduct);
         showSpectrumForCursorButton.setEnabled(hasView);
@@ -207,10 +189,10 @@ public class SpectrumToolView extends AbstractToolView {
         if (!tipShown) {
             VisatApp.getApp().showInfoDialog("Spectrum Tip",
                                              "Tip: If you press the SHIFT key while moving the mouse cursor over \n" +
-                                             "an image, VISAT adjusts the diagram axes to the local values at the\n" +
-                                             "current pixel position, if you release the SHIFT key again, then the\n" +
-                                             "min/max are accumulated again.", /*I18N*/
-                                                                               SUPPRESS_MESSAGE_KEY);
+                                                     "an image, VISAT adjusts the diagram axes to the local values at the\n" +
+                                                     "current pixel position, if you release the SHIFT key again, then the\n" +
+                                                     "min/max are accumulated again.", /*I18N*/
+                                                                                       SUPPRESS_MESSAGE_KEY);
             tipShown = true;
         }
     }
@@ -576,7 +558,7 @@ public class SpectrumToolView extends AbstractToolView {
             if (event.getSourceNode() instanceof Band) {
                 final String propertyName = event.getPropertyName();
                 if (propertyName.equals(DataNode.PROPERTY_NAME_UNIT)
-                    || propertyName.equals(Band.PROPERTY_NAME_SPECTRAL_WAVELENGTH)) {
+                        || propertyName.equals(Band.PROPERTY_NAME_SPECTRAL_WAVELENGTH)) {
                     recreateSpectraDiagram();
                 }
             } else if (event.getSourceNode() instanceof Pin) {
