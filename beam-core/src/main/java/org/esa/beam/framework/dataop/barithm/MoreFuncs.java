@@ -1,8 +1,10 @@
 package org.esa.beam.framework.dataop.barithm;
 
 import com.bc.jexp.impl.AbstractFunction;
+import com.bc.jexp.impl.AbstractSymbol;
 import com.bc.jexp.impl.SymbolFactory;
 import com.bc.jexp.EvalEnv;
+import com.bc.jexp.Symbol;
 import com.bc.jexp.Term;
 import com.bc.jexp.EvalException;
 import com.bc.jexp.WritableNamespace;
@@ -10,6 +12,9 @@ import com.bc.jexp.WritableNamespace;
 import java.util.Random;
 import java.lang.reflect.Method;
 
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.Band;
 
@@ -86,7 +91,46 @@ class MoreFuncs {
                 }
             }
         });
+        
+        BandArithmetic.addNamespaceExtender(new BandArithmetic.NamespaceExtender() {
+            public void extendNamespace(WritableNamespace namespace, Product product, String namePrefix) {
+                final GeoCoding geoCoding = product.getGeoCoding();
+                final Symbol lat = new AbstractSymbol.D("LAT") {
+                    public double evalD(EvalEnv env) throws EvalException {
+                    	double latitude = Double.NaN;
+                    	if (geoCoding.canGetGeoPos()) {
+                    		GeoPos geoPos = getGeoPos(geoCoding, env);
+                    		if (geoPos.isValid()) {
+                    			latitude =  geoPos.getLat();
+                    		}
+                    	}
+                    	return latitude;
+                    }
+                };
+                final Symbol lon = new AbstractSymbol.D("LON") {
+                    public double evalD(EvalEnv env) throws EvalException {
+                    	double longitude = Double.NaN;
+                    	if (geoCoding.canGetGeoPos()) {
+                    		GeoPos geoPos = getGeoPos(geoCoding, env);
+                    		if (geoPos.isValid()) {
+                    			longitude =  geoPos.getLon();
+                    		}
+                    	}
+                    	return longitude;
+                    }
+                };
+                BandArithmetic.registerSymbol(lat);
+                BandArithmetic.registerSymbol(lon);
+            }
+        });
     }
+    
+    private static GeoPos getGeoPos(final GeoCoding geoCoding, EvalEnv env) {
+    	RasterDataEvalEnv rasterEnv = (RasterDataEvalEnv) env;
+    	PixelPos pixelPos = new PixelPos(rasterEnv.getPixelX(), rasterEnv.getPixelY());
+    	GeoPos geoPos = geoCoding.getGeoPos(pixelPos, null);
+		return geoPos;
+	}
 
     private static void registerBandProperties(WritableNamespace namespace, final Band band) {
         final Class bandClass = band.getClass();
