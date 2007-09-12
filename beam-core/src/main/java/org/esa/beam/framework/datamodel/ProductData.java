@@ -25,12 +25,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * The abstract <code>ProductData</code> class represents a generic data buffer used to hold the actual data values
@@ -122,7 +117,7 @@ public abstract class ProductData implements Cloneable {
      * int[1] = seconds, int[2] = micro-seconds).
      */
     public static final int TYPE_UTC = 51;
-    
+
     /**
      * The ID for boolean data type.
      */
@@ -179,7 +174,7 @@ public abstract class ProductData implements Cloneable {
      * The string representation of <code>TYPE_BOOLEAN</code>
      */
     public static final String TYPESTRING_BOOLEAN = "boolean";
-    
+
     /**
      * Constructs a new value of the given type.
      *
@@ -193,7 +188,6 @@ public abstract class ProductData implements Cloneable {
      * Factory method which creates a value instance of the given type and with exactly one element.
      *
      * @param type the value's type
-     *
      * @return a new value instance, <code>null</code> if the given type is not known
      */
     public static ProductData createInstance(int type) {
@@ -205,9 +199,7 @@ public abstract class ProductData implements Cloneable {
      *
      * @param type     the value's type
      * @param numElems the number of elements, must be greater than zero if type is not {@link ProductData#TYPE_UTC}
-     *
      * @return a new value instance, <code>null</code> if the given type is not known
-     *
      * @throws IllegalArgumentException if one of the arguments is invalid
      */
     public static ProductData createInstance(int type, int numElems) {
@@ -215,30 +207,67 @@ public abstract class ProductData implements Cloneable {
             throw new IllegalArgumentException("numElems is less than one");
         }
         switch (type) {
-        case TYPE_INT8:
-            return new ProductData.Byte(numElems);
-        case TYPE_INT16:
-            return new ProductData.Short(numElems);
-        case TYPE_INT32:
-            return new ProductData.Int(numElems);
-        case TYPE_UINT8:
-            return new ProductData.UByte(numElems);
-        case TYPE_UINT16:
-            return new ProductData.UShort(numElems);
-        case TYPE_UINT32:
-            return new ProductData.UInt(numElems);
-        case TYPE_FLOAT32:
-            return new ProductData.Float(numElems);
-        case TYPE_FLOAT64:
-            return new ProductData.Double(numElems);
-        case TYPE_ASCII:
-            return new ProductData.ASCII(numElems);
-        case TYPE_UTC:
-            return new ProductData.UTC();
-        case TYPE_BOOLEAN:
-            return new ProductData.Boolean(numElems);
-        default:
-            return null;
+            case TYPE_INT8:
+                return new ProductData.Byte(numElems);
+            case TYPE_INT16:
+                return new ProductData.Short(numElems);
+            case TYPE_INT32:
+                return new ProductData.Int(numElems);
+            case TYPE_UINT8:
+                return new ProductData.UByte(numElems);
+            case TYPE_UINT16:
+                return new ProductData.UShort(numElems);
+            case TYPE_UINT32:
+                return new ProductData.UInt(numElems);
+            case TYPE_FLOAT32:
+                return new ProductData.Float(numElems);
+            case TYPE_FLOAT64:
+                return new ProductData.Double(numElems);
+            case TYPE_ASCII:
+                return new ProductData.ASCII(numElems);
+            case TYPE_UTC:
+                return new ProductData.UTC();
+            case TYPE_BOOLEAN:
+                return new ProductData.Boolean(numElems);
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * Factory method which creates a value instance of the given type and with the specified number of elements.
+     *
+     * @param type the value's type
+     * @param data if <code>type</code> is <code>TYPE_ASCII</code> the <code>String</code>, otherwise the primitive array type corresponding to <code>type</code>
+     * @return a new value instance, <code>null</code> if the given type is not known
+     * @throws IllegalArgumentException if one of the arguments is invalid
+     */
+    public static ProductData createInstance(int type, Object data) {
+        switch (type) {
+            case TYPE_INT8:
+                return new ProductData.Byte((byte[]) data);
+            case TYPE_INT16:
+                return new ProductData.Short((short[]) data);
+            case TYPE_INT32:
+                return new ProductData.Int((int[]) data);
+            case TYPE_UINT8:
+                return new ProductData.UByte((byte[]) data);
+            case TYPE_UINT16:
+                return new ProductData.UShort((short[]) data);
+            case TYPE_UINT32:
+                return new ProductData.UInt((int[]) data);
+            case TYPE_FLOAT32:
+                return new ProductData.Float((float[]) data);
+            case TYPE_FLOAT64:
+                return new ProductData.Double((double[]) data);
+            case TYPE_ASCII:
+                return new ProductData.ASCII((String) data);
+            case TYPE_UTC:
+                return new ProductData.UTC((int[]) data);
+            case TYPE_BOOLEAN:
+                return new ProductData.Boolean((boolean[]) data);
+            default:
+                return null;
         }
     }
 
@@ -271,7 +300,7 @@ public abstract class ProductData implements Cloneable {
         Guardian.assertNotNull("elems", elems);
         return new ProductData.UInt(elems);
     }
-    
+
     public static ProductData createInstance(boolean[] elems) {
         Guardian.assertNotNull("elems", elems);
         return new ProductData.Boolean(elems);
@@ -289,30 +318,28 @@ public abstract class ProductData implements Cloneable {
      * Gets the element size of an element of the given type in bytes.
      *
      * @param type the element type
-     *
      * @return the size of a single element in bytes.
-     *
      * @throws IllegalArgumentException if the type is not supported.
      */
     public static int getElemSize(int type) {
         switch (type) {
-        case TYPE_INT8:
-        case TYPE_UINT8:
-        case TYPE_ASCII:
-        case TYPE_BOOLEAN:
-            return 1;
-        case TYPE_INT16:
-        case TYPE_UINT16:
-            return 2;
-        case TYPE_INT32:
-        case TYPE_UINT32:
-        case TYPE_FLOAT32:
-        case TYPE_UTC:
-            return 4;
-        case TYPE_FLOAT64:
-            return 8;
-        default:
-            throw new IllegalArgumentException("type is not supported");
+            case TYPE_INT8:
+            case TYPE_UINT8:
+            case TYPE_ASCII:
+            case TYPE_BOOLEAN:
+                return 1;
+            case TYPE_INT16:
+            case TYPE_UINT16:
+                return 2;
+            case TYPE_INT32:
+            case TYPE_UINT32:
+            case TYPE_FLOAT32:
+            case TYPE_UTC:
+                return 4;
+            case TYPE_FLOAT64:
+                return 8;
+            default:
+                throw new IllegalArgumentException("type is not supported");
         }
     }
 
@@ -332,30 +359,30 @@ public abstract class ProductData implements Cloneable {
      */
     public static String getTypeString(int type) {
         switch (type) {
-        case TYPE_INT8:
-            return TYPESTRING_INT8;
-        case TYPE_INT16:
-            return TYPESTRING_INT16;
-        case TYPE_INT32:
-            return TYPESTRING_INT32;
-        case TYPE_UINT8:
-            return TYPESTRING_UINT8;
-        case TYPE_UINT16:
-            return TYPESTRING_UINT16;
-        case TYPE_UINT32:
-            return TYPESTRING_UINT32;
-        case TYPE_FLOAT32:
-            return TYPESTRING_FLOAT32;
-        case TYPE_FLOAT64:
-            return TYPESTRING_FLOAT64;
-        case TYPE_ASCII:
-            return TYPESTRING_ASCII;
-        case TYPE_UTC:
-            return TYPESTRING_UTC;
-        case TYPE_BOOLEAN:
-            return TYPESTRING_BOOLEAN;            
-        default:
-            return null;
+            case TYPE_INT8:
+                return TYPESTRING_INT8;
+            case TYPE_INT16:
+                return TYPESTRING_INT16;
+            case TYPE_INT32:
+                return TYPESTRING_INT32;
+            case TYPE_UINT8:
+                return TYPESTRING_UINT8;
+            case TYPE_UINT16:
+                return TYPESTRING_UINT16;
+            case TYPE_UINT32:
+                return TYPESTRING_UINT32;
+            case TYPE_FLOAT32:
+                return TYPESTRING_FLOAT32;
+            case TYPE_FLOAT64:
+                return TYPESTRING_FLOAT64;
+            case TYPE_ASCII:
+                return TYPESTRING_ASCII;
+            case TYPE_UTC:
+                return TYPESTRING_UTC;
+            case TYPE_BOOLEAN:
+                return TYPESTRING_BOOLEAN;
+            default:
+                return null;
         }
     }
 
@@ -534,7 +561,7 @@ public abstract class ProductData implements Cloneable {
             return sb.toString();
         }
     }
-    
+
     /**
      * Returns the value as an <code>boolean</code>. <p>The method assumes that this value is a scalar and therefore
      * simply returns <code>getElemBooleanAt(0)</code>.
@@ -542,14 +569,13 @@ public abstract class ProductData implements Cloneable {
      * @see #getElemBooleanAt(int index)
      */
     public boolean getElemBoolean() {
-    	return getElemBooleanAt(0);
+        return getElemBooleanAt(0);
     }
 
     /**
      * Gets the value element with the given index as an <code>int</code>.
      *
      * @param index the value index, must be <code>&gt;=0</code> and <code>&lt;getNumDataElems()</code>
-     *
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public abstract int getElemIntAt(int index);
@@ -558,7 +584,6 @@ public abstract class ProductData implements Cloneable {
      * Gets the value element with the given index as a <code>long</code>.
      *
      * @param index the value index, must be <code>&gt;=0</code> and <code>&lt;getNumDataElems()</code>
-     *
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public abstract long getElemUIntAt(int index);
@@ -567,7 +592,6 @@ public abstract class ProductData implements Cloneable {
      * Gets the value element with the given index as a <code>float</code>.
      *
      * @param index the value index, must be <code>&gt;=0</code> and <code>&lt;getNumDataElems()</code>
-     *
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public abstract float getElemFloatAt(int index);
@@ -576,7 +600,6 @@ public abstract class ProductData implements Cloneable {
      * Gets the value element with the given index as a <code>double</code>.
      *
      * @param index the value index, must be <code>&gt;=0</code> and <code>&lt;getNumDataElems()</code>
-     *
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public abstract double getElemDoubleAt(int index);
@@ -585,7 +608,6 @@ public abstract class ProductData implements Cloneable {
      * Gets the value element with the given index as a <code>String</code>.
      *
      * @param index the value index, must be <code>&gt;=0</code> and <code>&lt;getNumDataElems()</code>
-     *
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public abstract String getElemStringAt(int index);
@@ -594,19 +616,17 @@ public abstract class ProductData implements Cloneable {
      * Gets the value element with the given index as a <code>boolean</code>.
      *
      * @param index the value index, must be <code>&gt;=0</code> and <code>&lt;getNumDataElems()</code>
-     *
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public boolean getElemBooleanAt(int index) {
-    	return (getElemIntAt(index) != 0);
+        return (getElemIntAt(index) != 0);
     }
-    
+
     /**
      * Sets the value as an <code>int</code>. <p>The method assumes that this value is a scalar and therefore simply
      * calls <code>setElemInt(0, value)</code>.
      *
      * @param value the value to be set
-     *
      * @see #setElemIntAt(int index, int value)
      */
     public void setElemInt(int value) {
@@ -618,7 +638,6 @@ public abstract class ProductData implements Cloneable {
      * value is a scalar and therefore simply calls <code>setElemUInt(0, value)</code>.
      *
      * @param value the value to be set
-     *
      * @see #setElemUIntAt(int index, long value)
      */
     public void setElemUInt(long value) {
@@ -630,7 +649,6 @@ public abstract class ProductData implements Cloneable {
      * calls <code>setElemFloatAt(0, value)</code>.
      *
      * @param value the value to be set
-     *
      * @see #setElemFloatAt(int index, float value)
      */
     public void setElemFloat(float value) {
@@ -642,7 +660,6 @@ public abstract class ProductData implements Cloneable {
      * calls <code>setElemDoubleAt(0)</code>.
      *
      * @param value the value to be set
-     *
      * @see #setElemDoubleAt(int index, double value)
      */
     public void setElemDouble(double value) {
@@ -654,19 +671,17 @@ public abstract class ProductData implements Cloneable {
      * calls <code>setElemStringAt(0)</code>.
      *
      * @param value the value to be set
-     *
      * @see #setElemStringAt
      */
     public void setElemString(String value) {
         setElemStringAt(0, value);
     }
-    
+
     /**
      * Sets the value as a <code>boolean</code>. <p>The method assumes that this value is a scalar and therefore simply
      * calls <code>setElemDoubleAt(0)</code>.
      *
      * @param value the value to be set
-     *
      * @see #setElemBooleanAt(int index, boolean value)
      */
     public void setElemBoolean(boolean value) {
@@ -678,7 +693,6 @@ public abstract class ProductData implements Cloneable {
      *
      * @param index the value index, must be <code>&gt;=0</code> and <code>&lt;getNumDataElems()</code>
      * @param value the value to be set
-     *
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public abstract void setElemIntAt(int index, int value);
@@ -688,7 +702,6 @@ public abstract class ProductData implements Cloneable {
      *
      * @param index the value index, must be <code>&gt;=0</code> and <code>&lt;getNumDataElems()</code>
      * @param value the value to be set
-     *
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public abstract void setElemUIntAt(int index, long value);
@@ -698,7 +711,6 @@ public abstract class ProductData implements Cloneable {
      *
      * @param index the value index, must be <code>&gt;=0</code> and <code>&lt;getNumDataElems()</code>
      * @param value the value to be set
-     *
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public abstract void setElemFloatAt(int index, float value);
@@ -708,7 +720,6 @@ public abstract class ProductData implements Cloneable {
      *
      * @param index the value index, must be <code>&gt;=0</code> and <code>&lt;getNumDataElems()</code>
      * @param value the value to be set
-     *
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public abstract void setElemDoubleAt(int index, double value);
@@ -720,7 +731,6 @@ public abstract class ProductData implements Cloneable {
      *
      * @param index the value index, must be <code>&gt;=0</code> and <code>&lt;getNumDataElems()</code>
      * @param value the value to be set
-     *
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public /*abstract*/ void setElemStringAt(int index, String value) {
@@ -732,13 +742,12 @@ public abstract class ProductData implements Cloneable {
      *
      * @param index the value index, must be <code>&gt;=0</code> and <code>&lt;getNumDataElems()</code>
      * @param value the value to be set
-     *
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public void setElemBooleanAt(int index, boolean value) {
-    	setElemIntAt(index, value ? 1 : 0);
+        setElemIntAt(index, value ? 1 : 0);
     }
-    
+
     /**
      * Returns the internal value. The actual type of the returned object should only be one of <ol>
      * <li><code>byte[]</code> - for signed/unsigned 8-bit integer fields</li> <li><code>short[]</code> - for
@@ -769,7 +778,6 @@ public abstract class ProductData implements Cloneable {
      * within the input stream.
      *
      * @param input a seekable data input stream
-     *
      * @throws IOException if an I/O error occurs
      */
     public void readFrom(ImageInputStream input) throws IOException {
@@ -784,7 +792,6 @@ public abstract class ProductData implements Cloneable {
      *
      * @param pos   the destination position (zero-based)
      * @param input a seekable data input stream
-     *
      * @throws IOException if an I/O error occurs
      */
     public void readFrom(int pos, ImageInputStream input) throws IOException {
@@ -801,7 +808,6 @@ public abstract class ProductData implements Cloneable {
      * @param startPos the destination start position (zero-based)
      * @param numElems the number of elements to read
      * @param input    a seekable data input stream
-     *
      * @throws IOException if an I/O error occurs
      */
     public abstract void readFrom(int startPos, int numElems, ImageInputStream input) throws IOException;
@@ -818,7 +824,6 @@ public abstract class ProductData implements Cloneable {
      * @param numElems the number of elements to read
      * @param input    a seekable data input stream
      * @param inputPos the (zero-based) position in the data output stream where reading starts
-     *
      * @throws IOException if an I/O error occurs
      */
     public void readFrom(int startPos, int numElems, ImageInputStream input, long inputPos) throws IOException {
@@ -835,7 +840,6 @@ public abstract class ProductData implements Cloneable {
      * within the output stream.
      *
      * @param output a seekable data output stream
-     *
      * @throws IOException if an I/O error occurs
      */
     public void writeTo(ImageOutputStream output) throws IOException {
@@ -850,7 +854,6 @@ public abstract class ProductData implements Cloneable {
      *
      * @param pos    the source position (zero-based)
      * @param output a seekable data output stream
-     *
      * @throws IOException if an I/O error occurs
      */
     public void writeTo(int pos, ImageOutputStream output) throws IOException {
@@ -867,7 +870,6 @@ public abstract class ProductData implements Cloneable {
      * @param startPos the source start position (zero-based)
      * @param numElems the number of elements to be written
      * @param output   a seekable data output stream
-     *
      * @throws IOException if an I/O error occurs
      */
     public abstract void writeTo(int startPos, int numElems, ImageOutputStream output) throws IOException;
@@ -884,7 +886,6 @@ public abstract class ProductData implements Cloneable {
      * @param numElems  the number of elements to be written
      * @param output    a seekable data output stream
      * @param outputPos the position in the data output stream where writing starts
-     *
      * @throws IOException if an I/O error occurs
      */
     public void writeTo(int startPos, int numElems, ImageOutputStream output, long outputPos) throws IOException {
@@ -896,7 +897,7 @@ public abstract class ProductData implements Cloneable {
      * Returns a string representation of this value which can be used for debugging purposes.
      */
     @Override
-	public String toString() {
+    public String toString() {
         return getElemString();
     }
 
@@ -904,7 +905,7 @@ public abstract class ProductData implements Cloneable {
      * Returns {@link Object#hashCode()}.
      */
     @Override
-	public final int hashCode() {
+    public final int hashCode() {
         return super.hashCode();
     }
 
@@ -913,7 +914,7 @@ public abstract class ProductData implements Cloneable {
      * Use {@link #equalElems} in order to perform an element-wise comparision.
      */
     @Override
-	public final boolean equals(Object other) {
+    public final boolean equals(Object other) {
         return super.equals(other);
     }
 
@@ -927,7 +928,7 @@ public abstract class ProductData implements Cloneable {
     public boolean equalElems(ProductData other) {
         if (other == this || ObjectUtils.equalObjects(getElems(), other.getElems())) {
             return true;
-    }
+        }
         return false;
     }
 
@@ -960,7 +961,7 @@ public abstract class ProductData implements Cloneable {
         protected byte[] _array;
 
         /**
-         * Constructs a new <code>Byte</code> value.
+         * Constructs a new signed <code>byte</code> value.
          *
          * @param numElems the number of elements, must not be less than one
          */
@@ -969,7 +970,26 @@ public abstract class ProductData implements Cloneable {
         }
 
         /**
-         * Constructs a new <code>Byte</code> value.
+         * Constructs a new signed <code>byte</code> value.
+         *
+         * @param numElems the number of elements, must not be less than one
+         * @param unsigned if <code>true</code> an unsigned value type is constructed
+         */
+        protected Byte(int numElems, boolean unsigned) {
+            this(new byte[numElems], unsigned);
+        }
+
+        /**
+         * Constructs a new signed <code>byte</code> value.
+         *
+         * @param array the elements
+         */
+        protected Byte(byte[] array) {
+            this(array, false);
+        }
+
+        /**
+         * Constructs a new signed <code>byte</code> value.
          *
          * @param array    the elements
          * @param unsigned if <code>true</code> an unsigned value type is constructed
@@ -980,23 +1000,12 @@ public abstract class ProductData implements Cloneable {
         }
 
         /**
-         * Constructs a new <code>Byte</code> value.
-         *
-         * @param numElems the number of elements, must not be less than one
-         * @param unsigned if <code>true</code> an unsigned value type is constructed
-         */
-        protected Byte(int numElems, boolean unsigned) {
-            super(unsigned ? TYPE_UINT8 : TYPE_INT8);
-            _array = new byte[numElems];
-        }
-
-        /**
          * Retuns a "deep" copy of this product data.
          *
          * @return a copy of this product data
          */
         @Override
-		protected ProductData createDeepClone() {
+        protected ProductData createDeepClone() {
             final Byte data = new Byte(_array.length);
             System.arraycopy(_array, 0, data._array, 0, _array.length);
             return data;
@@ -1006,7 +1015,7 @@ public abstract class ProductData implements Cloneable {
          * Returns the number of data elements this value has.
          */
         @Override
-		public int getNumElems() {
+        public int getNumElems() {
             return _array.length;
         }
 
@@ -1014,7 +1023,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemIntAt(int)}.
          */
         @Override
-		public int getElemIntAt(int index) {
+        public int getElemIntAt(int index) {
             return _array[index];
         }
 
@@ -1022,7 +1031,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemUIntAt(int)}.
          */
         @Override
-		public long getElemUIntAt(int index) {
+        public long getElemUIntAt(int index) {
             return _array[index];
         }
 
@@ -1030,7 +1039,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemFloatAt(int)}.
          */
         @Override
-		public float getElemFloatAt(int index) {
+        public float getElemFloatAt(int index) {
             return _array[index];
         }
 
@@ -1038,7 +1047,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemDoubleAt(int)}.
          */
         @Override
-		public double getElemDoubleAt(int index) {
+        public double getElemDoubleAt(int index) {
             return _array[index];
         }
 
@@ -1046,7 +1055,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemStringAt(int)}.
          */
         @Override
-		public String getElemStringAt(int index) {
+        public String getElemStringAt(int index) {
             return String.valueOf(getElemIntAt(index));
         }
 
@@ -1054,7 +1063,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#setElemIntAt(int, int)}.
          */
         @Override
-		public void setElemIntAt(int index, int value) {
+        public void setElemIntAt(int index, int value) {
             _array[index] = (byte) value;
         }
 
@@ -1062,7 +1071,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#setElemUIntAt(int, long)}.
          */
         @Override
-		public void setElemUIntAt(int index, long value) {
+        public void setElemUIntAt(int index, long value) {
             _array[index] = (byte) value;
         }
 
@@ -1070,7 +1079,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#setElemFloatAt(int, float)}.
          */
         @Override
-		public void setElemFloatAt(int index, float value) {
+        public void setElemFloatAt(int index, float value) {
             _array[index] = (byte) Math.round(value);
         }
 
@@ -1078,7 +1087,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#setElemDoubleAt(int, double)}.
          */
         @Override
-		public void setElemDoubleAt(int index, double value) {
+        public void setElemDoubleAt(int index, double value) {
             _array[index] = (byte) Math.round(value);
         }
 
@@ -1098,7 +1107,7 @@ public abstract class ProductData implements Cloneable {
          * @return this value's value, always a <code>byte[]</code>, never <code>null</code>
          */
         @Override
-		public Object getElems() {
+        public Object getElems() {
             return _array;
         }
 
@@ -1108,12 +1117,11 @@ public abstract class ProductData implements Cloneable {
          * <code>getNumDataElems</code> method.
          *
          * @param data the data array
-         *
          * @throws IllegalArgumentException if data is <code>null</code> or it is not an array of the required type or
          *                                  does not have the required array length.
          */
         @Override
-		public void setElems(Object data) {
+        public void setElems(Object data) {
             Guardian.assertNotNull("data", data);
             if (data instanceof String[] && ((String[]) data).length == getNumElems()) {
                 final String[] strings = (String[]) data;
@@ -1132,7 +1140,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#readFrom(int, int, ImageInputStream)}.
          */
         @Override
-		public void readFrom(int startPos, int numElems, ImageInputStream source) throws IOException {
+        public void readFrom(int startPos, int numElems, ImageInputStream source) throws IOException {
             source.readFully(_array, startPos, numElems);
         }
 
@@ -1140,12 +1148,12 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#writeTo(int, int, ImageOutputStream)}.
          */
         @Override
-		public void writeTo(int sourceStartPos, int numSourceElems, ImageOutputStream destination) throws IOException {
+        public void writeTo(int sourceStartPos, int numSourceElems, ImageOutputStream destination) throws IOException {
             destination.write(_array, sourceStartPos, numSourceElems);
         }
 
         @Override
-		public Object clone() {
+        public Object clone() {
             Byte c = new Byte(getNumElems(), isUnsigned());
             c.setElems(getElems());
             return c;
@@ -1161,7 +1169,7 @@ public abstract class ProductData implements Cloneable {
          * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
          */
         @Override
-		public void dispose() {
+        public void dispose() {
             _array = null;
         }
     }
@@ -1176,7 +1184,7 @@ public abstract class ProductData implements Cloneable {
      * <p/>
      * Another method is to mask each of the array elements in order to get the unsigned type in the following way:
      * <pre>
-     *     byte[] data = (byte[]) value.getRaster();
+     *     byte[] data = (byte[]) {@link #getElems() value.getElems()};
      *     for (int i = 0; i < data.length; i++) {
      *         int value = data[i] & 0xff;
      *         ...
@@ -1186,7 +1194,7 @@ public abstract class ProductData implements Cloneable {
     public static class UByte extends Byte {
 
         /**
-         * Constructs a new <code>Byte</code> value.
+         * Constructs a new unsigned <code>byte</code> value.
          *
          * @param numElems the number of elements, must not be less than one
          */
@@ -1195,12 +1203,21 @@ public abstract class ProductData implements Cloneable {
         }
 
         /**
+         * Constructs a new unsigned <code>byte</code> value.
+         *
+         * @param array the elements
+         */
+        protected UByte(byte[] array) {
+            super(array, true);
+        }
+
+        /**
          * Retuns a "deep" copy of this product data.
          *
          * @return a copy of this product data
          */
         @Override
-		protected ProductData createDeepClone() {
+        protected ProductData createDeepClone() {
             final UByte data = new UByte(_array.length);
             System.arraycopy(_array, 0, data._array, 0, _array.length);
             return data;
@@ -1210,7 +1227,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemIntAt(int)}.
          */
         @Override
-		public int getElemIntAt(int index) {
+        public int getElemIntAt(int index) {
             return _array[index] & 0xff;
         }
 
@@ -1218,7 +1235,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemUIntAt(int)}.
          */
         @Override
-		public long getElemUIntAt(int index) {
+        public long getElemUIntAt(int index) {
             return getElemIntAt(index);
         }
 
@@ -1226,7 +1243,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemFloatAt(int)}.
          */
         @Override
-		public float getElemFloatAt(int index) {
+        public float getElemFloatAt(int index) {
             return getElemIntAt(index);
         }
 
@@ -1234,7 +1251,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemDoubleAt(int)}.
          */
         @Override
-		public double getElemDoubleAt(int index) {
+        public double getElemDoubleAt(int index) {
             return getElemIntAt(index);
         }
 
@@ -1242,7 +1259,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemStringAt(int)}.
          */
         @Override
-		public String getElemStringAt(int index) {
+        public String getElemStringAt(int index) {
             return String.valueOf(getElemIntAt(index));
         }
 
@@ -1252,12 +1269,11 @@ public abstract class ProductData implements Cloneable {
          * <code>getNumDataElems</code> method.
          *
          * @param data the data array
-         *
          * @throws IllegalArgumentException if data is <code>null</code> or it is not an array of the required type or
          *                                  does not have the required array length.
          */
         @Override
-		public void setElems(Object data) {
+        public void setElems(Object data) {
             Guardian.assertNotNull("data", data);
             if (data instanceof String[] && ((String[]) data).length == getNumElems()) {
                 final String[] strings = (String[]) data;
@@ -1288,13 +1304,8 @@ public abstract class ProductData implements Cloneable {
         protected short[] _array;
 
 
-        protected Short(short[] elems) {
-            super(TYPE_INT16);
-            _array = elems;
-        }
-
         /**
-         * Constructs a new <code>Short</code> value.
+         * Constructs a new signed <code>short</code> value.
          *
          * @param numElems the number of elements, must not be less than one
          */
@@ -1303,14 +1314,33 @@ public abstract class ProductData implements Cloneable {
         }
 
         /**
-         * Constructs a new <code>Byte</code> value.
+         * Constructs a new signed <code>short</code> value.
          *
          * @param numElems the number of elements, must not be less than one
          * @param unsigned if <code>true</code> an unsigned value type is constructed
          */
         protected Short(int numElems, boolean unsigned) {
+            this(new short[numElems], unsigned);
+        }
+
+        /**
+         * Constructs a new signed <code>short</code> value.
+         *
+         * @param array the elements
+         */
+        protected Short(short[] array) {
+            this(array, false);
+        }
+
+        /**
+         * Constructs a new signed <code>short</code> value.
+         *
+         * @param array    the elements
+         * @param unsigned if <code>true</code> an unsigned value type is constructed
+         */
+        protected Short(short[] array, boolean unsigned) {
             super(unsigned ? TYPE_UINT16 : TYPE_INT16);
-            _array = new short[numElems];
+            _array = array;
         }
 
         /**
@@ -1319,7 +1349,7 @@ public abstract class ProductData implements Cloneable {
          * @return a copy of this product data
          */
         @Override
-		protected ProductData createDeepClone() {
+        protected ProductData createDeepClone() {
             final Short data = new Short(_array.length);
             System.arraycopy(_array, 0, data._array, 0, _array.length);
             return data;
@@ -1329,7 +1359,7 @@ public abstract class ProductData implements Cloneable {
          * Returns the number of data elements this value has.
          */
         @Override
-		public int getNumElems() {
+        public int getNumElems() {
             return _array.length;
         }
 
@@ -1337,7 +1367,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemIntAt(int)}.
          */
         @Override
-		public int getElemIntAt(int index) {
+        public int getElemIntAt(int index) {
             return _array[index];
         }
 
@@ -1345,7 +1375,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemUIntAt(int)}.
          */
         @Override
-		public long getElemUIntAt(int index) {
+        public long getElemUIntAt(int index) {
             return _array[index];
         }
 
@@ -1353,7 +1383,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemFloatAt(int)}.
          */
         @Override
-		public float getElemFloatAt(int index) {
+        public float getElemFloatAt(int index) {
             return _array[index];
         }
 
@@ -1361,7 +1391,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemDoubleAt(int)}.
          */
         @Override
-		public double getElemDoubleAt(int index) {
+        public double getElemDoubleAt(int index) {
             return _array[index];
         }
 
@@ -1369,7 +1399,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemStringAt(int)}.
          */
         @Override
-		public String getElemStringAt(int index) {
+        public String getElemStringAt(int index) {
             return String.valueOf(getElemIntAt(index));
         }
 
@@ -1377,7 +1407,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#setElemIntAt(int, int)}.
          */
         @Override
-		public void setElemIntAt(int index, int value) {
+        public void setElemIntAt(int index, int value) {
             _array[index] = (short) value;
         }
 
@@ -1385,7 +1415,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#setElemUIntAt(int, long)}.
          */
         @Override
-		public void setElemUIntAt(int index, long value) {
+        public void setElemUIntAt(int index, long value) {
             _array[index] = (short) value;
         }
 
@@ -1393,7 +1423,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#setElemFloatAt(int, float)}.
          */
         @Override
-		public void setElemFloatAt(int index, float value) {
+        public void setElemFloatAt(int index, float value) {
             _array[index] = (short) Math.round(value);
         }
 
@@ -1401,7 +1431,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#setElemDoubleAt(int, double)}.
          */
         @Override
-		public void setElemDoubleAt(int index, double value) {
+        public void setElemDoubleAt(int index, double value) {
             _array[index] = (short) Math.round(value);
         }
 
@@ -1421,7 +1451,7 @@ public abstract class ProductData implements Cloneable {
          * @return this value's value, always a <code>short[]</code>, never <code>null</code>
          */
         @Override
-		public Object getElems() {
+        public Object getElems() {
             return _array;
         }
 
@@ -1431,12 +1461,11 @@ public abstract class ProductData implements Cloneable {
          * <code>getNumDataElems</code> method.
          *
          * @param data the data array
-         *
          * @throws IllegalArgumentException if data is <code>null</code> or it is not an array of the required type or
          *                                  does not have the required array length.
          */
         @Override
-		public void setElems(Object data) {
+        public void setElems(Object data) {
             Guardian.assertNotNull("data", data);
             if (data instanceof String[] && ((String[]) data).length == getNumElems()) {
                 final String[] strings = (String[]) data;
@@ -1455,7 +1484,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#readFrom(int, int, ImageInputStream)}.
          */
         @Override
-		public void readFrom(int startPos, int numElems, ImageInputStream source) throws IOException {
+        public void readFrom(int startPos, int numElems, ImageInputStream source) throws IOException {
             source.readFully(_array, startPos, numElems);
         }
 
@@ -1463,7 +1492,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#writeTo(int, int, ImageOutputStream)}.
          */
         @Override
-		public void writeTo(int sourceStartPos, int numSourceElems, ImageOutputStream destination) throws IOException {
+        public void writeTo(int sourceStartPos, int numSourceElems, ImageOutputStream destination) throws IOException {
             destination.writeShorts(_array, sourceStartPos, numSourceElems);
         }
 
@@ -1477,7 +1506,7 @@ public abstract class ProductData implements Cloneable {
          * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
          */
         @Override
-		public void dispose() {
+        public void dispose() {
             _array = null;
         }
 
@@ -1503,7 +1532,7 @@ public abstract class ProductData implements Cloneable {
     public static class UShort extends Short {
 
         /**
-         * Constructs a new <code>Short</code> value.
+         * Constructs a new unsigned <code>short</code> value.
          *
          * @param numElems the number of elements, must not be less than one
          */
@@ -1512,12 +1541,21 @@ public abstract class ProductData implements Cloneable {
         }
 
         /**
+         * Constructs a new unsigned <code>short</code> value.
+         *
+         * @param array the elements
+         */
+        protected UShort(short[] array) {
+            super(array, true);
+        }
+
+        /**
          * Retuns a "deep" copy of this product data.
          *
          * @return a copy of this product data
          */
         @Override
-		protected ProductData createDeepClone() {
+        protected ProductData createDeepClone() {
             final UShort data = new UShort(_array.length);
             System.arraycopy(_array, 0, data._array, 0, _array.length);
             return data;
@@ -1527,7 +1565,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemIntAt(int)}.
          */
         @Override
-		public int getElemIntAt(int index) {
+        public int getElemIntAt(int index) {
             return _array[index] & 0xffff;
         }
 
@@ -1535,7 +1573,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemUIntAt(int)}.
          */
         @Override
-		public long getElemUIntAt(int index) {
+        public long getElemUIntAt(int index) {
             return getElemIntAt(index);
         }
 
@@ -1543,7 +1581,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemFloatAt(int)}.
          */
         @Override
-		public float getElemFloatAt(int index) {
+        public float getElemFloatAt(int index) {
             return getElemIntAt(index);
         }
 
@@ -1551,7 +1589,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemDoubleAt(int)}.
          */
         @Override
-		public double getElemDoubleAt(int index) {
+        public double getElemDoubleAt(int index) {
             return getElemIntAt(index);
         }
 
@@ -1559,7 +1597,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemStringAt(int)}.
          */
         @Override
-		public String getElemStringAt(int index) {
+        public String getElemStringAt(int index) {
             return String.valueOf(getElemIntAt(index));
         }
 
@@ -1569,12 +1607,11 @@ public abstract class ProductData implements Cloneable {
          * <code>getNumDataElems</code> method.
          *
          * @param data the data array
-         *
          * @throws IllegalArgumentException if data is <code>null</code> or it is not an array of the required type or
          *                                  does not have the required array length.
          */
         @Override
-		public void setElems(Object data) {
+        public void setElems(Object data) {
             Guardian.assertNotNull("data", data);
             if (data instanceof String[] && ((String[]) data).length == getNumElems()) {
                 final String[] strings = (String[]) data;
@@ -1604,13 +1641,8 @@ public abstract class ProductData implements Cloneable {
          */
         protected int[] _array;
 
-        protected Int(int[] elems) {
-            super(TYPE_INT32);
-            _array = elems;
-        }
-
         /**
-         * Constructs a new <code>Int</code> value.
+         * Constructs a new signed <code>int</code> value.
          *
          * @param numElems the number of elements, must not be less than one
          */
@@ -1619,14 +1651,33 @@ public abstract class ProductData implements Cloneable {
         }
 
         /**
-         * Constructs a new <code>Byte</code> value.
+         * Constructs a new signed <code>int</code> value.
          *
          * @param numElems the number of elements, must not be less than one
          * @param unsigned if <code>true</code> an unsigned value type is constructed
          */
         protected Int(int numElems, boolean unsigned) {
+            this(new int[numElems], unsigned);
+        }
+
+        /**
+         * Constructs a new signed <code>int</code> value.
+         *
+         * @param array the elements
+         */
+        protected Int(int[] array) {
+            this(array, false);
+        }
+
+        /**
+         * Constructs a new signed <code>int</code> value.
+         *
+         * @param array    the elements
+         * @param unsigned if <code>true</code> an unsigned value type is constructed
+         */
+        protected Int(int[] array, boolean unsigned) {
             super(unsigned ? TYPE_UINT32 : TYPE_INT32);
-            _array = new int[numElems];
+            _array = array;
         }
 
         /**
@@ -1635,7 +1686,7 @@ public abstract class ProductData implements Cloneable {
          * @return a copy of this product data
          */
         @Override
-		protected ProductData createDeepClone() {
+        protected ProductData createDeepClone() {
             final Int data = new Int(_array.length);
             System.arraycopy(_array, 0, data._array, 0, _array.length);
             return data;
@@ -1646,7 +1697,7 @@ public abstract class ProductData implements Cloneable {
          * Returns the number of data elements this value has.
          */
         @Override
-		public int getNumElems() {
+        public int getNumElems() {
             return _array.length;
         }
 
@@ -1654,7 +1705,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemIntAt(int)}.
          */
         @Override
-		public int getElemIntAt(int index) {
+        public int getElemIntAt(int index) {
             return _array[index];
         }
 
@@ -1662,7 +1713,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemUIntAt(int)}.
          */
         @Override
-		public long getElemUIntAt(int index) {
+        public long getElemUIntAt(int index) {
             return _array[index];
         }
 
@@ -1670,7 +1721,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemFloatAt(int)}.
          */
         @Override
-		public float getElemFloatAt(int index) {
+        public float getElemFloatAt(int index) {
             return _array[index];
         }
 
@@ -1678,7 +1729,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemDoubleAt(int)}.
          */
         @Override
-		public double getElemDoubleAt(int index) {
+        public double getElemDoubleAt(int index) {
             return _array[index];
         }
 
@@ -1686,7 +1737,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemStringAt(int)}.
          */
         @Override
-		public String getElemStringAt(int index) {
+        public String getElemStringAt(int index) {
             return String.valueOf(getElemIntAt(index));
         }
 
@@ -1694,7 +1745,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#setElemIntAt(int, int)}.
          */
         @Override
-		public void setElemIntAt(int index, int value) {
+        public void setElemIntAt(int index, int value) {
             _array[index] = value;
         }
 
@@ -1702,7 +1753,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#setElemUIntAt(int, long)}.
          */
         @Override
-		public void setElemUIntAt(int index, long value) {
+        public void setElemUIntAt(int index, long value) {
             _array[index] = (int) value;
         }
 
@@ -1710,7 +1761,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#setElemFloatAt(int, float)}.
          */
         @Override
-		public void setElemFloatAt(int index, float value) {
+        public void setElemFloatAt(int index, float value) {
             _array[index] = Math.round(value);
         }
 
@@ -1718,7 +1769,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#setElemDoubleAt(int, double)}.
          */
         @Override
-		public void setElemDoubleAt(int index, double value) {
+        public void setElemDoubleAt(int index, double value) {
             _array[index] = (int) Math.round(value);
         }
 
@@ -1738,7 +1789,7 @@ public abstract class ProductData implements Cloneable {
          * @return this value's value, always a <code>int[]</code>, never <code>null</code>
          */
         @Override
-		public Object getElems() {
+        public Object getElems() {
             return _array;
         }
 
@@ -1748,12 +1799,11 @@ public abstract class ProductData implements Cloneable {
          * <code>getNumDataElems</code> method.
          *
          * @param data the data array
-         *
          * @throws IllegalArgumentException if data is <code>null</code> or it is not an array of the required type or
          *                                  does not have the required array length.
          */
         @Override
-		public void setElems(Object data) {
+        public void setElems(Object data) {
             Guardian.assertNotNull("data", data);
             if (data instanceof String[] && ((String[]) data).length == getNumElems()) {
                 final String[] strings = (String[]) data;
@@ -1772,7 +1822,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#readFrom(int, int, ImageInputStream)}.
          */
         @Override
-		public void readFrom(int startPos, int numElems, ImageInputStream source) throws IOException {
+        public void readFrom(int startPos, int numElems, ImageInputStream source) throws IOException {
             source.readFully(_array, startPos, numElems);
         }
 
@@ -1780,7 +1830,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#writeTo(int, int, ImageOutputStream)}.
          */
         @Override
-		public void writeTo(int sourceStartPos, int numSourceElems, ImageOutputStream destination) throws IOException {
+        public void writeTo(int sourceStartPos, int numSourceElems, ImageOutputStream destination) throws IOException {
             destination.writeInts(_array, sourceStartPos, numSourceElems);
         }
 
@@ -1794,7 +1844,7 @@ public abstract class ProductData implements Cloneable {
          * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
          */
         @Override
-		public void dispose() {
+        public void dispose() {
             _array = null;
         }
     }
@@ -1820,7 +1870,7 @@ public abstract class ProductData implements Cloneable {
     public static class UInt extends Int {
 
         /**
-         * Constructs a new <code>UInt</code> value.
+         * Constructs a new unsigned <code>int</code> value.
          *
          * @param numElems the number of elements, must not be less than one
          */
@@ -1828,13 +1878,22 @@ public abstract class ProductData implements Cloneable {
             super(numElems, true);
         }
 
-        protected UInt(int[] elems) {
-            super(TYPE_UINT32);
-            _array = elems;
+        /**
+         * Constructs a new unsigned <code>int</code> value.
+         *
+         * @param array the elements
+         */
+        protected UInt(int[] array) {
+            super(array, true);
         }
 
+        /**
+         * Constructs a new unsigned <code>int</code> value.
+         *
+         * @param elems the elements
+         */
         protected UInt(long[] elems) {
-            super(elems.length, true);
+            this(elems.length);
             for (int i = 0; i < elems.length; i++) {
                 _array[i] = (int) elems[i];
             }
@@ -1846,7 +1905,7 @@ public abstract class ProductData implements Cloneable {
          * @return a copy of this product data
          */
         @Override
-		protected ProductData createDeepClone() {
+        protected ProductData createDeepClone() {
             final UInt data = new UInt(_array.length);
             System.arraycopy(_array, 0, data._array, 0, _array.length);
             return data;
@@ -1860,7 +1919,7 @@ public abstract class ProductData implements Cloneable {
          * unsigned <code>long</code> values only.</i>
          */
         @Override
-		public int getElemIntAt(int index) {
+        public int getElemIntAt(int index) {
             return _array[index];
         }
 
@@ -1868,7 +1927,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemUIntAt(int)}.
          */
         @Override
-		public long getElemUIntAt(int index) {
+        public long getElemUIntAt(int index) {
             return _array[index] & 0xffffffffL;
         }
 
@@ -1876,7 +1935,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemFloatAt(int)}.
          */
         @Override
-		public float getElemFloatAt(int index) {
+        public float getElemFloatAt(int index) {
             return getElemUIntAt(index);
         }
 
@@ -1884,7 +1943,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemDoubleAt(int)}.
          */
         @Override
-		public double getElemDoubleAt(int index) {
+        public double getElemDoubleAt(int index) {
             return getElemUIntAt(index);
         }
 
@@ -1892,7 +1951,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemStringAt(int)}.
          */
         @Override
-		public String getElemStringAt(int index) {
+        public String getElemStringAt(int index) {
             return String.valueOf(getElemUIntAt(index));
         }
 
@@ -1902,18 +1961,17 @@ public abstract class ProductData implements Cloneable {
          * <code>getNumDataElems</code> method.
          *
          * @param data the data array
-         *
          * @throws IllegalArgumentException if data is <code>null</code> or it is not an array of the required type or
          *                                  does not have the required array length.
          */
         @Override
-		public void setElems(Object data) {
+        public void setElems(Object data) {
             Guardian.assertNotNull("data", data);
             if (data instanceof String[] && ((String[]) data).length == getNumElems()) {
                 final String[] strings = (String[]) data;
                 for (int i = 0; i < getNumElems(); i++) {
                     final long longValue = Long.parseLong(strings[i]);
-                    if (longValue > (long)Integer.MAX_VALUE * 2 + 1
+                    if (longValue > (long) Integer.MAX_VALUE * 2 + 1
                             || longValue < 0) {
                         throw new NumberFormatException("Value out of range. The value:'" + strings[i] + "' is not an unsigned int value.");
                     }
@@ -1964,7 +2022,7 @@ public abstract class ProductData implements Cloneable {
          * @return a copy of this product data
          */
         @Override
-		protected ProductData createDeepClone() {
+        protected ProductData createDeepClone() {
             final Float data = new Float(_array.length);
             System.arraycopy(_array, 0, data._array, 0, _array.length);
             return data;
@@ -1974,7 +2032,7 @@ public abstract class ProductData implements Cloneable {
          * Returns the number of data elements this value has.
          */
         @Override
-		public int getNumElems() {
+        public int getNumElems() {
             return _array.length;
         }
 
@@ -1982,7 +2040,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemIntAt(int)}.
          */
         @Override
-		public int getElemIntAt(int index) {
+        public int getElemIntAt(int index) {
             return Math.round(_array[index]);
         }
 
@@ -1990,7 +2048,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemUIntAt(int)}.
          */
         @Override
-		public long getElemUIntAt(int index) {
+        public long getElemUIntAt(int index) {
             return Math.round(_array[index]);
         }
 
@@ -1998,7 +2056,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemFloatAt(int)}.
          */
         @Override
-		public float getElemFloatAt(int index) {
+        public float getElemFloatAt(int index) {
             return _array[index];
         }
 
@@ -2006,7 +2064,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemDoubleAt(int)}.
          */
         @Override
-		public double getElemDoubleAt(int index) {
+        public double getElemDoubleAt(int index) {
             return _array[index];
         }
 
@@ -2014,7 +2072,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemStringAt(int)}.
          */
         @Override
-		public String getElemStringAt(int index) {
+        public String getElemStringAt(int index) {
             return String.valueOf(_array[index]);
         }
 
@@ -2022,7 +2080,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#setElemIntAt(int, int)}.
          */
         @Override
-		public void setElemIntAt(int index, int value) {
+        public void setElemIntAt(int index, int value) {
             _array[index] = value;
         }
 
@@ -2030,7 +2088,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#setElemUIntAt(int, long)}.
          */
         @Override
-		public void setElemUIntAt(int index, long value) {
+        public void setElemUIntAt(int index, long value) {
             _array[index] = value;
         }
 
@@ -2038,7 +2096,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#setElemFloatAt(int, float)}.
          */
         @Override
-		public void setElemFloatAt(int index, float value) {
+        public void setElemFloatAt(int index, float value) {
             _array[index] = value;
         }
 
@@ -2046,7 +2104,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#setElemDoubleAt(int, double)}.
          */
         @Override
-		public void setElemDoubleAt(int index, double value) {
+        public void setElemDoubleAt(int index, double value) {
             _array[index] = (float) value;
         }
 
@@ -2066,7 +2124,7 @@ public abstract class ProductData implements Cloneable {
          * @return this value's value, always a <code>float[]</code>, never <code>null</code>
          */
         @Override
-		public Object getElems() {
+        public Object getElems() {
             return _array;
         }
 
@@ -2076,12 +2134,11 @@ public abstract class ProductData implements Cloneable {
          * <code>getNumDataElems</code> method.
          *
          * @param data the data array
-         *
          * @throws IllegalArgumentException if data is <code>null</code> or it is not an array of the required type or
          *                                  does not have the required array length.
          */
         @Override
-		public void setElems(Object data) {
+        public void setElems(Object data) {
             Guardian.assertNotNull("data", data);
             if (data instanceof String[] && ((String[]) data).length == getNumElems()) {
                 final String[] strings = (String[]) data;
@@ -2100,7 +2157,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#readFrom(int, int, ImageInputStream)}.
          */
         @Override
-		public void readFrom(int startPos, int numElems, ImageInputStream source) throws IOException {
+        public void readFrom(int startPos, int numElems, ImageInputStream source) throws IOException {
             source.readFully(_array, startPos, numElems);
         }
 
@@ -2108,7 +2165,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#writeTo(int, int, ImageOutputStream)}.
          */
         @Override
-		public void writeTo(int sourceStartPos, int numSourceElems, ImageOutputStream destination) throws IOException {
+        public void writeTo(int sourceStartPos, int numSourceElems, ImageOutputStream destination) throws IOException {
             destination.writeFloats(_array, sourceStartPos, numSourceElems);
         }
 
@@ -2120,7 +2177,7 @@ public abstract class ProductData implements Cloneable {
          * @param other the other one
          */
         @Override
-		public boolean equalElems(ProductData other) {
+        public boolean equalElems(ProductData other) {
             if (other == this) {
                 return true;
             } else if (other instanceof ProductData.Float) {
@@ -2139,7 +2196,7 @@ public abstract class ProductData implements Cloneable {
          * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
          */
         @Override
-		public void dispose() {
+        public void dispose() {
             _array = null;
         }
     }
@@ -2183,7 +2240,7 @@ public abstract class ProductData implements Cloneable {
          * @return a copy of this product data
          */
         @Override
-		protected ProductData createDeepClone() {
+        protected ProductData createDeepClone() {
             final Double data = new Double(_array.length);
             System.arraycopy(_array, 0, data._array, 0, _array.length);
             return data;
@@ -2194,7 +2251,7 @@ public abstract class ProductData implements Cloneable {
          * Returns the number of data elements this value has.
          */
         @Override
-		public int getNumElems() {
+        public int getNumElems() {
             return _array.length;
         }
 
@@ -2202,7 +2259,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemIntAt(int)}.
          */
         @Override
-		public int getElemIntAt(int index) {
+        public int getElemIntAt(int index) {
             return (int) Math.round(_array[index]);
         }
 
@@ -2210,7 +2267,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemUIntAt(int)}.
          */
         @Override
-		public long getElemUIntAt(int index) {
+        public long getElemUIntAt(int index) {
             return Math.round(_array[index]);
         }
 
@@ -2296,7 +2353,6 @@ public abstract class ProductData implements Cloneable {
          * <code>getNumDataElems</code> method.
          *
          * @param data the data array
-         *
          * @throws IllegalArgumentException if data is <code>null</code> or it is not an array of the required type or
          *                                  does not have the required array length.
          */
@@ -2389,7 +2445,6 @@ public abstract class ProductData implements Cloneable {
          * Each has to have at least a length of one.
          *
          * @param data the data array
-         *
          * @throws IllegalArgumentException if data is <code>null</code> or it is not an array of the required type or
          *                                  does the array length is less than one.
          */
@@ -2404,7 +2459,7 @@ public abstract class ProductData implements Cloneable {
                 _array = (byte[]) data;
             } else {
                 throw new IllegalArgumentException("data is not an instance of String, char[] or byte[]" +
-                                                   "or the length is less than one");
+                        "or the length is less than one");
             }
         }
 
@@ -2483,6 +2538,15 @@ public abstract class ProductData implements Cloneable {
         /**
          * Constructs a MJD2000 date instance.
          *
+         * @param elems an array containg at least the three elements <code>{days, seconds, microSeconds}</code>
+         */
+        protected UTC(int[] elems) {
+            this(elems[0], elems[1], elems[2]);
+        }
+
+        /**
+         * Constructs a MJD2000 date instance.
+         *
          * @param days         the number of days since 2000-01-01 00:00
          * @param seconds      the seconds fraction of the number of days
          * @param microSeconds the microseconds fraction of the number of days
@@ -2498,7 +2562,6 @@ public abstract class ProductData implements Cloneable {
          * Constructs a MJD2000 date instance.
          *
          * @param mjd the Modified Julian Day 2000 (MJD2000) as double value
-         *
          * @see #getMJD()
          */
         public UTC(double mjd) {
@@ -2518,7 +2581,6 @@ public abstract class ProductData implements Cloneable {
          *
          * @param date   the UTC time
          * @param micros the microseconds fraction
-         *
          * @return a new UTC instance
          */
         public static UTC create(final Date date, long micros) {
@@ -2540,7 +2602,6 @@ public abstract class ProductData implements Cloneable {
          * 2000, 0:00.
          *
          * @return the MJD 2000 calendar
-         *
          * @see #getAsCalendar()
          */
         public static Calendar createCalendar() {
@@ -2565,9 +2626,7 @@ public abstract class ProductData implements Cloneable {
          * english locale ('en') and a calendar returned by the {@link #createCalendar()} method.
          *
          * @param pattern the data format pattern
-         *
          * @return a date format
-         *
          * @see java.text.SimpleDateFormat
          */
         public static DateFormat createDateFormat(String pattern) {
@@ -2581,9 +2640,7 @@ public abstract class ProductData implements Cloneable {
          * The method returns {@link #parse(String, String)} using {@link #DATE_FORMAT_PATTERN} as pattern.
          *
          * @param text a UTC value given as text
-         *
          * @return the UTC value represented by the given text
-         *
          * @throws ParseException
          * @see #createCalendar
          * @see #createDateFormat
@@ -2599,9 +2656,7 @@ public abstract class ProductData implements Cloneable {
          *
          * @param text    a UTC value given as text
          * @param pattern the date/time pattern
-         *
          * @return the UTC value represented by the given text
-         *
          * @throws ParseException
          * @see #createCalendar
          * @see #createDateFormat
@@ -2692,7 +2747,6 @@ public abstract class ProductData implements Cloneable {
          * The date of the calendar is set to this UTC value.
          *
          * @return the MJD 2000 calendar
-         *
          * @see #createCalendar()
          * @see #getAsDate()
          */
@@ -2721,8 +2775,8 @@ public abstract class ProductData implements Cloneable {
          */
         public double getMJD() {
             return getDaysFraction()
-                   + SECONDS_TO_DAYS * (getSecondsFraction()
-                                        + MICROS_TO_SECONDS * getMicroSecondsFraction());
+                    + SECONDS_TO_DAYS * (getSecondsFraction()
+                    + MICROS_TO_SECONDS * getMicroSecondsFraction());
         }
 
         /**
@@ -2755,7 +2809,7 @@ public abstract class ProductData implements Cloneable {
             return this.getElemUIntAt(2);
         }
     }
-    
+
     /**
      * The <code>Boolean</code> class is a <code>ProductData</code> specialisation for true/false fields.
      * <p/>
@@ -2771,7 +2825,7 @@ public abstract class ProductData implements Cloneable {
         /**
          * Constructs a new <code>Boolean</code> value.
          *
-         * @param array    the elements
+         * @param array the elements
          */
         protected Boolean(boolean[] array) {
             super(TYPE_BOOLEAN);
@@ -2784,7 +2838,7 @@ public abstract class ProductData implements Cloneable {
          * @param numElems the number of elements, must not be less than one
          */
         protected Boolean(int numElems) {
-        	super(TYPE_BOOLEAN);
+            super(TYPE_BOOLEAN);
             _array = new boolean[numElems];
         }
 
@@ -2794,7 +2848,7 @@ public abstract class ProductData implements Cloneable {
          * @return a copy of this product data
          */
         @Override
-		protected ProductData createDeepClone() {
+        protected ProductData createDeepClone() {
             final Boolean data = new Boolean(_array.length);
             System.arraycopy(_array, 0, data._array, 0, _array.length);
             return data;
@@ -2804,7 +2858,7 @@ public abstract class ProductData implements Cloneable {
          * Returns the number of data elements this value has.
          */
         @Override
-		public int getNumElems() {
+        public int getNumElems() {
             return _array.length;
         }
 
@@ -2812,7 +2866,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemIntAt(int)}.
          */
         @Override
-		public int getElemIntAt(int index) {
+        public int getElemIntAt(int index) {
             return _array[index] ? 1 : 0;
         }
 
@@ -2820,7 +2874,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemUIntAt(int)}.
          */
         @Override
-		public long getElemUIntAt(int index) {
+        public long getElemUIntAt(int index) {
             return _array[index] ? 1 : 0;
         }
 
@@ -2828,7 +2882,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemFloatAt(int)}.
          */
         @Override
-		public float getElemFloatAt(int index) {
+        public float getElemFloatAt(int index) {
             return _array[index] ? 1.0f : 0.0f;
         }
 
@@ -2836,7 +2890,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemDoubleAt(int)}.
          */
         @Override
-		public double getElemDoubleAt(int index) {
+        public double getElemDoubleAt(int index) {
             return _array[index] ? 1.0 : 0.0;
         }
 
@@ -2844,7 +2898,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemStringAt(int)}.
          */
         @Override
-		public String getElemStringAt(int index) {
+        public String getElemStringAt(int index) {
             return java.lang.Boolean.toString(_array[index]);
         }
 
@@ -2852,15 +2906,15 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#getElemBooleanAt(int)}.
          */
         @Override
-		public boolean getElemBooleanAt(int index) {
+        public boolean getElemBooleanAt(int index) {
             return _array[index];
         }
-        
+
         /**
          * Please refer to {@link ProductData#setElemIntAt(int, int)}.
          */
         @Override
-		public void setElemIntAt(int index, int value) {
+        public void setElemIntAt(int index, int value) {
             _array[index] = (value != 0);
         }
 
@@ -2868,7 +2922,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#setElemUIntAt(int, long)}.
          */
         @Override
-		public void setElemUIntAt(int index, long value) {
+        public void setElemUIntAt(int index, long value) {
             _array[index] = (value != 0);
         }
 
@@ -2876,7 +2930,7 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#setElemFloatAt(int, float)}.
          */
         @Override
-		public void setElemFloatAt(int index, float value) {
+        public void setElemFloatAt(int index, float value) {
             _array[index] = (value != 0);
         }
 
@@ -2884,15 +2938,15 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#setElemDoubleAt(int, double)}.
          */
         @Override
-		public void setElemDoubleAt(int index, double value) {
+        public void setElemDoubleAt(int index, double value) {
             _array[index] = (value != 0);
         }
-        
+
         /**
-         * Please refer to {@link ProductData#setElemBooleanAt(int, double)}.
+         * Please refer to {@link ProductData#setElemBooleanAt(int, boolean)}.
          */
         @Override
-		public void setElemBooleanAt(int index, boolean value) {
+        public void setElemBooleanAt(int index, boolean value) {
             _array[index] = value;
         }
 
@@ -2912,7 +2966,7 @@ public abstract class ProductData implements Cloneable {
          * @return this value's value, always a <code>boolean[]</code>, never <code>null</code>
          */
         @Override
-		public Object getElems() {
+        public Object getElems() {
             return _array;
         }
 
@@ -2922,12 +2976,11 @@ public abstract class ProductData implements Cloneable {
          * <code>getNumDataElems</code> method.
          *
          * @param data the data array
-         *
          * @throws IllegalArgumentException if data is <code>null</code> or it is not an array of the required type or
          *                                  does not have the required array length.
          */
         @Override
-		public void setElems(Object data) {
+        public void setElems(Object data) {
             Guardian.assertNotNull("data", data);
             if (data instanceof String[] && ((String[]) data).length == getNumElems()) {
                 final String[] strings = (String[]) data;
@@ -2946,28 +2999,28 @@ public abstract class ProductData implements Cloneable {
          * Please refer to {@link ProductData#readFrom(int, int, ImageInputStream)}.
          */
         @Override
-		public void readFrom(int startPos, int numElems, ImageInputStream source) throws IOException {
-        	ProductData.Byte bytes = new Byte(numElems);
-        	bytes.readFrom(startPos, numElems, source);
-        	for (int i = 0; i < getNumElems(); i++) {
-				setElemIntAt(i+startPos, bytes.getElemIntAt(i));
-			}
+        public void readFrom(int startPos, int numElems, ImageInputStream source) throws IOException {
+            ProductData.Byte bytes = new Byte(numElems);
+            bytes.readFrom(startPos, numElems, source);
+            for (int i = 0; i < getNumElems(); i++) {
+                setElemIntAt(i + startPos, bytes.getElemIntAt(i));
+            }
         }
 
         /**
          * Please refer to {@link ProductData#writeTo(int, int, ImageOutputStream)}.
          */
         @Override
-		public void writeTo(int sourceStartPos, int numSourceElems, ImageOutputStream destination) throws IOException {
-        	ProductData.Byte bytes = new Byte(getNumElems());
-        	for (int i = 0; i < getNumElems(); i++) {
-				bytes.setElemIntAt(i, getElemIntAt(i));
-			}
-        	bytes.writeTo(sourceStartPos, numSourceElems, destination);
+        public void writeTo(int sourceStartPos, int numSourceElems, ImageOutputStream destination) throws IOException {
+            ProductData.Byte bytes = new Byte(getNumElems());
+            for (int i = 0; i < getNumElems(); i++) {
+                bytes.setElemIntAt(i, getElemIntAt(i));
+            }
+            bytes.writeTo(sourceStartPos, numSourceElems, destination);
         }
 
         @Override
-		public Object clone() {
+        public Object clone() {
             Byte c = new Byte(getNumElems(), isUnsigned());
             c.setElems(getElems());
             return c;
@@ -2983,7 +3036,7 @@ public abstract class ProductData implements Cloneable {
          * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
          */
         @Override
-		public void dispose() {
+        public void dispose() {
             _array = null;
         }
     }
