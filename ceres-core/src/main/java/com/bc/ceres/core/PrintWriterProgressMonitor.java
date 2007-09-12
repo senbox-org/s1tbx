@@ -76,6 +76,10 @@ public class PrintWriterProgressMonitor implements ProgressMonitor {
     public void beginTask(String name, int totalWork) {
         this.taskName = name;
         this.totalWork = totalWork;
+        currentWork = 0.0;
+        percentageWorked = 0;
+        lastPercentagePrinted = 0;
+        canceled = false;
         printStartMessage(printWriter);
     }
 
