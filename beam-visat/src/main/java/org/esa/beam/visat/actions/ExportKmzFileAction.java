@@ -198,6 +198,7 @@ public class ExportKmzFileAction extends ExecCommand {
     }
 
     private static RenderedImage createRasterImage(final ProductSceneView view, boolean isNoDataTranparent) {
+        view.setPinOverlayEnabled(false);
         final ImageDisplay imageDisplay = view.getImageDisplay();
         final BufferedImage bi;
         final double modelOffsetXOld = imageDisplay.getViewModel().getModelOffsetX();
@@ -230,7 +231,7 @@ public class ExportKmzFileAction extends ExecCommand {
         }
         imageDisplay.getViewModel().setModelOffset(modelOffsetXOld,
                                                    modelOffsetYOld, viewScaleOld);
-
+        view.setPinOverlayEnabled(true);
         return bi;
     }
 
@@ -252,9 +253,9 @@ public class ExportKmzFileAction extends ExecCommand {
         String pinKml = "";
         ProductNodeGroup<Pin> pinGroup = product.getPinGroup();
         Pin[] pins = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
-        for (Pin pin : pins) {
+        for (Pin pin : pins) {            
             GeoPos geoPos = pin.getGeoPos();
-            if (geoPos != null) {
+            if (geoPos != null && product.containsPixel(pin.getPixelPos())) {
                 pinKml += String.format(
                         "<Placemark>\n"
                                 + "  <name>%s</name>\n"
