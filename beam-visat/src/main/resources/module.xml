@@ -47,6 +47,9 @@
         <module>beam-processing</module>
     </dependency>
     <dependency>
+        <module>ceres-binding</module>
+    </dependency>
+    <dependency>
         <module>beam-help</module>
         <optional>true</optional>
     </dependency>
