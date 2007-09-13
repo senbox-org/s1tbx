@@ -16,48 +16,82 @@
  */
 package org.esa.beam.framework.dataio;
 
-import java.io.IOException;
-
 import junit.framework.TestCase;
-
+import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.PinSymbol;
+import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.maptransf.MapProjection;
 import org.esa.beam.framework.dataop.maptransf.MapTransform;
 import org.esa.beam.framework.dataop.maptransf.MapTransformFactory;
 
+import java.io.IOException;
+
 public class ProductProjectionBuilderTest extends TestCase {
 
-    public void testEnsureThatSubsetInfoAllwaysNull() {
+    private Product product;
+    private ProductProjectionBuilder projectionBuilder;
 
+    @Override
+    protected void setUp() throws Exception {
         MapTransform transform = MapTransformFactory.createTransform("Affine", new double[]{1, 2, 3, 4, 5, 6});
         MapProjection projection = new MapProjection("mp", transform);
         MapInfo mapInfo = new MapInfo(projection, 3, 4, 5, 6, 7, 8, Datum.WGS_84);
         mapInfo.setSceneWidth(40);
         mapInfo.setSceneHeight(50);
-        ProductProjectionBuilder projectionBuilder = new ProductProjectionBuilder(mapInfo);
+        projectionBuilder = new ProductProjectionBuilder(mapInfo);
 
-        Product product = new Product("p", "t", 3, 3);
-        TiePointGrid t1 = new TiePointGrid("t1", 3, 3, 0, 0, 1, 1, new float[]{0.6f, 0.3f, 0.4f, 0.8f, 0.9f, 0.4f, 0.3f, 0.2f, 0.4f});
+        product = new Product("p", "t", 3, 3);
+        TiePointGrid t1 = new TiePointGrid("t1", 3, 3, 0, 0, 1, 1,
+                                           new float[]{0.6f, 0.3f, 0.4f, 0.8f, 0.9f, 0.4f, 0.3f, 0.2f, 0.4f});
         product.addTiePointGrid(t1);
-        TiePointGrid t2 = new TiePointGrid("t2", 3, 3, 0, 0, 1, 1, new float[]{0.9f, 0.2f, 0.3f, 0.6f, 0.1f, 0.4f, 0.2f, 0.9f, 0.5f});
+        TiePointGrid t2 = new TiePointGrid("t2", 3, 3, 0, 0, 1, 1,
+                                           new float[]{0.9f, 0.2f, 0.3f, 0.6f, 0.1f, 0.4f, 0.2f, 0.9f, 0.5f});
         product.addTiePointGrid(t2);
         product.setGeoCoding(new TiePointGeoCoding(t1, t2, Datum.WGS_84));
+    }
 
-        try {
-            ProductSubsetDef subsetDef = new ProductSubsetDef();
-            assertNotNull(subsetDef);
-            Product product2 = projectionBuilder.readProductNodes(product, subsetDef);
-            assertEquals(product.getName(), product2.getName());
-            assertNull(projectionBuilder.getSubsetDef());
-            assertNotNull(subsetDef);
-            projectionBuilder.setSubsetDef(subsetDef);
-            assertNull(projectionBuilder.getSubsetDef());
-        } catch (IOException e) {
-            fail("IOException not expected");
-        }
+    public void testEnsureThatSubsetInfoAllwaysNull() throws IOException {
+        ProductSubsetDef subsetDef = new ProductSubsetDef();
+        Product product2 = projectionBuilder.readProductNodes(product, subsetDef);
+        assertEquals(product.getName(), product2.getName());
+        assertNull(projectionBuilder.getSubsetDef());
+        assertNotNull(subsetDef);
+        projectionBuilder.setSubsetDef(subsetDef);
+        assertNull(projectionBuilder.getSubsetDef());
+    }
+
+    public void testCopyPlacemarkGroups() throws IOException {
+        final PinSymbol defaultPinSymbol = PinSymbol.createDefaultPinSymbol();
+        final Pin pin = new Pin("P1", "", "", new PixelPos(1.5f, 1.5f), null, defaultPinSymbol);
+        final Pin gcp = new Pin("G1", "", "", new PixelPos(2.5f, 2.5f), null, defaultPinSymbol);
+
+        product.getPinGroup().add(pin);
+        product.getGcpGroup().add(gcp);
+
+        final Product product2 = projectionBuilder.readProductNodes(product, null);
+
+        assertEquals(1, product2.getPinGroup().getNodeCount());
+        assertEquals(1, product2.getGcpGroup().getNodeCount());
+        final Pin pin2 = product2.getPinGroup().get(0);
+        final Pin gcp2 = product2.getGcpGroup().get(0);
+
+        assertEquals("P1", pin2.getName());
+        assertEquals("G1", gcp2.getName());
+
+        assertEquals(pin.getGeoPos(), pin2.getGeoPos());
+        assertEquals(gcp.getGeoPos(), gcp2.getGeoPos());
+
+        final GeoCoding geoCoding = product2.getGeoCoding();
+        final PixelPos pinPixelPos = geoCoding.getPixelPos(pin2.getGeoPos(), null);
+        final PixelPos gcpPixelPos = geoCoding.getPixelPos(gcp2.getGeoPos(), null);
+
+        assertEquals(pinPixelPos, pin2.getPixelPos());
+        assertEquals(gcpPixelPos, gcp2.getPixelPos());
     }
 }

@@ -19,13 +19,7 @@ package org.esa.beam.framework.dataio;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.util.CachingObjectArray;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Pointing;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.dem.ElevationModel;
 import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
@@ -396,14 +390,25 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
         }
         if (!isMetadataIgnored()) {
             addMetadataToProduct(product);
-//            addTiePointGridsToProduct(product); not required
             addFlagCodingsToProduct(product);
         }
         addGeoCodingToProduct(product);
         addBandsToProduct(product);
         addBitmaskDefsToProduct(product);
+        copyPlacemarks(getSourceProduct().getPinGroup(), product.getPinGroup(), PinSymbol.createDefaultPinSymbol());
+        copyPlacemarks(getSourceProduct().getGcpGroup(), product.getGcpGroup(), PinSymbol.createDefaultGcpSymbol());
 
         return product;
+    }
+
+    private void copyPlacemarks(ProductNodeGroup<Pin> sourcePlacemarkGroup,
+                                ProductNodeGroup<Pin> targetPlacemarkGroup, PinSymbol symbol) {
+        final Pin[] pins = sourcePlacemarkGroup.toArray(new Pin[0]);
+        for (Pin pin : pins) {
+            targetPlacemarkGroup.add(
+                    new Pin(pin.getName(), pin.getLabel(), pin.getDescription(), null, pin.getGeoPos(),
+                            symbol));
+        }
     }
 
     private void addBandsToProduct(Product targetProduct) {

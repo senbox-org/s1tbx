@@ -18,15 +18,7 @@ package org.esa.beam.framework.dataio;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.TiePointGeoCoding;
-import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
 
@@ -329,7 +321,51 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
         addBitmaskOverlayInfosToBandAndTiePointGrids(product);
         setSceneRasterStartAndStopTime(product);
         addSubsetInfoMetadata(product);
+        addPlacemarks(product);
+
         return product;
+    }
+
+    private void addPlacemarks(Product product) {
+        final PinSymbol pinSymbol = PinSymbol.createDefaultPinSymbol();
+        final PinSymbol gcpSymbol = PinSymbol.createDefaultGcpSymbol();
+
+        copyPlacemarks(getSourceProduct().getPinGroup(), product.getPinGroup(), pinSymbol, false);
+        copyPlacemarks(getSourceProduct().getGcpGroup(), product.getGcpGroup(), gcpSymbol, true);
+    }
+
+    private void copyPlacemarks(ProductNodeGroup<Pin> sourcePlacemarkGroup,
+                                ProductNodeGroup<Pin> targetPlacemarkGroup, PinSymbol symbol,
+                                boolean copyAll) {
+        final Pin[] pins = new Pin[sourcePlacemarkGroup.getNodeCount()];
+        sourcePlacemarkGroup.toArray(pins);
+
+        final int offsetX;
+        final int offsetY;
+        if (getSubsetDef().getRegion() != null) {
+            offsetX = getSubsetDef().getRegion().x;
+            offsetY = getSubsetDef().getRegion().y;
+        } else {
+            offsetX = 0;
+            offsetY = 0;
+        }
+
+        final int subSamplingX = getSubsetDef().getSubSamplingX();
+        final int subSamplingY = getSubsetDef().getSubSamplingY();
+
+        for (final Pin pin : pins) {
+            final float x = (pin.getPixelPos().x - offsetX) / subSamplingX;
+            final float y = (pin.getPixelPos().y - offsetY) / subSamplingY;
+
+            if (x >= 0 && x < getSceneRasterWidth() && y >= 0 && y < getSceneRasterHeight() || copyAll) {
+                targetPlacemarkGroup.add(new Pin(pin.getName(),
+                                                 pin.getLabel(),
+                                                 pin.getDescription(),
+                                                 new PixelPos(x, y),
+                                                 pin.getGeoPos(),
+                                                 symbol));
+            }
+        }
     }
 
     private void setSceneRasterStartAndStopTime(Product product) {
