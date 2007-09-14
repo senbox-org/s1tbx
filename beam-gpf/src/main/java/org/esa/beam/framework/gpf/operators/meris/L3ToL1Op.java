@@ -24,14 +24,15 @@ import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.AbstractOperator;
 import org.esa.beam.framework.gpf.AbstractOperatorSpi;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Raster;
+import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.StringUtils;
 
 import com.bc.ceres.core.ProgressMonitor;
 
@@ -41,7 +42,7 @@ import com.bc.ceres.core.ProgressMonitor;
  * @author marcoz
  * @version $Revision: 1.1 $ $Date: 2007/03/27 12:51:05 $
  */
-public class L3ToL1Op extends AbstractOperator {
+public class L3ToL1Op extends MerisBasisOp {
 
     private GeoCoding l3GeoCoding;
     private GeoCoding l1GeoCoding;
@@ -50,8 +51,12 @@ public class L3ToL1Op extends AbstractOperator {
     private Product l1Product;
     @SourceProduct(alias="l3")
     private Product l3Product;
+    @SourceProduct(alias="mask", optional = true)
+    private Product maskProduct;
     @TargetProduct
     private Product targetProduct;
+    @Parameter
+    private String maskBand;
 
     public L3ToL1Op(OperatorSpi spi) {
         super(spi);
@@ -62,9 +67,10 @@ public class L3ToL1Op extends AbstractOperator {
         l3GeoCoding = l3Product.getGeoCoding();
         l1GeoCoding = l1Product.getGeoCoding();
 
-        final int width = l1Product.getSceneRasterWidth();
-        final int height = l1Product.getSceneRasterHeight();
-        targetProduct = new Product("L1", "L1", width, height);
+//        final int width = l1Product.getSceneRasterWidth();
+//        final int height = l1Product.getSceneRasterHeight();
+//        targetProduct = new Product("L1", "L1", width, height);
+        targetProduct = createCompatibleProduct(l1Product, "l3tol1", "L3");
 
         Band[] l3Bands = l3Product.getBands();
         for (Band sourceBand : l3Bands) {
@@ -99,24 +105,27 @@ public class L3ToL1Op extends AbstractOperator {
         Rectangle l3Rect = findL3Rectangle(rectangle, srcBand);
         Raster srcRaster = getRaster(srcBand, l3Rect);
         
+        Raster maskRaster = null;
+        boolean useMask = false;
+        if (maskProduct != null && StringUtils.isNotNullAndNotEmpty(maskBand)) {
+        	maskRaster = getRaster(maskProduct.getBand(maskBand), rectangle);
+        	useMask = true;
+        }
+        
     	pm.beginTask("compute", rectangle.height);
         try {
             for (int y = rectangle.y; y < rectangle.y + rectangle.height; y++) {
                 l1PixelPos.y = y;
                 for (int x = rectangle.x; x < rectangle.x + rectangle.width; x++) {
-                    l1PixelPos.x = x;
-                    l1GeoCoding.getGeoPos(l1PixelPos, geoPos);
-                    l3GeoCoding.getPixelPos(geoPos, l3PixelPos);
-                    targetRaster.setDouble(x, y, srcRaster.getDouble(Math.round(l3PixelPos.x), Math.round(l3PixelPos.y)));
-                    
-//                    double[] srcValue = srcBand.readPixels((int) l3PixelPos.x, (int) l3PixelPos.y, 1, 1, (double[])null, ProgressMonitor.NULL);
-//					targetRaster.setDouble(x, y, srcValue[0]);
+                	if (!useMask || maskRaster.getBoolean(x, y)) {
+                		l1PixelPos.x = x;
+                        l1GeoCoding.getGeoPos(l1PixelPos, geoPos);
+                        l3GeoCoding.getPixelPos(geoPos, l3PixelPos);
+                        targetRaster.setDouble(x, y, srcRaster.getDouble(Math.round(l3PixelPos.x), Math.round(l3PixelPos.y)));	
+                	}
                 }
                 pm.worked(1);
             }
-//        } catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
 		} finally {
         	pm.done();
         }
