@@ -49,6 +49,7 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.Point;
 import java.awt.Window;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -105,6 +106,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     private AbstractButton exportButton;
     private AbstractButton importNButton;
     private AbstractButton exportNButton;
+
     private Product product;
     private JTable placemarkTable;
     private PlacemarkListener placemarkListener;
@@ -136,7 +138,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     public JComponent createControl() {
         placemarkTable = new JTable();
         placemarkTable.setName("placemarkTable");
-        placemarkTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        placemarkTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         placemarkTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         placemarkTable.setRowSelectionAllowed(true);
         // IMPORTANT: We set ReorderingAllowed=false, because we export the
@@ -347,7 +349,10 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         content.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         content.add(BorderLayout.CENTER, mainPane);
         content.add(BorderLayout.EAST, buttonPane);
-
+        Component southExtension = getSouthExtension();
+        if (southExtension != null) {
+            content.add(BorderLayout.SOUTH, southExtension);
+        }
         content.setPreferredSize(new Dimension(370, 200));
 
         if (getDescriptor().getHelpId() != null) {
@@ -376,6 +381,14 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         updateUIState();
 
         return content;
+    }
+
+    protected Component getSouthExtension() {
+        return null;  //To change body of created methods use File | Settings | File Templates.
+    }
+
+    protected final Product getProduct() {
+        return product;
     }
 
     public void setProduct(Product product) {
@@ -549,7 +562,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         }
     }
 
-    private void updateUIState() {
+    protected void updateUIState() {
         boolean productSelected = product != null;
         boolean hasPins = product != null && getPlacemarkGroup().getNodeCount() > 0;
         int numSelectedPins = 0;
@@ -718,7 +731,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
     private Pin[] loadPinsFromFile() throws IOException {
         final BeamFileChooser fileChooser = new BeamFileChooser();
-        fileChooser.setDialogTitle("Import Pin"); /*I18N*/
+        fileChooser.setDialogTitle("Import Placemarks"); /*I18N*/
         fileChooser.addChoosableFileFilter(getOrCreateFlatPinFileFilter());
         fileChooser.addChoosableFileFilter(getOrCreateXMLPinFileFilter());
         fileChooser.addChoosableFileFilter(getTextFileFilter());
