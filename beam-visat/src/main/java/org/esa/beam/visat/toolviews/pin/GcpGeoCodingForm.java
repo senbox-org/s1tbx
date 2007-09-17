@@ -28,12 +28,12 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Created by Marco Peters.
+ * GCP geo-coding form.
  *
  * @author Marco Peters
  * @version $Revision:$ $Date:$
  */
-public class GcpGeoCodingForm extends JPanel {
+class GcpGeoCodingForm extends JPanel {
 
     private JTextField methodTextField;
     private JTextField rmseLatTextField;
