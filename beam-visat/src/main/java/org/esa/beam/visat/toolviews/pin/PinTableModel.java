@@ -14,6 +14,9 @@
 package org.esa.beam.visat.toolviews.pin;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.jidesoft.validation.ValidationObject;
+import com.jidesoft.validation.ValidationResult;
+import com.jidesoft.validation.Validator;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.PixelPos;
@@ -81,7 +84,7 @@ public class PinTableModel implements TableModel {
     }
 
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return false;
+        return columnIndex < DEFAULT_COLUMN_NAMES.length;
     }
 
     public Object getValueAt(int rowIndex, int columnIndex) {
@@ -145,7 +148,25 @@ public class PinTableModel implements TableModel {
         return String.valueOf(MathUtils.round(x, roundFactor));
     }
 
-    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+    public void setValueAt(Object value, int rowIndex, int columnIndex) {
+//        if (columnIndex < DEFAULT_COLUMN_NAMES.length) {
+//            String strValue = (String) value;
+//            Pin pin = placemarkDescriptor.getPlacemarkGroup(product).get(rowIndex);
+//            if (columnIndex == 0) {
+//                pin.setPixelPos(new PixelPos(Float.parseFloat(strValue), pin.getPixelPos().y));
+//            } else if (columnIndex == 1) {
+//                pin.setPixelPos(new PixelPos(pin.getPixelPos().x, Float.parseFloat(strValue)));
+//            } else if (columnIndex == 2) {
+//                pin.setGeoPos(new GeoPos(pin.getGeoPos().lat, Float.parseFloat(strValue)));
+//            } else if (columnIndex == 3) {
+//                pin.setGeoPos(new GeoPos(Float.parseFloat(strValue), pin.getGeoPos().lon));
+//            } else if (columnIndex == 4) {
+//                pin.setLabel(strValue);
+//            } else {
+//                throw new IllegalStateException("Not able to set value for column '" + columnIndex + "'");
+//            }
+//            // todo - catch NumberFormatException
+//        }
     }
 
     public void addTableModelListener(TableModelListener l) {
@@ -157,4 +178,67 @@ public class PinTableModel implements TableModel {
     private int getNumSelectedBands() {
         return selectedBands != null ? selectedBands.length : 0;
     }
+
+    public Validator getValidator(int columnIndex) {
+        if (columnIndex < DEFAULT_COLUMN_NAMES.length) {
+            if (columnIndex == 0) {
+                return new ColumnValidator(new PixelXValidator());
+            } else if (columnIndex == 1) {
+                return new ColumnValidator(new PixelXValidator());
+            } else if (columnIndex == 2) {
+                return new ColumnValidator(new PixelXValidator());
+            } else if (columnIndex == 3) {
+                return new ColumnValidator(new PixelXValidator());
+            } else if (columnIndex == 4) {
+                return new ColumnValidator(ValidatorMethod.DEFAULT_METHOD);
+            } else {
+                throw new IllegalStateException("No validator found for column '" + columnIndex + "'");
+            }
+        }
+        return new ColumnValidator(ValidatorMethod.DEFAULT_METHOD);
+    }
+
+    private static class ColumnValidator implements Validator {
+
+        private ValidatorMethod method;
+
+        public ColumnValidator(ValidatorMethod method) {
+            this.method = method;
+        }
+
+        public ValidationResult validating(ValidationObject validationObject) {
+            try {
+                String newValue = (String) validationObject.getNewValue();
+                return new ValidationResult(method.validate(newValue));
+            } catch (Throwable t) {
+                return new ValidationResult(false);
+            }
+        }
+    }
+
+    private interface ValidatorMethod {
+
+        ValidatorMethod DEFAULT_METHOD = new ValidatorMethod() {
+            public boolean validate(String value) {
+                          return true;
+            }
+        };
+
+        boolean validate(String value);
+    }
+
+    private class PixelXValidator implements ValidatorMethod {
+
+        public boolean validate(String value) {
+
+            try {
+                Float.parseFloat(value);
+                return true;
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        }
+    }
+
+
 }

@@ -1,5 +1,7 @@
 package org.esa.beam.visat.toolviews.pin;
 
+import com.jidesoft.grid.JideTable;
+import com.jidesoft.grid.StringCellEditor;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.help.HelpSys;
@@ -38,18 +40,19 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.Point;
 import java.awt.Window;
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -68,6 +71,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 
@@ -108,7 +112,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     private AbstractButton exportNButton;
 
     private Product product;
-    private JTable placemarkTable;
+    private JideTable placemarkTable;
     private PlacemarkListener placemarkListener;
     private AbstractButton filterButton;
     private AbstractButton exportTableButton;
@@ -136,7 +140,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
     @Override
     public JComponent createControl() {
-        placemarkTable = new JTable();
+        placemarkTable = new JideTable();
         placemarkTable.setName("placemarkTable");
         placemarkTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         placemarkTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -155,8 +159,17 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         placemarkTable.addMouseListener(new PopupListener());
         placemarkTable.addKeyListener(new KeySelectionListener());
 
-        placemarkTable.setModel(new PinTableModel(placemarkDescriptor, product, selectedBands, selectedGrids));
-
+        PinTableModel pinModel = new PinTableModel(placemarkDescriptor, product, selectedBands, selectedGrids);
+        placemarkTable.setModel(pinModel);
+        Enumeration<TableColumn> columns = columnModel.getColumns();
+        while (columns.hasMoreElements()) {
+            TableColumn column = columns.nextElement();
+            if(pinModel.isCellEditable(0,column.getModelIndex())) {
+                StringCellEditor cellEditor = new StringCellEditor();
+                cellEditor.addValidationListener(pinModel.getValidator(column.getModelIndex()));
+                column.setCellEditor(cellEditor);
+            }
+        }
         JScrollPane tableScrollPane = new JScrollPane(placemarkTable);
         JPanel mainPane = new JPanel(new BorderLayout(4, 4));
         mainPane.add(tableScrollPane, BorderLayout.CENTER);
@@ -603,8 +616,6 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 //                    }
 //                }
 
-
-
 //                int[] selectedIndexes = placemarkTable.getSelectedRows();
 //                ProductNodeGroup<Pin> pinGroup = getPlacemarkGroup();
 //                Pin[] placemarks = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
@@ -771,21 +782,21 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                 }
                 setIODir(file.getAbsoluteFile().getParentFile());
                 BeamFileFilter beamFileFilter = fileChooser.getBeamFileFilter();
-                if(!StringUtils.contains(beamFileFilter.getExtensions(), FileUtils.getExtension(file)) ) {
+                if (!StringUtils.contains(beamFileFilter.getExtensions(), FileUtils.getExtension(file))) {
                     file = FileUtils.ensureExtension(file, beamFileFilter.getDefaultExtension());
                 }
                 Writer writer = null;
                 try {
-                    if(beamFileFilter.getFormatName().equals(getPlacemarkFileFilter().getFormatName())) {
+                    if (beamFileFilter.getFormatName().equals(getPlacemarkFileFilter().getFormatName())) {
                         writePlacemarksFile(pins, file);
-                    }else {
+                    } else {
                         writer = new FileWriter(file);
                         writePlacemarkDataTableText(writer, pins);
                         writer.close();
                     }
                 } catch (IOException e) {
                     showErrorDialog("I/O Error.\n   Failed to export placemarks.");    /*I18N*/
-                }finally{
+                } finally {
                     if (writer != null) {
                         try {
                             writer.close();
@@ -823,7 +834,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                     writePlacemarkDataTableText(writer, placemarkGroup.toArray(new Pin[placemarkGroup.getNodeCount()]));
                     writer.close();
                 } catch (IOException e) {
-                    showErrorDialog("I/O Error.\nFailed to export " +roleLabel + " data table."); /*I18N*/
+                    showErrorDialog("I/O Error.\nFailed to export " + roleLabel + " data table."); /*I18N*/
                 }
             }
         }
@@ -1015,7 +1026,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             Document document = new DOMBuilder().build(w3cDocument);
             final Element rootElement = document.getRootElement();
             List children = rootElement.getChildren(DimapProductConstants.TAG_PLACEMARK);
-            if(children.size() == 0) {
+            if (children.size() == 0) {
                 // support for old pin XML format (.pnx)
                 children = rootElement.getChildren(DimapProductConstants.TAG_PIN);
             }
@@ -1232,7 +1243,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                     public void actionPerformed(ActionEvent actionEvent) {
                         final StringWriter stringWriter = new StringWriter();
                         ProductNodeGroup<Pin> placemarkGroup = getPlacemarkGroup();
-                        writePlacemarkDataTableText(stringWriter, placemarkGroup.toArray(new Pin[placemarkGroup.getNodeCount()]));
+                        writePlacemarkDataTableText(stringWriter,
+                                                    placemarkGroup.toArray(new Pin[placemarkGroup.getNodeCount()]));
                         String text = stringWriter.toString();
                         text = text.replaceAll("\r\n", "\n");
                         text = text.replaceAll("\r", "\n");
@@ -1246,7 +1258,9 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         }
     }
 
-    /** @deprecated in 4.1, {@link PinDialog#showEditPinDialog(Window,Product,Pin,PlacemarkDescriptor)} instead */
+    /**
+     * @deprecated in 4.1, {@link PinDialog#showEditPinDialog(Window,Product,Pin,PlacemarkDescriptor)} instead
+     */
     public static boolean showEditPinDialog(Window parent, Product product, Pin pin) {
         return PinDialog.showEditPinDialog(parent, product, pin, PinDescriptor.INSTANCE);
     }
@@ -1310,7 +1324,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
         @Override
         public void keyReleased(KeyEvent e) {
-                updateUIState();
+            updateUIState();
         }
     }
 }
