@@ -2,8 +2,7 @@ package org.esa.beam.visat.toolviews.pin;
 
 import org.esa.beam.framework.ui.product.GcpDescriptor;
 
-import javax.swing.JComponent;
-import java.awt.BorderLayout;
+import java.awt.Component;
 
 /**
  * A dialog used to manage the list of pins associated with a selected product.
@@ -11,16 +10,23 @@ import java.awt.BorderLayout;
 public class GcpManagerToolView extends PlacemarkManagerToolView {
 
     public static final String ID = GcpManagerToolView.class.getName();
+    private GcpGeoCodingForm geoCodingForm;
 
     public GcpManagerToolView() {
         super(GcpDescriptor.INSTANCE);
     }
 
     @Override
-    public JComponent createControl() {
-        JComponent control = super.createControl();
-
-        control.add(new GcpGeoCodingForm(), BorderLayout.SOUTH);
-        return control;
+    protected Component getSouthExtension() {
+        geoCodingForm = new GcpGeoCodingForm();
+        return geoCodingForm;
     }
+
+    @Override
+    protected void updateUIState() {
+        super.updateUIState();
+        geoCodingForm.setProduct(getProduct());
+        geoCodingForm.updateUIState();
+    }
+
 }
