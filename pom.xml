@@ -45,7 +45,6 @@
         <module>beam-installer</module>
 
         <module>beam-core</module>
-        <module>beam-collocation</module>
         <module>beam-ui</module>
         <module>beam-pconvert</module>
         <module>beam-visat</module>
