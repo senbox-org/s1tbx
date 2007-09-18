@@ -22,30 +22,15 @@ import com.bc.jexp.ParseException;
 import com.bc.jexp.Term;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.draw.Figure;
-import org.esa.beam.util.BitRaster;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.ObjectUtils;
-import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.StopWatch;
-import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.math.DoubleList;
-import org.esa.beam.util.math.Histogram;
-import org.esa.beam.util.math.IndexValidator;
-import org.esa.beam.util.math.MathUtils;
-import org.esa.beam.util.math.Quantizer;
-import org.esa.beam.util.math.Range;
-import org.esa.beam.util.math.Statistics;
+import org.esa.beam.util.*;
+import org.esa.beam.util.math.*;
 
 import javax.media.jai.ROI;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
+import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -141,6 +126,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     private static final int READ_BUFFER_MAX_SIZE = 8 * 1024 * 1024; // 8 MB
     private Pointing _pointing;
+
+    private RenderedImage _image;
 
     /**
      * Constructs an object of type <code>RasterDataNode</code>.
@@ -651,8 +638,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
      * method.
      *
-     * @throws IOException if an I/O error occurs
      * @param pm
+     * @throws IOException if an I/O error occurs
      */
     public void ensureValidMaskComputed(ProgressMonitor pm) throws IOException {
         if (isValidMaskUsed() && getValidMask() == null) {
@@ -2490,6 +2477,14 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         _maskProductDataEnabled = maskProductDataEnabled;
     }
 
+    public RenderedImage getImage() {
+        return _image;
+    }
+
+    public void setImage(RenderedImage image) {
+        _image = image;
+    }
+
     public static interface RasterDataProcessor {
 
         void processRasterDataBuffer(ProductData buffer, int y0, int numLines, ProgressMonitor pm) throws IOException;
@@ -2563,40 +2558,53 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         }
     }
 
-
-
-
-
-
     /////////////////////////////////////////////////////////////////////////
     // Deprecated API
     /////////////////////////////////////////////////////////////////////////
 
-    /** @deprecated in 4.1, no replacement */
+    /**
+     * @deprecated in 4.1, no replacement
+     */
     private byte[] dataMask;
 
-    /** @deprecated in 4.1, use {@link #isValidMaskUsed()} */
+    /**
+     * @deprecated in 4.1, use {@link #isValidMaskUsed()}
+     */
     public boolean isDataMaskUsed() {
         return isValidMaskUsed();
     }
-    /** @deprecated in 4.1, use {@link #getValidMask()} */
+
+    /**
+     * @deprecated in 4.1, use {@link #getValidMask()}
+     */
     public byte[] getDataMask() {
         return dataMask;
     }
-    /** @deprecated in 4.1, use {@link #setValidMask(org.esa.beam.util.BitRaster)} */
+
+    /**
+     * @deprecated in 4.1, use {@link #setValidMask(org.esa.beam.util.BitRaster)}
+     */
     protected void setDataMask(final byte[] dataMask) {
         this.dataMask = dataMask;
     }
-    /** @deprecated in 4.1, use {@link #ensureValidMaskComputed(com.bc.ceres.core.ProgressMonitor)} */
+
+    /**
+     * @deprecated in 4.1, use {@link #ensureValidMaskComputed(com.bc.ceres.core.ProgressMonitor)}
+     */
     public void ensureDataMaskIsAvailable() throws IOException {
         ensureValidMaskComputed(ProgressMonitor.NULL);
     }
-    /** @deprecated in 4.1, use {@link #computeValidMask} */
+
+    /**
+     * @deprecated in 4.1, use {@link #computeValidMask}
+     */
     protected synchronized void computeDataMask() throws IOException {
         computeValidMask(ProgressMonitor.NULL);
     }
 
-    /** @deprecated in 4.1, use {@link RasterDataNode#createPixelValidator(int, javax.media.jai.ROI)}  */
+    /**
+     * @deprecated in 4.1, use {@link RasterDataNode#createPixelValidator(int, javax.media.jai.ROI)}
+     */
     public class PixelValidator implements IndexValidator {
 
         private final int _y0;

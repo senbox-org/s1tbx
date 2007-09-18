@@ -48,16 +48,16 @@ public abstract class DataNode extends ProductNode {
     public DataNode(String name, int dataType, int numElems) {
         super(name);
         if (dataType != ProductData.TYPE_INT8
-            && dataType != ProductData.TYPE_INT16
-            && dataType != ProductData.TYPE_INT32
-            && dataType != ProductData.TYPE_UINT8
-            && dataType != ProductData.TYPE_UINT16
-            && dataType != ProductData.TYPE_UINT32
-            && dataType != ProductData.TYPE_FLOAT32
-            && dataType != ProductData.TYPE_FLOAT64
-            && dataType != ProductData.TYPE_ASCII
-            && dataType != ProductData.TYPE_UTC
-            && dataType != ProductData.TYPE_BOOLEAN) {
+                && dataType != ProductData.TYPE_INT16
+                && dataType != ProductData.TYPE_INT32
+                && dataType != ProductData.TYPE_UINT8
+                && dataType != ProductData.TYPE_UINT16
+                && dataType != ProductData.TYPE_UINT32
+                && dataType != ProductData.TYPE_FLOAT32
+                && dataType != ProductData.TYPE_FLOAT64
+                && dataType != ProductData.TYPE_ASCII
+                && dataType != ProductData.TYPE_UTC
+                && dataType != ProductData.TYPE_BOOLEAN) {
             throw new IllegalArgumentException("dataType is invalid");
         }
         if (numElems < 1) {
@@ -225,13 +225,14 @@ public abstract class DataNode extends ProductNode {
         }
     }
 
+    @Override
     public boolean equals(Object object) {
 
         if (!super.equals(object)) {
             return false;
         }
 
-        if (!(this instanceof DataNode)) {
+        if (!(object instanceof DataNode)) {
             return false;
         }
 
@@ -259,18 +260,18 @@ public abstract class DataNode extends ProductNode {
 
         if (data.getType() != getDataType()) {
             throw new IllegalArgumentException("illegal data for data node '"
-                                               + getName()
-                                               + "', type "
-                                               + ProductData.getTypeString(getDataType())
-                                               + " expected");
+                    + getName()
+                    + "', type "
+                    + ProductData.getTypeString(getDataType())
+                    + " expected");
         }
 
         if (data.getNumElems() != getNumDataElems()) {
             throw new IllegalArgumentException("illegal number of data elements for data node '"
-                                               + getName()
-                                               + "', "
-                                               + getNumDataElems()
-                                               + " elements expected");
+                    + getName()
+                    + "', "
+                    + getNumDataElems()
+                    + " elements expected");
         }
     }
 
@@ -284,15 +285,16 @@ public abstract class DataNode extends ProductNode {
      *
      * @param visitor the visitor, must not be <code>null</code>
      */
+    @Override
     public abstract void acceptVisitor(ProductVisitor visitor);
 
     /**
      * Gets the estimated size in bytes of this product node.
      *
      * @param subsetDef if not <code>null</code> the subset may limit the size returned
-     *
      * @return the size in bytes.
      */
+    @Override
     public long getRawStorageSize(ProductSubsetDef subsetDef) {
         long size = 0L;
         if (isPartOfSubset(subsetDef)) {
@@ -311,6 +313,7 @@ public abstract class DataNode extends ProductNode {
      * <p/>
      * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
      */
+    @Override
     public void dispose() {
         if (_data != null) {
             _data.dispose();
@@ -324,7 +327,6 @@ public abstract class DataNode extends ProductNode {
      * <code>numElems</code> elements of a compatible data type.
      *
      * @param numElems the number of elements, must not be less than one
-     *
      * @return product data compatible with this data node
      */
     public ProductData createCompatibleProductData(final int numElems) {
