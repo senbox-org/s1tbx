@@ -8,6 +8,9 @@ import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 
+import javax.swing.Icon;
+import java.awt.Point;
+
 /**
  * Created by Marco Peters.
  *
@@ -31,4 +34,6 @@ public interface PlacemarkDescriptor {
     PixelPos updatePixelPos(GeoCoding geoCoding, GeoPos geoPos, PixelPos pixelPos);
 
     GeoPos updateGeoPos(GeoCoding geoCoding, PixelPos pixelPos, GeoPos geoPos);
+
+    Point getIconHotSpot(Icon icon);
 }
