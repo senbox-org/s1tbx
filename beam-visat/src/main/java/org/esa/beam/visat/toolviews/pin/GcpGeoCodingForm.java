@@ -10,6 +10,7 @@ import org.esa.beam.framework.ui.TableLayout;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -82,16 +83,19 @@ class GcpGeoCodingForm extends JPanel {
         panel.setBorder(BorderFactory.createTitledBorder("Current GCP Geo-Coding"));
         panel.add(new JLabel("Method:"));
         methodTextField = new JTextField();
+        setComponentName(methodTextField, "methodTextField");
         methodTextField.setEditable(false);
         methodTextField.setHorizontalAlignment(JLabel.TRAILING);
         panel.add(methodTextField);
         rmseLatTextField = new JTextField();
+        setComponentName(rmseLatTextField, "rmseLatTextField");
         rmseLatTextField.setEditable(false);
         rmseLatTextField.setHorizontalAlignment(JLabel.TRAILING);
         panel.add(new JLabel("RMSE Lat:"));
         panel.add(rmseLatTextField);
 
         rmseLonTextField = new JTextField();
+        setComponentName(rmseLonTextField, "rmseLonTextField");
         rmseLonTextField.setEditable(false);
         rmseLonTextField.setHorizontalAlignment(JLabel.TRAILING);
         panel.add(new JLabel("RMSE Lon:"));
@@ -101,12 +105,14 @@ class GcpGeoCodingForm extends JPanel {
 
     private JPanel createAttachDetachPanel() {
         methodComboBox = new JComboBox(GcpGeoCoding.Method.values());
+        setComponentName(methodComboBox, "methodComboBox");
         methodComboBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 updateUIState();
             }
         });
         attachButton = new JToggleButton();
+        setComponentName(attachButton, "attachButton");
         attachButton.setName("attachButton");
 
         AbstractAction applyAction = new AbstractAction() {
@@ -236,9 +242,13 @@ class GcpGeoCodingForm extends JPanel {
             return;
         }
         currentProduct = product;
-        if (!geoCodingMap.containsKey(product) && !(product.getGeoCoding() instanceof GcpGeoCoding)) {
+        if (product != null && !geoCodingMap.containsKey(product) && !(product.getGeoCoding() instanceof GcpGeoCoding)) {
             geoCodingMap.put(product, product.getGeoCoding());
         }
+    }
+
+    private void setComponentName(JComponent component, String name) {
+        component.setName(getClass().getName() + name);
     }
 
     private static class RmseNumberFormat extends NumberFormat {
