@@ -2,10 +2,10 @@ package org.esa.beam.visat.plugins.pgrab.ui;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.visat.plugins.pgrab.model.ProductGrabberConfig;
 import org.esa.beam.visat.plugins.pgrab.model.Repository;
 import org.esa.beam.visat.plugins.pgrab.model.RepositoryEntry;
@@ -118,8 +118,8 @@ public class ProductGrabber {
 
     private void applyConfig(final ProductGrabberConfig config) {
         final Repository[] repositories = config.getRepositories();
-        for (int i = 0; i < repositories.length; i++) {
-            repositoryManager.addRepository(repositories[i]);
+        for (Repository repository : repositories) {
+            repositoryManager.addRepository(repository);
         }
 
         final String lastSelectedRepositoryDir = config.getLastSelectedRepositoryDir();
@@ -270,13 +270,18 @@ public class ProductGrabber {
         final JPanel southPanel = new JPanel(new BorderLayout(4, 4));
         final JPanel northPanel = new JPanel(new BorderLayout(4, 4));
         repositoryList = new JComboBox();
+        setComponentName(repositoryList, "repositoryList");
         repositoryTable = new JTable();
         statusLabel = new JLabel("");
         progressPanel = new JPanel();
         openButton = new JButton();
+        setComponentName(openButton, "openButton");
         removeButton = new JButton();
+        setComponentName(removeButton, "removeButton");
         updateButton = new JButton();
+        setComponentName(updateButton, "updateButton");
         progressBar = new JProgressBar();
+        setComponentName(progressBar, "progressBar");
         headerPanel = new JPanel();
 
         northPanel.add(headerPanel, BorderLayout.CENTER);
@@ -308,6 +313,10 @@ public class ProductGrabber {
             }
         });
         initHeaderPanel(headerPanel);
+    }
+
+    private void setComponentName(JComponent openButton, String name) {
+        openButton.setName(getClass().getName() + name);
     }
 
     private void initHeaderPanel(final JPanel headerBar) {
@@ -366,9 +375,10 @@ public class ProductGrabber {
         });
         headerBar.add(removeButton, gbc);
 
-        JButton _helpButton = createToolButton(UIUtils.loadImageIcon("icons/Help24.gif"));
-        HelpSys.enableHelpOnButton(_helpButton, helpId);
-        headerBar.add(_helpButton, gbc);
+        JButton helpButton = createToolButton(UIUtils.loadImageIcon("icons/Help24.gif"));
+        setComponentName(helpButton, "helpButton");
+        HelpSys.enableHelpOnButton(helpButton, helpId);
+        headerBar.add(helpButton, gbc);
     }
 
     private JButton createToolButton(final ImageIcon icon) {
@@ -663,16 +673,15 @@ public class ProductGrabber {
             dirList.add(baseDir);
             if (doRecursive) {
                 final File[] subDirs = collectAllSubDirs(baseDir);
-                for (int i = 0; i < subDirs.length; i++) {
-                    dirList.add(subDirs[i]);
+                for (File subDir : subDirs) {
+                    dirList.add(subDir);
                 }
             }
 
             pm.beginTask("Collecting repositories...", dirList.size());
             final ArrayList<Repository> repositoryList = new ArrayList<Repository>();
             try {
-                for (int i = 0; i < dirList.size(); i++) {
-                    final File subDir = (File) dirList.get(i);
+                for (File subDir : dirList) {
                     final File[] subDirFiles = subDir.listFiles(new RepositoryScanner.ProductFileFilter());
                     if (subDirFiles.length > 0) {
                         final Repository repository = new Repository(subDir);
@@ -707,8 +716,8 @@ public class ProductGrabber {
                 return;
             }
 
-            for (int i = 0; i < repositories.length; i++) {
-                repositoryManager.addRepository(repositories[i]);
+            for (Repository repository : repositories) {
+                repositoryManager.addRepository(repository);
             }
             if (repositories[0] != null) {
                 // triggers also an update of the repository
@@ -722,16 +731,14 @@ public class ProductGrabber {
             final RepositoryScanner.DirectoryFileFilter dirFilter = new RepositoryScanner.DirectoryFileFilter();
 
             final File[] subDirs = dir.listFiles(dirFilter);
-            for (int i = 0; i < subDirs.length; i++) {
-                final File subDir = subDirs[i];
+            for (final File subDir : subDirs) {
                 dirList.add(subDir);
                 final File[] dirs = collectAllSubDirs(subDir);
-                for (int j = 0; j < dirs.length; j++) {
-                    final File file = dirs[j];
+                for (final File file : dirs) {
                     dirList.add(file);
                 }
             }
-            return (File[]) dirList.toArray(new File[dirList.size()]);
+            return dirList.toArray(new File[dirList.size()]);
         }
 
     }
