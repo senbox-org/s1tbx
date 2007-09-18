@@ -395,10 +395,10 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
     private void addCellRenderer(JTable placemarkTable) {
         TableColumnModel columnModel = placemarkTable.getColumnModel();
-        columnModel.getColumn(0).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.00#")));
-        columnModel.getColumn(1).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.00#")));
-        columnModel.getColumn(2).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.000#")));
-        columnModel.getColumn(3).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.000#")));
+        columnModel.getColumn(0).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.00")));
+        columnModel.getColumn(1).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.00")));
+        columnModel.getColumn(2).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.000")));
+        columnModel.getColumn(3).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.000")));
     }
 
     private void addCellEditor(JTable placemarkTable) {
