@@ -19,7 +19,8 @@ package org.esa.beam.framework.gpf.support;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.math.MathUtils;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 
 /**

@@ -1,22 +1,17 @@
 package org.esa.beam.framework.gpf.operators.common;
 
-import java.awt.Rectangle;
-import java.io.IOException;
-
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.AbstractOperator;
-import org.esa.beam.framework.gpf.AbstractOperatorSpi;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.Raster;
+import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
-import com.bc.ceres.core.ProgressMonitor;
+import java.awt.Rectangle;
+import java.io.IOException;
 
 /**
  * The <code>LoadProductOperator</code> wrapps the BEAM {@link ProductIO} to load any kind of Product
@@ -48,7 +43,7 @@ public class ReadProductOp extends AbstractOperator {
     @Override
     public Product initialize(ProgressMonitor pm) throws OperatorException {
         try {
-        	targetProduct = ProductIO.readProduct(filePath, null);
+            targetProduct = ProductIO.readProduct(filePath, null);
             if (targetProduct == null) {
                 throw new OperatorException("No product reader found for file " + filePath);
             }
@@ -61,12 +56,12 @@ public class ReadProductOp extends AbstractOperator {
 
     @Override
     public void computeBand(Raster targetRaster,
-            ProgressMonitor pm) throws OperatorException {
-    	
-    	ProductData dataBuffer = targetRaster.getDataBuffer();
-    	Band band = (Band) targetRaster.getRasterDataNode();
-    	Rectangle rectangle = targetRaster.getRectangle();
-    	try {
+                            ProgressMonitor pm) throws OperatorException {
+
+        ProductData dataBuffer = targetRaster.getDataBuffer();
+        Band band = (Band) targetRaster.getRasterDataNode();
+        Rectangle rectangle = targetRaster.getRectangle();
+        try {
             beamReader.readBandRasterData(band, rectangle.x, rectangle.y, rectangle.width,
                                           rectangle.height, dataBuffer, pm);
         } catch (IOException e) {

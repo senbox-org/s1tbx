@@ -1,9 +1,9 @@
 package org.esa.beam.framework.gpf.graph;
 
-import java.util.logging.Logger;
-
 import org.esa.beam.framework.gpf.OperatorContext;
 import org.esa.beam.framework.gpf.internal.DefaultOperatorContext;
+
+import java.util.logging.Logger;
 
 /**
  * Default implementation for {@link OperatorContext}.
@@ -29,7 +29,7 @@ class NodeContext extends DefaultOperatorContext {
     }
 
     @Override
-	public Logger getLogger() {
+    public Logger getLogger() {
         return graphContext.getLogger();
     }
 

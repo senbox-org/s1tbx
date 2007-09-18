@@ -1,27 +1,22 @@
 package org.esa.beam.framework.gpf.internal;
 
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
-import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.framework.gpf.support.RectangleIterator;
 
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class OperatorContextInitializer {
@@ -29,100 +24,83 @@ public class OperatorContextInitializer {
     public static void initOperatorContext(DefaultOperatorContext operatorContext,
                                            ParameterInjector injector,
                                            ProgressMonitor pm) throws OperatorException {
-    	pm.beginTask("initializing operator contex", 5);
-    	try {
-    		OperatorSpi operatorSpi = operatorContext.getOperatorSpi();
-    		if (operatorSpi == null) {
-    			String operatorName = operatorContext.getOperatorName();
-    			if (operatorName == null || operatorName.isEmpty()) {
-    				throw new IllegalStateException("operatorSpiClassName == null || operatorSpiClassName.isEmpty()");
-    			}
-    			operatorSpi = OperatorSpiRegistry.getInstance().getOperatorSpi(operatorName);
-    			if (operatorSpi == null) {
-    				throw new OperatorException(String.format("Unknown operator [%s].", operatorName));
-    			}
-    			operatorContext.setOperatorSpi(operatorSpi);
-    		}
-    		pm.worked(1);
+        pm.beginTask("initializing operator contex", 5);
+        try {
+            OperatorSpi operatorSpi = operatorContext.getOperatorSpi();
+            if (operatorSpi == null) {
+                String operatorName = operatorContext.getOperatorName();
+                if (operatorName == null || operatorName.isEmpty()) {
+                    throw new IllegalStateException("operatorSpiClassName == null || operatorSpiClassName.isEmpty()");
+                }
+                operatorSpi = OperatorSpiRegistry.getInstance().getOperatorSpi(operatorName);
+                if (operatorSpi == null) {
+                    throw new OperatorException(String.format("Unknown operator [%s].", operatorName));
+                }
+                operatorContext.setOperatorSpi(operatorSpi);
+            }
+            pm.worked(1);
 
-    		Operator operator;
-    		try {
-    			Constructor<? extends Operator> constructor = operatorSpi.getOperatorClass().getDeclaredConstructor(OperatorSpi.class);
-    			operator = constructor.newInstance(operatorSpi);
-    			operatorContext.setOperator(operator);
-    		} catch (Throwable e) {
-    			throw new OperatorException(String.format("Failed to create instance of operator [%s].", operatorSpi.getName()), e);
-    		}
-    		pm.worked(1);
+            Operator operator;
+            try {
+                Constructor<? extends Operator> constructor = operatorSpi.getOperatorClass().getDeclaredConstructor(OperatorSpi.class);
+                operator = constructor.newInstance(operatorSpi);
+                operatorContext.setOperator(operator);
+            } catch (Throwable e) {
+                throw new OperatorException(String.format("Failed to create instance of operator [%s].", operatorSpi.getName()), e);
+            }
+            pm.worked(1);
 
-    		initAnnotatedSourceProductFields(operatorContext);
+            initAnnotatedSourceProductFields(operatorContext);
 
-    		operatorContext.setParameterFields(getParameterFields(operator));
+            operatorContext.setParameterFields(getParameterFields(operator));
 
-    		injector.injectParameters(operator);
-    		pm.worked(1);
+            injector.injectParameters(operator);
+            pm.worked(1);
 
-    		Product targetProduct = operator.initialize(operatorContext, SubProgressMonitor.create(pm, 1));
-    		if (targetProduct == null) {
-    			throw new OperatorException(String.format("Operator [%s] has no target product.", operatorSpi.getName()));
-    		}
+            Product targetProduct = operator.initialize(operatorContext, SubProgressMonitor.create(pm, 1));
+            if (targetProduct == null) {
+                throw new OperatorException(String.format("Operator [%s] has no target product.", operatorSpi.getName()));
+            }
 
-    		initTargetProductFieldIfNotDone(operator, targetProduct);
+            initTargetProductFieldIfNotDone(operator, targetProduct);
 
-    		// This is an important piece of code!
-    		// It connects the target products of the graph with a special
-    		// product reader adapter OperatorProductReader.
-    		//
-    		operatorContext.setTargetProduct(targetProduct);
-    		ProductReader oldProductReader = targetProduct.getProductReader();
-    		if (oldProductReader == null) {
-    			OperatorProductReader operatorProductReader = new OperatorProductReader(operatorContext);
-    			targetProduct.setProductReader(operatorProductReader);
-    		}
+            // This is an important piece of code!
+            // It connects the target products of the graph with a special
+            // product reader adapter OperatorProductReader.
+            //
+            operatorContext.setTargetProduct(targetProduct);
+            ProductReader oldProductReader = targetProduct.getProductReader();
+            if (oldProductReader == null) {
+                OperatorProductReader operatorProductReader = new OperatorProductReader(operatorContext);
+                targetProduct.setProductReader(operatorProductReader);
+            }
 
-    		initTileComputerIfNotSet(operatorContext);
-    		pm.worked(1);
-    	} finally {
-    		pm.done();
-    	}
+            pm.worked(1);
+        } finally {
+            pm.done();
+        }
     }
 
-	private static void initTileComputerIfNotSet(DefaultOperatorContext operatorContext) {
-		if (operatorContext.getLayoutRectangles() == null) {
-			Dimension dimension = new Dimension(Tile.DEFAULT_TILE_SIZE, Tile.DEFAULT_TILE_SIZE);
-			final int sceneRasterWidth = operatorContext.getTargetProduct().getSceneRasterWidth();
-			final int sceneRasterHeight = operatorContext.getTargetProduct().getSceneRasterHeight();
-			RectangleIterator rectangleIterator = new RectangleIterator(dimension,
-                    		sceneRasterWidth, sceneRasterHeight);
-			List<Rectangle> tileLayout = new ArrayList<Rectangle>();
-			while (rectangleIterator.hasNext()) {
-				tileLayout.add(rectangleIterator.next());
-			}
-			operatorContext.setLayoutRectangles(tileLayout);
-		}
-
-	}
-
-	private static Field[] getParameterFields(Operator operator) {
+    private static Field[] getParameterFields(Operator operator) {
         List<Field> parameterFields = new ArrayList<Field>();
         collectParameterFields(operator.getClass(), parameterFields);
         return parameterFields.toArray(new Field[parameterFields.size()]);
     }
 
     private static void collectParameterFields(Class operatorClass, List<Field> parameterFields) {
-        if(operatorClass.getSuperclass().isAssignableFrom(Operator.class)) {
+        if (operatorClass.getSuperclass().isAssignableFrom(Operator.class)) {
             collectParameterFields(operatorClass.getSuperclass(), parameterFields);
         }
         Field[] declaredFields = operatorClass.getDeclaredFields();
         for (Field declaredField : declaredFields) {
-            if(declaredField.getAnnotation(Parameter.class) != null) {
+            if (declaredField.getAnnotation(Parameter.class) != null) {
                 parameterFields.add(declaredField);
             }
         }
     }
 
     private static void initTargetProductFieldIfNotDone(Operator operator, Product targetProduct) throws
-                                                                                                  OperatorException {
+            OperatorException {
         Field[] declaredFields = operator.getClass().getDeclaredFields();
         for (Field declaredField : declaredFields) {
             TargetProduct targetProductAnnotation = declaredField.getAnnotation(TargetProduct.class);
@@ -221,7 +199,7 @@ public class OperatorContextInitializer {
     private static void validateSourceProduct(Product sourceProduct, Field declaredField,
                                               SourceProduct sourceProductAnnotation) throws OperatorException {
         if (!sourceProductAnnotation.type().isEmpty() &&
-            !sourceProductAnnotation.type().equals(sourceProduct.getProductType())) {
+                !sourceProductAnnotation.type().equals(sourceProduct.getProductType())) {
             String msg = String.format(
                     "The source product '%s' must be of type '%s' but is of type '%s'",
                     declaredField.getName(), sourceProductAnnotation.type(),

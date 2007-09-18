@@ -1,20 +1,20 @@
 package org.esa.beam.framework.gpf.operators.common;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.gpf.AbstractOperator;
-import org.esa.beam.framework.gpf.AbstractOperatorSpi;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.Raster;
-import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.gpf.AbstractOperator;
+import org.esa.beam.framework.gpf.AbstractOperatorSpi;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.Raster;
+import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 
 import javax.media.jai.JAI;
-import java.awt.*;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.IOException;
@@ -95,10 +95,10 @@ public class WriteRGBOp extends AbstractOperator {
     public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
         RasterDataNode targetBand = targetRaster.getRasterDataNode();
         Rectangle rectangle = targetRaster.getRectangle();
-        
-		Band sourceBand = bandMap.get(targetBand);
+
+        Band sourceBand = bandMap.get(targetBand);
         Raster sourceRaster = getRaster(sourceBand, rectangle);
-        
+
         ProductData rgbData = dataMap.get(targetBand);
         System.arraycopy(sourceRaster.getDataBuffer().getElems(), 0, rgbData.getElems(), rectangle.x + rectangle.y * rectangle.width, rectangle.width * rectangle.height);
     }

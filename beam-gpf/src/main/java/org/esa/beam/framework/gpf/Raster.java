@@ -18,28 +18,28 @@ public interface Raster {
     Rectangle getRectangle();
 
     /**
-     * Gets the x-offset of the {@link Rectangle} within the {@link RasterDataNode}.
+     * Gets the x-offset of the {@link #getRectangle() rectangle} within the scene covered by the {@link RasterDataNode}.
      *
      * @return the x-offset
      */
     int getOffsetX();
 
     /**
-     * Gets the y-offset of the {@link Rectangle} within the {@link RasterDataNode}.
+     * Gets the y-offset of the {@link #getRectangle() rectangle} within the scene covered by the {@link RasterDataNode}.
      *
      * @return the y-offset
      */
     int getOffsetY();
 
     /**
-     * Gets the width of the {@link Rectangle} within the {@link RasterDataNode}.
+     * Gets the width of the {@link #getRectangle() rectangle} within the scene covered by the {@link RasterDataNode}.
      *
      * @return the width
      */
     int getWidth();
 
     /**
-     * Gets the height of the {@link Rectangle} within the {@link RasterDataNode}.
+     * Gets the height of the {@link #getRectangle() rectangle} within the scene covered by the {@link RasterDataNode}.
      *
      * @return the height
      */
@@ -65,7 +65,6 @@ public interface Raster {
      *
      * @param x x-coordinate within the raster of the {@link RasterDataNode}
      * @param y y-coordinate within the raster of the {@link RasterDataNode}
-     *
      * @return the integer value
      */
     int getInt(int x, int y);
@@ -84,7 +83,6 @@ public interface Raster {
      *
      * @param x x-coordinate within the raster of the {@link RasterDataNode}
      * @param y y-coordinate within the raster of the {@link RasterDataNode}
-     *
      * @return the float value
      */
     float getFloat(int x, int y);
@@ -103,7 +101,6 @@ public interface Raster {
      *
      * @param x x-coordinate within the raster of the {@link RasterDataNode}
      * @param y y-coordinate within the raster of the {@link RasterDataNode}
-     *
      * @return the double value
      */
     double getDouble(int x, int y);
@@ -122,7 +119,6 @@ public interface Raster {
      *
      * @param x x-coordinate within the raster of the {@link RasterDataNode}
      * @param y y-coordinate within the raster of the {@link RasterDataNode}
-     *
      * @return the boolean value
      */
     boolean getBoolean(int x, int y);

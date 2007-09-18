@@ -5,14 +5,9 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.internal.DefaultOperatorContext;
 import org.esa.beam.framework.gpf.internal.OperatorContextInitializer;
 import org.esa.beam.framework.gpf.internal.ParameterInjector;
-import org.esa.beam.framework.gpf.internal.TileCacheImpl;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 public class GPF {
 
@@ -41,12 +36,10 @@ public class GPF {
     public static final Map<String, Product> NO_SOURCES = Collections.unmodifiableMap(new TreeMap<String, Product>());
 
     private static final String SOURCE_PRODUCT_FIELD_NAME = "sourceProduct";
-    private static GPF defaultInstance = new GPF(new TileCacheImpl());
+    private static GPF defaultInstance = new GPF();
 
-    private TileCache tileCache;
 
-    private GPF(TileCache tileCache) {
-        this.tileCache = tileCache;
+    private GPF() {
     }
 
     /**
@@ -59,16 +52,6 @@ public class GPF {
     }
 
     /**
-     * Gets the {@link TileCache tile cache}.
-     *
-     * @return the tile cache
-     */
-    public TileCache getTileCache() {
-        return tileCache;
-    }
-
-
-    /**
      * Creates a product by using the operator specified by the given name.
      * The resulting product can be used as input product for a further call to {@code createProduct()}.
      * By concatenating multiple calls it is possible to set up a processing graph.
@@ -76,9 +59,7 @@ public class GPF {
      * @param operatorName the name of the operator to use
      * @param parameters   the named parameters needed by the operator
      * @param pm           a monitor to observe progress
-     *
      * @return the product created by the operator
-     *
      * @throws OperatorException if the product could not be created
      */
     public static Product createProduct(String operatorName,
@@ -95,9 +76,7 @@ public class GPF {
      * @param parameters    the named parameters needed by the operator
      * @param sourceProduct a source product
      * @param pm            a monitor to observe progress
-     *
      * @return the product created by the operator
-     *
      * @throws OperatorException if the product could not be created
      */
     public static Product createProduct(final String operatorName,
@@ -115,9 +94,7 @@ public class GPF {
      * @param parameters     the named parameters needed by the operator
      * @param sourceProducts an array of  source products
      * @param pm             a monitor to observe progress
-     *
      * @return the product created by the operator
-     *
      * @throws OperatorException if the product could not be created
      */
     public static Product createProduct(final String operatorName,
@@ -144,15 +121,13 @@ public class GPF {
      * @param parameters     the named parameters needed by the operator
      * @param sourceProducts a map of named source products
      * @param pm             a monitor to observe progress
-     *
      * @return the product created by the operator
-     *
      * @throws OperatorException if the product could not be created
      */
     public static Product createProduct(String operatorName,
                                         Map<String, Object> parameters,
                                         Map<String, Product> sourceProducts, ProgressMonitor pm) throws
-                                                                                                 OperatorException {
+            OperatorException {
         final DefaultOperatorContext defaultOperatorContext = new DefaultOperatorContext(operatorName);
         Set<Map.Entry<String, Product>> entries = sourceProducts.entrySet();
         for (Map.Entry<String, Product> entry : entries) {

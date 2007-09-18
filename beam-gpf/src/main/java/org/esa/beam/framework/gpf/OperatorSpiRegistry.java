@@ -94,7 +94,6 @@ public class OperatorSpiRegistry {
      * or an alias name.
      *
      * @param operatorName a name identifying the operator SPI.
-     *
      * @return the operator SPI, or <code>null</code>
      */
     public OperatorSpi getOperatorSpi(String operatorName) {
@@ -113,7 +112,6 @@ public class OperatorSpiRegistry {
      * Adds the given {@link OperatorSpi operatorSpi} to this registry.
      *
      * @param operatorSpi the SPI to add
-     *
      * @return {@code true}, if the {@link OperatorSpi} could be succesfully added, otherwise {@code false}
      */
     public boolean addOperatorSpi(OperatorSpi operatorSpi) {
@@ -130,7 +128,6 @@ public class OperatorSpiRegistry {
      * Removes the given {@link OperatorSpi operatorSpi} this registry.
      *
      * @param operatorSpi the SPI to remove
-     *
      * @return {@code true}, if the SPI could be removed, otherwise {@code false}
      */
     public boolean removeOperatorSpi(OperatorSpi operatorSpi) {

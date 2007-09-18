@@ -1,27 +1,22 @@
 package org.esa.beam.framework.gpf.operators.common;
 
-import java.awt.Rectangle;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.AbstractOperator;
-import org.esa.beam.framework.gpf.AbstractOperatorSpi;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.Raster;
+import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.annotations.OperatorAlias;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
+import java.awt.Rectangle;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The <code>WriteProductOp</code> writes
@@ -90,8 +85,8 @@ public class WriteProductOp extends AbstractOperator {
             pm.beginTask("Writing product...", 1);
             Rectangle rectangle = targetRaster.getRectangle();
             try {
-            	ProductData dataBuffer = targetRaster.getDataBuffer();
-                getRaster(band, rectangle, dataBuffer);                
+                Raster raster = getRaster(band, rectangle);
+                ProductData dataBuffer = raster.getDataBuffer();
                 band.writeRasterData(rectangle.x, rectangle.y, rectangle.width, rectangle.height, dataBuffer, SubProgressMonitor.create(pm, 1));
             } catch (IOException e) {
                 Throwable cause = e.getCause();

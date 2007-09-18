@@ -3,6 +3,7 @@ package org.esa.beam.framework.gpf.graph;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -10,10 +11,16 @@ import org.esa.beam.framework.gpf.ParameterConverter;
 import org.esa.beam.framework.gpf.internal.DefaultParameterConverter;
 import org.esa.beam.framework.gpf.internal.OperatorContextInitializer;
 import org.esa.beam.framework.gpf.internal.ParameterInjector;
-import org.esa.beam.framework.gpf.internal.TileComputingStrategy;
-import org.esa.beam.framework.gpf.support.RectangleIterator;
+import org.esa.beam.util.math.MathUtils;
 
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.TileComputationListener;
+import javax.media.jai.TileRequest;
+import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
@@ -65,7 +72,6 @@ public class GraphProcessor {
      * processing steps of the currently running processing graph.
      *
      * @param processingObserver the observer
-     *
      * @see GraphProcessingObserver
      */
     public void addObserver(GraphProcessingObserver processingObserver) {
@@ -86,7 +92,6 @@ public class GraphProcessor {
      *
      * @param graph the {@link Graph}
      * @param pm    a progress monitor. Can be used to signal progress.
-     *
      * @throws GraphException if any error occrues during execution
      */
     public void executeGraph(Graph graph, ProgressMonitor pm) throws GraphException {
@@ -106,9 +111,7 @@ public class GraphProcessor {
      *
      * @param graph the {@link Graph} to create the {@link GraphContext} for
      * @param pm    a progress monitor. Can be used to signal progress.
-     *
      * @return the created {@link GraphContext}
-     *
      * @throws GraphException if any error occrues during creation of the context, e.g. the graph is empty
      */
     public GraphContext createGraphContext(Graph graph, ProgressMonitor pm) throws GraphException {
@@ -148,43 +151,71 @@ public class GraphProcessor {
      *
      * @param graphContext the {@link GraphContext} to execute
      * @param pm           a progress monitor. Can be used to signal progress.
-     *
      * @throws GraphException if any error occrues during execution
      */
     public void executeGraphContext(GraphContext graphContext, ProgressMonitor pm) throws GraphException {
         fireProcessingStarted(graphContext);
 
+        Rectangle rectangleUnion = new Rectangle();
         NodeContext[] outputNodeContexts = graphContext.getOutputNodeContexts();
-        // todo - further investigate this suspicious code
-        Product targetProduct = outputNodeContexts[0].getTargetProduct();
-        if (targetProduct == null) {
-            throw new IllegalStateException("outputProduct == null");
+        for (int i = 0; i < outputNodeContexts.length; i++) {
+            NodeContext outputNodeContext = outputNodeContexts[i];
+            Product targetProduct = outputNodeContext.getTargetProduct();
+            rectangleUnion.add(getProductBounds(targetProduct));
         }
-        final int rasterHeight = targetProduct.getSceneRasterHeight();
-        final int rasterWidth = targetProduct.getSceneRasterWidth();
-        RectangleIterator rectangleIterator = new RectangleIterator(graphContext.getPreferredTileSize(),
-                                                                    rasterWidth, rasterHeight);
-
-        pm.beginTask("Computing raster data...", rectangleIterator.getNumRectangles());
-        try {
-            while (rectangleIterator.hasNext()) {
+        Dimension defaultTileSize = JAI.getDefaultTileSize();
+        int numXTiles = MathUtils.ceilInt(rectangleUnion.width / (double) defaultTileSize.width);
+        int numYTiles = MathUtils.ceilInt(rectangleUnion.height / (double) defaultTileSize.height);
+        // todo - FIXMEEEE!
+        // use per-image tile def in order to iter correctly over all target products
+        pm.beginTask("Computing raster data...", numXTiles * numYTiles);
+        for (int tileY = 0; tileY < numYTiles; tileY++) {
+            for (int tileX = 0; tileX < numXTiles; tileX++) {
                 if (pm.isCanceled()) {
                     break;
                 }
-                Rectangle tileRectangle = rectangleIterator.next();
+                Rectangle tileRectangle = new Rectangle(tileX * defaultTileSize.width,
+                                                        tileY * defaultTileSize.height,
+                                                        defaultTileSize.width,
+                                                        defaultTileSize.height);
                 fireTileStarted(graphContext, tileRectangle);
                 for (NodeContext nodeContext : outputNodeContexts) {
-                    TileComputingStrategy.computeAllBands(nodeContext, tileRectangle, pm);
+                    Product targetProduct = nodeContext.getTargetProduct();
+                    if (getProductBounds(targetProduct).intersects(tileRectangle)) {
+                        if (nodeContext.getClassInfo().isAllBandsMethodImplemented()) {
+                            Band band = targetProduct.getBandAt(0);
+                            forceTileComputation(band, tileX, tileY);
+                        } else {
+                            for (Band band : targetProduct.getBands()) {
+                                forceTileComputation(band, tileX, tileY);
+                            }
+                        }
+                    }
                 }
                 fireTileStopped(graphContext, tileRectangle);
                 pm.worked(1);
             }
-        } catch (OperatorException e) {
-            throw new GraphException(e.getMessage(), e);
-        } finally {
-            pm.done();
-            fireProcessingStopped(graphContext);
         }
+        pm.done();
+        fireProcessingStopped(graphContext);
+    }
+
+    private Rectangle getProductBounds(Product targetProduct) {
+        final int rasterHeight = targetProduct.getSceneRasterHeight();
+        final int rasterWidth = targetProduct.getSceneRasterWidth();
+        Rectangle rectangle = new Rectangle(rasterWidth, rasterHeight);
+        return rectangle;
+    }
+
+    private void forceTileComputation(Band band, int tileX, int tileY) {
+        final RenderedImage image = band.getImage();
+        /////////////////////////////////////////////////////////////////////
+        //
+        // GPF pull-processing is triggered here!!!
+        //
+        image.getTile(tileX, tileY);
+        //
+        /////////////////////////////////////////////////////////////////////
     }
 
     private void initNodeDependencies(GraphContext graphContext) throws GraphException {
@@ -194,7 +225,7 @@ public class GraphProcessor {
                 Node sourceNode = graph.getNode(source.getSourceNodeId());
                 if (sourceNode == null) {
                     throw new GraphException("Missing source. Node Id: " + node.getId()
-                                             + " Source Id: " + source.getSourceNodeId());
+                            + " Source Id: " + source.getSourceNodeId());
                 }
                 graphContext.getNodeContext(sourceNode).incrementReferenceCount();
                 source.setSourceNode(sourceNode);  // todo - use getNodeContext()
@@ -219,7 +250,7 @@ public class GraphProcessor {
     }
 
     private void initNodeContext(GraphContext graphContext, final NodeContext nodeContext, ProgressMonitor pm) throws
-                                                                                                               GraphException {
+            GraphException {
         try {
             NodeSource[] sources = nodeContext.getNode().getSources();
             pm.beginTask("Creating operator", sources.length + 4);
@@ -295,6 +326,20 @@ public class GraphProcessor {
                     defaultParameterConverter.setParameterValues(operator, configuration);
                 }
             }
+        }
+    }
+
+    private static class TCL implements TileComputationListener {
+        public void tileComputed(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX, int tileY, Raster tile) {
+            //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        public void tileCancelled(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX, int tileY) {
+            //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        public void tileComputationFailure(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX, int tileY, Throwable situation) {
+            //To change body of implemented methods use File | Settings | File Templates.
         }
     }
 }

@@ -1,13 +1,13 @@
 package org.esa.beam.framework.gpf.annotations;
 
 import com.bc.ceres.binding.*;
+import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
-import org.esa.beam.framework.gpf.Operator;
 
 import java.lang.reflect.Field;
-import java.util.regex.Pattern;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class ParameterDefinitionFactory implements ValueDefinitionFactory {
 
@@ -34,7 +34,7 @@ public class ParameterDefinitionFactory implements ValueDefinitionFactory {
             try {
                 validator = parameter.validator().newInstance();
             } catch (Throwable t) {
-               throw new ConversionException("Failed to create validator.", t);
+                throw new ConversionException("Failed to create validator.", t);
             }
             valueDefinition.setValidator(validator);
         }
@@ -43,7 +43,7 @@ public class ParameterDefinitionFactory implements ValueDefinitionFactory {
             try {
                 converter = parameter.converter().newInstance();
             } catch (Throwable t) {
-               throw new ConversionException("Failed to create converter.", t);
+                throw new ConversionException("Failed to create converter.", t);
             }
             valueDefinition.setConverter(converter);
         }

@@ -1,7 +1,6 @@
 package org.esa.beam.framework.gpf;
 
-import java.awt.Rectangle;
-
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -10,7 +9,7 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
-import com.bc.ceres.core.ProgressMonitor;
+import java.awt.Rectangle;
 
 public class TestOps {
 
@@ -41,13 +40,15 @@ public class TestOps {
         @Override
         public Product initialize(ProgressMonitor pm) {
             targetProduct = new Product("Op1Name", "Op1Type", RASTER_WIDTH, RASTER_HEIGHT);
-            targetProduct.addBand(new Band("A", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
+            targetProduct.addBand(new Band("Op1A", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
             return targetProduct;
         }
 
         @Override
         public void computeBand(Raster targetRaster, ProgressMonitor pm) {
+            System.out.println("=====>>>>>> Op1.computeBand  start");
             registerCall("Op1;");
+            System.out.println("=====>>>>>> Op1.computeBand  end");
         }
 
         public static class Spi extends AbstractOperatorSpi {
@@ -63,7 +64,7 @@ public class TestOps {
         @Parameter
         public double threshold;
 
-        @SourceProduct(bands= {"A"})
+        @SourceProduct(bands = {"Op1A"})
         public Product input;
 
         @TargetProduct
@@ -76,16 +77,19 @@ public class TestOps {
         @Override
         public Product initialize(ProgressMonitor pm) {
             output = new Product("Op2Name", "Op2Type", RASTER_WIDTH, RASTER_HEIGHT);
-            output.addBand(new Band("A", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
-            output.addBand(new Band("B", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
+            output.addBand(new Band("Op2A", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
+            output.addBand(new Band("Op2B", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
             return output;
         }
 
         @Override
         public void computeAllBands(Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
-            getRaster(input.getBand("A"), rectangle);
-            getRaster(output.getBand("A"), rectangle);
-            getRaster(output.getBand("B"), rectangle);
+            System.out.println("=====>>>>>> Op2.computeAllBands  start");
+            getRaster(input.getBand("Op1A"), rectangle);
+            getRaster(output.getBand("Op2A"), rectangle);
+            getRaster(output.getBand("Op2B"), rectangle);
+            System.out.println("=====>>>>>> Op2.computeAllBands end");
+
             registerCall("Op2;");
         }
 
@@ -104,10 +108,10 @@ public class TestOps {
         @Parameter
         public String expression;
 
-        @SourceProduct(bands= {"A"})
+        @SourceProduct(bands = {"Op1A"})
         public Product input1;
 
-        @SourceProduct(bands= {"A", "B"})
+        @SourceProduct(bands = {"Op2A", "Op2B"})
         public Product input2;
 
         @SourceProducts
@@ -120,27 +124,31 @@ public class TestOps {
             super(spi);
         }
 
-       @Override
+        @Override
         public Product initialize(ProgressMonitor pm) {
             output = new Product("Op3Name", "Op3Type", RASTER_WIDTH, RASTER_HEIGHT);
-            output.addBand(new Band("A", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
-            output.addBand(new Band("B", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
-            output.addBand(new Band("C", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
-            output.addBand(new Band("D", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
+            output.addBand(new Band("Op3A", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
+            output.addBand(new Band("Op3B", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
+            output.addBand(new Band("Op3C", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
+            output.addBand(new Band("Op3D", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
             return output;
         }
 
         @Override
         public void computeAllBands(Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
-        	getRaster(input1.getBand("A"), rectangle);
-        	getRaster(input2.getBand("A"), rectangle);
-        	getRaster(input2.getBand("B"), rectangle);
-        	
-            getRaster(output.getBand("A"), rectangle);
-            getRaster(output.getBand("B"), rectangle);
-            getRaster(output.getBand("C"), rectangle);
-            getRaster(output.getBand("D"), rectangle);
+            System.out.println("=====>>>>>> Op3.computeAllBands  start");
+
+            getRaster(input1.getBand("Op1A"), rectangle);
+            getRaster(input2.getBand("Op2A"), rectangle);
+            getRaster(input2.getBand("Op2B"), rectangle);
+
+            getRaster(output.getBand("Op3A"), rectangle);
+            getRaster(output.getBand("Op3B"), rectangle);
+            getRaster(output.getBand("Op3C"), rectangle);
+            getRaster(output.getBand("Op3D"), rectangle);
             registerCall("Op3;");
+
+            System.out.println("=====>>>>>> Op3.computeAllBands  end");
         }
 
         public static class Spi extends AbstractOperatorSpi {

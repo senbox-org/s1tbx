@@ -1,26 +1,18 @@
 package org.esa.beam.framework.gpf.graph;
 
-import java.awt.Rectangle;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
-
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.AbstractOperator;
-import org.esa.beam.framework.gpf.AbstractOperatorSpi;
-import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.OperatorSpiRegistry;
-import org.esa.beam.framework.gpf.Raster;
+import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.internal.OperatorProductReader;
 
-import com.bc.ceres.core.ProgressMonitor;
+import javax.media.jai.JAI;
+import java.awt.Rectangle;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GraphCallSequenceTest extends TestCase {
 
@@ -31,12 +23,10 @@ public class GraphCallSequenceTest extends TestCase {
     private N4Spi n4Spi;
     private N5Spi n5Spi;
     private N6Spi n6Spi;
-	private long minimumTileSize;
+    private long minimumTileSize;
 
     @Override
     protected void setUp() throws Exception {
-    	minimumTileSize = GPF.getDefaultInstance().getTileCache().getMinimumTileSize();
-    	GPF.getDefaultInstance().getTileCache().setMinimumTileSize(1);
         n1Spi = new N1Spi();
         OperatorSpiRegistry.getInstance().addOperatorSpi(n1Spi);
         n2Spi = new N2Spi();
@@ -51,11 +41,12 @@ public class GraphCallSequenceTest extends TestCase {
         OperatorSpiRegistry.getInstance().addOperatorSpi(n6Spi);
 
         callRecordList = new ArrayList<String>();
+        JAI.getDefaultInstance().getTileCache().flush();
     }
 
     @Override
     protected void tearDown() throws Exception {
-    	GPF.getDefaultInstance().getTileCache().setMinimumTileSize(minimumTileSize);
+        JAI.getDefaultInstance().getTileCache().flush();
         OperatorSpiRegistry.getInstance().removeOperatorSpi(n1Spi);
         OperatorSpiRegistry.getInstance().removeOperatorSpi(n2Spi);
         OperatorSpiRegistry.getInstance().removeOperatorSpi(n3Spi);
@@ -185,8 +176,6 @@ public class GraphCallSequenceTest extends TestCase {
     //
     //
     public void testSingleSources3Ouputs() throws GraphException {
-        GPF.getDefaultInstance().getTileCache().clean();
-
         Node node1 = new Node("N1", "N1");
         Node node2 = new Node("N2", "N2");
         Node node3 = new Node("N3", "N3");
@@ -255,6 +244,7 @@ public class GraphCallSequenceTest extends TestCase {
         assertEquals(expectedRecords.length, callRecordList.size());
 
         for (int i = 0; i < expectedRecords.length; i++) {
+//            System.out.println("callRecordList = " + callRecordList.get(i).toString());
             assertEquals(expectedRecords[i], callRecordList.get(i).toString());
         }
     }
@@ -412,7 +402,7 @@ public class GraphCallSequenceTest extends TestCase {
             recordCall(getSpi().getName(), "Operator.computeBand");
 
             Raster sourceRaster = getRaster(sourceProduct.getBandAt(0),
-            		targetRaster.getRectangle());
+                                            targetRaster.getRectangle());
 
             float[] sourceElems = (float[]) sourceRaster.getDataBuffer().getElems();
             float[] targetElems = (float[]) targetRaster.getDataBuffer().getElems();
@@ -443,10 +433,10 @@ public class GraphCallSequenceTest extends TestCase {
             recordCall(getSpi().getName(), "Operator.computeBand");
 
             Raster sourceRaster1 = getRaster(sourceProduct1.getBandAt(0),
-            		targetRaster.getRectangle());
+                                             targetRaster.getRectangle());
 
             Raster sourceRaster2 = getRaster(sourceProduct2.getBandAt(0),
-            		targetRaster.getRectangle());
+                                             targetRaster.getRectangle());
 
             float[] source1Elems = (float[]) sourceRaster1.getDataBuffer().getElems();
             float[] source2Elems = (float[]) sourceRaster2.getDataBuffer().getElems();
@@ -525,7 +515,7 @@ public class GraphCallSequenceTest extends TestCase {
         }
     }
 
-    private  static void recordCall(String name, String name1) {
+    private static void recordCall(String name, String name1) {
         callRecordList.add(name + ":" + name1);
     }
 }

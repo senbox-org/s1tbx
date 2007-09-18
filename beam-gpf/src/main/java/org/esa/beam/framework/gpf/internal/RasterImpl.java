@@ -36,16 +36,17 @@ public class RasterImpl implements Raster {
     private final int offsetY;
     private final int width;
     private final int height;
-    
-	public RasterImpl(RasterDataNode rasterDataNode, Rectangle rectangle, ProductData dataBuffer) {
+
+    public RasterImpl(RasterDataNode rasterDataNode, Rectangle rectangle, ProductData dataBuffer) {
         this.rasterDataNode = rasterDataNode;
         this.dataBuffer = dataBuffer;
         this.offsetX = rectangle.x;
         this.offsetY = rectangle.y;
         this.width = rectangle.width;
         this.height = rectangle.height;
-	}
-    
+    }
+
+
     public final RasterDataNode getRasterDataNode() {
         return rasterDataNode;
     }
@@ -84,7 +85,7 @@ public class RasterImpl implements Raster {
     }
 
     public final void setInt(int x, int y, int v) {
-        if(rasterDataNode.isScalingApplied()) {
+        if (rasterDataNode.isScalingApplied()) {
             double d = rasterDataNode.scaleInverse(v);
             dataBuffer.setElemDoubleAt(getDataBufferIndex(x, y), d);
         } else {
@@ -115,7 +116,7 @@ public class RasterImpl implements Raster {
     }
 
     public final void setDouble(int x, int y, double v) {
-        if(rasterDataNode.isScalingApplied()) {
+        if (rasterDataNode.isScalingApplied()) {
             v = rasterDataNode.scaleInverse(v);
         }
         dataBuffer.setElemDoubleAt(getDataBufferIndex(x, y), v);
@@ -124,13 +125,12 @@ public class RasterImpl implements Raster {
     public final boolean getBoolean(int x, int y) {
         return dataBuffer.getElemBooleanAt(getDataBufferIndex(x, y));
     }
-    
+
     public final void setBoolean(int x, int y, boolean v) {
         dataBuffer.setElemBooleanAt(getDataBufferIndex(x, y), v);
     }
-    
+
     private int getDataBufferIndex(int x, int y) {
         return (y - offsetY) * width + (x - offsetX);
     }
-
 }

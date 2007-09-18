@@ -1,22 +1,17 @@
 package org.esa.beam.framework.gpf.operators.common;
 
-import java.awt.Rectangle;
-import java.io.IOException;
-
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductSubsetBuilder;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.AbstractOperator;
-import org.esa.beam.framework.gpf.AbstractOperatorSpi;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.Raster;
+import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 
-import com.bc.ceres.core.ProgressMonitor;
+import java.awt.Rectangle;
+import java.io.IOException;
 
 /**
  * The <code>SubsetOp</code> will create a subset of its source Product.
@@ -75,7 +70,7 @@ public class SubsetOp extends AbstractOperator {
     }
 
     @Override
-	public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+    public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
         ProductData destBuffer = targetRaster.getDataBuffer();
         Band band = (Band) targetRaster.getRasterDataNode();
         Rectangle rectangle = targetRaster.getRectangle();

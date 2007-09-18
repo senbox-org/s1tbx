@@ -1,6 +1,6 @@
 package org.esa.beam.framework.gpf.graph;
 
-import java.awt.*;
+import java.awt.Rectangle;
 
 /**
  * This interface can be implemented and added to the {@link GraphProcessor} to get informed
@@ -30,7 +30,7 @@ public interface GraphProcessingObserver {
     /**
      * It is invoked when the processing of the rectangle starts.
      *
-     * @param graphContext the graph context being processed
+     * @param graphContext  the graph context being processed
      * @param tileRectangle the rectangle currently processed
      */
     void tileProcessingStarted(GraphContext graphContext, Rectangle tileRectangle);
@@ -38,7 +38,7 @@ public interface GraphProcessingObserver {
     /**
      * It is invoked when the processing of the rectangle is done.
      *
-     * @param graphContext the graph context being processed
+     * @param graphContext  the graph context being processed
      * @param tileRectangle the rectangle currently processed
      */
     void tileProcessingStopped(GraphContext graphContext, Rectangle tileRectangle);

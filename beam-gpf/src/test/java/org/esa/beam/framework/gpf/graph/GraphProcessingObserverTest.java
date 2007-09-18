@@ -6,7 +6,8 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.*;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 
 public class GraphProcessingObserverTest extends TestCase {
@@ -83,20 +84,25 @@ public class GraphProcessingObserverTest extends TestCase {
         ArrayList<String> entries = new ArrayList<String>();
 
         public void graphProcessingStarted(GraphContext graphContext) {
-            this.entries.add("graph [" + graphContext.getGraph().getId() + "] started");
+            ralla("graph [" + graphContext.getGraph().getId() + "] started");
 
+        }
+
+        private void ralla(String m) {
+            System.out.println("m = " + m);
+            this.entries.add(m);
         }
 
         public void graphProcessingStopped(GraphContext graphContext) {
-            this.entries.add("graph [" + graphContext.getGraph().getId() + "] stopped");
+            ralla("graph [" + graphContext.getGraph().getId() + "] stopped");
         }
 
         public void tileProcessingStarted(GraphContext graphContext, Rectangle tileRectangle) {
-            this.entries.add("tile " + tileRectangle + " started");
+            ralla("tile " + tileRectangle + " started");
         }
 
         public void tileProcessingStopped(GraphContext graphContext, Rectangle tileRectangle) {
-            this.entries.add("tile " + tileRectangle + " stopped");
+            ralla("tile " + tileRectangle + " stopped");
         }
     }
 }

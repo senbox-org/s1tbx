@@ -49,7 +49,6 @@ public class Graph {
      * Adds a <code>Node</code> to the graph
      *
      * @param node a node
-     *
      * @throws IllegalArgumentException if the id of the given node is already in use
      */
     public void addNode(Node node) {
@@ -63,7 +62,6 @@ public class Graph {
      * Removes the {@link Node} with the given {@code id} from this graph if present.
      *
      * @param id the id of the {@link Node} to be removed
-     *
      * @return {@code true<} if the graph contains a {@link Node} with the given {@code id}. Else {@code false}.
      */
     public boolean removeNode(String id) {
@@ -74,7 +72,6 @@ public class Graph {
      * Gets the {@link Node} at the given index.
      *
      * @param index the index
-     *
      * @return the node at the given index
      */
     public Node getNode(int index) {
@@ -86,7 +83,6 @@ public class Graph {
      * {@code null} if the graph contains no respective {@link Node}.
      *
      * @param id the id of the Node to be removed
-     *
      * @return {@code true} if the graph contains a {@link Node} with the given {@code id}. Else {@code false}.
      */
     public Node getNode(String id) {

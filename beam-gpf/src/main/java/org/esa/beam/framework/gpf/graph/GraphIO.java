@@ -41,7 +41,6 @@ public class GraphIO {
      * Deserializes a {@code graph} from an XML Reader.
      *
      * @param reader the readerto use for deserialization
-     *
      * @return the deserialized <code>graph</code>
      */
     public static Graph read(Reader reader) {
@@ -56,7 +55,6 @@ public class GraphIO {
      *
      * @param reader    the XML reader
      * @param variables a mapping from template variable names to their string values.
-     *
      * @return the deserialized <code>graph</code>
      */
     public static Graph read(Reader reader, Map variables) {

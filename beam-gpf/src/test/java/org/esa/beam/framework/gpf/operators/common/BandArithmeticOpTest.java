@@ -16,12 +16,8 @@
  */
 package org.esa.beam.framework.gpf.operators.common;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
+import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
-
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -29,7 +25,9 @@ import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 
-import com.bc.ceres.core.ProgressMonitor;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by marcoz.
@@ -38,153 +36,155 @@ import com.bc.ceres.core.ProgressMonitor;
  * @version $Revision: $ $Date: $
  */
 public class BandArithmeticOpTest extends TestCase {
-	
-	private OperatorSpi spi;
 
-	@Override
-	protected void setUp() throws Exception {
-		spi = new BandArithmeticOp.Spi();
+    private OperatorSpi spi;
+
+    @Override
+    protected void setUp() throws Exception {
+        spi = new BandArithmeticOp.Spi();
         OperatorSpiRegistry.getInstance().addOperatorSpi(spi);
-	}
-	
-	@Override
-	protected void tearDown() throws Exception {
-		OperatorSpiRegistry.getInstance().removeOperatorSpi(spi);
-	}
+    }
 
-	public void testSimpelstCase() throws Exception {
-		Map<String, Object> parameters = new HashMap<String, Object>();
-		BandArithmeticOp.BandDescriptor[] bandDescriptors = new BandArithmeticOp.BandDescriptor[1];
-		bandDescriptors[0] = createBandDescription("aBandName", "1.0", ProductData.TYPESTRING_FLOAT32);
-		parameters.put("bandDescriptors", bandDescriptors);
-		Product sourceProduct = createTestProduct(4,4);
-		Product targetProduct = GPF.createProduct("BandArithmetic", parameters, sourceProduct, ProgressMonitor.NULL);
-		
-		assertNotNull(targetProduct);
-		Band band = targetProduct.getBand("aBandName");
-		assertNotNull(band);
-		assertEquals("aDescription", band.getDescription());
-		assertEquals(ProductData.TYPE_FLOAT32, band.getDataType());
-		
-		float[] floatValues = new float[16];
-		band.readPixels(0, 0, 4, 4, floatValues, ProgressMonitor.NULL);
-		float[] expectedValues  = new float[16];
-		Arrays.fill(expectedValues, 1.0f);
-		assertTrue(Arrays.equals(expectedValues, floatValues));
-	}
-	
-	public void testScaledInputBand() throws Exception {
-		Map<String, Object> parameters = new HashMap<String, Object>();
-		BandArithmeticOp.BandDescriptor[] bandDescriptors = new BandArithmeticOp.BandDescriptor[1];
-		bandDescriptors[0] = createBandDescription("aBandName", "band3", ProductData.TYPESTRING_FLOAT32);
-		parameters.put("bandDescriptors", bandDescriptors);
-		Product sourceProduct = createTestProduct(4,4);
-		Product targetProduct = GPF.createProduct("BandArithmetic", parameters, sourceProduct, ProgressMonitor.NULL);
-		
-		assertNotNull(targetProduct);
-		Band band = targetProduct.getBand("aBandName");
-		assertNotNull(band);
-		assertEquals("aDescription", band.getDescription());
-		assertEquals(ProductData.TYPE_FLOAT32, band.getDataType());
-		
-		float[] floatValues = new float[16];
-		band.readPixels(0, 0, 4, 4, floatValues, ProgressMonitor.NULL);
-		float[] expectedValues  = new float[16];
-		Arrays.fill(expectedValues, 3.0f);
-		assertTrue(Arrays.equals(expectedValues, floatValues));
-	}
-	
-	public void testTwoSourceBandsOneTargetBand() throws Exception {
-		Product sourceProduct = createTestProduct(4, 4);
-		Map<String, Object> parameters = new HashMap<String, Object>();
-		BandArithmeticOp.BandDescriptor[] bandDescriptors = new BandArithmeticOp.BandDescriptor[1];
-		bandDescriptors[0] = createBandDescription("aBandName", "band1 + band2", ProductData.TYPESTRING_FLOAT32);
-		parameters.put("bandDescriptors", bandDescriptors);
-		
-		Product targetProduct = GPF.createProduct("BandArithmetic", parameters, sourceProduct, ProgressMonitor.NULL);
-		Band band = targetProduct.getBand("aBandName");
+    @Override
+    protected void tearDown() throws Exception {
+        OperatorSpiRegistry.getInstance().removeOperatorSpi(spi);
+    }
 
-		float[] actualValues = new float[16];
-		band.readPixels(0, 0, 4, 4, actualValues, ProgressMonitor.NULL);
-		float[] expectedValues  = new float[16];
-		Arrays.fill(expectedValues, 3.5f);
-		assertTrue(Arrays.equals(expectedValues, actualValues));
-	}
+    public void testSimpelstCase() throws Exception {
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        BandArithmeticOp.BandDescriptor[] bandDescriptors = new BandArithmeticOp.BandDescriptor[1];
+        bandDescriptors[0] = createBandDescription("aBandName", "1.0", ProductData.TYPESTRING_FLOAT32);
+        parameters.put("bandDescriptors", bandDescriptors);
+        Product sourceProduct = createTestProduct(4, 4);
+        Product targetProduct = GPF.createProduct("BandArithmetic", parameters, sourceProduct, ProgressMonitor.NULL);
 
-	public void testTwoSourceBandsTwoTargetBands() throws Exception {
-		Product sourceProduct = createTestProduct(4, 4);
-		Map<String, Object> parameters = new HashMap<String, Object>();
-		BandArithmeticOp.BandDescriptor[] bandDescriptors = new BandArithmeticOp.BandDescriptor[2];
-		bandDescriptors[0] = createBandDescription("aBooleanBand", "band1 + band2 < 3.0", ProductData.TYPESTRING_BOOLEAN);
-		bandDescriptors[1] = createBandDescription("aIntBand", "band1 + band2 + 2.5", ProductData.TYPESTRING_INT32);
-		parameters.put("bandDescriptors", bandDescriptors);
-		
-		Product targetProduct = GPF.createProduct("BandArithmetic", parameters, sourceProduct, ProgressMonitor.NULL);
-		Band booleanBand = targetProduct.getBand("aBooleanBand");
+        assertNotNull(targetProduct);
+        Band band = targetProduct.getBand("aBandName");
+        assertNotNull(band);
+        assertEquals("aDescription", band.getDescription());
+        assertEquals(ProductData.TYPE_FLOAT32, band.getDataType());
 
-		booleanBand.readRasterDataFully(ProgressMonitor.NULL);
-		boolean[] actualBooleanValues = (boolean[]) booleanBand.getRasterData().getElems();
-		boolean[] expectedBooleanValues  = new boolean[16];
-		Arrays.fill(expectedBooleanValues, false);
-		assertTrue(Arrays.equals(expectedBooleanValues, actualBooleanValues));
+        float[] floatValues = new float[16];
+        band.readPixels(0, 0, 4, 4, floatValues, ProgressMonitor.NULL);
+        float[] expectedValues = new float[16];
+        Arrays.fill(expectedValues, 1.0f);
+        assertTrue(Arrays.equals(expectedValues, floatValues));
+    }
 
-		Band intBand = targetProduct.getBand("aIntBand");
+    public void testScaledInputBand() throws Exception {
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        BandArithmeticOp.BandDescriptor[] bandDescriptors = new BandArithmeticOp.BandDescriptor[1];
+        bandDescriptors[0] = createBandDescription("aBandName", "band3", ProductData.TYPESTRING_FLOAT32);
+        parameters.put("bandDescriptors", bandDescriptors);
+        Product sourceProduct = createTestProduct(4, 4);
+        Product targetProduct = GPF.createProduct("BandArithmetic", parameters, sourceProduct, ProgressMonitor.NULL);
 
-		intBand.readRasterDataFully(ProgressMonitor.NULL);
-		int[] actualIntValues = (int[]) intBand.getRasterData().getElems();
-		int[] expectedIntValues  = new int[16];
-		Arrays.fill(expectedIntValues, 6);
-		assertTrue(Arrays.equals(expectedIntValues, actualIntValues));
-	}
-	
-	public void testTwoSourceProductsOneTargetBand() throws Exception {
-		Product sourceProduct1 = createTestProduct(4, 4);
-		Product sourceProduct2 = createTestProduct(4, 4);
-		Map<String, Object> parameters = new HashMap<String, Object>();
-		BandArithmeticOp.BandDescriptor[] bandDescriptors = new BandArithmeticOp.BandDescriptor[1];
-		bandDescriptors[0] = createBandDescription("aBandName", "$sourceProduct1.band1 + $sourceProduct2.band2", ProductData.TYPESTRING_FLOAT32);
-		parameters.put("bandDescriptors", bandDescriptors);
-		
-		Product targetProduct = GPF.createProduct("BandArithmetic", parameters, new Product[]{sourceProduct1, sourceProduct2}, ProgressMonitor.NULL);
-		Band band = targetProduct.getBand("aBandName");
+        assertNotNull(targetProduct);
+        Band band = targetProduct.getBand("aBandName");
+        assertNotNull(band);
+        assertEquals("aDescription", band.getDescription());
+        assertEquals(ProductData.TYPE_FLOAT32, band.getDataType());
 
-		float[] actualValues = new float[16];
-		band.readPixels(0, 0, 4, 4, actualValues, ProgressMonitor.NULL);
-		float[] expectedValues  = new float[16];
-		Arrays.fill(expectedValues, 3.5f);
-		assertTrue(Arrays.equals(expectedValues, actualValues));
-	}
+        float[] floatValues = new float[16];
+        band.readPixels(0, 0, 4, 4, floatValues, ProgressMonitor.NULL);
+        float[] expectedValues = new float[16];
+        Arrays.fill(expectedValues, 3.0f);
+        assertTrue(Arrays.equals(expectedValues, floatValues));
+    }
 
-	private BandArithmeticOp.BandDescriptor createBandDescription(String bandName, String expression, String type) {
-		BandArithmeticOp.BandDescriptor bandDescriptor = new BandArithmeticOp.BandDescriptor();
-		bandDescriptor.name = bandName;
-		bandDescriptor.description = "aDescription";
-		bandDescriptor.expression = expression;
-		bandDescriptor.type = type;
-		return bandDescriptor;
-	}
+    public void testTwoSourceBandsOneTargetBand() throws Exception {
+        Product sourceProduct = createTestProduct(4, 4);
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        BandArithmeticOp.BandDescriptor[] bandDescriptors = new BandArithmeticOp.BandDescriptor[1];
+        bandDescriptors[0] = createBandDescription("aBandName", "band1 + band2", ProductData.TYPESTRING_FLOAT32);
+        parameters.put("bandDescriptors", bandDescriptors);
 
-	
-	private Product createTestProduct(int w, int h) {
-		Product testProduct = new Product("p", "t", w, h);
-		Band band1 = testProduct.addBand("band1", ProductData.TYPE_INT32);
-		band1.setSynthetic(true);
-		int[] intValues  = new int[w*h];
-		Arrays.fill(intValues, 1);
-		band1.setData(ProductData.createInstance(intValues));
-		
-		Band band2 = testProduct.addBand("band2", ProductData.TYPE_FLOAT32);
-		band2.setSynthetic(true);
-		float[] floatValues  = new float[w*h];
-		Arrays.fill(floatValues, 2.5f);
-		band2.setData(ProductData.createInstance(floatValues));
-		
-		Band band3 = testProduct.addBand("band3", ProductData.TYPE_INT16);
-		band3.setScalingFactor(0.5);
-		band3.setSynthetic(true);
-		short[] shortValues  = new short[w*h];
-		Arrays.fill(shortValues, (short)6);
-		band3.setData(ProductData.createInstance(shortValues));
-		return testProduct;
-	}
+        Product targetProduct = GPF.createProduct("BandArithmetic", parameters, sourceProduct, ProgressMonitor.NULL);
+        Band band = targetProduct.getBand("aBandName");
+
+        float[] actualValues = new float[16];
+        band.readPixels(0, 0, 4, 4, actualValues, ProgressMonitor.NULL);
+        float[] expectedValues = new float[16];
+        Arrays.fill(expectedValues, 3.5f);
+        assertTrue(Arrays.equals(expectedValues, actualValues));
+    }
+
+    public void testTwoSourceBandsTwoTargetBands() throws Exception {
+        Product sourceProduct = createTestProduct(4, 4);
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        BandArithmeticOp.BandDescriptor[] bandDescriptors = new BandArithmeticOp.BandDescriptor[2];
+        bandDescriptors[0] = createBandDescription("b1", "band1 + band2 < 3.0", ProductData.TYPESTRING_INT8);
+        bandDescriptors[1] = createBandDescription("b2", "band1 + band2 + 2.5", ProductData.TYPESTRING_INT32);
+        parameters.put("bandDescriptors", bandDescriptors);
+
+        Product targetProduct = GPF.createProduct("BandArithmetic", parameters, sourceProduct, ProgressMonitor.NULL);
+        Band b1 = targetProduct.getBand("b1");
+
+        b1.readRasterDataFully(ProgressMonitor.NULL);
+        assertTrue(b1.getRasterData().getElems() instanceof byte[]);
+        byte[] actualBooleanValues = (byte[]) b1.getRasterData().getElems();
+        byte[] expectedBooleanValues = new byte[16];
+        Arrays.fill(expectedBooleanValues, (byte) 0);
+        assertTrue(Arrays.equals(expectedBooleanValues, actualBooleanValues));
+
+        Band b2 = targetProduct.getBand("b2");
+
+        b2.readRasterDataFully(ProgressMonitor.NULL);
+        assertTrue(b2.getRasterData().getElems() instanceof int[]);
+        int[] actualIntValues = (int[]) b2.getRasterData().getElems();
+        int[] expectedIntValues = new int[16];
+        Arrays.fill(expectedIntValues, 6);
+        assertTrue(Arrays.equals(expectedIntValues, actualIntValues));
+    }
+
+    public void testTwoSourceProductsOneTargetBand() throws Exception {
+        Product sourceProduct1 = createTestProduct(4, 4);
+        Product sourceProduct2 = createTestProduct(4, 4);
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        BandArithmeticOp.BandDescriptor[] bandDescriptors = new BandArithmeticOp.BandDescriptor[1];
+        bandDescriptors[0] = createBandDescription("aBandName", "$sourceProduct1.band1 + $sourceProduct2.band2", ProductData.TYPESTRING_FLOAT32);
+        parameters.put("bandDescriptors", bandDescriptors);
+
+        Product targetProduct = GPF.createProduct("BandArithmetic", parameters, new Product[]{sourceProduct1, sourceProduct2}, ProgressMonitor.NULL);
+        Band band = targetProduct.getBand("aBandName");
+
+        float[] actualValues = new float[16];
+        band.readPixels(0, 0, 4, 4, actualValues, ProgressMonitor.NULL);
+        float[] expectedValues = new float[16];
+        Arrays.fill(expectedValues, 3.5f);
+        assertTrue(Arrays.equals(expectedValues, actualValues));
+    }
+
+    private BandArithmeticOp.BandDescriptor createBandDescription(String bandName, String expression, String type) {
+        BandArithmeticOp.BandDescriptor bandDescriptor = new BandArithmeticOp.BandDescriptor();
+        bandDescriptor.name = bandName;
+        bandDescriptor.description = "aDescription";
+        bandDescriptor.expression = expression;
+        bandDescriptor.type = type;
+        return bandDescriptor;
+    }
+
+
+    private Product createTestProduct(int w, int h) {
+        Product testProduct = new Product("p", "t", w, h);
+        Band band1 = testProduct.addBand("band1", ProductData.TYPE_INT32);
+        band1.setSynthetic(true);
+        int[] intValues = new int[w * h];
+        Arrays.fill(intValues, 1);
+        band1.setData(ProductData.createInstance(intValues));
+
+        Band band2 = testProduct.addBand("band2", ProductData.TYPE_FLOAT32);
+        band2.setSynthetic(true);
+        float[] floatValues = new float[w * h];
+        Arrays.fill(floatValues, 2.5f);
+        band2.setData(ProductData.createInstance(floatValues));
+
+        Band band3 = testProduct.addBand("band3", ProductData.TYPE_INT16);
+        band3.setScalingFactor(0.5);
+        band3.setSynthetic(true);
+        short[] shortValues = new short[w * h];
+        Arrays.fill(shortValues, (short) 6);
+        band3.setData(ProductData.createInstance(shortValues));
+        return testProduct;
+    }
 }

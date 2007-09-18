@@ -1,15 +1,10 @@
 package org.esa.beam.framework.gpf.graph;
 
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.Tile;
 
+import javax.media.jai.JAI;
 import java.awt.Dimension;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -25,7 +20,6 @@ public class GraphContext {
 
     private Graph graph;
     private Logger logger;
-    private Dimension preferredTileSize;
     private Map<Node, NodeContext> nodeContextMap;
     private List<NodeContext> outputNodeContextList;
     private ArrayDeque<NodeContext> initNodeContextDeque;
@@ -40,8 +34,6 @@ public class GraphContext {
     public GraphContext(Graph graph, Logger logger) {
         this.graph = graph;
         this.logger = logger;
-
-        preferredTileSize = new Dimension(Tile.DEFAULT_TILE_SIZE, Tile.DEFAULT_TILE_SIZE);
 
         outputNodeContextList = new ArrayList<NodeContext>(graph.getNodeCount() / 2);
 
@@ -77,7 +69,7 @@ public class GraphContext {
      * @return the preferred tile size
      */
     public Dimension getPreferredTileSize() {
-        return preferredTileSize;
+        return JAI.getDefaultTileSize();
     }
 
     /**
@@ -86,7 +78,7 @@ public class GraphContext {
      * @param preferredTileSize the preferred tile size
      */
     public void setPreferredTileSize(Dimension preferredTileSize) {
-        this.preferredTileSize = preferredTileSize;
+        JAI.setDefaultTileSize(preferredTileSize);
     }
 
     /**
@@ -132,7 +124,6 @@ public class GraphContext {
      * Gets the {@link NodeContext} of the given node.
      *
      * @param node the node to get the context for
-     *
      * @return the {@link NodeContext} of the given {@code node} or
      *         {@code null} if it's not contained in this context
      */
@@ -144,7 +135,6 @@ public class GraphContext {
      * Gets the output {@link NodeContext} at the given index.
      *
      * @param index the index
-     *
      * @return the {@link NodeContext} at the given index
      */
     NodeContext getOutputNodeContext(int index) {

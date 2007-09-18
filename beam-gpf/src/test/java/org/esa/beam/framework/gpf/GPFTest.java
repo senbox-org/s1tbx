@@ -1,19 +1,17 @@
 package org.esa.beam.framework.gpf;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
-
+import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
-
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
-import com.bc.ceres.core.ProgressMonitor;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GPFTest extends TestCase {
 
@@ -21,10 +19,6 @@ public class GPFTest extends TestCase {
         GPF gpf = GPF.getDefaultInstance();
         assertNotNull(gpf);
         assertSame(gpf, GPF.getDefaultInstance());
-
-        TileCache tileCache = gpf.getTileCache();
-        assertNotNull(tileCache);
-        assertSame(tileCache, gpf.getTileCache());
     }
 
     public void testOperatorApi() throws IOException, OperatorException, URISyntaxException {
@@ -67,8 +61,10 @@ public class GPFTest extends TestCase {
     }
 
     public static class FooOp extends AbstractOperator {
-        @TargetProduct Product targetProduct;
-        @SourceProduct Product sourceProduct;
+        @TargetProduct
+        Product targetProduct;
+        @SourceProduct
+        Product sourceProduct;
 
         public FooOp(OperatorSpi spi) {
             super(spi);
@@ -83,12 +79,11 @@ public class GPFTest extends TestCase {
          * @see #initialize(org.esa.beam.framework.gpf.OperatorContext, com.bc.ceres.core.ProgressMonitor)
          */
         @Override
-		protected Product initialize(ProgressMonitor pm) throws OperatorException {
+        protected Product initialize(ProgressMonitor pm) throws OperatorException {
             Product product = new Product("X", "Y", sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
             String[] bandNames = sourceProduct.getBandNames();
             for (String s : bandNames) {
                 product.addBand(s, ProductData.TYPE_FLOAT32);
-                System.out.println("assed  " + s);
             }
             return product;
         }
@@ -104,8 +99,12 @@ public class GPFTest extends TestCase {
             int n = targetRaster.getDataBuffer().getNumElems();
             for (int i = 0; i < n; i++) {
                 float v = sourceRaster.getDataBuffer().getElemFloatAt(i);
-                if (v < 0) v = 0;
-                if (v > 1) v = 1;
+                if (v < 0) {
+                    v = 0;
+                }
+                if (v > 1) {
+                    v = 1;
+                }
                 targetRaster.getDataBuffer().setElemFloatAt(i, v);
             }
         }

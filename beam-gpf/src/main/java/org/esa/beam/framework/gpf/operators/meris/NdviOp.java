@@ -1,24 +1,14 @@
 package org.esa.beam.framework.gpf.operators.meris;
 
-import java.awt.Color;
-import java.awt.Rectangle;
-
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.AbstractOperator;
-import org.esa.beam.framework.gpf.AbstractOperatorSpi;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.Raster;
+import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 
-import com.bc.ceres.core.ProgressMonitor;
+import java.awt.Color;
+import java.awt.Rectangle;
 
 /**
  * The <code>NdviOp</code> uses MERIS Level-1b TOA radiances of bands 6 and 10
@@ -43,8 +33,8 @@ public class NdviOp extends AbstractOperator {
     public static final String UPPER_INPUT_BAND_NAME = "radiance_10";
     private Band _lowerInputBand;
     private Band _upperInputBand;
-    
-    @SourceProduct(alias="input")
+
+    @SourceProduct(alias = "input")
     private Product inputProduct;
     @TargetProduct
     private Product targetProduct;
@@ -90,34 +80,34 @@ public class NdviOp extends AbstractOperator {
         // Copy predefined bitmask definitions
         ProductUtils.copyBitmaskDefs(inputProduct, targetProduct);
         targetProduct.addBitmaskDef(new BitmaskDef(NDVI_ARITHMETIC_FLAG_NAME.toLowerCase(),
-                                             "An arithmetic exception occured.", NDVI_FLAGS_BAND_NAME + "."
+                                                   "An arithmetic exception occured.", NDVI_FLAGS_BAND_NAME + "."
                 + NDVI_ARITHMETIC_FLAG_NAME, Color.red.brighter(), 0.7f));
         targetProduct.addBitmaskDef(new BitmaskDef(NDVI_LOW_FLAG_NAME.toLowerCase(),
-                                             "NDVI value is too low.", NDVI_FLAGS_BAND_NAME + "." + NDVI_LOW_FLAG_NAME,
-                                             Color.red, 0.7f));
+                                                   "NDVI value is too low.", NDVI_FLAGS_BAND_NAME + "." + NDVI_LOW_FLAG_NAME,
+                                                   Color.red, 0.7f));
         targetProduct.addBitmaskDef(new BitmaskDef(NDVI_HIGH_FLAG_NAME.toLowerCase(),
-                                             "NDVI value is too high.", NDVI_FLAGS_BAND_NAME + "." + NDVI_HIGH_FLAG_NAME,
-                                             Color.red.darker(), 0.7f));
+                                                   "NDVI value is too high.", NDVI_FLAGS_BAND_NAME + "." + NDVI_HIGH_FLAG_NAME,
+                                                   Color.red.darker(), 0.7f));
 
         return targetProduct;
     }
 
     @Override
     public void computeAllBands(Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
-    	
-    	pm.beginTask("Computing NDVI", rectangle.height + 1);
-    	try {
-    		
-    		Raster l1flagsSourceRaster = getRaster(inputProduct.getBand(L1FLAGS_INPUT_BAND_NAME), rectangle);
-    		Raster l1flagsTargetRaster = getRaster(targetProduct.getBand(L1FLAGS_INPUT_BAND_NAME), rectangle);
-    		// copy, because the databuffer is for computeAllBands not correctly (re)used
-    		final int length = rectangle.width * rectangle.height;
-    		System.arraycopy(l1flagsSourceRaster.getDataBuffer().getElems(), 0, l1flagsTargetRaster.getDataBuffer().getElems(), 0, length);
-    		pm.worked(1);
-    	
-    		Raster lowerRaster = getRaster(_lowerInputBand, rectangle);
-    		Raster upperRaster = getRaster(_upperInputBand, rectangle);
-    		
+
+        pm.beginTask("Computing NDVI", rectangle.height + 1);
+        try {
+
+            Raster l1flagsSourceRaster = getRaster(inputProduct.getBand(L1FLAGS_INPUT_BAND_NAME), rectangle);
+            Raster l1flagsTargetRaster = getRaster(targetProduct.getBand(L1FLAGS_INPUT_BAND_NAME), rectangle);
+            // copy, because the databuffer is for computeAllBands not correctly (re)used
+            final int length = rectangle.width * rectangle.height;
+            System.arraycopy(l1flagsSourceRaster.getDataBuffer().getElems(), 0, l1flagsTargetRaster.getDataBuffer().getElems(), 0, length);
+            pm.worked(1);
+
+            Raster lowerRaster = getRaster(_lowerInputBand, rectangle);
+            Raster upperRaster = getRaster(_upperInputBand, rectangle);
+
             Raster ndvi = getRaster(targetProduct.getBand(NDVI_BAND_NAME), rectangle);
             Raster ndviFlags = getRaster(targetProduct.getBand(NDVI_FLAGS_BAND_NAME), rectangle);
 
@@ -126,8 +116,8 @@ public class NdviOp extends AbstractOperator {
 
             for (int y = rectangle.y; y < rectangle.y + rectangle.height; y++) {
                 for (int x = rectangle.x; x < rectangle.x + rectangle.width; x++) {
-                	final float upper = upperRaster.getFloat(x, y);
-                	final float lower = lowerRaster.getFloat(x, y);
+                    final float upper = upperRaster.getFloat(x, y);
+                    final float lower = lowerRaster.getFloat(x, y);
                     ndviValue = (upper - lower) / (upper + lower);
                     ndviFlagsValue = 0;
                     if (Float.isNaN(ndviValue) || Float.isInfinite(ndviValue)) {
@@ -145,9 +135,9 @@ public class NdviOp extends AbstractOperator {
                 }
                 pm.worked(1);
             }
-    	} finally {
-    		pm.done();
-    	}
+        } finally {
+            pm.done();
+        }
     }
 
     private void loadSourceBands(Product product) throws OperatorException {

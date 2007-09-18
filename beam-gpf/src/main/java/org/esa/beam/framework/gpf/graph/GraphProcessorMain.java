@@ -6,11 +6,7 @@ import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.util.logging.BeamLogManager;
 
 import java.awt.Rectangle;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.StringReader;
+import java.io.*;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -48,7 +44,6 @@ public class GraphProcessorMain implements RuntimeRunnable {
      *
      * @param object parameters to run this instance, expected as {@code String[]}
      * @param pm     a progress monitor. Can be used to signal progress.
-     *
      * @throws Exception if any error occures
      */
     public void run(Object object, ProgressMonitor pm) throws Exception {

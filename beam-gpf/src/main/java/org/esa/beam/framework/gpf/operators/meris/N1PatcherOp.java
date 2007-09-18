@@ -1,27 +1,21 @@
 package org.esa.beam.framework.gpf.operators.meris;
 
-import java.awt.Rectangle;
-import java.io.File;
-import java.io.IOException;
+import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.SourceProduct;
+import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
-
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.AbstractOperator;
-import org.esa.beam.framework.gpf.AbstractOperatorSpi;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.Raster;
-import org.esa.beam.framework.gpf.annotations.Parameter;
-import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.esa.beam.framework.gpf.annotations.TargetProduct;
-
-import com.bc.ceres.core.ProgressMonitor;
+import java.awt.Rectangle;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * The <code>N1PatcherOp</code> copies an existing N1 file
@@ -105,13 +99,13 @@ public class N1PatcherOp extends AbstractOperator {
 
     private ImageInputStream inputStream;
     private ImageOutputStream outputStream;
-    
-    @SourceProduct(alias="input")
+
+    @SourceProduct(alias = "input")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
 
-    
+
     public N1PatcherOp(OperatorSpi spi) {
         super(spi);
     }
@@ -205,7 +199,7 @@ public class N1PatcherOp extends AbstractOperator {
     }
 
     private int readIntBuf(final byte[] buf, final int offset,
-                                 final int length) {
+                           final int length) {
         return Integer.parseInt(new String(buf, offset, length));
     }
 
@@ -214,14 +208,14 @@ public class N1PatcherOp extends AbstractOperator {
     }
 
     private String readStringBuf(final byte[] buf, final int offset,
-                                       final int length) {
+                                 final int length) {
         return new String(buf, offset, length);
     }
 
     @Override
     public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
-    	Band band = (Band) targetRaster.getRasterDataNode();
-    	Rectangle rectangle = targetRaster.getRectangle();
+        Band band = (Band) targetRaster.getRasterDataNode();
+        Rectangle rectangle = targetRaster.getRectangle();
         DatasetDescriptor descriptor = getDatasetDescriptorForBand(band);
         if (descriptor == null) {
             return;
@@ -229,8 +223,8 @@ public class N1PatcherOp extends AbstractOperator {
 
         pm.beginTask("Patching product...", rectangle.height + 1);
         try {
-        	ProductData dataBuffer = targetRaster.getDataBuffer();
-            getRaster(band, rectangle, dataBuffer); 
+            Raster raster = getRaster(band, rectangle);
+            ProductData dataBuffer = raster.getDataBuffer();
             short[] bandData = (short[]) dataBuffer.getElems();
 
             byte[] buf = new byte[rectangle.height * descriptor.dsrSize];
@@ -271,7 +265,7 @@ public class N1PatcherOp extends AbstractOperator {
     }
 
     @Override
-	public void dispose() {
+    public void dispose() {
         try {
             targetProduct.closeIO();
             inputStream.close();

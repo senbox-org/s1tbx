@@ -17,11 +17,7 @@
 package org.esa.beam.framework.gpf.operators.common;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.jexp.ParseException;
-import com.bc.jexp.Parser;
-import com.bc.jexp.Symbol;
-import com.bc.jexp.Term;
-import com.bc.jexp.WritableNamespace;
+import com.bc.jexp.*;
 import com.bc.jexp.impl.ParserImpl;
 import com.bc.jexp.impl.SymbolFactory;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
@@ -32,13 +28,7 @@ import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic.ProductPrefixProvider;
 import org.esa.beam.framework.dataop.barithm.RasterDataEvalEnv;
 import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
-import org.esa.beam.framework.gpf.AbstractOperator;
-import org.esa.beam.framework.gpf.AbstractOperatorSpi;
-import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.ParameterConverter;
-import org.esa.beam.framework.gpf.Raster;
+import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
@@ -54,42 +44,42 @@ import java.awt.Rectangle;
  */
 public class BandArithmeticOp extends AbstractOperator implements ParameterConverter {
 
-	public static class BandDescriptor {
-		public String name;
-		public String expression;
-		public String description;
-		public String type;
-		public String validExpression;
-		public String noDataValue;
+    public static class BandDescriptor {
+        public String name;
+        public String expression;
+        public String description;
+        public String type;
+        public String validExpression;
+        public String noDataValue;
         public Integer spectralBandIndex;
         public Float spectralWavelength;
         public Float spectralBandwidth;
     }
-	
-	public static class Variable {
-		public String name;
-		public String type;
-		public String value;
-	}
 
-	@Parameter(defaultValue = "ExpressionProduct")
-	private String productName = "ExpressionProduct";
-	@Parameter
-	private BandDescriptor[] bandDescriptors;
-	@Parameter
-	private Variable[] variables;
-	@TargetProduct
-	private Product targetProduct;
-	@SourceProducts
-	private Product[] sourceProducts;
-	
-	private WritableNamespace namespace;
-	
-	public BandArithmeticOp(OperatorSpi spi) {
+    public static class Variable {
+        public String name;
+        public String type;
+        public String value;
+    }
+
+    @Parameter(defaultValue = "ExpressionProduct")
+    private String productName = "ExpressionProduct";
+    @Parameter
+    private BandDescriptor[] bandDescriptors;
+    @Parameter
+    private Variable[] variables;
+    @TargetProduct
+    private Product targetProduct;
+    @SourceProducts
+    private Product[] sourceProducts;
+
+    private WritableNamespace namespace;
+
+    public BandArithmeticOp(OperatorSpi spi) {
         super(spi);
     }
-	
-	public void getParameterValues(Operator operator, Xpp3Dom configuration) throws OperatorException {
+
+    public void getParameterValues(Operator operator, Xpp3Dom configuration) throws OperatorException {
         // todo - implement        
     }
 
@@ -97,56 +87,56 @@ public class BandArithmeticOp extends AbstractOperator implements ParameterConve
         Xpp3Dom[] children = parameterDom.getChildren("bandDescriptor");
         bandDescriptors = new BandDescriptor[children.length];
         for (int i = 0; i < children.length; i++) {
-        	bandDescriptors[i] = new BandDescriptor();
-        	bandDescriptors[i].name = children[i].getChild("name").getValue();
-        	bandDescriptors[i].expression = children[i].getChild("expression").getValue();
-        	bandDescriptors[i].type = children[i].getChild("type").getValue();
+            bandDescriptors[i] = new BandDescriptor();
+            bandDescriptors[i].name = children[i].getChild("name").getValue();
+            bandDescriptors[i].expression = children[i].getChild("expression").getValue();
+            bandDescriptors[i].type = children[i].getChild("type").getValue();
         }
     }
-	
-	@Override
-	protected Product initialize(ProgressMonitor pm) throws OperatorException {
-		int height = sourceProducts[0].getSceneRasterHeight();
-		int width = sourceProducts[0].getSceneRasterWidth();
-		targetProduct = new Product(productName, "EXP", width, height);
-		
-		namespace = BandArithmetic.createDefaultNamespace(sourceProducts,0, new ProductPrefixProvider() {
-			public String getPrefix(Product product) {
-				String idForSourceProduct = getContext().getIdForSourceProduct(product);
-				return "$" + idForSourceProduct + ".";
-			}
-		});
-		if (variables != null) {
-			for (Variable variable : variables) {
-				if (ProductData.isFloatingPointType(ProductData.getType(variable.type))) {
-					Symbol symbol = SymbolFactory.createConstant(variable.name, Double.parseDouble(variable.value));
-					namespace.registerSymbol(symbol);
-				} else if (ProductData.isIntType(ProductData.getType(variable.type))) {
-					Symbol symbol = SymbolFactory.createConstant(variable.name, Long.parseLong(variable.value));
-					namespace.registerSymbol(symbol);
-				} else if (ProductData.TYPESTRING_BOOLEAN.equals(variable.type)) {
-					Symbol symbol = SymbolFactory.createConstant(variable.name, Boolean.parseBoolean(variable.value));
-					namespace.registerSymbol(symbol);
-				}
-			}
-		}
-		for (BandDescriptor bandDescriptor : bandDescriptors) {
-			Band band = targetProduct.addBand(bandDescriptor.name, ProductData.getType(bandDescriptor.type));
-			if (StringUtils.isNotNullAndNotEmpty(bandDescriptor.description)) {
-				band.setDescription(bandDescriptor.description);
-			}
-			if (StringUtils.isNotNullAndNotEmpty(bandDescriptor.validExpression)) {
-				band.setValidPixelExpression(bandDescriptor.validExpression);
-			}
-			if (StringUtils.isNotNullAndNotEmpty(bandDescriptor.noDataValue)) {
-				try {
-					double parseDouble = Double.parseDouble(bandDescriptor.noDataValue);
-					band.setNoDataValue(parseDouble);
-					band.setNoDataValueUsed(true);
-				}catch (NumberFormatException e) {
-					throw new OperatorException("Bad value for NoDataValue given: " +  bandDescriptor.noDataValue, e);
-				}
-			}
+
+    @Override
+    protected Product initialize(ProgressMonitor pm) throws OperatorException {
+        int height = sourceProducts[0].getSceneRasterHeight();
+        int width = sourceProducts[0].getSceneRasterWidth();
+        targetProduct = new Product(productName, "EXP", width, height);
+
+        namespace = BandArithmetic.createDefaultNamespace(sourceProducts, 0, new ProductPrefixProvider() {
+            public String getPrefix(Product product) {
+                String idForSourceProduct = getContext().getIdForSourceProduct(product);
+                return "$" + idForSourceProduct + ".";
+            }
+        });
+        if (variables != null) {
+            for (Variable variable : variables) {
+                if (ProductData.isFloatingPointType(ProductData.getType(variable.type))) {
+                    Symbol symbol = SymbolFactory.createConstant(variable.name, Double.parseDouble(variable.value));
+                    namespace.registerSymbol(symbol);
+                } else if (ProductData.isIntType(ProductData.getType(variable.type))) {
+                    Symbol symbol = SymbolFactory.createConstant(variable.name, Long.parseLong(variable.value));
+                    namespace.registerSymbol(symbol);
+                } else if (ProductData.TYPESTRING_BOOLEAN.equals(variable.type)) {
+                    Symbol symbol = SymbolFactory.createConstant(variable.name, Boolean.parseBoolean(variable.value));
+                    namespace.registerSymbol(symbol);
+                }
+            }
+        }
+        for (BandDescriptor bandDescriptor : bandDescriptors) {
+            Band band = targetProduct.addBand(bandDescriptor.name, ProductData.getType(bandDescriptor.type));
+            if (StringUtils.isNotNullAndNotEmpty(bandDescriptor.description)) {
+                band.setDescription(bandDescriptor.description);
+            }
+            if (StringUtils.isNotNullAndNotEmpty(bandDescriptor.validExpression)) {
+                band.setValidPixelExpression(bandDescriptor.validExpression);
+            }
+            if (StringUtils.isNotNullAndNotEmpty(bandDescriptor.noDataValue)) {
+                try {
+                    double parseDouble = Double.parseDouble(bandDescriptor.noDataValue);
+                    band.setNoDataValue(parseDouble);
+                    band.setNoDataValueUsed(true);
+                } catch (NumberFormatException e) {
+                    throw new OperatorException("Bad value for NoDataValue given: " + bandDescriptor.noDataValue, e);
+                }
+            }
             if (bandDescriptor.spectralBandIndex != null) {
                 band.setSpectralBandIndex(bandDescriptor.spectralBandIndex);
             }
@@ -157,74 +147,73 @@ public class BandArithmeticOp extends AbstractOperator implements ParameterConve
                 band.setSpectralBandwidth(bandDescriptor.spectralBandwidth);
             }
         }
-		
-		return targetProduct;
-	}
-	
-	@Override
+
+        return targetProduct;
+    }
+
+    @Override
     public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
-		BandDescriptor bandDescriptor = getDesriptionForRaster(targetRaster);
+        BandDescriptor bandDescriptor = getDesriptionForRaster(targetRaster);
 
-		Rectangle rect = targetRaster.getRectangle();
-		final Term term;
-		try {
-			Parser parser = new ParserImpl(namespace, false);
-			term = parser.parse(bandDescriptor.expression);
-		} catch (ParseException e) {
-			throw new OperatorException("Couldn't parse expression: "+bandDescriptor.expression, e);
-		}
-		
-		RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
-		for (RasterDataSymbol symbol : refRasterDataSymbols) {
-			Raster raster = getRaster(symbol.getRaster(), rect);
-			if (raster.getRasterDataNode().isScalingApplied()) {
-				ProductData dataBuffer = ProductData.createInstance(ProductData.TYPE_FLOAT32, raster.getWidth() * raster.getHeight());
-				int dataBufferIndex = 0;
-				for (int y = rect.y; y < rect.y + rect.height; y++) {
-					for (int x = rect.x; x < rect.x+rect.width; x++) {
-						dataBuffer.setElemFloatAt(dataBufferIndex, raster.getFloat(x, y));
-						dataBufferIndex++;
-					}
-				}
-				symbol.setData(dataBuffer);
-			} else {
-				ProductData dataBuffer = raster.getDataBuffer();
-				symbol.setData(dataBuffer);
-			}
-		}
-		final ProductData targetData = targetRaster.getDataBuffer();
+        Rectangle rect = targetRaster.getRectangle();
+        final Term term;
+        try {
+            Parser parser = new ParserImpl(namespace, false);
+            term = parser.parse(bandDescriptor.expression);
+        } catch (ParseException e) {
+            throw new OperatorException("Couldn't parse expression: " + bandDescriptor.expression, e);
+        }
 
-		final RasterDataEvalEnv env = new RasterDataEvalEnv(rect.x, rect.y, rect.width, rect.height);
-		int pixelIndex = 0;
-		pm.beginTask("Evaluating expression", rect.height);
-		try { 
-			for (int y = rect.y; y < rect.y + rect.height; y++) {
-				if (pm.isCanceled()) {
-					break;
-				}
-				env.setPixelY(y);
-				for (int x = rect.x; x < rect.x+rect.width; x++) {
-					env.setElemIndex(pixelIndex);
-					env.setPixelX(x);
-					targetData.setElemDoubleAt(pixelIndex, term.evalD(env));
-					pixelIndex++;
-				}
-				pm.worked(1);
-			}
-		} finally {
-			pm.done();
-		}
-	}
-	
-	private BandDescriptor getDesriptionForRaster(Raster raster) {
-		String rasterName = raster.getRasterDataNode().getName();
-		for (BandDescriptor bandDescriptor : bandDescriptors) {
-			if (bandDescriptor.name.equals(rasterName)) {
-				return bandDescriptor;
-			}
-		}
-		return null;
-	}
+        RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
+        for (RasterDataSymbol symbol : refRasterDataSymbols) {
+            Raster raster = getRaster(symbol.getRaster(), rect);
+            if (raster.getRasterDataNode().isScalingApplied()) {
+                ProductData dataBuffer = ProductData.createInstance(ProductData.TYPE_FLOAT32, raster.getWidth() * raster.getHeight());
+                int dataBufferIndex = 0;
+                for (int y = rect.y; y < rect.y + rect.height; y++) {
+                    for (int x = rect.x; x < rect.x + rect.width; x++) {
+                        dataBuffer.setElemFloatAt(dataBufferIndex, raster.getFloat(x, y));
+                        dataBufferIndex++;
+                    }
+                }
+                symbol.setData(dataBuffer);
+            } else {
+                ProductData dataBuffer = raster.getDataBuffer();
+                symbol.setData(dataBuffer);
+            }
+        }
+
+        final RasterDataEvalEnv env = new RasterDataEvalEnv(rect.x, rect.y, rect.width, rect.height);
+        int pixelIndex = 0;
+        pm.beginTask("Evaluating expression", rect.height);
+        try {
+            for (int y = rect.y; y < rect.y + rect.height; y++) {
+                if (pm.isCanceled()) {
+                    break;
+                }
+                env.setPixelY(y);
+                for (int x = rect.x; x < rect.x + rect.width; x++) {
+                    env.setElemIndex(pixelIndex);
+                    env.setPixelX(x);
+                    targetRaster.setDouble(x, y, term.evalD(env));
+                    pixelIndex++;
+                }
+                pm.worked(1);
+            }
+        } finally {
+            pm.done();
+        }
+    }
+
+    private BandDescriptor getDesriptionForRaster(Raster raster) {
+        String rasterName = raster.getRasterDataNode().getName();
+        for (BandDescriptor bandDescriptor : bandDescriptors) {
+            if (bandDescriptor.name.equals(rasterName)) {
+                return bandDescriptor;
+            }
+        }
+        return null;
+    }
 
     public static class Spi extends AbstractOperatorSpi {
         public Spi() {

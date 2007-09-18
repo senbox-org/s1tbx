@@ -74,9 +74,7 @@ public class Node {
      * Returns the <code>NodeSource</code> at the given index position
      *
      * @param index the index of the <code>NodeSource</code> to return
-     *
      * @return the <code>NodeSource</code> at the given index position
-     *
      * @throws IndexOutOfBoundsException if index is out of range
      */
     public NodeSource getSource(int index) throws IndexOutOfBoundsException {
@@ -128,7 +126,6 @@ public class Node {
          * Gets the {@link NodeSource} at the given index.
          *
          * @param index the index
-         *
          * @return the {@link NodeSource}
          */
         public NodeSource getSource(int index) {

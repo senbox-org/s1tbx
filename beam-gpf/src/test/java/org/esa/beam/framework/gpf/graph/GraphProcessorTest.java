@@ -1,24 +1,24 @@
 package org.esa.beam.framework.gpf.graph;
 
-import java.io.IOException;
-
+import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
-
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.TestOps;
+import org.esa.beam.framework.gpf.VerbousTileCache;
 
-import com.bc.ceres.core.ProgressMonitor;
+import javax.media.jai.JAI;
+import javax.media.jai.TileCache;
 
 public class GraphProcessorTest extends TestCase {
     private OperatorSpi spi1;
-	private OperatorSpi spi2;
-	private OperatorSpi spi3;
-	private long minimumTileSize;
+    private OperatorSpi spi2;
+    private OperatorSpi spi3;
+    private static TileCache jaiTileCache = JAI.getDefaultInstance().getTileCache();
+    private static TileCache testTileCache = new VerbousTileCache(jaiTileCache);
 
-	public void testEmptyChain() {
+    public void testEmptyChain() {
         Graph graph = new Graph("test-graph");
         try {
             new GraphProcessor().createGraphContext(graph, ProgressMonitor.NULL);
@@ -110,7 +110,17 @@ public class GraphProcessorTest extends TestCase {
         TestOps.clearCalls();
     }
 
+    ////////////////////////////////////////////////////////////////////////
+    //            node1
+    //            /  \
+    //        node2   \
+    //            \   /
+    //            node3    <-- Target!
+    //
     public void testThreeOpsExecutionOrder() throws Exception {
+
+        VerbousTileCache.setVerbous(true);
+
         Graph graph = new Graph("graph");
 
         Node node1 = new Node("node1", "Op1");
@@ -123,7 +133,7 @@ public class GraphProcessorTest extends TestCase {
         graph.addNode(node1);
         graph.addNode(node2);
         graph.addNode(node3);
-        
+
         GraphProcessor processor = new GraphProcessor();
         GraphContext graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
         Product chainOut = graphContext.getOutputProducts()[0];
@@ -132,8 +142,13 @@ public class GraphProcessorTest extends TestCase {
         assertEquals("Op3Name", chainOut.getName());
 
         processor.executeGraphContext(graphContext, ProgressMonitor.NULL);
+        // - Op3 requires the two bands of Op2
+        // - Op2 computes all bands
+        // --> Op2 should only be called once
         assertEquals("Op1;Op2;Op3;", TestOps.getCalls());
         TestOps.clearCalls();
+
+        VerbousTileCache.setVerbous(false);
     }
 
     public void testAnnotationsProcessed() throws Exception {
@@ -221,20 +236,22 @@ public class GraphProcessorTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-    	minimumTileSize = GPF.getDefaultInstance().getTileCache().getMinimumTileSize();
-    	GPF.getDefaultInstance().getTileCache().setMinimumTileSize(0);
+        JAI.getDefaultInstance().setTileCache(testTileCache);
+        testTileCache.flush();
+
         TestOps.clearCalls();
         spi1 = new TestOps.Op1.Spi();
         spi2 = new TestOps.Op2.Spi();
         spi3 = new TestOps.Op3.Spi();
-		OperatorSpiRegistry.getInstance().addOperatorSpi(spi1);
-		OperatorSpiRegistry.getInstance().addOperatorSpi(spi2);
-		OperatorSpiRegistry.getInstance().addOperatorSpi(spi3);
+        OperatorSpiRegistry.getInstance().addOperatorSpi(spi1);
+        OperatorSpiRegistry.getInstance().addOperatorSpi(spi2);
+        OperatorSpiRegistry.getInstance().addOperatorSpi(spi3);
     }
-    
+
     @Override
     protected void tearDown() throws Exception {
-    	GPF.getDefaultInstance().getTileCache().setMinimumTileSize(minimumTileSize);
+        testTileCache.flush();
+        JAI.getDefaultInstance().setTileCache(jaiTileCache);
         OperatorSpiRegistry.getInstance().removeOperatorSpi(spi1);
         OperatorSpiRegistry.getInstance().removeOperatorSpi(spi2);
         OperatorSpiRegistry.getInstance().removeOperatorSpi(spi3);

@@ -1,9 +1,11 @@
 package org.esa.beam.framework.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 
 import java.awt.Rectangle;
+import java.util.Map;
 
 /**
  * The {@code Operator} interface defines the signature for processing
@@ -38,32 +40,29 @@ public interface Operator {
      *
      * @param context the operator's context
      * @param pm      a progress monitor. Can be used to signal progress.
-     *
      * @return the target product
      */
     Product initialize(OperatorContext context, ProgressMonitor pm) throws OperatorException;
 
     /**
-     * <!-- todo - more API doc ->
      * This method is called by the framework for a specific target band and a specific rectangular area.
      * Which band and which area shall be computed can be retrived from the {@code targetRaster} parameter.
      *
+     * @param band         the target band associated with the raster to be computed
      * @param targetRaster the raster to compute
      * @param pm           a progress monitor. Can be used to signal progress.
-     *
      * @see Operator
      */
-    void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException;
+    void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException;
 
     /**
-     * <!-- todo - more API doc ->
      * This method is called by the framework for a specific rectangular area.
      * The data for each target band shall be computed for the given area during this call.
      *
-     * @param targetTileRectangle a rectangular area which shall be compmuted during this call.
-     * @param pm                  a progress monitor. Can be used to signal progress.
+     * @param targetRectangle a rectangular area which shall be compmuted during this call.
+     * @param pm              a progress monitor. Can be used to signal progress.
      */
-    void computeAllBands(Rectangle targetTileRectangle, ProgressMonitor pm) throws OperatorException;
+    void computeAllBands(Map<Band, Raster> targetRasters, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException;
 
     /**
      * Releases the resources the operator has acquired during its lifetime.

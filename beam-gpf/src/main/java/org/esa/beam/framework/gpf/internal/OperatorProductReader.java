@@ -1,22 +1,15 @@
 package org.esa.beam.framework.gpf.internal;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
-import org.esa.beam.framework.dataio.DecodeQualification;
-import org.esa.beam.framework.dataio.IllegalFileFormatException;
-import org.esa.beam.framework.dataio.ProductReader;
-import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.dataio.ProductSubsetDef;
+import org.esa.beam.framework.dataio.*;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.OperatorContext;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.Raster;
-import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.util.io.BeamFileFilter;
 
 import java.awt.Rectangle;
+import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.util.Locale;
 
@@ -61,91 +54,28 @@ public class OperatorProductReader implements ProductReader {
     }
 
     public Product readProductNodes(Object input, ProductSubsetDef subsetDef) throws IOException,
-                                                                                     IllegalFileFormatException {
+            IllegalFileFormatException {
         return operatorContext.getTargetProduct();
     }
 
     public void readBandRasterData(Band destBand, int destOffsetX, int destOffsetY, int destWidth,
                                    int destHeight, ProductData destBuffer, ProgressMonitor pm) throws IOException {
-
-        Rectangle destTileRectangle = new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight);
-        long minimumTileSize = GPF.getDefaultInstance().getTileCache().getMinimumTileSize();
-        if (destTileRectangle.height * destTileRectangle.width <= minimumTileSize) {
-            readRectangle(destBand, destTileRectangle, destBuffer, pm);
-        } else {
-            readRectangleTiled(destBand, destTileRectangle, destBuffer, pm);
-        }
+        Rectangle destRectangle = new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight);
+        readRectangle(destBand, destRectangle, destBuffer);
     }
 
-    // todo - write a test for this method!
-    private void readRectangleTiled(Band targetBand, Rectangle targetTileRectangle, ProductData targetBuffer,
-                                    ProgressMonitor pm) throws IOException {
-        java.util.List<Rectangle> affectedRectangles = operatorContext.getAffectedRectangles(targetTileRectangle);
-        if (targetBuffer == null) {
-            targetBuffer = ProductData.createInstance(targetBand.getDataType(), targetTileRectangle.width * targetTileRectangle.height);
-        }
-        pm.beginTask("Reading data...", affectedRectangles.size() * (100));
-        try {
-            for (Rectangle subRect : affectedRectangles) {
-                if(pm.isCanceled()) {
-                    return;
-                }
-                Raster subRaster;
-                try {
-                    subRaster = operatorContext.getRaster(targetBand, subRect, SubProgressMonitor.create(pm, 50));
-                } catch (OperatorException e) {
-                    if (e.getCause() instanceof IOException) {
-                        throw (IOException) e.getCause();
-                    }
-                    throw new IOException(e.getMessage(), e);
-                }
-
-                readRectangle(targetBand, subRect, subRaster.getDataBuffer(), SubProgressMonitor.create(pm, 50));
-
-                copyIntersection(subRaster.getDataBuffer(), subRect, targetBuffer, targetTileRectangle);
-            }
-        } finally {
-            pm.done();
-        }
-    }
-
-    // todo - write a test for this method!
-    private void copyIntersection(ProductData sourceBuffer, Rectangle sourceRectangle,
-                                  ProductData targetBuffer, Rectangle targetRectangle) {
-
-        Rectangle intersection = targetRectangle.intersection(sourceRectangle);
-        final int sourceOffsetX = intersection.x - sourceRectangle.x;
-        final int sourceOffsetY = intersection.y - sourceRectangle.y;
-        final int targetOffsetX = intersection.x - targetRectangle.x;
-        final int targetOffsetY = intersection.y - targetRectangle.y;
-
-        int sourceIndex = sourceRectangle.width * sourceOffsetY + sourceOffsetX;
-        int targetIndex = targetRectangle.width * targetOffsetY + targetOffsetX;
-        if (sourceRectangle.width == targetRectangle.width) {
-            System.arraycopy(sourceBuffer.getElems(), sourceIndex,
-                             targetBuffer.getElems(), targetIndex,
-                             intersection.width * intersection.height);
-        } else {
-            for (int y = targetOffsetY; y < targetOffsetY + intersection.height; y++) {
-                System.arraycopy(sourceBuffer.getElems(), sourceIndex,
-                                 targetBuffer.getElems(), targetIndex,
-                                 intersection.width);
-                sourceIndex += sourceRectangle.width;
-                targetIndex += targetRectangle.width;
-            }
-        }
-    }
-
-    private void readRectangle(Band targetBand, Rectangle targetTileRectangle, ProductData targetBuffer,
-                               ProgressMonitor pm) throws IOException {
-        try {
-            TileComputingStrategy.computeBand(operatorContext, targetBand, targetTileRectangle, targetBuffer, pm);
-        } catch (OperatorException e) {
-            if (e.getCause() instanceof IOException) {
-                throw (IOException) e.getCause();
-            }
-            throw new IOException(e.getMessage(), e);
-        }
+    private void readRectangle(Band targetBand,
+                               Rectangle targetRect,
+                               ProductData targetBuffer) {
+        final RenderedImage image = targetBand.getImage();
+        /////////////////////////////////////////////////////////////////////
+        //
+        // GPF pull-processing is triggered here!!!
+        //
+        java.awt.image.Raster data = image.getData(targetRect);
+        //
+        /////////////////////////////////////////////////////////////////////
+        data.getDataElements(targetRect.x, targetRect.y, targetRect.width, targetRect.height, targetBuffer.getElems());
     }
 
     @Override

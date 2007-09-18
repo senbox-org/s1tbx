@@ -1,15 +1,14 @@
 package org.esa.beam.framework.gpf;
 
-import java.awt.Rectangle;
-import java.util.logging.Logger;
-
+import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
-
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.gpf.internal.GpfOpImage;
 
-import com.bc.ceres.core.ProgressMonitor;
+import java.awt.Rectangle;
+import java.util.logging.Logger;
 
 
 public class AbstractOperatorTest extends TestCase {
@@ -45,11 +44,11 @@ public class AbstractOperatorTest extends TestCase {
         @Override
         protected Product initialize(ProgressMonitor pm) throws OperatorException {
             initCalled = true;
-            return new Product("x","x",1,1);
+            return new Product("x", "x", 1, 1);
         }
 
         @Override
-		public void computeBand(Raster tile, ProgressMonitor pm) throws OperatorException {
+        public void computeBand(Raster tile, ProgressMonitor pm) throws OperatorException {
         }
 
         public boolean isInitDelegatingToInit() {
@@ -64,6 +63,15 @@ public class AbstractOperatorTest extends TestCase {
     }
 
     private static class DummyOperatorContext implements OperatorContext {
+
+        public ClassInfo getClassInfo() {
+            return null;
+        }
+
+        public GpfOpImage[] getOpImages() {
+            return new GpfOpImage[0];
+        }
+
         public Product getTargetProduct() {
             return null;
         }
@@ -75,9 +83,9 @@ public class AbstractOperatorTest extends TestCase {
         public Product getSourceProduct(String name) {
             return null;
         }
-        
+
         public String getIdForSourceProduct(Product product) {
-        	return null;
+            return null;
         }
 
         public Logger getLogger() {
@@ -91,10 +99,6 @@ public class AbstractOperatorTest extends TestCase {
         public Raster getRaster(RasterDataNode rasterDataNode, Rectangle tileRectangle, ProductData dataBuffer,
                                 ProgressMonitor pm) throws OperatorException {
             return null;
-        }
-
-        public TileCache getTileCache() {
-            return null;  //To change body of implemented methods use File | Settings | File Templates.
         }
 
         public Operator getOperator() {

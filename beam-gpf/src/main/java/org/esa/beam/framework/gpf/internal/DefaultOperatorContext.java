@@ -2,27 +2,19 @@ package org.esa.beam.framework.gpf.internal;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.Raster;
-import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.framework.gpf.TileCache;
+import org.esa.beam.framework.gpf.*;
 
 import java.awt.Rectangle;
-import java.io.IOException;
+import java.awt.image.RenderedImage;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -38,6 +30,13 @@ public class DefaultOperatorContext implements OperatorComputationContext {
     private Operator operator;
     private Field[] parameterFields;
     private List<Rectangle> layoutRectangles;
+    //-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI
+    private GpfOpImage[] opImages;
+
+    public GpfOpImage[] getOpImages() {
+        return opImages;
+    }
+    //-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI
 
     /**
      * Constructs an new context with the name of an operator.
@@ -63,7 +62,7 @@ public class DefaultOperatorContext implements OperatorComputationContext {
      * {@inheritDoc}
      */
     public Logger getLogger() {
-        return Logger.getAnonymousLogger(); // todo
+        return Logger.getAnonymousLogger(); // todo - use a client-supplied application logger
     }
 
     /**
@@ -107,6 +106,16 @@ public class DefaultOperatorContext implements OperatorComputationContext {
      */
     public void setTargetProduct(Product targetProduct) {
         this.targetProduct = targetProduct;
+        if (opImages == null) {
+            Band[] bands = targetProduct.getBands();
+            opImages = new GpfOpImage[bands.length];
+            for (int i = 0; i < bands.length; i++) {
+                Band band = bands[i];
+                GpfOpImage opImage = GpfOpImage.create(this, band, ProgressMonitor.NULL);
+                opImages[i] = opImage;
+                band.setImage(opImage);
+            }
+        }
     }
 
     /**
@@ -120,6 +129,7 @@ public class DefaultOperatorContext implements OperatorComputationContext {
 
     /**
      * Sets the {@link OperatorSpi SPI} of the {@link Operator operator}.
+     *
      * @param operatorSpi the {@link OperatorSpi SPI}
      */
     public void setOperatorSpi(OperatorSpi operatorSpi) {
@@ -135,31 +145,32 @@ public class DefaultOperatorContext implements OperatorComputationContext {
 
     /**
      * Sets the  {@link Operator operator}.
+     *
      * @param operator the operator
      */
     public void setOperator(Operator operator) {
         this.operator = operator;
+        classInfo = new ClassInfoImpl(operator.getClass());
     }
 
     /**
      * {@inheritDoc}
      */
     public Raster getRaster(RasterDataNode rasterDataNode, Rectangle rectangle, ProgressMonitor pm) throws
-                                                                                                    OperatorException {
+            OperatorException {
         Assert.notNull(rasterDataNode, "rasterDataNode");
         Assert.notNull(rectangle, "rectangle");
-        return getTile(rasterDataNode, rectangle, null, pm).getRaster();
+        return getSourceRaster(rasterDataNode, rectangle);
     }
 
     /**
+     * Returns sources only!
      * {@inheritDoc}
      */
+    @Deprecated
     public Raster getRaster(RasterDataNode rasterDataNode, Rectangle rectangle, ProductData dataBuffer,
                             ProgressMonitor pm) throws OperatorException {
-        Assert.notNull(rasterDataNode, "rasterDataNode");
-        Assert.notNull(rectangle, "rectangle");
-        Assert.notNull(dataBuffer, "dataBuffer");
-        return getTile(rasterDataNode, rectangle, dataBuffer, pm).getRaster();
+        return getRaster(rasterDataNode, rectangle, pm);
     }
 
     /**
@@ -167,7 +178,7 @@ public class DefaultOperatorContext implements OperatorComputationContext {
      * One product instance can be registered with different ids, e.g. "source", "source1" and "input"
      * in consecutive calls.
      *
-     * @param id the id of the product
+     * @param id      the id of the product
      * @param product the product
      */
     public void addSourceProduct(String id, Product product) {
@@ -180,6 +191,7 @@ public class DefaultOperatorContext implements OperatorComputationContext {
     /**
      * Checks if this context is initialized or not.
      * A context is considered as initialized if {@code getOperator() != null} becomes true.
+     *
      * @return {@code true} if this context is already initialized, otherwise {@code false}
      */
     public boolean isInitialized() {
@@ -188,6 +200,7 @@ public class DefaultOperatorContext implements OperatorComputationContext {
 
     /**
      * Sets the fields of the {@link Operator} annotated as {@link org.esa.beam.framework.gpf.annotations.Parameter Parameter}.
+     *
      * @param parameterFields the fields annotated as {@link org.esa.beam.framework.gpf.annotations.Parameter Parameter}
      */
     public void setParameterFields(Field[] parameterFields) {
@@ -197,6 +210,7 @@ public class DefaultOperatorContext implements OperatorComputationContext {
 
     /**
      * Gets the fields of the {@link Operator} annotated as {@link org.esa.beam.framework.gpf.annotations.Parameter Parameter}.
+     *
      * @return the fields annotated as {@link org.esa.beam.framework.gpf.annotations.Parameter Parameter}, may be {@code null}
      */
     public Field[] getParameterFields() {
@@ -238,52 +252,84 @@ public class DefaultOperatorContext implements OperatorComputationContext {
         return layoutRectangles.contains(rectangle);
     }
 
-    private Tile getTile(RasterDataNode rasterDataNode, Rectangle tileRectangle,
-                         ProductData dataBuffer, ProgressMonitor pm) throws OperatorException {
-
-        TileCache tileCache = GPF.getDefaultInstance().getTileCache();
-        Tile requestedTile = tileCache.getTile(rasterDataNode, tileRectangle);
-        if (requestedTile == null) {
-            requestedTile = tileCache.createTile(rasterDataNode, tileRectangle, dataBuffer);
-        }
-
-        if (isSourceProduct(rasterDataNode.getProduct())) {
-            // source
-            if (requestedTile.getState() == Tile.State.NOT_COMPUTED) {
-                readIntoTile(rasterDataNode, tileRectangle, requestedTile, pm);
-            }
-        } else {
-            // target
-            if (requestedTile.getState() == Tile.State.NOT_COMPUTED) {
-                requestedTile.setState(Tile.State.COMPUTING);
-            }
-        }
-
-        return requestedTile;
+    // todo - try to avoid data copying, this method is time-critical!
+    // todo - the best way would be to wrap the returned awtRaster in "our" Raster
+    private Raster getSourceRaster(RasterDataNode rasterDataNode, Rectangle rectangle) {
+        RenderedImage image = getSourceImage(rasterDataNode);
+        /////////////////////////////////////////////////////////////////////
+        //
+        // Note: GPF pull-processing is triggered here!!!
+        //
+        java.awt.image.Raster awtRaster = image.getData(rectangle); // Note: copyData is NOT faster!
+        //
+        /////////////////////////////////////////////////////////////////////
+        final ProductData rasterData = rasterDataNode.createCompatibleRasterData(rectangle.width, rectangle.height);
+        final RasterImpl raster = new RasterImpl(rasterDataNode, rectangle, rasterData);
+        awtRaster.getDataElements(rectangle.x, rectangle.y, rectangle.width, rectangle.height, rasterData.getElems());
+        return raster;
     }
 
-    private void readIntoTile(RasterDataNode rasterDataNode, Rectangle tileRectangle, Tile cachedTile,
-                              ProgressMonitor pm) throws OperatorException {
+    private RenderedImage getSourceImage(RasterDataNode rasterDataNode) {
+        RenderedImage image = rasterDataNode.getImage();
+        if (image != null) {
+            return image;
+        }
+        image = RasterDataNodeOpImage.create(rasterDataNode);
+        rasterDataNode.setImage(image);
+        return image;
+    }
+
+    private ClassInfo classInfo;
+
+    public ClassInfo getClassInfo() {
+        return classInfo;
+    }
+
+    private class ClassInfoImpl implements ClassInfo {
+
+        private final boolean bandMethodImplemented;
+        private final boolean tilesMethodImplemented;
+
+        public ClassInfoImpl(Class operatorClass) {
+            bandMethodImplemented = implementsComputeBandMethod(operatorClass);
+            tilesMethodImplemented = implementsComputeAllBandsMethod(operatorClass);
+        }
+
+        public boolean isBandMethodImplemented() {
+            return bandMethodImplemented;
+        }
+
+        public boolean isAllBandsMethodImplemented() {
+            return tilesMethodImplemented;
+        }
+    }
+
+    public static boolean implementsComputeBandMethod(Class<?> aClass) {
+        return implementsMethod(aClass, "computeBand",
+                                new Class[]{
+                                        Raster.class,
+                                        ProgressMonitor.class});
+    }
+
+    public static boolean implementsComputeAllBandsMethod(Class<?> aClass) {
+        return implementsMethod(aClass, "computeAllBands",
+                                new Class[]{
+                                        Rectangle.class,
+                                        ProgressMonitor.class});
+    }
+
+    private static boolean implementsMethod(Class<?> aClass, String methodName, Class[] methodParameterTypes) {
+        if (Operator.class.equals(aClass)
+                || AbstractOperator.class.equals(aClass)
+                || !Operator.class.isAssignableFrom(aClass)) {
+            return false;
+        }
         try {
-            cachedTile.setState(Tile.State.COMPUTING);
-            rasterDataNode.readRaster(tileRectangle, cachedTile.getRaster().getDataBuffer(), pm);
-            cachedTile.setState(Tile.State.COMPUTED);
-        } catch (IOException e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof OperatorException) {
-                throw (OperatorException) cause;
-            }
-            throw new OperatorException(e);
+            Method declaredMethod = aClass.getDeclaredMethod(methodName, methodParameterTypes);
+            return declaredMethod.getModifiers() != Modifier.ABSTRACT;
+        } catch (NoSuchMethodException e) {
+            Class<?> superclass = aClass.getSuperclass();
+            return implementsMethod(superclass, methodName, methodParameterTypes);
         }
     }
-
-    private boolean isSourceProduct(Product product) {
-        for (Product sourceProduct : sourceProductList) {
-            if (sourceProduct == product) {
-                return true;
-            }
-        }
-        return false;
-    }
-
 }

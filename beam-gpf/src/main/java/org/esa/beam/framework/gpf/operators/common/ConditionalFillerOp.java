@@ -1,28 +1,22 @@
 package org.esa.beam.framework.gpf.operators.common;
 
+import com.bc.ceres.core.ProgressMonitor;
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.XppDomReader;
+import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.TargetProduct;
+
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.AbstractOperator;
-import org.esa.beam.framework.gpf.AbstractOperatorSpi;
-import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.ParameterConverter;
-import org.esa.beam.framework.gpf.annotations.Parameter;
-import org.esa.beam.framework.gpf.annotations.TargetProduct;
-
-import com.bc.ceres.core.ProgressMonitor;
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.XppDomReader;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 
 
 public class ConditionalFillerOp extends AbstractOperator implements ParameterConverter {
@@ -74,7 +68,7 @@ public class ConditionalFillerOp extends AbstractOperator implements ParameterCo
 
     @Override
     public Product initialize(ProgressMonitor pm) throws OperatorException {
-    	
+
         BandDesc firstBandDesc = config.bands.get(0);
         BandSourceDesc firstBandSourceDesc = firstBandDesc.bandSources.get(0);
         Product firstProduct = getContext().getSourceProduct(firstBandSourceDesc.key);
@@ -145,7 +139,7 @@ public class ConditionalFillerOp extends AbstractOperator implements ParameterCo
 
             for (BandDesc bandDesc : config.bands) {
                 final String bandName = bandDesc.name;
-                
+
                 List<BandSourceData> bandDataList = bandSourceDataMap.get(bandName);
 
                 Band band = outputBands.get(bandName);
@@ -153,8 +147,9 @@ public class ConditionalFillerOp extends AbstractOperator implements ParameterCo
 
                 final float deaultValue = Float.parseFloat(bandDesc.defaultValue);
                 byte defaultFlag = defaultFlagValue.get(bandName).byteValue();
-                
-                indexLoop: for (int i = 0; i < size; i++) {
+
+                indexLoop:
+                for (int i = 0; i < size; i++) {
                     for (BandSourceData bandSourceData : bandDataList) {
                         if (bandSourceData.valid[i]) {
                             outData[i] = bandSourceData.data[i];
@@ -172,7 +167,7 @@ public class ConditionalFillerOp extends AbstractOperator implements ParameterCo
 //            e.printStackTrace();
 //            throw new OperatorException(e);
         } finally {
-        	pm.done();
+            pm.done();
         }
     }
 

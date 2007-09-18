@@ -20,7 +20,10 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.XppDomReader;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.util.ProductUtils;
@@ -60,7 +63,7 @@ public class ProductMergeOp extends AbstractOperator implements ParameterConvert
     }
 
     public void getParameterValues(Operator operator, Xpp3Dom configuration) throws OperatorException {
-         // todo - implement
+        // todo - implement
     }
 
     public void setParameterValues(Operator operator, Xpp3Dom configuration) throws OperatorException {
@@ -164,10 +167,10 @@ public class ProductMergeOp extends AbstractOperator implements ParameterConvert
 
     @Override
     public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
-    	Rectangle rectangle = targetRaster.getRectangle();
+        Rectangle rectangle = targetRaster.getRectangle();
         Band sourceBand = bandMapping.get(targetRaster.getRasterDataNode());
         Raster sourceRaster = getRaster(sourceBand, rectangle);
-        
+
         // copy, because the databuffer is for computeAllBands not correctly (re)used
         final int length = rectangle.width * rectangle.height;
         System.arraycopy(sourceRaster.getDataBuffer().getElems(), 0, targetRaster.getDataBuffer().getElems(), 0, length);
