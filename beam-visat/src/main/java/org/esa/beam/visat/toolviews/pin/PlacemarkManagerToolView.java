@@ -363,7 +363,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         if (southExtension != null) {
             content.add(BorderLayout.SOUTH, southExtension);
         }
-        content.setPreferredSize(new Dimension(380, 200));
+        content.setPreferredSize(new Dimension(420, 200));
 
         if (getDescriptor().getHelpId() != null) {
             HelpSys.enableHelpOnButton(helpButton, getDescriptor().getHelpId());
