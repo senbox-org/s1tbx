@@ -67,20 +67,27 @@ public class PinDialog extends ModalDialog {
     private boolean adjusting;
     private boolean symbolChanged;
     private PlacemarkDescriptor placemarkDescriptor;
+    private boolean simultaneousEditingAllowed;
 
 
-    /** @deprecated in 4.1, use {@link #PinDialog(Window, Product, PlacemarkDescriptor)} instead */
+    /** @deprecated in 4.1, use {@link #PinDialog(Window, Product, PlacemarkDescriptor, boolean)} instead */
     public PinDialog(final Window parent, final Product product) {
-        this(parent, product, PinDescriptor.INSTANCE);
+        this(parent, product, PinDescriptor.INSTANCE, false);
     }
 
-    public PinDialog(final Window parent, final Product product, final PlacemarkDescriptor placemarkDescriptor) {
+    public PinDialog(final Window parent, final Product product, final PlacemarkDescriptor placemarkDescriptor,
+                     boolean simultaneousEditingAllowed) {
         super(parent, "New " + placemarkDescriptor.getRoleLabel(), ModalDialog.ID_OK_CANCEL, null); /*I18N*/
         Guardian.assertNotNull("product", product);
         this.product = product;
         this.placemarkDescriptor = placemarkDescriptor;
+        this.simultaneousEditingAllowed = simultaneousEditingAllowed;
         initParameter();
         creatUI();
+    }
+
+    public boolean isSimultaneousEditingAllowed() {
+        return simultaneousEditingAllowed;
     }
 
     public Product getProduct() {
@@ -242,11 +249,13 @@ public class PinDialog extends ModalDialog {
         paramUsePixelPos.setUIEnabled(canGetPixelPos || canGetGeoPos);
         paramUsePixelPos.addParamChangeListener(new ParamChangeListener() {
             public void parameterValueChanged(ParamChangeEvent event) {
-                boolean value = isUsePixelPos();
-                paramLat.setUIEnabled(!value);
-                paramLon.setUIEnabled(!value);
-                paramPixelX.setUIEnabled(value);
-                paramPixelY.setUIEnabled(value);
+                if (isSimultaneousEditingAllowed()) {
+                    boolean value = isUsePixelPos();
+                    paramLat.setUIEnabled(!value);
+                    paramLon.setUIEnabled(!value);
+                    paramPixelX.setUIEnabled(value);
+                    paramPixelY.setUIEnabled(value);
+                }
             }
         });
 
@@ -259,13 +268,13 @@ public class PinDialog extends ModalDialog {
         paramLat = new Parameter("paramLat", 0.0f);
         paramLat.getProperties().setLabel("Lat");/*I18N*/
         paramLat.getProperties().setPhysicalUnit("deg"); /*I18N*/
-        paramLat.setUIEnabled(!usePixelPos);
+        paramLat.setUIEnabled(!usePixelPos || !isSimultaneousEditingAllowed());
         paramLat.addParamChangeListener(geoChangeListener);
 
         paramLon = new Parameter("paramLon", 0.0f);
         paramLon.getProperties().setLabel("Lon");/*I18N*/
         paramLon.getProperties().setPhysicalUnit("deg");/*I18N*/
-        paramLon.setUIEnabled(!usePixelPos);
+        paramLon.setUIEnabled(!usePixelPos || !isSimultaneousEditingAllowed());
         paramLon.addParamChangeListener(geoChangeListener);
 
         ParamChangeListener pixelChangeListener = new ParamChangeListener() {
@@ -276,12 +285,12 @@ public class PinDialog extends ModalDialog {
 
         paramPixelX = new Parameter("paramPixelX", 0.0F);
         paramPixelX.getProperties().setLabel("Pixel X");
-        paramPixelX.setUIEnabled(usePixelPos);
+        paramPixelX.setUIEnabled(usePixelPos || !isSimultaneousEditingAllowed());
         paramPixelX.addParamChangeListener(pixelChangeListener);
 
         paramPixelY = new Parameter("paramPixelY", 0.0F);
         paramPixelY.getProperties().setLabel("Pixel Y");
-        paramPixelY.setUIEnabled(usePixelPos);
+        paramPixelY.setUIEnabled(usePixelPos || !isSimultaneousEditingAllowed());
         paramPixelY.addParamChangeListener(pixelChangeListener);
 
         paramDescription = new Parameter("paramDesc", "");
@@ -336,6 +345,7 @@ public class PinDialog extends ModalDialog {
 
         JPanel dialogPane = GridBagUtils.createPanel();
         final GridBagConstraints gbc = GridBagUtils.createDefaultConstraints();
+        gbc.insets.top = 3;
 
         gbc.gridy++;
         gbc.gridwidth = 1;
@@ -349,14 +359,16 @@ public class PinDialog extends ModalDialog {
         gbc.gridwidth = 4;
         GridBagUtils.addToPanel(dialogPane, paramLabel.getEditor().getComponent(), gbc,
                                 "weightx=1, fill=HORIZONTAL");
-        gbc.gridy++;
-        gbc.gridwidth = 5;
-        GridBagUtils.addToPanel(dialogPane, paramUsePixelPos.getEditor().getComponent(), gbc);
+        if (isSimultaneousEditingAllowed()) {
+            gbc.gridwidth = 5;
+            gbc.gridy++;
+            GridBagUtils.addToPanel(dialogPane, paramUsePixelPos.getEditor().getComponent(), gbc);
+        }
 
-        final int space = 30;
         gbc.gridy++;
         GridBagUtils.addToPanel(dialogPane, paramPixelX.getEditor().getLabelComponent(), gbc,
                                 "weightx=0, gridwidth=1");
+        final int space = 30;
         gbc.insets.right -= 2;
         GridBagUtils.addToPanel(dialogPane, paramPixelX.getEditor().getComponent(), gbc, "weightx=1");
         gbc.insets.right += 2;
@@ -407,6 +419,7 @@ public class PinDialog extends ModalDialog {
 
     private JPanel createSymbolPane() {
         final GridBagConstraints gbc = GridBagUtils.createDefaultConstraints();
+        gbc.insets.top = 3;
         final JPanel symbolPanel = GridBagUtils.createPanel();
 
         gbc.gridheight = 1;
@@ -453,7 +466,8 @@ public class PinDialog extends ModalDialog {
 
     public static boolean showEditPinDialog(Window parent, Product product, Pin pin,
                                             PlacemarkDescriptor placemarkDescriptor) {
-        final PinDialog pinDialog = new PinDialog(parent, product, placemarkDescriptor);
+        final PinDialog pinDialog = new PinDialog(parent, product, placemarkDescriptor,
+                                                  placemarkDescriptor instanceof PinDescriptor);
         String titel = pin.getProduct() == null ? "New" : "Edit"; /*I18N*/
         titel = titel + " " + placemarkDescriptor.getRoleLabel();
         pinDialog.getJDialog().setTitle(titel);
