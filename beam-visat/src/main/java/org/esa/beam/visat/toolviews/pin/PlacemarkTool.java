@@ -20,7 +20,6 @@ import org.esa.beam.visat.VisatApp;
 import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.geom.Rectangle2D;
@@ -89,10 +88,7 @@ public abstract class PlacemarkTool extends AbstractTool {
         Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
         ImageIcon icon = UIUtils.loadImageIcon(iconResourcePath);
 
-        Dimension bestCursorSize = defaultToolkit.getBestCursorSize(icon.getIconWidth(), icon.getIconHeight());
-        Point hotSpot = new Point((7 * bestCursorSize.width) / icon.getIconWidth(),
-                                  (7 * bestCursorSize.height) / icon.getIconHeight());
-
+        Point hotSpot  = placemarkDescriptor.getIconHotSpot(icon);
         return defaultToolkit.createCustomCursor(icon.getImage(), hotSpot, cursorName);
     }
 
