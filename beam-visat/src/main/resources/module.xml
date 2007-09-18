@@ -209,8 +209,8 @@
             <mnemonic>c</mnemonic>
             <accelerator>ctrl alt G</accelerator>
             <description>Manage ground control points of a data product.</description>
-            <smallIcon>/org/esa/beam/resources/images/icons/PinManager16.gif</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/PinManager24.gif</largeIcon>
+            <smallIcon>/org/esa/beam/resources/images/icons/GcpManager16.gif</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/GcpManager24.gif</largeIcon>
             <!--<helpId>TODO</helpId>-->
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>
@@ -1220,8 +1220,8 @@
             <separatorAfter>false</separatorAfter>
             <shortDescr>Show GCP overlay</shortDescr>
             <description>Show GCP overlay for the selected image</description>
-            <smallIcon>icons/PinOverlay16.gif</smallIcon>
-            <largeIcon>icons/PinOverlay24.gif</largeIcon>
+            <smallIcon>icons/GcpOverlay16.gif</smallIcon>
+            <largeIcon>icons/GcpOverlay24.gif</largeIcon>
             <context>image</context>
             <helpId>showGcpOverlay</helpId>
         </action>
@@ -1338,7 +1338,7 @@
             <text>GCP Tool</text>
             <shortDescr>Sets, edits or deletes GCPs</shortDescr>
             <description>Sets, edits or deletes GCPs</description>
-            <largeIcon>icons/PinTool24.gif</largeIcon>
+            <largeIcon>icons/GcpTool24.gif</largeIcon>
             <selected>false</selected>
             <!--<context>image</context>-->
             <helpId>gcpTool</helpId>
