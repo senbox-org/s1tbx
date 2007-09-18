@@ -14,10 +14,8 @@
 package org.esa.beam.visat.toolviews.pin;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.jidesoft.validation.ValidationObject;
-import com.jidesoft.validation.ValidationResult;
-import com.jidesoft.validation.Validator;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
@@ -80,6 +78,9 @@ public class PinTableModel implements TableModel {
     }
 
     public Class getColumnClass(int columnIndex) {
+        if(columnIndex >= 0 && columnIndex <= 3) {
+            return Float.class;
+        }
         return String.class;
     }
 
@@ -94,13 +95,29 @@ public class PinTableModel implements TableModel {
             Pin pin = placemarkDescriptor.getPlacemarkGroup(product).get(rowIndex);
 
             if (columnIndex == 0) {
-                return pin.getPixelPos() != null ? toText(pin.getPixelPos().x, 10.0f) : "n.a.";
+                PixelPos pixelPos = pin.getPixelPos();
+                if(pixelPos == null) {
+                    return Float.NaN;
+                }
+                return pixelPos.x;
             } else if (columnIndex == 1) {
-                return pin.getPixelPos() != null ? toText(pin.getPixelPos().y, 10.0f) : "n.a.";
+                PixelPos pixelPos = pin.getPixelPos();
+                if(pixelPos == null) {
+                    return Float.NaN;
+                }
+                return pixelPos.y;
             } else if (columnIndex == 2) {
-                return pin.getGeoPos() != null ? toText(pin.getGeoPos().lon, 1000.0f) : "n.a.";
+                GeoPos geoPos = pin.getGeoPos();
+                if(geoPos == null) {
+                    return Float.NaN;
+                }
+                return geoPos.lon;
             } else if (columnIndex == 3) {
-                return pin.getGeoPos() != null ? toText(pin.getGeoPos().lat, 1000.0f) : "n.a.";
+                GeoPos geoPos = pin.getGeoPos();
+                if(geoPos == null) {
+                    return Float.NaN;
+                }
+                return geoPos.lat;
             } else if (columnIndex == 4) {
                 return pin.getLabel();
             } else {
@@ -144,29 +161,71 @@ public class PinTableModel implements TableModel {
         return "";
     }
 
-    private String toText(float x, float roundFactor) {
-        return String.valueOf(MathUtils.round(x, roundFactor));
-    }
-
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
-//        if (columnIndex < DEFAULT_COLUMN_NAMES.length) {
-//            String strValue = (String) value;
-//            Pin pin = placemarkDescriptor.getPlacemarkGroup(product).get(rowIndex);
-//            if (columnIndex == 0) {
-//                pin.setPixelPos(new PixelPos(Float.parseFloat(strValue), pin.getPixelPos().y));
-//            } else if (columnIndex == 1) {
-//                pin.setPixelPos(new PixelPos(pin.getPixelPos().x, Float.parseFloat(strValue)));
-//            } else if (columnIndex == 2) {
-//                pin.setGeoPos(new GeoPos(pin.getGeoPos().lat, Float.parseFloat(strValue)));
-//            } else if (columnIndex == 3) {
-//                pin.setGeoPos(new GeoPos(Float.parseFloat(strValue), pin.getGeoPos().lon));
-//            } else if (columnIndex == 4) {
-//                pin.setLabel(strValue);
-//            } else {
-//                throw new IllegalStateException("Not able to set value for column '" + columnIndex + "'");
-//            }
-//            // todo - catch NumberFormatException
-//        }
+        if(value == null) {
+            return;
+        }
+        if (columnIndex < DEFAULT_COLUMN_NAMES.length) {
+            Pin pin = placemarkDescriptor.getPlacemarkGroup(product).get(rowIndex);
+            if (columnIndex == 0) {
+                if(value instanceof Float) {
+                    float pixelY;
+                    if(pin.getPixelPos() == null) {
+                        pixelY = -1;
+                    }else {
+                        pixelY= pin.getPixelPos().y;
+                    }
+                    pin.setPixelPos(new PixelPos((Float)value, pixelY));
+                    GeoPos geoPos = placemarkDescriptor.updateGeoPos(product.getGeoCoding(),
+                                                                     pin.getPixelPos(), pin.getGeoPos());
+                    pin.setGeoPos(geoPos);
+                }
+            } else if (columnIndex == 1) {
+                if(value instanceof Float) {
+                    float pixelX;
+                    if(pin.getPixelPos() == null) {
+                        pixelX = -1;
+                    }else {
+                        pixelX= pin.getPixelPos().x;
+                    }
+                    pin.setPixelPos(new PixelPos(pixelX, (Float)value));
+                    GeoPos geoPos = placemarkDescriptor.updateGeoPos(product.getGeoCoding(),
+                                                                     pin.getPixelPos(), pin.getGeoPos());
+                    pin.setGeoPos(geoPos);
+                }
+            } else if (columnIndex == 2) {
+                if(value instanceof Float) {
+                    float lat;
+                    if(pin.getGeoPos() == null) {
+                        lat = Float.NaN;
+                    }else {
+                        lat = pin.getGeoPos().lat;
+                    }
+                    pin.setGeoPos(new GeoPos(lat, (Float)value));
+                    PixelPos pixelPos = placemarkDescriptor.updatePixelPos(product.getGeoCoding(),
+                                                                           pin.getGeoPos(), pin.getPixelPos());
+                    pin.setPixelPos(pixelPos);
+                }
+            } else if (columnIndex == 3) {
+                if(value instanceof Float) {
+                    float lon;
+                    if(pin.getGeoPos() == null) {
+                        lon = Float.NaN;
+                    }else {
+                        lon = pin.getGeoPos().lon;
+                    }
+                    pin.setGeoPos(new GeoPos((Float)value, lon));
+                    PixelPos pixelPos = placemarkDescriptor.updatePixelPos(product.getGeoCoding(),
+                                                                           pin.getGeoPos(), pin.getPixelPos());
+                    pin.setPixelPos(pixelPos);
+                }
+            } else if (columnIndex == 4) {
+                String strValue = (String) value;
+                pin.setLabel(strValue);
+            } else {
+                throw new IllegalStateException("Column '" + getColumnName(columnIndex) + "' is not editable");
+            }
+        }
     }
 
     public void addTableModelListener(TableModelListener l) {
@@ -178,67 +237,5 @@ public class PinTableModel implements TableModel {
     private int getNumSelectedBands() {
         return selectedBands != null ? selectedBands.length : 0;
     }
-
-    public Validator getValidator(int columnIndex) {
-        if (columnIndex < DEFAULT_COLUMN_NAMES.length) {
-            if (columnIndex == 0) {
-                return new ColumnValidator(new PixelXValidator());
-            } else if (columnIndex == 1) {
-                return new ColumnValidator(new PixelXValidator());
-            } else if (columnIndex == 2) {
-                return new ColumnValidator(new PixelXValidator());
-            } else if (columnIndex == 3) {
-                return new ColumnValidator(new PixelXValidator());
-            } else if (columnIndex == 4) {
-                return new ColumnValidator(ValidatorMethod.DEFAULT_METHOD);
-            } else {
-                throw new IllegalStateException("No validator found for column '" + columnIndex + "'");
-            }
-        }
-        return new ColumnValidator(ValidatorMethod.DEFAULT_METHOD);
-    }
-
-    private static class ColumnValidator implements Validator {
-
-        private ValidatorMethod method;
-
-        public ColumnValidator(ValidatorMethod method) {
-            this.method = method;
-        }
-
-        public ValidationResult validating(ValidationObject validationObject) {
-            try {
-                String newValue = (String) validationObject.getNewValue();
-                return new ValidationResult(method.validate(newValue));
-            } catch (Throwable t) {
-                return new ValidationResult(false);
-            }
-        }
-    }
-
-    private interface ValidatorMethod {
-
-        ValidatorMethod DEFAULT_METHOD = new ValidatorMethod() {
-            public boolean validate(String value) {
-                          return true;
-            }
-        };
-
-        boolean validate(String value);
-    }
-
-    private class PixelXValidator implements ValidatorMethod {
-
-        public boolean validate(String value) {
-
-            try {
-                Float.parseFloat(value);
-                return true;
-            } catch (NumberFormatException e) {
-                return false;
-            }
-        }
-    }
-
 
 }

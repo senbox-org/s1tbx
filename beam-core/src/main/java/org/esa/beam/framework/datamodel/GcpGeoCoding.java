@@ -153,7 +153,7 @@ public class GcpGeoCoding extends AbstractGeoCoding {
             pixelPos = new PixelPos();
         }
         pixelPos.setLocation(inverseMap.getValue(point));
-        if (pixelPos.x < 0 || pixelPos.x >= sceneWidth || pixelPos.y < 0 || pixelPos.y >= sceneHeight) {
+        if (!pixelPos.isValid() || pixelPos.x < 0 || pixelPos.x >= sceneWidth || pixelPos.y < 0 || pixelPos.y >= sceneHeight) {
             pixelPos.x = -1;
             pixelPos.y = -1;
         }

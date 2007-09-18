@@ -51,11 +51,6 @@ public class GcpDescriptor implements PlacemarkDescriptor {
     }
 
     public GeoPos updateGeoPos(GeoCoding geoCoding, PixelPos pixelPos, GeoPos geoPos) {
-        if(geoCoding == null || !geoCoding.canGetGeoPos()) {
-            return geoPos;
-        }
-
-        return geoCoding.getGeoPos(pixelPos, geoPos);
-
+        return geoPos;
     }
 }

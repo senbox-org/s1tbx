@@ -4,8 +4,12 @@ import org.esa.beam.framework.datamodel.GcpGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.ui.TableLayout;
+import org.esa.beam.util.Debug;
+import org.esa.beam.visat.VisatApp;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -52,6 +56,16 @@ class GcpGeoCodingForm extends JPanel {
     public GcpGeoCodingForm() {
         geoCodingMap = new HashMap<Product, GeoCoding>();
         rmseNumberFormat = new RmseNumberFormat();
+
+        VisatApp.getApp().getProductManager().addListener(new ProductManager.ProductManagerListener() {
+            public void productAdded(ProductManager.ProductManagerEvent event) {
+            }
+
+            public void productRemoved(ProductManager.ProductManagerEvent event) {
+                geoCodingMap.remove(event.getProduct());
+            }
+        });
+
         initComponents();
     }
 
@@ -161,19 +175,12 @@ class GcpGeoCodingForm extends JPanel {
             methodTextField.setText(gcpGeoCoding.getMethod().getName());
             methodComboBox.setSelectedItem(gcpGeoCoding.getMethod());
 
-//            if (attachButton.isSelected()) {
             methodComboBox.setEnabled(false);
             attachButton.setText("Detach");
             attachButton.setSelected(true);
             attachButton.setEnabled(true);
             warningLabel.setText("GCP geo-coding attached");
             warningLabel.setForeground(Color.BLACK);
-//            }
-//            else {
-//                methodComboBox.setEnabled(true);
-//                attachButton.setText("Attach");
-//                updateAttachButtonAndWarningText();
-//            }
         } else {
             methodComboBox.setEnabled(true);
             methodTextField.setText("Not available");
@@ -211,13 +218,19 @@ class GcpGeoCodingForm extends JPanel {
         final ProductNodeGroup<Pin> gcpGroup = product.getGcpGroup();
         final Pin[] gcps = gcpGroup.toArray(new Pin[0]);
         final GeoCoding geoCoding = product.getGeoCoding();
+        final Datum datum;
+        if(geoCoding == null) {
+            datum = Datum.WGS_84;
+        }else {
+            datum = geoCoding.getDatum();
+        }
 
         SwingWorker sw = new SwingWorker<GcpGeoCoding, GcpGeoCoding>() {
             protected GcpGeoCoding doInBackground() throws Exception {
                 return new GcpGeoCoding(method, gcps,
                                         product.getSceneRasterWidth(),
                                         product.getSceneRasterHeight(),
-                                        geoCoding.getDatum());
+                                        datum);
             }
 
             @Override
@@ -228,9 +241,9 @@ class GcpGeoCodingForm extends JPanel {
                     product.setGeoCoding(gcpGeoCoding);
                     updateUIState();
                 } catch (InterruptedException e) {
-                    // ignore
+                    Debug.trace(e);
                 } catch (ExecutionException e) {
-                    // ignore
+                    Debug.trace(e.getCause());
                 }
             }
         };

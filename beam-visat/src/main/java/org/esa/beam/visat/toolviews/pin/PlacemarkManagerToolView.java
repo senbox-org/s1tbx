@@ -1,7 +1,6 @@
 package org.esa.beam.visat.toolviews.pin;
 
 import com.jidesoft.grid.JideTable;
-import com.jidesoft.grid.StringCellEditor;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.help.HelpSys;
@@ -33,6 +32,8 @@ import org.jdom.input.DOMBuilder;
 import org.xml.sax.SAXException;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
@@ -40,13 +41,14 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
-import javax.swing.table.TableColumn;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -68,10 +70,10 @@ import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 
@@ -149,27 +151,20 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         // table model AS IS to a flat text file.
         placemarkTable.getTableHeader().setReorderingAllowed(false);
 
-        final TableColumnModel columnModel = placemarkTable.getColumnModel();
-        columnModel.addColumnModelListener(new ColumnModelListener());
-
         ToolTipSetter toolTipSetter = new ToolTipSetter();
         placemarkTable.addMouseMotionListener(toolTipSetter);
         placemarkTable.addMouseListener(toolTipSetter);
-        placemarkTable.addMouseListener(new EditListener());
-        placemarkTable.addMouseListener(new PopupListener());
+        placemarkTable.addMouseListener(new MouseSelectionListener());
         placemarkTable.addKeyListener(new KeySelectionListener());
+        placemarkTable.addMouseListener(new PopupListener());
 
         PinTableModel pinModel = new PinTableModel(placemarkDescriptor, product, selectedBands, selectedGrids);
         placemarkTable.setModel(pinModel);
-        Enumeration<TableColumn> columns = columnModel.getColumns();
-        while (columns.hasMoreElements()) {
-            TableColumn column = columns.nextElement();
-            if(pinModel.isCellEditable(0,column.getModelIndex())) {
-                StringCellEditor cellEditor = new StringCellEditor();
-                cellEditor.addValidationListener(pinModel.getValidator(column.getModelIndex()));
-                column.setCellEditor(cellEditor);
-            }
-        }
+        final TableColumnModel columnModel = placemarkTable.getColumnModel();
+        columnModel.addColumnModelListener(new ColumnModelListener());
+        addCellRenderer(placemarkTable);
+        addCellEditor(placemarkTable);
+
         JScrollPane tableScrollPane = new JScrollPane(placemarkTable);
         JPanel mainPane = new JPanel(new BorderLayout(4, 4));
         mainPane.add(tableScrollPane, BorderLayout.CENTER);
@@ -290,8 +285,10 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                         selectedGrids = bandChooser.getSelectedTiePointGrids();
                         productToSelectedBands.put(product, selectedBands);
                         productToSelectedGrids.put(product, selectedGrids);
-                        placemarkTable.setModel(
-                                new PinTableModel(placemarkDescriptor, product, selectedBands, selectedGrids));
+                        placemarkTable.setModel(new PinTableModel(placemarkDescriptor, product,
+                                                                  selectedBands, selectedGrids));
+                        addCellRenderer(placemarkTable);
+                        addCellEditor(placemarkTable);
                         updatePlacemarkList();
                     }
                 }
@@ -366,7 +363,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         if (southExtension != null) {
             content.add(BorderLayout.SOUTH, southExtension);
         }
-        content.setPreferredSize(new Dimension(370, 200));
+        content.setPreferredSize(new Dimension(380, 200));
 
         if (getDescriptor().getHelpId() != null) {
             HelpSys.enableHelpOnButton(helpButton, getDescriptor().getHelpId());
@@ -394,6 +391,22 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         updateUIState();
 
         return content;
+    }
+
+    private void addCellRenderer(JTable placemarkTable) {
+        TableColumnModel columnModel = placemarkTable.getColumnModel();
+        columnModel.getColumn(0).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.00#")));
+        columnModel.getColumn(1).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.00#")));
+        columnModel.getColumn(2).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.000#")));
+        columnModel.getColumn(3).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.000#")));
+    }
+
+    private void addCellEditor(JTable placemarkTable) {
+        TableColumnModel columnModel = placemarkTable.getColumnModel();
+        columnModel.getColumn(0).setCellEditor(new PinXCellEditor(placemarkDescriptor));
+        columnModel.getColumn(1).setCellEditor(new PinYCellEditor(placemarkDescriptor));
+        columnModel.getColumn(2).setCellEditor(new PinLonCellEditor(placemarkDescriptor));
+        columnModel.getColumn(3).setCellEditor(new PinLatCellEditor(placemarkDescriptor));
     }
 
     protected Component getSouthExtension() {
@@ -426,6 +439,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         }
 
         placemarkTable.setModel(new PinTableModel(placemarkDescriptor, this.product, selectedBands, selectedGrids));
+        addCellRenderer(placemarkTable);
+        addCellEditor(placemarkTable);
         updatePlacemarkList();
         updateUIState();
     }
@@ -433,7 +448,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     private void sortPlacemarks() {
         Guardian.assertNotNull("product", product);
         // todo - sort table here
-        JOptionPane.showMessageDialog(getWindowAncestor(), "TODO: Implement sort!");
+//        JOptionPane.showMessageDialog(getWindowAncestor(), "TODO: Implement sort!");
     }
 
     private ProductSceneView getSceneView() {
@@ -1197,24 +1212,18 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         }
     }
 
-    private class EditListener extends MouseAdapter {
+    private class MouseSelectionListener extends MouseAdapter {
 
         @Override
         public void mouseClicked(MouseEvent e) {
-            action(e);
+            updateUIState();
         }
 
         @Override
         public void mouseReleased(MouseEvent e) {
-            action(e);
+            updateUIState();
         }
 
-        private void action(MouseEvent e) {
-            updateUIState();
-            if (e.getClickCount() == 2) {
-                editActivePin();
-            }
-        }
     }
 
     private class PopupListener extends MouseAdapter {
@@ -1325,6 +1334,167 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         @Override
         public void keyReleased(KeyEvent e) {
             updateUIState();
+        }
+    }
+
+    private static class FloatTableCellRenderer extends DefaultTableCellRenderer {
+
+        private DecimalFormat format;
+
+        public FloatTableCellRenderer(DecimalFormat format) {
+            this.format = format;
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+                                                       int row, int column) {
+            Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            if (comp instanceof JLabel) {
+                JLabel label = (JLabel) comp;
+                if (value instanceof Float && !Float.isNaN((Float) value)) {
+                    label.setText(format.format(value));
+                } else {
+                    label.setText("n.a.");
+                }
+            }
+            return comp;
+        }
+    }
+
+    private abstract class PinCellEditor extends DefaultCellEditor {
+
+        private PlacemarkDescriptor placemarkDescriptor;
+        private Border defaultBorder;
+
+        public PinCellEditor(PlacemarkDescriptor placemarkDescriptor) {
+            super(new JTextField());
+            JTextField textField = (JTextField) getComponent();
+            defaultBorder = textField.getBorder();
+            this.placemarkDescriptor = placemarkDescriptor;
+        }
+
+        public PlacemarkDescriptor getPlacemarkDescriptor() {
+            return placemarkDescriptor;
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+                                                     int column) {
+            JComponent component = (JComponent) super.getTableCellEditorComponent(table, value, isSelected, row,
+                                                                                  column);
+            component.setBorder(defaultBorder);
+            return component;
+        }
+
+        @Override
+        public boolean stopCellEditing() {
+            JTextField textField = (JTextField) getComponent();
+            float value;
+            try {
+                value = Float.parseFloat(textField.getText());
+            } catch (NumberFormatException e) {
+                ((JComponent) getComponent()).setBorder(new LineBorder(Color.red));
+                return false;
+            }
+
+
+            Product product = PlacemarkManagerToolView.this.getPlacemarkGroup().getProduct();
+            boolean validValue = validateValue(product, value);
+            if (!validValue) {
+                ((JComponent) getComponent()).setBorder(new LineBorder(Color.red));
+                return false;
+            }
+
+            if (!super.stopCellEditing()) {
+                ((JComponent) getComponent()).setBorder(new LineBorder(Color.red));
+                return false;
+            }
+
+            return true;
+        }
+
+        protected abstract boolean validateValue(Product product, float value);
+
+        @Override
+        public Object getCellEditorValue() {
+            JTextField textField = (JTextField) getComponent();
+            try {
+                return Float.parseFloat(textField.getText());
+            } catch (NumberFormatException e) {
+                return Float.NaN;
+            }
+        }
+    }
+
+    private class PinXCellEditor extends PinCellEditor {
+
+        public PinXCellEditor(PlacemarkDescriptor placemarkDescriptor) {
+            super(placemarkDescriptor);
+        }
+
+        protected boolean validateValue(Product product, float value) {
+            Pin currentPin = getPlacemarkDescriptor().getPlacemarkGroup(product).getSelectedNode();
+            PixelPos pixelPos = currentPin.getPixelPos();
+            return product.containsPixel(value, pixelPos.y);
+        }
+    }
+
+    private class PinYCellEditor extends PinCellEditor {
+
+        public PinYCellEditor(PlacemarkDescriptor placemarkDescriptor) {
+            super(placemarkDescriptor);
+        }
+
+        protected boolean validateValue(Product product, float value) {
+            Pin currentPin = getPlacemarkDescriptor().getPlacemarkGroup(product).getSelectedNode();
+            PixelPos pixelPos = currentPin.getPixelPos();
+            return product.containsPixel(pixelPos.x, value);
+        }
+    }
+
+    private class PinLatCellEditor extends PinCellEditor {
+
+        public PinLatCellEditor(PlacemarkDescriptor placemarkDescriptor) {
+            super(placemarkDescriptor);
+        }
+
+        protected boolean validateValue(Product product, float lat) {
+            if (lat < -90.0 || lat > 90.0) {
+                return false;
+            }
+            GeoCoding geoCoding = product.getGeoCoding();
+            if (geoCoding == null || !geoCoding.canGetGeoPos() || !geoCoding.canGetPixelPos()) {
+                return true;
+            }
+
+            Pin currentPin = getPlacemarkDescriptor().getPlacemarkGroup(product).getSelectedNode();
+            GeoPos geoPos = new GeoPos(lat, currentPin.getGeoPos().getLon());
+            PixelPos pixelPos = new PixelPos(currentPin.getPixelPos().x, currentPin.getPixelPos().y);
+            pixelPos = placemarkDescriptor.updatePixelPos(product.getGeoCoding(), geoPos, pixelPos);
+            
+            return product.containsPixel(pixelPos.x, pixelPos.y);
+        }
+    }
+
+    private class PinLonCellEditor extends PinCellEditor {
+
+        public PinLonCellEditor(PlacemarkDescriptor placemarkDescriptor) {
+            super(placemarkDescriptor);
+        }
+
+        protected boolean validateValue(Product product, float lon) {
+            if (lon < -180.0 || lon > 180.0) {
+                return false;
+            }
+            GeoCoding geoCoding = product.getGeoCoding();
+            if (geoCoding == null || !geoCoding.canGetGeoPos() || !geoCoding.canGetPixelPos()) {
+                return true;
+            }
+            Pin currentPin = getPlacemarkDescriptor().getPlacemarkGroup(product).getSelectedNode();
+            GeoPos geoPos = new GeoPos(currentPin.getGeoPos().getLat(), lon);
+            PixelPos pixelPos = new PixelPos(currentPin.getPixelPos().x, currentPin.getPixelPos().y);
+            pixelPos = placemarkDescriptor.updatePixelPos(geoCoding, geoPos, pixelPos);
+            return product.containsPixel(pixelPos.x, pixelPos.y);
         }
     }
 }
