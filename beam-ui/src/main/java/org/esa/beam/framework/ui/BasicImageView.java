@@ -26,14 +26,15 @@ import org.esa.beam.util.Guardian;
 import javax.media.jai.PlanarImage;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelListener;
 import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.image.RenderedImage;
 
 /**
@@ -47,7 +48,7 @@ import java.awt.image.RenderedImage;
  */
 public class BasicImageView extends BasicView {
 
-    private ImageDisplay _imageDisplay;
+    private ImageDisplay imageDisplay;
 
     /**
      * Constructs a new image view. The magnifier is initially visible.
@@ -83,8 +84,8 @@ public class BasicImageView extends BasicView {
     public Dimension getPreferredSize() {
         if (isPreferredSizeSet()) {
             return super.getPreferredSize();
-        } else if (_imageDisplay != null) {
-            return _imageDisplay.getPreferredSize();
+        } else if (imageDisplay != null) {
+            return imageDisplay.getPreferredSize();
         } else {
             return super.getPreferredSize();
         }
@@ -96,7 +97,7 @@ public class BasicImageView extends BasicView {
      * @return the source image
      */
     public RenderedImage getSourceImage() {
-        return _imageDisplay != null ? _imageDisplay.getImage() : null;
+        return imageDisplay != null ? imageDisplay.getImage() : null;
     }
 
     /**
@@ -106,10 +107,10 @@ public class BasicImageView extends BasicView {
      */
     public void setSourceImage(RenderedImage sourceImage) {
         Guardian.assertNotNull("sourceImage", sourceImage);
-        if (_imageDisplay == null) {
+        if (imageDisplay == null) {
             initUI(sourceImage);
         }
-        _imageDisplay.setImage(sourceImage);
+        imageDisplay.setImage(sourceImage);
         revalidate();
         repaint();
     }
@@ -120,7 +121,7 @@ public class BasicImageView extends BasicView {
      * @return the image display component
      */
     public ImageDisplay getImageDisplay() {
-        return _imageDisplay;
+        return imageDisplay;
     }
 
     public PixelInfoFactory getPixelInfoFactory() {
@@ -167,7 +168,7 @@ public class BasicImageView extends BasicView {
      * @param listener the pixel position listener to be added
      */
     public void addPixelPositionListener(PixelPositionListener listener) {
-        _imageDisplay.addPixelPositionListener(listener);
+        imageDisplay.addPixelPositionListener(listener);
     }
 
     /**
@@ -176,7 +177,7 @@ public class BasicImageView extends BasicView {
      * @param listener the pixel position listener to be removed
      */
     public void removePixelPositionListener(PixelPositionListener listener) {
-        _imageDisplay.removePixelPositionListener(listener);
+        imageDisplay.removePixelPositionListener(listener);
     }
 
     /**
@@ -188,11 +189,15 @@ public class BasicImageView extends BasicView {
     @Override
     public void dispose() {
 
-        if (_imageDisplay != null) {
-            _imageDisplay.dispose();
+        if (imageDisplay != null) {
+            // ensure that imageDisplay.dispose() is run in the EDT
+            SwingUtilities.invokeLater(new Runnable(){
+                public void run() {
+                    imageDisplay.dispose();
+                    imageDisplay = null;
+                }
+            });
         }
-
-        _imageDisplay = null;
 
         super.dispose();
     }
@@ -201,14 +206,14 @@ public class BasicImageView extends BasicView {
     protected void initUI(RenderedImage sourceImage) {
         PopupMenuHandler popupMenuHandler = new PopupMenuHandler(this);
 
-        _imageDisplay = new ImageDisplay(sourceImage);
-        _imageDisplay.setOpaque(true);
-        _imageDisplay.addMouseListener(popupMenuHandler);
-        _imageDisplay.addMouseWheelListener(new ZoomHandler());
-        _imageDisplay.addKeyListener(popupMenuHandler);
+        imageDisplay = new ImageDisplay(sourceImage);
+        imageDisplay.setOpaque(true);
+        imageDisplay.addMouseListener(popupMenuHandler);
+        imageDisplay.addMouseWheelListener(new ZoomHandler());
+        imageDisplay.addKeyListener(popupMenuHandler);
 
         setLayout(new BorderLayout());
-        ViewPane imageDisplayScroller = _imageDisplay.createViewPane();
+        ViewPane imageDisplayScroller = imageDisplay.createViewPane();
         add(imageDisplayScroller, BorderLayout.CENTER);
     }
 
@@ -217,13 +222,13 @@ public class BasicImageView extends BasicView {
     }
 
     private void addCopyPixelInfoToClipboardMenuItem(JPopupMenu popupMenu) {
-        if (_imageDisplay.getPixelInfoFactory() != null) {
+        if (imageDisplay.getPixelInfoFactory() != null) {
             JMenuItem menuItem = new JMenuItem("Copy Pixel-Info to Clipboard");
             menuItem.setMnemonic('C');
             menuItem.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
-                    _imageDisplay.copyPixelInfoStringToClipboard();
+                    imageDisplay.copyPixelInfoStringToClipboard();
                 }
             });
             popupMenu.add(menuItem);
@@ -234,11 +239,11 @@ public class BasicImageView extends BasicView {
 
         public void mouseWheelMoved(MouseWheelEvent e) {
             int notches = e.getWheelRotation();
-            double currentViewScale = _imageDisplay.getViewModel().getViewScale();
+            double currentViewScale = imageDisplay.getViewModel().getViewScale();
             if (notches < 0) {
-                _imageDisplay.zoom(currentViewScale * 1.1f);
+                imageDisplay.zoom(currentViewScale * 1.1f);
             } else {
-                _imageDisplay.zoom(currentViewScale * 0.9f);
+                imageDisplay.zoom(currentViewScale * 0.9f);
             }
         }
     }
