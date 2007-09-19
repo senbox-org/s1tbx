@@ -4,6 +4,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.*;
@@ -148,7 +149,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         }
 
         @Override
-        public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+        public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
         }
 
         public static class Spi extends AbstractOperatorSpi {
@@ -175,7 +176,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         }
 
         @Override
-        public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+        public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
         }
 
         public static class Spi extends AbstractOperatorSpi {
@@ -201,7 +202,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         }
 
         @Override
-        public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+        public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
         }
 
         public static class Spi extends AbstractOperatorSpi {
@@ -230,7 +231,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         }
 
         @Override
-        public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+        public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
         }
 
         public static class Spi extends AbstractOperatorSpi {
@@ -259,7 +260,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         }
 
         @Override
-        public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+        public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
         }
 
         public static class Spi extends AbstractOperatorSpi {
@@ -289,7 +290,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         }
 
         @Override
-        public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+        public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
         }
 
         public static class Spi extends AbstractOperatorSpi {

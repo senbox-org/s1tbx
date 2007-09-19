@@ -92,14 +92,13 @@ public class WriteRGBOp extends AbstractOperator {
     }
 
     @Override
-    public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
-        RasterDataNode targetBand = targetRaster.getRasterDataNode();
+    public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
         Rectangle rectangle = targetRaster.getRectangle();
 
-        Band sourceBand = bandMap.get(targetBand);
+        Band sourceBand = bandMap.get(band);
         Raster sourceRaster = getRaster(sourceBand, rectangle);
 
-        ProductData rgbData = dataMap.get(targetBand);
+        ProductData rgbData = dataMap.get(band);
         System.arraycopy(sourceRaster.getDataBuffer().getElems(), 0, rgbData.getElems(), rectangle.x + rectangle.y * rectangle.width, rectangle.width * rectangle.height);
     }
 

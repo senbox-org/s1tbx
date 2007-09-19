@@ -2,6 +2,8 @@ package org.esa.beam.framework.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
+
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -49,7 +51,7 @@ public class AbstractOperatorTest extends TestCase {
         }
 
         @Override
-        public void computeBand(Raster tile, ProgressMonitor pm) throws OperatorException {
+        public void computeBand(Band band, Raster tile, ProgressMonitor pm) throws OperatorException {
         }
 
         public boolean isInitDelegatingToInit() {

@@ -152,7 +152,7 @@ public class BandArithmeticOp extends AbstractOperator implements ParameterConve
     }
 
     @Override
-    public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+    public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
         BandDescriptor bandDescriptor = getDesriptionForRaster(targetRaster);
 
         Rectangle rect = targetRaster.getRectangle();

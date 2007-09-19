@@ -55,11 +55,10 @@ public class ReadProductOp extends AbstractOperator {
     }
 
     @Override
-    public void computeBand(Raster targetRaster,
+    public void computeBand(Band band, Raster targetRaster,
                             ProgressMonitor pm) throws OperatorException {
 
         ProductData dataBuffer = targetRaster.getDataBuffer();
-        Band band = (Band) targetRaster.getRasterDataNode();
         Rectangle rectangle = targetRaster.getRectangle();
         try {
             beamReader.readBandRasterData(band, rectangle.x, rectangle.y, rectangle.width,

@@ -138,14 +138,6 @@ public abstract class AbstractOperator implements Operator {
     protected abstract Product initialize(ProgressMonitor pm) throws OperatorException;
 
     /**
-     * @deprecated override {@link #computeBand(org.esa.beam.framework.datamodel.Band, Raster, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public void computeBand(Raster targetRaster,
-                            ProgressMonitor pm) throws OperatorException {
-        throw new OperatorException("not implemented (only Band supported)");
-    }
-
-    /**
      * @deprecated override {@link #computeAllBands(java.util.Map<org.esa.beam.framework.datamodel.Band,org.esa.beam.framework.gpf.Raster>, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public void computeAllBands(Rectangle targetTileRectangle,
@@ -159,11 +151,8 @@ public abstract class AbstractOperator implements Operator {
      * <p>The default implementation throws a runtime exception with the message "not implemented"</p>.
      */
     public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
-        final long t0 = System.currentTimeMillis();
-        System.out.println(">> computeBand: this = " + this + ", targetRectangle" + targetRaster.getRectangle());
-        computeBand(targetRaster, pm);
-        System.out.println("<< computeBand: time = " + (System.currentTimeMillis() - t0) + " ms");
-    }
+    	throw new OperatorException("not implemented (only Band supported)");
+   	}
 
 
     // todo - FIXMEEEE!

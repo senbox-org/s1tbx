@@ -71,7 +71,7 @@ public class WriteProductOp extends AbstractOperator {
 
 
     @Override
-    public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+    public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
         if (!productFileWritten) {
             try {
                 productWriter.writeProductNodes(targetProduct, filePath);
@@ -80,24 +80,20 @@ public class WriteProductOp extends AbstractOperator {
                 throw new OperatorException(e);
             }
         }
-        if (targetRaster.getRasterDataNode() instanceof Band) {
-            Band band = (Band) targetRaster.getRasterDataNode();
-            pm.beginTask("Writing product...", 1);
-            Rectangle rectangle = targetRaster.getRectangle();
-            try {
-                Raster raster = getRaster(band, rectangle);
-                ProductData dataBuffer = raster.getDataBuffer();
-                band.writeRasterData(rectangle.x, rectangle.y, rectangle.width, rectangle.height, dataBuffer, SubProgressMonitor.create(pm, 1));
-            } catch (IOException e) {
-                Throwable cause = e.getCause();
-                if (cause instanceof OperatorException) {
-                    throw (OperatorException) cause;
-                }
-                throw new OperatorException(e);
-            } finally {
-                pm.done();
-            }
-
+        pm.beginTask("Writing product...", 1);
+        Rectangle rectangle = targetRaster.getRectangle();
+        try {
+        	Raster raster = getRaster(band, rectangle);
+        	ProductData dataBuffer = raster.getDataBuffer();
+        	band.writeRasterData(rectangle.x, rectangle.y, rectangle.width, rectangle.height, dataBuffer, SubProgressMonitor.create(pm, 1));
+        } catch (IOException e) {
+        	Throwable cause = e.getCause();
+        	if (cause instanceof OperatorException) {
+        		throw (OperatorException) cause;
+        	}
+        	throw new OperatorException(e);
+        } finally {
+        	pm.done();
         }
     }
 

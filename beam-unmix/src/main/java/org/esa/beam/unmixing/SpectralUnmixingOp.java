@@ -245,7 +245,7 @@ public class SpectralUnmixingOp extends AbstractOperator implements ParameterCon
     }
 
     @Override
-    public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+    public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
         Rectangle rectangle = targetRaster.getRectangle();
         int j = getTargetBandIndex(targetRaster);
         if (j == -1) {

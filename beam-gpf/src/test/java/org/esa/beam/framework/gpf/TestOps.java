@@ -45,7 +45,7 @@ public class TestOps {
         }
 
         @Override
-        public void computeBand(Raster targetRaster, ProgressMonitor pm) {
+        public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) {
             System.out.println("=====>>>>>> Op1.computeBand  start");
             registerCall("Op1;");
             System.out.println("=====>>>>>> Op1.computeBand  end");

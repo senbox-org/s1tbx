@@ -2,6 +2,8 @@ package org.esa.beam.framework.gpf.graph;
 
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
+
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.*;
@@ -23,7 +25,6 @@ public class GraphCallSequenceTest extends TestCase {
     private N4Spi n4Spi;
     private N5Spi n5Spi;
     private N6Spi n6Spi;
-    private long minimumTileSize;
 
     @Override
     protected void setUp() throws Exception {
@@ -362,7 +363,7 @@ public class GraphCallSequenceTest extends TestCase {
 
         // todo - add tests that verify correct computing output
         @Override
-        public void computeBand(Raster targetRaster, ProgressMonitor pm) throws
+        public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws
                 OperatorException {
             recordCall(getSpi().getName(), "Operator.computeBand");
 
@@ -397,7 +398,7 @@ public class GraphCallSequenceTest extends TestCase {
 
         // todo - add tests that verify correct computing output
         @Override
-        public void computeBand(Raster targetRaster, ProgressMonitor pm) throws
+        public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws
                 OperatorException {
             recordCall(getSpi().getName(), "Operator.computeBand");
 
@@ -429,7 +430,7 @@ public class GraphCallSequenceTest extends TestCase {
 
         // todo - add tests that verify correct computing output
         @Override
-        public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+        public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
             recordCall(getSpi().getName(), "Operator.computeBand");
 
             Raster sourceRaster1 = getRaster(sourceProduct1.getBandAt(0),

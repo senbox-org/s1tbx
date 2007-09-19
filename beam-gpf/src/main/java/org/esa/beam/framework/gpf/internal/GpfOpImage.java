@@ -72,8 +72,13 @@ public class GpfOpImage extends RasterDataNodeOpImage {
             // Provide target GPF raster
             ProductData targetData = getBand().createCompatibleRasterData(destRect.width, destRect.height);
             org.esa.beam.framework.gpf.Raster targetRaster = new RasterImpl(getBand(), destRect, targetData);
+            
             // Compute target GPF raster
+            final long t0 = System.currentTimeMillis();
+            System.out.println(">> computeBand: this = " + this + ", targetRectangle" + targetRaster.getRectangle());
             operatorContext.getOperator().computeBand(getBand(), targetRaster, ProgressMonitor.NULL);
+            System.out.println("<< computeBand: time = " + (System.currentTimeMillis() - t0) + " ms");
+            
             // Write computed target GPF raster into associated AWT tile
             tile.setDataElements(destRect.x, destRect.y, destRect.width, destRect.height, targetData.getElems());
         }

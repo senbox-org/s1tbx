@@ -4,6 +4,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 
 /**
@@ -58,7 +59,7 @@ public class TargetProductAnnotationValidationTest extends TestCase {
         }
 
         @Override
-        public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+        public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
         }
 
         public static class Spi extends AbstractOperatorSpi {

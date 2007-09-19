@@ -54,12 +54,12 @@ public class ProductMergeOp extends AbstractOperator implements ParameterConvert
 
     @Parameter
     private Configuration config;
-    private Map<RasterDataNode, Band> bandMapping;
+    private Map<Band, Band> sourceBands;
 
     public ProductMergeOp(OperatorSpi spi) {
         super(spi);
         config = new Configuration();
-        bandMapping = new HashMap<RasterDataNode, Band>();
+        sourceBands = new HashMap<Band, Band>();
     }
 
     public void getParameterValues(Operator operator, Xpp3Dom configuration) throws OperatorException {
@@ -154,7 +154,7 @@ public class ProductMergeOp extends AbstractOperator implements ParameterConvert
     private Band copyBandWithFeatures(Product srcProduct, Product outputProduct, String bandName) {
         Band destBand = ProductUtils.copyBand(bandName, srcProduct, outputProduct);
         Band srcBand = srcProduct.getBand(bandName);
-        bandMapping.put(destBand, srcBand);
+        sourceBands.put(destBand, srcBand);
         if (srcBand.getFlagCoding() != null) {
             FlagCoding srcFlagCoding = srcBand.getFlagCoding();
             ProductUtils.copyFlagCoding(srcFlagCoding, outputProduct);
@@ -166,9 +166,9 @@ public class ProductMergeOp extends AbstractOperator implements ParameterConvert
     }
 
     @Override
-    public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+    public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
         Rectangle rectangle = targetRaster.getRectangle();
-        Band sourceBand = bandMapping.get(targetRaster.getRasterDataNode());
+        Band sourceBand = sourceBands.get(band);
         Raster sourceRaster = getRaster(sourceBand, rectangle);
 
         // copy, because the databuffer is for computeAllBands not correctly (re)used
@@ -178,7 +178,7 @@ public class ProductMergeOp extends AbstractOperator implements ParameterConvert
 
     @Override
     public void dispose() {
-        bandMapping.clear();
+        sourceBands.clear();
     }
 
     public class BandDesc {

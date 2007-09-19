@@ -2,6 +2,8 @@ package org.esa.beam.framework.gpf.graph;
 
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
+
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.*;
@@ -70,7 +72,7 @@ public class GraphProcessingObserverTest extends TestCase {
         }
 
         @Override
-        public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+        public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
         }
 
         public static class Spi extends AbstractOperatorSpi {

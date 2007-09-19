@@ -94,8 +94,8 @@ public class GPFTest extends TestCase {
          * <p>The default implementation throws a runtime exception with the message "not implemented"</p>.
          */
         @Override
-        public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
-            Raster sourceRaster = getRaster(sourceProduct.getBand(targetRaster.getRasterDataNode().getName()), targetRaster.getRectangle());
+        public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+            Raster sourceRaster = getRaster(sourceProduct.getBand(band.getName()), targetRaster.getRectangle());
             int n = targetRaster.getDataBuffer().getNumElems();
             for (int i = 0; i < n; i++) {
                 float v = sourceRaster.getDataBuffer().getElemFloatAt(i);

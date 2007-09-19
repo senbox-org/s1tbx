@@ -104,7 +104,7 @@ public class ClusterAnalysisOp extends AbstractOperator implements ParameterConv
     }
 
     @Override
-    public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+    public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
         if (clucov == null) {
             try {
                 computeClusters();
@@ -114,7 +114,7 @@ public class ClusterAnalysisOp extends AbstractOperator implements ParameterConv
             }
         }
 
-        if (targetRaster.getRasterDataNode() == groupBand)  {
+        if (band == groupBand)  {
         	Rectangle rectangle = targetRaster.getRectangle();
         	final int sourceWidth = sourceProduct.getSceneRasterWidth();
             DataSet ds = clucov.ds;

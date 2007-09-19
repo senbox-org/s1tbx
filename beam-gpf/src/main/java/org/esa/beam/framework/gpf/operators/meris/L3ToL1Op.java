@@ -87,10 +87,10 @@ public class L3ToL1Op extends MerisBasisOp {
     }
 
     @Override
-    public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+    public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
 
         Rectangle rectangle = targetRaster.getRectangle();
-        Band srcBand = l3Product.getBand(targetRaster.getRasterDataNode().getName());
+        Band srcBand = l3Product.getBand(band.getName());
 
         PixelPos l1PixelPos = new PixelPos();
         PixelPos l3PixelPos = new PixelPos();

@@ -77,10 +77,10 @@ public class RRToFRSOp extends AbstractOperator {
     }
 
     @Override
-    public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+    public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
 
         Rectangle frsRectangle = targetRaster.getRectangle();
-        Band rrSrcBand = rrProduct.getBand(targetRaster.getRasterDataNode().getName());
+        Band rrSrcBand = rrProduct.getBand(band.getName());
 
         pm.beginTask("compute", frsRectangle.height);
 

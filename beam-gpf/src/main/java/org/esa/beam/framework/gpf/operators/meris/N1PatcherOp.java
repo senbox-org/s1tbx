@@ -213,8 +213,7 @@ public class N1PatcherOp extends AbstractOperator {
     }
 
     @Override
-    public void computeBand(Raster targetRaster, ProgressMonitor pm) throws OperatorException {
-        Band band = (Band) targetRaster.getRasterDataNode();
+    public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
         Rectangle rectangle = targetRaster.getRectangle();
         DatasetDescriptor descriptor = getDatasetDescriptorForBand(band);
         if (descriptor == null) {
