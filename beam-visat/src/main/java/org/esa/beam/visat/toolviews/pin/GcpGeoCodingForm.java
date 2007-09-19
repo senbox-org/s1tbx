@@ -132,7 +132,7 @@ class GcpGeoCodingForm extends JPanel {
         AbstractAction applyAction = new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
 
-                if (attachButton.isSelected()) {
+                if (!(currentProduct.getGeoCoding() instanceof GcpGeoCoding)) {
                     attachGeoCoding(currentProduct);
                 } else {
                     detachGeoCoding(currentProduct);
