@@ -27,6 +27,7 @@
         [BEAM-631] Revise product pin management API<br/>
         [BEAM-639] Extend ProductData class with a Boolean data type<br/>
         [BEAM-660] Speedup image creation process<br/>
+        [BEAM-676] New geo-coding based on GCPs<br/>
         [BEAM-689] GCPs supported by DIMAP<br/>
         [BEAM-690] Group top level tags in DIMAP<br/>
         [BEAM-694] Bandarithmetic gives acces to to latitude and longitude using the geocoding<br/>
