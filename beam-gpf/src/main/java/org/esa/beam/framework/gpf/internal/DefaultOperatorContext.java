@@ -7,7 +7,9 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.*;
+import org.esa.beam.util.jai.RasterDataNodeOpImage;
 
+import javax.media.jai.PlanarImage;
 import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
 import java.lang.reflect.Field;
@@ -30,13 +32,9 @@ public class DefaultOperatorContext implements OperatorComputationContext {
     private Operator operator;
     private Field[] parameterFields;
     private List<Rectangle> layoutRectangles;
-    //-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI
-    private GpfOpImage[] opImages;
+    private GpfOpImage[] targetImages;
+    private OperatorImplementationInfo operatorImplementationInfo;
 
-    public GpfOpImage[] getOpImages() {
-        return opImages;
-    }
-    //-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI
 
     /**
      * Constructs an new context with the name of an operator.
@@ -47,6 +45,12 @@ public class DefaultOperatorContext implements OperatorComputationContext {
         this.operatorName = operatorName;
         this.sourceProductList = new ArrayList<Product>(3);
         this.sourceProductMap = new HashMap<String, Product>(3);
+    }
+
+
+
+    public PlanarImage[] getTargetImages() {
+        return targetImages;
     }
 
     /**
@@ -106,13 +110,13 @@ public class DefaultOperatorContext implements OperatorComputationContext {
      */
     public void setTargetProduct(Product targetProduct) {
         this.targetProduct = targetProduct;
-        if (opImages == null) {
+        if (targetImages == null) {
             Band[] bands = targetProduct.getBands();
-            opImages = new GpfOpImage[bands.length];
+            targetImages = new GpfOpImage[bands.length];
             for (int i = 0; i < bands.length; i++) {
                 Band band = bands[i];
-                GpfOpImage opImage = GpfOpImage.create(this, band, ProgressMonitor.NULL);
-                opImages[i] = opImage;
+                GpfOpImage opImage = GpfOpImage.create(band, this);
+                targetImages[i] = opImage;
                 band.setImage(opImage);
             }
         }
@@ -150,7 +154,7 @@ public class DefaultOperatorContext implements OperatorComputationContext {
      */
     public void setOperator(Operator operator) {
         this.operator = operator;
-        classInfo = new ClassInfoImpl(operator.getClass());
+        operatorImplementationInfo = new OperatorImplementationInfoImpl(operator.getClass());
     }
 
     /**
@@ -217,6 +221,15 @@ public class DefaultOperatorContext implements OperatorComputationContext {
         return parameterFields;
     }
 
+
+    /**
+     * Gets information about the operator implementation.
+     * @return Information about the operator implementation.
+     */
+    public OperatorImplementationInfo getOperatorImplementationInfo() {
+        return operatorImplementationInfo;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -279,27 +292,21 @@ public class DefaultOperatorContext implements OperatorComputationContext {
         return image;
     }
 
-    private ClassInfo classInfo;
-
-    public ClassInfo getClassInfo() {
-        return classInfo;
-    }
-
-    private class ClassInfoImpl implements ClassInfo {
+    private class OperatorImplementationInfoImpl implements OperatorImplementationInfo {
 
         private final boolean bandMethodImplemented;
         private final boolean tilesMethodImplemented;
 
-        public ClassInfoImpl(Class operatorClass) {
+        public OperatorImplementationInfoImpl(Class operatorClass) {
             bandMethodImplemented = implementsComputeBandMethod(operatorClass);
             tilesMethodImplemented = implementsComputeAllBandsMethod(operatorClass);
         }
 
-        public boolean isBandMethodImplemented() {
+        public boolean isComputeBandMethodImplemented() {
             return bandMethodImplemented;
         }
 
-        public boolean isAllBandsMethodImplemented() {
+        public boolean isComputeAllBandsMethodImplemented() {
             return tilesMethodImplemented;
         }
     }
@@ -331,5 +338,13 @@ public class DefaultOperatorContext implements OperatorComputationContext {
             Class<?> superclass = aClass.getSuperclass();
             return implementsMethod(superclass, methodName, methodParameterTypes);
         }
+    }
+
+    /**
+     * Information about the operator implementation.
+     */
+    public interface OperatorImplementationInfo {
+        boolean isComputeBandMethodImplemented();
+        boolean isComputeAllBandsMethodImplemented();
     }
 }

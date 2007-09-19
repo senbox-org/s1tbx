@@ -182,7 +182,7 @@ public class GraphProcessor {
                 for (NodeContext nodeContext : outputNodeContexts) {
                     Product targetProduct = nodeContext.getTargetProduct();
                     if (getProductBounds(targetProduct).intersects(tileRectangle)) {
-                        if (nodeContext.getClassInfo().isAllBandsMethodImplemented()) {
+                        if (nodeContext.getOperatorImplementationInfo().isComputeAllBandsMethodImplemented()) {
                             Band band = targetProduct.getBandAt(0);
                             forceTileComputation(band, tileX, tileY);
                         } else {

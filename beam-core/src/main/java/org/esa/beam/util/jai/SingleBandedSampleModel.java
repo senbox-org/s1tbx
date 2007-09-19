@@ -1,4 +1,6 @@
-package org.esa.beam.framework.gpf.internal;
+package org.esa.beam.util.jai;
+
+import org.esa.beam.util.ImageUtils;
 
 import javax.media.jai.ComponentSampleModelJAI;
 import java.awt.image.*;
@@ -20,7 +22,7 @@ import java.awt.image.*;
  * {@link DataBuffer#TYPE_FLOAT TYPE_FLOAT} and
  * {@link DataBuffer#TYPE_DOUBLE TYPE_DOUBLE} datatypes.
  */
-public class SingleBandSampleModel extends ComponentSampleModelJAI {
+public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     /**
      * Constructs a SingleBandSampleModel with the specified parameters.
      * The number of bands will be given by the length of the bandOffsets
@@ -36,7 +38,7 @@ public class SingleBandSampleModel extends ComponentSampleModelJAI {
      * @throws IllegalArgumentException if <code>dataType</code> is not
      *                                  one of the supported data types
      */
-    public SingleBandSampleModel(int dataType, int w, int h) {
+    public SingleBandedSampleModel(int dataType, int w, int h) {
         super(dataType, w, h, 1, w, new int[]{0});
     }
 
@@ -54,7 +56,7 @@ public class SingleBandSampleModel extends ComponentSampleModelJAI {
      */
     @Override
     public SampleModel createCompatibleSampleModel(int w, int h) {
-        return new SingleBandSampleModel(dataType, w, h);
+        return new SingleBandedSampleModel(dataType, w, h);
     }
 
     /**
@@ -90,9 +92,9 @@ public class SingleBandSampleModel extends ComponentSampleModelJAI {
     @Override
     public Object getDataElements(int x, int y, int w, int h, Object obj, DataBuffer data) {
         if (obj == null) {
-            obj = ImageHelpers.createDataBufferArray(data.getDataType(), w * h);
+            obj = ImageUtils.createDataBufferArray(data.getDataType(), w * h);
         }
-        getSamplesFast(x, y, w, h, obj, ImageHelpers.getDataBufferArray(data), data.getOffset());
+        getSamplesFast(x, y, w, h, obj, ImageUtils.getDataBufferArray(data), data.getOffset());
         return obj;
     }
 
@@ -101,7 +103,7 @@ public class SingleBandSampleModel extends ComponentSampleModelJAI {
      */
     @Override
     public void setDataElements(int x, int y, int w, int h, Object obj, DataBuffer data) {
-        setSamplesFast(x, y, w, h, obj, ImageHelpers.getDataBufferArray(data), data.getOffset());
+        setSamplesFast(x, y, w, h, obj, ImageUtils.getDataBufferArray(data), data.getOffset());
     }
 
     /**

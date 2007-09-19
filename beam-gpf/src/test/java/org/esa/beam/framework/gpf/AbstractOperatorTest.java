@@ -7,6 +7,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.internal.GpfOpImage;
 
+import javax.media.jai.PlanarImage;
 import java.awt.Rectangle;
 import java.util.logging.Logger;
 
@@ -64,11 +65,7 @@ public class AbstractOperatorTest extends TestCase {
 
     private static class DummyOperatorContext implements OperatorContext {
 
-        public ClassInfo getClassInfo() {
-            return null;
-        }
-
-        public GpfOpImage[] getOpImages() {
+        public PlanarImage[] getTargetImages() {
             return new GpfOpImage[0];
         }
 

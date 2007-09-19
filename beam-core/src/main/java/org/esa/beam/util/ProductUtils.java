@@ -21,7 +21,6 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Parser;
 import com.bc.jexp.Term;
-import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.barithm.RasterDataEvalEnv;
@@ -47,7 +46,6 @@ import java.awt.image.*;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -155,15 +153,7 @@ public class ProductUtils {
         boolean hasOverlays = getBitmaskDefs(raster) != null;
         pm.beginTask("Creating overlayed image...", rasterDataNodes.length + (hasOverlays ? 1 : 0));
         try {
-            if (rasterDataNodes.length == 1) {
-                overlayBIm = raster.createRgbImage(SubProgressMonitor.create(pm, rasterDataNodes.length));
-                // todo frequently check with new VM releases whether or not we can use a
-                // 1-byte-per-pixel color indexed image because this saves memory.
-                // But was unstable and much slower in java 1.4, 1.5 and also 1.6-rc.
-                // overlayBIm = createColorIndexedImage(rasterDataNodes[0]);
-            } else {
-                overlayBIm = createRgbImage(rasterDataNodes, SubProgressMonitor.create(pm, rasterDataNodes.length));
-            }
+            overlayBIm = createRgbImage(rasterDataNodes, SubProgressMonitor.create(pm, rasterDataNodes.length));
             stopWatch.stopAndTrace("ProductSceneView.createOverlayedImage: base RGB image created");
 
             final boolean doEqualize = ImageInfo.HISTOGRAM_MATCHING_EQUALIZE.equalsIgnoreCase(histogramMatching);
@@ -299,7 +289,7 @@ public class ProductUtils {
                 progressMax += 2;
             }
         }
-        final String singleMessage = "Computing gray scale image";
+        final String singleMessage = "Computing image";
         final String rgbMessage = "Computing RGB image";
         pm.beginTask(singleBand ? singleMessage : rgbMessage, progressMax);
         try {

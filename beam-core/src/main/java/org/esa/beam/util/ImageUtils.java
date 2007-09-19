@@ -21,6 +21,7 @@ package org.esa.beam.util;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.util.math.Quantizer;
+import org.esa.beam.util.jai.SingleBandedSampleModel;
 
 import java.awt.Graphics2D;
 import java.awt.Transparency;
@@ -314,5 +315,51 @@ public class ImageUtils {
                                              final int offset,
                                              final int stride) {
         Quantizer.quantizeDouble(samples, min, max, output, offset, stride, ProgressMonitor.NULL);
+    }
+
+    public static Object getDataBufferArray(DataBuffer dataBuffer) {
+        switch (dataBuffer.getDataType()) {
+            case DataBuffer.TYPE_BYTE:
+                return ((DataBufferByte) dataBuffer).getData();
+            case DataBuffer.TYPE_SHORT:
+                return ((DataBufferShort) dataBuffer).getData();
+            case DataBuffer.TYPE_USHORT:
+                return ((DataBufferUShort) dataBuffer).getData();
+            case DataBuffer.TYPE_INT:
+                return ((DataBufferInt) dataBuffer).getData();
+            case DataBuffer.TYPE_FLOAT:
+                return ((DataBufferFloat) dataBuffer).getData();
+            case DataBuffer.TYPE_DOUBLE:
+                return ((DataBufferDouble) dataBuffer).getData();
+            default:
+                throw new IllegalArgumentException("dataBuffer");
+        }
+    }
+
+    public static Object createDataBufferArray(int dataBufferType, int size) {
+        switch (dataBufferType) {
+            case DataBuffer.TYPE_BYTE:
+                return new byte[size];
+            case DataBuffer.TYPE_SHORT:
+            case DataBuffer.TYPE_USHORT:
+                return new short[size];
+            case DataBuffer.TYPE_INT:
+                return new int[size];
+            case DataBuffer.TYPE_FLOAT:
+                return new float[size];
+            case DataBuffer.TYPE_DOUBLE:
+                return new double[size];
+            default:
+                throw new IllegalArgumentException("dataBuffer");
+        }
+    }
+
+    public static SampleModel createSingleBandedSampleModel(int dataBufferType, int width, int height) {
+        // Note: The SingleBandSampleModel has shown to be about 2 times faster!
+        //        return RasterFactory.createPixelInterleavedSampleModel(dataBufferType,
+        //                                                               width,
+        //                                                               height,
+        //                                                               1);
+        return new SingleBandedSampleModel(dataBufferType, width, height);
     }
 }

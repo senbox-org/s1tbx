@@ -20,8 +20,8 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.gpf.internal.GpfOpImage;
 
+import javax.media.jai.PlanarImage;
 import java.awt.Rectangle;
 import java.util.logging.Logger;
 
@@ -34,17 +34,6 @@ import java.util.logging.Logger;
  * @since 4.1
  */
 public interface OperatorContext {
-    //-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI
-    GpfOpImage[] getOpImages();
-
-    ClassInfo getClassInfo();
-
-    public interface ClassInfo {
-        boolean isBandMethodImplemented();
-
-        boolean isAllBandsMethodImplemented();
-    }
-    //-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI-JAI
 
     /**
      * Gets the {@link Operator} this context belongs to.
@@ -81,6 +70,13 @@ public interface OperatorContext {
      * @return the identifier
      */
     String getIdForSourceProduct(Product product);
+
+    /**
+     * Gets and array of JAI planar images associated with each of the bands in the target product.
+     * @return The images associated with each of the bands in the target product.
+     * @see #getTargetProduct()
+     */
+    PlanarImage[] getTargetImages();
 
     /**
      * Gets a {@link Raster} for a given band and rectangle.

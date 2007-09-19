@@ -5,49 +5,38 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.OperatorContext;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.util.jai.RasterDataNodeOpImage;
 
 import javax.media.jai.ImageLayout;
-import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import java.awt.Rectangle;
 import java.awt.image.Raster;
-import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.util.HashMap;
 import java.util.Map;
 
 public class GpfOpImage extends RasterDataNodeOpImage {
 
-    private OperatorContext operatorContext;
+    private DefaultOperatorContext operatorContext;
 
-    protected GpfOpImage(OperatorContext operatorContext,
-                         ImageLayout imageLayout,
-                         SampleModel sampleModel,
-                         Band band,
-                         ProgressMonitor progressMonitor) {
-        super(imageLayout, sampleModel, band);
+    protected GpfOpImage(Band band,
+                         DefaultOperatorContext operatorContext,
+                         ImageLayout imageLayout) {
+        super(band, imageLayout);
         this.operatorContext = operatorContext;
-        setTileCache(JAI.getDefaultInstance().getTileCache());
     }
 
-    public static GpfOpImage create(OperatorContext operatorContext,
-                                    Band band,
-                                    ProgressMonitor progressMonitor) {
-        SampleModel sampleModel = ImageHelpers.createSingleBandSampleModel(band);
-        ImageLayout imageLayout = ImageHelpers.createSingleBandImageLayout(band, sampleModel);
-        return new GpfOpImage(operatorContext,
-                              imageLayout,
-                              sampleModel,
-                              band,
-                              progressMonitor);
-    }
-
-    public OperatorContext getOperatorContext() {
-        return operatorContext;
+    public static GpfOpImage create(Band band, DefaultOperatorContext operatorContext) {
+        ImageLayout imageLayout = createSingleBandedImageLayout(band);
+        return new GpfOpImage(band, operatorContext, imageLayout);
     }
 
     public Band getBand() {
         return (Band) getRasterDataNode();
+    }
+
+    public OperatorContext getOperatorContext() {
+        return operatorContext;
     }
 
     @Override
@@ -61,6 +50,7 @@ public class GpfOpImage extends RasterDataNodeOpImage {
 
     private void executeOperator(WritableRaster tile, Rectangle destRect) throws OperatorException {
         if (operatorMustComputeAllBands()) {
+            // Provide target GPF rasters and associated AWT tiles
             WritableRaster[] targetTiles = getTargetTiles(tile);
             Map<Band, org.esa.beam.framework.gpf.Raster> targetRasters = new HashMap<Band, org.esa.beam.framework.gpf.Raster>(targetTiles.length * 2);
             for (int i = 0; i < targetTiles.length; i++) {
@@ -69,7 +59,9 @@ public class GpfOpImage extends RasterDataNodeOpImage {
                 org.esa.beam.framework.gpf.Raster targetRaster = new RasterImpl(getBand(), destRect, targetData);
                 targetRasters.put(targetBand, targetRaster);
             }
+            // Compute target GPF rasters
             operatorContext.getOperator().computeAllBands(targetRasters, destRect, ProgressMonitor.NULL);
+            // Write computed target GPF rasters into associated AWT tiles
             for (int i = 0; i < targetTiles.length; i++) {
                 Band targetBand = operatorContext.getTargetProduct().getBandAt(i);
                 WritableRaster targetTile = targetTiles[i];
@@ -77,21 +69,24 @@ public class GpfOpImage extends RasterDataNodeOpImage {
                 targetTile.setDataElements(destRect.x, destRect.y, destRect.width, destRect.height, targetData.getElems());
             }
         } else {
+            // Provide target GPF raster
             ProductData targetData = getBand().createCompatibleRasterData(destRect.width, destRect.height);
             org.esa.beam.framework.gpf.Raster targetRaster = new RasterImpl(getBand(), destRect, targetData);
+            // Compute target GPF raster
             operatorContext.getOperator().computeBand(getBand(), targetRaster, ProgressMonitor.NULL);
+            // Write computed target GPF raster into associated AWT tile
             tile.setDataElements(destRect.x, destRect.y, destRect.width, destRect.height, targetData.getElems());
         }
     }
 
     private WritableRaster[] getTargetTiles(WritableRaster tile) {
         // Note: an array of Product.getNumBands() opImages are returned, one for each product band
-        GpfOpImage[] opImages = operatorContext.getOpImages();
-        WritableRaster[] tiles = new WritableRaster[opImages.length];
-        for (int i = 0; i < opImages.length; i++) {
-            GpfOpImage opImage = opImages[i];
-            if (opImage != this) {
-                tiles[i] = opImage.getTargetTile(tile.getBounds());
+        PlanarImage[] images = operatorContext.getTargetImages();
+        WritableRaster[] tiles = new WritableRaster[images.length];
+        for (int i = 0; i < images.length; i++) {
+            PlanarImage image = images[i];
+            if (image != this) {
+                tiles[i] = ((GpfOpImage) image).getTargetTile(tile.getBounds());
             } else {
                 tiles[i] = tile;
             }
@@ -115,7 +110,7 @@ public class GpfOpImage extends RasterDataNodeOpImage {
     }
 
     private boolean operatorMustComputeAllBands() {
-        return operatorContext.getClassInfo().isAllBandsMethodImplemented()
-                && !operatorContext.getClassInfo().isBandMethodImplemented();
+        return operatorContext.getOperatorImplementationInfo().isComputeAllBandsMethodImplemented()
+                && !operatorContext.getOperatorImplementationInfo().isComputeBandMethodImplemented();
     }
 }

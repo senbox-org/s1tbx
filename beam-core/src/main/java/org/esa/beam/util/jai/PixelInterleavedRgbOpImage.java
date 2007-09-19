@@ -121,6 +121,7 @@ public abstract class PixelInterleavedRgbOpImage extends OpImage {
      *
      * @return always <code>false</code>
      */
+    @Override
     public boolean computesUniqueTiles() {
         return false;
     }
@@ -134,6 +135,7 @@ public abstract class PixelInterleavedRgbOpImage extends OpImage {
      *
      * @return always <code>null</code>
      */
+    @Override
     public Rectangle mapDestRect(Rectangle destRectangle, int sourceIndex) {
         return null;
     }
@@ -147,6 +149,7 @@ public abstract class PixelInterleavedRgbOpImage extends OpImage {
      *
      * @return always <code>null</code>
      */
+    @Override
     public Rectangle mapSourceRect(Rectangle sourceRectangle, int sourceIndex) {
         return null;
     }
@@ -158,6 +161,7 @@ public abstract class PixelInterleavedRgbOpImage extends OpImage {
      * @param writableRaster the tile to be computed
      * @param rectangle      the tile rectangle
      */
+    @Override
     protected void computeRect(final PlanarImage[] planarImages,
                                final WritableRaster writableRaster,
                                final Rectangle rectangle) {
