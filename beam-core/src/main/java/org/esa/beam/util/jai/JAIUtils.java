@@ -760,6 +760,19 @@ public class JAIUtils {
 
         return sourcePIm3;
     }
+
+    public static LookupTableJAI createColorLookupTable(IndexColorModel icm) {
+        int numBands = icm.hasAlpha() ? 4 : 3;
+        byte[][] data = new byte[numBands][icm.getMapSize()];
+        icm.getReds(data[0]);
+        icm.getGreens(data[1]);
+        icm.getBlues(data[2]);
+        if (numBands == 4) {
+            icm.getAlphas(data[3]);
+        }
+        return new LookupTableJAI(data);
+    }
+
 } // ImageUtils
 
 
