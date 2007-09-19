@@ -15,56 +15,46 @@ import static java.lang.Math.sqrt;
 public class DropoutCorrection {
 
     /**
-     * The dropout correction neighborhood types.
+     * The dropout correction methods.
      */
-    public enum Neigborhood {
+    public enum Type {
 
         /**
          * This type includes the two neighboring pixels in along-track direction
          * only.
          */
-        N2 {
-            @Override
-            public double[] getWeights() {
-                return new double[]{0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0};
-            }
-
-            @Override
-            public String toString() {
-                return "Vertical";
-            }
-        },
+        N2("2-Connected", new double[]{0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0}),
         /**
          * This type includes the two neighboring pixels in both along and across
          * track directions, giving a total of four neighboring pixels.
          */
-        N4 {
-            @Override
-            public double[] getWeights() {
-                return new double[]{0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0};
-            }
-
-            @Override
-            public String toString() {
-                return "4-Connected";
-            }
-        },
+        N4("4-Connected", new double[]{0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0}),
         /**
          * This type includes all eight surrounding pixels.
          */
-        N8 {
-            @Override
-            public double[] getWeights() {
-                return new double[]{0.7, 1.0, 0.7, 1.0, 0.0, 1.0, 0.7, 1.0, 0.7};
-            }
+        N8("8-Connected", new double[]{0.7, 1.0, 0.7, 1.0, 0.0, 1.0, 0.7, 1.0, 0.7});
 
-            @Override
-            public String toString() {
-                return "8-Connected";
-            }
-        };
+        private final String name;
+        private final double[] weights;
 
-        public abstract double[] getWeights();
+        private Type(String name, double[] weights) {
+            this.name = name;
+            this.weights = weights;
+        }
+
+        /**
+         * Returns the pixel weights corresponding to this type.
+         *
+         * @return the pixel weights.
+         */
+        private double[] getWeights() {
+            return weights;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 
     private static final int M_WIDTH = 3;
@@ -82,7 +72,7 @@ public class DropoutCorrection {
      * Constructs the default instance of this class.
      */
     public DropoutCorrection() {
-        this(Neigborhood.N4);
+        this(Type.N4);
     }
 
     /**
@@ -91,7 +81,7 @@ public class DropoutCorrection {
      *
      * @param neigborhood
      */
-    public DropoutCorrection(Neigborhood neigborhood) {
+    public DropoutCorrection(Type neigborhood) {
         this(neigborhood, false);
     }
 
@@ -102,7 +92,7 @@ public class DropoutCorrection {
      * @param cosmetic    indicates if the dropout correction should be cosmetic only.
      *                    If {@code true} the mask data are not modified.
      */
-    public DropoutCorrection(Neigborhood neigborhood, boolean cosmetic) {
+    public DropoutCorrection(Type neigborhood, boolean cosmetic) {
         this.weights = neigborhood.getWeights();
         this.cosmetic = cosmetic;
     }
