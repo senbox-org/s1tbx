@@ -19,15 +19,17 @@ import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.ui.PlacemarkDescriptor;
 import org.esa.beam.util.math.MathUtils;
 
-import javax.swing.event.TableModelListener;
-import javax.swing.table.TableModel;
+import javax.swing.table.DefaultTableModel;
 import java.io.IOException;
 
-public class PinTableModel implements TableModel {
+public class PinTableModel extends DefaultTableModel {
 
     public static final String[] DEFAULT_COLUMN_NAMES = new String[]{"X", "Y", "Lon", "Lat", "Label"};
 
@@ -35,6 +37,7 @@ public class PinTableModel implements TableModel {
     private final Product product;
     private final Band[] selectedBands;
     private final TiePointGrid[] selectedGrids;
+    private PinTableModel.PlacemarkListener placemarkListener;
 
     public PinTableModel(PlacemarkDescriptor placemarkDescriptor, Product product, Band[] selectedBands,
                          TiePointGrid[] selectedGrids) {
@@ -42,7 +45,12 @@ public class PinTableModel implements TableModel {
         this.product = product;
         this.selectedBands = selectedBands;
         this.selectedGrids = selectedGrids;
+        placemarkListener = new PlacemarkListener();
+        if (product != null) {
+            product.addProductNodeListener(placemarkListener);
+        }
     }
+
 
     public int getRowCount() {
         if (product != null) {
@@ -78,7 +86,7 @@ public class PinTableModel implements TableModel {
     }
 
     public Class getColumnClass(int columnIndex) {
-        if(columnIndex >= 0 && columnIndex <= 3) {
+        if (columnIndex >= 0 && columnIndex <= 3) {
             return Float.class;
         }
         return String.class;
@@ -96,25 +104,25 @@ public class PinTableModel implements TableModel {
 
             if (columnIndex == 0) {
                 PixelPos pixelPos = pin.getPixelPos();
-                if(pixelPos == null) {
+                if (pixelPos == null) {
                     return Float.NaN;
                 }
                 return pixelPos.x;
             } else if (columnIndex == 1) {
                 PixelPos pixelPos = pin.getPixelPos();
-                if(pixelPos == null) {
+                if (pixelPos == null) {
                     return Float.NaN;
                 }
                 return pixelPos.y;
             } else if (columnIndex == 2) {
                 GeoPos geoPos = pin.getGeoPos();
-                if(geoPos == null) {
+                if (geoPos == null) {
                     return Float.NaN;
                 }
                 return geoPos.lon;
             } else if (columnIndex == 3) {
                 GeoPos geoPos = pin.getGeoPos();
-                if(geoPos == null) {
+                if (geoPos == null) {
                     return Float.NaN;
                 }
                 return geoPos.lat;
@@ -162,59 +170,59 @@ public class PinTableModel implements TableModel {
     }
 
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
-        if(value == null) {
+        if (value == null) {
             return;
         }
         if (columnIndex < DEFAULT_COLUMN_NAMES.length) {
             Pin pin = placemarkDescriptor.getPlacemarkGroup(product).get(rowIndex);
             if (columnIndex == 0) {
-                if(value instanceof Float) {
+                if (value instanceof Float) {
                     float pixelY;
-                    if(pin.getPixelPos() == null) {
+                    if (pin.getPixelPos() == null) {
                         pixelY = -1;
-                    }else {
-                        pixelY= pin.getPixelPos().y;
+                    } else {
+                        pixelY = pin.getPixelPos().y;
                     }
-                    pin.setPixelPos(new PixelPos((Float)value, pixelY));
+                    pin.setPixelPos(new PixelPos((Float) value, pixelY));
                     GeoPos geoPos = placemarkDescriptor.updateGeoPos(product.getGeoCoding(),
                                                                      pin.getPixelPos(), pin.getGeoPos());
                     pin.setGeoPos(geoPos);
                 }
             } else if (columnIndex == 1) {
-                if(value instanceof Float) {
+                if (value instanceof Float) {
                     float pixelX;
-                    if(pin.getPixelPos() == null) {
+                    if (pin.getPixelPos() == null) {
                         pixelX = -1;
-                    }else {
-                        pixelX= pin.getPixelPos().x;
+                    } else {
+                        pixelX = pin.getPixelPos().x;
                     }
-                    pin.setPixelPos(new PixelPos(pixelX, (Float)value));
+                    pin.setPixelPos(new PixelPos(pixelX, (Float) value));
                     GeoPos geoPos = placemarkDescriptor.updateGeoPos(product.getGeoCoding(),
                                                                      pin.getPixelPos(), pin.getGeoPos());
                     pin.setGeoPos(geoPos);
                 }
             } else if (columnIndex == 2) {
-                if(value instanceof Float) {
+                if (value instanceof Float) {
                     float lat;
-                    if(pin.getGeoPos() == null) {
+                    if (pin.getGeoPos() == null) {
                         lat = Float.NaN;
-                    }else {
+                    } else {
                         lat = pin.getGeoPos().lat;
                     }
-                    pin.setGeoPos(new GeoPos(lat, (Float)value));
+                    pin.setGeoPos(new GeoPos(lat, (Float) value));
                     PixelPos pixelPos = placemarkDescriptor.updatePixelPos(product.getGeoCoding(),
                                                                            pin.getGeoPos(), pin.getPixelPos());
                     pin.setPixelPos(pixelPos);
                 }
             } else if (columnIndex == 3) {
-                if(value instanceof Float) {
+                if (value instanceof Float) {
                     float lon;
-                    if(pin.getGeoPos() == null) {
+                    if (pin.getGeoPos() == null) {
                         lon = Float.NaN;
-                    }else {
+                    } else {
                         lon = pin.getGeoPos().lon;
                     }
-                    pin.setGeoPos(new GeoPos((Float)value, lon));
+                    pin.setGeoPos(new GeoPos((Float) value, lon));
                     PixelPos pixelPos = placemarkDescriptor.updatePixelPos(product.getGeoCoding(),
                                                                            pin.getGeoPos(), pin.getPixelPos());
                     pin.setPixelPos(pixelPos);
@@ -228,14 +236,39 @@ public class PinTableModel implements TableModel {
         }
     }
 
-    public void addTableModelListener(TableModelListener l) {
-    }
-
-    public void removeTableModelListener(TableModelListener l) {
+    public void dispose() {
+        if(product != null) {
+            product.removeProductNodeListener(placemarkListener);
+        }
     }
 
     private int getNumSelectedBands() {
         return selectedBands != null ? selectedBands.length : 0;
     }
 
+    private class PlacemarkListener implements ProductNodeListener {
+
+        public void nodeChanged(ProductNodeEvent event) {
+            fireTableDataChanged(event);
+        }
+
+        public void nodeDataChanged(ProductNodeEvent event) {
+            fireTableDataChanged(event);
+        }
+
+        public void nodeAdded(ProductNodeEvent event) {
+            fireTableDataChanged(event);
+        }
+
+        public void nodeRemoved(ProductNodeEvent event) {
+            fireTableDataChanged(event);
+        }
+
+        private void fireTableDataChanged(ProductNodeEvent event) {
+            if (event.getSourceNode().getOwner() == placemarkDescriptor.getPlacemarkGroup(product) &&
+                !ProductNode.PROPERTY_NAME_SELECTED.equals(event.getPropertyName())) {
+                PinTableModel.this.fireTableDataChanged();
+            }
+        }
+    }
 }

@@ -26,6 +26,9 @@
         [BEAM-677] Support for ground control points (GCPs)<br/>
         [BEAM-678] Change pin location by dragging<br/>
         [BEAM-684] Pixel-info view functions only if initially visible<br/>
+        [BEAM-696] Placemarks should be copied to output product<br/>
+        [BEAM-698] Sortable table of pins and GCPs<br/>
+        [BEAM-699] Editable cells of pin and GCP tables<br/>
         ]]>
     </changelog>
 
