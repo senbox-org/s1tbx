@@ -29,7 +29,6 @@ public class GcpGeoCoding extends AbstractGeoCoding {
 
     private Datum datum;
     private boolean boundaryCrossingMeridianAt180;
-    private GeoCoding previousGeoCoding;
     private Method method;
 
     /**
@@ -118,7 +117,7 @@ public class GcpGeoCoding extends AbstractGeoCoding {
             x2[i] = (x[i] - offsetX) / subSamplingX;
             y2[i] = (y[i] - offsetY) / subSamplingY;
         }
-        targetScene.setGeoCoding(new GcpGeoCoding(null, x2, y2, lons, lats, sceneWidth, sceneHeight, datum));
+        targetScene.setGeoCoding(new GcpGeoCoding(getMethod(), x2, y2, lons, lats, sceneWidth, sceneHeight, datum));
         return true;
     }
 
