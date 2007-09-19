@@ -441,7 +441,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
 
     private void updateTable() {
-        if(currentTableModel != null) {
+        if (currentTableModel != null) {
             currentTableModel.dispose();
         }
         currentTableModel = new PinTableModel(placemarkDescriptor, product, selectedBands, selectedGrids);
@@ -563,9 +563,9 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     private void removeSelectedPins() {
         final Collection<Pin> pins = getPlacemarkGroup().getSelectedNodes();
         int i = JOptionPane.showConfirmDialog(getWindowAncestor(),
-                                              "Do you really want to remove " + pins.size() + " selected"+ placemarkDescriptor.getRoleLabel()+"(s)?\n" +
+                                              "Do you really want to remove " + pins.size() + " selected" + placemarkDescriptor.getRoleLabel() + "(s)?\n" +
                                               "This action can not be undone.",
-                                              getDescriptor().getTitle() + " - Remove "+ placemarkDescriptor.getRoleLabel()+"s",
+                                              getDescriptor().getTitle() + " - Remove " + placemarkDescriptor.getRoleLabel() + "s",
                                               JOptionPane.OK_CANCEL_OPTION);
         if (i == JOptionPane.OK_OPTION) {
             int selectedRow = placemarkTable.getSelectedRow();
@@ -602,14 +602,21 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     private void makePinNameUnique(Pin newPin) {
         if (makePlacemarkNameUnique0(newPin)) {
             String roleLabel = firstLetterUp(placemarkDescriptor.getRoleLabel());
-            showWarningDialog(roleLabel+" has been renamed to '" + newPin.getName() + "',\n" +
-                              "because a "+placemarkDescriptor.getRoleLabel()+" with the former name already exists.");
+            showWarningDialog(roleLabel + " has been renamed to '" + newPin.getName() + "',\n" +
+                              "because a " + placemarkDescriptor.getRoleLabel() + " with the former name already exists.");
         }
     }
 
-    private String firstLetterUp(String roleLabel) {
-        String firstChar = roleLabel.substring(0, 1).toUpperCase();
-        return firstChar + roleLabel.substring(1);
+    /**
+     * Turns the first letter of the given string to upper case.
+     *
+     * @param string the string to change
+     *
+     * @return a changed string
+     */
+    private String firstLetterUp(String string) {
+        String firstChar = string.substring(0, 1).toUpperCase();
+        return firstChar + string.substring(1);
     }
 
     protected void updateUIState() {
@@ -683,7 +690,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         try {
             placemarks = loadPlacemarksFromFile();
         } catch (IOException e) {
-            showErrorDialog("I/O error, failed to import "+placemarkDescriptor.getRoleLabel()+"s:\n" + e.getMessage());    /*I18N*/
+            showErrorDialog(
+                    "I/O error, failed to import " + placemarkDescriptor.getRoleLabel() + "s:\n" + e.getMessage());    /*I18N*/
             return;
         }
         if (placemarks.length == 0) {
@@ -715,9 +723,9 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             if (product.containsPixel(pixelPos)) {
                 getPlacemarkGroup().add(pin);
             } else {
-                if(placemarkDescriptor instanceof PinDescriptor) {
+                if (placemarkDescriptor instanceof PinDescriptor) {
                     numPinsOutOfBounds++;
-                }else {
+                } else {
                     pin.setPixelPos(new PixelPos(0.0f, 0.0f));
                     getPlacemarkGroup().add(pin);
                 }
@@ -767,7 +775,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
     private Pin[] loadPlacemarksFromFile() throws IOException {
         final BeamFileChooser fileChooser = new BeamFileChooser();
-        fileChooser.setDialogTitle("Import "+firstLetterUp(placemarkDescriptor.getRoleLabel())+"s"); /*I18N*/
+        fileChooser.setDialogTitle("Import " + firstLetterUp(placemarkDescriptor.getRoleLabel()) + "s"); /*I18N*/
         fileChooser.addChoosableFileFilter(getOrCreateFlatPinFileFilter());
         fileChooser.addChoosableFileFilter(getOrCreateXMLPinFileFilter());
         fileChooser.addChoosableFileFilter(getTextFileFilter());
@@ -792,7 +800,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
     private void exportPlacemarks(Pin[] placemarks) {
         final BeamFileChooser fileChooser = new BeamFileChooser();
-        fileChooser.setDialogTitle("Export "+ firstLetterUp(placemarkDescriptor.getRoleLabel())+"s");   /*I18N*/
+        fileChooser.setDialogTitle("Export " + firstLetterUp(placemarkDescriptor.getRoleLabel()) + "s");   /*I18N*/
         fileChooser.addChoosableFileFilter(getTextFileFilter());
         fileChooser.setFileFilter(getPlacemarkFileFilter());
         final File ioDir = getIODir();
@@ -820,7 +828,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                         writer.close();
                     }
                 } catch (IOException e) {
-                    showErrorDialog("I/O Error.\n   Failed to export "+placemarkDescriptor.getRoleLabel()+"s.");    /*I18N*/
+                    showErrorDialog(
+                            "I/O Error.\n   Failed to export " + placemarkDescriptor.getRoleLabel() + "s.");    /*I18N*/
                 } finally {
                     if (writer != null) {
                         try {
@@ -1480,7 +1489,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             GeoPos geoPos = new GeoPos(lat, currentPin.getGeoPos().getLon());
             PixelPos pixelPos = new PixelPos(currentPin.getPixelPos().x, currentPin.getPixelPos().y);
             pixelPos = placemarkDescriptor.updatePixelPos(product.getGeoCoding(), geoPos, pixelPos);
-            
+
             return product.containsPixel(pixelPos.x, pixelPos.y);
         }
     }
