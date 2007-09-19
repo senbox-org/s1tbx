@@ -331,17 +331,17 @@ public class GcpGeoCoding extends AbstractGeoCoding {
     public enum Method {
 
         /**
-         * First-order polynomial.
+         * Linear polynomial.
          */
-        POLYNOMIAL1("1st-Order Polynomial", 1),
+        POLYNOMIAL1("Linear Polynomial", 1),
         /**
-         * Second-order polynomial.
+         * Quadratic polynomial.
          */
-        POLYNOMIAL2("2nd-Order Polynomial", 2),
+        POLYNOMIAL2("Quadratic Polynomial", 2),
         /**
-         * Third-order polynomial.
+         * Cubic polynomial.
          */
-        POLYNOMIAL3("3rd-Order Polynomial", 3);
+        POLYNOMIAL3("Cubic Polynomial", 3);
 
         private String name;
         private int degreeP;
