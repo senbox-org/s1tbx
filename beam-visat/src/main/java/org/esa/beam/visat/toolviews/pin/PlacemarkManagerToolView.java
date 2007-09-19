@@ -214,7 +214,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         importButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-                importPins(false);
+                importPlacemarks(false);
                 updateUIState();
             }
         });
@@ -225,7 +225,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         exportButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-                exportSelectedPins();
+                exportSelectedPlacemarks();
                 updateUIState();
             }
         });
@@ -236,7 +236,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         importNButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-                importPins(true);
+                importPlacemarks(true);
                 updateUIState();
             }
         });
@@ -250,7 +250,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                 if (product != null && getPlacemarkGroup().getNodeCount() > 0) {
                     ProductNodeGroup<Pin> pinGroup = getPlacemarkGroup();
                     Pin[] exportPins = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
-                    exportPins(exportPins);
+                    exportPlacemarks(exportPins);
                 }
             }
         });
@@ -287,7 +287,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         exportTableButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-                exportPinDataTable();
+                exportPlacemarkDataTable();
                 updateUIState();
             }
         });
@@ -573,10 +573,16 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     /////////////////////////////////////////////////////////////////////////////////////////////////
 
     private void makePinNameUnique(Pin newPin) {
-        if (makePinNameUnique0(newPin)) {
-            showWarningDialog("Pin has been renamed to '" + newPin.getName() + "',\n" +
-                              "because a pin with the former name already exists.");
+        if (makePlacemarkNameUnique0(newPin)) {
+            String roleLabel = firstLetterUp(placemarkDescriptor.getRoleLabel());
+            showWarningDialog(roleLabel+" has been renamed to '" + newPin.getName() + "',\n" +
+                              "because a "+placemarkDescriptor.getRoleLabel()+" with the former name already exists.");
         }
+    }
+
+    private String firstLetterUp(String roleLabel) {
+        String firstChar = roleLabel.substring(0, 1).toUpperCase();
+        return firstChar + roleLabel.substring(1);
     }
 
     protected void updateUIState() {
@@ -645,26 +651,26 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         }
     }
 
-    private void importPins(boolean allPins) {
-        Pin[] pins;
+    private void importPlacemarks(boolean allPlacemarks) {
+        Pin[] placemarks;
         try {
-            pins = loadPinsFromFile();
+            placemarks = loadPlacemarksFromFile();
         } catch (IOException e) {
-            showErrorDialog("I/O error, failed to import pins:\n" + e.getMessage());    /*I18N*/
+            showErrorDialog("I/O error, failed to import "+placemarkDescriptor.getRoleLabel()+"s:\n" + e.getMessage());    /*I18N*/
             return;
         }
-        if (pins.length == 0) {
+        if (placemarks.length == 0) {
             return;
         }
         int numPinsOutOfBounds = 0;
         int numPinsRenamed = 0;
         int numInvalids = 0;
-        for (Pin pin : pins) {
-            if (makePinNameUnique0(pin)) {
+        for (Pin pin : placemarks) {
+            if (makePlacemarkNameUnique0(pin)) {
                 numPinsRenamed++;
             }
 
-            pin.updatePixelPos(product.getGeoCoding());
+            placemarkDescriptor.updatePixelPos(product.getGeoCoding(), pin.getGeoPos(), pin.getPixelPos());
 
             final PixelPos pixelPos;
             if (pin.getPixelPos() != null) {
@@ -682,77 +688,84 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             if (product.containsPixel(pixelPos)) {
                 getPlacemarkGroup().add(pin);
             } else {
-                numPinsOutOfBounds++;
+                if(placemarkDescriptor instanceof PinDescriptor) {
+                    numPinsOutOfBounds++;
+                }else {
+                    pin.setPixelPos(new PixelPos(0.0f, 0.0f));
+                    getPlacemarkGroup().add(pin);
+                }
             }
-            if (!allPins) {
+            if (!allPlacemarks) {
                 break; // import only the first one
             }
         }
 
         if (numInvalids > 0) {
-            showWarningDialog("One or more pins have not been imported,\n" +
+            showWarningDialog("One or more " + placemarkDescriptor.getRoleLabel() + "s have not been imported,\n" +
                               "because they can not be assigned to a product without a geo-coding."); /*I18N*/
         }
         if (numPinsRenamed > 0) {
-            showWarningDialog("One or more pins have been renamed,\n" +
+            showWarningDialog("One or more " + placemarkDescriptor.getRoleLabel() + "s have been renamed,\n" +
                               "because their former names are already existing."); /*I18N*/
         }
         if (numPinsOutOfBounds > 0) {
-            if (numPinsOutOfBounds == pins.length) {
-                showErrorDialog("No pins have been imported, because their pixel\n" +
-                                "positions are outside the product's bounds."); /*I18N*/
+            if (numPinsOutOfBounds == placemarks.length) {
+                showErrorDialog(
+                        "No " + placemarkDescriptor.getRoleLabel() + "s have been imported, because their pixel\n" +
+                        "positions are outside the product's bounds."); /*I18N*/
             } else {
-                showErrorDialog(numPinsOutOfBounds + " pins have not been imported, because their pixel\n" +
-                                "positions are outside the product's bounds."); /*I18N*/
+                showErrorDialog(
+                        numPinsOutOfBounds + " " + placemarkDescriptor.getRoleLabel() + "s have not been imported, because their pixel\n" +
+                        "positions are outside the product's bounds."); /*I18N*/
             }
         }
     }
 
-    private boolean makePinNameUnique0(Pin pin) {
-        if (getPlacemarkGroup().get(pin.getName()) == pin) {
+    private boolean makePlacemarkNameUnique0(Pin placemark) {
+        if (getPlacemarkGroup().get(placemark.getName()) == placemark) {
             return false;
         }
-        String name0 = pin.getName();
+        String name0 = placemark.getName();
         String name = name0;
         int id = 1;
         while (getPlacemarkGroup().contains(name)) {
             name = name0 + "_" + id;
         }
         if (!name0.equals(name)) {
-            pin.setName(name);
+            placemark.setName(name);
             return true;
         }
         return false;
     }
 
-    private Pin[] loadPinsFromFile() throws IOException {
+    private Pin[] loadPlacemarksFromFile() throws IOException {
         final BeamFileChooser fileChooser = new BeamFileChooser();
-        fileChooser.setDialogTitle("Import Placemarks"); /*I18N*/
+        fileChooser.setDialogTitle("Import "+firstLetterUp(placemarkDescriptor.getRoleLabel())+"s"); /*I18N*/
         fileChooser.addChoosableFileFilter(getOrCreateFlatPinFileFilter());
         fileChooser.addChoosableFileFilter(getOrCreateXMLPinFileFilter());
         fileChooser.addChoosableFileFilter(getTextFileFilter());
         fileChooser.setFileFilter(getPlacemarkFileFilter());
         fileChooser.setCurrentDirectory(getIODir());
         int result = fileChooser.showOpenDialog(getWindowAncestor());
-        Pin[] pins = new Pin[0];
+        Pin[] placemarks = new Pin[0];
         if (result == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             if (file != null) {
                 setIODir(file.getAbsoluteFile().getParentFile());
-                pins = readPlacemarksFromFile(file);
+                placemarks = readPlacemarksFromFile(file);
             }
         }
-        return pins;
+        return placemarks;
     }
 
-    private void exportSelectedPins() {
-        Collection<Pin> selectedPins = getPlacemarkGroup().getSelectedNodes();
-        exportPins(selectedPins.toArray(new Pin[selectedPins.size()]));
+    private void exportSelectedPlacemarks() {
+        Collection<Pin> selectedPlacemarks = getPlacemarkGroup().getSelectedNodes();
+        exportPlacemarks(selectedPlacemarks.toArray(new Pin[selectedPlacemarks.size()]));
     }
 
-    private void exportPins(Pin[] pins) {
+    private void exportPlacemarks(Pin[] placemarks) {
         final BeamFileChooser fileChooser = new BeamFileChooser();
-        fileChooser.setDialogTitle("Export Placemarks");   /*I18N*/
+        fileChooser.setDialogTitle("Export "+ firstLetterUp(placemarkDescriptor.getRoleLabel())+"s");   /*I18N*/
         fileChooser.addChoosableFileFilter(getTextFileFilter());
         fileChooser.setFileFilter(getPlacemarkFileFilter());
         final File ioDir = getIODir();
@@ -773,14 +786,14 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                 Writer writer = null;
                 try {
                     if (beamFileFilter.getFormatName().equals(getPlacemarkFileFilter().getFormatName())) {
-                        writePlacemarksFile(pins, file);
+                        writePlacemarksFile(placemarks, file);
                     } else {
                         writer = new FileWriter(file);
-                        writePlacemarkDataTableText(writer, pins);
+                        writePlacemarkDataTableText(writer, placemarks);
                         writer.close();
                     }
                 } catch (IOException e) {
-                    showErrorDialog("I/O Error.\n   Failed to export placemarks.");    /*I18N*/
+                    showErrorDialog("I/O Error.\n   Failed to export "+placemarkDescriptor.getRoleLabel()+"s.");    /*I18N*/
                 } finally {
                     if (writer != null) {
                         try {
@@ -794,10 +807,9 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         }
     }
 
-    private void exportPinDataTable() {
+    private void exportPlacemarkDataTable() {
         final BeamFileChooser fileChooser = new BeamFileChooser();
-        String roleLabel = placemarkDescriptor.getRoleLabel();
-        roleLabel = roleLabel.substring(0, 1).toUpperCase() + roleLabel.substring(1);
+        String roleLabel = firstLetterUp(placemarkDescriptor.getRoleLabel());
         fileChooser.setDialogTitle("Export " + roleLabel + " Data Table");/*I18N*/
         fileChooser.setFileFilter(getTextFileFilter());
         final File ioDir = getIODir();
