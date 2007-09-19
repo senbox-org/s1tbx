@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 /**
  * Default implementation for {@link org.esa.beam.framework.gpf.OperatorContext}.
  */
-public class DefaultOperatorContext implements OperatorComputationContext {
+public class DefaultOperatorContext implements OperatorContext {
 
     private final String operatorName;
     private List<Product> sourceProductList;

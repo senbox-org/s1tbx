@@ -25,14 +25,14 @@ import java.util.Locale;
 public class OperatorProductReader implements ProductReader {
 
     private static PlugIn plugIn = new PlugIn();
-    private OperatorComputationContext operatorContext;
+    private OperatorContext operatorContext;
 
     /**
      * Creates a <code>OperatorProductReader</code> instance.
      *
      * @param operatorContext the node context
      */
-    public OperatorProductReader(OperatorComputationContext operatorContext) {
+    public OperatorProductReader(OperatorContext operatorContext) {
         this.operatorContext = operatorContext;
     }
 
