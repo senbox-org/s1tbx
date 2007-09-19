@@ -16,6 +16,7 @@ import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.BandChooser;
 import org.esa.beam.framework.ui.product.PinDescriptor;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.framework.ui.product.ProductTreeListener;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.PropertyMap;
@@ -170,7 +171,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
         newButton = createButton("icons/New24.gif");
         newButton.setName("newButton");
-        newButton.setToolTipText("Create and add new pin."); /*I18N*/
+        String placemarkLabel = placemarkDescriptor.getRoleLabel();
+        newButton.setToolTipText("Create and add new " + placemarkLabel + "."); /*I18N*/
         newButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
@@ -180,7 +182,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
         copyButton = createButton("icons/Copy24.gif");
         copyButton.setName("copyButton");
-        copyButton.setToolTipText("Copy an existing pin."); /*I18N*/
+        copyButton.setToolTipText("Copy an existing " + placemarkLabel + "."); /*I18N*/
         copyButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
@@ -190,7 +192,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
         editButton = createButton("icons/Edit24.gif");
         editButton.setName("editButton");
-        editButton.setToolTipText("Edit selected pin."); /*I18N*/
+        editButton.setToolTipText("Edit selected " + placemarkLabel + "."); /*I18N*/
         editButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
@@ -200,7 +202,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
         removeButton = createButton("icons/Remove24.gif");
         removeButton.setName("removeButton");
-        removeButton.setToolTipText("Remove selected pins."); /*I18N*/
+        removeButton.setToolTipText("Remove selected " + placemarkLabel + "."); /*I18N*/
         removeButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -210,7 +212,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
         importButton = createButton("icons/Import24.gif");
         importButton.setName("importButton");
-        importButton.setToolTipText("Import the first pin from XML or text file."); /*I18N*/
+        importButton.setToolTipText("Import the first " + placemarkLabel + " from XML or text file."); /*I18N*/
         importButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
@@ -221,7 +223,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
         exportButton = createButton("icons/Export24.gif");
         exportButton.setName("exportButton");
-        exportButton.setToolTipText("Export the selected pins to XML file."); /*I18N*/
+        exportButton.setToolTipText("Export the selected " + placemarkLabel + "s to XML file."); /*I18N*/
         exportButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
@@ -232,7 +234,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
         importNButton = createButton("icons/ImportN24.gif");
         importNButton.setName("importNButton");
-        importNButton.setToolTipText("Import all pins from XML or text file."); /*I18N*/
+        importNButton.setToolTipText("Import all " + placemarkLabel + "s from XML or text file."); /*I18N*/
         importNButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
@@ -243,7 +245,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
         exportNButton = createButton("icons/ExportN24.gif");
         exportNButton.setName("exportNButton");
-        exportNButton.setToolTipText("Export all pins to XML file."); /*I18N*/
+        exportNButton.setToolTipText("Export all " + placemarkLabel + "s to XML file."); /*I18N*/
         exportNButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
@@ -283,7 +285,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
         exportTableButton = createButton("icons/ExportTable.gif");
         exportTableButton.setName("exportTableButton");
-        exportTableButton.setToolTipText("Export pixel data at pin to flat text file."); /*I18N*/
+        exportTableButton.setToolTipText("Export pixel data to flat text file."); /*I18N*/
         exportTableButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
@@ -293,8 +295,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         });
 
         zoomToPlacemarkButton = createButton("icons/ZoomTo24.gif");
-        zoomToPlacemarkButton.setName("zoomToPinButton");
-        zoomToPlacemarkButton.setToolTipText("Zoom to selected pin."); /*I18N*/
+        zoomToPlacemarkButton.setName("zoomToButton");
+        zoomToPlacemarkButton.setToolTipText("Zoom to selected " + placemarkLabel + "."); /*I18N*/
         zoomToPlacemarkButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
@@ -361,6 +363,31 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         }
 
         visatApp.addInternalFrameListener(new PlacemarkManagerIFL(visatApp));
+
+        visatApp.getProductTree().addProductTreeListener(new ProductTreeListener() {
+            public void productAdded(Product product) {
+            }
+
+            public void productRemoved(Product product) {
+            }
+
+            public void productSelected(Product product, int clickCount) {
+                setProduct(product);
+            }
+
+            public void metadataElementSelected(MetadataElement group, int clickCount) {
+                setProduct(group.getProduct());
+            }
+
+            public void tiePointGridSelected(TiePointGrid tiePointGrid, int clickCount) {
+                setProduct(tiePointGrid.getProduct());
+            }
+
+            public void bandSelected(Band band, int clickCount) {
+                setProduct(band.getProduct());
+            }
+        });
+
 
         getContext().getPage().addPageComponentListener(new PageComponentListenerAdapter() {
             @Override
