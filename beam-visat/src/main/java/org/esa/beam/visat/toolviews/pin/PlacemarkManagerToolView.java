@@ -133,6 +133,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     private static final int indexForLabel = 4;
     private boolean synchronizingPlacemarkSelectedState;
     private PinTableModel currentTableModel;
+    private String prefixTitle;
 
     public PlacemarkManagerToolView(PlacemarkDescriptor placemarkDescriptor) {
         this.placemarkDescriptor = placemarkDescriptor;
@@ -144,6 +145,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
     @Override
     public JComponent createControl() {
+        prefixTitle = getDescriptor().getTitle();
         placemarkTable = new SortableTable();
         placemarkTable.setName("placemarkTable");
         placemarkTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -377,6 +379,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             }
         });
 
+        setProduct(visatApp.getSelectedProduct());
 
         updateUIState();
 
@@ -599,12 +602,16 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
     protected void updateUIState() {
         boolean productSelected = product != null;
-        boolean hasPins = product != null && getPlacemarkGroup().getNodeCount() > 0;
+        boolean hasPins = productSelected && getPlacemarkGroup().getNodeCount() > 0;
         int numSelectedPins = 0;
-        if (product != null) {
+        if (productSelected) {
             synchronizePinSelectedState();
             numSelectedPins = getPlacemarkGroup().getSelectedNodes().size();
+            getDescriptor().setTitle(prefixTitle + " - " + product.getDisplayName());
+        }else {
+            getDescriptor().setTitle(prefixTitle);
         }
+
         boolean hasSelectedPins = numSelectedPins > 0;
         boolean hasActivePin = numSelectedPins == 1;
 
@@ -683,7 +690,8 @@ public class PlacemarkManagerToolView extends AbstractToolView {
                 numPinsRenamed++;
             }
 
-            placemarkDescriptor.updatePixelPos(product.getGeoCoding(), pin.getGeoPos(), pin.getPixelPos());
+            PixelPos newPixelPos = placemarkDescriptor.updatePixelPos(product.getGeoCoding(), pin.getGeoPos(), pin.getPixelPos());
+            pin.setPixelPos(newPixelPos);
 
             final PixelPos pixelPos;
             if (pin.getPixelPos() != null) {
@@ -1497,9 +1505,13 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     private class ProductSelectionListener implements ProductTreeListener {
 
         public void productAdded(Product product) {
+            setProduct(product);
         }
 
         public void productRemoved(Product product) {
+            setProduct(null);
+            productToSelectedBands.remove(product);
+            productToSelectedGrids.remove(product);
         }
 
         public void productSelected(Product product, int clickCount) {
