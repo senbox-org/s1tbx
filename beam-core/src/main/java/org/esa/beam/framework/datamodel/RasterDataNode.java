@@ -1544,6 +1544,23 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
+     * Gets all associated bitmask definitions. An empty arry is returned if no bitmask defintions are associated.
+     * @return Associated bitmask definitions.
+     * @see #getBitmaskOverlayInfo()
+     * @see #setBitmaskOverlayInfo(BitmaskOverlayInfo)
+     */
+    public BitmaskDef[] getBitmaskDefs() {
+        final BitmaskOverlayInfo bitmaskOverlayInfo = getBitmaskOverlayInfo();
+        if (bitmaskOverlayInfo != null) {
+            BitmaskDef[] bitmaskDefs = bitmaskOverlayInfo.getBitmaskDefs();
+            if (bitmaskDefs.length > 0) {
+                return bitmaskDefs;
+            }
+        }
+        return new BitmaskDef[0];
+    }
+
+    /**
      * Gets the ROI definition for image display
      */
     public ROIDefinition getROIDefinition() {
