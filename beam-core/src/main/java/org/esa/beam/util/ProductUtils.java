@@ -167,8 +167,8 @@ public class ProductUtils {
 
         stopWatch.start();
         BufferedImage overlayBIm;
-        boolean hasOverlays = getBitmaskDefs(raster) != null;
-        pm.beginTask("Creating overlayed image...", rasterDataNodes.length + (hasOverlays ? 1 : 0));
+        BitmaskDef[] bitmaskDefs = raster.getBitmaskDefs();
+        pm.beginTask("Creating overlayed image...", rasterDataNodes.length + (bitmaskDefs.length > 0 ? 1 : 0));
         try {
             overlayBIm = createRgbImage(rasterDataNodes, SubProgressMonitor.create(pm, rasterDataNodes.length));
             stopWatch.stopAndTrace("ProductSceneView.createOverlayedImage: base RGB image created");
@@ -188,7 +188,7 @@ public class ProductUtils {
                 overlayBIm = sourcePIm.getAsBufferedImage();
             }
 
-            if (hasOverlays) {
+            if (bitmaskDefs.length > 0) {
                 // @todo 3 nf/nf - check: for RGB, BitmaskOverlayInfo is always taken from the red raster?
                 stopWatch.start();
                 overlayBIm = overlayBitmasks(raster, overlayBIm, SubProgressMonitor.create(pm, 1));
@@ -1317,21 +1317,18 @@ public class ProductUtils {
      */
     public static PlanarImage overlayBitmasks(RasterDataNode raster, PlanarImage overlayPIm, ProgressMonitor pm) throws
             IOException {
-        final StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        final BitmaskOverlayInfo bitmaskOverlayInfo = raster.getBitmaskOverlayInfo();
-        if (bitmaskOverlayInfo == null) {
-            return overlayPIm;
-        }
-        final BitmaskDef[] bitmaskDefs = bitmaskOverlayInfo.getBitmaskDefs();
-        if (bitmaskDefs.length == 0) {
-            return overlayPIm;
-        }
 
         final Product product = raster.getProduct();
         if (product == null) {
             throw new IllegalArgumentException("raster data node has not been added to a product");
         }
+
+        final BitmaskDef[] bitmaskDefs = raster.getBitmaskDefs();
+        if (bitmaskDefs.length == 0) {
+            return overlayPIm;
+        }
+
+        final StopWatch stopWatch = new StopWatch();
 
         final int w = raster.getSceneRasterWidth();
         final int h = raster.getSceneRasterHeight();
@@ -1411,8 +1408,8 @@ public class ProductUtils {
             IOException {
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        BitmaskDef[] bitmaskDefs = getBitmaskDefs(raster);
-        if (bitmaskDefs == null) {
+        BitmaskDef[] bitmaskDefs = raster.getBitmaskDefs();
+        if (bitmaskDefs.length == 0) {
             return overlayBIm;
         }
 
@@ -1486,17 +1483,6 @@ public class ProductUtils {
         }
         stopWatch.stopAndTrace("overlay Bitmask");
         return overlayBIm;
-    }
-
-    private static BitmaskDef[] getBitmaskDefs(RasterDataNode raster) {
-        final BitmaskOverlayInfo bitmaskOverlayInfo = raster.getBitmaskOverlayInfo();
-        if (bitmaskOverlayInfo != null) {
-            BitmaskDef[] bitmaskDefs = bitmaskOverlayInfo.getBitmaskDefs();
-            if (bitmaskDefs.length > 0) {
-                return bitmaskDefs;
-            }
-        }
-        return null;
     }
 
     public static GeoPos getCenterGeoPos(final Product product) {

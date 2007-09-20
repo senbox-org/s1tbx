@@ -1552,10 +1552,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public BitmaskDef[] getBitmaskDefs() {
         final BitmaskOverlayInfo bitmaskOverlayInfo = getBitmaskOverlayInfo();
         if (bitmaskOverlayInfo != null) {
-            BitmaskDef[] bitmaskDefs = bitmaskOverlayInfo.getBitmaskDefs();
-            if (bitmaskDefs.length > 0) {
-                return bitmaskDefs;
-            }
+            return bitmaskOverlayInfo.getBitmaskDefs();
         }
         return new BitmaskDef[0];
     }
