@@ -6,9 +6,9 @@
  */
 package org.esa.beam.visat.plugins.pgrab.model;
 
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.dataio.DecodeQualification;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -21,8 +21,7 @@ public class RepositoryScanner {
         final File baseDir = repository.getBaseDir();
         final File[] productFiles = baseDir.listFiles(new ProductFileFilter());
         if (productFiles != null) {
-            for (int i = 0; i < productFiles.length; i++) {
-                final File productFile = productFiles[i];
+            for (final File productFile : productFiles) {
                 final RepositoryEntry repositoryEntry = new RepositoryEntry(productFile.getPath());
                 repository.addEntry(repositoryEntry);
             }
@@ -49,10 +48,7 @@ public class RepositoryScanner {
     public static class DirectoryFileFilter implements FileFilter {
 
         public boolean accept(final File file) {
-            if (file.isDirectory()) {
-                return true;
-            }
-            return false;
+            return file.isDirectory();
         }
     }
 }

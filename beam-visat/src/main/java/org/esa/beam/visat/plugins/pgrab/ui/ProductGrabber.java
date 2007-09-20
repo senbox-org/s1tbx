@@ -681,8 +681,9 @@ public class ProductGrabber {
             pm.beginTask("Collecting repositories...", dirList.size());
             final ArrayList<Repository> repositoryList = new ArrayList<Repository>();
             try {
+                RepositoryScanner.ProductFileFilter filter = new RepositoryScanner.ProductFileFilter();
                 for (File subDir : dirList) {
-                    final File[] subDirFiles = subDir.listFiles(new RepositoryScanner.ProductFileFilter());
+                    final File[] subDirFiles = subDir.listFiles(filter);
                     if (subDirFiles.length > 0) {
                         final Repository repository = new Repository(subDir);
                         repositoryList.add(repository);

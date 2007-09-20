@@ -80,7 +80,7 @@ public class RepositoryManager {
      * @return the repository at the given index.
      */
     public Repository getRepository(final int index) {
-        return (Repository) repositoryList.get(index);
+        return repositoryList.get(index);
     }
 
     /**
@@ -91,8 +91,7 @@ public class RepositoryManager {
      * @return the repository with the given <code>baseDir</code>, or <code>null</code> if not found.
      */
     public Repository getRepository(final String baseDir) {
-        for (int i = 0; i < repositoryList.size(); i++) {
-            final Repository repository = repositoryList.get(i);
+        for (final Repository repository : repositoryList) {
             if (repository.getBaseDir().getPath().equals(baseDir)) {
                 return repository;
             }
@@ -211,15 +210,13 @@ public class RepositoryManager {
 
 
     private void fireRepositoryAdded(final Repository repository) {
-        for (int i = 0; i < listenerList.size(); i++) {
-            final RepositoryManagerListener listener = listenerList.get(i);
+        for (final RepositoryManagerListener listener : listenerList) {
             listener.repositoryAdded(repository);
         }
     }
 
     private void fireRepositoryRemoved(final Repository repsoitory) {
-        for (int i = 0; i < listenerList.size(); i++) {
-            final RepositoryManagerListener listener = listenerList.get(i);
+        for (final RepositoryManagerListener listener : listenerList) {
             listener.repositoryRemoved(repsoitory);
         }
     }
@@ -251,7 +248,7 @@ public class RepositoryManager {
             pm.beginTask("Updating repository...", 1 + (repository.getEntryCount() * dataProviderList.size()));
             try {
                 final int maxRepEntries = repository.getEntryCount();
-                final Object[] messageArgs = new Object[]{null, new Integer(maxRepEntries), null};
+                final Object[] messageArgs = new Object[]{null, maxRepEntries, null};
 
                 if (pm.isCanceled()) {
                     return exceptionList;
@@ -272,7 +269,7 @@ public class RepositoryManager {
                 pm.worked(1);
 
                 for (int i = 0; i < maxRepEntries; i++) {
-                    messageArgs[0] = new Integer(i + 1);
+                    messageArgs[0] = i + 1;
                     if (pm.isCanceled()) {
                         return exceptionList;
                     }
@@ -329,8 +326,7 @@ public class RepositoryManager {
                     }
                 }
             } finally {
-                for (int i = 0; i < entriesToRemove.size(); i++) {
-                    final RepositoryEntry entry = (RepositoryEntry) entriesToRemove.get(i);
+                for (RepositoryEntry entry : entriesToRemove) {
                     repository.removeEntry(entry);
                 }
                 pm.done();
@@ -351,8 +347,7 @@ public class RepositoryManager {
             if (exceptionList != null && exceptionList.size() != 0) {
                 final StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.append("Not able to read the following file(s):\n\n");
-                for (int i = 0; i < exceptionList.size(); i++) {
-                    final ExceptionObject exception = exceptionList.get(i);
+                for (final ExceptionObject exception : exceptionList) {
                     Debug.trace(exception.throwable);
                     stringBuilder.append(exception.productFileName);
                     stringBuilder.append("\n");
