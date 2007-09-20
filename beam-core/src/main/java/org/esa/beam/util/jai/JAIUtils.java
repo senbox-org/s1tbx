@@ -64,7 +64,7 @@ public class JAIUtils {
         tileCache.setMemoryCapacity(megabytes * 1024L * 1024L);
     }
 
-    public static RenderedOp createTileFormatOp(PlanarImage img, int tileWidth, int tileHeight) {
+    public static RenderedOp createTileFormatOp(RenderedImage img, int tileWidth, int tileHeight) {
         ImageLayout tileLayout = new ImageLayout(img);
         tileLayout.setTileWidth(tileWidth);
         tileLayout.setTileHeight(tileHeight);

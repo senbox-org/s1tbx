@@ -32,6 +32,7 @@ import org.esa.beam.util.geotiff.GeoTIFFCodes;
 import org.esa.beam.util.geotiff.GeoTIFFMetadata;
 import org.esa.beam.util.jai.JAIDebug;
 import org.esa.beam.util.jai.JAIUtils;
+import org.esa.beam.util.jai.RasterDataNodeOpImage;
 import org.esa.beam.util.math.Histogram;
 import org.esa.beam.util.math.IndexValidator;
 import org.esa.beam.util.math.MathUtils;
@@ -39,6 +40,7 @@ import org.esa.beam.util.math.Range;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ROI;
+import javax.media.jai.RenderedOp;
 import java.awt.*;
 import java.awt.color.ColorSpace;
 import java.awt.geom.*;
@@ -185,6 +187,7 @@ public class ProductUtils {
 
         return overlayBIm;
     }
+
 
     /**
      * @deprecated in 4.0, use {@link #createColorIndexedImage(RasterDataNode, ProgressMonitor)} instead
@@ -1550,8 +1553,7 @@ public class ProductUtils {
      * @param polygon a geographical, closed polygon
      */
     public static void denormalizeGeoPolygon(final GeoPos[] polygon) {
-        for (int i = 0; i < polygon.length; i++) {
-            GeoPos geoPos = polygon[i];
+        for (GeoPos geoPos : polygon) {
             denormalizeGeoPos(geoPos);
         }
     }
@@ -2353,4 +2355,266 @@ public class ProductUtils {
         return path;
     }
 
+
+
+    /////////////////////////////////////////////////////////////////////////
+    //
+    // New JAI-based tiled image creation (nf, 20.09.2007)
+    //
+    /////////////////////////////////////////////////////////////////////////
+
+
+
+    public static RenderedImage createOverlayedImageJAI(final RasterDataNode[] rasterDataNodes,
+                                                     final String histogramMatching, ProgressMonitor pm) throws
+            IOException {
+        Guardian.assertNotNull("rasterDataNodes", rasterDataNodes);
+        if (rasterDataNodes.length != 1 && rasterDataNodes.length != 3) {
+            throw new IllegalArgumentException("rasterDataNodes.length is not 1 and not 3");
+        }
+
+        final RasterDataNode raster = rasterDataNodes[0];
+        final StopWatch stopWatch = new StopWatch();
+
+        stopWatch.start();
+        PlanarImage overlayBIm;
+        boolean hasOverlays = getBitmaskDefs(raster) != null;
+        pm.beginTask("Creating overlayed image...", rasterDataNodes.length + (hasOverlays ? 1 : 0));
+        try {
+            PlanarImage sourcePIm = createRgbImageJAI(rasterDataNodes, SubProgressMonitor.create(pm, rasterDataNodes.length));
+            stopWatch.stopAndTrace("ProductSceneView.createOverlayedImage: base RGB image created");
+
+            final boolean doEqualize = ImageInfo.HISTOGRAM_MATCHING_EQUALIZE.equalsIgnoreCase(histogramMatching);
+            final boolean doNormalize = ImageInfo.HISTOGRAM_MATCHING_NORMALIZE.equalsIgnoreCase(histogramMatching);
+            if (doEqualize || doNormalize) {
+                sourcePIm = JAIUtils.createTileFormatOp(sourcePIm, 512, 512);
+                if (doEqualize) {
+                    sourcePIm = JAIUtils.createHistogramEqualizedImage((PlanarImage) sourcePIm);
+                    stopWatch.stopAndTrace("ProductSceneView.createOverlayedImage: histogram-equalized image created");
+                } else {
+                    sourcePIm = JAIUtils.createHistogramNormalizedImage((PlanarImage) sourcePIm);
+                    stopWatch.stopAndTrace("ProductSceneView.createOverlayedImage: histogram-normalized image created");
+                }
+            }
+
+            overlayBIm = sourcePIm;
+
+            if (hasOverlays) {
+                // @todo 3 nf/nf - check: for RGB, BitmaskOverlayInfo is always taken from the red raster?
+                stopWatch.start();
+                overlayBIm = overlayBitmasksJAI(raster, overlayBIm, SubProgressMonitor.create(pm, 1));
+                stopWatch.stopAndTrace("ProductSceneView.createOverlayedImage: overlays added");
+            }
+
+            JAIDebug.trace("overlayBIm", overlayBIm);
+        } finally {
+            pm.done();
+        }
+
+        return overlayBIm;
+    }
+
+    public static PlanarImage createRgbImageJAI(final RasterDataNode[] rasterDataNodes, ProgressMonitor pm) throws
+            IOException {
+        Guardian.assertNotNull("rasterDataNodes", rasterDataNodes);
+        if (rasterDataNodes.length != 1 && rasterDataNodes.length != 3) {
+            throw new IllegalArgumentException("rasterDataNodes.length is not 1 and not 3");
+        }
+
+        final boolean singleBand = rasterDataNodes.length == 1;
+        final StopWatch stopWatch = new StopWatch();
+        final int width = rasterDataNodes[0].getSceneRasterWidth();
+        final int height = rasterDataNodes[0].getSceneRasterHeight();
+
+        final int numPixels = width * height;
+        final byte[] rgbSamples = new byte[3 * numPixels];
+
+        final String[] progressMessages = new String[]{
+                /*I18N*/
+                "Computing red channel",
+                "Computing green channel",
+                "Computing blue channel"
+        };
+
+        int progressMax;
+        if (singleBand) {
+            progressMax = 2;
+        } else {
+            progressMax = 3;
+        }
+        for (final RasterDataNode node : rasterDataNodes) {
+            if (node.getImageInfo() == null) {
+                progressMax += 2;
+            }
+        }
+        PlanarImage resultingImage;
+        final String singleMessage = "Computing image";
+        final String rgbMessage = "Computing RGB image";
+        pm.beginTask(singleBand ? singleMessage : rgbMessage, progressMax);
+        try {
+            PlanarImage[] images = new PlanarImage[rasterDataNodes.length];
+            for (int i = 0; i < rasterDataNodes.length; i++) {
+                pm.setSubTaskName(singleBand ? singleMessage : progressMessages[i]);
+                checkCanceled(pm);
+                final RasterDataNode raster = rasterDataNodes[i];
+                PlanarImage image = (PlanarImage) raster.getImage(); // todo - check cast!
+                if (image == null) {
+                    image = RasterDataNodeOpImage.create(raster);
+                    raster.setImage(image);
+                }
+                final ImageInfo imageInfo;
+                if (raster.getImageInfo() == null) {
+                    double[] extrema = JAIUtils.getExtrema(image, null);
+                    pm.worked(1);
+                    checkCanceled(pm);
+                    RenderedOp histogramImage = JAIUtils.createHistogramImage((PlanarImage) image, 512, extrema[0], extrema[1]);
+                    pm.worked(1);
+                    checkCanceled(pm);
+                    javax.media.jai.Histogram jaiHistogram = JAIUtils.getHistogramOf(histogramImage);
+
+                    final Histogram histogram = new Histogram(jaiHistogram.getBins(0), jaiHistogram.getLowValue(0), jaiHistogram.getHighValue(0));
+                    pm.worked(1);
+
+                    imageInfo = raster.createDefaultImageInfo(null, histogram, true);
+                    raster.setImageInfo(imageInfo);
+                } else {
+                    imageInfo = raster.getImageInfo();
+                }
+
+                final double newMin = imageInfo.getMinDisplaySample();
+                final double newMax = imageInfo.getMaxDisplaySample();
+                final double gamma = imageInfo.getGamma();  // todo
+
+                image = JAIUtils.createRescaleOp(image, 255.0 / (newMax - newMin), 255.0 * newMin / (newMin - newMax));
+                pm.worked(1);
+                checkCanceled(pm);
+
+                image = JAIUtils.createFormatOp(image, DataBuffer.TYPE_BYTE);
+
+                images[i] = image;
+            }
+
+            checkCanceled(pm);
+            if (singleBand) {
+// todo - replace by lookup op
+//                final RasterDataNode raster = rasterDataNodes[0];
+//                final Color[] palette = raster.getImageInfo().getColorPalette();
+//                Guardian.assertEquals("palette.length must be 256", palette.length, 256);
+//                final byte[] r = new byte[256];
+//                final byte[] g = new byte[256];
+//                final byte[] b = new byte[256];
+//                for (int i = 0; i < 256; i++) {
+//                    r[i] = (byte) palette[i].getRed();
+//                    g[i] = (byte) palette[i].getGreen();
+//                    b[i] = (byte) palette[i].getBlue();
+//                }
+//                int colorIndex;
+//                for (int i = 0; i < rgbSamples.length; i += 3) {
+//                    colorIndex = rgbSamples[i] & 0xff;
+//                    // BufferedImage.TYPE_3BYTE_BGR order
+//                    rgbSamples[i + 0] = b[colorIndex];
+//                    rgbSamples[i + 1] = g[colorIndex];
+//                    rgbSamples[i + 2] = r[colorIndex];
+//                }
+//                pm.worked(1);
+                resultingImage =  images[0];
+            } else {
+                // todo - use band combine op
+                resultingImage = images[0];
+            }
+
+            // Create a BufferedImage of type TYPE_3BYTE_BGR (the fastest type)
+            //
+//            final ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_sRGB);
+//            final ColorModel cm = new ComponentColorModel(cs,
+//                                                          false, // hasAlpha,
+//                                                          false, //isAlphaPremultiplied,
+//                                                          Transparency.OPAQUE, //  transparency,
+//                                                          DataBuffer.TYPE_BYTE); //transferType
+//            final DataBuffer db = new DataBufferByte(rgbSamples, rgbSamples.length);
+//            final WritableRaster wr = Raster.createInterleavedRaster(db, width, height, 3 * width, 3, RGB_BAND_OFFSETS,
+//                                                                     null);
+//            bufferedImage = new BufferedImage(cm, wr, false, null);
+        } finally {
+            pm.done();
+        }
+
+        stopWatch.stopAndTrace("ProductUtils.createRgbImage");
+        return resultingImage;
+    }
+
+    public static PlanarImage overlayBitmasksJAI(RasterDataNode raster, PlanarImage overlayPIm, ProgressMonitor pm) throws
+            IOException {
+        final StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        final BitmaskOverlayInfo bitmaskOverlayInfo = raster.getBitmaskOverlayInfo();
+        if (bitmaskOverlayInfo == null) {
+            return overlayPIm;
+        }
+        final BitmaskDef[] bitmaskDefs = bitmaskOverlayInfo.getBitmaskDefs();
+        if (bitmaskDefs.length == 0) {
+            return overlayPIm;
+        }
+
+        final Product product = raster.getProduct();
+        if (product == null) {
+            throw new IllegalArgumentException("raster data node has not been added to a product");
+        }
+
+        final int w = raster.getSceneRasterWidth();
+        final int h = raster.getSceneRasterHeight();
+
+        final Parser parser = raster.getProduct().createBandArithmeticParser();
+
+        pm.beginTask("Creating bitmasks ...", bitmaskDefs.length * 2);
+        try {
+            for (int i = bitmaskDefs.length - 1; i >= 0; i--) {
+                BitmaskDef bitmaskDef = bitmaskDefs[i];
+
+                final String expr = bitmaskDef.getExpr();
+
+                final Term term;
+                try {
+                    term = parser.parse(expr);
+                } catch (ParseException e) {
+                    final IOException ioException = new IOException("Illegal bitmask expression '" + expr + "'");
+                    ioException.initCause(e);
+                    throw ioException;
+                }
+                final RasterDataSymbol[] rasterSymbols = BandArithmetic.getRefRasterDataSymbols(term);
+                final RasterDataNode[] rasterNodes = BandArithmetic.getRefRasters(rasterSymbols);
+
+                // Ensures that all the raster data which are needed to create overlays are loaded
+                ProgressMonitor subPm = SubProgressMonitor.create(pm, 1);
+                subPm.beginTask("Reading raster data...", rasterNodes.length);
+                try {
+                    for (int j = 0; j < rasterNodes.length; j++) {
+                        RasterDataNode rasterNode = rasterNodes[j];
+                        if (!rasterNode.hasRasterData()) {
+                            rasterNode.readRasterDataFully(SubProgressMonitor.create(subPm, 1));
+                        } else {
+                            subPm.worked(1);
+                        }
+                    }
+                } finally {
+                    subPm.done();
+                }
+
+                final byte[] alphaData = new byte[w * h];
+                product.readBitmask(0, 0, w, h, term, alphaData, (byte) (255 * bitmaskDef.getAlpha()), (byte) 0,
+                                    SubProgressMonitor.create(pm, 1));
+
+                Debug.trace("ProductSceneView: creating bitmask overlay '" + bitmaskDef.getName() + "'...");
+                BufferedImage alphaBIm = ImageUtils.createGreyscaleColorModelImage(w, h, alphaData);
+                PlanarImage alphaPIm = PlanarImage.wrapRenderedImage(alphaBIm);
+
+                overlayPIm = JAIUtils.createAlphaOverlay(overlayPIm, alphaPIm, bitmaskDef.getColor());
+                Debug.trace("ProductSceneView: bitmask overlay OK");
+            }
+        } finally {
+            pm.done();
+        }
+        stopWatch.stopAndTrace("overlay Bitmask");
+        return overlayPIm;
+    }
 }
