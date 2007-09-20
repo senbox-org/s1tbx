@@ -364,29 +364,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
         visatApp.addInternalFrameListener(new PlacemarkManagerIFL(visatApp));
 
-        visatApp.getProductTree().addProductTreeListener(new ProductTreeListener() {
-            public void productAdded(Product product) {
-            }
-
-            public void productRemoved(Product product) {
-            }
-
-            public void productSelected(Product product, int clickCount) {
-                setProduct(product);
-            }
-
-            public void metadataElementSelected(MetadataElement group, int clickCount) {
-                setProduct(group.getProduct());
-            }
-
-            public void tiePointGridSelected(TiePointGrid tiePointGrid, int clickCount) {
-                setProduct(tiePointGrid.getProduct());
-            }
-
-            public void bandSelected(Band band, int clickCount) {
-                setProduct(band.getProduct());
-            }
-        });
+        visatApp.getProductTree().addProductTreeListener(new ProductSelectionListener());
 
 
         getContext().getPage().addPageComponentListener(new PageComponentListenerAdapter() {
@@ -1513,6 +1491,31 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             PixelPos pixelPos = new PixelPos(currentPin.getPixelPos().x, currentPin.getPixelPos().y);
             pixelPos = placemarkDescriptor.updatePixelPos(geoCoding, geoPos, pixelPos);
             return product.containsPixel(pixelPos.x, pixelPos.y);
+        }
+    }
+
+    private class ProductSelectionListener implements ProductTreeListener {
+
+        public void productAdded(Product product) {
+        }
+
+        public void productRemoved(Product product) {
+        }
+
+        public void productSelected(Product product, int clickCount) {
+            setProduct(product);
+        }
+
+        public void metadataElementSelected(MetadataElement group, int clickCount) {
+            setProduct(group.getProduct());
+        }
+
+        public void tiePointGridSelected(TiePointGrid tiePointGrid, int clickCount) {
+            setProduct(tiePointGrid.getProduct());
+        }
+
+        public void bandSelected(Band band, int clickCount) {
+            setProduct(band.getProduct());
         }
     }
 }
