@@ -16,6 +16,7 @@
  */
 package org.esa.beam.util;
 
+import Jama.Matrix;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.jexp.ParseException;
@@ -26,7 +27,15 @@ import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.barithm.RasterDataEvalEnv;
 import org.esa.beam.framework.dataop.barithm.RasterDataLoop;
 import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
-import org.esa.beam.framework.dataop.maptransf.*;
+import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.framework.dataop.maptransf.IdentityTransformDescriptor;
+import org.esa.beam.framework.dataop.maptransf.LambertConformalConicDescriptor;
+import org.esa.beam.framework.dataop.maptransf.MapInfo;
+import org.esa.beam.framework.dataop.maptransf.MapProjection;
+import org.esa.beam.framework.dataop.maptransf.MapTransform;
+import org.esa.beam.framework.dataop.maptransf.StereographicDescriptor;
+import org.esa.beam.framework.dataop.maptransf.TransverseMercatorDescriptor;
+import org.esa.beam.framework.dataop.maptransf.UTM;
 import org.esa.beam.util.geotiff.EPSGCodes;
 import org.esa.beam.util.geotiff.GeoTIFFCodes;
 import org.esa.beam.util.geotiff.GeoTIFFMetadata;
@@ -41,17 +50,23 @@ import org.esa.beam.util.math.Range;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ROI;
 import javax.media.jai.RenderedOp;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.Transparency;
 import java.awt.color.ColorSpace;
-import java.awt.geom.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.PathIterator;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.*;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-
-import Jama.Matrix;
 
 /**
  * This class provides many static factory methods to be used in conjunction with data products.
@@ -223,7 +238,7 @@ public class ProductUtils {
 
         final double newMin = imageInfo.getMinDisplaySample();
         final double newMax = imageInfo.getMaxDisplaySample();
-        final double gamma = imageInfo.getGamma();
+        final double gamma = (double) imageInfo.getGamma();
 
         stopWatch.start();
         final byte[] colorIndexes = rasterDataNode.quantizeRasterData(newMin, newMax, gamma, pm);
@@ -324,7 +339,7 @@ public class ProductUtils {
 
                 final double newMin = imageInfo.getMinDisplaySample();
                 final double newMax = imageInfo.getMaxDisplaySample();
-                final double gamma = imageInfo.getGamma();
+                final double gamma = (double) imageInfo.getGamma();
 
                 checkCanceled(pm);
 // todo - Proformance boost. But better change SubProgressMonitor implementation.
@@ -352,7 +367,7 @@ public class ProductUtils {
                 for (int i = 0; i < rgbSamples.length; i += 3) {
                     colorIndex = rgbSamples[i] & 0xff;
                     // BufferedImage.TYPE_3BYTE_BGR order
-                    rgbSamples[i + 0] = b[colorIndex];
+                    rgbSamples[i] = b[colorIndex];
                     rgbSamples[i + 1] = g[colorIndex];
                     rgbSamples[i + 2] = r[colorIndex];
                 }
@@ -420,8 +435,8 @@ public class ProductUtils {
         final double mapW = Math.abs(envelope[1].getX() - envelope[0].getX());
         final double mapH = Math.abs(envelope[1].getY() - envelope[0].getY());
         float pixelSize = (float) Math.min(mapW / sourceW, mapH / sourceH);
-        if (pixelSize == 0f) {
-            pixelSize = 1f;
+        if (MathUtils.equalValues(pixelSize, 0.0f)) {
+            pixelSize = 1.0f;
         }
         final int targetW = 1 + (int) Math.floor(mapW / pixelSize);
         final int targetH = 1 + (int) Math.floor(mapH / pixelSize);
@@ -472,8 +487,8 @@ public class ProductUtils {
         double mapH = pMax.getY() - pMin.getY();
 
         float pixelSize = (float) Math.min(mapW / sourceW, mapH / sourceH);
-        if (pixelSize == 0f) {
-            pixelSize = 1f;
+        if (MathUtils.equalValues(pixelSize, 0.0f)) {
+            pixelSize = 1.0f;
         }
         final int targetW = 1 + (int) Math.floor(mapW / pixelSize);
         final int targetH = 1 + (int) Math.floor(mapH / pixelSize);
@@ -558,8 +573,7 @@ public class ProductUtils {
         min.y = +Float.MAX_VALUE;
         max.x = -Float.MAX_VALUE;
         max.y = -Float.MAX_VALUE;
-        for (int i = 0; i < boundary.length; i++) {
-            Point2D point = boundary[i];
+        for (Point2D point : boundary) {
             min.x = Math.min(min.x, (float) point.getX());
             min.y = Math.min(min.y, (float) point.getY());
             max.x = Math.max(max.x, (float) point.getX());
@@ -721,7 +735,7 @@ public class ProductUtils {
         final GeoPos[] geoPoints = ProductUtils.createGeoBoundary(product, region, step, usePixelCenter);
         ProductUtils.normalizeGeoPolygon(geoPoints);
 
-        final ArrayList pathList = assemblePathList(geoPoints);
+        final ArrayList<GeneralPath> pathList = assemblePathList(geoPoints);
 
         return (GeneralPath[]) pathList.toArray(new GeneralPath[pathList.size()]);
     }
@@ -849,7 +863,7 @@ public class ProductUtils {
             step = 2 * Math.max(rect.width, rect.height); // don't step!
         }
 
-        final List pixelPosList = new ArrayList();
+        final ArrayList<PixelPos> pixelPosList = new ArrayList<PixelPos>(rect.width * rect.height / step + 10);
 
         float lastX = 0;
         for (float x = x1; x < x2; x += step) {
@@ -875,9 +889,7 @@ public class ProductUtils {
             pixelPosList.add(new PixelPos(x1, y));
         }
 
-        final PixelPos[] pixelPositions = new PixelPos[pixelPosList.size()];
-        pixelPosList.toArray(pixelPositions);
-        return pixelPositions;
+        return pixelPosList.toArray(new PixelPos[pixelPosList.size()]);
     }
 
     /**
@@ -926,8 +938,7 @@ public class ProductUtils {
         Guardian.assertNotNull("targetProduct", targetProduct);
 
         final BitmaskDef[] bitmaskDefs = sourceProduct.getBitmaskDefs();
-        for (int i = 0; i < bitmaskDefs.length; i++) {
-            final BitmaskDef bitmaskDef = bitmaskDefs[i];
+        for (final BitmaskDef bitmaskDef : bitmaskDefs) {
             if (targetProduct.isCompatibleBandArithmeticExpression(bitmaskDef.getExpr())) {
                 targetProduct.addBitmaskDef(bitmaskDef.createCopy());
             }
@@ -943,8 +954,7 @@ public class ProductUtils {
                     targetBitmaskOverlayInfo = new BitmaskOverlayInfo();
                     targetBand.setBitmaskOverlayInfo(targetBitmaskOverlayInfo);
                 }
-                for (int j = 0; j < sourceBandBitmaskDefs.length; j++) {
-                    final BitmaskDef sourceBandBitmaskDef = sourceBandBitmaskDefs[j];
+                for (final BitmaskDef sourceBandBitmaskDef : sourceBandBitmaskDefs) {
                     final BitmaskDef targetBandBitmaskDef = targetProduct.getBitmaskDef(sourceBandBitmaskDef.getName());
                     if (targetBandBitmaskDef != null) {
                         targetBitmaskOverlayInfo.addBitmaskDef(targetBandBitmaskDef);
@@ -1350,8 +1360,7 @@ public class ProductUtils {
                 ProgressMonitor subPm = SubProgressMonitor.create(pm, 1);
                 subPm.beginTask("Reading raster data...", rasterNodes.length);
                 try {
-                    for (int j = 0; j < rasterNodes.length; j++) {
-                        RasterDataNode rasterNode = rasterNodes[j];
+                    for (RasterDataNode rasterNode : rasterNodes) {
                         if (!rasterNode.hasRasterData()) {
                             rasterNode.readRasterDataFully(SubProgressMonitor.create(subPm, 1));
                         } else {
@@ -1495,8 +1504,7 @@ public class ProductUtils {
         if (geoCoding != null) {
             final PixelPos centerPixelPos = new PixelPos(0.5f * product.getSceneRasterWidth() + 0.5f,
                                                          0.5f * product.getSceneRasterHeight() + 0.5f);
-            final GeoPos centerGeoPos = geoCoding.getGeoPos(centerPixelPos, null);
-            return centerGeoPos;
+            return geoCoding.getGeoPos(centerPixelPos, null);
         }
         return null;
     }
@@ -1532,8 +1540,8 @@ public class ProductUtils {
 
         int normalized = 0;
         if (negNormalized && !posNormalized) {
-            for (int i = 0; i < polygon.length; i++) {
-                polygon[i].lon += 360.0f;
+            for (GeoPos aPolygon : polygon) {
+                aPolygon.lon += 360.0f;
             }
             normalized = -1;
         } else if (!negNormalized && posNormalized) {
@@ -1547,7 +1555,8 @@ public class ProductUtils {
     }
 
     /**
-     * Denormalizes the longitude values which have been normalized using the {@link #normalizeGeoBoundary} method. The
+     * Denormalizes the longitude values which have been normalized using the
+     * {@link #normalizeGeoPolygon(org.esa.beam.framework.datamodel.GeoPos[])} method. The
      * method operates only on the longitude values of the given polygon.
      *
      * @param polygon a geographical, closed polygon
@@ -1585,8 +1594,7 @@ public class ProductUtils {
             double b = Math.sqrt(bx * bx + by * by);
             double cosAB = (ax * bx + ay * by) / (a * b);  // Skalarproduct geteilt durch Betragsprodukt
             double sinAB = (ax * by - ay * bx) / (a * b);  // Vektorproduct geteilt durch Betragsprodukt
-            double angle = Math.atan2(sinAB, cosAB);
-            angleSum += angle;
+            angleSum += Math.atan2(sinAB, cosAB);
         }
         return angleSum;
     }
@@ -1749,31 +1757,31 @@ public class ProductUtils {
             final Datum datum = mapInfo.getDatum();
 
             metadata = new GeoTIFFMetadata();
-            if (mapInfo.getOrientation() == 0.0f) {
+            if (MathUtils.equalValues(mapInfo.getOrientation(), 0.0f)) {
                 metadata.setModelPixelScale(mapInfo.getPixelSizeX(), mapInfo.getPixelSizeY());
                 metadata.setModelTiePoint(mapInfo.getPixelX(), mapInfo.getPixelY(),
                                           mapInfo.getEasting(), mapInfo.getNorthing());
             } else {
                 double theta = Math.toRadians(mapInfo.getOrientation());
                 Matrix m1 = new Matrix(new double[][]{
-                        {1,0,-mapInfo.getPixelX()},
-                        {0,1,-mapInfo.getPixelY()},
-                        {0,0,1},
+                        {1, 0, -mapInfo.getPixelX()},
+                        {0, 1, -mapInfo.getPixelY()},
+                        {0, 0, 1},
                 });
                 Matrix m2 = new Matrix(new double[][]{
-                        {Math.cos(theta),Math.sin(theta), 0},
-                        {-Math.sin(theta),Math.cos(theta), 0},
-                        {0,0,1},
+                        {Math.cos(theta), Math.sin(theta), 0},
+                        {-Math.sin(theta), Math.cos(theta), 0},
+                        {0, 0, 1},
                 }).times(m1);
                 Matrix m3 = new Matrix(new double[][]{
-                        {mapInfo.getPixelSizeX(),0, 0},
-                        {0,-mapInfo.getPixelSizeY(),0},
-                        {0,0,1},
+                        {mapInfo.getPixelSizeX(), 0, 0},
+                        {0, -mapInfo.getPixelSizeY(), 0},
+                        {0, 0, 1},
                 }).times(m2);
                 Matrix m4 = new Matrix(new double[][]{
-                        {1,0,mapInfo.getEasting()},
-                        {0,1,mapInfo.getNorthing()},
-                        {0,0,1},
+                        {1, 0, mapInfo.getEasting()},
+                        {0, 1, mapInfo.getNorthing()},
+                        {0, 0, 1},
                 }).times(m3);
                 double[][] m = m4.getArray();
                 metadata.setModelTransformation(new double[]{
@@ -1907,11 +1915,11 @@ public class ProductUtils {
         double[] utmParameterValues;
         for (int zoneIndex = 0; zoneIndex < UTM.MAX_UTM_ZONE; zoneIndex++) {
             utmParameterValues = UTM.getProjectionParams(zoneIndex, false);
-            if (ArrayUtils.equalArrays(utmParameterValues, parameterValues, 1e-6)) {
+            if (ArrayUtils.equalArrays(utmParameterValues, parameterValues, 1.0e-6)) {
                 utmEPSGCode = EPSGCodes.PCS_WGS84_UTM_zone_1N + zoneIndex;
             }
             utmParameterValues = UTM.getProjectionParams(zoneIndex, true);
-            if (ArrayUtils.equalArrays(utmParameterValues, parameterValues, 1e-6)) {
+            if (ArrayUtils.equalArrays(utmParameterValues, parameterValues, 1.0e-6)) {
                 utmEPSGCode = EPSGCodes.PCS_WGS84_UTM_zone_1S + zoneIndex;
             }
         }
@@ -1975,31 +1983,35 @@ public class ProductUtils {
      * @return an array of messages which changes are done to the given product.
      */
     public static String[] removeInvalidExpressions(final Product product) {
-        final List messages = new ArrayList();
+        final ArrayList<String> messages = new ArrayList<String>(10);
 
         product.acceptVisitor(new ProductVisitorAdapter() {
+            @Override
             public void visit(BitmaskDef bitmaskDef) {
                 if (!product.isCompatibleBandArithmeticExpression(bitmaskDef.getExpr())) {
                     String pattern = "Bitmask definition ''{0}'' removed from output product because it is not applicable."; /*I18N*/
-                    messages.add(MessageFormat.format(pattern, new Object[]{bitmaskDef.getName()}));
+                    messages.add(MessageFormat.format(pattern, bitmaskDef.getName()));
                 }
             }
 
+            @Override
             public void visit(TiePointGrid grid) {
                 final String type = "tie point grid";
                 checkRaster(grid, type);
             }
 
+            @Override
             public void visit(Band band) {
                 final String type = "band";
                 checkRaster(band, type);
             }
 
+            @Override
             public void visit(VirtualBand virtualBand) {
                 if (!product.isCompatibleBandArithmeticExpression(virtualBand.getExpression())) {
                     product.removeBand(virtualBand);
                     String pattern = "Virtual band ''{0}'' removed from output product because it is not applicable.";  /*I18N*/
-                    messages.add(MessageFormat.format(pattern, new Object[]{virtualBand.getName()}));
+                    messages.add(MessageFormat.format(pattern, virtualBand.getName()));
                 } else {
                     checkRaster(virtualBand, "virtual band");
                 }
@@ -2011,7 +2023,7 @@ public class ProductUtils {
                     raster.setValidPixelExpression(null);
                     String pattern = "Valid pixel expression ''{0}'' removed from output {1} ''{2}'' " +
                             "because it is not applicable.";   /*I18N*/
-                    messages.add(MessageFormat.format(pattern, new Object[]{validExpr, type, raster.getName()}));
+                    messages.add(MessageFormat.format(pattern, validExpr, type, raster.getName()));
                 }
                 final ROIDefinition roi = raster.getROIDefinition();
                 if (roi != null) {
@@ -2019,7 +2031,7 @@ public class ProductUtils {
                     if (bitmaskExpr != null && !product.isCompatibleBandArithmeticExpression(bitmaskExpr)) {
                         raster.setROIDefinition(null);
                         String pattern = "ROI definition of output {0} ''{1}'' removed because it is not applicable.";   /*I18N*/
-                        messages.add(MessageFormat.format(pattern, new Object[]{type, raster.getName()}));
+                        messages.add(MessageFormat.format(pattern, type, raster.getName()));
                     }
                 }
             }
@@ -2050,12 +2062,11 @@ public class ProductUtils {
         // Step 1: Find the band with a max. wavelength > 1000 nm
         //
         double wavelengthMax = 0.0;
-        for (int i = 0; i < bands.length; i++) {
-            Band band = bands[i];
+        for (Band band : bands) {
             final float wavelength = band.getSpectralWavelength();
             if (wavelength > 1000 && wavelength > wavelengthMax) {
                 wavelengthMax = wavelength;
-                bandName = bands[i].getName();
+                bandName = band.getName();
             }
         }
         if (bandName != null) {
@@ -2068,14 +2079,13 @@ public class ProductUtils {
         final double WL1 = 860;
         final double WL2 = 890;
         double minValue = Double.MAX_VALUE;
-        for (int i = 0; i < bands.length; i++) {
-            Band band = bands[i];
+        for (Band band : bands) {
             final double wavelength = band.getSpectralWavelength();
             if (wavelength > WL1 && wavelength < WL2) {
                 final double value = wavelength - WL1;
                 if (value < minValue) {
                     minValue = value;
-                    bandName = bands[i].getName();
+                    bandName = band.getName();
                 }
             }
         }
@@ -2087,12 +2097,11 @@ public class ProductUtils {
         // Method 3: Find the band with absolute max. wavelength
         //
         wavelengthMax = 0.0;
-        for (int i = 0; i < bands.length; i++) {
-            Band band = bands[i];
+        for (Band band : bands) {
             final float wavelength = band.getSpectralWavelength();
             if (wavelength > wavelengthMax) {
                 wavelengthMax = wavelength;
-                bandName = bands[i].getName();
+                bandName = band.getName();
             }
         }
 
@@ -2157,8 +2166,7 @@ public class ProductUtils {
 
         float min = Integer.MAX_VALUE; // min initial
         float max = Integer.MIN_VALUE; // max initial
-        for (int i = 0; i < pixelPositions.length; i++) {
-            PixelPos pixelPos = pixelPositions[i];
+        for (PixelPos pixelPos : pixelPositions) {
             if (pixelPos != null) {
                 if (pixelPos.y < min) {
                     min = pixelPos.y;
@@ -2203,7 +2211,7 @@ public class ProductUtils {
     public static void copyBandsForGeomTransform(final Product sourceProduct,
                                                  final Product targetProduct,
                                                  final double defaultNoDataValue,
-                                                 final Map addedBands) {
+                                                 final Map<Band, Band> addedBands) {
         Debug.assertNotNull(sourceProduct);
         Debug.assertNotNull(targetProduct);
 
@@ -2286,9 +2294,9 @@ public class ProductUtils {
         }
     }
 
-    static ArrayList assemblePathList(GeoPos[] geoPoints) {
+    static ArrayList<GeneralPath> assemblePathList(GeoPos[] geoPoints) {
         final GeneralPath path = new GeneralPath(GeneralPath.WIND_NON_ZERO, geoPoints.length + 8);
-        final ArrayList pathList = new ArrayList();
+        final ArrayList<GeneralPath> pathList = new ArrayList<GeneralPath>(16);
 
         if (geoPoints.length > 1) {
             float lon = geoPoints[0].getLon();
@@ -2316,7 +2324,7 @@ public class ProductUtils {
 
             final Area pathArea = new Area(path);
             for (int k = runIndexMin; k <= runIndexMax; k++) {
-                final Area currentArea = new Area(new Rectangle2D.Float(k * 360.f - 180.f, -90.0f, 360.0f, 180.0f));
+                final Area currentArea = new Area(new Rectangle2D.Float(k * 360.0f - 180.0f, -90.0f, 360.0f, 180.0f));
                 currentArea.intersect(pathArea);
                 if (!currentArea.isEmpty()) {
                     pathList.add(areaToPath(currentArea, - k * 360.0));
@@ -2325,7 +2333,6 @@ public class ProductUtils {
         }
         return pathList;
     }
-
 
     /////////////////////////////////////////////////////////////////////////
     // Deprecated API
@@ -2353,268 +2360,5 @@ public class ProductUtils {
             path.closePath();
         }
         return path;
-    }
-
-
-
-    /////////////////////////////////////////////////////////////////////////
-    //
-    // New JAI-based tiled image creation (nf, 20.09.2007)
-    //
-    /////////////////////////////////////////////////////////////////////////
-
-
-
-    public static RenderedImage createOverlayedImageJAI(final RasterDataNode[] rasterDataNodes,
-                                                     final String histogramMatching, ProgressMonitor pm) throws
-            IOException {
-        Guardian.assertNotNull("rasterDataNodes", rasterDataNodes);
-        if (rasterDataNodes.length != 1 && rasterDataNodes.length != 3) {
-            throw new IllegalArgumentException("rasterDataNodes.length is not 1 and not 3");
-        }
-
-        final RasterDataNode raster = rasterDataNodes[0];
-        final StopWatch stopWatch = new StopWatch();
-
-        stopWatch.start();
-        PlanarImage overlayBIm;
-        boolean hasOverlays = getBitmaskDefs(raster) != null;
-        pm.beginTask("Creating overlayed image...", rasterDataNodes.length + (hasOverlays ? 1 : 0));
-        try {
-            PlanarImage sourcePIm = createRgbImageJAI(rasterDataNodes, SubProgressMonitor.create(pm, rasterDataNodes.length));
-            stopWatch.stopAndTrace("ProductSceneView.createOverlayedImage: base RGB image created");
-
-            final boolean doEqualize = ImageInfo.HISTOGRAM_MATCHING_EQUALIZE.equalsIgnoreCase(histogramMatching);
-            final boolean doNormalize = ImageInfo.HISTOGRAM_MATCHING_NORMALIZE.equalsIgnoreCase(histogramMatching);
-            if (doEqualize || doNormalize) {
-                sourcePIm = JAIUtils.createTileFormatOp(sourcePIm, 512, 512);
-                if (doEqualize) {
-                    sourcePIm = JAIUtils.createHistogramEqualizedImage((PlanarImage) sourcePIm);
-                    stopWatch.stopAndTrace("ProductSceneView.createOverlayedImage: histogram-equalized image created");
-                } else {
-                    sourcePIm = JAIUtils.createHistogramNormalizedImage((PlanarImage) sourcePIm);
-                    stopWatch.stopAndTrace("ProductSceneView.createOverlayedImage: histogram-normalized image created");
-                }
-            }
-
-            overlayBIm = sourcePIm;
-
-            if (hasOverlays) {
-                // @todo 3 nf/nf - check: for RGB, BitmaskOverlayInfo is always taken from the red raster?
-                stopWatch.start();
-                overlayBIm = overlayBitmasksJAI(raster, overlayBIm, SubProgressMonitor.create(pm, 1));
-                stopWatch.stopAndTrace("ProductSceneView.createOverlayedImage: overlays added");
-            }
-
-            JAIDebug.trace("overlayBIm", overlayBIm);
-        } finally {
-            pm.done();
-        }
-
-        return overlayBIm;
-    }
-
-    public static PlanarImage createRgbImageJAI(final RasterDataNode[] rasterDataNodes, ProgressMonitor pm) throws
-            IOException {
-        Guardian.assertNotNull("rasterDataNodes", rasterDataNodes);
-        if (rasterDataNodes.length != 1 && rasterDataNodes.length != 3) {
-            throw new IllegalArgumentException("rasterDataNodes.length is not 1 and not 3");
-        }
-
-        final boolean singleBand = rasterDataNodes.length == 1;
-        final StopWatch stopWatch = new StopWatch();
-        final int width = rasterDataNodes[0].getSceneRasterWidth();
-        final int height = rasterDataNodes[0].getSceneRasterHeight();
-
-        final int numPixels = width * height;
-        final byte[] rgbSamples = new byte[3 * numPixels];
-
-        final String[] progressMessages = new String[]{
-                /*I18N*/
-                "Computing red channel",
-                "Computing green channel",
-                "Computing blue channel"
-        };
-
-        int progressMax;
-        if (singleBand) {
-            progressMax = 2;
-        } else {
-            progressMax = 3;
-        }
-        for (final RasterDataNode node : rasterDataNodes) {
-            if (node.getImageInfo() == null) {
-                progressMax += 2;
-            }
-        }
-        PlanarImage resultingImage;
-        final String singleMessage = "Computing image";
-        final String rgbMessage = "Computing RGB image";
-        pm.beginTask(singleBand ? singleMessage : rgbMessage, progressMax);
-        try {
-            PlanarImage[] images = new PlanarImage[rasterDataNodes.length];
-            for (int i = 0; i < rasterDataNodes.length; i++) {
-                pm.setSubTaskName(singleBand ? singleMessage : progressMessages[i]);
-                checkCanceled(pm);
-                final RasterDataNode raster = rasterDataNodes[i];
-                PlanarImage image = (PlanarImage) raster.getImage(); // todo - check cast!
-                if (image == null) {
-                    image = RasterDataNodeOpImage.create(raster);
-                    raster.setImage(image);
-                }
-                final ImageInfo imageInfo;
-                if (raster.getImageInfo() == null) {
-                    double[] extrema = JAIUtils.getExtrema(image, null);
-                    pm.worked(1);
-                    checkCanceled(pm);
-                    RenderedOp histogramImage = JAIUtils.createHistogramImage((PlanarImage) image, 512, extrema[0], extrema[1]);
-                    pm.worked(1);
-                    checkCanceled(pm);
-                    javax.media.jai.Histogram jaiHistogram = JAIUtils.getHistogramOf(histogramImage);
-
-                    final Histogram histogram = new Histogram(jaiHistogram.getBins(0), jaiHistogram.getLowValue(0), jaiHistogram.getHighValue(0));
-                    pm.worked(1);
-
-                    imageInfo = raster.createDefaultImageInfo(null, histogram, true);
-                    raster.setImageInfo(imageInfo);
-                } else {
-                    imageInfo = raster.getImageInfo();
-                }
-
-                final double newMin = imageInfo.getMinDisplaySample();
-                final double newMax = imageInfo.getMaxDisplaySample();
-                final double gamma = imageInfo.getGamma();  // todo
-
-                image = JAIUtils.createRescaleOp(image, 255.0 / (newMax - newMin), 255.0 * newMin / (newMin - newMax));
-                pm.worked(1);
-                checkCanceled(pm);
-
-                image = JAIUtils.createFormatOp(image, DataBuffer.TYPE_BYTE);
-
-                images[i] = image;
-            }
-
-            checkCanceled(pm);
-            if (singleBand) {
-// todo - replace by lookup op
-//                final RasterDataNode raster = rasterDataNodes[0];
-//                final Color[] palette = raster.getImageInfo().getColorPalette();
-//                Guardian.assertEquals("palette.length must be 256", palette.length, 256);
-//                final byte[] r = new byte[256];
-//                final byte[] g = new byte[256];
-//                final byte[] b = new byte[256];
-//                for (int i = 0; i < 256; i++) {
-//                    r[i] = (byte) palette[i].getRed();
-//                    g[i] = (byte) palette[i].getGreen();
-//                    b[i] = (byte) palette[i].getBlue();
-//                }
-//                int colorIndex;
-//                for (int i = 0; i < rgbSamples.length; i += 3) {
-//                    colorIndex = rgbSamples[i] & 0xff;
-//                    // BufferedImage.TYPE_3BYTE_BGR order
-//                    rgbSamples[i + 0] = b[colorIndex];
-//                    rgbSamples[i + 1] = g[colorIndex];
-//                    rgbSamples[i + 2] = r[colorIndex];
-//                }
-//                pm.worked(1);
-                resultingImage =  images[0];
-            } else {
-                // todo - use band combine op
-                resultingImage = images[0];
-            }
-
-            // Create a BufferedImage of type TYPE_3BYTE_BGR (the fastest type)
-            //
-//            final ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_sRGB);
-//            final ColorModel cm = new ComponentColorModel(cs,
-//                                                          false, // hasAlpha,
-//                                                          false, //isAlphaPremultiplied,
-//                                                          Transparency.OPAQUE, //  transparency,
-//                                                          DataBuffer.TYPE_BYTE); //transferType
-//            final DataBuffer db = new DataBufferByte(rgbSamples, rgbSamples.length);
-//            final WritableRaster wr = Raster.createInterleavedRaster(db, width, height, 3 * width, 3, RGB_BAND_OFFSETS,
-//                                                                     null);
-//            bufferedImage = new BufferedImage(cm, wr, false, null);
-        } finally {
-            pm.done();
-        }
-
-        stopWatch.stopAndTrace("ProductUtils.createRgbImage");
-        return resultingImage;
-    }
-
-    public static PlanarImage overlayBitmasksJAI(RasterDataNode raster, PlanarImage overlayPIm, ProgressMonitor pm) throws
-            IOException {
-        final StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        final BitmaskOverlayInfo bitmaskOverlayInfo = raster.getBitmaskOverlayInfo();
-        if (bitmaskOverlayInfo == null) {
-            return overlayPIm;
-        }
-        final BitmaskDef[] bitmaskDefs = bitmaskOverlayInfo.getBitmaskDefs();
-        if (bitmaskDefs.length == 0) {
-            return overlayPIm;
-        }
-
-        final Product product = raster.getProduct();
-        if (product == null) {
-            throw new IllegalArgumentException("raster data node has not been added to a product");
-        }
-
-        final int w = raster.getSceneRasterWidth();
-        final int h = raster.getSceneRasterHeight();
-
-        final Parser parser = raster.getProduct().createBandArithmeticParser();
-
-        pm.beginTask("Creating bitmasks ...", bitmaskDefs.length * 2);
-        try {
-            for (int i = bitmaskDefs.length - 1; i >= 0; i--) {
-                BitmaskDef bitmaskDef = bitmaskDefs[i];
-
-                final String expr = bitmaskDef.getExpr();
-
-                final Term term;
-                try {
-                    term = parser.parse(expr);
-                } catch (ParseException e) {
-                    final IOException ioException = new IOException("Illegal bitmask expression '" + expr + "'");
-                    ioException.initCause(e);
-                    throw ioException;
-                }
-                final RasterDataSymbol[] rasterSymbols = BandArithmetic.getRefRasterDataSymbols(term);
-                final RasterDataNode[] rasterNodes = BandArithmetic.getRefRasters(rasterSymbols);
-
-                // Ensures that all the raster data which are needed to create overlays are loaded
-                ProgressMonitor subPm = SubProgressMonitor.create(pm, 1);
-                subPm.beginTask("Reading raster data...", rasterNodes.length);
-                try {
-                    for (int j = 0; j < rasterNodes.length; j++) {
-                        RasterDataNode rasterNode = rasterNodes[j];
-                        if (!rasterNode.hasRasterData()) {
-                            rasterNode.readRasterDataFully(SubProgressMonitor.create(subPm, 1));
-                        } else {
-                            subPm.worked(1);
-                        }
-                    }
-                } finally {
-                    subPm.done();
-                }
-
-                final byte[] alphaData = new byte[w * h];
-                product.readBitmask(0, 0, w, h, term, alphaData, (byte) (255 * bitmaskDef.getAlpha()), (byte) 0,
-                                    SubProgressMonitor.create(pm, 1));
-
-                Debug.trace("ProductSceneView: creating bitmask overlay '" + bitmaskDef.getName() + "'...");
-                BufferedImage alphaBIm = ImageUtils.createGreyscaleColorModelImage(w, h, alphaData);
-                PlanarImage alphaPIm = PlanarImage.wrapRenderedImage(alphaBIm);
-
-                overlayPIm = JAIUtils.createAlphaOverlay(overlayPIm, alphaPIm, bitmaskDef.getColor());
-                Debug.trace("ProductSceneView: bitmask overlay OK");
-            }
-        } finally {
-            pm.done();
-        }
-        stopWatch.stopAndTrace("overlay Bitmask");
-        return overlayPIm;
     }
 }
