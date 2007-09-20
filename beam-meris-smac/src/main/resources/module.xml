@@ -13,7 +13,7 @@
         This version needs the latest beam-envisat-reader module (Version 1.1-20070904)
         <ul>
         <li>[BEAM-682] The SMAC Processor cannot cope with 'MER_FRS_1P' files</li>
-        </ul>]]>
+        </ul>
         From 1.4 to 1.5
         <ul>
         <li>[BEAM-593] Auxdata path is not updated</li>
