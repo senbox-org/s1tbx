@@ -314,6 +314,7 @@ public class DefaultOperatorContext implements OperatorContext {
     public static boolean implementsComputeBandMethod(Class<?> aClass) {
         return implementsMethod(aClass, "computeBand",
                                 new Class[]{
+        		                        Band.class,
                                         Raster.class,
                                         ProgressMonitor.class});
     }
@@ -321,6 +322,7 @@ public class DefaultOperatorContext implements OperatorContext {
     public static boolean implementsComputeAllBandsMethod(Class<?> aClass) {
         return implementsMethod(aClass, "computeAllBands",
                                 new Class[]{
+        								Map.class,
                                         Rectangle.class,
                                         ProgressMonitor.class});
     }

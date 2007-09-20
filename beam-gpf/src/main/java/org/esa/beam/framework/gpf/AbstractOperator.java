@@ -6,7 +6,6 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 
 import java.awt.Rectangle;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -96,16 +95,6 @@ public abstract class AbstractOperator implements Operator {
      * @return a tile.
      */
     public Raster getRaster(RasterDataNode rasterDataNode, Rectangle rectangle) throws OperatorException {
-        // todo - FIXMEEEE!
-        if (rasterDataNode instanceof Band) {
-            Map<Band, Raster> map = targetRasters.get(rectangle);
-            if (map != null) {
-                Raster raster = map.get(rasterDataNode);
-                if (raster != null) {
-                    return raster;
-                }
-            }
-        }
         return context.getRaster(rasterDataNode, rectangle, ProgressMonitor.NULL);
     }
 
@@ -138,14 +127,6 @@ public abstract class AbstractOperator implements Operator {
     protected abstract Product initialize(ProgressMonitor pm) throws OperatorException;
 
     /**
-     * @deprecated override {@link #computeAllBands(java.util.Map<org.esa.beam.framework.datamodel.Band,org.esa.beam.framework.gpf.Raster>, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public void computeAllBands(Rectangle targetTileRectangle,
-                                ProgressMonitor pm) throws OperatorException {
-        throw new OperatorException("not implemented");
-    }
-
-    /**
      * {@inheritDoc}
      * <p/>
      * <p>The default implementation throws a runtime exception with the message "not implemented"</p>.
@@ -154,16 +135,13 @@ public abstract class AbstractOperator implements Operator {
     	throw new OperatorException("not implemented (only Band supported)");
    	}
 
-
-    // todo - FIXMEEEE!
-    // todo - remove if interface has changed (no longer usage of the "old" API exists)
-    Map<Rectangle, Map<Band, Raster>> targetRasters = new HashMap<Rectangle, Map<Band, Raster>>(20);
-
+    /**
+     * {@inheritDoc}
+     * <p/>
+     * <p>The default implementation throws a runtime exception with the message "not implemented"</p>.
+     */
     public void computeAllBands(Map<Band, Raster> targetRasters, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
-        this.targetRasters.put(targetRectangle, targetRasters);
-        System.out.println(">> computeAllBands: this = " + this + ", targetRectangle" + targetRectangle);
-        computeAllBands(targetRectangle, pm);
-        System.out.println("<< computeAllBands: this = " + this + ", targetRectangle" + targetRectangle);
+        throw new OperatorException("not implemented");
     }
 
     /**

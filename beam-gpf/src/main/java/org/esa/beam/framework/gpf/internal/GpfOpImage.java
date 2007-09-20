@@ -60,7 +60,10 @@ public class GpfOpImage extends RasterDataNodeOpImage {
                 targetRasters.put(targetBand, targetRaster);
             }
             // Compute target GPF rasters
+            System.out.println(">> computeAllBands: this = " + this + ", destRect" + destRect);
             operatorContext.getOperator().computeAllBands(targetRasters, destRect, ProgressMonitor.NULL);
+            System.out.println("<< computeAllBands: this = " + this + ", destRect" + destRect);
+
             // Write computed target GPF rasters into associated AWT tiles
             for (int i = 0; i < targetTiles.length; i++) {
                 Band targetBand = operatorContext.getTargetProduct().getBandAt(i);

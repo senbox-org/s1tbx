@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * The "Unmix" operator implementation.
@@ -259,13 +260,16 @@ public class SpectralUnmixingOp extends AbstractOperator implements ParameterCon
     }
 
     @Override
-    public void computeAllBands(Rectangle targetTileRectangle, ProgressMonitor pm) throws OperatorException {
+    public void computeAllBands(Map<Band, Raster> targetRasters, Rectangle targetTileRectangle, ProgressMonitor pm) throws OperatorException {
+    	Raster[] targetRaster = new Raster[targetBands.length];
+    	for (int j = 0; j < targetBands.length; j++) {
+            targetRaster[j] = targetRasters.get(targetBands[j]);
+        }
         for (int y = targetTileRectangle.y; y < targetTileRectangle.y + targetTileRectangle.height; y++) {
             double[][] ia = getLineSpectra(targetTileRectangle, y);
             double[][] oa = unmix(ia);
             for (int j = 0; j < targetBands.length; j++) {
-                Raster targetRaster = getRaster(targetBands[j], targetTileRectangle);
-                setAbundances(targetTileRectangle, targetRaster, y, j, oa);
+                setAbundances(targetTileRectangle, targetRaster[j], y, j, oa);
             }
         }
     }

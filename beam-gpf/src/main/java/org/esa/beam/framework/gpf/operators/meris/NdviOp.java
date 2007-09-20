@@ -9,6 +9,7 @@ import org.esa.beam.util.ProductUtils;
 
 import java.awt.Color;
 import java.awt.Rectangle;
+import java.util.Map;
 
 /**
  * The <code>NdviOp</code> uses MERIS Level-1b TOA radiances of bands 6 and 10
@@ -93,13 +94,13 @@ public class NdviOp extends AbstractOperator {
     }
 
     @Override
-    public void computeAllBands(Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
+    public void computeAllBands(Map<Band, Raster> targetRasters, Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
 
         pm.beginTask("Computing NDVI", rectangle.height + 1);
         try {
 
             Raster l1flagsSourceRaster = getRaster(inputProduct.getBand(L1FLAGS_INPUT_BAND_NAME), rectangle);
-            Raster l1flagsTargetRaster = getRaster(targetProduct.getBand(L1FLAGS_INPUT_BAND_NAME), rectangle);
+            Raster l1flagsTargetRaster = targetRasters.get(targetProduct.getBand(L1FLAGS_INPUT_BAND_NAME));
             // copy, because the databuffer is for computeAllBands not correctly (re)used
             final int length = rectangle.width * rectangle.height;
             System.arraycopy(l1flagsSourceRaster.getDataBuffer().getElems(), 0, l1flagsTargetRaster.getDataBuffer().getElems(), 0, length);
@@ -108,8 +109,8 @@ public class NdviOp extends AbstractOperator {
             Raster lowerRaster = getRaster(_lowerInputBand, rectangle);
             Raster upperRaster = getRaster(_upperInputBand, rectangle);
 
-            Raster ndvi = getRaster(targetProduct.getBand(NDVI_BAND_NAME), rectangle);
-            Raster ndviFlags = getRaster(targetProduct.getBand(NDVI_FLAGS_BAND_NAME), rectangle);
+            Raster ndvi = targetRasters.get(targetProduct.getBand(NDVI_BAND_NAME));
+            Raster ndviFlags = targetRasters.get(targetProduct.getBand(NDVI_FLAGS_BAND_NAME));
 
             float ndviValue;
             int ndviFlagsValue;

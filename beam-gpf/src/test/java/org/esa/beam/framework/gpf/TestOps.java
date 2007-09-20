@@ -10,6 +10,7 @@ import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
 import java.awt.Rectangle;
+import java.util.Map;
 
 public class TestOps {
 
@@ -83,11 +84,12 @@ public class TestOps {
         }
 
         @Override
-        public void computeAllBands(Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
+        public void computeAllBands(Map<Band, Raster> targetRasters, Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
             System.out.println("=====>>>>>> Op2.computeAllBands  start");
-            getRaster(input.getBand("Op1A"), rectangle);
-            getRaster(output.getBand("Op2A"), rectangle);
-            getRaster(output.getBand("Op2B"), rectangle);
+            Raster raster1A = getRaster(input.getBand("Op1A"), rectangle);
+            
+            Raster raster2A = targetRasters.get(output.getBand("Op2A"));
+            Raster raster2B = targetRasters.get(output.getBand("Op2B"));
             System.out.println("=====>>>>>> Op2.computeAllBands end");
 
             registerCall("Op2;");
@@ -135,17 +137,17 @@ public class TestOps {
         }
 
         @Override
-        public void computeAllBands(Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
+        public void computeAllBands(Map<Band, Raster> targetRasters, Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
             System.out.println("=====>>>>>> Op3.computeAllBands  start");
 
-            getRaster(input1.getBand("Op1A"), rectangle);
-            getRaster(input2.getBand("Op2A"), rectangle);
-            getRaster(input2.getBand("Op2B"), rectangle);
+            Raster raster1A = getRaster(input1.getBand("Op1A"), rectangle);
+            Raster raster2A = getRaster(input2.getBand("Op2A"), rectangle);
+            Raster raster2B = getRaster(input2.getBand("Op2B"), rectangle);
 
-            getRaster(output.getBand("Op3A"), rectangle);
-            getRaster(output.getBand("Op3B"), rectangle);
-            getRaster(output.getBand("Op3C"), rectangle);
-            getRaster(output.getBand("Op3D"), rectangle);
+            Raster raster3A = targetRasters.get(output.getBand("Op3A"));
+            Raster raster3B = targetRasters.get(output.getBand("Op3B"));
+            Raster raster3C = targetRasters.get(output.getBand("Op3C"));
+            Raster raster3D = targetRasters.get(output.getBand("Op3D"));
             registerCall("Op3;");
 
             System.out.println("=====>>>>>> Op3.computeAllBands  end");
