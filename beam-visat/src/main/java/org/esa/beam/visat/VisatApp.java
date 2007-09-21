@@ -1991,7 +1991,7 @@ public final class VisatApp extends BasicApp {
     }
 
     private void configureJaiTileCache() {
-        final int tileCacheCapacity = getPreferences().getPropertyInt(PROPERTY_KEY_JAI_TILE_CACHE_CAPACITY, 256);
+        final int tileCacheCapacity = getPreferences().getPropertyInt(PROPERTY_KEY_JAI_TILE_CACHE_CAPACITY, 512);
         JAIUtils.setDefaultTileCacheCapacity(tileCacheCapacity);
     }
 
