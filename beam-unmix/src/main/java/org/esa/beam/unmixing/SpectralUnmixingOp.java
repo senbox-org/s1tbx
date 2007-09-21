@@ -252,8 +252,9 @@ public class SpectralUnmixingOp extends AbstractOperator implements ParameterCon
         if (j == -1) {
             return;
         }
+        Raster[] sourceRaster = getSourceRaster(rectangle);
         for (int y = rectangle.y; y < rectangle.y + rectangle.height; y++) {
-            double[][] ia = getLineSpectra(rectangle, y);
+            double[][] ia = getLineSpectra(sourceRaster, rectangle, y);
             double[][] oa = unmix(ia);
             setAbundances(rectangle, targetRaster, y, j, oa);
         }
@@ -262,16 +263,25 @@ public class SpectralUnmixingOp extends AbstractOperator implements ParameterCon
     @Override
     public void computeAllBands(Map<Band, Raster> targetRasters, Rectangle targetTileRectangle, ProgressMonitor pm) throws OperatorException {
     	Raster[] targetRaster = new Raster[targetBands.length];
+    	Raster[] sourceRaster = getSourceRaster(targetTileRectangle);
     	for (int j = 0; j < targetBands.length; j++) {
             targetRaster[j] = targetRasters.get(targetBands[j]);
         }
         for (int y = targetTileRectangle.y; y < targetTileRectangle.y + targetTileRectangle.height; y++) {
-            double[][] ia = getLineSpectra(targetTileRectangle, y);
+            double[][] ia = getLineSpectra(sourceRaster, targetTileRectangle, y);
             double[][] oa = unmix(ia);
             for (int j = 0; j < targetBands.length; j++) {
                 setAbundances(targetTileRectangle, targetRaster[j], y, j, oa);
             }
         }
+    }
+    
+    private Raster[] getSourceRaster(Rectangle rectangle) throws OperatorException {
+    	Raster[] sourceRaster = new Raster[sourceBands.length];
+    	for (int i = 0; i < sourceBands.length; i++) {
+            sourceRaster[i] = getRaster(sourceBands[i], rectangle);
+        }
+    	return sourceRaster;
     }
 
     private void setAbundances(Rectangle rectangle, Raster targetRaster, int y, int j, double[][] oa) {
@@ -280,12 +290,11 @@ public class SpectralUnmixingOp extends AbstractOperator implements ParameterCon
         }
     }
 
-    private double[][] getLineSpectra(Rectangle rectangle, int y) throws OperatorException {
+    private double[][] getLineSpectra(Raster[] sourceRasters, Rectangle rectangle, int y) throws OperatorException {
         double[][] ia = new double[sourceBands.length][rectangle.width];
         for (int i = 0; i < sourceBands.length; i++) {
-            Raster sourceRaster = getRaster(sourceBands[i], rectangle);
             for (int x = rectangle.x; x < rectangle.x + rectangle.width; x++) {
-                ia[i][x - rectangle.x] = sourceRaster.getDouble(x, y);
+                ia[i][x - rectangle.x] = sourceRasters[i].getDouble(x, y);
             }
         }
         return ia;
