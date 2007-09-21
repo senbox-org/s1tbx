@@ -5,7 +5,6 @@ import junit.framework.TestCase;
 
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.internal.GpfOpImage;
 
@@ -92,11 +91,6 @@ public class AbstractOperatorTest extends TestCase {
         }
 
         public Raster getRaster(RasterDataNode rasterDataNode, Rectangle tileRectangle, ProgressMonitor pm) throws OperatorException {
-            return null;
-        }
-
-        public Raster getRaster(RasterDataNode rasterDataNode, Rectangle tileRectangle, ProductData dataBuffer,
-                                ProgressMonitor pm) throws OperatorException {
             return null;
         }
 

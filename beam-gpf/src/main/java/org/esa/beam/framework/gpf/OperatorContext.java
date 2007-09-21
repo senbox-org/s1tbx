@@ -18,7 +18,6 @@ package org.esa.beam.framework.gpf;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 
 import javax.media.jai.PlanarImage;
@@ -89,20 +88,6 @@ public interface OperatorContext {
      */
     Raster getRaster(RasterDataNode rasterDataNode, Rectangle tileRectangle, ProgressMonitor pm) throws
             OperatorException;
-
-    /**
-     * Gets a {@link Raster} for a given band and rectangle.
-     *
-     * @param rasterDataNode the raster data node of a data product, e.g. a {@link org.esa.beam.framework.datamodel.Band} or {@link org.esa.beam.framework.datamodel.TiePointGrid}.
-     * @param tileRectangle  the tile rectangle in pixel coordinates
-     * @param dataBuffer     a data buffer to be reused by the tile, its size must be equal to {@code tileRectangle.width * tileRectangle.height}.
-     * @param pm             a monitor to observe progress
-     * @return a tile which will reuse the given data buffer
-     * @see ProgressMonitor
-     */
-    @Deprecated
-    Raster getRaster(RasterDataNode rasterDataNode, Rectangle tileRectangle, ProductData dataBuffer,
-                     ProgressMonitor pm) throws OperatorException;
 
     /**
      * Gets a logger for the operator.

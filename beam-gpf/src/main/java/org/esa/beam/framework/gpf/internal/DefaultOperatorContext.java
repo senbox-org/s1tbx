@@ -31,7 +31,6 @@ public class DefaultOperatorContext implements OperatorContext {
     private OperatorSpi operatorSpi;
     private Operator operator;
     private Field[] parameterFields;
-    private List<Rectangle> layoutRectangles;
     private GpfOpImage[] targetImages;
     private OperatorImplementationInfo operatorImplementationInfo;
 
@@ -168,16 +167,6 @@ public class DefaultOperatorContext implements OperatorContext {
     }
 
     /**
-     * Returns sources only!
-     * {@inheritDoc}
-     */
-    @Deprecated
-    public Raster getRaster(RasterDataNode rasterDataNode, Rectangle rectangle, ProductData dataBuffer,
-                            ProgressMonitor pm) throws OperatorException {
-        return getRaster(rasterDataNode, rectangle, pm);
-    }
-
-    /**
      * Adds a product to the list of source products.
      * One product instance can be registered with different ids, e.g. "source", "source1" and "input"
      * in consecutive calls.
@@ -228,41 +217,6 @@ public class DefaultOperatorContext implements OperatorContext {
      */
     public OperatorImplementationInfo getOperatorImplementationInfo() {
         return operatorImplementationInfo;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public List<Rectangle> getLayoutRectangles() {
-        return layoutRectangles;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setLayoutRectangles(List<Rectangle> layoutRectangles) {
-        this.layoutRectangles = layoutRectangles;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public List<Rectangle> getAffectedRectangles(Rectangle rectangle) {
-        List<Rectangle> affectedRects = new LinkedList<Rectangle>();
-        for (Rectangle rect : layoutRectangles) {
-            if (rectangle.intersects(rect)) {
-                affectedRects.add(rect);
-            }
-        }
-        return affectedRects;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isLayoutRectangle(Rectangle rectangle) {
-        return layoutRectangles.contains(rectangle);
     }
 
     // todo - try to avoid data copying, this method is time-critical!
