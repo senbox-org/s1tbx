@@ -668,7 +668,7 @@ public class PConvertMain {
         product = createProductSubset(product, _maxOutputResolution, _bandIndices, outputFile);
         try {
             log("writing a data product of size " + product.getSceneRasterWidth() + " x " +
-                product.getSceneRasterWidth() + " pixels to '" +
+                product.getSceneRasterHeight() + " pixels to '" +
                 outputFile.getPath() + "'...");
             ProductIO.writeProduct(product, outputFile, _formatName, false, ProgressMonitor.NULL);
         } catch (IOException e) {
