@@ -131,13 +131,20 @@ public class VerbousTileCache implements TileCache {
             println("  method  = " + method);
             println("  image   = " + image);
             println("  tilePos = " + tilePos);
-            println("  tile    = " + tile);
+            String tileString = "  tile    = " + tile;
+            String dimString = "";
+            if (tile != null) {
+            	dimString = " [width = " + tile.getWidth() + " height = " + tile.getHeight()+"]";
+            }
+			println(tileString + dimString);
             if (cacheDiagnostics != null) {
                 println("  cacheTileCount  = " + cacheDiagnostics.getCacheTileCount());
                 println("  cacheHitCount   = " + cacheDiagnostics.getCacheHitCount());
                 println("  cacheMissCount  = " + cacheDiagnostics.getCacheMissCount());
                 println("  cacheMemoryUsed = " + cacheDiagnostics.getCacheMemoryUsed());
             }
+        } else {
+        	println(method + " : " + tilePos + " " +  image);
         }
     }
 

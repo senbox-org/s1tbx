@@ -77,7 +77,13 @@ public class RasterDataNodeOpImage extends SourcelessOpImage {
 
     @Override
     public String toString() {
-        return getClass().getName() + "[rasterDataNode=" + rasterDataNode + "]";
+        String className = getClass().getSimpleName();
+        String productName = "";
+        if (rasterDataNode.getProduct() != null) {
+            productName = ":" + rasterDataNode.getProduct().getName();
+        }
+        String bandName = "." + rasterDataNode.getName();
+		return className +  productName + bandName;
     }
 
     public static ImageLayout createSingleBandedImageLayout(RasterDataNode rasterDataNode) {
