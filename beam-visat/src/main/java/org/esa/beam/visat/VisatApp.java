@@ -2039,7 +2039,7 @@ public final class VisatApp extends BasicApp {
                     showErrorDialog("Error in Preferences",
                                     "A problem has been detected in VISAT's preference settings:\n\n"
                                     + "Value for parameter '" + parameter.getName() + "' is invalid.\n"
-                                    + "It's default value '" + defaultValue + "' will be used instead.");
+                                    + "Its default value '" + defaultValue + "' will be used instead.");
                     try {
                         parameter.setDefaultValue();
                     } catch (IllegalArgumentException e1) {
