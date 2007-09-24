@@ -27,6 +27,7 @@ public class GcpGeoCoding extends AbstractGeoCoding {
     private RationalFunctionMap2D inverseMap;
     private Rotator rotator;
 
+    private GeoCoding originalGeoCoding;
     private Datum datum;
     private boolean boundaryCrossingMeridianAt180;
     private Method method;
@@ -291,6 +292,14 @@ public class GcpGeoCoding extends AbstractGeoCoding {
         final double lon = toDegrees(atan2(yc, xc));
 
         return new GeoPos((float) lat, (float) lon);
+    }
+
+    public void setOriginalGeoCoding(GeoCoding geoCoding) {
+        originalGeoCoding = geoCoding;
+    }
+
+    public GeoCoding getOriginalGeoCoding() {
+        return originalGeoCoding;
     }
 
     private static class RationalFunctionMap2D {

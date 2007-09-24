@@ -4,12 +4,10 @@ import org.esa.beam.framework.datamodel.GcpGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.util.Debug;
-import org.esa.beam.visat.VisatApp;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -28,8 +26,6 @@ import java.text.FieldPosition;
 import java.text.Format;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -51,21 +47,8 @@ class GcpGeoCodingForm extends JPanel {
     private Product currentProduct;
     private Format rmseNumberFormat;
 
-    private Map<Product, GeoCoding> geoCodingMap;
-
     public GcpGeoCodingForm() {
-        geoCodingMap = new HashMap<Product, GeoCoding>();
         rmseNumberFormat = new RmseNumberFormat();
-
-        VisatApp.getApp().getProductManager().addListener(new ProductManager.ProductManagerListener() {
-            public void productAdded(ProductManager.ProductManagerEvent event) {
-            }
-
-            public void productRemoved(ProductManager.ProductManagerEvent event) {
-                geoCodingMap.remove(event.getProduct());
-            }
-        });
-
         initComponents();
     }
 
@@ -207,8 +190,8 @@ class GcpGeoCodingForm extends JPanel {
 
     private void detachGeoCoding(Product product) {
         if (product.getGeoCoding() instanceof GcpGeoCoding) {
-            product.getGeoCoding().dispose();
-            product.setGeoCoding(geoCodingMap.get(product));
+            GeoCoding gc = ((GcpGeoCoding) product.getGeoCoding()).getOriginalGeoCoding();
+            product.setGeoCoding(gc);
         }
         updateUIState();
     }
@@ -227,10 +210,12 @@ class GcpGeoCodingForm extends JPanel {
 
         SwingWorker sw = new SwingWorker<GcpGeoCoding, GcpGeoCoding>() {
             protected GcpGeoCoding doInBackground() throws Exception {
-                return new GcpGeoCoding(method, gcps,
-                                        product.getSceneRasterWidth(),
-                                        product.getSceneRasterHeight(),
-                                        datum);
+                GcpGeoCoding gcpGeoCoding = new GcpGeoCoding(method, gcps,
+                                                             product.getSceneRasterWidth(),
+                                                             product.getSceneRasterHeight(),
+                                                             datum);
+                gcpGeoCoding.setOriginalGeoCoding(product.getGeoCoding());
+                return gcpGeoCoding;
             }
 
             @Override
@@ -255,9 +240,6 @@ class GcpGeoCodingForm extends JPanel {
             return;
         }
         currentProduct = product;
-        if (product != null && !geoCodingMap.containsKey(product) && !(product.getGeoCoding() instanceof GcpGeoCoding)) {
-            geoCodingMap.put(product, product.getGeoCoding());
-        }
     }
 
     private void setComponentName(JComponent component, String name) {
