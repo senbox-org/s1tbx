@@ -1,0 +1,23 @@
+package org.esa.beam.visat.toolviews.pin;
+
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.ui.PlacemarkDescriptor;
+
+public class GcpTableModel extends AbstractPlacemarkTableModel {
+
+    public GcpTableModel(PlacemarkDescriptor placemarkDescriptor, Product product, Band[] selectedBands,
+                         TiePointGrid[] selectedGrids) {
+        super(placemarkDescriptor, product, selectedBands, selectedGrids);
+    }
+
+    public String[] getDefaultColumnNames() {
+        return new String[]{"X", "Y", "Lon", "Lat", "RMSE", "Label"};
+    }
+
+    public boolean isCellEditable(int rowIndex, int columnIndex) {
+        return columnIndex < getDefaultColumnNames().length && columnIndex != 4;
+    }
+
+}
