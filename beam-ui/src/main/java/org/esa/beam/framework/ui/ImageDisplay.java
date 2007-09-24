@@ -77,6 +77,7 @@ public class ImageDisplay extends GraphicsPane {
     private int _pixelX = -1;
     private int _pixelY = -1;
 
+    // Used only when painting in tool-interaction mode
     private Graphics2D dblbufG2D;
     private BufferedImage dblbufImg;
 
