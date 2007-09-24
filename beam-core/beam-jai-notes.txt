@@ -1,0 +1,29 @@
+TODOs
+=====
+Image export must use JAI "filestore" operator, ImageIO cannot be used anymore!!!
+NoDataOverlay --> 1-band, PlanarImage (same as for as ROI)
+
+Questions
+=========
+Q: How are planar images released from cache?
+A: TileCache.releaseTiles(RenederedImage im);
+Q: How can we attach a JAI tile cache metric to a tile?
+A: Override OpImage.getTileCacheMetric(), use TileCache.setComparator(...)
+Q: If a setting changes, has the DAG to be recomputed? What about the images not used anymore?
+A:
+Q: Can we defer the compution of tiles for the display, e.g. using PlanarImage.queueTiles() and a TileComputationListener ?
+A:
+Q: Can't we use the JAI OpImage directly as base class for our operators?
+A:
+
+Problems
+========
+Unforunately all tiles are requested if
+(1) navigation image is created
+(2) histogram of an image is created
+
+Ideas
+=====
+Bitmask overlays could be separate layers
+Suggest using only WeakReferences to Product(Nodes) in JAI chains
+RGB generation can be greatly optimized if all 3(4) expressions are evaluated in the same namespace
