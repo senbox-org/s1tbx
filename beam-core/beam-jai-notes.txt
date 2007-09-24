@@ -2,6 +2,7 @@ TODOs
 =====
 Image export must use JAI "filestore" operator, ImageIO cannot be used anymore!!!
 NoDataOverlay --> 1-band, PlanarImage (same as for as ROI)
+Don't display the tile regions which are out of image bounds
 
 Questions
 =========
@@ -27,3 +28,11 @@ Ideas
 Bitmask overlays could be separate layers
 Suggest using only WeakReferences to Product(Nodes) in JAI chains
 RGB generation can be greatly optimized if all 3(4) expressions are evaluated in the same namespace
+
+
+See also
+========
+ImageCanvas, JADEDisplay:
+http://forums.java.net/jive/thread.jspa?messageID=197881&#197881
+http://wiki.java.net/bin/view/Javapedia/AsynchronousDisplayOfTiledImages
+https://jaistuff.dev.java.net/datasets.html

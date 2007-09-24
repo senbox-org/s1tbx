@@ -5,17 +5,14 @@
 package org.esa.beam.visat.toolviews.nav;
 
 import org.esa.beam.framework.ui.ImageDisplay;
+import org.esa.beam.util.Debug;
 import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.swing.JPanel;
+import javax.swing.SwingWorker;
 import javax.swing.border.Border;
 import javax.swing.event.MouseInputAdapter;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Insets;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
@@ -121,8 +118,8 @@ public class NavigationCanvas extends JPanel {
             }
             if (imageWidth > 0 && imageHeight > 0) {
                 if (_thumbnail == null ||
-                    _thumbnail.getWidth() != imageWidth ||
-                    _thumbnail.getHeight() != imageHeight) {
+                        _thumbnail.getWidth() != imageWidth ||
+                        _thumbnail.getHeight() != imageHeight) {
                     _thumbnail = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_3BYTE_BGR);
                 }
                 updateImageContent();
@@ -174,36 +171,58 @@ public class NavigationCanvas extends JPanel {
         }
     }
 
+    private boolean updating; // todo - check this (nf, 24.09.2007)
+
     private void updateImageContent() {
         final ImageDisplay imageDisplay = _navigationWindow.getCurrentImageDisplay();
         if (imageDisplay == null || _thumbnail == null) {
             return;
         }
-        final Graphics2D graphics = _thumbnail.createGraphics();
-        final ImageDisplay painter = new ImageDisplay(imageDisplay.getImage());
-        painter.setSize(_thumbnail.getWidth(), _thumbnail.getHeight());
-        painter.setOpaque(true);
-        painter.setBackground(imageDisplay.getBackground());
-        painter.setForeground(imageDisplay.getForeground());
-        painter.getViewModel().setViewScaleMax(null);
-        painter.getViewModel().setModelArea(imageDisplay.getViewModel().getModelArea());
-        painter.zoomAll();
-        painter.paintComponent(graphics);
-        painter.dispose();
-        graphics.dispose();
+        if (updating) {
+            return;
+        }
+        updating = true;
+
+        SwingWorker<Object, Object> swingWorker = new SwingWorker<Object, Object>() {
+            @Override
+            protected Object doInBackground() throws Exception {
+                Debug.trace(getClass().getName() + ".updateImageContent() BEGIN");
+                final Graphics2D graphics = _thumbnail.createGraphics();
+                final ImageDisplay painter = new ImageDisplay(imageDisplay.getImage());
+                painter.setSize(_thumbnail.getWidth(), _thumbnail.getHeight());
+                painter.setOpaque(true);
+                painter.setBackground(imageDisplay.getBackground());
+                painter.setForeground(imageDisplay.getForeground());
+                painter.getViewModel().setViewScaleMax(null);
+                painter.getViewModel().setModelArea(imageDisplay.getViewModel().getModelArea());
+                painter.zoomAll();
+                painter.paintComponent(graphics);
+                painter.dispose();
+                graphics.dispose();
+                Debug.trace(getClass().getName() + ".updateImageContent() END");
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                updating = false;
+                imageDisplay.repaint();
+            }
+        };
+        swingWorker.execute();
     }
 
     /**
      * This method ignores the given parameter.
      * It is an empty implementation to prevent from setting borders on this canvas.
      *
-     * @parameter border is ignored
+     * @param border is ignored
      */
     @Override
     public void setBorder(Border border) {
         if (border != null) {
             BeamLogManager.getSystemLogger().warning("NavigationCanvas.setBorder() called with " +
-                                                     border.getClass().getCanonicalName());
+                    border.getClass().getCanonicalName());
             BeamLogManager.getSystemLogger().warning("borders not allowed");
         }
     }

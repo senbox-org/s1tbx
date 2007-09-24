@@ -26,24 +26,10 @@ import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.MouseEventFilterFactory;
 import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 
-import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputListener;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.Stroke;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
+import java.awt.*;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.util.Vector;
@@ -287,7 +273,7 @@ public class ImageDisplay extends GraphicsPane {
      */
     public void setImageSize(int imgWidth, int imgHeight) {
         if (getImage() != null
-            && (imgWidth != getImage().getWidth()
+                && (imgWidth != getImage().getWidth()
                 || imgHeight != getImage().getHeight())) {
             throw new IllegalArgumentException("invalid image size");
         }
@@ -324,7 +310,6 @@ public class ImageDisplay extends GraphicsPane {
      * @param y      The new <i>y</i>-coordinate of this component.
      * @param width  The new <code>width</code> of this component.
      * @param height The new <code>height</code> of this component.
-     *
      * @see java.awt.Component#getBounds
      * @see java.awt.Component#setLocation(int, int)
      * @see java.awt.Component#setLocation(java.awt.Point)
@@ -334,7 +319,7 @@ public class ImageDisplay extends GraphicsPane {
     @Override
     public void setBounds(int x, int y, int width, int height) {
         if (dblbufImg != null
-            && (dblbufImg.getWidth() != width
+                && (dblbufImg.getWidth() != width
                 || dblbufImg.getHeight() != height)) {
             dblbufImg = null;
             dblbufG2D = null;
@@ -350,13 +335,6 @@ public class ImageDisplay extends GraphicsPane {
      */
     @Override
     public synchronized void dispose() {
-
-        if (!SwingUtilities.isEventDispatchThread()) {
-            BeamLogManager.getSystemLogger().severe(
-                    getClass().getName() + ".dispose() should be called from the event dispatch thread");
-            Thread.dumpStack();
-        }
-
         super.dispose();
         dblbufImg = null;
         if (dblbufG2D != null) {
@@ -412,8 +390,8 @@ public class ImageDisplay extends GraphicsPane {
 
         if (toolRepaintRequested) {
             if (dblbufImg == null
-                || dblbufImg.getWidth() != width
-                || dblbufImg.getHeight() != height) {
+                    || dblbufImg.getWidth() != width
+                    || dblbufImg.getHeight() != height) {
                 dblbufImg = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
                 dblbufG2D = dblbufImg.createGraphics();
                 draw(dblbufG2D);
@@ -547,8 +525,8 @@ public class ImageDisplay extends GraphicsPane {
 
     private boolean isPixelBorderDisplayEnabled() {
         return pixelBorderShown &&
-               (getTool() == null || getTool().getDrawable() == null) &&
-               getViewModel().getViewScale() >= pixelBorderViewScale;
+                (getTool() == null || getTool().getDrawable() == null) &&
+                getViewModel().getViewScale() >= pixelBorderViewScale;
     }
 
     public final void drawToolNoTransf(Graphics2D g2d) {
@@ -652,7 +630,7 @@ public class ImageDisplay extends GraphicsPane {
 
     public final boolean isPixelPosValid(int pixelX, int pixelY) {
         return pixelX >= 0 && pixelX < getImage().getWidth()
-               && pixelY >= 0 && pixelY < getImage().getHeight();
+                && pixelY >= 0 && pixelY < getImage().getHeight();
     }
 
     /**

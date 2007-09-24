@@ -4,6 +4,7 @@ import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.util.Debug;
 import org.esa.beam.util.math.Histogram;
 
 import javax.media.jai.*;
@@ -50,12 +51,17 @@ public class ImageFactory {
             }
             final ImageInfo imageInfo;
             if (raster.getImageInfo() == null) {
+                Debug.trace("planarImage = " + planarImage);
+                Debug.trace("  Computing extrema for [" + planarImage + "]...");
                 double[] extrema = JAIUtils.getExtrema(planarImage, null);
+                Debug.trace("  Extrema computed.");
+                Debug.trace("  Computing histogram...");
                 RenderedOp histogramImage = JAIUtils.createHistogramImage(planarImage, 512, extrema[0], extrema[1]);
                 javax.media.jai.Histogram jaiHistogram = JAIUtils.getHistogramOf(histogramImage);
                 Histogram histogram = new Histogram(jaiHistogram.getBins(0),  // Note: this is a raw data histogram
                                                     jaiHistogram.getLowValue(0),
                                                     jaiHistogram.getHighValue(0));
+                Debug.trace("  Histogram computed.");
                 imageInfo = raster.createDefaultImageInfo(null, histogram, true); // Note: this method expects a raw data histogram!
                 raster.setImageInfo(imageInfo);
             } else {

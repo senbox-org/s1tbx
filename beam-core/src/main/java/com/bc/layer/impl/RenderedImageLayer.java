@@ -17,24 +17,18 @@
 
 package com.bc.layer.impl;
 
+import com.bc.layer.AbstractLayer;
+import com.bc.view.ViewModel;
+import org.esa.beam.util.Debug;
+
+import javax.media.jai.PlanarImage;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.Raster;
-import java.awt.image.RenderedImage;
-import java.awt.image.SampleModel;
-import java.awt.image.WritableRaster;
-
-import javax.media.jai.PlanarImage;
-
-import com.bc.layer.AbstractLayer;
-import com.bc.view.ViewModel;
+import java.awt.image.*;
 
 /**
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
@@ -66,9 +60,11 @@ public class RenderedImageLayer extends AbstractLayer {
     }
 
     public void setImage(RenderedImage image) {
-        _image = image;
-        updateBoundingBox();
-        fireLayerChanged();
+        if (image != _image) {
+            _image = image;
+            updateBoundingBox();
+            fireLayerChanged();
+        }
     }
 
     public AffineTransform getTransform() {
@@ -152,6 +148,14 @@ public class RenderedImageLayer extends AbstractLayer {
         final ColorModel cm = _image.getColorModel();
         final SampleModel sm = _image.getSampleModel();
 
+        // JAIJAIJAI
+        if (Boolean.getBoolean("beam.imageTiling.enabled") &&
+                Boolean.getBoolean("beam.imageTiling.debug")) {
+            Debug.trace("Painting tiles:");
+            Debug.trace("  X = " + txmin + " to " + txmax);
+            Debug.trace("  Y = " + tymin + " to " + tymax);
+        }
+
         // Loop over tiles within the clipping region
         for (tj = tymin; tj <= tymax; tj++) {
             for (ti = txmin; ti <= txmax; ti++) {
@@ -176,6 +180,7 @@ public class RenderedImageLayer extends AbstractLayer {
                     // JAIJAIJAI
                     if (Boolean.getBoolean("beam.imageTiling.enabled") &&
                             Boolean.getBoolean("beam.imageTiling.debug")) {
+                        Debug.trace("Painting tile " + tx + "," + ty);
                         Color colorOld = g2d.getColor();
                         g2d.setColor(Color.RED);
                         g2d.drawRect(tx, ty, bi.getWidth(), bi.getHeight());

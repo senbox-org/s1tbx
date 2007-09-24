@@ -79,7 +79,7 @@ public class ProductSceneImage {
      * @param pm         a monitor to inform the user about progress
      */
     public static ProductSceneImage create(RasterDataNode raster, LayerModel layerModel, ProgressMonitor pm) throws
-                                                                                                             IOException {
+            IOException {
         Guardian.assertNotNull("raster", raster);
         Guardian.assertNotNull("layerModel", layerModel);
         return new ProductSceneImage(new RasterDataNode[]{raster}, layerModel, pm);
@@ -175,7 +175,7 @@ public class ProductSceneImage {
         return getRaster().getProduct();
     }
 
-    private LayerModel createLayer(RenderedImage image) throws IOException {
+    private LayerModel createLayer(RenderedImage image) {
         DefaultLayerModel layerModel = new DefaultLayerModel();
         layerModel.addLayer(new RenderedImageLayer(image));
         layerModel.addLayer(new NoDataLayer(getRaster()));
