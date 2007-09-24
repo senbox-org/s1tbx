@@ -1,4 +1,4 @@
-package org.esa.beam.framework.gpf;
+package org.esa.beam.util.jai;
 
 import com.sun.media.jai.util.CacheDiagnostics;
 
@@ -7,7 +7,6 @@ import java.awt.Point;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.util.Comparator;
-
 
 public class VerbousTileCache implements TileCache {
     private final TileCache tileCache;
@@ -134,9 +133,9 @@ public class VerbousTileCache implements TileCache {
             String tileString = "  tile    = " + tile;
             String dimString = "";
             if (tile != null) {
-            	dimString = " [width = " + tile.getWidth() + " height = " + tile.getHeight()+"]";
+                dimString = " [width = " + tile.getWidth() + " height = " + tile.getHeight() + "]";
             }
-			println(tileString + dimString);
+            println(tileString + dimString);
             if (cacheDiagnostics != null) {
                 println("  cacheTileCount  = " + cacheDiagnostics.getCacheTileCount());
                 println("  cacheHitCount   = " + cacheDiagnostics.getCacheHitCount());
@@ -144,7 +143,7 @@ public class VerbousTileCache implements TileCache {
                 println("  cacheMemoryUsed = " + cacheDiagnostics.getCacheMemoryUsed());
             }
         } else {
-        	println(method + " : " + tilePos + " " +  image);
+            println(method + " : " + tilePos + " " + image);
         }
     }
 

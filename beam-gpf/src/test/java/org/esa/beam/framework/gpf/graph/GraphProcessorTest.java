@@ -6,7 +6,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.TestOps;
-import org.esa.beam.framework.gpf.VerbousTileCache;
+import org.esa.beam.util.jai.VerbousTileCache;
 
 import javax.media.jai.JAI;
 import javax.media.jai.TileCache;
