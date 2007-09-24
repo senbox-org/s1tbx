@@ -1,13 +1,19 @@
 package org.esa.beam.util.jai;
 
 import com.bc.ceres.core.Assert;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.BitmaskDef;
+import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.util.math.Histogram;
 
 import javax.media.jai.*;
-import java.awt.image.*;
+import java.awt.Color;
+import java.awt.RenderingHints;
+import java.awt.image.DataBuffer;
+import java.awt.image.IndexColorModel;
+import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
 import java.awt.image.renderable.ParameterBlock;
-import java.awt.*;
 import java.io.IOException;
 
 /*
@@ -34,15 +40,18 @@ public class ImageFactory {
         PlanarImage[] sourceImages = new PlanarImage[rasterDataNodes.length];
         for (int i = 0; i < rasterDataNodes.length; i++) {
             final RasterDataNode raster = rasterDataNodes[i];
-            PlanarImage image = (PlanarImage) raster.getImage(); // todo - check cast!
-            if (image == null) {
-                image = new RasterDataNodeOpImage(raster);
-                raster.setImage(image);
+            RenderedImage renderedImage = raster.getImage();
+            PlanarImage planarImage;
+            if (renderedImage != null) {
+                planarImage = PlanarImage.wrapRenderedImage(renderedImage);
+            } else {
+                planarImage = new RasterDataNodeOpImage(raster);
+                raster.setImage(planarImage);
             }
             final ImageInfo imageInfo;
             if (raster.getImageInfo() == null) {
-                double[] extrema = JAIUtils.getExtrema(image, null);
-                RenderedOp histogramImage = JAIUtils.createHistogramImage(image, 512, extrema[0], extrema[1]);
+                double[] extrema = JAIUtils.getExtrema(planarImage, null);
+                RenderedOp histogramImage = JAIUtils.createHistogramImage(planarImage, 512, extrema[0], extrema[1]);
                 javax.media.jai.Histogram jaiHistogram = JAIUtils.getHistogramOf(histogramImage);
                 Histogram histogram = new Histogram(jaiHistogram.getBins(0),  // Note: this is a raw data histogram
                                                     jaiHistogram.getLowValue(0),
@@ -57,9 +66,9 @@ public class ImageFactory {
             final double newMax = raster.scaleInverse(imageInfo.getMaxDisplaySample());
             final double gamma = 1.0; //imageInfo.getGamma();  // todo
 
-            image = JAIUtils.createRescaleOp(image, 255.0 / (newMax - newMin), 255.0 * newMin / (newMin - newMax));
-            image = JAIUtils.createFormatOp(image, DataBuffer.TYPE_BYTE);
-            sourceImages[i] = image;
+            planarImage = JAIUtils.createRescaleOp(planarImage, 255.0 / (newMax - newMin), 255.0 * newMin / (newMin - newMax));
+            planarImage = JAIUtils.createFormatOp(planarImage, DataBuffer.TYPE_BYTE);
+            sourceImages[i] = planarImage;
         }
 
         PlanarImage image;
@@ -91,7 +100,7 @@ public class ImageFactory {
         if (!rasterDataNode.isROIUsable()) {
             return null;
         }
-         return new ROI(new RoiMaskOpImage(rasterDataNode), 1);
+        return new ROI(new RoiMaskOpImage(rasterDataNode), 1);
     }
 
     /**
@@ -112,10 +121,10 @@ public class ImageFactory {
         parameterBlock.add(DataBuffer.TYPE_BYTE);
         ImageLayout imageLayout = new ImageLayout();
         imageLayout.setColorModel(new IndexColorModel(8, 2,
-                                   new byte[]{0, (byte) color.getRed()},
-                                   new byte[]{0, (byte) color.getGreen()},
-                                   new byte[]{0, (byte) color.getBlue()},
-                                   new byte[]{0, (byte) color.getAlpha()}));
+                                                      new byte[]{0, (byte) color.getRed()},
+                                                      new byte[]{0, (byte) color.getGreen()},
+                                                      new byte[]{0, (byte) color.getBlue()},
+                                                      new byte[]{0, (byte) color.getAlpha()}));
         image = JAI.create("format", parameterBlock, new RenderingHints(JAI.KEY_IMAGE_LAYOUT, imageLayout));
         return image;
     }
