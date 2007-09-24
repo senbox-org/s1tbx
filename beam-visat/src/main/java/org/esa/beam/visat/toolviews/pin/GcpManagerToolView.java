@@ -1,5 +1,9 @@
 package org.esa.beam.visat.toolviews.pin;
 
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.ui.PlacemarkDescriptor;
 import org.esa.beam.framework.ui.product.GcpDescriptor;
 
 import java.awt.Component;
@@ -13,7 +17,12 @@ public class GcpManagerToolView extends PlacemarkManagerToolView {
     private GcpGeoCodingForm geoCodingForm;
 
     public GcpManagerToolView() {
-        super(GcpDescriptor.INSTANCE);
+        super(GcpDescriptor.INSTANCE, new TableModelFactory() {
+            public AbstractPlacemarkTableModel createTableModel(PlacemarkDescriptor placemarkDescriptor, Product product,
+                                                  Band[] selectedBands, TiePointGrid[] selectedGrids) {
+                return new GcpTableModel(placemarkDescriptor, product, selectedBands, selectedGrids);
+            }
+        });
     }
 
     @Override
@@ -28,5 +37,4 @@ public class GcpManagerToolView extends PlacemarkManagerToolView {
         geoCodingForm.setProduct(getProduct());
         geoCodingForm.updateUIState();
     }
-
 }

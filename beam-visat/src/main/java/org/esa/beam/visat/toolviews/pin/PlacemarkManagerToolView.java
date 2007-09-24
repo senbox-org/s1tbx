@@ -81,7 +81,7 @@ import java.util.List;
 /**
  * A dialog used to manage the list of pins associated with a selected product.
  */
-public class PlacemarkManagerToolView extends AbstractToolView {
+class PlacemarkManagerToolView extends AbstractToolView {
 
     public static final String PROPERTY_KEY_IO_DIR = "pin.io.dir";
     public static final String NAME_COL_NAME = "Name";
@@ -132,15 +132,17 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     private static final int indexForDesc = 3;
     private static final int indexForLabel = 4;
     private boolean synchronizingPlacemarkSelectedState;
-    private PinTableModel currentTableModel;
+    private AbstractPlacemarkTableModel currentTableModel;
     private String prefixTitle;
+    private TableModelFactory tableModelFactory;
 
-    public PlacemarkManagerToolView(PlacemarkDescriptor placemarkDescriptor) {
+    public PlacemarkManagerToolView(PlacemarkDescriptor placemarkDescriptor, TableModelFactory modelFactory) {
         this.placemarkDescriptor = placemarkDescriptor;
         this.visatApp = VisatApp.getApp();
         propertyMap = visatApp.getPreferences();
         productToSelectedBands = new HashMap<Product, Band[]>();
         productToSelectedGrids = new HashMap<Product, TiePointGrid[]>();
+        tableModelFactory = modelFactory;
     }
 
     @Override
@@ -425,23 +427,20 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         if (currentTableModel != null) {
             currentTableModel.dispose();
         }
-        currentTableModel = new PinTableModel(placemarkDescriptor, product, selectedBands, selectedGrids);
+        currentTableModel = tableModelFactory.createTableModel(placemarkDescriptor, product, selectedBands, selectedGrids);
         placemarkTable.setModel(currentTableModel);
-        addCellRenderer(placemarkTable);
-        addCellEditor(placemarkTable);
+        placemarkTable.setDefaultRenderer(Float.class, new FloatTableCellRenderer(new DecimalFormat("0.000")));
+        addCellRenderer(placemarkTable.getColumnModel());
+        addCellEditor(placemarkTable.getColumnModel());
     }
 
 
-    private void addCellRenderer(JTable placemarkTable) {
-        TableColumnModel columnModel = placemarkTable.getColumnModel();
+    private void addCellRenderer(TableColumnModel columnModel) {
         columnModel.getColumn(0).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.00")));
         columnModel.getColumn(1).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.00")));
-        columnModel.getColumn(2).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.000")));
-        columnModel.getColumn(3).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.000")));
     }
 
-    private void addCellEditor(JTable placemarkTable) {
-        TableColumnModel columnModel = placemarkTable.getColumnModel();
+    private void addCellEditor(TableColumnModel columnModel) {
         columnModel.getColumn(0).setCellEditor(new PinXCellEditor(placemarkDescriptor));
         columnModel.getColumn(1).setCellEditor(new PinYCellEditor(placemarkDescriptor));
         columnModel.getColumn(2).setCellEditor(new PinLonCellEditor(placemarkDescriptor));
@@ -761,7 +760,9 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
     private Pin[] loadPlacemarksFromFile() throws IOException {
         final BeamFileChooser fileChooser = new BeamFileChooser();
-        fileChooser.setDialogTitle("Import " + firstLetterUp(placemarkDescriptor.getRoleLabel()) + "s"); /*I18N*/
+        String roleLabel = firstLetterUp(placemarkDescriptor.getRoleLabel());
+        fileChooser.setDialogTitle("Import " + roleLabel + "s"); /*I18N*/
+        setComponentName(fileChooser, "Import");
         fileChooser.addChoosableFileFilter(getOrCreateFlatPinFileFilter());
         fileChooser.addChoosableFileFilter(getOrCreateXMLPinFileFilter());
         fileChooser.addChoosableFileFilter(getTextFileFilter());
@@ -786,7 +787,9 @@ public class PlacemarkManagerToolView extends AbstractToolView {
 
     private void exportPlacemarks(Pin[] placemarks) {
         final BeamFileChooser fileChooser = new BeamFileChooser();
-        fileChooser.setDialogTitle("Export " + firstLetterUp(placemarkDescriptor.getRoleLabel()) + "s");   /*I18N*/
+        String roleLabel = firstLetterUp(placemarkDescriptor.getRoleLabel());
+        fileChooser.setDialogTitle("Export " + roleLabel + "s");   /*I18N*/
+        setComponentName(fileChooser, "Export");
         fileChooser.addChoosableFileFilter(getTextFileFilter());
         fileChooser.setFileFilter(getPlacemarkFileFilter());
         final File ioDir = getIODir();
@@ -829,6 +832,10 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         }
     }
 
+    private void setComponentName(JComponent component, String name) {
+        component.setName(getClass().getName() + "." + name);
+    }
+
     private void exportPlacemarkDataTable() {
         final BeamFileChooser fileChooser = new BeamFileChooser();
         String roleLabel = firstLetterUp(placemarkDescriptor.getRoleLabel());
@@ -862,7 +869,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
     private void writePlacemarkDataTableText(final Writer writer, Pin[] placemarks) {
         final PrintWriter pw = new PrintWriter(writer);
 
-        final int columnCountMin = PinTableModel.DEFAULT_COLUMN_NAMES.length;
+        final int columnCountMin = new String[]{"X", "Y", "Lon", "Lat", "Label"}.length;
         final int columnCount = placemarkTable.getColumnCount();
 
         // Write file header
@@ -873,13 +880,13 @@ public class PlacemarkManagerToolView extends AbstractToolView {
         pw.println();
 
         // Write header columns
-        pw.print(PlacemarkManagerToolView.NAME_COL_NAME + "\t");
-        pw.print(PlacemarkManagerToolView.X_COL_NAME + "\t");
-        pw.print(PlacemarkManagerToolView.Y_COL_NAME + "\t");
-        pw.print(PlacemarkManagerToolView.LAT_COL_NAME + "\t");
-        pw.print(PlacemarkManagerToolView.LON_COL_NAME + "\t");
-        pw.print(PlacemarkManagerToolView.LABEL_COL_NAME + "\t");
-        pw.print(PlacemarkManagerToolView.DESC_COL_NAME + "\t");
+        pw.print(NAME_COL_NAME + "\t");
+        pw.print(X_COL_NAME + "\t");
+        pw.print(Y_COL_NAME + "\t");
+        pw.print(LAT_COL_NAME + "\t");
+        pw.print(LON_COL_NAME + "\t");
+        pw.print(LABEL_COL_NAME + "\t");
+        pw.print(DESC_COL_NAME + "\t");
         for (int i = columnCountMin; i < columnCount; i++) {
             pw.print(placemarkTable.getColumnName(i) + "\t");
         }
@@ -1194,7 +1201,7 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             switch (index) {
             case 0:
             case 1:
-                minWidth = 40;
+                minWidth = 60;
                 break;
             default:
                 minWidth = 80;
@@ -1530,4 +1537,6 @@ public class PlacemarkManagerToolView extends AbstractToolView {
             setProduct(band.getProduct());
         }
     }
+
+
 }

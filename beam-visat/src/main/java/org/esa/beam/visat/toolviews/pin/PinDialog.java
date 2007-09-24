@@ -464,13 +464,27 @@ public class PinDialog extends ModalDialog {
         }
     }
 
+    /**
+     * Turns the first letter of the given string to upper case.
+     *
+     * @param string the string to change
+     *
+     * @return a changed string
+     */
+    private static String firstLetterUp(String string) {
+        String firstChar = string.substring(0, 1).toUpperCase();
+        return firstChar + string.substring(1);
+    }
+
     public static boolean showEditPinDialog(Window parent, Product product, Pin pin,
                                             PlacemarkDescriptor placemarkDescriptor) {
         final PinDialog pinDialog = new PinDialog(parent, product, placemarkDescriptor,
                                                   placemarkDescriptor instanceof PinDescriptor);
-        String titel = pin.getProduct() == null ? "New" : "Edit"; /*I18N*/
-        titel = titel + " " + placemarkDescriptor.getRoleLabel();
-        pinDialog.getJDialog().setTitle(titel);
+        String titelPrefix = pin.getProduct() == null ? "New" : "Edit"; /*I18N*/
+        String roleLabel = firstLetterUp(placemarkDescriptor.getRoleLabel());
+
+        pinDialog.getJDialog().setTitle(titelPrefix + " " + roleLabel);
+        pinDialog.getJDialog().setName(titelPrefix + "_" + roleLabel);
         pinDialog.setName(pin.getName());
         pinDialog.setLabel(pin.getLabel());
         pinDialog.setDescription(pin.getDescription() != null ? pin.getDescription() : "");

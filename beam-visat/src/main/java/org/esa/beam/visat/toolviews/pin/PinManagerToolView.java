@@ -16,6 +16,9 @@
  */
 package org.esa.beam.visat.toolviews.pin;
 
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.ui.PlacemarkDescriptor;
 import org.esa.beam.framework.ui.product.PinDescriptor;
 
@@ -27,6 +30,11 @@ public class PinManagerToolView extends PlacemarkManagerToolView {
     public static final String ID = PinManagerToolView.class.getName();
 
     public PinManagerToolView() {
-        super(PinDescriptor.INSTANCE);
+        super(PinDescriptor.INSTANCE, new TableModelFactory() {
+            public PinTableModel createTableModel(PlacemarkDescriptor placemarkDescriptor, Product product,
+                                                  Band[] selectedBands, TiePointGrid[] selectedGrids) {
+                return new PinTableModel(placemarkDescriptor, product, selectedBands, selectedGrids);
+            }
+        });
     }
 }

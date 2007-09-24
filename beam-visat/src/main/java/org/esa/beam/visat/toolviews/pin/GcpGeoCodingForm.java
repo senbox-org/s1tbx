@@ -4,7 +4,9 @@ import org.esa.beam.framework.datamodel.GcpGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.ProductNodeListener;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.util.Debug;
@@ -46,9 +48,11 @@ class GcpGeoCodingForm extends JPanel {
 
     private Product currentProduct;
     private Format rmseNumberFormat;
+    private GcpGroupListener currentGcpGroupListener;
 
     public GcpGeoCodingForm() {
         rmseNumberFormat = new RmseNumberFormat();
+        currentGcpGroupListener = new GcpGroupListener();
         initComponents();
     }
 
@@ -202,9 +206,9 @@ class GcpGeoCodingForm extends JPanel {
         final Pin[] gcps = gcpGroup.toArray(new Pin[0]);
         final GeoCoding geoCoding = product.getGeoCoding();
         final Datum datum;
-        if(geoCoding == null) {
+        if (geoCoding == null) {
             datum = Datum.WGS_84;
-        }else {
+        } else {
             datum = geoCoding.getDatum();
         }
 
@@ -239,8 +243,16 @@ class GcpGeoCodingForm extends JPanel {
         if (product == currentProduct) {
             return;
         }
+        if(currentProduct != null) {
+            currentProduct.removeProductNodeListener(currentGcpGroupListener);
+        }
         currentProduct = product;
+        if(currentProduct != null) {
+            currentProduct.addProductNodeListener(currentGcpGroupListener);
+        }
+
     }
+
 
     private void setComponentName(JComponent component, String name) {
         component.setName(getClass().getName() + name);
@@ -267,4 +279,46 @@ class GcpGeoCodingForm extends JPanel {
         }
     }
 
+    private class GcpGroupListener implements ProductNodeListener {
+
+        public void nodeChanged(ProductNodeEvent event) {
+            // exclude geo-coding changes to prevent recursion
+            if (!Product.PROPERTY_NAME_GEOCODING.equals(event.getPropertyName())) {
+                updateGcpGeoCoding();
+            }
+        }
+
+        public void nodeDataChanged(ProductNodeEvent event) {
+            updateGcpGeoCoding();
+        }
+
+        public void nodeAdded(ProductNodeEvent event) {
+            updateGcpGeoCoding();
+        }
+
+        public void nodeRemoved(ProductNodeEvent event) {
+            updateGcpGeoCoding();
+        }
+
+        private void updateGcpGeoCoding() {
+            GeoCoding geoCoding = currentProduct.getGeoCoding();
+            if (geoCoding instanceof GcpGeoCoding) {
+                GcpGeoCoding gcpGeoCoding = ((GcpGeoCoding) geoCoding);
+                if(currentProduct.getGcpGroup().getNodeCount() < gcpGeoCoding.getMethod().getTermCountP()){
+                    detachGeoCoding(currentProduct);
+                }else {
+                    Pin[] gcps = currentProduct.getGcpGroup().toArray(new Pin[0]);
+                    GcpGeoCoding newGcpGeoCoding = new GcpGeoCoding(gcpGeoCoding.getMethod(),
+                                                                    gcps,
+                                                                    currentProduct.getSceneRasterWidth(),
+                                                                    currentProduct.getSceneRasterHeight(),
+                                                                    gcpGeoCoding.getDatum());
+                    newGcpGeoCoding.setOriginalGeoCoding(gcpGeoCoding.getOriginalGeoCoding());
+                    gcpGeoCoding.setGcps(gcps);
+                    currentProduct.setGeoCoding(newGcpGeoCoding);
+                    updateUIState();
+                }
+            }
+        }
+    }
 }

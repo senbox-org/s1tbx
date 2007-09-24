@@ -42,25 +42,12 @@ public class GcpGeoCoding extends AbstractGeoCoding {
      * @param datum       the datum.
      */
     public GcpGeoCoding(Method method, Pin[] gcps, int sceneWidth, int sceneHeight, Datum datum) {
-        x = new double[gcps.length];
-        y = new double[gcps.length];
-
-        lons = new double[gcps.length];
-        lats = new double[gcps.length];
-
-        for (int i = 0; i < gcps.length; i++) {
-            final PixelPos pixelPos = gcps[i].getPixelPos();
-            x[i] = pixelPos.getX();
-            y[i] = pixelPos.getY();
-
-            final GeoPos geoPos = gcps[i].getGeoPos();
-            lons[i] = geoPos.getLon();
-            lats[i] = geoPos.getLat();
-        }
         this.sceneWidth = sceneWidth;
         this.sceneHeight = sceneHeight;
         this.datum = datum;
+        this.method = method;
 
+        setCoordinates(gcps);
         initTransformations(method);
         boundaryCrossingMeridianAt180 = isBoundaryCrossingMeridianAt180();
     }
@@ -75,24 +62,10 @@ public class GcpGeoCoding extends AbstractGeoCoding {
         this.sceneWidth = sceneWidth;
         this.sceneHeight = sceneHeight;
         this.datum = datum;
+        this.method = method;
 
         initTransformations(method);
         boundaryCrossingMeridianAt180 = isBoundaryCrossingMeridianAt180();
-    }
-
-    private void initTransformations(Method type) {
-        final GeoPos center = calculateCentralGeoPos(lons, lats);
-
-        double[] lons2 = Arrays.copyOf(lons, lons.length);
-        double[] lats2 = Arrays.copyOf(lats, lats.length);
-
-        this.method = type;
-
-        rotator = new Rotator(center.lon, center.lat);
-        rotator.transform(lons2, lats2);
-
-        forwardMap = new RationalFunctionMap2D(type.getDegreeP(), type.getDegreeQ(), x, y, lons2, lats2);
-        inverseMap = new RationalFunctionMap2D(type.getDegreeP(), type.getDegreeQ(), lons2, lats2, x, y);
     }
 
     /**
@@ -220,6 +193,20 @@ public class GcpGeoCoding extends AbstractGeoCoding {
 
     }
 
+    public void setOriginalGeoCoding(GeoCoding geoCoding) {
+        originalGeoCoding = geoCoding;
+    }
+
+    public GeoCoding getOriginalGeoCoding() {
+        return originalGeoCoding;
+    }
+
+    public void setGcps(Pin[] pins) {
+        setCoordinates(pins);
+        initTransformations(method);
+        boundaryCrossingMeridianAt180 = isBoundaryCrossingMeridianAt180();
+    }
+
     private boolean isBoundaryCrossingMeridianAt180() {
         GeoPos geoPos1 = null;
         GeoPos geoPos2 = null;
@@ -250,6 +237,19 @@ public class GcpGeoCoding extends AbstractGeoCoding {
         }
 
         return false;
+    }
+
+    private void initTransformations(Method type) {
+        final GeoPos center = calculateCentralGeoPos(lons, lats);
+
+        double[] lons2 = Arrays.copyOf(lons, lons.length);
+        double[] lats2 = Arrays.copyOf(lats, lats.length);
+
+        rotator = new Rotator(center.lon, center.lat);
+        rotator.transform(lons2, lats2);
+
+        forwardMap = new RationalFunctionMap2D(type.getDegreeP(), type.getDegreeQ(), x, y, lons2, lats2);
+        inverseMap = new RationalFunctionMap2D(type.getDegreeP(), type.getDegreeQ(), lons2, lats2, x, y);
     }
 
     private static boolean isSegmentCrossingMeridianAt180(double lon, double lon2) {
@@ -294,12 +294,22 @@ public class GcpGeoCoding extends AbstractGeoCoding {
         return new GeoPos((float) lat, (float) lon);
     }
 
-    public void setOriginalGeoCoding(GeoCoding geoCoding) {
-        originalGeoCoding = geoCoding;
-    }
+    private void setCoordinates(Pin[] gcps) {
+        x = new double[gcps.length];
+        y = new double[gcps.length];
 
-    public GeoCoding getOriginalGeoCoding() {
-        return originalGeoCoding;
+        lons = new double[gcps.length];
+        lats = new double[gcps.length];
+
+        for (int i = 0; i < gcps.length; i++) {
+            final PixelPos pixelPos = gcps[i].getPixelPos();
+            x[i] = pixelPos.getX();
+            y[i] = pixelPos.getY();
+
+            final GeoPos geoPos = gcps[i].getGeoPos();
+            lons[i] = geoPos.getLon();
+            lats[i] = geoPos.getLat();
+        }
     }
 
     private static class RationalFunctionMap2D {
