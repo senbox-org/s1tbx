@@ -221,7 +221,7 @@ public class DefaultOperatorContext implements OperatorContext {
 
     // todo - try to avoid data copying, this method is time-critical!
     // todo - the best way would be to wrap the returned awtRaster in "our" Raster
-    private Raster getSourceRaster(RasterDataNode rasterDataNode, Rectangle rectangle) {
+    private static Raster getSourceRaster(RasterDataNode rasterDataNode, Rectangle rectangle) {
         RenderedImage image = getSourceImage(rasterDataNode);
         /////////////////////////////////////////////////////////////////////
         //
@@ -236,17 +236,17 @@ public class DefaultOperatorContext implements OperatorContext {
         return raster;
     }
 
-    private RenderedImage getSourceImage(RasterDataNode rasterDataNode) {
+    private static RenderedImage getSourceImage(RasterDataNode rasterDataNode) {
         RenderedImage image = rasterDataNode.getImage();
         if (image != null) {
             return image;
         }
-        image = RasterDataNodeOpImage.create(rasterDataNode);
+        image = new RasterDataNodeOpImage(rasterDataNode);
         rasterDataNode.setImage(image);
         return image;
     }
 
-    private class OperatorImplementationInfoImpl implements OperatorImplementationInfo {
+    private static class OperatorImplementationInfoImpl implements OperatorImplementationInfo {
 
         private final boolean bandMethodImplemented;
         private final boolean tilesMethodImplemented;
@@ -282,17 +282,18 @@ public class DefaultOperatorContext implements OperatorContext {
     }
 
     private static boolean implementsMethod(Class<?> aClass, String methodName, Class[] methodParameterTypes) {
-        if (Operator.class.equals(aClass)
-                || AbstractOperator.class.equals(aClass)
-                || !Operator.class.isAssignableFrom(aClass)) {
-            return false;
-        }
-        try {
-            Method declaredMethod = aClass.getDeclaredMethod(methodName, methodParameterTypes);
-            return declaredMethod.getModifiers() != Modifier.ABSTRACT;
-        } catch (NoSuchMethodException e) {
-            Class<?> superclass = aClass.getSuperclass();
-            return implementsMethod(superclass, methodName, methodParameterTypes);
+        while (true) {
+            if (Operator.class.equals(aClass)
+                    || AbstractOperator.class.equals(aClass)
+                    || !Operator.class.isAssignableFrom(aClass)) {
+                return false;
+            }
+            try {
+                Method declaredMethod = aClass.getDeclaredMethod(methodName, methodParameterTypes);
+                return declaredMethod.getModifiers() != Modifier.ABSTRACT;
+            } catch (NoSuchMethodException e) {
+                aClass = aClass.getSuperclass();
+            }
         }
     }
 
