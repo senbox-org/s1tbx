@@ -29,11 +29,7 @@ import com.jidesoft.action.CommandMenuBar;
 import com.jidesoft.action.DockableBarContext;
 import com.jidesoft.action.event.DockableBarAdapter;
 import com.jidesoft.action.event.DockableBarEvent;
-import com.jidesoft.status.LabelStatusBarItem;
-import com.jidesoft.status.MemoryStatusBarItem;
-import com.jidesoft.status.OvrInsStatusBarItem;
-import com.jidesoft.status.ResizeStatusBarItem;
-import com.jidesoft.status.TimeStatusBarItem;
+import com.jidesoft.status.*;
 import com.jidesoft.swing.JideBoxLayout;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.dataio.dimap.DimapProductHelpers;
@@ -48,65 +44,37 @@ import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.param.ParamException;
 import org.esa.beam.framework.param.ParamExceptionHandler;
 import org.esa.beam.framework.param.Parameter;
-import org.esa.beam.framework.ui.BasicApp;
-import org.esa.beam.framework.ui.FileHistory;
-import org.esa.beam.framework.ui.FormatedFileHistory;
-import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.framework.ui.NewProductDialog;
-import org.esa.beam.framework.ui.RGBImageProfilePane;
-import org.esa.beam.framework.ui.SuppressibleOptionPane;
-import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.*;
 import org.esa.beam.framework.ui.application.ApplicationPage;
 import org.esa.beam.framework.ui.application.ApplicationWindow;
 import org.esa.beam.framework.ui.application.ToolViewDescriptor;
 import org.esa.beam.framework.ui.command.Command;
 import org.esa.beam.framework.ui.command.CommandManager;
-import org.esa.beam.framework.ui.product.GcpDescriptor;
-import org.esa.beam.framework.ui.product.PinDescriptor;
-import org.esa.beam.framework.ui.product.ProductMetadataView;
-import org.esa.beam.framework.ui.product.ProductNodeView;
-import org.esa.beam.framework.ui.product.ProductSceneImage;
-import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.framework.ui.product.ProductTree;
-import org.esa.beam.framework.ui.product.ProductTreeListener;
+import org.esa.beam.framework.ui.product.*;
 import org.esa.beam.framework.ui.tool.DrawingEditor;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.PropertyMap;
-import org.esa.beam.util.PropertyMapChangeListener;
-import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.*;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.visat.actions.ToolAction;
 
+import javax.media.jai.JAI;
 import javax.swing.*;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 import javax.swing.filechooser.FileFilter;
-import javax.media.jai.JAI;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Cursor;
-import java.awt.Dialog;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -347,13 +315,6 @@ public final class VisatApp extends BasicApp {
         if (instance == null) {
             instance = new VisatApp();
             instance.startUp(pm);
-
-            // JAIJAIJAI
-            if (Boolean.getBoolean("beam.imageTiling.enabled")) {
-                instance.showInfoDialog("You are using VISAT in the JAI tiled-image mode.\n" +
-                        "This mode is still under development.\n" +
-                        "Be prepared!", "beam.imageTiling.warn");
-            }
         }
     }
 
@@ -428,6 +389,18 @@ public final class VisatApp extends BasicApp {
             viewsToolBar.getContext().setInitIndex(1);
             getMainFrame().getDockableBarManager().addDockableBar(viewsToolBar);
             pm.worked(1);
+
+            // JAIJAIJAI
+            if (Boolean.getBoolean("beam.imageTiling.enabled")) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        instance.showInfoDialog("You are using VISAT in JAI tiled image mode.\n" +
+                                "THIS MODE IS STILL UNDER DEVELOPMENT!",
+                                                "beam.imageTiling.warn");
+                    }
+                });
+            }
+
         } finally {
             pm.done();
         }
