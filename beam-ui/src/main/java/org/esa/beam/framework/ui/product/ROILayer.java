@@ -7,55 +7,91 @@
 package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.layer.AbstractLayer;
+import com.bc.layer.impl.RenderedImageLayer;
 import com.bc.view.ViewModel;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.math.MathUtils;
+import org.esa.beam.util.jai.ImageFactory;
 
+import javax.media.jai.PlanarImage;
+import javax.media.jai.ROI;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 
-public class ROILayer extends AbstractLayer {
+public class ROILayer extends RenderedImageLayer {
+    public static final float DEFAULT_TRANSPARENCY = 0.5f;
+    public static final Color DEFAULT_COLOR = Color.RED;
 
     private RasterDataNode _raster;
-    private Color _roiColor = Color.red;
-    private float _roiTransparency = 0.5F;
-    private RenderedImage _roiImage;
+    private Color _roiColor;
+    private float _roiTransparency;
 
-    public ROILayer(RasterDataNode raster) throws IOException {
+    public ROILayer(RasterDataNode raster) {
+        super(createROIImage(raster, DEFAULT_COLOR, DEFAULT_TRANSPARENCY));
         _raster = raster;
-        updateROIImage(true, ProgressMonitor.NULL);
+        _roiColor = DEFAULT_COLOR;
+        _roiTransparency = DEFAULT_TRANSPARENCY;
     }
 
     public RenderedImage getROIImage() {
-        return _roiImage;
+        return getImage();
     }
 
     public void setROIImage(RenderedImage roiImage) {
-        _roiImage = roiImage;
-        fireLayerChanged();
+        setImage(roiImage);
     }
 
-    /**
-     * @deprecated in 4.1, use {@link #updateROIImage(boolean, com.bc.ceres.core.ProgressMonitor)} instead
-     */
     public void updateROIImage(boolean recreate) throws IOException {
         updateROIImage(recreate, ProgressMonitor.NULL);
     }
 
     public void updateROIImage(boolean recreate, ProgressMonitor pm) throws IOException {
-        BufferedImage roiImage = null;
+        RenderedImage roiImage = null;
         if (isVisible() && (getROIImage() == null || recreate)) {
-            roiImage = _raster.createROIImage(_roiColor, pm);
+            // JAIJAIJAI
+            if (Boolean.getBoolean("beam.imageTiling.enabled")) {
+                roiImage = createROIImage(_raster, _roiColor, _roiTransparency);
+            } else {
+                roiImage = _raster.createROIImage(_roiColor, pm);
+            }
         }
         setROIImage(roiImage);
+    }
+
+    public void draw(Graphics2D g2d, ViewModel viewModel) {
+        if (getImage() == null) {
+            return;
+        }
+
+        if (Boolean.getBoolean("beam.imageTiling.enabled")) {
+            // The PlanarImage ROI already has alpha
+            super.draw(g2d, viewModel);
+        } else {
+            final Composite oldComposite = g2d.getComposite();
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0F - _roiTransparency));
+            super.draw(g2d, viewModel);
+            g2d.setComposite(oldComposite);
+        }
+    }
+
+    private static PlanarImage createROIImage(RasterDataNode raster, Color roiColor, float transparency) {
+        ROI roi = ImageFactory.createROI(raster);
+        if (roi == null) {
+            return null;
+        }
+        int alpha = MathUtils.crop((int) (255.0f * (1.0f - transparency)), 0, 255);
+        roiColor = new Color(roiColor.getRed(),
+                             roiColor.getGreen(),
+                             roiColor.getBlue(),
+                             alpha);
+        return ImageFactory.createROIImage(roi, roiColor);
     }
 
     /**
@@ -76,17 +112,6 @@ public class ROILayer extends AbstractLayer {
             }
         }
         fireLayerChanged();
-    }
-
-    public void draw(Graphics2D g2d, ViewModel viewModel) {
-        if (_roiImage == null) {
-            return;
-        }
-
-        final Composite oldComposite = g2d.getComposite();
-        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0F - _roiTransparency));
-        g2d.drawRenderedImage(_roiImage, null);
-        g2d.setComposite(oldComposite);
     }
 
     public Figure getRasterROIShapeFigure() {

@@ -2491,10 +2491,12 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         _maskProductDataEnabled = maskProductDataEnabled;
     }
 
+    // JAIJAIJAI
     public RenderedImage getImage() {
         return _image;
     }
 
+    // JAIJAIJAI
     public void setImage(RenderedImage image) {
         _image = image;
     }

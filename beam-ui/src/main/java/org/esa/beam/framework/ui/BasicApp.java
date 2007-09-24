@@ -305,7 +305,7 @@ public class BasicApp {
     private void logStartUpInfo() {
         _logger.info("BEAM user directory is '" + _beamUserDir + "'");    /*I18N*/
         if (_resourceBundle != null) {
-            _logger.info("Resource bundle loaded from '" + _appResource + "'");/*I18N*/
+            _logger.info("Resource bundle loaded from '" + _appResource + "'"); /*I18N*/
         }
         if (_preferencesFile != null) {
             _logger.info("User preferences loaded from '" + _preferencesFile.getPath() + "'");/*I18N*/

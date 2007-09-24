@@ -86,6 +86,7 @@ import javax.swing.*;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 import javax.swing.filechooser.FileFilter;
+import javax.media.jai.JAI;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
@@ -93,6 +94,8 @@ import java.awt.Dialog;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
@@ -267,7 +270,7 @@ public final class VisatApp extends BasicApp {
     public static final boolean DEFAULT_VALUE_SAVE_PRODUCT_HISTORY = true;
 
     public static final String ERROR_MESSAGE_PRODUCT_IS_ALREADY_OPENED = "The product is already open.\n"
-                                                                         + "A product can only be opened once."; /*I18N*/
+            + "A product can only be opened once."; /*I18N*/
 
     /**
      * The one and only visat instance
@@ -344,6 +347,13 @@ public final class VisatApp extends BasicApp {
         if (instance == null) {
             instance = new VisatApp();
             instance.startUp(pm);
+
+            // JAIJAIJAI
+            if (Boolean.getBoolean("beam.imageTiling.enabled")) {
+                instance.showInfoDialog("You are using VISAT in the JAI tiled-image mode.\n" +
+                        "This mode is still under development.\n" +
+                        "Be prepared!", "beam.imageTiling.warn");
+            }
         }
     }
 
@@ -619,7 +629,6 @@ public final class VisatApp extends BasicApp {
      * object cannot be used anymore.
      *
      * @param product the product to be disposed
-     *
      * @see org.esa.beam.framework.datamodel.Product#dispose
      */
     public void disposeProduct(final Product product) {
@@ -790,7 +799,6 @@ public final class VisatApp extends BasicApp {
      * @param raster   the raster for which to perform the lookup
      * @param numBands the number of bands in the view, pass -1 for all view types, 1 for single band type and 3 for RGB
      *                 views
-     *
      * @return the internal frames, never <code>null</code>.
      */
     public JInternalFrame[] findInternalFrames(final RasterDataNode raster, final int numBands) {
@@ -801,7 +809,7 @@ public final class VisatApp extends BasicApp {
             if (contentPane instanceof ProductSceneView) {
                 final ProductSceneView view = (ProductSceneView) contentPane;
                 if ((numBands == -1 || view.getNumRasters() == numBands) &&
-                    view.getRaster() == raster) {
+                        view.getRaster() == raster) {
                     frameList.add(frame);
                 }
             }
@@ -815,7 +823,6 @@ public final class VisatApp extends BasicApp {
      * <p>The content pane of the returned frame is always an instance of <code>ProductSceneView</code>.
      *
      * @param raster the raster for which to perform the lookup
-     *
      * @return the internal frame or <code>null</code> if no frame was found
      */
     public JInternalFrame findInternalFrame(final RasterDataNode raster) {
@@ -841,7 +848,6 @@ public final class VisatApp extends BasicApp {
      * <p>The content pane of the returned frame is always an instance of <code>ProductSceneView</code>.
      *
      * @param raster the raster for which to perform the lookup
-     *
      * @return the internal frames, never <code>null</code>.
      */
     public JInternalFrame[] findInternalFrames(final RasterDataNode raster) {
@@ -868,7 +874,6 @@ public final class VisatApp extends BasicApp {
      * <p>The content pane of the returned frame is always an instance of <code>ProductMetadataView</code>.
      *
      * @param metadataElement the metadata element for which to perform the lookup
-     *
      * @return the internal frame or <code>null</code> if no frame was found
      */
     public JInternalFrame findInternalFrame(final MetadataElement metadataElement) {
@@ -894,7 +899,6 @@ public final class VisatApp extends BasicApp {
      * <p>The content pane of the returned frame is always an instance of <code>ProductMetadataView</code>.
      *
      * @param productNode the product node for which to perform the lookup
-     *
      * @return the internal frame or <code>null</code> if no frame was found
      */
     public JInternalFrame findInternalFrame(final ProductNode productNode) {
@@ -918,7 +922,6 @@ public final class VisatApp extends BasicApp {
      * Finds the product associated with the given file.
      *
      * @param file the file
-     *
      * @return the product associated with the given file. or <code>null</code> if no such exists.
      */
     public Product getOpenProduct(final File file) {
@@ -975,7 +978,6 @@ public final class VisatApp extends BasicApp {
      * Returns true if the given raster data node is used in any product scene view.
      *
      * @param raster
-     *
      * @return true if raster is used
      */
     public boolean hasRasterProductSceneView(final RasterDataNode raster) {
@@ -1089,7 +1091,7 @@ public final class VisatApp extends BasicApp {
                 }
             }
             if (!modifiedOrNew.contains(product)
-                && product.isModified()) {
+                    && product.isModified()) {
                 modifiedOrNew.add(product);
             }
         }
@@ -1305,7 +1307,7 @@ public final class VisatApp extends BasicApp {
                     @Override
                     public void nodeChanged(final ProductNodeEvent event) {
                         if (event.getSourceNode() == raster &&
-                            event.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
+                                event.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
                             internalFrame.setTitle(createInternalFrameTitle(raster));
                         }
                     }
@@ -1457,17 +1459,17 @@ public final class VisatApp extends BasicApp {
             StringBuilder message = null;
             if (product.getFileLocation() == null) {
                 message = new StringBuilder("The product\n" +
-                                            "  " + product.getDisplayName() + "\n" +
-                                            "you want to close has not been saved yet.\n");
+                        "  " + product.getDisplayName() + "\n" +
+                        "you want to close has not been saved yet.\n");
             } else if (product.isModified()) {
                 message = new StringBuilder("The product\n" +
-                                            "  " + product.getDisplayName() + "\n" +
-                                            "has been modified.\n");
+                        "  " + product.getDisplayName() + "\n" +
+                        "has been modified.\n");
             }
             if (message != null) {
                 message.append("After closing this product all modifications will be lost.\n" +
-                               "\n" +
-                               "Do you really want to close this product now?");
+                        "\n" +
+                        "Do you really want to close this product now?");
                 final int pressedButton = showQuestionDialog("Product Modified", message.toString(), null);
                 if (pressedButton != JOptionPane.YES_OPTION) {
                     return false;
@@ -1512,9 +1514,9 @@ public final class VisatApp extends BasicApp {
         final File file = product.getFileLocation();
         if (file.isFile() && !file.canWrite()) {
             showWarningDialog("The product\n" +
-                              "'" + file.getPath() + "'\n" +
-                              "exists and cannot be overwritten, because it is read only.\n" +
-                              "Please choose another file or remove the write protection."); /*I18N*/
+                    "'" + file.getPath() + "'\n" +
+                    "exists and cannot be overwritten, because it is read only.\n" +
+                    "Please choose another file or remove the write protection."); /*I18N*/
             return false;
         }
 
@@ -1587,7 +1589,7 @@ public final class VisatApp extends BasicApp {
                 if (canceled) {
                     int result = JOptionPane.showConfirmDialog(getMainFrame(),
                                                                "Cancel saving may lead to an unreadable product.\n\n"
-                                                               + "Do you really want to cancel the save process?",
+                                                                       + "Do you really want to cancel the save process?",
                                                                "Cancel Process", JOptionPane.YES_NO_OPTION);
                     if (result != JOptionPane.YES_OPTION) {
                         super.setCanceled(false);
@@ -1620,8 +1622,14 @@ public final class VisatApp extends BasicApp {
         setStatusBarMessage(message);
         UIUtils.setRootFrameWaitCursor(getMainFrame());
 
-        final long dataAutoLoadMemLimit = getDataAutoLoadLimit();
-        final boolean mustLoadData = raster.getRasterDataSizeInBytes() < dataAutoLoadMemLimit;
+        final boolean mustLoadData;
+        // JAIJAIJAI
+        if (Boolean.getBoolean("beam.imageTiling.enabled")) {
+            mustLoadData = false;
+        } else {
+            final long dataAutoLoadMemLimit = getDataAutoLoadLimit();
+            mustLoadData = raster.getRasterDataSizeInBytes() < dataAutoLoadMemLimit;
+        }
 
         ProductSceneImage productSceneImage = null;
         if (!mustLoadData) {
@@ -1740,18 +1748,23 @@ public final class VisatApp extends BasicApp {
             rgbBands[i] = rgbBand;
             storageMem += rgbBand.band.getRawStorageSize();
         }
-        if (storageMem < dataAutoLoadMemLimit) {
-            pm.beginTask("Loading RGB channels...", rgbBands.length);
-            for (final RGBBand rgbBand : rgbBands) {
-                if (!rgbBand.band.hasRasterData()) {
-                    pm.setSubTaskName("Loading RGB channel '" + rgbBand.band.getName() + "'...");
-                    rgbBand.band.loadRasterData(SubProgressMonitor.create(pm, 1));
-                    rgbBand.dataLoaded = true;
-                } else {
-                    pm.worked(1);
-                }
-                if (pm.isCanceled()) {
-                    throw new IOException("Image creation canceled by user.");
+        // JAIJAIJAI
+        if (Boolean.getBoolean("beam.imageTiling.enabled")) {
+            // don't need to load any data!
+        } else {
+            if (storageMem < dataAutoLoadMemLimit) {
+                pm.beginTask("Loading RGB channels...", rgbBands.length);
+                for (final RGBBand rgbBand : rgbBands) {
+                    if (!rgbBand.band.hasRasterData()) {
+                        pm.setSubTaskName("Loading RGB channel '" + rgbBand.band.getName() + "'...");
+                        rgbBand.band.loadRasterData(SubProgressMonitor.create(pm, 1));
+                        rgbBand.dataLoaded = true;
+                    } else {
+                        pm.worked(1);
+                    }
+                    if (pm.isCanceled()) {
+                        throw new IOException("Image creation canceled by user.");
+                    }
                 }
             }
         }
@@ -1784,7 +1797,7 @@ public final class VisatApp extends BasicApp {
     private ProductMetadataView createProductMetadataViewImpl(final MetadataElement element) {
         if (element.getNumAttributes() == 0) {
             showErrorDialog("The selected metadata element\n"
-                            + "does not contain any attributes."); /*I18N*/
+                    + "does not contain any attributes."); /*I18N*/
             return null;
         }
 
@@ -1805,7 +1818,7 @@ public final class VisatApp extends BasicApp {
                 @Override
                 public void nodeChanged(final ProductNodeEvent event) {
                     if (event.getSourceNode() == element &&
-                        event.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
+                            event.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
                         internalFrame.setTitle(element.getDisplayName());
                     }
                 }
@@ -1842,11 +1855,11 @@ public final class VisatApp extends BasicApp {
         if (reader != null && !(reader instanceof DimapProductReader)) {
             final int answer = showQuestionDialog("Save Product As",
                                                   "In order to save the product\n" +
-                                                  "   " + product.getDisplayName() + "\n" +
-                                                  "it has to be converted to the BEAM-DIMAP format.\n" +
-                                                  "The current product and all of its views will be closed.\n" +
-                                                  "Depending on the product size the conversion also may take a while.\n\n" +
-                                                  "Do you really want to convert the product now?\n",
+                                                          "   " + product.getDisplayName() + "\n" +
+                                                          "it has to be converted to the BEAM-DIMAP format.\n" +
+                                                          "The current product and all of its views will be closed.\n" +
+                                                          "Depending on the product size the conversion also may take a while.\n\n" +
+                                                          "Do you really want to convert the product now?\n",
                                                   "productConversionRequired"); /*I18N*/
             if (answer != 0) { // Zero means YES
                 return;
@@ -1877,8 +1890,8 @@ public final class VisatApp extends BasicApp {
             if (file.exists()) {
                 final int answer = showQuestionDialog("Product Exists",
                                                       "The selected directory already contains a data product with the name\n" +
-                                                      "'" + file.getName() + "'.\n\n" +
-                                                      "Do you really want to overwrite this product?\n", null); /*I18N*/
+                                                              "'" + file.getName() + "'.\n\n" +
+                                                              "Do you really want to overwrite this product?\n", null); /*I18N*/
                 if (answer == 0) { // Zero means YES
                     break;
                 } else {
@@ -2038,8 +2051,8 @@ public final class VisatApp extends BasicApp {
                     final Object defaultValue = parameter.getProperties().getDefaultValue();
                     showErrorDialog("Error in Preferences",
                                     "A problem has been detected in VISAT's preference settings:\n\n"
-                                    + "Value for parameter '" + parameter.getName() + "' is invalid.\n"
-                                    + "Its default value '" + defaultValue + "' will be used instead.");
+                                            + "Value for parameter '" + parameter.getName() + "' is invalid.\n"
+                                            + "Its default value '" + defaultValue + "' will be used instead.");
                     try {
                         parameter.setDefaultValue();
                     } catch (IllegalArgumentException e1) {
@@ -2294,13 +2307,50 @@ public final class VisatApp extends BasicApp {
         gc.setPreferredWidth(100);
         gc.setUpdateInterval(1000);
         gc.setGcIcon(UIUtils.loadImageIcon("icons/GC18.gif"));
-        //gc.setFillColor(Color.GRAY);
         statusBar.add(gc, JideBoxLayout.FLEXIBLE);
 
         final ResizeStatusBarItem resize = new ResizeStatusBarItem();
         statusBar.add(resize, JideBoxLayout.FIX);
 
+        // JAIJAIJAI
+        if (Boolean.getBoolean("beam.imageTiling.enabled")) {
+            hookJaiTileCacheFlush(gc);
+        }
+
         return statusBar;
+    }
+
+    private static void hookJaiTileCacheFlush(MemoryStatusBarItem gc) {
+        AbstractButton button = findButtonForIcon(gc, gc.getGcIcon());
+        if (button != null) {
+            button.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    JAI.getDefaultInstance().getTileCache().flush();
+                    Debug.trace("JAI tile cache flushed!");
+                }
+            });
+        }
+    }
+
+    private static AbstractButton findButtonForIcon(Container container, Icon icon) {
+        Component[] components = container.getComponents();
+        for (Component component : components) {
+            if (component instanceof AbstractButton) {
+                AbstractButton button = (AbstractButton) component;
+                if (button.getIcon() == icon) {
+                    return button;
+                }
+            }
+        }
+        for (Component component : components) {
+            if (component instanceof Container) {
+                AbstractButton button = findButtonForIcon((Container) component, icon);
+                if (button != null) {
+                    return button;
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -2314,9 +2364,7 @@ public final class VisatApp extends BasicApp {
      * is selected.
      *
      * @param commandID the command ID
-     *
      * @return a tool button which is automatically added to VISAT's tool button group.
-     *
      * @see #getCommandManager
      */
     public AbstractButton createToolButton(final String commandID) {
@@ -2358,7 +2406,6 @@ public final class VisatApp extends BasicApp {
      * @param title   a frame title
      * @param icon    a frame icon, can be null
      * @param content the frame's content pane
-     *
      * @return the newly created frame
      */
     public synchronized JInternalFrame createInternalFrame(final String title, final Icon icon,

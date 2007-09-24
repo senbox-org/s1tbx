@@ -57,6 +57,7 @@ public class RenderedImageLayer extends AbstractLayer {
     public RenderedImageLayer(RenderedImage image, AffineTransform transform) {
         _image = image;
         _transform = transform;
+        setBorderPainted(true);
         updateBoundingBox();
     }
 
@@ -78,6 +79,15 @@ public class RenderedImageLayer extends AbstractLayer {
         this._transform = transform;
         updateBoundingBox();
         fireLayerChanged();
+    }
+
+    public boolean isBorderPainted() {
+        Boolean borderPainted = (Boolean) getPropertyValue("style.borderPainted");
+        return borderPainted != null ? borderPainted : false;
+    }
+
+    public void setBorderPainted(boolean borderPainted) {
+        setPropertyValue("style.borderPainted", borderPainted);
     }
 
     public Color getBorderColor() {
@@ -102,7 +112,9 @@ public class RenderedImageLayer extends AbstractLayer {
             return;
         }
 
-        drawImageBorder(g2d);
+        if (isBorderPainted()) {
+            drawImageBorder(g2d);
+        }
         if (_image instanceof BufferedImage) {
             g2d.drawRenderedImage(_image, _transform);
         } else {
@@ -160,6 +172,15 @@ public class RenderedImageLayer extends AbstractLayer {
                         at.concatenate(_transform);
                     }
                     g2d.drawRenderedImage(bi, at);
+
+                    // JAIJAIJAI
+                    if (Boolean.getBoolean("beam.imageTiling.enabled") &&
+                            Boolean.getBoolean("beam.imageTiling.debug")) {
+                        Color colorOld = g2d.getColor();
+                        g2d.setColor(Color.RED);
+                        g2d.drawRect(tx, ty, bi.getWidth(), bi.getHeight());
+                        g2d.setColor(colorOld);
+                    }
                 }
             }
         }

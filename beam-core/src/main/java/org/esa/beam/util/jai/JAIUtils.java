@@ -57,10 +57,13 @@ public class JAIUtils {
 
     /**
      * Sets the memory capacity of the default tile cache in megabytes
+     *
      * @param megabytes the memory capacity in megabytes
      */
     public static void setDefaultTileCacheCapacity(int megabytes) {
         final TileCache tileCache = JAI.getDefaultInstance().getTileCache();
+        // JAIJAIJAI
+        tileCache.memoryControl();
         tileCache.setMemoryCapacity(megabytes * 1024L * 1024L);
     }
 
@@ -427,12 +430,11 @@ public class JAIUtils {
      * @param image  the source image, can be of any type
      * @param window the range window
      * @param level  the range level
-     *
      * @return a rescaled version of the source image
      */
     public static PlanarImage createWindowLevelImage(RenderedImage image,
-                                                           double window,
-                                                           double level) {
+                                                     double window,
+                                                     double level) {
         Guardian.assertNotNull("image", image);
         double low = level - window / 2.0;
         double high = level + window / 2.0;
@@ -446,12 +448,11 @@ public class JAIUtils {
      * @param image the source image, can be of any type
      * @param low   the minimum value of the range
      * @param high  the maximum value of the range
-     *
      * @return a rescaled version of the source image
      */
     public static PlanarImage createRescaledImage(RenderedImage image,
-                                                        double low,
-                                                        double high) {
+                                                  double low,
+                                                  double high) {
         Guardian.assertNotNull("image", image);
         ParameterBlock pb = null;
         PlanarImage dst = null;
@@ -495,7 +496,7 @@ public class JAIUtils {
             dst = JAI.create("lookup", pb, null);
 
         } else if (dtype == DataBuffer.TYPE_SHORT
-                   || dtype == DataBuffer.TYPE_USHORT) {
+                || dtype == DataBuffer.TYPE_USHORT) {
 
             // use a lookup table for rescaling
             if (high != low) {
@@ -534,8 +535,8 @@ public class JAIUtils {
             dst = JAI.create("lookup", pb, null);
 
         } else if (dtype == DataBuffer.TYPE_INT
-                   || dtype == DataBuffer.TYPE_FLOAT
-                   || dtype == DataBuffer.TYPE_DOUBLE) {
+                || dtype == DataBuffer.TYPE_FLOAT
+                || dtype == DataBuffer.TYPE_DOUBLE) {
 
             // use the rescale and format ops
             if (high != low) {
@@ -616,6 +617,9 @@ public class JAIUtils {
         pb.add(null); // roi
         pb.add(1);   // xPeriod
         pb.add(1);  // yPeriod
+        pb.add(histogram.getNumBins()); // ?
+        pb.add(histogram.getLowValue()); // ?
+        pb.add(histogram.getHighValue()); // ?
 
         // Perform the histogram operation.
         return JAI.create("histogram", pb, null);
@@ -680,11 +684,11 @@ public class JAIUtils {
             double mu = mean[b];
             double twoSigmaSquared = 2.0 * stDev[b] * stDev[b];
             normCDF[b][0] =
-            (float) Math.exp(-mu * mu / twoSigmaSquared);
+                    (float) Math.exp(-mu * mu / twoSigmaSquared);
             for (int i = 1; i < binCount; i++) {
                 double deviation = i - mu;
                 normCDF[b][i] = normCDF[b][i - 1] +
-                                (float) Math.exp(-deviation * deviation / twoSigmaSquared);
+                        (float) Math.exp(-deviation * deviation / twoSigmaSquared);
             }
         }
 

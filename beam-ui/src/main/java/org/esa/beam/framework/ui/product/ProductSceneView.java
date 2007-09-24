@@ -419,7 +419,7 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
     }
 
     private RenderedImage createSourceImage(ProgressMonitor pm) throws IOException {
-        return ProductUtils.createOverlayedImage(getRasters(), getHistogramMatching(), pm);
+        return ProductSceneImage.createImage(getRasters(), getHistogramMatching(), pm);
     }
 
 

@@ -27,6 +27,10 @@ import java.io.IOException;
 public class RasterDataNodeOpImage extends SourcelessOpImage {
     private RasterDataNode rasterDataNode;
 
+    public RasterDataNodeOpImage(RasterDataNode rasterDataNode) {
+        this(rasterDataNode, createSingleBandedImageLayout(rasterDataNode));
+    }
+
     protected RasterDataNodeOpImage(RasterDataNode rasterDataNode, ImageLayout imageLayout) {
         super(imageLayout,
               null,
@@ -38,11 +42,6 @@ public class RasterDataNodeOpImage extends SourcelessOpImage {
         this.rasterDataNode = rasterDataNode;
         // todo - use rendering hints
         setTileCache(JAI.getDefaultInstance().getTileCache());
-    }
-
-    public static RasterDataNodeOpImage create(RasterDataNode band) {
-        ImageLayout imageLayout = createSingleBandedImageLayout(band);
-        return new RasterDataNodeOpImage(band, imageLayout);
     }
 
     public RasterDataNode getRasterDataNode() {
@@ -87,7 +86,12 @@ public class RasterDataNodeOpImage extends SourcelessOpImage {
     }
 
     public static ImageLayout createSingleBandedImageLayout(RasterDataNode rasterDataNode) {
-        SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(getDataBufferType(rasterDataNode.getDataType()),
+        int dataBufferType = getDataBufferType(rasterDataNode.getDataType());
+        return createSingleBandedImageLayout(rasterDataNode, dataBufferType);
+    }
+
+    public static ImageLayout createSingleBandedImageLayout(RasterDataNode rasterDataNode, int dataBufferType) {
+        SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(dataBufferType,
                                                                            rasterDataNode.getSceneRasterWidth(),
                                                                            rasterDataNode.getSceneRasterHeight());
         ColorModel colorModel = createColorModel(sampleModel);
@@ -154,5 +158,10 @@ public class RasterDataNodeOpImage extends SourcelessOpImage {
             default:
                 throw new IllegalArgumentException("productData");
         }
+    }
+
+    public synchronized void dispose() {
+        rasterDataNode = null;
+        super.dispose();
     }
 }

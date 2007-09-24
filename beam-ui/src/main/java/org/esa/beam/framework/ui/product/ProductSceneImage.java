@@ -26,6 +26,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.jai.ImageFactory;
 
 import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
@@ -212,7 +213,16 @@ public class ProductSceneImage {
     }
 
     private RenderedImage createImage(ProgressMonitor pm) throws IOException {
-        return ProductUtils.createOverlayedImage(rasters, histogramMatching, pm);
+        return createImage(this.rasters, this.histogramMatching, pm);
+    }
+
+    public static RenderedImage createImage(RasterDataNode[] rasters, String histogramMatching, ProgressMonitor pm) throws IOException {
+        // JAIJAIJAI
+        if (Boolean.getBoolean("beam.imageTiling.enabled")) {
+            return ImageFactory.createOverlayedRgbImage(rasters, histogramMatching);
+        } else {
+            return ProductUtils.createOverlayedImage(rasters, histogramMatching, pm);
+        }
     }
 
 }
