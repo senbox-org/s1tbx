@@ -4,6 +4,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -12,7 +13,9 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.util.jai.JAIUtils;
 
+import java.awt.Dimension;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -61,14 +64,12 @@ public class OperatorContextInitializer {
             if (targetProduct == null) {
                 throw new OperatorException(String.format("Operator [%s] has no target product.", operatorSpi.getName()));
             }
-
             initTargetProductFieldIfNotDone(operator, targetProduct);
-
-            // This is an important piece of code!
-            // It connects the target products of the graph with a special
-            // product reader adapter OperatorProductReader.
-            //
             operatorContext.setTargetProduct(targetProduct);
+
+            final GpfOpImage[] targetImages = createTargetImages(targetProduct, operatorContext);
+            operatorContext.setTargetImages(targetImages);
+
             ProductReader oldProductReader = targetProduct.getProductReader();
             if (oldProductReader == null) {
                 OperatorProductReader operatorProductReader = new OperatorProductReader(operatorContext);
@@ -79,6 +80,24 @@ public class OperatorContextInitializer {
         } finally {
             pm.done();
         }
+    }
+
+    private static GpfOpImage[] createTargetImages(Product targetProduct, DefaultOperatorContext operatorContext) {
+        if (targetProduct.getPreferredTileSize() == null) {
+            Dimension tileSize = JAIUtils.computePreferredTileSize(targetProduct.getSceneRasterWidth(),
+                                                                   targetProduct.getSceneRasterHeight());
+            targetProduct.setPreferredTileSize(tileSize);
+        }
+
+        Band[] bands = targetProduct.getBands();
+        final GpfOpImage[] targetImages = new GpfOpImage[bands.length];
+        for (int i = 0; i < bands.length; i++) {
+            Band band = bands[i];
+            GpfOpImage opImage = new GpfOpImage(band, operatorContext);
+            targetImages[i] = opImage;
+            band.setImage(opImage);
+        }
+        return targetImages;
     }
 
     private static Field[] getParameterFields(Operator operator) {

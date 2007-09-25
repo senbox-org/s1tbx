@@ -31,7 +31,7 @@ public class DefaultOperatorContext implements OperatorContext {
     private OperatorSpi operatorSpi;
     private Operator operator;
     private Field[] parameterFields;
-    private GpfOpImage[] targetImages;
+    private PlanarImage[] targetImages;
     private OperatorImplementationInfo operatorImplementationInfo;
 
 
@@ -50,6 +50,11 @@ public class DefaultOperatorContext implements OperatorContext {
 
     public PlanarImage[] getTargetImages() {
         return targetImages;
+    }
+
+
+    public void setTargetImages(PlanarImage[] targetImages) {
+        this.targetImages = targetImages;
     }
 
     /**
@@ -109,16 +114,6 @@ public class DefaultOperatorContext implements OperatorContext {
      */
     public void setTargetProduct(Product targetProduct) {
         this.targetProduct = targetProduct;
-        if (targetImages == null) {
-            Band[] bands = targetProduct.getBands();
-            targetImages = new GpfOpImage[bands.length];
-            for (int i = 0; i < bands.length; i++) {
-                Band band = bands[i];
-                GpfOpImage opImage = GpfOpImage.create(band, this);
-                targetImages[i] = opImage;
-                band.setImage(opImage);
-            }
-        }
     }
 
     /**

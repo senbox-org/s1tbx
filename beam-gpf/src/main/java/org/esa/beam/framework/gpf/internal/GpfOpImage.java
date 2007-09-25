@@ -19,16 +19,9 @@ public class GpfOpImage extends RasterDataNodeOpImage {
 
     private DefaultOperatorContext operatorContext;
 
-    protected GpfOpImage(Band band,
-                         DefaultOperatorContext operatorContext,
-                         ImageLayout imageLayout) {
-        super(band, imageLayout);
+    protected GpfOpImage(Band band, DefaultOperatorContext operatorContext) {
+        super(band, createSingleBandedImageLayout(band));
         this.operatorContext = operatorContext;
-    }
-
-    public static GpfOpImage create(Band band, DefaultOperatorContext operatorContext) {
-        ImageLayout imageLayout = createSingleBandedImageLayout(band);
-        return new GpfOpImage(band, operatorContext, imageLayout);
     }
 
     public Band getBand() {

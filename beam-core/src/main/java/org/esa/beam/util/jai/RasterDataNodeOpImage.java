@@ -3,6 +3,7 @@ package org.esa.beam.util.jai;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.ImageUtils;
 
 import javax.media.jai.ImageLayout;
@@ -91,28 +92,32 @@ public class RasterDataNodeOpImage extends SourcelessOpImage {
     }
 
     public static ImageLayout createSingleBandedImageLayout(RasterDataNode rasterDataNode, int dataBufferType) {
+        int width = rasterDataNode.getSceneRasterWidth();
+        int height = rasterDataNode.getSceneRasterHeight();
         SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(dataBufferType,
-                                                                           rasterDataNode.getSceneRasterWidth(),
-                                                                           rasterDataNode.getSceneRasterHeight());
+                                                                           width,
+                                                                           height);
         ColorModel colorModel = createColorModel(sampleModel);
-        Dimension tileSize = null;
-        if (rasterDataNode.getProduct() != null) {
-            final Dimension preferredTileSize = rasterDataNode.getProduct().getPreferredTileSize();
-            if (preferredTileSize != null) {
-                tileSize = preferredTileSize;
-            }
-        }
-        if (tileSize == null) {
-            tileSize = JAIUtils.computePreferredTileSize(rasterDataNode.getSceneRasterWidth(),
-                                                         rasterDataNode.getSceneRasterHeight());
-        }
+        Dimension tileSize = getPreferredTileSize(rasterDataNode.getProduct());
         return new ImageLayout(0, 0,
-                               rasterDataNode.getSceneRasterWidth(),
-                               rasterDataNode.getSceneRasterHeight(),
+                               width,
+                               height,
                                0, 0,
                                tileSize.width, tileSize.height,
                                sampleModel,
                                colorModel);
+    }
+
+    private static Dimension getPreferredTileSize(Product product) {
+        Dimension tileSize;
+        final Dimension preferredTileSize = product.getPreferredTileSize();
+        if (preferredTileSize != null) {
+            tileSize = preferredTileSize;
+        } else {
+            tileSize = JAIUtils.computePreferredTileSize(product.getSceneRasterWidth(),
+                                                         product.getSceneRasterHeight());
+        }
+        return tileSize;
     }
 
     private static int getDataBufferType(int productDataType) {
