@@ -16,7 +16,14 @@
  */
 package org.esa.beam.util.jai;
 
+import com.bc.ceres.core.Assert;
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.ImageUtils;
+
+import javax.media.jai.*;
+import javax.media.jai.operator.CompositeDescriptor;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
@@ -30,30 +37,13 @@ import java.awt.image.WritableRaster;
 import java.awt.image.renderable.ParameterBlock;
 import java.util.HashMap;
 
-import javax.media.jai.DataBufferFloat;
-import javax.media.jai.Histogram;
-import javax.media.jai.ImageLayout;
-import javax.media.jai.Interpolation;
-import javax.media.jai.InterpolationNearest;
-import javax.media.jai.JAI;
-import javax.media.jai.LookupTableJAI;
-import javax.media.jai.NullOpImage;
-import javax.media.jai.OpImage;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.RasterFactory;
-import javax.media.jai.RenderedOp;
-import javax.media.jai.TileCache;
-import javax.media.jai.TiledImage;
-import javax.media.jai.WarpPolynomial;
-import javax.media.jai.operator.CompositeDescriptor;
-
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.ImageUtils;
-
 /**
  * A collection of global JAI functions allowing a type-safe usage of various JAI imaging operators.
  */
 public class JAIUtils {
+    static final int TILE_SIZE_STEP = 64;
+    static final int MIN_TILE_SIZE = 4 * TILE_SIZE_STEP;
+    static final int MAX_TILE_SIZE = 10 * TILE_SIZE_STEP;
 
     /**
      * Sets the memory capacity of the default tile cache in megabytes
@@ -775,6 +765,39 @@ public class JAIUtils {
             icm.getAlphas(data[3]);
         }
         return new LookupTableJAI(data);
+    }
+
+    public static Dimension computePreferredTileSize(int imageWidth, int imageHeight) {
+        return new Dimension(computePreferredTileSize(imageWidth),
+                             computePreferredTileSize(imageHeight));
+    }
+
+    private static int computePreferredTileSize(int imageSize) {
+        int minDelta = imageSize;
+        if (imageSize <= MAX_TILE_SIZE) {
+            return imageSize;
+        }
+        for (int u = MAX_TILE_SIZE; u >= MIN_TILE_SIZE; u -= TILE_SIZE_STEP) {
+            if (imageSize % u == 0) {
+                return u;
+            }
+        }
+        int tileSize = -1;
+        for (int u = MAX_TILE_SIZE; u >= MIN_TILE_SIZE; u--) {
+            int n = imageSize / u;
+            if (n * u == imageSize) {
+                return u;
+            } else if (n * u < imageSize) {
+                n++;
+            }
+            final int delta = Math.abs(n * u - imageSize);
+            if (delta < minDelta) {
+                minDelta = delta;
+                tileSize = u;
+            }
+        }
+        Assert.state(tileSize != -1);
+        return tileSize;
     }
 
 } // ImageUtils
