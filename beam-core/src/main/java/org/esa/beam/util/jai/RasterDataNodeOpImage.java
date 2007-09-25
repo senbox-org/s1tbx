@@ -9,18 +9,18 @@ import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.SourcelessOpImage;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.Dimension;
-import java.awt.image.SampleModel;
-import java.awt.image.WritableRaster;
+import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
-import java.awt.image.DataBufferUShort;
-import java.awt.image.DataBufferInt;
-import java.awt.image.DataBufferFloat;
 import java.awt.image.DataBufferDouble;
-import java.awt.image.ColorModel;
+import java.awt.image.DataBufferFloat;
+import java.awt.image.DataBufferInt;
+import java.awt.image.DataBufferUShort;
+import java.awt.image.SampleModel;
+import java.awt.image.WritableRaster;
 import java.io.IOException;
 
 
@@ -82,7 +82,7 @@ public class RasterDataNodeOpImage extends SourcelessOpImage {
             productName = ":" + rasterDataNode.getProduct().getName();
         }
         String bandName = "." + rasterDataNode.getName();
-		return className +  productName + bandName;
+        return className + productName + bandName;
     }
 
     public static ImageLayout createSingleBandedImageLayout(RasterDataNode rasterDataNode) {
@@ -95,10 +95,17 @@ public class RasterDataNodeOpImage extends SourcelessOpImage {
                                                                            rasterDataNode.getSceneRasterWidth(),
                                                                            rasterDataNode.getSceneRasterHeight());
         ColorModel colorModel = createColorModel(sampleModel);
-        Dimension tileSize = JAI.getDefaultTileSize();  // todo use rendering hints
-// todo - check if the following operations improve performance
-//        tileSize.width = Math.min(tileSize.width, rasterDataNode.getSceneRasterWidth());
-//        tileSize.height = Math.min(tileSize.height, rasterDataNode.getSceneRasterHeight());
+        Dimension tileSize = null;
+        if (rasterDataNode.getProduct() != null) {
+            final Dimension preferredTileSize = rasterDataNode.getProduct().getPreferredTileSize();
+            if (preferredTileSize != null) {
+                tileSize = preferredTileSize;
+            }
+        }
+        if (tileSize == null) {
+            tileSize = JAIUtils.computePreferredTileSize(rasterDataNode.getSceneRasterWidth(),
+                                                         rasterDataNode.getSceneRasterHeight());
+        }
         return new ImageLayout(0, 0,
                                rasterDataNode.getSceneRasterWidth(),
                                rasterDataNode.getSceneRasterHeight(),
