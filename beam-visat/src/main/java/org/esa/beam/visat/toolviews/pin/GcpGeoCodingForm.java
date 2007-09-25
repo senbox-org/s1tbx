@@ -4,6 +4,7 @@ import org.esa.beam.framework.datamodel.GcpGeoCoding;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.Pin;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.datamodel.ProductNodeListener;
@@ -283,7 +284,8 @@ class GcpGeoCodingForm extends JPanel {
 
         public void nodeChanged(ProductNodeEvent event) {
             // exclude geo-coding changes to prevent recursion
-            if (!Product.PROPERTY_NAME_GEOCODING.equals(event.getPropertyName())) {
+            if (!Product.PROPERTY_NAME_GEOCODING.equals(event.getPropertyName()) &&
+                !ProductNode.PROPERTY_NAME_SELECTED.equals(event.getPropertyName())) {
                 updateGcpGeoCoding();
             }
         }
