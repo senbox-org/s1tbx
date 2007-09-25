@@ -19,9 +19,17 @@ A:
 
 Problems
 ========
-Unforunately all tiles are requested if
-(1) navigation image is created
-(2) histogram of an image is created
+* Progress minitoring is not possible using JAI.
+* Unforunately all tiles are requested if
+  (1) navigation image is created
+      Solution:
+      Only compute quicklook/per RasterDataNode once.
+      Store it using RasterDataNode.setQuicklookImage(RanderedImage ql)
+      Navigation window can use this image and scale it accordingly. Provide action "Update quicklook";
+  (2) range/histogram of an image is computed
+      Solution: RasterDataNode shall have a data range, for BYTE and SHORT, default values can be set at construction time.
+      ProductReaders may set actual values derived from metadata or a-priori knowledge. The final "true" min/max may be
+      computed using the statistics tool.
 
 Ideas
 =====
