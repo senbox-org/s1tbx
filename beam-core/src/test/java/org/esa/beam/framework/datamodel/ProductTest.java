@@ -43,6 +43,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.awt.Dimension;
 
 public class ProductTest extends TestCase {
 
@@ -851,12 +852,20 @@ public class ProductTest extends TestCase {
         }
     }
 
-    private static byte[] convertToBytes(final int[] ints) {
-        final byte[] bytes = new byte[ints.length];
-        for (int i = 0; i < ints.length; i++) {
-            bytes[i] = (byte) ints[i];
-        }
-        return bytes;
+    public void testPreferredTileSizeProperty() {
+        Product product;
+
+        product = new Product("A", "B", 1000, 2000);
+        assertEquals(null, product.getPreferredTileSize());
+
+        product.setPreferredTileSize(new Dimension(128, 256));
+        assertEquals(new Dimension(128, 256), product.getPreferredTileSize());
+
+        product.setPreferredTileSize(new Dimension(300, 400));
+        assertEquals(new Dimension(300, 400), product.getPreferredTileSize());
+
+        product.setPreferredTileSize(null);
+        assertEquals(null, product.getPreferredTileSize());
     }
 
     private static MapProjection createMapProjectionForTestSetGeocoding() {

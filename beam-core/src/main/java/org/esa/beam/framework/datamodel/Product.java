@@ -17,6 +17,7 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.Assert;
 import com.bc.jexp.Namespace;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Parser;
@@ -45,6 +46,8 @@ import org.esa.beam.util.StopWatch;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
 
+import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
@@ -151,15 +154,15 @@ public class Product extends ProductNode {
      */
     private String _refStr;
 
-    /**
-     * The product manager which stores this product (can be null).
-     */
     private ProductManager _productManager;
     private Map<String, BitRaster> _validMasks;
 
     private PointingFactory _pointingFactory;
 
     private String _quicklookBandName;
+
+    private Dimension _preferredTileSize;
+
 
     /**
      * Creates a new product without any reader (in-memory product)
@@ -203,9 +206,10 @@ public class Product extends ProductNode {
 //    }
 //
 
-    /**
+    /*
      * Internally used constructor. Is kept private to keep product name and file location consistent.
      */
+
     private Product(final File fileLocation,
                     final String name,
                     final String type,
@@ -277,6 +281,8 @@ public class Product extends ProductNode {
     /**
      * Retrieves the disk location of this product. The return value can be <code>null</code> when the product has no
      * disk location (pure virtual memory product)
+     *
+     * @return the file location, may be <code>null</code>
      */
     public File getFileLocation() {
         return _fileLocation;
@@ -284,6 +290,8 @@ public class Product extends ProductNode {
 
     /**
      * Sets the file location for this product.
+     *
+     * @param fileLocation the file location, may be <code>null</code>
      */
     public void setFileLocation(final File fileLocation) {
         _fileLocation = fileLocation;
@@ -291,8 +299,9 @@ public class Product extends ProductNode {
 
 
     /**
-     * Overwrites the <code>ProductNode.setOwner</code> method in order to throw an <code>IllegalStateException</code>,
-     * since products cannot have an owner.
+     * Overwrites the{@link ProductNode#setOwner(ProductNode)} method in order to
+     * throw an <code>IllegalStateException</code>,
+     * since products currently cannot have an owner.
      */
     @Override
     protected void setOwner(final ProductNode owner) {
@@ -304,7 +313,9 @@ public class Product extends ProductNode {
 
 
     /**
-     * Retrieves the product type.
+     * Gets the product type string.
+     *
+     * @return the product type string
      */
     public String getProductType() {
         return _productType;
@@ -644,7 +655,9 @@ public class Product extends ProductNode {
     }
 
     /**
-     * Retrieves the root element of the associated metadata.
+     * Gets the root element of the associated metadata.
+     *
+     * @return the metadata root element
      */
     public MetadataElement getMetadataRoot() {
         return _metadataRoot;
@@ -654,39 +667,42 @@ public class Product extends ProductNode {
     // Tie-point grid support
 
     /**
-     * Adds the given tie point grid to this product.
+     * Adds the given tie-point grid to this product.
      *
-     * @param tiePointGrid the tie point grid to added, ignored if <code>null</code>
+     * @param tiePointGrid the tie-point grid to added, ignored if <code>null</code>
      */
     public void addTiePointGrid(final TiePointGrid tiePointGrid) {
         if (containsRasterDataNode(tiePointGrid.getName())) {
             throw new IllegalArgumentException("The Product '" + getName() + "' already contains " +
-                    "a tie point grid with the name '" + tiePointGrid.getName() + "'.");
+                    "a tie-point grid with the name '" + tiePointGrid.getName() + "'.");
         }
         addNamedNode(tiePointGrid, _tiePointGrids);
     }
 
     /**
-     * Removes the tie point grid from this product.
+     * Removes the tie-point grid from this product.
      *
-     * @param tiePointGrid the tie point grid to be removed, ignored if <code>null</code>
+     * @param tiePointGrid the tie-point grid to be removed, ignored if <code>null</code>
+     * @return <code>true</code> if node could be removed
      */
     public boolean removeTiePointGrid(final TiePointGrid tiePointGrid) {
         return removeNamedNode(tiePointGrid, _tiePointGrids);
     }
 
     /**
-     * Returns the number of tie point grids contained in this product
+     * Returns the number of tie-point grids contained in this product
+     *
+     * @return the number of tie-point grids
      */
     public int getNumTiePointGrids() {
         return _tiePointGrids.size();
     }
 
     /**
-     * Returns the tie point grid at the given index.
+     * Returns the tie-point grid at the given index.
      *
-     * @param index the tie point grid index
-     * @return the tie point grid at the given index
+     * @param index the tie-point grid index
+     * @return the tie-point grid at the given index
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public TiePointGrid getTiePointGridAt(final int index) {
@@ -694,19 +710,19 @@ public class Product extends ProductNode {
     }
 
     /**
-     * Returns a string array containing the names of the tie point grids contained in this product
+     * Returns a string array containing the names of the tie-point grids contained in this product
      *
-     * @return a string array containing the names of the tie point grids contained in this product. If this product has
-     *         no tie point grids a zero-length-array is returned.
+     * @return a string array containing the names of the tie-point grids contained in this product. If this product has
+     *         no tie-point grids a zero-length-array is returned.
      */
     public String[] getTiePointGridNames() {
         return _tiePointGrids.getNames();
     }
 
     /**
-     * Returns an array of tie point grids contained in this product
+     * Returns an array of tie-point grids contained in this product
      *
-     * @return an array of tie point grids contained in this product. If this product has no  tie point grids a
+     * @return an array of tie-point grids contained in this product. If this product has no  tie-point grids a
      *         zero-length-array is returned.
      */
     public TiePointGrid[] getTiePointGrids() {
@@ -718,10 +734,10 @@ public class Product extends ProductNode {
     }
 
     /**
-     * Returns the tie point grid with the given name.
+     * Returns the tie-point grid with the given name.
      *
-     * @param name the tie point grid name
-     * @return the tie point grid with the given name or <code>null</code> if a tie point grid with the given name is
+     * @param name the tie-point grid name
+     * @return the tie-point grid with the given name or <code>null</code> if a tie-point grid with the given name is
      *         not contained in this product.
      */
     public TiePointGrid getTiePointGrid(final String name) {
@@ -730,10 +746,10 @@ public class Product extends ProductNode {
     }
 
     /**
-     * Returns the index for the tie point grid with the given name.
+     * Returns the index for the tie-point grid with the given name.
      *
-     * @param name the tie point grid name
-     * @return the tie point grid index or <code>-1</code> if a tie point grid with the given name is not contained in
+     * @param name the tie-point grid name
+     * @return the tie-point grid index or <code>-1</code> if a tie-point grid with the given name is not contained in
      *         this product.
      * @throws IllegalArgumentException if the given name is <code>null</code> or empty.
      */
@@ -743,10 +759,10 @@ public class Product extends ProductNode {
     }
 
     /**
-     * Tests if a tie point grid with the given name is contained in this product.
+     * Tests if a tie-point grid with the given name is contained in this product.
      *
      * @param name the name, must not be <code>null</code>
-     * @return <code>true</code> if a tie point grid with the given name is contained in this product,
+     * @return <code>true</code> if a tie-point grid with the given name is contained in this product,
      *         <code>false</code> otherwise
      */
     public boolean containsTiePointGrid(final String name) {
@@ -897,7 +913,7 @@ public class Product extends ProductNode {
 
     /**
      * Gets the raster data node with the given name. The method first searches for bands with the given name, then for
-     * tie point grids. If neither bands nor tie point grids exist with the given name, <code>null</code> is returned.
+     * tie-point grids. If neither bands nor tie-point grids exist with the given name, <code>null</code> is returned.
      *
      * @param name the name, must not be <code>null</code>
      * @return the raster data node with the given name or <code>null</code> if a raster data node with the given name
@@ -927,15 +943,17 @@ public class Product extends ProductNode {
      * Removes the given flag coding from this product.
      *
      * @param flagCoding the flag coding to be removed, ignored if <code>null</code>
+     * @return <code>true</code> on success
      */
     public boolean removeFlagCoding(final FlagCoding flagCoding) {
-        boolean success = removeNamedNode(flagCoding, _flagCodings);
         // todo - remove from referencing bands too? (nf - 2007-08-24)
-        return success;
+        return removeNamedNode(flagCoding, _flagCodings);
     }
 
     /**
      * Returns the number of flag codings contained in this product.
+     *
+     * @return the number of flag codings
      */
     public int getNumFlagCodings() {
         return _flagCodings.size();
@@ -1000,7 +1018,7 @@ public class Product extends ProductNode {
      * @see #createTerm(String)
      */
     public String[] getAllFlagNames() {
-        final List<String> l = new ArrayList<String>();
+        final ArrayList<String> l = new ArrayList<String>(32);
         for (int i = 0; i < getNumBands(); i++) {
             final Band band = getBandAt(i);
             if (band.getFlagCoding() != null) {
@@ -1039,7 +1057,7 @@ public class Product extends ProductNode {
      *
      * @param pixelPos the pixel position, must not be null
      * @return true, if so
-     * @see #containsPixel(float, float)
+     * @see #containsPixel(float,float)
      */
     public boolean containsPixel(final PixelPos pixelPos) {
         return containsPixel(pixelPos.x, pixelPos.y);
@@ -1050,6 +1068,7 @@ public class Product extends ProductNode {
 
     /**
      * Gets the group of ground-control points (GCPs).
+     *
      * @return the GCP group.
      */
     public ProductNodeGroup<Pin> getGcpGroup() {
@@ -1061,43 +1080,58 @@ public class Product extends ProductNode {
 
     /**
      * Gets the group of pins.
+     *
      * @return the pin group.
      */
     public ProductNodeGroup<Pin> getPinGroup() {
         return pinGroup;
     }
 
-    /** @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API. */
+    /**
+     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     */
     public boolean addPin(final Pin pin) {
         return pinGroup.add(pin);
     }
 
-    /** @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API. */
+    /**
+     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     */
     public boolean removePin(final Pin pin) {
         return pinGroup.remove(pin);
     }
 
-    /** @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API. */
+    /**
+     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     */
     public int getNumPins() {
         return pinGroup.getNodeCount();
     }
 
-    /** @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API. */
+    /**
+     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     */
     public Pin getPinAt(final int index) {
         return pinGroup.get(index);
     }
 
-    /** @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API. */
+    /**
+     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     */
     public Pin getPin(final String name) {
         return pinGroup.get(name);
     }
 
-    /** @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API. */
+    /**
+     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     */
     public boolean containsPin(final String name) {
         return pinGroup.contains(name);
     }
 
-    /** @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API. */
+    /**
+     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     */
     public int getPinIndex(final String name) {
         return pinGroup.indexOf(name);
     }
@@ -1106,33 +1140,43 @@ public class Product extends ProductNode {
      * Gets all defined pins of this product.
      *
      * @return all defined pins of this product, never null
-    * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()}
+     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()}
      */
     public Pin[] getPins() {
         return pinGroup.toArray(new Pin[0]);
     }
 
-    /** @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API. */
+    /**
+     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     */
     public String[] getPinNames() {
         return pinGroup.getNodeNames();
     }
 
-    /** @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API. */
+    /**
+     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     */
     public void setSelectedPin(final int index) {
         pinGroup.setSelectedNode(index);
     }
 
-    /** @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API. */
+    /**
+     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     */
     public void setSelectedPin(final String name) {
         pinGroup.setSelectedNode(name);
     }
 
-    /** @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API. */
+    /**
+     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     */
     public Pin getSelectedPin() {
         return pinGroup.getSelectedNode();
     }
 
-    /** @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API. */
+    /**
+     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     */
     public Pin[] getSelectedPins() {
         Collection<Pin> selectedNodes = pinGroup.getSelectedNodes();
         return selectedNodes.toArray(new Pin[0]);
@@ -1169,6 +1213,7 @@ public class Product extends ProductNode {
      * Removes the given bitmask definition from this product.
      *
      * @param bitmaskDef the bitmask definition to be removed, ignored if <code>null</code>
+     * @return <code>true</code> on success
      */
     public boolean removeBitmaskDef(final BitmaskDef bitmaskDef) {
         final boolean result = removeNamedNode(bitmaskDef, _bitmaskDefs);
@@ -1177,7 +1222,7 @@ public class Product extends ProductNode {
         return result;
     }
 
-    private void removeBitmaskDef(RasterDataNode[] bands, BitmaskDef bitmaskDef) {
+    private static void removeBitmaskDef(RasterDataNode[] bands, BitmaskDef bitmaskDef) {
         for (RasterDataNode band : bands) {
             final BitmaskOverlayInfo bitmaskOverlayInfo = band.getBitmaskOverlayInfo();
             if (bitmaskOverlayInfo != null) {
@@ -1187,7 +1232,9 @@ public class Product extends ProductNode {
     }
 
     /**
-     * Returns the number of bitmask definitions contained in this product.
+     * Gets the number of bitmask definitions contained in this product.
+     *
+     * @return the number of bitmask definitions
      */
     public int getNumBitmaskDefs() {
         return _bitmaskDefs.size();
@@ -1448,14 +1495,14 @@ public class Product extends ProductNode {
     }
 
     /**
-     * @deprecated in 4.1, use {@link #createValidMask(String, com.bc.ceres.core.ProgressMonitor)}
+     * @deprecated in 4.1, use {@link #createValidMask(String,com.bc.ceres.core.ProgressMonitor)}
      */
     public byte[] createPixelMask(final String expression) throws IOException {
         return createValidMask(expression, ProgressMonitor.NULL).createBytePackedBitmaskRasterData();
     }
 
     /**
-     * @deprecated in 4.1, use {@link #createValidMask(com.bc.jexp.Term, com.bc.ceres.core.ProgressMonitor)}
+     * @deprecated in 4.1, use {@link #createValidMask(com.bc.jexp.Term,com.bc.ceres.core.ProgressMonitor)}
      */
     public byte[] createPixelMask(final Term term) throws IOException {
         return createValidMask(term, ProgressMonitor.NULL).createBytePackedBitmaskRasterData();
@@ -1474,7 +1521,7 @@ public class Product extends ProductNode {
      *
      * @param id the ID
      * @return a cached valid mask for the given ID or null
-     * @see #createValidMask(String, com.bc.ceres.core.ProgressMonitor)
+     * @see #createValidMask(String,com.bc.ceres.core.ProgressMonitor)
      */
     public BitRaster getValidMask(final String id) {
         if (_validMasks != null) {
@@ -1488,7 +1535,7 @@ public class Product extends ProductNode {
      *
      * @param id        the ID
      * @param validMask the pixel mask
-     * @see #createValidMask(String, com.bc.ceres.core.ProgressMonitor)
+     * @see #createValidMask(String,com.bc.ceres.core.ProgressMonitor)
      */
     public void setValidMask(final String id, final BitRaster validMask) {
         if (validMask != null) {
@@ -1514,7 +1561,7 @@ public class Product extends ProductNode {
      * @return a bit-packed mask for all pixels of the scene, never null
      * @throws IOException if an I/O error occurs
      * @see #createTerm(String)
-     * @see #createValidMask(com.bc.jexp.Term, com.bc.ceres.core.ProgressMonitor)
+     * @see #createValidMask(com.bc.jexp.Term,com.bc.ceres.core.ProgressMonitor)
      */
     public BitRaster createValidMask(final String expression, final ProgressMonitor pm) throws IOException {
         try {
@@ -1539,7 +1586,7 @@ public class Product extends ProductNode {
      * @param pm   a progress monitor
      * @return a bit-packed mask for all pixels of the scene, never null
      * @throws IOException if an I/O error occurs
-     * @see #createValidMask(String, com.bc.ceres.core.ProgressMonitor)
+     * @see #createValidMask(String,com.bc.ceres.core.ProgressMonitor)
      */
     public BitRaster createValidMask(final Term term, final ProgressMonitor pm) throws IOException {
         final String id = term.toString();
@@ -1574,10 +1621,10 @@ public class Product extends ProductNode {
     }
 
     /**
-     * Releases a valid-mask previously allocated with the {@link #createValidMask(String, com.bc.ceres.core.ProgressMonitor) createValidMask()} method.
+     * Releases a valid-mask previously allocated with the {@link #createValidMask(String,com.bc.ceres.core.ProgressMonitor) createValidMask()} method.
      *
      * @param validMask the pixel mask to be released
-     * @see #createValidMask(String, com.bc.ceres.core.ProgressMonitor)
+     * @see #createValidMask(String,com.bc.ceres.core.ProgressMonitor)
      */
     public void releaseValidMask(final BitRaster validMask) {
         if (_validMasks != null) {
@@ -1612,7 +1659,7 @@ public class Product extends ProductNode {
     }
 
     /**
-     * @see #readBitmask(int, int, int, int, com.bc.jexp.Term, boolean[], com.bc.ceres.core.ProgressMonitor)
+     * @see #readBitmask(int,int,int,int,com.bc.jexp.Term,boolean[],com.bc.ceres.core.ProgressMonitor)
      */
     public void readBitmask(final int offsetX,
                             final int offsetY,
@@ -1666,7 +1713,7 @@ public class Product extends ProductNode {
     }
 
     /**
-     * @see #readBitmask(int, int, int, int, com.bc.jexp.Term, byte[], byte, byte, com.bc.ceres.core.ProgressMonitor)
+     * @see #readBitmask(int,int,int,int,com.bc.jexp.Term,byte[],byte,byte,com.bc.ceres.core.ProgressMonitor)
      */
     public synchronized void readBitmask(final int offsetX,
                                          final int offsetY,
@@ -1707,7 +1754,7 @@ public class Product extends ProductNode {
      * @param falseValue  the byte value to be set if the bitmask-term evauates to <code>false</code>
      * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
      * @see #createTerm(String)
-     * @see #readBitmask(int, int, int, int, Term, int[], int, int)
+     * @see #readBitmask(int,int,int,int,Term,int[],int,int)
      */
     public synchronized void readBitmask(final int offsetX,
                                          final int offsetY,
@@ -1736,7 +1783,7 @@ public class Product extends ProductNode {
     /**
      * Creates a bit-mask by evaluating the given bit-mask term.
      * <p/>
-     * <p> The method works exactly like {@link #readBitmask(int, int, int, int, Term, byte[], byte, byte)},
+     * <p> The method works exactly like {@link #readBitmask(int,int,int,int,Term,byte[],byte,byte)},
      * but in this method the bitmnask is represented by an array of integers to be filled.
      *
      * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
@@ -1751,7 +1798,7 @@ public class Product extends ProductNode {
      * @param falseValue  the integer value to be set if the bitmask-term evauates to <code>false</code>
      * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
      * @see #createTerm(String)
-     * @see #readBitmask(int, int, int, int, Term, byte[], byte, byte)
+     * @see #readBitmask(int,int,int,int,Term,byte[],byte,byte)
      */
     public void readBitmask(final int offsetX,
                             final int offsetY,
@@ -1767,7 +1814,7 @@ public class Product extends ProductNode {
     /**
      * Creates a bit-mask by evaluating the given bit-mask term.
      * <p/>
-     * <p> The method works exactly like {@link #readBitmask(int, int, int, int, Term, byte[], byte, byte)},
+     * <p> The method works exactly like {@link #readBitmask(int,int,int,int,Term,byte[],byte,byte)},
      * but in this method the bitmnask is represented by an array of integers to be filled.
      *
      * @param offsetX     the X-offset of the spatial subset in pixel co-ordinates
@@ -1783,7 +1830,7 @@ public class Product extends ProductNode {
      * @param pm          a monitor to inform the user about progress
      * @throws IOException if an I/O error occurs, when referenced flag datasets are reloaded
      * @see #createTerm(String)
-     * @see #readBitmask(int, int, int, int, Term, byte[], byte, byte)
+     * @see #readBitmask(int,int,int,int,Term,byte[],byte,byte)
      */
     public void readBitmask(final int offsetX,
                             final int offsetY,
@@ -1809,7 +1856,7 @@ public class Product extends ProductNode {
     }
 
     /**
-     * @see #maskProductData(int, int, int, int, com.bc.jexp.Term, ProductData, boolean, double, com.bc.ceres.core.ProgressMonitor)
+     * @see #maskProductData(int,int,int,int,com.bc.jexp.Term,ProductData,boolean,double,com.bc.ceres.core.ProgressMonitor)
      */
     public void maskProductData(final int offsetX,
                                 final int offsetY,
@@ -2065,7 +2112,7 @@ public class Product extends ProductNode {
      *
      * @param expression the mathematical expression
      * @return true, if the band arithmetic is compatible with this product
-     * @see #isCompatibleBandArithmeticExpression(String, com.bc.jexp.Parser)
+     * @see #isCompatibleBandArithmeticExpression(String,com.bc.jexp.Parser)
      */
     public boolean isCompatibleBandArithmeticExpression(final String expression) {
         return isCompatibleBandArithmeticExpression(expression, null);
@@ -2499,6 +2546,44 @@ public class Product extends ProductNode {
     private static boolean isFlagSymbol(final String symbolName) {
         return symbolName.indexOf('.') != -1;
     }
+
+
+    /**
+     * Gets the preferred tile size which may be used for a the {@link java.awt.image.RenderedImage rendered image}
+     * created for a {@link RasterDataNode} of this product.
+     *
+     * @return the preferred tile size, may be <code>null</null> if not specified
+     * @see RasterDataNode#getImage()
+     * @see RasterDataNode#setImage(java.awt.image.RenderedImage)
+     */
+    public Dimension getPreferredTileSize() {
+        return _preferredTileSize;
+    }
+
+    /**
+     * Sets the preferred tile size which may be used for a the {@link java.awt.image.RenderedImage rendered image}
+     * created for a {@link RasterDataNode} of this product.
+     *
+     * @param tileWidth the preferred tile width
+     * @param tileHeight the preferred tile height
+     * @see #setPreferredTileSize(java.awt.Dimension)
+     */
+    public void setPreferredTileSize(int tileWidth, int tileHeight) {
+        setPreferredTileSize(new Dimension(tileWidth, tileHeight));
+    }
+
+    /**
+     * Sets the preferred tile size which may be used for a the {@link java.awt.image.RenderedImage rendered image}
+     * created for a {@link RasterDataNode} of this product.
+     *
+     * @param preferredTileSize the preferred tile size, may be <code>null</null> if not specified
+     * @see RasterDataNode#getImage()
+     * @see RasterDataNode#setImage(java.awt.image.RenderedImage)
+     */
+    public void setPreferredTileSize(Dimension preferredTileSize) {
+        _preferredTileSize = preferredTileSize;
+    }
+
 }
 
 
