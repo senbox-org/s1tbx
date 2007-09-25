@@ -16,9 +16,9 @@ import java.util.Map;
  * <p>Clients shall not implement or extend the interface <code>Operator</code> directly. Instead
  * they should derive from {@link org.esa.beam.framework.gpf.AbstractOperator}.</p>
  *
- * @author Maximilian Aulinger
  * @author Norman Fomferra
  * @author Marco Zühlke
+ * @author Maximilian Aulinger
  * @since 4.1
  */
 public interface Operator {
@@ -41,26 +41,27 @@ public interface Operator {
      * @param context the operator's context
      * @param pm      a progress monitor. Can be used to signal progress.
      * @return the target product
+     * @throws OperatorException if an error occurs during operator initialisation
      */
     Product initialize(OperatorContext context, ProgressMonitor pm) throws OperatorException;
 
     /**
-     * This method is called by the framework for a specific target band and a specific rectangular area.
-     * Which band and which area shall be computed can be retrived from the {@code targetRaster} parameter.
+     * Called by the framework in order to compute a target raster for the given band.
      *
-     * @param band         the target band associated with the raster to be computed
-     * @param targetRaster the raster to compute
+     * @param targetBand   the target band
+     * @param targetRaster the target raster associated with the band to be computed
      * @param pm           a progress monitor. Can be used to signal progress.
-     * @see Operator
+     * @throws OperatorException if an error occurs during computation of the target raster
      */
-    void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException;
+    void computeBand(Band targetBand, Raster targetRaster, ProgressMonitor pm) throws OperatorException;
 
     /**
-     * This method is called by the framework for a specific rectangular area.
-     * The data for each target band shall be computed for the given area during this call.
+     * Called by the framework in order to compute the target rasters for the given bands.
      *
-     * @param targetRectangle a rectangular area which shall be compmuted during this call.
+     * @param targetRasters   the target bands and rasters to be computed
+     * @param targetRectangle the target area in pixel coordinates to be computed (same for all rasters in <code>targetRasters</code>)
      * @param pm              a progress monitor. Can be used to signal progress.
+     * @throws OperatorException if an error occurs during computation of the target rasters
      */
     void computeAllBands(Map<Band, Raster> targetRasters, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException;
 

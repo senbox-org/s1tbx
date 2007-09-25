@@ -66,6 +66,7 @@ public interface OperatorContext {
     /**
      * Gets the identifier for the given source product.
      *
+     * @param product the product
      * @return the identifier
      */
     String getIdForSourceProduct(Product product);
@@ -91,6 +92,7 @@ public interface OperatorContext {
 
     /**
      * Gets a logger for the operator.
+     * @return a logger
      */
     Logger getLogger();
 }
