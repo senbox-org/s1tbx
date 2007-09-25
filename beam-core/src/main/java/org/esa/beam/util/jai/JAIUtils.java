@@ -769,12 +769,12 @@ public class JAIUtils {
 
     public static Dimension computePreferredTileSize(int imageWidth,
                                                      int imageHeight,
-                                                     int granularitry) {
-        return new Dimension(computePreferredTileSize(imageWidth, granularitry),
-                             computePreferredTileSize(imageHeight, granularitry));
+                                                     int granularity) {
+        return new Dimension(computePreferredTileSize(imageWidth, granularity),
+                             computePreferredTileSize(imageHeight, granularity));
     }
 
-    private static int computePreferredTileSize(int imageSize, int granularitry) {
+    private static int computePreferredTileSize(int imageSize, int granularity) {
         if (imageSize <= MAX_TILE_SIZE) {
             return imageSize;
         }
@@ -785,7 +785,7 @@ public class JAIUtils {
         }
         int minDelta = Integer.MAX_VALUE;
         int tileSize = -1;
-        for (int u = MAX_TILE_SIZE; u >= MIN_TILE_SIZE; u-=granularitry) {
+        for (int u = MAX_TILE_SIZE; u >= MIN_TILE_SIZE; u -= granularity) {
             int n = imageSize / u;
             if (n * u == imageSize) {
                 return u;
