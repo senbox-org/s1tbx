@@ -1,9 +1,10 @@
 package org.esa.beam.util.jai;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.util.ImageUtils;
 
 import javax.media.jai.ImageLayout;
@@ -60,7 +61,11 @@ public class RasterDataNodeOpImage extends SourcelessOpImage {
         }
 
         try {
-            rasterDataNode.readRasterData(destRect.x, destRect.y, destRect.width, destRect.height, productData, ProgressMonitor.NULL);
+            if (rasterDataNode instanceof TiePointGrid) {
+                rasterDataNode.readPixels(destRect.x, destRect.y, destRect.width, destRect.height, (float[]) productData.getElems(), ProgressMonitor.NULL);
+            } else {
+                rasterDataNode.readRasterData(destRect.x, destRect.y, destRect.width, destRect.height, productData, ProgressMonitor.NULL);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
