@@ -9,10 +9,14 @@ import org.esa.beam.util.Debug;
 import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.swing.JPanel;
-import javax.swing.SwingWorker;
 import javax.swing.border.Border;
 import javax.swing.event.MouseInputAdapter;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Insets;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
@@ -171,45 +175,25 @@ public class NavigationCanvas extends JPanel {
         }
     }
 
-    private boolean updating; // todo - check this (nf, 24.09.2007)
-
     private void updateImageContent() {
         final ImageDisplay imageDisplay = _navigationWindow.getCurrentImageDisplay();
         if (imageDisplay == null || _thumbnail == null) {
             return;
         }
-        if (updating) {
-            return;
-        }
-        updating = true;
-
-        SwingWorker<Object, Object> swingWorker = new SwingWorker<Object, Object>() {
-            @Override
-            protected Object doInBackground() throws Exception {
-                Debug.trace(getClass().getName() + ".updateImageContent() BEGIN");
-                final Graphics2D graphics = _thumbnail.createGraphics();
-                final ImageDisplay painter = new ImageDisplay(imageDisplay.getImage());
-                painter.setSize(_thumbnail.getWidth(), _thumbnail.getHeight());
-                painter.setOpaque(true);
-                painter.setBackground(imageDisplay.getBackground());
-                painter.setForeground(imageDisplay.getForeground());
-                painter.getViewModel().setViewScaleMax(null);
-                painter.getViewModel().setModelArea(imageDisplay.getViewModel().getModelArea());
-                painter.zoomAll();
-                painter.paintComponent(graphics);
-                painter.dispose();
-                graphics.dispose();
-                Debug.trace(getClass().getName() + ".updateImageContent() END");
-                return null;
-            }
-
-            @Override
-            protected void done() {
-                updating = false;
-                imageDisplay.repaint();
-            }
-        };
-        swingWorker.execute();
+        Debug.trace(getClass().getName() + ".updateImageContent() BEGIN");
+        final Graphics2D graphics = _thumbnail.createGraphics();
+        final ImageDisplay painter = new ImageDisplay(imageDisplay.getImage());
+        painter.setSize(_thumbnail.getWidth(), _thumbnail.getHeight());
+        painter.setOpaque(true);
+        painter.setBackground(imageDisplay.getBackground());
+        painter.setForeground(imageDisplay.getForeground());
+        painter.getViewModel().setViewScaleMax(null);
+        painter.getViewModel().setModelArea(imageDisplay.getViewModel().getModelArea());
+        painter.zoomAll();
+        painter.paintComponent(graphics);
+        painter.dispose();
+        graphics.dispose();
+        Debug.trace(getClass().getName() + ".updateImageContent() END");
     }
 
     /**
