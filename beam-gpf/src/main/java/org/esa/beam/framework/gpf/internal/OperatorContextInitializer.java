@@ -85,7 +85,7 @@ public class OperatorContextInitializer {
     private static GpfOpImage[] createTargetImages(Product targetProduct, DefaultOperatorContext operatorContext) {
         if (targetProduct.getPreferredTileSize() == null) {
             Dimension tileSize = JAIUtils.computePreferredTileSize(targetProduct.getSceneRasterWidth(),
-                                                                   targetProduct.getSceneRasterHeight());
+                                                                   targetProduct.getSceneRasterHeight(), 4);
             targetProduct.setPreferredTileSize(tileSize);
         }
 

@@ -115,7 +115,7 @@ public class RasterDataNodeOpImage extends SourcelessOpImage {
             tileSize = preferredTileSize;
         } else {
             tileSize = JAIUtils.computePreferredTileSize(product.getSceneRasterWidth(),
-                                                         product.getSceneRasterHeight());
+                                                         product.getSceneRasterHeight(), 1);
         }
         return tileSize;
     }

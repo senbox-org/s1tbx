@@ -767,13 +767,14 @@ public class JAIUtils {
         return new LookupTableJAI(data);
     }
 
-    public static Dimension computePreferredTileSize(int imageWidth, int imageHeight) {
-        return new Dimension(computePreferredTileSize(imageWidth),
-                             computePreferredTileSize(imageHeight));
+    public static Dimension computePreferredTileSize(int imageWidth,
+                                                     int imageHeight,
+                                                     int granularitry) {
+        return new Dimension(computePreferredTileSize(imageWidth, granularitry),
+                             computePreferredTileSize(imageHeight, granularitry));
     }
 
-    private static int computePreferredTileSize(int imageSize) {
-        int minDelta = imageSize;
+    private static int computePreferredTileSize(int imageSize, int granularitry) {
         if (imageSize <= MAX_TILE_SIZE) {
             return imageSize;
         }
@@ -782,8 +783,9 @@ public class JAIUtils {
                 return u;
             }
         }
+        int minDelta = Integer.MAX_VALUE;
         int tileSize = -1;
-        for (int u = MAX_TILE_SIZE; u >= MIN_TILE_SIZE; u--) {
+        for (int u = MAX_TILE_SIZE; u >= MIN_TILE_SIZE; u-=granularitry) {
             int n = imageSize / u;
             if (n * u == imageSize) {
                 return u;
