@@ -21,16 +21,18 @@ public class RasterDataNodeOpImageTest extends TestCase {
     public void testThatAwtRastersAreWrittenCorrectly() throws IOException {
         PR pr = new PR();
         Product p = pr.readProductNodes(null, null);
-        // todo - conversion from ProductData.TYPE_UINT8 --> DataBuffer.TYPE_BYTE not possible!!!
-        // testThatAwtRastersAreWrittenCorrectly(p, "B_INT8", DataBuffer.TYPE_BYTE);
-        testThatAwtRastersAreWrittenCorrectly(p, "B_UINT8", DataBuffer.TYPE_BYTE);
-        testThatAwtRastersAreWrittenCorrectly(p, "B_INT16", DataBuffer.TYPE_SHORT);
-        testThatAwtRastersAreWrittenCorrectly(p, "B_UINT16", DataBuffer.TYPE_USHORT);
-        testThatAwtRastersAreWrittenCorrectly(p, "B_INT32", DataBuffer.TYPE_INT);
-        testThatAwtRastersAreWrittenCorrectly(p, "B_UINT32", DataBuffer.TYPE_INT);
-        testThatAwtRastersAreWrittenCorrectly(p, "B_FLOAT32", DataBuffer.TYPE_FLOAT);
-        testThatAwtRastersAreWrittenCorrectly(p, "B_FLOAT64", DataBuffer.TYPE_DOUBLE);
 
+        testThatAwtRastersAreWrittenCorrectly(p, "B_FLOAT64", DataBuffer.TYPE_DOUBLE);
+        testThatAwtRastersAreWrittenCorrectly(p, "B_FLOAT32", DataBuffer.TYPE_FLOAT);
+
+        testThatAwtRastersAreWrittenCorrectly(p, "B_UINT32", DataBuffer.TYPE_INT);
+        testThatAwtRastersAreWrittenCorrectly(p, "B_UINT16", DataBuffer.TYPE_USHORT);
+        testThatAwtRastersAreWrittenCorrectly(p, "B_UINT8", DataBuffer.TYPE_BYTE);
+
+        testThatAwtRastersAreWrittenCorrectly(p, "B_INT32", DataBuffer.TYPE_INT);
+        testThatAwtRastersAreWrittenCorrectly(p, "B_INT16", DataBuffer.TYPE_SHORT);
+        testThatAwtRastersAreWrittenCorrectly(p, "B_INT8", DataBuffer.TYPE_BYTE);
+        // todo - conversion from ProductData.B_INT8 --> DataBuffer.TYPE_BYTE still fails!!!
     }
 
     private void testThatAwtRastersAreWrittenCorrectly(Product p, String bandName, int dataBufferType) {
