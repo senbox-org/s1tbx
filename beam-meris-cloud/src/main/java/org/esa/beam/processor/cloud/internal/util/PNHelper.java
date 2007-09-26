@@ -1,12 +1,14 @@
 package org.esa.beam.processor.cloud.internal.util;
 
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
+import java.awt.Rectangle;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Logger;
+
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.processor.ProcessorConstants;
@@ -15,10 +17,8 @@ import org.esa.beam.framework.processor.ProductRef;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 
-import java.awt.Rectangle;
-import java.io.File;
-import java.io.IOException;
-import java.util.logging.Logger;
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 
 
 /**
@@ -28,30 +28,6 @@ import java.util.logging.Logger;
  * </p>
  */
 public class PNHelper {
-
-    /**
-     * Copies all bands from the source product to the destination product.
-     * Flag bands are only copied if requested.
-     *
-     * @param sourceProduct
-     * @param destinationProduct
-     * @param copyFlagbands
-     */
-    static public void copyAllBandsToProduct(Product sourceProduct, Product destinationProduct, boolean copyFlagbands) {
-        Band[] sourceBands = sourceProduct.getBands();
-        for (int i = 0; i < sourceBands.length; i++) {
-            Band sourceBand = sourceBands[i];
-            FlagCoding flagCoding = sourceBand.getFlagCoding();
-            if (flagCoding == null) {
-                Band destBand = ProductUtils.copyBand(sourceBand.getName(), sourceProduct, destinationProduct);
-                destBand.setNoDataValueUsed(sourceBand.isNoDataValueUsed());
-                destBand.setNoDataValue(sourceBand.getNoDataValue());
-            }
-        }
-        if (copyFlagbands && sourceProduct.getNumFlagCodings() > 0) {
-            ProductUtils.copyFlagBands(sourceProduct, destinationProduct);
-        }
-    }
 
     /**
      * Copies the band data int the given region from the source bands into the destination product.

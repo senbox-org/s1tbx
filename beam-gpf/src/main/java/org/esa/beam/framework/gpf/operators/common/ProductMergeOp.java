@@ -23,7 +23,6 @@ import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.util.ProductUtils;
@@ -160,8 +159,6 @@ public class ProductMergeOp extends AbstractOperator implements ParameterConvert
             ProductUtils.copyFlagCoding(srcFlagCoding, outputProduct);
             destBand.setFlagCoding(outputProduct.getFlagCoding(srcFlagCoding.getName()));
         }
-        destBand.setNoDataValueUsed(srcBand.isNoDataValueUsed());
-        destBand.setNoDataValue(srcBand.getNoDataValue());
         return destBand;
     }
 
