@@ -47,6 +47,10 @@ public class RasterImpl implements Raster {
     }
 
 
+    public boolean isTarget() {
+        throw new IllegalStateException("not implemented");
+    }
+
     public final RasterDataNode getRasterDataNode() {
         return rasterDataNode;
     }
@@ -57,6 +61,10 @@ public class RasterImpl implements Raster {
 
     public final ProductData getDataBuffer() {
         return dataBuffer;
+    }
+
+    public void setSampleData(ProductData sampleData) {
+        throw new IllegalStateException("not implemented");
     }
 
     public final int getHeight() {

@@ -5,10 +5,18 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 
 import java.awt.Rectangle;
 
+// todo - rename to Tile (nf - 26.09.2007)
 /**
- * A 2-dimensional wrapper for {@link ProductData}.
+ * A tile.
  */
 public interface Raster {
+
+    /**
+     * Checks if this is a target tile. Non-target tiles are read only.
+     *
+     * @return <code>true</code> if this is a target tile.
+     */
+    boolean isTarget();
 
     /**
      * The tile rectangle in raster coordinates.
@@ -53,12 +61,28 @@ public interface Raster {
      */
     RasterDataNode getRasterDataNode();
 
+    // todo - rename to getSampleData (nf - 26.09.2007)
     /**
-     * Gets the data buffer which is wrapped by this raster.
+     * Gets the (raw) sample data of this tile's underlying raster.
+     * <p>The number of samples equals
+     * <code>width*height</code> of this tile's {@link #getRectangle() rectangle}.</p>
+     * <p>Note: Changing the samples will not necessarily
+     * alter the underlying tile raster data before the {@link #setSampleData(org.esa.beam.framework.datamodel.ProductData) setProductData()}
+     * method is called with the modified sample data.</p>
      *
-     * @return the data buffer
+     * @return the sample data
      */
     ProductData getDataBuffer();
+
+    /**
+     * Gets the (raw) sample data of this tile's underlying raster.
+     * <p>The number of samples must equal
+     * <code>width*height</code> of this tile's {@link #getRectangle() rectangle}.</p>
+     *
+     * @param sampleData the sample data
+     * @see #getDataBuffer()
+     */
+    void setSampleData(ProductData sampleData);
 
     /**
      * Gets the integer value at the given position.
