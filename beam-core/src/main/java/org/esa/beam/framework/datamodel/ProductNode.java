@@ -49,7 +49,6 @@ public abstract class ProductNode {
      * Constructs a new product node with the given name.
      *
      * @param name the node name, must not be <code>null</code>
-     *
      * @throws IllegalArgumentException if the given name is not a valid node identifier
      */
     protected ProductNode(String name) {
@@ -61,7 +60,6 @@ public abstract class ProductNode {
      *
      * @param name        the node name, must not be <code>null</code>
      * @param description a descriptive string, can be <code>null</code>
-     *
      * @throws IllegalArgumentException if the given name is not a valid node identifier
      */
     protected ProductNode(String name, String description) {
@@ -180,7 +178,6 @@ public abstract class ProductNode {
      * 'NodeChange' event on the product.
      *
      * @param modified whether or not this node is beeing marked as modified.
-     *
      * @see org.esa.beam.framework.datamodel.Product#fireNodeChanged
      */
     public void setModified(boolean modified) {
@@ -224,7 +221,6 @@ public abstract class ProductNode {
      * any of the character  <code>\/:*?"&lt;&gt;|</code>
      *
      * @param name the name to test
-     *
      * @return <code>true</code> if the name is a valid node ifentifier, <code>false</code> otherwise
      */
     public static boolean isValidNodeName(final String name) {
@@ -240,7 +236,6 @@ public abstract class ProductNode {
      *
      * @return the product, or <code>null</code> if this node was not owned by a product at the time this method was
      *         called
-     *
      * @throws IllegalStateException if this node does not belong to a product
      */
     public Product getProduct() {
@@ -261,7 +256,6 @@ public abstract class ProductNode {
      * Returns safely the product to which this node belongs to.
      *
      * @return the product, never <code>null</code>
-     *
      * @throws IllegalStateException if this node does not belong to a product
      */
     protected Product getProductSafe() throws IllegalStateException {
@@ -288,13 +282,12 @@ public abstract class ProductNode {
      * <code>IllegalStateException</code> if no such reader exists.
      *
      * @return the product reader, never <code>null</code>
-     *
      * @throws IllegalStateException if the the product reader is <code>null</code>
      */
     protected ProductReader getProductReaderSafe() {
         ProductReader productReader = getProductReader();
         if (productReader == null) {
-            throw new IllegalStateException("node '" + getName() + "' requires a productReader which has not been set");  /*I18N*/
+            throw new IllegalStateException(getClass().getName() + " '" + getName() + "' requires a productReader which has not been set");  /*I18N*/
         }
         return productReader;
     }
@@ -314,7 +307,6 @@ public abstract class ProductNode {
      * <code>IllegalStateException</code> if no such writer exists.
      *
      * @return the product writer, never <code>null</code>
-     *
      * @throws IllegalStateException if the the product writer is <code>null</code>
      */
     protected ProductWriter getProductWriterSafe() {
@@ -364,7 +356,6 @@ public abstract class ProductNode {
      *
      * @return this node's name with a product prefix <br>or this node's name only if this node's product prefix is
      *         <code>null</code>
-     *
      * @see #getProductRefString
      */
     public String getDisplayName() {
@@ -402,7 +393,6 @@ public abstract class ProductNode {
      * Gets an estimated, raw storage size in bytes of this product node.
      *
      * @param subsetDef if not <code>null</code> the subset may limit the size returned
-     *
      * @return the size in bytes.
      */
     public abstract long getRawStorageSize(ProductSubsetDef subsetDef);
@@ -428,7 +418,6 @@ public abstract class ProductNode {
      *
      * @param node     the node to be added
      * @param nodeList the node list to which to add the node
-     *
      * @see #removeNamedNode
      */
     protected void addNamedNode(ProductNode node, ProductNodeList nodeList) {
@@ -455,9 +444,7 @@ public abstract class ProductNode {
      *
      * @param node     the node to be removed
      * @param nodeList the node list from which to remove the node
-     *
      * @return <code>true</code> if the node has been removed
-     *
      * @see #addNamedNode
      */
     protected boolean removeNamedNode(ProductNode node, ProductNodeList nodeList) {
