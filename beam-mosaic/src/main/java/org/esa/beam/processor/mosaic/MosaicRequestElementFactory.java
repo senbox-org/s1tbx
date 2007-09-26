@@ -293,7 +293,7 @@ public class MosaicRequestElementFactory implements RequestElementFactory {
      * @return parameter information
      */
     private ParamProperties createParamInfoOutputWidth() {
-        ParamProperties paramProps = _defaultFactory.createIntegerParamProperties();
+        ParamProperties paramProps = _defaultFactory.createFloatParamProperties();
         paramProps.setLabel(MosaicConstants.PARAM_LABEL_OUTPUT_WIDTH);
         paramProps.setDescription(MosaicConstants.PARAM_DESCRIPTION_OUTPUT_WIDTH);
         paramProps.setDefaultValue(MosaicConstants.PARAM_DEFAULT_VALUE_OUTPUT_WIDTH);
@@ -306,7 +306,7 @@ public class MosaicRequestElementFactory implements RequestElementFactory {
      * @return parameter information
      */
     private ParamProperties createParamInfoOutputHeight() {
-        ParamProperties paramProps = _defaultFactory.createIntegerParamProperties();
+        ParamProperties paramProps = _defaultFactory.createFloatParamProperties();
         paramProps.setLabel(MosaicConstants.PARAM_LABEL_OUTPUT_HEIGHT);
         paramProps.setDescription(MosaicConstants.PARAM_DESCRIPTION_OUTPUT_HEIGHT);
         paramProps.setDefaultValue(MosaicConstants.PARAM_DEFAULT_VALUE_OUTPUT_HEIGHT);
