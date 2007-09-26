@@ -101,7 +101,7 @@ public class NdviOp extends AbstractOperator {
 
             Raster l1flagsSourceRaster = getRaster(inputProduct.getBand(L1FLAGS_INPUT_BAND_NAME), rectangle);
             Raster l1flagsTargetRaster = targetRasters.get(targetProduct.getBand(L1FLAGS_INPUT_BAND_NAME));
-            // copy, because the databuffer is for computeAllBands not correctly (re)used
+            // TODO replace copy by OpImage delegation
             final int length = rectangle.width * rectangle.height;
             System.arraycopy(l1flagsSourceRaster.getDataBuffer().getElems(), 0, l1flagsTargetRaster.getDataBuffer().getElems(), 0, length);
             pm.worked(1);

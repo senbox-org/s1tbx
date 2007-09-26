@@ -171,7 +171,7 @@ public class ProductMergeOp extends AbstractOperator implements ParameterConvert
         Band sourceBand = sourceBands.get(band);
         Raster sourceRaster = getRaster(sourceBand, rectangle);
 
-        // copy, because the databuffer is for computeAllBands not correctly (re)used
+        // TODO replace copy with OpImage delegation
         final int length = rectangle.width * rectangle.height;
         System.arraycopy(sourceRaster.getDataBuffer().getElems(), 0, targetRaster.getDataBuffer().getElems(), 0, length);
     }
