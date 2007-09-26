@@ -222,9 +222,7 @@ public class N1PatcherOp extends AbstractOperator {
 
         pm.beginTask("Patching product...", rectangle.height + 1);
         try {
-            Raster raster = getRaster(band, rectangle);
-            ProductData dataBuffer = raster.getDataBuffer();
-            short[] bandData = (short[]) dataBuffer.getElems();
+            Raster srcRaster = getRaster(band, rectangle);
 
             byte[] buf = new byte[rectangle.height * descriptor.dsrSize];
             final long dsrOffset = descriptor.dsOffset + rectangle.y * descriptor.dsrSize;
@@ -234,7 +232,7 @@ public class N1PatcherOp extends AbstractOperator {
             for (int y = 0; y < rectangle.height; y++) {
                 outputStream.write(buf, y * descriptor.dsrSize, DSR_HEADER_SIZE);
                 for (int x = rectangle.width - 1; x >= 0; x--) {
-                    outputStream.writeShort(bandData[x + y * rectangle.width]);
+                    outputStream.writeShort(srcRaster.getInt(x, y));
                 }
                 pm.worked(1);
             }
