@@ -1050,6 +1050,9 @@ public class ProductUtils {
         targetBand.setScalingFactor(sourceBand.getScalingFactor());
         targetBand.setScalingOffset(sourceBand.getScalingOffset());
         targetBand.setLog10Scaled(sourceBand.isLog10Scaled());
+        targetBand.setNoDataValueUsed(sourceBand.isNoDataValueUsed());
+        targetBand.setNoDataValue(sourceBand.getNoDataValue());
+        targetBand.setValidPixelExpression(sourceBand.getValidPixelExpression());
         copySpectralAttributes(sourceBand, targetBand);
         targetProduct.addBand(targetBand);
         return targetBand;
