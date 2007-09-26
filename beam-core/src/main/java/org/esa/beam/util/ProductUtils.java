@@ -27,21 +27,12 @@ import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.barithm.RasterDataEvalEnv;
 import org.esa.beam.framework.dataop.barithm.RasterDataLoop;
 import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
-import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.esa.beam.framework.dataop.maptransf.IdentityTransformDescriptor;
-import org.esa.beam.framework.dataop.maptransf.LambertConformalConicDescriptor;
-import org.esa.beam.framework.dataop.maptransf.MapInfo;
-import org.esa.beam.framework.dataop.maptransf.MapProjection;
-import org.esa.beam.framework.dataop.maptransf.MapTransform;
-import org.esa.beam.framework.dataop.maptransf.StereographicDescriptor;
-import org.esa.beam.framework.dataop.maptransf.TransverseMercatorDescriptor;
-import org.esa.beam.framework.dataop.maptransf.UTM;
+import org.esa.beam.framework.dataop.maptransf.*;
 import org.esa.beam.util.geotiff.EPSGCodes;
 import org.esa.beam.util.geotiff.GeoTIFFCodes;
 import org.esa.beam.util.geotiff.GeoTIFFMetadata;
 import org.esa.beam.util.jai.JAIDebug;
 import org.esa.beam.util.jai.JAIUtils;
-import org.esa.beam.util.jai.RasterDataNodeOpImage;
 import org.esa.beam.util.math.Histogram;
 import org.esa.beam.util.math.IndexValidator;
 import org.esa.beam.util.math.MathUtils;
@@ -49,19 +40,9 @@ import org.esa.beam.util.math.Range;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ROI;
-import javax.media.jai.RenderedOp;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.Transparency;
+import java.awt.*;
 import java.awt.color.ColorSpace;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.PathIterator;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.*;
 import java.awt.image.*;
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -122,7 +103,7 @@ public class ProductUtils {
     }
 
     /**
-     * @deprecated in 4.0, use {@link #createOverlayedImage(RasterDataNode[], String, ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #createOverlayedImage(RasterDataNode[],String,ProgressMonitor)} instead
      */
     public static RenderedImage createOverlayedImage(final RasterDataNode[] rasterDataNodes,
                                                      final String histogramMatching) throws IOException {
@@ -205,7 +186,7 @@ public class ProductUtils {
 
 
     /**
-     * @deprecated in 4.0, use {@link #createColorIndexedImage(RasterDataNode, ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #createColorIndexedImage(RasterDataNode,ProgressMonitor)} instead
      */
     public static BufferedImage createColorIndexedImage(final RasterDataNode rasterDataNode) throws IOException {
         return createColorIndexedImage(rasterDataNode, ProgressMonitor.NULL);
@@ -256,7 +237,7 @@ public class ProductUtils {
     }
 
     /**
-     * @deprecated in 4.0, use {@link #createRgbImage(org.esa.beam.framework.datamodel.RasterDataNode[], com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #createRgbImage(org.esa.beam.framework.datamodel.RasterDataNode[],com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static BufferedImage createRgbImage(final RasterDataNode[] rasterDataNodes) throws IOException {
         return createRgbImage(rasterDataNodes, ProgressMonitor.NULL);
@@ -530,7 +511,7 @@ public class ProductUtils {
     /**
      * Creates the boundary in map coordinates for the given product, source rectangle (in product pixel coordinates)
      * and the given map transfromation. The method delegates to {@link #createMapEnvelope(org.esa.beam.framework.datamodel.Product,
-     * java.awt.Rectangle, int, org.esa.beam.framework.dataop.maptransf.MapTransform) createMapEnvelope(product, rect,
+     *java.awt.Rectangle,int,org.esa.beam.framework.dataop.maptransf.MapTransform) createMapEnvelope(product, rect,
      * step, mapTransform)} where <code>step</code> is the half of the minimum of the product scene raster width and
      * height.
      *
@@ -549,7 +530,7 @@ public class ProductUtils {
     /**
      * Creates the boundary in map coordinates for the given product, source rectangle (in product pixel coordinates)
      * and the given map transfromation. The method delegates to {@link #createMapEnvelope(org.esa.beam.framework.datamodel.Product,
-     * java.awt.Rectangle, int, org.esa.beam.framework.dataop.maptransf.MapTransform) createMapEnvelope(product, rect,
+     *java.awt.Rectangle,int,org.esa.beam.framework.dataop.maptransf.MapTransform) createMapEnvelope(product, rect,
      * step, mapTransform)} where <code>step</code> is the half of the minimum of the product scene raster width and
      * height.
      *
@@ -609,7 +590,7 @@ public class ProductUtils {
     /**
      * Creates the geographical boundary of the given region within the given product and returns it as a list of
      * geographical coordinates.
-     * <p> This method delegates to {@link ProductUtils#createGeoBoundary(org.esa.beam.framework.datamodel.Product, java.awt.Rectangle, int, boolean) createGeoBoundary(Product, Rectangle, int, boolean)}
+     * <p> This method delegates to {@link ProductUtils#createGeoBoundary(org.esa.beam.framework.datamodel.Product,java.awt.Rectangle,int,boolean) createGeoBoundary(Product, Rectangle, int, boolean)}
      * and the additional boolean parameter <code>usePixelCenter</code> is <code>true</code>.
      *
      * @param product the input product, must not be null
@@ -697,7 +678,7 @@ public class ProductUtils {
      * the product does not intersect the 180 degree meridian, a single general path is returned. Otherwise two or three
      * shapes are created and returned in the order from west to east.
      * <p/>
-     * This method delegates to {@link ProductUtils#createGeoBoundaryPaths(org.esa.beam.framework.datamodel.Product, java.awt.Rectangle, int, boolean) createGeoBoundaryPaths(Product, Rectangle, int, boolean)}
+     * This method delegates to {@link ProductUtils#createGeoBoundaryPaths(org.esa.beam.framework.datamodel.Product,java.awt.Rectangle,int,boolean) createGeoBoundaryPaths(Product, Rectangle, int, boolean)}
      * and the aditional parameter <code>usePixelCenter</code> is <code>true</code>.
      *
      * @param product the input product
@@ -747,7 +728,7 @@ public class ProductUtils {
      * <p/>
      * <p>This method is used for an intermediate step when determining a product boundary expressed in geographical
      * co-ordinates.
-     * <p> This method delegates to {@link ProductUtils#createPixelBoundary(org.esa.beam.framework.datamodel.Product, java.awt.Rectangle, int, boolean) createPixelBoundary(Product, Rectangle, int, boolean)}
+     * <p> This method delegates to {@link ProductUtils#createPixelBoundary(org.esa.beam.framework.datamodel.Product,java.awt.Rectangle,int,boolean) createPixelBoundary(Product, Rectangle, int, boolean)}
      * and the additional boolean parameter <code>usePixelCenter</code> is <code>true</code>.
      *
      * @param product the product
@@ -817,7 +798,7 @@ public class ProductUtils {
      * + 2 * (5 - 2) = 26 pixel positions.
      * <p>This method is used for an intermediate step when determining a product boundary expressed in geographical
      * co-ordinates.
-     * <p> This method delegates to {@link ProductUtils#createRectBoundary(java.awt.Rectangle, int, boolean) createRectBoundary(Rectangle, int, boolean)}
+     * <p> This method delegates to {@link ProductUtils#createRectBoundary(java.awt.Rectangle,int,boolean) createRectBoundary(Rectangle, int, boolean)}
      * and the additional boolean parameter <code>usePixelCenter</code> is <code>true</code>.
      *
      * @param rect the source rectangle
@@ -1152,7 +1133,7 @@ public class ProductUtils {
     }
 
     /**
-     * @deprecated in 4.0, use {@link #createScatterPlotImage(RasterDataNode, float, float, RasterDataNode, float, float, ROI, int, int, Color, BufferedImage, ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #createScatterPlotImage(RasterDataNode,float,float,RasterDataNode,float,float,ROI,int,int,Color,BufferedImage,ProgressMonitor)} instead
      */
     public static BufferedImage createScatterPlotImage(final RasterDataNode raster1,
                                                        final float sampleMin1,
@@ -1299,7 +1280,7 @@ public class ProductUtils {
     }
 
     /**
-     * @deprecated in 4.0, use {@link #overlayBitmasks(org.esa.beam.framework.datamodel.RasterDataNode, javax.media.jai.PlanarImage, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #overlayBitmasks(org.esa.beam.framework.datamodel.RasterDataNode,javax.media.jai.PlanarImage,com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static PlanarImage overlayBitmasks(RasterDataNode raster, PlanarImage overlayPIm) throws IOException {
         return overlayBitmasks(raster, overlayPIm, ProgressMonitor.NULL);
@@ -1387,7 +1368,7 @@ public class ProductUtils {
     }
 
     /**
-     * @deprecated in 4.0, use {@link #overlayBitmasks(org.esa.beam.framework.datamodel.RasterDataNode, java.awt.image.BufferedImage, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #overlayBitmasks(org.esa.beam.framework.datamodel.RasterDataNode,java.awt.image.BufferedImage,com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static BufferedImage overlayBitmasks(final RasterDataNode raster, final BufferedImage overlayBIm) throws
             IOException {
@@ -1653,7 +1634,7 @@ public class ProductUtils {
      *                                  not get geografic coordinates.
      * @throws IllegalStateException    if this method was used with a java runtime version in which it is not guaranted
      *                                  that a <code>PathIterator</code> returned by {@link Shape#getPathIterator(java.awt.geom.AffineTransform,
-     *                                  double)} returnes only SEG_MOVETO, SEG_LINETO, and SEG_CLOSE point types.
+     *double)} returnes only SEG_MOVETO, SEG_LINETO, and SEG_CLOSE point types.
      * @see GeoCoding#canGetGeoPos()
      */
     public static GeneralPath convertToGeoPath(Shape shape, GeoCoding geoCoding) {
@@ -2313,7 +2294,7 @@ public class ProductUtils {
                 final Area currentArea = new Area(new Rectangle2D.Float(k * 360.0f - 180.0f, -90.0f, 360.0f, 180.0f));
                 currentArea.intersect(pathArea);
                 if (!currentArea.isEmpty()) {
-                    pathList.add(areaToPath(currentArea, - k * 360.0));
+                    pathList.add(areaToPath(currentArea, -k * 360.0));
                 }
             }
         }
