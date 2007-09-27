@@ -84,7 +84,9 @@ public abstract class AbstractTileImageTileTest extends TestCase {
         assertEquals(expectedRect.height, tile.getHeight());
         assertEquals(expectedScanlineStride, tile.getScanlineStride());
         assertEquals(expectedScanlineOffset, tile.getScanlineOffset());
-        assertEquals(expectedTarget, tile.isTarget());
+        if (expectedTarget) {
+            assertEquals(true, tile.isWritable());
+        }
     }
 
     protected Raster getImageData(TestOpImage image, Rectangle expectedRect) {
@@ -104,9 +106,35 @@ public abstract class AbstractTileImageTileTest extends TestCase {
         assertNull(tile.getRawSamplesDouble());
     }
 
-    protected void testScaledSampleAccess(TileImpl tile, int x0, int y0) {
-        tile.setSample(x0, y0, 0.23);
-        assertEquals(0.23, tile.getSampleDouble(x0, y0), 1e-5);
+    protected void testSampleFloatIO(TileImpl tile, int x0, int y0) {
+        tile.setSample(x0, y0, 0.23f);
+        assertEquals(0.23f, tile.getSampleFloat(x0, y0), 1e-5);
+    }
+
+
+    protected void testRawSamplesFloatIO(TileImpl tile, int x, int y) {
+        float[] samplesFloat = tile.getRawSamplesFloat();
+        assertNotNull(samplesFloat);
+
+        float oldXYSample = tile.getSampleFloat(x, y);
+
+        int lineOffset = tile.getScanlineOffset();
+        int lineStride = tile.getScanlineStride();
+        int index = lineOffset + (y - tile.getMinY()) * lineStride + (x - tile.getMinX());
+        assertTrue(index >= 0);
+        assertTrue(index < samplesFloat.length);
+
+        float oldIndexSample = samplesFloat[index];
+        assertEquals(oldXYSample, oldIndexSample, 1e-5f);
+
+        float newIndexSample = 1234.56f;
+        assertTrue(Math.abs(oldIndexSample - newIndexSample) > 0.01f);
+
+        samplesFloat[index] = newIndexSample;
+
+        float newXYSample = tile.getSampleFloat(x, y);
+
+        assertEquals(newIndexSample, newXYSample, 1e-5f);
     }
 
 }

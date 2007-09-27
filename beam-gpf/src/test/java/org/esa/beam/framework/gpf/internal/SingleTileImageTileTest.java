@@ -52,6 +52,12 @@ public class SingleTileImageTileTest extends AbstractTileImageTileTest {
         assertEquals(11.5, tile.getSampleDouble(1, 1), 1e-5);
         assertEquals(22.5, tile.getSampleDouble(2, 2), 1e-5);
         assertEquals(33.5, tile.getSampleDouble(3, 3), 1e-5);
+
+        testRawSamplesFloatIO(tile, 0, 0);
+        testRawSamplesFloatIO(tile, 0, IMAGE_H - 1);
+        testRawSamplesFloatIO(tile, IMAGE_W - 1, 0);
+        testRawSamplesFloatIO(tile, IMAGE_W - 1, IMAGE_H - 1);
+        testRawSamplesFloatIO(tile, IMAGE_W / 2, IMAGE_H / 2);
     }
 
     public void testChildTile() {
@@ -62,7 +68,7 @@ public class SingleTileImageTileTest extends AbstractTileImageTileTest {
 
         Rectangle expectedRect = new Rectangle(CHILD_X, CHILD_Y, CHILD_W, CHILD_H);
         Raster childRaster = getImageData(imageFLOAT32, expectedRect);
-        TileImpl tile = new TileImpl(getBand("B_FLOAT32"), childRaster, expectedRect, false);
+        TileImpl tile = new TileImpl(getBand("B_FLOAT32"), childRaster, expectedRect);
         assertSame(getBand("B_FLOAT32"), tile.getRasterDataNode());
 
         testTileStructure(tile, expectedRect, CHILD_Y * IMAGE_W + CHILD_X, IMAGE_W, false);
@@ -75,5 +81,12 @@ public class SingleTileImageTileTest extends AbstractTileImageTileTest {
         assertEquals(23.5, tile.getSampleDouble(CHILD_X + 1, CHILD_Y + 1), 1e-5);
         assertEquals(14.5, tile.getSampleDouble(CHILD_X + 0, CHILD_Y + 2), 1e-5);
         assertEquals(24.5, tile.getSampleDouble(CHILD_X + 1, CHILD_Y + 2), 1e-5);
+
+        testRawSamplesFloatIO(tile, CHILD_X + 0, CHILD_Y + 0);
+        testRawSamplesFloatIO(tile, CHILD_X + 1, CHILD_Y + 0);
+        testRawSamplesFloatIO(tile, CHILD_X + 0, CHILD_Y + 1);
+        testRawSamplesFloatIO(tile, CHILD_X + 1, CHILD_Y + 1);
+        testRawSamplesFloatIO(tile, CHILD_X + 0, CHILD_Y + 2);
+        testRawSamplesFloatIO(tile, CHILD_X + 1, CHILD_Y + 2);
     }
 }

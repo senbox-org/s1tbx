@@ -36,7 +36,7 @@ class TestOpImage extends RasterDataNodeOpImage {
                 writableRaster.setSample(x, y, 0, sample);
             }
         }
-        tileImplMap.put(rectangle, new TileImpl(getRasterDataNode(), writableRaster, rectangle, true));
+        tileImplMap.put(rectangle, new TileImpl(getRasterDataNode(), writableRaster, rectangle));
     }
 
     public static double getSampleDouble(int x, int y) {

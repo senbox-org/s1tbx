@@ -143,7 +143,7 @@ public class RasterImpl implements Tile {
         throw new IllegalStateException("not implemented");
     }
 
-    public boolean isTarget() {
+    public boolean isWritable() {
         throw new IllegalStateException("not implemented");
     }
 

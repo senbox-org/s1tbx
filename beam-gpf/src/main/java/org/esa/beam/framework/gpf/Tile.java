@@ -131,25 +131,46 @@ public interface Tile {
 
     /**
      * Gets the raw (unscaled, uncalibrated) sample data (e.g. detector counts) of this tile's underlying raster.
-     * <p>The number of samples equals
-     * <code>width*height</code> of this tile's {@link #getRectangle() rectangle}.</p>
-     * <p>Note: Changing the samples will not necessarily
-     * alter the underlying tile raster data before the {@link #setRawSampleData(org.esa.beam.framework.datamodel.ProductData) setProductData()}
-     * method is called with the modified sample data.</p>
+     * Let {@code x} and {@code y} be absolute pixel coordinates. The {@code index} to be used with the returned data
+     * buffer is then computed as follows:
+     * <pre>
+     *   int lineOffset = tile.{@link #getScanlineOffset()};
+     *   int lineStride = tile.{@link #getScanlineOffset()};
+     *   int dx = x - tile.{@link #getMinX()};
+     *   int dy = y - tile.{@link #getMinY()};
+     *   int index = lineOffset + lineStride * dy + dx;
+     *   // use index here to access raw sample data...
+     * </pre>
+     * Or more efficient using the standard imaging x,y-loops for relative tile pixel coordinates:
+     * <pre>
+     *   int lineStride = tile.{@link #getScanlineStride()};
+     *   int lineOffset = tile.{@link #getScanlineOffset()};
+     *   for (int y = 0; y &lt; tile.{@link #getHeight()}; y++) {
+     *      int index = lineOffset;
+     *      for (int x = 0; x &lt; tile.{@link #getWidth()}; x++) {
+     *           // use index here to access raw sample data...
+     *           index++;
+     *       }
+     *       lineOffset += lineStride;
+     *   }
+     * </pre>
+     * Or the standard imaging x,y-loops for absolute tile pixel coordinates
+     * <pre>
+     *   int lineStride = tile.{@link #getScanlineStride()};
+     *   int lineOffset = tile.{@link #getScanlineOffset()};
+     *   for (int y = tile.{@link #getMinY()}; y &lt;= tile.{@link #getMaxY()}; y++) {
+     *      int index = lineOffset;
+     *      for (int x = tile.{@link #getMinX()}; x &lt;= tile.{@link #getMaxX()}; x++) {
+     *           // use index here to access raw sample data...
+     *           index++;
+     *       }
+     *       lineOffset += lineStride;
+     *   }
+     * </pre>
      *
      * @return the sample data
      */
     ProductData getRawSampleData();
-
-    /**
-     * Sets the raw (unscaled, uncalibrated) sample data (e.g. detector counts) of this tile's underlying raster.
-     * <p>The number of samples must equal
-     * <code>width*height</code> of this tile's {@link #getRectangle() rectangle}.</p>
-     *
-     * @param sampleData the sample data
-     * @see #getRawSampleData()
-     */
-    void setRawSampleData(ProductData sampleData);
 
     byte[] getRawSamplesByte();
 
@@ -167,25 +188,25 @@ public interface Tile {
 
     int getSampleInt(int x, int y);
 
-    void setSample(int x, int y, int v);
+    void setSample(int x, int y, int sample);
 
     float getSampleFloat(int x, int y);
 
-    void setSample(int x, int y, float v);
+    void setSample(int x, int y, float sample);
 
     double getSampleDouble(int x, int y);
 
-    void setSample(int x, int y, double v);
+    void setSample(int x, int y, double sample);
 
     boolean getSampleBoolean(int x, int y);
 
-    void setSample(int x, int y, boolean v);
+    void setSample(int x, int y, boolean sample);
 
     /**
      * Checks if this is a target tile. Non-target tiles are read only.
      *
      * @return <code>true</code> if this is a target tile.
      */
-    boolean isTarget();
+    boolean isWritable();
 
 }
