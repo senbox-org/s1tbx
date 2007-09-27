@@ -1,99 +1,120 @@
 package org.esa.beam.framework.gpf.internal;
 
-import junit.framework.TestCase;
-import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ProductData;
 
+import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.util.HashMap;
+import java.awt.image.Raster;
 
-public class MultiTargetTileTest extends TestCase {
+public class MultiTileImageTileTest extends AbstractTileImageTileTest {
+
     final int IMAGE_W = 10;
     final int IMAGE_H = 12;
     final int TILE_SIZE = 6;
-    private Product product;
-    private HashMap<Rectangle, TileImpl> tiles;
-    private TestOpImage image;
+    private TestOpImage imageFLOAT32;
 
     @Override
     protected void setUp() throws Exception {
-        product = new Product("N", "T", IMAGE_W, IMAGE_H);
-        product.setPreferredTileSize(TILE_SIZE, TILE_SIZE);
-        product.addBand("B_FLOAT32", ProductData.TYPE_FLOAT32);
-        image = new TestOpImage(product.getBand("B_FLOAT32"));
-        // Force JAI tile computation
-        image.getTiles();
-        tiles = image.getGpfTiles();
+        super.setUp();
+        imageFLOAT32 = getImage("B_FLOAT32");
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        product.dispose();
-        product = null;
-        tiles.clear();
-        tiles = null;
-        image.dispose();
-        image = null;
+    public Dimension getImageSize() {
+        return new Dimension(IMAGE_W, IMAGE_H);
     }
 
-    public void testThat4TilesAreCreated() {
-        assertEquals(4, tiles.size());
+    @Override
+    public Dimension getTileSize() {
+        return new Dimension(TILE_SIZE, TILE_SIZE);
     }
 
     public void testThatImageIsTiled() {
-        assertEquals(TILE_SIZE, image.getSampleModel().getWidth());
-        assertEquals(TILE_SIZE, image.getSampleModel().getHeight());
+        assertEquals(4, imageFLOAT32.getNumTileImpls());
+        assertEquals(TILE_SIZE, imageFLOAT32.getSampleModel().getWidth());
+        assertEquals(TILE_SIZE, imageFLOAT32.getSampleModel().getHeight());
     }
 
     public void testThatSampleData_IS_NOT_A_CopyForTile00() {
         Rectangle expectedRect = new Rectangle(0, 0,
                                                TILE_SIZE,
                                                TILE_SIZE);
-        TileImpl tile = tiles.get(expectedRect);
-        testTile(tile, false, expectedRect);
+        TileImpl tile = imageFLOAT32.getTileImpl(expectedRect);
+        testTargetTile(tile, false, expectedRect);
     }
 
     public void testThatSampleData_IS_A_CopyForTile10() {
         Rectangle expectedRect = new Rectangle(TILE_SIZE, 0,
                                                IMAGE_W - TILE_SIZE,
                                                TILE_SIZE);
-        TileImpl tile = tiles.get(expectedRect);
-        testTile(tile, true, expectedRect);
+        TileImpl tile = imageFLOAT32.getTileImpl(expectedRect);
+        testTargetTile(tile, true, expectedRect);
     }
 
     public void testThatSampleData_IS_NOT_A_CopyForTile01() {
         Rectangle expectedRect = new Rectangle(0, TILE_SIZE,
                                                TILE_SIZE,
                                                IMAGE_H - TILE_SIZE);
-        TileImpl tile = tiles.get(expectedRect);
-        testTile(tile, false, expectedRect);
+        TileImpl tile = imageFLOAT32.getTileImpl(expectedRect);
+        testTargetTile(tile, false, expectedRect);
     }
 
     public void testThatSampleData_IS_A_CopyForTile11() {
         Rectangle expectedRect = new Rectangle(TILE_SIZE, TILE_SIZE,
                                                IMAGE_W - TILE_SIZE,
                                                IMAGE_H - TILE_SIZE);
-        TileImpl tile = tiles.get(expectedRect);
-        testTile(tile, true, expectedRect);
+        TileImpl tile = imageFLOAT32.getTileImpl(expectedRect);
+        testTargetTile(tile, true, expectedRect);
     }
 
-    private void testTile(TileImpl tile, boolean copy, Rectangle expectedRect) {
+    public void testSourceTileIsContainedInImageTile00() {
+        final int CHILD_X = 2;
+        final int CHILD_Y = 3;
+        final int CHILD_W = 4;
+        final int CHILD_H = 2;
+
+        Band band = getBand("B_FLOAT32");
+        Rectangle expectedRect = new Rectangle(CHILD_X, CHILD_Y, CHILD_W, CHILD_H);
+        Raster raster = getImageData(imageFLOAT32, expectedRect);
+        TileImpl tile = new TileImpl(band, raster);
+        assertSame(band, tile.getRasterDataNode());
+        testOnlySamplesFloatAccessible(tile);
+
+        int expectedScanlineOffset = CHILD_Y * TILE_SIZE + CHILD_X;
+        int expectedScanlineStride = TILE_SIZE;
+
+        testTileStructure(tile, expectedRect, expectedScanlineOffset, expectedScanlineStride, false);
+    }
+
+    public void testSourceTileIsNotContainedInAnyImageTile() {
+        final int CHILD_X = 5;
+        final int CHILD_Y = 3;
+        final int CHILD_W = 4;
+        final int CHILD_H = 7;
+
+        Band band = getBand("B_FLOAT32");
+        Rectangle expectedRect = new Rectangle(CHILD_X, CHILD_Y, CHILD_W, CHILD_H);
+        Raster raster = getImageData(imageFLOAT32, expectedRect);
+        TileImpl tile = new TileImpl(band, raster);
+        assertSame(band, tile.getRasterDataNode());
+        testOnlySamplesFloatAccessible(tile);
+
+        int expectedScanlineOffset = 0;
+        int expectedScanlineStride = CHILD_W;
+
+        testTileStructure(tile, expectedRect, expectedScanlineOffset, expectedScanlineStride, false);
+    }
+
+
+    private void testTargetTile(TileImpl tile, boolean copy, Rectangle expectedRect) {
         assertNotNull(tile);
 
         assertEquals(true, tile.isTarget());
-        assertSame(product.getBand("B_FLOAT32"), tile.getRasterDataNode());
-        assertEquals(expectedRect, tile.getRectangle());
-        assertEquals(expectedRect.x, tile.getMinX());
-        assertEquals(expectedRect.y, tile.getMinY());
-        assertEquals(expectedRect.width, tile.getWidth());
-        assertEquals(expectedRect.height, tile.getHeight());
-        assertEquals(0, tile.getScanlineOffset());
-        assertEquals(TILE_SIZE, tile.getScanlineStride());
-        assertNull(tile.getRawSamplesByte());
-        assertNull(tile.getRawSamplesShort());
-        assertNull(tile.getRawSamplesInt());
-        assertNotNull(tile.getRawSamplesFloat());
-        assertNull(tile.getRawSamplesDouble());
+        assertSame(getBand("B_FLOAT32"), tile.getRasterDataNode());
+        testOnlySamplesFloatAccessible(tile);
+
+        testTileStructure(tile, expectedRect, 0, TILE_SIZE, true);
 
         int x0 = tile.getMinX();
         int y0 = tile.getMinY();
@@ -128,11 +149,6 @@ public class MultiTargetTileTest extends TestCase {
         } catch (ArrayIndexOutOfBoundsException e) {
             // ok
         }
-    }
-
-    private void testScaledSampleAccess(TileImpl tile, int x0, int y0) {
-        tile.setSample(x0, y0, 0.23);
-        assertEquals(0.23, tile.getSampleDouble(x0, y0), 1e-5);
     }
 
     private void testRawSampleAccess(TileImpl tile, int x, int y, boolean copy) {

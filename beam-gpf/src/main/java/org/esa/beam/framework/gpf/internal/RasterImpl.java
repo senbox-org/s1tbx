@@ -135,6 +135,14 @@ public class RasterImpl implements Tile {
 
     // new interface (not implemented)
 
+    public int getMaxX() {
+        throw new IllegalStateException("not implemented");
+    }
+
+    public int getMaxY() {
+        throw new IllegalStateException("not implemented");
+    }
+
     public boolean isTarget() {
         throw new IllegalStateException("not implemented");
     }

@@ -67,59 +67,67 @@ import java.awt.Rectangle;
 public interface Tile {
 
     /**
-     * Checks if this is a target tile. Non-target tiles are read only.
+     * Gets the {@code RasterDataNode} associated with this tile,
+     * e.g. a {@link org.esa.beam.framework.datamodel.Band Band} or
+     * {@link org.esa.beam.framework.datamodel.TiePointGrid TiePointGrid}.
      *
-     * @return <code>true</code> if this is a target tile.
+     * @return The {@code RasterDataNode} associated with this tile.
      */
-    boolean isTarget();
+    RasterDataNode getRasterDataNode();
 
     /**
-     * The tile rectangle in the product's scene pixel coordinates.
-     * Returns <code>new Rectangle(
-     * {@link #getMinX() offsetX},
-     * {@link #getMinY() offsetY},
+     * Gets the tile rectangle in pixel coordinates within the scene covered by the tile's {@link #getRasterDataNode RasterDataNode}.
+     * Simply returns <code>new Rectangle(
+     * {@link #getMinX() minX},
+     * {@link #getMinY() minY},
      * {@link #getWidth() width},
      * {@link #getHeight() height})</code>.
      *
-     * @return the tile rectangle
+     * @return The tile rectangle in pixel coordinates.
      */
     Rectangle getRectangle();
 
     /**
-     * Gets the x-offset of the {@link #getRectangle() rectangle} within the scene covered by the {@link RasterDataNode}.
+     * Gets the minimum pixel X-coordinate within the scene covered by the tile's {@link #getRasterDataNode RasterDataNode}.
      *
-     * @return the x-offset
+     * @return The minimum pixel X-coordinate.
      */
     int getMinX();
 
     /**
-     * Gets the y-offset of the {@link #getRectangle() rectangle} within the scene covered by the {@link RasterDataNode}.
+     * Gets the maximum pixel X-coordinate within the scene covered by the tile's {@link #getRasterDataNode RasterDataNode}.
      *
-     * @return the y-offset
+     * @return The maximum pixel X-coordinate.
+     */
+    int getMaxX();
+
+    /**
+     * Gets the minimum pixel Y-coordinate within the scene covered by the tile's {@link #getRasterDataNode RasterDataNode}.
+     *
+     * @return The minimum pixel Y-coordinate.
      */
     int getMinY();
 
     /**
-     * Gets the width of the {@link #getRectangle() rectangle} within the scene covered by the {@link RasterDataNode}.
+     * Gets the maximum pixel Y-coordinate within the scene covered by the tile's {@link #getRasterDataNode RasterDataNode}.
      *
-     * @return the width
+     * @return The maximum pixel Y-coordinate.
+     */
+    int getMaxY();
+
+    /**
+     * Gets the width in pixels within the scene covered by the tile's {@link #getRasterDataNode RasterDataNode}.
+     *
+     * @return The width in pixels.
      */
     int getWidth();
 
     /**
-     * Gets the height of the {@link #getRectangle() rectangle} within the scene covered by the {@link RasterDataNode}.
+     * Gets the height in pixels within the scene covered by the tile's {@link RasterDataNode}.
      *
-     * @return the height
+     * @return The height in pixels.
      */
     int getHeight();
-
-    /**
-     * The raster data node to which this raster belongs to.
-     *
-     * @return the raster data node of a data product, e.g. a {@link org.esa.beam.framework.datamodel.Band} or
-     *         {@link org.esa.beam.framework.datamodel.TiePointGrid TiePointGrid}.
-     */
-    RasterDataNode getRasterDataNode();
 
     /**
      * Gets the raw (unscaled, uncalibrated) sample data (e.g. detector counts) of this tile's underlying raster.
@@ -172,4 +180,12 @@ public interface Tile {
     boolean getSampleBoolean(int x, int y);
 
     void setSample(int x, int y, boolean v);
+
+    /**
+     * Checks if this is a target tile. Non-target tiles are read only.
+     *
+     * @return <code>true</code> if this is a target tile.
+     */
+    boolean isTarget();
+
 }

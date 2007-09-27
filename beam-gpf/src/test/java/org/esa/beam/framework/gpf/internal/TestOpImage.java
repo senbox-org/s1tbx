@@ -10,18 +10,36 @@ import java.util.HashMap;
 
 class TestOpImage extends RasterDataNodeOpImage {
 
-    private HashMap<Rectangle, TileImpl> gpfTiles = new HashMap<Rectangle, TileImpl>(4);
+    private HashMap<Rectangle, TileImpl> tileImplMap = new HashMap<Rectangle, TileImpl>(4);
 
     public TestOpImage(Band band) {
         super(band);
     }
 
-    public HashMap<Rectangle, TileImpl> getGpfTiles() {
-        return gpfTiles;
+    public int getNumTileImpls() {
+        return tileImplMap.size();
+    }
+
+    public TileImpl getTileImpl(Rectangle rect) {
+        return tileImplMap.get(rect);
     }
 
     @Override
     protected void computeRect(PlanarImage[] planarImages, WritableRaster writableRaster, Rectangle rectangle) {
-        gpfTiles.put(rectangle, new TileImpl(getRasterDataNode(), writableRaster, rectangle));
+        int x1 = writableRaster.getMinX();
+        int x2 = writableRaster.getMinX() + writableRaster.getWidth() - 1;
+        int y1 = writableRaster.getMinY();
+        int y2 = writableRaster.getMinY() + writableRaster.getHeight() - 1;
+        for (int y = y1; y <= y2; y++) {
+            for (int x = x1; x <= x2; x++) {
+                double sample = getSampleDouble(x, y);
+                writableRaster.setSample(x, y, 0, sample);
+            }
+        }
+        tileImplMap.put(rectangle, new TileImpl(getRasterDataNode(), writableRaster, rectangle, true));
+    }
+
+    public static double getSampleDouble(int x, int y) {
+        return 10.0 * x + y + 0.5;
     }
 }
