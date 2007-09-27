@@ -63,6 +63,7 @@
         <module>beam-binning</module>
         <module>beam-unmix</module>
         <module>beam-cluster</module>
+        <module>beam-colocation</module>
 
         <module>beam-avhrr-reader</module>
         <module>beam-atsr-reader</module>
@@ -79,7 +80,7 @@
 
         <module>lib-hdf</module>
         <module>lib-netcdf</module>
-        
+
     </modules>
 
     <dependencyManagement>

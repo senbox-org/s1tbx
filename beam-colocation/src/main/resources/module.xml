@@ -1,0 +1,41 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-colocation</symbolicName>
+    <version>1.0-SNAPSHOT</version>
+    <name>Geographic Colocation</name>
+
+    <description>
+        Geographic colocation tool.
+    </description>
+
+    <changelog>
+        <![CDATA[ ]]>
+    </changelog>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <dependency>
+        <module>beam-visat</module>
+        <optional>true</optional>
+    </dependency>
+    <dependency>
+        <module>beam-gpf</module>
+    </dependency>
+
+    <categories>VISAT,Processing,Colocation</categories>
+
+    <extension point="beam-visat:actions">
+        <action>
+            <id>colocation</id>
+            <helpID>colocation</helpID>
+            <class>org.esa.beam.colocation.visat.ColocationAction</class>
+            <parent>tools</parent>
+            <text>Geographic Colocation...</text>
+            <placeAfter>orthorectification</placeAfter>
+        </action>
+    </extension>
+</module>
