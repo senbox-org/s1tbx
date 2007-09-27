@@ -13,12 +13,17 @@ import java.awt.image.WritableRaster;
  * A {@link Raster} implementation backed by a {@link java.awt.image.WritableRaster}.
  */
 public class TileImpl implements Raster {
-    private RasterDataNode rasterDataNode;
-    private WritableRaster writableRaster;
-    private Rectangle rectangle;
+
+    private final RasterDataNode rasterDataNode;
+    private final WritableRaster writableRaster;
+    private final int offsetX;
+    private final int offsetY;
+    private final int width;
+    private final int height;
+    private final boolean target;
+
     private ProductData sampleData;
     private boolean mustWriteSampleData;
-    private boolean target;
 
     public TileImpl(RasterDataNode rasterDataNode, WritableRaster writableRaster, Rectangle rectangle) {
         this(rasterDataNode, writableRaster, rectangle, true);
@@ -27,7 +32,10 @@ public class TileImpl implements Raster {
     public TileImpl(RasterDataNode rasterDataNode, WritableRaster writableRaster, Rectangle rectangle, boolean destination) {
         this.rasterDataNode = rasterDataNode;
         this.writableRaster = writableRaster;
-        this.rectangle = rectangle;
+        this.offsetX = rectangle.x;
+        this.offsetY = rectangle.y;
+        this.width = rectangle.width;
+        this.height = rectangle.height;
         this.target = destination;
     }
 
@@ -36,23 +44,23 @@ public class TileImpl implements Raster {
     }
 
     public Rectangle getRectangle() {
-        return new Rectangle(rectangle);
+        return new Rectangle(offsetX, offsetY, width, height);
     }
 
     public int getOffsetX() {
-        return writableRaster.getMinX();
+        return offsetX;
     }
 
     public int getOffsetY() {
-        return writableRaster.getMinY();
+        return offsetY;
     }
 
     public int getWidth() {
-        return writableRaster.getWidth();
+        return width;
     }
 
     public int getHeight() {
-        return writableRaster.getHeight();
+        return height;
     }
 
     public RasterDataNode getRasterDataNode() {
@@ -68,14 +76,14 @@ public class TileImpl implements Raster {
                     sampleData = ProductData.createInstance(rasterDataNode.getDataType(), ImageUtils.getDataBufferArray(writableRaster.getDataBuffer()));
                 } else {
                     // create new instance
-                    sampleData = rasterDataNode.createCompatibleRasterData(rectangle.width, rectangle.height);
+                    sampleData = rasterDataNode.createCompatibleRasterData(width, height);
                     if (target) {
                         // a target tile: must write sample values into raster later
                         mustWriteSampleData = true;
                     } else {
                         // a source tile: must also copy sample values
-                        writableRaster.getDataElements(rectangle.x, rectangle.y,
-                                                       rectangle.width, rectangle.height,
+                        writableRaster.getDataElements(offsetX, offsetY,
+                                                       width, height,
                                                        sampleData.getElems());
                     }
                 }
@@ -84,24 +92,15 @@ public class TileImpl implements Raster {
         return sampleData;
     }
 
-    public void setSampleData(ProductData sampleData) {
+    public void setRawSampleData(ProductData sampleData) {
         Assert.notNull(sampleData, "sampleData");
         if (target) {
             if (sampleData != this.sampleData || mustWriteSampleData) {
-                writableRaster.setDataElements(rectangle.x, rectangle.y,
-                                               rectangle.width, rectangle.height,
+                writableRaster.setDataElements(offsetX, offsetY,
+                                               width, height,
                                                sampleData.getElems());
             }
         }
-    }
-
-    private boolean checkRequestedAreaMatchesRasterArea() {
-        return rectangle.width == writableRaster.getWidth()
-                && rectangle.height == writableRaster.getHeight();
-    }
-
-    private boolean checkDataBufferSizeMatchesRasterArea() {
-        return writableRaster.getDataBuffer().getSize() == writableRaster.getWidth() * writableRaster.getHeight();
     }
 
     public int getInt(int x, int y) {
@@ -134,5 +133,14 @@ public class TileImpl implements Raster {
 
     public void setBoolean(int x, int y, boolean v) {
         writableRaster.setSample(x, y, 0, v ? 1 : 0);
+    }
+
+
+    private boolean checkRequestedAreaMatchesRasterArea() {
+        return width == writableRaster.getWidth() && height == writableRaster.getHeight();
+    }
+
+    private boolean checkDataBufferSizeMatchesRasterArea() {
+        return writableRaster.getDataBuffer().getSize() == writableRaster.getWidth() * writableRaster.getHeight();
     }
 }

@@ -79,7 +79,7 @@ public class SingleSourceTileTest extends TestCase {
         for (int i = 0; i < newSampleData.getNumElems(); i++) {
             newSampleData.setElemDoubleAt(i, 100.0 + i);
         }
-        tile.setSampleData(newSampleData);
+        tile.setRawSampleData(newSampleData);
 
         // no change expected since this is a source tile
         assertEquals(1.5, tile.getDouble(0, 0), 1e-5);

@@ -63,6 +63,10 @@ public interface OperatorContext {
      */
     Product getSourceProduct(String id);
 
+    // todo (nf, 27.09.2007) - API revision:
+    // - rename to getSourceProductId(Product product)
+    // - what about getTargetProductId()
+    // - why not use a general getProductId(Product product)
     /**
      * Gets the identifier for the given source product.
      *
@@ -72,19 +76,27 @@ public interface OperatorContext {
     String getIdForSourceProduct(Product product);
 
     /**
-     * Gets and array of JAI planar images associated with each of the bands in the target product.
-     * @return The images associated with each of the bands in the target product.
+     * Gets an array of JAI {@link javax.media.jai.PlanarImage PlanarImage}s associated with each of the bands in the target product.
+     *
+     * @return The array of target images.
      * @see #getTargetProduct()
      */
     PlanarImage[] getTargetImages();
 
+
+    // todo (nf, 27.09.2007) - API revision:
+    // - rename and change signature to getSourceTile(RasterDataNode rasterDataNode, Rectangle tileRectangle) 
     /**
-     * Gets a {@link Raster} for a given band and rectangle.
+     * Gets a source {@link Raster tile} for a given raster data node and tile rectangle.
+     * Target tiles are passed directly to the operator's {@link org.esa.beam.framework.gpf.Operator#computeBand(org.esa.beam.framework.datamodel.Band,Raster,com.bc.ceres.core.ProgressMonitor) computeBand}
+     * and/or {@link org.esa.beam.framework.gpf.Operator#computeAllBands(java.util.Map,java.awt.Rectangle,com.bc.ceres.core.ProgressMonitor) computeAllBands}
+     * methods.
      *
      * @param rasterDataNode the raster data node of a data product, e.g. a {@link org.esa.beam.framework.datamodel.Band} or {@link org.esa.beam.framework.datamodel.TiePointGrid}.
      * @param tileRectangle  the tile rectangle in pixel coordinates
      * @param pm             a monitor to observe progress
      * @return a tile
+     * @throws OperatorException if the operation fails
      * @see ProgressMonitor
      */
     Raster getRaster(RasterDataNode rasterDataNode, Rectangle tileRectangle, ProgressMonitor pm) throws
@@ -92,6 +104,7 @@ public interface OperatorContext {
 
     /**
      * Gets a logger for the operator.
+     *
      * @return a logger
      */
     Logger getLogger();

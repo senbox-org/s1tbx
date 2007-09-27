@@ -77,7 +77,7 @@ public class SingleTargetTileTest extends TestCase {
             sampleData.setElemDoubleAt(i, 100.0 + i);
         }
 
-        tile.setSampleData(sampleData);
+        tile.setRawSampleData(sampleData);
 
         assertEquals(100.0, tile.getDouble(0, 0), 1e-5);
         assertEquals(104.0, tile.getDouble(0, 1), 1e-5);

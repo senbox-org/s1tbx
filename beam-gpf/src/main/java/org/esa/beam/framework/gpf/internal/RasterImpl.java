@@ -63,7 +63,7 @@ public class RasterImpl implements Raster {
         return dataBuffer;
     }
 
-    public void setSampleData(ProductData sampleData) {
+    public void setRawSampleData(ProductData sampleData) {
         throw new IllegalStateException("not implemented");
     }
 

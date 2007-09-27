@@ -50,7 +50,7 @@ public class MultiTargetTileTest extends TestCase {
                                                TILE_SIZE,
                                                TILE_SIZE);
         TileImpl tile = tiles.get(expectedRect);
-        testTile(tile, false, 0, 0, expectedRect);
+        testTile(tile, false, expectedRect);
     }
 
     public void testThatSampleData_IS_A_CopyForTile10() {
@@ -58,7 +58,7 @@ public class MultiTargetTileTest extends TestCase {
                                                IMAGE_W - TILE_SIZE,
                                                TILE_SIZE);
         TileImpl tile = tiles.get(expectedRect);
-        testTile(tile, true, TILE_SIZE, 0, expectedRect);
+        testTile(tile, true, expectedRect);
     }
 
     public void testThatSampleData_IS_NOT_A_CopyForTile01() {
@@ -66,7 +66,7 @@ public class MultiTargetTileTest extends TestCase {
                                                TILE_SIZE,
                                                IMAGE_H - TILE_SIZE);
         TileImpl tile = tiles.get(expectedRect);
-        testTile(tile, false, 0, TILE_SIZE, expectedRect);
+        testTile(tile, false, expectedRect);
     }
 
     public void testThatSampleData_IS_A_CopyForTile11() {
@@ -74,21 +74,22 @@ public class MultiTargetTileTest extends TestCase {
                                                IMAGE_W - TILE_SIZE,
                                                IMAGE_H - TILE_SIZE);
         TileImpl tile = tiles.get(expectedRect);
-        testTile(tile, true, TILE_SIZE, TILE_SIZE, expectedRect);
+        testTile(tile, true, expectedRect);
     }
 
-    private void testTile(TileImpl tile, boolean copy, int expectedX0, int expectedY0, Rectangle expectedRect) {
+    private void testTile(TileImpl tile, boolean copy, Rectangle expectedRect) {
         assertNotNull(tile);
 
         assertEquals(true, tile.isTarget());
         assertSame(product.getBand("B_FLOAT32"), tile.getRasterDataNode());
         assertEquals(expectedRect, tile.getRectangle());
+        assertEquals(expectedRect.x, tile.getOffsetX());
+        assertEquals(expectedRect.y, tile.getOffsetY());
+        assertEquals(expectedRect.width, tile.getWidth());
+        assertEquals(expectedRect.height, tile.getHeight());
+
         int x0 = tile.getOffsetX();
         int y0 = tile.getOffsetY();
-        assertEquals(expectedX0, x0);
-        assertEquals(expectedY0, y0);
-        assertEquals(TILE_SIZE, tile.getWidth());
-        assertEquals(TILE_SIZE, tile.getHeight());
 
         testIndexOutOfBoundsException(tile, x0 - 1, y0);
         testIndexOutOfBoundsException(tile, x0, y0 - 1);
@@ -138,7 +139,7 @@ public class MultiTargetTileTest extends TestCase {
         assertEquals(newValue, sd.getElemDoubleAt(i), 1e-5); // new value in buffer
         if (copy) {
             assertEquals(oldValue, tile.getDouble(x, y), 1e-5); // still old value in raster data
-            tile.setSampleData(sd); // commit changes
+            tile.setRawSampleData(sd); // commit changes
         }
         assertEquals(newValue, tile.getDouble(x, y), 1e-5); // still old value in raster data
     }

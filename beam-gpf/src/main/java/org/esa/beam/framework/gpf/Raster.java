@@ -5,7 +5,62 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 
 import java.awt.Rectangle;
 
-// todo - rename to Tile (nf - 26.09.2007)
+// todo (nf, 26.09.2007) - API revision:
+// - rename class to Tile
+// - IMPORTANT: If we enable this tile to pass out references to primitive arrays of
+//   the AWT raster's internal data buffer, we also have to provide
+//   getScanlineOffset() and getScanlineStride()
+//   methods. Note that these are totally different from getOffsetX() and getOffsetY()
+//   which are defined within the image's pixel coodinate systems while the former are
+//   defined only for the primitive array references passed out.
+//
+//   <p>This is the simplest but also slowest way to modify sample data of a tile:</p>
+//   <pre>
+//     for (int y = 0; y < getHeight(); y++) {
+//         for (int x = 0; x < getWidth(); x++) {
+//             // compute sample value...
+//             tile.setSample(x, y, sample);
+//         }
+//     }
+//   </pre>
+//
+//   <p>More performance is gained if the sample data buffer is checked out and committed
+//   (required after modification only):</p>
+//
+//   <pre>
+//     ProductData samples = tile.getRawSampleData(); // check out
+//     for (int y = 0; y < getHeight(); y++) {
+//         for (int x = 0; x < getWidth(); x++) {
+//             // compute sample value...
+//             samples.setElemFloatAt(y * getWidth() + x, sample);
+//             // ...
+//         }
+//     }
+//     tile.setRawSampleData(samples); // commit
+//   </pre>
+//
+//   <p>The the fastest way to read from or write to sample data is via the primitive sample arrays:</p>
+//
+//   <pre>
+//     float[] samples = tile.getRawSamplesFloat();
+//     float sample;
+//     int offset = tile.getScanlineOffset();
+//     for (int y = 0; y < getHeight(); y++) {
+//         int index = offset;
+//         for (int x = 0; x < getWidth(); x++) {
+//             // compute sample value...
+//             samples[index] = sample;
+//             index++;
+//         }
+//         offset += tile.getScanlineStride();
+//     }
+//   </pre>
+//
+//   Currently, we pass out a primitive reference only if the array.length equals
+//   the area of the getRectangle(), which is never the case if the requested rectangle is
+//   not equal to the tile rectangle.
+//
+
 /**
  * A tile.
  */
@@ -18,8 +73,17 @@ public interface Raster {
      */
     boolean isTarget();
 
+    // todo (nf, 27.09.2007) - API revision:
+    // - rename to some different: name must explain the role of this rectangle.
+    //   Role: the rectangle which was used to obtain the tile.
+    // - needed?
     /**
-     * The tile rectangle in raster coordinates.
+     * The tile rectangle in the product's scene pixel coordinates.
+     * Returns <code>new Rectangle(
+     * {@link #getOffsetX() offsetX},
+     * {@link #getOffsetY() offsetY},
+     * {@link #getWidth() width},
+     * {@link #getHeight() height})</code>.
      *
      * @return the tile rectangle
      */
@@ -61,13 +125,14 @@ public interface Raster {
      */
     RasterDataNode getRasterDataNode();
 
-    // todo - rename to getSampleData (nf - 26.09.2007)
+    // todo (nf, 26.09.2007) - API revision:
+    // - rename to getRawSampleData
     /**
-     * Gets the (raw) sample data of this tile's underlying raster.
+     * Gets the raw (unscaled, uncalibrated) sample data (e.g. detector counts) of this tile's underlying raster.
      * <p>The number of samples equals
      * <code>width*height</code> of this tile's {@link #getRectangle() rectangle}.</p>
      * <p>Note: Changing the samples will not necessarily
-     * alter the underlying tile raster data before the {@link #setSampleData(org.esa.beam.framework.datamodel.ProductData) setProductData()}
+     * alter the underlying tile raster data before the {@link #setRawSampleData(org.esa.beam.framework.datamodel.ProductData) setProductData()}
      * method is called with the modified sample data.</p>
      *
      * @return the sample data
@@ -75,14 +140,26 @@ public interface Raster {
     ProductData getDataBuffer();
 
     /**
-     * Gets the (raw) sample data of this tile's underlying raster.
+     * Sets the raw (unscaled, uncalibrated) sample data (e.g. detector counts) of this tile's underlying raster.
      * <p>The number of samples must equal
      * <code>width*height</code> of this tile's {@link #getRectangle() rectangle}.</p>
      *
      * @param sampleData the sample data
      * @see #getDataBuffer()
      */
-    void setSampleData(ProductData sampleData);
+    void setRawSampleData(ProductData sampleData);
+
+    // todo (nf, 27.09.2007) - API revision:
+    // byte[] getRawSamplesByte();
+    // short[] getRawSamplesShort();
+    // int[] getRawSamplesInt();
+    // float[] getRawSamplesFloat();
+    // double[] getRawSamplesDouble();
+    // int getScanlineOffset();
+    // int getScanlineStride();
+
+    // todo (nf, 27.09.2007) - API revision:
+    // - rename to getSampleInt
 
     /**
      * Gets the integer value at the given position.
@@ -93,6 +170,8 @@ public interface Raster {
      */
     int getInt(int x, int y);
 
+    // todo (nf, 27.09.2007) - API revision:
+    // - rename to setSample
     /**
      * Sets the integer value at the given position.
      *
@@ -102,6 +181,8 @@ public interface Raster {
      */
     void setInt(int x, int y, int v);
 
+    // todo (nf, 27.09.2007) - API revision:
+    // - rename to getSampleFloat
     /**
      * Gets the float value at the given position.
      *
@@ -111,6 +192,8 @@ public interface Raster {
      */
     float getFloat(int x, int y);
 
+    // todo (nf, 27.09.2007) - API revision:
+    // - rename to setSample
     /**
      * Sets the float value at the given position.
      *
@@ -120,6 +203,8 @@ public interface Raster {
      */
     void setFloat(int x, int y, float v);
 
+    // todo (nf, 27.09.2007) - API revision:
+    // - rename to getSampleDouble
     /**
      * Gets the double value at the given position.
      *
@@ -129,6 +214,8 @@ public interface Raster {
      */
     double getDouble(int x, int y);
 
+    // todo (nf, 27.09.2007) - API revision:
+    // - rename to setSample
     /**
      * Sets the double value at the given position.
      *
@@ -138,6 +225,8 @@ public interface Raster {
      */
     void setDouble(int x, int y, double v);
 
+    // todo (nf, 27.09.2007) - API revision:
+    // - rename to getSampleBoolean
     /**
      * Gets the boolean value at the given position.
      *
@@ -147,6 +236,8 @@ public interface Raster {
      */
     boolean getBoolean(int x, int y);
 
+    // todo (nf, 27.09.2007) - API revision:
+    // - rename to setSample
     /**
      * Sets the boolean value at the given position.
      *
