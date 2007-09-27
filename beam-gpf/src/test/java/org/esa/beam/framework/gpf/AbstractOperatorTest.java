@@ -14,18 +14,11 @@ import java.util.logging.Logger;
 
 
 public class AbstractOperatorTest extends TestCase {
-    private DummyAbstractOperator.Spi operatorSpi;
     private DummyAbstractOperator operator;
 
     @Override
     protected void setUp() throws Exception {
-        operatorSpi = new DummyAbstractOperator.Spi();
-        operator = new DummyAbstractOperator(operatorSpi);
-    }
-
-    public void testSameSpi() {
-
-        assertSame(operatorSpi, operator.getSpi());
+        operator = new DummyAbstractOperator();
     }
 
     public void testInitBehaviour() throws OperatorException {
@@ -39,10 +32,6 @@ public class AbstractOperatorTest extends TestCase {
     private static class DummyAbstractOperator extends AbstractOperator {
         private boolean initCalled;
 
-        protected DummyAbstractOperator(OperatorSpi spi) {
-            super(spi);
-        }
-
         @Override
         protected Product initialize(ProgressMonitor pm) throws OperatorException {
             initCalled = true;
@@ -50,7 +39,7 @@ public class AbstractOperatorTest extends TestCase {
         }
 
         @Override
-        public void computeBand(Band band, Raster tile, ProgressMonitor pm) throws OperatorException {
+        public void computeTile(Band band, Tile tile, ProgressMonitor pm) throws OperatorException {
         }
 
         public boolean isInitDelegatingToInit() {
@@ -82,7 +71,7 @@ public class AbstractOperatorTest extends TestCase {
             return null;
         }
 
-        public String getIdForSourceProduct(Product product) {
+        public String getSourceProductId(Product product) {
             return null;
         }
 
@@ -90,11 +79,15 @@ public class AbstractOperatorTest extends TestCase {
             return null;
         }
 
-        public Raster getRaster(RasterDataNode rasterDataNode, Rectangle tileRectangle, ProgressMonitor pm) throws OperatorException {
+        public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle tileRectangle) throws OperatorException {
             return null;
         }
 
         public Operator getOperator() {
+            return null;
+        }
+
+        public OperatorSpi getOperatorSpi() {
             return null;
         }
     }

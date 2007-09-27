@@ -60,19 +60,15 @@ public class GraphProcessingObserverTest extends TestCase {
 
     public static class OpMock extends AbstractOperator {
 
-        public OpMock(OperatorSpi spi) {
-            super(spi);
-        }
-
         @Override
         protected Product initialize(ProgressMonitor pm) throws OperatorException {
-            Product product = new Product(getSpi().getName(), getSpi().getName(), 10, 10);
+            Product product = new Product(getClass().getSimpleName(), getClass().getSimpleName(), 10, 10);
             product.addBand("band_1", ProductData.TYPE_INT32);
             return product;
         }
 
         @Override
-        public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         }
 
         public static class Spi extends AbstractOperatorSpi {

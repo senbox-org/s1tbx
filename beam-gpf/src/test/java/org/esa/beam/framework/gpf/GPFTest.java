@@ -66,10 +66,6 @@ public class GPFTest extends TestCase {
         @SourceProduct
         Product sourceProduct;
 
-        public FooOp(OperatorSpi spi) {
-            super(spi);
-        }
-
         /**
          * Called by {@link #initialize(org.esa.beam.framework.gpf.OperatorContext, com.bc.ceres.core.ProgressMonitor)} after the {@link org.esa.beam.framework.gpf.OperatorContext}
          * is stored.
@@ -94,18 +90,18 @@ public class GPFTest extends TestCase {
          * <p>The default implementation throws a runtime exception with the message "not implemented"</p>.
          */
         @Override
-        public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
-            Raster sourceRaster = getRaster(sourceProduct.getBand(band.getName()), targetRaster.getRectangle());
-            int n = targetRaster.getDataBuffer().getNumElems();
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+            Tile sourceTile = getSourceTile(sourceProduct.getBand(band.getName()), targetTile.getRectangle());
+            int n = targetTile.getRawSampleData().getNumElems();
             for (int i = 0; i < n; i++) {
-                float v = sourceRaster.getDataBuffer().getElemFloatAt(i);
+                float v = sourceTile.getRawSampleData().getElemFloatAt(i);
                 if (v < 0) {
                     v = 0;
                 }
                 if (v > 1) {
                     v = 1;
                 }
-                targetRaster.getDataBuffer().setElemFloatAt(i, v);
+                targetTile.getRawSampleData().setElemFloatAt(i, v);
             }
         }
     }

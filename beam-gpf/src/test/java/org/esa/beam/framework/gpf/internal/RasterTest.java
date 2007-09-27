@@ -22,7 +22,7 @@ import junit.framework.TestCase;
 
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.Raster;
+import org.esa.beam.framework.gpf.Tile;
 
 /**
  * Created by marcoz.
@@ -44,14 +44,14 @@ public class RasterTest extends TestCase {
 	
 	public void testRectangleAt00() throws Exception {
 		Rectangle rectangle = new Rectangle(0, 0, 4, 2);
-		Raster raster = new RasterImpl(band, rectangle, dataBuffer);
+		Tile tile = new RasterImpl(band, rectangle, dataBuffer);
 		
-		assertEquals("width", 4, raster.getWidth());
-		assertEquals("height", 2, raster.getHeight());
-		assertEquals("0,0", 1, raster.getInt(0, 0));
-		assertEquals("3,1", 8, raster.getInt(3, 1));
+		assertEquals("width", 4, tile.getWidth());
+		assertEquals("height", 2, tile.getHeight());
+		assertEquals("0,0", 1, tile.getSampleInt(0, 0));
+		assertEquals("3,1", 8, tile.getSampleInt(3, 1));
 		try {
-			raster.getInt(3, 2);	
+			tile.getSampleInt(3, 2);	
 		} catch (ArrayIndexOutOfBoundsException e) {
 			assertEquals("11", e.getMessage());
 		}
@@ -59,14 +59,14 @@ public class RasterTest extends TestCase {
 	
 	public void testRectangleAt55() throws Exception {
 		Rectangle rectangle = new Rectangle(5, 5, 4, 2);
-		Raster raster = new RasterImpl(band, rectangle, dataBuffer);
+		Tile tile = new RasterImpl(band, rectangle, dataBuffer);
 		
-		assertEquals("width", 4, raster.getWidth());
-		assertEquals("height", 2, raster.getHeight());
-		assertEquals("5,5", 1, raster.getInt(5, 5));
-		assertEquals("8,6", 8, raster.getInt(8, 6));
+		assertEquals("width", 4, tile.getWidth());
+		assertEquals("height", 2, tile.getHeight());
+		assertEquals("5,5", 1, tile.getSampleInt(5, 5));
+		assertEquals("8,6", 8, tile.getSampleInt(8, 6));
 		try {
-			raster.getInt(3, 2);	
+			tile.getSampleInt(3, 2);	
 		} catch (ArrayIndexOutOfBoundsException e) {
 			assertEquals("-14", e.getMessage());
 		}

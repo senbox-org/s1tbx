@@ -36,10 +36,6 @@ public class ReadProductOp extends AbstractOperator {
     @TargetProduct
     private Product targetProduct;
 
-    public ReadProductOp(OperatorSpi spi) {
-        super(spi);
-    }
-
     @Override
     public Product initialize(ProgressMonitor pm) throws OperatorException {
         try {
@@ -55,11 +51,11 @@ public class ReadProductOp extends AbstractOperator {
     }
 
     @Override
-    public void computeBand(Band band, Raster targetRaster,
+    public void computeTile(Band band, Tile targetTile,
                             ProgressMonitor pm) throws OperatorException {
 
-        ProductData dataBuffer = targetRaster.getDataBuffer();
-        Rectangle rectangle = targetRaster.getRectangle();
+        ProductData dataBuffer = targetTile.getRawSampleData();
+        Rectangle rectangle = targetTile.getRectangle();
         try {
             beamReader.readBandRasterData(band, rectangle.x, rectangle.y, rectangle.width,
                                           rectangle.height, dataBuffer, pm);

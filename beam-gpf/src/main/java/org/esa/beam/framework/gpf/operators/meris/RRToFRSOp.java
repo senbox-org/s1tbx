@@ -43,10 +43,6 @@ public class RRToFRSOp extends AbstractOperator {
     @TargetProduct
     private Product targetProduct;
 
-    public RRToFRSOp(OperatorSpi spi) {
-        super(spi);
-    }
-
     @Override
     protected Product initialize(ProgressMonitor pm) throws OperatorException {
         rrGeoCoding = rrProduct.getGeoCoding();
@@ -77,9 +73,9 @@ public class RRToFRSOp extends AbstractOperator {
     }
 
     @Override
-    public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
 
-        Rectangle frsRectangle = targetRaster.getRectangle();
+        Rectangle frsRectangle = targetTile.getRectangle();
         Band rrSrcBand = rrProduct.getBand(band.getName());
 
         pm.beginTask("compute", frsRectangle.height);
@@ -96,7 +92,7 @@ public class RRToFRSOp extends AbstractOperator {
 
 //            System.out.println("RR: "+rrRectangle.toString());
 //            System.out.println("FRS:"+frsRectangle.toString());
-        Raster srcRaster = getRaster(rrSrcBand, rrRectangle);
+        Tile srcTile = getSourceTile(rrSrcBand, rrRectangle);
 
         try {
             int rrY = yStart;
@@ -105,8 +101,8 @@ public class RRToFRSOp extends AbstractOperator {
                 int rrX = xStart;
                 int ix = 0;
                 for (int x = frsRectangle.x; x < frsRectangle.x + frsRectangle.width; x++) {
-                    double d = srcRaster.getDouble(rrX, rrY);
-                    targetRaster.setDouble(x, y, d);
+                    double d = srcTile.getSampleDouble(rrX, rrY);
+                    targetTile.setSample(x, y, d);
                     if (ix < 3) {
                         ix++;
                     } else {

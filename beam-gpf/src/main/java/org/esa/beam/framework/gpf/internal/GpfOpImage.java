@@ -44,35 +44,35 @@ public class GpfOpImage extends RasterDataNodeOpImage {
     private void executeOperator(WritableRaster tile, Rectangle destRect) throws OperatorException {
         if (operatorMustComputeAllBands()) {
             // Provide target GPF rasters and associated AWT tiles
-            WritableRaster[] targetTiles = getTargetTiles(tile);
-            Map<Band, org.esa.beam.framework.gpf.Raster> targetRasters = new HashMap<Band, org.esa.beam.framework.gpf.Raster>(targetTiles.length * 2);
-            for (int i = 0; i < targetTiles.length; i++) {
+            WritableRaster[] targetRasters = getTargetTiles(tile);
+            Map<Band, org.esa.beam.framework.gpf.Tile> targetTiles = new HashMap<Band, org.esa.beam.framework.gpf.Tile>(targetRasters.length * 2);
+            for (int i = 0; i < targetRasters.length; i++) {
                 Band targetBand = operatorContext.getTargetProduct().getBandAt(i);
                 ProductData targetData = targetBand.createCompatibleRasterData(destRect.width, destRect.height);
-                org.esa.beam.framework.gpf.Raster targetRaster = new RasterImpl(getBand(), destRect, targetData);
-                targetRasters.put(targetBand, targetRaster);
+                org.esa.beam.framework.gpf.Tile targetTile = new RasterImpl(getBand(), destRect, targetData);
+                targetTiles.put(targetBand, targetTile);
             }
             // Compute target GPF rasters
             System.out.println(">> computeAllBands: this = " + this + ", destRect" + destRect);
-            operatorContext.getOperator().computeAllBands(targetRasters, destRect, ProgressMonitor.NULL);
+            operatorContext.getOperator().computeTileStack(targetTiles, destRect, ProgressMonitor.NULL);
             System.out.println("<< computeAllBands: this = " + this + ", destRect" + destRect);
 
             // Write computed target GPF rasters into associated AWT tiles
-            for (int i = 0; i < targetTiles.length; i++) {
+            for (int i = 0; i < targetRasters.length; i++) {
                 Band targetBand = operatorContext.getTargetProduct().getBandAt(i);
-                WritableRaster targetTile = targetTiles[i];
-                ProductData targetData = targetRasters.get(targetBand).getDataBuffer();
-                targetTile.setDataElements(destRect.x, destRect.y, destRect.width, destRect.height, targetData.getElems());
+                WritableRaster targetRaster = targetRasters[i];
+                ProductData targetData = targetTiles.get(targetBand).getRawSampleData();
+                targetRaster.setDataElements(destRect.x, destRect.y, destRect.width, destRect.height, targetData.getElems());
             }
         } else {
             // Provide target GPF raster
             ProductData targetData = getBand().createCompatibleRasterData(destRect.width, destRect.height);
-            org.esa.beam.framework.gpf.Raster targetRaster = new RasterImpl(getBand(), destRect, targetData);
+            org.esa.beam.framework.gpf.Tile targetTile = new RasterImpl(getBand(), destRect, targetData);
             
             // Compute target GPF raster
             final long t0 = System.currentTimeMillis();
-            System.out.println(">> computeBand: this = " + this + ", targetRectangle" + targetRaster.getRectangle());
-            operatorContext.getOperator().computeBand(getBand(), targetRaster, ProgressMonitor.NULL);
+            System.out.println(">> computeBand: this = " + this + ", targetRectangle" + targetTile.getRectangle());
+            operatorContext.getOperator().computeTile(getBand(), targetTile, ProgressMonitor.NULL);
             System.out.println("<< computeBand: time = " + (System.currentTimeMillis() - t0) + " ms");
             
             // Write computed target GPF raster into associated AWT tile

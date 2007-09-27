@@ -55,8 +55,7 @@ public class ProductMergeOp extends AbstractOperator implements ParameterConvert
     private Configuration config;
     private Map<Band, Band> sourceBands;
 
-    public ProductMergeOp(OperatorSpi spi) {
-        super(spi);
+    public ProductMergeOp() {
         config = new Configuration();
         sourceBands = new HashMap<Band, Band>();
     }
@@ -163,14 +162,14 @@ public class ProductMergeOp extends AbstractOperator implements ParameterConvert
     }
 
     @Override
-    public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
-        Rectangle rectangle = targetRaster.getRectangle();
+    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+        Rectangle rectangle = targetTile.getRectangle();
         Band sourceBand = sourceBands.get(band);
-        Raster sourceRaster = getRaster(sourceBand, rectangle);
+        Tile sourceTile = getSourceTile(sourceBand, rectangle);
 
         // TODO replace copy with OpImage delegation
         final int length = rectangle.width * rectangle.height;
-        System.arraycopy(sourceRaster.getDataBuffer().getElems(), 0, targetRaster.getDataBuffer().getElems(), 0, length);
+        System.arraycopy(sourceTile.getRawSampleData().getElems(), 0, targetTile.getRawSampleData().getElems(), 0, length);
     }
 
     @Override

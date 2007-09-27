@@ -15,7 +15,7 @@ public abstract class AbstractOperatorSpi implements OperatorSpi {
     private Class<? extends Operator> operatorClass;
 
     protected AbstractOperatorSpi(Class<? extends Operator> operatorClass) {
-        this(operatorClass, operatorClass.getClass().getName());
+        this(operatorClass, operatorClass.getName());
     }
 
     protected AbstractOperatorSpi(Class<? extends Operator> operatorClass, String name) {

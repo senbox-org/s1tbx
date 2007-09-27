@@ -40,6 +40,13 @@ public interface OperatorContext {
      * @return the operator
      */
     Operator getOperator();
+    
+    /**
+     * Gets the SPI (Service Provider Interface) of the {@link Operator operator}.
+     *
+     * @return the SPI
+     */
+    OperatorSpi getOperatorSpi();
 
     /**
      * Gets the target product for the operator.
@@ -63,17 +70,13 @@ public interface OperatorContext {
      */
     Product getSourceProduct(String id);
 
-    // todo (nf, 27.09.2007) - API revision:
-    // - rename to getSourceProductId(Product product)
-    // - what about getTargetProductId()
-    // - why not use a general getProductId(Product product)
     /**
      * Gets the identifier for the given source product.
      *
      * @param product the product
-     * @return the identifier
+     * @return the identifier, or {@code null} if not found
      */
-    String getIdForSourceProduct(Product product);
+    String getSourceProductId(Product product);
 
     /**
      * Gets an array of JAI {@link javax.media.jai.PlanarImage PlanarImage}s associated with each of the bands in the target product.
@@ -83,23 +86,18 @@ public interface OperatorContext {
      */
     PlanarImage[] getTargetImages();
 
-
-    // todo (nf, 27.09.2007) - API revision:
-    // - rename and change signature to getSourceTile(RasterDataNode rasterDataNode, Rectangle tileRectangle) 
     /**
-     * Gets a source {@link Raster tile} for a given raster data node and tile rectangle.
-     * Target tiles are passed directly to the operator's {@link org.esa.beam.framework.gpf.Operator#computeBand(org.esa.beam.framework.datamodel.Band,Raster,com.bc.ceres.core.ProgressMonitor) computeBand}
-     * and/or {@link org.esa.beam.framework.gpf.Operator#computeAllBands(java.util.Map,java.awt.Rectangle,com.bc.ceres.core.ProgressMonitor) computeAllBands}
+     * Gets a source {@link Tile tile} for a given raster data node and tile rectangle.
+     * Target tiles are passed directly to the operator's {@link org.esa.beam.framework.gpf.Operator#computeTile(org.esa.beam.framework.datamodel.Band,Tile,com.bc.ceres.core.ProgressMonitor) computeBand}
+     * and/or {@link org.esa.beam.framework.gpf.Operator#computeTileStack(java.util.Map,java.awt.Rectangle,com.bc.ceres.core.ProgressMonitor) computeAllBands}
      * methods.
      *
      * @param rasterDataNode the raster data node of a data product, e.g. a {@link org.esa.beam.framework.datamodel.Band} or {@link org.esa.beam.framework.datamodel.TiePointGrid}.
      * @param tileRectangle  the tile rectangle in pixel coordinates
-     * @param pm             a monitor to observe progress
      * @return a tile
      * @throws OperatorException if the operation fails
-     * @see ProgressMonitor
      */
-    Raster getRaster(RasterDataNode rasterDataNode, Rectangle tileRectangle, ProgressMonitor pm) throws
+    Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle tileRectangle) throws
             OperatorException;
 
     /**

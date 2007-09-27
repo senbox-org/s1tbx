@@ -40,10 +40,6 @@ public class NdviOp extends AbstractOperator {
     @TargetProduct
     private Product targetProduct;
 
-    public NdviOp(OperatorSpi spi) {
-        super(spi);
-    }
-
     @Override
     protected Product initialize(ProgressMonitor pm) throws OperatorException {
         loadSourceBands(inputProduct);
@@ -94,31 +90,31 @@ public class NdviOp extends AbstractOperator {
     }
 
     @Override
-    public void computeAllBands(Map<Band, Raster> targetRasters, Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
+    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
 
         pm.beginTask("Computing NDVI", rectangle.height + 1);
         try {
 
-            Raster l1flagsSourceRaster = getRaster(inputProduct.getBand(L1FLAGS_INPUT_BAND_NAME), rectangle);
-            Raster l1flagsTargetRaster = targetRasters.get(targetProduct.getBand(L1FLAGS_INPUT_BAND_NAME));
+            Tile l1flagsSourceTile = getSourceTile(inputProduct.getBand(L1FLAGS_INPUT_BAND_NAME), rectangle);
+            Tile l1flagsTargetTile = targetTiles.get(targetProduct.getBand(L1FLAGS_INPUT_BAND_NAME));
             // TODO replace copy by OpImage delegation
             final int length = rectangle.width * rectangle.height;
-            System.arraycopy(l1flagsSourceRaster.getDataBuffer().getElems(), 0, l1flagsTargetRaster.getDataBuffer().getElems(), 0, length);
+            System.arraycopy(l1flagsSourceTile.getRawSampleData().getElems(), 0, l1flagsTargetTile.getRawSampleData().getElems(), 0, length);
             pm.worked(1);
 
-            Raster lowerRaster = getRaster(_lowerInputBand, rectangle);
-            Raster upperRaster = getRaster(_upperInputBand, rectangle);
+            Tile lowerTile = getSourceTile(_lowerInputBand, rectangle);
+            Tile upperTile = getSourceTile(_upperInputBand, rectangle);
 
-            Raster ndvi = targetRasters.get(targetProduct.getBand(NDVI_BAND_NAME));
-            Raster ndviFlags = targetRasters.get(targetProduct.getBand(NDVI_FLAGS_BAND_NAME));
+            Tile ndvi = targetTiles.get(targetProduct.getBand(NDVI_BAND_NAME));
+            Tile ndviFlags = targetTiles.get(targetProduct.getBand(NDVI_FLAGS_BAND_NAME));
 
             float ndviValue;
             int ndviFlagsValue;
 
             for (int y = rectangle.y; y < rectangle.y + rectangle.height; y++) {
                 for (int x = rectangle.x; x < rectangle.x + rectangle.width; x++) {
-                    final float upper = upperRaster.getFloat(x, y);
-                    final float lower = lowerRaster.getFloat(x, y);
+                    final float upper = upperTile.getSampleFloat(x, y);
+                    final float lower = lowerTile.getSampleFloat(x, y);
                     ndviValue = (upper - lower) / (upper + lower);
                     ndviFlagsValue = 0;
                     if (Float.isNaN(ndviValue) || Float.isInfinite(ndviValue)) {
@@ -131,8 +127,8 @@ public class NdviOp extends AbstractOperator {
                     if (ndviValue > 1.0f) {
                         ndviFlagsValue |= NDVI_HIGH_FLAG_VALUE;
                     }
-                    ndvi.setFloat(x, y, ndviValue);
-                    ndviFlags.setInt(x, y, ndviFlagsValue);
+                    ndvi.setSample(x, y, ndviValue);
+                    ndviFlags.setSample(x, y, ndviFlagsValue);
                 }
                 pm.worked(1);
             }

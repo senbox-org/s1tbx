@@ -336,19 +336,15 @@ public class GraphCallSequenceTest extends TestCase {
         @TargetProduct
         private Product targetProduct;
 
-        public RecordingOp(OperatorSpi spi) {
-            super(spi);
-        }
-
         @Override
         public Product initialize(ProgressMonitor pm) throws OperatorException {
-            recordCall(getSpi().getName(), "Operator.initialize");
+            recordCall(getContext().getOperatorSpi().getName(), "Operator.initialize");
             return new RecordingProduct((NodeContext) getContext());
         }
 
         @Override
         public void dispose() {
-            recordCall(getSpi().getName(), "Operator.dispose");
+            recordCall(getContext().getOperatorSpi().getName(), "Operator.dispose");
         }
     }
 
@@ -357,31 +353,27 @@ public class GraphCallSequenceTest extends TestCase {
         @TargetProduct
         private Product targetProduct;
 
-        public NoSourceOp(OperatorSpi spi) {
-            super(spi);
-        }
-
         // todo - add tests that verify correct computing output
         @Override
-        public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws
                 OperatorException {
-            recordCall(getSpi().getName(), "Operator.computeBand");
+            recordCall(getContext().getOperatorSpi().getName(), "Operator.computeBand");
 
-            Rectangle r = targetRaster.getRectangle();
+            Rectangle r = targetTile.getRectangle();
             float offset = r.y * targetProduct.getSceneRasterWidth() + r.x;
 
-            float[] targetElems = (float[]) targetRaster.getDataBuffer().getElems();
+            float[] targetElems = (float[]) targetTile.getRawSampleData().getElems();
             for (int i = 0; i < targetElems.length; i++) {
                 targetElems[i] = offset + i;
             }
 
-            targetRaster.getDataBuffer().setElems(targetElems);
+            targetTile.getRawSampleData().setElems(targetElems);
 
         }
 
         @Override
         public void dispose() {
-            recordCall(getSpi().getName(), "Operator.dispose");
+            recordCall(getContext().getOperatorSpi().getName(), "Operator.dispose");
         }
     }
 
@@ -392,26 +384,22 @@ public class GraphCallSequenceTest extends TestCase {
         @TargetProduct
         private Product targetProduct;
 
-        public SingleSourceOp(OperatorSpi spi) {
-            super(spi);
-        }
-
         // todo - add tests that verify correct computing output
         @Override
-        public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws
                 OperatorException {
-            recordCall(getSpi().getName(), "Operator.computeBand");
+            recordCall(getContext().getOperatorSpi().getName(), "Operator.computeBand");
 
-            Raster sourceRaster = getRaster(sourceProduct.getBandAt(0),
-                                            targetRaster.getRectangle());
+            Tile sourceTile = getSourceTile(sourceProduct.getBandAt(0),
+                                            targetTile.getRectangle());
 
-            float[] sourceElems = (float[]) sourceRaster.getDataBuffer().getElems();
-            float[] targetElems = (float[]) targetRaster.getDataBuffer().getElems();
+            float[] sourceElems = (float[]) sourceTile.getRawSampleData().getElems();
+            float[] targetElems = (float[]) targetTile.getRawSampleData().getElems();
             for (int i = 0; i < targetElems.length; i++) {
                 targetElems[i] = 0.1f * sourceElems[i];
             }
 
-            targetRaster.getDataBuffer().setElems(targetElems);
+            targetTile.getRawSampleData().setElems(targetElems);
         }
     }
 
@@ -424,29 +412,25 @@ public class GraphCallSequenceTest extends TestCase {
         @TargetProduct
         private Product targetProduct;
 
-        public DualSourceOp(OperatorSpi spi) {
-            super(spi);
-        }
-
         // todo - add tests that verify correct computing output
         @Override
-        public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
-            recordCall(getSpi().getName(), "Operator.computeBand");
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+            recordCall(getContext().getOperatorSpi().getName(), "Operator.computeBand");
 
-            Raster sourceRaster1 = getRaster(sourceProduct1.getBandAt(0),
-                                             targetRaster.getRectangle());
+            Tile sourceTile1 = getSourceTile(sourceProduct1.getBandAt(0),
+                                             targetTile.getRectangle());
 
-            Raster sourceRaster2 = getRaster(sourceProduct2.getBandAt(0),
-                                             targetRaster.getRectangle());
+            Tile sourceTile2 = getSourceTile(sourceProduct2.getBandAt(0),
+                                             targetTile.getRectangle());
 
-            float[] source1Elems = (float[]) sourceRaster1.getDataBuffer().getElems();
-            float[] source2Elems = (float[]) sourceRaster2.getDataBuffer().getElems();
-            float[] targetElems = (float[]) targetRaster.getDataBuffer().getElems();
+            float[] source1Elems = (float[]) sourceTile1.getRawSampleData().getElems();
+            float[] source2Elems = (float[]) sourceTile2.getRawSampleData().getElems();
+            float[] targetElems = (float[]) targetTile.getRawSampleData().getElems();
             for (int i = 0; i < targetElems.length; i++) {
                 targetElems[i] = 0.1f * (source1Elems[i] + source2Elems[i]);
             }
 
-            targetRaster.getDataBuffer().setElems(targetElems);
+            targetTile.getRawSampleData().setElems(targetElems);
         }
     }
 

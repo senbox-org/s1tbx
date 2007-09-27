@@ -79,7 +79,10 @@
 
         <module>lib-hdf</module>
         <module>lib-netcdf</module>
-
+        
+        <module>../ceres</module>
+        <module>../beam-4.x-contrib</module>
+        <module>../chris-box</module>
     </modules>
 
     <dependencyManagement>

@@ -80,7 +80,7 @@ public class OperatorProductReader implements ProductReader {
 
     @Override
     public String toString() {
-        return "OperatorProductReader[op=" + operatorContext.getOperator().getSpi().getName() + "]";
+        return "OperatorProductReader[op=" + operatorContext.getOperator().getClass().getSimpleName() + "]";
     }
 
     private static class PlugIn implements ProductReaderPlugIn {

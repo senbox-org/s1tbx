@@ -139,17 +139,13 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         @TargetProduct
         Product output;
 
-        public WrongTypeOperator(OperatorSpi spi) {
-            super(spi);
-        }
-
         @Override
         protected Product initialize(ProgressMonitor pm) throws OperatorException {
             return new Product("Wrong", "WrongType", 12, 12);
         }
 
         @Override
-        public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         }
 
         public static class Spi extends AbstractOperatorSpi {
@@ -163,10 +159,6 @@ public class SourceProductAnnotationValidationTest extends TestCase {
 
     public static class WrongBandsOperator extends AbstractOperator {
 
-        public WrongBandsOperator(OperatorSpi spi) {
-            super(spi);
-        }
-
         @Override
         protected Product initialize(ProgressMonitor pm) throws OperatorException {
             Product product = new Product("WrongBands", "GoodType", 1, 1);
@@ -176,7 +168,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         }
 
         @Override
-        public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         }
 
         public static class Spi extends AbstractOperatorSpi {
@@ -189,10 +181,6 @@ public class SourceProductAnnotationValidationTest extends TestCase {
 
     public static class GoodOperator extends AbstractOperator {
 
-        public GoodOperator(OperatorSpi spi) {
-            super(spi);
-        }
-
         @Override
         protected Product initialize(ProgressMonitor pm) throws OperatorException {
             Product product = new Product("Good", "GoodType", 1, 1);
@@ -202,7 +190,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         }
 
         @Override
-        public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         }
 
         public static class Spi extends AbstractOperatorSpi {
@@ -221,17 +209,13 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         @TargetProduct
         Product output;
 
-        public ConsumerOperator(OperatorSpi spi) {
-            super(spi);
-        }
-
         @Override
         protected Product initialize(ProgressMonitor pm) throws OperatorException {
             return new Product("output", "outputType", 12, 12);
         }
 
         @Override
-        public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         }
 
         public static class Spi extends AbstractOperatorSpi {
@@ -250,17 +234,13 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         @TargetProduct
         Product output;
 
-        public OptionalConsumerOperator(OperatorSpi spi) {
-            super(spi);
-        }
-
         @Override
         protected Product initialize(ProgressMonitor pm) throws OperatorException {
             return new Product("output", "outputType", 1, 1);
         }
 
         @Override
-        public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         }
 
         public static class Spi extends AbstractOperatorSpi {
@@ -280,17 +260,13 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         @TargetProduct
         Product output;
 
-        public ConsumerWithAliasSourceOperator(OperatorSpi spi) {
-            super(spi);
-        }
-
         @Override
         protected Product initialize(ProgressMonitor pm) throws OperatorException {
             return new Product("output", "outputType", 1, 1);
         }
 
         @Override
-        public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         }
 
         public static class Spi extends AbstractOperatorSpi {

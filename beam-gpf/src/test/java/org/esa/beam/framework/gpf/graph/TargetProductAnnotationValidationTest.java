@@ -49,17 +49,13 @@ public class TargetProductAnnotationValidationTest extends TestCase {
         @TargetProduct
         Product output;
 
-        public NotInitOutputOperator(OperatorSpi spi) {
-            super(spi);
-        }
-
         @Override
         protected Product initialize(ProgressMonitor pm) throws OperatorException {
             return new Product("output", "outputType", 12, 12);
         }
 
         @Override
-        public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         }
 
         public static class Spi extends AbstractOperatorSpi {

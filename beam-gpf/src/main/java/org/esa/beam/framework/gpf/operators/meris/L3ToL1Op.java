@@ -21,7 +21,7 @@ import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.AbstractOperatorSpi;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.Raster;
+import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
@@ -51,10 +51,6 @@ public class L3ToL1Op extends MerisBasisOp {
     private Product targetProduct;
     @Parameter
     private String maskBand;
-
-    public L3ToL1Op(OperatorSpi spi) {
-        super(spi);
-    }
 
     @Override
     protected Product initialize(ProgressMonitor pm) throws OperatorException {
@@ -87,9 +83,9 @@ public class L3ToL1Op extends MerisBasisOp {
     }
 
     @Override
-    public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
 
-        Rectangle rectangle = targetRaster.getRectangle();
+        Rectangle rectangle = targetTile.getRectangle();
         Band srcBand = l3Product.getBand(band.getName());
 
         PixelPos l1PixelPos = new PixelPos();
@@ -97,12 +93,12 @@ public class L3ToL1Op extends MerisBasisOp {
         GeoPos geoPos = new GeoPos();
 
         Rectangle l3Rect = findL3Rectangle(rectangle, srcBand);
-        Raster srcRaster = getRaster(srcBand, l3Rect);
+        Tile srcTile = getSourceTile(srcBand, l3Rect);
 
-        Raster maskRaster = null;
+        Tile maskTile = null;
         boolean useMask = false;
         if (maskProduct != null && StringUtils.isNotNullAndNotEmpty(maskBand)) {
-            maskRaster = getRaster(maskProduct.getBand(maskBand), rectangle);
+            maskTile = getSourceTile(maskProduct.getBand(maskBand), rectangle);
             useMask = true;
         }
 
@@ -111,11 +107,11 @@ public class L3ToL1Op extends MerisBasisOp {
             for (int y = rectangle.y; y < rectangle.y + rectangle.height; y++) {
                 l1PixelPos.y = y;
                 for (int x = rectangle.x; x < rectangle.x + rectangle.width; x++) {
-                    if (!useMask || maskRaster.getBoolean(x, y)) {
+                    if (!useMask || maskTile.getSampleBoolean(x, y)) {
                         l1PixelPos.x = x;
                         l1GeoCoding.getGeoPos(l1PixelPos, geoPos);
                         l3GeoCoding.getPixelPos(geoPos, l3PixelPos);
-                        targetRaster.setDouble(x, y, srcRaster.getDouble(Math.round(l3PixelPos.x), Math.round(l3PixelPos.y)));
+                        targetTile.setSample(x, y, srcTile.getSampleDouble(Math.round(l3PixelPos.x), Math.round(l3PixelPos.y)));
                     }
                 }
                 pm.worked(1);

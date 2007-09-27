@@ -18,7 +18,7 @@ package org.esa.beam.framework.gpf.internal;
 
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.gpf.Raster;
+import org.esa.beam.framework.gpf.Tile;
 
 import java.awt.Rectangle;
 
@@ -28,7 +28,7 @@ import java.awt.Rectangle;
  * @author marcoz
  * @version $Revision: $ $Date: $
  */
-public class RasterImpl implements Raster {
+public class RasterImpl implements Tile {
 
     private final RasterDataNode rasterDataNode;
     private final ProductData dataBuffer;
@@ -59,7 +59,7 @@ public class RasterImpl implements Raster {
         return new Rectangle(offsetX, offsetY, width, height);
     }
 
-    public final ProductData getDataBuffer() {
+    public final ProductData getRawSampleData() {
         return dataBuffer;
     }
 
@@ -71,11 +71,11 @@ public class RasterImpl implements Raster {
         return height;
     }
 
-    public final int getOffsetX() {
+    public final int getMinX() {
         return offsetX;
     }
 
-    public final int getOffsetY() {
+    public final int getMinY() {
         return offsetY;
     }
 
@@ -83,7 +83,7 @@ public class RasterImpl implements Raster {
         return width;
     }
 
-    public final int getInt(int x, int y) {
+    public final int getSampleInt(int x, int y) {
         int v = dataBuffer.getElemIntAt(getDataBufferIndex(x, y));
         if (rasterDataNode.isScalingApplied()) {
             v = (int) (rasterDataNode.scale(v) + 0.5);
@@ -92,7 +92,7 @@ public class RasterImpl implements Raster {
         return v;
     }
 
-    public final void setInt(int x, int y, int v) {
+    public final void setSample(int x, int y, int v) {
         if (rasterDataNode.isScalingApplied()) {
             double d = rasterDataNode.scaleInverse(v);
             dataBuffer.setElemDoubleAt(getDataBufferIndex(x, y), d);
@@ -101,7 +101,7 @@ public class RasterImpl implements Raster {
         }
     }
 
-    public final float getFloat(int x, int y) {
+    public final float getSampleFloat(int x, int y) {
         float v = dataBuffer.getElemFloatAt(getDataBufferIndex(x, y));
         if (rasterDataNode.isScalingApplied()) {
             v = (float) rasterDataNode.scale(v);
@@ -110,11 +110,11 @@ public class RasterImpl implements Raster {
         return v;
     }
 
-    public final void setFloat(int x, int y, float v) {
-        setDouble(x, y, v);
+    public final void setSample(int x, int y, float v) {
+        setSample(x, y, v);
     }
 
-    public final double getDouble(int x, int y) {
+    public final double getSampleDouble(int x, int y) {
         double v = dataBuffer.getElemDoubleAt(getDataBufferIndex(x, y));
         if (rasterDataNode.isScalingApplied()) {
             v = rasterDataNode.scale(v);
@@ -123,18 +123,18 @@ public class RasterImpl implements Raster {
         return v;
     }
 
-    public final void setDouble(int x, int y, double v) {
+    public final void setSample(int x, int y, double v) {
         if (rasterDataNode.isScalingApplied()) {
             v = rasterDataNode.scaleInverse(v);
         }
         dataBuffer.setElemDoubleAt(getDataBufferIndex(x, y), v);
     }
 
-    public final boolean getBoolean(int x, int y) {
+    public final boolean getSampleBoolean(int x, int y) {
         return dataBuffer.getElemBooleanAt(getDataBufferIndex(x, y));
     }
 
-    public final void setBoolean(int x, int y, boolean v) {
+    public final void setSample(int x, int y, boolean v) {
         dataBuffer.setElemBooleanAt(getDataBufferIndex(x, y), v);
     }
 

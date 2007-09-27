@@ -35,10 +35,6 @@ public abstract class MerisBasisOp extends AbstractOperator {
     @Parameter
     private boolean copyAllTiePoints = false;
 
-    protected MerisBasisOp(OperatorSpi spi) {
-        super(spi);
-    }
-
     /**
      * creates a new product with the same size
      *

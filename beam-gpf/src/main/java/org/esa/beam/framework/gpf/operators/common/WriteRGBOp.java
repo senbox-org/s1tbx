@@ -8,7 +8,7 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.AbstractOperator;
 import org.esa.beam.framework.gpf.AbstractOperatorSpi;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.Raster;
+import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
@@ -57,10 +57,6 @@ public class WriteRGBOp extends AbstractOperator {
     @TargetProduct
     private Product sourceProduct;
 
-    public WriteRGBOp(Spi spi) {
-        super(spi);
-    }
-
     @Override
     public Product initialize(ProgressMonitor pm) throws OperatorException {
         bandMap = new HashMap<Band, Band>(3);
@@ -92,14 +88,14 @@ public class WriteRGBOp extends AbstractOperator {
     }
 
     @Override
-    public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
-        Rectangle rectangle = targetRaster.getRectangle();
+    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+        Rectangle rectangle = targetTile.getRectangle();
 
         Band sourceBand = bandMap.get(band);
-        Raster sourceRaster = getRaster(sourceBand, rectangle);
+        Tile sourceTile = getSourceTile(sourceBand, rectangle);
 
         ProductData rgbData = dataMap.get(band);
-        System.arraycopy(sourceRaster.getDataBuffer().getElems(), 0, rgbData.getElems(), rectangle.x + rectangle.y * rectangle.width, rectangle.width * rectangle.height);
+        System.arraycopy(sourceTile.getRawSampleData().getElems(), 0, rgbData.getElems(), rectangle.x + rectangle.y * rectangle.width, rectangle.width * rectangle.height);
     }
 
     @Override

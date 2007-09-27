@@ -64,7 +64,7 @@ import java.awt.Rectangle;
 /**
  * A tile.
  */
-public interface Raster {
+public interface Tile {
 
     /**
      * Checks if this is a target tile. Non-target tiles are read only.
@@ -73,15 +73,11 @@ public interface Raster {
      */
     boolean isTarget();
 
-    // todo (nf, 27.09.2007) - API revision:
-    // - rename to some different: name must explain the role of this rectangle.
-    //   Role: the rectangle which was used to obtain the tile.
-    // - needed?
     /**
      * The tile rectangle in the product's scene pixel coordinates.
      * Returns <code>new Rectangle(
-     * {@link #getOffsetX() offsetX},
-     * {@link #getOffsetY() offsetY},
+     * {@link #getMinX() offsetX},
+     * {@link #getMinY() offsetY},
      * {@link #getWidth() width},
      * {@link #getHeight() height})</code>.
      *
@@ -94,14 +90,14 @@ public interface Raster {
      *
      * @return the x-offset
      */
-    int getOffsetX();
+    int getMinX();
 
     /**
      * Gets the y-offset of the {@link #getRectangle() rectangle} within the scene covered by the {@link RasterDataNode}.
      *
      * @return the y-offset
      */
-    int getOffsetY();
+    int getMinY();
 
     /**
      * Gets the width of the {@link #getRectangle() rectangle} within the scene covered by the {@link RasterDataNode}.
@@ -118,15 +114,13 @@ public interface Raster {
     int getHeight();
 
     /**
-     * The raster dataset to which this raster belongs to.
+     * The raster data node to which this raster belongs to.
      *
      * @return the raster data node of a data product, e.g. a {@link org.esa.beam.framework.datamodel.Band} or
      *         {@link org.esa.beam.framework.datamodel.TiePointGrid TiePointGrid}.
      */
     RasterDataNode getRasterDataNode();
 
-    // todo (nf, 26.09.2007) - API revision:
-    // - rename to getRawSampleData
     /**
      * Gets the raw (unscaled, uncalibrated) sample data (e.g. detector counts) of this tile's underlying raster.
      * <p>The number of samples equals
@@ -137,7 +131,7 @@ public interface Raster {
      *
      * @return the sample data
      */
-    ProductData getDataBuffer();
+    ProductData getRawSampleData();
 
     /**
      * Sets the raw (unscaled, uncalibrated) sample data (e.g. detector counts) of this tile's underlying raster.
@@ -145,7 +139,7 @@ public interface Raster {
      * <code>width*height</code> of this tile's {@link #getRectangle() rectangle}.</p>
      *
      * @param sampleData the sample data
-     * @see #getDataBuffer()
+     * @see #getRawSampleData()
      */
     void setRawSampleData(ProductData sampleData);
 
@@ -158,92 +152,19 @@ public interface Raster {
     // int getScanlineOffset();
     // int getScanlineStride();
 
-    // todo (nf, 27.09.2007) - API revision:
-    // - rename to getSampleInt
+    int getSampleInt(int x, int y);
 
-    /**
-     * Gets the integer value at the given position.
-     *
-     * @param x x-coordinate within the raster of the {@link RasterDataNode}
-     * @param y y-coordinate within the raster of the {@link RasterDataNode}
-     * @return the integer value
-     */
-    int getInt(int x, int y);
+    void setSample(int x, int y, int v);
 
-    // todo (nf, 27.09.2007) - API revision:
-    // - rename to setSample
-    /**
-     * Sets the integer value at the given position.
-     *
-     * @param x x-coordinate within the raster of the {@link RasterDataNode}
-     * @param y y-coordinate within the raster of the {@link RasterDataNode}
-     * @param v the integer value
-     */
-    void setInt(int x, int y, int v);
+    float getSampleFloat(int x, int y);
 
-    // todo (nf, 27.09.2007) - API revision:
-    // - rename to getSampleFloat
-    /**
-     * Gets the float value at the given position.
-     *
-     * @param x x-coordinate within the raster of the {@link RasterDataNode}
-     * @param y y-coordinate within the raster of the {@link RasterDataNode}
-     * @return the float value
-     */
-    float getFloat(int x, int y);
+    void setSample(int x, int y, float v);
 
-    // todo (nf, 27.09.2007) - API revision:
-    // - rename to setSample
-    /**
-     * Sets the float value at the given position.
-     *
-     * @param x x-coordinate within the raster of the {@link RasterDataNode}
-     * @param y y-coordinate within the raster of the {@link RasterDataNode}
-     * @param v the float value
-     */
-    void setFloat(int x, int y, float v);
+    double getSampleDouble(int x, int y);
 
-    // todo (nf, 27.09.2007) - API revision:
-    // - rename to getSampleDouble
-    /**
-     * Gets the double value at the given position.
-     *
-     * @param x x-coordinate within the raster of the {@link RasterDataNode}
-     * @param y y-coordinate within the raster of the {@link RasterDataNode}
-     * @return the double value
-     */
-    double getDouble(int x, int y);
+    void setSample(int x, int y, double v);
 
-    // todo (nf, 27.09.2007) - API revision:
-    // - rename to setSample
-    /**
-     * Sets the double value at the given position.
-     *
-     * @param x x-coordinate within the raster of the {@link RasterDataNode}
-     * @param y y-coordinate within the raster of the {@link RasterDataNode}
-     * @param v the double value
-     */
-    void setDouble(int x, int y, double v);
+    boolean getSampleBoolean(int x, int y);
 
-    // todo (nf, 27.09.2007) - API revision:
-    // - rename to getSampleBoolean
-    /**
-     * Gets the boolean value at the given position.
-     *
-     * @param x x-coordinate within the raster of the {@link RasterDataNode}
-     * @param y y-coordinate within the raster of the {@link RasterDataNode}
-     * @return the boolean value
-     */
-    boolean getBoolean(int x, int y);
-
-    // todo (nf, 27.09.2007) - API revision:
-    // - rename to setSample
-    /**
-     * Sets the boolean value at the given position.
-     *
-     * @param x x-coordinate within the raster of the {@link RasterDataNode}
-     * @param y y-coordinate within the raster of the {@link RasterDataNode}
-     * @param v the boolean value
-     */
-    void setBoolean(int x, int y, boolean v);
+    void setSample(int x, int y, boolean v);
 }

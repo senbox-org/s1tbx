@@ -75,9 +75,6 @@ public class BandArithmeticOp extends AbstractOperator implements ParameterConve
 
     private WritableNamespace namespace;
 
-    public BandArithmeticOp(OperatorSpi spi) {
-        super(spi);
-    }
 
     public void getParameterValues(Operator operator, Xpp3Dom configuration) throws OperatorException {
         // todo - implement        
@@ -102,7 +99,7 @@ public class BandArithmeticOp extends AbstractOperator implements ParameterConve
 
         namespace = BandArithmetic.createDefaultNamespace(sourceProducts, 0, new ProductPrefixProvider() {
             public String getPrefix(Product product) {
-                String idForSourceProduct = getContext().getIdForSourceProduct(product);
+                String idForSourceProduct = getContext().getSourceProductId(product);
                 return "$" + idForSourceProduct + ".";
             }
         });
@@ -152,10 +149,10 @@ public class BandArithmeticOp extends AbstractOperator implements ParameterConve
     }
 
     @Override
-    public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
-        BandDescriptor bandDescriptor = getDesriptionForRaster(targetRaster);
+    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+        BandDescriptor bandDescriptor = getDesriptionForTile(targetTile);
 
-        Rectangle rect = targetRaster.getRectangle();
+        Rectangle rect = targetTile.getRectangle();
         final Term term;
         try {
             Parser parser = new ParserImpl(namespace, false);
@@ -166,19 +163,19 @@ public class BandArithmeticOp extends AbstractOperator implements ParameterConve
 
         RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
         for (RasterDataSymbol symbol : refRasterDataSymbols) {
-            Raster raster = getRaster(symbol.getRaster(), rect);
-            if (raster.getRasterDataNode().isScalingApplied()) {
-                ProductData dataBuffer = ProductData.createInstance(ProductData.TYPE_FLOAT32, raster.getWidth() * raster.getHeight());
+            Tile tile = getSourceTile(symbol.getRaster(), rect);
+            if (tile.getRasterDataNode().isScalingApplied()) {
+                ProductData dataBuffer = ProductData.createInstance(ProductData.TYPE_FLOAT32, tile.getWidth() * tile.getHeight());
                 int dataBufferIndex = 0;
                 for (int y = rect.y; y < rect.y + rect.height; y++) {
                     for (int x = rect.x; x < rect.x + rect.width; x++) {
-                        dataBuffer.setElemFloatAt(dataBufferIndex, raster.getFloat(x, y));
+                        dataBuffer.setElemFloatAt(dataBufferIndex, tile.getSampleFloat(x, y));
                         dataBufferIndex++;
                     }
                 }
                 symbol.setData(dataBuffer);
             } else {
-                ProductData dataBuffer = raster.getDataBuffer();
+                ProductData dataBuffer = tile.getRawSampleData();
                 symbol.setData(dataBuffer);
             }
         }
@@ -195,7 +192,7 @@ public class BandArithmeticOp extends AbstractOperator implements ParameterConve
                 for (int x = rect.x; x < rect.x + rect.width; x++) {
                     env.setElemIndex(pixelIndex);
                     env.setPixelX(x);
-                    targetRaster.setDouble(x, y, term.evalD(env));
+                    targetTile.setSample(x, y, term.evalD(env));
                     pixelIndex++;
                 }
                 pm.worked(1);
@@ -205,8 +202,8 @@ public class BandArithmeticOp extends AbstractOperator implements ParameterConve
         }
     }
 
-    private BandDescriptor getDesriptionForRaster(Raster raster) {
-        String rasterName = raster.getRasterDataNode().getName();
+    private BandDescriptor getDesriptionForTile(Tile tile) {
+        String rasterName = tile.getRasterDataNode().getName();
         for (BandDescriptor bandDescriptor : bandDescriptors) {
             if (bandDescriptor.name.equals(rasterName)) {
                 return bandDescriptor;

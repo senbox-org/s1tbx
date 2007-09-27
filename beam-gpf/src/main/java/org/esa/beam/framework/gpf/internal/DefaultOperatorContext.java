@@ -90,7 +90,7 @@ public class DefaultOperatorContext implements OperatorContext {
     /**
      * {@inheritDoc}
      */
-    public String getIdForSourceProduct(Product product) {
+    public String getSourceProductId(Product product) {
         Set<Entry<String, Product>> entrySet = sourceProductMap.entrySet();
         for (Entry<String, Product> entry : entrySet) {
             if (entry.getValue() == product) {
@@ -152,16 +152,6 @@ public class DefaultOperatorContext implements OperatorContext {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public Raster getRaster(RasterDataNode rasterDataNode, Rectangle rectangle, ProgressMonitor pm) throws
-            OperatorException {
-        Assert.notNull(rasterDataNode, "rasterDataNode");
-        Assert.notNull(rectangle, "rectangle");
-        return getSourceRaster(rasterDataNode, rectangle);
-    }
-
-    /**
      * Adds a product to the list of source products.
      * One product instance can be registered with different ids, e.g. "source", "source1" and "input"
      * in consecutive calls.
@@ -215,8 +205,8 @@ public class DefaultOperatorContext implements OperatorContext {
     }
 
     // todo - try to avoid data copying, this method is time-critical!
-    // todo - the best way would be to wrap the returned awtRaster in "our" Raster
-    private static Raster getSourceRaster(RasterDataNode rasterDataNode, Rectangle rectangle) {
+    // todo - the best way would be to wrap the returned awtRaster in "our" Tile
+    public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle rectangle) {
         RenderedImage image = getSourceImage(rasterDataNode);
         /////////////////////////////////////////////////////////////////////
         //
@@ -261,15 +251,15 @@ public class DefaultOperatorContext implements OperatorContext {
     }
 
     public static boolean implementsComputeBandMethod(Class<?> aClass) {
-        return implementsMethod(aClass, "computeBand",
+        return implementsMethod(aClass, "computeTile",
                                 new Class[]{
         		                        Band.class,
-                                        Raster.class,
+                                        Tile.class,
                                         ProgressMonitor.class});
     }
 
     public static boolean implementsComputeAllBandsMethod(Class<?> aClass) {
-        return implementsMethod(aClass, "computeAllBands",
+        return implementsMethod(aClass, "computeTileStack",
                                 new Class[]{
         								Map.class,
                                         Rectangle.class,

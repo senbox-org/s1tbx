@@ -80,10 +80,6 @@ public class SpectralUnmixingOp extends AbstractOperator implements ParameterCon
     private transient Band[] targetBands;
     private SpectralUnmixing spectralUnmixing;
 
-    public SpectralUnmixingOp(OperatorSpi spi) {
-        super(spi);
-    }
-
     public void getParameterValues(Operator operator, Xpp3Dom configuration) throws OperatorException {
         // todo - implement
     }
@@ -246,26 +242,26 @@ public class SpectralUnmixingOp extends AbstractOperator implements ParameterCon
     }
 
     @Override
-    public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
-        Rectangle rectangle = targetRaster.getRectangle();
-        int j = getTargetBandIndex(targetRaster);
+    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+        Rectangle rectangle = targetTile.getRectangle();
+        int j = getTargetBandIndex(targetTile);
         if (j == -1) {
             return;
         }
-        Raster[] sourceRaster = getSourceRaster(rectangle);
+        Tile[] sourceRaster = getSourceTile(rectangle);
         for (int y = rectangle.y; y < rectangle.y + rectangle.height; y++) {
             double[][] ia = getLineSpectra(sourceRaster, rectangle, y);
             double[][] oa = unmix(ia);
-            setAbundances(rectangle, targetRaster, y, j, oa);
+            setAbundances(rectangle, targetTile, y, j, oa);
         }
     }
 
     @Override
-    public void computeAllBands(Map<Band, Raster> targetRasters, Rectangle targetTileRectangle, ProgressMonitor pm) throws OperatorException {
-    	Raster[] targetRaster = new Raster[targetBands.length];
-    	Raster[] sourceRaster = getSourceRaster(targetTileRectangle);
+    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetTileRectangle, ProgressMonitor pm) throws OperatorException {
+    	Tile[] targetRaster = new Tile[targetBands.length];
+    	Tile[] sourceRaster = getSourceTile(targetTileRectangle);
     	for (int j = 0; j < targetBands.length; j++) {
-            targetRaster[j] = targetRasters.get(targetBands[j]);
+            targetRaster[j] = targetTiles.get(targetBands[j]);
         }
         for (int y = targetTileRectangle.y; y < targetTileRectangle.y + targetTileRectangle.height; y++) {
             double[][] ia = getLineSpectra(sourceRaster, targetTileRectangle, y);
@@ -276,35 +272,35 @@ public class SpectralUnmixingOp extends AbstractOperator implements ParameterCon
         }
     }
     
-    private Raster[] getSourceRaster(Rectangle rectangle) throws OperatorException {
-    	Raster[] sourceRaster = new Raster[sourceBands.length];
+    private Tile[] getSourceTile(Rectangle rectangle) throws OperatorException {
+    	Tile[] sourceRaster = new Tile[sourceBands.length];
     	for (int i = 0; i < sourceBands.length; i++) {
-            sourceRaster[i] = getRaster(sourceBands[i], rectangle);
+            sourceRaster[i] = getSourceTile(sourceBands[i], rectangle);
         }
     	return sourceRaster;
     }
 
-    private void setAbundances(Rectangle rectangle, Raster targetRaster, int y, int j, double[][] oa) {
+    private void setAbundances(Rectangle rectangle, Tile targetTile, int y, int j, double[][] oa) {
         for (int x = rectangle.x; x < rectangle.x + rectangle.width; x++) {
-            targetRaster.setDouble(x, y, oa[j][x - rectangle.x]);
+            targetTile.setSample(x, y, oa[j][x - rectangle.x]);
         }
     }
 
-    private double[][] getLineSpectra(Raster[] sourceRasters, Rectangle rectangle, int y) throws OperatorException {
+    private double[][] getLineSpectra(Tile[] sourceRasters, Rectangle rectangle, int y) throws OperatorException {
         double[][] ia = new double[sourceBands.length][rectangle.width];
         for (int i = 0; i < sourceBands.length; i++) {
             for (int x = rectangle.x; x < rectangle.x + rectangle.width; x++) {
-                ia[i][x - rectangle.x] = sourceRasters[i].getDouble(x, y);
+                ia[i][x - rectangle.x] = sourceRasters[i].getSampleDouble(x, y);
             }
         }
         return ia;
     }
 
-    private int getTargetBandIndex(Raster targetRaster) {
+    private int getTargetBandIndex(Tile targetTile) {
         int j0 = -1;
         for (int j = 0; j < targetBands.length; j++) {
             Band targetBand = targetBands[j];
-            if (targetRaster.getRasterDataNode() == targetBand) {
+            if (targetTile.getRasterDataNode() == targetBand) {
                 j0 = j;
                 break;
             }

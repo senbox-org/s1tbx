@@ -34,10 +34,6 @@ public class TestOps {
         @TargetProduct
         private Product targetProduct;
 
-        public Op1(OperatorSpi spi) {
-            super(spi);
-        }
-
         @Override
         public Product initialize(ProgressMonitor pm) {
             targetProduct = new Product("Op1Name", "Op1Type", RASTER_WIDTH, RASTER_HEIGHT);
@@ -46,7 +42,7 @@ public class TestOps {
         }
 
         @Override
-        public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) {
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) {
             System.out.println("=====>>>>>> Op1.computeBand  start");
             registerCall("Op1;");
             System.out.println("=====>>>>>> Op1.computeBand  end");
@@ -71,10 +67,6 @@ public class TestOps {
         @TargetProduct
         public Product output;
 
-        public Op2(OperatorSpi spi) {
-            super(spi);
-        }
-
         @Override
         public Product initialize(ProgressMonitor pm) {
             output = new Product("Op2Name", "Op2Type", RASTER_WIDTH, RASTER_HEIGHT);
@@ -84,12 +76,12 @@ public class TestOps {
         }
 
         @Override
-        public void computeAllBands(Map<Band, Raster> targetRasters, Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
+        public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
             System.out.println("=====>>>>>> Op2.computeAllBands  start");
-            Raster raster1A = getRaster(input.getBand("Op1A"), rectangle);
+            Tile tile1A = getSourceTile(input.getBand("Op1A"), rectangle);
             
-            Raster raster2A = targetRasters.get(output.getBand("Op2A"));
-            Raster raster2B = targetRasters.get(output.getBand("Op2B"));
+            Tile tile2A = targetTiles.get(output.getBand("Op2A"));
+            Tile tile2B = targetTiles.get(output.getBand("Op2B"));
             System.out.println("=====>>>>>> Op2.computeAllBands end");
 
             registerCall("Op2;");
@@ -122,10 +114,6 @@ public class TestOps {
         @TargetProduct
         public Product output;
 
-        public Op3(OperatorSpi spi) {
-            super(spi);
-        }
-
         @Override
         public Product initialize(ProgressMonitor pm) {
             output = new Product("Op3Name", "Op3Type", RASTER_WIDTH, RASTER_HEIGHT);
@@ -137,17 +125,17 @@ public class TestOps {
         }
 
         @Override
-        public void computeAllBands(Map<Band, Raster> targetRasters, Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
+        public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
             System.out.println("=====>>>>>> Op3.computeAllBands  start");
 
-            Raster raster1A = getRaster(input1.getBand("Op1A"), rectangle);
-            Raster raster2A = getRaster(input2.getBand("Op2A"), rectangle);
-            Raster raster2B = getRaster(input2.getBand("Op2B"), rectangle);
+            Tile tile1A = getSourceTile(input1.getBand("Op1A"), rectangle);
+            Tile tile2A = getSourceTile(input2.getBand("Op2A"), rectangle);
+            Tile tile2B = getSourceTile(input2.getBand("Op2B"), rectangle);
 
-            Raster raster3A = targetRasters.get(output.getBand("Op3A"));
-            Raster raster3B = targetRasters.get(output.getBand("Op3B"));
-            Raster raster3C = targetRasters.get(output.getBand("Op3C"));
-            Raster raster3D = targetRasters.get(output.getBand("Op3D"));
+            Tile tile3A = targetTiles.get(output.getBand("Op3A"));
+            Tile tile3B = targetTiles.get(output.getBand("Op3B"));
+            Tile tile3C = targetTiles.get(output.getBand("Op3C"));
+            Tile tile3D = targetTiles.get(output.getBand("Op3D"));
             registerCall("Op3;");
 
             System.out.println("=====>>>>>> Op3.computeAllBands  end");

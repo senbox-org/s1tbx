@@ -53,10 +53,6 @@ public class SubsetOp extends AbstractOperator {
     @Parameter
     private boolean ignoreMetadata = false;
 
-    public SubsetOp(OperatorSpi spi) {
-        super(spi);
-    }
-
     @Override
     protected Product initialize(ProgressMonitor pm) throws OperatorException {
         subsetReader = new ProductSubsetBuilder();
@@ -70,9 +66,9 @@ public class SubsetOp extends AbstractOperator {
     }
 
     @Override
-    public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
-        ProductData destBuffer = targetRaster.getDataBuffer();
-        Rectangle rectangle = targetRaster.getRectangle();
+    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+        ProductData destBuffer = targetTile.getRawSampleData();
+        Rectangle rectangle = targetTile.getRectangle();
         try {
             subsetReader.readBandRasterData(band, rectangle.x, rectangle.y, rectangle.width,
                                             rectangle.height, destBuffer, pm);

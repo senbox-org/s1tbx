@@ -47,10 +47,6 @@ public class WriteProductOp extends AbstractOperator {
     private List<Band> bandsToWrite;
     private boolean productFileWritten;
 
-    public WriteProductOp(OperatorSpi spi) {
-        super(spi);
-    }
-
     @Override
     public Product initialize(ProgressMonitor pm) throws OperatorException {
         targetProduct = sourceProduct;
@@ -71,7 +67,7 @@ public class WriteProductOp extends AbstractOperator {
 
 
     @Override
-    public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         if (!productFileWritten) {
             try {
                 productWriter.writeProductNodes(targetProduct, filePath);
@@ -81,10 +77,10 @@ public class WriteProductOp extends AbstractOperator {
             }
         }
         pm.beginTask("Writing product...", 1);
-        Rectangle rectangle = targetRaster.getRectangle();
+        Rectangle rectangle = targetTile.getRectangle();
         try {
-        	Raster raster = getRaster(band, rectangle);
-        	ProductData dataBuffer = raster.getDataBuffer();
+        	Tile tile = getSourceTile(band, rectangle);
+        	ProductData dataBuffer = tile.getRawSampleData();
         	band.writeRasterData(rectangle.x, rectangle.y, rectangle.width, rectangle.height, dataBuffer, SubProgressMonitor.create(pm, 1));
         } catch (IOException e) {
         	Throwable cause = e.getCause();

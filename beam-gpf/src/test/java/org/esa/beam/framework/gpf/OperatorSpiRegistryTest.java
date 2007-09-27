@@ -27,9 +27,6 @@ public class OperatorSpiRegistryTest extends TestCase {
     }
 
     public static class DummyOp extends TestOps.Op1 {
-        public DummyOp(OperatorSpi spi) {
-            super(spi);
-        }
         @OperatorAlias("Heino")
         public static class Spi extends AbstractOperatorSpi {
             public Spi() {

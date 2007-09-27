@@ -45,8 +45,7 @@ public class OperatorContextInitializer {
 
             Operator operator;
             try {
-                Constructor<? extends Operator> constructor = operatorSpi.getOperatorClass().getDeclaredConstructor(OperatorSpi.class);
-                operator = constructor.newInstance(operatorSpi);
+                operator = operatorSpi.getOperatorClass().newInstance();
                 operatorContext.setOperator(operator);
             } catch (Throwable e) {
                 throw new OperatorException(String.format("Failed to create instance of operator [%s].", operatorSpi.getName()), e);

@@ -24,13 +24,6 @@ import java.util.Map;
 public interface Operator {
 
     /**
-     * Gets the service provider interface (SPI) which was used to create this operator.
-     *
-     * @return the service provider interface.
-     */
-    OperatorSpi getSpi();
-
-    /**
      * Initializes this operator and returns its target product.
      * The framework calls this method after it has created this operator.
      * Any client code that must be performed before computation of raster data should be placed here.
@@ -46,24 +39,24 @@ public interface Operator {
     Product initialize(OperatorContext context, ProgressMonitor pm) throws OperatorException;
 
     /**
-     * Called by the framework in order to compute a target raster for the given band.
+     * Called by the framework in order to compute a target tile for the given band.
      *
      * @param targetBand   the target band
-     * @param targetRaster the target raster associated with the band to be computed
+     * @param targetTile the target tile associated with the band to be computed
      * @param pm           a progress monitor. Can be used to signal progress.
      * @throws OperatorException if an error occurs during computation of the target raster
      */
-    void computeBand(Band targetBand, Raster targetRaster, ProgressMonitor pm) throws OperatorException;
+    void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException;
 
     /**
-     * Called by the framework in order to compute the target rasters for the given bands.
+     * Called by the framework in order to compute the target tiles for the given bands.
      *
-     * @param targetRasters   the target bands and rasters to be computed
-     * @param targetRectangle the target area in pixel coordinates to be computed (same for all rasters in <code>targetRasters</code>)
+     * @param targetTiles   the target bands and tiles to be computed
+     * @param tileRectangle the target area in pixel coordinates to be computed (same for all rasters in <code>targetRasters</code>)
      * @param pm              a progress monitor. Can be used to signal progress.
      * @throws OperatorException if an error occurs during computation of the target rasters
      */
-    void computeAllBands(Map<Band, Raster> targetRasters, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException;
+    void computeTileStack(Map<Band, Tile> targetTiles, Rectangle tileRectangle, ProgressMonitor pm) throws OperatorException;
 
     /**
      * Releases the resources the operator has acquired during its lifetime.

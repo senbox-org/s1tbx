@@ -15,10 +15,10 @@ import java.util.logging.Logger;
  * The method {@link #initialize(ProgressMonitor) initialize()} has to be implemented always.
  * It should setup all the things the operator needs to run.</p>
  * <p/>
- * Additionally one of {@link #computeBand(Raster, ProgressMonitor)  computeBand()} and
+ * Additionally one of {@link #computeBand(Tile, ProgressMonitor)  computeBand()} and
  * {@link #computeAllBands(java.awt.Rectangle, ProgressMonitor) computeAllBands()} or even both
  * must be implemented. Which one to implement depends on the algorithm the operator executes.
- * But in general the {@link #computeBand(Raster, ProgressMonitor)  computeBand()} method should be
+ * But in general the {@link #computeBand(Tile, ProgressMonitor)  computeBand()} method should be
  * preferred, if the algorithm can be executed in this way.
  * The framework will automatically detect the implemented method and call this one.
  * If both are implemented it depends on the use case which one is called. The framework will also take care of
@@ -28,16 +28,12 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractOperator implements Operator {
 
-    private final OperatorSpi spi;
     private OperatorContext context;
 
     /**
      * Constructs a new operator. Note that only SPIs should directly create operators.
-     *
-     * @param spi the service provider interface
      */
-    protected AbstractOperator(OperatorSpi spi) {
-        this.spi = spi;
+    protected AbstractOperator() {
     }
 
     /**
@@ -86,7 +82,7 @@ public abstract class AbstractOperator implements Operator {
     }
 
     /**
-     * Gets a {@link Raster} for a given band and rectangle.
+     * Gets a {@link Tile} for a given band and rectangle.
      *
      * @param rasterDataNode the raster data node of a data product,
      *                       e.g. a {@link org.esa.beam.framework.datamodel.Band} or
@@ -94,16 +90,8 @@ public abstract class AbstractOperator implements Operator {
      * @param rectangle      the raster rectangle in pixel coordinates
      * @return a tile.
      */
-    public Raster getRaster(RasterDataNode rasterDataNode, Rectangle rectangle) throws OperatorException {
-        return context.getRaster(rasterDataNode, rectangle, ProgressMonitor.NULL);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>The default implementation returns the SPI passed to the constructor.</p>
-     */
-    public OperatorSpi getSpi() {
-        return spi;
+    public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle rectangle) throws OperatorException {
+        return context.getSourceTile(rasterDataNode, rectangle);
     }
 
     /**
@@ -131,7 +119,7 @@ public abstract class AbstractOperator implements Operator {
      * <p/>
      * <p>The default implementation throws a runtime exception with the message "not implemented"</p>.
      */
-    public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
     	throw new OperatorException("not implemented (only Band supported)");
    	}
 
@@ -140,7 +128,7 @@ public abstract class AbstractOperator implements Operator {
      * <p/>
      * <p>The default implementation throws a runtime exception with the message "not implemented"</p>.
      */
-    public void computeAllBands(Map<Band, Raster> targetRasters, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
+    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
         throw new OperatorException("not implemented");
     }
 

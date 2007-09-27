@@ -29,7 +29,7 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.ParameterConverter;
-import org.esa.beam.framework.gpf.Raster;
+import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
@@ -57,10 +57,6 @@ public class ClusterAnalysisOp extends AbstractOperator implements ParameterConv
 //    private transient Band[] featureProbBands;
     private transient Band groupBand;
     private transient Clucov clucov;
-
-    public ClusterAnalysisOp(OperatorSpi spi) {
-        super(spi);
-    }
 
     public void getParameterValues(Operator operator, Xpp3Dom configuration) throws OperatorException {
         // todo - implement
@@ -104,7 +100,7 @@ public class ClusterAnalysisOp extends AbstractOperator implements ParameterConv
     }
 
     @Override
-    public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
+    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         if (clucov == null) {
             try {
                 computeClusters();
@@ -115,13 +111,13 @@ public class ClusterAnalysisOp extends AbstractOperator implements ParameterConv
         }
 
         if (band == groupBand)  {
-        	Rectangle rectangle = targetRaster.getRectangle();
+        	Rectangle rectangle = targetTile.getRectangle();
         	final int sourceWidth = sourceProduct.getSceneRasterWidth();
             DataSet ds = clucov.ds;
             for (int y = rectangle.y; y < rectangle.y + rectangle.height; y++) {
                 for (int x = rectangle.x; x < rectangle.x + rectangle.width; x++) {
                     int dsIndex = y * sourceWidth + x;
-                    targetRaster.setDouble(x, y, ds.group[dsIndex]);
+                    targetTile.setSample(x, y, ds.group[dsIndex]);
                 }
             }
         }

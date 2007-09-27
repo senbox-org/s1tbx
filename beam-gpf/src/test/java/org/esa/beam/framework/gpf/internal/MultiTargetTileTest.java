@@ -83,13 +83,13 @@ public class MultiTargetTileTest extends TestCase {
         assertEquals(true, tile.isTarget());
         assertSame(product.getBand("B_FLOAT32"), tile.getRasterDataNode());
         assertEquals(expectedRect, tile.getRectangle());
-        assertEquals(expectedRect.x, tile.getOffsetX());
-        assertEquals(expectedRect.y, tile.getOffsetY());
+        assertEquals(expectedRect.x, tile.getMinX());
+        assertEquals(expectedRect.y, tile.getMinY());
         assertEquals(expectedRect.width, tile.getWidth());
         assertEquals(expectedRect.height, tile.getHeight());
 
-        int x0 = tile.getOffsetX();
-        int y0 = tile.getOffsetY();
+        int x0 = tile.getMinX();
+        int y0 = tile.getMinY();
 
         testIndexOutOfBoundsException(tile, x0 - 1, y0);
         testIndexOutOfBoundsException(tile, x0, y0 - 1);
@@ -110,13 +110,13 @@ public class MultiTargetTileTest extends TestCase {
 
     private void testIndexOutOfBoundsException(TileImpl tile, int x, int y) {
         try {
-            tile.getDouble(x, y);
+            tile.getSampleDouble(x, y);
             fail("ArrayIndexOutOfBoundsException expected");
         } catch (ArrayIndexOutOfBoundsException e) {
             // ok
         }
         try {
-            tile.setDouble(x, y, 0.0);
+            tile.setSample(x, y, 0.0);
             fail("ArrayIndexOutOfBoundsException expected");
         } catch (ArrayIndexOutOfBoundsException e) {
             // ok
@@ -124,24 +124,24 @@ public class MultiTargetTileTest extends TestCase {
     }
 
     private void testScaledSampleAccess(TileImpl tile, int x0, int y0) {
-        tile.setDouble(x0, y0, 0.23);
-        assertEquals(0.23, tile.getDouble(x0, y0), 1e-5);
+        tile.setSample(x0, y0, 0.23);
+        assertEquals(0.23, tile.getSampleDouble(x0, y0), 1e-5);
     }
 
     private void testRawSampleAccess(TileImpl tile, int x, int y, boolean copy) {
         // Test that we DO NOT have direct access to data because dataBuffer IS a copy
-        double oldValue = tile.getDouble(x, y);
+        double oldValue = tile.getSampleDouble(x, y);
         double newValue = -123.45;
         assertTrue(Math.abs(oldValue - newValue) > 0.01); // should be clearly different
-        ProductData sd = tile.getDataBuffer();
-        int i = (y - tile.getOffsetY()) * tile.getRectangle().width + (x - tile.getOffsetX());
+        ProductData sd = tile.getRawSampleData();
+        int i = (y - tile.getMinY()) * tile.getRectangle().width + (x - tile.getMinX());
         sd.setElemDoubleAt(i, newValue);
         assertEquals(newValue, sd.getElemDoubleAt(i), 1e-5); // new value in buffer
         if (copy) {
-            assertEquals(oldValue, tile.getDouble(x, y), 1e-5); // still old value in raster data
+            assertEquals(oldValue, tile.getSampleDouble(x, y), 1e-5); // still old value in raster data
             tile.setRawSampleData(sd); // commit changes
         }
-        assertEquals(newValue, tile.getDouble(x, y), 1e-5); // still old value in raster data
+        assertEquals(newValue, tile.getSampleDouble(x, y), 1e-5); // still old value in raster data
     }
 
 

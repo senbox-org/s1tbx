@@ -105,11 +105,6 @@ public class N1PatcherOp extends AbstractOperator {
     @TargetProduct
     private Product targetProduct;
 
-
-    public N1PatcherOp(OperatorSpi spi) {
-        super(spi);
-    }
-
     @Override
     public Product initialize(ProgressMonitor pm) throws OperatorException {
         targetProduct = sourceProduct;
@@ -213,8 +208,8 @@ public class N1PatcherOp extends AbstractOperator {
     }
 
     @Override
-    public void computeBand(Band band, Raster targetRaster, ProgressMonitor pm) throws OperatorException {
-        Rectangle rectangle = targetRaster.getRectangle();
+    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+        Rectangle rectangle = targetTile.getRectangle();
         DatasetDescriptor descriptor = getDatasetDescriptorForBand(band);
         if (descriptor == null) {
             return;
@@ -222,7 +217,7 @@ public class N1PatcherOp extends AbstractOperator {
 
         pm.beginTask("Patching product...", rectangle.height + 1);
         try {
-            Raster srcRaster = getRaster(band, rectangle);
+            Tile srcTile = getSourceTile(band, rectangle);
 
             byte[] buf = new byte[rectangle.height * descriptor.dsrSize];
             final long dsrOffset = descriptor.dsOffset + rectangle.y * descriptor.dsrSize;
@@ -232,7 +227,7 @@ public class N1PatcherOp extends AbstractOperator {
             for (int y = 0; y < rectangle.height; y++) {
                 outputStream.write(buf, y * descriptor.dsrSize, DSR_HEADER_SIZE);
                 for (int x = rectangle.width - 1; x >= 0; x--) {
-                    outputStream.writeShort(srcRaster.getInt(x, y));
+                    outputStream.writeShort(srcTile.getSampleInt(x, y));
                 }
                 pm.worked(1);
             }

@@ -3,16 +3,16 @@ package org.esa.beam.framework.gpf.internal;
 import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.gpf.Raster;
+import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.util.ImageUtils;
 
 import java.awt.Rectangle;
 import java.awt.image.WritableRaster;
 
 /**
- * A {@link Raster} implementation backed by a {@link java.awt.image.WritableRaster}.
+ * A {@link Tile} implementation backed by a {@link java.awt.image.WritableRaster}.
  */
-public class TileImpl implements Raster {
+public class TileImpl implements Tile {
 
     private final RasterDataNode rasterDataNode;
     private final WritableRaster writableRaster;
@@ -47,11 +47,11 @@ public class TileImpl implements Raster {
         return new Rectangle(offsetX, offsetY, width, height);
     }
 
-    public int getOffsetX() {
+    public int getMinX() {
         return offsetX;
     }
 
-    public int getOffsetY() {
+    public int getMinY() {
         return offsetY;
     }
 
@@ -67,7 +67,7 @@ public class TileImpl implements Raster {
         return rasterDataNode;
     }
 
-    public ProductData getDataBuffer() {
+    public ProductData getRawSampleData() {
         if (sampleData == null) {
             synchronized (this) {
                 if (checkRequestedAreaMatchesRasterArea()
@@ -103,35 +103,35 @@ public class TileImpl implements Raster {
         }
     }
 
-    public int getInt(int x, int y) {
+    public int getSampleInt(int x, int y) {
         return writableRaster.getSample(x, y, 0);
     }
 
-    public void setInt(int x, int y, int v) {
+    public void setSample(int x, int y, int v) {
         writableRaster.setSample(x, y, 0, v);
     }
 
-    public float getFloat(int x, int y) {
+    public float getSampleFloat(int x, int y) {
         return writableRaster.getSampleFloat(x, y, 0);
     }
 
-    public void setFloat(int x, int y, float v) {
+    public void setSample(int x, int y, float v) {
         writableRaster.setSample(x, y, 0, v);
     }
 
-    public double getDouble(int x, int y) {
+    public double getSampleDouble(int x, int y) {
         return writableRaster.getSampleDouble(x, y, 0);
     }
 
-    public void setDouble(int x, int y, double v) {
+    public void setSample(int x, int y, double v) {
         writableRaster.setSample(x, y, 0, v);
     }
 
-    public boolean getBoolean(int x, int y) {
+    public boolean getSampleBoolean(int x, int y) {
         return writableRaster.getSample(x, y, 0) != 0;
     }
 
-    public void setBoolean(int x, int y, boolean v) {
+    public void setSample(int x, int y, boolean v) {
         writableRaster.setSample(x, y, 0, v ? 1 : 0);
     }
 

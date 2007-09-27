@@ -43,34 +43,34 @@ public class SingleTargetTileTest extends TestCase {
         assertEquals(true, tile.isTarget());
         assertSame(band, tile.getRasterDataNode());
         assertEquals(new Rectangle(IMAGE_W, IMAGE_H), tile.getRectangle());
-        assertEquals(0, tile.getOffsetX());
-        assertEquals(0, tile.getOffsetY());
+        assertEquals(0, tile.getMinX());
+        assertEquals(0, tile.getMinY());
         assertEquals(IMAGE_W, tile.getWidth());
         assertEquals(IMAGE_H, tile.getHeight());
 
         // test for initial sample values
-        assertEquals(0.0, tile.getDouble(0, 0), 1e-5);
-        assertEquals(0.0, tile.getDouble(0, 1), 1e-5);
-        assertEquals(0.0, tile.getDouble(0, 2), 1e-5);
-        assertEquals(0.0, tile.getDouble(0, 3), 1e-5);
-        assertEquals(0.0, tile.getDouble(1, 0), 1e-5);
-        assertEquals(0.0, tile.getDouble(2, 0), 1e-5);
-        assertEquals(0.0, tile.getDouble(3, 0), 1e-5);
-        assertEquals(0.0, tile.getDouble(1, 1), 1e-5);
-        assertEquals(0.0, tile.getDouble(2, 2), 1e-5);
-        assertEquals(0.0, tile.getDouble(3, 3), 1e-5);
+        assertEquals(0.0, tile.getSampleDouble(0, 0), 1e-5);
+        assertEquals(0.0, tile.getSampleDouble(0, 1), 1e-5);
+        assertEquals(0.0, tile.getSampleDouble(0, 2), 1e-5);
+        assertEquals(0.0, tile.getSampleDouble(0, 3), 1e-5);
+        assertEquals(0.0, tile.getSampleDouble(1, 0), 1e-5);
+        assertEquals(0.0, tile.getSampleDouble(2, 0), 1e-5);
+        assertEquals(0.0, tile.getSampleDouble(3, 0), 1e-5);
+        assertEquals(0.0, tile.getSampleDouble(1, 1), 1e-5);
+        assertEquals(0.0, tile.getSampleDouble(2, 2), 1e-5);
+        assertEquals(0.0, tile.getSampleDouble(3, 3), 1e-5);
 
         // Test that setter works
-        tile.setDouble(2, 1, 0.03);
-        assertEquals(0.03, tile.getDouble(2, 1), 1e-5);
+        tile.setSample(2, 1, 0.03);
+        assertEquals(0.03, tile.getSampleDouble(2, 1), 1e-5);
 
         // Test that product data is wrapper for internal raster data buffer
-        ProductData pd = tile.getDataBuffer();
+        ProductData pd = tile.getRawSampleData();
         assertNotNull(pd);
-        assertSame(pd, tile.getDataBuffer());
+        assertSame(pd, tile.getRawSampleData());
 
         pd.setElemDoubleAt(1 + 2 * IMAGE_W, 0.04);
-        assertEquals(0.04, tile.getDouble(1, 2), 1e-5);
+        assertEquals(0.04, tile.getSampleDouble(1, 2), 1e-5);
 
         ProductData sampleData = band.createCompatibleRasterData();
         for (int i = 0; i < sampleData.getNumElems(); i++) {
@@ -79,16 +79,16 @@ public class SingleTargetTileTest extends TestCase {
 
         tile.setRawSampleData(sampleData);
 
-        assertEquals(100.0, tile.getDouble(0, 0), 1e-5);
-        assertEquals(104.0, tile.getDouble(0, 1), 1e-5);
-        assertEquals(108.0, tile.getDouble(0, 2), 1e-5);
-        assertEquals(112.0, tile.getDouble(0, 3), 1e-5);
-        assertEquals(101.0, tile.getDouble(1, 0), 1e-5);
-        assertEquals(102.0, tile.getDouble(2, 0), 1e-5);
-        assertEquals(103.0, tile.getDouble(3, 0), 1e-5);
-        assertEquals(105.0, tile.getDouble(1, 1), 1e-5);
-        assertEquals(110.0, tile.getDouble(2, 2), 1e-5);
-        assertEquals(115.0, tile.getDouble(3, 3), 1e-5);
+        assertEquals(100.0, tile.getSampleDouble(0, 0), 1e-5);
+        assertEquals(104.0, tile.getSampleDouble(0, 1), 1e-5);
+        assertEquals(108.0, tile.getSampleDouble(0, 2), 1e-5);
+        assertEquals(112.0, tile.getSampleDouble(0, 3), 1e-5);
+        assertEquals(101.0, tile.getSampleDouble(1, 0), 1e-5);
+        assertEquals(102.0, tile.getSampleDouble(2, 0), 1e-5);
+        assertEquals(103.0, tile.getSampleDouble(3, 0), 1e-5);
+        assertEquals(105.0, tile.getSampleDouble(1, 1), 1e-5);
+        assertEquals(110.0, tile.getSampleDouble(2, 2), 1e-5);
+        assertEquals(115.0, tile.getSampleDouble(3, 3), 1e-5);
     }
 
 }
