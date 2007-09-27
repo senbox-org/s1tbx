@@ -10,7 +10,6 @@ import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.gpf.AbstractOperator;
 import org.esa.beam.framework.gpf.AbstractOperatorSpi;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
@@ -41,10 +40,7 @@ public class ColocationOp extends AbstractOperator {
 
     private transient List<Band> slaveBandList;
 
-    public ColocationOp(OperatorSpi spi) {
-        super();
-    }
-
+    @Override
     protected Product initialize(ProgressMonitor pm) throws OperatorException {
         // todo - name and type
         targetProduct = new Product("CollocationProduct", "COLLOCATION",
