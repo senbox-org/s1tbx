@@ -60,7 +60,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
     }
 
     /**
-     * Simply calls {@link #createCompatibleSampleModel(int, int) createCompatibleSampleModel(width, height)}.
+     * Simply calls {@link #createCompatibleSampleModel(int,int) createCompatibleSampleModel(width, height)}.
      *
      * @param bands Ignored.
      * @return a new <code>org.esa.beam.jai.SingleBandSampleModel</code>.
@@ -94,7 +94,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
         if (obj == null) {
             obj = ImageUtils.createDataBufferArray(data.getDataType(), w * h);
         }
-        getSamplesFast(x, y, w, h, obj, ImageUtils.getDataBufferArray(data), data.getOffset());
+        getSamplesFast(x, y, w, h, obj, ImageUtils.getPrimitiveArray(data), data.getOffset());
         return obj;
     }
 
@@ -103,7 +103,7 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
      */
     @Override
     public void setDataElements(int x, int y, int w, int h, Object obj, DataBuffer data) {
-        setSamplesFast(x, y, w, h, obj, ImageUtils.getDataBufferArray(data), data.getOffset());
+        setSamplesFast(x, y, w, h, obj, ImageUtils.getPrimitiveArray(data), data.getOffset());
     }
 
     /**

@@ -16,7 +16,6 @@
  */
 package org.esa.beam.framework.gpf;
 
-import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 
@@ -40,7 +39,7 @@ public interface OperatorContext {
      * @return the operator
      */
     Operator getOperator();
-    
+
     /**
      * Gets the SPI (Service Provider Interface) of the {@link Operator operator}.
      *
@@ -97,8 +96,7 @@ public interface OperatorContext {
      * @return a tile
      * @throws OperatorException if the operation fails
      */
-    Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle tileRectangle) throws
-            OperatorException;
+    Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle tileRectangle) throws OperatorException;
 
     /**
      * Gets a logger for the operator.

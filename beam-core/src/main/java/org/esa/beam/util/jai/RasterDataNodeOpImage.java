@@ -14,15 +14,7 @@ import javax.media.jai.SourcelessOpImage;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.image.ColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
-import java.awt.image.DataBufferDouble;
-import java.awt.image.DataBufferFloat;
-import java.awt.image.DataBufferInt;
-import java.awt.image.DataBufferUShort;
-import java.awt.image.SampleModel;
-import java.awt.image.WritableRaster;
+import java.awt.image.*;
 import java.io.IOException;
 
 
@@ -55,7 +47,7 @@ public class RasterDataNodeOpImage extends SourcelessOpImage {
         ProductData productData;
         boolean directMode = tile.getDataBuffer().getSize() == destRect.width * destRect.height;
         if (directMode) {
-            productData = ProductData.createInstance(rasterDataNode.getDataType(), ImageUtils.getDataBufferArray(tile.getDataBuffer()));
+            productData = ProductData.createInstance(rasterDataNode.getDataType(), ImageUtils.getPrimitiveArray(tile.getDataBuffer()));
         } else {
             productData = ProductData.createInstance(rasterDataNode.getDataType(), destRect.width * destRect.height);
         }

@@ -5,8 +5,10 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.util.ImageUtils;
+import org.esa.beam.util.jai.SingleBandedSampleModel;
 
 import java.awt.Rectangle;
+import java.awt.image.DataBuffer;
 import java.awt.image.WritableRaster;
 
 /**
@@ -20,7 +22,14 @@ public class TileImpl implements Tile {
     private final int offsetY;
     private final int width;
     private final int height;
+    private final int scanlineOffset;
+    private final int scanlineStride;
     private final boolean target;
+    private final byte[] rawSamplesByte;
+    private final short[] rawSamplesShort;
+    private final int[] rawSamplesInt;
+    private final float[] rawSamplesFloat;
+    private final double[] rawSamplesDouble;
 
     private ProductData sampleData;
     private boolean mustWriteSampleData;
@@ -30,6 +39,12 @@ public class TileImpl implements Tile {
     }
 
     public TileImpl(RasterDataNode rasterDataNode, WritableRaster writableRaster, Rectangle rectangle, boolean destination) {
+        Assert.argument(writableRaster.getSampleModel() instanceof SingleBandedSampleModel, "writableRaster");
+        SingleBandedSampleModel sm = (SingleBandedSampleModel) writableRaster.getSampleModel();
+        DataBuffer db = writableRaster.getDataBuffer();
+        Assert.argument(db.getNumBanks() == 1, "writableRaster");
+        Object primitiveArray = ImageUtils.getPrimitiveArray(db);
+
         this.rasterDataNode = rasterDataNode;
         this.writableRaster = writableRaster;
         this.offsetX = rectangle.x;
@@ -37,6 +52,13 @@ public class TileImpl implements Tile {
         this.width = rectangle.width;
         this.height = rectangle.height;
         this.target = destination;
+        this.scanlineStride = sm.getScanlineStride();
+        this.scanlineOffset = offsetY * scanlineStride + offsetX + db.getOffset();
+        this.rawSamplesByte = (primitiveArray instanceof byte[]) ? (byte[]) primitiveArray : null;
+        this.rawSamplesShort = (primitiveArray instanceof short[]) ? (short[]) primitiveArray : null;
+        this.rawSamplesInt = (primitiveArray instanceof int[]) ? (int[]) primitiveArray : null;
+        this.rawSamplesFloat = (primitiveArray instanceof float[]) ? (float[]) primitiveArray : null;
+        this.rawSamplesDouble = (primitiveArray instanceof double[]) ? (double[]) primitiveArray : null;
     }
 
     public boolean isTarget() {
@@ -73,7 +95,7 @@ public class TileImpl implements Tile {
                 if (checkRequestedAreaMatchesRasterArea()
                         && checkDataBufferSizeMatchesRasterArea()) {
                     // simply wrap existing data
-                    sampleData = ProductData.createInstance(rasterDataNode.getDataType(), ImageUtils.getDataBufferArray(writableRaster.getDataBuffer()));
+                    sampleData = ProductData.createInstance(rasterDataNode.getDataType(), ImageUtils.getPrimitiveArray(writableRaster.getDataBuffer()));
                 } else {
                     // create new instance
                     sampleData = rasterDataNode.createCompatibleRasterData(width, height);
@@ -101,6 +123,34 @@ public class TileImpl implements Tile {
                                                sampleData.getElems());
             }
         }
+    }
+
+    public byte[] getRawSamplesByte() {
+        return rawSamplesByte;
+    }
+
+    public short[] getRawSamplesShort() {
+        return rawSamplesShort;
+    }
+
+    public int[] getRawSamplesInt() {
+        return rawSamplesInt;
+    }
+
+    public float[] getRawSamplesFloat() {
+        return rawSamplesFloat;
+    }
+
+    public double[] getRawSamplesDouble() {
+        return rawSamplesDouble;
+    }
+
+    public int getScanlineOffset() {
+        return scanlineOffset;
+    }
+
+    public int getScanlineStride() {
+        return scanlineStride;
     }
 
     public int getSampleInt(int x, int y) {
@@ -134,7 +184,6 @@ public class TileImpl implements Tile {
     public void setSample(int x, int y, boolean v) {
         writableRaster.setSample(x, y, 0, v ? 1 : 0);
     }
-
 
     private boolean checkRequestedAreaMatchesRasterArea() {
         return width == writableRaster.getWidth() && height == writableRaster.getHeight();

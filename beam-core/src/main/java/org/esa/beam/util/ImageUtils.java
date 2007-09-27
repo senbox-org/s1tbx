@@ -20,8 +20,8 @@ package org.esa.beam.util;
 // other org.esa.beam packages here above org.esa.beam.util
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.util.math.Quantizer;
 import org.esa.beam.util.jai.SingleBandedSampleModel;
+import org.esa.beam.util.math.Quantizer;
 
 import java.awt.Graphics2D;
 import java.awt.Transparency;
@@ -43,7 +43,6 @@ public class ImageUtils {
      *
      * @param image     the source image
      * @param imageType the  {#link java.awt.image.BufferedImage} type
-     *
      * @return the buffered image of the given type
      */
     public static BufferedImage convertImage(RenderedImage image, int imageType) {
@@ -71,7 +70,6 @@ public class ImageUtils {
      * the given image.
      *
      * @param dataType a data type as defined in <code>DataBuffer</code>
-     *
      * @see java.awt.image.DataBuffer
      */
     public static double[] getDataTypeMinMax(int dataType, double[] minmax) {
@@ -79,7 +77,7 @@ public class ImageUtils {
             minmax = new double[2];
         }
         if (dataType == DataBuffer.TYPE_BYTE
-            || dataType == DataBuffer.TYPE_INT) {
+                || dataType == DataBuffer.TYPE_INT) {
             minmax[0] = 0.0;
             minmax[1] = 255.0;
         } else if (dataType == DataBuffer.TYPE_SHORT) {
@@ -99,29 +97,27 @@ public class ImageUtils {
      * Gets a textual representation of the supplied raster data type
      *
      * @param dataType a data type as defined in <code>DataBuffer</code>
-     *
      * @return a textual representation of the supplied raster data type
-     *
      * @see java.awt.image.DataBuffer
      */
     public static String getDataTypeName(int dataType) {
         switch (dataType) {
-        case DataBuffer.TYPE_BYTE:
-            return UtilConstants.BUFFER_BYTE_NAME;
-        case DataBuffer.TYPE_SHORT:
-            return UtilConstants.BUFFER_SHORT_NAME;
-        case DataBuffer.TYPE_USHORT:
-            return UtilConstants.BUFFER_USHORT_NAME;
-        case DataBuffer.TYPE_INT:
-            return UtilConstants.BUFFER_INT_NAME;
-        case DataBuffer.TYPE_FLOAT:
-            return UtilConstants.BUFFER_FLOAT_NAME;
-        case DataBuffer.TYPE_DOUBLE:
-            return UtilConstants.BUFFER_DOUBLE_NAME;
-        case DataBuffer.TYPE_UNDEFINED:
-            return UtilConstants.BUFFER_UNDEFINED_NAME;
-        default:
-            return UtilConstants.BUFFER_UNKNOWN_NAME;
+            case DataBuffer.TYPE_BYTE:
+                return UtilConstants.BUFFER_BYTE_NAME;
+            case DataBuffer.TYPE_SHORT:
+                return UtilConstants.BUFFER_SHORT_NAME;
+            case DataBuffer.TYPE_USHORT:
+                return UtilConstants.BUFFER_USHORT_NAME;
+            case DataBuffer.TYPE_INT:
+                return UtilConstants.BUFFER_INT_NAME;
+            case DataBuffer.TYPE_FLOAT:
+                return UtilConstants.BUFFER_FLOAT_NAME;
+            case DataBuffer.TYPE_DOUBLE:
+                return UtilConstants.BUFFER_DOUBLE_NAME;
+            case DataBuffer.TYPE_UNDEFINED:
+                return UtilConstants.BUFFER_UNDEFINED_NAME;
+            default:
+                return UtilConstants.BUFFER_UNKNOWN_NAME;
         }
     }
 
@@ -129,65 +125,63 @@ public class ImageUtils {
      * Gets a textual representation of the supplied color space type
      *
      * @param spaceType a dcolor space type as defined in <code>ColorSpace</code>
-     *
      * @return a textual representation of the color space
-     *
      * @see java.awt.color.ColorSpace
      */
     public static String getColorSpaceName(int spaceType) {
         switch (spaceType) {
-        case ColorSpace.TYPE_XYZ:
-            return UtilConstants.CS_TYPE_XYZ;
-        case ColorSpace.TYPE_Lab:
-            return UtilConstants.CS_TYPE_LAB;
-        case ColorSpace.TYPE_Luv:
-            return UtilConstants.CS_TYPE_LUV;
-        case ColorSpace.TYPE_YCbCr:
-            return UtilConstants.CS_TYPE_YCBCR;
-        case ColorSpace.TYPE_Yxy:
-            return UtilConstants.CS_TYPE_YXY;
-        case ColorSpace.TYPE_RGB:
-            return UtilConstants.CS_TYPE_RGB;
-        case ColorSpace.TYPE_GRAY:
-            return UtilConstants.CS_TYPE_GRAY;
-        case ColorSpace.TYPE_HSV:
-            return UtilConstants.CS_TYPE_HSV;
-        case ColorSpace.TYPE_HLS:
-            return UtilConstants.CS_TYPE_HLS;
-        case ColorSpace.TYPE_CMYK:
-            return UtilConstants.CS_TYPE_CMYK;
-        case ColorSpace.TYPE_CMY:
-            return UtilConstants.CS_TYPE_CMY;
-        case ColorSpace.TYPE_2CLR:
-            return UtilConstants.CS_TYPE_2CLR;
-        case ColorSpace.TYPE_3CLR:
-            return UtilConstants.CS_TYPE_3CLR;
-        case ColorSpace.TYPE_4CLR:
-            return UtilConstants.CS_TYPE_4CLR;
-        case ColorSpace.TYPE_5CLR:
-            return UtilConstants.CS_TYPE_5CLR;
-        case ColorSpace.TYPE_6CLR:
-            return UtilConstants.CS_TYPE_6CLR;
-        case ColorSpace.TYPE_7CLR:
-            return UtilConstants.CS_TYPE_7CLR;
-        case ColorSpace.TYPE_8CLR:
-            return UtilConstants.CS_TYPE_8CLR;
-        case ColorSpace.TYPE_9CLR:
-            return UtilConstants.CS_TYPE_9CLR;
-        case ColorSpace.TYPE_ACLR:
-            return UtilConstants.CS_TYPE_ACLR;
-        case ColorSpace.TYPE_BCLR:
-            return UtilConstants.CS_TYPE_BCLR;
-        case ColorSpace.TYPE_CCLR:
-            return UtilConstants.CS_TYPE_CCLR;
-        case ColorSpace.TYPE_DCLR:
-            return UtilConstants.CS_TYPE_DCLR;
-        case ColorSpace.TYPE_ECLR:
-            return UtilConstants.CS_TYPE_ECLR;
-        case ColorSpace.TYPE_FCLR:
-            return UtilConstants.CS_TYPE_FCLR;
-        default:
-            return UtilConstants.CS_TYPE_UNKNOWN;
+            case ColorSpace.TYPE_XYZ:
+                return UtilConstants.CS_TYPE_XYZ;
+            case ColorSpace.TYPE_Lab:
+                return UtilConstants.CS_TYPE_LAB;
+            case ColorSpace.TYPE_Luv:
+                return UtilConstants.CS_TYPE_LUV;
+            case ColorSpace.TYPE_YCbCr:
+                return UtilConstants.CS_TYPE_YCBCR;
+            case ColorSpace.TYPE_Yxy:
+                return UtilConstants.CS_TYPE_YXY;
+            case ColorSpace.TYPE_RGB:
+                return UtilConstants.CS_TYPE_RGB;
+            case ColorSpace.TYPE_GRAY:
+                return UtilConstants.CS_TYPE_GRAY;
+            case ColorSpace.TYPE_HSV:
+                return UtilConstants.CS_TYPE_HSV;
+            case ColorSpace.TYPE_HLS:
+                return UtilConstants.CS_TYPE_HLS;
+            case ColorSpace.TYPE_CMYK:
+                return UtilConstants.CS_TYPE_CMYK;
+            case ColorSpace.TYPE_CMY:
+                return UtilConstants.CS_TYPE_CMY;
+            case ColorSpace.TYPE_2CLR:
+                return UtilConstants.CS_TYPE_2CLR;
+            case ColorSpace.TYPE_3CLR:
+                return UtilConstants.CS_TYPE_3CLR;
+            case ColorSpace.TYPE_4CLR:
+                return UtilConstants.CS_TYPE_4CLR;
+            case ColorSpace.TYPE_5CLR:
+                return UtilConstants.CS_TYPE_5CLR;
+            case ColorSpace.TYPE_6CLR:
+                return UtilConstants.CS_TYPE_6CLR;
+            case ColorSpace.TYPE_7CLR:
+                return UtilConstants.CS_TYPE_7CLR;
+            case ColorSpace.TYPE_8CLR:
+                return UtilConstants.CS_TYPE_8CLR;
+            case ColorSpace.TYPE_9CLR:
+                return UtilConstants.CS_TYPE_9CLR;
+            case ColorSpace.TYPE_ACLR:
+                return UtilConstants.CS_TYPE_ACLR;
+            case ColorSpace.TYPE_BCLR:
+                return UtilConstants.CS_TYPE_BCLR;
+            case ColorSpace.TYPE_CCLR:
+                return UtilConstants.CS_TYPE_CCLR;
+            case ColorSpace.TYPE_DCLR:
+                return UtilConstants.CS_TYPE_DCLR;
+            case ColorSpace.TYPE_ECLR:
+                return UtilConstants.CS_TYPE_ECLR;
+            case ColorSpace.TYPE_FCLR:
+                return UtilConstants.CS_TYPE_FCLR;
+            default:
+                return UtilConstants.CS_TYPE_UNKNOWN;
         }
     }
 
@@ -317,7 +311,7 @@ public class ImageUtils {
         Quantizer.quantizeDouble(samples, min, max, output, offset, stride, ProgressMonitor.NULL);
     }
 
-    public static Object getDataBufferArray(DataBuffer dataBuffer) {
+    public static Object getPrimitiveArray(DataBuffer dataBuffer) {
         switch (dataBuffer.getDataType()) {
             case DataBuffer.TYPE_BYTE:
                 return ((DataBufferByte) dataBuffer).getData();
