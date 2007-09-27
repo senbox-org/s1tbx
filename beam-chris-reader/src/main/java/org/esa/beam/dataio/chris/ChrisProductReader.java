@@ -292,11 +292,19 @@ public class ChrisProductReader extends AbstractProductReader {
         for (final Flags flag : Flags.values()) {
             flagCoding.addFlag(flag.toString(), flag.getMask(), flag.getDescription());
         }
-
         product.addFlagCoding(flagCoding);
+        for (final Band band : maskBands) {
+            band.setFlagCoding(flagCoding);
+        }
+
+        defineSpectrumBitmask(product, Flags.DROPOUT, "Spectrum dropout",
+                              "Spectrum contains a dropout pixel");
+        defineSpectrumBitmask(product, Flags.SATURATED, "Spectrum saturated",
+                              "Spectrum contains a saturated pixel");
+        defineSpectrumBitmask(product, Flags.CORRECTED, "Spectrum corrected",
+                              "Spectrum contains a corrected dropout pixel");
 
         for (int i = 0; i < spectralBandCount; ++i) {
-            maskBands[i].setFlagCoding(flagCoding);
             for (final Flags flag : Flags.values()) {
                 product.addBitmaskDef(new BitmaskDef(
                         new StringBuilder(rciBands[i].getName()).append("_").append(flag).toString(),
@@ -306,12 +314,6 @@ public class ChrisProductReader extends AbstractProductReader {
                         flag.getTransparency()));
             }
         }
-        defineSpectrumBitmask(product, Flags.DROPOUT, "Spectrum dropout",
-                              "Spectrum contains a dropout pixel");
-        defineSpectrumBitmask(product, Flags.SATURATED, "Spectrum saturated",
-                              "Spectrum contains a saturated pixel");
-        defineSpectrumBitmask(product, Flags.CORRECTED, "Spectrum corrected",
-                              "Spectrum contains a corrected dropout pixel");
     }
 
     private void defineSpectrumBitmask(Product product, Flags flag, String name, String description) {
