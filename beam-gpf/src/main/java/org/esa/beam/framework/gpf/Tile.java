@@ -143,14 +143,19 @@ public interface Tile {
      */
     void setRawSampleData(ProductData sampleData);
 
-    // todo (nf, 27.09.2007) - API revision:
-    // byte[] getRawSamplesByte();
-    // short[] getRawSamplesShort();
-    // int[] getRawSamplesInt();
-    // float[] getRawSamplesFloat();
-    // double[] getRawSamplesDouble();
-    // int getScanlineOffset();
-    // int getScanlineStride();
+    byte[] getRawSamplesByte();
+
+    short[] getRawSamplesShort();
+
+    int[] getRawSamplesInt();
+
+    float[] getRawSamplesFloat();
+
+    double[] getRawSamplesDouble();
+
+    int getScanlineOffset();
+
+    int getScanlineStride();
 
     int getSampleInt(int x, int y);
 

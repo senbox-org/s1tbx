@@ -46,11 +46,6 @@ public class RasterImpl implements Tile {
         this.height = rectangle.height;
     }
 
-
-    public boolean isTarget() {
-        throw new IllegalStateException("not implemented");
-    }
-
     public final RasterDataNode getRasterDataNode() {
         return rasterDataNode;
     }
@@ -61,10 +56,6 @@ public class RasterImpl implements Tile {
 
     public final ProductData getRawSampleData() {
         return dataBuffer;
-    }
-
-    public void setRawSampleData(ProductData sampleData) {
-        throw new IllegalStateException("not implemented");
     }
 
     public final int getHeight() {
@@ -140,5 +131,44 @@ public class RasterImpl implements Tile {
 
     private int getDataBufferIndex(int x, int y) {
         return (y - offsetY) * width + (x - offsetX);
+    }
+
+    // new interface (not implemented)
+
+    public boolean isTarget() {
+        throw new IllegalStateException("not implemented");
+    }
+
+    public void setRawSampleData(ProductData sampleData) {
+        boolean result;
+        throw new IllegalStateException("not implemented");
+    }
+
+    public byte[] getRawSamplesByte() {
+        throw new IllegalStateException("not implemented");
+    }
+
+    public double[] getRawSamplesDouble() {
+        throw new IllegalStateException("not implemented");
+    }
+
+    public float[] getRawSamplesFloat() {
+        throw new IllegalStateException("not implemented");
+    }
+
+    public int[] getRawSamplesInt() {
+        throw new IllegalStateException("not implemented");
+    }
+
+    public short[] getRawSamplesShort() {
+        throw new IllegalStateException("not implemented");
+    }
+
+    public int getScanlineOffset() {
+        throw new IllegalStateException("not implemented");
+    }
+
+    public int getScanlineStride() {
+        throw new IllegalStateException("not implemented");
     }
 }

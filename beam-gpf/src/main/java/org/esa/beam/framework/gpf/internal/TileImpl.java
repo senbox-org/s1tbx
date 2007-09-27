@@ -5,9 +5,9 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.util.ImageUtils;
-import org.esa.beam.util.jai.SingleBandedSampleModel;
 
 import java.awt.Rectangle;
+import java.awt.image.ComponentSampleModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.WritableRaster;
 
@@ -38,22 +38,30 @@ public class TileImpl implements Tile {
         this(rasterDataNode, writableRaster, rectangle, true);
     }
 
-    public TileImpl(RasterDataNode rasterDataNode, WritableRaster writableRaster, Rectangle rectangle, boolean destination) {
-        Assert.argument(writableRaster.getSampleModel() instanceof SingleBandedSampleModel, "writableRaster");
-        SingleBandedSampleModel sm = (SingleBandedSampleModel) writableRaster.getSampleModel();
-        DataBuffer db = writableRaster.getDataBuffer();
-        Assert.argument(db.getNumBanks() == 1, "writableRaster");
+    public TileImpl(RasterDataNode rasterDataNode, WritableRaster wr, Rectangle rectangle, boolean destination) {
+        Assert.notNull(rasterDataNode, "rasterDataNode");
+        Assert.argument(wr.getNumBands() == 1, "wr");
+        Assert.argument(wr.getSampleModel() instanceof ComponentSampleModel, "wr");
+        ComponentSampleModel sm = (ComponentSampleModel) wr.getSampleModel();
+        Assert.argument(sm.getNumBands() == 1, "wr");
+        DataBuffer db = wr.getDataBuffer();
+        Assert.argument(db.getNumBanks() == 1, "wr");
+        Assert.notNull(rectangle, "rectangle");
+
         Object primitiveArray = ImageUtils.getPrimitiveArray(db);
+        int smX0 = rectangle.x - wr.getSampleModelTranslateX();
+        int smY0 = rectangle.y - wr.getSampleModelTranslateY();
+        int dbI0 = db.getOffset();
 
         this.rasterDataNode = rasterDataNode;
-        this.writableRaster = writableRaster;
+        this.writableRaster = wr;
         this.offsetX = rectangle.x;
         this.offsetY = rectangle.y;
         this.width = rectangle.width;
         this.height = rectangle.height;
         this.target = destination;
         this.scanlineStride = sm.getScanlineStride();
-        this.scanlineOffset = offsetY * scanlineStride + offsetX + db.getOffset();
+        this.scanlineOffset = smY0 * scanlineStride + smX0 + dbI0;
         this.rawSamplesByte = (primitiveArray instanceof byte[]) ? (byte[]) primitiveArray : null;
         this.rawSamplesShort = (primitiveArray instanceof short[]) ? (short[]) primitiveArray : null;
         this.rawSamplesInt = (primitiveArray instanceof int[]) ? (int[]) primitiveArray : null;

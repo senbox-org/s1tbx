@@ -87,6 +87,13 @@ public class MultiTargetTileTest extends TestCase {
         assertEquals(expectedRect.y, tile.getMinY());
         assertEquals(expectedRect.width, tile.getWidth());
         assertEquals(expectedRect.height, tile.getHeight());
+        assertEquals(0, tile.getScanlineOffset());
+        assertEquals(TILE_SIZE, tile.getScanlineStride());
+        assertNull(tile.getRawSamplesByte());
+        assertNull(tile.getRawSamplesShort());
+        assertNull(tile.getRawSamplesInt());
+        assertNotNull(tile.getRawSamplesFloat());
+        assertNull(tile.getRawSamplesDouble());
 
         int x0 = tile.getMinX();
         int y0 = tile.getMinY();

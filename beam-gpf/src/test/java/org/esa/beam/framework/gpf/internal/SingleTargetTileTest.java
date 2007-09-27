@@ -47,6 +47,13 @@ public class SingleTargetTileTest extends TestCase {
         assertEquals(0, tile.getMinY());
         assertEquals(IMAGE_W, tile.getWidth());
         assertEquals(IMAGE_H, tile.getHeight());
+        assertEquals(0, tile.getScanlineOffset());
+        assertEquals(IMAGE_W, tile.getScanlineStride());
+        assertNull(tile.getRawSamplesByte());
+        assertNull(tile.getRawSamplesShort());
+        assertNull(tile.getRawSamplesInt());
+        assertNotNull(tile.getRawSamplesFloat());
+        assertNull(tile.getRawSamplesDouble());
 
         // test for initial sample values
         assertEquals(0.0, tile.getSampleDouble(0, 0), 1e-5);
