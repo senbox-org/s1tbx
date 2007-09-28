@@ -102,7 +102,7 @@ public class RasterImpl implements Tile {
     }
 
     public final void setSample(int x, int y, float v) {
-        setSample(x, y, v);
+        setSample(x, y, (double)v);
     }
 
     public final double getSampleDouble(int x, int y) {
