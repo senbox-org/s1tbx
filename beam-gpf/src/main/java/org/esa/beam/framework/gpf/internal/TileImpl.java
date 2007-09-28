@@ -26,25 +26,35 @@ public class TileImpl implements Tile {
     private final int maxY;
     private final int width;
     private final int height;
+    private final boolean target;
     private final boolean scalingApplied;
     private final int scanlineOffset;
     private final int scanlineStride;
-    private final byte[] rawSamplesByte;
-    private final short[] rawSamplesShort;
-    private final int[] rawSamplesInt;
-    private final float[] rawSamplesFloat;
-    private final double[] rawSamplesDouble;
+    private final byte[] dataBufferByte;
+    private final short[] dataBufferShort;
+    private final int[] dataBufferInt;
+    private final float[] dataBufferFloat;
+    private final double[] dataBufferDouble;
 
-    private ProductData sampleData;
+    private ProductData dataBuffer;
+    private ProductData rawSamples;
+    private boolean mustWriteSampleData;
 
     public TileImpl(RasterDataNode rasterDataNode, Raster raster) {
-        this(rasterDataNode, raster, new Rectangle(raster.getMinX(), raster.getMinY(), raster.getWidth(), raster.getHeight()));
+        this(rasterDataNode, raster, new Rectangle(raster.getMinX(), raster.getMinY(), raster.getWidth(), raster.getHeight()), false);
     }
 
-    public TileImpl(RasterDataNode rasterDataNode, Raster raster, Rectangle rectangle) {
+    public TileImpl(RasterDataNode rasterDataNode, WritableRaster raster, Rectangle rectangle) {
+        this(rasterDataNode, raster, rectangle, true);
+    }
+
+    public TileImpl(RasterDataNode rasterDataNode, Raster raster, Rectangle rectangle, boolean target) {
         Assert.notNull(rasterDataNode, "rasterDataNode");
         Assert.argument(raster.getNumBands() == 1, "raster");
         WritableRaster writableRaster = raster instanceof WritableRaster ? (WritableRaster) raster : null;
+        if (target) {
+            Assert.argument(writableRaster != null, "raster");
+        }
         Assert.argument(raster.getSampleModel() instanceof ComponentSampleModel, "raster");
         ComponentSampleModel sm = (ComponentSampleModel) raster.getSampleModel();
         Assert.argument(sm.getNumBands() == 1, "raster");
@@ -62,6 +72,7 @@ public class TileImpl implements Tile {
         this.width = rectangle.width;
         this.height = rectangle.height;
         this.scalingApplied = rasterDataNode.isScalingApplied();
+        this.target = target;
 
         int smX0 = rectangle.x - raster.getSampleModelTranslateX();
         int smY0 = rectangle.y - raster.getSampleModelTranslateY();
@@ -70,15 +81,15 @@ public class TileImpl implements Tile {
         this.scanlineOffset = smY0 * scanlineStride + smX0 + dbI0;
 
         Object primitiveArray = ImageUtils.getPrimitiveArray(db);
-        this.rawSamplesByte = (primitiveArray instanceof byte[]) ? (byte[]) primitiveArray : null;
-        this.rawSamplesShort = (primitiveArray instanceof short[]) ? (short[]) primitiveArray : null;
-        this.rawSamplesInt = (primitiveArray instanceof int[]) ? (int[]) primitiveArray : null;
-        this.rawSamplesFloat = (primitiveArray instanceof float[]) ? (float[]) primitiveArray : null;
-        this.rawSamplesDouble = (primitiveArray instanceof double[]) ? (double[]) primitiveArray : null;
+        this.dataBufferByte = (primitiveArray instanceof byte[]) ? (byte[]) primitiveArray : null;
+        this.dataBufferShort = (primitiveArray instanceof short[]) ? (short[]) primitiveArray : null;
+        this.dataBufferInt = (primitiveArray instanceof int[]) ? (int[]) primitiveArray : null;
+        this.dataBufferFloat = (primitiveArray instanceof float[]) ? (float[]) primitiveArray : null;
+        this.dataBufferDouble = (primitiveArray instanceof double[]) ? (double[]) primitiveArray : null;
     }
 
-    public final boolean isWritable() {
-        return writableRaster != null;
+    public final boolean isTarget() {
+        return target;
     }
 
     public final Rectangle getRectangle() {
@@ -113,35 +124,39 @@ public class TileImpl implements Tile {
         return rasterDataNode;
     }
 
-    public ProductData getRawSampleData() {
-        if (sampleData == null) {
+    public int getDataBufferIndex(int x, int y) {
+        return scanlineOffset + (x - minX) + (y - minY) * scanlineStride;
+    }
+
+    public ProductData getDataBuffer() {
+        if (dataBuffer == null) {
             synchronized (this) {
-                if (sampleData == null) { // extra thread-safety
-                    sampleData = ProductData.createInstance(rasterDataNode.getDataType(), ImageUtils.getPrimitiveArray(raster.getDataBuffer()));
+                if (dataBuffer == null) { // extra thread-safety
+                    dataBuffer = ProductData.createInstance(rasterDataNode.getDataType(), ImageUtils.getPrimitiveArray(raster.getDataBuffer()));
                 }
             }
         }
-        return sampleData;
+        return dataBuffer;
     }
 
-    public final byte[] getRawSamplesByte() {
-        return rawSamplesByte;
+    public final byte[] getDataBufferByte() {
+        return dataBufferByte;
     }
 
-    public final short[] getRawSamplesShort() {
-        return rawSamplesShort;
+    public final short[] getDataBufferShort() {
+        return dataBufferShort;
     }
 
-    public final int[] getRawSamplesInt() {
-        return rawSamplesInt;
+    public final int[] getDataBufferInt() {
+        return dataBufferInt;
     }
 
-    public final float[] getRawSamplesFloat() {
-        return rawSamplesFloat;
+    public final float[] getDataBufferFloat() {
+        return dataBufferFloat;
     }
 
-    public final double[] getRawSamplesDouble() {
-        return rawSamplesDouble;
+    public final double[] getDataBufferDouble() {
+        return dataBufferDouble;
     }
 
     public final int getScanlineOffset() {
@@ -152,6 +167,38 @@ public class TileImpl implements Tile {
         return scanlineStride;
     }
 
+    public ProductData getRawSampleData() {
+        if (rawSamples == null) {
+            synchronized (this) {
+                if (rawSamples == null) {
+                    ProductData dataBuffer = getDataBuffer();
+                    if (width * height == dataBuffer.getNumElems()) {
+                        rawSamples = dataBuffer;
+                    }
+                }
+                if (rawSamples == null) {
+                    rawSamples = rasterDataNode.createCompatibleRasterData(width, height);
+                    if (target) {
+                        mustWriteSampleData = true;
+                    } else {
+                        raster.getDataElements(minX, minY, width, height, rawSamples.getElems());
+                    }
+                }
+            }
+        }
+        return rawSamples;
+    }
+
+    public void setRawSampleData(ProductData rawSamples) {
+        Assert.notNull(rawSamples, "rawSamples");
+        if (target) {
+            if (rawSamples != this.rawSamples || mustWriteSampleData) {
+                writableRaster.setDataElements(minX, minY,
+                                               width, height,
+                                               rawSamples.getElems());
+            }
+        }
+    }
 
     public boolean getSampleBoolean(int x, int y) {
         return getSampleInt(x, y) != 0;

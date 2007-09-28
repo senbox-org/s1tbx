@@ -7,7 +7,6 @@ import org.esa.beam.framework.gpf.OperatorContext;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.jai.RasterDataNodeOpImage;
 
-import javax.media.jai.ImageLayout;
 import javax.media.jai.PlanarImage;
 import java.awt.Rectangle;
 import java.awt.image.Raster;
@@ -49,7 +48,7 @@ public class GpfOpImage extends RasterDataNodeOpImage {
             for (int i = 0; i < targetRasters.length; i++) {
                 Band targetBand = operatorContext.getTargetProduct().getBandAt(i);
                 ProductData targetData = targetBand.createCompatibleRasterData(destRect.width, destRect.height);
-                org.esa.beam.framework.gpf.Tile targetTile = new RasterImpl(getBand(), destRect, targetData);
+                org.esa.beam.framework.gpf.Tile targetTile = createTargetTile(destRect, targetData);
                 targetTiles.put(targetBand, targetTile);
             }
             // Compute target GPF rasters
@@ -67,17 +66,21 @@ public class GpfOpImage extends RasterDataNodeOpImage {
         } else {
             // Provide target GPF raster
             ProductData targetData = getBand().createCompatibleRasterData(destRect.width, destRect.height);
-            org.esa.beam.framework.gpf.Tile targetTile = new RasterImpl(getBand(), destRect, targetData);
-            
+            org.esa.beam.framework.gpf.Tile targetTile = createTargetTile(destRect, targetData);
+
             // Compute target GPF raster
             final long t0 = System.currentTimeMillis();
             System.out.println(">> computeBand: this = " + this + ", targetRectangle" + targetTile.getRectangle());
             operatorContext.getOperator().computeTile(getBand(), targetTile, ProgressMonitor.NULL);
             System.out.println("<< computeBand: time = " + (System.currentTimeMillis() - t0) + " ms");
-            
+
             // Write computed target GPF raster into associated AWT tile
             tile.setDataElements(destRect.x, destRect.y, destRect.width, destRect.height, targetData.getElems());
         }
+    }
+
+    private RasterImpl createTargetTile(Rectangle destRect, ProductData targetData) {
+        return new RasterImpl(getBand(), destRect, targetData);
     }
 
     private WritableRaster[] getTargetTiles(WritableRaster tile) {

@@ -102,7 +102,7 @@ public class RasterImpl implements Tile {
     }
 
     public final void setSample(int x, int y, float v) {
-        setSample(x, y, (double)v);
+        setSample(x, y, (double) v);
     }
 
     public final double getSampleDouble(int x, int y) {
@@ -129,11 +129,15 @@ public class RasterImpl implements Tile {
         dataBuffer.setElemBooleanAt(getDataBufferIndex(x, y), v);
     }
 
-    private int getDataBufferIndex(int x, int y) {
+    public int getDataBufferIndex(int x, int y) {
         return (y - offsetY) * width + (x - offsetX);
     }
 
     // new interface (not implemented)
+
+    public ProductData getDataBuffer() {
+        throw new IllegalStateException("not implemented");
+    }
 
     public int getMaxX() {
         throw new IllegalStateException("not implemented");
@@ -143,32 +147,31 @@ public class RasterImpl implements Tile {
         throw new IllegalStateException("not implemented");
     }
 
-    public boolean isWritable() {
+    public boolean isTarget() {
         throw new IllegalStateException("not implemented");
     }
 
     public void setRawSampleData(ProductData sampleData) {
-        boolean result;
         throw new IllegalStateException("not implemented");
     }
 
-    public byte[] getRawSamplesByte() {
+    public byte[] getDataBufferByte() {
         throw new IllegalStateException("not implemented");
     }
 
-    public double[] getRawSamplesDouble() {
+    public double[] getDataBufferDouble() {
         throw new IllegalStateException("not implemented");
     }
 
-    public float[] getRawSamplesFloat() {
+    public float[] getDataBufferFloat() {
         throw new IllegalStateException("not implemented");
     }
 
-    public int[] getRawSamplesInt() {
+    public int[] getDataBufferInt() {
         throw new IllegalStateException("not implemented");
     }
 
-    public short[] getRawSamplesShort() {
+    public short[] getDataBufferShort() {
         throw new IllegalStateException("not implemented");
     }
 

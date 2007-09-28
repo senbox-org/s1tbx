@@ -84,9 +84,7 @@ public abstract class AbstractTileImageTileTest extends TestCase {
         assertEquals(expectedRect.height, tile.getHeight());
         assertEquals(expectedScanlineStride, tile.getScanlineStride());
         assertEquals(expectedScanlineOffset, tile.getScanlineOffset());
-        if (expectedTarget) {
-            assertEquals(true, tile.isWritable());
-        }
+        assertEquals(expectedTarget, tile.isTarget());
     }
 
     protected Raster getImageData(TestOpImage image, Rectangle expectedRect) {
@@ -99,11 +97,11 @@ public abstract class AbstractTileImageTileTest extends TestCase {
     }
 
     protected void testOnlySamplesFloatAccessible(TileImpl tile) {
-        assertNull(tile.getRawSamplesByte());
-        assertNull(tile.getRawSamplesShort());
-        assertNull(tile.getRawSamplesInt());
-        assertNotNull(tile.getRawSamplesFloat());
-        assertNull(tile.getRawSamplesDouble());
+        assertNull(tile.getDataBufferByte());
+        assertNull(tile.getDataBufferShort());
+        assertNull(tile.getDataBufferInt());
+        assertNotNull(tile.getDataBufferFloat());
+        assertNull(tile.getDataBufferDouble());
     }
 
     protected void testFloatSample32IO(TileImpl tile, int x0, int y0) {
@@ -171,10 +169,10 @@ public abstract class AbstractTileImageTileTest extends TestCase {
     }
 
     protected void testFloat32RawSampleIO(TileImpl tile, int x, int y) {
-        ProductData samplesGeneric = tile.getRawSampleData();
+        ProductData samplesGeneric = tile.getDataBuffer();
         assertNotNull(samplesGeneric);
 
-        float[] samplesFloat = tile.getRawSamplesFloat();
+        float[] samplesFloat = tile.getDataBufferFloat();
         assertNotNull(samplesFloat);
 
         assertSame(samplesFloat, samplesGeneric.getElems());
@@ -182,9 +180,11 @@ public abstract class AbstractTileImageTileTest extends TestCase {
         int lineOffset = tile.getScanlineOffset();
         int lineStride = tile.getScanlineStride();
         int index = lineOffset + (y - tile.getMinY()) * lineStride + (x - tile.getMinX());
+
         assertTrue(index >= 0);
         assertTrue(index < samplesFloat.length);
         assertTrue(index < samplesGeneric.getNumElems());
+        assertEquals(index, tile.getDataBufferIndex(x, y));
 
         samplesFloat[index] = 1234.56f;
         assertEquals(1234.56f, samplesFloat[index], 1e-5f);

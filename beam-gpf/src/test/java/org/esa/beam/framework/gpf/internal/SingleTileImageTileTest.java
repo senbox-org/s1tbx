@@ -68,7 +68,7 @@ public class SingleTileImageTileTest extends AbstractTileImageTileTest {
 
         Rectangle expectedRect = new Rectangle(CHILD_X, CHILD_Y, CHILD_W, CHILD_H);
         Raster childRaster = getImageData(imageFLOAT32, expectedRect);
-        TileImpl tile = new TileImpl(getBand("B_FLOAT32"), childRaster, expectedRect);
+        TileImpl tile = new TileImpl(getBand("B_FLOAT32"), childRaster, expectedRect, false);
         assertSame(getBand("B_FLOAT32"), tile.getRasterDataNode());
 
         testTileStructure(tile, expectedRect, CHILD_Y * IMAGE_W + CHILD_X, IMAGE_W, false);

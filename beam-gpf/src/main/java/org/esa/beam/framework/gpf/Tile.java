@@ -130,38 +130,55 @@ public interface Tile {
     int getHeight();
 
     /**
-     * Gets the raw (unscaled, uncalibrated) sample data (e.g. detector counts) of this tile's underlying raster.
-     * Let {@code x} and {@code y} be absolute pixel coordinates. The {@code index} to be used with the returned data
-     * buffer is then computed as follows:
+     * Gets the index into the underlying data buffer for the given pixel coordinates.
+     * <p>The pixel coordinates are absolute; meaning they are defined in the scene raster coordinate system
+     * of this tile's {@link #getRasterDataNode()  RasterDataNode}.
+     * </p>
+     * <p>The returned index is computed as follows:
      * <pre>
-     *   int lineOffset = tile.{@link #getScanlineOffset()};
-     *   int lineStride = tile.{@link #getScanlineOffset()};
-     *   int dx = x - tile.{@link #getMinX()};
-     *   int dy = y - tile.{@link #getMinY()};
-     *   int index = lineOffset + lineStride * dy + dx;
-     *   // use index here to access raw sample data...
+     *   int dx = x - {@link #getMinX()};
+     *   int dy = y - {@link #getMinY()};
+     *   int index = {@link #getScanlineOffset()} + dy * {@link #getScanlineStride()} + dx;
      * </pre>
-     * Or more efficient using the standard imaging x,y-loops for relative tile pixel coordinates:
-     * <pre>
-     *   int lineStride = tile.{@link #getScanlineStride()};
-     *   int lineOffset = tile.{@link #getScanlineOffset()};
-     *   for (int y = 0; y &lt; tile.{@link #getHeight()}; y++) {
-     *      int index = lineOffset;
-     *      for (int x = 0; x &lt; tile.{@link #getWidth()}; x++) {
-     *           // use index here to access raw sample data...
-     *           index++;
-     *       }
-     *       lineOffset += lineStride;
-     *   }
-     * </pre>
-     * Or the standard imaging x,y-loops for absolute tile pixel coordinates
+     * </p>
+     *
+     * @param x The absolute pixel X-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
+     * @param y The absolute pixel X-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
+     * @return an index into the underlying data buffer
+     */
+    int getDataBufferIndex(int x, int y);
+
+    /**
+     * <p>Obtains access to the underlying data buffer. The data buffer holds the
+     * raw (unscaled, uncalibrated) sample data (e.g. detector counts).</p>
+     * Elements in this array must be addressed
+     * by an index computed via the {@link #getScanlineStride()} and {@link #getScanlineOffset()} methods.
+     * The index can also be directly computed using the  {@link #getDataBufferIndex(int,int)} method.
+     * <p/>
+     * <p>The most efficient way to access and/or modify the samples in the raw data buffer is using
+     * the following nested loops:</p>
      * <pre>
      *   int lineStride = tile.{@link #getScanlineStride()};
      *   int lineOffset = tile.{@link #getScanlineOffset()};
      *   for (int y = tile.{@link #getMinY()}; y &lt;= tile.{@link #getMaxY()}; y++) {
      *      int index = lineOffset;
      *      for (int x = tile.{@link #getMinX()}; x &lt;= tile.{@link #getMaxX()}; x++) {
-     *           // use index here to access raw sample data...
+     *           // use index here to access raw data buffer...
+     *           index++;
+     *       }
+     *       lineOffset += lineStride;
+     *   }
+     * </pre>
+     * <p/>
+     * <p>If the absolute x,y pixel coordinates are not required, the following construct may be a bit more
+     * readable:</p>
+     * <pre>
+     *   int lineStride = tile.{@link #getScanlineStride()};
+     *   int lineOffset = tile.{@link #getScanlineOffset()};
+     *   for (int y = 0; y &lt; tile.{@link #getHeight()}; y++) {
+     *      int index = lineOffset;
+     *      for (int x = 0; x &lt; tile.{@link #getWidth()}; x++) {
+     *           // use index here to access raw data buffer...
      *           index++;
      *       }
      *       lineOffset += lineStride;
@@ -170,21 +187,95 @@ public interface Tile {
      *
      * @return the sample data
      */
-    ProductData getRawSampleData();
+    ProductData getDataBuffer();
 
-    byte[] getRawSamplesByte();
+    /**
+     * Gets the underlying data buffer's primitive array of type <code>byte</code> (signed or unsigned).
+     * If the underlying data buffer is not of type <code>byte</code>, <code>null</code> is returned.
+     * <p>Refer to {@link #getDataBuffer()} for using the primitive array.</p>
+     *
+     * @return The underlying data buffer's primitive array, or <code>null</code> (see above).
+     * @see #getDataBufferIndex(int,int)
+     * @see #getDataBuffer()
+     */
+    byte[] getDataBufferByte();
 
-    short[] getRawSamplesShort();
+    /**
+     * Gets the underlying data buffer's primitive array of type <code>short</code> (signed or unsigned).
+     * If the underlying data buffer is not of type <code>short</code>, <code>null</code> is returned.
+     * <p>Refer to {@link #getDataBuffer()} for using the primitive array.</p>
+     *
+     * @return The underlying data buffer's primitive array, or <code>null</code> (see above).
+     * @see #getDataBufferIndex(int,int)
+     * @see #getDataBuffer()
+     */
+    short[] getDataBufferShort();
 
-    int[] getRawSamplesInt();
+    /**
+     * Gets the underlying data buffer's primitive array of type <code>int</code>.
+     * If the underlying data buffer is not of type <code>int</code>, <code>null</code> is returned.
+     * <p>Refer to {@link #getDataBuffer()} for using the primitive array.</p>
+     *
+     * @return The underlying data buffer's primitive array, or <code>null</code> (see above).
+     * @see #getDataBufferIndex(int,int)
+     * @see #getDataBuffer()
+     */
+    int[] getDataBufferInt();
 
-    float[] getRawSamplesFloat();
+    /**
+     * Gets the underlying data buffer's primitive array of type <code>float</code>.
+     * If the underlying data buffer is not of type <code>float</code>, <code>null</code> is returned.
+     * <p>Refer to {@link #getDataBuffer()} for using the primitive array.</p>
+     *
+     * @return The underlying data buffer's primitive array, or <code>null</code> (see above).
+     * @see #getDataBufferIndex(int,int)
+     * @see #getDataBuffer()
+     */
+    float[] getDataBufferFloat();
 
-    double[] getRawSamplesDouble();
+    /**
+     * Gets the underlying data buffer's primitive array of type <code>double</code>.
+     * If the underlying data buffer is not of type <code>double</code>, <code>null</code> is returned.
+     * <p>Refer to {@link #getDataBuffer()} for using the primitive array.</p>
+     *
+     * @return The underlying data buffer's primitive array, or <code>null</code> (see above).
+     * @see #getDataBufferIndex(int,int)
+     * @see #getDataBuffer()
+     */
+    double[] getDataBufferDouble();
 
+    /**
+     * Gets the scanline offset.
+     * The scanline offset is the index to the first valid sample element in the data buffer.
+     *
+     * @return The raster scanline offset.
+     * @see #getScanlineStride()
+     */
     int getScanlineOffset();
 
+    /**
+     * Gets the raster scanline stride for addressing the internal data buffer.
+     * The scanline stride is added to the scanline offset in order to compute offsets of subsequent scanlines.
+     *
+     * @return The raster scanline stride.
+     * @see #getScanlineOffset()
+     */
     int getScanlineStride();
+
+// todo - rename the following accessor pair
+//    ProductData getRawSamples();
+
+    //    void setRawSamples(ProductData samples);
+    ProductData getRawSampleData();
+
+    void setRawSampleData(ProductData sampleData);
+// todo - this is the scaled equivalent accessor pair. We should provide this !
+//    ProductData getSamples();
+//    void setSamples(ProductData samples);
+
+    boolean getSampleBoolean(int x, int y);
+
+    void setSample(int x, int y, boolean sample);
 
     int getSampleInt(int x, int y);
 
@@ -198,15 +289,11 @@ public interface Tile {
 
     void setSample(int x, int y, double sample);
 
-    boolean getSampleBoolean(int x, int y);
-
-    void setSample(int x, int y, boolean sample);
-
     /**
      * Checks if this is a target tile. Non-target tiles are read only.
      *
      * @return <code>true</code> if this is a target tile.
      */
-    boolean isWritable();
+    boolean isTarget();
 
 }
