@@ -77,15 +77,15 @@ public class MultiTileImageTileTest extends AbstractTileImageTileTest {
         testIndexOutOfBoundsException(tile, x0 + TILE_SIZE, y0);
         testIndexOutOfBoundsException(tile, x0, y0 + TILE_SIZE);
 
-        testSampleFloatIO(tile, x0, y0);
-        testSampleFloatIO(tile, x0 + TILE_SIZE / 2, y0);
-        testSampleFloatIO(tile, x0, y0 + TILE_SIZE / 2);
-        testSampleFloatIO(tile, x0 + TILE_SIZE / 2, y0 + TILE_SIZE / 2);
+        testFloatSample32IO(tile, x0, y0);
+        testFloatSample32IO(tile, x0 + TILE_SIZE / 2, y0);
+        testFloatSample32IO(tile, x0, y0 + TILE_SIZE / 2);
+        testFloatSample32IO(tile, x0 + TILE_SIZE / 2, y0 + TILE_SIZE / 2);
 
-        testRawSamplesFloatIO(tile, x0, y0);
-        testRawSamplesFloatIO(tile, x0 + TILE_SIZE / 2, y0);
-        testRawSamplesFloatIO(tile, x0, y0 + TILE_SIZE / 2);
-        testRawSamplesFloatIO(tile, x0 + TILE_SIZE / 2, y0 + TILE_SIZE / 2);
+        testFloat32RawSampleIO(tile, x0, y0);
+        testFloat32RawSampleIO(tile, x0 + TILE_SIZE / 2, y0);
+        testFloat32RawSampleIO(tile, x0, y0 + TILE_SIZE / 2);
+        testFloat32RawSampleIO(tile, x0 + TILE_SIZE / 2, y0 + TILE_SIZE / 2);
     }
 
     public void testSourceTileIsContainedInImageTile00() {

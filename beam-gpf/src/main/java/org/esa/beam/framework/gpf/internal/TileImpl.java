@@ -26,6 +26,7 @@ public class TileImpl implements Tile {
     private final int maxY;
     private final int width;
     private final int height;
+    private final boolean scalingApplied;
     private final int scanlineOffset;
     private final int scanlineStride;
     private final byte[] rawSamplesByte;
@@ -60,6 +61,7 @@ public class TileImpl implements Tile {
         this.maxY = rectangle.y + rectangle.height - 1;
         this.width = rectangle.width;
         this.height = rectangle.height;
+        this.scalingApplied = rasterDataNode.isScalingApplied();
 
         int smX0 = rectangle.x - raster.getSampleModelTranslateX();
         int smY0 = rectangle.y - raster.getSampleModelTranslateY();
@@ -87,7 +89,7 @@ public class TileImpl implements Tile {
         return minX;
     }
 
-    public int getMaxX() {
+    public final int getMaxX() {
         return maxX;
     }
 
@@ -95,7 +97,7 @@ public class TileImpl implements Tile {
         return minY;
     }
 
-    public int getMaxY() {
+    public final int getMaxY() {
         return maxY;
     }
 
@@ -115,7 +117,7 @@ public class TileImpl implements Tile {
         if (sampleData == null) {
             synchronized (this) {
                 if (sampleData == null) { // extra thread-safety
-                    sampleData = ProductData.createInstance(rasterDataNode.getDataType(), ImageUtils.getPrimitiveArray(writableRaster.getDataBuffer()));
+                    sampleData = ProductData.createInstance(rasterDataNode.getDataType(), ImageUtils.getPrimitiveArray(raster.getDataBuffer()));
                 }
             }
         }
@@ -150,35 +152,58 @@ public class TileImpl implements Tile {
         return scanlineStride;
     }
 
-    public int getSampleInt(int x, int y) {
-        return raster.getSample(x, y, 0);
+
+    public boolean getSampleBoolean(int x, int y) {
+        return getSampleInt(x, y) != 0;
     }
 
-    public void setSample(int x, int y, int v) {
-        writableRaster.setSample(x, y, 0, v);
+    public void setSample(int x, int y, boolean sample) {
+        setSample(x, y, sample ? 1 : 0);
+    }
+
+    public int getSampleInt(int x, int y) {
+        int sample = raster.getSample(x, y, 0);
+        // todo - handle unsigned data types here!!!
+        if (scalingApplied) {
+            sample = (int) Math.floor(rasterDataNode.scale(sample) + 0.5);
+        }
+        return sample;
+    }
+
+    public void setSample(int x, int y, int sample) {
+        if (scalingApplied) {
+            sample = (int) Math.floor(rasterDataNode.scaleInverse(sample) + 0.5);
+        }
+        writableRaster.setSample(x, y, 0, sample);
     }
 
     public float getSampleFloat(int x, int y) {
-        return raster.getSampleFloat(x, y, 0);
+        float sample = raster.getSampleFloat(x, y, 0);
+        if (scalingApplied) {
+            sample = (float) rasterDataNode.scale(sample);
+        }
+        return sample;
     }
 
-    public void setSample(int x, int y, float v) {
-        writableRaster.setSample(x, y, 0, v);
+    public void setSample(int x, int y, float sample) {
+        if (scalingApplied) {
+            sample = (float) rasterDataNode.scaleInverse(sample);
+        }
+        writableRaster.setSample(x, y, 0, sample);
     }
 
     public double getSampleDouble(int x, int y) {
-        return raster.getSampleDouble(x, y, 0);
+        double sample = raster.getSampleDouble(x, y, 0);
+        if (scalingApplied) {
+            sample = rasterDataNode.scale(sample);
+        }
+        return sample;
     }
 
-    public void setSample(int x, int y, double v) {
-        writableRaster.setSample(x, y, 0, v);
-    }
-
-    public boolean getSampleBoolean(int x, int y) {
-        return raster.getSample(x, y, 0) != 0;
-    }
-
-    public void setSample(int x, int y, boolean v) {
-        writableRaster.setSample(x, y, 0, v ? 1 : 0);
+    public void setSample(int x, int y, double sample) {
+        if (scalingApplied) {
+            sample = rasterDataNode.scale(sample);
+        }
+        writableRaster.setSample(x, y, 0, sample);
     }
 }

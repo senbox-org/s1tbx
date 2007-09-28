@@ -106,35 +106,100 @@ public abstract class AbstractTileImageTileTest extends TestCase {
         assertNull(tile.getRawSamplesDouble());
     }
 
-    protected void testSampleFloatIO(TileImpl tile, int x0, int y0) {
-        tile.setSample(x0, y0, 0.23f);
-        assertEquals(0.23f, tile.getSampleFloat(x0, y0), 1e-5);
+    protected void testFloatSample32IO(TileImpl tile, int x0, int y0) {
+        tile.setSample(x0, y0, false); // boolean
+        assertEquals(false, tile.getSampleBoolean(x0, y0));
+        assertEquals(0, tile.getSampleInt(x0, y0));
+        assertEquals(0.0f, tile.getSampleFloat(x0, y0), 1e-5f);
+        assertEquals(0.0, tile.getSampleDouble(x0, y0), 1e-10);
+
+        tile.setSample(x0, y0, true); // boolean
+        assertEquals(true, tile.getSampleBoolean(x0, y0));
+        assertEquals(1, tile.getSampleInt(x0, y0));
+        assertEquals(1.0f, tile.getSampleFloat(x0, y0), 1e-5f);
+        assertEquals(1.0, tile.getSampleDouble(x0, y0), 1e-10);
+
+        tile.setSample(x0, y0, 1234); // int
+        assertEquals(true, tile.getSampleBoolean(x0, y0));
+        assertEquals(1234, tile.getSampleInt(x0, y0));
+        assertEquals(1234.0f, tile.getSampleFloat(x0, y0), 1e-5f);
+        assertEquals(1234.0, tile.getSampleDouble(x0, y0), 1e-10);
+
+        tile.setSample(x0, y0, 67.89f);  // float
+        assertEquals(true, tile.getSampleBoolean(x0, y0));
+        assertEquals(67, tile.getSampleInt(x0, y0));
+        assertEquals(67.89f, tile.getSampleFloat(x0, y0), 1e-5f);
+        assertEquals(67.89, tile.getSampleDouble(x0, y0), 1e-5);
+
+        tile.setSample(x0, y0, 12.34567890123);  // double
+        assertEquals(true, tile.getSampleBoolean(x0, y0));
+        assertEquals(12, tile.getSampleInt(x0, y0));
+        assertEquals(12.345679f, tile.getSampleFloat(x0, y0), 1e-5f);
+        assertEquals(12.345679, tile.getSampleDouble(x0, y0), 1e-5);
     }
 
+    protected void testFloat64IO(TileImpl tile, int x0, int y0) {
+        tile.setSample(x0, y0, false); // boolean
+        assertEquals(false, tile.getSampleBoolean(x0, y0));
+        assertEquals(0, tile.getSampleInt(x0, y0));
+        assertEquals(0.0f, tile.getSampleFloat(x0, y0), 1e-10f);
+        assertEquals(0.0, tile.getSampleDouble(x0, y0), 1e-10);
 
-    protected void testRawSamplesFloatIO(TileImpl tile, int x, int y) {
+        tile.setSample(x0, y0, true); // boolean
+        assertEquals(true, tile.getSampleBoolean(x0, y0));
+        assertEquals(1, tile.getSampleInt(x0, y0));
+        assertEquals(1.0f, tile.getSampleFloat(x0, y0), 1e-10f);
+        assertEquals(1.0, tile.getSampleDouble(x0, y0), 1e-10);
+
+        tile.setSample(x0, y0, 1234); // int
+        assertEquals(true, tile.getSampleBoolean(x0, y0));
+        assertEquals(1234, tile.getSampleInt(x0, y0));
+        assertEquals(1234.0f, tile.getSampleFloat(x0, y0), 1e-10f);
+        assertEquals(1234.0, tile.getSampleDouble(x0, y0), 1e-10);
+
+        tile.setSample(x0, y0, 67.89f);  // float
+        assertEquals(true, tile.getSampleBoolean(x0, y0));
+        assertEquals(68, tile.getSampleInt(x0, y0));
+        assertEquals(67.89f, tile.getSampleFloat(x0, y0), 1e-10f);
+        assertEquals(67.89, tile.getSampleDouble(x0, y0), 1e-10);
+
+        tile.setSample(x0, y0, 12.34567890123);  // double
+        assertEquals(true, tile.getSampleBoolean(x0, y0));
+        assertEquals(12, tile.getSampleInt(x0, y0));
+        assertEquals(12.3456f, tile.getSampleFloat(x0, y0), 1e-10f);
+        assertEquals(12.34567890123, tile.getSampleDouble(x0, y0), 1e-10);
+    }
+
+    protected void testFloat32RawSampleIO(TileImpl tile, int x, int y) {
+        ProductData samplesGeneric = tile.getRawSampleData();
+        assertNotNull(samplesGeneric);
+
         float[] samplesFloat = tile.getRawSamplesFloat();
         assertNotNull(samplesFloat);
 
-        float oldXYSample = tile.getSampleFloat(x, y);
+        assertSame(samplesFloat, samplesGeneric.getElems());
 
         int lineOffset = tile.getScanlineOffset();
         int lineStride = tile.getScanlineStride();
         int index = lineOffset + (y - tile.getMinY()) * lineStride + (x - tile.getMinX());
         assertTrue(index >= 0);
         assertTrue(index < samplesFloat.length);
+        assertTrue(index < samplesGeneric.getNumElems());
 
-        float oldIndexSample = samplesFloat[index];
-        assertEquals(oldXYSample, oldIndexSample, 1e-5f);
+        samplesFloat[index] = 1234.56f;
+        assertEquals(1234.56f, samplesFloat[index], 1e-5f);
+        assertEquals(1234.56f, samplesGeneric.getElemFloatAt(index), 1e-5f);
+        assertEquals(1234.56f, tile.getSampleFloat(x, y), 1e-5f);
 
-        float newIndexSample = 1234.56f;
-        assertTrue(Math.abs(oldIndexSample - newIndexSample) > 0.01f);
+        samplesGeneric.setElemFloatAt(index, 213.536f);
+        assertEquals(213.536f, samplesFloat[index], 1e-5f);
+        assertEquals(213.536f, samplesGeneric.getElemFloatAt(index), 1e-5f);
+        assertEquals(213.536f, tile.getSampleFloat(x, y), 1e-5f);
 
-        samplesFloat[index] = newIndexSample;
-
-        float newXYSample = tile.getSampleFloat(x, y);
-
-        assertEquals(newIndexSample, newXYSample, 1e-5f);
+        samplesGeneric.setElemIntAt(index, 707);
+        assertEquals(707.0f, samplesFloat[index], 1e-5f);
+        assertEquals(707.0f, samplesGeneric.getElemFloatAt(index), 1e-5f);
+        assertEquals(707.0f, tile.getSampleFloat(x, y), 1e-5f);
     }
 
 }

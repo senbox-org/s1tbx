@@ -53,11 +53,11 @@ public class SingleTileImageTileTest extends AbstractTileImageTileTest {
         assertEquals(22.5, tile.getSampleDouble(2, 2), 1e-5);
         assertEquals(33.5, tile.getSampleDouble(3, 3), 1e-5);
 
-        testRawSamplesFloatIO(tile, 0, 0);
-        testRawSamplesFloatIO(tile, 0, IMAGE_H - 1);
-        testRawSamplesFloatIO(tile, IMAGE_W - 1, 0);
-        testRawSamplesFloatIO(tile, IMAGE_W - 1, IMAGE_H - 1);
-        testRawSamplesFloatIO(tile, IMAGE_W / 2, IMAGE_H / 2);
+        testFloat32RawSampleIO(tile, 0, 0);
+        testFloat32RawSampleIO(tile, 0, IMAGE_H - 1);
+        testFloat32RawSampleIO(tile, IMAGE_W - 1, 0);
+        testFloat32RawSampleIO(tile, IMAGE_W - 1, IMAGE_H - 1);
+        testFloat32RawSampleIO(tile, IMAGE_W / 2, IMAGE_H / 2);
     }
 
     public void testChildTile() {
@@ -82,11 +82,11 @@ public class SingleTileImageTileTest extends AbstractTileImageTileTest {
         assertEquals(14.5, tile.getSampleDouble(CHILD_X + 0, CHILD_Y + 2), 1e-5);
         assertEquals(24.5, tile.getSampleDouble(CHILD_X + 1, CHILD_Y + 2), 1e-5);
 
-        testRawSamplesFloatIO(tile, CHILD_X + 0, CHILD_Y + 0);
-        testRawSamplesFloatIO(tile, CHILD_X + 1, CHILD_Y + 0);
-        testRawSamplesFloatIO(tile, CHILD_X + 0, CHILD_Y + 1);
-        testRawSamplesFloatIO(tile, CHILD_X + 1, CHILD_Y + 1);
-        testRawSamplesFloatIO(tile, CHILD_X + 0, CHILD_Y + 2);
-        testRawSamplesFloatIO(tile, CHILD_X + 1, CHILD_Y + 2);
+        testFloat32RawSampleIO(tile, CHILD_X + 0, CHILD_Y + 0);
+        testFloat32RawSampleIO(tile, CHILD_X + 1, CHILD_Y + 0);
+        testFloat32RawSampleIO(tile, CHILD_X + 0, CHILD_Y + 1);
+        testFloat32RawSampleIO(tile, CHILD_X + 1, CHILD_Y + 1);
+        testFloat32RawSampleIO(tile, CHILD_X + 0, CHILD_Y + 2);
+        testFloat32RawSampleIO(tile, CHILD_X + 1, CHILD_Y + 2);
     }
 }
