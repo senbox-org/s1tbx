@@ -891,7 +891,7 @@ public abstract class ProductFile {
      * @throws java.lang.IllegalArgumentException
      *                             if an I/O error occurs
      */
-    private static ProductFile open(File file, ImageInputStream dataInputStream) throws IOException {
+    public static ProductFile open(File file, ImageInputStream dataInputStream) throws IOException {
         Guardian.assertNotNull("dataInputStream", dataInputStream);
 
         String productType = readProductType(dataInputStream);

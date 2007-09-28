@@ -111,7 +111,7 @@ public class EnvisatProductReader extends AbstractProductReader {
                 if (inputStream == null) {
                     throw e;    // @todo tb/tb maybe another exception here???
                 }
-                _productFile = ProductFile.open(new FileCacheImageInputStream(inputStream, null));
+                _productFile = ProductFile.open((File) input, new FileCacheImageInputStream(inputStream, null));
             }
         } else if (input instanceof ImageInputStream) {
             _productFile = ProductFile.open((ImageInputStream) input);
