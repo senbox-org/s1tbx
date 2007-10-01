@@ -53,14 +53,22 @@ public class ImageFactory {
             if (raster.getImageInfo() == null) {
                 Debug.trace("planarImage = " + planarImage);
                 Debug.trace("  Computing extrema for [" + planarImage + "]...");
-                double[] extrema = JAIUtils.getExtrema(planarImage, null);
+                double[] extrema;
+                if (planarImage.getSampleModel().getDataType() == DataBuffer.TYPE_BYTE) {
+                    extrema = new double[]{0.0, 255.0};
+                } else if (planarImage.getSampleModel().getDataType() == DataBuffer.TYPE_SHORT) {
+                    extrema = new double[]{-32768.0, 32767.0};
+                } else if (planarImage.getSampleModel().getDataType() == DataBuffer.TYPE_USHORT) {
+                    extrema = new double[]{0.0, 65535.0};
+                } else {
+                    extrema = JAIUtils.getExtrema(planarImage, null);
+                }
                 Debug.trace("  Extrema computed.");
                 Debug.trace("  Computing histogram...");
+                // todo - construct ROI from no-data image here
+                // todo - make no-data image property of RasterDataNode
                 RenderedOp histogramImage = JAIUtils.createHistogramImage(planarImage, 512, extrema[0], extrema[1]);
-                javax.media.jai.Histogram jaiHistogram = JAIUtils.getHistogramOf(histogramImage);
-                Histogram histogram = new Histogram(jaiHistogram.getBins(0),  // Note: this is a raw data histogram
-                                                    jaiHistogram.getLowValue(0),
-                                                    jaiHistogram.getHighValue(0));
+                Histogram histogram = u(histogramImage);
                 Debug.trace("  Histogram computed.");
                 imageInfo = raster.createDefaultImageInfo(null, histogram, true); // Note: this method expects a raw data histogram!
                 raster.setImageInfo(imageInfo);
@@ -100,6 +108,36 @@ public class ImageFactory {
         }
 
         return image;
+    }
+
+    private static Histogram u(RenderedOp histogramImage) {
+        javax.media.jai.Histogram jaiHistogram = JAIUtils.getHistogramOf(histogramImage);
+
+        int[] bins = jaiHistogram.getBins(0);
+        int minIndex = 0;
+        int maxIndex = bins.length - 1;
+        for (int i = 0; i < bins.length; i++) {
+            if (bins[i] > 0) {
+                minIndex = i;
+                break;
+            }
+        }
+        for (int i = bins.length - 1; i >= 0; i--) {
+            if (bins[i] > 0) {
+                maxIndex = i;
+                break;
+            }
+        }
+        double lowValue = jaiHistogram.getLowValue(0);
+        double highValue = jaiHistogram.getHighValue(0);
+        int numBins = jaiHistogram.getNumBins(0);
+        double binWidth = (highValue - lowValue) / numBins;
+        int[] croppedBins = new int[maxIndex - minIndex + 1];
+        System.arraycopy(bins, minIndex, croppedBins, 0, croppedBins.length);
+        Histogram histogram = new Histogram(croppedBins,
+                                            lowValue + minIndex * binWidth,
+                                            lowValue + (maxIndex + 1.0) * binWidth);
+        return histogram;
     }
 
     public static ROI createROI(final RasterDataNode rasterDataNode) {
