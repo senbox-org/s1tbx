@@ -1,7 +1,6 @@
 package org.esa.beam.framework.gpf.operators.common;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.datamodel.Band;
@@ -20,7 +19,7 @@ import java.util.List;
 
 /**
  * The <code>WriteProductOp</code> writes
- * the in-memory representation of its first input product.
+ * the in-memory representation of its input product.
  * <p/>
  * Configuration Elements:
  * <ul>
@@ -29,6 +28,7 @@ import java.util.List;
  * </ul>
  *
  * @author Maximilian Aulinger
+ * @author Marco Zuehlke
  */
 @OperatorAlias("ProductWriter")
 public class WriteProductOp extends AbstractOperator {
@@ -76,20 +76,20 @@ public class WriteProductOp extends AbstractOperator {
                 throw new OperatorException(e);
             }
         }
-        pm.beginTask("Writing product...", 1);
-        Rectangle rectangle = targetTile.getRectangle();
-        try {
-        	Tile tile = getSourceTile(band, rectangle);
-        	ProductData dataBuffer = tile.getRawSampleData();
-        	band.writeRasterData(rectangle.x, rectangle.y, rectangle.width, rectangle.height, dataBuffer, SubProgressMonitor.create(pm, 1));
-        } catch (IOException e) {
-        	Throwable cause = e.getCause();
-        	if (cause instanceof OperatorException) {
-        		throw (OperatorException) cause;
-        	}
-        	throw new OperatorException(e);
-        } finally {
-        	pm.done();
+        if (bandsToWrite.contains(band)) {
+            Rectangle rectangle = targetTile.getRectangle();
+            try {
+                Tile tile = getSourceTile(band, rectangle);
+                ProductData dataBuffer = tile.getRawSampleData();
+                band.writeRasterData(rectangle.x, rectangle.y, 
+                        rectangle.width, rectangle.height, dataBuffer, pm);
+            } catch (IOException e) {
+                Throwable cause = e.getCause();
+                if (cause instanceof OperatorException) {
+                    throw (OperatorException) cause;
+                }
+                throw new OperatorException(e);
+            }
         }
     }
 
