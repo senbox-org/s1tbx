@@ -87,13 +87,16 @@ public class ValueModelTest extends TestCase {
         nameModel.setValue("Bert");
         assertEquals("Bert", pojo.name);
 
+        pojo.name = "Bibo";
+        assertEquals("Bibo", nameModel.getValue());
+
         MyPropertyChangeListener pcl = new MyPropertyChangeListener();
         nameModel.addPropertyChangeListener(pcl);
 
         nameModel.setValue("Ernie");
         assertEquals("Ernie", pojo.name);
         assertEquals("name", pcl.evt.getPropertyName());
-        assertEquals("Bert", pcl.evt.getOldValue());
+        assertEquals("Bibo", pcl.evt.getOldValue());
         assertEquals("Ernie", pcl.evt.getNewValue());
 
         ValueModel ageModel = vc.getModel("age");
