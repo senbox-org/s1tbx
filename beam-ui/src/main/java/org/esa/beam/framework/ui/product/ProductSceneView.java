@@ -17,15 +17,9 @@
 package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.layer.Layer;
 import com.bc.layer.LayerModel;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListener;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.draw.ShapeFigure;
 import org.esa.beam.framework.ui.BasicImageView;
@@ -35,19 +29,14 @@ import org.esa.beam.framework.ui.command.CommandUIFactory;
 import org.esa.beam.framework.ui.tool.DrawingEditor;
 import org.esa.beam.framework.ui.tool.Tool;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
+import org.esa.beam.layer.StyledLayer;
 import org.esa.beam.util.Guardian;
-import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.PropertyMapChangeListener;
 import org.esa.beam.util.StopWatch;
 
 import javax.swing.JPopupMenu;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Area;
 import java.awt.image.RenderedImage;
@@ -96,7 +85,7 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
     private ProductSceneImage sceneImage;
 
     /**
-     * @see ProductSceneImage#create(org.esa.beam.framework.datamodel.RasterDataNode, com.bc.layer.LayerModel, com.bc.ceres.core.ProgressMonitor)
+     * @see ProductSceneImage#create(org.esa.beam.framework.datamodel.RasterDataNode,com.bc.layer.LayerModel,com.bc.ceres.core.ProgressMonitor)
      * @deprecated in 4.1, use {@link #ProductSceneView(ProductSceneImage)} instead
      */
     public ProductSceneView(RasterDataNode raster, LayerModel layerModel) throws IOException {
@@ -104,7 +93,7 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
     }
 
     /**
-     * @see ProductSceneImage#create(org.esa.beam.framework.datamodel.RasterDataNode, com.bc.ceres.core.ProgressMonitor)
+     * @see ProductSceneImage#create(org.esa.beam.framework.datamodel.RasterDataNode,com.bc.ceres.core.ProgressMonitor)
      * @deprecated in 4.1, use {@link #ProductSceneView(ProductSceneImage)} instead
      */
     public ProductSceneView(RasterDataNode raster) throws IOException {
@@ -112,7 +101,7 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
     }
 
     /**
-     * @see ProductSceneImage#create(org.esa.beam.framework.datamodel.RasterDataNode, org.esa.beam.framework.datamodel.RasterDataNode, org.esa.beam.framework.datamodel.RasterDataNode, com.bc.ceres.core.ProgressMonitor)
+     * @see ProductSceneImage#create(org.esa.beam.framework.datamodel.RasterDataNode,org.esa.beam.framework.datamodel.RasterDataNode,org.esa.beam.framework.datamodel.RasterDataNode,com.bc.ceres.core.ProgressMonitor)
      * @deprecated in 4.1, use {@link #ProductSceneView(ProductSceneImage)} instead
      */
     public ProductSceneView(RasterDataNode redRaster,
@@ -365,22 +354,22 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
     }
 
     public RenderedImage getROIImage() {
-        return sceneImage.getROILayer().getROIImage();
+        return sceneImage.getROILayer().getImage();
     }
 
     public void setROIImage(RenderedImage roiImage) {
-        sceneImage.getROILayer().setROIImage(roiImage);
+        sceneImage.getROILayer().setImage(roiImage);
     }
 
     /**
-     * @deprecated in 4.1, use {@link #updateROIImage(boolean, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.1, use {@link #updateROIImage(boolean,com.bc.ceres.core.ProgressMonitor)} instead
      */
-    public void updateROIImage(boolean recreate) throws IOException {
+    public void updateROIImage(boolean recreate) throws Exception {
         updateROIImage(recreate, ProgressMonitor.NULL);
     }
 
-    public void updateROIImage(boolean recreate, ProgressMonitor pm) throws IOException {
-        sceneImage.getROILayer().updateROIImage(recreate, pm);
+    public void updateROIImage(boolean recreate, ProgressMonitor pm) throws Exception {
+        sceneImage.getROILayer().updateImage(recreate, pm);
     }
 
     public Figure getRasterROIShapeFigure() {
@@ -455,22 +444,29 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
      * @param propertyMap the layer property map
      */
     public void setLayerProperties(PropertyMap propertyMap) {
+
+        setImageProperties(propertyMap);
+
         final LayerModel layerModel = getImageDisplay().getLayerModel();
         final boolean suspendedOld = layerModel.isLayerModelChangeFireingSuspended();
         layerModel.setLayerModelChangeFireingSuspended(true);
-        //{{
-        setImageProperties(propertyMap);
-        setNoDataProperties(propertyMap);
-        setGraticuleProperties(propertyMap);
-        setFigureProperties(propertyMap);
-        setPinProperties(propertyMap);
-        setGcpProperties(propertyMap);
-        setROIProperties(propertyMap);
-        //}}
+
+        int layerCount = layerModel.getLayerCount();
+        for (int i = 0; i < layerCount; i++) {
+            Layer layer = layerModel.getLayer(i);
+            if (layer instanceof StyledLayer) {
+                StyledLayer styledLayer = (StyledLayer) layer;
+                styledLayer.setStyleProperties(propertyMap);
+            }
+        }
+
         layerModel.setLayerModelChangeFireingSuspended(suspendedOld);
         layerModel.fireLayerModelChanged();
     }
 
+    /**
+     * @deprecated
+     */
     public void setImageProperties(PropertyMap propertyMap) {
         // todo 3 nf,nf - 1) move display properties of imageDisplay to imageLayer
         // todo 3 nf/nf - 2) move the following code to ImageLayer.setProperties
@@ -503,43 +499,6 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
                                 RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR :
                                 null);
     }
-
-    private void setNoDataProperties(PropertyMap propertyMap) {
-        sceneImage.getNoDataLayer().setProperties(propertyMap);
-    }
-
-    /**
-     * Sets multiple graticule layer display properties.
-     */
-    private void setGraticuleProperties(PropertyMap propertyMap) {
-        sceneImage.getGraticuleLayer().setProperties(propertyMap);
-    }
-
-    /**
-     * Sets multiple pin layer display properties.
-     */
-    private void setPinProperties(PropertyMap propertyMap) {
-        sceneImage.getPinLayer().setProperties(propertyMap);
-    }
-
-    /**
-     * Sets multiple GCP layer display properties.
-     */
-    private void setGcpProperties(PropertyMap propertyMap) {
-        sceneImage.getGcpLayer().setProperties(propertyMap);
-    }
-
-    private void setFigureProperties(PropertyMap propertyMap) {
-        sceneImage.getFigureLayer().setProperties(propertyMap);
-    }
-
-    /**
-     * Sets multiple ROI display properties.
-     */
-    private void setROIProperties(PropertyMap propertyMap) {
-        sceneImage.getROILayer().setProperties(propertyMap);
-    }
-
 
     /**
      * Returns the current tool for this drawing.
