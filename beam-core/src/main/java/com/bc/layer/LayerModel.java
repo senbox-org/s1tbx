@@ -32,13 +32,15 @@ import java.awt.geom.Rectangle2D;
 public interface LayerModel {
 
     /**
-     * Gets the total number of layers in this layer model.
-     * @return  the  number of layers
+     * Gets the total number of layer in this layer model.
+     *
+     * @return the  number of layer
      */
     int getLayerCount();
 
     /**
      * Gets the layer at the specified index.
+     *
      * @param index the zero-based layer index
      * @return the layer at the given index, never null
      */
@@ -46,6 +48,7 @@ public interface LayerModel {
 
     /**
      * Gets the layer by its name.
+     *
      * @param name the name of the layer to retrieve
      * @return the layer with the given name, or {@code null} if not found
      */
@@ -53,25 +56,29 @@ public interface LayerModel {
 
     /**
      * Adds a new layer to this model.
+     *
      * @param layer the new layer, must not be null
      */
     void addLayer(Layer layer);
 
     /**
      * Removes an existing layer from this model.
+     *
      * @param layer the existing layer, must not be null
      */
     void removeLayer(Layer layer);
 
     /**
-     * Computes the bounding box given as sum of the bounding boxes of all visible layers.
+     * Computes the bounding box given as sum of the bounding boxes of all visible layer.
+     *
      * @return the bounding box
      */
     Rectangle2D getVisibleBoundingBox(Rectangle2D r);
 
     /**
-     * Draws all visible layers of this model.
-     * @param g2d the 2D graphics context
+     * Draws all visible layer of this model.
+     *
+     * @param g2d       the 2D graphics context
      * @param viewModel the current view model
      */
     void draw(Graphics2D g2d, ViewModel viewModel);
@@ -84,13 +91,16 @@ public interface LayerModel {
 
     /**
      * Tests if fireing layer model change events is suspended.
+     *
      * @return true, if so
-     */ 
+     */
     boolean isLayerModelChangeFireingSuspended();
 
     /**
      * Suspends the fireing of layer model change events.
-     * @param layerModelChangeFireingSuspended true, if suspended
+     *
+     * @param layerModelChangeFireingSuspended
+     *         true, if suspended
      */
     void setLayerModelChangeFireingSuspended(boolean layerModelChangeFireingSuspended);
 

@@ -1,13 +1,4 @@
-package org.esa.beam.framework.ui.product;
-
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Pin;
-import org.esa.beam.framework.datamodel.PinSymbol;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.ui.PlacemarkDescriptor;
+package org.esa.beam.framework.datamodel;
 
 import javax.swing.Icon;
 import java.awt.Dimension;
@@ -46,7 +37,7 @@ public class GcpDescriptor implements PlacemarkDescriptor {
     public Point getIconHotSpot(Icon icon) {
         Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
         Dimension bestCursorSize = defaultToolkit.getBestCursorSize(icon.getIconWidth(), icon.getIconHeight());
-        return new Point((int)Math.floor(bestCursorSize.width / 2), (int)Math.floor(bestCursorSize.getHeight() /2));
+        return new Point((int) Math.floor(bestCursorSize.width / 2), (int) Math.floor(bestCursorSize.getHeight() / 2));
     }
 
     public ProductNodeGroup<Pin> getPlacemarkGroup(Product product) {

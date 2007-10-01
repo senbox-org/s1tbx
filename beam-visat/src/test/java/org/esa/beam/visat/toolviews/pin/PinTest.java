@@ -18,14 +18,7 @@ package org.esa.beam.visat.toolviews.pin;
 
 import junit.framework.TestCase;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Pin;
-import org.esa.beam.framework.datamodel.PinSymbol;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListener;
-import org.esa.beam.framework.ui.product.PinDescriptor;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.XmlWriter;
 import org.jdom.Element;
@@ -110,12 +103,12 @@ public class PinTest extends TestCase {
 
 
         final String[] expectedEventTypes = new String[]{
-            _NODE_CHANGED,
-            _NODE_ADDED,
-            _NODE_CHANGED,
-            _NODE_CHANGED,
-            _NODE_CHANGED,
-            _NODE_REMOVED
+                _NODE_CHANGED,
+                _NODE_ADDED,
+                _NODE_CHANGED,
+                _NODE_CHANGED,
+                _NODE_CHANGED,
+                _NODE_REMOVED
         };
         final String[] currentEventTypes = (String[]) eventTypes.toArray(new String[eventTypes.size()]);
         for (int i = 0; i < currentEventTypes.length; i++) {
@@ -123,12 +116,12 @@ public class PinTest extends TestCase {
         }
 
         final String[] expectedPropertyNames = new String[]{
-            ProductNode.PROPERTY_NAME_OWNER,
-            null,
-            ProductNode.PROPERTY_NAME_DESCRIPTION,
-            Pin.PROPERTY_NAME_GEOPOS,
-            Pin.PROPERTY_NAME_PINSYMBOL,
-            null
+                ProductNode.PROPERTY_NAME_OWNER,
+                null,
+                ProductNode.PROPERTY_NAME_DESCRIPTION,
+                Pin.PROPERTY_NAME_GEOPOS,
+                Pin.PROPERTY_NAME_PINSYMBOL,
+                null
         };
         final ProductNodeEvent[] currentProductNodeEvents = (ProductNodeEvent[]) events.toArray(
                 new ProductNodeEvent[events.size()]);
@@ -173,35 +166,35 @@ public class PinTest extends TestCase {
         StringWriter stringWriter = new StringWriter();
         pin.writeXML(new XmlWriter(stringWriter, false), 0);
         String expected = "" +
-                          "<Placemark name=\"pinName\">" + _ls +
-                          "    <LABEL>pinLabel</LABEL>" + _ls +
-                          "    <DESCRIPTION>pinDescription</DESCRIPTION>" + _ls +
-                          "    <LATITUDE>4.0</LATITUDE>" + _ls +
-                          "    <LONGITUDE>87.0</LONGITUDE>" + _ls +
-                          "    <FillColor>" + _ls +
-                          "        <COLOR red=\"128\" green=\"128\" blue=\"255\" alpha=\"255\" />" + _ls +
-                          "    </FillColor>" + _ls +
-                          "    <OutlineColor>" + _ls +
-                          "        <COLOR red=\"0\" green=\"0\" blue=\"64\" alpha=\"255\" />" + _ls +
-                          "    </OutlineColor>" + _ls +
-                          "</Placemark>" + _ls;
+                "<Placemark name=\"pinName\">" + _ls +
+                "    <LABEL>pinLabel</LABEL>" + _ls +
+                "    <DESCRIPTION>pinDescription</DESCRIPTION>" + _ls +
+                "    <LATITUDE>4.0</LATITUDE>" + _ls +
+                "    <LONGITUDE>87.0</LONGITUDE>" + _ls +
+                "    <FillColor>" + _ls +
+                "        <COLOR red=\"128\" green=\"128\" blue=\"255\" alpha=\"255\" />" + _ls +
+                "    </FillColor>" + _ls +
+                "    <OutlineColor>" + _ls +
+                "        <COLOR red=\"0\" green=\"0\" blue=\"64\" alpha=\"255\" />" + _ls +
+                "    </OutlineColor>" + _ls +
+                "</Placemark>" + _ls;
         assertEquals(expected, stringWriter.toString());
 
         stringWriter = new StringWriter();
         pin.writeXML(new XmlWriter(stringWriter, false), 3);
         expected = "" +
-                   "            <Placemark name=\"pinName\">" + _ls +
-                   "                <LABEL>pinLabel</LABEL>" + _ls +
-                   "                <DESCRIPTION>pinDescription</DESCRIPTION>" + _ls +
-                   "                <LATITUDE>4.0</LATITUDE>" + _ls +
-                   "                <LONGITUDE>87.0</LONGITUDE>" + _ls +
-                   "                <FillColor>" + _ls +
-                   "                    <COLOR red=\"128\" green=\"128\" blue=\"255\" alpha=\"255\" />" + _ls +
-                   "                </FillColor>" + _ls +
-                   "                <OutlineColor>" + _ls +
-                   "                    <COLOR red=\"0\" green=\"0\" blue=\"64\" alpha=\"255\" />" + _ls +
-                   "                </OutlineColor>" + _ls +
-                   "            </Placemark>" + _ls;
+                "            <Placemark name=\"pinName\">" + _ls +
+                "                <LABEL>pinLabel</LABEL>" + _ls +
+                "                <DESCRIPTION>pinDescription</DESCRIPTION>" + _ls +
+                "                <LATITUDE>4.0</LATITUDE>" + _ls +
+                "                <LONGITUDE>87.0</LONGITUDE>" + _ls +
+                "                <FillColor>" + _ls +
+                "                    <COLOR red=\"128\" green=\"128\" blue=\"255\" alpha=\"255\" />" + _ls +
+                "                </FillColor>" + _ls +
+                "                <OutlineColor>" + _ls +
+                "                    <COLOR red=\"0\" green=\"0\" blue=\"64\" alpha=\"255\" />" + _ls +
+                "                </OutlineColor>" + _ls +
+                "            </Placemark>" + _ls;
         assertEquals(expected, stringWriter.toString());
     }
 

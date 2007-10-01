@@ -19,31 +19,18 @@ package org.esa.beam.visat;
 
 import com.bc.ceres.swing.update.ConnectionConfigData;
 import com.bc.ceres.swing.update.ConnectionConfigPane;
-import org.esa.beam.framework.param.ParamChangeEvent;
-import org.esa.beam.framework.param.ParamChangeListener;
-import org.esa.beam.framework.param.ParamExceptionHandler;
-import org.esa.beam.framework.param.ParamGroup;
-import org.esa.beam.framework.param.ParamProperties;
-import org.esa.beam.framework.param.Parameter;
-import org.esa.beam.framework.ui.GridBagUtils;
-import org.esa.beam.framework.ui.PixelInfoView;
-import org.esa.beam.framework.ui.RGBImageProfilePane;
-import org.esa.beam.framework.ui.SuppressibleOptionPane;
-import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.param.*;
+import org.esa.beam.framework.ui.*;
 import org.esa.beam.framework.ui.config.ConfigDialog;
 import org.esa.beam.framework.ui.config.DefaultConfigPage;
-import org.esa.beam.framework.ui.product.FigureLayer;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.layer.FigureLayer;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.SystemUtils;
 import static org.esa.beam.visat.VisatApp.*;
 import org.esa.beam.visat.actions.ShowModuleManagerAction;
 
-import javax.swing.BorderFactory;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.UIManager;
+import javax.swing.*;
 import java.awt.*;
 import java.util.prefs.Preferences;
 

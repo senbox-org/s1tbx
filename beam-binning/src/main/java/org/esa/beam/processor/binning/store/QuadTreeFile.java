@@ -16,18 +16,14 @@
  */
 package org.esa.beam.processor.binning.store;
 
-import java.awt.Point;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.util.Properties;
-import java.util.Vector;
-
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.math.MathUtils;
+
+import java.awt.Point;
+import java.io.*;
+import java.util.Properties;
+import java.util.Vector;
 
 class QuadTreeFile {
 
@@ -241,7 +237,7 @@ class QuadTreeFile {
     }
 
     /**
-     * Calculates the number of layers needed and writes the result to the appropriate member field.
+     * Calculates the number of layer needed and writes the result to the appropriate member field.
      */
     private void calculateNumLayers() {
         float widthTiles = _width / _maxTileSize;
@@ -255,7 +251,7 @@ class QuadTreeFile {
             layers = heightTiles;
         }
 
-        // find the next power of two bigger than the layers
+        // find the next power of two bigger than the layer
         _numLayers = MathUtils.ceilInt(Math.log(layers) / Math.log(2));
         // check for zero on small products - assign at least one layer!
         if (_numLayers < 1) {

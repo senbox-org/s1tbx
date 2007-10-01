@@ -2,9 +2,9 @@ package org.esa.beam.visat.toolviews.pin;
 
 import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.ui.PlacemarkDescriptor;
 
 /**
  * Created by Marco Peters.

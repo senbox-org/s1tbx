@@ -16,32 +16,19 @@
  */
 package org.esa.beam.visat.toolviews.pin;
 
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Pin;
-import org.esa.beam.framework.datamodel.PinSymbol;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.framework.ui.PlacemarkDescriptor;
-import org.esa.beam.framework.ui.product.PinDescriptor;
 import org.esa.beam.util.Guardian;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.text.JTextComponent;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.Paint;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.geom.Rectangle2D;
 
 /**
@@ -70,7 +57,9 @@ public class PinDialog extends ModalDialog {
     private boolean simultaneousEditingAllowed;
 
 
-    /** @deprecated in 4.1, use {@link #PinDialog(Window, Product, PlacemarkDescriptor, boolean)} instead */
+    /**
+     * @deprecated in 4.1, use {@link #PinDialog(Window,Product,PlacemarkDescriptor,boolean)} instead
+     */
     public PinDialog(final Window parent, final Product product) {
         this(parent, product, PinDescriptor.INSTANCE, false);
     }
@@ -98,7 +87,7 @@ public class PinDialog extends ModalDialog {
     protected void onOK() {
         if (!product.containsPixel(getPixelX(), getPixelY())) {
             showInformationDialog("The " + placemarkDescriptor.getRoleLabel() + " cannot be set because\n" +
-                                  "its pixel coordinate is out of bounds."); /*I18N*/
+                    "its pixel coordinate is out of bounds."); /*I18N*/
             return;
         }
         if (Pin.isValidNodeName(getName())) {
@@ -234,8 +223,8 @@ public class PinDialog extends ModalDialog {
     private void initParameter() {
         GeoCoding geoCoding = product.getGeoCoding();
         boolean hasGeoCoding = geoCoding != null;
-        canGetPixelPos = hasGeoCoding &&  geoCoding.canGetPixelPos();
-        canGetGeoPos = hasGeoCoding &&  geoCoding.canGetGeoPos();
+        canGetPixelPos = hasGeoCoding && geoCoding.canGetPixelPos();
+        canGetGeoPos = hasGeoCoding && geoCoding.canGetGeoPos();
 
         paramName = new Parameter("paramName", "");
         paramName.getProperties().setLabel("Name");/*I18N*/
@@ -468,7 +457,6 @@ public class PinDialog extends ModalDialog {
      * Turns the first letter of the given string to upper case.
      *
      * @param string the string to change
-     *
      * @return a changed string
      */
     private static String firstLetterUp(String string) {

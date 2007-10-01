@@ -1,12 +1,4 @@
-package org.esa.beam.framework.ui;
-
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Pin;
-import org.esa.beam.framework.datamodel.PinSymbol;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
+package org.esa.beam.framework.datamodel;
 
 import javax.swing.Icon;
 import java.awt.Point;

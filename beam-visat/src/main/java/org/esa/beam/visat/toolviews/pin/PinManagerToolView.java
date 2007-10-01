@@ -16,11 +16,7 @@
  */
 package org.esa.beam.visat.toolviews.pin;
 
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.ui.PlacemarkDescriptor;
-import org.esa.beam.framework.ui.product.PinDescriptor;
+import org.esa.beam.framework.datamodel.*;
 
 /**
  * A dialog used to manage the list of pins associated with a selected product.

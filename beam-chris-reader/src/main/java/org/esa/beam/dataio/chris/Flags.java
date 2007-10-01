@@ -59,7 +59,7 @@ public enum Flags {
     }
 
     /**
-     * Returns the color associated with this flag (useful for colored bit mask layers).
+     * Returns the color associated with this flag (useful for colored bit mask layer).
      *
      * @return the color.
      */
@@ -68,7 +68,7 @@ public enum Flags {
     }
 
     /**
-     * Returns the transparency associated with this flag (useful for colored bit mask layers).
+     * Returns the transparency associated with this flag (useful for colored bit mask layer).
      *
      * @return the transparency.
      */

@@ -2,7 +2,6 @@ package org.esa.beam.visat.toolviews.pin;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.ui.PlacemarkDescriptor;
 import org.esa.beam.util.math.MathUtils;
 
 import javax.swing.table.DefaultTableModel;
@@ -156,8 +155,8 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
                     return Float.NaN;
                 }
 
-                return (float)Math.sqrt(Math.pow(expectedGeoPos.lat - actualGeoPos.lat, 2) +
-                                 Math.pow(expectedGeoPos.lon - actualGeoPos.lon, 2));
+                return (float) Math.sqrt(Math.pow(expectedGeoPos.lat - actualGeoPos.lat, 2) +
+                        Math.pow(expectedGeoPos.lon - actualGeoPos.lon, 2));
             }
         }
         return "";
@@ -261,9 +260,9 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
 
         private void fireTableDataChanged(ProductNodeEvent event) {
             if ((event.getSourceNode().getOwner() == placemarkDescriptor.getPlacemarkGroup(product) ||
-                 event.getSourceNode() instanceof Product) &&
-                                                           !ProductNode.PROPERTY_NAME_SELECTED.equals(
-                                                                   event.getPropertyName())) {
+                    event.getSourceNode() instanceof Product) &&
+                    !ProductNode.PROPERTY_NAME_SELECTED.equals(
+                            event.getPropertyName())) {
                 AbstractPlacemarkTableModel.this.fireTableDataChanged();
             }
         }

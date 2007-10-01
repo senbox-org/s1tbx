@@ -1,30 +1,20 @@
-package org.esa.beam.framework.ui.product;
+package org.esa.beam.layer;
 
-import com.bc.layer.AbstractLayer;
 import com.bc.view.ViewModel;
-import org.esa.beam.framework.datamodel.Pin;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.ui.PlacemarkDescriptor;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.PropertyMap;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.font.GlyphVector;
 import java.awt.geom.Rectangle2D;
 
 /**
- * Created by Marco Peters.
+ * A layer for placemarks.
  *
  * @author Marco Peters
- * @version $Revision:$ $Date:$
+ * @since 4.1
  */
-public class PlacemarkLayer extends AbstractLayer {
+public class PlacemarkLayer extends StyledLayer {
 
     private Product product;
     private PlacemarkDescriptor placemarkDescriptor;
@@ -34,6 +24,7 @@ public class PlacemarkLayer extends AbstractLayer {
     private Color textFgColor;
     private Color textBgColor;
     private float textBgTransparency;
+
 
     public PlacemarkLayer(Product product, PlacemarkDescriptor placemarkDescriptor) {
         this.product = product;
@@ -45,21 +36,25 @@ public class PlacemarkLayer extends AbstractLayer {
         setTextBgTransparency(0.7f);
     }
 
-    /**
-     * Sets multiple graticule display properties.
-     */
-    public void setProperties(PropertyMap propertyMap) {
-
-        setTextEnabled(propertyMap.getPropertyBool(getPropertyNamePrefix() + ".text.enabled", isTextEnabled()));
-        setTextFgColor(propertyMap.getPropertyColor(getPropertyNamePrefix() + ".text.fg.color", textFgColor));
-        setTextBgColor(propertyMap.getPropertyColor(getPropertyNamePrefix() + ".text.bg.color", getTextBgColor()));
-        setTextBgTransparency((float) propertyMap.getPropertyDouble(getPropertyNamePrefix() + ".text.bg.transparency", textBgTransparency));
-
-        fireLayerChanged();
+    @Override
+    protected void setStylePropertiesImpl(PropertyMap propertyMap) {
+        super.setStylePropertiesImpl(propertyMap);
+        setTextEnabled(propertyMap.getPropertyBool(getPropertyName("text.enabled"), isTextEnabled()));
+        setTextFgColor(propertyMap.getPropertyColor(getPropertyName("text.fg.color"), textFgColor));
+        setTextBgColor(propertyMap.getPropertyColor(getPropertyName("text.bg.color"), getTextBgColor()));
+        setTextBgTransparency((float) propertyMap.getPropertyDouble(getPropertyName("text.bg.transparency"), textBgTransparency));
     }
 
-    private String getPropertyNamePrefix() {
+    @Override
+    public String getPropertyNamePrefix() {
         return placemarkDescriptor.getRoleName();
+    }
+
+    @Override
+    public void dispose() {
+        product = null;
+        placemarkDescriptor = null;
+        super.dispose();
     }
 
     protected ProductNodeGroup<Pin> getPlacemarkGroup() {
@@ -80,24 +75,24 @@ public class PlacemarkLayer extends AbstractLayer {
         ProductNodeGroup<Pin> pinGroup = getPlacemarkGroup();
         Pin[] pins = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
         for (Pin pin : pins) {
-                final PixelPos pixelPos = pin.getPixelPos();
-                if (pixelPos != null) {
-                    g2d.translate(pixelPos.getX(), pixelPos.getY());
-                    g2d.scale(1.0 / viewScale, 1.0 / viewScale);
+            final PixelPos pixelPos = pin.getPixelPos();
+            if (pixelPos != null) {
+                g2d.translate(pixelPos.getX(), pixelPos.getY());
+                g2d.scale(1.0 / viewScale, 1.0 / viewScale);
 
-                    if (pin.isSelected()) {
-                        pin.getSymbol().drawSelected(g2d);
-                    } else {
-                        pin.getSymbol().draw(g2d);
-                    }
-
-                    if (isTextEnabled()) {
-                        drawTextLabel(g2d, pin);
-                    }
-
-                    g2d.scale(viewScale, viewScale);
-                    g2d.translate(-pixelPos.getX(), -pixelPos.getY());
+                if (pin.isSelected()) {
+                    pin.getSymbol().drawSelected(g2d);
+                } else {
+                    pin.getSymbol().draw(g2d);
                 }
+
+                if (isTextEnabled()) {
+                    drawTextLabel(g2d, pin);
+                }
+
+                g2d.scale(viewScale, viewScale);
+                g2d.translate(-pixelPos.getX(), -pixelPos.getY());
+            }
         }
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAntialiasing);
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, oldTextAntialiasing);
@@ -115,9 +110,9 @@ public class PlacemarkLayer extends AbstractLayer {
         float ty = (float) (1.0 + logicalBounds.getHeight());
         Shape outline = glyphVector.getOutline(tx, ty);
 
-        int[] alphas = new int[] {64, 128, 192, 255};
+        int[] alphas = new int[]{64, 128, 192, 255};
         for (int i = 0; i < alphas.length; i++) {
-            BasicStroke selectionStroke = new BasicStroke((float)(alphas.length - i));
+            BasicStroke selectionStroke = new BasicStroke((float) (alphas.length - i));
             Color selectionColor = new Color(getTextBgColor().getRed(),
                                              getTextBgColor().getGreen(),
                                              getTextBgColor().getGreen(),

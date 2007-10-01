@@ -15,9 +15,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-package com.bc.layer.impl;
+package org.esa.beam.layer;
 
-import com.bc.layer.AbstractLayer;
 import com.bc.view.ViewModel;
 import org.esa.beam.util.Debug;
 
@@ -33,15 +32,22 @@ import java.awt.image.*;
 /**
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
  */
-public class RenderedImageLayer extends AbstractLayer {
-
+public class RenderedImageLayer extends StyledLayer {
     private static final BasicStroke BORDER_STROKE = new BasicStroke(1.0f);
 
-    private RenderedImage _image;
-    private AffineTransform _transform;
+    private RenderedImage image;
+    private AffineTransform transform;
+    private final String propertyNameBorderPainted;
+    private final String propertyNameBorderColor;
 
     public RenderedImageLayer(RenderedImage image) {
         this(image, null);
+    }
+
+
+    @Override
+    public String getPropertyNamePrefix() {
+        return "image";
     }
 
     public RenderedImageLayer(RenderedImage image, int x, int y) {
@@ -49,70 +55,71 @@ public class RenderedImageLayer extends AbstractLayer {
     }
 
     public RenderedImageLayer(RenderedImage image, AffineTransform transform) {
-        _image = image;
-        _transform = transform;
+        this.image = image;
+        this.transform = transform;
+        this.propertyNameBorderPainted = getPropertyName("borderPainted");
+        this.propertyNameBorderColor = getPropertyName("borderColor");
         setBorderPainted(true);
+        setBorderColor(Color.WHITE);
         updateBoundingBox();
     }
 
     public RenderedImage getImage() {
-        return _image;
+        return image;
     }
 
     public void setImage(RenderedImage image) {
-        if (image != _image) {
-            _image = image;
+        if (image != this.image) {
+            this.image = image;
             updateBoundingBox();
             fireLayerChanged();
         }
     }
 
     public AffineTransform getTransform() {
-        return _transform;
+        return transform;
     }
 
     public void setTransform(AffineTransform transform) {
-        this._transform = transform;
+        this.transform = transform;
         updateBoundingBox();
         fireLayerChanged();
     }
 
     public boolean isBorderPainted() {
-        Boolean borderPainted = (Boolean) getPropertyValue("style.borderPainted");
-        return borderPainted != null ? borderPainted : false;
+        Boolean borderPainted = (Boolean) getPropertyValue(propertyNameBorderPainted);
+        return borderPainted != null && borderPainted;
     }
 
     public void setBorderPainted(boolean borderPainted) {
-        setPropertyValue("style.borderPainted", borderPainted);
+        setPropertyValue(propertyNameBorderPainted, borderPainted);
     }
 
     public Color getBorderColor() {
-        return (Color) getPropertyValue("style.borderColor");
+        return (Color) getPropertyValue(propertyNameBorderColor);
     }
 
     public void setBorderColor(Color borderColor) {
-        setPropertyValue("style.borderColor", borderColor);
+        setPropertyValue(propertyNameBorderColor, borderColor);
     }
 
     private void updateBoundingBox() {
-        final Rectangle imageRect = _image != null ? new Rectangle(0, 0, _image.getWidth(), _image.getHeight()) : new Rectangle();
-        if (_transform != null) {
-            setBoundingBox(_transform.createTransformedShape(imageRect).getBounds2D());
+        final Rectangle imageRect = image != null ? new Rectangle(0, 0, image.getWidth(), image.getHeight()) : new Rectangle();
+        if (transform != null) {
+            setBoundingBox(transform.createTransformedShape(imageRect).getBounds2D());
         } else {
             setBoundingBox(imageRect);
         }
     }
 
     public void draw(Graphics2D g2d, ViewModel viewModel) {
-        if (_image == null) {
+        if (image == null) {
             return;
         }
 
-        if (isBorderPainted()) {
-            drawImageBorder(g2d);
-        }
-        if (_image instanceof BufferedImage) {
-            g2d.drawRenderedImage(_image, _transform);
+        drawImageBorder(g2d);
+        if (image instanceof BufferedImage) {
+            g2d.drawRenderedImage(image, transform);
         } else {
             drawTiledImage(g2d);
         }
@@ -122,7 +129,7 @@ public class RenderedImageLayer extends AbstractLayer {
         // Get the clipping rectangle
         Rectangle clipBounds = g2d.getClipBounds();
         if (clipBounds == null) {
-            clipBounds = new Rectangle(0, 0, _image.getWidth(), _image.getHeight());
+            clipBounds = new Rectangle(0, 0, image.getWidth(), image.getHeight());
         }
 
         // Determine the extent of the clipping region in tile coordinates.
@@ -130,23 +137,23 @@ public class RenderedImageLayer extends AbstractLayer {
         int ti, tj;
 
         txmin = XtoTileX(clipBounds.x);
-        txmin = Math.max(txmin, _image.getMinTileX());
-        txmin = Math.min(txmin, _image.getMinTileX() + _image.getNumXTiles() - 1);
+        txmin = Math.max(txmin, image.getMinTileX());
+        txmin = Math.min(txmin, image.getMinTileX() + image.getNumXTiles() - 1);
 
         txmax = XtoTileX(clipBounds.x + clipBounds.width - 1);
-        txmax = Math.max(txmax, _image.getMinTileX());
-        txmax = Math.min(txmax, _image.getMinTileX() + _image.getNumXTiles() - 1);
+        txmax = Math.max(txmax, image.getMinTileX());
+        txmax = Math.min(txmax, image.getMinTileX() + image.getNumXTiles() - 1);
 
         tymin = YtoTileY(clipBounds.y);
-        tymin = Math.max(tymin, _image.getMinTileY());
-        tymin = Math.min(tymin, _image.getMinTileY() + _image.getNumYTiles() - 1);
+        tymin = Math.max(tymin, image.getMinTileY());
+        tymin = Math.min(tymin, image.getMinTileY() + image.getNumYTiles() - 1);
 
         tymax = YtoTileY(clipBounds.y + clipBounds.height - 1);
-        tymax = Math.max(tymax, _image.getMinTileY());
-        tymax = Math.min(tymax, _image.getMinTileY() + _image.getNumYTiles() - 1);
+        tymax = Math.max(tymax, image.getMinTileY());
+        tymax = Math.min(tymax, image.getMinTileY() + image.getNumYTiles() - 1);
 
-        final ColorModel cm = _image.getColorModel();
-        final SampleModel sm = _image.getSampleModel();
+        final ColorModel cm = image.getColorModel();
+        final SampleModel sm = image.getSampleModel();
 
         // JAIJAIJAI
         if (Boolean.getBoolean("beam.imageTiling.enabled") &&
@@ -161,7 +168,7 @@ public class RenderedImageLayer extends AbstractLayer {
             for (ti = txmin; ti <= txmax; ti++) {
                 int tx = TileXtoX(ti);
                 int ty = TileYtoY(tj);
-                Raster tile = _image.getTile(ti, tj);
+                Raster tile = image.getTile(ti, tj);
                 if (tile != null) {
                     DataBuffer dataBuffer = tile.getDataBuffer();
                     WritableRaster wr = Raster.createWritableRaster(sm,
@@ -172,8 +179,8 @@ public class RenderedImageLayer extends AbstractLayer {
                                                          cm.isAlphaPremultiplied(),
                                                          null);
                     AffineTransform at = AffineTransform.getTranslateInstance(tx, ty);
-                    if (_transform != null) {
-                        at.concatenate(_transform);
+                    if (transform != null) {
+                        at.concatenate(transform);
                     }
                     g2d.drawRenderedImage(bi, at);
 
@@ -192,6 +199,9 @@ public class RenderedImageLayer extends AbstractLayer {
     }
 
     private void drawImageBorder(Graphics2D g2d) {
+        if (!isBorderPainted()) {
+            return;
+        }
         final Color borderColor = getBorderColor();
         if (borderColor != null) {
             final Rectangle2D boundingBox = getBoundingBox();
@@ -202,27 +212,38 @@ public class RenderedImageLayer extends AbstractLayer {
     }
 
     private int XtoTileX(int x) {
-        return (x - _image.getTileGridXOffset()) / _image.getTileWidth();
+        return (x - image.getTileGridXOffset()) / image.getTileWidth();
     }
 
     private int YtoTileY(int y) {
-        return (y - _image.getTileGridYOffset()) / _image.getTileHeight();
+        return (y - image.getTileGridYOffset()) / image.getTileHeight();
     }
 
     private int TileXtoX(int tx) {
-        return tx * _image.getTileWidth() + _image.getTileGridXOffset();
+        return tx * image.getTileWidth() + image.getTileGridXOffset();
     }
 
     private int TileYtoY(int ty) {
-        return ty * _image.getTileHeight() + _image.getTileGridYOffset();
+        return ty * image.getTileHeight() + image.getTileGridYOffset();
     }
 
+    @Override
     public void dispose() {
-        if (_image instanceof PlanarImage) {
-            PlanarImage planarImage = (PlanarImage) _image;
+        if (image instanceof PlanarImage) {
+            PlanarImage planarImage = (PlanarImage) image;
             planarImage.dispose();
         }
-        _image = null;
-        _transform = null;
+        image = null;
+        transform = null;
+        super.dispose();
     }
+
+    protected String getPropertyNameBorderColor() {
+        return propertyNameBorderColor;
+    }
+
+    protected String getPropertyNameBorderPainted() {
+        return propertyNameBorderPainted;
+    }
+
 }

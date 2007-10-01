@@ -1,6 +1,6 @@
 package org.esa.beam.visat.toolviews.pin;
 
-import org.esa.beam.framework.ui.product.GcpDescriptor;
+import org.esa.beam.framework.datamodel.GcpDescriptor;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
 
 /**

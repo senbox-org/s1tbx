@@ -3,12 +3,11 @@ package org.esa.beam.visat.toolviews.stat;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ToolView;
-import org.esa.beam.framework.ui.product.FigureLayer;
+import org.esa.beam.layer.FigureLayer;
 
 import javax.swing.JOptionPane;
 import java.awt.Cursor;
 import java.io.IOException;
-
 
 /**
  * Created by IntelliJ IDEA.
@@ -26,10 +25,9 @@ class CoordListPane extends TextPagePane {
 
     private static final String _TITLE_PREFIX = "Co-ordinate List";     /*I18N*/
     private static final String _DEFAULT_COORDLIST_TEXT = "Co-ordinate list not available.\n" +
-                                                          "No shape (line, polyline or polygon) contained in the image view.";  /*I18N*/
+            "No shape (line, polyline or polygon) contained in the image view.";  /*I18N*/
 
     private static final LayerObserver _figureLayerObserver = LayerObserver.getInstance(FigureLayer.class);
-
 
 
     public CoordListPane(final ToolView parentDialog) {
@@ -51,7 +49,7 @@ class CoordListPane extends TextPagePane {
     @Override
     protected void setRaster(final RasterDataNode raster) {
         final RasterDataNode oldRaster = super.getRaster();
-        if(oldRaster != raster) {
+        if (oldRaster != raster) {
             _figureLayerObserver.setRaster(raster);
         }
         super.setRaster(raster);
@@ -66,7 +64,7 @@ class CoordListPane extends TextPagePane {
         } catch (IOException e) {
             JOptionPane.showMessageDialog(getParent(),
                                           "Failed to compute profile plot.\n" +
-                                          "An I/O error occured:" + e.getMessage(),
+                                                  "An I/O error occured:" + e.getMessage(),
                                           "I/O error",
                                           JOptionPane.ERROR_MESSAGE);       /*I18N*/
         } finally {
@@ -78,7 +76,7 @@ class CoordListPane extends TextPagePane {
     protected String createText() {
         final Cursor oldCursor = UIUtils.setRootFrameWaitCursor(getParentDialog().getControl());
         try {
-            if(getRaster() == null) {
+            if (getRaster() == null) {
                 return _DEFAULT_COORDLIST_TEXT;
             }
             final String transectProfileText = StatisticsUtils.TransectProfile.createTransectProfileText(getRaster());
@@ -90,7 +88,7 @@ class CoordListPane extends TextPagePane {
         } catch (IOException e) {
             JOptionPane.showMessageDialog(getParent(),
                                           "Failed to compute profile plot.\n" +
-                                          "An I/O error occured:" + e.getMessage(),
+                                                  "An I/O error occured:" + e.getMessage(),
                                           "I/O error",
                                           JOptionPane.ERROR_MESSAGE);   /*I18N*/
             return _DEFAULT_COORDLIST_TEXT;

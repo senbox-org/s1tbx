@@ -31,8 +31,9 @@ import java.util.Map;
 public abstract class AbstractLayer implements Layer {
 
     private List<LayerChangeListener> listenerList;
-    private Map<String,Object> propertyMap;
+    private Map<String, Object> propertyMap;
     private boolean layerChangeFireingSuspended;
+    private boolean dirty;
 
     protected AbstractLayer() {
         this.listenerList = new ArrayList<LayerChangeListener>();
@@ -41,6 +42,14 @@ public abstract class AbstractLayer implements Layer {
         setVisible(true);
         setSelected(false);
         setBoundingBox(new Rectangle());
+    }
+
+    /**
+     * @return {@code true} if layer properties have changed since the last  {@link #fireLayerChanged()} call.
+     * @see #fireLayerChanged()
+     */
+    public boolean isDirty() {
+        return dirty;
     }
 
     /**
@@ -119,7 +128,6 @@ public abstract class AbstractLayer implements Layer {
      * Gets a property value.
      *
      * @param name the property name
-     *
      * @return the property value
      */
     public Object getPropertyValue(String name) {
@@ -153,6 +161,9 @@ public abstract class AbstractLayer implements Layer {
 
     public void setLayerChangeFireingSuspended(boolean layerChangeFireingSuspended) {
         this.layerChangeFireingSuspended = layerChangeFireingSuspended;
+        if (!layerChangeFireingSuspended && isDirty()) {
+            fireLayerChanged();
+        }
     }
 
     /**
@@ -181,20 +192,29 @@ public abstract class AbstractLayer implements Layer {
     }
 
     public void fireLayerChanged() {
+        dirty = true;
         if (!isLayerChangeFireingSuspended()) {
-            for (LayerChangeListener aListenerList : listenerList) {
-                aListenerList.handleLayerChanged(this);
+            LayerChangeListener[] layerChangeListeners = getLayerChangeListeners();
+            for (LayerChangeListener listener : layerChangeListeners) {
+                listener.handleLayerChanged(this);
             }
+            dirty = false;
         }
     }
 
     /**
-     * Does nothing.
+     * Clears the listener lists and property map.
      *
      * @see Layer#dispose()
      */
     public void dispose() {
+        if (listenerList != null) {
+            listenerList.clear();
+            listenerList = null;
+        }
+        if (propertyMap != null) {
+            propertyMap.clear();
+            propertyMap = null;
+        }
     }
-
-    
 }

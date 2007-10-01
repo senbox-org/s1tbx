@@ -1,13 +1,8 @@
 package org.esa.beam.visat.toolviews.pin;
 
 import com.bc.view.ViewModel;
-import org.esa.beam.framework.datamodel.Pin;
-import org.esa.beam.framework.datamodel.PinSymbol;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Drawable;
-import org.esa.beam.framework.ui.PlacemarkDescriptor;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.Command;
 import org.esa.beam.framework.ui.command.ExecCommand;
@@ -88,7 +83,7 @@ public abstract class PlacemarkTool extends AbstractTool {
         Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
         ImageIcon icon = UIUtils.loadImageIcon(iconResourcePath);
 
-        Point hotSpot  = placemarkDescriptor.getIconHotSpot(icon);
+        Point hotSpot = placemarkDescriptor.getIconHotSpot(icon);
         return defaultToolkit.createCustomCursor(icon.getImage(), hotSpot, cursorName);
     }
 
@@ -110,7 +105,7 @@ public abstract class PlacemarkTool extends AbstractTool {
             final String name = uniqueNameAndLabel[0];
             final String label = uniqueNameAndLabel[1];
             final Pin newPlacemark = new Pin(name, label, "",
-                                             new PixelPos(0.5f + e.getPixelX(), 0.5f + e.getPixelY()), 
+                                             new PixelPos(0.5f + e.getPixelX(), 0.5f + e.getPixelY()),
                                              null,
                                              placemarkDescriptor.createDefaultSymbol());
             getPlacemarkGroup(product).add(newPlacemark);
@@ -133,7 +128,7 @@ public abstract class PlacemarkTool extends AbstractTool {
         if (clickedPlacemark != null) {
             setPlacemarkSelected(getPlacemarkGroup(product), clickedPlacemark, true);
             boolean ok = PinDialog.showEditPinDialog(VisatApp.getApp().getMainFrame(), product,
-                                                              clickedPlacemark, placemarkDescriptor);
+                                                     clickedPlacemark, placemarkDescriptor);
             if (ok) {
                 updateState();
             }

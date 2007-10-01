@@ -4,7 +4,13 @@
  * Copyright (c) 2003 Brockmann Consult GmbH. All right reserved.
  * http://www.brockmann-consult.de
  */
-package org.esa.beam.framework.ui.product;
+package org.esa.beam.layer;
+
+import com.bc.view.ViewModel;
+import org.esa.beam.framework.draw.Figure;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.PropertyMap;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
@@ -15,17 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.esa.beam.framework.draw.Figure;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.PropertyMap;
-
-import com.bc.layer.AbstractLayer;
-import com.bc.view.ViewModel;
-
-public class FigureLayer extends AbstractLayer {
-
-    // todo nf/nf move this fields to a better plave
+public class FigureLayer extends StyledLayer {
 
     public static final boolean DEFAULT_SHAPE_OUTLINED = true;
     public static final double DEFAULT_SHAPE_OUTL_TRANSPARENCY = 0.1;
@@ -35,18 +31,23 @@ public class FigureLayer extends AbstractLayer {
     public static final double DEFAULT_SHAPE_FILL_TRANSPARENCY = 0.5;
     public static final Color DEFAULT_SHAPE_FILL_COLOR = Color.blue;
 
-    private Map _figureAttributes;
-    private List _figures;
+    private Map<String, Object> _figureAttributes;
+    private List<Figure> _figures;
 
     public FigureLayer() {
-        _figures = new ArrayList();
-        _figureAttributes = new HashMap();
+        _figures = new ArrayList<Figure>();
+        _figureAttributes = new HashMap<String, Object>();
     }
 
-    /**
-     * Sets multiple shape display properties.
-     */
-    public void setProperties(final PropertyMap propertyMap) {
+
+    @Override
+    public String getPropertyNamePrefix() {
+        return "shape";
+    }
+
+    @Override
+    protected void setStylePropertiesImpl(final PropertyMap propertyMap) {
+        super.setStylePropertiesImpl(propertyMap);
 
         final boolean outlined = propertyMap.getPropertyBool("shape.outlined", FigureLayer.DEFAULT_SHAPE_OUTLINED);
         final float outlTransp = (float) propertyMap.getPropertyDouble("shape.outl.transparency",
@@ -83,12 +84,10 @@ public class FigureLayer extends AbstractLayer {
         _figureAttributes.put(Figure.FILL_COMPOSITE_KEY, fillComp);
         _figureAttributes.put(Figure.FILL_PAINT_KEY, fillColor);
 
-        for (int i = 0; i < _figures.size(); i++) {
-            final Figure figure = (Figure) _figures.get(i);
+        for (Object _figure : _figures) {
+            final Figure figure = (Figure) _figure;
             figure.setAttributes(_figureAttributes);
         }
-
-        fireLayerChanged();
     }
 
     public void addFigure(final Figure figure) {
@@ -109,7 +108,7 @@ public class FigureLayer extends AbstractLayer {
     }
 
     /**
-     * Returns the number of figures.
+     * @return the number of figures.
      */
     public int getNumFigures() {
         return _figures.size();
@@ -118,10 +117,11 @@ public class FigureLayer extends AbstractLayer {
     /**
      * Gets the figure at the specified index.
      *
+     * @param index the figure index
      * @return the figure, never <code>null</code>
      */
     public Figure getFigureAt(final int index) {
-        return (Figure) _figures.get(index);
+        return _figures.get(index);
     }
 
     /**
@@ -130,7 +130,7 @@ public class FigureLayer extends AbstractLayer {
      * @return the figure array which is empty if no figures where found, never <code>null</code>
      */
     public Figure[] getAllFigures() {
-        return (Figure[]) _figures.toArray(new Figure[_figures.size()]);
+        return _figures.toArray(new Figure[_figures.size()]);
     }
 
     /**
@@ -147,19 +147,18 @@ public class FigureLayer extends AbstractLayer {
      * Gets all figures having an attribute with the given name.
      *
      * @param name the attribute name
-     *
      * @return the figure array which is empty if no figures where found, never <code>null</code>
      */
     public Figure[] getFiguresWithAttribute(final String name) {
         Guardian.assertNotNull("name", name);
-        final List list = new ArrayList();
+        final List<Figure> list = new ArrayList<Figure>();
         for (int i = 0; i < getNumFigures(); i++) {
             final Figure figure = getFigureAt(i);
             if (figure.getAttribute(name) != null) {
                 list.add(figure);
             }
         }
-        return (Figure[]) list.toArray(new Figure[list.size()]);
+        return list.toArray(new Figure[list.size()]);
     }
 
     /**
@@ -167,20 +166,19 @@ public class FigureLayer extends AbstractLayer {
      *
      * @param name  the attribute name, must not be <code>null</code>
      * @param value the attribute value, must not be <code>null</code>
-     *
      * @return the figure array which is empty if no figures where found, never <code>null</code>
      */
     public Figure[] getFiguresWithAttribute(final String name, final Object value) {
         Guardian.assertNotNull("name", name);
         Guardian.assertNotNull("value", value);
-        final List list = new ArrayList();
+        final List<Figure> list = new ArrayList<Figure>();
         for (int i = 0; i < getNumFigures(); i++) {
             final Figure figure = getFigureAt(i);
             if (value.equals(figure.getAttribute(name))) {
                 list.add(figure);
             }
         }
-        return (Figure[]) list.toArray(new Figure[list.size()]);
+        return list.toArray(new Figure[list.size()]);
     }
 
     /**
@@ -188,7 +186,6 @@ public class FigureLayer extends AbstractLayer {
      *
      * @param name  the attribute name, must not be <code>null</code>
      * @param value the attribute value, must not be <code>null</code>
-     *
      * @return the figure, null if no matching figure was found
      */
     public Figure getFigureWithAttribute(final String name, final Object value) {
@@ -207,12 +204,11 @@ public class FigureLayer extends AbstractLayer {
      * Draws the layer using the given 2D graphics context.
      * The graphics context expects world coordinates.
      *
-     * @param g2d the 2D graphics context, never null
-     * @param viewModel
+     * @param g2d       the 2D graphics context, never null
+     * @param viewModel the view model
      */
     public void draw(final Graphics2D g2d, ViewModel viewModel) {
-        for (int i = 0; i < _figures.size(); i++) {
-            final Figure figure = (Figure) _figures.get(i);
+        for (final Figure figure : _figures) {
             figure.draw(g2d);
         }
     }

@@ -1,10 +1,6 @@
 package org.esa.beam.visat.toolviews.pin;
 
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.ui.PlacemarkDescriptor;
-import org.esa.beam.framework.ui.product.GcpDescriptor;
+import org.esa.beam.framework.datamodel.*;
 
 import java.awt.Component;
 
@@ -19,7 +15,7 @@ public class GcpManagerToolView extends PlacemarkManagerToolView {
     public GcpManagerToolView() {
         super(GcpDescriptor.INSTANCE, new TableModelFactory() {
             public AbstractPlacemarkTableModel createTableModel(PlacemarkDescriptor placemarkDescriptor, Product product,
-                                                  Band[] selectedBands, TiePointGrid[] selectedGrids) {
+                                                                Band[] selectedBands, TiePointGrid[] selectedGrids) {
                 return new GcpTableModel(placemarkDescriptor, product, selectedBands, selectedGrids);
             }
         });

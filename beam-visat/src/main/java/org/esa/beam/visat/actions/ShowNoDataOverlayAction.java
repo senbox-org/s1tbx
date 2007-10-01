@@ -10,8 +10,8 @@ import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
-import org.esa.beam.framework.ui.product.NoDataLayer;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.layer.NoDataLayer;
 import org.esa.beam.util.Debug;
 import org.esa.beam.visat.VisatApp;
 
@@ -21,8 +21,7 @@ import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import java.awt.Container;
 import java.awt.Dialog;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
+import java.awt.image.RenderedImage;
 
 /**
  * Created by IntelliJ IDEA.
@@ -107,7 +106,7 @@ public class ShowNoDataOverlayAction extends ExecCommand {
 
             private void maybeUpdateAllNoDataOverlays(final ProductNodeEvent event) {
                 if (isNoDataOverlayRelevantPropertyName(event.getPropertyName()) &&
-                    event.getSourceNode() instanceof RasterDataNode) {
+                        event.getSourceNode() instanceof RasterDataNode) {
                     final RasterDataNode rasterDataNode = (RasterDataNode) event.getSourceNode();
                     updateAllNoDataOverlays(visatApp, rasterDataNode);
                 }
@@ -125,9 +124,9 @@ public class ShowNoDataOverlayAction extends ExecCommand {
 
             private boolean isNoDataOverlayRelevantPropertyName(final String propertyName) {
                 return RasterDataNode.PROPERTY_NAME_NO_DATA_VALUE.equals(propertyName)
-                       || RasterDataNode.PROPERTY_NAME_NO_DATA_VALUE_USED.equals(propertyName)
-                       || RasterDataNode.PROPERTY_NAME_VALID_PIXEL_EXPRESSION.equals(propertyName)
-                       || RasterDataNode.PROPERTY_NAME_DATA.equals(propertyName);
+                        || RasterDataNode.PROPERTY_NAME_NO_DATA_VALUE_USED.equals(propertyName)
+                        || RasterDataNode.PROPERTY_NAME_VALID_PIXEL_EXPRESSION.equals(propertyName)
+                        || RasterDataNode.PROPERTY_NAME_DATA.equals(propertyName);
             }
         };
 
@@ -150,7 +149,7 @@ public class ShowNoDataOverlayAction extends ExecCommand {
             setNoDataImage(noDataLayer);
         } else {
             Debug.trace("updateNoDataLayer: clearing image for raster '" + noDataLayer.getRaster().getName() + "'");
-            noDataLayer.setNoDataImage(null);
+            noDataLayer.setImage(null);
         }
         noDataLayer.setVisible(isNoDataOverlaySelected());
     }
@@ -182,12 +181,7 @@ public class ShowNoDataOverlayAction extends ExecCommand {
 
             @Override
             protected Object doInBackground() throws Exception {
-
-                try {
-                    return noDataLayer.createNoDataImage(pm);
-                } catch (IOException e) {
-                    return e;
-                }
+                return noDataLayer.updateImage(true, pm);
             }
 
             @Override
@@ -198,11 +192,11 @@ public class ShowNoDataOverlayAction extends ExecCommand {
                 } catch (Exception e) {
                     value = e;
                 }
-                if (value instanceof BufferedImage) {
-                    noDataLayer.setNoDataImage((BufferedImage) value);
+                if (value instanceof RenderedImage) {
+                    noDataLayer.setImage((RenderedImage) value);
                 } else if (value instanceof Exception) {
                     VisatApp.getApp().showErrorDialog("Unable to create no-data overlay image due to an error:\n" +
-                                                      ((Exception) value).getMessage());
+                            ((Exception) value).getMessage());
                 }
             }
         };

@@ -93,7 +93,7 @@ public class HdfDataField {
     }
 
     /**
-     * Sets the number of layers of the object
+     * Sets the number of layer of the object
      *
      * @param layers
      */
@@ -102,9 +102,9 @@ public class HdfDataField {
     }
 
     /**
-     * Retrieves the number of layers of the object
+     * Retrieves the number of layer of the object
      *
-     * @return the number of layers
+     * @return the number of layer
      */
     public int getLayers() {
         return _layers;

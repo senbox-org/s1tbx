@@ -8,11 +8,13 @@ import org.esa.beam.framework.param.ParamGroup;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.param.validators.NumberValidator;
 import org.esa.beam.framework.ui.GridBagUtils;
-import org.esa.beam.framework.ui.product.FigureLayer;
 import org.esa.beam.framework.ui.application.ToolView;
+import org.esa.beam.layer.FigureLayer;
 import org.esa.beam.util.math.MathUtils;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.io.IOException;
@@ -26,7 +28,7 @@ class ProfilePlotPane extends PagePane {
 
     private static final String _TITLE_PREFIX = "Profile Plot"; /*I18N*/
     private static final String _DEFAULT_PROFILEPLOT_TEXT = "No profile plot computed yet. " +
-                                                            "It will be computed if a shape is added to the image view.";    /*I18N*/
+            "It will be computed if a shape is added to the image view.";    /*I18N*/
 
     private static final int VAR1 = 0;
     private static final int VAR2 = 1;
@@ -85,7 +87,7 @@ class ProfilePlotPane extends PagePane {
         } catch (IOException e) {
             JOptionPane.showMessageDialog(getParent(),
                                           "Failed to compute profile plot.\n" +
-                                          "An I/O error occured:" + e.getMessage(),
+                                                  "An I/O error occured:" + e.getMessage(),
                                           "I/O error",
                                           JOptionPane.ERROR_MESSAGE);   /*I18N*/
             return;
@@ -198,7 +200,7 @@ class ProfilePlotPane extends PagePane {
                                                  ((Number) _maxParams[VAR1].getValue()).intValue(),
                                                  ((Number) _minParams[VAR2].getValue()).floatValue(),
                                                  ((Number) _maxParams[VAR2].getValue()).floatValue(),
-                (Boolean) _markVerticesParam.getValue());
+                                                 (Boolean) _markVerticesParam.getValue());
     }
 
 
@@ -213,7 +215,7 @@ class ProfilePlotPane extends PagePane {
         } catch (IOException e) {
             JOptionPane.showMessageDialog(getParent(),
                                           "Failed to compute profile plot.\n" +
-                                          "An I/O error occured:" + e.getMessage(),
+                                                  "An I/O error occured:" + e.getMessage(),
                                           "I/O error",
                                           JOptionPane.ERROR_MESSAGE);       /*I18N*/
             data = null;
@@ -333,7 +335,6 @@ class ProfilePlotPane extends PagePane {
          * to protect the rest of the paint code from irrevocable changes (for example, Graphics.translate()).
          *
          * @param g the Graphics object to protect
-         *
          * @see #paint
          */
         @Override
@@ -388,7 +389,7 @@ class ProfilePlotPane extends PagePane {
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(getParent(),
                                               "Failed to compute profile plot.\n" +
-                                              "An I/O error occured:" + e.getMessage(),
+                                                      "An I/O error occured:" + e.getMessage(),
                                               "I/O error",
                                               JOptionPane.ERROR_MESSAGE);   /*I18N*/
                 return;

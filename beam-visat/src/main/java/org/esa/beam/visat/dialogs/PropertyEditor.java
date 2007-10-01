@@ -35,23 +35,14 @@ import org.esa.beam.framework.param.editors.BooleanExpressionEditor;
 import org.esa.beam.framework.param.editors.GeneralExpressionEditor;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.framework.ui.product.NoDataLayer;
 import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.layer.NoDataLayer;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.JComponent;
-import javax.swing.JInternalFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.SwingWorker;
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.Dialog;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.image.BufferedImage;
+import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
 import java.text.MessageFormat;
 
@@ -340,9 +331,7 @@ public class PropertyEditor {
                             if (internalFrame != null) {
                                 final ProductSceneView productSceneView = getProductSceneView(internalFrame);
                                 final NoDataLayer noDataLayer = getNoDataLayer(productSceneView);
-                                final BufferedImage noDataImage = noDataLayer.createNoDataImage(
-                                        SubProgressMonitor.create(pm, 1));
-                                noDataLayer.setNoDataImage(noDataImage);
+                                noDataLayer.updateImage(true, SubProgressMonitor.create(pm, 1));
                             } else {
                                 pm.worked(1);
                             }
@@ -368,7 +357,7 @@ public class PropertyEditor {
                     if (exception != null) {
                         Debug.trace(exception);
                         _visatApp.showErrorDialog("Failed to compute band '" + _node.getDisplayName() + "':\n"
-                                                  + exception.getMessage()); /*I18N*/
+                                + exception.getMessage()); /*I18N*/
                     }
                 }
             };
@@ -671,9 +660,9 @@ public class PropertyEditor {
 
     private static boolean isNoDataOverlayRelevantPropertyName(final String propertyName) {
         return RasterDataNode.PROPERTY_NAME_NO_DATA_VALUE.equals(propertyName)
-               || RasterDataNode.PROPERTY_NAME_NO_DATA_VALUE_USED.equals(propertyName)
-               || RasterDataNode.PROPERTY_NAME_VALID_PIXEL_EXPRESSION.equals(propertyName)
-               || RasterDataNode.PROPERTY_NAME_DATA.equals(propertyName);
+                || RasterDataNode.PROPERTY_NAME_NO_DATA_VALUE_USED.equals(propertyName)
+                || RasterDataNode.PROPERTY_NAME_VALID_PIXEL_EXPRESSION.equals(propertyName)
+                || RasterDataNode.PROPERTY_NAME_DATA.equals(propertyName);
     }
 }
 

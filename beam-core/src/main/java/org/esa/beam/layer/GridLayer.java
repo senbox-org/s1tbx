@@ -15,7 +15,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-package com.bc.layer.impl;
+package org.esa.beam.layer;
+
+import com.bc.view.ViewModel;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -23,13 +25,10 @@ import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 
-import com.bc.layer.AbstractLayer;
-import com.bc.view.ViewModel;
-
 /**
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
  */
-public class GridLayer extends AbstractLayer {
+public class GridLayer extends StyledLayer {
     private Rectangle2D rectangle;
     private int majorColCount;
     private int majorRowCount;
@@ -44,11 +43,12 @@ public class GridLayer extends AbstractLayer {
         this.minorRowCount = minorRowCount;
     }
 
-    /**
-     * Gets the size (e.g. the bounding rectangle) of this layer in world coordinates.
-     *
-     * @return the size, never null
-     */
+    @Override
+    public String getPropertyNamePrefix() {
+        return "grid";
+    }
+
+    @Override
     public Rectangle2D getBoundingBox() {
         return rectangle;
     }

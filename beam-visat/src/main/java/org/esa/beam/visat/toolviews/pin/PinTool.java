@@ -17,7 +17,7 @@
 package org.esa.beam.visat.toolviews.pin;
 
 import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.ui.product.PinDescriptor;
+import org.esa.beam.framework.datamodel.PinDescriptor;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
 
 /**

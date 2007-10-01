@@ -4,28 +4,18 @@
  * Copyright (c) 2003 Brockmann Consult GmbH. All right reserved.
  * http://www.brockmann-consult.de
  */
-package org.esa.beam.framework.ui.product;
+package org.esa.beam.layer;
 
-import com.bc.layer.AbstractLayer;
 import com.bc.view.ViewModel;
-import org.esa.beam.framework.datamodel.Graticule;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
-import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.PropertyMap;
 
-import java.awt.AlphaComposite;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Composite;
-import java.awt.Font;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 
-public class GraticuleLayer extends AbstractLayer {
+public class GraticuleLayer extends StyledLayer {
 
     private Product _product;
     private RasterDataNode _raster;
@@ -78,10 +68,15 @@ public class GraticuleLayer extends AbstractLayer {
         this(product, null);
     }
 
-    /**
-     * Sets multiple graticule display properties.
-     */
-    public void setProperties(PropertyMap propertyMap) {
+    @Override
+    public String getPropertyNamePrefix() {
+        return "graticule";
+    }
+
+    @Override
+    protected void setStylePropertiesImpl(PropertyMap propertyMap) {
+        super.setStylePropertiesImpl(propertyMap);
+
         boolean oldResAuto = _resAuto;
         float oldNumPixels = _numPixels;
         float oldLineResLat = _lineResLat;
@@ -103,9 +98,9 @@ public class GraticuleLayer extends AbstractLayer {
                                                                     _textBgTransparency);
 
         if (oldResAuto != _resAuto ||
-            oldNumPixels != _numPixels ||
-            oldLineResLat != _lineResLat ||
-            oldLineResLon != _lineResLon) {
+                oldNumPixels != _numPixels ||
+                oldLineResLat != _lineResLat ||
+                oldLineResLon != _lineResLon) {
             // Force recreation
             _graticule = null;
         }
@@ -142,8 +137,8 @@ public class GraticuleLayer extends AbstractLayer {
         }
         g2d.setPaint(_lineColor);
         g2d.setStroke(new BasicStroke(_lineWidth));
-        for (int i = 0; i < linePaths.length; i++) {
-            g2d.draw(linePaths[i]);
+        for (GeneralPath linePath : linePaths) {
+            g2d.draw(linePath);
         }
         if (oldComposite != null) {
             g2d.setComposite(oldComposite);
@@ -164,9 +159,7 @@ public class GraticuleLayer extends AbstractLayer {
             g2d.setPaint(_textBgColor);
             g2d.setStroke(new BasicStroke(0));
             Rectangle2D labelBounds;
-            for (int i = 0; i < textGlyphs.length; i++) {
-                Graticule.TextGlyph glyph = textGlyphs[i];
-
+            for (Graticule.TextGlyph glyph : textGlyphs) {
                 g2d.translate(glyph.getX(), glyph.getY());
                 g2d.rotate(glyph.getAngle());
 
@@ -188,9 +181,7 @@ public class GraticuleLayer extends AbstractLayer {
 
         g2d.setFont(_textFont);
         g2d.setPaint(_textFgColor);
-        for (int i = 0; i < textGlyphs.length; i++) {
-            Graticule.TextGlyph glyph = textGlyphs[i];
-
+        for (Graticule.TextGlyph glyph : textGlyphs) {
             g2d.translate(glyph.getX(), glyph.getY());
             g2d.rotate(glyph.getAngle());
 
@@ -201,12 +192,14 @@ public class GraticuleLayer extends AbstractLayer {
         }
     }
 
+    @Override
     public void dispose() {
         if (_product != null) {
             _product.removeProductNodeListener(_productNodeHandler);
             _product = null;
             _graticule = null;
         }
+        super.dispose();
     }
 
     private class ProductNodeHandler extends ProductNodeListenerAdapter {
@@ -216,6 +209,7 @@ public class GraticuleLayer extends AbstractLayer {
          *
          * @param event the product node which the listener to be notified
          */
+        @Override
         public void nodeChanged(ProductNodeEvent event) {
             if (event.getSourceNode() == _product && Product.PROPERTY_NAME_GEOCODING.equals(event.getPropertyName())) {
                 // Force recreation

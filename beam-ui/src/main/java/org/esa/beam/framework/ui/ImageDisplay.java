@@ -18,10 +18,10 @@ package org.esa.beam.framework.ui;
 
 import com.bc.layer.Layer;
 import com.bc.layer.LayerModel;
-import com.bc.layer.impl.RenderedImageLayer;
 import com.bc.swing.GraphicsPane;
 import org.esa.beam.framework.ui.tool.Tool;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
+import org.esa.beam.layer.RenderedImageLayer;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.MouseEventFilterFactory;
@@ -311,9 +311,9 @@ public class ImageDisplay extends GraphicsPane {
      * @param width  The new <code>width</code> of this component.
      * @param height The new <code>height</code> of this component.
      * @see java.awt.Component#getBounds
-     * @see java.awt.Component#setLocation(int, int)
+     * @see java.awt.Component#setLocation(int,int)
      * @see java.awt.Component#setLocation(java.awt.Point)
-     * @see java.awt.Component#setSize(int, int)
+     * @see java.awt.Component#setSize(int,int)
      * @see java.awt.Component#setSize(java.awt.Dimension)
      */
     @Override
@@ -381,7 +381,7 @@ public class ImageDisplay extends GraphicsPane {
             return;
         }
 
-        Graphics2D g2d = null;
+        Graphics2D g2d;
         if (g instanceof Graphics2D) {
             g2d = (Graphics2D) g;
         } else {

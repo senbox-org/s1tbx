@@ -1,13 +1,4 @@
-package org.esa.beam.framework.ui.product;
-
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.Pin;
-import org.esa.beam.framework.datamodel.PinSymbol;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.ui.PlacemarkDescriptor;
+package org.esa.beam.framework.datamodel;
 
 import javax.swing.Icon;
 import java.awt.Dimension;
@@ -60,14 +51,14 @@ public class PinDescriptor implements PlacemarkDescriptor {
     }
 
     public PixelPos updatePixelPos(GeoCoding geoCoding, GeoPos geoPos, PixelPos pixelPos) {
-        if(geoCoding == null || !geoCoding.canGetPixelPos()) {
+        if (geoCoding == null || !geoCoding.canGetPixelPos()) {
             return pixelPos;
         }
         return geoCoding.getPixelPos(geoPos, pixelPos);
     }
 
     public GeoPos updateGeoPos(GeoCoding geoCoding, PixelPos pixelPos, GeoPos geoPos) {
-        if(geoCoding == null || !geoCoding.canGetGeoPos()) {
+        if (geoCoding == null || !geoCoding.canGetGeoPos()) {
             return geoPos;
         }
         return geoCoding.getGeoPos(pixelPos, geoPos);

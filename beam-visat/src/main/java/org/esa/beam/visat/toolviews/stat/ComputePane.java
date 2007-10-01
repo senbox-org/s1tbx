@@ -1,18 +1,17 @@
 package org.esa.beam.visat.toolviews.stat;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionListener;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.layer.ROILayer;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.ui.UIUtils;
-import org.esa.beam.framework.ui.product.ROILayer;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionListener;
 
 
 /**
@@ -28,15 +27,15 @@ class ComputePane extends JPanel {
     private RasterDataNode _raster;
 
     static ComputePane createComputePane(final ActionListener allPixelsActionListener,
-                                                 final ActionListener roiActionListener,
-                                                 final RasterDataNode raster) {
+                                         final ActionListener roiActionListener,
+                                         final RasterDataNode raster) {
         return new ComputePane(allPixelsActionListener, roiActionListener, raster);
     }
 
 
     private ComputePane(final ActionListener allPixelsActionListener,
-                final ActionListener roiActionListener,
-                final RasterDataNode raster) {
+                        final ActionListener roiActionListener,
+                        final RasterDataNode raster) {
 
         final Icon icon = UIUtils.loadImageIcon("icons/Gears20.gif");
 
@@ -75,7 +74,7 @@ class ComputePane extends JPanel {
     }
 
     public void setRaster(final RasterDataNode raster) {
-        if(_raster != raster) {
+        if (_raster != raster) {
 
             _raster = raster;
             _roiLayerObserver.setRaster(_raster);

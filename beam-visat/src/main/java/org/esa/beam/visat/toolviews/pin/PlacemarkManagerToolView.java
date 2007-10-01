@@ -7,22 +7,16 @@ import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ImageDisplay;
 import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.framework.ui.PlacemarkDescriptor;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.PageComponent;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.application.support.PageComponentListenerAdapter;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.BandChooser;
-import org.esa.beam.framework.ui.product.PinDescriptor;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.product.ProductTreeListener;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.PropertyMap;
-import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.XmlWriter;
+import org.esa.beam.util.*;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
@@ -35,47 +29,18 @@ import org.xml.sax.SAXException;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.InternalFrameAdapter;
-import javax.swing.event.InternalFrameEvent;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.MouseInputAdapter;
-import javax.swing.event.TableColumnModelEvent;
-import javax.swing.event.TableColumnModelListener;
+import javax.swing.event.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.Point;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.RandomAccessFile;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -544,7 +509,7 @@ class PlacemarkManagerToolView extends AbstractToolView {
         final Collection<Pin> pins = getPlacemarkGroup().getSelectedNodes();
         int i = JOptionPane.showConfirmDialog(getWindowAncestor(),
                                               "Do you really want to remove " + pins.size() + " selected" + placemarkDescriptor.getRoleLabel() + "(s)?\n" +
-                                              "This action can not be undone.",
+                                                      "This action can not be undone.",
                                               getDescriptor().getTitle() + " - Remove " + placemarkDescriptor.getRoleLabel() + "s",
                                               JOptionPane.OK_CANCEL_OPTION);
         if (i == JOptionPane.OK_OPTION) {
@@ -583,7 +548,7 @@ class PlacemarkManagerToolView extends AbstractToolView {
         if (makePlacemarkNameUnique0(newPin)) {
             String roleLabel = firstLetterUp(placemarkDescriptor.getRoleLabel());
             showWarningDialog(roleLabel + " has been renamed to '" + newPin.getName() + "',\n" +
-                              "because a " + placemarkDescriptor.getRoleLabel() + " with the former name already exists.");
+                    "because a " + placemarkDescriptor.getRoleLabel() + " with the former name already exists.");
         }
     }
 
@@ -591,7 +556,6 @@ class PlacemarkManagerToolView extends AbstractToolView {
      * Turns the first letter of the given string to upper case.
      *
      * @param string the string to change
-     *
      * @return a changed string
      */
     private String firstLetterUp(String string) {
@@ -607,7 +571,7 @@ class PlacemarkManagerToolView extends AbstractToolView {
             synchronizePinSelectedState();
             numSelectedPins = getPlacemarkGroup().getSelectedNodes().size();
             getDescriptor().setTitle(prefixTitle + " - " + product.getDisplayName());
-        }else {
+        } else {
             getDescriptor().setTitle(prefixTitle);
         }
 
@@ -722,21 +686,21 @@ class PlacemarkManagerToolView extends AbstractToolView {
 
         if (numInvalids > 0) {
             showWarningDialog("One or more " + placemarkDescriptor.getRoleLabel() + "s have not been imported,\n" +
-                              "because they can not be assigned to a product without a geo-coding."); /*I18N*/
+                    "because they can not be assigned to a product without a geo-coding."); /*I18N*/
         }
         if (numPinsRenamed > 0) {
             showWarningDialog("One or more " + placemarkDescriptor.getRoleLabel() + "s have been renamed,\n" +
-                              "because their former names are already existing."); /*I18N*/
+                    "because their former names are already existing."); /*I18N*/
         }
         if (numPinsOutOfBounds > 0) {
             if (numPinsOutOfBounds == placemarks.length) {
                 showErrorDialog(
                         "No " + placemarkDescriptor.getRoleLabel() + "s have been imported, because their pixel\n" +
-                        "positions are outside the product's bounds."); /*I18N*/
+                                "positions are outside the product's bounds."); /*I18N*/
             } else {
                 showErrorDialog(
                         numPinsOutOfBounds + " " + placemarkDescriptor.getRoleLabel() + "s have not been imported, because their pixel\n" +
-                        "positions are outside the product's bounds."); /*I18N*/
+                                "positions are outside the product's bounds."); /*I18N*/
             }
         }
     }
@@ -987,7 +951,7 @@ class PlacemarkManagerToolView extends AbstractToolView {
                 int labelIndex = StringUtils.indexOf(strings, PlacemarkManagerToolView.LABEL_COL_NAME);
                 if (nameIndex == -1 || lonIndex == -1 || latIndex == -1) {
                     throw new IOException("Invalid placemark file format:\n" +
-                                          "at least the columns 'Name', 'Lon' and 'Lat' must be given.");
+                            "at least the columns 'Name', 'Lon' and 'Lat' must be given.");
                 }
                 biggestIndex = biggestIndex > nameIndex ? biggestIndex : nameIndex;
                 biggestIndex = biggestIndex > lonIndex ? biggestIndex : lonIndex;
@@ -1007,23 +971,21 @@ class PlacemarkManagerToolView extends AbstractToolView {
                         lon = Float.parseFloat(strings[columnIndexes[PlacemarkManagerToolView.indexForLon]]);
                     } catch (NumberFormatException e) {
                         throw new IOException("Invalid placemark file format:\n" +
-                                              "data row " + row + ": value for 'Lon' is invalid");      /*I18N*/
+                                "data row " + row + ": value for 'Lon' is invalid");      /*I18N*/
                     }
                     float lat;
                     try {
                         lat = Float.parseFloat(strings[columnIndexes[PlacemarkManagerToolView.indexForLat]]);
                     } catch (NumberFormatException e) {
                         throw new IOException("Invalid placemark file format:\n" +
-                                              "data row " + row + ": value for 'Lat' is invalid");      /*I18N*/
+                                "data row " + row + ": value for 'Lat' is invalid");      /*I18N*/
                     }
                     String desc = null;
-                    if (columnIndexes[PlacemarkManagerToolView.indexForDesc] >= 0 && strings.length > columnIndexes[PlacemarkManagerToolView.indexForDesc])
-                    {
+                    if (columnIndexes[PlacemarkManagerToolView.indexForDesc] >= 0 && strings.length > columnIndexes[PlacemarkManagerToolView.indexForDesc]) {
                         desc = strings[columnIndexes[PlacemarkManagerToolView.indexForDesc]];
                     }
                     String label = name;
-                    if (columnIndexes[PlacemarkManagerToolView.indexForLabel] >= 0 && strings.length > columnIndexes[PlacemarkManagerToolView.indexForLabel])
-                    {
+                    if (columnIndexes[PlacemarkManagerToolView.indexForLabel] >= 0 && strings.length > columnIndexes[PlacemarkManagerToolView.indexForLabel]) {
                         label = strings[columnIndexes[PlacemarkManagerToolView.indexForLabel]];
                     }
                     Pin pin = new Pin(name, label, "", null, new GeoPos(lat, lon),
@@ -1034,7 +996,7 @@ class PlacemarkManagerToolView extends AbstractToolView {
                     pins.add(pin);
                 } else {
                     throw new IOException("Invalid placemark file format:\n" +
-                                          "data row " + row + ": values for 'Name', 'Lon' and 'Lat' must be given.");   /*I18N*/
+                            "data row " + row + ": values for 'Name', 'Lon' and 'Lat' must be given.");   /*I18N*/
                 }
             }
         }
@@ -1199,12 +1161,12 @@ class PlacemarkManagerToolView extends AbstractToolView {
             int minWidth;
             final int index = e.getToIndex();
             switch (index) {
-            case 0:
-            case 1:
-                minWidth = 60;
-                break;
-            default:
-                minWidth = 80;
+                case 0:
+                case 1:
+                    minWidth = 60;
+                    break;
+                default:
+                    minWidth = 80;
             }
             TableColumnModel columnModel = (TableColumnModel) e.getSource();
             columnModel.getColumn(index).setPreferredWidth(minWidth);
@@ -1291,7 +1253,6 @@ class PlacemarkManagerToolView extends AbstractToolView {
      *
      * @param product  must be given and must contain a geocoding.
      * @param pixelPos must be given.
-     *
      * @return the geographical position which is equivalent to the given pixel position or <code>null</code> if the
      *         given pixel position is outside of the given product or the geocoding cannot get geographical positions.
      */
