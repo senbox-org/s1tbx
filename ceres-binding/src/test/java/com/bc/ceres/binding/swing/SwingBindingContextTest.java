@@ -28,6 +28,9 @@ public class SwingBindingContextTest extends TestCase {
     private SwingBindingContext binding;
     private ValueContainer valueContainer;
 
+    private ValueContainer valueContainer2;
+    private SwingBindingContext binding2;
+    private TestPojo pojo;
 
     @Override
     protected void setUp() throws Exception {
@@ -39,6 +42,10 @@ public class SwingBindingContextTest extends TestCase {
 
         valueContainer = factory.createValueBackedValueContainer(TestPojo.class);
         binding = new SwingBindingContext(valueContainer);
+
+        pojo = new TestPojo();
+        valueContainer2 = factory.createObjectBackedValueContainer(pojo);
+        binding2 = new SwingBindingContext(valueContainer2);
     }
 
     public void testBindSpinner() throws ValidationException {
@@ -79,6 +86,25 @@ public class SwingBindingContextTest extends TestCase {
 
         valueContainer.setValue("stringValue", "Samson");
         assertEquals("Samson", textField.getText());
+    }
+
+    public void testBindTextField2() throws ValidationException {
+        JTextField textField = new JTextField();
+        binding2.bind(textField, "stringValue");
+
+        assertEquals("stringValue", textField.getName());
+
+        textField.setText("Bibo");
+        textField.postActionEvent();
+        assertEquals("Bibo", valueContainer2.getValue("stringValue"));
+
+        valueContainer2.setValue("stringValue", "Samson");
+        assertEquals("Samson", pojo.stringValue);
+        assertEquals("Samson", textField.getText());
+
+        pojo.stringValue = "Oscar";
+        assertSame("Oscar", valueContainer2.getValue("stringValue"));
+        assertNotSame("Oscar", textField.getText()); // value change not detected by binding
     }
 
     public void testBindFormattedTextFieldToString() throws ValidationException {
