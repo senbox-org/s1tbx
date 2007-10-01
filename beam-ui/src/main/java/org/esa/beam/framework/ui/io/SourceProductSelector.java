@@ -4,7 +4,6 @@ import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.util.io.BeamFileChooser;
 
 import javax.swing.*;
@@ -30,25 +29,38 @@ public class SourceProductSelector {
     private String labelText;
     private DefaultComboBoxModel productListModel;
     private Action chooserAction;
+    private JLabel productLabel;
+    private JButton chooserButton;
+    private JComboBox productComboBox;
 
 
     public SourceProductSelector(Product[] defaultProducts, String labelText) {
         this(defaultProducts, labelText, ".*");
     }
 
-    public SourceProductSelector(Product[] defaultProducts, String labelText, String productTypePattern) {
-        this.defaultProducts = defaultProducts;
-        this.labelText = labelText;
-        this.typePattern = Pattern.compile(productTypePattern);
+    public SourceProductSelector(Product[] products, String productLabelText, String productTypePattern) {
+        defaultProducts = products;
+        labelText = productLabelText.trim();
+        if (!labelText.endsWith(":")) {
+            labelText = labelText.concat(":");
+        }
+
+        typePattern = Pattern.compile(productTypePattern);
         productListModel = new DefaultComboBoxModel();
 
-        for (Product product : defaultProducts) {
-            if (this.typePattern.matcher(product.getProductType()).matches()) {
+        for (Product product : products) {
+            if (typePattern.matcher(product.getProductType()).matches()) {
                 productListModel.addElement(product);
             }
         }
+        productListModel.setSelectedItem(null);
 
         chooserAction = new ChooserAction();
+        productLabel = new JLabel(labelText);
+        chooserButton = new JButton(chooserAction);
+        productComboBox = new JComboBox(productListModel);
+        productComboBox.setPrototypeDisplayValue("[1] 123456789 123456789 12345");
+        productComboBox.setRenderer(new ProductListCellRenderer());
     }
 
     public Product[] getDefaultProducts() {
@@ -59,6 +71,10 @@ public class SourceProductSelector {
         return labelText;
     }
 
+    public Pattern getTypePattern() {
+        return typePattern;
+    }
+
     public DefaultComboBoxModel getProductListModel() {
         return productListModel;
     }
@@ -67,7 +83,7 @@ public class SourceProductSelector {
         return (Product) productListModel.getSelectedItem();
     }
 
-    private void setSelectedProduct(Product product) throws Exception {
+    void setSelectedProduct(Product product) throws Exception {
         if (typePattern.matcher(product.getProductType()).matches()) {
             if (productListModelContains(product)) {
                 productListModel.setSelectedItem(product);
@@ -85,10 +101,6 @@ public class SourceProductSelector {
         }
     }
 
-    public Pattern getTypePattern() {
-        return typePattern;
-    }
-
     public void dispose() {
         if (chooserProduct != null && getSelectedProduct() != chooserProduct) {
             chooserProduct.dispose();
@@ -99,50 +111,90 @@ public class SourceProductSelector {
 
     /////////////////////////////////////
 
-    public JComboBox createComboBox() {
-        final JComboBox comboBox = new JComboBox(productListModel);
-        comboBox.setPrototypeDisplayValue("[1] 123456789 123456789 12345");
-        comboBox.setRenderer(new ProductListCellRenderer());
-
-        return comboBox;
+    public JComboBox getComboBox() {
+        return productComboBox;
     }
 
-    public JLabel createLabel() {
-        return new JLabel(labelText);
+    public JLabel getLabel() {
+        return productLabel;
     }
 
-    public JButton createButton() {
-        return new JButton(chooserAction);
-    }
-
-    public JPanel createDefaultPanel() {
-        final TableLayout layout = new TableLayout(3);
-        layout.setTableAnchor(TableLayout.Anchor.LINE_START);
-        layout.setTableFill(TableLayout.Fill.HORIZONTAL);
-        layout.setColumnWeightX(0, 0.0);
-        layout.setColumnWeightX(1, 1.0);
-        layout.setColumnWeightX(2, 0.0);
-        layout.setTablePadding(2, 2);
-
-        final JPanel panel = new JPanel(layout);
-        panel.add(createLabel());
-        panel.add(createComboBox());
-        panel.add(createButton());
-
-        return panel;
+    public JButton getButton() {
+        return chooserButton;
     }
 
     private boolean productListModelContains(Product product) {
-        for(int i = 0; i < productListModel.getSize(); i++) {
-            if(productListModel.getElementAt(i).equals(product)) {
+        for (int i = 0; i < productListModel.getSize(); i++) {
+            if (productListModel.getElementAt(i).equals(product)) {
                 return true;
             }
         }
         return false;
     }
 
-    private static class ProductListCellRenderer extends DefaultListCellRenderer {
+    private class ChooserAction extends AbstractAction {
 
+        private String APPROVE_BUTTON_TEXT = "Select";
+        private JFileChooser chooser;
+        private ErrorHandler errorHandler;
+
+        public ChooserAction() {
+            this(new BeamFileChooser(), new ErrorHandler() {
+                public void handleError(final JComponent component, final Throwable t) {
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            JOptionPane.showMessageDialog(component, t.getMessage(), "Error",
+                                                          JOptionPane.ERROR_MESSAGE);
+                        }
+                    });
+
+                }
+            });
+
+            final Iterator<ProductReaderPlugIn> iterator = ProductIOPlugInManager.getInstance().getAllReaderPlugIns();
+
+            while (iterator.hasNext()) {
+                chooser.addChoosableFileFilter(iterator.next().getProductFileFilter());
+            }
+            chooser.setAcceptAllFileFilterUsed(true);
+            chooser.setFileFilter(chooser.getAcceptAllFileFilter());
+        }
+
+        private ChooserAction(JFileChooser fileChooser, ErrorHandler errorHandler) {
+            super("...");
+            this.chooser = fileChooser;
+            this.errorHandler = errorHandler;
+        }
+
+        public void actionPerformed(ActionEvent event) {
+            JComponent parent = null;
+            if (event.getSource() instanceof JComponent) {
+                parent = (JComponent) event.getSource();
+            }
+            if (chooser.showDialog(parent, APPROVE_BUTTON_TEXT) == JFileChooser.APPROVE_OPTION) {
+                final File file = chooser.getSelectedFile();
+
+                Product product = null;
+                try {
+                    product = ProductIO.readProduct(file, null);
+                    if (product == null) {
+                        throw new IOException(
+                                MessageFormat.format("File ''{0}'' is not of appropriate type.", file.getPath()));
+                    }
+                    setSelectedProduct(product);
+                } catch (IOException e) {
+                    errorHandler.handleError(parent, e);
+                } catch (Exception e) {
+                    if (product != null) {
+                        product.dispose();
+                    }
+                    errorHandler.handleError(parent, e);
+                }
+            }
+        }
+    }
+
+    private static class ProductListCellRenderer extends DefaultListCellRenderer {
         @Override
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
                                                       boolean cellHasFocus) {
@@ -159,51 +211,8 @@ public class SourceProductSelector {
         }
     }
 
-    private class ChooserAction extends AbstractAction {
+    private interface ErrorHandler {
 
-        private String APPROVE_BUTTON_TEXT = "Select";
-
-        public ChooserAction() {
-            super("...");
-        }
-
-        public void actionPerformed(ActionEvent event) {
-            final BeamFileChooser fileChooser = new BeamFileChooser();
-            final Iterator<ProductReaderPlugIn> iterator = ProductIOPlugInManager.getInstance().getAllReaderPlugIns();
-
-            while (iterator.hasNext()) {
-                fileChooser.addChoosableFileFilter(iterator.next().getProductFileFilter());
-            }
-            fileChooser.setAcceptAllFileFilterUsed(true);
-            fileChooser.setFileFilter(fileChooser.getAcceptAllFileFilter());
-
-            Component parent = null;
-            if (event.getSource() instanceof Component) {
-                parent = (Component) event.getSource();
-            }
-
-            if (fileChooser.showDialog(parent, APPROVE_BUTTON_TEXT) == JFileChooser.APPROVE_OPTION) {
-                final File file = fileChooser.getSelectedFile();
-
-                Product product = null;
-                try {
-                    product = ProductIO.readProduct(file, null);
-                    setSelectedProduct(product);
-                } catch (IOException e) {
-                    JOptionPane.showMessageDialog(parent,
-                                                  MessageFormat.format("An error occurred while reading file ''{0}''.",
-                                                                       file.getPath()),
-                                                  "I/O Error",
-                                                  JOptionPane.ERROR_MESSAGE);
-                } catch (Exception e) {
-                    if (product != null) {
-                        product.dispose();
-                    }
-                    JOptionPane.showMessageDialog(parent, e.getMessage(), "Illegal Product Type",
-                                                  JOptionPane.ERROR_MESSAGE);
-                }
-            }
-
-        }
+        void handleError(JComponent component, Throwable t);
     }
 }
