@@ -445,7 +445,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * Tests whether or not the no-data value is used.
      * <p>The no-data value is used to determine valid pixels. For more information
-     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
+     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int,int,javax.media.jai.ROI)}
      * method.
      *
      * @return true, if so
@@ -461,7 +461,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * If the no-data value is enabled and the no-data value has not been set so far,
      * a default no-data value it is set with a value of to zero.
      * <p>The no-data value is used to determine valid pixels. For more information
-     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
+     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int,int,javax.media.jai.ROI)}
      * method.
      * <p>On property change, the method calls {@link #fireProductNodeChanged(String)} with the property
      * name {@link #PROPERTY_NAME_NO_DATA_VALUE_USED}.
@@ -483,7 +483,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * <p>Note that the value returned is NOT necessarily the same as the value returned by
      * {@link #getGeophysicalNoDataValue()} because no scaling is applied.
      * <p>The no-data value is used to determine valid pixels. For more information
-     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
+     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int,int,javax.media.jai.ROI)}
      * method.
      * <p>The method returns <code>0.0</code>, if no no-data value has been specified so far.
      *
@@ -501,7 +501,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * In order to set the geophysical, scaled no-data value use the method
      * {@link #setGeophysicalNoDataValue(double)}.
      * <p>The no-data value is used to determine valid pixels. For more information
-     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
+     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int,int,javax.media.jai.ROI)}
      * method.
      * <p>On property change, the method calls {@link #fireProductNodeChanged(String)} with the property
      * name {@link #PROPERTY_NAME_NO_DATA_VALUE}.
@@ -527,7 +527,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Gets the geophysical no-data value which is simply the scaled "raw" no-data value
      * returned by {@link #getNoDataValue()}.
      * <p>The no-data value is used to determine valid pixels. For more information
-     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
+     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int,int,javax.media.jai.ROI)}
      * method.
      *
      * @return the geophysical no-data value
@@ -541,7 +541,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Sets the geophysical no-data value which is simply the scaled "raw" no-data value
      * returned by {@link #getNoDataValue()}.
      * <p>The no-data value is used to determine valid pixels. For more information
-     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
+     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int,int,javax.media.jai.ROI)}
      * method.
      * <p>On property change, the method calls {@link #fireProductNodeChanged(String)} with the property
      * name {@link #PROPERTY_NAME_NO_DATA_VALUE}.
@@ -557,7 +557,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * Gets the expression that is used to determine whether a pixel is valid or not.
      * <p>The valid-pixel expression is used to determine valid pixels. For more information
-     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
+     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int,int,javax.media.jai.ROI)}
      * method.
      *
      * @return the valid mask expression.
@@ -569,7 +569,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * Sets the expression that is used to determine whether a pixel is valid or not.
      * <p>The valid-pixel expression is used to determine valid pixels. For more information
-     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
+     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int,int,javax.media.jai.ROI)}
      * method.
      * <p>On property change, the method calls {@link #fireProductNodeChanged(String)} with the property
      * name {@link #PROPERTY_NAME_VALID_PIXEL_EXPRESSION}.
@@ -590,7 +590,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Tests whether or not this raster data node uses a data-mask in order to determine valid pixels. The method returns
      * true if either {@link #isValidPixelExpressionSet()} or {@link #isNoDataValueUsed()} returns true.
      * <p>The data-mask is used to determine valid pixels. For more information
-     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
+     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int,int,javax.media.jai.ROI)}
      * method.
      *
      * @return true, if so
@@ -606,7 +606,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Gets the valid pixel mask which indicates if a pixel is valid or not. The method returns null if either
      * no data-mask is used ({@link #isValidMaskUsed()} returns false) or if the data-mask hasn't been created so far.
      * <p>The data-mask is used to determine valid pixels. For more information
-     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
+     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int,int,javax.media.jai.ROI)}
      * method.
      *
      * @return the valid pixel mask, <code>null</code> if not set.
@@ -620,7 +620,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * Sets the valid pixel mask which indicates if a pixel is valid or not.
      * <p>The data-mask is used to determine valid pixels. For more information
-     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
+     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int,int,javax.media.jai.ROI)}
      * method.
      *
      * @param validMask the valid pixel mask, can be null.
@@ -633,9 +633,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Ensures that a data-mask, if any, is available, thus {@link #getValidMask()} returns a non-null value.
-     * The method shall be called once before the {@link #isPixelValid(int, int, javax.media.jai.ROI)} method is called.
+     * The method shall be called once before the {@link #isPixelValid(int,int,javax.media.jai.ROI)} method is called.
      * <p>The data-mask is used to determine valid pixels. For more information
-     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int, int, javax.media.jai.ROI)}
+     * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int,int,javax.media.jai.ROI)}
      * method.
      *
      * @param pm
@@ -928,7 +928,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param y the Y co-ordinate of the pixel location
      * @return <code>true</code> if the pixel is valid
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
-     * @see #isPixelValid(int, int, javax.media.jai.ROI)
+     * @see #isPixelValid(int,int,javax.media.jai.ROI)
      * @see #setNoDataValueUsed(boolean)
      * @see #setNoDataValue(double)
      * @see #setValidPixelExpression(String)
@@ -953,7 +953,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param pixelIndex the linear pixel index in the range 0 to width * height - 1
      * @return <code>true</code> if the pixel is valid
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
-     * @see #isPixelValid(int, int, javax.media.jai.ROI)
+     * @see #isPixelValid(int,int,javax.media.jai.ROI)
      * @see #setNoDataValueUsed(boolean)
      * @see #setNoDataValue(double)
      * @see #setValidPixelExpression(String)
@@ -968,15 +968,15 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Checks whether or not the pixel located at (x,y) is valid.
-     * The method first test whether a pixel is valid by using the {@link #isPixelValid(int, int)} method,
+     * The method first test whether a pixel is valid by using the {@link #isPixelValid(int,int)} method,
      * and secondly, if the pixel is within the ROI (if any).
      *
      * @param x   the X co-ordinate of the pixel location
      * @param y   the Y co-ordinate of the pixel location
-     * @param roi the ROI, if null the method returns {@link #isPixelValid(int, int)}
+     * @param roi the ROI, if null the method returns {@link #isPixelValid(int,int)}
      * @return <code>true</code> if the pixel is valid
      * @throws ArrayIndexOutOfBoundsException if the co-ordinates are not in bounds
-     * @see #isPixelValid(int, int)
+     * @see #isPixelValid(int,int)
      * @see #setNoDataValueUsed(boolean)
      * @see #setNoDataValue(double)
      * @see #setValidPixelExpression(String)
@@ -1047,7 +1047,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
 
     /**
-     * @deprecated in 4.0, use {@link #getPixels(int, int, int, int, int[], ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #getPixels(int,int,int,int,int[],ProgressMonitor)}
      */
     public int[] getPixels(int x, int y, int w, int h, int[] pixels) {
         return getPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1067,7 +1067,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public abstract int[] getPixels(int x, int y, int w, int h, int[] pixels, ProgressMonitor pm);
 
     /**
-     * @deprecated in 4.0, use {@link #getPixels(int, int, int, int, float[], ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #getPixels(int,int,int,int,float[],ProgressMonitor)}
      */
     public float[] getPixels(int x, int y, int w, int h, float[] pixels) {
         return getPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1087,7 +1087,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public abstract float[] getPixels(int x, int y, int w, int h, float[] pixels, ProgressMonitor pm);
 
     /**
-     * @deprecated in 4.0, use {@link #getPixels(int, int, int, int, double[], ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #getPixels(int,int,int,int,double[],ProgressMonitor)}
      */
     public double[] getPixels(int x, int y, int w, int h, double[] pixels) {
         return getPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1147,7 +1147,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public abstract void setPixels(int x, int y, int w, int h, double[] pixels);
 
     /**
-     * @deprecated in 4.0, use {@link #readPixels(int, int, int, int, int[], ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #readPixels(int,int,int,int,int[],ProgressMonitor)}
      */
     public int[] readPixels(int x, int y, int w, int h, int[] pixels) throws IOException {
         return readPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1170,7 +1170,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public abstract int[] readPixels(int x, int y, int w, int h, int[] pixels, ProgressMonitor pm) throws IOException;
 
     /**
-     * @deprecated in 4.0, use {@link #readPixels(int, int, int, int, float[], ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #readPixels(int,int,int,int,float[],ProgressMonitor)}
      */
     public float[] readPixels(int x, int y, int w, int h, float[] pixels) throws IOException {
         return readPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1194,7 +1194,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             IOException;
 
     /**
-     * @deprecated in 4.0, use {@link #readPixels(int, int, int, int, double[], ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #readPixels(int,int,int,int,double[],ProgressMonitor)}
      */
     public double[] readPixels(int x, int y, int w, int h, double[] pixels) throws IOException {
         return readPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1218,7 +1218,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             IOException;
 
     /**
-     * @deprecated in 4.0, use {@link #writePixels(int, int, int, int, int[], ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #writePixels(int,int,int,int,int[],ProgressMonitor)}
      */
     public void writePixels(int x, int y, int w, int h, int[] pixels) throws IOException {
         writePixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1237,7 +1237,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public abstract void writePixels(int x, int y, int w, int h, int[] pixels, ProgressMonitor pm) throws IOException;
 
     /**
-     * @deprecated in 4.0, use {@link #writePixels(int, int, int, int, float[], ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #writePixels(int,int,int,int,float[],ProgressMonitor)}
      */
     public synchronized void writePixels(int x, int y, int w, int h, float[] pixels) throws IOException {
         writePixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1256,7 +1256,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public abstract void writePixels(int x, int y, int w, int h, float[] pixels, ProgressMonitor pm) throws IOException;
 
     /**
-     * @deprecated in 4.0, use {@link #writePixels(int, int, int, int, double[], ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #writePixels(int,int,int,int,double[],ProgressMonitor)}
      */
     public void writePixels(int x, int y, int w, int h, double[] pixels) throws IOException {
         writePixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1311,13 +1311,13 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #loadRasterData
      * @deprecated in 4.0, this method is neither thread save nor is it a good idea to store huge amounts of raster
      *             data in this product element. Use
-     *             {@link #readRasterData(int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor) readRasterData}
+     *             {@link #readRasterData(int,int,int,int,ProductData,com.bc.ceres.core.ProgressMonitor) readRasterData}
      *             instead to read raster data tile-wise.
      */
     public abstract void readRasterDataFully(ProgressMonitor pm) throws IOException;
 
     /**
-     * @deprecated in 4.0, use {@link #readRasterData(int, int, int, int, ProductData, ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #readRasterData(int,int,int,int,ProductData,ProgressMonitor)}
      */
     public void readRasterData(int offsetX, int offsetY,
                                int width, int height,
@@ -1341,7 +1341,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @throws IllegalArgumentException if the raster is null
      * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
      *                                  which this product raster belongs to, has no associated product reader
-     * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData(Band, int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor)
+     * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData(Band,int,int,int,int,ProductData,com.bc.ceres.core.ProgressMonitor)
      */
     public abstract void readRasterData(int offsetX, int offsetY,
                                         int width, int height,
@@ -1381,7 +1381,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public abstract void writeRasterDataFully(ProgressMonitor pm) throws IOException;
 
     /**
-     * @deprecated in 4.0, use {@link #writeRasterData(int, int, int, int, ProductData, ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #writeRasterData(int,int,int,int,ProductData,ProgressMonitor)} instead
      */
     public void writeRasterData(int offsetX, int offsetY, int width, int height, ProductData rasterData)
             throws IOException {
@@ -1404,7 +1404,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @throws IllegalArgumentException if the raster is null
      * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
      *                                  which this product raster belongs to, has no associated product reader
-     * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData(Band, int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor)
+     * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData(Band,int,int,int,int,ProductData,com.bc.ceres.core.ProgressMonitor)
      */
     public abstract void writeRasterData(int offsetX, int offsetY,
                                          int width, int height,
@@ -1545,6 +1545,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Gets all associated bitmask definitions. An empty arry is returned if no bitmask defintions are associated.
+     *
      * @return Associated bitmask definitions.
      * @see #getBitmaskOverlayInfo()
      * @see #setBitmaskOverlayInfo(BitmaskOverlayInfo)
@@ -1589,14 +1590,14 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @return a valid image information instance, never <code>null</code>.
      * @throws IOException if an I/O error occurs
-     * @see #ensureValidImageInfo(double[], boolean)
+     * @see #ensureValidImageInfo(double[],boolean)
      */
     public ImageInfo ensureValidImageInfo() throws IOException {
         return ensureValidImageInfo(null, true, ProgressMonitor.NULL);
     }
 
     /**
-     * @deprecated in 4.0, use {@link #ensureValidImageInfo(double[], boolean, ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #ensureValidImageInfo(double[],boolean,ProgressMonitor)}
      */
     public ImageInfo ensureValidImageInfo(double[] histoSkipAreas, boolean ignoreInvalidZero) throws IOException {
         return ensureValidImageInfo(histoSkipAreas, ignoreInvalidZero, ProgressMonitor.NULL);
@@ -1626,7 +1627,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * @deprecated in 4.0, use {@link #createDefaultImageInfo(double[], boolean, ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #createDefaultImageInfo(double[],boolean,ProgressMonitor)}
      */
     public ImageInfo createDefaultImageInfo(double[] histoSkipAreas, boolean ignoreInvalidZero) throws IOException {
         return createDefaultImageInfo(histoSkipAreas, ignoreInvalidZero, ProgressMonitor.NULL);
@@ -1776,7 +1777,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * @deprecated in 4.0, use {@link #createROIImage(java.awt.Color, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #createROIImage(java.awt.Color,com.bc.ceres.core.ProgressMonitor)} instead
      */
     public synchronized BufferedImage createROIImage(final Color color) throws IOException {
         return createROIImage(color, ProgressMonitor.NULL);
@@ -2055,7 +2056,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * @deprecated in 4.0, use {@link #quantizeRasterData(double, double, double, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #quantizeRasterData(double,double,double,com.bc.ceres.core.ProgressMonitor)} instead
      */
     public byte[] quantizeRasterData(final double newMin, final double newMax, final double gamma) throws IOException {
         return quantizeRasterData(newMin, newMax, gamma, ProgressMonitor.NULL);
@@ -2069,7 +2070,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * @deprecated in 4.0, use {@link #quantizeRasterData(double, double, double, byte[], int, com.bc.ceres.core.ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #quantizeRasterData(double,double,double,byte[],int,com.bc.ceres.core.ProgressMonitor)}
      */
     public void quantizeRasterData(double newMin, double newMax, final double gamma, byte[] rgbSamples,
                                    int offset) throws IOException {
@@ -2098,7 +2099,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * @deprecated in 4.0, use {@link #computeRasterDataHistogram(ROI, int, Range, ProgressMonitor)}
+     * @deprecated in 4.0, use {@link #computeRasterDataHistogram(ROI,int,Range,ProgressMonitor)}
      */
     public Histogram computeRasterDataHistogram(final ROI roi,
                                                 final int numBins,
@@ -2164,7 +2165,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * @deprecated in 4.0, use {@link #computeRasterDataRange(javax.media.jai.ROI, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #computeRasterDataRange(javax.media.jai.ROI,com.bc.ceres.core.ProgressMonitor)} instead
      */
     public Range computeRasterDataRange(final ROI roi) throws IOException {
         return computeRasterDataRange(roi, ProgressMonitor.NULL);
@@ -2194,7 +2195,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * @deprecated in 4.0, use {@link #computeStatistics(javax.media.jai.ROI, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #computeStatistics(javax.media.jai.ROI,com.bc.ceres.core.ProgressMonitor)} instead
      */
     public Statistics computeStatistics(final ROI roi) throws IOException {
         return computeStatistics(roi, ProgressMonitor.NULL);
@@ -2379,7 +2380,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     public final double scaleInverse(double v) {
         if (_log10Scaled) {
-            v = MathUtils.log10(v);
+            v = Math.log10(v);
         }
         return (v - _scalingOffset) / _scalingFactor;
     }
@@ -2619,7 +2620,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * @deprecated in 4.1, use {@link RasterDataNode#createPixelValidator(int, javax.media.jai.ROI)}
+     * @deprecated in 4.1, use {@link RasterDataNode#createPixelValidator(int,javax.media.jai.ROI)}
      */
     public class PixelValidator implements IndexValidator {
 
