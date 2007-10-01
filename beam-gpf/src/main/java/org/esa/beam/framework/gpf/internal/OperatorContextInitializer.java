@@ -92,9 +92,12 @@ public class OperatorContextInitializer {
         final GpfOpImage[] targetImages = new GpfOpImage[bands.length];
         for (int i = 0; i < bands.length; i++) {
             Band band = bands[i];
-            GpfOpImage opImage = new GpfOpImage(band, operatorContext);
+            GpfOpImage opImage = (GpfOpImage) band.getImage();
+            if (opImage == null) {
+                opImage = new GpfOpImage(band, operatorContext);
+                band.setImage(opImage);
+            }
             targetImages[i] = opImage;
-            band.setImage(opImage);
         }
         return targetImages;
     }
