@@ -51,8 +51,7 @@ public class ChrisConstants {
     public static final String ATTR_NAME_KEY_TO_MASK = "Key to Mask";
     public static final String ATTR_NAME_IMAGE_FLIPPED_ALONG_TRACK = "Image Flipped Along-Track";
 
-    public static final String ATTR_NAME_NR_APPLIED = "Noise Reduction Applied";
-    public static final String ATTR_NAME_NR_ACQUISITION_SET = "Noise Reduction Acquisition Set";
+    public static final String ATTR_NAME_NOISE_REDUCTION = "Noise Reduction";
 
 // Scientific data set names
     static final String SDS_NAME_RCI_IMAGE = "RCI Image";

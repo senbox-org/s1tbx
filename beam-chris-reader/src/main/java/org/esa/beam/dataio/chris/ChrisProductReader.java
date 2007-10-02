@@ -178,13 +178,16 @@ public class ChrisProductReader extends AbstractProductReader {
                 continue;
             }
             final String globalAttribute = chrisFile.getGlobalAttribute(name);
-            final ProductData data = ProductData.createInstance(globalAttribute);
-            mph.addAttribute(new MetadataAttribute(name, data, true));
+            mph.addAttribute(new MetadataAttribute(name,
+                                                   ProductData.createInstance(globalAttribute), true));
 
             if (ChrisConstants.ATTR_NAME_SOLAR_ZENITH_ANGLE.equals(name)) {
                 addSolarAzimuthAngleIfPossible(product, mph);
             }
         }
+
+        mph.addAttribute(new MetadataAttribute(ChrisConstants.ATTR_NAME_NOISE_REDUCTION,
+                                               ProductData.createInstance("None"), true));
 
         final MetadataElement modeInfo = new MetadataElement("Mode Information");
         for (int i = 0; i < chrisFile.getSpectralBandCount(); i++) {
