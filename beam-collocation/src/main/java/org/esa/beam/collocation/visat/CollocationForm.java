@@ -131,8 +131,8 @@ public class CollocationForm extends JPanel {
                                                                    new Font("Tahoma", 0, 11),
                                                                    new Color(0, 70, 213)));
         resamplingPanel.add(new JLabel("Method:"));
-        resamplingPanel.add(new JComboBox(new String[]{"Nearest Neighbor", "Bilinear Interpolation",
-                "Bicubic Interpolation"}));
+        resamplingPanel.add(new JComboBox(new String[]{"Nearest Neighbor", "Bilinear Convolution",
+                "Bicubic Convolution"}));
         resamplingPanel.add(new JLabel());
 
         add(inputPanel, BorderLayout.NORTH);

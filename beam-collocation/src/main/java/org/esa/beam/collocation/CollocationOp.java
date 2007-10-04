@@ -41,7 +41,7 @@ public class CollocationOp extends AbstractOperator {
     private transient List<Band> slaveBandList;
 
     @Override
-    protected Product initialize(ProgressMonitor pm) throws OperatorException {
+    protected Product initialize() throws OperatorException {
         // todo - name and type
         targetProduct = new Product("CollocationProduct", "COLLOCATION",
                                     masterProduct.getSceneRasterWidth(),
@@ -96,10 +96,12 @@ public class CollocationOp extends AbstractOperator {
     }
 
     @Override
-    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+    public void computeTile(Band targetBand, Tile targetTile) throws OperatorException {
+
         if (slaveBandList.contains(targetBand)) {
-            collocateSlaveBand(targetBand, targetTile, pm);
+            collocateSlaveBand(targetBand, targetTile);
         } else {
+            final ProgressMonitor pm = createProgressMonitor();
             try {
                 pm.beginTask("copying master band", targetTile.getHeight());
 
@@ -124,7 +126,8 @@ public class CollocationOp extends AbstractOperator {
         slaveBandList = null;
     }
 
-    private void collocateSlaveBand(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+    private void collocateSlaveBand(Band targetBand, Tile targetTile) throws OperatorException {
+        final ProgressMonitor pm = createProgressMonitor();
         try {
             pm.beginTask("collocating slave band", targetTile.getHeight());
 
