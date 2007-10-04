@@ -38,4 +38,12 @@
             <placeAfter>orthorectification</placeAfter>
         </action>
     </extension>
+
+    <extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+            <path>doc/help/collocation.hs</path>
+        </helpSet>
+    </extension>
+
 </module>
