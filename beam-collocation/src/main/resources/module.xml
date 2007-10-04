@@ -1,0 +1,41 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-collocation</symbolicName>
+    <version>1.0-SNAPSHOT</version>
+    <name>Geographic Colocation</name>
+
+    <description>
+        Geographic collocation tool.
+    </description>
+
+    <changelog>
+        <![CDATA[ ]]>
+    </changelog>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <dependency>
+        <module>beam-visat</module>
+        <optional>true</optional>
+    </dependency>
+    <dependency>
+        <module>beam-gpf</module>
+    </dependency>
+
+    <categories>VISAT,Processing,Collocation</categories>
+
+    <extension point="beam-visat:actions">
+        <action>
+            <id>collocation</id>
+            <helpID>collocation</helpID>
+            <class>org.esa.beam.collocation.visat.CollocationAction</class>
+            <parent>tools</parent>
+            <text>Geographic Collocation...</text>
+            <placeAfter>orthorectification</placeAfter>
+        </action>
+    </extension>
+</module>
