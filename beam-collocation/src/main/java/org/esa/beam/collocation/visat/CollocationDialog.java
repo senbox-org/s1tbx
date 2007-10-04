@@ -1,16 +1,11 @@
 package org.esa.beam.collocation.visat;
 
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.swing.progress.DialogProgressMonitor;
+import com.jidesoft.dialog.JideOptionPane;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.visat.VisatApp;
 
-import java.awt.Dialog;
 import java.awt.Window;
-import java.util.HashMap;
 
 /**
  * Created by IntelliJ IDEA.
@@ -39,6 +34,9 @@ class CollocationDialog extends ModalDialog {
 
     @Override
     protected void onOK() {
+        VisatApp.getApp().showMessageDialog("Geographic Collocation", "Not implemented yet.",
+                                            JideOptionPane.INFORMATION_MESSAGE, null);
+        /* prototype code
         final Product targetProduct;
         try {
             DialogProgressMonitor pm = new DialogProgressMonitor(getJDialog(), "Geographic Collocation",
@@ -57,8 +55,10 @@ class CollocationDialog extends ModalDialog {
             showErrorDialog(e.getMessage());
             return;
         }
+        */
         super.onOK();
+        /*
         VisatApp.getApp().addProduct(targetProduct);
+        */
     }
-
 }

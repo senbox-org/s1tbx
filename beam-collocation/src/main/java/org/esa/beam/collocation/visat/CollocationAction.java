@@ -17,7 +17,7 @@ public class CollocationAction extends ExecCommand {
     @Override
     public void updateState(CommandEvent event) {
         final Product selectedProduct = VisatApp.getApp().getSelectedProduct();
-        setEnabled(false);
+        setEnabled(selectedProduct != null);
     }
 
     @Override

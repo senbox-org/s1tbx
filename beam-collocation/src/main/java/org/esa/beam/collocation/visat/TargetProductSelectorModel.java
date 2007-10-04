@@ -23,7 +23,6 @@ public class TargetProductSelectorModel {
 
     public TargetProductSelectorModel(boolean saveToFile) {
         formatNames = ProductIOPlugInManager.getInstance().getAllProductWriterFormatStrings();
-        productName = "Asterix";
         setSaveToFileSelected(saveToFile);
         setFormatName(formatNames[0]);
     }

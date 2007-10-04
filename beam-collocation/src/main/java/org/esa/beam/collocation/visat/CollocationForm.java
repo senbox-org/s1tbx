@@ -58,8 +58,8 @@ public class CollocationForm extends JPanel {
                                                               new Font("Tahoma", 0, 11),
                                                               new Color(0, 70, 213)));
 
-        final SourceProductSelector masterSelector = new SourceProductSelector(new Product[0], "Master:");
-        final SourceProductSelector slaveSelector = new SourceProductSelector(new Product[0], "Slave:");
+        final SourceProductSelector masterSelector = new SourceProductSelector(new Product[0], "Reference:");
+        final SourceProductSelector slaveSelector = new SourceProductSelector(new Product[0], "Collocate:");
 
         inputPanel.add(masterSelector.getLabel());
         inputPanel.add(masterSelector.getComboBox());
@@ -131,7 +131,8 @@ public class CollocationForm extends JPanel {
                                                                    new Font("Tahoma", 0, 11),
                                                                    new Color(0, 70, 213)));
         resamplingPanel.add(new JLabel("Method:"));
-        resamplingPanel.add(new JComboBox(new String[]{"Method 1", "Method 2", "Method 3"}));
+        resamplingPanel.add(new JComboBox(new String[]{"Nearest Neighbor", "Bilinear Interpolation",
+                "Bicubic Interpolation"}));
         resamplingPanel.add(new JLabel());
 
         add(inputPanel, BorderLayout.NORTH);
