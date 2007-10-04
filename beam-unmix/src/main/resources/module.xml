@@ -42,4 +42,11 @@
         </action>
     </extension>
 
+    <extension point="beam-ui:helpSets">
+        <helpSet>
+            <parent>beam-help</parent>
+            <path>doc/help/unmixing.hs</path>
+        </helpSet>
+    </extension>
+
 </module>
