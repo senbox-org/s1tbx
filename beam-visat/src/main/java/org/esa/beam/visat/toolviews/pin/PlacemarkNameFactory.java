@@ -22,7 +22,7 @@ public class PlacemarkNameFactory {
         int pinNumber = placemarkGroup.getNodeCount() + 1;
         String name = createName(placemarkDescriptor, pinNumber);
         while (placemarkGroup.get(name) != null) {
-            name = createName(placemarkDescriptor, pinNumber);
+            name = createName(placemarkDescriptor, ++pinNumber);
         }
         final String label = createLabel(placemarkDescriptor, pinNumber, true);
         return new String[]{name, label};
