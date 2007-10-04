@@ -59,7 +59,7 @@ public class WriteRGBOp extends AbstractOperator {
     private Product sourceProduct;
 
     @Override
-    public Product initialize(ProgressMonitor pm) throws OperatorException {
+    public Product initialize() throws OperatorException {
         bandMap = new HashMap<Band, Band>(3);
         dataMap = new HashMap<Band, ProductData>(3);
         rgbChannelNodes = new RasterDataNode[3];
@@ -89,7 +89,7 @@ public class WriteRGBOp extends AbstractOperator {
     }
 
     @Override
-    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+    public void computeTile(Band band, Tile targetTile) throws OperatorException {
         Rectangle rectangle = targetTile.getRectangle();
 
         Band sourceBand = bandMap.get(band);

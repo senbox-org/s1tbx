@@ -1,6 +1,5 @@
 package org.esa.beam.framework.gpf.internal;
 
-import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.OperatorContext;
@@ -54,7 +53,7 @@ public class GpfOpImage extends RasterDataNodeOpImage {
             }
             // Compute target GPF rasters
             System.out.println(">> computeAllBands: this = " + this + ", destRect" + destRect);
-            operatorContext.getOperator().computeTileStack(targetTiles, destRect, ProgressMonitor.NULL);
+            operatorContext.getOperator().computeTileStack(targetTiles, destRect);
             System.out.println("<< computeAllBands: this = " + this + ", destRect" + destRect);
 
             // Write computed target GPF rasters into associated AWT tiles
@@ -72,7 +71,7 @@ public class GpfOpImage extends RasterDataNodeOpImage {
             // Compute target GPF raster
             final long t0 = System.currentTimeMillis();
             System.out.println(">> computeBand: this = " + this + ", targetRectangle" + targetTile.getRectangle());
-            operatorContext.getOperator().computeTile(getBand(), targetTile, ProgressMonitor.NULL);
+            operatorContext.getOperator().computeTile(getBand(), targetTile);
             System.out.println("<< computeBand: time = " + (System.currentTimeMillis() - t0) + " ms");
 
             // Write computed target GPF raster into associated AWT tile

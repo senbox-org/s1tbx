@@ -61,14 +61,14 @@ public class GraphProcessingObserverTest extends TestCase {
     public static class OpMock extends AbstractOperator {
 
         @Override
-        protected Product initialize(ProgressMonitor pm) throws OperatorException {
+        protected Product initialize() throws OperatorException {
             Product product = new Product(getClass().getSimpleName(), getClass().getSimpleName(), 10, 10);
             product.addBand("band_1", ProductData.TYPE_INT32);
             return product;
         }
 
         @Override
-        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+        public void computeTile(Band band, Tile targetTile) throws OperatorException {
         }
 
         public static class Spi extends AbstractOperatorSpi {

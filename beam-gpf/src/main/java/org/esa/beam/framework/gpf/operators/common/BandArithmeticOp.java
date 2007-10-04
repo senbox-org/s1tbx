@@ -92,7 +92,7 @@ public class BandArithmeticOp extends AbstractOperator implements ParameterConve
     }
 
     @Override
-    protected Product initialize(ProgressMonitor pm) throws OperatorException {
+    protected Product initialize() throws OperatorException {
         int height = sourceProducts[0].getSceneRasterHeight();
         int width = sourceProducts[0].getSceneRasterWidth();
         targetProduct = new Product(productName, "EXP", width, height);
@@ -149,7 +149,7 @@ public class BandArithmeticOp extends AbstractOperator implements ParameterConve
     }
 
     @Override
-    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+    public void computeTile(Band band, Tile targetTile) throws OperatorException {
         BandDescriptor bandDescriptor = getDesriptionForTile(targetTile);
 
         Rectangle rect = targetTile.getRectangle();
@@ -182,6 +182,7 @@ public class BandArithmeticOp extends AbstractOperator implements ParameterConve
 
         final RasterDataEvalEnv env = new RasterDataEvalEnv(rect.x, rect.y, rect.width, rect.height);
         int pixelIndex = 0;
+        ProgressMonitor pm = createProgressMonitor();
         pm.beginTask("Evaluating expression", rect.height);
         try {
             for (int y = rect.y; y < rect.y + rect.height; y++) {

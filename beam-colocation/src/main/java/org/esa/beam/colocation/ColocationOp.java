@@ -41,7 +41,7 @@ public class ColocationOp extends AbstractOperator {
     private transient List<Band> slaveBandList;
 
     @Override
-    protected Product initialize(ProgressMonitor pm) throws OperatorException {
+    protected Product initialize() throws OperatorException {
         // todo - name and type
         targetProduct = new Product("ColocationProduct", "COLOCATION",
                                     masterProduct.getSceneRasterWidth(),
@@ -96,7 +96,8 @@ public class ColocationOp extends AbstractOperator {
     }
 
     @Override
-    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+    public void computeTile(Band targetBand, Tile targetTile) throws OperatorException {
+        ProgressMonitor pm = createProgressMonitor();
         if (slaveBandList.contains(targetBand)) {
             collocateSlaveBand(targetBand, targetTile, pm);
         } else {

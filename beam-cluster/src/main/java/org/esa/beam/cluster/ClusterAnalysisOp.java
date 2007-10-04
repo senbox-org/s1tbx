@@ -72,7 +72,7 @@ public class ClusterAnalysisOp extends AbstractOperator implements ParameterConv
     }
 
     @Override
-    protected Product initialize(ProgressMonitor pm) throws OperatorException {
+    protected Product initialize() throws OperatorException {
         featureBands = new Band[featureBandNames.length];
         for (int i = 0; i < featureBandNames.length; i++) {
             String featureBandName = featureBandNames[i];
@@ -100,7 +100,7 @@ public class ClusterAnalysisOp extends AbstractOperator implements ParameterConv
     }
 
     @Override
-    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+    public void computeTile(Band band, Tile targetTile) throws OperatorException {
         if (clucov == null) {
             try {
                 computeClusters();

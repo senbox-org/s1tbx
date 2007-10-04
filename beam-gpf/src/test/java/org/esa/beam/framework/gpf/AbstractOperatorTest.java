@@ -33,13 +33,13 @@ public class AbstractOperatorTest extends TestCase {
         private boolean initCalled;
 
         @Override
-        protected Product initialize(ProgressMonitor pm) throws OperatorException {
+        protected Product initialize() throws OperatorException {
             initCalled = true;
             return new Product("x", "x", 1, 1);
         }
 
         @Override
-        public void computeTile(Band band, Tile tile, ProgressMonitor pm) throws OperatorException {
+        public void computeTile(Band band, Tile tile) throws OperatorException {
         }
 
         public boolean isInitDelegatingToInit() {
@@ -89,6 +89,10 @@ public class AbstractOperatorTest extends TestCase {
 
         public OperatorSpi getOperatorSpi() {
             return null;
+        }
+
+        public boolean isCancellationRequested() {
+            return false;
         }
     }
 }

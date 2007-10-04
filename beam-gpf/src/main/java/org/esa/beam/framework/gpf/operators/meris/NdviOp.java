@@ -1,11 +1,12 @@
 package org.esa.beam.framework.gpf.operators.meris;
 
-import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
+
+import com.bc.ceres.core.ProgressMonitor;
 
 import java.awt.Color;
 import java.awt.Rectangle;
@@ -41,7 +42,7 @@ public class NdviOp extends AbstractOperator {
     private Product targetProduct;
 
     @Override
-    protected Product initialize(ProgressMonitor pm) throws OperatorException {
+    protected Product initialize() throws OperatorException {
         loadSourceBands(inputProduct);
         int sceneWidth = inputProduct.getSceneRasterWidth();
         int sceneHeight = inputProduct.getSceneRasterHeight();
@@ -90,8 +91,8 @@ public class NdviOp extends AbstractOperator {
     }
 
     @Override
-    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
-
+    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle rectangle) throws OperatorException {
+        ProgressMonitor pm = createProgressMonitor();
         pm.beginTask("Computing NDVI", rectangle.height + 1);
         try {
 

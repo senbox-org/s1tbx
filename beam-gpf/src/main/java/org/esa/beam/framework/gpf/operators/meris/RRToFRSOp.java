@@ -16,12 +16,13 @@
  */
 package org.esa.beam.framework.gpf.operators.meris;
 
-import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
+
+import com.bc.ceres.core.ProgressMonitor;
 
 import java.awt.Rectangle;
 
@@ -44,7 +45,7 @@ public class RRToFRSOp extends AbstractOperator {
     private Product targetProduct;
 
     @Override
-    protected Product initialize(ProgressMonitor pm) throws OperatorException {
+    protected Product initialize() throws OperatorException {
         rrGeoCoding = rrProduct.getGeoCoding();
         frsGeoCoding = frsProduct.getGeoCoding();
 
@@ -73,11 +74,11 @@ public class RRToFRSOp extends AbstractOperator {
     }
 
     @Override
-    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+    public void computeTile(Band band, Tile targetTile) throws OperatorException {
 
         Rectangle frsRectangle = targetTile.getRectangle();
         Band rrSrcBand = rrProduct.getBand(band.getName());
-
+        ProgressMonitor pm = createProgressMonitor();
         pm.beginTask("compute", frsRectangle.height);
 
         PixelPos frsPixelPos = new PixelPos(frsRectangle.x, frsRectangle.y);

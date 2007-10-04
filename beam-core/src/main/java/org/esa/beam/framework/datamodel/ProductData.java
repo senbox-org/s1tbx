@@ -413,7 +413,7 @@ public abstract class ProductData implements Cloneable {
         } else if (TYPESTRING_UTC.equals(type)) {
             return TYPE_UTC;
         } else if (TYPESTRING_BOOLEAN.equals(type)) {
-            return TYPE_BOOLEAN;
+            return TYPE_INT8;
         }
         return TYPE_UNDEFINED;
     }

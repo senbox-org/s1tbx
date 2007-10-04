@@ -16,7 +16,6 @@
  */
 package org.esa.beam.framework.gpf.operators.common;
 
-import com.bc.ceres.core.ProgressMonitor;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.XppDomReader;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
@@ -74,7 +73,7 @@ public class ProductMergeOp extends AbstractOperator implements ParameterConvert
     }
 
     @Override
-    protected Product initialize(ProgressMonitor pm) throws OperatorException {
+    protected Product initialize() throws OperatorException {
 
         Product outputProduct;
         if (StringUtils.isNotNullAndNotEmpty(config.baseGeoInfo)) {
@@ -162,7 +161,7 @@ public class ProductMergeOp extends AbstractOperator implements ParameterConvert
     }
 
     @Override
-    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+    public void computeTile(Band band, Tile targetTile) throws OperatorException {
         Rectangle rectangle = targetTile.getRectangle();
         Band sourceBand = sourceBands.get(band);
         Tile sourceTile = getSourceTile(sourceBand, rectangle);

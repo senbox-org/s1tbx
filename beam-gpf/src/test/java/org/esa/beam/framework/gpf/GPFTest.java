@@ -70,12 +70,11 @@ public class GPFTest extends TestCase {
          * Called by {@link #initialize(org.esa.beam.framework.gpf.OperatorContext, com.bc.ceres.core.ProgressMonitor)} after the {@link org.esa.beam.framework.gpf.OperatorContext}
          * is stored.
          *
-         * @param pm a progress monitor. Can be used to signal progress.
          * @return the target product
          * @see #initialize(org.esa.beam.framework.gpf.OperatorContext, com.bc.ceres.core.ProgressMonitor)
          */
         @Override
-        protected Product initialize(ProgressMonitor pm) throws OperatorException {
+        protected Product initialize() throws OperatorException {
             Product product = new Product("X", "Y", sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
             String[] bandNames = sourceProduct.getBandNames();
             for (String s : bandNames) {
@@ -90,7 +89,7 @@ public class GPFTest extends TestCase {
          * <p>The default implementation throws a runtime exception with the message "not implemented"</p>.
          */
         @Override
-        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+        public void computeTile(Band band, Tile targetTile) throws OperatorException {
             Tile sourceTile = getSourceTile(sourceProduct.getBand(band.getName()), targetTile.getRectangle());
             int n = targetTile.getRawSampleData().getNumElems();
             for (int i = 0; i < n; i++) {

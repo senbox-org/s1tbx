@@ -50,12 +50,12 @@ public class TargetProductAnnotationValidationTest extends TestCase {
         Product output;
 
         @Override
-        protected Product initialize(ProgressMonitor pm) throws OperatorException {
+        protected Product initialize() throws OperatorException {
             return new Product("output", "outputType", 12, 12);
         }
 
         @Override
-        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+        public void computeTile(Band band, Tile targetTile) throws OperatorException {
         }
 
         public static class Spi extends AbstractOperatorSpi {

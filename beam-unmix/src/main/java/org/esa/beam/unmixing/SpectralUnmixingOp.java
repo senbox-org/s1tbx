@@ -15,7 +15,6 @@
 package org.esa.beam.unmixing;
 
 import Jama.Matrix;
-import com.bc.ceres.core.ProgressMonitor;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
@@ -130,7 +129,7 @@ public class SpectralUnmixingOp extends AbstractOperator implements ParameterCon
     }
 
     @Override
-    protected Product initialize(ProgressMonitor pm) throws OperatorException {
+    protected Product initialize() throws OperatorException {
         if (endmemberFile != null) {
             loadEndmemberFile();
         }
@@ -242,7 +241,7 @@ public class SpectralUnmixingOp extends AbstractOperator implements ParameterCon
     }
 
     @Override
-    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+    public void computeTile(Band band, Tile targetTile) throws OperatorException {
         Rectangle rectangle = targetTile.getRectangle();
         int j = getTargetBandIndex(targetTile);
         if (j == -1) {
@@ -257,7 +256,7 @@ public class SpectralUnmixingOp extends AbstractOperator implements ParameterCon
     }
 
     @Override
-    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetTileRectangle, ProgressMonitor pm) throws OperatorException {
+    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetTileRectangle) throws OperatorException {
     	Tile[] targetRaster = new Tile[targetBands.length];
     	Tile[] sourceRaster = getSourceTile(targetTileRectangle);
     	for (int j = 0; j < targetBands.length; j++) {

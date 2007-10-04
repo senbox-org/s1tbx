@@ -263,4 +263,8 @@ public class DefaultOperatorContext implements OperatorContext {
             }
         }
     }
+
+    public boolean isCancellationRequested() {
+        return false;
+    }
 }

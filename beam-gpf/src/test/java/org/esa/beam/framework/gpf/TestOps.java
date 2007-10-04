@@ -1,6 +1,5 @@
 package org.esa.beam.framework.gpf;
 
-import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -35,14 +34,14 @@ public class TestOps {
         private Product targetProduct;
 
         @Override
-        public Product initialize(ProgressMonitor pm) {
+        public Product initialize() {
             targetProduct = new Product("Op1Name", "Op1Type", RASTER_WIDTH, RASTER_HEIGHT);
             targetProduct.addBand(new Band("Op1A", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
             return targetProduct;
         }
 
         @Override
-        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) {
+        public void computeTile(Band band, Tile targetTile) {
             System.out.println("=====>>>>>> Op1.computeBand  start");
             registerCall("Op1;");
             System.out.println("=====>>>>>> Op1.computeBand  end");
@@ -68,7 +67,7 @@ public class TestOps {
         public Product output;
 
         @Override
-        public Product initialize(ProgressMonitor pm) {
+        public Product initialize() {
             output = new Product("Op2Name", "Op2Type", RASTER_WIDTH, RASTER_HEIGHT);
             output.addBand(new Band("Op2A", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
             output.addBand(new Band("Op2B", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
@@ -76,7 +75,7 @@ public class TestOps {
         }
 
         @Override
-        public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
+        public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle rectangle) throws OperatorException {
             System.out.println("=====>>>>>> Op2.computeAllBands  start");
             Tile tile1A = getSourceTile(input.getBand("Op1A"), rectangle);
             
@@ -115,7 +114,7 @@ public class TestOps {
         public Product output;
 
         @Override
-        public Product initialize(ProgressMonitor pm) {
+        public Product initialize() {
             output = new Product("Op3Name", "Op3Type", RASTER_WIDTH, RASTER_HEIGHT);
             output.addBand(new Band("Op3A", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
             output.addBand(new Band("Op3B", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
@@ -125,7 +124,7 @@ public class TestOps {
         }
 
         @Override
-        public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
+        public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle rectangle) throws OperatorException {
             System.out.println("=====>>>>>> Op3.computeAllBands  start");
 
             Tile tile1A = getSourceTile(input1.getBand("Op1A"), rectangle);

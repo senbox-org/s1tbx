@@ -1,18 +1,19 @@
 package org.esa.beam.framework.gpf;
 
-import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-
 import java.awt.Rectangle;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+
+import com.bc.ceres.core.ProgressMonitor;
+
 /**
  * The abstract base class for all operators.
  * <p>This class is intended to be extended by clients. At least two methods need to be implemented.
- * The method {@link #initialize(ProgressMonitor) initialize()} has to be implemented always.
+ * The method {@link #initialize() initialize()} has to be implemented always.
  * It should setup all the things the operator needs to run.</p>
  * <p/>
  * Additionally one of {@link #computeBand(Tile, ProgressMonitor)  computeBand()} and
@@ -97,29 +98,28 @@ public abstract class AbstractOperator implements Operator {
     /**
      * {@inheritDoc}
      * <p>The default implementation stores the given <code>OperatorContext</code> for later use and returns
-     * {@link #initialize(ProgressMonitor)}.</p>
+     * {@link #initialize()}.</p>
      */
     public final Product initialize(OperatorContext context, ProgressMonitor pm) throws OperatorException {
         this.context = context;
-        return initialize(pm);
+        return initialize();
     }
 
     /**
      * Called by {@link #initialize(OperatorContext, ProgressMonitor)} after the {@link OperatorContext}
      * is stored.
      *
-     * @param pm a progress monitor. Can be used to signal progress.
      * @return the target product
      * @see #initialize(OperatorContext, ProgressMonitor)
      */
-    protected abstract Product initialize(ProgressMonitor pm) throws OperatorException;
+    protected abstract Product initialize() throws OperatorException;
 
     /**
      * {@inheritDoc}
      * <p/>
      * <p>The default implementation throws a runtime exception with the message "not implemented"</p>.
      */
-    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+    public void computeTile(Band band, Tile targetTile) throws OperatorException {
     	throw new OperatorException("not implemented (only Band supported)");
    	}
 
@@ -128,7 +128,7 @@ public abstract class AbstractOperator implements Operator {
      * <p/>
      * <p>The default implementation throws a runtime exception with the message "not implemented"</p>.
      */
-    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
+    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle) throws OperatorException {
         throw new OperatorException("not implemented");
     }
 
@@ -138,5 +138,24 @@ public abstract class AbstractOperator implements Operator {
      * <p>The default implementation does nothing.</p>
      */
     public void dispose() {
+    }
+    
+    /**
+     * Returns true, if the computation should be canceled
+     * 
+     * @return true if computation should be canceled
+     */
+    protected boolean isCancellationRequested() {
+        return context.isCancellationRequested();
+    }
+    
+    /**
+     * Return a progress monitor, that can be used by an operator
+     * that want's to show progress
+     * 
+     * @return a progress monitor
+     */
+    protected ProgressMonitor createProgressMonitor() {
+        return ProgressMonitor.NULL;
     }
 }

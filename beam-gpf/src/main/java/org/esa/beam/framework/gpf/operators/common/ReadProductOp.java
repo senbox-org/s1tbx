@@ -1,17 +1,19 @@
 package org.esa.beam.framework.gpf.operators.common;
 
-import com.bc.ceres.core.ProgressMonitor;
+import java.awt.Rectangle;
+import java.io.IOException;
+
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.AbstractOperator;
+import org.esa.beam.framework.gpf.AbstractOperatorSpi;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-
-import java.awt.Rectangle;
-import java.io.IOException;
 
 /**
  * The <code>LoadProductOperator</code> wrapps the BEAM {@link ProductIO} to load any kind of Product
@@ -37,7 +39,7 @@ public class ReadProductOp extends AbstractOperator {
     private Product targetProduct;
 
     @Override
-    public Product initialize(ProgressMonitor pm) throws OperatorException {
+    public Product initialize() throws OperatorException {
         try {
             targetProduct = ProductIO.readProduct(filePath, null);
             if (targetProduct == null) {
@@ -51,14 +53,13 @@ public class ReadProductOp extends AbstractOperator {
     }
 
     @Override
-    public void computeTile(Band band, Tile targetTile,
-                            ProgressMonitor pm) throws OperatorException {
+    public void computeTile(Band band, Tile targetTile) throws OperatorException {
 
         ProductData dataBuffer = targetTile.getRawSampleData();
         Rectangle rectangle = targetTile.getRectangle();
         try {
             beamReader.readBandRasterData(band, rectangle.x, rectangle.y, rectangle.width,
-                                          rectangle.height, dataBuffer, pm);
+                                          rectangle.height, dataBuffer, createProgressMonitor());
         } catch (IOException e) {
             throw new OperatorException(e);
         }

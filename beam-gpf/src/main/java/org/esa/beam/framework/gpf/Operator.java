@@ -43,20 +43,18 @@ public interface Operator {
      *
      * @param targetBand the target band
      * @param tile       the current tile associated with the target band to be computed
-     * @param pm         a progress monitor. Can be used to signal progress.
      * @throws OperatorException if an error occurs during computation of the target raster
      */
-    void computeTile(Band targetBand, Tile tile, ProgressMonitor pm) throws OperatorException;
+    void computeTile(Band targetBand, Tile tile) throws OperatorException;
 
     /**
      * Called by the framework in order to compute the stack of tiles for the given target bands.
      *
      * @param tileStack     the current tiles to be computed for each target band
      * @param tileRectangle the target area in pixel coordinates to be computed (same for all rasters in <code>targetRasters</code>)
-     * @param pm            a progress monitor. Can be used to signal progress.
      * @throws OperatorException if an error occurs during computation of the target rasters
      */
-    void computeTileStack(Map<Band, Tile> tileStack, Rectangle tileRectangle, ProgressMonitor pm) throws OperatorException;
+    void computeTileStack(Map<Band, Tile> tileStack, Rectangle tileRectangle) throws OperatorException;
 
     /**
      * Releases the resources the operator has acquired during its lifetime.

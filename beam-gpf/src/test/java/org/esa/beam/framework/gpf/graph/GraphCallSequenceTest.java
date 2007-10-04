@@ -337,7 +337,7 @@ public class GraphCallSequenceTest extends TestCase {
         private Product targetProduct;
 
         @Override
-        public Product initialize(ProgressMonitor pm) throws OperatorException {
+        public Product initialize() throws OperatorException {
             recordCall(getContext().getOperatorSpi().getName(), "Operator.initialize");
             return new RecordingProduct((NodeContext) getContext());
         }
@@ -355,7 +355,7 @@ public class GraphCallSequenceTest extends TestCase {
 
         // todo - add tests that verify correct computing output
         @Override
-        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws
+        public void computeTile(Band band, Tile targetTile) throws
                 OperatorException {
             recordCall(getContext().getOperatorSpi().getName(), "Operator.computeBand");
 
@@ -386,7 +386,7 @@ public class GraphCallSequenceTest extends TestCase {
 
         // todo - add tests that verify correct computing output
         @Override
-        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws
+        public void computeTile(Band band, Tile targetTile) throws
                 OperatorException {
             recordCall(getContext().getOperatorSpi().getName(), "Operator.computeBand");
 
@@ -414,7 +414,7 @@ public class GraphCallSequenceTest extends TestCase {
 
         // todo - add tests that verify correct computing output
         @Override
-        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+        public void computeTile(Band band, Tile targetTile) throws OperatorException {
             recordCall(getContext().getOperatorSpi().getName(), "Operator.computeBand");
 
             Tile sourceTile1 = getSourceTile(sourceProduct1.getBandAt(0),

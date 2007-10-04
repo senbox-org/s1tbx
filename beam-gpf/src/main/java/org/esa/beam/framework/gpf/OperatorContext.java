@@ -87,8 +87,8 @@ public interface OperatorContext {
 
     /**
      * Gets a source {@link Tile tile} for a given raster data node and tile rectangle.
-     * Target tiles are passed directly to the operator's {@link org.esa.beam.framework.gpf.Operator#computeTile(org.esa.beam.framework.datamodel.Band,Tile,com.bc.ceres.core.ProgressMonitor) computeBand}
-     * and/or {@link org.esa.beam.framework.gpf.Operator#computeTileStack(java.util.Map,java.awt.Rectangle,com.bc.ceres.core.ProgressMonitor) computeAllBands}
+     * Target tiles are passed directly to the operator's {@link org.esa.beam.framework.gpf.Operator#computeTile(org.esa.beam.framework.datamodel.Band,Tile) computeBand}
+     * and/or {@link org.esa.beam.framework.gpf.Operator#computeTileStack(java.util.Map,java.awt.Rectangle) computeAllBands}
      * methods.
      *
      * @param rasterDataNode the raster data node of a data product, e.g. a {@link org.esa.beam.framework.datamodel.Band} or {@link org.esa.beam.framework.datamodel.TiePointGrid}.
@@ -104,4 +104,11 @@ public interface OperatorContext {
      * @return a logger
      */
     Logger getLogger();
+
+    /**
+     * Returns true, if the computation should be canceled
+     * 
+     * @return true if computation should be canceled
+     */
+    boolean isCancellationRequested();
 }
