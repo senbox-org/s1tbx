@@ -1,9 +1,8 @@
 package org.esa.beam.framework.gpf.internal;
 
-import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.dataio.ProductReader;
-import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -15,7 +14,6 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.jai.JAIUtils;
 
 import java.awt.Dimension;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +41,8 @@ public class OperatorContextInitializer {
             operator = operatorSpi.getOperatorClass().newInstance();
             operatorContext.setOperator(operator);
         } catch (Throwable e) {
-            throw new OperatorException(String.format("Failed to create instance of operator [%s].", operatorSpi.getName()), e);
+            throw new OperatorException(
+                    String.format("Failed to create instance of operator [%s].", operatorSpi.getName()), e);
         }
 
         initAnnotatedSourceProductFields(operatorContext);
@@ -109,7 +108,7 @@ public class OperatorContextInitializer {
     }
 
     private static void initTargetProductFieldIfNotDone(Operator operator, Product targetProduct) throws
-            OperatorException {
+                                                                                                  OperatorException {
         Field[] declaredFields = operator.getClass().getDeclaredFields();
         for (Field declaredField : declaredFields) {
             TargetProduct targetProductAnnotation = declaredField.getAnnotation(TargetProduct.class);
@@ -208,7 +207,7 @@ public class OperatorContextInitializer {
     private static void validateSourceProduct(Product sourceProduct, Field declaredField,
                                               SourceProduct sourceProductAnnotation) throws OperatorException {
         if (!sourceProductAnnotation.type().isEmpty() &&
-                !sourceProductAnnotation.type().equals(sourceProduct.getProductType())) {
+            !sourceProductAnnotation.type().equals(sourceProduct.getProductType())) {
             String msg = String.format(
                     "The source product '%s' must be of type '%s' but is of type '%s'",
                     declaredField.getName(), sourceProductAnnotation.type(),
