@@ -7,7 +7,7 @@ import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.visat.VisatApp;
 
 /**
- * Geographic co-location action.
+ * Geographic colocation action.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$

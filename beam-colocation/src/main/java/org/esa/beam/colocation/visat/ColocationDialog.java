@@ -24,7 +24,7 @@ class ColocationDialog extends ModalDialog {
     private ColocationForm form;
 
     public ColocationDialog(Window parent, Product selectedProduct) {
-        super(parent, "Geographic Collocation", ModalDialog.ID_OK_CANCEL_HELP, "colocation");
+        super(parent, "Geographic Colocation", ModalDialog.ID_OK_CANCEL_HELP, "colocation");
 
         formModel = new ColocationFormModel(selectedProduct);
         form = new ColocationForm(formModel);

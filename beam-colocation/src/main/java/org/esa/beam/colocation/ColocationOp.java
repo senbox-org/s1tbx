@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Collocation operator.
+ * Colocation operator.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$
@@ -43,7 +43,7 @@ public class ColocationOp extends AbstractOperator {
     @Override
     protected Product initialize(ProgressMonitor pm) throws OperatorException {
         // todo - name and type
-        targetProduct = new Product("CollocationProduct", "COLLOCATION",
+        targetProduct = new Product("ColocationProduct", "COLOCATION",
                                     masterProduct.getSceneRasterWidth(),
                                     masterProduct.getSceneRasterHeight());
 
@@ -126,7 +126,7 @@ public class ColocationOp extends AbstractOperator {
 
     private void collocateSlaveBand(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         try {
-            pm.beginTask("collocating slave band", targetTile.getHeight());
+            pm.beginTask("colocating slave band", targetTile.getHeight());
 
             final Band sourceBand = slaveProduct.getBand(targetBand.getName());
             final Resampling.Index resamplingIndex = resampling.createIndex();
