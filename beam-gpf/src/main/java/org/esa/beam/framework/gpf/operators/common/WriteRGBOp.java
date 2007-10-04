@@ -26,7 +26,7 @@ import java.util.Map;
  * create an RGB image file. This Operaor will need the JAI libs on the class
  * path.
  * <p/>
- * Configuration Elements:
+ * Configuration parameters:
  * <ul>
  * <li><b>red</b> the band index of the source band for the red values
  * <li><b>green</b> the band index of the source band for the green values
@@ -34,6 +34,7 @@ import java.util.Map;
  * <li><b>filePath</b> the path of the file to write to
  * <li><b>formatName</b> the format of the file
  * </ul>
+ * {@link org.esa.beam.framework.gpf.OperatorException}
  *
  * @author Maximilian Aulinger
  */
