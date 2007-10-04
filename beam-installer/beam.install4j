@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="4.0.6" transformSequenceNumber="1">
-    <directoryPresets config="./src/main/resources/beam-website.url"/>
+    <directoryPresets config="./src/main/resources/images"/>
     <application name="BEAM" distributionSourceDir="" applicationId="2648-9058-9483-8098"
                  mediaDir="../target/installers"
                  mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}"
                  compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true"
                  keepModificationTimes="true" shortName="beam" publisher="Brockmann Consult"
-                 publisherWeb="http://www.brockmann-consult.de" version="4.1-20070910-01" allPathsRelative="true"
+                 publisherWeb="http://www.brockmann-consult.de" version="4.1-20071001-01" allPathsRelative="true"
                  backupOnSave="true" autoSave="true" convertDotsToUnderscores="false" macSignature="????"
                  javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="true">
         <languages skipLanguageSelection="false">
@@ -182,7 +182,8 @@
                                         <object class="com.install4j.api.beans.ScriptProperty">
                                             <void property="value">
                                                 <string>Math.min(1023, SystemInfo.getPhysicalMemory() / 1024 / 1024) +
-                                                    "M"</string>
+                                                    "M"
+                                                </string>
                                             </void>
                                         </object>
                                     </void>
@@ -212,7 +213,8 @@
                                             </void>
                                             <void index="2">
                                                 <string>
-                                                    -Dbeam.splash.image=${installer:sys.installationDir}/bin/splash.png</string>
+                                                    -Dbeam.splash.image=${installer:sys.installationDir}/bin/splash.png
+                                                </string>
                                             </void>
                                         </array>
                                     </void>
@@ -343,14 +345,9 @@
                                     <void property="launcherId">
                                         <string>19</string>
                                     </void>
-                                    <void property="macIconFile">
-                                        <object class="com.install4j.api.beans.ExternalFile">
-                                            <string>./src/main/resources/images/visat-icon-32.png</string>
-                                        </object>
-                                    </void>
                                     <void property="windowsIconFile">
                                         <object class="com.install4j.api.beans.ExternalFile">
-                                            <string>./src/main/resources/images/visat.ico</string>
+                                            <string>./src/main/resources/images/dim-icon-32.ico</string>
                                         </object>
                                     </void>
                                 </object>
@@ -373,14 +370,9 @@
                                     <void property="launcherId">
                                         <string>19</string>
                                     </void>
-                                    <void property="macIconFile">
-                                        <object class="com.install4j.api.beans.ExternalFile">
-                                            <string>./src/main/resources/images/visat-icon-32.png</string>
-                                        </object>
-                                    </void>
                                     <void property="windowsIconFile">
                                         <object class="com.install4j.api.beans.ExternalFile">
-                                            <string>./src/main/resources/images/visat.ico</string>
+                                            <string>./src/main/resources/images/n1-icon-32.ico</string>
                                         </object>
                                     </void>
                                 </object>
@@ -402,11 +394,6 @@
                                     </void>
                                     <void property="launcherId">
                                         <string>19</string>
-                                    </void>
-                                    <void property="macIconFile">
-                                        <object class="com.install4j.api.beans.ExternalFile">
-                                            <string>./src/main/resources/images/visat-icon-32.png</string>
-                                        </object>
                                     </void>
                                     <void property="selected">
                                         <boolean>false</boolean>
@@ -435,11 +422,6 @@
                                     </void>
                                     <void property="launcherId">
                                         <string>19</string>
-                                    </void>
-                                    <void property="macIconFile">
-                                        <object class="com.install4j.api.beans.ExternalFile">
-                                            <string>./src/main/resources/images/visat-icon-32.png</string>
-                                        </object>
                                     </void>
                                     <void property="selected">
                                         <boolean>false</boolean>
@@ -480,7 +462,8 @@
                             </java>
                         </serializedBean>
                         <condition>context.getBooleanVariable("executeLauncherAction") &amp;&amp;
-                            (!context.isUnattended())</condition>
+                            (!context.isUnattended())
+                        </condition>
                     </action>
                 </actions>
                 <formComponents>
@@ -637,7 +620,8 @@
                                     <void property="labelText">
                                         <string>BEAM application data such as user preferences and caches are stored in
                                             the directory '${installer:sys.userHome}/.beam'. This directory will be
-                                            entirely removed if you select this option.</string>
+                                            entirely removed if you select this option.
+                                        </string>
                                     </void>
                                 </object>
                             </java>
@@ -874,7 +858,7 @@
             </postUninstallScript>
         </linuxRPM>
     </mediaSets>
-    <buildIds buildAll="true">
+    <buildIds buildAll="false">
         <mediaSet refId="20"/>
     </buildIds>
 </install4j>
