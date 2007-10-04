@@ -1,6 +1,5 @@
 package org.esa.beam.framework.gpf.internal;
 
-import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Product;
@@ -25,59 +24,48 @@ import java.util.List;
 public class OperatorContextInitializer {
 
     public static void initOperatorContext(DefaultOperatorContext operatorContext,
-                                           ParameterInjector injector,
-                                           ProgressMonitor pm) throws OperatorException {
-        pm.beginTask("initializing operator contex", 5);
-        try {
-            OperatorSpi operatorSpi = operatorContext.getOperatorSpi();
+                                           ParameterInjector injector) throws OperatorException {
+        OperatorSpi operatorSpi = operatorContext.getOperatorSpi();
+        if (operatorSpi == null) {
+            String operatorName = operatorContext.getOperatorName();
+            if (operatorName == null || operatorName.isEmpty()) {
+                throw new IllegalStateException("operatorSpiClassName == null || operatorSpiClassName.isEmpty()");
+            }
+            operatorSpi = OperatorSpiRegistry.getInstance().getOperatorSpi(operatorName);
             if (operatorSpi == null) {
-                String operatorName = operatorContext.getOperatorName();
-                if (operatorName == null || operatorName.isEmpty()) {
-                    throw new IllegalStateException("operatorSpiClassName == null || operatorSpiClassName.isEmpty()");
-                }
-                operatorSpi = OperatorSpiRegistry.getInstance().getOperatorSpi(operatorName);
-                if (operatorSpi == null) {
-                    throw new OperatorException(String.format("Unknown operator [%s].", operatorName));
-                }
-                operatorContext.setOperatorSpi(operatorSpi);
+                throw new OperatorException(String.format("Unknown operator [%s].", operatorName));
             }
-            pm.worked(1);
+            operatorContext.setOperatorSpi(operatorSpi);
+        }
 
-            Operator operator;
-            try {
-                operator = operatorSpi.getOperatorClass().newInstance();
-                operatorContext.setOperator(operator);
-            } catch (Throwable e) {
-                throw new OperatorException(String.format("Failed to create instance of operator [%s].", operatorSpi.getName()), e);
-            }
-            pm.worked(1);
+        Operator operator;
+        try {
+            operator = operatorSpi.getOperatorClass().newInstance();
+            operatorContext.setOperator(operator);
+        } catch (Throwable e) {
+            throw new OperatorException(String.format("Failed to create instance of operator [%s].", operatorSpi.getName()), e);
+        }
 
-            initAnnotatedSourceProductFields(operatorContext);
+        initAnnotatedSourceProductFields(operatorContext);
 
-            operatorContext.setParameterFields(getParameterFields(operator));
+        operatorContext.setParameterFields(getParameterFields(operator));
 
-            injector.injectParameters(operator);
-            pm.worked(1);
+        injector.injectParameters(operator);
 
-            Product targetProduct = operator.initialize(operatorContext, SubProgressMonitor.create(pm, 1));
-            if (targetProduct == null) {
-                throw new OperatorException(String.format("Operator [%s] has no target product.", operatorSpi.getName()));
-            }
-            initTargetProductFieldIfNotDone(operator, targetProduct);
-            operatorContext.setTargetProduct(targetProduct);
+        Product targetProduct = operator.initialize(operatorContext);
+        if (targetProduct == null) {
+            throw new OperatorException(String.format("Operator [%s] has no target product.", operatorSpi.getName()));
+        }
+        initTargetProductFieldIfNotDone(operator, targetProduct);
+        operatorContext.setTargetProduct(targetProduct);
 
-            final GpfOpImage[] targetImages = createTargetImages(targetProduct, operatorContext);
-            operatorContext.setTargetImages(targetImages);
+        final GpfOpImage[] targetImages = createTargetImages(targetProduct, operatorContext);
+        operatorContext.setTargetImages(targetImages);
 
-            ProductReader oldProductReader = targetProduct.getProductReader();
-            if (oldProductReader == null) {
-                OperatorProductReader operatorProductReader = new OperatorProductReader(operatorContext);
-                targetProduct.setProductReader(operatorProductReader);
-            }
-
-            pm.worked(1);
-        } finally {
-            pm.done();
+        ProductReader oldProductReader = targetProduct.getProductReader();
+        if (oldProductReader == null) {
+            OperatorProductReader operatorProductReader = new OperatorProductReader(operatorContext);
+            targetProduct.setProductReader(operatorProductReader);
         }
     }
 

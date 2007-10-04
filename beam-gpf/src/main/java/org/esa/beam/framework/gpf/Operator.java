@@ -1,6 +1,5 @@
 package org.esa.beam.framework.gpf;
 
-import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 
@@ -32,11 +31,10 @@ public interface Operator {
      * a while to finish. The progress monitor informs the framework about the progress being made.</p>
      *
      * @param context the operator's context
-     * @param pm      a progress monitor. Can be used to signal progress.
      * @return the target product
      * @throws OperatorException if an error occurs during operator initialisation
      */
-    Product initialize(OperatorContext context, ProgressMonitor pm) throws OperatorException;
+    Product initialize(OperatorContext context) throws OperatorException;
 
     /**
      * Called by the framework in order to compute a tile for the given target band.

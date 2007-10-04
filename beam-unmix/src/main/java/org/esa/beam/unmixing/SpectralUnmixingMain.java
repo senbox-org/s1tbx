@@ -7,7 +7,6 @@ import org.esa.beam.framework.dataio.ProductIO;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.core.ProgressMonitor;
 
 import java.util.HashMap;
 import java.io.IOException;
@@ -41,8 +40,7 @@ public class SpectralUnmixingMain  {
 
         Product outputProduct = GPF.createProduct("SpectralUnmixing",
                                                   params,
-                                                  inputProduct,
-                                                  ProgressMonitor.NULL);
+                                                  inputProduct);
 
         ProductIO.writeProduct(outputProduct, outputFilepath, outputFormat);
     }

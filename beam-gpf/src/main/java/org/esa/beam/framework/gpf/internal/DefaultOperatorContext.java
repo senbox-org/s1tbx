@@ -1,23 +1,32 @@
 package org.esa.beam.framework.gpf.internal;
 
-import com.bc.ceres.core.Assert;
-import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.gpf.*;
-import org.esa.beam.util.jai.RasterDataNodeOpImage;
-
-import javax.media.jai.PlanarImage;
 import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
+
+import javax.media.jai.PlanarImage;
+
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.gpf.AbstractOperator;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorContext;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.util.jai.RasterDataNodeOpImage;
+
+import com.bc.ceres.core.Assert;
 
 /**
  * Default implementation for {@link org.esa.beam.framework.gpf.OperatorContext}.
@@ -236,16 +245,14 @@ public class DefaultOperatorContext implements OperatorContext {
         return implementsMethod(aClass, "computeTile",
                                 new Class[]{
                                         Band.class,
-                                        Tile.class,
-                                        ProgressMonitor.class});
+                                        Tile.class});
     }
 
     public static boolean canOperatorComputeTileStack(Class<? extends Operator> aClass) {
         return implementsMethod(aClass, "computeTileStack",
                                 new Class[]{
                                         Map.class,
-                                        Rectangle.class,
-                                        ProgressMonitor.class});
+                                        Rectangle.class});
     }
 
     private static boolean implementsMethod(Class<?> aClass, String methodName, Class[] methodParameterTypes) {

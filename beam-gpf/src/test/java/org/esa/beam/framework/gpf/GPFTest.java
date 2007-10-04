@@ -29,7 +29,7 @@ public class GPFTest extends TestCase {
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("filePath", filePath);
 
-        Product p1 = GPF.createProduct("ReadProduct", parameters, ProgressMonitor.NULL);
+        Product p1 = GPF.createProduct("ReadProduct", parameters);
 
         assertNotNull(p1);
         assertNotNull(p1.getBand("forrest_abundance"));
@@ -42,7 +42,7 @@ public class GPFTest extends TestCase {
 
         OperatorSpiRegistry.getInstance().addOperatorSpi(new FooOpSpi());
 
-        Product p2 = GPF.createProduct("Foo", GPF.NO_PARAMS, p1, ProgressMonitor.NULL);
+        Product p2 = GPF.createProduct("Foo", GPF.NO_PARAMS, p1);
 
         assertNotNull(p2);
         assertNotNull(p2.getBand("forrest_abundance"));
@@ -67,11 +67,11 @@ public class GPFTest extends TestCase {
         Product sourceProduct;
 
         /**
-         * Called by {@link #initialize(org.esa.beam.framework.gpf.OperatorContext, com.bc.ceres.core.ProgressMonitor)} after the {@link org.esa.beam.framework.gpf.OperatorContext}
+         * Called by {@link #initialize(org.esa.beam.framework.gpf.OperatorContext)} after the {@link org.esa.beam.framework.gpf.OperatorContext}
          * is stored.
          *
          * @return the target product
-         * @see #initialize(org.esa.beam.framework.gpf.OperatorContext, com.bc.ceres.core.ProgressMonitor)
+         * @see #initialize(org.esa.beam.framework.gpf.OperatorContext)
          */
         @Override
         protected Product initialize() throws OperatorException {

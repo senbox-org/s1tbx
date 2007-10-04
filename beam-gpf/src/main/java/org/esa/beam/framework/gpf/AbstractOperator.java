@@ -41,7 +41,7 @@ public abstract class AbstractOperator implements Operator {
      * Gets the operator context.
      *
      * @return the operator context, or <code>null</code> if the
-     *         {@link #initialize(OperatorContext, ProgressMonitor)} method has not yet been called.
+     *         {@link #initialize(OperatorContext)} method has not yet been called.
      */
     public OperatorContext getContext() {
         return context;
@@ -100,17 +100,17 @@ public abstract class AbstractOperator implements Operator {
      * <p>The default implementation stores the given <code>OperatorContext</code> for later use and returns
      * {@link #initialize()}.</p>
      */
-    public final Product initialize(OperatorContext context, ProgressMonitor pm) throws OperatorException {
+    public final Product initialize(OperatorContext context) throws OperatorException {
         this.context = context;
         return initialize();
     }
 
     /**
-     * Called by {@link #initialize(OperatorContext, ProgressMonitor)} after the {@link OperatorContext}
+     * Called by {@link #initialize(OperatorContext)} after the {@link OperatorContext}
      * is stored.
      *
      * @return the target product
-     * @see #initialize(OperatorContext, ProgressMonitor)
+     * @see #initialize(OperatorContext)
      */
     protected abstract Product initialize() throws OperatorException;
 

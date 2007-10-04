@@ -1,6 +1,5 @@
 package org.esa.beam.framework.gpf;
 
-import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.internal.DefaultOperatorContext;
 import org.esa.beam.framework.gpf.internal.OperatorContextInitializer;
@@ -16,10 +15,10 @@ public class GPF {
      * Can be used for convenience as a parameter for {@code createProduct()} if no
      * parameters are needed for the operator.
      *
-     * @see #createProduct(String,Map,ProgressMonitor) createProduct(String, Map, ProgressMonitor)
-     * @see #createProduct(String,Map,Product,ProgressMonitor) createProduct(String, Map, Product, ProgressMonitor)
-     * @see #createProduct(String,Map,Product[],ProgressMonitor) createProduct(String, Map, Product[], ProgressMonitor)
-     * @see #createProduct(String,Map,Map,ProgressMonitor) createProduct(String, Map, Map, ProgressMonitor)
+     * @see #createProduct(String,Map) createProduct(String, Map, ProgressMonitor)
+     * @see #createProduct(String,Map,Product) createProduct(String, Map, Product, ProgressMonitor)
+     * @see #createProduct(String,Map,Product[]) createProduct(String, Map, Product[], ProgressMonitor)
+     * @see #createProduct(String,Map,Map) createProduct(String, Map, Map, ProgressMonitor)
      */
     public static final Map<String, Object> NO_PARAMS = Collections.unmodifiableMap(new TreeMap<String, Object>());
 
@@ -28,10 +27,10 @@ public class GPF {
      * Can be used for convenience as a parameter for {@code createProduct()} if no
      * source products are needed for the operator.
      *
-     * @see #createProduct(String,Map,ProgressMonitor) createProduct(String, Map, ProgressMonitor)
-     * @see #createProduct(String,Map,Product,ProgressMonitor) createProduct(String, Map, Product, ProgressMonitor)
-     * @see #createProduct(String,Map,Product[],ProgressMonitor) createProduct(String, Map, Product[], ProgressMonitor)
-     * @see #createProduct(String,Map,Map,ProgressMonitor) createProduct(String, Map, Map, ProgressMonitor)
+     * @see #createProduct(String,Map) createProduct(String, Map, ProgressMonitor)
+     * @see #createProduct(String,Map,Product) createProduct(String, Map, Product, ProgressMonitor)
+     * @see #createProduct(String,Map,Product[]) createProduct(String, Map, Product[], ProgressMonitor)
+     * @see #createProduct(String,Map,Map) createProduct(String, Map, Map, ProgressMonitor)
      */
     public static final Map<String, Product> NO_SOURCES = Collections.unmodifiableMap(new TreeMap<String, Product>());
 
@@ -58,13 +57,12 @@ public class GPF {
      *
      * @param operatorName the name of the operator to use
      * @param parameters   the named parameters needed by the operator
-     * @param pm           a monitor to observe progress
      * @return the product created by the operator
      * @throws OperatorException if the product could not be created
      */
     public static Product createProduct(String operatorName,
-                                        Map<String, Object> parameters, ProgressMonitor pm) throws OperatorException {
-        return createProduct(operatorName, parameters, NO_SOURCES, pm);
+                                        Map<String, Object> parameters) throws OperatorException {
+        return createProduct(operatorName, parameters, NO_SOURCES);
     }
 
     /**
@@ -75,14 +73,13 @@ public class GPF {
      * @param operatorName  the name of the operator to use
      * @param parameters    the named parameters needed by the operator
      * @param sourceProduct a source product
-     * @param pm            a monitor to observe progress
      * @return the product created by the operator
      * @throws OperatorException if the product could not be created
      */
     public static Product createProduct(final String operatorName,
                                         final Map<String, Object> parameters,
-                                        final Product sourceProduct, ProgressMonitor pm) throws OperatorException {
-        return createProduct(operatorName, parameters, new Product[]{sourceProduct}, pm);
+                                        final Product sourceProduct) throws OperatorException {
+        return createProduct(operatorName, parameters, new Product[]{sourceProduct});
     }
 
     /**
@@ -93,13 +90,12 @@ public class GPF {
      * @param operatorName   the name of the operator to use
      * @param parameters     the named parameters needed by the operator
      * @param sourceProducts an array of  source products
-     * @param pm             a monitor to observe progress
      * @return the product created by the operator
      * @throws OperatorException if the product could not be created
      */
     public static Product createProduct(final String operatorName,
                                         final Map<String, Object> parameters,
-                                        final Product[] sourceProducts, ProgressMonitor pm) throws OperatorException {
+                                        final Product[] sourceProducts) throws OperatorException {
         Map<String, Product> sourceProductMap = NO_SOURCES;
         if (sourceProducts.length > 0) {
             sourceProductMap = new HashMap<String, Product>(sourceProducts.length);
@@ -109,7 +105,7 @@ public class GPF {
                 sourceProductMap.put(SOURCE_PRODUCT_FIELD_NAME + (i + 1), sourceProduct);
             }
         }
-        return createProduct(operatorName, parameters, sourceProductMap, pm);
+        return createProduct(operatorName, parameters, sourceProductMap);
     }
 
     /**
@@ -120,13 +116,12 @@ public class GPF {
      * @param operatorName   the name of the operator to use
      * @param parameters     the named parameters needed by the operator
      * @param sourceProducts a map of named source products
-     * @param pm             a monitor to observe progress
      * @return the product created by the operator
      * @throws OperatorException if the product could not be created
      */
     public static Product createProduct(String operatorName,
                                         Map<String, Object> parameters,
-                                        Map<String, Product> sourceProducts, ProgressMonitor pm) throws
+                                        Map<String, Product> sourceProducts) throws
             OperatorException {
         final DefaultOperatorContext defaultOperatorContext = new DefaultOperatorContext(operatorName);
         Set<Map.Entry<String, Product>> entries = sourceProducts.entrySet();
@@ -134,8 +129,7 @@ public class GPF {
             defaultOperatorContext.addSourceProduct(entry.getKey(), entry.getValue());
         }
         OperatorContextInitializer.initOperatorContext(defaultOperatorContext,
-                                                       new MapParameterInjector(defaultOperatorContext, parameters),
-                                                       pm);
+                                                       new MapParameterInjector(defaultOperatorContext, parameters));
         return defaultOperatorContext.getTargetProduct();
     }
 

@@ -16,6 +16,13 @@
 */
 package org.esa.beam.unmixing.visat;
 
+import java.awt.Window;
+
+import javax.swing.JDialog;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.event.InternalFrameAdapter;
+
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -24,13 +31,6 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.visat.VisatApp;
-
-import javax.swing.*;
-import javax.swing.event.InternalFrameAdapter;
-import java.awt.*;
-
-import com.bc.ceres.swing.progress.DialogProgressMonitor;
-import com.bc.ceres.swing.progress.ProgressDialog;
 
 
 public class SpectralUnmixingDialog extends ModalDialog {
@@ -59,11 +59,9 @@ public class SpectralUnmixingDialog extends ModalDialog {
 
         Product outputProduct;
         try {
-            DialogProgressMonitor pm = new DialogProgressMonitor(getJDialog(), "Spectral Unmixing",
-                                                                 Dialog.ModalityType.APPLICATION_MODAL);
             outputProduct = GPF.createProduct("SpectralUnmixing",
                                               formModel.getOperatorParameters(),
-                                              formModel.getInputProduct(),pm);
+                                              formModel.getInputProduct());
         } catch (OperatorException e) {
             showErrorDialog(e.getMessage());
             return;

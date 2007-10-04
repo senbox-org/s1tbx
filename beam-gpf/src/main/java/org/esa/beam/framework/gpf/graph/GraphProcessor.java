@@ -265,7 +265,7 @@ public class GraphProcessor {
                 nodeContext.addSourceProduct(source.getName(), sourceNodeContext.getTargetProduct());
             }
 
-            OperatorContextInitializer.initOperatorContext(nodeContext, new Xpp3DomParameterInjector(nodeContext), pm);
+            OperatorContextInitializer.initOperatorContext(nodeContext, new Xpp3DomParameterInjector(nodeContext));
 
             // register nodeContext for correct disposal
             graphContext.getInitNodeContextDeque().addFirst(nodeContext);

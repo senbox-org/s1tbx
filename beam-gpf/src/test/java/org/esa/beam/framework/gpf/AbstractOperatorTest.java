@@ -1,6 +1,5 @@
 package org.esa.beam.framework.gpf;
 
-import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
 
 import org.esa.beam.framework.datamodel.Band;
@@ -23,7 +22,7 @@ public class AbstractOperatorTest extends TestCase {
 
     public void testInitBehaviour() throws OperatorException {
         OperatorContext context = new DummyOperatorContext();
-        operator.initialize(context, ProgressMonitor.NULL);
+        operator.initialize(context);
 
         assertSame(context, operator.getContext());
         assertTrue(operator.isInitDelegatingToInit());
