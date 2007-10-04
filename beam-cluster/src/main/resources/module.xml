@@ -29,15 +29,17 @@
 
     <categories>VISAT,Processing</categories>
 
-    <extension point="beam-visat:actions">
-        <action>
-            <id>clusterAnalysis</id>
-            <helpID>clusterAnalysis</helpID>
-            <class>org.esa.beam.cluster.visat.ClusterAnalysisAction</class>
-            <parent>tools</parent>
-            <text>Cluster Analysis...</text>
-            <mnemonic>C</mnemonic>
-        </action>
-    </extension>
+    <!--
+        <extension point="beam-visat:actions">
+            <action>
+                <id>clusterAnalysis</id>
+                <helpID>clusterAnalysis</helpID>
+                <class>org.esa.beam.cluster.visat.ClusterAnalysisAction</class>
+                <parent>tools</parent>
+                <text>Cluster Analysis...</text>
+                <mnemonic>C</mnemonic>
+            </action>
+        </extension>
+    -->
 
 </module>
