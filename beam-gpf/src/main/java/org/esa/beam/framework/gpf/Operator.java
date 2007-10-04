@@ -39,24 +39,24 @@ public interface Operator {
     Product initialize(OperatorContext context, ProgressMonitor pm) throws OperatorException;
 
     /**
-     * Called by the framework in order to compute a target tile for the given band.
+     * Called by the framework in order to compute a tile for the given target band.
      *
-     * @param targetBand   the target band
-     * @param targetTile the target tile associated with the band to be computed
-     * @param pm           a progress monitor. Can be used to signal progress.
+     * @param targetBand the target band
+     * @param tile       the current tile associated with the target band to be computed
+     * @param pm         a progress monitor. Can be used to signal progress.
      * @throws OperatorException if an error occurs during computation of the target raster
      */
-    void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException;
+    void computeTile(Band targetBand, Tile tile, ProgressMonitor pm) throws OperatorException;
 
     /**
-     * Called by the framework in order to compute the target tiles for the given bands.
+     * Called by the framework in order to compute the stack of tiles for the given target bands.
      *
-     * @param targetTiles   the target bands and tiles to be computed
+     * @param tileStack     the current tiles to be computed for each target band
      * @param tileRectangle the target area in pixel coordinates to be computed (same for all rasters in <code>targetRasters</code>)
-     * @param pm              a progress monitor. Can be used to signal progress.
+     * @param pm            a progress monitor. Can be used to signal progress.
      * @throws OperatorException if an error occurs during computation of the target rasters
      */
-    void computeTileStack(Map<Band, Tile> targetTiles, Rectangle tileRectangle, ProgressMonitor pm) throws OperatorException;
+    void computeTileStack(Map<Band, Tile> tileStack, Rectangle tileRectangle, ProgressMonitor pm) throws OperatorException;
 
     /**
      * Releases the resources the operator has acquired during its lifetime.

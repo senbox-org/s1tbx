@@ -32,8 +32,8 @@ public class DefaultOperatorContext implements OperatorContext {
     private Operator operator;
     private Field[] parameterFields;
     private PlanarImage[] targetImages;
-    private OperatorImplementationInfo operatorImplementationInfo;
-
+    private boolean tileMethodImplemented;
+    private boolean tileStackMethodImplemented;
 
     /**
      * Constructs an new context with the name of an operator.
@@ -45,7 +45,6 @@ public class DefaultOperatorContext implements OperatorContext {
         this.sourceProductList = new ArrayList<Product>(3);
         this.sourceProductMap = new HashMap<String, Product>(3);
     }
-
 
 
     public PlanarImage[] getTargetImages() {
@@ -148,7 +147,8 @@ public class DefaultOperatorContext implements OperatorContext {
      */
     public void setOperator(Operator operator) {
         this.operator = operator;
-        operatorImplementationInfo = new OperatorImplementationInfoImpl(operator.getClass());
+        this.tileMethodImplemented = canOperatorComputeTile(operator.getClass());
+        this.tileStackMethodImplemented = canOperatorComputeTileStack(operator.getClass());
     }
 
     /**
@@ -196,13 +196,14 @@ public class DefaultOperatorContext implements OperatorContext {
     }
 
 
-    /**
-     * Gets information about the operator implementation.
-     * @return Information about the operator implementation.
-     */
-    public OperatorImplementationInfo getOperatorImplementationInfo() {
-        return operatorImplementationInfo;
+    public boolean canComputeTile() {
+        return tileMethodImplemented;
     }
+
+    public boolean canComputeTileStack() {
+        return tileStackMethodImplemented;
+    }
+
 
     // todo - try to avoid data copying, this method is time-critical!
     // todo - the best way would be to wrap the returned awtRaster in "our" Tile
@@ -231,37 +232,18 @@ public class DefaultOperatorContext implements OperatorContext {
         return image;
     }
 
-    private static class OperatorImplementationInfoImpl implements OperatorImplementationInfo {
-
-        private final boolean bandMethodImplemented;
-        private final boolean tilesMethodImplemented;
-
-        public OperatorImplementationInfoImpl(Class operatorClass) {
-            bandMethodImplemented = implementsComputeBandMethod(operatorClass);
-            tilesMethodImplemented = implementsComputeAllBandsMethod(operatorClass);
-        }
-
-        public boolean isComputeBandMethodImplemented() {
-            return bandMethodImplemented;
-        }
-
-        public boolean isComputeAllBandsMethodImplemented() {
-            return tilesMethodImplemented;
-        }
-    }
-
-    public static boolean implementsComputeBandMethod(Class<?> aClass) {
+    public static boolean canOperatorComputeTile(Class<? extends Operator> aClass) {
         return implementsMethod(aClass, "computeTile",
                                 new Class[]{
-        		                        Band.class,
+                                        Band.class,
                                         Tile.class,
                                         ProgressMonitor.class});
     }
 
-    public static boolean implementsComputeAllBandsMethod(Class<?> aClass) {
+    public static boolean canOperatorComputeTileStack(Class<? extends Operator> aClass) {
         return implementsMethod(aClass, "computeTileStack",
                                 new Class[]{
-        								Map.class,
+                                        Map.class,
                                         Rectangle.class,
                                         ProgressMonitor.class});
     }
@@ -280,13 +262,5 @@ public class DefaultOperatorContext implements OperatorContext {
                 aClass = aClass.getSuperclass();
             }
         }
-    }
-
-    /**
-     * Information about the operator implementation.
-     */
-    public interface OperatorImplementationInfo {
-        boolean isComputeBandMethodImplemented();
-        boolean isComputeAllBandsMethodImplemented();
     }
 }

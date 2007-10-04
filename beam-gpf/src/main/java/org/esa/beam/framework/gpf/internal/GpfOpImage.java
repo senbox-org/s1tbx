@@ -41,7 +41,8 @@ public class GpfOpImage extends RasterDataNodeOpImage {
     }
 
     private void executeOperator(WritableRaster tile, Rectangle destRect) throws OperatorException {
-        if (operatorMustComputeAllBands()) {
+        // todo - handle case: single sourceProduct == targetProduct
+        if (operatorMustComputeTileStack()) {
             // Provide target GPF rasters and associated AWT tiles
             WritableRaster[] targetRasters = getTargetTiles(tile);
             Map<Band, org.esa.beam.framework.gpf.Tile> targetTiles = new HashMap<Band, org.esa.beam.framework.gpf.Tile>(targetRasters.length * 2);
@@ -113,8 +114,8 @@ public class GpfOpImage extends RasterDataNodeOpImage {
         return writableRaster;
     }
 
-    private boolean operatorMustComputeAllBands() {
-        return operatorContext.getOperatorImplementationInfo().isComputeAllBandsMethodImplemented()
-                && !operatorContext.getOperatorImplementationInfo().isComputeBandMethodImplemented();
+    private boolean operatorMustComputeTileStack() {
+        return operatorContext.canComputeTileStack()
+                && !operatorContext.canComputeTile();
     }
 }
