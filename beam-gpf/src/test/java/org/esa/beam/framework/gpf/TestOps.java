@@ -78,7 +78,7 @@ public class TestOps {
         public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle rectangle) throws OperatorException {
             System.out.println("=====>>>>>> Op2.computeAllBands  start");
             Tile tile1A = getSourceTile(input.getBand("Op1A"), rectangle);
-            
+
             Tile tile2A = targetTiles.get(output.getBand("Op2A"));
             Tile tile2B = targetTiles.get(output.getBand("Op2B"));
             System.out.println("=====>>>>>> Op2.computeAllBands end");
@@ -100,6 +100,9 @@ public class TestOps {
 
         @Parameter
         public String expression;
+
+        @Parameter
+        public double factor;
 
         @SourceProduct(bands = {"Op1A"})
         public Product input1;

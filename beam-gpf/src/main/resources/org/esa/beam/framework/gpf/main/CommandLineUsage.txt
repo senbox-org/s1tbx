@@ -1,0 +1,22 @@
+Usage:
+  gpf <op>|<graph> [options] <source-1> <source-2> ...
+
+Arguments:
+  <op>               Name of an operator.
+  <graph>            Filepath to operator (XML) graph file.
+  <source>           Filepath to source file(s).
+
+Options:
+  -t <target>        Filepath to the target file.
+  -f <format>        Output file format, e.g. GeoTIFF, HDF5, BEAM-DIMAP.
+  -p <parameters>    Filepath to a (Java Properties) file containing 
+                     processing parameters in the form <name>=<value>.
+  -T<id>=<target>    Defines a target product. Valid for graphs only.
+                     <id> must be the identifier of a node in the graph.
+  -S<id>=<source>    Defines a source product. <id> is specified by
+                     the operator or the graph. In an XML graph, all
+                     occurences of ${<id>} will be replaced with references
+                     to <source>.
+  -P<name>=<value>   Defines a processing parameter, <name> is specified by
+                     the operator or the graph. In an XML graph, all
+                     occurences of ${<name>} will be replaced with <value>.

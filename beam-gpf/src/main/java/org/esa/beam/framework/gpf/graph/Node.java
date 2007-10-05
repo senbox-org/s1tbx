@@ -33,12 +33,12 @@ public class Node {
     /**
      * Constructs a new <code>Node</code> instance.
      *
-     * @param id                   a unique identifier for the node
-     * @param operatorSpiClassName the name of the SPI class
+     * @param id           a unique identifier for the node
+     * @param operatorName the name of the operator
      */
-    public Node(String id, String operatorSpiClassName) {
+    public Node(String id, String operatorName) {
         this.id = id;
-        this.operatorName = operatorSpiClassName;
+        this.operatorName = operatorName;
         init();
     }
 

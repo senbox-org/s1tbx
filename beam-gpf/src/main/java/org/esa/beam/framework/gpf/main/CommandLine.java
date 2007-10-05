@@ -1,59 +1,67 @@
 package org.esa.beam.framework.gpf.main;
 
-import com.bc.ceres.binding.ConversionException;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.util.io.FileUtils;
 
-import java.util.HashMap;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Iterator;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * The common command-line for GPF.
  */
-public class CommandLine {
+class CommandLine {
     private String[] args;
     private String operatorName;
     private String graphFilepath;
     private String targetFilepath;
-    private HashMap<String, String> parameterValues;
-    private HashMap<String, String> sourceFilepaths;
-    private String outputFormatName;
+    private TreeMap<String, String> parameterMap;
+    private TreeMap<String, String> sourceFilepathMap;
+    private String targetFormatName;
+    private String parameterFilepath;
+    private TreeMap<String, String> targetFilepathMap;
+    private boolean helpRequested;
 
-
-    public CommandLine(String[] args) {
+    public CommandLine(String[] args) throws Exception {
         this.args = args.clone();
-        sourceFilepaths = new HashMap<String, String>();
-        try {
-            parseArgs();
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
+        if (this.args.length == 0) {
+            helpRequested = true;
+            return;
         }
-    }
 
-    public String[] getArgs() {
-        return args;
-    }
-
-    private void parseArgs() throws Exception, ConversionException {
-        targetFilepath = null;
-        outputFormatName = null;
-        parameterValues = new HashMap<String, String>();
-
+        sourceFilepathMap = new TreeMap<String, String>();
+        targetFilepathMap = new TreeMap<String, String>();
+        parameterMap = new TreeMap<String, String>();
 
         int argCount = 0;
-        for (int i = 0; i < args.length; i++) {
-            String arg = args[i];
+        for (int i = 0; i < this.args.length; i++) {
+            String arg = this.args[i];
             if (arg.startsWith("-")) {
                 if (arg.startsWith("-P")) {
                     String[] pair = parseNameValuePair(arg);
-                    parameterValues.put(pair[0], pair[1]);
+                    parameterMap.put(pair[0], pair[1]);
                 } else if (arg.startsWith("-S")) {
                     String[] pair = parseNameValuePair(arg);
-                    sourceFilepaths.put(pair[0], pair[1]);
+                    sourceFilepathMap.put(pair[0], pair[1]);
+                } else if (arg.startsWith("-T")) {
+                    String[] pair = parseNameValuePair(arg);
+                    targetFilepathMap.put(pair[0], pair[1]);
+                } else if (arg.equals("-t")) {
+                    targetFilepath = parseOptionArgument(arg, i);
+                    i++;
                 } else if (arg.equals("-f")) {
-                    outputFormatName = parseOptionArgument(arg, i);
+                    targetFormatName = parseOptionArgument(arg, i);
+                    i++;
+                } else if (arg.equals("-p")) {
+                    parameterFilepath = parseOptionArgument(arg, i);
+                    i++;
+                } else if (arg.equals("-h")) {
+                    helpRequested = true;
                     i++;
                 } else {
                     throw error("Unknown option '" + arg + "'");
@@ -65,28 +73,94 @@ public class CommandLine {
                     } else {
                         operatorName = arg;
                     }
-                } else if (argCount == 1) {
-                    targetFilepath = arg;
                 } else {
-                    int index = argCount - 2;
+                    int index = argCount - 1;
                     if (index == 0) {
-                        sourceFilepaths.put(GPF.SOURCE_PRODUCT_FIELD_NAME, arg);
+                        sourceFilepathMap.put(GPF.SOURCE_PRODUCT_FIELD_NAME, arg);
                     }
-                    sourceFilepaths.put(GPF.SOURCE_PRODUCT_FIELD_NAME + (index + 1), arg);
+                    sourceFilepathMap.put(GPF.SOURCE_PRODUCT_FIELD_NAME + (index + 1), arg);
                 }
                 argCount++;
             }
         }
-        if (targetFilepath == null) {
-            throw error("Missing output file (argument #2)");
+        if (operatorName == null && graphFilepath == null && !helpRequested) {
+            throw error("Either operator name or graph XML file must be given");
         }
-        if (outputFormatName == null) {
-            String extension = FileUtils.getExtension(targetFilepath);
-            outputFormatName = detectWriterFormat(extension);
-            if (outputFormatName == null) {
+        if (graphFilepath == null && targetFilepathMap.size() != 0) {
+            throw error("Defined target products only valid for graph XML");
+        }
+        if (targetFilepath == null && targetFilepathMap.size() == 0) {
+            targetFilepath = "target.dim";
+        }
+        if (targetFormatName == null && targetFilepath != null) {
+            targetFormatName = detectWriterFormat(FileUtils.getExtension(targetFilepath));
+            if (targetFormatName == null) {
                 throw error("Output format unknown");
             }
         }
+    }
+
+    public String[] getArgs() {
+        return args;
+    }
+
+    public String getOperatorName() {
+        return operatorName;
+    }
+
+    public String getGraphFilepath() {
+        return graphFilepath;
+    }
+
+    public String getTargetFilepath() {
+        return targetFilepath;
+    }
+
+    public String getTargetFormatName() {
+        return targetFormatName;
+    }
+
+    public String getParameterFilepath() {
+        return parameterFilepath;
+    }
+
+    public SortedMap<String, String> getParameterMap() {
+        return parameterMap;
+    }
+
+    public SortedMap<String, String> getSourceFilepathMap() {
+        return sourceFilepathMap;
+    }
+
+    public SortedMap<String, String> getTargetFilepathMap() {
+        return targetFilepathMap;
+    }
+
+    public boolean isHelpRequested() {
+        return helpRequested;
+    }
+
+    public static String getUsageText() {
+        BufferedReader bufferedReader = new BufferedReader(
+                new InputStreamReader(
+                        CommandLine.class.getResourceAsStream("CommandLineUsage.txt")));
+        StringBuilder sb = new StringBuilder(1024);
+        try {
+            try {
+                while (true) {
+                    String line = bufferedReader.readLine();
+                    if (line == null) {
+                        break;
+                    }
+                    sb.append(line).append('\n');
+                }
+            } finally {
+                bufferedReader.close();
+            }
+        } catch (IOException e) {
+            // ignore
+        }
+        return sb.toString();
     }
 
     private String parseOptionArgument(String arg, int index) throws Exception {
@@ -100,11 +174,11 @@ public class CommandLine {
     private String[] parseNameValuePair(String arg) throws Exception {
         int pos = arg.indexOf('=');
         if (pos == -1) {
-            throw error("missing '=' in '" + arg + "'");
+            throw error("Missing '=' in '" + arg + "'");
         }
         String name = arg.substring(2, pos).trim();
         if (name.isEmpty()) {
-            throw error("empty name in '" + arg + "'");
+            throw error("Empty identifier in '" + arg + "'");
         }
         String value = arg.substring(pos + 1).trim();
         return new String[]{name, value};
@@ -129,50 +203,4 @@ public class CommandLine {
         return new Exception(m);
     }
 
-    public static void printUsage() {
-        System.out.println("Usage:");
-        System.out.println("  gpf <op-name>|<graph-file> [options] <target-file> <source-file-1> <source-file-2>...");
-        System.out.println();
-        System.out.println("Arguments:");
-        System.out.println("  <op-name>            Name of an operator");
-        System.out.println("  <graph-file>         Filepath to operator graph file (XML)");
-        System.out.println("  <target-file>        Filepath to target file");
-        System.out.println("  <source-file>        Filepath to source file(s)");
-        System.out.println();
-        System.out.println("Options:");
-        System.out.println("  -f <format>          Output file format, e.g. GeoTIFF, HDF5, BEAM-DIMAP");
-        System.out.println("  -P<name>=<value>     ");
-        System.out.println("  -S<id>=<source-file> ");
-        System.out.println("  -T<id>=<target-file> ");
-    }
-
-
-    public String getOperatorName() {
-        return operatorName;
-    }
-
-    public String getSourceFilepath(int index) {
-        return getSourceFilepath(GPF.SOURCE_PRODUCT_FIELD_NAME + (index + 1));
-    }
-
-    public String getTargetFilepath() {
-        return targetFilepath;
-    }
-
-
-    public String getOutputFormatName() {
-        return outputFormatName;
-    }
-
-    public String getSourceFilepath(String id) {
-        return sourceFilepaths.get(id);
-    }
-
-    public String getGraphFilepath() {
-        return graphFilepath;
-    }
-
-    public String getParameterValue(String name) {
-        return parameterValues.get(name);
-    }
 }
