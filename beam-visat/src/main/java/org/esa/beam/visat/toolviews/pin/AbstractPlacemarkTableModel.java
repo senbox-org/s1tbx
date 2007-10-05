@@ -221,7 +221,7 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
                     pin.setPixelPos(pixelPos);
                 }
             } else if (columnIndex == getDefaultColumnNames().length - 1) {
-                String strValue = (String) value;
+                String strValue = value.toString();
                 pin.setLabel(strValue);
             } else {
                 throw new IllegalStateException(

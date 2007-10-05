@@ -45,7 +45,8 @@ public class Pin extends ProductNode {
     public final static String PROPERTY_NAME_GEOPOS = "geoPos";
     public final static String PROPERTY_NAME_PIXELPOS = "pixelPos";
     public final static String PROPERTY_NAME_PINSYMBOL = "pinSymbol";
-
+    private static final String PROPERTY_NAME_LABEL = "label";
+    
     private String label;
     private PixelPos pixelPos;
     private GeoPos geoPos;
@@ -97,7 +98,13 @@ public class Pin extends ProductNode {
      * @param label the label, if null an empty label is assigned
      */
     public void setLabel(String label) {
-        this.label = (label != null) ? label : "";
+        if (label == null) {
+            label = "";
+        }
+        if (!label.equals(this.label)) {
+            this.label = label;
+            fireProductNodeChanged(PROPERTY_NAME_LABEL);
+        }
     }
 
     /**

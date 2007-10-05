@@ -4,6 +4,7 @@ import javax.swing.Icon;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.Cursor;
 
 /**
  * Created by Marco Peters.
@@ -30,8 +31,9 @@ public class GcpDescriptor implements PlacemarkDescriptor {
         return "GCP";
     }
 
-    public String getCursorIconResourcePath() {
-        return "cursors/GcpTool.gif";
+    public Cursor getCursor() {
+        // there also is a custom cursor icon in "cursors/GcpTool.gif"
+        return Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
     }
 
     public Point getIconHotSpot(Icon icon) {

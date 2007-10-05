@@ -61,10 +61,6 @@ public abstract class PlacemarkTool extends AbstractTool {
     public void mousePressed(ToolInputEvent e) {
         Pin draggedPlacemark = getPlacemarkForPixelPos(e.getPixelX(), e.getPixelY());
         setDraggedPlacemark(draggedPlacemark);
-        if (draggedPlacemark != null) {
-            ProductNodeGroup<Pin> pinGroup = getPlacemarkGroup(getProductSceneView().getProduct());
-            setPlacemarkSelected(pinGroup, draggedPlacemark, true);
-        }
     }
 
 
@@ -98,7 +94,7 @@ public abstract class PlacemarkTool extends AbstractTool {
         Product product = view.getProduct();
         Pin clickedPin = getPlacemarkForPixelPos(e.getPixelX(), e.getPixelY());
         if (clickedPin != null) {
-            setPlacemarkSelected(getPlacemarkGroup(product), clickedPin, true);
+            setPlacemarkSelected(getPlacemarkGroup(product), clickedPin, false);
         } else {
             final String[] uniqueNameAndLabel = PlacemarkNameFactory.createUniqueNameAndLabel(placemarkDescriptor,
                                                                                               product);
@@ -109,7 +105,6 @@ public abstract class PlacemarkTool extends AbstractTool {
                                              null,
                                              placemarkDescriptor.createDefaultSymbol());
             getPlacemarkGroup(product).add(newPlacemark);
-            setPlacemarkSelected(getPlacemarkGroup(product), newPlacemark, true);
         }
     }
 
@@ -155,8 +150,7 @@ public abstract class PlacemarkTool extends AbstractTool {
 
     @Override
     public Cursor getCursor() {
-        return createCustomCursor(placemarkDescriptor.getCursorIconResourcePath(),
-                                  placemarkDescriptor.getRoleName() + "Cursor");
+        return placemarkDescriptor.getCursor();
     }
 
     protected void showPopupMenu(ToolInputEvent e) {
@@ -187,10 +181,10 @@ public abstract class PlacemarkTool extends AbstractTool {
         if (forceSelection || select) {
             clickedPlacemark.setSelected(true);
         }
-        VisatApp.getApp().updateState();
+        updateState();
     }
 
-    private void updateState() {
+    private static void updateState() {
         VisatApp.getApp().updateState();
     }
 

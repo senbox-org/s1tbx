@@ -2,6 +2,7 @@ package org.esa.beam.framework.datamodel;
 
 import javax.swing.Icon;
 import java.awt.Point;
+import java.awt.Cursor;
 
 /**
  * Created by Marco Peters.
@@ -17,7 +18,7 @@ public interface PlacemarkDescriptor {
 
     String getRoleLabel();
 
-    String getCursorIconResourcePath();
+    Cursor getCursor();
 
     ProductNodeGroup<Pin> getPlacemarkGroup(Product product);
 
