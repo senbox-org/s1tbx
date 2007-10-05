@@ -249,7 +249,7 @@ public class TileImpl implements Tile {
 
     public void setSample(int x, int y, double sample) {
         if (scalingApplied) {
-            sample = rasterDataNode.scale(sample);
+            sample = rasterDataNode.scaleInverse(sample);
         }
         writableRaster.setSample(x, y, 0, sample);
     }
