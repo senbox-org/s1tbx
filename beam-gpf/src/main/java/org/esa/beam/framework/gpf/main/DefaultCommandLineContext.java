@@ -68,7 +68,7 @@ class DefaultCommandLineContext implements CommandLineContext {
     }
 
     public Product createOpProduct(String opName, Map<String, Object> parameters, Map<String, Product> sourceProducts) throws OperatorException {
-        return GPF.createProduct(opName, parameters, sourceProducts, ProgressMonitor.NULL);
+        return GPF.createProduct(opName, parameters, sourceProducts);
     }
 
 
