@@ -57,7 +57,7 @@ public class GraphIO {
      * @param variables a mapping from template variable names to their string values.
      * @return the deserialized <code>graph</code>
      */
-    public static Graph read(Reader reader, Map variables) {
+    public static Graph read(Reader reader, Map<String, String> variables) {
         XStream xStream = initXstream();
         Reader inputReader = reader;
         if (variables != null) {
