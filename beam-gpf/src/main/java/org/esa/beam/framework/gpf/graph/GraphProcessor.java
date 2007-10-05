@@ -14,12 +14,8 @@ import org.esa.beam.framework.gpf.internal.ParameterInjector;
 import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.JAI;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.TileComputationListener;
-import javax.media.jai.TileRequest;
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -45,7 +41,7 @@ public class GraphProcessor {
      * Creates a new instance og {@code GraphProcessor}.
      */
     public GraphProcessor() {
-        observerList = new ArrayList<GraphProcessingObserver>();
+        observerList = new ArrayList<GraphProcessingObserver>(3);
         logger = Logger.getAnonymousLogger();
     }
 
@@ -137,7 +133,7 @@ public class GraphProcessor {
      *
      * @param graphContext the {@link GraphContext} to dispose
      */
-    public void disposeGraphContext(GraphContext graphContext) {
+    public static void disposeGraphContext(GraphContext graphContext) {
         Deque<NodeContext> initNodeContextDeque = graphContext.getInitNodeContextDeque();
         while (!initNodeContextDeque.isEmpty()) {
             NodeContext nodeContext = initNodeContextDeque.pop();
@@ -158,8 +154,7 @@ public class GraphProcessor {
 
         Rectangle rectangleUnion = new Rectangle();
         NodeContext[] outputNodeContexts = graphContext.getOutputNodeContexts();
-        for (int i = 0; i < outputNodeContexts.length; i++) {
-            NodeContext outputNodeContext = outputNodeContexts[i];
+        for (NodeContext outputNodeContext : outputNodeContexts) {
             Product targetProduct = outputNodeContext.getTargetProduct();
             rectangleUnion.add(getProductBounds(targetProduct));
         }
@@ -200,14 +195,13 @@ public class GraphProcessor {
         fireProcessingStopped(graphContext);
     }
 
-    private Rectangle getProductBounds(Product targetProduct) {
+    private static Rectangle getProductBounds(Product targetProduct) {
         final int rasterHeight = targetProduct.getSceneRasterHeight();
         final int rasterWidth = targetProduct.getSceneRasterWidth();
-        Rectangle rectangle = new Rectangle(rasterWidth, rasterHeight);
-        return rectangle;
+        return new Rectangle(rasterWidth, rasterHeight);
     }
 
-    private void forceTileComputation(Band band, int tileX, int tileY) {
+    private static void forceTileComputation(Band band, int tileX, int tileY) {
         final RenderedImage image = band.getImage();
         /////////////////////////////////////////////////////////////////////
         //
@@ -218,7 +212,7 @@ public class GraphProcessor {
         /////////////////////////////////////////////////////////////////////
     }
 
-    private void initNodeDependencies(GraphContext graphContext) throws GraphException {
+    private static void initNodeDependencies(GraphContext graphContext) throws GraphException {
         Graph graph = graphContext.getGraph();
         for (Node node : graph.getNodes()) {
             for (NodeSource source : node.getSources()) {
@@ -233,7 +227,7 @@ public class GraphProcessor {
         }
     }
 
-    private void initOutput(GraphContext graphContext, ProgressMonitor pm) throws GraphException {
+    private static void initOutput(GraphContext graphContext, ProgressMonitor pm) throws GraphException {
         final int outputCount = graphContext.getOutputCount();
         try {
             pm.beginTask("Creating output products", outputCount);
@@ -249,7 +243,7 @@ public class GraphProcessor {
         }
     }
 
-    private void initNodeContext(GraphContext graphContext, final NodeContext nodeContext, ProgressMonitor pm) throws
+    private static void initNodeContext(GraphContext graphContext, final NodeContext nodeContext, ProgressMonitor pm) throws
             GraphException {
         try {
             NodeSource[] sources = nodeContext.getNode().getSources();
@@ -326,20 +320,6 @@ public class GraphProcessor {
                     defaultParameterConverter.setParameterValues(operator, configuration);
                 }
             }
-        }
-    }
-
-    private static class TCL implements TileComputationListener {
-        public void tileComputed(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX, int tileY, Raster tile) {
-            //To change body of implemented methods use File | Settings | File Templates.
-        }
-
-        public void tileCancelled(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX, int tileY) {
-            //To change body of implemented methods use File | Settings | File Templates.
-        }
-
-        public void tileComputationFailure(Object eventSource, TileRequest[] requests, PlanarImage image, int tileX, int tileY, Throwable situation) {
-            //To change body of implemented methods use File | Settings | File Templates.
         }
     }
 }
