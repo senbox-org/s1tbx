@@ -32,7 +32,7 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         }
     }
 
-    public abstract String[] getDefaultColumnNames();
+    public abstract String[] getStandardColumnNames();
 
     public int getRowCount() {
         if (product != null) {
@@ -42,7 +42,7 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
     }
 
     public int getColumnCount() {
-        int count = getDefaultColumnNames().length;
+        int count = getStandardColumnNames().length;
         if (selectedBands != null) {
             count += selectedBands.length;
         }
@@ -53,10 +53,10 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
     }
 
     public String getColumnName(int columnIndex) {
-        if (columnIndex < getDefaultColumnNames().length) {
-            return getDefaultColumnNames()[columnIndex];
+        if (columnIndex < getStandardColumnNames().length) {
+            return getStandardColumnNames()[columnIndex];
         }
-        int newIndex = columnIndex - getDefaultColumnNames().length;
+        int newIndex = columnIndex - getStandardColumnNames().length;
         if (newIndex < getNumSelectedBands()) {
             return selectedBands[newIndex].getName();
         }
@@ -68,7 +68,7 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
     }
 
     public Class getColumnClass(int columnIndex) {
-        if (columnIndex >= 0 && columnIndex < getDefaultColumnNames().length - 1) {
+        if (columnIndex >= 0 && columnIndex < getStandardColumnNames().length - 1) {
             return Float.class;
         }
         return String.class;
@@ -78,49 +78,27 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
 
     public Object getValueAt(int rowIndex, int columnIndex) {
         if (product != null) {
-            final int width = product.getSceneRasterWidth();
-            final int height = product.getSceneRasterHeight();
-            Pin pin = placemarkDescriptor.getPlacemarkGroup(product).get(rowIndex);
-
-            if (columnIndex == 0) {
-                PixelPos pixelPos = pin.getPixelPos();
-                if (pixelPos == null) {
-                    return Float.NaN;
-                }
-                return pixelPos.x;
-            } else if (columnIndex == 1) {
-                PixelPos pixelPos = pin.getPixelPos();
-                if (pixelPos == null) {
-                    return Float.NaN;
-                }
-                return pixelPos.y;
-            } else if (columnIndex == 2) {
-                GeoPos geoPos = pin.getGeoPos();
-                if (geoPos == null) {
-                    return Float.NaN;
-                }
-                return geoPos.lon;
-            } else if (columnIndex == 3) {
-                GeoPos geoPos = pin.getGeoPos();
-                if (geoPos == null) {
-                    return Float.NaN;
-                }
-                return geoPos.lat;
-            } else if (columnIndex == getDefaultColumnNames().length - 1) {
-                return pin.getLabel();
-            } else if (columnIndex > getDefaultColumnNames().length - 1) {
-                int newIndex = columnIndex - getDefaultColumnNames().length + 1;
+            if (columnIndex < getStandardColumnNames().length) {
+                return getStandardColumnValueAt(rowIndex, columnIndex);
+            } else {
+                final Pin pin = placemarkDescriptor.getPlacemarkGroup(product).get(rowIndex);
+                int index = columnIndex - getStandardColumnNames().length + 1;
                 PixelPos pixelPos = pin.getPixelPos();
                 if (pixelPos == null) {
                     return "No-data";
                 }
+
                 final int x = MathUtils.floorInt(pixelPos.getX());
                 final int y = MathUtils.floorInt(pixelPos.getY());
+                final int width = product.getSceneRasterWidth();
+                final int height = product.getSceneRasterHeight();
+
                 if (x < 0 || x >= width || y < 0 || y >= height) {
                     return "No-data";
                 }
-                if (newIndex < getNumSelectedBands()) {
-                    final Band band = selectedBands[newIndex];
+
+                if (index < getNumSelectedBands()) {
+                    final Band band = selectedBands[index];
                     if (band.isPixelValid(x, y)) {
                         float[] value = null;
                         try {
@@ -133,9 +111,9 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
                         return "No-data";
                     }
                 }
-                newIndex -= getNumSelectedBands();
-                if (selectedGrids != null && newIndex < selectedGrids.length) {
-                    final TiePointGrid grid = selectedGrids[newIndex];
+                index -= getNumSelectedBands();
+                if (selectedGrids != null && index < selectedGrids.length) {
+                    final TiePointGrid grid = selectedGrids[index];
                     float[] value = null;
                     try {
                         value = grid.readPixels(x, y, 1, 1, value, ProgressMonitor.NULL);
@@ -144,29 +122,19 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
                         return "I/O-error";
                     }
                 }
-            } else {
-                GeoCoding geoCoding = product.getGeoCoding();
-                if (geoCoding == null || !(geoCoding instanceof GcpGeoCoding)) {
-                    return Float.NaN;
-                }
-                GeoPos expectedGeoPos = pin.getGeoPos();
-                GeoPos actualGeoPos = geoCoding.getGeoPos(pin.getPixelPos(), null);
-                if (expectedGeoPos == null || actualGeoPos == null) {
-                    return Float.NaN;
-                }
-
-                return (float) Math.sqrt(Math.pow(expectedGeoPos.lat - actualGeoPos.lat, 2) +
-                        Math.pow(expectedGeoPos.lon - actualGeoPos.lon, 2));
             }
         }
+
         return "";
     }
+
+    protected abstract Object getStandardColumnValueAt(int rowIndex, int columnIndex);
 
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
         if (value == null) {
             return;
         }
-        if (columnIndex < getDefaultColumnNames().length) {
+        if (columnIndex < getStandardColumnNames().length) {
             Pin pin = placemarkDescriptor.getPlacemarkGroup(product).get(rowIndex);
             if (columnIndex == 0) {
                 if (value instanceof Float) {
@@ -220,7 +188,7 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
                                                                            pin.getGeoPos(), pin.getPixelPos());
                     pin.setPixelPos(pixelPos);
                 }
-            } else if (columnIndex == getDefaultColumnNames().length - 1) {
+            } else if (columnIndex == getStandardColumnNames().length - 1) {
                 String strValue = value.toString();
                 pin.setLabel(strValue);
             } else {
@@ -260,9 +228,9 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
 
         private void fireTableDataChanged(ProductNodeEvent event) {
             if ((event.getSourceNode().getOwner() == placemarkDescriptor.getPlacemarkGroup(product) ||
-                    event.getSourceNode() instanceof Product) &&
-                    !ProductNode.PROPERTY_NAME_SELECTED.equals(
-                            event.getPropertyName())) {
+                 event.getSourceNode() instanceof Product) &&
+                                                           !ProductNode.PROPERTY_NAME_SELECTED.equals(
+                                                                   event.getPropertyName())) {
                 AbstractPlacemarkTableModel.this.fireTableDataChanged();
             }
         }

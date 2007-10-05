@@ -14,6 +14,9 @@
 package org.esa.beam.visat.toolviews.pin;
 
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
@@ -25,12 +28,48 @@ public class PinTableModel extends AbstractPlacemarkTableModel {
         super(placemarkDescriptor, product, selectedBands, selectedGrids);
     }
 
-    public String[] getDefaultColumnNames() {
+    public String[] getStandardColumnNames() {
         return new String[]{"X", "Y", "Lon", "Lat", "Label"};
     }
 
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return columnIndex < getDefaultColumnNames().length;
+        return columnIndex < getStandardColumnNames().length;
     }
 
+    protected Object getStandardColumnValueAt(int rowIndex, int columnIndex) {
+        final Pin pin = placemarkDescriptor.getPlacemarkGroup(product).get(rowIndex);
+
+        float x = Float.NaN;
+        float y = Float.NaN;
+
+        final PixelPos pixelPos = pin.getPixelPos();
+        if (pixelPos != null) {
+            x = pixelPos.x;
+            y = pixelPos.y;
+        }
+
+        float lon = Float.NaN;
+        float lat = Float.NaN;
+
+        final GeoPos geoPos = pin.getGeoPos();
+        if (geoPos != null) {
+            lon = geoPos.lon;
+            lat = geoPos.lat;
+        }
+
+        switch (columnIndex) {
+        case 0:
+            return x;
+        case 1:
+            return y;
+        case 2:
+            return lon;
+        case 3:
+            return lat;
+        case 4:
+            return pin.getLabel();
+        default:
+            return "";
+        }
+    }
 }
