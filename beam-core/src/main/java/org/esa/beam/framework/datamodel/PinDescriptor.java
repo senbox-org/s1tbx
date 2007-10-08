@@ -1,10 +1,7 @@
 package org.esa.beam.framework.datamodel;
 
-import javax.swing.Icon;
-import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.Point;
-import java.awt.Toolkit;
-import java.awt.Cursor;
 
 /**
  * Created by Marco Peters.
@@ -31,16 +28,12 @@ public class PinDescriptor implements PlacemarkDescriptor {
         return "pin";
     }
 
-    public Cursor getCursor() {
-        // there also is a custom icon in "cursors/PinTool.gif"
-        return Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
+    public Image getCursorImage() {
+        return null;
     }
 
-    public Point getIconHotSpot(Icon icon) {
-        Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
-        Dimension bestCursorSize = defaultToolkit.getBestCursorSize(icon.getIconWidth(), icon.getIconHeight());
-        return new Point((7 * bestCursorSize.width) / icon.getIconWidth(),
-                         (7 * bestCursorSize.height) / icon.getIconHeight());
+    public Point getCursorHotSpot() {
+        return new Point();
     }
 
 

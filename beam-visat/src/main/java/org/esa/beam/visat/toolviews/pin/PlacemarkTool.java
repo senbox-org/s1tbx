@@ -1,7 +1,12 @@
 package org.esa.beam.visat.toolviews.pin;
 
 import com.bc.view.ViewModel;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.PinSymbol;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.draw.Drawable;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.Command;
@@ -12,10 +17,9 @@ import org.esa.beam.framework.ui.tool.DrawingEditor;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
 import java.awt.Cursor;
-import java.awt.Point;
+import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
@@ -30,9 +34,11 @@ public abstract class PlacemarkTool extends AbstractTool {
 
     private final PlacemarkDescriptor placemarkDescriptor;
     private Pin draggedPlacemark;
+    private Cursor cursor;
 
     protected PlacemarkTool(PlacemarkDescriptor placemarkDescriptor) {
         this.placemarkDescriptor = placemarkDescriptor;
+        cursor =  createCursor(placemarkDescriptor);
     }
 
     /**
@@ -73,14 +79,6 @@ public abstract class PlacemarkTool extends AbstractTool {
                 getDraggedPlacemark().setPixelPos(pixelPos);
             }
         }
-    }
-
-    protected Cursor createCustomCursor(String iconResourcePath, String cursorName) {
-        Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
-        ImageIcon icon = UIUtils.loadImageIcon(iconResourcePath);
-
-        Point hotSpot = placemarkDescriptor.getIconHotSpot(icon);
-        return defaultToolkit.createCustomCursor(icon.getImage(), hotSpot, cursorName);
     }
 
     private void selectOrInsertPlacemark(ToolInputEvent e) {
@@ -150,7 +148,17 @@ public abstract class PlacemarkTool extends AbstractTool {
 
     @Override
     public Cursor getCursor() {
-        return placemarkDescriptor.getCursor();
+        return cursor;
+    }
+
+    private static Cursor createCursor(PlacemarkDescriptor placemarkDescriptor) {
+        final Image cursorImage = placemarkDescriptor.getCursorImage();
+        if (cursorImage == null) {
+            return Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
+        }
+        return Toolkit.getDefaultToolkit().createCustomCursor(cursorImage,
+                                                              placemarkDescriptor.getCursorHotSpot(),
+                                                              placemarkDescriptor.getRoleName());
     }
 
     protected void showPopupMenu(ToolInputEvent e) {
@@ -167,7 +175,8 @@ public abstract class PlacemarkTool extends AbstractTool {
         return null;
     }
 
-    public static void setPlacemarkSelected(ProductNodeGroup<Pin> placemarkGroup, Pin clickedPlacemark, boolean forceSelection) {
+    public static void setPlacemarkSelected(ProductNodeGroup<Pin> placemarkGroup, Pin clickedPlacemark,
+                                            boolean forceSelection) {
         boolean select = true;
         Collection<Pin> selectedPlacemark = placemarkGroup.getSelectedNodes();
         for (Pin placemark : selectedPlacemark) {

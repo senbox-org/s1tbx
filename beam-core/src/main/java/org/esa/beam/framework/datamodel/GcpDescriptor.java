@@ -1,10 +1,7 @@
 package org.esa.beam.framework.datamodel;
 
-import javax.swing.Icon;
-import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.Toolkit;
-import java.awt.Cursor;
+import java.awt.Image;
 
 /**
  * Created by Marco Peters.
@@ -31,15 +28,12 @@ public class GcpDescriptor implements PlacemarkDescriptor {
         return "GCP";
     }
 
-    public Cursor getCursor() {
-        // there also is a custom cursor icon in "cursors/GcpTool.gif"
-        return Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
+    public Image getCursorImage() {
+        return null;
     }
 
-    public Point getIconHotSpot(Icon icon) {
-        Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
-        Dimension bestCursorSize = defaultToolkit.getBestCursorSize(icon.getIconWidth(), icon.getIconHeight());
-        return new Point((int) Math.floor(bestCursorSize.width / 2), (int) Math.floor(bestCursorSize.getHeight() / 2));
+    public Point getCursorHotSpot() {
+        return new Point();
     }
 
     public ProductNodeGroup<Pin> getPlacemarkGroup(Product product) {
