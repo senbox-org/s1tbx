@@ -16,7 +16,14 @@
  */
 package org.esa.beam.visat.toolviews.spectrum;
 
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.DataNode;
+import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductManager;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ModalDialog;
@@ -30,11 +37,20 @@ import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.Debug;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.*;
+import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -223,6 +239,9 @@ public class SpectrumToolView extends AbstractToolView {
                 UIUtils.loadImageIcon("icons/SelectedPinSpectra24.gif"), true);
         showSpectraForSelectedPinsButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                if (isShowingSpectraForAllPins()) {
+                    showSpectraForAllPinsButton.setSelected(false);
+                }
                 recreateSpectraDiagram();
             }
         });
@@ -233,6 +252,9 @@ public class SpectrumToolView extends AbstractToolView {
                                                                      true);
         showSpectraForAllPinsButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                if (isShowingSpectraForSelectedPins()) {
+                    showSpectraForSelectedPinsButton.setSelected(false);
+                }
                 recreateSpectraDiagram();
             }
         });
@@ -278,10 +300,6 @@ public class SpectrumToolView extends AbstractToolView {
         AbstractButton helpButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Help24.gif"), false);
         helpButton.setName("helpButton");
         helpButton.setToolTipText("Help."); /*I18N*/
-
-        ButtonGroup bg = new ButtonGroup();
-        bg.add(showSpectraForSelectedPinsButton);
-        bg.add(showSpectraForAllPinsButton);
 
         final JPanel buttonPane = GridBagUtils.createPanel();
         final GridBagConstraints gbc = new GridBagConstraints();
@@ -456,7 +474,11 @@ public class SpectrumToolView extends AbstractToolView {
             spectraDiagram.addCursorSpectrumGraph();
         }
 
-        spectraDiagram.setBands(getAvailableSpectralBands());
+        if (getSpectraDiagram() != null && getSelectedSpectralBands() != null) {
+            spectraDiagram.setBands(getSelectedSpectralBands());
+        } else {
+            spectraDiagram.setBands(getAvailableSpectralBands());
+        }
         spectraDiagram.updateSpectra(pixelX, pixelY);
         setSpectraDiagram(spectraDiagram);
     }
