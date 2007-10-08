@@ -11,7 +11,7 @@ if [ -z "$BEAM4_HOME" ]; then
     exit 2
 fi
 
-"${installer:sys.installationDir}/jre/bin/java" \
+"$BEAM4_HOME/jre/bin/java" \
     -Xmx1024M \
     -Dceres.context=beam \
     "-Dbeam.mainClass=${beam.mainClass}" \

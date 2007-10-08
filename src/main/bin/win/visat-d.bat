@@ -2,7 +2,7 @@
 
 set BEAM4_HOME=${installer:sys.installationDir}
 
-"${installer:sys.installationDir}\jre\bin\java.exe" ^
+"%BEAM4_HOME%\jre\bin\java.exe" ^
     -Xmx1024M ^
     -Dceres.context=beam ^
     -Dceres.debug=true ^
