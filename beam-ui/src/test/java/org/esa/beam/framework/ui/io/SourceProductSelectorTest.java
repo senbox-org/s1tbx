@@ -128,4 +128,12 @@ public class SourceProductSelectorTest extends TestCase {
     public void testFileChooserAction() {
         
     }
+    
+    public void testsetFirstMatching() throws Exception {
+        SourceProductSelector selector = new SourceProductSelector(defaultProducts, "Source", "T.");
+        assertNull(selector.getSelectedProduct());
+        
+        selector.selectFirstMatchingProduct();
+        assertSame(defaultProducts[0], selector.getSelectedProduct());
+    }
 }

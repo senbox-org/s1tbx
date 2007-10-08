@@ -82,6 +82,13 @@ public class SourceProductSelector {
     public Product getSelectedProduct() {
         return (Product) productListModel.getSelectedItem();
     }
+    
+    public void selectFirstMatchingProduct() {
+        int size = productListModel.getSize();
+        if (size > 0) {
+            productListModel.setSelectedItem(productListModel.getElementAt(0));
+        }
+    }
 
     void setSelectedProduct(Product product) throws Exception {
         if (typePattern.matcher(product.getProductType()).matches()) {
@@ -215,4 +222,6 @@ public class SourceProductSelector {
 
         void handleError(JComponent component, Throwable t);
     }
+
+    
 }
