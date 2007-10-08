@@ -2441,7 +2441,7 @@ public class Product extends ProductNode {
             }
 
             if (haveSpectralBand) {
-                sb.append("BandName\tWavelength\tUnit\tBandwidth\tUnit\tValue\tUnit\n");
+                sb.append("BandName\tWavelength\tUnit\tBandwidth\tUnit\tValue\tUnit\tSolar Flux\tUnit\n");
             } else {
                 sb.append("BandName\tValue\tUnit\n");
             }
@@ -2469,6 +2469,14 @@ public class Product extends ProductNode {
                 sb.append("\t");
                 if (band.getUnit() != null) {
                     sb.append(band.getUnit());
+                }
+                sb.append("\t");
+                final float solarFlux = band.getSolarFlux();
+                if (solarFlux > 0.0) {
+                    sb.append(solarFlux);
+                    sb.append("\t");
+                    sb.append("mW/(m^2*sr*nm)");
+                    sb.append("\t");
                 }
                 sb.append("\n");
             }
