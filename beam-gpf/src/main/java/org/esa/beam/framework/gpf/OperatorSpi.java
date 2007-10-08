@@ -1,8 +1,12 @@
 package org.esa.beam.framework.gpf;
 
+import org.esa.beam.framework.datamodel.Product;
+
+import java.util.Map;
+
 /**
- * <p>The <code>OperatorSpi</code> is the service provider interface (SPI) for {@link Operator}s.
- * It is a factory for {@link Operator}s and provides operator metadata.</p>
+ * <p>The <code>OperatorSpi</code> class is the service provider interface (SPI) for {@link Operator}s.
+ * The SPI is both a descriptor for the operator type and a factory for new {@link Operator} instances.</p>
  * <p/>
  * <p>Clients shall not implement or extend the interface <code>OperatorSpi</code> directly. Instead
  * they should derive from {@link org.esa.beam.framework.gpf.AbstractOperatorSpi}.</p>
@@ -10,6 +14,27 @@ package org.esa.beam.framework.gpf;
  * @since 4.1
  */
 public interface OperatorSpi {
+    /**
+     * Creates an operator instance with no arguments. The default implemrentation calls
+     * the default constructor. If no such is defined in the operator, an exception is thrown.
+     * Override in order to provide a no-argument instance of your operator.
+     * Implementors should call {@link Operator#setSpi(OperatorSpi) operator.setSpi(this)}
+     * in order to set the operator's SPI.
+     *
+     * @return the operator instance
+     * @throws OperatorException if the instance could not be created
+     */
+    Operator createOperator() throws OperatorException;
+
+    /**
+     * Creates an operator instance for the given source products and processing parameters.
+     *
+     * @param parameters     the processing parameters
+     * @param sourceProducts the source products
+     * @return the operator instance
+     * @throws OperatorException if the operator could not be created
+     */
+    Operator createOperator(Map<String, Object> parameters, Map<String, Product> sourceProducts) throws OperatorException;
 
     /**
      * Gets the operator class.

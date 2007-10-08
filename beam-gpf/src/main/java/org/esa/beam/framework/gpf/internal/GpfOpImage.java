@@ -2,7 +2,7 @@ package org.esa.beam.framework.gpf.internal;
 
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.OperatorContext;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.jai.RasterDataNodeOpImage;
 
@@ -15,9 +15,9 @@ import java.util.Map;
 
 public class GpfOpImage extends RasterDataNodeOpImage {
 
-    private DefaultOperatorContext operatorContext;
+    private OperatorContext operatorContext;
 
-    protected GpfOpImage(Band band, DefaultOperatorContext operatorContext) {
+    protected GpfOpImage(Band band, OperatorContext operatorContext) {
         super(band, createSingleBandedImageLayout(band));
         this.operatorContext = operatorContext;
     }
@@ -47,14 +47,14 @@ public class GpfOpImage extends RasterDataNodeOpImage {
             Map<Band, org.esa.beam.framework.gpf.Tile> targetTiles = new HashMap<Band, org.esa.beam.framework.gpf.Tile>(targetRasters.length * 2);
             for (int i = 0; i < targetRasters.length; i++) {
                 Band targetBand = operatorContext.getTargetProduct().getBandAt(i);
-                ProductData targetData = targetBand.createCompatibleRasterData(destRect.width, destRect.height);
-                org.esa.beam.framework.gpf.Tile targetTile = createTargetTile(destRect, targetData);
-                targetTiles.put(targetBand, targetTile);
+                if (!(targetBand instanceof VirtualBand)) {
+                    ProductData targetData = targetBand.createCompatibleRasterData(destRect.width, destRect.height);
+                    org.esa.beam.framework.gpf.Tile targetTile = createTargetTile(destRect, targetData);
+                    targetTiles.put(targetBand, targetTile);
+                }
             }
             // Compute target GPF rasters
-            System.out.println(">> computeAllBands: this = " + this + ", destRect" + destRect);
             operatorContext.getOperator().computeTileStack(targetTiles, destRect);
-            System.out.println("<< computeAllBands: this = " + this + ", destRect" + destRect);
 
             // Write computed target GPF rasters into associated AWT tiles
             for (int i = 0; i < targetRasters.length; i++) {
@@ -70,9 +70,7 @@ public class GpfOpImage extends RasterDataNodeOpImage {
 
             // Compute target GPF raster
             final long t0 = System.currentTimeMillis();
-            System.out.println(">> computeBand: this = " + this + ", targetRectangle" + targetTile.getRectangle());
             operatorContext.getOperator().computeTile(getBand(), targetTile);
-            System.out.println("<< computeBand: time = " + (System.currentTimeMillis() - t0) + " ms");
 
             // Write computed target GPF raster into associated AWT tile
             tile.setDataElements(destRect.x, destRect.y, destRect.width, destRect.height, targetData.getElems());

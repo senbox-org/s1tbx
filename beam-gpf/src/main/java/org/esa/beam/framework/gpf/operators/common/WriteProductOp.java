@@ -5,7 +5,10 @@ import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.AbstractOperatorSpi;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorAlias;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
@@ -30,7 +33,7 @@ import java.util.List;
  * @author Marco Zuehlke
  */
 @OperatorAlias("ProductWriter")
-public class WriteProductOp extends AbstractOperator {
+public class WriteProductOp extends Operator {
 
     @TargetProduct
     private Product targetProduct;
@@ -80,8 +83,8 @@ public class WriteProductOp extends AbstractOperator {
             try {
                 Tile tile = getSourceTile(band, rectangle);
                 ProductData dataBuffer = tile.getRawSampleData();
-                band.writeRasterData(rectangle.x, rectangle.y, 
-                        rectangle.width, rectangle.height, dataBuffer, createProgressMonitor());
+                band.writeRasterData(rectangle.x, rectangle.y,
+                                     rectangle.width, rectangle.height, dataBuffer, createProgressMonitor());
             } catch (IOException e) {
                 Throwable cause = e.getCause();
                 if (cause instanceof OperatorException) {

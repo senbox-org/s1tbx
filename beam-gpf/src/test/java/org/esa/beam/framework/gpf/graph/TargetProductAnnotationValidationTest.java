@@ -2,10 +2,10 @@ package org.esa.beam.framework.gpf.graph;
 
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
-import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
 /**
  * Created by Marco Peters.
@@ -21,13 +21,13 @@ public class TargetProductAnnotationValidationTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         notInitTargetProductOpSPI = new NotInitOutputOperator.Spi();
-        OperatorSpiRegistry.getInstance().addOperatorSpi(notInitTargetProductOpSPI);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(notInitTargetProductOpSPI);
 
     }
 
     @Override
     protected void tearDown() {
-        OperatorSpiRegistry.getInstance().removeOperatorSpi(notInitTargetProductOpSPI);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(notInitTargetProductOpSPI);
     }
 
     public void testTargetProductIsSetByAnnotation() throws GraphException {
@@ -50,7 +50,7 @@ public class TargetProductAnnotationValidationTest extends TestCase {
         Product output;
 
         @Override
-        protected Product initialize() throws OperatorException {
+        public Product initialize() throws OperatorException {
             return new Product("output", "outputType", 12, 12);
         }
 

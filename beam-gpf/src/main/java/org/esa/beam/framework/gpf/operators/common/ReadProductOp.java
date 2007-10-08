@@ -1,19 +1,19 @@
 package org.esa.beam.framework.gpf.operators.common;
 
-import java.awt.Rectangle;
-import java.io.IOException;
-
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.AbstractOperator;
 import org.esa.beam.framework.gpf.AbstractOperatorSpi;
+import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+
+import java.awt.Rectangle;
+import java.io.IOException;
 
 /**
  * The <code>LoadProductOperator</code> wrapps the BEAM {@link ProductIO} to load any kind of Product
@@ -26,7 +26,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
  *
  * @author Maximilian Aulinger
  */
-public class ReadProductOp extends AbstractOperator {
+public class ReadProductOp extends Operator {
 
     private ProductReader beamReader;
 

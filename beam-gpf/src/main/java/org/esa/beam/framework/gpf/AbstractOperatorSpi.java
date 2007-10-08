@@ -1,6 +1,10 @@
 package org.esa.beam.framework.gpf;
 
 import com.bc.ceres.core.Assert;
+import org.esa.beam.framework.datamodel.Product;
+
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Base class for operator SPIs.
@@ -28,6 +32,34 @@ public abstract class AbstractOperatorSpi implements OperatorSpi {
     /**
      * {@inheritDoc}
      */
+    public final Operator createOperator(Map<String, Object> parameters, Map<String, Product> sourceProducts) throws OperatorException {
+        Operator operator = createOperator();
+        Set<Map.Entry<String, Product>> entries = sourceProducts.entrySet();
+        for (Map.Entry<String, Product> entry : entries) {
+            operator.addSourceProduct(entry.getKey(), entry.getValue());
+        }
+        operator.setParameters(parameters);
+        return operator;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Operator createOperator() throws OperatorException {
+        try {
+            final Operator operator = getOperatorClass().newInstance();
+            operator.setSpi(this);
+            return operator;
+        } catch (InstantiationException e) {
+            throw new OperatorException(e);
+        } catch (IllegalAccessException e) {
+            throw new OperatorException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public Class<? extends Operator> getOperatorClass() {
         return operatorClass;
     }
@@ -37,7 +69,7 @@ public abstract class AbstractOperatorSpi implements OperatorSpi {
      *
      * @param operatorClass the class of the {@link Operator}
      */
-    public void setOperatorClass(Class<? extends Operator> operatorClass) {
+    protected void setOperatorClass(Class<? extends Operator> operatorClass) {
         this.operatorClass = operatorClass;
     }
 
@@ -53,7 +85,7 @@ public abstract class AbstractOperatorSpi implements OperatorSpi {
      *
      * @param name the name of the {@link Operator}
      */
-    public void setName(String name) {
+    protected void setName(String name) {
         this.name = name;
     }
 
@@ -69,7 +101,7 @@ public abstract class AbstractOperatorSpi implements OperatorSpi {
      *
      * @param author the authors name
      */
-    public void setAuthor(String author) {
+    protected void setAuthor(String author) {
         this.author = author;
     }
 
@@ -85,7 +117,7 @@ public abstract class AbstractOperatorSpi implements OperatorSpi {
      *
      * @param copyright the copyright note
      */
-    public void setCopyright(String copyright) {
+    protected void setCopyright(String copyright) {
         this.copyright = copyright;
     }
 
@@ -101,7 +133,7 @@ public abstract class AbstractOperatorSpi implements OperatorSpi {
      *
      * @param description a short description
      */
-    public void setDescription(String description) {
+    protected void setDescription(String description) {
         this.description = description;
     }
 
@@ -117,7 +149,7 @@ public abstract class AbstractOperatorSpi implements OperatorSpi {
      *
      * @param version the version number
      */
-    public void setVersion(String version) {
+    protected void setVersion(String version) {
         this.version = version;
     }
 }

@@ -2,7 +2,7 @@ package org.esa.beam.framework.gpf.graph;
 
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
-import org.esa.beam.framework.gpf.OperatorSpiRegistry;
+import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.TestOps;
 
 import java.io.StringReader;
@@ -15,16 +15,16 @@ public class GraphIOTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        OperatorSpiRegistry.getInstance().addOperatorSpi(operatorSpi1);
-        OperatorSpiRegistry.getInstance().addOperatorSpi(operatorSpi2);
-        OperatorSpiRegistry.getInstance().addOperatorSpi(operatorSpi3);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(operatorSpi1);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(operatorSpi2);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(operatorSpi3);
     }
 
     @Override
     protected void tearDown() throws Exception {
-        OperatorSpiRegistry.getInstance().removeOperatorSpi(operatorSpi1);
-        OperatorSpiRegistry.getInstance().removeOperatorSpi(operatorSpi2);
-        OperatorSpiRegistry.getInstance().removeOperatorSpi(operatorSpi3);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(operatorSpi1);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(operatorSpi2);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(operatorSpi3);
     }
 
     public void testEmptyChain() throws Exception {

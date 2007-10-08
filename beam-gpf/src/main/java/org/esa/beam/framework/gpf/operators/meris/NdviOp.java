@@ -1,12 +1,14 @@
 package org.esa.beam.framework.gpf.operators.meris;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.AbstractOperatorSpi;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
-
-import com.bc.ceres.core.ProgressMonitor;
 
 import java.awt.Color;
 import java.awt.Rectangle;
@@ -18,7 +20,7 @@ import java.util.Map;
  *
  * @author Maximilian Aulinger
  */
-public class NdviOp extends AbstractOperator {
+public class NdviOp extends Operator {
 
     // constants
     public static final String NDVI_PRODUCT_TYPE = "MER_NDVI2P";
@@ -42,7 +44,7 @@ public class NdviOp extends AbstractOperator {
     private Product targetProduct;
 
     @Override
-    protected Product initialize() throws OperatorException {
+    public Product initialize() throws OperatorException {
         loadSourceBands(inputProduct);
         int sceneWidth = inputProduct.getSceneRasterWidth();
         int sceneHeight = inputProduct.getSceneRasterHeight();

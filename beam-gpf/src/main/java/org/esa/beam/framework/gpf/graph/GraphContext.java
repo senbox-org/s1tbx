@@ -30,8 +30,9 @@ public class GraphContext {
      *
      * @param graph  the {@link Graph} to create the context for
      * @param logger a logger
+     * @throws GraphException if the graph context could not be created
      */
-    public GraphContext(Graph graph, Logger logger) {
+    public GraphContext(Graph graph, Logger logger) throws GraphException {
         this.graph = graph;
         this.logger = logger;
 

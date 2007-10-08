@@ -2,15 +2,8 @@ package org.esa.beam.framework.gpf.graph;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.ParameterConverter;
-import org.esa.beam.framework.gpf.internal.DefaultParameterConverter;
-import org.esa.beam.framework.gpf.internal.OperatorContextInitializer;
-import org.esa.beam.framework.gpf.internal.ParameterInjector;
 import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.JAI;
@@ -258,12 +251,12 @@ public class GraphProcessor {
                 initNodeContext(graphContext, sourceNodeContext, SubProgressMonitor.create(pm, 1));
                 nodeContext.addSourceProduct(source.getName(), sourceNodeContext.getTargetProduct());
             }
-
-            OperatorContextInitializer.initOperatorContext(nodeContext, new Xpp3DomParameterInjector(nodeContext));
-
-            // register nodeContext for correct disposal
+            Node node = nodeContext.getNode();
+            nodeContext.setParameters(node.getConfiguration());
+            nodeContext.getTargetProduct(); // force operator initialisation
             graphContext.getInitNodeContextDeque().addFirst(nodeContext);
-        } catch (OperatorException e) {
+
+        } catch (Exception e) {
             throw new GraphException(e.getMessage(), e);
         } finally {
             pm.done();
@@ -297,29 +290,4 @@ public class GraphProcessor {
     }
 
 
-    private static class Xpp3DomParameterInjector implements ParameterInjector {
-
-        private final NodeContext nodeContext;
-
-        public Xpp3DomParameterInjector(NodeContext nodeContext) {
-            this.nodeContext = nodeContext;
-        }
-
-        public void injectParameters(Operator operator) throws OperatorException {
-            Xpp3Dom configuration = nodeContext.getNode().getConfiguration();
-            if (configuration != null) {
-                if (operator instanceof ParameterConverter) {
-                    ParameterConverter converter = (ParameterConverter) operator;
-                    try {
-                        converter.setParameterValues(operator, configuration);
-                    } catch (Throwable t) {
-                        throw new OperatorException(t);
-                    }
-                } else {
-                    DefaultParameterConverter defaultParameterConverter = new DefaultParameterConverter();
-                    defaultParameterConverter.setParameterValues(operator, configuration);
-                }
-            }
-        }
-    }
 }

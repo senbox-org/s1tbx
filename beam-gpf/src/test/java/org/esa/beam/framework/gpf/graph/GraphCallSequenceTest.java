@@ -2,7 +2,6 @@ package org.esa.beam.framework.gpf.graph;
 
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
-
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -29,17 +28,18 @@ public class GraphCallSequenceTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         n1Spi = new N1Spi();
-        OperatorSpiRegistry.getInstance().addOperatorSpi(n1Spi);
+        final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        registry.addOperatorSpi(n1Spi);
         n2Spi = new N2Spi();
-        OperatorSpiRegistry.getInstance().addOperatorSpi(n2Spi);
+        registry.addOperatorSpi(n2Spi);
         n3Spi = new N3Spi();
-        OperatorSpiRegistry.getInstance().addOperatorSpi(n3Spi);
+        registry.addOperatorSpi(n3Spi);
         n4Spi = new N4Spi();
-        OperatorSpiRegistry.getInstance().addOperatorSpi(n4Spi);
+        registry.addOperatorSpi(n4Spi);
         n5Spi = new N5Spi();
-        OperatorSpiRegistry.getInstance().addOperatorSpi(n5Spi);
+        registry.addOperatorSpi(n5Spi);
         n6Spi = new N6Spi();
-        OperatorSpiRegistry.getInstance().addOperatorSpi(n6Spi);
+        registry.addOperatorSpi(n6Spi);
 
         callRecordList = new ArrayList<String>();
         JAI.getDefaultInstance().getTileCache().flush();
@@ -48,12 +48,13 @@ public class GraphCallSequenceTest extends TestCase {
     @Override
     protected void tearDown() throws Exception {
         JAI.getDefaultInstance().getTileCache().flush();
-        OperatorSpiRegistry.getInstance().removeOperatorSpi(n1Spi);
-        OperatorSpiRegistry.getInstance().removeOperatorSpi(n2Spi);
-        OperatorSpiRegistry.getInstance().removeOperatorSpi(n3Spi);
-        OperatorSpiRegistry.getInstance().removeOperatorSpi(n4Spi);
-        OperatorSpiRegistry.getInstance().removeOperatorSpi(n5Spi);
-        OperatorSpiRegistry.getInstance().removeOperatorSpi(n6Spi);
+        final OperatorSpiRegistry spiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        spiRegistry.removeOperatorSpi(n1Spi);
+        spiRegistry.removeOperatorSpi(n2Spi);
+        spiRegistry.removeOperatorSpi(n3Spi);
+        spiRegistry.removeOperatorSpi(n4Spi);
+        spiRegistry.removeOperatorSpi(n5Spi);
+        spiRegistry.removeOperatorSpi(n6Spi);
         callRecordList.clear();
     }
 
@@ -331,6 +332,10 @@ public class GraphCallSequenceTest extends TestCase {
         }
     }
 
+    private static String getOpName(RecordingOp recordingOp) {
+        return recordingOp.getSpi().getName();
+    }
+
     public static class RecordingOp extends AbstractOperator {
 
         @TargetProduct
@@ -338,13 +343,13 @@ public class GraphCallSequenceTest extends TestCase {
 
         @Override
         public Product initialize() throws OperatorException {
-            recordCall(getContext().getOperatorSpi().getName(), "Operator.initialize");
-            return new RecordingProduct((NodeContext) getContext());
+            recordCall(getOpName(this), "Operator.initialize");
+            return new RecordingProduct(this);
         }
 
         @Override
         public void dispose() {
-            recordCall(getContext().getOperatorSpi().getName(), "Operator.dispose");
+            recordCall(getOpName(this), "Operator.dispose");
         }
     }
 
@@ -357,7 +362,7 @@ public class GraphCallSequenceTest extends TestCase {
         @Override
         public void computeTile(Band band, Tile targetTile) throws
                 OperatorException {
-            recordCall(getContext().getOperatorSpi().getName(), "Operator.computeBand");
+            recordCall(getOpName(this), "Operator.computeBand");
 
             Rectangle r = targetTile.getRectangle();
             float offset = r.y * targetProduct.getSceneRasterWidth() + r.x;
@@ -373,7 +378,7 @@ public class GraphCallSequenceTest extends TestCase {
 
         @Override
         public void dispose() {
-            recordCall(getContext().getOperatorSpi().getName(), "Operator.dispose");
+            recordCall(getOpName(this), "Operator.dispose");
         }
     }
 
@@ -388,7 +393,7 @@ public class GraphCallSequenceTest extends TestCase {
         @Override
         public void computeTile(Band band, Tile targetTile) throws
                 OperatorException {
-            recordCall(getContext().getOperatorSpi().getName(), "Operator.computeBand");
+            recordCall(getOpName(this), "Operator.computeBand");
 
             Tile sourceTile = getSourceTile(sourceProduct.getBandAt(0),
                                             targetTile.getRectangle());
@@ -415,7 +420,7 @@ public class GraphCallSequenceTest extends TestCase {
         // todo - add tests that verify correct computing output
         @Override
         public void computeTile(Band band, Tile targetTile) throws OperatorException {
-            recordCall(getContext().getOperatorSpi().getName(), "Operator.computeBand");
+            recordCall(getOpName(this), "Operator.computeBand");
 
             Tile sourceTile1 = getSourceTile(sourceProduct1.getBandAt(0),
                                              targetTile.getRectangle());
@@ -486,10 +491,10 @@ public class GraphCallSequenceTest extends TestCase {
 
     public static class RecordingProduct extends Product {
 
-        public RecordingProduct(NodeContext context) {
-            super(context.getNode().getId(), context.getNode().getOperatorName(), 1, 1);
+        public RecordingProduct(RecordingOp op) {
+            super(op.getSpi().getName(), op.getClass().getSimpleName(), 1, 1);
             addBand("band_0", ProductData.TYPE_FLOAT32);
-            setProductReader(new OperatorProductReader(context));
+            setProductReader(new OperatorProductReader(op));
             recordCall(getName(), "Product.construct");
         }
 

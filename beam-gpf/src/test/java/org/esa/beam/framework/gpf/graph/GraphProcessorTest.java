@@ -3,6 +3,7 @@ package org.esa.beam.framework.gpf.graph;
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.TestOps;
@@ -243,17 +244,19 @@ public class GraphProcessorTest extends TestCase {
         spi1 = new TestOps.Op1.Spi();
         spi2 = new TestOps.Op2.Spi();
         spi3 = new TestOps.Op3.Spi();
-        OperatorSpiRegistry.getInstance().addOperatorSpi(spi1);
-        OperatorSpiRegistry.getInstance().addOperatorSpi(spi2);
-        OperatorSpiRegistry.getInstance().addOperatorSpi(spi3);
+        final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        registry.addOperatorSpi(spi1);
+        registry.addOperatorSpi(spi2);
+        registry.addOperatorSpi(spi3);
     }
 
     @Override
     protected void tearDown() throws Exception {
         testTileCache.flush();
         JAI.getDefaultInstance().setTileCache(jaiTileCache);
-        OperatorSpiRegistry.getInstance().removeOperatorSpi(spi1);
-        OperatorSpiRegistry.getInstance().removeOperatorSpi(spi2);
-        OperatorSpiRegistry.getInstance().removeOperatorSpi(spi3);
+        final OperatorSpiRegistry spiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        spiRegistry.removeOperatorSpi(spi1);
+        spiRegistry.removeOperatorSpi(spi2);
+        spiRegistry.removeOperatorSpi(spi3);
     }
 }

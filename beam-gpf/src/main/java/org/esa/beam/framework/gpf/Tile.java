@@ -266,6 +266,7 @@ public interface Tile {
 //    ProductData getRawSamples();
 
     //    void setRawSamples(ProductData samples);
+
     ProductData getRawSampleData();
 
     void setRawSampleData(ProductData sampleData);

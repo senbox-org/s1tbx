@@ -2,6 +2,7 @@ package org.esa.beam.framework.gpf.graph;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.runtime.RuntimeRunnable;
+import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.util.logging.BeamLogManager;
 
@@ -63,7 +64,9 @@ public class GraphProcessorMain implements RuntimeRunnable {
         Map variables = parseArgs(args);
         BeamLogManager.setSystemLoggerName("gpf");
         Logger logger = BeamLogManager.getSystemLogger();
-        OperatorSpiRegistry.getInstance().loadOperatorSpis();
+
+        final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        registry.loadOperatorSpis();
         try {
             StringReader reader = new StringReader(readConfigFile(args[0]));
             // load graph
@@ -152,7 +155,7 @@ public class GraphProcessorMain implements RuntimeRunnable {
     }
 
     private static String readConfigFile(String configFilePath) throws IOException {
-        String xmlRequest = null;
+        String xmlRequest;
         int character;
         FileReader inputData = new FileReader(configFilePath);
         xmlRequest = "";

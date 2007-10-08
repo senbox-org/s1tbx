@@ -1,11 +1,14 @@
 package org.esa.beam.framework.gpf.internal;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.dataio.*;
+import org.esa.beam.framework.dataio.DecodeQualification;
+import org.esa.beam.framework.dataio.ProductReader;
+import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.OperatorContext;
+import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.util.io.BeamFileFilter;
 
 import java.awt.Rectangle;
@@ -25,24 +28,26 @@ import java.util.Locale;
 public class OperatorProductReader implements ProductReader {
 
     private static PlugIn plugIn = new PlugIn();
-    private OperatorContext operatorContext;
+    private Operator operator;
 
     /**
      * Creates a <code>OperatorProductReader</code> instance.
      *
-     * @param operatorContext the node context
+     * @param operator the operator
      */
-    public OperatorProductReader(OperatorContext operatorContext) {
-        this.operatorContext = operatorContext;
+    public OperatorProductReader(Operator operator) {
+        this.operator = operator;
     }
 
     public void close() throws IOException {
-        operatorContext = null;
-        // note: nodeContext will be disposed by framework
+//        if (operator != null) {
+//            operator.dispose();
+//            operator = null;
+//        }
     }
 
     public Object getInput() {
-        return operatorContext.getSourceProducts();
+        return operator.getSourceProducts();
     }
 
     public ProductReaderPlugIn getReaderPlugIn() {
@@ -53,9 +58,8 @@ public class OperatorProductReader implements ProductReader {
         return null;
     }
 
-    public Product readProductNodes(Object input, ProductSubsetDef subsetDef) throws IOException,
-            IllegalFileFormatException {
-        return operatorContext.getTargetProduct();
+    public Product readProductNodes(Object input, ProductSubsetDef subsetDef) throws IOException {
+        return operator.getTargetProduct();
     }
 
     public void readBandRasterData(Band destBand, int destOffsetX, int destOffsetY, int destWidth,
@@ -80,7 +84,7 @@ public class OperatorProductReader implements ProductReader {
 
     @Override
     public String toString() {
-        return "OperatorProductReader[op=" + operatorContext.getOperator().getClass().getSimpleName() + "]";
+        return "OperatorProductReader[op=" + operator.getClass().getSimpleName() + "]";
     }
 
     private static class PlugIn implements ProductReaderPlugIn {

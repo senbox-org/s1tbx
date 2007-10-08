@@ -16,13 +16,15 @@
  */
 package org.esa.beam.framework.gpf.operators.meris;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.AbstractOperatorSpi;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
-
-import com.bc.ceres.core.ProgressMonitor;
 
 import java.awt.Rectangle;
 
@@ -32,7 +34,7 @@ import java.awt.Rectangle;
  * @author marcoz
  * @version $Revision: 1.1 $ $Date: 2007/03/27 12:51:05 $
  */
-public class RRToFRSOp extends AbstractOperator {
+public class RRToFRSOp extends Operator {
 
     private GeoCoding rrGeoCoding;
     private GeoCoding frsGeoCoding;
@@ -45,7 +47,7 @@ public class RRToFRSOp extends AbstractOperator {
     private Product targetProduct;
 
     @Override
-    protected Product initialize() throws OperatorException {
+    public Product initialize() throws OperatorException {
         rrGeoCoding = rrProduct.getGeoCoding();
         frsGeoCoding = frsProduct.getGeoCoding();
 

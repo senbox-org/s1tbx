@@ -6,7 +6,10 @@ import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.AbstractOperatorSpi;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 
 import java.awt.Rectangle;
@@ -32,7 +35,7 @@ import java.io.IOException;
  *
  * @author Maximilian Aulinger
  */
-public class SubsetOp extends AbstractOperator {
+public class SubsetOp extends Operator {
 
     private ProductReader subsetReader;
     private ProductSubsetDef subsetDef = null;
@@ -53,12 +56,12 @@ public class SubsetOp extends AbstractOperator {
     private boolean ignoreMetadata = false;
 
     @Override
-    protected Product initialize() throws OperatorException {
+    public Product initialize() throws OperatorException {
         subsetReader = new ProductSubsetBuilder();
         createSubsetDef();
 
         try {
-            return subsetReader.readProductNodes(getContext().getSourceProduct("input"), subsetDef);
+            return subsetReader.readProductNodes(getSourceProduct("input"), subsetDef);
         } catch (Throwable t) {
             throw new OperatorException(t);
         }
@@ -88,7 +91,7 @@ public class SubsetOp extends AbstractOperator {
     }
 
     private void setDefaultValues() {
-        Product sourceProduct = getContext().getSourceProduct("input");
+        Product sourceProduct = getSourceProduct("input");
         // set source dependent default values
         if (region == null) {
             region = new Rectangle(0, 0, sourceProduct.getSceneRasterWidth(),

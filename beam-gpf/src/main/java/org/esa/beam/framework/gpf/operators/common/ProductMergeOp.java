@@ -38,7 +38,7 @@ import java.util.regex.Pattern;
  * @author marcoz
  * @version $Revision: 1.3 $ $Date: 2007/05/14 12:25:40 $
  */
-public class ProductMergeOp extends AbstractOperator implements ParameterConverter {
+public class ProductMergeOp extends Operator implements ParameterConverter {
 
     public static class Configuration {
         private String productType = "no";
@@ -73,11 +73,11 @@ public class ProductMergeOp extends AbstractOperator implements ParameterConvert
     }
 
     @Override
-    protected Product initialize() throws OperatorException {
+    public Product initialize() throws OperatorException {
 
         Product outputProduct;
         if (StringUtils.isNotNullAndNotEmpty(config.baseGeoInfo)) {
-            Product baseGeoProduct = getContext().getSourceProduct(config.baseGeoInfo);
+            Product baseGeoProduct = getSourceProduct(config.baseGeoInfo);
             final int sceneRasterWidth = baseGeoProduct.getSceneRasterWidth();
             final int sceneRasterHeight = baseGeoProduct.getSceneRasterHeight();
             outputProduct = new Product("mergedName", config.productType,
@@ -86,7 +86,7 @@ public class ProductMergeOp extends AbstractOperator implements ParameterConvert
             copyBaseGeoInfo(baseGeoProduct, outputProduct);
         } else {
             BandDesc bandDesc = config.bands.get(0);
-            Product srcProduct = getContext().getSourceProduct(bandDesc.product);
+            Product srcProduct = getSourceProduct(bandDesc.product);
             final int sceneRasterWidth = srcProduct.getSceneRasterWidth();
             final int sceneRasterHeight = srcProduct.getSceneRasterHeight();
             outputProduct = new Product("mergedName", config.productType,
@@ -95,7 +95,7 @@ public class ProductMergeOp extends AbstractOperator implements ParameterConvert
 
         Set<Product> allSrcProducts = new HashSet<Product>();
         for (BandDesc bandDesc : config.bands) {
-            Product srcProduct = getContext().getSourceProduct(bandDesc.product);
+            Product srcProduct = getSourceProduct(bandDesc.product);
             if (StringUtils.isNotNullAndNotEmpty(bandDesc.name)) {
                 if (StringUtils.isNotNullAndNotEmpty(bandDesc.newName)) {
                     copyBandWithFeatures(srcProduct, outputProduct, bandDesc.name, bandDesc.newName);
@@ -143,11 +143,6 @@ public class ProductMergeOp extends AbstractOperator implements ParameterConvert
         destBand.setName(newBandName);
     }
 
-    /**
-     * @param outputProduct
-     * @param srcProduct
-     * @param name
-     */
     private Band copyBandWithFeatures(Product srcProduct, Product outputProduct, String bandName) {
         Band destBand = ProductUtils.copyBand(bandName, srcProduct, outputProduct);
         Band srcBand = srcProduct.getBand(bandName);

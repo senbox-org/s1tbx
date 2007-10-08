@@ -1,6 +1,7 @@
 package org.esa.beam.framework.gpf.annotations;
 
 import com.bc.ceres.binding.*;
+import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
@@ -83,8 +84,9 @@ public class ParameterDefinitionFactory implements ValueDefinitionFactory {
     }
 
     public static ValueContainer createMapBackedOperatorValueContainer(String operatorName, Map<String, Object> operatorParameters) {
-        OperatorSpiRegistry.getInstance().loadOperatorSpis();
-        OperatorSpi operatorSpi = OperatorSpiRegistry.getInstance().getOperatorSpi(operatorName);
+        final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        registry.loadOperatorSpis();
+        OperatorSpi operatorSpi = registry.getOperatorSpi(operatorName);
         if (operatorSpi == null) {
             throw new IllegalStateException("Operator SPI not found for operator [" + operatorName + "]");
         }

@@ -23,7 +23,6 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -42,12 +41,12 @@ public class BandArithmeticOpTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         spi = new BandArithmeticOp.Spi();
-        OperatorSpiRegistry.getInstance().addOperatorSpi(spi);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(spi);
     }
 
     @Override
     protected void tearDown() throws Exception {
-        OperatorSpiRegistry.getInstance().removeOperatorSpi(spi);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(spi);
     }
 
     public void testSimpelstCase() throws Exception {

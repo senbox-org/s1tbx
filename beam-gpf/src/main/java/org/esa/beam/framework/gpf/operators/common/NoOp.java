@@ -2,8 +2,8 @@ package org.esa.beam.framework.gpf.operators.common;
 
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.AbstractOperator;
 import org.esa.beam.framework.gpf.AbstractOperatorSpi;
+import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
@@ -12,7 +12,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 /**
  * Simply passes the source product through the operator.
  */
-public class NoOp extends AbstractOperator {
+public class NoOp extends Operator {
     @SourceProduct
     private Product sourceProduct;
 
@@ -21,7 +21,7 @@ public class NoOp extends AbstractOperator {
 
 
     @Override
-    protected Product initialize() throws OperatorException {
+    public Product initialize() throws OperatorException {
         targetProduct = sourceProduct;
         return targetProduct;
     }

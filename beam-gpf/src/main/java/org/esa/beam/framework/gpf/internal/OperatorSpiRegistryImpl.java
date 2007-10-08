@@ -14,12 +14,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.esa.beam.framework.gpf;
+package org.esa.beam.framework.gpf.internal;
 
 import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryFactory;
 import com.bc.ceres.core.ServiceRegistryListener;
 import org.esa.beam.BeamCoreActivator;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.annotations.OperatorAlias;
 
 import java.util.HashMap;
@@ -33,17 +35,15 @@ import java.util.Set;
  * @author Marco Zühlke
  * @since 4.1
  */
-public class OperatorSpiRegistry {
+public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
 
-    private static final OperatorSpiRegistry instance = new OperatorSpiRegistry();
     private ServiceRegistry<OperatorSpi> serviceRegistry;
     private Map<String, String> aliases;
-    private boolean servicesLoaded;
 
     /**
      * The provate singleton constructor.
      */
-    private OperatorSpiRegistry() {
+    public OperatorSpiRegistryImpl() {
         serviceRegistry = ServiceRegistryFactory.getInstance().getServiceRegistry(OperatorSpi.class);
         aliases = new HashMap<String, String>(20);
         serviceRegistry.addListener(new ServiceRegistryListener<OperatorSpi>() {
@@ -62,19 +62,10 @@ public class OperatorSpiRegistry {
     }
 
     /**
-     * Gets the singleton instance.
-     *
-     * @return the {@code OperatorSpiRegistry}
-     */
-    public static OperatorSpiRegistry getInstance() {
-        return instance;
-    }
-
-    /**
      * Loads the SPI's defined in {@code META-INF/services}.
      */
     public void loadOperatorSpis() {
-        if (!servicesLoaded && !BeamCoreActivator.isStarted()) {
+        if (!BeamCoreActivator.isStarted()) {
             BeamCoreActivator.loadServices(getServiceRegistry());
         }
     }

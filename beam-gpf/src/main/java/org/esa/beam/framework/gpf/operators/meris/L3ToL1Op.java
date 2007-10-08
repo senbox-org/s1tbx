@@ -16,14 +16,8 @@
  */
 package org.esa.beam.framework.gpf.operators.meris;
 
-import java.awt.Rectangle;
-
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
+import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.AbstractOperatorSpi;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
@@ -33,7 +27,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 
-import com.bc.ceres.core.ProgressMonitor;
+import java.awt.Rectangle;
 
 /**
  * Created by marcoz.
@@ -58,7 +52,7 @@ public class L3ToL1Op extends MerisBasisOp {
     private String maskBand;
 
     @Override
-    protected Product initialize() throws OperatorException {
+    public Product initialize() throws OperatorException {
         l3GeoCoding = l3Product.getGeoCoding();
         l1GeoCoding = l1Product.getGeoCoding();
 

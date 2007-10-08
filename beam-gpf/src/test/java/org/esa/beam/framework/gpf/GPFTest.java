@@ -22,7 +22,7 @@ public class GPFTest extends TestCase {
     }
 
     public void testOperatorApi() throws IOException, OperatorException, URISyntaxException {
-        OperatorSpiRegistry.getInstance().loadOperatorSpis();
+        GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
 
         String filePath = GPFTest.class.getResource("test-product.dim").toURI().getPath();
 
@@ -40,7 +40,7 @@ public class GPFTest extends TestCase {
         assertNotNull(p1.getFileLocation());
         assertEquals("test-product.dim", p1.getFileLocation().getName());
 
-        OperatorSpiRegistry.getInstance().addOperatorSpi(new FooOpSpi());
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new FooOpSpi());
 
         Product p2 = GPF.createProduct("Foo", GPF.NO_PARAMS, p1);
 
@@ -66,15 +66,8 @@ public class GPFTest extends TestCase {
         @SourceProduct
         Product sourceProduct;
 
-        /**
-         * Called by {@link #initialize(org.esa.beam.framework.gpf.OperatorContext)} after the {@link org.esa.beam.framework.gpf.OperatorContext}
-         * is stored.
-         *
-         * @return the target product
-         * @see #initialize(org.esa.beam.framework.gpf.OperatorContext)
-         */
         @Override
-        protected Product initialize() throws OperatorException {
+        public Product initialize() throws OperatorException {
             Product product = new Product("X", "Y", sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
             String[] bandNames = sourceProduct.getBandNames();
             for (String s : bandNames) {

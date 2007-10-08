@@ -42,7 +42,7 @@ import java.awt.Rectangle;
  * @author marcoz
  * @version $Revision: $ $Date: $
  */
-public class BandArithmeticOp extends AbstractOperator implements ParameterConverter {
+public class BandArithmeticOp extends Operator implements ParameterConverter {
 
     public static class BandDescriptor {
         public String name;
@@ -92,14 +92,14 @@ public class BandArithmeticOp extends AbstractOperator implements ParameterConve
     }
 
     @Override
-    protected Product initialize() throws OperatorException {
+    public Product initialize() throws OperatorException {
         int height = sourceProducts[0].getSceneRasterHeight();
         int width = sourceProducts[0].getSceneRasterWidth();
         targetProduct = new Product(productName, "EXP", width, height);
 
         namespace = BandArithmetic.createDefaultNamespace(sourceProducts, 0, new ProductPrefixProvider() {
             public String getPrefix(Product product) {
-                String idForSourceProduct = getContext().getSourceProductId(product);
+                String idForSourceProduct = getSourceProductId(product);
                 return "$" + idForSourceProduct + ".";
             }
         });

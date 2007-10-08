@@ -5,8 +5,8 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.gpf.AbstractOperator;
 import org.esa.beam.framework.gpf.AbstractOperatorSpi;
+import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.Parameter;
@@ -38,7 +38,7 @@ import java.util.Map;
  *
  * @author Maximilian Aulinger
  */
-public class WriteRGBOp extends AbstractOperator {
+public class WriteRGBOp extends Operator {
 
     @Parameter
     private int red;
@@ -64,7 +64,7 @@ public class WriteRGBOp extends AbstractOperator {
         dataMap = new HashMap<Band, ProductData>(3);
         rgbChannelNodes = new RasterDataNode[3];
 
-        sourceProduct = getContext().getSourceProduct("input");
+        sourceProduct = getSourceProduct("input");
         final int height = sourceProduct.getSceneRasterHeight();
         final int width = sourceProduct.getSceneRasterWidth();
 

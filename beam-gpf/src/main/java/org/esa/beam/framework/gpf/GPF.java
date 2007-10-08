@@ -1,14 +1,19 @@
 package org.esa.beam.framework.gpf;
 
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.internal.DefaultOperatorContext;
-import org.esa.beam.framework.gpf.internal.OperatorContextInitializer;
-import org.esa.beam.framework.gpf.internal.ParameterInjector;
+import org.esa.beam.framework.gpf.internal.OperatorSpiRegistryImpl;
+import org.esa.beam.util.Guardian;
 
-import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class GPF {
+
+    public static final String SOURCE_PRODUCT_FIELD_NAME = "sourceProduct";
+    public static final String TARGET_PRODUCT_FIELD_NAME = "targetProduct";
+
 
     /**
      * An unmodifiable empty {@link Map Map}.
@@ -34,20 +39,11 @@ public class GPF {
      */
     public static final Map<String, Product> NO_SOURCES = Collections.unmodifiableMap(new TreeMap<String, Product>());
 
-    public static final String SOURCE_PRODUCT_FIELD_NAME = "sourceProduct";
     private static GPF defaultInstance = new GPF();
+    private OperatorSpiRegistry spiRegistry;
 
-
-    private GPF() {
-    }
-
-    /**
-     * Gets the default singelton instance.
-     *
-     * @return the singelton instance
-     */
-    public static GPF getDefaultInstance() {
-        return defaultInstance;
+    protected GPF() {
+        spiRegistry = new OperatorSpiRegistryImpl();
     }
 
     /**
@@ -105,7 +101,7 @@ public class GPF {
                 sourceProductMap.put(SOURCE_PRODUCT_FIELD_NAME + (i + 1), sourceProduct);
             }
         }
-        return createProduct(operatorName, parameters, sourceProductMap);
+        return defaultInstance.createProductNS(operatorName, parameters, sourceProductMap);
     }
 
     /**
@@ -121,45 +117,67 @@ public class GPF {
      */
     public static Product createProduct(String operatorName,
                                         Map<String, Object> parameters,
-                                        Map<String, Product> sourceProducts) throws
-            OperatorException {
-        final DefaultOperatorContext defaultOperatorContext = new DefaultOperatorContext(operatorName);
-        Set<Map.Entry<String, Product>> entries = sourceProducts.entrySet();
-        for (Map.Entry<String, Product> entry : entries) {
-            defaultOperatorContext.addSourceProduct(entry.getKey(), entry.getValue());
-        }
-        OperatorContextInitializer.initOperatorContext(defaultOperatorContext,
-                                                       new MapParameterInjector(defaultOperatorContext, parameters));
-        return defaultOperatorContext.getTargetProduct();
+                                        Map<String, Product> sourceProducts) throws OperatorException {
+        return defaultInstance.createProductNS(operatorName, parameters, sourceProducts);
     }
 
-    private static class MapParameterInjector implements ParameterInjector {
-
-        private final DefaultOperatorContext defaultOperatorContext;
-        private final Map<String, Object> parameters;
-
-        public MapParameterInjector(DefaultOperatorContext defaultOperatorContext, Map<String, Object> parameters) {
-            this.defaultOperatorContext = defaultOperatorContext;
-            this.parameters = parameters;
+    /**
+     * Creates a product by using the operator specified by the given name.
+     * The resulting product can be used as input product for a further call to {@code createProduct()}.
+     * By concatenating multiple calls it is possible to set up a processing graph.
+     *
+     * @param operatorName   the name of the operator to use
+     * @param parameters     the named parameters needed by the operator
+     * @param sourceProducts a map of named source products
+     * @return the product created by the operator
+     * @throws OperatorException if the product could not be created
+     */
+    public Product createProductNS(String operatorName,
+                                   Map<String, Object> parameters,
+                                   Map<String, Product> sourceProducts) throws OperatorException {
+        OperatorSpi operatorSpi = spiRegistry.getOperatorSpi(operatorName);
+        if (operatorSpi == null) {
+            throw new OperatorException("operator SPI not found for operator'" + operatorName + "'");
         }
+        Operator operator = operatorSpi.createOperator(parameters, sourceProducts);
+        return operator.getTargetProduct();
+    }
 
-        public void injectParameters(Operator operator) throws OperatorException {
-            Field[] parameterFields = defaultOperatorContext.getParameterFields();
-            for (Field parameterField : parameterFields) {
-                Object value = parameters.get(parameterField.getName());
-                if (value != null) {
-                    boolean oldFieldState = parameterField.isAccessible();
-                    try {
-                        parameterField.setAccessible(true);
-                        // todo - validate before setting the value!!!
-                        parameterField.set(operator, value);
-                    } catch (IllegalAccessException e) {
-                        throw new OperatorException("Failed to set parameter [" + parameterField.getName() + "]", e);
-                    } finally {
-                        parameterField.setAccessible(oldFieldState);
-                    }
-                }
-            }
-        }
+
+    /**
+     * Gets the registry for operator SPIs.
+     *
+     * @return the registry for operator SPIs.
+     */
+    public OperatorSpiRegistry getOperatorSpiRegistry() {
+        return spiRegistry;
+    }
+
+    /**
+     * Sets the registry for operator SPIs.
+     *
+     * @param spiRegistry the registry for operator SPIs.
+     */
+    public void setOperatorSpiRegistry(OperatorSpiRegistry spiRegistry) {
+        Guardian.assertNotNull("spiRegistry", spiRegistry);
+        this.spiRegistry = spiRegistry;
+    }
+
+    /**
+     * Gets the default GPF instance.
+     *
+     * @return the singelton instance
+     */
+    public static GPF getDefaultInstance() {
+        return defaultInstance;
+    }
+
+    /**
+     * Sets the default GPF instance.
+     *
+     * @param defaultInstance the GPF default instance
+     */
+    public static void setDefaultInstance(GPF defaultInstance) {
+        GPF.defaultInstance = defaultInstance;
     }
 }

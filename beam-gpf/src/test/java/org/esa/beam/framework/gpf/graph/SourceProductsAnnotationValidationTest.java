@@ -2,12 +2,12 @@ package org.esa.beam.framework.gpf.graph;
 
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
-import org.esa.beam.framework.gpf.annotations.SourceProducts;
-import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.annotations.SourceProducts;
+import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
 /**
  * Created by Marco Peters.
@@ -24,18 +24,20 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         goodOpSpi = new GoodOperator.Spi();
-        OperatorSpiRegistry.getInstance().addOperatorSpi(goodOpSpi);
+        final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        registry.addOperatorSpi(goodOpSpi);
         multiProductsConsumerOpSpi = new MultipleProductsConsumerOperator.Spi();
-        OperatorSpiRegistry.getInstance().addOperatorSpi(multiProductsConsumerOpSpi);
+        registry.addOperatorSpi(multiProductsConsumerOpSpi);
         multiProductsOptionalConsumerOpSpi = new MultipleProductsOptionalConsumerOperator.Spi();
-        OperatorSpiRegistry.getInstance().addOperatorSpi(multiProductsOptionalConsumerOpSpi);
+        registry.addOperatorSpi(multiProductsOptionalConsumerOpSpi);
     }
 
     @Override
     protected void tearDown() {
-        OperatorSpiRegistry.getInstance().removeOperatorSpi(goodOpSpi);
-        OperatorSpiRegistry.getInstance().removeOperatorSpi(multiProductsConsumerOpSpi);
-        OperatorSpiRegistry.getInstance().removeOperatorSpi(multiProductsOptionalConsumerOpSpi);
+        final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        registry.removeOperatorSpi(goodOpSpi);
+        registry.removeOperatorSpi(multiProductsConsumerOpSpi);
+        registry.removeOperatorSpi(multiProductsOptionalConsumerOpSpi);
     }
 
     public void testWithNoGivenProducts() {
@@ -94,7 +96,7 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
     public static class GoodOperator extends AbstractOperator {
 
         @Override
-        protected Product initialize() throws OperatorException {
+        public Product initialize() throws OperatorException {
             Product product = new Product("Good", "GoodType", 1, 1);
             product.addBand("a", ProductData.TYPE_INT8);
             product.addBand("b", ProductData.TYPE_INT8);
@@ -123,7 +125,7 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
         Product output;
 
         @Override
-        protected Product initialize() throws OperatorException {
+        public Product initialize() throws OperatorException {
             return new Product("output", "outputType", 12, 12);
         }
 
@@ -149,7 +151,7 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
         Product output;
 
         @Override
-        protected Product initialize() throws OperatorException {
+        public Product initialize() throws OperatorException {
             return new Product("output", "outputType", 12, 12);
         }
 

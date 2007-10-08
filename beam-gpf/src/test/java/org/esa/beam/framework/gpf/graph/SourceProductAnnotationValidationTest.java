@@ -2,12 +2,12 @@ package org.esa.beam.framework.gpf.graph;
 
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
-import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.annotations.SourceProduct;
+import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
 public class SourceProductAnnotationValidationTest extends TestCase {
 
@@ -21,28 +21,30 @@ public class SourceProductAnnotationValidationTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         wrongTypeOpSpi = new WrongTypeOperator.Spi();
-        OperatorSpiRegistry.getInstance().addOperatorSpi(wrongTypeOpSpi);
+        final OperatorSpiRegistry spiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        spiRegistry.addOperatorSpi(wrongTypeOpSpi);
         wrongBandsOpSpi = new WrongBandsOperator.Spi();
-        OperatorSpiRegistry.getInstance().addOperatorSpi(wrongBandsOpSpi);
+        spiRegistry.addOperatorSpi(wrongBandsOpSpi);
         goodOpSpi = new GoodOperator.Spi();
-        OperatorSpiRegistry.getInstance().addOperatorSpi(goodOpSpi);
+        spiRegistry.addOperatorSpi(goodOpSpi);
         consumerOpSpi = new ConsumerOperator.Spi();
-        OperatorSpiRegistry.getInstance().addOperatorSpi(consumerOpSpi);
+        spiRegistry.addOperatorSpi(consumerOpSpi);
         aliasConsumerOpSpi = new ConsumerWithAliasSourceOperator.Spi();
-        OperatorSpiRegistry.getInstance().addOperatorSpi(aliasConsumerOpSpi);
+        spiRegistry.addOperatorSpi(aliasConsumerOpSpi);
         optionalConsumerOpSpi = new OptionalConsumerOperator.Spi();
-        OperatorSpiRegistry.getInstance().addOperatorSpi(optionalConsumerOpSpi);
+        spiRegistry.addOperatorSpi(optionalConsumerOpSpi);
 
     }
 
     @Override
     protected void tearDown() {
-        OperatorSpiRegistry.getInstance().removeOperatorSpi(wrongTypeOpSpi);
-        OperatorSpiRegistry.getInstance().removeOperatorSpi(wrongBandsOpSpi);
-        OperatorSpiRegistry.getInstance().removeOperatorSpi(goodOpSpi);
-        OperatorSpiRegistry.getInstance().removeOperatorSpi(consumerOpSpi);
-        OperatorSpiRegistry.getInstance().removeOperatorSpi(aliasConsumerOpSpi);
-        OperatorSpiRegistry.getInstance().removeOperatorSpi(optionalConsumerOpSpi);
+        final OperatorSpiRegistry spiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        spiRegistry.removeOperatorSpi(wrongTypeOpSpi);
+        spiRegistry.removeOperatorSpi(wrongBandsOpSpi);
+        spiRegistry.removeOperatorSpi(goodOpSpi);
+        spiRegistry.removeOperatorSpi(consumerOpSpi);
+        spiRegistry.removeOperatorSpi(aliasConsumerOpSpi);
+        spiRegistry.removeOperatorSpi(optionalConsumerOpSpi);
     }
 
     public void testForWrongType() {
@@ -72,7 +74,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
 
         try {
             new GraphProcessor().createGraphContext(graph, ProgressMonitor.NULL);
-            fail("GraphException expected, caused by not present bands");
+            fail("GraphException expected, caused by missing bands");
         } catch (GraphException ge) {
         }
     }
@@ -88,7 +90,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
 
         try {
             new GraphProcessor().createGraphContext(graph, ProgressMonitor.NULL);
-            fail("GraphException expected, caused by not present bands, even it is optional");
+            fail("GraphException expected, caused by missing bands, even if optional");
         } catch (GraphException ge) {
         }
     }
@@ -140,7 +142,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         Product output;
 
         @Override
-        protected Product initialize() throws OperatorException {
+        public Product initialize() throws OperatorException {
             return new Product("Wrong", "WrongType", 12, 12);
         }
 
@@ -160,7 +162,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
     public static class WrongBandsOperator extends AbstractOperator {
 
         @Override
-        protected Product initialize() throws OperatorException {
+        public Product initialize() throws OperatorException {
             Product product = new Product("WrongBands", "GoodType", 1, 1);
             product.addBand("x", ProductData.TYPE_INT8);
             product.addBand("y", ProductData.TYPE_INT8);
@@ -182,7 +184,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
     public static class GoodOperator extends AbstractOperator {
 
         @Override
-        protected Product initialize() throws OperatorException {
+        public Product initialize() throws OperatorException {
             Product product = new Product("Good", "GoodType", 1, 1);
             product.addBand("a", ProductData.TYPE_INT8);
             product.addBand("b", ProductData.TYPE_INT8);
@@ -210,7 +212,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         Product output;
 
         @Override
-        protected Product initialize() throws OperatorException {
+        public Product initialize() throws OperatorException {
             return new Product("output", "outputType", 12, 12);
         }
 
@@ -235,7 +237,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         Product output;
 
         @Override
-        protected Product initialize() throws OperatorException {
+        public Product initialize() throws OperatorException {
             return new Product("output", "outputType", 1, 1);
         }
 
@@ -261,7 +263,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         Product output;
 
         @Override
-        protected Product initialize() throws OperatorException {
+        public Product initialize() throws OperatorException {
             return new Product("output", "outputType", 1, 1);
         }
 

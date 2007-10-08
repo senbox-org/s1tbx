@@ -18,8 +18,7 @@ package org.esa.beam.framework.gpf.operators.meris;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.gpf.AbstractOperator;
-import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.util.ProductUtils;
 
@@ -30,7 +29,7 @@ import org.esa.beam.util.ProductUtils;
  * @author marcoz
  * @version $Revision: $ $Date: $
  */
-public abstract class MerisBasisOp extends AbstractOperator {
+public abstract class MerisBasisOp extends Operator {
 
     @Parameter
     private boolean copyAllTiePoints = false;

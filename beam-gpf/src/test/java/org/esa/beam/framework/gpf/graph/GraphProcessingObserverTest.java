@@ -2,7 +2,6 @@ package org.esa.beam.framework.gpf.graph;
 
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
-
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -17,12 +16,12 @@ public class GraphProcessingObserverTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        OperatorSpiRegistry.getInstance().addOperatorSpi(opMockSpi);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(opMockSpi);
     }
 
     @Override
     protected void tearDown() throws Exception {
-        OperatorSpiRegistry.getInstance().removeOperatorSpi(opMockSpi);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(opMockSpi);
     }
 
     public void testAddingOberserverToChain() throws GraphException {
@@ -61,7 +60,7 @@ public class GraphProcessingObserverTest extends TestCase {
     public static class OpMock extends AbstractOperator {
 
         @Override
-        protected Product initialize() throws OperatorException {
+        public Product initialize() throws OperatorException {
             Product product = new Product(getClass().getSimpleName(), getClass().getSimpleName(), 10, 10);
             product.addBand("band_1", ProductData.TYPE_INT32);
             return product;

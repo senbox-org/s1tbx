@@ -30,7 +30,7 @@ public class OperatorException extends Exception {
 
     /**
      * Constructs a new exception by delegating to
-     * {@link #OperatorException(String, Throwable) this(cause.getMessage(), cause)}.
+     * {@link #OperatorException(String,Throwable) this(cause.getMessage(), cause)}.
      *
      * @param cause the cause
      */

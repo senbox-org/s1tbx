@@ -129,7 +129,7 @@ public class SpectralUnmixingOp extends AbstractOperator implements ParameterCon
     }
 
     @Override
-    protected Product initialize() throws OperatorException {
+    public Product initialize() throws OperatorException {
         if (endmemberFile != null) {
             loadEndmemberFile();
         }
@@ -257,9 +257,9 @@ public class SpectralUnmixingOp extends AbstractOperator implements ParameterCon
 
     @Override
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetTileRectangle) throws OperatorException {
-    	Tile[] targetRaster = new Tile[targetBands.length];
-    	Tile[] sourceRaster = getSourceTile(targetTileRectangle);
-    	for (int j = 0; j < targetBands.length; j++) {
+        Tile[] targetRaster = new Tile[targetBands.length];
+        Tile[] sourceRaster = getSourceTile(targetTileRectangle);
+        for (int j = 0; j < targetBands.length; j++) {
             targetRaster[j] = targetTiles.get(targetBands[j]);
         }
         for (int y = targetTileRectangle.y; y < targetTileRectangle.y + targetTileRectangle.height; y++) {
@@ -270,13 +270,13 @@ public class SpectralUnmixingOp extends AbstractOperator implements ParameterCon
             }
         }
     }
-    
+
     private Tile[] getSourceTile(Rectangle rectangle) throws OperatorException {
-    	Tile[] sourceRaster = new Tile[sourceBands.length];
-    	for (int i = 0; i < sourceBands.length; i++) {
+        Tile[] sourceRaster = new Tile[sourceBands.length];
+        for (int i = 0; i < sourceBands.length; i++) {
             sourceRaster[i] = getSourceTile(sourceBands[i], rectangle);
         }
-    	return sourceRaster;
+        return sourceRaster;
     }
 
     private void setAbundances(Rectangle rectangle, Tile targetTile, int y, int j, double[][] oa) {

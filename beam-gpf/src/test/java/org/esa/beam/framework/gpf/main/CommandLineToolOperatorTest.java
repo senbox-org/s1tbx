@@ -2,8 +2,8 @@ package org.esa.beam.framework.gpf.main;
 
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.TestOps;
 import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
@@ -22,12 +22,12 @@ public class CommandLineToolOperatorTest extends TestCase {
     protected void setUp() throws Exception {
         context = new CommandLineToolOperatorTest.TestCommandLineContext();
         clTool = new CommandLineTool(context);
-        OperatorSpiRegistry.getInstance().addOperatorSpi(OP_SPI);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(OP_SPI);
     }
 
     @Override
     protected void tearDown() throws Exception {
-        OperatorSpiRegistry.getInstance().removeOperatorSpi(OP_SPI);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(OP_SPI);
     }
 
     public void testPrintUsage() throws Exception {

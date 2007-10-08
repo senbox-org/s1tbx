@@ -1,25 +1,23 @@
 package org.esa.beam.framework.gpf.operators.meris;
 
-import java.awt.Rectangle;
-import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.stream.FileImageInputStream;
-import javax.imageio.stream.FileImageOutputStream;
-import javax.imageio.stream.ImageInputStream;
-import javax.imageio.stream.ImageOutputStream;
-
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.AbstractOperator;
 import org.esa.beam.framework.gpf.AbstractOperatorSpi;
+import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
-import com.bc.ceres.core.ProgressMonitor;
+import javax.imageio.stream.FileImageInputStream;
+import javax.imageio.stream.FileImageOutputStream;
+import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.ImageOutputStream;
+import java.awt.Rectangle;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * The <code>N1PatcherOp</code> copies an existing N1 file
@@ -34,7 +32,7 @@ import com.bc.ceres.core.ProgressMonitor;
  *
  * @author Marco Zuehlke
  */
-public class N1PatcherOp extends AbstractOperator {
+public class N1PatcherOp extends Operator {
 
     // MPH:
     private static final int MPH_PRODUCTNAME_OFFSET = 9;
