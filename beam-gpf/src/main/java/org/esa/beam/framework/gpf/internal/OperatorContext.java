@@ -33,6 +33,7 @@ import org.esa.beam.util.Guardian;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.jai.RasterDataNodeOpImage;
 
+import javax.media.jai.JAI;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.Raster;
@@ -62,6 +63,7 @@ public class OperatorContext {
     private Map<Band, OperatorImage> targetImages;
     private Xpp3Dom configuration;
     private Logger logger;
+    private boolean disposed;
 
     public OperatorContext(Operator operator) {
         this.operator = operator;
@@ -179,8 +181,30 @@ public class OperatorContext {
         return new TileImpl(rasterDataNode, awtRaster);
     }
 
-    OperatorImage getTargetImage(Band band) {
+    public OperatorImage getTargetImage(Band band) {
         return targetImages.get(band);
+    }
+
+
+    public boolean isDisposed() {
+        return disposed;
+    }
+
+    public void dispose() {
+        if (!disposed) {
+            disposed = true;
+            parameters = null;
+            configuration = null;
+            sourceProductMap.clear();
+            sourceProductList.clear();
+            Collection<OperatorImage> operatorImages = targetImages.values();
+            for (OperatorImage image : operatorImages) {
+                image.dispose();
+                JAI.getDefaultInstance().getTileCache().removeTiles(image);
+            }
+            targetImages.clear();
+            operator.dispose();
+        }
     }
 
     private static RenderedImage getSourceImage(RasterDataNode rasterDataNode) {
@@ -238,7 +262,7 @@ public class OperatorContext {
 
         ProductReader oldProductReader = targetProduct.getProductReader();
         if (oldProductReader == null) {
-            OperatorProductReader operatorProductReader = new OperatorProductReader(operator);
+            OperatorProductReader operatorProductReader = new OperatorProductReader(this);
             targetProduct.setProductReader(operatorProductReader);
         }
     }
@@ -459,13 +483,13 @@ public class OperatorContext {
         }
     }
 
-    public static Field[] getParameterFields(Operator operator) {
+    private static Field[] getParameterFields(Operator operator) {
         List<Field> parameterFields = new ArrayList<Field>();
         collectParameterFields(operator.getClass(), parameterFields);
         return parameterFields.toArray(new Field[parameterFields.size()]);
     }
 
-    public static void collectParameterFields(Class operatorClass, List<Field> parameterFields) {
+    private static void collectParameterFields(Class operatorClass, List<Field> parameterFields) {
         final Class superclass = operatorClass.getSuperclass();
         if (superclass != null && superclass.isAssignableFrom(Operator.class)) {
             collectParameterFields(superclass, parameterFields);

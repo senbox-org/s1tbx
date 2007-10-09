@@ -130,8 +130,7 @@ public class GraphProcessor {
         Deque<NodeContext> initNodeContextDeque = graphContext.getInitNodeContextDeque();
         while (!initNodeContextDeque.isEmpty()) {
             NodeContext nodeContext = initNodeContextDeque.pop();
-            nodeContext.getOperator().dispose();
-            nodeContext.getTargetProduct().dispose();
+            nodeContext.dispose();
         }
     }
 

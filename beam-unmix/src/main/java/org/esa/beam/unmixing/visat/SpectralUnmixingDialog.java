@@ -16,13 +16,6 @@
 */
 package org.esa.beam.unmixing.visat;
 
-import java.awt.Window;
-
-import javax.swing.JDialog;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.event.InternalFrameAdapter;
-
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -31,6 +24,12 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.visat.VisatApp;
+
+import javax.swing.JDialog;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.event.InternalFrameAdapter;
+import java.awt.Window;
 
 
 public class SpectralUnmixingDialog extends ModalDialog {
@@ -70,26 +69,6 @@ public class SpectralUnmixingDialog extends ModalDialog {
         if (outputProduct != formModel.getInputProduct()) {
             outputProduct.setName(form.outputProductName.getText());
             VisatApp.getApp().addProduct(outputProduct);
-
-//            if (internalFrameAdapter == null) {
-//                internalFrameAdapter = new InternalFrameAdapter() {
-//                    @Override
-//                    public void internalFrameOpened(InternalFrameEvent e) {
-//                        Container contentPane = e.getInternalFrame().getContentPane();
-//                        if (contentPane instanceof ProductSceneView) {
-//                            ProductSceneView psv = (ProductSceneView) contentPane;
-//                            // todo - this is bullshit!!!
-//                            if (psv.getProduct().getProductType().equalsIgnoreCase("SpectralUnmixing")) {
-//                                System.out.println("Clearing GPF cache...");
-//                                GPF.getDefaultInstance().getTileCache().clean();
-//                                System.out.println("GPF cache cleared...");
-//                            }
-//                        }
-//                    }
-//                };
-//                VisatApp.getApp().addInternalFrameListener(internalFrameAdapter);
-//            }
-
         }
     }
 

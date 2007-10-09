@@ -8,7 +8,6 @@ import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.io.BeamFileFilter;
 
@@ -29,19 +28,19 @@ import java.util.Locale;
 public class OperatorProductReader implements ProductReader {
 
     private static PlugIn plugIn = new PlugIn();
-    private Operator operator;
+    private OperatorContext operatorContext;
 
     /**
      * Creates a <code>OperatorProductReader</code> instance.
      *
-     * @param operator the operator
+     * @param operatorContext the operator context
      */
-    public OperatorProductReader(Operator operator) {
-        this.operator = operator;
+    public OperatorProductReader(OperatorContext operatorContext) {
+        this.operatorContext = operatorContext;
     }
 
     public Object getInput() {
-        return operator.getSourceProducts();
+        return operatorContext.getSourceProducts();
     }
 
     public ProductReaderPlugIn getReaderPlugIn() {
@@ -54,7 +53,7 @@ public class OperatorProductReader implements ProductReader {
 
     public Product readProductNodes(Object input, ProductSubsetDef subsetDef) throws IOException {
         try {
-            return operator.getTargetProduct();
+            return operatorContext.getTargetProduct();
         } catch (OperatorException e) {
             throw new IOException(e);
         }
@@ -69,7 +68,7 @@ public class OperatorProductReader implements ProductReader {
     private void readRectangle(Band targetBand,
                                Rectangle targetRect,
                                ProductData targetBuffer) {
-        final RenderedImage image = targetBand.getImage();
+        final RenderedImage image = operatorContext.getTargetImage(targetBand);
         /////////////////////////////////////////////////////////////////////
         //
         // GPF pull-processing is triggered here!!!
@@ -80,15 +79,16 @@ public class OperatorProductReader implements ProductReader {
         data.getDataElements(targetRect.x, targetRect.y, targetRect.width, targetRect.height, targetBuffer.getElems());
     }
 
-    public void close() throws IOException {
-        if (operator != null) {
-            operator = null;
+    public synchronized void close() throws IOException {
+        if (operatorContext != null && !operatorContext.isDisposed()) {
+            operatorContext.dispose(); // disposes operator as well
+            operatorContext = null;
         }
     }
 
     @Override
     public String toString() {
-        return "OperatorProductReader[op=" + operator.getClass().getSimpleName() + "]";
+        return "OperatorProductReader[op=" + operatorContext.getOperator().getClass().getSimpleName() + "]";
     }
 
     private static class PlugIn implements ProductReaderPlugIn {

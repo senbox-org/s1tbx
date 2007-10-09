@@ -112,4 +112,16 @@ class NodeContext {
             throw new IllegalStateException(e);
         }
     }
+
+    public synchronized void dispose() {
+        if (operatorContext != null && !operatorContext.isDisposed()) {
+            operatorContext.dispose(); // disposes operator as well
+            operatorContext = null;
+            operator = null;
+        }
+        if (targetProduct != null) {
+            targetProduct.dispose();
+            targetProduct = null;
+        }
+    }
 }
