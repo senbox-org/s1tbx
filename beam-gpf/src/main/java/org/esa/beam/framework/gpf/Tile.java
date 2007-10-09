@@ -88,30 +88,30 @@ public interface Tile {
     Rectangle getRectangle();
 
     /**
-     * Gets the minimum pixel X-coordinate within the scene covered by the tile's {@link #getRasterDataNode RasterDataNode}.
+     * Gets the minimum pixel x-coordinate within the scene covered by the tile's {@link #getRasterDataNode RasterDataNode}.
      *
-     * @return The minimum pixel X-coordinate.
+     * @return The minimum pixel x-coordinate.
      */
     int getMinX();
 
     /**
-     * Gets the maximum pixel X-coordinate within the scene covered by the tile's {@link #getRasterDataNode RasterDataNode}.
+     * Gets the maximum pixel x-coordinate within the scene covered by the tile's {@link #getRasterDataNode RasterDataNode}.
      *
-     * @return The maximum pixel X-coordinate.
+     * @return The maximum pixel x-coordinate.
      */
     int getMaxX();
 
     /**
-     * Gets the minimum pixel Y-coordinate within the scene covered by the tile's {@link #getRasterDataNode RasterDataNode}.
+     * Gets the minimum pixel y-coordinate within the scene covered by the tile's {@link #getRasterDataNode RasterDataNode}.
      *
-     * @return The minimum pixel Y-coordinate.
+     * @return The minimum pixel y-coordinate.
      */
     int getMinY();
 
     /**
-     * Gets the maximum pixel Y-coordinate within the scene covered by the tile's {@link #getRasterDataNode RasterDataNode}.
+     * Gets the maximum pixel y-coordinate within the scene covered by the tile's {@link #getRasterDataNode RasterDataNode}.
      *
-     * @return The maximum pixel Y-coordinate.
+     * @return The maximum pixel y-coordinate.
      */
     int getMaxY();
 
@@ -142,8 +142,8 @@ public interface Tile {
      * </pre>
      * </p>
      *
-     * @param x The absolute pixel X-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
-     * @param y The absolute pixel X-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
+     * @param x The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
+     * @param y The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
      * @return an index into the underlying data buffer
      */
     int getDataBufferIndex(int x, int y);
@@ -152,7 +152,8 @@ public interface Tile {
      * <p>Obtains access to the underlying data buffer. The data buffer holds the
      * raw (unscaled, uncalibrated) sample data (e.g. detector counts).</p>
      * Elements in this array must be addressed
-     * by an index computed via the {@link #getScanlineStride()} and {@link #getScanlineOffset()} methods.
+     * by an index computed via the {@link #getScanlineStride() scanlineStride} and
+     * {@link #getScanlineOffset() scanlineOffset} properties.
      * The index can also be directly computed using the  {@link #getDataBufferIndex(int,int)} method.
      * <p/>
      * <p>The most efficient way to access and/or modify the samples in the raw data buffer is using
@@ -274,18 +275,58 @@ public interface Tile {
 //    ProductData getSamples();
 //    void setSamples(ProductData samples);
 
+    /**
+     * Gets a sample value as {@code boolean} for the given pixel coordinate.
+     * <p>If the underlying data buffer is of a different sample data type, an appropriate type conversion is performed.</p>
+     * <p>Note that it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
+     * with the {@link #getScanlineOffset() scanlineOffset} and {@link #getScanlineStride() scanlineStride} properties.</p>
+     *
+     * @param x The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
+     * @param y The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
+     * @return A sample value as {@code boolean}.
+     */
     boolean getSampleBoolean(int x, int y);
 
     void setSample(int x, int y, boolean sample);
 
+    /**
+     * Gets a sample value as {@code int} for the given pixel coordinate.
+     * <p>If the underlying data buffer is of a different sample data type, an appropriate type conversion is performed.</p>
+     * <p>Note that it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
+     * with the {@link #getScanlineOffset() scanlineOffset} and {@link #getScanlineStride() scanlineStride} properties.</p>
+     *
+     * @param x The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
+     * @param y The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
+     * @return A sample value as {@code int}.
+     */
     int getSampleInt(int x, int y);
 
     void setSample(int x, int y, int sample);
 
+    /**
+     * Gets a sample value as {@code float} for the given pixel coordinate.
+     * <p>If the underlying data buffer is of a different sample data type, an appropriate type conversion is performed.</p>
+     * <p>Note that it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
+     * with the {@link #getScanlineOffset() scanlineOffset} and {@link #getScanlineStride() scanlineStride} properties.</p>
+     *
+     * @param x The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
+     * @param y The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
+     * @return A sample value as {@code float}.
+     */
     float getSampleFloat(int x, int y);
 
     void setSample(int x, int y, float sample);
 
+    /**
+     * Gets a sample value as {@code double} for the given pixel coordinate.
+     * <p>If the underlying data buffer is of a different sample data type, an appropriate type conversion is performed.</p>
+     * <p>Note that it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
+     * with the {@link #getScanlineOffset() scanlineOffset} and {@link #getScanlineStride() scanlineStride} properties.</p>
+     *
+     * @param x The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
+     * @param y The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
+     * @return A sample value as {@code double}.
+     */
     double getSampleDouble(int x, int y);
 
     void setSample(int x, int y, double sample);
