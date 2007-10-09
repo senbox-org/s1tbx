@@ -47,7 +47,7 @@ public class TestOps {
             System.out.println("=====>>>>>> Op1.computeBand  end");
         }
 
-        public static class Spi extends AbstractOperatorSpi {
+        public static class Spi extends OperatorSpi {
 
             public Spi() {
                 super(Op1.class, "Op1");
@@ -86,7 +86,7 @@ public class TestOps {
             registerCall("Op2;");
         }
 
-        public static class Spi extends AbstractOperatorSpi {
+        public static class Spi extends OperatorSpi {
             public Spi() {
                 super(Op2.class, "Op2");
             }
@@ -143,7 +143,7 @@ public class TestOps {
             System.out.println("=====>>>>>> Op3.computeAllBands  end");
         }
 
-        public static class Spi extends AbstractOperatorSpi {
+        public static class Spi extends OperatorSpi {
             public Spi() {
                 super(Op3.class, "Op3");
             }

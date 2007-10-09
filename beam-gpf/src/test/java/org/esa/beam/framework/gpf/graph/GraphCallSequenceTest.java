@@ -439,7 +439,7 @@ public class GraphCallSequenceTest extends TestCase {
         }
     }
 
-    public static abstract class NSpi extends AbstractOperatorSpi {
+    public static abstract class NSpi extends OperatorSpi {
 
         protected NSpi(Class<? extends Operator> operatorClass, String name) {
             super(operatorClass, name);

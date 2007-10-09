@@ -8,14 +8,13 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.internal.OperatorContext;
 
 import java.awt.Rectangle;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
 
 /**
  * The abstract base class for all operators intended to be extended by clients.
- * <p>Four methods are intended to be implemented or overidden:
+ * <p>The following methods are intended to be implemented or overidden:
  * <ld>
  * <li>{@link #initialize()}: must be implemented in order to initialise the operator and create the target
  * product.</li>
@@ -24,6 +23,7 @@ import java.util.logging.Logger;
  * <li>{@link #computeTileStack(java.util.Map,java.awt.Rectangle) computeTileStack()}: implemented to compute the tiles
  * for multiple bands.</li>
  * <li>{@link #dispose()}: can be overidden in order to free all resources previously allocated by the operator.</li>
+ * <li>{@link #getConfigurationConverter()}: can be overidden in order to return a suitable converter for an operator's configuration.</li>
  * </ld>
  * </p>
  * <p>Generally, only one {@code computeTile} method needs to be implemented. It depends on the type of algorithm which
@@ -57,8 +57,7 @@ public abstract class Operator {
      * Constructs a new operator.
      */
     protected Operator() {
-        context = new OperatorContext();
-        context.setOperator(this);
+        context = new OperatorContext(this);
     }
 
     /**
@@ -106,21 +105,21 @@ public abstract class Operator {
     }
 
     /**
-     * Gets a logger to by used by the operator.
+     * Gets a suitable converter for this cperator's configuration.
+     * This method is intended to be overridden by clients in order to provide
+     * their own implementation of their configuration conversion.
+     * The default implementation returns {@code this} if the derived operator
+     * implements {@link org.esa.beam.framework.gpf.ParameterConverter}, or
+     * {@code null} otherwise. In the latter case, a default configuration conversion
+     * will be applied by the GPF.
      *
-     * @return a logger.
+     * @return A suitable configuration converter or {@code null} for default configuration conversion.
      */
-    public final Logger getLogger() {
-        return context.getLogger();
-    }
-
-    /**
-     * Sets a logger for the operator.
-     *
-     * @param logger a logger.
-     */
-    public final void setLogger(Logger logger) {
-        context.setLogger(logger);
+    public ParameterConverter getConfigurationConverter() {
+        if (this instanceof ParameterConverter) {
+            return (ParameterConverter) this;
+        }
+        return null;
     }
 
     /**
@@ -140,6 +139,18 @@ public abstract class Operator {
      */
     public final Product[] getSourceProducts() {
         return context.getSourceProducts();
+    }
+
+    public final String getSourceProductId(Product product) {
+        return context.getSourceProductId(product);
+    }
+
+    public final void setSpi(OperatorSpi operatorSpi) {
+        context.setOperatorSpi(operatorSpi);
+    }
+
+    public final OperatorSpi getSpi() {
+        return context.getOperatorSpi();
     }
 
     /**
@@ -200,39 +211,37 @@ public abstract class Operator {
         return context.createProgressMonitor();
     }
 
-    public final Map<String, Object> getParameters(Map<String, Object> parameters) {
-        if (parameters == null) {
-            parameters = new HashMap<String, Object>(10);
-        }
-        // todo - implement
-        return parameters;
+    public final Map<String, Object> getParameters() {
+        return context.getParameters();
     }
 
     public final void setParameters(Map<String, Object> parameters) {
         context.setParameters(parameters);
     }
 
-    public final Xpp3Dom getParameters(Xpp3Dom configuration) {
-        if (configuration == null) {
-            configuration = new Xpp3Dom("parameters");
-        }
-        // todo - implement
-        return configuration;
+    public final Xpp3Dom getConfiguration() {
+        return context.getConfiguration();
     }
 
-    public final void setParameters(Xpp3Dom configuration) {
-        context.setParameters(configuration);
+    public final void setConfiguration(Xpp3Dom configuration) {
+        context.setConfiguration(configuration);
     }
 
-    public String getSourceProductId(Product product) {
-        return context.getSourceProductId(product);
+    /**
+     * Gets a logger to by used by the operator.
+     *
+     * @return a logger.
+     */
+    public final Logger getLogger() {
+        return context.getLogger();
     }
 
-    public void setSpi(OperatorSpi operatorSpi) {
-        context.setOperatorSpi(operatorSpi);
-    }
-
-    public OperatorSpi getSpi() {
-        return context.getOperatorSpi();
+    /**
+     * Sets a logger for the operator.
+     *
+     * @param logger a logger.
+     */
+    public final void setLogger(Logger logger) {
+        context.setLogger(logger);
     }
 }

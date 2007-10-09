@@ -17,6 +17,8 @@
 package org.esa.beam.framework.gpf.internal;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.XppDomReader;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Band;
@@ -45,7 +47,6 @@ import java.util.logging.Logger;
  * The context in which operators are executed.
  *
  * @author Norman Fomferra
- * @author Marco Zühlke
  * @since 4.1
  */
 public class OperatorContext {
@@ -62,10 +63,13 @@ public class OperatorContext {
     private Xpp3Dom configuration;
     private Logger logger;
 
-    public OperatorContext() {
-        sourceProductList = new ArrayList<Product>(3);
-        sourceProductMap = new HashMap<String, Product>(3);
-        logger = Logger.getAnonymousLogger();
+    public OperatorContext(Operator operator) {
+        this.operator = operator;
+        this.tileMethodImplemented = canOperatorComputeTile(operator.getClass());
+        this.tileStackMethodImplemented = canOperatorComputeTileStack(operator.getClass());
+        this.sourceProductList = new ArrayList<Product>(3);
+        this.sourceProductMap = new HashMap<String, Product>(3);
+        this.logger = Logger.getAnonymousLogger();
     }
 
     public Logger getLogger() {
@@ -131,12 +135,6 @@ public class OperatorContext {
         return operator;
     }
 
-    public void setOperator(Operator operator) {
-        this.operator = operator;
-        this.tileMethodImplemented = canOperatorComputeTile(operator.getClass());
-        this.tileStackMethodImplemented = canOperatorComputeTileStack(operator.getClass());
-    }
-
     public void addSourceProduct(String id, Product product) {
         if (!sourceProductList.contains(product)) {
             sourceProductList.add(product);
@@ -144,11 +142,20 @@ public class OperatorContext {
         sourceProductMap.put(id, product);
     }
 
+    public Map<String, Object> getParameters() {
+        return parameters;
+    }
+
     public void setParameters(Map<String, Object> parameters) {
         this.parameters = new HashMap<String, Object>(parameters);
     }
 
-    public void setParameters(Xpp3Dom configuration) {
+
+    public Xpp3Dom getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(Xpp3Dom configuration) {
         this.configuration = configuration;
     }
 
@@ -425,16 +432,21 @@ public class OperatorContext {
 
     public void injectConfiguration() throws OperatorException {
         if (configuration != null) {
-            if (operator instanceof ParameterConverter) {
-                ParameterConverter converter = (ParameterConverter) operator;
-                try {
+            try {
+                ParameterConverter converter = operator.getConfigurationConverter();
+                if (converter != null) {
                     converter.setParameterValues(operator, configuration);
-                } catch (Throwable t) {
-                    throw new OperatorException(t);
+                } else {
+                    Class configurationObjectClass = operator.getClass();
+                    XStream xStream = new XStream();
+                    xStream.setClassLoader(operator.getClass().getClassLoader());
+                    xStream.alias(configuration.getName(), configurationObjectClass);
+                    xStream.unmarshal(new XppDomReader(configuration), operator);
                 }
-            } else {
-                DefaultParameterConverter defaultParameterConverter = new DefaultParameterConverter();
-                defaultParameterConverter.setParameterValues(operator, configuration);
+            } catch (OperatorException e) {
+                throw e;
+            } catch (Throwable t) {
+                throw new OperatorException(t);
             }
         }
     }

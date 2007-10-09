@@ -213,7 +213,7 @@ public class BandArithmeticOp extends Operator implements ParameterConverter {
         return null;
     }
 
-    public static class Spi extends AbstractOperatorSpi {
+    public static class Spi extends OperatorSpi {
         public Spi() {
             super(BandArithmeticOp.class, "BandArithmetic");
         }

@@ -58,7 +58,7 @@ public class TargetProductAnnotationValidationTest extends TestCase {
         public void computeTile(Band band, Tile targetTile) throws OperatorException {
         }
 
-        public static class Spi extends AbstractOperatorSpi {
+        public static class Spi extends OperatorSpi {
             public Spi() {
                 super(NotInitOutputOperator.class, "NotInitOutputOperator");
             }

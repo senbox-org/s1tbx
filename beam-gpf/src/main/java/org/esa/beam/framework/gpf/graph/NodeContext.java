@@ -62,7 +62,7 @@ class NodeContext {
     }
 
     public void setParameters(Xpp3Dom configuration) {
-        operatorContext.setParameters(configuration);
+        operatorContext.setConfiguration(configuration);
     }
 
     public Product getSourceProduct(String id) {
@@ -83,6 +83,7 @@ class NodeContext {
         try {
             this.operator = operatorSpi.createOperator();
             this.operator.setLogger(graphContext.getLogger());
+            // this.operator.setConfiguration(node.getConfiguration());
         } catch (OperatorException e) {
             throw new GraphException("Failed to create instance of operator '" + node.getOperatorName() + "'");
         }

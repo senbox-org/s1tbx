@@ -2,13 +2,14 @@ package org.esa.beam.framework.gpf;
 
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 
+// todo - rename to ConfigurationConverter (nf - 09.10.2007)
 /**
  * A converter for the parameters of an operator.
  *
  * @author Norman Fomferra
  */
 public interface ParameterConverter {
-
+    // todo - rename to setConfiguration (nf - 09.10.2007)
     /**
      * Sets the parameter values of the given operator using the <code>configuration</code>
      * given as a tree of (XML) elements.</p>
@@ -23,6 +24,7 @@ public interface ParameterConverter {
      */
     void setParameterValues(Operator operator, Xpp3Dom configuration) throws OperatorException;
 
+    // todo - rename to getConfiguration (nf - 09.10.2007)
     /**
      * Gets the parameter values of the given operator as <code>configuration</code>
      * given as a tree of (XML) elements.

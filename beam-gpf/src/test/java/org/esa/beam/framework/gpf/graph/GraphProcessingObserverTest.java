@@ -70,7 +70,7 @@ public class GraphProcessingObserverTest extends TestCase {
         public void computeTile(Band band, Tile targetTile) throws OperatorException {
         }
 
-        public static class Spi extends AbstractOperatorSpi {
+        public static class Spi extends OperatorSpi {
             public Spi() {
                 super(OpMock.class, "OpMock");
             }

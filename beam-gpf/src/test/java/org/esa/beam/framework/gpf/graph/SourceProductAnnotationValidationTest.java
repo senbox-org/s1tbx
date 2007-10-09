@@ -150,7 +150,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         public void computeTile(Band band, Tile targetTile) throws OperatorException {
         }
 
-        public static class Spi extends AbstractOperatorSpi {
+        public static class Spi extends OperatorSpi {
 
             public Spi() {
                 super(WrongTypeOperator.class, "WrongTypeOperator");
@@ -173,7 +173,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         public void computeTile(Band band, Tile targetTile) throws OperatorException {
         }
 
-        public static class Spi extends AbstractOperatorSpi {
+        public static class Spi extends OperatorSpi {
 
             public Spi() {
                 super(WrongBandsOperator.class, "WrongBandsOperator");
@@ -195,7 +195,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         public void computeTile(Band band, Tile targetTile) throws OperatorException {
         }
 
-        public static class Spi extends AbstractOperatorSpi {
+        public static class Spi extends OperatorSpi {
 
             public Spi() {
                 super(GoodOperator.class, "GoodOperator");
@@ -220,7 +220,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         public void computeTile(Band band, Tile targetTile) throws OperatorException {
         }
 
-        public static class Spi extends AbstractOperatorSpi {
+        public static class Spi extends OperatorSpi {
 
             public Spi() {
                 super(ConsumerOperator.class, "ConsumerOperator");
@@ -245,7 +245,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         public void computeTile(Band band, Tile targetTile) throws OperatorException {
         }
 
-        public static class Spi extends AbstractOperatorSpi {
+        public static class Spi extends OperatorSpi {
 
             public Spi() {
                 super(OptionalConsumerOperator.class, "OptionalConsumerOperator");
@@ -271,7 +271,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         public void computeTile(Band band, Tile targetTile) throws OperatorException {
         }
 
-        public static class Spi extends AbstractOperatorSpi {
+        public static class Spi extends OperatorSpi {
 
             public Spi() {
                 super(ConsumerWithAliasSourceOperator.class, "ConsumerWithAliasSourceOperator");

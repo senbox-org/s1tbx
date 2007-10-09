@@ -98,7 +98,7 @@ public class GPFTest extends TestCase {
         }
     }
 
-    public static class FooOpSpi extends AbstractOperatorSpi {
+    public static class FooOpSpi extends OperatorSpi {
         public FooOpSpi() {
             super(FooOp.class, "Foo");
         }

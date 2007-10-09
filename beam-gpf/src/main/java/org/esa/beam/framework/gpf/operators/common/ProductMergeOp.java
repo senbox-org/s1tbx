@@ -179,7 +179,7 @@ public class ProductMergeOp extends Operator implements ParameterConverter {
     }
 
 
-    public static class Spi extends AbstractOperatorSpi {
+    public static class Spi extends OperatorSpi {
         public Spi() {
             super(ProductMergeOp.class, "ProductMerger");
         }

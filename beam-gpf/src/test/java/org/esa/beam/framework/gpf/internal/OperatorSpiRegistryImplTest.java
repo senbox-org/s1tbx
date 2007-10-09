@@ -1,8 +1,8 @@
 package org.esa.beam.framework.gpf.internal;
 
 import junit.framework.TestCase;
-import org.esa.beam.framework.gpf.AbstractOperatorSpi;
 import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.TestOps;
 import org.esa.beam.framework.gpf.annotations.OperatorAlias;
 
@@ -29,7 +29,7 @@ public class OperatorSpiRegistryImplTest extends TestCase {
 
     public static class DummyOp extends TestOps.Op1 {
         @OperatorAlias("Heino")
-        public static class Spi extends AbstractOperatorSpi {
+        public static class Spi extends OperatorSpi {
             public Spi() {
                 super(DummyOp.class, "Willi");
             }

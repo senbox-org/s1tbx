@@ -354,7 +354,7 @@ public class SpectralUnmixingOp extends Operator implements ParameterConverter {
      * The Service Provider Interface (SPI) for the operator.
      * It provides operator meta-data and is a factory for new operator instances.
      */
-    public static class Spi extends AbstractOperatorSpi {
+    public static class Spi extends OperatorSpi {
         public Spi() {
             super(SpectralUnmixingOp.class, "SpectralUnmixing");
         }
