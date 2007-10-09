@@ -125,6 +125,9 @@ public class GPF {
      * Creates a product by using the operator specified by the given name.
      * The resulting product can be used as input product for a further call to {@code createProduct()}.
      * By concatenating multiple calls it is possible to set up a processing graph.
+     * <p>All static {@code createProduct} methods delegate to this non-static (= NS) version.
+     * It can be overriden by clients in order to alter product creation behaviour of the static
+     * {@code createProduct} methods of the current GPF instance.</p>
      *
      * @param operatorName   the name of the operator to use
      * @param parameters     the named parameters needed by the operator
@@ -137,12 +140,11 @@ public class GPF {
                                    Map<String, Product> sourceProducts) throws OperatorException {
         OperatorSpi operatorSpi = spiRegistry.getOperatorSpi(operatorName);
         if (operatorSpi == null) {
-            throw new OperatorException("operator SPI not found for operator'" + operatorName + "'");
+            throw new OperatorException("No SPI found for operator '" + operatorName + "'");
         }
         Operator operator = operatorSpi.createOperator(parameters, sourceProducts);
         return operator.getTargetProduct();
     }
-
 
     /**
      * Gets the registry for operator SPIs.
