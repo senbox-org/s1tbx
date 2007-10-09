@@ -21,8 +21,8 @@ import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
@@ -31,9 +31,9 @@ import org.esa.beam.util.Guardian;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.jai.RasterDataNodeOpImage;
 
-import javax.media.jai.PlanarImage;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -57,7 +57,7 @@ public class OperatorContext {
     private Product targetProduct;
     private OperatorSpi operatorSpi;
     private Operator operator;
-    private PlanarImage[] targetImages;
+    private RenderedImage[] targetImages;
     private boolean tileMethodImplemented;
     private boolean tileStackMethodImplemented;
     private Xpp3Dom configuration;
@@ -79,14 +79,10 @@ public class OperatorContext {
         logger = Logger.getAnonymousLogger();
     }
 
-    public PlanarImage[] getTargetImages() {
+    public RenderedImage[] getTargetImages() {
         return targetImages;
     }
 
-
-    public void setTargetImages(PlanarImage[] targetImages) {
-        this.targetImages = targetImages;
-    }
 
     /**
      * Gets the name of the {@link Operator operator} this context is responsible for.
@@ -219,31 +215,24 @@ public class OperatorContext {
         return tileStackMethodImplemented;
     }
 
-
-    // todo - try to avoid data copying, this method is time-critical!
-    // todo - the best way would be to wrap the returned awtRaster in "our" Tile
     public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle rectangle) {
         RenderedImage image = getSourceImage(rasterDataNode);
         /////////////////////////////////////////////////////////////////////
         //
         // Note: GPF pull-processing is triggered here!!!
         //
-        java.awt.image.Raster awtRaster = image.getData(rectangle); // Note: copyData is NOT faster!
+        Raster awtRaster = image.getData(rectangle); // Note: copyData is NOT faster!
         //
         /////////////////////////////////////////////////////////////////////
-        final ProductData rasterData = rasterDataNode.createCompatibleRasterData(rectangle.width, rectangle.height);
-        final RasterImpl raster = new RasterImpl(rasterDataNode, rectangle, rasterData);
-        awtRaster.getDataElements(rectangle.x, rectangle.y, rectangle.width, rectangle.height, rasterData.getElems());
-        return raster;
+        return new TileImpl(rasterDataNode, awtRaster);
     }
 
     private static RenderedImage getSourceImage(RasterDataNode rasterDataNode) {
         RenderedImage image = rasterDataNode.getImage();
-        if (image != null) {
-            return image;
+        if (image == null) {
+            image = new RasterDataNodeOpImage(rasterDataNode);
+            rasterDataNode.setImage(image);
         }
-        image = new RasterDataNodeOpImage(rasterDataNode);
-        rasterDataNode.setImage(image);
         return image;
     }
 
@@ -335,9 +324,7 @@ public class OperatorContext {
             throw new IllegalStateException(String.format("Operator [%s] has no target product.", operator.getClass().getName()));
         }
         initTargetProductField();
-
-        final GpfOpImage[] targetImages = createTargetImages(targetProduct);
-        setTargetImages(targetImages);
+        initTargetOpImages();
 
         ProductReader oldProductReader = targetProduct.getProductReader();
         if (oldProductReader == null) {
@@ -346,7 +333,7 @@ public class OperatorContext {
         }
     }
 
-    public GpfOpImage[] createTargetImages(Product targetProduct) {
+    private void initTargetOpImages() {
         if (targetProduct.getPreferredTileSize() == null) {
             Dimension tileSize = JAIUtils.computePreferredTileSize(targetProduct.getSceneRasterWidth(),
                                                                    targetProduct.getSceneRasterHeight(), 4);
@@ -354,17 +341,18 @@ public class OperatorContext {
         }
 
         Band[] bands = targetProduct.getBands();
-        final GpfOpImage[] targetImages = new GpfOpImage[bands.length];
+        targetImages = new GpfOpImage[bands.length];
         for (int i = 0; i < bands.length; i++) {
             Band band = bands[i];
-            GpfOpImage opImage = (GpfOpImage) band.getImage();
-            if (opImage == null) {
-                opImage = new GpfOpImage(band, this);
-                band.setImage(opImage);
+            if (band.getImage() == null) {
+                if (band instanceof VirtualBand) {
+                    band.setImage(new RasterDataNodeOpImage(band));
+                } else {
+                    band.setImage(new GpfOpImage(band, this));
+                }
             }
-            targetImages[i] = opImage;
+            targetImages[i] = band.getImage();
         }
-        return targetImages;
     }
 
     public void initTargetProductField() throws OperatorException {

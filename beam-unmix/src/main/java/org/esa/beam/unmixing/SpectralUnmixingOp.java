@@ -247,7 +247,7 @@ public class SpectralUnmixingOp extends Operator implements ParameterConverter {
         if (j == -1) {
             return;
         }
-        Tile[] sourceRaster = getSourceTile(rectangle);
+        Tile[] sourceRaster = getSourceTiles(rectangle);
         for (int y = rectangle.y; y < rectangle.y + rectangle.height; y++) {
             double[][] ia = getLineSpectra(sourceRaster, rectangle, y);
             double[][] oa = unmix(ia);
@@ -258,7 +258,7 @@ public class SpectralUnmixingOp extends Operator implements ParameterConverter {
     @Override
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetTileRectangle) throws OperatorException {
         Tile[] targetRaster = new Tile[targetBands.length];
-        Tile[] sourceRaster = getSourceTile(targetTileRectangle);
+        Tile[] sourceRaster = getSourceTiles(targetTileRectangle);
         for (int j = 0; j < targetBands.length; j++) {
             targetRaster[j] = targetTiles.get(targetBands[j]);
         }
@@ -271,7 +271,7 @@ public class SpectralUnmixingOp extends Operator implements ParameterConverter {
         }
     }
 
-    private Tile[] getSourceTile(Rectangle rectangle) throws OperatorException {
+    private Tile[] getSourceTiles(Rectangle rectangle) throws OperatorException {
         Tile[] sourceRaster = new Tile[sourceBands.length];
         for (int i = 0; i < sourceBands.length; i++) {
             sourceRaster[i] = getSourceTile(sourceBands[i], rectangle);

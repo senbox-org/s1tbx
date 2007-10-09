@@ -67,20 +67,26 @@ public class RasterDataNodeOpImage extends SourcelessOpImage {
         }
     }
 
-    public WritableRaster createWritableRaster(Rectangle tileBounds) {
-        SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(getDataBufferType(rasterDataNode.getDataType()), tileBounds.width, tileBounds.height);
-        return createWritableRaster(sampleModel, new Point(tileBounds.x, tileBounds.y));
+    public WritableRaster getWritableRaster(Rectangle rectangle) {
+        final int tileX = XToTileX(rectangle.x);
+        final int tileY = YToTileY(rectangle.y);
+        Raster tileFromCache = getTileFromCache(tileX, tileY);
+        WritableRaster writableRaster;
+        if (tileFromCache != null) {
+            // we already put a WritableRaster into the cache
+            writableRaster = (WritableRaster) tileFromCache;
+        } else {
+            writableRaster = createWritableRaster(rectangle);
+            addTileToCache(tileX, tileY, writableRaster);
+        }
+        return writableRaster;
     }
 
-    @Override
-    public String toString() {
-        String className = getClass().getSimpleName();
-        String productName = "";
-        if (rasterDataNode.getProduct() != null) {
-            productName = ":" + rasterDataNode.getProduct().getName();
-        }
-        String bandName = "." + rasterDataNode.getName();
-        return className + productName + bandName;
+    public WritableRaster createWritableRaster(Rectangle rectangle) {
+        final int dataBufferType = getDataBufferType(rasterDataNode.getDataType());
+        SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(dataBufferType, rectangle.width, rectangle.height);
+        final Point location = new Point(rectangle.x, rectangle.y);
+        return createWritableRaster(sampleModel, location);
     }
 
     public static ImageLayout createSingleBandedImageLayout(RasterDataNode rasterDataNode) {
@@ -147,31 +153,20 @@ public class RasterDataNodeOpImage extends SourcelessOpImage {
         return dataBufferType;
     }
 
-    /*
-     * May be used later in order to avoid copies between AWT rasters and ProductData
-     */
-    private static DataBuffer wrapIntoDataBuffer(ProductData productData) {
-        switch (productData.getType()) {
-            case ProductData.TYPE_INT8:
-            case ProductData.TYPE_UINT8:
-                return new DataBufferByte((byte[]) productData.getElems(), productData.getNumElems());
-            case ProductData.TYPE_INT16:
-            case ProductData.TYPE_UINT16:
-                return new DataBufferUShort((short[]) productData.getElems(), productData.getNumElems());
-            case ProductData.TYPE_INT32:
-            case ProductData.TYPE_UINT32:
-                return new DataBufferInt((int[]) productData.getElems(), productData.getNumElems());
-            case ProductData.TYPE_FLOAT32:
-                return new DataBufferFloat((float[]) productData.getElems(), productData.getNumElems());
-            case ProductData.TYPE_FLOAT64:
-                return new DataBufferDouble((double[]) productData.getElems(), productData.getNumElems());
-            default:
-                throw new IllegalArgumentException("productData");
-        }
-    }
-
+    @Override
     public synchronized void dispose() {
         rasterDataNode = null;
         super.dispose();
+    }
+
+    @Override
+    public String toString() {
+        String className = getClass().getSimpleName();
+        String productName = "";
+        if (rasterDataNode.getProduct() != null) {
+            productName = ":" + rasterDataNode.getProduct().getName();
+        }
+        String bandName = "." + rasterDataNode.getName();
+        return className + productName + bandName;
     }
 }
