@@ -5,75 +5,83 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 
 import java.awt.Rectangle;
 
-// todo (nf, 26.09.2007) - API revision:
-// - rename class to Tile
-// - IMPORTANT: If we enable this tile to pass out references to primitive arrays of
-//   the AWT raster's internal data buffer, we also have to provide
-//   getScanlineOffset() and getScanlineStride()
-//   methods. Note that these are totally different from getOffsetX() and getOffsetY()
-//   which are defined within the image's pixel coodinate systems while the former are
-//   defined only for the primitive array references passed out.
-//
-//   <p>This is the simplest but also slowest way to modify sample data of a tile:</p>
-//   <pre>
-//     for (int y = 0; y < getHeight(); y++) {
-//         for (int x = 0; x < getWidth(); x++) {
-//             // compute sample value...
-//             tile.setSample(x, y, sample);
-//         }
-//     }
-//   </pre>
-//
-//   <p>More performance is gained if the sample data buffer is checked out and committed
-//   (required after modification only):</p>
-//
-//   <pre>
-//     ProductData samples = tile.getRawSampleData(); // check out
-//     for (int y = 0; y < getHeight(); y++) {
-//         for (int x = 0; x < getWidth(); x++) {
-//             // compute sample value...
-//             samples.setElemFloatAt(y * getWidth() + x, sample);
-//             // ...
-//         }
-//     }
-//     tile.setRawSampleData(samples); // commit
-//   </pre>
-//
-//   <p>The the fastest way to read from or write to sample data is via the primitive sample arrays:</p>
-//
-//   <pre>
-//     float[] samples = tile.getRawSamplesFloat();
-//     float sample;
-//     int offset = tile.getScanlineOffset();
-//     for (int y = 0; y < getHeight(); y++) {
-//         int index = offset;
-//         for (int x = 0; x < getWidth(); x++) {
-//             // compute sample value...
-//             samples[index] = sample;
-//             index++;
-//         }
-//         offset += tile.getScanlineStride();
-//     }
-//   </pre>
-//
-//   Currently, we pass out a primitive reference only if the array.length equals
-//   the area of the getRectangle(), which is never the case if the requested rectangle is
-//   not equal to the tile rectangle.
-//
 
 /**
- * A tile.
+ * A tile represents a rectangular region of sample data within the scene rectangle of a data product.
+ * Tiles are used to enable the sample data transfer from and to the source and target bands of data
+ * products used within operator graphs.
+ * <p>Target tiles to be computed are passed into an {@link org.esa.beam.framework.gpf.Operator Operator}'s
+ * {@link Operator#computeTile(org.esa.beam.framework.datamodel.Band,Tile) computeTile}
+ * and {@link Operator#computeTileStack(java.util.Map,java.awt.Rectangle) computeTileStack} methods.
+ * Source tiles are obtained by using the
+ * {@link Operator#getSourceTile(org.esa.beam.framework.datamodel.RasterDataNode,java.awt.Rectangle) getSourceTile} method.</p>
+ * <p>Three ways are provided to access and manipulate the sample data of a target tile:</p>
+ * <p>(1) This is the simplest but also slowest way to modify sample data of a tile:</p>
+ * <pre>
+ *   for (int y = getMinY(); y &lt;= getMaxY(); y++) {
+ *       for (int x = getMinX(); x &lt;= getMaxX(); x++) {
+ *           // compute sample value...
+ *           tile.setSample(x, y, sample);
+ *       }
+ *   }
+ * </pre>
+ * <p>(2) More performance is gained if the sample data buffer is checked out and committed
+ * (required after modification only):</p>
+ * <pre>
+ *   ProductData samples = tile.getRawSampleData(); // check out
+ *   for (int y = 0; y &lt; getHeight(); y++) {
+ *       for (int x = 0; x &lt; getWidth(); x++) {
+ *           // compute sample value...
+ *           samples.setElemFloatAt(y * getWidth() + x, sample);
+ *           // ...
+ *       }
+ *   }
+ *   tile.setRawSampleData(samples); // commit
+ * </pre>
+ * <p>(3) The the fastest way to read from or write to sample data is direct access to the sample data
+ * via the primitive data buffer arrays:</p>
+ * <pre>
+ *   float[] samples = tile.getDataBufferFloat();
+ *   float sample;
+ *   int offset = tile.getScanlineOffset();
+ *   for (int y = 0; y &lt; getHeight(); y++) {
+ *       int index = offset;
+ *       for (int x = 0; x &lt; getWidth(); x++) {
+ *           // compute sample value...
+ *           samples[index] = sample;
+ *           index++;
+ *       }
+ *       offset += tile.getScanlineStride();
+ *   }
+ * </pre>
+ * <p>Note that method (3) can only be used if the exact sample data type
+ * is known or has been identified in a former step. The code snippet above
+ * implies that the underlying data type is {@code float}
+ * (because {@link org.esa.beam.framework.datamodel.RasterDataNode#getDataType() getRasterDataNode().getDataType()}
+ * returns {@link ProductData#TYPE_FLOAT32}).</p>
+ *
+ * @author Norman Fomferra
+ * @author Marco Peters
+ * @author Marco Zühlke
+ * @since 4.1
  */
 public interface Tile {
 
     /**
      * Gets the {@code RasterDataNode} associated with this tile,
-     * e.g. a {@link org.esa.beam.framework.datamodel.Band Band} or
-     * {@link org.esa.beam.framework.datamodel.TiePointGrid TiePointGrid}.
+     * e.g. a {@link org.esa.beam.framework.datamodel.Band Band} for source and target tiles or
+     * {@link org.esa.beam.framework.datamodel.TiePointGrid TiePointGrid} for a source tile.
      *
      * @return The {@code RasterDataNode} associated with this tile.
      */
     RasterDataNode getRasterDataNode();
+
+    /**
+     * Checks if this is a target tile. Non-target tiles are read only.
+     *
+     * @return <code>true</code> if this is a target tile.
+     */
+    boolean isTarget();
 
     /**
      * Gets the tile rectangle in pixel coordinates within the scene covered by the tile's {@link #getRasterDataNode RasterDataNode}.
@@ -263,79 +271,129 @@ public interface Tile {
      */
     int getScanlineStride();
 
-// todo - rename the following accessor pair
-//    ProductData getRawSamples();
 
-    //    void setRawSamples(ProductData samples);
-
+    // todo - rename to getRawSamples() (nf - 09.10.2007)
+    /**
+     * Gets raw (unscaled, uncalibrated) samples, e.g. detector counts, copied from or wrapping the underlying
+     * data buffer. In contradiction to the {@link #getDataBuffer()} method, the returned samples
+     * will cover exactly the region {@link #getRectangle()} rectangle} of this tile. Thus, the number
+     * of returned samples will always equal {@link #getWidth() width} {@code *} {@link #getHeight() height}.
+     * <p>In order to apply changes of the samples values to this tile, it is mandatory to call
+     * {@link #setRawSampleData(org.esa.beam.framework.datamodel.ProductData)} with the modified
+     * {@code ProductData} instance.</p>
+     *
+     * @return The raw samples copied from or wrapping the underlying data buffer.
+     */
     ProductData getRawSampleData();
 
-    void setRawSampleData(ProductData sampleData);
-// todo - this is the scaled equivalent accessor pair. We should provide this !
-//    ProductData getSamples();
-//    void setSamples(ProductData samples);
+    // todo - rename to setRawSamples() (nf - 09.10.2007)
+    /**
+     * Sets raw (unscaled, uncalibrated) samples, e.g. detector counts, into the underlying.
+     * The number of given samples must be equal {@link #getWidth() width} {@code *} {@link #getHeight() height}
+     * of this tile.
+     * <p>This method must be used
+     * in order to apply changes made to the samples returned by the {@link #getRawSampleData()} method.</p>
+     *
+     * @param samples The raw samples to be set.
+     */
+    void setRawSampleData(ProductData samples);
+
+// todo - define getSamples():ProductData (nf - 09.10.2007)
+// todo - define setSamples(samples:ProductData):void (nf - 09.10.2007)
 
     /**
-     * Gets a sample value as {@code boolean} for the given pixel coordinate.
+     * Gets the geophysical (scaled, calibrated) sample at the given pixel coordinate as {@code boolean} value.
      * <p>If the underlying data buffer is of a different sample data type, an appropriate type conversion is performed.</p>
-     * <p>Note that it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
+     * <p>Note that in most cases it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
      * with the {@link #getScanlineOffset() scanlineOffset} and {@link #getScanlineStride() scanlineStride} properties.</p>
      *
      * @param x The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
      * @param y The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
-     * @return A sample value as {@code boolean}.
+     * @return The geophysical sample as {@code boolean} value.
      */
     boolean getSampleBoolean(int x, int y);
 
+    /**
+     * Sets the geophysical (scaled, calibrated) sample at the given pixel coordinate from a {@code boolean} value.
+     * <p>If the underlying data buffer is of a different sample data type, an appropriate type conversion is performed.</p>
+     * <p>Note that in most cases it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
+     * with the {@link #getScanlineOffset() scanlineOffset} and {@link #getScanlineStride() scanlineStride} properties.</p>
+     *
+     * @param x      The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
+     * @param y      The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
+     * @param sample The geophysical sample as {@code boolean} value.
+     */
     void setSample(int x, int y, boolean sample);
 
     /**
-     * Gets a sample value as {@code int} for the given pixel coordinate.
+     * Gets the geophysical (scaled, calibrated) sample at the given pixel coordinate as {@code int} value.
      * <p>If the underlying data buffer is of a different sample data type, an appropriate type conversion is performed.</p>
-     * <p>Note that it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
+     * <p>Note that in most cases it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
      * with the {@link #getScanlineOffset() scanlineOffset} and {@link #getScanlineStride() scanlineStride} properties.</p>
      *
      * @param x The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
      * @param y The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
-     * @return A sample value as {@code int}.
+     * @return The geophysical sample as {@code int} value.
      */
     int getSampleInt(int x, int y);
 
+    /**
+     * Sets the geophysical (scaled, calibrated) sample at the given pixel coordinate from a {@code int} value.
+     * <p>If the underlying data buffer is of a different sample data type, an appropriate type conversion is performed.</p>
+     * <p>Note that in most cases it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
+     * with the {@link #getScanlineOffset() scanlineOffset} and {@link #getScanlineStride() scanlineStride} properties.</p>
+     *
+     * @param x      The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
+     * @param y      The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
+     * @param sample The geophysical sample as {@code int} value.
+     */
     void setSample(int x, int y, int sample);
 
     /**
-     * Gets a sample value as {@code float} for the given pixel coordinate.
+     * Gets the geophysical (scaled, calibrated) sample at the given pixel coordinate as {@code float} value.
      * <p>If the underlying data buffer is of a different sample data type, an appropriate type conversion is performed.</p>
-     * <p>Note that it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
+     * <p>Note that in most cases it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
      * with the {@link #getScanlineOffset() scanlineOffset} and {@link #getScanlineStride() scanlineStride} properties.</p>
      *
      * @param x The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
      * @param y The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
-     * @return A sample value as {@code float}.
+     * @return The geophysical sample as {@code float} value.
      */
     float getSampleFloat(int x, int y);
 
+    /**
+     * Sets the geophysical (scaled, calibrated) sample at the given pixel coordinate from a {@code float} value.
+     * <p>If the underlying data buffer is of a different sample data type, an appropriate type conversion is performed.</p>
+     * <p>Note that in most cases it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
+     * with the {@link #getScanlineOffset() scanlineOffset} and {@link #getScanlineStride() scanlineStride} properties.</p>
+     *
+     * @param x      The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
+     * @param y      The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
+     * @param sample The geophysical sample as {@code float} value.
+     */
     void setSample(int x, int y, float sample);
 
     /**
-     * Gets a sample value as {@code double} for the given pixel coordinate.
+     * Gets the geophysical (scaled, calibrated) sample value for the given pixel coordinate as {@code double}.
      * <p>If the underlying data buffer is of a different sample data type, an appropriate type conversion is performed.</p>
-     * <p>Note that it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
+     * <p>Note that in most cases it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
      * with the {@link #getScanlineOffset() scanlineOffset} and {@link #getScanlineStride() scanlineStride} properties.</p>
      *
      * @param x The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
      * @param y The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
-     * @return A sample value as {@code double}.
+     * @return The geophysical sample as {@code double} value.
      */
     double getSampleDouble(int x, int y);
 
-    void setSample(int x, int y, double sample);
-
     /**
-     * Checks if this is a target tile. Non-target tiles are read only.
+     * Sets the geophysical (scaled, calibrated) sample at the given pixel coordinate from a {@code double} value.
+     * <p>If the underlying data buffer is of a different sample data type, an appropriate type conversion is performed.</p>
+     * <p>Note that in most cases it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
+     * with the {@link #getScanlineOffset() scanlineOffset} and {@link #getScanlineStride() scanlineStride} properties.</p>
      *
-     * @return <code>true</code> if this is a target tile.
+     * @param x      The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
+     * @param y      The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
+     * @param sample The geophysical sample as {@code double} value.
      */
-    boolean isTarget();
-
+    void setSample(int x, int y, double sample);
 }
