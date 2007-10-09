@@ -25,6 +25,8 @@ import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.util.*;
 import org.esa.beam.util.math.*;
 
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
 import javax.media.jai.ROI;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -910,6 +912,14 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (_roiDefinition != null) {
             _roiDefinition.dispose();
             _roiDefinition = null;
+        }
+        if (_image != null) {
+            JAI.getDefaultInstance().getTileCache().removeTiles(_image);
+            if (_image instanceof PlanarImage) {
+                PlanarImage planarImage = (PlanarImage) _image;
+                planarImage.dispose();
+            }
+            _image = null;
         }
         super.dispose();
     }
