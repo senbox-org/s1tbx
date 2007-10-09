@@ -22,11 +22,8 @@ import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.VirtualBand;
-import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
@@ -52,18 +49,18 @@ import java.util.logging.Logger;
  * @since 4.1
  */
 public class OperatorContext {
-    private List<Product> sourceProductList;
-    private Map<String, Object> parameters;
-    private Map<String, Product> sourceProductMap;
     private Product targetProduct;
     private OperatorSpi operatorSpi;
     private Operator operator;
-    private RenderedImage[] targetImages;
     private boolean tileMethodImplemented;
     private boolean tileStackMethodImplemented;
+    private boolean passThrough;
+    private List<Product> sourceProductList;
+    private Map<String, Object> parameters;
+    private Map<String, Product> sourceProductMap;
+    private Map<Band, OperatorImage> targetImages;
     private Xpp3Dom configuration;
     private Logger logger;
-    private boolean passThrough;
 
     public OperatorContext() {
         sourceProductList = new ArrayList<Product>(3);
@@ -179,8 +176,8 @@ public class OperatorContext {
         return new TileImpl(rasterDataNode, awtRaster);
     }
 
-    RenderedImage[] getTargetImages() {
-        return targetImages;
+    OperatorImage getTargetImage(Band band) {
+        return targetImages.get(band);
     }
 
     private static RenderedImage getSourceImage(RasterDataNode rasterDataNode) {
@@ -225,12 +222,8 @@ public class OperatorContext {
     private void initTargetProduct() throws OperatorException {
         Guardian.assertTrue("operator != null", operator != null);
 
-        if (parameters != null) {
-            new MapParameterInjector(parameters).injectParameters(operator);
-        }
-        if (configuration != null) {
-            new Xpp3DomParameterInjector(configuration).injectParameters(operator);
-        }
+        injectParameters();
+        injectConfiguration();
         initSourceProductFields();
         targetProduct = operator.initialize();
         if (targetProduct == null) {
@@ -238,7 +231,7 @@ public class OperatorContext {
         }
         initPassThrough();
         initTargetProductField();
-        initTargetOpImages();
+        initTargetImages();
 
         ProductReader oldProductReader = targetProduct.getProductReader();
         if (oldProductReader == null) {
@@ -258,7 +251,7 @@ public class OperatorContext {
         return passThrough;
     }
 
-    private void initTargetOpImages() {
+    private void initTargetImages() {
         if (targetProduct.getPreferredTileSize() == null) {
             Dimension tileSize = JAIUtils.computePreferredTileSize(targetProduct.getSceneRasterWidth(),
                                                                    targetProduct.getSceneRasterHeight(), 4);
@@ -266,17 +259,13 @@ public class OperatorContext {
         }
 
         Band[] bands = targetProduct.getBands();
-        targetImages = new RenderedImage[bands.length];
-        for (int i = 0; i < bands.length; i++) {
-            Band band = bands[i];
+        targetImages = new HashMap<Band, OperatorImage>(bands.length * 2);
+        for (Band band : bands) {
+            OperatorImage image = new OperatorImage(band, this);
             if (band.getImage() == null) {
-                if (band instanceof VirtualBand) {
-                    band.setImage(new RasterDataNodeOpImage(band));
-                } else {
-                    band.setImage(new TargetBandOpImage(band, this));
-                }
+                band.setImage(image);
             }
-            targetImages[i] = band.getImage();
+            targetImages.put(band, image);
         }
     }
 
@@ -434,4 +423,50 @@ public class OperatorContext {
         }
     }
 
+    public void injectConfiguration() throws OperatorException {
+        if (configuration != null) {
+            if (operator instanceof ParameterConverter) {
+                ParameterConverter converter = (ParameterConverter) operator;
+                try {
+                    converter.setParameterValues(operator, configuration);
+                } catch (Throwable t) {
+                    throw new OperatorException(t);
+                }
+            } else {
+                DefaultParameterConverter defaultParameterConverter = new DefaultParameterConverter();
+                defaultParameterConverter.setParameterValues(operator, configuration);
+            }
+        }
+    }
+
+    public void injectParameters() throws OperatorException {
+        if (parameters != null) {
+            Field[] parameterFields = getParameterFields(operator);
+            for (Field parameterField : parameterFields) {
+                Object value = parameters.get(parameterField.getName());
+                if (value != null) {
+                    setOperatorFieldValue(parameterField, value);
+                }
+            }
+        }
+    }
+
+    public static Field[] getParameterFields(Operator operator) {
+        List<Field> parameterFields = new ArrayList<Field>();
+        collectParameterFields(operator.getClass(), parameterFields);
+        return parameterFields.toArray(new Field[parameterFields.size()]);
+    }
+
+    public static void collectParameterFields(Class operatorClass, List<Field> parameterFields) {
+        final Class superclass = operatorClass.getSuperclass();
+        if (superclass != null && superclass.isAssignableFrom(Operator.class)) {
+            collectParameterFields(superclass, parameterFields);
+        }
+        Field[] declaredFields = operatorClass.getDeclaredFields();
+        for (Field declaredField : declaredFields) {
+            if (declaredField.getAnnotation(Parameter.class) != null) {
+                parameterFields.add(declaredField);
+            }
+        }
+    }
 }
