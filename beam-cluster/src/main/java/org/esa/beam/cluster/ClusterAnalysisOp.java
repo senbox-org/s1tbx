@@ -31,7 +31,7 @@ import java.util.Set;
 /**
  * The CLUCOV operator implementation.
  */
-public class ClusterAnalysisOp extends AbstractOperator implements ParameterConverter {
+public class ClusterAnalysisOp extends Operator implements ParameterConverter {
     @SourceProduct
     Product sourceProduct;
     @TargetProduct

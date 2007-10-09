@@ -11,6 +11,7 @@ import org.esa.beam.framework.gpf.AbstractOperator;
 import org.esa.beam.framework.gpf.AbstractOperatorSpi;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
@@ -21,12 +22,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Colocation operator.
+ * Collocation operator.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$
  */
-public class CollocationOp extends AbstractOperator {
+public class CollocationOp extends Operator {
 
     @SourceProduct(alias = "master")
     Product masterProduct;
@@ -41,7 +42,7 @@ public class CollocationOp extends AbstractOperator {
     private transient List<Band> slaveBandList;
 
     @Override
-    protected Product initialize() throws OperatorException {
+    public Product initialize() throws OperatorException {
         // todo - name and type
         targetProduct = new Product("CollocationProduct", "COLLOCATION",
                                     masterProduct.getSceneRasterWidth(),

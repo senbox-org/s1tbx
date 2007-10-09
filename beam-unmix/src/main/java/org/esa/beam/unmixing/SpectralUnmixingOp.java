@@ -42,7 +42,7 @@ import java.util.Map;
 /**
  * The "Unmix" operator implementation.
  */
-public class SpectralUnmixingOp extends AbstractOperator implements ParameterConverter {
+public class SpectralUnmixingOp extends Operator implements ParameterConverter {
 
     private final String TYPE_1 = "Unconstrained LSU";
     private final String TYPE_2 = "Constrained LSU";
