@@ -417,7 +417,11 @@ public class ProductSubsetDialog extends ModalDialog {
 
     private static void setComponentName(JComponent component, String name) {
         Container parent = component.getParent();
-        component.setName(parent.getName() + "." + name);
+        if (parent != null) {
+            component.setName(parent.getName() + "." + name);
+        }else {
+            component.setName(name);
+        }
     }
 
     private void updateSubsetDefRegion(int x1, int y1, int x2, int y2, int sx, int sy) {
