@@ -40,13 +40,6 @@ public class OperatorProductReader implements ProductReader {
         this.operator = operator;
     }
 
-    public void close() throws IOException {
-//        if (operator != null) {
-//            operator.dispose();
-//            operator = null;
-//        }
-    }
-
     public Object getInput() {
         return operator.getSourceProducts();
     }
@@ -87,6 +80,12 @@ public class OperatorProductReader implements ProductReader {
         data.getDataElements(targetRect.x, targetRect.y, targetRect.width, targetRect.height, targetBuffer.getElems());
     }
 
+    public void close() throws IOException {
+        if (operator != null) {
+            operator = null;
+        }
+    }
+
     @Override
     public String toString() {
         return "OperatorProductReader[op=" + operator.getClass().getSimpleName() + "]";
@@ -111,7 +110,7 @@ public class OperatorProductReader implements ProductReader {
         }
 
         public String getDescription(Locale locale) {
-            return "Adapts the Operator interface to a ProductReader interface";
+            return "Adapts an Operator to a ProductReader";
         }
 
         public String[] getFormatNames() {
