@@ -42,17 +42,10 @@ import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.PlanarImage;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingWorker;
+import javax.swing.*;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -66,7 +59,6 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -185,8 +177,7 @@ public class ProductSubsetDialog extends ModalDialog {
     private boolean checkReferencedRastersIncluded() {
         final Set<String> notIncludedNames = new TreeSet<String>();
         final List<String> includedNodeNames = Arrays.asList(productSubsetDef.getNodeNames());
-        for (int i = 0; i < includedNodeNames.size(); i++) {
-            final String nodeName = includedNodeNames.get(i);
+        for (final String nodeName : includedNodeNames) {
             final RasterDataNode rasterDataNode = product.getRasterDataNode(nodeName);
             if (rasterDataNode != null) {
                 collectNotIncludedReferences(rasterDataNode, notIncludedNames);
@@ -196,8 +187,8 @@ public class ProductSubsetDialog extends ModalDialog {
         boolean ok = true;
         if (notIncludedNames.size() > 0) {
             StringBuffer nameListText = new StringBuffer();  /*I18N*/
-            for (Iterator iterator = notIncludedNames.iterator(); iterator.hasNext();) {
-                nameListText.append("  '" + iterator.next() + "'\n");
+            for (String notIncludedName : notIncludedNames) {
+                nameListText.append("  '").append(notIncludedName).append("'\n");
             }
 
             final String pattern = "The following dataset(s) are referenced but not included\n" +
@@ -209,7 +200,7 @@ public class ProductSubsetDialog extends ModalDialog {
                                    "Do you wish to include the referenced dataset(s) into your\n" +
                                    "subset definition?\n"; /*I18N*/
             final MessageFormat format = new MessageFormat(pattern);
-            int status = JOptionPane.showConfirmDialog(this.getJDialog(),
+            int status = JOptionPane.showConfirmDialog(getJDialog(),
                                                        format.format(new Object[]{nameListText.toString()}),
                                                        "Incomplete Subset Definition", /*I18N*/
                                                        JOptionPane.YES_NO_CANCEL_OPTION);
@@ -228,8 +219,7 @@ public class ProductSubsetDialog extends ModalDialog {
 
     private void collectNotIncludedReferences(final RasterDataNode rasterDataNode, final Set<String> notIncludedNames) {
         final RasterDataNode[] referencedNodes = getReferencedNodes(rasterDataNode);
-        for (int j = 0; j < referencedNodes.length; j++) {
-            final RasterDataNode referencedNode = referencedNodes[j];
+        for (final RasterDataNode referencedNode : referencedNodes) {
             final String name = referencedNode.getName();
             if (!productSubsetDef.isNodeAccepted(name) && !notIncludedNames.contains(name)) {
                 notIncludedNames.add(name);
@@ -241,15 +231,14 @@ public class ProductSubsetDialog extends ModalDialog {
     private static RasterDataNode[] getReferencedNodes(final RasterDataNode node) {
         final Product product = node.getProduct();
         if (product != null) {
-            final List<String> expressions = new ArrayList<String>();
+            final List<String> expressions = new ArrayList<String>(10);
             if (node.getValidPixelExpression() != null) {
                 expressions.add(node.getValidPixelExpression());
             }
             final BitmaskOverlayInfo bitmaskOverlayInfo = node.getBitmaskOverlayInfo();
             if (bitmaskOverlayInfo != null) {
                 final BitmaskDef[] bitmaskDefs = bitmaskOverlayInfo.getBitmaskDefs();
-                for (int i = 0; i < bitmaskDefs.length; i++) {
-                    final BitmaskDef bitmaskDef = bitmaskDefs[i];
+                for (final BitmaskDef bitmaskDef : bitmaskDefs) {
                     if (bitmaskDef.getExpr() != null) {
                         expressions.add(bitmaskDef.getExpr());
                     }
@@ -267,9 +256,9 @@ public class ProductSubsetDialog extends ModalDialog {
                 expressions.add(virtualBand.getExpression());
             }
 
-            final ArrayList<Term> termList = new ArrayList<Term>();
-            for (int i = 0; i < expressions.size(); i++) {
-                final String expression = (String) expressions.get(i);
+            final ArrayList<Term> termList = new ArrayList<Term>(10);
+            for (String expression1 : expressions) {
+                final String expression = expression1;
                 try {
                     final Term term = product.createTerm(expression);
                     if (term != null) {
@@ -291,7 +280,7 @@ public class ProductSubsetDialog extends ModalDialog {
     private boolean checkFlagDatasetIncluded() {
 
         final String[] nodeNames = productSubsetDef.getNodeNames();
-        final List<String> flagDsNameList = new ArrayList<String>();
+        final List<String> flagDsNameList = new ArrayList<String>(10);
         boolean flagDsInSubset = false;
         for (int i = 0; i < product.getNumBands(); i++) {
             Band band = product.getBandAt(i);
@@ -307,7 +296,7 @@ public class ProductSubsetDialog extends ModalDialog {
         final int numFlagDs = flagDsNameList.size();
         boolean ok = true;
         if (numFlagDs > 0 && !flagDsInSubset) {
-            int status = JOptionPane.showConfirmDialog(this.getJDialog(),
+            int status = JOptionPane.showConfirmDialog(getJDialog(),
                                                        "No flag dataset selected.\n\n"
                                                        + "If you do not include a flag dataset in the subset,\n"
                                                        + "you will not be able to create bitmask overlays.\n\n"
@@ -316,7 +305,7 @@ public class ProductSubsetDialog extends ModalDialog {
                                                        "No Flag Dataset Selected",
                                                        JOptionPane.YES_NO_CANCEL_OPTION);
             if (status == JOptionPane.YES_OPTION) {
-                productSubsetDef.addNodeNames((String[]) flagDsNameList.toArray(new String[numFlagDs]));
+                productSubsetDef.addNodeNames(flagDsNameList.toArray(new String[numFlagDs]));
                 ok = true;
             } else if (status == JOptionPane.NO_OPTION) {
                 /* OK, no flag datasets wanted */
@@ -340,23 +329,28 @@ public class ProductSubsetDialog extends ModalDialog {
         memLabel = new JLabel("####", JLabel.RIGHT);
 
         JTabbedPane tabbedPane = new JTabbedPane();
+        setComponentName(tabbedPane, "TabbedPane");
 
         spatialSubsetPane = createSpatialSubsetPane();
+        setComponentName(spatialSubsetPane, "SpatialSubsetPane");
         if (spatialSubsetPane != null) {
             tabbedPane.addTab("Spatial Subset", spatialSubsetPane); /*I18N*/
         }
 
         bandSubsetPane = createBandSubsetPane();
+        setComponentName(bandSubsetPane, "BandSubsetPane");
         if (bandSubsetPane != null) {
             tabbedPane.addTab("Band Subset", bandSubsetPane); /*I18N*/
         }
 
         tiePointGridSubsetPane = createTiePointGridSubsetPane();
+        setComponentName(tiePointGridSubsetPane, "TiePointGridSubsetPane");
         if (tiePointGridSubsetPane != null) {
             tabbedPane.addTab("Tie-Point Grid Subset", tiePointGridSubsetPane); /*I18N*/
         }
 
         metadataSubsetPane = createAnnotationSubsetPane();
+        setComponentName(metadataSubsetPane, "TiePointGridSubsetPane");
         if (metadataSubsetPane != null) {
             tabbedPane.addTab("Metadata Subset", metadataSubsetPane); /*I18N*/
         }
@@ -365,6 +359,7 @@ public class ProductSubsetDialog extends ModalDialog {
         tabbedPane.setSelectedIndex(0);
 
         JPanel contentPane = new JPanel(new BorderLayout(4, 4));
+        setComponentName(contentPane, "ContentPane");
 
         contentPane.add(tabbedPane, BorderLayout.CENTER);
         contentPane.add(memLabel, BorderLayout.SOUTH);
@@ -418,6 +413,11 @@ public class ProductSubsetDialog extends ModalDialog {
         }
         final String[] includeNodes = StringUtils.addToArray(metaNodes, Product.HISTORY_ROOT_NAME);
         return new ProductNodeSubsetPane(metadataElements, includeNodes, true);
+    }
+
+    private static void setComponentName(JComponent component, String name) {
+        Container parent = component.getParent();
+        component.setName(parent.getName() + "." + name);
     }
 
     private void updateSubsetDefRegion(int x1, int y1, int x2, int y2, int sx, int sy) {
@@ -533,11 +533,15 @@ public class ProductSubsetDialog extends ModalDialog {
                                                        product.getSceneRasterHeight());
             imageCanvas = new SliderBoxImageDisplay(imgSize.width, imgSize.height, this);
             imageCanvas.setSize(imgSize.width, imgSize.height);
+            setComponentName(imageCanvas, "ImageCanvas");
+
 
             imageScrollPane = new JScrollPane(imageCanvas);
             imageScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
             imageScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
             imageScrollPane.getViewport().setExtentSize(new Dimension(MAX_THUMBNAIL_WIDTH, 2 * MAX_THUMBNAIL_WIDTH));
+            setComponentName(imageScrollPane, "ImageScrollPane");
+
 
             subsetWidthLabel = new JLabel("####", JLabel.RIGHT);
             subsetHeightLabel = new JLabel("####", JLabel.RIGHT);
@@ -546,18 +550,24 @@ public class ProductSubsetDialog extends ModalDialog {
             setToVisibleButton.setMnemonic('v');
             setToVisibleButton.setToolTipText("Use coordinates of visible thumbnail area"); /*I18N*/
             setToVisibleButton.addActionListener(this);
+            setComponentName(setToVisibleButton, "UsePreviewButton");
+
 
             fixSceneWidthCheck = new JCheckBox("Fix full width");/*I18N*/
             fixSceneWidthCheck.setMnemonic('w');/*I18N*/
             fixSceneWidthCheck.setToolTipText("Checks whether or not to fix the full scene width"); /*I18N*/
             fixSceneWidthCheck.addActionListener(this);
+            setComponentName(fixSceneWidthCheck, "FixWidthCheck");
 
             fixSceneHeightCheck = new JCheckBox("Fix full height");/*I18N*/
             fixSceneHeightCheck.setMnemonic('h');/*I18N*/
             fixSceneHeightCheck.setToolTipText("Checks whether or not to fix the full scene height"); /*I18N*/
             fixSceneHeightCheck.addActionListener(this);
+            setComponentName(fixSceneHeightCheck, "FixHeightCheck");
 
             JPanel textInputPane = GridBagUtils.createPanel();
+            setComponentName(textInputPane, "TextInputPane");
+
             GridBagConstraints gbc = GridBagUtils.createConstraints("insets.left=7,anchor=WEST,fill=HORIZONTAL");
 
             GridBagUtils.setAttributes(gbc, "insets.top=4");
@@ -656,10 +666,7 @@ public class ProductSubsetDialog extends ModalDialog {
         }
 
         public boolean isThumbnailLoaderCanceled() {
-            if (thumbnailLoader != null && thumbnailLoader.isCancelled()) {
-                return true;
-            }
-            return false;
+            return thumbnailLoader != null && thumbnailLoader.isCancelled();
         }
 
         public void sliderBoxChanged(Rectangle sliderBoxBounds) {
@@ -865,7 +872,7 @@ public class ProductSubsetDialog extends ModalDialog {
         }
 
         private String[] getFlagBandNames() {
-            final List<String> flagBandNames = new ArrayList<String>();
+            final List<String> flagBandNames = new ArrayList<String>(10);
             for (int i = 0; i < product.getNumFlagCodings(); i++) {
                 for (int j = 0; j < product.getNumBands(); j++) {
                     final Band band = product.getBandAt(j);
@@ -874,7 +881,7 @@ public class ProductSubsetDialog extends ModalDialog {
                     }
                 }
             }
-            return (String[]) flagBandNames.toArray(new String[flagBandNames.size()]);
+            return flagBandNames.toArray(new String[flagBandNames.size()]);
         }
 
         private String getThumbnailBandName() {
@@ -911,8 +918,10 @@ public class ProductSubsetDialog extends ModalDialog {
                 }
             };
 
-            _checkers = new ArrayList<JCheckBox>();
+            _checkers = new ArrayList<JCheckBox>(10);
             JPanel checkersPane = GridBagUtils.createPanel();
+            setComponentName(checkersPane, "CheckersPane");
+
             GridBagConstraints gbc = GridBagUtils.createConstraints("insets.left=4,anchor=WEST,fill=HORIZONTAL");
             for (int i = 0; i < _productNodes.length; i++) {
                 ProductNode productNode = (ProductNode) _productNodes[i];
@@ -956,7 +965,7 @@ public class ProductSubsetDialog extends ModalDialog {
             };
 
             _allCheck = new JCheckBox("Select all");
-            _allCheck.setName("SelectAll");
+            _allCheck.setName("selectAll");
             _allCheck.setMnemonic('a');
             _allCheck.addActionListener(allCheckListener);
 
@@ -991,7 +1000,7 @@ public class ProductSubsetDialog extends ModalDialog {
             String[] names = new String[countChecked(true)];
             int pos = 0;
             for (int i = 0; i < _checkers.size(); i++) {
-                JCheckBox checker = (JCheckBox) _checkers.get(i);
+                JCheckBox checker = _checkers.get(i);
                 if (checker.isSelected()) {
                     ProductNode productNode = (ProductNode) _productNodes[i];
                     names[pos] = productNode.getName();
@@ -1002,8 +1011,7 @@ public class ProductSubsetDialog extends ModalDialog {
         }
 
         void checkAllProductNodes(boolean checked) {
-            for (int i = 0; i < _checkers.size(); i++) {
-                JCheckBox checker = (JCheckBox) _checkers.get(i);
+            for (JCheckBox checker : _checkers) {
                 if (checker.isEnabled()) {
                     checker.setSelected(checked);
                 }
@@ -1016,8 +1024,7 @@ public class ProductSubsetDialog extends ModalDialog {
 
         int countChecked(boolean checked) {
             int counter = 0;
-            for (int i = 0; i < _checkers.size(); i++) {
-                JCheckBox checker = (JCheckBox) _checkers.get(i);
+            for (JCheckBox checker : _checkers) {
                 if (checker.isSelected() == checked) {
                     counter++;
                 }
