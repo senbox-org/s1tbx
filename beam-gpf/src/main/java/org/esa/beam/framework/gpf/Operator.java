@@ -51,7 +51,7 @@ import java.util.logging.Logger;
  */
 public abstract class Operator {
 
-    private final OperatorContext context;
+    final OperatorContext context;
 
     /**
      * Constructs a new operator.

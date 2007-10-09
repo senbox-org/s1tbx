@@ -6,11 +6,20 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.gpf.operators.common.NoOp;
 
 import java.io.IOException;
 
 
 public class OperatorTest extends TestCase {
+    public void testPassThrough() throws OperatorException, IOException {
+        Product sourceProduct = createFooProduct();
+        final Operator op = new NoOp(sourceProduct);
+        assertFalse(op.context.isPassThrough());
+        Product targetProduct = op.getTargetProduct();// force init
+        assertSame(sourceProduct, targetProduct);
+        assertTrue(op.context.isPassThrough());
+    }
 
     public void testDefaultBehaviour() throws OperatorException, IOException {
         final FooOp op = new FooOp();
@@ -32,15 +41,19 @@ public class OperatorTest extends TestCase {
         @Override
         public Product initialize() throws OperatorException {
             initializeCalled = true;
-            Product product = new Product("foo", "grunt", 1, 1);
-            product.addBand("bar", ProductData.TYPE_FLOAT64);
-            return product;
+            return createFooProduct();
         }
 
         @Override
         public void computeTile(Band band, Tile tile) throws OperatorException {
             computeTileCalled = true;
         }
+    }
+
+    private static Product createFooProduct() {
+        Product product = new Product("foo", "grunt", 1, 1);
+        product.addBand("bar", ProductData.TYPE_FLOAT64);
+        return product;
     }
 
     public void testPlainOpUsage() throws IOException, OperatorException {

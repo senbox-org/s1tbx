@@ -15,16 +15,16 @@ import java.awt.image.WritableRaster;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GpfOpImage extends RasterDataNodeOpImage {
+public class TargetBandOpImage extends RasterDataNodeOpImage {
 
     private OperatorContext operatorContext;
 
-    protected GpfOpImage(Band band, OperatorContext operatorContext) {
-        super(band, createSingleBandedImageLayout(band));
+    protected TargetBandOpImage(Band targetBand, OperatorContext operatorContext) {
+        super(targetBand, createSingleBandedImageLayout(targetBand));
         this.operatorContext = operatorContext;
     }
 
-    public Band getBand() {
+    public Band getTargetBand() {
         return (Band) getRasterDataNode();
     }
 
@@ -38,10 +38,10 @@ public class GpfOpImage extends RasterDataNodeOpImage {
     }
 
     private void executeOperator(WritableRaster targetTileRaster, Rectangle targetRectangle) throws OperatorException {
-        // todo - handle case: single sourceProduct == targetProduct
+        boolean passThrough = operatorContext.isPassThrough(); // todo - use passThrough for optimisation (nf - 09.10.2007)
         if (operatorMustComputeTileStack()) {
             WritableRaster[] targetRasters = getTargetTileRasters(targetTileRaster);
-            Map<Band, org.esa.beam.framework.gpf.Tile> targetTiles = new HashMap<Band, org.esa.beam.framework.gpf.Tile>(targetRasters.length * 2);
+            Map<Band, Tile> targetTiles = new HashMap<Band, Tile>(targetRasters.length * 2);
             for (int i = 0; i < targetRasters.length; i++) {
                 Band targetBand = operatorContext.getTargetProduct().getBandAt(i);
                 Tile targetTile = createTargetTile(targetBand, targetRasters[i], targetRectangle);
@@ -50,7 +50,7 @@ public class GpfOpImage extends RasterDataNodeOpImage {
             operatorContext.getOperator().computeTileStack(targetTiles, targetRectangle);
         } else {
             Tile targetTile = createTargetTile(getRasterDataNode(), targetTileRaster, targetRectangle);
-            operatorContext.getOperator().computeTile(getBand(), targetTile);
+            operatorContext.getOperator().computeTile(getTargetBand(), targetTile);
         }
     }
 

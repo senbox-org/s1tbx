@@ -19,10 +19,16 @@ public class NoOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
+    public NoOp() {
+    }
+
+    public NoOp(Product sourceProduct) {
+        this.sourceProduct = sourceProduct;
+        this.targetProduct = sourceProduct;
+    }
 
     @Override
     public Product initialize() throws OperatorException {
-        targetProduct = sourceProduct;
         return targetProduct;
     }
 
