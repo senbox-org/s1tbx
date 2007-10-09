@@ -171,9 +171,11 @@ public abstract class Operator {
      * <p>If a target product has not been set so far, calling this method will result in a
      * call to {@link #initialize()}.</p>
      *
-     * @return the target product
+     * @return The target product.
+     * @throws OperatorException Thrown by {@link #initialize()},
+     *                           if the target product has not yet been created.
      */
-    public final Product getTargetProduct() {
+    public final Product getTargetProduct() throws OperatorException {
         return context.getTargetProduct();
     }
 

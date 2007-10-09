@@ -1,5 +1,6 @@
 package org.esa.beam.framework.gpf.graph;
 
+import com.bc.ceres.core.Assert;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.*;
@@ -17,6 +18,7 @@ class NodeContext {
     private Operator operator;
     private OperatorContext operatorContext;
     private int referenceCount;
+    private Product targetProduct;
 
     public NodeContext(GraphContext graphContext, Node node) throws GraphException {
         this.graphContext = graphContext;
@@ -45,8 +47,17 @@ class NodeContext {
         this.referenceCount++;
     }
 
+    public void initTargetProduct() throws GraphException {
+        try {
+            targetProduct = operatorContext.getTargetProduct();
+        } catch (OperatorException e) {
+            throw new GraphException(e.getMessage(), e);
+        }
+    }
+
     public Product getTargetProduct() {
-        return operatorContext.getTargetProduct();
+        Assert.notNull(targetProduct, "targetProduct");
+        return targetProduct;
     }
 
     public boolean canComputeTileStack() {

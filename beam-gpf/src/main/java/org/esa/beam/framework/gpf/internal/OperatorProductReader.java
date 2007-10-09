@@ -9,6 +9,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.io.BeamFileFilter;
 
 import java.awt.Rectangle;
@@ -59,7 +60,11 @@ public class OperatorProductReader implements ProductReader {
     }
 
     public Product readProductNodes(Object input, ProductSubsetDef subsetDef) throws IOException {
-        return operator.getTargetProduct();
+        try {
+            return operator.getTargetProduct();
+        } catch (OperatorException e) {
+            throw new IOException(e);
+        }
     }
 
     public void readBandRasterData(Band destBand, int destOffsetX, int destOffsetY, int destWidth,

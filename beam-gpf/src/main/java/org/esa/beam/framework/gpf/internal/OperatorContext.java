@@ -98,13 +98,9 @@ public class OperatorContext {
         return null;
     }
 
-    public Product getTargetProduct() {
+    public Product getTargetProduct() throws OperatorException {
         if (targetProduct == null) {
-            try {
-                initTargetProduct();
-            } catch (OperatorException e) {
-                throw new RuntimeException(e);
-            }
+            initTargetProduct();
         }
         return targetProduct;
     }
@@ -251,7 +247,7 @@ public class OperatorContext {
         passThrough = false;
         Product[] sourceProducts = getSourceProducts();
         for (Product sourceProduct : sourceProducts) {
-            if (getTargetProduct() == sourceProduct) {
+            if (targetProduct == sourceProduct) {
                 passThrough = true;
             }
         }

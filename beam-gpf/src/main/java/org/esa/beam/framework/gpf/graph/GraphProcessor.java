@@ -253,7 +253,7 @@ public class GraphProcessor {
             }
             Node node = nodeContext.getNode();
             nodeContext.setParameters(node.getConfiguration());
-            nodeContext.getTargetProduct(); // force operator initialisation
+            nodeContext.initTargetProduct();
             graphContext.getInitNodeContextDeque().addFirst(nodeContext);
 
         } catch (Exception e) {

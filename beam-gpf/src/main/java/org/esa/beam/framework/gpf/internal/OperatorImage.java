@@ -54,7 +54,7 @@ public class OperatorImage extends RasterDataNodeOpImage {
         return targetTile;
     }
 
-    private Map<Band, Tile> createTargetTileStack(WritableRaster targetTileRaster, Rectangle targetRectangle) {
+    private Map<Band, Tile> createTargetTileStack(WritableRaster targetTileRaster, Rectangle targetRectangle) throws OperatorException {
         Band[] bands = operatorContext.getTargetProduct().getBands();
         Map<Band, Tile> targetTiles = new HashMap<Band, Tile>(bands.length * 2);
         if (operatorContext.isPassThrough()) {
