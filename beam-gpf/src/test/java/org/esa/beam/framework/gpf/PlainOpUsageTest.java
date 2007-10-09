@@ -33,7 +33,7 @@ public class PlainOpUsageTest extends TestCase {
     }
 
 
-    private static class AddConstOp extends AbstractOperator {
+    private static class AddConstOp extends Operator {
         private Product sourceProduct;
         private Product targetProduct;
         private double constant;
@@ -65,7 +65,7 @@ public class PlainOpUsageTest extends TestCase {
         }
     }
 
-    private static class MulConstOp extends AbstractOperator {
+    private static class MulConstOp extends Operator {
         private Product sourceProduct;
         private Product targetProduct;
         private double constant;
@@ -98,7 +98,7 @@ public class PlainOpUsageTest extends TestCase {
         }
     }
 
-    private static class AddOp extends AbstractOperator {
+    private static class AddOp extends Operator {
         private Product sourceProduct1;
         private Product sourceProduct2;
         private Product targetProduct;
@@ -134,7 +134,7 @@ public class PlainOpUsageTest extends TestCase {
         }
     }
 
-    private static class MulOp extends AbstractOperator {
+    private static class MulOp extends Operator {
         private Product sourceProduct1;
         private Product sourceProduct2;
         private Product targetProduct;

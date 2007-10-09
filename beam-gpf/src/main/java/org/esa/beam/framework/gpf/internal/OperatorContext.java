@@ -253,7 +253,7 @@ public class OperatorContext {
     private static boolean implementsMethod(Class<?> aClass, String methodName, Class[] methodParameterTypes) {
         while (true) {
             if (Operator.class.equals(aClass)
-                    || AbstractOperator.class.equals(aClass)
+                    || Operator.class.equals(aClass)
                     || !Operator.class.isAssignableFrom(aClass)) {
                 return false;
             }

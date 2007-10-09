@@ -44,7 +44,7 @@ public class TargetProductAnnotationValidationTest extends TestCase {
     }
 
 
-    public static class NotInitOutputOperator extends AbstractOperator {
+    public static class NotInitOutputOperator extends Operator {
 
         @TargetProduct
         Product output;

@@ -29,7 +29,7 @@ public class TestOps {
         return calls;
     }
 
-    public static class Op1 extends AbstractOperator {
+    public static class Op1 extends Operator {
         @TargetProduct
         private Product targetProduct;
 
@@ -55,7 +55,7 @@ public class TestOps {
         }
     }
 
-    public static class Op2 extends AbstractOperator {
+    public static class Op2 extends Operator {
 
         @Parameter
         public double threshold;
@@ -93,7 +93,7 @@ public class TestOps {
         }
     }
 
-    public static class Op3 extends AbstractOperator {
+    public static class Op3 extends Operator {
 
         @Parameter
         public boolean ignoreSign;

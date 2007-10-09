@@ -93,7 +93,7 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
         assertEquals(0, sourceProducts.length);
     }
 
-    public static class GoodOperator extends AbstractOperator {
+    public static class GoodOperator extends Operator {
 
         @Override
         public Product initialize() throws OperatorException {
@@ -116,7 +116,7 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
         }
     }
 
-    public static class MultipleProductsOptionalConsumerOperator extends AbstractOperator {
+    public static class MultipleProductsOptionalConsumerOperator extends Operator {
 
         @SourceProducts(optional = true)
         Product[] inputs;
@@ -142,7 +142,7 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
         }
     }
 
-    public static class MultipleProductsConsumerOperator extends AbstractOperator {
+    public static class MultipleProductsConsumerOperator extends Operator {
 
         @SourceProducts
         Product[] inputs;

@@ -60,7 +60,7 @@ public class GPFTest extends TestCase {
         }
     }
 
-    public static class FooOp extends AbstractOperator {
+    public static class FooOp extends Operator {
         @TargetProduct
         Product targetProduct;
         @SourceProduct

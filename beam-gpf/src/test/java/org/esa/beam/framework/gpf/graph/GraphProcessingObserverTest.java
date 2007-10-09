@@ -57,7 +57,7 @@ public class GraphProcessingObserverTest extends TestCase {
         assertEquals("graph [test-graph] stopped", observerMock.entries.get(5));
     }
 
-    public static class OpMock extends AbstractOperator {
+    public static class OpMock extends Operator {
 
         @Override
         public Product initialize() throws OperatorException {

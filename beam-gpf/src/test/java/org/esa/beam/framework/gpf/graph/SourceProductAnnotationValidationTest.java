@@ -136,7 +136,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
                    consumerNodeContext.getSourceProduct("alias"));
     }
 
-    public static class WrongTypeOperator extends AbstractOperator {
+    public static class WrongTypeOperator extends Operator {
 
         @TargetProduct
         Product output;
@@ -159,7 +159,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         }
     }
 
-    public static class WrongBandsOperator extends AbstractOperator {
+    public static class WrongBandsOperator extends Operator {
 
         @Override
         public Product initialize() throws OperatorException {
@@ -181,7 +181,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         }
     }
 
-    public static class GoodOperator extends AbstractOperator {
+    public static class GoodOperator extends Operator {
 
         @Override
         public Product initialize() throws OperatorException {
@@ -203,7 +203,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         }
     }
 
-    public static class ConsumerOperator extends AbstractOperator {
+    public static class ConsumerOperator extends Operator {
 
         @SourceProduct(type = "GoodType", bands = {"a", "b"})
         Product input1;
@@ -228,7 +228,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         }
     }
 
-    public static class OptionalConsumerOperator extends AbstractOperator {
+    public static class OptionalConsumerOperator extends Operator {
 
         @SourceProduct(optional = true, type = "Optional", bands = {"c", "d"})
         Product input1;
@@ -254,7 +254,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         }
     }
 
-    public static class ConsumerWithAliasSourceOperator extends AbstractOperator {
+    public static class ConsumerWithAliasSourceOperator extends Operator {
 
         @SourceProduct(alias = "alias")
         Product input1;

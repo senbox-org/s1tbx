@@ -336,7 +336,7 @@ public class GraphCallSequenceTest extends TestCase {
         return recordingOp.getSpi().getName();
     }
 
-    public static class RecordingOp extends AbstractOperator {
+    public static class RecordingOp extends Operator {
 
         @TargetProduct
         private Product targetProduct;

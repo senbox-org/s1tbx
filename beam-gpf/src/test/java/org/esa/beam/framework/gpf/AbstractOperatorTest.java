@@ -16,7 +16,7 @@ public class AbstractOperatorTest extends TestCase {
         assertTrue(op.isInitialized());
     }
 
-    private static class DummyAbstractOperator extends AbstractOperator {
+    private static class DummyAbstractOperator extends Operator {
         private boolean initCalled;
 
         @Override
