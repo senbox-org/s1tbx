@@ -3,6 +3,9 @@ package org.esa.beam.framework.gpf.graph;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.internal.OperatorContext;
+
+import java.lang.reflect.Field;
 
 /**
  * Default implementation for {@link org.esa.beam.framework.gpf.internal.OperatorContext}.
@@ -12,25 +15,14 @@ class NodeContext {
     private final GraphContext graphContext;
     private final Node node;
     private Operator operator;
+    private OperatorContext operatorContext;
     private int referenceCount;
 
     public NodeContext(GraphContext graphContext, Node node) throws GraphException {
         this.graphContext = graphContext;
         this.node = node;
-
-        final OperatorSpiRegistry spiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-        OperatorSpi operatorSpi = spiRegistry.getOperatorSpi(node.getOperatorName());
-        if (operatorSpi == null) {
-            throw new GraphException("Operator SPI not found for operator '" + node.getOperatorName() + "'");
-        }
-
-        try {
-            this.operator = operatorSpi.createOperator();
-        } catch (OperatorException e) {
-            throw new GraphException("Failed to create inmstance of operator'" + node.getOperatorName() + "'");
-        }
-
-        this.operator.setLogger(graphContext.getLogger());
+        initOperator();
+        initOperatorContext();
     }
 
     public GraphContext getGraphContext() {
@@ -54,30 +46,58 @@ class NodeContext {
     }
 
     public Product getTargetProduct() {
-        return operator.getTargetProduct();
+        return operatorContext.getTargetProduct();
     }
 
     public boolean canComputeTileStack() {
-        return operator.canComputeTileStack();
+        return operatorContext.canComputeTileStack();
     }
 
     public boolean isInitialized() {
-        return operator.isInitialized();
+        return operatorContext.isInitialized();
     }
 
     public void addSourceProduct(String id, Product sourceProduct) {
-        operator.addSourceProduct(id, sourceProduct);
+        operatorContext.addSourceProduct(id, sourceProduct);
     }
 
     public void setParameters(Xpp3Dom configuration) {
-        operator.setParameters(configuration);
+        operatorContext.setParameters(configuration);
     }
 
     public Product getSourceProduct(String id) {
-        return operator.getSourceProduct(id);
+        return operatorContext.getSourceProduct(id);
     }
 
     public Product[] getSourceProducts() {
-        return operator.getSourceProducts();
+        return operatorContext.getSourceProducts();
+    }
+
+    private void initOperator() throws GraphException {
+        final OperatorSpiRegistry spiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        OperatorSpi operatorSpi = spiRegistry.getOperatorSpi(node.getOperatorName());
+        if (operatorSpi == null) {
+            throw new GraphException("SPI not found for operator '" + node.getOperatorName() + "'");
+        }
+
+        try {
+            this.operator = operatorSpi.createOperator();
+            this.operator.setLogger(graphContext.getLogger());
+        } catch (OperatorException e) {
+            throw new GraphException("Failed to create instance of operator '" + node.getOperatorName() + "'");
+        }
+    }
+
+    private void initOperatorContext() {
+        try {
+            Field field = Operator.class.getDeclaredField("context");
+            field.setAccessible(true);
+            operatorContext = (OperatorContext) field.get(operator);
+            field.setAccessible(false);
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException(e);
+        } catch (NoSuchFieldException e) {
+            throw new IllegalStateException(e);
+        }
     }
 }

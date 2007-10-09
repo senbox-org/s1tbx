@@ -21,7 +21,7 @@ import java.util.logging.Logger;
  * product.</li>
  * <li>{@link #computeTile(org.esa.beam.framework.datamodel.Band,Tile) computeTile()}: implemented to compute the tile
  * for a single band.</li>
- * <li>{@link #computeTileStack(java.util.Map,java.awt.Rectangle) computeTileStack()}: implemented to compute the tiles 
+ * <li>{@link #computeTileStack(java.util.Map,java.awt.Rectangle) computeTileStack()}: implemented to compute the tiles
  * for multiple bands.</li>
  * <li>{@link #dispose()}: can be overidden in order to free all resources previously allocated by the operator.</li>
  * </ld>
@@ -103,16 +103,6 @@ public abstract class Operator {
      * The default implementation does nothing.
      */
     public void dispose() {
-    }
-
-    /**
-     * Gets the operator context.
-     *
-     * @return the operator context, or <code>null</code> if the operator has not yet been initialised.
-     * @deprecated context information should be used anymore
-     */
-    public final OperatorContext getContext() {
-        return context;
     }
 
     /**
@@ -232,14 +222,6 @@ public abstract class Operator {
 
     public final void setParameters(Xpp3Dom configuration) {
         context.setParameters(configuration);
-    }
-
-    public final boolean canComputeTileStack() {
-        return context.canComputeTileStack();
-    }
-
-    public final boolean isInitialized() {
-        return context.isInitialized();
     }
 
     public String getSourceProductId(Product product) {

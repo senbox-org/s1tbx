@@ -28,10 +28,6 @@ public class GpfOpImage extends RasterDataNodeOpImage {
         return (Band) getRasterDataNode();
     }
 
-    public OperatorContext getOperatorContext() {
-        return operatorContext;
-    }
-
     @Override
     protected void computeRect(PlanarImage[] ignored, WritableRaster tile, Rectangle destRect) {
         try {

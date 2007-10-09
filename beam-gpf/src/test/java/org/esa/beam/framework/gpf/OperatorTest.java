@@ -10,8 +10,40 @@ import org.esa.beam.framework.datamodel.VirtualBand;
 import java.io.IOException;
 
 
-public class PlainOpUsageTest extends TestCase {
-    public void testU() throws IOException, OperatorException {
+public class OperatorTest extends TestCase {
+
+    public void testDefaultBehaviour() throws OperatorException, IOException {
+        final FooOp op = new FooOp();
+        assertFalse(op.initializeCalled);
+        assertFalse(op.computeTileCalled);
+        final Product product = op.getTargetProduct();
+        assertNotNull(product);
+        assertTrue(op.initializeCalled);
+        assertFalse(op.computeTileCalled);
+        product.getBand("bar").readRasterDataFully(ProgressMonitor.NULL);
+        assertTrue(op.initializeCalled);
+        assertTrue(op.computeTileCalled);
+    }
+
+    private static class FooOp extends Operator {
+        private boolean initializeCalled;
+        private boolean computeTileCalled;
+
+        @Override
+        public Product initialize() throws OperatorException {
+            initializeCalled = true;
+            Product product = new Product("foo", "grunt", 1, 1);
+            product.addBand("bar", ProductData.TYPE_FLOAT64);
+            return product;
+        }
+
+        @Override
+        public void computeTile(Band band, Tile tile) throws OperatorException {
+            computeTileCalled = true;
+        }
+    }
+
+    public void testPlainOpUsage() throws IOException, OperatorException {
         Product a = new Product("a", "T", 2, 2);
         a.addBand(new VirtualBand("x", ProductData.TYPE_FLOAT64, 2, 2, "5.2"));
 
@@ -30,39 +62,6 @@ public class PlainOpUsageTest extends TestCase {
         assertEquals(2.5 * (5.2 + 4.8), rasterData.getElemDoubleAt(1), 1e-10);
         assertEquals(2.5 * (5.2 + 4.8), rasterData.getElemDoubleAt(2), 1e-10);
         assertEquals(2.5 * (5.2 + 4.8), rasterData.getElemDoubleAt(3), 1e-10);
-    }
-
-
-    private static class AddConstOp extends Operator {
-        private Product sourceProduct;
-        private Product targetProduct;
-        private double constant;
-
-        public AddConstOp(Product sourceProduct, double constant) {
-            this.sourceProduct = sourceProduct;
-            this.constant = constant;
-        }
-
-        public Product initialize() throws OperatorException {
-            targetProduct = new Product(sourceProduct.getName() + "_AddConst", sourceProduct.getProductType(), sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
-            Band[] bands = sourceProduct.getBands();
-            for (Band sourceBand : bands) {
-                targetProduct.addBand(sourceBand.getName(), sourceBand.getDataType());
-            }
-            return targetProduct;
-        }
-
-
-        @Override
-        public void computeTile(Band band, Tile targetTile) throws OperatorException {
-            Band sourceBand = sourceProduct.getBand(band.getName());
-            Tile sourceTile = getSourceTile(sourceBand, targetTile.getRectangle());
-            for (int y = 0; y < targetTile.getHeight(); y++) {
-                for (int x = 0; x < targetTile.getWidth(); x++) {
-                    targetTile.setSample(x, y, sourceTile.getSampleDouble(x, y) + constant);
-                }
-            }
-        }
     }
 
     private static class MulConstOp extends Operator {
@@ -129,42 +128,6 @@ public class PlainOpUsageTest extends TestCase {
             for (int y = 0; y < targetTile.getHeight(); y++) {
                 for (int x = 0; x < targetTile.getWidth(); x++) {
                     targetTile.setSample(x, y, sourceTile1.getSampleDouble(x, y) + sourceTile2.getSampleDouble(x, y));
-                }
-            }
-        }
-    }
-
-    private static class MulOp extends Operator {
-        private Product sourceProduct1;
-        private Product sourceProduct2;
-        private Product targetProduct;
-
-
-        public MulOp(Product sourceProduct1, Product sourceProduct2) {
-            this.sourceProduct1 = sourceProduct1;
-            this.sourceProduct2 = sourceProduct2;
-        }
-
-        @Override
-        public Product initialize() throws OperatorException {
-            targetProduct = new Product(sourceProduct1.getName() + "_Mul", sourceProduct1.getProductType(), sourceProduct1.getSceneRasterWidth(), sourceProduct1.getSceneRasterHeight());
-            Band[] bands = sourceProduct1.getBands();
-            for (Band sourceBand : bands) {
-                targetProduct.addBand(sourceBand.getName(), sourceBand.getDataType());
-            }
-            return targetProduct;
-        }
-
-
-        @Override
-        public void computeTile(Band band, Tile targetTile) throws OperatorException {
-            Band sourceBand1 = sourceProduct1.getBand(band.getName());
-            Band sourceBand2 = sourceProduct2.getBand(band.getName());
-            Tile sourceTile1 = getSourceTile(sourceBand1, targetTile.getRectangle());
-            Tile sourceTile2 = getSourceTile(sourceBand2, targetTile.getRectangle());
-            for (int y = 0; y < targetTile.getHeight(); y++) {
-                for (int x = 0; x < targetTile.getWidth(); x++) {
-                    targetTile.setSample(x, y, sourceTile1.getSampleDouble(x, y) * sourceTile2.getSampleDouble(x, y));
                 }
             }
         }
