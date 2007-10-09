@@ -213,6 +213,92 @@ public class DropoutCorrection {
         }
     }
 
+    /**
+     * Compute the dropout correction for a given region of interest.
+     *
+     * @throws IllegalArgumentException if RCI and mask data arrays do not have the same length.
+     */
+    public void compute(int[][] sourceRciData,
+                        short[][] sourceMaskData,
+                        int sourceWidth,
+                        int sourceHeight,
+                        int sourceScanlineOffset,
+                        int sourceScanlineStride,
+                        int[] targetRciData,
+                        short[] targetMaskData,
+                        int targetWidth,
+                        int targetHeight,
+                        int targetScanlineOffset,
+                        int targetScanlineStride) {
+        Assert.argument(sourceRciData.length == sourceMaskData.length);
+        Assert.argument(targetRciData.length == targetMaskData.length);
+
+        final double[] w = new double[weights.length];
+
+        for (int sy = 0, ty = 0; sy < targetHeight; ++sy, ++ty) {
+            for (int sx = 0, tx = 0; sx < targetWidth; ++sx, ++tx) {
+                final int sxy = sourceScanlineOffset + sy * sourceScanlineStride + sx;
+                final int txy = targetScanlineOffset + ty * targetScanlineStride + tx;
+
+                targetRciData[txy] = sourceRciData[0][sxy];
+                targetMaskData[txy] = sourceMaskData[0][sxy];
+
+                if (sourceMaskData[0][sxy] == DROPOUT) {
+                    double ws = 0.0;
+                    double xc = 0.0;
+
+                    double ws2 = 0.0;
+                    double xc2 = 0.0;
+
+                    for (int i = 0; i < M_HEIGHT; ++i) {
+                        final int ny = sy + (i - 1);
+                        if (ny < 0 || ny >= sourceHeight) {
+                            continue;
+                        }
+                        for (int j = 0; j < M_WIDTH; ++j) {
+                            final int nx = sx + (j - 1);
+                            if (nx < 0 || nx >= sourceWidth) {
+                                continue;
+                            }
+                            final int ij = i * M_WIDTH + j;
+                            final int nxy = sourceScanlineOffset + ny * sourceScanlineStride + nx;
+
+                            if (weights[ij] != 0.0) {
+                                switch (sourceMaskData[0][nxy]) {
+                                case VALID:
+                                    w[ij] = weights[ij] * calculateWeight(sxy, nxy, sourceRciData, sourceMaskData);
+                                    ws += w[ij];
+                                    xc += sourceRciData[0][nxy] * w[ij];
+                                    break;
+
+                                case SATURATED:
+                                    ws2 += weights[ij];
+                                    xc2 += sourceRciData[0][nxy] * weights[ij];
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (ws > 0.0) {
+                        targetRciData[txy] = (int) (xc / ws);
+                        if (!cosmetic) {
+                            targetMaskData[txy] = CORRECTED_DROPOUT;
+                        }
+                    } else { // all neighbors are saturated
+                        if (ws2 > 0.0) {
+                            targetRciData[txy] = (int) (xc2 / ws2);
+                            if (!cosmetic) {
+                                targetMaskData[txy] = SATURATED;
+                            }
+                        } else { // all neighbors are dropouts
+                            targetRciData[txy] = 0;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private double calculateWeight(int index, int neighborIndex, int[][] rciData, short[][] maskData) {
         double sum = 0.0;
         int count = 0;

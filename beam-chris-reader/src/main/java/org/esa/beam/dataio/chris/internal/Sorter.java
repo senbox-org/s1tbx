@@ -20,9 +20,9 @@ public class Sorter {
      *         while all elements with index {@code i > n} are greater.
      *
      * @throws NullPointerException     if the input array is {@code null}.
-     * @throws IllegalArgumentException if the input array is empty.
-     * @throws IllegalArgumentException if {@code n < 0}.
-     * @throws IllegalArgumentException if {@code n >= a.length}.
+     * @throws IllegalArgumentException if the input array is empty,
+     *                                  if {@code n < 0}, or
+     *                                  if {@code n >= a.length}.
      */
     public static double nthElement(double a[], int n) {
         if (a.length == 0) {
