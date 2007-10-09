@@ -8,7 +8,6 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.framework.gpf.internal.OperatorProductReader;
 
 import javax.media.jai.JAI;
 import java.awt.Rectangle;
@@ -494,7 +493,6 @@ public class GraphCallSequenceTest extends TestCase {
         public RecordingProduct(RecordingOp op) {
             super(op.getSpi().getName(), op.getClass().getSimpleName(), 1, 1);
             addBand("band_0", ProductData.TYPE_FLOAT32);
-            setProductReader(new OperatorProductReader(op));
             recordCall(getName(), "Product.construct");
         }
 
