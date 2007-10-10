@@ -310,8 +310,7 @@ class GcpGeoCodingForm extends JPanel {
                     detachGeoCoding(currentProduct);
                 }else {
                     Pin[] gcps = currentProduct.getGcpGroup().toArray(new Pin[0]);
-                    GcpGeoCoding newGcpGeoCoding = new GcpGeoCoding(gcpGeoCoding.getMethod(),
-                                                                    gcps,
+                    GcpGeoCoding newGcpGeoCoding = new GcpGeoCoding(gcpGeoCoding.getMethod(), gcps,
                                                                     currentProduct.getSceneRasterWidth(),
                                                                     currentProduct.getSceneRasterHeight(),
                                                                     gcpGeoCoding.getDatum());

@@ -95,11 +95,11 @@ class PlacemarkManagerToolView extends AbstractToolView {
     private static final String FILE_EXTENSION_FLAT_TEXT = ".txt";
     private static final String FILE_EXTENSION_PLACEMARK = ".placemark";
 
-    private static final int indexForName = 0;
-    private static final int indexForLon = 1;
-    private static final int indexForLat = 2;
-    private static final int indexForDesc = 3;
-    private static final int indexForLabel = 4;
+    private static final int INDEX_FOR_NAME = 0;
+    private static final int INDEX_FOR_LON = 1;
+    private static final int INDEX_FOR_LAT = 2;
+    private static final int INDEX_FOR_DESC = 3;
+    private static final int INDEX_FOR_LABEL = 4;
 
     private final PlacemarkDescriptor placemarkDescriptor;
 
@@ -227,7 +227,7 @@ class PlacemarkManagerToolView extends AbstractToolView {
 
         exportButton = createButton("icons/Export24.gif");
         exportButton.setName("exportButton");
-        exportButton.setToolTipText("Export the selected " + placemarkLabel + "s to XML file."); /*I18N*/
+        exportButton.setToolTipText("Export selected " + placemarkLabel + "s to XML file."); /*I18N*/
         exportButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
@@ -280,7 +280,6 @@ class PlacemarkManagerToolView extends AbstractToolView {
                         productToSelectedBands.put(product, selectedBands);
                         productToSelectedGrids.put(product, selectedGrids);
                         updateTableModel();
-                        updatePlacemarkTable();
                     }
                 }
                 updateUIState();
@@ -289,7 +288,7 @@ class PlacemarkManagerToolView extends AbstractToolView {
 
         exportTableButton = createButton("icons/ExportTable.gif");
         exportTableButton.setName("exportTableButton");
-        exportTableButton.setToolTipText("Export pixel data to flat text file."); /*I18N*/
+        exportTableButton.setToolTipText("Export selected data to flat text file."); /*I18N*/
         exportTableButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
@@ -616,10 +615,10 @@ class PlacemarkManagerToolView extends AbstractToolView {
         removeButton.setEnabled(hasSelectedPins);
         zoomToPlacemarkButton.setEnabled(hasActivePin);
         importButton.setEnabled(productSelected);
-        exportButton.setEnabled(hasPins);
+        exportButton.setEnabled(hasSelectedPins);
         importNButton.setEnabled(productSelected);
         exportNButton.setEnabled(hasPins);
-        exportTableButton.setEnabled(hasPins);
+        exportTableButton.setEnabled(hasSelectedPins);
         filterButton.setEnabled(productSelected);
     }
 
@@ -747,8 +746,6 @@ class PlacemarkManagerToolView extends AbstractToolView {
         String roleLabel = firstLetterUp(placemarkDescriptor.getRoleLabel());
         fileChooser.setDialogTitle("Import " + roleLabel + "s"); /*I18N*/
         setComponentName(fileChooser, "Import");
-        fileChooser.addChoosableFileFilter(getOrCreateFlatPinFileFilter());
-        fileChooser.addChoosableFileFilter(getOrCreateXMLPinFileFilter());
         fileChooser.addChoosableFileFilter(getTextFileFilter());
         fileChooser.setFileFilter(getPlacemarkFileFilter());
         fileChooser.setCurrentDirectory(getIODir());
@@ -840,8 +837,8 @@ class PlacemarkManagerToolView extends AbstractToolView {
                 file = FileUtils.ensureExtension(file, FILE_EXTENSION_FLAT_TEXT);
                 try {
                     final Writer writer = new FileWriter(file);
-                    ProductNodeGroup<Pin> placemarkGroup = getPlacemarkGroup();
-                    writePlacemarkDataTableText(writer, placemarkGroup.toArray(new Pin[placemarkGroup.getNodeCount()]));
+                    final Collection<Pin> placemarkCollection = getPlacemarkGroup().getSelectedNodes();
+                    writePlacemarkDataTableText(writer, placemarkCollection.toArray(new Pin[0]));
                     writer.close();
                 } catch (IOException e) {
                     showErrorDialog("I/O Error.\nFailed to export " + roleLabel + " data table."); /*I18N*/
@@ -853,7 +850,7 @@ class PlacemarkManagerToolView extends AbstractToolView {
     private void writePlacemarkDataTableText(final Writer writer, Pin[] placemarks) {
         final PrintWriter pw = new PrintWriter(writer);
 
-        final int columnCountMin = new String[]{"X", "Y", "Lon", "Lat", "Label"}.length;
+        final int columnCountMin = currentTableModel.getStandardColumnNames().length;
         final int columnCount = placemarkTable.getColumnCount();
 
         // Write file header
@@ -865,11 +862,9 @@ class PlacemarkManagerToolView extends AbstractToolView {
 
         // Write header columns
         pw.print(NAME_COL_NAME + "\t");
-        pw.print(X_COL_NAME + "\t");
-        pw.print(Y_COL_NAME + "\t");
-        pw.print(LAT_COL_NAME + "\t");
-        pw.print(LON_COL_NAME + "\t");
-        pw.print(LABEL_COL_NAME + "\t");
+        for (String name : currentTableModel.getStandardColumnNames()) {
+            pw.print(name + "\t");
+        }
         pw.print(DESC_COL_NAME + "\t");
         for (int i = columnCountMin; i < columnCount; i++) {
             pw.print(placemarkTable.getColumnName(i) + "\t");
@@ -879,9 +874,10 @@ class PlacemarkManagerToolView extends AbstractToolView {
         for (int i = 0; i < placemarks.length; i++) {
             Pin placemark = placemarks[i];
             pw.print(placemark.getName() + "\t");
-            writePixelPos(placemark, pw);
-            writeGeoPos(placemark, pw);
-            pw.print(placemark.getLabel() + "\t");
+            for (int col = 0; col < columnCountMin; col++) {
+                final Object value = placemarkTable.getValueAt(placemarkTable.getSortedRowAt(i), col);
+                pw.print(value.toString() + "\t");
+            }
             pw.print(placemark.getDescription() + "\t");
             for (int col = columnCountMin; col < columnCount; col++) {
                 final Object value = placemarkTable.getValueAt(placemarkTable.getSortedRowAt(i), col);
@@ -890,26 +886,6 @@ class PlacemarkManagerToolView extends AbstractToolView {
             pw.println();
         }
         pw.close();
-    }
-
-    private void writeGeoPos(Pin pin, PrintWriter pw) {
-        if (pin.getGeoPos() != null) {
-            pw.print(pin.getGeoPos().getLat() + "\t");
-            pw.print(pin.getGeoPos().getLon() + "\t");
-        } else {
-            pw.print(Float.NaN + "\t");
-            pw.print(Float.NaN + "\t");
-        }
-    }
-
-    private void writePixelPos(Pin pin, PrintWriter pw) {
-        if (pin.getPixelPos() != null) {
-            pw.print(pin.getPixelPos().getX() + "\t");
-            pw.print(pin.getPixelPos().getY() + "\t");
-        } else {
-            pw.print(Float.NaN + "\t");
-            pw.print(Float.NaN + "\t");
-        }
     }
 
     private static void writePlacemarksFile(Pin[] pins, File outputFile) throws IOException {
@@ -964,11 +940,11 @@ class PlacemarkManagerToolView extends AbstractToolView {
             }
             String[] strings = StringUtils.toStringArray(line, "\t");
             if (columnIndexes == null) {
-                int nameIndex = StringUtils.indexOf(strings, PlacemarkManagerToolView.NAME_COL_NAME);
-                int lonIndex = StringUtils.indexOf(strings, PlacemarkManagerToolView.LON_COL_NAME);
-                int latIndex = StringUtils.indexOf(strings, PlacemarkManagerToolView.LAT_COL_NAME);
-                int descIndex = StringUtils.indexOf(strings, PlacemarkManagerToolView.DESC_COL_NAME);
-                int labelIndex = StringUtils.indexOf(strings, PlacemarkManagerToolView.LABEL_COL_NAME);
+                int nameIndex = StringUtils.indexOf(strings, NAME_COL_NAME);
+                int lonIndex = StringUtils.indexOf(strings, LON_COL_NAME);
+                int latIndex = StringUtils.indexOf(strings, LAT_COL_NAME);
+                int descIndex = StringUtils.indexOf(strings, DESC_COL_NAME);
+                int labelIndex = StringUtils.indexOf(strings, LABEL_COL_NAME);
                 if (nameIndex == -1 || lonIndex == -1 || latIndex == -1) {
                     throw new IOException("Invalid placemark file format:\n" +
                                           "at least the columns 'Name', 'Lon' and 'Lat' must be given.");
@@ -977,36 +953,36 @@ class PlacemarkManagerToolView extends AbstractToolView {
                 biggestIndex = biggestIndex > lonIndex ? biggestIndex : lonIndex;
                 biggestIndex = biggestIndex > latIndex ? biggestIndex : latIndex;
                 columnIndexes = new int[5];
-                columnIndexes[PlacemarkManagerToolView.indexForName] = nameIndex;
-                columnIndexes[PlacemarkManagerToolView.indexForLon] = lonIndex;
-                columnIndexes[PlacemarkManagerToolView.indexForLat] = latIndex;
-                columnIndexes[PlacemarkManagerToolView.indexForDesc] = descIndex;
-                columnIndexes[PlacemarkManagerToolView.indexForLabel] = labelIndex;
+                columnIndexes[INDEX_FOR_NAME] = nameIndex;
+                columnIndexes[INDEX_FOR_LON] = lonIndex;
+                columnIndexes[INDEX_FOR_LAT] = latIndex;
+                columnIndexes[INDEX_FOR_DESC] = descIndex;
+                columnIndexes[INDEX_FOR_LABEL] = labelIndex;
             } else {
                 row++;
                 if (strings.length > biggestIndex) {
-                    String name = strings[columnIndexes[PlacemarkManagerToolView.indexForName]];
+                    String name = strings[columnIndexes[PlacemarkManagerToolView.INDEX_FOR_NAME]];
                     float lon;
                     try {
-                        lon = Float.parseFloat(strings[columnIndexes[PlacemarkManagerToolView.indexForLon]]);
+                        lon = Float.parseFloat(strings[columnIndexes[PlacemarkManagerToolView.INDEX_FOR_LON]]);
                     } catch (NumberFormatException e) {
                         throw new IOException("Invalid placemark file format:\n" +
                                               "data row " + row + ": value for 'Lon' is invalid");      /*I18N*/
                     }
                     float lat;
                     try {
-                        lat = Float.parseFloat(strings[columnIndexes[PlacemarkManagerToolView.indexForLat]]);
+                        lat = Float.parseFloat(strings[columnIndexes[PlacemarkManagerToolView.INDEX_FOR_LAT]]);
                     } catch (NumberFormatException e) {
                         throw new IOException("Invalid placemark file format:\n" +
                                               "data row " + row + ": value for 'Lat' is invalid");      /*I18N*/
                     }
                     String desc = null;
-                    if (columnIndexes[PlacemarkManagerToolView.indexForDesc] >= 0 && strings.length > columnIndexes[PlacemarkManagerToolView.indexForDesc]) {
-                        desc = strings[columnIndexes[PlacemarkManagerToolView.indexForDesc]];
+                    if (columnIndexes[PlacemarkManagerToolView.INDEX_FOR_DESC] >= 0 && strings.length > columnIndexes[PlacemarkManagerToolView.INDEX_FOR_DESC]) {
+                        desc = strings[columnIndexes[PlacemarkManagerToolView.INDEX_FOR_DESC]];
                     }
                     String label = name;
-                    if (columnIndexes[PlacemarkManagerToolView.indexForLabel] >= 0 && strings.length > columnIndexes[PlacemarkManagerToolView.indexForLabel]) {
-                        label = strings[columnIndexes[PlacemarkManagerToolView.indexForLabel]];
+                    if (columnIndexes[PlacemarkManagerToolView.INDEX_FOR_LABEL] >= 0 && strings.length > columnIndexes[PlacemarkManagerToolView.INDEX_FOR_LABEL]) {
+                        label = strings[columnIndexes[PlacemarkManagerToolView.INDEX_FOR_LABEL]];
                     }
                     Pin pin = new Pin(name, label, "", null, new GeoPos(lat, lon),
                                       placemarkDescriptor.createDefaultSymbol());
@@ -1059,25 +1035,10 @@ class PlacemarkManagerToolView extends AbstractToolView {
         }
     }
 
-    private BeamFileFilter getOrCreateFlatPinFileFilter() {
-        if (pinFlatFileFilter == null) {
-            pinFlatFileFilter = new BeamFileFilter("PIN_FLAT_FILE", FILE_EXTENSION_FLAT_OLD,
-                                                   "Pin files - flat text format");
-        }
-        return pinFlatFileFilter;
-    }
-
-    private BeamFileFilter getOrCreateXMLPinFileFilter() {
-        if (pinXMLFileFilter == null) {
-            pinXMLFileFilter = new BeamFileFilter("PIN_XML_FILE", FILE_EXTENSION_XML_OLD,
-                                                  "Pin files - XML format");
-        }
-        return pinXMLFileFilter;
-    }
-
     private BeamFileFilter getTextFileFilter() {
         if (pinTextFileFilter == null) {
-            pinTextFileFilter = new BeamFileFilter("PLACEMARK_TEXT_FILE", FILE_EXTENSION_FLAT_TEXT,
+            pinTextFileFilter = new BeamFileFilter("PLACEMARK_TEXT_FILE",
+                                                   new String[]{FILE_EXTENSION_FLAT_TEXT, FILE_EXTENSION_FLAT_OLD},
                                                    "Placemark files - flat text format");
         }
         return pinTextFileFilter;
@@ -1085,7 +1046,8 @@ class PlacemarkManagerToolView extends AbstractToolView {
 
     private BeamFileFilter getPlacemarkFileFilter() {
         if (pinPlacemarkFileFilter == null) {
-            pinPlacemarkFileFilter = new BeamFileFilter("PLACEMARK_XML_FILE", FILE_EXTENSION_PLACEMARK,
+            pinPlacemarkFileFilter = new BeamFileFilter("PLACEMARK_XML_FILE",
+                                                        new String[]{FILE_EXTENSION_PLACEMARK, FILE_EXTENSION_XML_OLD},
                                                         "Placemark files - XML format");
         }
         return pinPlacemarkFileFilter;
@@ -1231,33 +1193,28 @@ class PlacemarkManagerToolView extends AbstractToolView {
 
         private void action(MouseEvent e) {
             if (e.isPopupTrigger()) {
-                final JPopupMenu popupMenu = new JPopupMenu();
-                final JMenuItem menuItem;
+                final Collection<Pin> placemarkCollection = getPlacemarkGroup().getSelectedNodes();
 
-                final ProductNodeGroup<Pin> placemarkGroup = getPlacemarkGroup();
-                final Collection<Pin> selectedPlacemarkCollection = placemarkGroup.getSelectedNodes();
-                final Pin[] placemarks;
-                if (selectedPlacemarkCollection.isEmpty()) {
-                    placemarks = placemarkGroup.toArray(new Pin[0]);
-                    menuItem = new JMenuItem("Copy data to clipboard");
-                } else {
-                    placemarks = selectedPlacemarkCollection.toArray(new Pin[0]);
+                if (!placemarkCollection.isEmpty()) {
+                    final JPopupMenu popupMenu = new JPopupMenu();
+                    final JMenuItem menuItem;
                     menuItem = new JMenuItem("Copy selected data to clipboard");
-                }
-                menuItem.addActionListener(new ActionListener() {
+                    menuItem.addActionListener(new ActionListener() {
 
-                    public void actionPerformed(ActionEvent actionEvent) {
-                        final StringWriter stringWriter = new StringWriter();
-                        writePlacemarkDataTableText(stringWriter, placemarks);
-                        String text = stringWriter.toString();
-                        text = text.replaceAll("\r\n", "\n");
-                        text = text.replaceAll("\r", "\n");
-                        SystemUtils.copyToClipboard(text);
-                    }
-                });
-                popupMenu.add(menuItem);
-                final Point point = SwingUtilities.convertPoint(e.getComponent(), e.getPoint(), placemarkTable);
-                popupMenu.show(placemarkTable, point.x, point.y);
+                        public void actionPerformed(ActionEvent actionEvent) {
+                            final StringWriter stringWriter = new StringWriter();
+                            writePlacemarkDataTableText(stringWriter, placemarkCollection.toArray(new Pin[0]));
+                            String text = stringWriter.toString();
+                            text = text.replaceAll("\r\n", "\n");
+                            text = text.replaceAll("\r", "\n");
+                            SystemUtils.copyToClipboard(text);
+                        }
+                    });
+
+                    popupMenu.add(menuItem);
+                    final Point point = SwingUtilities.convertPoint(e.getComponent(), e.getPoint(), placemarkTable);
+                    popupMenu.show(placemarkTable, point.x, point.y);
+                }
             }
         }
     }

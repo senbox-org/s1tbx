@@ -72,7 +72,7 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
 
     public void setSelectedBands(Band[] selectedBands) {
         this.selectedBands = selectedBands;
-        fireTableDataChanged();
+        fireTableStructureChanged();
     }
 
     public TiePointGrid[] getSelectedGrids() {
@@ -81,7 +81,7 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
 
     public void setSelectedGrids(TiePointGrid[] selectedGrids) {
         this.selectedGrids = selectedGrids;
-        fireTableDataChanged();
+        fireTableStructureChanged();
     }
 
     public boolean addPlacemark(Pin placemark) {
@@ -160,7 +160,7 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
                 return getStandardColumnValueAt(rowIndex, columnIndex);
             } else {
                 final Pin pin = placemarkList.get(rowIndex);
-                int index = columnIndex - getStandardColumnNames().length + 1;
+                int index = columnIndex - getStandardColumnNames().length;
                 PixelPos pixelPos = pin.getPixelPos();
                 if (pixelPos == null) {
                     return "No-data";
