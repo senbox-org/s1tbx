@@ -24,7 +24,7 @@ import junit.framework.TestSuite;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Arrays;
@@ -184,6 +184,78 @@ public class ProductUtilsTest extends TestCase {
         assertNormalizing(boundary, expectedNormalizing, expected);
     }
 
+    public void testDenormalizeGeoPos() {
+        final GeoPos geoPos = new GeoPos();
+
+        geoPos.lon = -678.2f;
+        ProductUtils.denormalizeGeoPos(geoPos);
+        assertEquals(-678.2f + 720.f, geoPos.lon, 1e-8);
+
+        geoPos.lon = -540.108f;
+        ProductUtils.denormalizeGeoPos(geoPos);
+        assertEquals(-540.108f + 720.f, geoPos.lon, 1e-8);
+
+        geoPos.lon = -539.67f;
+        ProductUtils.denormalizeGeoPos(geoPos);
+        assertEquals(-539.67f + 360.f, geoPos.lon, 1e-8);
+
+        geoPos.lon = -256.98f;
+        ProductUtils.denormalizeGeoPos(geoPos);
+        assertEquals(-256.98f + 360.f, geoPos.lon, 1e-8);
+
+        geoPos.lon = -180.3f;
+        ProductUtils.denormalizeGeoPos(geoPos);
+        assertEquals(-180.3f + 360.f, geoPos.lon, 1e-8);
+
+        geoPos.lon = -179.4f;
+        ProductUtils.denormalizeGeoPos(geoPos);
+        assertEquals(-179.4f, geoPos.lon, 1e-8);
+
+        geoPos.lon = -34;
+        ProductUtils.denormalizeGeoPos(geoPos);
+        assertEquals(-34, geoPos.lon, 1e-8);
+
+        geoPos.lon = 0.34f;
+        ProductUtils.denormalizeGeoPos(geoPos);
+        assertEquals(0.34f, geoPos.lon, 1e-8);
+
+        geoPos.lon = 114.9f;
+        ProductUtils.denormalizeGeoPos(geoPos);
+        assertEquals(114.9f, geoPos.lon, 1e-8);
+
+        geoPos.lon = 184.4f;
+        ProductUtils.denormalizeGeoPos(geoPos);
+        assertEquals(184.4f - 360.f, geoPos.lon, 1e-8);
+
+        geoPos.lon = 245.7f;
+        ProductUtils.denormalizeGeoPos(geoPos);
+        assertEquals(245.7f - 360.f, geoPos.lon, 1e-8);
+
+        geoPos.lon = 536.9f;
+        ProductUtils.denormalizeGeoPos(geoPos);
+        assertEquals(536.9f - 360.f, geoPos.lon, 1e-8);
+
+        geoPos.lon = 541.5f;
+        ProductUtils.denormalizeGeoPos(geoPos);
+        assertEquals(541.5f - 720.f, geoPos.lon, 1e-8);
+
+        geoPos.lon = 722.5f;
+        ProductUtils.denormalizeGeoPos(geoPos);
+        assertEquals(722.5f - 720.f, geoPos.lon, 1e-8);
+    }
+
+    public void testNormalizing_crossingMeridianTwice() {
+        GeoPos[] expected = createPositiveRotationDualMeridianGeoPolygon();
+        GeoPos[] converted = createPositiveRotationDualMeridianGeoPolygon();
+
+        ProductUtils.normalizeGeoPolygon(converted);
+        ProductUtils.denormalizeGeoPolygon(converted);
+
+        for (int i = 0; i < expected.length; i++) {
+            assertEquals("at index " + i, expected[i], converted[i]);
+        }
+    }
+
     private void assertNormalizing(final GeoPos[] boundary, final int expectedNormalizing,
                                    final GeoPos[] expected) {
         final int normalized = ProductUtils.normalizeGeoPolygon(boundary);
@@ -193,32 +265,48 @@ public class ProductUtilsTest extends TestCase {
         }
     }
 
-    private GeoPos[] createPositiveRotationGeoPolygon(int lonOffset) {
-        final GeoPos[] geoPositions = new GeoPos[]{
+    private static GeoPos[] createPositiveRotationGeoPolygon(int lonOffset) {
+        return new GeoPos[]{
                 new GeoPos(-60, -40 + lonOffset),
-                new GeoPos(-120, +20 + lonOffset),
+                new GeoPos(-80, +20 + lonOffset),
                 new GeoPos(-40, +60 + lonOffset),
                 new GeoPos(+20, +120 + lonOffset),
                 new GeoPos(+60, +40 + lonOffset),
-                new GeoPos(+120, -20 + lonOffset),
+                new GeoPos(+80, -20 + lonOffset),
                 new GeoPos(+40, -60 + lonOffset),
                 new GeoPos(-20, -120 + lonOffset)
         };
-        return geoPositions;
     }
 
-    private GeoPos[] createNegativeRotationGeoPolygon(int lonOffset) {
-        final GeoPos[] geoPositions = new GeoPos[]{
+    private static GeoPos[] createNegativeRotationGeoPolygon(int lonOffset) {
+        return new GeoPos[]{
                 new GeoPos(-60, -40 + lonOffset),
                 new GeoPos(-20, -120 + lonOffset),
                 new GeoPos(+40, -60 + lonOffset),
-                new GeoPos(+120, -20 + lonOffset),
+                new GeoPos(+80, -20 + lonOffset),
                 new GeoPos(+60, +40 + lonOffset),
                 new GeoPos(+20, +120 + lonOffset),
                 new GeoPos(-40, +60 + lonOffset),
-                new GeoPos(-120, +20 + lonOffset)
+                new GeoPos(-80, +20 + lonOffset)
         };
-        return geoPositions;
+    }
+
+    private static GeoPos[] createPositiveRotationDualMeridianGeoPolygon() {
+        return new GeoPos[]{
+                new GeoPos(20, -160),
+                new GeoPos(30, -180),
+                new GeoPos(30, 178),
+                new GeoPos(40, 10),
+                new GeoPos(50, -70),
+                new GeoPos(70, -170),
+                new GeoPos(80, 150),
+                new GeoPos(60, 150),
+                new GeoPos(57, 170),
+                new GeoPos(50, -140),
+                new GeoPos(30, 30),
+                new GeoPos(25, 170),
+                new GeoPos(10, -165),
+        };
     }
 
     private void shiftGeoPolygon(final GeoPos[] geoPositions, final int lonOffset) {
@@ -353,9 +441,9 @@ public class ProductUtilsTest extends TestCase {
 
     public void testX() {
         final PixelPos[] pixelCoords = ProductUtils.computeSourcePixelCoordinates(new ProductUtilsTest.SGeoCoding(),
-                                                                                  2, 2,
-                                                                                  new ProductUtilsTest.DGeoCoding(),
-                                                                                  new Rectangle(0, 0, 3, 2));
+                2, 2,
+                new ProductUtilsTest.DGeoCoding(),
+                new Rectangle(0, 0, 3, 2));
 
         assertEquals(3 * 2, pixelCoords.length);
 
@@ -480,7 +568,7 @@ public class ProductUtilsTest extends TestCase {
     public void testCreateRectBoundary_usePixelCenter_false() {
         final boolean notUsePixelCenter = false;
         final PixelPos[] rectBoundary = ProductUtils.createRectBoundary(new Rectangle(2, 3, 15, 20), 7,
-                                                                        notUsePixelCenter);
+                notUsePixelCenter);
         assertEquals(12, rectBoundary.length);
         assertEquals(new PixelPos(2, 3), rectBoundary[0]);
         assertEquals(new PixelPos(9, 3), rectBoundary[1]);
