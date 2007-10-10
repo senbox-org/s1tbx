@@ -7,6 +7,7 @@ package org.esa.beam.dataio.chris;
  * @version $Revision: 1.2 $ $Date: 2007/04/03 14:05:42 $
  */
 class ScanLineLayout {
+
     final int leadingPixelCount;
     final int imagePixelCount;
     final int trailingPixelCount;

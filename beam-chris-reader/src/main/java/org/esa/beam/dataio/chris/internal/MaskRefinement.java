@@ -50,8 +50,8 @@ public class MaskRefinement {
      * @param rasterWidth the number of raster data columns.
      */
     public void refine(int[] rciData, short[] maskData, int rasterWidth) {
-        final double [] hf = new double[rasterWidth - 1];
-        final double [] lf = new double[rasterWidth / 2 - 1];
+        final double[] hf = new double[rasterWidth - 1];
+        final double[] lf = new double[rasterWidth / 2 - 1];
 
         for (int i = 0; i < maskData.length; i += rasterWidth) {
             adjacentDifference(rciData, i, hf);

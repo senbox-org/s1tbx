@@ -53,7 +53,7 @@ public class ChrisConstants {
 
     public static final String ATTR_NAME_NOISE_REDUCTION = "Noise Reduction";
 
-// Scientific data set names
+    // Scientific data set names
     static final String SDS_NAME_RCI_IMAGE = "RCI Image";
     static final String SDS_NAME_MASK = "Saturation/Reset Mask";
 

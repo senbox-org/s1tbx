@@ -80,6 +80,7 @@ public enum Flags {
      * Tests a bit pattern for the status of the flag.
      *
      * @param value the bit pattern.
+     *
      * @return true if the flag is set, false otherwise.
      */
     public final boolean isSet(final int value) {

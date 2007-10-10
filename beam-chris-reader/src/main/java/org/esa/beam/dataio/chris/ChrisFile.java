@@ -35,7 +35,7 @@ class ChrisFile {
 
     public ChrisFile(File file) {
         this.file = file;
-        
+
         try {
             scanLineLayoutMap = readScanLineLayoutMap();
         } catch (IOException e) {
@@ -519,6 +519,7 @@ class ChrisFile {
 
 
     private static class Sds {
+
         final String name;
         final int sdsId;
         final int dataType;

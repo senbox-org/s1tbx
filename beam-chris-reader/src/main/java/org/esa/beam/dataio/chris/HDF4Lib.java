@@ -88,20 +88,20 @@ class HDF4Lib {
 
     public static void SDreaddata(int sdsId, int[] start, int[] stride, int[] count, int[] data) throws HDFException {
         if (!HDFLibrary.SDreaddata_int(sdsId,
-                start,
-                stride,
-                count,
-                data)) {
+                                       start,
+                                       stride,
+                                       count,
+                                       data)) {
             throw new HDFException("SDreaddata_int");
         }
     }
 
     public static void SDreaddata(int sdsId, int[] start, int[] stride, int[] count, short[] data) throws HDFException {
         if (!HDFLibrary.SDreaddata_short(sdsId,
-                start,
-                stride,
-                count,
-                data)) {
+                                         start,
+                                         stride,
+                                         count,
+                                         data)) {
             throw new HDFException("SDreaddata_short");
         }
     }
