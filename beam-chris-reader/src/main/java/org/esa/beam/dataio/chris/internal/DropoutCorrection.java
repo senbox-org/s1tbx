@@ -79,80 +79,86 @@ public class DropoutCorrection {
      * Constructs an instance of this class which performs a non-cosmetic
      * dropout correction with the given neighborhood type.
      *
-     * @param neigborhood
+     * @param type the neighborhood type.
      */
-    public DropoutCorrection(Type neigborhood) {
-        this(neigborhood, false);
+    public DropoutCorrection(Type type) {
+        this(type, false);
     }
 
     /**
      * Constructs an instance of this class.
      *
-     * @param neigborhood the neighborhood type.
-     * @param cosmetic    indicates if the dropout correction should be cosmetic only.
-     *                    If {@code true} the mask data are not modified.
+     * @param type     the neighborhood type.
+     * @param cosmetic indicates if the dropout correction should be cosmetic only.
+     *                 If {@code true} the mask data are not modified.
      */
-    public DropoutCorrection(Type neigborhood, boolean cosmetic) {
-        this.weights = neigborhood.getWeights();
+    public DropoutCorrection(Type type, boolean cosmetic) {
+        this.weights = type.getWeights();
         this.cosmetic = cosmetic;
     }
 
     /**
-     * Computes the dropout correction for a given region of interest.
+     * Computes the dropout correction for a given target rectangle.
      *
-     * @param rciData      the RCI raster data. The first array must hold the data which
-     *                     are to be corrected.
-     * @param maskData     the mask raster data. The first array must hold the data which
-     *                     are to be corrected.
-     * @param rasterWidth  the raster width.
-     * @param rasterHeight the raster height.
-     * @param roi          the region of interest inside the source raster.
+     * @param rciData         the RCI  raster data. The first array must hold the data which
+     *                        are to be corrected.
+     * @param maskData        the mask raster data. The first array must hold the data which
+     *                        are to be corrected.
+     * @param rasterWidth     the raster width.
+     * @param rasterHeight    the raster height.
+     * @param targetRectangle the target rectangle.
      *
-     * @throws IllegalArgumentException if RCI and mask data arrays do not have the same length.
+     * @throws IllegalArgumentException if RCI and mask data arrays do not have the same length, or
+     *                                  the target rectangle is larger than the raster.
      */
-    public void compute(int[][] rciData, short[][] maskData, int rasterWidth, int rasterHeight, Rectangle roi) {
-        compute(rciData, maskData, rasterWidth, rasterHeight, roi, rciData[0], maskData[0], roi.x, roi.y, rasterWidth);
+    public void compute(int[][] rciData, short[][] maskData, int rasterWidth, int rasterHeight,
+                        Rectangle targetRectangle) {
+
+        compute(rciData, maskData, new Rectangle(0, 0, rasterWidth, rasterHeight), 0, rasterWidth, rciData[0],
+                maskData[0], targetRectangle, targetRectangle.x + targetRectangle.y * rasterWidth, rasterWidth);
     }
 
     /**
-     * Compute the dropout correction for a given region of interest.
+     * Compute the dropout correction for a given target rectangle.
      *
-     * @param sourceRciData  the source RCI raster data. The first array must hold the data
-     *                       which are to be corrected.
-     * @param sourceMaskData the source mask raster data. The first array must hold the data
-     *                       which are to be corrected.
-     * @param sourceWidth    the width of the source raster.
-     * @param sourceHeight   the height of the source raster.
-     * @param roi            the region of interest inside the source raster.
-     * @param targetRciData  the target RCI raster data. May be the same as the first array
-     *                       of {@code sourceRciData}.
-     * @param targetMaskData the target mask raster data. May be the same as the first array
-     *                       of {@code sourceMaskData}.
-     * @param targetOffsetX  the across-track offset inside the target raster.
-     * @param targetOffsetY  the along-track offset inside the target raster.
-     * @param targetWidth    the width of the target raster.
+     * @param sourceRciData   the source RCI  raster data. The first array must hold the data
+     *                        which are to be corrected.
+     * @param sourceMaskData  the source mask raster data. The first array must hold the data
+     *                        which are to be corrected.
+     * @param sourceRectangle the source rectangle.
+     * @param sourceOffset    the source scanline offset.
+     * @param sourceStride    the source scanline stride.
+     * @param targetRciData   the target RCI  raster data. May be the same as
+     *                        {@code sourceRciData[0]}.
+     * @param targetMaskData  the target mask raster data. May be the same as
+     *                        {@code sourceMaskData[0]}.
+     * @param targetRectangle the target rectangle, which must be inside the source rectangle.
+     * @param targetOffset    the target scanline offset.
+     * @param targetStride    the target scanline stride.
      *
-     * @throws IllegalArgumentException if RCI and mask data arrays do not have the same length.
+     * @throws IllegalArgumentException if RCI and mask data arrays do not have the same length, or
+     *                                  the target rectangle is not inside the source rectangle.
      */
     public void compute(int[][] sourceRciData,
                         short[][] sourceMaskData,
-                        int sourceWidth,
-                        int sourceHeight,
-                        Rectangle roi,
+                        Rectangle sourceRectangle,
+                        int sourceOffset,
+                        int sourceStride,
                         int[] targetRciData,
                         short[] targetMaskData,
-                        int targetOffsetX,
-                        int targetOffsetY,
-                        int targetWidth) {
+                        Rectangle targetRectangle,
+                        int targetOffset,
+                        int targetStride) {
         Assert.argument(sourceRciData.length == sourceMaskData.length);
         Assert.argument(targetRciData.length == targetMaskData.length);
+        Assert.argument(sourceRectangle.contains(targetRectangle));
 
         final double[] w = new double[weights.length];
 
-        for (int sy = roi.y, ty = targetOffsetY; sy < roi.y + roi.height; ++sy, ++ ty) {
-            for (int sx = roi.x, tx = targetOffsetX; sx < roi.x + roi.width; ++sx, ++ tx) {
-                final int sxy = sy * sourceWidth + sx;
-                final int txy = ty * targetWidth + tx;
+        for (int ty = targetRectangle.y; ty < targetRectangle.y + targetRectangle.height; ++ty) {
+            for (int tx = targetRectangle.x; tx < targetRectangle.x + targetRectangle.width; ++tx) {
+                final int sxy = sourceOffset + (tx - sourceRectangle.x) + (ty - sourceRectangle.y) * sourceStride;
+                final int txy = targetOffset + (tx - targetRectangle.x) + (ty - targetRectangle.y) * targetStride;
 
                 targetRciData[txy] = sourceRciData[0][sxy];
                 targetMaskData[txy] = sourceMaskData[0][sxy];
@@ -164,116 +170,28 @@ public class DropoutCorrection {
                     double ws2 = 0.0;
                     double xc2 = 0.0;
 
-                    for (int i = 0; i < M_HEIGHT; ++i) {
-                        final int ny = sy + (i - 1);
-                        if (ny < 0 || ny >= sourceHeight) {
+                    for (int i = 0, y = ty - 1; i < M_HEIGHT; ++i, ++y) {
+                        if (y < sourceRectangle.y || y >= sourceRectangle.y + sourceRectangle.height) {
                             continue;
                         }
-                        for (int j = 0; j < M_WIDTH; ++j) {
-                            final int nx = sx + (j - 1);
-                            if (nx < 0 || nx >= sourceWidth) {
+                        for (int j = 0, x = tx - 1; j < M_WIDTH; ++j, ++x) {
+                            if (x < sourceRectangle.x || x >= sourceRectangle.x + sourceRectangle.width) {
                                 continue;
                             }
                             final int ij = i * M_WIDTH + j;
-                            final int nxy = ny * sourceWidth + nx;
+                            final int xy = sourceOffset + (x - sourceRectangle.x) + (y - sourceRectangle.y) * sourceStride;
 
                             if (weights[ij] != 0.0) {
-                                switch (sourceMaskData[0][nxy]) {
+                                switch (sourceMaskData[0][xy]) {
                                 case VALID:
-                                    w[ij] = weights[ij] * calculateWeight(sxy, nxy, sourceRciData, sourceMaskData);
+                                    w[ij] = weights[ij] * calculateWeight(sxy, xy, sourceRciData, sourceMaskData);
                                     ws += w[ij];
-                                    xc += sourceRciData[0][nxy] * w[ij];
+                                    xc += sourceRciData[0][xy] * w[ij];
                                     break;
 
                                 case SATURATED:
                                     ws2 += weights[ij];
-                                    xc2 += sourceRciData[0][nxy] * weights[ij];
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if (ws > 0.0) {
-                        targetRciData[txy] = (int) (xc / ws);
-                        if (!cosmetic) {
-                            targetMaskData[txy] = CORRECTED_DROPOUT;
-                        }
-                    } else { // all neighbors are saturated
-                        if (ws2 > 0.0) {
-                            targetRciData[txy] = (int) (xc2 / ws2);
-                            if (!cosmetic) {
-                                targetMaskData[txy] = SATURATED;
-                            }
-                        } else { // all neighbors are dropouts
-                            targetRciData[txy] = 0;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Compute the dropout correction for a given region of interest.
-     *
-     * @throws IllegalArgumentException if RCI and mask data arrays do not have the same length.
-     */
-    public void compute(int[][] sourceRciData,
-                        short[][] sourceMaskData,
-                        int sourceWidth,
-                        int sourceHeight,
-                        int sourceScanlineOffset,
-                        int sourceScanlineStride,
-                        int[] targetRciData,
-                        short[] targetMaskData,
-                        int targetWidth,
-                        int targetHeight,
-                        int targetScanlineOffset,
-                        int targetScanlineStride) {
-        Assert.argument(sourceRciData.length == sourceMaskData.length);
-        Assert.argument(targetRciData.length == targetMaskData.length);
-
-        final double[] w = new double[weights.length];
-
-        for (int sy = 0, ty = 0; sy < targetHeight; ++sy, ++ty) {
-            for (int sx = 0, tx = 0; sx < targetWidth; ++sx, ++tx) {
-                final int sxy = sourceScanlineOffset + sy * sourceScanlineStride + sx;
-                final int txy = targetScanlineOffset + ty * targetScanlineStride + tx;
-
-                targetRciData[txy] = sourceRciData[0][sxy];
-                targetMaskData[txy] = sourceMaskData[0][sxy];
-
-                if (sourceMaskData[0][sxy] == DROPOUT) {
-                    double ws = 0.0;
-                    double xc = 0.0;
-
-                    double ws2 = 0.0;
-                    double xc2 = 0.0;
-
-                    for (int i = 0; i < M_HEIGHT; ++i) {
-                        final int ny = sy + (i - 1);
-                        if (ny < 0 || ny >= sourceHeight) {
-                            continue;
-                        }
-                        for (int j = 0; j < M_WIDTH; ++j) {
-                            final int nx = sx + (j - 1);
-                            if (nx < 0 || nx >= sourceWidth) {
-                                continue;
-                            }
-                            final int ij = i * M_WIDTH + j;
-                            final int nxy = sourceScanlineOffset + ny * sourceScanlineStride + nx;
-
-                            if (weights[ij] != 0.0) {
-                                switch (sourceMaskData[0][nxy]) {
-                                case VALID:
-                                    w[ij] = weights[ij] * calculateWeight(sxy, nxy, sourceRciData, sourceMaskData);
-                                    ws += w[ij];
-                                    xc += sourceRciData[0][nxy] * w[ij];
-                                    break;
-
-                                case SATURATED:
-                                    ws2 += weights[ij];
-                                    xc2 += sourceRciData[0][nxy] * weights[ij];
+                                    xc2 += sourceRciData[0][xy] * weights[ij];
                                     break;
                                 }
                             }
@@ -314,5 +232,4 @@ public class DropoutCorrection {
 
         return count > 0 ? 1.0 / (1.0E-52 + sqrt(sum / count)) : 1.0;
     }
-
 }

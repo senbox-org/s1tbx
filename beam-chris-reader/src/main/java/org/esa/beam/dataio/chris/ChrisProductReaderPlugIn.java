@@ -43,6 +43,9 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
 
     /**
      * Returns whether or not the HDF library is available.
+     *
+     * @return {@code true} if the HDF library is available, {@code false}
+     *         otherwise.
      */
     public static boolean isHDFLibraryAvailable() {
         return hdfLibraryAvailable;
