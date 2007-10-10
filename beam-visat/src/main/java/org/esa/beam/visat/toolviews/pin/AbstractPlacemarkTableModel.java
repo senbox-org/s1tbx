@@ -6,41 +6,115 @@ import org.esa.beam.util.math.MathUtils;
 
 import javax.swing.table.DefaultTableModel;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 
 abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
 
-    protected final PlacemarkDescriptor placemarkDescriptor;
+    private final PlacemarkDescriptor placemarkDescriptor;
 
-    protected final Product product;
+    private Product product;
+    private Band[] selectedBands;
+    private TiePointGrid[] selectedGrids;
 
-    protected final Band[] selectedBands;
-
-    protected final TiePointGrid[] selectedGrids;
-
-    protected PlacemarkListener placemarkListener;
+    private final PlacemarkListener placemarkListener;
+    private final ArrayList<Pin> placemarkList;
 
     public AbstractPlacemarkTableModel(PlacemarkDescriptor placemarkDescriptor, Product product, Band[] selectedBands,
                                        TiePointGrid[] selectedGrids) {
         this.placemarkDescriptor = placemarkDescriptor;
         this.product = product;
-        this.selectedBands = selectedBands;
-        this.selectedGrids = selectedGrids;
+        initSelectedBands(selectedBands);
+        initSelectedGrids(selectedGrids);
+        placemarkList = new ArrayList<Pin>(10);
         placemarkListener = new PlacemarkListener();
-        if (product != null) {
+        if(product != null) {
             product.addProductNodeListener(placemarkListener);
         }
+        initPlacemarkList(product);
+    }
+
+    public Pin[] getPlacemarks() {
+        return placemarkList.toArray(new Pin[placemarkList.size()]);
+    }
+
+    public PlacemarkDescriptor getPlacemarkDescriptor() {
+        return placemarkDescriptor;
+    }
+
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        if (this.product == product) {
+            return;
+        }
+        if (this.product != null) {
+            this.product.removeProductNodeListener(placemarkListener);
+        }
+        this.product = product;
+        if (this.product != null) {
+            this.product.addProductNodeListener(placemarkListener);
+        }
+
+        placemarkList.clear();
+        initPlacemarkList(this.product);
+        selectedBands = null;
+        selectedGrids = null;
+        fireTableDataChanged();
+    }
+
+    public Band[] getSelectedBands() {
+        return selectedBands;
+    }
+
+    public void setSelectedBands(Band[] selectedBands) {
+        this.selectedBands = selectedBands;
+        fireTableDataChanged();
+    }
+
+    public TiePointGrid[] getSelectedGrids() {
+        return selectedGrids;
+    }
+
+    public void setSelectedGrids(TiePointGrid[] selectedGrids) {
+        this.selectedGrids = selectedGrids;
+        fireTableDataChanged();
+    }
+
+    public boolean addPlacemark(Pin placemark) {
+        if (getProduct() != null && placemarkList.add(placemark)) {
+            fireTableDataChanged();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean removePlacemark(Pin placemark) {
+        if (getProduct() != null && placemarkList.remove(placemark)) {
+            fireTableDataChanged();
+            return true;
+        }
+        return false;
+    }
+
+    public void removePlacemarkAt(int index) {
+        placemarkList.remove(index);
     }
 
     public abstract String[] getStandardColumnNames();
 
+    @Override
     public int getRowCount() {
-        if (product != null) {
-            return placemarkDescriptor.getPlacemarkGroup(product).getNodeCount();
+        if(placemarkList == null) {
+            return 0;
         }
-        return 0;
+        return placemarkList.size();
     }
 
+    @Override
     public int getColumnCount() {
         int count = getStandardColumnNames().length;
         if (selectedBands != null) {
@@ -52,6 +126,7 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         return count;
     }
 
+    @Override
     public String getColumnName(int columnIndex) {
         if (columnIndex < getStandardColumnNames().length) {
             return getStandardColumnNames()[columnIndex];
@@ -67,6 +142,7 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         return "?";
     }
 
+    @Override
     public Class getColumnClass(int columnIndex) {
         if (columnIndex >= 0 && columnIndex < getStandardColumnNames().length - 1) {
             return Float.class;
@@ -74,14 +150,16 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         return String.class;
     }
 
+    @Override
     public abstract boolean isCellEditable(int rowIndex, int columnIndex);
 
+    @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         if (product != null) {
             if (columnIndex < getStandardColumnNames().length) {
                 return getStandardColumnValueAt(rowIndex, columnIndex);
             } else {
-                final Pin pin = placemarkDescriptor.getPlacemarkGroup(product).get(rowIndex);
+                final Pin pin = placemarkList.get(rowIndex);
                 int index = columnIndex - getStandardColumnNames().length + 1;
                 PixelPos pixelPos = pin.getPixelPos();
                 if (pixelPos == null) {
@@ -130,12 +208,13 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
 
     protected abstract Object getStandardColumnValueAt(int rowIndex, int columnIndex);
 
+    @Override
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
         if (value == null) {
             return;
         }
         if (columnIndex < getStandardColumnNames().length) {
-            Pin pin = placemarkDescriptor.getPlacemarkGroup(product).get(rowIndex);
+            Pin pin = placemarkList.get(rowIndex);
             if (columnIndex == 0) {
                 if (value instanceof Float) {
                     float pixelY;
@@ -202,36 +281,51 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         if (product != null) {
             product.removeProductNodeListener(placemarkListener);
         }
+        placemarkList.clear();
+    }
+
+    private void initSelectedBands(Band[] selectedBands) {
+        if(selectedBands == null) {
+            this.selectedBands = new Band[0];
+        }else {
+            this.selectedBands = selectedBands;
+        }
+    }
+
+    private void initSelectedGrids(TiePointGrid[] selectedGrids) {
+        if(selectedGrids == null) {
+            this.selectedGrids = new TiePointGrid[0];
+        }else {
+            this.selectedGrids = selectedGrids;
+        }
+    }
+
+    private void initPlacemarkList(Product product) {
+        if (product != null) {
+            Pin[] pins = placemarkDescriptor.getPlacemarkGroup(product).toArray(new Pin[0]);
+            placemarkList.addAll(Arrays.asList(pins));
+        }
     }
 
     private int getNumSelectedBands() {
         return selectedBands != null ? selectedBands.length : 0;
     }
 
-    protected class PlacemarkListener implements ProductNodeListener {
+    protected class PlacemarkListener extends ProductNodeListenerAdapter {
 
+        @Override
         public void nodeChanged(ProductNodeEvent event) {
             fireTableDataChanged(event);
         }
 
-        public void nodeDataChanged(ProductNodeEvent event) {
-            fireTableDataChanged(event);
-        }
-
-        public void nodeAdded(ProductNodeEvent event) {
-            fireTableDataChanged(event);
-        }
-
-        public void nodeRemoved(ProductNodeEvent event) {
-            fireTableDataChanged(event);
-        }
-
         private void fireTableDataChanged(ProductNodeEvent event) {
-            if ((event.getSourceNode().getOwner() == placemarkDescriptor.getPlacemarkGroup(product) ||
-                 event.getSourceNode() instanceof Product) &&
+            if (event.getSourceNode() instanceof Pin &&
                                                            !ProductNode.PROPERTY_NAME_SELECTED.equals(
                                                                    event.getPropertyName())) {
-                AbstractPlacemarkTableModel.this.fireTableDataChanged();
+                Pin placemark = (Pin) event.getSourceNode();
+                if (placemarkList.contains(placemark)) {
+                    AbstractPlacemarkTableModel.this.fireTableDataChanged();
+                }
             }
         }
     }

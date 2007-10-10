@@ -13,6 +13,7 @@
 
 package org.esa.beam.visat.toolviews.pin;
 
+import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.Pin;
@@ -28,16 +29,20 @@ public class PinTableModel extends AbstractPlacemarkTableModel {
         super(placemarkDescriptor, product, selectedBands, selectedGrids);
     }
 
+    @Override
     public String[] getStandardColumnNames() {
         return new String[]{"X", "Y", "Lon", "Lat", "Label"};
     }
 
+    @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         return columnIndex < getStandardColumnNames().length;
     }
 
+    @Override
     protected Object getStandardColumnValueAt(int rowIndex, int columnIndex) {
-        final Pin pin = placemarkDescriptor.getPlacemarkGroup(product).get(rowIndex);
+        Assert.notNull(getProduct());
+        final Pin pin = getPlacemarkDescriptor().getPlacemarkGroup(getProduct()).get(rowIndex);
 
         float x = Float.NaN;
         float y = Float.NaN;
