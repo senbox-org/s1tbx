@@ -52,8 +52,9 @@ import java.util.Map;
 public class DimapDocumentTest extends TestCase {
 
     private static final String _nameDataDirectory = "test.data";
-    private final static int TIE_POINT_GEOCODIG = 1;
+    private final static int TIE_POINT_GEOCODING = 1;
     private final static int MAP_GEOCODING = 2;
+    private static final int GCP_GEOCODING = 3;
 
     public DimapDocumentTest(String name) {
         super(name);
@@ -95,7 +96,28 @@ public class DimapDocumentTest extends TestCase {
     }
 
     public void testCreateProduct_with_TiePointGeoCoding() throws ParseException {
-        int geocodingType = TIE_POINT_GEOCODIG;
+        int geocodingType = TIE_POINT_GEOCODING;
+        StringWriter sw;
+        Product product = createProduct(geocodingType);
+        sw = new StringWriter();
+        DimapHeaderWriter writer = new DimapHeaderWriter(product, sw, _nameDataDirectory);
+        writer.writeHeader();
+        String code1 = sw.toString();
+
+        Product currentProduct = DimapProductHelpers.createProduct(createDom(code1));
+        sw = new StringWriter();
+        writer = new DimapHeaderWriter(currentProduct, sw, _nameDataDirectory);
+        writer.writeHeader();
+        String code2 = sw.toString();
+
+        String expected1 = getExpectedXML(product, geocodingType, true, false);
+        String expected2 = getExpectedXML(product, geocodingType, false, false);
+        assertEquals(expected1, code1);
+        assertEquals(expected2, code2);
+    }
+
+    public void testCreateProduct_with_GcpGeoCoding() throws ParseException {
+        int geocodingType = GCP_GEOCODING;
         StringWriter sw;
         Product product = createProduct(geocodingType);
         sw = new StringWriter();
@@ -119,7 +141,7 @@ public class DimapDocumentTest extends TestCase {
         final boolean oldUtcFormat = true;
         final boolean newUtcFormat = false;
 
-        final String oldUtcStyle = getExpectedXML(null, TIE_POINT_GEOCODIG, false, oldUtcFormat);
+        final String oldUtcStyle = getExpectedXML(null, TIE_POINT_GEOCODING, false, oldUtcFormat);
         final Product product = DimapProductHelpers.createProduct(createDom(oldUtcStyle));
 
         final StringWriter sw = new StringWriter();
@@ -127,7 +149,7 @@ public class DimapDocumentTest extends TestCase {
         writer.writeHeader();
         String newExport = sw.toString();
 
-        final String newUtcStyleExpected = getExpectedXML(null, TIE_POINT_GEOCODIG, false, newUtcFormat);
+        final String newUtcStyleExpected = getExpectedXML(null, TIE_POINT_GEOCODING, false, newUtcFormat);
         assertEquals(newUtcStyleExpected, newExport);
     }
 
@@ -137,7 +159,7 @@ public class DimapDocumentTest extends TestCase {
     }
 
     public void testGetTiePointDataFile() throws ParseException {
-        Product product = createProduct(TIE_POINT_GEOCODIG);
+        Product product = createProduct(TIE_POINT_GEOCODING);
         Document dom1 = createDOM(product, _nameDataDirectory);
         String file = DimapProductHelpers.getTiePointDataFile(dom1, product.getTiePointGridNames()[0]);
         String expected = _nameDataDirectory + File.separator + DimapProductConstants.TIE_POINT_GRID_DIR_NAME + File.separator + product.getTiePointGridNames()[0];
@@ -145,7 +167,7 @@ public class DimapDocumentTest extends TestCase {
     }
 
     public void testGetBandDataFiles() throws ParseException {
-        final Product product = createProduct(TIE_POINT_GEOCODIG);
+        final Product product = createProduct(TIE_POINT_GEOCODING);
         final Document dom1 = createDOM(product, _nameDataDirectory);
         final Band[] bands = product.getBands();
         final File inputDir = new File("inputPath");
@@ -290,6 +312,22 @@ public class DimapDocumentTest extends TestCase {
             mapInfo.setElevationModelName("GETASSE30");
             final MapGeoCoding mapGeoCoding = new MapGeoCoding(mapInfo);
             product.setGeoCoding(mapGeoCoding);
+            break;
+        case GCP_GEOCODING:
+            final double[] x = new double[]{1.0, 2.0, 3.0};
+            final double[] y = new double[]{4.0, 5.0, 6.0};
+
+            final double[] lons = new double[]{1.0, 2.0, 3.0};
+            final double[] lats = new double[]{4.0, 5.0, 6.0};
+
+            final GcpGeoCoding gcpGeoCoding = new GcpGeoCoding(GcpGeoCoding.Method.POLYNOMIAL1, x, y, lons, lats,
+                                                               product.getSceneRasterWidth(),
+                                                               product.getSceneRasterHeight(),
+                                                               Datum.WGS_84);
+            gcpGeoCoding.setOriginalGeoCoding(new TiePointGeoCoding(product.getTiePointGrid("tpg1"),
+                                                                    product.getTiePointGrid("tpg2"),
+                                                                    Datum.WGS_84));
+            product.setGeoCoding(gcpGeoCoding);
             break;
         default:
             final TiePointGeoCoding tiePointGeoCoding = new TiePointGeoCoding(product.getTiePointGrid("tpg1"),
@@ -447,7 +485,8 @@ public class DimapDocumentTest extends TestCase {
         pw.println("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>");
         pw.println("<Dimap_Document name=\"test_product.dim\">");
         pw.println("    <Metadata_Id>");
-        pw.println("        <METADATA_FORMAT version=\"" + DimapProductConstants.DIMAP_CURRENT_VERSION + "\">DIMAP</METADATA_FORMAT>");
+        pw.println(
+                "        <METADATA_FORMAT version=\"" + DimapProductConstants.DIMAP_CURRENT_VERSION + "\">DIMAP</METADATA_FORMAT>");
         pw.println("        <METADATA_PROFILE>BEAM-DATAMODEL-V1</METADATA_PROFILE>");
         pw.println("    </Metadata_Id>");
         pw.println("    <Dataset_Id>");
@@ -459,17 +498,19 @@ public class DimapDocumentTest extends TestCase {
         pw.println("    </Dataset_Use>");
         pw.println("    <Production>");
         pw.println("        <DATASET_PRODUCER_NAME />"); // product type
-                // "        <DATASET_PRODUCER_NAME>" + DimapProductConstants.DATASET_PRODUCER_NAME + "</DATASET_PRODUCER_NAME>" // product type
+        // "        <DATASET_PRODUCER_NAME>" + DimapProductConstants.DATASET_PRODUCER_NAME + "</DATASET_PRODUCER_NAME>" // product type
         pw.println("        <PRODUCT_TYPE>MER_FR__1P</PRODUCT_TYPE>"); // product type
-        pw.println("        <PRODUCT_SCENE_RASTER_START_TIME>19-MAY-2003 00:34:05.000034</PRODUCT_SCENE_RASTER_START_TIME>"); // product scene sensing start
-        pw.println("        <PRODUCT_SCENE_RASTER_STOP_TIME>19-MAY-2003 00:50:45.000034</PRODUCT_SCENE_RASTER_STOP_TIME>"); // product scene sensing stopt
+        pw.println(
+                "        <PRODUCT_SCENE_RASTER_START_TIME>19-MAY-2003 00:34:05.000034</PRODUCT_SCENE_RASTER_START_TIME>"); // product scene sensing start
+        pw.println(
+                "        <PRODUCT_SCENE_RASTER_STOP_TIME>19-MAY-2003 00:50:45.000034</PRODUCT_SCENE_RASTER_STOP_TIME>"); // product scene sensing stopt
         pw.println("    </Production>");
 
         if (withGeocoding) {
             pw.println("    <Coordinate_Reference_System>");
-        switch (geocodingType) {
-        case MAP_GEOCODING:
-            final MapInfo mapInfo = ((MapGeoCoding) product.getGeoCoding()).getMapInfo();
+            switch (geocodingType) {
+            case MAP_GEOCODING:
+                final MapInfo mapInfo = ((MapGeoCoding) product.getGeoCoding()).getMapInfo();
                 pw.println("        <GEO_TABLES version=\"1.0\">CUSTOM</GEO_TABLES>");
                 pw.println("        <Horizontal_CS>");
                 pw.println("            <HORIZONTAL_CS_TYPE>PROJECTED</HORIZONTAL_CS_TYPE>");
@@ -481,8 +522,10 @@ public class DimapDocumentTest extends TestCase {
                 pw.println("                    <Ellipsoid>");
                 pw.println("                        <ELLIPSOID_NAME>WGS-84</ELLIPSOID_NAME>");
                 pw.println("                        <Ellipsoid_Parameters>");
-                pw.println("                            <ELLIPSOID_MAJ_AXIS unit=\"meter\">6378137.0</ELLIPSOID_MAJ_AXIS>");
-                pw.println("                            <ELLIPSOID_MIN_AXIS unit=\"meter\">6356752.3</ELLIPSOID_MIN_AXIS>");
+                pw.println(
+                        "                            <ELLIPSOID_MAJ_AXIS unit=\"meter\">6378137.0</ELLIPSOID_MAJ_AXIS>");
+                pw.println(
+                        "                            <ELLIPSOID_MIN_AXIS unit=\"meter\">6356752.3</ELLIPSOID_MIN_AXIS>");
                 pw.println("                        </Ellipsoid_Parameters>");
                 pw.println("                    </Ellipsoid>");
                 pw.println("                </Horizontal_Datum>");
@@ -493,32 +536,46 @@ public class DimapDocumentTest extends TestCase {
                 pw.println("                    <PROJECTION_CT_NAME>Lambert_Conformal_Conic</PROJECTION_CT_NAME>");
                 pw.println("                    <Projection_Parameters>");
                 pw.println("                        <Projection_Parameter>");
-                pw.println("                            <PROJECTION_PARAMETER_NAME>semi_major</PROJECTION_PARAMETER_NAME>");
-                pw.println("                            <PROJECTION_PARAMETER_VALUE unit=\"meter\">6378137.0</PROJECTION_PARAMETER_VALUE>");
+                pw.println(
+                        "                            <PROJECTION_PARAMETER_NAME>semi_major</PROJECTION_PARAMETER_NAME>");
+                pw.println(
+                        "                            <PROJECTION_PARAMETER_VALUE unit=\"meter\">6378137.0</PROJECTION_PARAMETER_VALUE>");
                 pw.println("                        </Projection_Parameter>");
                 pw.println("                        <Projection_Parameter>");
-                pw.println("                            <PROJECTION_PARAMETER_NAME>semi_minor</PROJECTION_PARAMETER_NAME>");
-                pw.println("                            <PROJECTION_PARAMETER_VALUE unit=\"meter\">6356752.3</PROJECTION_PARAMETER_VALUE>");
+                pw.println(
+                        "                            <PROJECTION_PARAMETER_NAME>semi_minor</PROJECTION_PARAMETER_NAME>");
+                pw.println(
+                        "                            <PROJECTION_PARAMETER_VALUE unit=\"meter\">6356752.3</PROJECTION_PARAMETER_VALUE>");
                 pw.println("                        </Projection_Parameter>");
                 pw.println("                        <Projection_Parameter>");
-                pw.println("                            <PROJECTION_PARAMETER_NAME>latitude_of_origin</PROJECTION_PARAMETER_NAME>");
-                pw.println("                            <PROJECTION_PARAMETER_VALUE unit=\"degree\">14.0</PROJECTION_PARAMETER_VALUE>");
+                pw.println(
+                        "                            <PROJECTION_PARAMETER_NAME>latitude_of_origin</PROJECTION_PARAMETER_NAME>");
+                pw.println(
+                        "                            <PROJECTION_PARAMETER_VALUE unit=\"degree\">14.0</PROJECTION_PARAMETER_VALUE>");
                 pw.println("                        </Projection_Parameter>");
                 pw.println("                        <Projection_Parameter>");
-                pw.println("                            <PROJECTION_PARAMETER_NAME>central_meridian</PROJECTION_PARAMETER_NAME>");
-                pw.println("                            <PROJECTION_PARAMETER_VALUE unit=\"degree\">15.0</PROJECTION_PARAMETER_VALUE>");
+                pw.println(
+                        "                            <PROJECTION_PARAMETER_NAME>central_meridian</PROJECTION_PARAMETER_NAME>");
+                pw.println(
+                        "                            <PROJECTION_PARAMETER_VALUE unit=\"degree\">15.0</PROJECTION_PARAMETER_VALUE>");
                 pw.println("                        </Projection_Parameter>");
                 pw.println("                        <Projection_Parameter>");
-                pw.println("                            <PROJECTION_PARAMETER_NAME>latitude_of_intersection_1</PROJECTION_PARAMETER_NAME>");
-                pw.println("                            <PROJECTION_PARAMETER_VALUE unit=\"degree\">16.0</PROJECTION_PARAMETER_VALUE>");
+                pw.println(
+                        "                            <PROJECTION_PARAMETER_NAME>latitude_of_intersection_1</PROJECTION_PARAMETER_NAME>");
+                pw.println(
+                        "                            <PROJECTION_PARAMETER_VALUE unit=\"degree\">16.0</PROJECTION_PARAMETER_VALUE>");
                 pw.println("                        </Projection_Parameter>");
                 pw.println("                        <Projection_Parameter>");
-                pw.println("                            <PROJECTION_PARAMETER_NAME>latitude_of_intersection_2</PROJECTION_PARAMETER_NAME>");
-                pw.println("                            <PROJECTION_PARAMETER_VALUE unit=\"degree\">17.0</PROJECTION_PARAMETER_VALUE>");
+                pw.println(
+                        "                            <PROJECTION_PARAMETER_NAME>latitude_of_intersection_2</PROJECTION_PARAMETER_NAME>");
+                pw.println(
+                        "                            <PROJECTION_PARAMETER_VALUE unit=\"degree\">17.0</PROJECTION_PARAMETER_VALUE>");
                 pw.println("                        </Projection_Parameter>");
                 pw.println("                        <Projection_Parameter>");
-                pw.println("                            <PROJECTION_PARAMETER_NAME>scale_factor</PROJECTION_PARAMETER_NAME>");
-                pw.println("                            <PROJECTION_PARAMETER_VALUE unit=\"\">18.0</PROJECTION_PARAMETER_VALUE>");
+                pw.println(
+                        "                            <PROJECTION_PARAMETER_NAME>scale_factor</PROJECTION_PARAMETER_NAME>");
+                pw.println(
+                        "                            <PROJECTION_PARAMETER_VALUE unit=\"\">18.0</PROJECTION_PARAMETER_VALUE>");
                 pw.println("                        </Projection_Parameter>");
                 pw.println("                    </Projection_Parameters>");
                 pw.println("                </Projection_CT_Method>");
@@ -541,8 +598,8 @@ public class DimapDocumentTest extends TestCase {
                 pw.println("                <RESAMPLING value=\"" + mapInfo.getResampling().getName() + "\" />");
                 pw.println("            </MAP_INFO>");
                 pw.println("        </Horizontal_CS>");
-            break;
-        default:
+                break;
+            default:
                 pw.println("        <Geocoding_Tie_Point_Grids>");
                 pw.println("            <TIE_POINT_GRID_NAME_LAT>tpg1</TIE_POINT_GRID_NAME_LAT>");
                 pw.println("            <TIE_POINT_GRID_NAME_LON>tpg2</TIE_POINT_GRID_NAME_LON>");
@@ -587,8 +644,10 @@ public class DimapDocumentTest extends TestCase {
         pw.println("    </Raster_Dimensions>");
         pw.println("    <Data_Access>");
         pw.println("        <DATA_FILE_FORMAT>" + DimapProductConstants.DATA_FILE_FORMAT + "</DATA_FILE_FORMAT>");
-        pw.println("        <DATA_FILE_FORMAT_DESC>" + DimapProductConstants.DATA_FILE_FORMAT_DESCRIPTION + "</DATA_FILE_FORMAT_DESC>");
-        pw.println("        <DATA_FILE_ORGANISATION>" + DimapProductConstants.DATA_FILE_ORGANISATION + "</DATA_FILE_ORGANISATION>");
+        pw.println(
+                "        <DATA_FILE_FORMAT_DESC>" + DimapProductConstants.DATA_FILE_FORMAT_DESCRIPTION + "</DATA_FILE_FORMAT_DESC>");
+        pw.println(
+                "        <DATA_FILE_ORGANISATION>" + DimapProductConstants.DATA_FILE_ORGANISATION + "</DATA_FILE_ORGANISATION>");
         pw.println("        <Data_File>");
         pw.println("            <DATA_FILE_PATH href=\"" + dataDir + "Band1.hdr\" />");
         pw.println("            <BAND_INDEX>0</BAND_INDEX>");
@@ -606,11 +665,13 @@ public class DimapDocumentTest extends TestCase {
         pw.println("            <BAND_INDEX>3</BAND_INDEX>");
         pw.println("        </Data_File>");
         pw.println("        <Tie_Point_Grid_File>");
-        pw.println("            <TIE_POINT_GRID_FILE_PATH href=\"" + dataDir + DimapProductConstants.TIE_POINT_GRID_DIR_NAME + "/tpg1.hdr\" />");
+        pw.println(
+                "            <TIE_POINT_GRID_FILE_PATH href=\"" + dataDir + DimapProductConstants.TIE_POINT_GRID_DIR_NAME + "/tpg1.hdr\" />");
         pw.println("            <TIE_POINT_GRID_INDEX>0</TIE_POINT_GRID_INDEX>");
         pw.println("        </Tie_Point_Grid_File>");
         pw.println("        <Tie_Point_Grid_File>");
-        pw.println("            <TIE_POINT_GRID_FILE_PATH href=\"" + dataDir + DimapProductConstants.TIE_POINT_GRID_DIR_NAME + "/tpg2.hdr\" />");
+        pw.println(
+                "            <TIE_POINT_GRID_FILE_PATH href=\"" + dataDir + DimapProductConstants.TIE_POINT_GRID_DIR_NAME + "/tpg2.hdr\" />");
         pw.println("            <TIE_POINT_GRID_INDEX>1</TIE_POINT_GRID_INDEX>");
         pw.println("        </Tie_Point_Grid_File>");
         pw.println("    </Data_Access>");
@@ -650,10 +711,10 @@ public class DimapDocumentTest extends TestCase {
         pw.println("            <BAND_INDEX>0</BAND_INDEX>");
         pw.println("            <STX_MIN>" + -0.2f + "</STX_MIN>");
         pw.println("            <STX_MAX>" + 3.0f + "</STX_MAX>");
-                //"            <STX_MEAN>82.5</STX_MEAN>"
-                //"            <STX_STDV>28.4</STX_STDV>"
-                //"            <STX_LIN_MIN>21.0</STX_LIN_MIN>"
-                //"            <STX_LIN_MAX>143.8</STX_LIN_MAX>"
+        //"            <STX_MEAN>82.5</STX_MEAN>"
+        //"            <STX_STDV>28.4</STX_STDV>"
+        //"            <STX_LIN_MIN>21.0</STX_LIN_MIN>"
+        //"            <STX_LIN_MAX>143.8</STX_LIN_MAX>"
         pw.println("            <HISTOGRAM>4,5,4,7,5,8</HISTOGRAM>");
         pw.println("            <NUM_COLORS>180</NUM_COLORS>");
         pw.println("            <Color_Palette_Point>");
@@ -719,15 +780,15 @@ public class DimapDocumentTest extends TestCase {
         pw.println("            <BAND_DESCRIPTION>Band1-Description</BAND_DESCRIPTION>");
         pw.println("            <BAND_NAME>Band1</BAND_NAME>"); // band name
         pw.println("            <DATA_TYPE>int16</DATA_TYPE>");
-                //n4b "            <PHYSICAL_GAIN/>"
-                //n4b "            <PHYSICAL_BIAS/>"
+        //n4b "            <PHYSICAL_GAIN/>"
+        //n4b "            <PHYSICAL_BIAS/>"
         pw.println("            <PHYSICAL_UNIT>unit for Band1</PHYSICAL_UNIT>");
         pw.println("            <SOLAR_FLUX>" + 0.12f + "</SOLAR_FLUX>");
-                //n4b "            <SOLAR_FLUX_UNIT/>"
+        //n4b "            <SOLAR_FLUX_UNIT/>"
         pw.println("            <SPECTRAL_BAND_INDEX>0</SPECTRAL_BAND_INDEX>");
         pw.println("            <BAND_WAVELEN>" + 23.45f + "</BAND_WAVELEN>");
         pw.println("            <BANDWIDTH>0.0</BANDWIDTH>");
-                //n4b "            <WAVELEN_UNIT/>"
+        //n4b "            <WAVELEN_UNIT/>"
         pw.println("            <SCALING_FACTOR>1.0</SCALING_FACTOR>");
         pw.println("            <SCALING_OFFSET>0.0</SCALING_OFFSET>");
         pw.println("            <LOG10_SCALED>false</LOG10_SCALED>");
@@ -740,15 +801,15 @@ public class DimapDocumentTest extends TestCase {
         pw.println("            <BAND_DESCRIPTION>Band2-Description</BAND_DESCRIPTION>");
         pw.println("            <BAND_NAME>Band2</BAND_NAME>"); // band name
         pw.println("            <DATA_TYPE>int8</DATA_TYPE>");
-                //n4b "            <PHYSICAL_GAIN/>"
-                //n4b "            <PHYSICAL_BIAS/>"
+        //n4b "            <PHYSICAL_GAIN/>"
+        //n4b "            <PHYSICAL_BIAS/>"
         pw.println("            <PHYSICAL_UNIT>unit for Band2</PHYSICAL_UNIT>");
         pw.println("            <SOLAR_FLUX>" + 0.23f + "</SOLAR_FLUX>");
-                //n4b "            <SOLAR_FLUX_UNIT/>"
+        //n4b "            <SOLAR_FLUX_UNIT/>"
         pw.println("            <SPECTRAL_BAND_INDEX>3</SPECTRAL_BAND_INDEX>");
         pw.println("            <BAND_WAVELEN>" + 243.56f + "</BAND_WAVELEN>");
         pw.println("            <BANDWIDTH>0.0</BANDWIDTH>");
-                //n4b "            <WAVELEN_UNIT/>"
+        //n4b "            <WAVELEN_UNIT/>"
         pw.println("            <SCALING_FACTOR>1.0</SCALING_FACTOR>");
         pw.println("            <SCALING_OFFSET>0.0</SCALING_OFFSET>");
         pw.println("            <LOG10_SCALED>false</LOG10_SCALED>");
@@ -760,14 +821,14 @@ public class DimapDocumentTest extends TestCase {
         pw.println("            <BAND_DESCRIPTION>Flags1-Description</BAND_DESCRIPTION>");
         pw.println("            <BAND_NAME>Flags1</BAND_NAME>"); // band name
         pw.println("            <DATA_TYPE>int8</DATA_TYPE>");
-                //n4b "            <PHYSICAL_GAIN/>"
-                //n4b "            <PHYSICAL_BIAS/>"
+        //n4b "            <PHYSICAL_GAIN/>"
+        //n4b "            <PHYSICAL_BIAS/>"
         pw.println("            <SOLAR_FLUX>" + 0.0f + "</SOLAR_FLUX>");
-                //n4b "            <SOLAR_FLUX_UNIT/>"
+        //n4b "            <SOLAR_FLUX_UNIT/>"
 //              definitv no SPECTRAL_BAND_INDEX if index is -1
         pw.println("            <BAND_WAVELEN>" + 0.0f + "</BAND_WAVELEN>");
         pw.println("            <BANDWIDTH>0.0</BANDWIDTH>");
-                //n4b "            <WAVELEN_UNIT/>"
+        //n4b "            <WAVELEN_UNIT/>"
         pw.println("            <FLAG_CODING_NAME>FlagCoding1</FLAG_CODING_NAME>");
         pw.println("            <SCALING_FACTOR>1.0</SCALING_FACTOR>");
         pw.println("            <SCALING_OFFSET>0.0</SCALING_OFFSET>");
@@ -780,14 +841,14 @@ public class DimapDocumentTest extends TestCase {
         pw.println("            <BAND_DESCRIPTION>Flags2-Description</BAND_DESCRIPTION>");
         pw.println("            <BAND_NAME>Flags2</BAND_NAME>"); // band name
         pw.println("            <DATA_TYPE>int8</DATA_TYPE>");
-                //n4b "            <PHYSICAL_GAIN/>"
-                //n4b "            <PHYSICAL_BIAS/>"
+        //n4b "            <PHYSICAL_GAIN/>"
+        //n4b "            <PHYSICAL_BIAS/>"
         pw.println("            <SOLAR_FLUX>" + 0.0f + "</SOLAR_FLUX>");
-                //n4b "            <SOLAR_FLUX_UNIT/>"
+        //n4b "            <SOLAR_FLUX_UNIT/>"
 //              definitv no SPECTRAL_BAND_INDEX if index is -1
         pw.println("            <BAND_WAVELEN>" + 0.0f + "</BAND_WAVELEN>");
         pw.println("            <BANDWIDTH>0.0</BANDWIDTH>");
-                //n4b "            <WAVELEN_UNIT/>"
+        //n4b "            <WAVELEN_UNIT/>"
         pw.println("            <FLAG_CODING_NAME>FlagCoding2</FLAG_CODING_NAME>");
         pw.println("            <SCALING_FACTOR>1.0</SCALING_FACTOR>");
         pw.println("            <SCALING_OFFSET>0.0</SCALING_OFFSET>");
@@ -816,15 +877,19 @@ public class DimapDocumentTest extends TestCase {
         pw.println("    <Dataset_Sources>");
         pw.println("        <MDElem name=\"metadata\" desc=\"metadata-desc\">");
         pw.println("            <MDATTR name=\"attrib1\" type=\"int16\" mode=\"rw\">123</MDATTR>");
-        pw.println("            <MDATTR name=\"attrib2\" type=\"float32\" elems=\"6\">1.0,2.0,3.0,4.0,5.0,6.0</MDATTR>");
-        pw.println("            <MDATTR name=\"attrib3\" type=\"float64\" mode=\"rw\" elems=\"6\">7.0,8.0,9.0,10.0,11.0,12.0</MDATTR>");
+        pw.println(
+                "            <MDATTR name=\"attrib2\" type=\"float32\" elems=\"6\">1.0,2.0,3.0,4.0,5.0,6.0</MDATTR>");
+        pw.println(
+                "            <MDATTR name=\"attrib3\" type=\"float64\" mode=\"rw\" elems=\"6\">7.0,8.0,9.0,10.0,11.0,12.0</MDATTR>");
         if (oldUtcFormat) {
             pw.println("            <MDATTR name=\"attrib5\" type=\"utc\" mode=\"rw\">123,234,345</MDATTR>");
         } else {
-            pw.println("            <MDATTR name=\"attrib5\" type=\"utc\" mode=\"rw\">03-MAY-2000 00:03:54.000345</MDATTR>");
+            pw.println(
+                    "            <MDATTR name=\"attrib5\" type=\"utc\" mode=\"rw\">03-MAY-2000 00:03:54.000345</MDATTR>");
         }
         pw.println("            <MDElem name=\"mdElemName1\" desc=\"mdElem1-desc\">");
-        pw.println("                <MDATTR name=\"attrib4\" type=\"float64\" elems=\"3\">23.547,-8.0001,-59.989898</MDATTR>");
+        pw.println(
+                "                <MDATTR name=\"attrib4\" type=\"float64\" elems=\"3\">23.547,-8.0001,-59.989898</MDATTR>");
         pw.println("                <MDATTR name=\"StringAttrib\" type=\"ascii\">StringAttribValue</MDATTR>");
         pw.println("            </MDElem>");
         pw.println("        </MDElem>");

@@ -117,7 +117,7 @@ class GcpGeoCodingForm extends JPanel {
         setComponentName(attachButton, "attachButton");
         attachButton.setName("attachButton");
 
-        AbstractAction applyAction = new AbstractAction() {
+        AbstractAction attachDetachAction = new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
 
                 if (!(currentProduct.getGeoCoding() instanceof GcpGeoCoding)) {
@@ -128,7 +128,7 @@ class GcpGeoCodingForm extends JPanel {
             }
         };
 
-        attachButton.setAction(applyAction);
+        attachButton.setAction(attachDetachAction);
         attachButton.setHideActionText(true);
         warningLabel = new JTextField();
         warningLabel.setEditable(false);
@@ -171,7 +171,7 @@ class GcpGeoCodingForm extends JPanel {
             warningLabel.setForeground(Color.BLACK);
         } else {
             methodComboBox.setEnabled(true);
-            methodTextField.setText("Not available");
+            methodTextField.setText("n/a");
             rmseLatTextField.setText(rmseNumberFormat.format(Double.NaN));
             rmseLonTextField.setText(rmseNumberFormat.format(Double.NaN));
             attachButton.setText("Attach");
@@ -251,7 +251,6 @@ class GcpGeoCodingForm extends JPanel {
         if(currentProduct != null) {
             currentProduct.addProductNodeListener(currentGcpGroupListener);
         }
-
     }
 
 
@@ -265,7 +264,7 @@ class GcpGeoCodingForm extends JPanel {
 
         public StringBuffer format(double number, StringBuffer toAppendTo, FieldPosition pos) {
             if (Double.isNaN(number)) {
-                return toAppendTo.append("Not available");
+                return toAppendTo.append("n/a");
             } else {
                 return format.format(number, toAppendTo, pos);
             }

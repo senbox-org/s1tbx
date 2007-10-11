@@ -47,13 +47,25 @@ public class GcpGeoCoding extends AbstractGeoCoding {
         this.datum = datum;
         this.method = method;
 
-        setCoordinates(gcps);
+        initCoordinates(gcps);
         initTransformations(method);
         boundaryCrossingMeridianAt180 = isBoundaryCrossingMeridianAt180();
     }
 
-    private GcpGeoCoding(Method method, double[] x, double[] y, double[] lons, double[] lats,
-                         int sceneWidth, int sceneHeight, Datum datum) {
+    /**
+     * Constructs a new instance of this class.
+     *
+     * @param method      the approximation method.
+     * @param x           the x coordinates.
+     * @param y           the y coordinates.
+     * @param lons        the longitudes.
+     * @param lats        the latitudes.
+     * @param sceneWidth  the scene width.
+     * @param sceneHeight the scene height.
+     * @param datum       the datum.
+     */
+    public GcpGeoCoding(Method method, double[] x, double[] y, double[] lons, double[] lats,
+                        int sceneWidth, int sceneHeight, Datum datum) {
         this.x = Arrays.copyOf(x, x.length);
         this.y = Arrays.copyOf(y, y.length);
         this.lons = Arrays.copyOf(lons, lons.length);
@@ -202,7 +214,7 @@ public class GcpGeoCoding extends AbstractGeoCoding {
     }
 
     public void setGcps(Pin[] pins) {
-        setCoordinates(pins);
+        initCoordinates(pins);
         initTransformations(method);
         boundaryCrossingMeridianAt180 = isBoundaryCrossingMeridianAt180();
     }
@@ -294,7 +306,7 @@ public class GcpGeoCoding extends AbstractGeoCoding {
         return new GeoPos((float) lat, (float) lon);
     }
 
-    private void setCoordinates(Pin[] gcps) {
+    private void initCoordinates(Pin[] gcps) {
         x = new double[gcps.length];
         y = new double[gcps.length];
 

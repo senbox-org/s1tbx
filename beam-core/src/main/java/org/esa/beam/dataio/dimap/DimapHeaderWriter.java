@@ -96,7 +96,7 @@ public final class DimapHeaderWriter extends XmlWriter {
         ProductNodeGroup<Pin> pinGroup = _product.getPinGroup();
         final Pin[] pins = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
         final String[] pinGroupTags = createTags(indent, DimapProductConstants.TAG_PIN_GROUP);
-        if(pins.length > 0) {
+        if (pins.length > 0) {
             println(pinGroupTags[0]);
             for (final Pin pin : pins) {
                 pin.writeXML(this, indent + 1);
@@ -109,7 +109,7 @@ public final class DimapHeaderWriter extends XmlWriter {
         ProductNodeGroup<Pin> gcpGroup = _product.getGcpGroup();
         final Pin[] gcps = gcpGroup.toArray(new Pin[gcpGroup.getNodeCount()]);
         final String[] gcpGroupTags = createTags(indent, DimapProductConstants.TAG_GCP_GROUP);
-        if(gcps.length > 0) {
+        if (gcps.length > 0) {
             println(gcpGroupTags[0]);
             for (final Pin gcp : gcps) {
                 gcp.writeXML(this, indent + 1);
@@ -196,48 +196,50 @@ public final class DimapHeaderWriter extends XmlWriter {
                 final Band band = bands[i];
                 if (band instanceof FilterBand) {
                     final DimapPersistable persistable = DimapPersistence.getPersistable(band);
-                    if(persistable != null) {
+                    if (persistable != null) {
                         final Element xmlFromObject = persistable.createXmlFromObject(band);
                         printElement(indent + 1, xmlFromObject);
                     }
                 } else {
-                final String[] sbiTags = createTags(indent + 1, DimapProductConstants.TAG_SPECTRAL_BAND_INFO);
-                println(sbiTags[0]);
-                printLine(indent + 2, DimapProductConstants.TAG_BAND_INDEX, i);
-                printLine(indent + 2, DimapProductConstants.TAG_BAND_DESCRIPTION, band.getDescription());
-                printLine(indent + 2, DimapProductConstants.TAG_BAND_NAME, band.getName());
-                printLine(indent + 2, DimapProductConstants.TAG_DATA_TYPE,
-                          ProductData.getTypeString(band.getDataType()));
-                final String unit = band.getUnit();
-                if (unit != null && unit.length() > 0) {
-                    printLine(indent + 2, DimapProductConstants.TAG_PHYSICAL_UNIT, unit);
-                }
-                printLine(indent + 2, DimapProductConstants.TAG_SOLAR_FLUX, band.getSolarFlux());
-                if (band.getSpectralBandIndex() > -1) {
-                    printLine(indent + 2, DimapProductConstants.TAG_SPECTRAL_BAND_INDEX, band.getSpectralBandIndex());
-                }
-                printLine(indent + 2, DimapProductConstants.TAG_BAND_WAVELEN, band.getSpectralWavelength());
-                printLine(indent + 2, DimapProductConstants.TAG_BANDWIDTH, band.getSpectralBandwidth());
-                final FlagCoding flagCoding = band.getFlagCoding();
-                if (flagCoding != null) {
-                    printLine(indent + 2, DimapProductConstants.TAG_FLAG_CODING_NAME, flagCoding.getName());
-                }
-                printLine(indent + 2, DimapProductConstants.TAG_SCALING_FACTOR, band.getScalingFactor());
-                printLine(indent + 2, DimapProductConstants.TAG_SCALING_OFFSET, band.getScalingOffset());
-                printLine(indent + 2, DimapProductConstants.TAG_SCALING_LOG_10, band.isLog10Scaled());
-                printLine(indent + 2, DimapProductConstants.TAG_NO_DATA_VALUE_USED, band.isNoDataValueUsed());
-                printLine(indent + 2, DimapProductConstants.TAG_NO_DATA_VALUE, band.getNoDataValue());
-                if (band instanceof VirtualBand) {
-                    final VirtualBand vb = (VirtualBand) band;
-                    printLine(indent + 2, DimapProductConstants.TAG_VIRTUAL_BAND, true);
-                    printLine(indent + 2, DimapProductConstants.TAG_VIRTUAL_BAND_CHECK_INVALIDS, vb.getCheckInvalids());
-                    printLine(indent + 2, DimapProductConstants.TAG_VIRTUAL_BAND_EXPRESSION, vb.getExpression());
-                }
-                final String validMaskExpression = band.getValidPixelExpression();
-                if (validMaskExpression != null) {
-                    printLine(indent + 2, DimapProductConstants.TAG_VALID_MASK_TERM, validMaskExpression);
-                }
-                println(sbiTags[1]);
+                    final String[] sbiTags = createTags(indent + 1, DimapProductConstants.TAG_SPECTRAL_BAND_INFO);
+                    println(sbiTags[0]);
+                    printLine(indent + 2, DimapProductConstants.TAG_BAND_INDEX, i);
+                    printLine(indent + 2, DimapProductConstants.TAG_BAND_DESCRIPTION, band.getDescription());
+                    printLine(indent + 2, DimapProductConstants.TAG_BAND_NAME, band.getName());
+                    printLine(indent + 2, DimapProductConstants.TAG_DATA_TYPE,
+                              ProductData.getTypeString(band.getDataType()));
+                    final String unit = band.getUnit();
+                    if (unit != null && unit.length() > 0) {
+                        printLine(indent + 2, DimapProductConstants.TAG_PHYSICAL_UNIT, unit);
+                    }
+                    printLine(indent + 2, DimapProductConstants.TAG_SOLAR_FLUX, band.getSolarFlux());
+                    if (band.getSpectralBandIndex() > -1) {
+                        printLine(indent + 2, DimapProductConstants.TAG_SPECTRAL_BAND_INDEX,
+                                  band.getSpectralBandIndex());
+                    }
+                    printLine(indent + 2, DimapProductConstants.TAG_BAND_WAVELEN, band.getSpectralWavelength());
+                    printLine(indent + 2, DimapProductConstants.TAG_BANDWIDTH, band.getSpectralBandwidth());
+                    final FlagCoding flagCoding = band.getFlagCoding();
+                    if (flagCoding != null) {
+                        printLine(indent + 2, DimapProductConstants.TAG_FLAG_CODING_NAME, flagCoding.getName());
+                    }
+                    printLine(indent + 2, DimapProductConstants.TAG_SCALING_FACTOR, band.getScalingFactor());
+                    printLine(indent + 2, DimapProductConstants.TAG_SCALING_OFFSET, band.getScalingOffset());
+                    printLine(indent + 2, DimapProductConstants.TAG_SCALING_LOG_10, band.isLog10Scaled());
+                    printLine(indent + 2, DimapProductConstants.TAG_NO_DATA_VALUE_USED, band.isNoDataValueUsed());
+                    printLine(indent + 2, DimapProductConstants.TAG_NO_DATA_VALUE, band.getNoDataValue());
+                    if (band instanceof VirtualBand) {
+                        final VirtualBand vb = (VirtualBand) band;
+                        printLine(indent + 2, DimapProductConstants.TAG_VIRTUAL_BAND, true);
+                        printLine(indent + 2, DimapProductConstants.TAG_VIRTUAL_BAND_CHECK_INVALIDS,
+                                  vb.getCheckInvalids());
+                        printLine(indent + 2, DimapProductConstants.TAG_VIRTUAL_BAND_EXPRESSION, vb.getExpression());
+                    }
+                    final String validMaskExpression = band.getValidPixelExpression();
+                    if (validMaskExpression != null) {
+                        printLine(indent + 2, DimapProductConstants.TAG_VALID_MASK_TERM, validMaskExpression);
+                    }
+                    println(sbiTags[1]);
                 }
             }
             println(iiTags[1]);
@@ -330,8 +332,8 @@ public final class DimapHeaderWriter extends XmlWriter {
                     }
                     final String[][] attributes = new String[1][];
                     attributes[0] = new String[]{
-                        DimapProductConstants.ATTRIB_NAMES,
-                        StringUtils.arrayToCsv(bitmaskDefNames)
+                            DimapProductConstants.ATTRIB_NAMES,
+                            StringUtils.arrayToCsv(bitmaskDefNames)
                     };
                     pw.printLine(indent + 1, DimapProductConstants.TAG_BITMASK, attributes, null);
                     pw.println(boTags[1]);
@@ -407,44 +409,44 @@ public final class DimapHeaderWriter extends XmlWriter {
                 case PathIterator.SEG_MOVETO:
                     pathXmlW.printLine(indent + 2, DimapProductConstants.TAG_PATH_SEG,
                                        new String[][]{
-                                           new String[]{DimapProductConstants.ATTRIB_TYPE, "moveTo"},
-                                           new String[]{
-                                               DimapProductConstants.ATTRIB_VALUE,
-                                               "" + floats[0] + "," + floats[1]
-                                           }
+                                               new String[]{DimapProductConstants.ATTRIB_TYPE, "moveTo"},
+                                               new String[]{
+                                                       DimapProductConstants.ATTRIB_VALUE,
+                                                       "" + floats[0] + "," + floats[1]
+                                               }
                                        },
                                        null);
                     break;
                 case PathIterator.SEG_LINETO:
                     pathXmlW.printLine(indent + 2, DimapProductConstants.TAG_PATH_SEG,
                                        new String[][]{
-                                           new String[]{DimapProductConstants.ATTRIB_TYPE, "lineTo"},
-                                           new String[]{
-                                               DimapProductConstants.ATTRIB_VALUE,
-                                               "" + floats[0] + "," + floats[1]
-                                           }
+                                               new String[]{DimapProductConstants.ATTRIB_TYPE, "lineTo"},
+                                               new String[]{
+                                                       DimapProductConstants.ATTRIB_VALUE,
+                                                       "" + floats[0] + "," + floats[1]
+                                               }
                                        },
                                        null);
                     break;
                 case PathIterator.SEG_QUADTO:
                     pathXmlW.printLine(indent + 2, DimapProductConstants.TAG_PATH_SEG,
                                        new String[][]{
-                                           new String[]{DimapProductConstants.ATTRIB_TYPE, "quadTo"},
-                                           new String[]{
-                                               DimapProductConstants.ATTRIB_VALUE,
-                                               "" + floats[0] + "," + floats[1] + "," + floats[2] + "," + floats[3]
-                                           }
+                                               new String[]{DimapProductConstants.ATTRIB_TYPE, "quadTo"},
+                                               new String[]{
+                                                       DimapProductConstants.ATTRIB_VALUE,
+                                                       "" + floats[0] + "," + floats[1] + "," + floats[2] + "," + floats[3]
+                                               }
                                        },
                                        null);
                     break;
                 case PathIterator.SEG_CUBICTO:
                     pathXmlW.printLine(indent + 2, DimapProductConstants.TAG_PATH_SEG,
                                        new String[][]{
-                                           new String[]{DimapProductConstants.ATTRIB_TYPE, "cubicTo"},
-                                           new String[]{
-                                               DimapProductConstants.ATTRIB_VALUE,
-                                               "" + floats[0] + "," + floats[1] + "," + floats[2] + "," + floats[3] + "," + floats[4] + "," + floats[5]
-                                           }
+                                               new String[]{DimapProductConstants.ATTRIB_TYPE, "cubicTo"},
+                                               new String[]{
+                                                       DimapProductConstants.ATTRIB_VALUE,
+                                                       "" + floats[0] + "," + floats[1] + "," + floats[2] + "," + floats[3] + "," + floats[4] + "," + floats[5]
+                                               }
                                        },
                                        null);
                     break;
@@ -474,7 +476,7 @@ public final class DimapHeaderWriter extends XmlWriter {
         }
 
         if (segments == null || segments.length() == 0) {
-                pw.printLine(indent + 1, DimapProductConstants.TAG_SHAPE_FIGURE, attributes, null);
+            pw.printLine(indent + 1, DimapProductConstants.TAG_SHAPE_FIGURE, attributes, null);
         } else {
             final String[] figTags = createTags(indent + 1, DimapProductConstants.TAG_SHAPE_FIGURE, attributes);
             pw.println(figTags[0]);
@@ -534,7 +536,7 @@ public final class DimapHeaderWriter extends XmlWriter {
                     println(dfTags[0]);
                     final String href = _dataDirectory + "/" + band.getName() + EnviHeader.FILE_EXTENSION;
                     final String[][] attributes = new String[][]{
-                        new String[]{DimapProductConstants.ATTRIB_HREF, href}
+                            new String[]{DimapProductConstants.ATTRIB_HREF, href}
                     };
                     printLine(indent + 2, DimapProductConstants.TAG_DATA_FILE_PATH, attributes, null);
                     printLine(indent + 2, DimapProductConstants.TAG_BAND_INDEX, i);
@@ -610,8 +612,23 @@ public final class DimapHeaderWriter extends XmlWriter {
                 writePixelGeoCoding(geoCoding, indent, index);
             } else if (geoCoding instanceof FXYGeoCoding) {
                 writeFXYGeoCoding(geoCoding, indent, index);
+            } else if (geoCoding instanceof GcpGeoCoding) {
+                writeGcpGeoCoding(geoCoding, indent, index);
             }
         }
+    }
+
+    private void writeGcpGeoCoding(GeoCoding geoCoding, int indent, int index) {
+        final GcpGeoCoding gcpPointGeoCoding = (GcpGeoCoding) geoCoding;
+        final GeoCoding originalGeoCoding = gcpPointGeoCoding.getOriginalGeoCoding();
+
+        if (originalGeoCoding == null || originalGeoCoding instanceof GcpGeoCoding) {
+            return;
+        }
+
+        // todo - write GCP geocoding using Geoposition_Points
+        // todo - write original geocoding to Dataset_Sources section ?
+        writeGeoCoding(originalGeoCoding, indent, index);
     }
 
     private void writeTiePointGeoCoding(final GeoCoding geoCoding, final int indent) {
@@ -675,7 +692,8 @@ public final class DimapHeaderWriter extends XmlWriter {
         final String[] horizontalDatumTags = createTags(indent, DimapProductConstants.TAG_HORIZONTAL_DATUM);
         println(horizontalDatumTags[0]);
         ++indent;
-        printLine(indent, DimapProductConstants.TAG_HORIZONTAL_DATUM_NAME, datumName);  // @todo mp - write also DX,DY,DZ
+        printLine(indent, DimapProductConstants.TAG_HORIZONTAL_DATUM_NAME,
+                  datumName);  // @todo mp - write also DX,DY,DZ
         final String[] ellipsoidTags = createTags(indent, DimapProductConstants.TAG_ELLIPSOID);
         println(ellipsoidTags[0]);
         ++indent;
@@ -766,7 +784,8 @@ public final class DimapHeaderWriter extends XmlWriter {
         println(crsTags[1]);
     }
 
-    private void writePixelGeoCoding(final GeoCoding geoCoding, final int indent, final int index) {
+    private void writePixelGeoCoding(final GeoCoding geoCoding, final int indent, final int index
+    ) {
         // todo - (nf) since we don't write out PixelGeoCodings for time being, we write out the underlying delegate instead
         writeGeoCoding(((PixelGeoCoding) geoCoding).getPixelPosEstimator(), indent, index);
     }
@@ -897,9 +916,9 @@ public final class DimapHeaderWriter extends XmlWriter {
     private void writeDirectLocationModel(int indent, final int order, final double[] lambdaCoeffs,
                                           final double[] phiCoeffs) {
         final String[][] attributes = new String[][]{
-            new String[]{
-                DimapProductConstants.ATTRIB_ORDER, String.valueOf(order)
-            }
+                new String[]{
+                        DimapProductConstants.ATTRIB_ORDER, String.valueOf(order)
+                }
         };
         final String[] dlmTags = createTags(indent, DimapProductConstants.TAG_DIRECT_LOCATION_MODEL, attributes);
         println(dlmTags[0]);
@@ -921,11 +940,12 @@ public final class DimapHeaderWriter extends XmlWriter {
         println(dlmTags[1]);
     }
 
-    private void writeReverseLocationModel(int indent, final int order, final double[] xCoeffs, final double[] yCoeffs) {
+    private void writeReverseLocationModel(int indent, final int order, final double[] xCoeffs,
+                                           final double[] yCoeffs) {
         final String[][] attributes = new String[][]{
-            new String[]{
-                DimapProductConstants.ATTRIB_ORDER, String.valueOf(order)
-            }
+                new String[]{
+                        DimapProductConstants.ATTRIB_ORDER, String.valueOf(order)
+                }
         };
         final String[] rlmTags = createTags(indent, DimapProductConstants.TAG_REVERSE_LOCATION_MODEL, attributes);
         println(rlmTags[0]);
@@ -979,8 +999,8 @@ public final class DimapHeaderWriter extends XmlWriter {
         println(idTags[0]);
         final String[][] attributes = new String[1][];
         attributes[0] = new String[]{
-            DimapProductConstants.ATTRIB_VERSION,
-            DimapProductConstants.DIMAP_CURRENT_VERSION
+                DimapProductConstants.ATTRIB_VERSION,
+                DimapProductConstants.DIMAP_CURRENT_VERSION
         };
         printLine(indent + 1, DimapProductConstants.TAG_METADATA_FORMAT, attributes, "DIMAP");
         printLine(indent + 1, DimapProductConstants.TAG_METADATA_PROFILE, DimapProductConstants.DIMAP_METADATA_PROFILE);
