@@ -418,21 +418,21 @@ public class ChrisProductReader extends AbstractProductReader {
         final Band rciBand = rciBands[bandIndex];
         final Band maskBand = maskBands[bandIndex];
 
-        if (rciBand.hasRasterData()) {
-            System.arraycopy(rciBand.getRasterData().getElems(), tileOffsetY * sceneRasterWidth,
-                             rciData, 0, rciData.length);
-        } else {
-            chrisFile.readRciData(bandIndex, 0, tileOffsetY, 1, 1, sceneRasterWidth, tileHeight, rciData);
-        }
         if (maskBand.hasRasterData()) {
             System.arraycopy(maskBand.getRasterData().getElems(), tileOffsetY * sceneRasterWidth,
                              maskData, 0, maskData.length);
+            if (rciBand.hasRasterData()) {
+                System.arraycopy(rciBand.getRasterData().getElems(), tileOffsetY * sceneRasterWidth,
+                                 rciData, 0, rciData.length);
+            } else {
+                chrisFile.readRciData(bandIndex, 0, tileOffsetY, 1, 1, sceneRasterWidth, tileHeight, rciData);
+            }
         } else {
+            chrisFile.readRciData(bandIndex, 0, tileOffsetY, 1, 1, sceneRasterWidth, tileHeight, rciData);
             if (chrisFile.hasMask()) {
                 chrisFile.readMaskData(bandIndex, 0, tileOffsetY, 1, 1, sceneRasterWidth, tileHeight, maskData);
             }
             maskRefinement.refine(rciData, maskData, sceneRasterWidth);
         }
     }
-
 }
