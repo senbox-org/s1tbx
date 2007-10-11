@@ -29,7 +29,7 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         initSelectedGrids(selectedGrids);
         placemarkList = new ArrayList<Pin>(10);
         placemarkListener = new PlacemarkListener();
-        if(product != null) {
+        if (product != null) {
             product.addProductNodeListener(placemarkListener);
         }
         initPlacemarkList(product);
@@ -113,7 +113,7 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
 
     @Override
     public int getRowCount() {
-        if(placemarkList == null) {
+        if (placemarkList == null) {
             return 0;
         }
         return placemarkList.size();
@@ -283,17 +283,17 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
     }
 
     private void initSelectedBands(Band[] selectedBands) {
-        if(selectedBands == null) {
+        if (selectedBands == null) {
             this.selectedBands = new Band[0];
-        }else {
+        } else {
             this.selectedBands = selectedBands;
         }
     }
 
     private void initSelectedGrids(TiePointGrid[] selectedGrids) {
-        if(selectedGrids == null) {
+        if (selectedGrids == null) {
             this.selectedGrids = new TiePointGrid[0];
-        }else {
+        } else {
             this.selectedGrids = selectedGrids;
         }
     }
@@ -318,8 +318,8 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
 
         private void fireTableDataChanged(ProductNodeEvent event) {
             if (event.getSourceNode() instanceof Pin &&
-                                                           !ProductNode.PROPERTY_NAME_SELECTED.equals(
-                                                                   event.getPropertyName())) {
+                !ProductNode.PROPERTY_NAME_SELECTED.equals(
+                        event.getPropertyName())) {
                 Pin placemark = (Pin) event.getSourceNode();
                 if (placemarkList.contains(placemark)) {
                     AbstractPlacemarkTableModel.this.fireTableDataChanged();
