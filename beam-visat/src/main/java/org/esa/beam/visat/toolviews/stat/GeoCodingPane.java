@@ -126,200 +126,97 @@ class GeoCodingPane extends TextPagePane {
         }
 
         if (geoCoding instanceof TiePointGeoCoding) {
-
-            final TiePointGeoCoding tgc = (TiePointGeoCoding) geoCoding;
-
-            sb.append("\n");
-            sb.append("\nThe ").append(nodeType).append(" uses a tie-point based geo-coding.\n");
-            sb.append("\n");
-
-            sb.append(String.format("%1$-35s \t%2$s\n",
-                    "Name of latitude tie-point grid:", tgc.getLatGrid().getName()));
-            sb.append(String.format("%1$-35s \t%2$s\n",
-                    "Name of longitude tie-point grid:", tgc.getLonGrid().getName()));
-
-            sb.append(String.format("%1$-35s \t%2$s\n",
-                    "Crossing 180 degree meridian:",
-                    String.valueOf(tgc.isCrossingMeridianAt180())));
-
-            sb.append("\n");
-            sb.append("Geographic coordinates (lat,lon) are computed from pixel coordinates (x,y)\n" +
-                      "by linear interpolation between tie points.\n");
-
-            final int numApproximations = tgc.getNumApproximations();
-            if (numApproximations > 0) {
-                sb.append("\n");
-                sb.append("Pixel coordinates (x,y) are computed from geographic coordinates (lat,lon)\n" + "by polynomial approximations for ").append(numApproximations).append(" tile(s).\n");
-                sb.append("\n");
-
-                for (int i = 0; i < numApproximations; i++) {
-
-                    final TiePointGeoCoding.Approximation approximation = tgc.getApproximation(i);
-                    final FXYSum fX = approximation.getFX();
-                    final FXYSum fY = approximation.getFY();
-
-                    sb.append(
-                            "=======================================================================================\n");
-                    sb.append("Approximation for tile ").append(i + 1).append("\n");
-                    sb.append(
-                            "=======================================================================================\n");
-
-                    sb.append(String.format("%1$-18s \t%2$s %3$s\n",
-                            "Center latitude:",
-                            String.valueOf(approximation.getCenterLat()),
-                            "degree"));
-
-                    sb.append(String.format("%1$-18s \t%2$s %3$s\n",
-                            "Center longitude:",
-                            String.valueOf(approximation.getCenterLon()),
-                            "degree"));
-
-                    sb.append(String.format("%1$-18s \t%2$s %3$s\n",
-                            "RMSE for X:",
-                            String.valueOf(fX.getRootMeanSquareError()),
-                            "pixels"));
-
-                    sb.append(String.format("%1$-18s \t%2$s %3$s\n",
-                            "RMSE for Y:",
-                            String.valueOf(fY.getRootMeanSquareError()),
-                            "pixels"));
-
-                    sb.append(String.format("%1$-18s \t%2$s %3$s\n",
-                            "Max. error for X:",
-                            String.valueOf(fX.getMaxError()),
-                            "pixels"));
-
-                    sb.append(String.format("%1$-18s \t%2$s %3$s\n",
-                            "Max. error for Y:",
-                            String.valueOf(fY.getMaxError()),
-                            "pixels"));
-
-                    final String xCCode = fX.createCFunctionCode("compute_x", "lat", "lon");
-                    if (xCCode != null) {
-                        sb.append("\n");
-                        sb.append(xCCode);
-                        sb.append("\n");
-                    }
-
-                    final String yCCode = fX.createCFunctionCode("compute_y", "lat", "lon");
-                    if (yCCode != null) {
-                        sb.append("\n");
-                        sb.append(yCCode);
-                        sb.append("\n");
-                    }
-                }
-            } else {
-                sb.append("\n");
-                sb.append(
-                        "WARNING: Pixel coordinates (x,y) cannot be computed from geographic coordinates (lat,lon)\n" +
-                        "because appropriate polynomial approximations could not be found.\n");
-            }
-
+            writeTiePointGeoCoding((TiePointGeoCoding) geoCoding, nodeType, sb);
         } else if (geoCoding instanceof PixelGeoCoding) {
-
-            final PixelGeoCoding pgc = (PixelGeoCoding) geoCoding;
-
-            sb.append("\n");
-            sb.append("\nThe ").append(nodeType).append(" uses a pixel based geo-coding.\n");
-            sb.append("\n");
-
-            sb.append(String.format("%1$-35s \t%2$s\n",
-                    "Name of latitude band:", pgc.getLatBand().getName()));
-            sb.append(String.format("%1$-35s \t%2$s\n",
-                    "Name of longitude band:", pgc.getLonBand().getName()));
-
-            sb.append(String.format("%1$-35s \t%2$d \t%3$s\n",
-                    "Search radius:", pgc.getSearchRadius(), "pixels"));
-
-            sb.append(String.format("%1$-35s \t%2$s\n",
-                    "Valid pixel mask:", pgc.getValidMask()));
-
-            sb.append(String.format("%1$-35s \t%2$s\n",
-                    "Crossing 180 degree meridian:",
-                    String.valueOf(pgc.isCrossingMeridianAt180())));
-
-            sb.append("\n");
-            sb.append("Geographic coordinates (lat,lon) are computed from pixel coordinates (x,y)\n" +
-                      "by linear interpolation between pixels.\n");
-
-            sb.append("\n");
-            sb.append("Pixel coordinates (x,y) are computed from geographic coordinates (lat,lon)\n" +
-                      "by a search algorithm.\n");
-            sb.append("\n");
-
+            writePixelGeoCoding((PixelGeoCoding) geoCoding, nodeType, sb);
         } else if (geoCoding instanceof MapGeoCoding) {
-
-            final MapGeoCoding mgc = (MapGeoCoding) geoCoding;
-            final MapInfo mi = mgc.getMapInfo();
-
-            sb.append("\n");
-            sb.append("\nThe ").append(nodeType).append(" uses a map projection based geo-coding.\n");
-            sb.append("\n");
-
-            sb.append(String.format("%1$-20s \t%2$s\n",
-                    "Projection:",
-                    mi.getMapProjection().getName()));
-
-            sb.append("Projection parameters: \n");
-            final Parameter[] parameters = mi.getMapProjection().getMapTransform().getDescriptor().getParameters();
-            final double[] parameterValues = mi.getMapProjection().getMapTransform().getParameterValues();
-            for (int i = 0; i < parameters.length; i++) {
-                final Parameter parameter = parameters[i];
-                sb.append(String.format("\t%1$-30s \t%2$s %3$s\n",
-                        parameter.getName() + ":",
-                        String.valueOf(parameterValues[i]),
-                        parameter.getProperties().getPhysicalUnit()));
-
-            }
-
-            sb.append("\n");
-            sb.append("Output parameters:\n");
-
-            sb.append(String.format("\t%1$-30s \t%2$s\n",
-                    "Datum:",
-                    mi.getDatum().getName()));
-
-            sb.append(String.format("\t%1$-30s \t%2$s\n",
-                    "Reference pixel X:",
-                    String.valueOf(mi.getPixelX())));
-
-            sb.append(String.format("\t%1$-30s \t%2$s\n",
-                    "Reference pixel Y:",
-                    String.valueOf(mi.getPixelY())));
-
-            sb.append(String.format("\t%1$-30s \t%2$s %3$s\n",
-                    "Orientation:",
-                    String.valueOf(mi.getOrientation()),
-                    "degree"));
-
-            sb.append(String.format("\t%1$-30s \t%2$s %3$s\n",
-                    "Northing:",
-                    String.valueOf(mi.getNorthing()),
-                    mi.getMapProjection().getMapUnit()));
-
-            sb.append(String.format("\t%1$-30s \t%2$s %3$s\n",
-                    "Easting:",
-                    String.valueOf(mi.getEasting()),
-                    mi.getMapProjection().getMapUnit()));
-
-            sb.append(String.format("\t%1$-30s \t%2$s %3$s\n",
-                    "Pixel size X:",
-                    String.valueOf(mi.getPixelSizeX()),
-                    mi.getMapProjection().getMapUnit()));
-
-            sb.append(String.format("\t%1$-30s \t%2$s %3$s\n",
-                    "Pixel size Y:",
-                    String.valueOf(mi.getPixelSizeY()),
-                    mi.getMapProjection().getMapUnit()));
-
+            writeMapGeoCoding((MapGeoCoding) geoCoding, nodeType, sb);
         } else if (geoCoding instanceof FXYGeoCoding) {
-
-            final FXYGeoCoding fxyGeoCoding = (FXYGeoCoding) geoCoding;
+            writeFXYGeoCoding((FXYGeoCoding) geoCoding, nodeType, sb);
+        } else if (geoCoding instanceof CombinedFXYGeoCoding) {
+            writeCombinedFXYGeoCoding((CombinedFXYGeoCoding) geoCoding, nodeType, sb);
+        } else if (geoCoding instanceof GcpGeoCoding) {
+            writeGcpGeoCoding((GcpGeoCoding) geoCoding, nodeType, sb);
+        } else if (geoCoding != null) {
+            writeUnknownGeoCoding(geoCoding, nodeType, sb);
+        } else {
 
             sb.append("\n");
-            sb.append("\nThe ").append(nodeType).append(" uses a polynomial based geo-coding.\n");
+            sb.append("\nThe ").append(nodeType).append(" has no geo-coding information.\n");
+
+        }
+
+        sb.append('\n');
+
+        return sb.toString();
+    }
+
+    private void writeGcpGeoCoding(GcpGeoCoding gcpGeoCoding, String nodeType, StringBuffer sb) {
+        sb.append("\n");
+        sb.append("\nThe ").append(nodeType).append(" uses a geo-coding which is based on ground control points.\n");
+        sb.append("\n");
+
+        ProductNodeGroup<Pin> gcpGroup = getProduct().getGcpGroup();
+        String formatString = "%1$-18s \t%2$s\n";
+        sb.append(String.format(formatString, "Number Of GCPs:", String.valueOf(gcpGroup.getNodeCount())));
+        sb.append(String.format(formatString, "Function:", String.valueOf(gcpGeoCoding.getMethod())));
+        sb.append(String.format(formatString, "Datum:", String.valueOf(gcpGeoCoding.getDatum().getName())));
+        sb.append(String.format(formatString, "Latitude RMSE:", String.valueOf(gcpGeoCoding.getRmseLat())));
+        sb.append(String.format(formatString, "Longitude RMSE:", String.valueOf(gcpGeoCoding.getRmseLon())));
+        sb.append("\n");
+
+        sb.append("Table of used GCPs:\n");
+        Pin[] pins = gcpGroup.toArray(new Pin[0]);
+        formatString = "%1$-10s \t%2$-15s \t%3$-10s \t%4$-10s \t%5$-18s \t%6$-18s\n";
+        sb.append(String.format(formatString,
+                                "Number", "Label", "X", "Y", "Latitude", "Longitude"));
+        for (int i = 0; i < pins.length; i++) {
+            Pin gcp = pins[i];
+            PixelPos pixelPos = gcp.getPixelPos();
+            GeoPos geoPos = gcp.getGeoPos();
+            sb.append(String.format(formatString,
+                                    String.valueOf(i), gcp.getLabel(),
+                                    String.valueOf(pixelPos.getX()), String.valueOf(pixelPos.getY()),
+                                    geoPos.getLatString(), geoPos.getLonString()));
+        }
+
+    }
+
+    private void writeUnknownGeoCoding(GeoCoding geoCoding, String nodeType, StringBuffer sb) {
+        sb.append("\n");
+        sb.append("\nThe ").append(nodeType).append(" uses an unknown geo-coding implementation.\n");
+        sb.append("\n");
+
+        sb.append(String.format("\t%1$-10s \t%2$s\n",
+                                "Class:",
+                                geoCoding.getClass().getName()));
+
+        sb.append(String.format("\t%1$-10s \t%2$s\n",
+                                "Instance:",
+                                geoCoding.toString()));
+    }
+
+    private void writeCombinedFXYGeoCoding(CombinedFXYGeoCoding combinedGeoCoding, String nodeType, StringBuffer sb) {
+        final CombinedFXYGeoCoding.CodingWrapper[] codingWrappers = combinedGeoCoding.getCodingWrappers();
+
+        sb.append("\n");
+        sb.append("\nThe ").append(nodeType).append(
+                " uses a geo-coding which consists of multiple polynomial based geo-coding.\n");
+        sb.append("\n");
+
+
+        sb.append("The geo-coding uses ").append(codingWrappers.length).append(" polynomial based geo-codings\n");
+
+        for (int i = 0; i < codingWrappers.length; i++) {
+            final CombinedFXYGeoCoding.CodingWrapper codingWrapper = codingWrappers[i];
+            final Rectangle region = codingWrapper.getRegion();
+            sb.append("\n==== Geo-coding[").append(i + 1).append("] ====\n");
+            sb.append("\nThe region in the scene which is coverd by this geo-coding is defined by:\n");
+            sb.append("Location  : X = ").append(region.x).append(" , Y = ").append(region.y).append("\n");
+            sb.append("Dimension : W = ").append(region.width).append(" , H = ").append(region.height).append("\n");
             sb.append("\n");
 
+            final FXYGeoCoding fxyGeoCoding = codingWrapper.getGeoGoding();
             sb.append("Geographic coordinates (lat,lon) are computed from pixel coordinates (x,y)\n" +
                       "by using following polynomial equations: \n\n");
             sb.append(fxyGeoCoding.getLatFunction().createCFunctionCode("latitude", "x", "y")).append("\n");
@@ -331,64 +228,207 @@ class GeoCodingPane extends TextPagePane {
             sb.append(fxyGeoCoding.getPixelYFunction().createCFunctionCode("y", "lat", "lon")).append("\n");
             sb.append("\n");
 
-        } else if (geoCoding instanceof CombinedFXYGeoCoding) {
+        }
+    }
 
-            final CombinedFXYGeoCoding combinedGeoCoding = (CombinedFXYGeoCoding) geoCoding;
-            final CombinedFXYGeoCoding.CodingWrapper[] codingWrappers = combinedGeoCoding.getCodingWrappers();
+    private void writeFXYGeoCoding(FXYGeoCoding fxyGeoCoding, String nodeType, StringBuffer sb) {
+        sb.append("\n");
+        sb.append("\nThe ").append(nodeType).append(" uses a polynomial based geo-coding.\n");
+        sb.append("\n");
 
-            sb.append("\n");
-            sb.append("\nThe ").append(nodeType).append(" uses a geo-coding which consists of multiple polynomial based geo-coding.\n");
-            sb.append("\n");
+        sb.append("Geographic coordinates (lat,lon) are computed from pixel coordinates (x,y)\n" +
+                  "by using following polynomial equations: \n\n");
+        sb.append(fxyGeoCoding.getLatFunction().createCFunctionCode("latitude", "x", "y")).append("\n");
+        sb.append(fxyGeoCoding.getLonFunction().createCFunctionCode("longitude", "x", "y")).append("\n");
+        sb.append("\n");
+        sb.append("Pixels (x,y) are computed from geographic coordinates (lat,lon)\n" +
+                  "by using the following polynomial equations: \n\n");
+        sb.append(fxyGeoCoding.getPixelXFunction().createCFunctionCode("x", "lat", "lon")).append("\n");
+        sb.append(fxyGeoCoding.getPixelYFunction().createCFunctionCode("y", "lat", "lon")).append("\n");
+        sb.append("\n");
+    }
 
+    private void writeMapGeoCoding(MapGeoCoding mgc, String nodeType, StringBuffer sb) {
+        final MapInfo mi = mgc.getMapInfo();
 
-            sb.append("The geo-coding uses ").append(codingWrappers.length).append(" polynomial based geo-codings\n");
+        sb.append("\n");
+        sb.append("\nThe ").append(nodeType).append(" uses a map projection based geo-coding.\n");
+        sb.append("\n");
 
-            for (int i = 0; i < codingWrappers.length; i++) {
-                final CombinedFXYGeoCoding.CodingWrapper codingWrapper = codingWrappers[i];
-                final Rectangle region = codingWrapper.getRegion();
-                sb.append("\n==== Geo-coding[").append(i + 1).append("] ====\n");
-                sb.append("\nThe region in the scene which is coverd by this geo-coding is defined by:\n");
-                sb.append("Location  : X = ").append(region.x).append(" , Y = ").append(region.y).append("\n");
-                sb.append("Dimension : W = ").append(region.width).append(" , H = ").append(region.height).append("\n");
-                sb.append("\n");
+        sb.append(String.format("%1$-20s \t%2$s\n",
+                                "Projection:",
+                                mi.getMapProjection().getName()));
 
-                final FXYGeoCoding fxyGeoCoding = codingWrapper.getGeoGoding();
-                sb.append("Geographic coordinates (lat,lon) are computed from pixel coordinates (x,y)\n" +
-                          "by using following polynomial equations: \n\n");
-                sb.append(fxyGeoCoding.getLatFunction().createCFunctionCode("latitude", "x", "y")).append("\n");
-                sb.append(fxyGeoCoding.getLonFunction().createCFunctionCode("longitude", "x", "y")).append("\n");
-                sb.append("\n");
-                sb.append("Pixels (x,y) are computed from geographic coordinates (lat,lon)\n" +
-                          "by using the following polynomial equations: \n\n");
-                sb.append(fxyGeoCoding.getPixelXFunction().createCFunctionCode("x", "lat", "lon")).append("\n");
-                sb.append(fxyGeoCoding.getPixelYFunction().createCFunctionCode("y", "lat", "lon")).append("\n");
-                sb.append("\n");
-
-            }
-        } else if (geoCoding != null) {
-
-            sb.append("\n");
-            sb.append("\nThe ").append(nodeType).append(" uses an unknown geo-coding implementation.\n");
-            sb.append("\n");
-
-            sb.append(String.format("\t%1$-10s \t%2$s\n",
-                    "Class:",
-                    geoCoding.getClass().getName()));
-
-            sb.append(String.format("\t%1$-10s \t%2$s\n",
-                    "Instance:",
-                    geoCoding.toString()));
-
-        } else {
-
-            sb.append("\n");
-            sb.append("\nThe ").append(nodeType).append(" has no geo-coding information.\n");
+        sb.append("Projection parameters: \n");
+        final Parameter[] parameters = mi.getMapProjection().getMapTransform().getDescriptor().getParameters();
+        final double[] parameterValues = mi.getMapProjection().getMapTransform().getParameterValues();
+        for (int i = 0; i < parameters.length; i++) {
+            final Parameter parameter = parameters[i];
+            sb.append(String.format("\t%1$-30s \t: %2$s %3$s\n",
+                                    parameter.getName(),
+                                    String.valueOf(parameterValues[i]),
+                                    parameter.getProperties().getPhysicalUnit()));
 
         }
 
-        sb.append('\n');
+        sb.append("\n");
+        sb.append("Output parameters:\n");
 
-        return sb.toString();
+        sb.append(String.format("\t%1$-30s \t%2$s\n",
+                                "Datum:",
+                                mi.getDatum().getName()));
+
+        sb.append(String.format("\t%1$-30s \t%2$s\n",
+                                "Reference pixel X:",
+                                String.valueOf(mi.getPixelX())));
+
+        sb.append(String.format("\t%1$-30s \t%2$s\n",
+                                "Reference pixel Y:",
+                                String.valueOf(mi.getPixelY())));
+
+        sb.append(String.format("\t%1$-30s \t%2$s %3$s\n",
+                                "Orientation:",
+                                String.valueOf(mi.getOrientation()),
+                                "degree"));
+
+        sb.append(String.format("\t%1$-30s \t%2$s %3$s\n",
+                                "Northing:",
+                                String.valueOf(mi.getNorthing()),
+                                mi.getMapProjection().getMapUnit()));
+
+        sb.append(String.format("\t%1$-30s \t%2$s %3$s\n",
+                                "Easting:",
+                                String.valueOf(mi.getEasting()),
+                                mi.getMapProjection().getMapUnit()));
+
+        sb.append(String.format("\t%1$-30s \t%2$s %3$s\n",
+                                "Pixel size X:",
+                                String.valueOf(mi.getPixelSizeX()),
+                                mi.getMapProjection().getMapUnit()));
+
+        sb.append(String.format("\t%1$-30s \t%2$s %3$s\n",
+                                "Pixel size Y:",
+                                String.valueOf(mi.getPixelSizeY()),
+                                mi.getMapProjection().getMapUnit()));
+    }
+
+    private void writePixelGeoCoding(PixelGeoCoding pgc, String nodeType, StringBuffer sb) {
+        sb.append("\n");
+        sb.append("\nThe ").append(nodeType).append(" uses a pixel based geo-coding.\n");
+        sb.append("\n");
+
+        sb.append(String.format("%1$-35s \t%2$s\n",
+                                "Name of latitude band:", pgc.getLatBand().getName()));
+        sb.append(String.format("%1$-35s \t%2$s\n",
+                                "Name of longitude band:", pgc.getLonBand().getName()));
+
+        sb.append(String.format("%1$-35s \t%2$d \t%3$s\n",
+                                "Search radius:", pgc.getSearchRadius(), "pixels"));
+
+        sb.append(String.format("%1$-35s \t%2$s\n",
+                                "Valid pixel mask:", pgc.getValidMask()));
+
+        sb.append(String.format("%1$-35s \t%2$s\n",
+                                "Crossing 180 degree meridian:",
+                                String.valueOf(pgc.isCrossingMeridianAt180())));
+
+        sb.append("\n");
+        sb.append("Geographic coordinates (lat,lon) are computed from pixel coordinates (x,y)\n" +
+                  "by linear interpolation between pixels.\n");
+
+        sb.append("\n");
+        sb.append("Pixel coordinates (x,y) are computed from geographic coordinates (lat,lon)\n" +
+                  "by a search algorithm.\n");
+        sb.append("\n");
+    }
+
+    private void writeTiePointGeoCoding(TiePointGeoCoding tgc, String nodeType, StringBuffer sb) {
+        sb.append("\n");
+        sb.append("\nThe ").append(nodeType).append(" uses a tie-point based geo-coding.\n");
+        sb.append("\n");
+
+        sb.append(String.format("%1$-35s \t%2$s\n",
+                                "Name of latitude tie-point grid:", tgc.getLatGrid().getName()));
+        sb.append(String.format("%1$-35s \t%2$s\n",
+                                "Name of longitude tie-point grid:", tgc.getLonGrid().getName()));
+
+        sb.append(String.format("%1$-35s \t%2$s\n",
+                                "Crossing 180 degree meridian:",
+                                String.valueOf(tgc.isCrossingMeridianAt180())));
+
+        sb.append("\n");
+        sb.append("Geographic coordinates (lat,lon) are computed from pixel coordinates (x,y)\n" +
+                  "by linear interpolation between tie points.\n");
+
+        final int numApproximations = tgc.getNumApproximations();
+        if (numApproximations > 0) {
+            sb.append("\n");
+            sb.append("Pixel coordinates (x,y) are computed from geographic coordinates (lat,lon)\n" +
+                      "by polynomial approximations for ").append(numApproximations).append(" tile(s).\n");
+            sb.append("\n");
+
+            for (int i = 0; i < numApproximations; i++) {
+
+                final TiePointGeoCoding.Approximation approximation = tgc.getApproximation(i);
+                final FXYSum fX = approximation.getFX();
+                final FXYSum fY = approximation.getFY();
+
+                sb.append(
+                        "=======================================================================================\n");
+                sb.append("Approximation for tile ").append(i + 1).append("\n");
+                sb.append(
+                        "=======================================================================================\n");
+
+                sb.append(String.format("%1$-18s \t%2$s %3$s\n",
+                                        "Center latitude:",
+                                        String.valueOf(approximation.getCenterLat()),
+                                        "degree"));
+
+                sb.append(String.format("%1$-18s \t%2$s %3$s\n",
+                                        "Center longitude:",
+                                        String.valueOf(approximation.getCenterLon()),
+                                        "degree"));
+
+                sb.append(String.format("%1$-18s \t%2$s %3$s\n",
+                                        "RMSE for X:",
+                                        String.valueOf(fX.getRootMeanSquareError()),
+                                        "pixels"));
+
+                sb.append(String.format("%1$-18s \t%2$s %3$s\n",
+                                        "RMSE for Y:",
+                                        String.valueOf(fY.getRootMeanSquareError()),
+                                        "pixels"));
+
+                sb.append(String.format("%1$-18s \t%2$s %3$s\n",
+                                        "Max. error for X:",
+                                        String.valueOf(fX.getMaxError()),
+                                        "pixels"));
+
+                sb.append(String.format("%1$-18s \t%2$s %3$s\n",
+                                        "Max. error for Y:",
+                                        String.valueOf(fY.getMaxError()),
+                                        "pixels"));
+
+                final String xCCode = fX.createCFunctionCode("compute_x", "lat", "lon");
+                if (xCCode != null) {
+                    sb.append("\n");
+                    sb.append(xCCode);
+                    sb.append("\n");
+                }
+
+                final String yCCode = fX.createCFunctionCode("compute_y", "lat", "lon");
+                if (yCCode != null) {
+                    sb.append("\n");
+                    sb.append(yCCode);
+                    sb.append("\n");
+                }
+            }
+        } else {
+            sb.append("\n");
+            sb.append(
+                    "WARNING: Pixel coordinates (x,y) cannot be computed from geographic coordinates (lat,lon)\n" +
+                    "because appropriate polynomial approximations could not be found.\n");
+        }
     }
 
 }
