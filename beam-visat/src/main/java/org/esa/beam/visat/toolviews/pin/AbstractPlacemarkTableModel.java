@@ -122,8 +122,12 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
     @Override
     public int getColumnCount() {
         int count = getStandardColumnNames().length;
-        count += selectedBands.length;
-        count += selectedGrids.length;
+        if (selectedBands != null) {
+            count += selectedBands.length;
+        }
+        if (selectedGrids != null) {
+            count += selectedGrids.length;
+        }
         return count;
     }
 
