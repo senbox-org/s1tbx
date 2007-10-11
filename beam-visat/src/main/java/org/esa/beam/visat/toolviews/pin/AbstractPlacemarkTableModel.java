@@ -283,19 +283,11 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
     }
 
     private void initSelectedBands(Band[] selectedBands) {
-        if (selectedBands == null) {
-            this.selectedBands = new Band[0];
-        } else {
-            this.selectedBands = selectedBands;
-        }
+        this.selectedBands = selectedBands != null ? selectedBands : new Band[0];
     }
 
     private void initSelectedGrids(TiePointGrid[] selectedGrids) {
-        if (selectedGrids == null) {
-            this.selectedGrids = new TiePointGrid[0];
-        } else {
-            this.selectedGrids = selectedGrids;
-        }
+        this.selectedGrids = selectedGrids != null ? selectedGrids : new TiePointGrid[0];
     }
 
     private void initPlacemarkList(Product product) {
