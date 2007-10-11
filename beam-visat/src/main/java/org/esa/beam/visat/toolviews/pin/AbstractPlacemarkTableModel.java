@@ -63,7 +63,7 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         initPlacemarkList(this.product);
         selectedBands = null;
         selectedGrids = null;
-        fireTableDataChanged();
+        fireTableStructureChanged();
     }
 
     public Band[] getSelectedBands() {
@@ -71,7 +71,7 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
     }
 
     public void setSelectedBands(Band[] selectedBands) {
-        this.selectedBands = selectedBands;
+        this.selectedBands = selectedBands != null ? selectedBands : new Band[0];
         fireTableStructureChanged();
     }
 
@@ -80,7 +80,7 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
     }
 
     public void setSelectedGrids(TiePointGrid[] selectedGrids) {
-        this.selectedGrids = selectedGrids;
+        this.selectedGrids = selectedGrids != null ? selectedGrids : new TiePointGrid[0];
         fireTableStructureChanged();
     }
 
@@ -107,6 +107,11 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
     public abstract String[] getStandardColumnNames();
 
     @Override
+    public abstract boolean isCellEditable(int rowIndex, int columnIndex);
+
+    protected abstract Object getStandardColumnValueAt(int rowIndex, int columnIndex);
+
+    @Override
     public int getRowCount() {
         if(placemarkList == null) {
             return 0;
@@ -117,12 +122,8 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
     @Override
     public int getColumnCount() {
         int count = getStandardColumnNames().length;
-        if (selectedBands != null) {
-            count += selectedBands.length;
-        }
-        if (selectedGrids != null) {
-            count += selectedGrids.length;
-        }
+        count += selectedBands.length;
+        count += selectedGrids.length;
         return count;
     }
 
@@ -149,9 +150,6 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         }
         return String.class;
     }
-
-    @Override
-    public abstract boolean isCellEditable(int rowIndex, int columnIndex);
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
@@ -190,7 +188,7 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
                     }
                 }
                 index -= getNumSelectedBands();
-                if (selectedGrids != null && index < selectedGrids.length) {
+                if (index < selectedGrids.length) {
                     final TiePointGrid grid = selectedGrids[index];
                     float[] value = null;
                     try {
@@ -205,8 +203,6 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
 
         return "";
     }
-
-    protected abstract Object getStandardColumnValueAt(int rowIndex, int columnIndex);
 
     @Override
     public void setValueAt(Object value, int rowIndex, int columnIndex) {
@@ -281,6 +277,8 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         if (product != null) {
             product.removeProductNodeListener(placemarkListener);
         }
+        selectedBands = null;
+        selectedGrids = null;
         placemarkList.clear();
     }
 
@@ -311,7 +309,7 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         return selectedBands != null ? selectedBands.length : 0;
     }
 
-    protected class PlacemarkListener extends ProductNodeListenerAdapter {
+    private class PlacemarkListener extends ProductNodeListenerAdapter {
 
         @Override
         public void nodeChanged(ProductNodeEvent event) {
