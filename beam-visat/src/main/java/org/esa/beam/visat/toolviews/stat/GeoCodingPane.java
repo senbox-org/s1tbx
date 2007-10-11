@@ -153,7 +153,7 @@ class GeoCodingPane extends TextPagePane {
 
     private void writeGcpGeoCoding(GcpGeoCoding gcpGeoCoding, String nodeType, StringBuffer sb) {
         sb.append("\n");
-        sb.append("\nThe ").append(nodeType).append(" uses a geo-coding which is based on ground control points.\n");
+        sb.append("\nThe ").append(nodeType).append(" uses a geo-coding which is based on ground control points (GCPs).\n");
         sb.append("\n");
 
         ProductNodeGroup<Pin> gcpGroup = getProduct().getGcpGroup();
