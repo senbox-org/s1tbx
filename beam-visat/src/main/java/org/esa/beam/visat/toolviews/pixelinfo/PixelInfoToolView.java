@@ -55,7 +55,7 @@ public class PixelInfoToolView extends AbstractToolView {
             public void actionPerformed(ActionEvent e) {
                 if (_pinCheckbox.isSelected()) {
                     _currentView = VisatApp.getApp().getSelectedProductSceneView();
-                    setToSelectedPin();
+                    setToSelectedPin(_currentView);
                 }
             }
         });
@@ -109,7 +109,7 @@ public class PixelInfoToolView extends AbstractToolView {
         final Product product = productSceneView.getProduct();
         product.addProductNodeListener(getOrCreatePinSelectionChangedListener());
         if (isSnapToPin()) {
-            setToSelectedPin();
+            setToSelectedPin(productSceneView);
         }
         if(productSceneView == VisatApp.getApp().getSelectedProductSceneView()){
             _currentView = productSceneView;
@@ -152,17 +152,17 @@ public class PixelInfoToolView extends AbstractToolView {
         return _pinCheckbox.isSelected();
     }
 
-    private void setToSelectedPin() {
-        if (_currentView != null) {
-            final Product product = _currentView.getProduct();
+    private void setToSelectedPin(ProductSceneView sceneView) {
+        if (sceneView != null) {
+            final Product product = sceneView.getProduct();
             final Pin pin = product.getPinGroup().getSelectedNode();
             if (pin == null) {
-                _pixelInfoView.updatePixelValues(_currentView, -1, -1, false);
+                _pixelInfoView.updatePixelValues(sceneView, -1, -1, false);
             } else {
                 final PixelPos pos = pin.getPixelPos();
                 final int x = MathUtils.floorInt(pos.x);
                 final int y = MathUtils.floorInt(pos.y);
-                _pixelInfoView.updatePixelValues(_currentView, x, y, true);
+                _pixelInfoView.updatePixelValues(sceneView, x, y, true);
             }
         }
     }
@@ -201,7 +201,7 @@ public class PixelInfoToolView extends AbstractToolView {
                 final Product product = _currentView.getProduct();
                 product.addProductNodeListener(getOrCreatePinSelectionChangedListener());
                 if (isSnapToPin()) {
-                    setToSelectedPin();
+                    setToSelectedPin(_currentView);
                 }
             }
         }
@@ -286,7 +286,7 @@ public class PixelInfoToolView extends AbstractToolView {
             if (isExecute()) {
                 ProductNode sourceNode = event.getSourceNode();
                 if (sourceNode instanceof Pin && sourceNode.isSelected()) {
-                    setToSelectedPin();
+                    setToSelectedPin(_currentView);
                 }
             }
         }
@@ -294,7 +294,7 @@ public class PixelInfoToolView extends AbstractToolView {
         private void updatePin(ProductNodeEvent event) {
             final ProductNode sourceNode = event.getSourceNode();
             if (sourceNode instanceof Pin && sourceNode.isSelected()) {
-                setToSelectedPin();
+                setToSelectedPin(_currentView);
             }
         }
 
