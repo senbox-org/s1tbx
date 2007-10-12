@@ -114,8 +114,6 @@ class PlacemarkManagerToolView extends AbstractToolView {
     private AbstractButton removeButton;
     private AbstractButton importButton;
     private AbstractButton exportButton;
-    private AbstractButton importNButton;
-    private AbstractButton exportNButton;
 
     private Product product;
     private SortableTable placemarkTable;
@@ -123,8 +121,6 @@ class PlacemarkManagerToolView extends AbstractToolView {
     private AbstractButton filterButton;
     private AbstractButton exportTableButton;
     private AbstractButton zoomToPlacemarkButton;
-    private BeamFileFilter pinXMLFileFilter;
-    private BeamFileFilter pinFlatFileFilter;
     private BeamFileFilter pinPlacemarkFileFilter;
     private BeamFileFilter pinTextFileFilter;
     private Band[] selectedBands;
@@ -216,11 +212,11 @@ class PlacemarkManagerToolView extends AbstractToolView {
 
         importButton = createButton("icons/Import24.gif");
         importButton.setName("importButton");
-        importButton.setToolTipText("Import the first " + placemarkLabel + " from XML or text file."); /*I18N*/
+        importButton.setToolTipText("Import all " + placemarkLabel + "s from XML or text file."); /*I18N*/
         importButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-                importPlacemarks(false);
+                importPlacemarks(true);
                 updateUIState();
             }
         });
@@ -233,31 +229,6 @@ class PlacemarkManagerToolView extends AbstractToolView {
             public void actionPerformed(ActionEvent e) {
                 exportSelectedPlacemarks();
                 updateUIState();
-            }
-        });
-
-        importNButton = createButton("icons/ImportN24.gif");
-        importNButton.setName("importNButton");
-        importNButton.setToolTipText("Import all " + placemarkLabel + "s from XML or text file."); /*I18N*/
-        importNButton.addActionListener(new ActionListener() {
-
-            public void actionPerformed(ActionEvent e) {
-                importPlacemarks(true);
-                updateUIState();
-            }
-        });
-
-        exportNButton = createButton("icons/ExportN24.gif");
-        exportNButton.setName("exportNButton");
-        exportNButton.setToolTipText("Export all " + placemarkLabel + "s to XML file."); /*I18N*/
-        exportNButton.addActionListener(new ActionListener() {
-
-            public void actionPerformed(ActionEvent e) {
-                if (product != null && getPlacemarkGroup().getNodeCount() > 0) {
-                    ProductNodeGroup<Pin> pinGroup = getPlacemarkGroup();
-                    Pin[] exportPins = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
-                    exportPlacemarks(exportPins);
-                }
             }
         });
 
@@ -325,9 +296,6 @@ class PlacemarkManagerToolView extends AbstractToolView {
         gbc.gridy++;
         buttonPane.add(importButton, gbc);
         buttonPane.add(exportButton, gbc);
-        gbc.gridy++;
-        buttonPane.add(importNButton, gbc);
-        buttonPane.add(exportNButton, gbc);
         gbc.gridy++;
         buttonPane.add(filterButton, gbc);
         buttonPane.add(exportTableButton, gbc);
@@ -595,7 +563,6 @@ class PlacemarkManagerToolView extends AbstractToolView {
 
     protected void updateUIState() {
         boolean productSelected = product != null;
-        boolean hasPins = productSelected && getPlacemarkGroup().getNodeCount() > 0;
         int numSelectedPins = 0;
         if (productSelected) {
             updatePlacemarkTable();
@@ -616,8 +583,6 @@ class PlacemarkManagerToolView extends AbstractToolView {
         zoomToPlacemarkButton.setEnabled(hasActivePin);
         importButton.setEnabled(productSelected);
         exportButton.setEnabled(hasSelectedPins);
-        importNButton.setEnabled(productSelected);
-        exportNButton.setEnabled(hasPins);
         exportTableButton.setEnabled(hasSelectedPins);
         filterButton.setEnabled(productSelected);
     }
@@ -762,11 +727,6 @@ class PlacemarkManagerToolView extends AbstractToolView {
     }
 
     private void exportSelectedPlacemarks() {
-        Collection<Pin> selectedPlacemarks = getPlacemarkGroup().getSelectedNodes();
-        exportPlacemarks(selectedPlacemarks.toArray(new Pin[selectedPlacemarks.size()]));
-    }
-
-    private void exportPlacemarks(Pin[] placemarks) {
         final BeamFileChooser fileChooser = new BeamFileChooser();
         String roleLabel = firstLetterUp(placemarkDescriptor.getRoleLabel());
         fileChooser.setDialogTitle("Export " + roleLabel + "s");   /*I18N*/
@@ -791,10 +751,10 @@ class PlacemarkManagerToolView extends AbstractToolView {
                 Writer writer = null;
                 try {
                     if (beamFileFilter.getFormatName().equals(getPlacemarkFileFilter().getFormatName())) {
-                        writePlacemarksFile(placemarks, file);
+                        writePlacemarksFile(file);
                     } else {
                         writer = new FileWriter(file);
-                        writePlacemarkDataTableText(writer, placemarks);
+                        writePlacemarkDataTableText(writer);
                         writer.close();
                     }
                 } catch (IOException e) {
@@ -837,8 +797,7 @@ class PlacemarkManagerToolView extends AbstractToolView {
                 file = FileUtils.ensureExtension(file, FILE_EXTENSION_FLAT_TEXT);
                 try {
                     final Writer writer = new FileWriter(file);
-                    final Collection<Pin> placemarkCollection = getPlacemarkGroup().getSelectedNodes();
-                    writePlacemarkDataTableText(writer, placemarkCollection.toArray(new Pin[0]));
+                    writePlacemarkDataTableText(writer);
                     writer.close();
                 } catch (IOException e) {
                     showErrorDialog("I/O Error.\nFailed to export " + roleLabel + " data table."); /*I18N*/
@@ -847,7 +806,7 @@ class PlacemarkManagerToolView extends AbstractToolView {
         }
     }
 
-    private void writePlacemarkDataTableText(final Writer writer, Pin[] placemarks) {
+    private void writePlacemarkDataTableText(final Writer writer) {
         final PrintWriter pw = new PrintWriter(writer);
 
         final int columnCountMin = currentTableModel.getStandardColumnNames().length;
@@ -867,35 +826,39 @@ class PlacemarkManagerToolView extends AbstractToolView {
         }
         pw.print(DESC_COL_NAME + "\t");
         for (int i = columnCountMin; i < columnCount; i++) {
-            pw.print(placemarkTable.getColumnName(i) + "\t");
+            pw.print(currentTableModel.getColumnName(i) + "\t");
         }
         pw.println();
 
-        for (int i = 0; i < placemarks.length; i++) {
-            Pin placemark = placemarks[i];
-            pw.print(placemark.getName() + "\t");
-            for (int col = 0; col < columnCountMin; col++) {
-                final Object value = placemarkTable.getValueAt(placemarkTable.getSortedRowAt(i), col);
-                pw.print(value.toString() + "\t");
+        for (int sortedRow = 0; sortedRow < placemarkTable.getRowCount(); ++sortedRow) {
+            if (placemarkTable.getSelectionModel().isSelectedIndex(sortedRow)) {
+                final int modelRow = placemarkTable.getActualRowAt(sortedRow);
+                final Pin placemark = currentTableModel.getPlacemarkAt(modelRow);
+
+                pw.print(placemark.getName() + "\t");
+                for (int col = 0; col < columnCountMin; col++) {
+
+                    final Object value = currentTableModel.getValueAt(modelRow, col);
+                    pw.print(value.toString() + "\t");
+                }
+                pw.print(placemark.getDescription() + "\t");
+                for (int col = columnCountMin; col < columnCount; col++) {
+                    final Object value = currentTableModel.getValueAt(modelRow, col);
+                    pw.print(value.toString() + "\t");
+                }
+                pw.println();
             }
-            pw.print(placemark.getDescription() + "\t");
-            for (int col = columnCountMin; col < columnCount; col++) {
-                final Object value = placemarkTable.getValueAt(placemarkTable.getSortedRowAt(i), col);
-                pw.print(value.toString() + "\t");
-            }
-            pw.println();
         }
         pw.close();
     }
 
-    private static void writePlacemarksFile(Pin[] pins, File outputFile) throws IOException {
-        assert pins != null;
+    private void writePlacemarksFile(File outputFile) throws IOException {
         assert outputFile != null;
 
         XmlWriter writer = new XmlWriter(outputFile);
         final String[] tags = XmlWriter.createTags(0, "Placemarks");
         writer.println(tags[0]);
-        for (Pin pin : pins) {
+        for (Pin pin : getPlacemarkGroup().getSelectedNodes()) {
             if (pin != null) {
                 pin.writeXML(writer, 1);
             }
@@ -1193,9 +1156,8 @@ class PlacemarkManagerToolView extends AbstractToolView {
 
         private void action(MouseEvent e) {
             if (e.isPopupTrigger()) {
-                final Collection<Pin> placemarkCollection = getPlacemarkGroup().getSelectedNodes();
 
-                if (!placemarkCollection.isEmpty()) {
+                if (!getPlacemarkGroup().getSelectedNodes().isEmpty()) {
                     final JPopupMenu popupMenu = new JPopupMenu();
                     final JMenuItem menuItem;
                     menuItem = new JMenuItem("Copy selected data to clipboard");
@@ -1203,7 +1165,7 @@ class PlacemarkManagerToolView extends AbstractToolView {
 
                         public void actionPerformed(ActionEvent actionEvent) {
                             final StringWriter stringWriter = new StringWriter();
-                            writePlacemarkDataTableText(stringWriter, placemarkCollection.toArray(new Pin[0]));
+                            writePlacemarkDataTableText(stringWriter);
                             String text = stringWriter.toString();
                             text = text.replaceAll("\r\n", "\n");
                             text = text.replaceAll("\r", "\n");
@@ -1305,7 +1267,7 @@ class PlacemarkManagerToolView extends AbstractToolView {
                 if (value instanceof Float && !Float.isNaN((Float) value)) {
                     label.setText(format.format(value));
                 } else {
-                    label.setText("n.a.");
+                    label.setText("n/a");
                 }
             }
             return comp;

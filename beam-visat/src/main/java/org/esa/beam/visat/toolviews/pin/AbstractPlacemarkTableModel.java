@@ -39,6 +39,10 @@ abstract class AbstractPlacemarkTableModel extends DefaultTableModel {
         return placemarkList.toArray(new Pin[placemarkList.size()]);
     }
 
+    public Pin getPlacemarkAt(int i) {
+        return placemarkList.get(i);
+    }
+    
     public PlacemarkDescriptor getPlacemarkDescriptor() {
         return placemarkDescriptor;
     }

@@ -59,8 +59,8 @@ public class GcpTableModel extends AbstractPlacemarkTableModel {
         if (geoCoding instanceof GcpGeoCoding && pixelPos != null) {
             final GeoPos expectedGeoPos = geoCoding.getGeoPos(pixelPos, new GeoPos());
             if (expectedGeoPos != null) {
-                dLon = lon - expectedGeoPos.lon;
-                dLat = lat - expectedGeoPos.lat;
+                dLon = Math.abs(lon - expectedGeoPos.lon);
+                dLat = Math.abs(lat - expectedGeoPos.lat);
             }
         }
 
