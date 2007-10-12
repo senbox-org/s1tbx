@@ -150,7 +150,7 @@ public class DropoutCorrection {
                         int targetOffset,
                         int targetStride) {
         Assert.argument(sourceRciData.length == sourceMaskData.length);
-        Assert.argument(targetRciData.length == targetMaskData.length);
+//        Assert.argument(targetRciData.length == targetMaskData.length); // JAI buffers do not have the same length!!
         Assert.argument(sourceRectangle.contains(targetRectangle));
 
         final double[] w = new double[weights.length];
