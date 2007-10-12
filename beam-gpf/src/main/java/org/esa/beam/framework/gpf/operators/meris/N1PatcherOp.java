@@ -218,10 +218,11 @@ public class N1PatcherOp extends Operator {
         }
 
         ProgressMonitor pm = createProgressMonitor();
-        pm.beginTask("Patching product...", rectangle.height + 1);
+        pm.beginTask("Patching product...", rectangle.height);
         try {
             Tile srcTile = getSourceTile(band, rectangle);
-
+            short[] data = (short[]) srcTile.getRawSampleData().getElems();
+            
             byte[] buf = new byte[rectangle.height * descriptor.dsrSize];
             final long dsrOffset = descriptor.dsOffset + rectangle.y * descriptor.dsrSize;
             inputStream.seek(dsrOffset);
@@ -229,9 +230,11 @@ public class N1PatcherOp extends Operator {
             outputStream.seek(dsrOffset);
             for (int y = 0; y < rectangle.height; y++) {
                 outputStream.write(buf, y * descriptor.dsrSize, DSR_HEADER_SIZE);
+                outputStream.skipBytes((targetProduct.getSceneRasterWidth() - rectangle.width - rectangle.x)*2);
                 for (int x = rectangle.width - 1; x >= 0; x--) {
-                    outputStream.writeShort(srcTile.getSampleInt(x, y));
+                    outputStream.writeShort(data[x+y*rectangle.width]);
                 }
+                outputStream.skipBytes((rectangle.x)*2);
                 pm.worked(1);
             }
         } catch (IOException e) {
