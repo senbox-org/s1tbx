@@ -30,6 +30,9 @@
     <dependency>
         <module>ceres-ui</module>
     </dependency>
+    <dependency>
+        <module>ceres-binding</module>
+    </dependency>
 
     <categories>System,Library</categories>
 
