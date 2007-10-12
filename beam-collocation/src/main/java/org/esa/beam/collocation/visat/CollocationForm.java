@@ -4,6 +4,8 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.framework.ui.io.SourceProductSelector;
+import org.esa.beam.framework.ui.io.TargetProductSelector;
+import org.esa.beam.framework.ui.io.TargetProductSelectorModel;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
