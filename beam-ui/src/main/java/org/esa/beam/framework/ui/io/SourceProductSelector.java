@@ -28,14 +28,13 @@ public class SourceProductSelector {
     private Product chooserProduct;
     private String labelText;
     private DefaultComboBoxModel productListModel;
-    private Action chooserAction;
     private JLabel productLabel;
     private JButton chooserButton;
     private JComboBox productComboBox;
 
 
-    public SourceProductSelector(Product[] defaultProducts, String labelText) {
-        this(defaultProducts, labelText, ".*");
+    public SourceProductSelector(Product[] products, String productLabelText) {
+        this(products, productLabelText, ".*");
     }
 
     public SourceProductSelector(Product[] products, String productLabelText, String productTypePattern) {
@@ -55,9 +54,8 @@ public class SourceProductSelector {
         }
         productListModel.setSelectedItem(null);
 
-        chooserAction = new ChooserAction();
         productLabel = new JLabel(labelText);
-        chooserButton = new JButton(chooserAction);
+        chooserButton = new JButton(new ChooserAction());
         productComboBox = new JComboBox(productListModel);
         productComboBox.setPrototypeDisplayValue("[1] 123456789 123456789 12345");
         productComboBox.setRenderer(new ProductListCellRenderer());
@@ -169,7 +167,7 @@ public class SourceProductSelector {
 
         private ChooserAction(JFileChooser fileChooser, ErrorHandler errorHandler) {
             super("...");
-            this.chooser = fileChooser;
+            chooser = fileChooser;
             this.errorHandler = errorHandler;
         }
 
