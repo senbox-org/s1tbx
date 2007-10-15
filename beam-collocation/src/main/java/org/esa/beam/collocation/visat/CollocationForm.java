@@ -54,6 +54,7 @@ public class CollocationForm extends JPanel {
         layout1.setTablePadding(3, 3);
 
         final JPanel inputPanel = new JPanel(layout1);
+        // todo - why specify all these parameters? The title shoud be enough (MP - 15.10.2007)
         inputPanel.setBorder(BorderFactory.createTitledBorder(null, "Input",
                                                               TitledBorder.DEFAULT_JUSTIFICATION,
                                                               TitledBorder.DEFAULT_POSITION,
@@ -71,6 +72,7 @@ public class CollocationForm extends JPanel {
         inputPanel.add(slaveSelector.getButton());
 
         final JPanel outputPanel = new JPanel(new BorderLayout());
+        // todo - why specify all these parameters? The title shoud be enough (MP - 15.10.2007)
         outputPanel.setBorder(BorderFactory.createTitledBorder(null, "Output",
                                                                TitledBorder.DEFAULT_JUSTIFICATION,
                                                                TitledBorder.DEFAULT_POSITION,
