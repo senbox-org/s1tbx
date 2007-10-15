@@ -1,6 +1,7 @@
 package com.bc.ceres.core.runtime.internal;
 
 import junit.framework.TestCase;
+import com.bc.ceres.core.runtime.Version;
 
 
 public class VersionTest extends TestCase {

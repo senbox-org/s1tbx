@@ -1,11 +1,7 @@
 package com.bc.ceres.core.runtime.internal;
 
 import com.bc.ceres.core.Assert;
-import com.bc.ceres.core.runtime.Dependency;
-import com.bc.ceres.core.runtime.Extension;
-import com.bc.ceres.core.runtime.ExtensionPoint;
-import com.bc.ceres.core.runtime.Module;
-import com.bc.ceres.core.runtime.ModuleState;
+import com.bc.ceres.core.runtime.*;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -352,10 +348,10 @@ public class ModuleResolver {
 
     private static ModuleImpl findLatestModuleVersion(ModuleImpl[] modules) {
         ModuleImpl latestModule = modules[0];
-        Version latestVersion = Version.parseVersion(latestModule.getVersion());
+        Version latestVersion = latestModule.getVersion();
         for (int i = 1; i < modules.length; i++) {
             ModuleImpl module = modules[i];
-            Version version = Version.parseVersion(module.getVersion());
+            Version version = module.getVersion();
             if (version.compareTo(latestVersion) > 0) {
                 latestModule = module;
                 latestVersion = version;
@@ -367,7 +363,7 @@ public class ModuleResolver {
     private static Version[] getVersions(Module[] modules) {
         Version[] versions = new Version[modules.length];
         for (int i = 0; i < modules.length; i++) {
-            versions[i] = Version.parseVersion(modules[i].getVersion());
+            versions[i] = modules[i].getVersion();
         }
         return versions;
     }
@@ -383,7 +379,7 @@ public class ModuleResolver {
         }
 
         ModuleImpl bestModule = findLatestModuleVersion(modules);
-        Version bestVersion = Version.parseVersion(bestModule.getVersion());
+        Version bestVersion = bestModule.getVersion();
         for (int i = 0; i < modules.length; i++) {
             ModuleImpl module = modules[i];
             Version version = versions[i];

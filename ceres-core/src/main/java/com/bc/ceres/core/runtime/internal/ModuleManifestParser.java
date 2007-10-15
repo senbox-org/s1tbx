@@ -3,11 +3,9 @@ package com.bc.ceres.core.runtime.internal;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.runtime.ModuleState;
+import com.bc.ceres.core.runtime.Version;
 import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.ConversionException;
-import com.thoughtworks.xstream.converters.Converter;
-import com.thoughtworks.xstream.converters.MarshallingContext;
-import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.converters.*;
 import com.thoughtworks.xstream.core.BaseException;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
@@ -95,13 +93,7 @@ public class ModuleManifestParser {
             throw new CoreException("Empty module identifier");
         }
         if (module.getVersion() == null) {
-            module.setVersion("1.0");
-        }
-        if (module.getVersion().length() == 0) {
-            throw new CoreException("Empty version");
-        }
-        if (!Character.isDigit(module.getVersion().charAt(0))) {
-            throw new CoreException("Invalid version");
+            module.setVersion(Version.parseVersion("1.0"));
         }
         if (module.getCategoriesString() != null) {
             module.setCategories(toArray(module.getCategoriesString()));
@@ -146,7 +138,7 @@ public class ModuleManifestParser {
         }
     }
 
-    /**
+    /*
      * Replace all sequenced whitespace characters with a single whitespace character.
      */
     private static String trim(String value) {
@@ -172,6 +164,7 @@ public class ModuleManifestParser {
         xstream.omitField(ModuleImpl.class, "declaredLibs");
         xstream.omitField(ModuleImpl.class, "impliciteLibs");
         xstream.omitField(ModuleImpl.class, "impliciteNativeLibs");
+        xstream.registerConverter(new VersionConverter());
 
         // Dependency
         xstream.alias("dependency", DependencyImpl.class);
@@ -222,7 +215,7 @@ public class ModuleManifestParser {
     }
 
     private CoreException toCoreException(BaseException e) {
-        return new CoreException("Failed to parse module manifest", e);
+        return new CoreException("Failed to parse module manifest: " + e.getMessage(), e);
     }
 
     private static class ExtensionConverter implements Converter {
@@ -252,6 +245,27 @@ public class ModuleManifestParser {
         }
     }
 
+    private static class VersionConverter implements SingleValueConverter {
+
+        public boolean canConvert(Class aClass) {
+            return Version.class.equals(aClass);
+        }
+
+        public Object fromString(String string) {
+            if (string.length() == 0) {
+                throw new ConversionException("empty version string");
+            }
+            if (!Character.isDigit(string.charAt(0))) {
+                throw new ConversionException("invalid version string");
+            }
+            return Version.parseVersion(string);
+        }
+
+        public String toString(Object object) {
+            return object.toString();
+        }
+    }
+
     private static class ExtensionPointConverter implements Converter {
 
         public boolean canConvert(Class aClass) {
@@ -276,42 +290,4 @@ public class ModuleManifestParser {
             return new ExtensionPointImpl(id, new ConfigurationShemaElementImpl(null, dom));
         }
     }
-
-//    public static interface Verifier {
-//
-//        void verify(String name, String value) throws CoreException;
-//    }
-//
-//    public static class NoVerifier implements Verifier {
-//
-//        public void verify(String name, String value) {
-//        }
-//    }
-//
-//    public static class NonNullNotEmptyVerifier implements Verifier {
-//
-//        public void verify(String name, String value) throws CoreException {
-//            if (value == null || value.length() == 0) {
-//                throw new CoreException(String.format("missing value for element [%s]", name));
-//            }
-//        }
-//    }
-//
-//    public static class CompositeVerifier implements Verifier {
-//
-//        Verifier verifier1;
-//        Verifier verifier2;
-//
-//        public CompositeVerifier(Verifier verifier1, Verifier verifier2) {
-//            this.verifier1 = verifier1;
-//            this.verifier2 = verifier2;
-//        }
-//
-//        public void verify(String name, String value) throws CoreException {
-//            verifier1.verify(name, value);
-//            verifier2.verify(name, value);
-//        }
-//    }
-//
-
 }

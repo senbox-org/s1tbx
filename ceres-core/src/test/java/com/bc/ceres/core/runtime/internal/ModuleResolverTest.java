@@ -2,6 +2,7 @@ package com.bc.ceres.core.runtime.internal;
 
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.runtime.ModuleState;
+import com.bc.ceres.core.runtime.Version;
 import junit.framework.TestCase;
 
 import java.io.IOException;
@@ -271,7 +272,7 @@ public class ModuleResolverTest extends TestCase {
         assertEquals(moduleDependyCount, dependencies.length);
         if (moduleDependyCount == 1) {
             assertEquals(declaredModuleName, dependencies[0].getSymbolicName());
-            assertEquals(actualVersion, dependencies[0].getVersion());
+            assertEquals(Version.parseVersion(actualVersion), dependencies[0].getVersion());
         }
     }
 

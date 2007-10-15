@@ -2,6 +2,7 @@ package com.bc.ceres.core.runtime;
 
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.runtime.Version;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,7 +34,7 @@ public interface Module {
     /**
      * @return The module's version.
      */
-    String getVersion();
+    Version getVersion();
 
     /**
      * @return The current state of this module.

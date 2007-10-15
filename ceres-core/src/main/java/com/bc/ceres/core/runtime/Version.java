@@ -1,4 +1,4 @@
-package com.bc.ceres.core.runtime.internal;
+package com.bc.ceres.core.runtime;
 
 import com.bc.ceres.core.Assert;
 

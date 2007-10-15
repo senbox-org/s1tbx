@@ -4,6 +4,7 @@ import com.bc.ceres.core.runtime.ModuleState;
 import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.core.runtime.internal.ModuleImpl;
 import com.bc.ceres.core.runtime.internal.ModuleManifestParser;
+import com.bc.ceres.core.runtime.Version;
 import com.bc.ceres.core.CoreException;
 import junit.framework.Assert;
 
@@ -29,7 +30,7 @@ public class TestHelpers {
             e.printStackTrace();
             Assert.fail(resource + ": " + e.getMessage());
         }
-        module.setVersion(version);
+        module.setVersion(Version.parseVersion(version));
         module.setState(state);
         return module;
     }

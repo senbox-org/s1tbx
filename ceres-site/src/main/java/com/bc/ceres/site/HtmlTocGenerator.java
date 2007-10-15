@@ -50,7 +50,7 @@ public class HtmlTocGenerator implements HtmlGenerator {
             output(out, "name", module.getName(), "#" + module.getName().replace(' ', '_'));
             output(out, "symbolicName", module.getSymbolicName(), null);
             output(out, "vendor", module.getVendor(), null);
-            output(out, "version", module.getVersion(), null);
+            output(out, "version", module.getVersion().toString(), null);
             output(out, "lastModified", getDateText(module.getLastModified()), null);
 
             out.println("  </tr>");

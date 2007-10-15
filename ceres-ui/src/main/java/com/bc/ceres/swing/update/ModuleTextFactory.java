@@ -72,12 +72,12 @@ class ModuleTextFactory {
     }
 
     static String getVersionText(Module module) {
-        return getText(module.getVersion());
+        return getText(module.getVersion().toString());
     }
 
     static String getUpdateVersionText(ModuleItem moduleItem) {
         Module repositoryModule = moduleItem.getRepositoryModule();
-        return getText(repositoryModule != null ? repositoryModule.getVersion() : null);
+        return getText(repositoryModule != null ? repositoryModule.getVersion().toString() : null);
     }
 
     static String getDateText(ModuleItem moduleItem) {

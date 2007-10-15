@@ -7,8 +7,8 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.core.runtime.Dependency;
 import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.core.runtime.ModuleState;
+import com.bc.ceres.core.runtime.Version;
 import com.bc.ceres.core.runtime.internal.ModuleImpl;
-import com.bc.ceres.core.runtime.internal.Version;
 import com.bc.ceres.swing.SwingHelper;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 
@@ -743,8 +743,7 @@ public class ModuleManagerPane extends JPanel {
         return null;
     }
 
-    private static boolean versionMatches(String version, Version requiredVersion) {
-        Version availableVersion = Version.parseVersion(version);
+    private static boolean versionMatches(Version availableVersion, Version requiredVersion) {
         return availableVersion.getMajor() == requiredVersion.getMajor()
                 && availableVersion.getMinor() >= requiredVersion.getMinor();
     }

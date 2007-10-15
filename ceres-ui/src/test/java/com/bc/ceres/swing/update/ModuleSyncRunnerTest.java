@@ -2,6 +2,7 @@ package com.bc.ceres.swing.update;
 
 import com.bc.ceres.core.runtime.ModuleState;
 import com.bc.ceres.core.runtime.Module;
+import com.bc.ceres.core.runtime.Version;
 import com.bc.ceres.core.CoreException;
 import junit.framework.TestCase;
 
@@ -196,7 +197,7 @@ public class ModuleSyncRunnerTest extends TestCase {
     private void testModule(ModuleItem moduleItem, String expectedId, String expectedVersion,
                             ModuleState expectedStatus, Module expectedUpdate) {
         assertEquals(expectedId, moduleItem.getModule().getSymbolicName());
-        assertEquals(expectedVersion, moduleItem.getModule().getVersion());
+        assertEquals(Version.parseVersion(expectedVersion), moduleItem.getModule().getVersion());
         assertEquals(expectedStatus, moduleItem.getModule().getState());
         assertSame(expectedUpdate, moduleItem.getRepositoryModule());
     }

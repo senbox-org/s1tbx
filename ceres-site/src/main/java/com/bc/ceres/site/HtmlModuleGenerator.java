@@ -46,7 +46,7 @@ public class HtmlModuleGenerator implements HtmlGenerator {
             output(out, "licenseUrl", module.getLicenseUrl(), module.getLicenseUrl());
             output(out, "manifestVersion", module.getManifestVersion(), null);
             output(out, "packaging", module.getPackaging(), null);
-            output(out, "version", module.getVersion(), null);
+            output(out, "version", module.getVersion().toString(), null);
             output(out, "contentLength", getSizeText(module.getContentLength()), null);
             output(out, "lastModified", getDateText(module.getLastModified()), null);
 

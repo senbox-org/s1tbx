@@ -2,10 +2,9 @@ package com.bc.ceres.swing.update;
 
 import com.bc.ceres.core.runtime.ModuleState;
 import com.bc.ceres.core.runtime.Module;
-import com.bc.ceres.core.runtime.internal.Version;
+import com.bc.ceres.core.runtime.Version;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 
 class ModuleSyncRunner {
@@ -22,15 +21,14 @@ class ModuleSyncRunner {
         for (Module repositoryModule : repositoryModules) {
             ModuleItem installedItem = imap.get(repositoryModule.getSymbolicName());
             if (installedItem != null) {
-                Version installedVersion = Version.parseVersion(installedItem.getModule().getVersion());
-                Version availableVersion = Version.parseVersion(repositoryModule.getVersion());
+                Version installedVersion = installedItem.getModule().getVersion();
+                Version availableVersion = repositoryModule.getVersion();
                 if (installedItem.getModule().getState().isOneOf(ModuleState.ACTIVE,
                                                                  ModuleState.INSTALLED,
                                                                  ModuleState.RESOLVED)) {
                     if (availableVersion.compareTo(installedVersion) > 0) {
                         if (installedItem.getRepositoryModule() != null) {
-                            Version updateVersion = Version.parseVersion(
-                                    installedItem.getRepositoryModule().getVersion());
+                            Version updateVersion = installedItem.getRepositoryModule().getVersion();
                             if (availableVersion.compareTo(updateVersion) > 0) {
                                 installedItem.setRepositoryModule(repositoryModule);
                             }

@@ -2,13 +2,7 @@ package com.bc.ceres.core.runtime.internal;
 
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.runtime.Activator;
-import com.bc.ceres.core.runtime.Dependency;
-import com.bc.ceres.core.runtime.Extension;
-import com.bc.ceres.core.runtime.ExtensionPoint;
-import com.bc.ceres.core.runtime.Module;
-import com.bc.ceres.core.runtime.ModuleContext;
-import com.bc.ceres.core.runtime.ModuleState;
+import com.bc.ceres.core.runtime.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +23,7 @@ public class ModuleImpl implements Module {
     private String manifestVersion;
     private String symbolicName;
     private String name;
-    private String version;
+    private Version version;
     private String description;
     private String packaging;
     private String activatorClassName;
@@ -89,7 +83,7 @@ public class ModuleImpl implements Module {
         return symbolicName;
     }
 
-    public String getVersion() {
+    public Version getVersion() {
         return version;
     }
 
@@ -276,7 +270,7 @@ public class ModuleImpl implements Module {
     }
 
     /*internal*/
-    public void setVersion(String version) {
+    public void setVersion(Version version) {
         this.version = version;
     }
 
