@@ -22,7 +22,6 @@ import com.bc.ceres.core.ServiceRegistryListener;
 import org.esa.beam.BeamCoreActivator;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
-import org.esa.beam.framework.gpf.annotations.OperatorAlias;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -84,7 +83,7 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
      * either the fully qualified class name of the {@link OperatorSpi}
      * or an alias name.
      *
-     * @param operatorName a name identifying the operator SPI.
+     * @param operatorName A name identifying the operator SPI.
      * @return the operator SPI, or <code>null</code>
      */
     public OperatorSpi getOperatorSpi(String operatorName) {
@@ -132,21 +131,12 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
      * @param spiClassName the name of the SPI class
      */
     public void setAlias(String aliasName, String spiClassName) {
-        // System.out.println("OperatorSpiRegistry.registerAlias: " + spiName + " = " + spiClassName);
         aliases.put(aliasName, spiClassName);
     }
 
     private void setAliases(OperatorSpi operatorSpi) {
         Class<? extends OperatorSpi> spiClass = operatorSpi.getClass();
-        String spiClassName = spiClass.getName();
-        String spiName = operatorSpi.getName();
-        if (spiName != null) {
-            setAlias(spiName, spiClassName);
-        }
-        OperatorAlias operatorAliasAnnotation = spiClass.getAnnotation(OperatorAlias.class);
-        if (operatorAliasAnnotation != null) {
-            setAlias(operatorAliasAnnotation.value(), spiClassName);
-        }
+        setAlias(operatorSpi.getAliasName(), spiClass.getName());
     }
 
     private void unregisterAliases(OperatorSpi operatorSpi) {

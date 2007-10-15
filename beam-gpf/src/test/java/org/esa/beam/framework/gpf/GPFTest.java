@@ -5,6 +5,7 @@ import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
@@ -60,6 +61,7 @@ public class GPFTest extends TestCase {
         }
     }
 
+    @OperatorMetadata(alias = "Foo")
     public static class FooOp extends Operator {
         @TargetProduct
         Product targetProduct;
@@ -100,7 +102,7 @@ public class GPFTest extends TestCase {
 
     public static class FooOpSpi extends OperatorSpi {
         public FooOpSpi() {
-            super(FooOp.class, "Foo");
+            super(FooOp.class);
         }
     }
 }

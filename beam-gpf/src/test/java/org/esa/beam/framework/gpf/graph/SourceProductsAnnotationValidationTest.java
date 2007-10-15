@@ -43,9 +43,9 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
     public void testWithNoGivenProducts() {
         Graph graph = new Graph("graph");
 
-        Node good1Node = new Node("Good1", goodOpSpi.getName());
-        Node good2Node = new Node("Good2", goodOpSpi.getName());
-        Node consumerNode = new Node("MultiConsumer", multiProductsConsumerOpSpi.getName());
+        Node good1Node = new Node("Good1", goodOpSpi.getAliasName());
+        Node good2Node = new Node("Good2", goodOpSpi.getAliasName());
+        Node consumerNode = new Node("MultiConsumer", multiProductsConsumerOpSpi.getAliasName());
         graph.addNode(good1Node);
         graph.addNode(good2Node);
         graph.addNode(consumerNode);
@@ -60,9 +60,9 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
     public void testOptionalWithGivenProducts() throws GraphException {
         Graph graph = new Graph("graph");
 
-        Node good1Node = new Node("Good1", goodOpSpi.getName());
-        Node good2Node = new Node("Good2", goodOpSpi.getName());
-        Node consumerNode = new Node("MultiConsumer", multiProductsOptionalConsumerOpSpi.getName());
+        Node good1Node = new Node("Good1", goodOpSpi.getAliasName());
+        Node good2Node = new Node("Good2", goodOpSpi.getAliasName());
+        Node consumerNode = new Node("MultiConsumer", multiProductsOptionalConsumerOpSpi.getAliasName());
         consumerNode.addSource(new NodeSource("inputs", "Good1"));
         consumerNode.addSource(new NodeSource("inputs", "Good2"));
         graph.addNode(good1Node);
@@ -80,9 +80,9 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
     public void testOptionalWithNoGivenProducts() throws GraphException {
         Graph graph = new Graph("graph");
 
-        Node good1Node = new Node("Good1", goodOpSpi.getName());
-        Node good2Node = new Node("Good2", goodOpSpi.getName());
-        Node consumerNode = new Node("MultiConsumer", multiProductsOptionalConsumerOpSpi.getName());
+        Node good1Node = new Node("Good1", goodOpSpi.getAliasName());
+        Node good2Node = new Node("Good2", goodOpSpi.getAliasName());
+        Node consumerNode = new Node("MultiConsumer", multiProductsOptionalConsumerOpSpi.getAliasName());
         graph.addNode(good1Node);
         graph.addNode(good2Node);
         graph.addNode(consumerNode);

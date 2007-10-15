@@ -33,7 +33,7 @@ public class TargetProductAnnotationValidationTest extends TestCase {
     public void testTargetProductIsSetByAnnotation() throws GraphException {
         Graph graph = new Graph("graph");
 
-        Node node = new Node("OutputNotSet", notInitTargetProductOpSPI.getName());
+        Node node = new Node("OutputNotSet", notInitTargetProductOpSPI.getAliasName());
         graph.addNode(node);
 
         GraphContext graphContext = new GraphProcessor().createGraphContext(graph, ProgressMonitor.NULL);

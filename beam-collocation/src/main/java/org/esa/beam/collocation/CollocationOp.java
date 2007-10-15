@@ -7,6 +7,7 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
@@ -22,6 +23,11 @@ import java.util.List;
  * @author Ralf Quast
  * @version $Revision$ $Date$
  */
+@OperatorMetadata(alias = "Collocation",
+                  version = "1.0",
+                  author = "Ralf Quast",
+                  copyright = "(c) 2007 by Brockmann Consult",
+                  description = "Collocation operator.")
 public class CollocationOp extends Operator {
 
     @SourceProduct(alias = "master")
@@ -251,7 +257,7 @@ public class CollocationOp extends Operator {
     public static class Spi extends OperatorSpi {
 
         public Spi() {
-            super(CollocationOp.class, "Collocation");
+            super(CollocationOp.class);
         }
     }
 

@@ -20,6 +20,7 @@ import de.gkss.hs.datev2004.Clucov;
 import de.gkss.hs.datev2004.DataSet;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
@@ -29,8 +30,13 @@ import java.io.IOException;
 import java.util.Set;
 
 /**
- * The CLUCOV operator implementation.
+ * Implements a cluster analysis using the CLUCOV algorithm.
  */
+@OperatorMetadata(alias = "ClusterAnalysis",
+                  version = "1.0",
+                  author = "Helmut Schiller, Norman Fomferra",
+                  copyright = "(c) 2007 by Brockmann Consult",
+                  description = "Cluster analysis using the CLUCOV algorithm.")
 public class ClusterAnalysisOp extends Operator implements ParameterConverter {
     @SourceProduct
     Product sourceProduct;
@@ -170,7 +176,7 @@ public class ClusterAnalysisOp extends Operator implements ParameterConverter {
      */
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(ClusterAnalysisOp.class, "ClusterAnalysis");
+            super(ClusterAnalysisOp.class);
         }
     }
 }

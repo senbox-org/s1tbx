@@ -20,6 +20,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
@@ -40,8 +41,13 @@ import java.util.ArrayList;
 import java.util.Map;
 
 /**
- * The "Unmix" operator implementation.
+ * Implements a spectral umnixing algorithm.
  */
+@OperatorMetadata(alias = "SpectralUnmixing",
+                  version = "1.0",
+                  author = "Helmut Schiller, Norman Fomferra",
+                  copyright = "(c) 2007 by Brockmann Consult",
+                  description = "Spectral umnixing algorithm.")
 public class SpectralUnmixingOp extends Operator implements ParameterConverter {
 
     private final String TYPE_1 = "Unconstrained LSU";
@@ -356,7 +362,7 @@ public class SpectralUnmixingOp extends Operator implements ParameterConverter {
      */
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(SpectralUnmixingOp.class, "SpectralUnmixing");
+            super(SpectralUnmixingOp.class);
         }
     }
 

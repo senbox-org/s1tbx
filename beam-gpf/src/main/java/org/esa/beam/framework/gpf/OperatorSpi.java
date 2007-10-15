@@ -2,19 +2,28 @@ package org.esa.beam.framework.gpf;
 
 import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 
 import java.util.Map;
 import java.util.Set;
 
 /**
  * <p>The <code>OperatorSpi</code> class is the service provider interface (SPI) for {@link Operator}s.
- * The SPI is both a descriptor for the operator type and a factory for new {@link Operator} instances.</p>
- * <p>This class is intended to be implemented by clients.</p>
- * todo - write about META-INF/services  (nf - 09.10.2007)
+ * Therefore this abstract class is intended to be derived by clients.</p>
+ * <p>The SPI is both a descriptor for the operator type and a factory for new {@link Operator} instances.
+ * <p>An SPI is required for your operator if you want to make it accessible via an alias name in
+ * the various {@link GPF}{@code .create} methods or within GPF Graph XML code.</p>
+ * <p>SPI are registered either programmatically using the
+ * {@link org.esa.beam.framework.gpf.GPF#getOperatorSpiRegistry() OperatorSpiRegistry} or
+ * automatically via standard Java services lookup mechanism. For the services approach, place a
+ * file {@code META-INF/services/org.esa.beam.framework.gpf.OperatorSpi}
+ * in the JAR file containing your operators and associated SPIs.
+ * For each SPI to be automatically registered, place a text line in the file containing the SPI's
+ * fully qualified class name.</p>
  *
  * @since 4.1
  */
-public class OperatorSpi {
+public abstract class OperatorSpi {
 
     private Class<? extends Operator> operatorClass;
     private String name;
@@ -24,39 +33,57 @@ public class OperatorSpi {
     private String copyright;
 
     /**
-     * todo
+     * Constructs an operator SPI for the given operator class. The alias name
+     * of the operator will be the class name without the package path.
      *
-     * @param operatorClass todo
+     * @param operatorClass The operator class.
      */
     protected OperatorSpi(Class<? extends Operator> operatorClass) {
-        this(operatorClass, operatorClass.getSimpleName());
+        this(operatorClass,
+             getAliasName(operatorClass),
+             getVersion(operatorClass),
+             getDescription(operatorClass),
+             getAuthor(operatorClass),
+             getCopyright(operatorClass));
     }
 
     /**
-     * todo
+     * Constructs an operator SPI for the given class name and alias name.
      *
-     * @param operatorClass todo
-     * @param name          todo
+     * @param operatorClass The operator class.
+     * @param aliasName     The alias name for the operator.
+     * @deprecated either use constructor {@link #OperatorSpi(Class,String,String,String,String,String)}
+     *             or use constructor {@link #OperatorSpi(Class)} and operator annotation {@link OperatorMetadata}.
      */
-    protected OperatorSpi(Class<? extends Operator> operatorClass, String name) {
-        this(operatorClass, name, "1.0", "", "", "");
+    protected OperatorSpi(Class<? extends Operator> operatorClass, String aliasName) {
+        this(operatorClass,
+             aliasName,
+             getVersion(operatorClass),
+             getDescription(operatorClass),
+             getAuthor(operatorClass),
+             getCopyright(operatorClass));
     }
 
     /**
-     * todo
+     * Constructs an operator SPI for the given class name and alias name and metadata.
      *
-     * @param operatorClass todo
-     * @param name          todo
-     * @param version       todo
-     * @param description   todo
-     * @param author        todo
-     * @param copyright     todo
+     * @param operatorClass The operator class.
+     * @param aliasName     The alias name for the operator.
+     * @param version       The operator version.
+     * @param description   The operator description.
+     * @param author        The operator author.
+     * @param copyright     The operator copyright.
      */
-    protected OperatorSpi(Class<? extends Operator> operatorClass, String name, String version, String description, String author, String copyright) {
+    protected OperatorSpi(Class<? extends Operator> operatorClass,
+                          String aliasName,
+                          String version,
+                          String description,
+                          String author,
+                          String copyright) {
         Assert.notNull(operatorClass, "operatorClass");
-        Assert.notNull(name, "name");
+        Assert.notNull(aliasName, "name");
         this.operatorClass = operatorClass;
-        this.name = name;
+        this.name = aliasName;
         this.version = version;
         this.description = description;
         this.author = author;
@@ -127,7 +154,7 @@ public class OperatorSpi {
      *
      * @return the name of the (@link Operator)
      */
-    public String getName() {
+    public String getAliasName() {
         return name;
     }
 
@@ -210,5 +237,46 @@ public class OperatorSpi {
      */
     protected void setVersion(String version) {
         this.version = version;
+    }
+
+
+    private static String getAliasName(Class<? extends Operator> operatorClass) {
+        OperatorMetadata annotation = operatorClass.getAnnotation(OperatorMetadata.class);
+        if (annotation != null && !annotation.alias().isEmpty()) {
+            return annotation.alias();
+        }
+        return operatorClass.getSimpleName();
+    }
+
+    private static String getVersion(Class<? extends Operator> operatorClass) {
+        OperatorMetadata annotation = operatorClass.getAnnotation(OperatorMetadata.class);
+        if (annotation != null && annotation.version() != null) {
+            return annotation.version();
+        }
+        return "";
+    }
+
+    private static String getAuthor(Class<? extends Operator> operatorClass) {
+        OperatorMetadata annotation = operatorClass.getAnnotation(OperatorMetadata.class);
+        if (annotation != null && annotation.author() != null) {
+            return annotation.author();
+        }
+        return "";
+    }
+
+    private static String getCopyright(Class<? extends Operator> operatorClass) {
+        OperatorMetadata annotation = operatorClass.getAnnotation(OperatorMetadata.class);
+        if (annotation != null && annotation.copyright() != null) {
+            return annotation.author();
+        }
+        return "";
+    }
+
+    private static String getDescription(Class<? extends Operator> operatorClass) {
+        OperatorMetadata annotation = operatorClass.getAnnotation(OperatorMetadata.class);
+        if (annotation != null && annotation.description() != null) {
+            return annotation.description();
+        }
+        return "";
     }
 }

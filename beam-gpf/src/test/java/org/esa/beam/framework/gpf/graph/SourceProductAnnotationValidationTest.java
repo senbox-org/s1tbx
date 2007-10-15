@@ -50,8 +50,8 @@ public class SourceProductAnnotationValidationTest extends TestCase {
     public void testForWrongType() {
         Graph graph = new Graph("graph");
 
-        Node wrongTypeNode = new Node("WrongType", wrongTypeOpSpi.getName());
-        Node consumerNode = new Node("Consumer", consumerOpSpi.getName());
+        Node wrongTypeNode = new Node("WrongType", wrongTypeOpSpi.getAliasName());
+        Node consumerNode = new Node("Consumer", consumerOpSpi.getAliasName());
         consumerNode.addSource(new NodeSource("input1", "WrongType"));
         graph.addNode(wrongTypeNode);
         graph.addNode(consumerNode);
@@ -66,8 +66,8 @@ public class SourceProductAnnotationValidationTest extends TestCase {
     public void testForWrongBands() {
         Graph graph = new Graph("graph");
 
-        Node wrongBandsNode = new Node("WrongBands", wrongBandsOpSpi.getName());
-        Node consumerNode = new Node("Consumer", consumerOpSpi.getName());
+        Node wrongBandsNode = new Node("WrongBands", wrongBandsOpSpi.getAliasName());
+        Node consumerNode = new Node("Consumer", consumerOpSpi.getAliasName());
         consumerNode.addSource(new NodeSource("input1", "WrongBands"));
         graph.addNode(wrongBandsNode);
         graph.addNode(consumerNode);
@@ -82,8 +82,8 @@ public class SourceProductAnnotationValidationTest extends TestCase {
     public void testOptionalAndWrongProductIsGiven() {
         Graph graph = new Graph("graph");
 
-        Node wrongBandsNode = new Node("WrongBands", wrongBandsOpSpi.getName());
-        Node consumerNode = new Node("OptionalConsumer", optionalConsumerOpSpi.getName());
+        Node wrongBandsNode = new Node("WrongBands", wrongBandsOpSpi.getAliasName());
+        Node consumerNode = new Node("OptionalConsumer", optionalConsumerOpSpi.getAliasName());
         consumerNode.addSource(new NodeSource("input1", "WrongBands"));
         graph.addNode(wrongBandsNode);
         graph.addNode(consumerNode);
@@ -98,8 +98,8 @@ public class SourceProductAnnotationValidationTest extends TestCase {
     public void testOptionalAndWrongProductIsNotGiven() throws GraphException {
         Graph graph = new Graph("graph");
 
-        Node wrongBandsNode = new Node("WrongBands", wrongBandsOpSpi.getName());
-        Node consumerNode = new Node("OptionalConsumer", optionalConsumerOpSpi.getName());
+        Node wrongBandsNode = new Node("WrongBands", wrongBandsOpSpi.getAliasName());
+        Node consumerNode = new Node("OptionalConsumer", optionalConsumerOpSpi.getAliasName());
         graph.addNode(wrongBandsNode);
         graph.addNode(consumerNode);
 
@@ -109,8 +109,8 @@ public class SourceProductAnnotationValidationTest extends TestCase {
     public void testNotInitialzedInputResultsInException() {
         Graph graph = new Graph("graph");
 
-        Node goodNode = new Node("Good", goodOpSpi.getName());
-        Node consumerNode = new Node("Consumer", consumerOpSpi.getName());
+        Node goodNode = new Node("Good", goodOpSpi.getAliasName());
+        Node consumerNode = new Node("Consumer", consumerOpSpi.getAliasName());
         graph.addNode(goodNode);
         graph.addNode(consumerNode);
 
@@ -124,8 +124,8 @@ public class SourceProductAnnotationValidationTest extends TestCase {
     public void testSourceProductWithAlias() throws GraphException {
         Graph graph = new Graph("graph");
 
-        Node goodNode = new Node("Good", goodOpSpi.getName());
-        Node consumerNode = new Node("AliasConsumer", aliasConsumerOpSpi.getName());
+        Node goodNode = new Node("Good", goodOpSpi.getAliasName());
+        Node consumerNode = new Node("AliasConsumer", aliasConsumerOpSpi.getAliasName());
         consumerNode.addSource(new NodeSource("alias", "Good"));
         graph.addNode(goodNode);
         graph.addNode(consumerNode);
