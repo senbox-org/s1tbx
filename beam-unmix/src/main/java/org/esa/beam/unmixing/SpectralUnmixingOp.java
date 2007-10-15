@@ -45,7 +45,7 @@ import java.util.Map;
  */
 @OperatorMetadata(alias = "SpectralUnmixing",
                   version = "1.0",
-                  author = "Helmut Schiller, Norman Fomferra",
+                  authors = "Helmut Schiller, Norman Fomferra",
                   copyright = "(c) 2007 by Brockmann Consult",
                   description = "Spectral umnixing algorithm.")
 public class SpectralUnmixingOp extends Operator implements ParameterConverter {

@@ -29,12 +29,15 @@ public abstract class OperatorSpi {
     private String name;
     private String version;
     private String description;
-    private String author;
+    private String authors;
     private String copyright;
 
     /**
      * Constructs an operator SPI for the given operator class. The alias name
-     * of the operator will be the class name without the package path.
+     * and other metadata will be taken from the operator annotation
+     * {@link OperatorMetadata}. If no such exists,
+     * the alias name will be the operator's class name without the package path.
+     * All other metadata will be set to the empty string.
      *
      * @param operatorClass The operator class.
      */
@@ -86,7 +89,7 @@ public abstract class OperatorSpi {
         this.name = aliasName;
         this.version = version;
         this.description = description;
-        this.author = author;
+        this.authors = author;
         this.copyright = copyright;
     }
 
@@ -126,7 +129,7 @@ public abstract class OperatorSpi {
         for (Map.Entry<String, Product> entry : entries) {
             operator.addSourceProduct(entry.getKey(), entry.getValue());
         }
-        operator.setParameters(parameters);
+        operator.context.setParameters(parameters);
         return operator;
     }
 
@@ -172,17 +175,17 @@ public abstract class OperatorSpi {
      *
      * @return the authors name
      */
-    public String getAuthor() {
-        return author;
+    public String getAuthors() {
+        return authors;
     }
 
     /**
      * Sets the name of the author
      *
-     * @param author the authors name
+     * @param authors the authors name
      */
-    protected void setAuthor(String author) {
-        this.author = author;
+    protected void setAuthors(String authors) {
+        this.authors = authors;
     }
 
     /**
@@ -258,8 +261,8 @@ public abstract class OperatorSpi {
 
     private static String getAuthor(Class<? extends Operator> operatorClass) {
         OperatorMetadata annotation = operatorClass.getAnnotation(OperatorMetadata.class);
-        if (annotation != null && annotation.author() != null) {
-            return annotation.author();
+        if (annotation != null && annotation.authors() != null) {
+            return annotation.authors();
         }
         return "";
     }
@@ -267,7 +270,7 @@ public abstract class OperatorSpi {
     private static String getCopyright(Class<? extends Operator> operatorClass) {
         OperatorMetadata annotation = operatorClass.getAnnotation(OperatorMetadata.class);
         if (annotation != null && annotation.copyright() != null) {
-            return annotation.author();
+            return annotation.authors();
         }
         return "";
     }

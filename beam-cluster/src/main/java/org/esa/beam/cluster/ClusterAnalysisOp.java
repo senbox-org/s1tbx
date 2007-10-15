@@ -34,7 +34,7 @@ import java.util.Set;
  */
 @OperatorMetadata(alias = "ClusterAnalysis",
                   version = "1.0",
-                  author = "Helmut Schiller, Norman Fomferra",
+                  authors = "Helmut Schiller, Norman Fomferra",
                   copyright = "(c) 2007 by Brockmann Consult",
                   description = "Cluster analysis using the CLUCOV algorithm.")
 public class ClusterAnalysisOp extends Operator implements ParameterConverter {

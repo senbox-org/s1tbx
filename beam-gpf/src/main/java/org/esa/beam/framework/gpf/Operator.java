@@ -1,7 +1,7 @@
 package org.esa.beam.framework.gpf;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -43,10 +43,19 @@ import java.util.logging.Logger;
  * the {@code computeTile()} method and call it.
  * If all tiles are requested at once, e.g. writing a product to disk, it will attempt to use the {@code computeTileStack()}
  * method. If the framework cannot use its preferred operation, it will use the one implemented by the operator.</p>
+ * <p/>
+ * <p>todo - Explain the role of operator annotations (nf - 15.10.2007)</p>
+ * <p>todo - Explain the role of the SPI (nf - 15.10.2007)</p>
  *
  * @author Norman Fomferra
  * @author Marco Peters
  * @author Marco Zühlke
+ * @see OperatorSpi
+ * @see @org.esa.beam.framework.gpf.annotations.OperatorMetadata
+ * @see @org.esa.beam.framework.gpf.annotations.Parameter
+ * @see @org.esa.beam.framework.gpf.annotations.TargetProduct
+ * @see @org.esa.beam.framework.gpf.annotations.SourceProduct
+ * @see @org.esa.beam.framework.gpf.annotations.SourceProducts
  * @since 4.1
  */
 public abstract class Operator {
@@ -123,16 +132,6 @@ public abstract class Operator {
     }
 
     /**
-     * Gets the source product using the specified name.
-     *
-     * @param id the identifier
-     * @return the source product, or {@code null} if not found
-     */
-    public final Product getSourceProduct(String id) {
-        return context.getSourceProduct(id);
-    }
-
-    /**
      * Gets the source products in the order they have been declared.
      *
      * @return the array source products
@@ -141,16 +140,28 @@ public abstract class Operator {
         return context.getSourceProducts();
     }
 
+    /**
+     * Gets the source product using the specified name.
+     *
+     * @param id the identifier
+     * @return the source product, or {@code null} if not found
+     * @see #getSourceProductId(Product)
+     */
+    public final Product getSourceProduct(String id) {
+        Assert.notNull(id, "id");
+        return context.getSourceProduct(id);
+    }
+
+    /**
+     * Gets the identifier for the given source product.
+     *
+     * @param product The source product.
+     * @return The identifier, or {@code null} if no such exists.
+     * @see #getSourceProduct(String)
+     */
     public final String getSourceProductId(Product product) {
+        Assert.notNull(product, "product");
         return context.getSourceProductId(product);
-    }
-
-    public final void setSpi(OperatorSpi operatorSpi) {
-        context.setOperatorSpi(operatorSpi);
-    }
-
-    public final OperatorSpi getSpi() {
-        return context.getOperatorSpi();
     }
 
     /**
@@ -162,6 +173,8 @@ public abstract class Operator {
      * @param product the product to be added
      */
     public final void addSourceProduct(String id, Product product) {
+        Assert.notNull(id, "id");
+        Assert.notNull(product, "product");
         context.addSourceProduct(id, product);
     }
 
@@ -193,7 +206,6 @@ public abstract class Operator {
         return context.getSourceTile(rasterDataNode, rectangle);
     }
 
-
     /**
      * Returns true, if the computation should be canceled
      *
@@ -213,37 +225,42 @@ public abstract class Operator {
         return context.createProgressMonitor();
     }
 
-    public final Map<String, Object> getParameters() {
-        return context.getParameters();
-    }
-
-    public final void setParameters(Map<String, Object> parameters) {
-        context.setParameters(parameters);
-    }
-
-    public final Xpp3Dom getConfiguration() {
-        return context.getConfiguration();
-    }
-
-    public final void setConfiguration(Xpp3Dom configuration) {
-        context.setConfiguration(configuration);
-    }
-
     /**
-     * Gets a logger to by used by the operator.
+     * Gets the logger whuich can be used to log information during initialisation and tile computation.
      *
-     * @return a logger.
+     * @return The logger.
      */
     public final Logger getLogger() {
         return context.getLogger();
     }
 
     /**
-     * Sets a logger for the operator.
+     * Sets the logger which can be used to log information during initialisation and tile computation.
      *
-     * @param logger a logger.
+     * @param logger The logger.
      */
     public final void setLogger(Logger logger) {
+        Assert.notNull(logger, "logger");
         context.setLogger(logger);
+    }
+
+    /**
+     * Gets the SPI which was used to create this operator.
+     *
+     * @return The operator SPI, or {@code null} if the operator instance was created without SPI or if the
+     *         SPI has not been set.
+     */
+    public final OperatorSpi getSpi() {
+        return context.getOperatorSpi();
+    }
+
+    /**
+     * Sets the SPI which was used to create this operator.
+     *
+     * @param operatorSpi The operator SPI.
+     */
+    public final void setSpi(OperatorSpi operatorSpi) {
+        Assert.notNull(operatorSpi, "operatorSpi");
+        context.setOperatorSpi(operatorSpi);
     }
 }

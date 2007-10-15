@@ -25,7 +25,7 @@ import java.util.List;
  */
 @OperatorMetadata(alias = "Collocation",
                   version = "1.0",
-                  author = "Ralf Quast",
+                  authors = "Ralf Quast",
                   copyright = "(c) 2007 by Brockmann Consult",
                   description = "Collocation operator.")
 public class CollocationOp extends Operator {

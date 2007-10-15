@@ -32,7 +32,7 @@ public class OperatorSpiTest extends TestCase {
         assertEquals("foo", operatorSpi.getAliasName());
         assertEquals("1.4", operatorSpi.getVersion());
         assertEquals("Not available.", operatorSpi.getDescription());
-        assertEquals("Marco, Ralf and Norman", operatorSpi.getAuthor());
+        assertEquals("Marco, Ralf and Norman", operatorSpi.getAuthors());
         assertEquals("(c) Brockmann", operatorSpi.getCopyright());
     }
 
