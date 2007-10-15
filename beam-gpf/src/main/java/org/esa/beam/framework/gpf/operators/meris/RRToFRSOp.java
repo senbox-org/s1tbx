@@ -50,9 +50,10 @@ public class RRToFRSOp extends Operator {
     public Product initialize() throws OperatorException {
         rrGeoCoding = rrProduct.getGeoCoding();
         frsGeoCoding = frsProduct.getGeoCoding();
-
         final int width = frsProduct.getSceneRasterWidth();
         final int height = frsProduct.getSceneRasterHeight();
+        checkThatRRContainsFRSData(width, height);
+
         targetProduct = new Product("L1", "L1", width, height);
 
         Band[] srcBands = rrProduct.getBands();
@@ -74,6 +75,28 @@ public class RRToFRSOp extends Operator {
         }
         return targetProduct;
     }
+    
+    private void checkThatRRContainsFRSData(int width, int height) throws OperatorException {
+        getRrPixelPos(0, 0);
+        getRrPixelPos(0, height-1);
+        getRrPixelPos(width-1, 0);
+        getRrPixelPos(width-1, height-1);
+    }
+    
+    private PixelPos getRrPixelPos(int x, int y) throws OperatorException {
+        PixelPos frsPixelPos = new PixelPos(x, y);
+        GeoPos geoPos = frsGeoCoding.getGeoPos(frsPixelPos, null);
+        PixelPos rrPixelPos = rrGeoCoding.getPixelPos(geoPos, null);
+        
+        final int xrr = Math.round(rrPixelPos.x);
+        final int yrr = Math.round(rrPixelPos.y);
+        if (rrPixelPos != null && rrProduct.containsPixel(xrr, yrr)) {
+            return rrPixelPos;
+        } else {
+            throw new OperatorException("RR product does not contain data for this coordinate: x="+x+" y="+y);
+        }
+        
+    }
 
     @Override
     public void computeTile(Band band, Tile targetTile) throws OperatorException {
@@ -83,9 +106,7 @@ public class RRToFRSOp extends Operator {
         ProgressMonitor pm = createProgressMonitor();
         pm.beginTask("compute", frsRectangle.height);
 
-        PixelPos frsPixelPos = new PixelPos(frsRectangle.x, frsRectangle.y);
-        GeoPos geoPos = frsGeoCoding.getGeoPos(frsPixelPos, null);
-        PixelPos rrPixelPos = rrGeoCoding.getPixelPos(geoPos, null);
+        PixelPos rrPixelPos = getRrPixelPos(frsRectangle.x, frsRectangle.y);
         final int xStart = Math.round(rrPixelPos.x);
         final int yStart = Math.round(rrPixelPos.y);
         Rectangle rrRectangle = new Rectangle(xStart, yStart, frsRectangle.width / 4, frsRectangle.height / 4);
@@ -93,8 +114,6 @@ public class RRToFRSOp extends Operator {
         Rectangle sceneRectangle = new Rectangle(rrSrcBand.getSceneRasterWidth(), rrSrcBand.getSceneRasterHeight());
         rrRectangle = rrRectangle.intersection(sceneRectangle);
 
-//            System.out.println("RR: "+rrRectangle.toString());
-//            System.out.println("FRS:"+frsRectangle.toString());
         Tile srcTile = getSourceTile(rrSrcBand, rrRectangle);
 
         try {
