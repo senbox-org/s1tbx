@@ -1,11 +1,10 @@
 package com.bc.ceres.binding;
 
 /**
- * Created by IntelliJ IDEA.
- * User: Norman
- * Date: 21.06.2007
- * Time: 10:52:45
- * To change this template use File | Settings | File Templates.
+ * Signals a value validation failure.
+ *
+ * @author Norman Fomferra
+ * @since 0.6
  */
 public class ValidationException extends Exception {
     public ValidationException(String message) {

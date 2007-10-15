@@ -2,6 +2,13 @@ package com.bc.ceres.binding;
 
 import java.beans.PropertyChangeListener;
 
+/**
+ * A model for a value, e.g. a field of an object instance. A value model is composed of a {@link ValueDefinition} and
+ * an {@link Accessor}. Most of the time, value models are part of a {@link ValueContainer}.
+ *
+ * @author Norman Fomferra
+ * @since 0.6
+ */
 public class ValueModel {
     private final ValueDefinition valueDefinition;
     private final Accessor accessor;

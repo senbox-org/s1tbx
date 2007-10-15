@@ -1,7 +1,12 @@
 package com.bc.ceres.binding;
 
 // todo - add a step size
+// todo - rename to ValueRange
 
+/**
+ * @author Norman Fomferra
+ * @since 0.6
+ */
 public class Interval {
     private double min;
     private double max;

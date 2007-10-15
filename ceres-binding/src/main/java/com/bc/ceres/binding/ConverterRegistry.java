@@ -8,6 +8,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+/**
+ * A registry for {@link Converter}s.
+ *
+ * @author Norman Fomferra
+ * @since 0.6
+ */
 public class ConverterRegistry {
     private static final ConverterRegistry instance = new ConverterRegistry();
     private Map<Class<?>, Converter> converters;
@@ -43,14 +49,31 @@ public class ConverterRegistry {
         converters.put(Interval.class, new IntervalConverter());
     }
 
+    /**
+     * Gets the singleton instance of the registry.
+     *
+     * @return The instance.
+     */
     public static ConverterRegistry getInstance() {
         return ConverterRegistry.instance;
     }
 
+    /**
+     * Sets the converter to be used for the specified type.
+     *
+     * @param type      The type.
+     * @param converter The converter.
+     */
     public void setConverter(Class<?> type, Converter converter) {
         converters.put(type, converter);
     }
 
+    /**
+     * Gets the converter registered with the given type.
+     *
+     * @param type The type.
+     * @return The converter or {@code null} if no such exists.
+     */
     public Converter getConverter(Class<?> type) {
         Converter converter = converters.get(type);
         if (converter == null) {

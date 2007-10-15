@@ -62,7 +62,7 @@ public class SwingBindingContextTest extends TestCase {
     }
 
     public void testBindCombobox() throws ValidationException {
-        JComboBox combobox = new JComboBox(new Integer[]{1,3,7});
+        JComboBox combobox = new JComboBox(new Integer[]{1, 3, 7});
         binding.bind(combobox, "intValue");
 
         assertEquals("intValue", combobox.getName());
@@ -160,7 +160,7 @@ public class SwingBindingContextTest extends TestCase {
     }
 
     public void testBindListSelection() throws ValidationException {
-        JList list = new JList(new Integer[]{3,4,5,6,7});
+        JList list = new JList(new Integer[]{3, 4, 5, 6, 7});
         binding.bind(list, "listValue", true);
 
         assertEquals("listValue", list.getName());

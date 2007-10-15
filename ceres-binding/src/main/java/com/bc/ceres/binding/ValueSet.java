@@ -4,6 +4,13 @@ import java.util.List;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
+/**
+ * A set of values allowed to be assigned to certain types of values. This set
+ * can be a property of a {@link ValueDefinition}.
+ *
+ * @author Norman Fomferra
+ * @since 0.6
+ */
 public class ValueSet {
 
     private List<Object> objects;

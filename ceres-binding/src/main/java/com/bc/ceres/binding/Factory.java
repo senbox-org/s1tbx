@@ -4,10 +4,16 @@ import com.bc.ceres.binding.validators.*;
 import com.bc.ceres.binding.accessors.*;
 
 import java.lang.reflect.Field;
-import java.util.Map;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
+// todo - rename to ValueContainerFactory
+
+/**
+ * A factory for {@link ValueContainer}s
+ *
+ * @author Norman Fomferra
+ * @since 0.6
+ */
 public class Factory {
     private final ValueDefinitionFactory valueDefinitionFactory;
 
@@ -24,7 +30,7 @@ public class Factory {
         Field[] declaredFields = type.getDeclaredFields();
         ValueContainer vc = new ValueContainer();
         for (Field field : declaredFields) {
-            final ValueDefinition valueDefinition = createPropertyDefinition(field);
+            final ValueDefinition valueDefinition = createValueDefinition(field);
             if (valueDefinition != null) {
                 vc.addModel(new ValueModel(valueDefinition, new ClassFieldAccessor(object, field)));
             }
@@ -36,7 +42,7 @@ public class Factory {
         Field[] declaredFields = type.getDeclaredFields();
         ValueContainer vc = new ValueContainer();
         for (Field field : declaredFields) {
-            final ValueDefinition valueDefinition = createPropertyDefinition(field);
+            final ValueDefinition valueDefinition = createValueDefinition(field);
             if (valueDefinition != null) {
                 vc.addModel(new ValueModel(valueDefinition, new DefaultAccessor()));
             }
@@ -48,7 +54,7 @@ public class Factory {
         Field[] declaredFields = type.getDeclaredFields();
         ValueContainer vc = new ValueContainer();
         for (Field field : declaredFields) {
-            final ValueDefinition valueDefinition = createPropertyDefinition(field);
+            final ValueDefinition valueDefinition = createValueDefinition(field);
             if (valueDefinition != null) {
                 vc.addModel(new ValueModel(valueDefinition, new MapEntryAccessor(map, field.getName())));
             }
@@ -56,21 +62,40 @@ public class Factory {
         return vc;
     }
 
-    private ValueDefinition createPropertyDefinition(Field field) {
+    public static ValueContainer createMapBackedValueContainer(Map<String, Object> map) {
+        ValueContainer vc = new ValueContainer();
+        for (String name : map.keySet()) {
+            vc.addModel(new ValueModel(createValueDefinition(name, map.get(name)), new MapEntryAccessor(map, name)));
+        }
+        return vc;
+    }
+
+    private ValueDefinition createValueDefinition(Field field) {
         final ValueDefinition valueDefinition = valueDefinitionFactory.createValueDefinition(field);
         if (valueDefinition == null) {
             return null;
         }
+        initValueDefinition(valueDefinition);
+        return valueDefinition;
+    }
+
+    private static ValueDefinition createValueDefinition(String name, Object value) {
+        final ValueDefinition valueDefinition = new ValueDefinition(name, value.getClass());
+        valueDefinition.setDefaultValue(value);
+        initValueDefinition(valueDefinition);
+        return valueDefinition;
+    }
+
+    private static void initValueDefinition(ValueDefinition valueDefinition) {
         if (valueDefinition.getConverter() == null) {
             valueDefinition.setConverter(ConverterRegistry.getInstance().getConverter(valueDefinition.getType()));
         }
         if (valueDefinition.getValidator() == null) {
             valueDefinition.setValidator(createValidator(valueDefinition));
         }
-        return valueDefinition;
     }
 
-    private Validator createValidator(ValueDefinition vd)  {
+    private static Validator createValidator(ValueDefinition vd) {
         List<Validator> validators = new ArrayList<Validator>(3);
 
         if (vd.isNotNull()) {

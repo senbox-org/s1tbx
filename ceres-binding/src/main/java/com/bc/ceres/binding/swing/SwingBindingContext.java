@@ -28,13 +28,21 @@ public class SwingBindingContext {
     private ValueContainer valueContainer;
     private SwingBindingContext.ErrorHandler errorHandler;
 
-    public SwingBindingContext(ValueContainer valueModel) {
-        this(valueModel, new SwingBindingContext.DefaultErrorHandler());
+    public SwingBindingContext(ValueContainer valueContainer) {
+        this(valueContainer, new SwingBindingContext.DefaultErrorHandler());
     }
 
-    public SwingBindingContext(ValueContainer valueModel, SwingBindingContext.ErrorHandler errorHandler) {
-        this.valueContainer = valueModel;
+    public SwingBindingContext(ValueContainer valueContainer, SwingBindingContext.ErrorHandler errorHandler) {
+        this.valueContainer = valueContainer;
         this.errorHandler = errorHandler;
+    }
+
+    public ValueContainer getValueContainer() {
+        return valueContainer;
+    }
+
+    public ErrorHandler getErrorHandler() {
+        return errorHandler;
     }
 
     public void enable(final JComponent component, final String propertyName, final boolean value) {

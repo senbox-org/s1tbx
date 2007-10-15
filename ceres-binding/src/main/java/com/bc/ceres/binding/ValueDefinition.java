@@ -1,11 +1,23 @@
 package com.bc.ceres.binding;
 
+import com.bc.ceres.core.Assert;
+
 import java.util.*;
 import java.util.regex.Pattern;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 
+/**
+ * Defines a value by its name, type and a set of optional (mutable) properties.
+ * Examples for such properties are a {@link ValueSet}, a {@link Pattern Pattern} or
+ * an {@link Interval}.
+ * Property changes may be observed by adding a property change listeners
+ * to instances of this class.
+ *
+ * @author Norman Fomferra
+ * @since 0.6
+ */
 public class ValueDefinition {
     private final String name;
     private final Class<?> type;
@@ -17,6 +29,9 @@ public class ValueDefinition {
     }
 
     public ValueDefinition(String name, Class<?> type, Map<String, Object> properties) {
+        Assert.notNull(name, "name");
+        Assert.notNull(type, "type");
+        Assert.notNull(properties, "properties");
         this.name = name;
         this.type = type;
         this.properties = properties;
@@ -127,7 +142,7 @@ public class ValueDefinition {
     }
 
     public Validator getValidator() {
-        return(Validator) getProperty("validator");
+        return (Validator) getProperty("validator");
     }
 
     public void setValidator(Validator validator) {

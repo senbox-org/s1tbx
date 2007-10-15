@@ -5,7 +5,13 @@ import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class ValueContainer  {
+/**
+ * A container for {@link ValueModel}s.
+ *
+ * @author Norman Fomferra
+ * @since 0.6
+ */
+public class ValueContainer {
     private HashMap<String, ValueModel> valueModelMap = new HashMap<String, ValueModel>(10);
     private ArrayList<ValueModel> valueModelList = new ArrayList<ValueModel>(10);
     private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
