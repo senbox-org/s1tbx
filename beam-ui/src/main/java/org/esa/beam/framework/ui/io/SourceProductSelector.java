@@ -80,12 +80,16 @@ public class SourceProductSelector {
     public Product getSelectedProduct() {
         return (Product) productListModel.getSelectedItem();
     }
-    
+
     public void selectFirstMatchingProduct() {
         int size = productListModel.getSize();
         if (size > 0) {
             productListModel.setSelectedItem(productListModel.getElementAt(0));
         }
+    }
+
+    public void setSelectedIndex(int index) {
+        productListModel.setSelectedItem(productListModel.getElementAt(index));
     }
 
     void setSelectedProduct(Product product) throws Exception {
@@ -200,6 +204,7 @@ public class SourceProductSelector {
     }
 
     private static class ProductListCellRenderer extends DefaultListCellRenderer {
+
         @Override
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
                                                       boolean cellHasFocus) {
@@ -221,5 +226,5 @@ public class SourceProductSelector {
         void handleError(JComponent component, Throwable t);
     }
 
-    
+
 }
