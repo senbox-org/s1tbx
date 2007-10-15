@@ -15,6 +15,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.Array;
@@ -298,7 +300,7 @@ public class SwingBindingContext {
         }
     }
 
-    class TextFieldBinding extends SwingBindingContext.AbstractBinding implements ActionListener {
+    class TextFieldBinding extends SwingBindingContext.AbstractBinding implements ActionListener, FocusListener {
 
         private final JTextField textField;
 
@@ -308,11 +310,15 @@ public class SwingBindingContext {
         }
 
         public void actionPerformed(ActionEvent e) {
-            try {
-                valueContainer.setFromText(getPropertyName(), textField.getText());
-            } catch (Exception e1) {
-                handleError(textField, e1);
-            }
+            adjustValueContainer();
+        }
+
+        public void focusGained(FocusEvent e) {
+            // do nothing
+        }
+
+        public void focusLost(FocusEvent e) {
+            adjustValueContainer();
         }
 
         @Override
@@ -324,6 +330,15 @@ public class SwingBindingContext {
                 handleError(textField, e);
             }
         }
+
+        private void adjustValueContainer() {
+            try {
+                valueContainer.setFromText(getPropertyName(), textField.getText());
+            } catch (Exception e1) {
+                handleError(textField, e1);
+            }
+        }
+
     }
 
     class FormattedTextFieldBinding extends SwingBindingContext.AbstractBinding implements PropertyChangeListener {
