@@ -3,8 +3,8 @@ package org.esa.beam.collocation.visat;
 import com.jidesoft.dialog.JideOptionPane;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.visat.VisatApp;
 
+import javax.swing.JOptionPane;
 import java.awt.Window;
 
 /**
@@ -34,8 +34,8 @@ class CollocationDialog extends ModalDialog {
 
     @Override
     protected void onOK() {
-        VisatApp.getApp().showMessageDialog("Geographic Collocation", "Not implemented yet.",
-                                            JideOptionPane.INFORMATION_MESSAGE, null);
+        JOptionPane.showMessageDialog(form, "Not implemented yet.", "Geographic Collocation",
+                                      JideOptionPane.INFORMATION_MESSAGE);
         /* prototype code
         final Product targetProduct;
         try {
