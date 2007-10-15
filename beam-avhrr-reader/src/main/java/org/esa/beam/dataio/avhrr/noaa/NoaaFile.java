@@ -68,7 +68,8 @@ public class NoaaFile extends AvhrrFile implements AvhrrConstants {
 		inputStream = imageInputStream;
 	}
 
-	public void readHeader() throws IOException {
+	@Override
+    public void readHeader() throws IOException {
 		hasCloudBand = false;
 		int headerOffset = 0;
 
@@ -115,19 +116,23 @@ public class NoaaFile extends AvhrrFile implements AvhrrConstants {
 		analyzeScanLineBitfield();
 	}
 
-	public String getProductName() {
+	@Override
+    public String getProductName() {
 		return giHeader.getDataSetName();
 	}
 
-	public ProductData.UTC getStartDate() {
+	@Override
+    public ProductData.UTC getStartDate() {
 		return giHeader.getStartDate();
 	}
 
-	public ProductData.UTC getEndDate() {
+	@Override
+    public ProductData.UTC getEndDate() {
 		return giHeader.getEndDate();
 	}
 
-	public List getMetaData() {
+	@Override
+    public List getMetaData() {
 		List metaDataList = new ArrayList();
 
 		if (arsHeader != null) {
@@ -141,7 +146,8 @@ public class NoaaFile extends AvhrrFile implements AvhrrConstants {
 		return metaDataList;
 	}
 
-	public BandReader createVisibleRadianceBandReader(int channel) {
+	@Override
+    public BandReader createVisibleRadianceBandReader(int channel) {
 		final VisibleRadianceCalibrator calibrator = new VisibleRadianceCalibrator(
 				channel);
 		calibrator.setHeaderConstants(radianceConv.getEquivalentWidth(channel),
@@ -150,14 +156,16 @@ public class NoaaFile extends AvhrrFile implements AvhrrConstants {
 		return createCountReader(channel, calibrator);
 	}
 
-	public BandReader createIrRadianceBandReader(int channel) {
+	@Override
+    public BandReader createIrRadianceBandReader(int channel) {
 		final IrRadianceCalibrator calibrator = new IrRadianceCalibrator(
 				channel);
 		calibrator.setFormatVersion(giHeader.getFormatVersion());
 		return createCountReader(channel, calibrator);
 	}
 
-	public BandReader createIrTemperatureBandReader(int channel) {
+	@Override
+    public BandReader createIrTemperatureBandReader(int channel) {
 		final IrTemperatureCalibrator calibrator = new IrTemperatureCalibrator(
 				channel);
 		calibrator.setFormatVersion(giHeader.getFormatVersion());
@@ -167,7 +175,8 @@ public class NoaaFile extends AvhrrFile implements AvhrrConstants {
 		return createCountReader(channel, calibrator);
 	}
 	
-	public BandReader createReflectanceFactorBandReader(int channel) {
+	@Override
+    public BandReader createReflectanceFactorBandReader(int channel) {
 		final ReflectanceFactorCalibrator calibrator = new ReflectanceFactorCalibrator(
 				channel);
 		return createCountReader(channel, calibrator);
@@ -185,10 +194,12 @@ public class NoaaFile extends AvhrrFile implements AvhrrConstants {
 		return countReader;
 	}
 
+    @Override
     public String[] getTiePointNames() {
         return new String[]{SZA_DS_NAME, VZA_DS_NAME, DAA_DS_NAME, LAT_DS_NAME, LON_DS_NAME};
     }
 
+    @Override
     public float[][] getTiePointData() throws IOException {
 		final int gridHeight = getProductHeight() / TP_SUB_SAMPLING_Y + 1;
 		final int numTiePoints = TP_GRID_WIDTH * gridHeight;
@@ -230,11 +241,13 @@ public class NoaaFile extends AvhrrFile implements AvhrrConstants {
 		return tiePointData;
 	}
 
-	public int getScanLineOffset(int rawY) {
+	@Override
+    public int getScanLineOffset(int rawY) {
 		return firstDataRecordOffset + (rawY * dataRecordLength);
 	}
 	
-	public int getFlagOffset(int rawY) {
+	@Override
+    public int getFlagOffset(int rawY) {
 		return getScanLineOffset(rawY) + 24;
 	}
 

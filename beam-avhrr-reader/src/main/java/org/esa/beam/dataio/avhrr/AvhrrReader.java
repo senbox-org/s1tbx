@@ -47,7 +47,7 @@ public class AvhrrReader extends AbstractProductReader implements AvhrrConstants
 
     protected AvhrrFile avhrrFile;
 
-    private Map<Band, BandReader> bandReaders = new HashMap<Band, BandReader>();
+    protected Map<Band, BandReader> bandReaders = new HashMap<Band, BandReader>();
 
     public AvhrrReader(ProductReaderPlugIn avhrrReaderPlugIn) {
         super(avhrrReaderPlugIn);

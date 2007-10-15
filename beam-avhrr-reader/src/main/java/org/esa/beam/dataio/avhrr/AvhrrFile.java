@@ -65,6 +65,8 @@ public abstract class AvhrrFile {
 	
 	abstract public float[][] getTiePointData() throws IOException;
 	
+	abstract public int getScanLineOffset(int rawY);
+
 	abstract public int getFlagOffset(int rawY);
 		
 	public RawCoordinates getRawCoordiantes(int sourceOffsetX,
