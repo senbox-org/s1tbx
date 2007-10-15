@@ -46,6 +46,12 @@ public class TargetProductSelectorModelTest extends TestCase {
         // other format
         model.setFormatName(writerPlugIn.getFormatNames()[0]);
         assertEquals("Obelix.x", model.getFileName());
+
+        model.setProductName("Idefix.dim");
+        assertEquals("Idefix.dim.x", model.getFileName());
+
+        model.setProductName("Idefix.x");
+        assertEquals("Idefix.x", model.getFileName());
     }
 
     public void testSetGetDirectory() {
