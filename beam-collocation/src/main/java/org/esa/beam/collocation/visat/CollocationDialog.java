@@ -18,10 +18,10 @@ class CollocationDialog extends ModalDialog {
     private CollocationFormModel formModel;
     private CollocationForm form;
 
-    public CollocationDialog(Window parent, Product selectedProduct) {
+    public CollocationDialog(Window parent, Product[] products) {
         super(parent, "Geographic Collocation", ModalDialog.ID_OK_CANCEL_HELP, "collocation");
 
-        formModel = new CollocationFormModel(selectedProduct);
+        formModel = new CollocationFormModel(products);
         form = new CollocationForm(formModel);
     }
 

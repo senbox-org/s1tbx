@@ -1,5 +1,6 @@
 package org.esa.beam.collocation.visat;
 
+import com.bc.ceres.binding.swing.SwingBindingContext;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.TableLayout;
@@ -14,10 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.border.TitledBorder;
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
 
 /**
  * Form for geographic collocation dialog.
@@ -54,30 +52,27 @@ public class CollocationForm extends JPanel {
         layout1.setTablePadding(3, 3);
 
         final JPanel inputPanel = new JPanel(layout1);
-        // todo - why specify all these parameters? The title shoud be enough (MP - 15.10.2007)
-        inputPanel.setBorder(BorderFactory.createTitledBorder(null, "Input",
-                                                              TitledBorder.DEFAULT_JUSTIFICATION,
-                                                              TitledBorder.DEFAULT_POSITION,
-                                                              new Font("Tahoma", 0, 11),
-                                                              new Color(0, 70, 213)));
+        inputPanel.setBorder(BorderFactory.createTitledBorder("Input"));
 
-        final SourceProductSelector masterSelector = new SourceProductSelector(new Product[0], "Reference:");
-        final SourceProductSelector slaveSelector = new SourceProductSelector(new Product[0], "Collocate:");
+        Product[] defaultProducts = model.getDefaultProducts();
+        final SourceProductSelector referenceSelector = new SourceProductSelector(defaultProducts, "Reference:");
+        if(defaultProducts.length > 0) {
+            referenceSelector.setSelectedIndex(0);
+        }
 
-        inputPanel.add(masterSelector.getLabel());
-        inputPanel.add(masterSelector.getComboBox());
-        inputPanel.add(masterSelector.getButton());
-        inputPanel.add(slaveSelector.getLabel());
-        inputPanel.add(slaveSelector.getComboBox());
-        inputPanel.add(slaveSelector.getButton());
+        final SourceProductSelector collocateSelector = new SourceProductSelector(defaultProducts, "Collocate:");
+        if(defaultProducts.length > 1) {
+            collocateSelector.setSelectedIndex(1);
+        }
+        inputPanel.add(referenceSelector.getLabel());
+        inputPanel.add(referenceSelector.getComboBox());
+        inputPanel.add(referenceSelector.getButton());
+        inputPanel.add(collocateSelector.getLabel());
+        inputPanel.add(collocateSelector.getComboBox());
+        inputPanel.add(collocateSelector.getButton());
 
         final JPanel outputPanel = new JPanel(new BorderLayout());
-        // todo - why specify all these parameters? The title shoud be enough (MP - 15.10.2007)
-        outputPanel.setBorder(BorderFactory.createTitledBorder(null, "Output",
-                                                               TitledBorder.DEFAULT_JUSTIFICATION,
-                                                               TitledBorder.DEFAULT_POSITION,
-                                                               new Font("Tahoma", 0, 11),
-                                                               new Color(0, 70, 213)));
+        outputPanel.setBorder(BorderFactory.createTitledBorder("Output"));
 
         outputPanel.add(new TargetProductSelector(new TargetProductSelectorModel(true)).createDefaultPanel());
 
@@ -129,11 +124,7 @@ public class CollocationForm extends JPanel {
         layout4.setTablePadding(3, 3);
 
         final JPanel resamplingPanel = new JPanel(layout4);
-        resamplingPanel.setBorder(BorderFactory.createTitledBorder(null, "Resampling",
-                                                                   TitledBorder.DEFAULT_JUSTIFICATION,
-                                                                   TitledBorder.DEFAULT_POSITION,
-                                                                   new Font("Tahoma", 0, 11),
-                                                                   new Color(0, 70, 213)));
+        resamplingPanel.setBorder(BorderFactory.createTitledBorder("Resampling"));
         resamplingPanel.add(new JLabel("Method:"));
         resamplingPanel.add(new JComboBox(new String[]{"Nearest Neighbor", "Bilinear Convolution",
                 "Bicubic Convolution"}));
@@ -145,6 +136,8 @@ public class CollocationForm extends JPanel {
     }
 
     private void bindComponents() {
+        final SwingBindingContext bc = new SwingBindingContext(model.getValueContainer());
+
     }
 
     public static void main(String[] args) throws
@@ -154,7 +147,7 @@ public class CollocationForm extends JPanel {
                                            ClassNotFoundException {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
-        ModalDialog dialog = new CollocationDialog(null, null);
+        ModalDialog dialog = new CollocationDialog(null, new Product[0]);
         dialog.getJDialog().setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.show();
     }

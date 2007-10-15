@@ -22,9 +22,9 @@ public class CollocationAction extends ExecCommand {
 
     @Override
     public void actionPerformed(CommandEvent event) {
-        final Product selectedProduct = VisatApp.getApp().getSelectedProduct();
-        if (selectedProduct != null) {
-            final ModalDialog dialog = new CollocationDialog(VisatApp.getApp().getMainFrame(), selectedProduct);
+        final Product[] openProducts = VisatApp.getApp().getProductManager().getProducts();
+        if (openProducts != null) {
+            final ModalDialog dialog = new CollocationDialog(VisatApp.getApp().getMainFrame(), openProducts);
             dialog.show();
         }
     }
