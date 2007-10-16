@@ -56,12 +56,12 @@ public class CollocationForm extends JPanel {
 
         Product[] defaultProducts = model.getDefaultProducts();
         final SourceProductSelector referenceSelector = new SourceProductSelector(defaultProducts, "Reference:");
-        if(defaultProducts.length > 0) {
+        if(referenceSelector.getProductCount() > 0) {
             referenceSelector.setSelectedIndex(0);
         }
 
         final SourceProductSelector collocateSelector = new SourceProductSelector(defaultProducts, "Collocate:");
-        if(defaultProducts.length > 1) {
+        if(collocateSelector.getProductCount() > 1) {
             collocateSelector.setSelectedIndex(1);
         }
         inputPanel.add(referenceSelector.getLabel());
