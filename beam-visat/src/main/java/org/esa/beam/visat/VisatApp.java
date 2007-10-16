@@ -92,7 +92,7 @@ public final class VisatApp extends BasicApp {
             Module module = activator.getModuleContext().getModule();
             APP_SYMBOLIC_NAME = module.getSymbolicName();
             APP_VERSION = module.getVersion().toString();
-            APP_COPYRIGHTINFO = module.getVersion().toString();
+            APP_COPYRIGHTINFO = module.getCopyright();
             APP_LOGGER_NAME = module.getSymbolicName();
         } else {
             APP_SYMBOLIC_NAME = "beam-visat";
