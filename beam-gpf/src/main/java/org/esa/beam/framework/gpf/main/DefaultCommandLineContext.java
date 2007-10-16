@@ -38,7 +38,7 @@ class DefaultCommandLineContext implements CommandLineContext {
         FileReader fileReader = new FileReader(filepath);
         Graph graph;
         try {
-            graph = GraphIO.read(fileReader);
+            graph = GraphIO.read(fileReader, parameterMap);
         } finally {
             fileReader.close();
         }

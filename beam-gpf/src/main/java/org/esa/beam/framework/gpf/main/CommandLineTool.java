@@ -5,16 +5,21 @@ import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.annotations.ParameterDefinitionFactory;
 import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.Node;
 import org.esa.beam.framework.gpf.graph.NodeSource;
+import org.esa.beam.util.jai.JAIUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+
+import javax.media.jai.JAI;
 
 /**
  * The common command-line tool for the GPF.
@@ -44,6 +49,11 @@ class CommandLineTool {
         if (line.isHelpRequested()) {
             commandLineContext.print(CommandLine.getUsageText());
         }
+        
+        final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
+        registry.loadOperatorSpis();
+        // TODO parameter
+        JAIUtils.setDefaultTileCacheCapacity(512);
         if (line.getOperatorName() != null) {
             Map<String, Object> parameters = getParameterMap(line);
             Map<String, Product> sourceProducts = getSourceProductMap(line);

@@ -197,7 +197,6 @@ public class OperatorContext {
         return targetImages.get(band);
     }
 
-
     public boolean isDisposed() {
         return disposed;
     }

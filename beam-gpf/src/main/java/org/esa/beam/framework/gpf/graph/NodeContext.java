@@ -2,9 +2,12 @@ package org.esa.beam.framework.gpf.graph;
 
 import com.bc.ceres.core.Assert;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.internal.OperatorContext;
+import org.esa.beam.framework.gpf.internal.OperatorImage;
 
 import java.lang.reflect.Field;
 
@@ -59,6 +62,10 @@ class NodeContext {
         Assert.notNull(targetProduct, "targetProduct");
         return targetProduct;
     }
+    
+    public OperatorImage getTargetImage(Band band) {
+        return operatorContext.getTargetImage(band);
+    }
 
     public boolean canComputeTileStack() {
         return operatorContext.canComputeTileStack();
@@ -83,7 +90,7 @@ class NodeContext {
     public Product[] getSourceProducts() {
         return operatorContext.getSourceProducts();
     }
-
+    
     private void initOperator() throws GraphException {
         final OperatorSpiRegistry spiRegistry = GPF.getDefaultInstance().getOperatorSpiRegistry();
         OperatorSpi operatorSpi = spiRegistry.getOperatorSpi(node.getOperatorName());

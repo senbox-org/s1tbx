@@ -1,19 +1,21 @@
 package org.esa.beam.framework.gpf.graph;
 
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.util.math.MathUtils;
-
-import javax.media.jai.JAI;
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.awt.image.RenderedImage;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.logging.Logger;
+
+import javax.media.jai.JAI;
+
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.gpf.internal.OperatorImage;
+import org.esa.beam.util.math.MathUtils;
+
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 
 /**
  * The <code>GraphProcessor</code> is responsible for executing processing
@@ -139,9 +141,8 @@ public class GraphProcessor {
      *
      * @param graphContext the {@link GraphContext} to execute
      * @param pm           a progress monitor. Can be used to signal progress.
-     * @throws GraphException if any error occrues during execution
      */
-    public void executeGraphContext(GraphContext graphContext, ProgressMonitor pm) throws GraphException {
+    public void executeGraphContext(GraphContext graphContext, ProgressMonitor pm) {
         fireProcessingStarted(graphContext);
 
         Rectangle rectangleUnion = new Rectangle();
@@ -171,10 +172,10 @@ public class GraphProcessor {
                     if (getProductBounds(targetProduct).intersects(tileRectangle)) {
                         if (nodeContext.canComputeTileStack()) {
                             Band band = targetProduct.getBandAt(0);
-                            forceTileComputation(band, tileX, tileY);
+                            forceTileComputation(nodeContext, band, tileX, tileY);
                         } else {
                             for (Band band : targetProduct.getBands()) {
-                                forceTileComputation(band, tileX, tileY);
+                                forceTileComputation(nodeContext, band, tileX, tileY);
                             }
                         }
                     }
@@ -193,8 +194,8 @@ public class GraphProcessor {
         return new Rectangle(rasterWidth, rasterHeight);
     }
 
-    private static void forceTileComputation(Band band, int tileX, int tileY) {
-        final RenderedImage image = band.getImage();
+    private static void forceTileComputation(NodeContext nodeContext, Band band, int tileX, int tileY) {
+        OperatorImage image = nodeContext.getTargetImage(band);
         /////////////////////////////////////////////////////////////////////
         //
         // GPF pull-processing is triggered here!!!
