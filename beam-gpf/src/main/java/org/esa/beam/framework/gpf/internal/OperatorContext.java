@@ -383,10 +383,17 @@ public class OperatorContext {
                 }
                 sourceProducts = getSourceProducts();
             }
-            if (sourceProductsAnnotation.count() > 0 && sourceProductsAnnotation.count() != sourceProducts.length) {
-                String text = "Wrong number of source products. Required %d, found %d.";
-                String msg = String.format(text, sourceProductsAnnotation.count(), sourceProducts.length);
-                throw new OperatorException(msg);
+            if (sourceProductsAnnotation.count() < 0) {
+                if (sourceProducts.length == 0) {
+                    String msg = "At least a single source product expected.";
+                    throw new OperatorException(msg);
+                }
+            } else if (sourceProductsAnnotation.count() > 0) {
+                if (sourceProductsAnnotation.count() != sourceProducts.length) {
+                    String text = "Wrong number of source products. Required %d, found %d.";
+                    String msg = String.format(text, sourceProductsAnnotation.count(), sourceProducts.length);
+                    throw new OperatorException(msg);
+                }
             }
             for (Product sourceProduct : sourceProducts) {
                 validateSourceProduct(declaredField.getName(),

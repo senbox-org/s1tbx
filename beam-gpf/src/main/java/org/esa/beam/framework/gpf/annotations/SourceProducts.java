@@ -14,10 +14,10 @@ public @interface SourceProducts {
 
     /**
      * @return the number of source products expected.
-     *         The value {@code -1} means any number of source products.
+     *         The value {@code -1} means any number but at least one source product.
      *         Defaults to {@code 0} (= not set).
      */
-    int count() default -1;
+    int count() default 0;
 
     /**
      * @return The regular expression identifying the allowed product types.
