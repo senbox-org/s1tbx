@@ -118,7 +118,7 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
 
     public static class MultipleProductsOptionalConsumerOperator extends Operator {
 
-        @SourceProducts(optional = true)
+        @SourceProducts(count = 1)
         Product[] inputs;
 
         @TargetProduct

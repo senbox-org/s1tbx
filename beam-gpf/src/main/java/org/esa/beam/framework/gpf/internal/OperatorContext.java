@@ -362,12 +362,17 @@ public class OperatorContext {
                     } else {
                         sourceProducts = getSourceProductsFieldValue(declaredField);
                         if (sourceProducts != null) {
-                            // todo - ? (nf - 09.10.2007)
-                        } else if (!sourceProductsAnnotation.optional()) {
-                            String text = "Mandatory source products field '%s' not set.";
-                            String msg = String.format(text, declaredField.getName());
-                            throw new OperatorException(msg);
+                            for (int i = 0; i < sourceProducts.length; i++) {
+                                Product sourceProduct = sourceProducts[i];
+                                addSourceProduct(GPF.SOURCE_PRODUCT_FIELD_NAME + i, sourceProduct);
+                            }
                         }
+                        sourceProducts = getSourceProducts();
+                    }
+                    if (sourceProductsAnnotation.count() > 0 && sourceProductsAnnotation.count() != sourceProducts.length) {
+                        String text = "Wrong number of source products. Required %d, found %d.";
+                        String msg = String.format(text, sourceProductsAnnotation.count(), sourceProducts.length);
+                        throw new OperatorException(msg);
                     }
                 } else {
                     String text = "Annotated field '%s' is not of type '%s'.";
@@ -397,11 +402,11 @@ public class OperatorContext {
     private static void validateSourceProduct(Product sourceProduct,
                                               Field declaredField,
                                               SourceProduct sourceProductAnnotation) throws OperatorException {
-        if (!sourceProductAnnotation.type().isEmpty() &&
-                !sourceProductAnnotation.type().equals(sourceProduct.getProductType())) {
+        if (sourceProductAnnotation.types().length > 0 &&
+                !sourceProductAnnotation.types()[0].equals(sourceProduct.getProductType())) {
             String msg = String.format(
                     "The source product '%s' must be of type '%s' but is of type '%s'",
-                    declaredField.getName(), sourceProductAnnotation.type(),
+                    declaredField.getName(), sourceProductAnnotation.types()[0],
                     sourceProduct.getProductType());
             throw new OperatorException(msg);
         }

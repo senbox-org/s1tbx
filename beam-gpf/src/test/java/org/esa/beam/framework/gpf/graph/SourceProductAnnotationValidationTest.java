@@ -205,7 +205,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
 
     public static class ConsumerOperator extends Operator {
 
-        @SourceProduct(type = "GoodType", bands = {"a", "b"})
+        @SourceProduct(types = {"GoodType"}, bands = {"a", "b"})
         Product input1;
 
         @TargetProduct
@@ -230,7 +230,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
 
     public static class OptionalConsumerOperator extends Operator {
 
-        @SourceProduct(optional = true, type = "Optional", bands = {"c", "d"})
+        @SourceProduct(optional = true, types = {"Optional"}, bands = {"c", "d"})
         Product input1;
 
         @TargetProduct

@@ -7,7 +7,7 @@ public class TestPojo {
     Product vapour;
 
     @SourceProduct(optional = true,
-                   type = "MERIS_BRR",
+                   types = {"MERIS_BRR"},
                    bands = {"radiance_2", "radiance_5"})
     Product brr;
 
