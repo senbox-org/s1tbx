@@ -31,9 +31,17 @@ public class CommandLineToolOperatorTest extends TestCase {
     }
 
     public void testPrintUsage() throws Exception {
-        assertTrue(context.m.length() == 0);
+        assertTrue(context.output.length() == 0);
         clTool.run(new String[]{"-h"});
-        assertTrue(context.m.length() > 10);
+        assertTrue(context.output.length() > 10);
+    }
+
+    public void testPrintOperatorUsage() throws Exception {
+        assertTrue(context.output.length() == 0);
+        clTool.run(new String[]{"Op3", "-h"});
+        assertTrue(context.output.startsWith("Usage: gpf \"Op3\" {-P<name>=<value>} {-S<id>=<filepath>}"));
+
+        System.out.println("\n" + context.output + "\n");
     }
 
     public void testOperatorSingleSource() throws Exception {
@@ -66,7 +74,7 @@ public class CommandLineToolOperatorTest extends TestCase {
 
         Map<String, Object> parameters = context.parameters;
         assertNotNull(parameters);
-        assertEquals(3, parameters.size());
+        assertEquals(4, parameters.size());
         assertEquals("log(1+radiance_13)", parameters.get("expression"));
         assertEquals(true, parameters.get("ignoreSign"));
         assertEquals(-0.025, parameters.get("factor"));
@@ -97,7 +105,7 @@ public class CommandLineToolOperatorTest extends TestCase {
         private String opName;
         private Map<String, Object> parameters;
         private Map<String, Product> sourceProducts;
-        private String m = "";
+        private String output = "";
 
         public TestCommandLineContext() {
             logString = "";
@@ -123,7 +131,6 @@ public class CommandLineToolOperatorTest extends TestCase {
             fail("did not expect to come here");
         }
 
-
         public Map<String, String> readParameterFile(String propertiesFilepath) throws IOException {
             HashMap<String, String> hashMap = new HashMap<String, String>();
             hashMap.put("expression", "sqrt(x*x + y*y)");
@@ -140,7 +147,7 @@ public class CommandLineToolOperatorTest extends TestCase {
         }
 
         public void print(String m) {
-            this.m += m;
+            this.output += m;
         }
     }
 

@@ -19,8 +19,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import javax.media.jai.JAI;
-
 /**
  * The common command-line tool for the GPF.
  * For usage, see {@link org/esa/beam/framework/gpf/main/CommandLineUsage.txt}.
@@ -47,9 +45,14 @@ class CommandLineTool {
     void run(String[] args) throws Exception {
         CommandLine line = new CommandLine(args);
         if (line.isHelpRequested()) {
-            commandLineContext.print(CommandLine.getUsageText());
+            if (line.getOperatorName() != null) {
+                commandLineContext.print(CommandLine.getUsageText(line.getOperatorName()));
+            } else {
+                commandLineContext.print(CommandLine.getUsageText());
+            }
+            return;
         }
-        
+
         final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
         registry.loadOperatorSpis();
         // TODO parameter

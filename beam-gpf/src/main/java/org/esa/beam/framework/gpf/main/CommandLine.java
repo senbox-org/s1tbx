@@ -3,14 +3,15 @@ package org.esa.beam.framework.gpf.main;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.util.io.FileUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Iterator;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * The common command-line for GPF.
@@ -203,4 +204,174 @@ class CommandLine {
         return new Exception(m);
     }
 
+    public static String getUsageText(String operatorName) {
+        final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(operatorName);
+        if (operatorSpi == null) {
+            return "Unknown operator \"" + operatorName + "\".";
+        }
+        StringBuilder usageText = new StringBuilder(1024);
+        usageText.append("Usage: ");
+        usageText.append("gpf ");
+        usageText.append('"');
+        usageText.append(operatorName);
+        usageText.append('"');
+        usageText.append(' ');
+        ArrayList<DocuElement> paramDocuElementList = createParamDocuElementList(operatorSpi);
+        if (paramDocuElementList.size() > 0) {
+            usageText.append("{-P<name>=<value>} ");
+        }
+        ArrayList<DocuElement> sourceDocuElementList = createSourceDocuElementList(operatorSpi);
+        if (sourceDocuElementList.size() > 0) {
+            usageText.append("{-S<id>=<filepath>} ");
+        }
+
+        if (paramDocuElementList.size() > 0) {
+            usageText.append("\n");
+            collect(paramDocuElementList, usageText);
+        }
+        if (sourceDocuElementList.size() > 0) {
+            usageText.append("\n");
+            collect(sourceDocuElementList, usageText);
+        }
+
+        return usageText.toString();
+    }
+
+    private static ArrayList<DocuElement> createParamDocuElementList(OperatorSpi operatorSpi) {
+        ArrayList<DocuElement> docuElementList = new ArrayList<DocuElement>(10);
+        final Map<String, Parameter> parameterMap = operatorSpi.getParameterDescriptors();
+        for (String paramName : parameterMap.keySet()) {
+            final Parameter parameter = parameterMap.get(paramName);
+
+            StringBuilder paramSyntax = new StringBuilder(32);
+            paramSyntax.append("-P");
+            paramSyntax.append(paramName);
+            paramSyntax.append("=<value>"); // todo - need type info here!
+
+            final ArrayList<String> docuLines = new ArrayList<String>();
+            if (!parameter.description().isEmpty()) {
+                StringBuilder paramDescr = new StringBuilder(32);
+                paramDescr.append(parameter.description());
+                paramDescr.append(".");
+                docuLines.add(paramDescr.toString());
+            }
+            if (!parameter.interval().isEmpty()) {
+                StringBuilder paramDescr = new StringBuilder(32);
+                paramDescr.append("Valid interval is ");
+                paramDescr.append(parameter.interval());
+                paramDescr.append(".");
+                docuLines.add(paramDescr.toString());
+            }
+            if (!parameter.pattern().isEmpty()) {
+                StringBuilder paramDescr = new StringBuilder(32);
+                paramDescr.append("Value pattern is ");
+                paramDescr.append(parameter.pattern());
+                paramDescr.append(".");
+                docuLines.add(paramDescr.toString());
+            }
+            if (!parameter.format().isEmpty()) {
+                StringBuilder paramDescr = new StringBuilder(32);
+                paramDescr.append("Value format is ");
+                paramDescr.append(parameter.format());
+                paramDescr.append(".");
+                docuLines.add(paramDescr.toString());
+            }
+            if (parameter.valueSet().length > 0) {
+                StringBuilder paramDescr = new StringBuilder(32);
+                final String[] strings = parameter.valueSet();
+                paramDescr.append("Allowed values are ");
+                for (int i = 0; i < strings.length; i++) {
+                    if (i > 0) {
+                        paramDescr.append(",");
+                    }
+                    paramDescr.append(strings[i]);
+                }
+                paramDescr.append(".");
+                docuLines.add(paramDescr.toString());
+            }
+            if (!parameter.defaultValue().isEmpty()) {
+                StringBuilder paramDescr = new StringBuilder(32);
+                paramDescr.append("Default value is ");
+                paramDescr.append(parameter.defaultValue());
+                paramDescr.append(".");
+                docuLines.add(paramDescr.toString());
+            }
+            docuElementList.add(new DocuElement(paramSyntax.toString(), docuLines.toArray(new String[docuLines.size()])));
+        }
+        return docuElementList;
+    }
+
+    private static ArrayList<DocuElement> createSourceDocuElementList(OperatorSpi operatorSpi) {
+        ArrayList<DocuElement> docuElementList = new ArrayList<DocuElement>(10);
+        final Map<String, SourceProduct> sourceProductMap = operatorSpi.getSourceProductDescriptors();
+        for (String sourceId : sourceProductMap.keySet()) {
+            final SourceProduct sourceProduct = sourceProductMap.get(sourceId);
+
+            StringBuilder paramSyntax = new StringBuilder(32);
+            paramSyntax.append("-S");
+            paramSyntax.append(sourceId);
+            paramSyntax.append("=<filepath>");
+
+            final ArrayList<String> docuLines = new ArrayList<String>();
+            if (!sourceProduct.description().isEmpty()) {
+                StringBuilder paramDescr = new StringBuilder(32);
+                paramDescr.append(sourceProduct.description());
+                paramDescr.append(".");
+                docuLines.add(paramDescr.toString());
+            }
+            if (sourceProduct.type().isEmpty()) {
+                StringBuilder paramDescr = new StringBuilder(32);
+                paramDescr.append("Valid product type pattern is \"");
+                paramDescr.append(sourceProduct.type());
+                paramDescr.append("\".");
+                docuLines.add(paramDescr.toString());
+            }
+            if (sourceProduct.optional()) {
+                docuLines.add("Mandatory source product.");
+            } else {
+                docuLines.add("Optional source product.");
+            }
+            docuElementList.add(new DocuElement(paramSyntax.toString(), docuLines.toArray(new String[docuLines.size()])));
+        }
+        return docuElementList;
+    }
+
+    private static void collect(List<DocuElement> docuElementList, StringBuilder usageText) {
+        int maxLength = 0;
+        for (DocuElement docuElement : docuElementList) {
+            maxLength = Math.max(maxLength, docuElement.syntax.length());
+        }
+        for (DocuElement docuElement : docuElementList) {
+            usageText.append(docuElement.syntax);
+            if (docuElement.docuLines.length > 0) {
+                int spacesCount = 2 + maxLength - docuElement.syntax.length();
+                for (int i = 0; i < docuElement.docuLines.length; i++) {
+                    usageText.append(spaces(spacesCount));
+                    usageText.append(docuElement.docuLines[i]);
+                    usageText.append('\n');
+                    spacesCount = 2 + maxLength;
+                }
+            } else {
+                usageText.append('\n');
+            }
+        }
+    }
+
+    private static class DocuElement {
+        String syntax;
+        String[] docuLines;
+
+        private DocuElement(String syntax, String[] docuLines) {
+            this.syntax = syntax;
+            this.docuLines = docuLines;
+        }
+    }
+
+    private static String spaces(int n) {
+        StringBuilder sb = new StringBuilder(n);
+        for (int i = 0; i < n; i++) {
+            sb.append(' ');
+        }
+        return sb.toString();
+    }
 }

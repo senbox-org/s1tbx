@@ -30,4 +30,10 @@ public @interface SourceProducts {
      *         Defaults to an empty array (= not set).
      */
     String[] bands() default {};
+
+    /**
+     * @return A brief description of the source products array.
+     *         Defaults to the empty string (= not set).
+     */
+    String description() default "";
 }

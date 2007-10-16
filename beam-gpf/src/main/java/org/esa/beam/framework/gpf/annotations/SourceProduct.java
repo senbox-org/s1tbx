@@ -37,4 +37,10 @@ public @interface SourceProduct {
      *         Defaults to the empty string (= not set).
      */
     String alias() default "";
+
+    /**
+     * @return A brief description of the source product.
+     *         Defaults to the empty string (= not set).
+     */
+    String description() default "";
 }

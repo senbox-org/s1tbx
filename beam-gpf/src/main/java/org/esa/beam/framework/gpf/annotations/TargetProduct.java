@@ -11,4 +11,9 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
 public @interface TargetProduct {
+    /**
+     * @return A brief description of the target product.
+     *         Defaults to the empty string (= not set).
+     */
+    String description() default "";
 }

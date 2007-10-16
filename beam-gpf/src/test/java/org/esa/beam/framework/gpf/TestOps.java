@@ -3,10 +3,7 @@ package org.esa.beam.framework.gpf;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.annotations.Parameter;
-import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.esa.beam.framework.gpf.annotations.SourceProducts;
-import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.framework.gpf.annotations.*;
 
 import java.awt.Rectangle;
 import java.util.Map;
@@ -29,6 +26,7 @@ public class TestOps {
         return calls;
     }
 
+    @OperatorMetadata(alias = "Op1")
     public static class Op1 extends Operator {
         @TargetProduct
         private Product targetProduct;
@@ -50,11 +48,12 @@ public class TestOps {
         public static class Spi extends OperatorSpi {
 
             public Spi() {
-                super(Op1.class, "Op1");
+                super(Op1.class);
             }
         }
     }
 
+    @OperatorMetadata(alias = "Op2")
     public static class Op2 extends Operator {
 
         @Parameter
@@ -88,20 +87,24 @@ public class TestOps {
 
         public static class Spi extends OperatorSpi {
             public Spi() {
-                super(Op2.class, "Op2");
+                super(Op2.class);
             }
         }
     }
 
+    @OperatorMetadata(alias = "Op3")
     public static class Op3 extends Operator {
 
         @Parameter
         public boolean ignoreSign;
 
-        @Parameter
+        @Parameter(description = "The valid mask expression")
         public String expression;
 
-        @Parameter
+        @Parameter(valueSet = {"NN", "BQ", "CC"}, defaultValue = "NN")
+        public String interpolMethod;
+
+        @Parameter(defaultValue = "1.5", interval = "[-10,10)")
         public double factor;
 
         @SourceProduct(bands = {"Op1A"})
@@ -145,7 +148,7 @@ public class TestOps {
 
         public static class Spi extends OperatorSpi {
             public Spi() {
-                super(Op3.class, "Op3");
+                super(Op3.class);
             }
         }
     }
