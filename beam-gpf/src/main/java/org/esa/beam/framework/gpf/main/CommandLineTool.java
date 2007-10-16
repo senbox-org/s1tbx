@@ -92,12 +92,11 @@ class CommandLineTool {
 
     private Map<String, Object> getParameterMap(CommandLine line) throws ValidationException, ConversionException {
         HashMap<String, Object> parameters = new HashMap<String, Object>();
-
         ValueContainer container = ParameterDefinitionFactory.createMapBackedOperatorValueContainer(line.getOperatorName(), parameters);
-        SortedMap<String, String> hashMap = line.getParameterMap();
-        Set<String> paramNames = hashMap.keySet();
+        SortedMap<String, String> parameterMap = line.getParameterMap();
+        Set<String> paramNames = parameterMap.keySet();
         for (String paramName : paramNames) {
-            container.setFromText(paramName, hashMap.get(paramName));
+            container.setFromText(paramName, parameterMap.get(paramName));
         }
         return parameters;
     }

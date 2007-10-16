@@ -20,8 +20,9 @@ public @interface SourceProduct {
     boolean optional() default false;
 
     /**
-     * @return The regular expression identifying the allowed product types.
+     * @return The product type or a regular expression identifying the allowed product types.
      *         Defaults to the empty string (= not set).
+     * @see java.util.regex.Pattern
      */
     String type() default "";
 
