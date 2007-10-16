@@ -18,21 +18,25 @@ public @interface OperatorMetadata {
 
     /**
      * @return The version of the operator.
+     *         Defaults to the empty string (= not set).
      */
-    String version() default "1.0";
+    String version() default "";
 
     /**
      * @return The author(s) of the operator.
+     *         Defaults to the empty string (= not set).
      */
     String authors() default "";
 
     /**
      * @return The copyright notice for the operator code.
+     *         Defaults to the empty string (= not set).
      */
     String copyright() default "";
 
     /**
      * @return A brief description of the operator's purpose.
+     *         Defaults to the empty string (= not set).
      */
     String description() default "";
 }

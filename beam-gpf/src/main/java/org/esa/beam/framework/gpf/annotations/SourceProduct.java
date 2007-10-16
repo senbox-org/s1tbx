@@ -13,22 +13,27 @@ import java.lang.annotation.*;
 public @interface SourceProduct {
 
     /**
-     * @return {@code true} if the source product is optional (and the field value thus may be {@code null}).
+     * @return {@code true} if the source product is optional.
+     *         In this case the field value thus may be {@code null}.
+     *         Defaults to {@code false}.
      */
     boolean optional() default false;
 
     /**
-     * @return The allowed product types.
+     * @return The regular expression identifying the allowed product types.
+     *         Defaults to the empty string (= not set).
      */
-    String[] types() default {};
+    String type() default "";
 
     /**
-     * @return The bands which need to be present.
+     * @return The names of the bands which need to be present in the source product.
+     *         Defaults to an empty array (= not set).
      */
     String[] bands() default {};
 
     /**
      * @return The alias identifier.
+     *         Defaults to the empty string (= not set).
      */
     String alias() default "";
 }

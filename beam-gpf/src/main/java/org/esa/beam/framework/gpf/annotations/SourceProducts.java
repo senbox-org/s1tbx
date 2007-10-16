@@ -13,17 +13,21 @@ import java.lang.annotation.*;
 public @interface SourceProducts {
 
     /**
-     * @return the number of source products expected. A return value of {@code -1} signals an unlimited number of sources.
+     * @return the number of source products expected.
+     *         The value {@code -1} means any number of source products.
+     *         Defaults to {@code 0} (= not set).
      */
     int count() default -1;
 
     /**
-     * @return The allowed product types.
+     * @return The regular expression identifying the allowed product types.
+     *         Defaults to the empty string (= not set).
      */
-    String[] types() default {};
+    String type() default "";
 
     /**
-     * @return The bands which need to be present.
+     * @return The names of the bands which need to be present in the source product.
+     *         Defaults to an empty array (= not set).
      */
     String[] bands() default {};
 }

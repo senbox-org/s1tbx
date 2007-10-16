@@ -18,7 +18,7 @@ public class TestPojoTest extends TestCase {
         SourceProduct spa = brrField.getAnnotation(SourceProduct.class);
         assertNotNull(spa);
         assertEquals(true, spa.optional());
-        assertEquals("MERIS_BRR", spa.types()[0]);
+        assertEquals("MERIS_BRR", spa.type());
         assertEquals(2, spa.bands().length);
         assertEquals("radiance_2", spa.bands()[0]);
         assertEquals("radiance_5", spa.bands()[1]);
