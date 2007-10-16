@@ -20,3 +20,5 @@ Options:
   -P<name>=<value>   Defines a processing parameter, <name> is specified by
                      the operator or the graph. In an XML graph, all
                      occurences of ${<name>} will be replaced with <value>.
+  -h                 Prints the command usage. If <op> is given, prints
+                     the specific operator usage.
