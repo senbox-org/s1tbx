@@ -9,6 +9,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * The facade for the Graph Processing Framework.
+ * This class may be overridden in order to alter product creation behaviour of the static
+ * {@code createProduct} methods of the GPF instance.
+ * The current instance can be set by {@link #setDefaultInstance(GPF)}.
+ */
 public class GPF {
 
     public static final String SOURCE_PRODUCT_FIELD_NAME = "sourceProduct";
