@@ -23,10 +23,11 @@ import java.util.regex.Pattern;
  */
 public class SourceProductSelector {
 
-    private Product[] defaultProducts;
+//    private Product[] defaultProducts;
     private Pattern typePattern;
     private Product chooserProduct;
     private String labelText;
+    private File currentDirectory;
     private DefaultComboBoxModel productListModel;
     private JLabel productLabel;
     private JButton chooserButton;
@@ -38,7 +39,7 @@ public class SourceProductSelector {
     }
 
     public SourceProductSelector(Product[] products, String productLabelText, String productTypePattern) {
-        defaultProducts = products;
+//        defaultProducts = products;
         labelText = productLabelText.trim();
         if (!labelText.endsWith(":")) {
             labelText = labelText.concat(":");
@@ -53,16 +54,13 @@ public class SourceProductSelector {
             }
         }
         productListModel.setSelectedItem(null);
+//        currentDirectory = SystemUtils.getUserHomeDir();
 
         productLabel = new JLabel(labelText);
         chooserButton = new JButton(new ChooserAction());
         productComboBox = new JComboBox(productListModel);
         productComboBox.setPrototypeDisplayValue("[1] 123456789 123456789 12345");
         productComboBox.setRenderer(new ProductListCellRenderer());
-    }
-
-    public Product[] getDefaultProducts() {
-        return defaultProducts;
     }
 
     public String getLabelText() {
@@ -73,23 +71,26 @@ public class SourceProductSelector {
         return typePattern;
     }
 
-    public DefaultComboBoxModel getProductListModel() {
-        return productListModel;
+    public int getProductCount() {
+        return productListModel.getSize();
+    }
+
+    public void setSelectedIndex(int index) {
+        productListModel.setSelectedItem(productListModel.getElementAt(index));
     }
 
     public Product getSelectedProduct() {
         return (Product) productListModel.getSelectedItem();
     }
 
-    public void selectFirstMatchingProduct() {
-        int size = productListModel.getSize();
-        if (size > 0) {
-            productListModel.setSelectedItem(productListModel.getElementAt(0));
+    public void setCurrentDirectory(File directory) {
+        if(directory != null && directory.isDirectory()) {
+            currentDirectory = directory;
         }
     }
 
-    public void setSelectedIndex(int index) {
-        productListModel.setSelectedItem(productListModel.getElementAt(index));
+    public File getCurrentDirectory() {
+        return currentDirectory;
     }
 
     void setSelectedProduct(Product product) throws Exception {
@@ -180,6 +181,9 @@ public class SourceProductSelector {
             if (event.getSource() instanceof JComponent) {
                 parent = (JComponent) event.getSource();
             }
+
+            chooser.setCurrentDirectory(currentDirectory);
+
             if (chooser.showDialog(parent, APPROVE_BUTTON_TEXT) == JFileChooser.APPROVE_OPTION) {
                 final File file = chooser.getSelectedFile();
 
@@ -199,6 +203,7 @@ public class SourceProductSelector {
                     }
                     errorHandler.handleError(parent, e);
                 }
+                currentDirectory = chooser.getCurrentDirectory();
             }
         }
     }

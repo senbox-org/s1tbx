@@ -129,11 +129,11 @@ public class SourceProductSelectorTest extends TestCase {
         
     }
     
-    public void testsetFirstMatching() throws Exception {
+    public void testSetSelectedIndex() throws Exception {
         SourceProductSelector selector = new SourceProductSelector(defaultProducts, "Source", "T.");
         assertNull(selector.getSelectedProduct());
         
-        selector.selectFirstMatchingProduct();
+        selector.setSelectedIndex(0);
         assertSame(defaultProducts[0], selector.getSelectedProduct());
     }
 }
