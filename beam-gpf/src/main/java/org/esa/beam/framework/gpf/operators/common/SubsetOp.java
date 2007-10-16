@@ -74,6 +74,7 @@ public class SubsetOp extends Operator {
         try {
             subsetReader.readBandRasterData(band, rectangle.x, rectangle.y, rectangle.width,
                                             rectangle.height, destBuffer, createProgressMonitor());
+            targetTile.setRawSampleData(destBuffer);
         } catch (IOException e) {
             throw new OperatorException(e);
         }

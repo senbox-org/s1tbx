@@ -27,7 +27,7 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 
-import java.awt.Rectangle;
+import java.awt.image.RenderedImage;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -52,11 +52,9 @@ public class ProductMergeOp extends Operator implements ParameterConverter {
 
     @Parameter
     private Configuration config;
-    private Map<Band, Band> sourceBands;
 
     public ProductMergeOp() {
         config = new Configuration();
-        sourceBands = new HashMap<Band, Band>();
     }
 
     public void getParameterValues(Operator operator, Xpp3Dom configuration) throws OperatorException {
@@ -146,7 +144,10 @@ public class ProductMergeOp extends Operator implements ParameterConverter {
     private Band copyBandWithFeatures(Product srcProduct, Product outputProduct, String bandName) {
         Band destBand = ProductUtils.copyBand(bandName, srcProduct, outputProduct);
         Band srcBand = srcProduct.getBand(bandName);
-        sourceBands.put(destBand, srcBand);
+        RenderedImage image = srcBand.getImage();
+        if (image != null) {
+            destBand.setImage(image);
+        }
         if (srcBand.getFlagCoding() != null) {
             FlagCoding srcFlagCoding = srcBand.getFlagCoding();
             ProductUtils.copyFlagCoding(srcFlagCoding, outputProduct);
@@ -157,18 +158,7 @@ public class ProductMergeOp extends Operator implements ParameterConverter {
 
     @Override
     public void computeTile(Band band, Tile targetTile) throws OperatorException {
-        Rectangle rectangle = targetTile.getRectangle();
-        Band sourceBand = sourceBands.get(band);
-        Tile sourceTile = getSourceTile(sourceBand, rectangle);
-
-        // TODO replace copy with OpImage delegation
-        final int length = rectangle.width * rectangle.height;
-        System.arraycopy(sourceTile.getRawSampleData().getElems(), 0, targetTile.getRawSampleData().getElems(), 0, length);
-    }
-
-    @Override
-    public void dispose() {
-        sourceBands.clear();
+        throw new OperatorException("ProdcutMerge should happen through delegation");
     }
 
     public class BandDesc {
