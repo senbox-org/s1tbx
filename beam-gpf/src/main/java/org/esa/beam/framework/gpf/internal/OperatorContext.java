@@ -123,6 +123,10 @@ public class OperatorContext {
     }
 
     public OperatorSpi getOperatorSpi() {
+        if (operatorSpi == null) {
+            operatorSpi = new OperatorSpi(operator.getClass()) {
+            };
+        }
         return operatorSpi;
     }
 
@@ -132,6 +136,13 @@ public class OperatorContext {
 
     public Operator getOperator() {
         return operator;
+    }
+
+    public void setSourceProducts(Map<String, Product> sourceProducts) {
+        Set<Map.Entry<String, Product>> entries = sourceProducts.entrySet();
+        for (Map.Entry<String, Product> entry : entries) {
+            addSourceProduct(entry.getKey(), entry.getValue());
+        }
     }
 
     public void addSourceProduct(String id, Product product) {
@@ -326,7 +337,7 @@ public class OperatorContext {
     }
 
     private void initSourceProductFields() throws OperatorException {
-        Field[] declaredFields = getOperator().getClass().getDeclaredFields();
+        Field[] declaredFields = operator.getClass().getDeclaredFields();
         for (Field declaredField : declaredFields) {
             SourceProduct sourceProductAnnotation = declaredField.getAnnotation(SourceProduct.class);
             if (sourceProductAnnotation != null) {
@@ -532,4 +543,5 @@ public class OperatorContext {
             }
         }
     }
+
 }

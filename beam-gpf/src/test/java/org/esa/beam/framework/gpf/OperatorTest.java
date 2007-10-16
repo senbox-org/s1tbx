@@ -15,6 +15,7 @@ public class OperatorTest extends TestCase {
     public void testPassThrough() throws OperatorException, IOException {
         Product sourceProduct = createFooProduct();
         final Operator op = new NoOp(sourceProduct);
+        assertNotNull(op.getSpi());
         assertFalse(op.context.isPassThrough());
         Product targetProduct = op.getTargetProduct();// force init
         assertSame(sourceProduct, targetProduct);
@@ -23,6 +24,7 @@ public class OperatorTest extends TestCase {
 
     public void testDefaultBehaviour() throws OperatorException, IOException {
         final FooOp op = new FooOp();
+        assertNotNull(op.getSpi());
         assertFalse(op.initializeCalled);
         assertFalse(op.computeTileCalled);
         final Product product = op.getTargetProduct();

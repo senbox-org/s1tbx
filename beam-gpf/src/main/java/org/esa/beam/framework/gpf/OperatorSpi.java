@@ -1,11 +1,11 @@
 package org.esa.beam.framework.gpf;
 
-import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
+import org.esa.beam.framework.gpf.annotations.*;
 
+import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * <p>The <code>OperatorSpi</code> class is the service provider interface (SPI) for {@link Operator}s.
@@ -25,12 +25,15 @@ import java.util.Set;
  */
 public abstract class OperatorSpi {
 
-    private Class<? extends Operator> operatorClass;
-    private String name;
-    private String version;
-    private String description;
-    private String authors;
-    private String copyright;
+    private final Class<? extends Operator> operatorClass;
+    private final String operatorAlias;
+
+    private Map<String, SourceProduct> sourceProductDescriptors;
+    private Map<String, Parameter> parameterDescriptors;
+    private OperatorMetadata operatorMetadata;
+    private boolean annotationsProcessed;
+    private TargetProduct targetProductDescriptor;
+    private SourceProducts sourceProductsDescriptor;
 
     /**
      * Constructs an operator SPI for the given operator class. The alias name
@@ -42,63 +45,26 @@ public abstract class OperatorSpi {
      * @param operatorClass The operator class.
      */
     protected OperatorSpi(Class<? extends Operator> operatorClass) {
-        this(operatorClass,
-             getAliasName(operatorClass),
-             getVersion(operatorClass),
-             getDescription(operatorClass),
-             getAuthor(operatorClass),
-             getCopyright(operatorClass));
+        this(operatorClass, getOperatorAlias(operatorClass));
     }
 
     /**
      * Constructs an operator SPI for the given class name and alias name.
      *
      * @param operatorClass The operator class.
-     * @param aliasName     The alias name for the operator.
-     * @deprecated either use constructor {@link #OperatorSpi(Class,String,String,String,String,String)}
-     *             or use constructor {@link #OperatorSpi(Class)} and operator annotation {@link OperatorMetadata}.
+     * @param operatorAlias The alias name for the operator.
      */
-    protected OperatorSpi(Class<? extends Operator> operatorClass, String aliasName) {
-        this(operatorClass,
-             aliasName,
-             getVersion(operatorClass),
-             getDescription(operatorClass),
-             getAuthor(operatorClass),
-             getCopyright(operatorClass));
-    }
-
-    /**
-     * Constructs an operator SPI for the given class name and alias name and metadata.
-     *
-     * @param operatorClass The operator class.
-     * @param aliasName     The alias name for the operator.
-     * @param version       The operator version.
-     * @param description   The operator description.
-     * @param author        The operator author.
-     * @param copyright     The operator copyright.
-     */
-    protected OperatorSpi(Class<? extends Operator> operatorClass,
-                          String aliasName,
-                          String version,
-                          String description,
-                          String author,
-                          String copyright) {
-        Assert.notNull(operatorClass, "operatorClass");
-        Assert.notNull(aliasName, "name");
+    protected OperatorSpi(Class<? extends Operator> operatorClass, String operatorAlias) {
         this.operatorClass = operatorClass;
-        this.name = aliasName;
-        this.version = version;
-        this.description = description;
-        this.authors = author;
-        this.copyright = copyright;
+        this.operatorAlias = operatorAlias;
     }
 
     /**
-     * Creates an operator instance with no arguments. The default implemrentation calls
-     * the default constructor. If no such is defined in the operator, an exception is thrown.
-     * Override in order to provide a no-argument instance of your operator.
+     * <p>Creates an operator instance with no arguments. The default implemrentation calls
+     * the default constructor. If no such is defined in the operator, an exception is thrown.</p>
+     * <p>This method may be overridden by clients in order to provide a no-argument instance of their operator.
      * Implementors should call {@link Operator#setSpi(OperatorSpi) operator.setSpi(this)}
-     * in order to set the operator's SPI.
+     * in order to set the operator's SPI.</p>
      *
      * @return the operator instance
      * @throws OperatorException if the instance could not be created
@@ -116,19 +82,22 @@ public abstract class OperatorSpi {
     }
 
     /**
-     * Creates an operator instance for the given source products and processing parameters.
+     * <p>Creates an operator instance for the given source products and processing parameters.</p>
+     * <p>This method may be overridden by clients in order to process the passed parameters and
+     * source products and optionally construct the operator in a specific way.
+     * Implementors should call {@link Operator#setSpi(OperatorSpi) operator.setSpi(this)}
+     * in order to set the operator's SPI.</p>
      *
      * @param parameters     the processing parameters
      * @param sourceProducts the source products
      * @return the operator instance
      * @throws OperatorException if the operator could not be created
+     * @see #getParameterDescriptors()
+     * @see #getSourceProductDescriptors()
      */
-    public final Operator createOperator(Map<String, Object> parameters, Map<String, Product> sourceProducts) throws OperatorException {
+    public Operator createOperator(Map<String, Object> parameters, Map<String, Product> sourceProducts) throws OperatorException {
         Operator operator = createOperator();
-        Set<Map.Entry<String, Product>> entries = sourceProducts.entrySet();
-        for (Map.Entry<String, Product> entry : entries) {
-            operator.addSourceProduct(entry.getKey(), entry.getValue());
-        }
+        operator.context.setSourceProducts(sourceProducts);
         operator.context.setParameters(parameters);
         return operator;
     }
@@ -139,17 +108,8 @@ public abstract class OperatorSpi {
      *
      * @return the operator class
      */
-    public Class<? extends Operator> getOperatorClass() {
+    public final Class<? extends Operator> getOperatorClass() {
         return operatorClass;
-    }
-
-    /**
-     * Sets the class of the {@link Operator}.
-     *
-     * @param operatorClass the class of the {@link Operator}
-     */
-    protected void setOperatorClass(Class<? extends Operator> operatorClass) {
-        this.operatorClass = operatorClass;
     }
 
     /**
@@ -157,129 +117,89 @@ public abstract class OperatorSpi {
      *
      * @return the name of the (@link Operator)
      */
-    public String getAliasName() {
-        return name;
+    public final String getOperatorAlias() {
+        return operatorAlias;
     }
 
     /**
-     * Sets the name of the {@link Operator}
-     *
-     * @param name the name of the {@link Operator}
+     * @return The operator's metadata,
+     *         or {@code null} if the operator has no {@link OperatorMetadata} annotation..
      */
-    protected void setName(String name) {
-        this.name = name;
+    public final OperatorMetadata getOperatorMetadata() {
+        processAnnotations();
+        return operatorMetadata;
     }
 
     /**
-     * The name of the author of the {@link Operator} this SPI is responsible for.
-     *
-     * @return the authors name
+     * @return The descriptor for the operator's target product,
+     *         or {@code null} if no operator field has been declared with a {@link TargetProduct} annotation..
      */
-    public String getAuthors() {
-        return authors;
+    public final TargetProduct getTargetProductDescriptor() {
+        processAnnotations();
+        return targetProductDescriptor;
     }
 
     /**
-     * Sets the name of the author
-     *
-     * @param authors the authors name
+     * @return The descriptor for the operator's source products (array),
+     *         or {@code null} if no operator field has been declared with a {@link SourceProducts} annotation..
      */
-    protected void setAuthors(String authors) {
-        this.authors = authors;
+    public final SourceProducts getSourceProductsDescriptor() {
+        processAnnotations();
+        return sourceProductsDescriptor;
     }
 
     /**
-     * Gets a copyright note for the {@link Operator}.
-     *
-     * @return a copyright note
+     * @return The operator's source products descriptors,
+     *         or {@code null} if no operator field has been declared with a {@link SourceProduct} annotation..
      */
-    public String getCopyright() {
-        return copyright;
+    public final Map<String, SourceProduct> getSourceProductDescriptors() {
+        processAnnotations();
+        return sourceProductDescriptors;
     }
 
     /**
-     * Sets the copyright note.
-     *
-     * @param copyright the copyright note
+     * @return The operator's parameter descriptors,
+     *         or {@code null} if no operator field has been declared with a {@link Parameter} annotation.
      */
-    protected void setCopyright(String copyright) {
-        this.copyright = copyright;
+    public final Map<String, Parameter> getParameterDescriptors() {
+        processAnnotations();
+        return parameterDescriptors;
     }
 
-    /**
-     * Gets a short description of the {@link Operator}.
-     *
-     * @return description of the operator
-     */
-    public String getDescription() {
-        return description;
+    private void processAnnotations() {
+        if (annotationsProcessed) {
+            return;
+        }
+        annotationsProcessed = true;
+        operatorMetadata = operatorClass.getAnnotation(OperatorMetadata.class);
+        targetProductDescriptor = operatorClass.getAnnotation(TargetProduct.class);
+        sourceProductsDescriptor = operatorClass.getAnnotation(SourceProducts.class);
+        sourceProductDescriptors = new HashMap<String, SourceProduct>();
+        parameterDescriptors = new HashMap<String, Parameter>();
+        final Field[] declaredFields = operatorClass.getDeclaredFields();
+        for (Field declaredField : declaredFields) {
+            final SourceProduct sourceProduct = declaredField.getAnnotation(SourceProduct.class);
+            if (sourceProduct != null) {
+                sourceProductDescriptors.put(declaredField.getName(), sourceProduct);
+                if (!sourceProduct.alias().isEmpty()) {
+                    sourceProductDescriptors.put(sourceProduct.alias(), sourceProduct);
+                }
+            }
+            final Parameter parameter = declaredField.getAnnotation(Parameter.class);
+            if (parameter != null) {
+                parameterDescriptors.put(declaredField.getName(), parameter);
+                if (!parameter.alias().isEmpty()) {
+                    parameterDescriptors.put(parameter.alias(), parameter);
+                }
+            }
+        }
     }
 
-    /**
-     * Sets a short description of the {@link Operator}.
-     *
-     * @param description a short description
-     */
-    protected void setDescription(String description) {
-        this.description = description;
-    }
-
-    /**
-     * Gets the version number of the {@link Operator}.
-     *
-     * @return the version number
-     */
-    public String getVersion() {
-        return version;
-    }
-
-    /**
-     * Sets the version number of the {@link Operator}.
-     *
-     * @param version the version number
-     */
-    protected void setVersion(String version) {
-        this.version = version;
-    }
-
-
-    private static String getAliasName(Class<? extends Operator> operatorClass) {
+    private static String getOperatorAlias(Class<? extends Operator> operatorClass) {
         OperatorMetadata annotation = operatorClass.getAnnotation(OperatorMetadata.class);
         if (annotation != null && !annotation.alias().isEmpty()) {
             return annotation.alias();
         }
         return operatorClass.getSimpleName();
-    }
-
-    private static String getVersion(Class<? extends Operator> operatorClass) {
-        OperatorMetadata annotation = operatorClass.getAnnotation(OperatorMetadata.class);
-        if (annotation != null && annotation.version() != null) {
-            return annotation.version();
-        }
-        return "";
-    }
-
-    private static String getAuthor(Class<? extends Operator> operatorClass) {
-        OperatorMetadata annotation = operatorClass.getAnnotation(OperatorMetadata.class);
-        if (annotation != null && annotation.authors() != null) {
-            return annotation.authors();
-        }
-        return "";
-    }
-
-    private static String getCopyright(Class<? extends Operator> operatorClass) {
-        OperatorMetadata annotation = operatorClass.getAnnotation(OperatorMetadata.class);
-        if (annotation != null && annotation.copyright() != null) {
-            return annotation.authors();
-        }
-        return "";
-    }
-
-    private static String getDescription(Class<? extends Operator> operatorClass) {
-        OperatorMetadata annotation = operatorClass.getAnnotation(OperatorMetadata.class);
-        if (annotation != null && annotation.description() != null) {
-            return annotation.description();
-        }
-        return "";
     }
 }

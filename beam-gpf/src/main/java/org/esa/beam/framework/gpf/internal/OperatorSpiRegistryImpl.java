@@ -136,7 +136,7 @@ public class OperatorSpiRegistryImpl implements OperatorSpiRegistry {
 
     private void setAliases(OperatorSpi operatorSpi) {
         Class<? extends OperatorSpi> spiClass = operatorSpi.getClass();
-        setAlias(operatorSpi.getAliasName(), spiClass.getName());
+        setAlias(operatorSpi.getOperatorAlias(), spiClass.getName());
     }
 
     private void unregisterAliases(OperatorSpi operatorSpi) {

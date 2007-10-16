@@ -51,11 +51,11 @@ import java.util.logging.Logger;
  * @author Marco Peters
  * @author Marco Zühlke
  * @see OperatorSpi
- * @see @org.esa.beam.framework.gpf.annotations.OperatorMetadata
- * @see @org.esa.beam.framework.gpf.annotations.Parameter
- * @see @org.esa.beam.framework.gpf.annotations.TargetProduct
- * @see @org.esa.beam.framework.gpf.annotations.SourceProduct
- * @see @org.esa.beam.framework.gpf.annotations.SourceProducts
+ * @see org.esa.beam.framework.gpf.annotations.OperatorMetadata
+ * @see org.esa.beam.framework.gpf.annotations.Parameter
+ * @see org.esa.beam.framework.gpf.annotations.TargetProduct
+ * @see org.esa.beam.framework.gpf.annotations.SourceProduct
+ * @see org.esa.beam.framework.gpf.annotations.SourceProducts
  * @since 4.1
  */
 public abstract class Operator {
@@ -246,9 +246,10 @@ public abstract class Operator {
 
     /**
      * Gets the SPI which was used to create this operator.
+     * If no operator has been explicitely set, the method will return an anonymous
+     * SPI.
      *
-     * @return The operator SPI, or {@code null} if the operator instance was created without SPI or if the
-     *         SPI has not been set.
+     * @return The operator SPI.
      */
     public final OperatorSpi getSpi() {
         return context.getOperatorSpi();
@@ -261,6 +262,7 @@ public abstract class Operator {
      */
     public final void setSpi(OperatorSpi operatorSpi) {
         Assert.notNull(operatorSpi, "operatorSpi");
+        Assert.argument(operatorSpi.getOperatorClass().isAssignableFrom(getClass()), "operatorSpi");
         context.setOperatorSpi(operatorSpi);
     }
 }

@@ -332,7 +332,7 @@ public class GraphCallSequenceTest extends TestCase {
     }
 
     private static String getOpName(RecordingOp recordingOp) {
-        return recordingOp.getSpi().getAliasName();
+        return recordingOp.getSpi().getOperatorAlias();
     }
 
     public static class RecordingOp extends Operator {
@@ -491,7 +491,7 @@ public class GraphCallSequenceTest extends TestCase {
     public static class RecordingProduct extends Product {
 
         public RecordingProduct(RecordingOp op) {
-            super(op.getSpi().getAliasName(), op.getClass().getSimpleName(), 1, 1);
+            super(op.getSpi().getOperatorAlias(), op.getClass().getSimpleName(), 1, 1);
             addBand("band_0", ProductData.TYPE_FLOAT32);
             recordCall(getName(), "Product.construct");
         }
