@@ -95,10 +95,15 @@ public class Interval {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(minIncluded ? '[' : '(');
-        sb.append(min == Double.NEGATIVE_INFINITY ? "*" : Double.toString(min));
+        sb.append(min == Double.NEGATIVE_INFINITY ? "*" : toString(min));
         sb.append(',');
-        sb.append(max == Double.POSITIVE_INFINITY ? "*" : Double.toString(max));
+        sb.append(max == Double.POSITIVE_INFINITY ? "*" : toString(max));
         sb.append(maxIncluded ? ']' : ')');
         return sb.toString();
+    }
+
+    private static String toString(double d) {
+        final long l = Math.round(d);
+        return d == l ? Long.toString(l) : Double.toString(d);
     }
 }
