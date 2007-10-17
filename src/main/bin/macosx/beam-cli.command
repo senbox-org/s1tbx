@@ -16,6 +16,7 @@ export PATH=$PATH:$BEAM4_HOME/bin
 echo ""
 echo "Welcome to the BEAM command-line interface!"
 echo "The following command-line tools are available:"
+echo "  gpt.sh           - General Graph Processing Tool"
 echo "  pconvert.sh       - General product conversion and quicklook generation"
 echo "  mapproj.sh        - General map projections"
 echo "  binning.sh        - General level 3 binning processor"
