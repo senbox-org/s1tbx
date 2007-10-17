@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<install4j version="4.0.6" transformSequenceNumber="1">
+<install4j version="4.0.7" transformSequenceNumber="1">
     <directoryPresets config="./src/main/resources/images"/>
     <application name="BEAM" distributionSourceDir="" applicationId="2648-9058-9483-8098"
                  mediaDir="../target/installers"
                  mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}"
                  compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true"
                  keepModificationTimes="true" shortName="beam" publisher="Brockmann Consult"
-                 publisherWeb="http://www.brockmann-consult.de" version="4.1-20071012-01" allPathsRelative="true"
+                 publisherWeb="http://www.brockmann-consult.de" version="4.1-20071017-01" allPathsRelative="true"
                  backupOnSave="true" autoSave="true" convertDotsToUnderscores="false" macSignature="????"
                  javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="true">
         <languages skipLanguageSelection="false">
@@ -204,7 +204,7 @@
                                         <string>19</string>
                                     </void>
                                     <void property="vmOptions">
-                                        <array class="java.lang.String" length="3">
+                                        <array class="java.lang.String" length="4">
                                             <void index="0">
                                                 <string>-Xmx${installer:maxHeapSize}</string>
                                             </void>
@@ -215,6 +215,9 @@
                                                 <string>
                                                     -Dbeam.splash.image=${installer:sys.installationDir}/bin/splash.png
                                                 </string>
+                                            </void>
+                                            <void index="3">
+                                                <string/>
                                             </void>
                                         </array>
                                     </void>
