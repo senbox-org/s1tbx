@@ -1,6 +1,7 @@
 package org.esa.beam.util.jai;
 
 import com.bc.ceres.core.Assert;
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -23,8 +24,10 @@ import java.io.IOException;
 
 public class ImageFactory {
 
-    public static PlanarImage createOverlayedRgbImage(final RasterDataNode[] rasterDataNodes, final String histogramMatching) throws IOException {
-        PlanarImage image = createRgbImage(rasterDataNodes, histogramMatching);
+    public static PlanarImage createOverlayedRgbImage(final RasterDataNode[] rasterDataNodes,
+                                                      final String histogramMatching,
+                                                      final ProgressMonitor pm) throws IOException {
+        PlanarImage image = createRgbImage(rasterDataNodes, histogramMatching, pm);
         BitmaskDef[] bitmaskDefs = rasterDataNodes[0].getBitmaskDefs();
         if (bitmaskDefs.length > 0) {
             image = new BitmaskOverlayOpImage(image, rasterDataNodes[0]);
@@ -32,11 +35,15 @@ public class ImageFactory {
         return image;
     }
 
-    public static PlanarImage createRgbImage(final RasterDataNode[] rasterDataNodes, final String histogramMatching) {
+    public static PlanarImage createRgbImage(final RasterDataNode[] rasterDataNodes,
+                                             final String histogramMatching,
+                                             final ProgressMonitor pm) {
         Assert.notNull(rasterDataNodes,
                        "rasterDataNodes");
         Assert.state(rasterDataNodes.length == 1 || rasterDataNodes.length == 3 || rasterDataNodes.length == 4,
                      "invalid number of bands");
+
+        pm.beginTask("Creating image...", rasterDataNodes.length * 3);
 
         PlanarImage[] sourceImages = new PlanarImage[rasterDataNodes.length];
         for (int i = 0; i < rasterDataNodes.length; i++) {
@@ -63,6 +70,8 @@ public class ImageFactory {
                 } else {
                     extrema = JAIUtils.getExtrema(planarImage, null);
                 }
+                checkCanceled(pm);
+                pm.worked(1);
                 Debug.trace("  Extrema computed.");
                 Debug.trace("  Computing histogram...");
                 // todo - construct ROI from no-data image here
@@ -72,8 +81,11 @@ public class ImageFactory {
                 Debug.trace("  Histogram computed.");
                 imageInfo = raster.createDefaultImageInfo(null, histogram, true); // Note: this method expects a raw data histogram!
                 raster.setImageInfo(imageInfo);
+                checkCanceled(pm);
+                pm.worked(1);
             } else {
                 imageInfo = raster.getImageInfo();
+                pm.worked(2);
             }
 
             final double newMin = raster.scaleInverse(imageInfo.getMinDisplaySample());
@@ -83,6 +95,8 @@ public class ImageFactory {
             planarImage = JAIUtils.createRescaleOp(planarImage, 255.0 / (newMax - newMin), 255.0 * newMin / (newMin - newMax));
             planarImage = JAIUtils.createFormatOp(planarImage, DataBuffer.TYPE_BYTE);
             sourceImages[i] = planarImage;
+            checkCanceled(pm);
+            pm.worked(1);
         }
 
         PlanarImage image;
@@ -186,5 +200,11 @@ public class ImageFactory {
         imageLayout.setColorModel(PlanarImage.createColorModel(sampleModel));
         image = JAI.create("format", parameterBlock, new RenderingHints(JAI.KEY_IMAGE_LAYOUT, imageLayout));
         return image;
+    }
+
+    private static void checkCanceled(ProgressMonitor pm) {
+        if (pm.isCanceled()) {
+            throw new RuntimeException("Process canceled by user.");
+        }
     }
 }

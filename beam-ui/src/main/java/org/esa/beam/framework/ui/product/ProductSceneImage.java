@@ -217,7 +217,7 @@ public class ProductSceneImage {
     public static RenderedImage createImage(RasterDataNode[] rasters, String histogramMatching, ProgressMonitor pm) throws IOException {
         // JAIJAIJAI
         if (Boolean.getBoolean("beam.imageTiling.enabled")) {
-            return ImageFactory.createOverlayedRgbImage(rasters, histogramMatching);
+            return ImageFactory.createOverlayedRgbImage(rasters, histogramMatching, pm);
         } else {
             return ProductUtils.createOverlayedImage(rasters, histogramMatching, pm);
         }

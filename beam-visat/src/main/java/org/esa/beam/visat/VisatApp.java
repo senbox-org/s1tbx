@@ -1234,7 +1234,7 @@ public final class VisatApp extends BasicApp {
      */
     public void openProductSceneView(final RasterDataNode raster, final String helpId) {
         final SwingWorker worker = new ProgressMonitorSwingWorker<ProductSceneImage, Object>(getMainFrame(),
-                                                                                             "Creating gray scale image") {
+                                                                                             "Creating single band image") {
 
             @Override
             protected ProductSceneImage doInBackground(ProgressMonitor pm) throws Exception {
@@ -1605,18 +1605,13 @@ public final class VisatApp extends BasicApp {
         }
 
         ProductSceneImage productSceneImage = null;
-        if (!mustLoadData) {
-            pm = ProgressMonitor.NULL;
-        }
-        pm.beginTask(message, 2);
+        pm.beginTask(message, mustLoadData ? 2 : 1);
         try {
             if (mustLoadData) {
                 loadProductRasterDataImpl(raster, SubProgressMonitor.create(pm, 1));
                 if (!raster.hasRasterData()) {
                     return null;
                 }
-            } else {
-                pm.worked(1);
             }
             final JInternalFrame[] frames = findInternalFrames(raster, 1);
             final LayerModel layerModel;

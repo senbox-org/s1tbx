@@ -62,7 +62,13 @@ public class OperatorProductReader implements ProductReader {
     public void readBandRasterData(Band destBand, int destOffsetX, int destOffsetY, int destWidth,
                                    int destHeight, ProductData destBuffer, ProgressMonitor pm) throws IOException {
         Rectangle destRectangle = new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight);
-        readRectangle(destBand, destRectangle, destBuffer);
+        pm.beginTask("Computing tiles", 100);
+        try {
+            readRectangle(destBand, destRectangle, destBuffer);
+            pm.worked(100);
+        } finally {
+            pm.done();
+        }
     }
 
     private void readRectangle(Band targetBand,
