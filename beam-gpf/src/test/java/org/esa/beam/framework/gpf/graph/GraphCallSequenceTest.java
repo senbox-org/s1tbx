@@ -366,13 +366,13 @@ public class GraphCallSequenceTest extends TestCase {
             Rectangle r = targetTile.getRectangle();
             float offset = r.y * targetProduct.getSceneRasterWidth() + r.x;
 
-            ProductData rawSampleData = targetTile.getRawSampleData();
+            ProductData rawSampleData = targetTile.getRawSamples();
             float[] targetElems = (float[]) rawSampleData.getElems();
             for (int i = 0; i < targetElems.length; i++) {
                 targetElems[i] = offset + i;
             }
             rawSampleData.setElems(targetElems);
-            targetTile.setRawSampleData(rawSampleData);
+            targetTile.setRawSamples(rawSampleData);
 
         }
 
@@ -398,14 +398,14 @@ public class GraphCallSequenceTest extends TestCase {
             Tile sourceTile = getSourceTile(sourceProduct.getBandAt(0),
                                             targetTile.getRectangle());
 
-            float[] sourceElems = (float[]) sourceTile.getRawSampleData().getElems();
-            ProductData rawSampleData = targetTile.getRawSampleData();
+            float[] sourceElems = (float[]) sourceTile.getRawSamples().getElems();
+            ProductData rawSampleData = targetTile.getRawSamples();
             float[] targetElems = (float[]) rawSampleData.getElems();
             for (int i = 0; i < targetElems.length; i++) {
                 targetElems[i] = 0.1f * sourceElems[i];
             }
             rawSampleData.setElems(targetElems);
-            targetTile.setRawSampleData(rawSampleData);
+            targetTile.setRawSamples(rawSampleData);
         }
     }
 
@@ -429,15 +429,15 @@ public class GraphCallSequenceTest extends TestCase {
             Tile sourceTile2 = getSourceTile(sourceProduct2.getBandAt(0),
                                              targetTile.getRectangle());
 
-            float[] source1Elems = (float[]) sourceTile1.getRawSampleData().getElems();
-            float[] source2Elems = (float[]) sourceTile2.getRawSampleData().getElems();
-            ProductData rawSampleData = targetTile.getRawSampleData();
+            float[] source1Elems = (float[]) sourceTile1.getRawSamples().getElems();
+            float[] source2Elems = (float[]) sourceTile2.getRawSamples().getElems();
+            ProductData rawSampleData = targetTile.getRawSamples();
             float[] targetElems = (float[]) rawSampleData.getElems();
             for (int i = 0; i < targetElems.length; i++) {
                 targetElems[i] = 0.1f * (source1Elems[i] + source2Elems[i]);
             }
             rawSampleData.setElems(targetElems);
-            targetTile.setRawSampleData(rawSampleData);
+            targetTile.setRawSamples(rawSampleData);
         }
     }
 

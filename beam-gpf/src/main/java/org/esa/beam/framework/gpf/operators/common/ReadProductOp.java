@@ -55,12 +55,12 @@ public class ReadProductOp extends Operator {
     @Override
     public void computeTile(Band band, Tile targetTile) throws OperatorException {
 
-        ProductData dataBuffer = targetTile.getRawSampleData();
+        ProductData dataBuffer = targetTile.getRawSamples();
         Rectangle rectangle = targetTile.getRectangle();
         try {
             beamReader.readBandRasterData(band, rectangle.x, rectangle.y, rectangle.width,
                                           rectangle.height, dataBuffer, createProgressMonitor());
-            targetTile.setRawSampleData(dataBuffer);
+            targetTile.setRawSamples(dataBuffer);
         } catch (IOException e) {
             throw new OperatorException(e);
         }

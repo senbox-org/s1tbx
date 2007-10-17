@@ -69,12 +69,12 @@ public class SubsetOp extends Operator {
 
     @Override
     public void computeTile(Band band, Tile targetTile) throws OperatorException {
-        ProductData destBuffer = targetTile.getRawSampleData();
+        ProductData destBuffer = targetTile.getRawSamples();
         Rectangle rectangle = targetTile.getRectangle();
         try {
             subsetReader.readBandRasterData(band, rectangle.x, rectangle.y, rectangle.width,
                                             rectangle.height, destBuffer, createProgressMonitor());
-            targetTile.setRawSampleData(destBuffer);
+            targetTile.setRawSamples(destBuffer);
         } catch (IOException e) {
             throw new OperatorException(e);
         }

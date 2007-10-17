@@ -175,7 +175,7 @@ public class BandArithmeticOp extends Operator implements ParameterConverter {
                 }
                 symbol.setData(dataBuffer);
             } else {
-                ProductData dataBuffer = tile.getRawSampleData();
+                ProductData dataBuffer = tile.getRawSamples();
                 symbol.setData(dataBuffer);
             }
         }

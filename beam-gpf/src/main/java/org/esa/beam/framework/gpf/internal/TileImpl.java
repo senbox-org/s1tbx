@@ -167,7 +167,7 @@ public class TileImpl implements Tile {
         return scanlineStride;
     }
 
-    public ProductData getRawSampleData() {
+    public ProductData getRawSamples() {
         if (rawSamples == null) {
             synchronized (this) {
                 if (rawSamples == null) {
@@ -189,7 +189,7 @@ public class TileImpl implements Tile {
         return rawSamples;
     }
 
-    public void setRawSampleData(ProductData rawSamples) {
+    public void setRawSamples(ProductData rawSamples) {
         Assert.notNull(rawSamples, "rawSamples");
         if (target) {
             if (rawSamples != this.rawSamples || mustWriteSampleData) {

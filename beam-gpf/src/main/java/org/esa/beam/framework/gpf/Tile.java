@@ -28,7 +28,7 @@ import java.awt.Rectangle;
  * <p>(2) More performance is gained if the sample data buffer is checked out and committed
  * (required after modification only):</p>
  * <pre>
- *   ProductData samples = tile.getRawSampleData(); // check out
+ *   ProductData samples = tile.getRawSamples(); // check out
  *   for (int y = 0; y &lt; getHeight(); y++) {
  *       for (int x = 0; x &lt; getWidth(); x++) {
  *           // compute sample value...
@@ -36,7 +36,7 @@ import java.awt.Rectangle;
  *           // ...
  *       }
  *   }
- *   tile.setRawSampleData(samples); // commit
+ *   tile.setRawSamples(samples); // commit
  * </pre>
  * <p>(3) The the fastest way to read from or write to sample data is direct access to the sample data
  * via the primitive data buffer arrays:</p>
@@ -271,32 +271,29 @@ public interface Tile {
      */
     int getScanlineStride();
 
-
-    // todo - rename to getRawSamples() (nf - 09.10.2007)
     /**
      * Gets raw (unscaled, uncalibrated) samples, e.g. detector counts, copied from or wrapping the underlying
      * data buffer. In contradiction to the {@link #getDataBuffer()} method, the returned samples
      * will cover exactly the region {@link #getRectangle()} rectangle} of this tile. Thus, the number
      * of returned samples will always equal {@link #getWidth() width} {@code *} {@link #getHeight() height}.
      * <p>In order to apply changes of the samples values to this tile, it is mandatory to call
-     * {@link #setRawSampleData(org.esa.beam.framework.datamodel.ProductData)} with the modified
+     * {@link #setRawSamples(org.esa.beam.framework.datamodel.ProductData)} with the modified
      * {@code ProductData} instance.</p>
      *
      * @return The raw samples copied from or wrapping the underlying data buffer.
      */
-    ProductData getRawSampleData();
+    ProductData getRawSamples();
 
-    // todo - rename to setRawSamples() (nf - 09.10.2007)
     /**
      * Sets raw (unscaled, uncalibrated) samples, e.g. detector counts, into the underlying.
      * The number of given samples must be equal {@link #getWidth() width} {@code *} {@link #getHeight() height}
      * of this tile.
      * <p>This method must be used
-     * in order to apply changes made to the samples returned by the {@link #getRawSampleData()} method.</p>
+     * in order to apply changes made to the samples returned by the {@link #getRawSamples()} method.</p>
      *
      * @param samples The raw samples to be set.
      */
-    void setRawSampleData(ProductData samples);
+    void setRawSamples(ProductData samples);
 
 // todo - define getSamples():ProductData (nf - 09.10.2007)
 // todo - define setSamples(samples:ProductData):void (nf - 09.10.2007)

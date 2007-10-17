@@ -82,7 +82,7 @@ public class WriteProductOp extends Operator {
             Rectangle rectangle = targetTile.getRectangle();
             try {
                 Tile tile = getSourceTile(band, rectangle);
-                ProductData dataBuffer = tile.getRawSampleData();
+                ProductData dataBuffer = tile.getRawSamples();
                 band.writeRasterData(rectangle.x, rectangle.y,
                                      rectangle.width, rectangle.height, dataBuffer, createProgressMonitor());
             } catch (IOException e) {

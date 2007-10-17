@@ -86,8 +86,8 @@ public class GPFTest extends TestCase {
         @Override
         public void computeTile(Band band, Tile targetTile) throws OperatorException {
             Tile sourceTile = getSourceTile(sourceProduct.getBand(band.getName()), targetTile.getRectangle());
-            ProductData rawTarget = targetTile.getRawSampleData();
-            ProductData rawSource = sourceTile.getRawSampleData();
+            ProductData rawTarget = targetTile.getRawSamples();
+            ProductData rawSource = sourceTile.getRawSamples();
             int n = rawTarget.getNumElems();
             for (int i = 0; i < n; i++) {
                 float v = rawSource.getElemFloatAt(i);
@@ -99,7 +99,7 @@ public class GPFTest extends TestCase {
                 }
                 rawTarget.setElemFloatAt(i, v);
             }
-            targetTile.setRawSampleData(rawTarget);
+            targetTile.setRawSamples(rawTarget);
         }
     }
 

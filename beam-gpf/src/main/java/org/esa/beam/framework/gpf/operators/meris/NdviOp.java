@@ -102,7 +102,7 @@ public class NdviOp extends Operator {
             Tile l1flagsTargetTile = targetTiles.get(targetProduct.getBand(L1FLAGS_INPUT_BAND_NAME));
             // TODO replace copy by OpImage delegation
             final int length = rectangle.width * rectangle.height;
-            System.arraycopy(l1flagsSourceTile.getRawSampleData().getElems(), 0, l1flagsTargetTile.getRawSampleData().getElems(), 0, length);
+            System.arraycopy(l1flagsSourceTile.getRawSamples().getElems(), 0, l1flagsTargetTile.getRawSamples().getElems(), 0, length);
             pm.worked(1);
 
             Tile lowerTile = getSourceTile(_lowerInputBand, rectangle);

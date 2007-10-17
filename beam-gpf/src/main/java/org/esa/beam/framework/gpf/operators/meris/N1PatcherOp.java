@@ -221,7 +221,7 @@ public class N1PatcherOp extends Operator {
         pm.beginTask("Patching product...", rectangle.height);
         try {
             Tile srcTile = getSourceTile(band, rectangle);
-            short[] data = (short[]) srcTile.getRawSampleData().getElems();
+            short[] data = (short[]) srcTile.getRawSamples().getElems();
             
             byte[] buf = new byte[rectangle.height * descriptor.dsrSize];
             final long dsrOffset = descriptor.dsOffset + rectangle.y * descriptor.dsrSize;
