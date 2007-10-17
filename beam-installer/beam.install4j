@@ -6,7 +6,7 @@
                  mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}"
                  compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true"
                  keepModificationTimes="true" shortName="beam" publisher="Brockmann Consult"
-                 publisherWeb="http://www.brockmann-consult.de" version="4.1-20071017-01" allPathsRelative="true"
+                 publisherWeb="http://www.brockmann-consult.de" version="4.1-20071017-02" allPathsRelative="true"
                  backupOnSave="true" autoSave="true" convertDotsToUnderscores="false" macSignature="????"
                  javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="true">
         <languages skipLanguageSelection="false">
@@ -690,9 +690,9 @@
     <mediaSets>
         <win32 name="Windows" id="20" mediaFileName="" installDir="beam-4.1-SNAPSHOT" overridePrincipalLanguage="false"
                requires64bit="false" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false"
-               includedJRE="windows-x86-1.6.0_02" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL=""
+               includedJRE="windows-x86-1.6.0_03" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL=""
                jreShared="false" customInstallBaseDir="" createUninstallIcon="true" contentFilesType="1" downloadURL=""
-               runAsAdmin="false">
+               runAsAdmin="true">
             <excludedLaunchers/>
             <excludedComponents/>
             <overriddenPrincipalLanguage id="en" customLocalizationFile=""/>
@@ -768,9 +768,9 @@
         </macosFolder>
         <unixInstaller name="Unix Installer" id="128" mediaFileName="" installDir="beam-4.1-SNAPSHOT"
                        overridePrincipalLanguage="false" requires64bit="false" runPostProcessor="false" postProcessor=""
-                       failOnPostProcessorError="false" includedJRE="linux-x86-1.6.0_02" manualJREEntry="false"
-                       bundleType="1" jreURL="" jreFtpURL="" jreShared="false" customInstallBaseDir=""
-                       createUninstallIcon="true" contentFilesType="1" downloadURL="">
+                       failOnPostProcessorError="false" includedJRE="linux-x86-1.6.0_03_client_only"
+                       manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false"
+                       customInstallBaseDir="" createUninstallIcon="true" contentFilesType="1" downloadURL="">
             <excludedLaunchers>
                 <launcher id="1086"/>
             </excludedLaunchers>
@@ -812,8 +812,8 @@
         </unixInstaller>
         <linuxRPM name="Linux RPM" id="1080" mediaFileName="" installDir="beam-4.1-SNAPSHOT"
                   overridePrincipalLanguage="false" requires64bit="false" runPostProcessor="false" postProcessor=""
-                  failOnPostProcessorError="false" includedJRE="linux-x86-1.6.0_02" manualJREEntry="false" os="linux"
-                  arch="i386">
+                  failOnPostProcessorError="false" includedJRE="linux-x86-1.6.0_03_client_only" manualJREEntry="false"
+                  os="linux" arch="i386">
             <excludedLaunchers>
                 <launcher id="1086"/>
             </excludedLaunchers>
@@ -861,8 +861,6 @@
             </postUninstallScript>
         </linuxRPM>
     </mediaSets>
-    <buildIds buildAll="true">
-        <mediaSet refId="20"/>
-    </buildIds>
+    <buildIds buildAll="true"/>
 </install4j>
 
