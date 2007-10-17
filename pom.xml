@@ -49,6 +49,7 @@
         <module>beam-pconvert</module>
         <module>beam-visat</module>
         <module>beam-gpf</module>
+        <module>beam-gpf-docgen</module>
         <module>beam-processing</module>
         <module>beam-help</module>
 
