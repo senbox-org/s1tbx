@@ -6,7 +6,7 @@
                  mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}"
                  compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true"
                  keepModificationTimes="true" shortName="beam" publisher="Brockmann Consult"
-                 publisherWeb="http://www.brockmann-consult.de" version="4.1-20071017-02" allPathsRelative="true"
+                 publisherWeb="http://www.brockmann-consult.de" version="4.1-20071017-03" allPathsRelative="true"
                  backupOnSave="true" autoSave="true" convertDotsToUnderscores="false" macSignature="????"
                  javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="true">
         <languages skipLanguageSelection="false">
