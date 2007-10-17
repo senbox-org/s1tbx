@@ -181,11 +181,11 @@ public class CloudProcessor extends Processor {
      * Creates the output product skeleton.
      */
     private void initOutputProduct() throws ProcessorException,
-                                            IOException {
+            IOException {
         l1bProduct = loadInputProduct(0);
-        if(!EnvisatConstants.MERIS_L1_TYPE_PATTERN.matcher(l1bProduct.getProductType()).matches()) {
+        if (!EnvisatConstants.MERIS_L1_TYPE_PATTERN.matcher(l1bProduct.getProductType()).matches()) {
             throw new ProcessorException("Product type '" + l1bProduct.getProductType() + "' is not supported." +
-                                         "It must be a MERIS l1b product.");
+                    "It must be a MERIS Level 1b product.");
         }
         cloudProduct = cloudNode.readProductNodes(l1bProduct, null);
         cloudNodeBands = cloudProduct.getBands();
