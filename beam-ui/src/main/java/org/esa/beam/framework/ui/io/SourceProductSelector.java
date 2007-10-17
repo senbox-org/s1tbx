@@ -23,7 +23,6 @@ import java.util.regex.Pattern;
  */
 public class SourceProductSelector {
 
-//    private Product[] defaultProducts;
     private Pattern typePattern;
     private Product chooserProduct;
     private String labelText;
@@ -39,7 +38,6 @@ public class SourceProductSelector {
     }
 
     public SourceProductSelector(Product[] products, String productLabelText, String productTypePattern) {
-//        defaultProducts = products;
         labelText = productLabelText.trim();
         if (!labelText.endsWith(":")) {
             labelText = labelText.concat(":");
@@ -54,7 +52,6 @@ public class SourceProductSelector {
             }
         }
         productListModel.setSelectedItem(null);
-//        currentDirectory = SystemUtils.getUserHomeDir();
 
         productLabel = new JLabel(labelText);
         chooserButton = new JButton(new ChooserAction());
