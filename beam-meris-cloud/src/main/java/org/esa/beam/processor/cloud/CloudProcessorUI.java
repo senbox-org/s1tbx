@@ -20,16 +20,8 @@ import org.esa.beam.dataio.envisat.EnvisatConstants;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.param.ParamChangeEvent;
-import org.esa.beam.framework.param.ParamChangeListener;
-import org.esa.beam.framework.param.ParamGroup;
-import org.esa.beam.framework.param.ParamValidateException;
-import org.esa.beam.framework.param.Parameter;
-import org.esa.beam.framework.processor.ProcessorConstants;
-import org.esa.beam.framework.processor.ProcessorException;
-import org.esa.beam.framework.processor.ProcessorUtils;
-import org.esa.beam.framework.processor.ProductRef;
-import org.esa.beam.framework.processor.Request;
+import org.esa.beam.framework.param.*;
+import org.esa.beam.framework.processor.*;
 import org.esa.beam.framework.processor.ui.AbstractProcessorUI;
 import org.esa.beam.framework.processor.ui.ProcessorApp;
 import org.esa.beam.framework.ui.GridBagUtils;
@@ -347,7 +339,7 @@ public class CloudProcessorUI extends AbstractProcessorUI {
                 final boolean isValidType = EnvisatConstants.MERIS_L1_TYPE_PATTERN.matcher(productType).matches();
                 if (!isValidType) {
                     msg = "The specified input product is not of the expected type.\n" +
-                          "The type of the product must be 'MERIS_L1b'.";           /*I18N*/
+                            "The type of the product must be a MERIS L1b product.";           /*I18N*/
                 } else {
                     final String[] radianceBandNames = EnvisatConstants.MERIS_L1B_SPECTRAL_BAND_NAMES;
                     final Band[] radianceBands = new Band[radianceBandNames.length];
