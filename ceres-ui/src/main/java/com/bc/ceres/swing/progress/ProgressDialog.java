@@ -47,8 +47,8 @@ public class ProgressDialog {
     public JButton cancelButton;
 
     private long startTime;
-    private int millisToDecideToPopup = 500;
-    private int millisToPopup = 2000;
+    private int millisToDecideToPopup = 400;
+    private int millisToPopup = 800;
     private boolean canceled = false;
 
     /**
@@ -118,6 +118,7 @@ public class ProgressDialog {
         }
 
         if (progressBar != null) {
+            progressBar.setIndeterminate(false);
             progressBar.setValue(progress);
             return;
         }
@@ -340,6 +341,8 @@ public class ProgressDialog {
         progressBar.setMinimum(minimum);
         progressBar.setMaximum(maximum);
         progressBar.setValue(progress);
+        progressBar.setIndeterminate(true);
+
         Dimension preferredSize = progressBar.getPreferredSize();
         preferredSize.width = Math.max(300, preferredSize.width);
         progressBar.setPreferredSize(preferredSize);
