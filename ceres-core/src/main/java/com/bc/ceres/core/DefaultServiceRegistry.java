@@ -1,17 +1,14 @@
 package com.bc.ceres.core;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
- * @since 0.6
+ * {@inheritDoc}
  */
 public class DefaultServiceRegistry<T> implements ServiceRegistry<T> {
 
     private final Class<T> serviceType;
-    private HashSet<T> services = new HashSet<T>(10);
+    private HashMap<String, T> services = new HashMap<String, T>(10);
 
     private ArrayList<ServiceRegistryListener<T>> listeners = new ArrayList<ServiceRegistryListener<T>>(3);
 
@@ -20,55 +17,75 @@ public class DefaultServiceRegistry<T> implements ServiceRegistry<T> {
         this.serviceType = serviceType;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Class<T> getServiceType() {
         return serviceType;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Set<T> getServices() {
-        return (Set<T>) services.clone();
+        return new HashSet<T>(services.values());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public T getService(String className) {
-        for (T service : services) {
-            if (service.getClass().getName().equals(className)) {
-                return service;
-            }
-        }
-        return null;
+        return services.get(className);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean addService(T service) {
         Assert.notNull(service, "service");
-        if (!services.contains(service)) {
-            services.add(service);
-            for (ServiceRegistryListener<T> listener : listeners) {
-                listener.serviceAdded(this, service);
-            }
-            return true;
+        final T existingService = services.put(service.getClass().getName(), service);
+        if (existingService == service) {
+            return false;
         }
-        return false;
+        for (ServiceRegistryListener<T> listener : listeners) {
+            listener.serviceAdded(this, service);
+        }
+        return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public boolean removeService(T service) {
         Assert.notNull(service, "service");
-        if (services.remove(service)) {
-            for (ServiceRegistryListener<T> listener : listeners) {
-                listener.serviceRemoved(this, service);
-            }
-            return true;
+        final T existingService = services.remove(service.getClass().getName());
+        if (existingService != service) {
+            return false;
         }
-        return false;
+        for (ServiceRegistryListener<T> listener : listeners) {
+            listener.serviceRemoved(this, service);
+        }
+        return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public List<ServiceRegistryListener<T>> getListeners() {
         return (List<ServiceRegistryListener<T>>) listeners.clone();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void addListener(ServiceRegistryListener<T> listener) {
         Assert.notNull(listener, "listener");
         listeners.add(listener);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public void removeListener(ServiceRegistryListener<T> listener) {
         Assert.notNull(listener, "listener");
         listeners.remove(listener);
