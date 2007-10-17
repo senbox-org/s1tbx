@@ -1,23 +1,9 @@
 package com.bc.ceres.swing.progress;
 
-import com.bc.ceres.core.Assert;
 import com.bc.ceres.swing.SwingHelper;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dialog;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Window;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -46,9 +32,6 @@ public class ProgressDialog {
     private JProgressBar progressBar;
     public JButton cancelButton;
 
-    private long startTime;
-    private int millisToDecideToPopup = 400;
-    private int millisToPopup = 800;
     private boolean canceled = false;
 
     /**
@@ -64,7 +47,6 @@ public class ProgressDialog {
         this.title = UIManager.getString("ProgressMonitor.progressText");
         this.note = "";
         this.cancelable = true;
-        this.startTime = System.currentTimeMillis();
         this.modalityType = Dialog.ModalityType.MODELESS;
     }
 
@@ -106,7 +88,6 @@ public class ProgressDialog {
      *
      * @param progress an int specifying the current value, between the
      *                 maximum and minimum specified for this component
-     *
      * @see #setMinimum
      * @see #setMaximum
      * @see #close
@@ -116,14 +97,12 @@ public class ProgressDialog {
             close();
             return;
         }
-
         if (progressBar != null) {
-            progressBar.setIndeterminate(false);
+            if (progressBar.isIndeterminate()) {
+                progressBar.setIndeterminate(false);
+            }
             progressBar.setValue(progress);
-            return;
         }
-
-        maybeShowDialog(progress);
     }
 
 
@@ -158,7 +137,6 @@ public class ProgressDialog {
      * Returns the minimum value -- the lower end of the progress value.
      *
      * @return an int representing the minimum value
-     *
      * @see #setMinimum
      */
     public int getMinimum() {
@@ -169,7 +147,6 @@ public class ProgressDialog {
      * Specifies the minimum value.
      *
      * @param minimum an int specifying the minimum value
-     *
      * @see #getMinimum
      */
     public void setMinimum(int minimum) {
@@ -183,7 +160,6 @@ public class ProgressDialog {
      * Returns the maximum value -- the higher end of the progress value.
      *
      * @return an int representing the maximum value
-     *
      * @see #setMaximum
      */
     public int getMaximum() {
@@ -194,7 +170,6 @@ public class ProgressDialog {
      * Specifies the maximum value.
      *
      * @param maximum an int specifying the maximum value
-     *
      * @see #getMaximum
      */
     public void setMaximum(int maximum) {
@@ -205,62 +180,16 @@ public class ProgressDialog {
     }
 
     /**
-     * Returns true if the user hit the 'Cancel' button in the progress dialog.
+     * @return {@code true} if the user hit the 'Cancel' button in the progress dialog.
      */
     public boolean isCanceled() {
         return canceled;
     }
 
     /**
-     * Specifies the amount of time to wait before deciding whether or
-     * not to popup a progress monitor.
-     *
-     * @param millisToDecideToPopup an int specifying the time to wait,
-     *                              in milliseconds
-     *
-     * @see #getMillisToDecideToPopup
-     */
-    public void setMillisToDecideToPopup(int millisToDecideToPopup) {
-        this.millisToDecideToPopup = millisToDecideToPopup;
-    }
-
-    /**
-     * Returns the amount of time this object waits before deciding whether
-     * or not to popup a progress monitor.
-     *
-     * @see #setMillisToDecideToPopup
-     */
-    public int getMillisToDecideToPopup() {
-        return millisToDecideToPopup;
-    }
-
-    /**
-     * Specifies the amount of time it will take for the popup to appear.
-     * (If the predicted time remaining is less than this time, the popup
-     * won't be displayed.)
-     *
-     * @param millisToPopup an int specifying the time in milliseconds
-     *
-     * @see #getMillisToPopup
-     */
-    public void setMillisToPopup(int millisToPopup) {
-        this.millisToPopup = millisToPopup;
-    }
-
-    /**
-     * Returns the amount of time it will take for the popup to appear.
-     *
-     * @see #setMillisToPopup
-     */
-    public int getMillisToPopup() {
-        return millisToPopup;
-    }
-
-    /**
      * Specifies the message that is displayed.
      *
      * @param title a String specifying the message to display
-     *
      * @see #getTitle
      */
     public void setTitle(String title) {
@@ -274,7 +203,6 @@ public class ProgressDialog {
      * Specifies the message that is displayed.
      *
      * @return a String specifying the message to display
-     *
      * @see #setTitle
      */
     public String getTitle() {
@@ -287,7 +215,6 @@ public class ProgressDialog {
      * is currently being copied during a multiple-file copy.
      *
      * @param note a String specifying the note to display
-     *
      * @see #getNote
      */
     public void setNote(String note) {
@@ -302,35 +229,19 @@ public class ProgressDialog {
      * progress message.
      *
      * @return a String specifying the note to display
-     *
      * @see #setNote
      */
     public String getNote() {
         return this.note;
     }
 
-
     /////////////////////////////////////////////////////////////////////////////////////
-    private void maybeShowDialog(int progress) {
-        long T = System.currentTimeMillis();
-        long dT = (int) (T - startTime);
-        if (dT >= millisToDecideToPopup) {
-            int predictedCompletionTime;
-            if (progress > minimum) {
-                predictedCompletionTime = (int) (dT *
-                                                 (maximum - minimum) /
-                                                                     (progress - minimum));
-            } else {
-                predictedCompletionTime = millisToPopup;
-            }
-            if (predictedCompletionTime >= millisToPopup) {
-                showDialog(progress);
-            }
-        }
-    }
 
-    private void showDialog(int progress) {
-        Assert.state(progressBar == null, "progressBar == null");
+    public void show() {
+        if (dialog != null) {
+            dialog.setVisible(true);
+            return;
+        }
 
         Window parentWindow = null;
         if (parentComponent != null) {
@@ -340,7 +251,6 @@ public class ProgressDialog {
         progressBar = new JProgressBar();
         progressBar.setMinimum(minimum);
         progressBar.setMaximum(maximum);
-        progressBar.setValue(progress);
         progressBar.setIndeterminate(true);
 
         Dimension preferredSize = progressBar.getPreferredSize();

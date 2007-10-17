@@ -27,7 +27,7 @@ public abstract class ProgressMonitorSwingWorker<T, V> extends SwingWorker<T, V>
      * Overridden in order to call the {@link #doInBackground(com.bc.ceres.core.ProgressMonitor) doInBackground}
      * method with a {@link com.bc.ceres.core.ProgressMonitor ProgressMonitor}.
      *
-     * @return
+     * @return the computed result
      *
      * @throws Exception
      */
