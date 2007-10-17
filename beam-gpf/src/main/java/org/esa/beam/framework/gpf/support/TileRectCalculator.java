@@ -16,12 +16,9 @@
  */
 package org.esa.beam.framework.gpf.support;
 
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.util.math.MathUtils;
-
-import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.awt.geom.Point2D;
+
+import org.esa.beam.framework.datamodel.Product;
 
 /**
  * Created by marcoz.
@@ -43,23 +40,10 @@ public class TileRectCalculator {
         this.heightExtend = heightExtend;
     }
 
-    public TileRectCalculator(Rectangle sceneRectangle, int widthExtend, int heightExtend) {
-        this.sceneRectangle = sceneRectangle;
-        this.widthExtend = widthExtend;
-        this.heightExtend = heightExtend;
-    }
-
     public Rectangle computeSourceRectangle(Rectangle targetRectangle) {
         Rectangle requestedRectangle = new Rectangle(targetRectangle);
         requestedRectangle.grow(widthExtend, heightExtend);
         return requestedRectangle.intersection(sceneRectangle);
-    }
-
-    public Dimension computeMaxSourceSize(Dimension maxTileSize) {
-        final int width = maxTileSize.width + 2 * widthExtend;
-        final int height = maxTileSize.height + 2 * heightExtend;
-        final Dimension dim = new Dimension(width, height);
-        return dim;
     }
 
     public static int convertToIndex(int x, int y, Rectangle rectangle) {
@@ -67,11 +51,5 @@ public class TileRectCalculator {
         final int iy = y - rectangle.y;
         final int index = iy * rectangle.width + ix;
         return index;
-    }
-
-    public static int convertToIndex(Point2D pixelPos, Rectangle tileRectangle) {
-        final int pixelX = MathUtils.floorInt(pixelPos.getX());
-        final int pixelY = MathUtils.floorInt(pixelPos.getY());
-        return convertToIndex(pixelX, pixelY, tileRectangle);
     }
 }

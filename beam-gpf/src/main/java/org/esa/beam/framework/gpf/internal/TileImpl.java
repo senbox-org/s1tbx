@@ -4,6 +4,7 @@ import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.util.BitSetter;
 import org.esa.beam.util.ImageUtils;
 
 import java.awt.Rectangle;
@@ -252,5 +253,16 @@ public class TileImpl implements Tile {
             sample = rasterDataNode.scaleInverse(sample);
         }
         writableRaster.setSample(x, y, 0, sample);
+    }
+    
+    public boolean getSampleBit(int x, int y, int bitIndex) {
+        long sample = raster.getSample(x, y, 0);
+        return BitSetter.isFlagSet(sample, bitIndex);
+    }
+    
+    public void setSample(int x, int y, int bitIndex, boolean sample) {
+        long longSample = raster.getSample(x, y, 0);
+        long newSample = BitSetter.setFlag(longSample, bitIndex, sample);
+        writableRaster.setSample(x, y, 0, newSample);
     }
 }

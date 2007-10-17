@@ -393,4 +393,30 @@ public interface Tile {
      * @param sample The geophysical sample as {@code double} value.
      */
     void setSample(int x, int y, double sample);
+    
+    /**
+     * Gets the sample value for the given pixel coordinate and the specified bit index as {@code boolean}.
+     * <p>If the underlying data buffer is of a different sample data type, an appropriate type conversion is performed.</p>
+     * <p>Note that in most cases it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
+     * with the {@link #getScanlineOffset() scanlineOffset} and {@link #getScanlineStride() scanlineStride} properties.</p>
+     *
+     * @param x The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
+     * @param y The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
+     * @param bitIndex The bit index.
+     * @return The sample as {@code boolean} value.
+     */
+    boolean getSampleBit(int x, int y, int bitIndex);
+
+    /**
+     * Sets the sample at the given pixel coordinate and the specified bit index from a {@code boolean} value.
+     * <p>If the underlying data buffer is of a different sample data type, an appropriate type conversion is performed.</p>
+     * <p>Note that in most cases it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
+     * with the {@link #getScanlineOffset() scanlineOffset} and {@link #getScanlineStride() scanlineStride} properties.</p>
+     *
+     * @param x      The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
+     * @param y      The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
+     * @param bitIndex The bit index.
+     * @param sample The sample as {@code boolean} value.
+     */
+    void setSample(int x, int y, int bitIndex, boolean sample);
 }

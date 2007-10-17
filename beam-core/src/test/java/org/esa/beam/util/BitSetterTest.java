@@ -1,5 +1,5 @@
 /*
- * $Id: FlagWrapperTest.java,v 1.1 2007/03/27 12:51:06 marcoz Exp $
+ * $Id: $
  *
  * Copyright (C) 2007 by Brockmann Consult (info@brockmann-consult.de)
  *
@@ -22,13 +22,11 @@ import junit.framework.TestCase;
  * Created by marcoz.
  *
  * @author marcoz
- * @version $Revision: 1.1 $ $Date: 2007/03/27 12:51:06 $
+ * @version $Revision: $ $Date: $
  */
-public class FlagWrapperTest extends TestCase {
+public class BitSetterTest extends TestCase {
 
-    public void testIntFlagMethods() {
-        int[] flagArray = new int[1];
-        FlagWrapper flags = new FlagWrapper.Int(flagArray);
+    public void test32BitFlagMethods() {
         int[] indexes = new int[]{
                 0, 1, 4, 5,
                 7, 8, 14, 16,
@@ -43,19 +41,18 @@ public class FlagWrapperTest extends TestCase {
         };
 
         for (int i = 0; i < indexes.length; i++) {
-            flagArray[0] = 0; // clean flags
-            final int bitIndex = indexes[i];
+            final int index = indexes[i];
             final int result = results[i];
-            flags.set(0, bitIndex);
-            assertEquals("i = " + i, result, flagArray[0]);
-            assertEquals("i = " + i, true, flags.isSet(0, bitIndex));
+            int flags = BitSetter.setFlag(0, index);
+            assertEquals("i = " + i, result, flags);
+            assertEquals("i = " + i, true, BitSetter.isFlagSet(flags, index));
         }
 
-        flagArray[0] = 0; // clean flags
+        int flags = 0;
         for (int i = 0; i < indexes.length; i++) {
-            flags.set(0, indexes[i]);
+            flags = BitSetter.setFlag(flags, indexes[i]);
         }
-        assertEquals(-1777647181, flagArray[0]);
+        assertEquals(-1777647181, flags);
         for (int i = 0; i < 32; i++) {
             boolean expected = false;
             for (int j = 0; j < indexes.length; j++) {
@@ -64,13 +61,11 @@ public class FlagWrapperTest extends TestCase {
                     break;
                 }
             }
-            assertEquals("i = " + i, expected, flags.isSet(0, i));
+            assertEquals("i = " + i, expected, BitSetter.isFlagSet(flags, i));
         }
     }
 
     public void test64BitFlagMethods() {
-        long[] flagArray = new long[1];
-        FlagWrapper flags = new FlagWrapper.Long(flagArray);
         int[] indexes = new int[]{
                 0, 1, 7, 8,
                 14, 16, 17, 26,
@@ -85,19 +80,18 @@ public class FlagWrapperTest extends TestCase {
         };
 
         for (int i = 0; i < indexes.length; i++) {
-            flagArray[0] = 0; // clean flags
-            final int bitIndex = indexes[i];
+            final int index = indexes[i];
             final long result = results[i];
-            flags.set(0, bitIndex);
-            assertEquals("i = " + i, result, flagArray[0]);
-            assertEquals("i = " + i, true, flags.isSet(0, bitIndex));
+            long flags = BitSetter.setFlag(0L, index, true);
+            assertEquals("i = " + i, result, flags);
+            assertEquals("i = " + i, true, BitSetter.isFlagSet(flags, index));
         }
 
-        flagArray[0] = 0; // clean flags
+        long flags = 0;
         for (int i = 0; i < indexes.length; i++) {
-            flags.set(0, indexes[i]);
+            flags = BitSetter.setFlag(flags, indexes[i], true);
         }
-        assertEquals(3458768918377087363L, flagArray[0]);
+        assertEquals(3458768918377087363L, flags);
         for (int i = 0; i < 64; i++) {
             boolean expected = false;
             for (int j = 0; j < indexes.length; j++) {
@@ -106,8 +100,7 @@ public class FlagWrapperTest extends TestCase {
                     break;
                 }
             }
-            assertEquals("i = " + i, expected, flags.isSet(0, i));
+            assertEquals("i = " + i, expected, BitSetter.isFlagSet(flags, i));
         }
     }
-
 }
