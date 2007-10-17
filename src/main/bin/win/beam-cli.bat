@@ -5,6 +5,7 @@ set BEAM4_HOME=${installer:sys.installationDir}
 echo.
 @echo Welcome to the BEAM command-line interface!
 @echo The following command-line tools are available:
+@echo   gpt.bat            - General Graph Processing Tool
 @echo   pconvert.bat       - General product conversion and quicklook generation
 @echo   mapproj.bat        - General map projections
 @echo   binning.bat        - General level 3 binning processor

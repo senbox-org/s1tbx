@@ -10,10 +10,14 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * The facade for the Graph Processing Framework.
- * This class may be overridden in order to alter product creation behaviour of the static
+ * <p>The facade for the Graph Processing Framework.</p>
+ * <p>The Graph Processing Framework makes extensive use of Java Advanced Imaging (JAI).
+ * Therefore, configuring the JAI {@link javax.media.jai.TileCache TileCache} and
+ * {@link javax.media.jai.TileScheduler TileScheduler} will also affect the overall performance of
+ * the Graph Processing Framework.</p>
+ * <p>This class may be overridden in order to alter product creation behaviour of the static
  * {@code createProduct} methods of the GPF instance.
- * The current instance can be set by {@link #setDefaultInstance(GPF)}.
+ * The current instance can be set by {@link #setDefaultInstance(GPF)}.</p>
  */
 public class GPF {
 

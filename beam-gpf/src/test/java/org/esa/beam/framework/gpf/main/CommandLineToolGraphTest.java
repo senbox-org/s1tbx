@@ -15,13 +15,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CommandLineToolGraphTest extends TestCase {
-    private TestCommandLineContext context;
+    private GraphCommandLineContext context;
     private CommandLineTool clTool;
 
 
     @Override
     protected void setUp() throws Exception {
-        context = new TestCommandLineContext();
+        context = new GraphCommandLineContext();
         clTool = new CommandLineTool(context);
     }
 
@@ -179,14 +179,14 @@ public class CommandLineToolGraphTest extends TestCase {
     }
 
 
-    private static class TestCommandLineContext implements CommandLineContext {
+    private static class GraphCommandLineContext implements CommandLineContext {
         public String logString;
         private int readProductCounter;
         private int writeProductCounter;
         public Graph executedGraph;
         private String m = "";
 
-        public TestCommandLineContext() {
+        public GraphCommandLineContext() {
             logString = "";
         }
 

@@ -7,14 +7,13 @@ import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 import org.esa.beam.framework.gpf.annotations.ParameterDefinitionFactory;
 import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.Node;
 import org.esa.beam.framework.gpf.graph.NodeSource;
-import org.esa.beam.util.jai.JAIUtils;
 
+import javax.media.jai.JAI;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -43,38 +42,40 @@ class CommandLineTool {
     }
 
     void run(String[] args) throws Exception {
-        CommandLine line = new CommandLine(args);
-        if (line.isHelpRequested()) {
-            if (line.getOperatorName() != null) {
-                commandLineContext.print(CommandLine.getUsageText(line.getOperatorName()));
+
+        GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
+
+        CommandLineArgs lineArgs = new CommandLineArgs(args);
+
+        if (lineArgs.isHelpRequested()) {
+            if (lineArgs.getOperatorName() != null) {
+                commandLineContext.print(CommandLineUsage.getUsageText(lineArgs.getOperatorName()));
             } else {
-                commandLineContext.print(CommandLine.getUsageText());
+                commandLineContext.print(CommandLineUsage.getUsageText());
             }
             return;
         }
 
-        final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
-        registry.loadOperatorSpis();
-        // TODO parameter
-        JAIUtils.setDefaultTileCacheCapacity(512);
-        if (line.getOperatorName() != null) {
-            Map<String, Object> parameters = getParameterMap(line);
-            Map<String, Product> sourceProducts = getSourceProductMap(line);
-            String opName = line.getOperatorName();
+        JAI.getDefaultInstance().getTileCache().setMemoryCapacity(lineArgs.getTileCacheCapacity());
+
+        if (lineArgs.getOperatorName() != null) {
+            Map<String, Object> parameters = getParameterMap(lineArgs);
+            Map<String, Product> sourceProducts = getSourceProductMap(lineArgs);
+            String opName = lineArgs.getOperatorName();
             Product targetProduct = createOpProduct(opName, parameters, sourceProducts);
-            String filePath = line.getTargetFilepath();
-            String formatName = line.getTargetFormatName();
+            String filePath = lineArgs.getTargetFilepath();
+            String formatName = lineArgs.getTargetFormatName();
             writeProduct(targetProduct, filePath, formatName);
-        } else if (line.getGraphFilepath() != null) {
-            Map<String, String> sourceNodeIdMap = getSourceNodeIdMap(line);
+        } else if (lineArgs.getGraphFilepath() != null) {
+            Map<String, String> sourceNodeIdMap = getSourceNodeIdMap(lineArgs);
             Map<String, String> templateMap = new TreeMap<String, String>(sourceNodeIdMap);
-            if (line.getParameterFilepath() != null) {
-                templateMap.putAll(readParameterFile(line.getParameterFilepath()));
+            if (lineArgs.getParameterFilepath() != null) {
+                templateMap.putAll(readParameterFile(lineArgs.getParameterFilepath()));
             }
-            templateMap.putAll(line.getParameterMap());
-            Graph graph = readGraph(line.getGraphFilepath(), templateMap);
+            templateMap.putAll(lineArgs.getParameterMap());
+            Graph graph = readGraph(lineArgs.getGraphFilepath(), templateMap);
             Node lastNode = graph.getNode(graph.getNodeCount() - 1);
-            SortedMap<String, String> sourceFilepathsMap = line.getSourceFilepathMap();
+            SortedMap<String, String> sourceFilepathsMap = lineArgs.getSourceFilepathMap();
             for (String sourceId : sourceNodeIdMap.keySet()) {
                 String sourceNodeId = sourceNodeIdMap.get(sourceId);
                 if (graph.getNode(sourceNodeId) == null) {
@@ -91,10 +92,10 @@ class CommandLineTool {
             targetNode.addSource(new NodeSource("input", lastNode.getId()));
             Xpp3Dom configDom = new Xpp3Dom("parameters");
             Xpp3Dom dom1 = new Xpp3Dom("filePath");
-            dom1.setValue(line.getTargetFilepath());
+            dom1.setValue(lineArgs.getTargetFilepath());
             configDom.addChild(dom1);
             Xpp3Dom dom2 = new Xpp3Dom("formatName");
-            dom2.setValue(line.getTargetFormatName());
+            dom2.setValue(lineArgs.getTargetFormatName());
             configDom.addChild(dom2);
             targetNode.setConfiguration(configDom);
             graph.addNode(targetNode);
@@ -103,10 +104,10 @@ class CommandLineTool {
         }
     }
 
-    private Map<String, Object> getParameterMap(CommandLine line) throws ValidationException, ConversionException {
+    private Map<String, Object> getParameterMap(CommandLineArgs lineArgs) throws ValidationException, ConversionException {
         HashMap<String, Object> parameters = new HashMap<String, Object>();
-        ValueContainer container = ParameterDefinitionFactory.createMapBackedOperatorValueContainer(line.getOperatorName(), parameters);
-        SortedMap<String, String> parameterMap = line.getParameterMap();
+        ValueContainer container = ParameterDefinitionFactory.createMapBackedOperatorValueContainer(lineArgs.getOperatorName(), parameters);
+        SortedMap<String, String> parameterMap = lineArgs.getParameterMap();
         Set<String> paramNames = parameterMap.keySet();
         for (String paramName : paramNames) {
             container.setFromText(paramName, parameterMap.get(paramName));
@@ -114,10 +115,10 @@ class CommandLineTool {
         return parameters;
     }
 
-    private Map<String, Product> getSourceProductMap(CommandLine line) throws IOException {
+    private Map<String, Product> getSourceProductMap(CommandLineArgs lineArgs) throws IOException {
         SortedMap<File, Product> fileToProductMap = new TreeMap<File, Product>();
         SortedMap<String, Product> productMap = new TreeMap<String, Product>();
-        SortedMap<String, String> sourceFilepathsMap = line.getSourceFilepathMap();
+        SortedMap<String, String> sourceFilepathsMap = lineArgs.getSourceFilepathMap();
         for (String sourceId : sourceFilepathsMap.keySet()) {
             String sourceFilepath = sourceFilepathsMap.get(sourceId);
             Product product = addProduct(sourceFilepath, fileToProductMap);
@@ -140,10 +141,10 @@ class CommandLineTool {
         return product;
     }
 
-    private Map<String, String> getSourceNodeIdMap(CommandLine line) throws IOException {
+    private Map<String, String> getSourceNodeIdMap(CommandLineArgs lineArgs) throws IOException {
         SortedMap<File, String> fileToNodeIdMap = new TreeMap<File, String>();
         SortedMap<String, String> nodeIdMap = new TreeMap<String, String>();
-        SortedMap<String, String> sourceFilepathsMap = line.getSourceFilepathMap();
+        SortedMap<String, String> sourceFilepathsMap = lineArgs.getSourceFilepathMap();
         for (String sourceId : sourceFilepathsMap.keySet()) {
             String sourceFilepath = sourceFilepathsMap.get(sourceId);
             String nodeId = addNodeId(sourceFilepath, fileToNodeIdMap);
@@ -185,5 +186,4 @@ class CommandLineTool {
     private Product createOpProduct(String opName, Map<String, Object> parameters, Map<String, Product> sourceProducts) throws OperatorException {
         return commandLineContext.createOpProduct(opName, parameters, sourceProducts);
     }
-
 }

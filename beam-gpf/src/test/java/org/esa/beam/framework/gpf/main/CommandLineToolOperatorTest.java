@@ -14,13 +14,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CommandLineToolOperatorTest extends TestCase {
-    private CommandLineToolOperatorTest.TestCommandLineContext context;
+    private OpCommandLineContext context;
     private CommandLineTool clTool;
     private static final TestOps.Op3.Spi OP_SPI = new TestOps.Op3.Spi();
 
     @Override
     protected void setUp() throws Exception {
-        context = new CommandLineToolOperatorTest.TestCommandLineContext();
+        context = new OpCommandLineContext();
         clTool = new CommandLineTool(context);
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(OP_SPI);
     }
@@ -33,13 +33,15 @@ public class CommandLineToolOperatorTest extends TestCase {
     public void testPrintUsage() throws Exception {
         assertTrue(context.output.length() == 0);
         clTool.run(new String[]{"-h"});
-        assertTrue(context.output.length() > 10);
+        assertTrue(context.output.startsWith("Usage:\n  gpt <op>|<graph-file> [options] "));
+
+        System.out.println("\n" + context.output + "\n");
     }
 
     public void testPrintOperatorUsage() throws Exception {
         assertTrue(context.output.length() == 0);
         clTool.run(new String[]{"Op3", "-h"});
-        assertTrue(context.output.startsWith("Usage: gpf \"Op3\" {-P<name>=<value>} {-S<id>=<filepath>}"));
+        assertTrue(context.output.startsWith("Usage:\n  gpt Op3 [options] "));
 
         System.out.println("\n" + context.output + "\n");
     }
@@ -81,7 +83,7 @@ public class CommandLineToolOperatorTest extends TestCase {
     }
 
     public void testFailureNoReaderFound() {
-        CommandLineTool tool = new CommandLineTool(new CommandLineToolOperatorTest.TestCommandLineContext() {
+        CommandLineTool tool = new CommandLineTool(new OpCommandLineContext() {
             @Override
             public Product readProduct(String productFilepath) throws IOException {
                 return null;  // returning null to simulate an error
@@ -98,7 +100,7 @@ public class CommandLineToolOperatorTest extends TestCase {
     }
 
 
-    private static class TestCommandLineContext implements CommandLineContext {
+    private static class OpCommandLineContext implements CommandLineContext {
         public String logString;
         private int readProductCounter;
         private int writeProductCounter;
@@ -107,7 +109,7 @@ public class CommandLineToolOperatorTest extends TestCase {
         private Map<String, Product> sourceProducts;
         private String output = "";
 
-        public TestCommandLineContext() {
+        public OpCommandLineContext() {
             logString = "";
         }
 

@@ -1,24 +1,35 @@
 Usage:
-  gpf <op>|<graph> [options] <source-1> <source-2> ...
+  {0} <op>|<graph-file> [options] [<source-file-1> <source-file-2> ...]
 
 Arguments:
-  <op>               Name of an operator.
-  <graph>            Filepath to operator (XML) graph file.
-  <source>           Filepath to source file(s).
+  <op>               Name of an operator. See below for the list of <op>s.
+  <graph-file>       Operator graph file (XML format).
+  <source-file-i>    Source file <i>. The actual number of source files is
+                     specified by <op> or <graph>.
 
 Options:
+  -h                 Displays command usage. If <op> is given, the specific
+                     operator usage is displayed.
   -t <target>        Filepath to the target file.
-  -f <format>        Output file format, e.g. GeoTIFF, HDF5, BEAM-DIMAP.
-  -p <parameters>    Filepath to a (Java Properties) file containing 
-                     processing parameters in the form <name>=<value>.
-  -T<id>=<target>    Defines a target product. Valid for graphs only.
-                     <id> must be the identifier of a node in the graph.
-  -S<id>=<source>    Defines a source product. <id> is specified by
+  -c <cache-size>    Sets the tile cache size in bytes. Must be greater zero
+                     and less than maximum available heap space.
+                     Value can be suffixed with ''K'', ''M'' and ''G''.
+  -f <format>        Output file format, e.g. ''GeoTIFF'', ''HDF5'',
+                     ''BEAM-DIMAP''.
+  -p <file>          A (Java Properties) file containing processing
+                     parameters in the form <name>=<value>.
+  -T<target>=<file>  Defines a target product. Valid for graphs only.
+                     <target> must be the identifier of a node in the graph.
+                     The node''s output will be written to <file>.
+  -S<source>=<file>  Defines a source product. <source> is specified by
                      the operator or the graph. In an XML graph, all
-                     occurences of ${<id>} will be replaced with references
-                     to <source>.
+                     occurences of $'{<source>'} will be replaced with
+                     references to a source product located at <file>.
   -P<name>=<value>   Defines a processing parameter, <name> is specified by
                      the operator or the graph. In an XML graph, all
-                     occurences of ${<name>} will be replaced with <value>.
-  -h                 Prints the command usage. If <op> is given, prints
-                     the specific operator usage.
+                     occurences of $'{<name>'} will be replaced with <value>.
+                     Overwrites parameter values specified by the ''-p''
+                     option.
+
+Operators:
+{1}
