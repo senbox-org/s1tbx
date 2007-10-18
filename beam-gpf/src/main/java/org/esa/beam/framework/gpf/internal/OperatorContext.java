@@ -232,14 +232,16 @@ public class OperatorContext {
         return implementsMethod(aClass, "computeTile",
                                 new Class[]{
                                         Band.class,
-                                        Tile.class});
+                                        Tile.class,
+                                        ProgressMonitor.class});
     }
 
     private static boolean canOperatorComputeTileStack(Class<? extends Operator> aClass) {
         return implementsMethod(aClass, "computeTileStack",
                                 new Class[]{
                                         Map.class,
-                                        Rectangle.class});
+                                        Rectangle.class,
+                                        ProgressMonitor.class});
     }
 
     private static boolean implementsMethod(Class<?> aClass, String methodName, Class[] methodParameterTypes) {
