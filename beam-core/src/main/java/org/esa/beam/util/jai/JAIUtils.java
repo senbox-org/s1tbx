@@ -17,23 +17,18 @@
 package org.esa.beam.util.jai;
 
 import com.bc.ceres.core.Assert;
+import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ImageUtils;
 
+import javax.media.jai.DataBufferFloat;
 import javax.media.jai.*;
 import javax.media.jai.operator.CompositeDescriptor;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.RenderingHints;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.IndexColorModel;
-import java.awt.image.Raster;
-import java.awt.image.RenderedImage;
-import java.awt.image.SampleModel;
-import java.awt.image.WritableRaster;
+import java.awt.image.*;
 import java.awt.image.renderable.ParameterBlock;
 import java.util.HashMap;
 
@@ -55,6 +50,7 @@ public class JAIUtils {
         // JAIJAIJAI
         tileCache.memoryControl();
         tileCache.setMemoryCapacity(megabytes * 1024L * 1024L);
+        Debug.trace("JAI tile cache capacity set to " + tileCache.getMemoryCapacity() + " bytes");
     }
 
     public static RenderedOp createTileFormatOp(RenderedImage img, int tileWidth, int tileHeight) {
