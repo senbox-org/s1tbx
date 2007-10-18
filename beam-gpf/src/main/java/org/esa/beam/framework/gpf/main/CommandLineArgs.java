@@ -25,6 +25,7 @@ class CommandLineArgs {
     private String parameterFilepath;
     private TreeMap<String, String> targetFilepathMap;
     private boolean helpRequested;
+    private boolean stackTraceDump;
     private long tileCacheCapacity;
     private static final int K = 1024;
     private static final int M = K * 1024;
@@ -55,6 +56,10 @@ class CommandLineArgs {
                 } else if (arg.startsWith("-T")) {
                     String[] pair = parseNameValuePair(arg);
                     targetFilepathMap.put(pair[0], pair[1]);
+                } else if (arg.equals("-h")) {
+                    helpRequested = true;
+                } else if (arg.equals("-e")) {
+                    stackTraceDump = true;
                 } else if (arg.equals("-t")) {
                     targetFilepath = parseOptionArgument(arg, i);
                     i++;
@@ -68,9 +73,6 @@ class CommandLineArgs {
                     final long maxMem = (Runtime.getRuntime().maxMemory() / M) * M;
                     final String intervalString = "(0, " + maxMem + "]";
                     tileCacheCapacity = parseOptionArgumentBytes(arg, i, Interval.parseInterval(intervalString));
-                    i++;
-                } else if (arg.equals("-h")) {
-                    helpRequested = true;
                     i++;
                 } else {
                     throw error("Unknown option '" + arg + "'");
@@ -107,29 +109,6 @@ class CommandLineArgs {
                 throw error("Output format unknown");
             }
         }
-    }
-
-    private int parseOptionArgumentBytes(String arg, int index, Interval interval) throws Exception {
-        String valueString = parseOptionArgument(arg, index);
-        int factor;
-        if (valueString.toUpperCase().endsWith("K")) {
-            factor = K;
-            valueString = valueString.substring(0, valueString.length() - 1);
-        } else if (valueString.toUpperCase().endsWith("M")) {
-            factor = M;
-            valueString = valueString.substring(0, valueString.length() - 1);
-        } else if (valueString.toUpperCase().endsWith("G")) {
-            factor = G;
-            valueString = valueString.substring(0, valueString.length() - 1);
-        } else {
-            factor = 1;
-        }
-
-        final int value = Integer.parseInt(valueString) * factor;
-        if (!interval.contains(value)) {
-            throw new Exception(MessageFormat.format("Value ''{0}'' for ''{1}'' is not in the interval {2}", String.valueOf(value), arg, interval));
-        }
-        return value;
     }
 
     public String[] getArgs() {
@@ -176,12 +155,39 @@ class CommandLineArgs {
         return helpRequested;
     }
 
+    public boolean isStackTraceDump() {
+        return stackTraceDump;
+    }
+
     private String parseOptionArgument(String arg, int index) throws Exception {
         if (index < args.length - 1) {
             return args[index + 1];
         } else {
             throw error("Missing argument for option '" + arg + "'");
         }
+    }
+
+    private int parseOptionArgumentBytes(String arg, int index, Interval interval) throws Exception {
+        String valueString = parseOptionArgument(arg, index);
+        int factor;
+        if (valueString.toUpperCase().endsWith("K")) {
+            factor = K;
+            valueString = valueString.substring(0, valueString.length() - 1);
+        } else if (valueString.toUpperCase().endsWith("M")) {
+            factor = M;
+            valueString = valueString.substring(0, valueString.length() - 1);
+        } else if (valueString.toUpperCase().endsWith("G")) {
+            factor = G;
+            valueString = valueString.substring(0, valueString.length() - 1);
+        } else {
+            factor = 1;
+        }
+
+        final int value = Integer.parseInt(valueString) * factor;
+        if (!interval.contains(value)) {
+            throw new Exception(MessageFormat.format("Value ''{0}'' for ''{1}'' is not in the interval {2}", String.valueOf(value), arg, interval));
+        }
+        return value;
     }
 
     private String[] parseNameValuePair(String arg) throws Exception {

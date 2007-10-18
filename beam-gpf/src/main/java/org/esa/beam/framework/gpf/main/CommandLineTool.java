@@ -23,7 +23,12 @@ import java.util.*;
  * For usage, see {@link org/esa/beam/framework/gpf/main/CommandLineUsage.txt}.
  */
 class CommandLineTool {
+
     private final CommandLineContext commandLineContext;
+
+    static {
+        GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
+    }
 
     /**
      * Constructs a new tool.
@@ -43,8 +48,6 @@ class CommandLineTool {
 
     void run(String[] args) throws Exception {
 
-        GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
-
         CommandLineArgs lineArgs = new CommandLineArgs(args);
 
         if (lineArgs.isHelpRequested()) {
@@ -56,6 +59,17 @@ class CommandLineTool {
             return;
         }
 
+        try {
+            run(lineArgs);
+        } catch (Exception e) {
+            if (lineArgs.isStackTraceDump()) {
+                e.printStackTrace(System.err);
+            }
+            throw e;
+        }
+    }
+
+    private void run(CommandLineArgs lineArgs) throws ValidationException, ConversionException, IOException, GraphException {
         JAI.getDefaultInstance().getTileCache().setMemoryCapacity(lineArgs.getTileCacheCapacity());
 
         if (lineArgs.getOperatorName() != null) {

@@ -11,12 +11,8 @@ public class Main {
         try {
             new CommandLineTool().run(args);
         } catch (Exception e) {
-            e.printStackTrace();
-            error(e.getMessage());
+            System.err.println("Error: " + e.getMessage());
         }
     }
 
-    private static void error(String m) {
-        System.err.println("Error: " + m);
-    }
 }

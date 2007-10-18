@@ -30,6 +30,7 @@ Options:
                      occurences of $'{<name>'} will be replaced with <value>.
                      Overwrites parameter values specified by the ''-p''
                      option.
+  -e                 Displays Java stack trace, if an error occurs.
 
 Operators:
 {1}
