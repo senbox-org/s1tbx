@@ -247,16 +247,10 @@ public abstract class Operator {
     }
 
     /**
-     * Return a progress monitor, that can be used by an operator
-     * that want's to show progress
-     *
-     * @return a progress monitor
-     */
-    /**
      * @deprecated not required anymore
      */
     protected final ProgressMonitor createProgressMonitor() {
-        return context.createProgressMonitor(1);
+        return ProgressMonitor.NULL;
     }
 
     /**

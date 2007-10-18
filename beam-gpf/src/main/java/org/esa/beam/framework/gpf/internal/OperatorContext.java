@@ -118,11 +118,6 @@ public class OperatorContext {
         }
     }
 
-    public ProgressMonitor createProgressMonitor(int totalWork) {
-        // todo - implement missing logic here (nf - 08.10.2007)
-        return ProgressMonitor.NULL; // new SubProgressMonitor(progressMonitorProvider.getProgressMonitor(), totalWork);
-    }
-
     public OperatorSpi getOperatorSpi() {
         if (operatorSpi == null) {
             operatorSpi = new OperatorSpi(operator.getClass()) {
