@@ -93,20 +93,19 @@ public class NdviOp extends Operator {
     }
 
     @Override
-    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle rectangle) throws OperatorException {
-        ProgressMonitor pm = createProgressMonitor();
+    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
         pm.beginTask("Computing NDVI", rectangle.height + 1);
         try {
 
-            Tile l1flagsSourceTile = getSourceTile(inputProduct.getBand(L1FLAGS_INPUT_BAND_NAME), rectangle);
+            Tile l1flagsSourceTile = getSourceTile(inputProduct.getBand(L1FLAGS_INPUT_BAND_NAME), rectangle, pm);
             Tile l1flagsTargetTile = targetTiles.get(targetProduct.getBand(L1FLAGS_INPUT_BAND_NAME));
             // TODO replace copy by OpImage delegation
             final int length = rectangle.width * rectangle.height;
             System.arraycopy(l1flagsSourceTile.getRawSamples().getElems(), 0, l1flagsTargetTile.getRawSamples().getElems(), 0, length);
             pm.worked(1);
 
-            Tile lowerTile = getSourceTile(_lowerInputBand, rectangle);
-            Tile upperTile = getSourceTile(_upperInputBand, rectangle);
+            Tile lowerTile = getSourceTile(_lowerInputBand, rectangle, pm);
+            Tile upperTile = getSourceTile(_upperInputBand, rectangle, pm);
 
             Tile ndvi = targetTiles.get(targetProduct.getBand(NDVI_BAND_NAME));
             Tile ndviFlags = targetTiles.get(targetProduct.getBand(NDVI_FLAGS_BAND_NAME));
@@ -133,6 +132,7 @@ public class NdviOp extends Operator {
                     ndvi.setSample(x, y, ndviValue);
                     ndviFlags.setSample(x, y, ndviFlagsValue);
                 }
+                checkForCancelation(pm);
                 pm.worked(1);
             }
         } finally {

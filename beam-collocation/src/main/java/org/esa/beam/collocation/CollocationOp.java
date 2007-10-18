@@ -98,23 +98,23 @@ public class CollocationOp extends Operator {
     }
 
     @Override
-    public void computeTile(Band targetBand, Tile targetTile) throws OperatorException {
+    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
 
         if (slaveBandList.contains(targetBand)) {
             collocateSlaveBand(targetBand, targetTile);
         } else {
-            final ProgressMonitor pm = createProgressMonitor();
             try {
-                pm.beginTask("copying master band", targetTile.getHeight());
+                pm.beginTask("Copying master band", targetTile.getHeight());
 
                 final Band masterBand = masterProduct.getBand(targetBand.getName());
                 final Rectangle targetRectangle = targetTile.getRectangle();
-                final Tile sourceTile = getSourceTile(masterBand, targetRectangle);
+                final Tile sourceTile = getSourceTile(masterBand, targetRectangle, pm);
 
                 for (int y = targetRectangle.y; y < targetRectangle.y + targetRectangle.height; ++y) {
                     for (int x = targetRectangle.x; x < targetRectangle.x + targetRectangle.width; ++x) {
                         targetTile.setSample(x, y, sourceTile.getSampleDouble(x, y));
                     }
+                    checkForCancelation(pm);
                     pm.worked(1);
                 }
             } finally {
@@ -153,7 +153,7 @@ public class CollocationOp extends Operator {
                         createSourceRectangle(sourcePixelPositions, sourceRasterWidth, sourceRasterHeight);
 
                 if (sourceRectangle != null) {
-                    final Tile sourceTile = getSourceTile(sourceBand, sourceRectangle);
+                    final Tile sourceTile = getSourceTile(sourceBand, sourceRectangle, pm);
                     final ResamplingRaster resamplingRaster = new ResamplingRaster(sourceTile);
 
                     for (int x = targetRectangle.x; x < targetRectangle.x + targetRectangle.width; ++x) {

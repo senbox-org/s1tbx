@@ -94,7 +94,7 @@ public class ClusterAnalysisOp extends Operator implements ParameterConverter {
     }
 
     @Override
-    public void computeTile(Band band, Tile targetTile) throws OperatorException {
+    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         if (clucov == null) {
             try {
                 computeClusters();

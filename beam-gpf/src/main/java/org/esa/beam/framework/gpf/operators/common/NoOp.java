@@ -1,5 +1,6 @@
 package org.esa.beam.framework.gpf.operators.common;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;
@@ -33,7 +34,7 @@ public class NoOp extends Operator {
     }
 
     @Override
-    public void computeTile(Band band, Tile targetTile) throws OperatorException {
+    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         return;
     }
 

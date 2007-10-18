@@ -163,7 +163,7 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
         }
 
         @Override
-        public void computeTile(Band band, Tile targetTile) throws OperatorException {
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         }
 
         public static class Spi extends OperatorSpi {
@@ -189,7 +189,7 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
         }
 
         @Override
-        public void computeTile(Band band, Tile targetTile) throws OperatorException {
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         }
 
         public static class Spi extends OperatorSpi {
@@ -214,7 +214,7 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
         }
 
         @Override
-        public void computeTile(Band band, Tile targetTile) throws OperatorException {
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         }
 
         public static class Spi extends OperatorSpi {
@@ -241,7 +241,7 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
         }
 
         @Override
-        public void computeTile(Band band, Tile targetTile) throws OperatorException {
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         }
 
         public static class Spi extends OperatorSpi {

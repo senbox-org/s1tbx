@@ -1,5 +1,6 @@
 package org.esa.beam.framework.gpf;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -39,7 +40,7 @@ public class TestOps {
         }
 
         @Override
-        public void computeTile(Band band, Tile targetTile) {
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) {
             System.out.println("=====>>>>>> Op1.computeBand  start");
             registerCall("Op1;");
             System.out.println("=====>>>>>> Op1.computeBand  end");
@@ -74,9 +75,9 @@ public class TestOps {
         }
 
         @Override
-        public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle rectangle) throws OperatorException {
+        public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
             System.out.println("=====>>>>>> Op2.computeAllBands  start");
-            Tile tile1A = getSourceTile(input.getBand("Op1A"), rectangle);
+            Tile tile1A = getSourceTile(input.getBand("Op1A"), rectangle, pm);
 
             Tile tile2A = targetTiles.get(output.getBand("Op2A"));
             Tile tile2B = targetTiles.get(output.getBand("Op2B"));
@@ -130,12 +131,12 @@ public class TestOps {
         }
 
         @Override
-        public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle rectangle) throws OperatorException {
+        public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
             System.out.println("=====>>>>>> Op3.computeAllBands  start");
 
-            Tile tile1A = getSourceTile(input1.getBand("Op1A"), rectangle);
-            Tile tile2A = getSourceTile(input2.getBand("Op2A"), rectangle);
-            Tile tile2B = getSourceTile(input2.getBand("Op2B"), rectangle);
+            Tile tile1A = getSourceTile(input1.getBand("Op1A"), rectangle, pm);
+            Tile tile2A = getSourceTile(input2.getBand("Op2A"), rectangle, pm);
+            Tile tile2B = getSourceTile(input2.getBand("Op2B"), rectangle, pm);
 
             Tile tile3A = targetTiles.get(output.getBand("Op3A"));
             Tile tile3B = targetTiles.get(output.getBand("Op3B"));

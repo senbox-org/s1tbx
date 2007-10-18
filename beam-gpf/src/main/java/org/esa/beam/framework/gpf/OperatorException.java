@@ -6,7 +6,7 @@ package org.esa.beam.framework.gpf;
  *
  * @author Maximilian Aulinger
  */
-public class OperatorException extends Exception {
+public class OperatorException extends RuntimeException {
 
 
     /**

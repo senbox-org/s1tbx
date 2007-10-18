@@ -27,27 +27,19 @@ public class OperatorImage extends RasterDataNodeOpImage {
 
     @Override
     protected void computeRect(PlanarImage[] ignored, WritableRaster tile, Rectangle destRect) {
-        try {
-            executeOperator(tile, destRect);
-        } catch (OperatorException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void executeOperator(WritableRaster targetTileRaster, Rectangle targetRectangle) throws OperatorException {
         if (operatorMustComputeTileStack()) {
-            Map<Band, Tile> targetTiles = createTargetTileStack(targetTileRaster, targetRectangle);
-            operatorContext.getOperator().computeTileStack(targetTiles, targetRectangle);
+            Map<Band, Tile> targetTiles = createTargetTileStack(tile, destRect);
+            operatorContext.getOperator().computeTileStack(targetTiles, destRect, getProgressMonitor());
         } else {
-            Tile targetTile = createTargetTile(targetRectangle, targetTileRaster);
-            operatorContext.getOperator().computeTile(getTargetBand(), targetTile);
+            Tile targetTile = createTargetTile(destRect, tile);
+            operatorContext.getOperator().computeTile(getTargetBand(), targetTile, getProgressMonitor());
         }
     }
 
     private Tile createTargetTile(Rectangle targetRectangle, WritableRaster targetTileRaster) {
         Tile targetTile;
         if (operatorContext.isPassThrough()) {
-            targetTile = operatorContext.getSourceTile(getTargetBand(), targetRectangle);
+            targetTile = operatorContext.getSourceTile(getTargetBand(), targetRectangle, getProgressMonitor());
         } else {
             targetTile = createTargetTile(getTargetBand(), targetTileRaster, targetRectangle);
         }
@@ -59,7 +51,7 @@ public class OperatorImage extends RasterDataNodeOpImage {
         Map<Band, Tile> targetTiles = new HashMap<Band, Tile>(bands.length * 2);
         if (operatorContext.isPassThrough()) {
             for (Band band : bands) {
-                targetTiles.put(band, operatorContext.getSourceTile(band, targetRectangle));
+                targetTiles.put(band, operatorContext.getSourceTile(band, targetRectangle, getProgressMonitor()));
             }
         } else {
             for (Band band : bands) {

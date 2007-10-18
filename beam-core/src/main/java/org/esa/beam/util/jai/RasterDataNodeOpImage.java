@@ -20,6 +20,7 @@ import java.io.IOException;
 
 public class RasterDataNodeOpImage extends SourcelessOpImage {
     private RasterDataNode rasterDataNode;
+    private ProgressMonitor progressMonitor;
 
     public RasterDataNodeOpImage(RasterDataNode rasterDataNode) {
         this(rasterDataNode, createSingleBandedImageLayout(rasterDataNode));
@@ -38,6 +39,14 @@ public class RasterDataNodeOpImage extends SourcelessOpImage {
         setTileCache(JAI.getDefaultInstance().getTileCache());
     }
 
+    public ProgressMonitor getProgressMonitor() {
+        return progressMonitor != null ? progressMonitor : ProgressMonitor.NULL;
+    }
+
+    public void setProgressMonitor(ProgressMonitor pm) {
+        this.progressMonitor = pm;
+    }
+
     public RasterDataNode getRasterDataNode() {
         return rasterDataNode;
     }
@@ -47,16 +56,24 @@ public class RasterDataNodeOpImage extends SourcelessOpImage {
         ProductData productData;
         boolean directMode = tile.getDataBuffer().getSize() == destRect.width * destRect.height;
         if (directMode) {
-            productData = ProductData.createInstance(rasterDataNode.getDataType(), ImageUtils.getPrimitiveArray(tile.getDataBuffer()));
+            productData = ProductData.createInstance(rasterDataNode.getDataType(),
+                                                     ImageUtils.getPrimitiveArray(tile.getDataBuffer()));
         } else {
-            productData = ProductData.createInstance(rasterDataNode.getDataType(), destRect.width * destRect.height);
+            productData = ProductData.createInstance(rasterDataNode.getDataType(),
+                                                     destRect.width * destRect.height);
         }
 
         try {
             if (rasterDataNode instanceof TiePointGrid) {
-                rasterDataNode.readPixels(destRect.x, destRect.y, destRect.width, destRect.height, (float[]) productData.getElems(), ProgressMonitor.NULL);
+                rasterDataNode.readPixels(destRect.x, destRect.y,
+                                          destRect.width, destRect.height,
+                                          (float[]) productData.getElems(),
+                                          getProgressMonitor());
             } else {
-                rasterDataNode.readRasterData(destRect.x, destRect.y, destRect.width, destRect.height, productData, ProgressMonitor.NULL);
+                rasterDataNode.readRasterData(destRect.x, destRect.y,
+                                              destRect.width, destRect.height,
+                                              productData,
+                                              getProgressMonitor());
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -156,6 +173,7 @@ public class RasterDataNodeOpImage extends SourcelessOpImage {
     @Override
     public synchronized void dispose() {
         rasterDataNode = null;
+        progressMonitor = null;
         super.dispose();
     }
 
@@ -168,5 +186,15 @@ public class RasterDataNodeOpImage extends SourcelessOpImage {
         }
         String bandName = "." + rasterDataNode.getName();
         return className + productName + bandName;
+    }
+
+    public static ProgressMonitor setProgressMonitor(RenderedImage image, ProgressMonitor pm) {
+        ProgressMonitor oldPm = ProgressMonitor.NULL;
+        if (image instanceof RasterDataNodeOpImage) {
+            final RasterDataNodeOpImage opImage = (RasterDataNodeOpImage) image;
+            oldPm = opImage.getProgressMonitor();
+            opImage.setProgressMonitor(pm);
+        }
+        return oldPm;
     }
 }

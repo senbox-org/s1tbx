@@ -359,7 +359,7 @@ public class GraphCallSequenceTest extends TestCase {
 
         // todo - add tests that verify correct computing output
         @Override
-        public void computeTile(Band band, Tile targetTile) throws
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws
                 OperatorException {
             recordCall(getOpName(this), "Operator.computeBand");
 
@@ -391,12 +391,12 @@ public class GraphCallSequenceTest extends TestCase {
 
         // todo - add tests that verify correct computing output
         @Override
-        public void computeTile(Band band, Tile targetTile) throws
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws
                 OperatorException {
             recordCall(getOpName(this), "Operator.computeBand");
 
             Tile sourceTile = getSourceTile(sourceProduct.getBandAt(0),
-                                            targetTile.getRectangle());
+                                            targetTile.getRectangle(), pm);
 
             float[] sourceElems = (float[]) sourceTile.getRawSamples().getElems();
             ProductData rawSampleData = targetTile.getRawSamples();
@@ -420,14 +420,14 @@ public class GraphCallSequenceTest extends TestCase {
 
         // todo - add tests that verify correct computing output
         @Override
-        public void computeTile(Band band, Tile targetTile) throws OperatorException {
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
             recordCall(getOpName(this), "Operator.computeBand");
 
             Tile sourceTile1 = getSourceTile(sourceProduct1.getBandAt(0),
-                                             targetTile.getRectangle());
+                                             targetTile.getRectangle(), pm);
 
             Tile sourceTile2 = getSourceTile(sourceProduct2.getBandAt(0),
-                                             targetTile.getRectangle());
+                                             targetTile.getRectangle(), pm);
 
             float[] source1Elems = (float[]) sourceTile1.getRawSamples().getElems();
             float[] source2Elems = (float[]) sourceTile2.getRawSamples().getElems();

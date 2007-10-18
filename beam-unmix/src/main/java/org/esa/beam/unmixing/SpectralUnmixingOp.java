@@ -15,6 +15,7 @@
 package org.esa.beam.unmixing;
 
 import Jama.Matrix;
+import com.bc.ceres.core.ProgressMonitor;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
@@ -78,7 +79,7 @@ public class SpectralUnmixingOp extends Operator implements ParameterConverter {
     @Parameter(pattern = "[a-zA-Z_0-9]*", notNull = true, defaultValue = "_abundance")
     String targetBandNameSuffix;
 
-    @Parameter(defaultValue = "1.0e-2")
+    @Parameter(defaultValue = "10.0", description = "Error used for wavelength matching.")
     double epsilon;
 
     private transient Band[] sourceBands;
@@ -247,24 +248,25 @@ public class SpectralUnmixingOp extends Operator implements ParameterConverter {
     }
 
     @Override
-    public void computeTile(Band band, Tile targetTile) throws OperatorException {
+    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         Rectangle rectangle = targetTile.getRectangle();
         int j = getTargetBandIndex(targetTile);
         if (j == -1) {
             return;
         }
-        Tile[] sourceRaster = getSourceTiles(rectangle);
+        Tile[] sourceRaster = getSourceTiles(rectangle, pm);
         for (int y = rectangle.y; y < rectangle.y + rectangle.height; y++) {
             double[][] ia = getLineSpectra(sourceRaster, rectangle, y);
             double[][] oa = unmix(ia);
             setAbundances(rectangle, targetTile, y, j, oa);
+            checkForCancelation(pm);
         }
     }
 
     @Override
-    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetTileRectangle) throws OperatorException {
+    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetTileRectangle, ProgressMonitor pm) throws OperatorException {
         Tile[] targetRaster = new Tile[targetBands.length];
-        Tile[] sourceRaster = getSourceTiles(targetTileRectangle);
+        Tile[] sourceRaster = getSourceTiles(targetTileRectangle, pm);
         for (int j = 0; j < targetBands.length; j++) {
             targetRaster[j] = targetTiles.get(targetBands[j]);
         }
@@ -273,14 +275,15 @@ public class SpectralUnmixingOp extends Operator implements ParameterConverter {
             double[][] oa = unmix(ia);
             for (int j = 0; j < targetBands.length; j++) {
                 setAbundances(targetTileRectangle, targetRaster[j], y, j, oa);
+                checkForCancelation(pm);
             }
         }
     }
 
-    private Tile[] getSourceTiles(Rectangle rectangle) throws OperatorException {
+    private Tile[] getSourceTiles(Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
         Tile[] sourceRaster = new Tile[sourceBands.length];
         for (int i = 0; i < sourceBands.length; i++) {
-            sourceRaster[i] = getSourceTile(sourceBands[i], rectangle);
+            sourceRaster[i] = getSourceTile(sourceBands[i], rectangle, pm);
         }
         return sourceRaster;
     }

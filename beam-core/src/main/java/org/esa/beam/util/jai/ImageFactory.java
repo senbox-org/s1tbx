@@ -2,6 +2,7 @@ package org.esa.beam.util.jai;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -43,8 +44,21 @@ public class ImageFactory {
         Assert.state(rasterDataNodes.length == 1 || rasterDataNodes.length == 3 || rasterDataNodes.length == 4,
                      "invalid number of bands");
 
-        pm.beginTask("Creating image...", rasterDataNodes.length * 3);
+        pm.beginTask("Creating image...", rasterDataNodes.length * 300 + 1);
 
+        PlanarImage image;
+        try {
+            PlanarImage[] sourceImages = createSourceImages(rasterDataNodes, pm);
+            image = combineBands(rasterDataNodes, sourceImages);
+            image = performHistogramMatching(image, histogramMatching);
+        } finally {
+            pm.done();
+        }
+
+        return image;
+    }
+
+    private static PlanarImage[] createSourceImages(RasterDataNode[] rasterDataNodes, ProgressMonitor pm) {
         PlanarImage[] sourceImages = new PlanarImage[rasterDataNodes.length];
         for (int i = 0; i < rasterDataNodes.length; i++) {
             final RasterDataNode raster = rasterDataNodes[i];
@@ -56,6 +70,7 @@ public class ImageFactory {
                 planarImage = new RasterDataNodeOpImage(raster);
                 raster.setImage(planarImage);
             }
+            RasterDataNodeOpImage.setProgressMonitor(planarImage, SubProgressMonitor.create(pm, 1));
             final ImageInfo imageInfo;
             if (raster.getImageInfo() == null) {
                 Debug.trace("planarImage = " + planarImage);
@@ -71,7 +86,7 @@ public class ImageFactory {
                     extrema = JAIUtils.getExtrema(planarImage, null);
                 }
                 checkCanceled(pm);
-                pm.worked(1);
+                pm.worked(100);
                 Debug.trace("  Extrema computed.");
                 Debug.trace("  Computing histogram...");
                 // todo - construct ROI from no-data image here
@@ -82,10 +97,10 @@ public class ImageFactory {
                 imageInfo = raster.createDefaultImageInfo(null, histogram, true); // Note: this method expects a raw data histogram!
                 raster.setImageInfo(imageInfo);
                 checkCanceled(pm);
-                pm.worked(1);
+                pm.worked(100);
             } else {
                 imageInfo = raster.getImageInfo();
-                pm.worked(2);
+                pm.worked(200);
             }
 
             final double newMin = raster.scaleInverse(imageInfo.getMinDisplaySample());
@@ -96,9 +111,21 @@ public class ImageFactory {
             planarImage = JAIUtils.createFormatOp(planarImage, DataBuffer.TYPE_BYTE);
             sourceImages[i] = planarImage;
             checkCanceled(pm);
-            pm.worked(1);
+            pm.worked(100);
         }
+        return sourceImages;
+    }
 
+    private static PlanarImage performHistogramMatching(PlanarImage image, String histogramMatching) {
+        if (ImageInfo.HISTOGRAM_MATCHING_EQUALIZE.equalsIgnoreCase(histogramMatching)) {
+            image = JAIUtils.createHistogramEqualizedImage(image);
+        } else if (ImageInfo.HISTOGRAM_MATCHING_NORMALIZE.equalsIgnoreCase(histogramMatching)) {
+            image = JAIUtils.createHistogramNormalizedImage(image);
+        }
+        return image;
+    }
+
+    private static PlanarImage combineBands(RasterDataNode[] rasterDataNodes, PlanarImage[] sourceImages) {
         PlanarImage image;
         if (rasterDataNodes.length == 1) {
             final RasterDataNode raster = rasterDataNodes[0];
@@ -114,13 +141,6 @@ public class ImageFactory {
         } else {
             image = new InterleavedRgbOpImage(sourceImages);
         }
-
-        if (ImageInfo.HISTOGRAM_MATCHING_EQUALIZE.equalsIgnoreCase(histogramMatching)) {
-            image = JAIUtils.createHistogramEqualizedImage(image);
-        } else if (ImageInfo.HISTOGRAM_MATCHING_NORMALIZE.equalsIgnoreCase(histogramMatching)) {
-            image = JAIUtils.createHistogramNormalizedImage(image);
-        }
-
         return image;
     }
 

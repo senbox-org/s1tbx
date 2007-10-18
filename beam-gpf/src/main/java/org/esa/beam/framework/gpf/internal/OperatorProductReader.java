@@ -10,6 +10,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.util.io.BeamFileFilter;
+import org.esa.beam.util.jai.RasterDataNodeOpImage;
 
 import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
@@ -59,30 +60,28 @@ public class OperatorProductReader implements ProductReader {
         }
     }
 
-    public void readBandRasterData(Band destBand, int destOffsetX, int destOffsetY, int destWidth,
-                                   int destHeight, ProductData destBuffer, ProgressMonitor pm) throws IOException {
-        Rectangle destRectangle = new Rectangle(destOffsetX, destOffsetY, destWidth, destHeight);
-        pm.beginTask("Computing tiles", 100);
+    public void readBandRasterData(Band destBand, int destOffsetX,
+                                   int destOffsetY, int destWidth,
+                                   int destHeight,
+                                   ProductData destBuffer,
+                                   ProgressMonitor pm) throws IOException {
+        final RenderedImage image = operatorContext.getTargetImage(destBand);
+        ProgressMonitor oldPm = RasterDataNodeOpImage.setProgressMonitor(image, pm);
         try {
-            readRectangle(destBand, destRectangle, destBuffer);
-            pm.worked(100);
+            /////////////////////////////////////////////////////////////////////
+            //
+            // GPF pull-processing is triggered here!!!
+            //
+            java.awt.image.Raster data = image.getData(new Rectangle(destOffsetX,
+                                                                     destOffsetY,
+                                                                     destWidth,
+                                                                     destHeight));
+            //
+            /////////////////////////////////////////////////////////////////////
+            data.getDataElements(destOffsetX, destOffsetY, destWidth, destHeight, destBuffer.getElems());
         } finally {
-            pm.done();
+            RasterDataNodeOpImage.setProgressMonitor(image, oldPm);
         }
-    }
-
-    private void readRectangle(Band targetBand,
-                               Rectangle targetRect,
-                               ProductData targetBuffer) {
-        final RenderedImage image = operatorContext.getTargetImage(targetBand);
-        /////////////////////////////////////////////////////////////////////
-        //
-        // GPF pull-processing is triggered here!!!
-        //
-        java.awt.image.Raster data = image.getData(targetRect);
-        //
-        /////////////////////////////////////////////////////////////////////
-        data.getDataElements(targetRect.x, targetRect.y, targetRect.width, targetRect.height, targetBuffer.getElems());
     }
 
     public synchronized void close() throws IOException {

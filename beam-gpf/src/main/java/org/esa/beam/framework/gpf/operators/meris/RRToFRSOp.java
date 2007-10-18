@@ -75,35 +75,34 @@ public class RRToFRSOp extends Operator {
         }
         return targetProduct;
     }
-    
+
     private void checkThatRRContainsFRSData(int width, int height) throws OperatorException {
         getRrPixelPos(0, 0);
-        getRrPixelPos(0, height-1);
-        getRrPixelPos(width-1, 0);
-        getRrPixelPos(width-1, height-1);
+        getRrPixelPos(0, height - 1);
+        getRrPixelPos(width - 1, 0);
+        getRrPixelPos(width - 1, height - 1);
     }
-    
+
     private PixelPos getRrPixelPos(int x, int y) throws OperatorException {
         PixelPos frsPixelPos = new PixelPos(x, y);
         GeoPos geoPos = frsGeoCoding.getGeoPos(frsPixelPos, null);
         PixelPos rrPixelPos = rrGeoCoding.getPixelPos(geoPos, null);
-        
+
         final int xrr = Math.round(rrPixelPos.x);
         final int yrr = Math.round(rrPixelPos.y);
         if (rrPixelPos != null && rrProduct.containsPixel(xrr, yrr)) {
             return rrPixelPos;
         } else {
-            throw new OperatorException("RR product does not contain data for this coordinate: x="+x+" y="+y);
+            throw new OperatorException("RR product does not contain data for this coordinate: x=" + x + " y=" + y);
         }
-        
+
     }
 
     @Override
-    public void computeTile(Band band, Tile targetTile) throws OperatorException {
+    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
 
         Rectangle frsRectangle = targetTile.getRectangle();
         Band rrSrcBand = rrProduct.getBand(band.getName());
-        ProgressMonitor pm = createProgressMonitor();
         pm.beginTask("compute", frsRectangle.height);
 
         PixelPos rrPixelPos = getRrPixelPos(frsRectangle.x, frsRectangle.y);
@@ -114,7 +113,7 @@ public class RRToFRSOp extends Operator {
         Rectangle sceneRectangle = new Rectangle(rrSrcBand.getSceneRasterWidth(), rrSrcBand.getSceneRasterHeight());
         rrRectangle = rrRectangle.intersection(sceneRectangle);
 
-        Tile srcTile = getSourceTile(rrSrcBand, rrRectangle);
+        Tile srcTile = getSourceTile(rrSrcBand, rrRectangle, pm);
 
         try {
             int rrY = yStart;
@@ -138,6 +137,7 @@ public class RRToFRSOp extends Operator {
                     iy = 0;
                     rrY++;
                 }
+                checkForCancelation(pm);
                 pm.worked(1);
             }
         } finally {

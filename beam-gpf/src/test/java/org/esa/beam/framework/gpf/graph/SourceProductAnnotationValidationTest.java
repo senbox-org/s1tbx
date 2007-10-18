@@ -147,7 +147,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         }
 
         @Override
-        public void computeTile(Band band, Tile targetTile) throws OperatorException {
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         }
 
         public static class Spi extends OperatorSpi {
@@ -170,7 +170,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         }
 
         @Override
-        public void computeTile(Band band, Tile targetTile) throws OperatorException {
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         }
 
         public static class Spi extends OperatorSpi {
@@ -192,7 +192,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         }
 
         @Override
-        public void computeTile(Band band, Tile targetTile) throws OperatorException {
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         }
 
         public static class Spi extends OperatorSpi {
@@ -217,7 +217,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         }
 
         @Override
-        public void computeTile(Band band, Tile targetTile) throws OperatorException {
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         }
 
         public static class Spi extends OperatorSpi {
@@ -242,7 +242,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         }
 
         @Override
-        public void computeTile(Band band, Tile targetTile) throws OperatorException {
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         }
 
         public static class Spi extends OperatorSpi {
@@ -268,7 +268,7 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         }
 
         @Override
-        public void computeTile(Band band, Tile targetTile) throws OperatorException {
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         }
 
         public static class Spi extends OperatorSpi {

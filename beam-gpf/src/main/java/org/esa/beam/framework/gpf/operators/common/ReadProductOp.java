@@ -1,5 +1,6 @@
 package org.esa.beam.framework.gpf.operators.common;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Band;
@@ -9,6 +10,7 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
@@ -26,6 +28,7 @@ import java.io.IOException;
  *
  * @author Maximilian Aulinger
  */
+@OperatorMetadata(alias = "ReadProduct")
 public class ReadProductOp extends Operator {
 
     private ProductReader beamReader;
@@ -53,7 +56,7 @@ public class ReadProductOp extends Operator {
     }
 
     @Override
-    public void computeTile(Band band, Tile targetTile) throws OperatorException {
+    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
 
         ProductData dataBuffer = targetTile.getRawSamples();
         Rectangle rectangle = targetTile.getRectangle();
@@ -68,7 +71,7 @@ public class ReadProductOp extends Operator {
 
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(ReadProductOp.class, "ReadProduct");
+            super(ReadProductOp.class);
         }
     }
 }

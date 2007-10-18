@@ -89,11 +89,11 @@ public class WriteRGBOp extends Operator {
     }
 
     @Override
-    public void computeTile(Band band, Tile targetTile) throws OperatorException {
+    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         Rectangle rectangle = targetTile.getRectangle();
 
         Band sourceBand = bandMap.get(band);
-        Tile sourceTile = getSourceTile(sourceBand, rectangle);
+        Tile sourceTile = getSourceTile(sourceBand, rectangle, pm);
 
         ProductData rgbData = dataMap.get(band);
         System.arraycopy(sourceTile.getRawSamples().getElems(), 0, rgbData.getElems(), rectangle.x + rectangle.y * rectangle.width, rectangle.width * rectangle.height);

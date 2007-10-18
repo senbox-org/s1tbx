@@ -1,5 +1,6 @@
 package org.esa.beam.framework.gpf.operators.common;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.datamodel.Band;
@@ -69,7 +70,7 @@ public class WriteProductOp extends Operator {
 
 
     @Override
-    public void computeTile(Band band, Tile targetTile) throws OperatorException {
+    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         if (!productFileWritten) {
             try {
                 productWriter.writeProductNodes(targetProduct, filePath);
@@ -81,7 +82,7 @@ public class WriteProductOp extends Operator {
         if (bandsToWrite.contains(band)) {
             Rectangle rectangle = targetTile.getRectangle();
             try {
-                Tile tile = getSourceTile(band, rectangle);
+                Tile tile = getSourceTile(band, rectangle, pm);
                 ProductData dataBuffer = tile.getRawSamples();
                 band.writeRasterData(rectangle.x, rectangle.y,
                                      rectangle.width, rectangle.height, dataBuffer, createProgressMonitor());
@@ -106,7 +107,7 @@ public class WriteProductOp extends Operator {
 
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(WriteProductOp.class, "WriteProduct");
+            super(WriteProductOp.class);
         }
     }
 }

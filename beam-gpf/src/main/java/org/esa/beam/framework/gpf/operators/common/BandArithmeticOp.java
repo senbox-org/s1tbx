@@ -29,6 +29,7 @@ import org.esa.beam.framework.dataop.barithm.BandArithmetic.ProductPrefixProvide
 import org.esa.beam.framework.dataop.barithm.RasterDataEvalEnv;
 import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
 import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
@@ -36,12 +37,7 @@ import org.esa.beam.util.StringUtils;
 
 import java.awt.Rectangle;
 
-/**
- * Created by marcoz.
- *
- * @author marcoz
- * @version $Revision: $ $Date: $
- */
+@OperatorMetadata(alias = "BandArithmetic")
 public class BandArithmeticOp extends Operator implements ParameterConverter {
 
     public static class BandDescriptor {
@@ -149,7 +145,7 @@ public class BandArithmeticOp extends Operator implements ParameterConverter {
     }
 
     @Override
-    public void computeTile(Band band, Tile targetTile) throws OperatorException {
+    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         BandDescriptor bandDescriptor = getDesriptionForTile(targetTile);
 
         Rectangle rect = targetTile.getRectangle();
@@ -163,7 +159,7 @@ public class BandArithmeticOp extends Operator implements ParameterConverter {
 
         RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
         for (RasterDataSymbol symbol : refRasterDataSymbols) {
-            Tile tile = getSourceTile(symbol.getRaster(), rect);
+            Tile tile = getSourceTile(symbol.getRaster(), rect, pm);
             if (tile.getRasterDataNode().isScalingApplied()) {
                 ProductData dataBuffer = ProductData.createInstance(ProductData.TYPE_FLOAT32, tile.getWidth() * tile.getHeight());
                 int dataBufferIndex = 0;
@@ -182,7 +178,6 @@ public class BandArithmeticOp extends Operator implements ParameterConverter {
 
         final RasterDataEvalEnv env = new RasterDataEvalEnv(rect.x, rect.y, rect.width, rect.height);
         int pixelIndex = 0;
-        ProgressMonitor pm = createProgressMonitor();
         pm.beginTask("Evaluating expression", rect.height);
         try {
             for (int y = rect.y; y < rect.y + rect.height; y++) {
@@ -215,7 +210,7 @@ public class BandArithmeticOp extends Operator implements ParameterConverter {
 
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(BandArithmeticOp.class, "BandArithmetic");
+            super(BandArithmeticOp.class);
         }
     }
 }

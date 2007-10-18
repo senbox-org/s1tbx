@@ -1,5 +1,6 @@
 package org.esa.beam.framework.gpf.operators.common;
 
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductSubsetBuilder;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
@@ -68,7 +69,7 @@ public class SubsetOp extends Operator {
     }
 
     @Override
-    public void computeTile(Band band, Tile targetTile) throws OperatorException {
+    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         ProductData destBuffer = targetTile.getRawSamples();
         Rectangle rectangle = targetTile.getRectangle();
         try {

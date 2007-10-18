@@ -112,14 +112,15 @@ public class OperatorContext {
         return passThrough;
     }
 
-    public boolean isCancellationRequested() {
-        // todo - implement missing logic here (nf - 08.10.2007)
-        return false;
+    public void checkForCancelation(ProgressMonitor pm) throws OperatorException {
+        if (pm.isCanceled()) {
+            throw new OperatorException("Operation canceled.");
+        }
     }
 
-    public ProgressMonitor createProgressMonitor() {
+    public ProgressMonitor createProgressMonitor(int totalWork) {
         // todo - implement missing logic here (nf - 08.10.2007)
-        return ProgressMonitor.NULL;
+        return ProgressMonitor.NULL; // new SubProgressMonitor(progressMonitorProvider.getProgressMonitor(), totalWork);
     }
 
     public OperatorSpi getOperatorSpi() {
@@ -181,16 +182,21 @@ public class OperatorContext {
         return tileStackMethodImplemented;
     }
 
-    public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle rectangle) {
+    public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle rectangle, ProgressMonitor pm) {
         RenderedImage image = getSourceImage(rasterDataNode);
-        /////////////////////////////////////////////////////////////////////
-        //
-        // Note: GPF pull-processing is triggered here!!!
-        //
-        Raster awtRaster = image.getData(rectangle); // Note: copyData is NOT faster!
-        //
-        /////////////////////////////////////////////////////////////////////
-        return new TileImpl(rasterDataNode, awtRaster);
+        ProgressMonitor oldPm = RasterDataNodeOpImage.setProgressMonitor(image, pm);
+        try {
+            /////////////////////////////////////////////////////////////////////
+            //
+            // Note: GPF pull-processing is triggered here!!!
+            //
+            Raster awtRaster = image.getData(rectangle); // Note: copyData is NOT faster!
+            //
+            /////////////////////////////////////////////////////////////////////
+            return new TileImpl(rasterDataNode, awtRaster);
+        } finally {
+            RasterDataNodeOpImage.setProgressMonitor(image, oldPm);
+        }
     }
 
     public OperatorImage getTargetImage(Band band) {

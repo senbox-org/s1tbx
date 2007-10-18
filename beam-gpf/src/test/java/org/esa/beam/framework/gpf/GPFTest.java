@@ -84,8 +84,8 @@ public class GPFTest extends TestCase {
          * <p>The default implementation throws a runtime exception with the message "not implemented"</p>.
          */
         @Override
-        public void computeTile(Band band, Tile targetTile) throws OperatorException {
-            Tile sourceTile = getSourceTile(sourceProduct.getBand(band.getName()), targetTile.getRectangle());
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+            Tile sourceTile = getSourceTile(sourceProduct.getBand(band.getName()), targetTile.getRectangle(), pm);
             ProductData rawTarget = targetTile.getRawSamples();
             ProductData rawSource = sourceTile.getRawSamples();
             int n = rawTarget.getNumElems();

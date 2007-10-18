@@ -82,7 +82,7 @@ public class L3ToL1Op extends MerisBasisOp {
     }
 
     @Override
-    public void computeTile(Band band, Tile targetTile) throws OperatorException {
+    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
 
         Rectangle rectangle = targetTile.getRectangle();
         Band srcBand = l3Product.getBand(band.getName());
@@ -92,15 +92,14 @@ public class L3ToL1Op extends MerisBasisOp {
         GeoPos geoPos = new GeoPos();
 
         Rectangle l3Rect = findL3Rectangle(rectangle, srcBand);
-        Tile srcTile = getSourceTile(srcBand, l3Rect);
+        Tile srcTile = getSourceTile(srcBand, l3Rect, pm);
 
         Tile maskTile = null;
         boolean useMask = false;
         if (maskProduct != null && StringUtils.isNotNullAndNotEmpty(maskBand)) {
-            maskTile = getSourceTile(maskProduct.getBand(maskBand), rectangle);
+            maskTile = getSourceTile(maskProduct.getBand(maskBand), rectangle, pm);
             useMask = true;
         }
-        ProgressMonitor pm = createProgressMonitor();
         pm.beginTask("compute", rectangle.height);
         try {
             for (int y = rectangle.y; y < rectangle.y + rectangle.height; y++) {
@@ -113,6 +112,7 @@ public class L3ToL1Op extends MerisBasisOp {
                         targetTile.setSample(x, y, srcTile.getSampleDouble(Math.round(l3PixelPos.x), Math.round(l3PixelPos.y)));
                     }
                 }
+                checkForCancelation(pm);
                 pm.worked(1);
             }
         } finally {

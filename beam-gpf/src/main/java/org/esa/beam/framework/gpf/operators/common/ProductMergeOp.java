@@ -16,6 +16,7 @@
  */
 package org.esa.beam.framework.gpf.operators.common;
 
+import com.bc.ceres.core.ProgressMonitor;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.XppDomReader;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
@@ -23,21 +24,20 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 
 import java.awt.image.RenderedImage;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created by marcoz.
- *
- * @author marcoz
- * @version $Revision: 1.3 $ $Date: 2007/05/14 12:25:40 $
- */
+@OperatorMetadata(alias = "ProductMerger")
 public class ProductMergeOp extends Operator implements ParameterConverter {
 
     public static class Configuration {
@@ -157,8 +157,8 @@ public class ProductMergeOp extends Operator implements ParameterConverter {
     }
 
     @Override
-    public void computeTile(Band band, Tile targetTile) throws OperatorException {
-        throw new OperatorException("ProdcutMerge should happen through delegation");
+    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+        getLogger().warning("Wrongly configured ProductMerger operator. Tiles should not be requested.");
     }
 
     public class BandDesc {
@@ -171,7 +171,7 @@ public class ProductMergeOp extends Operator implements ParameterConverter {
 
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(ProductMergeOp.class, "ProductMerger");
+            super(ProductMergeOp.class);
         }
     }
 }

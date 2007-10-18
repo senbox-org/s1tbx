@@ -11,10 +11,10 @@ import java.awt.Rectangle;
  * Tiles are used to enable the sample data transfer from and to the source and target bands of data
  * products used within operator graphs.
  * <p>Target tiles to be computed are passed into an {@link org.esa.beam.framework.gpf.Operator Operator}'s
- * {@link Operator#computeTile(org.esa.beam.framework.datamodel.Band,Tile) computeTile}
- * and {@link Operator#computeTileStack(java.util.Map,java.awt.Rectangle) computeTileStack} methods.
+ * {@link Operator#computeTile(org.esa.beam.framework.datamodel.Band, Tile,com.bc.ceres.core.ProgressMonitor) computeTile}
+ * and {@link Operator#computeTileStack(java.util.Map computeTileStack} methods.
  * Source tiles are obtained by using the
- * {@link Operator#getSourceTile(org.esa.beam.framework.datamodel.RasterDataNode,java.awt.Rectangle) getSourceTile} method.</p>
+ * {@link Operator#getSourceTile(org.esa.beam.framework.datamodel.RasterDataNode,java.awt.Rectangle,com.bc.ceres.core.ProgressMonitor) getSourceTile} method.</p>
  * <p>Three ways are provided to access and manipulate the sample data of a target tile:</p>
  * <p>(1) This is the simplest but also slowest way to modify sample data of a tile:</p>
  * <pre>
@@ -393,15 +393,15 @@ public interface Tile {
      * @param sample The geophysical sample as {@code double} value.
      */
     void setSample(int x, int y, double sample);
-    
+
     /**
      * Gets the sample value for the given pixel coordinate and the specified bit index as {@code boolean}.
      * <p>If the underlying data buffer is of a different sample data type, an appropriate type conversion is performed.</p>
      * <p>Note that in most cases it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
      * with the {@link #getScanlineOffset() scanlineOffset} and {@link #getScanlineStride() scanlineStride} properties.</p>
      *
-     * @param x The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
-     * @param y The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
+     * @param x        The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
+     * @param y        The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
      * @param bitIndex The bit index.
      * @return The sample as {@code boolean} value.
      */
@@ -413,10 +413,10 @@ public interface Tile {
      * <p>Note that in most cases it is more performant to directly access the tile's {@link #getDataBuffer() dataBuffer} in conjunction
      * with the {@link #getScanlineOffset() scanlineOffset} and {@link #getScanlineStride() scanlineStride} properties.</p>
      *
-     * @param x      The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
-     * @param y      The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
+     * @param x        The absolute pixel x-coordinate, must be greater or equal {@link #getMinX()} and less or equal {@link #getMaxX()}.
+     * @param y        The absolute pixel y-coordinate, must be greater or equal {@link #getMinY()} and less or equal {@link #getMaxY()}.
      * @param bitIndex The bit index.
-     * @param sample The sample as {@code boolean} value.
+     * @param sample   The sample as {@code boolean} value.
      */
     void setSample(int x, int y, int bitIndex, boolean sample);
 }

@@ -210,19 +210,18 @@ public class N1PatcherOp extends Operator {
     }
 
     @Override
-    public void computeTile(Band band, Tile targetTile) throws OperatorException {
+    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         Rectangle rectangle = targetTile.getRectangle();
         DatasetDescriptor descriptor = getDatasetDescriptorForBand(band);
         if (descriptor == null) {
             return;
         }
 
-        ProgressMonitor pm = createProgressMonitor();
         pm.beginTask("Patching product...", rectangle.height);
         try {
-            Tile srcTile = getSourceTile(band, rectangle);
+            Tile srcTile = getSourceTile(band, rectangle, pm);
             short[] data = (short[]) srcTile.getRawSamples().getElems();
-            
+
             byte[] buf = new byte[rectangle.height * descriptor.dsrSize];
             final long dsrOffset = descriptor.dsOffset + rectangle.y * descriptor.dsrSize;
             inputStream.seek(dsrOffset);
@@ -230,11 +229,12 @@ public class N1PatcherOp extends Operator {
             outputStream.seek(dsrOffset);
             for (int y = 0; y < rectangle.height; y++) {
                 outputStream.write(buf, y * descriptor.dsrSize, DSR_HEADER_SIZE);
-                outputStream.skipBytes((targetProduct.getSceneRasterWidth() - rectangle.width - rectangle.x)*2);
+                outputStream.skipBytes((targetProduct.getSceneRasterWidth() - rectangle.width - rectangle.x) * 2);
                 for (int x = rectangle.width - 1; x >= 0; x--) {
-                    outputStream.writeShort(data[x+y*rectangle.width]);
+                    outputStream.writeShort(data[x + y * rectangle.width]);
                 }
-                outputStream.skipBytes((rectangle.x)*2);
+                outputStream.skipBytes((rectangle.x) * 2);
+                checkForCancelation(pm);
                 pm.worked(1);
             }
         } catch (IOException e) {

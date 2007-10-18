@@ -18,9 +18,9 @@ import java.util.logging.Logger;
  * <ld>
  * <li>{@link #initialize()}: must be implemented in order to initialise the operator and create the target
  * product.</li>
- * <li>{@link #computeTile(org.esa.beam.framework.datamodel.Band,Tile) computeTile()}: implemented to compute the tile
+ * <li>{@link #computeTile(org.esa.beam.framework.datamodel.Band, Tile,com.bc.ceres.core.ProgressMonitor) computeTile()}: implemented to compute the tile
  * for a single band.</li>
- * <li>{@link #computeTileStack(java.util.Map,java.awt.Rectangle) computeTileStack()}: implemented to compute the tiles
+ * <li>{@link #computeTileStack(java.util.Map computeTileStack()}: implemented to compute the tiles
  * for multiple bands.</li>
  * <li>{@link #dispose()}: can be overidden in order to free all resources previously allocated by the operator.</li>
  * <li>{@link #getConfigurationConverter()}: can be overidden in order to return a suitable converter for an operator's configuration.</li>
@@ -83,26 +83,42 @@ public abstract class Operator {
     public abstract Product initialize() throws OperatorException;
 
     /**
+     * @deprecated use the version below
+     */
+    public void computeTile(Band targetBand, Tile targetTile) throws OperatorException {
+        computeTile(targetBand, targetTile, ProgressMonitor.NULL);
+    }
+
+    /**
      * Called by the framework in order to compute a tile for the given target band.
      * <p>The default implementation throws a runtime exception with the message "not implemented"</p>.
      *
-     * @param targetBand the target band
-     * @param targetTile the current tile associated with the target band to be computed
-     * @throws OperatorException if an error occurs during computation of the target raster
+     * @param targetBand The target band.
+     * @param targetTile The current tile associated with the target band to be computed.
+     * @param pm         A progress monitor which should be used to determine computation cancelation requests.
+     * @throws OperatorException If an error occurs during computation of the target raster.
      */
-    public void computeTile(Band targetBand, Tile targetTile) throws OperatorException {
-        throw new RuntimeException("not implemented (only Band supported)");
+    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+        throw new RuntimeException("not implemented");
+    }
+
+    /**
+     * @deprecated use the version below
+     */
+    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle) throws OperatorException {
+        computeTileStack(targetTiles, targetRectangle, ProgressMonitor.NULL);
     }
 
     /**
      * Called by the framework in order to compute the stack of tiles for the given target bands.
      * <p>The default implementation throws a runtime exception with the message "not implemented"</p>.
      *
-     * @param targetTiles     the current tiles to be computed for each target band
-     * @param targetRectangle the area in pixel coordinates to be computed (same for all rasters in <code>targetRasters</code>)
-     * @throws OperatorException if an error occurs during computation of the target rasters
+     * @param targetTiles     The current tiles to be computed for each target band.
+     * @param targetRectangle The area in pixel coordinates to be computed (same for all rasters in <code>targetRasters</code>).
+     * @param pm              A progress monitor which should be used to determine computation cancelation requests.
+     * @throws OperatorException if an error occurs during computation of the target rasters.
      */
-    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle) throws OperatorException {
+    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
         throw new RuntimeException("not implemented");
     }
 
@@ -193,26 +209,41 @@ public abstract class Operator {
     }
 
     /**
-     * Gets a {@link Tile} for a given band and rectangle.
-     *
-     * @param rasterDataNode the raster data node of a data product,
-     *                       e.g. a {@link org.esa.beam.framework.datamodel.Band} or
-     *                       {@link org.esa.beam.framework.datamodel.TiePointGrid}.
-     * @param rectangle      the raster rectangle in pixel coordinates
-     * @return a tile.
-     * @throws OperatorException if the tile request cannot be processed
+     * @deprecated use the version below
      */
     public final Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle rectangle) throws OperatorException {
-        return context.getSourceTile(rasterDataNode, rectangle);
+        return getSourceTile(rasterDataNode, rectangle, ProgressMonitor.NULL);
     }
 
     /**
-     * Returns true, if the computation should be canceled
+     * Gets a {@link Tile} for a given band and rectangle.
      *
-     * @return true if computation should be canceled
+     * @param rasterDataNode the raster data node of a data product,
+     *                       e.g. a {@link org.esa.beam.framework.datamodel.Band Band} or
+     *                       {@link org.esa.beam.framework.datamodel.TiePointGrid TiePointGrid}.
+     * @param rectangle      the raster rectangle in pixel coordinates
+     * @param pm             The progress monitor passed into the
+     *                       the {@link #computeTile(org.esa.beam.framework.datamodel.Band, Tile,com.bc.ceres.core.ProgressMonitor) computeTile} method or
+     *                       the {@link #computeTileStack(java.util.Map, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor) computeTileStack}  method.
+     * @return a tile.
+     * @throws OperatorException if the tile request cannot be processed
      */
-    protected final boolean isCancellationRequested() {
-        return context.isCancellationRequested();
+    public final Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
+        return context.getSourceTile(rasterDataNode, rectangle, pm);
+    }
+
+
+    /**
+     * Checks for cancelation of the current processing request. Throws an exception, if the
+     * request has been canceled (e.g. by the user).
+     *
+     * @param pm The progress monitor passed into the
+     *           the {@link #computeTile(org.esa.beam.framework.datamodel.Band, Tile,com.bc.ceres.core.ProgressMonitor) computeTile} method or
+     *           the {@link #computeTileStack(java.util.Map, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor) computeTileStack}  method.
+     * @throws OperatorException if the current processing request has been canceled (e.g. by the user).
+     */
+    protected final void checkForCancelation(ProgressMonitor pm) throws OperatorException {
+        context.checkForCancelation(pm);
     }
 
     /**
@@ -221,8 +252,11 @@ public abstract class Operator {
      *
      * @return a progress monitor
      */
+    /**
+     * @deprecated not required anymore
+     */
     protected final ProgressMonitor createProgressMonitor() {
-        return context.createProgressMonitor();
+        return context.createProgressMonitor(1);
     }
 
     /**
