@@ -62,7 +62,7 @@ public class ReadProductOp extends Operator {
         Rectangle rectangle = targetTile.getRectangle();
         try {
             beamReader.readBandRasterData(band, rectangle.x, rectangle.y, rectangle.width,
-                                          rectangle.height, dataBuffer, createProgressMonitor());
+                                          rectangle.height, dataBuffer, pm);
             targetTile.setRawSamples(dataBuffer);
         } catch (IOException e) {
             throw new OperatorException(e);

@@ -83,13 +83,6 @@ public abstract class Operator {
     public abstract Product initialize() throws OperatorException;
 
     /**
-     * @deprecated use the version below
-     */
-    public void computeTile(Band targetBand, Tile targetTile) throws OperatorException {
-        computeTile(targetBand, targetTile, ProgressMonitor.NULL);
-    }
-
-    /**
      * Called by the framework in order to compute a tile for the given target band.
      * <p>The default implementation throws a runtime exception with the message "not implemented"</p>.
      *
@@ -100,13 +93,6 @@ public abstract class Operator {
      */
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         throw new RuntimeException("not implemented");
-    }
-
-    /**
-     * @deprecated use the version below
-     */
-    public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle) throws OperatorException {
-        computeTileStack(targetTiles, targetRectangle, ProgressMonitor.NULL);
     }
 
     /**
@@ -209,13 +195,6 @@ public abstract class Operator {
     }
 
     /**
-     * @deprecated use the version below
-     */
-    public final Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle rectangle) throws OperatorException {
-        return getSourceTile(rasterDataNode, rectangle, ProgressMonitor.NULL);
-    }
-
-    /**
      * Gets a {@link Tile} for a given band and rectangle.
      *
      * @param rasterDataNode the raster data node of a data product,
@@ -244,13 +223,6 @@ public abstract class Operator {
      */
     protected final void checkForCancelation(ProgressMonitor pm) throws OperatorException {
         context.checkForCancelation(pm);
-    }
-
-    /**
-     * @deprecated not required anymore
-     */
-    protected final ProgressMonitor createProgressMonitor() {
-        return ProgressMonitor.NULL;
     }
 
     /**

@@ -85,7 +85,7 @@ public class WriteProductOp extends Operator {
                 Tile tile = getSourceTile(band, rectangle, pm);
                 ProductData dataBuffer = tile.getRawSamples();
                 band.writeRasterData(rectangle.x, rectangle.y,
-                                     rectangle.width, rectangle.height, dataBuffer, createProgressMonitor());
+                                     rectangle.width, rectangle.height, dataBuffer, pm);
             } catch (IOException e) {
                 Throwable cause = e.getCause();
                 if (cause instanceof OperatorException) {

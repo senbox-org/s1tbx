@@ -101,7 +101,7 @@ public class CollocationOp extends Operator {
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
 
         if (slaveBandList.contains(targetBand)) {
-            collocateSlaveBand(targetBand, targetTile);
+            collocateSlaveBand(targetBand, targetTile, pm);
         } else {
             try {
                 pm.beginTask("Copying master band", targetTile.getHeight());
@@ -128,8 +128,7 @@ public class CollocationOp extends Operator {
         slaveBandList = null;
     }
 
-    private void collocateSlaveBand(Band targetBand, Tile targetTile) throws OperatorException {
-        final ProgressMonitor pm = createProgressMonitor();
+    private void collocateSlaveBand(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         try {
             pm.beginTask("collocating slave band", targetTile.getHeight());
 
