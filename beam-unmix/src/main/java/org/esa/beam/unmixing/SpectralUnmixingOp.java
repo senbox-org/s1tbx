@@ -16,7 +16,6 @@ package org.esa.beam.unmixing;
 
 import Jama.Matrix;
 import com.bc.ceres.core.ProgressMonitor;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -28,7 +27,6 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.ui.diagram.DiagramGraph;
 import org.esa.beam.framework.ui.diagram.DiagramGraphIO;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.ConstrainedLSU;
 import org.esa.beam.util.math.FullyConstrainedLSU;
 import org.esa.beam.util.math.SpectralUnmixing;
@@ -39,6 +37,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -49,7 +48,7 @@ import java.util.Map;
                   authors = "Helmut Schiller, Norman Fomferra",
                   copyright = "(c) 2007 by Brockmann Consult",
                   description = "Spectral umnixing algorithm.")
-public class SpectralUnmixingOp extends Operator implements ParameterConverter {
+public class SpectralUnmixingOp extends Operator {
 
     private final String TYPE_1 = "Unconstrained LSU";
     private final String TYPE_2 = "Constrained LSU";
@@ -86,55 +85,6 @@ public class SpectralUnmixingOp extends Operator implements ParameterConverter {
     private transient Band[] targetBands;
     private SpectralUnmixing spectralUnmixing;
 
-    public void getParameterValues(Operator operator, Xpp3Dom configuration) throws OperatorException {
-        // todo - implement
-    }
-
-    public void setParameterValues(Operator operator, Xpp3Dom configuration) throws OperatorException {
-        configureSourceBands(configuration);
-        configureEndmembers(configuration);
-    }
-
-    private void configureEndmembers(Xpp3Dom configuration) throws OperatorException {
-        Xpp3Dom endmembersElement = configuration.getChild("endmembers");
-        Xpp3Dom wavelengthsElement = endmembersElement.getChild("wavelengths");
-        if (wavelengthsElement == null) {
-            throw new OperatorException("Missing 'endmembers/wavelengths' element.");
-        }
-        double[] wavelengths = StringUtils.toDoubleArray(wavelengthsElement.getValue(), ",");
-
-        Xpp3Dom[] endmemberElements = endmembersElement.getChildren("endmember");
-        if (endmemberElements.length == 0) {
-            throw new OperatorException("Missing 'endmembers/endmember' elements.");
-        }
-        endmembers = new Endmember[endmemberElements.length];
-        for (int i = 0; i < endmemberElements.length; i++) {
-            Xpp3Dom endmemberElement = endmemberElements[i];
-            Xpp3Dom endmemberName = endmemberElement.getChild("name");
-            if (endmemberName == null) {
-                throw new OperatorException("Missing 'endmembers/endmember/name' element.");
-            }
-            Xpp3Dom radiationsElement = endmemberElement.getChild("radiations");
-            if (radiationsElement == null) {
-                throw new OperatorException("Missing 'endmembers/endmember/radiations' element.");
-            }
-            double[] radiations = StringUtils.toDoubleArray(radiationsElement.getValue(), ",");
-            if (radiations.length != wavelengths.length) {
-                throw new OperatorException("'Endmember number of wavelengths does not match number of radiations.");
-            }
-            endmembers[i] = new Endmember(endmemberName.getValue(), wavelengths, radiations);
-        }
-    }
-
-    private void configureSourceBands(Xpp3Dom configuration) {
-        Xpp3Dom sourceBandsElement = configuration.getChild("sourceBands");
-        Xpp3Dom[] bandElements = sourceBandsElement.getChildren("band");
-        sourceBandNames = new String[bandElements.length];
-        for (int i = 0; i < bandElements.length; i++) {
-            sourceBandNames[i] = bandElements[i].getValue();
-        }
-    }
-
     @Override
     public Product initialize() throws OperatorException {
         if (endmemberFile != null) {
@@ -149,7 +99,7 @@ public class SpectralUnmixingOp extends Operator implements ParameterConverter {
                     bandNameList.add(band.getName());
                 }
             }
-            sourceBandNames = bandNameList.toArray(new String[0]);
+            sourceBandNames = bandNameList.toArray(new String[bandNameList.size()]);
         }
 
         validateParameters();
@@ -214,39 +164,6 @@ public class SpectralUnmixingOp extends Operator implements ParameterConverter {
         return targetProduct;
     }
 
-    private void loadEndmemberFile() throws OperatorException {
-        try {
-            FileReader fileReader = new FileReader(endmemberFile);
-            try {
-                DiagramGraph[] diagramGraphs = DiagramGraphIO.readGraphs(fileReader);
-                Endmember[] newEndmembers = convertGraphsToEndmembers(diagramGraphs);
-                ArrayList<Endmember> list = new ArrayList<Endmember>();
-                if (endmembers != null) {
-                    for (Endmember endmember : endmembers) {
-                        list.add(endmember);
-                    }
-                }
-                for (Endmember endmember : newEndmembers) {
-                    list.add(endmember);
-                }
-                endmembers = list.toArray(new Endmember[list.size()]);
-            } finally {
-                fileReader.close();
-            }
-        } catch (IOException e) {
-            throw new OperatorException(e);
-        }
-    }
-
-    private void validateParameters() throws OperatorException {
-        if (sourceBandNames == null || sourceBandNames.length == 0) {
-            throw new OperatorException("Parameter 'sourceBandNames' not set.");
-        }
-        if (endmemberFile == null && (endmembers == null || endmembers.length == 0)) {
-            throw new OperatorException("Parameter 'endmemberFile' and 'endmembers' not set.");
-        }
-    }
-
     @Override
     public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         Rectangle rectangle = targetTile.getRectangle();
@@ -278,6 +195,11 @@ public class SpectralUnmixingOp extends Operator implements ParameterConverter {
                 checkForCancelation(pm);
             }
         }
+    }
+
+    @Override
+    public ParameterConverter getConfigurationConverter() {
+        return new SpectralUnmixingConfigConverter();
     }
 
     private Tile[] getSourceTiles(Rectangle rectangle, ProgressMonitor pm) throws OperatorException {
@@ -359,6 +281,35 @@ public class SpectralUnmixingOp extends Operator implements ParameterConverter {
     }
 
 
+    private void loadEndmemberFile() throws OperatorException {
+        try {
+            FileReader fileReader = new FileReader(endmemberFile);
+            try {
+                DiagramGraph[] diagramGraphs = DiagramGraphIO.readGraphs(fileReader);
+                Endmember[] newEndmembers = convertGraphsToEndmembers(diagramGraphs);
+                ArrayList<Endmember> list = new ArrayList<Endmember>();
+                if (endmembers != null) {
+                    list.addAll(Arrays.asList(endmembers));
+                }
+                list.addAll(Arrays.asList(newEndmembers));
+                endmembers = list.toArray(new Endmember[list.size()]);
+            } finally {
+                fileReader.close();
+            }
+        } catch (IOException e) {
+            throw new OperatorException(e);
+        }
+    }
+
+    private void validateParameters() throws OperatorException {
+        if (sourceBandNames == null || sourceBandNames.length == 0) {
+            throw new OperatorException("Parameter 'sourceBandNames' not set.");
+        }
+        if (endmemberFile == null && (endmembers == null || endmembers.length == 0)) {
+            throw new OperatorException("Parameter 'endmemberFile' and 'endmembers' not set.");
+        }
+    }
+
     /**
      * The Service Provider Interface (SPI) for the operator.
      * It provides operator meta-data and is a factory for new operator instances.
@@ -368,6 +319,4 @@ public class SpectralUnmixingOp extends Operator implements ParameterConverter {
             super(SpectralUnmixingOp.class);
         }
     }
-
-
 }
