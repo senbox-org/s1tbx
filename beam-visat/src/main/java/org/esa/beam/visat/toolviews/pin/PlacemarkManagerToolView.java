@@ -156,8 +156,6 @@ class PlacemarkManagerToolView extends AbstractToolView {
         placemarkTable.addMouseListener(new PopupListener());
         placemarkTable.setModel(currentTableModel);
         placemarkTable.setDefaultRenderer(Float.class, new FloatTableCellRenderer(new DecimalFormat("0.000")));
-        addCellRenderer(placemarkTable.getColumnModel());
-        addCellEditor(placemarkTable.getColumnModel());
         placemarkTable.getSelectionModel().addListSelectionListener(new PlacemarkTableSelectionListener());
 
         updateTableModel();
@@ -394,12 +392,17 @@ class PlacemarkManagerToolView extends AbstractToolView {
         currentTableModel.setProduct(product);
         currentTableModel.setSelectedBands(selectedBands);
         currentTableModel.setSelectedGrids(selectedGrids);
+        addCellRenderer(placemarkTable.getColumnModel());
+        addCellEditor(placemarkTable.getColumnModel());
+
     }
 
 
     private void addCellRenderer(TableColumnModel columnModel) {
-        columnModel.getColumn(0).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.00")));
-        columnModel.getColumn(1).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.00")));
+        columnModel.getColumn(0).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.000")));
+        columnModel.getColumn(1).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.000")));
+        columnModel.getColumn(2).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.000000")));
+        columnModel.getColumn(3).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.000000")));
     }
 
     private void addCellEditor(TableColumnModel columnModel) {
