@@ -36,7 +36,6 @@ public interface XmlConverter {
      *
      * @param value The value to be converted to the XML DOM.
      * @return The XML DOM representation of the value.
-     * @throws ConversionException If the conversion fails.
      */
-    Xpp3Dom convertValueToDom(Object value) throws ConversionException;
+    Xpp3Dom convertValueToDom(Object value);
 }
