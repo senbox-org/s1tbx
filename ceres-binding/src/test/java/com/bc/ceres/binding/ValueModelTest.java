@@ -9,20 +9,16 @@ import java.lang.reflect.Field;
 
 
 public class ValueModelTest extends TestCase {
-    private  Factory factory;
+    private ValueContainerFactory valueContainerFactory;
 
     @Override
     protected void setUp() throws Exception {
 
-        factory = new Factory(new ValueDefinitionFactory() {
-            public ValueDefinition createValueDefinition(Field field) {
-                return new ValueDefinition(field.getName(), field.getType());
-            }
-        });
+        valueContainerFactory = new ValueContainerFactory();
     }
 
     public  void testValueBackedValueContainer() throws ValidationException {
-        ValueContainer vc = factory.createValueBackedValueContainer(Pojo.class);
+        ValueContainer vc = valueContainerFactory.createValueBackedValueContainer(Pojo.class);
 
         ValueModel nameModel = vc.getModel("name");
         assertNotNull(nameModel);
@@ -49,7 +45,7 @@ public class ValueModelTest extends TestCase {
 
     public  void testMapBackedValueContainer() throws ValidationException {
         final HashMap<String, Object> map = new HashMap<String, Object>();
-        ValueContainer vc = factory.createMapBackedValueContainer(Pojo.class, map);
+        ValueContainer vc = valueContainerFactory.createMapBackedValueContainer(Pojo.class, map);
 
         ValueModel nameModel = vc.getModel("name");
         assertNotNull(nameModel);
@@ -80,7 +76,7 @@ public class ValueModelTest extends TestCase {
 
     public  void testObjectBackedValueContainer() throws ValidationException {
         Pojo pojo = new Pojo();
-        ValueContainer vc = factory.createObjectBackedValueContainer(pojo);
+        ValueContainer vc = valueContainerFactory.createObjectBackedValueContainer(pojo);
 
         ValueModel nameModel = vc.getModel("name");
         assertNotNull(nameModel);

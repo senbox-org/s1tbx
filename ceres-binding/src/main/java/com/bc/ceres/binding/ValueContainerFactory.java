@@ -14,14 +14,22 @@ import java.util.*;
  * @author Norman Fomferra
  * @since 0.6
  */
-public class Factory {
+public class ValueContainerFactory {
     private final ValueDefinitionFactory valueDefinitionFactory;
 
-    public Factory(ValueDefinitionFactory valueDefinitionFactory) {
+    public ValueContainerFactory() {
+        this(new ValueDefinitionFactory() {
+            public ValueDefinition createValueDefinition(Field field) {
+                return new ValueDefinition(field.getName(), field.getType());
+            }
+        });
+    }
+
+    public ValueContainerFactory(ValueDefinitionFactory valueDefinitionFactory) {
         this.valueDefinitionFactory = valueDefinitionFactory;
     }
 
-    public ValueDefinitionFactory getPropertyDefinitionFactory() {
+    public ValueDefinitionFactory getValueDefinitionFactory() {
         return valueDefinitionFactory;
     }
 

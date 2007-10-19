@@ -1,7 +1,7 @@
 package com.bc.ceres.binding;
 
 /**
- * A {@code Converter} provides a strategy convert a value of a certain type from
+ * A {@code Converter} provides a strategy to convert a value of a certain type from
  * plain text to a Java object and vice versa.
  *
  * @author Norman Fomferra

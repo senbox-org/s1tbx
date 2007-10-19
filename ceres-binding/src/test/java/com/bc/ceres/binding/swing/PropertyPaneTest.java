@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.io.File;
 import java.awt.*;
 
-import com.bc.ceres.binding.Factory;
+import com.bc.ceres.binding.ValueContainerFactory;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueSet;
 
@@ -50,7 +50,7 @@ public class PropertyPaneTest extends TestCase {
         map.put("imageFile", new File(".").getAbsoluteFile());
 
 
-        ValueContainer vc = Factory.createMapBackedValueContainer(map);
+        ValueContainer vc = ValueContainerFactory.createMapBackedValueContainer(map);
         vc.getValueDefinition("resamplingMethod").setValueSet(new ValueSet(new String[]{
               "NN", "CC", "BQ"
         }));

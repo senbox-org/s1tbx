@@ -1,10 +1,7 @@
 package com.bc.ceres.binding.swing;
 
-import com.bc.ceres.binding.Factory;
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDefinition;
-import com.bc.ceres.binding.ValueDefinitionFactory;
+import com.bc.ceres.binding.ValueContainerFactory;
+import com.bc.ceres.binding.*;
 import junit.framework.TestCase;
 
 import javax.swing.JCheckBox;
@@ -34,17 +31,13 @@ public class SwingBindingContextTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        Factory factory = new Factory(new ValueDefinitionFactory() {
-            public ValueDefinition createValueDefinition(Field field) {
-                return new ValueDefinition(field.getName(), field.getType());
-            }
-        });
+        ValueContainerFactory valueContainerFactory = new ValueContainerFactory();
 
-        valueContainer = factory.createValueBackedValueContainer(TestPojo.class);
+        valueContainer = valueContainerFactory.createValueBackedValueContainer(TestPojo.class);
         binding = new SwingBindingContext(valueContainer);
 
         pojo = new TestPojo();
-        valueContainer2 = factory.createObjectBackedValueContainer(pojo);
+        valueContainer2 = valueContainerFactory.createObjectBackedValueContainer(pojo);
         binding2 = new SwingBindingContext(valueContainer2);
     }
 

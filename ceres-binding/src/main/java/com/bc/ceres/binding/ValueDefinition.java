@@ -141,6 +141,22 @@ public class ValueDefinition {
         setProperty("converter", converter);
     }
 
+    public XmlConverter getXmlConverter() {
+        return getXmlConverter(false);
+    }
+
+    public XmlConverter getXmlConverter(boolean notNull) {
+        final XmlConverter converter = (XmlConverter) getProperty("xmlConverter");
+        if (converter == null && notNull) {
+            throw new IllegalStateException("no XML converter defined for value '" + getName() + "'");
+        }
+        return converter;
+    }
+
+    public void setXmlConverter(XmlConverter converter) {
+        setProperty("xmlConverter", converter);
+    }
+
     public Validator getValidator() {
         return (Validator) getProperty("validator");
     }
@@ -199,13 +215,7 @@ public class ValueDefinition {
     }
 
     private static boolean equals(Object a, Object b) {
-        if (a == b) {
-            return true;
-        }
-        if (a == null || b == null) {
-            return false;
-        }
-        return a.equals(b);
+        return a == b || !(a == null || b == null) && a.equals(b);
     }
 
     private boolean getBooleanProperty(String name) {
