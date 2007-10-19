@@ -1,12 +1,13 @@
 package org.esa.beam.collocation.visat;
 
-import com.bc.ceres.binding.Factory;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDefinition;
-import com.bc.ceres.binding.ValueDefinitionFactory;
+import java.lang.reflect.Field;
+
 import org.esa.beam.framework.datamodel.Product;
 
-import java.lang.reflect.Field;
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueContainerFactory;
+import com.bc.ceres.binding.ValueDefinition;
+import com.bc.ceres.binding.ValueDefinitionFactory;
 
 /**
  * Created by IntelliJ IDEA.
@@ -24,7 +25,7 @@ class CollocationFormModel {
 
     public CollocationFormModel(Product[] defaultProducts) {
         this.defaultProducts = defaultProducts;
-        final Factory factory = new Factory(new ValueDefinitionFactory() {
+        final ValueContainerFactory factory = new ValueContainerFactory(new ValueDefinitionFactory() {
             public ValueDefinition createValueDefinition(Field field) {
                 return new ValueDefinition(field.getName(), field.getType());
             }

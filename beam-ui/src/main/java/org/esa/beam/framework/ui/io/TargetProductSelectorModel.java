@@ -1,20 +1,21 @@
 package org.esa.beam.framework.ui.io;
 
-import com.bc.ceres.binding.Factory;
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDefinition;
-import com.bc.ceres.binding.ValueDefinitionFactory;
-import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.dataio.ProductIOPlugInManager;
-import org.esa.beam.framework.dataio.ProductWriterPlugIn;
-import org.esa.beam.util.StringUtils;
-
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Iterator;
+
+import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.dataio.ProductIOPlugInManager;
+import org.esa.beam.framework.dataio.ProductWriterPlugIn;
+import org.esa.beam.util.StringUtils;
+
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueContainerFactory;
+import com.bc.ceres.binding.ValueDefinition;
+import com.bc.ceres.binding.ValueDefinitionFactory;
 
 /**
  * Target product selector model.
@@ -35,7 +36,7 @@ public class TargetProductSelectorModel {
     private final ValueContainer valueContainer;
 
     public TargetProductSelectorModel(boolean saveToFile) {
-        final Factory factory = new Factory(new ValueDefinitionFactory() {
+        final ValueContainerFactory factory = new ValueContainerFactory(new ValueDefinitionFactory() {
             public ValueDefinition createValueDefinition(Field field) {
                 return new ValueDefinition(field.getName(), field.getType());
             }

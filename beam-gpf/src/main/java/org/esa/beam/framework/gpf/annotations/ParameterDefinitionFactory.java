@@ -1,14 +1,24 @@
 package org.esa.beam.framework.gpf.annotations;
 
-import com.bc.ceres.binding.*;
+import java.lang.reflect.Field;
+import java.util.Map;
+import java.util.regex.Pattern;
+
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 
-import java.lang.reflect.Field;
-import java.util.Map;
-import java.util.regex.Pattern;
+import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.Converter;
+import com.bc.ceres.binding.ConverterRegistry;
+import com.bc.ceres.binding.Interval;
+import com.bc.ceres.binding.Validator;
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueContainerFactory;
+import com.bc.ceres.binding.ValueDefinition;
+import com.bc.ceres.binding.ValueDefinitionFactory;
+import com.bc.ceres.binding.ValueSet;
 
 public class ParameterDefinitionFactory implements ValueDefinitionFactory {
 
@@ -91,7 +101,7 @@ public class ParameterDefinitionFactory implements ValueDefinitionFactory {
             throw new IllegalStateException("Operator SPI not found for operator [" + operatorName + "]");
         }
         Class<? extends Operator> operatorClass = operatorSpi.getOperatorClass();
-        Factory factory = new Factory(new ParameterDefinitionFactory());
+        ValueContainerFactory factory = new ValueContainerFactory(new ParameterDefinitionFactory());
         return factory.createMapBackedValueContainer(operatorClass, operatorParameters);
     }
 
