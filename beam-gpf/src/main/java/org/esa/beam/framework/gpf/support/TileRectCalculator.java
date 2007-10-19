@@ -45,11 +45,4 @@ public class TileRectCalculator {
         requestedRectangle.grow(widthExtend, heightExtend);
         return requestedRectangle.intersection(sceneRectangle);
     }
-
-    public static int convertToIndex(int x, int y, Rectangle rectangle) {
-        final int ix = x - rectangle.x;
-        final int iy = y - rectangle.y;
-        final int index = iy * rectangle.width + ix;
-        return index;
-    }
 }
