@@ -165,6 +165,19 @@ public abstract class OperatorSpi {
         processAnnotations();
         return parameterDescriptors;
     }
+    
+    /**
+     * @return The operator's alias name,
+     *         the name is taken from the {@link OperatorMetadata} annotation, if present.
+     *         Otherwise the class name is returned.
+     */
+    public static String getOperatorAlias(Class<? extends Operator> operatorClass) {
+        OperatorMetadata annotation = operatorClass.getAnnotation(OperatorMetadata.class);
+        if (annotation != null && !annotation.alias().isEmpty()) {
+            return annotation.alias();
+        }
+        return operatorClass.getSimpleName();
+    }
 
     private void processAnnotations() {
         if (annotationsProcessed) {
@@ -187,13 +200,5 @@ public abstract class OperatorSpi {
                 parameterDescriptors.put(declaredField, parameter);
             }
         }
-    }
-
-    private static String getOperatorAlias(Class<? extends Operator> operatorClass) {
-        OperatorMetadata annotation = operatorClass.getAnnotation(OperatorMetadata.class);
-        if (annotation != null && !annotation.alias().isEmpty()) {
-            return annotation.alias();
-        }
-        return operatorClass.getSimpleName();
     }
 }

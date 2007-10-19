@@ -1,22 +1,31 @@
 package org.esa.beam.framework.gpf.main;
 
-import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueContainer;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import javax.media.jai.JAI;
+
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.ParameterDefinitionFactory;
 import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.Node;
 import org.esa.beam.framework.gpf.graph.NodeSource;
+import org.esa.beam.framework.gpf.operators.common.ReadProductOp;
+import org.esa.beam.framework.gpf.operators.common.WriteProductOp;
 
-import javax.media.jai.JAI;
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
+import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueContainer;
+import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 
 /**
  * The common command-line tool for the GPF.
@@ -90,10 +99,11 @@ class CommandLineTool {
             Graph graph = readGraph(lineArgs.getGraphFilepath(), templateMap);
             Node lastNode = graph.getNode(graph.getNodeCount() - 1);
             SortedMap<String, String> sourceFilepathsMap = lineArgs.getSourceFilepathMap();
+            String readOperatorAlias = OperatorSpi.getOperatorAlias(ReadProductOp.class);
             for (String sourceId : sourceNodeIdMap.keySet()) {
                 String sourceNodeId = sourceNodeIdMap.get(sourceId);
                 if (graph.getNode(sourceNodeId) == null) {
-                    Node sourceNode = new Node(sourceNodeId, "ReadProduct");
+                    Node sourceNode = new Node(sourceNodeId, readOperatorAlias);
                     Xpp3Dom parameters = new Xpp3Dom("parameters");
                     Xpp3Dom filePath = new Xpp3Dom("filePath");
                     filePath.setValue(sourceFilepathsMap.get(sourceId));
@@ -102,7 +112,9 @@ class CommandLineTool {
                     graph.addNode(sourceNode);
                 }
             }
-            Node targetNode = new Node("WriteProduct$" + lastNode.getId(), "WriteProduct");
+            
+            String writeOperatorAlias = OperatorSpi.getOperatorAlias(WriteProductOp.class);
+            Node targetNode = new Node("WriteProduct$" + lastNode.getId(), writeOperatorAlias);
             targetNode.addSource(new NodeSource("input", lastNode.getId()));
             Xpp3Dom configDom = new Xpp3Dom("parameters");
             Xpp3Dom dom1 = new Xpp3Dom("filePath");
