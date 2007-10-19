@@ -53,7 +53,7 @@ public class CollocationOp extends Operator {
         targetProduct.setEndTime(masterProduct.getEndTime());
 
         ProductUtils.copyFlagCodings(masterProduct, targetProduct);
-        ProductUtils.copyElementsAndAttributes(masterProduct.getMetadataRoot(), targetProduct.getMetadataRoot());
+        ProductUtils.copyMetadata(masterProduct, targetProduct);
         ProductUtils.copyTiePointGrids(masterProduct, targetProduct);
         ProductUtils.copyGeoCoding(masterProduct, targetProduct);
 

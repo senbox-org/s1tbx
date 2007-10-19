@@ -17,6 +17,7 @@
 package org.esa.beam.util;
 
 import Jama.Matrix;
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.jexp.ParseException;
@@ -901,7 +902,7 @@ public class ProductUtils {
         FlagCoding flagCoding = new FlagCoding(sourceFlagCoding.getName());
         flagCoding.setDescription(sourceFlagCoding.getDescription());
         target.addFlagCoding(flagCoding);
-        copyElementsAndAttributes(sourceFlagCoding, flagCoding);
+        copyMetadata(sourceFlagCoding, flagCoding);
     }
 
     /**
@@ -1759,6 +1760,20 @@ public class ProductUtils {
     }
 
     /**
+     * Copies all metadata elements and attributes of the source product to the target product.
+     * The copied elements and attributes are deeply cloned.
+     *
+     * @param source the source product.
+     * @param target the target product.
+     * @throws NullPointerException if the source or the target product is {@code null}.
+     */
+    public static void copyMetadata(Product source, Product target) {
+        Assert.notNull(source, "source");
+        Assert.notNull(target, "target");
+        copyMetadata(source.getMetadataRoot(), target.getMetadataRoot());
+    }
+
+    /**
      * Copies all metadata elements and attributes of the source element to the target element.
      * The copied elements and attributes are deeply cloned.
      *
@@ -1766,10 +1781,9 @@ public class ProductUtils {
      * @param target the target element.
      * @throws NullPointerException if the source or the target element is {@code null}.
      */
-    public static void copyElementsAndAttributes(MetadataElement source, MetadataElement target) {
-        if (target == null) {
-            throw new NullPointerException("target == null");
-        }
+    public static void copyMetadata(MetadataElement source, MetadataElement target) {
+        Assert.notNull(source, "source");
+        Assert.notNull(target, "target");
         for (final MetadataElement element : source.getElements()) {
             target.addElement(element.createDeepClone());
         }

@@ -24,7 +24,7 @@ import junit.framework.TestSuite;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Arrays;
@@ -441,9 +441,9 @@ public class ProductUtilsTest extends TestCase {
 
     public void testX() {
         final PixelPos[] pixelCoords = ProductUtils.computeSourcePixelCoordinates(new ProductUtilsTest.SGeoCoding(),
-                2, 2,
-                new ProductUtilsTest.DGeoCoding(),
-                new Rectangle(0, 0, 3, 2));
+                                                                                  2, 2,
+                                                                                  new ProductUtilsTest.DGeoCoding(),
+                                                                                  new Rectangle(0, 0, 3, 2));
 
         assertEquals(3 * 2, pixelCoords.length);
 
@@ -568,7 +568,7 @@ public class ProductUtilsTest extends TestCase {
     public void testCreateRectBoundary_usePixelCenter_false() {
         final boolean notUsePixelCenter = false;
         final PixelPos[] rectBoundary = ProductUtils.createRectBoundary(new Rectangle(2, 3, 15, 20), 7,
-                notUsePixelCenter);
+                                                                        notUsePixelCenter);
         assertEquals(12, rectBoundary.length);
         assertEquals(new PixelPos(2, 3), rectBoundary[0]);
         assertEquals(new PixelPos(9, 3), rectBoundary[1]);
@@ -615,19 +615,24 @@ public class ProductUtilsTest extends TestCase {
         assertEquals(new PixelPos(2.5f, 10.5f), rectBoundary[9]);
     }
 
-    public void testCopyMetadataElementsAndAttributes() {
+    public void testCopyMetadata() {
         try {
-            ProductUtils.copyElementsAndAttributes(null, null);
+            ProductUtils.copyMetadata((Product) null, (Product) null);
             fail();
         } catch (NullPointerException expected) {
         }
         try {
-            ProductUtils.copyElementsAndAttributes(new MetadataElement("source"), null);
+            ProductUtils.copyMetadata((MetadataElement) null, (MetadataElement) null);
             fail();
         } catch (NullPointerException expected) {
         }
         try {
-            ProductUtils.copyElementsAndAttributes(null, new MetadataElement("target"));
+            ProductUtils.copyMetadata(new MetadataElement("source"), null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+        try {
+            ProductUtils.copyMetadata(null, new MetadataElement("target"));
             fail();
         } catch (NullPointerException expected) {
         }
@@ -639,7 +644,7 @@ public class ProductUtilsTest extends TestCase {
         source.addElement(sourceChild);
 
         final MetadataElement target = new MetadataElement("target");
-        ProductUtils.copyElementsAndAttributes(source, target);
+        ProductUtils.copyMetadata(source, target);
 
         final MetadataElement targetChild = target.getElement("child");
         assertNotSame(sourceChild, targetChild);
