@@ -15,7 +15,7 @@ public class IntervalConverter implements com.bc.ceres.binding.Converter {
         return Interval.parseInterval(text);
     }
 
-    public String format(Object value) throws ConversionException {
+    public String format(Object value) {
         if (value == null) {
             return "";
         }

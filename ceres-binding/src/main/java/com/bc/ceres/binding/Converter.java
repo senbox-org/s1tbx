@@ -31,7 +31,6 @@ public interface Converter {
      *
      * @param value The value to be converted to text.
      * @return The textual representation of the value.
-     * @throws ConversionException If the conversion fails.
      */
-    String format(Object value) throws ConversionException;
+    String format(Object value);
 }

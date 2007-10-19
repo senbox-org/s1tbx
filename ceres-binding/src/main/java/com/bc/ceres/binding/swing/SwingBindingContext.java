@@ -323,12 +323,8 @@ public class SwingBindingContext {
 
         @Override
         protected void adjustWidgetImpl() {
-            try {
-                String text = valueContainer.getAsText(getPropertyName());
-                textField.setText(text);
-            } catch (ConversionException e) {
-                handleError(textField, e);
-            }
+            String text = valueContainer.getAsText(getPropertyName());
+            textField.setText(text);
         }
 
         private void adjustValueContainer() {

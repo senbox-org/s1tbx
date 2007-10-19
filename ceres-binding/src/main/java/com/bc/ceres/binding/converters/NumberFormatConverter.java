@@ -27,11 +27,7 @@ public class NumberFormatConverter implements com.bc.ceres.binding.Converter {
         }
     }
 
-    public String format(Object value) throws ConversionException {
-        try {
-            return format.format(value);
-        } catch (Exception e) {
-            throw new ConversionException(e);
-        }
+    public String format(Object value) {
+        return format.format(value);
     }
 }

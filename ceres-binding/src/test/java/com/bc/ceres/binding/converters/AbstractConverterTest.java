@@ -50,12 +50,8 @@ public abstract class AbstractConverterTest extends TestCase {
         } catch (NullPointerException e) {
             // expected
         }
-        try {
-            String text = converter.format(null);
-            // if null is supported, returned text shall not be null
-            assertNotNull(text);
-        } catch (ConversionException e) {
-            // may be ok, if null is not supported
-        }
+        String text = converter.format(null);
+        // if null is supported, returned text shall not be null
+        assertNotNull(text);
     }
 }

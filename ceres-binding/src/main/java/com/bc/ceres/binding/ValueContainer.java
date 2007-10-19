@@ -81,7 +81,7 @@ public class ValueContainer {
     }
 
     // todo - remove?
-    public String getAsText(String propertyName) throws ConversionException {
+    public String getAsText(String propertyName) {
         return getModel(propertyName).getAsText();
     }
 

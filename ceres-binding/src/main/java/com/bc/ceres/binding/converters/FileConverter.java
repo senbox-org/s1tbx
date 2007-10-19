@@ -18,7 +18,7 @@ public class FileConverter implements Converter {
         return new File(text);
     }
 
-    public String format(Object value) throws ConversionException {
+    public String format(Object value) {
         if (value == null) {
             return "";
         }

@@ -52,7 +52,7 @@ public class ValueModel {
         return getDefinition().getValidator();
     }
 
-    public String getAsText() throws ConversionException {
+    public String getAsText() {
         final Converter converter = valueDefinition.getConverter(true);
         return converter.format(getValue());
     }

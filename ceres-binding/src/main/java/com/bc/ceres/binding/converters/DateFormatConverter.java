@@ -35,7 +35,7 @@ public class DateFormatConverter implements Converter {
         }
     }
 
-    public String format(Object value) throws ConversionException {
+    public String format(Object value) {
         if (value == null) {
             return "";
         }

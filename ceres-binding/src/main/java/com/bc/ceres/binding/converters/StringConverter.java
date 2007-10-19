@@ -14,7 +14,7 @@ public class StringConverter implements com.bc.ceres.binding.Converter {
         return text;
     }
 
-    public String format(Object value) throws ConversionException {
+    public String format(Object value) {
         if (value == null) {
             return "";
         }

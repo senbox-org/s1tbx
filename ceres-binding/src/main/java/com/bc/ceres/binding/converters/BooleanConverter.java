@@ -15,7 +15,7 @@ public class BooleanConverter implements Converter {
         return Boolean.parseBoolean(text);
     }
 
-    public String format(Object value) throws ConversionException {
+    public String format(Object value) {
         if (value == null) {
             return "";
         }

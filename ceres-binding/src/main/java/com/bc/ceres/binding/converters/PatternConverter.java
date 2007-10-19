@@ -22,7 +22,7 @@ public class PatternConverter implements com.bc.ceres.binding.Converter {
         }
     }
 
-    public String format(Object value) throws ConversionException {
+    public String format(Object value) {
         return value.toString();
     }
 }

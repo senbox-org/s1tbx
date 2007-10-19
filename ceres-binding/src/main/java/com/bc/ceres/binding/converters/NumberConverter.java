@@ -1,7 +1,7 @@
 package com.bc.ceres.binding.converters;
 
-import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.Converter;
 
 public abstract class NumberConverter implements Converter {
 
@@ -22,7 +22,7 @@ public abstract class NumberConverter implements Converter {
 
     protected abstract Object parseNumber(String value) throws NumberFormatException;
 
-    public String format(Object value) throws ConversionException {
+    public String format(Object value) {
         if (value == null) {
             return "";
         }

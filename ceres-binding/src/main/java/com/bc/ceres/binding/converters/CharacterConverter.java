@@ -18,7 +18,7 @@ public class CharacterConverter implements Converter {
         return text.charAt(0);
     }
 
-    public String format(Object value) throws ConversionException {
+    public String format(Object value)  {
         if (value == null) {
             return "";
         }

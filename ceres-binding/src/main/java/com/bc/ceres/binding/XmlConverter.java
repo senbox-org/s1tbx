@@ -27,16 +27,16 @@ public interface XmlConverter {
      * @return The value converted to the XML DOM.
      * @throws ConversionException If the conversion fails.
      */
-    Object unmarshal(Xpp3Dom dom) throws ConversionException;
+    Object convertDomToValue(Xpp3Dom dom) throws ConversionException;
 
     /**
      * Converts a (complex) value of the type returned by {@link #getValueType()} to its
-     * XML DOM representation. The DOM's root element is given and will be modified by this method, e.g.
-     * by adding new elements and/or attributes to it.
+     * XML DOM representation. The given {@code value} can be safely cast to the type 
+     * returned by {@link #getValueType()}.
      *
      * @param value The value to be converted to the XML DOM.
-     * @param dom   The root element of the XML DOM representation of the value. Needs to be completed by the implementation code.
+     * @return The XML DOM representation of the value.
      * @throws ConversionException If the conversion fails.
      */
-    void marshal(Object value, Xpp3Dom dom) throws ConversionException;
+    Xpp3Dom convertValueToDom(Object value) throws ConversionException;
 }
