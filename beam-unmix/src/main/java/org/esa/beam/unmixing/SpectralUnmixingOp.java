@@ -63,10 +63,10 @@ public class SpectralUnmixingOp extends Operator {
     @Parameter
     boolean alterSourceProduct;
 
-    @Parameter
+    @Parameter(alias = "sourceBands", xmlConverter = SourceBandNamesXmlConverter.class)
     String[] sourceBandNames;
 
-    @Parameter
+    @Parameter(xmlConverter = EndmembersXmlConverter.class)
     Endmember[] endmembers;
 
     @Parameter
@@ -83,7 +83,7 @@ public class SpectralUnmixingOp extends Operator {
 
     private transient Band[] sourceBands;
     private transient Band[] targetBands;
-    private SpectralUnmixing spectralUnmixing;
+    private transient SpectralUnmixing spectralUnmixing;
 
     @Override
     public Product initialize() throws OperatorException {
@@ -121,6 +121,7 @@ public class SpectralUnmixingOp extends Operator {
         } else {
             targetProduct = new Product(sourceProduct.getName() + "_unmixed",
                                         "SpectralUnmixing", width, height);
+            ProductUtils.copyMetadata(sourceProduct, targetProduct);
         }
 
         int numSourceBands = sourceBands.length;

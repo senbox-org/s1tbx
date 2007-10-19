@@ -2,6 +2,7 @@ package org.esa.beam.framework.gpf.annotations;
 
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.Validator;
+import com.bc.ceres.binding.XmlConverter;
 
 import java.lang.annotation.*;
 
@@ -111,14 +112,21 @@ public @interface Parameter {
     /**
      * A validator to be used to validate a parameter value.
      *
-     * @return The validator. Defaults to {@code Validator.class} (= not set).
+     * @return The validator class.
      */
     Class<? extends Validator> validator() default Validator.class;
 
     /**
-     * A validator to be used to convert a text to the parameter value and vice versa.
+     * A converter to be used to convert a text to the parameter value and vice versa.
      *
-     * @return The converter. Defaults to {@code Converter.class} (= not set).
+     * @return The converter class.
      */
     Class<? extends Converter> converter() default Converter.class;
+
+    /**
+     * A converter to be used to convert an XML DOM to the parameter value and vice versa.
+     *
+     * @return The XML converter class.
+     */
+    Class<? extends XmlConverter> xmlConverter() default XmlConverter.class;
 }

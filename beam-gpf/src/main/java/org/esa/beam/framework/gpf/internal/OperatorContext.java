@@ -157,10 +157,6 @@ public class OperatorContext {
     }
 
 
-    public Xpp3Dom getConfiguration() {
-        return configuration;
-    }
-
     public void setConfiguration(Xpp3Dom configuration) {
         this.configuration = configuration;
     }
