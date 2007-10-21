@@ -18,6 +18,15 @@ public class ConverterRegistryTest extends TestCase {
         assertNotNull(r.getConverter(Long.TYPE));
         assertNotNull(r.getConverter(Float.TYPE));
         assertNotNull(r.getConverter(Double.TYPE));
+
+        assertNotNull(r.getConverter(boolean[].class));
+        assertNotNull(r.getConverter(char[].class));
+        assertNotNull(r.getConverter(byte[].class));
+        assertNotNull(r.getConverter(short[].class));
+        assertNotNull(r.getConverter(int[].class));
+        assertNotNull(r.getConverter(long[].class));
+        assertNotNull(r.getConverter(float[].class));
+        assertNotNull(r.getConverter(double[].class));
     }
 
     public void testPrimitiveTypeWrappers()  {
@@ -30,6 +39,15 @@ public class ConverterRegistryTest extends TestCase {
         assertNotNull(r.getConverter(Long.class));
         assertNotNull(r.getConverter(Float.class));
         assertNotNull(r.getConverter(Double.class));
+
+        assertNotNull(r.getConverter(Boolean[].class));
+        assertNotNull(r.getConverter(Character[].class));
+        assertNotNull(r.getConverter(Byte[].class));
+        assertNotNull(r.getConverter(Short[].class));
+        assertNotNull(r.getConverter(Integer[].class));
+        assertNotNull(r.getConverter(Long[].class));
+        assertNotNull(r.getConverter(Float[].class));
+        assertNotNull(r.getConverter(Double[].class));
     }
 
     public void testObjects()  {
@@ -40,7 +58,14 @@ public class ConverterRegistryTest extends TestCase {
         assertNotNull(r.getConverter(Date.class));
         assertNotNull(r.getConverter(Pattern.class));
         // todo - assertNotNull(r.getConverter(Color.class));
+
+        assertNotNull(r.getConverter(String[].class));
+        assertNotNull(r.getConverter(File[].class));
+        assertNotNull(r.getConverter(Interval[].class));
+        assertNotNull(r.getConverter(Date[].class));
+        assertNotNull(r.getConverter(Pattern[].class));
     }
+
 
     public void testDerivedObjects()  {
         final ConverterRegistry r = ConverterRegistry.getInstance();

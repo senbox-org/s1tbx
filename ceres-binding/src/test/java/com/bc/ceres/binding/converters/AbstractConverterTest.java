@@ -3,6 +3,8 @@ package com.bc.ceres.binding.converters;
 import com.bc.ceres.binding.ConversionException;
 import junit.framework.TestCase;
 
+import java.lang.reflect.Array;
+
 public abstract class AbstractConverterTest extends TestCase {
 
     private com.bc.ceres.binding.Converter converter;
@@ -18,7 +20,20 @@ public abstract class AbstractConverterTest extends TestCase {
     }
 
     protected void testParseSuccess(Object expectedValue, String text) throws ConversionException {
-        assertEquals(expectedValue, converter.parse(text));
+        if (expectedValue != null && expectedValue.getClass().isArray()) {
+            Object actualValue = converter.parse(text);
+            assertTrue(actualValue.getClass().isArray());
+            int expectedLength = Array.getLength(expectedValue);
+            int actualLength = Array.getLength(actualValue);
+            assertEquals(expectedLength, actualLength);
+            for (int i = 0; i < expectedLength; i++) {
+                Object expectedElem = Array.get(expectedValue, i);
+                Object actualElem = Array.get(actualValue, i);
+                assertEquals("index=" + i, expectedElem, actualElem);
+            }
+        } else {
+            assertEquals(expectedValue, converter.parse(text));
+        }
         if (expectedValue != null) {
             assertTrue(converter.getValueType().isAssignableFrom(expectedValue.getClass()));
         }
@@ -32,7 +47,6 @@ public abstract class AbstractConverterTest extends TestCase {
             // OK!
         }
     }
-
 
     protected void testFormatSuccess(String expectedText, Object value) throws ConversionException {
         if (value != null) {

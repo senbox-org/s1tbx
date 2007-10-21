@@ -83,6 +83,12 @@ public class ConverterRegistry {
                     break;
                 }
             }
+            if (converter == null && type.isArray()) {
+                converter = getConverter(type.getComponentType());
+                if (converter != null) {
+                    return new ArrayConverter(type, converter);
+                }
+            }
         }
         return converter;
     }
