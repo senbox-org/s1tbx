@@ -8,7 +8,8 @@ import java.util.StringTokenizer;
 
 public class ArrayConverter implements Converter {
 
-    private static final String COMMA_REPLACEMENT = createCommaReplacement();
+    private static final String SEP = ",";
+    private static final String SEP_ESC = "\\u002C"; // Unicode escape repr. of ','
     private Class arrayType;
     private Converter componentConverter;
 
@@ -25,11 +26,11 @@ public class ArrayConverter implements Converter {
         if (text.isEmpty()) {
             return null;
         }
-        StringTokenizer st = new StringTokenizer(text, ",");
+        StringTokenizer st = new StringTokenizer(text, SEP);
         int length = st.countTokens();
         Object array = Array.newInstance(arrayType.getComponentType(), length);
         for (int i = 0; i < length; i++) {
-            Object component = componentConverter.parse(st.nextToken().replace(COMMA_REPLACEMENT, ","));
+            Object component = componentConverter.parse(st.nextToken().replace(SEP_ESC, SEP));
             Array.set(array, i, component);
         }
         return array;
@@ -46,16 +47,8 @@ public class ArrayConverter implements Converter {
             if (i > 0) {
                 sb.append(',');
             }
-            sb.append(componentConverter.format(component).replace(",", COMMA_REPLACEMENT));
+            sb.append(componentConverter.format(component).replace(SEP, SEP_ESC));
         }
         return sb.toString();
-    }
-
-    private static String createCommaReplacement() {
-        String s = Integer.toOctalString(',');
-        while (s.length() < 4) {
-            s = "0" + s;
-        }
-        return "\\"+ s;
     }
 }

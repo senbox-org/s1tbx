@@ -23,7 +23,7 @@ public interface XmlConverter {
      * Converts a (complex) value from its XML DOM representation to a Java object instance
      * of the type returned by {@link #getValueType()}.
      *
-     * @param dom The XML DOM representation of the value.
+     * @param dom The parent XML DOM , which either contains the representation of the value.
      * @return The value converted to the XML DOM.
      * @throws ConversionException If the conversion fails.
      */
@@ -35,7 +35,7 @@ public interface XmlConverter {
      * returned by {@link #getValueType()}.
      *
      * @param value The value to be converted to the XML DOM.
-     * @return The XML DOM representation of the value.
+     * @param dom The parent XML DOM , which either <i>contains</i> or <i>is</i> the representation of the value.
      */
-    Xpp3Dom convertValueToDom(Object value);
+    void convertValueToDom(Object value, Xpp3Dom dom);
 }
