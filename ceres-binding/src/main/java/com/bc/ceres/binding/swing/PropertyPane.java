@@ -74,10 +74,10 @@ public class PropertyPane {
             editorComponent.setToolTipText(model.getDefinition().getDescription());
             JLabel label = new JLabel(getDisplayName(model) + ": ");
             gbc.gridx = 0;
-            gbc.weightx = 0.2;
+            gbc.weightx = 0.0;
             panel.add(label, gbc);
             gbc.gridx = 1;
-            gbc.weightx = 0.8;
+            gbc.weightx = 1.0;
             panel.add(editorComponent, gbc);
             gbc.gridy++;
         }
