@@ -15,7 +15,7 @@ public class StringConverterTest extends AbstractConverterTest {
         testParseSuccess("Ballamann!", "Ballamann!");
         testParseSuccess("", "");
 
-        testFormatSuccess("Ballamann%21", "Ballamann!");
+        testFormatSuccess("Ballamann!", "Ballamann!");
         testFormatSuccess("", null);
 
         assertNullCorrectlyHandled();
