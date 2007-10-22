@@ -16,19 +16,17 @@
  */
 package org.esa.beam.framework.gpf.internal;
 
+import com.bc.ceres.binding.*;
+import com.bc.ceres.binding.accessors.ClassFieldAccessor;
 import com.bc.ceres.core.ProgressMonitor;
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.XppDomReader;
+import com.thoughtworks.xstream.converters.SingleValueConverter;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.*;
-import org.esa.beam.framework.gpf.annotations.Parameter;
-import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.esa.beam.framework.gpf.annotations.SourceProducts;
-import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.framework.gpf.annotations.*;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.jai.RasterDataNodeOpImage;
@@ -497,11 +495,7 @@ public class OperatorContext {
                 if (converter != null) {
                     converter.setParameterValues(operator, configuration);
                 } else {
-                    Class configurationObjectClass = operator.getClass();
-                    XStream xStream = new XStream();
-                    xStream.setClassLoader(operator.getClass().getClassLoader());
-                    xStream.alias(configuration.getName(), configurationObjectClass);
-                    xStream.unmarshal(new XppDomReader(configuration), operator);
+                    configureValue(configuration, operator);
                 }
             } catch (OperatorException e) {
                 throw e;
@@ -511,13 +505,68 @@ public class OperatorContext {
         }
     }
 
+    private static void configureValue(Xpp3Dom parentElement, Object value) {
+        final ValueDefinitionFactory valueDefinitionFactory = new ParameterDefinitionFactory();
+        Class<?> operatorClass = value.getClass();
+        final Map<Field, Parameter> parameterMap = new TypeDescriptor(operatorClass).getParameterMap();
+        final Set<Field> fieldSet = parameterMap.keySet();
+
+        final Xpp3Dom[] children = parentElement.getChildren();
+        for (Xpp3Dom childElement : children) {
+            final String childElementName = childElement.getName();
+            Field paramField = getField(value, childElementName);
+            if (paramField == null) {
+                throw new OperatorException("Illegal element " + childElementName);
+            }
+            // todo - COLLECTIONS & ARRAYS!!! 
+            try {
+                final ValueDefinition definition = valueDefinitionFactory.createValueDefinition(paramField);
+                final ValueModel valueModel = new ValueModel(definition, new ClassFieldAccessor(value, paramField));
+                final Converter converter = definition.getConverter();
+                if (converter != null) {
+                    valueModel.setFromText(childElement.getValue());
+                } else {
+                    final Object childValue = paramField.getType().newInstance();
+                    configureValue(childElement, childValue);
+                    valueModel.setValue(childValue);
+                }
+            } catch (ConversionException e) {
+            } catch (ValidationException e) {
+            } catch (IllegalAccessException e) {
+            } catch (InstantiationException e) {
+            }
+        }
+    }
+
+    private static Field getField(Object object, String valueName) {
+        try {
+            return object.getClass().getDeclaredField(valueName);
+        } catch (NoSuchFieldException e) {
+            final Field[] declaredFields = object.getClass().getDeclaredFields();
+            for (Field declaredField : declaredFields) {
+                final Parameter parameter = declaredField.getAnnotation(Parameter.class);
+                if (parameter != null && !parameter.alias().isEmpty() && valueName.equals(parameter.alias())) {
+                    return declaredField;
+                }
+            }
+            return null;
+        }
+    }
+
     public void injectParameters() throws OperatorException {
         if (parameters != null) {
-            Field[] parameterFields = getParameterFields(operator);
-            for (Field parameterField : parameterFields) {
-                Object value = parameters.get(parameterField.getName());
-                if (value != null) {
-                    setOperatorFieldValue(parameterField, value);
+            final ValueDefinitionFactory valueDefinitionFactory = new ParameterDefinitionFactory();
+            for (String valueName : parameters.keySet()) {
+                final Field field = getField(operator, valueName);
+                if (field == null) {
+                    throw new OperatorException(String.format("Unknown parameter '%s'.", valueName));
+                }
+                final ValueDefinition definition = valueDefinitionFactory.createValueDefinition(field);
+                final ValueModel valueModel = new ValueModel(definition, new ClassFieldAccessor(operator, field));
+                try {
+                    valueModel.setValue(parameters.get(valueName));
+                } catch (ValidationException e) {
+                    throw new OperatorException(String.format(e.getMessage(), e));
                 }
             }
         }
@@ -539,6 +588,30 @@ public class OperatorContext {
             if (declaredField.getAnnotation(Parameter.class) != null) {
                 parameterFields.add(declaredField);
             }
+        }
+    }
+
+    private static class XStreamConverterWrapper implements SingleValueConverter {
+        private Converter converter;
+
+        public XStreamConverterWrapper(Converter converter) {
+            this.converter = converter;
+        }
+
+        public String toString(Object obj) {
+            return converter.format(obj);
+        }
+
+        public Object fromString(String str) {
+            try {
+                return converter.parse(str);
+            } catch (ConversionException e) {
+                throw new com.thoughtworks.xstream.converters.ConversionException(e);
+            }
+        }
+
+        public boolean canConvert(Class type) {
+            return converter.getValueType().equals(type);
         }
     }
 

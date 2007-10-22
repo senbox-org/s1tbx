@@ -1,24 +1,14 @@
 package org.esa.beam.framework.gpf.annotations;
 
-import java.lang.reflect.Field;
-import java.util.Map;
-import java.util.regex.Pattern;
-
+import com.bc.ceres.binding.*;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 
-import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.Converter;
-import com.bc.ceres.binding.ConverterRegistry;
-import com.bc.ceres.binding.Interval;
-import com.bc.ceres.binding.Validator;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueContainerFactory;
-import com.bc.ceres.binding.ValueDefinition;
-import com.bc.ceres.binding.ValueDefinitionFactory;
-import com.bc.ceres.binding.ValueSet;
+import java.lang.reflect.Field;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 public class ParameterDefinitionFactory implements ValueDefinitionFactory {
 
@@ -30,7 +20,7 @@ public class ParameterDefinitionFactory implements ValueDefinitionFactory {
         Parameter parameter = field.getAnnotation(Parameter.class);
         if (parameter != null) {
             try {
-                valueDefinition = createParameterDefinition(field, parameter);
+                valueDefinition = createValueDefinition(field, parameter);
             } catch (ConversionException e) {
                 throw new IllegalArgumentException("type", e);
             }
@@ -38,7 +28,7 @@ public class ParameterDefinitionFactory implements ValueDefinitionFactory {
         return valueDefinition;
     }
 
-    public static ValueDefinition createParameterDefinition(Field field, Parameter parameter) throws ConversionException {
+    public static ValueDefinition createValueDefinition(Field field, Parameter parameter) throws ConversionException {
         ValueDefinition valueDefinition = new ValueDefinition(field.getName(), field.getType());
         if (parameter.validator() != Validator.class) {
             final Validator validator;
@@ -61,15 +51,19 @@ public class ParameterDefinitionFactory implements ValueDefinitionFactory {
         if (valueDefinition.getConverter() == null) {
             valueDefinition.setConverter(ConverterRegistry.getInstance().getConverter(valueDefinition.getType()));
         }
-        valueDefinition.setNotNull(parameter.notNull());
-        valueDefinition.setNotEmpty(parameter.notEmpty());
         if (ParameterDefinitionFactory.isSet(parameter.label())) {
             valueDefinition.setDisplayName(parameter.label());
         } else {
             valueDefinition.setDisplayName(field.getName());
         }
+        if (ParameterDefinitionFactory.isSet(parameter.alias())) {
+            valueDefinition.setProperty("alias", parameter.alias());
+        }
         valueDefinition.setUnit(parameter.unit());
         valueDefinition.setDescription(parameter.description());
+
+        valueDefinition.setNotNull(parameter.notNull());
+        valueDefinition.setNotEmpty(parameter.notEmpty());
         if (isSet(parameter.pattern())) {
             Pattern pattern = Pattern.compile(parameter.pattern());
             valueDefinition.setPattern(pattern);

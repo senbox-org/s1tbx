@@ -1,10 +1,8 @@
 package org.esa.beam.framework.gpf;
 
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.annotations.*;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -27,13 +25,6 @@ public abstract class OperatorSpi {
 
     private final Class<? extends Operator> operatorClass;
     private final String operatorAlias;
-
-    private Map<Field, SourceProduct> sourceProductDescriptors;
-    private Map<Field, Parameter> parameterDescriptors;
-    private OperatorMetadata operatorMetadata;
-    private boolean annotationsProcessed;
-    private TargetProduct targetProductDescriptor;
-    private SourceProducts sourceProductsDescriptor;
 
     /**
      * Constructs an operator SPI for the given operator class. The alias name
@@ -92,8 +83,6 @@ public abstract class OperatorSpi {
      * @param sourceProducts the source products
      * @return the operator instance
      * @throws OperatorException if the operator could not be created
-     * @see #getParameterDescriptors()
-     * @see #getSourceProductDescriptors()
      */
     public Operator createOperator(Map<String, Object> parameters, Map<String, Product> sourceProducts) throws OperatorException {
         Operator operator = createOperator();
@@ -121,84 +110,11 @@ public abstract class OperatorSpi {
         return operatorAlias;
     }
 
-    /**
-     * @return The operator's metadata,
-     *         or {@code null} if the operator has no {@link OperatorMetadata} annotation..
-     */
-    public final OperatorMetadata getOperatorMetadata() {
-        processAnnotations();
-        return operatorMetadata;
-    }
-
-    /**
-     * @return The descriptor for the operator's target product,
-     *         or {@code null} if no operator field has been declared with a {@link TargetProduct} annotation..
-     */
-    public final TargetProduct getTargetProductDescriptor() {
-        processAnnotations();
-        return targetProductDescriptor;
-    }
-
-    /**
-     * @return The descriptor for the operator's source products (array),
-     *         or {@code null} if no operator field has been declared with a {@link SourceProducts} annotation..
-     */
-    public final SourceProducts getSourceProductsDescriptor() {
-        processAnnotations();
-        return sourceProductsDescriptor;
-    }
-
-    /**
-     * @return The operator's source products descriptors,
-     *         or {@code null} if no operator field has been declared with a {@link SourceProduct} annotation..
-     */
-    public final Map<Field, SourceProduct> getSourceProductDescriptors() {
-        processAnnotations();
-        return sourceProductDescriptors;
-    }
-
-    /**
-     * @return The operator's parameter descriptors,
-     *         or {@code null} if no operator field has been declared with a {@link Parameter} annotation.
-     */
-    public final Map<Field, Parameter> getParameterDescriptors() {
-        processAnnotations();
-        return parameterDescriptors;
-    }
-    
-    /**
-     * @return The operator's alias name,
-     *         the name is taken from the {@link OperatorMetadata} annotation, if present.
-     *         Otherwise the class name is returned.
-     */
     public static String getOperatorAlias(Class<? extends Operator> operatorClass) {
         OperatorMetadata annotation = operatorClass.getAnnotation(OperatorMetadata.class);
         if (annotation != null && !annotation.alias().isEmpty()) {
             return annotation.alias();
         }
         return operatorClass.getSimpleName();
-    }
-
-    private void processAnnotations() {
-        if (annotationsProcessed) {
-            return;
-        }
-        annotationsProcessed = true;
-        operatorMetadata = operatorClass.getAnnotation(OperatorMetadata.class);
-        targetProductDescriptor = operatorClass.getAnnotation(TargetProduct.class);
-        sourceProductsDescriptor = operatorClass.getAnnotation(SourceProducts.class);
-        sourceProductDescriptors = new HashMap<Field, SourceProduct>();
-        parameterDescriptors = new HashMap<Field, Parameter>();
-        final Field[] declaredFields = operatorClass.getDeclaredFields();
-        for (Field declaredField : declaredFields) {
-            final SourceProduct sourceProduct = declaredField.getAnnotation(SourceProduct.class);
-            if (sourceProduct != null) {
-                sourceProductDescriptors.put(declaredField, sourceProduct);
-            }
-            final Parameter parameter = declaredField.getAnnotation(Parameter.class);
-            if (parameter != null) {
-                parameterDescriptors.put(declaredField, parameter);
-            }
-        }
     }
 }

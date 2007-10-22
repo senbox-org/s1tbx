@@ -22,6 +22,18 @@ public @interface Parameter {
     String alias() default "";
 
     /**
+     * @return An alias name for the elemens of a parameter array.
+     *         Defaults to the empty string (= not set).
+     */
+    String elemAlias() default "";
+
+    /**
+     * @return Gets
+     *         Defaults to the empty string (= not set).
+     */
+    boolean implicite() default false;
+
+    /**
      * Gets the parameter's default value.
      * The default value set is given as a textual representations of the actual value.
      * The framework creates the actual value set by converting the text value to

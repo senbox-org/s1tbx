@@ -53,7 +53,7 @@ public class BandArithmeticOpTest extends TestCase {
         Map<String, Object> parameters = new HashMap<String, Object>();
         BandArithmeticOp.BandDescriptor[] bandDescriptors = new BandArithmeticOp.BandDescriptor[1];
         bandDescriptors[0] = createBandDescription("aBandName", "1.0", ProductData.TYPESTRING_FLOAT32);
-        parameters.put("bandDescriptors", bandDescriptors);
+        parameters.put("targetBands", bandDescriptors);
         Product sourceProduct = createTestProduct(4, 4);
         Product targetProduct = GPF.createProduct("BandArithmetic", parameters, sourceProduct);
 
@@ -74,7 +74,7 @@ public class BandArithmeticOpTest extends TestCase {
         Map<String, Object> parameters = new HashMap<String, Object>();
         BandArithmeticOp.BandDescriptor[] bandDescriptors = new BandArithmeticOp.BandDescriptor[1];
         bandDescriptors[0] = createBandDescription("aBandName", "band3", ProductData.TYPESTRING_FLOAT32);
-        parameters.put("bandDescriptors", bandDescriptors);
+        parameters.put("targetBands", bandDescriptors);
         Product sourceProduct = createTestProduct(4, 4);
         Product targetProduct = GPF.createProduct("BandArithmetic", parameters, sourceProduct);
 
@@ -96,7 +96,7 @@ public class BandArithmeticOpTest extends TestCase {
         Map<String, Object> parameters = new HashMap<String, Object>();
         BandArithmeticOp.BandDescriptor[] bandDescriptors = new BandArithmeticOp.BandDescriptor[1];
         bandDescriptors[0] = createBandDescription("aBandName", "band1 + band2", ProductData.TYPESTRING_FLOAT32);
-        parameters.put("bandDescriptors", bandDescriptors);
+        parameters.put("targetBands", bandDescriptors);
 
         Product targetProduct = GPF.createProduct("BandArithmetic", parameters, sourceProduct);
         Band band = targetProduct.getBand("aBandName");
@@ -114,7 +114,7 @@ public class BandArithmeticOpTest extends TestCase {
         BandArithmeticOp.BandDescriptor[] bandDescriptors = new BandArithmeticOp.BandDescriptor[2];
         bandDescriptors[0] = createBandDescription("b1", "band1 + band2 < 3.0", ProductData.TYPESTRING_INT8);
         bandDescriptors[1] = createBandDescription("b2", "band1 + band2 + 2.5", ProductData.TYPESTRING_INT32);
-        parameters.put("bandDescriptors", bandDescriptors);
+        parameters.put("targetBands", bandDescriptors);
 
         Product targetProduct = GPF.createProduct("BandArithmetic", parameters, sourceProduct);
         Band b1 = targetProduct.getBand("b1");
@@ -142,7 +142,7 @@ public class BandArithmeticOpTest extends TestCase {
         Map<String, Object> parameters = new HashMap<String, Object>();
         BandArithmeticOp.BandDescriptor[] bandDescriptors = new BandArithmeticOp.BandDescriptor[1];
         bandDescriptors[0] = createBandDescription("aBandName", "$sourceProduct1.band1 + $sourceProduct2.band2", ProductData.TYPESTRING_FLOAT32);
-        parameters.put("bandDescriptors", bandDescriptors);
+        parameters.put("targetBands", bandDescriptors);
 
         Product targetProduct = GPF.createProduct("BandArithmetic", parameters, new Product[]{sourceProduct1, sourceProduct2});
         Band band = targetProduct.getBand("aBandName");

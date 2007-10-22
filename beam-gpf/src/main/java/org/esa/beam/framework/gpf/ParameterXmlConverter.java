@@ -4,5 +4,5 @@ import com.bc.ceres.binding.XmlConverter;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 
 public interface ParameterXmlConverter extends XmlConverter {
-    Xpp3Dom getTemplateDom();
+    void insertDomTemplate(Xpp3Dom dom);
 }

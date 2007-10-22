@@ -26,11 +26,11 @@ public class SourceBandNamesXmlConverter implements ParameterXmlConverter {
         return String[].class;
     }
 
-    public Xpp3Dom getTemplateDom() {
-        return convertValueToDom(new String[]{"Name of band 1", "Name of band 2", "..."});
+    public void insertDomTemplate(Xpp3Dom dom) {
+        convertValueToDom(new String[]{"Name of band 1", "Name of band 2", "..."}, dom);
     }
 
-    public Xpp3Dom convertValueToDom(Object value) {
+    public void convertValueToDom(Object value, Xpp3Dom dom) {
         final String[] sourceBandNames = (String[]) value;
         final Xpp3Dom sourceBandsElem = new Xpp3Dom(TAG_SOURCE_BANDS);
         for (String sourceBandName : sourceBandNames) {
@@ -38,7 +38,7 @@ public class SourceBandNamesXmlConverter implements ParameterXmlConverter {
             bandElem.setValue(sourceBandName);
             sourceBandsElem.addChild(bandElem);
         }
-        return sourceBandsElem;
+        dom.addChild(sourceBandsElem);
     }
 
     public Object convertDomToValue(Xpp3Dom dom) throws ConversionException {

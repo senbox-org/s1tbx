@@ -1,34 +1,34 @@
 <graph>
-    <id>l3tol1</id>
+    <id>landcons</id>
 
     <node>
         <id>l1</id>
-        <operator>org.esa.beam.framework.gpf.operators.common.ReadProductOp$Spi</operator>
+        <operator>ReadProduct</operator>
         <parameters>
             <filePath>${inputFile1}</filePath>
         </parameters>
     </node>
 
     <node>
-        <id>exp</id>
-        <operator>org.esa.beam.framework.gpf.operators.common.BandArithmeticOp$Spi</operator>
+        <id>ba</id>
+        <operator>BandArithmetic</operator>
         <sources>
             <l1>l1</l1>
         </sources>
         <parameters>
-                <bandDescriptor>
-            		<name>landcons</name>
-            		<expression>l1_flags.LAND_OCEAN</expression>
-            		<type>boolean</type>
-                </bandDescriptor>
+            <bandDescriptor>
+                <name>landcons</name>
+                <expression>l1_flags.LAND_OCEAN</expression>
+                <type>byte</type>
+            </bandDescriptor>
         </parameters>
     </node>
 
     <node>
         <id>write</id>
-        <operator>org.esa.beam.framework.gpf.operators.common.WriteProductOp$Spi</operator>
+        <operator>WriteProduct</operator>
         <sources>
-            <input>exp</input>
+            <input>ba</input>
         </sources>
         <parameters>
             <filePath>${outputFile1}</filePath>

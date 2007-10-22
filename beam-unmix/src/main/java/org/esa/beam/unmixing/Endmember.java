@@ -1,12 +1,18 @@
 package org.esa.beam.unmixing;
 
 import com.bc.ceres.core.Assert;
+import org.esa.beam.framework.gpf.annotations.Parameter;
 
 public class Endmember {
-    private final String name;
-    private final double[] wavelengths;
-    private final double[] radiations;
+    @Parameter(pattern = "[a-zA-Z_0-9]*")
+    private String name;
+    @Parameter
+    private double[] wavelengths;
+    @Parameter
+    private double[] radiations;
 
+    public Endmember() {
+    }
 
     public Endmember(String name, double[] wavelengths, double[] radiations) {
         Assert.notNull(name, "name");

@@ -63,7 +63,7 @@ public class SpectralUnmixingOp extends Operator {
     @Parameter
     boolean alterSourceProduct;
 
-    @Parameter(alias = "sourceBands", xmlConverter = SourceBandNamesXmlConverter.class)
+    @Parameter(alias = "sourceBands", elemAlias = "band")
     String[] sourceBandNames;
 
     @Parameter(xmlConverter = EndmembersXmlConverter.class)

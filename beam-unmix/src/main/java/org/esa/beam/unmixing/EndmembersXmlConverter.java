@@ -30,7 +30,7 @@ public class EndmembersXmlConverter implements ParameterXmlConverter {
         return Endmember[].class;
     }
 
-    public Xpp3Dom getTemplateDom() {
+    public void insertDomTemplate(Xpp3Dom dom) {
         final Xpp3Dom endmembers = new Xpp3Dom(TAG_ENDMEMBERS);
 
         final Xpp3Dom wavelengths = new Xpp3Dom(TAG_WAVELENGTHS);
@@ -48,10 +48,10 @@ public class EndmembersXmlConverter implements ParameterXmlConverter {
         endmember.addChild(radiations);
 
         endmembers.addChild(endmember);
-        return endmembers;
+        dom.addChild(endmembers);
     }
 
-    public Xpp3Dom convertValueToDom(Object value) {
+    public void convertValueToDom(Object value, Xpp3Dom dom) {
         final Endmember[] endmembers = (Endmember[]) value;
         final Xpp3Dom endmembersElem = new Xpp3Dom(TAG_ENDMEMBERS);
         for (Endmember endmember : endmembers) {
@@ -84,7 +84,7 @@ public class EndmembersXmlConverter implements ParameterXmlConverter {
             radiationsElem.setValue(sb.toString());
             endmemberElem.addChild(radiationsElem);
         }
-        return endmembersElem;
+        dom.addChild(endmembersElem);
     }
 
     public Object convertDomToValue(Xpp3Dom dom) throws ConversionException {

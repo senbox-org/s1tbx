@@ -5,6 +5,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
+import org.esa.beam.framework.gpf.internal.OperatorClassDescriptor;
 
 public class OperatorSpiTest extends TestCase {
 
@@ -22,18 +23,20 @@ public class OperatorSpiTest extends TestCase {
         assertEquals("foo", operatorSpi.getOperatorAlias());
     }
 
-    public void testAnnotatoedOpConstructionWithoutName() {
+    public void testAnnotatoedOpConstructionWithoutName() throws NoSuchFieldException {
         OperatorSpi operatorSpi = new OperatorSpi(AnnotatedFooOp.class) {
         };
         assertSame(AnnotatedFooOp.class, operatorSpi.getOperatorClass());
         assertEquals("FooFighters", operatorSpi.getOperatorAlias());
-        assertNotNull(operatorSpi.getOperatorMetadata());
-        assertNotNull(operatorSpi.getParameterDescriptors());
-        assertEquals(1, operatorSpi.getParameterDescriptors().size());
-        assertNotNull(operatorSpi.getParameterDescriptors().get("threshold"));
-        assertNotNull(operatorSpi.getSourceProductDescriptors());
-        assertEquals(1, operatorSpi.getSourceProductDescriptors().size());
-        assertNotNull(operatorSpi.getSourceProductDescriptors().get("input"));
+
+        OperatorClassDescriptor opDescriptor = new OperatorClassDescriptor(operatorSpi.getOperatorClass());
+        assertNotNull(opDescriptor.getOperatorMetadata());
+        assertNotNull(opDescriptor.getParameters());
+        assertEquals(1, opDescriptor.getParameters().size());
+        assertNotNull(opDescriptor.getParameters().get(AnnotatedFooOp.class.getDeclaredField("threshold")));
+        assertNotNull(opDescriptor.getSourceProductMap());
+        assertEquals(1, opDescriptor.getSourceProductMap().size());
+        assertNotNull(opDescriptor.getSourceProductMap().get(AnnotatedFooOp.class.getDeclaredField("input")));
     }
 
     public static class NonAnnotatoedFooOp extends Operator {

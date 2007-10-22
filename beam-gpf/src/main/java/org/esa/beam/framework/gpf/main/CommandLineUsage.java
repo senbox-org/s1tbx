@@ -14,6 +14,7 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
+import org.esa.beam.framework.gpf.internal.OperatorClassDescriptor;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -35,7 +36,7 @@ class CommandLineUsage {
         final ArrayList<DocElement> docElementList = new ArrayList<DocElement>(spiSet.size());
         for (OperatorSpi operatorSpi : spiSet) {
             final String opAlias = operatorSpi.getOperatorAlias();
-            final OperatorMetadata operatorMetadata = operatorSpi.getOperatorMetadata();
+            final OperatorMetadata operatorMetadata = operatorSpi.getOperatorClass().getAnnotation(OperatorMetadata.class);
             final String descriptionLine;
             if (operatorMetadata != null && !operatorMetadata.description().isEmpty()) {
                 descriptionLine = operatorMetadata.description();
@@ -78,12 +79,13 @@ class CommandLineUsage {
         if (operatorSpi == null) {
             return MessageFormat.format("Unknown operator ''{0}''.", operatorName);
         }
+        final OperatorClassDescriptor operatorClassDescriptor = new OperatorClassDescriptor(operatorSpi.getOperatorClass());
         StringBuilder usageText = new StringBuilder(1024);
         usageText.append("Usage:\n");
         usageText.append(MessageFormat.format("  {0} {1} [options] ", TOOL_NAME, operatorName));
-        ArrayList<DocElement> sourceDocElementList = createSourceDocuElementList(operatorSpi);
-        ArrayList<DocElement> paramDocElementList = createParamDocuElementList(operatorSpi);
-        final SourceProducts productsDescriptor = operatorSpi.getSourceProductsDescriptor();
+        ArrayList<DocElement> sourceDocElementList = createSourceDocuElementList(operatorClassDescriptor);
+        ArrayList<DocElement> paramDocElementList = createParamDocuElementList(operatorClassDescriptor);
+        final SourceProducts productsDescriptor = operatorClassDescriptor.getSourceProducts();
         if (productsDescriptor != null) {
             appendSourceFiles(usageText, productsDescriptor);
         }
@@ -97,9 +99,9 @@ class CommandLineUsage {
             usageText.append("\nParameter Options:\n");
             appendDocElementList(usageText, paramDocElementList);
         }
-        if (operatorSpi.getParameterDescriptors().size() > 0) {
+        if (operatorClassDescriptor.getParameters().size() > 0) {
             usageText.append("\nConfiguration XML:\n");
-            appendXmlUsage(usageText, operatorSpi.getParameterDescriptors());
+            appendXmlUsage(usageText, operatorClassDescriptor.getParameters());
         }
 
         return usageText.toString();
@@ -120,9 +122,9 @@ class CommandLineUsage {
         }
     }
 
-    private static ArrayList<DocElement> createParamDocuElementList(OperatorSpi operatorSpi) {
+    private static ArrayList<DocElement> createParamDocuElementList(OperatorClassDescriptor operatorClassDescriptor) {
         ArrayList<DocElement> docElementList = new ArrayList<DocElement>(10);
-        final Map<Field, Parameter> parameterMap = operatorSpi.getParameterDescriptors();
+        final Map<Field, Parameter> parameterMap = operatorClassDescriptor.getParameters();
         for (Field paramField : parameterMap.keySet()) {
             final Parameter parameter = parameterMap.get(paramField);
             String paramSyntax = MessageFormat.format("  -P{0}=<{1}>", getParameterName(paramField, parameter), getFieldTypeName(paramField));
@@ -132,9 +134,9 @@ class CommandLineUsage {
         return docElementList;
     }
 
-    private static ArrayList<DocElement> createSourceDocuElementList(OperatorSpi operatorSpi) {
+    private static ArrayList<DocElement> createSourceDocuElementList(OperatorClassDescriptor operatorClassDescriptor) {
         ArrayList<DocElement> docElementList = new ArrayList<DocElement>(10);
-        final Map<Field, SourceProduct> sourceProductMap = operatorSpi.getSourceProductDescriptors();
+        final Map<Field, SourceProduct> sourceProductMap = operatorClassDescriptor.getSourceProductMap();
         for (Field sourceIdField : sourceProductMap.keySet()) {
             final SourceProduct sourceProduct = sourceProductMap.get(sourceIdField);
             String sourceSyntax = MessageFormat.format("  -S{0}=<file>", getSourceProductId(sourceIdField, sourceProduct));
@@ -227,7 +229,7 @@ class CommandLineUsage {
                 if (ParameterXmlConverter.class.isAssignableFrom(aClass)) {
                     try {
                         final ParameterXmlConverter xmlConverter = (ParameterXmlConverter) aClass.newInstance();
-                        parameterElem = xmlConverter.getTemplateDom();
+                        xmlConverter.insertDomTemplate(parametersElem);
                     } catch (Exception e) {
                         // ignore
                     }
