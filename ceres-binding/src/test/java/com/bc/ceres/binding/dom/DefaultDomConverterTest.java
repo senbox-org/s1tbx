@@ -345,6 +345,14 @@ public class DefaultDomConverterTest extends TestCase {
             xpp3Dom.addChild(((Xpp3DomElement)childElement).getXpp3Dom());
         }
 
+        public DomElement getChild(int index) {
+            return new Xpp3DomElement(xpp3Dom.getChild(index));
+        }
+
+        public int getChildCount() {
+            return xpp3Dom.getChildCount();
+        }
+
         public void setValue(String value) {
             xpp3Dom.setValue(value);
         }
