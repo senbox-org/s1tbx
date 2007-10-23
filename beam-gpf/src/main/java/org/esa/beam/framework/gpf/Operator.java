@@ -23,7 +23,6 @@ import java.util.logging.Logger;
  * <li>{@link #computeTileStack(java.util.Map, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor)}: implemented to compute the tiles
  * for multiple bands.</li>
  * <li>{@link #dispose()}: can be overidden in order to free all resources previously allocated by the operator.</li>
- * <li>{@link #getConfigurationConverter()}: can be overidden in order to return a suitable converter for an operator's configuration.</li>
  * </ld>
  * </p>
  * <p>Generally, only one {@code computeTile} method needs to be implemented. It depends on the type of algorithm which
