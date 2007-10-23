@@ -16,12 +16,10 @@
  */
 package org.esa.beam.framework.gpf.operators.common;
 
-import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.jexp.*;
 import com.bc.jexp.impl.ParserImpl;
 import com.bc.jexp.impl.SymbolFactory;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -66,7 +64,7 @@ public class BandArithmeticOp extends Operator {
     @SourceProducts
     private Product[] sourceProducts;
 
-    @Parameter(alias = "targetBands", xmlConverter = BandDescriptorsXmlConverter.class)
+    @Parameter(alias = "targetBands")
     private BandDescriptor[] targetBandDescriptors;
 
     @Parameter
@@ -206,54 +204,6 @@ public class BandArithmeticOp extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(BandArithmeticOp.class);
-        }
-    }
-
-    private static class BandDescriptorsXmlConverter implements ParameterXmlConverter {
-        public Class<?> getValueType() {
-            return BandDescriptor[].class;
-        }
-
-        public void insertDomTemplate(Xpp3Dom dom) {
-            final BandDescriptor descriptor = new BandDescriptor();
-            descriptor.name = "Name of the band";
-            descriptor.type = "Data type";
-            descriptor.expression = "Band arithmetic expression";
-            convertValueToDom(new BandDescriptor[]{descriptor}, dom);
-        }
-
-        public void convertValueToDom(Object value, Xpp3Dom dom) {
-            final BandDescriptor[] bandDescriptors = (BandDescriptor[]) value;
-            for (BandDescriptor bandDescriptor : bandDescriptors) {
-                final Xpp3Dom targetBandElem = new Xpp3Dom("targetBand");
-
-                final Xpp3Dom nameElem = new Xpp3Dom("name");
-                nameElem.setValue(bandDescriptor.name);
-                targetBandElem.addChild(nameElem);
-
-                final Xpp3Dom expressionElem = new Xpp3Dom("expression");
-                expressionElem.setValue(bandDescriptor.expression);
-                targetBandElem.addChild(expressionElem);
-
-                final Xpp3Dom typeElem = new Xpp3Dom("type");
-                typeElem.setValue(bandDescriptor.type);
-                targetBandElem.addChild(typeElem);
-
-                dom.addChild(targetBandElem);
-            }
-        }
-
-        public Object convertDomToValue(Xpp3Dom dom) throws ConversionException {
-            Xpp3Dom[] children = dom.getChildren("targetBand");
-            BandDescriptor[] bandDescriptors = new BandDescriptor[children.length];
-            for (int i = 0; i < children.length; i++) {
-                bandDescriptors[i] = new BandDescriptor();
-                final Xpp3Dom nameElem = children[i].getChild("name");
-                bandDescriptors[i].name = nameElem.getValue();
-                bandDescriptors[i].expression = children[i].getChild("expression").getValue();
-                bandDescriptors[i].type = children[i].getChild("type").getValue();
-            }
-            return bandDescriptors;
         }
     }
 }
