@@ -42,7 +42,6 @@ public class ProductMergeOp extends Operator {
     @Parameter(defaultValue = "UNKNOWN", description="The product type for the target product.")
     private String productType;
     @Parameter(description="The ID of the source product providing the geo-coding.", alias="baseGeoInfo")
-//    private String baseGeoInfo;
     private String copyGeoCodingFrom;
     @Parameter(itemAlias = "band", itemsInlined = true)
     private BandDesc[] bands;
