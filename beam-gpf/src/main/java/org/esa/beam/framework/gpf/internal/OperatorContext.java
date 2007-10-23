@@ -27,6 +27,7 @@ import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.annotations.*;
 import org.esa.beam.util.Guardian;
+import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.jai.RasterDataNodeOpImage;
 
@@ -277,53 +278,96 @@ public class OperatorContext {
 
     private void initGraphMetadata() {
         final MetadataElement metadataRoot = targetProduct.getMetadataRoot();
-        MetadataElement graphMetadata = metadataRoot.getElement("Processing_Graph");// todo - element name (mp - 23.10.2007)
-        if (graphMetadata == null) {
-            graphMetadata = new MetadataElement("Processing_Graph");
-            metadataRoot.addElement(graphMetadata);
+        MetadataElement targetGraphME = metadataRoot.getElement("Processing_Graph");
+        if (targetGraphME == null) {
+            targetGraphME = new MetadataElement("Processing_Graph");
+            metadataRoot.addElement(targetGraphME);
         }
 
-        MetadataElement nodeMetadata = new MetadataElement("node");
-        nodeMetadata.addAttribute(new MetadataAttribute("id", ProductData.createInstance(targetProduct.getName()), false));
-        nodeMetadata.addAttribute(new MetadataAttribute("operator", ProductData.createInstance(OperatorSpi.getOperatorAlias(operator.getClass())), false));
-        final MetadataElement sourcesMetadata = new MetadataElement("sources");
+        final String opName = OperatorSpi.getOperatorAlias(operator.getClass());
+        final String id = opName + "$" + System.currentTimeMillis();
+        MetadataElement targetNodeME = new MetadataElement("node");
+        targetNodeME.addAttribute(new MetadataAttribute("id", ProductData.createInstance(id), false));
+        targetNodeME.addAttribute(new MetadataAttribute("operator", ProductData.createInstance(opName), false));
+        final MetadataElement targetSourcesME = new MetadataElement("sources");
         for (String sourceId : sourceProductMap.keySet()) {
-            final Product product = sourceProductMap.get(sourceId);
-            String productRefStr;
-            if (product.getFileLocation() != null) {
-                productRefStr = product.getFileLocation().getPath();
-            } else {
-                productRefStr = product.getName(); // todo - obtain reference ID for potential operator target product
+            final Product sourceProduct = sourceProductMap.get(sourceId);
+            final MetadataElement sourceGraphME = sourceProduct.getMetadataRoot().getElement("Processing_Graph");
+            String sourceNodeId = null;
+            if (sourceGraphME != null) {
+                final MetadataElement[] sourceNodeMEs = sourceGraphME.getElements();
+                if (sourceNodeMEs.length > 0) {
+                    for (MetadataElement sourceNodeME : sourceNodeMEs) {
+                        MetadataElement sourceNodeMECopy = new MetadataElement("node");
+                        ProductUtils.copyMetadata(sourceNodeME, sourceNodeMECopy);
+                        targetGraphME.addElement(sourceNodeMECopy);
+                    }
+                    // the last source node is actual input node for this node
+                    final MetadataElement lastSourceNodeME = sourceNodeMEs[sourceNodeMEs.length - 1];
+                    final MetadataAttribute idAttribute = lastSourceNodeME.getAttribute("id");
+                    if (idAttribute != null) {
+                        sourceNodeId = idAttribute.getData().toString();
+                    }
+                }
             }
-            sourcesMetadata.addAttribute(new MetadataAttribute(sourceId, ProductData.createInstance(productRefStr), false));
+            if (sourceNodeId == null) {
+                if (sourceProduct.getFileLocation() != null) {
+                    sourceNodeId = sourceProduct.getFileLocation().toURI().toASCIIString();
+                } else {
+                    sourceNodeId = "product:" + sourceProduct.getName();
+                }
+            }
+            final MetadataAttribute sourceAttribute = new MetadataAttribute(sourceId, ProductData.createInstance(sourceNodeId), false);
+            targetSourcesME.addAttribute(sourceAttribute);
         }
-        nodeMetadata.addElement(sourcesMetadata);
+        targetNodeME.addElement(targetSourcesME);
 
         final DefaultDomConverter domConverter = new DefaultDomConverter(operator.getClass(), new ParameterDefinitionFactory());
         final Xpp3DomElement parametersDom = Xpp3DomElement.createDomElement("parameters");
         domConverter.convertValueToDom(operator, parametersDom);
-        final MetadataElement parametersMetadata = new MetadataElement("parameters");
-        addDomToMetadata(parametersDom, parametersMetadata);
-        nodeMetadata.addElement(parametersMetadata);
+        final MetadataElement targetParametersME = new MetadataElement("parameters");
+        addDomToMetadata(parametersDom, targetParametersME);
+        targetNodeME.addElement(targetParametersME);
 
-        graphMetadata.addElement(nodeMetadata);
+        targetGraphME.addElement(targetNodeME);
     }
 
     private void addDomToMetadata(DomElement parentDE, MetadataElement parentME) {
+        final HashMap<String, List<DomElement>> map = new HashMap<String, List<DomElement>>(parentDE.getChildCount() + 5);
         for (DomElement childDE : parentDE.getChildren()) {
-            if (childDE.getChildCount() > 0) {
-                final MetadataElement childME = new MetadataElement(childDE.getName());
-                addDomToMetadata(childDE, childME);
-                parentME.addElement(childME);
-            } else {
-                String valueDE = childDE.getValue();
-                if (valueDE == null) {
-                    valueDE = "";
-                }
-                final ProductData valueME = ProductData.createInstance(valueDE);
-                final MetadataAttribute attribute = new MetadataAttribute(childDE.getName(), valueME, true);
-                parentME.addAttribute(attribute);
+            final String name = childDE.getName();
+            List<DomElement> elementList = map.get(name);
+            if (elementList == null) {
+                elementList = new ArrayList<DomElement>(3);
+                map.put(name, elementList);
             }
+            elementList.add(childDE);
+        }
+        for (String name : map.keySet()) {
+            final List<DomElement> elementList = map.get(name);
+            if (elementList.size() > 1) {
+                for (int i = 0; i < elementList.size(); i++) {
+                    addDomToMetadata(elementList.get(i), name + "." + i, parentME);
+                }
+            } else {
+                addDomToMetadata(elementList.get(0), name, parentME);
+            }
+        }
+    }
+
+    private void addDomToMetadata(DomElement childDE, String name, MetadataElement parentME) {
+        if (childDE.getChildCount() > 0) {
+            final MetadataElement childME = new MetadataElement(name);
+            addDomToMetadata(childDE, childME);
+            parentME.addElement(childME);
+        } else {
+            String valueDE = childDE.getValue();
+            if (valueDE == null) {
+                valueDE = "";
+            }
+            final ProductData valueME = ProductData.createInstance(valueDE);
+            final MetadataAttribute attribute = new MetadataAttribute(name, valueME, true);
+            parentME.addAttribute(attribute);
         }
     }
 
