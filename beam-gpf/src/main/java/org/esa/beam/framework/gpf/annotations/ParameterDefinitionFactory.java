@@ -72,7 +72,7 @@ public class ParameterDefinitionFactory implements ValueDefinitionFactory {
             valueDefinition.setAlias(parameter.alias());
         }
         if (ParameterDefinitionFactory.isSet(parameter.itemAlias())) {
-            valueDefinition.setItemAlias(parameter.alias());
+            valueDefinition.setItemAlias(parameter.itemAlias());
         }
         valueDefinition.setItemsInlined(parameter.itemsInlined());
         valueDefinition.setUnit(parameter.unit());
