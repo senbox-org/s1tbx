@@ -1,6 +1,9 @@
 package com.bc.ceres.binding.dom;
 
-import com.bc.ceres.binding.*;
+import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueDefinition;
+import com.bc.ceres.binding.ValueDefinitionFactory;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.xml.XppDomWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;
@@ -8,6 +11,7 @@ import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
+import java.io.File;
 import java.io.StringReader;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -48,15 +52,18 @@ public class DefaultDomConverterTest extends TestCase {
                 + "  <intField>42</intField>"
                 + "  <stringField>a string</stringField>"
                 + "  <doubleArrayField>1.2, 4.5, -0.034</doubleArrayField>"
+                + "  <fileField>C:/data/MER.N1</fileField>"
                 + "</parameters>";
         final Xpp3Dom dom = createDom(xml);
         final SimplePojo value = new SimplePojo();
         assertEquals(0, value.intField);
         assertEquals(null, value.stringField);
         assertNull(value.doubleArrayField);
+        assertNull(value.fileField);
         convertDomToValue(dom, value);
         assertEquals(42, value.intField);
         assertEquals("a string", value.stringField);
+        assertEquals(new File("C:/data/MER.N1"), value.fileField);
         assertNotNull(value.doubleArrayField);
         assertEquals(3, value.doubleArrayField.length);
         assertEquals(1.2, value.doubleArrayField[0], 1.e-10);
@@ -67,6 +74,7 @@ public class DefaultDomConverterTest extends TestCase {
     public void testMarshalSimplePojo() throws ValidationException, ConversionException {
         final String expectedXml = ""
                 + "<parameters>"
+                + "  <fileField>"+new File("C:/data/dat.ini") + "</fileField>"
                 + "  <intField>43</intField>"
                 + "  <stringField>This is a test.</stringField>"
                 + "  <doubleArrayField>0.1,0.2,-0.4</doubleArrayField>"
@@ -76,6 +84,7 @@ public class DefaultDomConverterTest extends TestCase {
         value.intField = 43;
         value.stringField = "This is a test.";
         value.doubleArrayField = new double[]{0.1, 0.2, -0.4};
+        value.fileField = new File("C:/data/dat.ini");
         convertValueToDom(value, dom);
         assertEquals(createDom(expectedXml), dom);
     }
@@ -170,6 +179,7 @@ public class DefaultDomConverterTest extends TestCase {
                 + "    <intField>87</intField>"
                 + "    <stringField>Test, test, test!</stringField>"
                 + "    <doubleArrayField>0.5,1.0</doubleArrayField>"
+                + "    <fileField/>"
                 + "  </simple>"
                 + "  <annotatedPojo>"
                 + "    <targetBand>reflec_4</targetBand>"
@@ -385,6 +395,7 @@ public class DefaultDomConverterTest extends TestCase {
 
 
     public static class SimplePojo {
+        File fileField;
         String stringField;
         int intField;
         double[] doubleArrayField;

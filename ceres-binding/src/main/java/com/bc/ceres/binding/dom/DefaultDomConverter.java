@@ -43,13 +43,9 @@ public class DefaultDomConverter implements DomConverter {
                 final Converter itemConverter = getItemConverter(definition);
                 final DomElement childElement = definition.getItemsInlined() ? parentElement : parentElement.createChild(getElementName(model));
                 for (int i = 0; i < arrayLength; i++) {
-                    final DomElement itemElement = parentElement.createChild(itemAlias);
                     final Object component = Array.get(array, i);
-                    if (itemConverter != null) {
-                        itemElement.setValue(itemConverter.format(component));
-                    } else {
-                        convertValueToDom(component, itemElement);
-                    }
+                    final DomElement itemElement = parentElement.createChild(itemAlias);
+                    convertValueToDomImpl(component, itemConverter, itemElement);
                     childElement.addChild(itemElement);
                 }
                 if (!definition.getItemsInlined()) {
@@ -57,12 +53,9 @@ public class DefaultDomConverter implements DomConverter {
                 }
             } else {
                 final DomElement childElement = parentElement.createChild(getElementName(model));
+                final Object childValue = model.getValue();
                 final Converter converter = definition.getConverter();
-                if (converter != null) {
-                    childElement.setValue(converter.format(model.getValue()));
-                } else {
-                    convertValueToDom(model.getValue(), childElement);
-                }
+                convertValueToDomImpl(childValue, converter, childElement);
                 parentElement.addChild(childElement);
             }
         }
@@ -114,24 +107,24 @@ public class DefaultDomConverter implements DomConverter {
                 final Class<?> itemType = definition.getType().getComponentType();
                 final Converter itemConverter = getItemConverter(definition);
                 if (inlinedArray != null) {
-                    Object item = createItem(childElement,
-                                             itemType,
-                                             itemConverter);
+                    Object item = convertDomToValueImpl(childElement,
+                                                        itemConverter, itemType
+                    );
                     inlinedArray.add(item);
                 } else {
                     childValue = Array.newInstance(itemType, arrayElements.length);
                     for (int i = 0; i < arrayElements.length; i++) {
-                        Object item = createItem(arrayElements[i],
-                                                 itemType,
-                                                 itemConverter);
+                        Object item = convertDomToValueImpl(arrayElements[i],
+                                                            itemConverter, itemType
+                        );
                         Array.set(childValue, i, item);
                         valueModel.setValue(childValue);
                     }
                 }
             } else {
-                childValue = createItem(childElement,
-                                        definition.getType(),
-                                        definition.getConverter());
+                childValue = convertDomToValueImpl(childElement,
+                                                   definition.getConverter(), definition.getType()
+                );
                 valueModel.setValue(childValue);
             }
         }
@@ -147,6 +140,34 @@ public class DefaultDomConverter implements DomConverter {
         }
 
         return value;
+    }
+
+    private Object convertDomToValueImpl(DomElement childElement,
+                                         Converter converter,
+                                         Class<?> valueType) throws ConversionException, ValidationException {
+        Object childValue;
+        if (converter != null) {
+            childValue = converter.parse(childElement.getValue());
+        } else {
+            childValue = createValueInstance(valueType);
+            childValue = convertDomToValue(childElement, childValue);
+        }
+        return childValue;
+    }
+
+    private void convertValueToDomImpl(Object value,
+                                       Converter converter,
+                                       DomElement element) {
+        if (converter != null) {
+            final String text = converter.format(value);
+            if (text != null && !text.isEmpty()) {
+                element.setValue(text);
+            }
+        } else {
+            if (value != null) {
+                convertValueToDom(value, element);
+            }
+        }
     }
 
     private static String getElementName(ValueModel model) {
@@ -165,20 +186,6 @@ public class DefaultDomConverter implements DomConverter {
             itemConverter = ConverterRegistry.getInstance().getConverter(itemType);
         }
         return itemConverter;
-    }
-
-    private Object createItem(DomElement childElement,
-                              Class<?> type,
-                              Converter converter
-    ) throws ConversionException, ValidationException {
-        Object childValue;
-        if (converter != null) {
-            childValue = converter.parse(childElement.getValue());
-        } else {
-            childValue = createValueInstance(type);
-            childValue = convertDomToValue(childElement, childValue);
-        }
-        return childValue;
     }
 
     private Object createValueInstance(Class<?> type) {
