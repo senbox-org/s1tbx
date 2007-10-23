@@ -1,5 +1,7 @@
 package com.bc.ceres.binding;
 
+import com.bc.ceres.core.Assert;
+
 import java.beans.PropertyChangeListener;
 
 /**
@@ -36,30 +38,38 @@ public class ValueModel {
         this.container = container;
     }
 
-    public Converter getConverter() {
-        return getDefinition().getConverter();
-    }
-
-    public String getName() {
-        return getDefinition().getName();
-    }
-
-    public Class<?> getType() {
-        return getDefinition().getType();
-    }
-
-    public Validator getValidator() {
-        return getDefinition().getValidator();
-    }
+//    public Converter getConverter() {
+//        return getDefinition().getConverter();
+//    }
+//
+//    public String getName() {
+//        return getDefinition().getName();
+//    }
+//
+//    public Class<?> getType() {
+//        return getDefinition().getType();
+//    }
+//
+//    public Validator getValidator() {
+//        return getDefinition().getValidator();
+//    }
 
     public String getAsText() {
         final Converter converter = valueDefinition.getConverter(true);
-        return converter.format(getValue());
+        if (converter != null) {
+            return converter.format(getValue());
+        } else {
+            return String.valueOf(getValue());
+        }
     }
 
     public void setFromText(String text) throws ConversionException, ValidationException {
         final Converter converter = valueDefinition.getConverter(true);
-        setValue(converter.parse(text));
+        if (converter != null) {
+            setValue(converter.parse(text));
+        } else {
+            setValue(text);
+        }
     }
 
     public Object getValue() {
@@ -74,12 +84,12 @@ public class ValueModel {
         validate(value);
         accessor.setValue(value);
         if (container != null) {
-            container.getPropertyChangeSupport().firePropertyChange(getName(), oldValue, value);
+            container.getPropertyChangeSupport().firePropertyChange(valueDefinition.getName(), oldValue, value);
         }
     }
 
     public void validate(Object value) throws ValidationException {
-        final Validator validator = getValidator();
+        final Validator validator = valueDefinition.getValidator();
         if (validator != null) {
             validator.validateValue(this, value);
         }
@@ -89,14 +99,14 @@ public class ValueModel {
         if (container == null) {
             throw new IllegalStateException("container == null");
         }
-        container.getPropertyChangeSupport().addPropertyChangeListener(getName(), l);
+        container.getPropertyChangeSupport().addPropertyChangeListener(valueDefinition.getName(), l);
     }
 
     public void removePropertyChangeListener(PropertyChangeListener l) {
         if (container == null) {
             throw new IllegalStateException("container == null");
         }
-        container.getPropertyChangeSupport().removePropertyChangeListener(getName(), l);
+        container.getPropertyChangeSupport().removePropertyChangeListener(valueDefinition.getName(), l);
     }
 
 
@@ -110,7 +120,7 @@ public class ValueModel {
         if (getValue() != null) {
             return;
         }
-        final Class<?> type = getType();
+        final Class<?> type = valueDefinition.getType();
         if (type.isPrimitive()) {
             if (type.equals(Boolean.TYPE)) {
                 setValue(false);
@@ -121,7 +131,7 @@ public class ValueModel {
             } else if (type.equals(Short.TYPE)) {
                 setValue((short) 0);
             } else if (type.equals(Integer.TYPE)) {
-                setValue((int) 0);
+                setValue(0);
             } else if (type.equals(Long.TYPE)) {
                 setValue((long) 0);
             } else if (type.equals(Float.TYPE)) {

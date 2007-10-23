@@ -1,6 +1,7 @@
 package com.bc.ceres.binding;
 
 import com.bc.ceres.core.Assert;
+import com.bc.ceres.binding.dom.DomConverter;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -51,6 +52,14 @@ public class ValueDefinition {
 
     public void setDisplayName(String displayName) {
         setProperty("displayName", displayName);
+    }
+
+    public String getAlias() {
+        return (String) getProperty("alias");
+    }
+
+    public void setAlias(String alias) {
+        setProperty("alias", alias);
     }
 
     public String getUnit() {
@@ -141,19 +150,19 @@ public class ValueDefinition {
         setProperty("converter", converter);
     }
 
-    public XmlConverter getXmlConverter() {
+    public DomConverter getXmlConverter() {
         return getXmlConverter(false);
     }
 
-    public XmlConverter getXmlConverter(boolean notNull) {
-        final XmlConverter converter = (XmlConverter) getProperty("xmlConverter");
+    public DomConverter getXmlConverter(boolean notNull) {
+        final DomConverter converter = (DomConverter) getProperty("xmlConverter");
         if (converter == null && notNull) {
             throw new IllegalStateException("no XML converter defined for value '" + getName() + "'");
         }
         return converter;
     }
 
-    public void setXmlConverter(XmlConverter converter) {
+    public void setXmlConverter(DomConverter converter) {
         setProperty("xmlConverter", converter);
     }
 
@@ -166,6 +175,42 @@ public class ValueDefinition {
     }
 
     //////////////////////////////////////////////////////////////////////////////
+    // Array/List item properties
+
+    public Converter getItemConverter() {
+        return getItemConverter(false);
+    }
+
+    public Converter getItemConverter(boolean notNull) {
+        final Converter converter = (Converter) getProperty("itemConverter");
+        if (converter == null && notNull) {
+            throw new IllegalStateException("no converter defined for value '" + getName() + "'");
+        }
+        return converter;
+    }
+
+    public void setItemConverter(Converter converter) {
+        setProperty("itemConverter", converter);
+    }
+
+    public String getItemAlias() {
+        return (String) getProperty("itemAlias");
+    }
+
+    public void setItemAlias(String alias) {
+        setProperty("itemAlias", alias);
+    }
+
+    public boolean isInlined() {
+        return  getBooleanProperty("inlined");
+    }
+
+    public void setInlined(boolean inlined) {
+        setProperty("inlined", inlined);
+    }
+
+    //////////////////////////////////////////////////////////////////////////////
+    // Generic properties
 
     public Object getProperty(String name) {
         return properties.get(name);

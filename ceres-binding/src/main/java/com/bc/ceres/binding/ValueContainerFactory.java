@@ -15,14 +15,16 @@ import java.util.*;
  * @since 0.6
  */
 public class ValueContainerFactory {
+    public static final ValueDefinitionFactory DEFAULT_VALUE_DEFINITION_FACTORY = new ValueDefinitionFactory() {
+        public ValueDefinition createValueDefinition(Field field) {
+            return new ValueDefinition(field.getName(), field.getType());
+        }
+    };
+
     private final ValueDefinitionFactory valueDefinitionFactory;
 
     public ValueContainerFactory() {
-        this(new ValueDefinitionFactory() {
-            public ValueDefinition createValueDefinition(Field field) {
-                return new ValueDefinition(field.getName(), field.getType());
-            }
-        });
+        this(DEFAULT_VALUE_DEFINITION_FACTORY);
     }
 
     public ValueContainerFactory(ValueDefinitionFactory valueDefinitionFactory) {

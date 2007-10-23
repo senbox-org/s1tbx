@@ -34,20 +34,20 @@ public class PropertyPane {
         gbc.gridy = 0;
         for (ValueModel model : models) {
             JComponent editorComponent;
-            if (Number.class.isAssignableFrom(model.getType())) {
+            if (Number.class.isAssignableFrom(model.getDefinition().getType())) {
                 JTextField textField = new JTextField();
                 textField.setHorizontalAlignment(JTextField.RIGHT);
                 int fontSize = textField.getFont().getSize();
                 textField.setFont(new Font("Courier", Font.PLAIN, fontSize));
-                bindingContext.bind(textField, model.getName());
+                bindingContext.bind(textField, model.getDefinition().getName());
                 editorComponent = textField;
-            } else if (Boolean.class.isAssignableFrom(model.getType())) {
+            } else if (Boolean.class.isAssignableFrom(model.getDefinition().getType())) {
                 JCheckBox checkBox = new JCheckBox();
-                bindingContext.bind(checkBox, model.getName());
+                bindingContext.bind(checkBox, model.getDefinition().getName());
                 editorComponent = checkBox;
-            } else if (File.class.isAssignableFrom(model.getType())) {
+            } else if (File.class.isAssignableFrom(model.getDefinition().getType())) {
                 JTextField textField = new JTextField();
-                bindingContext.bind(textField, model.getName());
+                bindingContext.bind(textField, model.getDefinition().getName());
                 JPanel subPanel = new JPanel(new BorderLayout(2, 2));
                 subPanel.add(textField, BorderLayout.CENTER);
                 JButton etcButton = new JButton("...");
@@ -62,15 +62,15 @@ public class PropertyPane {
             } else {
                 if (model.getDefinition().getValueSet() != null) {
                     JComboBox comboBox = new JComboBox();
-                    bindingContext.bind(comboBox, model.getName());
+                    bindingContext.bind(comboBox, model.getDefinition().getName());
                     editorComponent = comboBox;
                 } else {
                     JTextField textField = new JTextField();
-                    bindingContext.bind(textField, model.getName());
+                    bindingContext.bind(textField, model.getDefinition().getName());
                     editorComponent = textField;
                 }
             }
-            editorComponent.setName(model.getName());
+            editorComponent.setName(model.getDefinition().getName());
             editorComponent.setToolTipText(model.getDefinition().getDescription());
             JLabel label = new JLabel(getDisplayName(model) + ": ");
             gbc.gridx = 0;
@@ -95,7 +95,7 @@ public class PropertyPane {
         if (label != null) {
             return label.toString();
         }
-        String name = model.getName().replace("_", " ");
+        String name = model.getDefinition().getName().replace("_", " ");
         return createDisplayName(name);
     }
 

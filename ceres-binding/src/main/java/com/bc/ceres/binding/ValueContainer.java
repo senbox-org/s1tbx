@@ -17,7 +17,7 @@ public class ValueContainer {
     private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 
     public ValueModel[] getModels() {
-        return valueModelList.toArray(new ValueModel[0]);
+        return valueModelList.toArray(new ValueModel[valueModelList.size()]);
     }
 
     public ValueModel getModel(String name) {
@@ -25,7 +25,11 @@ public class ValueContainer {
     }
 
     public void addModel(ValueModel model) {
-        if (valueModelMap.put(model.getName(), model) != model) {
+        if (valueModelMap.put(model.getDefinition().getName(), model) != model) {
+            final String alias = model.getDefinition().getAlias();
+            if (alias != null && !alias.isEmpty()) {
+                valueModelMap.put(alias, model);
+            }
             valueModelList.add(model);
             model.setContainer(this);
         }
@@ -38,7 +42,11 @@ public class ValueContainer {
     }
 
     public void removeModel(ValueModel model) {
-        if (valueModelMap.remove(model.getName()) != null) {
+        if (valueModelMap.remove(model.getDefinition().getName()) != null) {
+            final String alias = model.getDefinition().getAlias();
+            if (alias != null && !alias.isEmpty()) {
+                valueModelMap.remove(alias);
+            }
             valueModelList.remove(model);
             model.setContainer(null);
         }

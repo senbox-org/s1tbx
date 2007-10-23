@@ -265,7 +265,7 @@ public class SwingBindingContext {
             }
             final ValueModel model = valueContainer.getModel(getPropertyName());
             Object[] selectedValues = list.getSelectedValues();
-            Object array = Array.newInstance(model.getType().getComponentType(), selectedValues.length);
+            Object array = Array.newInstance(model.getDefinition().getType().getComponentType(), selectedValues.length);
             for (int i = 0; i < selectedValues.length; i++) {
                 Array.set(array, i, selectedValues[i]);
             }
