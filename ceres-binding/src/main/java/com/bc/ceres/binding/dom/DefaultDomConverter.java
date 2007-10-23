@@ -147,7 +147,12 @@ public class DefaultDomConverter implements DomConverter {
                                          Class<?> valueType) throws ConversionException, ValidationException {
         Object childValue;
         if (converter != null) {
-            childValue = converter.parse(childElement.getValue());
+            final String text = childElement.getValue();
+            if (text != null) {
+                childValue = converter.parse(text);
+            } else {
+                childValue = null;
+            }
         } else {
             childValue = createValueInstance(valueType);
             childValue = convertDomToValue(childElement, childValue);
