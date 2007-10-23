@@ -39,17 +39,19 @@ public class DefaultDomConverter implements DomConverter {
             final String itemAlias = definition.getItemAlias();
             if (definition.getType().isArray() && itemAlias != null && !itemAlias.isEmpty()) {
                 final Object array = model.getValue();
-                final int arrayLength = Array.getLength(array);
-                final Converter itemConverter = getItemConverter(definition);
-                final DomElement childElement = definition.getItemsInlined() ? parentElement : parentElement.createChild(getElementName(model));
-                for (int i = 0; i < arrayLength; i++) {
-                    final Object component = Array.get(array, i);
-                    final DomElement itemElement = parentElement.createChild(itemAlias);
-                    convertValueToDomImpl(component, itemConverter, itemElement);
-                    childElement.addChild(itemElement);
-                }
-                if (!definition.getItemsInlined()) {
-                    parentElement.addChild(childElement);
+                if (array != null ) {
+                    final int arrayLength = Array.getLength(array);
+                    final Converter itemConverter = getItemConverter(definition);
+                    final DomElement childElement = definition.getItemsInlined() ? parentElement : parentElement.createChild(getElementName(model));
+                    for (int i = 0; i < arrayLength; i++) {
+                        final Object component = Array.get(array, i);
+                        final DomElement itemElement = parentElement.createChild(itemAlias);
+                        convertValueToDomImpl(component, itemConverter, itemElement);
+                        childElement.addChild(itemElement);
+                    }
+                    if (!definition.getItemsInlined()) {
+                        parentElement.addChild(childElement);
+                    }
                 }
             } else {
                 final DomElement childElement = parentElement.createChild(getElementName(model));
