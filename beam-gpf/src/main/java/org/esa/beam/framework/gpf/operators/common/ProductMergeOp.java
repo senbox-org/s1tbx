@@ -16,7 +16,12 @@
  */
 package org.esa.beam.framework.gpf.operators.common;
 
-import com.bc.ceres.core.ProgressMonitor;
+import java.awt.image.RenderedImage;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.Product;
@@ -29,58 +34,43 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 
-import java.awt.image.RenderedImage;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.bc.ceres.core.ProgressMonitor;
 
 @OperatorMetadata(alias = "ProductMerger")
 public class ProductMergeOp extends Operator {
 
-    public static class Configuration {
-        @Parameter
-        private String productType = "no";
-        @Parameter
-        private String baseGeoInfo;
-        @Parameter(itemAlias = "band", itemsInlined = true)
-        private BandDesc[] bands;
+    @Parameter(defaultValue = "UNKNOWN", description="The product type for the target product.")
+    private String productType;
+    @Parameter(description="The ID of the source product providing the geo-coding.", alias="baseGeoInfo")
+//    private String baseGeoInfo;
+    private String copyGeoCodingFrom;
+    @Parameter(itemAlias = "band", itemsInlined = true)
+    private BandDesc[] bands;
 
-        public Configuration() {
-            bands = new BandDesc[0];
-        }
-    }
-
-    @Parameter
-    private Configuration config;
-
-    public ProductMergeOp() {
-        config = new Configuration();
-    }
 
     @Override
     public Product initialize() throws OperatorException {
 
         Product outputProduct;
-        if (StringUtils.isNotNullAndNotEmpty(config.baseGeoInfo)) {
-            Product baseGeoProduct = getSourceProduct(config.baseGeoInfo);
+        if (StringUtils.isNotNullAndNotEmpty(copyGeoCodingFrom)) {
+            Product baseGeoProduct = getSourceProduct(copyGeoCodingFrom);
             final int sceneRasterWidth = baseGeoProduct.getSceneRasterWidth();
             final int sceneRasterHeight = baseGeoProduct.getSceneRasterHeight();
-            outputProduct = new Product("mergedName", config.productType,
+            outputProduct = new Product("mergedName", productType,
                                         sceneRasterWidth, sceneRasterHeight);
 
-            copyBaseGeoInfo(baseGeoProduct, outputProduct);
+            copyGeoCoding(baseGeoProduct, outputProduct);
         } else {
-            BandDesc bandDesc = config.bands[0];
+            BandDesc bandDesc = bands[0];
             Product srcProduct = getSourceProduct(bandDesc.product);
             final int sceneRasterWidth = srcProduct.getSceneRasterWidth();
             final int sceneRasterHeight = srcProduct.getSceneRasterHeight();
-            outputProduct = new Product("mergedName", config.productType,
+            outputProduct = new Product("mergedName", productType,
                                         sceneRasterWidth, sceneRasterHeight);
         }
 
         Set<Product> allSrcProducts = new HashSet<Product>();
-        for (BandDesc bandDesc : config.bands) {
+        for (BandDesc bandDesc : bands) {
             Product srcProduct = getSourceProduct(bandDesc.product);
             if (StringUtils.isNotNullAndNotEmpty(bandDesc.name)) {
                 if (StringUtils.isNotNullAndNotEmpty(bandDesc.newName)) {
@@ -111,7 +101,7 @@ public class ProductMergeOp extends Operator {
     /*
      * Copies the tie point data, geocoding and the start and stop time.
      */
-    private static void copyBaseGeoInfo(Product sourceProduct,
+    private static void copyGeoCoding(Product sourceProduct,
                                         Product destinationProduct) {
         // copy all tie point grids to output product
         ProductUtils.copyTiePointGrids(sourceProduct, destinationProduct);
@@ -146,7 +136,7 @@ public class ProductMergeOp extends Operator {
         getLogger().warning("Wrongly configured ProductMerger operator. Tiles should not be requested.");
     }
 
-    public class BandDesc {
+    public static class BandDesc {
         String product;
         String name;
         String nameExp;
