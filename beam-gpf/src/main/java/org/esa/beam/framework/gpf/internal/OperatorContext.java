@@ -19,12 +19,11 @@ package org.esa.beam.framework.gpf.internal;
 import com.bc.ceres.binding.*;
 import com.bc.ceres.binding.accessors.ClassFieldAccessor;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
+import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.core.ProgressMonitor;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.dataio.ProductReader;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.annotations.*;
 import org.esa.beam.util.Guardian;
@@ -267,11 +266,64 @@ public class OperatorContext {
         initPassThrough();
         initTargetProductField();
         initTargetImages();
+        initGraphMetadata();
 
         ProductReader oldProductReader = targetProduct.getProductReader();
         if (oldProductReader == null) {
             OperatorProductReader operatorProductReader = new OperatorProductReader(this);
             targetProduct.setProductReader(operatorProductReader);
+        }
+    }
+
+    private void initGraphMetadata() {
+        final MetadataElement metadataRoot = targetProduct.getMetadataRoot();
+        MetadataElement graphMetadata = metadataRoot.getElement("Processing_Graph");// todo - element name (mp - 23.10.2007)
+        if (graphMetadata == null) {
+            graphMetadata = new MetadataElement("Processing_Graph");
+            metadataRoot.addElement(graphMetadata);
+        }
+
+        MetadataElement nodeMetadata = new MetadataElement("node");
+        nodeMetadata.addAttribute(new MetadataAttribute("id", ProductData.createInstance(targetProduct.getName()), false));
+        nodeMetadata.addAttribute(new MetadataAttribute("operator", ProductData.createInstance(OperatorSpi.getOperatorAlias(operator.getClass())), false));
+        final MetadataElement sourcesMetadata = new MetadataElement("sources");
+        for (String sourceId : sourceProductMap.keySet()) {
+            final Product product = sourceProductMap.get(sourceId);
+            String productRefStr;
+            if (product.getFileLocation() != null) {
+                productRefStr = product.getFileLocation().getPath();
+            } else {
+                productRefStr = product.getName(); // todo - obtain reference ID for potential operator target product
+            }
+            sourcesMetadata.addAttribute(new MetadataAttribute(sourceId, ProductData.createInstance(productRefStr), false));
+        }
+        nodeMetadata.addElement(sourcesMetadata);
+
+        final DefaultDomConverter domConverter = new DefaultDomConverter(operator.getClass(), new ParameterDefinitionFactory());
+        final Xpp3DomElement parametersDom = Xpp3DomElement.createDomElement("parameters");
+        domConverter.convertValueToDom(operator, parametersDom);
+        final MetadataElement parametersMetadata = new MetadataElement("parameters");
+        addDomToMetadata(parametersDom, parametersMetadata);
+        nodeMetadata.addElement(parametersMetadata);
+
+        graphMetadata.addElement(nodeMetadata);
+    }
+
+    private void addDomToMetadata(DomElement parentDE, MetadataElement parentME) {
+        for (DomElement childDE : parentDE.getChildren()) {
+            if (childDE.getChildCount() > 0) {
+                final MetadataElement childME = new MetadataElement(childDE.getName());
+                addDomToMetadata(childDE, childME);
+                parentME.addElement(childME);
+            } else {
+                String valueDE = childDE.getValue();
+                if (valueDE == null) {
+                    valueDE = "";
+                }
+                final ProductData valueME = ProductData.createInstance(valueDE);
+                final MetadataAttribute attribute = new MetadataAttribute(childDE.getName(), valueME, true);
+                parentME.addAttribute(attribute);
+            }
         }
     }
 

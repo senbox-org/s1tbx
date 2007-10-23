@@ -32,6 +32,14 @@ public class Xpp3DomElement implements DomElement {
         xpp3Dom.setAttribute(name, value);
     }
 
+    public DomElement getChild(int index) {
+        return new Xpp3DomElement(xpp3Dom.getChild(index));
+    }
+
+    public int getChildCount() {
+        return xpp3Dom.getChildCount();
+    }
+
     public DomElement createChild(String name) {
         return createDomElement(new Xpp3Dom(name));
     }
