@@ -17,36 +17,37 @@
 package org.esa.beam.framework.gpf.operators.common;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.XppDomReader;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 
 import java.awt.image.RenderedImage;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @OperatorMetadata(alias = "ProductMerger")
-public class ProductMergeOp extends Operator implements ParameterConverter {
+public class ProductMergeOp extends Operator {
 
     public static class Configuration {
+        @Parameter
         private String productType = "no";
+        @Parameter
         private String baseGeoInfo;
-        private List<BandDesc> bands;
+        @Parameter(itemAlias = "band", itemsInlined = true)
+        private BandDesc[] bands;
 
         public Configuration() {
-            bands = new ArrayList<BandDesc>();
+            bands = new BandDesc[0];
         }
     }
 
@@ -55,19 +56,6 @@ public class ProductMergeOp extends Operator implements ParameterConverter {
 
     public ProductMergeOp() {
         config = new Configuration();
-    }
-
-    public void getParameterValues(Operator operator, Xpp3Dom configuration) throws OperatorException {
-        // todo - implement
-    }
-
-    public void setParameterValues(Operator operator, Xpp3Dom configuration) throws OperatorException {
-        XStream xStream = new XStream();
-        xStream.setClassLoader(this.getClass().getClassLoader());
-        xStream.alias(configuration.getName(), Configuration.class);
-        xStream.alias("band", BandDesc.class);
-        xStream.addImplicitCollection(Configuration.class, "bands");
-        xStream.unmarshal(new XppDomReader(configuration), config);
     }
 
     @Override
@@ -83,7 +71,7 @@ public class ProductMergeOp extends Operator implements ParameterConverter {
 
             copyBaseGeoInfo(baseGeoProduct, outputProduct);
         } else {
-            BandDesc bandDesc = config.bands.get(0);
+            BandDesc bandDesc = config.bands[0];
             Product srcProduct = getSourceProduct(bandDesc.product);
             final int sceneRasterWidth = srcProduct.getSceneRasterWidth();
             final int sceneRasterHeight = srcProduct.getSceneRasterHeight();
@@ -120,11 +108,8 @@ public class ProductMergeOp extends Operator implements ParameterConverter {
         return outputProduct;
     }
 
-    /**
+    /*
      * Copies the tie point data, geocoding and the start and stop time.
-     *
-     * @param sourceProduct
-     * @param destinationProduct
      */
     private static void copyBaseGeoInfo(Product sourceProduct,
                                         Product destinationProduct) {

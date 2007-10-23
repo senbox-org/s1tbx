@@ -16,20 +16,23 @@ public class ParameterDefinitionFactory implements ValueDefinitionFactory {
     }
 
     public ValueDefinition createValueDefinition(Field field) {
-        ValueDefinition valueDefinition = null;
-        Parameter parameter = field.getAnnotation(Parameter.class);
-        if (parameter != null) {
-            try {
-                valueDefinition = createValueDefinition(field, parameter);
-            } catch (ConversionException e) {
-                throw new IllegalArgumentException("type", e);
-            }
+        try {
+            return createValueDefinitionImpl(field);
+        } catch (ConversionException e) {
+            throw new IllegalArgumentException("field", e);
         }
-        return valueDefinition;
     }
 
-    public static ValueDefinition createValueDefinition(Field field, Parameter parameter) throws ConversionException {
+    private ValueDefinition createValueDefinitionImpl(Field field) throws ConversionException {
+        final boolean operatorDetected = Operator.class.isAssignableFrom(field.getDeclaringClass());
+        Parameter parameter = field.getAnnotation(Parameter.class);
+        if (operatorDetected && parameter == null) {
+            return null;
+        }
         ValueDefinition valueDefinition = new ValueDefinition(field.getName(), field.getType());
+        if (parameter == null) {
+            return valueDefinition;
+        }
         if (parameter.validator() != Validator.class) {
             final Validator validator;
             try {
@@ -51,14 +54,27 @@ public class ParameterDefinitionFactory implements ValueDefinitionFactory {
         if (valueDefinition.getConverter() == null) {
             valueDefinition.setConverter(ConverterRegistry.getInstance().getConverter(valueDefinition.getType()));
         }
+        if (parameter.itemConverter() != Converter.class) {
+            Converter converter;
+            try {
+                converter = parameter.itemConverter().newInstance();
+            } catch (Throwable t) {
+                throw new ConversionException("Failed to create item converter.", t);
+            }
+            valueDefinition.setItemConverter(converter);
+        }
         if (ParameterDefinitionFactory.isSet(parameter.label())) {
             valueDefinition.setDisplayName(parameter.label());
         } else {
             valueDefinition.setDisplayName(field.getName());
         }
         if (ParameterDefinitionFactory.isSet(parameter.alias())) {
-            valueDefinition.setProperty("alias", parameter.alias());
+            valueDefinition.setAlias(parameter.alias());
         }
+        if (ParameterDefinitionFactory.isSet(parameter.itemAlias())) {
+            valueDefinition.setItemAlias(parameter.alias());
+        }
+        valueDefinition.setItemsInlined(parameter.itemsInlined());
         valueDefinition.setUnit(parameter.unit());
         valueDefinition.setDescription(parameter.description());
 

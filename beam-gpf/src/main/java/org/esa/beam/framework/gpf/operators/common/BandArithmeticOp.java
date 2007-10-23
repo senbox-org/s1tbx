@@ -27,7 +27,10 @@ import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic.ProductPrefixProvider;
 import org.esa.beam.framework.dataop.barithm.RasterDataEvalEnv;
 import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
-import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
@@ -64,10 +67,9 @@ public class BandArithmeticOp extends Operator {
     @SourceProducts
     private Product[] sourceProducts;
 
-    @Parameter(alias = "targetBands")
+    @Parameter(alias = "targetBands", itemAlias = "targetBand")
     private BandDescriptor[] targetBandDescriptors;
-
-    @Parameter
+    @Parameter(alias = "variables", itemAlias = "variable")
     private Variable[] variables;
 
     private WritableNamespace namespace;

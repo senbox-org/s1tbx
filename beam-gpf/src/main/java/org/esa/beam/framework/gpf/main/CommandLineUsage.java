@@ -1,25 +1,23 @@
 package org.esa.beam.framework.gpf.main;
 
-import com.bc.ceres.binding.XmlConverter;
+import com.bc.ceres.binding.Converter;
+import com.bc.ceres.binding.ConverterRegistry;
+import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.core.ServiceRegistry;
-import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
-import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
-import com.thoughtworks.xstream.io.xml.XppDomReader;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
-import org.esa.beam.framework.gpf.ParameterXmlConverter;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.internal.OperatorClassDescriptor;
+import org.esa.beam.framework.gpf.internal.Xpp3DomElement;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
 import java.util.*;
@@ -127,7 +125,7 @@ class CommandLineUsage {
         final Map<Field, Parameter> parameterMap = operatorClassDescriptor.getParameters();
         for (Field paramField : parameterMap.keySet()) {
             final Parameter parameter = parameterMap.get(paramField);
-            String paramSyntax = MessageFormat.format("  -P{0}=<{1}>", getParameterName(paramField, parameter), getFieldTypeName(paramField));
+            String paramSyntax = MessageFormat.format("  -P{0}=<{1}>", getParameterName(paramField, parameter), getTypeName(paramField.getType()));
             final ArrayList<String> descriptionLines = createParamDescriptionLines(paramField, parameter);
             docElementList.add(new DocElement(paramSyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
         }
@@ -153,7 +151,7 @@ class CommandLineUsage {
         } else {
             descriptionLines.add(MessageFormat.format("Sets parameter ''{0}'' to <{1}>.",
                                                       getParameterName(paramField, parameter),
-                                                      getFieldTypeName(paramField)));
+                                                      getTypeName(paramField.getType())));
         }
         if (!parameter.interval().isEmpty()) {
             descriptionLines.add(MessageFormat.format("Valid interval is {0}.", parameter.interval()));
@@ -220,35 +218,72 @@ class CommandLineUsage {
     }
 
     private static void appendXmlUsage(StringBuilder usageText, Map<Field, Parameter> map) {
-        Xpp3Dom parametersElem = new Xpp3Dom("parameters");
+        Xpp3DomElement parametersElem = Xpp3DomElement.createDomElement("parameters");
         for (Field paramField : map.keySet()) {
-            final Parameter parameter = map.get(paramField);
-            Xpp3Dom parameterElem = null;
-            if (parameter.xmlConverter() != null) {
-                final Class<? extends XmlConverter> aClass = parameter.xmlConverter();
-                if (ParameterXmlConverter.class.isAssignableFrom(aClass)) {
-                    try {
-                        final ParameterXmlConverter xmlConverter = (ParameterXmlConverter) aClass.newInstance();
-                        xmlConverter.insertDomTemplate(parametersElem);
-                    } catch (Exception e) {
-                        // ignore
-                    }
-                }
-            }
-            if (parameterElem == null) {
-                parameterElem = new Xpp3Dom(paramField.getName());
-                parameterElem.setValue(getFieldTypeName(paramField));
-            }
-            parametersElem.addChild(parameterElem);
+
+            convertField(paramField, parametersElem);
+
         }
-        final StringWriter writer = new StringWriter();
-        new HierarchicalStreamCopier().copy(new XppDomReader(parametersElem), new PrettyPrintWriter(writer));
-        final StringTokenizer st = new StringTokenizer(writer.toString().replace('\r', ' '), "\n");
+        parametersElem.toXml();
+        final StringTokenizer st = new StringTokenizer(parametersElem.toXml().replace('\r', ' '), "\n");
         while (st.hasMoreElements()) {
             usageText.append("  ");
             usageText.append(st.nextToken());
             usageText.append('\n');
         }
+    }
+
+    private static void convertField(Field paramField, DomElement parametersElem) {
+        final Parameter parameter = paramField.getAnnotation(Parameter.class);
+        final boolean thisIsAnOperator = Operator.class.isAssignableFrom(paramField.getDeclaringClass());
+        if (thisIsAnOperator && parameter != null || !thisIsAnOperator) {
+            String name = paramField.getName();
+            if (parameter != null && !parameter.alias().isEmpty()) {
+                name = parameter.alias();
+            }
+            if (parameter != null && !parameter.itemAlias().isEmpty() && paramField.getType().isArray()) {
+                DomElement childElem = parameter.itemsInlined() ? parametersElem : parametersElem.createChild(name);
+                String itemName = parameter.itemAlias();
+                final Xpp3DomElement element = Xpp3DomElement.createDomElement(itemName);
+                if (isArrayConverterAvailable(paramField, parameter)) {
+                    element.setValue(getTypeName(paramField.getType().getComponentType()));
+                } else {
+                    final Field[] declaredFields = paramField.getType().getComponentType().getDeclaredFields();
+                    for (Field declaredField : declaredFields) {
+                        convertField(declaredField, element);
+                    }
+                }
+                childElem.addChild(element);
+                childElem.addChild(childElem.createChild("..."));
+                if (!parameter.itemsInlined()) {
+                    parametersElem.addChild(childElem);
+                }
+            } else {
+                final DomElement childElem = parametersElem.createChild(name);
+                Class<?> type = paramField.getType();
+                if (isConverterAvailable(type, parameter)) {
+                    childElem.setValue(getTypeName(type));
+                } else {
+                    final Field[] declaredFields = type.getDeclaredFields();
+                    for (Field declaredField : declaredFields) {
+                        convertField(declaredField, childElem);
+                    }
+                }
+                parametersElem.addChild(childElem);
+            }
+        }
+    }
+
+    private static boolean isConverterAvailable(Class<?> type, Parameter parameter) {
+        return ConverterRegistry.getInstance().getConverter(type) != null
+                || (parameter != null && parameter.converter() != Converter.class);
+    }
+
+    private static boolean isArrayConverterAvailable(Field paramField, Parameter parameter) {
+        return ConverterRegistry.getInstance().getConverter(paramField.getType()) != null
+                || (parameter != null
+                && (parameter.converter() != Converter.class
+                || parameter.itemConverter() != Converter.class));
     }
 
     private static String spaces(int n) {
@@ -280,12 +315,17 @@ class CommandLineUsage {
         return sourceProduct.alias().isEmpty() ? sourceProductField.getName() : sourceProduct.alias();
     }
 
-    private static String getFieldTypeName(Field paramField) {
-        final String s = paramField.getType().getSimpleName();
-        if (Character.isUpperCase(s.charAt(0))) {
-            return Character.toLowerCase(s.charAt(0)) + s.substring(1);
+    private static String getTypeName(Class type) {
+        if (type.isArray()) {
+            final String typeName = getTypeName(type.getComponentType());
+            return typeName + "," + typeName + "," + typeName + ",...";
+        } else {
+            final String typeName = type.getSimpleName();
+            if (Character.isUpperCase(typeName.charAt(0))) {
+                return Character.toLowerCase(typeName.charAt(0)) + typeName.substring(1);
+            }
+            return typeName;
         }
-        return s;
     }
 
 

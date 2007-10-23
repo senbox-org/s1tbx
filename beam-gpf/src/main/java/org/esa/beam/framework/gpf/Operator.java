@@ -116,24 +116,6 @@ public abstract class Operator {
     }
 
     /**
-     * Gets a suitable converter for this cperator's configuration.
-     * This method is intended to be overridden by clients in order to provide
-     * their own implementation of their configuration conversion.
-     * The default implementation returns {@code this} if the derived operator
-     * implements {@link org.esa.beam.framework.gpf.ParameterConverter}, or
-     * {@code null} otherwise. In the latter case, a default configuration conversion
-     * will be applied by the GPF.
-     *
-     * @return A suitable configuration converter or {@code null} for default configuration conversion.
-     */
-    public ParameterConverter getConfigurationConverter() {
-        if (this instanceof ParameterConverter) {
-            return (ParameterConverter) this;
-        }
-        return null;
-    }
-
-    /**
      * Gets the source products in the order they have been declared.
      *
      * @return the array source products

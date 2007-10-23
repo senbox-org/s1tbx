@@ -19,7 +19,10 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
@@ -41,13 +44,13 @@ import java.util.Arrays;
 import java.util.Map;
 
 /**
- * Implements a spectral umnixing algorithm.
+ * Implements a spectral unmixing algorithm.
  */
 @OperatorMetadata(alias = "SpectralUnmixing",
                   version = "1.0",
                   authors = "Helmut Schiller, Norman Fomferra",
                   copyright = "(c) 2007 by Brockmann Consult",
-                  description = "Spectral umnixing algorithm.")
+                  description = "Spectral unmixing algorithm.")
 public class SpectralUnmixingOp extends Operator {
 
     private final String TYPE_1 = "Unconstrained LSU";
@@ -63,10 +66,10 @@ public class SpectralUnmixingOp extends Operator {
     @Parameter
     boolean alterSourceProduct;
 
-    @Parameter(alias = "sourceBands", elemAlias = "band")
+    @Parameter(alias = "sourceBands", itemAlias = "band")
     String[] sourceBandNames;
 
-    @Parameter(xmlConverter = EndmembersXmlConverter.class)
+    @Parameter(itemAlias = "endmember")
     Endmember[] endmembers;
 
     @Parameter
@@ -196,11 +199,6 @@ public class SpectralUnmixingOp extends Operator {
                 checkForCancelation(pm);
             }
         }
-    }
-
-    @Override
-    public ParameterConverter getConfigurationConverter() {
-        return new SpectralUnmixingConfigConverter();
     }
 
     private Tile[] getSourceTiles(Rectangle rectangle, ProgressMonitor pm) throws OperatorException {

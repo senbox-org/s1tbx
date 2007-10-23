@@ -15,11 +15,13 @@
 package org.esa.beam.cluster;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import de.gkss.hs.datev2004.Clucov;
 import de.gkss.hs.datev2004.DataSet;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
@@ -37,7 +39,7 @@ import java.util.Set;
                   authors = "Helmut Schiller, Norman Fomferra",
                   copyright = "(c) 2007 by Brockmann Consult",
                   description = "Cluster analysis using the CLUCOV algorithm.")
-public class ClusterAnalysisOp extends Operator implements ParameterConverter {
+public class ClusterAnalysisOp extends Operator {
     @SourceProduct
     Product sourceProduct;
     @TargetProduct
@@ -52,18 +54,6 @@ public class ClusterAnalysisOp extends Operator implements ParameterConverter {
     private transient Band groupBand;
     private transient Clucov clucov;
 
-    public void getParameterValues(Operator operator, Xpp3Dom configuration) throws OperatorException {
-        // todo - implement
-    }
-
-    public void setParameterValues(Operator operator, Xpp3Dom configuration) throws OperatorException {
-        Xpp3Dom child = configuration.getChild("features");
-        Xpp3Dom[] children = child.getChildren("feature");
-        featureBandNames = new String[children.length];
-        for (int i = 0; i < children.length; i++) {
-            featureBandNames[i] = children[i].getValue();
-        }
-    }
 
     @Override
     public Product initialize() throws OperatorException {

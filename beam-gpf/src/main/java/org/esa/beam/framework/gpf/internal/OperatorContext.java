@@ -18,8 +18,8 @@ package org.esa.beam.framework.gpf.internal;
 
 import com.bc.ceres.binding.*;
 import com.bc.ceres.binding.accessors.ClassFieldAccessor;
+import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.core.ProgressMonitor;
-import com.thoughtworks.xstream.converters.SingleValueConverter;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Band;
@@ -491,51 +491,19 @@ public class OperatorContext {
     public void injectConfiguration() throws OperatorException {
         if (configuration != null) {
             try {
-                ParameterConverter converter = operator.getConfigurationConverter();
-                if (converter != null) {
-                    converter.setParameterValues(operator, configuration);
-                } else {
-                    configureValue(configuration, operator);
-                }
+                configureValue(configuration, operator);
             } catch (OperatorException e) {
                 throw e;
             } catch (Throwable t) {
-                throw new OperatorException(t);
+                throw new OperatorException(t.getMessage(), t);
             }
         }
     }
 
-    private static void configureValue(Xpp3Dom parentElement, Object value) {
-        final ValueDefinitionFactory valueDefinitionFactory = new ParameterDefinitionFactory();
-        Class<?> operatorClass = value.getClass();
-        final Map<Field, Parameter> parameterMap = new TypeDescriptor(operatorClass).getParameterMap();
-        final Set<Field> fieldSet = parameterMap.keySet();
-
-        final Xpp3Dom[] children = parentElement.getChildren();
-        for (Xpp3Dom childElement : children) {
-            final String childElementName = childElement.getName();
-            Field paramField = getField(value, childElementName);
-            if (paramField == null) {
-                throw new OperatorException("Illegal element " + childElementName);
-            }
-            // todo - COLLECTIONS & ARRAYS!!! 
-            try {
-                final ValueDefinition definition = valueDefinitionFactory.createValueDefinition(paramField);
-                final ValueModel valueModel = new ValueModel(definition, new ClassFieldAccessor(value, paramField));
-                final Converter converter = definition.getConverter();
-                if (converter != null) {
-                    valueModel.setFromText(childElement.getValue());
-                } else {
-                    final Object childValue = paramField.getType().newInstance();
-                    configureValue(childElement, childValue);
-                    valueModel.setValue(childValue);
-                }
-            } catch (ConversionException e) {
-            } catch (ValidationException e) {
-            } catch (IllegalAccessException e) {
-            } catch (InstantiationException e) {
-            }
-        }
+    private static void configureValue(Xpp3Dom parentElement, Object value) throws ValidationException, ConversionException {
+        final Xpp3DomElement xpp3DomElement = Xpp3DomElement.createDomElement(parentElement);
+        final DefaultDomConverter domConverter = new DefaultDomConverter(value.getClass(), new ParameterDefinitionFactory());
+        domConverter.convertDomToValue(xpp3DomElement, value);
     }
 
     private static Field getField(Object object, String valueName) {
@@ -569,49 +537,6 @@ public class OperatorContext {
                     throw new OperatorException(String.format(e.getMessage(), e));
                 }
             }
-        }
-    }
-
-    private static Field[] getParameterFields(Operator operator) {
-        List<Field> parameterFields = new ArrayList<Field>();
-        collectParameterFields(operator.getClass(), parameterFields);
-        return parameterFields.toArray(new Field[parameterFields.size()]);
-    }
-
-    private static void collectParameterFields(Class operatorClass, List<Field> parameterFields) {
-        final Class superclass = operatorClass.getSuperclass();
-        if (superclass != null && superclass.isAssignableFrom(Operator.class)) {
-            collectParameterFields(superclass, parameterFields);
-        }
-        Field[] declaredFields = operatorClass.getDeclaredFields();
-        for (Field declaredField : declaredFields) {
-            if (declaredField.getAnnotation(Parameter.class) != null) {
-                parameterFields.add(declaredField);
-            }
-        }
-    }
-
-    private static class XStreamConverterWrapper implements SingleValueConverter {
-        private Converter converter;
-
-        public XStreamConverterWrapper(Converter converter) {
-            this.converter = converter;
-        }
-
-        public String toString(Object obj) {
-            return converter.format(obj);
-        }
-
-        public Object fromString(String str) {
-            try {
-                return converter.parse(str);
-            } catch (ConversionException e) {
-                throw new com.thoughtworks.xstream.converters.ConversionException(e);
-            }
-        }
-
-        public boolean canConvert(Class type) {
-            return converter.getValueType().equals(type);
         }
     }
 

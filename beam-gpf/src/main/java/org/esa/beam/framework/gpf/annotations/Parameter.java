@@ -2,7 +2,7 @@ package org.esa.beam.framework.gpf.annotations;
 
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.Validator;
-import com.bc.ceres.binding.XmlConverter;
+import com.bc.ceres.binding.dom.DomConverter;
 
 import java.lang.annotation.*;
 
@@ -24,14 +24,18 @@ public @interface Parameter {
     /**
      * @return An alias name for the elemens of a parameter array.
      *         Defaults to the empty string (= not set).
+     * @see #itemsInlined()
+     * @see #itemConverter()
      */
-    String elemAlias() default "";
+    String itemAlias() default "";
 
     /**
-     * @return Gets
-     *         Defaults to the empty string (= not set).
+     * @return If {@code true} items of parameter array values are inlined (not enclosed by the parameter name) in the DOM representation of the array.
+     *         Defaults to {@code false}.
+     * @see #itemAlias()
+     * @see #itemConverter()
      */
-    boolean implicite() default false;
+    boolean itemsInlined() default false;
 
     /**
      * Gets the parameter's default value.
@@ -136,9 +140,18 @@ public @interface Parameter {
     Class<? extends Converter> converter() default Converter.class;
 
     /**
-     * A converter to be used to convert an XML DOM to the parameter value and vice versa.
+     * A converter to be used to convert a text to the items of parameter array value and vice versa.
      *
-     * @return The XML converter class.
+     * @return The converter class.
+     * @see #itemAlias()
+     * @see #itemsInlined()
      */
-    Class<? extends XmlConverter> xmlConverter() default XmlConverter.class;
+    Class<? extends Converter> itemConverter() default Converter.class;
+
+    /**
+     * A converter to be used to convert an (XML) DOM to the parameter value and vice versa.
+     *
+     * @return The DOM converter class.
+     */
+    Class<? extends DomConverter> domConverter() default DomConverter.class;
 }
