@@ -285,7 +285,7 @@ public class OperatorContext {
         }
 
         final String opName = OperatorSpi.getOperatorAlias(operator.getClass());
-        final String id = opName + "$" + System.currentTimeMillis();
+        final String id = "A" + Long.toHexString(System.currentTimeMillis()).toUpperCase();
         MetadataElement targetNodeME = new MetadataElement("node");
         targetNodeME.addAttribute(new MetadataAttribute("id", ProductData.createInstance(id), false));
         targetNodeME.addAttribute(new MetadataAttribute("operator", ProductData.createInstance(opName), false));
