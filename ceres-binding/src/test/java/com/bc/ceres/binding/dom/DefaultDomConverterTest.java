@@ -22,12 +22,11 @@ public class DefaultDomConverterTest extends TestCase {
             if (xAnnotation != null) {
                 definition.setAlias(xAnnotation.alias());
                 definition.setItemAlias(xAnnotation.componentAlias());
-                definition.setInlined(xAnnotation.inlined());
+                definition.setItemsInlined(xAnnotation.inlined());
             }
             return definition;
         }
     };
-    private static final ValueContainerFactory valueContainerFactory = new ValueContainerFactory(valueDefinitionFactory);
 
     public void testUnknownElement() throws ValidationException, ConversionException {
         final String xml = ""
@@ -197,18 +196,18 @@ public class DefaultDomConverterTest extends TestCase {
 
         final String xml = ""
                 + "<parameters>"
-                + "  <defaultEndmember>"
-                + "    <name>Fallback</name>"
-                + "    <size>4</size>"
-                + "    <wavelengths>820,830,840,850</wavelengths>"
-                + "    <radiances>420,430,440,450</radiances>"
-                + "  </defaultEndmember>"
                 + "  <endmember>"
                 + "    <name>Land</name>"
                 + "    <size>4</size>"
                 + "    <wavelengths>820,830,840,850</wavelengths>"
                 + "    <radiances>220,230,240,250</radiances>"
                 + "  </endmember>"
+                + "  <defaultEndmember>"      // note the order! 
+                + "    <name>Fallback</name>"
+                + "    <size>4</size>"
+                + "    <wavelengths>820,830,840,850</wavelengths>"
+                + "    <radiances>420,430,440,450</radiances>"
+                + "  </defaultEndmember>"
                 + "  <endmember>"
                 + "    <name>Water</name>"
                 + "    <size>4</size>"
@@ -303,13 +302,85 @@ public class DefaultDomConverterTest extends TestCase {
         return domWriter.getConfiguration();
     }
 
-    public static void convertValueToDom(Object value, Xpp3Dom dom) {
-        new DefaultDomConverter(value.getClass(), valueDefinitionFactory).convertValueToDom(value, dom);
+    public static void convertValueToDom(Object value, Xpp3Dom parentElement) {
+        new DefaultDomConverter(value.getClass(), valueDefinitionFactory).convertValueToDom(value, new Xpp3DomElement(parentElement));
     }
 
 
     public static void convertDomToValue(Xpp3Dom parentElement, Object value) throws ConversionException, ValidationException {
-        new DefaultDomConverter(value.getClass(), valueDefinitionFactory).convertDomToValue(parentElement, value);
+
+        new DefaultDomConverter(value.getClass(), valueDefinitionFactory).convertDomToValue(new Xpp3DomElement(parentElement), value);
+    }
+
+    public static class Xpp3DomElement implements DomElement {
+        private final Xpp3Dom xpp3Dom;
+
+        public Xpp3DomElement(Xpp3Dom xpp3Dom) {
+            this.xpp3Dom = xpp3Dom;
+        }
+
+        public Xpp3Dom getXpp3Dom() {
+            return xpp3Dom;
+        }
+
+        public void setAttribute(String name, String value) {
+            xpp3Dom.setAttribute(name, value);
+        }
+
+        public DomElement createChild(String name) {
+            return new Xpp3DomElement(new Xpp3Dom(name));
+        }
+
+        public void addChild(DomElement childElement) {
+            xpp3Dom.addChild(((Xpp3DomElement)childElement).getXpp3Dom());
+        }
+
+        public void setValue(String value) {
+            xpp3Dom.setValue(value);
+        }
+
+        public String getName() {
+            return xpp3Dom.getName();
+        }
+
+        public String getValue() {
+            return xpp3Dom.getValue();
+        }
+
+        public String getAttribute(String attributeName) {
+            return xpp3Dom.getAttribute(attributeName);
+        }
+
+        public String[] getAttributeNames() {
+            return xpp3Dom.getAttributeNames();
+        }
+
+        public DomElement getParent() {
+            return new Xpp3DomElement(xpp3Dom.getParent());
+        }
+
+        public DomElement getChild(String elementName) {
+            return new Xpp3DomElement(xpp3Dom.getChild(elementName));
+        }
+
+        public DomElement[] getChildren() {
+            final Xpp3Dom[] xppChildren = xpp3Dom.getChildren();
+            return createXpp3DomElementArray(xppChildren);
+        }
+
+        public DomElement[] getChildren(String elementName) {
+            final Xpp3Dom[] xppChildren = xpp3Dom.getChildren(elementName);
+            return createXpp3DomElementArray(xppChildren);
+        }
+
+        private Xpp3DomElement[] createXpp3DomElementArray(Xpp3Dom[] xppChildren) {
+            final Xpp3DomElement[] domElements = new Xpp3DomElement[xppChildren.length];
+            for (int i = 0; i < xppChildren.length; i++) {
+                domElements[i] = new Xpp3DomElement(xppChildren[i]);
+
+            }
+            return domElements;
+        }
     }
 
 

@@ -178,15 +178,7 @@ public class ValueDefinition {
     // Array/List item properties
 
     public Converter getItemConverter() {
-        return getItemConverter(false);
-    }
-
-    public Converter getItemConverter(boolean notNull) {
-        final Converter converter = (Converter) getProperty("itemConverter");
-        if (converter == null && notNull) {
-            throw new IllegalStateException("no converter defined for value '" + getName() + "'");
-        }
-        return converter;
+        return (Converter) getProperty("itemConverter");
     }
 
     public void setItemConverter(Converter converter) {
@@ -201,12 +193,12 @@ public class ValueDefinition {
         setProperty("itemAlias", alias);
     }
 
-    public boolean isInlined() {
-        return  getBooleanProperty("inlined");
+    public boolean getItemsInlined() {
+        return  getBooleanProperty("itemsInlined");
     }
 
-    public void setInlined(boolean inlined) {
-        setProperty("inlined", inlined);
+    public void setItemsInlined(boolean inlined) {
+        setProperty("itemsInlined", inlined);
     }
 
     //////////////////////////////////////////////////////////////////////////////

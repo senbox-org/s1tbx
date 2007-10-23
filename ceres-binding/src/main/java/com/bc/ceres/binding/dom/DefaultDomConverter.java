@@ -1,6 +1,5 @@
 package com.bc.ceres.binding.dom;
 
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import com.bc.ceres.binding.*;
 
 import java.lang.reflect.Array;
@@ -32,7 +31,7 @@ public class DefaultDomConverter implements DomConverter {
     /**
      * {@inheritDoc}
      */
-    public void convertValueToDom(Object value, Xpp3Dom dom) {
+    public void convertValueToDom(Object value, DomElement parentElement) {
         final ValueContainer valueContainer = valueContainerFactory.createObjectBackedValueContainer(value);
         final ValueModel[] models = valueContainer.getModels();
         for (ValueModel model : models) {
@@ -41,30 +40,30 @@ public class DefaultDomConverter implements DomConverter {
             if (definition.getType().isArray() && itemAlias != null && !itemAlias.isEmpty()) {
                 final Object array = model.getValue();
                 final int arrayLength = Array.getLength(array);
-                final Converter componentConverter = getItemConverter(definition);
-                final Xpp3Dom childElement = definition.isInlined() ? dom : new Xpp3Dom(getElementName(model));
+                final Converter itemConverter = getItemConverter(definition);
+                final DomElement childElement = definition.getItemsInlined() ? parentElement : parentElement.createChild(getElementName(model));
                 for (int i = 0; i < arrayLength; i++) {
-                    final Xpp3Dom componentDom = new Xpp3Dom(itemAlias);
+                    final DomElement itemElement = parentElement.createChild(itemAlias);
                     final Object component = Array.get(array, i);
-                    if (componentConverter != null) {
-                        componentDom.setValue(componentConverter.format(component));
+                    if (itemConverter != null) {
+                        itemElement.setValue(itemConverter.format(component));
                     } else {
-                        convertValueToDom(component, componentDom);
+                        convertValueToDom(component, itemElement);
                     }
-                    childElement.addChild(componentDom);
+                    childElement.addChild(itemElement);
                 }
-                if (!definition.isInlined()) {
-                    dom.addChild(childElement);
+                if (!definition.getItemsInlined()) {
+                    parentElement.addChild(childElement);
                 }
             } else {
-                final Xpp3Dom childElement = new Xpp3Dom(getElementName(model));
+                final DomElement childElement = parentElement.createChild(getElementName(model));
                 final Converter converter = definition.getConverter();
                 if (converter != null) {
                     childElement.setValue(converter.format(model.getValue()));
                 } else {
                     convertValueToDom(model.getValue(), childElement);
                 }
-                dom.addChild(childElement);
+                parentElement.addChild(childElement);
             }
         }
     }
@@ -72,24 +71,28 @@ public class DefaultDomConverter implements DomConverter {
     /**
      * {@inheritDoc}
      */
-    public Object convertDomToValue(Xpp3Dom dom, Object value) throws ConversionException, ValidationException {
+    public Object convertDomToValue(DomElement parentElement, Object value) throws ConversionException, ValidationException {
         if (value == null) {
             value = createValueInstance(getValueType());
         }
-        HashMap<String, List<Object>> inlinedArrays = new HashMap<String, List<Object>>(10);
-        List<Object> inlinedArray = null;
+        HashMap<String, List<Object>> inlinedArrays = null;
+        List<Object> inlinedArray;
         final ValueContainer valueContainer = valueContainerFactory.createObjectBackedValueContainer(value);
-        final Xpp3Dom[] children = dom.getChildren();
-        for (Xpp3Dom childElement : children) {
+        final DomElement[] children = parentElement.getChildren();
+        for (DomElement childElement : children) {
             final String childElementName = childElement.getName();
             // todo - COLLECTIONS
             ValueModel valueModel = valueContainer.getModel(childElementName);
+            inlinedArray = null;
             if (valueModel == null) {
                 final ValueModel[] valueModels = valueContainer.getModels();
                 for (ValueModel model : valueModels) {
                     final String itemAlias = model.getDefinition().getItemAlias();
-                    final boolean inlined = model.getDefinition().isInlined();
+                    final boolean inlined = model.getDefinition().getItemsInlined();
                     if (childElementName.equals(itemAlias) && inlined) {
+                        if (inlinedArrays == null) {
+                            inlinedArrays = new HashMap<String, List<Object>>(3);
+                        }
                         inlinedArray = inlinedArrays.get(getElementName(model));
                         if (inlinedArray == null) {
                             inlinedArray = new ArrayList<Object>();
@@ -107,23 +110,20 @@ public class DefaultDomConverter implements DomConverter {
             final ValueDefinition definition = valueModel.getDefinition();
             final String itemAlias = definition.getItemAlias();
             if (itemAlias != null && !itemAlias.isEmpty()) {
-                final Xpp3Dom[] arrayElements = childElement.getChildren(itemAlias);
+                final DomElement[] arrayElements = childElement.getChildren(itemAlias);
                 final Class<?> itemType = definition.getType().getComponentType();
-                Converter itemConverter = getItemConverter(definition);
-
+                final Converter itemConverter = getItemConverter(definition);
                 if (inlinedArray != null) {
                     Object item = createItem(childElement,
                                              itemType,
-                                             itemConverter
-                    );
+                                             itemConverter);
                     inlinedArray.add(item);
                 } else {
                     childValue = Array.newInstance(itemType, arrayElements.length);
                     for (int i = 0; i < arrayElements.length; i++) {
                         Object item = createItem(arrayElements[i],
                                                  itemType,
-                                                 itemConverter
-                        );
+                                                 itemConverter);
                         Array.set(childValue, i, item);
                         valueModel.setValue(childValue);
                     }
@@ -131,18 +131,19 @@ public class DefaultDomConverter implements DomConverter {
             } else {
                 childValue = createItem(childElement,
                                         definition.getType(),
-                                        definition.getConverter()
-                );
+                                        definition.getConverter());
                 valueModel.setValue(childValue);
             }
         }
 
-        for (Map.Entry<String, List<Object>> entry : inlinedArrays.entrySet()) {
-            final String valueName = entry.getKey();
-            final List<Object> valueList = entry.getValue();
-            final Class<?> valueType = valueContainer.getValueDefinition(valueName).getType();
-            final Object array = Array.newInstance(valueType.getComponentType(), valueList.size());
-            valueContainer.getModel(valueName).setValue(valueList.toArray((Object[]) array));
+        if (inlinedArrays != null) {
+            for (Map.Entry<String, List<Object>> entry : inlinedArrays.entrySet()) {
+                final String valueName = entry.getKey();
+                final List<Object> valueList = entry.getValue();
+                final Class<?> valueType = valueContainer.getValueDefinition(valueName).getType();
+                final Object array = Array.newInstance(valueType.getComponentType(), valueList.size());
+                valueContainer.getModel(valueName).setValue(valueList.toArray((Object[]) array));
+            }
         }
 
         return value;
@@ -166,7 +167,7 @@ public class DefaultDomConverter implements DomConverter {
         return itemConverter;
     }
 
-    private Object createItem(Xpp3Dom childElement,
+    private Object createItem(DomElement childElement,
                               Class<?> type,
                               Converter converter
     ) throws ConversionException, ValidationException {
