@@ -1,11 +1,12 @@
 package org.esa.beam.unmixing.visat;
 
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.annotations.ParameterDefinitionFactory;
-import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueContainer;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 
-import javax.swing.*;
+import javax.swing.DefaultListModel;
+import javax.swing.ListModel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,14 +14,14 @@ import java.util.Map;
 class SpectralUnmixingFormModel {
     private Product inputProduct;
     private DefaultListModel bandListModel;
-    private Map<String,Object> operatorParameters;
+    private Map<String, Object> operatorParameters;
     private ValueContainer operatorValueContainer;
 
     public SpectralUnmixingFormModel(Product inputProduct) {
         this.inputProduct = inputProduct;
 
         this.operatorParameters = new HashMap<String, Object>();
-        this.operatorValueContainer = ParameterDefinitionFactory.createMapBackedOperatorValueContainer("SpectralUnmixing", operatorParameters);
+        this.operatorValueContainer = ParameterDescriptorFactory.createMapBackedOperatorValueContainer("SpectralUnmixing", operatorParameters);
 
         try {
             this.operatorValueContainer.getModel("sourceBandNames").setValue(getInitialBandNames());

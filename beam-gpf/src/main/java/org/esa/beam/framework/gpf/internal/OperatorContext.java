@@ -322,7 +322,7 @@ public class OperatorContext {
         }
         targetNodeME.addElement(targetSourcesME);
 
-        final DefaultDomConverter domConverter = new DefaultDomConverter(operator.getClass(), new ParameterDefinitionFactory());
+        final DefaultDomConverter domConverter = new DefaultDomConverter(operator.getClass(), new ParameterDescriptorFactory());
         final Xpp3DomElement parametersDom = Xpp3DomElement.createDomElement("parameters");
         domConverter.convertValueToDom(operator, parametersDom);
         final MetadataElement targetParametersME = new MetadataElement("parameters");
@@ -598,7 +598,7 @@ public class OperatorContext {
 
     private static void configureValue(Xpp3Dom parentElement, Object value) throws ValidationException, ConversionException {
         final Xpp3DomElement xpp3DomElement = Xpp3DomElement.createDomElement(parentElement);
-        final DefaultDomConverter domConverter = new DefaultDomConverter(value.getClass(), new ParameterDefinitionFactory());
+        final DefaultDomConverter domConverter = new DefaultDomConverter(value.getClass(), new ParameterDescriptorFactory());
         domConverter.convertDomToValue(xpp3DomElement, value);
     }
 
@@ -619,14 +619,14 @@ public class OperatorContext {
 
     public void injectParameters() throws OperatorException {
         if (parameters != null) {
-            final ValueDefinitionFactory valueDefinitionFactory = new ParameterDefinitionFactory();
+            final ValueDescriptorFactory valueDescriptorFactory = new ParameterDescriptorFactory();
             for (String valueName : parameters.keySet()) {
                 final Field field = getField(operator, valueName);
                 if (field == null) {
                     throw new OperatorException(String.format("Unknown parameter '%s'.", valueName));
                 }
-                final ValueDefinition definition = valueDefinitionFactory.createValueDefinition(field);
-                final ValueModel valueModel = new ValueModel(definition, new ClassFieldAccessor(operator, field));
+                final ValueDescriptor valueDescriptor = valueDescriptorFactory.createValueDescriptor(field);
+                final ValueModel valueModel = new ValueModel(valueDescriptor, new ClassFieldAccessor(operator, field));
                 try {
                     valueModel.setValue(parameters.get(valueName));
                 } catch (ValidationException e) {

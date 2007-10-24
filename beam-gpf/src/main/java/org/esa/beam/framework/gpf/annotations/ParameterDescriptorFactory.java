@@ -10,28 +10,28 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-public class ParameterDefinitionFactory implements ValueDefinitionFactory {
+public class ParameterDescriptorFactory implements ValueDescriptorFactory {
 
-    public ParameterDefinitionFactory() {
+    public ParameterDescriptorFactory() {
     }
 
-    public ValueDefinition createValueDefinition(Field field) {
+    public ValueDescriptor createValueDescriptor(Field field) {
         try {
-            return createValueDefinitionImpl(field);
+            return createValueDescriptorImpl(field);
         } catch (ConversionException e) {
             throw new IllegalArgumentException("field", e);
         }
     }
 
-    private ValueDefinition createValueDefinitionImpl(Field field) throws ConversionException {
+    private ValueDescriptor createValueDescriptorImpl(Field field) throws ConversionException {
         final boolean operatorDetected = Operator.class.isAssignableFrom(field.getDeclaringClass());
         Parameter parameter = field.getAnnotation(Parameter.class);
         if (operatorDetected && parameter == null) {
             return null;
         }
-        ValueDefinition valueDefinition = new ValueDefinition(field.getName(), field.getType());
+        ValueDescriptor valueDescriptor = new ValueDescriptor(field.getName(), field.getType());
         if (parameter == null) {
-            return valueDefinition;
+            return valueDescriptor;
         }
         if (parameter.validator() != Validator.class) {
             final Validator validator;
@@ -40,7 +40,7 @@ public class ParameterDefinitionFactory implements ValueDefinitionFactory {
             } catch (Throwable t) {
                 throw new ConversionException("Failed to create validator.", t);
             }
-            valueDefinition.setValidator(validator);
+            valueDescriptor.setValidator(validator);
         }
         if (parameter.converter() != Converter.class) {
             Converter converter;
@@ -49,10 +49,10 @@ public class ParameterDefinitionFactory implements ValueDefinitionFactory {
             } catch (Throwable t) {
                 throw new ConversionException("Failed to create converter.", t);
             }
-            valueDefinition.setConverter(converter);
+            valueDescriptor.setConverter(converter);
         }
-        if (valueDefinition.getConverter() == null) {
-            valueDefinition.setConverter(ConverterRegistry.getInstance().getConverter(valueDefinition.getType()));
+        if (valueDescriptor.getConverter() == null) {
+            valueDescriptor.setConverter(ConverterRegistry.getInstance().getConverter(valueDescriptor.getType()));
         }
         if (parameter.itemConverter() != Converter.class) {
             Converter converter;
@@ -61,46 +61,46 @@ public class ParameterDefinitionFactory implements ValueDefinitionFactory {
             } catch (Throwable t) {
                 throw new ConversionException("Failed to create item converter.", t);
             }
-            valueDefinition.setItemConverter(converter);
+            valueDescriptor.setItemConverter(converter);
         }
-        if (ParameterDefinitionFactory.isSet(parameter.label())) {
-            valueDefinition.setDisplayName(parameter.label());
+        if (ParameterDescriptorFactory.isSet(parameter.label())) {
+            valueDescriptor.setDisplayName(parameter.label());
         } else {
-            valueDefinition.setDisplayName(field.getName());
+            valueDescriptor.setDisplayName(field.getName());
         }
-        if (ParameterDefinitionFactory.isSet(parameter.alias())) {
-            valueDefinition.setAlias(parameter.alias());
+        if (ParameterDescriptorFactory.isSet(parameter.alias())) {
+            valueDescriptor.setAlias(parameter.alias());
         }
-        if (ParameterDefinitionFactory.isSet(parameter.itemAlias())) {
-            valueDefinition.setItemAlias(parameter.itemAlias());
+        if (ParameterDescriptorFactory.isSet(parameter.itemAlias())) {
+            valueDescriptor.setItemAlias(parameter.itemAlias());
         }
-        valueDefinition.setItemsInlined(parameter.itemsInlined());
-        valueDefinition.setUnit(parameter.unit());
-        valueDefinition.setDescription(parameter.description());
+        valueDescriptor.setItemsInlined(parameter.itemsInlined());
+        valueDescriptor.setUnit(parameter.unit());
+        valueDescriptor.setDescription(parameter.description());
 
-        valueDefinition.setNotNull(parameter.notNull());
-        valueDefinition.setNotEmpty(parameter.notEmpty());
+        valueDescriptor.setNotNull(parameter.notNull());
+        valueDescriptor.setNotEmpty(parameter.notEmpty());
         if (isSet(parameter.pattern())) {
             Pattern pattern = Pattern.compile(parameter.pattern());
-            valueDefinition.setPattern(pattern);
+            valueDescriptor.setPattern(pattern);
         }
         if (isSet(parameter.interval())) {
-            Interval interval = Interval.parseInterval(parameter.interval());
-            valueDefinition.setInterval(interval);
+            ValueRange valueRange = ValueRange.parseValueRange(parameter.interval());
+            valueDescriptor.setValueRange(valueRange);
         }
         if (isSet(parameter.format())) {
-            valueDefinition.setFormat(parameter.format());
+            valueDescriptor.setFormat(parameter.format());
         }
         if (isSet(parameter.valueSet())) {
-            Converter converter = valueDefinition.getConverter();
+            Converter converter = valueDescriptor.getConverter();
             ValueSet valueSet = ValueSet.parseValueSet(parameter.valueSet(), converter);
-            valueDefinition.setValueSet(valueSet);
+            valueDescriptor.setValueSet(valueSet);
         }
         if (isSet(parameter.defaultValue())) {
-            Converter converter = valueDefinition.getConverter();
-            valueDefinition.setDefaultValue(converter.parse(parameter.defaultValue()));
+            Converter converter = valueDescriptor.getConverter();
+            valueDescriptor.setDefaultValue(converter.parse(parameter.defaultValue()));
         }
-        return valueDefinition;
+        return valueDescriptor;
     }
 
     public static ValueContainer createMapBackedOperatorValueContainer(String operatorName, Map<String, Object> operatorParameters) {
@@ -111,7 +111,7 @@ public class ParameterDefinitionFactory implements ValueDefinitionFactory {
             throw new IllegalStateException("Operator SPI not found for operator [" + operatorName + "]");
         }
         Class<? extends Operator> operatorClass = operatorSpi.getOperatorClass();
-        ValueContainerFactory factory = new ValueContainerFactory(new ParameterDefinitionFactory());
+        ValueContainerFactory factory = new ValueContainerFactory(new ParameterDescriptorFactory());
         return factory.createMapBackedValueContainer(operatorClass, operatorParameters);
     }
 
@@ -128,11 +128,11 @@ public class ParameterDefinitionFactory implements ValueDefinitionFactory {
     }
 
     private static boolean isSet(String value) {
-        return !ParameterDefinitionFactory.isNull(value) && !ParameterDefinitionFactory.isEmpty(value);
+        return !ParameterDescriptorFactory.isNull(value) && !ParameterDescriptorFactory.isEmpty(value);
     }
 
     private static boolean isSet(String[] value) {
-        return !ParameterDefinitionFactory.isNull(value) && !ParameterDefinitionFactory.isEmpty(value);
+        return !ParameterDescriptorFactory.isNull(value) && !ParameterDescriptorFactory.isEmpty(value);
     }
 
 }

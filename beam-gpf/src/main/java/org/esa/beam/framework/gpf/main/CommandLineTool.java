@@ -1,20 +1,14 @@
 package org.esa.beam.framework.gpf.main;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
-import javax.media.jai.JAI;
-
+import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueContainer;
+import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.annotations.ParameterDefinitionFactory;
+import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.Node;
@@ -22,10 +16,10 @@ import org.esa.beam.framework.gpf.graph.NodeSource;
 import org.esa.beam.framework.gpf.operators.common.ReadProductOp;
 import org.esa.beam.framework.gpf.operators.common.WriteProductOp;
 
-import com.bc.ceres.binding.ConversionException;
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueContainer;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+import javax.media.jai.JAI;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * The common command-line tool for the GPF.
@@ -112,7 +106,7 @@ class CommandLineTool {
                     graph.addNode(sourceNode);
                 }
             }
-            
+
             String writeOperatorAlias = OperatorSpi.getOperatorAlias(WriteProductOp.class);
             Node targetNode = new Node("WriteProduct$" + lastNode.getId(), writeOperatorAlias);
             targetNode.addSource(new NodeSource("input", lastNode.getId()));
@@ -132,7 +126,7 @@ class CommandLineTool {
 
     private Map<String, Object> getParameterMap(CommandLineArgs lineArgs) throws ValidationException, ConversionException {
         HashMap<String, Object> parameters = new HashMap<String, Object>();
-        ValueContainer container = ParameterDefinitionFactory.createMapBackedOperatorValueContainer(lineArgs.getOperatorName(), parameters);
+        ValueContainer container = ParameterDescriptorFactory.createMapBackedOperatorValueContainer(lineArgs.getOperatorName(), parameters);
         SortedMap<String, String> parameterMap = lineArgs.getParameterMap();
         Set<String> paramNames = parameterMap.keySet();
         for (String paramName : paramNames) {
