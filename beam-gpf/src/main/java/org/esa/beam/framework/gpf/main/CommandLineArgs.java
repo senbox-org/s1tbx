@@ -1,6 +1,6 @@
 package org.esa.beam.framework.gpf.main;
 
-import com.bc.ceres.binding.Interval;
+import com.bc.ceres.binding.ValueRange;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.framework.gpf.GPF;
@@ -72,7 +72,7 @@ class CommandLineArgs {
                 } else if (arg.equals("-c")) {
                     final long maxMem = (Runtime.getRuntime().maxMemory() / M) * M;
                     final String intervalString = "(0, " + maxMem + "]";
-                    tileCacheCapacity = parseOptionArgumentBytes(arg, i, Interval.parseInterval(intervalString));
+                    tileCacheCapacity = parseOptionArgumentBytes(arg, i, ValueRange.parseValueRange(intervalString));
                     i++;
                 } else {
                     throw error("Unknown option '" + arg + "'");
@@ -167,7 +167,7 @@ class CommandLineArgs {
         }
     }
 
-    private int parseOptionArgumentBytes(String arg, int index, Interval interval) throws Exception {
+    private int parseOptionArgumentBytes(String arg, int index, ValueRange valueRange) throws Exception {
         String valueString = parseOptionArgument(arg, index);
         int factor;
         if (valueString.toUpperCase().endsWith("K")) {
@@ -184,8 +184,8 @@ class CommandLineArgs {
         }
 
         final int value = Integer.parseInt(valueString) * factor;
-        if (!interval.contains(value)) {
-            throw new Exception(MessageFormat.format("Value ''{0}'' for ''{1}'' is not in the interval {2}", String.valueOf(value), arg, interval));
+        if (!valueRange.contains(value)) {
+            throw new Exception(MessageFormat.format("Value ''{0}'' for ''{1}'' is not in the interval {2}", String.valueOf(value), arg, valueRange));
         }
         return value;
     }
