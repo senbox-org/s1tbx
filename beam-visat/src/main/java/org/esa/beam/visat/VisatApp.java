@@ -1763,12 +1763,6 @@ public final class VisatApp extends BasicApp {
     }
 
     private ProductMetadataView createProductMetadataViewImpl(final MetadataElement element) {
-        if (element.getNumAttributes() == 0) {
-            showErrorDialog("The selected metadata element\n"
-                    + "does not contain any attributes."); /*I18N*/
-            return null;
-        }
-
         ProductMetadataView metadataView = null;
 
         setStatusBarMessage("Creating metadata view...");

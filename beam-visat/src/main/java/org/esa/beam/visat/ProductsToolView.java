@@ -1,13 +1,7 @@
 package org.esa.beam.visat;
 
 import com.jidesoft.swing.JideScrollPane;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductManager;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
@@ -155,9 +149,7 @@ public class ProductsToolView extends AbstractToolView {
                 return;
             }
             if (clickCount == 2) {
-                if (group.getNumAttributes() > 0 || group.getNumElements() == 0) {
-                    visatApp.createProductMetadataView(group);
-                }
+                visatApp.createProductMetadataView(group);
             }
         }
     }

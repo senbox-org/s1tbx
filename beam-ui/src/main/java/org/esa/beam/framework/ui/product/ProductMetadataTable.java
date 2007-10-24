@@ -16,29 +16,24 @@
  */
 package org.esa.beam.framework.ui.product;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Font;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.JLabel;
-import javax.swing.JTable;
-import javax.swing.border.EmptyBorder;
-import javax.swing.plaf.FontUIResource;
-import javax.swing.plaf.metal.MetalLookAndFeel;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableColumn;
-
+import com.jidesoft.grid.DefaultExpandableRow;
+import com.jidesoft.grid.Row;
+import com.jidesoft.grid.TreeTable;
+import com.jidesoft.grid.TreeTableModel;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.ProductData;
 
-//@todo 1 nf/nf - class documentation
+import javax.swing.plaf.FontUIResource;
+import javax.swing.plaf.metal.MetalLookAndFeel;
+import javax.swing.table.TableColumn;
+import java.awt.Color;
+import java.awt.Font;
+import java.util.ArrayList;
+import java.util.List;
 
-public class ProductMetadataTable extends JTable {
+public class ProductMetadataTable extends TreeTable {
 
     public static final int NAME_COL_INDEX = 0;
     public static final int VALUE_COL_INDEX = 1;
@@ -46,20 +41,20 @@ public class ProductMetadataTable extends JTable {
     public static final int UNIT_COL_INDEX = 3;
     public static final int DESCR_COL_INDEX = 4;
 
-    private static final String[] _columnNames = {
-        "Name", // 0
-        "Value", // 1
-        "Type", // 2
-        "Unit", // 3
-        "Description" // 4
+    private static final String[] COLUMN_NAMES = {
+            "Name", // 0
+            "Value", // 1
+            "Type", // 2
+            "Unit", // 3
+            "Description" // 4
     };
 
-    private static final int[] _columnWidths = {
-        180, // 0
-        180, // 1
-        50, // 2
-        40, // 3
-        200 // 4
+    private static final int[] COLUMN_WIDTHS = {
+            180, // 0
+            180, // 1
+            50, // 2
+            40, // 3
+            200 // 4
     };
 
     private static final int _DEFAULT_FONT_SIZE = 11;
@@ -70,34 +65,32 @@ public class ProductMetadataTable extends JTable {
     private static Font _plainFont;
     private static Font _italicFont;
 
-    public ProductMetadataTable(MetadataElement metadataGroup) {
+    MetadataElement rootElement;
+
+    public ProductMetadataTable(MetadataElement rootElement) {
+        this.rootElement = rootElement;
         initFonts();
-        setModel(new AnnotationTableModel(metadataGroup));
+        setModel(new MDTableModel(rootElement));
         getTableHeader().setReorderingAllowed(false);
-        ElementRefCellRenderer renderer = new ElementRefCellRenderer();
-        renderer.setBorder(new EmptyBorder(2, 3, 2, 3));
-        setDefaultRenderer(ElementRef.class, renderer);
-        for (int i = 0; i < _columnWidths.length; i++) {
+//        setIndent(3);
+//        setExpandAllAllowed(true);
+//        setShowTreeLines(true);
+//        setShowGrid(true);
+//
+//        // do not select row when expanding a row.
+//        setSelectRowWhenToggling(false);
+
+        //ElementRefCellRenderer renderer = new ElementRefCellRenderer();
+        //renderer.setBorder(new EmptyBorder(2, 3, 2, 3));
+        //setDefaultRenderer(AttributeRef.class, renderer);
+        for (int i = 0; i < COLUMN_WIDTHS.length; i++) {
             TableColumn column = getColumnModel().getColumn(i);
-            column.setPreferredWidth(_columnWidths[i]);
+            column.setPreferredWidth(COLUMN_WIDTHS[i]);
         }
     }
 
     public MetadataElement getMetadataElement() {
-        return ((AnnotationTableModel) getModel()).getMetadataElement();
-    }
-
-    private static int computeTotalRowCount(MetadataElement metadataGroup) {
-        int rowCount = 0;
-        for (int i = 0; i < metadataGroup.getNumAttributes(); i++) {
-            MetadataAttribute attribute = metadataGroup.getAttributeAt(i);
-            if (isNumericAttribute(attribute)) {
-                rowCount += attribute.getNumDataElems();
-            } else {
-                rowCount++;
-            }
-        }
-        return rowCount;
+        return rootElement;
     }
 
     public boolean isHexadecimal() {
@@ -106,7 +99,7 @@ public class ProductMetadataTable extends JTable {
 
     private static boolean isNumericAttribute(MetadataAttribute attribute) {
         return !(attribute.getData() instanceof ProductData.ASCII)
-               && !(attribute.getData() instanceof ProductData.UTC);
+                && !(attribute.getData() instanceof ProductData.UTC);
     }
 
     private static void initFonts() {
@@ -124,181 +117,235 @@ public class ProductMetadataTable extends JTable {
         }
     }
 
-    public String getElementText(ElementRef elementRef, int column) {
-        String text = "";
-        boolean elemEnum = isNumericAttribute(elementRef.getAttribute())
-                           && elementRef.getAttribute().getNumDataElems() > 1;
-        if (column == NAME_COL_INDEX) {
-            if (elemEnum) {
-                text = elementRef.getAttribute().getName() + "." + (elementRef.getElementIndex() + 1);
-            } else {
-                text = elementRef.getAttribute().getName();
-            }
-        } else if (column == VALUE_COL_INDEX) {
-            if (isHexadecimal()) {
-                text = Integer.toHexString(elementRef.getAttribute().getData().getElemInt());
-                if (text.length() % 2 == 0) {
-                    text = "0x" + text;
-                } else {
-                    text = "0x0" + text;
-                }
-            } else {
-                if (isNumericAttribute(elementRef.getAttribute()) || elemEnum) {
-                    text = elementRef.getAttribute().getData().getElemStringAt(elementRef.getElementIndex());
-                } else {
-                    text = elementRef.getAttribute().getData().getElemString();
-                }
-            }
-        } else if (column == TYPE_COL_INDEX) {
-            text = elementRef.getAttribute().getData().getTypeString();
-        } else if (column == UNIT_COL_INDEX) {
-            text = elementRef.getAttribute().getUnit() != null ? elementRef.getAttribute().getUnit() : "";
-        } else if (column == DESCR_COL_INDEX) {
-            text = elementRef.getAttribute().getDescription() != null ? elementRef.getAttribute().getDescription() : "";
-        }
-        return text;
-    }
+//    public String getElementText(AttributeRef attributeRef, int column) {
+//        String text = "";
+//        boolean elemEnum = isNumericAttribute(attributeRef.getAttribute())
+//                && attributeRef.getAttribute().getNumDataElems() > 1;
+//        if (column == NAME_COL_INDEX) {
+//            if (elemEnum) {
+//                text = attributeRef.getAttribute().getName() + "." + (attributeRef.getElementIndex() + 1);
+//            } else {
+//                text = attributeRef.getAttribute().getName();
+//            }
+//        } else if (column == VALUE_COL_INDEX) {
+//            if (isHexadecimal()) {
+//                text = Integer.toHexString(attributeRef.getAttribute().getData().getElemInt());
+//                if (text.length() % 2 == 0) {
+//                    text = "0x" + text;
+//                } else {
+//                    text = "0x0" + text;
+//                }
+//            } else {
+//                if (isNumericAttribute(attributeRef.getAttribute()) || elemEnum) {
+//                    text = attributeRef.getAttribute().getData().getElemStringAt(attributeRef.getElementIndex());
+//                } else {
+//                    text = attributeRef.getAttribute().getData().getElemString();
+//                }
+//            }
+//        } else if (column == TYPE_COL_INDEX) {
+//            text = attributeRef.getAttribute().getData().getTypeString();
+//        } else if (column == UNIT_COL_INDEX) {
+//            text = attributeRef.getAttribute().getUnit() != null ? attributeRef.getAttribute().getUnit() : "";
+//        } else if (column == DESCR_COL_INDEX) {
+//            text = attributeRef.getAttribute().getDescription() != null ? attributeRef.getAttribute().getDescription() : "";
+//        }
+//        return text;
+//    }
 
     /**
      * A specialized table model for a data product's meta-data annotation.
      */
-    class AnnotationTableModel extends AbstractTableModel {
+    static class MDTableModel extends TreeTableModel {
 
-        private final MetadataElement _metadataElement;
-        private final List _elementRefList;
+        private final MetadataElement rootElement;
 
-        public AnnotationTableModel(MetadataElement metadataGroup) {
-            _metadataElement = metadataGroup;
-            int rowCount = computeTotalRowCount(metadataGroup);
-            _elementRefList = new ArrayList(rowCount);
-            for (int i = 0; i < metadataGroup.getNumAttributes(); i++) {
-                MetadataAttribute attribute = metadataGroup.getAttributeAt(i);
-                if (isNumericAttribute(attribute)) {
-                    for (int j = 0; j < attribute.getNumDataElems(); j++) {
-                        _elementRefList.add(new ElementRef(attribute, j));
-                    }
+        public MDTableModel(MetadataElement rootElement) {
+            this.rootElement = rootElement;
+            setOriginalRows(createRowList(rootElement));
+        }
+
+        public static List<Row> createRowList(MetadataElement rootElement) {
+            List<Row> rowList = new ArrayList<Row>(10);
+            for (int i = 0; i < rootElement.getNumAttributes(); i++) {
+                MetadataAttribute attribute = rootElement.getAttributeAt(i);
+                if (!isNumericAttribute(attribute) || attribute.getData().isScalar()) {
+                    rowList.add(new MDAttributeRow(attribute, -1));
                 } else {
-                    _elementRefList.add(new ElementRef(attribute, 0));
+                    for (int j = 0; j < attribute.getNumDataElems(); j++) {
+                        rowList.add(new MDAttributeRow(attribute, j));
+                    }
                 }
             }
+            for (int i = 0; i < rootElement.getNumElements(); i++) {
+                MetadataElement element = rootElement.getElementAt(i);
+                rowList.add(new MDElementRow(element));
+            }
+            return rowList;
         }
 
         public MetadataElement getMetadataElement() {
-            return _metadataElement;
+            return rootElement;
         }
 
+        @Override
         public String getColumnName(int col) {
-            return _columnNames[col];
-        }
-
-        public int getRowCount() {
-            return _elementRefList.size();
+            return COLUMN_NAMES[col];
         }
 
         public int getColumnCount() {
-            return _columnNames.length;
-        }
-
-        public Class getColumnClass(int col) {
-            return ElementRef.class;
-        }
-
-        public Object getValueAt(int row, int col) {
-            return _elementRefList.get(row);
-        }
-
-        public boolean isCellEditable(int row, int col) {
-            return false; // No!
-        }
-
-        public void setValueAt(Object value, int row, int col) {
-            // Don't set value, read only
+            return COLUMN_NAMES.length;
         }
     }
 
-    /**
-     * A specialized table cell renderer for a data product's meta-data annotation.
-     */
-    class ElementRefCellRenderer extends DefaultTableCellRenderer {
+    static class MDElementRow extends DefaultExpandableRow {
+        private MetadataElement element;
 
-        public Component getTableCellRendererComponent(JTable table,
-                                                       Object value,
-                                                       boolean isSelected,
-                                                       boolean hasFocus,
-                                                       int row,
-                                                       int column) {
-            ElementRef elementRef = (ElementRef) value;
-
-            // Set color
-            //
-            if (isSelected) {
-                this.setBackground(getSelectionBackground());
-                this.setForeground(getSelectionForeground());
-            } else {
-                this.setBackground(Color.white);
-                if (column == VALUE_COL_INDEX) {
-                    if (isNumericAttribute(elementRef.getAttribute())) {
-                        this.setForeground(_numberValueColor);
-                    } else {
-                        this.setForeground(_textValueColor);
-                    }
-                } else {
-                    this.setForeground(Color.black);
-                }
-            }
-
-            // Set text alignment
-            //
-            if (column == VALUE_COL_INDEX && isNumericAttribute(elementRef.getAttribute())) {
-                setHorizontalAlignment(JLabel.RIGHT);
-            } else {
-                setHorizontalAlignment(JLabel.LEFT);
-            }
-
-            // Set font
-            //
-            if (column == NAME_COL_INDEX) {
-                this.setFont(_plainFont);
-            } else if (column == VALUE_COL_INDEX) {
-                this.setFont(_plainFont);
-            } else if (column == TYPE_COL_INDEX) {
-                this.setFont(_plainFont);
-            } else if (column == UNIT_COL_INDEX) {
-                this.setFont(_italicFont);
-            } else if (column == DESCR_COL_INDEX) {
-                this.setFont(_italicFont);
-            } else {
-                this.setFont(_plainFont);
-            }
-
-            final String text = getElementText(elementRef, column);
-            setText(text);
-
-            return this;
+        MDElementRow(MetadataElement element) {
+            this.element = element;
         }
 
+        public MetadataElement getElement() {
+            return element;
+        }
+
+        public Object getValueAt(int i) {
+            if (i == NAME_COL_INDEX) {
+                return element.getName();
+            } else if (i == VALUE_COL_INDEX) {
+                return "";
+            } else if (i == TYPE_COL_INDEX) {
+            } else if (i == UNIT_COL_INDEX) {
+            } else if (i == DESCR_COL_INDEX) {
+                return element.getDescription();
+            }
+            return "";
+        }
+
+        @Override
+        public List getChildren() {
+            List children = _children;
+            if (children == null) {
+                children = MDTableModel.createRowList(element);
+                setChildren(children);
+            }
+            return children;
+        }
+
+        @Override
+        public void setChildren(List children) {
+            for (Object child : children) {
+                ((Row) child).setParent(this);
+            }
+            super.setChildren(children);
+        }
     }
 
-    public static class ElementRef {
+    static class MDAttributeRow extends DefaultExpandableRow {
+        MetadataAttribute attribute;
+        int index;
 
-        private MetadataAttribute _attribute;
-        private int _elementIndex;
+        MDAttributeRow(MetadataAttribute attribute, int index) {
+            this.attribute = attribute;
+            this.index = index;
+        }
 
-        ElementRef(MetadataAttribute attribute, int elementIndex) {
-            _attribute = attribute;
-            _elementIndex = elementIndex;
+        public int getIndex() {
+            return index;
         }
 
         public MetadataAttribute getAttribute() {
-            return _attribute;
+            return attribute;
         }
 
-        public int getElementIndex() {
-            return _elementIndex;
+        @Override
+        public boolean isExpandable() {
+            return false;
         }
 
-        public String toString() {
-            return _attribute.getName() + ".element[" + _elementIndex + "]";
+        public Object getValueAt(int column) {
+            if (column == NAME_COL_INDEX) {
+                if (index == -1) {
+                    return attribute.getName();
+                } else {
+                    return attribute.getName() + "." + index;
+                }
+            } else if (column == VALUE_COL_INDEX) {
+                if (index == -1) {
+                    return attribute.getData().getElemString();
+                } else {
+                    return attribute.getData().getElemStringAt(index);
+                }
+            } else if (column == TYPE_COL_INDEX) {
+                return attribute.getData().getTypeString();
+            } else if (column == UNIT_COL_INDEX) {
+                return attribute.getUnit() != null ? attribute.getUnit() : "";
+            } else if (column == DESCR_COL_INDEX) {
+                return attribute.getDescription() != null ? attribute.getDescription() : "";
+            }
+            return "";
         }
     }
+
+//    /**
+//     * A specialized table cell renderer for a data product's meta-data annotation.
+//     */
+//    class ElementRefCellRenderer extends DefaultTableCellRenderer {
+//
+//        public Component getTableCellRendererComponent(JTable table,
+//                                                       Object value,
+//                                                       boolean isSelected,
+//                                                       boolean hasFocus,
+//                                                       int row,
+//                                                       int column) {
+//            AttributeRef attributeRef = (AttributeRef) value;
+//
+//            // Set color
+//            //
+//            if (isSelected) {
+//                this.setBackground(getSelectionBackground());
+//                this.setForeground(getSelectionForeground());
+//            } else {
+//                this.setBackground(Color.white);
+//                if (column == VALUE_COL_INDEX) {
+//                    if (isNumericAttribute(attributeRef.getAttribute())) {
+//                        this.setForeground(_numberValueColor);
+//                    } else {
+//                        this.setForeground(_textValueColor);
+//                    }
+//                } else {
+//                    this.setForeground(Color.black);
+//                }
+//            }
+//
+//            // Set text alignment
+//            //
+//            if (column == VALUE_COL_INDEX && isNumericAttribute(attributeRef.getAttribute())) {
+//                setHorizontalAlignment(JLabel.RIGHT);
+//            } else {
+//                setHorizontalAlignment(JLabel.LEFT);
+//            }
+//
+//            // Set font
+//            //
+//            if (column == NAME_COL_INDEX) {
+//                this.setFont(_plainFont);
+//            } else if (column == VALUE_COL_INDEX) {
+//                this.setFont(_plainFont);
+//            } else if (column == TYPE_COL_INDEX) {
+//                this.setFont(_plainFont);
+//            } else if (column == UNIT_COL_INDEX) {
+//                this.setFont(_italicFont);
+//            } else if (column == DESCR_COL_INDEX) {
+//                this.setFont(_italicFont);
+//            } else {
+//                this.setFont(_plainFont);
+//            }
+//
+//            final String text = getElementText(attributeRef, column);
+//            setText(text);
+//
+//            return this;
+//        }
+//
+//    }
 }

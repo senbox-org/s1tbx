@@ -17,12 +17,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import javax.swing.table.TableModel;
 import java.awt.Dialog;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 
 public class ExportMetadataAction extends ExecCommand {
 
@@ -173,9 +168,9 @@ public class ExportMetadataAction extends ExecCommand {
 
     private static String createDefaultFileName(ProductMetadataView productMetadataView) {
         return FileUtils.getFilenameWithoutExtension(productMetadataView.getProduct().getName()) +
-               "_" +
-               productMetadataView.getMetadataElement().getName() +
-               ".txt";
+                "_" +
+                productMetadataView.getMetadataElement().getName() +
+                ".txt";
     }
 
     private static String getWindowTitle() {
@@ -186,7 +181,6 @@ public class ExportMetadataAction extends ExecCommand {
      * Opens a modal file chooser dialog that prompts the user to select the output file name.
      *
      * @param visatApp the VISAT application
-     *
      * @return the selected file, <code>null</code> means "Cancel"
      */
     private static File promptForFile(final VisatApp visatApp, String defaultFileName) {
@@ -206,10 +200,10 @@ public class ExportMetadataAction extends ExecCommand {
             } else if (file.exists()) {
                 int status = JOptionPane.showConfirmDialog(visatApp.getMainFrame(),
                                                            "The file '" + file + "' already exists.\n" + /*I18N*/
-                                                           "Overwrite it?", /*I18N*/
-                                                                            "VISAT - " + DLG_TITLE,
-                                                                            JOptionPane.YES_NO_CANCEL_OPTION,
-                                                                            JOptionPane.WARNING_MESSAGE);
+                                                                   "Overwrite it?", /*I18N*/
+                                                                                    "VISAT - " + DLG_TITLE,
+                                                                                    JOptionPane.YES_NO_CANCEL_OPTION,
+                                                                                    JOptionPane.WARNING_MESSAGE);
                 if (status == JOptionPane.CANCEL_OPTION) {
                     return null; // Cancel
                 } else if (status == JOptionPane.NO_OPTION) {
@@ -224,7 +218,6 @@ public class ExportMetadataAction extends ExecCommand {
      * Writes all pixel values of the given product within the given ROI to the specified out.
      *
      * @param out the data output writer
-     *
      * @return <code>true</code> for success, <code>false</code> if export has been terminated (by user)
      */
     private static boolean exportMetadata(final PrintWriter out,
@@ -271,17 +264,18 @@ public class ExportMetadataAction extends ExecCommand {
     private static void writeDataLine(final PrintWriter out,
                                       final ProductMetadataTable metadataTable,
                                       int row) {
-        final TableModel metadataTableModel = metadataTable.getModel();
-        final int columnCount = metadataTableModel.getColumnCount();
-        ProductMetadataTable.ElementRef elementRef;
-        for (int i = 0; i < columnCount; i++) {
-            elementRef = (ProductMetadataTable.ElementRef) metadataTableModel.getValueAt(row, i);
-            out.print(metadataTable.getElementText(elementRef, i));
-            if (i < columnCount - 1) {
-                out.print("\t");
-            }
-        }
-        out.print("\n");
+        // todo - rewrite this section (nf - 24.10.2007)
+//        final TableModel metadataTableModel = metadataTable.getModel();
+//        final int columnCount = metadataTableModel.getColumnCount();
+//        ProductMetadataTable.AttributeRef attributeRef;
+//        for (int i = 0; i < columnCount; i++) {
+//            attributeRef = (ProductMetadataTable.AttributeRef) metadataTableModel.getValueAt(row, i);
+//            out.print(metadataTable.getElementText(attributeRef, i));
+//            if (i < columnCount - 1) {
+//                out.print("\t");
+//            }
+//        }
+//        out.print("\n");
     }
 
 }
