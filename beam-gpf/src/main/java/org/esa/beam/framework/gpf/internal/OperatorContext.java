@@ -20,6 +20,7 @@ import com.bc.ceres.binding.*;
 import com.bc.ceres.binding.accessors.ClassFieldAccessor;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomElement;
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.dataio.ProductReader;
@@ -27,7 +28,6 @@ import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.annotations.*;
 import org.esa.beam.util.Guardian;
-import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.jai.RasterDataNodeOpImage;
 
@@ -50,6 +50,7 @@ import java.util.regex.Pattern;
  * @since 4.1
  */
 public class OperatorContext {
+    private String id;
     private Product targetProduct;
     private OperatorSpi operatorSpi;
     private Operator operator;
@@ -73,11 +74,24 @@ public class OperatorContext {
         this.logger = Logger.getAnonymousLogger();
     }
 
+    public String getId() {
+        if (id == null) {
+            id = getOperatorSpi().getOperatorAlias() + "$" + Long.toHexString(System.currentTimeMillis()).toUpperCase();
+        }
+        return id;
+    }
+
+    public void setId(String id) {
+        Assert.notNull(id, "logger");
+        this.id = id;
+    }
+
     public Logger getLogger() {
         return logger;
     }
 
     public void setLogger(Logger logger) {
+        Assert.notNull(logger, "logger");
         this.logger = logger;
     }
 
@@ -283,56 +297,42 @@ public class OperatorContext {
             targetGraphME = new MetadataElement("Processing_Graph");
             metadataRoot.addElement(targetGraphME);
         }
+        convertOperatorContextToMetadata(this, targetGraphME);
+    }
 
-        final String opName = OperatorSpi.getOperatorAlias(operator.getClass());
-        final String id = "A" + Long.toHexString(System.currentTimeMillis()).toUpperCase();
+    private static void convertOperatorContextToMetadata(OperatorContext context, MetadataElement targetGraphME) {
+        final String opName = OperatorSpi.getOperatorAlias(context.operator.getClass());
         MetadataElement targetNodeME = new MetadataElement("node");
-        targetNodeME.addAttribute(new MetadataAttribute("id", ProductData.createInstance(id), false));
+        targetGraphME.addElement(targetNodeME);
+        targetNodeME.addAttribute(new MetadataAttribute("id", ProductData.createInstance(context.getId()), false));
         targetNodeME.addAttribute(new MetadataAttribute("operator", ProductData.createInstance(opName), false));
         final MetadataElement targetSourcesME = new MetadataElement("sources");
-        for (String sourceId : sourceProductMap.keySet()) {
-            final Product sourceProduct = sourceProductMap.get(sourceId);
-            final MetadataElement sourceGraphME = sourceProduct.getMetadataRoot().getElement("Processing_Graph");
-            String sourceNodeId = null;
-            if (sourceGraphME != null) {
-                final MetadataElement[] sourceNodeMEs = sourceGraphME.getElements();
-                if (sourceNodeMEs.length > 0) {
-                    for (MetadataElement sourceNodeME : sourceNodeMEs) {
-                        MetadataElement sourceNodeMECopy = new MetadataElement("node");
-                        ProductUtils.copyMetadata(sourceNodeME, sourceNodeMECopy);
-                        targetGraphME.addElement(sourceNodeMECopy);
-                    }
-                    // the last source node is actual input node for this node
-                    final MetadataElement lastSourceNodeME = sourceNodeMEs[sourceNodeMEs.length - 1];
-                    final MetadataAttribute idAttribute = lastSourceNodeME.getAttribute("id");
-                    if (idAttribute != null) {
-                        sourceNodeId = idAttribute.getData().toString();
-                    }
-                }
-            }
-            if (sourceNodeId == null) {
-                if (sourceProduct.getFileLocation() != null) {
-                    sourceNodeId = sourceProduct.getFileLocation().toURI().toASCIIString();
-                } else {
-                    sourceNodeId = "product:" + sourceProduct.getName();
-                }
+        for (String sourceId : context.sourceProductMap.keySet()) {
+            final Product sourceProduct = context.sourceProductMap.get(sourceId);
+            final String sourceNodeId;
+            if (sourceProduct.getFileLocation() != null) {
+                sourceNodeId = sourceProduct.getFileLocation().toURI().toASCIIString();
+            } else if (sourceProduct.getProductReader() instanceof OperatorProductReader) {
+                final OperatorProductReader productReader = (OperatorProductReader) sourceProduct.getProductReader();
+                convertOperatorContextToMetadata(productReader.getOperatorContext(), targetGraphME);
+                sourceNodeId = productReader.getOperatorContext().getId();
+            } else {
+                sourceNodeId = "product:" + sourceProduct.getDisplayName();
             }
             final MetadataAttribute sourceAttribute = new MetadataAttribute(sourceId, ProductData.createInstance(sourceNodeId), false);
             targetSourcesME.addAttribute(sourceAttribute);
         }
         targetNodeME.addElement(targetSourcesME);
 
-        final DefaultDomConverter domConverter = new DefaultDomConverter(operator.getClass(), new ParameterDescriptorFactory());
+        final DefaultDomConverter domConverter = new DefaultDomConverter(context.operator.getClass(), new ParameterDescriptorFactory());
         final Xpp3DomElement parametersDom = Xpp3DomElement.createDomElement("parameters");
-        domConverter.convertValueToDom(operator, parametersDom);
+        domConverter.convertValueToDom(context.operator, parametersDom);
         final MetadataElement targetParametersME = new MetadataElement("parameters");
         addDomToMetadata(parametersDom, targetParametersME);
         targetNodeME.addElement(targetParametersME);
-
-        targetGraphME.addElement(targetNodeME);
     }
 
-    private void addDomToMetadata(DomElement parentDE, MetadataElement parentME) {
+    private static void addDomToMetadata(DomElement parentDE, MetadataElement parentME) {
         final HashMap<String, List<DomElement>> map = new HashMap<String, List<DomElement>>(parentDE.getChildCount() + 5);
         for (DomElement childDE : parentDE.getChildren()) {
             final String name = childDE.getName();
@@ -355,7 +355,7 @@ public class OperatorContext {
         }
     }
 
-    private void addDomToMetadata(DomElement childDE, String name, MetadataElement parentME) {
+    private static void addDomToMetadata(DomElement childDE, String name, MetadataElement parentME) {
         if (childDE.getChildCount() > 0) {
             final MetadataElement childME = new MetadataElement(name);
             addDomToMetadata(childDE, childME);

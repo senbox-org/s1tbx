@@ -40,6 +40,10 @@ public class OperatorProductReader implements ProductReader {
         this.operatorContext = operatorContext;
     }
 
+    public OperatorContext getOperatorContext() {
+        return operatorContext;
+    }
+
     public Object getInput() {
         return operatorContext.getSourceProducts();
     }
