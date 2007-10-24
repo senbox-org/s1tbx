@@ -1,7 +1,11 @@
 package org.esa.beam.collocation;
 
 import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -14,6 +18,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 
 import java.awt.Rectangle;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,21 +36,32 @@ import java.util.List;
 public class CollocationOp extends Operator {
 
     @SourceProduct(alias = "master")
-    Product masterProduct;
+    private Product masterProduct;
     @SourceProduct(alias = "slave")
-    Product slaveProduct;
+    private Product slaveProduct;
     @TargetProduct
-    Product targetProduct;
+    private Product targetProduct;
 
     @Parameter
-    Resampling resampling;
+    private String targetProductName;
+    @Parameter
+    private boolean renameMasterComponents;
+    @Parameter
+    private boolean renameSlaveComponents;
+    @Parameter
+    private String masterComponentPattern;
+    @Parameter
+    private String slaveComponentPattern;
+    @Parameter
+    private Resampling resampling;
 
     private transient List<Band> slaveBandList;
 
     @Override
     public Product initialize() throws OperatorException {
-        // todo - name and type
-        targetProduct = new Product("CollocationProduct", "COLLOCATION",
+        // todo - type
+        targetProduct = new Product(targetProductName,
+                                    masterProduct.getProductType(),
                                     masterProduct.getSceneRasterWidth(),
                                     masterProduct.getSceneRasterHeight());
 
@@ -58,13 +74,20 @@ public class CollocationOp extends Operator {
         ProductUtils.copyGeoCoding(masterProduct, targetProduct);
 
         for (final Band band : masterProduct.getBands()) {
-            final Band targetBand = ProductUtils.copyBand(band.getName(), masterProduct, targetProduct);
+            final Band targetBand;
+            if (renameMasterComponents) {
+                final String targetBandName = masterComponentPattern.replace("${ORIGINAL_NAME}", band.getName());
+                targetBand = ProductUtils.copyBand(band.getName(), masterProduct, targetBandName, targetProduct);
+            } else {
+                targetBand = ProductUtils.copyBand(band.getName(), masterProduct, targetProduct);
+            }
             final FlagCoding flagCoding = band.getFlagCoding();
             if (flagCoding != null) {
                 targetBand.setFlagCoding(targetProduct.getFlagCoding(flagCoding.getName()));
             }
         }
         ProductUtils.copyBitmaskDefs(masterProduct, targetProduct);
+
 
         slaveBandList = new ArrayList<Band>();
 
@@ -92,8 +115,6 @@ public class CollocationOp extends Operator {
         // todo - slave tie point grids
         // todo - slave bitmask definitions
 
-        resampling = Resampling.CUBIC_CONVOLUTION;
-
         return targetProduct;
     }
 
@@ -104,7 +125,7 @@ public class CollocationOp extends Operator {
             collocateSlaveBand(targetBand, targetTile, pm);
         } else {
             try {
-                pm.beginTask("Copying master band", targetTile.getHeight());
+                pm.beginTask(MessageFormat.format("Copying band {0}", targetBand.getName()), targetTile.getHeight());
 
                 final Band masterBand = masterProduct.getBand(targetBand.getName());
                 final Rectangle targetRectangle = targetTile.getRectangle();
@@ -130,7 +151,7 @@ public class CollocationOp extends Operator {
 
     private void collocateSlaveBand(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         try {
-            pm.beginTask("collocating slave band", targetTile.getHeight());
+            pm.beginTask(MessageFormat.format("collocating band {0}", targetBand.getName()), targetTile.getHeight());
 
             final Band sourceBand = slaveProduct.getBand(targetBand.getName());
             final Resampling.Index resamplingIndex = resampling.createIndex();
@@ -259,5 +280,4 @@ public class CollocationOp extends Operator {
             super(CollocationOp.class);
         }
     }
-
 }

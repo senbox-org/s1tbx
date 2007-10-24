@@ -1,11 +1,14 @@
 package org.esa.beam.collocation.visat;
 
-import com.jidesoft.dialog.JideOptionPane;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.visat.VisatApp;
 
-import javax.swing.JOptionPane;
 import java.awt.Window;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
@@ -21,8 +24,8 @@ class CollocationDialog extends ModalDialog {
     public CollocationDialog(Window parent, Product[] products) {
         super(parent, "Geographic Collocation", ID_OK_CANCEL_HELP, "collocation");
 
-        formModel = new CollocationFormModel(products);
-        form = new CollocationForm(formModel);
+        formModel = new CollocationFormModel();
+        form = new CollocationForm(formModel, products);
     }
 
     @Override
@@ -34,31 +37,41 @@ class CollocationDialog extends ModalDialog {
 
     @Override
     protected void onOK() {
-        JOptionPane.showMessageDialog(form, "Not implemented yet.", "Geographic Collocation",
-                                      JideOptionPane.INFORMATION_MESSAGE);
-        /* prototype code
+        // todo - dispose form
+
         final Product targetProduct;
+
         try {
-            DialogProgressMonitor pm = new DialogProgressMonitor(getJDialog(), "Geographic Collocation",
-                                                                 Dialog.ModalityType.APPLICATION_MODAL);
-            final HashMap<String, Product> productMap = new HashMap<String, Product>(5);
+            final Map<String, Product> productMap = new HashMap<String, Product>(5);
+            productMap.put("master", formModel.getMasterProduct());
+            productMap.put("slave", formModel.getSlaveProduct());
 
-            final Product masterProduct = VisatApp.getApp().getProductManager().getProductAt(0);
-            final Product slaveProduct = VisatApp.getApp().getProductManager().getProductAt(1);
+            final Map<String, Object> parameterMap = new HashMap<String, Object>(5);
+            // collocation parameters
+            parameterMap.put("targetProductName", formModel.getTargetProductName());
+            parameterMap.put("renameMasterComponents", formModel.isRenameMasterComponentsSelected());
+            parameterMap.put("renameSlaveComponents", formModel.isRenameSlaveComponentsSelected());
+            parameterMap.put("masterComponentPattern", formModel.getMasterComponentPattern());
+            parameterMap.put("slaveComponentPattern", formModel.getSlaveComponentPattern());
+            // product writer parameters
+            parameterMap.put("filePath", formModel.getTargetFilePath());
+            parameterMap.put("formatName", formModel.getTargetFormatName());
 
-            productMap.put("master", masterProduct);
-            productMap.put("slave", slaveProduct);
+            targetProduct = GPF.createProduct("Collocation", parameterMap, productMap);
+            targetProduct.setName(formModel.getTargetProductName());
 
-            targetProduct = GPF.createProduct("Collocation", new HashMap<String, Object>(0), productMap,
-                                              ProgressMonitor.NULL);
+            if (formModel.isSaveToFileSelected()) {
+                GPF.createProduct("ProductWriter", parameterMap, targetProduct);
+            }
         } catch (OperatorException e) {
             showErrorDialog(e.getMessage());
             return;
         }
-        */
+
         super.onOK();
-        /*
-        VisatApp.getApp().addProduct(targetProduct);
-        */
+
+        if (formModel.isOpenInVisatSelected()) {
+            VisatApp.getApp().addProduct(targetProduct);
+        }
     }
 }
