@@ -7,7 +7,7 @@ import com.bc.ceres.binding.ValueModel;
 public class NotNullValidator implements Validator {
     public void validateValue(ValueModel valueModel, Object value) throws ValidationException {
         if (value == null) {
-            throw new ValidationException("No value for '" + valueModel.getDefinition().getDisplayName() + "' specified.");
+            throw new ValidationException("No value for '" + valueModel.getDescriptor().getDisplayName() + "' specified.");
         }
     }
 }

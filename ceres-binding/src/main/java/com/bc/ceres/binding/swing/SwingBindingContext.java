@@ -1,10 +1,9 @@
 package com.bc.ceres.binding.swing;
 
 
-import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDefinition;
+import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.ValueSet;
 
@@ -199,14 +198,14 @@ public class SwingBindingContext {
             super(propertyName);
             this.spinner = spinner;
 
-            ValueDefinition valueDefinition = valueContainer.getValueDefinition(propertyName);
-            if (valueDefinition.getInterval() != null) {
-                Class<?> type = valueDefinition.getType();
+            ValueDescriptor valueDescriptor = valueContainer.getValueDescriptor(propertyName);
+            if (valueDescriptor.getValueRange() != null) {
+                Class<?> type = valueDescriptor.getType();
 
                 if (Number.class.isAssignableFrom(type)) {
-                    Number defaultValue = (Number) valueDefinition.getDefaultValue();
-                    double min = valueDefinition.getInterval().getMin();
-                    double max = valueDefinition.getInterval().getMax();
+                    Number defaultValue = (Number) valueDescriptor.getDefaultValue();
+                    double min = valueDescriptor.getValueRange().getMin();
+                    double max = valueDescriptor.getValueRange().getMax();
                     // todo - get step size from interval
 
                     if (type == Byte.class) {
@@ -223,8 +222,8 @@ public class SwingBindingContext {
                         spinner.setModel(new SpinnerNumberModel(defaultValue, min, max, 1));
                     }
                 }
-            } else if (valueDefinition.getValueSet() != null) {
-                spinner.setModel(new SpinnerListModel(valueDefinition.getValueSet().getItems()));
+            } else if (valueDescriptor.getValueSet() != null) {
+                spinner.setModel(new SpinnerListModel(valueDescriptor.getValueSet().getItems()));
             }
         }
 
@@ -265,7 +264,7 @@ public class SwingBindingContext {
             }
             final ValueModel model = valueContainer.getModel(getPropertyName());
             Object[] selectedValues = list.getSelectedValues();
-            Object array = Array.newInstance(model.getDefinition().getType().getComponentType(), selectedValues.length);
+            Object array = Array.newInstance(model.getDescriptor().getType().getComponentType(), selectedValues.length);
             for (int i = 0; i < selectedValues.length; i++) {
                 Array.set(array, i, selectedValues[i]);
             }
@@ -373,8 +372,8 @@ public class SwingBindingContext {
             super(propertyName);
             this.comboBox = comboBox;
 
-            ValueDefinition valueDefinition = valueContainer.getValueDefinition(propertyName);
-            ValueSet valueSet = valueDefinition.getValueSet();
+            ValueDescriptor valueDescriptor = valueContainer.getValueDescriptor(propertyName);
+            ValueSet valueSet = valueDescriptor.getValueSet();
             if (valueSet != null) {
                 comboBox.setModel(new DefaultComboBoxModel(valueSet.getItems()));
             }

@@ -1,19 +1,15 @@
 package com.bc.ceres.binding.swing;
 
+import com.bc.ceres.binding.*;
 import junit.framework.TestCase;
 
-import java.util.HashMap;
-import java.io.File;
-import java.awt.*;
-
-import com.bc.ceres.binding.ValueContainerFactory;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueSet;
-
 import javax.swing.*;
+import java.awt.Component;
+import java.io.File;
+import java.util.HashMap;
 
 public class PropertyPaneTest extends TestCase {
-    public void testComponentsInPanel() {
+    public void testComponentsInPanel() throws ConversionException {
         PropertyPane propertyPane = createParameterPane();
         JPanel panel = propertyPane.createPanel();
         Component[] components = panel.getComponents();
@@ -39,7 +35,7 @@ public class PropertyPaneTest extends TestCase {
         assertTrue(editors.get("imageFile") instanceof JPanel);
     }
 
-    private static PropertyPane createParameterPane() {
+    private static PropertyPane createParameterPane() throws ConversionException {
         HashMap<String, Object> map = new HashMap<String, Object>();
         map.put("threshold", 0.5);
         map.put("iterationLimit", 0.1f);
@@ -51,9 +47,9 @@ public class PropertyPaneTest extends TestCase {
 
 
         ValueContainer vc = ValueContainerFactory.createMapBackedValueContainer(map);
-        vc.getValueDefinition("resamplingMethod").setValueSet(new ValueSet(new String[]{
-              "NN", "CC", "BQ"
-        }));
+        vc.getValueDescriptor("threshold").setValueRange(ValueRange.parseValueRange("[0,1)")); // todo - not recognised (nf - 24.10.2007)
+        vc.getValueDescriptor("resamplingMethod").setValueSet(
+                new ValueSet(new String[]{"NN", "CC", "BQ"}));
 
         SwingBindingContext sbc = new SwingBindingContext(vc, new SwingBindingContext.ErrorHandler() {
             public void handleError(JComponent component, Exception e) {
@@ -63,10 +59,11 @@ public class PropertyPaneTest extends TestCase {
         return new PropertyPane(sbc);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ConversionException {
         PropertyPane propertyPane = createParameterPane();
         JPanel panel = propertyPane.createPanel();
         JFrame frame = new JFrame("PropertyPaneTest");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.add(panel);
         frame.pack();
         frame.setVisible(true);

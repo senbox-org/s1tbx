@@ -46,7 +46,7 @@ public class ConverterRegistry {
         converters.put(File.class, new FileConverter());
         converters.put(Date.class, new DateFormatConverter());
         converters.put(Pattern.class, new PatternConverter());
-        converters.put(Interval.class, new IntervalConverter());
+        converters.put(ValueRange.class, new IntervalConverter());
     }
 
     /**

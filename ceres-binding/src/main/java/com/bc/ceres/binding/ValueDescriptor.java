@@ -10,26 +10,26 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 
 /**
- * Defines a value by its name, type and a set of optional (mutable) properties.
+ * Describes a value by its name, type and a set of optional (mutable) properties.
  * Examples for such properties are a {@link ValueSet}, a {@link Pattern Pattern} or
- * an {@link Interval}.
+ * an {@link ValueRange}.
  * Property changes may be observed by adding a property change listeners
  * to instances of this class.
  *
  * @author Norman Fomferra
  * @since 0.6
  */
-public class ValueDefinition {
+public class ValueDescriptor {
     private final String name;
     private final Class<?> type;
     private Map<String, Object> properties;
     private PropertyChangeSupport propertyChangeSupport;
 
-    public ValueDefinition(String name, Class<?> type) {
+    public ValueDescriptor(String name, Class<?> type) {
         this(name, type, new HashMap<String, Object>(8));
     }
 
-    public ValueDefinition(String name, Class<?> type, Map<String, Object> properties) {
+    public ValueDescriptor(String name, Class<?> type, Map<String, Object> properties) {
         Assert.notNull(name, "name");
         Assert.notNull(type, "type");
         Assert.notNull(properties, "properties");
@@ -102,12 +102,12 @@ public class ValueDefinition {
         setProperty("format", format);
     }
 
-    public Interval getInterval() {
-        return (Interval) getProperty("interval");
+    public ValueRange getValueRange() {
+        return (ValueRange) getProperty("valueRange");
     }
 
-    public void setInterval(Interval interval) {
-        setProperty("interval", interval);
+    public void setValueRange(ValueRange valueRange) {
+        setProperty("valueRange", valueRange);
     }
 
     public Pattern getPattern() {
@@ -150,20 +150,12 @@ public class ValueDefinition {
         setProperty("converter", converter);
     }
 
-    public DomConverter getXmlConverter() {
-        return getXmlConverter(false);
-    }
-
-    public DomConverter getXmlConverter(boolean notNull) {
-        final DomConverter converter = (DomConverter) getProperty("xmlConverter");
-        if (converter == null && notNull) {
-            throw new IllegalStateException("no XML converter defined for value '" + getName() + "'");
-        }
-        return converter;
+    public DomConverter getDomConverter() {
+        return (DomConverter) getProperty("domConverter");
     }
 
     public void setXmlConverter(DomConverter converter) {
-        setProperty("xmlConverter", converter);
+        setProperty("domConverter", converter);
     }
 
     public Validator getValidator() {

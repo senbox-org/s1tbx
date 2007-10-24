@@ -25,8 +25,8 @@ public class ValueContainer {
     }
 
     public void addModel(ValueModel model) {
-        if (valueModelMap.put(model.getDefinition().getName(), model) != model) {
-            final String alias = model.getDefinition().getAlias();
+        if (valueModelMap.put(model.getDescriptor().getName(), model) != model) {
+            final String alias = model.getDescriptor().getAlias();
             if (alias != null && !alias.isEmpty()) {
                 valueModelMap.put(alias, model);
             }
@@ -42,8 +42,8 @@ public class ValueContainer {
     }
 
     public void removeModel(ValueModel model) {
-        if (valueModelMap.remove(model.getDefinition().getName()) != null) {
-            final String alias = model.getDefinition().getAlias();
+        if (valueModelMap.remove(model.getDescriptor().getName()) != null) {
+            final String alias = model.getDescriptor().getAlias();
             if (alias != null && !alias.isEmpty()) {
                 valueModelMap.remove(alias);
             }
@@ -90,16 +90,16 @@ public class ValueContainer {
 
     // todo - remove?
     public String getAsText(String propertyName) {
-        return getModel(propertyName).getAsText();
+        return getModel(propertyName).getValueAsText();
     }
 
     // todo - remove?
     public void setFromText(String propertyName, String text) throws ValidationException, ConversionException {
-        getModel(propertyName).setFromText(text);
+        getModel(propertyName).setValueFromText(text);
     }
 
     // todo - remove?
-    public ValueDefinition getValueDefinition(String propertyName) {
-        return getModel(propertyName).getDefinition();
+    public ValueDescriptor getValueDescriptor(String propertyName) {
+        return getModel(propertyName).getDescriptor();
     }
 }

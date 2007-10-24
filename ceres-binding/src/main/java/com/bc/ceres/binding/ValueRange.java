@@ -1,19 +1,17 @@
 package com.bc.ceres.binding;
 
-// todo - add a step size
-// todo - rename to ValueRange
-
 /**
+ * This class represents a numerical value range.
  * @author Norman Fomferra
  * @since 0.6
  */
-public class Interval {
+public class ValueRange {
     private double min;
     private double max;
     private boolean minIncluded;
     private boolean maxIncluded;
 
-    public Interval(double min, double max, boolean minIncluded, boolean maxIncluded) {
+    public ValueRange(double min, double max, boolean minIncluded, boolean maxIncluded) {
         this.min = min;
         this.max = max;
         this.minIncluded = minIncluded;
@@ -43,43 +41,46 @@ public class Interval {
     }
 
     /**
-     * Parses an {@link com.bc.ceres.binding.Interval}.
+     * Parses an {@link ValueRange}.
      * <p>The syntax of a version range is:
      * <pre>
      *   interval ::= ( '[' | '(' ) min ',' max ( ']' | ')' )
      *   min ::= number | '*'
      *   max ::= number | '*'
      * </pre>
+     * @param text The textual representation of the value range.
+     * @return The value range.
+     * @throws IllegalArgumentException If the text has an invalid format.
      */
-    public static Interval parseInterval(final String intervalString) throws ConversionException {
-        if (intervalString.length() > 0) {
-            final char c1 = intervalString.charAt(0);
+    public static ValueRange parseValueRange(final String text) throws IllegalArgumentException {
+        if (text.length() > 0) {
+            final char c1 = text.charAt(0);
             if (c1 == '(' || c1 == '[') {
-                final char c2 = intervalString.charAt(intervalString.length() - 1);
+                final char c2 = text.charAt(text.length() - 1);
                 if (c2 == ')' || c2 == ']') {
-                    int d = intervalString.indexOf(',', 1);
-                    if (d > 1 && d < intervalString.length() - 2) {
-                        String s1 = intervalString.substring(1, d).trim();
-                        String s2 = intervalString.substring(d + 1, intervalString.length() - 1).trim();
+                    int d = text.indexOf(',', 1);
+                    if (d > 1 && d < text.length() - 2) {
+                        String s1 = text.substring(1, d).trim();
+                        String s2 = text.substring(d + 1, text.length() - 1).trim();
                         try {
-                            return new com.bc.ceres.binding.Interval(
-                                    s1.equals("*") ? Double.NEGATIVE_INFINITY : new Double(com.bc.ceres.binding.Interval.trimNumberString(s1)),
-                                    s2.equals("*") ? Double.POSITIVE_INFINITY : new Double(com.bc.ceres.binding.Interval.trimNumberString(s2)),
+                            return new ValueRange(
+                                    s1.equals("*") ? Double.NEGATIVE_INFINITY : new Double(ValueRange.trimNumberString(s1)),
+                                    s2.equals("*") ? Double.POSITIVE_INFINITY : new Double(ValueRange.trimNumberString(s2)),
                                     c1 == '[', c2 == ']');
                         } catch (NumberFormatException e) {
-                            throw new ConversionException("Invalid number format in interval.");
+                            throw new IllegalArgumentException("Invalid number format in interval.");
                         }
                     } else {
-                        throw new ConversionException("Missing ',' in interval.");
+                        throw new IllegalArgumentException("Missing ',' in interval.");
                     }
                 } else {
-                    throw new ConversionException("Missing trailing ')' or ']' in interval.");
+                    throw new IllegalArgumentException("Missing trailing ')' or ']' in interval.");
                 }
             } else {
-                throw new ConversionException("Missing leading '(' or '[' in interval.");
+                throw new IllegalArgumentException("Missing leading '(' or '[' in interval.");
             }
         } else {
-            throw new ConversionException("Empty string.");
+            throw new IllegalArgumentException("Empty string.");
         }
     }
 

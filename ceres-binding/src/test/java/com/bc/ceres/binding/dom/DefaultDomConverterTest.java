@@ -2,8 +2,8 @@ package com.bc.ceres.binding.dom;
 
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueDefinition;
-import com.bc.ceres.binding.ValueDefinitionFactory;
+import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.ValueDescriptorFactory;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.xml.XppDomWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;
@@ -19,16 +19,16 @@ import java.lang.reflect.Field;
 
 public class DefaultDomConverterTest extends TestCase {
 
-    private static final ValueDefinitionFactory valueDefinitionFactory = new ValueDefinitionFactory() {
-        public ValueDefinition createValueDefinition(Field field) {
-            final ValueDefinition definition = new ValueDefinition(field.getName(), field.getType());
+    private static final ValueDescriptorFactory VALUE_DESCRIPTOR_FACTORY = new ValueDescriptorFactory() {
+        public ValueDescriptor createValueDescriptor(Field field) {
+            final ValueDescriptor descriptor = new ValueDescriptor(field.getName(), field.getType());
             final X xAnnotation = field.getAnnotation(X.class);
             if (xAnnotation != null) {
-                definition.setAlias(xAnnotation.alias());
-                definition.setItemAlias(xAnnotation.componentAlias());
-                definition.setItemsInlined(xAnnotation.inlined());
+                descriptor.setAlias(xAnnotation.alias());
+                descriptor.setItemAlias(xAnnotation.componentAlias());
+                descriptor.setItemsInlined(xAnnotation.inlined());
             }
-            return definition;
+            return descriptor;
         }
     };
 
@@ -313,13 +313,13 @@ public class DefaultDomConverterTest extends TestCase {
     }
 
     public static void convertValueToDom(Object value, Xpp3Dom parentElement) {
-        new DefaultDomConverter(value.getClass(), valueDefinitionFactory).convertValueToDom(value, new Xpp3DomElement(parentElement));
+        new DefaultDomConverter(value.getClass(), VALUE_DESCRIPTOR_FACTORY).convertValueToDom(value, new Xpp3DomElement(parentElement));
     }
 
 
     public static void convertDomToValue(Xpp3Dom parentElement, Object value) throws ConversionException, ValidationException {
 
-        new DefaultDomConverter(value.getClass(), valueDefinitionFactory).convertDomToValue(new Xpp3DomElement(parentElement), value);
+        new DefaultDomConverter(value.getClass(), VALUE_DESCRIPTOR_FACTORY).convertDomToValue(new Xpp3DomElement(parentElement), value);
     }
 
     public static class Xpp3DomElement implements DomElement {
@@ -395,7 +395,6 @@ public class DefaultDomConverterTest extends TestCase {
             final Xpp3DomElement[] domElements = new Xpp3DomElement[xppChildren.length];
             for (int i = 0; i < xppChildren.length; i++) {
                 domElements[i] = new Xpp3DomElement(xppChildren[i]);
-
             }
             return domElements;
         }

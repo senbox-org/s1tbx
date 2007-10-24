@@ -1,13 +1,13 @@
 package com.bc.ceres.binding.accessors;
 
-import com.bc.ceres.binding.Accessor;
+import com.bc.ceres.binding.ValueAccessor;
 
 import java.util.Map;
 
 /**
- * Accessor for values stored in a {@link Map}.
+ * ValueAccessor for values stored in a {@link Map}.
  */
-public class MapEntryAccessor implements Accessor {
+public class MapEntryAccessor implements ValueAccessor {
     private Map<String, Object> map;
     private String key;
 

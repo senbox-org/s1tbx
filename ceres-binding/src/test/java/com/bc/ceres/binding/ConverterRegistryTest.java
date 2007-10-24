@@ -54,14 +54,14 @@ public class ConverterRegistryTest extends TestCase {
         final ConverterRegistry r = ConverterRegistry.getInstance();
         assertNotNull(r.getConverter(String.class));
         assertNotNull(r.getConverter(File.class));
-        assertNotNull(r.getConverter(Interval.class));
+        assertNotNull(r.getConverter(ValueRange.class));
         assertNotNull(r.getConverter(Date.class));
         assertNotNull(r.getConverter(Pattern.class));
         // todo - assertNotNull(r.getConverter(Color.class));
 
         assertNotNull(r.getConverter(String[].class));
         assertNotNull(r.getConverter(File[].class));
-        assertNotNull(r.getConverter(Interval[].class));
+        assertNotNull(r.getConverter(ValueRange[].class));
         assertNotNull(r.getConverter(Date[].class));
         assertNotNull(r.getConverter(Pattern[].class));
     }

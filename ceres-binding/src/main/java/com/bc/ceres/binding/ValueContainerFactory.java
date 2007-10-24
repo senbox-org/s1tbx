@@ -15,24 +15,24 @@ import java.util.*;
  * @since 0.6
  */
 public class ValueContainerFactory {
-    public static final ValueDefinitionFactory DEFAULT_VALUE_DEFINITION_FACTORY = new ValueDefinitionFactory() {
-        public ValueDefinition createValueDefinition(Field field) {
-            return new ValueDefinition(field.getName(), field.getType());
+    public static final ValueDescriptorFactory DEFAULT_VALUE_DESCRIPTOR_FACTORY = new ValueDescriptorFactory() {
+        public ValueDescriptor createValueDescriptor(Field field) {
+            return new ValueDescriptor(field.getName(), field.getType());
         }
     };
 
-    private final ValueDefinitionFactory valueDefinitionFactory;
+    private final ValueDescriptorFactory valueDescriptorFactory;
 
     public ValueContainerFactory() {
-        this(DEFAULT_VALUE_DEFINITION_FACTORY);
+        this(DEFAULT_VALUE_DESCRIPTOR_FACTORY);
     }
 
-    public ValueContainerFactory(ValueDefinitionFactory valueDefinitionFactory) {
-        this.valueDefinitionFactory = valueDefinitionFactory;
+    public ValueContainerFactory(ValueDescriptorFactory valueDescriptorFactory) {
+        this.valueDescriptorFactory = valueDescriptorFactory;
     }
 
-    public ValueDefinitionFactory getValueDefinitionFactory() {
-        return valueDefinitionFactory;
+    public ValueDescriptorFactory getValueDescriptorFactory() {
+        return valueDescriptorFactory;
     }
 
     public ValueContainer createObjectBackedValueContainer(Object object) {
@@ -40,9 +40,9 @@ public class ValueContainerFactory {
         Field[] declaredFields = type.getDeclaredFields();
         ValueContainer vc = new ValueContainer();
         for (Field field : declaredFields) {
-            final ValueDefinition valueDefinition = createValueDefinition(field);
-            if (valueDefinition != null) {
-                vc.addModel(new ValueModel(valueDefinition, new ClassFieldAccessor(object, field)));
+            final ValueDescriptor valueDescriptor = createValueDescriptor(field);
+            if (valueDescriptor != null) {
+                vc.addModel(new ValueModel(valueDescriptor, new ClassFieldAccessor(object, field)));
             }
         }
         return vc;
@@ -52,9 +52,9 @@ public class ValueContainerFactory {
         Field[] declaredFields = type.getDeclaredFields();
         ValueContainer vc = new ValueContainer();
         for (Field field : declaredFields) {
-            final ValueDefinition valueDefinition = createValueDefinition(field);
-            if (valueDefinition != null) {
-                vc.addModel(new ValueModel(valueDefinition, new DefaultAccessor()));
+            final ValueDescriptor valueDescriptor = createValueDescriptor(field);
+            if (valueDescriptor != null) {
+                vc.addModel(new ValueModel(valueDescriptor, new DefaultValueAccessor()));
             }
         }
         return vc;
@@ -64,9 +64,9 @@ public class ValueContainerFactory {
         Field[] declaredFields = type.getDeclaredFields();
         ValueContainer vc = new ValueContainer();
         for (Field field : declaredFields) {
-            final ValueDefinition valueDefinition = createValueDefinition(field);
-            if (valueDefinition != null) {
-                vc.addModel(new ValueModel(valueDefinition, new MapEntryAccessor(map, field.getName())));
+            final ValueDescriptor valueDescriptor = createValueDescriptor(field);
+            if (valueDescriptor != null) {
+                vc.addModel(new ValueModel(valueDescriptor, new MapEntryAccessor(map, field.getName())));
             }
         }
         return vc;
@@ -75,37 +75,37 @@ public class ValueContainerFactory {
     public static ValueContainer createMapBackedValueContainer(Map<String, Object> map) {
         ValueContainer vc = new ValueContainer();
         for (String name : map.keySet()) {
-            vc.addModel(new ValueModel(createValueDefinition(name, map.get(name)), new MapEntryAccessor(map, name)));
+            vc.addModel(new ValueModel(createValueDescriptor(name, map.get(name)), new MapEntryAccessor(map, name)));
         }
         return vc;
     }
 
-    private ValueDefinition createValueDefinition(Field field) {
-        final ValueDefinition valueDefinition = valueDefinitionFactory.createValueDefinition(field);
-        if (valueDefinition == null) {
+    private ValueDescriptor createValueDescriptor(Field field) {
+        final ValueDescriptor valueDescriptor = valueDescriptorFactory.createValueDescriptor(field);
+        if (valueDescriptor == null) {
             return null;
         }
-        initValueDefinition(valueDefinition);
-        return valueDefinition;
+        initValueDescriptor(valueDescriptor);
+        return valueDescriptor;
     }
 
-    private static ValueDefinition createValueDefinition(String name, Object value) {
-        final ValueDefinition valueDefinition = new ValueDefinition(name, value.getClass());
-        valueDefinition.setDefaultValue(value);
-        initValueDefinition(valueDefinition);
-        return valueDefinition;
+    private static ValueDescriptor createValueDescriptor(String name, Object value) {
+        final ValueDescriptor valueDescriptor = new ValueDescriptor(name, value.getClass());
+        valueDescriptor.setDefaultValue(value);
+        initValueDescriptor(valueDescriptor);
+        return valueDescriptor;
     }
 
-    private static void initValueDefinition(ValueDefinition valueDefinition) {
-        if (valueDefinition.getConverter() == null) {
-            valueDefinition.setConverter(ConverterRegistry.getInstance().getConverter(valueDefinition.getType()));
+    private static void initValueDescriptor(ValueDescriptor valueDescriptor) {
+        if (valueDescriptor.getConverter() == null) {
+            valueDescriptor.setConverter(ConverterRegistry.getInstance().getConverter(valueDescriptor.getType()));
         }
-        if (valueDefinition.getValidator() == null) {
-            valueDefinition.setValidator(createValidator(valueDefinition));
+        if (valueDescriptor.getValidator() == null) {
+            valueDescriptor.setValidator(createValidator(valueDescriptor));
         }
     }
 
-    private static Validator createValidator(ValueDefinition vd) {
+    private static Validator createValidator(ValueDescriptor vd) {
         List<Validator> validators = new ArrayList<Validator>(3);
 
         if (vd.isNotNull()) {
@@ -120,8 +120,8 @@ public class ValueContainerFactory {
         if (vd.getValueSet() != null) {
             validators.add(new ValueSetValidator(vd.getValueSet()));
         }
-        if (vd.getInterval() != null) {
-            validators.add(new IntervalValidator(vd.getInterval()));
+        if (vd.getValueRange() != null) {
+            validators.add(new IntervalValidator(vd.getValueRange()));
         }
         if (vd.getValidator() != null) {
             validators.add(vd.getValidator());

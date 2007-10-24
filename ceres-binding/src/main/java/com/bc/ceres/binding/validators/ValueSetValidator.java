@@ -14,7 +14,7 @@ public class ValueSetValidator implements Validator {
 
     public void validateValue(ValueModel valueModel, Object value) throws ValidationException {
         if (!valueSet.contains(value)) {
-            throw new ValidationException("Value for '" + valueModel.getDefinition().getDisplayName() + "' is invalid.");
+            throw new ValidationException("Value for '" + valueModel.getDescriptor().getDisplayName() + "' is invalid.");
         }
     }
 }

@@ -1,23 +1,21 @@
 package com.bc.ceres.binding;
 
-import com.bc.ceres.core.Assert;
-
 import java.beans.PropertyChangeListener;
 
 /**
- * A model for a value, e.g. a field of an object instance. A value model is composed of a {@link ValueDefinition} and
- * an {@link Accessor}. Most of the time, value models are part of a {@link ValueContainer}.
+ * A model for a value, e.g. a field of an object instance. A value model is composed of a {@link ValueDescriptor} and
+ * an {@link ValueAccessor}. Most of the time, value models are part of a {@link ValueContainer}.
  *
  * @author Norman Fomferra
  * @since 0.6
  */
 public class ValueModel {
-    private final ValueDefinition valueDefinition;
-    private final Accessor accessor;
+    private final ValueDescriptor descriptor;
+    private final ValueAccessor accessor;
     private ValueContainer container;
 
-    public ValueModel(ValueDefinition valueDefinition, Accessor accessor) {
-        this.valueDefinition = valueDefinition;
+    public ValueModel(ValueDescriptor descriptor, ValueAccessor accessor) {
+        this.descriptor = descriptor;
         this.accessor = accessor;
         try {
             initializeValue();
@@ -26,8 +24,8 @@ public class ValueModel {
         }
     }
 
-    public ValueDefinition getDefinition() {
-        return valueDefinition;
+    public ValueDescriptor getDescriptor() {
+        return descriptor;
     }
 
     public ValueContainer getContainer() {
@@ -38,24 +36,8 @@ public class ValueModel {
         this.container = container;
     }
 
-//    public Converter getConverter() {
-//        return getDefinition().getConverter();
-//    }
-//
-//    public String getName() {
-//        return getDefinition().getName();
-//    }
-//
-//    public Class<?> getType() {
-//        return getDefinition().getType();
-//    }
-//
-//    public Validator getValidator() {
-//        return getDefinition().getValidator();
-//    }
-
-    public String getAsText() {
-        final Converter converter = valueDefinition.getConverter(true);
+    public String getValueAsText() {
+        final Converter converter = descriptor.getConverter(true);
         if (converter != null) {
             return converter.format(getValue());
         } else {
@@ -63,8 +45,8 @@ public class ValueModel {
         }
     }
 
-    public void setFromText(String text) throws ConversionException, ValidationException {
-        final Converter converter = valueDefinition.getConverter(true);
+    public void setValueFromText(String text) throws ConversionException, ValidationException {
+        final Converter converter = descriptor.getConverter(true);
         if (converter != null) {
             setValue(converter.parse(text));
         } else {
@@ -84,12 +66,12 @@ public class ValueModel {
         validate(value);
         accessor.setValue(value);
         if (container != null) {
-            container.getPropertyChangeSupport().firePropertyChange(valueDefinition.getName(), oldValue, value);
+            container.getPropertyChangeSupport().firePropertyChange(descriptor.getName(), oldValue, value);
         }
     }
 
     public void validate(Object value) throws ValidationException {
-        final Validator validator = valueDefinition.getValidator();
+        final Validator validator = descriptor.getValidator();
         if (validator != null) {
             validator.validateValue(this, value);
         }
@@ -99,14 +81,14 @@ public class ValueModel {
         if (container == null) {
             throw new IllegalStateException("container == null");
         }
-        container.getPropertyChangeSupport().addPropertyChangeListener(valueDefinition.getName(), l);
+        container.getPropertyChangeSupport().addPropertyChangeListener(descriptor.getName(), l);
     }
 
     public void removePropertyChangeListener(PropertyChangeListener l) {
         if (container == null) {
             throw new IllegalStateException("container == null");
         }
-        container.getPropertyChangeSupport().removePropertyChangeListener(valueDefinition.getName(), l);
+        container.getPropertyChangeSupport().removePropertyChangeListener(descriptor.getName(), l);
     }
 
 
@@ -114,13 +96,13 @@ public class ValueModel {
         if (getValue() != null) {
             return;
         }
-        if (valueDefinition.getDefaultValue() != null) {
-            setValue(valueDefinition.getDefaultValue());
+        if (descriptor.getDefaultValue() != null) {
+            setValue(descriptor.getDefaultValue());
         }
         if (getValue() != null) {
             return;
         }
-        final Class<?> type = valueDefinition.getType();
+        final Class<?> type = descriptor.getType();
         if (type.isPrimitive()) {
             if (type.equals(Boolean.TYPE)) {
                 setValue(false);

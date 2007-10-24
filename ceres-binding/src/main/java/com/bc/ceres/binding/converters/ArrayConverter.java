@@ -8,8 +8,8 @@ import java.util.StringTokenizer;
 
 public class ArrayConverter implements Converter {
 
-    private static final String SEP = ",";
-    private static final String SEP_ESC = "\\u002C"; // Unicode escape repr. of ','
+    public static final String SEPARATOR = ",";
+    public static final String SEPARATOR_ESC = "\\u002C"; // Unicode escape repr. of ','
     private Class arrayType;
     private Converter componentConverter;
 
@@ -26,11 +26,11 @@ public class ArrayConverter implements Converter {
         if (text.isEmpty()) {
             return null;
         }
-        StringTokenizer st = new StringTokenizer(text, SEP);
+        StringTokenizer st = new StringTokenizer(text, SEPARATOR);
         int length = st.countTokens();
         Object array = Array.newInstance(arrayType.getComponentType(), length);
         for (int i = 0; i < length; i++) {
-            Object component = componentConverter.parse(st.nextToken().replace(SEP_ESC, SEP));
+            Object component = componentConverter.parse(st.nextToken().replace(SEPARATOR_ESC, SEPARATOR));
             Array.set(array, i, component);
         }
         return array;
@@ -47,7 +47,7 @@ public class ArrayConverter implements Converter {
             if (i > 0) {
                 sb.append(',');
             }
-            sb.append(componentConverter.format(component).replace(SEP, SEP_ESC));
+            sb.append(componentConverter.format(component).replace(SEPARATOR, SEPARATOR_ESC));
         }
         return sb.toString();
     }
