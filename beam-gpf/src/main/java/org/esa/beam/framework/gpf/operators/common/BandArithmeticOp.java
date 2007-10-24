@@ -39,6 +39,8 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 
 import java.awt.Rectangle;
+import java.util.HashMap;
+import java.util.Map;
 
 @OperatorMetadata(alias = "BandArithmetic")
 public class BandArithmeticOp extends Operator {
@@ -72,7 +74,8 @@ public class BandArithmeticOp extends Operator {
     @Parameter(alias = "variables", itemAlias = "variable")
     private Variable[] variables;
 
-    private WritableNamespace namespace;
+    private Map<Band, RasterDataSymbol[]> symbolMap;
+    private Map<Band, Term> termMap;
     
     public static BandArithmeticOp createBooleanExpressionBand(String expression, Product sourceProduct) {
         BandDescriptor[] bandDescriptors = new BandDescriptor[1];
@@ -85,19 +88,8 @@ public class BandArithmeticOp extends Operator {
         bandArithmeticOp.targetBandDescriptors = bandDescriptors;
         bandArithmeticOp.addSourceProduct("sourceProduct", sourceProduct);
         return bandArithmeticOp;
-//        return new BandArithmeticOp(bandDescriptors, null, sourceProduct);
     }
     
-//    public BandArithmeticOp() {
-//        // default constructor is needed for GPf.create() calls
-//    }
-//    
-//    public BandArithmeticOp(BandDescriptor[] bandDescriptors, Variable[] variables, Product sourceProduct) {
-//        addSourceProduct("sourceProduct", sourceProduct);
-//        this.targetBandDescriptors = bandDescriptors;
-//        this.variables = variables;
-//    }
-
     @Override
     public Product initialize() throws OperatorException {
         if (targetBandDescriptors == null || targetBandDescriptors.length == 0) {
@@ -108,7 +100,7 @@ public class BandArithmeticOp extends Operator {
         int width = sourceProducts[0].getSceneRasterWidth();
         targetProduct = new Product(sourceProducts[0].getName() + "_BandArithmetic", "BandArithmetic", width, height);
 
-        namespace = BandArithmetic.createDefaultNamespace(sourceProducts, 0, new ProductPrefixProvider() {
+        WritableNamespace namespace = BandArithmetic.createDefaultNamespace(sourceProducts, 0, new ProductPrefixProvider() {
             public String getPrefix(Product product) {
                 String idForSourceProduct = getSourceProductId(product);
                 return "$" + idForSourceProduct + ".";
@@ -128,6 +120,8 @@ public class BandArithmeticOp extends Operator {
                 }
             }
         }
+        symbolMap = new HashMap<Band, RasterDataSymbol[]>(targetBandDescriptors.length);
+        termMap = new HashMap<Band, Term>(targetBandDescriptors.length);
         for (BandDescriptor bandDescriptor : targetBandDescriptors) {
             Band band = targetProduct.addBand(bandDescriptor.name, ProductData.getType(bandDescriptor.type));
             if (StringUtils.isNotNullAndNotEmpty(bandDescriptor.description)) {
@@ -154,6 +148,18 @@ public class BandArithmeticOp extends Operator {
             if (bandDescriptor.spectralBandwidth != null) {
                 band.setSpectralBandwidth(bandDescriptor.spectralBandwidth);
             }
+            
+            final Term term;
+            try {
+                Parser parser = new ParserImpl(namespace, false);
+                term = parser.parse(bandDescriptor.expression);
+            } catch (ParseException e) {
+                throw new OperatorException("Couldn't parse expression: " + bandDescriptor.expression, e);
+            }
+            RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
+
+            symbolMap.put(band, refRasterDataSymbols);
+            termMap.put(band, term);
         }
 
         if (sourceProducts.length == 1) {
@@ -165,18 +171,10 @@ public class BandArithmeticOp extends Operator {
 
     @Override
     public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
-        BandDescriptor bandDescriptor = getDesriptionForTile(targetTile);
-
         Rectangle rect = targetTile.getRectangle();
-        final Term term;
-        try {
-            Parser parser = new ParserImpl(namespace, false);
-            term = parser.parse(bandDescriptor.expression);
-        } catch (ParseException e) {
-            throw new OperatorException("Couldn't parse expression: " + bandDescriptor.expression, e);
-        }
-
-        RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
+        RasterDataSymbol[] refRasterDataSymbols = symbolMap.get(band);
+        Term term = termMap.get(band);
+        
         for (RasterDataSymbol symbol : refRasterDataSymbols) {
             Tile tile = getSourceTile(symbol.getRaster(), rect, pm);
             if (tile.getRasterDataNode().isScalingApplied()) {
@@ -215,16 +213,6 @@ public class BandArithmeticOp extends Operator {
         } finally {
             pm.done();
         }
-    }
-
-    private BandDescriptor getDesriptionForTile(Tile tile) {
-        String rasterName = tile.getRasterDataNode().getName();
-        for (BandDescriptor bandDescriptor : targetBandDescriptors) {
-            if (bandDescriptor.name.equals(rasterName)) {
-                return bandDescriptor;
-            }
-        }
-        return null;
     }
 
     public static class Spi extends OperatorSpi {
