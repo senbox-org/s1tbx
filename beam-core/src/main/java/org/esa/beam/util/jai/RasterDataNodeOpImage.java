@@ -145,7 +145,6 @@ public class RasterDataNodeOpImage extends SourcelessOpImage {
         switch (productDataType) {
             case ProductData.TYPE_INT8:
             case ProductData.TYPE_UINT8:
-            case ProductData.TYPE_BOOLEAN:
                 dataBufferType = DataBuffer.TYPE_BYTE;
                 break;
             case ProductData.TYPE_INT16:

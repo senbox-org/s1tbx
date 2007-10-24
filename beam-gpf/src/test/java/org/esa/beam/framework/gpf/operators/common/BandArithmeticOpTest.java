@@ -69,6 +69,26 @@ public class BandArithmeticOpTest extends TestCase {
         Arrays.fill(expectedValues, 1.0f);
         assertTrue(Arrays.equals(expectedValues, floatValues));
     }
+    
+    public void testSimpelstCaseWithFactoryMethod() throws Exception {
+        Product sourceProduct = createTestProduct(4, 4);
+        
+        BandArithmeticOp bandArithmeticOp = BandArithmeticOp.createBooleanExpressionBand("band1 > 0", sourceProduct);
+        assertNotNull(bandArithmeticOp);
+
+        Product targetProduct = bandArithmeticOp.getTargetProduct();
+        assertNotNull(targetProduct);
+        
+        Band band = targetProduct.getBandAt(0);
+        assertNotNull(band);
+        assertEquals(ProductData.TYPE_INT8, band.getDataType());
+
+        int[] intValues = new int[16];
+        band.readPixels(0, 0, 4, 4, intValues, ProgressMonitor.NULL);
+        int[] expectedValues = new int[16];
+        Arrays.fill(expectedValues, 1);
+        assertTrue(Arrays.equals(expectedValues, intValues));
+    }
 
     public void testScaledInputBand() throws Exception {
         Map<String, Object> parameters = new HashMap<String, Object>();

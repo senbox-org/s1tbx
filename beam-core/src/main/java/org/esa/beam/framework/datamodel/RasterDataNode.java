@@ -149,8 +149,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                 && dataType != ProductData.TYPE_UINT16
                 && dataType != ProductData.TYPE_UINT32
                 && dataType != ProductData.TYPE_FLOAT32
-                && dataType != ProductData.TYPE_FLOAT64
-                && dataType != ProductData.TYPE_BOOLEAN) {
+                && dataType != ProductData.TYPE_FLOAT64) {
             throw new IllegalArgumentException("dataType is invalid");
         }
         _rasterWidth = width;

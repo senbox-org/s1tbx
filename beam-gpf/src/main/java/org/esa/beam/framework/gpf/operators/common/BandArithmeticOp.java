@@ -74,23 +74,29 @@ public class BandArithmeticOp extends Operator {
 
     private WritableNamespace namespace;
     
-    public static BandArithmeticOp createBooleanBandExpression(String expression, Product sourceProduct) {
+    public static BandArithmeticOp createBooleanExpressionBand(String expression, Product sourceProduct) {
         BandDescriptor[] bandDescriptors = new BandDescriptor[1];
         bandDescriptors[0] = new BandDescriptor();
         bandDescriptors[0].name = "band1";
         bandDescriptors[0].expression = expression;
         bandDescriptors[0].type = ProductData.TYPESTRING_INT8;
-        Product[] sourceProducts = new Product[1];
-        sourceProducts[0] = sourceProduct;
         
-        return new BandArithmeticOp(bandDescriptors, null, sourceProducts);
+        BandArithmeticOp bandArithmeticOp = new BandArithmeticOp();
+        bandArithmeticOp.targetBandDescriptors = bandDescriptors;
+        bandArithmeticOp.addSourceProduct("sourceProduct", sourceProduct);
+        return bandArithmeticOp;
+//        return new BandArithmeticOp(bandDescriptors, null, sourceProduct);
     }
     
-    public BandArithmeticOp(BandDescriptor[] bandDescriptors, Variable[] variables, Product[] sourceProducts) {
-        this.sourceProducts = sourceProducts;
-        this.targetBandDescriptors = bandDescriptors;
-        this.variables = variables;
-    }
+//    public BandArithmeticOp() {
+//        // default constructor is needed for GPf.create() calls
+//    }
+//    
+//    public BandArithmeticOp(BandDescriptor[] bandDescriptors, Variable[] variables, Product sourceProduct) {
+//        addSourceProduct("sourceProduct", sourceProduct);
+//        this.targetBandDescriptors = bandDescriptors;
+//        this.variables = variables;
+//    }
 
     @Override
     public Product initialize() throws OperatorException {
@@ -116,7 +122,7 @@ public class BandArithmeticOp extends Operator {
                 } else if (ProductData.isIntType(ProductData.getType(variable.type))) {
                     Symbol symbol = SymbolFactory.createConstant(variable.name, Long.parseLong(variable.value));
                     namespace.registerSymbol(symbol);
-                } else if (ProductData.TYPESTRING_BOOLEAN.equals(variable.type)) {
+                } else if ("boolean".equals(variable.type)) {
                     Symbol symbol = SymbolFactory.createConstant(variable.name, Boolean.parseBoolean(variable.value));
                     namespace.registerSymbol(symbol);
                 }

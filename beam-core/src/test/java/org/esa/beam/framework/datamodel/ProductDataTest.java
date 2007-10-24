@@ -36,7 +36,6 @@ public class ProductDataTest extends TestCase {
         assertEquals(4, ProductData.getElemSize(ProductData.TYPE_UINT32));
         assertEquals(1, ProductData.getElemSize(ProductData.TYPE_UINT8));
         assertEquals(4, ProductData.getElemSize(ProductData.TYPE_UTC));
-        assertEquals(1, ProductData.getElemSize(ProductData.TYPE_BOOLEAN));
 
         int unsupportedDataType =
                 ProductData.TYPE_ASCII + ProductData.TYPE_FLOAT32 +
@@ -62,7 +61,6 @@ public class ProductDataTest extends TestCase {
         assertEquals(false, ProductData.isFloatingPointType(ProductData.TYPE_UINT32));
         assertEquals(false, ProductData.isFloatingPointType(ProductData.TYPE_UINT8));
         assertEquals(false, ProductData.isFloatingPointType(ProductData.TYPE_UTC));
-        assertEquals(false, ProductData.isFloatingPointType(ProductData.TYPE_BOOLEAN));
     }
 
     public void testIsIntType() {
@@ -76,7 +74,6 @@ public class ProductDataTest extends TestCase {
         assertEquals(true, ProductData.isIntType(ProductData.TYPE_UINT32));
         assertEquals(true, ProductData.isIntType(ProductData.TYPE_UINT8));
         assertEquals(false, ProductData.isIntType(ProductData.TYPE_UTC));
-        assertEquals(false, ProductData.isIntType(ProductData.TYPE_BOOLEAN));
     }
 
     public void testIsUIntType() {
@@ -90,7 +87,6 @@ public class ProductDataTest extends TestCase {
         assertEquals(true, ProductData.isUIntType(ProductData.TYPE_UINT32));
         assertEquals(true, ProductData.isUIntType(ProductData.TYPE_UINT8));
         assertEquals(false, ProductData.isUIntType(ProductData.TYPE_UTC));
-        assertEquals(false, ProductData.isUIntType(ProductData.TYPE_BOOLEAN));
     }
 
     public void testStaticGetType() {
@@ -104,7 +100,6 @@ public class ProductDataTest extends TestCase {
         assertEquals(ProductData.TYPE_UINT32, ProductData.getType(ProductData.TYPESTRING_UINT32));
         assertEquals(ProductData.TYPE_UINT8, ProductData.getType(ProductData.TYPESTRING_UINT8));
         assertEquals(ProductData.TYPE_UTC, ProductData.getType(ProductData.TYPESTRING_UTC));
-        assertEquals(ProductData.TYPE_BOOLEAN, ProductData.getType(ProductData.TYPESTRING_BOOLEAN));
         assertEquals(ProductData.TYPE_UNDEFINED, ProductData.getType("any other string"));
     }
 

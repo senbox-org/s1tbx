@@ -37,8 +37,7 @@ import java.util.*;
  * 16-bit integer} </li> <li> {@link ProductData.Int signed 32-bit integer} </li> <li> {@link ProductData.UInt unsigned
  * 32-bit integer} </li> <li> {@link ProductData.Float 32-bit floating point} </li> <li> {@link ProductData.Double
  * 64-bit floating point} </li> <li> {@link ProductData.ASCII a character string (8-bit ASCII encoding)} </li> <li>
- * {@link ProductData.UTC a MJD-2000 encoded data/time value} </li>
- * <li> {@link ProductData.Boolean boolean} </li> </ld>
+ * {@link ProductData.UTC a MJD-2000 encoded data/time value} </li> </ld>
  * <p/>
  * <p>The number of elements is an inmutable property of a <code>ProductData</code> instance.
  * <p/>
@@ -119,11 +118,6 @@ public abstract class ProductData implements Cloneable {
     public static final int TYPE_UTC = 51;
 
     /**
-     * The ID for boolean data type.
-     */
-    public static final int TYPE_BOOLEAN = 61;
-
-    /**
      * The type ID of this value.
      */
     private final int _type;
@@ -169,11 +163,6 @@ public abstract class ProductData implements Cloneable {
      * The string representation of <code>TYPE_UTC</code>
      */
     public static final String TYPESTRING_UTC = "utc";
-
-    /**
-     * The string representation of <code>TYPE_BOOLEAN</code>
-     */
-    public static final String TYPESTRING_BOOLEAN = "boolean";
 
     /**
      * Constructs a new value of the given type.
@@ -227,8 +216,6 @@ public abstract class ProductData implements Cloneable {
                 return new ProductData.ASCII(numElems);
             case TYPE_UTC:
                 return new ProductData.UTC();
-            case TYPE_BOOLEAN:
-                return new ProductData.Boolean(numElems);
             default:
                 return null;
         }
@@ -264,8 +251,6 @@ public abstract class ProductData implements Cloneable {
                 return new ProductData.ASCII((String) data);
             case TYPE_UTC:
                 return new ProductData.UTC((int[]) data);
-            case TYPE_BOOLEAN:
-                return new ProductData.Boolean((boolean[]) data);
             default:
                 return null;
         }
@@ -301,12 +286,6 @@ public abstract class ProductData implements Cloneable {
         return new ProductData.UInt(elems);
     }
 
-    public static ProductData createInstance(boolean[] elems) {
-        Guardian.assertNotNull("elems", elems);
-        return new ProductData.Boolean(elems);
-    }
-
-
     /**
      * Returns this value's type ID.
      */
@@ -326,7 +305,6 @@ public abstract class ProductData implements Cloneable {
             case TYPE_INT8:
             case TYPE_UINT8:
             case TYPE_ASCII:
-            case TYPE_BOOLEAN:
                 return 1;
             case TYPE_INT16:
             case TYPE_UINT16:
@@ -379,8 +357,6 @@ public abstract class ProductData implements Cloneable {
                 return TYPESTRING_ASCII;
             case TYPE_UTC:
                 return TYPESTRING_UTC;
-            case TYPE_BOOLEAN:
-                return TYPESTRING_BOOLEAN;
             default:
                 return null;
         }
@@ -412,8 +388,6 @@ public abstract class ProductData implements Cloneable {
             return TYPE_ASCII;
         } else if (TYPESTRING_UTC.equals(type)) {
             return TYPE_UTC;
-        } else if (TYPESTRING_BOOLEAN.equals(type)) {
-            return TYPE_INT8;
         }
         return TYPE_UNDEFINED;
     }
@@ -2807,237 +2781,6 @@ public abstract class ProductData implements Cloneable {
          */
         public long getMicroSecondsFraction() {
             return this.getElemUIntAt(2);
-        }
-    }
-
-    /**
-     * The <code>Boolean</code> class is a <code>ProductData</code> specialisation for true/false fields.
-     * <p/>
-     * <p> Internally, data is stored in an array of the type <code>boolean[]</code>.
-     */
-    public static class Boolean extends ProductData {
-
-        /**
-         * The internal data array holding this value's data elements.
-         */
-        protected boolean[] _array;
-
-        /**
-         * Constructs a new <code>Boolean</code> value.
-         *
-         * @param array the elements
-         */
-        protected Boolean(boolean[] array) {
-            super(TYPE_BOOLEAN);
-            _array = array;
-        }
-
-        /**
-         * Constructs a new <code>Boolean</code> value.
-         *
-         * @param numElems the number of elements, must not be less than one
-         */
-        protected Boolean(int numElems) {
-            super(TYPE_BOOLEAN);
-            _array = new boolean[numElems];
-        }
-
-        /**
-         * Retuns a "deep" copy of this product data.
-         *
-         * @return a copy of this product data
-         */
-        @Override
-        protected ProductData createDeepClone() {
-            final Boolean data = new Boolean(_array.length);
-            System.arraycopy(_array, 0, data._array, 0, _array.length);
-            return data;
-        }
-
-        /**
-         * Returns the number of data elements this value has.
-         */
-        @Override
-        public int getNumElems() {
-            return _array.length;
-        }
-
-        /**
-         * Please refer to {@link ProductData#getElemIntAt(int)}.
-         */
-        @Override
-        public int getElemIntAt(int index) {
-            return _array[index] ? 1 : 0;
-        }
-
-        /**
-         * Please refer to {@link ProductData#getElemUIntAt(int)}.
-         */
-        @Override
-        public long getElemUIntAt(int index) {
-            return _array[index] ? 1 : 0;
-        }
-
-        /**
-         * Please refer to {@link ProductData#getElemFloatAt(int)}.
-         */
-        @Override
-        public float getElemFloatAt(int index) {
-            return _array[index] ? 1.0f : 0.0f;
-        }
-
-        /**
-         * Please refer to {@link ProductData#getElemDoubleAt(int)}.
-         */
-        @Override
-        public double getElemDoubleAt(int index) {
-            return _array[index] ? 1.0 : 0.0;
-        }
-
-        /**
-         * Please refer to {@link ProductData#getElemStringAt(int)}.
-         */
-        @Override
-        public String getElemStringAt(int index) {
-            return java.lang.Boolean.toString(_array[index]);
-        }
-
-        /**
-         * Please refer to {@link ProductData#getElemBooleanAt(int)}.
-         */
-        @Override
-        public boolean getElemBooleanAt(int index) {
-            return _array[index];
-        }
-
-        /**
-         * Please refer to {@link ProductData#setElemIntAt(int, int)}.
-         */
-        @Override
-        public void setElemIntAt(int index, int value) {
-            _array[index] = (value != 0);
-        }
-
-        /**
-         * Please refer to {@link ProductData#setElemUIntAt(int, long)}.
-         */
-        @Override
-        public void setElemUIntAt(int index, long value) {
-            _array[index] = (value != 0);
-        }
-
-        /**
-         * Please refer to {@link ProductData#setElemFloatAt(int, float)}.
-         */
-        @Override
-        public void setElemFloatAt(int index, float value) {
-            _array[index] = (value != 0);
-        }
-
-        /**
-         * Please refer to {@link ProductData#setElemDoubleAt(int, double)}.
-         */
-        @Override
-        public void setElemDoubleAt(int index, double value) {
-            _array[index] = (value != 0);
-        }
-
-        /**
-         * Please refer to {@link ProductData#setElemBooleanAt(int, boolean)}.
-         */
-        @Override
-        public void setElemBooleanAt(int index, boolean value) {
-            _array[index] = value;
-        }
-
-        /**
-         * Returns the internal data array holding this value's data elements.
-         *
-         * @return the internal data array, never <code>null</code>
-         */
-        public final boolean[] getArray() {
-            return _array;
-        }
-
-        /**
-         * Gets the actual value value(s). The value returned can safely been casted to an array object of the type
-         * <code>boolean[]</code>.
-         *
-         * @return this value's value, always a <code>boolean[]</code>, never <code>null</code>
-         */
-        @Override
-        public Object getElems() {
-            return _array;
-        }
-
-        /**
-         * Sets the data of this value. The data must be an array of the type <code>boolean[]</code> or
-         * <code>String[]</code> and have a length that is equal to the value returned by the
-         * <code>getNumDataElems</code> method.
-         *
-         * @param data the data array
-         * @throws IllegalArgumentException if data is <code>null</code> or it is not an array of the required type or
-         *                                  does not have the required array length.
-         */
-        @Override
-        public void setElems(Object data) {
-            Guardian.assertNotNull("data", data);
-            if (data instanceof String[] && ((String[]) data).length == getNumElems()) {
-                final String[] strings = (String[]) data;
-                for (int i = 0; i < getNumElems(); i++) {
-                    _array[i] = java.lang.Boolean.parseBoolean(strings[i]);
-                }
-                return;
-            }
-            if (!(data instanceof boolean[]) || ((boolean[]) data).length != getNumElems()) {
-                throw new IllegalArgumentException("data is not a boolean[" + getNumElems() + "]");
-            }
-            System.arraycopy(data, 0, _array, 0, getNumElems());
-        }
-
-        /**
-         * Please refer to {@link ProductData#readFrom(int, int, ImageInputStream)}.
-         */
-        @Override
-        public void readFrom(int startPos, int numElems, ImageInputStream source) throws IOException {
-            ProductData.Byte bytes = new Byte(numElems);
-            bytes.readFrom(startPos, numElems, source);
-            for (int i = 0; i < getNumElems(); i++) {
-                setElemIntAt(i + startPos, bytes.getElemIntAt(i));
-            }
-        }
-
-        /**
-         * Please refer to {@link ProductData#writeTo(int, int, ImageOutputStream)}.
-         */
-        @Override
-        public void writeTo(int sourceStartPos, int numSourceElems, ImageOutputStream destination) throws IOException {
-            ProductData.Byte bytes = new Byte(getNumElems());
-            for (int i = 0; i < getNumElems(); i++) {
-                bytes.setElemIntAt(i, getElemIntAt(i));
-            }
-            bytes.writeTo(sourceStartPos, numSourceElems, destination);
-        }
-
-        @Override
-        public Object clone() {
-            Byte c = new Byte(getNumElems(), isUnsigned());
-            c.setElems(getElems());
-            return c;
-        }
-
-        /**
-         * Releases all of the resources used by this object instance and all of its owned children. Its primary use is
-         * to allow the garbage collector to perform a vanilla job.
-         * <p/>
-         * <p>This method should be called only if it is for sure that this object instance will never be used again.
-         * The results of referencing an instance of this class after a call to <code>dispose()</code> are undefined.
-         * <p/>
-         * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
-         */
-        @Override
-        public void dispose() {
-            _array = null;
         }
     }
 }
