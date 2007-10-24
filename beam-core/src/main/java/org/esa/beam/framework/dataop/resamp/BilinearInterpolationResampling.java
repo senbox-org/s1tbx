@@ -78,4 +78,9 @@ final class BilinearInterpolationResampling implements Resampling {
                 z21 * (1f - ki) * kj +
                 z22 * ki * kj;
     }
+
+    @Override
+    public String toString() {
+        return "Bilinear interpolation resampling";
+    }
 }

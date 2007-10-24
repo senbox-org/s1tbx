@@ -38,6 +38,11 @@ public class TargetProductSelectorModelTest extends TestCase {
         assertEquals("Obelix", model.getProductName());
     }
 
+    public void testSetGetFormatName() {
+        model.setFormatName("Majestix");
+        assertEquals("Majestix", model.getFormatName());
+    }
+
     public void testGetFileName() {
         model.setProductName("Obelix");
         assertEquals("Obelix", model.getProductName());

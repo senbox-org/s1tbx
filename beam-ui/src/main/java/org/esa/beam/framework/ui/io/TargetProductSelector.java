@@ -43,9 +43,9 @@ public class TargetProductSelector {
     }
 
     private void initComponents() {
-        productNameLabel = new JLabel("Product Name:");
+        productNameLabel = new JLabel("Product name:");
         productNameTextField = new JTextField(25);
-        saveToFileCheckBox = new JCheckBox("Save To:");
+        saveToFileCheckBox = new JCheckBox("Save as:");
         directoryTextField = new JTextField(25);
         directoryChooserButton = new JButton("...");
         formatNameComboBox = new JComboBox(model.getFormatNames());

@@ -138,4 +138,8 @@ final class CubicConvolutionResampling implements Resampling {
         return 1f - 2f * (t * t) + (t * t * t);
     }
 
+    @Override
+    public String toString() {
+        return "Cubic convolution resampling";
+    }
 }

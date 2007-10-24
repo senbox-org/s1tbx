@@ -32,28 +32,27 @@ public class SourceProductSelector {
     private JButton chooserButton;
     private JComboBox productComboBox;
 
-
-    public SourceProductSelector(Product[] products, String productLabelText) {
-        this(products, productLabelText, ".*");
+    public SourceProductSelector(Product[] selectableProducts, String labelText) {
+        this(selectableProducts, labelText, ".*");
     }
 
-    public SourceProductSelector(Product[] products, String productLabelText, String productTypePattern) {
-        labelText = productLabelText.trim();
-        if (!labelText.endsWith(":")) {
-            labelText = labelText.concat(":");
+    public SourceProductSelector(Product[] selectableProducts, String labelText, String typePattern) {
+        this.labelText = labelText;
+        if (!this.labelText.endsWith(":")) {
+            this.labelText = this.labelText.concat(":");
         }
 
-        typePattern = Pattern.compile(productTypePattern);
+        this.typePattern = Pattern.compile(typePattern);
         productListModel = new DefaultComboBoxModel();
 
-        for (Product product : products) {
-            if (typePattern.matcher(product.getProductType()).matches()) {
+        for (Product product : selectableProducts) {
+            if (this.typePattern.matcher(product.getProductType()).matches()) {
                 productListModel.addElement(product);
             }
         }
         productListModel.setSelectedItem(null);
 
-        productLabel = new JLabel(labelText);
+        productLabel = new JLabel(this.labelText);
         chooserButton = new JButton(new ChooserAction());
         productComboBox = new JComboBox(productListModel);
         productComboBox.setPrototypeDisplayValue("[1] 123456789 123456789 12345");
@@ -227,6 +226,4 @@ public class SourceProductSelector {
 
         void handleError(JComponent component, Throwable t);
     }
-
-
 }

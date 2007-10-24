@@ -33,6 +33,7 @@ public class TargetProductSelectorModel {
     private File directory;
     private String formatName;
     private String[] formatNames;
+
     private final ValueContainer valueContainer;
 
     public TargetProductSelectorModel(boolean saveToFile) {
@@ -43,7 +44,6 @@ public class TargetProductSelectorModel {
         });
         valueContainer = factory.createObjectBackedValueContainer(this);
         valueContainer.addPropertyChangeListener("saveToFileSelected", new PropertyChangeListener() {
-
             public void propertyChange(PropertyChangeEvent evt) {
                 if (!(Boolean) evt.getNewValue()) {
                     setOpenInVisatSelected(true);
@@ -51,13 +51,13 @@ public class TargetProductSelectorModel {
             }
         });
         valueContainer.addPropertyChangeListener("openInVisatSelected", new PropertyChangeListener() {
-
             public void propertyChange(PropertyChangeEvent evt) {
                 if (!(Boolean) evt.getNewValue()) {
                     setSaveToFileSelected(true);
                 }
             }
         });
+
         setSaveToFileSelected(saveToFile);
         formatNames = ProductIOPlugInManager.getInstance().getAllProductWriterFormatStrings();
         if (StringUtils.contains(formatNames, ProductIO.DEFAULT_FORMAT_NAME)) {
@@ -87,11 +87,15 @@ public class TargetProductSelectorModel {
         return new File(directory, getFileName());
     }
 
+    public String getFilePath() {
+        return getFile().getPath();
+    }
+
     public String getFileName() {
         String productFileName = productName;
         Iterator<ProductWriterPlugIn> iterator = ProductIOPlugInManager.getInstance().getWriterPlugIns(formatName);
         if (iterator.hasNext()) {
-            ProductWriterPlugIn writerPlugIn = iterator.next();
+            final ProductWriterPlugIn writerPlugIn = iterator.next();
 
             boolean ok = false;
             for (String extension : writerPlugIn.getDefaultFileExtensions()) {
@@ -107,6 +111,9 @@ public class TargetProductSelectorModel {
         return productFileName;
     }
 
+    public String getFormatName() {
+        return formatName;
+    }
 
     public String[] getFormatNames() {
         return formatNames;

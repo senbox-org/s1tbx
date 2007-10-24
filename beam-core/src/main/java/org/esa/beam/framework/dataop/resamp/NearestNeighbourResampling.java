@@ -33,4 +33,9 @@ final class NearestNeighbourResampling implements Resampling {
                                 final Index index) throws Exception {
         return raster.getSample(index.i0, index.j0);
     }
+
+    @Override
+    public String toString() {
+        return "Nearest neighbour resampling";
+    }
 }
