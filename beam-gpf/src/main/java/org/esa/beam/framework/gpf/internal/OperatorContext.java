@@ -301,10 +301,21 @@ public class OperatorContext {
     }
 
     private static void convertOperatorContextToMetadata(OperatorContext context, MetadataElement targetGraphME) {
+        String opId = context.getId();
+        boolean contains = false;
+        for (MetadataElement element : targetGraphME.getElements()) {
+            MetadataAttribute idAttribute = element.getAttribute("id");
+            if (idAttribute.getData().getElemString().equals(opId)) {
+                contains = true;
+            }
+        }
+        if (contains) {
+            return;
+        }
         final String opName = OperatorSpi.getOperatorAlias(context.operator.getClass());
         MetadataElement targetNodeME = new MetadataElement("node");
         targetGraphME.addElement(targetNodeME);
-        targetNodeME.addAttribute(new MetadataAttribute("id", ProductData.createInstance(context.getId()), false));
+        targetNodeME.addAttribute(new MetadataAttribute("id", ProductData.createInstance(opId), false));
         targetNodeME.addAttribute(new MetadataAttribute("operator", ProductData.createInstance(opName), false));
         final MetadataElement targetSourcesME = new MetadataElement("sources");
         for (String sourceId : context.sourceProductMap.keySet()) {
