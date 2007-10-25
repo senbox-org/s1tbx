@@ -610,6 +610,27 @@
         </action>
 
         <action>
+            <id>expandMetadata</id>
+            <class>org.esa.beam.visat.actions.ExpandMetadataTableAction</class>
+            <text>Expand All</text>
+            <mnemonic>E</mnemonic>
+            <shortDescr>Expands all tree nodes.</shortDescr>
+            <context>metadata</context>
+            <helpId>collapseMetadata</helpId>
+        </action>
+
+        <action>
+            <id>collapseMetadata</id>
+            <class>org.esa.beam.visat.actions.CollapseMetadataTableAction</class>
+            <text>Collapse All</text>
+            <mnemonic>C</mnemonic>
+            <shortDescr>Collapses all tree nodes.</shortDescr>
+            <context>metadata</context>
+            <helpId>collapseMetadata</helpId>
+            <placeAfter>expandMetadata</placeAfter>
+        </action>
+
+        <action>
             <id>exportMetadata</id>
             <class>org.esa.beam.visat.actions.ExportMetadataAction</class>
             <parent>export</parent>
@@ -619,6 +640,7 @@
             <description>Export the currently displayed metadata as tab-separated text.</description>
             <context>metadata</context>
             <helpId>exportMetadata</helpId>
+            <placeAfter>collapseMetadata</placeAfter>
         </action>
 
         <action>
@@ -1080,7 +1102,8 @@
             <text>Create Subset from View...</text>
             <shortDescr>Creates a product subset from the selected view</shortDescr>
             <description>Creates a product subset from the selected view by preselecting the subset area from
-                view</description>
+                view
+            </description>
             <context>subsetFromView</context>
             <helpId>subsetFromView</helpId>
             <parent>tools</parent>
@@ -1331,7 +1354,7 @@
             <helpId>pinTool</helpId>
         </action>
 
-       <action>
+        <action>
             <id>gcpTool</id>
             <class>org.esa.beam.visat.actions.PlacemarkToolAction</class>
             <tool>org.esa.beam.visat.toolviews.pin.GcpTool</tool>

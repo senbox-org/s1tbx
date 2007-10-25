@@ -2,6 +2,8 @@ package org.esa.beam.visat.actions;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.ui.SelectExportMethodDialog;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.CommandEvent;
@@ -52,9 +54,6 @@ public class ExportMetadataAction extends ExecCommand {
     // Private implementations for the "Export Metadata" command
     /////////////////////////////////////////////////////////////////////////
 
-    /**
-     * Performs the actual "Export Metadata" command.
-     */
     private static void exportMetadata(CommandEvent event) {
 
         ProductNodeView view = VisatApp.getApp().getSelectedProductNodeView();
@@ -64,18 +63,12 @@ public class ExportMetadataAction extends ExecCommand {
 
         final ProductMetadataView productMetadataView = (ProductMetadataView) view;
         final ProductMetadataTable metadataTable = productMetadataView.getMetadataTable();
-        final TableModel metadataTableModel = metadataTable.getModel();
 
-        final String questionText = "How do you want to export the metadata?\n"; /*I18N*/
-        final String numRowsText;
-        if (metadataTableModel.getRowCount() == 1) {
-            numRowsText = "One data row will be exported.\n"; /*I18N*/
-        } else {
-            numRowsText = metadataTableModel.getRowCount() + " data rows will be exported.\n"; /*I18N*/
-        }
+        final String msgText = "How do you want to export the metadata?\n" +
+                "Element '" + metadataTable.getMetadataElement().getName() + "' will be exported.\n"; /*I18N*/
         // Get export method from user
         final int method = SelectExportMethodDialog.run(VisatApp.getApp().getMainFrame(), getWindowTitle(),
-                                                        questionText + numRowsText, event.getCommand().getHelpId());
+                                                        msgText, event.getCommand().getHelpId());
 
         final PrintWriter out;
         final StringBuffer clipboardText;
@@ -120,7 +113,8 @@ public class ExportMetadataAction extends ExecCommand {
                 try {
                     ProgressMonitor pm = new DialogProgressMonitor(VisatApp.getApp().getMainFrame(), DLG_TITLE,
                                                                    Dialog.ModalityType.APPLICATION_MODAL);
-                    success = exportMetadata(out, metadataTable, pm);
+                    final MetadataExporter exporter = new MetadataExporter(metadataTable);
+                    success = exporter.exportMetadata(out, pm);
                     if (success && clipboardText != null) {
                         SystemUtils.copyToClipboard(clipboardText.toString());
                         clipboardText.setLength(0);
@@ -180,8 +174,9 @@ public class ExportMetadataAction extends ExecCommand {
     /**
      * Opens a modal file chooser dialog that prompts the user to select the output file name.
      *
-     * @param visatApp the VISAT application
-     * @return the selected file, <code>null</code> means "Cancel"
+     * @param visatApp        An instance of the VISAT application.
+     * @param defaultFileName The default file name.
+     * @return The selected file, <code>null</code> means "Cancel".
      */
     private static File promptForFile(final VisatApp visatApp, String defaultFileName) {
         // Loop while the user does not want to overwrite a selected, existing file
@@ -214,68 +209,76 @@ public class ExportMetadataAction extends ExecCommand {
         return file;
     }
 
-    /**
-     * Writes all pixel values of the given product within the given ROI to the specified out.
-     *
-     * @param out the data output writer
-     * @return <code>true</code> for success, <code>false</code> if export has been terminated (by user)
-     */
-    private static boolean exportMetadata(final PrintWriter out,
-                                          final ProductMetadataTable metadataTable,
-                                          ProgressMonitor pm) {
-        final TableModel metadataTableModel = metadataTable.getModel();
-        writeHeaderLine(out, metadataTable);
-        final int rowCount = metadataTableModel.getRowCount();
-        pm.beginTask("Writing data rows...", rowCount);
-        try {
-            for (int i = 0; i < rowCount; i++) {
-                writeDataLine(out, metadataTable, i);
+    private static class MetadataExporter {
+        private final ProductMetadataTable metadataTable;
+
+        private MetadataExporter(ProductMetadataTable metadataTable) {
+            this.metadataTable = metadataTable;
+        }
+
+        public boolean exportMetadata(final PrintWriter out, ProgressMonitor pm) {
+            pm.beginTask("Export Metadata", 1);
+            try {
+                writeHeaderLine(out, metadataTable);
+                writeAttributes(out, metadataTable.getMetadataElement());
                 pm.worked(1);
-                if (pm.isCanceled()) {
-                    return false;
+            } finally {
+                pm.done();
+            }
+            return true;
+        }
+
+
+        private void writeHeaderLine(final PrintWriter out,
+                                     final ProductMetadataTable metadataTable) {
+            final TableModel metadataTableModel = metadataTable.getModel();
+            final int columnCount = metadataTableModel.getColumnCount();
+            for (int i = 0; i < columnCount; i++) {
+                out.print(metadataTableModel.getColumnName(i));
+                if (i < columnCount - 1) {
+                    out.print("\t");
                 }
             }
-        } finally {
-            pm.done();
+            out.print("\n");
         }
 
-        return true;
-    }
 
-    /**
-     * Writes the header line of the dataset to be exported.
-     */
-    private static void writeHeaderLine(final PrintWriter out,
-                                        final ProductMetadataTable metadataTable) {
-        final TableModel metadataTableModel = metadataTable.getModel();
-        final int columnCount = metadataTableModel.getColumnCount();
-        for (int i = 0; i < columnCount; i++) {
-            out.print(metadataTableModel.getColumnName(i));
-            if (i < columnCount - 1) {
-                out.print("\t");
+        private void writeAttributes(PrintWriter out, MetadataElement rootElement) {
+            final MetadataAttribute[] attributes = rootElement.getAttributes();
+            for (MetadataAttribute attribute : attributes) {
+                out.print(createAttributeName(attribute) + "\t");
+                out.print(attribute.getData().getElemString() + "\t");
+                out.print(attribute.getUnit() + "\t");
+                out.print(attribute.getDescription() + "\t\n");
+            }
+            final MetadataElement[] subElements = rootElement.getElements();
+            for (MetadataElement subElement : subElements) {
+                writeAttributes(out, subElement);
             }
         }
-        out.print("\n");
-    }
 
-    /**
-     * Writes a data line of the dataset to be exported for the given pixel position.
-     */
-    private static void writeDataLine(final PrintWriter out,
-                                      final ProductMetadataTable metadataTable,
-                                      int row) {
-        // todo - rewrite this section (nf - 24.10.2007)
-//        final TableModel metadataTableModel = metadataTable.getModel();
-//        final int columnCount = metadataTableModel.getColumnCount();
-//        ProductMetadataTable.AttributeRef attributeRef;
-//        for (int i = 0; i < columnCount; i++) {
-//            attributeRef = (ProductMetadataTable.AttributeRef) metadataTableModel.getValueAt(row, i);
-//            out.print(metadataTable.getElementText(attributeRef, i));
-//            if (i < columnCount - 1) {
-//                out.print("\t");
-//            }
-//        }
-//        out.print("\n");
-    }
+        private String createAttributeName(MetadataAttribute attribute) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(attribute.getName());
+            MetadataElement parent;
+            if (attribute.getOwner() instanceof MetadataElement) {
+                parent = (MetadataElement) attribute.getOwner();
+                do {
+                    if (parent.getName() != null) {
+                        sb.insert(0, parent.getName() + ".");
+                    }
+                    if (!(parent.getOwner() instanceof MetadataElement)) {
+                        break;
+                    }
+                    parent = (MetadataElement) parent.getOwner();
+                } while (!parent.getName().equals(metadataTable.getMetadataElement().getName()));
+                if (parent.getName() != null) {
+                    sb.insert(0, parent.getName() + ".");
+                }
+            }
+            return sb.toString();
+        }
 
+
+    }
 }

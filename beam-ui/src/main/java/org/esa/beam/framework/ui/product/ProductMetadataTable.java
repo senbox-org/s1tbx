@@ -16,10 +16,7 @@
  */
 package org.esa.beam.framework.ui.product;
 
-import com.jidesoft.grid.DefaultExpandableRow;
-import com.jidesoft.grid.Row;
-import com.jidesoft.grid.TreeTable;
-import com.jidesoft.grid.TreeTableModel;
+import com.jidesoft.grid.*;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
@@ -72,13 +69,6 @@ public class ProductMetadataTable extends TreeTable {
         initFonts();
         setModel(new MDTableModel(rootElement));
         getTableHeader().setReorderingAllowed(false);
-//        setIndent(3);
-//        setExpandAllAllowed(true);
-//        setShowTreeLines(true);
-//        setShowGrid(true);
-//
-//        // do not select row when expanding a row.
-//        setSelectRowWhenToggling(false);
 
         //ElementRefCellRenderer renderer = new ElementRefCellRenderer();
         //renderer.setBorder(new EmptyBorder(2, 3, 2, 3));
@@ -216,7 +206,7 @@ public class ProductMetadataTable extends TreeTable {
             } else if (i == TYPE_COL_INDEX) {
             } else if (i == UNIT_COL_INDEX) {
             } else if (i == DESCR_COL_INDEX) {
-                return element.getDescription();
+                return element.getDescription() != null ? element.getDescription() : "";
             }
             return "";
         }
@@ -240,7 +230,7 @@ public class ProductMetadataTable extends TreeTable {
         }
     }
 
-    static class MDAttributeRow extends DefaultExpandableRow {
+    static class MDAttributeRow extends AbstractRow {
         MetadataAttribute attribute;
         int index;
 
@@ -255,11 +245,6 @@ public class ProductMetadataTable extends TreeTable {
 
         public MetadataAttribute getAttribute() {
             return attribute;
-        }
-
-        @Override
-        public boolean isExpandable() {
-            return false;
         }
 
         public Object getValueAt(int column) {
