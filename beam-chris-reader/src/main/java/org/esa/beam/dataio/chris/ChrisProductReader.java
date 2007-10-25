@@ -193,7 +193,14 @@ public class ChrisProductReader extends AbstractProductReader {
         mph.addAttribute(new MetadataAttribute(ChrisConstants.ATTR_NAME_NOISE_REDUCTION,
                                                ProductData.createInstance("None"), true));
 
-        final MetadataElement modeInfo = new MetadataElement("Mode Information");
+        final MetadataElement bandInfo = createBandInfo();
+
+        product.getMetadataRoot().addElement(mph);
+        product.getMetadataRoot().addElement(bandInfo);
+    }
+
+    private MetadataElement createBandInfo() {
+        final MetadataElement bandInfo = new MetadataElement("Band Information");
         for (int i = 0; i < chrisFile.getSpectralBandCount(); i++) {
             final String name = MessageFormat.format("radiance_{0}", i + 1);
             final MetadataElement element = new MetadataElement(name);
@@ -242,11 +249,9 @@ public class ChrisProductReader extends AbstractProductReader {
             attribute.setDescription("CCD row number for the cut-off wavelength");
             element.addAttribute(attribute);
 
-            modeInfo.addElement(element);
+            bandInfo.addElement(element);
         }
-
-        product.getMetadataRoot().addElement(mph);
-        product.getMetadataRoot().addElement(modeInfo);
+        return bandInfo;
     }
 
     private void addSolarAzimuthAngleIfPossible(final Product product, final MetadataElement element) {
@@ -255,7 +260,7 @@ public class ChrisProductReader extends AbstractProductReader {
             final double lat = Double.parseDouble(chrisFile.getGlobalAttribute(ChrisConstants.ATTR_NAME_TARGET_LAT));
             final double lon = Double.parseDouble(chrisFile.getGlobalAttribute(ChrisConstants.ATTR_NAME_TARGET_LON));
 
-            final double saa = SunPositionCalculator.calculate(calendar, lat, -lon).getAzimuthAngle();
+            final double saa = SunPositionCalculator.calculate(calendar, lat, lon).getAzimuthAngle();
             final ProductData data = ProductData.createInstance(String.format("%05.2f", saa));
 
             element.addAttribute(new MetadataAttribute(ChrisConstants.ATTR_NAME_SOLAR_AZIMUTH_ANGLE, data, true));

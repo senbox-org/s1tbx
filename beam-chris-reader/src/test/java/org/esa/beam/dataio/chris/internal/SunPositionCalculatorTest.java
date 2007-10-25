@@ -17,7 +17,9 @@ public class SunPositionCalculatorTest extends TestCase {
     /**
      * Test calculation of angular position of the Sun.
      * <p/>
-     * Expected values are from http://www.srrb.noaa.gov/highlights/sunrise/azel.html
+     * Expected values are from the <a href="http://www.srrb.noaa.gov/highlights/sunrise/azel.html">NOAA
+     * Solar Position Calculator</a>.
+     *
      */
     public void testCalculate() {
         final Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
@@ -32,5 +34,4 @@ public class SunPositionCalculatorTest extends TestCase {
         assertEquals(56.69, sunPosition.getZenithAngle(), 0.02);
         assertEquals(229.67, sunPosition.getAzimuthAngle(), 0.02);
     }
-
 }
