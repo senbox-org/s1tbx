@@ -3,7 +3,8 @@ package org.esa.beam.unmixing.visat;
 import com.bc.ceres.binding.swing.SwingBindingContext;
 
 import javax.swing.*;
-import java.awt.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 
 class SpectralUnmixingForm extends JPanel {
     SpectralUnmixingFormModel formModel;
@@ -41,9 +42,13 @@ class SpectralUnmixingForm extends JPanel {
 
     private void initComponents() {
         endmemberForm = new EndmemberForm(endmemberFormModel);
-        inputProductName = new JTextField(formModel.getInputProduct().getName());
+        inputProductName = new JTextField(10);
+        inputProductName.setText(formModel.getInputProduct().getName());
+        inputProductName.setCaretPosition(0);
         inputProductName.setEditable(false);
-        outputProductName = new JTextField(formModel.getInputProduct().getName() + "_unmixed");
+        outputProductName = new JTextField(15);
+        outputProductName.setText(formModel.getInputProduct().getName() + "_unmixed");
+        outputProductName.setCaretPosition(0);
         sourceBandNames = new JList();
         sourceBandNames.setModel(formModel.getBandListModel());
         alterSourceProduct = new JCheckBox("Alter input product, don't create output product");
@@ -164,7 +169,8 @@ class SpectralUnmixingForm extends JPanel {
         gbc.gridx = 0;
         gbc.gridwidth = 2;
         gbc.weighty = 1;
-        ioPanel.add(new JComponent(){}, gbc);
+        ioPanel.add(new JComponent() {
+        }, gbc);
 
         return ioPanel;
     }
