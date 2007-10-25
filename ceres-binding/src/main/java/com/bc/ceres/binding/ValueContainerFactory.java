@@ -5,6 +5,7 @@ import com.bc.ceres.binding.accessors.*;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.Map.Entry;
 
 // todo - rename to ValueContainerFactory
 
@@ -74,8 +75,10 @@ public class ValueContainerFactory {
 
     public static ValueContainer createMapBackedValueContainer(Map<String, Object> map) {
         ValueContainer vc = new ValueContainer();
-        for (String name : map.keySet()) {
-            vc.addModel(new ValueModel(createValueDescriptor(name, map.get(name)), new MapEntryAccessor(map, name)));
+        for (Entry<String, Object> entry : map.entrySet()) {
+            String name = entry.getKey();
+            Object value = entry.getValue();
+            vc.addModel(new ValueModel(createValueDescriptor(name, value), new MapEntryAccessor(map, name)));
         }
         return vc;
     }
