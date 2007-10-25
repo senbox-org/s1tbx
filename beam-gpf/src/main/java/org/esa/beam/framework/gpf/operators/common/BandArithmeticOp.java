@@ -86,7 +86,7 @@ public class BandArithmeticOp extends Operator {
         
         BandArithmeticOp bandArithmeticOp = new BandArithmeticOp();
         bandArithmeticOp.targetBandDescriptors = bandDescriptors;
-        bandArithmeticOp.addSourceProduct("sourceProduct", sourceProduct);
+        bandArithmeticOp.sourceProducts = new Product[] {sourceProduct};
         return bandArithmeticOp;
     }
     
