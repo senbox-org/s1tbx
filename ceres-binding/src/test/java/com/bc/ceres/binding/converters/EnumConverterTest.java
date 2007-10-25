@@ -12,23 +12,33 @@ public class EnumConverterTest extends AbstractConverterTest {
 
     private enum Tests {
 
-        TEST1 {
+        TEST1("Description 1") {
             @Override
             public String toString() {
                 return "Test 1";
             }
         },
-        TEST2 {
+        TEST2("Description 2") {
             @Override
             public String toString() {
                 return "Test 2";
             }
         },
-        TEST3 {
+        TEST3("Description 3") {
             @Override
             public String toString() {
                 return "Test 3";
             }
+        };
+
+        private String description;
+
+        private Tests(String description) {
+            this.description = description;
+        }
+
+        public String getDescription() {
+            return description;
         }
     }
 
@@ -52,5 +62,4 @@ public class EnumConverterTest extends AbstractConverterTest {
 
         assertNullCorrectlyHandled();
     }
-
 }

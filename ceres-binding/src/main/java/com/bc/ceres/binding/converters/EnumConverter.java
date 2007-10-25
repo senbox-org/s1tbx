@@ -16,11 +16,11 @@ public class EnumConverter<T extends Enum<T>> implements Converter {
         this.type = type;
     }
 
-    public Class<?> getValueType() {
+    public Class<T> getValueType() {
         return type;
     }
 
-    public Object parse(String text) throws ConversionException {
+    public T parse(String text) throws ConversionException {
         if (text.isEmpty()) {
             return null;
         }
