@@ -76,20 +76,20 @@ public class BandArithmeticOp extends Operator {
 
     private Map<Band, RasterDataSymbol[]> symbolMap;
     private Map<Band, Term> termMap;
-    
+
     public static BandArithmeticOp createBooleanExpressionBand(String expression, Product sourceProduct) {
         BandDescriptor[] bandDescriptors = new BandDescriptor[1];
         bandDescriptors[0] = new BandDescriptor();
         bandDescriptors[0].name = "band1";
         bandDescriptors[0].expression = expression;
         bandDescriptors[0].type = ProductData.TYPESTRING_INT8;
-        
+
         BandArithmeticOp bandArithmeticOp = new BandArithmeticOp();
         bandArithmeticOp.targetBandDescriptors = bandDescriptors;
-        bandArithmeticOp.sourceProducts = new Product[] {sourceProduct};
+        bandArithmeticOp.sourceProducts = new Product[]{sourceProduct};
         return bandArithmeticOp;
     }
-    
+
     @Override
     public Product initialize() throws OperatorException {
         if (targetBandDescriptors == null || targetBandDescriptors.length == 0) {
@@ -148,13 +148,13 @@ public class BandArithmeticOp extends Operator {
             if (bandDescriptor.spectralBandwidth != null) {
                 band.setSpectralBandwidth(bandDescriptor.spectralBandwidth);
             }
-            
+
             final Term term;
             try {
                 Parser parser = new ParserImpl(namespace, false);
                 term = parser.parse(bandDescriptor.expression);
             } catch (ParseException e) {
-                throw new OperatorException("Couldn't parse expression: " + bandDescriptor.expression, e);
+                throw new OperatorException("Could not parse expression: " + bandDescriptor.expression, e);
             }
             RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
 
@@ -174,7 +174,7 @@ public class BandArithmeticOp extends Operator {
         Rectangle rect = targetTile.getRectangle();
         RasterDataSymbol[] refRasterDataSymbols = symbolMap.get(band);
         Term term = termMap.get(band);
-        
+
         for (RasterDataSymbol symbol : refRasterDataSymbols) {
             Tile tile = getSourceTile(symbol.getRaster(), rect, pm);
             if (tile.getRasterDataNode().isScalingApplied()) {
