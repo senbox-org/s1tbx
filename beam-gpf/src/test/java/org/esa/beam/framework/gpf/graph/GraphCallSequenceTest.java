@@ -103,7 +103,7 @@ public class GraphCallSequenceTest extends TestCase {
         assertEquals(expectedRecordStrings.length, callRecordList.size());
 
         for (int i = 0; i < expectedRecordStrings.length; i++) {
-            assertEquals(expectedRecordStrings[i], callRecordList.get(i).toString());
+            assertEquals(expectedRecordStrings[i], callRecordList.get(i));
         }
     }
 
@@ -162,7 +162,7 @@ public class GraphCallSequenceTest extends TestCase {
         assertEquals(expectedRecordStrings.length, callRecordList.size());
 
         for (int i = 0; i < expectedRecordStrings.length; i++) {
-            assertEquals(expectedRecordStrings[i], callRecordList.get(i).toString());
+            assertEquals(expectedRecordStrings[i], callRecordList.get(i));
         }
     }
 
@@ -246,7 +246,7 @@ public class GraphCallSequenceTest extends TestCase {
 
         for (int i = 0; i < expectedRecords.length; i++) {
 //            System.out.println("callRecordList = " + callRecordList.get(i).toString());
-            assertEquals(expectedRecords[i], callRecordList.get(i).toString());
+            assertEquals(expectedRecords[i], callRecordList.get(i));
         }
     }
 
@@ -327,7 +327,7 @@ public class GraphCallSequenceTest extends TestCase {
         assertEquals(expectedRecords.length, callRecordList.size());
 
         for (int i = 0; i < expectedRecords.length; i++) {
-            assertEquals(expectedRecords[i], callRecordList.get(i).toString());
+            assertEquals(expectedRecords[i], callRecordList.get(i));
         }
     }
 

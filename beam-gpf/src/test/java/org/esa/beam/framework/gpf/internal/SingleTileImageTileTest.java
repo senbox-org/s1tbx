@@ -5,8 +5,8 @@ import java.awt.Rectangle;
 import java.awt.image.Raster;
 
 public class SingleTileImageTileTest extends AbstractTileImageTileTest {
-    final int IMAGE_W = 4;
-    final int IMAGE_H = 5;
+    final static int IMAGE_W = 4;
+    final static int IMAGE_H = 5;
     private TestOpImage imageFLOAT32;
 
     @Override

@@ -90,7 +90,7 @@ public class RRToFRSOp extends Operator {
 
         final int xrr = Math.round(rrPixelPos.x);
         final int yrr = Math.round(rrPixelPos.y);
-        if (rrPixelPos != null && rrProduct.containsPixel(xrr, yrr)) {
+        if (rrProduct.containsPixel(xrr, yrr)) {
             return rrPixelPos;
         } else {
             throw new OperatorException("RR product does not contain data for this coordinate: x=" + x + " y=" + y);

@@ -40,6 +40,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -354,8 +355,9 @@ public class OperatorContext {
             }
             elementList.add(childDE);
         }
-        for (String name : map.keySet()) {
-            final List<DomElement> elementList = map.get(name);
+        for (Entry<String,List<DomElement>> entry : map.entrySet()) {
+            String name = entry.getKey();
+            final List<DomElement> elementList = entry.getValue();
             if (elementList.size() > 1) {
                 for (int i = 0; i < elementList.size(); i++) {
                     addDomToMetadata(elementList.get(i), name + "." + i, parentME);

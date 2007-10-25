@@ -3,6 +3,7 @@ package org.esa.beam.framework.gpf.main;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.dom.DomElement;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
@@ -20,6 +21,7 @@ import javax.media.jai.JAI;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * The common command-line tool for the GPF.
@@ -94,13 +96,15 @@ class CommandLineTool {
             Node lastNode = graph.getNode(graph.getNodeCount() - 1);
             SortedMap<String, String> sourceFilepathsMap = lineArgs.getSourceFilepathMap();
             String readOperatorAlias = OperatorSpi.getOperatorAlias(ReadProductOp.class);
-            for (String sourceId : sourceNodeIdMap.keySet()) {
+            for (Entry<String, String> entry : sourceFilepathsMap.entrySet()) {
+                String sourceId = entry.getKey();
+                String sourceFilepath = entry.getValue();
                 String sourceNodeId = sourceNodeIdMap.get(sourceId);
                 if (graph.getNode(sourceNodeId) == null) {
                     Node sourceNode = new Node(sourceNodeId, readOperatorAlias);
                     Xpp3Dom parameters = new Xpp3Dom("parameters");
                     Xpp3Dom filePath = new Xpp3Dom("filePath");
-                    filePath.setValue(sourceFilepathsMap.get(sourceId));
+                    filePath.setValue(sourceFilepath);
                     parameters.addChild(filePath);
                     sourceNode.setConfiguration(parameters);
                     graph.addNode(sourceNode);
@@ -127,10 +131,11 @@ class CommandLineTool {
     private Map<String, Object> getParameterMap(CommandLineArgs lineArgs) throws ValidationException, ConversionException {
         HashMap<String, Object> parameters = new HashMap<String, Object>();
         ValueContainer container = ParameterDescriptorFactory.createMapBackedOperatorValueContainer(lineArgs.getOperatorName(), parameters);
-        SortedMap<String, String> parameterMap = lineArgs.getParameterMap();
-        Set<String> paramNames = parameterMap.keySet();
-        for (String paramName : paramNames) {
-            container.setFromText(paramName, parameterMap.get(paramName));
+        Map<String, String> parameterMap = lineArgs.getParameterMap();
+        for (Entry<String, String> entry : parameterMap.entrySet()) {
+            String paramName = entry.getKey();
+            String paramValue = entry.getValue();
+            container.setFromText(paramName, paramValue);
         }
         return parameters;
     }
@@ -139,8 +144,9 @@ class CommandLineTool {
         SortedMap<File, Product> fileToProductMap = new TreeMap<File, Product>();
         SortedMap<String, Product> productMap = new TreeMap<String, Product>();
         SortedMap<String, String> sourceFilepathsMap = lineArgs.getSourceFilepathMap();
-        for (String sourceId : sourceFilepathsMap.keySet()) {
-            String sourceFilepath = sourceFilepathsMap.get(sourceId);
+        for (Entry<String, String> entry : sourceFilepathsMap.entrySet()) {
+            String sourceId = entry.getKey();
+            String sourceFilepath = entry.getValue();
             Product product = addProduct(sourceFilepath, fileToProductMap);
             productMap.put(sourceId, product);
         }
@@ -165,8 +171,9 @@ class CommandLineTool {
         SortedMap<File, String> fileToNodeIdMap = new TreeMap<File, String>();
         SortedMap<String, String> nodeIdMap = new TreeMap<String, String>();
         SortedMap<String, String> sourceFilepathsMap = lineArgs.getSourceFilepathMap();
-        for (String sourceId : sourceFilepathsMap.keySet()) {
-            String sourceFilepath = sourceFilepathsMap.get(sourceId);
+        for (Entry<String, String> entry : sourceFilepathsMap.entrySet()) {
+            String sourceId = entry.getKey();
+            String sourceFilepath = entry.getValue();
             String nodeId = addNodeId(sourceFilepath, fileToNodeIdMap);
             nodeIdMap.put(sourceId, nodeId);
         }

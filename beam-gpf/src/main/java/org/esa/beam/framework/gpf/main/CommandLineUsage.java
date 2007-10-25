@@ -21,6 +21,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.Map.Entry;
 
 class CommandLineUsage {
     private static final String TOOL_NAME = "gpt";
@@ -123,8 +124,9 @@ class CommandLineUsage {
     private static ArrayList<DocElement> createParamDocuElementList(OperatorClassDescriptor operatorClassDescriptor) {
         ArrayList<DocElement> docElementList = new ArrayList<DocElement>(10);
         final Map<Field, Parameter> parameterMap = operatorClassDescriptor.getParameters();
-        for (Field paramField : parameterMap.keySet()) {
-            final Parameter parameter = parameterMap.get(paramField);
+        for (Entry<Field, Parameter> entry : parameterMap.entrySet()) {
+            final Field paramField = entry.getKey();
+            final Parameter parameter = entry.getValue();
             String paramSyntax = MessageFormat.format("  -P{0}=<{1}>", getParameterName(paramField, parameter), getTypeName(paramField.getType()));
             final ArrayList<String> descriptionLines = createParamDescriptionLines(paramField, parameter);
             docElementList.add(new DocElement(paramSyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
@@ -135,8 +137,9 @@ class CommandLineUsage {
     private static ArrayList<DocElement> createSourceDocuElementList(OperatorClassDescriptor operatorClassDescriptor) {
         ArrayList<DocElement> docElementList = new ArrayList<DocElement>(10);
         final Map<Field, SourceProduct> sourceProductMap = operatorClassDescriptor.getSourceProductMap();
-        for (Field sourceIdField : sourceProductMap.keySet()) {
-            final SourceProduct sourceProduct = sourceProductMap.get(sourceIdField);
+        for (Entry<Field, SourceProduct> entry : sourceProductMap.entrySet()) {
+            final Field sourceIdField = entry.getKey();
+            final SourceProduct sourceProduct = entry.getValue();
             String sourceSyntax = MessageFormat.format("  -S{0}=<file>", getSourceProductId(sourceIdField, sourceProduct));
             final ArrayList<String> descriptionLines = createSourceDecriptionLines(sourceIdField, sourceProduct);
             docElementList.add(new DocElement(sourceSyntax, descriptionLines.toArray(new String[descriptionLines.size()])));

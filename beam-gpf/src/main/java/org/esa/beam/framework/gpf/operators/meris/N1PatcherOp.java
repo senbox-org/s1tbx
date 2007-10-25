@@ -273,7 +273,7 @@ public class N1PatcherOp extends Operator {
         }
     }
 
-    final private class DatasetDescriptor {
+    final private static class DatasetDescriptor {
 
         // true, if descriptor is empty
         boolean isSpare = false;

@@ -6,9 +6,9 @@ import java.awt.image.Raster;
 
 public class MultiTileImageTileTest extends AbstractTileImageTileTest {
 
-    final int IMAGE_W = 10;
-    final int IMAGE_H = 12;
-    final int TILE_SIZE = 6;
+    final static int IMAGE_W = 10;
+    final static int IMAGE_H = 12;
+    final static int TILE_SIZE = 6;
     private TestOpImage imageFLOAT32;
 
     @Override

@@ -129,13 +129,9 @@ public class TileImpl implements Tile {
         return scanlineOffset + (x - minX) + (y - minY) * scanlineStride;
     }
 
-    public ProductData getDataBuffer() {
+    public synchronized ProductData getDataBuffer() {
         if (dataBuffer == null) {
-            synchronized (this) {
-                if (dataBuffer == null) { // extra thread-safety
-                    dataBuffer = ProductData.createInstance(rasterDataNode.getDataType(), ImageUtils.getPrimitiveArray(raster.getDataBuffer()));
-                }
-            }
+            dataBuffer = ProductData.createInstance(rasterDataNode.getDataType(), ImageUtils.getPrimitiveArray(raster.getDataBuffer()));
         }
         return dataBuffer;
     }
@@ -168,29 +164,25 @@ public class TileImpl implements Tile {
         return scanlineStride;
     }
 
-    public ProductData getRawSamples() {
+    public synchronized ProductData getRawSamples() {
         if (rawSamples == null) {
-            synchronized (this) {
-                if (rawSamples == null) {
-                    ProductData dataBuffer = getDataBuffer();
-                    if (width * height == dataBuffer.getNumElems()) {
-                        rawSamples = dataBuffer;
-                    }
-                }
-                if (rawSamples == null) {
-                    rawSamples = rasterDataNode.createCompatibleRasterData(width, height);
-                    if (target) {
-                        mustWriteSampleData = true;
-                    } else {
-                        raster.getDataElements(minX, minY, width, height, rawSamples.getElems());
-                    }
-                }
+            ProductData dataBuffer = getDataBuffer();
+            if (width * height == dataBuffer.getNumElems()) {
+                rawSamples = dataBuffer;
+            }
+        }
+        if (rawSamples == null) {
+            rawSamples = rasterDataNode.createCompatibleRasterData(width, height);
+            if (target) {
+                mustWriteSampleData = true;
+            } else {
+                raster.getDataElements(minX, minY, width, height, rawSamples.getElems());
             }
         }
         return rawSamples;
     }
 
-    public void setRawSamples(ProductData rawSamples) {
+    public synchronized void setRawSamples(ProductData rawSamples) {
         Assert.notNull(rawSamples, "rawSamples");
         if (target) {
             if (rawSamples != this.rawSamples || mustWriteSampleData) {
