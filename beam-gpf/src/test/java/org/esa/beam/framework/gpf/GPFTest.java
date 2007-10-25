@@ -3,14 +3,18 @@ package org.esa.beam.framework.gpf;
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
+import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,7 +64,62 @@ public class GPFTest extends TestCase {
             assertTrue(rasterData.getElemFloatAt(i) <= 1);
         }
     }
+    
+    public void testProductName() throws Exception {
+        GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new FooOpSpi());
 
+        String filePath = GPFTest.class.getResource("test-product.dim").toURI().getPath();
+
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("filePath", filePath);
+
+        Product p1 = GPF.createProduct("ReadProduct", parameters);
+
+        Product p2 = GPF.createProduct("Foo", GPF.NO_PARAMS, new Product[] {p1});
+        MetadataElement metadataElement = p2.getMetadataRoot().getElement("Processing_Graph");
+        MetadataElement sourceElement = null;
+        for (MetadataElement element : metadataElement.getElements()) {
+            if (element.getAttribute("operator").getData().getElemString().equals("Foo")) {
+                 sourceElement = element.getElement("sources");
+                 break;
+            }
+        }
+        assertNotNull(sourceElement);
+        assertEquals(1, sourceElement.getNumAttributes());
+        assertEquals("sourceProduct", sourceElement.getAttributeAt(0).getName());
+        assertEquals("file:"+filePath, sourceElement.getAttributeAt(0).getData().getElemString());
+    }
+
+    public void testMultiProductsNames() throws Exception {
+        GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new FooOpSpi());
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new FoosOpSpi());
+
+        String filePath = GPFTest.class.getResource("test-product.dim").toURI().getPath();
+
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("filePath", filePath);
+
+        Product p1 = GPF.createProduct("ReadProduct", parameters);
+        Product p2 = GPF.createProduct("Foo", GPF.NO_PARAMS, new Product[] {p1});
+        Product p3 = GPF.createProduct("Foos", GPF.NO_PARAMS, new Product[] {p1, p2});
+        MetadataElement metadataElement = p3.getMetadataRoot().getElement("Processing_Graph");
+        MetadataElement sourceElement = null;
+        for (MetadataElement element : metadataElement.getElements()) {
+            if (element.getAttribute("operator").getData().getElemString().equals("Foos")) {
+                 sourceElement = element.getElement("sources");
+                 break;
+            }
+        }
+        assertNotNull(sourceElement);
+        assertEquals(2, sourceElement.getNumAttributes());
+        assertEquals("sourceProduct.1", sourceElement.getAttributeAt(0).getName());
+        assertEquals("sourceProduct.0", sourceElement.getAttributeAt(1).getName());
+
+    }
+
+    
     @OperatorMetadata(alias = "Foo")
     public static class FooOp extends Operator {
         @TargetProduct
@@ -106,6 +165,41 @@ public class GPFTest extends TestCase {
     public static class FooOpSpi extends OperatorSpi {
         public FooOpSpi() {
             super(FooOp.class);
+        }
+    }
+    
+    @OperatorMetadata(alias = "Foos")
+    public static class FoosOp extends Operator {
+        @TargetProduct
+        Product targetProduct;
+        @SourceProducts
+        Product[] sourceProducts;
+
+        @Override
+        public Product initialize() throws OperatorException {
+            Product product = new Product("X", "Y", sourceProducts[0].getSceneRasterWidth(), sourceProducts[0].getSceneRasterHeight());
+            String[] bandNames = sourceProducts[0].getBandNames();
+            for (String s : bandNames) {
+                product.addBand(s, ProductData.TYPE_FLOAT32);
+            }
+            return product;
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p/>
+         * <p>The default implementation throws a runtime exception with the message "not implemented"</p>.
+         */
+        @Override
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+            byte[] dataBufferByte = targetTile.getDataBufferByte();
+            Arrays.fill(dataBufferByte, (byte)3);
+        }
+    }
+
+    public static class FoosOpSpi extends OperatorSpi {
+        public FoosOpSpi() {
+            super(FoosOp.class);
         }
     }
 }

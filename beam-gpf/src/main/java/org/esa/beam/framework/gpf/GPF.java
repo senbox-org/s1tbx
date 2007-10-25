@@ -1,9 +1,12 @@
 package org.esa.beam.framework.gpf;
 
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.gpf.annotations.SourceProduct;
+import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.internal.OperatorSpiRegistryImpl;
 import org.esa.beam.util.Guardian;
 
+import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -105,10 +108,20 @@ public class GPF {
         Map<String, Product> sourceProductMap = NO_SOURCES;
         if (sourceProducts.length > 0) {
             sourceProductMap = new HashMap<String, Product>(sourceProducts.length);
-            sourceProductMap.put(SOURCE_PRODUCT_FIELD_NAME, sourceProducts[0]);
-            for (int i = 0; i < sourceProducts.length; i++) {
-                Product sourceProduct = sourceProducts[i];
-                sourceProductMap.put(SOURCE_PRODUCT_FIELD_NAME + (i + 1), sourceProduct);
+            OperatorSpi operatorSpi = GPF.getDefaultInstance().spiRegistry.getOperatorSpi(operatorName);
+            Field[] declaredFields = operatorSpi.getOperatorClass().getDeclaredFields();
+            for (Field declaredField : declaredFields) {
+                SourceProduct sourceProductAnnotation = declaredField.getAnnotation(SourceProduct.class);
+                if (sourceProductAnnotation != null) {
+                    sourceProductMap.put(SOURCE_PRODUCT_FIELD_NAME, sourceProducts[0]);
+                }
+                SourceProducts sourceProductsAnnotation = declaredField.getAnnotation(SourceProducts.class);
+                if (sourceProductsAnnotation != null) {
+                    for (int i = 0; i < sourceProducts.length; i++) {
+                        Product sourceProduct = sourceProducts[i];
+                        sourceProductMap.put(SOURCE_PRODUCT_FIELD_NAME+"." + (i), sourceProduct);
+                    }
+                }
             }
         }
         return defaultInstance.createProductNS(operatorName, parameters, sourceProductMap);
