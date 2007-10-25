@@ -18,28 +18,16 @@ package org.esa.beam.visat.dialogs;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
-import com.bc.jexp.EvalException;
-import com.bc.jexp.Namespace;
-import com.bc.jexp.ParseException;
-import com.bc.jexp.Parser;
-import com.bc.jexp.Term;
+import com.bc.jexp.*;
 import com.bc.jexp.impl.ParserImpl;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNodeList;
-import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamProperties;
 import org.esa.beam.framework.param.Parameter;
-import org.esa.beam.framework.ui.GridBagUtils;
-import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.framework.ui.NewBandDialog;
-import org.esa.beam.framework.ui.NewProductDialog;
-import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.*;
 import org.esa.beam.framework.ui.product.ProductExpressionPane;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
@@ -90,7 +78,7 @@ public class BandArithmetikDialog extends ModalDialog {
 
     public BandArithmetikDialog(final VisatApp visatApp, Product currentProduct, ProductNodeList<Product> productsList,
                                 String helpId) {
-        super(visatApp.getMainFrame(), "Band Arithmethic", ModalDialog.ID_OK_CANCEL_HELP, helpId); /* I18N */
+        super(visatApp.getMainFrame(), "Band Arithmetic", ModalDialog.ID_OK_CANCEL_HELP, helpId); /* I18N */
         Guardian.assertNotNull("currentProduct", currentProduct);
         Guardian.assertNotNull("productsList", productsList);
         Guardian.assertGreaterThan("productsList must be not empty", productsList.size(), 0);
@@ -148,8 +136,8 @@ public class BandArithmetikDialog extends ModalDialog {
                                              message,
                                              title,
                                              allowCancel
-                                             ? JOptionPane.YES_NO_CANCEL_OPTION
-                                             : JOptionPane.YES_NO_OPTION,
+                                                     ? JOptionPane.YES_NO_CANCEL_OPTION
+                                                     : JOptionPane.YES_NO_OPTION,
                                              JOptionPane.QUESTION_MESSAGE);
     }
 
@@ -237,7 +225,7 @@ public class BandArithmetikDialog extends ModalDialog {
                         message += "These pixels have been set to NaN (IEEE 754).\n\n";  /*I18N*/
                     }
                     message += "Do you still want to use the suspicious computed data?\n"      /*I18N*/
-                               + "If you select \"No\", all computed data will be lost.";  /*I18N*/
+                            + "If you select \"No\", all computed data will be lost.";  /*I18N*/
                     status = showQuestionDialog("Invalid Pixel Warning", message);   /*I18N*/
                     if (status != JOptionPane.YES_OPTION) {
                         ok = false;
@@ -256,7 +244,7 @@ public class BandArithmetikDialog extends ModalDialog {
             BandArithmetikDialog.super.onOK();
             _targetBand.setModified(true);
             if (_visatApp.getPreferences().getPropertyBool(VisatApp.PROPERTY_KEY_AUTO_SHOW_NEW_BANDS, true)
-                && !_visatApp.hasRasterProductSceneView(_targetBand)) {
+                    && !_visatApp.hasRasterProductSceneView(_targetBand)) {
                 _visatApp.openProductSceneView(_targetBand, null);
             } else {
                 _visatApp.updateImages(new Band[]{_targetBand});
@@ -293,7 +281,7 @@ public class BandArithmetikDialog extends ModalDialog {
 
         if (isTargetBandReferencedInExpression()) {
             showErrorDialog("You cannot reference the target band '" + _targetBand.getName() +
-                            "' within the expression.");
+                    "' within the expression.");
             return false;
         }
 
@@ -306,8 +294,8 @@ public class BandArithmetikDialog extends ModalDialog {
                 message.append("The band '" + bandName + "' uses an internal scaling.\n"); /*I18N*/
             }
             message.append("Overwriting this band's raster data may result in a loss of accuracy or\n" +
-                           "even a value range overflow!\n\n" +
-                           "Do you really want to overwrite the existing target band?"); /*I18N*/
+                    "even a value range overflow!\n\n" +
+                    "Do you really want to overwrite the existing target band?"); /*I18N*/
 
             final int status = JOptionPane.showConfirmDialog(_paramUseNewBand.getEditor().getComponent(),
                                                              message.toString(),
@@ -480,7 +468,7 @@ public class BandArithmetikDialog extends ModalDialog {
             if (product != null) {
                 if (useNewProduct) {
                     showErrorDialog("A product with the name '" + selectedProdcutDisplayName + "' already exists.\n"
-                                    + "Please choose a another one."); /*I18N*/
+                            + "Please choose a another one."); /*I18N*/
                     _paramProduct.setValue("", null);
                     _targetProduct = null;
                 } else {
@@ -506,7 +494,7 @@ public class BandArithmetikDialog extends ModalDialog {
                 if (isUseNewBand()) {
                     showErrorDialog(
                             "A band with the name '" + selectedBandName + "' already exists in the selected product.\n"
-                            + "Please choose another one."); /*I18N*/
+                                    + "Please choose another one."); /*I18N*/
                     _targetBand = null;
                 } else {
                     _targetBand = band;
