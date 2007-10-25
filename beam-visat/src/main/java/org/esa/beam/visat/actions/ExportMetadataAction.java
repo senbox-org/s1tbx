@@ -4,6 +4,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.ProductNode;
 import org.esa.beam.framework.ui.SelectExportMethodDialog;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.CommandEvent;
@@ -211,16 +212,18 @@ public class ExportMetadataAction extends ExecCommand {
 
     private static class MetadataExporter {
         private final ProductMetadataTable metadataTable;
+        private final MetadataElement rootElement;
 
         private MetadataExporter(ProductMetadataTable metadataTable) {
             this.metadataTable = metadataTable;
+            rootElement = metadataTable.getMetadataElement();
         }
 
         public boolean exportMetadata(final PrintWriter out, ProgressMonitor pm) {
             pm.beginTask("Export Metadata", 1);
             try {
                 writeHeaderLine(out, metadataTable);
-                writeAttributes(out, metadataTable.getMetadataElement());
+                writeAttributes(out, rootElement);
                 pm.worked(1);
             } finally {
                 pm.done();
@@ -243,15 +246,15 @@ public class ExportMetadataAction extends ExecCommand {
         }
 
 
-        private void writeAttributes(PrintWriter out, MetadataElement rootElement) {
-            final MetadataAttribute[] attributes = rootElement.getAttributes();
+        private void writeAttributes(PrintWriter out, MetadataElement element) {
+            final MetadataAttribute[] attributes = element.getAttributes();
             for (MetadataAttribute attribute : attributes) {
                 out.print(createAttributeName(attribute) + "\t");
                 out.print(attribute.getData().getElemString() + "\t");
                 out.print(attribute.getUnit() + "\t");
                 out.print(attribute.getDescription() + "\t\n");
             }
-            final MetadataElement[] subElements = rootElement.getElements();
+            final MetadataElement[] subElements = element.getElements();
             for (MetadataElement subElement : subElements) {
                 writeAttributes(out, subElement);
             }
@@ -259,26 +262,25 @@ public class ExportMetadataAction extends ExecCommand {
 
         private String createAttributeName(MetadataAttribute attribute) {
             StringBuilder sb = new StringBuilder();
-            sb.append(attribute.getName());
-            MetadataElement parent;
             if (attribute.getOwner() instanceof MetadataElement) {
-                parent = (MetadataElement) attribute.getOwner();
-                do {
-                    if (parent.getName() != null) {
-                        sb.insert(0, parent.getName() + ".");
-                    }
-                    if (!(parent.getOwner() instanceof MetadataElement)) {
-                        break;
-                    }
-                    parent = (MetadataElement) parent.getOwner();
-                } while (!parent.getName().equals(metadataTable.getMetadataElement().getName()));
-                if (parent.getName() != null) {
-                    sb.insert(0, parent.getName() + ".");
-                }
+                prependParentName((MetadataElement) attribute.getOwner(), sb);
             }
+            sb.append(attribute.getName());
             return sb.toString();
         }
 
-
+        private void prependParentName(MetadataElement element, StringBuilder sb) {
+            final ProductNode owner = element.getOwner();
+            if (owner instanceof MetadataElement) {
+                if (owner != rootElement) {
+                    prependParentName((MetadataElement) owner, sb);
+                } else if (owner.getName() != null) {
+                    sb.insert(0, owner.getName()).append(".");
+                }
+            }
+            if (element.getName() != null) {
+                sb.append(element.getName()).append(".");
+            }
+        }
     }
 }
