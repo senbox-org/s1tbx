@@ -1,10 +1,6 @@
 package org.esa.beam.framework.ui.io;
 
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueContainerFactory;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueDescriptorFactory;
+import com.bc.ceres.binding.*;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
@@ -28,7 +24,7 @@ public class TargetProductSelectorModel {
     // used by object binding
     private String productName;
     private boolean saveToFileSelected;
-    private boolean openInVisatSelected;
+    private boolean openInAppSelected;
     private File directory;
     private String formatName;
     private String[] formatNames;
@@ -45,11 +41,11 @@ public class TargetProductSelectorModel {
         valueContainer.addPropertyChangeListener("saveToFileSelected", new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
                 if (!(Boolean) evt.getNewValue()) {
-                    setOpenInVisatSelected(true);
+                    setOpenInAppSelected(true);
                 }
             }
         });
-        valueContainer.addPropertyChangeListener("openInVisatSelected", new PropertyChangeListener() {
+        valueContainer.addPropertyChangeListener("openInAppSelected", new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
                 if (!(Boolean) evt.getNewValue()) {
                     setSaveToFileSelected(true);
@@ -74,8 +70,8 @@ public class TargetProductSelectorModel {
         return saveToFileSelected;
     }
 
-    public boolean isOpenInVisatSelected() {
-        return openInVisatSelected;
+    public boolean isOpenInAppSelected() {
+        return openInAppSelected;
     }
 
     public File getDirectory() {
@@ -126,8 +122,8 @@ public class TargetProductSelectorModel {
         setValueContainerValue("saveToFileSelected", saveToFileSelected);
     }
 
-    public void setOpenInVisatSelected(boolean openInVisatSelected) {
-        setValueContainerValue("openInVisatSelected", openInVisatSelected);
+    public void setOpenInAppSelected(boolean openInAppSelected) {
+        setValueContainerValue("openInAppSelected", openInAppSelected);
     }
 
     public void setDirectory(File directory) {

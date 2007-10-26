@@ -1,10 +1,6 @@
 package org.esa.beam.collocation.visat;
 
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueContainerFactory;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueDescriptorFactory;
+import com.bc.ceres.binding.*;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.ui.io.TargetProductSelectorModel;
@@ -91,7 +87,7 @@ class CollocationFormModel {
     }
 
     public boolean isOpenInVisatSelected() {
-        return targetProductSelectorModel.isOpenInVisatSelected();
+        return targetProductSelectorModel.isOpenInAppSelected();
     }
 
     public boolean isRenameMasterComponentsSelected() {

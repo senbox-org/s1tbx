@@ -4,15 +4,7 @@ import com.bc.ceres.binding.swing.SwingBindingContext;
 import com.jidesoft.swing.FolderChooser;
 import org.esa.beam.framework.ui.TableLayout;
 
-import javax.swing.AbstractAction;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -30,7 +22,7 @@ public class TargetProductSelector {
     private JTextField directoryTextField;
     private JButton directoryChooserButton;
     private JComboBox formatNameComboBox;
-    private JCheckBox openInVisatCheckBox;
+    private JCheckBox openInAppCheckBox;
 
     private TargetProductSelectorModel model;
 
@@ -49,7 +41,7 @@ public class TargetProductSelector {
         directoryTextField = new JTextField(25);
         directoryChooserButton = new JButton("...");
         formatNameComboBox = new JComboBox(model.getFormatNames());
-        openInVisatCheckBox = new JCheckBox("Open in VISAT");
+        openInAppCheckBox = new JCheckBox("Open in application");
 
         directoryChooserButton.setAction(new DirectoryChooserButtonAction());
         saveToFileCheckBox.addActionListener(new UIStateUpdater());
@@ -57,10 +49,10 @@ public class TargetProductSelector {
 
     private void bindComponents() {
         final SwingBindingContext bc = new SwingBindingContext(model.getValueContainer());
-   
+
         bc.bind(productNameTextField, "productName");
         bc.bind(saveToFileCheckBox, "saveToFileSelected");
-        bc.bind(openInVisatCheckBox, "openInVisatSelected");
+        bc.bind(openInAppCheckBox, "openInAppSelected");
         bc.bind(formatNameComboBox, "formatName");
         bc.bind(directoryTextField, "directory");
     }
@@ -93,8 +85,8 @@ public class TargetProductSelector {
         return formatNameComboBox;
     }
 
-    public JCheckBox getOpenInVisatCheckBox() {
-        return openInVisatCheckBox;
+    public JCheckBox getOpenInAppCheckBox() {
+        return openInAppCheckBox;
     }
 
     public JComponent createDefaultPanel() {
@@ -119,19 +111,19 @@ public class TargetProductSelector {
         panel.add(formatNameComboBox);
         panel.add(directoryTextField);
         panel.add(directoryChooserButton);
-        panel.add(openInVisatCheckBox);
+        panel.add(openInAppCheckBox);
 
         return panel;
     }
 
     private void updateUIState() {
         if (model.isSaveToFileSelected()) {
-            openInVisatCheckBox.setEnabled(true);
+            openInAppCheckBox.setEnabled(true);
             formatNameComboBox.setEnabled(true);
             directoryTextField.setEnabled(true);
             directoryChooserButton.setEnabled(true);
         } else {
-            openInVisatCheckBox.setEnabled(false);
+            openInAppCheckBox.setEnabled(false);
 //            openInVisatCheckBox.setSelected(true);
             formatNameComboBox.setEnabled(false);
             directoryTextField.setEnabled(false);

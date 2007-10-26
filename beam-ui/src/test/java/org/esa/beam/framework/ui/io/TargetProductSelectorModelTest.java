@@ -74,17 +74,17 @@ public class TargetProductSelectorModelTest extends TestCase {
 
     public void testSelections() {
         assertTrue(model.isSaveToFileSelected());
-        assertFalse(model.isOpenInVisatSelected());
+        assertFalse(model.isOpenInAppSelected());
 
-        model.setOpenInVisatSelected(false);
-        assertFalse(model.isOpenInVisatSelected());
+        model.setOpenInAppSelected(false);
+        assertFalse(model.isOpenInAppSelected());
         assertTrue(model.isSaveToFileSelected());
 
         model.setSaveToFileSelected(false);
         assertFalse(model.isSaveToFileSelected());
-        assertTrue(model.isOpenInVisatSelected());
-        model.setOpenInVisatSelected(false);
-        assertFalse(model.isOpenInVisatSelected());
+        assertTrue(model.isOpenInAppSelected());
+        model.setOpenInAppSelected(false);
+        assertFalse(model.isOpenInAppSelected());
         assertTrue(model.isSaveToFileSelected());
     }
 
@@ -100,7 +100,7 @@ public class TargetProductSelectorModelTest extends TestCase {
 
         public void writeBandRasterData(Band sourceBand, int sourceOffsetX, int sourceOffsetY, int sourceWidth,
                                         int sourceHeight, ProductData sourceBuffer, ProgressMonitor pm) throws
-                                                                                                        IOException {
+                IOException {
 
         }
 

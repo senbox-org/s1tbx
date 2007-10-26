@@ -130,7 +130,7 @@ public class CollocationForm extends JPanel {
         panel.add(selector.getDirectoryTextField());
         panel.add(selector.getDirectoryChooserButton());
         panel.add(new JLabel());
-        panel.add(selector.getOpenInVisatCheckBox());
+        panel.add(selector.getOpenInAppCheckBox());
 
         return panel;
     }
@@ -183,10 +183,10 @@ public class CollocationForm extends JPanel {
     }
 
     public static void main(String[] args) throws
-                                           IllegalAccessException,
-                                           UnsupportedLookAndFeelException,
-                                           InstantiationException,
-                                           ClassNotFoundException {
+            IllegalAccessException,
+            UnsupportedLookAndFeelException,
+            InstantiationException,
+            ClassNotFoundException {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
         ModalDialog dialog = new CollocationDialog(null, new Product[0]);
