@@ -44,24 +44,33 @@ public class SingleFlagSymbol extends RasterDataSymbol {
     }
 
     @Override
-	public int getRetType() {
+    public int getRetType() {
         return Term.TYPE_B;
     }
 
+    /**
+     * Returns the flag mask used by this symbol.
+     *
+     * @return the flag mask.
+     */
+    public int getFlagMask() {
+        return _flagMask;
+    }
+
     @Override
-	public boolean evalB(final EvalEnv env) throws EvalException {
+    public boolean evalB(final EvalEnv env) throws EvalException {
         final int elemIndex = ((RasterDataEvalEnv) env).getElemIndex();
         return (_data.getElemIntAt(elemIndex) & _flagMask) == _flagMask;
     }
 
     @Override
-	public int evalI(final EvalEnv env) throws EvalException {
+    public int evalI(final EvalEnv env) throws EvalException {
         final int elemIndex = ((RasterDataEvalEnv) env).getElemIndex();
         return (_data.getElemIntAt(elemIndex) & _flagMask) == _flagMask ? 1 : 0;
     }
 
     @Override
-	public double evalD(final EvalEnv env) throws EvalException {
+    public double evalD(final EvalEnv env) throws EvalException {
         final int elemIndex = ((RasterDataEvalEnv) env).getElemIndex();
         return (_data.getElemIntAt(elemIndex) & _flagMask) == _flagMask ? 1.0 : 0.0;
     }
