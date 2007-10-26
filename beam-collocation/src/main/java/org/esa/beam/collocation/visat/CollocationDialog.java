@@ -53,16 +53,19 @@ class CollocationDialog extends ModalDialog {
             parameterMap.put("renameSlaveComponents", formModel.isRenameSlaveComponentsSelected());
             parameterMap.put("masterComponentPattern", formModel.getMasterComponentPattern());
             parameterMap.put("slaveComponentPattern", formModel.getSlaveComponentPattern());
-            // product writer parameters
-            parameterMap.put("filePath", formModel.getTargetFilePath());
-            parameterMap.put("formatName", formModel.getTargetFormatName());
+            parameterMap.put("resampling", formModel.getResampling());
 
             targetProduct = GPF.createProduct("Collocation", parameterMap, productMap);
             targetProduct.setName(formModel.getTargetProductName());
 
-            if (formModel.isSaveToFileSelected()) {
-                GPF.createProduct("ProductWriter", parameterMap, targetProduct);
-            }
+//            final Map<String, Object> parameterMap2 = new HashMap<String, Object>(5);
+//            // product writer parameters
+//            parameterMap2.put("filePath", formModel.getTargetFilePath());
+//            parameterMap2.put("formatName", formModel.getTargetFormatName());
+
+//            if (formModel.isSaveToFileSelected()) {
+//                GPF.createProduct("ProductWriter", parameterMap2, targetProduct);
+//            }
         } catch (OperatorException e) {
             showErrorDialog(e.getMessage());
             return;
@@ -70,8 +73,8 @@ class CollocationDialog extends ModalDialog {
 
         super.onOK();
 
-        if (formModel.isOpenInVisatSelected()) {
+//        if (formModel.isOpenInVisatSelected()) {
             VisatApp.getApp().addProduct(targetProduct);
-        }
+//        }
     }
 }
