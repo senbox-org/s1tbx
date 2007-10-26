@@ -10,6 +10,7 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 
@@ -51,12 +52,14 @@ public class WriteRGBOp extends Operator {
     @Parameter
     private String filePath = null;
 
-    private RasterDataNode[] rgbChannelNodes;
-    private Product targetProduct;
-    private Map<Band, Band> bandMap;
-    private Map<Band, ProductData> dataMap;
-    @TargetProduct
+    @SourceProduct(alias = "input")
     private Product sourceProduct;
+    @TargetProduct
+    private Product targetProduct;
+
+    private transient RasterDataNode[] rgbChannelNodes;
+    private transient Map<Band, Band> bandMap;
+    private transient Map<Band, ProductData> dataMap;
 
     @Override
     public void initialize() throws OperatorException {
@@ -64,7 +67,6 @@ public class WriteRGBOp extends Operator {
         dataMap = new HashMap<Band, ProductData>(3);
         rgbChannelNodes = new RasterDataNode[3];
 
-        sourceProduct = getSourceProduct("input");
         final int height = sourceProduct.getSceneRasterHeight();
         final int width = sourceProduct.getSceneRasterWidth();
 

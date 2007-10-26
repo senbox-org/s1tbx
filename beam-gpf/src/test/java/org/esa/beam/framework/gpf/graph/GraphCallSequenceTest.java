@@ -337,13 +337,11 @@ public class GraphCallSequenceTest extends TestCase {
 
     public static class RecordingOp extends Operator {
 
-        @TargetProduct
-        private Product targetProduct;
 
         @Override
         public void initialize() throws OperatorException {
             recordCall(getOpName(this), "Operator.initialize");
-            targetProduct = new RecordingProduct(this);
+            setTargetProduct(new RecordingProduct(this));
         }
 
         @Override

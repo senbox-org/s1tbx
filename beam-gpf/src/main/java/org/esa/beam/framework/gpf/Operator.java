@@ -69,13 +69,15 @@ public abstract class Operator {
     }
 
     /**
-     * Initializes this operator and returns its one and only target product.
-     * <p/>
+     * Initializes this operator and sets the one and only target product.
+     * <p>The target product can be either defined by a field of type {@link Product} annotated with the
+     * {@link org.esa.beam.framework.gpf.annotations.TargetProduct TargetProduct} annotation or
+     * by calling {@link #setTargetProduct} method.</p>
      * <p>The framework calls this method after it has created this operator.
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @throws OperatorException if an error occurs during operator initialisation
+     * @throws OperatorException If an error occurs during operator initialisation.
      * @see #getTargetProduct()
      */
     public abstract void initialize() throws OperatorException;
@@ -121,10 +123,10 @@ public abstract class Operator {
      * @throws IllegalStateException if the {@link #computeTileStack(java.util.Map, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor) computeTileStack} method is not implemented
      */
     protected final void deactivateComputeTileMethod() throws IllegalStateException {
-        if (!context.isComputeTileStackMethodImplemented()) {
+        if (!context.isComputeTileStackMethodUsage()) {
             throw new IllegalStateException("!context.isComputeTileStackMethodUsable()");
         }
-        context.setComputeTileMethodImplemented(false);
+        context.setComputeTileMethodUsable(false);
     }
 
     /**
@@ -188,11 +190,22 @@ public abstract class Operator {
      * call to {@link #initialize()}.</p>
      *
      * @return The target product.
-     * @throws OperatorException Thrown by {@link #initialize()},
-     *                           if the target product has not yet been created.
+     * @throws OperatorException May be caused by {@link #initialize()}, if the operator has not yet been initialised,
+     *                           or if the target product has not been set.
      */
     public final Product getTargetProduct() throws OperatorException {
         return context.getTargetProduct();
+    }
+
+    /**
+     * Sets the target product for the operator.
+     * <p/>
+     * <p>Must be called from within the {@link #initialize()} method.</p>
+     *
+     * @param targetProduct The target product.
+     */
+    protected final void setTargetProduct(Product targetProduct) {
+        context.setTargetProduct(targetProduct);
     }
 
     /**

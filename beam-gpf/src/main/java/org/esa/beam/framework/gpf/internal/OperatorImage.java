@@ -101,7 +101,7 @@ public class OperatorImage extends RasterDataNodeOpImage {
     }
 
     private boolean operatorMustComputeTileStack() {
-        return operatorContext.isComputeTileStackMethodImplemented()
-                && !operatorContext.isComputeTileMethodImplemented();
+        return operatorContext.isComputeTileStackMethodUsage()
+                && !operatorContext.isComputeTileMethodUsable();
     }
 }

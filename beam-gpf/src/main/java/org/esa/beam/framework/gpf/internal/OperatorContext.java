@@ -27,7 +27,6 @@ import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.annotations.*;
-import org.esa.beam.util.Guardian;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.jai.RasterDataNodeOpImage;
 
@@ -55,8 +54,8 @@ public class OperatorContext {
     private Product targetProduct;
     private OperatorSpi operatorSpi;
     private Operator operator;
-    private boolean computeTileMethodImplemented;
-    private boolean computeTileStackMethodImplemented;
+    private boolean computeTileMethodUsable;
+    private boolean computeTileStackMethodUsage;
     private boolean passThrough;
     private List<Product> sourceProductList;
     private Map<String, Object> parameters;
@@ -68,8 +67,8 @@ public class OperatorContext {
 
     public OperatorContext(Operator operator) {
         this.operator = operator;
-        this.computeTileMethodImplemented = canOperatorComputeTile(operator.getClass());
-        this.computeTileStackMethodImplemented = canOperatorComputeTileStack(operator.getClass());
+        this.computeTileMethodUsable = canOperatorComputeTile(operator.getClass());
+        this.computeTileStackMethodUsage = canOperatorComputeTileStack(operator.getClass());
         this.sourceProductList = new ArrayList<Product>(3);
         this.sourceProductMap = new HashMap<String, Product>(3);
         this.logger = Logger.getAnonymousLogger();
@@ -116,9 +115,14 @@ public class OperatorContext {
 
     public Product getTargetProduct() throws OperatorException {
         if (targetProduct == null) {
-            initTargetProduct();
+            initializeOperator();
         }
         return targetProduct;
+    }
+
+    public void setTargetProduct(Product targetProduct) {
+        Assert.notNull(targetProduct, "targetProduct");
+        this.targetProduct = targetProduct;
     }
 
     public boolean isPassThrough() {
@@ -178,20 +182,20 @@ public class OperatorContext {
         return targetProduct != null;
     }
 
-    public boolean isComputeTileMethodImplemented() {
-        return computeTileMethodImplemented;
+    public boolean isComputeTileMethodUsable() {
+        return computeTileMethodUsable;
     }
 
-    public boolean isComputeTileStackMethodImplemented() {
-        return computeTileStackMethodImplemented;
+    public boolean isComputeTileStackMethodUsage() {
+        return computeTileStackMethodUsage;
     }
 
-    public void setComputeTileMethodImplemented(boolean computeTileMethodImplemented) {
-        this.computeTileMethodImplemented = computeTileMethodImplemented;
+    public void setComputeTileMethodUsable(boolean computeTileMethodUsable) {
+        this.computeTileMethodUsable = computeTileMethodUsable;
     }
 
-    public void setComputeTileStackMethodImplemented(boolean computeTileStackMethodImplemented) {
-        this.computeTileStackMethodImplemented = computeTileStackMethodImplemented;
+    public void setComputeTileStackMethodUsage(boolean computeTileStackMethodUsage) {
+        this.computeTileStackMethodUsage = computeTileStackMethodUsage;
     }
 
     public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle rectangle, ProgressMonitor pm) {
@@ -277,18 +281,15 @@ public class OperatorContext {
         }
     }
 
-    private void initTargetProduct() throws OperatorException {
-        Guardian.assertTrue("operator != null", operator != null);
+    private void initializeOperator() throws OperatorException {
+        Assert.state(operator != null, "operator != null");
 
         injectParameters();
         injectConfiguration();
         initSourceProductFields();
-        targetProduct = operator.initialize();
-        if (targetProduct == null) {
-            throw new IllegalStateException(String.format("Operator [%s] has no target product.", operator.getClass().getName()));
-        }
+        operator.initialize();
+        initTargetProduct();
         initPassThrough();
-        initTargetProductField();
         initTargetImages();
         initGraphMetadata();
 
@@ -421,31 +422,34 @@ public class OperatorContext {
         }
     }
 
-    private void initTargetProductField() throws OperatorException {
+    private void initTargetProduct() throws OperatorException {
         Field[] declaredFields = operator.getClass().getDeclaredFields();
         for (Field declaredField : declaredFields) {
             TargetProduct targetProductAnnotation = declaredField.getAnnotation(TargetProduct.class);
             if (targetProductAnnotation != null) {
                 if (!declaredField.getType().equals(Product.class)) {
-                    String text = "field '%s' annotated as target product is not of type '%s'.";
-                    String msg = String.format(text, declaredField.getName(), Product.class);
+                    String msg = String.format("Operator '%s': Field '%s' annotated as target product is not of type '%s'.",
+                                               operator.getClass().getSimpleName(), declaredField.getName(), Product.class);
                     throw new OperatorException(msg);
                 }
-                boolean oldState = declaredField.isAccessible();
-                try {
-                    declaredField.setAccessible(true);
-                    Object target = declaredField.get(operator);
-                    if (target != targetProduct) {
-                        declaredField.set(operator, targetProduct);
+                final Product targetProduct = (Product) getOperatorFieldValue(declaredField);
+                if (targetProduct != null) {
+                    this.targetProduct = targetProduct;
+                } else {
+                    if (this.targetProduct != null) {
+                        setOperatorFieldValue(declaredField, this.targetProduct);
+                    } else {
+                        final String message = String.format("Operator '%s': No target product set.",
+                                                             operator.getClass().getSimpleName());
+                        throw new OperatorException(message);
                     }
-                } catch (IllegalAccessException e) {
-                    String text = "not able to initialize declared field '%s'";
-                    String msg = String.format(text, declaredField.getName());
-                    throw new OperatorException(msg, e);
-                } finally {
-                    declaredField.setAccessible(oldState);
                 }
             }
+        }
+        if (targetProduct == null) {
+            final String message = String.format("Operator '%s': No target product set.",
+                                                 operator.getClass().getSimpleName());
+            throw new OperatorException(message);
         }
     }
 
@@ -656,5 +660,4 @@ public class OperatorContext {
             }
         }
     }
-
 }
