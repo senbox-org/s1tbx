@@ -83,10 +83,14 @@ public class ConverterRegistry {
                     break;
                 }
             }
-            if (converter == null && type.isArray()) {
-                converter = getConverter(type.getComponentType());
-                if (converter != null) {
-                    return new ArrayConverter(type, converter);
+            if (converter == null) {
+                if (type.isArray()) {
+                    converter = getConverter(type.getComponentType());
+                    if (converter != null) {
+                        return new ArrayConverter(type, converter);
+                    }
+                } else if (type.isEnum()) {
+                    return new EnumConverter((Class<? extends Enum>) type);
                 }
             }
         }

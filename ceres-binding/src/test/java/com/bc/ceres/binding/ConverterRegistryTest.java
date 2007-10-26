@@ -64,6 +64,8 @@ public class ConverterRegistryTest extends TestCase {
         assertNotNull(r.getConverter(ValueRange[].class));
         assertNotNull(r.getConverter(Date[].class));
         assertNotNull(r.getConverter(Pattern[].class));
+
+        assertNotNull(r.getConverter(U.class));
     }
 
 
@@ -72,6 +74,10 @@ public class ConverterRegistryTest extends TestCase {
 
         assertSame(r.getConverter(File.class), r.getConverter(MyFile.class));
         assertSame(r.getConverter(Date.class), r.getConverter(java.sql.Date.class));
+    }
+
+    enum U {
+        A,B,C
     }
 
     private static class MyFile extends File {

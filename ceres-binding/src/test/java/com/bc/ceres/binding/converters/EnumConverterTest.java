@@ -43,7 +43,7 @@ public class EnumConverterTest extends AbstractConverterTest {
     }
 
     public EnumConverterTest() {
-        super(new EnumConverter<Tests>(Tests.class));
+        super(new EnumConverter(Tests.class));
     }
 
     @Override
