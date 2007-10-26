@@ -33,10 +33,9 @@ public class TestOps {
         private Product targetProduct;
 
         @Override
-        public Product initialize() {
+        public void initialize() {
             targetProduct = new Product("Op1Name", "Op1Type", RASTER_WIDTH, RASTER_HEIGHT);
             targetProduct.addBand(new Band("Op1A", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
-            return targetProduct;
         }
 
         @Override
@@ -67,11 +66,10 @@ public class TestOps {
         public Product output;
 
         @Override
-        public Product initialize() {
+        public void initialize() {
             output = new Product("Op2Name", "Op2Type", RASTER_WIDTH, RASTER_HEIGHT);
             output.addBand(new Band("Op2A", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
             output.addBand(new Band("Op2B", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
-            return output;
         }
 
         @Override
@@ -121,13 +119,12 @@ public class TestOps {
         public Product output;
 
         @Override
-        public Product initialize() {
+        public void initialize() {
             output = new Product("Op3Name", "Op3Type", RASTER_WIDTH, RASTER_HEIGHT);
             output.addBand(new Band("Op3A", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
             output.addBand(new Band("Op3B", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
             output.addBand(new Band("Op3C", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
             output.addBand(new Band("Op3D", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
-            return output;
         }
 
         @Override

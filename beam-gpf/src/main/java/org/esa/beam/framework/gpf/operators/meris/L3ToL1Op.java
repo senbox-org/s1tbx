@@ -52,7 +52,7 @@ public class L3ToL1Op extends MerisBasisOp {
     private String maskBand;
 
     @Override
-    public Product initialize() throws OperatorException {
+    public void initialize() throws OperatorException {
         l3GeoCoding = l3Product.getGeoCoding();
         l1GeoCoding = l1Product.getGeoCoding();
 
@@ -78,7 +78,6 @@ public class L3ToL1Op extends MerisBasisOp {
                 targetBand.setFlagCoding(targetProduct.getFlagCoding(srcFlagCoding.getName()));
             }
         }
-        return targetProduct;
     }
 
     @Override

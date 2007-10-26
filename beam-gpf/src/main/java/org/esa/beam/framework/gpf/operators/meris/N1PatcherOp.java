@@ -108,7 +108,7 @@ public class N1PatcherOp extends Operator {
     private Product targetProduct;
 
     @Override
-    public Product initialize() throws OperatorException {
+    public void initialize() throws OperatorException {
         targetProduct = sourceProduct;
         try {
             inputStream = new FileImageInputStream(new File(originalFilePath));
@@ -120,8 +120,6 @@ public class N1PatcherOp extends Operator {
         } catch (IOException e) {
             throw new OperatorException(e);
         }
-
-        return targetProduct;
     }
 
     private void parseMPH() throws IOException {

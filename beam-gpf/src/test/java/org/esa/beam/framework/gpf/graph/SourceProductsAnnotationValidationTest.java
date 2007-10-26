@@ -153,13 +153,14 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
 
     @OperatorMetadata(alias = "InputOp")
     public static class InputOp extends Operator {
-
+        @TargetProduct
+        private Product targetProduct;
+        
         @Override
-        public Product initialize() throws OperatorException {
-            Product product = new Product("input", "inputType", 1, 1);
-            product.addBand("a", ProductData.TYPE_INT8);
-            product.addBand("b", ProductData.TYPE_INT8);
-            return product;
+        public void initialize() throws OperatorException {
+            targetProduct = new Product("input", "inputType", 1, 1);
+            targetProduct.addBand("a", ProductData.TYPE_INT8);
+            targetProduct.addBand("b", ProductData.TYPE_INT8);
         }
 
         @Override
@@ -184,8 +185,8 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
         Product output;
 
         @Override
-        public Product initialize() throws OperatorException {
-            return new Product("output", "outputType", 12, 12);
+        public void initialize() throws OperatorException {
+            output = new Product("output", "outputType", 12, 12);
         }
 
         @Override
@@ -209,8 +210,8 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
         Product output;
 
         @Override
-        public Product initialize() throws OperatorException {
-            return new Product("output", "outputType", 12, 12);
+        public void initialize() throws OperatorException {
+            output = new Product("output", "outputType", 12, 12);
         }
 
         @Override
@@ -230,14 +231,14 @@ public class SourceProductsAnnotationValidationTest extends TestCase {
 
         @SourceProducts
         // count=0
-                Product[] inputs;
+        Product[] inputs;
 
         @TargetProduct
         Product output;
 
         @Override
-        public Product initialize() throws OperatorException {
-            return new Product("output", "outputType", 12, 12);
+        public void initialize() throws OperatorException {
+            output = new Product("output", "outputType", 12, 12);
         }
 
         @Override

@@ -142,8 +142,8 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         Product output;
 
         @Override
-        public Product initialize() throws OperatorException {
-            return new Product("Wrong", "WrongType", 12, 12);
+        public void initialize() throws OperatorException {
+            output = new Product("Wrong", "WrongType", 12, 12);
         }
 
         @Override
@@ -160,13 +160,14 @@ public class SourceProductAnnotationValidationTest extends TestCase {
     }
 
     public static class WrongBandsOperator extends Operator {
-
+        @TargetProduct
+        private Product targetProduct;
+        
         @Override
-        public Product initialize() throws OperatorException {
-            Product product = new Product("WrongBands", "GoodType", 1, 1);
-            product.addBand("x", ProductData.TYPE_INT8);
-            product.addBand("y", ProductData.TYPE_INT8);
-            return product;
+        public void initialize() throws OperatorException {
+            targetProduct = new Product("WrongBands", "GoodType", 1, 1);
+            targetProduct.addBand("x", ProductData.TYPE_INT8);
+            targetProduct.addBand("y", ProductData.TYPE_INT8);
         }
 
         @Override
@@ -182,13 +183,14 @@ public class SourceProductAnnotationValidationTest extends TestCase {
     }
 
     public static class GoodOperator extends Operator {
-
+        @TargetProduct
+        private Product targetProduct;
+        
         @Override
-        public Product initialize() throws OperatorException {
-            Product product = new Product("Good", "GoodType", 1, 1);
-            product.addBand("a", ProductData.TYPE_INT8);
-            product.addBand("b", ProductData.TYPE_INT8);
-            return product;
+        public void initialize() throws OperatorException {
+            targetProduct = new Product("Good", "GoodType", 1, 1);
+            targetProduct.addBand("a", ProductData.TYPE_INT8);
+            targetProduct.addBand("b", ProductData.TYPE_INT8);
         }
 
         @Override
@@ -212,8 +214,8 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         Product output;
 
         @Override
-        public Product initialize() throws OperatorException {
-            return new Product("output", "outputType", 12, 12);
+        public void initialize() throws OperatorException {
+            output = new Product("output", "outputType", 12, 12);
         }
 
         @Override
@@ -237,8 +239,8 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         Product output;
 
         @Override
-        public Product initialize() throws OperatorException {
-            return new Product("output", "outputType", 1, 1);
+        public void initialize() throws OperatorException {
+            output = new Product("output", "outputType", 1, 1);
         }
 
         @Override
@@ -263,8 +265,8 @@ public class SourceProductAnnotationValidationTest extends TestCase {
         Product output;
 
         @Override
-        public Product initialize() throws OperatorException {
-            return new Product("output", "outputType", 1, 1);
+        public void initialize() throws OperatorException {
+            output = new Product("output", "outputType", 1, 1);
         }
 
         @Override

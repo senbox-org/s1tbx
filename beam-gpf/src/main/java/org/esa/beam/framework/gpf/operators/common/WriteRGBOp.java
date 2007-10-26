@@ -59,7 +59,7 @@ public class WriteRGBOp extends Operator {
     private Product sourceProduct;
 
     @Override
-    public Product initialize() throws OperatorException {
+    public void initialize() throws OperatorException {
         bandMap = new HashMap<Band, Band>(3);
         dataMap = new HashMap<Band, ProductData>(3);
         rgbChannelNodes = new RasterDataNode[3];
@@ -72,8 +72,6 @@ public class WriteRGBOp extends Operator {
         prepareTargetBand(0, sourceProduct.getBandAt(red), "red", width, height);
         prepareTargetBand(1, sourceProduct.getBandAt(green), "green", width, height);
         prepareTargetBand(2, sourceProduct.getBandAt(blue), "blue", width, height);
-
-        return targetProduct;
     }
 
     private void prepareTargetBand(int rgbIndex, Band sourceBand, String bandName, int width, int height) {

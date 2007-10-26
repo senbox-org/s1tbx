@@ -94,7 +94,7 @@ public class SpectralUnmixingOp extends Operator {
     private transient SpectralUnmixing spectralUnmixing;
 
     @Override
-    public Product initialize() throws OperatorException {
+    public void initialize() throws OperatorException {
         if (endmemberFile != null) {
             loadEndmemberFile();
         }
@@ -184,8 +184,6 @@ public class SpectralUnmixingOp extends Operator {
         if (computeErrorBands) {
             deactivateComputeTileMethod();
         }
-
-        return targetProduct;
     }
 
     @Override

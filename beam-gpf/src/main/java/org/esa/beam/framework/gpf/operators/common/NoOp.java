@@ -29,8 +29,7 @@ public class NoOp extends Operator {
     }
 
     @Override
-    public Product initialize() throws OperatorException {
-        return targetProduct;
+    public void initialize() throws OperatorException {
     }
 
     @Override

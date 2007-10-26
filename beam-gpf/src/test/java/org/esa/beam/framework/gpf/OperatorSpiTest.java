@@ -42,8 +42,7 @@ public class OperatorSpiTest extends TestCase {
     public static class NonAnnotatoedFooOp extends Operator {
 
         @Override
-        public Product initialize() throws OperatorException {
-            return null;
+        public void initialize() throws OperatorException {
         }
     }
 
@@ -60,8 +59,7 @@ public class OperatorSpiTest extends TestCase {
         int maxCount;
 
         @Override
-        public Product initialize() throws OperatorException {
-            return null;
+        public void initialize() throws OperatorException {
         }
     }
 }

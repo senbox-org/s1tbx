@@ -6,6 +6,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.*;
+import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -58,12 +59,13 @@ public class GraphProcessingObserverTest extends TestCase {
     }
 
     public static class OpMock extends Operator {
-
+        @TargetProduct
+        private Product product;
+        
         @Override
-        public Product initialize() throws OperatorException {
-            Product product = new Product(getClass().getSimpleName(), getClass().getSimpleName(), 10, 10);
+        public void initialize() throws OperatorException {
+            product = new Product(getClass().getSimpleName(), getClass().getSimpleName(), 10, 10);
             product.addBand("band_1", ProductData.TYPE_INT32);
-            return product;
         }
 
         @Override

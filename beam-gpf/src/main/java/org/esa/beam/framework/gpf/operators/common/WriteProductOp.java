@@ -51,7 +51,7 @@ public class WriteProductOp extends Operator {
     private boolean productFileWritten;
 
     @Override
-    public Product initialize() throws OperatorException {
+    public void initialize() throws OperatorException {
         targetProduct = sourceProduct;
         productWriter = ProductIO.getProductWriter(formatName);
         if (productWriter == null) {
@@ -65,7 +65,6 @@ public class WriteProductOp extends Operator {
                 bandsToWrite.add(band);
             }
         }
-        return targetProduct;
     }
 
 

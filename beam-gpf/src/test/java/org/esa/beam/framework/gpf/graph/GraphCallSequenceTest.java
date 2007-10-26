@@ -341,9 +341,9 @@ public class GraphCallSequenceTest extends TestCase {
         private Product targetProduct;
 
         @Override
-        public Product initialize() throws OperatorException {
+        public void initialize() throws OperatorException {
             recordCall(getOpName(this), "Operator.initialize");
-            return new RecordingProduct(this);
+            targetProduct = new RecordingProduct(this);
         }
 
         @Override

@@ -31,6 +31,7 @@ import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 
@@ -45,26 +46,27 @@ public class ProductMergeOp extends Operator {
     private String copyGeoCodingFrom;
     @Parameter(itemAlias = "band", itemsInlined = true)
     private BandDesc[] bands;
+    @TargetProduct
+    private Product targetProduct;
 
 
     @Override
-    public Product initialize() throws OperatorException {
+    public void initialize() throws OperatorException {
 
-        Product outputProduct;
         if (StringUtils.isNotNullAndNotEmpty(copyGeoCodingFrom)) {
             Product baseGeoProduct = getSourceProduct(copyGeoCodingFrom);
             final int sceneRasterWidth = baseGeoProduct.getSceneRasterWidth();
             final int sceneRasterHeight = baseGeoProduct.getSceneRasterHeight();
-            outputProduct = new Product("mergedName", productType,
+            targetProduct = new Product("mergedName", productType,
                                         sceneRasterWidth, sceneRasterHeight);
 
-            copyGeoCoding(baseGeoProduct, outputProduct);
+            copyGeoCoding(baseGeoProduct, targetProduct);
         } else {
             BandDesc bandDesc = bands[0];
             Product srcProduct = getSourceProduct(bandDesc.product);
             final int sceneRasterWidth = srcProduct.getSceneRasterWidth();
             final int sceneRasterHeight = srcProduct.getSceneRasterHeight();
-            outputProduct = new Product("mergedName", productType,
+            targetProduct = new Product("mergedName", productType,
                                         sceneRasterWidth, sceneRasterHeight);
         }
 
@@ -73,9 +75,9 @@ public class ProductMergeOp extends Operator {
             Product srcProduct = getSourceProduct(bandDesc.product);
             if (StringUtils.isNotNullAndNotEmpty(bandDesc.name)) {
                 if (StringUtils.isNotNullAndNotEmpty(bandDesc.newName)) {
-                    copyBandWithFeatures(srcProduct, outputProduct, bandDesc.name, bandDesc.newName);
+                    copyBandWithFeatures(srcProduct, targetProduct, bandDesc.name, bandDesc.newName);
                 } else {
-                    copyBandWithFeatures(srcProduct, outputProduct, bandDesc.name);
+                    copyBandWithFeatures(srcProduct, targetProduct, bandDesc.name);
                 }
                 allSrcProducts.add(srcProduct);
             } else if (StringUtils.isNotNullAndNotEmpty(bandDesc.nameExp)) {
@@ -83,7 +85,7 @@ public class ProductMergeOp extends Operator {
                 for (String bandName : srcProduct.getBandNames()) {
                     Matcher matcher = pattern.matcher(bandName);
                     if (matcher.matches()) {
-                        copyBandWithFeatures(srcProduct, outputProduct, bandName);
+                        copyBandWithFeatures(srcProduct, targetProduct, bandName);
                         allSrcProducts.add(srcProduct);
                     }
                 }
@@ -91,10 +93,8 @@ public class ProductMergeOp extends Operator {
         }
 
         for (Product srcProduct : allSrcProducts) {
-            ProductUtils.copyBitmaskDefsAndOverlays(srcProduct, outputProduct);
+            ProductUtils.copyBitmaskDefsAndOverlays(srcProduct, targetProduct);
         }
-
-        return outputProduct;
     }
 
     /*

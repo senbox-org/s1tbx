@@ -47,7 +47,7 @@ public class RRToFRSOp extends Operator {
     private Product targetProduct;
 
     @Override
-    public Product initialize() throws OperatorException {
+    public void initialize() throws OperatorException {
         rrGeoCoding = rrProduct.getGeoCoding();
         frsGeoCoding = frsProduct.getGeoCoding();
         final int width = frsProduct.getSceneRasterWidth();
@@ -73,7 +73,6 @@ public class RRToFRSOp extends Operator {
                 targetBand.setFlagCoding(targetProduct.getFlagCoding(srcFlagCoding.getName()));
             }
         }
-        return targetProduct;
     }
 
     private void checkThatRRContainsFRSData(int width, int height) throws OperatorException {

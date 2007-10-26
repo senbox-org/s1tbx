@@ -12,6 +12,7 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
 import java.awt.Rectangle;
 import java.io.IOException;
@@ -55,14 +56,16 @@ public class SubsetOp extends Operator {
     private String[] tiePointGridList = null;
     @Parameter
     private boolean ignoreMetadata = false;
+    @TargetProduct
+    private Product targetProduct;
 
     @Override
-    public Product initialize() throws OperatorException {
+    public void initialize() throws OperatorException {
         subsetReader = new ProductSubsetBuilder();
         createSubsetDef();
 
         try {
-            return subsetReader.readProductNodes(getSourceProduct("input"), subsetDef);
+            targetProduct = subsetReader.readProductNodes(getSourceProduct("input"), subsetDef);
         } catch (Throwable t) {
             throw new OperatorException(t);
         }

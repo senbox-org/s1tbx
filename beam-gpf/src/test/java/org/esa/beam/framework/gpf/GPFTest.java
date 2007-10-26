@@ -127,13 +127,12 @@ public class GPFTest extends TestCase {
         Product sourceProduct;
 
         @Override
-        public Product initialize() throws OperatorException {
-            Product product = new Product("X", "Y", sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
+        public void initialize() throws OperatorException {
+            targetProduct = new Product("X", "Y", sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
             String[] bandNames = sourceProduct.getBandNames();
             for (String s : bandNames) {
-                product.addBand(s, ProductData.TYPE_FLOAT32);
+                targetProduct.addBand(s, ProductData.TYPE_FLOAT32);
             }
-            return product;
         }
 
         /**
@@ -175,13 +174,12 @@ public class GPFTest extends TestCase {
         Product[] sourceProducts;
 
         @Override
-        public Product initialize() throws OperatorException {
-            Product product = new Product("X", "Y", sourceProducts[0].getSceneRasterWidth(), sourceProducts[0].getSceneRasterHeight());
+        public void initialize() throws OperatorException {
+            targetProduct = new Product("X", "Y", sourceProducts[0].getSceneRasterWidth(), sourceProducts[0].getSceneRasterHeight());
             String[] bandNames = sourceProducts[0].getBandNames();
             for (String s : bandNames) {
-                product.addBand(s, ProductData.TYPE_FLOAT32);
+                targetProduct.addBand(s, ProductData.TYPE_FLOAT32);
             }
-            return product;
         }
 
         /**

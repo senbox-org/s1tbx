@@ -75,11 +75,10 @@ public abstract class Operator {
      * Any client code that must be performed before computation of tile data
      * should be placed here.</p>
      *
-     * @return the target product
      * @throws OperatorException if an error occurs during operator initialisation
      * @see #getTargetProduct()
      */
-    public abstract Product initialize() throws OperatorException;
+    public abstract void initialize() throws OperatorException;
 
     /**
      * Called by the framework in order to compute a tile for the given target band.

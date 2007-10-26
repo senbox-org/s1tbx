@@ -44,7 +44,7 @@ public class NdviOp extends Operator {
     private Product targetProduct;
 
     @Override
-    public Product initialize() throws OperatorException {
+    public void initialize() throws OperatorException {
         loadSourceBands(inputProduct);
         int sceneWidth = inputProduct.getSceneRasterWidth();
         int sceneHeight = inputProduct.getSceneRasterHeight();
@@ -88,8 +88,6 @@ public class NdviOp extends Operator {
         targetProduct.addBitmaskDef(new BitmaskDef(NDVI_HIGH_FLAG_NAME.toLowerCase(),
                                                    "NDVI value is too high.", NDVI_FLAGS_BAND_NAME + "." + NDVI_HIGH_FLAG_NAME,
                                                    Color.red.darker(), 0.7f));
-
-        return targetProduct;
     }
 
     @Override

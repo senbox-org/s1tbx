@@ -6,6 +6,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.operators.common.NoOp;
 
 import java.io.IOException;
@@ -39,11 +40,13 @@ public class OperatorTest extends TestCase {
     private static class FooOp extends Operator {
         private boolean initializeCalled;
         private boolean computeTileCalled;
+        @TargetProduct
+        private Product targetProduct;
 
         @Override
-        public Product initialize() throws OperatorException {
+        public void initialize() throws OperatorException {
             initializeCalled = true;
-            return createFooProduct();
+            targetProduct = createFooProduct();
         }
 
         @Override
@@ -81,6 +84,7 @@ public class OperatorTest extends TestCase {
 
     private static class MulConstOp extends Operator {
         private Product sourceProduct;
+        @TargetProduct
         private Product targetProduct;
         private double constant;
 
@@ -90,13 +94,12 @@ public class OperatorTest extends TestCase {
         }
 
         @Override
-        public Product initialize() throws OperatorException {
+        public void initialize() throws OperatorException {
             targetProduct = new Product(sourceProduct.getName() + "_MulConst", sourceProduct.getProductType(), sourceProduct.getSceneRasterWidth(), sourceProduct.getSceneRasterHeight());
             Band[] bands = sourceProduct.getBands();
             for (Band sourceBand : bands) {
                 targetProduct.addBand(sourceBand.getName(), sourceBand.getDataType());
             }
-            return targetProduct;
         }
 
 
@@ -115,6 +118,7 @@ public class OperatorTest extends TestCase {
     private static class AddOp extends Operator {
         private Product sourceProduct1;
         private Product sourceProduct2;
+        @TargetProduct
         private Product targetProduct;
 
 
@@ -124,13 +128,12 @@ public class OperatorTest extends TestCase {
         }
 
         @Override
-        public Product initialize() throws OperatorException {
+        public void initialize() throws OperatorException {
             targetProduct = new Product(sourceProduct1.getName() + "_Add", sourceProduct1.getProductType(), sourceProduct1.getSceneRasterWidth(), sourceProduct1.getSceneRasterHeight());
             Band[] bands = sourceProduct1.getBands();
             for (Band sourceBand : bands) {
                 targetProduct.addBand(sourceBand.getName(), sourceBand.getDataType());
             }
-            return targetProduct;
         }
 
 

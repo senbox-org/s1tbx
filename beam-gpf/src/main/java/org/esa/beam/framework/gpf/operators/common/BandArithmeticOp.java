@@ -91,7 +91,7 @@ public class BandArithmeticOp extends Operator {
     }
 
     @Override
-    public Product initialize() throws OperatorException {
+    public void initialize() throws OperatorException {
         if (targetBandDescriptors == null || targetBandDescriptors.length == 0) {
             throw new OperatorException("No target bands specified.");
         }
@@ -165,8 +165,6 @@ public class BandArithmeticOp extends Operator {
         if (sourceProducts.length == 1) {
             ProductUtils.copyMetadata(sourceProducts[0], targetProduct);
         }
-
-        return targetProduct;
     }
 
     @Override

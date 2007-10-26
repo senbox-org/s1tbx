@@ -58,7 +58,7 @@ public class CollocationOp extends Operator {
     private transient List<Band> slaveBandList;
 
     @Override
-    public Product initialize() throws OperatorException {
+    public void initialize() throws OperatorException {
         // todo - type
         targetProduct = new Product(targetProductName,
                                     masterProduct.getProductType(),

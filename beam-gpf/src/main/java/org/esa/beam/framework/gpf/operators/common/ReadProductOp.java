@@ -42,7 +42,7 @@ public class ReadProductOp extends Operator {
     private Product targetProduct;
 
     @Override
-    public Product initialize() throws OperatorException {
+    public void initialize() throws OperatorException {
         try {
             targetProduct = ProductIO.readProduct(filePath, null);
             if (targetProduct == null) {
@@ -52,7 +52,6 @@ public class ReadProductOp extends Operator {
         } catch (IOException e) {
             throw new OperatorException(e);
         }
-        return targetProduct;
     }
 
     @Override

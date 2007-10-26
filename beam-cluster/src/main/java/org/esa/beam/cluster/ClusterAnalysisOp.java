@@ -56,7 +56,7 @@ public class ClusterAnalysisOp extends Operator {
 
 
     @Override
-    public Product initialize() throws OperatorException {
+    public void initialize() throws OperatorException {
         featureBands = new Band[featureBandNames.length];
         for (int i = 0; i < featureBandNames.length; i++) {
             String featureBandName = featureBandNames[i];
@@ -80,7 +80,6 @@ public class ClusterAnalysisOp extends Operator {
         groupBand = targetProduct.addBand("group", ProductData.TYPE_UINT8);
         groupBand.setUnit("-");
         groupBand.setDescription("Cluster group number");
-        return targetProduct;
     }
 
     @Override

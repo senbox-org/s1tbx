@@ -50,8 +50,8 @@ public class TargetProductAnnotationValidationTest extends TestCase {
         Product output;
 
         @Override
-        public Product initialize() throws OperatorException {
-            return new Product("output", "outputType", 12, 12);
+        public void initialize() throws OperatorException {
+            output = new Product("output", "outputType", 12, 12);
         }
 
         @Override
