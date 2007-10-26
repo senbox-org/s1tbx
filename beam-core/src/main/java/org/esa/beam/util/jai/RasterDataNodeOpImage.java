@@ -84,21 +84,6 @@ public class RasterDataNodeOpImage extends SourcelessOpImage {
         }
     }
 
-    public WritableRaster getWritableRaster(Rectangle rectangle) {
-        final int tileX = XToTileX(rectangle.x);
-        final int tileY = YToTileY(rectangle.y);
-        Raster tileFromCache = getTileFromCache(tileX, tileY);
-        WritableRaster writableRaster;
-        if (tileFromCache != null) {
-            // we already put a WritableRaster into the cache
-            writableRaster = (WritableRaster) tileFromCache;
-        } else {
-            writableRaster = createWritableRaster(rectangle);
-            addTileToCache(tileX, tileY, writableRaster);
-        }
-        return writableRaster;
-    }
-
     public WritableRaster createWritableRaster(Rectangle rectangle) {
         final int dataBufferType = getDataBufferType(rasterDataNode.getDataType());
         SampleModel sampleModel = ImageUtils.createSingleBandedSampleModel(dataBufferType, rectangle.width, rectangle.height);

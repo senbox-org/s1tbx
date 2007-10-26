@@ -112,6 +112,9 @@ public class ProductManager {
 
     /**
      * Tests whether the given product is contained in this list.
+     *
+     * @param product The product.
+     * @return {@code true} if so.
      */
     public boolean contains(final Product product) {
         return _products.contains(product);
@@ -129,7 +132,7 @@ public class ProductManager {
                 return;
             }
             if (_products.add(product)) {
-                addProductManagerRef(product);
+                setProductManager(product);
                 product.setRefNo(getHighestRefNo() + 1);
                 fireEvent(product, _PRODUCT_ADDED);
             }
@@ -148,7 +151,7 @@ public class ProductManager {
                 if (_products.remove(product)) {
                     _products.clearRemovedList();
                     product.resetRefNo();
-                    removeProductManagerRef(product);
+                    clearProductManager(product);
                     fireEvent(product, _PRODUCT_REMOVED);
                     return true;
                 }
@@ -167,13 +170,13 @@ public class ProductManager {
         }
     }
 
-    private void addProductManagerRef(Product product) {
+    private void setProductManager(Product product) {
         if (product.getProductManager() != this) {
             product.setProductManager(this);
         }
     }
 
-    private void removeProductManagerRef(Product product) {
+    private void clearProductManager(Product product) {
         if (product.getProductManager() == this) {
             product.setProductManager(null);
         }

@@ -91,16 +91,14 @@ public abstract class ProductNode {
     }
 
     /**
-     * Returns the owner node of this node.
+     * @return The owner node of this node.
      */
     public ProductNode getOwner() {
         return _owner;
     }
 
     /**
-     * Returns this node's name.
-     *
-     * @return a name, never <code>null</code>
+     * @return This node's name.
      */
     public String getName() {
         return _name;
@@ -108,6 +106,8 @@ public abstract class ProductNode {
 
     /**
      * Sets this product's name.
+     *
+     * @param name The name.
      */
     public void setName(final String name) {
         Guardian.assertNotNull("name", name);
@@ -125,7 +125,8 @@ public abstract class ProductNode {
     /**
      * If a subclass extend the rule for valid names this method must be overwritten.
      *
-     * @param trimmedName
+     * @param trimmedName The trimmed name.
+     * @deprecated Since 4.1. Don't use this.
      */
     protected void additionalNameCheck(String trimmedName) {
     }
@@ -193,6 +194,7 @@ public abstract class ProductNode {
         }
     }
 
+    @Override
     public String toString() {
         return getClass().getName() + "[name=" + getName() + "]";
     }
@@ -319,37 +321,6 @@ public abstract class ProductNode {
     }
 
     /**
-     * Returns whether or not this product node equals another object.
-     */
-    public boolean equals(Object object) {
-
-        if (this == object) {
-            return true;
-        }
-
-        if (!(object instanceof ProductNode)) {
-            return false;
-        }
-
-        ProductNode namedNode = (ProductNode) object;
-
-        if (!ObjectUtils.equalObjects(getName(), namedNode.getName())) {
-            return false;
-        }
-
-        if (!ObjectUtils.equalObjects(getDescription(), namedNode.getDescription())) {
-            return false;
-        }
-
-        if (isModified() != namedNode.isModified()) {
-            return false;
-        }
-
-        return getProduct() == namedNode.getProduct();
-
-    }
-
-    /**
      * Returns this node's display name. The display name is the product reference string with the node name appended.
      * <p>Example: The string <code>"[2] <i>node-name</i>"</code> means node <code><i>node-name</i></code> of the
      * product with the reference number <code>2</code>.
@@ -398,11 +369,12 @@ public abstract class ProductNode {
     public abstract long getRawStorageSize(ProductSubsetDef subsetDef);
 
     /**
-     * Replaces in the expression that this class contains
-     * all occurences of the oldExternalName with the given newExternalName.
+     * Asks a product node to replace all occurences of and references to the node name
+     * given by {@code oldExternalName} with {@code oldExternalName}. Such references most often occur
+     * in band arithmetic expressions.
      *
-     * @param oldExternalName
-     * @param newExternalName
+     * @param oldExternalName The old node name.
+     * @param newExternalName The new node name.
      */
     public void updateExpression(final String oldExternalName, final String newExternalName) {
     }
@@ -490,6 +462,7 @@ public abstract class ProductNode {
     /**
      * Returns whether or not this node is part of the given subset.
      *
+     * @param subsetDef The subset definition.
      * @return <code>true</code> if the subset is not <code>null</code> and it contains a node name equal to this node's
      *         name.
      */

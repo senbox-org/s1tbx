@@ -24,26 +24,22 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.esa.beam.framework.dataio.AbstractProductReader;
+import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.dataio.DecodeQualification;
-import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.esa.beam.framework.dataop.maptransf.IdentityTransformDescriptor;
-import org.esa.beam.framework.dataop.maptransf.MapInfo;
-import org.esa.beam.framework.dataop.maptransf.MapProjection;
-import org.esa.beam.framework.dataop.maptransf.MapTransform;
+import org.esa.beam.framework.dataop.maptransf.*;
 import org.esa.beam.util.BeamConstants;
+import org.esa.beam.util.BitRaster;
 import org.esa.beam.util.ObjectUtils;
 import org.esa.beam.util.ProductUtilsTest;
-import org.esa.beam.util.BitRaster;
 import org.esa.beam.util.io.BeamFileFilter;
 
+import java.awt.Dimension;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.awt.Dimension;
 
 public class ProductTest extends TestCase {
 
@@ -412,12 +408,16 @@ public class ProductTest extends TestCase {
 
         Band band = new Band("band1", ProductData.TYPE_FLOAT32, _sceneWidth, _sceneHeight);
 
+        assertEquals(null, _product.getBand("band1"));
+
         //
         _product.addBand(band);
+        assertEquals(band, _product.getBand("band1"));
         assertEquals("added band, modified flag should be set", true, _product.isModified());
         _product.setModified(false);
 
         _product.removeBand(band);
+        assertEquals(null, _product.getBand("band1"));
         assertEquals("removed band, modified flag should be set", true, _product.isModified());
     }
 
@@ -549,7 +549,7 @@ public class ProductTest extends TestCase {
     }
 
     public void testReadBitmaskWithByteValues() throws ParseException,
-                                                       IOException {
+            IOException {
         Product product = new Product("Y", "X", 4, 4);
         Band band = product.addBand("flags", ProductData.TYPE_INT8);
         band.setSynthetic(true);
@@ -638,7 +638,7 @@ public class ProductTest extends TestCase {
     }
 
     public void testReadBitmaskWithIntValues() throws ParseException,
-                                                      IOException {
+            IOException {
         Product product = new Product("Y", "X", 4, 4);
         Band band = product.addBand("flags", ProductData.TYPE_INT8);
         band.setSynthetic(true);
@@ -726,7 +726,7 @@ public class ProductTest extends TestCase {
     }
 
     public void testEnsureValidMask() throws ParseException,
-                                             IOException {
+            IOException {
         final Product product = new Product("n", "t", 18, 2);
         final Band flagsBand = product.addBand("flags", ProductData.TYPE_INT8);
         flagsBand.setSynthetic(true);
@@ -752,7 +752,7 @@ public class ProductTest extends TestCase {
     }
 
     public void testMaskProductData() throws ParseException,
-                                             IOException {
+            IOException {
         final Product product = new Product("Y", "X", 4, 4);
         final Band band = product.addBand("flags", ProductData.TYPE_INT8);
         band.setSynthetic(true);

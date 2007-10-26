@@ -224,27 +224,6 @@ public abstract class DataNode extends ProductNode {
         }
     }
 
-    @Override
-    public boolean equals(Object object) {
-
-        if (!super.equals(object)) {
-            return false;
-        }
-
-        if (!(object instanceof DataNode)) {
-            return false;
-        }
-
-        DataNode dataNode = (DataNode) object;
-
-        if (!ObjectUtils.equalObjects(dataNode.getUnit(), getUnit())) {
-            return false;
-        }
-
-        return ObjectUtils.equalObjects(dataNode.getData(), getData());
-
-    }
-
     //////////////////////////////////////////////////////////////////////////
     // Implementation helpers
 
@@ -252,6 +231,7 @@ public abstract class DataNode extends ProductNode {
      * Checks if the data that should be used to access the data is compatible with the data this node can hold.
      *
      * @param data the data to be checked for compatibility
+     * @throws IllegalArgumentException if data is invalid.
      */
     protected void checkDataCompatibility(ProductData data) throws IllegalArgumentException {
 

@@ -4,24 +4,24 @@ import Jama.Matrix;
 
 /**
  * A pixel spectrum is assumed to be a linear superposition of
- * the spectra of the end-members, which therefore are the basic of this class.
+ * the spectra of the end-members, which therefore are the basis of this class.
+ * The constraint is sum(abundances)=1 for each pixel.
  *
  * @author Helmut Schiller, GKSS
  * @since 4.1
  */
 public class ConstrainedLSU extends UnconstrainedLSU {
 
-    private final Matrix endMembers;
     private final Matrix ATAinv;
     private final Matrix Z;
 
     /**
      * Constructs a new <code>LinearSpectralUnmixing</code> for the given matrix.
+     *
      * @param endMembers the matrix of end-members, nrow = # of spectral channels, ncol = # of endmembers
      */
     public ConstrainedLSU(Matrix endMembers) {
         super(endMembers);
-        this.endMembers = endMembers;
         this.ATAinv = (((endMembers.transpose()).times(endMembers))).inverse();
         this.Z = new Matrix(1, endMembers.getColumnDimension(), 1.);
     }
@@ -35,7 +35,7 @@ public class ConstrainedLSU extends UnconstrainedLSU {
      */
     @Override
     public Matrix unmix(Matrix specs) {
-        if (specs.getRowDimension() != endMembers.getRowDimension()) {
+        if (specs.getRowDimension() != getEndMembers().getRowDimension()) {
             throw new IllegalArgumentException("specs.getRowDimension() != endmembers.getRowDimension()");
         }
         Matrix res, hr;

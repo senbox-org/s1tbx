@@ -99,11 +99,7 @@ public class VirtualBand extends Band {
     }
 
     /**
-     * Replaces in the expression that this class contains
-     * all occurences of the oldExternalName with the given newExternalName.
-     *
-     * @param oldExternalName
-     * @param newExternalName
+     * {@inheritDoc}
      */
     @Override
     public void updateExpression(final String oldExternalName, final String newExternalName) {
@@ -271,12 +267,11 @@ public class VirtualBand extends Band {
      * @param width      the width of the raster data buffer
      * @param height     the height of the raster data buffer
      * @param pm         a monitor to inform the user about progress
-     *
      * @throws IOException              if an I/O error occurs
      * @throws IllegalArgumentException if the raster is null
      * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to
      *                                  which this product raster belongs to, has no associated product reader
-     * @see ProductReader#readBandRasterData(Band, int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor) 
+     * @see ProductReader#readBandRasterData(Band, int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor)
      */
     @Override
     public void writeRasterData(final int offsetX, final int offsetY, final int width, final int height,
@@ -307,7 +302,6 @@ public class VirtualBand extends Band {
      * Gets an estimated raw storage size in bytes of this product node.
      *
      * @param subsetDef if not <code>null</code> the subset may limit the size returned
-     *
      * @return the size in bytes.
      */
     @Override
@@ -321,10 +315,10 @@ public class VirtualBand extends Band {
     @Override
     public String toString() {
         return getClass().getName() + "["
-               + getName() + ","
-               + ProductData.getTypeString(getDataType()) + "," +
-               +getRasterWidth() + "," +
-               +getRasterHeight() + "]";
+                + getName() + ","
+                + ProductData.getTypeString(getDataType()) + "," +
+                +getRasterWidth() + "," +
+                +getRasterHeight() + "]";
     }
 
     /**

@@ -2,7 +2,7 @@ package org.esa.beam.util.math;
 
 import Jama.Matrix;
 
-public class FullyConstrainedLSU  implements SpectralUnmixing {
+public class FullyConstrainedLSU implements SpectralUnmixing {
 
     private int nchem, nmemb;
     private SpectralUnmixing[][] trialModels;
@@ -19,7 +19,7 @@ public class FullyConstrainedLSU  implements SpectralUnmixing {
             rb[i] = i + 1;
         }
 
-        boolean[][]  emcombs = new boolean[nposs][nmemb];
+        boolean[][] emcombs = new boolean[nposs][nmemb];
         for (int k = 0; k < nposs; k++) {
             int zpot = 1;
             for (int l = 0; l < nmemb; l++) {
@@ -79,7 +79,7 @@ public class FullyConstrainedLSU  implements SpectralUnmixing {
                 boolean foundlegal = false;
                 int nmods = trialModels[nc].length;
                 boolean allabupos[] = new boolean[nmods];
-                Matrix[]abuc = new Matrix[nmods];
+                Matrix[] abuc = new Matrix[nmods];
                 for (int m = 0; m < nmods; m++) {
                     allabupos[m] = true;
                 }

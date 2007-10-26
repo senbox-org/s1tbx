@@ -3,7 +3,6 @@ package org.esa.beam.framework.gpf;
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -64,7 +63,7 @@ public class GPFTest extends TestCase {
             assertTrue(rasterData.getElemFloatAt(i) <= 1);
         }
     }
-    
+
     public void testProductName() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new FooOpSpi());
@@ -76,19 +75,19 @@ public class GPFTest extends TestCase {
 
         Product p1 = GPF.createProduct("ReadProduct", parameters);
 
-        Product p2 = GPF.createProduct("Foo", GPF.NO_PARAMS, new Product[] {p1});
+        Product p2 = GPF.createProduct("Foo", GPF.NO_PARAMS, new Product[]{p1});
         MetadataElement metadataElement = p2.getMetadataRoot().getElement("Processing_Graph");
         MetadataElement sourceElement = null;
         for (MetadataElement element : metadataElement.getElements()) {
             if (element.getAttribute("operator").getData().getElemString().equals("Foo")) {
-                 sourceElement = element.getElement("sources");
-                 break;
+                sourceElement = element.getElement("sources");
+                break;
             }
         }
         assertNotNull(sourceElement);
         assertEquals(1, sourceElement.getNumAttributes());
         assertEquals("sourceProduct", sourceElement.getAttributeAt(0).getName());
-        assertEquals("file:"+filePath, sourceElement.getAttributeAt(0).getData().getElemString());
+        assertTrue(sourceElement.getAttributeAt(0).getData().getElemString().endsWith("test-product.dim"));
     }
 
     public void testMultiProductsNames() throws Exception {
@@ -102,14 +101,14 @@ public class GPFTest extends TestCase {
         parameters.put("filePath", filePath);
 
         Product p1 = GPF.createProduct("ReadProduct", parameters);
-        Product p2 = GPF.createProduct("Foo", GPF.NO_PARAMS, new Product[] {p1});
-        Product p3 = GPF.createProduct("Foos", GPF.NO_PARAMS, new Product[] {p1, p2});
+        Product p2 = GPF.createProduct("Foo", GPF.NO_PARAMS, new Product[]{p1});
+        Product p3 = GPF.createProduct("Foos", GPF.NO_PARAMS, new Product[]{p1, p2});
         MetadataElement metadataElement = p3.getMetadataRoot().getElement("Processing_Graph");
         MetadataElement sourceElement = null;
         for (MetadataElement element : metadataElement.getElements()) {
             if (element.getAttribute("operator").getData().getElemString().equals("Foos")) {
-                 sourceElement = element.getElement("sources");
-                 break;
+                sourceElement = element.getElement("sources");
+                break;
             }
         }
         assertNotNull(sourceElement);
@@ -119,7 +118,7 @@ public class GPFTest extends TestCase {
 
     }
 
-    
+
     @OperatorMetadata(alias = "Foo")
     public static class FooOp extends Operator {
         @TargetProduct
@@ -167,7 +166,7 @@ public class GPFTest extends TestCase {
             super(FooOp.class);
         }
     }
-    
+
     @OperatorMetadata(alias = "Foos")
     public static class FoosOp extends Operator {
         @TargetProduct
@@ -193,7 +192,7 @@ public class GPFTest extends TestCase {
         @Override
         public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
             byte[] dataBufferByte = targetTile.getDataBufferByte();
-            Arrays.fill(dataBufferByte, (byte)3);
+            Arrays.fill(dataBufferByte, (byte) 3);
         }
     }
 

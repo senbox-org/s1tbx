@@ -83,7 +83,7 @@ public abstract class Operator {
 
     /**
      * Called by the framework in order to compute a tile for the given target band.
-     * <p>The default implementation throws a runtime exception with the message "not implemented"</p>.
+     * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
      *
      * @param targetBand The target band.
      * @param targetTile The current tile associated with the target band to be computed.
@@ -96,7 +96,7 @@ public abstract class Operator {
 
     /**
      * Called by the framework in order to compute the stack of tiles for the given target bands.
-     * <p>The default implementation throws a runtime exception with the message "not implemented"</p>.
+     * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
      *
      * @param targetTiles     The current tiles to be computed for each target band.
      * @param targetRectangle The area in pixel coordinates to be computed (same for all rasters in <code>targetRasters</code>).
@@ -112,6 +112,27 @@ public abstract class Operator {
      * The default implementation does nothing.
      */
     public void dispose() {
+    }
+
+    /**
+     * Deactivates the {@link #computeTile(org.esa.beam.framework.datamodel.Band, Tile, com.bc.ceres.core.ProgressMonitor) computeTile}
+     * method. This method can be called from within the {@link #initialize()} method if the current operator configuration prevents
+     * the computation of tiles of individual, independend bands.
+     *
+     * @throws IllegalStateException if the {@link #computeTileStack(java.util.Map, java.awt.Rectangle, com.bc.ceres.core.ProgressMonitor) computeTileStack} method is not implemented
+     */
+    protected final void deactivateComputeTileMethod() throws IllegalStateException {
+        if (!context.isComputeTileStackMethodImplemented()) {
+            throw new IllegalStateException("!context.isComputeTileStackMethodUsable()");
+        }
+        context.setComputeTileMethodImplemented(false);
+    }
+
+    /**
+     * @return The operator's identifier as determined by the framework.
+     */
+    public final String getId() {
+        return context.getId();
     }
 
     /**

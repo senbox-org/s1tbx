@@ -34,8 +34,8 @@ public class SingleBandedSampleModel extends ComponentSampleModelJAI {
      * @param h        The height (in pixels) of the region of
      *                 image data described.
      * @throws IllegalArgumentException if <code>w</code> or
-     *                                  <code>h</code> is not greater than 0
-     * @throws IllegalArgumentException if <code>dataType</code> is not
+     *                                  <code>h</code> is not greater than 0 or
+     *                                  if <code>dataType</code> is not
      *                                  one of the supported data types
      */
     public SingleBandedSampleModel(int dataType, int w, int h) {

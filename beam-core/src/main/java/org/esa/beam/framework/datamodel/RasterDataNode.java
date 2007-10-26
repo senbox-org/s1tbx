@@ -756,11 +756,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Replaces in the expression that this class contains
-     * all occurences of the oldExternalName with the given newExternalName.
-     *
-     * @param oldExternalName
-     * @param newExternalName
+     * {@inheritDoc}
      */
     @Override
     public void updateExpression(final String oldExternalName, final String newExternalName) {
@@ -2652,5 +2648,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             return isPixelValid(index % w, _y0 + index / w, _roi);
         }
     }
+
 
 }

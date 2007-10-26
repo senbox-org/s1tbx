@@ -17,11 +17,11 @@
 
 package org.esa.beam.framework.datamodel;
 
-import java.util.Vector;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
+import java.util.Vector;
 
 public class ProductManagerTest extends TestCase {
 
@@ -200,7 +200,7 @@ public class ProductManagerTest extends TestCase {
         _productManager.addProduct(product3);
 
         String[] names = _productManager.getProductDisplayNames();
-
+        assertEquals(3, names.length);
         assertEquals("[1] name", names[0]);
         assertEquals("[2] name", names[1]);
         assertEquals("[3] name", names[2]);
@@ -215,6 +215,7 @@ public class ProductManagerTest extends TestCase {
         _productManager.addProduct(product2);
         _productManager.addProduct(product3);
 
+        assertEquals(3, _productManager.getNumProducts());
         assertSame(product1, _productManager.getProductByDisplayName("[1] name"));
         assertSame(product2, _productManager.getProductByDisplayName("[2] name"));
         assertSame(product3, _productManager.getProductByDisplayName("[3] name"));

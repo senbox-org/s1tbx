@@ -16,22 +16,22 @@
  */
 package org.esa.beam.visat;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.*;
-import java.awt.*;
-
-import javax.swing.*;
-
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.runtime.RuntimeRunnable;
+import com.jidesoft.utils.Lm;
+import com.jidesoft.utils.SystemInfo;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.util.Debug;
-import com.bc.ceres.core.runtime.RuntimeRunnable;
-import com.bc.ceres.core.ProgressMonitor;
-import com.jidesoft.utils.SystemInfo;
-import com.jidesoft.utils.Lm;
+
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import java.io.File;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * The startup class for VISAT. It provides the <code>main</code> method for the application.
@@ -46,8 +46,9 @@ import com.jidesoft.utils.Lm;
 public class VisatMain implements RuntimeRunnable {
     /**
      * Entry point for the VISAT application called by the Ceres runtime.
-     * @param argument a {@code String[]} containing the command line arguments
-     * @param  progressMonitor a progress monitor
+     *
+     * @param argument        a {@code String[]} containing the command line arguments
+     * @param progressMonitor a progress monitor
      * @throws Exception if an error occurs
      */
     public void run(Object argument, ProgressMonitor progressMonitor) throws Exception {
@@ -86,6 +87,7 @@ public class VisatMain implements RuntimeRunnable {
         }
 
         Debug.setEnabled(debugEnabled);
+
         VisatApp.start(progressMonitor);
         openProducts(productFilepathList);
     }

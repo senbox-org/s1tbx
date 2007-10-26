@@ -55,8 +55,8 @@ public class OperatorContext {
     private Product targetProduct;
     private OperatorSpi operatorSpi;
     private Operator operator;
-    private boolean tileMethodImplemented;
-    private boolean tileStackMethodImplemented;
+    private boolean computeTileMethodImplemented;
+    private boolean computeTileStackMethodImplemented;
     private boolean passThrough;
     private List<Product> sourceProductList;
     private Map<String, Object> parameters;
@@ -68,8 +68,8 @@ public class OperatorContext {
 
     public OperatorContext(Operator operator) {
         this.operator = operator;
-        this.tileMethodImplemented = canOperatorComputeTile(operator.getClass());
-        this.tileStackMethodImplemented = canOperatorComputeTileStack(operator.getClass());
+        this.computeTileMethodImplemented = canOperatorComputeTile(operator.getClass());
+        this.computeTileStackMethodImplemented = canOperatorComputeTileStack(operator.getClass());
         this.sourceProductList = new ArrayList<Product>(3);
         this.sourceProductMap = new HashMap<String, Product>(3);
         this.logger = Logger.getAnonymousLogger();
@@ -178,12 +178,20 @@ public class OperatorContext {
         return targetProduct != null;
     }
 
-    public boolean canComputeTile() {
-        return tileMethodImplemented;
+    public boolean isComputeTileMethodImplemented() {
+        return computeTileMethodImplemented;
     }
 
-    public boolean canComputeTileStack() {
-        return tileStackMethodImplemented;
+    public boolean isComputeTileStackMethodImplemented() {
+        return computeTileStackMethodImplemented;
+    }
+
+    public void setComputeTileMethodImplemented(boolean computeTileMethodImplemented) {
+        this.computeTileMethodImplemented = computeTileMethodImplemented;
+    }
+
+    public void setComputeTileStackMethodImplemented(boolean computeTileStackMethodImplemented) {
+        this.computeTileStackMethodImplemented = computeTileStackMethodImplemented;
     }
 
     public Tile getSourceTile(RasterDataNode rasterDataNode, Rectangle rectangle, ProgressMonitor pm) {
@@ -355,7 +363,7 @@ public class OperatorContext {
             }
             elementList.add(childDE);
         }
-        for (Entry<String,List<DomElement>> entry : map.entrySet()) {
+        for (Entry<String, List<DomElement>> entry : map.entrySet()) {
             String name = entry.getKey();
             final List<DomElement> elementList = entry.getValue();
             if (elementList.size() > 1) {

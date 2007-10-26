@@ -8,6 +8,7 @@ import org.esa.beam.util.jai.RasterDataNodeOpImage;
 
 import javax.media.jai.PlanarImage;
 import java.awt.Rectangle;
+import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,14 +56,15 @@ public class OperatorImage extends RasterDataNodeOpImage {
             }
         } else {
             for (Band band : bands) {
-                WritableRaster tileRaster = getTargetTileRaster(band, targetTileRaster, targetRectangle);
+                WritableRaster tileRaster = getWritableTile(band, targetTileRaster);
                 targetTiles.put(band, createTargetTile(band, tileRaster, targetRectangle));
             }
         }
+        Assert.state(targetTiles.size() == bands.length);
         return targetTiles;
     }
 
-    private WritableRaster getTargetTileRaster(Band band, WritableRaster targetTileRaster, Rectangle targetRectangle) {
+    private WritableRaster getWritableTile(Band band, WritableRaster targetTileRaster) {
         WritableRaster tileRaster;
         if (band == getTargetBand()) {
             tileRaster = targetTileRaster;
@@ -70,9 +72,28 @@ public class OperatorImage extends RasterDataNodeOpImage {
             OperatorImage image = operatorContext.getTargetImage(band);
             Assert.notNull(image);
             Assert.state(image != this);
-            tileRaster = image.getWritableRaster(targetRectangle);
+            tileRaster = image.getWritableTile(targetTileRaster.getBounds());
         }
         return tileRaster;
+    }
+
+    public WritableRaster getWritableTile(Rectangle tileRectangle) {
+        Assert.argument(tileRectangle.x % getTileWidth() == 0, "rectangle");
+        Assert.argument(tileRectangle.y % getTileHeight() == 0, "rectangle");
+        Assert.argument(tileRectangle.width == getTileWidth(), "rectangle");
+        Assert.argument(tileRectangle.height == getTileHeight(), "rectangle");
+        final int tileX = XToTileX(tileRectangle.x);
+        final int tileY = YToTileY(tileRectangle.y);
+        Raster tileFromCache = getTileFromCache(tileX, tileY);
+        WritableRaster writableRaster;
+        if (tileFromCache != null) {
+            // we already put a WritableRaster into the cache
+            writableRaster = (WritableRaster) tileFromCache;
+        } else {
+            writableRaster = createWritableRaster(tileRectangle);
+            addTileToCache(tileX, tileY, writableRaster);
+        }
+        return writableRaster;
     }
 
     private static TileImpl createTargetTile(Band band, WritableRaster targetTileRaster, Rectangle targetRectangle) {
@@ -80,7 +101,7 @@ public class OperatorImage extends RasterDataNodeOpImage {
     }
 
     private boolean operatorMustComputeTileStack() {
-        return operatorContext.canComputeTileStack()
-                && !operatorContext.canComputeTile();
+        return operatorContext.isComputeTileStackMethodImplemented()
+                && !operatorContext.isComputeTileMethodImplemented();
     }
 }

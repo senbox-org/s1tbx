@@ -32,11 +32,19 @@ public class UnconstrainedLSU implements SpectralUnmixing {
 
     /**
      * Constructs a new <code>LinearSpectralUnmixing</code> for the given matrix.
-     * @param endMembers the matrix of end-members, nrow = # of spectral channels, ncol = # of endmembers
+     *
+     * @param endMembers The matrix of end-members, nrow = # of spectral channels, ncol = # of endmembers.
      */
     public UnconstrainedLSU(Matrix endMembers) {
         this.endMembers = endMembers;
         this.Apinv = endMembers.inverse();
+    }
+
+    /**
+     * @return The matrix of end-members, nrow = # of spectral channels, ncol = # of endmembers.
+     */
+    public Matrix getEndMembers() {
+        return endMembers;
     }
 
     /**

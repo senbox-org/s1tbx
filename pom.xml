@@ -298,11 +298,9 @@
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <executable>${JAVA_HOME}/bin/javac</executable>
-                    <source>1.5</source>
-                    <target>1.5</target>
+                    <source>1.6</source>
+                    <target>1.6</target>
                     <debug>true</debug>
-                    <fork>true</fork>
                     <encoding>ISO-8859-1</encoding>
                 </configuration>
             </plugin>

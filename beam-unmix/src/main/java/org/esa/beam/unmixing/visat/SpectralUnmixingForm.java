@@ -17,6 +17,7 @@ class SpectralUnmixingForm extends JPanel {
     JCheckBox alterSourceProduct;
     JTextField targetBandNameSuffix;
     JComboBox unmixingModelName;
+    JCheckBox computeErrorBands;
 
     public SpectralUnmixingForm(SpectralUnmixingFormModel formModel) {
         this.formModel = formModel;
@@ -36,6 +37,7 @@ class SpectralUnmixingForm extends JPanel {
         bindingContext.bind(alterSourceProduct, "alterSourceProduct");
         bindingContext.bind(targetBandNameSuffix, "targetBandNameSuffix");
         bindingContext.bind(sourceBandNames, "sourceBandNames", true);
+        bindingContext.bind(computeErrorBands, "computeErrorBands");
 
         bindingContext.enable(outputProductName, "alterSourceProduct", false);
     }
@@ -54,6 +56,7 @@ class SpectralUnmixingForm extends JPanel {
         alterSourceProduct = new JCheckBox("Alter input product, don't create output product");
         targetBandNameSuffix = new JTextField();
         unmixingModelName = new JComboBox();
+        computeErrorBands = new JCheckBox("Compute error bands");
 
         JPanel inputPanel = createInputPanel();
         inputPanel.setBorder(BorderFactory.createTitledBorder("Input"));
@@ -163,6 +166,9 @@ class SpectralUnmixingForm extends JPanel {
         gbc.gridwidth = 2;
         gbc.weightx = 1;
         ioPanel.add(alterSourceProduct, gbc);
+
+        gbc.gridy++;
+        ioPanel.add(computeErrorBands, gbc);
 
         // spacer
         gbc.gridy++;

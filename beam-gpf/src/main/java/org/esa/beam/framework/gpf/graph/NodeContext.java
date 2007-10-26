@@ -67,7 +67,7 @@ class NodeContext {
     }
 
     public boolean canComputeTileStack() {
-        return operatorContext.canComputeTileStack();
+        return operatorContext.isComputeTileStackMethodImplemented();
     }
 
     public boolean isInitialized() {
