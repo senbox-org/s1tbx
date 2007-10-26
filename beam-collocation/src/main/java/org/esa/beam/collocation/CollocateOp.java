@@ -24,12 +24,12 @@ import java.util.Map;
  * @author Ralf Quast
  * @version $Revision$ $Date$
  */
-@OperatorMetadata(alias = "Collocation",
+@OperatorMetadata(alias = "Collocate",
         version = "1.0",
         authors = "Ralf Quast",
         copyright = "(c) 2007 by Brockmann Consult",
-        description = "Collocation operator.")
-public class CollocationOp extends Operator {
+        description = "Collocate two products.")
+public class CollocateOp extends Operator {
 
     @SourceProduct(alias = "master")
     private Product masterProduct;
@@ -139,28 +139,25 @@ public class CollocationOp extends Operator {
             final int sourceRasterWidth = slaveProduct.getSceneRasterWidth();
 
             final Rectangle targetRectangle = targetTile.getRectangle();
+            final PixelPos[] sourcePixelPositions = ProductUtils.computeSourcePixelCoordinates(sourceGeoCoding,
+                    sourceRasterWidth,
+                    sourceRasterHeight,
+                    targetGeoCoding,
+                    targetRectangle);
+            final Rectangle sourceRectangle = getBoundingBox(sourcePixelPositions, sourceRasterWidth,
+                    sourceRasterHeight);
 
-            for (int y = targetRectangle.y; y < targetRectangle.y + targetRectangle.height; ++y) {
-                final Rectangle targetRow = new Rectangle(targetRectangle.x, y, targetRectangle.width, 1);
-                final PixelPos[] sourcePixelPositions = ProductUtils.computeSourcePixelCoordinates(sourceGeoCoding,
-                        sourceRasterWidth,
-                        sourceRasterHeight,
-                        targetGeoCoding,
-                        targetRow);
-                final Rectangle sourceRectangle = getBoundingBox(sourcePixelPositions, sourceRasterWidth,
-                        sourceRasterHeight);
+            if (sourceRectangle != null) {
+                final Tile sourceTile = getSourceTile(sourceBand, sourceRectangle, pm);
+                final ResamplingRaster resamplingRaster = new ResamplingRaster(sourceTile);
 
-                if (sourceRectangle != null) {
-                    final Tile sourceTile = getSourceTile(sourceBand, sourceRectangle, pm);
-                    final ResamplingRaster resamplingRaster = new ResamplingRaster(sourceTile);
-
-                    for (int x = targetRectangle.x; x < targetRectangle.x + targetRectangle.width; ++x) {
-                        final PixelPos sourcePixelPos = sourcePixelPositions[x - targetRectangle.x];
+                for (int y = targetRectangle.y, index = 0; y < targetRectangle.y + targetRectangle.height; ++y) {
+                    for (int x = targetRectangle.x; x < targetRectangle.x + targetRectangle.width; ++x, ++index) {
+                        final PixelPos sourcePixelPos = sourcePixelPositions[index];
 
                         if (sourcePixelPos != null) {
-                            resampling.computeIndex(sourcePixelPos.x, sourcePixelPos.y, sourceRasterWidth,
-                                    sourceRasterHeight,
-                                    resamplingIndex);
+                            resampling.computeIndex(sourcePixelPos.x, sourcePixelPos.y,
+                                    sourceRasterWidth, sourceRasterHeight, resamplingIndex);
                             try {
                                 targetTile.setSample(x, y, resampling.resample(resamplingRaster, resamplingIndex));
                                 // todo - no data value
@@ -171,10 +168,10 @@ public class CollocationOp extends Operator {
                             // todo -- no source pixel pos
                         }
                     }
-                } else {
-                    // todo -- no source pixel pos for the whole target line
+                    pm.worked(1);
                 }
-                pm.worked(1);
+            } else {
+                // todo -- no source pixel pos for the whole target line
             }
         } finally {
             pm.done();
@@ -267,7 +264,7 @@ public class CollocationOp extends Operator {
     public static class Spi extends OperatorSpi {
 
         public Spi() {
-            super(CollocationOp.class);
+            super(CollocateOp.class);
         }
     }
 }

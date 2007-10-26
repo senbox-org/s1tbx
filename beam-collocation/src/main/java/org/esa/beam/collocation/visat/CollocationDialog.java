@@ -55,7 +55,7 @@ class CollocationDialog extends ModalDialog {
             parameterMap.put("slaveComponentPattern", formModel.getSlaveComponentPattern());
             parameterMap.put("resampling", formModel.getResampling());
 
-            targetProduct = GPF.createProduct("Collocation", parameterMap, productMap);
+            targetProduct = GPF.createProduct("Collocate", parameterMap, productMap);
             targetProduct.setName(formModel.getTargetProductName());
 
 //            final Map<String, Object> parameterMap2 = new HashMap<String, Object>(5);
