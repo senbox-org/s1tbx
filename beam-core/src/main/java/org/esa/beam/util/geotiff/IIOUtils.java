@@ -191,7 +191,7 @@ public class IIOUtils {
      * @return a suitable image writer, or <code>null</code> if no writer is found
      */
     public static ImageWriter getImageWriter(ImageTypeSpecifier imageType, String imageFormatName) {
-        return getImageWriter(imageType, imageFormatName);
+        return getImageWriter(imageType, imageFormatName, null);
 
     }
 
