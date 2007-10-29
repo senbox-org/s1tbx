@@ -27,8 +27,8 @@ public class CommandLineArgsTest extends TestCase {
         assertEquals(true, lineArgs.isHelpRequested());
         assertEquals("MapProj", lineArgs.getOperatorName());
         assertEquals(null, lineArgs.getGraphFilepath());
-        assertEquals("target.dim", lineArgs.getTargetFilepath());
-        assertEquals("BEAM-DIMAP", lineArgs.getTargetFormatName());
+        assertEquals(CommandLineTool.DEFAULT_TARGET_FILEPATH, lineArgs.getTargetFilepath());
+        assertEquals(CommandLineTool.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
         SortedMap<String, String> map = lineArgs.getSourceFilepathMap();
         assertNotNull(map);
         assertEquals(0, map.size());
@@ -39,8 +39,8 @@ public class CommandLineArgsTest extends TestCase {
         assertEquals(false, lineArgs.isHelpRequested());
         assertEquals("MapProj", lineArgs.getOperatorName());
         assertEquals(null, lineArgs.getGraphFilepath());
-        assertEquals("target.dim", lineArgs.getTargetFilepath());
-        assertEquals("BEAM-DIMAP", lineArgs.getTargetFormatName());
+        assertEquals(CommandLineTool.DEFAULT_TARGET_FILEPATH, lineArgs.getTargetFilepath());
+        assertEquals(CommandLineTool.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
         SortedMap<String, String> map = lineArgs.getSourceFilepathMap();
         assertNotNull(map);
         assertEquals(0, map.size());
@@ -50,8 +50,8 @@ public class CommandLineArgsTest extends TestCase {
         CommandLineArgs lineArgs = new CommandLineArgs(new String[]{"MapProj", "source.dim"});
         assertEquals("MapProj", lineArgs.getOperatorName());
         assertEquals(null, lineArgs.getGraphFilepath());
-        assertEquals("target.dim", lineArgs.getTargetFilepath());
-        assertEquals("BEAM-DIMAP", lineArgs.getTargetFormatName());
+        assertEquals(CommandLineTool.DEFAULT_TARGET_FILEPATH, lineArgs.getTargetFilepath());
+        assertEquals(CommandLineTool.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
         SortedMap<String, String> sourceMap = lineArgs.getSourceFilepathMap();
         assertNotNull(sourceMap);
         assertEquals(2, sourceMap.size());
@@ -64,7 +64,7 @@ public class CommandLineArgsTest extends TestCase {
         assertEquals("MapProj", lineArgs.getOperatorName());
         assertEquals(null, lineArgs.getGraphFilepath());
         assertEquals("output.dim", lineArgs.getTargetFilepath());
-        assertEquals("BEAM-DIMAP", lineArgs.getTargetFormatName());
+        assertEquals(CommandLineTool.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
         SortedMap<String, String> sourceMap = lineArgs.getSourceFilepathMap();
         assertNotNull(sourceMap);
         assertEquals(2, sourceMap.size());
@@ -76,8 +76,8 @@ public class CommandLineArgsTest extends TestCase {
         CommandLineArgs lineArgs = new CommandLineArgs(new String[]{"./map-proj.xml", "source.dim"});
         assertEquals(null, lineArgs.getOperatorName());
         assertEquals("./map-proj.xml", lineArgs.getGraphFilepath());
-        assertEquals("target.dim", lineArgs.getTargetFilepath());
-        assertEquals("BEAM-DIMAP", lineArgs.getTargetFormatName());
+        assertEquals(CommandLineTool.DEFAULT_TARGET_FILEPATH, lineArgs.getTargetFilepath());
+        assertEquals(CommandLineTool.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
         SortedMap<String, String> map = lineArgs.getSourceFilepathMap();
         assertNotNull(map);
         assertEquals("source.dim", map.get("sourceProduct"));
@@ -88,17 +88,17 @@ public class CommandLineArgsTest extends TestCase {
         CommandLineArgs lineArgs = new CommandLineArgs(new String[]{"./map-proj.xml"});
         assertEquals(null, lineArgs.getOperatorName());
         assertEquals("./map-proj.xml", lineArgs.getGraphFilepath());
-        assertEquals("target.dim", lineArgs.getTargetFilepath());
-        assertEquals("BEAM-DIMAP", lineArgs.getTargetFormatName());
+        assertEquals(CommandLineTool.DEFAULT_TARGET_FILEPATH, lineArgs.getTargetFilepath());
+        assertEquals(CommandLineTool.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
         SortedMap<String, String> map = lineArgs.getSourceFilepathMap();
         assertNotNull(map);
     }
 
     public void testFormatDetection() throws Exception {
         CommandLineArgs lineArgs = new CommandLineArgs(new String[]{"MapProj", "-t", "target.dim", "source.dim"});
-        assertEquals("BEAM-DIMAP", lineArgs.getTargetFormatName());
+        assertEquals(CommandLineTool.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
         lineArgs = new CommandLineArgs(new String[]{"MapProj", "source.dim"});
-        assertEquals("BEAM-DIMAP", lineArgs.getTargetFormatName());
+        assertEquals(CommandLineTool.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
     }
 
     public void testFormatOption() throws Exception {

@@ -48,7 +48,7 @@ public class CommandLineToolOperatorTest extends TestCase {
 
     public void testOperatorSingleSource() throws Exception {
         clTool.run(new String[]{"Op3", "-Sinput1=vercingetorix.dim"});
-        assertEquals("s0=" + new File("vercingetorix.dim").getCanonicalPath() + ";o=Op3;t0=target.dim;", context.logString);
+        assertEquals("s0=" + new File("vercingetorix.dim").getCanonicalPath() + ";o=Op3;t0=" + CommandLineTool.DEFAULT_TARGET_FILEPATH + ";", context.logString);
         assertEquals("Op3", context.opName);
     }
 
@@ -56,7 +56,7 @@ public class CommandLineToolOperatorTest extends TestCase {
         clTool.run(new String[]{"Op3", "-Sinput1=vercingetorix.dim", "-Sinput2=asterix.N1"});
         String expectedLog = "s0=" + new File("vercingetorix.dim").getCanonicalPath() + ";" +
                 "s1=" + new File("asterix.N1").getCanonicalPath() + ";" +
-                "o=Op3;t0=target.dim;";
+                "o=Op3;t0=" + CommandLineTool.DEFAULT_TARGET_FILEPATH + ";";
         assertEquals(expectedLog, context.logString);
         assertEquals("Op3", context.opName);
         assertNotNull(context.parameters);
@@ -71,7 +71,7 @@ public class CommandLineToolOperatorTest extends TestCase {
 
     public void testOperatorWithParameters() throws Exception {
         clTool.run(new String[]{"Op3", "-Pexpression=log(1+radiance_13)", "-PignoreSign=true", "-Pfactor=-0.025"});
-        assertEquals("o=Op3;t0=target.dim;", context.logString);
+        assertEquals("o=Op3;t0=" + CommandLineTool.DEFAULT_TARGET_FILEPATH + ";", context.logString);
         assertEquals("Op3", context.opName);
 
         Map<String, Object> parameters = context.parameters;

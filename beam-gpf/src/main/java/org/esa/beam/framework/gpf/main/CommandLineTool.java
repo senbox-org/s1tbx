@@ -3,8 +3,8 @@ package org.esa.beam.framework.gpf.main;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.dom.DomElement;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -20,8 +20,11 @@ import org.esa.beam.framework.gpf.operators.common.WriteProductOp;
 import javax.media.jai.JAI;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * The common command-line tool for the GPF.
@@ -30,6 +33,9 @@ import java.util.Map.Entry;
 class CommandLineTool {
 
     private final CommandLineContext commandLineContext;
+    static final String TOOL_NAME = "gpt";
+    static final String DEFAULT_TARGET_FILEPATH = "./target.dim";
+    static final String DEFAULT_FORMAT_NAME = ProductIO.DEFAULT_FORMAT_NAME;
 
     static {
         GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();

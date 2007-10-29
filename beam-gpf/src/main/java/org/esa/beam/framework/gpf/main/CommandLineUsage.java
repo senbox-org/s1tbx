@@ -24,7 +24,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 class CommandLineUsage {
-    private static final String TOOL_NAME = "gpt";
+    private static final String COMMAND_LINE_USAGE_RESOURCE = "CommandLineUsage.txt";
 
     public static String getUsageText() {
         final String usagePattern = getUsagePattern();
@@ -44,15 +44,19 @@ class CommandLineUsage {
             }
             docElementList.add(new DocElement("  " + opAlias, new String[]{descriptionLine}));
         }
-        StringBuilder operatorDoc = new StringBuilder(1024);
-        appendDocElementList(operatorDoc, docElementList);
-        return MessageFormat.format(usagePattern, TOOL_NAME, operatorDoc.toString());
+        StringBuilder opListText = new StringBuilder(1024);
+        appendDocElementList(opListText, docElementList);
+        return MessageFormat.format(usagePattern,
+                                    CommandLineTool.TOOL_NAME,
+                                    CommandLineTool.DEFAULT_TARGET_FILEPATH,
+                                    CommandLineTool.DEFAULT_FORMAT_NAME,
+                                    opListText.toString());
     }
 
     private static String getUsagePattern() {
         BufferedReader bufferedReader = new BufferedReader(
                 new InputStreamReader(
-                        CommandLineArgs.class.getResourceAsStream("CommandLineUsage.txt")));
+                        CommandLineArgs.class.getResourceAsStream(COMMAND_LINE_USAGE_RESOURCE)));
         StringBuilder sb = new StringBuilder(1024);
         try {
             try {
@@ -81,7 +85,7 @@ class CommandLineUsage {
         final OperatorClassDescriptor operatorClassDescriptor = new OperatorClassDescriptor(operatorSpi.getOperatorClass());
         StringBuilder usageText = new StringBuilder(1024);
         usageText.append("Usage:\n");
-        usageText.append(MessageFormat.format("  {0} {1} [options] ", TOOL_NAME, operatorName));
+        usageText.append(MessageFormat.format("  {0} {1} [options] ", CommandLineTool.TOOL_NAME, operatorName));
         ArrayList<DocElement> sourceDocElementList = createSourceDocuElementList(operatorClassDescriptor);
         ArrayList<DocElement> paramDocElementList = createParamDocuElementList(operatorClassDescriptor);
         final SourceProducts productsDescriptor = operatorClassDescriptor.getSourceProducts();

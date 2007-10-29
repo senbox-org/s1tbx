@@ -1,6 +1,7 @@
 package org.esa.beam.framework.gpf.main;
 
 import com.bc.ceres.binding.ValueRange;
+import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
 import org.esa.beam.framework.gpf.GPF;
@@ -15,6 +16,7 @@ import java.util.TreeMap;
  * The common command-line for GPF.
  */
 class CommandLineArgs {
+
     private String[] args;
     private String operatorName;
     private String graphFilepath;
@@ -101,12 +103,18 @@ class CommandLineArgs {
             throw error("Defined target products only valid for graph XML");
         }
         if (targetFilepath == null && targetFilepathMap.size() == 0) {
-            targetFilepath = "target.dim";
+            targetFilepath = CommandLineTool.DEFAULT_TARGET_FILEPATH;
         }
         if (targetFormatName == null && targetFilepath != null) {
-            targetFormatName = detectWriterFormat(FileUtils.getExtension(targetFilepath));
-            if (targetFormatName == null) {
-                throw error("Output format unknown");
+            final String extension = FileUtils.getExtension(targetFilepath);
+            if (extension.isEmpty()) {
+                targetFormatName = ProductIO.DEFAULT_FORMAT_NAME;
+                // todo - decide if to append extension or not  (nf - 2007-10.29)
+            } else {
+                targetFormatName = detectWriterFormat(extension);
+                if (targetFormatName == null) {
+                    throw error("Output format unknown");
+                }
             }
         }
     }

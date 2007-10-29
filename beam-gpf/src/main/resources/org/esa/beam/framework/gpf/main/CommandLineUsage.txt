@@ -1,6 +1,13 @@
 Usage:
   {0} <op>|<graph-file> [options] [<source-file-1> <source-file-2> ...]
 
+Description:
+  This tool is used to execute BEAM raster data operators in batch-mode.
+  The operators can be used stand-alone or combined as a directed acyclic
+  graph (DAG). Processing graphs are represented using XML. More info
+  about processing graphs, the operator API, and the graph XML format can
+  be found in the BEAM documentation.
+
 Arguments:
   <op>               Name of an operator. See below for the list of <op>s.
   <graph-file>       Operator graph file (XML format).
@@ -10,12 +17,14 @@ Arguments:
 Options:
   -h                 Displays command usage. If <op> is given, the specific
                      operator usage is displayed.
-  -t <target>        Filepath to the target file.
+  -t <file>          The target file. Default value is ''{1}''.
   -c <cache-size>    Sets the tile cache size in bytes. Must be greater zero
                      and less than maximum available heap space.
                      Value can be suffixed with ''K'', ''M'' and ''G''.
   -f <format>        Output file format, e.g. ''GeoTIFF'', ''HDF5'',
-                     ''BEAM-DIMAP''.
+                     ''BEAM-DIMAP''. If not specified, format will be
+                     derived from the target filename extension, if any,
+                     otherwise the default format is ''{2}''.
   -p <file>          A (Java Properties) file containing processing
                      parameters in the form <name>=<value>.
   -T<target>=<file>  Defines a target product. Valid for graphs only.
@@ -33,4 +42,4 @@ Options:
   -e                 Displays Java stack trace, if an error occurs.
 
 Operators:
-{1}
+{3}
