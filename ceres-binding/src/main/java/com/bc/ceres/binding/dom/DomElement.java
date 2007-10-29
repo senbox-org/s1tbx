@@ -9,4 +9,5 @@ public interface DomElement extends ConfigurationElementBase<DomElement> {
     DomElement createChild(String name);
     void addChild(DomElement childElement);
     void setValue(String value);
+    String toXml();
 }

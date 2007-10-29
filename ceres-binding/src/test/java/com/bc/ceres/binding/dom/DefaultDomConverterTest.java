@@ -7,12 +7,15 @@ import com.bc.ceres.binding.ValueDescriptorFactory;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.xml.XppDomWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;
+import com.thoughtworks.xstream.io.xml.XppDomReader;
+import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
 import java.io.File;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
@@ -389,6 +392,12 @@ public class DefaultDomConverterTest extends TestCase {
         public DomElement[] getChildren(String elementName) {
             final Xpp3Dom[] xppChildren = xpp3Dom.getChildren(elementName);
             return createXpp3DomElementArray(xppChildren);
+        }
+
+        public String toXml() {
+            final StringWriter writer = new StringWriter(8 * 1024);
+            new HierarchicalStreamCopier().copy(new XppDomReader(xpp3Dom), new PrettyPrintWriter(writer));
+            return writer.toString();
         }
 
         private Xpp3DomElement[] createXpp3DomElementArray(Xpp3Dom[] xppChildren) {
