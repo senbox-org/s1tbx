@@ -36,7 +36,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@OperatorMetadata(alias = "ProductMerger", // todo - rename to "Merge"
+@OperatorMetadata(alias = "Merge",
                   description = "Merges an arbitrary number of source bands into the target product.")
 public class MergeOp extends Operator {
 
