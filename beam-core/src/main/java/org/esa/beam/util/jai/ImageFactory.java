@@ -181,17 +181,20 @@ public class ImageFactory {
         return new ROI(new RoiMaskOpImage(rasterDataNode), 1);
     }
 
-    /**
-     * Creates a new ROI image for the current ROI definition.
-     *
-     * @return a new ROI instance or null if no ROI definition is available
-     */
     public static PlanarImage createROIImage(final ROI roi, final Color color) {
-        PlanarImage image = roi.getAsImage();
+        return convertBinaryToComponentColorModel(roi.getAsImage(), color);
+    }
+
+    private static PlanarImage convertBinaryToComponentColorModel(PlanarImage image, Color color) {
         image = convertBinaryToIndexColorModel(image, color);
         image = convertIndexToComponentColorModel(image);
         return image;
     }
+
+    public static PlanarImage createNoDataImage(final RasterDataNode rasterDataNode, final Color color) {
+        return convertBinaryToComponentColorModel(new ValidMaskOpImage(rasterDataNode), color);
+    }
+
 
     private static PlanarImage convertBinaryToIndexColorModel(PlanarImage image, Color color) {
         ParameterBlock parameterBlock = new ParameterBlock();
