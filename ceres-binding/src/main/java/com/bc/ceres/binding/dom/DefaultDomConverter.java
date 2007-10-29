@@ -45,20 +45,15 @@ public class DefaultDomConverter implements DomConverter {
                     final Converter itemConverter = getItemConverter(descriptor);
                     for (int i = 0; i < arrayLength; i++) {
                         final Object component = Array.get(array, i);
-                        final DomElement itemElement = parentElement.createChild(itemAlias);
+                        final DomElement itemElement = childElement.createChild(itemAlias);
                         convertValueToDomImpl(component, itemConverter, itemElement);
-                        childElement.addChild(itemElement);
                     }
-                }
-                if (!descriptor.getItemsInlined()) {
-                    parentElement.addChild(childElement);
                 }
             } else {
                 final DomElement childElement = parentElement.createChild(getElementName(model));
                 final Object childValue = model.getValue();
                 final Converter converter = descriptor.getConverter();
                 convertValueToDomImpl(childValue, converter, childElement);
-                parentElement.addChild(childElement);
             }
         }
     }

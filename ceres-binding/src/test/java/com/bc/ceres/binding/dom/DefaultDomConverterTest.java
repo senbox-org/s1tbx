@@ -341,7 +341,9 @@ public class DefaultDomConverterTest extends TestCase {
         }
 
         public DomElement createChild(String name) {
-            return new Xpp3DomElement(new Xpp3Dom(name));
+            final Xpp3DomElement child = new Xpp3DomElement(new Xpp3Dom(name));
+            addChild(child);
+            return child;
         }
 
         public void addChild(DomElement childElement) {
