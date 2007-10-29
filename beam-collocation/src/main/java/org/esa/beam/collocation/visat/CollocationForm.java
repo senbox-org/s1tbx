@@ -8,7 +8,7 @@ import org.esa.beam.framework.ui.io.SourceProductSelector;
 import org.esa.beam.framework.ui.io.TargetProductSelector;
 
 import javax.swing.*;
-import java.awt.*;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -113,7 +113,7 @@ public class CollocationForm extends JPanel {
         layout.setTablePadding(3, 3);
 
         final JPanel panel = new JPanel(layout);
-        panel.setBorder(BorderFactory.createTitledBorder("Input"));
+        panel.setBorder(BorderFactory.createTitledBorder("Source"));
 
         panel.add(referenceProductSelector.getLabel());
         panel.add(referenceProductSelector.getComboBox());
