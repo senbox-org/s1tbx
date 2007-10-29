@@ -11,11 +11,11 @@ class SpectralUnmixingForm extends JPanel {
     EndmemberFormModel endmemberFormModel;
 
     EndmemberForm endmemberForm;
-    JTextField inputProductName;
-    JTextField outputProductName;
+    JTextField sourceProductName;
+    JTextField targetProductName;
     JList sourceBandNames;
-    JCheckBox alterSourceProduct;
     JTextField targetBandNameSuffix;
+    JTextField maxWavelengthDelta;
     JComboBox unmixingModelName;
     JCheckBox computeErrorBands;
 
@@ -34,29 +34,29 @@ class SpectralUnmixingForm extends JPanel {
         SwingBindingContext bindingContext = new SwingBindingContext(formModel.getOperatorValueContainer());
 
         bindingContext.bind(unmixingModelName, "unmixingModelName");
-        bindingContext.bind(alterSourceProduct, "alterSourceProduct");
         bindingContext.bind(targetBandNameSuffix, "targetBandNameSuffix");
         bindingContext.bind(sourceBandNames, "sourceBandNames", true);
         bindingContext.bind(computeErrorBands, "computeErrorBands");
+        bindingContext.bind(maxWavelengthDelta, "maxWavelengthDelta");
 
-        bindingContext.enable(outputProductName, "alterSourceProduct", false);
+        bindingContext.enable(targetProductName, "alterSourceProduct", false);
     }
 
     private void initComponents() {
         endmemberForm = new EndmemberForm(endmemberFormModel);
-        inputProductName = new JTextField(10);
-        inputProductName.setText(formModel.getInputProduct().getName());
-        inputProductName.setCaretPosition(0);
-        inputProductName.setEditable(false);
-        outputProductName = new JTextField(15);
-        outputProductName.setText(formModel.getInputProduct().getName() + "_unmixed");
-        outputProductName.setCaretPosition(0);
+        sourceProductName = new JTextField(10);
+        sourceProductName.setText(formModel.getInputProduct().getName());
+        sourceProductName.setCaretPosition(0);
+        sourceProductName.setEditable(false);
+        targetProductName = new JTextField(15);
+        targetProductName.setText(formModel.getInputProduct().getName() + "_unmixed");
+        targetProductName.setCaretPosition(0);
         sourceBandNames = new JList();
         sourceBandNames.setModel(formModel.getBandListModel());
-        alterSourceProduct = new JCheckBox("Alter input product, don't create output product");
         targetBandNameSuffix = new JTextField();
         unmixingModelName = new JComboBox();
         computeErrorBands = new JCheckBox("Compute error bands");
+        maxWavelengthDelta = new JTextField();
 
         JPanel inputPanel = createInputPanel();
         inputPanel.setBorder(BorderFactory.createTitledBorder("Input"));
@@ -105,10 +105,10 @@ class SpectralUnmixingForm extends JPanel {
         gbc.gridy = 0;
         gbc.gridx = 0;
         gbc.weightx = 0;
-        panel.add(new JLabel("Input product name: "), gbc);
+        panel.add(new JLabel("Source product name: "), gbc);
         gbc.gridx = 1;
         gbc.weightx = 1;
-        panel.add(inputProductName, gbc);
+        panel.add(sourceProductName, gbc);
 
         gbc.gridy++;
         gbc.gridx = 0;
@@ -138,16 +138,16 @@ class SpectralUnmixingForm extends JPanel {
         gbc.gridy++;
         gbc.gridx = 0;
         gbc.weightx = 0;
-        ioPanel.add(new JLabel("Output product name: "), gbc);
+        ioPanel.add(new JLabel("Target product name: "), gbc);
         gbc.gridx = 1;
         gbc.weightx = 1;
-        ioPanel.add(outputProductName, gbc);
+        ioPanel.add(targetProductName, gbc);
 
         gbc.gridy++;
         gbc.gridwidth = 1;
         gbc.gridx = 0;
         gbc.weightx = 0;
-        ioPanel.add(new JLabel("Output band name suffix: "), gbc);
+        ioPanel.add(new JLabel("Target band name suffix: "), gbc);
         gbc.gridx = 1;
         gbc.weightx = 1;
         ioPanel.add(targetBandNameSuffix, gbc);
@@ -162,10 +162,14 @@ class SpectralUnmixingForm extends JPanel {
         ioPanel.add(unmixingModelName, gbc);
 
         gbc.gridy++;
+        gbc.gridwidth = 1;
         gbc.gridx = 0;
-        gbc.gridwidth = 2;
+        gbc.weightx = 0;
+        ioPanel.add(new JLabel("Max. wavelength deviation: "), gbc);
+        gbc.gridx = 1;
         gbc.weightx = 1;
-        ioPanel.add(alterSourceProduct, gbc);
+        ioPanel.add(maxWavelengthDelta, gbc);
+
 
         gbc.gridy++;
         ioPanel.add(computeErrorBands, gbc);
@@ -175,8 +179,7 @@ class SpectralUnmixingForm extends JPanel {
         gbc.gridx = 0;
         gbc.gridwidth = 2;
         gbc.weighty = 1;
-        ioPanel.add(new JComponent() {
-        }, gbc);
+        ioPanel.add(new JPanel(), gbc);
 
         return ioPanel;
     }

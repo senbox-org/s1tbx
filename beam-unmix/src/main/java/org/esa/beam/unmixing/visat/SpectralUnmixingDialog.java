@@ -22,6 +22,8 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.unmixing.Endmember;
+import org.esa.beam.unmixing.SpectralUnmixingOp;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.visat.VisatApp;
 
@@ -30,6 +32,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.InternalFrameAdapter;
 import java.awt.Window;
+import java.util.Map;
 
 
 public class SpectralUnmixingDialog extends ModalDialog {
@@ -47,7 +50,7 @@ public class SpectralUnmixingDialog extends ModalDialog {
     @Override
     public int show() {
         setContent(form);
-        form.outputProductName.requestFocus();
+        form.targetProductName.requestFocus();
         return super.show();
     }
 
@@ -67,15 +70,50 @@ public class SpectralUnmixingDialog extends ModalDialog {
         }
         super.onOK();
         if (outputProduct != formModel.getInputProduct()) {
-            outputProduct.setName(form.outputProductName.getText());
+            outputProduct.setName(form.targetProductName.getText());
             VisatApp.getApp().addProduct(outputProduct);
         }
     }
 
     @Override
     protected boolean verifyUserInput() {
-        // todo - verify sourceBandNames & endmembers
+        final Map<String, Object> parameters = formModel.getOperatorParameters();
+        parameters.put("endmembers", form.getEndmemberPresenter().getEndmembers());
+
+        final Endmember[] endmembers = (Endmember[]) parameters.get("endmembers");
+        final String[] sourceBandNames = (String[]) parameters.get("sourceBandNames");
+        final double maxWavelengthDelta = (Double) parameters.get("maxWavelengthDelta");
+
+        if (!matchingWavelength(endmembers, getSourceSpectrum(formModel.getInputProduct(), sourceBandNames), maxWavelengthDelta)) {
+            showErrorDialog("One or more source wavelengths do not fit\n" +
+                    "to one or more endmember spectra.\n\n" +
+                    "Consider increasing the maximum wavelength deviation.");
+            return false;
+        }
+
         return true;
+    }
+
+    private static boolean matchingWavelength(Endmember[] endmembers, double[] sourceWavelengths, double epsilon) {
+        for (Endmember endmember : endmembers) {
+            final double[] endmemberWavelengths = endmember.getWavelengths();
+            for (double sourceWavelength : sourceWavelengths) {
+                final int k = SpectralUnmixingOp.findEndmemberSpectralIndex(endmemberWavelengths, sourceWavelength, epsilon);
+                if (k == -1) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private static double[] getSourceSpectrum(Product sourceProduct, String[] sourceBandNames) {
+        double[] sourceWavelengths = new double[sourceBandNames.length];
+        for (int i = 0; i < sourceBandNames.length; i++) {
+            final Band sourceBand = sourceProduct.getBand(sourceBandNames[i]);
+            sourceWavelengths[i] = sourceBand.getSpectralWavelength();
+        }
+        return sourceWavelengths;
     }
 
     public static void main(String[] args) throws IllegalAccessException, UnsupportedLookAndFeelException, InstantiationException, ClassNotFoundException {

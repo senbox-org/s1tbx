@@ -50,42 +50,39 @@ import java.util.Map;
                   version = "1.0",
                   authors = "Helmut Schiller, Norman Fomferra",
                   copyright = "(c) 2007 by Brockmann Consult",
-                  description = "Spectral unmixing algorithm.")
+                  description = "Performs a linear, spectral unmixing.")
 public class SpectralUnmixingOp extends Operator {
 
     private final String TYPE_1 = "Unconstrained LSU";
     private final String TYPE_2 = "Constrained LSU";
     private final String TYPE_3 = "Fully Constrained LSU";
 
-    @SourceProduct
+    @SourceProduct(description = "The source product.")
     Product sourceProduct;
 
-    @TargetProduct
+    @TargetProduct(description = "The target product.")
     Product targetProduct;
 
-    @Parameter
-    boolean alterSourceProduct;
-
-    @Parameter(alias = "sourceBands", itemAlias = "band")
+    @Parameter(description = "The list of spectral bands providing the source spectrum.", alias = "sourceBands", itemAlias = "band")
     String[] sourceBandNames;
 
-    @Parameter(itemAlias = "endmember")
+    @Parameter(description = "The list of endmember spectra. Wavelengths must be given in nanometers.", itemAlias = "endmember")
     Endmember[] endmembers;
 
-    @Parameter
+    @Parameter(description = "A text file containing (additional) endmembers in a table. Wavelengths must be given in nanometers.")
     File endmemberFile;
 
-    @Parameter(valueSet = {TYPE_1, TYPE_2, TYPE_3}, defaultValue = TYPE_2)
+    @Parameter(description = "The unmixing model.", valueSet = {TYPE_1, TYPE_2, TYPE_3}, defaultValue = TYPE_2)
     String unmixingModelName;
 
-    @Parameter(pattern = "[a-zA-Z_0-9]*", notNull = true, defaultValue = "_abundance")
+    @Parameter(description = "The suffix for the generated band names (band-name = endmember-name + suffix).", pattern = "[a-zA-Z_0-9]*", notNull = true, defaultValue = "_abundance")
     String targetBandNameSuffix;
 
-    @Parameter(defaultValue = "false", description = "Whether to compute a error bands.")
+    @Parameter(description = "If 'true', error bands for all source bands will be generated.", defaultValue = "false")
     boolean computeErrorBands;
 
-    @Parameter(defaultValue = "10.0", description = "Error used for wavelength matching.")
-    double epsilon;
+    @Parameter(description = "Maximum wavelength deviation used for spectrum adjustment.", defaultValue = "10.0", interval = "(0,*)", unit = "nm")
+    double maxWavelengthDelta;
 
     private transient Band[] sourceBands;
     private transient Band[] targetBands;
@@ -124,13 +121,9 @@ public class SpectralUnmixingOp extends Operator {
 
         int width = sourceProduct.getSceneRasterWidth();
         int height = sourceProduct.getSceneRasterHeight();
-        if (alterSourceProduct) {
-            targetProduct = sourceProduct;
-        } else {
-            targetProduct = new Product(sourceProduct.getName() + "_unmixed",
-                                        "SpectralUnmixing", width, height);
-            ProductUtils.copyMetadata(sourceProduct, targetProduct);
-        }
+        targetProduct = new Product(sourceProduct.getName() + "_unmixed",
+                                    "SpectralUnmixing", width, height);
+        ProductUtils.copyMetadata(sourceProduct, targetProduct);
 
         int numSourceBands = sourceBands.length;
         int numEndmembers = endmembers.length;
@@ -150,10 +143,8 @@ public class SpectralUnmixingOp extends Operator {
             summaryErrorBand = targetProduct.addBand("summary_error", ProductData.TYPE_FLOAT32);
         }
 
-        if (sourceProduct != targetProduct) {
-            ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
-            ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
-        }
+        ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
+        ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
 
         double[][] lsuMatrixElements = new double[numSourceBands][numEndmembers];
         for (int j = 0; j < numEndmembers; j++) {
@@ -163,7 +154,7 @@ public class SpectralUnmixingOp extends Operator {
             for (int i = 0; i < numSourceBands; i++) {
                 Band sourceBand = sourceBands[i];
                 float wavelength = sourceBand.getSpectralWavelength();
-                int k = findValueIndex(wavelengths, wavelength);
+                int k = findEndmemberSpectralIndex(wavelengths, wavelength, maxWavelengthDelta);
                 if (k == -1) {
                     throw new OperatorException(String.format("Band %s: No matching endmember wavelength found (%f nm)", sourceBand.getName(), wavelength));
                 }
@@ -307,18 +298,17 @@ public class SpectralUnmixingOp extends Operator {
         return om.getArray();
     }
 
-    private int findValueIndex(double[] values, double value) {
-        return findValueIndex(values, value, epsilon);
-    }
-
-    private static int findValueIndex(double[] values, double value, double epsilon) {
-        for (int i = 0; i < values.length; i++) {
-            double wavelength = values[i];
-            if (Math.abs(wavelength - value) <= epsilon) {
-                return i;
+    public static int findEndmemberSpectralIndex(double[] endmemberWavelengths, double sourceBandWavelength, double epsilon) {
+        double minDelta = Double.MAX_VALUE;
+        int bestIndex = -1;
+        for (int i = 0; i < endmemberWavelengths.length; i++) {
+            final double delta = Math.abs(endmemberWavelengths[i] - sourceBandWavelength);
+            if (delta <= epsilon && delta <= minDelta) {
+                minDelta = delta;
+                bestIndex = i;
             }
         }
-        return -1;
+        return bestIndex;
     }
 
     public static Endmember[] convertGraphsToEndmembers(DiagramGraph[] diagramGraphs) {
