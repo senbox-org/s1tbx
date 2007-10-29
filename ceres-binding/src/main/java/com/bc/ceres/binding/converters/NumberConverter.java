@@ -15,8 +15,8 @@ public abstract class NumberConverter implements Converter {
         }
         try {
             return parseNumber(com.bc.ceres.binding.converters.NumberConverter.trimNumberString(value));
-        } catch (Exception e) {
-            throw new ConversionException(e);
+        } catch (NumberFormatException e) {
+            throw new ConversionException("'" + value + "' cannot be converted to a number.");
         }
     }
 

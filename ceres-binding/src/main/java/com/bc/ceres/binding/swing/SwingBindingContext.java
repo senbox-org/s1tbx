@@ -1,11 +1,8 @@
 package com.bc.ceres.binding.swing;
 
 
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueModel;
-import com.bc.ceres.binding.ValueSet;
+import com.bc.ceres.binding.*;
+import com.bc.ceres.core.Assert;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -64,6 +61,7 @@ public class SwingBindingContext {
         textField.setName(propertyName);
         TextFieldBinding textFieldBinding = new SwingBindingContext.TextFieldBinding(textField, propertyName);
         textField.addActionListener(textFieldBinding);
+        textField.setInputVerifier(textFieldBinding.createInputVerifier());
         textFieldBinding.adjustWidget();
     }
 
@@ -299,7 +297,7 @@ public class SwingBindingContext {
         }
     }
 
-    class TextFieldBinding extends SwingBindingContext.AbstractBinding implements ActionListener, FocusListener {
+    class TextFieldBinding extends SwingBindingContext.AbstractBinding implements ActionListener {
 
         private final JTextField textField;
 
@@ -312,28 +310,25 @@ public class SwingBindingContext {
             adjustValueContainer();
         }
 
-        public void focusGained(FocusEvent e) {
-            // do nothing
-        }
-
-        public void focusLost(FocusEvent e) {
-            adjustValueContainer();
-        }
-
         @Override
         protected void adjustWidgetImpl() {
             String text = valueContainer.getAsText(getPropertyName());
             textField.setText(text);
         }
 
-        private void adjustValueContainer() {
+        private boolean adjustValueContainer() {
             try {
                 valueContainer.setFromText(getPropertyName(), textField.getText());
-            } catch (Exception e1) {
-                handleError(textField, e1);
+                return true;
+            } catch (Exception e) {
+                handleError(textField, e);
+                return false;
             }
         }
 
+        public InputVerifier createInputVerifier() {
+            return new TextFieldVerifier(this);
+        }
     }
 
     class FormattedTextFieldBinding extends SwingBindingContext.AbstractBinding implements PropertyChangeListener {
@@ -454,4 +449,55 @@ public class SwingBindingContext {
         }
     }
 
+    private class TextFieldVerifier extends InputVerifier {
+        private TextFieldBinding binding;
+
+        private TextFieldVerifier(TextFieldBinding binding) {
+            this.binding = binding;
+        }
+
+        /**
+         * Checks whether the JComponent's input is valid. This method should have no side effects. It returns a boolean
+         * indicating the status of the argument's input.
+         *
+         * @param input the JComponent to verify
+         * @return <code>true</code> when valid, <code>false</code> when invalid
+         * @see JComponent#setInputVerifier
+         * @see JComponent#getInputVerifier
+         */
+        @Override
+        public boolean verify(JComponent input) {
+            try {
+                final String text = ((JTextField) input).getText();
+                final String name = binding.getPropertyName();
+                final ValueDescriptor descriptor = valueContainer.getValueDescriptor(name);
+                final Converter converter = descriptor.getConverter();
+                Assert.notNull(converter);
+                final Object value = converter.parse(text);
+                final Validator validator = descriptor.getValidator();
+                if (validator != null) {
+                    validator.validateValue(valueContainer.getModel(name), value);
+                }
+            } catch (Exception e) {
+                return false;
+            }
+            return true;
+        }
+
+        /**
+         * Calls <code>verify(input)</code> to ensure that the input is valid. This method can have side effects. In
+         * particular, this method is called when the user attempts to advance focus out of the argument component into
+         * another Swing component in this window. If this method returns <code>true</code>, then the focus is
+         * transfered normally; if it returns <code>false</code>, then the focus remains in the argument component.
+         *
+         * @param input the JComponent to verify
+         * @return <code>true</code> when valid, <code>false</code> when invalid
+         * @see JComponent#setInputVerifier
+         * @see JComponent#getInputVerifier
+         */
+        @Override
+        public boolean shouldYieldFocus(JComponent input) {
+            return binding.adjustValueContainer();
+        }
+    }
 }
