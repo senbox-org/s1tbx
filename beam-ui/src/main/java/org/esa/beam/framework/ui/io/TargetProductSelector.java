@@ -131,6 +131,16 @@ public class TargetProductSelector {
         }
     }
 
+    public void setEnabled(boolean enabled) {
+        productNameLabel.setEnabled(enabled);
+        productNameTextField.setEnabled(enabled);
+        saveToFileCheckBox.setEnabled(enabled);
+        directoryTextField.setEnabled(enabled);
+        directoryChooserButton.setEnabled(enabled);
+        formatNameComboBox.setEnabled(enabled);
+        openInAppCheckBox.setEnabled(enabled);
+    }
+
     private class UIStateUpdater implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
