@@ -131,11 +131,17 @@ class CommandLineUsage {
         for (Entry<Field, Parameter> entry : parameterMap.entrySet()) {
             final Field paramField = entry.getKey();
             final Parameter parameter = entry.getValue();
-            String paramSyntax = MessageFormat.format("  -P{0}=<{1}>", getParameterName(paramField, parameter), getTypeName(paramField.getType()));
-            final ArrayList<String> descriptionLines = createParamDescriptionLines(paramField, parameter);
-            docElementList.add(new DocElement(paramSyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
+            if (hasConverter(paramField, parameter)) {
+                String paramSyntax = MessageFormat.format("  -P{0}=<{1}>", getParameterName(paramField, parameter), getTypeName(paramField.getType()));
+                final ArrayList<String> descriptionLines = createParamDescriptionLines(paramField, parameter);
+                docElementList.add(new DocElement(paramSyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
+            }
         }
         return docElementList;
+    }
+
+    private static boolean hasConverter(Field paramField, Parameter parameter) {
+        return parameter.converter() != Converter.class || ConverterRegistry.getInstance().getConverter(paramField.getType()) != null;
     }
 
     private static ArrayList<DocElement> createSourceDocuElementList(OperatorClassDescriptor operatorClassDescriptor) {
