@@ -17,7 +17,7 @@ import java.awt.image.IndexColorModel;
 import java.awt.image.RenderedImage;
 
 public class NoDataLayer extends MaskOverlayRenderedImageLayer {
-    public static final float DEFAULT_TRANSPARENCY = 0.0f;
+    public static final float DEFAULT_TRANSPARENCY = 0.5f;
     public static final Color DEFAULT_COLOR = Color.ORANGE;
 
     public NoDataLayer(RasterDataNode raster) {
@@ -25,7 +25,6 @@ public class NoDataLayer extends MaskOverlayRenderedImageLayer {
         setColor(DEFAULT_COLOR);
         setTransparency(DEFAULT_TRANSPARENCY);
     }
-
 
     @Override
     public String getPropertyNamePrefix() {
