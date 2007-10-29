@@ -68,10 +68,10 @@ public class ValidMaskOpImage extends RasterDataNodeOpImage {
         final int stride = rasterAccessor.getScanlineStride();
         final byte[] data = rasterAccessor.getByteDataArray(0);
         if (data.length == w * h) {
-            product.readBitmask(x0, y0, w, h, term, data, TRUE, FALSE, getProgressMonitor());
+            product.readBitmask(x0, y0, w, h, term, data, FALSE, TRUE, getProgressMonitor());
         } else {
             final byte[] temp = new byte[w * h];
-            product.readBitmask(x0, y0, w, h, term, temp, TRUE, FALSE, getProgressMonitor());
+            product.readBitmask(x0, y0, w, h, term, temp, FALSE, TRUE, getProgressMonitor());
             int lineIndex = offset;
             for (int y = 0; y < h; y++) {
                 int pixelIndex = lineIndex;
