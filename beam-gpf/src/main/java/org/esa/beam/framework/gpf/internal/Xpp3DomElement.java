@@ -41,11 +41,13 @@ public class Xpp3DomElement implements DomElement {
     }
 
     public DomElement createChild(String name) {
-        return createDomElement(new Xpp3Dom(name));
+        final Xpp3DomElement child = createDomElement(new Xpp3Dom(name));
+        addChild(child);
+        return child;
     }
 
-    public void addChild(DomElement childElement) {
-        xpp3Dom.addChild(((Xpp3DomElement) childElement).getXpp3Dom());
+    public void addChild(DomElement child) {
+        xpp3Dom.addChild(((Xpp3DomElement) child).getXpp3Dom());
     }
 
     public void setValue(String value) {
@@ -86,17 +88,17 @@ public class Xpp3DomElement implements DomElement {
         return createXpp3DomElementArray(xppChildren);
     }
 
+    public String toXml() {
+        final StringWriter writer = new StringWriter();
+        new HierarchicalStreamCopier().copy(new XppDomReader(xpp3Dom), new PrettyPrintWriter(writer));
+        return writer.toString();
+    }
+
     private Xpp3DomElement[] createXpp3DomElementArray(Xpp3Dom[] xppChildren) {
         final Xpp3DomElement[] domElements = new Xpp3DomElement[xppChildren.length];
         for (int i = 0; i < xppChildren.length; i++) {
             domElements[i] = createDomElement(xppChildren[i]);
         }
         return domElements;
-    }
-
-    public String toXml() {
-        final StringWriter writer = new StringWriter();
-        new HierarchicalStreamCopier().copy(new XppDomReader(xpp3Dom), new PrettyPrintWriter(writer));
-        return writer.toString();
     }
 }

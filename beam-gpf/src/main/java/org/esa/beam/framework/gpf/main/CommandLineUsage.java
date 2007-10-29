@@ -94,6 +94,13 @@ class CommandLineUsage {
         }
         usageText.append("\n");
 
+        if (operatorClassDescriptor.getOperatorMetadata() != null && !operatorClassDescriptor.getOperatorMetadata().description().isEmpty()) {
+            usageText.append("\nDescription:\n");
+            usageText.append("  ");
+            usageText.append(operatorClassDescriptor.getOperatorMetadata().description());
+            usageText.append("\n");
+        }
+
         if (sourceDocElementList.size() > 0) {
             usageText.append("\nSource Options:\n");
             appendDocElementList(usageText, sourceDocElementList);
@@ -103,8 +110,8 @@ class CommandLineUsage {
             appendDocElementList(usageText, paramDocElementList);
         }
         if (operatorClassDescriptor.getParameters().size() > 0) {
-            usageText.append("\nConfiguration XML:\n");
-            appendXmlUsage(usageText, operatorClassDescriptor.getParameters());
+            usageText.append("\nGraph XML Format:\n");
+            appendXmlUsage(usageText, operatorClassDescriptor);
         }
 
         return usageText.toString();
@@ -131,17 +138,13 @@ class CommandLineUsage {
         for (Entry<Field, Parameter> entry : parameterMap.entrySet()) {
             final Field paramField = entry.getKey();
             final Parameter parameter = entry.getValue();
-            if (hasConverter(paramField, parameter)) {
+            if (isConverterAvailable(paramField.getType(), parameter)) {
                 String paramSyntax = MessageFormat.format("  -P{0}=<{1}>", getParameterName(paramField, parameter), getTypeName(paramField.getType()));
                 final ArrayList<String> descriptionLines = createParamDescriptionLines(paramField, parameter);
                 docElementList.add(new DocElement(paramSyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
             }
         }
         return docElementList;
-    }
-
-    private static boolean hasConverter(Field paramField, Parameter parameter) {
-        return parameter.converter() != Converter.class || ConverterRegistry.getInstance().getConverter(paramField.getType()) != null;
     }
 
     private static ArrayList<DocElement> createSourceDocuElementList(OperatorClassDescriptor operatorClassDescriptor) {
@@ -230,15 +233,26 @@ class CommandLineUsage {
         }
     }
 
-    private static void appendXmlUsage(StringBuilder usageText, Map<Field, Parameter> map) {
-        Xpp3DomElement parametersElem = Xpp3DomElement.createDomElement("parameters");
-        for (Field paramField : map.keySet()) {
+    private static void appendXmlUsage(StringBuilder usageText, OperatorClassDescriptor operatorClassDescriptor) {
 
-            convertField(paramField, parametersElem);
-
+        final DomElement graphElem = Xpp3DomElement.createDomElement("graph");
+        final DomElement graphIdElem = graphElem.createChild("id");
+        graphIdElem.setValue("someGraphId");
+        final DomElement nodeElem = graphElem.createChild("node");
+        final DomElement nodeIdElem = nodeElem.createChild("id");
+        nodeIdElem.setValue("someNodeId");
+        final DomElement operatorElem = nodeElem.createChild("operator");
+        operatorElem.setValue(OperatorSpi.getOperatorAlias(operatorClassDescriptor.getOperatorClass()));
+        DomElement sourcesElem = nodeElem.createChild("sources");
+        for (Field sourceField : operatorClassDescriptor.getSourceProductMap().keySet()) {
+            convertSourceProductField(sourceField, sourcesElem);
         }
-        parametersElem.toXml();
-        final StringTokenizer st = new StringTokenizer(parametersElem.toXml().replace('\r', ' '), "\n");
+        DomElement parametersElem = nodeElem.createChild("parameters");
+        for (Field paramField : operatorClassDescriptor.getParameters().keySet()) {
+            convertParameterField(paramField, parametersElem);
+        }
+
+        final StringTokenizer st = new StringTokenizer(graphElem.toXml().replace('\r', ' '), "\n");
         while (st.hasMoreElements()) {
             usageText.append("  ");
             usageText.append(st.nextToken());
@@ -246,7 +260,17 @@ class CommandLineUsage {
         }
     }
 
-    private static void convertField(Field paramField, DomElement parametersElem) {
+    private static void convertSourceProductField(Field sourceField, DomElement sourcesElem) {
+        final SourceProduct sourceProduct = sourceField.getAnnotation(SourceProduct.class);
+        String name = sourceField.getName();
+        if (sourceProduct != null && !sourceProduct.alias().isEmpty()) {
+            name = sourceProduct.alias();
+        }
+        final DomElement child = sourcesElem.createChild(name);
+        child.setValue("${" + name + "}");
+    }
+
+    private static void convertParameterField(Field paramField, DomElement parametersElem) {
         final Parameter parameter = paramField.getAnnotation(Parameter.class);
         final boolean thisIsAnOperator = Operator.class.isAssignableFrom(paramField.getDeclaringClass());
         if (thisIsAnOperator && parameter != null || !thisIsAnOperator) {
@@ -257,20 +281,16 @@ class CommandLineUsage {
             if (parameter != null && !parameter.itemAlias().isEmpty() && paramField.getType().isArray()) {
                 DomElement childElem = parameter.itemsInlined() ? parametersElem : parametersElem.createChild(name);
                 String itemName = parameter.itemAlias();
-                final Xpp3DomElement element = Xpp3DomElement.createDomElement(itemName);
+                final DomElement element = childElem.createChild(itemName);
                 if (isArrayConverterAvailable(paramField, parameter)) {
                     element.setValue(getTypeName(paramField.getType().getComponentType()));
                 } else {
                     final Field[] declaredFields = paramField.getType().getComponentType().getDeclaredFields();
                     for (Field declaredField : declaredFields) {
-                        convertField(declaredField, element);
+                        convertParameterField(declaredField, element);
                     }
                 }
-                childElem.addChild(element);
-                childElem.addChild(childElem.createChild("..."));
-                if (!parameter.itemsInlined()) {
-                    parametersElem.addChild(childElem);
-                }
+                childElem.createChild("...");
             } else {
                 final DomElement childElem = parametersElem.createChild(name);
                 Class<?> type = paramField.getType();
@@ -279,10 +299,9 @@ class CommandLineUsage {
                 } else {
                     final Field[] declaredFields = type.getDeclaredFields();
                     for (Field declaredField : declaredFields) {
-                        convertField(declaredField, childElem);
+                        convertParameterField(declaredField, childElem);
                     }
                 }
-                parametersElem.addChild(childElem);
             }
         }
     }
