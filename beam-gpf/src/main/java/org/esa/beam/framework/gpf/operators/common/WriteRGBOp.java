@@ -9,6 +9,7 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
@@ -22,23 +23,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * The <code>WriteRGBOp</code> takes three bands of its source Product to
- * create an RGB image file. This Operaor will need the JAI libs on the class
- * path.
- * <p/>
- * Configuration parameters:
- * <ul>
- * <li><b>red</b> the band index of the source band for the red values
- * <li><b>green</b> the band index of the source band for the green values
- * <li><b>blue</b> the band index of the source band for the blue values
- * <li><b>filePath</b> the path of the file to write to
- * <li><b>formatName</b> the format of the file
- * </ul>
- * {@link org.esa.beam.framework.gpf.OperatorException}
- *
- * @author Maximilian Aulinger
- */
+@OperatorMetadata(alias = "RGBWriter", // todo - rename to "WriteRGB"
+                  description = "Creates an RGB image from three source bands.")
 public class WriteRGBOp extends Operator {
 
     @Parameter
@@ -120,7 +106,7 @@ public class WriteRGBOp extends Operator {
     public static class Spi extends OperatorSpi {
 
         public Spi() {
-            super(WriteRGBOp.class, "RGBWriter");
+            super(WriteRGBOp.class);
         }
     }
 }

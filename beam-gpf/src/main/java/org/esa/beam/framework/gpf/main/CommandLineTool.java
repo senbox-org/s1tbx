@@ -14,8 +14,8 @@ import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.Node;
 import org.esa.beam.framework.gpf.graph.NodeSource;
-import org.esa.beam.framework.gpf.operators.common.ReadProductOp;
-import org.esa.beam.framework.gpf.operators.common.WriteProductOp;
+import org.esa.beam.framework.gpf.operators.common.ReadOp;
+import org.esa.beam.framework.gpf.operators.common.WriteOp;
 
 import javax.media.jai.JAI;
 import java.io.File;
@@ -101,7 +101,7 @@ class CommandLineTool {
             Graph graph = readGraph(lineArgs.getGraphFilepath(), templateMap);
             Node lastNode = graph.getNode(graph.getNodeCount() - 1);
             SortedMap<String, String> sourceFilepathsMap = lineArgs.getSourceFilepathMap();
-            String readOperatorAlias = OperatorSpi.getOperatorAlias(ReadProductOp.class);
+            String readOperatorAlias = OperatorSpi.getOperatorAlias(ReadOp.class);
             for (Entry<String, String> entry : sourceFilepathsMap.entrySet()) {
                 String sourceId = entry.getKey();
                 String sourceFilepath = entry.getValue();
@@ -117,7 +117,7 @@ class CommandLineTool {
                 }
             }
 
-            String writeOperatorAlias = OperatorSpi.getOperatorAlias(WriteProductOp.class);
+            String writeOperatorAlias = OperatorSpi.getOperatorAlias(WriteOp.class);
             Node targetNode = new Node("WriteProduct$" + lastNode.getId(), writeOperatorAlias);
             targetNode.addSource(new NodeSource("input", lastNode.getId()));
             Xpp3Dom configDom = new Xpp3Dom("parameters");

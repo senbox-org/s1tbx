@@ -11,32 +11,15 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
 import java.awt.Rectangle;
 import java.io.IOException;
 
-/**
- * The <code>SubsetOp</code> will create a subset of its source Product.
- * <p/>
- * Configuration Elements:
- * <ul>
- * <li><b>region</b> a rectangle specifying the subset region
- * <li><b>subSamplingX</b> the subsampling in X directions
- * <li><b>subSamplingY</b> the subsampling in Y directions
- * <li><b>bandList</b> an array of band names that should be part of the
- * subset
- * <li><b>flagBandList</b> an array of flag band names that should be part of
- * the subset
- * <li><b>tiePointGridList</b> an array of tie-point grid names that should be
- * part of the subset
- * <li><b>igonreMetadata</b> a boolean value that signals if the metadata is
- * part of the subset
- * </ul>
- *
- * @author Maximilian Aulinger
- */
+@OperatorMetadata(alias = "Subset",
+                  description = "Create a spatial and/or spectral subset of the source product.")
 public class SubsetOp extends Operator {
 
     private ProductReader subsetReader;
@@ -109,7 +92,7 @@ public class SubsetOp extends Operator {
 
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(SubsetOp.class, "Subset");
+            super(SubsetOp.class);
         }
     }
 }

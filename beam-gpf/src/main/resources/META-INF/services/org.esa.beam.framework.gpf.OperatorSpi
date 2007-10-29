@@ -1,8 +1,8 @@
-org.esa.beam.framework.gpf.operators.common.ReadProductOp$Spi
-org.esa.beam.framework.gpf.operators.common.ProductMergeOp$Spi
-org.esa.beam.framework.gpf.operators.common.WriteProductOp$Spi
+org.esa.beam.framework.gpf.operators.common.ReadOp$Spi
+org.esa.beam.framework.gpf.operators.common.MergeOp$Spi
+org.esa.beam.framework.gpf.operators.common.WriteOp$Spi
 org.esa.beam.framework.gpf.operators.common.WriteRGBOp$Spi
-org.esa.beam.framework.gpf.operators.common.NoOp$Spi
+org.esa.beam.framework.gpf.operators.common.PassThroughOp$Spi
 org.esa.beam.framework.gpf.operators.common.BandArithmeticOp$Spi
 org.esa.beam.framework.gpf.operators.meris.N1PatcherOp$Spi
 org.esa.beam.framework.gpf.operators.meris.NdviOp$Spi

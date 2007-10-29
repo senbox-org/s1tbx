@@ -42,7 +42,8 @@ import java.awt.Rectangle;
 import java.util.HashMap;
 import java.util.Map;
 
-@OperatorMetadata(alias = "BandArithmetic")
+@OperatorMetadata(alias = "BandArithmetic",
+                  description = "")
 public class BandArithmeticOp extends Operator {
 
     public static class BandDescriptor {

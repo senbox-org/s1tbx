@@ -17,19 +17,9 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import java.awt.Rectangle;
 import java.io.IOException;
 
-/**
- * The <code>LoadProductOperator</code> wrapps the BEAM {@link ProductIO} to load any kind of Product
- * from the file system into an <code>Operator</code>.</p>
- * <p/>
- * Configuration elements:
- * <ul>
- * <li><b>filePath:</b> The path of the file to read the Product from</th>
- * </ul>
- *
- * @author Maximilian Aulinger
- */
-@OperatorMetadata(alias = "ReadProduct")
-public class ReadProductOp extends Operator {
+@OperatorMetadata(alias = "ReadProduct",  // todo - rename to "Read"
+                  description = "Reads a product from disk.")
+public class ReadOp extends Operator {
 
     private ProductReader beamReader;
 
@@ -70,7 +60,7 @@ public class ReadProductOp extends Operator {
 
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(ReadProductOp.class);
+            super(ReadOp.class);
         }
     }
 }

@@ -7,23 +7,23 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
-/**
- * Simply passes the source product through the operator.
- */
-public class NoOp extends Operator {
+@OperatorMetadata(alias = "PassThrough",
+                  description = "Simply passes the source product through the operator.")
+public class PassThroughOp extends Operator {
     @SourceProduct
     private Product sourceProduct;
 
     @TargetProduct
     private Product targetProduct;
 
-    public NoOp() {
+    public PassThroughOp() {
     }
 
-    public NoOp(Product sourceProduct) {
+    public PassThroughOp(Product sourceProduct) {
         this.sourceProduct = sourceProduct;
         this.targetProduct = sourceProduct;
     }
@@ -34,12 +34,11 @@ public class NoOp extends Operator {
 
     @Override
     public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
-        return;
     }
 
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(NoOp.class, "NoOp");
+            super(PassThroughOp.class, "PassThrough");
         }
     }
 }

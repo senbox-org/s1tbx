@@ -7,7 +7,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
-import org.esa.beam.framework.gpf.operators.common.NoOp;
+import org.esa.beam.framework.gpf.operators.common.PassThroughOp;
 
 import java.io.IOException;
 
@@ -15,7 +15,7 @@ import java.io.IOException;
 public class OperatorTest extends TestCase {
     public void testPassThrough() throws OperatorException, IOException {
         Product sourceProduct = createFooProduct();
-        final Operator op = new NoOp(sourceProduct);
+        final Operator op = new PassThroughOp(sourceProduct);
         assertNotNull(op.getSpi());
         assertFalse(op.context.isPassThrough());
         Product targetProduct = op.getTargetProduct();// force init

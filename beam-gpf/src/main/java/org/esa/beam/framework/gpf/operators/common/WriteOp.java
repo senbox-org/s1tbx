@@ -20,21 +20,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * The <code>WriteProductOp</code> writes
- * the in-memory representation of its input product.
- * <p/>
- * Configuration Elements:
- * <ul>
- * <li><b>filePath</b> the path of the product file to write to
- * <li><b>formatName</b> the format of the file
- * </ul>
- *
- * @author Maximilian Aulinger
- * @author Marco Zuehlke
- */
-@OperatorMetadata(alias = "ProductWriter")
-public class WriteProductOp extends Operator {
+@OperatorMetadata(alias = "ProductWriter", // todo - rename to "Write"
+                  description = "Writes a product to disk.")
+public class WriteOp extends Operator {
 
     @TargetProduct
     private Product targetProduct;
@@ -106,7 +94,7 @@ public class WriteProductOp extends Operator {
 
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(WriteProductOp.class);
+            super(WriteOp.class);
         }
     }
 }

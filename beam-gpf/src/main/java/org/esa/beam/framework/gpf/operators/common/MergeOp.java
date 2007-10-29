@@ -1,5 +1,5 @@
 /*
- * $Id: ProductMergeOp.java,v 1.3 2007/05/14 12:25:40 marcoz Exp $
+ * $Id: MergeOp.java,v 1.3 2007/05/14 12:25:40 marcoz Exp $
  *
  * Copyright (C) 2007 by Brockmann Consult (info@brockmann-consult.de)
  *
@@ -16,12 +16,7 @@
  */
 package org.esa.beam.framework.gpf.operators.common;
 
-import java.awt.image.RenderedImage;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.Product;
@@ -35,16 +30,23 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 
-import com.bc.ceres.core.ProgressMonitor;
+import java.awt.image.RenderedImage;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-@OperatorMetadata(alias = "ProductMerger")
-public class ProductMergeOp extends Operator {
+@OperatorMetadata(alias = "ProductMerger", // todo - rename to "Merge"
+                  description = "Merges an arbitrary number of source bands into the target product.")
+public class MergeOp extends Operator {
 
-    @Parameter(defaultValue = "UNKNOWN", description="The product type for the target product.")
+    @Parameter(defaultValue = "mergedProduct", description = "The name of the target product.")
+    private String productName;
+    @Parameter(defaultValue = "UNKNOWN", description = "The type of the target product.")
     private String productType;
-    @Parameter(description="The ID of the source product providing the geo-coding.", alias="baseGeoInfo")
+    @Parameter(alias = "baseGeoInfo", description = "The ID of the source product providing the geo-coding.")
     private String copyGeoCodingFrom;
-    @Parameter(itemAlias = "band", itemsInlined = true)
+    @Parameter(itemAlias = "band", itemsInlined = true, description = "Defines a band to be included in the target product.")
     private BandDesc[] bands;
     @TargetProduct
     private Product targetProduct;
@@ -57,7 +59,7 @@ public class ProductMergeOp extends Operator {
             Product baseGeoProduct = getSourceProduct(copyGeoCodingFrom);
             final int sceneRasterWidth = baseGeoProduct.getSceneRasterWidth();
             final int sceneRasterHeight = baseGeoProduct.getSceneRasterHeight();
-            targetProduct = new Product("mergedName", productType,
+            targetProduct = new Product(productName, productType,
                                         sceneRasterWidth, sceneRasterHeight);
 
             copyGeoCoding(baseGeoProduct, targetProduct);
@@ -66,7 +68,7 @@ public class ProductMergeOp extends Operator {
             Product srcProduct = getSourceProduct(bandDesc.product);
             final int sceneRasterWidth = srcProduct.getSceneRasterWidth();
             final int sceneRasterHeight = srcProduct.getSceneRasterHeight();
-            targetProduct = new Product("mergedName", productType,
+            targetProduct = new Product(productName, productType,
                                         sceneRasterWidth, sceneRasterHeight);
         }
 
@@ -101,7 +103,7 @@ public class ProductMergeOp extends Operator {
      * Copies the tie point data, geocoding and the start and stop time.
      */
     private static void copyGeoCoding(Product sourceProduct,
-                                        Product destinationProduct) {
+                                      Product destinationProduct) {
         // copy all tie point grids to output product
         ProductUtils.copyTiePointGrids(sourceProduct, destinationProduct);
         // copy geo-coding to the output product
@@ -138,14 +140,14 @@ public class ProductMergeOp extends Operator {
     public static class BandDesc {
         String product;
         String name;
-        String nameExp;
+        String nameExp; // todo - rename to namePattern
         String newName;
     }
 
 
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(ProductMergeOp.class);
+            super(MergeOp.class);
         }
     }
 }
