@@ -31,15 +31,19 @@ import java.util.Map;
         description = "Collocate two products.")
 public class CollocateOp extends Operator {
 
+    private static final String ORIGINAL_NAME = "${ORIGINAL_NAME}";
+
     @SourceProduct(alias = "master")
     private Product masterProduct;
     @SourceProduct(alias = "slave")
     private Product slaveProduct;
+
     @TargetProduct
     private Product targetProduct;
-
     @Parameter
     private String targetProductName;
+    @Parameter
+    private boolean createNewProduct;
     @Parameter
     private boolean renameMasterComponents;
     @Parameter
@@ -48,13 +52,14 @@ public class CollocateOp extends Operator {
     private String masterComponentPattern;
     @Parameter
     private String slaveComponentPattern;
+
     @Parameter
     private Resampling resampling;
-
     private transient Map<Band, Band> sourceBandMap;
 
     @Override
     public void initialize() throws OperatorException {
+        // todo - product type
         sourceBandMap = new HashMap<Band, Band>();
         targetProduct = new Product(targetProductName,
                 masterProduct.getProductType(),
@@ -64,50 +69,90 @@ public class CollocateOp extends Operator {
         targetProduct.setStartTime(masterProduct.getStartTime());
         targetProduct.setEndTime(masterProduct.getEndTime());
 
-        ProductUtils.copyFlagCodings(masterProduct, targetProduct);
         ProductUtils.copyMetadata(masterProduct, targetProduct);
         ProductUtils.copyTiePointGrids(masterProduct, targetProduct);
         ProductUtils.copyGeoCoding(masterProduct, targetProduct);
 
-        for (final Band band : masterProduct.getBands()) {
-            final Band targetBand = ProductUtils.copyBand(band.getName(), masterProduct, targetProduct);
-            if (renameMasterComponents) {
-                targetBand.setName(masterComponentPattern.replace("${ORIGINAL_NAME}", band.getName()));
-            }
-            final FlagCoding flagCoding = band.getFlagCoding();
-            if (flagCoding != null) {
-                targetBand.setFlagCoding(targetProduct.getFlagCoding(flagCoding.getName()));
-            }
-            sourceBandMap.put(targetBand, band);
+        for (final Band sourceBand : masterProduct.getBands()) {
+            final Band targetBand = ProductUtils.copyBand(sourceBand.getName(), masterProduct, targetProduct);
+            setFlagCoding(targetBand, sourceBand.getFlagCoding(), renameMasterComponents, masterComponentPattern);
+            sourceBandMap.put(targetBand, sourceBand);
         }
-        ProductUtils.copyBitmaskDefs(masterProduct, targetProduct);
+        if (renameMasterComponents) {
+            for (final Band band : targetProduct.getBands()) {
+                band.setName(masterComponentPattern.replace(ORIGINAL_NAME, band.getName()));
+            }
+        }
+        copyBitmaskDefs(masterProduct, targetProduct, renameMasterComponents, masterComponentPattern);
 
-        for (final Band band : slaveProduct.getBands()) {
-            final Band targetBand = targetProduct.addBand(band.getName(), band.getDataType());
+        for (final Band sourceBand : slaveProduct.getBands()) {
+            String targetBandName = sourceBand.getName();
             if (renameSlaveComponents) {
-                targetBand.setName(slaveComponentPattern.replace("${ORIGINAL_NAME}", band.getName()));
+                targetBandName = slaveComponentPattern.replace(ORIGINAL_NAME, targetBandName);
             }
+            final Band targetBand = targetProduct.addBand(targetBandName, sourceBand.getDataType());
 
-            targetBand.setDescription(band.getDescription());
-            targetBand.setUnit(band.getUnit());
-            targetBand.setScalingFactor(band.getScalingFactor());
-            targetBand.setScalingOffset(band.getScalingOffset());
-            targetBand.setLog10Scaled(band.isLog10Scaled());
-            // todo - slaveBand.setSpectralBandIndex(band.getSpectralBandIndex());
-            targetBand.setSpectralWavelength(band.getSpectralWavelength());
-            targetBand.setSpectralBandwidth(band.getSpectralBandwidth());
-            targetBand.setSolarFlux(band.getSolarFlux());
-            targetBand.setNoDataValueUsed(band.isNoDataValueUsed());
-            targetBand.setNoDataValue(band.getNoDataValue());
-            // todo - slaveBand.setValidPixelExpression(band.getValidPixelExpression());
+            targetBand.setDescription(sourceBand.getDescription());
+            targetBand.setUnit(sourceBand.getUnit());
+            targetBand.setScalingFactor(sourceBand.getScalingFactor());
+            targetBand.setScalingOffset(sourceBand.getScalingOffset());
+            targetBand.setLog10Scaled(sourceBand.isLog10Scaled());
 
-            sourceBandMap.put(targetBand, band);
+            ProductUtils.copySpectralAttributes(sourceBand, targetBand);
+            targetBand.setNoDataValueUsed(sourceBand.isNoDataValueUsed());
+            targetBand.setNoDataValue(sourceBand.getNoDataValue());
+            targetBand.setValidPixelExpression(sourceBand.getValidPixelExpression());
+
+            setFlagCoding(targetBand, sourceBand.getFlagCoding(), renameSlaveComponents, slaveComponentPattern);
+            sourceBandMap.put(targetBand, sourceBand);
         }
+        for (final Band band : targetProduct.getBands()) {
+            for (final Band targetBand : targetProduct.getBands()) {
+                final Band sourceBand = sourceBandMap.get(targetBand);
+                if (sourceBand.getProduct() == slaveProduct) {
+                    band.updateExpression(sourceBand.getName(), targetBand.getName());
+                }
+            }
+        }
+        copyBitmaskDefs(slaveProduct, targetProduct, renameSlaveComponents, slaveComponentPattern);
 
         // todo - slave metadata
-        // todo - slave flag codings
         // todo - slave tie point grids
-        // todo - slave bitmask definitions
+    }
+
+    private void setFlagCoding(Band band, FlagCoding flagCoding, boolean rename, String pattern) {
+        if (flagCoding != null) {
+            String name = flagCoding.getName();
+            if (rename) {
+                name = pattern.replace(ORIGINAL_NAME, name);
+            }
+            final Product product = band.getProduct();
+            if (!product.containsFlagCoding(name)) {
+                setFlagCoding(product, flagCoding, name);
+            }
+            band.setFlagCoding(product.getFlagCoding(name));
+        }
+    }
+
+    private void setFlagCoding(Product product, FlagCoding flagCoding, String flagCodingName) {
+        final FlagCoding targetFlagCoding = new FlagCoding(flagCodingName);
+
+        targetFlagCoding.setDescription(flagCoding.getDescription());
+        ProductUtils.copyMetadata(flagCoding, targetFlagCoding);
+        product.addFlagCoding(targetFlagCoding);
+    }
+
+    private void copyBitmaskDefs(Product sourceProduct, Product targetProduct, boolean rename, String pattern) {
+        for (final BitmaskDef sourceBitmaskDef : sourceProduct.getBitmaskDefs()) {
+            final BitmaskDef targetBitmaskDef = sourceBitmaskDef.createCopy();
+            if (rename) {
+                targetBitmaskDef.setName(pattern.replace(ORIGINAL_NAME, sourceBitmaskDef.getName()));
+                for (final Band targetBand : targetProduct.getBands()) {
+                    targetBitmaskDef.updateExpression(sourceBandMap.get(targetBand).getName(), targetBand.getName());
+                }
+            }
+            targetProduct.addBitmaskDef(targetBitmaskDef);
+        }
     }
 
     @Override
@@ -147,6 +192,9 @@ public class CollocateOp extends Operator {
             final Rectangle sourceRectangle = getBoundingBox(sourcePixelPositions, sourceRasterWidth,
                     sourceRasterHeight);
 
+            final RasterDataNode targetBand = targetTile.getRasterDataNode();
+            final float noDataValue = (float) targetBand.getGeophysicalNoDataValue();
+
             if (sourceRectangle != null) {
                 final Tile sourceTile = getSourceTile(sourceBand, sourceRectangle, pm);
                 final ResamplingRaster resamplingRaster = new ResamplingRaster(sourceTile);
@@ -159,19 +207,26 @@ public class CollocateOp extends Operator {
                             resampling.computeIndex(sourcePixelPos.x, sourcePixelPos.y,
                                     sourceRasterWidth, sourceRasterHeight, resamplingIndex);
                             try {
-                                targetTile.setSample(x, y, resampling.resample(resamplingRaster, resamplingIndex));
-                                // todo - no data value
+                                float sample = resampling.resample(resamplingRaster, resamplingIndex);
+                                if (Float.isNaN(sample)) {
+                                    sample = noDataValue;
+                                }
+                                targetTile.setSample(x, y, sample);
                             } catch (Exception e) {
                                 throw new OperatorException(e.getMessage());
                             }
                         } else {
-                            // todo -- no source pixel pos
+                            targetTile.setSample(x, y, noDataValue);
                         }
                     }
                     pm.worked(1);
                 }
             } else {
-                // todo -- no source pixel pos for the whole target line
+                for (int y = targetRectangle.y, index = 0; y < targetRectangle.y + targetRectangle.height; ++y) {
+                    for (int x = targetRectangle.x; x < targetRectangle.x + targetRectangle.width; ++x, ++index) {
+                        targetTile.setSample(x, y, noDataValue);
+                    }
+                }
             }
         } finally {
             pm.done();
@@ -245,12 +300,10 @@ public class CollocateOp extends Operator {
             final RasterDataNode rasterDataNode = tile.getRasterDataNode();
 
             if (rasterDataNode.isNoDataValueUsed()) {
-                if (rasterDataNode.isNoDataValueSet()) {
-                    if (rasterDataNode.isScalingApplied()) {
-                        return rasterDataNode.getGeophysicalNoDataValue() == sample;
-                    } else {
-                        return rasterDataNode.getNoDataValue() == sample;
-                    }
+                if (rasterDataNode.isScalingApplied()) {
+                    return rasterDataNode.getGeophysicalNoDataValue() == sample;
+                } else {
+                    return rasterDataNode.getNoDataValue() == sample;
                 }
             }
 

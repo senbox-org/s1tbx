@@ -35,7 +35,7 @@ import java.util.Set;
         authors = "Ralf Quast",
         copyright = "(c) 2007 by Brockmann Consult",
         description = "Computes the valid mask.")
-public class ComputeValidMaskOp extends Operator {
+class ComputeValidMaskOp extends Operator {
 
     @SourceProduct
     private Product sourceProduct;

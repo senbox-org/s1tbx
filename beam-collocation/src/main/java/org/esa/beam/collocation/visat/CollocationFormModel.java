@@ -1,10 +1,12 @@
 package org.esa.beam.collocation.visat;
 
 import com.bc.ceres.binding.*;
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.ui.io.TargetProductSelectorModel;
 
+import javax.swing.*;
 import java.lang.reflect.Field;
 
 /**
@@ -14,8 +16,6 @@ import java.lang.reflect.Field;
  * @version $Revision$ $Date$
  */
 class CollocationFormModel {
-
-    private TargetProductSelectorModel targetProductSelectorModel;
 
     private Product masterProduct;
     private Product slaveProduct;
@@ -27,20 +27,24 @@ class CollocationFormModel {
     private String masterComponentPattern;
     private String slaveComponentPattern;
 
-    private Resampling resampling;
+    private TargetProductSelectorModel targetProductSelectorModel;
+    private DefaultComboBoxModel resamplingComboBoxModel;
 
     private final ValueContainer valueContainer;
 
     public CollocationFormModel() {
-        targetProductSelectorModel = new TargetProductSelectorModel(true);
-
         createNewProduct = true;
         renameMasterComponents = true;
         renameSlaveComponents = true;
         masterComponentPattern = "${ORIGINAL_NAME}";
         slaveComponentPattern = "${ORIGINAL_NAME}";
-        resampling = Resampling.BILINEAR_INTERPOLATION;
 
+        targetProductSelectorModel = new TargetProductSelectorModel(true);
+        resamplingComboBoxModel = new DefaultComboBoxModel(new Resampling[]{
+                Resampling.NEAREST_NEIGHBOUR,
+                Resampling.BILINEAR_INTERPOLATION,
+                Resampling.CUBIC_CONVOLUTION});
+        
         final ValueContainerFactory factory = new ValueContainerFactory(new ValueDescriptorFactory() {
             public ValueDescriptor createValueDescriptor(Field field) {
                 return new ValueDescriptor(field.getName(), field.getType());
@@ -64,10 +68,6 @@ class CollocationFormModel {
 
     public boolean isCreateNewProductSelected() {
         return createNewProduct;
-    }
-
-    public void setCreateNewProduct(boolean createNewProduct) {
-        setValueContainerValue("createNewProduct", createNewProduct);
     }
 
     public String getTargetProductName() {
@@ -107,7 +107,7 @@ class CollocationFormModel {
     }
 
     public Resampling getResampling() {
-        return resampling;
+        return (Resampling) resamplingComboBoxModel.getSelectedItem();
     }
 
     public void setMasterProduct(Product product) {
@@ -116,6 +116,10 @@ class CollocationFormModel {
 
     public void setSlaveProduct(Product product) {
         setValueContainerValue("slaveProduct", product);
+    }
+
+    public void setCreateNewProduct(boolean createNewProduct) {
+        setValueContainerValue("createNewProduct", createNewProduct);
     }
 
     public void setRenameMasterComponents(boolean renameMasterComponents) {
@@ -135,19 +139,30 @@ class CollocationFormModel {
     }
 
     public void setResampling(Resampling resampling) {
-        setValueContainerValue("resampling", resampling);
+        resamplingComboBoxModel.setSelectedItem(resampling);
     }
 
     TargetProductSelectorModel getTargetProductSelectorModel() {
         return targetProductSelectorModel;
     }
 
-    Resampling[] getResamplings() {
-        return new Resampling[]{
-                Resampling.BILINEAR_INTERPOLATION,
-                Resampling.CUBIC_CONVOLUTION,
-                Resampling.NEAREST_NEIGHBOUR,
-        };
+    ComboBoxModel getResamplingComboBoxModel() {
+        return resamplingComboBoxModel;
+    }
+
+    void adaptResamplingComboBoxModel() {
+        if (isValidPixelExpressionUsed()) {
+            if (resamplingComboBoxModel.getSize() == 3) {
+                resamplingComboBoxModel.removeElement(Resampling.CUBIC_CONVOLUTION);
+                resamplingComboBoxModel.removeElement(Resampling.BILINEAR_INTERPOLATION);
+                resamplingComboBoxModel.setSelectedItem(Resampling.NEAREST_NEIGHBOUR);
+            }
+        } else {
+            if (resamplingComboBoxModel.getSize() == 1) {
+                resamplingComboBoxModel.addElement(Resampling.BILINEAR_INTERPOLATION);
+                resamplingComboBoxModel.addElement(Resampling.CUBIC_CONVOLUTION);
+            }
+        }
     }
 
     private void setValueContainerValue(String name, Object value) {
@@ -156,5 +171,17 @@ class CollocationFormModel {
         } catch (ValidationException e) {
             throw new IllegalArgumentException(e);
         }
+    }
+
+    private boolean isValidPixelExpressionUsed() {
+        if (slaveProduct != null) {
+            for (final Band band : slaveProduct.getBands()) {
+                final String expression = band.getValidPixelExpression();
+                if (expression != null && !expression.trim().isEmpty()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

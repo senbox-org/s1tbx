@@ -3,10 +3,11 @@ package org.esa.beam.collocation.visat;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.graph.GraphProcessor;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.visat.VisatApp;
 
-import java.awt.Window;
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,6 +50,7 @@ class CollocationDialog extends ModalDialog {
             final Map<String, Object> parameterMap = new HashMap<String, Object>(5);
             // collocation parameters
             parameterMap.put("targetProductName", formModel.getTargetProductName());
+            parameterMap.put("createNewProduct", formModel.isCreateNewProductSelected());
             parameterMap.put("renameMasterComponents", formModel.isRenameMasterComponentsSelected());
             parameterMap.put("renameSlaveComponents", formModel.isRenameSlaveComponentsSelected());
             parameterMap.put("masterComponentPattern", formModel.getMasterComponentPattern());
@@ -58,14 +60,16 @@ class CollocationDialog extends ModalDialog {
             targetProduct = GPF.createProduct("Collocate", parameterMap, productMap);
             targetProduct.setName(formModel.getTargetProductName());
 
-//            final Map<String, Object> parameterMap2 = new HashMap<String, Object>(5);
-//            // product writer parameters
-//            parameterMap2.put("filePath", formModel.getTargetFilePath());
-//            parameterMap2.put("formatName", formModel.getTargetFormatName());
+            final Map<String, Object> writeParameter = new HashMap<String, Object>(5);
+            // product writer parameters
+            writeParameter.put("filePath", formModel.getTargetFilePath());
+            writeParameter.put("formatName", formModel.getTargetFormatName());
 
-//            if (formModel.isSaveToFileSelected()) {
-//                GPF.createProduct("ProductWriter", parameterMap2, targetProduct);
-//            }
+            if (formModel.isSaveToFileSelected()) {
+                GPF.createProduct("ProductWriter", writeParameter, targetProduct);
+                GraphProcessor graphProcessor = new GraphProcessor();
+                // todo - execute write operator
+            }
         } catch (OperatorException e) {
             showErrorDialog(e.getMessage());
             return;
@@ -73,8 +77,8 @@ class CollocationDialog extends ModalDialog {
 
         super.onOK();
 
-//        if (formModel.isOpenInVisatSelected()) {
+        if (formModel.isOpenInVisatSelected()) {
             VisatApp.getApp().addProduct(targetProduct);
-//        }
+        }
     }
 }

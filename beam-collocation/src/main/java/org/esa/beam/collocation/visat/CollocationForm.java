@@ -8,7 +8,9 @@ import org.esa.beam.framework.ui.io.SourceProductSelector;
 import org.esa.beam.framework.ui.io.TargetProductSelector;
 
 import javax.swing.*;
-import java.awt.Insets;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * Form for geographic collocation dialog.
@@ -29,21 +31,50 @@ public class CollocationForm extends JPanel {
     private JTextField subsidiaryComponentPatternField;
     private JComboBox resamplingComboBox;
     private JCheckBox createNewProductCheckBox;
+    private TargetProductSelector targetProductSelector;
 
-    public CollocationForm(CollocationFormModel model, Product[] selectableProducts) {
+    public CollocationForm(final CollocationFormModel model, Product[] selectableProducts) {
         this.model = model;
 
-        referenceProductSelector = createProductSelector(selectableProducts, "Reference product", 0);
-        subsidiaryProductSelector = createProductSelector(selectableProducts, "Subsidiary product", 1);
-        createNewProductCheckBox = new JCheckBox("");
+        referenceProductSelector = new SourceProductSelector(selectableProducts, "Reference product");
+        subsidiaryProductSelector = new SourceProductSelector(selectableProducts, "Subsidiary product");
+        createNewProductCheckBox = new JCheckBox("Create new product");
         renameReferenceComponentsCheckBox = new JCheckBox("Rename reference components:");
         renameSubsidiaryComponentsCheckBox = new JCheckBox("Rename subsidiary components:");
         referenceComponentPatternField = new JTextField();
         subsidiaryComponentPatternField = new JTextField();
-        resamplingComboBox = new JComboBox(model.getResamplings());
+        resamplingComboBox = new JComboBox(model.getResamplingComboBoxModel());
+
+        subsidiaryProductSelector.getComboBox().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                model.adaptResamplingComboBoxModel();
+            }
+        });
+
+        final ActionListener listener = new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                updateUIState();
+            }
+        };
+        createNewProductCheckBox.addActionListener(listener);
+        renameReferenceComponentsCheckBox.addActionListener(listener);
+        renameSubsidiaryComponentsCheckBox.addActionListener(listener);
 
         initComponents();
         bindComponents();
+
+        if (referenceProductSelector.getProductCount() > 0) {
+            referenceProductSelector.setSelectedIndex(0);
+        }
+        if (subsidiaryProductSelector.getProductCount() > 1) {
+            subsidiaryProductSelector.setSelectedIndex(1);
+        }
+    }
+
+    private void updateUIState() {
+        referenceComponentPatternField.setEnabled(renameReferenceComponentsCheckBox.isSelected());
+        subsidiaryComponentPatternField.setEnabled(renameSubsidiaryComponentsCheckBox.isSelected());
+        targetProductSelector.setEnabled(createNewProductCheckBox.isSelected());
     }
 
     public void dispose() {
@@ -70,7 +101,6 @@ public class CollocationForm extends JPanel {
         sbc.bind(renameSubsidiaryComponentsCheckBox, "renameSlaveComponents");
         sbc.bind(referenceComponentPatternField, "masterComponentPattern");
         sbc.bind(subsidiaryComponentPatternField, "slaveComponentPattern");
-        sbc.bind(resamplingComboBox, "resampling");
     }
 
     private JPanel createInputPanel() {
@@ -96,42 +126,20 @@ public class CollocationForm extends JPanel {
     }
 
     private JPanel createOutputPanel() {
-        final TableLayout layout = new TableLayout(5);
+        final TableLayout layout = new TableLayout(1);
         layout.setTableAnchor(TableLayout.Anchor.LINE_START);
         layout.setTableFill(TableLayout.Fill.HORIZONTAL);
-        layout.setColumnWeightX(0, 0.0);
-        layout.setColumnWeightX(1, 0.0);
-        layout.setColumnWeightX(2, 1.0);
-        layout.setColumnWeightX(3, 0.0);
-        layout.setColumnWeightX(4, 0.0);
+        layout.setColumnWeightX(0, 1.0);
         layout.setTablePadding(3, 3);
-        layout.setCellPadding(0, 0, new Insets(3, 3, 3, 0));
-        layout.setCellPadding(0, 1, new Insets(3, 0, 3, 3));
-        layout.setCellColspan(0, 1, 4);
-        layout.setCellColspan(1, 2, 2);
-        layout.setCellColspan(3, 1, 2);
-        layout.setCellWeightX(2, 2, 0.0);
-        layout.setCellWeightX(2, 3, 1.0);
+        layout.setCellPadding(1, 0, new Insets(0, 21, 0, 0));
 
         final JPanel panel = new JPanel(layout);
         panel.setBorder(BorderFactory.createTitledBorder("Output"));
 
-        final TargetProductSelector selector = new TargetProductSelector(model.getTargetProductSelectorModel());
+        targetProductSelector = new TargetProductSelector(model.getTargetProductSelectorModel());
 
         panel.add(createNewProductCheckBox);
-        panel.add(new JLabel("Create new product"));
-        panel.add(new JLabel());
-        panel.add(selector.getProductNameLabel());
-        panel.add(selector.getProductNameTextField());
-        panel.add(new JLabel());
-        panel.add(new JLabel());
-        panel.add(selector.getSaveToFileCheckBox());
-        panel.add(selector.getFormatNameComboBox());
-        panel.add(selector.getDirectoryTextField());
-        panel.add(selector.getDirectoryChooserButton());
-        panel.add(new JLabel());
-        panel.add(selector.getOpenInAppCheckBox());
-
+        panel.add(targetProductSelector.createDefaultPanel());
         return panel;
     }
 
@@ -171,15 +179,6 @@ public class CollocationForm extends JPanel {
         panel.add(new JLabel());
 
         return panel;
-    }
-
-    private static SourceProductSelector createProductSelector(Product[] selectableProducts, String labelText, int index) {
-        final SourceProductSelector selector = new SourceProductSelector(selectableProducts, labelText);
-        if (selector.getProductCount() > index) {
-            selector.setSelectedIndex(index);
-        }
-
-        return selector;
     }
 
     public static void main(String[] args) throws

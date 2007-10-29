@@ -2,7 +2,11 @@ package org.esa.beam.collocation.visat;
 
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.dataop.resamp.Resampling;
+
+import javax.swing.*;
 
 /**
  * Tests for class {@link CollocationFormModel}.
@@ -13,10 +17,12 @@ import org.esa.beam.framework.dataop.resamp.Resampling;
 public class CollocationFormModelTest extends TestCase {
 
     private CollocationFormModel collocationFormModel;
+    private ComboBoxModel resamplingComboBoxModel;
 
     @Override
     protected void setUp() throws Exception {
         collocationFormModel = new CollocationFormModel();
+        resamplingComboBoxModel = collocationFormModel.getResamplingComboBoxModel();
     }
 
     @Override
@@ -84,6 +90,27 @@ public class CollocationFormModelTest extends TestCase {
         assertEquals(Resampling.CUBIC_CONVOLUTION, collocationFormModel.getResampling());
 
         collocationFormModel.setResampling(Resampling.NEAREST_NEIGHBOUR);
+        assertEquals(Resampling.NEAREST_NEIGHBOUR, collocationFormModel.getResampling());
+    }
+
+    public void testAdaptResamplingComboBoxModel() {
+        final Product product = new Product("name", "type", 10, 10);
+        final Band band1 = product.addBand("band1", ProductData.TYPE_INT32);
+        final Band band2 = product.addBand("band2", ProductData.TYPE_INT32);
+
+        collocationFormModel.setSlaveProduct(product);
+        collocationFormModel.adaptResamplingComboBoxModel();
+        assertEquals(3, resamplingComboBoxModel.getSize());
+
+        band1.setValidPixelExpression("true");
+        collocationFormModel.adaptResamplingComboBoxModel();
+        assertEquals(1, resamplingComboBoxModel.getSize());
+        assertEquals(Resampling.NEAREST_NEIGHBOUR, collocationFormModel.getResampling());
+
+        band1.setValidPixelExpression(null);
+        band2.setValidPixelExpression("  ");
+        collocationFormModel.adaptResamplingComboBoxModel();
+        assertEquals(3, resamplingComboBoxModel.getSize());
         assertEquals(Resampling.NEAREST_NEIGHBOUR, collocationFormModel.getResampling());
     }
 }
