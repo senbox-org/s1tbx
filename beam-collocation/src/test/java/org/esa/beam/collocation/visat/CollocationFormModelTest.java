@@ -44,13 +44,13 @@ public class CollocationFormModelTest extends TestCase {
         assertSame(product, collocationFormModel.getMasterProduct());
     }
 
-    public void testSetCreateNewProduct() {
-        collocationFormModel.setCreateNewProduct(true);
-        assertTrue(collocationFormModel.isCreateNewProductSelected());
-
-        collocationFormModel.setCreateNewProduct(false);
-        assertFalse(collocationFormModel.isCreateNewProductSelected());
-    }
+//    public void testSetCreateNewProduct() {
+//        collocationFormModel.setCreateNewProduct(true);
+//        assertTrue(collocationFormModel.isCreateNewProductSelected());
+//
+//        collocationFormModel.setCreateNewProduct(false);
+//        assertFalse(collocationFormModel.isCreateNewProductSelected());
+//    }
 
     public void testSetRenameMasterComponents() {
         collocationFormModel.setRenameMasterComponents(true);

@@ -42,7 +42,7 @@ public class CollocateOp extends Operator {
     private Product targetProduct;
     @Parameter
     private String targetProductName;
-    @Parameter
+    @Parameter(defaultValue = "true")
     private boolean createNewProduct;
     @Parameter
     private boolean renameMasterComponents;
@@ -52,38 +52,45 @@ public class CollocateOp extends Operator {
     private String masterComponentPattern;
     @Parameter
     private String slaveComponentPattern;
-
     @Parameter
     private Resampling resampling;
+
     private transient Map<Band, Band> sourceBandMap;
 
     @Override
     public void initialize() throws OperatorException {
         // todo - product type
         sourceBandMap = new HashMap<Band, Band>();
-        targetProduct = new Product(targetProductName,
-                masterProduct.getProductType(),
-                masterProduct.getSceneRasterWidth(),
-                masterProduct.getSceneRasterHeight());
+        assert createNewProduct == true;
 
-        targetProduct.setStartTime(masterProduct.getStartTime());
-        targetProduct.setEndTime(masterProduct.getEndTime());
+        if (createNewProduct) {
+            targetProduct = new Product(targetProductName,
+                    masterProduct.getProductType(),
+                    masterProduct.getSceneRasterWidth(),
+                    masterProduct.getSceneRasterHeight());
 
-        ProductUtils.copyMetadata(masterProduct, targetProduct);
-        ProductUtils.copyTiePointGrids(masterProduct, targetProduct);
-        ProductUtils.copyGeoCoding(masterProduct, targetProduct);
+            targetProduct.setStartTime(masterProduct.getStartTime());
+            targetProduct.setEndTime(masterProduct.getEndTime());
 
-        for (final Band sourceBand : masterProduct.getBands()) {
-            final Band targetBand = ProductUtils.copyBand(sourceBand.getName(), masterProduct, targetProduct);
-            setFlagCoding(targetBand, sourceBand.getFlagCoding(), renameMasterComponents, masterComponentPattern);
-            sourceBandMap.put(targetBand, sourceBand);
-        }
-        if (renameMasterComponents) {
-            for (final Band band : targetProduct.getBands()) {
-                band.setName(masterComponentPattern.replace(ORIGINAL_NAME, band.getName()));
+            ProductUtils.copyMetadata(masterProduct, targetProduct);
+            ProductUtils.copyTiePointGrids(masterProduct, targetProduct);
+            ProductUtils.copyGeoCoding(masterProduct, targetProduct);
+
+            for (final Band sourceBand : masterProduct.getBands()) {
+                final Band targetBand = ProductUtils.copyBand(sourceBand.getName(), masterProduct, targetProduct);
+                setFlagCoding(targetBand, sourceBand.getFlagCoding(), renameMasterComponents, masterComponentPattern);
+                sourceBandMap.put(targetBand, sourceBand);
             }
+            if (renameMasterComponents) {
+                for (final Band band : targetProduct.getBands()) {
+                    band.setName(masterComponentPattern.replace(ORIGINAL_NAME, band.getName()));
+                }
+            }
+            copyBitmaskDefs(masterProduct, targetProduct, renameMasterComponents, masterComponentPattern);
+        } else {
+            // todo - implement
+            targetProduct = masterProduct;
         }
-        copyBitmaskDefs(masterProduct, targetProduct, renameMasterComponents, masterComponentPattern);
 
         for (final Band sourceBand : slaveProduct.getBands()) {
             String targetBandName = sourceBand.getName();
@@ -106,11 +113,13 @@ public class CollocateOp extends Operator {
             setFlagCoding(targetBand, sourceBand.getFlagCoding(), renameSlaveComponents, slaveComponentPattern);
             sourceBandMap.put(targetBand, sourceBand);
         }
-        for (final Band band : targetProduct.getBands()) {
-            for (final Band targetBand : targetProduct.getBands()) {
-                final Band sourceBand = sourceBandMap.get(targetBand);
-                if (sourceBand.getProduct() == slaveProduct) {
-                    band.updateExpression(sourceBand.getName(), targetBand.getName());
+        for (final Band targetBand : targetProduct.getBands()) {
+            for (final Band band : targetProduct.getBands()) {
+                final Band sourceBand = sourceBandMap.get(band);
+                if (sourceBand != null) {
+                    if (sourceBand.getProduct() == slaveProduct) {
+                        targetBand.updateExpression(sourceBand.getName(), band.getName());
+                    }
                 }
             }
         }
@@ -118,41 +127,6 @@ public class CollocateOp extends Operator {
 
         // todo - slave metadata
         // todo - slave tie point grids
-    }
-
-    private void setFlagCoding(Band band, FlagCoding flagCoding, boolean rename, String pattern) {
-        if (flagCoding != null) {
-            String name = flagCoding.getName();
-            if (rename) {
-                name = pattern.replace(ORIGINAL_NAME, name);
-            }
-            final Product product = band.getProduct();
-            if (!product.containsFlagCoding(name)) {
-                setFlagCoding(product, flagCoding, name);
-            }
-            band.setFlagCoding(product.getFlagCoding(name));
-        }
-    }
-
-    private void setFlagCoding(Product product, FlagCoding flagCoding, String flagCodingName) {
-        final FlagCoding targetFlagCoding = new FlagCoding(flagCodingName);
-
-        targetFlagCoding.setDescription(flagCoding.getDescription());
-        ProductUtils.copyMetadata(flagCoding, targetFlagCoding);
-        product.addFlagCoding(targetFlagCoding);
-    }
-
-    private void copyBitmaskDefs(Product sourceProduct, Product targetProduct, boolean rename, String pattern) {
-        for (final BitmaskDef sourceBitmaskDef : sourceProduct.getBitmaskDefs()) {
-            final BitmaskDef targetBitmaskDef = sourceBitmaskDef.createCopy();
-            if (rename) {
-                targetBitmaskDef.setName(pattern.replace(ORIGINAL_NAME, sourceBitmaskDef.getName()));
-                for (final Band targetBand : targetProduct.getBands()) {
-                    targetBitmaskDef.updateExpression(sourceBandMap.get(targetBand).getName(), targetBand.getName());
-                }
-            }
-            targetProduct.addBitmaskDef(targetBitmaskDef);
-        }
     }
 
     @Override
@@ -231,6 +205,46 @@ public class CollocateOp extends Operator {
         } finally {
             pm.done();
         }
+    }
+
+    private void copyBitmaskDefs(Product sourceProduct, Product targetProduct, boolean rename, String pattern) {
+        for (final BitmaskDef sourceBitmaskDef : sourceProduct.getBitmaskDefs()) {
+            final BitmaskDef targetBitmaskDef = sourceBitmaskDef.createCopy();
+            if (rename) {
+                targetBitmaskDef.setName(pattern.replace(ORIGINAL_NAME, sourceBitmaskDef.getName()));
+                for (final Band targetBand : targetProduct.getBands()) {
+                    assert targetBand != null;
+                    assert targetBand.getName() != null;
+                    assert sourceBandMap != null;
+                    assert sourceBandMap.get(targetBand)  != null;
+                    assert sourceBandMap.get(targetBand).getName()  != null;
+                    targetBitmaskDef.updateExpression(sourceBandMap.get(targetBand).getName(), targetBand.getName());
+                }
+            }
+            targetProduct.addBitmaskDef(targetBitmaskDef);
+        }
+    }
+
+    private static void setFlagCoding(Band band, FlagCoding flagCoding, boolean rename, String pattern) {
+        if (flagCoding != null) {
+            String flagCodingName = flagCoding.getName();
+            if (rename) {
+                flagCodingName = pattern.replace(ORIGINAL_NAME, flagCodingName);
+            }
+            final Product product = band.getProduct();
+            if (!product.containsFlagCoding(flagCodingName)) {
+                addFlagCoding(product, flagCoding, flagCodingName);
+            }
+            band.setFlagCoding(product.getFlagCoding(flagCodingName));
+        }
+    }
+
+    private static void addFlagCoding(Product product, FlagCoding flagCoding, String flagCodingName) {
+        final FlagCoding targetFlagCoding = new FlagCoding(flagCodingName);
+
+        targetFlagCoding.setDescription(flagCoding.getDescription());
+        ProductUtils.copyMetadata(flagCoding, targetFlagCoding);
+        product.addFlagCoding(targetFlagCoding);
     }
 
     private static Rectangle getBoundingBox(PixelPos[] pixelPositions, int maxWidth, int maxHeight) {

@@ -30,7 +30,7 @@ public class CollocationForm extends JPanel {
     private JTextField referenceComponentPatternField;
     private JTextField subsidiaryComponentPatternField;
     private JComboBox resamplingComboBox;
-    private JCheckBox createNewProductCheckBox;
+//    private JCheckBox createNewProductCheckBox;
     private TargetProductSelector targetProductSelector;
 
     public CollocationForm(final CollocationFormModel model, Product[] selectableProducts) {
@@ -38,7 +38,7 @@ public class CollocationForm extends JPanel {
 
         referenceProductSelector = new SourceProductSelector(selectableProducts, "Reference product");
         subsidiaryProductSelector = new SourceProductSelector(selectableProducts, "Subsidiary product");
-        createNewProductCheckBox = new JCheckBox("Create new product");
+//        createNewProductCheckBox = new JCheckBox("Create new product");
         renameReferenceComponentsCheckBox = new JCheckBox("Rename reference components:");
         renameSubsidiaryComponentsCheckBox = new JCheckBox("Rename subsidiary components:");
         referenceComponentPatternField = new JTextField();
@@ -56,7 +56,7 @@ public class CollocationForm extends JPanel {
                 updateUIState();
             }
         };
-        createNewProductCheckBox.addActionListener(listener);
+//        createNewProductCheckBox.addActionListener(listener);
         renameReferenceComponentsCheckBox.addActionListener(listener);
         renameSubsidiaryComponentsCheckBox.addActionListener(listener);
 
@@ -74,7 +74,7 @@ public class CollocationForm extends JPanel {
     private void updateUIState() {
         referenceComponentPatternField.setEnabled(renameReferenceComponentsCheckBox.isSelected());
         subsidiaryComponentPatternField.setEnabled(renameSubsidiaryComponentsCheckBox.isSelected());
-        targetProductSelector.setEnabled(createNewProductCheckBox.isSelected());
+//        targetProductSelector.setEnabled(createNewProductCheckBox.isSelected());
     }
 
     public void dispose() {
@@ -96,7 +96,7 @@ public class CollocationForm extends JPanel {
 
         sbc.bind(referenceProductSelector.getComboBox(), "masterProduct");
         sbc.bind(subsidiaryProductSelector.getComboBox(), "slaveProduct");
-        sbc.bind(createNewProductCheckBox, "createNewProduct");
+//        sbc.bind(createNewProductCheckBox, "createNewProduct");
         sbc.bind(renameReferenceComponentsCheckBox, "renameMasterComponents");
         sbc.bind(renameSubsidiaryComponentsCheckBox, "renameSlaveComponents");
         sbc.bind(referenceComponentPatternField, "masterComponentPattern");
@@ -130,16 +130,16 @@ public class CollocationForm extends JPanel {
         layout.setTableAnchor(TableLayout.Anchor.LINE_START);
         layout.setTableFill(TableLayout.Fill.HORIZONTAL);
         layout.setColumnWeightX(0, 1.0);
-        layout.setTablePadding(3, 3);
-        layout.setCellPadding(1, 0, new Insets(0, 21, 0, 0));
+//        layout.setTablePadding(0, 0);
+//        layout.setCellPadding(1, 0, new Insets(0, 21, 0, 0));
 
         final JPanel panel = new JPanel(layout);
         panel.setBorder(BorderFactory.createTitledBorder("Output"));
 
         targetProductSelector = new TargetProductSelector(model.getTargetProductSelectorModel());
-
-        panel.add(createNewProductCheckBox);
+//        panel.add(createNewProductCheckBox);
         panel.add(targetProductSelector.createDefaultPanel());
+
         return panel;
     }
 

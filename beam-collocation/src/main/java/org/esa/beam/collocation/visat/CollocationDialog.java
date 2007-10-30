@@ -1,18 +1,16 @@
 package org.esa.beam.collocation.visat;
 
+import com.bc.ceres.swing.progress.DialogProgressMonitor;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.graph.GraphProcessor;
 import org.esa.beam.framework.gpf.operators.common.WriteOp;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.visat.VisatApp;
 
-import com.bc.ceres.swing.progress.DialogProgressMonitor;
-
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,7 +53,6 @@ class CollocationDialog extends ModalDialog {
             final Map<String, Object> parameterMap = new HashMap<String, Object>(5);
             // collocation parameters
             parameterMap.put("targetProductName", formModel.getTargetProductName());
-            parameterMap.put("createNewProduct", formModel.isCreateNewProductSelected());
             parameterMap.put("renameMasterComponents", formModel.isRenameMasterComponentsSelected());
             parameterMap.put("renameSlaveComponents", formModel.isRenameSlaveComponentsSelected());
             parameterMap.put("masterComponentPattern", formModel.getMasterComponentPattern());
@@ -66,13 +63,15 @@ class CollocationDialog extends ModalDialog {
             targetProduct.setName(formModel.getTargetProductName());
 
             if (formModel.isSaveToFileSelected()) {
-                DialogProgressMonitor pm = new DialogProgressMonitor(getJDialog(), "Writing...", Dialog.ModalityType.APPLICATION_MODAL);
+                DialogProgressMonitor pm = new DialogProgressMonitor(getJDialog(), "Writing product...",
+                        Dialog.ModalityType.APPLICATION_MODAL);
                 try {
-                    WriteOp.writeProduct(targetProduct, 
-                            new File(formModel.getTargetFilePath()), 
+                    WriteOp.writeProduct(targetProduct,
+                            formModel.getTargetFile(),
                             formModel.getTargetFormatName(), pm);
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
+                    throw new OperatorException(MessageFormat.format(
+                            "Could not write product to file ''{0}''", formModel.getTargetFilePath()), e);
                 }
             }
         } catch (OperatorException e) {

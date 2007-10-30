@@ -7,6 +7,7 @@ import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.ui.io.TargetProductSelectorModel;
 
 import javax.swing.*;
+import java.io.File;
 import java.lang.reflect.Field;
 
 /**
@@ -66,12 +67,16 @@ class CollocationFormModel {
         return slaveProduct;
     }
 
-    public boolean isCreateNewProductSelected() {
+    private boolean isCreateNewProductSelected() {
         return createNewProduct;
     }
 
     public String getTargetProductName() {
         return targetProductSelectorModel.getProductName();
+    }
+
+    public File getTargetFile() {
+        return targetProductSelectorModel.getFile();
     }
 
     public String getTargetFilePath() {
@@ -118,7 +123,7 @@ class CollocationFormModel {
         setValueContainerValue("slaveProduct", product);
     }
 
-    public void setCreateNewProduct(boolean createNewProduct) {
+    private void setCreateNewProduct(boolean createNewProduct) {
         setValueContainerValue("createNewProduct", createNewProduct);
     }
 
