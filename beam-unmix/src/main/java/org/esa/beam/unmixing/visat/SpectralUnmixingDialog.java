@@ -24,6 +24,7 @@ import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.unmixing.Endmember;
 import org.esa.beam.unmixing.SpectralUnmixingOp;
+import org.esa.beam.util.PropertyMap;
 
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
@@ -149,6 +150,10 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
 
             public void handleError(Throwable e) {
                 JOptionPane.showMessageDialog(getApplicationWindow(), e.getMessage());
+            }
+
+            public PropertyMap getPreferences() {
+                return new PropertyMap();
             }
         });
         dialog.getJDialog().setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);

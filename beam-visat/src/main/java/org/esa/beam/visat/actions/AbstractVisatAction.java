@@ -19,6 +19,7 @@ package org.esa.beam.visat.actions;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.AppCommand;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.util.PropertyMap;
 import org.esa.beam.visat.VisatApp;
 
 import java.awt.Window;
@@ -67,6 +68,10 @@ public abstract class AbstractVisatAction extends AppCommand {
 
         public void handleError(Throwable e) {
             VisatApp.getApp().showErrorDialog(toolTitle, e.getMessage());
+        }
+
+        public PropertyMap getPreferences() {
+            return VisatApp.getApp().getPreferences();
         }
     }
 }
