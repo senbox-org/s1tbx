@@ -23,8 +23,11 @@ import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.operators.common.WriteOp;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.util.SystemUtils;
 
+import java.io.File;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -43,6 +46,9 @@ public abstract class SingleTargetProductDialog extends ModalDialog {
         super(appContext.getApplicationWindow(), title, buttonMask, helpID);
         this.appContext = appContext;
         targetProductSelector = new TargetProductSelector();
+        String homeDirPath = SystemUtils.getUserHomeDir().getPath();
+        String saveDir = appContext.getPreferences().getPropertyString(BasicApp.PROPERTY_KEY_APP_LAST_SAVE_DIR, homeDirPath);
+        targetProductSelector.getModel().setProductDir(new File(saveDir));
         targetProductSelector.getOpenInAppCheckBox().setText("Open in " + appContext.getApplicationName());
     }
 
@@ -65,7 +71,9 @@ public abstract class SingleTargetProductDialog extends ModalDialog {
             targetProductSelector.getProductNameTextField().requestFocus();
             return;
         }
-
+        String productDir = targetProductSelector.getModel().getProductDir().getAbsolutePath();
+        appContext.getPreferences().setPropertyString(BasicApp.PROPERTY_KEY_APP_LAST_SAVE_DIR, productDir);
+        
         Product targetProduct = null;
         try {
             targetProduct = createTargetProduct();
