@@ -1,6 +1,7 @@
 package org.esa.beam.unmixing.visat;
 
 import org.esa.beam.framework.ui.command.CommandEvent;
+import org.esa.beam.unmixing.ui.SpectralUnmixingDialog;
 import org.esa.beam.visat.actions.AbstractVisatAction;
 
 

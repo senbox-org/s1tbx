@@ -23,13 +23,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
@@ -79,7 +73,6 @@ public class ResourceScanner {
      * Gets the resource with the given relative path.
      *
      * @param relPath the relative path to the resource.
-     *
      * @return the url to the resource found. Can be <code>null</code> if no resource was found.
      */
     public URL getResource(String relPath) {
@@ -90,7 +83,6 @@ public class ResourceScanner {
      * Returns the relative path of the given resource url
      *
      * @param resourceURL
-     *
      * @return the realtive path, may be <code>null</code>
      */
     public String getRelativePath(URL resourceURL) {
@@ -109,8 +101,7 @@ public class ResourceScanner {
      * Retrieves all resource matching the given pattern.
      * For an explanation of the pattern syntax see {@link Pattern}.
      *
-     * @param patternString the pattern
-     *
+     * @param patternString the pattern given as a regular expression
      * @return all resources matching the given pattern. Never <code>null</code>.
      */
     public URL[] getResourcesByPattern(String patternString) {

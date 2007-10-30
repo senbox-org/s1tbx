@@ -1,11 +1,13 @@
-package org.esa.beam.unmixing.visat;
+package org.esa.beam.unmixing.ui;
 
+import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.diagram.*;
 import org.esa.beam.unmixing.Endmember;
 import org.esa.beam.unmixing.SpectralUnmixingOp;
 import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.ResourceInstaller;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileFilter;
-import org.esa.beam.visat.VisatApp;
 
 import javax.swing.*;
 import javax.swing.event.ListDataEvent;
@@ -16,6 +18,8 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeSupport;
+import java.io.File;
+import java.io.IOException;
 
 class EndmemberFormModel {
 
@@ -25,19 +29,20 @@ class EndmemberFormModel {
 
     private Diagram endmemberDiagram;
 
-    private Action testAction = new TestAction();
     private Action addAction = new AddAction();
     private Action removeAction = new RemoveAction();
     private Action clearAction = new ClearAction();
     private Action exportAction = new ExportAction();
 
-    private PropertyMap preferences;
+    private AppContext appContext;
 
     private PropertyChangeSupport propertyChangeSupport;
 
     private Color[] defaultColors = new Color[]{Color.BLACK, Color.RED.darker(), Color.GREEN.darker(), Color.BLUE.darker(), Color.YELLOW};
+    private static File defaultEndmemberDir = new File(SystemUtils.getUserHomeDir(), ".beam/beam-unmix/auxdata");
 
-    public EndmemberFormModel() {
+    public EndmemberFormModel(AppContext appContext) {
+        this.appContext = appContext;
         endmemberListModel = new DefaultListModel();
         endmemberListSelectionModel = new DefaultListSelectionModel();
         endmemberListSelectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -48,8 +53,6 @@ class EndmemberFormModel {
         endmemberDiagram.setYAxis(new DiagramAxis("Radiation", ""));
         endmemberDiagram.setDrawGrid(false);
         propertyChangeSupport = new PropertyChangeSupport(this);
-        VisatApp app = VisatApp.getApp();
-        preferences = app != null ? app.getPreferences() : new PropertyMap();
     }
 
     public Endmember[] getEndmembers() {
@@ -76,12 +79,12 @@ class EndmemberFormModel {
         return selectedEndmemberIndex;
     }
 
-    public Action getTestAction() {
-        return testAction;
-    }
-
     public Action getAddAction() {
         return addAction;
+    }
+
+    public Action getRemoveAction() {
+        return removeAction;
     }
 
     public Action getClearAction() {
@@ -90,10 +93,6 @@ class EndmemberFormModel {
 
     public Action getExportAction() {
         return exportAction;
-    }
-
-    public Action getRemoveAction() {
-        return removeAction;
     }
 
     public Diagram getEndmemberDiagram() {
@@ -130,17 +129,21 @@ class EndmemberFormModel {
         propertyChangeSupport.firePropertyChange("selectedEndmemberIndex", oldIndex, selectedEndmemberIndex);
     }
 
-    private class TestAction extends AbstractAction {
-
-        public TestAction() {
-            super("Test");
+    private void ensureDefaultDirSet() {
+        if (!defaultEndmemberDir.exists()) {
+            final ResourceInstaller resourceInstaller = new ResourceInstaller(ResourceInstaller.getSourceUrl(SpectralUnmixingDialog.class),
+                                                                              "auxdata/", defaultEndmemberDir);
+            try {
+                resourceInstaller.install(".*", com.bc.ceres.core.ProgressMonitor.NULL);
+            } catch (IOException e) {
+                // failed, so what
+            }
         }
 
-        public void actionPerformed(ActionEvent e) {
-            Endmember[] endmembers = loadTestEndmembers();
-            for (Endmember endmember : endmembers) {
-                addEndmember(endmember);
-            }
+        final String key = DiagramGraphIO.DIAGRAM_GRAPH_IO_LAST_DIR_KEY;
+        final PropertyMap preferences = appContext.getPreferences();
+        if (preferences.getPropertyString(key, null) == null) {
+            preferences.setPropertyString(key, defaultEndmemberDir.getPath());
         }
     }
 
@@ -148,13 +151,15 @@ class EndmemberFormModel {
 
         public AddAction() {
             super("Add");
+            putValue(LARGE_ICON_KEY, new ImageIcon(getClass().getResource("list-add.png")));
         }
 
         public void actionPerformed(ActionEvent e) {
+            ensureDefaultDirSet();
             DiagramGraph[] diagramGraphs = DiagramGraphIO.readGraphs(null,
-                                                                     "Import Endmembers",
+                                                                     "Add Endmembers",
                                                                      new BeamFileFilter[]{DiagramGraphIO.SPECTRA_CSV_FILE_FILTER},
-                                                                     preferences);
+                                                                     appContext.getPreferences());
             Endmember[] endmembers = SpectralUnmixingOp.convertGraphsToEndmembers(diagramGraphs);
             for (Endmember endmember : endmembers) {
                 addEndmember(endmember);
@@ -166,6 +171,7 @@ class EndmemberFormModel {
     private class RemoveAction extends AbstractAction {
         public RemoveAction() {
             super("Remove");
+            putValue(LARGE_ICON_KEY, new ImageIcon(getClass().getResource("list-remove.png")));
         }
 
         public void actionPerformed(ActionEvent e) {
@@ -182,6 +188,7 @@ class EndmemberFormModel {
     private class ClearAction extends AbstractAction {
         public ClearAction() {
             super("Clear");
+            putValue(LARGE_ICON_KEY, new ImageIcon(getClass().getResource("edit-clear.png")));
         }
 
         public void actionPerformed(ActionEvent e) {
@@ -194,13 +201,15 @@ class EndmemberFormModel {
     private class ExportAction extends AbstractAction {
         public ExportAction() {
             super("Export");
+            putValue(LARGE_ICON_KEY, new ImageIcon(getClass().getResource("document-save-as.png")));
         }
 
         public void actionPerformed(ActionEvent e) {
+            ensureDefaultDirSet();
             DiagramGraphIO.writeGraphs(null,
                                        "Export Endmembers",
                                        new BeamFileFilter[]{DiagramGraphIO.SPECTRA_CSV_FILE_FILTER},
-                                       preferences,
+                                       appContext.getPreferences(),
                                        endmemberDiagram.getGraphs());
         }
     }
@@ -229,99 +238,5 @@ class EndmemberFormModel {
                 }
             }
         }
-    }
-
-
-    private static Endmember[] loadTestEndmembers() {
-        double[] wavelengths = new double[]{
-                412.691,
-                442.559,
-                489.882,
-                509.819,
-                559.694,
-                619.601,
-                664.573,
-                680.821,
-                708.329,
-                753.371,
-                761.508,
-                778.409,
-                864.876,
-                884.94,
-                900.0
-        };
-
-
-        return new Endmember[]{
-                new Endmember("Forrest", wavelengths, new double[]{
-                        53.62759,
-                        47.280907,
-                        35.135273,
-                        31.699518,
-                        27.073746,
-                        17.776417,
-                        13.956376,
-                        13.050324,
-                        24.333706,
-                        63.70239,
-                        20.052866,
-                        63.483547,
-                        56.8588,
-                        55.244736,
-                        37.145023
-                }),
-                new Endmember("Cropland", wavelengths, new double[]{
-                        66.19122,
-                        66.45199,
-                        64.50155,
-                        64.30902,
-                        64.61501,
-                        67.19174,
-                        71.617165,
-                        72.050835,
-                        72.08001,
-                        78.129005,
-                        24.409485,
-                        76.208595,
-                        70.52879,
-                        68.819405,
-                        44.563168
-                }),
-
-                new Endmember("Cloud", wavelengths, new double[]{
-                        76.46195,
-                        73.67296,
-                        66.50564,
-                        64.30902,
-                        61.191143,
-                        57.071224,
-                        57.9758,
-                        58.022255,
-                        65.75211,
-                        94.739105,
-                        29.05891,
-                        94.22999,
-                        87.74958,
-                        85.66566,
-                        51.633755
-                }),
-                new Endmember("Ocean", wavelengths, new double[]{
-                        70.6823,
-                        61.99853,
-                        46.74277,
-                        41.141926,
-                        28.379854,
-                        18.218576,
-                        14.559007,
-                        13.293153,
-                        11.375077,
-                        9.123859,
-                        3.5935445,
-                        7.9517903,
-                        5.0613823,
-                        4.6388245,
-                        3.5407245
-                })
-        };
     }
 }

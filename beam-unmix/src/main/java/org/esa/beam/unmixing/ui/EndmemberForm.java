@@ -1,13 +1,15 @@
-package org.esa.beam.unmixing.visat;
+package org.esa.beam.unmixing.ui;
 
+import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.diagram.DiagramCanvas;
+import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 import java.awt.*;
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 class EndmemberForm extends JPanel {
     EndmemberFormModel formModel;
@@ -17,9 +19,13 @@ class EndmemberForm extends JPanel {
     JButton removeButton;
     JButton exportButton;
 
-    public EndmemberForm(EndmemberFormModel formModel) {
-        this.formModel = formModel;
+    public EndmemberForm(AppContext appContext) {
+        this.formModel = new EndmemberFormModel(appContext);
         initComponents();
+    }
+
+    public EndmemberFormModel getFormModel() {
+        return formModel;
     }
 
     private void initComponents() {
@@ -37,21 +43,19 @@ class EndmemberForm extends JPanel {
             }
         });
 
-        JButton testButton = new JButton(formModel.getTestAction());
-        JButton addButton = new JButton(formModel.getAddAction());
-        JButton removeButton = new JButton(formModel.getRemoveAction());
-        JButton clearButton = new JButton(formModel.getClearAction());
-        JButton exportButton = new JButton(formModel.getExportAction());
+        AbstractButton addButton = ToolButtonFactory.createButton(formModel.getAddAction(), false);
+        AbstractButton removeButton = ToolButtonFactory.createButton(formModel.getRemoveAction(), false);
+        AbstractButton clearButton = ToolButtonFactory.createButton(formModel.getClearAction(), false);
+        AbstractButton exportButton = ToolButtonFactory.createButton(formModel.getExportAction(), false);
 
         GridBagLayout gbl = new GridBagLayout();
         JPanel actionPanel = new JPanel(gbl);
+        actionPanel.setBorder(BorderFactory.createEmptyBorder(3, 3, 0, 3));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.ipady = 2;
         gbc.gridy = 0;
-        actionPanel.add(testButton, gbc);
-        gbc.gridy++;
         actionPanel.add(addButton, gbc);
         gbc.gridy++;
         actionPanel.add(removeButton, gbc);
@@ -62,10 +66,15 @@ class EndmemberForm extends JPanel {
         gbc.gridy++;
         gbc.weighty = 1;
         actionPanel.add(new JLabel(), gbc);
+        final Color color = actionPanel.getBackground();
+        final float[] rgbColors = new float[3];
+        color.getRGBColorComponents(rgbColors);
+        final float factor = 0.9f;
+        actionPanel.setBackground(new Color(rgbColors[0] * factor, rgbColors[1] * factor, rgbColors[2] * factor));
 
         JPanel endmemberSelectionPanel = new JPanel(new BorderLayout());
         endmemberSelectionPanel.add(new JScrollPane(endmemberList), BorderLayout.CENTER);
-        endmemberSelectionPanel.add(actionPanel, BorderLayout.EAST);
+        endmemberSelectionPanel.add(actionPanel, BorderLayout.WEST);
 
         JPanel endmemberPreviewPanel = new JPanel(new BorderLayout());
         endmemberPreviewPanel.add(diagramCanvas, BorderLayout.CENTER);
@@ -85,11 +94,6 @@ class EndmemberForm extends JPanel {
             @Override
             public BasicSplitPaneDivider createDefaultDivider() {
                 return new BasicSplitPaneDivider(this) {
-                    /**
-                     * Overridden in order to do nothing (instead of painting an ugly default divider)
-                     *
-                     * @param g
-                     */
                     @Override
                     public void paint(Graphics g) {
                         // do nothing

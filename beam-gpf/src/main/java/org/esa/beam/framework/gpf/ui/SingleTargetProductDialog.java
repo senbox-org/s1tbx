@@ -60,6 +60,12 @@ public abstract class SingleTargetProductDialog extends ModalDialog {
 
     @Override
     protected void onOK() {
+        if (targetProductSelector.getModel().getProductName().isEmpty()) {
+            showErrorDialog("Please specify a target product name.");
+            targetProductSelector.getProductNameTextField().requestFocus();
+            return;
+        }
+
         Product targetProduct = null;
         try {
             targetProduct = createTargetProduct();

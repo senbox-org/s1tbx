@@ -1,4 +1,4 @@
-package org.esa.beam.unmixing.visat;
+package org.esa.beam.unmixing.ui;
 
 import org.esa.beam.framework.ui.diagram.DefaultDiagramGraph;
 import org.esa.beam.unmixing.Endmember;

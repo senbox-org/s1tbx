@@ -1,4 +1,4 @@
-package org.esa.beam.unmixing.visat;
+package org.esa.beam.unmixing.ui;
 
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;

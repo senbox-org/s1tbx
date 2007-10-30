@@ -1,10 +1,11 @@
-package org.esa.beam.unmixing.visat;
+package org.esa.beam.unmixing.ui;
 
 import com.bc.ceres.binding.swing.SwingBindingContext;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
+import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.TableLayout;
 
 import javax.swing.*;
@@ -16,8 +17,6 @@ import java.awt.event.ActionListener;
 
 class SpectralUnmixingForm extends JPanel {
     SpectralUnmixingFormModel formModel;
-    EndmemberFormModel endmemberFormModel;
-
     EndmemberForm endmemberForm;
     SourceProductSelector sourceProductSelector;
     TargetProductSelector targetProductSelector;
@@ -27,16 +26,20 @@ class SpectralUnmixingForm extends JPanel {
     JComboBox unmixingModelName;
     JCheckBox computeErrorBands;
 
-    public SpectralUnmixingForm(TargetProductSelector targetProductSelector, SpectralUnmixingFormModel formModel) {
+    public SpectralUnmixingForm(AppContext appContext, TargetProductSelector targetProductSelector) {
         this.targetProductSelector = targetProductSelector;
-        this.endmemberFormModel = new EndmemberFormModel();
-        this.formModel = formModel;
+        this.formModel = new SpectralUnmixingFormModel(appContext.getSelectedProduct());
+        this.endmemberForm = new EndmemberForm(appContext);
         initComponents();
         bindComponents();
     }
 
-    public EndmemberFormModel getEndmemberPresenter() {
-        return endmemberFormModel;
+    public SpectralUnmixingFormModel getFormModel() {
+        return formModel;
+    }
+
+    public EndmemberForm getEndmemberForm() {
+        return endmemberForm;
     }
 
     private void bindComponents() {
@@ -51,7 +54,6 @@ class SpectralUnmixingForm extends JPanel {
     }
 
     private void initComponents() {
-        endmemberForm = new EndmemberForm(endmemberFormModel);
         final Product sourceProduct = formModel.getSourceProduct();
         sourceProductSelector = new SourceProductSelector(sourceProduct != null ? new Product[]{sourceProduct} : new Product[0],
                                                           "Source product name:");

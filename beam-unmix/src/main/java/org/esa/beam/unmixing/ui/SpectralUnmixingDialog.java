@@ -14,7 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
-package org.esa.beam.unmixing.visat;
+package org.esa.beam.unmixing.ui;
 
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
@@ -36,29 +36,22 @@ import java.util.Map;
 
 public class SpectralUnmixingDialog extends SingleTargetProductDialog {
     private SpectralUnmixingForm form;
-    private SpectralUnmixingFormModel formModel;
     private static final String TITLE = "Spectral Unmixing";
 
     public SpectralUnmixingDialog(AppContext appContext) {
         super(appContext, TITLE, "spectralUnmixing");
-        formModel = new SpectralUnmixingFormModel(appContext.getSelectedProduct());
-        form = new SpectralUnmixingForm(getTargetProductSelector(), formModel);
+        form = new SpectralUnmixingForm(appContext, getTargetProductSelector());
     }
 
     public void setSourceProduct(Product product) {
+        final SpectralUnmixingFormModel formModel = form.getFormModel();
         formModel.setSourceProduct(product);
     }
 
     @Override
-    protected void onOK() {
-        super.onOK();
-
-    }
-
-
-    @Override
     protected Product createTargetProduct() throws Exception {
-        formModel.getOperatorParameters().put("endmembers", form.getEndmemberPresenter().getEndmembers());
+        final SpectralUnmixingFormModel formModel = form.getFormModel();
+        formModel.getOperatorParameters().put("endmembers", form.getEndmemberForm().getFormModel().getEndmembers());
         return GPF.createProduct("SpectralUnmixing",
                                  formModel.getOperatorParameters(),
                                  formModel.getSourceProduct());
@@ -73,12 +66,13 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
 
     @Override
     protected boolean verifyUserInput() {
+        final SpectralUnmixingFormModel formModel = form.getFormModel();
         if (formModel.getSourceProduct() == null) {
             showErrorDialog("No source product selected.");
             return false;
         }
         final Map<String, Object> parameters = formModel.getOperatorParameters();
-        parameters.put("endmembers", form.getEndmemberPresenter().getEndmembers());
+        parameters.put("endmembers", form.getEndmemberForm().getFormModel().getEndmembers());
 
         final Endmember[] endmembers = (Endmember[]) parameters.get("endmembers");
         final String[] sourceBandNames = (String[]) parameters.get("sourceBandNames");
@@ -128,6 +122,8 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
         inputProduct.addBand("l1_flags", ProductData.TYPE_UINT32);
 
         SpectralUnmixingDialog dialog = new SpectralUnmixingDialog(new AppContext() {
+            private PropertyMap preferences = new PropertyMap();
+
             public void addProduct(Product product) {
                 System.out.println("product added: " + product);
             }
@@ -137,7 +133,7 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
             }
 
             public Product getSelectedProduct() {
-                return null; //inputProduct;
+                return inputProduct;
             }
 
             public Window getApplicationWindow() {
@@ -153,7 +149,7 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
             }
 
             public PropertyMap getPreferences() {
-                return new PropertyMap();
+                return preferences;
             }
         });
         dialog.getJDialog().setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
