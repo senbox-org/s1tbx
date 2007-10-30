@@ -1,6 +1,8 @@
 package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.binding.*;
+import com.bc.ceres.binding.validators.NotEmptyValidator;
+
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductWriterPlugIn;
@@ -52,6 +54,9 @@ public class TargetProductSelectorModel {
                 }
             }
         });
+        ValueDescriptor valueDescriptor = valueContainer.getValueDescriptor("productName");
+        valueDescriptor.setValidator(new NotEmptyValidator());
+        valueDescriptor.setDisplayName("target product name");
 
         setOpenInAppSelected(true);
         setSaveToFileSelected(true);
