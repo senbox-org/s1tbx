@@ -4,10 +4,15 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.graph.GraphProcessor;
+import org.esa.beam.framework.gpf.operators.common.WriteOp;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.visat.VisatApp;
 
+import com.bc.ceres.swing.progress.DialogProgressMonitor;
+
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,15 +65,15 @@ class CollocationDialog extends ModalDialog {
             targetProduct = GPF.createProduct("Collocate", parameterMap, productMap);
             targetProduct.setName(formModel.getTargetProductName());
 
-            final Map<String, Object> writeParameter = new HashMap<String, Object>(5);
-            // product writer parameters
-            writeParameter.put("filePath", formModel.getTargetFilePath());
-            writeParameter.put("formatName", formModel.getTargetFormatName());
-
             if (formModel.isSaveToFileSelected()) {
-                GPF.createProduct("ProductWriter", writeParameter, targetProduct);
-                GraphProcessor graphProcessor = new GraphProcessor();
-                // todo - execute write operator
+                DialogProgressMonitor pm = new DialogProgressMonitor(getJDialog(), "Writing...", Dialog.ModalityType.APPLICATION_MODAL);
+                try {
+                    WriteOp.writeProduct(targetProduct, 
+                            new File(formModel.getTargetFilePath()), 
+                            formModel.getTargetFormatName(), pm);
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                }
             }
         } catch (OperatorException e) {
             showErrorDialog(e.getMessage());
