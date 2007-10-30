@@ -64,7 +64,6 @@ public class CollocateOp extends Operator {
     public void initialize() throws OperatorException {
         // todo - product type
         sourceBandMap = new HashMap<Band, Band>();
-        assert createNewProduct == true;
 
         if (createNewProduct) {
             targetProduct = new Product(targetProductName,
@@ -89,7 +88,7 @@ public class CollocateOp extends Operator {
                     band.setName(masterComponentPattern.replace(ORIGINAL_NAME, band.getName()));
                 }
             }
-            copyBitmaskDefs(masterProduct, targetProduct, renameMasterComponents, masterComponentPattern);
+            copyBitmaskDefs(masterProduct, renameMasterComponents, masterComponentPattern);
         } else {
             // todo - implement
             targetProduct = masterProduct;
@@ -126,7 +125,7 @@ public class CollocateOp extends Operator {
                 }
             }
         }
-        copyBitmaskDefs(slaveProduct, targetProduct, renameSlaveComponents, slaveComponentPattern);
+        copyBitmaskDefs(slaveProduct, renameSlaveComponents, slaveComponentPattern);
 
         // todo - slave metadata
         // todo - slave tie point grids
@@ -211,17 +210,12 @@ public class CollocateOp extends Operator {
         }
     }
 
-    private void copyBitmaskDefs(Product sourceProduct, Product targetProduct, boolean rename, String pattern) {
+    private void copyBitmaskDefs(Product sourceProduct, boolean rename, String pattern) {
         for (final BitmaskDef sourceBitmaskDef : sourceProduct.getBitmaskDefs()) {
             final BitmaskDef targetBitmaskDef = sourceBitmaskDef.createCopy();
             if (rename) {
                 targetBitmaskDef.setName(pattern.replace(ORIGINAL_NAME, sourceBitmaskDef.getName()));
                 for (final Band targetBand : targetProduct.getBands()) {
-                    assert targetBand != null;
-                    assert targetBand.getName() != null;
-                    assert sourceBandMap != null;
-                    assert sourceBandMap.get(targetBand)  != null;
-                    assert sourceBandMap.get(targetBand).getName()  != null;
                     targetBitmaskDef.updateExpression(sourceBandMap.get(targetBand).getName(), targetBand.getName());
                 }
             }
