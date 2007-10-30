@@ -109,7 +109,7 @@ class CommandLineTool {
                 if (graph.getNode(sourceNodeId) == null) {
                     Node sourceNode = new Node(sourceNodeId, readOperatorAlias);
                     Xpp3Dom parameters = new Xpp3Dom("parameters");
-                    Xpp3Dom filePath = new Xpp3Dom("filePath");
+                    Xpp3Dom filePath = new Xpp3Dom("file");
                     filePath.setValue(sourceFilepath);
                     parameters.addChild(filePath);
                     sourceNode.setConfiguration(parameters);
@@ -121,7 +121,7 @@ class CommandLineTool {
             Node targetNode = new Node("WriteProduct$" + lastNode.getId(), writeOperatorAlias);
             targetNode.addSource(new NodeSource("input", lastNode.getId()));
             Xpp3Dom configDom = new Xpp3Dom("parameters");
-            Xpp3Dom dom1 = new Xpp3Dom("filePath");
+            Xpp3Dom dom1 = new Xpp3Dom("file");
             dom1.setValue(lineArgs.getTargetFilepath());
             configDom.addChild(dom1);
             Xpp3Dom dom2 = new Xpp3Dom("formatName");
