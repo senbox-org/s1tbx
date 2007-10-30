@@ -21,7 +21,10 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.operators.common.WriteOp;
 import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.framework.ui.io.TargetProductSelectorModel;
 import org.esa.beam.unmixing.Endmember;
 import org.esa.beam.unmixing.SpectralUnmixingOp;
 import org.esa.beam.util.Guardian;
@@ -32,6 +35,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.InternalFrameAdapter;
 import java.awt.Window;
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -50,7 +54,7 @@ public class SpectralUnmixingDialog extends ModalDialog {
     @Override
     public int show() {
         setContent(form);
-        form.targetProductName.requestFocus();
+        form.targetProductSelector.getProductNameTextField().requestFocus();
         return super.show();
     }
 
@@ -70,8 +74,19 @@ public class SpectralUnmixingDialog extends ModalDialog {
         }
         super.onOK();
         if (outputProduct != formModel.getInputProduct()) {
-            outputProduct.setName(form.targetProductName.getText());
-            VisatApp.getApp().addProduct(outputProduct);
+            final TargetProductSelectorModel targetProductSelectorModel = form.targetProductSelectorModel;
+            outputProduct.setName(targetProductSelectorModel.getProductName());
+            outputProduct.setFileLocation(targetProductSelectorModel.getProductFile());
+            if (targetProductSelectorModel.isSaveToFileSelected()) {
+                final HashMap<String, Object> paramMap = new HashMap<String, Object>();
+                paramMap.put("filePath", targetProductSelectorModel.getProductFile().getPath());
+                paramMap.put("formatName", targetProductSelectorModel.getFormatName());
+                final Product product = GPF.createProduct(OperatorSpi.getOperatorAlias(WriteOp.class), paramMap, outputProduct);
+                // todo  - how to write product (mp - 2007/10/29)
+            }
+            if (targetProductSelectorModel.isOpenInAppSelected()) {
+                VisatApp.getApp().addProduct(outputProduct);
+            }
         }
     }
 

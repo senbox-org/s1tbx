@@ -84,11 +84,11 @@ public class SpectralUnmixingOp extends Operator {
     @Parameter(description = "Maximum wavelength deviation used for spectrum adjustment.", defaultValue = "10.0", interval = "(0,*)", unit = "nm")
     double maxWavelengthDelta;
 
-    private transient Band[] sourceBands;
-    private transient Band[] targetBands;
+    private Band[] sourceBands;
+    private Band[] abundanceBands;
     private Band[] errorBands;
     private Band summaryErrorBand;
-    private transient SpectralUnmixing spectralUnmixing;
+    private SpectralUnmixing spectralUnmixing;
 
     @Override
     public void initialize() throws OperatorException {
@@ -121,16 +121,16 @@ public class SpectralUnmixingOp extends Operator {
 
         int width = sourceProduct.getSceneRasterWidth();
         int height = sourceProduct.getSceneRasterHeight();
+
         targetProduct = new Product(sourceProduct.getName() + "_unmixed",
                                     "SpectralUnmixing", width, height);
-        ProductUtils.copyMetadata(sourceProduct, targetProduct);
 
         int numSourceBands = sourceBands.length;
         int numEndmembers = endmembers.length;
 
-        targetBands = new Band[numEndmembers];
+        abundanceBands = new Band[numEndmembers];
         for (int i = 0; i < numEndmembers; i++) {
-            targetBands[i] = targetProduct.addBand(endmembers[i].getName() + targetBandNameSuffix, ProductData.TYPE_FLOAT32);
+            abundanceBands[i] = targetProduct.addBand(endmembers[i].getName() + targetBandNameSuffix, ProductData.TYPE_FLOAT32);
         }
 
         if (computeErrorBands) {
@@ -143,6 +143,7 @@ public class SpectralUnmixingOp extends Operator {
             summaryErrorBand = targetProduct.addBand("summary_error", ProductData.TYPE_FLOAT32);
         }
 
+        ProductUtils.copyMetadata(sourceProduct, targetProduct);
         ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
         ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
 
@@ -195,10 +196,10 @@ public class SpectralUnmixingOp extends Operator {
 
     @Override
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetTileRectangle, ProgressMonitor pm) throws OperatorException {
-        Tile[] abundanceTiles = new Tile[targetBands.length];
+        Tile[] abundanceTiles = new Tile[abundanceBands.length];
         Tile[] intensityTiles = getSourceTiles(targetTileRectangle, pm);
-        for (int i = 0; i < targetBands.length; i++) {
-            abundanceTiles[i] = targetTiles.get(targetBands[i]);
+        for (int i = 0; i < abundanceBands.length; i++) {
+            abundanceTiles[i] = targetTiles.get(abundanceBands[i]);
         }
         Tile[] errorTiles = null;
         Tile summaryErrorTile = null;
@@ -212,7 +213,7 @@ public class SpectralUnmixingOp extends Operator {
         for (int y = targetTileRectangle.y; y < targetTileRectangle.y + targetTileRectangle.height; y++) {
             double[][] ia = getLineSpectra(intensityTiles, targetTileRectangle, y);
             double[][] oa = unmix(ia);
-            for (int i = 0; i < targetBands.length; i++) {
+            for (int i = 0; i < abundanceBands.length; i++) {
                 setAbundances(targetTileRectangle, abundanceTiles[i], y, oa[i]);
                 checkForCancelation(pm);
             }
@@ -276,8 +277,8 @@ public class SpectralUnmixingOp extends Operator {
 
     private int getTargetBandIndex(Tile targetTile) {
         int index = -1;
-        for (int i = 0; i < targetBands.length; i++) {
-            Band targetBand = targetBands[i];
+        for (int i = 0; i < abundanceBands.length; i++) {
+            Band targetBand = abundanceBands[i];
             if (targetTile.getRasterDataNode() == targetBand) {
                 index = i;
                 break;

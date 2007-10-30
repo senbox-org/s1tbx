@@ -8,7 +8,6 @@ import org.esa.beam.framework.ui.io.SourceProductSelector;
 import org.esa.beam.framework.ui.io.TargetProductSelector;
 
 import javax.swing.*;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -30,14 +29,14 @@ public class CollocationForm extends JPanel {
     private JTextField referenceComponentPatternField;
     private JTextField subsidiaryComponentPatternField;
     private JComboBox resamplingComboBox;
-//    private JCheckBox createNewProductCheckBox;
+    //    private JCheckBox createNewProductCheckBox;
     private TargetProductSelector targetProductSelector;
 
     public CollocationForm(final CollocationFormModel model, Product[] selectableProducts) {
         this.model = model;
 
-        referenceProductSelector = new SourceProductSelector(selectableProducts, "Reference product");
-        subsidiaryProductSelector = new SourceProductSelector(selectableProducts, "Subsidiary product");
+        referenceProductSelector = new SourceProductSelector(selectableProducts, "Reference product:");
+        subsidiaryProductSelector = new SourceProductSelector(selectableProducts, "Subsidiary product:");
 //        createNewProductCheckBox = new JCheckBox("Create new product");
         renameReferenceComponentsCheckBox = new JCheckBox("Rename reference components:");
         renameSubsidiaryComponentsCheckBox = new JCheckBox("Rename subsidiary components:");
@@ -45,7 +44,7 @@ public class CollocationForm extends JPanel {
         subsidiaryComponentPatternField = new JTextField();
         resamplingComboBox = new JComboBox(model.getResamplingComboBoxModel());
 
-        subsidiaryProductSelector.getComboBox().addActionListener(new ActionListener() {
+        subsidiaryProductSelector.getProductNameComboBox().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 model.adaptResamplingComboBoxModel();
             }
@@ -94,8 +93,8 @@ public class CollocationForm extends JPanel {
     private void bindComponents() {
         final SwingBindingContext sbc = new SwingBindingContext(model.getValueContainer());
 
-        sbc.bind(referenceProductSelector.getComboBox(), "masterProduct");
-        sbc.bind(subsidiaryProductSelector.getComboBox(), "slaveProduct");
+        sbc.bind(referenceProductSelector.getProductNameComboBox(), "masterProduct");
+        sbc.bind(subsidiaryProductSelector.getProductNameComboBox(), "slaveProduct");
 //        sbc.bind(createNewProductCheckBox, "createNewProduct");
         sbc.bind(renameReferenceComponentsCheckBox, "renameMasterComponents");
         sbc.bind(renameSubsidiaryComponentsCheckBox, "renameSlaveComponents");
@@ -115,12 +114,12 @@ public class CollocationForm extends JPanel {
         final JPanel panel = new JPanel(layout);
         panel.setBorder(BorderFactory.createTitledBorder("Source"));
 
-        panel.add(referenceProductSelector.getLabel());
-        panel.add(referenceProductSelector.getComboBox());
-        panel.add(referenceProductSelector.getButton());
-        panel.add(subsidiaryProductSelector.getLabel());
-        panel.add(subsidiaryProductSelector.getComboBox());
-        panel.add(subsidiaryProductSelector.getButton());
+        panel.add(referenceProductSelector.getProductNameLabel());
+        panel.add(referenceProductSelector.getProductNameComboBox());
+        panel.add(referenceProductSelector.getProductFileChooserButton());
+        panel.add(subsidiaryProductSelector.getProductNameLabel());
+        panel.add(subsidiaryProductSelector.getProductNameComboBox());
+        panel.add(subsidiaryProductSelector.getProductFileChooserButton());
 
         return panel;
     }
@@ -136,7 +135,7 @@ public class CollocationForm extends JPanel {
         final JPanel panel = new JPanel(layout);
         panel.setBorder(BorderFactory.createTitledBorder("Output"));
 
-        targetProductSelector = new TargetProductSelector(model.getTargetProductSelectorModel());
+        targetProductSelector = new TargetProductSelector(model.getTargetProductSelectorModel(), "Target product name:");
 //        panel.add(createNewProductCheckBox);
         panel.add(targetProductSelector.createDefaultPanel());
 

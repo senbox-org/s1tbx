@@ -6,20 +6,14 @@
  */
 package org.esa.beam.framework.ui;
 
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.LayoutManager2;
+import javax.swing.JPanel;
+import java.awt.*;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 public class TableLayout implements LayoutManager2 {
-
     public enum Fill {
         /**
          * Do not resize the component.
@@ -233,6 +227,20 @@ public class TableLayout implements LayoutManager2 {
         setCellValue("anchor", row, col, anchor);
     }
 
+
+    public Component createVerticalSpacer() {
+        setCellColspan(currentCell.row, 0, columnCount);
+        setRowFill(currentCell.row, Fill.BOTH);
+        setRowWeightY(currentCell.row, 1.0);
+        return new JPanel();
+    }
+
+    public Component createHorizontalSpacer() {
+        setColumnFill(currentCell.col, Fill.BOTH);
+        setColumnWeightX(currentCell.col, 1.0);
+        return new JPanel();
+    }
+
     /////////////////////////////////////////////////////////////////////////
 
     /**
@@ -392,10 +400,10 @@ public class TableLayout implements LayoutManager2 {
             }
         }
         if (value instanceof Fill) {
-            value = ((Fill)value).value();
+            value = ((Fill) value).value();
         }
         if (value instanceof Anchor) {
-            value = ((Anchor)value).value();
+            value = ((Anchor) value).value();
         }
         return value;
     }
@@ -475,7 +483,7 @@ public class TableLayout implements LayoutManager2 {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(getClass().getName());
-        sb .append('[');
+        sb.append('[');
         Set<Map.Entry<String, Object>> entries = propertyMap.entrySet();
         for (Map.Entry<String, Object> entry : entries) {
             sb.append(entry.getKey() + '=' + entry.getValue());
@@ -484,4 +492,6 @@ public class TableLayout implements LayoutManager2 {
         sb.append(']');
         return sb.toString();
     }
+
+
 }

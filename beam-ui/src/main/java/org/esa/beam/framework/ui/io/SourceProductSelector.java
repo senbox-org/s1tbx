@@ -4,11 +4,15 @@ import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.util.io.BeamFileChooser;
 
 import javax.swing.*;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -25,23 +29,17 @@ public class SourceProductSelector {
 
     private Pattern typePattern;
     private Product chooserProduct;
-    private String labelText;
     private File currentDirectory;
     private DefaultComboBoxModel productListModel;
-    private JLabel productLabel;
-    private JButton chooserButton;
-    private JComboBox productComboBox;
+    private JLabel productNameLabel;
+    private JButton productFileChooserButton;
+    private JComboBox productNameComboBox;
 
     public SourceProductSelector(Product[] selectableProducts, String labelText) {
         this(selectableProducts, labelText, ".*");
     }
 
     public SourceProductSelector(Product[] selectableProducts, String labelText, String typePattern) {
-        this.labelText = labelText;
-        if (!this.labelText.endsWith(":")) {
-            this.labelText = this.labelText.concat(":");
-        }
-
         this.typePattern = Pattern.compile(typePattern);
         productListModel = new DefaultComboBoxModel();
 
@@ -52,15 +50,29 @@ public class SourceProductSelector {
         }
         productListModel.setSelectedItem(null);
 
-        productLabel = new JLabel(this.labelText);
-        chooserButton = new JButton(new ChooserAction());
-        productComboBox = new JComboBox(productListModel);
-        productComboBox.setPrototypeDisplayValue("[1] 123456789 123456789 12345");
-        productComboBox.setRenderer(new ProductListCellRenderer());
-    }
+        productNameLabel = new JLabel(labelText);
+        productFileChooserButton = new JButton(new ProductFileChooserAction());
+        final Dimension size = new Dimension(26, 16);
+        productFileChooserButton.setPreferredSize(size);
+        productFileChooserButton.setMinimumSize(size);
 
-    public String getLabelText() {
-        return labelText;
+        productNameComboBox = new JComboBox(productListModel);
+        productNameComboBox.setPrototypeDisplayValue("[1] 123456789 123456789 12345");
+        productNameComboBox.setRenderer(new ProductListCellRenderer());
+        productNameComboBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                final Product product = (Product) productNameComboBox.getSelectedItem();
+                if (product != null) {
+                    if (product.getFileLocation() != null) {
+                        productNameComboBox.setToolTipText(product.getFileLocation().getPath());
+                    } else {
+                        productNameComboBox.setToolTipText(product.getDisplayName());
+                    }
+                } else {
+                    productNameComboBox.setToolTipText("Selects a source product.");
+                }
+            }
+        });
     }
 
     public Pattern getTypePattern() {
@@ -80,7 +92,7 @@ public class SourceProductSelector {
     }
 
     public void setCurrentDirectory(File directory) {
-        if(directory != null && directory.isDirectory()) {
+        if (directory != null && directory.isDirectory()) {
             currentDirectory = directory;
         }
     }
@@ -117,16 +129,16 @@ public class SourceProductSelector {
 
     /////////////////////////////////////
 
-    public JComboBox getComboBox() {
-        return productComboBox;
+    public JComboBox getProductNameComboBox() {
+        return productNameComboBox;
     }
 
-    public JLabel getLabel() {
-        return productLabel;
+    public JLabel getProductNameLabel() {
+        return productNameLabel;
     }
 
-    public JButton getButton() {
-        return chooserButton;
+    public JButton getProductFileChooserButton() {
+        return productFileChooserButton;
     }
 
     private boolean productListModelContains(Product product) {
@@ -138,27 +150,35 @@ public class SourceProductSelector {
         return false;
     }
 
-    private class ChooserAction extends AbstractAction {
+    public JPanel createDefaultPanel() {
+        final TableLayout layout = new TableLayout(3);
+        layout.setTableAnchor(TableLayout.Anchor.LINE_START);
+        layout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        layout.setColumnWeightX(0, 0.0);
+        layout.setColumnWeightX(1, 1.0);
+        layout.setColumnWeightX(2, 0.0);
+        layout.setTablePadding(3, 3);
+
+        final JPanel panel = new JPanel(layout);
+        panel.setBorder(BorderFactory.createTitledBorder("Source"));
+
+        panel.add(getProductNameLabel());
+        panel.add(getProductNameComboBox());
+        panel.add(getProductFileChooserButton());
+
+        return panel;
+    }
+
+    private class ProductFileChooserAction extends AbstractAction {
 
         private String APPROVE_BUTTON_TEXT = "Select";
         private JFileChooser chooser;
-        private ErrorHandler errorHandler;
 
-        public ChooserAction() {
-            this(new BeamFileChooser(), new ErrorHandler() {
-                public void handleError(final JComponent component, final Throwable t) {
-                    SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            JOptionPane.showMessageDialog(component, t.getMessage(), "Error",
-                                                          JOptionPane.ERROR_MESSAGE);
-                        }
-                    });
-
-                }
-            });
-
+        public ProductFileChooserAction() {
+            super("...");
+            chooser = new BeamFileChooser();
+            chooser.setDialogTitle("Select Source Product");
             final Iterator<ProductReaderPlugIn> iterator = ProductIOPlugInManager.getInstance().getAllReaderPlugIns();
-
             while (iterator.hasNext()) {
                 chooser.addChoosableFileFilter(iterator.next().getProductFileFilter());
             }
@@ -166,21 +186,12 @@ public class SourceProductSelector {
             chooser.setFileFilter(chooser.getAcceptAllFileFilter());
         }
 
-        private ChooserAction(JFileChooser fileChooser, ErrorHandler errorHandler) {
-            super("...");
-            chooser = fileChooser;
-            this.errorHandler = errorHandler;
-        }
-
         public void actionPerformed(ActionEvent event) {
-            JComponent parent = null;
-            if (event.getSource() instanceof JComponent) {
-                parent = (JComponent) event.getSource();
-            }
+            final Window window = SwingUtilities.getWindowAncestor((JComponent) event.getSource());
 
             chooser.setCurrentDirectory(currentDirectory);
 
-            if (chooser.showDialog(parent, APPROVE_BUTTON_TEXT) == JFileChooser.APPROVE_OPTION) {
+            if (chooser.showDialog(window, APPROVE_BUTTON_TEXT) == JFileChooser.APPROVE_OPTION) {
                 final File file = chooser.getSelectedFile();
 
                 Product product = null;
@@ -192,15 +203,24 @@ public class SourceProductSelector {
                     }
                     setSelectedProduct(product);
                 } catch (IOException e) {
-                    errorHandler.handleError(parent, e);
+                    handleError(window, e);
                 } catch (Exception e) {
                     if (product != null) {
                         product.dispose();
                     }
-                    errorHandler.handleError(parent, e);
+                    handleError(window, e);
                 }
                 currentDirectory = chooser.getCurrentDirectory();
             }
+        }
+
+        private void handleError(final Component component, final Throwable t) {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    JOptionPane.showMessageDialog(component, t.getMessage(), "Error",
+                                                  JOptionPane.ERROR_MESSAGE);
+                }
+            });
         }
     }
 
@@ -222,8 +242,4 @@ public class SourceProductSelector {
         }
     }
 
-    private interface ErrorHandler {
-
-        void handleError(JComponent component, Throwable t);
-    }
 }

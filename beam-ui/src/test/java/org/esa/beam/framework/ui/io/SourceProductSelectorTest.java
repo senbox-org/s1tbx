@@ -3,7 +3,6 @@ package org.esa.beam.framework.ui.io;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;
 
-import javax.swing.JLabel;
 import java.io.File;
 
 /**
@@ -26,24 +25,16 @@ public class SourceProductSelectorTest extends TestCase {
 
     public void testCreatedUIComponentsNotNull() {
         SourceProductSelector selector = new SourceProductSelector(defaultProducts, "Source:");
-        assertNotNull(selector.getLabel());
-        assertNotNull(selector.getComboBox());
-        assertNotNull(selector.getButton());
+        assertNotNull(selector.getProductNameLabel());
+        assertNotNull(selector.getProductNameComboBox());
+        assertNotNull(selector.getProductFileChooserButton());
     }
 
     public void testCreatedUIComponentsAreSame() {
         SourceProductSelector selector = new SourceProductSelector(defaultProducts, "Source:");
-        assertSame(selector.getLabel(), selector.getLabel());
-        assertSame(selector.getComboBox(), selector.getComboBox());
-        assertSame(selector.getButton(), selector.getButton());
-    }
-
-    public void testLabelEndsWithColon() {
-        JLabel productLabel1 = new SourceProductSelector(defaultProducts, "Source").getLabel();
-        assertEquals("Source:", productLabel1.getText());
-
-        JLabel productLabel2 = new SourceProductSelector(defaultProducts, "Source:").getLabel();
-        assertEquals("Source:", productLabel2.getText());
+        assertSame(selector.getProductNameLabel(), selector.getProductNameLabel());
+        assertSame(selector.getProductNameComboBox(), selector.getProductNameComboBox());
+        assertSame(selector.getProductFileChooserButton(), selector.getProductFileChooserButton());
     }
 
     public void testSetSelectedProduct() throws Exception {
@@ -103,7 +94,7 @@ public class SourceProductSelectorTest extends TestCase {
             fail("No Throwable expected");
         }
 
-        
+
         selector = new SourceProductSelector(defaultProducts, "Source");
 
         Product newProduct = new Product("new", "T1", 0, 0);
@@ -126,13 +117,13 @@ public class SourceProductSelectorTest extends TestCase {
     }
 
     public void testFileChooserAction() {
-        
+
     }
-    
+
     public void testSetSelectedIndex() throws Exception {
         SourceProductSelector selector = new SourceProductSelector(defaultProducts, "Source", "T.");
         assertNull(selector.getSelectedProduct());
-        
+
         selector.setSelectedIndex(0);
         assertSame(defaultProducts[0], selector.getSelectedProduct());
     }

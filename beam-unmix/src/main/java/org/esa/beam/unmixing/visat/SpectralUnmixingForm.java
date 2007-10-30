@@ -1,18 +1,27 @@
 package org.esa.beam.unmixing.visat;
 
 import com.bc.ceres.binding.swing.SwingBindingContext;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.ui.TableLayout;
+import org.esa.beam.framework.ui.io.SourceProductSelector;
+import org.esa.beam.framework.ui.io.TargetProductSelector;
+import org.esa.beam.framework.ui.io.TargetProductSelectorModel;
 
 import javax.swing.*;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 class SpectralUnmixingForm extends JPanel {
     SpectralUnmixingFormModel formModel;
     EndmemberFormModel endmemberFormModel;
 
     EndmemberForm endmemberForm;
-    JTextField sourceProductName;
-    JTextField targetProductName;
+    SourceProductSelector sourceProductSelector;
+    TargetProductSelector targetProductSelector;
+    TargetProductSelectorModel targetProductSelectorModel;
     JList sourceBandNames;
     JTextField targetBandNameSuffix;
     JTextField maxWavelengthDelta;
@@ -39,148 +48,144 @@ class SpectralUnmixingForm extends JPanel {
         bindingContext.bind(computeErrorBands, "computeErrorBands");
         bindingContext.bind(maxWavelengthDelta, "maxWavelengthDelta");
 
-        bindingContext.enable(targetProductName, "alterSourceProduct", false);
     }
 
     private void initComponents() {
         endmemberForm = new EndmemberForm(endmemberFormModel);
-        sourceProductName = new JTextField(10);
-        sourceProductName.setText(formModel.getInputProduct().getName());
-        sourceProductName.setCaretPosition(0);
-        sourceProductName.setEditable(false);
-        targetProductName = new JTextField(15);
-        targetProductName.setText(formModel.getInputProduct().getName() + "_unmixed");
-        targetProductName.setCaretPosition(0);
+        sourceProductSelector = new SourceProductSelector(new Product[]{formModel.getInputProduct()}, "Source product name:");
+        if (sourceProductSelector.getProductCount() > 0) {
+            sourceProductSelector.setSelectedIndex(0);
+        }
+        sourceProductSelector.getProductNameComboBox().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                formModel.setInputProduct(sourceProductSelector.getSelectedProduct());
+                sourceBandNames.setModel(formModel.getBandListModel());
+            }
+        });
         sourceBandNames = new JList();
         sourceBandNames.setModel(formModel.getBandListModel());
+
+        targetProductSelectorModel = new TargetProductSelectorModel(true);
+        targetProductSelectorModel.setProductName(formModel.getInputProduct().getName() + "_unmixed");
+        targetProductSelector = new TargetProductSelector(targetProductSelectorModel, "Target product name:");
         targetBandNameSuffix = new JTextField();
         unmixingModelName = new JComboBox();
         computeErrorBands = new JCheckBox("Compute error bands");
         maxWavelengthDelta = new JTextField();
 
-        JPanel inputPanel = createInputPanel();
-        inputPanel.setBorder(BorderFactory.createTitledBorder("Input"));
 
-        JPanel outputPanel = createOutputPanel();
-        outputPanel.setBorder(BorderFactory.createTitledBorder("Output"));
-
-        endmemberForm.setBorder(BorderFactory.createTitledBorder("Endmembers"));
-
-        setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.anchor = GridBagConstraints.NORTHWEST;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.ipadx = 2;
-        gbc.ipady = 2;
-
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 0.5;
-        gbc.weighty = 0.5;
-        add(inputPanel, gbc);
-
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.weightx = 0.5;
-        gbc.weighty = 0.5;
-        add(outputPanel, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.weightx = 1;
-        gbc.weighty = 0.5;
-        gbc.gridwidth = 2;
-        add(endmemberForm, gbc);
+        final TableLayout tableLayout = new TableLayout(2);
+        tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
+        tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        tableLayout.setRowFill(1, TableLayout.Fill.BOTH);
+        tableLayout.setCellFill(0, 0, TableLayout.Fill.BOTH);
+        tableLayout.setCellColspan(1, 0, 2);
+        tableLayout.setCellColspan(2, 0, 2);
+        tableLayout.setRowWeightY(1, 1.0);
+        tableLayout.setTableWeightX(1.0);
+        setLayout(tableLayout);
+        add(createSourcePanel());
+        add(createTargetPanel());
+        add(createParametersPanel());
     }
 
+    private JPanel createSourcePanel() {
+        final JPanel subPanel = new JPanel(new BorderLayout());
+        subPanel.add(sourceProductSelector.getProductNameComboBox(), BorderLayout.CENTER);
+        subPanel.add(sourceProductSelector.getProductFileChooserButton(), BorderLayout.EAST);
 
-    private JPanel createInputPanel() {
-        JPanel panel = new JPanel(new GridBagLayout());
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.ipady = 2;
-
-        gbc.gridy = 0;
-        gbc.gridx = 0;
-        gbc.weightx = 0;
-        panel.add(new JLabel("Source product name: "), gbc);
-        gbc.gridx = 1;
-        gbc.weightx = 1;
-        panel.add(sourceProductName, gbc);
-
-        gbc.gridy++;
-        gbc.gridx = 0;
-        gbc.gridwidth = 2;
-        gbc.weightx = 1;
-        panel.add(new JLabel("Source bands:"), gbc);
-
-        gbc.gridy++;
-        gbc.gridx = 0;
-        gbc.gridwidth = 2;
-        gbc.weightx = 1;
-        gbc.weighty = 1;
-        panel.add(new JScrollPane(sourceBandNames), gbc);
-
+        final TableLayout tableLayout = new TableLayout(1);
+        tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
+        tableLayout.setTableWeightX(1.0);
+        tableLayout.setRowFill(0, TableLayout.Fill.HORIZONTAL);
+        tableLayout.setRowFill(1, TableLayout.Fill.HORIZONTAL);
+        tableLayout.setTablePadding(3, 3);
+        JPanel panel = new JPanel(tableLayout);
+        panel.setBorder(BorderFactory.createTitledBorder("Source"));
+        panel.add(sourceProductSelector.getProductNameLabel());
+        panel.add(subPanel);
+        panel.add(tableLayout.createVerticalSpacer());
         return panel;
     }
 
+    private JComponent createTargetPanel() {
+        final JPanel subPanel1 = new JPanel(new FlowLayout(FlowLayout.LEADING, 0, 0));
+        subPanel1.add(targetProductSelector.getSaveToFileCheckBox());
+        subPanel1.add(targetProductSelector.getFormatNameComboBox());
+        subPanel1.add(new JLabel("       "));
+        subPanel1.add(targetProductSelector.getOpenInAppCheckBox());
 
-    private JPanel createOutputPanel() {
-        JPanel ioPanel = new JPanel(new GridBagLayout());
+        final JPanel subPanel2 = new JPanel(new BorderLayout());
+        subPanel2.add(targetProductSelector.getProductDirTextField(), BorderLayout.CENTER);
+        subPanel2.add(targetProductSelector.getProductDirChooserButton(), BorderLayout.EAST);
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.ipady = 2;
+        final TableLayout tableLayout = new TableLayout(1);
+        tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
+        tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        tableLayout.setTableWeightX(1.0);
+        tableLayout.setTablePadding(3, 3);
+        tableLayout.setRowPadding(2, new Insets(10, 0, 3, 0));
 
-        gbc.gridy++;
-        gbc.gridx = 0;
-        gbc.weightx = 0;
-        ioPanel.add(new JLabel("Target product name: "), gbc);
-        gbc.gridx = 1;
-        gbc.weightx = 1;
-        ioPanel.add(targetProductName, gbc);
+        final JPanel panel = new JPanel(tableLayout);
+        panel.setBorder(BorderFactory.createTitledBorder("Target"));
+        panel.add(targetProductSelector.getProductNameLabel());
+        panel.add(targetProductSelector.getProductNameTextField());
+        panel.add(subPanel1);
+        panel.add(new JLabel("Directory:"));
+        panel.add(subPanel2);
+        return panel;
+    }
 
-        gbc.gridy++;
-        gbc.gridwidth = 1;
-        gbc.gridx = 0;
-        gbc.weightx = 0;
-        ioPanel.add(new JLabel("Target band name suffix: "), gbc);
-        gbc.gridx = 1;
-        gbc.weightx = 1;
-        ioPanel.add(targetBandNameSuffix, gbc);
+    private JPanel createParametersPanel() {
+        final TableLayout tableLayout = new TableLayout(2);
+        tableLayout.setTableAnchor(TableLayout.Anchor.CENTER);
+        tableLayout.setTableFill(TableLayout.Fill.BOTH);
+        tableLayout.setTablePadding(3, 3);
+        tableLayout.setCellPadding(0, 0, new Insets(0, 0, 10, 10));
+        tableLayout.setCellColspan(1, 0, 2);
+        tableLayout.setCellColspan(2, 0, 2);
+        tableLayout.setRowWeightY(0, 0.5);
+        tableLayout.setRowWeightY(1, 0.0);
+        tableLayout.setRowWeightY(2, 0.5);
+        tableLayout.setColumnWeightX(0, 1.0);
+        tableLayout.setColumnWeightX(1, 1.0);
+        JPanel panel = new JPanel(tableLayout);
+        panel.setBorder(BorderFactory.createTitledBorder("Parameters"));
+        panel.add(createSourceBandsPanel());
+        panel.add(createSubParametersPanel());
+        panel.add(new JLabel("Endmembers:"));
+        panel.add(endmemberForm);
+        return panel;
+    }
 
-        gbc.gridy++;
-        gbc.gridwidth = 1;
-        gbc.gridx = 0;
-        gbc.weightx = 0;
-        ioPanel.add(new JLabel("Spectral unmixing model: "), gbc);
-        gbc.gridx = 1;
-        gbc.weightx = 1;
-        ioPanel.add(unmixingModelName, gbc);
+    private JPanel createSourceBandsPanel() {
+        JPanel panel = new JPanel(new BorderLayout(4, 4));
+        panel.add(new JLabel("Source bands:"), BorderLayout.NORTH);
+        panel.add(new JScrollPane(sourceBandNames), BorderLayout.CENTER);
+        return panel;
+    }
 
-        gbc.gridy++;
-        gbc.gridwidth = 1;
-        gbc.gridx = 0;
-        gbc.weightx = 0;
-        ioPanel.add(new JLabel("Max. wavelength deviation: "), gbc);
-        gbc.gridx = 1;
-        gbc.weightx = 1;
-        ioPanel.add(maxWavelengthDelta, gbc);
+    private JPanel createSubParametersPanel() {
+        final TableLayout tableLayout = new TableLayout(2);
+        tableLayout.setTablePadding(3, 3);
+        tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
+        tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        tableLayout.setColumnWeightX(1, 1.0);
+        tableLayout.setCellColspan(3, 0, 2);
+        JPanel panel = new JPanel(tableLayout);
 
+        panel.add(new JLabel("Target band name suffix: "));
+        panel.add(targetBandNameSuffix);
 
-        gbc.gridy++;
-        ioPanel.add(computeErrorBands, gbc);
+        panel.add(new JLabel("Spectral unmixing model: "));
+        panel.add(unmixingModelName);
 
-        // spacer
-        gbc.gridy++;
-        gbc.gridx = 0;
-        gbc.gridwidth = 2;
-        gbc.weighty = 1;
-        ioPanel.add(new JPanel(), gbc);
+        panel.add(new JLabel("Max. wavelength deviation: "));
+        panel.add(maxWavelengthDelta);
 
-        return ioPanel;
+        panel.add(computeErrorBands);
+
+        panel.add(tableLayout.createVerticalSpacer());
+        return panel;
     }
 }

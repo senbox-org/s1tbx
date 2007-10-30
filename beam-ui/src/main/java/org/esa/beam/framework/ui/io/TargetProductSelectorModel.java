@@ -25,7 +25,7 @@ public class TargetProductSelectorModel {
     private String productName;
     private boolean saveToFileSelected;
     private boolean openInAppSelected;
-    private File directory;
+    private File productDir;
     private String formatName;
     private String[] formatNames;
 
@@ -74,19 +74,15 @@ public class TargetProductSelectorModel {
         return openInAppSelected;
     }
 
-    public File getDirectory() {
-        return directory;
+    public File getProductDir() {
+        return productDir;
     }
 
-    public File getFile() {
-        return new File(directory, getFileName());
+    public File getProductFile() {
+        return new File(productDir, getProductFileName());
     }
 
-    public String getFilePath() {
-        return getFile().getPath();
-    }
-
-    public String getFileName() {
+    String getProductFileName() {
         String productFileName = productName;
         Iterator<ProductWriterPlugIn> iterator = ProductIOPlugInManager.getInstance().getWriterPlugIns(formatName);
         if (iterator.hasNext()) {
@@ -126,8 +122,8 @@ public class TargetProductSelectorModel {
         setValueContainerValue("openInAppSelected", openInAppSelected);
     }
 
-    public void setDirectory(File directory) {
-        setValueContainerValue("directory", directory);
+    public void setProductDir(File productDir) {
+        setValueContainerValue("productDir", productDir);
     }
 
     public void setFormatName(String formatName) {

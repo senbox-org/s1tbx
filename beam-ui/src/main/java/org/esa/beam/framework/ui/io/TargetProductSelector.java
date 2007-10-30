@@ -5,8 +5,12 @@ import com.jidesoft.swing.FolderChooser;
 import org.esa.beam.framework.ui.TableLayout;
 
 import javax.swing.*;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
 
 /**
  * Target product selector.
@@ -19,31 +23,33 @@ public class TargetProductSelector {
     private JLabel productNameLabel;
     private JTextField productNameTextField;
     private JCheckBox saveToFileCheckBox;
-    private JTextField directoryTextField;
-    private JButton directoryChooserButton;
+    private JTextField productDirTextField;
+    private JButton productDirChooserButton;
     private JComboBox formatNameComboBox;
     private JCheckBox openInAppCheckBox;
 
     private TargetProductSelectorModel model;
 
-    public TargetProductSelector(TargetProductSelectorModel model) {
+    public TargetProductSelector(TargetProductSelectorModel model, String labelText) {
         this.model = model;
 
-        initComponents();
+        initComponents(labelText);
         bindComponents();
         updateUIState();
     }
 
-    private void initComponents() {
-        productNameLabel = new JLabel("Product name:");
+    private void initComponents(String labelText) {
+        productNameLabel = new JLabel(labelText);
         productNameTextField = new JTextField(25);
         saveToFileCheckBox = new JCheckBox("Save as:");
-        directoryTextField = new JTextField(25);
-        directoryChooserButton = new JButton("...");
+        productDirTextField = new JTextField(25);
+        productDirChooserButton = new JButton(new ProductDirChooserAction());
         formatNameComboBox = new JComboBox(model.getFormatNames());
         openInAppCheckBox = new JCheckBox("Open in application");
 
-        directoryChooserButton.setAction(new DirectoryChooserButtonAction());
+        final Dimension size = new Dimension(26, 16);
+        productDirChooserButton.setPreferredSize(size);
+        productDirChooserButton.setMinimumSize(size);
         saveToFileCheckBox.addActionListener(new UIStateUpdater());
     }
 
@@ -54,7 +60,13 @@ public class TargetProductSelector {
         bc.bind(saveToFileCheckBox, "saveToFileSelected");
         bc.bind(openInAppCheckBox, "openInAppSelected");
         bc.bind(formatNameComboBox, "formatName");
-        bc.bind(directoryTextField, "directory");
+        bc.bind(productDirTextField, "productDir");
+
+        model.getValueContainer().addPropertyChangeListener("productDir", new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                productDirTextField.setToolTipText(model.getProductDir().getPath());
+            }
+        });
     }
 
     public TargetProductSelectorModel getModel() {
@@ -73,12 +85,12 @@ public class TargetProductSelector {
         return saveToFileCheckBox;
     }
 
-    public JTextField getDirectoryTextField() {
-        return directoryTextField;
+    public JTextField getProductDirTextField() {
+        return productDirTextField;
     }
 
-    public JButton getDirectoryChooserButton() {
-        return directoryChooserButton;
+    public JButton getProductDirChooserButton() {
+        return productDirChooserButton;
     }
 
     public JComboBox getFormatNameComboBox() {
@@ -104,14 +116,14 @@ public class TargetProductSelector {
         layout.setCellWeightX(1, 2, 1.0);
 
         final JPanel panel = new JPanel(layout);
-        panel.add(productNameLabel);
-        panel.add(productNameTextField);
+        panel.add(getProductNameLabel());
+        panel.add(getProductNameTextField());
         panel.add(new JLabel());
-        panel.add(saveToFileCheckBox);
-        panel.add(formatNameComboBox);
-        panel.add(directoryTextField);
-        panel.add(directoryChooserButton);
-        panel.add(openInAppCheckBox);
+        panel.add(getSaveToFileCheckBox());
+        panel.add(getFormatNameComboBox());
+        panel.add(getProductDirTextField());
+        panel.add(getProductDirChooserButton());
+        panel.add(getOpenInAppCheckBox());
 
         return panel;
     }
@@ -120,14 +132,13 @@ public class TargetProductSelector {
         if (model.isSaveToFileSelected()) {
             openInAppCheckBox.setEnabled(true);
             formatNameComboBox.setEnabled(true);
-            directoryTextField.setEnabled(true);
-            directoryChooserButton.setEnabled(true);
+            productDirTextField.setEnabled(true);
+            productDirChooserButton.setEnabled(true);
         } else {
             openInAppCheckBox.setEnabled(false);
-//            openInVisatCheckBox.setSelected(true);
             formatNameComboBox.setEnabled(false);
-            directoryTextField.setEnabled(false);
-            directoryChooserButton.setEnabled(false);
+            productDirTextField.setEnabled(false);
+            productDirChooserButton.setEnabled(false);
         }
     }
 
@@ -135,8 +146,8 @@ public class TargetProductSelector {
         productNameLabel.setEnabled(enabled);
         productNameTextField.setEnabled(enabled);
         saveToFileCheckBox.setEnabled(enabled);
-        directoryTextField.setEnabled(enabled);
-        directoryChooserButton.setEnabled(enabled);
+        productDirTextField.setEnabled(enabled);
+        productDirChooserButton.setEnabled(enabled);
         formatNameComboBox.setEnabled(enabled);
         openInAppCheckBox.setEnabled(enabled);
     }
@@ -148,25 +159,29 @@ public class TargetProductSelector {
         }
     }
 
-    private class DirectoryChooserButtonAction extends AbstractAction {
+    private class ProductDirChooserAction extends AbstractAction {
 
         private static final String APPROVE_BUTTON_TEXT = "Select";
 
-        public DirectoryChooserButtonAction() {
+        public ProductDirChooserAction() {
             super("...");
         }
 
         public void actionPerformed(ActionEvent event) {
-            JComponent parent = null;
+            JButton button = null;
             if (event.getSource() instanceof JComponent) {
-                parent = (JComponent) event.getSource();
+                button = (JButton) event.getSource();
             }
-
-
             final JFileChooser chooser = new FolderChooser();
+            chooser.setDialogTitle("Select Target Directory");
+            if (chooser.showDialog(SwingUtilities.getWindowAncestor(button), APPROVE_BUTTON_TEXT) == JFileChooser.APPROVE_OPTION) {
 
-            if (chooser.showDialog(parent, APPROVE_BUTTON_TEXT) == JFileChooser.APPROVE_OPTION) {
-                directoryTextField.setText(chooser.getSelectedFile().getPath());
+                final File selectedDir = chooser.getSelectedFile();
+                if (selectedDir != null) {
+                    model.setProductDir(selectedDir);
+                } else {
+                    model.setProductDir(new File("."));
+                }
             }
         }
     }

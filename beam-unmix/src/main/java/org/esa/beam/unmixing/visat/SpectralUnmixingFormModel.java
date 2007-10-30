@@ -28,9 +28,13 @@ class SpectralUnmixingFormModel {
         } catch (ValidationException e) {
             // ignore
         }
-
-        String[] bandNames = inputProduct.getBandNames();
         bandListModel = new DefaultListModel();
+        updateBandListModel(inputProduct);
+    }
+
+    private void updateBandListModel(Product inputProduct) {
+        String[] bandNames = inputProduct.getBandNames();
+        bandListModel.clear();
         for (String bandName : bandNames) {
             bandListModel.addElement(bandName);
         }
@@ -46,6 +50,11 @@ class SpectralUnmixingFormModel {
 
     public Product getInputProduct() {
         return inputProduct;
+    }
+
+    public void setInputProduct(Product product) {
+        inputProduct = product;
+        updateBandListModel(inputProduct);
     }
 
     public ListModel getBandListModel() {

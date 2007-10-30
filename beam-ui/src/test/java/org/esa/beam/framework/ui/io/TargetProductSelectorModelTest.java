@@ -46,30 +46,30 @@ public class TargetProductSelectorModelTest extends TestCase {
     public void testGetFileName() {
         model.setProductName("Obelix");
         assertEquals("Obelix", model.getProductName());
-        assertEquals("Obelix.dim", model.getFileName());
+        assertEquals("Obelix.dim", model.getProductFileName());
 
         // other format
         model.setFormatName(writerPlugIn.getFormatNames()[0]);
-        assertEquals("Obelix.x", model.getFileName());
+        assertEquals("Obelix.x", model.getProductFileName());
 
         model.setProductName("Idefix.dim");
-        assertEquals("Idefix.dim.x", model.getFileName());
+        assertEquals("Idefix.dim.x", model.getProductFileName());
 
         model.setProductName("Idefix.x");
-        assertEquals("Idefix.x", model.getFileName());
+        assertEquals("Idefix.x", model.getProductFileName());
     }
 
     public void testSetGetDirectory() {
         final File directory = new File("Gallien");
-        model.setDirectory(directory);
-        assertEquals(directory, model.getDirectory());
+        model.setProductDir(directory);
+        assertEquals(directory, model.getProductDir());
 
         model.setProductName("Obelix");
-        assertEquals(new File("Gallien", "Obelix.dim"), model.getFile());
+        assertEquals(new File("Gallien", "Obelix.dim"), model.getProductFile());
 
         // other format
         model.setFormatName(writerPlugIn.getFormatNames()[0]);
-        assertEquals(new File("Gallien", "Obelix.x"), model.getFile());
+        assertEquals(new File("Gallien", "Obelix.x"), model.getProductFile());
     }
 
     public void testSelections() {

@@ -6,7 +6,8 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.ui.io.TargetProductSelectorModel;
 
-import javax.swing.*;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import java.io.File;
 import java.lang.reflect.Field;
 
@@ -45,7 +46,7 @@ class CollocationFormModel {
                 Resampling.NEAREST_NEIGHBOUR,
                 Resampling.BILINEAR_INTERPOLATION,
                 Resampling.CUBIC_CONVOLUTION});
-        
+
         final ValueContainerFactory factory = new ValueContainerFactory(new ValueDescriptorFactory() {
             public ValueDescriptor createValueDescriptor(Field field) {
                 return new ValueDescriptor(field.getName(), field.getType());
@@ -76,11 +77,11 @@ class CollocationFormModel {
     }
 
     public File getTargetFile() {
-        return targetProductSelectorModel.getFile();
+        return targetProductSelectorModel.getProductFile();
     }
 
     public String getTargetFilePath() {
-        return targetProductSelectorModel.getFilePath();
+        return targetProductSelectorModel.getProductFile().getPath();
     }
 
     public String getTargetFormatName() {
