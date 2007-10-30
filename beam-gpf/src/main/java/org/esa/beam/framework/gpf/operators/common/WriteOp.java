@@ -14,11 +14,16 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.util.math.MathUtils;
 
+import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.media.jai.JAI;
 
 @OperatorMetadata(alias = "ProductWriter", // todo - rename to "Write"
                   description = "Writes a product to disk.")
@@ -37,6 +42,12 @@ public class WriteOp extends Operator {
     private ProductWriter productWriter;
     private List<Band> bandsToWrite;
     private boolean productFileWritten;
+
+    public WriteOp(Product product, File file, String formatName) {
+        this.sourceProduct = product;
+        this.filePath = file.getAbsolutePath();
+        this.formatName = formatName;
+    }
 
     @Override
     public void initialize() throws OperatorException {
@@ -95,6 +106,49 @@ public class WriteOp extends Operator {
     public static class Spi extends OperatorSpi {
         public Spi() {
             super(WriteOp.class);
+        }
+    }
+    
+    public static void writeProduct(Product product, File file, String formatName, ProgressMonitor pm) throws IOException {
+        WriteOp writeOp = new WriteOp(product, file, formatName);
+        Product outputProduct = writeOp.getTargetProduct();
+        
+        Dimension defaultTileSize = product.getPreferredTileSize();
+        if (defaultTileSize == null) {
+            defaultTileSize= JAI.getDefaultTileSize();
+        }
+        final int rasterHeight = outputProduct.getSceneRasterHeight();
+        final int rasterWidth = outputProduct.getSceneRasterWidth();
+        Rectangle productBounds = new Rectangle(rasterWidth, rasterHeight);
+        int numXTiles = MathUtils.ceilInt(productBounds.width / (double) defaultTileSize.width);
+        int numYTiles = MathUtils.ceilInt(productBounds.height / (double) defaultTileSize.height);
+        
+        pm.beginTask("Writing product...", numXTiles * numYTiles);
+        try {
+            for (int tileY = 0; tileY < numYTiles; tileY++) {
+                for (int tileX = 0; tileX < numXTiles; tileX++) {
+                    if (pm.isCanceled()) {
+                        break;
+                    }
+                    Rectangle tileRectangle = new Rectangle(tileX
+                            * defaultTileSize.width, tileY
+                            * defaultTileSize.height, defaultTileSize.width,
+                            defaultTileSize.height);
+                    Rectangle intersection = productBounds
+                            .intersection(tileRectangle);
+                    for (Band band : outputProduct.getBands()) {
+                        ProductData rastData = ProductData.createInstance(band
+                                .getDataType(), intersection.width
+                                * intersection.height);
+                        band.readRasterData(intersection.x, intersection.y,
+                                intersection.width, intersection.height,
+                                rastData, pm);
+                    }
+                    pm.worked(1);
+                }
+            }
+        } finally {
+            pm.done();
         }
     }
 }
