@@ -173,6 +173,7 @@ public class TargetProductSelector {
                 button = (JButton) event.getSource();
             }
             final JFileChooser chooser = new FolderChooser();
+            chooser.setSelectedFile(model.getProductDir());
             chooser.setDialogTitle("Select Target Directory");
             if (chooser.showDialog(SwingUtilities.getWindowAncestor(button), APPROVE_BUTTON_TEXT) == JFileChooser.APPROVE_OPTION) {
 
