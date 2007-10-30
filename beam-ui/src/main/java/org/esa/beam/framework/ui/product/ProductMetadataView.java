@@ -108,13 +108,13 @@ public class ProductMetadataView extends BasicView implements ProductNodeView {
 
         public CollapseAllAction() {
             super("Collapse All");
-            putValue(MNEMONIC_KEY, "C");
+            putValue(MNEMONIC_KEY, (int) 'C');
             putValue(SHORT_DESCRIPTION, "Collapses all tree nodes.");
         }
 
 
         @Override
-            public boolean isEnabled() {
+        public boolean isEnabled() {
             final ProductMetadataTable metadataTable = getMetadataTable();
             return metadataTable.isExpandAllAllowed();
         }
@@ -129,13 +129,13 @@ public class ProductMetadataView extends BasicView implements ProductNodeView {
 
         public ExpandAllAction() {
             super("Expand All");
-            putValue(MNEMONIC_KEY, "E");
+            putValue(MNEMONIC_KEY, (int) 'E');
             putValue(SHORT_DESCRIPTION, "Expands all tree nodes.");
         }
 
 
         @Override
-            public boolean isEnabled() {
+        public boolean isEnabled() {
             final ProductMetadataTable metadataTable = getMetadataTable();
             return metadataTable.isExpandAllAllowed();
         }
