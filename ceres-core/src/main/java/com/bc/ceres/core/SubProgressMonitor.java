@@ -153,7 +153,7 @@ public class SubProgressMonitor extends ProgressMonitorWrapper {
         if (traceTimeStat) {
             long dt = System.currentTimeMillis() - t0;
             System.out.println("Task '" + taskName + "':");
-            System.out.println("  ParemtTicks:      " + parentTicks);
+            System.out.println("  ParentTicks:      " + parentTicks);
             System.out.println("  Total work:       " + totalWork);
             System.out.println("  Total time:       " + dt + " ms");
             System.out.println("  Time / work unit: " + ((double)dt / (double)totalWork) + " ms");
