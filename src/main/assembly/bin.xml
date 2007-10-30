@@ -95,18 +95,21 @@
 
         <!-- (1) Artifacts that go into 'bin', 'lib' or 'modules' -->
         <moduleSet>
+            <includes>
+                <include>org.esa.beam:*</include>
+            </includes>
+            <excludes>
+                <exclude>org.esa.beam:beam-bootstrap</exclude>
+                <exclude>org.esa.beam:beam-installer</exclude>
+                <exclude>org.esa.beam:beam-gpf-docgen</exclude>
+            </excludes>
+
             <binaries>
                 <includeDependencies>false</includeDependencies>
                 <unpack>false</unpack>
 
                 <outputDirectory>modules</outputDirectory>
                 <outputFileNameMapping>${artifactId}-${version}.${extension}</outputFileNameMapping>
-
-                <excludes>
-                    <!-- Exclude development bootstrap module -->
-                    <exclude>org.esa.beam:beam-bootstrap</exclude>
-                    <exclude>org.esa.beam:beam-installer</exclude>
-                </excludes>
 
                 <dependencySets>
 
@@ -150,7 +153,6 @@
                             <include>com.bc.ceres:ceres-core</include>
                             <include>com.bc.ceres:ceres-binding</include>
                             <include>com.bc.ceres:ceres-ui</include>
-                            <include>org.esa.beam:*</include>
                         </includes>
                     </dependencySet>
 
