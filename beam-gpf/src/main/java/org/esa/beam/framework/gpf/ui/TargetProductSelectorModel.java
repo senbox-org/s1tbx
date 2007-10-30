@@ -1,4 +1,4 @@
-package org.esa.beam.framework.ui.io;
+package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.binding.*;
 import org.esa.beam.framework.dataio.ProductIO;
@@ -31,7 +31,7 @@ public class TargetProductSelectorModel {
 
     private final ValueContainer valueContainer;
 
-    public TargetProductSelectorModel(boolean saveToFile) {
+    TargetProductSelectorModel() {
         final ValueContainerFactory factory = new ValueContainerFactory(new ValueDescriptorFactory() {
             public ValueDescriptor createValueDescriptor(Field field) {
                 return new ValueDescriptor(field.getName(), field.getType());
@@ -53,7 +53,8 @@ public class TargetProductSelectorModel {
             }
         });
 
-        setSaveToFileSelected(saveToFile);
+        setOpenInAppSelected(true);
+        setSaveToFileSelected(true);
         formatNames = ProductIOPlugInManager.getInstance().getAllProductWriterFormatStrings();
         if (StringUtils.contains(formatNames, ProductIO.DEFAULT_FORMAT_NAME)) {
             setFormatName(ProductIO.DEFAULT_FORMAT_NAME);
@@ -141,4 +142,5 @@ public class TargetProductSelectorModel {
             throw new IllegalArgumentException(e);
         }
     }
+
 }

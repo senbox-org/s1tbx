@@ -1,4 +1,4 @@
-package org.esa.beam.framework.ui.io;
+package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
@@ -30,7 +30,7 @@ public class TargetProductSelectorModelTest extends TestCase {
     protected void setUp() throws Exception {
         writerPlugIn = new DummyTestProductWriterPlugIn();
         ProductIOPlugInManager.getInstance().addWriterPlugIn(writerPlugIn);
-        model = new TargetProductSelectorModel(true);
+        model = new TargetProductSelectorModel();
     }
 
     public void testSetGetProductName() {

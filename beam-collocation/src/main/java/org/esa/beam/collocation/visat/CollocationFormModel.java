@@ -4,7 +4,7 @@ import com.bc.ceres.binding.*;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.resamp.Resampling;
-import org.esa.beam.framework.ui.io.TargetProductSelectorModel;
+import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
@@ -34,14 +34,14 @@ class CollocationFormModel {
 
     private final ValueContainer valueContainer;
 
-    public CollocationFormModel() {
+    public CollocationFormModel(TargetProductSelectorModel targetProductSelectorModel) {
         createNewProduct = true;
         renameMasterComponents = true;
         renameSlaveComponents = true;
         masterComponentPattern = "${ORIGINAL_NAME}";
         slaveComponentPattern = "${ORIGINAL_NAME}";
 
-        targetProductSelectorModel = new TargetProductSelectorModel(true);
+        this.targetProductSelectorModel = targetProductSelectorModel;
         resamplingComboBoxModel = new DefaultComboBoxModel(new Resampling[]{
                 Resampling.NEAREST_NEIGHBOUR,
                 Resampling.BILINEAR_INTERPOLATION,
@@ -66,10 +66,6 @@ class CollocationFormModel {
 
     public Product getSlaveProduct() {
         return slaveProduct;
-    }
-
-    private boolean isCreateNewProductSelected() {
-        return createNewProduct;
     }
 
     public String getTargetProductName() {
@@ -122,10 +118,6 @@ class CollocationFormModel {
 
     public void setSlaveProduct(Product product) {
         setValueContainerValue("slaveProduct", product);
-    }
-
-    private void setCreateNewProduct(boolean createNewProduct) {
-        setValueContainerValue("createNewProduct", createNewProduct);
     }
 
     public void setRenameMasterComponents(boolean renameMasterComponents) {

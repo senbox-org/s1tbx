@@ -20,35 +20,47 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.OperatorSpi;
-import org.esa.beam.framework.gpf.operators.common.WriteOp;
-import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.framework.ui.io.TargetProductSelectorModel;
+import org.esa.beam.framework.gpf.ui.ModalAppDialog;
+import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.unmixing.Endmember;
 import org.esa.beam.unmixing.SpectralUnmixingOp;
-import org.esa.beam.util.Guardian;
-import org.esa.beam.visat.VisatApp;
 
 import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.event.InternalFrameAdapter;
 import java.awt.Window;
-import java.util.HashMap;
 import java.util.Map;
 
 
-public class SpectralUnmixingDialog extends ModalDialog {
-    SpectralUnmixingForm form;
-    SpectralUnmixingFormModel formModel;
-    private InternalFrameAdapter internalFrameAdapter;
+public class SpectralUnmixingDialog extends ModalAppDialog {
+    private SpectralUnmixingForm form;
+    private SpectralUnmixingFormModel formModel;
+    private static final String TITLE = "Spectral Unmixing";
 
-    public SpectralUnmixingDialog(final Window parent, final Product inputProduct) {
-        super(parent, "Spectral Unmixing", ModalDialog.ID_OK_CANCEL_HELP, "spectralUnmixing");
-        Guardian.assertNotNull("inputProduct", inputProduct);
-        formModel = new SpectralUnmixingFormModel(inputProduct);
-        form = new SpectralUnmixingForm(formModel);
+    public SpectralUnmixingDialog(AppContext appContext) {
+        super(appContext, appContext.getApplicationWindow(), TITLE, "spectralUnmixing");
+        formModel = new SpectralUnmixingFormModel(appContext.getSelectedProduct());
+        form = new SpectralUnmixingForm(getTargetProductSelector(), formModel);
+    }
+
+    public void setSourceProduct(Product product) {
+        formModel.setSourceProduct(product);
+    }
+
+    @Override
+    protected void onOK() {
+        super.onOK();
+
+    }
+
+
+    @Override
+    protected Product createTargetProduct() throws Exception {
+        formModel.getOperatorParameters().put("endmembers", form.getEndmemberPresenter().getEndmembers());
+        return GPF.createProduct("SpectralUnmixing",
+                                 formModel.getOperatorParameters(),
+                                 formModel.getSourceProduct());
     }
 
     @Override
@@ -58,40 +70,12 @@ public class SpectralUnmixingDialog extends ModalDialog {
         return super.show();
     }
 
-
-    @Override
-    protected void onOK() {
-        formModel.getOperatorParameters().put("endmembers", form.getEndmemberPresenter().getEndmembers());
-
-        Product outputProduct;
-        try {
-            outputProduct = GPF.createProduct("SpectralUnmixing",
-                                              formModel.getOperatorParameters(),
-                                              formModel.getInputProduct());
-        } catch (OperatorException e) {
-            showErrorDialog(e.getMessage());
-            return;
-        }
-        super.onOK();
-        if (outputProduct != formModel.getInputProduct()) {
-            final TargetProductSelectorModel targetProductSelectorModel = form.targetProductSelectorModel;
-            outputProduct.setName(targetProductSelectorModel.getProductName());
-            outputProduct.setFileLocation(targetProductSelectorModel.getProductFile());
-            if (targetProductSelectorModel.isSaveToFileSelected()) {
-                final HashMap<String, Object> paramMap = new HashMap<String, Object>();
-                paramMap.put("filePath", targetProductSelectorModel.getProductFile().getPath());
-                paramMap.put("formatName", targetProductSelectorModel.getFormatName());
-                final Product product = GPF.createProduct(OperatorSpi.getOperatorAlias(WriteOp.class), paramMap, outputProduct);
-                // todo  - how to write product (mp - 2007/10/29)
-            }
-            if (targetProductSelectorModel.isOpenInAppSelected()) {
-                VisatApp.getApp().addProduct(outputProduct);
-            }
-        }
-    }
-
     @Override
     protected boolean verifyUserInput() {
+        if (formModel.getSourceProduct() == null) {
+            showErrorDialog("No source product selected.");
+            return false;
+        }
         final Map<String, Object> parameters = formModel.getOperatorParameters();
         parameters.put("endmembers", form.getEndmemberPresenter().getEndmembers());
 
@@ -99,7 +83,7 @@ public class SpectralUnmixingDialog extends ModalDialog {
         final String[] sourceBandNames = (String[]) parameters.get("sourceBandNames");
         final double maxWavelengthDelta = (Double) parameters.get("maxWavelengthDelta");
 
-        if (!matchingWavelength(endmembers, getSourceSpectrum(formModel.getInputProduct(), sourceBandNames), maxWavelengthDelta)) {
+        if (!matchingWavelength(endmembers, getSourceSpectrum(formModel.getSourceProduct(), sourceBandNames), maxWavelengthDelta)) {
             showErrorDialog("One or more source wavelengths do not fit\n" +
                     "to one or more endmember spectra.\n\n" +
                     "Consider increasing the maximum wavelength deviation.");
@@ -134,7 +118,7 @@ public class SpectralUnmixingDialog extends ModalDialog {
     public static void main(String[] args) throws IllegalAccessException, UnsupportedLookAndFeelException, InstantiationException, ClassNotFoundException {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
-        Product inputProduct = new Product("MER_RR_1P", "MER_RR_1P", 16, 16);
+        final Product inputProduct = new Product("MER_RR_1P", "MER_RR_1P", 16, 16);
         for (int i = 0; i < 15; i++) {
             Band band = inputProduct.addBand("radiance_" + (i + 1), ProductData.TYPE_FLOAT32);
             band.setSpectralWavelength(500 + i * 30);
@@ -142,8 +126,34 @@ public class SpectralUnmixingDialog extends ModalDialog {
         }
         inputProduct.addBand("l1_flags", ProductData.TYPE_UINT32);
 
-        SpectralUnmixingDialog dialog = new SpectralUnmixingDialog(null, inputProduct);
+        SpectralUnmixingDialog dialog = new SpectralUnmixingDialog(new AppContext() {
+            public void addProduct(Product product) {
+                System.out.println("product added: " + product);
+            }
+
+            public Product[] getProducts() {
+                return new Product[]{inputProduct};
+            }
+
+            public Product getSelectedProduct() {
+                return null; //inputProduct;
+            }
+
+            public Window getApplicationWindow() {
+                return null;
+            }
+
+            public String getApplicationName() {
+                return "Killer App";
+            }
+
+            public void handleError(Throwable e) {
+                JOptionPane.showMessageDialog(getApplicationWindow(), e.getMessage());
+            }
+        });
         dialog.getJDialog().setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.show();
     }
+
+
 }

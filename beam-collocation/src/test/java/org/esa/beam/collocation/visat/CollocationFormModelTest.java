@@ -1,12 +1,13 @@
 package org.esa.beam.collocation.visat;
 
 import junit.framework.TestCase;
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.dataop.resamp.Resampling;
+import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 
-import javax.swing.*;
+import javax.swing.ComboBoxModel;
 
 /**
  * Tests for class {@link CollocationFormModel}.
@@ -21,7 +22,7 @@ public class CollocationFormModelTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        collocationFormModel = new CollocationFormModel();
+        collocationFormModel = new CollocationFormModel(new TargetProductSelector().getModel());
         resamplingComboBoxModel = collocationFormModel.getResamplingComboBoxModel();
     }
 

@@ -2276,9 +2276,8 @@ public final class VisatApp extends BasicApp {
 
         // JAIJAIJAI
         if (Boolean.getBoolean("beam.imageTiling.enabled")) {
-//            hookJaiTileCacheFlush(gc);
+            hookJaiTileCacheFlush(gc);
         }
-        hookJaiTileCacheFlush(gc);
 
         return statusBar;
     }

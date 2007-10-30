@@ -1,10 +1,8 @@
 package org.esa.beam.collocation.visat;
 
-import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.command.CommandEvent;
-import org.esa.beam.framework.ui.command.ExecCommand;
-import org.esa.beam.visat.VisatApp;
+import org.esa.beam.visat.actions.AbstractVisatAction;
 
 /**
  * Geographic collocation action.
@@ -12,20 +10,11 @@ import org.esa.beam.visat.VisatApp;
  * @author Ralf Quast
  * @version $Revision$ $Date$
  */
-public class CollocationAction extends ExecCommand {
-
-    @Override
-    public void updateState(CommandEvent event) {
-        final Product selectedProduct = VisatApp.getApp().getSelectedProduct();
-        setEnabled(selectedProduct != null);
-    }
+public class CollocationAction extends AbstractVisatAction {
 
     @Override
     public void actionPerformed(CommandEvent event) {
-        final Product[] openProducts = VisatApp.getApp().getProductManager().getProducts();
-        if (openProducts != null) {
-            final ModalDialog dialog = new CollocationDialog(VisatApp.getApp().getMainFrame(), openProducts);
-            dialog.show();
-        }
+        final ModalDialog dialog = new CollocationDialog(getAppContext());
+        dialog.show();
     }
 }

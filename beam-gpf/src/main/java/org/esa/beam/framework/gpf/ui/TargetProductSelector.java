@@ -1,4 +1,4 @@
-package org.esa.beam.framework.ui.io;
+package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.binding.swing.SwingBindingContext;
 import com.jidesoft.swing.FolderChooser;
@@ -30,16 +30,16 @@ public class TargetProductSelector {
 
     private TargetProductSelectorModel model;
 
-    public TargetProductSelector(TargetProductSelectorModel model, String labelText) {
-        this.model = model;
+    public TargetProductSelector() {
+        this.model = new TargetProductSelectorModel();
 
-        initComponents(labelText);
+        initComponents();
         bindComponents();
         updateUIState();
     }
 
-    private void initComponents(String labelText) {
-        productNameLabel = new JLabel(labelText);
+    private void initComponents() {
+        productNameLabel = new JLabel("Target product name: ");
         productNameTextField = new JTextField(25);
         saveToFileCheckBox = new JCheckBox("Save as:");
         productDirTextField = new JTextField(25);

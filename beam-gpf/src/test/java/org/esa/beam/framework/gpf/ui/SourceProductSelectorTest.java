@@ -1,4 +1,4 @@
-package org.esa.beam.framework.ui.io;
+package org.esa.beam.framework.gpf.ui;
 
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;

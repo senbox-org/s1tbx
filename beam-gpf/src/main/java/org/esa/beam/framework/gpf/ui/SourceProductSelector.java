@@ -1,4 +1,4 @@
-package org.esa.beam.framework.ui.io;
+package org.esa.beam.framework.gpf.ui;
 
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 public class SourceProductSelector {
 
     private Pattern typePattern;
-    private Product chooserProduct;
+    private Product extraProduct;
     private File currentDirectory;
     private DefaultComboBoxModel productListModel;
     private JLabel productNameLabel;
@@ -106,13 +106,13 @@ public class SourceProductSelector {
             if (productListModelContains(product)) {
                 productListModel.setSelectedItem(product);
             } else {
-                if (chooserProduct != null) {
-                    productListModel.removeElement(chooserProduct);
-                    chooserProduct.dispose();
+                if (extraProduct != null) {
+                    productListModel.removeElement(extraProduct);
+                    extraProduct.dispose();
                 }
                 productListModel.addElement(product);
                 productListModel.setSelectedItem(product);
-                chooserProduct = product;
+                extraProduct = product;
             }
         } else {
             throw new Exception(MessageFormat.format("Product ''{0}'' is not of appropriate type.", product.getName()));
@@ -120,8 +120,8 @@ public class SourceProductSelector {
     }
 
     public void dispose() {
-        if (chooserProduct != null && getSelectedProduct() != chooserProduct) {
-            chooserProduct.dispose();
+        if (extraProduct != null && getSelectedProduct() != extraProduct) {
+            extraProduct.dispose();
         }
     }
 

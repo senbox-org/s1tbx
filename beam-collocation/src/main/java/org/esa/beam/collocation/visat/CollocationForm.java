@@ -2,10 +2,9 @@ package org.esa.beam.collocation.visat;
 
 import com.bc.ceres.binding.swing.SwingBindingContext;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.framework.gpf.ui.SourceProductSelector;
+import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 import org.esa.beam.framework.ui.TableLayout;
-import org.esa.beam.framework.ui.io.SourceProductSelector;
-import org.esa.beam.framework.ui.io.TargetProductSelector;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -32,9 +31,10 @@ public class CollocationForm extends JPanel {
     //    private JCheckBox createNewProductCheckBox;
     private TargetProductSelector targetProductSelector;
 
-    public CollocationForm(final CollocationFormModel model, Product[] selectableProducts) {
+    public CollocationForm(final CollocationFormModel model, TargetProductSelector targetProductSelector, Product[] selectableProducts) {
         this.model = model;
 
+        this.targetProductSelector = targetProductSelector;
         referenceProductSelector = new SourceProductSelector(selectableProducts, "Reference product:");
         subsidiaryProductSelector = new SourceProductSelector(selectableProducts, "Subsidiary product:");
 //        createNewProductCheckBox = new JCheckBox("Create new product");
@@ -133,10 +133,8 @@ public class CollocationForm extends JPanel {
 //        layout.setCellPadding(1, 0, new Insets(0, 21, 0, 0));
 
         final JPanel panel = new JPanel(layout);
-        panel.setBorder(BorderFactory.createTitledBorder("Output"));
+        panel.setBorder(BorderFactory.createTitledBorder("Target"));
 
-        targetProductSelector = new TargetProductSelector(model.getTargetProductSelectorModel(), "Target product name:");
-//        panel.add(createNewProductCheckBox);
         panel.add(targetProductSelector.createDefaultPanel());
 
         return panel;
@@ -180,15 +178,4 @@ public class CollocationForm extends JPanel {
         return panel;
     }
 
-    public static void main(String[] args) throws
-            IllegalAccessException,
-            UnsupportedLookAndFeelException,
-            InstantiationException,
-            ClassNotFoundException {
-        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-
-        ModalDialog dialog = new CollocationDialog(null, new Product[0]);
-        dialog.getJDialog().setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        dialog.show();
-    }
 }

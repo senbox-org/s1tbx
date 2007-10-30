@@ -2,10 +2,10 @@ package org.esa.beam.unmixing.visat;
 
 import com.bc.ceres.binding.swing.SwingBindingContext;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.gpf.ui.SourceProductSelector;
+import org.esa.beam.framework.gpf.ui.TargetProductSelector;
+import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 import org.esa.beam.framework.ui.TableLayout;
-import org.esa.beam.framework.ui.io.SourceProductSelector;
-import org.esa.beam.framework.ui.io.TargetProductSelector;
-import org.esa.beam.framework.ui.io.TargetProductSelectorModel;
 
 import javax.swing.*;
 import java.awt.BorderLayout;
@@ -21,16 +21,16 @@ class SpectralUnmixingForm extends JPanel {
     EndmemberForm endmemberForm;
     SourceProductSelector sourceProductSelector;
     TargetProductSelector targetProductSelector;
-    TargetProductSelectorModel targetProductSelectorModel;
     JList sourceBandNames;
     JTextField targetBandNameSuffix;
     JTextField maxWavelengthDelta;
     JComboBox unmixingModelName;
     JCheckBox computeErrorBands;
 
-    public SpectralUnmixingForm(SpectralUnmixingFormModel formModel) {
-        this.formModel = formModel;
+    public SpectralUnmixingForm(TargetProductSelector targetProductSelector, SpectralUnmixingFormModel formModel) {
+        this.targetProductSelector = targetProductSelector;
         this.endmemberFormModel = new EndmemberFormModel();
+        this.formModel = formModel;
         initComponents();
         bindComponents();
     }
@@ -52,27 +52,30 @@ class SpectralUnmixingForm extends JPanel {
 
     private void initComponents() {
         endmemberForm = new EndmemberForm(endmemberFormModel);
-        sourceProductSelector = new SourceProductSelector(new Product[]{formModel.getInputProduct()}, "Source product name:");
+        final Product sourceProduct = formModel.getSourceProduct();
+        sourceProductSelector = new SourceProductSelector(sourceProduct != null ? new Product[]{sourceProduct} : new Product[0],
+                                                          "Source product name:");
         if (sourceProductSelector.getProductCount() > 0) {
             sourceProductSelector.setSelectedIndex(0);
         }
         sourceProductSelector.getProductNameComboBox().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                formModel.setInputProduct(sourceProductSelector.getSelectedProduct());
+                final Product selectedProduct = sourceProductSelector.getSelectedProduct();
+                formModel.setSourceProduct(selectedProduct);
                 sourceBandNames.setModel(formModel.getBandListModel());
             }
         });
         sourceBandNames = new JList();
         sourceBandNames.setModel(formModel.getBandListModel());
 
-        targetProductSelectorModel = new TargetProductSelectorModel(true);
-        targetProductSelectorModel.setProductName(formModel.getInputProduct().getName() + "_unmixed");
-        targetProductSelector = new TargetProductSelector(targetProductSelectorModel, "Target product name:");
+        final TargetProductSelectorModel targetProductSelectorModel = targetProductSelector.getModel();
+        targetProductSelectorModel.setSaveToFileSelected(true);
+        targetProductSelectorModel.setOpenInAppSelected(true);
+        targetProductSelectorModel.setProductName(sourceProduct != null ? sourceProduct.getName() + "_unmixed" : "unmixed");
         targetBandNameSuffix = new JTextField();
         unmixingModelName = new JComboBox();
         computeErrorBands = new JCheckBox("Compute error bands");
         maxWavelengthDelta = new JTextField();
-
 
         final TableLayout tableLayout = new TableLayout(2);
         tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
