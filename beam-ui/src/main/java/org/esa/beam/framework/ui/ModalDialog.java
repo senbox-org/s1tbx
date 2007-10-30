@@ -24,24 +24,10 @@ import javax.help.BadIDException;
 import javax.help.DefaultHelpBroker;
 import javax.help.HelpBroker;
 import javax.help.HelpSet;
-import javax.swing.AbstractButton;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dialog;
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.Window;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Vector;
@@ -77,18 +63,17 @@ public class ModalDialog {
     public static final int ID_OK_CANCEL_HELP = ID_OK_CANCEL | ID_HELP;
     public static final int ID_YES_NO = ID_YES | ID_NO;
 
-    private JDialog _dialog;
-    private Window _parent;
-    private int _buttonID;
-    private int _buttonMask;
-    private Dimension _minimumSize;
+    private JDialog dialog;
+    private Window parent;
+    private int buttonId;
+    private int buttonMask;
 
     // Java help support
-    private String _helpID;
-    private HelpBroker _helpBroker;
-    private JButton _helpButton;
-    private Component _content;
-
+    private String helpId;
+    private HelpBroker helpBroker;
+    private JButton helpButton;
+    private Component content;
+    private boolean shown;
 
     public ModalDialog(Window parent, String title, int buttonMask, String helpID) {
         this(parent, title, buttonMask, null, helpID);
@@ -105,23 +90,21 @@ public class ModalDialog {
     }
 
     public ModalDialog(Window parent, String title, int buttonMask, Object[] otherButtons, String helpID) {
-        _parent = parent;
+        this.parent = parent;
         if (parent instanceof Frame || parent == null) {
-            _dialog = new JDialog((Frame) parent, title, true);
+            dialog = new JDialog((Frame) parent, title, true);
         } else if (parent instanceof Dialog) {
-            _dialog = new JDialog((Dialog) parent, title, true);
+            dialog = new JDialog((Dialog) parent, title, true);
         } else {
             throw new IllegalArgumentException("'parent' must be either a dialog or a frame");
         }
-        // todo - enable if we at the end need it
-//        _dialog.addComponentListener(createResizeListener());
-        _buttonMask = buttonMask;
+        this.buttonMask = buttonMask;
         setButtonID(0);
         createUI(otherButtons);
         setHelpID(helpID);
     }
 
-    protected void createUI(Object[] otherButtons) {
+    protected void createUI(Object[] otherItems) {
 
         JPanel buttonRow = new JPanel();
         buttonRow.setLayout(new BoxLayout(buttonRow, BoxLayout.X_AXIS));
@@ -131,15 +114,16 @@ public class ModalDialog {
         contentPane.setBorder(UIDefaults.DIALOG_BORDER);
         contentPane.add(buttonRow, BorderLayout.SOUTH);
 
-        _dialog.setContentPane(contentPane);
+        dialog.setResizable(true);
+        dialog.setContentPane(contentPane);
 
-        Vector buttons = new Vector();
+        Vector<AbstractButton> buttons = new Vector<AbstractButton>();
         int leftButtonCount = 0;
 
-        if (otherButtons != null) {
-            for (int i = 0; i < otherButtons.length; i++) {
-                if (otherButtons[i] instanceof String) {
-                    JButton otherButton = new JButton((String) otherButtons[i]);
+        if (otherItems != null) {
+            for (Object otherItem : otherItems) {
+                if (otherItem instanceof String) {
+                    JButton otherButton = new JButton((String) otherItem);
                     otherButton.addActionListener(new ActionListener() {
 
                         public void actionPerformed(ActionEvent e) {
@@ -150,8 +134,8 @@ public class ModalDialog {
                         }
                     });
                     buttons.addElement(otherButton);
-                } else if (otherButtons[i] instanceof AbstractButton) {
-                    AbstractButton otherButton = (AbstractButton) otherButtons[i];
+                } else if (otherItem instanceof AbstractButton) {
+                    AbstractButton otherButton = (AbstractButton) otherItem;
                     otherButton.addActionListener(new ActionListener() {
 
                         public void actionPerformed(ActionEvent e) {
@@ -167,7 +151,7 @@ public class ModalDialog {
             }
         }
 
-        if ((_buttonMask & ID_RESET) != 0) {
+        if ((buttonMask & ID_RESET) != 0) {
             JButton button = new JButton(" Reset "); /*I18N*/
             button.addActionListener(new ActionListener() {
 
@@ -180,7 +164,7 @@ public class ModalDialog {
             buttons.addElement(button);
             leftButtonCount++;
         }
-        if ((_buttonMask & ID_OK) != 0) {
+        if ((buttonMask & ID_OK) != 0) {
             JButton button = new JButton(" OK ");  /*I18N*/
             button.addActionListener(new ActionListener() {
 
@@ -193,9 +177,9 @@ public class ModalDialog {
             });
             buttons.addElement(button);
             button.setDefaultCapable(true);
-            _dialog.getRootPane().setDefaultButton(button);
+            dialog.getRootPane().setDefaultButton(button);
         }
-        if ((_buttonMask & ID_YES) != 0) {
+        if ((buttonMask & ID_YES) != 0) {
             JButton button = new JButton(" Yes ");  /*I18N*/
             button.addActionListener(new ActionListener() {
 
@@ -208,9 +192,9 @@ public class ModalDialog {
             });
             buttons.addElement(button);
             button.setDefaultCapable(true);
-            _dialog.getRootPane().setDefaultButton(button);
+            dialog.getRootPane().setDefaultButton(button);
         }
-        if ((_buttonMask & ID_NO) != 0) {
+        if ((buttonMask & ID_NO) != 0) {
             JButton button = new JButton(" No "); /*I18N*/
             button.addActionListener(new ActionListener() {
 
@@ -223,7 +207,7 @@ public class ModalDialog {
             });
             buttons.addElement(button);
         }
-        if ((_buttonMask & ID_CANCEL) != 0) {
+        if ((buttonMask & ID_CANCEL) != 0) {
             JButton button = new JButton(" Cancel ");  /*I18N*/
             button.addActionListener(new ActionListener() {
 
@@ -235,7 +219,7 @@ public class ModalDialog {
             buttons.addElement(button);
             button.setVerifyInputWhenFocusTarget(false);
         }
-        if ((_buttonMask & ID_HELP) != 0) {
+        if ((buttonMask & ID_HELP) != 0) {
             JButton button = new JButton(" Help "); /*I18N*/
             button.addActionListener(new ActionListener() {
 
@@ -245,7 +229,7 @@ public class ModalDialog {
                 }
             });
             buttons.addElement(button);
-            _helpButton = button;
+            helpButton = button;
         }
 
         for (int i = 0; i < buttons.size(); i++) {
@@ -256,11 +240,12 @@ public class ModalDialog {
             if (i != 0) {
                 buttonRow.add(Box.createRigidArea(new Dimension(6, 0)));
             }
-            buttonRow.add((Component) buttons.elementAt(i));
+            buttonRow.add(buttons.elementAt(i));
         }
 
-        _dialog.addWindowListener(new WindowAdapter() {
+        dialog.addWindowListener(new WindowAdapter() {
 
+            @Override
             public void windowClosing(WindowEvent e) {
                 setButtonID(ID_CANCEL);
                 onCancel();
@@ -269,7 +254,7 @@ public class ModalDialog {
     }
 
     protected void setButtonID(final int buttonID) {
-        _buttonID = buttonID;
+        buttonId = buttonID;
     }
 
     protected void cancelDialog() {
@@ -280,40 +265,40 @@ public class ModalDialog {
     private void initHelpBroker() {
         HelpSet helpSet = HelpSys.getHelpSet();
         if (helpSet != null) {
-            _helpBroker = helpSet.createHelpBroker();
-            if (_helpBroker instanceof DefaultHelpBroker) {
-                DefaultHelpBroker defaultHelpBroker = (DefaultHelpBroker) _helpBroker;
+            helpBroker = helpSet.createHelpBroker();
+            if (helpBroker instanceof DefaultHelpBroker) {
+                DefaultHelpBroker defaultHelpBroker = (DefaultHelpBroker) helpBroker;
                 defaultHelpBroker.setActivationWindow(getJDialog());
             }
         }
     }
 
     public String getHelpID() {
-        return _helpID;
+        return helpId;
     }
 
     public void setHelpID(String helpID) {
-        _helpID = helpID;
+        helpId = helpID;
         updateHelpID();
     }
 
     private void updateHelpID() {
-        if (_helpID == null) {
+        if (helpId == null) {
             return;
         }
-        if (_helpBroker == null) {
+        if (helpBroker == null) {
             initHelpBroker();
         }
-        if (_helpBroker == null) {
+        if (helpBroker == null) {
             return;
         }
-        HelpSet helpSet = _helpBroker.getHelpSet();
+        HelpSet helpSet = helpBroker.getHelpSet();
         try {
-            _helpBroker.setCurrentID(_helpID);
+            helpBroker.setCurrentID(helpId);
         } catch (BadIDException e) {
             Logger systemLogger = BeamLogManager.getSystemLogger();
             if (systemLogger != null) {
-                systemLogger.severe("ModalDialog: '" + _helpID + "' is not a valid helpID");
+                systemLogger.severe("ModalDialog: '" + helpId + "' is not a valid helpID");
             } else {
                 Debug.trace(e);
             }
@@ -322,61 +307,62 @@ public class ModalDialog {
             return;
         }
         if (getJDialog() != null) {
-            _helpBroker.enableHelpKey(getJDialog(), _helpID, helpSet);
+            helpBroker.enableHelpKey(getJDialog(), helpId, helpSet);
         }
         if (getJDialog().getContentPane() != null) {
-            _helpBroker.enableHelpKey(getJDialog().getContentPane(), _helpID, helpSet);
+            helpBroker.enableHelpKey(getJDialog().getContentPane(), helpId, helpSet);
         }
-        if (_helpButton != null) {
-            _helpBroker.enableHelpKey(_helpButton, _helpID, helpSet);
-            _helpBroker.enableHelpOnButton(_helpButton, _helpID, helpSet);
+        if (helpButton != null) {
+            helpBroker.enableHelpKey(helpButton, helpId, helpSet);
+            helpBroker.enableHelpOnButton(helpButton, helpId, helpSet);
         }
     }
 
     public JDialog getJDialog() {
-        return _dialog;
+        return dialog;
     }
 
     public Window getParent() {
-        return _parent;
+        return parent;
     }
 
     public int show() {
-        setButtonID(ID_CANCEL);
-        _dialog.pack();
-        _minimumSize = _dialog.getSize();
-        center();
-        _dialog.setResizable(true);
-        _dialog.setVisible(true);
+        setButtonID(ID_CANCEL);  // set default value returned by getButtonID() 
+        if (!shown) {
+            dialog.pack();
+            center();
+        }
+        dialog.setVisible(true);
+        shown = true;
         return getButtonID();
     }
 
 
     public void hide() {
-        _dialog.setVisible(false);
+        dialog.setVisible(false);
     }
 
     public void center() {
-        UIUtils.centerComponent(_dialog, _parent);
+        UIUtils.centerComponent(dialog, parent);
     }
 
     public int getButtonID() {
-        return _buttonID;
+        return buttonId;
     }
 
     public void setContent(Object content) {
-        Component comp = null;
+        Component comp;
         if (content instanceof Component) {
             comp = (Component) content;
         } else {
             comp = new JLabel(content.toString());
         }
-        if (_content != null) {
-            _dialog.getContentPane().remove(_content);
+        if (this.content != null) {
+            dialog.getContentPane().remove(this.content);
         }
-        _content = comp;
-        _dialog.getContentPane().add(_content, BorderLayout.CENTER);
-        _dialog.validate();
+        this.content = comp;
+        dialog.getContentPane().add(this.content, BorderLayout.CENTER);
+        dialog.validate();
         updateHelpID();
     }
 
@@ -409,7 +395,7 @@ public class ModalDialog {
     }
 
     protected void onHelp() {
-        if (_helpID == null) {
+        if (helpId == null) {
             showInformationDialog("Sorry, no help theme available."); /*I18N*/
         }
     }
@@ -428,19 +414,4 @@ public class ModalDialog {
     private void showMessageDialog(String message, int messageType) {
         JOptionPane.showMessageDialog(getJDialog(), message, getJDialog().getTitle(), messageType);
     }
-
-// todo - enable if we at the end need it
-//    private ComponentAdapter createResizeListener() {
-//        return new ComponentAdapter() {
-//
-//            public void componentResized(ComponentEvent e) {
-//                if (_minimumSize != null) {
-//                    final Dimension size = e.getComponent().getSize();
-//                    size.height = _minimumSize.height > size.height ? _minimumSize.height : size.height;
-//                    size.width = _minimumSize.width > size.width ? _minimumSize.width : size.width;
-//                    e.getComponent().setSize(size);
-//                }
-//            }
-//        };
-//    }
 }
