@@ -39,7 +39,7 @@ class CollocationDialog extends ModalAppDialog {
         parameterMap.put("renameSlaveComponents", formModel.isRenameSlaveComponentsSelected());
         parameterMap.put("masterComponentPattern", formModel.getMasterComponentPattern());
         parameterMap.put("slaveComponentPattern", formModel.getSlaveComponentPattern());
-        parameterMap.put("resampling", formModel.getResampling());
+        parameterMap.put("resamplingType", formModel.getResamplingType());
 
         return GPF.createProduct("Collocate", parameterMap, productMap);
     }

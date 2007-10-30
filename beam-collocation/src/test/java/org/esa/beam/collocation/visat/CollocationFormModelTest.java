@@ -1,13 +1,14 @@
 package org.esa.beam.collocation.visat;
 
+import javax.swing.ComboBoxModel;
+
 import junit.framework.TestCase;
+
+import org.esa.beam.collocation.ResamplingType;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
-
-import javax.swing.ComboBoxModel;
 
 /**
  * Tests for class {@link CollocationFormModel}.
@@ -84,14 +85,14 @@ public class CollocationFormModelTest extends TestCase {
     }
 
     public void testSetResampling() {
-        collocationFormModel.setResampling(Resampling.BILINEAR_INTERPOLATION);
-        assertEquals(Resampling.BILINEAR_INTERPOLATION, collocationFormModel.getResampling());
+        collocationFormModel.setResamplingType(ResamplingType.BILINEAR_INTERPOLATION);
+        assertEquals(ResamplingType.BILINEAR_INTERPOLATION, collocationFormModel.getResamplingType());
 
-        collocationFormModel.setResampling(Resampling.CUBIC_CONVOLUTION);
-        assertEquals(Resampling.CUBIC_CONVOLUTION, collocationFormModel.getResampling());
+        collocationFormModel.setResamplingType(ResamplingType.CUBIC_CONVOLUTION);
+        assertEquals(ResamplingType.CUBIC_CONVOLUTION, collocationFormModel.getResamplingType());
 
-        collocationFormModel.setResampling(Resampling.NEAREST_NEIGHBOUR);
-        assertEquals(Resampling.NEAREST_NEIGHBOUR, collocationFormModel.getResampling());
+        collocationFormModel.setResamplingType(ResamplingType.NEAREST_NEIGHBOUR);
+        assertEquals(ResamplingType.NEAREST_NEIGHBOUR, collocationFormModel.getResamplingType());
     }
 
     public void testAdaptResamplingComboBoxModel() {
@@ -106,12 +107,12 @@ public class CollocationFormModelTest extends TestCase {
         band1.setValidPixelExpression("true");
         collocationFormModel.adaptResamplingComboBoxModel();
         assertEquals(1, resamplingComboBoxModel.getSize());
-        assertEquals(Resampling.NEAREST_NEIGHBOUR, collocationFormModel.getResampling());
+        assertEquals(ResamplingType.NEAREST_NEIGHBOUR, collocationFormModel.getResamplingType());
 
         band1.setValidPixelExpression(null);
         band2.setValidPixelExpression("  ");
         collocationFormModel.adaptResamplingComboBoxModel();
         assertEquals(3, resamplingComboBoxModel.getSize());
-        assertEquals(Resampling.NEAREST_NEIGHBOUR, collocationFormModel.getResampling());
+        assertEquals(ResamplingType.NEAREST_NEIGHBOUR, collocationFormModel.getResamplingType());
     }
 }

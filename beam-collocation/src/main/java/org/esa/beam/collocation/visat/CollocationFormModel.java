@@ -1,6 +1,8 @@
 package org.esa.beam.collocation.visat;
 
 import com.bc.ceres.binding.*;
+
+import org.esa.beam.collocation.ResamplingType;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.dataop.resamp.Resampling;
@@ -42,10 +44,7 @@ class CollocationFormModel {
         slaveComponentPattern = "${ORIGINAL_NAME}";
 
         this.targetProductSelectorModel = targetProductSelectorModel;
-        resamplingComboBoxModel = new DefaultComboBoxModel(new Resampling[]{
-                Resampling.NEAREST_NEIGHBOUR,
-                Resampling.BILINEAR_INTERPOLATION,
-                Resampling.CUBIC_CONVOLUTION});
+        resamplingComboBoxModel = new DefaultComboBoxModel(ResamplingType.values());
 
         final ValueContainerFactory factory = new ValueContainerFactory(new ValueDescriptorFactory() {
             public ValueDescriptor createValueDescriptor(Field field) {
@@ -108,8 +107,8 @@ class CollocationFormModel {
         return slaveComponentPattern;
     }
 
-    public Resampling getResampling() {
-        return (Resampling) resamplingComboBoxModel.getSelectedItem();
+    public ResamplingType getResamplingType() {
+        return (ResamplingType) resamplingComboBoxModel.getSelectedItem();
     }
 
     public void setMasterProduct(Product product) {
@@ -136,8 +135,8 @@ class CollocationFormModel {
         setValueContainerValue("slaveComponentPattern", pattern);
     }
 
-    public void setResampling(Resampling resampling) {
-        resamplingComboBoxModel.setSelectedItem(resampling);
+    public void setResamplingType(ResamplingType resamplingType) {
+        resamplingComboBoxModel.setSelectedItem(resamplingType);
     }
 
     TargetProductSelectorModel getTargetProductSelectorModel() {
@@ -151,14 +150,14 @@ class CollocationFormModel {
     void adaptResamplingComboBoxModel() {
         if (isValidPixelExpressionUsed()) {
             if (resamplingComboBoxModel.getSize() == 3) {
-                resamplingComboBoxModel.removeElement(Resampling.CUBIC_CONVOLUTION);
-                resamplingComboBoxModel.removeElement(Resampling.BILINEAR_INTERPOLATION);
-                resamplingComboBoxModel.setSelectedItem(Resampling.NEAREST_NEIGHBOUR);
+                resamplingComboBoxModel.removeElement(ResamplingType.CUBIC_CONVOLUTION);
+                resamplingComboBoxModel.removeElement(ResamplingType.BILINEAR_INTERPOLATION);
+                resamplingComboBoxModel.setSelectedItem(ResamplingType.NEAREST_NEIGHBOUR);
             }
         } else {
             if (resamplingComboBoxModel.getSize() == 1) {
-                resamplingComboBoxModel.addElement(Resampling.BILINEAR_INTERPOLATION);
-                resamplingComboBoxModel.addElement(Resampling.CUBIC_CONVOLUTION);
+                resamplingComboBoxModel.addElement(ResamplingType.BILINEAR_INTERPOLATION);
+                resamplingComboBoxModel.addElement(ResamplingType.CUBIC_CONVOLUTION);
             }
         }
     }

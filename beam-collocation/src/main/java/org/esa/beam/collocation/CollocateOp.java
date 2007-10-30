@@ -32,6 +32,9 @@ import java.util.Map;
 public class CollocateOp extends Operator {
 
     private static final String ORIGINAL_NAME = "${ORIGINAL_NAME}";
+    private static final String NEAREST_NEIGHBOUR = "NEAREST_NEIGHBOUR"; 
+    private static final String BILINEAR_INTERPOLATION = "BILINEAR_INTERPOLATION"; 
+    private static final String CUBIC_CONVOLUTION = "CUBIC_CONVOLUTION"; 
 
     @SourceProduct(alias = "master")
     private Product masterProduct;
@@ -52,8 +55,8 @@ public class CollocateOp extends Operator {
     private String masterComponentPattern;
     @Parameter
     private String slaveComponentPattern;
-    @Parameter
-    private Resampling resampling;
+    @Parameter(valueSet= {NEAREST_NEIGHBOUR, BILINEAR_INTERPOLATION, CUBIC_CONVOLUTION}, defaultValue=NEAREST_NEIGHBOUR)
+    private ResamplingType resamplingType;
 
     private transient Map<Band, Band> sourceBandMap;
 
@@ -149,6 +152,7 @@ public class CollocateOp extends Operator {
         try {
             pm.beginTask(MessageFormat.format("collocating band {0}", sourceBand.getName()), targetTile.getHeight());
 
+            final Resampling resampling = resamplingType.getResampling();
             final Resampling.Index resamplingIndex = resampling.createIndex();
 
             final GeoCoding sourceGeoCoding = slaveProduct.getGeoCoding();
