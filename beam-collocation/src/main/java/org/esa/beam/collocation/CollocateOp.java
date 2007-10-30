@@ -43,7 +43,7 @@ public class CollocateOp extends Operator {
     @Parameter
     private String targetProductName;
     @Parameter(defaultValue = "true")
-    private boolean createNewProduct;
+    private boolean createNewProduct = true;
     @Parameter
     private boolean renameMasterComponents;
     @Parameter

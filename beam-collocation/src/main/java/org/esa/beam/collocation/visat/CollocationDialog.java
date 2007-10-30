@@ -1,18 +1,18 @@
 package org.esa.beam.collocation.visat;
 
-import com.bc.ceres.swing.progress.DialogProgressMonitor;
+import java.awt.Window;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.operators.common.WriteOp;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.visat.VisatApp;
 
-import java.awt.*;
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Map;
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 
 /**
  * Created by IntelliJ IDEA.
@@ -35,13 +35,12 @@ class CollocationDialog extends ModalDialog {
     @Override
     public int show() {
         setContent(form);
-//        form.outputProductName.requestFocus();
         return super.show();
     }
 
     @Override
     protected void onOK() {
-        // todo - dispose form
+        super.onOK();
 
         final Product targetProduct;
 
@@ -63,26 +62,45 @@ class CollocationDialog extends ModalDialog {
             targetProduct.setName(formModel.getTargetProductName());
 
             if (formModel.isSaveToFileSelected()) {
-                DialogProgressMonitor pm = new DialogProgressMonitor(getJDialog(), "Writing product...",
-                        Dialog.ModalityType.APPLICATION_MODAL);
-                try {
-                    WriteOp.writeProduct(targetProduct,
-                            formModel.getTargetFile(),
-                            formModel.getTargetFormatName(), pm);
-                } catch (IOException e) {
-                    throw new OperatorException(MessageFormat.format(
-                            "Could not write product to file ''{0}''", formModel.getTargetFilePath()), e);
+                final ProgressMonitorSwingWorker worker = new ProgressMonitorSwingWorker<Boolean, Boolean>(getJDialog(), "Writing product") {
+
+                    @Override
+                    protected Boolean doInBackground(ProgressMonitor pm) throws Exception {
+                        System.out.println("saving");
+                        
+                        WriteOp.writeProduct(targetProduct,
+                                formModel.getTargetFile(),
+                                formModel.getTargetFormatName(), pm);
+                        return true;
+                    }
+                
+                };
+                worker.executeWithBlocking();
+                targetProduct.dispose();
+                if (formModel.isOpenInVisatSelected()) {
+                    Product openProduct;
+                    openProduct = ProductIO.readProduct(formModel.getTargetFile(), null);
+                    VisatApp.getApp().addProduct(openProduct);
+                }
+            } else {
+                if (formModel.isOpenInVisatSelected()) {
+                    VisatApp.getApp().addProduct(targetProduct);
                 }
             }
-        } catch (OperatorException e) {
+        } catch (Exception e) {
             showErrorDialog(e.getMessage());
-            return;
+        } finally {
+            dispose();
         }
+    }
+    
+    @Override
+    protected void onCancel() {
+        super.onCancel();
+        dispose();
+    }
 
-        super.onOK();
-
-        if (formModel.isOpenInVisatSelected()) {
-            VisatApp.getApp().addProduct(targetProduct);
-        }
+    private void dispose() {
+        form.dispose();
     }
 }
