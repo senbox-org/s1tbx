@@ -2,7 +2,7 @@ package org.esa.beam.collocation.visat;
 
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.ui.ModalAppDialog;
+import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.ui.AppContext;
 
 import java.util.HashMap;
@@ -14,7 +14,7 @@ import java.util.Map;
  * @author Ralf Quast
  * @version $Revision$ $Date$
  */
-class CollocationDialog extends ModalAppDialog {
+class CollocationDialog extends SingleTargetProductDialog {
 
     private CollocationFormModel formModel;
     private CollocationForm form;

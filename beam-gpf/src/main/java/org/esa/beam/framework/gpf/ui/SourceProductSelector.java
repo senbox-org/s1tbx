@@ -20,7 +20,7 @@ import java.util.Iterator;
 import java.util.regex.Pattern;
 
 /**
- * Created by IntelliJ IDEA.
+ * WARNING: This class belongs to a preliminary API and may change in future releases.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$

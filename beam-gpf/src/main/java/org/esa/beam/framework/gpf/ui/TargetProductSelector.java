@@ -13,7 +13,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 
 /**
- * Target product selector.
+ * WARNING: This class belongs to a preliminary API and may change in future releases.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$

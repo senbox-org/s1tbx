@@ -13,7 +13,7 @@ import java.lang.reflect.Field;
 import java.util.Iterator;
 
 /**
- * Target product selector model.
+ * WARNING: This class belongs to a preliminary API and may change in future releases.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$

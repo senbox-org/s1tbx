@@ -3,8 +3,6 @@ package org.esa.beam.framework.gpf;
 /**
  * A general exception class for all failures within an {@link org.esa.beam.framework.gpf.Operator}
  * implementation.
- *
- * @author Maximilian Aulinger
  */
 public class OperatorException extends RuntimeException {
 

@@ -19,6 +19,8 @@ import java.util.Map;
  * For each SPI to be automatically registered, place a text line in the file containing the SPI's
  * fully qualified class name.</p>
  *
+ * @author Norman Fomferra
+ * @author Marco Peters
  * @since 4.1
  */
 public abstract class OperatorSpi {

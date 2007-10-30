@@ -21,6 +21,9 @@ import java.util.TreeMap;
  * <p>This class may be overridden in order to alter product creation behaviour of the static
  * {@code createProduct} methods of the GPF instance.
  * The current instance can be set by {@link #setDefaultInstance(GPF)}.</p>
+ *
+ * @author Norman Fomferra
+ * @since 4.1
  */
 public class GPF {
 
@@ -119,7 +122,7 @@ public class GPF {
                 if (sourceProductsAnnotation != null) {
                     for (int i = 0; i < sourceProducts.length; i++) {
                         Product sourceProduct = sourceProducts[i];
-                        sourceProductMap.put(SOURCE_PRODUCT_FIELD_NAME+"." + (i), sourceProduct);
+                        sourceProductMap.put(SOURCE_PRODUCT_FIELD_NAME + "." + (i), sourceProduct);
                     }
                 }
             }

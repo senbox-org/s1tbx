@@ -17,6 +17,7 @@
 package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
@@ -24,23 +25,28 @@ import org.esa.beam.framework.gpf.operators.common.WriteOp;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.ModalDialog;
 
-import java.awt.Window;
 import java.util.concurrent.ExecutionException;
 
-
-public abstract class ModalAppDialog extends ModalDialog {
+/**
+ * WARNING: This class belongs to a preliminary API and may change in future releases.
+ *
+ * @author Norman Fomferra
+ * @author Marco Peters
+ * @version $Revision$ $Date$
+ */
+public abstract class SingleTargetProductDialog extends ModalDialog {
 
     private TargetProductSelector targetProductSelector;
     private AppContext appContext;
 
-    public ModalAppDialog(AppContext appContext, String title, int buttonMask, String helpID) {
+    public SingleTargetProductDialog(AppContext appContext, String title, int buttonMask, String helpID) {
         super(appContext.getApplicationWindow(), title, buttonMask, helpID);
         this.appContext = appContext;
         targetProductSelector = new TargetProductSelector();
         targetProductSelector.getOpenInAppCheckBox().setText("Open in " + appContext.getApplicationName());
     }
 
-    public ModalAppDialog(AppContext appContext, Window parent, String title, String helpID) {
+    public SingleTargetProductDialog(AppContext appContext, String title, String helpID) {
         this(appContext, title, ModalDialog.ID_OK_CANCEL_HELP, helpID);
     }
 
@@ -88,14 +94,21 @@ public abstract class ModalAppDialog extends ModalDialog {
         @Override
         protected Product doInBackground(ProgressMonitor pm) throws Exception {
             final TargetProductSelectorModel model = getTargetProductSelector().getModel();
-            WriteOp.writeProduct(targetProduct,
-                                 model.getProductFile(),
-                                 model.getFormatName(), pm);
-            targetProduct.dispose();
-            if (model.isOpenInAppSelected()) {
-                return ProductIO.readProduct(model.getProductFile(), null);
+            pm.beginTask("Writing...", model.isOpenInAppSelected() ? 100 : 95);
+            Product product = null;
+            try {
+                WriteOp.writeProduct(targetProduct,
+                                     model.getProductFile(),
+                                     model.getFormatName(), SubProgressMonitor.create(pm, 95));
+                targetProduct.dispose();
+                if (model.isOpenInAppSelected()) {
+                    product = ProductIO.readProduct(model.getProductFile(), null);
+                    pm.worked(5);
+                }
+            } finally {
+                pm.done();
             }
-            return null;
+            return product;
         }
 
         @Override

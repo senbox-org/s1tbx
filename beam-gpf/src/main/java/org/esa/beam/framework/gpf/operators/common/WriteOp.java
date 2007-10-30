@@ -1,6 +1,7 @@
 package org.esa.beam.framework.gpf.operators.common;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.datamodel.Band;
@@ -16,7 +17,6 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.math.MathUtils;
 
-import com.bc.ceres.core.SubProgressMonitor;
 import javax.media.jai.JAI;
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -107,7 +107,7 @@ public class WriteOp extends Operator {
             super(WriteOp.class);
         }
     }
-    
+
     public static void writeProduct(Product product, File file, String formatName, ProgressMonitor pm) {
         WriteOp writeOp = new WriteOp(product, file, formatName);
         Product outputProduct = writeOp.getTargetProduct();
@@ -121,30 +121,31 @@ public class WriteOp extends Operator {
         Rectangle productBounds = new Rectangle(rasterWidth, rasterHeight);
         int numXTiles = MathUtils.ceilInt(productBounds.width / (double) defaultTileSize.width);
         int numYTiles = MathUtils.ceilInt(productBounds.height / (double) defaultTileSize.height);
-        
-        pm.beginTask("Writing product...", numXTiles * numYTiles * outputProduct.getNumBands() * 2);
+        final Band[] bands = outputProduct.getBands();
+
+        pm.beginTask("Writing product...", numXTiles * numYTiles * bands.length * 2);
         try {
             for (int tileY = 0; tileY < numYTiles; tileY++) {
                 for (int tileX = 0; tileX < numXTiles; tileX++) {
                     if (pm.isCanceled()) {
-                        break;
+                        return; // todo - delete file(s)  (nf - 2007.10.30)
                     }
                     Rectangle tileRectangle = new Rectangle(tileX
                             * defaultTileSize.width, tileY
                             * defaultTileSize.height, defaultTileSize.width,
-                            defaultTileSize.height);
+                                                      defaultTileSize.height);
                     Rectangle intersection = productBounds
                             .intersection(tileRectangle);
-                    
-                    for (Band band : outputProduct.getBands()) {
-                        Tile tile = writeOp.getSourceTile(band, intersection, new SubProgressMonitor(pm, 1));
-                        writeOp.computeTile(band, tile, new SubProgressMonitor(pm, 1));
+
+                    for (Band band : bands) {
+                        Tile tile = writeOp.getSourceTile(band, intersection, SubProgressMonitor.create(pm, 1));
+                        writeOp.computeTile(band, tile, SubProgressMonitor.create(pm, 1));
                     }
                 }
             }
         } finally {
             pm.done();
-        } 
+        }
     }
 }
     

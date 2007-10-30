@@ -20,7 +20,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.ui.ModalAppDialog;
+import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.unmixing.Endmember;
 import org.esa.beam.unmixing.SpectralUnmixingOp;
@@ -33,13 +33,13 @@ import java.awt.Window;
 import java.util.Map;
 
 
-public class SpectralUnmixingDialog extends ModalAppDialog {
+public class SpectralUnmixingDialog extends SingleTargetProductDialog {
     private SpectralUnmixingForm form;
     private SpectralUnmixingFormModel formModel;
     private static final String TITLE = "Spectral Unmixing";
 
     public SpectralUnmixingDialog(AppContext appContext) {
-        super(appContext, appContext.getApplicationWindow(), TITLE, "spectralUnmixing");
+        super(appContext, TITLE, "spectralUnmixing");
         formModel = new SpectralUnmixingFormModel(appContext.getSelectedProduct());
         form = new SpectralUnmixingForm(getTargetProductSelector(), formModel);
     }
