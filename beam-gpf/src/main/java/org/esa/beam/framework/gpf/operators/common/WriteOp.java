@@ -43,6 +43,9 @@ public class WriteOp extends Operator {
     private List<Band> bandsToWrite;
     private boolean productFileWritten;
 
+    public WriteOp() {
+    }
+    
     public WriteOp(Product product, File file, String formatName) {
         this.sourceProduct = product;
         this.file = file;
