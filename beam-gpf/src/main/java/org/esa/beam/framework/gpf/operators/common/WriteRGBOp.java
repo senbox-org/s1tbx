@@ -19,24 +19,25 @@ import javax.media.jai.JAI;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.renderable.ParameterBlock;
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-@OperatorMetadata(alias = "RGBWriter", // todo - rename to "WriteRGB"
+@OperatorMetadata(alias = "WriteRGB",
                   description = "Creates an RGB image from three source bands.")
 public class WriteRGBOp extends Operator {
 
-    @Parameter
+    @Parameter(description = "The zero-based index of the red band.")
     private int red;
-    @Parameter
+    @Parameter(description = "The zero-based index of the green band.")
     private int green;
-    @Parameter
+    @Parameter(description = "The zero-based index of the blue band.")
     private int blue;
-    @Parameter
-    private String formatName = "bmp";
-    @Parameter
-    private String filePath = null;
+    @Parameter(defaultValue = "png")
+    private String formatName;
+    @Parameter(description = "The file to which the image is written.")
+    private File file;
 
     @SourceProduct(alias = "input")
     private Product sourceProduct;
@@ -98,7 +99,7 @@ public class WriteRGBOp extends Operator {
         BufferedImage outputImage = ProductUtils.createRgbImage(rgbChannelNodes, ProgressMonitor.NULL);
         ParameterBlock storeParams = new ParameterBlock();
         storeParams.addSource(outputImage);
-        storeParams.add(filePath);
+        storeParams.add(file);
         storeParams.add(formatName);
         JAI.create("filestore", storeParams);
     }

@@ -16,6 +16,7 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.math.MathUtils;
 
+import javax.media.jai.JAI;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.io.File;
@@ -23,9 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.media.jai.JAI;
-
-@OperatorMetadata(alias = "ProductWriter", // todo - rename to "Write"
+@OperatorMetadata(alias = "Write",
                   description = "Writes a product to disk.")
 public class WriteOp extends Operator {
 
@@ -34,10 +33,10 @@ public class WriteOp extends Operator {
     @SourceProduct(alias = "input")
     private Product sourceProduct;
 
-    @Parameter
-    private String filePath = null;
-    @Parameter
-    private String formatName = ProductIO.DEFAULT_FORMAT_NAME;
+    @Parameter(description = "The file to which the data product is written.")
+    private File file;
+    @Parameter(defaultValue = ProductIO.DEFAULT_FORMAT_NAME)
+    private String formatName;
 
     private ProductWriter productWriter;
     private List<Band> bandsToWrite;
@@ -45,7 +44,7 @@ public class WriteOp extends Operator {
 
     public WriteOp(Product product, File file, String formatName) {
         this.sourceProduct = product;
-        this.filePath = file.getAbsolutePath();
+        this.file = file;
         this.formatName = formatName;
     }
 
@@ -71,7 +70,7 @@ public class WriteOp extends Operator {
     public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         if (!productFileWritten) {
             try {
-                productWriter.writeProductNodes(targetProduct, filePath);
+                productWriter.writeProductNodes(targetProduct, file);
                 productFileWritten = true;
             } catch (IOException e) {
                 throw new OperatorException(e);
@@ -108,21 +107,21 @@ public class WriteOp extends Operator {
             super(WriteOp.class);
         }
     }
-    
+
     public static void writeProduct(Product product, File file, String formatName, ProgressMonitor pm) throws IOException {
         WriteOp writeOp = new WriteOp(product, file, formatName);
         Product outputProduct = writeOp.getTargetProduct();
-        
+
         Dimension defaultTileSize = product.getPreferredTileSize();
         if (defaultTileSize == null) {
-            defaultTileSize= JAI.getDefaultTileSize();
+            defaultTileSize = JAI.getDefaultTileSize();
         }
         final int rasterHeight = outputProduct.getSceneRasterHeight();
         final int rasterWidth = outputProduct.getSceneRasterWidth();
         Rectangle productBounds = new Rectangle(rasterWidth, rasterHeight);
         int numXTiles = MathUtils.ceilInt(productBounds.width / (double) defaultTileSize.width);
         int numYTiles = MathUtils.ceilInt(productBounds.height / (double) defaultTileSize.height);
-        
+
         pm.beginTask("Writing product...", numXTiles * numYTiles);
         try {
             for (int tileY = 0; tileY < numYTiles; tileY++) {
@@ -133,7 +132,7 @@ public class WriteOp extends Operator {
                     Rectangle tileRectangle = new Rectangle(tileX
                             * defaultTileSize.width, tileY
                             * defaultTileSize.height, defaultTileSize.width,
-                            defaultTileSize.height);
+                                                      defaultTileSize.height);
                     Rectangle intersection = productBounds
                             .intersection(tileRectangle);
                     for (Band band : outputProduct.getBands()) {
@@ -141,8 +140,8 @@ public class WriteOp extends Operator {
                                 .getDataType(), intersection.width
                                 * intersection.height);
                         band.readRasterData(intersection.x, intersection.y,
-                                intersection.width, intersection.height,
-                                rastData, pm);
+                                            intersection.width, intersection.height,
+                                            rastData, pm);
                     }
                     pm.worked(1);
                 }

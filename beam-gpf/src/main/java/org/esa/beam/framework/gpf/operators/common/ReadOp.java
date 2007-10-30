@@ -15,28 +15,26 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
 import java.awt.Rectangle;
+import java.io.File;
 import java.io.IOException;
 
-@OperatorMetadata(alias = "ReadProduct",  // todo - rename to "Read"
+@OperatorMetadata(alias = "Read",
                   description = "Reads a product from disk.")
 public class ReadOp extends Operator {
 
     private ProductReader beamReader;
 
-    /**
-     * The path to the data product file to open and read.
-     */
-    @Parameter
-    private String filePath = null;
+    @Parameter(description = "The file from which the data product is read.")
+    private File file;
     @TargetProduct
     private Product targetProduct;
 
     @Override
     public void initialize() throws OperatorException {
         try {
-            targetProduct = ProductIO.readProduct(filePath, null);
+            targetProduct = ProductIO.readProduct(file, null);
             if (targetProduct == null) {
-                throw new OperatorException("No product reader found for file " + filePath);
+                throw new OperatorException("No product reader found for file " + file);
             }
             beamReader = targetProduct.getProductReader();
         } catch (IOException e) {
