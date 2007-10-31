@@ -12,7 +12,7 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
 @OperatorMetadata(alias = "PassThrough",
-                  description = "Source product = target product.")
+                  description = "Sets target product to source product.")
 public class PassThroughOp extends Operator {
     @SourceProduct
     private Product sourceProduct;
