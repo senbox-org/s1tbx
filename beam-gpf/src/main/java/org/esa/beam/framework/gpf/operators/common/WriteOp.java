@@ -81,9 +81,12 @@ public class WriteOp extends Operator {
         }
         if (bandsToWrite.contains(band)) {
             Rectangle rectangle = targetTile.getRectangle();
+            ProductWriter productWriterOld = null;
             try {
                 Tile tile = getSourceTile(band, rectangle, pm);
                 ProductData dataBuffer = tile.getRawSamples();
+                productWriterOld = targetProduct.getProductWriter();
+                targetProduct.setProductWriter(productWriter);
                 band.writeRasterData(rectangle.x, rectangle.y,
                                      rectangle.width, rectangle.height, dataBuffer, pm);
             } catch (IOException e) {
@@ -92,6 +95,10 @@ public class WriteOp extends Operator {
                     throw (OperatorException) cause;
                 }
                 throw new OperatorException(e);
+            } finally {
+                if (productWriterOld != null) {
+                    targetProduct.setProductWriter(productWriterOld);
+                }
             }
         }
     }
