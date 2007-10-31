@@ -14,7 +14,7 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +47,7 @@ public class CollocateOp extends Operator {
     @Parameter
     private String targetProductName;
     @Parameter(defaultValue = "true")
-    private boolean createNewProduct = true;
+    private boolean createNewProduct;
     @Parameter
     private boolean renameMasterComponents;
     @Parameter
@@ -63,37 +63,41 @@ public class CollocateOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
+        if (masterProduct.getGeoCoding() != null) {
+            throw new OperatorException(
+                    MessageFormat.format("Product ''{0}'' has no geo-coding.", masterProduct.getName()));
+        }
+        if (slaveProduct.getGeoCoding() != null) {
+            throw new OperatorException(
+                    MessageFormat.format("Product ''{0}'' has no geo-coding.", slaveProduct.getName()));
+        }
+        // todo - further validation
         // todo - product type
         sourceBandMap = new HashMap<Band, Band>();
 
-        if (createNewProduct) {
-            targetProduct = new Product(targetProductName,
-                                        masterProduct.getProductType(),
-                                        masterProduct.getSceneRasterWidth(),
-                                        masterProduct.getSceneRasterHeight());
+        targetProduct = new Product(targetProductName,
+                                    masterProduct.getProductType(),
+                                    masterProduct.getSceneRasterWidth(),
+                                    masterProduct.getSceneRasterHeight());
 
-            targetProduct.setStartTime(masterProduct.getStartTime());
-            targetProduct.setEndTime(masterProduct.getEndTime());
+        targetProduct.setStartTime(masterProduct.getStartTime());
+        targetProduct.setEndTime(masterProduct.getEndTime());
 
-            ProductUtils.copyMetadata(masterProduct, targetProduct);
-            ProductUtils.copyTiePointGrids(masterProduct, targetProduct);
-            ProductUtils.copyGeoCoding(masterProduct, targetProduct);
+        ProductUtils.copyMetadata(masterProduct, targetProduct);
+        ProductUtils.copyTiePointGrids(masterProduct, targetProduct);
+        ProductUtils.copyGeoCoding(masterProduct, targetProduct);
 
-            for (final Band sourceBand : masterProduct.getBands()) {
-                final Band targetBand = ProductUtils.copyBand(sourceBand.getName(), masterProduct, targetProduct);
-                setFlagCoding(targetBand, sourceBand.getFlagCoding(), renameMasterComponents, masterComponentPattern);
-                sourceBandMap.put(targetBand, sourceBand);
-            }
-            if (renameMasterComponents) {
-                for (final Band band : targetProduct.getBands()) {
-                    band.setName(masterComponentPattern.replace(ORIGINAL_NAME, band.getName()));
-                }
-            }
-            copyBitmaskDefs(masterProduct, renameMasterComponents, masterComponentPattern);
-        } else {
-            // todo - implement
-            targetProduct = masterProduct;
+        for (final Band sourceBand : masterProduct.getBands()) {
+            final Band targetBand = ProductUtils.copyBand(sourceBand.getName(), masterProduct, targetProduct);
+            setFlagCoding(targetBand, sourceBand.getFlagCoding(), renameMasterComponents, masterComponentPattern);
+            sourceBandMap.put(targetBand, sourceBand);
         }
+        if (renameMasterComponents) {
+            for (final Band band : targetProduct.getBands()) {
+                band.setName(masterComponentPattern.replace(ORIGINAL_NAME, band.getName()));
+            }
+        }
+        copyBitmaskDefs(masterProduct, renameMasterComponents, masterComponentPattern);
 
         for (final Band sourceBand : slaveProduct.getBands()) {
             String targetBandName = sourceBand.getName();

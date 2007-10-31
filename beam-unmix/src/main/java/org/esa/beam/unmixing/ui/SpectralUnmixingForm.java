@@ -141,6 +141,7 @@ class SpectralUnmixingForm extends JPanel {
         panel.add(subPanel1);
         panel.add(new JLabel("Directory:"));
         panel.add(subPanel2);
+        
         return panel;
     }
 

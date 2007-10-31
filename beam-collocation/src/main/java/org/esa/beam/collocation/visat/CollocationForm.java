@@ -9,6 +9,7 @@ import org.esa.beam.framework.ui.TableLayout;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.*;
 
 /**
  * Form for geographic collocation dialog.
@@ -20,31 +21,29 @@ public class CollocationForm extends JPanel {
 
     private CollocationFormModel model;
 
-    private SourceProductSelector referenceProductSelector;
-    private SourceProductSelector subsidiaryProductSelector;
+    private SourceProductSelector masterProductSelector;
+    private SourceProductSelector slaveProductSelector;
 
-    private JCheckBox renameReferenceComponentsCheckBox;
-    private JCheckBox renameSubsidiaryComponentsCheckBox;
-    private JTextField referenceComponentPatternField;
-    private JTextField subsidiaryComponentPatternField;
+    private JCheckBox renameMasterComponentsCheckBox;
+    private JCheckBox renameSlaveComponentsCheckBox;
+    private JTextField masterComponentPatternField;
+    private JTextField slaveComponentPatternField;
     private JComboBox resamplingComboBox;
-    //    private JCheckBox createNewProductCheckBox;
     private TargetProductSelector targetProductSelector;
 
     public CollocationForm(final CollocationFormModel model, TargetProductSelector targetProductSelector, AppContext appContext) {
         this.model = model;
 
         this.targetProductSelector = targetProductSelector;
-        referenceProductSelector = new SourceProductSelector(appContext, "Reference product:");
-        subsidiaryProductSelector = new SourceProductSelector(appContext, "Subsidiary product:");
-//        createNewProductCheckBox = new JCheckBox("Create new product");
-        renameReferenceComponentsCheckBox = new JCheckBox("Rename reference components:");
-        renameSubsidiaryComponentsCheckBox = new JCheckBox("Rename subsidiary components:");
-        referenceComponentPatternField = new JTextField();
-        subsidiaryComponentPatternField = new JTextField();
+        masterProductSelector = new SourceProductSelector(appContext, "Reference (or master):");
+        slaveProductSelector = new SourceProductSelector(appContext, "Subsidiary (or slave):");
+        renameMasterComponentsCheckBox = new JCheckBox("Rename master components:");
+        renameSlaveComponentsCheckBox = new JCheckBox("Rename slave components:");
+        masterComponentPatternField = new JTextField();
+        slaveComponentPatternField = new JTextField();
         resamplingComboBox = new JComboBox(model.getResamplingComboBoxModel());
 
-        subsidiaryProductSelector.getProductNameComboBox().addActionListener(new ActionListener() {
+        slaveProductSelector.getProductNameComboBox().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 model.adaptResamplingComboBoxModel();
             }
@@ -55,41 +54,39 @@ public class CollocationForm extends JPanel {
                 updateUIState();
             }
         };
-//        createNewProductCheckBox.addActionListener(listener);
-        renameReferenceComponentsCheckBox.addActionListener(listener);
-        renameSubsidiaryComponentsCheckBox.addActionListener(listener);
+        renameMasterComponentsCheckBox.addActionListener(listener);
+        renameSlaveComponentsCheckBox.addActionListener(listener);
 
         createComponents();
         bindComponents();
     }
-    
+
     public void updateForm() {
-        referenceProductSelector.updateProductList();
-        if (referenceProductSelector.getProductCount() > 0) {
-            referenceProductSelector.setSelectedIndex(0);
+        masterProductSelector.updateProductList();
+        if (masterProductSelector.getProductCount() > 0) {
+            masterProductSelector.setSelectedIndex(0);
         }
-        subsidiaryProductSelector.updateProductList();
-        if (subsidiaryProductSelector.getProductCount() > 1) {
-            subsidiaryProductSelector.setSelectedIndex(1);
-        }        
+        slaveProductSelector.updateProductList();
+        if (slaveProductSelector.getProductCount() > 1) {
+            slaveProductSelector.setSelectedIndex(1);
+        }
     }
 
     private void updateUIState() {
-        referenceComponentPatternField.setEnabled(renameReferenceComponentsCheckBox.isSelected());
-        subsidiaryComponentPatternField.setEnabled(renameSubsidiaryComponentsCheckBox.isSelected());
-//        targetProductSelector.setEnabled(createNewProductCheckBox.isSelected());
+        masterComponentPatternField.setEnabled(renameMasterComponentsCheckBox.isSelected());
+        slaveComponentPatternField.setEnabled(renameSlaveComponentsCheckBox.isSelected());
     }
 
     public void dispose() {
-        referenceProductSelector.dispose();
-        subsidiaryProductSelector.dispose();
+        masterProductSelector.dispose();
+        slaveProductSelector.dispose();
     }
 
     private void createComponents() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        add(createInputPanel());
-        add(createOutputPanel());
+        add(createSourceProductPanel());
+        add(createTargetProductPanel());
         add(createRenamingPanel());
         add(createResamplingPanel());
     }
@@ -97,69 +94,91 @@ public class CollocationForm extends JPanel {
     private void bindComponents() {
         final SwingBindingContext sbc = new SwingBindingContext(model.getValueContainer());
 
-        sbc.bind(referenceProductSelector.getProductNameComboBox(), "masterProduct");
-        sbc.bind(subsidiaryProductSelector.getProductNameComboBox(), "slaveProduct");
-//        sbc.bind(createNewProductCheckBox, "createNewProduct");
-        sbc.bind(renameReferenceComponentsCheckBox, "renameMasterComponents");
-        sbc.bind(renameSubsidiaryComponentsCheckBox, "renameSlaveComponents");
-        sbc.bind(referenceComponentPatternField, "masterComponentPattern");
-        sbc.bind(subsidiaryComponentPatternField, "slaveComponentPattern");
+        sbc.bind(masterProductSelector.getProductNameComboBox(), "masterProduct");
+        sbc.bind(slaveProductSelector.getProductNameComboBox(), "slaveProduct");
+        sbc.bind(renameMasterComponentsCheckBox, "renameMasterComponents");
+        sbc.bind(renameSlaveComponentsCheckBox, "renameSlaveComponents");
+        sbc.bind(masterComponentPatternField, "masterComponentPattern");
+        sbc.bind(slaveComponentPatternField, "slaveComponentPattern");
     }
 
-    private JPanel createInputPanel() {
-        final TableLayout layout = new TableLayout(3);
-        layout.setTableAnchor(TableLayout.Anchor.LINE_START);
+    private JPanel createSourceProductPanel() {
+        final JPanel masterPanel = new JPanel(new BorderLayout(3, 3));
+        masterPanel.add(masterProductSelector.getProductNameLabel(), BorderLayout.NORTH);
+        masterProductSelector.getProductNameComboBox().setPrototypeDisplayValue(
+                "MER_RR__1PPBCM20030730_071000_000003972018_00321_07389_0000.N1");
+        masterPanel.add(masterProductSelector.getProductNameComboBox(), BorderLayout.CENTER);
+        masterPanel.add(masterProductSelector.getProductFileChooserButton(), BorderLayout.EAST);
+
+        final JPanel slavePanel = new JPanel(new BorderLayout(3, 3));
+        slavePanel.add(slaveProductSelector.getProductNameLabel(), BorderLayout.NORTH);
+        slavePanel.add(slaveProductSelector.getProductNameComboBox(), BorderLayout.CENTER);
+        slavePanel.add(slaveProductSelector.getProductFileChooserButton(), BorderLayout.EAST);
+
+        final TableLayout layout = new TableLayout(1);
+        layout.setTableAnchor(TableLayout.Anchor.WEST);
         layout.setTableFill(TableLayout.Fill.HORIZONTAL);
-        layout.setColumnWeightX(0, 0.0);
-        layout.setColumnWeightX(1, 1.0);
-        layout.setColumnWeightX(2, 0.0);
-        layout.setTablePadding(3, 3);
+        layout.setTableWeightX(1.0);
+        layout.setCellPadding(0, 0, new Insets(3, 3, 3, 3));
+        layout.setCellPadding(1, 0, new Insets(3, 3, 3, 3));
 
         final JPanel panel = new JPanel(layout);
-        panel.setBorder(BorderFactory.createTitledBorder("Source"));
-
-        panel.add(referenceProductSelector.getProductNameLabel());
-        panel.add(referenceProductSelector.getProductNameComboBox());
-        panel.add(referenceProductSelector.getProductFileChooserButton());
-        panel.add(subsidiaryProductSelector.getProductNameLabel());
-        panel.add(subsidiaryProductSelector.getProductNameComboBox());
-        panel.add(subsidiaryProductSelector.getProductFileChooserButton());
+        panel.setBorder(BorderFactory.createTitledBorder("Source Products"));
+        panel.add(masterPanel);
+        panel.add(slavePanel);
 
         return panel;
     }
 
-    private JPanel createOutputPanel() {
-        final TableLayout layout = new TableLayout(1);
-        layout.setTableAnchor(TableLayout.Anchor.LINE_START);
-        layout.setTableFill(TableLayout.Fill.HORIZONTAL);
-        layout.setColumnWeightX(0, 1.0);
-//        layout.setTablePadding(0, 0);
-//        layout.setCellPadding(1, 0, new Insets(0, 21, 0, 0));
+    private JPanel createTargetProductPanel() {
+        final JPanel subPanel1 = new JPanel(new BorderLayout(3, 3));
+        subPanel1.add(targetProductSelector.getProductNameLabel(), BorderLayout.NORTH);
+        subPanel1.add(targetProductSelector.getProductNameTextField(), BorderLayout.CENTER);
 
-        final JPanel panel = new JPanel(layout);
-        panel.setBorder(BorderFactory.createTitledBorder("Target"));
+        final JPanel subPanel2 = new JPanel(new FlowLayout(FlowLayout.LEADING, 0, 0));
+        subPanel2.add(targetProductSelector.getSaveToFileCheckBox());
+        subPanel2.add(targetProductSelector.getFormatNameComboBox());
 
-        panel.add(targetProductSelector.createDefaultPanel());
+        final JPanel subPanel3 = new JPanel(new BorderLayout(3, 3));
+        subPanel3.add(targetProductSelector.getProductDirLabel(), BorderLayout.NORTH);
+        subPanel3.add(targetProductSelector.getProductDirTextField(), BorderLayout.CENTER);
+        subPanel3.add(targetProductSelector.getProductDirChooserButton(), BorderLayout.EAST);
+
+        final TableLayout tableLayout = new TableLayout(1);
+        tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
+        tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        tableLayout.setTableWeightX(1.0);
+
+        tableLayout.setCellPadding(0, 0, new Insets(3, 3, 3, 3));
+        tableLayout.setCellPadding(1, 0, new Insets(3, 3, 3, 3));
+        tableLayout.setCellPadding(2, 0, new Insets(0, 24, 3, 3));
+        tableLayout.setCellPadding(3, 0, new Insets(3, 3, 3, 3));
+
+        final JPanel panel = new JPanel(tableLayout);
+        panel.setBorder(BorderFactory.createTitledBorder("Target Product"));
+        panel.add(subPanel1);
+        panel.add(subPanel2);
+        panel.add(subPanel3);
+        panel.add(targetProductSelector.getOpenInAppCheckBox());
 
         return panel;
     }
 
     private JPanel createRenamingPanel() {
         final TableLayout layout = new TableLayout(2);
-        layout.setTableAnchor(TableLayout.Anchor.LINE_START);
+        layout.setTableAnchor(TableLayout.Anchor.WEST);
         layout.setTableFill(TableLayout.Fill.HORIZONTAL);
         layout.setColumnWeightX(0, 0.0);
         layout.setColumnWeightX(1, 1.0);
-        layout.setTablePadding(3, 3);
+        layout.setCellPadding(0, 0, new Insets(3, 3, 3, 3));
+        layout.setCellPadding(1, 0, new Insets(3, 3, 3, 3));
 
         final JPanel panel = new JPanel(layout);
         panel.setBorder(BorderFactory.createTitledBorder("Component Renaming"));
-
-        panel.add(renameReferenceComponentsCheckBox);
-        panel.add(referenceComponentPatternField);
-
-        panel.add(renameSubsidiaryComponentsCheckBox);
-        panel.add(subsidiaryComponentPatternField);
+        panel.add(renameMasterComponentsCheckBox);
+        panel.add(masterComponentPatternField);
+        panel.add(renameSlaveComponentsCheckBox);
+        panel.add(slaveComponentPatternField);
 
         return panel;
     }
@@ -171,7 +190,7 @@ public class CollocationForm extends JPanel {
         layout.setColumnWeightX(0, 0.0);
         layout.setColumnWeightX(1, 0.0);
         layout.setColumnWeightX(2, 1.0);
-        layout.setTablePadding(3, 3);
+        layout.setCellPadding(0, 0, new Insets(3, 3, 3, 3));
 
         final JPanel panel = new JPanel(layout);
         panel.setBorder(BorderFactory.createTitledBorder("Resampling"));

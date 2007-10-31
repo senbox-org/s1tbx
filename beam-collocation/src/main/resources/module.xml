@@ -2,10 +2,10 @@
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-collocation</symbolicName>
     <version>1.0-SNAPSHOT</version>
-    <name>Geographic Colocation</name>
+    <name>Collocation</name>
 
     <description>
-        Geographic collocation tool.
+        Collocation tool.
     </description>
 
     <changelog>
