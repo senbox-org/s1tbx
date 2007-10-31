@@ -30,7 +30,8 @@ class SpectralUnmixingForm extends JPanel {
         this.targetProductSelector = targetProductSelector;
         this.formModel = new SpectralUnmixingFormModel(appContext.getSelectedProduct());
         this.endmemberForm = new EndmemberForm(appContext);
-        initComponents();
+        sourceProductSelector = new SourceProductSelector(appContext, "Source product name:");
+        createComponents();
         bindComponents();
     }
 
@@ -40,6 +41,14 @@ class SpectralUnmixingForm extends JPanel {
 
     public EndmemberForm getEndmemberForm() {
         return endmemberForm;
+    }
+    
+    public void initForm() {
+        if (sourceProductSelector.getProductCount() > 0) {
+            sourceProductSelector.setSelectedIndex(0);
+        }
+        final Product sourceProduct = formModel.getSourceProduct();
+        targetProductSelector.getModel().setProductName(sourceProduct != null ? sourceProduct.getName() + "_unmixed" : "unmixed");
     }
 
     private void bindComponents() {
@@ -53,13 +62,7 @@ class SpectralUnmixingForm extends JPanel {
 
     }
 
-    private void initComponents() {
-        final Product sourceProduct = formModel.getSourceProduct();
-        sourceProductSelector = new SourceProductSelector(sourceProduct != null ? new Product[]{sourceProduct} : new Product[0],
-                                                          "Source product name:");
-        if (sourceProductSelector.getProductCount() > 0) {
-            sourceProductSelector.setSelectedIndex(0);
-        }
+    private void createComponents() {
         sourceProductSelector.getProductNameComboBox().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 final Product selectedProduct = sourceProductSelector.getSelectedProduct();
@@ -73,7 +76,6 @@ class SpectralUnmixingForm extends JPanel {
         final TargetProductSelectorModel targetProductSelectorModel = targetProductSelector.getModel();
         targetProductSelectorModel.setSaveToFileSelected(true);
         targetProductSelectorModel.setOpenInAppSelected(true);
-        targetProductSelectorModel.setProductName(sourceProduct != null ? sourceProduct.getName() + "_unmixed" : "unmixed");
         targetBandNameSuffix = new JTextField();
         unmixingModelName = new JComboBox();
         computeErrorBands = new JCheckBox("Compute error bands");

@@ -4,7 +4,10 @@ import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.ui.TableLayout;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 
 import javax.swing.*;
@@ -34,21 +37,16 @@ public class SourceProductSelector {
     private JLabel productNameLabel;
     private JButton productFileChooserButton;
     private JComboBox productNameComboBox;
+    private AppContext appContext;
 
-    public SourceProductSelector(Product[] selectableProducts, String labelText) {
-        this(selectableProducts, labelText, ".*");
+    public SourceProductSelector(AppContext appContext, String labelText) {
+        this(appContext, labelText, ".*");
     }
 
-    public SourceProductSelector(Product[] selectableProducts, String labelText, String typePattern) {
+    public SourceProductSelector(AppContext appContext, String labelText, String typePattern) {
         this.typePattern = Pattern.compile(typePattern);
+        this.appContext = appContext;
         productListModel = new DefaultComboBoxModel();
-
-        for (Product product : selectableProducts) {
-            if (this.typePattern.matcher(product.getProductType()).matches()) {
-                productListModel.addElement(product);
-            }
-        }
-        productListModel.setSelectedItem(null);
 
         productNameLabel = new JLabel(labelText);
         productFileChooserButton = new JButton(new ProductFileChooserAction());
@@ -73,6 +71,15 @@ public class SourceProductSelector {
                 }
             }
         });
+    }
+    
+    public void initProductList() {
+        for (Product product : appContext.getProducts()) {
+            if (this.typePattern.matcher(product.getProductType()).matches()) {
+                productListModel.addElement(product);
+            }
+        }
+        productListModel.setSelectedItem(null);
     }
 
     public Pattern getTypePattern() {
@@ -189,6 +196,9 @@ public class SourceProductSelector {
         public void actionPerformed(ActionEvent event) {
             final Window window = SwingUtilities.getWindowAncestor((JComponent) event.getSource());
 
+            String homeDirPath = SystemUtils.getUserHomeDir().getPath();
+            String openDir = appContext.getPreferences().getPropertyString(BasicApp.PROPERTY_KEY_APP_LAST_OPEN_DIR, homeDirPath);
+            currentDirectory = new File(openDir);
             chooser.setCurrentDirectory(currentDirectory);
 
             if (chooser.showDialog(window, APPROVE_BUTTON_TEXT) == JFileChooser.APPROVE_OPTION) {
@@ -211,6 +221,7 @@ public class SourceProductSelector {
                     handleError(window, e);
                 }
                 currentDirectory = chooser.getCurrentDirectory();
+                appContext.getPreferences().setPropertyString(BasicApp.PROPERTY_KEY_APP_LAST_OPEN_DIR, currentDirectory.getAbsolutePath());
             }
         }
 

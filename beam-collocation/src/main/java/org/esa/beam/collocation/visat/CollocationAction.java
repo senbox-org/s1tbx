@@ -12,9 +12,13 @@ import org.esa.beam.visat.actions.AbstractVisatAction;
  */
 public class CollocationAction extends AbstractVisatAction {
 
+    private ModalDialog dialog;
+
     @Override
     public void actionPerformed(CommandEvent event) {
-        final ModalDialog dialog = new CollocationDialog(getAppContext());
+        if (dialog == null) {
+            dialog = new CollocationDialog(getAppContext());
+        }
         dialog.show();
     }
 }

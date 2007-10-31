@@ -1,9 +1,9 @@
 package org.esa.beam.collocation.visat;
 
 import com.bc.ceres.binding.swing.SwingBindingContext;
-import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
+import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.TableLayout;
 
 import javax.swing.*;
@@ -31,12 +31,12 @@ public class CollocationForm extends JPanel {
     //    private JCheckBox createNewProductCheckBox;
     private TargetProductSelector targetProductSelector;
 
-    public CollocationForm(final CollocationFormModel model, TargetProductSelector targetProductSelector, Product[] selectableProducts) {
+    public CollocationForm(final CollocationFormModel model, TargetProductSelector targetProductSelector, AppContext appContext) {
         this.model = model;
 
         this.targetProductSelector = targetProductSelector;
-        referenceProductSelector = new SourceProductSelector(selectableProducts, "Reference product:");
-        subsidiaryProductSelector = new SourceProductSelector(selectableProducts, "Subsidiary product:");
+        referenceProductSelector = new SourceProductSelector(appContext, "Reference product:");
+        subsidiaryProductSelector = new SourceProductSelector(appContext, "Subsidiary product:");
 //        createNewProductCheckBox = new JCheckBox("Create new product");
         renameReferenceComponentsCheckBox = new JCheckBox("Rename reference components:");
         renameSubsidiaryComponentsCheckBox = new JCheckBox("Rename subsidiary components:");
@@ -59,15 +59,19 @@ public class CollocationForm extends JPanel {
         renameReferenceComponentsCheckBox.addActionListener(listener);
         renameSubsidiaryComponentsCheckBox.addActionListener(listener);
 
-        initComponents();
+        createComponents();
         bindComponents();
-
+    }
+    
+    public void initForm() {
+        referenceProductSelector.initProductList();
         if (referenceProductSelector.getProductCount() > 0) {
             referenceProductSelector.setSelectedIndex(0);
         }
+        subsidiaryProductSelector.initProductList();
         if (subsidiaryProductSelector.getProductCount() > 1) {
             subsidiaryProductSelector.setSelectedIndex(1);
-        }
+        }        
     }
 
     private void updateUIState() {
@@ -81,7 +85,7 @@ public class CollocationForm extends JPanel {
         subsidiaryProductSelector.dispose();
     }
 
-    private void initComponents() {
+    private void createComponents() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         add(createInputPanel());

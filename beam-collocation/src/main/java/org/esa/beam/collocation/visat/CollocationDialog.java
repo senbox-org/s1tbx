@@ -23,7 +23,7 @@ class CollocationDialog extends SingleTargetProductDialog {
         super(appContext, "Collocation", ID_OK_CANCEL_HELP, "collocation");
 
         formModel = new CollocationFormModel(getTargetProductSelector().getModel());
-        form = new CollocationForm(formModel, getTargetProductSelector(), appContext.getProducts());
+        form = new CollocationForm(formModel, getTargetProductSelector(), appContext);
     }
 
     @Override
@@ -46,6 +46,7 @@ class CollocationDialog extends SingleTargetProductDialog {
 
     @Override
     public int show() {
+        form.initForm();
         setContent(form);
         return super.show();
     }
