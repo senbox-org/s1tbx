@@ -73,7 +73,7 @@ public abstract class SingleTargetProductDialog extends ModalDialog {
         }
         String productDir = targetProductSelector.getModel().getProductDir().getAbsolutePath();
         appContext.getPreferences().setPropertyString(BasicApp.PROPERTY_KEY_APP_LAST_SAVE_DIR, productDir);
-        
+
         Product targetProduct = null;
         try {
             targetProduct = createTargetProduct();
@@ -116,11 +116,16 @@ public abstract class SingleTargetProductDialog extends ModalDialog {
                                      model.getFormatName(), SubProgressMonitor.create(pm, 95));
                 if (model.isOpenInAppSelected()) {
                     product = ProductIO.readProduct(model.getProductFile(), null);
+                    if (product == null) {
+                        product = targetProduct;
+                    }
                     pm.worked(5);
                 }
             } finally {
-                targetProduct.dispose();
                 pm.done();
+                if (product != targetProduct) {
+                    targetProduct.dispose();
+                }
             }
             return product;
         }

@@ -10,9 +10,7 @@ public class SpectralUnmixingAction extends AbstractVisatAction {
 
     @Override
     public void actionPerformed(final CommandEvent event) {
-        if (dialog != null) {
-            dialog.setSourceProduct(getAppContext().getSelectedProduct());
-        } else {
+        if (dialog == null) {
             dialog = new SpectralUnmixingDialog(getAppContext());
         }
         dialog.show();

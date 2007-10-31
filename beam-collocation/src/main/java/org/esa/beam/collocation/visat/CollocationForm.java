@@ -7,9 +7,11 @@ import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.TableLayout;
 
 import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.*;
 
 /**
  * Form for geographic collocation dialog.
@@ -61,12 +63,12 @@ public class CollocationForm extends JPanel {
         bindComponents();
     }
 
-    public void updateForm() {
-        masterProductSelector.updateProductList();
+    public void prepareShow() {
+        masterProductSelector.initProducts();
         if (masterProductSelector.getProductCount() > 0) {
             masterProductSelector.setSelectedIndex(0);
         }
-        slaveProductSelector.updateProductList();
+        slaveProductSelector.initProducts();
         if (slaveProductSelector.getProductCount() > 1) {
             slaveProductSelector.setSelectedIndex(1);
         }
@@ -77,9 +79,9 @@ public class CollocationForm extends JPanel {
         slaveComponentPatternField.setEnabled(renameSlaveComponentsCheckBox.isSelected());
     }
 
-    public void dispose() {
-        masterProductSelector.dispose();
-        slaveProductSelector.dispose();
+    public void prepareHide() {
+        masterProductSelector.releaseProducts();
+        slaveProductSelector.releaseProducts();
     }
 
     private void createComponents() {

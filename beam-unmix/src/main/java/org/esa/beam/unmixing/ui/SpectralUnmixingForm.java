@@ -16,6 +16,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 class SpectralUnmixingForm extends JPanel {
+    AppContext appContext;
     SpectralUnmixingFormModel formModel;
     EndmemberForm endmemberForm;
     SourceProductSelector sourceProductSelector;
@@ -27,10 +28,11 @@ class SpectralUnmixingForm extends JPanel {
     JCheckBox computeErrorBands;
 
     public SpectralUnmixingForm(AppContext appContext, TargetProductSelector targetProductSelector) {
+        this.appContext = appContext;
         this.targetProductSelector = targetProductSelector;
         this.formModel = new SpectralUnmixingFormModel(appContext.getSelectedProduct());
         this.endmemberForm = new EndmemberForm(appContext);
-        sourceProductSelector = new SourceProductSelector(appContext, "Source product name:");
+        this.sourceProductSelector = new SourceProductSelector(appContext);
         createComponents();
         bindComponents();
     }
@@ -42,14 +44,18 @@ class SpectralUnmixingForm extends JPanel {
     public EndmemberForm getEndmemberForm() {
         return endmemberForm;
     }
-    
-    public void updateForm() {
-        sourceProductSelector.updateProductList();
-        if (sourceProductSelector.getProductCount() > 0) {
-            sourceProductSelector.setSelectedIndex(0);
+
+    void prepareShow() {
+        sourceProductSelector.initProducts();
+        final Product selectedProduct = appContext.getSelectedProduct();
+        if (selectedProduct != null) {
+            targetProductSelector.getModel().setProductName(selectedProduct.getName() + "_unmixed");
         }
-        final Product sourceProduct = formModel.getSourceProduct();
-        targetProductSelector.getModel().setProductName(sourceProduct != null ? sourceProduct.getName() + "_unmixed" : "unmixed");
+        targetProductSelector.getProductNameTextField().requestFocus();
+    }
+
+    void prepareHide() {
+        sourceProductSelector.releaseProducts();
     }
 
     private void bindComponents() {
@@ -60,7 +66,6 @@ class SpectralUnmixingForm extends JPanel {
         bindingContext.bind(sourceBandNames, "sourceBandNames", true);
         bindingContext.bind(computeErrorBands, "computeErrorBands");
         bindingContext.bind(minBandwidth, "minBandwidth");
-
     }
 
     private void createComponents() {
@@ -109,7 +114,7 @@ class SpectralUnmixingForm extends JPanel {
         tableLayout.setRowFill(1, TableLayout.Fill.HORIZONTAL);
         tableLayout.setTablePadding(3, 3);
         JPanel panel = new JPanel(tableLayout);
-        panel.setBorder(BorderFactory.createTitledBorder("Source"));
+        panel.setBorder(BorderFactory.createTitledBorder("Source Product"));
         panel.add(sourceProductSelector.getProductNameLabel());
         panel.add(subPanel);
         panel.add(tableLayout.createVerticalSpacer());
@@ -135,13 +140,13 @@ class SpectralUnmixingForm extends JPanel {
         tableLayout.setRowPadding(2, new Insets(10, 0, 3, 0));
 
         final JPanel panel = new JPanel(tableLayout);
-        panel.setBorder(BorderFactory.createTitledBorder("Target"));
+        panel.setBorder(BorderFactory.createTitledBorder("Target Product"));
         panel.add(targetProductSelector.getProductNameLabel());
         panel.add(targetProductSelector.getProductNameTextField());
         panel.add(subPanel1);
-        panel.add(new JLabel("Directory:"));
+        panel.add(targetProductSelector.getProductDirLabel());
         panel.add(subPanel2);
-        
+
         return panel;
     }
 
@@ -169,7 +174,7 @@ class SpectralUnmixingForm extends JPanel {
 
     private JPanel createSourceBandsPanel() {
         JPanel panel = new JPanel(new BorderLayout(4, 4));
-        panel.add(new JLabel("Source bands:"), BorderLayout.NORTH);
+        panel.add(new JLabel("Spectral source bands:"), BorderLayout.NORTH);
         panel.add(new JScrollPane(sourceBandNames), BorderLayout.CENTER);
         return panel;
     }

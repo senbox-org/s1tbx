@@ -46,24 +46,16 @@ class CollocationDialog extends SingleTargetProductDialog {
 
     @Override
     public int show() {
-        form.updateForm();
+        form.prepareShow();
         setContent(form);
         return super.show();
     }
 
     @Override
-    protected void onOK() {
-        super.onOK();
-        dispose();
+    public void hide() {
+        form.prepareHide();
+        super.hide();
     }
 
-    @Override
-    protected void onCancel() {
-        super.onCancel();
-        dispose();
-    }
 
-    private void dispose() {
-        form.dispose();
-    }
 }

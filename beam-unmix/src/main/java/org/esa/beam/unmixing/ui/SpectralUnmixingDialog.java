@@ -43,11 +43,6 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
         form = new SpectralUnmixingForm(appContext, getTargetProductSelector());
     }
 
-    public void setSourceProduct(Product product) {
-        final SpectralUnmixingFormModel formModel = form.getFormModel();
-        formModel.setSourceProduct(product);
-    }
-
     @Override
     protected Product createTargetProduct() throws Exception {
         final SpectralUnmixingFormModel formModel = form.getFormModel();
@@ -59,10 +54,15 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
 
     @Override
     public int show() {
-        form.updateForm();
+        form.prepareShow();
         setContent(form);
-        form.targetProductSelector.getProductNameTextField().requestFocus();
         return super.show();
+    }
+
+    @Override
+    public void hide() {
+        form.prepareHide();
+        super.hide();
     }
 
     @Override

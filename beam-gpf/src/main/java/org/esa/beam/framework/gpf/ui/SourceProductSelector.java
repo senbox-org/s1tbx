@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Iterator;
-import java.util.regex.Pattern;
 
 /**
  * WARNING: This class belongs to a preliminary API and may change in future releases.
@@ -30,21 +29,19 @@ import java.util.regex.Pattern;
  */
 public class SourceProductSelector {
 
-    private Pattern typePattern;
+    private AppContext appContext;
     private Product extraProduct;
     private File currentDirectory;
     private DefaultComboBoxModel productListModel;
     private JLabel productNameLabel;
     private JButton productFileChooserButton;
     private JComboBox productNameComboBox;
-    private AppContext appContext;
 
-    public SourceProductSelector(AppContext appContext, String labelText) {
-        this(appContext, labelText, ".*");
+    public SourceProductSelector(AppContext appContext) {
+        this(appContext, "Name:");
     }
 
-    public SourceProductSelector(AppContext appContext, String labelText, String typePattern) {
-        this.typePattern = Pattern.compile(typePattern);
+    public SourceProductSelector(AppContext appContext, String labelText) {
         this.appContext = appContext;
         productListModel = new DefaultComboBoxModel();
 
@@ -72,19 +69,13 @@ public class SourceProductSelector {
             }
         });
     }
-    
-    public void updateProductList() {
+
+    public void initProducts() {
         productListModel.removeAllElements();
         for (Product product : appContext.getProducts()) {
-            if (this.typePattern.matcher(product.getProductType()).matches()) {
-                productListModel.addElement(product);
-            }
+            productListModel.addElement(product);
         }
-        productListModel.setSelectedItem(null);
-    }
-
-    public Pattern getTypePattern() {
-        return typePattern;
+        productListModel.setSelectedItem(appContext.getSelectedProduct());
     }
 
     public int getProductCount() {
@@ -109,28 +100,26 @@ public class SourceProductSelector {
         return currentDirectory;
     }
 
-    void setSelectedProduct(Product product) throws Exception {
-        if (typePattern.matcher(product.getProductType()).matches()) {
-            if (productListModelContains(product)) {
-                productListModel.setSelectedItem(product);
-            } else {
-                if (extraProduct != null) {
-                    productListModel.removeElement(extraProduct);
-                    extraProduct.dispose();
-                }
-                productListModel.addElement(product);
-                productListModel.setSelectedItem(product);
-                extraProduct = product;
-            }
+    public void setSelectedProduct(Product product) {
+        if (productListModelContains(product)) {
+            productListModel.setSelectedItem(product);
         } else {
-            throw new Exception(MessageFormat.format("Product ''{0}'' is not of appropriate type.", product.getName()));
+            if (extraProduct != null) {
+                productListModel.removeElement(extraProduct);
+                extraProduct.dispose();
+            }
+            productListModel.addElement(product);
+            productListModel.setSelectedItem(product);
+            extraProduct = product;
         }
     }
 
-    public void dispose() {
+    public void releaseProducts() {
         if (extraProduct != null && getSelectedProduct() != extraProduct) {
             extraProduct.dispose();
         }
+        extraProduct = null;
+        productListModel.removeAllElements();
     }
 
     // UI Components

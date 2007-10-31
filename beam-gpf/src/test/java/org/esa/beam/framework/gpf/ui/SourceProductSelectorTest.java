@@ -5,10 +5,9 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.util.PropertyMap;
 
+import javax.swing.JOptionPane;
 import java.awt.Window;
 import java.io.File;
-
-import javax.swing.JOptionPane;
 
 /**
  * @author Ralf Quast
@@ -32,7 +31,7 @@ public class SourceProductSelectorTest extends TestCase {
 
     public void testCreatedUIComponentsNotNull() {
         SourceProductSelector selector = new SourceProductSelector(appContext, "Source:");
-        selector.updateProductList();
+        selector.initProducts();
         assertNotNull(selector.getProductNameLabel());
         assertNotNull(selector.getProductNameComboBox());
         assertNotNull(selector.getProductFileChooserButton());
@@ -40,7 +39,7 @@ public class SourceProductSelectorTest extends TestCase {
 
     public void testCreatedUIComponentsAreSame() {
         SourceProductSelector selector = new SourceProductSelector(appContext, "Source:");
-        selector.updateProductList();
+        selector.initProducts();
         assertSame(selector.getProductNameLabel(), selector.getProductNameLabel());
         assertSame(selector.getProductNameComboBox(), selector.getProductNameComboBox());
         assertSame(selector.getProductFileChooserButton(), selector.getProductFileChooserButton());
@@ -48,7 +47,7 @@ public class SourceProductSelectorTest extends TestCase {
 
     public void testSetSelectedProduct() throws Exception {
         SourceProductSelector selector = new SourceProductSelector(appContext, "Source");
-        selector.updateProductList();
+        selector.initProducts();
         Product selectedProduct = selector.getSelectedProduct();
         assertNull(selectedProduct);
 
@@ -69,46 +68,19 @@ public class SourceProductSelectorTest extends TestCase {
         assertNull(oldProduct.getFileLocation()); // assert that old product is disposed
     }
 
-    public void testSetSelectedProductThrowsException() {
-        SourceProductSelector selector = new SourceProductSelector(appContext, "Source", "T.");
-        selector.updateProductList();
-        
-        Product newProduct = new Product("new", "T1", 0, 0);
-        try {
-            selector.setSelectedProduct(newProduct);
-        } catch (Exception e) {
-            fail("Exception not expected");
-        }
-        Product selectedProduct = selector.getSelectedProduct();
-        newProduct.setFileLocation(new File(""));
-        assertSame(newProduct, selectedProduct);
-
-        Product otherProduct = new Product("other", "P1", 0, 0);
-        try {
-            selector.setSelectedProduct(otherProduct);
-            fail("No exception expected");
-        } catch (Exception expected) {
-            // ignore
-        }
-
-        selectedProduct = selector.getSelectedProduct();
-        assertSame(newProduct, selectedProduct);
-        assertNotNull(newProduct.getFileLocation()); // assert that old product is not disposed
-    }
-
-    public void testDispose() throws Exception {
+    public void testReleaseProducts() throws Exception {
         SourceProductSelector selector = new SourceProductSelector(appContext, "Source");
-        selector.updateProductList();
+        selector.initProducts();
         try {
-            selector.dispose();
+            selector.releaseProducts();
         } catch (Throwable e) {
             fail("No Throwable expected");
         }
 
 
         selector = new SourceProductSelector(appContext, "Source");
-        selector.updateProductList();
-        
+        selector.initProducts();
+
         Product newProduct = new Product("new", "T1", 0, 0);
         newProduct.setFileLocation(new File(""));
         selector.setSelectedProduct(newProduct);
@@ -116,7 +88,7 @@ public class SourceProductSelectorTest extends TestCase {
         Product selectedProduct = selector.getSelectedProduct();
         assertSame(newProduct, selectedProduct);
 
-        selector.dispose();
+        selector.releaseProducts();
         assertNotNull(newProduct.getFileLocation()); // assert that new product is not disposed while it is selected
 
         selector.setSelectedProduct(defaultProducts[0]);
@@ -124,23 +96,19 @@ public class SourceProductSelectorTest extends TestCase {
         assertSame(defaultProducts[0], selectedProduct);
 
         assertNotNull(newProduct.getFileLocation());
-        selector.dispose();
+        selector.releaseProducts();
         assertNull(newProduct.getFileLocation()); // assert that new product is disposed
     }
 
-    public void testFileChooserAction() {
-
-    }
-
     public void testSetSelectedIndex() throws Exception {
-        SourceProductSelector selector = new SourceProductSelector(appContext, "Source", "T.");
-        selector.updateProductList();
+        SourceProductSelector selector = new SourceProductSelector(appContext, "Source");
+        selector.initProducts();
         assertNull(selector.getSelectedProduct());
 
         selector.setSelectedIndex(0);
         assertSame(defaultProducts[0], selector.getSelectedProduct());
     }
-    
+
     private class MockAppContext implements AppContext {
         private PropertyMap preferences = new PropertyMap();
 
