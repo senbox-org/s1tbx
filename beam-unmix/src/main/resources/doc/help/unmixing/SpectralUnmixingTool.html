@@ -15,18 +15,16 @@
 
 <h3>Introduction</h3>
 
-<p>
-    The spectral unmixing tool is used to decompose a source spectrum into a set of given <i>endmembers</i>.
-    The result of the unmixing is a measure of the membership of each endmember to the source source spectrum.
-    This measure is called the endmember's <i>abundance</i>. The tool can also compute an error measure
-    for each spectral source band and a summary, root mean square error band.
+<p>The spectral unmixing tool is used to decompose a recflectance (or corrected radiance) source spectrum into
+    a set of given <i>endmember</i> spectra. The result of the unmixing is a measure of the membership of the
+    individual endmember to the source source spectrum. This measure is called the endmember's <i>abundance</i>.
+    The tool can also compute an error measure for each spectral source band and a summary, root mean square
+    error band.
 </p>
-
 
 <h3>Algorithm</h3>
 
-<p>
-    The unmixing algorithms are based on the following linear mixing model, which assumes that a spectrum is a linear
+<p>The unmixing algorithms are based on the following linear mixing model, which assumes that a spectrum is a linear
     superposition of endmembers:
 </p>
 
@@ -34,19 +32,23 @@
     <img src="images/LSU.png" alt="LSU.png"/>
 </p>
 
-<p>
-    The abundances can be computed using three different algorithms:
-<ol>
-    <li>Unconstrained LSU -
-        The abundances are unconstrained and can become any numeric value.
-    </li>
-    <li>Constrained LSU -
-        The sum of abundances equals 1. This is the default unmixing algorithm.
-    </li>
-    <li>Fully Constrained LSU -
-        The sum of abundances equals 1 and abundance values cannot be less than zero.
-    </li>
-</ol>
+<p>The abundances can be computed using three different algorithms:
+</p>
+<blockquote>
+    <ol>
+        <li>Unconstrained LSU -
+            The abundances are unconstrained and can become any numeric value.
+        </li>
+        <li>Constrained LSU -
+            The sum of abundances equals 1. This is the default unmixing algorithm.
+        </li>
+        <li>Fully Constrained LSU -
+            The sum of abundances equals 1 and abundance values cannot be less than zero.
+        </li>
+    </ol>
+</blockquote>
+
+<p>All algorithms assume that wavelengths are given in nanometers (BEAM's default wavelength unit).
 </p>
 
 <h4>User Interface</h4>
@@ -95,9 +97,92 @@
 </p>
 
 <p class="i1">
-    <b>Spectral unmixing model: </b>
-    Selects one the linear unmixing algorithms as described above.
+    <b>Minimum spectral bandwidth: </b>
+    The minimum spectral bandwidth is used find a source band wavelength within the given endmember spectra.
+    An enmember wavelength matches a source wavelength if its deviation is within the maximum of the source
+    band's inherent bandwidth and the minimum spectral bandwidth. The value is given in nanometers.
 </p>
+
+<p class="i1">
+    <b>Compute error bands: </b>
+    Error bands are computed only if this option is selected.
+</p>
+
+<p class="i1">
+    <b>Endmembers: </b>
+    Lists the endmembers to be used for the unmixing. The tool buttons to the left of the list field
+    are used to modify the list of endmembers. They are:
+</p>
+<blockquote>
+    <table>
+        <tr>
+            <td><b>Add</b></td>
+            <td>Opens a text file containing endmembers in character separated format (CSV) and adds
+                all endmembers found to the list. The CSV format is described below.
+            </td>
+        </tr>
+        <tr>
+            <td><b>Remove</b></td>
+            <td>Removes the selected endmember(s) from the list.</td>
+        </tr>
+        <tr>
+            <td><b>Clear</b></td>
+            <td>Removes all endmembers from the list.</td>
+        </tr>
+        <tr>
+            <td><b>Export</b></td>
+            <td>Exports the endmembers in the list to a CSV text file.</td>
+        </tr>
+    </table>
+</blockquote>
+
+<p>Next to the endmember list is a spectrum diagram which is used to provide a visual feedback about
+    the endmembers selected so far. The graph of the endmember selected in the list is displayed bold.
+    You can drag the mouse in the diagram in order to display the value of the selected spectrum graph
+    at the current cursor position (see screenshot above).
+</p>
+
+<h5>Endmember CSV Format</h5>
+
+<p>The CSV format used to import and export endmembers is a plain text format.
+    It comprises a header line and a record line for each wavelengths and reflectances
+    (or corrected radiances) of the of the endmember spectra. The <b>Tab</b> character is
+    used to separate header and record fields. The first header field is assumed to be the
+    wavelength in nanometers. Given here is an example of the contents of a CSV endmember file:
+</p>
+
+<blockquote>
+    <table class="code">
+        <tr>
+            <td>Wavelength</td>
+            <td>Forrest</td>
+            <td>Cropland</td>
+            <td>Cloud</td>
+            <td>Ocean</td>
+        </tr>
+        <tr>
+            <td>412.691</td>
+            <td>53.62759</td>
+            <td>66.19122</td>
+            <td>76.46195</td>
+            <td>70.6823</td>
+        </tr>
+        <tr>
+            <td>442.559</td>
+            <td>47.280907</td>
+            <td>66.45199</td>
+            <td>73.67296</td>
+            <td>61.99853</td>
+        </tr>
+        <tr>
+            <td>489.882</td>
+            <td>35.135273</td>
+            <td>64.50155</td>
+            <td>66.50564</td>
+            <td>46.74277</td>
+        </tr>
+    </table>
+</blockquote>
 
 <hr/>
 
