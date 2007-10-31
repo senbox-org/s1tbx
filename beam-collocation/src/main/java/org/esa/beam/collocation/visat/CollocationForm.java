@@ -168,7 +168,7 @@ public class CollocationForm extends JPanel {
 
         final JPanel panel = new JPanel(layout);
         panel.setBorder(BorderFactory.createTitledBorder("Resampling"));
-        panel.add(new JLabel("Resampling:"));
+        panel.add(new JLabel("Resampling method:"));
         panel.add(resamplingComboBox);
         panel.add(new JLabel());
 
