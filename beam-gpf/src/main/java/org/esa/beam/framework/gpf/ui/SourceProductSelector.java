@@ -1,16 +1,5 @@
 package org.esa.beam.framework.gpf.ui;
 
-import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.dataio.ProductIOPlugInManager;
-import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.BasicApp;
-import org.esa.beam.framework.ui.TableLayout;
-import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.io.BeamFileChooser;
-
-import javax.swing.*;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -21,6 +10,33 @@ import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Iterator;
+
+import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
+
+import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.dataio.ProductIOPlugInManager;
+import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.BasicApp;
+import org.esa.beam.framework.ui.TableLayout;
+import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.io.BeamFileChooser;
 
 /**
  * WARNING: This class belongs to a preliminary API and may change in future releases.
@@ -55,6 +71,7 @@ public class SourceProductSelector {
         productNameComboBox = new JComboBox(productListModel);
         productNameComboBox.setPrototypeDisplayValue("[1] 123456789 123456789 12345");
         productNameComboBox.setRenderer(new ProductListCellRenderer());
+        productNameComboBox.addPopupMenuListener(new ProductPopupMenuListener());
         productNameComboBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 final Product product = (Product) productNameComboBox.getSelectedItem();
@@ -241,6 +258,42 @@ public class SourceProductSelector {
             }
 
             return cellRendererComponent;
+        }
+    }
+    
+    /**
+     * To let the popup menu be wider than the closed combobox.
+     * Adapted an idea from http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6257236
+     */
+    private static class ProductPopupMenuListener  implements PopupMenuListener {
+        
+        public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+            JComboBox box = (JComboBox) e.getSource();
+            Object comp = box.getUI().getAccessibleChild(box, 0);
+            if (!(comp instanceof JPopupMenu))
+                return;
+            JComponent scrollPane = (JComponent) ((JPopupMenu) comp)
+                    .getComponent(0);
+            Dimension size = new Dimension();
+            size.width = scrollPane.getPreferredSize().width;
+            final int boxItemCount = box.getModel().getSize();
+            for (int i = 0; i < boxItemCount; i++) {
+                Product product = (Product) box.getModel().getElementAt(i);
+                final JLabel label = new JLabel();
+                label.setText(product.getDisplayName());
+                size.width = Math.max(label.getPreferredSize().width, size.width);
+            }
+            size.height = scrollPane.getPreferredSize().height;
+            scrollPane.setPreferredSize(size);
+            scrollPane.setMaximumSize(size);
+        }
+
+        @Override
+        public void popupMenuCanceled(PopupMenuEvent e) {
+        }
+
+        @Override
+        public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
         }
     }
 
