@@ -11,8 +11,9 @@ Description:
 Arguments:
   <op>               Name of an operator. See below for the list of <op>s.
   <graph-file>       Operator graph file (XML format).
-  <source-file-i>    Source file <i>. The actual number of source files is
-                     specified by <op> or <graph>.
+  <source-file-i>    The <i>th source product file. The actual number of
+                     source file arguments is specified by <op>. May be
+                     optional for operators which use the '-S' option.
 
 Options:
   -h                 Displays command usage. If <op> is given, the specific
