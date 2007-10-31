@@ -114,12 +114,12 @@ public abstract class SingleTargetProductDialog extends ModalDialog {
                 WriteOp.writeProduct(targetProduct,
                                      model.getProductFile(),
                                      model.getFormatName(), SubProgressMonitor.create(pm, 95));
-                targetProduct.dispose();
                 if (model.isOpenInAppSelected()) {
                     product = ProductIO.readProduct(model.getProductFile(), null);
                     pm.worked(5);
                 }
             } finally {
+                targetProduct.dispose();
                 pm.done();
             }
             return product;
