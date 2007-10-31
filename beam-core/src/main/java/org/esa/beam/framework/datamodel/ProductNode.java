@@ -289,7 +289,7 @@ public abstract class ProductNode {
     protected ProductReader getProductReaderSafe() {
         ProductReader productReader = getProductReader();
         if (productReader == null) {
-            throw new IllegalStateException(getClass().getName() + " '" + getName() + "' requires a productReader which has not been set");  /*I18N*/
+            throw new IllegalStateException(getClass().getName() + " '" + getName() + "': no ProductReader set");  /*I18N*/
         }
         return productReader;
     }
@@ -315,7 +315,7 @@ public abstract class ProductNode {
         ProductWriter productWriter = getProductWriter();
         if (productWriter == null) {
             throw new IllegalStateException(
-                    "node '" + getName() + "' requires a product productWriter which has not been set"); /*I18N*/
+                    getClass().getName() + " '" + getName() + "': no ProductWriter set"); /*I18N*/
         }
         return productWriter;
     }
