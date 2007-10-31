@@ -9,7 +9,8 @@
     <tr class="header">
         <td class="header">&nbsp; The Preferences Dialog</td>
 
-        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border="0"></a></td>
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg"
+                                                                                     border="0"></a></td>
     </tr>
 </table>
 <p> On the left side of the Preferences dialog window you can see a thematical
@@ -17,40 +18,24 @@
     the following example a screen shot is shown where the settings for the user
     interface behavior can be edited.<br>
     <br>
-    Click on the items of the thematical tree to get detailed information: </p>
 
-<p align="center"><img src="images/PreferencesDialog.jpg" border="0" usemap="#Map">
-    <map name="Map" id="map">
-        <area shape="rect" coords="36,43,94,57" href="#uibehavior">
-        <area shape="rect" coords="36,62,108,71" href="#uiappearance">
-        <area shape="rect" coords="36,77,126,87" href="#modulerepository">
-        <area shape="rect" coords="36,95,116,104" href="#productsettings">
-        <area shape="rect" coords="36,108,133,120" href="#geolocationdisplay">
-        <area shape="rect" coords="36,124,128,136" href="#dataio">
-        <area shape="rect" coords="36,141,117,151" href="#layerproperties">
-        <area shape="rect" coords="55,157,117,168" href="#imagedisplay">
-        <area shape="rect" coords="55,173,127,182" href="#nodataoverlay">
-        <area shape="rect" coords="55,188,128,198" href="#graticuleoverlay">
-        <area shape="rect" coords="55,206,102,215" href="#pinOverlay">
-        <area shape="rect" coords="55,220,116,232" href="#shapefigureoverlay">
-        <area shape="rect" coords="55,236,105,247" href="#roioverlay">
+<p align="center"><img src="images/PreferencesDialog.jpg" border="0"></p>
 
-        <area shape="rect" coords="36,253,129,263" href="#rgbprofiles">
-        <area shape="rect" coords="36,269,74,279" href="#logging">
-    </map>
-</p>
-<h4><a name="uibehavior"></a>UI Behavior</h4>
+
+<h4><a name="uibehavior">UI Behavior</a></h4>
 
 <p>This preferences page contains general user interface behavior and memory
     management settings.</p>
 <ul>
     <li><b>Show navigation window when image views are opened</b><br>
         If an image view is opened the <a href="NavigationWindow.html">navigation window</a>
-        will also be opened. </li>
+        will also be opened.
+    </li>
     <li><b>Open image view for new (virtual) bands</b><br>
         Currently, this option only affects the <a href="BandArithmetics.html">band
         arithmetic tool</a>. If this option is selected a new image view is automatically
-        created and opened for any new bands created in the band arithmetic tool. </li>
+        created and opened for any new bands created in the band arithmetic tool.
+    </li>
     <li><b>Show only pixel values of loaded or displayed bands</b><br>
         If selected, the pixel info view will only show pixel values of bands which have their raster data completely
         loaded into memory or which are currently displayed as an image. If this option is not selected,
@@ -58,17 +43,20 @@
         For those bands which are not loaded, VISAT reads the sample values directly
         from the product file. Depending on your computer's I/O performance and the
         location of the product file (e.g. CD-ROM, harddrive, network) this can have
-        an impact of VISAT's runtime performance. </li>
+        an impact of VISAT's runtime performance.
+    </li>
 
 
     <li><b>On product open, warn if product size exceeds</b> <br>
         If a product being opened has a file size greater than the size put in here,
         then VISAT asks you whether or not you want to create a spectral or spatial
-        subset of this product in order to reduce the required memory. </li>
+        subset of this product in order to reduce the required memory.
+    </li>
     <li><b>On low memory, warn if free RAM falls below</b><br>
         Here you can enter a value in megabytes, which uses VISAT to decide to pop-up
         a low memory message box. Set this value to zero, if you don't want to get
-        any warnings. </li>
+        any warnings.
+    </li>
     <li><b>On image open, load raster data only if size is below</b><br>
         The value entered here is the number of megabytes a band's raster can have so that it is completely loaded into
         memory before the image is displayed. If raster data is completely loaded into memory, VISAT can perform
@@ -96,7 +84,7 @@
 </ul>
 
 
-<h4><a name="uiappearance"></a>UI Appearance</h4>
+<h4><a name="uiappearance">UI Appearance</a></h4>
 <ul>
     <li><b>UI Font:</b><br>
         Sets VISAT user interface font name and size.
@@ -107,7 +95,7 @@
 </ul>
 
 
-<h4><a name="modulerepository"></a>Module Repository</h4>
+<h4><a name="modulerepository">Module Repository</a></h4>
 <ul>
     <li><b>Module Repository URL:</b><br>
         This is the URL to the modules repository. The <a href="ModuleManager.html">module manager</a>
@@ -135,7 +123,7 @@
 </ul>
 
 
-<h4><a name="productsettings"></a>Product Settings</h4>
+<h4><a name="productsettings">Product Settings</a></h4>
 
 <ul>
     <li><b>Consider products as spatially compatible, if their geo-locations differ less than</b><br>
@@ -143,10 +131,11 @@
         The check is performed in order to decide which bands from which products can be used as
         data source in a band arithmetic expression. The value must be given in degrees. Use small values,
         e.g. 0.0001 degrees, to perform a high accuracy check. This will ensure that products completely overlap
-        each other in space.</li>
+        each other in space.
+    </li>
 </ul>
 
-<h4><a name="geolocationdisplay"></a>Geo-location Display</h4>
+<h4><a name="geolocationdisplay">Geo-location Display</a></h4>
 
 <p>
     VISAT uses an image coordinate system whose origin (x=0, y=0) is the upper left corner of the
@@ -157,54 +146,60 @@
     <li><b>Relative pixel-X/Y offset</b><br>
         Defines a relative offset used to display image coordinates and associated geo-location information.
         Note that the offset is exclusively used for coordinate value display, it does not affect the geo-coding
-        information associated with a data product.</li>
+        information associated with a data product.
+    </li>
     <li><b>Show floating-point image coordinates</b><br>
         Select this option to display image coordinates as floating point values, e.g. in the
         geo-location section of the <a href="ProductBrowser.html#pixelView">pixel info view</a>. If not selected,
-        image coordinates are displayed as integer values.</li>
+        image coordinates are displayed as integer values.
+    </li>
 
 </ul>
 
 
-<h4><a name="dataio"></a>Data Input/Output</h4>
+<h4><a name="dataio">Data Input/Output</a></h4>
 <ul>
     <li><b>Save product header (MPH, SPH)</b><br>
         This options allows you to include/exclude the main product header (MPH) and
         specific product header (SPH) of ENVISAT products in/from the file being saved.
         If this option is selected, VISAT stores the MPH and SPH as meta-data in the
         BEAM-DIMAP (XML) header.<br>
-        It is recommended to always include this meta data. </li>
+        It is recommended to always include this meta data.
+    </li>
     <li><b>Save product history (History)</b><br>
         This option switches the saving of the processing history of the product on
         or off. It is recommended to always include this meta data to be able to track
-        the processing stages and the original product.</li>
+        the processing stages and the original product.
+    </li>
     <li><b>Save product annotation data sets (ADS)</b><br>
         This options allows you to include/exclude all annotation data sets (ADS) of
         ENVISAT products in/from the file being saved. If this option is selected,
         VISAT stores ADS as meta-data in the BEAM-DIMAP (XML) header.<br>
         For ENVISAT products, location and annotation data sets (provided at tie-points)
         need not to be stored as meta data, since VISAT automatically converts them
-        into <i>tie point grids</i>, which are separately saved. </li>
+        into <i>tie point grids</i>, which are separately saved.
+    </li>
     <li><b>Use incremental Save</b><br>
         If this option is selected (recommended), VISAT will only save the modifications
         applied to a product, such as band modified or created with band arithmetic
-        tool or the removal od bands. </li>
+        tool or the removal od bands.
+    </li>
 </ul>
 
-<h4><a name="layerproperties"></a>Layer Properties -&gt; </h4>
+<h4><a name="layerproperties">Layer Properties -&gt;</a> </h4>
 <ul>
     <li><b>Use anti-aliasing for rendering text and vector graphics</b><br>
         If this option is selected, VISAT uses anti-aliasing to smooth vector graphics
         within image views.
     </li>
 </ul>
-<h4><a name="imagedisplay"></a>Image Display</h4>
+<h4><a name="imagedisplay">Image Display</a></h4>
 <ul>
     <li><b>Interpolation method </b><br>
         Here you can choose how neighboring pixel colors are interpolated. Choose
         <ul>
             <li><em>Nearest Neighbour</em> to prevent colors from being mixed,</li>
-            <li><em>Bi-linear</em> or <em>Bi-Cubic</em> to smooth the image. </li>
+            <li><em>Bi-linear</em> or <em>Bi-Cubic</em> to smooth the image.</li>
         </ul>
     </li>
 </ul>
@@ -221,124 +216,171 @@
 
 <ul>
     <li><b>Background color</b><br>
-        Choose a background color for the image displayed in the <a href="ProductSceneView.html">image view</a>.</li>
+        Choose a background color for the image displayed in the <a href="ProductSceneView.html">image view</a>.
+    </li>
     <li><b>Show image border </b><br>
         Here you can specify if an image border should be visible in the <a href="ProductSceneView.html">image view</a>.
-        If yes, you can also set the border size and color. </li>
+        If yes, you can also set the border size and color.
+    </li>
     <li><b>Show pixel border in magnified views </b><br>
         Define whether a border should be drawed around a pixel under magnification when the mouse cursor points at it.
     </li>
 </ul>
-<h4><a name="nodataoverlay"></a>No-data overlay</h4>
+<h4><a name="nodataoverlay">No-data overlay</a></h4>
 
 <p>This preferences page provides options to customize VISAT's <a href="NoDataOverlay.html">no-data overlay</a>.</p>
 <ul>
     <li><b>Color:</b><br>
-        Sets the fill color of a ROI. </li>
+        Sets the fill color of a ROI.
+    </li>
     <li><b>Transparency:</b><br>
-        Sets the transparency of a filled ROI. </li>
+        Sets the transparency of a filled ROI.
+    </li>
 </ul>
 
-<h4><a name="graticuleoverlay"></a>Graticule Overlay</h4>
+<h4><a name="graticuleoverlay">Graticule Overlay</a></h4>
 
 <p>This preferences page provides options to customize VISAT's graticule overlay.</p>
 <ul>
     <li><b>Grid behaviour:</b>
         <ul>
             <li><b>Compute latitude and longitude steps</b><br>
-                The step size of the grid lines will be computed automatically. </li>
+                The step size of the grid lines will be computed automatically.
+            </li>
             <li><b>Average grid size in pixels</b><br>
-                Defines the size in pixels of the grid cells. </li>
+                Defines the size in pixels of the grid cells.
+            </li>
             <li><b>Latitude step (dec. degree):</b><br>
-                Sets the grid latitude step in decimal degree. </li>
+                Sets the grid latitude step in decimal degree.
+            </li>
             <li><b>Longitude step (dec. degree):</b><br>
-                Sets the grid longitude step in decimal degree. </li>
+                Sets the grid longitude step in decimal degree.
+            </li>
         </ul>
     </li>
 
     <li><b>Line appearance:</b>
         <ul>
             <li><b>Line color:</b><br>
-                Sets the color of the grid lines.</li>
+                Sets the color of the grid lines.
+            </li>
             <li><b>Line width:</b><br>
-                Sets the width of the grid lines. </li>
+                Sets the width of the grid lines.
+            </li>
             <li><b>line transparency:</b><br>
-                Sets the transparency of the grid lines. </li>
+                Sets the transparency of the grid lines.
+            </li>
         </ul>
     </li>
 
     <li><b>Text appearance:</b>
         <ul>
             <li><b>Show text lables:</b><br>
-                Sets the visibility of the text lables.</li>
+                Sets the visibility of the text lables.
+            </li>
             <li><b>Text foreground color:</b><br>
-                Sets the color of the graticule text (latitude and longitude values). </li>
+                Sets the color of the graticule text (latitude and longitude values).
+            </li>
             <li><b>Text background color:</b><br>
-                Sets the background color of the graticule text (latitude and longitude values). </li>
+                Sets the background color of the graticule text (latitude and longitude values).
+            </li>
             <li><b>Text background transparency:</b><br>
-                Sets the transparency of the background color of the graticule text. </li>
+                Sets the transparency of the background color of the graticule text.
+            </li>
         </ul>
 
     </li>
 </ul>
 
 
-<h4><a name="pinOverlay"></a>Pin Overlay</h4>
+<h4><a name="pinOverlay">Pin Overlay</a></h4>
 
 <p>This preferences page provides options to customize VISAT's pin overlay.</p>
 <ul>
     <li><b>Show text lables:</b><br>
-        Shows the lables of the displayed pins.</li>
+        Shows the lables of the displayed pins.
+    </li>
     <li><b>Text foreground layer:</b><br>
-        Sets the foreground color of the lables.</li>
+        Sets the foreground color of the lables.
+    </li>
     <li><b>Text background layer:</b><br>
-        Sets the background color for the lables.</li>
+        Sets the background color for the lables.
+    </li>
     <li><b>Text background transparency:</b><br>
-        Sets the transparency of the background for the lables.</li>
+        Sets the transparency of the background for the lables.
+    </li>
 </ul>
 
 
-<h4><a name="shapefigureoverlay"></a>Shape Figure Overlay </h4>
+<h4><a name="gcpOverlay">GCP Overlay</a></h4>
+
+<p>This preferences page provides options to customize VISAT's GCP overlay.</p>
+<ul>
+    <li><b>Show text lables:</b><br>
+        Shows the lables of the displayed GCPs.
+    </li>
+    <li><b>Text foreground layer:</b><br>
+        Sets the foreground color of the lables.
+    </li>
+    <li><b>Text background layer:</b><br>
+        Sets the background color for the lables.
+    </li>
+    <li><b>Text background transparency:</b><br>
+        Sets the transparency of the background for the lables.
+    </li>
+</ul>
+
+
+<h4><a name="shapefigureoverlay">Shape Figure Overlay </a></h4>
 
 <p>This preferences page provides options to customize VISAT's shape overlay.</p>
 <ul>
     <li><b>Outline appearance:</b>
         <ul>
             <li><b>Outline shape</b><br>
-                If selected, the outline of a ROI is also drawn. </li>
+                If selected, the outline of a ROI is also drawn.
+            </li>
             <li><b>Shape outline color:</b><br>
-                Sets the color of a shape's outline. </li>
+                Sets the color of a shape's outline.
+            </li>
             <li><b>Shape outline transparency:</b><br>
-                Sets the transparency of a shape's outline. Low values produce high coverage.</li>
+                Sets the transparency of a shape's outline. Low values produce high coverage.
+            </li>
             <li><b>Shape outline width:</b><br>
-                Sets the width of a ROI's outline. </li>
+                Sets the width of a ROI's outline.
+            </li>
         </ul>
     </li>
 
     <li><b>Fill appearance:</b>
         <ul>
             <li><b>Fill shape</b><br>
-                If selected, the shape area is also drawn. </li>
+                If selected, the shape area is also drawn.
+            </li>
             <li><b>Shape fill color:</b><br>
-                Sets the color of a shape's area. </li>
+                Sets the color of a shape's area.
+            </li>
             <li><b>Shape fill transparency:</b><br>
-                Sets the transparency of a shape's area. Low values produce high coverage.</li>
+                Sets the transparency of a shape's area. Low values produce high coverage.
+            </li>
         </ul>
     </li>
 </ul>
 
-<h4><a name="roioverlay"></a>ROI Overlay</h4>
+<h4><a name="roioverlay">ROI Overlay</a></h4>
 
 <p>This preferences page provides options to customize VISAT's ROI overlay.</p>
 <ul>
     <li><b>Color:</b><br>
-        Sets the fill color of a ROI. </li>
+        Sets the fill color of a ROI.
+    </li>
     <li><b>Transparency:</b><br>
-        Sets the transparency of a filled ROI. </li>
+        Sets the transparency of a filled ROI.
+    </li>
 </ul>
 
 
-<h4><a name="rgbprofiles"></a>RGB Profiles</h4>
+<h4><a name="rgbprofiles">RGB Profiles</a></h4>
 
 <p>This preference page is used to edit the RGB profiles used for RGB image creation
     from various product types. A RGB-Profile defines the arithmetical band expressions
@@ -349,11 +391,13 @@
 <B>Profile</b> Lets you Select on of the actual stored RGB-Profiles to use for creation of the new image view.
 <ul>
     <li>Use the <img src="images/icons/Open24.gif" alt="Open" border="0"> to open a stored
-        <a href="RGBImageProfile.html#profileFile">RGB-Profile file</a>.</li>
+        <a href="RGBImageProfile.html#profileFile">RGB-Profile file</a>.
+    </li>
     <li>Use the <img src="images/icons/Save24.gif" alt="Save" border="0"> to save the currently displayed RGB-Profile.
     </li>
     <li>Use the <img src="images/icons/Remove24.gif" alt="Remove" border="0"> to delete the currently displayed
-        RGB-Profile.</li>
+        RGB-Profile.
+    </li>
 </ul>
 <b>RGB Channels</b>
 <ul>
@@ -373,17 +417,19 @@
     documentation for the syntax and capablities of expressions. <br>
 </p>
 
-<h4><a name="logging"></a>Logging</h4>
+<h4><a name="logging">Logging</a></h4>
 
 <p>This preferences page provides options to customize VISAT's logging behavior.</p>
 <ul>
     <li><b>Enable logging</b><br>
         If this option is selected, VISAT writes a log file which can be used to reconstruct
-        user interactions and to trace system failures. </li>
+        user interactions and to trace system failures.
+    </li>
     <li><b>Log filename prefix:</b><br>
         Here you can enter a prefix for the log file name. The disk file name will
         be assembled of this prefix plus a log file version number and an identification
-        number. Log files are always written the folder <b>log</b> located in the BEAM installation directory. </li>
+        number. Log files are always written the folder <b>log</b> located in the BEAM installation directory.
+    </li>
     <li><b>Echo log output (effective only with console)</b><br>
         If VISAT is started with a text console window using the
         <b><i>$BeamInstallDir$</i>/bin/visat-console.bat</b> (Windows) or
