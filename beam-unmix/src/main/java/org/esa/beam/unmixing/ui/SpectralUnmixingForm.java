@@ -21,7 +21,8 @@ class SpectralUnmixingForm extends JPanel {
     SourceProductSelector sourceProductSelector;
     TargetProductSelector targetProductSelector;
     JList sourceBandNames;
-    JTextField targetBandNameSuffix;
+    JTextField abundanceBandNameSuffix;
+    JTextField errorBandNameSuffix;
     JTextField minBandwidth;
     JComboBox unmixingModelName;
     JCheckBox computeErrorBands;
@@ -68,7 +69,8 @@ class SpectralUnmixingForm extends JPanel {
         SwingBindingContext bindingContext = new SwingBindingContext(formModel.getOperatorValueContainer());
 
         bindingContext.bind(unmixingModelName, "unmixingModelName");
-        bindingContext.bind(targetBandNameSuffix, "targetBandNameSuffix");
+        bindingContext.bind(abundanceBandNameSuffix, "abundanceBandNameSuffix");
+        bindingContext.bind(errorBandNameSuffix, "errorBandNameSuffix");
         bindingContext.bind(sourceBandNames, "sourceBandNames", true);
         bindingContext.bind(computeErrorBands, "computeErrorBands");
         bindingContext.bind(minBandwidth, "minBandwidth");
@@ -89,7 +91,8 @@ class SpectralUnmixingForm extends JPanel {
         final TargetProductSelectorModel targetProductSelectorModel = targetProductSelector.getModel();
         targetProductSelectorModel.setSaveToFileSelected(true);
         targetProductSelectorModel.setOpenInAppSelected(true);
-        targetBandNameSuffix = new JTextField();
+        abundanceBandNameSuffix = new JTextField();
+        errorBandNameSuffix = new JTextField();
         unmixingModelName = new JComboBox();
         computeErrorBands = new JCheckBox("Compute error bands");
         minBandwidth = new JTextField();
@@ -152,11 +155,14 @@ class SpectralUnmixingForm extends JPanel {
         tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
         tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
         tableLayout.setColumnWeightX(1, 1.0);
-        tableLayout.setCellColspan(3, 0, 2);
+        tableLayout.setCellColspan(4, 0, 2);
         JPanel panel = new JPanel(tableLayout);
 
-        panel.add(new JLabel("Target band name suffix: "));
-        panel.add(targetBandNameSuffix);
+        panel.add(new JLabel("Abundance band name suffix: "));
+        panel.add(abundanceBandNameSuffix);
+
+        panel.add(new JLabel("Error band name suffix: "));
+        panel.add(errorBandNameSuffix);
 
         panel.add(new JLabel("Spectral unmixing model: "));
         panel.add(unmixingModelName);

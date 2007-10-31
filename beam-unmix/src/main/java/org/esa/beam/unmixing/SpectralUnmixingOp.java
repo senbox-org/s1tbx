@@ -75,8 +75,11 @@ public class SpectralUnmixingOp extends Operator {
     @Parameter(description = "The unmixing model.", valueSet = {TYPE_1, TYPE_2, TYPE_3}, defaultValue = TYPE_2)
     String unmixingModelName;
 
-    @Parameter(description = "The suffix for the generated band names (band-name = endmember-name + suffix).", pattern = "[a-zA-Z_0-9]*", notNull = true, defaultValue = "_abundance")
-    String targetBandNameSuffix;
+    @Parameter(description = "The suffix for the generated abundance band names (name = endmember + suffix).", pattern = "[a-zA-Z_0-9]*", notNull = true, defaultValue = "_abundance")
+    String abundanceBandNameSuffix;
+
+    @Parameter(description = "The suffix for the generated error band names (name = source + suffix).", pattern = "[a-zA-Z_0-9]*", notNull = true, defaultValue = "_error")
+    String errorBandNameSuffix;
 
     @Parameter(description = "If 'true', error bands for all source bands will be generated.", defaultValue = "false")
     boolean computeErrorBands;
@@ -169,23 +172,23 @@ public class SpectralUnmixingOp extends Operator {
 
         abundanceBands = new Band[numEndmembers];
         for (int i = 0; i < numEndmembers; i++) {
-            abundanceBands[i] = targetProduct.addBand(endmembers[i].getName() + targetBandNameSuffix, ProductData.TYPE_FLOAT32);
+            abundanceBands[i] = targetProduct.addBand(endmembers[i].getName() + abundanceBandNameSuffix, ProductData.TYPE_FLOAT32);
         }
 
         if (computeErrorBands) {
             errorBands = new Band[numSourceBands];
             for (int i = 0; i < errorBands.length; i++) {
-                final String erroBandName = sourceBands[i].getName() + "_error";
+                final String erroBandName = sourceBands[i].getName() + errorBandNameSuffix;
                 errorBands[i] = targetProduct.addBand(erroBandName, ProductData.TYPE_FLOAT32);
                 ProductUtils.copySpectralAttributes(sourceBands[i], errorBands[i]);
             }
             summaryErrorBand = targetProduct.addBand("summary_error", ProductData.TYPE_FLOAT32);
+            summaryErrorBand.setDescription("Root mean square error");
         }
 
         ProductUtils.copyMetadata(sourceProduct, targetProduct);
         ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
         ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
-
     }
 
     @Override
