@@ -1,0 +1,108 @@
+<html>
+<head>
+    <title>VISAT Help - GCP Management</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            GCP Management</td>
+        <td class="header" align="right"><a href="../general/BeamOverview.html"><img src="../images/BeamHeader.jpg" border="0"></a></td>
+    </tr>
+</table>
+
+<h4>GCP Management in VISAT</h4>
+
+<p>
+    A pin is a marker for a certain geographical position within a geo-referenced image.
+    The properties of a pin are
+<ul>
+    <li>the geographical co-ordinate,</li>
+    <li>a graphical symbol,</li>
+    <li>the name (label),</li>
+    <li>and a textual description.</li>
+</ul>
+
+<p>
+    Pins are displayed as symbols at their geographical positions in image views associated
+    with the current product. Pins are stored in the current product and available again if the
+    product is re-opened.<br>
+    In VISAT, pins can be used to "freeze" the
+    <a href="ProductBrowser.html#pixelView">pixel info view</a> and the
+    <a href="SpectrumWindow.html">spectrum view</a> to the selected pin in order to display
+    the values of the pixel associated with the selected pin.<br>
+    New pins can be created with the <a href="#pinTool">pin tool</a> and removed using the
+    <a href="EditMenu.html#deletePin">delete pin</a> command in the Edit Menu.
+    It is also possible to create and remove pins by using the <a href="#pinManager">pin manager</a>.
+
+    <a name="pinTool"></a>
+<h4>The Pin Tool &nbsp;&nbsp;<img src="images/icons/PinTool24.gif"></h4>
+
+<p>
+    The pin tool is used to create a new pin but and also to select an existing pin.
+    If the pin tool is active, a click into an image view creates a new pin at the
+    clicked pixel position. The <a href="#editPinDialog">edit pin dialog</a> appears
+    then and the new pin's properties can be edited. If you click on an existing pin is becomes the selected pin.
+    If you double-click on an existing pin the edit pin dialog appears and lets you the edit the
+    properties of the selected pin.
+
+    <a name="pinManager"></a>
+<h4>The Pin Manager &nbsp;&nbsp;<img src="images/icons/PinManager24.gif"></h4>
+
+<p>
+    The pin manager is used to display all pins stored in the current product within a
+    table and provides some pin related operations.
+
+<p align="center"><img src="images/PinManager.jpg"></p>
+
+<p>If you click on a pin within the table it becomes the selected pin.
+    Double-clicking on pin in the table opens the <a href="#editPinDialog">edit pin dialog</a>.
+
+<p>In the following the tool buttons of the pin manager are explained.</p>
+
+<table cellpadding=2 cellspacing=0 border=0>
+    <tr><td><img src="images/icons/New24.gif"></td><td>Creates a new pin and adds it to the product.</td></tr>
+    <tr><td><img src="images/icons/Copy24.gif"></td><td>Creates a new pin by cloning the selected pin.</td></tr>
+    <tr><td><img src="images/icons/Edit24.gif"></td><td>Opens the edit dialog for the selected pin.</td></tr>
+    <tr><td><img src="images/icons/Remove24.gif"></td><td>Removes the selected pin from the current product.</td></tr>
+    <tr><td><img src="images/icons/Import24.gif"></td><td>Imports a single pin from a flat text or XML file.</td></tr>
+    <tr><td><img src="images/icons/Export24.gif"></td><td>Exports a single pin to an XML file.</td></tr>
+    <tr><td><img src="images/icons/ImportN24.gif"></td><td>Imports a multiple pins from a flat text or XML file.</td>
+    </tr>
+    <tr><td><img src="images/icons/ExportN24.gif"></td><td>Exports a multiple pins to an XML file.</td></tr>
+    <tr><td><img src="images/icons/Filter24.gif"></td><td>Enables the expansion of the table with pixel values.</td>
+    </tr>
+    <tr><td><img src="images/icons/ExportTable.gif"></td><td>Exports all values of the displayed table to a flat text
+        file.
+        The exported text is tabulator-separated and may therefore be import directly into a spreadsheet application
+        (e.g. MS Excel).</td></tr>
+    <tr>
+        <td><img src="images/icons/ZoomTo24.gif"></td>
+        <td>Centers the image view on the selected pin. </td>
+    </tr>
+
+</table>
+
+<p><a name="zoomto"></a></p>
+<h4><a name="editPinDialog"></a>The Edit Pin Dialog</h4>
+
+<p>
+    The pin edit dialog is used to edit the properties of a pin after a new pin has been created or after a
+    selected pin has been double-clicked. This dialog is also available in the pin manager.
+
+<p align="center"><img src="images/PinEditor.jpg"></p>
+
+<p>The editable pin properties are
+<ul>
+    <li>the geographical co-ordinate, which can also been given as pixel position</li>
+    <li>the outline and fill color for the graphical symbol,</li>
+    <li>the name for the pin</li>
+    <li>and a textual description.</li>
+</ul>
+
+<hr>
+</body>
+</html>

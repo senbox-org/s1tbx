@@ -67,6 +67,7 @@
     <mapID target="showROIDefWnd" url="visat/ShapeAndROIHandling.html"/>
     <mapID target="showSpectrumWnd" url="visat/SpectrumWindow.html"/>
     <mapID target="showWorldMapWnd" url="visat/WorldMap.html"/>
+    <mapID target="showGcpManagerWnd" url="visat/GcpManagement.html"/>
     <mapID target="showPinManagerWnd" url="visat/PinManagement.html"/>
     <mapID target="noDataOverlay" url="visat/NoDataOverlay.html"/>
     <mapID target="noDataValue" url="visat/NoDataValue.html"/>

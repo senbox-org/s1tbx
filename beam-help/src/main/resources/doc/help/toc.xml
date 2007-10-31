@@ -63,6 +63,7 @@
 
             <tocitem text="Analysis Tools">
                 <tocitem text="Product World Map" target="showWorldMapWnd"/>
+                <tocitem text="Product GCP Manager" target="showGcpManagerWnd"/>
                 <tocitem text="Product Pin Manager" target="showPinManagerWnd"/>
                 <tocitem text="Band ROI Definition" target="showROIDefWnd"/>
                 <tocitem text="Product Spectrum" target="showSpectrumWnd"/>
