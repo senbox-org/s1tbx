@@ -78,8 +78,14 @@ public class CollocateOp extends Operator {
                                     masterProduct.getSceneRasterWidth(),
                                     masterProduct.getSceneRasterHeight());
 
-        targetProduct.setStartTime(masterProduct.getStartTime());
-        targetProduct.setEndTime(masterProduct.getEndTime());
+        final ProductData.UTC utc1 = masterProduct.getStartTime();
+        if (utc1 != null) {
+            targetProduct.setStartTime(new ProductData.UTC(utc1.getMJD()));
+        }
+        final ProductData.UTC utc2 = masterProduct.getEndTime();
+        if (utc2 != null) {
+            targetProduct.setEndTime(new ProductData.UTC(utc2.getMJD()));
+        }
 
         ProductUtils.copyMetadata(masterProduct, targetProduct);
         ProductUtils.copyTiePointGrids(masterProduct, targetProduct);
@@ -256,15 +262,18 @@ public class CollocateOp extends Operator {
     }
 
     private void copyBitmaskDefs(Product sourceProduct, boolean rename, String pattern) {
-        for (final BitmaskDef sourceBitmaskDef : sourceProduct.getBitmaskDefs()) {
-            final BitmaskDef targetBitmaskDef = sourceBitmaskDef.createCopy();
-            if (rename) {
-                targetBitmaskDef.setName(pattern.replace(ORIGINAL_NAME, sourceBitmaskDef.getName()));
-                for (final Band targetBand : targetProduct.getBands()) {
-                    targetBitmaskDef.updateExpression(sourceBandMap.get(targetBand).getName(), targetBand.getName());
+        final BitmaskDef[] sourceDefs = sourceProduct.getBitmaskDefs();
+        if (sourceDefs != null) {
+            for (final BitmaskDef sourceDef : sourceDefs) {
+                final BitmaskDef targetDef = sourceDef.createCopy();
+                if (rename) {
+                    targetDef.setName(pattern.replace(ORIGINAL_NAME, sourceDef.getName()));
+                    for (final Band targetBand : targetProduct.getBands()) {
+                        targetDef.updateExpression(sourceBandMap.get(targetBand).getName(), targetBand.getName());
+                    }
                 }
+                targetProduct.addBitmaskDef(targetDef);
             }
-            targetProduct.addBitmaskDef(targetBitmaskDef);
         }
     }
 
