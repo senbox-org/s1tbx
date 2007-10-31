@@ -56,8 +56,7 @@ public class SwingBindingContext {
     }
 
     public void bind(final JTextField textField, final String propertyName) {
-        checkPropertyNameIsValid(propertyName);
-        textField.setName(propertyName);
+        configureComponent(textField, propertyName);
         TextFieldBinding textFieldBinding = new SwingBindingContext.TextFieldBinding(textField, propertyName);
         textField.addActionListener(textFieldBinding);
         textField.setInputVerifier(textFieldBinding.createInputVerifier());
@@ -65,33 +64,28 @@ public class SwingBindingContext {
     }
 
     public void bind(final JFormattedTextField textField, final String propertyName) {
-        checkPropertyNameIsValid(propertyName);
-        textField.setName(propertyName);
+        configureComponent(textField, propertyName);
         FormattedTextFieldBinding textFieldBinding = new FormattedTextFieldBinding(textField, propertyName);
         textField.addPropertyChangeListener("value", textFieldBinding);
         textFieldBinding.adjustWidget();
     }
 
     public void bind(final JCheckBox checkBox, final String propertyName) {
-        checkPropertyNameIsValid(propertyName);
-        checkBox.setName(propertyName);
+        configureComponent(checkBox, propertyName);
         CheckBoxBinding checkBoxBinding = new CheckBoxBinding(propertyName, checkBox);
         checkBox.addActionListener(checkBoxBinding);
         checkBoxBinding.adjustWidget();
     }
 
     public void bind(JRadioButton radioButton, String propertyName) {
-        checkPropertyNameIsValid(propertyName);
-        radioButton.setName(propertyName);
+        configureComponent(radioButton, propertyName);
         RadioButtonBinding radioButtonBinding = new RadioButtonBinding(propertyName, radioButton);
         radioButton.addActionListener(radioButtonBinding);
         radioButtonBinding.adjustWidget();
     }
 
-
     public void bind(final JList list, final String propertyName, final boolean selectionIsValue) {
-        checkPropertyNameIsValid(propertyName);
-        list.setName(propertyName);
+        configureComponent(list, propertyName);
         if (selectionIsValue) {
             ListSelectionBinding binding = new ListSelectionBinding(list, propertyName);
             list.addListSelectionListener(binding);
@@ -102,17 +96,14 @@ public class SwingBindingContext {
     }
 
     public void bind(final JSpinner spinner, final String propertyName) {
-        checkPropertyNameIsValid(propertyName);
-        spinner.setName(propertyName);
+        configureComponent(spinner, propertyName);
         SpinnerBinding binding = new SpinnerBinding(propertyName, spinner);
         spinner.addChangeListener(binding);
         binding.adjustWidget();
-
     }
 
     public void bind(final JComboBox comboBox, final String propertyName) {
-        checkPropertyNameIsValid(propertyName);
-        comboBox.setName(propertyName);
+        configureComponent(comboBox, propertyName);
         ComboBoxBinding comboBoxBinding = new ComboBoxBinding(propertyName, comboBox);
         comboBox.addActionListener(comboBoxBinding);
         comboBoxBinding.adjustWidget();
@@ -123,10 +114,25 @@ public class SwingBindingContext {
         errorHandler.handleError(component, e);
     }
 
-    private void checkPropertyNameIsValid(String propertyName) {
+    private void configureComponent(JComponent component, String propertyName) {
+        Assert.notNull(component, "component");
         Assert.notNull(propertyName, "propertyName");
         final ValueModel valueModel = valueContainer.getModel(propertyName);
         Assert.argument(valueModel != null, "Undefined property '" + propertyName + "'");
+        component.setName(propertyName);
+        if (valueModel != null) {
+            StringBuilder toolTipText = new StringBuilder();
+            final ValueDescriptor valueDescriptor = valueModel.getDescriptor();
+            if (valueDescriptor.getDescription() != null) {
+                toolTipText.append(valueDescriptor.getDescription());
+            }
+            if (valueDescriptor.getUnit() != null) {
+                toolTipText.append(" [");
+                toolTipText.append(valueDescriptor.getUnit());
+                toolTipText.append("]");
+            }
+            component.setToolTipText(toolTipText.toString());
+        }
     }
 
     public interface ErrorHandler {
