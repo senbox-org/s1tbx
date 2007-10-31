@@ -73,7 +73,8 @@ public class SourceProductSelector {
         });
     }
     
-    public void initProductList() {
+    public void updateProductList() {
+        productListModel.removeAllElements();
         for (Product product : appContext.getProducts()) {
             if (this.typePattern.matcher(product.getProductType()).matches()) {
                 productListModel.addElement(product);

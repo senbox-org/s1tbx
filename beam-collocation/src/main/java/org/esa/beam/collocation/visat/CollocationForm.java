@@ -63,12 +63,12 @@ public class CollocationForm extends JPanel {
         bindComponents();
     }
     
-    public void initForm() {
-        referenceProductSelector.initProductList();
+    public void updateForm() {
+        referenceProductSelector.updateProductList();
         if (referenceProductSelector.getProductCount() > 0) {
             referenceProductSelector.setSelectedIndex(0);
         }
-        subsidiaryProductSelector.initProductList();
+        subsidiaryProductSelector.updateProductList();
         if (subsidiaryProductSelector.getProductCount() > 1) {
             subsidiaryProductSelector.setSelectedIndex(1);
         }        

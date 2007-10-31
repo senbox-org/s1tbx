@@ -32,7 +32,7 @@ public class SourceProductSelectorTest extends TestCase {
 
     public void testCreatedUIComponentsNotNull() {
         SourceProductSelector selector = new SourceProductSelector(appContext, "Source:");
-        selector.initProductList();
+        selector.updateProductList();
         assertNotNull(selector.getProductNameLabel());
         assertNotNull(selector.getProductNameComboBox());
         assertNotNull(selector.getProductFileChooserButton());
@@ -40,7 +40,7 @@ public class SourceProductSelectorTest extends TestCase {
 
     public void testCreatedUIComponentsAreSame() {
         SourceProductSelector selector = new SourceProductSelector(appContext, "Source:");
-        selector.initProductList();
+        selector.updateProductList();
         assertSame(selector.getProductNameLabel(), selector.getProductNameLabel());
         assertSame(selector.getProductNameComboBox(), selector.getProductNameComboBox());
         assertSame(selector.getProductFileChooserButton(), selector.getProductFileChooserButton());
@@ -48,7 +48,7 @@ public class SourceProductSelectorTest extends TestCase {
 
     public void testSetSelectedProduct() throws Exception {
         SourceProductSelector selector = new SourceProductSelector(appContext, "Source");
-        selector.initProductList();
+        selector.updateProductList();
         Product selectedProduct = selector.getSelectedProduct();
         assertNull(selectedProduct);
 
@@ -71,7 +71,7 @@ public class SourceProductSelectorTest extends TestCase {
 
     public void testSetSelectedProductThrowsException() {
         SourceProductSelector selector = new SourceProductSelector(appContext, "Source", "T.");
-        selector.initProductList();
+        selector.updateProductList();
         
         Product newProduct = new Product("new", "T1", 0, 0);
         try {
@@ -98,7 +98,7 @@ public class SourceProductSelectorTest extends TestCase {
 
     public void testDispose() throws Exception {
         SourceProductSelector selector = new SourceProductSelector(appContext, "Source");
-        selector.initProductList();
+        selector.updateProductList();
         try {
             selector.dispose();
         } catch (Throwable e) {
@@ -107,7 +107,7 @@ public class SourceProductSelectorTest extends TestCase {
 
 
         selector = new SourceProductSelector(appContext, "Source");
-        selector.initProductList();
+        selector.updateProductList();
         
         Product newProduct = new Product("new", "T1", 0, 0);
         newProduct.setFileLocation(new File(""));
@@ -134,7 +134,7 @@ public class SourceProductSelectorTest extends TestCase {
 
     public void testSetSelectedIndex() throws Exception {
         SourceProductSelector selector = new SourceProductSelector(appContext, "Source", "T.");
-        selector.initProductList();
+        selector.updateProductList();
         assertNull(selector.getSelectedProduct());
 
         selector.setSelectedIndex(0);

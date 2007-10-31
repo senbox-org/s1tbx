@@ -43,8 +43,8 @@ class SpectralUnmixingForm extends JPanel {
         return endmemberForm;
     }
     
-    public void initForm() {
-        sourceProductSelector.initProductList();
+    public void updateForm() {
+        sourceProductSelector.updateProductList();
         if (sourceProductSelector.getProductCount() > 0) {
             sourceProductSelector.setSelectedIndex(0);
         }

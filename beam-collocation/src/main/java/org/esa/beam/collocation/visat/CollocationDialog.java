@@ -46,7 +46,7 @@ class CollocationDialog extends SingleTargetProductDialog {
 
     @Override
     public int show() {
-        form.initForm();
+        form.updateForm();
         setContent(form);
         return super.show();
     }

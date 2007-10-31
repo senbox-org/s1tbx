@@ -59,7 +59,7 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
 
     @Override
     public int show() {
-        form.initForm();
+        form.updateForm();
         setContent(form);
         form.targetProductSelector.getProductNameTextField().requestFocus();
         return super.show();
