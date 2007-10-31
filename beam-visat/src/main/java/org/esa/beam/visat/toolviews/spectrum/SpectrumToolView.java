@@ -41,7 +41,6 @@ import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.InternalFrameAdapter;
@@ -81,9 +80,10 @@ public class SpectrumToolView extends AbstractToolView {
     private AbstractButton showSpectrumForCursorButton;
     private AbstractButton showSpectraForSelectedPinsButton;
     private AbstractButton showSpectraForAllPinsButton;
-    private AbstractButton showAveragePinSpectrumButton;
     private AbstractButton showGridButton;
-    private AbstractButton showGraphPointsButton;
+// todo - not yet implemented for 4.1 but planned for 4.2 (mp - 31.10.2007)
+//    private AbstractButton showAveragePinSpectrumButton;
+//    private AbstractButton showGraphPointsButton;
     private int pixelX;
     private int pixelY;
 
@@ -160,9 +160,10 @@ public class SpectrumToolView extends AbstractToolView {
         showSpectrumForCursorButton.setEnabled(hasView);
         showSpectraForSelectedPinsButton.setEnabled(hasSelectedPins);
         showSpectraForAllPinsButton.setEnabled(hasPins);
-        showAveragePinSpectrumButton.setEnabled(hasPins); // todo - hasSpectraGraphs
         showGridButton.setEnabled(hasDiagram);
-        showGraphPointsButton.setEnabled(hasDiagram);
+// todo - not yet implemented for 4.1 but planned for 4.2 (mp - 31.10.2007)
+//        showAveragePinSpectrumButton.setEnabled(hasPins); // todo - hasSpectraGraphs
+//        showGraphPointsButton.setEnabled(hasDiagram);
         diagramCanvas.setEnabled(hasProduct);    // todo - hasSpectraGraphs
 
         if (diagramCanvas.getDiagram() != null) {
@@ -261,16 +262,17 @@ public class SpectrumToolView extends AbstractToolView {
         showSpectraForAllPinsButton.setName("showSpectraForAllPinsButton");
         showSpectraForAllPinsButton.setToolTipText("Show spectra for all pins.");
 
-        showAveragePinSpectrumButton = ToolButtonFactory.createButton(
-                UIUtils.loadImageIcon("icons/AverageSpectrum24.gif"), true);
-        showAveragePinSpectrumButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                // todo - implement
-                JOptionPane.showMessageDialog(null, "Not implemented");
-            }
-        });
-        showAveragePinSpectrumButton.setName("showAveragePinSpectrumButton");
-        showAveragePinSpectrumButton.setToolTipText("Show average spectrum of all pin spectra.");
+// todo - not yet implemented for 4.1 but planned for 4.2 (mp - 31.10.2007)
+//        showAveragePinSpectrumButton = ToolButtonFactory.createButton(
+//                UIUtils.loadImageIcon("icons/AverageSpectrum24.gif"), true);
+//        showAveragePinSpectrumButton.addActionListener(new ActionListener() {
+//            public void actionPerformed(ActionEvent e) {
+//                // todo - implement
+//                JOptionPane.showMessageDialog(null, "Not implemented");
+//            }
+//        });
+//        showAveragePinSpectrumButton.setName("showAveragePinSpectrumButton");
+//        showAveragePinSpectrumButton.setToolTipText("Show average spectrum of all pin spectra.");
 
         showGridButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/SpectrumGrid24.gif"), true);
         showGridButton.addActionListener(new ActionListener() {
@@ -281,15 +283,16 @@ public class SpectrumToolView extends AbstractToolView {
         showGridButton.setName("showGridButton");
         showGridButton.setToolTipText("Show diagram grid.");
 
-        showGraphPointsButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/GraphPoints24.gif"), true);
-        showGraphPointsButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                // todo - implement
-                JOptionPane.showMessageDialog(null, "Not implemented");
-            }
-        });
-        showGraphPointsButton.setName("showGraphPointsButton");
-        showGraphPointsButton.setToolTipText("Show graph points grid.");
+// todo - not yet implemented for 4.1 but planned for 4.2 (mp - 31.10.2007)
+//        showGraphPointsButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/GraphPoints24.gif"), true);
+//        showGraphPointsButton.addActionListener(new ActionListener() {
+//            public void actionPerformed(ActionEvent e) {
+//                // todo - implement
+//                JOptionPane.showMessageDialog(null, "Not implemented");
+//            }
+//        });
+//        showGraphPointsButton.setName("showGraphPointsButton");
+//        showGraphPointsButton.setToolTipText("Show graph points grid.");
 
         AbstractButton exportSpectraButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Export24.gif"),
                                                                             false);
@@ -315,12 +318,14 @@ public class SpectrumToolView extends AbstractToolView {
         gbc.gridy++;
         buttonPane.add(showSpectraForAllPinsButton, gbc);
         gbc.gridy++;
-        buttonPane.add(showAveragePinSpectrumButton, gbc);
-        gbc.gridy++;
+// todo - not yet implemented for 4.1 but planned for 4.2 (mp - 31.10.2007)
+//        buttonPane.add(showAveragePinSpectrumButton, gbc);
+//        gbc.gridy++;
         buttonPane.add(showGridButton, gbc);
         gbc.gridy++;
-        buttonPane.add(showGraphPointsButton, gbc);
-        gbc.gridy++;
+// todo - not yet implemented for 4.1 but planned for 4.2 (mp - 31.10.2007)
+//        buttonPane.add(showGraphPointsButton, gbc);
+//        gbc.gridy++;
         buttonPane.add(exportSpectraButton, gbc);
 
         gbc.gridy++;
