@@ -3,6 +3,7 @@ package org.esa.beam.framework.gpf.ui;
 import com.bc.ceres.binding.swing.SwingBindingContext;
 import com.jidesoft.swing.FolderChooser;
 import org.esa.beam.framework.ui.TableLayout;
+import org.esa.beam.util.io.FileChooserFactory;
 
 import javax.swing.*;
 import java.awt.Dimension;
@@ -172,8 +173,7 @@ public class TargetProductSelector {
             if (event.getSource() instanceof JComponent) {
                 button = (JButton) event.getSource();
             }
-            final JFileChooser chooser = new FolderChooser();
-            chooser.setSelectedFile(model.getProductDir());
+            final JFileChooser chooser = FileChooserFactory.getInstance().createDirChooser(model.getProductDir());
             chooser.setDialogTitle("Select Target Directory");
             if (chooser.showDialog(SwingUtilities.getWindowAncestor(button), APPROVE_BUTTON_TEXT) == JFileChooser.APPROVE_OPTION) {
 
