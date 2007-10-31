@@ -6,7 +6,6 @@
 
     <tocitem text="Data Processors">
         <tocitem text="Collocation Tool" target="collocation">
-            <tocitem text="Overview" target="collocation"/>
         </tocitem>
     </tocitem>
 </toc>

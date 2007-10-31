@@ -105,12 +105,22 @@ li {
 }
 
 table {
-    border-width: 3;
-    border-style: solid;
-    border-color: #CCCCCC;
+    border-width: 0;
     border-collapse: collapse;
     padding: 1px;
-    margin: 6;
+    margin: 0;
+}
+
+invisibletable {
+    border-width: 0;
+    border-style: solid;
+    border-color: #FFFFFF;
+    border-collapse: collapse;
+    padding: 1px;
+    margin: 0;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    font-style: normal;
 }
 
 th {
@@ -145,7 +155,7 @@ table.header {
     font-size: 17;
     color: #ffffff;
     vertical-align: middle;
-    background-color: #000063;
+    background-color: #993333;
     border-width: 0;
     padding: 0;
     margin: 0;
@@ -156,7 +166,7 @@ table.header {
     height: 29;
     color: #ffffff;
     vertical-align: middle;
-    background-color: #000063;
+    background-color: #993333;
     border-width: 0;
     padding: 0;
     white-space: nowrap;
