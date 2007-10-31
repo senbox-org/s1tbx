@@ -11,8 +11,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.Array;
@@ -58,6 +56,7 @@ public class SwingBindingContext {
     }
 
     public void bind(final JTextField textField, final String propertyName) {
+        checkPropertyNameIsValid(propertyName);
         textField.setName(propertyName);
         TextFieldBinding textFieldBinding = new SwingBindingContext.TextFieldBinding(textField, propertyName);
         textField.addActionListener(textFieldBinding);
@@ -66,6 +65,7 @@ public class SwingBindingContext {
     }
 
     public void bind(final JFormattedTextField textField, final String propertyName) {
+        checkPropertyNameIsValid(propertyName);
         textField.setName(propertyName);
         FormattedTextFieldBinding textFieldBinding = new FormattedTextFieldBinding(textField, propertyName);
         textField.addPropertyChangeListener("value", textFieldBinding);
@@ -73,6 +73,7 @@ public class SwingBindingContext {
     }
 
     public void bind(final JCheckBox checkBox, final String propertyName) {
+        checkPropertyNameIsValid(propertyName);
         checkBox.setName(propertyName);
         CheckBoxBinding checkBoxBinding = new CheckBoxBinding(propertyName, checkBox);
         checkBox.addActionListener(checkBoxBinding);
@@ -80,6 +81,7 @@ public class SwingBindingContext {
     }
 
     public void bind(JRadioButton radioButton, String propertyName) {
+        checkPropertyNameIsValid(propertyName);
         radioButton.setName(propertyName);
         RadioButtonBinding radioButtonBinding = new RadioButtonBinding(propertyName, radioButton);
         radioButton.addActionListener(radioButtonBinding);
@@ -88,6 +90,7 @@ public class SwingBindingContext {
 
 
     public void bind(final JList list, final String propertyName, final boolean selectionIsValue) {
+        checkPropertyNameIsValid(propertyName);
         list.setName(propertyName);
         if (selectionIsValue) {
             ListSelectionBinding binding = new ListSelectionBinding(list, propertyName);
@@ -99,6 +102,7 @@ public class SwingBindingContext {
     }
 
     public void bind(final JSpinner spinner, final String propertyName) {
+        checkPropertyNameIsValid(propertyName);
         spinner.setName(propertyName);
         SpinnerBinding binding = new SpinnerBinding(propertyName, spinner);
         spinner.addChangeListener(binding);
@@ -107,6 +111,7 @@ public class SwingBindingContext {
     }
 
     public void bind(final JComboBox comboBox, final String propertyName) {
+        checkPropertyNameIsValid(propertyName);
         comboBox.setName(propertyName);
         ComboBoxBinding comboBoxBinding = new ComboBoxBinding(propertyName, comboBox);
         comboBox.addActionListener(comboBoxBinding);
@@ -116,6 +121,12 @@ public class SwingBindingContext {
     private void handleError(JComponent component, Exception e) {
         System.out.println("e = " + e);
         errorHandler.handleError(component, e);
+    }
+
+    private void checkPropertyNameIsValid(String propertyName) {
+        Assert.notNull(propertyName, "propertyName");
+        final ValueModel valueModel = valueContainer.getModel(propertyName);
+        Assert.argument(valueModel != null, "Undefined property '" + propertyName + "'");
     }
 
     public interface ErrorHandler {
