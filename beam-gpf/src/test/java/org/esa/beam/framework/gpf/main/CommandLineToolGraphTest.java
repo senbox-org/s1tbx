@@ -159,13 +159,13 @@ public class CommandLineToolGraphTest extends TestCase {
         if (expectedSourceFilepath1 != null) {
             Node generatedReaderNode1 = executedGraph.getNode(expectedSourceNodeId1);
             assertNotNull(generatedReaderNode1);
-            assertEquals(expectedSourceFilepath1, generatedReaderNode1.getConfiguration().getChild("filePath").getValue());
+            assertEquals(expectedSourceFilepath1, generatedReaderNode1.getConfiguration().getChild("file").getValue());
         }
 
         if (expectedSourceFilepath2 != null) {
             Node generatedReaderNode2 = executedGraph.getNode(expectedSourceNodeId2);
             assertNotNull(generatedReaderNode2);
-            assertEquals(expectedSourceFilepath2, generatedReaderNode2.getConfiguration().getChild("filePath").getValue());
+            assertEquals(expectedSourceFilepath2, generatedReaderNode2.getConfiguration().getChild("file").getValue());
         }
 
         Node generatedWriterNode = executedGraph.getNode(expectedTargetNodeId);
@@ -174,7 +174,7 @@ public class CommandLineToolGraphTest extends TestCase {
 
         Xpp3Dom parameters = generatedWriterNode.getConfiguration();
         assertNotNull(parameters);
-        assertNotNull(expectedTargetFilepath, parameters.getChild("filePath").getValue());
+        assertNotNull(expectedTargetFilepath, parameters.getChild("file").getValue());
         assertNotNull(expectedTargetFormat, parameters.getChild("formatName").getValue());
     }
 

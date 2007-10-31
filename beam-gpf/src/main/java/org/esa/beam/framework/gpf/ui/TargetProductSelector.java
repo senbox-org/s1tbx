@@ -1,12 +1,14 @@
 package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.binding.swing.SwingBindingContext;
-import com.jidesoft.swing.FolderChooser;
 import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.util.io.FileChooserFactory;
 
 import javax.swing.*;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -108,28 +110,35 @@ public class TargetProductSelector {
         return openInAppCheckBox;
     }
 
-    public JComponent createDefaultPanel() {
-        final TableLayout layout = new TableLayout(4);
-        layout.setTableAnchor(TableLayout.Anchor.LINE_START);
-        layout.setTableFill(TableLayout.Fill.HORIZONTAL);
-        layout.setColumnWeightX(0, 0.0);
-        layout.setColumnWeightX(1, 1.0);
-        layout.setColumnWeightX(2, 0.0);
-        layout.setColumnWeightX(3, 0.0);
-        layout.setTablePadding(3, 3);
-        layout.setCellColspan(0, 1, 2);
-        layout.setCellColspan(2, 0, 2);
-        layout.setCellWeightX(1, 1, 0.0);
-        layout.setCellWeightX(1, 2, 1.0);
+    public JPanel createDefaultPanel() {
+        final JPanel subPanel1 = new JPanel(new BorderLayout(3, 3));
+        subPanel1.add(getProductNameLabel(), BorderLayout.NORTH);
+        subPanel1.add(getProductNameTextField(), BorderLayout.CENTER);
 
-        final JPanel panel = new JPanel(layout);
-        panel.add(getProductNameLabel());
-        panel.add(getProductNameTextField());
-        panel.add(new JLabel());
-        panel.add(getSaveToFileCheckBox());
-        panel.add(getFormatNameComboBox());
-        panel.add(getProductDirTextField());
-        panel.add(getProductDirChooserButton());
+        final JPanel subPanel2 = new JPanel(new FlowLayout(FlowLayout.LEADING, 0, 0));
+        subPanel2.add(getSaveToFileCheckBox());
+        subPanel2.add(getFormatNameComboBox());
+
+        final JPanel subPanel3 = new JPanel(new BorderLayout(3, 3));
+        subPanel3.add(getProductDirLabel(), BorderLayout.NORTH);
+        subPanel3.add(getProductDirTextField(), BorderLayout.CENTER);
+        subPanel3.add(getProductDirChooserButton(), BorderLayout.EAST);
+
+        final TableLayout tableLayout = new TableLayout(1);
+        tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
+        tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        tableLayout.setTableWeightX(1.0);
+
+        tableLayout.setCellPadding(0, 0, new Insets(3, 3, 3, 3));
+        tableLayout.setCellPadding(1, 0, new Insets(3, 3, 3, 3));
+        tableLayout.setCellPadding(2, 0, new Insets(0, 24, 3, 3));
+        tableLayout.setCellPadding(3, 0, new Insets(3, 3, 3, 3));
+
+        final JPanel panel = new JPanel(tableLayout);
+        panel.setBorder(BorderFactory.createTitledBorder("Target Product"));
+        panel.add(subPanel1);
+        panel.add(subPanel2);
+        panel.add(subPanel3);
         panel.add(getOpenInAppCheckBox());
 
         return panel;

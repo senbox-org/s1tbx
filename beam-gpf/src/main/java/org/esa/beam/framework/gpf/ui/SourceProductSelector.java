@@ -11,6 +11,7 @@ import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 
 import javax.swing.*;
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Window;
@@ -148,21 +149,21 @@ public class SourceProductSelector {
     }
 
     public JPanel createDefaultPanel() {
-        final TableLayout layout = new TableLayout(3);
-        layout.setTableAnchor(TableLayout.Anchor.LINE_START);
-        layout.setTableFill(TableLayout.Fill.HORIZONTAL);
-        layout.setColumnWeightX(0, 0.0);
-        layout.setColumnWeightX(1, 1.0);
-        layout.setColumnWeightX(2, 0.0);
-        layout.setTablePadding(3, 3);
+        final JPanel subPanel = new JPanel(new BorderLayout(3, 3));
+        subPanel.add(getProductNameComboBox(), BorderLayout.CENTER);
+        subPanel.add(getProductFileChooserButton(), BorderLayout.EAST);
 
-        final JPanel panel = new JPanel(layout);
-        panel.setBorder(BorderFactory.createTitledBorder("Source"));
-
+        final TableLayout tableLayout = new TableLayout(1);
+        tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
+        tableLayout.setTableWeightX(1.0);
+        tableLayout.setRowFill(0, TableLayout.Fill.HORIZONTAL);
+        tableLayout.setRowFill(1, TableLayout.Fill.HORIZONTAL);
+        tableLayout.setTablePadding(3, 3);
+        JPanel panel = new JPanel(tableLayout);
+        panel.setBorder(BorderFactory.createTitledBorder("Source Product"));
         panel.add(getProductNameLabel());
-        panel.add(getProductNameComboBox());
-        panel.add(getProductFileChooserButton());
-
+        panel.add(subPanel);
+        panel.add(tableLayout.createVerticalSpacer());
         return panel;
     }
 

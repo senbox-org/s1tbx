@@ -10,7 +10,6 @@ import org.esa.beam.framework.ui.TableLayout;
 
 import javax.swing.*;
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -48,10 +47,17 @@ class SpectralUnmixingForm extends JPanel {
     void prepareShow() {
         sourceProductSelector.initProducts();
         final Product selectedProduct = appContext.getSelectedProduct();
-        if (selectedProduct != null) {
-            targetProductSelector.getModel().setProductName(selectedProduct.getName() + "_unmixed");
-        }
+        updateTargetProductName(selectedProduct);
         targetProductSelector.getProductNameTextField().requestFocus();
+    }
+
+    private void updateTargetProductName(Product selectedProduct) {
+        final TargetProductSelectorModel selectorModel = targetProductSelector.getModel();
+        if (selectedProduct != null) {
+            selectorModel.setProductName(selectedProduct.getName() + "_unmixed");
+        } else if (selectorModel.getProductName() == null) {
+            selectorModel.setProductName("unmixed");
+        }
     }
 
     void prepareHide() {
@@ -74,6 +80,7 @@ class SpectralUnmixingForm extends JPanel {
                 final Product selectedProduct = sourceProductSelector.getSelectedProduct();
                 formModel.setSourceProduct(selectedProduct);
                 sourceBandNames.setModel(formModel.getBandListModel());
+                updateTargetProductName(selectedProduct);
             }
         });
         sourceBandNames = new JList();
@@ -103,51 +110,11 @@ class SpectralUnmixingForm extends JPanel {
     }
 
     private JPanel createSourcePanel() {
-        final JPanel subPanel = new JPanel(new BorderLayout());
-        subPanel.add(sourceProductSelector.getProductNameComboBox(), BorderLayout.CENTER);
-        subPanel.add(sourceProductSelector.getProductFileChooserButton(), BorderLayout.EAST);
-
-        final TableLayout tableLayout = new TableLayout(1);
-        tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
-        tableLayout.setTableWeightX(1.0);
-        tableLayout.setRowFill(0, TableLayout.Fill.HORIZONTAL);
-        tableLayout.setRowFill(1, TableLayout.Fill.HORIZONTAL);
-        tableLayout.setTablePadding(3, 3);
-        JPanel panel = new JPanel(tableLayout);
-        panel.setBorder(BorderFactory.createTitledBorder("Source Product"));
-        panel.add(sourceProductSelector.getProductNameLabel());
-        panel.add(subPanel);
-        panel.add(tableLayout.createVerticalSpacer());
-        return panel;
+        return sourceProductSelector.createDefaultPanel();
     }
 
     private JComponent createTargetPanel() {
-        final JPanel subPanel1 = new JPanel(new FlowLayout(FlowLayout.LEADING, 0, 0));
-        subPanel1.add(targetProductSelector.getSaveToFileCheckBox());
-        subPanel1.add(targetProductSelector.getFormatNameComboBox());
-        subPanel1.add(new JLabel("       "));
-        subPanel1.add(targetProductSelector.getOpenInAppCheckBox());
-
-        final JPanel subPanel2 = new JPanel(new BorderLayout());
-        subPanel2.add(targetProductSelector.getProductDirTextField(), BorderLayout.CENTER);
-        subPanel2.add(targetProductSelector.getProductDirChooserButton(), BorderLayout.EAST);
-
-        final TableLayout tableLayout = new TableLayout(1);
-        tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
-        tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
-        tableLayout.setTableWeightX(1.0);
-        tableLayout.setTablePadding(3, 3);
-        tableLayout.setRowPadding(2, new Insets(10, 0, 3, 0));
-
-        final JPanel panel = new JPanel(tableLayout);
-        panel.setBorder(BorderFactory.createTitledBorder("Target Product"));
-        panel.add(targetProductSelector.getProductNameLabel());
-        panel.add(targetProductSelector.getProductNameTextField());
-        panel.add(subPanel1);
-        panel.add(targetProductSelector.getProductDirLabel());
-        panel.add(subPanel2);
-
-        return panel;
+        return targetProductSelector.createDefaultPanel();
     }
 
     private JPanel createParametersPanel() {

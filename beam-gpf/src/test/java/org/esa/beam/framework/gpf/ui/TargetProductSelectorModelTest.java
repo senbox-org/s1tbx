@@ -74,7 +74,7 @@ public class TargetProductSelectorModelTest extends TestCase {
 
     public void testSelections() {
         assertTrue(model.isSaveToFileSelected());
-        assertFalse(model.isOpenInAppSelected());
+        assertTrue(model.isOpenInAppSelected());
 
         model.setOpenInAppSelected(false);
         assertFalse(model.isOpenInAppSelected());

@@ -49,7 +49,7 @@ public class SourceProductSelectorTest extends TestCase {
         SourceProductSelector selector = new SourceProductSelector(appContext, "Source");
         selector.initProducts();
         Product selectedProduct = selector.getSelectedProduct();
-        assertNull(selectedProduct);
+        assertSame(appContext.getSelectedProduct(), selectedProduct);
 
         selector.setSelectedProduct(defaultProducts[1]);
         selectedProduct = selector.getSelectedProduct();
@@ -68,45 +68,47 @@ public class SourceProductSelectorTest extends TestCase {
         assertNull(oldProduct.getFileLocation()); // assert that old product is disposed
     }
 
-    public void testReleaseProducts() throws Exception {
+    public void testNewProductIsDisposed() throws Exception {
         SourceProductSelector selector = new SourceProductSelector(appContext, "Source");
         selector.initProducts();
-        try {
-            selector.releaseProducts();
-        } catch (Throwable e) {
-            fail("No Throwable expected");
-        }
-
-
-        selector = new SourceProductSelector(appContext, "Source");
-        selector.initProducts();
-
         Product newProduct = new Product("new", "T1", 0, 0);
         newProduct.setFileLocation(new File(""));
         selector.setSelectedProduct(newProduct);
-
-        Product selectedProduct = selector.getSelectedProduct();
-        assertSame(newProduct, selectedProduct);
-
-        selector.releaseProducts();
-        assertNotNull(newProduct.getFileLocation()); // assert that new product is not disposed while it is selected
-
+        assertSame(newProduct, selector.getSelectedProduct());
         selector.setSelectedProduct(defaultProducts[0]);
-        selectedProduct = selector.getSelectedProduct();
-        assertSame(defaultProducts[0], selectedProduct);
+        assertSame(defaultProducts[0], selector.getSelectedProduct());
 
         assertNotNull(newProduct.getFileLocation());
         selector.releaseProducts();
-        assertNull(newProduct.getFileLocation()); // assert that new product is disposed
+        assertNull(newProduct.getFileLocation()); // assert that new product is disposed, because it is not selected
+    }
+
+    public void testNewProductIsNotDisposed() throws Exception {
+        SourceProductSelector selector = new SourceProductSelector(appContext, "Source");
+        selector.initProducts();
+        selector.setSelectedProduct(defaultProducts[0]);
+        assertSame(defaultProducts[0], selector.getSelectedProduct());
+        Product newProduct = new Product("new", "T1", 0, 0);
+        newProduct.setFileLocation(new File(""));
+        selector.setSelectedProduct(newProduct);
+        assertSame(newProduct, selector.getSelectedProduct());
+
+        assertNotNull(newProduct.getFileLocation());
+        selector.releaseProducts();
+        assertNotNull(newProduct.getFileLocation()); // assert that new product is not disposed while it is selected
     }
 
     public void testSetSelectedIndex() throws Exception {
         SourceProductSelector selector = new SourceProductSelector(appContext, "Source");
-        selector.initProducts();
-        assertNull(selector.getSelectedProduct());
 
-        selector.setSelectedIndex(0);
+        selector.initProducts();
         assertSame(defaultProducts[0], selector.getSelectedProduct());
+
+        selector.setSelectedIndex(1);
+        assertSame(defaultProducts[1], selector.getSelectedProduct());
+
+        selector.setSelectedIndex(2);
+        assertSame(defaultProducts[2], selector.getSelectedProduct());
     }
 
     private class MockAppContext implements AppContext {

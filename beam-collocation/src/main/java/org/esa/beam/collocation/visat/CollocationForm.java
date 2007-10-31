@@ -8,7 +8,6 @@ import org.esa.beam.framework.ui.TableLayout;
 
 import javax.swing.*;
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -136,37 +135,7 @@ public class CollocationForm extends JPanel {
     }
 
     private JPanel createTargetProductPanel() {
-        final JPanel subPanel1 = new JPanel(new BorderLayout(3, 3));
-        subPanel1.add(targetProductSelector.getProductNameLabel(), BorderLayout.NORTH);
-        subPanel1.add(targetProductSelector.getProductNameTextField(), BorderLayout.CENTER);
-
-        final JPanel subPanel2 = new JPanel(new FlowLayout(FlowLayout.LEADING, 0, 0));
-        subPanel2.add(targetProductSelector.getSaveToFileCheckBox());
-        subPanel2.add(targetProductSelector.getFormatNameComboBox());
-
-        final JPanel subPanel3 = new JPanel(new BorderLayout(3, 3));
-        subPanel3.add(targetProductSelector.getProductDirLabel(), BorderLayout.NORTH);
-        subPanel3.add(targetProductSelector.getProductDirTextField(), BorderLayout.CENTER);
-        subPanel3.add(targetProductSelector.getProductDirChooserButton(), BorderLayout.EAST);
-
-        final TableLayout tableLayout = new TableLayout(1);
-        tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
-        tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
-        tableLayout.setTableWeightX(1.0);
-
-        tableLayout.setCellPadding(0, 0, new Insets(3, 3, 3, 3));
-        tableLayout.setCellPadding(1, 0, new Insets(3, 3, 3, 3));
-        tableLayout.setCellPadding(2, 0, new Insets(0, 24, 3, 3));
-        tableLayout.setCellPadding(3, 0, new Insets(3, 3, 3, 3));
-
-        final JPanel panel = new JPanel(tableLayout);
-        panel.setBorder(BorderFactory.createTitledBorder("Target Product"));
-        panel.add(subPanel1);
-        panel.add(subPanel2);
-        panel.add(subPanel3);
-        panel.add(targetProductSelector.getOpenInAppCheckBox());
-
-        return panel;
+        return targetProductSelector.createDefaultPanel();
     }
 
     private JPanel createRenamingPanel() {

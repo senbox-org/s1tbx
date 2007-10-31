@@ -11,6 +11,7 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
@@ -31,9 +32,9 @@ public class GPFTest extends TestCase {
         String filePath = GPFTest.class.getResource("test-product.dim").toURI().getPath();
 
         Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("filePath", filePath);
+        parameters.put("file", new File(filePath));
 
-        Product p1 = GPF.createProduct("ReadProduct", parameters);
+        Product p1 = GPF.createProduct("Read", parameters);
 
         assertNotNull(p1);
         assertNotNull(p1.getBand("forrest_abundance"));
@@ -71,9 +72,9 @@ public class GPFTest extends TestCase {
         String filePath = GPFTest.class.getResource("test-product.dim").toURI().getPath();
 
         Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("filePath", filePath);
+        parameters.put("file", new File(filePath));
 
-        Product p1 = GPF.createProduct("ReadProduct", parameters);
+        Product p1 = GPF.createProduct("Read", parameters);
 
         Product p2 = GPF.createProduct("Foo", GPF.NO_PARAMS, new Product[]{p1});
         MetadataElement metadataElement = p2.getMetadataRoot().getElement("Processing_Graph");
@@ -98,9 +99,9 @@ public class GPFTest extends TestCase {
         String filePath = GPFTest.class.getResource("test-product.dim").toURI().getPath();
 
         Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("filePath", filePath);
+        parameters.put("file", new File(filePath));
 
-        Product p1 = GPF.createProduct("ReadProduct", parameters);
+        Product p1 = GPF.createProduct("Read", parameters);
         Product p2 = GPF.createProduct("Foo", GPF.NO_PARAMS, new Product[]{p1});
         Product p3 = GPF.createProduct("Foos", GPF.NO_PARAMS, new Product[]{p1, p2});
         MetadataElement metadataElement = p3.getMetadataRoot().getElement("Processing_Graph");
