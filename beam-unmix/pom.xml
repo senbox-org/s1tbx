@@ -5,13 +5,13 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.1-SNAPSHOT</version>
+        <version>4.1</version>
     </parent>
 
     <artifactId>beam-unmix</artifactId>
     <name>BEAM Spectral Unmixing</name>
     <groupId>org.esa.beam</groupId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
 
     <dependencies>
         <dependency>

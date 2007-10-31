@@ -247,7 +247,7 @@
                                         </void>
                                     </void>
                                     <void property="programGroupName">
-                                        <string>beam-4.1-SNAPSHOT</string>
+                                        <string>beam-4.1</string>
                                     </void>
                                 </object>
                             </java>
@@ -688,7 +688,7 @@
         </uninstallerStartup>
     </installerGui>
     <mediaSets>
-        <win32 name="Windows" id="20" mediaFileName="" installDir="beam-4.1-SNAPSHOT" overridePrincipalLanguage="false"
+        <win32 name="Windows" id="20" mediaFileName="" installDir="beam-4.1" overridePrincipalLanguage="false"
                requires64bit="false" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false"
                includedJRE="windows-x86-1.6.0_03" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL=""
                jreShared="false" customInstallBaseDir="" createUninstallIcon="true" contentFilesType="1" downloadURL=""
@@ -726,7 +726,7 @@
             <excludedInstallerScreens/>
             <excludedUninstallerScreens/>
         </win32>
-        <macosFolder name="Mac OS X Folder" id="126" mediaFileName="" installDir="beam-4.1-SNAPSHOT"
+        <macosFolder name="Mac OS X Folder" id="126" mediaFileName="" installDir="beam-4.1"
                      overridePrincipalLanguage="false" requires64bit="false" runPostProcessor="false" postProcessor=""
                      failOnPostProcessorError="false" customInstallBaseDir="" createUninstallIcon="true"
                      contentFilesType="1" downloadURL="">
@@ -766,7 +766,7 @@
             <excludedInstallerScreens/>
             <excludedUninstallerScreens/>
         </macosFolder>
-        <unixInstaller name="Unix Installer" id="128" mediaFileName="" installDir="beam-4.1-SNAPSHOT"
+        <unixInstaller name="Unix Installer" id="128" mediaFileName="" installDir="beam-4.1"
                        overridePrincipalLanguage="false" requires64bit="false" runPostProcessor="false" postProcessor=""
                        failOnPostProcessorError="false" includedJRE="linux-x86-1.6.0_03_client_only"
                        manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false"
@@ -810,7 +810,7 @@
                 <scriptLines/>
             </installerScript>
         </unixInstaller>
-        <linuxRPM name="Linux RPM" id="1080" mediaFileName="" installDir="beam-4.1-SNAPSHOT"
+        <linuxRPM name="Linux RPM" id="1080" mediaFileName="" installDir="beam-4.1"
                   overridePrincipalLanguage="false" requires64bit="false" runPostProcessor="false" postProcessor=""
                   failOnPostProcessorError="false" includedJRE="linux-x86-1.6.0_03_client_only" manualJREEntry="false"
                   os="linux" arch="i386">

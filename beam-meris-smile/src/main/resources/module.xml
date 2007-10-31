@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-meris-smile</symbolicName>
-    <version>1.1.1-SNAPSHOT</version>
+    <version>1.1.1</version>
     <name>MERIS Smile Correction Processor</name>
 
     <description>
@@ -14,7 +14,7 @@
     <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
-    
+
     <changelog>
         <![CDATA[From 1.1 to 1.1.1<br>
         This version needs the latest beam-envisat-reader module (Version 1.1-20070904)

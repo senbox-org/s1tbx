@@ -3,7 +3,7 @@
 
     <symbolicName>beam-help</symbolicName>
     <name>BEAM Help</name>
-    <version>4.1-SNAPSHOT</version>
+    <version>4.1</version>
     <packaging>dir</packaging>
 
 

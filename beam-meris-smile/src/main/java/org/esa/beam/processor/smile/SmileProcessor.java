@@ -21,19 +21,9 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.jexp.Term;
 import org.esa.beam.dataio.envisat.EnvisatConstants;
 import org.esa.beam.framework.dataio.ProductWriter;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.param.Parameter;
-import org.esa.beam.framework.processor.Processor;
-import org.esa.beam.framework.processor.ProcessorConstants;
-import org.esa.beam.framework.processor.ProcessorException;
-import org.esa.beam.framework.processor.ProcessorUtils;
-import org.esa.beam.framework.processor.ProductRef;
-import org.esa.beam.framework.processor.Request;
-import org.esa.beam.framework.processor.RequestElementFactory;
+import org.esa.beam.framework.processor.*;
 import org.esa.beam.framework.processor.ui.ProcessorUI;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
@@ -57,7 +47,7 @@ import java.util.logging.Logger;
 public class SmileProcessor extends Processor {
 
     public static final String PROCESSOR_NAME = "BEAM Smile Correction Processor";
-    public static final String VERSION_STRING = "1.1.1-SNAPSHOT";
+    public static final String VERSION_STRING = "1.1.1";
     public static final String COPYRIGHT_INFO = "Copyright (C) 2002-2004 by Brockmann Consult (info@brockmann-consult.de)";
 
     public static final double SPECTRAL_BAND_SF_FACTOR = 1.1;
@@ -105,7 +95,7 @@ public class SmileProcessor extends Processor {
             createOutputProduct();
             createBitmaskTermLand(SmileConstants.BITMASK_TERM_LAND);
             createBitmaskTermProcess(SmileConstants.BITMASK_TERM_PROCESS);
-            pm. beginTask("Computing smile correction...", _includeAllSpectralBands ? 4 : 3);
+            pm.beginTask("Computing smile correction...", _includeAllSpectralBands ? 4 : 3);
             try {
                 processSmileCorrection(SubProgressMonitor.create(pm, 1));
                 if (pm.isCanceled()) {
@@ -245,7 +235,6 @@ public class SmileProcessor extends Processor {
      * Retrieves a progress message for the request passed in. Override this method if you need custom messaging.
      *
      * @param request
-     *
      * @return the progress message for the request
      */
     @Override
@@ -316,7 +305,7 @@ public class SmileProcessor extends Processor {
      * @throws IOException
      */
     private void loadInputProduct() throws ProcessorException,
-                                           IOException {
+            IOException {
         _inputProduct = loadInputProduct(0);
         if (!_inputProduct.containsBand(_DETECTOR_INDEX_BAND_NAME)) {
             throw new ProcessorException(SmileConstants.LOG_MSG_WRONG_PRODUCT); /*I18N*/
@@ -330,7 +319,7 @@ public class SmileProcessor extends Processor {
      * @throws IOException
      */
     private void createOutputProduct() throws ProcessorException,
-                                              IOException {
+            IOException {
         ProductRef prod;
         ProductWriter writer;
 
@@ -389,21 +378,21 @@ public class SmileProcessor extends Processor {
     }
 
     private void copyDetectorIndexBandData(ProgressMonitor pm) throws ProcessorException,
-                                                                      IOException {
+            IOException {
         _logger.info(SmileConstants.LOG_MSG_COPY_DETECTOR_BAND);
         copyBandData(_DETECTOR_INDEX_BAND_NAME, _inputProduct, _outputProduct, pm);
         _logger.info(SmileConstants.LOG_MSG_SUCCESS);
     }
 
     private void copyFlagBandData(ProgressMonitor pm) throws IOException,
-                                                             ProcessorException {
+            ProcessorException {
         _logger.info(SmileConstants.LOG_MSG_COPY_FLAG_BAND);
         copyFlagBandData(_inputProduct, _outputProduct, pm);
         _logger.info(SmileConstants.LOG_MSG_SUCCESS);
     }
 
     private void copyRequiredBandDataThatIsNotProcessed(ProgressMonitor pm) throws ProcessorException,
-                                                                                   IOException {
+            IOException {
         _logger.info(SmileConstants.LOG_MSG_COPY_UNPROCESSED_BANDS);
 
         if (_includeAllSpectralBands) {
@@ -604,7 +593,7 @@ public class SmileProcessor extends Processor {
     }
 
     private void readRadianceLines(final int[] bandIndexes, final int lineIndex, ProgressMonitor pm) throws
-                                                                                                     IOException {
+            IOException {
         assert _inputProduct != null;
         assert _radianceLineCache != null;
         assert bandIndexes != null;
@@ -627,7 +616,7 @@ public class SmileProcessor extends Processor {
     // **********************
 
     private void loadAuxdata() throws ProcessorException,
-                                      IOException {
+            IOException {
         assert _inputProduct != null;
         final String productType = _inputProduct.getProductType();
         if (productType.startsWith("MER_F")) {
@@ -636,7 +625,7 @@ public class SmileProcessor extends Processor {
             _auxData = SmileAuxData.loadRRAuxData(getAuxdataInstallDir());
         } else {
             throw new ProcessorException("No auxillary data found for input product of type '"
-                                         + _inputProduct.getProductType() + "'"); /*I18N*/
+                    + _inputProduct.getProductType() + "'"); /*I18N*/
         }
     }
 
