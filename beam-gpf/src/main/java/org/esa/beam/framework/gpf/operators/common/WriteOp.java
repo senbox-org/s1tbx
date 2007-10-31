@@ -130,9 +130,9 @@ public class WriteOp extends Operator {
         try {
             for (int tileY = 0; tileY < numYTiles; tileY++) {
                 for (int tileX = 0; tileX < numXTiles; tileX++) {
-                    if (pm.isCanceled()) {
-                        return; // todo - delete file(s)  (nf - 2007.10.30)
-                    }
+                    writeOp.checkForCancelation(pm);
+                    // todo - delete file(s)  (nf - 2007.10.30)
+                    
                     Rectangle tileRectangle = new Rectangle(tileX
                             * defaultTileSize.width, tileY
                             * defaultTileSize.height, defaultTileSize.width,
