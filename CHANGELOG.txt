@@ -29,22 +29,19 @@ _____________________________________________________________________________
 _____________________________________________________________________________
 
 
-1) New general BEAM Features and Improvements
+1) New BEAM Features and Improvements
 
-o A new processing framework, named Graph Processing Framwork (GPF), is introduced
-o New collocation processor
-o New spectral unmixing processor
-o BEAM uses a new installer based on Install4J
+o New collocation tool (VISAT and batch-mode)
+o New spectral unmixing tool (VISAT and batch-mode)
+o New management of ground control points
+o New geo-coding based on ground control points
+o The management and display of pins has been greatly enhanced
+o The spectrum tool view has been greatly enhanced
+o Metadata views changed from flat table to hierarchical tree views
+o Image creation is now faster. 
+o BEAM uses a new installer based on install4J
 
-
-2) New VISAT Features, Improvements and Changes
-o VISAT now supports ground control points (GCP)
-o Improved handling of pins
-o A geo-coding based on GCPs can be created
-o The spectrum tool view has been improved
-
-
-3) Fixes and Features
+2) Other changes (consult BEAM issue tracker for detailed information)
 
 BEAM-706  	Display metadata in tree view
 BEAM-704 	Exception from dataio.PinSymbol when running from Console
@@ -98,12 +95,6 @@ BEAM-557 	Starting VISAT on Mac OS X results in an exception
 BEAM-526 	Geo-boundary polygon incorrectly computed for scenes crossing 180 deg meridian twice
 BEAM-496 	Provide a tool for manual co-registration using GCPs
 BEAM-482 	Pins shall not be selected by default.
-
-4) Java API Changes
-
-o ProductReader.canDecodeInput() returns more information
-o Package org.esa.beam.framework.dataproc removed
-
 
 _____________________________________________________________________________
 
