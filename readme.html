@@ -80,48 +80,8 @@
 
 <h2>Development</h2>
 
-<p>If you want to develop software using BEAM libraries or if you want to develop BEAM plugins (modules)
-    you have to obtain the source distribution of BEAM.</p>
-
-<p>Since BEAM is developed using the Java programming language it requires
-    a <a href="http://java.sun.com/javase/">J2SE 6 JDK</a> installed on your system.</p>
-
-<p>Furthermore BEAM 4 requires Apache <a href="http://maven.apache.org/">Maven 2</a>
-    build tool to be installed and set-up on your computer.</p>
-
-<p>To start development, open a console window or a shell and <code>cd</code> into the directory where
-    you have unpacked the source distribution. To build BEAM, type</p>
-<pre>
-    mvn package
-</pre>
-
-<p>You will notice that some dependencies to common libraries cannot be resolved at this time.
-    You will have to manually add these dependencies to your local Maven repository.
-    For more information on how to do this, please refer to the <code>install:install-file</code> goal of the
-    <a href="http://maven.apache.org/plugins/maven-install-plugin/">Maven Install Plugin</a>. Then run
-    <code>mvn package</code> again until all dependencies are resolved. We will work on this
-    cumbersome issue in upcoming releases of BEAM.</p>
-
-<p>To install the BEAM modules into your local Maven repository, type</p>
-<pre>
-    mvn clean install
-</pre>
-
-<p>To create the project files for your IDE, type</p>
-<pre>
-    mvn idea:idea
-</pre>
-for IntelliJ IDEA or
-<pre>
-    mvn eclipse:eclipse
-</pre>
-for the Eclipse IDE.
-<p>To create the final BEAM distribution archive and the installer files, type</p>
-<pre>
-    mvn package assembly:assembly
-</pre>
-
-<a name="info"/>
+<p>Java developers please refer to the <a href="http://www.brockmann-consult.de/beam-wiki/display/BEAM/">BEAM Wiki</a>
+    for more information about software development with BEAM.</p>
 
 <h2>More Information</h2>
 
