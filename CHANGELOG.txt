@@ -38,7 +38,7 @@ o New geo-coding based on ground control points
 o The management and display of pins has been greatly enhanced
 o The spectrum tool view has been greatly enhanced
 o Metadata views changed from flat table to hierarchical tree views
-o Image creation is now faster. 
+o Image creation is now faster 
 o BEAM uses a new installer based on install4J
 
 2) Other changes (consult BEAM issue tracker for detailed information)
