@@ -63,11 +63,11 @@ public class CollocateOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        if (masterProduct.getGeoCoding() != null) {
+        if (masterProduct.getGeoCoding() == null) {
             throw new OperatorException(
                     MessageFormat.format("Product ''{0}'' has no geo-coding.", masterProduct.getName()));
         }
-        if (slaveProduct.getGeoCoding() != null) {
+        if (slaveProduct.getGeoCoding() == null) {
             throw new OperatorException(
                     MessageFormat.format("Product ''{0}'' has no geo-coding.", slaveProduct.getName()));
         }
