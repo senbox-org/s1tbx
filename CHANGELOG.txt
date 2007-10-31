@@ -6,7 +6,7 @@
 
 This file contains all significant changes for each BEAM release.
 
-    o __.__.2007: Version 4.1
+    o 31.10.2007: Version 4.1
     o 20.04.2007: Version 4.0
     o 01.02.2007: Version 3.7
     o 04.07.2006: Version 3.6
@@ -29,7 +29,81 @@ _____________________________________________________________________________
 _____________________________________________________________________________
 
 
-TODO - add issues fixed incl 4.0.1
+1) New general BEAM Features and Improvements
+
+o A new processing framework, named Graph Processing Framwork (GPF), is introduced
+o New collocation processor
+o New spectral unmixing processor
+o BEAM uses a new installer based on Install4J
+
+
+2) New VISAT Features, Improvements and Changes
+o VISAT now supports ground control points (GCP)
+o Improved handling of pins
+o A geo-coding based on GCPs can be created
+o The spectrum tool view has been improved
+
+
+3) Fixes and Features
+
+BEAM-706  	Display metadata in tree view
+BEAM-704 	Exception from dataio.PinSymbol when running from Console
+BEAM-699  	Editable cells of pin and GCP tables
+BEAM-698 	Sortable table of pins and GCPs
+BEAM-694 	Bandarithmetic gives acces to to latitude and longitude using the provided geocoding
+BEAM-691 	The Cloud Probability processor cannot cope with 'MER_FRS_1P' files.
+BEAM-690 	Group top level tags in DIMAP
+BEAM-689 	GCPs supported by DIMAP
+BEAM-684 	Pixel-info view functions only if initially visible
+BEAM-682 	The SMAC Processor cannot cope with 'MER_FRS_1P' files.
+BEAM-678 	Change pin location by dragging
+BEAM-677 	Support for ground control points (GCPs)
+BEAM-676 	New geo-coding based on GCPs
+BEAM-673 	Allow for multiple spectra in spectrum view
+BEAM-672 	Include spectral unmixing tool
+BEAM-671 	Pin pixel coordinates should be floating point numbers
+BEAM-669 	Improve performance of FUB/WeW Water Processor
+BEAM-668 	Port FUB WeW Water Processor
+BEAM-666 	GeoTIFF writer ignores orientation angle
+BEAM-660 	Speedup image creation process
+BEAM-659 	Location of new version of Beam
+BEAM-656 	Support for MERIS band subset
+BEAM-653 	Landsat reads the raw data (unsigned bytes) wrong
+BEAM-652 	Smile correction cannot be applied to MER_FRS data
+BEAM-653 	Landsat reads the raw data (unsigned bytes) wrong
+BEAM-648 	GeoTIFF parameters written in wrong order
+BEAM-647 	export of transverse mercator projected product as geoTIF is not imported correctly in arcGIS
+BEAM-649 	GeoTIFF writes FLOAT32 bands only
+BEAM-643 	If several pins are selected, only one is deleted if trash can is choosen
+BEAM-642 	Show pins also if no geolocation is allocated to the product
+BEAM-641 	Installer does not work on Fedora7
+BEAM-640 	Installer fails on Ubuntu systems
+BEAM-638 	Element "FORMAT_DESCRIPTION" should read "DESCRIPTION"
+BEAM-636 	Make pin labels nicer
+BEAM-635 	Allow for multiple selected pins
+BEAM-634 	Make pin size independent of zoom factor
+BEAM-633 	Ask before removing pins
+BEAM-632 	Make pins available for all product types
+BEAM-631 	Revise product pin management API
+BEAM-629 	Check compatibility With new AT2_TOA format
+BEAM-624 	Support for AT1_NR__2P and AT2_NR__2P products in ENVISAT-format
+BEAM-619 	New graph processing framework (GPF) module
+BEAM-616 	Remove package org.esa.beam.framework.dataproc
+BEAM-614 	Not possible to re-select item in Arithmetic Expression Editor
+BEAM-600 	Installer doesn't work properly on Windows Vista
+BEAM-599 	Installer allows selecting JRE prior version 6
+BEAM-587 	Exception during installation on Mac
+BEAM-578 	Installer script fails with error message
+BEAM-557 	Starting VISAT on Mac OS X results in an exception
+BEAM-526 	Geo-boundary polygon incorrectly computed for scenes crossing 180 deg meridian twice
+BEAM-496 	Provide a tool for manual co-registration using GCPs
+BEAM-482 	Pins shall not be selected by default.
+
+4) Java API Changes
+
+o ProductReader.canDecodeInput() returns more information
+o Package org.esa.beam.framework.dataproc removed
+
 
 _____________________________________________________________________________
 
