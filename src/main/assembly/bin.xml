@@ -95,11 +95,6 @@
 
         <!-- (1) Artifacts that go into 'bin', 'lib' or 'modules' -->
         <moduleSet>
-            <includes>
-                <include>org.esa.beam:*</include>
-                <include>ncsa.hdf:*</include>
-                <include>ucar.netcdf:*</include>
-            </includes>
             <excludes>
                 <exclude>org.esa.beam:beam-bootstrap</exclude>
                 <exclude>org.esa.beam:beam-installer</exclude>
