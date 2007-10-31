@@ -76,9 +76,16 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
 
         final Endmember[] endmembers = (Endmember[]) parameters.get("endmembers");
         final String[] sourceBandNames = (String[]) parameters.get("sourceBandNames");
-        final double maxWavelengthDelta = (Double) parameters.get("maxWavelengthDelta");
+        final double minBandwidth = (Double) parameters.get("minBandwidth");
 
-        if (!matchingWavelength(endmembers, getSourceSpectrum(formModel.getSourceProduct(), sourceBandNames), maxWavelengthDelta)) {
+        double[] sourceWavelengths = new double[sourceBandNames.length];
+        double[] sourceBandwidths = new double[sourceBandNames.length];
+        for (int i = 0; i < sourceBandNames.length; i++) {
+            final Band sourceBand = formModel.getSourceProduct().getBand(sourceBandNames[i]);
+            sourceWavelengths[i] = sourceBand.getSpectralWavelength();
+            sourceBandwidths[i] = sourceBand.getSpectralBandwidth();
+        }
+        if (!matchingWavelength(endmembers, sourceWavelengths, sourceBandwidths, minBandwidth)) {
             showErrorDialog("One or more source wavelengths do not fit\n" +
                     "to one or more endmember spectra.\n\n" +
                     "Consider increasing the maximum wavelength deviation.");
@@ -88,26 +95,22 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
         return true;
     }
 
-    private static boolean matchingWavelength(Endmember[] endmembers, double[] sourceWavelengths, double epsilon) {
+    private static boolean matchingWavelength(Endmember[] endmembers,
+                                              double[] sourceWavelengths,
+                                              double[] sourceBandwidths,
+                                              double minBandwidth) {
         for (Endmember endmember : endmembers) {
             final double[] endmemberWavelengths = endmember.getWavelengths();
-            for (double sourceWavelength : sourceWavelengths) {
-                final int k = SpectralUnmixingOp.findEndmemberSpectralIndex(endmemberWavelengths, sourceWavelength, epsilon);
+            for (int i = 0; i < sourceWavelengths.length; i++) {
+                double sourceWavelength = sourceWavelengths[i];
+                double sourceBandwidth = sourceBandwidths[i];
+                final int k = SpectralUnmixingOp.findEndmemberSpectralIndex(endmemberWavelengths, sourceWavelength, Math.max(sourceBandwidth, minBandwidth));
                 if (k == -1) {
                     return false;
                 }
             }
         }
         return true;
-    }
-
-    private static double[] getSourceSpectrum(Product sourceProduct, String[] sourceBandNames) {
-        double[] sourceWavelengths = new double[sourceBandNames.length];
-        for (int i = 0; i < sourceBandNames.length; i++) {
-            final Band sourceBand = sourceProduct.getBand(sourceBandNames[i]);
-            sourceWavelengths[i] = sourceBand.getSpectralWavelength();
-        }
-        return sourceWavelengths;
     }
 
     public static void main(String[] args) throws IllegalAccessException, UnsupportedLookAndFeelException, InstantiationException, ClassNotFoundException {

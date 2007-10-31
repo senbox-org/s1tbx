@@ -2,6 +2,7 @@ package org.esa.beam.unmixing.ui;
 
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.unmixing.SpectralUnmixingOp;
@@ -36,9 +37,11 @@ class SpectralUnmixingFormModel {
     private void updateBandListModel() {
         bandListModel.clear();
         if (sourceProduct != null) {
-            String[] bandNames = sourceProduct.getBandNames();
-            for (String bandName : bandNames) {
-                bandListModel.addElement(bandName);
+            final Band[] bands = sourceProduct.getBands();
+            for (Band band : bands) {
+                if (band.getSpectralWavelength() > 0) {
+                    bandListModel.addElement(band.getName());
+                }
             }
         }
     }

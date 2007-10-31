@@ -22,7 +22,7 @@ class SpectralUnmixingForm extends JPanel {
     TargetProductSelector targetProductSelector;
     JList sourceBandNames;
     JTextField targetBandNameSuffix;
-    JTextField maxWavelengthDelta;
+    JTextField minBandwidth;
     JComboBox unmixingModelName;
     JCheckBox computeErrorBands;
 
@@ -49,7 +49,7 @@ class SpectralUnmixingForm extends JPanel {
         bindingContext.bind(targetBandNameSuffix, "targetBandNameSuffix");
         bindingContext.bind(sourceBandNames, "sourceBandNames", true);
         bindingContext.bind(computeErrorBands, "computeErrorBands");
-        bindingContext.bind(maxWavelengthDelta, "maxWavelengthDelta");
+        bindingContext.bind(minBandwidth, "minBandwidth");
 
     }
 
@@ -77,7 +77,7 @@ class SpectralUnmixingForm extends JPanel {
         targetBandNameSuffix = new JTextField();
         unmixingModelName = new JComboBox();
         computeErrorBands = new JCheckBox("Compute error bands");
-        maxWavelengthDelta = new JTextField();
+        minBandwidth = new JTextField();
 
         final TableLayout tableLayout = new TableLayout(2);
         tableLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
@@ -185,8 +185,8 @@ class SpectralUnmixingForm extends JPanel {
         panel.add(new JLabel("Spectral unmixing model: "));
         panel.add(unmixingModelName);
 
-        panel.add(new JLabel("Max. wavelength deviation: "));
-        panel.add(maxWavelengthDelta);
+        panel.add(new JLabel("Minimum spectral bandwidth: "));
+        panel.add(minBandwidth);
 
         panel.add(computeErrorBands);
 

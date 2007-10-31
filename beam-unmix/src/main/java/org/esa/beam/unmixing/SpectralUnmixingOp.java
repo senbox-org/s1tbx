@@ -81,8 +81,8 @@ public class SpectralUnmixingOp extends Operator {
     @Parameter(description = "If 'true', error bands for all source bands will be generated.", defaultValue = "false")
     boolean computeErrorBands;
 
-    @Parameter(description = "Maximum wavelength deviation used for spectrum adjustment.", defaultValue = "10.0", interval = "(0,*)", unit = "nm")
-    double maxWavelengthDelta;
+    @Parameter(description = "Minimum spectral bandwidth used for endmember wavelength matching.", defaultValue = "10.0", interval = "(0,*)", unit = "nm")
+    double minBandwidth;
 
     private Band[] sourceBands;
     private Band[] abundanceBands;
@@ -92,6 +92,11 @@ public class SpectralUnmixingOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
+        if (computeErrorBands) {
+            deactivateComputeTileMethod();
+        }
+
+
         if (endmemberFile != null) {
             loadEndmemberFile();
         }
@@ -116,7 +121,44 @@ public class SpectralUnmixingOp extends Operator {
             if (sourceBand == null) {
                 throw new OperatorException("Source band not found: " + sourceBandName);
             }
+            if (sourceBand.getSpectralWavelength() <= 0) {
+                throw new OperatorException("Source band without spectral wavelength: " + sourceBandName);
+            }
             sourceBands[i] = sourceBand;
+        }
+
+        int numSourceBands = sourceBands.length;
+        int numEndmembers = endmembers.length;
+
+        if (numSourceBands < numEndmembers) {
+            throw new OperatorException("Number of source bands must be >= number of endmembers.");
+        }
+
+        double[][] lsuMatrixElements = new double[numSourceBands][numEndmembers];
+        for (int j = 0; j < numEndmembers; j++) {
+            Endmember endmember = endmembers[j];
+            double[] wavelengths = endmember.getWavelengths();
+            double[] radiations = endmember.getRadiations();
+            for (int i = 0; i < numSourceBands; i++) {
+                Band sourceBand = sourceBands[i];
+                float wavelength = sourceBand.getSpectralWavelength();
+                float bandwidth = sourceBand.getSpectralBandwidth();
+                int k = findEndmemberSpectralIndex(wavelengths, wavelength, Math.max(bandwidth, minBandwidth));
+                if (k == -1) {
+                    throw new OperatorException(String.format("Band %s: No matching endmember wavelength found (%f nm)", sourceBand.getName(), wavelength));
+                }
+                lsuMatrixElements[i][j] = radiations[k];
+            }
+        }
+
+        if (TYPE_1.equals(unmixingModelName)) {
+            spectralUnmixing = new UnconstrainedLSU(new Matrix(lsuMatrixElements));
+        } else if (TYPE_2.equals(unmixingModelName)) {
+            spectralUnmixing = new ConstrainedLSU(new Matrix(lsuMatrixElements));
+        } else if (TYPE_3.equals(unmixingModelName)) {
+            spectralUnmixing = new FullyConstrainedLSU(new Matrix(lsuMatrixElements));
+        } else if (unmixingModelName == null) {
+            spectralUnmixing = new UnconstrainedLSU(new Matrix(lsuMatrixElements));
         }
 
         int width = sourceProduct.getSceneRasterWidth();
@@ -124,9 +166,6 @@ public class SpectralUnmixingOp extends Operator {
 
         targetProduct = new Product(sourceProduct.getName() + "_unmixed",
                                     "SpectralUnmixing", width, height);
-
-        int numSourceBands = sourceBands.length;
-        int numEndmembers = endmembers.length;
 
         abundanceBands = new Band[numEndmembers];
         for (int i = 0; i < numEndmembers; i++) {
@@ -147,35 +186,6 @@ public class SpectralUnmixingOp extends Operator {
         ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
         ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
 
-        double[][] lsuMatrixElements = new double[numSourceBands][numEndmembers];
-        for (int j = 0; j < numEndmembers; j++) {
-            Endmember endmember = endmembers[j];
-            double[] wavelengths = endmember.getWavelengths();
-            double[] radiations = endmember.getRadiations();
-            for (int i = 0; i < numSourceBands; i++) {
-                Band sourceBand = sourceBands[i];
-                float wavelength = sourceBand.getSpectralWavelength();
-                int k = findEndmemberSpectralIndex(wavelengths, wavelength, maxWavelengthDelta);
-                if (k == -1) {
-                    throw new OperatorException(String.format("Band %s: No matching endmember wavelength found (%f nm)", sourceBand.getName(), wavelength));
-                }
-                lsuMatrixElements[i][j] = radiations[k];
-            }
-        }
-
-        if (TYPE_1.equals(unmixingModelName)) {
-            spectralUnmixing = new UnconstrainedLSU(new Matrix(lsuMatrixElements));
-        } else if (TYPE_2.equals(unmixingModelName)) {
-            spectralUnmixing = new ConstrainedLSU(new Matrix(lsuMatrixElements));
-        } else if (TYPE_3.equals(unmixingModelName)) {
-            spectralUnmixing = new FullyConstrainedLSU(new Matrix(lsuMatrixElements));
-        } else if (unmixingModelName == null) {
-            spectralUnmixing = new UnconstrainedLSU(new Matrix(lsuMatrixElements));
-        }
-
-        if (computeErrorBands) {
-            deactivateComputeTileMethod();
-        }
     }
 
     @Override
@@ -299,12 +309,12 @@ public class SpectralUnmixingOp extends Operator {
         return om.getArray();
     }
 
-    public static int findEndmemberSpectralIndex(double[] endmemberWavelengths, double sourceBandWavelength, double epsilon) {
+    public static int findEndmemberSpectralIndex(double[] endmemberWavelengths, double sourceBandWavelength, double maxBandwidth) {
         double minDelta = Double.MAX_VALUE;
         int bestIndex = -1;
         for (int i = 0; i < endmemberWavelengths.length; i++) {
             final double delta = Math.abs(endmemberWavelengths[i] - sourceBandWavelength);
-            if (delta <= epsilon && delta <= minDelta) {
+            if (delta <= maxBandwidth && delta <= minDelta) {
                 minDelta = delta;
                 bestIndex = i;
             }
