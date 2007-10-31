@@ -22,6 +22,7 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
@@ -34,6 +35,7 @@ import java.awt.Rectangle;
  * @author marcoz
  * @version $Revision: 1.1 $ $Date: 2007/03/27 12:51:05 $
  */
+@OperatorMetadata(alias = "RRToFRS", internal = true)
 public class RRToFRSOp extends Operator {
 
     private GeoCoding rrGeoCoding;
@@ -147,7 +149,7 @@ public class RRToFRSOp extends Operator {
 
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(RRToFRSOp.class, "RRToFRS");
+            super(RRToFRSOp.class);
         }
     }
 }

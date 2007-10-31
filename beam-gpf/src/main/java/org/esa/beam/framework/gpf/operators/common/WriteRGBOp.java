@@ -25,7 +25,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @OperatorMetadata(alias = "WriteRGB",
-                  description = "Creates an RGB image from three source bands.")
+                  description = "Creates an RGB image from three source bands.",
+                  internal = true)
 public class WriteRGBOp extends Operator {
 
     @Parameter(description = "The zero-based index of the red band.")

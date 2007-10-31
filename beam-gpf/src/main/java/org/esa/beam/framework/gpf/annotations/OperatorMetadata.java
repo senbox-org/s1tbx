@@ -39,4 +39,11 @@ public @interface OperatorMetadata {
      *         Defaults to the empty string (= not set).
      */
     String description() default "";
+
+
+    /**
+     * @return If {@code true}, this operator is considered for internal use onlyand thus
+     *         may not be exposed in user interfaces.
+     */
+    boolean internal() default false;
 }

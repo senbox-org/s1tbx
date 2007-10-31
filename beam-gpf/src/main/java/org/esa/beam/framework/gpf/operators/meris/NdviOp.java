@@ -6,6 +6,7 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
@@ -20,6 +21,7 @@ import java.util.Map;
  *
  * @author Maximilian Aulinger
  */
+@OperatorMetadata(alias = "NdviSample", internal = true)
 public class NdviOp extends Operator {
 
     // constants
@@ -179,7 +181,7 @@ public class NdviOp extends Operator {
     public static class Spi extends OperatorSpi {
 
         public Spi() {
-            super(NdviOp.class, "SimpleNdvi");
+            super(NdviOp.class);
         }
 
     }

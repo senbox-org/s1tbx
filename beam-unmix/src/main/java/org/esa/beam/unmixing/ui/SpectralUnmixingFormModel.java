@@ -4,6 +4,7 @@ import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
+import org.esa.beam.unmixing.SpectralUnmixingOp;
 
 import javax.swing.DefaultListModel;
 import javax.swing.ListModel;
@@ -21,7 +22,7 @@ class SpectralUnmixingFormModel {
         this.sourceProduct = sourceProduct;
 
         this.operatorParameters = new HashMap<String, Object>();
-        this.operatorValueContainer = ParameterDescriptorFactory.createMapBackedOperatorValueContainer("SpectralUnmixing", operatorParameters);
+        this.operatorValueContainer = ParameterDescriptorFactory.createMapBackedOperatorValueContainer(SpectralUnmixingOp.Spi.class.getName(), operatorParameters);
 
         try {
             this.operatorValueContainer.getModel("sourceBandNames").setValue(getInitialBandNames());

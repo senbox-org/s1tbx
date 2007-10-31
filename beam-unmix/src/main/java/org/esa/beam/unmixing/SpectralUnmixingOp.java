@@ -46,11 +46,11 @@ import java.util.Map;
 /**
  * Implements a spectral unmixing algorithm.
  */
-@OperatorMetadata(alias = "SpectralUnmixing",
+@OperatorMetadata(alias = "Unmix",
                   version = "1.0",
-                  authors = "Helmut Schiller, Norman Fomferra",
+                  authors = "Norman Fomferra, Helmut Schiller",
                   copyright = "(c) 2007 by Brockmann Consult",
-                  description = "Performs a linear, spectral unmixing.")
+                  description = "Performs a linear spectral unmixing.")
 public class SpectralUnmixingOp extends Operator {
 
     private final String TYPE_1 = "Unconstrained LSU";

@@ -52,7 +52,7 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
     protected Product createTargetProduct() throws Exception {
         final SpectralUnmixingFormModel formModel = form.getFormModel();
         formModel.getOperatorParameters().put("endmembers", form.getEndmemberForm().getFormModel().getEndmembers());
-        return GPF.createProduct("SpectralUnmixing",
+        return GPF.createProduct(SpectralUnmixingOp.Spi.class.getName(),
                                  formModel.getOperatorParameters(),
                                  formModel.getSourceProduct());
     }

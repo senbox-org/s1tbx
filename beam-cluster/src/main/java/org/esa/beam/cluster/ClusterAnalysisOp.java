@@ -38,7 +38,8 @@ import java.util.Set;
                   version = "1.0",
                   authors = "Helmut Schiller, Norman Fomferra",
                   copyright = "(c) 2007 by Brockmann Consult",
-                  description = "Cluster analysis using the CLUCOV algorithm.")
+                  description = "Cluster analysis using the CLUCOV algorithm.",
+                  internal = true)
 public class ClusterAnalysisOp extends Operator {
     @SourceProduct
     Product sourceProduct;

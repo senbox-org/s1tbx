@@ -37,7 +37,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @OperatorMetadata(alias = "Merge",
-                  description = "Merges an arbitrary number of source bands into the target product.")
+                  description = "Merges an arbitrary number of source bands into the target product.",
+                  internal = true)
 public class MergeOp extends Operator {
 
     @Parameter(defaultValue = "mergedProduct", description = "The name of the target product.")

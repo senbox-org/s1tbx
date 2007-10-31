@@ -7,6 +7,7 @@ import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
@@ -32,6 +33,7 @@ import java.io.IOException;
  *
  * @author Marco Zuehlke
  */
+@OperatorMetadata(alias = "N1Patcher", internal = true)
 public class N1PatcherOp extends Operator {
 
     // MPH:
@@ -295,7 +297,7 @@ public class N1PatcherOp extends Operator {
 
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(N1PatcherOp.class, "N1Patcher");
+            super(N1PatcherOp.class);
         }
     }
 }

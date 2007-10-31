@@ -45,7 +45,7 @@ public class WriteOp extends Operator {
 
     public WriteOp() {
     }
-    
+
     public WriteOp(Product product, File file, String formatName) {
         this.sourceProduct = product;
         this.file = file;
@@ -132,7 +132,7 @@ public class WriteOp extends Operator {
                 for (int tileX = 0; tileX < numXTiles; tileX++) {
                     writeOp.checkForCancelation(pm);
                     // todo - delete file(s)  (nf - 2007.10.30)
-                    
+
                     Rectangle tileRectangle = new Rectangle(tileX
                             * defaultTileSize.width, tileY
                             * defaultTileSize.height, defaultTileSize.width,

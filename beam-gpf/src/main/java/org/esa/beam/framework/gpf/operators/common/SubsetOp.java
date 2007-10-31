@@ -19,7 +19,8 @@ import java.awt.Rectangle;
 import java.io.IOException;
 
 @OperatorMetadata(alias = "Subset",
-                  description = "Create a spatial and/or spectral subset of the source product.")
+                  description = "Create a spatial and/or spectral subset of the source product.",
+                  internal = true)
 public class SubsetOp extends Operator {
 
     private ProductReader subsetReader;

@@ -36,13 +36,15 @@ class CommandLineUsage {
         for (OperatorSpi operatorSpi : spiSet) {
             final String opAlias = operatorSpi.getOperatorAlias();
             final OperatorMetadata operatorMetadata = operatorSpi.getOperatorClass().getAnnotation(OperatorMetadata.class);
-            final String descriptionLine;
-            if (operatorMetadata != null && !operatorMetadata.description().isEmpty()) {
-                descriptionLine = operatorMetadata.description();
-            } else {
-                descriptionLine = "No description available.";
+            if (operatorMetadata != null && !operatorMetadata.internal()) {
+                final String descriptionLine;
+                if (!operatorMetadata.description().isEmpty()) {
+                    descriptionLine = operatorMetadata.description();
+                } else {
+                    descriptionLine = "No description available.";
+                }
+                docElementList.add(new DocElement("  " + opAlias, new String[]{descriptionLine}));
             }
-            docElementList.add(new DocElement("  " + opAlias, new String[]{descriptionLine}));
         }
         StringBuilder opListText = new StringBuilder(1024);
         appendDocElementList(opListText, docElementList);
