@@ -97,6 +97,8 @@
         <moduleSet>
             <includes>
                 <include>org.esa.beam:*</include>
+                <include>ncsa.hdf:*</include>
+                <include>ucar.netcdf:*</include>
             </includes>
             <excludes>
                 <exclude>org.esa.beam:beam-bootstrap</exclude>
