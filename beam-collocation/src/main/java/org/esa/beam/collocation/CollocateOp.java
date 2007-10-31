@@ -212,7 +212,7 @@ public class CollocateOp extends Operator {
             final int sourceRasterWidth = slaveProduct.getSceneRasterWidth();
 
             final Resampling resampling;
-            if (sourceBand.isFlagBand()) {
+            if (sourceBand.isFlagBand() || isValidPixelExpressionUsed(sourceBand)) {
                 resampling = ResamplingType.NEAREST_NEIGHBOUR.getResampling();
             } else {
                 resampling = resamplingType.getResampling();
@@ -334,6 +334,11 @@ public class CollocateOp extends Operator {
         maxY = Math.min(maxY + 2, maxHeight - 1);
 
         return new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
+    }
+
+    private static boolean isValidPixelExpressionUsed(Band band) {
+        final String validPixelExpression = band.getValidPixelExpression();
+        return validPixelExpression != null && !validPixelExpression.trim().isEmpty();
     }
 
     private static class ResamplingRaster implements Resampling.Raster {
