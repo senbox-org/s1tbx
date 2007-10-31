@@ -24,11 +24,12 @@ public class TargetProductSelector {
     private JLabel productNameLabel;
     private JTextField productNameTextField;
     private JCheckBox saveToFileCheckBox;
+    private JLabel productDirLabel;
     private JTextField productDirTextField;
     private JButton productDirChooserButton;
     private JComboBox formatNameComboBox;
-    private JCheckBox openInAppCheckBox;
 
+    private JCheckBox openInAppCheckBox;
     private TargetProductSelectorModel model;
 
     public TargetProductSelector() {
@@ -40,9 +41,10 @@ public class TargetProductSelector {
     }
 
     private void initComponents() {
-        productNameLabel = new JLabel("Target product name: ");
+        productNameLabel = new JLabel("Name: ");
         productNameTextField = new JTextField(25);
         saveToFileCheckBox = new JCheckBox("Save as:");
+        productDirLabel = new JLabel("Directory:");
         productDirTextField = new JTextField(25);
         productDirChooserButton = new JButton(new ProductDirChooserAction());
         formatNameComboBox = new JComboBox(model.getFormatNames());
@@ -84,6 +86,10 @@ public class TargetProductSelector {
 
     public JCheckBox getSaveToFileCheckBox() {
         return saveToFileCheckBox;
+    }
+
+    public JLabel getProductDirLabel() {
+        return productDirLabel;
     }
 
     public JTextField getProductDirTextField() {
@@ -133,11 +139,13 @@ public class TargetProductSelector {
         if (model.isSaveToFileSelected()) {
             openInAppCheckBox.setEnabled(true);
             formatNameComboBox.setEnabled(true);
+            productDirLabel.setEnabled(true);
             productDirTextField.setEnabled(true);
             productDirChooserButton.setEnabled(true);
         } else {
             openInAppCheckBox.setEnabled(false);
             formatNameComboBox.setEnabled(false);
+            productDirTextField.setEnabled(false);
             productDirTextField.setEnabled(false);
             productDirChooserButton.setEnabled(false);
         }
@@ -147,6 +155,7 @@ public class TargetProductSelector {
         productNameLabel.setEnabled(enabled);
         productNameTextField.setEnabled(enabled);
         saveToFileCheckBox.setEnabled(enabled);
+        productDirLabel.setEnabled(enabled);
         productDirTextField.setEnabled(enabled);
         productDirChooserButton.setEnabled(enabled);
         formatNameComboBox.setEnabled(enabled);
