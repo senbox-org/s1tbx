@@ -20,7 +20,7 @@ class CollocationDialog extends SingleTargetProductDialog {
     private CollocationForm form;
 
     public CollocationDialog(AppContext appContext) {
-        super(appContext, "Geographic Collocation", ID_OK_CANCEL_HELP, "collocation");
+        super(appContext, "Collocation", ID_OK_CANCEL_HELP, "collocation");
 
         formModel = new CollocationFormModel(getTargetProductSelector().getModel());
         form = new CollocationForm(formModel, getTargetProductSelector(), appContext.getProducts());

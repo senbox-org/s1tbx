@@ -34,7 +34,7 @@
             <helpID>collocation</helpID>
             <class>org.esa.beam.collocation.visat.CollocationAction</class>
             <parent>tools</parent>
-            <text>Geographic Collocation...</text>
+            <text>Collocation...</text>
             <placeAfter>orthorectification</placeAfter>
         </action>
     </extension>
