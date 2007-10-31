@@ -17,11 +17,7 @@
 package org.esa.beam.dataio.envisat;
 
 import org.esa.beam.framework.dataio.ProductIOException;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
@@ -164,7 +160,6 @@ public abstract class ProductFile {
      *
      * @param file            the abstract file path representation.
      * @param dataInputStream the seekable data input stream which will be used to read data from the product file.
-     *
      * @throws java.io.IOException if an I/O error occurs
      */
     protected ProductFile(File file, ImageInputStream dataInputStream)
@@ -190,9 +185,7 @@ public abstract class ProductFile {
      * file.
      *
      * @param file a path representation of the product file to be opened
-     *
      * @return an object representing the opened ENVISAT product file, never <code>null</code>
-     *
      * @throws java.io.IOException if an I/O error occurs
      */
     public static ProductFile open(File file) throws IOException {
@@ -208,9 +201,7 @@ public abstract class ProductFile {
      * instance is created.
      *
      * @param dataInputStream the seekable data input stream which will be used to read data from the product file.
-     *
      * @return an object representing the opened ENVISAT product file, never <code>null</code>
-     *
      * @throws java.io.IOException if an I/O error occurs
      * @throws java.lang.IllegalArgumentException
      *                             if an I/O error occurs
@@ -360,7 +351,6 @@ public abstract class ProductFile {
      * method of the related <code>DSD</code> or <code>RecordReader</code>,
      *
      * @return the total number of lines contained in this data product
-     *
      * @see org.esa.beam.dataio.envisat.DSD#getNumRecords()
      * @see org.esa.beam.dataio.envisat.RecordReader#getNumRecords()
      */
@@ -373,7 +363,6 @@ public abstract class ProductFile {
      * in order to let a sub-class implement the retrieval.
      *
      * @param gridWidth the tie-point grid width, ignored by other than AATSR products
-     *
      * @return the total number of columns associated with one tie point measured in pixels
      */
     public abstract float getTiePointGridOffsetX(int gridWidth);
@@ -385,7 +374,6 @@ public abstract class ProductFile {
      * in order to let a sub-class implement the retrieval.
      *
      * @param gridWidth the tie-point grid width, ignored by other than AATSR products
-     *
      * @return the total number of columns associated with one tie point measured in pixels
      */
     public abstract float getTiePointGridOffsetY(int gridWidth);
@@ -402,7 +390,6 @@ public abstract class ProductFile {
      * tie points per annotation dataset record (ADSR).
      *
      * @param gridWidth the tie-point grid width, ignored by other than AATSR products
-     *
      * @return the total number of columns associated with one tie point measured in pixels
      */
     public abstract float getTiePointSubSamplingX(int gridWidth);
@@ -420,7 +407,6 @@ public abstract class ProductFile {
      * tie points per annotation dataset record (ADSR).
      *
      * @param gridWidth the tie-point grid width, ignored by other than AATSR products
-     *
      * @return the total number of lines associated with one tie point measured in pixels
      */
     public abstract float getTiePointSubSamplingY(int gridWidth);
@@ -436,7 +422,6 @@ public abstract class ProductFile {
      * Returns a new default set of bitmask definitions for this product file.
      *
      * @param flagDsName the name of the flag dataset
-     *
      * @return a new default set, an empty array if no default set is given for this product type, never
      *         <code>null</code>.
      */
@@ -506,7 +491,6 @@ public abstract class ProductFile {
      * Gets the DSD with the specified index.
      *
      * @return the DSD with the given index
-     *
      * @throws java.lang.ArrayIndexOutOfBoundsException
      *          if the index is out of bounds
      */
@@ -518,7 +502,6 @@ public abstract class ProductFile {
      * Gets the DSD for the dataset with the specified name.
      *
      * @param datasetName the dataset name
-     *
      * @return the DSD for the dataset with the specified name or <code>null</code> if the DSD does not exist
      */
     public DSD getDSD(String datasetName) {
@@ -531,7 +514,6 @@ public abstract class ProductFile {
      * search.
      *
      * @param datasetName tha dataset name
-     *
      * @return the DSD index, <code>-1</code> if a DSD with the given name could not be found
      */
     public int getDSDIndex(String datasetName) {
@@ -555,7 +537,6 @@ public abstract class ProductFile {
      *
      * @param datasetType the dataset type, must be one of the several <code>DS_TYPE_</code>X constants defined in the
      *                    <code>EnvisatConstant</code> interface.
-     *
      * @return the array of adequate DSDs
      */
     public DSD[] getValidDSDs(char datasetType) {
@@ -591,7 +572,6 @@ public abstract class ProductFile {
      * Gets the names of all valid (binary) datasets contained in this product file.
      *
      * @return the names of the datasets contained in this product file, never <code>null</code>
-     *
      * @throws java.io.IOException if an I/O error occurs
      */
     public String[] getValidDatasetNames() throws IOException {
@@ -602,9 +582,7 @@ public abstract class ProductFile {
      * Gets the names of all valid (binary) datasets contained in this product file.
      *
      * @param datasetType the dataset type, use -1 for all datasets otherwise see {@link EnvisatConstants}.DS_TYPE_X
-     *
      * @return the names of the datasets contained in this product file, never <code>null</code>
-     *
      * @throws java.io.IOException if an I/O error occurs
      */
     public String[] getValidDatasetNames(int datasetType) throws IOException {
@@ -627,7 +605,6 @@ public abstract class ProductFile {
      * Tests if the given dataset name is a valid dataset name for this product file.
      *
      * @return <code>true</code> if so
-     *
      * @throws java.io.IOException if an I/O error occurs
      */
     public boolean isValidDatasetName(String name) throws IOException {
@@ -642,10 +619,9 @@ public abstract class ProductFile {
      * accesses the internal dataset descriptor database (DDDB).
      *
      * @param datasetName the dataset name
-     *
      * @throws java.io.IOException if an appropriate DSD could not be found in the product file
      * @throws org.esa.beam.dataio.envisat.DDDBException
-     *          if a database I/O error occurs
+     *                             if a database I/O error occurs
      */
     public RecordReader getRecordReader(String datasetName) throws IOException, DDDBException {
 
@@ -775,7 +751,6 @@ public abstract class ProductFile {
      * <p> The default implementation is empty.
      *
      * @param parameters product specific parameters (possibly referenced within in the DDDB
-     *
      * @throws java.io.IOException if a header format error was detected or if an I/O error occurs
      */
     protected void postProcessMPH(Map parameters) throws IOException {
@@ -793,7 +768,6 @@ public abstract class ProductFile {
      * <p> The default implementation is empty.
      *
      * @param parameters product specific parameters as used in the DDDB
-     *
      * @throws java.io.IOException if a header format error was detected or if an I/O error occurs
      */
     protected void postProcessSPH(Map parameters) throws IOException {
@@ -820,7 +794,6 @@ public abstract class ProductFile {
      * Returns the names of all default bitmasks to be used for the band with the given name.
      *
      * @param bandName the band's name
-     *
      * @return the array of bitmask names or null if no bitmasks are applicable
      */
     public String[] getDefaultBitmaskNames(String bandName) {
@@ -844,7 +817,6 @@ public abstract class ProductFile {
      * @param flagCoding        the flag codeing.
      * @param physicalUnit      the physical unit.
      * @param description       the description.
-     *
      * @return a newly created <code>BandInfo</code> object.
      */
     public BandInfo createBandInfo(String bandName,
@@ -884,9 +856,7 @@ public abstract class ProductFile {
      * instance is created.
      *
      * @param dataInputStream the seekable data input stream which will be used to read data from the product file.
-     *
      * @return an object representing the opened ENVISAT product file, never <code>null</code>
-     *
      * @throws java.io.IOException if an I/O error occurs
      * @throws java.lang.IllegalArgumentException
      *                             if an I/O error occurs
@@ -926,7 +896,6 @@ public abstract class ProductFile {
      *
      * @param file            the abstract file path representation.
      * @param dataInputStream the seekable data input stream which will be used to read data from the product file.
-     *
      * @throws java.io.IOException if an I/O error occurs
      */
     private void init(File file, ImageInputStream dataInputStream) throws IOException {
@@ -1000,7 +969,7 @@ public abstract class ProductFile {
         if (!productType.endsWith("P")) {
             final String newType = productType.substring(0, 9) + "P";
             getLogger().warning("mapping to regular product type '" + newType +
-                                "' due to missing specification for products of type '" + productType + "'");
+                    "' due to missing specification for products of type '" + productType + "'");
             productType = newType;
         }
     }
@@ -1052,7 +1021,7 @@ public abstract class ProductFile {
                     message.append("DSD(");
                     message.append(i + 1);
                     message.append(") is empty or even invalid");/*I18N*/
-                    getLogger().warning(message.toString());
+                    getLogger().finest(message.toString());
                 }
                 if (dsdArray[i] == null) {
                     break;
@@ -1095,10 +1064,8 @@ public abstract class ProductFile {
      * Reads the product type string from the product file.
      *
      * @param dataInputStream the seekable data input stream which will be used to read data from the product file.
-     *
      * @return the product type string or <code>null</code> if the input stream was not opened for an ENVISAT product
      *         (file magic 'PRODUCT=' not found).
-     *
      * @throws java.io.IOException if an I/O error occurs
      */
     private static String readProductType(final ImageInputStream dataInputStream)
@@ -1108,15 +1075,15 @@ public abstract class ProductFile {
         String productType = null;
 
         //if (dataInputStream.length() >= magicBytes.length) {
-            dataInputStream.seek(0);
-            dataInputStream.mark();
-            dataInputStream.readFully(magicBytes);
-            dataInputStream.reset();
+        dataInputStream.seek(0);
+        dataInputStream.mark();
+        dataInputStream.readFully(magicBytes);
+        dataInputStream.reset();
 
-            final String magicString = new String(magicBytes).toUpperCase();
-            if (magicString.startsWith(EnvisatConstants.MAGIC_STRING)) {
-                productType = magicString.substring(EnvisatConstants.MAGIC_STRING.length());
-            }
+        final String magicString = new String(magicBytes).toUpperCase();
+        if (magicString.startsWith(EnvisatConstants.MAGIC_STRING)) {
+            productType = magicString.substring(EnvisatConstants.MAGIC_STRING.length());
+        }
         //}
 
         return productType;
