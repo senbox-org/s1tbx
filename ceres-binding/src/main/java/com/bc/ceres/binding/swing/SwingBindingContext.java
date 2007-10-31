@@ -119,19 +119,25 @@ public class SwingBindingContext {
         Assert.notNull(propertyName, "propertyName");
         final ValueModel valueModel = valueContainer.getModel(propertyName);
         Assert.argument(valueModel != null, "Undefined property '" + propertyName + "'");
-        component.setName(propertyName);
+        if (component.getName() == null) {
+            component.setName(propertyName);
+        }
         if (valueModel != null) {
-            StringBuilder toolTipText = new StringBuilder();
-            final ValueDescriptor valueDescriptor = valueModel.getDescriptor();
-            if (valueDescriptor.getDescription() != null) {
-                toolTipText.append(valueDescriptor.getDescription());
+            if (component.getToolTipText() == null) {
+                StringBuilder toolTipText = new StringBuilder();
+                final ValueDescriptor valueDescriptor = valueModel.getDescriptor();
+                if (valueDescriptor.getDescription() != null) {
+                    toolTipText.append(valueDescriptor.getDescription());
+                }
+                if (valueDescriptor.getUnit() != null && !valueDescriptor.getUnit().isEmpty()) {
+                    toolTipText.append(" [");
+                    toolTipText.append(valueDescriptor.getUnit());
+                    toolTipText.append("]");
+                }
+                if (toolTipText.length() > 0) {
+                    component.setToolTipText(toolTipText.toString());
+                }
             }
-            if (valueDescriptor.getUnit() != null) {
-                toolTipText.append(" [");
-                toolTipText.append(valueDescriptor.getUnit());
-                toolTipText.append("]");
-            }
-            component.setToolTipText(toolTipText.toString());
         }
     }
 
