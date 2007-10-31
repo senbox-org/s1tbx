@@ -199,7 +199,7 @@
             <description>Manage pins of a data product.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/PinManager16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/PinManager24.gif</largeIcon>
-            <!--<helpId>TODO</helpId>-->
+            <helpId>showPinManagerWnd</helpId>
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>
             <initIndex>0</initIndex>
@@ -214,7 +214,7 @@
             <description>Manage ground control points of a data product.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/GcpManager16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/GcpManager24.gif</largeIcon>
-            <!--<helpId>TODO</helpId>-->
+            <helpId>showGcpManagerWnd</helpId>/
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>
             <initIndex>0</initIndex>
