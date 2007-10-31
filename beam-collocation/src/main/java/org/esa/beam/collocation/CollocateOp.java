@@ -1,6 +1,7 @@
 package org.esa.beam.collocation;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.gpf.Operator;
@@ -32,9 +33,9 @@ import java.util.Map;
 public class CollocateOp extends Operator {
 
     private static final String ORIGINAL_NAME = "${ORIGINAL_NAME}";
-    private static final String NEAREST_NEIGHBOUR = "NEAREST_NEIGHBOUR"; 
-    private static final String BILINEAR_INTERPOLATION = "BILINEAR_INTERPOLATION"; 
-    private static final String CUBIC_CONVOLUTION = "CUBIC_CONVOLUTION"; 
+    private static final String NEAREST_NEIGHBOUR = "NEAREST_NEIGHBOUR";
+    private static final String BILINEAR_INTERPOLATION = "BILINEAR_INTERPOLATION";
+    private static final String CUBIC_CONVOLUTION = "CUBIC_CONVOLUTION";
 
     @SourceProduct(alias = "master")
     private Product masterProduct;
@@ -55,7 +56,7 @@ public class CollocateOp extends Operator {
     private String masterComponentPattern;
     @Parameter
     private String slaveComponentPattern;
-    @Parameter(valueSet= {NEAREST_NEIGHBOUR, BILINEAR_INTERPOLATION, CUBIC_CONVOLUTION}, defaultValue=NEAREST_NEIGHBOUR)
+    @Parameter(valueSet = {NEAREST_NEIGHBOUR, BILINEAR_INTERPOLATION, CUBIC_CONVOLUTION}, defaultValue = NEAREST_NEIGHBOUR)
     private ResamplingType resamplingType;
 
     private transient Map<Band, Band> sourceBandMap;
@@ -132,11 +133,56 @@ public class CollocateOp extends Operator {
     }
 
     @Override
+    public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
+        pm.beginTask("collocating bands...", targetProduct.getNumBands() + 1);
+        try {
+            final PixelPos[] sourcePixelPositions = ProductUtils.computeSourcePixelCoordinates(
+                    slaveProduct.getGeoCoding(),
+                    slaveProduct.getSceneRasterWidth(),
+                    slaveProduct.getSceneRasterHeight(),
+                    masterProduct.getGeoCoding(),
+                    targetRectangle);
+            final Rectangle sourceRectangle = getBoundingBox(
+                    sourcePixelPositions,
+                    slaveProduct.getSceneRasterWidth(),
+                    slaveProduct.getSceneRasterHeight());
+            pm.done();
+
+            for (final Band targetBand : targetProduct.getBands()) {
+                checkForCancelation(pm);
+                final Band sourceBand = sourceBandMap.get(targetBand);
+                final Tile targetTile = targetTileMap.get(targetBand);
+
+                if (sourceBand.getProduct() == slaveProduct) {
+                    collocateSourceBand(sourceBand, sourceRectangle, sourcePixelPositions, targetTile,
+                            SubProgressMonitor.create(pm, 1));
+                } else {
+                    targetTile.setRawSamples(getSourceTile(sourceBand, targetTile.getRectangle(), pm).getRawSamples());
+                }
+                pm.worked(1);
+            }
+        } finally {
+            pm.done();
+        }
+    }
+
+    @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         final Band sourceBand = sourceBandMap.get(targetBand);
 
         if (sourceBand.getProduct() == slaveProduct) {
-            collocateSourceBand(sourceBand, targetTile, pm);
+            final PixelPos[] sourcePixelPositions = ProductUtils.computeSourcePixelCoordinates(
+                    slaveProduct.getGeoCoding(),
+                    slaveProduct.getSceneRasterWidth(),
+                    slaveProduct.getSceneRasterHeight(),
+                    masterProduct.getGeoCoding(),
+                    targetTile.getRectangle());
+            final Rectangle sourceRectangle = getBoundingBox(
+                    sourcePixelPositions,
+                    slaveProduct.getSceneRasterWidth(),
+                    slaveProduct.getSceneRasterHeight());
+
+            collocateSourceBand(sourceBand, sourceRectangle, sourcePixelPositions, targetTile, pm);
         } else {
             targetTile.setRawSamples(getSourceTile(sourceBand, targetTile.getRectangle(), pm).getRawSamples());
         }
@@ -147,29 +193,23 @@ public class CollocateOp extends Operator {
         sourceBandMap = null;
     }
 
-    private void collocateSourceBand(Band sourceBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+    private void collocateSourceBand(Band sourceBand, Rectangle sourceRectangle, PixelPos[] sourcePixelPositions,
+                                     Tile targetTile, ProgressMonitor pm) throws OperatorException {
+        pm.beginTask(MessageFormat.format("collocating band {0}", sourceBand.getName()), targetTile.getHeight());
         try {
-            pm.beginTask(MessageFormat.format("collocating band {0}", sourceBand.getName()), targetTile.getHeight());
-
-            final Resampling resampling = resamplingType.getResampling();
-            final Resampling.Index resamplingIndex = resampling.createIndex();
-
-            final GeoCoding sourceGeoCoding = slaveProduct.getGeoCoding();
-            final GeoCoding targetGeoCoding = targetProduct.getGeoCoding();
+            final RasterDataNode targetBand = targetTile.getRasterDataNode();
+            final Rectangle targetRectangle = targetTile.getRectangle();
 
             final int sourceRasterHeight = slaveProduct.getSceneRasterHeight();
             final int sourceRasterWidth = slaveProduct.getSceneRasterWidth();
 
-            final Rectangle targetRectangle = targetTile.getRectangle();
-            final PixelPos[] sourcePixelPositions = ProductUtils.computeSourcePixelCoordinates(sourceGeoCoding,
-                    sourceRasterWidth,
-                    sourceRasterHeight,
-                    targetGeoCoding,
-                    targetRectangle);
-            final Rectangle sourceRectangle = getBoundingBox(sourcePixelPositions, sourceRasterWidth,
-                    sourceRasterHeight);
-
-            final RasterDataNode targetBand = targetTile.getRasterDataNode();
+            final Resampling resampling;
+            if (sourceBand.isFlagBand()) {
+                resampling = ResamplingType.NEAREST_NEIGHBOUR.getResampling();
+            } else {
+                resampling = resamplingType.getResampling();
+            }
+            final Resampling.Index resamplingIndex = resampling.createIndex();
             final float noDataValue = (float) targetBand.getGeophysicalNoDataValue();
 
             if (sourceRectangle != null) {
@@ -178,6 +218,7 @@ public class CollocateOp extends Operator {
 
                 for (int y = targetRectangle.y, index = 0; y < targetRectangle.y + targetRectangle.height; ++y) {
                     for (int x = targetRectangle.x; x < targetRectangle.x + targetRectangle.width; ++x, ++index) {
+                        checkForCancelation(pm);
                         final PixelPos sourcePixelPos = sourcePixelPositions[index];
 
                         if (sourcePixelPos != null) {
@@ -201,8 +242,10 @@ public class CollocateOp extends Operator {
             } else {
                 for (int y = targetRectangle.y, index = 0; y < targetRectangle.y + targetRectangle.height; ++y) {
                     for (int x = targetRectangle.x; x < targetRectangle.x + targetRectangle.width; ++x, ++index) {
+                        checkForCancelation(pm);
                         targetTile.setSample(x, y, noDataValue);
                     }
+                    pm.worked(1);
                 }
             }
         } finally {
