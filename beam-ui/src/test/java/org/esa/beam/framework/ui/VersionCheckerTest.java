@@ -23,13 +23,13 @@ public class VersionCheckerTest extends TestCase {
 
     public void testCurrentLocalVersionString() throws IOException {
         // Failed? --> Adapt current version number here.
-        assertEquals("VERSION 4.1", _versionChecker.getLocalVersion());
+        assertEquals("VERSION 4.2-SNAPSHOT", _versionChecker.getLocalVersion());
     }
 
     public void testCurrentRemoteVersionString() throws IOException {
         if (!PERFORM_REMOTE_TEST) {
             fail("testCurrentRemoteVersionString NOT PERFORMED: " +
-                 "Enable this test, as soon as an internet connection is available again!");
+                    "Enable this test, as soon as an internet connection is available again!");
         }
         assertEquals(true, _versionChecker.getRemoteVersion().startsWith("VERSION "));
     }
