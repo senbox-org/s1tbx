@@ -26,8 +26,8 @@ import com.jidesoft.status.LabelStatusBarItem;
 import com.jidesoft.swing.FolderChooser;
 import com.jidesoft.swing.JideMenu;
 import com.jidesoft.swing.LayoutPersistence;
-import org.esa.beam.framework.ui.command.*;
 import org.esa.beam.framework.help.HelpSys;
+import org.esa.beam.framework.ui.command.*;
 import org.esa.beam.util.*;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.FileChooserFactory;
@@ -454,16 +454,22 @@ public class BasicApp {
      */
     protected void handleImminentExit() {
         Debug.trace(getAppName() + ": handleImminentExit entered");
-        LayoutPersistence layoutPersistence = getMainFrame().getLayoutPersistence();
-        if (layoutPersistence != null) {
-            layoutPersistence.saveLayoutData();   // </JIDE>
+        if (!unexpectedShutdown) {  // fix BEAM-712 (nf 2007.11.02)
+            Debug.trace("(1)");
+            LayoutPersistence layoutPersistence = getMainFrame().getLayoutPersistence();
+            if (layoutPersistence != null) {
+                layoutPersistence.saveLayoutData(); // produces a dead lock, method is certainly not threadsafe!
+            }
         }
+        Debug.trace("(2)");
         savePreferences();
-        // todo - disposing the HelpSystem should be done in the BeamUiActivator.stop() method
-        HelpSys.dispose();
+        Debug.trace("(3)");
+        HelpSys.dispose(); // todo - disposing the HelpSystem should be done in the BeamUiActivator.stop() method
         Debug.trace(getAppName() + ": handleImminentExit exited");
     }
 
+
+    private boolean unexpectedShutdown;  // fix BEAM-712 (nf 2007.11.02)
 
     private void initShutdownHook() {
 
@@ -472,6 +478,7 @@ public class BasicApp {
             @Override
             public void run() {
                 if (isStartedUp() && !isShuttingDown()) {
+                    unexpectedShutdown = true; // fix BEAM-712 (nf 2007.11.02)
                     _logger.severe("Unexpectedly shutting down " + _appName);/*I18N*/
                     handleImminentExit();
                 } else {
