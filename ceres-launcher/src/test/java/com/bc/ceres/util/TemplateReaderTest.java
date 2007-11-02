@@ -99,6 +99,28 @@ public class TemplateReaderTest extends TestCase {
              "foo, blah, blah");
     }
 
+    public void testSubsequentReplacements() throws IOException {
+        Properties properties = new Properties();
+        properties.setProperty("bar", "foo");
+
+        test(properties,
+             "$bar$bar, blah, blah",
+             "$bar$bar, blah, blah");
+
+        test(properties,
+             "${bar} ${bar}, blah, blah",
+             "foo foo, blah, blah");
+
+        test(properties,
+             "${bar}-${bar}, blah, blah",
+             "foo-foo, blah, blah");
+
+        // todo - this test fails (rq - 02.11.2007)
+//        test(properties,
+//             "${bar}${bar}, blah, blah",
+//             "foofoo, blah, blah");
+    }
+
     public void testNotReplaceable() throws IOException {
         Properties properties = new Properties();
         properties.setProperty("bar", "foo");
