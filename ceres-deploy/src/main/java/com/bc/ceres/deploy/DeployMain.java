@@ -46,27 +46,34 @@ public class DeployMain {
 
     public static void main(String[] args) {
         if (args.length != 2) {
-            System.err.println("Usage: deploy <modulesDir> <repositoryDir>");
+            System.err.println("Usage: deploy <modules-dir>|<module-jar> <repository-dir>");
             return;
         }
-        File modulesDir = new File(args[0]);
+        File modulesFile = new File(args[0]);
         File repositoryDir = new File(args[1]);
-        new DeployMain().run(modulesDir, repositoryDir);
+        new DeployMain().run(modulesFile, repositoryDir);
     }
 
-    private void run(File modulesDir, File repositoryDir) {
+    private void run(File modulesFile, File repositoryDir) {
         logger = Logger.getAnonymousLogger();
 
-        File[] moduleFiles = modulesDir.listFiles();
-        if (moduleFiles == null) {
-            String msg = "No files found in " + modulesDir;
-            warn(msg);
-            return;
+        File[] moduleFiles;
+
+        if (modulesFile.isDirectory()) {
+
+            moduleFiles = modulesFile.listFiles();
+            if (moduleFiles == null) {
+                String msg = "No files found in " + modulesFile;
+                warn(msg);
+                return;
+            }
+            info(String.format("Deploying modules of [%s] to [%s]...", modulesFile, repositoryDir));
+        } else {
+            moduleFiles = new File[]{modulesFile};
+            info(String.format("Deploying module [%s] to [%s]...", modulesFile, repositoryDir));
         }
 
         repositoryDir.mkdirs();
-
-        info(String.format("Deploying modules of [%s] to [%s]...", modulesDir, repositoryDir));
 
         int deployedModuleCount = 0;
         for (File moduleFile : moduleFiles) {
@@ -238,7 +245,7 @@ public class DeployMain {
             if (numBytes != -1) {
                 outputStream.write(buffer, 0, numBytes);
             }
-        } while (numBytes == buffer.length) ;
+        } while (numBytes == buffer.length);
     }
 
     private void closeBoth(InputStream inputStream, OutputStream outputStream) {
