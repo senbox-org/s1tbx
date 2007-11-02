@@ -68,6 +68,8 @@ public class TemplateReader extends FilterReader {
 
     /**
      * Reads all content.
+     * @return the content
+     * @throws java.io.IOException if an I/O error occurs
      */
     public String readAll() throws IOException {
         StringBuilder sb = new StringBuilder(16 * 1024);
