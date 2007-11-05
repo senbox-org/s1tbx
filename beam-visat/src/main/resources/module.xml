@@ -14,6 +14,7 @@
         Changes in 4.2<br>
         [BEAM-709] Open dialog should use 'All Files' as default filter<br>
         [BEAM-716] Module repository location from preferences overwrites location from beam.config<br>
+        [BEAM-718] Show all product formats in reopen menu<br>
         Changes in 4.1<br>
         [BEAM-482] Pins shall not be selected by default<br/>
         [BEAM-603] Select multiple pins<br/>

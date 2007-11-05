@@ -1987,7 +1987,8 @@ public final class VisatApp extends BasicApp {
             return;
         }
         menu.removeAll();
-        final FileHistory history = new FormatedFileHistory(getFileHistory(), new DimapProductReaderPlugIn());
+//        final FileHistory history = new FormatedFileHistory(getFileHistory(), new DimapProductReaderPlugIn());
+        final FileHistory history = getFileHistory();
         history.initBy(getPreferences());
         final String[] entries = history.getEntries();
         if (entries != null) {
