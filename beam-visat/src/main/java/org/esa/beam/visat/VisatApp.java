@@ -29,7 +29,11 @@ import com.jidesoft.action.CommandMenuBar;
 import com.jidesoft.action.DockableBarContext;
 import com.jidesoft.action.event.DockableBarAdapter;
 import com.jidesoft.action.event.DockableBarEvent;
-import com.jidesoft.status.*;
+import com.jidesoft.status.LabelStatusBarItem;
+import com.jidesoft.status.MemoryStatusBarItem;
+import com.jidesoft.status.OvrInsStatusBarItem;
+import com.jidesoft.status.ResizeStatusBarItem;
+import com.jidesoft.status.TimeStatusBarItem;
 import com.jidesoft.swing.JideBoxLayout;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.esa.beam.dataio.dimap.DimapProductHelpers;
@@ -44,16 +48,32 @@ import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.param.ParamException;
 import org.esa.beam.framework.param.ParamExceptionHandler;
 import org.esa.beam.framework.param.Parameter;
-import org.esa.beam.framework.ui.*;
+import org.esa.beam.framework.ui.BasicApp;
+import org.esa.beam.framework.ui.FileHistory;
+import org.esa.beam.framework.ui.FormatedFileHistory;
+import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.framework.ui.NewProductDialog;
+import org.esa.beam.framework.ui.RGBImageProfilePane;
+import org.esa.beam.framework.ui.SuppressibleOptionPane;
+import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ApplicationPage;
 import org.esa.beam.framework.ui.application.ApplicationWindow;
 import org.esa.beam.framework.ui.application.ToolViewDescriptor;
 import org.esa.beam.framework.ui.command.Command;
 import org.esa.beam.framework.ui.command.CommandManager;
-import org.esa.beam.framework.ui.product.*;
+import org.esa.beam.framework.ui.product.ProductMetadataView;
+import org.esa.beam.framework.ui.product.ProductNodeView;
+import org.esa.beam.framework.ui.product.ProductSceneImage;
+import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.framework.ui.product.ProductTree;
+import org.esa.beam.framework.ui.product.ProductTreeListener;
 import org.esa.beam.framework.ui.tool.DrawingEditor;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.util.*;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.PropertyMap;
+import org.esa.beam.util.PropertyMapChangeListener;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
@@ -65,7 +85,11 @@ import javax.swing.*;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 import javax.swing.filechooser.FileFilter;
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Cursor;
+import java.awt.Dialog;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -73,10 +97,15 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.text.MessageFormat;
 
 /**
  * The <code>VisatApp</code> class represents the VISAT application.
@@ -86,6 +115,7 @@ import java.util.concurrent.Executors;
  * @version $Revision: 1.107 $ $Date: 2007/04/23 13:51:01 $
  */
 public final class VisatApp extends BasicApp {
+
     static {
         VisatActivator activator = VisatActivator.getInstance();
         if (activator != null) {
@@ -169,7 +199,7 @@ public final class VisatApp extends BasicApp {
     /**
      * Default value for limit for automatic data load
      */
-    public static int PROPERTY_DEFAULT_AUTO_LOAD_DATA_LIMIT = 512;
+    public static final int PROPERTY_DEFAULT_AUTO_LOAD_DATA_LIMIT = 512;
     /**
      * Preferences key for automatic data unload
      */
@@ -197,23 +227,23 @@ public final class VisatApp extends BasicApp {
     /**
      * Preferences key for pixel offset-X for display pixel positions
      */
-    public final static String PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_X = "pixel.offset.display.x";
+    public static final String PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_X = "pixel.offset.display.x";
     /**
      * Preferences key for pixel offset-Y for display pixel positions
      */
-    public final static String PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_Y = "pixel.offset.display.y";
+    public static final String PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_Y = "pixel.offset.display.y";
     /**
      * Default value for pixel offset's for display pixel positions
      */
-    public final static float PROPERTY_DEFAULT_PIXEL_OFFSET_FOR_DISPLAY = 0.5f;
+    public static final float PROPERTY_DEFAULT_PIXEL_OFFSET_FOR_DISPLAY = 0.5f;
     /**
      * Preferences key for pixel offset-Y for display pixel positions
      */
-    public final static String PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_SHOW_DECIMALS = "pixel.offset.display.show.decimals";
+    public static final String PROPERTY_KEY_PIXEL_OFFSET_FOR_DISPLAY_SHOW_DECIMALS = "pixel.offset.display.show.decimals";
     /**
      * Default value for pixel offset's for display pixel positions
      */
-    public final static boolean PROPERTY_DEFAULT_PIXEL_OFFSET_FOR_DISPLAY_SHOW_DECIMALS = false;
+    public static final boolean PROPERTY_DEFAULT_PIXEL_OFFSET_FOR_DISPLAY_SHOW_DECIMALS = false;
 
     /**
      * Location key "browserPane" for plugin comonents
@@ -238,7 +268,9 @@ public final class VisatApp extends BasicApp {
     public static final boolean DEFAULT_VALUE_SAVE_PRODUCT_HISTORY = true;
 
     public static final String ERROR_MESSAGE_PRODUCT_IS_ALREADY_OPENED = "The product is already open.\n"
-            + "A product can only be opened once."; /*I18N*/
+                                                                         + "A product can only be opened once."; /*I18N*/
+
+    public static final String ALL_FILES_IDENTIFIER = "ALL_FILES";
 
     /**
      * The one and only visat instance
@@ -395,7 +427,7 @@ public final class VisatApp extends BasicApp {
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
                         instance.showInfoDialog("You are using VISAT in JAI tiled image mode.\n" +
-                                "THIS MODE IS STILL UNDER DEVELOPMENT!",
+                                                "THIS MODE IS STILL UNDER DEVELOPMENT!",
                                                 "beam.imageTiling.warn");
                     }
                 });
@@ -602,6 +634,7 @@ public final class VisatApp extends BasicApp {
      * object cannot be used anymore.
      *
      * @param product the product to be disposed
+     *
      * @see org.esa.beam.framework.datamodel.Product#dispose
      */
     public void disposeProduct(final Product product) {
@@ -772,22 +805,23 @@ public final class VisatApp extends BasicApp {
      * @param raster   the raster for which to perform the lookup
      * @param numBands the number of bands in the view, pass -1 for all view types, 1 for single band type and 3 for RGB
      *                 views
+     *
      * @return the internal frames, never <code>null</code>.
      */
     public JInternalFrame[] findInternalFrames(final RasterDataNode raster, final int numBands) {
         final JInternalFrame[] frames = getAllInternalFrames();
-        final ArrayList<JInternalFrame> frameList = new ArrayList<JInternalFrame>();
+        final ArrayList<JInternalFrame> frameList = new ArrayList<JInternalFrame>(10);
         for (final JInternalFrame frame : frames) {
             final Container contentPane = frame.getContentPane();
             if (contentPane instanceof ProductSceneView) {
                 final ProductSceneView view = (ProductSceneView) contentPane;
                 if ((numBands == -1 || view.getNumRasters() == numBands) &&
-                        view.getRaster() == raster) {
+                    view.getRaster() == raster) {
                     frameList.add(frame);
                 }
             }
         }
-        return frameList.toArray(new JInternalFrame[0]);
+        return frameList.toArray(new JInternalFrame[frameList.size()]);
     }
 
     /**
@@ -796,6 +830,7 @@ public final class VisatApp extends BasicApp {
      * <p>The content pane of the returned frame is always an instance of <code>ProductSceneView</code>.
      *
      * @param raster the raster for which to perform the lookup
+     *
      * @return the internal frame or <code>null</code> if no frame was found
      */
     public JInternalFrame findInternalFrame(final RasterDataNode raster) {
@@ -821,11 +856,12 @@ public final class VisatApp extends BasicApp {
      * <p>The content pane of the returned frame is always an instance of <code>ProductSceneView</code>.
      *
      * @param raster the raster for which to perform the lookup
+     *
      * @return the internal frames, never <code>null</code>.
      */
     public JInternalFrame[] findInternalFrames(final RasterDataNode raster) {
         final JInternalFrame[] frames = getAllInternalFrames();
-        final ArrayList<JInternalFrame> frameList = new ArrayList<JInternalFrame>();
+        final ArrayList<JInternalFrame> frameList = new ArrayList<JInternalFrame>(10);
         for (final JInternalFrame frame : frames) {
             final Container contentPane = frame.getContentPane();
             if (contentPane instanceof ProductSceneView) {
@@ -847,6 +883,7 @@ public final class VisatApp extends BasicApp {
      * <p>The content pane of the returned frame is always an instance of <code>ProductMetadataView</code>.
      *
      * @param metadataElement the metadata element for which to perform the lookup
+     *
      * @return the internal frame or <code>null</code> if no frame was found
      */
     public JInternalFrame findInternalFrame(final MetadataElement metadataElement) {
@@ -872,6 +909,7 @@ public final class VisatApp extends BasicApp {
      * <p>The content pane of the returned frame is always an instance of <code>ProductMetadataView</code>.
      *
      * @param productNode the product node for which to perform the lookup
+     *
      * @return the internal frame or <code>null</code> if no frame was found
      */
     public JInternalFrame findInternalFrame(final ProductNode productNode) {
@@ -895,6 +933,7 @@ public final class VisatApp extends BasicApp {
      * Finds the product associated with the given file.
      *
      * @param file the file
+     *
      * @return the product associated with the given file. or <code>null</code> if no such exists.
      */
     public Product getOpenProduct(final File file) {
@@ -951,6 +990,7 @@ public final class VisatApp extends BasicApp {
      * Returns true if the given raster data node is used in any product scene view.
      *
      * @param raster
+     *
      * @return true if raster is used
      */
     public boolean hasRasterProductSceneView(final RasterDataNode raster) {
@@ -1053,7 +1093,7 @@ public final class VisatApp extends BasicApp {
 
     @Override
     public synchronized void shutDown() {
-        final ArrayList<Product> modifiedOrNew = new ArrayList<Product>();
+        final ArrayList<Product> modifiedOrNew = new ArrayList<Product>(5);
         final Product[] products = getProductManager().getProducts();
         for (final Product product : products) {
             final ProductReader reader = product.getProductReader();
@@ -1064,7 +1104,7 @@ public final class VisatApp extends BasicApp {
                 }
             }
             if (!modifiedOrNew.contains(product)
-                    && product.isModified()) {
+                && product.isModified()) {
                 modifiedOrNew.add(product);
             }
         }
@@ -1280,7 +1320,7 @@ public final class VisatApp extends BasicApp {
                     @Override
                     public void nodeChanged(final ProductNodeEvent event) {
                         if (event.getSourceNode() == raster &&
-                                event.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
+                            event.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
                             internalFrame.setTitle(createInternalFrameTitle(raster));
                         }
                     }
@@ -1432,17 +1472,17 @@ public final class VisatApp extends BasicApp {
             StringBuilder message = null;
             if (product.getFileLocation() == null) {
                 message = new StringBuilder("The product\n" +
-                        "  " + product.getDisplayName() + "\n" +
-                        "you want to close has not been saved yet.\n");
+                                            "  " + product.getDisplayName() + "\n" +
+                                            "you want to close has not been saved yet.\n");
             } else if (product.isModified()) {
                 message = new StringBuilder("The product\n" +
-                        "  " + product.getDisplayName() + "\n" +
-                        "has been modified.\n");
+                                            "  " + product.getDisplayName() + "\n" +
+                                            "has been modified.\n");
             }
             if (message != null) {
                 message.append("After closing this product all modifications will be lost.\n" +
-                        "\n" +
-                        "Do you really want to close this product now?");
+                               "\n" +
+                               "Do you really want to close this product now?");
                 final int pressedButton = showQuestionDialog("Product Modified", message.toString(), null);
                 if (pressedButton != JOptionPane.YES_OPTION) {
                     return false;
@@ -1487,9 +1527,9 @@ public final class VisatApp extends BasicApp {
         final File file = product.getFileLocation();
         if (file.isFile() && !file.canWrite()) {
             showWarningDialog("The product\n" +
-                    "'" + file.getPath() + "'\n" +
-                    "exists and cannot be overwritten, because it is read only.\n" +
-                    "Please choose another file or remove the write protection."); /*I18N*/
+                              "'" + file.getPath() + "'\n" +
+                              "exists and cannot be overwritten, because it is read only.\n" +
+                              "Please choose another file or remove the write protection."); /*I18N*/
             return false;
         }
 
@@ -1562,7 +1602,7 @@ public final class VisatApp extends BasicApp {
                 if (canceled) {
                     int result = JOptionPane.showConfirmDialog(getMainFrame(),
                                                                "Cancel saving may lead to an unreadable product.\n\n"
-                                                                       + "Do you really want to cancel the save process?",
+                                                               + "Do you really want to cancel the save process?",
                                                                "Cancel Process", JOptionPane.YES_NO_OPTION);
                     if (result != JOptionPane.YES_OPTION) {
                         super.setCanceled(false);
@@ -1706,7 +1746,7 @@ public final class VisatApp extends BasicApp {
         long storageMem = 0;
         for (int i = 0; i < rgbBands.length; i++) {
             final RGBBand rgbBand = new RGBBand();
-            String expression = rgbaExpressions[i].equals("") ? "0" : rgbaExpressions[i];
+            String expression = rgbaExpressions[i].isEmpty() ? "0" : rgbaExpressions[i];
             rgbBand.band = product.getBand(expression);
             if (rgbBand.band == null) {
                 rgbBand.band = new ProductSceneView.RGBChannel(product,
@@ -1722,9 +1762,10 @@ public final class VisatApp extends BasicApp {
         } else {
             if (storageMem < dataAutoLoadMemLimit) {
                 pm.beginTask("Loading RGB channels...", rgbBands.length);
+                String msgPattern = "Loading RGB channel ''{0}''...";
                 for (final RGBBand rgbBand : rgbBands) {
                     if (!rgbBand.band.hasRasterData()) {
-                        pm.setSubTaskName("Loading RGB channel '" + rgbBand.band.getName() + "'...");
+                        pm.setSubTaskName(MessageFormat.format(msgPattern, rgbBand.band.getName()));
                         rgbBand.band.loadRasterData(SubProgressMonitor.create(pm, 1));
                         rgbBand.dataLoaded = true;
                     } else {
@@ -1780,7 +1821,7 @@ public final class VisatApp extends BasicApp {
                 @Override
                 public void nodeChanged(final ProductNodeEvent event) {
                     if (event.getSourceNode() == element &&
-                            event.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
+                        event.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
                         internalFrame.setTitle(element.getDisplayName());
                     }
                 }
@@ -1817,11 +1858,11 @@ public final class VisatApp extends BasicApp {
         if (reader != null && !(reader instanceof DimapProductReader)) {
             final int answer = showQuestionDialog("Save Product As",
                                                   "In order to save the product\n" +
-                                                          "   " + product.getDisplayName() + "\n" +
-                                                          "it has to be converted to the BEAM-DIMAP format.\n" +
-                                                          "The current product and all of its views will be closed.\n" +
-                                                          "Depending on the product size the conversion also may take a while.\n\n" +
-                                                          "Do you really want to convert the product now?\n",
+                                                  "   " + product.getDisplayName() + "\n" +
+                                                  "it has to be converted to the BEAM-DIMAP format.\n" +
+                                                  "The current product and all of its views will be closed.\n" +
+                                                  "Depending on the product size the conversion also may take a while.\n\n" +
+                                                  "Do you really want to convert the product now?\n",
                                                   "productConversionRequired"); /*I18N*/
             if (answer != 0) { // Zero means YES
                 return;
@@ -1852,8 +1893,8 @@ public final class VisatApp extends BasicApp {
             if (file.exists()) {
                 final int answer = showQuestionDialog("Product Exists",
                                                       "The selected directory already contains a data product with the name\n" +
-                                                              "'" + file.getName() + "'.\n\n" +
-                                                              "Do you really want to overwrite this product?\n", null); /*I18N*/
+                                                      "'" + file.getName() + "'.\n\n" +
+                                                      "Do you really want to overwrite this product?\n", null); /*I18N*/
                 if (answer == 0) { // Zero means YES
                     break;
                 } else {
@@ -2013,8 +2054,8 @@ public final class VisatApp extends BasicApp {
                     final Object defaultValue = parameter.getProperties().getDefaultValue();
                     showErrorDialog("Error in Preferences",
                                     "A problem has been detected in VISAT's preference settings:\n\n"
-                                            + "Value for parameter '" + parameter.getName() + "' is invalid.\n"
-                                            + "Its default value '" + defaultValue + "' will be used instead.");
+                                    + "Value for parameter '" + parameter.getName() + "' is invalid.\n"
+                                    + "Its default value '" + defaultValue + "' will be used instead.");
                     try {
                         parameter.setDefaultValue();
                     } catch (IllegalArgumentException e1) {
@@ -2326,7 +2367,9 @@ public final class VisatApp extends BasicApp {
      * is selected.
      *
      * @param commandID the command ID
+     *
      * @return a tool button which is automatically added to VISAT's tool button group.
+     *
      * @see #getCommandManager
      */
     public AbstractButton createToolButton(final String commandID) {
@@ -2368,6 +2411,7 @@ public final class VisatApp extends BasicApp {
      * @param title   a frame title
      * @param icon    a frame icon, can be null
      * @param content the frame's content pane
+     *
      * @return the newly created frame
      */
     public synchronized JInternalFrame createInternalFrame(final String title, final Icon icon,
@@ -2540,9 +2584,8 @@ public final class VisatApp extends BasicApp {
                     otherFrame = findInternalFrame(raster);
                     // If this band is not referenced by other frames anymore:
                     if (otherFrame == null) {
-                        final boolean autoUnload = getPreferences().getPropertyBool(
-                                VisatApp.PROPERTY_KEY_AUTO_UNLOAD_DATA,
-                                true);
+                        final boolean autoUnload = getPreferences().getPropertyBool(PROPERTY_KEY_AUTO_UNLOAD_DATA,
+                                                                                    true);
                         // If auto-unload is on, unload data
                         if (autoUnload && !raster.isSynthetic()) {
                             Debug.trace("Unloading raster data of '" + raster.getName() + "'...");
@@ -2642,7 +2685,6 @@ public final class VisatApp extends BasicApp {
     private class OpenProductRunnable implements Runnable {
 
         private final File file;
-        private String ALL_FILES_FORMAT = "ALL_FILES";
 
         public OpenProductRunnable(File file) {
             this.file = file;
@@ -2700,7 +2742,7 @@ public final class VisatApp extends BasicApp {
             String lastDir = getPreferences().getPropertyString(PROPERTY_KEY_APP_LAST_OPEN_DIR,
                                                                 SystemUtils.getUserHomeDir().getPath());
             String lastFormat = getPreferences().getPropertyString(PROPERTY_KEY_APP_LAST_OPEN_FORMAT,
-                                                                   ProductIO.DEFAULT_FORMAT_NAME);
+                                                                   ALL_FILES_IDENTIFIER);
             BeamFileChooser fileChooser = new BeamFileChooser();
             fileChooser.setCurrentDirectory(new File(lastDir));
             fileChooser.setAcceptAllFileFilterUsed(true);
@@ -2713,7 +2755,8 @@ public final class VisatApp extends BasicApp {
                 final ProductIOPlugIn plugIn = (ProductIOPlugIn) allReaderPlugIns.next();
                 BeamFileFilter productFileFilter = plugIn.getProductFileFilter();
                 fileChooser.addChoosableFileFilter(productFileFilter);
-                if (productFileFilter.getFormatName().equals(lastFormat)) {
+                if (!ALL_FILES_IDENTIFIER.equals(lastFormat) &&
+                    productFileFilter.getFormatName().equals(lastFormat)) {
                     actualFileFilter = productFileFilter;
                 }
             }
@@ -2735,7 +2778,7 @@ public final class VisatApp extends BasicApp {
                     getPreferences().setPropertyString(PROPERTY_KEY_APP_LAST_OPEN_FORMAT, currentFormat);
                 }
             } else {
-                getPreferences().setPropertyString(PROPERTY_KEY_APP_LAST_OPEN_FORMAT, ALL_FILES_FORMAT);
+                getPreferences().setPropertyString(PROPERTY_KEY_APP_LAST_OPEN_FORMAT, ALL_FILES_IDENTIFIER);
             }
             return fileChooser;
 

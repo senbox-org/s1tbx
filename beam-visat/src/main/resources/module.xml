@@ -12,7 +12,8 @@
     <changelog>
         <![CDATA[
         Changes in 4.2<br>
-        [BEAM-716] Module repository location from preferences overwrites location from beam.config
+        [BEAM-709] Open dialog should use 'All Files' as default filter<br>
+        [BEAM-716] Module repository location from preferences overwrites location from beam.config<br>
         Changes in 4.1<br>
         [BEAM-482] Pins shall not be selected by default<br/>
         [BEAM-603] Select multiple pins<br/>
