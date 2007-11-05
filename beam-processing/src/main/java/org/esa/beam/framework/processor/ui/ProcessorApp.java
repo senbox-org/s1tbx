@@ -26,15 +26,7 @@ import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.param.ParamGroup;
 import org.esa.beam.framework.param.ParamProperties;
 import org.esa.beam.framework.param.Parameter;
-import org.esa.beam.framework.processor.Processor;
-import org.esa.beam.framework.processor.ProcessorConstants;
-import org.esa.beam.framework.processor.ProcessorException;
-import org.esa.beam.framework.processor.ProcessorUtils;
-import org.esa.beam.framework.processor.Request;
-import org.esa.beam.framework.processor.RequestElementFactoryException;
-import org.esa.beam.framework.processor.RequestLoader;
-import org.esa.beam.framework.processor.RequestValidator;
-import org.esa.beam.framework.processor.RequestWriter;
+import org.esa.beam.framework.processor.*;
 import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.util.Debug;
@@ -57,6 +49,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -155,7 +148,7 @@ public class ProcessorApp extends BasicApp {
      */
     public RequestValidator[] getRequestValidators() {
         if (_requestValidatorList != null) {
-            return _requestValidatorList.toArray(new RequestValidator[0]);
+            return _requestValidatorList.toArray(new RequestValidator[_requestValidatorList.size()]);
         }
         return new RequestValidator[0];
     }
@@ -165,7 +158,7 @@ public class ProcessorApp extends BasicApp {
             return;
         }
         if (_requestValidatorList == null) {
-            _requestValidatorList = new ArrayList<RequestValidator>();
+            _requestValidatorList = new ArrayList<RequestValidator>(5);
         }
         if (!_requestValidatorList.contains(requestValidator)) {
             _requestValidatorList.add(requestValidator);
@@ -176,10 +169,7 @@ public class ProcessorApp extends BasicApp {
         if (_requestValidator == requestValidator) {
             _requestValidator = null;
         }
-        if (_requestValidatorList == null) {
-            return false;
-        }
-        return _requestValidatorList.remove(requestValidator);
+        return _requestValidatorList != null && _requestValidatorList.remove(requestValidator);
     }
 
     /**
@@ -194,6 +184,8 @@ public class ProcessorApp extends BasicApp {
 
     /**
      * Determines whether or not this processor application runs in stand-alone mode.
+     *
+     * @return <code>true</code>, if so.
      */
     public boolean isStandAlone() {
         return _standAlone;
@@ -212,10 +204,10 @@ public class ProcessorApp extends BasicApp {
 
     /**
      * This method can be overridden in order to initialize a client user interface. It is called from the {@link
-     * #startUp()} method before the {@link #applyPreferences()} is called and before an optional splash-screen closes
+     * #startUp(com.bc.ceres.core.ProgressMonitor)} method before the {@link #applyPreferences()} is called and before an optional splash-screen closes
      * and the main frame becomes visible.
      *
-     * @param pm
+     * @param pm A monitor to indicate progress.
      */
     @Override
     protected void initClientUI(ProgressMonitor pm) throws Exception {
@@ -358,6 +350,11 @@ public class ProcessorApp extends BasicApp {
 
     /**
      * Retrieves the requests currently used by the processor
+     *
+     * @return The requests processsed by the processor.
+     *
+     * @throws org.esa.beam.framework.processor.ProcessorException
+     *          If an error occurs.
      */
     public Vector getRequests() throws ProcessorException {
         return _processorUI.getRequests();
@@ -365,6 +362,12 @@ public class ProcessorApp extends BasicApp {
 
     /**
      * Injects a list of requests to the processorUI.
+     *
+     * @param requests Sets the {@link org.esa.beam.framework.processor.Request requests} to be
+     *                 processed by the processor
+     *
+     * @throws org.esa.beam.framework.processor.ProcessorException
+     *          If an error occurs.
      */
     public void setRequests(Vector requests) throws ProcessorException {
         _processorUI.setRequests(requests);
@@ -387,9 +390,7 @@ public class ProcessorApp extends BasicApp {
         };
     }
 
-    /**
-     * Creates the "run" and the "hlep" button to the base frame
-     */
+    // Creates the "Run", "Close" and "Help" button to the base frame
     private JComponent createButtonPane() {
 
         _runButton = new JButton("Run");
@@ -412,10 +413,8 @@ public class ProcessorApp extends BasicApp {
         return buttonPane;
     }
 
-    /**
-     * Asks the processor to create it's user interface and add it to the frame window. When the processor has no user
-     * interface, a default GUI is created, stating that the current processor has no GUI.
-     */
+    // Asks the processor to create it's user interface and add it to the frame window. When the processor has no user
+    // interface, a default GUI is created, stating that the current processor has no GUI.
     private JComponent createEditorPane() {
         JComponent editorPane = null;
         String message = null;
@@ -484,6 +483,26 @@ public class ProcessorApp extends BasicApp {
                     return;
                 }
             }
+        }
+
+        for (Object aRequest : requestList) {
+            final Request request = (Request) aRequest;
+            for (int i = 0; i < request.getNumOutputProducts(); i++) {
+                ProductRef product = request.getOutputProductAt(i);
+                File outputFile = product.getFile();
+                if (outputFile != null && outputFile.exists()) {
+                    String message = "The specified output file\n\"{0}\"\n already exists.\n\n" +
+                                     "Do you want to overwrite the existing file?";
+                    int answer = showQuestionDialog("Overwrite?",
+                                                    MessageFormat.format(message, outputFile.getAbsolutePath()),
+                                                    null);
+
+                    if (answer != JOptionPane.YES_OPTION) {
+                        return;
+                    }
+                }
+            }
+
         }
 
         SwingWorker worker = new ProgressMonitorSwingWorker(getMainFrame(), _processor.getUITitle()) {
@@ -617,7 +636,7 @@ public class ProcessorApp extends BasicApp {
      * Callback invoked on save request menu item
      */
     private void onSaveRequest() {
-        Vector requests = null;
+        Vector<Request> requests = null;
 
         try {
             requests = _processorUI.getRequests();
@@ -630,13 +649,13 @@ public class ProcessorApp extends BasicApp {
             return;
         }
 
-        final File requestFile = ((Request) requests.elementAt(0)).getFile();
+        final File requestFile = requests.elementAt(0).getFile();
         if (requestFile == null) {
             // when the request has no file information - invoke save as dialog
             onSaveRequestAs();
         } else {
             try {
-                Request[] allRequests = (Request[]) requests.toArray(new Request[requests.size()]);
+                Request[] allRequests = requests.toArray(new Request[requests.size()]);
                 _writer.write(allRequests, requestFile);
             } catch (IOException e) {
                 showErrorDialog(getMainFrame().getTitle(),
@@ -668,10 +687,10 @@ public class ProcessorApp extends BasicApp {
                 return;
             }
             try {
-                final Vector requests = _processorUI.getRequests();
+                final Vector<Request> requests = _processorUI.getRequests();
 
                 if (requests != null) {
-                    final Request[] requestArray = (Request[]) requests.toArray(new Request[requests.size()]);
+                    final Request[] requestArray = requests.toArray(new Request[requests.size()]);
                     _writer.write(requestArray, file);
                     // set new file to request and reassign to UI
                     for (Request request : requestArray) {
@@ -703,9 +722,7 @@ public class ProcessorApp extends BasicApp {
         }
     }
 
-    /**
-     * Retrieves the file choosed object. If non is persent, an object is constructed
-     */
+    // Retrieves the file choosed object. If non is persent, an object is constructed
     private JFileChooser getFileDialogSafe() {
         if (_fileDialog == null) {
             _fileDialog = new BeamFileChooser();
