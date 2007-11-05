@@ -34,7 +34,7 @@ public class ProductSubsetBuilderTest extends TestCase {
         product.setGeoCoding(new TiePointGeoCoding(t1, t2, Datum.WGS_84));
     }
 
-    public void testCopyPlacemarkGroupsOnlyRegion() throws IOException {
+    public void testCopyPlacemarkGroupsOnlyForRegionSubset() throws IOException {
         final PinSymbol defaultPinSymbol = PinSymbol.createDefaultPinSymbol();
         final Pin pin1 = new Pin("P1", "", "", new PixelPos(1.5f, 1.5f), null, defaultPinSymbol);
         final Pin pin2 = new Pin("P2", "", "", new PixelPos(3.5f, 3.5f), null, defaultPinSymbol);
@@ -58,6 +58,36 @@ public class ProductSubsetBuilderTest extends TestCase {
         assertEquals(3, product2.getGcpGroup().getNodeCount());
 
         assertEquals("P2", product2.getPinGroup().get(0).getName());
+        assertEquals("G1", product2.getGcpGroup().get(0).getName());
+        assertEquals("G2", product2.getGcpGroup().get(1).getName());
+        assertEquals("G3", product2.getGcpGroup().get(2).getName());
+    }
+
+    public void testCopyPlacemarkGroupsOnlyForNullSubset() throws IOException {
+        final PinSymbol defaultPinSymbol = PinSymbol.createDefaultPinSymbol();
+        final Pin pin1 = new Pin("P1", "", "", new PixelPos(1.5f, 1.5f), null, defaultPinSymbol);
+        final Pin pin2 = new Pin("P2", "", "", new PixelPos(3.5f, 3.5f), null, defaultPinSymbol);
+        final Pin pin3 = new Pin("P3", "", "", new PixelPos(9.5f, 9.5f), null, defaultPinSymbol);
+        final Pin gcp1 = new Pin("G1", "", "", new PixelPos(2.5f, 2.5f), null, defaultPinSymbol);
+        final Pin gcp2 = new Pin("G2", "", "", new PixelPos(4.5f, 4.5f), null, defaultPinSymbol);
+        final Pin gcp3 = new Pin("G3", "", "", new PixelPos(10.5f, 10.5f), null, defaultPinSymbol);
+
+        product.getPinGroup().add(pin1);
+        product.getPinGroup().add(pin2);
+        product.getPinGroup().add(pin3);
+        product.getGcpGroup().add(gcp1);
+        product.getGcpGroup().add(gcp2);
+        product.getGcpGroup().add(gcp3);
+
+        final ProductSubsetDef subsetDef = null;
+        final Product product2 = ProductSubsetBuilder.createProductSubset(product, subsetDef, "subset", "");
+
+        assertEquals(3, product2.getPinGroup().getNodeCount());
+        assertEquals(3, product2.getGcpGroup().getNodeCount());
+
+        assertEquals("P1", product2.getPinGroup().get(0).getName());
+        assertEquals("P2", product2.getPinGroup().get(1).getName());
+        assertEquals("P3", product2.getPinGroup().get(2).getName());
         assertEquals("G1", product2.getGcpGroup().get(0).getName());
         assertEquals("G2", product2.getGcpGroup().get(1).getName());
         assertEquals("G3", product2.getGcpGroup().get(2).getName());

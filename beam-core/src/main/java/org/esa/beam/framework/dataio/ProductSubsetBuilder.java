@@ -342,7 +342,7 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
 
         final int offsetX;
         final int offsetY;
-        if (getSubsetDef().getRegion() != null) {
+        if (getSubsetDef() != null && getSubsetDef().getRegion() != null) {
             offsetX = getSubsetDef().getRegion().x;
             offsetY = getSubsetDef().getRegion().y;
         } else {
@@ -350,8 +350,15 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
             offsetY = 0;
         }
 
-        final int subSamplingX = getSubsetDef().getSubSamplingX();
-        final int subSamplingY = getSubsetDef().getSubSamplingY();
+        final int subSamplingX;
+        final int subSamplingY;
+        if (getSubsetDef() != null) {
+            subSamplingX = getSubsetDef().getSubSamplingY();
+            subSamplingY = getSubsetDef().getSubSamplingX();
+        } else {
+            subSamplingX = 1;
+            subSamplingY = 1;
+        }
 
         for (final Pin pin : pins) {
             final float x = (pin.getPixelPos().x - offsetX) / subSamplingX;
