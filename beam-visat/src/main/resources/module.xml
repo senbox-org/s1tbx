@@ -13,7 +13,7 @@
         <![CDATA[
         Changes in 4.2<br>
         [BEAM-716] Module repository location from preferences overwrites location from beam.config
-        From 4.0 to 4.1<br>
+        Changes in 4.1<br>
         [BEAM-482] Pins shall not be selected by default<br/>
         [BEAM-603] Select multiple pins<br/>
         [BEAM-613] Product not shown in product tree view<br/>
