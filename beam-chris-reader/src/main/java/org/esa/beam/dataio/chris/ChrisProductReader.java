@@ -200,7 +200,7 @@ public class ChrisProductReader extends AbstractProductReader {
     }
 
     private MetadataElement createBandInfo() {
-        final MetadataElement bandInfo = new MetadataElement("Band Information");
+        final MetadataElement bandInfo = new MetadataElement(ChrisConstants.BAND_INFORMATION_NAME);
         for (int i = 0; i < chrisFile.getSpectralBandCount(); i++) {
             final String name = MessageFormat.format("radiance_{0}", i + 1);
             final MetadataElement element = new MetadataElement(name);

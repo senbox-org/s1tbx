@@ -20,7 +20,7 @@ public class ChrisConstants {
 
     public static final String MPH_NAME = "MPH";
     public static final String SPH_NAME = "SPH";
-
+    public static final String BAND_INFORMATION_NAME = "Band Information";
     // Meta data attributes
     public static final String ATTR_NAME_SENSOR_TYPE = "Sensor Type";
     public static final String ATTR_NAME_DATA_RIGHTS = "Data Rights";
