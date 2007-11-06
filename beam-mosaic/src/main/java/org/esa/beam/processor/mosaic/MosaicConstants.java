@@ -23,12 +23,12 @@ public class MosaicConstants {
 
     //@todo 1 se/nf - check correct english of the entire class
 
-    public final static String PROCESSOR_NAME = "BEAM Mosaic Processor";
-    public final static String VERSION_STRING = "2.2";
-    public final static String COPYRIGHT_INFO = "Copyright (C) 2002-2004 by Brockmann Consult (info@brockmann-consult.de)";
+    public static final String PROCESSOR_NAME = "BEAM Mosaic Processor";
+    public static final String VERSION_STRING = "2.2.100";
+    public static final String COPYRIGHT_INFO = "Copyright (C) 2002-2004 by Brockmann Consult (info@brockmann-consult.de)";
 
-    public final static String REQUEST_TYPE = "MOSAIC";
-    public final static String REQUEST_TYPE_MAP_PROJECTION = "MAP_PROJECTION";
+    public static final String REQUEST_TYPE = "MOSAIC";
+    public static final String REQUEST_TYPE_MAP_PROJECTION = "MAP_PROJECTION";
 
     public static final String DEFAULT_OUTPUT_PRODUCT_NAME = "mosaic_out.dim";
     public static final String OUTPUT_PRODUCT_TYPE = "BEAM_MOSAIC";
@@ -37,7 +37,7 @@ public class MosaicConstants {
 //  ****************************
 //  *****  User Interface  *****
 //  ****************************
-    public static String UI_TITLE = "Mosaic - Processor";
+    public static final String UI_TITLE = "Mosaic - Processor";
 
 //  *****************************
 //  *****  Parameter Units  *****
@@ -49,7 +49,7 @@ public class MosaicConstants {
 //  ********************************
 //  *****  Request Parameters  *****
 //  ********************************
-    public static String PARAM_NAME_UPDATE_MODE = "update_mode";
+    public static final String PARAM_NAME_UPDATE_MODE = "update_mode";
     public static final String PARAM_LABEL_UPDATE_MODE = "Run in update mode";
     public static final String PARAM_DESCRIPTION_UPDATE_MODE = "Update existing output product with new input products.";
     public static final Boolean PARAM_DEFAULT_VALUE_UPDATE_MODE = false;
@@ -84,22 +84,22 @@ public class MosaicConstants {
     public static final String PARAM_DESCRIPTION_EASTING = "Easting value.";
     public static final Float PARAM_DEFAULT_VALUE_EASTING = 0f;
 
-    public static String PARAM_NAME_CENTER_LAT = "center_lat";
+    public static final String PARAM_NAME_CENTER_LAT = "center_lat";
     public static final String PARAM_LABEL_CENTER_LAT = "Center latitude";
     public static final String PARAM_DESCRIPTION_CENTER_LAT = "Center latitude for the output product.";
     public static final Float PARAM_DEFAULT_VALUE_CENTER_LAT = 50.f;
 
-    public static String PARAM_NAME_CENTER_LON = "center_lon";
+    public static final String PARAM_NAME_CENTER_LON = "center_lon";
     public static final String PARAM_LABEL_CENTER_LON = "Center longitude";
     public static final String PARAM_DESCRIPTION_CENTER_LON = "Longitude for the output product.";
     public static final Float PARAM_DEFAULT_VALUE_CENTER_LON = 50.f;
 
-    public static String PARAM_NAME_OUTPUT_WIDTH = "output_width";
+    public static final String PARAM_NAME_OUTPUT_WIDTH = "output_width";
     public static final String PARAM_LABEL_OUTPUT_WIDTH = "Output product width";
     public static final String PARAM_DESCRIPTION_OUTPUT_WIDTH = "Raster width for the output product in pixels.";
     public static final Float PARAM_DEFAULT_VALUE_OUTPUT_WIDTH = 50.f;
 
-    public static String PARAM_NAME_OUTPUT_HEIGHT = "output_height";
+    public static final String PARAM_NAME_OUTPUT_HEIGHT = "output_height";
     public static final String PARAM_LABEL_OUTPUT_HEIGHT = "Output product height";
     public static final String PARAM_DESCRIPTION_OUTPUT_HEIGHT = "Raster height for the output product in pixels.";
     public static final Float PARAM_DEFAULT_VALUE_OUTPUT_HEIGHT = 50.f;
@@ -155,12 +155,12 @@ public class MosaicConstants {
     public static final String[] PARAM_VALUESET_CONDITIONS_OPERATOR = new String[]{"OR", "AND"};
 
     //  this parameter is only used for Batch mode map projection.
-    public final static String PARAM_NAME_BANDS = "bands";
+    public static final String PARAM_NAME_BANDS = "bands";
 
 //    Processing Parameter
-    public static String PARAM_SUFFIX_EXPRESSION = ".expression";
-    public static String PARAM_SUFFIX_CONDITION = ".condition";
-    public static String PARAM_SUFFIX_OUTPUT = ".output";
+    public static final String PARAM_SUFFIX_EXPRESSION = ".expression";
+    public static final String PARAM_SUFFIX_CONDITION = ".condition";
+    public static final String PARAM_SUFFIX_OUTPUT = ".output";
 
 //  *********************
 //  *****  Logging  *****
