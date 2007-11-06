@@ -9,15 +9,14 @@
     </description>
     <changelog>
         <![CDATA[
-        From 1.5 to 1.5.1<br>
-        This version needs the latest beam-envisat-reader module (Version 1.1-20070904)
-        <ul>
-        <li>[BEAM-682] The SMAC Processor cannot cope with 'MER_FRS_1P' files</li>
-        </ul>
-        From 1.4 to 1.5
-        <ul>
-        <li>[BEAM-593] Auxdata path is not updated</li>
-        </ul>]]>
+        Changes in 1.5.101<br>
+        [BEAM-724] Progress is not reported correctly<br>
+        Changes in 1.5.1<br>
+        This version needs the latest beam-envisat-reader module (Version 1.1-20070904)<br>
+        [BEAM-682] The SMAC Processor cannot cope with 'MER_FRS_1P' files<br>
+        Changes in 1.5
+        [BEAM-593] Auxdata path is not updated<br>
+        ]]>
     </changelog>
 
     <vendor>Brockmann Consult GmbH</vendor>

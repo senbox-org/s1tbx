@@ -44,6 +44,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Vector;
 import java.util.logging.Logger;
 
@@ -76,7 +77,7 @@ public class SmacProcessor extends Processor {
     private static final float _duToCmAtm = 0.001f;
     private static final float _relHumTogcm = 0.07f;
 
-    private Vector<Band> _inputBandList;
+    private ArrayList<Band> _inputBandList;
     private Product _inputProduct;
     private Product _outputProduct;
     private String _bitMaskExpression;
@@ -117,7 +118,7 @@ public class SmacProcessor extends Processor {
      * Constructs the object with default parameters.
      */
     public SmacProcessor() {
-        _inputBandList = new Vector<Band>();
+        _inputBandList = new ArrayList<Band>();
         _algorithm = new SmacAlgorithm();
         _bitMaskExpression = null;
         _logger = Logger.getLogger(SmacConstants.LOGGER_NAME);
@@ -135,32 +136,10 @@ public class SmacProcessor extends Processor {
      */
     @Override
     public void process(ProgressMonitor pm) throws ProcessorException {
-        pm.beginTask("Creating output product...", _inputBandList.size() + 1);
         try {
+            prepareProcessing();
+            pm.beginTask("Creating output product...", _inputBandList.size() + 1);
             try {
-                _logger.info(ProcessorConstants.LOG_MSG_START_REQUEST);
-
-                loadRequestParams();
-
-                // create a vector of input bands
-                // ------------------------------
-                loadInputProduct();
-
-                // create a bitmask expression for input
-                // -------------------------------------
-                createBitmaskExpression();
-
-                installAuxdata();
-                File smacAuxDir = getAuxdataInstallDir();
-
-                String auxPathString = smacAuxDir.toString();
-                try {
-                    _coeffMgr = new SensorCoefficientManager(smacAuxDir.toURI().toURL());
-                    _logger.fine(SmacConstants.LOG_MSG_AUX_DIR + auxPathString);
-                } catch (IOException e) {
-                    _logger.severe(SmacConstants.LOG_MSG_AUX_ERROR + auxPathString);
-                    _logger.severe(e.getMessage());
-                }
 
                 createOutputProduct(SubProgressMonitor.create(pm, 1));
                 if (pm.isCanceled()) {
@@ -178,12 +157,12 @@ public class SmacProcessor extends Processor {
                         // And we definitely decide which product type and dispacth appropriate.
                         if (ObjectUtils.equalObjects(_sensorType, SensorCoefficientManager.MERIS_NAME)) {
                             if (_useMerisADS) {
-                                processMerisBandWithADS(_inputBandList.elementAt(i), SubProgressMonitor.create(pm, 1));
+                                processMerisBandWithADS(_inputBandList.get(i), SubProgressMonitor.create(pm, 1));
                             } else {
-                                processMerisBand(_inputBandList.elementAt(i), SubProgressMonitor.create(pm, 1));
+                                processMerisBand(_inputBandList.get(i), SubProgressMonitor.create(pm, 1));
                             }
                         } else if (ObjectUtils.equalObjects(_sensorType, SensorCoefficientManager.AATSR_NAME)) {
-                            processAatsrBand(_inputBandList.elementAt(i), SubProgressMonitor.create(pm, 1));
+                            processAatsrBand(_inputBandList.get(i), SubProgressMonitor.create(pm, 1));
                         } else {
                             pm.worked(1);
                         }
@@ -272,7 +251,7 @@ public class SmacProcessor extends Processor {
     /**
      * Retrieves a progress message for the request passed in. Override this method if you need custom messaging.
      *
-     * @param request
+     * @param request the request
      *
      * @return the progress message for the request
      */
@@ -292,6 +271,7 @@ public class SmacProcessor extends Processor {
         return 2;
     }
 
+    @Override
     public void installAuxdata() throws ProcessorException {
         setAuxdataInstallDir(SmacConstants.SMAC_AUXDATA_DIR_PROPERTY, getDefaultAuxdataInstallDir());
         super.installAuxdata();
@@ -302,10 +282,8 @@ public class SmacProcessor extends Processor {
     ///////////////////////////////////////////////////////////////////////////
 
 
-    /**
-     * Creates a bitmask expression depending on the processor type. For AATSR, two bitmask expressions are needed
-     * depending on the view direction
-     */
+    // Creates a bitmask expression depending on the processor type. For AATSR, two bitmask expressions are needed
+    // depending on the view direction
     private void createBitmaskExpression() throws ProcessorException {
         if (ObjectUtils.equalObjects(_sensorType, SensorCoefficientManager.MERIS_NAME)) {
             createMerisBitmaskTerm();
@@ -314,12 +292,10 @@ public class SmacProcessor extends Processor {
         }
     }
 
-    /**
-     * Creates an AATSR bitmask term given the bitmask expression from the request. If no expression is set, it uses the
-     * default expression
-     */
+    // Creates an AATSR bitmask term given the bitmask expression from the request. If no expression is set, it uses the
+    // default expression
     private void createAatsrBitmaskTerm() throws ProcessorException {
-        if (_bitMaskExpression.equalsIgnoreCase("")) {
+        if ("".equalsIgnoreCase(_bitMaskExpression)) {
             _bitMaskTerm = ProcessorUtils.createTerm(SmacConstants.DEFAULT_NADIR_FLAGS_VALUE, _inputProduct);
             _bitMaskTermForward = ProcessorUtils.createTerm(SmacConstants.DEFAULT_FORWARD_FLAGS_VALUE,
                                                             _inputProduct);
@@ -336,12 +312,10 @@ public class SmacProcessor extends Processor {
         }
     }
 
-    /**
-     * Creates a MERIS bitmask term given the bitmask expression from the request. If no expression is set, it uses the
-     * default expression
-     */
+    // Creates a MERIS bitmask term given the bitmask expression from the request. If no expression is set, it uses the
+    // default expression
     private void createMerisBitmaskTerm() throws ProcessorException {
-        if (_bitMaskExpression.equalsIgnoreCase("")) {
+        if ("".equalsIgnoreCase(_bitMaskExpression)) {
             _bitMaskTerm = ProcessorUtils.createTerm(SmacConstants.DEFAULT_MERIS_FLAGS_VALUE, _inputProduct);
 
             _logger.warning(SmacConstants.LOG_MSG_NO_BITMASK);
@@ -353,10 +327,9 @@ public class SmacProcessor extends Processor {
         }
     }
 
-    /**
-     * Creates the appropriate <code>Product</code> for the current request and assembles a list of <code>RsBands</code>
-     * to be processed. This method does NOT load the tie point ADS because these are product specific.
-     */
+
+    // Creates the appropriate <code>Product</code> for the current request and assembles a list of <code>RsBands</code>
+    // to be processed. This method does NOT load the tie point ADS because these are product specific.
     private void loadInputProduct() throws IOException,
                                            ProcessorException {
         Request request = getRequest();
@@ -445,11 +418,7 @@ public class SmacProcessor extends Processor {
         }
     }
 
-    /**
-     * Loads the MERIS ADS needed.
-     *
-     * @param product the <code>Product</code> to be loaded
-     */
+    // Loads the MERIS ADS needed.
     private void loadMERIS_ADS(Product product) throws ProcessorException {
         Parameter useMeris;
 
@@ -507,11 +476,7 @@ public class SmacProcessor extends Processor {
         _logger.info(ProcessorConstants.LOG_MSG_SUCCESS);
     }
 
-    /**
-     * Loads the AATSR ADS needed.
-     *
-     * @param product the <code>Product</code> to be loaded
-     */
+    // Loads the AATSR ADS needed.
     private void loadAATSR_ADS(Product product) throws ProcessorException {
 
         _logger.info(SmacConstants.LOG_MSG_LOAD_AATSR_ADS);
@@ -559,9 +524,7 @@ public class SmacProcessor extends Processor {
         _logger.info(ProcessorConstants.LOG_MSG_SUCCESS);
     }
 
-    /**
-     * Creates the output product for the given request.
-     */
+    // Creates the output product for the given request.
     private void createOutputProduct(ProgressMonitor pm) throws IOException,
                                                                 ProcessorException {
         ProductRef prod;
@@ -603,12 +566,8 @@ public class SmacProcessor extends Processor {
     }
 
 
-    /**
-     * Helper Routine. Converts a given MERIS L1b band name (radiance_x) to the band name needed in the output product
-     * (reflectance_x).
-     *
-     * @param band the band which name should be converted
-     */
+    // Helper Routine. Converts a given MERIS L1b band name (radiance_x) to the band name needed in the output product
+    // (reflectance_x).
     private static String convertMerisBandName(Band band) {
         String inBandName;
         String outBandName;
@@ -639,18 +598,15 @@ public class SmacProcessor extends Processor {
      *                          <i>reflectance_n</i>
      */
     private void addBandsToOutput(String description, boolean bConvertMerisName) {
-        Band inBand;
-        Band outBand;
-        String newBandName;
 
-        for (int n = 0; n < _inputBandList.size(); n++) {
-            inBand = _inputBandList.elementAt(n);
+        for (Band inBand : _inputBandList) {
+            String newBandName;
             if (bConvertMerisName) {
                 newBandName = convertMerisBandName(inBand);
             } else {
                 newBandName = inBand.getName();
             }
-            outBand = new Band(newBandName,
+            Band outBand = new Band(newBandName,
                                inBand.getGeophysicalDataType(),
                                inBand.getSceneRasterWidth(),
                                inBand.getSceneRasterHeight());
@@ -661,11 +617,7 @@ public class SmacProcessor extends Processor {
         }
     }
 
-    /**
-     * Loads the appropriate coefficient set for the band.
-     *
-     * @param band the band for which the coefficients shall beloaded.
-     */
+    // Loads the appropriate coefficient set for the band.
     private boolean loadBandCoefficients(Band band) {
         boolean bRet = false;
         URL url;
@@ -700,11 +652,7 @@ public class SmacProcessor extends Processor {
         return bRet;
     }
 
-    /**
-     * Processes a single spectralBand of MERIS data.
-     *
-     * @param spectralBand the <code>Band</code> to be processed
-     */
+    // Processes a single spectralBand of MERIS data.
     private void processMerisBand(Band spectralBand, ProgressMonitor pm) throws IOException {
         // load appropriate Sensor coefficientFile and init algorithm
         // ----------------------------------------------------------
@@ -787,11 +735,7 @@ public class SmacProcessor extends Processor {
         _logger.info(ProcessorConstants.LOG_MSG_PROC_SUCCESS);
     }
 
-    /**
-     * Processes a single band MERIS data using the MERIS ADS.
-     *
-     * @param band the band to be processed
-     */
+    // Processes a single band MERIS data using the MERIS ADS.
     private void processMerisBandWithADS(Band band, ProgressMonitor pm) throws IOException {
         // load appropriate Sensor coefficientFile and init algorithm
         // ----------------------------------------------------------
@@ -896,11 +840,33 @@ public class SmacProcessor extends Processor {
         _logger.info(ProcessorConstants.LOG_MSG_PROC_SUCCESS);
     }
 
-    /**
-     * Processes a single AATSR band.
-     *
-     * @param band the <code>Band</code> to be processed
-     */
+    private void prepareProcessing() throws ProcessorException, IOException {
+        _logger.info(ProcessorConstants.LOG_MSG_START_REQUEST);
+
+        loadRequestParams();
+
+        // create a vector of input bands
+        // ------------------------------
+        loadInputProduct();
+
+        // create a bitmask expression for input
+        // -------------------------------------
+        createBitmaskExpression();
+
+        installAuxdata();
+        File smacAuxDir = getAuxdataInstallDir();
+
+        String auxPathString = smacAuxDir.toString();
+        try {
+            _coeffMgr = new SensorCoefficientManager(smacAuxDir.toURI().toURL());
+            _logger.fine(SmacConstants.LOG_MSG_AUX_DIR + auxPathString);
+        } catch (IOException e) {
+            _logger.severe(SmacConstants.LOG_MSG_AUX_ERROR + auxPathString);
+            _logger.severe(e.getMessage());
+        }
+    }
+
+    // Processes a single AATSR band.
     private void processAatsrBand(Band band, ProgressMonitor pm) throws IOException {
         // load appropriate Sensor coefficientFile and init algorithm
         // ----------------------------------------------------------
@@ -1009,12 +975,7 @@ public class SmacProcessor extends Processor {
         _logger.info(ProcessorConstants.LOG_MSG_PROC_SUCCESS);
     }
 
-    /**
-     * Scans the current request for parameters needed by the algorithm. Sets these parameters to fileds of the class
-     *
-     * @throws java.lang.IllegalArgumentException
-     *
-     */
+    // Scans the current request for parameters needed by the algorithm. Sets these parameters to fileds of the class
     private void loadRequestParams() throws ProcessorException {
         Parameter param;
 
@@ -1125,9 +1086,8 @@ public class SmacProcessor extends Processor {
         return bRet;
     }
 
-    /**
-     * Converts an array of ozone contents in DU to cm *atm
-     */
+
+    // Converts an array of ozone contents in DU to cm *atm
     private static float[] dobsonToCmAtm(float[] du) {
         Guardian.assertNotNull("du", du);
 
@@ -1138,10 +1098,9 @@ public class SmacProcessor extends Processor {
         return du;
     }
 
-    /**
-     * Converts an array of relative humidity values (in %) to water vapour content in g/cm^2. This method uses a simple
-     * linear relation without plausibility checks
-     */
+
+    // Converts an array of relative humidity values (in %) to water vapour content in g/cm^2. This method uses a simple
+    // linear relation without plausibility checks
     private static float[] relativeHumidityTogcm2(float[] relHum) {
         Guardian.assertNotNull("relHum", relHum);
 
@@ -1175,12 +1134,7 @@ public class SmacProcessor extends Processor {
         }
     }
 
-    /**
-     * Retrieves the output product name from request
-     *
-     * @throws org.esa.beam.framework.processor.ProcessorException
-     *          when an error occurs
-     */
+    // Retrieves the output product name from request
     private String getOutputProductNameSafe() throws ProcessorException {
         Request request = getRequest();
         ProductRef prod = request.getOutputProductAt(0);

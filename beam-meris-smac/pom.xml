@@ -14,7 +14,7 @@
     <name>MERIS SMAC Atmospheric Correction</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-meris-smac</artifactId>
-    <version>1.5.1</version>
+    <version>1.5.101</version>
 
     <packaging>jar</packaging>
 
