@@ -111,6 +111,8 @@ public class ProcessorApp extends BasicApp {
 
         _logger = Logger.getLogger(ProcessorConstants.PACKAGE_LOGGER_NAME);
 
+        addRequestValidator(new DefaultOutputValidator());
+
         _writer = new RequestWriter();
         _exitHandler = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -485,26 +487,6 @@ public class ProcessorApp extends BasicApp {
             }
         }
 
-        for (Object aRequest : requestList) {
-            final Request request = (Request) aRequest;
-            for (int i = 0; i < request.getNumOutputProducts(); i++) {
-                ProductRef product = request.getOutputProductAt(i);
-                File outputFile = product.getFile();
-                if (outputFile != null && outputFile.exists()) {
-                    String message = "The specified output file\n\"{0}\"\n already exists.\n\n" +
-                                     "Do you want to overwrite the existing file?";
-                    int answer = showQuestionDialog("Overwrite?",
-                                                    MessageFormat.format(message, outputFile.getAbsolutePath()),
-                                                    null);
-
-                    if (answer != JOptionPane.YES_OPTION) {
-                        return;
-                    }
-                }
-            }
-
-        }
-
         SwingWorker worker = new ProgressMonitorSwingWorker(getMainFrame(), _processor.getUITitle()) {
 
             @Override
@@ -877,6 +859,28 @@ public class ProcessorApp extends BasicApp {
                 getPreferences().setPropertyString(_preferencesKey, file.getPath());
                 Debug.trace(getAppName() + ": " + _preferencesKey + " = " + file);
             }
+        }
+    }
+
+    private class DefaultOutputValidator implements RequestValidator {
+
+        public boolean validateRequest(Processor processor, Request request) {
+            for (int i = 0; i < request.getNumOutputProducts(); i++) {
+                ProductRef product = request.getOutputProductAt(i);
+                File outputFile = product.getFile();
+                if (outputFile != null && outputFile.exists()) {
+                    String message = "The specified output file\n\"{0}\"\n already exists.\n\n" +
+                                     "Do you want to overwrite the existing file?";
+                    int answer = showQuestionDialog("Overwrite?",
+                                                    MessageFormat.format(message, outputFile.getAbsolutePath()),
+                                                    null);
+
+                    if (answer != JOptionPane.YES_OPTION) {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
     }
 }
