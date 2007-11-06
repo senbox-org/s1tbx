@@ -96,6 +96,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -212,7 +213,7 @@ public class MosaicUi extends AbstractProcessorUI {
         // This shall remove the default output validator, but as a side effect it removes
         // also other validators. Currently there is only the default output validator. (mp - 06.11.2007)
         removeAllRequestValidators(app);
-        
+
         app.addRequestValidator(new RequestValidator() {
             public boolean validateRequest(Processor processor, Request request) {
                 if (!MosaicConstants.REQUEST_TYPE.equals(request.getType())) {
@@ -345,8 +346,8 @@ public class MosaicUi extends AbstractProcessorUI {
             return;
         }
         final int filesSize = files.size();
-        final List<String> messages = new ArrayList<String>();
-        final List<GeoPos[]> geoBoundaries = new ArrayList<GeoPos[]>();
+        final List<String> messages = new ArrayList<String>(2);
+        final List<GeoPos[]> geoBoundaries = new ArrayList<GeoPos[]>(files.size());
         SwingWorker worker = new SwingWorker() {
             ProgressMonitor pm = new DialogProgressMonitor(parentComponent, "Scanning Input Products",
                                                            Dialog.ModalityType.APPLICATION_MODAL);
@@ -384,10 +385,10 @@ public class MosaicUi extends AbstractProcessorUI {
                 } else {
                     if (messages.size() > 0) {
                         String warningMessage = "There where errors during scanning of input products."; /*I18N*/
-                        String[] warningDetails = messages.toArray(new String[0]);
+                        String[] warningDetails = messages.toArray(new String[messages.size()]);
                         getApp().showWarningsDialog(warningMessage, warningDetails);
                     }
-                    _inputProductBoundaries = geoBoundaries.toArray(new GeoPos[0][]);
+                    _inputProductBoundaries = geoBoundaries.toArray(new GeoPos[geoBoundaries.size()][]);
                     if (isWorldMapWindowVisible() && _displayInputProductsCheck.isSelected()) {
                         _worldMapWindow.setPathesToDisplay(_inputProductBoundaries);
                     }
@@ -703,7 +704,7 @@ public class MosaicUi extends AbstractProcessorUI {
                     final String[] availableBandNames = exampleProduct.getBandNames();
                     final Band[] allBands = exampleProduct.getBands();
                     final List dataVector = ((DefaultTableModel) _variablesTable.getModel()).getDataVector();
-                    final List<Band> existingBands = new ArrayList<Band>();
+                    final List<Band> existingBands = new ArrayList<Band>(dataVector.size());
                     for (Object aDataVector : dataVector) {
                         List row = (List) aDataVector;
                         final String name = (String) row.get(0);
@@ -717,7 +718,8 @@ public class MosaicUi extends AbstractProcessorUI {
                     }
                     final BandChooser bandChooser = new BandChooser(getApp().getMainFrame(), "Band Chooser", "",
                                                                     allBands, /*I18N*/
-                                                                    existingBands.toArray(new Band[0]));
+                                                                    existingBands.toArray(
+                                                                            new Band[existingBands.size()]));
                     if (bandChooser.show() == ModalDialog.ID_OK) {
                         final Band[] selectedBands = bandChooser.getSelectedBands();
                         for (Band selectedBand : selectedBands) {
@@ -752,7 +754,7 @@ public class MosaicUi extends AbstractProcessorUI {
 
             public void actionPerformed(ActionEvent e) {
                 final int rows = _conditionsTable.getRowCount();
-                addRow(_conditionsTable, new Object[]{"variable_" + rows, "", false}); /*I18N*/
+                addRow(_conditionsTable, new Object[]{"condition_" + rows, "", false}); /*I18N*/
             }
         });
         return _newConditionsButton;
@@ -1613,7 +1615,7 @@ public class MosaicUi extends AbstractProcessorUI {
         }
 
         final int numInputProducts = request.getNumInputProducts();
-        final List<File> inputFiles = new ArrayList<File>();
+        final List<File> inputFiles = new ArrayList<File>(numInputProducts);
         for (int i = 0; i < numInputProducts; i++) {
             inputFiles.add(new File(request.getInputProductAt(i).getFilePath()));
         }
@@ -1738,7 +1740,7 @@ public class MosaicUi extends AbstractProcessorUI {
 
     private void setDefaultRequest() {
         _requestFile = null;
-        _inputProductEditor.setFiles(new ArrayList());
+        _inputProductEditor.setFiles(new ArrayList(1));
         final File outputProductFile = (File) _paramOutputProduct.getValue();
         if (outputProductFile != null && outputProductFile.getParentFile() != null) {
             final File parentFile = outputProductFile.getParentFile();
@@ -1865,13 +1867,32 @@ public class MosaicUi extends AbstractProcessorUI {
         }
         final Parser parser = exampleProduct.createBandArithmeticParser();
 
-        return validateTable(parser, _variablesTable, "processing variable", false) /*I18N*/
-               &&
-               validateTable(parser, _conditionsTable, "test condition", true); /*I18N*/
+        if (!isTableValid(_variablesTable, parser, "processing variable", false) ||
+            !isTableValid(_conditionsTable, parser, "test condition", true)) {
+            return false;
+        }
+        return areNamesUnique();
     }
 
-    private boolean validateTable(final Parser parser, final JTable table, final String s1,
-                                  final boolean checkForConditions) {
+    private boolean areNamesUnique() {
+        for (int i = 0; i < _variablesTable.getRowCount(); i++) {
+            String variableName = (String) _variablesTable.getModel().getValueAt(i, 0);
+            for (int j = 0; j < _conditionsTable.getRowCount(); j++) {
+                String conditionName = (String) _conditionsTable.getModel().getValueAt(j, 0);
+                if (variableName.equals(conditionName)) {
+                    String message = MessageFormat.format(
+                            "The name of the condition ''{0}'' \nis already in use by a variable.", /*I18N*/
+                            conditionName);
+                    getApp().showWarningDialog(message);
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean isTableValid(final JTable table, final Parser parser, final String s1,
+                                 final boolean checkForConditions) {
         final String reservedBandname = MosaicConstants.BANDNAME_COUNT;
         final List tableData = ((DefaultTableModel) table.getModel()).getDataVector();
         if (!checkForConditions && tableData.size() == 0) {
@@ -1879,7 +1900,7 @@ public class MosaicUi extends AbstractProcessorUI {
                                        "At least one processing variable must be defined.");
             return false;
         }
-        final ArrayList<String> names = new ArrayList<String>();
+        final ArrayList<String> names = new ArrayList<String>(tableData.size());
 
         for (int i = 0; i < tableData.size(); i++) {
             List row = (List) tableData.get(i);
@@ -1998,7 +2019,7 @@ public class MosaicUi extends AbstractProcessorUI {
 
     private static class TCR extends JLabel implements TableCellRenderer {
 
-        protected static Border noFocusBorder = new EmptyBorder(1, 1, 1, 1);
+        private static final Border noFocusBorder = new EmptyBorder(1, 1, 1, 1);
 
         /**
          * Creates a <code>JLabel</code> instance with no image and with an empty string for the title. The label is
@@ -2006,7 +2027,6 @@ public class MosaicUi extends AbstractProcessorUI {
          * edge of the label's display area.
          */
         public TCR() {
-            super();
             setOpaque(true);
             setBorder(noFocusBorder);
         }
@@ -2014,7 +2034,7 @@ public class MosaicUi extends AbstractProcessorUI {
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
                                                        int row, int column) {
             final boolean enabled = table.isEnabled();
-            this.setText((String) value);
+            setText((String) value);
 
 
             if (isSelected) {

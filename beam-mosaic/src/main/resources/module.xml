@@ -16,8 +16,9 @@
     <changelog>
         <![CDATA[
         Changes in 2.2.100<br>
-        [BEAM-722] Do not use no-data value for num_pixels band<br>
+        [BEAM-720] Equal names for Mosaic valid-pixel conditions and output variables suggested
         [BEAM-721] Saving a Mosaic processing request fails without error message<br>
+        [BEAM-722] Do not use no-data value for num_pixels band<br>
         ]]>
     </changelog>
 
