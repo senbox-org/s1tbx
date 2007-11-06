@@ -63,7 +63,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Arrays;
 import java.util.logging.Logger;
+import java.text.MessageFormat;
 
 /**
  * The <code>Mosaic Processor</code> class this class implemets the <code>Processor</code> interface so it can be used
@@ -73,7 +75,11 @@ import java.util.logging.Logger;
  */
 public class MosaicProcessor extends Processor {
 
+    public static final String HELP_ID = "mosaicScientificTool";
+
     private static final int PROJECTION_DEFAULT_NO_DATA_VALUE = 0;
+    private static final MosaicUtils.MosaicVariable COUNT_VARIABLE = new MosaicUtils.MosaicVariable(
+            MosaicConstants.BANDNAME_COUNT, "", false, true);
 
     private final Logger _logger;
     private ProcessorUI _processorUI;
@@ -83,6 +89,7 @@ public class MosaicProcessor extends Processor {
     private ProjectionParams _projectionParams;
     private MosaicUtils.MosaicIoChannel[] _outputChannels;
     private MosaicUtils.MosaicIoChannel[] _testChannels;
+    private MosaicUtils.MosaicIoChannel _countChannel;
     private ProductRef _outputProductRef;
     private ProductWriter _productWriter;
     private Product _outputProduct;
@@ -100,12 +107,8 @@ public class MosaicProcessor extends Processor {
     private boolean _orthorectifyInputProducts;
     private String _elevationModelName;
     private Product _projectedInputProduct;
-    private MosaicUtils.MosaicIoChannel _countChannel;
-    private static final MosaicUtils.MosaicVariable COUNT_VARIABLE = new MosaicUtils.MosaicVariable(
-            MosaicConstants.BANDNAME_COUNT, "", false, true);
     private PixelPos[] _sourcePixelCoords;
     private PixelGeoCodingParams _pixelGeoCodingParams;
-    public static final String HELP_ID = "mosaicScientificTool";
 
     public MosaicProcessor() {
         _logger = Logger.getLogger(MosaicConstants.LOGGER_NAME);
@@ -286,7 +289,7 @@ public class MosaicProcessor extends Processor {
      * MosaicUi to the ProcessorApp, detects if the updateMode is selected or not. If it is selected, the validator sets
      * the progress bar depth to 2.
      *
-     * @param progessBarDepth
+     * @param progessBarDepth The depth to indicate progress for.
      */
     public void setProgressBarDepth(int progessBarDepth) {
         _progressBarDepth = progessBarDepth;
@@ -379,7 +382,7 @@ public class MosaicProcessor extends Processor {
                                                        null);
                 // todo - (nf) add call to ProductUtils.copyBitmaskDefinitions
                 final Band[] bands = inpProduct.getBands();
-                channels = new ArrayList<MosaicUtils.MosaicIoChannel>();
+                channels = new ArrayList<MosaicUtils.MosaicIoChannel>(bands.length);
                 for (Band band : bands) {
                     if (band instanceof VirtualBand) {
                         continue;
@@ -390,7 +393,7 @@ public class MosaicProcessor extends Processor {
                     final MosaicUtils.MosaicIoChannel channel = new MosaicUtils.MosaicIoChannel(variable);
                     channels.add(channel);
                 }
-                _outputChannels = channels.toArray(new MosaicUtils.MosaicIoChannel[0]);
+                _outputChannels = channels.toArray(new MosaicUtils.MosaicIoChannel[channels.size()]);
             } catch (IOException e) {
                 throw new ProcessorException(e.getMessage());
             } finally {
@@ -414,21 +417,20 @@ public class MosaicProcessor extends Processor {
     private void setNoDataValueOfBands(Product outputProduct) {
         MapGeoCoding mapGeoCoding = (MapGeoCoding) outputProduct.getGeoCoding();
         MapInfo mapInfo = mapGeoCoding.getMapInfo();
-        for (int i = 0; i < _outputChannels.length; i++) {
-            MosaicUtils.MosaicIoChannel channel = _outputChannels[i];
+        String expressionPattern = "fneq({0},{1},{2})";
+        for (MosaicUtils.MosaicIoChannel channel : _outputChannels) {
             final String name = channel.getVariable().getName();
             final Band band = outputProduct.getBand(name);
-            if (channel == _countChannel) {
-                band.setGeophysicalNoDataValue(0);
-                band.setNoDataValueUsed(true);
-            } else {
+            if (channel != _countChannel) {
                 band.setGeophysicalNoDataValue(mapInfo.getNoDataValue());
                 band.setNoDataValueUsed(true);
                 if (band.isLog10Scaled()) {
                     final double geophysicalNoDataValue = band.getGeophysicalNoDataValue();
                     double eps = Math.pow(10.0, -Math.log10(Math.abs(geophysicalNoDataValue)));
-                    band.setValidPixelExpression("fneq(" + BandArithmetic.createExternalName(
-                            band.getName()) + "," + geophysicalNoDataValue + "," + eps + ")");
+                    String externalName = BandArithmetic.createExternalName(
+                            band.getName());
+                    band.setValidPixelExpression(MessageFormat.format(expressionPattern,
+                                                                      externalName, geophysicalNoDataValue, eps));
                 }
             }
         }
@@ -458,11 +460,10 @@ public class MosaicProcessor extends Processor {
 
         pm.beginTask("Initializing ouput product...", bands.length);
         try {
-            for (int i = 0; i < bands.length; i++) {
-                Band band = bands[i];
+            for (Band band : bands) {
                 if (!(band instanceof VirtualBand)) {
                     ProgressMonitor subPm = SubProgressMonitor.create(pm, 1);
-                    subPm.beginTask("Initializing band '" + band.getName() + "'...", sceneHeight);
+                    subPm.beginTask(MessageFormat.format("Initializing band ''{0}''...", band.getName()), sceneHeight);
                     try {
                         final ProductData rasterData = band.createCompatibleRasterData(sceneWidth, 1);
                         for (int x = 0; x < sceneWidth; x++) {
@@ -615,7 +616,9 @@ public class MosaicProcessor extends Processor {
             for (int i = 0; i < progressMax; i++) {
                 boolean success = true;
                 try {
-                    pm.setSubTaskName("Processing input product #" + (i + 1) + " of " + progressMax + "...");
+                    String taskName = MessageFormat.format("Processing input product #{0} of {1}...",
+                                                           i + 1, progressMax);
+                    pm.setSubTaskName(taskName);
                     if (i == 0) {
                         if (_currentInputProduct == null) {
                             success = false;
@@ -745,8 +748,7 @@ public class MosaicProcessor extends Processor {
 
     private void disableLogScalingToPreventFromNoDataProblems(Product projectedInputProduct) {
         Band[] bands = projectedInputProduct.getBands();
-        for (int i = 0; i < bands.length; i++) {
-            Band band = bands[i];
+        for (Band band : bands) {
             if (band.getDataType() == ProductData.TYPE_FLOAT32
                 && band.isLog10Scaled()
                 && band.getScalingFactor() == 1.0
@@ -910,8 +912,7 @@ public class MosaicProcessor extends Processor {
     private static boolean isValidChannelPixel(MosaicUtils.MosaicIoChannel channel, int x0, int y0, int x) {
         boolean validTerm = true;
         final RasterDataNode[] refRasters = channel.getRefRasters();
-        for (int j = 0; j < refRasters.length; j++) {
-            RasterDataNode refRaster = refRasters[j];
+        for (RasterDataNode refRaster : refRasters) {
             if (!refRaster.isPixelValid(x0 + x, y0)) {
                 validTerm = false;
             }
@@ -965,23 +966,21 @@ public class MosaicProcessor extends Processor {
 
 
     private boolean prepareVariablesForProcessing(int lineWidth) {
-        final List<MosaicUtils.MosaicIoChannel> allChannels = new ArrayList<MosaicUtils.MosaicIoChannel>();
+        final List<MosaicUtils.MosaicIoChannel> allChannels = new ArrayList<MosaicUtils.MosaicIoChannel>(_outputChannels.length);
         for (final MosaicUtils.MosaicIoChannel outputChannel : _outputChannels) {
             if (outputChannel != _countChannel) {
                 allChannels.add(outputChannel);
             }
         }
-        for (MosaicUtils.MosaicIoChannel _testChannel : _testChannels) {
-            allChannels.add(_testChannel);
-        }
+        allChannels.addAll(Arrays.asList(_testChannels));
 
-        final HashSet<RasterDataSymbol> allBandSymbols = new HashSet<RasterDataSymbol>();
-        final HashSet<Band> allBands = new HashSet<Band>();
+        final HashSet<RasterDataSymbol> allBandSymbols = new HashSet<RasterDataSymbol>(10);
+        final HashSet<Band> allBands = new HashSet<Band>(10);
 
+        final Parser parser = _projectedInputProduct.createBandArithmeticParser();
         for (MosaicUtils.MosaicIoChannel channel : allChannels) {
             final MosaicUtils.MosaicVariable variable = channel.getVariable();
             final String expression = variable.getExpression();
-            final Parser parser = _projectedInputProduct.createBandArithmeticParser();
             try {
                 final Term term = parser.parse(expression);
                 if (variable.isCondition() && !term.isB()) {
@@ -992,18 +991,16 @@ public class MosaicProcessor extends Processor {
                 channel.setTerm(term);
                 final RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
                 final RasterDataNode[] refRasters = BandArithmetic.getRefRasters(refRasterDataSymbols);
-                for (int j = 0; j < refRasters.length; j++) {
-                    RasterDataNode refRaster = refRasters[j];
+                for (RasterDataNode refRaster : refRasters) {
                     try {
                         refRaster.ensureValidMaskComputed(ProgressMonitor.NULL);
                     } catch (IOException e) {
-                        _logger.warning("failed to load valid-data-mask for band '" + refRaster.getName() + "'");
+                        _logger.warning(MessageFormat.format("failed to load valid-data-mask for band ''{0}''",
+                                                             refRaster.getName()));
                     }
                 }
                 channel.setRefRasters(refRasters);
-                for (RasterDataSymbol refRasterDataSymbol : refRasterDataSymbols) {
-                    allBandSymbols.add(refRasterDataSymbol);
-                }
+                allBandSymbols.addAll(Arrays.asList(refRasterDataSymbols));
                 for (final RasterDataNode refRaster : refRasters) {
                     if (refRaster instanceof Band) {
                         allBands.add((Band) refRaster);
@@ -1014,12 +1011,13 @@ public class MosaicProcessor extends Processor {
                 }
             } catch (ParseException e) {
                 _logger.severe(e.getMessage());
-                _logger.severe("The expression\n'" + expression + "'\ncould not be parsed by the expression parser.");
+                _logger.severe(MessageFormat.format(
+                        "The expression\n''{0}''\ncould not be parsed by the expression parser.", expression));
                 return false;
             }
         }
 
-        final RasterDataSymbol[] rasterDataSymbols = allBandSymbols.toArray(new RasterDataSymbol[0]);
+        final RasterDataSymbol[] rasterDataSymbols = allBandSymbols.toArray(new RasterDataSymbol[allBandSymbols.size()]);
         _sourceBands = allBands.toArray(new Band[allBands.size()]);
         _sourceLines = new Object[_sourceBands.length];
 
@@ -1396,8 +1394,8 @@ public class MosaicProcessor extends Processor {
     }
 
     private void evalConditionsAndBands(final Parameter[] parameters) {
-        final List<MosaicUtils.MosaicIoChannel> outputVariables = new ArrayList<MosaicUtils.MosaicIoChannel>();
-        final List<MosaicUtils.MosaicIoChannel> testVariables = new ArrayList<MosaicUtils.MosaicIoChannel>();
+        final List<MosaicUtils.MosaicIoChannel> outputVariables = new ArrayList<MosaicUtils.MosaicIoChannel>(5);
+        final List<MosaicUtils.MosaicIoChannel> testVariables = new ArrayList<MosaicUtils.MosaicIoChannel>(5);
         if (!_projectionMode) {
             final List<MosaicUtils.MosaicIoChannel> outputChannelList = MosaicUtils.extractVariables(parameters);
             for (MosaicUtils.MosaicIoChannel outputChannel : outputChannelList) {
@@ -1412,8 +1410,8 @@ public class MosaicProcessor extends Processor {
             _countChannel = new MosaicUtils.MosaicIoChannel(COUNT_VARIABLE);
             outputVariables.add(_countChannel);
         }
-        _outputChannels = outputVariables.toArray(new MosaicUtils.MosaicIoChannel[0]);
-        _testChannels = testVariables.toArray(new MosaicUtils.MosaicIoChannel[0]);
+        _outputChannels = outputVariables.toArray(new MosaicUtils.MosaicIoChannel[outputVariables.size()]);
+        _testChannels = testVariables.toArray(new MosaicUtils.MosaicIoChannel[testVariables.size()]);
     }
 
     private void evalLoggingParams(final Parameter[] parameters) {

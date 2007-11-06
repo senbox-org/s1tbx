@@ -179,16 +179,19 @@ public class MosaicUi extends AbstractProcessorUI {
      */
     public void setRequests(Vector requests) throws ProcessorException {
         Guardian.assertNotNull("requests", requests);
-        setDefaultRequests();
-        for (int i = 0; i < requests.size(); i++) {
-            Request request = (Request) requests.elementAt(i);
-            if (request == null) {
-                continue;
+        if (requests.size() > 0) {
+            for (int i = 0; i < requests.size(); i++) {
+                Request request = (Request) requests.elementAt(i);
+                if (request == null) {
+                    continue;
+                }
+                if (MosaicConstants.REQUEST_TYPE.equalsIgnoreCase(request.getType())) {
+                    setRequest(request);
+                    break;
+                }
             }
-            if (MosaicConstants.REQUEST_TYPE.equalsIgnoreCase(request.getType())) {
-                setRequest(request);
-                break;
-            }
+        } else {
+            setDefaultRequests();
         }
     }
 
@@ -206,6 +209,10 @@ public class MosaicUi extends AbstractProcessorUI {
     @Override
     public void setApp(ProcessorApp app) {
         super.setApp(app);
+        // This shall remove the default output validator, but as a side effect it removes
+        // also other validators. Currently there is only the default output validator. (mp - 06.11.2007)
+        removeAllRequestValidators(app);
+        
         app.addRequestValidator(new RequestValidator() {
             public boolean validateRequest(Processor processor, Request request) {
                 if (!MosaicConstants.REQUEST_TYPE.equals(request.getType())) {
@@ -227,6 +234,13 @@ public class MosaicUi extends AbstractProcessorUI {
         paramGroup.addParameter(_paramOutputProduct);
         app.markIODirChanges(paramGroup);
 
+    }
+
+    private void removeAllRequestValidators(ProcessorApp app) {
+        RequestValidator[] requestValidators = app.getRequestValidators();
+        for (RequestValidator validator : requestValidators) {
+            app.removeRequestValidator(validator);
+        }
     }
 
     private JPanel createTabbedPane() {
@@ -1633,8 +1647,8 @@ public class MosaicUi extends AbstractProcessorUI {
     }
 
     private void setProductDefinitionAndProcessingParameters(Parameter[] parameters) {
-        setCornerCoordinateValues(parameters);
         setProjectionValues(parameters);
+        setCornerCoordinateValues(parameters);
         setProcessingValues(parameters);
     }
 

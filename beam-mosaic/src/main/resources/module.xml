@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-mosaic</symbolicName>
-    <version>2.2</version>
+    <version>2.2.100-SNAPSHOT</version>
     <name>Level-3 Mosaic Processor</name>
 
 
@@ -13,6 +13,13 @@
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
+    <changelog>
+        <![CDATA[
+        Changes in 2.2.100<br>
+        [BEAM-722] Do not use no-data value for num_pixels band<br>
+        [BEAM-721] Saving a Mosaic processing request fails without error message<br>
+        ]]>
+    </changelog>
 
     <dependency>
         <module>beam-visat</module>
