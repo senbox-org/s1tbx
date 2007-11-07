@@ -20,8 +20,8 @@ import com.bc.swing.dock.DockablePane;
 import com.jidesoft.swing.JideSplitPane;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.MapTransform;
-import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.help.HelpSys;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.math.MathUtils;
@@ -82,7 +82,7 @@ public class PixelInfoView extends JPanel {
     private Product _currentProduct;
     private RasterDataNode _currentRaster;
     private ProductSceneView _currentView;
-    private Band[] _flagBands;
+    private Band[] _currentFlagBands;
     private boolean _showOnlyLoadedBands = PROPERTY_DEFAULT_SHOW_ONLY_LOADED_OR_DISPLAYED_BAND_PIXEL_VALUES;
     private boolean _showPixelPosDecimals;
     private float _pixelOffsetX;
@@ -107,14 +107,17 @@ public class PixelInfoView extends JPanel {
 
     private ProductNodeListener createProductNodeListener() {
         return new ProductNodeListenerAdapter() {
+            @Override
             public void nodeChanged(ProductNodeEvent event) {
                 resetTableModels();
             }
 
+            @Override
             public void nodeAdded(ProductNodeEvent event) {
                 resetTableModels();
             }
 
+            @Override
             public void nodeRemoved(ProductNodeEvent event) {
                 resetTableModels();
             }
@@ -268,6 +271,7 @@ public class PixelInfoView extends JPanel {
     private void addComponentListener() {
         addComponentListener(new ComponentAdapter() {
 
+            @Override
             public void componentResized(ComponentEvent e) {
                 super.componentResized(e);
                 setPreferredSize(getSize());
@@ -278,6 +282,7 @@ public class PixelInfoView extends JPanel {
     private static DockablePane createDockablePane(String name, int index, String[] columnNames) {
         JTable table = new JTable(new DefaultTableModel(columnNames, 0) {
 
+            @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
@@ -345,6 +350,13 @@ public class PixelInfoView extends JPanel {
         if (!selectCurrentRaster(rasterName, bandTable)) {
             selectCurrentRaster(rasterName, tiePointGridTable);
         }
+    }
+
+    public void clearProductNodeRefs() {
+        _currentProduct = null;
+        _currentRaster = null;
+        _currentView = null;
+        _currentFlagBands = new Band[0];
     }
 
     public void updateDataDisplay() {
@@ -442,8 +454,7 @@ public class PixelInfoView extends JPanel {
         }
         Band[] bands = currentProduct.getBands();
         int rowIndex = 0;
-        for (int i = 0; i < bands.length; i++) {
-            final Band band = bands[i];
+        for (final Band band : bands) {
             if (shouldDisplayBand(band)) {
                 Debug.assertTrue(band.getName().equals(model.getValueAt(rowIndex, _NAME_COLUMN)));
                 model.setValueAt(band.getPixelString(_pixelX, _pixelY), rowIndex, _VALUE_COLUMN);
@@ -482,8 +493,7 @@ public class PixelInfoView extends JPanel {
         }
         int pixelValue;
         int rowIndex = 0;
-        for (int i = 0; i < _flagBands.length; i++) {
-            Band band = _flagBands[i];
+        for (Band band : _currentFlagBands) {
             final boolean loaded = band.hasRasterData();
             if (available && loaded) {
                 pixelValue = band.getPixelInt(_pixelX, _pixelY);
@@ -512,23 +522,22 @@ public class PixelInfoView extends JPanel {
 
     private void registerFlagDatasets() {
         final Band[] bands = getCurrentProduct().getBands();
-        Vector flagBandsVector = new Vector();
-        for (int i = 0; i < bands.length; i++) {
-            Band band = bands[i];
+        Vector<Band> flagBandsVector = new Vector<Band>();
+        for (Band band : bands) {
             if (isFlagBand(band)) {
                 flagBandsVector.add(band);
             }
         }
-        _flagBands = (Band[]) flagBandsVector.toArray(new Band[flagBandsVector.size()]);
+        _currentFlagBands = flagBandsVector.toArray(new Band[flagBandsVector.size()]);
     }
 
     private boolean isSampleValueAvailable(int pixelX, int pixelY, boolean pixelValid) {
         return getCurrentProduct() != null
-               && pixelValid
-               && pixelX >= 0
-               && pixelY >= 0
-               && pixelX < getCurrentProduct().getSceneRasterWidth()
-               && pixelY < getCurrentProduct().getSceneRasterHeight();
+                && pixelValid
+                && pixelX >= 0
+                && pixelY >= 0
+                && pixelX < getCurrentProduct().getSceneRasterWidth()
+                && pixelY < getCurrentProduct().getSceneRasterHeight();
     }
 
     private void resetGeolocTableModel() {
@@ -617,7 +626,7 @@ public class PixelInfoView extends JPanel {
             final int numTiePointGrids = getCurrentProduct().getNumTiePointGrids();
             int rowCount = numTiePointGrids;
             model.setRowCount(rowCount);
-            int rowIndex = 0;
+            int rowIndex;
             for (int i = 0; i < numTiePointGrids; i++) {
                 rowIndex = i;
                 final TiePointGrid tiePointGrid = getCurrentProduct().getTiePointGridAt(i);
@@ -634,8 +643,7 @@ public class PixelInfoView extends JPanel {
         if (getCurrentProduct() != null) {
             model.setRowCount(getFlagRowCount());
             int rowIndex = 0;
-            for (int i = 0; i < _flagBands.length; i++) {
-                Band band = _flagBands[i];
+            for (Band band : _currentFlagBands) {
                 final FlagCoding flagCoding = band.getFlagCoding();
                 final int numFlags = flagCoding.getNumAttributes();
                 final String bandNameDot = band.getName() + ".";
@@ -670,8 +678,7 @@ public class PixelInfoView extends JPanel {
     private int getBandRowCount() {
         int rowCount = 0;
         Band[] bands = getCurrentProduct().getBands();
-        for (int i = 0; i < bands.length; i++) {
-            final Band band = bands[i];
+        for (final Band band : bands) {
             if (shouldDisplayBand(band)) {
                 rowCount++;
             }
@@ -681,8 +688,7 @@ public class PixelInfoView extends JPanel {
 
     private int getFlagRowCount() {
         int rowCount = 0;
-        for (int i = 0; i < _flagBands.length; i++) {
-            Band band = _flagBands[i];
+        for (Band band : _currentFlagBands) {
             rowCount += band.getFlagCoding().getNumAttributes();
         }
         return rowCount;
@@ -699,9 +705,9 @@ public class PixelInfoView extends JPanel {
          * @param hasFocus   true if cell has focus
          * @param row        the row of the cell to render
          * @param column     the column of the cell to render
-         *
          * @return the default table cell renderer
          */
+        @Override
         public Component getTableCellRendererComponent(JTable table,
                                                        Object value,
                                                        boolean isSelected,
@@ -728,7 +734,7 @@ public class PixelInfoView extends JPanel {
 
     public static abstract class DisplayFilter {
 
-        private final Vector _pcl = new Vector();
+        private final Vector<PropertyChangeListener> _pcl = new Vector<PropertyChangeListener>();
 
         public abstract boolean accept(final ProductNode node);
 
@@ -747,7 +753,7 @@ public class PixelInfoView extends JPanel {
         protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
             final PropertyChangeEvent event = new PropertyChangeEvent(this, propertyName, oldValue, newValue);
             for (int i = 0; i < _pcl.size(); i++) {
-                ((PropertyChangeListener) _pcl.elementAt(i)).propertyChange(event);
+                (_pcl.elementAt(i)).propertyChange(event);
             }
         }
     }

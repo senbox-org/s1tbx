@@ -13,8 +13,9 @@
         <![CDATA[
         Changes in 4.2<br>
         [BEAM-709] Open dialog should use 'All Files' as default filter<br>
-        [BEAM-716] Module repository location from preferences overwrites location from beam.config<br>
+        [BEAM-716] Module repository location from preferences overwrites location from beam.config
         [BEAM-718] Show all product formats in reopen menu<br>
+        [BEAM-726] Memory not fully released after closing a product
         Changes in 4.1<br>
         [BEAM-482] Pins shall not be selected by default<br/>
         [BEAM-603] Select multiple pins<br/>
@@ -296,8 +297,8 @@
             <text>Reopen</text>
             <mnemonic>R</mnemonic>
             <placeAfter>open</placeAfter>
-            <shortDescr>Reopen a BEAM-DIMAP data product.</shortDescr>
-            <longDescr>Reopen a BEAM-DIMAP data product.</longDescr>
+            <shortDescr>Re-open a BEAM-DIMAP data product.</shortDescr>
+            <longDescr>Re-open a BEAM-DIMAP data product.</longDescr>
             <smallIcon>icons/History16.gif</smallIcon>
             <largeIcon>icons/History24.gif</largeIcon>
             <helpID>reopen</helpID>
