@@ -1,12 +1,6 @@
 package org.esa.beam.visat.toolviews.pixelinfo;
 
-import org.esa.beam.framework.datamodel.Pin;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListener;
-import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.PixelInfoView;
 import org.esa.beam.framework.ui.PixelPositionListener;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
@@ -99,7 +93,7 @@ public class PixelInfoToolView extends AbstractToolView {
         for (JInternalFrame internalFrame : internalFrames) {
             Container contentPane = internalFrame.getContentPane();
             if (contentPane instanceof ProductSceneView) {
-                initView((ProductSceneView)contentPane);
+                initView((ProductSceneView) contentPane);
             }
         }
     }
@@ -111,7 +105,7 @@ public class PixelInfoToolView extends AbstractToolView {
         if (isSnapToPin()) {
             setToSelectedPin(productSceneView);
         }
-        if(productSceneView == VisatApp.getApp().getSelectedProductSceneView()){
+        if (productSceneView == VisatApp.getApp().getSelectedProductSceneView()) {
             _currentView = productSceneView;
         }
     }
@@ -214,6 +208,7 @@ public class PixelInfoToolView extends AbstractToolView {
                 view.removePixelPositionListener(unregisterPPL(view));
                 removePinSelectionChangedListener(e);
             }
+            _pixelInfoView.clearProductNodeRefs();
         }
 
         @Override
