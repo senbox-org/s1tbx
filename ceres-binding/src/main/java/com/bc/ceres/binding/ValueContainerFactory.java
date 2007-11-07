@@ -101,7 +101,7 @@ public class ValueContainerFactory {
 
     private static void initValueDescriptor(ValueDescriptor valueDescriptor) {
         if (valueDescriptor.getConverter() == null) {
-            valueDescriptor.setConverter(ConverterRegistry.getInstance().getConverter(valueDescriptor.getType()));
+            valueDescriptor.setDefaultConverter();
         }
         if (valueDescriptor.getValidator() == null) {
             valueDescriptor.setValidator(createValidator(valueDescriptor));

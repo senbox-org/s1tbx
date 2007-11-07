@@ -145,6 +145,14 @@ public class ValueDescriptor {
         }
         return converter;
     }
+    
+    public void setDefaultConverter() {
+        Class<?> type = getType();
+        if (getItemAlias() != null && type.isArray()) {
+            type = type.getComponentType();
+        }
+        setConverter(ConverterRegistry.getInstance().getConverter(type));
+    }
 
     public void setConverter(Converter converter) {
         setProperty("converter", converter);
@@ -154,7 +162,7 @@ public class ValueDescriptor {
         return (DomConverter) getProperty("domConverter");
     }
 
-    public void setXmlConverter(DomConverter converter) {
+    public void setDomConverter(DomConverter converter) {
         setProperty("domConverter", converter);
     }
 
@@ -168,14 +176,6 @@ public class ValueDescriptor {
 
     //////////////////////////////////////////////////////////////////////////////
     // Array/List item properties
-
-    public Converter getItemConverter() {
-        return (Converter) getProperty("itemConverter");
-    }
-
-    public void setItemConverter(Converter converter) {
-        setProperty("itemConverter", converter);
-    }
 
     public String getItemAlias() {
         return (String) getProperty("itemAlias");
