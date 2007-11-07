@@ -14,9 +14,9 @@ import java.awt.image.WritableRaster;
 import java.io.IOException;
 
 /**
- * Creates a ROI mask image for a given {@link org.esa.beam.framework.datamodel.RasterDataNode}.
+ * Creates a valid-pixel mask image for a given {@link org.esa.beam.framework.datamodel.RasterDataNode}.
  * The resulting image will have a single-band, interleaved sample model
- * with sample values 1 (= ROI pixel) or 0 (= not a ROI pixel).
+ * with sample values 1 (= valid pixel) or 0 (= invalid pixel).
  */
 public class ValidMaskOpImage extends RasterDataNodeOpImage {
     private static final byte FALSE = (byte) 0;

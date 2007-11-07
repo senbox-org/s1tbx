@@ -27,8 +27,11 @@ import org.esa.beam.framework.dataop.maptransf.MapTransform;
 import org.esa.beam.util.*;
 import org.esa.beam.util.math.MathUtils;
 
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -129,6 +132,7 @@ public class Product extends ProductNode {
 
     private ProductManager _productManager;
     private Map<String, BitRaster> _validMasks;
+    private Map<String, RenderedImage> _validMaskImages;
 
     private PointingFactory _pointingFactory;
 
@@ -1486,6 +1490,37 @@ public class Product extends ProductNode {
      */
     public void releasePixelMask(final byte[] pixelMask) {
         // do nothing
+    }
+
+
+    public RenderedImage getValidMaskImage(final String id) {
+        if (_validMaskImages != null) {
+            return _validMaskImages.get(id);
+        }
+        return null;
+    }
+
+    public void setValidMaskImage(final String id, RenderedImage newImage) {
+        RenderedImage oldImage = null;
+        if (newImage != null) {
+            Guardian.assertEquals("newImage", newImage.getWidth(), getSceneRasterWidth());
+            Guardian.assertEquals("newImage", newImage.getHeight(), getSceneRasterHeight());
+            if (_validMaskImages == null) {
+                _validMaskImages = new HashMap<String, RenderedImage>();
+            }
+            oldImage = _validMaskImages.put(id, newImage);
+        } else {
+            if (_validMaskImages != null) {
+                oldImage = _validMaskImages.remove(id);
+            }
+        }
+        if (oldImage != null) {
+            JAI.getDefaultInstance().getTileCache().removeTiles(oldImage);
+            if (oldImage instanceof PlanarImage) {
+                PlanarImage planarImage = (PlanarImage) oldImage;
+                planarImage.dispose();
+            }
+        }
     }
 
 
