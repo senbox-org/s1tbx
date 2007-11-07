@@ -440,6 +440,9 @@ public class Product extends ProductNode {
         _tiePointGrids.dispose();
         _bitmaskDefs.dispose();
         _flagCodings.dispose();
+        _metadataRoot.dispose();
+        _pointingFactory = null;
+        _productManager = null;
         pinGroup.dispose();
         gcpGroup.dispose();
 
