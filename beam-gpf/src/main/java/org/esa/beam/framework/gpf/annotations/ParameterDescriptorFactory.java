@@ -1,6 +1,9 @@
 package org.esa.beam.framework.gpf.annotations;
 
 import com.bc.ceres.binding.*;
+import com.bc.ceres.binding.dom.DefaultDomConverter;
+import com.bc.ceres.binding.dom.DomConverter;
+
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -42,6 +45,15 @@ public class ParameterDescriptorFactory implements ValueDescriptorFactory {
             }
             valueDescriptor.setValidator(validator);
         }
+        if (parameter.domConverter() != DomConverter.class) {
+            DomConverter domConverter;
+            try {
+                domConverter = parameter.domConverter().newInstance();
+            } catch (Throwable t) {
+                throw new ConversionException("Failed to create domConverter.", t);
+            }
+            valueDescriptor.setDomConverter(domConverter);
+        }
         if (parameter.converter() != Converter.class) {
             Converter converter;
             try {
@@ -50,18 +62,6 @@ public class ParameterDescriptorFactory implements ValueDescriptorFactory {
                 throw new ConversionException("Failed to create converter.", t);
             }
             valueDescriptor.setConverter(converter);
-        }
-        if (valueDescriptor.getConverter() == null) {
-            valueDescriptor.setConverter(ConverterRegistry.getInstance().getConverter(valueDescriptor.getType()));
-        }
-        if (parameter.itemConverter() != Converter.class) {
-            Converter converter;
-            try {
-                converter = parameter.itemConverter().newInstance();
-            } catch (Throwable t) {
-                throw new ConversionException("Failed to create item converter.", t);
-            }
-            valueDescriptor.setItemConverter(converter);
         }
         if (ParameterDescriptorFactory.isSet(parameter.label())) {
             valueDescriptor.setDisplayName(parameter.label());
@@ -73,6 +73,9 @@ public class ParameterDescriptorFactory implements ValueDescriptorFactory {
         }
         if (ParameterDescriptorFactory.isSet(parameter.itemAlias())) {
             valueDescriptor.setItemAlias(parameter.itemAlias());
+        }
+        if (valueDescriptor.getConverter() == null) {
+            valueDescriptor.setDefaultConverter();
         }
         valueDescriptor.setItemsInlined(parameter.itemsInlined());
         valueDescriptor.setUnit(parameter.unit());

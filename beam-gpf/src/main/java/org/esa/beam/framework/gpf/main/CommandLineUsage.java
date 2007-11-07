@@ -247,11 +247,11 @@ class CommandLineUsage {
         operatorElem.setValue(OperatorSpi.getOperatorAlias(operatorClassDescriptor.getOperatorClass()));
         DomElement sourcesElem = nodeElem.createChild("sources");
         for (Field sourceField : operatorClassDescriptor.getSourceProductMap().keySet()) {
-            convertSourceProductField(sourceField, sourcesElem);
+            convertSourceProductFieldToDom(sourceField, sourcesElem);
         }
         DomElement parametersElem = nodeElem.createChild("parameters");
         for (Field paramField : operatorClassDescriptor.getParameters().keySet()) {
-            convertParameterField(paramField, parametersElem);
+            convertParameterFieldToDom(paramField, parametersElem);
         }
 
         final StringTokenizer st = new StringTokenizer(graphElem.toXml().replace('\r', ' '), "\n");
@@ -262,7 +262,7 @@ class CommandLineUsage {
         }
     }
 
-    private static void convertSourceProductField(Field sourceField, DomElement sourcesElem) {
+    private static void convertSourceProductFieldToDom(Field sourceField, DomElement sourcesElem) {
         final SourceProduct sourceProduct = sourceField.getAnnotation(SourceProduct.class);
         String name = sourceField.getName();
         if (sourceProduct != null && !sourceProduct.alias().isEmpty()) {
@@ -272,7 +272,7 @@ class CommandLineUsage {
         child.setValue("${" + name + "}");
     }
 
-    private static void convertParameterField(Field paramField, DomElement parametersElem) {
+    private static void convertParameterFieldToDom(Field paramField, DomElement parametersElem) {
         final Parameter parameter = paramField.getAnnotation(Parameter.class);
         final boolean thisIsAnOperator = Operator.class.isAssignableFrom(paramField.getDeclaringClass());
         if (thisIsAnOperator && parameter != null || !thisIsAnOperator) {
@@ -280,16 +280,16 @@ class CommandLineUsage {
             if (parameter != null && !parameter.alias().isEmpty()) {
                 name = parameter.alias();
             }
-            if (parameter != null && !parameter.itemAlias().isEmpty() && paramField.getType().isArray()) {
+            if (paramField.getType().isArray() && parameter != null && !parameter.itemAlias().isEmpty()) {
                 DomElement childElem = parameter.itemsInlined() ? parametersElem : parametersElem.createChild(name);
                 String itemName = parameter.itemAlias();
                 final DomElement element = childElem.createChild(itemName);
-                if (isArrayConverterAvailable(paramField, parameter)) {
+                if (isConverterAvailable(paramField.getType(), parameter)) {
                     element.setValue(getTypeName(paramField.getType().getComponentType()));
                 } else {
                     final Field[] declaredFields = paramField.getType().getComponentType().getDeclaredFields();
                     for (Field declaredField : declaredFields) {
-                        convertParameterField(declaredField, element);
+                        convertParameterFieldToDom(declaredField, element);
                     }
                 }
                 childElem.createChild("...");
@@ -301,7 +301,7 @@ class CommandLineUsage {
                 } else {
                     final Field[] declaredFields = type.getDeclaredFields();
                     for (Field declaredField : declaredFields) {
-                        convertParameterField(declaredField, childElem);
+                        convertParameterFieldToDom(declaredField, childElem);
                     }
                 }
             }
@@ -309,15 +309,8 @@ class CommandLineUsage {
     }
 
     private static boolean isConverterAvailable(Class<?> type, Parameter parameter) {
-        return ConverterRegistry.getInstance().getConverter(type) != null
-                || (parameter != null && parameter.converter() != Converter.class);
-    }
-
-    private static boolean isArrayConverterAvailable(Field paramField, Parameter parameter) {
-        return ConverterRegistry.getInstance().getConverter(paramField.getType()) != null
-                || (parameter != null
-                && (parameter.converter() != Converter.class
-                || parameter.itemConverter() != Converter.class));
+        return (parameter != null && parameter.converter() != Converter.class)
+        || ConverterRegistry.getInstance().getConverter(type) != null;
     }
 
     private static String spaces(int n) {

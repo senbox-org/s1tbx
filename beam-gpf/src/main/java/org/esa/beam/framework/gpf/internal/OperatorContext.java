@@ -378,10 +378,20 @@ public class OperatorContext {
     }
 
     private static void addDomToMetadata(DomElement childDE, String name, MetadataElement parentME) {
-        if (childDE.getChildCount() > 0) {
+        if (childDE.getChildCount() > 0 || childDE.getAttributeNames().length > 0) {
             final MetadataElement childME = new MetadataElement(name);
             addDomToMetadata(childDE, childME);
             parentME.addElement(childME);
+            
+            if (childDE.getAttributeNames().length != 0) {
+                String[] attributeNames = childDE.getAttributeNames();
+                for (String attributeName : attributeNames) {
+                    String attributeValue = childDE.getAttribute(attributeName);
+                    final ProductData valueMEAtrr = ProductData.createInstance(attributeValue);
+                    final MetadataAttribute mdAttribute = new MetadataAttribute(attributeName, valueMEAtrr, true);
+                    childME.addAttribute(mdAttribute);
+                }
+            }
         } else {
             String valueDE = childDE.getValue();
             if (valueDE == null) {

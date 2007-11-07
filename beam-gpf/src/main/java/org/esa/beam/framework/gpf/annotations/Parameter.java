@@ -22,18 +22,19 @@ public @interface Parameter {
     String alias() default "";
 
     /**
-     * @return An alias name for the elemens of a parameter array.
+     * @return An alias name for the elements of a parameter array.
+     *         Forces element-wise array conversion from and to DOM representation.
      *         Defaults to the empty string (= not set).
      * @see #itemsInlined()
-     * @see #itemConverter()
      */
     String itemAlias() default "";
 
     /**
-     * @return If {@code true} items of parameter array values are inlined (not enclosed by the parameter name) in the DOM representation of the array.
+     * @return If {@code true} items of parameter array values are inlined (not
+     *         enclosed by the parameter name) in the DOM representation of the
+     *         array. In this case also an ({@code itemAlias} has to be set.
      *         Defaults to {@code false}.
      * @see #itemAlias()
-     * @see #itemConverter()
      */
     boolean itemsInlined() default false;
 
@@ -145,7 +146,9 @@ public @interface Parameter {
      * @return The converter class.
      * @see #itemAlias()
      * @see #itemsInlined()
+     * @deprecated not used anymore as of 4.1.1
      */
+    @Deprecated
     Class<? extends Converter> itemConverter() default Converter.class;
 
     /**
