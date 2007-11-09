@@ -42,7 +42,7 @@ public class RepositoryManager {
     public RepositoryManager() {
         repositoryList = new ArrayList<Repository>(10);
         dataProviderList = new ArrayList<DataProvider>(4);
-        listenerList = new ArrayList<RepositoryManagerListener>();
+        listenerList = new ArrayList<RepositoryManagerListener>(4);
         addDataProvider(new FileNameProvider());
         addDataProvider(new ProductSizeProvider());
     }
@@ -240,8 +240,8 @@ public class RepositoryManager {
         @Override
         protected List<ExceptionObject> doInBackground() throws Exception {
             final int maxProvider = dataProviderList.size() - 1;
-            final ArrayList<RepositoryEntry> entriesToRemove = new ArrayList<RepositoryEntry>();
-            final List<ExceptionObject> exceptionList = new ArrayList<ExceptionObject>();
+            final ArrayList<RepositoryEntry> entriesToRemove = new ArrayList<RepositoryEntry>(10);
+            final List<ExceptionObject> exceptionList = new ArrayList<ExceptionObject>(5);
 
             RepositoryScanner.collectEntries(repository);
             SwingUtilities.invokeLater(uiRunnable);
@@ -254,6 +254,7 @@ public class RepositoryManager {
                     return exceptionList;
                 }
 
+                // display file name and file size first
                 for (int i = 0; i < maxRepEntries; i++) {
                     final RepositoryEntry entry = repository.getEntry(i);
                     for (int j = 0; j <= 1; j++) {
@@ -276,7 +277,8 @@ public class RepositoryManager {
                     final RepositoryEntry entry = repository.getEntry(i);
                     try {
                         if (!entry.getProductFile().exists()) {
-                            for (int j = 0; j <= maxProvider; j++) {
+                            // start at product properties, we already have name and size
+                            for (int j = 2; j <= maxProvider; j++) {
                                 if (pm.isCanceled()) {
                                     return exceptionList;
                                 }
@@ -291,7 +293,8 @@ public class RepositoryManager {
                             }
                         } else {
                             try {
-                                for (int j = 0; j <= maxProvider; j++) {
+                                // start at product properties, we already have name and size
+                                for (int j = 2; j <= maxProvider; j++) {
                                     if (pm.isCanceled()) {
                                         return exceptionList;
                                     }
@@ -341,7 +344,7 @@ public class RepositoryManager {
             try {
                 exceptionList = get();
             } catch (Exception e) {
-                exceptionList = new ArrayList<ExceptionObject>();
+                exceptionList = new ArrayList<ExceptionObject>(1);
                 exceptionList.add(new ExceptionObject("", e));
             }
             if (exceptionList != null && exceptionList.size() != 0) {

@@ -65,8 +65,7 @@ public class ProductPropertiesProvider implements DataProvider {
         final PropertyMap propertyMap = repository.getPropertyMap();
         final String productName = entry.getProductFile().getName();
 
-        for (int i = 0; i < PROPERTY_KEYS.length; i++) {
-            final String propertyKey = PROPERTY_KEYS[i];
+        for (final String propertyKey : PROPERTY_KEYS) {
             if (propertyMap.getPropertyString(productName + propertyKey, null) == null) {
                 return true;
             }
@@ -95,7 +94,7 @@ public class ProductPropertiesProvider implements DataProvider {
         }
         final String timeString = formatStartTime(product.getStartTime());
 
-        final String sizeString = String.format("%1$.2f MB", new Float(entry.getProductSize()));
+        final String sizeString = String.format("%1$.2f MB", entry.getProductSize());
 
         propertyMap.setPropertyString(productName + KEY_PRODUCT_TYPE, productType);
         propertyMap.setPropertyString(productName + KEY_PRODUCT_RESOLUTION, resolutionString);
@@ -110,8 +109,7 @@ public class ProductPropertiesProvider implements DataProvider {
         final PropertyMap propertyMap = repository.getPropertyMap();
         final PropertyMap properties = new PropertyMap();
 
-        for (int i = 0; i < PROPERTY_KEYS.length; i++) {
-            final String propertyKey = PROPERTY_KEYS[i];
+        for (final String propertyKey : PROPERTY_KEYS) {
             final String typeString = propertyMap.getPropertyString(productName + propertyKey, null);
             properties.setPropertyString(propertyKey, typeString);
 
@@ -126,8 +124,8 @@ public class ProductPropertiesProvider implements DataProvider {
     public void cleanUp(final RepositoryEntry entry, final Repository repository) {
         final PropertyMap propertyMap = repository.getPropertyMap();
         final String productName = entry.getProductFile().getName();
-        for (int i = 0; i < PROPERTY_KEYS.length; i++) {
-            propertyMap.setPropertyString(productName + PROPERTY_KEYS[i], null);
+        for (String aPROPERTY_KEYS : PROPERTY_KEYS) {
+            propertyMap.setPropertyString(productName + aPROPERTY_KEYS, null);
         }
 
     }
@@ -165,9 +163,6 @@ public class ProductPropertiesProvider implements DataProvider {
 
             for (int i = 0; i < propertyLables.length; i++) {
                 dataModel.setValueAt(propertyLables[i], i, 0);
-            }
-
-            for (int i = 0; i < propertyLables.length; i++) {
                 dataModel.setValueAt("", i, 1);
             }
 
@@ -231,25 +226,24 @@ public class ProductPropertiesProvider implements DataProvider {
             setRowHeight(table, row, ROW_HEIGHT);
 
             final int lablesLength = getMaxStringLength(propertyLables, getFontMetrics(getFont()));
-            TableColumn lablesColumn = getColumnModel().getColumn(0);
-            if (lablesColumn.getPreferredWidth() < lablesLength) {
-                lablesColumn.setPreferredWidth(lablesLength);
-            }
+            int columnIndex = 0;
+            increasePreferredColumnWidth(getColumnModel().getColumn(columnIndex), lablesLength);
 
             int valuesLength = 50;
             if (values != null) {
                 valuesLength = getMaxStringLength(values, getFontMetrics(valueFont));
-                TableColumn valuesColumn = getColumnModel().getColumn(1);
-                if (valuesColumn.getPreferredWidth() < valuesLength) {
-                    valuesColumn.setPreferredWidth(valuesLength);
-                }
+                increasePreferredColumnWidth(getColumnModel().getColumn(1), valuesLength);
             }
             int preferredWidth = lablesLength + valuesLength;
             preferredWidth = (int) (preferredWidth + (preferredWidth * 0.1f));
             final TableColumn valueColumn = table.getColumnModel().getColumn(column);
             int valueColWidth = Math.max(valueColumn.getWidth(), preferredWidth);
-            if (valueColumn.getPreferredWidth() < valueColWidth) {
-                valueColumn.setPreferredWidth(valueColWidth);
+            increasePreferredColumnWidth(table.getColumnModel().getColumn(column), valueColWidth);
+        }
+
+         private void increasePreferredColumnWidth(TableColumn column, int length) {
+             if (column.getPreferredWidth() < length) {
+                column.setPreferredWidth(length);
             }
         }
 
@@ -262,8 +256,7 @@ public class ProductPropertiesProvider implements DataProvider {
 
         private int getMaxStringLength(final String[] strings, final FontMetrics fontMetrics) {
             int maxWidth = Integer.MIN_VALUE;
-            for (int i = 0; i < strings.length; i++) {
-                String string = strings[i];
+            for (String string : strings) {
                 if (string == null) {
                     string = String.valueOf(string);
                 }

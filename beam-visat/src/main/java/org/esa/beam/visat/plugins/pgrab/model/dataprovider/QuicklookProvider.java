@@ -54,10 +54,7 @@ public class QuicklookProvider implements DataProvider {
 
     public boolean mustCreateData(final RepositoryEntry entry, final Repository repository) {
         final File quickLookFile = getQuickLookFile(repository.getStorageDir(), entry.getProductFile().getName());
-        if (!quickLookFile.exists()) {
-            return true;
-        }
-        return false;
+        return !quickLookFile.exists();
     }
 
     public void createData(final RepositoryEntry entry, final Repository repository) throws IOException {
@@ -273,8 +270,8 @@ public class QuicklookProvider implements DataProvider {
                 return 1;
             }
 
-            final Integer height1 = new Integer(image1.getHeight());
-            final Integer height2 = new Integer(image2.getHeight());
+            final Integer height1 = image1.getHeight();
+            final Integer height2 = image2.getHeight();
 
             return height1.compareTo(height2);
         }

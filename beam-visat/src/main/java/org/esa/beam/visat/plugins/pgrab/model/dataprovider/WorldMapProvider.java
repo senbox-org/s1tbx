@@ -160,8 +160,8 @@ public class WorldMapProvider implements DataProvider {
             worldMapColumn = new TableColumn();
             worldMapColumn.setHeaderValue("Location");      /*I18N*/
             worldMapColumn.setPreferredWidth(250);
-            worldMapColumn.setCellRenderer(new WorldMapProvider.WorldMapCellRenderer(250));
-            worldMapColumn.setCellEditor(new WorldMapProvider.WorldMapCellEditor());
+            worldMapColumn.setCellRenderer(new WorldMapCellRenderer(250));
+            worldMapColumn.setCellEditor(new WorldMapCellEditor());
             worldMapColumn.setResizable(true);
         }
         return worldMapColumn;
@@ -222,7 +222,7 @@ public class WorldMapProvider implements DataProvider {
     }
 
     private static GeneralPath[] createGeoBoundaryPathes(final String pathsString) {
-        final ArrayList<GeneralPath> pathes = new ArrayList<GeneralPath>();
+        final ArrayList<GeneralPath> pathes = new ArrayList<GeneralPath>(5);
         if (pathsString != null && pathsString.trim().length() > 0) {
             int openIndex = 0;
             int closeIndex = 0;
@@ -234,7 +234,7 @@ public class WorldMapProvider implements DataProvider {
                 closeIndex = pathsString.indexOf(")", openIndex);
             }
         }
-        return (GeneralPath[]) pathes.toArray(new GeneralPath[pathes.size()]);
+        return pathes.toArray(new GeneralPath[pathes.size()]);
     }
 
     private static GeneralPath createGeoBoundaryPath(final String s) {
@@ -251,9 +251,10 @@ public class WorldMapProvider implements DataProvider {
 
     public static class WorldMapCellRenderer extends DefaultTableCellRenderer {
 
+        private static final Image worldMap = WorldMapImageLoader.getWorldMapImage(false);
+
         private final int cellWidth;
         private final int cellHeight;
-        private final static Image worldMap = WorldMapImageLoader.getWorldMapImage(false);
 
         private WorldMapPainter wmPainter;
         private JLabel cellComponent;
@@ -328,7 +329,7 @@ public class WorldMapProvider implements DataProvider {
 
     public static class WorldMapCellEditor extends AbstractCellEditor implements TableCellEditor {
 
-        private final static Image worldMap = WorldMapImageLoader.getWorldMapImage(false);
+        private static final Image worldMap = WorldMapImageLoader.getWorldMapImage(false);
 
         private final WorldMapPainter wmPainter;
         private final JScrollPane scrollPane;
