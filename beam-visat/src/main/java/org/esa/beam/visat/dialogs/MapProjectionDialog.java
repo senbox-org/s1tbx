@@ -16,6 +16,9 @@
  */
 package org.esa.beam.visat.dialogs;
 
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import org.esa.beam.framework.dataio.ProductProjectionBuilder;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.MapGeoCoding;
@@ -54,7 +57,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
-import java.io.IOException;
 import java.util.ArrayList;
 
 
@@ -81,8 +83,11 @@ public class MapProjectionDialog extends ModalDialog {
     private Exception _exception;
     private boolean _orthorectificationMode;
 
+    private Parameter _paramOldProductName;
+    private Parameter _paramOldProductDesc;
     private Parameter _paramNewProductName;
     private Parameter _paramNewProductDesc;
+    private Parameter _paramIncludeTiePointGrids;
     private Parameter _paramColocationUsed;
     private Parameter _paramColocationProductName;
     private Parameter _paramProjection;
@@ -96,8 +101,6 @@ public class MapProjectionDialog extends ModalDialog {
     private JLabel _labelCenterLonInfo;
     private JButton _buttonProjectParams;
     private DemSelector _demSelector;
-    private Parameter _paramOldProductName;
-    private Parameter _paramOldProductDesc;
 
     public MapProjectionDialog(final Window parent, final Product sourceProduct, final boolean orthoFlag) {
         this(parent, sourceProduct, orthoFlag, getTitel(orthoFlag), getHelpId(orthoFlag));
@@ -105,7 +108,7 @@ public class MapProjectionDialog extends ModalDialog {
 
     protected MapProjectionDialog(final Window parent, final Product sourceProduct, final boolean orthoFlag,
                                   final String titel, final String helpID) {
-        super(parent, titel, ModalDialog.ID_OK_CANCEL_HELP, helpID);
+        super(parent, titel, ID_OK_CANCEL_HELP, helpID);
         Guardian.assertNotNull("sourceProduct", sourceProduct);
         _sourceProduct = sourceProduct;
         _parent = parent;
@@ -135,11 +138,34 @@ public class MapProjectionDialog extends ModalDialog {
         final String prodName = _paramNewProductName.getValueAsText();
         final String prodDesc = _paramNewProductDesc.getValueAsText();
         _outputProduct = null;
-        try {
-            _outputProduct = getSourceProduct().createProjectedProduct(_outputMapInfo, prodName, prodDesc);
-        } catch (IOException e) {
-            _exception = e;
-        }
+        final boolean includeGrids = Boolean.parseBoolean(_paramIncludeTiePointGrids.getValueAsText());
+        ProgressMonitorSwingWorker worker = new ProgressMonitorSwingWorker(getJDialog(), getJDialog().getTitle()) {
+            @Override
+            protected Object doInBackground(ProgressMonitor pm) throws Exception {
+                pm.beginTask("Applying map projection...", 1);
+                try {
+                    _outputProduct = ProductProjectionBuilder.createProductProjection(getSourceProduct(), false,
+                                                                            _outputMapInfo,
+                                                                            prodName, prodDesc, includeGrids);
+                    pm.worked(1);
+                } finally {
+                    pm.done();
+                }
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    get();
+                } catch (Exception e) {
+                    _exception = e;
+                    e.printStackTrace();
+                }
+            }
+        };
+        worker.executeWithBlocking();
+
     }
 
     @Override
@@ -221,6 +247,11 @@ public class MapProjectionDialog extends ModalDialog {
         _paramNewProductDesc.getProperties().setLabel("Description");           /* I18N */
         _paramNewProductDesc.getProperties().setNullValueAllowed(false);
 
+        _paramIncludeTiePointGrids = new Parameter("includeTiePointGrids", true);
+        _paramIncludeTiePointGrids.getProperties().setLabel("Include Tie Point Grids");           /* I18N */
+        _paramIncludeTiePointGrids.getProperties().setDescription(
+                "Includes the tie point grids of the input product as bands.");
+
         final ParamChangeListener onRecreateMapInfoAndUpdateUIState = new ParamChangeListener() {
             public void parameterValueChanged(ParamChangeEvent event) {
                 _outputMapInfo = null;
@@ -229,7 +260,7 @@ public class MapProjectionDialog extends ModalDialog {
         };
 
         _paramColocationUsed = new Parameter("colocationUsed", Boolean.FALSE);
-        _paramColocationUsed.getProperties().setLabel("Co-locate with product:");       /*I18N*/
+        _paramColocationUsed.getProperties().setLabel("Collocate with product:");       /*I18N*/
         _paramColocationUsed.addParamChangeListener(onRecreateMapInfoAndUpdateUIState);
 
         final String[] compatibleProductNames = getCompatibleProductNames();
@@ -346,6 +377,9 @@ public class MapProjectionDialog extends ModalDialog {
                                 "weightx=1, insets.top = 3");
         GridBagUtils.addToPanel(inOutPane, _paramNewProductDesc.getEditor().getComponent(), gbc,
                                 "weightx=999, insets.top = 3");
+        gbc.gridy = ++line;
+        GridBagUtils.addToPanel(inOutPane, _paramIncludeTiePointGrids.getEditor().getComponent(), gbc,
+                                "weightx=999, insets.top = 3");
 
         final JComponent jComponent = _paramNewProductName.getEditor().getEditorComponent();
         if (jComponent instanceof JTextComponent) {
@@ -455,7 +489,7 @@ public class MapProjectionDialog extends ModalDialog {
         final MapProjection projection = _outputMapInfo.getMapProjection();
         final MapTransformUI transformUI = projection.getMapTransformUI();
         final ProjectionParamsDialog dialog = new ProjectionParamsDialog(_parent, transformUI);
-        if (dialog.show() == ModalDialog.ID_OK) {
+        if (dialog.show() == ID_OK) {
             projection.setMapTransform(transformUI.createTransform());
             final int dialogAnswer = JOptionPane.showConfirmDialog(getParent(),
                                                                    "Projection parameters have been changed.\n\n" +
@@ -475,9 +509,9 @@ public class MapProjectionDialog extends ModalDialog {
     }
 
     private void showOutputParamsDialog() {
-        final boolean editable = !((Boolean) _paramColocationUsed.getValue()).booleanValue();
+        final boolean editable = !(Boolean) _paramColocationUsed.getValue();
         final OutputParamsDialog dialog = new OutputParamsDialog(_parent, _outputMapInfo, getSourceProduct(), editable);
-        if (dialog.show() == ModalDialog.ID_OK) {
+        if (dialog.show() == ID_OK) {
             _outputMapInfo = dialog.getMapInfo();
             updateUIState();
         }
@@ -485,7 +519,7 @@ public class MapProjectionDialog extends ModalDialog {
 
     private void updateUIState() {
 
-        boolean colocationUsed = ((Boolean) _paramColocationUsed.getValue()).booleanValue();
+        boolean colocationUsed = (Boolean) _paramColocationUsed.getValue();
         boolean canUseColocation = _paramColocationProductName.getProperties().getValueSet().length > 0;
         if (colocationUsed && !canUseColocation) {
             _paramColocationUsed.setValue(Boolean.FALSE, null);
@@ -504,7 +538,7 @@ public class MapProjectionDialog extends ModalDialog {
             if (_outputMapInfo == null) {
                 // todo - if source product has a map geo-coding, init params with map-info from source product first
                 final String projectionName = _paramProjection.getValueAsText();
-                MapProjection projection = null;
+                MapProjection projection;
                 if (UTM.AUTO_PROJECTION_NAME.equals(projectionName)) {
                     final GeoPos centerGeoPos = ProductUtils.getCenterGeoPos(getSourceProduct());
                     projection = UTM.getSuitableProjection(centerGeoPos);
@@ -580,7 +614,7 @@ public class MapProjectionDialog extends ModalDialog {
     private String[] getCompatibleProductNames() {
         final GeneralPath sourcePath = ProductUtils.createGeoBoundaryPath(getSourceProduct());
         final Rectangle2D sourceBounds = sourcePath.getBounds2D();
-        final ArrayList<String> compatibleProducts = new ArrayList<String>();
+        final ArrayList<String> compatibleProducts = new ArrayList<String>(5);
         final ProductManager productManager = getSourceProduct().getProductManager();
         for (int i = 0; i < productManager.getNumProducts(); i++) {
             final Product product = productManager.getProductAt(i);
@@ -610,7 +644,7 @@ public class MapProjectionDialog extends ModalDialog {
         final JComponent jComponent = param.getEditor().getEditorComponent();
         if (jComponent instanceof JTextComponent) {
             JTextComponent tc = (JTextComponent) jComponent;
-            tc.setCaretPosition(0);
+            tc.setCaretPosition(caretPos);
         }
     }
 

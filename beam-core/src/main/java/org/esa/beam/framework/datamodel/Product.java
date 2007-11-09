@@ -17,14 +17,32 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.jexp.*;
+import com.bc.jexp.Namespace;
+import com.bc.jexp.ParseException;
+import com.bc.jexp.Parser;
+import com.bc.jexp.Term;
+import com.bc.jexp.WritableNamespace;
 import com.bc.jexp.impl.ParserImpl;
-import org.esa.beam.framework.dataio.*;
-import org.esa.beam.framework.dataop.barithm.*;
+import org.esa.beam.framework.dataio.ProductFlipper;
+import org.esa.beam.framework.dataio.ProductProjectionBuilder;
+import org.esa.beam.framework.dataio.ProductReader;
+import org.esa.beam.framework.dataio.ProductSubsetBuilder;
+import org.esa.beam.framework.dataio.ProductSubsetDef;
+import org.esa.beam.framework.dataio.ProductWriter;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
+import org.esa.beam.framework.dataop.barithm.RasterDataEvalEnv;
+import org.esa.beam.framework.dataop.barithm.RasterDataLoop;
+import org.esa.beam.framework.dataop.barithm.RasterDataSymbol;
+import org.esa.beam.framework.dataop.barithm.SingleFlagSymbol;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.maptransf.MapProjection;
 import org.esa.beam.framework.dataop.maptransf.MapTransform;
-import org.esa.beam.util.*;
+import org.esa.beam.util.BitRaster;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.Guardian;
+import org.esa.beam.util.ObjectUtils;
+import org.esa.beam.util.StopWatch;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.JAI;
@@ -34,7 +52,14 @@ import java.awt.geom.Point2D;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * <code>Product</code> instances are an in-memory representation of a remote sensing data product. The product is more
@@ -2222,7 +2247,26 @@ public class Product extends ProductNode {
      */
     public Product createProjectedProduct(final MapInfo mapInfo, final String name, final String desc) throws
             IOException {
-        return ProductProjectionBuilder.createProductProjection(this, mapInfo, name, desc);
+        return createProjectedProduct(mapInfo, name, desc, false);
+    }
+
+    /**
+     * Creates a map-projected version of this product.
+     *
+     * @param mapInfo              the map information
+     * @param name                 the name for the new product
+     * @param desc                 the description for the new product
+     * @param includeTiePointGrids if {@code true} the tie point grids are converted to bands
+     *                             and included in the projected product
+     *
+     * @return the product subset, or <code>null</code> if the product/subset combination is not valid
+     *
+     * @throws IOException if an I/O error occurs
+     */
+    public Product createProjectedProduct(final MapInfo mapInfo, final String name, final String desc,
+                                          boolean includeTiePointGrids) throws
+                                                                        IOException {
+        return ProductProjectionBuilder.createProductProjection(this, false, mapInfo, name, desc, includeTiePointGrids);
     }
 
     /**

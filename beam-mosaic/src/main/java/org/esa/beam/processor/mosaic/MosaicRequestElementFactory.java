@@ -176,6 +176,7 @@ public class MosaicRequestElementFactory implements RequestElementFactory {
         _paramInfoMap.put(MosaicConstants.PARAM_NAME_OUTPUT_WIDTH, createParamInfoOutputWidth());
         _paramInfoMap.put(MosaicConstants.PARAM_NAME_OUTPUT_HEIGHT, createParamInfoOutputHeight());
         _paramInfoMap.put(MosaicConstants.PARAM_NAME_BANDS, createParamInfoBands());
+        _paramInfoMap.put(MosaicConstants.PARAM_NAME_INCLUDE_TIE_POINT_GRIDS, createParamIncludeTiePontGrids());
 
         _paramInfoMap.put(MosaicConstants.PARAM_NAME_ORTHORECTIFY_INPUT_PRODUCTS, createParamInfoOrthorectification());
         _paramInfoMap.put(MosaicConstants.PARAM_NAME_ELEVATION_MODEL_FOR_ORTHORECTIFICATION,
@@ -187,6 +188,12 @@ public class MosaicRequestElementFactory implements RequestElementFactory {
         _paramInfoMap.put(MosaicConstants.PARAM_NAME_GEOCODING_LONGITUDES, createStringParamProperties());
         _paramInfoMap.put(MosaicConstants.PARAM_NAME_GEOCODING_VALID_MASK, createStringParamProperties());
         _paramInfoMap.put(MosaicConstants.PARAM_NAME_GEOCODING_SEARCH_RADIUS, createParamSourceSearchRadius());
+    }
+
+    private ParamProperties createParamIncludeTiePontGrids() {
+        ParamProperties paramProps = new ParamProperties(Boolean.class);
+        paramProps.setDefaultValue(MosaicConstants.PARAM_DEFAULT_INCLUDE_TIE_POINT_GRIDS);
+        return paramProps;
     }
 
     private ParamProperties createNoDataValueParamProperties() {

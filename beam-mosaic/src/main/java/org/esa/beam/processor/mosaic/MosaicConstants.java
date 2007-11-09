@@ -156,6 +156,9 @@ public class MosaicConstants {
 
     //  this parameter is only used for Batch mode map projection.
     public static final String PARAM_NAME_BANDS = "bands";
+    public static final String PARAM_NAME_INCLUDE_TIE_POINT_GRIDS = "include_tie_point_grids";
+    public static final Boolean PARAM_DEFAULT_INCLUDE_TIE_POINT_GRIDS = Boolean.TRUE;
+
 
 //    Processing Parameter
     public static final String PARAM_SUFFIX_EXPRESSION = ".expression";

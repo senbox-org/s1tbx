@@ -39,12 +39,11 @@
 
 <h3>Running mapproj</h3>
 
-<p>The executable name is <code>mapproj.exe</code> for MS Windows, <code>pconvert.command</code> for Mac OS X and <code>
-    pconvert</code>
-    for UNIX operating systems and is located in the <code>bin</code> directory
-    of your BEAM installation directory. </p>
+<p>For executing the mapproj tool there is an executable script file located in the <code>bin</code> directory
+    of your BEAM installation directory. The file name is <code>mapproj.bat</code> for MS Windows, <code>mapproj.command</code> for Mac OS X and <code>
+    mapproj.sh</code> for UNIX operating systems.</p>
 
-<p><code>mapproj</code> is a command-line application and as such it is invoked from a console or shell. UNIX users
+<p><code>mapproj</code> is a command-line tool and as such it is invoked from a console or shell. UNIX users
     usually know what a shell is, MS Windows users have to start either <code>command.exe</code> or
     <code>cmd.exe</code> in order to use <code>mapproj</code>.
 </p>
@@ -108,11 +107,21 @@
 </tr>
 <tr>
     <td><code>bands</code></td>
-    <td>Comma separated list of names of the input band to be processed. The parameter is optional,
-        if omitted all bands are processed. If used with a pixel-based geo-coding remember to include both bands used
-        by the geo-coding and also the flags band if used in the geocoding-valid-mask parameter
+    <td>Comma separated list of band or tie point grid names of the input product which are included in the output product as bands.
+        The parameter is optional, if omitted all bands and tie point grids are processed. If used with a pixel-based
+        geo-coding remember to include both bands used by the geo-coding and also the flags band if used
+        in the geocoding-valid-mask parameter.
     </td>
     <td>List of strings</td>
+    <td>1, 2 and 3</td>
+</tr>
+<tr>
+    <td><code>include_tie_point_grids</code></td>
+    <td>If set to <code>false</code> the tool also does not include the tie point grids of the input product into
+        the projected output product, wether they are given in the <code>bands</code> parameter or not.
+        The default value is <code>true</code>.
+    </td>
+    <td>Boolean</td>
     <td>1, 2 and 3</td>
 </tr>
 <tr>

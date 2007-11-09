@@ -74,6 +74,15 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
                                                   MapInfo mapInfo,
                                                   String name,
                                                   String desc) throws IOException {
+        return createProductProjection(sourceProduct, sourceProductOwner, mapInfo, name, desc, false);
+    }
+
+    public static Product createProductProjection(Product sourceProduct,
+                                                  boolean sourceProductOwner,
+                                                  MapInfo mapInfo,
+                                                  String name,
+                                                  String desc,
+                                                  boolean includeTiePointGrids) throws IOException {
         ProductProjectionBuilder productProjectionBuilder = new ProductProjectionBuilder(mapInfo, sourceProductOwner);
         if (mapInfo.isOrthorectified()) {
             final String demName = mapInfo.getElevationModelName();
@@ -88,7 +97,27 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
                 productProjectionBuilder.setElevationModel(null); // force use of elevation from tie-points
             }
         }
-        return productProjectionBuilder.readProductNodes(sourceProduct, null, name, desc);
+        Product inputProduct;
+        if(includeTiePointGrids) {
+            inputProduct = sourceProduct.createSubset(null, sourceProduct.getName(),
+                                                              sourceProduct.getDescription());
+            convertTiePointsToBands(inputProduct);
+        }else {
+            inputProduct = sourceProduct;
+        }
+        return productProjectionBuilder.readProductNodes(inputProduct, null, name, desc);
+    }
+
+    private static void convertTiePointsToBands(Product product) throws IOException {
+        TiePointGrid[] tiePointGrids = product.getTiePointGrids();
+        for (TiePointGrid grid : tiePointGrids) {
+            Band band = new Band(grid.getName(), grid.getGeophysicalDataType(),
+                                   grid.getSceneRasterWidth(), grid.getSceneRasterHeight());
+            // todo - don't load all data, load on demand
+            band.setRasterData(grid.getSceneRasterData());
+            product.removeTiePointGrid(grid);
+            product.addBand(band);
+        }
     }
 
     public MapInfo getMapInfo() {
