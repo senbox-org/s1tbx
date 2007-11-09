@@ -55,7 +55,7 @@
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <id>importChrisProduct</id>
             <helpId>importChrisProduct</helpId>
-            <formatName>CHRIS_PROBA</formatName>
+            <formatName>CHRIS/PROBA</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>M</mnemonic>
             <shortDescr>Import a CHRIS/PROBA data product or product subset.</shortDescr>
