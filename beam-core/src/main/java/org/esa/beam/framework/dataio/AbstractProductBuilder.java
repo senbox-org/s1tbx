@@ -6,15 +6,7 @@
  */
 package org.esa.beam.framework.dataio;
 
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
-import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Guardian;
 
 import java.io.IOException;
@@ -29,11 +21,11 @@ public abstract class AbstractProductBuilder extends AbstractProductReader {
     protected int _sceneRasterHeight;
     protected String _newProductName;
     protected String _newProductDesc;
-    protected Map<Band, Band> _bandMap;
+    protected Map<Band, RasterDataNode> _bandMap;
 
     public AbstractProductBuilder(final boolean sourceProductOwner) {
         super(null);
-        _bandMap = new Hashtable<Band, Band>();
+        _bandMap = new Hashtable<Band, RasterDataNode>();
         _sourceProductOwner = sourceProductOwner;
     }
 
@@ -68,8 +60,8 @@ public abstract class AbstractProductBuilder extends AbstractProductReader {
         setNewProductDesc(desc != null ? desc : sourceProduct.getDescription());
         final Product product = readProductNodes(sourceProduct, subsetDef);
         if (sourceProduct.getQuicklookBandName() != null
-            && product.getQuicklookBandName() == null
-            && product.containsBand(sourceProduct.getQuicklookBandName())) {
+                && product.getQuicklookBandName() == null
+                && product.containsBand(sourceProduct.getQuicklookBandName())) {
             product.setQuicklookBandName(sourceProduct.getQuicklookBandName());
         }
         product.setModified(true);
@@ -130,16 +122,14 @@ public abstract class AbstractProductBuilder extends AbstractProductReader {
     }
 
     private static void copyBitmaskOverlayInfo(final RasterDataNode[] sourceNodes, final Product product) {
-        for (int i = 0; i < sourceNodes.length; i++) {
-            final RasterDataNode sourceNode = sourceNodes[i];
+        for (final RasterDataNode sourceNode : sourceNodes) {
             final RasterDataNode destNode = product.getRasterDataNode(sourceNode.getName());
             if (destNode != null) {
                 final BitmaskOverlayInfo bitmaskOverlayInfo = sourceNode.getBitmaskOverlayInfo();
                 if (bitmaskOverlayInfo != null) {
                     final BitmaskOverlayInfo info = new BitmaskOverlayInfo();
                     final BitmaskDef[] bitmaskDefs = bitmaskOverlayInfo.getBitmaskDefs();
-                    for (int j = 0; j < bitmaskDefs.length; j++) {
-                        BitmaskDef bitmaskDef = bitmaskDefs[j];
+                    for (BitmaskDef bitmaskDef : bitmaskDefs) {
                         info.addBitmaskDef(product.getBitmaskDef(bitmaskDef.getName()));
                     }
                     destNode.setBitmaskOverlayInfo(info);

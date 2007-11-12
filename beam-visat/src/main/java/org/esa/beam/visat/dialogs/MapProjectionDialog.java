@@ -19,37 +19,19 @@ package org.esa.beam.visat.dialogs;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.dataio.ProductProjectionBuilder;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductManager;
-import org.esa.beam.framework.datamodel.ProductNodeNameValidator;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
 import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
-import org.esa.beam.framework.dataop.maptransf.MapInfo;
-import org.esa.beam.framework.dataop.maptransf.MapProjection;
-import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
-import org.esa.beam.framework.dataop.maptransf.MapTransformUI;
-import org.esa.beam.framework.dataop.maptransf.UTM;
+import org.esa.beam.framework.dataop.maptransf.*;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.Parameter;
-import org.esa.beam.framework.ui.DemSelector;
-import org.esa.beam.framework.ui.GridBagUtils;
-import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.framework.ui.ProjectionParamsDialog;
-import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.*;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.text.JTextComponent;
 import java.awt.GridBagConstraints;
 import java.awt.Window;
@@ -144,9 +126,10 @@ public class MapProjectionDialog extends ModalDialog {
             protected Object doInBackground(ProgressMonitor pm) throws Exception {
                 pm.beginTask("Applying map projection...", 1);
                 try {
-                    _outputProduct = ProductProjectionBuilder.createProductProjection(getSourceProduct(), false,
-                                                                            _outputMapInfo,
-                                                                            prodName, prodDesc, includeGrids);
+                    _outputProduct = ProductProjectionBuilder.createProductProjection(getSourceProduct(),
+                                                                                      false, includeGrids,
+                                                                                      _outputMapInfo,
+                                                                                      prodName, prodDesc);
                     pm.worked(1);
                 } finally {
                     pm.done();
@@ -191,8 +174,8 @@ public class MapProjectionDialog extends ModalDialog {
         final int sceneHeight = _outputMapInfo.getSceneHeight();
         if (sceneWidth <= 1 || sceneHeight <= 1) {
             showErrorDialog("Invalid product scene size.\n" +
-                            "Please check 'Output Parameters' and adjust\n" +
-                            "resulting product scene width and height.");               /*I18N*/
+                    "Please check 'Output Parameters' and adjust\n" +
+                    "resulting product scene width and height.");               /*I18N*/
             return false;
         }
         if (_outputMapInfo.isOrthorectified() && _demSelector != null && _demSelector.isUsingExternalDem()) {
@@ -238,7 +221,7 @@ public class MapProjectionDialog extends ModalDialog {
 
         _paramNewProductName = new Parameter("newProductName",
                                              "proj_" + _numNewProjections + "_"
-                                             + getSourceProduct().getName());
+                                                     + getSourceProduct().getName());
         _paramNewProductName.getProperties().setLabel("Name");                  /* I18N */
         _paramNewProductName.getProperties().setNullValueAllowed(false);
         _paramNewProductName.getProperties().setValidatorClass(ProductNodeNameValidator.class);
@@ -493,10 +476,10 @@ public class MapProjectionDialog extends ModalDialog {
             projection.setMapTransform(transformUI.createTransform());
             final int dialogAnswer = JOptionPane.showConfirmDialog(getParent(),
                                                                    "Projection parameters have been changed.\n\n" +
-                                                                   "Adjust the output parameters?", /*I18N*/
-                                                                                                    getTitel(
-                                                                                                            _orthorectificationMode),
-                                                                                                    JOptionPane.YES_NO_OPTION);
+                                                                           "Adjust the output parameters?", /*I18N*/
+                                                                                                            getTitel(
+                                                                                                                    _orthorectificationMode),
+                                                                                                            JOptionPane.YES_NO_OPTION);
             if (dialogAnswer == JOptionPane.YES_OPTION) {
                 _outputMapInfo = ProductUtils.createSuitableMapInfo(getSourceProduct(),
                                                                     projection,

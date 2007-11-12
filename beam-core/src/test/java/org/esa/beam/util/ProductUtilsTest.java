@@ -406,40 +406,65 @@ public class ProductUtilsTest extends TestCase {
         assertTrue(Arrays.equals(tpg2tp, (float[]) targetProduct.getTiePointGridAt(1).getDataElems()));
     }
 
-    public void testCopyBands() {
+    public void testCopyBandsForGeomTransform() {
         final int sourceWidth = 100;
         final int sourceHeight = 200;
-        final Product sourceProduct = new Product("source", "test", sourceWidth, sourceHeight);
+        final Product source = new Product("source", "test", sourceWidth, sourceHeight);
+        final TiePointGrid t1 = new TiePointGrid("t1", 10, 20, 0, 0, 10, 10, new float[10 * 20]);
+        final TiePointGrid t2 = new TiePointGrid("t2", 10, 20, 0, 0, 10, 10, new float[10 * 20]);
         final Band b1 = new Band("b1", ProductData.TYPE_INT8, sourceWidth, sourceHeight);
         final Band b2 = new Band("b2", ProductData.TYPE_UINT16, sourceWidth, sourceHeight);
-        // @todo add more band properties like scaling, description and so on and ensure it with more tests.
         final Band b3 = new Band("b3", ProductData.TYPE_FLOAT32, sourceWidth, sourceHeight);
-        sourceProduct.addBand(b1);
-        sourceProduct.addBand(b2);
-        sourceProduct.addBand(b3);
+        source.addTiePointGrid(t1);
+        source.addTiePointGrid(t2);
+        source.addBand(b1);
+        source.addBand(b2);
+        source.addBand(b3);
+
         final Map bandMapping = new HashMap();
-        final Product destProduct1 = new Product("dest", "test", 300, 400);
-        ProductUtils.copyBandsForGeomTransform(sourceProduct, destProduct1, 0, bandMapping);
-        assertEquals(0, destProduct1.getNumBands());
+
+        // Should NOT copy any bands because source is NOT geo-coded
+        final Product target1 = new Product("target1", "test", 300, 400);
+        ProductUtils.copyBandsForGeomTransform(source, target1, 0, bandMapping);
+        assertEquals(0, target1.getNumBands());
         assertEquals(0, bandMapping.size());
 
-        sourceProduct.setGeoCoding(new DGeoCoding());
+        // Geo-code source
+        source.setGeoCoding(new DGeoCoding());
 
-        final Product destProduct2 = new Product("dest", "test", 300, 400);
-        ProductUtils.copyBandsForGeomTransform(sourceProduct, destProduct2, 0, bandMapping);
-        assertEquals(3, destProduct2.getNumBands());
+        // Should copy bands because source is now geo-coded
+        final Product target2 = new Product("dest", "test", 300, 400);
+        ProductUtils.copyBandsForGeomTransform(source, target2, 0, bandMapping);
+        assertEquals(3, target2.getNumBands());
+        assertNotNull(target2.getBand("b1"));
+        assertNotNull(target2.getBand("b2"));
+        assertNotNull(target2.getBand("b3"));
         assertEquals(3, bandMapping.size());
-        assertNotNull(destProduct2.getBand("b1"));
-        assertNotNull(destProduct2.getBand("b2"));
-        assertNotNull(destProduct2.getBand("b3"));
-        assertEquals(3, bandMapping.size());
-        assertSame(b1, bandMapping.get(destProduct2.getBand("b1")));
-        assertSame(b2, bandMapping.get(destProduct2.getBand("b2")));
-        assertSame(b3, bandMapping.get(destProduct2.getBand("b3")));
+        assertSame(b1, bandMapping.get(target2.getBand("b1")));
+        assertSame(b2, bandMapping.get(target2.getBand("b2")));
+        assertSame(b3, bandMapping.get(target2.getBand("b3")));
+
+        bandMapping.clear();
+
+        // Should copy tie-point grids as well because flag has been set
+        final Product target3 = new Product("dest", "test", 300, 400);
+        ProductUtils.copyBandsForGeomTransform(source, target3, true, 0, bandMapping);
+        assertEquals(5, target3.getNumBands());
+        assertNotNull(target3.getBand("t1"));
+        assertNotNull(target3.getBand("t2"));
+        assertNotNull(target3.getBand("b1"));
+        assertNotNull(target3.getBand("b2"));
+        assertNotNull(target3.getBand("b3"));
+        assertEquals(5, bandMapping.size());
+        assertSame(t1, bandMapping.get(target3.getBand("t1")));
+        assertSame(t2, bandMapping.get(target3.getBand("t2")));
+        assertSame(b1, bandMapping.get(target3.getBand("b1")));
+        assertSame(b2, bandMapping.get(target3.getBand("b2")));
+        assertSame(b3, bandMapping.get(target3.getBand("b3")));
     }
 
 
-    public void testX() {
+    public void testComputeSourcePixelCoordinates() {
         final PixelPos[] pixelCoords = ProductUtils.computeSourcePixelCoordinates(new ProductUtilsTest.SGeoCoding(),
                                                                                   2, 2,
                                                                                   new ProductUtilsTest.DGeoCoding(),

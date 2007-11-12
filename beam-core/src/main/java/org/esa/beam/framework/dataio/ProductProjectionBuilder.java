@@ -20,11 +20,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.util.CachingObjectArray;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.dataop.dem.ElevationModel;
-import org.esa.beam.framework.dataop.dem.ElevationModelDescriptor;
-import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
-import org.esa.beam.framework.dataop.dem.Orthorectifier;
-import org.esa.beam.framework.dataop.dem.Orthorectifier2;
+import org.esa.beam.framework.dataop.dem.*;
 import org.esa.beam.framework.dataop.maptransf.MapInfo;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.util.Debug;
@@ -48,8 +44,9 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
     private static final int MAX_NUM_PIXELS_PER_BLOCK = 20000;
     private MapGeoCoding _targetGC;
     private MapInfo _mapInfo;
+    private boolean _includeTiePointGrids;
     private Map<Pointing, Segmentation> _segmentationMap;
-    private Map<Band, SourceBandLineCache> _sourceLineCacheMap;
+    private Map<RasterDataNode, SourceBandLineCache> _sourceLineCacheMap;
     private ElevationModel _elevationModel;
 
     public ProductProjectionBuilder(MapInfo mapInfo) {
@@ -59,9 +56,8 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
     public ProductProjectionBuilder(MapInfo mapInfo, boolean sourceProductOwner) {
         super(sourceProductOwner);
         _mapInfo = mapInfo;
-        _sourceLineCacheMap = new HashMap<Band, SourceBandLineCache>(19);
+        _sourceLineCacheMap = new HashMap<RasterDataNode, SourceBandLineCache>(19);
         _segmentationMap = new HashMap<Pointing, Segmentation>(19);
-        _bandMap = new HashMap<Band, Band>();
     }
 
     public static Product createProductProjection(Product sourceProduct, MapInfo mapInfo, String name,
@@ -74,16 +70,17 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
                                                   MapInfo mapInfo,
                                                   String name,
                                                   String desc) throws IOException {
-        return createProductProjection(sourceProduct, sourceProductOwner, mapInfo, name, desc, false);
+        return createProductProjection(sourceProduct, sourceProductOwner, false, mapInfo, name, desc);
     }
 
     public static Product createProductProjection(Product sourceProduct,
                                                   boolean sourceProductOwner,
+                                                  boolean includeTiePointGrids,
                                                   MapInfo mapInfo,
                                                   String name,
-                                                  String desc,
-                                                  boolean includeTiePointGrids) throws IOException {
+                                                  String desc) throws IOException {
         ProductProjectionBuilder productProjectionBuilder = new ProductProjectionBuilder(mapInfo, sourceProductOwner);
+        productProjectionBuilder.setIncludeTiePointGrids(includeTiePointGrids);
         if (mapInfo.isOrthorectified()) {
             final String demName = mapInfo.getElevationModelName();
             if (demName != null) {
@@ -97,27 +94,7 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
                 productProjectionBuilder.setElevationModel(null); // force use of elevation from tie-points
             }
         }
-        Product inputProduct;
-        if(includeTiePointGrids) {
-            inputProduct = sourceProduct.createSubset(null, sourceProduct.getName(),
-                                                              sourceProduct.getDescription());
-            convertTiePointsToBands(inputProduct);
-        }else {
-            inputProduct = sourceProduct;
-        }
-        return productProjectionBuilder.readProductNodes(inputProduct, null, name, desc);
-    }
-
-    private static void convertTiePointsToBands(Product product) throws IOException {
-        TiePointGrid[] tiePointGrids = product.getTiePointGrids();
-        for (TiePointGrid grid : tiePointGrids) {
-            Band band = new Band(grid.getName(), grid.getGeophysicalDataType(),
-                                   grid.getSceneRasterWidth(), grid.getSceneRasterHeight());
-            // todo - don't load all data, load on demand
-            band.setRasterData(grid.getSceneRasterData());
-            product.removeTiePointGrid(grid);
-            product.addBand(band);
-        }
+        return productProjectionBuilder.readProductNodes(sourceProduct, null, name, desc);
     }
 
     public MapInfo getMapInfo() {
@@ -134,6 +111,14 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
 
     public void setElevationModel(ElevationModel elevationModel) {
         _elevationModel = elevationModel;
+    }
+
+    public boolean getIncludeTiePointGrids() {
+        return _includeTiePointGrids;
+    }
+
+    public void setIncludeTiePointGrids(boolean includeTiePointtGrids) {
+        _includeTiePointGrids = includeTiePointtGrids;
     }
 
     /**
@@ -217,7 +202,6 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
      * @param destHeight  the height of region to be readBandRasterDataImpl given in the band's raster co-ordinates
      * @param destBuffer  the destination buffer which receives the sample values to be readBandRasterDataImpl
      * @param pm          a monitor to inform the user about progress
-     *
      * @throws IOException              if an I/O error occurs
      * @throws IllegalArgumentException if the number of elements destination buffer not equals <code>destWidth *
      *                                  destHeight</code> or the destination region is out of the band's raster
@@ -257,7 +241,7 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
                                         final int destHeight,
                                         final ProductData destBuffer,
                                         final ProgressMonitor pm) throws IOException {
-        final Band sourceBand = _bandMap.get(destBand);
+        final RasterDataNode sourceBand = _bandMap.get(destBand);
         Debug.assertNotNull(sourceBand);
         Debug.assertTrue(getSubsetDef() == null);
 
@@ -361,7 +345,7 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
                                          final int destOffsetX,
                                          final int destOffsetY,
                                          final PixelPos[] sourceLineCoords) {
-        final Band sourceBand = _bandMap.get(destBand);
+        final RasterDataNode sourceBand = _bandMap.get(destBand);
         Debug.assertNotNull(sourceBand);
         Debug.assertTrue(getSubsetDef() == null);
 
@@ -380,7 +364,7 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
         destSegmentation.getLinePixelCoords(0, sourceLineCoords);
     }
 
-    private GeoCoding getSourceGeoCoding(final Band sourceBand) {
+    private GeoCoding getSourceGeoCoding(final RasterDataNode sourceBand) {
         final GeoCoding sourceGeoCoding;
         if (getMapInfo().isOrthorectified() && sourceBand.canBeOrthorectified()) {
             sourceGeoCoding = createOrthorectifier(sourceBand);
@@ -441,7 +425,7 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
     }
 
     private void addBandsToProduct(Product targetProduct) {
-        ProductUtils.copyBandsForGeomTransform(getSourceProduct(), targetProduct, _mapInfo.getNoDataValue(), _bandMap);
+        ProductUtils.copyBandsForGeomTransform(getSourceProduct(), targetProduct, _includeTiePointGrids, _mapInfo.getNoDataValue(), _bandMap);
         ProductUtils.copyBitmaskDefsAndOverlays(getSourceProduct(), targetProduct);
     }
 
@@ -450,7 +434,7 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
     }
 
 
-    private Orthorectifier createOrthorectifier(final Band sourceBand) {
+    private Orthorectifier createOrthorectifier(final RasterDataNode sourceBand) {
         return new Orthorectifier2(sourceBand.getSceneRasterWidth(),
                                    sourceBand.getSceneRasterHeight(),
                                    sourceBand.getPointing(),
@@ -458,7 +442,7 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
     }
 
 
-    private SourceBandLineCache getSourceBandLineCache(final Band sourceBand) {
+    private SourceBandLineCache getSourceBandLineCache(final RasterDataNode sourceBand) {
         SourceBandLineCache sourceLineCache = _sourceLineCacheMap.get(sourceBand);
         if (sourceLineCache == null) {
             sourceLineCache = new SourceBandLineCache(sourceBand);
@@ -572,9 +556,9 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
                                         int destWidth,
                                         int destHeight) {
             return getDestOffsetX() == destOffsetX &&
-                   getDestOffsetY() == destOffsetY &&
-                   getDestWidth() == destWidth &&
-                   getDestHeight() == destHeight;
+                    getDestOffsetY() == destOffsetY &&
+                    getDestWidth() == destWidth &&
+                    getDestHeight() == destHeight;
         }
 
         public void initSourcePixelCoords(int blockIndex,
@@ -622,7 +606,7 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
 
         public SourceRaster(SourceBandLineCache lineCache) {
             _lineCache = lineCache;
-            Band sourceBand = lineCache.getSourceBand();
+            RasterDataNode sourceBand = lineCache.getSourceBand();
             _width = sourceBand.getSceneRasterWidth();
             _height = sourceBand.getSceneRasterHeight();
             _noDataValueUsed = sourceBand.isNoDataValueUsed();
@@ -648,24 +632,24 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
 
     private static class SourceBandLineCache extends CachingObjectArray {
 
-        public SourceBandLineCache(Band sourceBand) {
+        public SourceBandLineCache(RasterDataNode sourceBand) {
             super(new SourceBandLineReader(sourceBand));
         }
 
-        public Band getSourceBand() {
+        public RasterDataNode getSourceBand() {
             return ((SourceBandLineReader) getObjectFactory()).getSourceBand();
         }
     }
 
     private static class SourceBandLineReader implements CachingObjectArray.ObjectFactory {
 
-        private final Band _sourceBand;
+        private final RasterDataNode _sourceBand;
 
-        public SourceBandLineReader(Band sourceBand) {
+        public SourceBandLineReader(RasterDataNode sourceBand) {
             _sourceBand = sourceBand;
         }
 
-        public Band getSourceBand() {
+        public RasterDataNode getSourceBand() {
             return _sourceBand;
         }
 
