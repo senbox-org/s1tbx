@@ -6,7 +6,13 @@ import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.core.runtime.internal.JarFilenameFilter;
 import com.bc.ceres.core.runtime.internal.ModuleReader;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.logging.Logger;
@@ -44,6 +50,12 @@ public class DeployMain {
     private int warningCount;
     private int errorCount;
 
+    /**
+     * Deploys a module to a target repository directory.
+     *
+     * @param args {@code args[0]} is a module directory or JAR file,
+     *             {@code args[1]} is the target repository directory.
+     */
     public static void main(String[] args) {
         if (args.length != 2) {
             System.err.println("Usage: deploy <modules-dir>|<module-jar> <repository-dir>");

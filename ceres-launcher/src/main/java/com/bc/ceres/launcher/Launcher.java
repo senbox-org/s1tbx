@@ -21,8 +21,8 @@ public final class Launcher {
 
     /**
      * Lauches the application with a default {@link RuntimeConfig} and a {@link ClasspathFactory}
-     * based on the <code>${ceres.context}.mainClass</code> property. If the main class is {@link
-     *  RuntimeConfig#DEFAULT_MAIN_CLASS_NAME}, then a minimal classpath which at least includes the
+     * based on the <code>${ceres.context}.mainClass</code> property. If the main class is
+     * {@code "com.bc.ceres.core.runtime.RuntimeLauncher"}, then a minimal classpath which at least includes the
      * <code>ceres-core</code> library is used. Otherwise all directories, JARs and ZIPs found in
      * the home directory will be added to the classpath.
      * @param args the command-line arguments
