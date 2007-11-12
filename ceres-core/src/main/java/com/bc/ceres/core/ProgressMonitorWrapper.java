@@ -4,11 +4,10 @@ package com.bc.ceres.core;
  * An abstract wrapper around a progress monitor which,
  * unless overridden, forwards <code>IProgressMonitor</code>
  * and <code>IProgressMonitorWithBlocking</code> methods to the wrapped progress monitor.
- * <p/>
- * This class can be used without OSGi running.
- * </p><p>
+ * <p>
  * Clients may subclass.
  * </p>
+ * <p>This class has been more or less directly taken over from the <a href="http://www.eclipse.org/">Eclipse</a> Core API.</p>
  */
 public abstract class ProgressMonitorWrapper implements ProgressMonitor {
 

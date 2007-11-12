@@ -23,6 +23,7 @@ package com.bc.ceres.core;
  * <p>
  * This class may be instantiated or subclassed by clients.
  * </p>
+ * <p>This class has been more or less directly taken over from the <a href="http://www.eclipse.org/">Eclipse</a> Core API.</p>
  */
 public class SubProgressMonitor extends ProgressMonitorWrapper {
 

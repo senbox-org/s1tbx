@@ -29,10 +29,9 @@ package com.bc.ceres.core;
  * the notifications should be queued, and the actual processing deferred (or perhaps
  * delegated to a separate thread).
  * </p><p>
- * This interface can be used without OSGi running.
- * </p><p>
  * Clients may implement this interface.
  * </p>
+ * <p>This interface has been more or less directly taken over from the <a href="http://www.eclipse.org/">Eclipse</a> Core API.</p>
  */
 public interface ProgressMonitor {
 

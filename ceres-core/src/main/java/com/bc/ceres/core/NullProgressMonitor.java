@@ -6,9 +6,8 @@ package com.bc.ceres.core;
  * <p/>
  * This implementation supports cancelation. The default
  * implementations of the other methods do nothing.
- * </p><p>
- * This class can be used without OSGi running.
  * </p>
+ * <p>This class has been more or less directly taken over from the <a href="http://www.eclipse.org/">Eclipse</a> Core API.</p>
  */
 public class NullProgressMonitor implements ProgressMonitor {
 

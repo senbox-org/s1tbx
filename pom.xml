@@ -133,6 +133,7 @@
                     <excludePackageNames>*.internal:com.bc.ceres.site</excludePackageNames>
                     <aggregate>true</aggregate>
                     <quiet>true</quiet>
+                    <links><link>http://java.sun.com/javase/6/docs/api/</link></links>
                     <groups>
                         <group>
                             <title>Ceres Core API</title>
