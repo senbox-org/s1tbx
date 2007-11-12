@@ -135,6 +135,7 @@ class CommandLineUsage {
     }
 
     private static ArrayList<DocElement> createParamDocuElementList(OperatorClassDescriptor operatorClassDescriptor) {
+        // todo - somewhere here occurs a NullPoinzerException
         ArrayList<DocElement> docElementList = new ArrayList<DocElement>(10);
         final Map<Field, Parameter> parameterMap = operatorClassDescriptor.getParameters();
         for (Entry<Field, Parameter> entry : parameterMap.entrySet()) {
@@ -310,7 +311,7 @@ class CommandLineUsage {
 
     private static boolean isConverterAvailable(Class<?> type, Parameter parameter) {
         return (parameter != null && parameter.converter() != Converter.class)
-        || ConverterRegistry.getInstance().getConverter(type) != null;
+                || ConverterRegistry.getInstance().getConverter(type) != null;
     }
 
     private static String spaces(int n) {
