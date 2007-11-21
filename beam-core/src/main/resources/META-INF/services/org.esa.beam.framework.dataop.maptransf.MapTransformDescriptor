@@ -3,3 +3,4 @@ org.esa.beam.framework.dataop.maptransf.AffineTransformDescriptor
 org.esa.beam.framework.dataop.maptransf.TransverseMercatorDescriptor
 org.esa.beam.framework.dataop.maptransf.StereographicDescriptor
 org.esa.beam.framework.dataop.maptransf.LambertConformalConicDescriptor
+org.esa.beam.framework.dataop.maptransf.AlbersEqualAreaConicDescriptor
