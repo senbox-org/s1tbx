@@ -13,19 +13,23 @@ import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.IOException;
 
 @OperatorMetadata(alias = "Subset",
-                  description = "Create a spatial and/or spectral subset of the source product.",
-                  internal = true)
+                  description = "Create a spatial and/or spectral subset of the source product.")
 public class SubsetOp extends Operator {
 
     private ProductReader subsetReader;
     private ProductSubsetDef subsetDef = null;
 
+    @SourceProduct(alias="input")
+    private Product sourceProduct;
+    @TargetProduct
+    private Product targetProduct;
     @Parameter
     private Rectangle region = null;
     @Parameter
@@ -40,16 +44,14 @@ public class SubsetOp extends Operator {
     private String[] tiePointGridList = null;
     @Parameter
     private boolean ignoreMetadata = false;
-    @TargetProduct
-    private Product targetProduct;
 
     @Override
     public void initialize() throws OperatorException {
         subsetReader = new ProductSubsetBuilder();
-        createSubsetDef();
+        initSubsetDef();
 
         try {
-            targetProduct = subsetReader.readProductNodes(getSourceProduct("input"), subsetDef);
+            targetProduct = subsetReader.readProductNodes(sourceProduct, subsetDef);
         } catch (Throwable t) {
             throw new OperatorException(t);
         }
@@ -68,7 +70,7 @@ public class SubsetOp extends Operator {
         }
     }
 
-    private void createSubsetDef() {
+    private void initSubsetDef() {
         setDefaultValues();
         subsetDef = new ProductSubsetDef();
         subsetDef.addNodeNames(bandList);
