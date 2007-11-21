@@ -126,7 +126,7 @@ class ChrisFile {
     }
 
     public float getCutOffWavelength(int bandIndex) {
-        return modeInfo[bandIndex][0];
+        return modeInfo[bandIndex][1];
     }
 
     public float getWavelength(int bandIndex) {

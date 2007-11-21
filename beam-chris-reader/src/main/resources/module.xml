@@ -14,6 +14,10 @@
 
     <changelog>
         <![CDATA[
+        <p>Changes in Version 1.3.100
+        <ul>
+        <li>[CBOX-40] Wrong import of cut-off wavelength</li>
+        </ul>
         <p>Changes in Version 1.3
         <ul>
         <li>[CBOX-32] Dropout correction should be cosmetic only</li>
