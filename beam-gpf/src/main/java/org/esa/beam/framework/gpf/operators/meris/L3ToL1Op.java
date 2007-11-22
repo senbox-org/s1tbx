@@ -16,8 +16,16 @@
  */
 package org.esa.beam.framework.gpf.operators.meris;
 
-import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.*;
+import java.awt.Rectangle;
+
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.GeoCoding;
+import org.esa.beam.framework.datamodel.GeoPos;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.dataop.resamp.Resampling;
+import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
@@ -28,7 +36,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 
-import java.awt.Rectangle;
+import com.bc.ceres.core.ProgressMonitor;
 
 /**
  * Created by marcoz.
@@ -52,15 +60,14 @@ public class L3ToL1Op extends MerisBasisOp {
     private Product targetProduct;
     @Parameter
     private String maskBand;
+    @Parameter(valueSet = {ResamplingFactory.NEAREST_NEIGHBOUR_NAME, ResamplingFactory.BILINEAR_INTERPOLATION_NAME, 
+            ResamplingFactory.CUBIC_CONVOLUTION_NAME}, defaultValue = ResamplingFactory.NEAREST_NEIGHBOUR_NAME)
+    private String resamplingType = ResamplingFactory.NEAREST_NEIGHBOUR_NAME;
 
     @Override
     public void initialize() throws OperatorException {
         l3GeoCoding = l3Product.getGeoCoding();
         l1GeoCoding = l1Product.getGeoCoding();
-
-//        final int width = l1Product.getSceneRasterWidth();
-//        final int height = l1Product.getSceneRasterHeight();
-//        targetProduct = new Product("L1", "L1", width, height);
         targetProduct = createCompatibleProduct(l1Product, "l3tol1", "L3");
 
         Band[] l3Bands = l3Product.getBands();
@@ -101,6 +108,11 @@ public class L3ToL1Op extends MerisBasisOp {
             maskTile = getSourceTile(maskProduct.getBand(maskBand), rectangle, pm);
             useMask = true;
         }
+        final Resampling resampling = Resampling.BILINEAR_INTERPOLATION;
+        ResamplingFactory.createResampling(resamplingType);
+        final Resampling.Index resamplingIndex = resampling.createIndex();
+        final TileBasedResamplingRaster resamplingRaster = new TileBasedResamplingRaster(srcTile);
+        
         pm.beginTask("compute", rectangle.height);
         try {
             for (int y = rectangle.y; y < rectangle.y + rectangle.height; y++) {
@@ -110,12 +122,19 @@ public class L3ToL1Op extends MerisBasisOp {
                         l1PixelPos.x = x;
                         l1GeoCoding.getGeoPos(l1PixelPos, geoPos);
                         l3GeoCoding.getPixelPos(geoPos, l3PixelPos);
-                        targetTile.setSample(x, y, srcTile.getSampleDouble(Math.round(l3PixelPos.x), Math.round(l3PixelPos.y)));
+                        
+                        resampling.computeIndex(l3PixelPos.x, l3PixelPos.y,
+                                l3Product.getSceneRasterWidth(), l3Product.getSceneRasterHeight(),
+                                resamplingIndex);
+                        float sample = resampling.resample(resamplingRaster, resamplingIndex);
+                        targetTile.setSample(x, y, sample);
                     }
                 }
                 checkForCancelation(pm);
                 pm.worked(1);
             }
+        } catch (Exception e) {
+            throw new OperatorException(e);
         } finally {
             pm.done();
         }
@@ -141,6 +160,28 @@ public class L3ToL1Op extends MerisBasisOp {
         l3Rectangle.grow(2, 2);
         Rectangle sceneRectangle = new Rectangle(srcBand.getSceneRasterWidth(), srcBand.getSceneRasterHeight());
         return l3Rectangle.intersection(sceneRectangle);
+    }
+    
+    private static class TileBasedResamplingRaster implements Resampling.Raster {
+
+        private final Tile tile;
+
+        public TileBasedResamplingRaster(Tile tile) {
+            this.tile = tile;
+        }
+
+        public final int getWidth() {
+            return tile.getWidth();
+        }
+
+        public final int getHeight() {
+            return tile.getHeight();
+        }
+
+        public final float getSample(int x, int y) {
+            final double sample = tile.getSampleDouble(x, y);
+            return (float) sample;
+        }
     }
 
     public static class Spi extends OperatorSpi {
