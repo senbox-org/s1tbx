@@ -130,9 +130,8 @@ public class ProductExpressionPane extends ExpressionPane {
 
         if (!isBooleanExpressionPreferred()) {
 
-            List<String> nameList = new ArrayList<String>();
-            for (int i = 0; i < products.length; i++) {
-                Product product = products[i];
+            List<String> nameList = new ArrayList<String>(products.length);
+            for (Product product : products) {
                 String productName = product.getDisplayName();
                 nameList.add(productName);
             }
@@ -249,8 +248,8 @@ public class ProductExpressionPane extends ExpressionPane {
     }
 
     private static void addFlagNameRefs(String namePrefix, String[] flagNames, List<String> list) {
-        for (int j = 0; j < flagNames.length; j++) {
-            list.add(namePrefix + flagNames[j]);
+        for (String flagName : flagNames) {
+            list.add(namePrefix + flagName);
         }
     }
 
