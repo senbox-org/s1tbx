@@ -1,73 +1,46 @@
 package org.esa.beam.framework.gpf.ui;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueContainerFactory;
-import com.bc.ceres.binding.swing.PropertyPane;
-import com.bc.ceres.binding.swing.SwingBindingContext;
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.OperatorException;
-import org.esa.beam.framework.gpf.Tile;
+import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.annotations.Parameter;
-import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.util.PropertyMap;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import java.awt.Window;
 import java.util.ArrayList;
-import java.util.HashMap;
 
-/**
- * Created by IntelliJ IDEA.
- * User: Norman
- * Date: 17.11.2007
- * Time: 16:44:48
- * To change this template use File | Settings | File Templates.
- */
+
 public class UiFactoryTest extends TestCase {
-    public void testNothing() {
+    private TestOp.Spi operatorSpi;
 
+    @Override
+    protected void setUp() throws Exception {
+        operatorSpi = new TestOp.Spi();
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(operatorSpi);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(operatorSpi);
+    }
+
+    public void testNothing() {
     }
 
     public static void main(String[] args) {
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new TestOp.Spi());
         TestApp app = new TestApp();
-        ValueContainerFactory factory = new ValueContainerFactory(new ParameterDescriptorFactory());
-        HashMap<String, Object> map = new HashMap<String, Object>();
-        ValueContainer valueContainer = factory.createMapBackedValueContainer(TestOp.class, map);
-        SwingBindingContext context = new SwingBindingContext(valueContainer);
-        SourceProductSelector sselector = new SourceProductSelector(app);
-        TargetProductSelector tselector = new TargetProductSelector();
-        JPanel sourcePanel = sselector.createDefaultPanel();
-        JPanel targetPanel = tselector.createDefaultPanel();
-        PropertyPane propertyPane = new PropertyPane(context);
-        JPanel parametersPanel = propertyPane.createPanel();
-        parametersPanel.setBorder(BorderFactory.createTitledBorder("Parameters"));
-
-        final TableLayout tableLayout = new TableLayout(1);
-        tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
-        tableLayout.setTableWeightX(1.0);
-        tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
-        tableLayout.setTablePadding(3, 3);
-        JPanel panel = new JPanel(tableLayout);
-        panel.add(sourcePanel);
-        panel.add(targetPanel);
-        panel.add(parametersPanel);
-        panel.add(tableLayout.createVerticalSpacer());
-
-        app.frame.add(panel);
-        app.frame.pack();
-        app.frame.setVisible(true);
-
+        final SingleTargetProductDialog dialog = DefaultSingleTargetProductDialog.createDefaultDialog(TestOp.Spi.class.getName(), app);
+        dialog.show();
     }
-
 
     public static class TestOp extends Operator {
         @SourceProduct
@@ -88,6 +61,13 @@ public class UiFactoryTest extends TestCase {
         }
 
         public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+        }
+
+        public static class Spi extends OperatorSpi {
+
+            public Spi() {
+                super(TestOp.class);
+            }
         }
     }
 
@@ -134,5 +114,6 @@ public class UiFactoryTest extends TestCase {
             preferences = new PropertyMap();
             return preferences;
         }
+
     }
 }
