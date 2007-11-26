@@ -504,9 +504,9 @@ public class MerisProductFile extends ProductFile {
 
             // find the one with the old dataset name
             String oldMdsName = "Epsilon, OPT";
-            for (int n = 0; n < dsds.length; n++) {
-                if (dsds[n] != null) {
-                    if (dsds[n].getDatasetName().indexOf(oldMdsName) >= 0) {
+            for (DSD dsd : dsds) {
+                if (dsd != null) {
+                    if (dsd.getDatasetName().indexOf(oldMdsName) >= 0) {
                         _ioddVersion = IODD_VERSION_6;
                         getLogger().warning(
                                 "old product format: IODD version less than 7, 'aero_alpha' is not available");
