@@ -14,28 +14,19 @@ import org.esa.beam.util.PropertyMap;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import java.awt.Window;
 import java.util.ArrayList;
 
 
 public class UiFactoryTest extends TestCase {
-    private TestOp.Spi operatorSpi;
-
-    @Override
-    protected void setUp() throws Exception {
-        operatorSpi = new TestOp.Spi();
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(operatorSpi);
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(operatorSpi);
-    }
 
     public void testNothing() {
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, IllegalAccessException, InstantiationException {
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new TestOp.Spi());
         TestApp app = new TestApp();
         final SingleTargetProductDialog dialog = DefaultSingleTargetProductDialog.createDefaultDialog(TestOp.Spi.class.getName(), app);
@@ -52,14 +43,17 @@ public class UiFactoryTest extends TestCase {
         @Parameter(valueSet = {"MA", "MB", "MC"}, defaultValue = "MB")
         String method;
 
+        @Override
         public void initialize() throws OperatorException {
             Product product = new Product("N", "T", 16, 16);
             product.addBand("B1", ProductData.TYPE_FLOAT32);
             product.addBand("B2", ProductData.TYPE_FLOAT32);
             product.setPreferredTileSize(4, 4);
+            System.out.println("product = " + product);
             target = product;
         }
 
+        @Override
         public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         }
 
