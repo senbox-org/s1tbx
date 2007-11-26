@@ -708,7 +708,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             ParamGroup group = configParams;
             Parameter param;
 
-            param = new Parameter(PROPERTY_KEY_JAI_TILE_CACHE_CAPACITY, 256);
+            param = new Parameter(PROPERTY_KEY_JAI_TILE_CACHE_CAPACITY, 512);
             param.getProperties().setLabel("Tile cache capacity"); /*I18N*/
             param.getProperties().setPhysicalUnit("M"); /*I18N*/
             param.getProperties().setMinValue(32);
