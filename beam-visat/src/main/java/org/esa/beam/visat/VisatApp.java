@@ -2073,6 +2073,7 @@ public final class VisatApp extends BasicApp {
             preferencesDialog.getConfigParamValues(getPreferences());
             getPreferences().removePropertyChangeListener(checker);
             if (checker.arePropertiesChanged()) {
+                configureJaiTileCache();
                 applyLookAndFeelPreferences();
 // @todo 1 nf/nf - extract layer properties dialog from VISAT preferences
 // note: the following line is necessary in order to transfer layer proerties from
