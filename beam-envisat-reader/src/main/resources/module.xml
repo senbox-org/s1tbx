@@ -4,9 +4,7 @@
     <version>1.1</version>
     <name>Envisat Product Reader</name>
 
-
     <description>Enables BEAM to read ENVISAT data products.</description>
-
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
     <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>

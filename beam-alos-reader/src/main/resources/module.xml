@@ -37,9 +37,6 @@
             <helpId>importAvnir2Product</helpId>
             <placeAfter>importNetcdfProduct</placeAfter>
         </action>
-    </extension>
-
-    <extension point="beam-visat:actions">
         <action>
             <id>importPrismProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
