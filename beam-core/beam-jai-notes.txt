@@ -1,6 +1,7 @@
 TODOs
 =====
 Image export must use JAI "filestore" operator, ImageIO cannot be used anymore!!!
+TiePointGrid display does not function currently
 NoDataOverlay --> 1-band, PlanarImage (same as for as ROI)
 Don't display the tile regions which are out of image bounds
 
