@@ -170,9 +170,9 @@ public class ModuleResolverTest extends TestCase {
         ModuleClassLoader mclE = (ModuleClassLoader) clE;
         URL[] dependencyUrls = mclE.getURLs();
         assertTrue(dependencyUrls.length > 0);
-        URL location = getModule("module-e").getLocation();
-        URL dependencyUrl = dependencyUrls[0];
-        assertTrue(dependencyUrl.sameFile(location));
+        File location = getCanonicalFile(getModule("module-e").getLocation());
+        File dependencyUrl = getCanonicalFile(dependencyUrls[0]);
+        assertEquals(dependencyUrl, location);
 
         File expectedFile;
         File actualFile;
@@ -180,22 +180,22 @@ public class ModuleResolverTest extends TestCase {
         ModuleClassLoader delegateToB = (ModuleClassLoader) mclE.getDelegates()[0];
         expectedFile = getCanonicalFile(delegateToB.getURLs()[0]);
         actualFile = getCanonicalFile(getModule("module-b").getLocation());
-        assertTrue(expectedFile.equals(actualFile));
+        assertEquals(expectedFile, actualFile);
 
         ModuleClassLoader delegateToD = (ModuleClassLoader) mclE.getDelegates()[1];
         expectedFile = getCanonicalFile(delegateToD.getURLs()[0]);
         actualFile = getCanonicalFile(getModule("module-d").getLocation());
-        assertTrue(expectedFile.equals(actualFile));
+        assertEquals(expectedFile, actualFile);
 
         ModuleClassLoader delegateToA = (ModuleClassLoader) delegateToB.getDelegates()[0];
         expectedFile = getCanonicalFile(delegateToA.getURLs()[0]);
         actualFile = getCanonicalFile(getModule("module-a").getLocation());
-        assertTrue(expectedFile.equals(actualFile));
+        assertEquals(expectedFile, actualFile);
 
         ModuleClassLoader delegateToA2 = (ModuleClassLoader) delegateToD.getDelegates()[0];
         expectedFile = getCanonicalFile(delegateToA2.getURLs()[0]);
         actualFile = getCanonicalFile(getModule("module-a").getLocation());
-        assertTrue(expectedFile.equals(actualFile));
+        assertEquals(expectedFile, actualFile);
     }
 
     private static File getCanonicalFile(URL url) throws IOException, URISyntaxException {
