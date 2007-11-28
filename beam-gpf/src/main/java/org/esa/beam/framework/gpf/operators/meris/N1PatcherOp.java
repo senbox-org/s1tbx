@@ -1,6 +1,7 @@
 package org.esa.beam.framework.gpf.operators.meris;
 
 import com.bc.ceres.core.ProgressMonitor;
+
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;
@@ -11,6 +12,7 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.util.ProductUtils;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.FileImageOutputStream;
@@ -34,7 +36,7 @@ import java.io.IOException;
  * @author Marco Zuehlke
  */
 @OperatorMetadata(alias = "N1Patcher", internal = true)
-public class N1PatcherOp extends Operator {
+public class N1PatcherOp extends MerisBasisOp {
 
     // MPH:
     private static final int MPH_PRODUCTNAME_OFFSET = 9;
@@ -96,25 +98,33 @@ public class N1PatcherOp extends Operator {
 
     private DatasetDescriptor[] dsDescriptors;
 
-    @Parameter
-    private String originalFilePath = null;
-    @Parameter
-    private String patchFilePath = null;
-
     private ImageInputStream inputStream;
     private ImageOutputStream outputStream;
 
+    @Parameter(description = "The file to which the patched L1b product is written.")
+    private File patchedFile = null;
+    
+    @SourceProduct(alias = "n1")
+    private Product n1Product;
     @SourceProduct(alias = "input")
     private Product sourceProduct;
+    
     @TargetProduct
     private Product targetProduct;
 
     @Override
     public void initialize() throws OperatorException {
-        targetProduct = sourceProduct;
+        targetProduct = createCompatibleProduct(n1Product, "n1Product", "MER_L1");
+        for (String bandName : n1Product.getBandNames()) {
+            if(!bandName.equals("l1_flags")) {
+                ProductUtils.copyBand(bandName, n1Product, targetProduct);
+            }
+        }
+        ProductUtils.copyFlagBands(n1Product, targetProduct);
         try {
-            inputStream = new FileImageInputStream(new File(originalFilePath));
-            outputStream = new FileImageOutputStream(new File(patchFilePath));
+            File originalFileLocation = n1Product.getFileLocation();
+            inputStream = new FileImageInputStream(originalFileLocation);
+            outputStream = new FileImageOutputStream(patchedFile);
 
             parseMPH();
             parseSPH();
@@ -219,7 +229,7 @@ public class N1PatcherOp extends Operator {
 
         pm.beginTask("Patching product...", rectangle.height);
         try {
-            Tile srcTile = getSourceTile(band, rectangle, pm);
+            Tile srcTile = getSourceTile(sourceProduct.getBand(band.getName()), rectangle, pm);
             short[] data = (short[]) srcTile.getRawSamples().getElems();
 
             byte[] buf = new byte[rectangle.height * descriptor.dsrSize];
@@ -236,6 +246,12 @@ public class N1PatcherOp extends Operator {
                 outputStream.skipBytes((rectangle.x) * 2);
                 checkForCancelation(pm);
                 pm.worked(1);
+            }
+            
+            for (int y = rectangle.y; y < rectangle.y + rectangle.height; y++) {
+                for (int x = rectangle.x; x < rectangle.x + rectangle.width; x++) {
+                    targetTile.setSample(x, y, srcTile.getSampleDouble(x, y));
+                }
             }
         } catch (IOException e) {
             throw new OperatorException(e);

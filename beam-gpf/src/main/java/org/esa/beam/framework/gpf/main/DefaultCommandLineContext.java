@@ -9,7 +9,9 @@ import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphException;
 import org.esa.beam.framework.gpf.graph.GraphIO;
 import org.esa.beam.framework.gpf.graph.GraphProcessor;
+import org.esa.beam.framework.gpf.operators.common.WriteOp;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
@@ -31,7 +33,7 @@ class DefaultCommandLineContext implements CommandLineContext {
     }
 
     public void writeProduct(Product targetProduct, String filePath, String formatName) throws IOException {
-        ProductIO.writeProduct(targetProduct, filePath, formatName);
+        WriteOp.writeProduct(targetProduct, new File(filePath), formatName, ProgressMonitor.NULL);
     }
 
     public Graph readGraph(String filepath, Map<String, String> parameterMap) throws IOException {
