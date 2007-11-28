@@ -9,13 +9,11 @@
     <description>This module provides user interface components used e.g. by VISAT.</description>
     <changelog>
         <![CDATA[
-        <p>Changes in 4.2<ul>
-            <li>[BEAM-712] Processors produce visat.exe zombies</li>
-        </ul></p>
-        <p>Changes in 4.0.1<ul>
-            <li>[BEAM-622] Use mouse wheel for zooming</li>
-            <li>[BEAM-614] Not possible to re-select item in Arithmetic Expression Editor</li>
-        </ul></p>
+        Changes in 4.2<br>
+        [BEAM-712] Processors produce visat.exe zombies<br>
+        <br>Changes in 4.0.1<br>
+        [BEAM-622] Use mouse wheel for zooming<br>
+        [BEAM-614] Not possible to re-select item in Arithmetic Expression Editor<br>
         ]]>
     </changelog>
 

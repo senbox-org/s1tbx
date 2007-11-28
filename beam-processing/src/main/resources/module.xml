@@ -14,10 +14,13 @@
 
 
     <changelog>
-        <![CDATA[From 4.0 to 4.1
-        <ul>
-        <li>[BEAM-616] Remove package org.esa.beam.framework.dataproc.</li>
-        </ul>]]>
+        <![CDATA[
+        Changes in 4.2<br>
+        [BEAM-356] Processors do not check, if output product already exists<br>
+        [BEAM-712] Processors produce visat.exe zombies<br>
+        <br>Changes in 4.1<br>
+        [BEAM-616] Remove package org.esa.beam.framework.dataproc.<br>
+        ]]>
     </changelog>
 
 

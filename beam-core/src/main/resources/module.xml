@@ -20,6 +20,7 @@
     <changelog>
         <![CDATA[<p>Changes in 4.2:<br/>
         [BEAM-733] Albers Equal Area Conic map projection missing
+        [BEAM-732] Pixel position is not recalculated for GCPs imported from a placemark file
         [BEAM-710] Not able to copy a product using new product dialog<br/>
         [BEAM-522] Map-projection and orthorectification should also transform tie-point grids<br/>
         </p>

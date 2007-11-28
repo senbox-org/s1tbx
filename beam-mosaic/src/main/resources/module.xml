@@ -19,6 +19,9 @@
         [BEAM-720] Equal names for Mosaic valid-pixel conditions and output variables suggested<br>
         [BEAM-721] Saving a Mosaic processing request fails without error message<br>
         [BEAM-722] Do not use no-data value for num_pixels band<br>
+        [BEAM-707] Mosaic processor fails with tie-point grids in valid-expression<br>
+        [BEAM-667] Use UTM Automatic in mapproj tool<br>
+        [BEAM-522] Map-projection and orthorectification should also transform tie-point grids<br>
         ]]>
     </changelog>
 

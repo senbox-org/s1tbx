@@ -1,7 +1,7 @@
 package org.esa.beam.framework.datamodel;
 
-import java.awt.Point;
 import java.awt.Image;
+import java.awt.Point;
 
 /**
  * Created by Marco Peters.
@@ -45,7 +45,10 @@ public class GcpDescriptor implements PlacemarkDescriptor {
     }
 
     public PixelPos updatePixelPos(GeoCoding geoCoding, GeoPos geoPos, PixelPos pixelPos) {
+        if (geoCoding == null || !geoCoding.canGetPixelPos()) {
         return pixelPos;
+    }
+        return geoCoding.getPixelPos(geoPos, pixelPos);
     }
 
     public GeoPos updateGeoPos(GeoCoding geoCoding, PixelPos pixelPos, GeoPos geoPos) {
