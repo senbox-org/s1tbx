@@ -1,9 +1,9 @@
 package com.bc.ceres.binding.swing;
 
-import com.bc.ceres.binding.ValueContainerFactory;
 import com.bc.ceres.binding.*;
 import junit.framework.TestCase;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JList;
@@ -150,6 +150,25 @@ public class SwingBindingContextTest extends TestCase {
 
         valueContainer.setValue("booleanValue", false);
         assertEquals(false, radioButton.isSelected());
+    }
+    
+    public void testBindRadioButtonWithGroup() throws ValidationException {
+        JRadioButton radioButton1 = new JRadioButton();
+        JRadioButton radioButton2 = new JRadioButton();
+        ButtonGroup buttonGroup = new ButtonGroup();
+        buttonGroup.add(radioButton1);
+        buttonGroup.add(radioButton2);
+        binding.bind(radioButton1, "booleanValue");
+
+        assertEquals("booleanValue", radioButton1.getName());
+
+        radioButton1.doClick();
+        assertEquals(true, valueContainer.getValue("booleanValue"));
+        radioButton2.doClick();
+        assertEquals(false, valueContainer.getValue("booleanValue"));
+
+        valueContainer.setValue("booleanValue", false);
+        assertEquals(false, radioButton1.isSelected());
     }
 
     public void testBindListSelection() throws ValidationException {

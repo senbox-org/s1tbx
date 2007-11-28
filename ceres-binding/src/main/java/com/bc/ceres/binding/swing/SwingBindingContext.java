@@ -80,7 +80,7 @@ public class SwingBindingContext {
     public void bind(JRadioButton radioButton, String propertyName) {
         configureComponent(radioButton, propertyName);
         RadioButtonBinding radioButtonBinding = new RadioButtonBinding(propertyName, radioButton);
-        radioButton.addActionListener(radioButtonBinding);
+        radioButton.addChangeListener(radioButtonBinding);
         radioButtonBinding.adjustWidget();
     }
 
@@ -444,7 +444,7 @@ public class SwingBindingContext {
         }
     }
 
-    class RadioButtonBinding extends SwingBindingContext.AbstractBinding implements ActionListener {
+    class RadioButtonBinding extends SwingBindingContext.AbstractBinding implements ChangeListener {
 
         private final JRadioButton radioButton;
 
@@ -453,7 +453,7 @@ public class SwingBindingContext {
             this.radioButton = radioButton;
         }
 
-        public void actionPerformed(ActionEvent event) {
+        public void stateChanged(ChangeEvent event) {
             try {
                 valueContainer.setValue(getPropertyName(), radioButton.isSelected());
             } catch (Exception e) {

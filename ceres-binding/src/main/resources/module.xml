@@ -10,7 +10,11 @@
     </description>
 
     <changelog>
-        <![CDATA[ ]]>
+        <![CDATA[ Changes in 0.6.1
+        <ul>
+          <li>[CERES-19] JRadioButtons inside a ButtonGroup don't update their ValueContainer.</li>
+          <li>Use customized DOM conversion.</li>
+        </ul>]]>
     </changelog>
 
     <vendor>Brockmann Consult GmbH</vendor>
