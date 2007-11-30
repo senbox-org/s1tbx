@@ -639,7 +639,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * on valid pixels, please refer to the documentation of the {@link #isPixelValid(int,int,javax.media.jai.ROI)}
      * method.
      *
-     * @param pm
+     * @param pm The progress monitor.
      * @throws IOException if an I/O error occurs
      */
     public void ensureValidMaskComputed(ProgressMonitor pm) throws IOException {
@@ -817,6 +817,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * Returns true if the raster data of this <code>RasterDataNode</code> is loaded or elsewhere available, otherwise
      * false.
+     * @return true, if so.
      */
     public boolean hasRasterData() {
         return getRasterData() != null;
@@ -939,10 +940,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #setValidPixelExpression(String)
      */
     public boolean isPixelValid(int x, int y) {
-        if (_validMask != null) {
-            return _validMask.isSet(x, y);
-        }
-        return true;
+        return _validMask == null || _validMask.isSet(x, y);
     }
 
     /**
@@ -965,10 +963,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @since 4.1
      */
     public boolean isPixelValid(int pixelIndex) {
-        if (_validMask != null) {
-            return _validMask.isSet(pixelIndex);
-        }
-        return true;
+        return _validMask == null || _validMask.isSet(pixelIndex);
     }
 
     /**
@@ -1052,7 +1047,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
 
     /**
-     * @deprecated in 4.0, use {@link #getPixels(int,int,int,int,int[],ProgressMonitor)}
+     * @see #getPixels(int,int,int,int,int[],ProgressMonitor)
      */
     public int[] getPixels(int x, int y, int w, int h, int[] pixels) {
         return getPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1072,7 +1067,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public abstract int[] getPixels(int x, int y, int w, int h, int[] pixels, ProgressMonitor pm);
 
     /**
-     * @deprecated in 4.0, use {@link #getPixels(int,int,int,int,float[],ProgressMonitor)}
+     * @see #getPixels(int,int,int,int,float[],ProgressMonitor)
      */
     public float[] getPixels(int x, int y, int w, int h, float[] pixels) {
         return getPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1092,7 +1087,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public abstract float[] getPixels(int x, int y, int w, int h, float[] pixels, ProgressMonitor pm);
 
     /**
-     * @deprecated in 4.0, use {@link #getPixels(int,int,int,int,double[],ProgressMonitor)}
+     * @see #getPixels(int,int,int,int,double[],ProgressMonitor)
      */
     public double[] getPixels(int x, int y, int w, int h, double[] pixels) {
         return getPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1152,7 +1147,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public abstract void setPixels(int x, int y, int w, int h, double[] pixels);
 
     /**
-     * @deprecated in 4.0, use {@link #readPixels(int,int,int,int,int[],ProgressMonitor)}
+     * @see #readPixels(int,int,int,int,int[],ProgressMonitor)
      */
     public int[] readPixels(int x, int y, int w, int h, int[] pixels) throws IOException {
         return readPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1175,7 +1170,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public abstract int[] readPixels(int x, int y, int w, int h, int[] pixels, ProgressMonitor pm) throws IOException;
 
     /**
-     * @deprecated in 4.0, use {@link #readPixels(int,int,int,int,float[],ProgressMonitor)}
+     * @see #readPixels(int,int,int,int,float[],ProgressMonitor)
      */
     public float[] readPixels(int x, int y, int w, int h, float[] pixels) throws IOException {
         return readPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1199,7 +1194,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             IOException;
 
     /**
-     * @deprecated in 4.0, use {@link #readPixels(int,int,int,int,double[],ProgressMonitor)}
+     * @see #readPixels(int,int,int,int,double[],ProgressMonitor)
      */
     public double[] readPixels(int x, int y, int w, int h, double[] pixels) throws IOException {
         return readPixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1223,7 +1218,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             IOException;
 
     /**
-     * @deprecated in 4.0, use {@link #writePixels(int,int,int,int,int[],ProgressMonitor)}
+     * @see #writePixels(int,int,int,int,int[],ProgressMonitor)
      */
     public void writePixels(int x, int y, int w, int h, int[] pixels) throws IOException {
         writePixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1242,7 +1237,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public abstract void writePixels(int x, int y, int w, int h, int[] pixels, ProgressMonitor pm) throws IOException;
 
     /**
-     * @deprecated in 4.0, use {@link #writePixels(int,int,int,int,float[],ProgressMonitor)}
+     * @see #writePixels(int,int,int,int,float[],ProgressMonitor)
      */
     public synchronized void writePixels(int x, int y, int w, int h, float[] pixels) throws IOException {
         writePixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1261,7 +1256,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public abstract void writePixels(int x, int y, int w, int h, float[] pixels, ProgressMonitor pm) throws IOException;
 
     /**
-     * @deprecated in 4.0, use {@link #writePixels(int,int,int,int,double[],ProgressMonitor)}
+     * @see #writePixels(int,int,int,int,double[],ProgressMonitor)
      */
     public void writePixels(int x, int y, int w, int h, double[] pixels) throws IOException {
         writePixels(x, y, w, h, pixels, ProgressMonitor.NULL);
@@ -1295,7 +1290,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * @deprecated in 4.0, use {@link #readRasterDataFully(ProgressMonitor)}
+     * @see #readRasterDataFully(ProgressMonitor)
      */
     public void readRasterDataFully() throws IOException {
         readRasterDataFully(ProgressMonitor.NULL);
@@ -1314,16 +1309,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param pm a monitor to inform the user about progress
      * @throws java.io.IOException if an I/O error occurs
      * @see #loadRasterData
-     * @deprecated in 4.0, this method is neither thread save nor is it a good idea to store huge amounts of raster
-     *             data in this product element. Use
-     *             {@link #readRasterData(int,int,int,int,ProductData,com.bc.ceres.core.ProgressMonitor) readRasterData}
-     *             instead to read raster data tile-wise.
+     * @see #readRasterData(int,int,int,int,ProductData,com.bc.ceres.core.ProgressMonitor)
      */
     public abstract void readRasterDataFully(ProgressMonitor pm) throws IOException;
 
-    /**
-     * @deprecated in 4.0, use {@link #readRasterData(int,int,int,int,ProductData,ProgressMonitor)}
-     */
     public void readRasterData(int offsetX, int offsetY,
                                int width, int height,
                                ProductData rasterData) throws IOException {
@@ -1370,9 +1359,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         readRasterData(rectangle.x, rectangle.y, rectangle.width, rectangle.height, rasterData, pm);
     }
 
-    /**
-     * @deprecated in 4.0, use {@link #writeRasterDataFully(com.bc.ceres.core.ProgressMonitor)}
-     */
     public void writeRasterDataFully() throws IOException {
         writeRasterDataFully(ProgressMonitor.NULL);
     }
@@ -1385,9 +1371,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     public abstract void writeRasterDataFully(ProgressMonitor pm) throws IOException;
 
-    /**
-     * @deprecated in 4.0, use {@link #writeRasterData(int,int,int,int,ProductData,ProgressMonitor)} instead
-     */
     public void writeRasterData(int offsetX, int offsetY, int width, int height, ProductData rasterData)
             throws IOException {
         writeRasterData(offsetX, offsetY, width, height, rasterData, ProgressMonitor.NULL);
@@ -1775,6 +1758,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @param pm a monitor to inform the user about progress
      * @return a new ROI instance or null if no ROI definition is available
+     * @throws java.io.IOException if an I/O error occurs
      */
     public ROI createROI(ProgressMonitor pm) throws IOException {
         final BufferedImage bi = createROIImage(Color.red, pm);
@@ -2126,6 +2110,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param pm      a monitor to inform the user about progress
      * @return the resulting raw data histogram
      * @see #isScalingApplied()
+     * @throws java.io.IOException if an I/O error occurs
      */
     public Histogram computeRasterDataHistogram(final ROI roi,
                                                 final int numBins,
@@ -2337,7 +2322,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param lineOffset the absolute line offset, zero based
      * @param roi        an optional ROI
      * @return a new validator instance, never null
-     * @throws IOException
+     * @throws IOException  if an I/O error occurs
      */
     public IndexValidator createPixelValidator(int lineOffset, final ROI roi) throws IOException {
         if (isValidMaskUsed()) {
