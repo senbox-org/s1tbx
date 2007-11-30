@@ -2225,6 +2225,7 @@ public final class VisatApp extends BasicApp {
                 "drawPolylineTool",
                 "drawPolygonTool",
                 "deleteShape",
+                "magicStickTool",
                 null,
                 "convertShapeToROI",
                 "convertROIToShape",

@@ -1426,5 +1426,19 @@
             <context>image</context>
             <helpId>drawPolygonTool</helpId>
         </action>
+
+        <action>
+            <id>magicStickTool</id>
+            <class>org.esa.beam.visat.actions.ToolAction</class>
+            <tool>org.esa.beam.visat.actions.magic.MagicStickTool</tool>
+            <parent>tools</parent>
+            <placeAfter>selectTool</placeAfter>
+            <text>Magic Stick</text>
+            <shortDescr>Creates a ROI using a magic stick</shortDescr>
+            <!--<largeIcon>icons/MagicStickTool24.gif</largeIcon>-->
+            <selected>false</selected>
+            <context>image</context>
+            <helpId>magicStickTool</helpId>
+        </action>
     </extension>
 </module>
