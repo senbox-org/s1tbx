@@ -60,8 +60,8 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         ValueContainer valueContainer = factory.createMapBackedValueContainer(operatorSpi.getOperatorClass(), parameterMap);
         SwingBindingContext context = new SwingBindingContext(valueContainer);
 
-        PropertyPane propertyPane = new PropertyPane(context);
-        JComponent processingParametersPanel = new JScrollPane(propertyPane.createPanel());
+        ParametersPane parametersPane = new ParametersPane(context);
+        JComponent processingParametersPanel = new JScrollPane(parametersPane.createPanel());
         processingParametersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
 
         final TableLayout tableLayout = new TableLayout(1);
@@ -99,10 +99,23 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
     private void setSourceProductSelectorLabels() {
         for (Field field : sourceProductSelectorMap.keySet()) {
             final SourceProductSelector selector = sourceProductSelectorMap.get(field);
-            String label = field.getName();
+            String label = null;
             final SourceProduct annot = field.getAnnotation(SourceProduct.class);
-            if (!annot.alias().isEmpty()) {
+            if (!annot.label().isEmpty()) {
+                label = annot.label();
+            }
+            if (label == null && !annot.alias().isEmpty()) {
                 label = annot.alias();
+            }
+            if (label == null) {
+                String name = field.getName();
+                if (label == null && !annot.alias().isEmpty()) {
+                    name = annot.alias();
+                }
+                label = ParametersPane.createDisplayName(name);
+            }
+            if (!label.endsWith(":")) {
+                label += ":";
             }
             selector.getProductNameLabel().setText(label);
         }

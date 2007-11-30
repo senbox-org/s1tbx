@@ -20,7 +20,7 @@ import java.awt.Window;
 import java.util.ArrayList;
 
 
-public class UiFactoryTest extends TestCase {
+public class DefaultSingleTargetProductDialogTest extends TestCase {
 
     public void testNothing() {
     }
@@ -35,9 +35,15 @@ public class UiFactoryTest extends TestCase {
 
     public static class TestOp extends Operator {
         @SourceProduct
-        Product source;
+        Product slave;
+        @SourceProduct
+        Product masterGeraet;
         @TargetProduct
         Product target;
+        @Parameter(defaultValue = "true")
+        boolean copyTiePointGrids;
+        @Parameter(defaultValue = "true")
+        Boolean copyFoo;
         @Parameter(interval = "[-1,+1]", defaultValue = "-0.1")
         double threshold;
         @Parameter(valueSet = {"MA", "MB", "MC"}, defaultValue = "MB")

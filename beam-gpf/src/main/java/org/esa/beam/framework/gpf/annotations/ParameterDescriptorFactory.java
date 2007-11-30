@@ -65,8 +65,6 @@ public class ParameterDescriptorFactory implements ValueDescriptorFactory {
         }
         if (ParameterDescriptorFactory.isSet(parameter.label())) {
             valueDescriptor.setDisplayName(parameter.label());
-        } else {
-            valueDescriptor.setDisplayName(field.getName());
         }
         if (ParameterDescriptorFactory.isSet(parameter.alias())) {
             valueDescriptor.setAlias(parameter.alias());
