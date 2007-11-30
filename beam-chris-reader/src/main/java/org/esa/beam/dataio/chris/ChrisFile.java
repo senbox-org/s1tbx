@@ -54,7 +54,7 @@ class ChrisFile {
             HDF4Lib.Vstart(fileId);
             globalAttributes = readGlobalAttributes(sdId);
             rciImageSds = openRciSds(sdId);
-            maskSds = openMaskSds(sdId, rciImageSds);
+            maskSds = openMaskSds(sdId);
             modeInfo = readModeInfo(fileId);
             gainInfoMap = readGainInfo(fileId);
         } catch (HDFException e) {
@@ -415,14 +415,12 @@ class ChrisFile {
         return sds;
     }
 
-    private static Sds openMaskSds(int sdId, Sds rciSds) throws IOException {
+    private static Sds openMaskSds(int sdId) throws IOException {
         final Sds sds = openSds(sdId, ChrisConstants.SDS_NAME_MASK, false);
 
         if (sds != null) {
-            if (sds.dimSizes[0] != rciSds.dimSizes[0]
-                || sds.dimSizes[1] != rciSds.dimSizes[1]
-                || sds.dimSizes[2] != rciSds.dimSizes[2]) {
-                throw new IOException("Inconsistent RCI image and quality mask data");
+            if (sds.dimSizes.length != 3) {
+                throw new IOException("Wrong number of dimensions, expected 3");
             }
             if (sds.dataType != HDFConstants.DFNT_INT16) {
                 throw new IOException("Wrong data type, 16-bit integer expected");
