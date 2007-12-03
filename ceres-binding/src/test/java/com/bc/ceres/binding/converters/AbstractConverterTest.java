@@ -1,27 +1,28 @@
 package com.bc.ceres.binding.converters;
 
 import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.Converter;
 import junit.framework.TestCase;
 
 import java.lang.reflect.Array;
 
 public abstract class AbstractConverterTest extends TestCase {
 
-    private com.bc.ceres.binding.Converter converter;
 
-    protected AbstractConverterTest(com.bc.ceres.binding.Converter converter) {
-        this.converter = converter;
+    protected AbstractConverterTest() {
     }
+
+    public abstract Converter getConverter();
 
     public abstract void testConverter() throws ConversionException;
 
     protected void testValueType(Class<?> expectedType) {
-        assertEquals(expectedType, converter.getValueType());
+        assertEquals(expectedType, getConverter().getValueType());
     }
 
     protected void testParseSuccess(Object expectedValue, String text) throws ConversionException {
         if (expectedValue != null && expectedValue.getClass().isArray()) {
-            Object actualValue = converter.parse(text);
+            Object actualValue = getConverter().parse(text);
             assertTrue(actualValue.getClass().isArray());
             int expectedLength = Array.getLength(expectedValue);
             int actualLength = Array.getLength(actualValue);
@@ -32,16 +33,16 @@ public abstract class AbstractConverterTest extends TestCase {
                 assertEquals("index=" + i, expectedElem, actualElem);
             }
         } else {
-            assertEquals(expectedValue, converter.parse(text));
+            assertEquals(expectedValue, getConverter().parse(text));
         }
         if (expectedValue != null) {
-            assertTrue(converter.getValueType().isAssignableFrom(expectedValue.getClass()));
+            assertTrue(getConverter().getValueType().isAssignableFrom(expectedValue.getClass()));
         }
     }
 
     protected void testParseFailed(String text) {
         try {
-            converter.parse(text);
+            getConverter().parse(text);
             fail("ConversionException expected: " + text + " should not be convertible");
         } catch (ConversionException e) {
             // OK!
@@ -50,21 +51,21 @@ public abstract class AbstractConverterTest extends TestCase {
 
     protected void testFormatSuccess(String expectedText, Object value) throws ConversionException {
         if (value != null) {
-            assertTrue(converter.getValueType().isAssignableFrom(value.getClass()));
+            assertTrue(getConverter().getValueType().isAssignableFrom(value.getClass()));
         }
-        assertEquals(expectedText, converter.format(value));
+        assertEquals(expectedText, getConverter().format(value));
     }
 
     public void assertNullCorrectlyHandled() {
         try {
-            converter.parse(null);
+            getConverter().parse(null);
             fail("NullPointerException expected");
         } catch (ConversionException e) {
             fail("ConversionException not expected");
         } catch (NullPointerException e) {
             // expected
         }
-        String text = converter.format(null);
+        String text = getConverter().format(null);
         // if null is supported, returned text shall not be null
         assertNotNull(text);
     }

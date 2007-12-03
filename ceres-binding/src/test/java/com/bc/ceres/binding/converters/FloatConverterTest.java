@@ -1,12 +1,20 @@
 package com.bc.ceres.binding.converters;
 
 import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.Converter;
 
 public class FloatConverterTest extends AbstractConverterTest {
 
-    public FloatConverterTest() {
-        super(new FloatConverter());
+    private FloatConverter converter;
+
+    @Override
+    public Converter getConverter() {
+        if (converter == null) {
+            converter = new FloatConverter();
+        }
+        return converter;
     }
+
 
     @Override
     public void testConverter() throws ConversionException {

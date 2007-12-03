@@ -9,11 +9,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class DateFormatConverter implements Converter {
-    private static DateFormat defaultFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private DateFormat format;
 
     public DateFormatConverter() {
-        this(defaultFormat);
+        this(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
     }
 
     public DateFormatConverter(DateFormat format) {

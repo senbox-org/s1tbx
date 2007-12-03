@@ -1,12 +1,21 @@
 package com.bc.ceres.binding.converters;
 
 import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.Converter;
 
 public class StringArrayConverterTest extends AbstractConverterTest {
 
-    public StringArrayConverterTest() {
-        super(new ArrayConverter(String[].class, new StringConverter()));
+    private ArrayConverter converter;
+
+
+    @Override
+    public Converter getConverter() {
+        if (converter == null) {
+            converter = new ArrayConverter(String[].class, new StringConverter());
+        }
+        return converter;
     }
+
 
     @Override
     public void testConverter() throws ConversionException {

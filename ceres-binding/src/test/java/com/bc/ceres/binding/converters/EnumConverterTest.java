@@ -1,6 +1,7 @@
 package com.bc.ceres.binding.converters;
 
 import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.Converter;
 
 /**
  * Created by IntelliJ IDEA.
@@ -9,6 +10,8 @@ import com.bc.ceres.binding.ConversionException;
  * @version $Revision$ $Date$
  */
 public class EnumConverterTest extends AbstractConverterTest {
+
+    private EnumConverter converter;
 
     private enum Tests {
 
@@ -42,9 +45,14 @@ public class EnumConverterTest extends AbstractConverterTest {
         }
     }
 
-    public EnumConverterTest() {
-        super(new EnumConverter(Tests.class));
+    @Override
+    public Converter getConverter() {
+        if (converter == null) {
+            converter = new EnumConverter(Tests.class);
+        }
+        return converter;
     }
+
 
     @Override
     public void testConverter() throws ConversionException {
