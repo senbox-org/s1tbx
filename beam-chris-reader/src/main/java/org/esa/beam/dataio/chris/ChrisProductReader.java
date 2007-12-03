@@ -282,7 +282,7 @@ public class ChrisProductReader extends AbstractProductReader {
             band.setUnit(units);
             band.setDescription(MessageFormat.format("Radiance for spectral band {0}", i + 1));
             band.setValidPixelExpression(MessageFormat.format("mask_{0} == 0 || mask_{0} == {1}", i + 1,
-                                                              Flags.CORRECTED_DROPOUT.getMask()));
+                                                              Flags.DROPOUT_CORRECTED.getMask()));
 
             rciBands[i] = band;
         }
@@ -310,11 +310,11 @@ public class ChrisProductReader extends AbstractProductReader {
             band.setFlagCoding(flagCoding);
         }
 
-        addSpectrumBitmask(product, Flags.DROPOUT, "Spectrum dropout",
+        addSpectrumBitmask(product, Flags.DROPOUT, "spectrum_dropout",
                            "Spectrum contains a dropout pixel");
-        addSpectrumBitmask(product, Flags.SATURATED, "Spectrum saturated",
+        addSpectrumBitmask(product, Flags.SATURATED, "spectrum_saturated",
                            "Spectrum contains a saturated pixel");
-        addSpectrumBitmask(product, Flags.CORRECTED_DROPOUT, "Spectrum dropout-corrected",
+        addSpectrumBitmask(product, Flags.DROPOUT_CORRECTED, "spectrum_dropout_corrected",
                            "Spectrum contains a corrected dropout pixel");
 
         for (int i = 0; i < spectralBandCount; ++i) {

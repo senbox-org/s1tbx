@@ -41,7 +41,7 @@ public class DropoutCorrectionTest extends TestCase {
                                   new short[][]{mask[1], mask[0], mask[2]}, 3, 3, roi);
 
         assertEquals(Flags.DROPOUT.getMask(), data[1][4]);
-        assertEquals(Flags.CORRECTED_DROPOUT.getMask(), mask[1][4]);
+        assertEquals(Flags.DROPOUT_CORRECTED.getMask(), mask[1][4]);
 
         data[0][0] = 0;
         mask[0][0] = 1;
@@ -50,7 +50,7 @@ public class DropoutCorrectionTest extends TestCase {
                                   new short[][]{mask[0], mask[1]}, 3, 3, roi);
 
         assertEquals(Flags.DROPOUT.getMask(), data[0][0]);
-        assertEquals(Flags.CORRECTED_DROPOUT.getMask(), mask[0][0]);
+        assertEquals(Flags.DROPOUT_CORRECTED.getMask(), mask[0][0]);
 
         data[2][8] = 0;
         mask[2][8] = 1;
@@ -59,7 +59,7 @@ public class DropoutCorrectionTest extends TestCase {
                                   new short[][]{mask[2], mask[1]}, 3, 3, roi);
 
         assertEquals(Flags.DROPOUT.getMask(), data[2][8]);
-        assertEquals(Flags.CORRECTED_DROPOUT.getMask(), mask[2][8]);
+        assertEquals(Flags.DROPOUT_CORRECTED.getMask(), mask[2][8]);
     }
 }
 

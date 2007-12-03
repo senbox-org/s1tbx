@@ -20,9 +20,9 @@ public enum Flags {
      */
     SATURATED(0x0002, "Saturated pixel", Color.orange),
     /**
-     * Correction flag.
+     * Dropout correction flag.
      */
-    CORRECTED_DROPOUT(0x0100, "Corrected dropout pixel", Color.green);
+    DROPOUT_CORRECTED(0x0100, "Corrected dropout pixel", Color.green);
 
     private int mask;
     private Color color;

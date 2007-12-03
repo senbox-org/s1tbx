@@ -16,7 +16,7 @@
         <![CDATA[
         <p>Changes in Version 1.4
         <ul>
-        <li>[CBOX-42] New mask values should use high byte</li>
+        <li>[CBOX-42] New mask values should leave large gap</li>
         <li>[CBOX-41] IOException thrown for PR format</li>
         <li>[CBOX-40] Wrong import of cut-off wavelength</li>
         </ul>
