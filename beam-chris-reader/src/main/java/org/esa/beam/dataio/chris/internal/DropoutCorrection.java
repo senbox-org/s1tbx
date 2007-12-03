@@ -1,8 +1,9 @@
 package org.esa.beam.dataio.chris.internal;
 
 import com.bc.ceres.core.Assert;
+import org.esa.beam.dataio.chris.Flags;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import static java.lang.Math.sqrt;
 
 /**
@@ -63,7 +64,7 @@ public class DropoutCorrection {
     private static final short VALID = 0;
     private static final short DROPOUT = 1;
     private static final short SATURATED = 2;
-    private static final short CORRECTED_DROPOUT = 4;
+    private static final short CORRECTED_DROPOUT = 256;
 
     private double[] weights;
     private boolean cosmetic;

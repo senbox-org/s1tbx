@@ -22,7 +22,7 @@ public enum Flags {
     /**
      * Correction flag.
      */
-    CORRECTED_DROPOUT(0x0004, "Corrected dropout pixel", Color.green);
+    CORRECTED_DROPOUT(0x0100, "Corrected dropout pixel", Color.green);
 
     private int mask;
     private Color color;
