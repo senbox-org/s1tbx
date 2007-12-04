@@ -146,6 +146,7 @@ public class ModuleManagerPane extends JPanel {
         final JDialog dialog = new JDialog(parent, title, Dialog.ModalityType.APPLICATION_MODAL);
         JPanel buttonPane = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton okButton = new JButton("OK");
+        okButton.setName("okButton");
         okButton.setMnemonic('O');
         okButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -155,6 +156,7 @@ public class ModuleManagerPane extends JPanel {
         buttonPane.add(okButton);
 
         JButton cancelButton = new JButton("Cancel");
+        okButton.setName("cancelButton");
         cancelButton.setMnemonic('C');
         cancelButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -167,6 +169,7 @@ public class ModuleManagerPane extends JPanel {
             JButton helpButton = new JButton("Help");
             cancelButton.setMnemonic('H');
             helpHandler.configureHelpButton(helpButton);
+            okButton.setName("helpButton");
             buttonPane.add(helpButton);
         }
 
@@ -232,8 +235,11 @@ public class ModuleManagerPane extends JPanel {
                                                                   "Action"});
 
         JTable installedModulesTable = createModuleTable(installedModulesTableModel);
+        installedModulesTable.setName("installedModulesTable");
         JTable updatableModulesTable = createModuleTable(updatableModulesTableModel);
+        updatableModulesTable.setName("updatableModulesTable");
         JTable availableModulesTable = createModuleTable(availableModulesTableModel);
+        availableModulesTable.setName("availableModulesTable");
 
         modulesTables = new JTable[]{
                 installedModulesTable,
@@ -242,6 +248,7 @@ public class ModuleManagerPane extends JPanel {
         };
 
         tabbedPane = new JTabbedPane();
+        tabbedPane.setName("tabbedPane");
         tabbedPane.add("Installed Modules", new JScrollPane(installedModulesTable));
         tabbedPane.add("Module Updates", new JScrollPane(updatableModulesTable));
         tabbedPane.add("Available Modules", new JScrollPane(availableModulesTable));
@@ -253,6 +260,7 @@ public class ModuleManagerPane extends JPanel {
         });
 
         JToolBar actionBar = new JToolBar();
+        actionBar.setName("actionBar");
         actionBar.setRollover(true);
         actionBar.setFloatable(false);
         actionBar.add(new JButton(installAction));
@@ -261,6 +269,7 @@ public class ModuleManagerPane extends JPanel {
         actionBar.add(new JButton(clearAction));
 
         categories = new JComboBox();
+        categories.setName("categoriesComboBox");
         categories.setEditable(true);
         categories.setSelectedItem("");
         categories.addActionListener(new ActionListener() {
@@ -336,7 +345,7 @@ public class ModuleManagerPane extends JPanel {
         ActionPerformer performer = new ActionPerformer(actionList) {
             @Override
             protected void done() {
-                boolean success = false;
+                boolean success;
                 try {
                     try {
                         success = get();
@@ -396,7 +405,7 @@ public class ModuleManagerPane extends JPanel {
                     /**
                      * Overridden in order to do nothing (instead of painting an ugly default divider)
                      *
-                     * @param g
+                     * @param g the graphics object
                      */
                     @Override
                     public void paint(Graphics g) {
@@ -645,7 +654,7 @@ public class ModuleManagerPane extends JPanel {
     private MissingModuleDependency[] getMissingModuleDependencies() {
         Map<String, Module> currentModuleMap = getCurrentModuleMap();
         Collection<Module> modules = currentModuleMap.values();
-        Map<String, MissingModuleDependency> missingModuleDependencyMap = new HashMap<String, MissingModuleDependency>();
+        Map<String, MissingModuleDependency> missingModuleDependencyMap = new HashMap<String, MissingModuleDependency>(10);
         for (Module module : modules) {
             Dependency[] declaredDependencies = module.getDeclaredDependencies();
             for (Dependency dependency : declaredDependencies) {
@@ -673,7 +682,7 @@ public class ModuleManagerPane extends JPanel {
             }
         }
 
-        return missingModuleDependencyMap.values().toArray(new MissingModuleDependency[0]);
+        return missingModuleDependencyMap.values().toArray(new MissingModuleDependency[missingModuleDependencyMap.size()]);
     }
 
     private static boolean isMandatoryModuleDependency(Dependency dependency) {
@@ -912,7 +921,7 @@ public class ModuleManagerPane extends JPanel {
     static class MissingModuleDependency {
 
         Dependency dependency;
-        List<Module> modules = new ArrayList<Module>();
+        List<Module> modules = new ArrayList<Module>(10);
 
         public MissingModuleDependency(Dependency dependency) {
             this.dependency = dependency;
