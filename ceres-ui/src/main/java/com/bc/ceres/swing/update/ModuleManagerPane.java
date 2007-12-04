@@ -25,6 +25,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Window;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -169,7 +170,7 @@ public class ModuleManagerPane extends JPanel {
             JButton helpButton = new JButton("Help");
             cancelButton.setMnemonic('H');
             helpHandler.configureHelpButton(helpButton);
-            okButton.setName("helpButton");
+            helpButton.setName("helpButton");
             buttonPane.add(helpButton);
         }
 
@@ -249,9 +250,12 @@ public class ModuleManagerPane extends JPanel {
 
         tabbedPane = new JTabbedPane();
         tabbedPane.setName("tabbedPane");
-        tabbedPane.add("Installed Modules", new JScrollPane(installedModulesTable));
-        tabbedPane.add("Module Updates", new JScrollPane(updatableModulesTable));
-        tabbedPane.add("Available Modules", new JScrollPane(availableModulesTable));
+        Component installTab = tabbedPane.add("Installed Modules", new JScrollPane(installedModulesTable));
+        installTab.setName("InstallTab");
+        Component updateTab = tabbedPane.add("Module Updates", new JScrollPane(updatableModulesTable));
+        updateTab.setName("UpdateTab");
+        Component availableTab = tabbedPane.add("Available Modules", new JScrollPane(availableModulesTable));
+        availableTab.setName("AvailableTab");
         tabbedPane.setSelectedIndex(0);
         tabbedPane.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
@@ -263,10 +267,18 @@ public class ModuleManagerPane extends JPanel {
         actionBar.setName("actionBar");
         actionBar.setRollover(true);
         actionBar.setFloatable(false);
-        actionBar.add(new JButton(installAction));
-        actionBar.add(new JButton(updateAction));
-        actionBar.add(new JButton(uninstallAction));
-        actionBar.add(new JButton(clearAction));
+        JButton installButton = new JButton(installAction);
+        installButton.setName("installButton");
+        actionBar.add(installButton);
+        JButton updateButton = new JButton(updateAction);
+        updateButton.setName("updateButton");
+        actionBar.add(updateButton);
+        JButton uninstallButton = new JButton(uninstallAction);
+        uninstallButton.setName("uninstallButton");
+        actionBar.add(uninstallButton);
+        JButton clearButton = new JButton(clearAction);
+        clearButton.setName("clearButton");
+        actionBar.add(clearButton);
 
         categories = new JComboBox();
         categories.setName("categoriesComboBox");
@@ -785,6 +797,7 @@ public class ModuleManagerPane extends JPanel {
 
         public SyncAction() {
             putValue(ACTION_COMMAND_KEY, getClass().getName());
+            putValue(NAME, "Synchronize");
             putValue(SHORT_DESCRIPTION, "Synchronize with remote repository");
             putValue(LARGE_ICON_KEY, new ImageIcon(getClass().getResource("icons/system-software-update.png")));
         }
