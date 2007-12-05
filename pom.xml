@@ -51,6 +51,7 @@
         <module>beam-gpf</module>
         <module>beam-gpf-docgen</module>
         <module>beam-processing</module>
+        <module>beam-scripting</module>
         <module>beam-help</module>
 
         <module>beam-meris-cloud</module>
