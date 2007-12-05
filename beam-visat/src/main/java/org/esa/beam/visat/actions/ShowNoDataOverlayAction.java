@@ -131,12 +131,12 @@ public class ShowNoDataOverlayAction extends ExecCommand {
         };
 
         // Register the listener for product node changes in all products
-        visatApp.getProductManager().addListener(new ProductManager.ProductManagerListener() {
-            public void productAdded(ProductManager.ProductManagerEvent event) {
+        visatApp.getProductManager().addListener(new ProductManager.Listener() {
+            public void productAdded(ProductManager.Event event) {
                 event.getProduct().addProductNodeListener(productNodeListener);
             }
 
-            public void productRemoved(ProductManager.ProductManagerEvent event) {
+            public void productRemoved(ProductManager.Event event) {
                 event.getProduct().removeProductNodeListener(productNodeListener);
             }
         });

@@ -365,12 +365,12 @@ public class SpectrumToolView extends AbstractToolView {
         //
         VisatApp.getApp().addInternalFrameListener(new SpectrumIFL());
 
-        VisatApp.getApp().getProductManager().addListener(new ProductManager.ProductManagerListener() {
-            public void productAdded(ProductManager.ProductManagerEvent event) {
+        VisatApp.getApp().getProductManager().addListener(new ProductManager.Listener() {
+            public void productAdded(ProductManager.Event event) {
                 // ignored
             }
 
-            public void productRemoved(ProductManager.ProductManagerEvent event) {
+            public void productRemoved(ProductManager.Event event) {
                 final Product product = event.getProduct();
                 cursorSpectrumPPLMap.remove(product);
                 if (getCurrentProduct() == product) {

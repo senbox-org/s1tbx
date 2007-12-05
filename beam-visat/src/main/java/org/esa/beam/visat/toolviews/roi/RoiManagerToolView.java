@@ -1102,13 +1102,13 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
         }
     }
 
-    private class ROIDefinitionPML implements ProductManager.ProductManagerListener {
+    private class ROIDefinitionPML implements ProductManager.Listener {
 
-        public void productAdded(final ProductManager.ProductManagerEvent event) {
+        public void productAdded(final ProductManager.Event event) {
             updateUIState();
         }
 
-        public void productRemoved(final ProductManager.ProductManagerEvent event) {
+        public void productRemoved(final ProductManager.Event event) {
             updateUIState();
         }
     }

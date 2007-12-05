@@ -232,11 +232,11 @@ public class ProductManagerTest extends TestCase {
         private Vector _addedProducts = new Vector();
         private Vector _removedProducts = new Vector();
 
-        public void productAdded(ProductManager.ProductManagerEvent event) {
+        public void productAdded(ProductManager.Event event) {
             _addedProducts.add(event.getProduct());
         }
 
-        public void productRemoved(ProductManager.ProductManagerEvent event) {
+        public void productRemoved(ProductManager.Event event) {
             _removedProducts.add(event.getProduct());
         }
 

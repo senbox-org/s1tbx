@@ -62,13 +62,13 @@ public class ProductsToolView extends AbstractToolView {
         productTree.addProductTreeListener(new VisatPTL());
         productTree.setCommandManager(visatApp.getCommandManager());
         productTree.setCommandUIFactory(visatApp.getCommandUIFactory());
-        VisatApp.getApp().getProductManager().addListener(new ProductManager.ProductManagerListener() {
-            public void productAdded(final ProductManager.ProductManagerEvent event) {
+        VisatApp.getApp().getProductManager().addListener(new ProductManager.Listener() {
+            public void productAdded(final ProductManager.Event event) {
                 productTree.addProduct(event.getProduct());
                 VisatApp.getApp().getPage().showToolView(ID);
             }
 
-            public void productRemoved(final ProductManager.ProductManagerEvent event) {
+            public void productRemoved(final ProductManager.Event event) {
                 final Product product = event.getProduct();
                 productTree.removeProduct(product);
                 if (VisatApp.getApp().getSelectedProduct() == product) {

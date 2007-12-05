@@ -32,30 +32,31 @@ public class ProductManager {
     private final static int _PRODUCT_ADDED = 1;
     private final static int _PRODUCT_REMOVED = 2;
 
-    private Vector<ProductManagerListener> _listeners;
+    private Vector<Listener> listeners;
 
-    private final ProductNodeList<Product> _products;
+    private final ProductNodeList<Product> products;
 
 
     /**
      * Constructs an product manager with an empty list of products.
      */
     public ProductManager() {
-        _products = new ProductNodeList<Product>();
+        products = new ProductNodeList<Product>();
     }
 
     /**
-     * Returns the number of products in this product manager.
+     * @return The number of products in this product manager.
      */
     public int getNumProducts() {
-        return _products.size();
+        return products.size();
     }
 
     /**
-     * Returns the product at the given index.
+     * @param index the index
+     * @return The product at the given index.
      */
     public Product getProductAt(int index) {
-        return _products.getAt(index);
+        return products.getAt(index);
     }
 
     /**
@@ -65,7 +66,7 @@ public class ProductManager {
      * @see ProductNode#getDisplayName()
      */
     public String[] getProductDisplayNames() {
-        return _products.getDisplayNames();
+        return products.getDisplayNames();
     }
 
     /**
@@ -74,7 +75,7 @@ public class ProductManager {
      * @return an array containing the names, never <code>null</code>, but the array can have zero length
      */
     public String[] getProductNames() {
-        return _products.getNames();
+        return products.getNames();
     }
 
     /**
@@ -83,31 +84,36 @@ public class ProductManager {
      * @return an array containing the products, never <code>null</code>, but the array can have zero length
      */
     public Product[] getProducts() {
-        return _products.toArray(new Product[getNumProducts()]);
+        return products.toArray(new Product[getNumProducts()]);
     }
 
     /**
-     * Returns the product with the given display name.
+     * @param displayName The product's display name.
+     * @return The product with the given display name.
      */
     public Product getProductByDisplayName(final String displayName) {
         if (displayName == null) {
             return null;
         }
-        return _products.getByDisplayName(displayName);
+        return products.getByDisplayName(displayName);
     }
 
     /**
-     * Returns the product with the given name.
+     * @param name The product name.
+     * @return The product with the given name.
      */
     public Product getProduct(String name) {
-        return _products.get(name);
+        return products.get(name);
     }
 
     /**
      * Tests whether a product with the given name is contained in this list.
+     *
+     * @param name the product name
+     * @return true, if so
      */
     public boolean containsProduct(String name) {
-        return _products.contains(name);
+        return products.contains(name);
     }
 
     /**
@@ -117,7 +123,7 @@ public class ProductManager {
      * @return {@code true} if so.
      */
     public boolean contains(final Product product) {
-        return _products.contains(product);
+        return products.contains(product);
     }
 
     /**
@@ -131,9 +137,9 @@ public class ProductManager {
             if (contains(product)) {
                 return;
             }
-            if (_products.add(product)) {
+            if (products.add(product)) {
                 setProductManager(product);
-                product.setRefNo(getHighestRefNo() + 1);
+                product.setRefNo(getNextRefNo() + 1);
                 fireEvent(product, _PRODUCT_ADDED);
             }
         }
@@ -143,13 +149,14 @@ public class ProductManager {
      * Removes the given product from this product manager if it exists.
      *
      * @param product the product to be removed, ignored if <code>null</code>
+     * @return true, if the product was removed
      */
     public boolean removeProduct(Product product) {
         if (product != null) {
-            int index = _products.indexOf(product);
+            int index = products.indexOf(product);
             if (index >= 0) {
-                if (_products.remove(product)) {
-                    _products.clearRemovedList();
+                if (products.remove(product)) {
+                    products.clearRemovedList();
                     product.resetRefNo();
                     clearProductManager(product);
                     fireEvent(product, _PRODUCT_REMOVED);
@@ -183,9 +190,11 @@ public class ProductManager {
     }
 
     /**
-     * Returns the greatest reference number of the products in this manager.
+     * Returns the next reference number for products in this manager.
+     *
+     * @return the next highest reference number
      */
-    private int getHighestRefNo() {
+    private int getNextRefNo() {
         final int numProducts = getNumProducts();
         int highestRefNo = 0;
         for (int i = 0; i < numProducts; i++) {
@@ -207,14 +216,36 @@ public class ProductManager {
      * @param listener the listener to be added.
      * @return true if the listener was added, otherwise false.
      */
-    public boolean addListener(ProductManagerListener listener) {
-        if (listener != null) {
-            if (_listeners == null) {
-                _listeners = new Vector<ProductManagerListener>();
+    public synchronized boolean addListener(Listener listener) {
+        if (listener == null) {
+            return false;
+        }
+        if (listeners == null) {
+            listeners = new Vector<Listener>(8);
+        }
+        for (Listener l : listeners) {
+            if (listener == l) {
+                return false;
             }
-            if (!_listeners.contains(listener)) {
-                _listeners.add(listener);
-                return true;
+        }
+        listeners.add(listener);
+        return true;
+    }
+
+    /**
+     * Removes a <code>ProductManagerListener</code> from this product manager.
+     *
+     * @param listener The listener.
+     * @return true, if the listener was removed, otherwise false.
+     */
+    public synchronized boolean removeListener(Listener listener) {
+        if (listener != null && listeners != null) {
+            for (int i = 0; i < listeners.size(); i++) {
+                Listener l = listeners.get(i);
+                if (listener == l) {
+                    listeners.remove(i);
+                    return true;
+                }
             }
         }
         return false;
@@ -222,36 +253,28 @@ public class ProductManager {
 
     /**
      * Removes a <code>ProductManagerListener</code> from this product manager.
-     */
-    public void removeListener(ProductManagerListener listener) {
-        if (listener != null && _listeners != null) {
-            _listeners.remove(listener);
-        }
-    }
-
-    /**
-     * Removes a <code>ProductManagerListener</code> from this product manager.
      *
+     * @param listener The listener.
      * @deprecated use #removeListener
      */
-    public void removeProductListener(ProductManagerListener listener) {
+    public void removeProductListener(Listener listener) {
         removeListener(listener);
     }
 
     private boolean hasListeners() {
-        return _listeners != null && _listeners.size() > 0;
+        return listeners != null && !listeners.isEmpty();
     }
 
     private void fireEvent(Product sourceProduct, int eventId) {
         if (hasListeners()) {
-            ProductManagerEvent event = new ProductManagerEvent(sourceProduct);
-            for (ProductManagerListener listener : _listeners) {
+            Event event = new Event(sourceProduct);
+            for (Listener listener : listeners) {
                 fireEvent(eventId, listener, event);
             }
         }
     }
 
-    private void fireEvent(int eventId, ProductManagerListener listener, ProductManagerEvent event) {
+    private static void fireEvent(int eventId, Listener listener, Event event) {
         switch (eventId) {
             case _PRODUCT_ADDED:
                 listener.productAdded(event);
@@ -262,31 +285,44 @@ public class ProductManager {
         }
     }
 
-    public interface ProductManagerListener {
+    /**
+     * A listener for the product manager.
+     */
+    public interface Listener {
 
         /**
          * Notified when a product was added.
          *
          * @param event the product node which the listener to be notified
          */
-        void productAdded(ProductManagerEvent event);
+        void productAdded(Event event);
 
         /**
          * Notified when a node was removed.
          *
          * @param event the product node which the listener to be notified
          */
-        void productRemoved(ProductManagerEvent event);
+        void productRemoved(Event event);
     }
 
-    public class ProductManagerEvent extends EventObject {
+    /**
+     * @deprecated use {@link Listener} instead
+     */
+    @Deprecated
+    public interface ProductManagerListener extends Listener {
+    }
+
+    /**
+     * An event object passed into the {@link Listener} methods.
+     */
+    public static class Event extends EventObject {
 
         /**
          * Constructs a productEvent object.
          *
          * @param product the source class where the object originates
          */
-        public ProductManagerEvent(Product product) {
+        public Event(Product product) {
             super(product);
         }
 
@@ -297,6 +333,16 @@ public class ProductManager {
          */
         public Product getProduct() {
             return (Product) getSource();
+        }
+    }
+
+    /**
+     * @deprecated use {@link Event} instead
+     */
+    @Deprecated
+    public static class ProductManagerEvent extends Event {
+        public ProductManagerEvent(Product product) {
+            super(product);
         }
     }
 }
