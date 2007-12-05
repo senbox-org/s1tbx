@@ -2,26 +2,20 @@ importPackage(org.esa.beam.framework.datamodel);
 importPackage(org.esa.beam.framework.dataio);
 importPackage(org.esa.beam.visat);
 
+var listener;
 visat = VisatApp.getApp();
-listener = new ProductManager.ProductManagerListener()
-{
-    productAdded: function() {
+pm = visat.getProductManager();
+if (listener != null) {
+	pm.removeListener(listener);
+}
+listener = new ProductManager.Listener() {
+    productAdded: function(event) {
         visat.showInfoDialog("Product added: " + event.getProduct(), null);
-    }
-,
+    },
 
-    productRemoved: function() {
+    productRemoved: function(event) {
         visat.showInfoDialog("Product removed: " + event.getProduct(), null);
     }
-}
-;
-pm = visat.getProductManager();
+};
 pm.addListener(listener);
 
-// r = new java.lang.Runnable() {
-//     run: function () {
-//         visat.showInfoDialog("He-ho!", null);
-//     }
-// };
-// t = new java.lang.Thread(r);
-// t.start();
