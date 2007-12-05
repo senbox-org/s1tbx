@@ -223,10 +223,19 @@ public class ProductManager {
     /**
      * Removes a <code>ProductManagerListener</code> from this product manager.
      */
-    public void removeProductListener(ProductManagerListener listener) {
+    public void removeListener(ProductManagerListener listener) {
         if (listener != null && _listeners != null) {
             _listeners.remove(listener);
         }
+    }
+
+    /**
+     * Removes a <code>ProductManagerListener</code> from this product manager.
+     *
+     * @deprecated use #removeListener
+     */
+    public void removeProductListener(ProductManagerListener listener) {
+        removeListener(listener);
     }
 
     private boolean hasListeners() {
