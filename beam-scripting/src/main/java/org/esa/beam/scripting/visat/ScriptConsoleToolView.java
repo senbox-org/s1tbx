@@ -1,5 +1,8 @@
 package org.esa.beam.scripting.visat;
 
+import com.bc.ceres.core.Assert;
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.jidesoft.swing.JideScrollPane;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
@@ -8,12 +11,23 @@ import org.esa.beam.visat.VisatApp;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.concurrent.CancellationException;
 
 /**
  * A tool window for the scripting console.
@@ -30,6 +44,10 @@ public class ScriptConsoleToolView extends AbstractToolView {
     private ScriptEngineManager scriptEngineManager;
     private ScriptEngine scriptEngine;
     private StringBuffer out = new StringBuffer();
+    private Action runAction;
+    private Action stopAction;
+    private Action clearAction;
+    private ProgressMonitorSwingWorker<Object, Object> worker;
 
     public ScriptConsoleToolView() {
         this.visatApp = VisatApp.getApp();
@@ -73,13 +91,13 @@ public class ScriptConsoleToolView extends AbstractToolView {
 
         final JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 2));
 
-        final Action runAction = new RunAction();
+        runAction = new RunAction();
         buttonPanel.add(ToolButtonFactory.createButton(runAction, false));
 
-        final Action terminateAction = new TerminateAction();
-        buttonPanel.add(ToolButtonFactory.createButton(terminateAction, false));
+        stopAction = new StopAction();
+        buttonPanel.add(ToolButtonFactory.createButton(stopAction, false));
 
-        final Action clearAction = new ClearAction();
+        clearAction = new ClearAction();
         buttonPanel.add(ToolButtonFactory.createButton(clearAction, false));
 
         final JScrollPane inputEditorScrollPane = new JideScrollPane(inputTextArea); // <JIDE>
@@ -129,35 +147,65 @@ public class ScriptConsoleToolView extends AbstractToolView {
                 return;
             }
 
-            final ClassLoader oldClassLoader = getContextClassLoader();
-            try {
-                setContextClassLoader(ScriptConsoleToolView.class.getClassLoader());
-                // evaluate JavaScript code from String
-                final Object o = scriptEngine.eval(text);
-                out.append("Result: " + o + "\n");
-            } catch (ScriptException e) {
-                out.setLength(0);
-                out.append("Error: " + e.getMessage() + "\n");
-            } finally {
-                setContextClassLoader(oldClassLoader);
-            }
-            outputTextArea.setText(out.toString());
-            out.setLength(0);
+            runAction.setEnabled(false);
+            stopAction.setEnabled(true);
+
+            Assert.state(worker == null, "worker == null");
+
+            worker = new ProgressMonitorSwingWorker<Object, Object>(inputTextArea, "Running Script") {
+                @Override
+                protected Object doInBackground(ProgressMonitor pm) throws Exception {
+                    final ClassLoader oldClassLoader = getContextClassLoader();
+                    try {
+                        setContextClassLoader(ScriptConsoleToolView.class.getClassLoader());
+                        // evaluate script code from String
+                        return scriptEngine.eval(text);
+                    } finally {
+                        setContextClassLoader(oldClassLoader);
+                    }
+                }
+
+                @Override
+                protected void done() {
+
+                    worker = null;
+                    runAction.setEnabled(true);
+                    stopAction.setEnabled(false);
+
+                    try {
+                        Object result = get();
+                        out.append("Result: " + result + "\n");
+                    } catch (InterruptedException e) {
+                        out.append("Script evaluation interrupted.\n");
+                    } catch (CancellationException e) {
+                        out.append("Script evaluation canceled.\n");
+                    } catch (Throwable e) {
+                        out.append("Error: " + e.getCause().getMessage() + "\n");
+                    }
+                    outputTextArea.setText(out.toString());
+                    out.setLength(0);
+                }
+            };
+
+            worker.execute();
         }
     }
 
-    private class TerminateAction extends AbstractAction {
+    private class StopAction extends AbstractAction {
 
-        public TerminateAction() {
-            putValue(AbstractAction.NAME, "Terminate");
-            putValue(AbstractAction.ACTION_COMMAND_KEY, "scriptConsole.terminate");
+        public StopAction() {
+            putValue(AbstractAction.NAME, "Stop");
+            putValue(AbstractAction.ACTION_COMMAND_KEY, "scriptConsole.stop");
             final ImageIcon icon = UIUtils.loadImageIcon("/org/esa/beam/scripting/visat/icons/process-stop-16.png", ScriptConsoleToolView.class);
             putValue(AbstractAction.SMALL_ICON, icon);
             putValue(AbstractAction.LARGE_ICON_KEY, icon);
         }
 
         public void actionPerformed(ActionEvent e) {
-            // todo
+            if (worker != null) {
+                worker.cancel(true);
+                worker = null;
+            }
         }
     }
 
