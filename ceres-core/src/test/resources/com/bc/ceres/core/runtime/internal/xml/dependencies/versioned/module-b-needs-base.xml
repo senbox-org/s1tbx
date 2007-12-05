@@ -1,0 +1,12 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>module-b</symbolicName>
+    <name>Module B</name>
+    <version>1.0</version>
+
+    <description>This module has a dependency to module-base and requires no specific version.</description>
+
+    <dependency>
+        <module>module-base</module>
+    </dependency>
+</module>

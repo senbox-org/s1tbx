@@ -304,7 +304,7 @@ public class ModuleResolver {
                     if (dependency.getVersion() != null) {
                         Version requiredVersion = Version.parseVersion(dependency.getVersion());
                         ModuleImpl dependencyModule = findBestMatchingModuleVersion(requiredVersion, dependencyModules);
-                        if (dependencyModule != null) {
+                        if (dependencyModule != null && requiredVersion.compareTo(dependencyModule.getVersion()) <= 0) {
                             collectDependencyModule(module, dependencyModule, dependency.isOptional(), list);
                         } else if (!dependency.isOptional()) {
                             String msg = String.format(

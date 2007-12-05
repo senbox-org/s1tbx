@@ -13,15 +13,16 @@
            <li>[CERES-007] TODO: Use Version class in Module interface</li>
         -->
         <![CDATA[
-        <p><b>From 0.5 to 0.6</b></p>
-        <ul>
-           <li>[CERES-008] Speed up module repository scanning</li>
-           <li>[CERES-009] Replace simple extension points by META-INF/services</li>
-           <li>[CERES-011] Support standard Java SPI mechanism</li>
-           <li>[CERES-012] Cyclic dependency detection needs simplification</li>
-           <li>[CERES-013] Optional dependencies not handled</li>
-           <li>[CERES-014] Provide custom splash screen implementation</li>
-        </ul>]]>
+        Changes in 0.7<br>
+        [CERES-20] Runtime does not consider version-controlled dependencies
+        <br>Changes in 0.6<br>
+        [CERES-008] Speed up module repository scanning<br>
+        [CERES-009] Replace simple extension points by META-INF/services<br>
+        [CERES-011] Support standard Java SPI mechanism<br>
+        [CERES-012] Cyclic dependency detection needs simplification<br>
+        [CERES-013] Optional dependencies not handled<br>
+        [CERES-014] Provide custom splash screen implementation<br>
+        ]]>
     </changelog>
 
     <description>
