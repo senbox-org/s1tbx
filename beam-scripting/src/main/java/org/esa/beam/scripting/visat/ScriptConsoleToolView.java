@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 /**
- * The tool window which displays the tree of open products.
+ * A tool window for the scripting console.
  */
 public class ScriptConsoleToolView extends AbstractToolView {
 
