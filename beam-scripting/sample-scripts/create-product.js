@@ -6,7 +6,7 @@ var visat = VisatApp.getApp();
 
 w = 512;
 h = 512;
-p = new Product("P3", "T1", w, h);
+p = new Product("P1", "T1", w, h);
 b1 = new VirtualBand("B1", ProductData.TYPE_FLOAT32, w, h, "sin(20*PI*(X*Y/(512*512)))");
 b2 = new Band("B2", ProductData.TYPE_FLOAT32, w, h);
 b2.ensureRasterData();
