@@ -39,7 +39,7 @@ while (true) {
            dirs[i].y *= -1;
        }
        pins[i].setPixelPos(locs[i]);
-       java.lang.Thread.sleep(5);
+       // java.lang.Thread.sleep(5);
        visat.getSelectedProductSceneView().repaint();
     }
 }
