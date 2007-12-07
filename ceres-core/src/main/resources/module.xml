@@ -14,7 +14,7 @@
         -->
         <![CDATA[
         Changes in 0.7<br>
-        [CERES-20] Runtime does not consider version-controlled dependencies
+        [CERES-20] Runtime does not consider version-controlled dependencies<br>
         <br>Changes in 0.6<br>
         [CERES-008] Speed up module repository scanning<br>
         [CERES-009] Replace simple extension points by META-INF/services<br>

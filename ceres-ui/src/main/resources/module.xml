@@ -14,10 +14,12 @@
     </description>
 
     <changelog>
-        <![CDATA[From 0.5 to 0.5.1
-        <ul>
-           <li>[CERES-004]: "null" displayed instead of Changelog</li>
-        </ul>]]>
+        <![CDATA[
+        Changes in 0.7<br>
+        [CERES-21] Version-controlled dependencies are not considered during update<br>
+        <br>Changes in 0.5.1<br>
+        [CERES-004]: "null" displayed instead of Changelog<br>
+        ]]>
     </changelog>
 
     <vendor>Brockmann Consult GmbH</vendor>

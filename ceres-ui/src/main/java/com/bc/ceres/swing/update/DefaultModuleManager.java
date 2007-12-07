@@ -6,15 +6,13 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.core.runtime.ModuleContext;
 import com.bc.ceres.core.runtime.ProxyConfig;
+import com.bc.ceres.core.runtime.internal.ModuleImpl;
 import com.bc.ceres.core.runtime.internal.RepositoryScanner;
 import com.bc.ceres.core.runtime.internal.RuntimeActivator;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
 
 public class DefaultModuleManager implements ModuleManager {
 
@@ -23,6 +21,9 @@ public class DefaultModuleManager implements ModuleManager {
     private ProxyConfig proxyConfig;
     private Module[] installedModules;
     private ArrayList<File> generatedFileList;
+    private ModuleItem[] installedModuleItems;
+    private ModuleItem[] updatableModuleItems;
+    private ModuleItem[] availableModuleItems;
 
     public DefaultModuleManager() {
         this(RuntimeActivator.getInstance().getModuleContext());
@@ -64,6 +65,33 @@ public class DefaultModuleManager implements ModuleManager {
         context.getLogger().info("Connecting repository using " + repositoryUrl);
         RepositoryScanner repositoryScanner = new RepositoryScanner(context.getLogger(), repositoryUrl, proxyConfig);
         return repositoryScanner.scan(pm);
+    }
+
+    public ModuleItem[] getInstalledModuleItems() {
+        if(installedModuleItems == null) {
+            installedModuleItems = toModuleItems(getInstalledModules());
+        }
+        return installedModuleItems;
+    }
+
+    public ModuleItem[] getUpdatableModuleItems() {
+        if (updatableModuleItems == null) {
+            return new ModuleItem[0];
+
+        }
+        return updatableModuleItems;
+    }
+
+    public ModuleItem[] getAvailableModuleItems() {
+        if(availableModuleItems == null) {
+            return new ModuleItem[0];
+        }
+        return availableModuleItems;
+    }
+
+    public void synchronizeWithRepository(ProgressMonitor pm) throws CoreException {
+        availableModuleItems = ModuleSyncRunner.sync(getInstalledModuleItems(), getRepositoryModules(pm));
+        updatableModuleItems = extractUpdates(getInstalledModuleItems());
     }
 
     public Module installModule(Module newModule, ProgressMonitor pm) throws CoreException {
@@ -110,6 +138,26 @@ public class DefaultModuleManager implements ModuleManager {
             }
         }
     }
+
+    private static ModuleItem[] toModuleItems(Module[] modules) {
+        ModuleItem[] items = new ModuleItem[modules.length];
+        for (int i = 0; i < modules.length; i++) {
+            ModuleImpl module = (ModuleImpl) modules[i];
+            items[i] = new ModuleItem(module);
+        }
+        return items;
+    }
+
+    private static ModuleItem[] extractUpdates(ModuleItem[] moduleItems) {
+        ArrayList<ModuleItem> updates = new ArrayList<ModuleItem>(moduleItems.length);
+        for (ModuleItem installedModuleItem : moduleItems) {
+            if (installedModuleItem.getRepositoryModule() != null) {
+                updates.add(installedModuleItem);
+            }
+        }
+        return updates.toArray(new ModuleItem[updates.size()]);
+    }
+
 
 // ============================
 // Reactivate if required

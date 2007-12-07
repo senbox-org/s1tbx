@@ -7,8 +7,6 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.core.runtime.Dependency;
 import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.core.runtime.ModuleState;
-import com.bc.ceres.core.runtime.Version;
-import com.bc.ceres.core.runtime.internal.ModuleImpl;
 import com.bc.ceres.swing.SwingHelper;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 
@@ -20,12 +18,12 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Window;
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -35,11 +33,8 @@ import java.awt.event.WindowEvent;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
@@ -60,10 +55,6 @@ public class ModuleManagerPane extends JPanel {
     private UninstallAction uninstallAction;
 
     private JTable[] modulesTables;
-
-    private ModuleItem[] installedModuleItems;
-    private ModuleItem[] updatableModuleItems;
-    private ModuleItem[] availableModuleItems;
 
     private ModuleTableModel installedModulesTableModel;
     private ModuleTableModel updatableModulesTableModel;
@@ -89,10 +80,6 @@ public class ModuleManagerPane extends JPanel {
         Assert.notNull(moduleManager, "moduleManager");
 
         this.moduleManager = moduleManager;
-
-        this.installedModuleItems = toModuleItems(this.moduleManager.getInstalledModules());
-        this.updatableModuleItems = new ModuleItem[0];
-        this.availableModuleItems = new ModuleItem[0];
 
         this.syncAction = new SyncAction();
         this.clearAction = new ClearAction();
@@ -211,14 +198,14 @@ public class ModuleManagerPane extends JPanel {
 
     private void initUi() {
 
-        installedModulesTableModel = new ModuleTableModel(installedModuleItems,
+        installedModulesTableModel = new ModuleTableModel(moduleManager.getInstalledModuleItems(),
                                                           new String[]{
                                                                   "Name",
                                                                   "Version",
                                                                   "State",
                                                                   "Action"});
 
-        updatableModulesTableModel = new ModuleTableModel(updatableModuleItems,
+        updatableModulesTableModel = new ModuleTableModel(moduleManager.getUpdatableModuleItems(),
                                                           new String[]{
                                                                   "Name",
                                                                   "Version",
@@ -227,7 +214,7 @@ public class ModuleManagerPane extends JPanel {
                                                                   "Size",
                                                                   "Action"});
 
-        availableModulesTableModel = new ModuleTableModel(availableModuleItems,
+        availableModulesTableModel = new ModuleTableModel(moduleManager.getAvailableModuleItems(),
                                                           new String[]{
                                                                   "Name",
                                                                   "Version",
@@ -317,7 +304,7 @@ public class ModuleManagerPane extends JPanel {
 
         setPreferredSize(new Dimension(400, 400));
 
-        registerCategories(installedModuleItems);
+        registerCategories(moduleManager.getInstalledModuleItems());
         updateCategories();
 
         updateUiState();
@@ -341,7 +328,7 @@ public class ModuleManagerPane extends JPanel {
             return true;
         }
 
-        MissingModuleDependency[] missingModuleDependencies = getMissingModuleDependencies();
+        MissingDependencyInfo[] missingModuleDependencies = getMissingModuleDependencies();
         if (missingModuleDependencies.length > 0) {
             String missingModuleDependenciesMessage = createMissingModuleDependenciesMessage(missingModuleDependencies);
             showErrorDialog(missingModuleDependenciesMessage);
@@ -390,17 +377,17 @@ public class ModuleManagerPane extends JPanel {
 
     private ArrayList<ModuleItem> createActionList() {
         final ArrayList<ModuleItem> actionList = new ArrayList<ModuleItem>(10);
-        for (ModuleItem moduleItem : installedModuleItems) {
+        for (ModuleItem moduleItem : moduleManager.getInstalledModuleItems()) {
             if (moduleItem.getAction() == ModuleItem.Action.UNINSTALL) {
                 actionList.add(moduleItem);
             }
         }
-        for (ModuleItem moduleItem : updatableModuleItems) {
+        for (ModuleItem moduleItem : moduleManager.getUpdatableModuleItems()) {
             if (moduleItem.getAction() == ModuleItem.Action.UPDATE) {
                 actionList.add(moduleItem);
             }
         }
-        for (ModuleItem moduleItem : availableModuleItems) {
+        for (ModuleItem moduleItem : moduleManager.getAvailableModuleItems()) {
             if (moduleItem.getAction() == ModuleItem.Action.INSTALL) {
                 actionList.add(moduleItem);
             }
@@ -483,22 +470,11 @@ public class ModuleManagerPane extends JPanel {
 
     private void updateModuleTable() {
         String filter = categories.getSelectedItem().toString();
-        updatableModuleItems = extractUpdates(installedModuleItems);
-        installedModulesTableModel.setModuleItems(filterModuleItems(installedModuleItems, filter));
-        updatableModulesTableModel.setModuleItems(filterModuleItems(updatableModuleItems, filter));
-        availableModulesTableModel.setModuleItems(filterModuleItems(availableModuleItems, filter));
-        registerCategories(availableModuleItems);
+        installedModulesTableModel.setModuleItems(filterModuleItems(moduleManager.getInstalledModuleItems(), filter));
+        updatableModulesTableModel.setModuleItems(filterModuleItems(moduleManager.getUpdatableModuleItems(), filter));
+        availableModulesTableModel.setModuleItems(filterModuleItems(moduleManager.getAvailableModuleItems(), filter));
+        registerCategories(moduleManager.getAvailableModuleItems());
         updateCategories();
-    }
-
-    private static ModuleItem[] extractUpdates(ModuleItem[] moduleItems) {
-        ArrayList<ModuleItem> updates = new ArrayList<ModuleItem>(moduleItems.length);
-        for (ModuleItem installedModuleItem : moduleItems) {
-            if (installedModuleItem.getRepositoryModule() != null) {
-                updates.add(installedModuleItem);
-            }
-        }
-        return updates.toArray(new ModuleItem[updates.size()]);
     }
 
     static ModuleItem[] filterModuleItems(ModuleItem[] moduleItems, String filter) {
@@ -571,12 +547,6 @@ public class ModuleManagerPane extends JPanel {
         JOptionPane.showMessageDialog(this, m, TITLE, JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private void handleRepositoryConnectionFailed(String message) {
-        String m = MessageFormat.format("Failed to download module list from module repository:\n{0}\n\n{1}",
-                                        message,
-                                        getRepositoryTroubleShootingMessage());
-        showErrorDialog(m);
-    }
 
     private void updateUiState() {
 
@@ -663,54 +633,19 @@ public class ModuleManagerPane extends JPanel {
     }
 
 
-    private MissingModuleDependency[] getMissingModuleDependencies() {
-        Map<String, Module> currentModuleMap = getCurrentModuleMap();
-        Collection<Module> modules = currentModuleMap.values();
-        Map<String, MissingModuleDependency> missingModuleDependencyMap = new HashMap<String, MissingModuleDependency>(10);
-        for (Module module : modules) {
-            Dependency[] declaredDependencies = module.getDeclaredDependencies();
-            for (Dependency dependency : declaredDependencies) {
-                if (isMandatoryModuleDependency(dependency)) {
-                    String requiredVersionStr = dependency.getVersion();
-                    Version requiredVersion = null;
-                    if (requiredVersionStr != null) {
-                        requiredVersion = Version.parseVersion(requiredVersionStr);
+    private MissingDependencyInfo[] getMissingModuleDependencies() {
+        ConsistencyChecker consistencyChecker = new ConsistencyChecker(moduleManager);
+        consistencyChecker.check();
+        return consistencyChecker.getMissingDependencies();
                     }
-                    Module dependencyModule = findModule(currentModuleMap, dependency.getModuleSymbolicName(),
-                                                         requiredVersion);
-                    if (dependencyModule == null) {
-                        String key = dependency.getModuleSymbolicName();
-                        if (requiredVersionStr != null) {
-                            key += "-" + requiredVersionStr;
-                        }
-                        MissingModuleDependency missingModuleDependency = missingModuleDependencyMap.get(key);
-                        if (missingModuleDependency == null) {
-                            missingModuleDependency = new MissingModuleDependency(dependency);
-                            missingModuleDependencyMap.put(key, missingModuleDependency);
-                        }
-                        missingModuleDependency.modules.add(module);
-                    }
-                }
-            }
-        }
 
-        return missingModuleDependencyMap.values().toArray(new MissingModuleDependency[missingModuleDependencyMap.size()]);
-    }
-
-    private static boolean isMandatoryModuleDependency(Dependency dependency) {
-        return dependency.getModuleSymbolicName() != null && !dependency.isOptional();
-    }
-
-    private static String createMissingModuleDependenciesMessage(
-            MissingModuleDependency[] missingModuleDependencieses) {
+    private static String createMissingModuleDependenciesMessage(MissingDependencyInfo[] missingModuleDependencieses) {
         StringBuilder sb = new StringBuilder(256);
         sb.append("Inconsistent module set detected.\n\n");
         int lineCount = 0;
-        for (MissingModuleDependency missingModuleDependency : missingModuleDependencieses) {
-            Dependency dependency = missingModuleDependency.dependency;
-            List<Module> missingDependencyList = missingModuleDependency.modules;
-
-
+        for (MissingDependencyInfo missingModuleDependency : missingModuleDependencieses) {
+            Dependency dependency = missingModuleDependency.getDependency();
+            Module[] missingDependencyList = missingModuleDependency.getDependentModules();
             sb.append(MessageFormat.format(
                     "Unresolved module [{0}], version {1} required by module(s)\n",
                     ModuleTextFactory.getText(dependency.getModuleSymbolicName()),
@@ -735,40 +670,6 @@ public class ModuleManagerPane extends JPanel {
         return sb.toString();
     }
 
-    private Map<String, Module> getCurrentModuleMap() {
-        Map<String, Module> modules = new HashMap<String, Module>(37);
-        for (ModuleItem installedModuleItem : installedModuleItems) {
-            if (installedModuleItem.getAction().equals(ModuleItem.Action.NONE)
-                    || installedModuleItem.getAction().equals(ModuleItem.Action.UPDATE)) {
-                ModuleImpl module = installedModuleItem.getModule();
-                modules.put(module.getSymbolicName(), module);
-            }
-        }
-        for (ModuleItem availableModuleItem : availableModuleItems) {
-            if (availableModuleItem.getAction().equals(ModuleItem.Action.INSTALL)) {
-                ModuleImpl module = availableModuleItem.getModule();
-                modules.put(module.getSymbolicName(), module);
-            }
-        }
-        return modules;
-    }
-
-    private static Module findModule(Map<String, Module> modules, String symbolicName, Version requiredVersion) {
-        Module module = modules.get(symbolicName);
-        if (requiredVersion == null) {
-            return module;
-        }
-        if (versionMatches(module.getVersion(), requiredVersion)) {
-            return module;
-        }
-        return null;
-    }
-
-    private static boolean versionMatches(Version availableVersion, Version requiredVersion) {
-        return availableVersion.getMajor() == requiredVersion.getMajor()
-                && availableVersion.getMinor() >= requiredVersion.getMinor();
-    }
-
     private void setActionId(ModuleItem.Action action) {
         ModuleItem[] moduleItems = getSelectedModuleItems();
         for (ModuleItem moduleItem : moduleItems) {
@@ -782,15 +683,6 @@ public class ModuleManagerPane extends JPanel {
         updatableModulesTableModel.fireTableDataChanged();
         availableModulesTableModel.fireTableDataChanged();
         updateUiState();
-    }
-
-    private static ModuleItem[] toModuleItems(Module[] modules) {
-        ModuleItem[] items = new ModuleItem[modules.length];
-        for (int i = 0; i < modules.length; i++) {
-            ModuleImpl module = (ModuleImpl) modules[i];
-            items[i] = new ModuleItem(module);
-        }
-        return items;
     }
 
     private class SyncAction extends AbstractAction {
@@ -895,20 +787,17 @@ public class ModuleManagerPane extends JPanel {
         }
     }
 
-    private class ModuleListDownloader extends ProgressMonitorSwingWorker<Module[], Void> {
+    private class ModuleListDownloader extends ProgressMonitorSwingWorker<Void, Void> {
 
         public ModuleListDownloader() {
             super(ModuleManagerPane.this, TITLE);
         }
 
         @Override
-        protected Module[] doInBackground(com.bc.ceres.core.ProgressMonitor pm) throws Exception {
-            Module[] availableModules = moduleManager.getRepositoryModules(pm);
-            if (pm.isCanceled()) {
-                throw new CanceledException();
+        protected Void doInBackground(com.bc.ceres.core.ProgressMonitor pm) throws Exception {
+            moduleManager.synchronizeWithRepository(pm);
+            return null;
             }
-            return availableModules;
-        }
 
         @Override
         protected void done() {
@@ -916,7 +805,7 @@ public class ModuleManagerPane extends JPanel {
                 return;
             }
             try {
-                availableModuleItems = ModuleSyncRunner.sync(installedModuleItems, get());
+                get();      // just to know if download succeded
             } catch (InterruptedException e) {
                 handleRepositoryConnectionFailed(e.getMessage());
                 return;
@@ -928,6 +817,13 @@ public class ModuleManagerPane extends JPanel {
             updateModuleTable();
             updateUiState();
         }
+    }
+
+    private void handleRepositoryConnectionFailed(String message) {
+        String m = MessageFormat.format("Failed to download module list from module repository:\n{0}\n\n{1}",
+                                        message,
+                                        getRepositoryTroubleShootingMessage());
+        showErrorDialog(m);
     }
 
 
@@ -946,7 +842,7 @@ public class ModuleManagerPane extends JPanel {
         private final List<ModuleItem> actionListList;
 
         public ActionPerformer(List<ModuleItem> actionListList) {
-            super(ModuleManagerPane.this, ModuleManagerPane.TITLE);
+            super(ModuleManagerPane.this, TITLE);
             this.actionListList = actionListList;
         }
 
