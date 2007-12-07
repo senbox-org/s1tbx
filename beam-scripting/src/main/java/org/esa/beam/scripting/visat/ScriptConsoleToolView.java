@@ -1,8 +1,6 @@
 package org.esa.beam.scripting.visat;
 
 import com.bc.ceres.core.Assert;
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.jidesoft.swing.JideScrollPane;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
@@ -11,20 +9,10 @@ import org.esa.beam.visat.VisatApp;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.ImageIcon;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.concurrent.CancellationException;
@@ -38,7 +26,7 @@ public class ScriptConsoleToolView extends AbstractToolView {
 
     private static final String SCRIPT_LANGUAGE_NAME = "JavaScript";
 
-    private VisatApp visatApp;
+    private VisatApp visat;
     private JTextArea inputTextArea;
     private JTextArea outputTextArea;
     private ScriptEngineManager scriptEngineManager;
@@ -47,10 +35,10 @@ public class ScriptConsoleToolView extends AbstractToolView {
     private Action runAction;
     private Action stopAction;
     private Action clearAction;
-    private ProgressMonitorSwingWorker<Object, Object> worker;
+    private SwingWorker<Object, Object> worker;
 
     public ScriptConsoleToolView() {
-        this.visatApp = VisatApp.getApp();
+        this.visat = VisatApp.getApp();
     }
 
     @Override
@@ -152,9 +140,9 @@ public class ScriptConsoleToolView extends AbstractToolView {
 
             Assert.state(worker == null, "worker == null");
 
-            worker = new ProgressMonitorSwingWorker<Object, Object>(inputTextArea, "Running Script") {
+            worker = new SwingWorker<Object, Object>() {
                 @Override
-                protected Object doInBackground(ProgressMonitor pm) throws Exception {
+                protected Object doInBackground() throws Exception {
                     final ClassLoader oldClassLoader = getContextClassLoader();
                     try {
                         setContextClassLoader(ScriptConsoleToolView.class.getClassLoader());
