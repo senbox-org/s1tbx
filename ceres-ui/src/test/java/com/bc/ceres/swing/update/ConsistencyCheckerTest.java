@@ -93,6 +93,30 @@ public class ConsistencyCheckerTest extends TestCase {
 
     }
 
+    public void testUninstall() throws CoreException {
+        String[] installedModuleFileNames = {
+                "module-a-1.2-needs-b-2.3.2.xml",
+                "module-c-1.0-needs-b-2.3.2.xml",
+                "module-b-2.3.2.xml",
+        };
+        ModuleManager moduleManager = createModuleManager(installedModuleFileNames,
+                                                          new String[0]);
+        moduleManager.synchronizeWithRepository(ProgressMonitor.NULL);
+
+        assertEquals(3, moduleManager.getInstalledModuleItems().length);
+        assertEquals(0, moduleManager.getUpdatableModuleItems().length);
+        assertEquals(0, moduleManager.getAvailableModuleItems().length);
+
+        ConsistencyChecker checker = new ConsistencyChecker(moduleManager);
+
+        findModuleItem(moduleManager.getInstalledModuleItems(), "module-b").setAction(ModuleItem.Action.UNINSTALL);
+        assertFalse(checker.check());
+
+        findModuleItem(moduleManager.getInstalledModuleItems(), "module-a").setAction(ModuleItem.Action.UNINSTALL);
+        findModuleItem(moduleManager.getInstalledModuleItems(), "module-c").setAction(ModuleItem.Action.UNINSTALL);
+        assertTrue(checker.check());
+    }
+
     public void testWithMissingDependencies() throws CoreException {
         String[] installedModuleFileNames = {
                 "module-a-1.0.xml",

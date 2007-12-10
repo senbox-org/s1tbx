@@ -109,7 +109,7 @@ class ConsistencyChecker {
         if (requiredVersion == null) {
             return module;
         }
-        if (module.getVersion().compareTo(requiredVersion) >= 0) {
+        if (module != null && module.getVersion().compareTo(requiredVersion) >= 0) {
             return module;
         }
         return null;
