@@ -1,0 +1,27 @@
+<assembly>
+    <id>beam-web-help</id>
+
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <formats>
+        <format>dir</format>
+    </formats>
+
+    <moduleSets>
+        <moduleSet>
+            <sources>
+                <fileSets>
+                    <fileSet>
+                        <outputDirectory>../</outputDirectory>
+                        <directory>src/main/resources/doc/help</directory>
+                        <excludes>
+                            <exclude>map.jhm</exclude>
+                            <exclude>toc.xml</exclude>
+                            <exclude>*.hs</exclude>
+                            <exclude>.svnignore</exclude>
+                        </excludes>
+                    </fileSet>
+                </fileSets>
+            </sources>
+        </moduleSet>
+    </moduleSets>
+</assembly>

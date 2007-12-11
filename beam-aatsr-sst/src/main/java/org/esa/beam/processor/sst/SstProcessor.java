@@ -50,7 +50,7 @@ public class SstProcessor extends Processor {
     public static final String PROCESSOR_NAME = "BEAM SST Processor";
     private static final String _nadirSstBandName = "nadir_sst";
     private static final String _dualSstBandName = "dual_sst";
-    private static final String _version = "1.4";
+    private static final String _version = "1.4.100";
     private static final String _copyright = "Copyright (C) 2002-2004 by Brockmann Consult (info@brockmann-consult.de)";
     // coeffs are given for unscaled temperatures
     // thats why we do not need to scale the <x>.0 coeff

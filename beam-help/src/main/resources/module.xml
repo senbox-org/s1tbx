@@ -17,15 +17,13 @@
 
     <changelog>
         <![CDATA[
-        <p>From 4.0.1 to 4.1:
-        <ul>
-            <li>Provide compatibility with BEAM 4.1 API.</li>
-        </ul></p>
-        <p>From 4.0 to 4.0.1:
-        <ul>
-            <li>List of data sources updated.</li>
-            <li>Some minor correction to other pages.</li>
-        </ul></p>
+        Changes in 4.2:<br>
+        [BEAM-758] Provide BEAM help on website<br>
+        <br>Changes in 4.1:<br>
+        Provide compatibility with BEAM 4.1 API.<br>
+        <br>Changes in 4.0.1:<br>
+        List of data sources updated.<br>
+        Some minor correction to other pages.<br>
         ]]>
     </changelog>
 

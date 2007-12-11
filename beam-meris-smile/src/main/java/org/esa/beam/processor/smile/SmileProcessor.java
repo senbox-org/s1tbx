@@ -21,9 +21,19 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.jexp.Term;
 import org.esa.beam.dataio.envisat.EnvisatConstants;
 import org.esa.beam.framework.dataio.ProductWriter;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.param.Parameter;
-import org.esa.beam.framework.processor.*;
+import org.esa.beam.framework.processor.Processor;
+import org.esa.beam.framework.processor.ProcessorConstants;
+import org.esa.beam.framework.processor.ProcessorException;
+import org.esa.beam.framework.processor.ProcessorUtils;
+import org.esa.beam.framework.processor.ProductRef;
+import org.esa.beam.framework.processor.Request;
+import org.esa.beam.framework.processor.RequestElementFactory;
 import org.esa.beam.framework.processor.ui.ProcessorUI;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
@@ -47,7 +57,7 @@ import java.util.logging.Logger;
 public class SmileProcessor extends Processor {
 
     public static final String PROCESSOR_NAME = "BEAM Smile Correction Processor";
-    public static final String VERSION_STRING = "1.1.1";
+    public static final String VERSION_STRING = "1.1.2";
     public static final String COPYRIGHT_INFO = "Copyright (C) 2002-2004 by Brockmann Consult (info@brockmann-consult.de)";
 
     public static final double SPECTRAL_BAND_SF_FACTOR = 1.1;

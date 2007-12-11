@@ -46,7 +46,7 @@ import java.util.logging.Logger;
 public class CloudProcessor extends Processor {
 
     public static final String PROCESSOR_NAME = "Cloud Probability Processor";
-    private static final String PROCESSOR_VERSION = "1.5";
+    private static final String PROCESSOR_VERSION = "1.5.101";
     private static final String PROCESSOR_COPYRIGHT = "Copyright (C) 2004 by ESA, FUB and Brockmann Consult";
 
     public static final String DEFAULT_OUTPUT_DIR_NAME = "processor";

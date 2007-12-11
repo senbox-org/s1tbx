@@ -32,7 +32,7 @@ p {
 
 .code {
     color: blue;
-    font-family: courier new, courier, monospaced,cursive;
+    font-family: courier new, courier, Monospaced, cursive;
     text-align: left;
     font-weight: normal;
     text-decoration: none;
@@ -142,6 +142,8 @@ td {
     border-color: #BBBBBB;
     border-style: solid;
     border-collapse: collapse;
+    border-spacing: 0;
+    padding: 0;
     padding-left: 6px;
     padding-right: 6px;
     vertical-align: top;
@@ -153,7 +155,7 @@ table.header {
     font-size: 17;
     color: #ffffff;
     vertical-align: middle;
-    background-color: #000063;
+    background-color: #993333;
     border-width: 0;
     padding: 0;
     margin: 0;
@@ -164,7 +166,7 @@ table.header {
     height: 29;
     color: #ffffff;
     vertical-align: middle;
-    background-color: #000063;
+    background-color: #993333;
     border-width: 0;
     padding: 0;
     white-space: nowrap;

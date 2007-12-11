@@ -51,7 +51,7 @@ public class NdviProcessor extends Processor {
 
     // Constants
     public static final String PROCESSOR_NAME = "NDVI Processor";
-    public static final String PROCESSOR_VERSION = "1.2";
+    public static final String PROCESSOR_VERSION = "1.2.100";
     public static final String PROCESSOR_COPYRIGHT = "Copyright (C) 2003 by Brockmann Consult (info@brockmann-consult.de)";
 
     public static final String LOGGER_NAME = "beam.processor.processor";

@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-aatsr-sst</symbolicName>
-    <version>1.4</version>
+    <version>1.4.100-SNAPSHOT</version>
     <name>AATSR SST Processor</name>
 
     <description>
@@ -27,6 +27,12 @@
         <optional>true</optional>
     </dependency>
 
+    <changelog>
+        <![CDATA[
+        Changes in 1.4.100:<br>
+        [BEAM-757] Layout of help pages is not uniform<br>
+        ]]>
+    </changelog>
 
     <categories>Application,Processor,Envisat,AATSR</categories>
 

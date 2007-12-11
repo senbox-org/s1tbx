@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-collocation</symbolicName>
-    <version>1.0</version>
+    <version>1.0.100-SNAPSHOT</version>
     <name>Collocation</name>
 
     <description>
@@ -9,7 +9,10 @@
     </description>
 
     <changelog>
-        <![CDATA[ ]]>
+        <![CDATA[
+        Changes in 1.0.1:<br>
+        [BEAM-757] Layout of help pages is not uniform<br>
+        ]]>
     </changelog>
 
     <vendor>Brockmann Consult GmbH</vendor>

@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-meris-smac</symbolicName>
-    <version>1.5.101</version>
+    <version>1.5.101-SNAPSHOT</version>
     <name>MERIS SMAC Atmospheric Correction</name>
 
     <description>
@@ -10,6 +10,7 @@
     <changelog>
         <![CDATA[
         Changes in 1.5.101<br>
+        [BEAM-757] Layout of help pages is not uniform<br>
         [BEAM-724] Progress is not reported correctly<br>
         Changes in 1.5.1<br>
         This version needs the latest beam-envisat-reader module (Version 1.1-20070904)<br>

@@ -1,18 +1,20 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-meris-cloud</symbolicName>
-    <version>1.5.1</version>
+    <version>1.5.101-SNAPSHOT</version>
     <name>MERIS Cloud Probability Processor</name>
 
     <description>
         The MERIS Cloud Probability Processor calculates a cloud probability for MERIS L1b pixels.        
     </description>
     <changelog>
-        <![CDATA[From 1.5 to 1.5.1
-        <ul>
-        <li>ValidExpression for land and ocean net, which can be changed.</li>
-        <li>[BEAM-691] The Cloud Probability processor cannot cope with 'MER_FRS_1P' files.</li>
-        </ul>]]>
+        <![CDATA[
+        Changes in 1.5.101<br>
+        [BEAM-757] Layout of help pages is not uniform<br>
+        <br>Changes in 1.5.1<br>
+        ValidExpression for land and ocean net, which can be changed.<br>
+        [BEAM-691] The Cloud Probability processor cannot cope with 'MER_FRS_1P' files.<br>
+        ]]>
     </changelog>
 
     <vendor>Brockmann Consult GmbH</vendor>

@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-meris-ndvi</symbolicName>
-    <version>1.2</version>
+    <version>1.2.100-SNAPSHOT</version>
     <name>MERIS NDVI Processor</name>
 
     <description>
@@ -22,6 +22,13 @@
         <module>beam-visat</module>
         <optional>true</optional>
     </dependency>
+
+    <changelog>
+        <![CDATA[
+        Changes in 1.2.100:<br>
+        [BEAM-757] Layout of help pages is not uniform<br>
+        ]]>
+    </changelog>
 
     <extension point="beam-visat:actions">
         <action>

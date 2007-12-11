@@ -11,7 +11,7 @@
     <artifactId>beam-collocation</artifactId>
     <name>BEAM Geographic Collocation Tool</name>
     <groupId>org.esa.beam</groupId>
-    <version>1.0</version>
+    <version>1.0.100-SNAPSHOT</version>
 
     <dependencies>
         <dependency>

@@ -20,7 +20,7 @@
     <tocitem text="VISAT">
         <tocitem text="Introduction" target="visat"/>
         <tocitem text="Tools">
-            <tocitem text="Import and Export Tools" target="importTransectData">
+            <tocitem text="Import and Export Tools">
                 <tocitem text="Import Transect Data" target="importTransectData"/>
                 <tocitem text="Import ENVISAT Data Product" target="importEnvisatProduct"/>
                 <tocitem text="Import ERS1/2 Data Product" target="importErsProduct"/>
@@ -31,8 +31,8 @@
                 <tocitem text="Import LANDSAT 5 TM Data Product" target="importLandsatTMProduct"/>
                 <tocitem text="Import AVHRR/3 Data Product" target="importAVHRR"/>
                 <tocitem text="Import ALOS/AVNIR-2 Data Product" target="importAvnir2Product"/>
-                <tocitem text="Import CHRIS Data Product" target="importChrisProduct"/>
                 <tocitem text="Import ALOS/PRISM Data Product" target="importPrismProduct"/>
+                <tocitem text="Import CHRIS Data Product" target="importChrisProduct"/>
                 <tocitem text="Import NetCDF Data Product" target="importNetCDF"/>
                 <tocitem text="Import GETASSE30 Tile" target="importGETASSE30"/>
 
@@ -95,7 +95,7 @@
                 <tocitem text="Create Elevation Band" target="createElevationBand"/>
                 <tocitem text="Create ASAR NRCS Bands" target="createAsarNrcsBands"/>
                 <tocitem text="Create Filtered Band" target="createFilteredBand"/>
-                <tocitem text="Data Processors" target="scientificTools"/>
+                <tocitem text="Data Processors" target="dataProcessors"/>
             </tocitem>
             <tocitem text="Module Manager" target="moduleManager"/>
         </tocitem>
@@ -105,7 +105,7 @@
             <tocitem text="Pixel Info View" target="pixelInfoView"/>
             <tocitem text="Preferences Dialog" target="preferences"/>
             <tocitem text="Main Toolbar" target="mainToolbar"/>
-            <tocitem text="Main Menue Bar" target="menuBar"/>
+            <tocitem text="Main Menu Bar" target="menuBar"/>
             <tocitem text="File Menu" target="fileMenu"/>
             <tocitem text="Edit Menu" target="editMenu"/>
             <tocitem text="View Menu" target="viewMenu"/>
