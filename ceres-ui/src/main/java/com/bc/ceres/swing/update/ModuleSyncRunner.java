@@ -1,10 +1,9 @@
 package com.bc.ceres.swing.update;
 
-import com.bc.ceres.core.runtime.ModuleState;
 import com.bc.ceres.core.runtime.Module;
+import com.bc.ceres.core.runtime.ModuleState;
 import com.bc.ceres.core.runtime.Version;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 class ModuleSyncRunner {
@@ -16,7 +15,7 @@ class ModuleSyncRunner {
             imap.put(installedModuleItem.getModule().getSymbolicName(), installedModuleItem);
         }
 
-        ArrayList<ModuleItem> syncList = new ArrayList<ModuleItem>(installedModuleItems.length);
+        HashMap<String, ModuleItem> syncList = new HashMap<String, ModuleItem>(installedModuleItems.length);
 
         for (Module repositoryModule : repositoryModules) {
             ModuleItem installedItem = imap.get(repositoryModule.getSymbolicName());
@@ -38,11 +37,19 @@ class ModuleSyncRunner {
                     }
                 }
             } else {
-                syncList.add(new ModuleItem(repositoryModule));
+                ModuleItem moduleItem = syncList.get(repositoryModule.getSymbolicName());
+                if(moduleItem != null) {
+                    if(moduleItem.getModule().getVersion().compareTo(repositoryModule.getVersion()) < 0) {
+                        syncList.put(repositoryModule.getSymbolicName(), new ModuleItem(repositoryModule));
+
+                    }
+                }else {
+                    syncList.put(repositoryModule.getSymbolicName(), new ModuleItem(repositoryModule));
+                }
             }
         }
 
-        return syncList.toArray(new ModuleItem[syncList.size()]);
+        return syncList.values().toArray(new ModuleItem[syncList.size()]);
     }
 
 }

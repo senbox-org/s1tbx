@@ -4,29 +4,24 @@ import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.runtime.Dependency;
 import com.bc.ceres.core.runtime.Module;
-import com.bc.ceres.core.runtime.ModuleContext;
-import com.bc.ceres.core.runtime.ModuleState;
 import com.bc.ceres.core.runtime.Version;
-import com.bc.ceres.core.runtime.internal.ModuleImpl;
-import com.bc.ceres.core.runtime.internal.RuntimeActivator;
 import junit.framework.TestCase;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 
 public class ConsistencyCheckerTest extends TestCase {
 
     public void testAGoodSetup() throws CoreException {
         String[] installedModuleFileNames = {
-                "module-a-1.1.xml",
-                "module-b-2.3.1.xml",
+                "xml/consistency/module-a-1.1.xml",
+                "xml/consistency/module-b-2.3.1.xml",
         };
         String[] repositoryModuleFileNames = {
-                "module-a-1.0.1-SNAPSHOT.xml",
-                "module-b-2.3.2-needs-a-1.1.xml",
-                "module-c-1.0-needs-b-2.3.2.xml",
+                "xml/consistency/module-a-1.0.1-SNAPSHOT.xml",
+                "xml/consistency/module-b-2.3.2-needs-a-1.1.xml",
+                "xml/consistency/module-c-1.0-needs-b-2.3.2.xml",
         };
-        ModuleManager moduleManager = createModuleManager(installedModuleFileNames,
+        ModuleManager moduleManager = TestHelpers.createModuleManager(installedModuleFileNames,
                                                           repositoryModuleFileNames);
         moduleManager.synchronizeWithRepository(ProgressMonitor.NULL);
 
@@ -43,14 +38,14 @@ public class ConsistencyCheckerTest extends TestCase {
 
     public void testWithDependencyToLowerVersionAsPresent() throws CoreException {
             String[] installedModuleFileNames = {
-                    "module-a-1.0.xml",
-                    "module-b-2.4.xml",
+                    "xml/consistency/module-a-1.0.xml",
+                    "xml/consistency/module-b-2.4.xml",
             };
             String[] repositoryModuleFileNames = {
-                    "module-a-1.2-needs-b-2.3.2.xml",
-                    "module-c-1.0-needs-b-2.3.2.xml",
+                    "xml/consistency/module-a-1.2-needs-b-2.3.2.xml",
+                    "xml/consistency/module-c-1.0-needs-b-2.3.2.xml",
             };
-            ModuleManager moduleManager = createModuleManager(installedModuleFileNames,
+            ModuleManager moduleManager = TestHelpers.createModuleManager(installedModuleFileNames,
                                                               repositoryModuleFileNames);
             moduleManager.synchronizeWithRepository(ProgressMonitor.NULL);
 
@@ -68,14 +63,14 @@ public class ConsistencyCheckerTest extends TestCase {
 
     public void testWithMissingOptionalDependencies() throws CoreException {
         String[] installedModuleFileNames = {
-                "module-a-1.0.xml",
-                "module-b-2.3.1.xml",
+                "xml/consistency/module-a-1.0.xml",
+                "xml/consistency/module-b-2.3.1.xml",
         };
         String[] repositoryModuleFileNames = {
-                "module-b-2.3.2-needs-a-1.1-optional.xml",
-                "module-c-1.0-needs-b-2.3.2.xml",
+                "xml/consistency/module-b-2.3.2-needs-a-1.1-optional.xml",
+                "xml/consistency/module-c-1.0-needs-b-2.3.2.xml",
         };
-        ModuleManager moduleManager = createModuleManager(installedModuleFileNames,
+        ModuleManager moduleManager = TestHelpers.createModuleManager(installedModuleFileNames,
                                                           repositoryModuleFileNames);
         moduleManager.synchronizeWithRepository(ProgressMonitor.NULL);
 
@@ -95,11 +90,11 @@ public class ConsistencyCheckerTest extends TestCase {
 
     public void testUninstall() throws CoreException {
         String[] installedModuleFileNames = {
-                "module-a-1.2-needs-b-2.3.2.xml",
-                "module-c-1.0-needs-b-2.3.2.xml",
-                "module-b-2.3.2.xml",
+                "xml/consistency/module-a-1.2-needs-b-2.3.2.xml",
+                "xml/consistency/module-c-1.0-needs-b-2.3.2.xml",
+                "xml/consistency/module-b-2.3.2.xml",
         };
-        ModuleManager moduleManager = createModuleManager(installedModuleFileNames,
+        ModuleManager moduleManager = TestHelpers.createModuleManager(installedModuleFileNames,
                                                           new String[0]);
         moduleManager.synchronizeWithRepository(ProgressMonitor.NULL);
 
@@ -119,15 +114,15 @@ public class ConsistencyCheckerTest extends TestCase {
 
     public void testWithMissingDependencies() throws CoreException {
         String[] installedModuleFileNames = {
-                "module-a-1.0.xml",
-                "module-b-2.3.1.xml",
+                "xml/consistency/module-a-1.0.xml",
+                "xml/consistency/module-b-2.3.1.xml",
         };
         String[] repositoryModuleFileNames = {
-                "module-a-1.0.1-SNAPSHOT.xml",
-                "module-b-2.3.2-needs-a-1.1.xml",
-                "module-c-1.0-needs-b-2.3.2.xml",
+                "xml/consistency/module-a-1.0.1-SNAPSHOT.xml",
+                "xml/consistency/module-b-2.3.2-needs-a-1.1.xml",
+                "xml/consistency/module-c-1.0-needs-b-2.3.2.xml",
         };
-        ModuleManager moduleManager = createModuleManager(installedModuleFileNames,
+        ModuleManager moduleManager = TestHelpers.createModuleManager(installedModuleFileNames,
                                                           repositoryModuleFileNames);
         moduleManager.synchronizeWithRepository(ProgressMonitor.NULL);
 
@@ -204,56 +199,6 @@ public class ConsistencyCheckerTest extends TestCase {
             }
         }
         return null;
-    }
-
-    private ModuleManager createModuleManager(final String[] installedNames,
-                                              final String[] repositoryNames) {
-        ModuleContext moduleContext = new RuntimeActivator().getModuleContext();
-        return new DefaultModuleManager(moduleContext) {
-            private ModuleImpl[] installedModules;
-            private Module[] repositoryModules;
-
-
-            @Override
-            public Module[] getInstalledModules() {
-                if (installedModules == null) {
-                    installedModules = createModules(installedNames);
-                    for (ModuleImpl installedModule : installedModules) {
-                        installedModule.setState(ModuleState.ACTIVE);
-                    }
-                }
-                return installedModules;
-            }
-
-            @Override
-            public Module[] getRepositoryModules(ProgressMonitor pm) throws CoreException {
-                if (repositoryModules == null) {
-                    repositoryModules = createModules(repositoryNames);
-                }
-                return repositoryModules;
-            }
-
-
-            private ModuleImpl[] createModules(String[] fileNames) {
-                ArrayList<ModuleImpl> moduleList = new ArrayList<ModuleImpl>(fileNames.length);
-                for (String filename : fileNames) {
-                    moduleList.add(createModule(filename));
-                }
-                return moduleList.toArray(new ModuleImpl[moduleList.size()]);
-            }
-
-            private ModuleImpl createModule(String filename) {
-                ModuleImpl module = null;
-                try {
-                    module = TestHelpers.loadModule("xml/consistency/" + filename);
-                } catch (Exception e) {
-                    String msgPattern = "Not able to load module descriptor for [{0}] - {1}";
-                    fail(MessageFormat.format(msgPattern, filename, e.getMessage()));
-                }
-                return module;
-            }
-
-        };
     }
 
 
