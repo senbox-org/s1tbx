@@ -144,7 +144,7 @@ public class ModuleManagerPane extends JPanel {
         buttonPane.add(okButton);
 
         JButton cancelButton = new JButton("Cancel");
-        okButton.setName("cancelButton");
+        cancelButton.setName("cancelButton");
         cancelButton.setMnemonic('C');
         cancelButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -155,7 +155,7 @@ public class ModuleManagerPane extends JPanel {
 
         if (helpHandler != null) {
             JButton helpButton = new JButton("Help");
-            cancelButton.setMnemonic('H');
+            helpButton.setMnemonic('H');
             helpHandler.configureHelpButton(helpButton);
             helpButton.setName("helpButton");
             buttonPane.add(helpButton);
