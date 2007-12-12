@@ -146,6 +146,7 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
             }
             sceneImage.getRasters()[i] = null;
         }
+        sceneImage = null;
         _imageUpdateListenerList.clear();
         _imageUpdateListenerList = null;
         super.dispose();

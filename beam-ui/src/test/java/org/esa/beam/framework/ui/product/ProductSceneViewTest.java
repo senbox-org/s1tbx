@@ -26,28 +26,55 @@ import java.io.IOException;
 
 public class ProductSceneViewTest extends TestCase {
 
-    public void testIsRGB() throws IOException {
-        ProductSceneView productSceneView;
+    private VirtualBand r;
+    private VirtualBand g;
+    private VirtualBand b;
 
+    @Override
+    protected void setUp() throws Exception {
         final Product product = new Product("x", "y", 2, 3);
-        final VirtualBand redRaster = new VirtualBand("bn1", ProductData.TYPE_FLOAT32, 2, 3, "0");
-        final VirtualBand greenRaster = new VirtualBand("bn2", ProductData.TYPE_FLOAT32, 2, 3, "0");
-        final VirtualBand blueRaster = new VirtualBand("bn3", ProductData.TYPE_FLOAT32, 2, 3, "0");
-        product.addBand(redRaster);
-        product.addBand(greenRaster);
-        product.addBand(blueRaster);
-        redRaster.ensureRasterData();
-        greenRaster.ensureRasterData();
-        blueRaster.ensureRasterData();
 
-        ProductSceneImage sceneImage;
+        r = new VirtualBand("r", ProductData.TYPE_FLOAT32, 2, 3, "0");
+        g = new VirtualBand("g", ProductData.TYPE_FLOAT32, 2, 3, "0");
+        b = new VirtualBand("b", ProductData.TYPE_FLOAT32, 2, 3, "0");
 
-        sceneImage = ProductSceneImage.create(redRaster, ProgressMonitor.NULL);
-        productSceneView = new ProductSceneView(sceneImage);
-        assertFalse(productSceneView.isRGB());
+        product.addBand(r);
+        product.addBand(g);
+        product.addBand(b);
 
-        sceneImage = ProductSceneImage.create(redRaster, greenRaster, blueRaster, ProgressMonitor.NULL);
-        productSceneView = new ProductSceneView(sceneImage);
-        assertTrue(productSceneView.isRGB());
+        r.ensureRasterData();
+        g.ensureRasterData();
+        b.ensureRasterData();
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        r = null;
+        g = null;
+        b = null;
+}
+
+    public void testIsRGB() throws IOException {
+        ProductSceneView view;
+
+        view = new ProductSceneView(ProductSceneImage.create(r, ProgressMonitor.NULL));
+        assertFalse(view.isRGB());
+
+        view = new ProductSceneView(ProductSceneImage.create(r, g, b, ProgressMonitor.NULL));
+        assertTrue(view.isRGB());
+    }
+
+    public void testDispose() throws IOException {
+        final ProductSceneView view;
+        view = new ProductSceneView(ProductSceneImage.create(r, ProgressMonitor.NULL));
+
+        view.dispose();
+        assertNull(view.getScene());
+
+        try {
+            assertNull(view.getImageUpdateListeners());
+            fail();
+        } catch (NullPointerException expected) {
+        }
     }
 }
