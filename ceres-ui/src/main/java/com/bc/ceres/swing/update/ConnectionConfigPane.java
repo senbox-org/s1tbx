@@ -1,18 +1,29 @@
 package com.bc.ceres.swing.update;
 
-import com.bc.ceres.swing.SwingHelper;
 import com.bc.ceres.core.runtime.ProxyConfig;
+import com.bc.ceres.swing.SwingHelper;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.*;
-import java.awt.event.ActionListener;
+import java.awt.BorderLayout;
+import java.awt.Dialog;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.net.URL;
-import java.net.MalformedURLException;
 
 public class ConnectionConfigPane extends JPanel {
 
@@ -58,19 +69,6 @@ public class ConnectionConfigPane extends JPanel {
     }
 
     public boolean validateUiState() {
-        String ru = repositoryUrl.getText().trim();
-        if (ru.length() == 0) {
-            onValidationError("Empty repository URL.");
-            repositoryUrl.requestFocusInWindow();
-            return false;
-        }
-        try {
-            new URL(ru);
-        } catch (MalformedURLException e) {
-            onValidationError("Malformed repository URL.");
-            repositoryUrl.requestFocusInWindow();
-            return false;
-        }
         if (proxyUsed.isSelected()) {
             String ph = proxyHost.getText().trim();
             if (ph.length() == 0) {
@@ -145,7 +143,6 @@ public class ConnectionConfigPane extends JPanel {
 
     public void transferUiToConfigData(ConnectionConfigData connectionConfigData) {
         ProxyConfig proxyConfig = connectionConfigData.getProxyConfig();
-        connectionConfigData.setRepositoryUrl(repositoryUrl.getText());
         connectionConfigData.setProxyUsed(proxyUsed.isSelected());
         proxyConfig.setHost(proxyHost.getText());
         proxyConfig.setPort(Integer.parseInt(proxyPort.getText()));
@@ -239,6 +236,7 @@ public class ConnectionConfigPane extends JPanel {
         c.gridx = 0;
         c.gridwidth = 2;
         repositoryUrl = new JTextField(50);
+        repositoryUrl.setEditable(false);
         panel.add(repositoryUrl, c);
 
         // Proxy
