@@ -10,8 +10,9 @@
     <changelog>
         <![CDATA[
         Changes in 4.2<br>
-        [BEAM-694] Bandarithmetic gives acces to latitude and longitude using the provided geocoding<br>
+        [BEAM-726] Memory not fully released after closing a product<br>
         [BEAM-712] Processors produce visat.exe zombies<br>
+        [BEAM-694] Bandarithmetic gives acces to latitude and longitude using the provided geocoding<br>
         <br>Changes in 4.0.1<br>
         [BEAM-622] Use mouse wheel for zooming<br>
         [BEAM-614] Not possible to re-select item in Arithmetic Expression Editor<br>
