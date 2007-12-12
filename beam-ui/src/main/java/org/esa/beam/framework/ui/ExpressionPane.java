@@ -65,6 +65,8 @@ public class ExpressionPane extends JPanel {
             "false",
             "X",
             "Y",
+            "LAT",
+            "LON",
             "0.5",
             "0.0",
             "1.0",
