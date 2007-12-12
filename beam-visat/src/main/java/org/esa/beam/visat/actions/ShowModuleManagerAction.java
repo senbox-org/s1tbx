@@ -41,7 +41,6 @@ public class ShowModuleManagerAction extends ExecCommand {
     // System keys
     private static final String SYS_KEY_BEAM_REPOSITORY_URL = "beam.repository.url";
     // Preferences keys
-    private static final String KEY_BEAM_REPOSITORY_URL = "beam.41.repository.url"; // fix BEAM-716, "41" inserted
     private static final String KEY_BEAM_REPOSITORY_PROXY_USED = "beam.repository.proxyUsed";
     private static final String KEY_BEAM_REPOSITORY_PROXY_HOST = "beam.repository.proxy.host";
     private static final String KEY_BEAM_REPOSITORY_PROXY_PORT = "beam.repository.proxy.port";
@@ -102,7 +101,6 @@ public class ShowModuleManagerAction extends ExecCommand {
 
     public static void transferConnectionData(ConnectionConfigData connectionConfigData, PropertyMap propertyMap) {
         ProxyConfig proxyConfig = connectionConfigData.getProxyConfig();
-        propertyMap.setPropertyString(KEY_BEAM_REPOSITORY_URL, connectionConfigData.getRepositoryUrl());
         propertyMap.setPropertyBool(KEY_BEAM_REPOSITORY_PROXY_USED, connectionConfigData.isProxyUsed());
         propertyMap.setPropertyString(KEY_BEAM_REPOSITORY_PROXY_HOST, proxyConfig.getHost());
         propertyMap.setPropertyInt(KEY_BEAM_REPOSITORY_PROXY_PORT, proxyConfig.getPort());
@@ -115,8 +113,7 @@ public class ShowModuleManagerAction extends ExecCommand {
         ProxyConfig proxyConfig = new ProxyConfig();
         connectionConfigData.setProxyConfig(proxyConfig);
 
-        final String defaultUrl = System.getProperty(SYS_KEY_BEAM_REPOSITORY_URL, "");
-        connectionConfigData.setRepositoryUrl(propertyMap.getPropertyString(KEY_BEAM_REPOSITORY_URL, defaultUrl));
+        connectionConfigData.setRepositoryUrl(System.getProperty(SYS_KEY_BEAM_REPOSITORY_URL, ""));
         connectionConfigData.setProxyUsed(propertyMap.getPropertyBool(KEY_BEAM_REPOSITORY_PROXY_USED, false));
         proxyConfig.setHost(propertyMap.getPropertyString(KEY_BEAM_REPOSITORY_PROXY_HOST));
         proxyConfig.setPort(propertyMap.getPropertyInt(KEY_BEAM_REPOSITORY_PROXY_PORT));
