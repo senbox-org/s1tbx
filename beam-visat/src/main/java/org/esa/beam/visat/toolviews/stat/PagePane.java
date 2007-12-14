@@ -187,7 +187,7 @@ abstract class PagePane extends JPanel implements ProductNodeListener{
         }
     }
 
-    private void copyToClipboardImpl() {
+    protected void copyToClipboardImpl() {
         final Cursor oldCursor = getCursor();
         try {
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));

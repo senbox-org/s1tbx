@@ -1,8 +1,7 @@
 package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.swing.progress.DialogProgressMonitor;
-import org.esa.beam.framework.datamodel.RasterDataNode;
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamGroup;
@@ -12,18 +11,26 @@ import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.math.Histogram;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.math.Range;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYBarRenderer;
+import org.jfree.data.statistics.HistogramDataset;
+import org.jfree.data.xy.IntervalXYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.ui.ApplicationFrame;
+import org.jfree.ui.RefineryUtilities;
 
 import javax.media.jai.ROI;
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.SwingWorker;
-import javax.swing.border.EtchedBorder;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.Random;
 
 /**
  * A pane within the statistcs window which displays a histogram.
@@ -40,9 +47,13 @@ class HistogramPane extends PagePane {
     private Parameter _autoMinMaxEnabledParam;
     private Parameter _histoMinParam;
     private Parameter _histoMaxParam;
-    private HistogramDisplay _histogramDisplay;
+    private ChartPanel _histogramDisplay;
     private boolean _histogramComputing;
     private ComputePane _computePane;
+    private XYSeriesCollection dataset;
+    private JFreeChart chart;
+    private Histogram _histogram;
+
 
     public HistogramPane(final ToolView parentDialog) {
         super(parentDialog);
@@ -64,7 +75,7 @@ class HistogramPane extends PagePane {
     protected void updateContent() {
         if (_computePane != null) {
             _computePane.setRaster(getRaster());
-            _histogramDisplay.setRaster(getRaster());
+            setRaster(getRaster());
             if (!(Boolean) _autoMinMaxEnabledParam.getValue()) {
                 return;
             }
@@ -115,6 +126,22 @@ class HistogramPane extends PagePane {
     }
 
     private void createUI() {
+        dataset = new XYSeriesCollection();
+        chart = ChartFactory.createHistogram(
+                "Histogram",
+                null,
+                null,
+                dataset,
+                PlotOrientation.VERTICAL,
+                true,
+                true,
+                false
+        );
+        XYPlot plot = (XYPlot) chart.getPlot();
+        plot.setForegroundAlpha(0.85f);
+        XYBarRenderer renderer = (XYBarRenderer) plot.getRenderer();
+        renderer.setDrawBarOutline(false);
+
         final ActionListener actionAll = new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -128,9 +155,19 @@ class HistogramPane extends PagePane {
             }
         };
         _computePane = ComputePane.createComputePane(actionAll, actionROI, getRaster());
-        _histogramDisplay = new HistogramDisplay(getRaster());
-        _histogramDisplay.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-        _histogramDisplay.addMouseListener(new PopupHandler());
+        _histogramDisplay = new ChartPanel(chart);
+        // _histogramDisplay.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+        // _histogramDisplay.addMouseListener(new PopupHandler());
+        final JMenuItem menuItem = new JMenuItem("Copy Data to Clipboard"); /*I18N*/
+        menuItem.addActionListener(new ActionListener() {
+
+            public void actionPerformed(final ActionEvent actionEvent) {
+                if (checkDataToClipboardCopy()) {
+                    copyToClipboardImpl();
+                }
+            }
+        });
+        _histogramDisplay.getPopupMenu().add(menuItem);
         this.add(_histogramDisplay, BorderLayout.CENTER);
         this.add(_computePane, BorderLayout.SOUTH);
         this.add(createOptionsPane(), BorderLayout.EAST);
@@ -193,7 +230,7 @@ class HistogramPane extends PagePane {
                                           /*I18N*/
                                           "Histogram", /*I18N*/
                                           JOptionPane.ERROR_MESSAGE);
-            _histogramDisplay.setHistogram(null);
+            setHistogram(null);
             return;
         }
         final int numBins = ((Number) _numBinsParam.getValue()).intValue();
@@ -207,75 +244,68 @@ class HistogramPane extends PagePane {
             range = new Range(getRaster().scaleInverse(min), getRaster().scaleInverse(max));
         }
 
-        final SwingWorker swingWorker = new SwingWorker() {
-            final ProgressMonitor pm = new DialogProgressMonitor(getParentComponent(), "Compute Statistic",
-                                                                 Dialog.ModalityType.APPLICATION_MODAL);    /*I18N*/
-
+        final SwingWorker<Histogram, Object> swingWorker = new ProgressMonitorSwingWorker<Histogram, Object>(this._histogramDisplay, "Computing histogram") {
             @Override
-            protected Object doInBackground() throws Exception {
-                try {
-                    return getRaster().computeRasterDataHistogram(roi, numBins, range, pm);
-                } catch (IOException e) {
-                    return e;
-                }
+            protected Histogram doInBackground(ProgressMonitor pm) throws Exception {
+                return getRaster().computeRasterDataHistogram(roi, numBins, range, pm);
             }
 
             @Override
             public void done() {
-                if (pm.isCanceled()) {
+                Histogram histo = null;
+                if (isCancelled()) {
                     JOptionPane.showMessageDialog(getParentComponent(),
                                                   "Failed to compute histogram.\nThe user has cancelled the calculation.",
                                                   /*I18N*/
                                                   "Statistics", /*I18N*/
                                                   JOptionPane.INFORMATION_MESSAGE);
-                    _histogramDisplay.setHistogram(null);
                 } else {
-                    Histogram histo = null;
-                    Object value;
                     try {
-                        value = get();
-                    } catch (Exception e) {
-                        value = e;
-                    }
-                    if (value instanceof Histogram) {
-                        histo = (Histogram) value;
-                        if (histo.getMaxBinCount() > 0) {
-                            if (autoMinMaxEnabled) {
-                                final double min = getRaster().scale(histo.getMin());
-                                final double max = getRaster().scale(histo.getMax());
-                                final double v = MathUtils.computeRoundFactor(min, max, 4);
-                                _histogramComputing = true;
-                                _histoMinParam.setValue(StatisticsUtils.round(min, v), null);
-                                _histoMaxParam.setValue(StatisticsUtils.round(max, v), null);
-                                _histogramComputing = false;
+                        histo = get();
+                        if (histo != null) {
+                            if (histo.getMaxBinCount() > 0) {
+                                if (autoMinMaxEnabled) {
+                                    final double min = getRaster().scale(histo.getMin());
+                                    final double max = getRaster().scale(histo.getMax());
+                                    final double v = MathUtils.computeRoundFactor(min, max, 4);
+                                    _histogramComputing = true;
+                                    _histoMinParam.setValue(StatisticsUtils.round(min, v), null);
+                                    _histoMaxParam.setValue(StatisticsUtils.round(max, v), null);
+                                    _histogramComputing = false;
+                                }
                             }
+                        } else {
+                            JOptionPane.showMessageDialog(getParentComponent(),
+                                                          "The ROI is empty or no pixels found between min/max.\n"
+                                                                  + "A valid histogram could not be computed.",
+                                                          "Histogram",
+                                                          JOptionPane.WARNING_MESSAGE);
                         }
-                    } else if (value instanceof Exception) {
-                        final Exception e = (Exception) value;
+                    } catch (Exception e) {
+                        e.printStackTrace();
                         JOptionPane.showMessageDialog(getParentComponent(),
                                                       "Failed to compute histogram.\nAn internal error occured:\n" + e.getMessage(),
-                                                      /*I18N*/
-                                                      "Histogram", /*I18N*/
+                                                      "Histogram",
                                                       JOptionPane.ERROR_MESSAGE);
-                        _histogramDisplay.setHistogram(null);
-                        return;
-                    }
-
-                    if (histo != null) {
-                        _histogramDisplay.setHistogram(histo);
-                    } else {
-                        JOptionPane.showMessageDialog(getParentComponent(),
-                                                      "The ROI is empty or no pixels found between min/max.\n"
-                                                      + "A valid histogram could not be computed.", /*I18N*/
-                                                                                                    "Histogram",
-                                                                                                    /*I18N*/
-                                                                                                    JOptionPane.WARNING_MESSAGE);
-                        _histogramDisplay.setHistogram(null);
                     }
                 }
+                setHistogram(histo);
             }
         };
         swingWorker.execute();
+    }
+
+    private void setHistogram(Histogram histogram) {
+        _histogram = histogram;
+        dataset.removeAllSeries();
+        if (_histogram != null) {
+            final int[] binCounts = _histogram.getBinCounts();
+            final XYSeries series = new XYSeries(getRaster().getName());
+            for (int i = 0; i < binCounts.length; i++) {
+                series.add(i, binCounts[i]);
+            }
+            dataset.addSeries(series);
+        }
     }
 
     private Container getParentComponent() {
@@ -286,189 +316,133 @@ class HistogramPane extends PagePane {
         return (Boolean) _autoMinMaxEnabledParam.getValue();
     }
 
-    @Override
-    protected String getDataAsText() {
-        return _histogramDisplay.getDataAsText();
-    }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Histogram Display
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    private static class HistogramDisplay extends JPanel {
-
-
-        private RasterDataNode _raster;
-        private Histogram _histogram;
-
-        public HistogramDisplay(final RasterDataNode raster) {
-            super(null);
-            _raster = raster;
-            setBackground(Color.white);
-            setForeground(Color.black);
+    public String getDataAsText() {
+        if (_histogram == null) {
+            return null;
         }
 
-        public RasterDataNode getRaster() {
-            return _raster;
-        }
+        final int[] binVals = _histogram.getBinCounts();
+        final int numBins = _histogram.getNumBins();
+        final double min = getRaster().scale(_histogram.getMin());
+        final double max = getRaster().scale(_histogram.getMax());
 
-        public void setRaster(final RasterDataNode raster) {
-            _raster = raster;
-            setHistogram(null);
-        }
+        final StringBuilder sb = new StringBuilder(16000);
 
-        public Histogram getHistogram() {
-            return _histogram;
-        }
+        sb.append("Product name:\t").append(getRaster().getProduct().getName()).append("\n");
+        sb.append("Dataset name:\t").append(getRaster().getName()).append("\n");
+        sb.append('\n');
+        sb.append("Histogram minimum:\t").append(min).append("\t").append(getRaster().getUnit()).append("\n");
+        sb.append("Histogram maximum:\t").append(max).append("\t").append(getRaster().getUnit()).append("\n");
+        sb.append("Histogram bin size:\t").append(
+                getRaster().isLog10Scaled() ? ("NA\t") : ((max - min) / numBins + "\t") +
+                        getRaster().getUnit() + "\n");
+        sb.append("Histogram #bins:\t").append(numBins).append("\n");
+        sb.append('\n');
 
-        public void setHistogram(final Histogram histogram) {
-            _histogram = histogram;
-            repaint();
-        }
+        sb.append("Bin center value");
+        sb.append('\t');
+        sb.append("Bin counts");
+        sb.append('\n');
 
-        /**
-         * If the UI delegate is non-null, calls its paint method.  We pass the delegate a copy of the Graphics object
-         * to protect the rest of the paint code from irrevocable changes (for example, Graphics.translate()).
-         *
-         * @param g the Graphics object to protect
-         *
-         * @see #paint
-         */
-        @Override
-        protected void paintComponent(final Graphics g) {
-            super.paintComponent(g);
-            draw((Graphics2D) g);
-        }
-
-
-        private void draw(final Graphics2D g2d) {
-
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            final Insets insets = getInsets();
-
-            g2d.setColor(getBackground());
-            g2d.fillRect(insets.left,
-                         insets.top,
-                         getWidth() - insets.left - insets.right,
-                         getHeight() - insets.top - insets.bottom);
-
-            final FontMetrics fm = g2d.getFontMetrics();
-            final int fontH = fm.getHeight();
-
-            if (_histogram == null || _raster == null) {
-                g2d.setColor(StatisticsToolView.DIAGRAM_TEXT_COLOR);
-                g2d.drawString(_DEFAULT_HISTOGRAM_TEXT, insets.left + 1, insets.top + fontH);
-                return;
-            }
-
-            final int diagX0 = StatisticsToolView.DIAGRAM_MIN_INSETS + insets.left;
-            final int diagY0 = StatisticsToolView.DIAGRAM_MIN_INSETS + +insets.top;
-            final int diagW = getWidth() - 2 * StatisticsToolView.DIAGRAM_MIN_INSETS - (insets.left + insets.right) - 1;
-            final int diagH = getHeight() - 2 * StatisticsToolView.DIAGRAM_MIN_INSETS - (insets.top + insets.bottom) - 2 * fontH - 1;
-
-            drawHistogram(g2d, diagX0, diagY0, diagW, diagH);
-            drawDiagramText(g2d, diagX0, diagY0, diagW, diagH, fm);
-        }
-
-        private void drawHistogram(final Graphics2D g2d, final int diagX0, final int diagY0, final int diagW,
-                                   final int diagH) {
-            final int[] binVals = _histogram.getBinCounts();
-            final int numBins = _histogram.getNumBins();
-
-            final double xScale = (1.00 * diagW) / (numBins - 1);
-            final double yScale = (0.95 * diagH) / _histogram.getMaxBinCount();
-
-            g2d.setColor(StatisticsToolView.DIAGRAM_BG_COLOR);
-            g2d.fillRect(diagX0 - 1, diagY0 - 1, diagW + 2, diagH + 2);
-
-            g2d.setColor(StatisticsToolView.DIAGRAM_FG_COLOR);
-            int x1, y1, x2 = 0, y2 = 0;
-            for (int i = 0; i < numBins; i++) {
-                x1 = x2;
-                y1 = y2;
-                x2 = diagX0 + (int) (xScale * i);
-                y2 = diagY0 + diagH - (int) (yScale * binVals[i]);
-                if (i > 0) {
-                    g2d.drawLine(x1, y1, x2, y2);
-                }
-            }
-
-            g2d.setColor(getForeground());
-            g2d.drawRect(diagX0 - 1, diagY0 - 1, diagW + 2, diagH + 2);
-        }
-
-        private void drawDiagramText(final Graphics2D g2d, final int diagX0, final int diagY0, final int diagW,
-                                     final int diagH, final FontMetrics fm) {
-
-            final int fontH = fm.getHeight();
-
-            String text;
-            int textW;
-
-            final double min = getRaster().scale(_histogram.getMin());
-            final double max = getRaster().scale(_histogram.getMax());
-            final double rF = MathUtils.computeRoundFactor(min, max, 5);
-            g2d.setColor(StatisticsToolView.DIAGRAM_TEXT_COLOR);
-            text = String.valueOf(MathUtils.round(min, rF));
-            g2d.drawString(text, diagX0, diagY0 + diagH + fontH);
-            text = String.valueOf(MathUtils.round(max, rF));
-            textW = fm.stringWidth(text);
-            g2d.drawString(text, diagX0 + diagW - textW, diagY0 + diagH + fontH);
-            final double centerValue = computeCenterValue(min, max);
-            text = String.valueOf(MathUtils.round(centerValue, rF));
-            textW = fm.stringWidth(text);
-            g2d.drawString(text, diagX0 + (diagW - textW) / 2, diagY0 + diagH + fontH);
-
-            text = StatisticsUtils.getDiagramLabel(getRaster());
-            textW = fm.stringWidth(text);
-            g2d.drawString(text, diagX0 + (diagW - textW) / 2, diagY0 + diagH + 2 * fontH);
-        }
-
-        private double computeCenterValue(double min, double max) {
-            min = getRaster().scaleInverse(min);
-            max = getRaster().scaleInverse(max);
-            return getRaster().scale(min + (max - min) * 0.5);
-        }
-
-        private String getDataAsText() {
-            if (_histogram == null) {
-                return null;
-            }
-
-            final int[] binVals = _histogram.getBinCounts();
-            final int numBins = _histogram.getNumBins();
-            final double min = getRaster().scale(_histogram.getMin());
-            final double max = getRaster().scale(_histogram.getMax());
-
-            final StringBuffer sb = new StringBuffer(16000);
-
-            sb.append("Product name:\t").append(getRaster().getProduct().getName()).append("\n");
-            sb.append("Dataset name:\t").append(getRaster().getName()).append("\n");
-            sb.append('\n');
-            sb.append("Histogram minimum:\t").append(min).append("\t").append(getRaster().getUnit()).append("\n");
-            sb.append("Histogram maximum:\t").append(max).append("\t").append(getRaster().getUnit()).append("\n");
-            sb.append("Histogram bin size:\t").append(
-                    getRaster().isLog10Scaled() ? ("NA\t") : ((max - min) / numBins + "\t") +
-                                                             getRaster().getUnit() + "\n");
-            sb.append("Histogram #bins:\t").append(numBins).append("\n");
-            sb.append('\n');
-
-            sb.append("Bin center value");
+        for (int i = 0; i < numBins; i++) {
+            sb.append(min + ((i + 0.5) * (max - min)) / numBins);
             sb.append('\t');
-            sb.append("Bin counts");
+            sb.append(binVals[i]);
             sb.append('\n');
-
-            for (int i = 0; i < numBins; i++) {
-                sb.append(min + ((i + 0.5) * (max - min)) / numBins);
-                sb.append('\t');
-                sb.append(binVals[i]);
-                sb.append('\n');
-            }
-
-            return sb.toString();
         }
+
+        return sb.toString();
     }
+
 }
 
 
+/**
+ * A demo of the {@link HistogramDataset} class.
+ */
+class HistogramDemo1 extends ApplicationFrame {
+
+    /**
+     * Creates a new demo.
+     *
+     * @param title the frame title.
+     */
+    public HistogramDemo1(String title) {
+        super(title);
+        JPanel chartPanel = createDemoPanel();
+        chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+        setContentPane(chartPanel);
+    }
+
+    /**
+     * Creates a sample {@link HistogramDataset}.
+     *
+     * @return the dataset.
+     */
+    private static IntervalXYDataset createDataset() {
+        HistogramDataset dataset = new HistogramDataset();
+        double[] values = new double[1000];
+        Random generator = new Random(12345678L);
+        for (int i = 0; i < 1000; i++) {
+            values[i] = generator.nextGaussian() + 5;
+        }
+        dataset.addSeries("H1", values, 100, 2.0, 8.0);
+        values = new double[1000];
+        for (int i = 0; i < 1000; i++) {
+            values[i] = generator.nextGaussian() + 7;
+        }
+        dataset.addSeries("H2", values, 100, 4.0, 10.0);
+        return dataset;
+    }
+
+    /**
+     * Creates a chart.
+     *
+     * @param dataset a dataset.
+     * @return The chart.
+     */
+    private static JFreeChart createChart(IntervalXYDataset dataset) {
+        JFreeChart chart = ChartFactory.createHistogram(
+                "Histogram Demo 1",
+                null,
+                null,
+                dataset,
+                PlotOrientation.VERTICAL,
+                true,
+                true,
+                false
+        );
+        XYPlot plot = (XYPlot) chart.getPlot();
+        plot.setForegroundAlpha(0.85f);
+        XYBarRenderer renderer = (XYBarRenderer) plot.getRenderer();
+        renderer.setDrawBarOutline(false);
+        return chart;
+    }
+
+    /**
+     * Creates a panel for the demo (used by SuperDemo.java).
+     *
+     * @return A panel.
+     */
+    public static JPanel createDemoPanel() {
+        JFreeChart chart = createChart(createDataset());
+        return new ChartPanel(chart);
+    }
+
+    /**
+     * The starting point for the demo.
+     *
+     * @param args ignored.
+     * @throws IOException if there is a problem saving the file.
+     */
+    public static void main(String[] args) throws IOException {
+
+        HistogramDemo1 demo = new HistogramDemo1("JFreeChart : HistogramDemo1");
+        demo.pack();
+        RefineryUtilities.centerFrameOnScreen(demo);
+        demo.setVisible(true);
+
+    }
+
+}

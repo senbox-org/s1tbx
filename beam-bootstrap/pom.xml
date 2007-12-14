@@ -56,6 +56,18 @@
             <artifactId>jide-common</artifactId>
         </dependency>
         <dependency>
+            <groupId>jfree</groupId>
+            <artifactId>jfreechart</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jfree</groupId>
+            <artifactId>jcommon</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.lowagie</groupId>
+            <artifactId>itext</artifactId>
+        </dependency>
+        <dependency>
             <groupId>javax.help</groupId>
             <artifactId>jhall</artifactId>
         </dependency>

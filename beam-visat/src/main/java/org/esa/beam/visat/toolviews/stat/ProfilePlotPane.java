@@ -11,11 +11,17 @@ import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.layer.FigureLayer;
 import org.esa.beam.util.math.MathUtils;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.ui.ApplicationFrame;
+import org.jfree.ui.RefineryUtilities;
 
-import javax.swing.BorderFactory;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.border.EtchedBorder;
+import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 
@@ -41,8 +47,11 @@ class ProfilePlotPane extends PagePane {
     private static Parameter _markVerticesParam = new Parameter("markVertices");
     private ParamGroup _paramGroup;
 
-    private ProfilePlotDisplay _profilePlotDisplay;
+    private ChartPanel _profilePlotDisplay;
     private static boolean _isInitialized = false;
+    private JFreeChart chart;
+    private XYSeriesCollection dataset;
+    private TransectProfileData profileData;
 
     public ProfilePlotPane(final ToolView parentDialog) {
         super(parentDialog);
@@ -81,9 +90,8 @@ class ProfilePlotPane extends PagePane {
         if (!_isInitialized) {
             return;
         }
-        final TransectProfileData data;
         try {
-            data = StatisticsUtils.TransectProfile.getTransectProfileData(getRaster());
+            profileData = StatisticsUtils.TransectProfile.getTransectProfileData(getRaster());
         } catch (IOException e) {
             JOptionPane.showMessageDialog(getParent(),
                                           "Failed to compute profile plot.\n" +
@@ -92,12 +100,19 @@ class ProfilePlotPane extends PagePane {
                                           JOptionPane.ERROR_MESSAGE);   /*I18N*/
             return;
         }
-        if (data != null) {
+        dataset.removeAllSeries();
+        if (profileData != null) {
+            XYSeries series = new XYSeries("Pixel Values");
+            final float[] sampleValues = profileData.getSampleValues();
+            for (int i = 0; i < sampleValues.length; i++) {
+                series.add(i, sampleValues[i]);
+            }
+            dataset.addSeries(series);
 
             final Number minX = 0;
-            final Number maxX = data.getNumPixels() - 1;
-            final Number minY = StatisticsUtils.round(data.getSampleMin());
-            final Number maxY = StatisticsUtils.round(data.getSampleMax());
+            final Number maxX = profileData.getNumPixels() - 1;
+            final Number minY = StatisticsUtils.round(profileData.getSampleMin());
+            final Number maxY = StatisticsUtils.round(profileData.getSampleMax());
 
             _minParams[VAR1].getProperties().setMinValue(minX);
             _minParams[VAR1].getProperties().setMaxValue(maxX);
@@ -113,7 +128,7 @@ class ProfilePlotPane extends PagePane {
             //            _maxParams[VAR2].getProperties().setMinValue(minY);
             //            _maxParams[VAR2].getProperties().setMaxValue(maxY);
 
-            _markVerticesParam.setUIEnabled(data.getShapeVertices().length > 2);
+            _markVerticesParam.setUIEnabled(profileData.getShapeVertices().length > 2);
         }
 
         updateUIState();
@@ -145,7 +160,7 @@ class ProfilePlotPane extends PagePane {
         _autoMinMaxParams[var].getProperties().setDescription("Automatically detect min/max for " + axis);  /*I18N*/
         _paramGroup.addParameter(_autoMinMaxParams[var]);
 
-        paramValue = !(var == VAR1) ? (Object) new Float(0.0f) : (Object) new Integer(0);
+        paramValue = !(var == VAR1) ? new Float(0.0f) : new Integer(0);
         _minParams[var] = new Parameter(paramPrefix + "min", paramValue);
         _minParams[var].getProperties().setLabel("Min:");
         _minParams[var].getProperties().setDescription("Minimum display value for " + axis);    /*I18N*/
@@ -155,7 +170,7 @@ class ProfilePlotPane extends PagePane {
         }
         _paramGroup.addParameter(_minParams[var]);
 
-        paramValue = !(var == VAR1) ? (Object) new Float(100.0f) : (Object) new Integer(100);
+        paramValue = !(var == VAR1) ? new Float(100.0f) : new Integer(100);
         _maxParams[var] = new Parameter(paramPrefix + "max", paramValue);
         _maxParams[var].getProperties().setLabel("Max:");
         _maxParams[var].getProperties().setDescription("Maximum display value for " + axis);    /*I18N*/
@@ -175,10 +190,24 @@ class ProfilePlotPane extends PagePane {
 
     private void createUI() {
 
+        dataset = new XYSeriesCollection();
+        chart = ChartFactory.createXYLineChart(
+                "Profile Plot",
+                "Pixel No.",
+                "Sample value",
+                dataset,
+                PlotOrientation.VERTICAL,
+                true,
+                true,
+                false
+        );
+
+        _profilePlotDisplay = new ChartPanel(chart);
+        /*
         _profilePlotDisplay = new ProfilePlotDisplay();
         _profilePlotDisplay.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
         _profilePlotDisplay.addMouseListener(new PopupHandler());
-
+         */
         this.add(_profilePlotDisplay, BorderLayout.CENTER);
         this.add(createOptionsPane(), BorderLayout.EAST);
     }
@@ -196,11 +225,14 @@ class ProfilePlotPane extends PagePane {
         if (!_isInitialized) {
             return;
         }
+ // todo
+        /*
         _profilePlotDisplay.setDiagramProperties(((Number) _minParams[VAR1].getValue()).intValue(),
                                                  ((Number) _maxParams[VAR1].getValue()).intValue(),
                                                  ((Number) _minParams[VAR2].getValue()).floatValue(),
                                                  ((Number) _maxParams[VAR2].getValue()).floatValue(),
                                                  (Boolean) _markVerticesParam.getValue());
+*/
     }
 
 
@@ -209,19 +241,8 @@ class ProfilePlotPane extends PagePane {
             return;
         }
 
-        TransectProfileData data;
-        try {
-            data = StatisticsUtils.TransectProfile.getTransectProfileData(getRaster());
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(getParent(),
-                                          "Failed to compute profile plot.\n" +
-                                                  "An I/O error occured:" + e.getMessage(),
-                                          "I/O error",
-                                          JOptionPane.ERROR_MESSAGE);       /*I18N*/
-            data = null;
-        }
 
-        if (data == null) {
+        if (profileData == null) {
             _minParams[var].setUIEnabled(false);
             _maxParams[var].setUIEnabled(false);
             return;
@@ -234,11 +255,11 @@ class ProfilePlotPane extends PagePane {
         if (autoMinMaxEnabled) {
             if (var == VAR1) {
                 _minParams[var].setValue(0, null);
-                _maxParams[var].setValue(data.getNumPixels() - 1, null);
+                _maxParams[var].setValue(profileData.getNumPixels() - 1, null);
             } else {
-                final float v = MathUtils.computeRoundFactor(data.getSampleMin(), data.getSampleMax(), 4);
-                _minParams[var].setValue(StatisticsUtils.round(data.getSampleMin(), v), null);
-                _maxParams[var].setValue(StatisticsUtils.round(data.getSampleMax(), v), null);
+                final float v = MathUtils.computeRoundFactor(profileData.getSampleMin(), profileData.getSampleMax(), 4);
+                _minParams[var].setValue(StatisticsUtils.round(profileData.getSampleMin(), v), null);
+                _maxParams[var].setValue(StatisticsUtils.round(profileData.getSampleMax(), v), null);
             }
         } else {
             final float min = ((Number) _minParams[var].getValue()).floatValue();
@@ -251,7 +272,7 @@ class ProfilePlotPane extends PagePane {
     }
 
 
-    private JPanel createOptionsPane() {
+    private static JPanel createOptionsPane() {
         final JPanel optionsPane = GridBagUtils.createPanel();
         final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=BOTH");
 
@@ -263,7 +284,7 @@ class ProfilePlotPane extends PagePane {
         return optionsPane;
     }
 
-    private JPanel createOptionsPane(final int var) {
+    private static JPanel createOptionsPane(final int var) {
 
         final JPanel optionsPane = GridBagUtils.createPanel();
         final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=WEST,fill=HORIZONTAL");
@@ -359,13 +380,7 @@ class ProfilePlotPane extends PagePane {
             final FontMetrics fm = g2d.getFontMetrics();
             final int fh = fm.getHeight();
 
-            TransectProfileData data;
-            try {
-                data = StatisticsUtils.TransectProfile.getTransectProfileData(getRaster());
-            } catch (IOException e) {
-                data = null;
-            }
-            if (data == null || getRaster() == null) {
+            if (profileData == null || getRaster() == null) {
                 g2d.setColor(StatisticsToolView.DIAGRAM_TEXT_COLOR);
                 g2d.drawString(_DEFAULT_PROFILEPLOT_TEXT, insets.left + 1, insets.top + fh);
             } else {
@@ -383,23 +398,12 @@ class ProfilePlotPane extends PagePane {
         private void drawProfilePlot(final Graphics2D g2d, final int diagX0, final int diagY0, final int diagW,
                                      final int diagH) {
 
-            final TransectProfileData data;
-            try {
-                data = StatisticsUtils.TransectProfile.getTransectProfileData(getRaster());
-            } catch (IOException e) {
-                JOptionPane.showMessageDialog(getParent(),
-                                              "Failed to compute profile plot.\n" +
-                                                      "An I/O error occured:" + e.getMessage(),
-                                              "I/O error",
-                                              JOptionPane.ERROR_MESSAGE);   /*I18N*/
-                return;
-            }
-            if (data == null) {
+            if (profileData == null) {
                 return;
             }
 
-            final int[] vertexIndices = data.getShapeVertexIndexes();
-            final float[] sampleValues = data.getSampleValues();
+            final int[] vertexIndices = profileData.getShapeVertexIndexes();
+            final float[] sampleValues = profileData.getSampleValues();
 
             g2d.translate(diagX0, diagY0);
 
@@ -496,5 +500,93 @@ class ProfilePlotPane extends PagePane {
             g2d.translate(-translX, -translY);
         }
     }
-
 }
+
+/**
+ * A simple demo showing a dataset created using the {@link XYSeriesCollection}
+ * class.
+ */
+class XYSeriesDemo1 extends ApplicationFrame {
+    /**
+     * A demonstration application showing an XY series containing a null value.
+     *
+     * @param title the frame title.
+     */
+    public XYSeriesDemo1(String title) {
+
+        super(title);
+        XYDataset dataset = createDataset();
+        JFreeChart chart = createChart(dataset);
+        ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+        setContentPane(chartPanel);
+
+    }
+
+    private static JFreeChart createChart(XYDataset dataset) {
+
+        JFreeChart chart = ChartFactory.createXYLineChart(
+                "XY Series Demo",
+                "X",
+                "Y",
+                dataset,
+                PlotOrientation.VERTICAL,
+                true,
+                true,
+                false
+        );
+//        java.awt.BasicStroke stroke = new java.awt.BasicStroke(1f,
+//                java.awt.BasicStroke.CAP_SQUARE,
+//                java.awt.BasicStroke.JOIN_MITER,
+//                10.0f,
+//                new float[] {6f, 3f, 2f, 3f},
+//                0f);
+//
+//        chart.getXYPlot().getRenderer().setStroke(stroke);
+        return chart;
+    }
+
+    /**
+     * Creates a sample dataset.
+     *
+     * @return A sample dataset.
+     */
+    private static XYDataset createDataset() {
+        XYSeries series = new XYSeries("Random Data");
+        series.add(1.0, 500.2);
+        series.add(5.0, 694.1);
+        series.add(4.0, 100.0);
+        series.add(12.5, 734.4);
+        series.add(17.3, 453.2);
+        series.add(21.2, 500.2);
+        series.add(21.9, null);
+        series.add(25.6, 734.4);
+        series.add(30.0, 453.2);
+        return new XYSeriesCollection(series);
+    }
+
+    /**
+     * Creates a panel for the demo (used by SuperDemo.java).
+     *
+     * @return A panel.
+     */
+    public static JPanel createDemoPanel() {
+        JFreeChart chart = createChart(createDataset());
+        return new ChartPanel(chart);
+    }
+
+    /**
+     * Starting point for the demonstration application.
+     *
+     * @param args ignored.
+     */
+    public static void main(String[] args) {
+
+        XYSeriesDemo1 demo = new XYSeriesDemo1("XY Series Demo");
+        demo.pack();
+        RefineryUtilities.centerFrameOnScreen(demo);
+        demo.setVisible(true);
+
+    }
+}
+
