@@ -474,10 +474,10 @@ class ChrisFile {
     }
 
     private void determineScanLineLayout() {
-        final String chrisMode = getGlobalAttribute(ChrisConstants.ATTR_NAME_CHRIS_MODE);
+        final String mode = getGlobalAttribute(ChrisConstants.ATTR_NAME_CHRIS_MODE).substring(0, 1);
 
-        if (!(scanLineLayoutMap == null || chrisMode == null || scanLineLayoutMap.get(chrisMode) == null)) {
-            scanLineLayout = scanLineLayoutMap.get(chrisMode);
+        if (!(scanLineLayoutMap == null || mode == null || scanLineLayoutMap.get(mode) == null)) {
+            scanLineLayout = scanLineLayoutMap.get(mode);
         } else {
             scanLineLayout = new ScanLineLayout(0, rciImageSds.dimSizes[2], 0);
         }

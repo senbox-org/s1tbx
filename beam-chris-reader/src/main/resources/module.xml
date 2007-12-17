@@ -16,6 +16,8 @@
         <![CDATA[
         <p>Changes in Version 1.4
         <ul>
+        <li>[CBOX-44] RGB profile for Mode 0</li>
+        <li>[CBOX-43] Support of Modes 20 and 30</li>
         <li>[CBOX-42] New mask values should leave large gap</li>
         <li>[CBOX-41] IOException thrown for PR format</li>
         <li>[CBOX-40] Wrong import of cut-off wavelength</li>
@@ -71,6 +73,12 @@
 
     <extension point="beam-core:rgbProfiles">
         <rgbProfile>
+            <name>CHRIS/PROBA - Mode 0</name>
+            <red>radiance_3</red>
+            <green>radiance_2</green>
+            <blue>radiance_1</blue>
+        </rgbProfile>
+        <rgbProfile>
             <name>CHRIS/PROBA - Mode 1</name>
             <red>radiance_25</red>
             <green>radiance_12</green>
@@ -89,6 +97,12 @@
             <blue>radiance_2</blue>
         </rgbProfile>
         <rgbProfile>
+            <name>CHRIS/PROBA - Mode 3A</name>
+            <red>radiance_9</red>
+            <green>radiance_5</green>
+            <blue>radiance_3</blue>
+        </rgbProfile>
+        <rgbProfile>
             <name>CHRIS/PROBA - Mode 4</name>
             <red>radiance_4</red>
             <green>radiance_2</green>
@@ -99,12 +113,6 @@
             <red>radiance_8</red>
             <green>radiance_4</green>
             <blue>radiance_2</blue>
-        </rgbProfile>
-        <rgbProfile>
-            <name>CHRIS/PROBA - San Rossore</name>
-            <red>radiance_9</red>
-            <green>radiance_5</green>
-            <blue>radiance_3</blue>
         </rgbProfile>
     </extension>
 
