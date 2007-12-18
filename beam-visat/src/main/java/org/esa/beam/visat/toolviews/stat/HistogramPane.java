@@ -17,12 +17,8 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
-import org.jfree.data.statistics.HistogramDataset;
-import org.jfree.data.xy.IntervalXYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.ui.ApplicationFrame;
-import org.jfree.ui.RefineryUtilities;
 
 import javax.media.jai.ROI;
 import javax.swing.*;
@@ -30,7 +26,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.util.Random;
 
 /**
  * A pane within the statistcs window which displays a histogram.
@@ -39,7 +34,7 @@ import java.util.Random;
  */
 class HistogramPane extends PagePane {
 
-    private final static String DEFAULT_HISTOGRAM_TEXT = "No histogram computed yet.";  /*I18N*/
+    private final static String NO_DATA_MESSAGE = "No histogram computed yet.";  /*I18N*/
     private final static String TITLE_PREFIX = "Histogram";    /*I18N*/
 
 
@@ -139,6 +134,7 @@ class HistogramPane extends PagePane {
         );
         XYPlot plot = (XYPlot) chart.getPlot();
         plot.setForegroundAlpha(0.85f);
+        plot.setNoDataMessage(NO_DATA_MESSAGE);
         XYBarRenderer renderer = (XYBarRenderer) plot.getRenderer();
         renderer.setDrawBarOutline(false);
 

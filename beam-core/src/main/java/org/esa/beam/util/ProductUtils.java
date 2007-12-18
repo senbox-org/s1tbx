@@ -1228,10 +1228,16 @@ public class ProductUtils {
             g[0] = (byte) background.getGreen();
             b[0] = (byte) background.getBlue();
             a[0] = (byte) background.getAlpha();
-            for (int i = 1; i < palSize; i++) {
-                r[i] = (byte) i;
-                g[i] = (byte) i;
-                b[i] = (byte) i;
+            for (int i = 1; i < 128; i++) {
+                r[i] = (byte) (2 * i);
+                g[i] = (byte) 0;
+                b[i] = (byte) 0;
+                a[i] = (byte) 255;
+            }
+            for (int i = 128; i < 256; i++) {
+                r[i] = (byte) 255;
+                g[i] = (byte) (2 * (i-128));
+                b[i] = (byte) 0; // (2 * (i-128));
                 a[i] = (byte) 255;
             }
             image = new BufferedImage(width,

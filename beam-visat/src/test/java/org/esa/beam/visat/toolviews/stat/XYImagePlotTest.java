@@ -3,6 +3,7 @@ package org.esa.beam.visat.toolviews.stat;
 import junit.framework.TestCase;
 
 import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 public class XYImagePlotTest extends TestCase {
@@ -47,6 +48,37 @@ public class XYImagePlotTest extends TestCase {
         assertEquals(2.0, imagePlot.getRangeAxis().getLowerBound(), 1e-10);
         assertEquals(42.0, imagePlot.getRangeAxis().getUpperBound(), 1e-10);
         assertNotNull(imagePlot.getDataset());
+    }
+
+    public void testImageSourceArea() {
+        final XYImagePlot imagePlot = new XYImagePlot();
+        final BufferedImage image = new BufferedImage(200, 100, BufferedImage.TYPE_INT_ARGB);
+        imagePlot.setImage(image);
+        imagePlot.setImageDataBounds(new Rectangle2D.Double(-1.0, 0.0, 2.0, 1.0));
+
+        imagePlot.getDomainAxis().setRange(-0.5, +0.5);
+        imagePlot.getRangeAxis().setRange(0.25, 0.75);
+        Rectangle area = imagePlot.getImageSourceArea();
+        assertEquals(50, area.x);
+        assertEquals(25, area.y);
+        assertEquals(100, area.width);
+        assertEquals(50, area.height);
+
+        imagePlot.getDomainAxis().setRange(0, 0.1);
+        imagePlot.getRangeAxis().setRange(0.5, 0.6);
+        area = imagePlot.getImageSourceArea();
+        assertEquals(100, area.x);
+        assertEquals(40, area.y);
+        assertEquals(10, area.width);
+        assertEquals(10, area.height);
+
+        imagePlot.getDomainAxis().setRange(0.5, 1.0);
+        imagePlot.getRangeAxis().setRange(0.7, 1.0);
+        area = imagePlot.getImageSourceArea();
+        assertEquals(150, area.x);
+        assertEquals(0, area.y);
+        assertEquals(50, area.width);
+        assertEquals(30, area.height);
     }
 
 }

@@ -20,7 +20,6 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.ui.RectangleInsets;
 
-import javax.imageio.ImageIO;
 import javax.media.jai.ROI;
 import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
@@ -35,7 +34,6 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +48,7 @@ import java.util.concurrent.ExecutionException;
  */
 class ScatterPlotPane extends PagePane {
 
-    private static final String DEFAULT_SCATTERPLOT_TEXT = "No scatter plot computed yet.";  /*I18N*/
+    private static final String NO_DATA_MESSAGE = "No scatter plot computed yet.";  /*I18N*/
     private static final String TITLE_PREFIX = "Scatter Plot";
 
     private static final int X_VAR = 0;
@@ -192,10 +190,8 @@ class ScatterPlotPane extends PagePane {
         computePane = ComputePane.createComputePane(actionAll, actionROI, getRaster());
 
         plot = new XYImagePlot();
-        // plot.setImage(null);
-        //plot.setImageDataBounds(imageDataBounds);
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
-        plot.setNoDataMessage(DEFAULT_SCATTERPLOT_TEXT);
+        plot.setNoDataMessage(NO_DATA_MESSAGE);
 
 //        NumberAxis scaleAxis = new NumberAxis("Scale");
 //        scaleAxis.setTickLabelFont(new Font("Dialog", Font.PLAIN, 7));
@@ -364,8 +360,8 @@ class ScatterPlotPane extends PagePane {
                                                                                     (float) rangeY.getMin(),
                                                                                     (float) rangeY.getMax(),
                                                                                     roi,
-                                                                                    256,
-                                                                                    256,
+                                                                                    512,
+                                                                                    512,
                                                                                     new Color(255, 255, 255, 0),
                                                                                     null,
                                                                                     SubProgressMonitor.create(pm, 70));
@@ -383,12 +379,6 @@ class ScatterPlotPane extends PagePane {
                     final double maxX = scatterPlot.getRangeX().getMax();
                     final double minY = scatterPlot.getRangeY().getMin();
                     final double maxY = scatterPlot.getRangeY().getMax();
-                    try {
-                        ImageIO.write(scatterPlot.getImage(), "PNG", new File("boboo.png"));
-                    } catch (IOException e) {
-// todo - handle exception here
-                        e.printStackTrace();
-                    }
                     plot.setImage(scatterPlot.getImage());
                     plot.setImageDataBounds(new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY));
                     setAutoRange(X_VAR, scatterPlot.getRangeX());

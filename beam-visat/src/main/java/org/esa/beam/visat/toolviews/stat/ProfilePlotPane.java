@@ -15,16 +15,11 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.ui.ApplicationFrame;
-import org.jfree.ui.RefineryUtilities;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 import java.io.IOException;
 
 /**
@@ -35,7 +30,7 @@ import java.io.IOException;
 class ProfilePlotPane extends PagePane {
 
     private static final String TITLE_PREFIX = "Profile Plot"; /*I18N*/
-    private static final String DEFAULT_PROFILEPLOT_TEXT = "No profile plot computed yet. " +
+    private static final String NO_DATA_MESSAGE = "No profile plot computed yet. " +
             "It will be computed if a shape is added to the image view.";    /*I18N*/
 
     private static final int VAR1 = 0;
@@ -202,6 +197,7 @@ class ProfilePlotPane extends PagePane {
                 true,
                 false
         );
+        chart.getPlot().setNoDataMessage(NO_DATA_MESSAGE);
 
         profilePlotDisplay = new ChartPanel(chart);
         profilePlotDisplay.getPopupMenu().add(createCopyDataToClipboardMenuItem());
