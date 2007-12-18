@@ -24,7 +24,7 @@ import java.io.IOException;
 public class SubsetOp extends Operator {
 
     private ProductReader subsetReader;
-    private ProductSubsetDef subsetDef = null;
+    private ProductSubsetDef subsetDef;
 
     @SourceProduct(alias="input")
     private Product sourceProduct;
@@ -44,6 +44,50 @@ public class SubsetOp extends Operator {
     private String[] tiePointGridList = null;
     @Parameter
     private boolean ignoreMetadata = false;
+
+    public SubsetOp() {
+    }
+
+    public SubsetOp(Product sourceProduct, String[] bandList, Rectangle region, int subSamplingX, int subSamplingY) {
+        this.sourceProduct = sourceProduct;
+        this.bandList = bandList;
+        this.region = region;
+        this.subSamplingX = subSamplingX;
+        this.subSamplingY = subSamplingY;
+    }
+
+    public void setBandList(String[] bandList) {
+        this.bandList = bandList;
+    }
+
+    public void setFlagBandList(String[] flagBandList) {
+        this.flagBandList = flagBandList;
+    }
+
+    public void setIgnoreMetadata(boolean ignoreMetadata) {
+        this.ignoreMetadata = ignoreMetadata;
+    }
+
+    public void setRegion(Rectangle region) {
+        this.region = region;
+    }
+
+    public void setSourceProduct(Product sourceProduct) {
+        this.sourceProduct = sourceProduct;
+        super.addSourceProduct("input", sourceProduct);
+    }
+
+    public void setSubSamplingX(int subSamplingX) {
+        this.subSamplingX = subSamplingX;
+    }
+
+    public void setSubSamplingY(int subSamplingY) {
+        this.subSamplingY = subSamplingY;
+    }
+
+    public void setTiePointGridList(String[] tiePointGridList) {
+        this.tiePointGridList = tiePointGridList;
+    }
 
     @Override
     public void initialize() throws OperatorException {
