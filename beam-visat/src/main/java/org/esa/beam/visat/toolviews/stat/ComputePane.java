@@ -4,27 +4,27 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.layer.ROILayer;
 
-import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 
 /**
- * A pane which has some 'compute' buttons.
+ * A panel which performs the 'compute' action.
  *
  * @author Marco Peters
  */
 class ComputePane extends JPanel {
 
-    private static final LayerObserver _roiLayerObserver = LayerObserver.getInstance(ROILayer.class);
-    private final JButton _computeAllPixelsButton;
-    private final JButton _computeROIButton;
-    private RasterDataNode _raster;
+    private static final LayerObserver roiLayerObserver = LayerObserver.getInstance(ROILayer.class);
+    private final JButton computeButton;
+    private final JCheckBox useRoiCheckBox;
+    private RasterDataNode raster;
+
+    public RasterDataNode getRaster() {
+        return raster;
+    }
 
     static ComputePane createComputePane(final ActionListener allPixelsActionListener,
                                          final ActionListener roiActionListener,
@@ -37,51 +37,48 @@ class ComputePane extends JPanel {
                         final ActionListener roiActionListener,
                         final RasterDataNode raster) {
 
-        final Icon icon = UIUtils.loadImageIcon("icons/Gears20.gif");
-
-        _computeAllPixelsButton = new JButton("Compute for scene");     /*I18N*/
-        _computeAllPixelsButton.setMnemonic('A');
-        _computeAllPixelsButton.setEnabled(raster != null);
-        _computeAllPixelsButton.addActionListener(allPixelsActionListener);
-        _computeAllPixelsButton.setIcon(icon);
-
-        _computeROIButton = new JButton("Compute for ROI");     /*I18N*/
-        _computeROIButton.setMnemonic('R');
-        _computeROIButton.setEnabled(raster != null && raster.isROIUsable());
-        _computeROIButton.addActionListener(roiActionListener);
-        _computeROIButton.setIcon(icon);
-
-        _roiLayerObserver.addLayerObserverListener(new LayerObserver.LayerObserverListener() {
-            public void layerChanged() {
-                _computeROIButton.setEnabled(_raster != null && _raster.isROIUsable());
-            }
-        });
         setRaster(raster);
 
-        setLayout(new GridBagLayout());
-        final GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridy++;
-        gbc.weightx = 1;
-        gbc.insets = new Insets(4, 4, 4, 4);
-        gbc.anchor = GridBagConstraints.WEST;
-        add(_computeAllPixelsButton, gbc);
-        add(_computeROIButton, gbc);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 4000;
-        add(new JLabel(""), gbc);
-        gbc.weightx = 1;
-        gbc.fill = GridBagConstraints.NONE;
+        final Icon icon = UIUtils.loadImageIcon("icons/Gears20.gif");
+
+        computeButton = new JButton("Compute");     /*I18N*/
+        computeButton.setMnemonic('A');
+        computeButton.setEnabled(raster != null);
+        computeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (useRoiCheckBox.isEnabled() && useRoiCheckBox.isSelected()) {
+                    roiActionListener.actionPerformed(e);
+                } else {
+                    allPixelsActionListener.actionPerformed(e);
+                }
+            }
+        });
+        computeButton.setIcon(icon);
+
+        useRoiCheckBox = new JCheckBox("Use ROI");     /*I18N*/
+        useRoiCheckBox.setMnemonic('R');
+        useRoiCheckBox.setEnabled(raster != null && raster.isROIUsable());
+
+        roiLayerObserver.addLayerObserverListener(new LayerObserver.LayerObserverListener() {
+            public void layerChanged() {
+                useRoiCheckBox.setEnabled(isROIUsable());
+            }
+        });
+        setLayout(new BorderLayout(2, 2));
+        add(computeButton, BorderLayout.NORTH);
+        add(useRoiCheckBox, BorderLayout.SOUTH);
+    }
+
+    private boolean isROIUsable() {
+        return getRaster() != null && getRaster().isROIUsable();
     }
 
     public void setRaster(final RasterDataNode raster) {
-        if (_raster != raster) {
-
-            _raster = raster;
-            _roiLayerObserver.setRaster(_raster);
-
-
-            _computeAllPixelsButton.setEnabled(_raster != null);
-            _computeROIButton.setEnabled(_raster != null && _raster.isROIUsable());
+        if (this.raster != raster) {
+            this.raster = raster;
+            roiLayerObserver.setRaster(this.raster);
+            computeButton.setEnabled(this.raster != null);
+            useRoiCheckBox.setEnabled(this.raster != null && this.raster.isROIUsable());
         }
     }
 

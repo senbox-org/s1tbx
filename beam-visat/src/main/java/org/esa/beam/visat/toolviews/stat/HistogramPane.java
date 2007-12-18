@@ -39,20 +39,20 @@ import java.util.Random;
  */
 class HistogramPane extends PagePane {
 
-    private final static String _DEFAULT_HISTOGRAM_TEXT = "No histogram computed yet.";  /*I18N*/
-    private final static String _TITLE_PREFIX = "Histogram";    /*I18N*/
+    private final static String DEFAULT_HISTOGRAM_TEXT = "No histogram computed yet.";  /*I18N*/
+    private final static String TITLE_PREFIX = "Histogram";    /*I18N*/
 
 
-    private Parameter _numBinsParam;
-    private Parameter _autoMinMaxEnabledParam;
-    private Parameter _histoMinParam;
-    private Parameter _histoMaxParam;
-    private ChartPanel _histogramDisplay;
-    private boolean _histogramComputing;
-    private ComputePane _computePane;
+    private Parameter numBinsParam;
+    private Parameter autoMinMaxEnabledParam;
+    private Parameter histoMinParam;
+    private Parameter histoMaxParam;
+    private ChartPanel histogramDisplay;
+    private boolean histogramComputing;
+    private ComputePane computePane;
     private XYSeriesCollection dataset;
     private JFreeChart chart;
-    private Histogram _histogram;
+    private Histogram histogram;
 
 
     public HistogramPane(final ToolView parentDialog) {
@@ -61,7 +61,7 @@ class HistogramPane extends PagePane {
 
     @Override
     protected String getTitlePrefix() {
-        return _TITLE_PREFIX;
+        return TITLE_PREFIX;
     }
 
     @Override
@@ -73,14 +73,14 @@ class HistogramPane extends PagePane {
 
     @Override
     protected void updateContent() {
-        if (_computePane != null) {
-            _computePane.setRaster(getRaster());
+        if (computePane != null) {
+            computePane.setRaster(getRaster());
             setRaster(getRaster());
-            if (!(Boolean) _autoMinMaxEnabledParam.getValue()) {
+            if (!(Boolean) autoMinMaxEnabledParam.getValue()) {
                 return;
             }
-            _histoMinParam.setDefaultValue();
-            _histoMaxParam.setDefaultValue();
+            histoMinParam.setDefaultValue();
+            histoMaxParam.setDefaultValue();
         }
     }
 
@@ -92,30 +92,30 @@ class HistogramPane extends PagePane {
     private void initParameters() {
         ParamGroup paramGroup = new ParamGroup();
 
-        _numBinsParam = new Parameter("histo.numBins", 500);
-        _numBinsParam.getProperties().setLabel("#Bins:");   /*I18N*/
-        _numBinsParam.getProperties().setDescription("Set the number of bins in the histogram");    /*I18N*/
-        _numBinsParam.getProperties().setMinValue(2);
-        _numBinsParam.getProperties().setMaxValue(2000);
-        _numBinsParam.getProperties().setNumCols(5);
-        paramGroup.addParameter(_numBinsParam);
+        numBinsParam = new Parameter("histo.numBins", 500);
+        numBinsParam.getProperties().setLabel("#Bins:");   /*I18N*/
+        numBinsParam.getProperties().setDescription("Set the number of bins in the histogram");    /*I18N*/
+        numBinsParam.getProperties().setMinValue(2);
+        numBinsParam.getProperties().setMaxValue(2000);
+        numBinsParam.getProperties().setNumCols(5);
+        paramGroup.addParameter(numBinsParam);
 
-        _autoMinMaxEnabledParam = new Parameter("histo.autoMinMax", Boolean.TRUE);
-        _autoMinMaxEnabledParam.getProperties().setLabel("Auto min/max");   /*I18N*/
-        _autoMinMaxEnabledParam.getProperties().setDescription("Automatically detect min/max"); /*I18N*/
-        paramGroup.addParameter(_autoMinMaxEnabledParam);
+        autoMinMaxEnabledParam = new Parameter("histo.autoMinMax", Boolean.TRUE);
+        autoMinMaxEnabledParam.getProperties().setLabel("Auto min/max");   /*I18N*/
+        autoMinMaxEnabledParam.getProperties().setDescription("Automatically detect min/max"); /*I18N*/
+        paramGroup.addParameter(autoMinMaxEnabledParam);
 
-        _histoMinParam = new Parameter("histo.min", 0.0);
-        _histoMinParam.getProperties().setLabel("Min:");    /*I18N*/
-        _histoMinParam.getProperties().setDescription("Histogram minimum sample value");    /*I18N*/
-        _histoMinParam.getProperties().setNumCols(7);
-        paramGroup.addParameter(_histoMinParam);
+        histoMinParam = new Parameter("histo.min", 0.0);
+        histoMinParam.getProperties().setLabel("Min:");    /*I18N*/
+        histoMinParam.getProperties().setDescription("Histogram minimum sample value");    /*I18N*/
+        histoMinParam.getProperties().setNumCols(7);
+        paramGroup.addParameter(histoMinParam);
 
-        _histoMaxParam = new Parameter("histo.max", 100.0);
-        _histoMaxParam.getProperties().setLabel("Max:");    /*I18N*/
-        _histoMaxParam.getProperties().setDescription("Histogram maximum sample value");    /*I18N*/
-        _histoMaxParam.getProperties().setNumCols(7);
-        paramGroup.addParameter(_histoMaxParam);
+        histoMaxParam = new Parameter("histo.max", 100.0);
+        histoMaxParam.getProperties().setLabel("Max:");    /*I18N*/
+        histoMaxParam.getProperties().setDescription("Histogram maximum sample value");    /*I18N*/
+        histoMaxParam.getProperties().setNumCols(7);
+        paramGroup.addParameter(histoMaxParam);
 
         paramGroup.addParamChangeListener(new ParamChangeListener() {
 
@@ -133,7 +133,7 @@ class HistogramPane extends PagePane {
                 null,
                 dataset,
                 PlotOrientation.VERTICAL,
-                true,
+                false,  // Legend?
                 true,
                 false
         );
@@ -154,36 +154,27 @@ class HistogramPane extends PagePane {
                 computeHistogram(true);
             }
         };
-        _computePane = ComputePane.createComputePane(actionAll, actionROI, getRaster());
-        _histogramDisplay = new ChartPanel(chart);
-        // _histogramDisplay.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-        // _histogramDisplay.addMouseListener(new PopupHandler());
-        final JMenuItem menuItem = new JMenuItem("Copy Data to Clipboard"); /*I18N*/
-        menuItem.addActionListener(new ActionListener() {
-
-            public void actionPerformed(final ActionEvent actionEvent) {
-                if (checkDataToClipboardCopy()) {
-                    copyToClipboardImpl();
-                }
-            }
-        });
-        _histogramDisplay.getPopupMenu().add(menuItem);
-        this.add(_histogramDisplay, BorderLayout.CENTER);
-        this.add(_computePane, BorderLayout.SOUTH);
-        this.add(createOptionsPane(), BorderLayout.EAST);
+        computePane = ComputePane.createComputePane(actionAll, actionROI, getRaster());
+        histogramDisplay = new ChartPanel(chart);
+        histogramDisplay.getPopupMenu().add(createCopyDataToClipboardMenuItem());
+        final JPanel rightPanel = new JPanel(new BorderLayout());
+        rightPanel.add(createOptionsPane(), BorderLayout.NORTH);
+        rightPanel.add(computePane, BorderLayout.SOUTH);
+        this.add(histogramDisplay, BorderLayout.CENTER);
+        this.add(rightPanel, BorderLayout.EAST);
         updateUIState();
     }
 
     private void updateUIState() {
-        final double min = ((Number) _histoMinParam.getValue()).doubleValue();
-        final double max = ((Number) _histoMaxParam.getValue()).doubleValue();
-        if (!_histogramComputing && min > max) {
-            _histoMinParam.setValue(max, null);
-            _histoMaxParam.setValue(min, null);
+        final double min = ((Number) histoMinParam.getValue()).doubleValue();
+        final double max = ((Number) histoMaxParam.getValue()).doubleValue();
+        if (!histogramComputing && min > max) {
+            histoMinParam.setValue(max, null);
+            histoMaxParam.setValue(min, null);
         }
-        final boolean autoMinMaxEnabled = (Boolean) _autoMinMaxEnabledParam.getValue();
-        _histoMinParam.setUIEnabled(!autoMinMaxEnabled);
-        _histoMaxParam.setUIEnabled(!autoMinMaxEnabled);
+        final boolean autoMinMaxEnabled = (Boolean) autoMinMaxEnabledParam.getValue();
+        histoMinParam.setUIEnabled(!autoMinMaxEnabled);
+        histoMaxParam.setUIEnabled(!autoMinMaxEnabled);
     }
 
     private JPanel createOptionsPane() {
@@ -193,23 +184,23 @@ class HistogramPane extends PagePane {
         GridBagUtils.setAttributes(gbc, "gridwidth=1");
 
         GridBagUtils.setAttributes(gbc, "gridwidth=1,gridy=0,insets.top=2");
-        GridBagUtils.addToPanel(optionsPane, _numBinsParam.getEditor().getLabelComponent(), gbc,
+        GridBagUtils.addToPanel(optionsPane, numBinsParam.getEditor().getLabelComponent(), gbc,
                                 "gridx=0,weightx=1");
-        GridBagUtils.addToPanel(optionsPane, _numBinsParam.getEditor().getComponent(), gbc, "gridx=1,weightx=0");
+        GridBagUtils.addToPanel(optionsPane, numBinsParam.getEditor().getComponent(), gbc, "gridx=1,weightx=0");
 
         GridBagUtils.setAttributes(gbc, "gridwidth=2,gridy=1,insets.top=7");
-        GridBagUtils.addToPanel(optionsPane, _autoMinMaxEnabledParam.getEditor().getComponent(), gbc,
+        GridBagUtils.addToPanel(optionsPane, autoMinMaxEnabledParam.getEditor().getComponent(), gbc,
                                 "gridwidth=2,gridx=0,weightx=1");
 
         GridBagUtils.setAttributes(gbc, "gridwidth=1,gridy=2,insets.top=2");
-        GridBagUtils.addToPanel(optionsPane, _histoMinParam.getEditor().getLabelComponent(), gbc,
+        GridBagUtils.addToPanel(optionsPane, histoMinParam.getEditor().getLabelComponent(), gbc,
                                 "gridx=0,weightx=1");
-        GridBagUtils.addToPanel(optionsPane, _histoMinParam.getEditor().getComponent(), gbc, "gridx=1,weightx=0");
+        GridBagUtils.addToPanel(optionsPane, histoMinParam.getEditor().getComponent(), gbc, "gridx=1,weightx=0");
 
         GridBagUtils.setAttributes(gbc, "gridwidth=1,gridy=3,insets.top=2");
-        GridBagUtils.addToPanel(optionsPane, _histoMaxParam.getEditor().getLabelComponent(), gbc,
+        GridBagUtils.addToPanel(optionsPane, histoMaxParam.getEditor().getLabelComponent(), gbc,
                                 "gridx=0,weightx=1");
-        GridBagUtils.addToPanel(optionsPane, _histoMaxParam.getEditor().getComponent(), gbc, "gridx=1,weightx=0");
+        GridBagUtils.addToPanel(optionsPane, histoMaxParam.getEditor().getComponent(), gbc, "gridx=1,weightx=0");
 
         // Dummy
         GridBagUtils.setAttributes(gbc, "gridwidth=1,gridy=4,insets.top=2");
@@ -233,18 +224,18 @@ class HistogramPane extends PagePane {
             setHistogram(null);
             return;
         }
-        final int numBins = ((Number) _numBinsParam.getValue()).intValue();
+        final int numBins = ((Number) numBinsParam.getValue()).intValue();
         final boolean autoMinMaxEnabled = getAutoMinMaxEnabled();
         final Range range;
         if (autoMinMaxEnabled) {
             range = null; // auto compute range
         } else {
-            final double min = ((Number) _histoMinParam.getValue()).doubleValue();
-            final double max = ((Number) _histoMaxParam.getValue()).doubleValue();
+            final double min = ((Number) histoMinParam.getValue()).doubleValue();
+            final double max = ((Number) histoMaxParam.getValue()).doubleValue();
             range = new Range(getRaster().scaleInverse(min), getRaster().scaleInverse(max));
         }
 
-        final SwingWorker<Histogram, Object> swingWorker = new ProgressMonitorSwingWorker<Histogram, Object>(this._histogramDisplay, "Computing histogram") {
+        final SwingWorker<Histogram, Object> swingWorker = new ProgressMonitorSwingWorker<Histogram, Object>(this.histogramDisplay, "Computing histogram") {
             @Override
             protected Histogram doInBackground(ProgressMonitor pm) throws Exception {
                 return getRaster().computeRasterDataHistogram(roi, numBins, range, pm);
@@ -268,10 +259,10 @@ class HistogramPane extends PagePane {
                                     final double min = getRaster().scale(histo.getMin());
                                     final double max = getRaster().scale(histo.getMax());
                                     final double v = MathUtils.computeRoundFactor(min, max, 4);
-                                    _histogramComputing = true;
-                                    _histoMinParam.setValue(StatisticsUtils.round(min, v), null);
-                                    _histoMaxParam.setValue(StatisticsUtils.round(max, v), null);
-                                    _histogramComputing = false;
+                                    histogramComputing = true;
+                                    histoMinParam.setValue(StatisticsUtils.round(min, v), null);
+                                    histoMaxParam.setValue(StatisticsUtils.round(max, v), null);
+                                    histogramComputing = false;
                                 }
                             }
                         } else {
@@ -296,10 +287,10 @@ class HistogramPane extends PagePane {
     }
 
     private void setHistogram(Histogram histogram) {
-        _histogram = histogram;
+        this.histogram = histogram;
         dataset.removeAllSeries();
-        if (_histogram != null) {
-            final int[] binCounts = _histogram.getBinCounts();
+        if (this.histogram != null) {
+            final int[] binCounts = this.histogram.getBinCounts();
             final XYSeries series = new XYSeries(getRaster().getName());
             for (int i = 0; i < binCounts.length; i++) {
                 series.add(i, binCounts[i]);
@@ -313,19 +304,19 @@ class HistogramPane extends PagePane {
     }
 
     private boolean getAutoMinMaxEnabled() {
-        return (Boolean) _autoMinMaxEnabledParam.getValue();
+        return (Boolean) autoMinMaxEnabledParam.getValue();
     }
 
 
     public String getDataAsText() {
-        if (_histogram == null) {
+        if (histogram == null) {
             return null;
         }
 
-        final int[] binVals = _histogram.getBinCounts();
-        final int numBins = _histogram.getNumBins();
-        final double min = getRaster().scale(_histogram.getMin());
-        final double max = getRaster().scale(_histogram.getMax());
+        final int[] binVals = histogram.getBinCounts();
+        final int numBins = histogram.getNumBins();
+        final double min = getRaster().scale(histogram.getMin());
+        final double max = getRaster().scale(histogram.getMax());
 
         final StringBuilder sb = new StringBuilder(16000);
 

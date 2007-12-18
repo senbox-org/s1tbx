@@ -23,6 +23,8 @@ import org.jfree.ui.RefineryUtilities;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 import java.io.IOException;
 
 /**
@@ -32,47 +34,46 @@ import java.io.IOException;
  */
 class ProfilePlotPane extends PagePane {
 
-    private static final String _TITLE_PREFIX = "Profile Plot"; /*I18N*/
-    private static final String _DEFAULT_PROFILEPLOT_TEXT = "No profile plot computed yet. " +
+    private static final String TITLE_PREFIX = "Profile Plot"; /*I18N*/
+    private static final String DEFAULT_PROFILEPLOT_TEXT = "No profile plot computed yet. " +
             "It will be computed if a shape is added to the image view.";    /*I18N*/
 
     private static final int VAR1 = 0;
     private static final int VAR2 = 1;
 
+    private final static LayerObserver figureLayerObserver = LayerObserver.getInstance(FigureLayer.class);
+    private final static Parameter[] autoMinMaxParams = new Parameter[2];
+    private final static Parameter[] minParams = new Parameter[2];
+    private final static Parameter[] maxParams = new Parameter[2];
+    private static Parameter markVerticesParam = new Parameter("markVertices");
+    private static boolean isInitialized = false;
 
-    private final static LayerObserver _figureLayerObserver = LayerObserver.getInstance(FigureLayer.class);
-    private final static Parameter[] _autoMinMaxParams = new Parameter[2];
-    private final static Parameter[] _minParams = new Parameter[2];
-    private final static Parameter[] _maxParams = new Parameter[2];
-    private static Parameter _markVerticesParam = new Parameter("markVertices");
-    private ParamGroup _paramGroup;
-
-    private ChartPanel _profilePlotDisplay;
-    private static boolean _isInitialized = false;
+    private ParamGroup paramGroup;
+    private ChartPanel profilePlotDisplay;
     private JFreeChart chart;
     private XYSeriesCollection dataset;
     private TransectProfileData profileData;
 
     public ProfilePlotPane(final ToolView parentDialog) {
         super(parentDialog);
-        _figureLayerObserver.addLayerObserverListener(new LayerObserver.LayerObserverListener() {
+        figureLayerObserver.addLayerObserverListener(new LayerObserver.LayerObserverListener() {
             public void layerChanged() {
                 updateContent();
             }
         });
-        _figureLayerObserver.setRaster(getRaster());
+        figureLayerObserver.setRaster(getRaster());
     }
 
     @Override
     protected String getTitlePrefix() {
-        return _TITLE_PREFIX;
+        return TITLE_PREFIX;
     }
 
     @Override
     protected void setRaster(final RasterDataNode raster) {
         final RasterDataNode oldRaster = super.getRaster();
         if (oldRaster != raster) {
-            _figureLayerObserver.setRaster(raster);
+            figureLayerObserver.setRaster(raster);
         }
         super.setRaster(raster);
     }
@@ -81,13 +82,13 @@ class ProfilePlotPane extends PagePane {
     protected void initContent() {
         initParameters();
         createUI();
-        _isInitialized = true;
+        isInitialized = true;
         updateContent();
     }
 
     @Override
     protected void updateContent() {
-        if (!_isInitialized) {
+        if (!isInitialized) {
             return;
         }
         try {
@@ -102,7 +103,7 @@ class ProfilePlotPane extends PagePane {
         }
         dataset.removeAllSeries();
         if (profileData != null) {
-            XYSeries series = new XYSeries("Pixel Values");
+            XYSeries series = new XYSeries("Sample Values");
             final float[] sampleValues = profileData.getSampleValues();
             for (int i = 0; i < sampleValues.length; i++) {
                 series.add(i, sampleValues[i]);
@@ -114,21 +115,21 @@ class ProfilePlotPane extends PagePane {
             final Number minY = StatisticsUtils.round(profileData.getSampleMin());
             final Number maxY = StatisticsUtils.round(profileData.getSampleMax());
 
-            _minParams[VAR1].getProperties().setMinValue(minX);
-            _minParams[VAR1].getProperties().setMaxValue(maxX);
-            _minParams[VAR1].setValue(minX, null);
-            _maxParams[VAR1].getProperties().setMinValue(minX);
-            _maxParams[VAR1].getProperties().setMaxValue(maxX);
-            _maxParams[VAR1].setValue(maxX, null);
+            minParams[VAR1].getProperties().setMinValue(minX);
+            minParams[VAR1].getProperties().setMaxValue(maxX);
+            minParams[VAR1].setValue(minX, null);
+            maxParams[VAR1].getProperties().setMinValue(minX);
+            maxParams[VAR1].getProperties().setMaxValue(maxX);
+            maxParams[VAR1].setValue(maxX, null);
 
-            _minParams[VAR2].setValue(minY, null);
-            //            _minParams[VAR2].getProperties().setMinValue(minY);
-            //            _minParams[VAR2].getProperties().setMaxValue(maxY);
-            _maxParams[VAR2].setValue(maxY, null);
-            //            _maxParams[VAR2].getProperties().setMinValue(minY);
-            //            _maxParams[VAR2].getProperties().setMaxValue(maxY);
+            minParams[VAR2].setValue(minY, null);
+            //            minParams[VAR2].getProperties().setMinValue(minY);
+            //            minParams[VAR2].getProperties().setMaxValue(maxY);
+            maxParams[VAR2].setValue(maxY, null);
+            //            maxParams[VAR2].getProperties().setMinValue(minY);
+            //            maxParams[VAR2].getProperties().setMaxValue(maxY);
 
-            _markVerticesParam.setUIEnabled(profileData.getShapeVertices().length > 2);
+            markVerticesParam.setUIEnabled(profileData.getShapeVertices().length > 2);
         }
 
         updateUIState();
@@ -138,10 +139,10 @@ class ProfilePlotPane extends PagePane {
 
 
     private void initParameters() {
-        _paramGroup = new ParamGroup();
+        paramGroup = new ParamGroup();
         initParameters(VAR1);
         initParameters(VAR2);
-        _paramGroup.addParamChangeListener(new ParamChangeListener() {
+        paramGroup.addParamChangeListener(new ParamChangeListener() {
 
             public void parameterValueChanged(final ParamChangeEvent event) {
                 updateUIState();
@@ -155,36 +156,36 @@ class ProfilePlotPane extends PagePane {
         final String axis = (var == VAR1) ? "X" : "Y";
         Object paramValue;
 
-        _autoMinMaxParams[var] = new Parameter(paramPrefix + "autoMinMax", Boolean.TRUE);
-        _autoMinMaxParams[var].getProperties().setLabel("Auto min/max");    /*I18N*/
-        _autoMinMaxParams[var].getProperties().setDescription("Automatically detect min/max for " + axis);  /*I18N*/
-        _paramGroup.addParameter(_autoMinMaxParams[var]);
+        autoMinMaxParams[var] = new Parameter(paramPrefix + "autoMinMax", Boolean.TRUE);
+        autoMinMaxParams[var].getProperties().setLabel("Auto min/max");    /*I18N*/
+        autoMinMaxParams[var].getProperties().setDescription("Automatically detect min/max for " + axis);  /*I18N*/
+        paramGroup.addParameter(autoMinMaxParams[var]);
 
         paramValue = !(var == VAR1) ? new Float(0.0f) : new Integer(0);
-        _minParams[var] = new Parameter(paramPrefix + "min", paramValue);
-        _minParams[var].getProperties().setLabel("Min:");
-        _minParams[var].getProperties().setDescription("Minimum display value for " + axis);    /*I18N*/
-        _minParams[var].getProperties().setNumCols(7);
+        minParams[var] = new Parameter(paramPrefix + "min", paramValue);
+        minParams[var].getProperties().setLabel("Min:");
+        minParams[var].getProperties().setDescription("Minimum display value for " + axis);    /*I18N*/
+        minParams[var].getProperties().setNumCols(7);
         if (var == VAR1) {
-            _minParams[var].getProperties().setValidatorClass(NumberValidator.class);
+            minParams[var].getProperties().setValidatorClass(NumberValidator.class);
         }
-        _paramGroup.addParameter(_minParams[var]);
+        paramGroup.addParameter(minParams[var]);
 
         paramValue = !(var == VAR1) ? new Float(100.0f) : new Integer(100);
-        _maxParams[var] = new Parameter(paramPrefix + "max", paramValue);
-        _maxParams[var].getProperties().setLabel("Max:");
-        _maxParams[var].getProperties().setDescription("Maximum display value for " + axis);    /*I18N*/
-        _maxParams[var].getProperties().setNumCols(7);
+        maxParams[var] = new Parameter(paramPrefix + "max", paramValue);
+        maxParams[var].getProperties().setLabel("Max:");
+        maxParams[var].getProperties().setDescription("Maximum display value for " + axis);    /*I18N*/
+        maxParams[var].getProperties().setNumCols(7);
         if (var == VAR1) {
-            _maxParams[var].getProperties().setValidatorClass(NumberValidator.class);
+            maxParams[var].getProperties().setValidatorClass(NumberValidator.class);
         }
-        _paramGroup.addParameter(_maxParams[var]);
+        paramGroup.addParameter(maxParams[var]);
 
         if (var == VAR1) {
-            _markVerticesParam = new Parameter(paramPrefix + "markVertices", Boolean.TRUE);
-            _markVerticesParam.getProperties().setLabel("Mark vertices");
-            _markVerticesParam.getProperties().setDescription("Toggle whether or not to mark vertices");    /*I18N*/
-            _paramGroup.addParameter(_markVerticesParam);
+            markVerticesParam = new Parameter(paramPrefix + "markVertices", Boolean.TRUE);
+            markVerticesParam.getProperties().setLabel("Mark vertices");
+            markVerticesParam.getProperties().setDescription("Toggle whether or not to mark vertices");    /*I18N*/
+            paramGroup.addParameter(markVerticesParam);
         }
     }
 
@@ -197,23 +198,19 @@ class ProfilePlotPane extends PagePane {
                 "Sample value",
                 dataset,
                 PlotOrientation.VERTICAL,
-                true,
+                false, // Legend?
                 true,
                 false
         );
 
-        _profilePlotDisplay = new ChartPanel(chart);
-        /*
-        _profilePlotDisplay = new ProfilePlotDisplay();
-        _profilePlotDisplay.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-        _profilePlotDisplay.addMouseListener(new PopupHandler());
-         */
-        this.add(_profilePlotDisplay, BorderLayout.CENTER);
+        profilePlotDisplay = new ChartPanel(chart);
+        profilePlotDisplay.getPopupMenu().add(createCopyDataToClipboardMenuItem());
+        this.add(profilePlotDisplay, BorderLayout.CENTER);
         this.add(createOptionsPane(), BorderLayout.EAST);
     }
 
     private void updateUIState() {
-        if (!_isInitialized) {
+        if (!isInitialized) {
             return;
         }
         updateUIState(VAR1);
@@ -222,51 +219,51 @@ class ProfilePlotPane extends PagePane {
     }
 
     private void setDiagramProperties() {
-        if (!_isInitialized) {
+        if (!isInitialized) {
             return;
         }
  // todo
         /*
-        _profilePlotDisplay.setDiagramProperties(((Number) _minParams[VAR1].getValue()).intValue(),
-                                                 ((Number) _maxParams[VAR1].getValue()).intValue(),
-                                                 ((Number) _minParams[VAR2].getValue()).floatValue(),
-                                                 ((Number) _maxParams[VAR2].getValue()).floatValue(),
-                                                 (Boolean) _markVerticesParam.getValue());
+        profilePlotDisplay.setDiagramProperties(((Number) minParams[VAR1].getValue()).intValue(),
+                                                 ((Number) maxParams[VAR1].getValue()).intValue(),
+                                                 ((Number) minParams[VAR2].getValue()).floatValue(),
+                                                 ((Number) maxParams[VAR2].getValue()).floatValue(),
+                                                 (Boolean) markVerticesParam.getValue());
 */
     }
 
 
     private void updateUIState(final int var) {
-        if (!_isInitialized) {
+        if (!isInitialized) {
             return;
         }
 
 
         if (profileData == null) {
-            _minParams[var].setUIEnabled(false);
-            _maxParams[var].setUIEnabled(false);
+            minParams[var].setUIEnabled(false);
+            maxParams[var].setUIEnabled(false);
             return;
         }
 
-        final boolean autoMinMaxEnabled = (Boolean) _autoMinMaxParams[var].getValue();
-        _minParams[var].setUIEnabled(!autoMinMaxEnabled);
-        _maxParams[var].setUIEnabled(!autoMinMaxEnabled);
+        final boolean autoMinMaxEnabled = (Boolean) autoMinMaxParams[var].getValue();
+        minParams[var].setUIEnabled(!autoMinMaxEnabled);
+        maxParams[var].setUIEnabled(!autoMinMaxEnabled);
 
         if (autoMinMaxEnabled) {
             if (var == VAR1) {
-                _minParams[var].setValue(0, null);
-                _maxParams[var].setValue(profileData.getNumPixels() - 1, null);
+                minParams[var].setValue(0, null);
+                maxParams[var].setValue(profileData.getNumPixels() - 1, null);
             } else {
                 final float v = MathUtils.computeRoundFactor(profileData.getSampleMin(), profileData.getSampleMax(), 4);
-                _minParams[var].setValue(StatisticsUtils.round(profileData.getSampleMin(), v), null);
-                _maxParams[var].setValue(StatisticsUtils.round(profileData.getSampleMax(), v), null);
+                minParams[var].setValue(StatisticsUtils.round(profileData.getSampleMin(), v), null);
+                maxParams[var].setValue(StatisticsUtils.round(profileData.getSampleMax(), v), null);
             }
         } else {
-            final float min = ((Number) _minParams[var].getValue()).floatValue();
-            final float max = ((Number) _maxParams[var].getValue()).floatValue();
+            final float min = ((Number) minParams[var].getValue()).floatValue();
+            final float max = ((Number) maxParams[var].getValue()).floatValue();
             if (min > max) {
-                _minParams[var].setValue(max, null);
-                _maxParams[var].setValue(min, null);
+                minParams[var].setValue(max, null);
+                maxParams[var].setValue(min, null);
             }
         }
     }
@@ -290,22 +287,22 @@ class ProfilePlotPane extends PagePane {
         final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=WEST,fill=HORIZONTAL");
 
         GridBagUtils.setAttributes(gbc, "gridwidth=2,gridy=0,insets.top=4");
-        GridBagUtils.addToPanel(optionsPane, _autoMinMaxParams[var].getEditor().getComponent(), gbc,
+        GridBagUtils.addToPanel(optionsPane, autoMinMaxParams[var].getEditor().getComponent(), gbc,
                                 "gridx=0,weightx=1");
 
         GridBagUtils.setAttributes(gbc, "gridwidth=1,gridy=1,insets.top=2");
-        GridBagUtils.addToPanel(optionsPane, _minParams[var].getEditor().getLabelComponent(), gbc,
+        GridBagUtils.addToPanel(optionsPane, minParams[var].getEditor().getLabelComponent(), gbc,
                                 "gridx=0,weightx=1");
-        GridBagUtils.addToPanel(optionsPane, _minParams[var].getEditor().getComponent(), gbc, "gridx=1,weightx=0");
+        GridBagUtils.addToPanel(optionsPane, minParams[var].getEditor().getComponent(), gbc, "gridx=1,weightx=0");
 
         GridBagUtils.setAttributes(gbc, "gridwidth=1,gridy=2,insets.top=2");
-        GridBagUtils.addToPanel(optionsPane, _maxParams[var].getEditor().getLabelComponent(), gbc,
+        GridBagUtils.addToPanel(optionsPane, maxParams[var].getEditor().getLabelComponent(), gbc,
                                 "gridx=0,weightx=1");
-        GridBagUtils.addToPanel(optionsPane, _maxParams[var].getEditor().getComponent(), gbc, "gridx=1,weightx=0");
+        GridBagUtils.addToPanel(optionsPane, maxParams[var].getEditor().getComponent(), gbc, "gridx=1,weightx=0");
 
         if (var == VAR1) {
             GridBagUtils.setAttributes(gbc, "gridwidth=2,gridy=3,insets.top=4");
-            GridBagUtils.addToPanel(optionsPane, _markVerticesParam.getEditor().getComponent(), gbc,
+            GridBagUtils.addToPanel(optionsPane, markVerticesParam.getEditor().getComponent(), gbc,
                                     "gridx=0,weightx=0");
         }
 
@@ -382,7 +379,7 @@ class ProfilePlotPane extends PagePane {
 
             if (profileData == null || getRaster() == null) {
                 g2d.setColor(StatisticsToolView.DIAGRAM_TEXT_COLOR);
-                g2d.drawString(_DEFAULT_PROFILEPLOT_TEXT, insets.left + 1, insets.top + fh);
+                g2d.drawString(DEFAULT_PROFILEPLOT_TEXT, insets.left + 1, insets.top + fh);
             } else {
                 final int diagX0 = StatisticsToolView.DIAGRAM_MIN_INSETS + insets.left + 2 * fh;
                 final int diagY0 = StatisticsToolView.DIAGRAM_MIN_INSETS + insets.top;

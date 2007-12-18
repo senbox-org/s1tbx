@@ -168,26 +168,30 @@ abstract class PagePane extends JPanel implements ProductNodeListener{
         return true;
     }
 
+    protected JMenuItem createCopyDataToClipboardMenuItem() {
+        final JMenuItem menuItem = new JMenuItem("Copy Data to Clipboard"); /*I18N*/
+        menuItem.addActionListener(new ActionListener() {
+
+            public void actionPerformed(final ActionEvent actionEvent) {
+                if (checkDataToClipboardCopy()) {
+                    copyTextDataToClipboard();
+                }
+            }
+        });
+        return menuItem;
+    }
+
     private void maybeOpenPopup(final MouseEvent mouseEvent) {
         if (mouseEvent.isPopupTrigger()) {
             final JPopupMenu popupMenu = new JPopupMenu();
-            final JMenuItem menuItem = new JMenuItem("Copy Data to Clipboard"); /*I18N*/
-            menuItem.addActionListener(new ActionListener() {
-
-                public void actionPerformed(final ActionEvent actionEvent) {
-                    if (checkDataToClipboardCopy()) {
-                        copyToClipboardImpl();
-                    }
-                }
-            });
-            popupMenu.add(menuItem);
+            popupMenu.add(createCopyDataToClipboardMenuItem());
             handlePopupCreated(popupMenu);
             final Point point = SwingUtilities.convertPoint(mouseEvent.getComponent(), mouseEvent.getPoint(), this);
             popupMenu.show(this, point.x, point.y);
         }
     }
 
-    protected void copyToClipboardImpl() {
+    protected void copyTextDataToClipboard() {
         final Cursor oldCursor = getCursor();
         try {
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));

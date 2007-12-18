@@ -1298,6 +1298,123 @@ public class ProductUtils {
         return image;
     }
 
+    public static class Histogram2D {
+        private final Range rangeX;
+        private final Range rangeY;
+        private final Range rangeZ;
+        private final int[][] data;
+        private final int binCountX;
+        private final int binCountY;
+
+        public Histogram2D(Range rangeX, Range rangeY, Range rangeZ, int[][] data) {
+            this.rangeX = rangeX;
+            this.rangeY = rangeY;
+            this.rangeZ = rangeZ;
+            this.data = data;
+            binCountX = data[0].length;
+            binCountY = data.length;
+        }
+
+        public Range getRangeX() {
+            return rangeX;
+        }
+
+        public Range getRangeY() {
+            return rangeY;
+        }
+
+        public Range getRangeZ() {
+            return rangeZ;
+        }
+
+        public int[][] getData() {
+            return data;
+        }
+
+        public int getBinCountX() {
+            return binCountX;
+        }
+
+        public int getBinCountY() {
+            return binCountY;
+        }
+    }
+
+    public static Histogram2D createScatterPlotHistogram(final RasterDataNode raster1,
+                                                   final Range range1,
+                                                   final RasterDataNode raster2,
+                                                   final Range range2,
+                                                   final ROI roi,
+                                                   final int binCountX,
+                                                   final int binCountY,
+                                                   final ProgressMonitor pm) throws IOException {
+        Guardian.assertNotNull("raster1", raster1);
+        Guardian.assertNotNull("raster2", raster2);
+        if (raster1.getSceneRasterWidth() != raster2.getSceneRasterWidth()
+                || raster1.getSceneRasterHeight() != raster2.getSceneRasterHeight()) {
+            throw new IllegalArgumentException("'raster1' has not the same size as 'raster2'");
+        }
+
+        final int rasterW = raster1.getSceneRasterWidth();
+        final int rasterH = raster1.getSceneRasterHeight();
+        final int[][] pixelValues = new int[binCountY][binCountX];
+
+        final float sampleMin1 = (float) range1.getMin();
+        final float sampleMax1 = (float) range1.getMax();
+        final float sampleMin2 = (float) range2.getMin();
+        final float sampleMax2 = (float) range2.getMax();
+
+        final float xScale = binCountX / (sampleMax1 - sampleMin1);
+        final float yScale = binCountY / (sampleMax2 - sampleMin2);
+
+        float sample1;
+        float sample2;
+
+        int pixelX;
+        int pixelY;
+
+        float[] line1 = new float[rasterW];
+        float[] line2 = new float[rasterW];
+        int minZ = Integer.MAX_VALUE;
+        int maxZ = Integer.MIN_VALUE;
+        final IndexValidator pixelValidator1 = raster1.createPixelValidator(0, roi);
+        final IndexValidator pixelValidator2 = raster2.createPixelValidator(0, roi);
+        pm.beginTask("Creating scatter plot image...", 3 * rasterH);
+        try {
+            for (int y = 0; y < rasterH; y++) {
+                raster1.readPixels(0, y, rasterW, 1, line1, SubProgressMonitor.create(pm, 1));
+                raster2.readPixels(0, y, rasterW, 1, line2, SubProgressMonitor.create(pm, 1));
+                for (int x = 0; x < rasterW; x++) {
+                    final int index = y * rasterW + x;
+                    if (pixelValidator1.validateIndex(index) && pixelValidator2.validateIndex(index)) {
+                        sample1 = line1[x];
+                        if (sample1 >= sampleMin1 && sample1 <= sampleMax1) {
+                            sample2 = line2[x];
+                            if (sample2 >= sampleMin2 && sample2 <= sampleMax2) {
+                                pixelX = MathUtils.floorInt(xScale * (sample1 - sampleMin1));
+                                pixelY = MathUtils.floorInt(yScale * (sample2 - sampleMin2));
+                                if (pixelX >= 0 && pixelX < binCountX && pixelY >= 0 && pixelY < binCountY) {
+                                    final int n = ++pixelValues[pixelY][pixelX];
+                                    if (n < minZ) {
+                                        minZ = n;
+                                    }
+                                    if (n > maxZ) {
+                                        maxZ = n;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                pm.worked(1); // computation progress
+            }
+        } finally {
+            pm.done();
+        }
+
+        return new Histogram2D(range1, range2, new Range(minZ, maxZ), pixelValues);
+    }
+
     /**
      * @deprecated in 4.0, use {@link #overlayBitmasks(org.esa.beam.framework.datamodel.RasterDataNode,javax.media.jai.PlanarImage,com.bc.ceres.core.ProgressMonitor)} instead
      */
