@@ -2,7 +2,7 @@ package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import com.bc.ceres.swing.progress.DialogProgressMonitor;
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.RasterDataNode;
@@ -12,29 +12,33 @@ import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamGroup;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.ui.GridBagUtils;
-import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.math.Range;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.ui.RectangleInsets;
 
 import javax.media.jai.ROI;
 import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
-import javax.swing.border.EtchedBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -44,22 +48,23 @@ import java.util.List;
  */
 class ScatterPlotPane extends PagePane {
 
-    private static final String _DEFAULT_SCATTERPLOT_TEXT = "No scatter plot computed yet.";  /*I18N*/
-    private static final String _TITLE_PREFIX = "Scatter Plot";
+    private static final String DEFAULT_SCATTERPLOT_TEXT = "No scatter plot computed yet.";  /*I18N*/
+    private static final String TITLE_PREFIX = "Scatter Plot";
 
-    private static final int VAR1 = 0;
-    private static final int VAR2 = 1;
+    private static final int X_VAR = 0;
+    private static final int Y_VAR = 1;
 
-    private ParamGroup _paramGroup;
+    private ParamGroup paramGroup;
 
-    private static Parameter[] _rasterNameParams = new Parameter[2];
-    private static Parameter[] _autoMinMaxParams = new Parameter[2];
-    private static Parameter[] _minParams = new Parameter[2];
-    private static Parameter[] _maxParams = new Parameter[2];
+    private static Parameter[] rasterNameParams = new Parameter[2];
+    private static Parameter[] autoMinMaxParams = new Parameter[2];
+    private static Parameter[] minParams = new Parameter[2];
+    private static Parameter[] maxParams = new Parameter[2];
 
-    private ComputePane _computePane;
-    private ScatterPlotDisplay _scatterPlotDisplay;
-    private boolean _autoMinMaxComputing;
+    private ComputePane computePane;
+    private ChartPanel scatterPlotDisplay;
+    private boolean adjustingAutoMinMax;
+    private XYImagePlot plot;
 
     public ScatterPlotPane(final ToolView parentDialog) {
         super(parentDialog);
@@ -72,7 +77,7 @@ class ScatterPlotPane extends PagePane {
 
     @Override
     protected String getTitlePrefix() {
-        return _TITLE_PREFIX;
+        return TITLE_PREFIX;
     }
 
     @Override
@@ -83,11 +88,10 @@ class ScatterPlotPane extends PagePane {
 
     @Override
     protected void updateContent() {
-        if (_scatterPlotDisplay != null) {
+        if (scatterPlotDisplay != null) {
             final String[] availableBands = createAvailableBandList();
-            updateParameters(VAR1, availableBands);
-            updateParameters(VAR2, availableBands);
-            _scatterPlotDisplay.clearRasters();
+            updateParameters(X_VAR, availableBands);
+            updateParameters(Y_VAR, availableBands);
         }
     }
 
@@ -101,24 +105,27 @@ class ScatterPlotPane extends PagePane {
             rasterName = availableBands[0];
         }
         if (rasterName != null) {
-            _rasterNameParams[var].getProperties().setValueSet(availableBands);
-            _rasterNameParams[var].setValue(rasterName, null);
+            rasterNameParams[var].getProperties().setValueSet(availableBands);
+            rasterNameParams[var].setValue(rasterName, null);
+        } else {
+            rasterNameParams[var].getProperties().setValueSet(new String[0]);
+            rasterNameParams[var].setValue("", null);
         }
 
-        if ((Boolean) _autoMinMaxParams[var].getValue()) {
-            _minParams[var].setDefaultValue();
-            _maxParams[var].setDefaultValue();
+        if ((Boolean) autoMinMaxParams[var].getValue()) {
+            minParams[var].setDefaultValue();
+            maxParams[var].setDefaultValue();
         }
     }
 
     private void initParameters() {
-        _paramGroup = new ParamGroup();
+        paramGroup = new ParamGroup();
 
         final String[] availableBands = createAvailableBandList();
-        initParameters(VAR1, availableBands);
-        initParameters(VAR2, availableBands);
+        initParameters(X_VAR, availableBands);
+        initParameters(Y_VAR, availableBands);
 
-        _paramGroup.addParamChangeListener(new ParamChangeListener() {
+        paramGroup.addParamChangeListener(new ParamChangeListener() {
 
             public void parameterValueChanged(final ParamChangeEvent event) {
                 updateUIState();
@@ -140,31 +147,31 @@ class ScatterPlotPane extends PagePane {
             rasterName = "";
         }
 //        final Parameter[] rasterNameParams = getRasterNameParams();
-        _rasterNameParams[var] = new Parameter(paramPrefix + "rasterName", rasterName);
-        _rasterNameParams[var].getProperties().setValueSet(availableBands);
-        _rasterNameParams[var].getProperties().setValueSetBound(true);
-        _rasterNameParams[var].getProperties().setDescription("Band name"); /*I18N*/
-        _paramGroup.addParameter(_rasterNameParams[var]);
+        rasterNameParams[var] = new Parameter(paramPrefix + "rasterName", rasterName);
+        rasterNameParams[var].getProperties().setValueSet(availableBands);
+        rasterNameParams[var].getProperties().setValueSetBound(true);
+        rasterNameParams[var].getProperties().setDescription("Band name"); /*I18N*/
+        paramGroup.addParameter(rasterNameParams[var]);
 
 //        final Parameter[] autoMinMaxParams = getAutoMinMaxParams();
-        _autoMinMaxParams[var] = new Parameter(paramPrefix + "autoMinMax", Boolean.TRUE);
-        _autoMinMaxParams[var].getProperties().setLabel("Auto min/max");
-        _autoMinMaxParams[var].getProperties().setDescription("Automatically detect min/max");  /*I18N*/
-        _paramGroup.addParameter(_autoMinMaxParams[var]);
+        autoMinMaxParams[var] = new Parameter(paramPrefix + "autoMinMax", Boolean.TRUE);
+        autoMinMaxParams[var].getProperties().setLabel("Auto min/max");
+        autoMinMaxParams[var].getProperties().setDescription("Automatically detect min/max");  /*I18N*/
+        paramGroup.addParameter(autoMinMaxParams[var]);
 
 //        getMinParams();
-        _minParams[var] = new Parameter(paramPrefix + "min", 0.0);
-        _minParams[var].getProperties().setLabel("Min:");
-        _minParams[var].getProperties().setDescription("Minimum display value");    /*I18N*/
-        _minParams[var].getProperties().setNumCols(7);
-        _paramGroup.addParameter(_minParams[var]);
+        minParams[var] = new Parameter(paramPrefix + "min", 0.0);
+        minParams[var].getProperties().setLabel("Min:");
+        minParams[var].getProperties().setDescription("Minimum display value");    /*I18N*/
+        minParams[var].getProperties().setNumCols(7);
+        paramGroup.addParameter(minParams[var]);
 
 //        getMaxParams();
-        _maxParams[var] = new Parameter(paramPrefix + "max", 100.0);
-        _maxParams[var].getProperties().setLabel("Max:");
-        _maxParams[var].getProperties().setDescription("Maximum display value");    /*I18N*/
-        _maxParams[var].getProperties().setNumCols(7);
-        _paramGroup.addParameter(_maxParams[var]);
+        maxParams[var] = new Parameter(paramPrefix + "max", 100.0);
+        maxParams[var].getProperties().setLabel("Max:");
+        maxParams[var].getProperties().setDescription("Maximum display value");    /*I18N*/
+        maxParams[var].getProperties().setNumCols(7);
+        paramGroup.addParameter(maxParams[var]);
     }
 
     private void createUI() {
@@ -180,15 +187,37 @@ class ScatterPlotPane extends PagePane {
                 computeScatterPlot(true);
             }
         };
-        _computePane = ComputePane.createComputePane(actionAll, actionROI, getRaster());
+        computePane = ComputePane.createComputePane(actionAll, actionROI, getRaster());
 
-        _scatterPlotDisplay = new ScatterPlotDisplay();
-        _scatterPlotDisplay.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-        _scatterPlotDisplay.addMouseListener(new PopupHandler());
+        plot = new XYImagePlot();
+        // plot.setImage(null);
+        //plot.setImageDataBounds(imageDataBounds);
+        plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
+        plot.setNoDataMessage(DEFAULT_SCATTERPLOT_TEXT);
 
-        this.add(_scatterPlotDisplay, BorderLayout.CENTER);
-        this.add(_computePane, BorderLayout.SOUTH);
-        this.add(createOptionsPane(), BorderLayout.EAST);
+//        NumberAxis scaleAxis = new NumberAxis("Scale");
+//        scaleAxis.setTickLabelFont(new Font("Dialog", Font.PLAIN, 7));
+//        PaintScaleLegend legend = new PaintScaleLegend(new GrayPaintScale(), scaleAxis);
+//        legend.setAxisLocation(AxisLocation.BOTTOM_OR_LEFT);
+//        legend.setAxisOffset(5.0);
+//        legend.setMargin(new RectangleInsets(5, 5, 5, 5));
+//        legend.setPadding(new RectangleInsets(10, 10, 10, 10));
+//        legend.setStripWidth(10);
+//        legend.setPosition(RectangleEdge.RIGHT);
+
+        JFreeChart chart = new JFreeChart("Scatter Plot", plot);
+        chart.removeLegend();
+//         chart.addSubtitle(legend);
+
+        scatterPlotDisplay = new ChartPanel(chart);
+        scatterPlotDisplay.getPopupMenu().add(createCopyDataToClipboardMenuItem());
+
+        final JPanel controlPanel = new JPanel(new BorderLayout(2, 2));
+        controlPanel.add(createOptionsPane(), BorderLayout.NORTH);
+        controlPanel.add(computePane, BorderLayout.SOUTH);
+
+        this.add(scatterPlotDisplay, BorderLayout.CENTER);
+        this.add(controlPanel, BorderLayout.EAST);
 
         updateUIState();
     }
@@ -198,9 +227,10 @@ class ScatterPlotPane extends PagePane {
         if (product == null) {
             return null;
         }
-        final String rasterName = _rasterNameParams[var].getValue().toString();
+        final String rasterName = rasterNameParams[var].getValue().toString();
         RasterDataNode raster = product.getRasterDataNode(rasterName);
         if (raster == null) {
+            // todo - "if the product doesn't have the raster, take some other?" - this is stupid (nf - 18.12.2007)
             if (getRaster() != null && rasterName.equalsIgnoreCase(getRaster().getName())) {
                 raster = getRaster();
             }
@@ -209,81 +239,63 @@ class ScatterPlotPane extends PagePane {
         return raster;
     }
 
-    /**
-     * Called by the AWT.
-     *
-     * @param x      the new x-coordinate of this component
-     * @param y      the new y-coordinate of this component
-     * @param width  the new width of this component
-     * @param height the new height of this component
-     */
-    @Override
-    public void setBounds(final int x, final int y, final int width, final int height) {
-        if (this.getWidth() != width || this.getHeight() != height) {
-            // if size changes, give user the chance to recompute at a higher/lower
-            // resolution...
-            updateComputePane();
-        }
-        super.setBounds(x, y, width, height);
-    }
-
     private void updateUIState() {
         updateComputePane();
-        updateUIState(VAR1);
-        updateUIState(VAR2);
+        updateUIState(X_VAR);
+        updateUIState(Y_VAR);
     }
 
     private void updateComputePane() {
-        _computePane.setRaster(getRaster(VAR1));
+        computePane.setRaster(getRaster(X_VAR));
     }
 
     private void updateUIState(final int var) {
-        final double min = ((Number) _minParams[var].getValue()).doubleValue();
-        final double max = ((Number) _maxParams[var].getValue()).doubleValue();
-        if (!_autoMinMaxComputing && min > max) {
-            _minParams[var].setValue(max, null);
-            _maxParams[var].setValue(min, null);
+        final double min = ((Number) minParams[var].getValue()).doubleValue();
+        final double max = ((Number) maxParams[var].getValue()).doubleValue();
+        if (!adjustingAutoMinMax && min > max) {
+            minParams[var].setValue(max, null);
+            maxParams[var].setValue(min, null);
         }
-        final boolean autoMinMaxEnabled = (Boolean) _autoMinMaxParams[var].getValue();
-        _minParams[var].setUIEnabled(!autoMinMaxEnabled);
-        _maxParams[var].setUIEnabled(!autoMinMaxEnabled);
+        final boolean autoMinMaxEnabled = (Boolean) autoMinMaxParams[var].getValue();
+        minParams[var].setUIEnabled(!autoMinMaxEnabled);
+        maxParams[var].setUIEnabled(!autoMinMaxEnabled);
     }
 
 
-    private static JPanel createOptionsPane() {
+    private JPanel createOptionsPane() {
         final JPanel optionsPane = GridBagUtils.createPanel();
         final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=BOTH");
 
         GridBagUtils.setAttributes(gbc, "gridy=1,weightx=1");
-        GridBagUtils.addToPanel(optionsPane, createOptionsPane(VAR1), gbc, "gridy=0,insets.top=0");
-        GridBagUtils.addToPanel(optionsPane, createOptionsPane(VAR2), gbc, "gridy=1,insets.top=7");
+        GridBagUtils.addToPanel(optionsPane, createOptionsPane(X_VAR), gbc, "gridy=0,insets.top=0");
+        GridBagUtils.addToPanel(optionsPane, createOptionsPane(Y_VAR), gbc, "gridy=1,insets.top=7");
         GridBagUtils.addVerticalFiller(optionsPane, gbc);
 
         return optionsPane;
     }
 
-    private static JPanel createOptionsPane(final int var) {
+    private JPanel createOptionsPane(final int var) {
 
         final JPanel optionsPane = GridBagUtils.createPanel();
         final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=WEST,fill=HORIZONTAL");
 
         GridBagUtils.setAttributes(gbc, "gridwidth=2,gridy=0,insets.top=0");
-        GridBagUtils.addToPanel(optionsPane, _rasterNameParams[var].getEditor().getComponent(), gbc,
+        GridBagUtils.addToPanel(optionsPane, rasterNameParams[var].getEditor().getComponent(), gbc,
                                 "gridx=0,weightx=1");
 
         GridBagUtils.setAttributes(gbc, "gridwidth=2,gridy=1,insets.top=4");
-        GridBagUtils.addToPanel(optionsPane, _autoMinMaxParams[var].getEditor().getComponent(), gbc,
+        GridBagUtils.addToPanel(optionsPane, autoMinMaxParams[var].getEditor().getComponent(), gbc,
                                 "gridx=0,weightx=1");
 
         GridBagUtils.setAttributes(gbc, "gridwidth=1,gridy=2,insets.top=2");
-        GridBagUtils.addToPanel(optionsPane, _minParams[var].getEditor().getLabelComponent(), gbc,
-                                "gridx=0,weightx=1");
-        GridBagUtils.addToPanel(optionsPane, _minParams[var].getEditor().getComponent(), gbc, "gridx=1,weightx=0");
+        GridBagUtils.addToPanel(optionsPane, minParams[var].getEditor().getLabelComponent(), gbc,
+                                "gridx=0,weightx=0");
+        GridBagUtils.addToPanel(optionsPane, minParams[var].getEditor().getComponent(), gbc, "gridx=1,weightx=1");
 
         GridBagUtils.setAttributes(gbc, "gridwidth=1,gridy=3,insets.top=2");
-        GridBagUtils.addToPanel(optionsPane, _maxParams[var].getEditor().getLabelComponent(), gbc,
-                                "gridx=0,weightx=1");
-        GridBagUtils.addToPanel(optionsPane, _maxParams[var].getEditor().getComponent(), gbc, "gridx=1,weightx=0");
+        GridBagUtils.addToPanel(optionsPane, maxParams[var].getEditor().getLabelComponent(), gbc,
+                                "gridx=0,weightx=0");
+        GridBagUtils.addToPanel(optionsPane, maxParams[var].getEditor().getComponent(), gbc, "gridx=1,weightx=1");
 
         optionsPane.setBorder(BorderFactory.createTitledBorder((var == 0 ? "X" : "Y") + "-Band"));
 
@@ -301,88 +313,138 @@ class ScatterPlotPane extends PagePane {
         }
     }
 
+    private static class ScatterPlot {
+        private final BufferedImage image;
+        private final Range rangeX;
+        private final Range rangeY;
+
+        private ScatterPlot(BufferedImage image, Range rangeX, Range rangeY) {
+            this.image = image;
+            this.rangeX = rangeX;
+            this.rangeY = rangeY;
+        }
+
+        public BufferedImage getImage() {
+            return image;
+        }
+
+        public Range getRangeX() {
+            return rangeX;
+        }
+
+        public Range getRangeY() {
+            return rangeY;
+        }
+    }
+
     private void computeScatterPlotImpl(final boolean useROI) throws IOException {
 
-        final RasterDataNode raster1 = getRaster(VAR1);
-        final RasterDataNode raster2 = getRaster(VAR2);
+        final RasterDataNode rasterX = getRaster(X_VAR);
+        final RasterDataNode rasterY = getRaster(Y_VAR);
 
-        if (raster1 == null || raster2 == null) {
+        if (rasterX == null || rasterY == null) {
             return;
         }
 
-        final ROI roi = useROI ? raster1.createROI(ProgressMonitor.NULL) : null;
-        final SwingWorker swingWorker = new SwingWorker<IOException, Object>() {
-            final ProgressMonitor pm = new DialogProgressMonitor(getParentDialogContentPane(), "Compute Statistic",
-                                                                 Dialog.ModalityType.APPLICATION_MODAL);    /*I18N*/
+        final ROI roi = useROI ? rasterX.createROI(ProgressMonitor.NULL) : null;
+        final SwingWorker<ScatterPlot, Object> swingWorker = new ProgressMonitorSwingWorker<ScatterPlot, Object>(getParentDialogContentPane(), "Compute Statistic") {
 
             @Override
-            protected IOException doInBackground() throws Exception {
-                pm.beginTask("Computing scatter plot...", 2);
+            protected ScatterPlot doInBackground(ProgressMonitor pm) throws Exception {
+                pm.beginTask("Computing scatter plot...", 100);
                 try {
-                    computeAutoMinMax(VAR1, raster1, roi, SubProgressMonitor.create(pm, 1));
-                    if (pm.isCanceled()) {
-                        return null;
-                    }
-                    computeAutoMinMax(VAR2, raster2, roi, SubProgressMonitor.create(pm, 1));
-                    if (pm.isCanceled()) {
-                        return null;
-                    }
-                } catch (IOException e) {
-                    return e;
+                    final Range rangeX = getRange(X_VAR, rasterX, roi, SubProgressMonitor.create(pm, 15));
+                    final Range rangeY = getRange(Y_VAR, rasterY, roi, SubProgressMonitor.create(pm, 15));
+                    final BufferedImage image = ProductUtils.createScatterPlotImage(rasterX,
+                                                                                    (float) rangeX.getMin(),
+                                                                                    (float) rangeX.getMax(),
+                                                                                    rasterY,
+                                                                                    (float) rangeY.getMin(),
+                                                                                    (float) rangeY.getMax(),
+                                                                                    roi,
+                                                                                    256,
+                                                                                    256,
+                                                                                    new Color(255, 255, 255, 0),
+                                                                                    null,
+                                                                                    SubProgressMonitor.create(pm, 70));
+                    return new ScatterPlot(image, rangeX, rangeY);
                 } finally {
                     pm.done();
                 }
-                return null;
             }
 
             @Override
             public void done() {
-                if (pm.isCanceled()) {
-                    JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                  "Failed to compute scatter plot.\nThe user has cancelled the calculation.",
-                                                  /*I18N*/
-                                                  "Statistics", /*I18N*/
-                                                  JOptionPane.INFORMATION_MESSAGE);
-                    return;
-                }
-                Exception exception;
                 try {
-                    exception = get();
-                } catch (Exception e) {
-                    exception = e;
-                }
-                if (exception instanceof IOException) {
+                    final ScatterPlot scatterPlot = get();
+                    final double minX = scatterPlot.getRangeX().getMin();
+                    final double maxX = scatterPlot.getRangeX().getMax();
+                    final double minY = scatterPlot.getRangeY().getMin();
+                    final double maxY = scatterPlot.getRangeY().getMax();
+                    plot.setImage(scatterPlot.getImage());
+                    plot.setImageDataBounds(new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY));
+                    setAutoRange(X_VAR, scatterPlot.getRangeX());
+                    setAutoRange(Y_VAR, scatterPlot.getRangeY());
+                    plot.getDomainAxis().setLabel(getAxisLabel(getRaster(X_VAR)));
+                    plot.getRangeAxis().setLabel(getAxisLabel(getRaster(Y_VAR)));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                     JOptionPane.showMessageDialog(getParentDialogContentPane(),
-                                                  "Failed to compute scatter plot.\nAn internal error occured:\n" +
-                                                  exception.getMessage(),
-                                                  "Statistics", /*I18N*/
+                                                  "Failed to compute scatter plot.\n" +
+                                                          "Calculation canceled.",
+                                                  /*I18N*/
+                                                  "Scatter Plot", /*I18N*/
                                                   JOptionPane.ERROR_MESSAGE);
-                    return;
+                } catch (CancellationException e) {
+                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(getParentDialogContentPane(),
+                                                  "Failed to compute scatter plot.\n" +
+                                                          "Calculation canceled.",
+                                                  /*I18N*/
+                                                  "Scatter Plot", /*I18N*/
+                                                  JOptionPane.ERROR_MESSAGE);
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(getParentDialogContentPane(),
+                                                  "Failed to compute scatter plot.\n" +
+                                                          "An error occured:\n" +
+                                                          e.getCause().getMessage(),
+                                                  "Scatter Plot", /*I18N*/
+                                                  JOptionPane.ERROR_MESSAGE);
                 }
-                _scatterPlotDisplay.setRasters(raster1,
-                                               ((Number) _minParams[VAR1].getValue()).floatValue(),
-                                               ((Number) _maxParams[VAR1].getValue()).floatValue(),
-                                               raster2,
-                                               ((Number) _minParams[VAR2].getValue()).floatValue(),
-                                               ((Number) _maxParams[VAR2].getValue()).floatValue(),
-                                               roi);
             }
         };
         swingWorker.execute();
     }
 
-    private void computeAutoMinMax(final int var, final RasterDataNode raster, final ROI roi, ProgressMonitor pm) throws
-                                                                                                                  IOException {
-        final boolean autoMinMax = (Boolean) _autoMinMaxParams[var].getValue();
+    private String getAxisLabel(RasterDataNode raster) {
+        final String unit = raster.getUnit();
+        if (unit != null) {
+            return raster.getName() + " [" + unit + "]";
+        }
+        return raster.getName();
+    }
+
+    private Range getRange(final int var, final RasterDataNode raster, final ROI roi, ProgressMonitor pm) throws
+            IOException {
+        final boolean autoMinMax = (Boolean) autoMinMaxParams[var].getValue();
         if (autoMinMax) {
             final Range range = raster.computeRasterDataRange(roi, pm);
             final double min = raster.scale(range.getMin());
             final double max = raster.scale(range.getMax());
-            final double v = MathUtils.computeRoundFactor(min, max, 4);
-            _autoMinMaxComputing = true;
-            _minParams[var].setValue(StatisticsUtils.round(min, v), null);
-            _maxParams[var].setValue(StatisticsUtils.round(max, v), null);
-            _autoMinMaxComputing = false;
+            return new Range(min, max);
+        } else {
+            return new Range((Double) minParams[var].getValue(), (Double) maxParams[var].getValue());
+        }
+    }
+
+    private void setAutoRange(final int var, Range range) {
+        final boolean autoMinMax = (Boolean) autoMinMaxParams[var].getValue();
+        if (autoMinMax) {
+            adjustingAutoMinMax = true;
+            minParams[var].setValue(range.getMin(), null);
+            maxParams[var].setValue(range.getMax(), null);
+            adjustingAutoMinMax = false;
         }
     }
 
@@ -415,22 +477,22 @@ class ScatterPlotPane extends PagePane {
     protected boolean checkDataToClipboardCopy() {
         final int warnLimit = 2000;
         final int excelLimit = 65536;
-        final int numNonEmptyBins = _scatterPlotDisplay.getNumNonEmptyBins();
+        final int numNonEmptyBins = getNumNonEmptyBins();
         if (numNonEmptyBins > warnLimit) {
             String excelNote = "";
             if (numNonEmptyBins > excelLimit - 100) {
                 excelNote = "Note that e.g., Microsoft® Excel 2002 only supports a total of "
-                            + excelLimit + " rows in a sheet.\n";   /*I18N*/
+                        + excelLimit + " rows in a sheet.\n";   /*I18N*/
             }
             final int status = JOptionPane.showConfirmDialog(this,
                                                              "This scatter plot diagram contains " + numNonEmptyBins + " non-empty bins.\n" +
-                                                             "For each bin, a text data row containing an x, y and z value will be created.\n" +
-                                                             excelNote + "\n" +
-                                                             "Press 'Yes' if you really want to copy this amount of data to the system clipboard.\n" +
-                                                             "", /*I18N*/
-                                                                 "Copy Data to Clipboard", /*I18N*/
-                                                                 JOptionPane.YES_NO_OPTION,
-                                                                 JOptionPane.WARNING_MESSAGE);
+                                                                     "For each bin, a text data row containing an x, y and z value will be created.\n" +
+                                                                     excelNote + "\n" +
+                                                                     "Press 'Yes' if you really want to copy this amount of data to the system clipboard.\n" +
+                                                                     "", /*I18N*/
+                                                                         "Copy Data to Clipboard", /*I18N*/
+                                                                         JOptionPane.YES_NO_OPTION,
+                                                                         JOptionPane.WARNING_MESSAGE);
             if (status != JOptionPane.YES_OPTION) {
                 return false;
             }
@@ -438,308 +500,104 @@ class ScatterPlotPane extends PagePane {
         return true;
     }
 
-    @Override
-    protected String getDataAsText() {
-        return _scatterPlotDisplay.getDataAsText();
-    }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Scatter Plot Display
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    private static class ScatterPlotDisplay extends JPanel {
-
-        private RasterDataNode[] _rasters;
-        private float[] _mins;
-        private float[] _maxs;
-        private ROI _roi;
-
-        private BufferedImage _offscreenImage;
-
-        public ScatterPlotDisplay() {
-            super(null);
-            setBackground(Color.white);
-            setForeground(Color.black);
-        }
-
-        public void clearRasters() {
-            _rasters = null;
-            _mins = null;
-            _maxs = null;
-            _offscreenImage = null;
-            repaint();
-        }
-
-        public BufferedImage getOffscreenImage() {
-            return _offscreenImage;
-        }
-
-        public void setRasters(final RasterDataNode raster1, final float min1, final float max1,
-                               final RasterDataNode raster2, final float min2, final float max2,
-                               final ROI roi) {
-            _rasters = new RasterDataNode[]{raster1, raster2};
-            _mins = new float[]{min1, min2};
-            _maxs = new float[]{max1, max2};
-            _offscreenImage = null;
-            _roi = roi;
-            repaint();
-        }
-
-        private BufferedImage createOffscreenImage(final int width, final int height) throws IOException {
-            return ProductUtils.createScatterPlotImage(_rasters[0],
-                                                       _mins[0],
-                                                       _maxs[0],
-                                                       _rasters[1],
-                                                       _mins[1],
-                                                       _maxs[1],
-                                                       _roi,
-                                                       width,
-                                                       height,
-                                                       StatisticsToolView.DIAGRAM_BG_COLOR,
-                                                       _offscreenImage,
-                                                       ProgressMonitor.NULL);
-        }
-
-        /**
-         * If the UI delegate is non-null, calls its paint method.  We pass the delegate a copy of the Graphics object
-         * to protect the rest of the paint code from irrevocable changes (for example, Graphics.translate()).
-         *
-         * @param g the Graphics object to protect
-         *
-         * @see #paint
-         */
-        @Override
-        protected void paintComponent(final Graphics g) {
-            super.paintComponent(g);
-            draw((Graphics2D) g);
-        }
-
-        private void draw(final Graphics2D g2d) {
-
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            final Insets insets = getInsets();
-
-            g2d.setColor(getBackground());
-            g2d.fillRect(insets.left,
-                         insets.top,
-                         getWidth() - insets.left - insets.right,
-                         getHeight() - insets.top - insets.bottom);
-
-            final FontMetrics fm = g2d.getFontMetrics();
-            final int fh = fm.getHeight();
-
-            if (_rasters == null) {
-                g2d.setColor(StatisticsToolView.DIAGRAM_TEXT_COLOR);
-                g2d.drawString(_DEFAULT_SCATTERPLOT_TEXT, insets.left + 1, insets.top + fh);
-            } else {
-                final int diagX0 = StatisticsToolView.DIAGRAM_MIN_INSETS + insets.left + 2 * fh;
-                final int diagY0 = StatisticsToolView.DIAGRAM_MIN_INSETS + insets.top;
-                final int diagW = getWidth() - 2 * StatisticsToolView.DIAGRAM_MIN_INSETS - (insets.left + insets.right) - 2 * fh - 1;
-                final int diagH = getHeight() - 2 * StatisticsToolView.DIAGRAM_MIN_INSETS - (insets.top + insets.bottom) - 2 * fh - 1;
-                drawScatterPlot(g2d, diagX0, diagY0, diagW, diagH);
-                drawDiagramText(g2d, diagX0, diagY0, diagW, diagH, fm);
-            }
-        }
-
-
-        private void drawScatterPlot(final Graphics2D g2d, final int diagX0, final int diagY0, final int diagW,
-                                     final int diagH) {
-
-            if (_offscreenImage == null) {
-                final Cursor oldCursor = UIUtils.setRootFrameWaitCursor(this);
-                try {
-                    _offscreenImage = createOffscreenImage(diagW <= 0 ? 1 : diagW, diagH <= 0 ? 1 : diagH);
-                } catch (IOException e) {
-                    JOptionPane.showMessageDialog(this,
-                                                  "Failed to compute scatter plot.\nAn I/O error occured:" + e.getMessage(),
-                                                  "I/O error",
-                                                  JOptionPane.ERROR_MESSAGE);   /*I18N*/
-                    return;
-
-                } finally {
-                    UIUtils.setRootFrameCursor(this, oldCursor);
-                }
-            }
-
-            g2d.translate(diagX0, diagY0);
-
-            if (_offscreenImage.getWidth() != diagW
-                || _offscreenImage.getHeight() != diagH) {
-                final AffineTransform t = AffineTransform.getScaleInstance((double) diagW / _offscreenImage.getWidth(),
-                                                                           (double) diagH / _offscreenImage.getHeight());
-                g2d.drawImage(_offscreenImage, t, this);
-            } else {
-                g2d.drawImage(_offscreenImage, 0, 0, this);
-            }
-
-            g2d.setColor(getForeground());
-            g2d.drawRect(-1, -1, diagW + 1, diagH + 1);
-
-            g2d.translate(-diagX0, -diagY0);
-        }
-
-        private void drawDiagramText(final Graphics2D g2d, final int diagX0, final int diagY0, final int diagW,
-                                     final int diagH, final FontMetrics fm) {
-
-            final RasterDataNode raster1 = _rasters[0];
-            final float sampleMin1 = _mins[0];
-            final float sampleMax1 = _maxs[0];
-
-            final RasterDataNode raster2 = _rasters[1];
-            final float sampleMin2 = _mins[1];
-            final float sampleMax2 = _maxs[1];
-
-            final int fontY = fm.getLeading() + fm.getDescent();
-            final int fontH = fm.getHeight();
-
-            String text;
-            int textW;
-
-            g2d.setColor(StatisticsToolView.DIAGRAM_TEXT_COLOR);
-
-            text = String.valueOf(sampleMin1);
-//            text = roundString(sampleMin1);
-            g2d.drawString(text, diagX0, diagY0 + diagH + fontH);
-
-            text = String.valueOf(sampleMax1);
-//            text = roundString(sampleMax1);
-            textW = fm.stringWidth(text);
-            g2d.drawString(text, diagX0 + diagW - textW, diagY0 + diagH + fontH);
-
-            text = String.valueOf(0.5F * (sampleMin1 + sampleMax1));
-//            text = roundString(0.5F * (sampleMin1 + sampleMax1));
-            textW = fm.stringWidth(text);
-            g2d.drawString(text, diagX0 + (diagW - textW) / 2, diagY0 + diagH + fontH);
-
-            text = StatisticsUtils.getDiagramLabel(raster1);
-            textW = fm.stringWidth(text);
-            g2d.drawString(text, diagX0 + (diagW - textW) / 2, diagY0 + diagH + 2 * fontH);
-
-            final int translX = diagX0 - fontY;
-            final int translY = diagY0 + diagH;
-            final double rotA = -0.5 * Math.PI;
-
-            g2d.translate(translX, translY);
-            g2d.rotate(rotA);
-
-            text = String.valueOf(sampleMin2);
-//            text = roundString(sampleMin2);
-            g2d.drawString(text, 0, 0);
-
-            text = String.valueOf(sampleMax2);
-//            text = roundString(sampleMax2);
-            textW = fm.stringWidth(text);
-            g2d.drawString(text, diagH - textW, -fontY);
-
-            text = String.valueOf(0.5F * (sampleMin2 + sampleMax2));
-//            text = roundString(0.5F * (sampleMin2 + sampleMax2));
-            textW = fm.stringWidth(text);
-            g2d.drawString(text, (diagH - textW) / 2, -fontY);
-
-            text = StatisticsUtils.getDiagramLabel(raster2);
-            textW = fm.stringWidth(text);
-            g2d.drawString(text, (diagH - textW) / 2, -fontY - fontH);
-
-            g2d.rotate(-rotA);
-            g2d.translate(-translX, -translY);
-        }
-
-        private byte[] getValidData(final BufferedImage image) {
-            if (image != null &&
+    private byte[] getValidData(final BufferedImage image) {
+        if (image != null &&
                 image.getColorModel() instanceof IndexColorModel &&
                 image.getData().getDataBuffer() instanceof DataBufferByte) {
-                return ((DataBufferByte) _offscreenImage.getData().getDataBuffer()).getData();
+            return ((DataBufferByte) image.getData().getDataBuffer()).getData();
+        }
+        return null;
+    }
+
+    protected int getNumNonEmptyBins() {
+        final byte[] data = getValidData(plot.getImage());
+        int n = 0;
+        if (data != null) {
+            int b;
+            for (byte aData : data) {
+                b = aData & 0xff;
+                if (b != 0) {
+                    n++;
+                }
             }
+        }
+        return n;
+    }
+
+    @Override
+    protected String getDataAsText() {
+        final BufferedImage image = plot.getImage();
+        final Rectangle2D bounds = plot.getImageDataBounds();
+
+        final byte[] data = getValidData(image);
+        if (data == null) {
             return null;
         }
 
-        protected int getNumNonEmptyBins() {
-            final byte[] data = getValidData(_offscreenImage);
-            int n = 0;
-            if (data != null) {
-                int b;
-                for (byte aData : data) {
-                    b = aData & 0xff;
-                    if (b != 0) {
-                        n++;
-                    }
-                }
+        final StringBuffer sb = new StringBuffer(64000);
+        final int w = image.getWidth();
+        final int h = image.getHeight();
+
+        final RasterDataNode rasterX = getRaster(X_VAR);
+        final String nameX = rasterX.getName();
+        final double sampleMinX = bounds.getMinX();
+        final double sampleMaxX = bounds.getMaxX();
+
+        final RasterDataNode rasterY = getRaster(Y_VAR);
+        final String nameY = rasterY.getName();
+        final double sampleMinY = bounds.getMinY();
+        final double sampleMaxY = bounds.getMaxY();
+
+        sb.append("Product name:\t").append(rasterX.getProduct().getName()).append("\n");
+        sb.append("Dataset X name:\t").append(nameX).append("\n");
+        sb.append("Dataset Y name:\t").append(nameY).append("\n");
+        sb.append('\n');
+        sb.append(nameX).append(" minimum:\t").append(sampleMinX).append("\t").append(rasterX.getUnit()).append(
+                "\n");
+        sb.append(nameX).append(" maximum:\t").append(sampleMaxX).append("\t").append(rasterX.getUnit()).append(
+                "\n");
+        sb.append(nameX).append(" bin size:\t").append((sampleMaxX - sampleMinX) / w).append("\t").append(
+                rasterX.getUnit()).append("\n");
+        sb.append(nameX).append(" #bins:\t").append(w).append("\n");
+        sb.append('\n');
+        sb.append(nameY).append(" minimum:\t").append(sampleMinY).append("\t").append(rasterY.getUnit()).append(
+                "\n");
+        sb.append(nameY).append(" maximum:\t").append(sampleMaxY).append("\t").append(rasterY.getUnit()).append(
+                "\n");
+        sb.append(nameY).append(" bin size:\t").append((sampleMaxY - sampleMinY) / h).append("\t").append(
+                rasterY.getUnit()).append("\n");
+        sb.append(nameY).append(" #bins:\t").append(h).append("\n");
+        sb.append('\n');
+
+        sb.append(nameX);
+        sb.append('\t');
+        sb.append(nameY);
+        sb.append('\t');
+        sb.append("Bin counts\t(cropped at 255)");
+        sb.append('\n');
+
+        int x, y, z;
+        double v1, v2;
+        for (int i = 0; i < data.length; i++) {
+            z = data[i] & 0xff;
+            if (z != 0) {
+
+                x = i % w;
+                y = h - i / w - 1;
+
+                v1 = sampleMinX + ((x + 0.5) * (sampleMaxX - sampleMinX)) / w;
+                v2 = sampleMinY + ((y + 0.5) * (sampleMaxY - sampleMinY)) / h;
+
+                sb.append(v1);
+                sb.append('\t');
+                sb.append(v2);
+                sb.append('\t');
+                sb.append(z);
+                sb.append('\n');
             }
-            return n;
         }
 
-        protected String getDataAsText() {
-            final byte[] data = getValidData(_offscreenImage);
-            if (data == null) {
-                return null;
-            }
-
-            final StringBuffer sb = new StringBuffer(64000);
-            final int w = _offscreenImage.getWidth();
-            final int h = _offscreenImage.getHeight();
-
-            final RasterDataNode raster1 = _rasters[0];
-            final String name1 = raster1.getName();
-            final float sampleMin1 = _mins[0];
-            final float sampleMax1 = _maxs[0];
-
-            final RasterDataNode raster2 = _rasters[1];
-            final String name2 = raster2.getName();
-            final float sampleMin2 = _mins[1];
-            final float sampleMax2 = _maxs[1];
-
-            sb.append("Product name:\t").append(raster1.getProduct().getName()).append("\n");
-            sb.append("Dataset 1 name:\t").append(name1).append("\n");
-            sb.append("Dataset 2 name:\t").append(name2).append("\n");
-            sb.append('\n');
-            sb.append(name1).append(" minimum:\t").append(sampleMin1).append("\t").append(raster1.getUnit()).append(
-                    "\n");
-            sb.append(name1).append(" maximum:\t").append(sampleMax1).append("\t").append(raster1.getUnit()).append(
-                    "\n");
-            sb.append(name1).append(" bin size:\t").append((sampleMax1 - sampleMin1) / w).append("\t").append(
-                    raster1.getUnit()).append("\n");
-            sb.append(name1).append(" #bins:\t").append(w).append("\n");
-            sb.append('\n');
-            sb.append(name2).append(" minimum:\t").append(sampleMin2).append("\t").append(raster2.getUnit()).append(
-                    "\n");
-            sb.append(name2).append(" maximum:\t").append(sampleMax2).append("\t").append(raster2.getUnit()).append(
-                    "\n");
-            sb.append(name2).append(" bin size:\t").append((sampleMax2 - sampleMin2) / h).append("\t").append(
-                    raster2.getUnit()).append("\n");
-            sb.append(name2).append(" #bins:\t").append(h).append("\n");
-            sb.append('\n');
-
-            sb.append(name1);
-            sb.append('\t');
-            sb.append(name2);
-            sb.append('\t');
-            sb.append("Bin counts\t(cropped at 255)");
-            sb.append('\n');
-
-            int x, y, z;
-            float v1, v2;
-            for (int i = 0; i < data.length; i++) {
-                z = data[i] & 0xff;
-                if (z != 0) {
-
-                    x = i % w;
-                    y = h - i / w - 1;
-
-                    v1 = sampleMin1 + ((x + 0.5f) * (sampleMax1 - sampleMin1)) / w;
-                    v2 = sampleMin2 + ((y + 0.5f) * (sampleMax2 - sampleMin2)) / h;
-
-                    sb.append(v1);
-                    sb.append('\t');
-                    sb.append(v2);
-                    sb.append('\t');
-                    sb.append(z);
-                    sb.append('\n');
-                }
-            }
-
-            return sb.toString();
-        }
+        return sb.toString();
     }
 }
 

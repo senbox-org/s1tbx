@@ -37,8 +37,6 @@ class ComputePane extends JPanel {
                         final ActionListener roiActionListener,
                         final RasterDataNode raster) {
 
-        setRaster(raster);
-
         final Icon icon = UIUtils.loadImageIcon("icons/Gears20.gif");
 
         computeButton = new JButton("Compute");     /*I18N*/
@@ -67,6 +65,8 @@ class ComputePane extends JPanel {
         setLayout(new BorderLayout(2, 2));
         add(computeButton, BorderLayout.NORTH);
         add(useRoiCheckBox, BorderLayout.SOUTH);
+
+        setRaster(raster);
     }
 
     private boolean isROIUsable() {
