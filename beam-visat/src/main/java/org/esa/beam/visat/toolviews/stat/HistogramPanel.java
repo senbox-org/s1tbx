@@ -32,7 +32,7 @@ import java.io.IOException;
  *
  * @author Marco Peters
  */
-class HistogramPane extends PagePane {
+class HistogramPanel extends PagePanel {
 
     private final static String NO_DATA_MESSAGE = "No histogram computed yet.";  /*I18N*/
     private final static String TITLE_PREFIX = "Histogram";    /*I18N*/
@@ -44,13 +44,13 @@ class HistogramPane extends PagePane {
     private Parameter histoMaxParam;
     private ChartPanel histogramDisplay;
     private boolean histogramComputing;
-    private ComputePane computePane;
+    private ComputePanel computePanel;
     private XYSeriesCollection dataset;
     private JFreeChart chart;
     private Histogram histogram;
 
 
-    public HistogramPane(final ToolView parentDialog) {
+    public HistogramPanel(final ToolView parentDialog) {
         super(parentDialog);
     }
 
@@ -68,8 +68,8 @@ class HistogramPane extends PagePane {
 
     @Override
     protected void updateContent() {
-        if (computePane != null) {
-            computePane.setRaster(getRaster());
+        if (computePanel != null) {
+            computePanel.setRaster(getRaster());
             setRaster(getRaster());
             if (!(Boolean) autoMinMaxEnabledParam.getValue()) {
                 return;
@@ -150,12 +150,12 @@ class HistogramPane extends PagePane {
                 computeHistogram(true);
             }
         };
-        computePane = ComputePane.createComputePane(actionAll, actionROI, getRaster());
+        computePanel = ComputePanel.createComputePane(actionAll, actionROI, getRaster());
         histogramDisplay = new ChartPanel(chart);
         histogramDisplay.getPopupMenu().add(createCopyDataToClipboardMenuItem());
         final JPanel rightPanel = new JPanel(new BorderLayout());
         rightPanel.add(createOptionsPane(), BorderLayout.NORTH);
-        rightPanel.add(computePane, BorderLayout.SOUTH);
+        rightPanel.add(computePanel, BorderLayout.SOUTH);
         this.add(histogramDisplay, BorderLayout.CENTER);
         this.add(rightPanel, BorderLayout.EAST);
         updateUIState();

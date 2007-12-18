@@ -46,7 +46,7 @@ import java.util.concurrent.ExecutionException;
  *
  * @author Marco Peters
  */
-class ScatterPlotPane extends PagePane {
+class ScatterPlotPanel extends PagePanel {
 
     private static final String NO_DATA_MESSAGE = "No scatter plot computed yet.";  /*I18N*/
     private static final String TITLE_PREFIX = "Scatter Plot";
@@ -61,12 +61,12 @@ class ScatterPlotPane extends PagePane {
     private static Parameter[] minParams = new Parameter[2];
     private static Parameter[] maxParams = new Parameter[2];
 
-    private ComputePane computePane;
+    private ComputePanel computePanel;
     private ChartPanel scatterPlotDisplay;
     private boolean adjustingAutoMinMax;
     private XYImagePlot plot;
 
-    public ScatterPlotPane(final ToolView parentDialog) {
+    public ScatterPlotPanel(final ToolView parentDialog) {
         super(parentDialog);
     }
 
@@ -187,7 +187,7 @@ class ScatterPlotPane extends PagePane {
                 computeScatterPlot(true);
             }
         };
-        computePane = ComputePane.createComputePane(actionAll, actionROI, getRaster());
+        computePanel = ComputePanel.createComputePane(actionAll, actionROI, getRaster());
 
         plot = new XYImagePlot();
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
@@ -212,7 +212,7 @@ class ScatterPlotPane extends PagePane {
 
         final JPanel controlPanel = new JPanel(new BorderLayout(2, 2));
         controlPanel.add(createOptionsPane(), BorderLayout.NORTH);
-        controlPanel.add(computePane, BorderLayout.SOUTH);
+        controlPanel.add(computePanel, BorderLayout.SOUTH);
 
         this.add(scatterPlotDisplay, BorderLayout.CENTER);
         this.add(controlPanel, BorderLayout.EAST);
@@ -244,7 +244,7 @@ class ScatterPlotPane extends PagePane {
     }
 
     private void updateComputePane() {
-        computePane.setRaster(getRaster(X_VAR));
+        computePanel.setRaster(getRaster(X_VAR));
     }
 
     private void updateUIState(final int var) {

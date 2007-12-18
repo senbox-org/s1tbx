@@ -21,7 +21,7 @@ import java.io.IOException;
  *
  * @author Marco Peters
  */
-class CoordListPane extends TextPagePane {
+class CoordListPanel extends TextPagePanel {
 
     private static final String _TITLE_PREFIX = "Co-ordinate List";     /*I18N*/
     private static final String _DEFAULT_COORDLIST_TEXT = "Co-ordinate list not available.\n" +
@@ -30,7 +30,7 @@ class CoordListPane extends TextPagePane {
     private static final LayerObserver _figureLayerObserver = LayerObserver.getInstance(FigureLayer.class);
 
 
-    public CoordListPane(final ToolView parentDialog) {
+    public CoordListPanel(final ToolView parentDialog) {
         super(parentDialog, _DEFAULT_COORDLIST_TEXT);
         _figureLayerObserver.addLayerObserverListener(new LayerObserver.LayerObserverListener() {
             public void layerChanged() {

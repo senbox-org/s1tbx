@@ -24,7 +24,7 @@ import java.awt.event.MouseEvent;
  *
  * @author Marco Peters
  */
-abstract class PagePane extends JPanel implements ProductNodeListener{
+abstract class PagePanel extends JPanel implements ProductNodeListener{
 
     private RasterDataNode _raster;
     private Product _product;
@@ -34,7 +34,7 @@ abstract class PagePane extends JPanel implements ProductNodeListener{
     private final PagePanePTL _pagePanePTL = new PagePanePTL();
     private final InternalFrameAdapter _pagePaneIFL = new PagePaneIFL();
 
-    public PagePane(final ToolView parentDialog) {
+    public PagePanel(final ToolView parentDialog) {
         super(new BorderLayout(4, 4));
         _parentDialog = parentDialog;
         setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));

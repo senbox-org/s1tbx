@@ -9,13 +9,16 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
+/**
+ * An X/Y plot that uses a buffered image to display its data.
+ * @author Norman Fomferra
+ */
 class XYImagePlot extends XYPlot {
 
     private BufferedImage image;

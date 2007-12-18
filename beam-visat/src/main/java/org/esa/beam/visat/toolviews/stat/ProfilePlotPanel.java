@@ -27,7 +27,7 @@ import java.io.IOException;
  *
  * @author Marco Peters
  */
-class ProfilePlotPane extends PagePane {
+class ProfilePlotPanel extends PagePanel {
 
     private static final String TITLE_PREFIX = "Profile Plot"; /*I18N*/
     private static final String NO_DATA_MESSAGE = "No profile plot computed yet. " +
@@ -49,7 +49,7 @@ class ProfilePlotPane extends PagePane {
     private XYSeriesCollection dataset;
     private TransectProfileData profileData;
 
-    public ProfilePlotPane(final ToolView parentDialog) {
+    public ProfilePlotPanel(final ToolView parentDialog) {
         super(parentDialog);
         figureLayerObserver.addLayerObserverListener(new LayerObserver.LayerObserverListener() {
             public void layerChanged() {

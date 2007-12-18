@@ -15,7 +15,7 @@ import java.awt.event.ActionListener;
  *
  * @author Marco Peters
  */
-class ComputePane extends JPanel {
+class ComputePanel extends JPanel {
 
     private static final LayerObserver roiLayerObserver = LayerObserver.getInstance(ROILayer.class);
     private final JButton computeButton;
@@ -26,14 +26,14 @@ class ComputePane extends JPanel {
         return raster;
     }
 
-    static ComputePane createComputePane(final ActionListener allPixelsActionListener,
+    static ComputePanel createComputePane(final ActionListener allPixelsActionListener,
                                          final ActionListener roiActionListener,
                                          final RasterDataNode raster) {
-        return new ComputePane(allPixelsActionListener, roiActionListener, raster);
+        return new ComputePanel(allPixelsActionListener, roiActionListener, raster);
     }
 
 
-    private ComputePane(final ActionListener allPixelsActionListener,
+    private ComputePanel(final ActionListener allPixelsActionListener,
                         final ActionListener roiActionListener,
                         final RasterDataNode raster) {
 

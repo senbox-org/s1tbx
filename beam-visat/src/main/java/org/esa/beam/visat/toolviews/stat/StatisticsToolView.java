@@ -68,13 +68,13 @@ public class StatisticsToolView extends AbstractToolView {
     public JComponent createControl() {
 
         _tabbedPane = new JTabbedPane();
-        _tabbedPane.add("Information", new InformationPane(this)); /*I18N*/
-        _tabbedPane.add("Geo-Coding", new GeoCodingPane(this));/*I18N*/
-        _tabbedPane.add("Statistics", new StatisticsPane(this)); /*I18N*/
-        _tabbedPane.add("Histogram", new HistogramPane(this));  /*I18N*/
-        _tabbedPane.add("Scatter Plot", new ScatterPlotPane(this)); /*I18N*/
-        _tabbedPane.add("Profile Plot", new ProfilePlotPane(this));  /*I18N*/
-        _tabbedPane.add("Co-ordinate List", new CoordListPane(this));  /*I18N*/
+        _tabbedPane.add("Information", new InformationPanel(this)); /*I18N*/
+        _tabbedPane.add("Geo-Coding", new GeoCodingPanel(this));/*I18N*/
+        _tabbedPane.add("Statistics", new StatisticsPanel(this)); /*I18N*/
+        _tabbedPane.add("Histogram", new HistogramPanel(this));  /*I18N*/
+        _tabbedPane.add("Scatter Plot", new ScatterPlotPanel(this)); /*I18N*/
+        _tabbedPane.add("Profile Plot", new ProfilePlotPanel(this));  /*I18N*/
+        _tabbedPane.add("Co-ordinate List", new CoordListPanel(this));  /*I18N*/
 
         _tabbedPane.addChangeListener(new ChangeListener() {
 
@@ -148,9 +148,9 @@ public class StatisticsToolView extends AbstractToolView {
     private void updateUIState() {
         if (_tabbedPane != null) {
             final Component selectedComponent = _tabbedPane.getSelectedComponent();
-            if (selectedComponent instanceof PagePane) {
-                final PagePane pagePane = (PagePane) selectedComponent;
-                setTitle(pagePane.getTitle());
+            if (selectedComponent instanceof PagePanel) {
+                final PagePanel pagePanel = (PagePanel) selectedComponent;
+                setTitle(pagePanel.getTitle());
             } else {
                 setTitle("");
             }

@@ -15,32 +15,32 @@ import java.awt.event.ActionListener;
  *
  * @author Marco Peters
  */
-abstract class TextPagePane extends PagePane {
+abstract class TextPagePanel extends PagePanel {
 
-    private JTextArea _textArea;
+    private JTextArea textArea;
 
-    public TextPagePane(final ToolView parentDialog, final String defaultText) {
+    public TextPagePanel(final ToolView parentDialog, final String defaultText) {
         super(parentDialog);
-        _textArea.setText(defaultText);
+        textArea.setText(defaultText);
     }
 
     public JTextArea getTextArea() {
-        return _textArea;
+        return textArea;
     }
 
     @Override
     protected void initContent() {
-        _textArea = new JTextArea();
-        _textArea.setEditable(false);
-        _textArea.addMouseListener(new PopupHandler());
-        add(new JScrollPane(_textArea), BorderLayout.CENTER);
+        textArea = new JTextArea();
+        textArea.setEditable(false);
+        textArea.addMouseListener(new PopupHandler());
+        add(new JScrollPane(textArea), BorderLayout.CENTER);
     }
 
     @Override
     protected void updateContent() {
         ensureValidData();
-        _textArea.setText(createText());
-        _textArea.setCaretPosition(0);
+        textArea.setText(createText());
+        textArea.setCaretPosition(0);
     }
 
     protected void ensureValidData() {
@@ -50,7 +50,7 @@ abstract class TextPagePane extends PagePane {
 
     @Override
     protected String getDataAsText() {
-        return _textArea.getText();
+        return textArea.getText();
     }
 
     @Override
@@ -58,8 +58,8 @@ abstract class TextPagePane extends PagePane {
         final JMenuItem menuItem = new JMenuItem("Select All");     /*I18N*/
         menuItem.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
-                _textArea.selectAll();
-                _textArea.requestFocus();
+                textArea.selectAll();
+                textArea.requestFocus();
             }
         });
         popupMenu.add(menuItem);

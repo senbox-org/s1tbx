@@ -22,67 +22,67 @@ import java.io.IOException;
  *
  * @author Marco Peters
  */
-class StatisticsPane extends TextPagePane {
+class StatisticsPanel extends TextPagePanel {
 
-    private static final String _DEFAULT_STATISTICS_TEXT = "No statistics computed yet.";  /*I18N*/
-    private static final String _TITLE_PREFIX = "Statistics";
+    private static final String DEFAULT_STATISTICS_TEXT = "No statistics computed yet.";  /*I18N*/
+    private static final String TITLE_PREFIX = "Statistics";
 
-    private ComputePane _computePane;
-    private ActionListener _allPixelsActionListener;
-    private ActionListener _roiActionListener;
+    private ComputePanel computePanel;
+    private ActionListener allPixelsActionListener;
+    private ActionListener roiActionListener;
 
-    public StatisticsPane(final ToolView parentDialog) {
-        super(parentDialog, _DEFAULT_STATISTICS_TEXT);
+    public StatisticsPanel(final ToolView parentDialog) {
+        super(parentDialog, DEFAULT_STATISTICS_TEXT);
 
     }
 
     @Override
     protected String getTitlePrefix() {
-        return _TITLE_PREFIX;
+        return TITLE_PREFIX;
     }
 
     @Override
     protected void initContent() {
         super.initContent();
-        _computePane = ComputePane.createComputePane(getAllPixelActionListener(), getRoiActionListener(), getRaster());
-        add(_computePane, BorderLayout.SOUTH);
+        computePanel = ComputePanel.createComputePane(getAllPixelActionListener(), getRoiActionListener(), getRaster());
+        add(computePanel, BorderLayout.SOUTH);
     }
 
     private ActionListener getAllPixelActionListener() {
-        if (_allPixelsActionListener == null) {
-            _allPixelsActionListener = new ActionListener() {
+        if (allPixelsActionListener == null) {
+            allPixelsActionListener = new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     computeStatistics(false);
                 }
             };
         }
-        return _allPixelsActionListener;
+        return allPixelsActionListener;
     }
 
     private ActionListener getRoiActionListener() {
-        if (_roiActionListener == null) {
-            _roiActionListener = new ActionListener() {
+        if (roiActionListener == null) {
+            roiActionListener = new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     computeStatistics(true);
                 }
             };
         }
-        return _roiActionListener;
+        return roiActionListener;
     }
 
     @Override
     protected void updateContent() {
         super.updateContent();
-        if (_computePane != null) {
-            _computePane.setRaster(getRaster());
-            getTextArea().setText(_DEFAULT_STATISTICS_TEXT);
+        if (computePanel != null) {
+            computePanel.setRaster(getRaster());
+            getTextArea().setText(DEFAULT_STATISTICS_TEXT);
         }
     }
 
     @Override
     protected String createText() {
         // not used
-        return _DEFAULT_STATISTICS_TEXT;
+        return DEFAULT_STATISTICS_TEXT;
     }
 
     private void computeStatistics(final boolean useROI) {
@@ -96,7 +96,7 @@ class StatisticsPane extends TextPagePane {
                                           /*I18N*/
                                           "Statistics", /*I18N*/
                                           JOptionPane.ERROR_MESSAGE);
-            getTextArea().setText(_DEFAULT_STATISTICS_TEXT);
+            getTextArea().setText(DEFAULT_STATISTICS_TEXT);
             return;
         }
 
@@ -122,7 +122,7 @@ class StatisticsPane extends TextPagePane {
                                                   /*I18N*/
                                                   "Statistics", /*I18N*/
                                                   JOptionPane.INFORMATION_MESSAGE);
-                    getTextArea().setText(_DEFAULT_STATISTICS_TEXT);
+                    getTextArea().setText(DEFAULT_STATISTICS_TEXT);
                 } else {
                     Object value = null;
                     try {
@@ -141,7 +141,7 @@ class StatisticsPane extends TextPagePane {
                                                       /*I18N*/
                                                       "Statistics", /*I18N*/
                                                       JOptionPane.ERROR_MESSAGE);
-                        getTextArea().setText(_DEFAULT_STATISTICS_TEXT);
+                        getTextArea().setText(DEFAULT_STATISTICS_TEXT);
                     } else if (value == null) {
                         final String msgPrefix;
                         if (useROI) {
@@ -154,7 +154,7 @@ class StatisticsPane extends TextPagePane {
                                                       "\nStatistics have not been computed.", /*I18N*/
                                                                                               "Statistics", /*I18N*/
                                                                                               JOptionPane.WARNING_MESSAGE);
-                        getTextArea().setText(_DEFAULT_STATISTICS_TEXT);
+                        getTextArea().setText(DEFAULT_STATISTICS_TEXT);
                     }
                 }
             }

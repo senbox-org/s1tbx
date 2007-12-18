@@ -16,12 +16,12 @@ import org.esa.beam.util.StringUtils;
  *
  * @author Marco Peters
  */
-class InformationPane extends TextPagePane {
+class InformationPanel extends TextPagePanel {
 
     private static final String _DEFAULT_INFORMATION_TEXT = "No information available."; /*I18N*/
     private static final String _TITLE_PREFIX = "Information";  /*I18N*/
 
-    public InformationPane(final ToolView parentDialog) {
+    public InformationPanel(final ToolView parentDialog) {
         super(parentDialog, _DEFAULT_INFORMATION_TEXT);
     }
 

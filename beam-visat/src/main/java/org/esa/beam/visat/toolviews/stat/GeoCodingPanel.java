@@ -13,13 +13,13 @@ import java.awt.Rectangle;
  *
  * @author Marco Peters
  */
-class GeoCodingPane extends TextPagePane {
+class GeoCodingPanel extends TextPagePanel {
 
     private static final String _DEFAULT_GEOCODING_TEXT = "No geo-coding information available."; /*I18N*/
     private static final String _TITLE_PREFIX = "Geo-Coding";   /*I18N*/
     private GeoCoding _geoCoding;
 
-    public GeoCodingPane(final ToolView parentDialog) {
+    public GeoCodingPanel(final ToolView parentDialog) {
         super(parentDialog, _DEFAULT_GEOCODING_TEXT);
     }
 
