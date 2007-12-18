@@ -1,8 +1,4 @@
-importPackage(org.esa.beam.framework.datamodel);
-importPackage(org.esa.beam.framework.dataio);
-importPackage(org.esa.beam.visat);
 
-var visat = VisatApp.getApp();
 p = visat.getSelectedProduct();
 
 w = p.getSceneRasterWidth();

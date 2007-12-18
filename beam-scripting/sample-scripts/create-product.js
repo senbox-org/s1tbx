@@ -1,9 +1,3 @@
-importPackage(org.esa.beam.framework.datamodel);
-importPackage(org.esa.beam.framework.dataio);
-importPackage(org.esa.beam.visat);
-
-var visat = VisatApp.getApp();
-
 var w = 512;
 var h = 512;
 var p = new Product("P1", "T1", w, h);

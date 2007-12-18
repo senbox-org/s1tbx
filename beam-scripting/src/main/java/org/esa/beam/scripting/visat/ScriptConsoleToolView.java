@@ -9,11 +9,12 @@ import org.esa.beam.visat.VisatApp;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Writer;
 import java.util.concurrent.CancellationException;
 
@@ -43,20 +44,15 @@ public class ScriptConsoleToolView extends AbstractToolView {
 
     @Override
     public JComponent createControl() {
-        if (scriptEngineManager == null) {
-            final ClassLoader oldClassLoader = getContextClassLoader();
+        if (scriptEngine == null) {
             try {
-                setContextClassLoader(ScriptConsoleToolView.class.getClassLoader());
-                // create a script engine manager
-                scriptEngineManager = new ScriptEngineManager(ScriptConsoleToolView.class.getClassLoader());
-                // create a JavaScript engine
-                scriptEngine = scriptEngineManager.getEngineByName(SCRIPT_LANGUAGE_NAME);
-
-                final ScriptWriter writer = new ScriptWriter(); // fixme - don't get any output
-                scriptEngine.getContext().setWriter(writer);
-                scriptEngine.getContext().setErrorWriter(writer);
-            } finally {
-                setContextClassLoader(oldClassLoader);
+                initScriptEngine();
+            } catch (ScriptException e) {
+                e.printStackTrace();
+                visat.showErrorDialog(getTitle(), e.getMessage());
+            } catch (IOException e) {
+                e.printStackTrace();
+                visat.showErrorDialog(getTitle(), e.getMessage());
             }
         }
 
@@ -109,6 +105,29 @@ public class ScriptConsoleToolView extends AbstractToolView {
         consolePanel.add(splitPane, BorderLayout.CENTER);
 
         return consolePanel;
+    }
+
+    private void initScriptEngine() throws ScriptException, IOException {
+        final ClassLoader oldClassLoader = getContextClassLoader();
+        try {
+            setContextClassLoader(ScriptConsoleToolView.class.getClassLoader());
+            // create a script engine manager
+            scriptEngineManager = new ScriptEngineManager(ScriptConsoleToolView.class.getClassLoader());
+            // create a JavaScript engine
+            scriptEngine = scriptEngineManager.getEngineByName(SCRIPT_LANGUAGE_NAME);
+
+            final ScriptWriter writer = new ScriptWriter(); // fixme - don't get any output
+            scriptEngine.getContext().setWriter(writer);
+            scriptEngine.getContext().setErrorWriter(writer);
+            final InputStreamReader streamReader = new InputStreamReader(getClass().getResourceAsStream("visat.js"));
+            try {
+                scriptEngine.eval(streamReader);
+            } finally {
+                streamReader.close();
+            }
+        } finally {
+            setContextClassLoader(oldClassLoader);
+        }
     }
 
     private ClassLoader getContextClassLoader() {

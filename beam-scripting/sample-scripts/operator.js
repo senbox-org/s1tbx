@@ -1,11 +1,3 @@
-importPackage(org.esa.beam.framework.datamodel);
-importPackage(org.esa.beam.framework.dataio);
-importPackage(org.esa.beam.framework.gpf);
-importPackage(org.esa.beam.visat);
-importPackage(javax.swing);
-importPackage(java.awt.event);
-
-var visat = VisatApp.getApp();
 
 var item = new JMenuItem("Weird operator");
 item.addActionListener(new ActionListener() {
