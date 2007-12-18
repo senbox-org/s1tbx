@@ -20,6 +20,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.ui.RectangleInsets;
 
+import javax.imageio.ImageIO;
 import javax.media.jai.ROI;
 import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
@@ -34,6 +35,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -381,6 +383,12 @@ class ScatterPlotPane extends PagePane {
                     final double maxX = scatterPlot.getRangeX().getMax();
                     final double minY = scatterPlot.getRangeY().getMin();
                     final double maxY = scatterPlot.getRangeY().getMax();
+                    try {
+                        ImageIO.write(scatterPlot.getImage(), "PNG", new File("boboo.png"));
+                    } catch (IOException e) {
+// todo - handle exception here
+                        e.printStackTrace();
+                    }
                     plot.setImage(scatterPlot.getImage());
                     plot.setImageDataBounds(new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY));
                     setAutoRange(X_VAR, scatterPlot.getRangeX());
