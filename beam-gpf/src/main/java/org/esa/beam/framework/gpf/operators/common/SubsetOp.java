@@ -16,7 +16,7 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.io.IOException;
 
 @OperatorMetadata(alias = "Subset",
@@ -26,7 +26,7 @@ public class SubsetOp extends Operator {
     private ProductReader subsetReader;
     private ProductSubsetDef subsetDef;
 
-    @SourceProduct(alias="input")
+    @SourceProduct(alias = "input")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
@@ -115,26 +115,21 @@ public class SubsetOp extends Operator {
     }
 
     private void initSubsetDef() {
-        setDefaultValues();
         subsetDef = new ProductSubsetDef();
-        subsetDef.addNodeNames(bandList);
-        subsetDef.addNodeNames(tiePointGridList);
-        subsetDef.addNodeNames(flagBandList);
-        subsetDef.setRegion(region);
+        if (bandList != null) {
+            subsetDef.addNodeNames(bandList);
+        }
+        if (tiePointGridList != null) {
+            subsetDef.addNodeNames(tiePointGridList);
+        }
+        if (flagBandList != null) {
+            subsetDef.addNodeNames(flagBandList);
+        }
+        if (region != null) {
+            subsetDef.setRegion(region);
+        }
         subsetDef.setSubSampling(subSamplingX, subSamplingY);
         subsetDef.setIgnoreMetadata(ignoreMetadata);
-    }
-
-    private void setDefaultValues() {
-        Product sourceProduct = getSourceProduct("input");
-        // set source dependent default values
-        if (region == null) {
-            region = new Rectangle(0, 0, sourceProduct.getSceneRasterWidth(),
-                                   sourceProduct.getSceneRasterWidth());
-        }
-        bandList = sourceProduct.getBandNames();
-        flagBandList = sourceProduct.getAllFlagNames();
-        tiePointGridList = sourceProduct.getTiePointGridNames();
     }
 
     public static class Spi extends OperatorSpi {
