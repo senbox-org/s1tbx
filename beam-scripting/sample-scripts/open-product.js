@@ -7,6 +7,6 @@ if (f != null) {
    fc.setCurrentDirectory(f.getParentFile());
    p = ProductIO.readProduct(f, null);
    if (p != null) {
-       visat.getProductManager().addProduct(p);
+       visat.addProduct(p);
    }
 }

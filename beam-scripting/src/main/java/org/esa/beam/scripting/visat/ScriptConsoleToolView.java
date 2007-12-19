@@ -1,6 +1,8 @@
 package org.esa.beam.scripting.visat;
 
 import com.bc.ceres.core.Assert;
+import com.bc.ceres.core.runtime.ModuleRuntime;
+import com.jidesoft.status.StatusBar;
 import com.jidesoft.swing.JideScrollPane;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
@@ -13,10 +15,22 @@ import javax.script.ScriptException;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Writer;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.concurrent.CancellationException;
+
+// todo - IMPORTANT NOTE: This code represents a feasibility study. It lacks junit level tests and
+// requires an extreme refactoring.
+
+// todo - find out how to:
+// (1) ... greatfully cancel a running script
+// (2) ... remove bindings (references) in JavaScript to products, views, etc. in order to avoid memory leaks
+// (3) ... debug a script
+// (4) ... trace & undo changes to BEAM made by a script
 
 /**
  * A tool window for the scripting console.
@@ -37,6 +51,7 @@ public class ScriptConsoleToolView extends AbstractToolView {
     private Action stopAction;
     private Action clearAction;
     private SwingWorker<Object, Object> worker;
+    private StatusBar statusBar;
 
     public ScriptConsoleToolView() {
         this.visat = VisatApp.getApp();
@@ -73,16 +88,20 @@ public class ScriptConsoleToolView extends AbstractToolView {
         outputTextArea.setEditable(false);
         outputTextArea.setBackground(Color.LIGHT_GRAY);
 
-        final JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 2));
+        statusBar = new StatusBar();
+
+        final JToolBar toolBar = new JToolBar("scripting");
 
         runAction = new RunAction();
-        buttonPanel.add(ToolButtonFactory.createButton(runAction, false));
+        toolBar.add(ToolButtonFactory.createButton(runAction, false));
 
         stopAction = new StopAction();
-        buttonPanel.add(ToolButtonFactory.createButton(stopAction, false));
+        toolBar.add(ToolButtonFactory.createButton(stopAction, false));
 
         clearAction = new ClearAction();
-        buttonPanel.add(ToolButtonFactory.createButton(clearAction, false));
+        toolBar.add(ToolButtonFactory.createButton(clearAction, false));
+
+        final JMenuBar menuBar = createMenuBar();
 
         final JScrollPane inputEditorScrollPane = new JideScrollPane(inputTextArea); // <JIDE>
         inputEditorScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -96,15 +115,79 @@ public class ScriptConsoleToolView extends AbstractToolView {
         outputEditorScrollPane.setBorder(null);
         outputEditorScrollPane.setViewportBorder(null);
 
-        final JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, inputEditorScrollPane, outputEditorScrollPane);
-        splitPane.setDividerLocation(0.7);
+        final JSplitPane documentPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT, inputEditorScrollPane, outputEditorScrollPane);
+        documentPanel.setDividerLocation(0.7);
 
         JPanel consolePanel = new JPanel(new BorderLayout(2, 2));
         consolePanel.setPreferredSize(new Dimension(800, 300));
-        consolePanel.add(buttonPanel, BorderLayout.NORTH);
-        consolePanel.add(splitPane, BorderLayout.CENTER);
+        consolePanel.add(toolBar, BorderLayout.NORTH);
+        consolePanel.add(documentPanel, BorderLayout.CENTER);
 
-        return consolePanel;
+        JPanel windowPanel = new JPanel(new BorderLayout(2, 2));
+        windowPanel.setPreferredSize(new Dimension(800, 300));
+        windowPanel.add(menuBar, BorderLayout.NORTH);
+        windowPanel.add(consolePanel, BorderLayout.CENTER);
+        windowPanel.add(statusBar, BorderLayout.SOUTH);
+
+        return windowPanel;
+    }
+
+    private JMenuBar createMenuBar() {
+        final JMenuBar menuBar = new JMenuBar();
+        menuBar.add(createFileMenu());
+        menuBar.add(createEditMenu());
+        menuBar.add(createHelpMenu());
+        menuBar.setFocusable(true);
+        return menuBar;
+    }
+
+    private JMenu createFileMenu() {
+        final JMenu menu = new JMenu("File");
+        menu.setMnemonic('F');
+        return menu;
+    }
+
+    private JMenu createEditMenu() {
+        final JMenu menu = new JMenu("Edit");
+        menu.setMnemonic('E');
+        return menu;
+    }
+
+    private JMenu createHelpMenu() {
+        final JMenu menu = new JMenu("Help");
+        menu.setMnemonic('H');
+        menu.add(createJsMenu());
+        return menu;
+    }
+
+    private JMenu createJsMenu() {
+        final JMenu jsMenu = new JMenu("JavaScript");
+        jsMenu.setMnemonic('J');
+        final String[][] entries = new String[][]{
+                {"BEAM JavaScript (BEAM Wiki)", "http://www.brockmann-consult.de/beam-wiki/display/BEAM/BEAM+JavaScript"},
+                {"JavaScript Introduction (Mozilla)", "http://developer.mozilla.org/en/docs/JavaScript"},
+                {"JavaScript Syntax (Wikipedia)", "http://en.wikipedia.org/wiki/JavaScript_syntax"},
+        };
+
+
+        for (final String[] entry : entries) {
+            final String text = entry[0];
+            final String target = entry[1];
+            final JMenuItem menuItem = new JMenuItem(text);
+            menuItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        Desktop.getDesktop().browse(new URI(target));
+                    } catch (IOException e1) {
+                        visat.showErrorDialog(getTitle(), e1.getMessage());
+                    } catch (URISyntaxException e1) {
+                        visat.showErrorDialog(getTitle(), e1.getMessage());
+                    }
+                }
+            });
+            jsMenu.add(menuItem);
+        }
+        return jsMenu;
     }
 
     private void initScriptEngine() throws ScriptException, IOException {
