@@ -95,12 +95,37 @@ public class OperatorContext {
         this.logger = logger;
     }
 
+    public Product getSourceProduct(String id) {
+        return sourceProductMap.get(id);
+    }
+
+    public void setSourceProduct(String id, Product product) {
+        if (!sourceProductList.contains(product)) {
+            sourceProductList.add(product);
+        }
+        sourceProductMap.put(id, product);
+    }
+
     public Product[] getSourceProducts() {
         return sourceProductList.toArray(new Product[sourceProductList.size()]);
     }
 
-    public Product getSourceProduct(String id) {
-        return sourceProductMap.get(id);
+    public void setSourceProducts(Product[] products) {
+        sourceProductList.clear();
+        sourceProductMap.clear();
+        for (int i = 0; i < products.length; i++) {
+            Product product = products[i];
+            setSourceProduct(GPF.SOURCE_PRODUCT_FIELD_NAME + (i + 1), product);
+        }
+    }
+
+    public void setSourceProducts(Map<String, Product> sourceProducts) {
+        sourceProductList.clear();
+        sourceProductMap.clear();
+        Set<Map.Entry<String, Product>> entries = sourceProducts.entrySet();
+        for (Map.Entry<String, Product> entry : entries) {
+            setSourceProduct(entry.getKey(), entry.getValue());
+        }
     }
 
     public String getSourceProductId(Product product) {
@@ -112,6 +137,7 @@ public class OperatorContext {
         }
         return null;
     }
+
 
     public Product getTargetProduct() throws OperatorException {
         if (targetProduct == null) {
@@ -149,20 +175,6 @@ public class OperatorContext {
 
     public Operator getOperator() {
         return operator;
-    }
-
-    public void setSourceProducts(Map<String, Product> sourceProducts) {
-        Set<Map.Entry<String, Product>> entries = sourceProducts.entrySet();
-        for (Map.Entry<String, Product> entry : entries) {
-            addSourceProduct(entry.getKey(), entry.getValue());
-        }
-    }
-
-    public void addSourceProduct(String id, Product product) {
-        if (!sourceProductList.contains(product)) {
-            sourceProductList.add(product);
-        }
-        sourceProductMap.put(id, product);
     }
 
     public Map<String, Object> getParameters() {
@@ -492,7 +504,7 @@ public class OperatorContext {
             } else {
                 sourceProduct = getSourceProductFieldValue(declaredField);
                 if (sourceProduct != null) {
-                    addSourceProduct(declaredField.getName(), sourceProduct);
+                    setSourceProduct(declaredField.getName(), sourceProduct);
                 } else if (!sourceProductAnnotation.optional()) {
                     String text = "Mandatory source product (field '%s') not set.";
                     String msg = String.format(text, declaredField.getName());
@@ -516,7 +528,7 @@ public class OperatorContext {
                 if (sourceProducts != null) {
                     for (int i = 0; i < sourceProducts.length; i++) {
                         Product sourceProduct = sourceProducts[i];
-                        addSourceProduct(GPF.SOURCE_PRODUCT_FIELD_NAME + i, sourceProduct);
+                        setSourceProduct(GPF.SOURCE_PRODUCT_FIELD_NAME + i, sourceProduct);
                     }
                 }
                 sourceProducts = getSourceProducts();
@@ -670,4 +682,5 @@ public class OperatorContext {
             }
         }
     }
+
 }

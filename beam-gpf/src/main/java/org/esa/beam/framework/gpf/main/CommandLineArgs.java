@@ -88,6 +88,9 @@ class CommandLineArgs {
                     }
                 } else {
                     int index = argCount - 1;
+                    // todo - agree on naming convention:  (nf - 19.12.2007)
+                    // todo - isn't it better to use Java property syntax, e.g. "sourceProducts.0", "sourceProducts.1", ...
+                    // see also OperatorContext.setSourceProducts()
                     if (index == 0) {
                         sourceFilepathMap.put(GPF.SOURCE_PRODUCT_FIELD_NAME, arg);
                     }
@@ -109,7 +112,7 @@ class CommandLineArgs {
             final String extension = FileUtils.getExtension(targetFilepath);
             if (extension.isEmpty()) {
                 targetFormatName = ProductIO.DEFAULT_FORMAT_NAME;
-                // todo - decide if to append extension or not  (nf - 2007-10.29)
+                // todo - decide if to append extension or not  (nf - 29.10.2007)
             } else {
                 targetFormatName = detectWriterFormat(extension);
                 if (targetFormatName == null) {

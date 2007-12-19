@@ -75,7 +75,7 @@ class NodeContext {
     }
 
     public void addSourceProduct(String id, Product sourceProduct) {
-        operatorContext.addSourceProduct(id, sourceProduct);
+        operatorContext.setSourceProduct(id, sourceProduct);
     }
 
     public void setParameters(Xpp3Dom configuration) {

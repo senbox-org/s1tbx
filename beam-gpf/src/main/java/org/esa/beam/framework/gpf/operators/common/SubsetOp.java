@@ -23,58 +23,58 @@ import java.io.IOException;
                   description = "Create a spatial and/or spectral subset of the source product.")
 public class SubsetOp extends Operator {
 
-    private ProductReader subsetReader;
-    private ProductSubsetDef subsetDef;
-
-    @SourceProduct(alias = "input")
+    @SourceProduct
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
     @Parameter
-    private Rectangle region = null;
+    private Rectangle region;
+    @Parameter(defaultValue = "1")
+    private int subSamplingX;
+    @Parameter(defaultValue = "1")
+    private int subSamplingY;
     @Parameter
-    private int subSamplingX = 1;
+    private String[] tiePointGridNames;
     @Parameter
-    private int subSamplingY = 1;
-    @Parameter
-    private String[] bandList = null;
-    @Parameter
-    private String[] flagBandList = null;
-    @Parameter
-    private String[] tiePointGridList = null;
-    @Parameter
-    private boolean ignoreMetadata = false;
+    private String[] bandNames;
+    @Parameter(defaultValue = "false")
+    private boolean copyMetadata;
+
+    private ProductReader subsetReader;
+    private ProductSubsetDef subsetDef;
 
     public SubsetOp() {
+        super();
+        subSamplingX = 1;
+        subSamplingY = 1;
     }
 
-    public SubsetOp(Product sourceProduct, String[] bandList, Rectangle region, int subSamplingX, int subSamplingY) {
-        this.sourceProduct = sourceProduct;
-        this.bandList = bandList;
-        this.region = region;
-        this.subSamplingX = subSamplingX;
-        this.subSamplingY = subSamplingY;
+    public String[] getTiePointGridNames() {
+        return tiePointGridNames != null ? tiePointGridNames.clone() : null;
     }
 
-    public void setBandList(String[] bandList) {
-        this.bandList = bandList;
+    public void setTiePointGridNames(String[] tiePointGridNames) {
+        this.tiePointGridNames = tiePointGridNames != null ? tiePointGridNames.clone() : null;
     }
 
-    public void setFlagBandList(String[] flagBandList) {
-        this.flagBandList = flagBandList;
+    public String[] getBandNames() {
+        return bandNames != null ? bandNames.clone() : null;
     }
 
-    public void setIgnoreMetadata(boolean ignoreMetadata) {
-        this.ignoreMetadata = ignoreMetadata;
+    public void setBandNames(String[] bandNames) {
+        this.bandNames = bandNames != null ? bandNames.clone() : null;
+    }
+
+    public void setCopyMetadata(boolean copyMetadata) {
+        this.copyMetadata = copyMetadata;
+    }
+
+    public Rectangle getRegion() {
+        return region != null ? new Rectangle(region) : null;
     }
 
     public void setRegion(Rectangle region) {
-        this.region = region;
-    }
-
-    public void setSourceProduct(Product sourceProduct) {
-        this.sourceProduct = sourceProduct;
-        super.addSourceProduct("input", sourceProduct);
+        this.region = region != null ? new Rectangle(region) : null;
     }
 
     public void setSubSamplingX(int subSamplingX) {
@@ -85,14 +85,25 @@ public class SubsetOp extends Operator {
         this.subSamplingY = subSamplingY;
     }
 
-    public void setTiePointGridList(String[] tiePointGridList) {
-        this.tiePointGridList = tiePointGridList;
-    }
-
     @Override
     public void initialize() throws OperatorException {
         subsetReader = new ProductSubsetBuilder();
-        initSubsetDef();
+        subsetDef = new ProductSubsetDef();
+        if (tiePointGridNames != null) {
+            subsetDef.addNodeNames(tiePointGridNames);
+        } else {
+            subsetDef.addNodeNames(sourceProduct.getTiePointGridNames());
+        }
+        if (bandNames != null) {
+            subsetDef.addNodeNames(bandNames);
+        } else {
+            subsetDef.addNodeNames(sourceProduct.getBandNames());
+        }
+        if (region != null) {
+            subsetDef.setRegion(region);
+        }
+        subsetDef.setSubSampling(subSamplingX, subSamplingY);
+        subsetDef.setIgnoreMetadata(!copyMetadata);
 
         try {
             targetProduct = subsetReader.readProductNodes(sourceProduct, subsetDef);
@@ -106,31 +117,18 @@ public class SubsetOp extends Operator {
         ProductData destBuffer = targetTile.getRawSamples();
         Rectangle rectangle = targetTile.getRectangle();
         try {
-            subsetReader.readBandRasterData(band, rectangle.x, rectangle.y, rectangle.width,
-                                            rectangle.height, destBuffer, pm);
+            subsetReader.readBandRasterData(band,
+                                            rectangle.x,
+                                            rectangle.y,
+                                            rectangle.width,
+                                            rectangle.height,
+                                            destBuffer, pm);
             targetTile.setRawSamples(destBuffer);
         } catch (IOException e) {
             throw new OperatorException(e);
         }
     }
 
-    private void initSubsetDef() {
-        subsetDef = new ProductSubsetDef();
-        if (bandList != null) {
-            subsetDef.addNodeNames(bandList);
-        }
-        if (tiePointGridList != null) {
-            subsetDef.addNodeNames(tiePointGridList);
-        }
-        if (flagBandList != null) {
-            subsetDef.addNodeNames(flagBandList);
-        }
-        if (region != null) {
-            subsetDef.setRegion(region);
-        }
-        subsetDef.setSubSampling(subSamplingX, subSamplingY);
-        subsetDef.setIgnoreMetadata(ignoreMetadata);
-    }
 
     public static class Spi extends OperatorSpi {
         public Spi() {

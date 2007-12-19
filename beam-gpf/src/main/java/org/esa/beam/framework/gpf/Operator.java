@@ -139,10 +139,43 @@ public abstract class Operator {
     /**
      * Gets the source products in the order they have been declared.
      *
-     * @return the array source products
+     * @return The array source products.
      */
     public final Product[] getSourceProducts() {
         return context.getSourceProducts();
+    }
+
+    /**
+     * Sets the source products.
+     *
+     * @param products The source products.
+     * @since BEAM 4.2
+     */
+    public final void setSourceProducts(Product[] products) {
+        Assert.notNull(products, "products");
+        context.setSourceProducts(products);
+    }
+
+    /**
+     * Sets a single source product. This method is a shortcut for
+     * {@code getSourceProduct("sourceProduct")}.
+     *
+     * @return The source product, or {@code null} if not set.
+     * @since BEAM 4.2
+     */
+    public Product getSourceProduct() {
+        return getSourceProduct("sourceProduct");
+    }
+
+    /**
+     * Sets a single source product. This method is a shortcut for
+     * {@code setSourceProduct("sourceProduct",sourceProduct)}.
+     *
+     * @param sourceProduct the source product to be set
+     * @since BEAM 4.2
+     */
+    public void setSourceProduct(Product sourceProduct) {
+        setSourceProduct("sourceProduct", sourceProduct);
     }
 
     /**
@@ -158,6 +191,32 @@ public abstract class Operator {
     }
 
     /**
+     * Sets a source product.
+     * One product instance can be registered with different identifiers, e.g. "source", "source1" and "input"
+     * in consecutive calls.
+     *
+     * @param id      a source product identifier
+     * @param product the source product to be set
+     * @since BEAM 4.2
+     */
+    public final void setSourceProduct(String id, Product product) {
+        Assert.notNull(id, "id");
+        Assert.notNull(product, "product");
+        context.setSourceProduct(id, product);
+    }
+
+    /**
+     * @param id      a source product identifier
+     * @param product the source product to be set
+     * @deprecated since BEAM 4.2, use {@link #setSourceProduct(String, org.esa.beam.framework.datamodel.Product)}
+     */
+    public final void addSourceProduct(String id, Product product) {
+        Assert.notNull(id, "id");
+        Assert.notNull(product, "product");
+        context.setSourceProduct(id, product);
+    }
+
+    /**
      * Gets the identifier for the given source product.
      *
      * @param product The source product.
@@ -167,20 +226,6 @@ public abstract class Operator {
     public final String getSourceProductId(Product product) {
         Assert.notNull(product, "product");
         return context.getSourceProductId(product);
-    }
-
-    /**
-     * Adds a product to the list of source products.
-     * One product instance can be registered with different identifiers, e.g. "source", "source1" and "input"
-     * in consecutive calls.
-     *
-     * @param id      a product identifier
-     * @param product the product to be added
-     */
-    public final void addSourceProduct(String id, Product product) {
-        Assert.notNull(id, "id");
-        Assert.notNull(product, "product");
-        context.addSourceProduct(id, product);
     }
 
     /**
