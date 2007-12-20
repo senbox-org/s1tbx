@@ -4,7 +4,6 @@ import com.bc.ceres.core.ProgressMonitor;
 
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.Tile;
@@ -222,35 +221,53 @@ public class N1PatcherOp extends MerisBasisOp {
     @Override
     public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         Rectangle rectangle = targetTile.getRectangle();
-        DatasetDescriptor descriptor = getDatasetDescriptorForBand(band);
-        if (descriptor == null) {
-            return;
-        }
-
         pm.beginTask("Patching product...", rectangle.height);
         try {
             Tile srcTile = getSourceTile(sourceProduct.getBand(band.getName()), rectangle, pm);
-            short[] data = (short[]) srcTile.getRawSamples().getElems();
-
-            byte[] buf = new byte[rectangle.height * descriptor.dsrSize];
-            final long dsrOffset = descriptor.dsOffset + rectangle.y * descriptor.dsrSize;
-            inputStream.seek(dsrOffset);
-            inputStream.read(buf);
-            outputStream.seek(dsrOffset);
-            for (int y = 0; y < rectangle.height; y++) {
-                outputStream.write(buf, y * descriptor.dsrSize, DSR_HEADER_SIZE);
-                outputStream.skipBytes((targetProduct.getSceneRasterWidth() - rectangle.width - rectangle.x) * 2);
-                for (int x = rectangle.width - 1; x >= 0; x--) {
-                    outputStream.writeShort(data[x + y * rectangle.width]);
-                }
-                outputStream.skipBytes((rectangle.x) * 2);
-                checkForCancelation(pm);
-                pm.worked(1);
-            }
-            
             for (int y = rectangle.y; y < rectangle.y + rectangle.height; y++) {
                 for (int x = rectangle.x; x < rectangle.x + rectangle.width; x++) {
                     targetTile.setSample(x, y, srcTile.getSampleDouble(x, y));
+                }
+            }
+            if (band.getName().startsWith("radiance")) {
+                DatasetDescriptor descriptor = getDatasetDescriptorForBand(band);
+                if (descriptor != null) {
+                    short[] data = (short[]) srcTile.getRawSamples().getElems();
+
+                    byte[] buf = new byte[rectangle.height * descriptor.dsrSize];
+                    final long dsrOffset = descriptor.dsOffset + rectangle.y * descriptor.dsrSize;
+                    inputStream.seek(dsrOffset);
+                    inputStream.read(buf);
+                    outputStream.seek(dsrOffset);
+                    for (int y = 0; y < rectangle.height; y++) {
+                        outputStream.write(buf, y * descriptor.dsrSize, DSR_HEADER_SIZE);
+                        outputStream.skipBytes((targetProduct.getSceneRasterWidth() - rectangle.width - rectangle.x) * 2);
+                        for (int x = rectangle.width - 1; x >= 0; x--) {
+                            outputStream.writeShort(data[x + y * rectangle.width]);
+                        }
+                        outputStream.skipBytes((rectangle.x) * 2);
+                        checkForCancelation(pm);
+                        pm.worked(1);
+                    }
+                }
+            } else if (band.getName().equals("l1_flags")) {
+                DatasetDescriptor descriptor = getDatasetDescriptorForFlagBand();
+                if (descriptor != null) {
+                    byte[] data = (byte[]) srcTile.getRawSamples().getElems();
+
+                    final long dsrOffset = descriptor.dsOffset + rectangle.y * descriptor.dsrSize;
+                    outputStream.seek(dsrOffset);
+                    for (int y = 0; y < rectangle.height; y++) {
+                        outputStream.skipBytes(DSR_HEADER_SIZE);
+                        outputStream.skipBytes(targetProduct.getSceneRasterWidth() - rectangle.width - rectangle.x);
+                        for (int x = rectangle.width - 1; x >= 0; x--) {
+                            outputStream.writeByte(data[x + y * rectangle.width]);
+                        }
+                        outputStream.skipBytes(rectangle.x);
+                        outputStream.skipBytes(targetProduct.getSceneRasterWidth()*2);
+                        checkForCancelation(pm);
+                        pm.worked(1);
+                    }
                 }
             }
         } catch (IOException e) {
@@ -258,6 +275,18 @@ public class N1PatcherOp extends MerisBasisOp {
         } finally {
             pm.done();
         }
+    }
+    
+    private DatasetDescriptor getDatasetDescriptorForFlagBand() {
+        DatasetDescriptor descriptor;
+        for (DatasetDescriptor dsDescriptor : dsDescriptors) {
+            descriptor = dsDescriptor;
+            final String dsName = descriptor.dsName;
+            if (dsName != null && dsName.startsWith("Flag")) {
+                return descriptor;
+            }
+        }
+        return null;
     }
 
     private DatasetDescriptor getDatasetDescriptorForBand(Band band) {

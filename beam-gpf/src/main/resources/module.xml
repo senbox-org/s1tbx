@@ -3,6 +3,13 @@
     <symbolicName>beam-gpf</symbolicName>
     <version>4.2-SNAPSHOT</version>
     <name>BEAM Graph Processing Framework (GPF)</name>
+    
+    <changelog>
+        <![CDATA[<p>From 4.1 to 4.2:<br/>
+            [BEAM-762] Operator within VISAT don't warn, when file already exist<br/>
+            [BEAM-760] The target product selector throws NullPointerException<br/>
+        </p>]]>
+    </changelog>
 
     <dependency>
         <module>ceres-binding</module>

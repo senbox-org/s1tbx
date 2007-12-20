@@ -186,6 +186,11 @@ public class GraphProcessorTest extends TestCase {
         assertEquals(2, op3.inputs.length);
         assertSame(op3.input1, op3.inputs[0]);
         assertSame(op3.input2, op3.inputs[1]);
+
+        assertEquals(false, op3.ignoreSign);        // has NO default value
+        assertEquals("NN", op3.interpolMethod);     // has default value
+        assertEquals(1.5, op3.factor);              // has default value
+
     }
 
     public void testMissingNode() {

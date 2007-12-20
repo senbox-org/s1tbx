@@ -28,7 +28,10 @@ import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.util.SystemUtils;
 
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.concurrent.ExecutionException;
+
+import javax.swing.JOptionPane;
 
 /**
  * WARNING: This class belongs to a preliminary API and may change in future releases.
@@ -72,6 +75,17 @@ public abstract class SingleTargetProductDialog extends ModalDialog {
             targetProductSelector.getProductNameTextField().requestFocus();
             return;
         }
+        File productFile = targetProductSelector.getModel().getProductFile();
+        if (productFile.exists()) {
+            String message = "The specified output file\n\"{0}\"\n already exists.\n\n" + 
+                    "Do you want to overwrite the existing file?";
+            String formatedMessage = MessageFormat.format(message, productFile.getAbsolutePath());
+            final int answer = JOptionPane.showConfirmDialog(getJDialog(), formatedMessage,
+                    getJDialog().getTitle(), JOptionPane.YES_NO_OPTION);
+            if (answer != JOptionPane.YES_OPTION) {
+                return;
+            }
+        }
         String productDir = targetProductSelector.getModel().getProductDir().getAbsolutePath();
         appContext.getPreferences().setPropertyString(BasicApp.PROPERTY_KEY_APP_LAST_SAVE_DIR, productDir);
 
@@ -86,7 +100,7 @@ public abstract class SingleTargetProductDialog extends ModalDialog {
         }
 
         targetProduct.setName(targetProductSelector.getModel().getProductName());
-        targetProduct.setFileLocation(targetProductSelector.getModel().getProductFile());
+        targetProduct.setFileLocation(productFile);
 
         if (targetProductSelector.getModel().isSaveToFileSelected()) {
             final ProgressMonitorSwingWorker worker = new ProductWriterSwingWorker(targetProduct);
