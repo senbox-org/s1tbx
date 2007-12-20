@@ -1,7 +1,11 @@
 package org.esa.beam.unmixing.ui;
 
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.diagram.*;
+import org.esa.beam.framework.ui.diagram.DefaultDiagramGraphStyle;
+import org.esa.beam.framework.ui.diagram.Diagram;
+import org.esa.beam.framework.ui.diagram.DiagramAxis;
+import org.esa.beam.framework.ui.diagram.DiagramGraph;
+import org.esa.beam.framework.ui.diagram.DiagramGraphIO;
 import org.esa.beam.unmixing.Endmember;
 import org.esa.beam.unmixing.SpectralUnmixingOp;
 import org.esa.beam.util.PropertyMap;
@@ -9,7 +13,13 @@ import org.esa.beam.util.ResourceInstaller;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileFilter;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.DefaultListModel;
+import javax.swing.DefaultListSelectionModel;
+import javax.swing.ImageIcon;
+import javax.swing.ListModel;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
@@ -116,12 +126,12 @@ class EndmemberFormModel {
         if (oldIndex == index) {
             return;
         }
-        if (oldIndex >= 0) {
+        if (oldIndex >= 0 && endmemberDiagram.getGraphCount() > 0) {
             final DiagramGraph endmemberGraph = endmemberDiagram.getGraph(oldIndex);
             ((DefaultDiagramGraphStyle) endmemberGraph.getStyle()).setOutlineStroke(new BasicStroke(1.0f));
         }
         selectedEndmemberIndex = index;
-        if (selectedEndmemberIndex >= 0) {
+        if (selectedEndmemberIndex >= 0  && endmemberDiagram.getGraphCount() > 0) {
             final DiagramGraph endmemberGraph = endmemberDiagram.getGraph(selectedEndmemberIndex);
             ((DefaultDiagramGraphStyle) endmemberGraph.getStyle()).setOutlineStroke(new BasicStroke(2.0f));
         }
