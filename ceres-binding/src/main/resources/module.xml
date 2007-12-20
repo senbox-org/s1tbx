@@ -10,11 +10,13 @@
     </description>
 
     <changelog>
-        <![CDATA[ Changes in 0.6.1
-        <ul>
-          <li>[CERES-19] JRadioButtons inside a ButtonGroup don't update their ValueContainer.</li>
-          <li>Use customized DOM conversion.</li>
-        </ul>]]>
+        <![CDATA[
+        Changes in 0.7<br>
+        [CERES-23] Default value for primitive types is not set<br>
+        <br>Changes in 0.6.1<br>
+        [CERES-19] JRadioButtons inside a ButtonGroup don't update their ValueContainer.<br>
+        Use customized DOM conversion.<br>
+        ]]>
     </changelog>
 
     <vendor>Brockmann Consult GmbH</vendor>

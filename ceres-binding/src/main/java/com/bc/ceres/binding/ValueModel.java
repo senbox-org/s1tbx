@@ -10,6 +10,7 @@ import java.beans.PropertyChangeListener;
  * @since 0.6
  */
 public class ValueModel {
+
     private final ValueDescriptor descriptor;
     private final ValueAccessor accessor;
     private ValueContainer container;
@@ -92,34 +93,33 @@ public class ValueModel {
     }
 
 
-    public void initializeValue() throws ValidationException {
-        if (getValue() != null) {
-            return;
-        }
+    private void initializeValue() throws ValidationException {
+        // todo - use descriptor.isDefaultValueSet() to check, if true, always set any default value incl. null
         if (descriptor.getDefaultValue() != null) {
             setValue(descriptor.getDefaultValue());
-        }
-        if (getValue() != null) {
-            return;
-        }
-        final Class<?> type = descriptor.getType();
-        if (type.isPrimitive()) {
-            if (type.equals(Boolean.TYPE)) {
-                setValue(false);
-            } else if (type.equals(Character.TYPE)) {
-                setValue((char) 0);
-            } else if (type.equals(Byte.TYPE)) {
-                setValue((byte) 0);
-            } else if (type.equals(Short.TYPE)) {
-                setValue((short) 0);
-            } else if (type.equals(Integer.TYPE)) {
-                setValue(0);
-            } else if (type.equals(Long.TYPE)) {
-                setValue((long) 0);
-            } else if (type.equals(Float.TYPE)) {
-                setValue((float) 0);
-            } else if (type.equals(Double.TYPE)) {
-                setValue((double) 0);
+        } else {
+            // primitive types shall have initial values in all kinds of value model
+            final Class<?> type = descriptor.getType();
+            if (getValue() == null && type.isPrimitive()) {
+                if (type.equals(Boolean.TYPE)) {
+                    setValue(false);
+                } else if (type.equals(Character.TYPE)) {
+                    setValue((char) 0);
+                } else if (type.equals(Byte.TYPE)) {
+                    setValue((byte) 0);
+                } else if (type.equals(Short.TYPE)) {
+                    setValue((short) 0);
+                } else if (type.equals(Integer.TYPE)) {
+                    setValue(0);
+                } else if (type.equals(Long.TYPE)) {
+                    setValue((long) 0);
+                } else if (type.equals(Float.TYPE)) {
+                    setValue((float) 0);
+                } else if (type.equals(Double.TYPE)) {
+                    setValue((double) 0);
+                } else {
+                    // todo - warn: new primitive Java type since 1.6?
+                }
             }
         }
     }
