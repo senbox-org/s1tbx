@@ -198,7 +198,7 @@ public class BasicApp {
     /**
      * @return the application's main tool bar
      */
-    public JMenuBar getMainToolBar() {
+    public CommandBar getMainToolBar() {
         return _mainToolBar;
     }
 
@@ -238,6 +238,8 @@ public class BasicApp {
      * Clients can override this method in order to implement application specific initialisation code.</li> <li> The
      * method <code>applyPreferences</code> is called.</li> <li> The main frame is shown.</li> <li> The splash screen
      * (if any) is closed.</li> </ol>
+     * @param pm a progress monitor, e.g. for splash-screen
+     * @throws Exception if an error occurs
      */
     public void startUp(ProgressMonitor pm) throws Exception {
         if (_startedUp || _startingUp) {
