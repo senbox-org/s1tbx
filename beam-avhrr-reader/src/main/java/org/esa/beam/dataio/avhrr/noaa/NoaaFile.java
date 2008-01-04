@@ -214,8 +214,7 @@ public class NoaaFile extends AvhrrFile implements AvhrrConstants {
 		int targetIndex = 0;
 		int targetIncr = 1;
 		if (northbound) {
-			targetIndex = TP_GRID_WIDTH
-					* ((productHeight / TP_SUB_SAMPLING_Y) + 1) - 1;
+			targetIndex = TP_GRID_WIDTH * ((productHeight / TP_SUB_SAMPLING_Y) + 1) - 1;
 			targetIncr = -1;
 		}
 
