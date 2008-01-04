@@ -13,7 +13,6 @@
 package org.esa.beam.dataio.chris;
 
 import ncsa.hdf.hdflib.HDFConstants;
-import ncsa.hdf.hdflib.HDFException;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -70,7 +69,7 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
             return DecodeQualification.UNABLE;
         }
 
-        // @todo 2 tb/tb write test for this logic!
+        // @todo 2 rq/rq write test for this logic!
         if (file.getPath().toLowerCase().endsWith(ChrisConstants.DEFAULT_FILE_EXTENSION) && file.isFile()) {
             int fileId = -1;
             try {
@@ -86,7 +85,7 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
                 if (fileId != -1) {
                     try {
                         HDF4Lib.Hclose(fileId);
-                    } catch (HDFException ignore) {
+                    } catch (Exception ignore) {
                         // nothing to do, return value is already false
                     }
                 }
@@ -179,7 +178,7 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
     }
 
 
-    private static boolean isChrisModeAttributeAvailable(File file) throws HDFException {
+    private static boolean isChrisModeAttributeAvailable(File file) throws Exception {
         final int sdId = HDF4Lib.SDstart(file.getPath(), HDFConstants.DFACC_RDONLY);
         if (sdId == -1) {
             return false;
