@@ -2028,7 +2028,7 @@ public final class VisatApp extends BasicApp {
         }
     }
 
-    private JInternalFrame getSelectedInternalFrame() {
+    public JInternalFrame getSelectedInternalFrame() {
         JInternalFrame selectedFrame = null;
         if (desktopPane != null) {
             selectedFrame = desktopPane.getSelectedFrame();

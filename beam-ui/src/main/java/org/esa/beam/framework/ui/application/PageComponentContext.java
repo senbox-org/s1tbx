@@ -1,5 +1,7 @@
 package org.esa.beam.framework.ui.application;
 
+import org.esa.beam.framework.ui.application.support.SelectionProviderFactory;
+
 /**
  * Mediator between the application and the view. The application uses this
  * class to get the view's local action handlers. The view uses this class to
@@ -22,9 +24,9 @@ public interface PageComponentContext {
     /**
      * Gets the application's page.
      *
-     * @return the application page
+     * @return The application page.
      */
-    ApplicationPage getPage();
+    PageComponentService getPage();
 
     /**
      * Gets the associated page component pane.
@@ -35,5 +37,11 @@ public interface PageComponentContext {
 
     ActionCommandExecutor getLocalCommandExecutor(String commandId);
 
-    void register(String commandId, ActionCommandExecutor executor);
+    void setLocalCommandExecutor(String commandId, ActionCommandExecutor executor);
+
+    SelectionProvider getSelectionProvider();
+
+    void setSelectionProvider(SelectionProvider selectionProvider);
+
+     // SelectionProviderFactory getSelectionProviderFactory();
 }

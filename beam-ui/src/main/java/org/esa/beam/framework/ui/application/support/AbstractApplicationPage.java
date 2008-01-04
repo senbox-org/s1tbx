@@ -17,7 +17,7 @@ public abstract class AbstractApplicationPage extends AbstractControlFactory imp
 
     private final List<PageComponentListener> pageComponentListeners = new ArrayList<PageComponentListener>();
 
-    private final Map<String, ToolView> toolViews = new HashMap<String, ToolView>();
+    private final Map<String, PageComponent> pageComponentMap = new HashMap<String, PageComponent>();
 
     private PageComponent activeComponent;
 
@@ -74,31 +74,33 @@ public abstract class AbstractApplicationPage extends AbstractControlFactory imp
      * @param pageComponent the <code>PageComponent</code>
      */
     public void close(PageComponent pageComponent) {
+        if (!pageComponentMap.containsValue(pageComponent)) {
+            return;
+        }
+
+        if (pageComponent == activeComponent) {
+            fireFocusLost(pageComponent);
+            activeComponent = null;
+        }
+
+        pageComponentMap.remove(pageComponent.getId());
         if (pageComponent instanceof ToolView) {
             ToolView toolView = (ToolView) pageComponent;
-            if (!toolViews.containsValue(toolView)) {
-                return;
-            }
-
-            if (toolView == activeComponent) {
-                fireFocusLost(toolView);
-                activeComponent = null;
-            }
-
-            toolViews.remove(toolView.getId());
             doRemoveToolView(toolView);
-            toolView.removePropertyChangeListener(pageComponentUpdater);
-
-            fireHidden(toolView);
-            fireClosed(toolView);
-
-            toolView.dispose();
-
-            if (activeComponent == null) {
-                setActiveComponent();
-            }
         } else if (pageComponent instanceof DocView) {
-            // TODO implement DocViews
+            // todo - DocView docView = (DocView) pageComponent;
+            // todo - doRemoveDocView(docView);
+        }
+
+        pageComponent.removePropertyChangeListener(pageComponentUpdater);
+
+        fireHidden(pageComponent);
+        fireClosed(pageComponent);
+
+        pageComponent.dispose();
+
+        if (activeComponent == null) {
+            setActiveComponent();
         }
     }
 
@@ -110,19 +112,32 @@ public abstract class AbstractApplicationPage extends AbstractControlFactory imp
      *         otherwise.
      */
     public boolean close() {
-        ToolView[] toolViews = getToolViews();
-        for (ToolView toolView : toolViews) {
-            close(toolView);
+        for (PageComponent component : pageComponentMap.values()) {
+            close(component);
         }
         return true;
     }
 
+    public PageComponent getPageComponent(String id) {
+        return pageComponentMap.get(id);
+    }
+
     public ToolView[] getToolViews() {
-        return toolViews.values().toArray(new ToolView[toolViews.size()]);
+        ArrayList<ToolView> toolViews = new ArrayList<ToolView>(pageComponentMap.size());
+        for (PageComponent component : pageComponentMap.values()) {
+            if (component instanceof ToolView) {
+                toolViews.add((ToolView) component);
+            }
+        }
+        return toolViews.toArray(new ToolView[toolViews.size()]);
     }
 
     public ToolView getToolView(String id) {
-        return toolViews.get(id);
+        final PageComponent component = getPageComponent(id);
+        if (component instanceof ToolView) {
+            return (ToolView) component;
+        }
+        return null;
     }
 
     public abstract ToolViewDescriptor getToolViewDescriptor(String id);
@@ -133,7 +148,7 @@ public abstract class AbstractApplicationPage extends AbstractControlFactory imp
             throw new IllegalStateException("pageComponent != null");
         }
         toolView = createToolView(viewDescriptor);
-        toolViews.put(viewDescriptor.getId(),toolView);
+        pageComponentMap.put(viewDescriptor.getId(),toolView);
         doAddToolView(toolView);
         toolView.addPropertyChangeListener(pageComponentUpdater);
         return toolView;
@@ -181,7 +196,7 @@ public abstract class AbstractApplicationPage extends AbstractControlFactory imp
      */
     protected ToolView createToolView(ToolViewDescriptor descriptor) {
         ToolView toolView = (ToolView) descriptor.createPageComponent();
-        toolView.setContext(new DefaultToolViewContext(this, createToolViewPane(toolView)));
+        toolView.setContext(new DefaultPageComponentContext(this, createToolViewPane(toolView)));
         return toolView;
     }
 
@@ -266,11 +281,8 @@ public abstract class AbstractApplicationPage extends AbstractControlFactory imp
      * @param pageComponent the <code>PageComponent</code>
      */
     public void setActiveComponent(PageComponent pageComponent) {
-        if (pageComponent instanceof ToolView) {
-            ToolView toolView = (ToolView) pageComponent;
-            if (!toolViews.containsValue(toolView)) {
-                return;
-            }
+        if (!pageComponentMap.containsValue(pageComponent)) {
+            return;
         }
 
         Debug.trace("setActiveComponent: pageComponent = " + pageComponent);
@@ -338,4 +350,28 @@ public abstract class AbstractApplicationPage extends AbstractControlFactory imp
     protected abstract boolean giveFocusTo(PageComponent pageComponent);
 
     protected abstract PageComponentPane createToolViewPane(ToolView toolView);
+
+    public void addSelectionListener(SelectionListener listener) {
+        getWindow().getSelectionService().addSelectionListener(listener);
+    }
+
+    public void addSelectionListener(String partId, SelectionListener listener) {
+        getWindow().getSelectionService().addSelectionListener(partId, listener);
+    }
+
+    public Selection getSelection() {
+        return getWindow().getSelectionService().getSelection();        
+    }
+
+    public Selection getSelection(String partId) {
+        return getWindow().getSelectionService().getSelection(partId);
+    }
+
+    public void removeSelectionListener(SelectionListener listener) {
+        getWindow().getSelectionService().removeSelectionListener(listener);
+    }
+
+    public void removeSelectionListener(String partId, SelectionListener listener) {
+        getWindow().getSelectionService().removeSelectionListener(partId, listener);
+    }
 }

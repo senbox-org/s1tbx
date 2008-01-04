@@ -1,6 +1,6 @@
 package org.esa.beam.framework.ui.application;
 
-public interface ApplicationPage extends ControlFactory {
+public interface ApplicationPage extends ControlFactory, SelectionService, PageComponentService {
 
     ApplicationWindow getWindow();
 
@@ -11,11 +11,7 @@ public interface ApplicationPage extends ControlFactory {
      */
     void setWindow(ApplicationWindow window);
 
-    void addPageComponentListener(PageComponentListener listener);
-
-    void removePageComponentListener(PageComponentListener listener);
-
-    PageComponent getActiveComponent();
+    PageComponent getPageComponent(String id);
 
     ToolView[] getToolViews();
 

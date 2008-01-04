@@ -34,7 +34,7 @@ public abstract class AbstractPageComponentPane extends AbstractControlFactory i
 
     /**
      * Handle the change of a property of this pane's page component.
-     * @param evt
+     * @param evt The change event.
      */
     protected abstract void pageComponentChanged(PropertyChangeEvent evt);
 

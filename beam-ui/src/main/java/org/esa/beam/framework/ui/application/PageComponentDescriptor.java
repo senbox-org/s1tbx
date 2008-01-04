@@ -6,9 +6,9 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * Metadata about a page window; a page window is effectively a
- * singleton page window definition. A descriptor also acts as a factory
- * which produces new instances of a given page window when requested,
+ * Metadata about a page component. A page descriptor is effectively a
+ * singleton page component definition. A page descriptor also acts as a factory
+ * which produces new instances of a given page component when requested,
  * typically by a requesting application page. A page window descriptor
  * can also produce a command which launches a page window for display
  * on the page within the current active application window.

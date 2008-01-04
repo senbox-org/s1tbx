@@ -2,7 +2,7 @@ package org.esa.beam.framework.ui.application.support;
 
 import org.esa.beam.framework.ui.application.ControlFactory;
 
-import javax.swing.*;
+import javax.swing.JComponent;
 
 /**
  * A control factory that only creates it's control when requested.
@@ -11,38 +11,37 @@ import javax.swing.*;
  */
 public abstract class AbstractControlFactory implements ControlFactory {
 
-    private boolean singleton = true;
+    private boolean singleton;
 
     private JComponent control;
 
-    protected final boolean isSingleton() {
+    protected AbstractControlFactory() {
+        singleton = true;
+    }
+
+    protected synchronized final boolean isSingleton() {
         return singleton;
     }
 
-    protected final void setSingleton(boolean singleton) {
+    protected synchronized final void setSingleton(boolean singleton) {
         this.singleton = singleton;
     }
 
-    public final JComponent getControl() {
+    public synchronized final JComponent getControl() {
         if (isSingleton()) {
             if (control == null) {
                 this.control = createControl();
             }
             return control;
         }
-
         return createControl();
     }
 
-    public final boolean isControlCreated() {
-        if (isSingleton()) {
-            return control != null;
-        }
-
-        return false;
+    public synchronized final boolean isControlCreated() {
+        return isSingleton() && control != null;
     }
 
-    protected void createControlIfNecessary() {
+    protected synchronized void createControlIfNecessary() {
         if (isSingleton() && control == null) {
             getControl();
         }

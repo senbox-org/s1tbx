@@ -6,14 +6,14 @@ import org.esa.beam.framework.ui.application.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DefaultToolViewContext implements ToolViewContext {
+public class DefaultPageComponentContext implements PageComponentContext {
     private final PageComponentPane pane;
 
     private final ApplicationPage page;
 
     private Map<String, ActionCommandExecutor> sharedCommandExecutors;
 
-    public DefaultToolViewContext(ApplicationPage page, PageComponentPane pane) {
+    public DefaultPageComponentContext(ApplicationPage page, PageComponentPane pane) {
         Assert.notNull(page, "page");
         this.page = page;
         this.pane = pane;
@@ -23,7 +23,7 @@ public class DefaultToolViewContext implements ToolViewContext {
         return page.getWindow();
     }
 
-    public ApplicationPage getPage() {
+    public PageComponentService getPage() {
         return page;
     }
 
@@ -31,7 +31,7 @@ public class DefaultToolViewContext implements ToolViewContext {
         return pane;
     }
 
-    public ActionCommandExecutor getLocalCommandExecutor(String commandId) {
+    public synchronized ActionCommandExecutor getLocalCommandExecutor(String commandId) {
         Assert.notNull(commandId, "commandId");
         if (sharedCommandExecutors == null) {
             return null;
@@ -39,7 +39,7 @@ public class DefaultToolViewContext implements ToolViewContext {
         return sharedCommandExecutors.get(commandId);
     }
 
-    public void register(String commandId, ActionCommandExecutor executor) {
+    public synchronized void setLocalCommandExecutor(String commandId, ActionCommandExecutor executor) {
         Assert.notNull(commandId, "commandId");
         if (sharedCommandExecutors == null) {
             sharedCommandExecutors = new HashMap<String, ActionCommandExecutor>(5);
@@ -49,5 +49,15 @@ public class DefaultToolViewContext implements ToolViewContext {
         } else {
             sharedCommandExecutors.put(commandId, executor);
         }
+    }
+
+    public SelectionProvider getSelectionProvider() {
+        final DefaultSelectionService service = (DefaultSelectionService) page.getWindow().getSelectionService();
+        return service.getSelectionProvider(pane.getPageComponent().getId());
+    }
+
+    public void setSelectionProvider(SelectionProvider selectionProvider) {
+        final DefaultSelectionService service = (DefaultSelectionService) page.getWindow().getSelectionService();
+        service.setSelectionProvider(selectionProvider);
     }
 }

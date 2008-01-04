@@ -10,6 +10,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.beans.PropertyChangeListener;
 
+
+// todo - extract superclass AbstractPageComponent
 /**
  * An abstract base class for client {@link org.esa.beam.framework.ui.application.ToolView}s.
  * <p>Clients should use this class a base class for their tool view implementations.</p>
@@ -67,35 +69,42 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
      * @return The tool window identifier.
      */
     public String getId() {
+        assertDescriptorSet();
         return descriptor.getId();
     }
 
     public String getTitle() {
+        assertDescriptorSet();
         return descriptor.getTitle();
     }
 
     public Icon getIcon() {
+        assertDescriptorSet();
         return descriptor.getSmallIcon();
     }
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
+        assertDescriptorSet();
         descriptor.addPropertyChangeListener(listener);
     }
 
     public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
+        assertDescriptorSet();
         descriptor.addPropertyChangeListener(propertyName, listener);
     }
 
     public void removePropertyChangeListener(PropertyChangeListener listener) {
+        assertDescriptorSet();
         descriptor.removePropertyChangeListener(listener);
     }
 
     public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener) {
+        assertDescriptorSet();
         descriptor.removePropertyChangeListener(propertyName, listener);
     }
 
     /**
-     * Template method called once when this view is initialized; allows
+     * Template method called once when this view is initialized. It allows
      * subclasses to register local executors for shared commands with the view
      * context.
      *
@@ -104,8 +113,6 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
     protected void registerLocalCommandExecutors(PageComponentContext context) {
     }
 
-    // todo - remove following methods
-
     /**
      * The default implementation does nothing.
      * <p>Clients shall not call this method directly.</p>
@@ -113,6 +120,7 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
     public void dispose() {
     }
 
+    // todo - rename to getPaneControl()
     /**
      * Gets the content pane of this tool window's part.
      *
@@ -122,6 +130,7 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
         return context != null ? context.getPane().getControl() : null;
     }
 
+    // todo - rename to getPaneWindow()
     /**
      * Gets the first {@link Window} ancestor of this tool window's content pane, or
      * {@code null} if it is (currently) not contained inside a {@code Window}.
@@ -185,5 +194,10 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
      * <p>Clients shall not call this method directly.</p>
      */
     public void componentFocusLost() {
+    }
+
+
+    private void assertDescriptorSet() {
+        Assert.state(descriptor != null, "descriptor != null");
     }
 }

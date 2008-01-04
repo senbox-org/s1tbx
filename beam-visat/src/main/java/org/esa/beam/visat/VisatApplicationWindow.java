@@ -2,6 +2,9 @@ package org.esa.beam.visat;
 
 import org.esa.beam.framework.ui.application.ApplicationWindow;
 import org.esa.beam.framework.ui.application.ApplicationPage;
+import org.esa.beam.framework.ui.application.PageComponentService;
+import org.esa.beam.framework.ui.application.SelectionService;
+import org.esa.beam.framework.ui.application.support.DefaultSelectionService;
 import org.esa.beam.framework.ui.command.CommandManager;
 
 import javax.swing.*;
@@ -12,9 +15,11 @@ import java.util.Iterator;
 class VisatApplicationWindow implements ApplicationWindow {
     private VisatApp app;
     private VisatApplicationPage page;
+    private final SelectionService selectionService;
 
     public VisatApplicationWindow(VisatApp app) {
         this.app = app;
+        selectionService = new DefaultSelectionService();
     }
 
     void setPage(VisatApplicationPage page) {
@@ -23,6 +28,14 @@ class VisatApplicationWindow implements ApplicationWindow {
 
     public ApplicationPage getPage() {
         return page;
+    }
+
+    public PageComponentService getPageComponentService() {
+        return page;
+    }
+
+    public SelectionService getSelectionService() {
+        return selectionService;
     }
 
     public CommandManager getCommandManager() {

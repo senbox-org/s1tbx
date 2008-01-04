@@ -10,6 +10,10 @@ public interface ApplicationWindow {
 
     CommandManager getCommandManager();
 
+    SelectionService getSelectionService();
+
+    PageComponentService getPageComponentService();
+
     Iterator getSharedCommands();
 
     JMenuBar getMenuBar();
