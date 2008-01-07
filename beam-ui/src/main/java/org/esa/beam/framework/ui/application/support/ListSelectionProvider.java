@@ -28,7 +28,7 @@ public class ListSelectionProvider extends AbstractSelectionProvider {
 
     public synchronized void setSelection(Selection selection) {
         if (selection.isEmpty()) {
-            list.setSelectedIndex(-1);
+            list.clearSelection();
             return;
         }
 
@@ -46,7 +46,7 @@ public class ListSelectionProvider extends AbstractSelectionProvider {
             }
         }
         if (indexCount == 0) {
-            list.setSelectedIndex(-1);
+            list.clearSelection();
             return;
         }
 
@@ -55,7 +55,9 @@ public class ListSelectionProvider extends AbstractSelectionProvider {
             System.arraycopy(indices, 0, t, 0, indexCount);
             indices = t;
         }
+        list.setValueIsAdjusting(true);
         list.setSelectedIndices(indices);
+        list.setValueIsAdjusting(false);
     }
 
     public JList getList() {

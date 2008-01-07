@@ -19,4 +19,9 @@ public interface Selection {
      * @return The elements as an array. If the selection is empty, an empty array is returned.
      */
     Object[] getElements();
+
+    /**
+     * @return The number of elements.
+     */
+    int getElementCount();
 }

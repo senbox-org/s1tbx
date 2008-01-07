@@ -1,9 +1,8 @@
 package org.esa.beam.framework.ui.application.support;
 
 import junit.framework.TestCase;
-import org.esa.beam.framework.ui.application.Selection;
 
-public class DefaultSelectionTest  extends TestCase {
+public class DefaultSelectionTest extends TestCase {
     public void testEMPTY() {
         assertTrue(DefaultSelection.EMPTY.isEmpty());
         assertNotNull(DefaultSelection.EMPTY.getElements());
@@ -14,27 +13,41 @@ public class DefaultSelectionTest  extends TestCase {
     public void testEmptySelection() {
         DefaultSelection selection = new DefaultSelection(null);
         assertTrue(selection.isEmpty());
-        assertEquals(0, selection.getElementCount());
         assertNull(selection.getFirstElement());
 
         selection = new DefaultSelection(new Object[0]);
         assertTrue(selection.isEmpty());
-        assertEquals(0, selection.getElementCount());
         assertNull(selection.getFirstElement());
     }
 
     public void testNonEmptySelection() {
         DefaultSelection selection = new DefaultSelection("X");
         assertFalse(selection.isEmpty());
-        assertEquals(1, selection.getElementCount());
         assertEquals("X", selection.getFirstElement());
-        assertEquals("X", selection.getElement(0));
 
-        selection = new DefaultSelection(new Object[] {"A", "B"});
+        selection = new DefaultSelection(new Object[]{"A", "B"});
         assertFalse(selection.isEmpty());
-        assertEquals(2, selection.getElementCount());
         assertEquals("A", selection.getFirstElement());
-        assertEquals("A", selection.getElement(0));
-        assertEquals("B", selection.getElement(1));
+    }
+
+    public void testEquals() {
+        assertTrue(new DefaultSelection(null).equals(DefaultSelection.EMPTY));
+        assertTrue(new DefaultSelection(new Object[]{}).equals(DefaultSelection.EMPTY));
+
+        assertTrue(new DefaultSelection(null).equals(new DefaultSelection(null)));
+        assertTrue(new DefaultSelection(new Object[]{}).equals(new DefaultSelection(null)));
+        assertTrue(new DefaultSelection(null).equals(new DefaultSelection(new Object[]{})));
+        assertTrue(new DefaultSelection(new Object[]{}).equals(new DefaultSelection(new Object[]{})));
+
+        assertTrue(new DefaultSelection(new Object[]{"A", "B", "C"}).equals(
+                new DefaultSelection(new Object[]{"A", "B", "C"})));
+
+
+        assertFalse(new DefaultSelection(new Object[]{}).equals(
+                new DefaultSelection(new Object[]{"A"})));
+
+        assertFalse(new DefaultSelection(new Object[]{"B", "A", "C"}).equals(
+                new DefaultSelection(new Object[]{"A", "B", "C"})));
+
     }
 }
