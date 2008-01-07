@@ -6,6 +6,7 @@ import org.esa.beam.framework.ui.application.Selection;
  * Interface for a selection.
 */
 public class DefaultSelection implements Selection {
+    public static final Selection EMPTY = new DefaultSelection(null);
 
     private final Object[] elements;
 
@@ -31,5 +32,9 @@ public class DefaultSelection implements Selection {
 
     public Object getElement(int index) {
         return elements[index];
+    }
+
+    public Object[] getElements() {
+        return elements.clone();
     }
 }

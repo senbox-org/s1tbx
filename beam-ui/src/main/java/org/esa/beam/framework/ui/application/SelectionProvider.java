@@ -4,7 +4,6 @@ package org.esa.beam.framework.ui.application;
  * Interface common to all objects that provide a selection.
  */
 public interface SelectionProvider {
-    PageComponent getPageComponent();    
 
     /**
      * @return The current selection.
@@ -21,12 +20,12 @@ public interface SelectionProvider {
      *
      * @param listener The selection listener.
      */
-    void addSelectionListener(SelectionListener listener);
+    void addSelectionChangeListener(SelectionChangeListener listener);
 
     /**
      * Removes the given selection listener.
      *
      * @param listener The selection listener.
      */
-    void removeSelectionListener(SelectionListener listener);
+    void removeSelectionChangeListener(SelectionChangeListener listener);
 }

@@ -23,7 +23,7 @@ public class DefaultPageComponentContext implements PageComponentContext {
         return page.getWindow();
     }
 
-    public PageComponentService getPage() {
+    public ApplicationPage getPage() {
         return page;
     }
 
@@ -53,11 +53,11 @@ public class DefaultPageComponentContext implements PageComponentContext {
 
     public SelectionProvider getSelectionProvider() {
         final DefaultSelectionService service = (DefaultSelectionService) page.getWindow().getSelectionService();
-        return service.getSelectionProvider(pane.getPageComponent().getId());
+        return service.getSelectionProvider(pane.getPageComponent());
     }
 
     public void setSelectionProvider(SelectionProvider selectionProvider) {
         final DefaultSelectionService service = (DefaultSelectionService) page.getWindow().getSelectionService();
-        service.setSelectionProvider(selectionProvider);
+        service.setSelectionProvider(pane.getPageComponent(), selectionProvider);
     }
 }

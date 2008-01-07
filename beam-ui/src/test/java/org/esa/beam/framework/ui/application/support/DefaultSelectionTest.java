@@ -1,8 +1,16 @@
 package org.esa.beam.framework.ui.application.support;
 
 import junit.framework.TestCase;
+import org.esa.beam.framework.ui.application.Selection;
 
 public class DefaultSelectionTest  extends TestCase {
+    public void testEMPTY() {
+        assertTrue(DefaultSelection.EMPTY.isEmpty());
+        assertNotNull(DefaultSelection.EMPTY.getElements());
+        assertEquals(0, DefaultSelection.EMPTY.getElements().length);
+        assertEquals(null, DefaultSelection.EMPTY.getFirstElement());
+    }
+
     public void testEmptySelection() {
         DefaultSelection selection = new DefaultSelection(null);
         assertTrue(selection.isEmpty());

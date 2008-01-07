@@ -1,27 +1,19 @@
 package org.esa.beam.framework.ui.application;
 
-import java.util.EventObject;
 import java.awt.Component;
+import java.util.EventObject;
 
-public class SelectionEvent extends EventObject {
+public class SelectionChangeEvent extends EventObject {
     private final Selection selection;
 
-    public SelectionEvent(Component component, Selection selection) {
+    public SelectionChangeEvent(Component component, Selection selection) {
         super(component);
         this.selection = selection;
     }
 
-    public SelectionEvent(PageComponent pageComponent, Selection selection) {
-        super(pageComponent);
+    public SelectionChangeEvent(Object source, Selection selection) {
+        super(source);
         this.selection = selection;
-    }
-
-    public PageComponent getPageComponent() {
-        final Object source = getSource();
-        if (source instanceof PageComponent) {
-            return (PageComponent) source;
-        }
-        return null;
     }
 
     public Component getComponent() {

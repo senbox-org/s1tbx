@@ -1,15 +1,10 @@
 package org.esa.beam.framework.ui.application.support;
 
 import junit.framework.TestCase;
-import org.esa.beam.framework.ui.application.PageComponent;
-import org.esa.beam.framework.ui.application.Selection;
-import org.esa.beam.framework.ui.application.SelectionListener;
-import org.esa.beam.framework.ui.application.SelectionProvider;
+import org.esa.beam.framework.ui.application.*;
 
 import javax.swing.JComponent;
 import javax.swing.JList;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class DefaultSelectionServiceTest extends TestCase {
@@ -48,12 +43,11 @@ public class DefaultSelectionServiceTest extends TestCase {
 
     public void testSelectionProviderSupport() {
         final AbstractToolView pageComponent = createPageComponent("x");
-        final SelectionProvider selectionProvider = new PageComponentSelectionProvider(pageComponent);
+        final SelectionProvider selectionProvider = new TestSelectionProvider();
 
-        selectionService.setSelectionProvider(selectionProvider);
+        selectionService.setSelectionProvider(pageComponent, selectionProvider);
 
-        assertSame(selectionProvider, selectionService.getSelectionProvider("x"));
-        assertNull(selectionService.getSelectionProvider("y"));
+        assertSame(selectionProvider, selectionService.getSelectionProvider(pageComponent));
 
         final MySelectionListener serviceListener = new MySelectionListener();
         final MySelectionListener serviceListenerX = new MySelectionListener();
@@ -62,16 +56,16 @@ public class DefaultSelectionServiceTest extends TestCase {
         selectionService.addSelectionListener("x", serviceListenerX);
         selectionService.addSelectionListener("y", serviceListenerY);
 
-        assertEquals(Selection.NULL, selectionService.getSelection());
-        assertEquals(Selection.NULL, selectionService.getSelection("x"));
-        assertEquals(Selection.NULL, selectionService.getSelection("y"));
+        // todo - assertEquals(DefaultSelection.EMPTY, selectionService.getSelection());
+        assertEquals(DefaultSelection.EMPTY, selectionService.getSelection("x"));
+        assertEquals(null, selectionService.getSelection("y"));
 
         final DefaultSelection selection = new DefaultSelection(new Object[]{12, 13, 14});
         selectionProvider.setSelection(selection);
 
-        assertEquals(Selection.NULL, selectionService.getSelection());
+        // todo - assertEquals(DefaultSelection.EMPTY, selectionService.getSelection());
         assertSame(selection, selectionService.getSelection("x"));
-        assertEquals(Selection.NULL, selectionService.getSelection("y"));
+        assertEquals(null, selectionService.getSelection("y"));
 
         assertEquals(0, serviceListener.calls);
         assertEquals(1, serviceListenerX.calls);
@@ -79,13 +73,12 @@ public class DefaultSelectionServiceTest extends TestCase {
     }
 
     public void testComponentSelectionProvider() {
-        final JList jList = new JList();
-        SelectionProvider selectionProvider = new PageComponentSelectionProvider(createPageComponent("x"));
+        SelectionProvider selectionProvider = new TestSelectionProvider();
 
-        assertEquals(Selection.NULL, selectionProvider.getSelection());
+        assertEquals(DefaultSelection.EMPTY, selectionProvider.getSelection());
 
-        final MySelectionListener providerListener = new MySelectionListener();
-        selectionProvider.addSelectionListener(providerListener);
+        final MySelectionChangeListener providerListener = new MySelectionChangeListener();
+        selectionProvider.addSelectionChangeListener(providerListener);
 
         selectionProvider.setSelection(new DefaultSelection(new Object[]{6, 7, 8}));
         assertEquals(1, providerListener.calls);
@@ -110,21 +103,12 @@ public class DefaultSelectionServiceTest extends TestCase {
         };
     }
 
-    private static class PageComponentSelectionProvider implements SelectionProvider {
-
-        private final PageComponent pageComponent;
+    private static class TestSelectionProvider extends AbstractSelectionProvider {
 
         private Selection selection;
 
-        private final List<SelectionListener> listenerList = new ArrayList<SelectionListener>(3);
-
-        public PageComponentSelectionProvider(PageComponent pageComponent) {
-            this.pageComponent = pageComponent;
-            selection = Selection.NULL;
-        }
-
-        public PageComponent getPageComponent() {
-            return pageComponent;
+        public TestSelectionProvider() {
+            selection = DefaultSelection.EMPTY;
         }
 
         public synchronized Selection getSelection() {
@@ -133,19 +117,17 @@ public class DefaultSelectionServiceTest extends TestCase {
 
         public synchronized void setSelection(Selection selection) {
             this.selection = selection;
-            for (SelectionListener selectionListener : listenerList) {
-                selectionListener.selectionChanged(pageComponent, selection);
-            }
+            fireSelectionChange(this, selection);
         }
+    }
 
-        public synchronized void addSelectionListener(SelectionListener listener) {
-            listenerList.add(listener);
+    private static class MySelectionChangeListener implements SelectionChangeListener {
+
+        int calls;
+
+        public void selectionChanged(SelectionChangeEvent event) {
+            calls++;
         }
-
-        public synchronized void removeSelectionListener(SelectionListener listener) {
-            listenerList.remove(listener);
-        }
-
     }
 
     private static class MySelectionListener implements SelectionListener {

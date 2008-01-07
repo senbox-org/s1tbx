@@ -3,41 +3,34 @@ package org.esa.beam.framework.ui.application.support;
 import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.ui.application.*;
 
-import javax.swing.JComponent;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.ArrayList;
 
-/**
- * Created by IntelliJ IDEA.
-* User: Norman
-* Date: 03.01.2008
-* Time: 15:11:54
-* To change this template use File | Settings | File Templates.
-*/
 public class DefaultSelectionService implements SelectionService {
     private final Map<String, List<SelectionListener>> listenersMap;
-    private final Map<String, Selection> selectionMap;
-    private final Map<String, SelectionProvider> providerMap;
+    private final Map<PageComponent, SelectionProvider> providerMap;
 
     public DefaultSelectionService() {
         listenersMap = new HashMap<String, List<SelectionListener>>(16);
-        selectionMap = new HashMap<String, Selection>(16);
-        providerMap = new HashMap<String, SelectionProvider>(16);
+        providerMap = new HashMap<PageComponent, SelectionProvider>(16);
     }
 
     public synchronized Selection getSelection() {
-        return Selection.NULL;
+        // todo - must return selection for active pageComponentId
+        throw new IllegalStateException("Not implemented!");
     }
 
     public synchronized Selection getSelection(String pageComponentId) {
-        final SelectionProvider selectionProvider = providerMap.get(pageComponentId);
-        if (selectionProvider == null) {
-            return Selection.NULL;
+        final PageComponent pageComponent = getPageComponent(pageComponentId);
+        if (pageComponent != null) {
+            final SelectionProvider selectionProvider = providerMap.get(pageComponent);
+            if (selectionProvider != null) {
+                return selectionProvider.getSelection();
+            }
         }
-        final Selection selection = selectionProvider.getSelection();
-        return selection != null ? selection : Selection.NULL;
+        return null;
     }
 
     public synchronized void addSelectionListener(SelectionListener listener) {
@@ -47,7 +40,6 @@ public class DefaultSelectionService implements SelectionService {
     public synchronized void addSelectionListener(String pageComponentId, SelectionListener listener) {
         Assert.notNull(pageComponentId, "pageComponentId");
         Assert.notNull(listener, "listener");
-        // todo - check valid partId
         List<SelectionListener> listeners = listenersMap.get(pageComponentId);
         if (listeners == null) {
             listeners = new ArrayList<SelectionListener>(4);
@@ -63,7 +55,6 @@ public class DefaultSelectionService implements SelectionService {
     public synchronized void removeSelectionListener(String pageComponentId, SelectionListener listener) {
         Assert.notNull(pageComponentId, "pageComponentId");
         Assert.notNull(listener, "listener");
-        // todo - check valid partId
         List<SelectionListener> listeners = listenersMap.get(pageComponentId);
         if (listeners != null) {
             listeners.remove(listener);
@@ -81,17 +72,27 @@ public class DefaultSelectionService implements SelectionService {
         }
     }
 
-    public SelectionProvider getSelectionProvider(String pageComponentId) {
-        return providerMap.get(pageComponentId);
+    public SelectionProvider getSelectionProvider(PageComponent pageComponent) {
+        return providerMap.get(pageComponent);
     }
 
-    public void setSelectionProvider(SelectionProvider selectionProvider) {
-        providerMap.put(selectionProvider.getPageComponent().getId(), selectionProvider);
-        selectionProvider.addSelectionListener(new SelectionListener() {
+    public void setSelectionProvider(final PageComponent pageComponent, SelectionProvider selectionProvider) {
+        // todo - test & implement re-setting a provider
+        providerMap.put(pageComponent, selectionProvider);
+        selectionProvider.addSelectionChangeListener(new SelectionChangeListener() {
             @Override
-            public void selectionChanged(PageComponent pageComponent, Selection selection) {
-                 fireSelectionChange(pageComponent, selection);
+            public void selectionChanged(SelectionChangeEvent event) {
+                fireSelectionChange(pageComponent, event.getSelection());
             }
         });
+    }
+
+    private PageComponent getPageComponent(String pageComponentId) {
+        for (PageComponent pageComponent : providerMap.keySet()) {
+            if (pageComponentId.equals(pageComponent.getId())) {
+                return pageComponent;
+            }
+        }
+        return null;
     }
 }

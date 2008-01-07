@@ -26,7 +26,7 @@ public interface PageComponentContext {
      *
      * @return The application page.
      */
-    PageComponentService getPage();
+    ApplicationPage getPage();
 
     /**
      * Gets the associated page component pane.
