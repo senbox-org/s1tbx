@@ -4,7 +4,7 @@ import org.esa.beam.framework.ui.application.Selection;
 
 /**
  * Interface for a selection.
-*/
+ */
 public class DefaultSelection implements Selection {
     public static final DefaultSelection EMPTY = new DefaultSelection(null);
 
@@ -23,7 +23,7 @@ public class DefaultSelection implements Selection {
     }
 
     public Object getFirstElement() {
-        return elements != null ?  elements[0] : null;
+        return elements != null ? elements[0] : null;
     }
 
     public Object[] getElements() {
@@ -36,7 +36,9 @@ public class DefaultSelection implements Selection {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Selection) {
+        if (obj == this) {
+            return true;
+        } else if (obj instanceof Selection) {
             final Selection other = (Selection) obj;
             if (isEmpty() && other.isEmpty()) {
                 return true;
@@ -44,7 +46,7 @@ public class DefaultSelection implements Selection {
             if (isEmpty() || other.isEmpty()) {
                 return false;
             }
-            if (getElementCount() != other.getElementCount()) { 
+            if (getElementCount() != other.getElementCount()) {
                 return false;
             }
             final Object[] otherElements = other.getElements();
@@ -52,13 +54,14 @@ public class DefaultSelection implements Selection {
                 final Object thisElement = elements[i];
                 final Object otherElement = otherElements[i];
                 if (!(otherElement != null && otherElement.equals(thisElement) ||
-                        thisElement != null && thisElement.equals(otherElement) )) {
+                        thisElement != null && thisElement.equals(otherElement))) {
                     return false;
                 }
             }
             return true;
+        } else {
+            return false;
         }
-        return false;
     }
 
     @Override
