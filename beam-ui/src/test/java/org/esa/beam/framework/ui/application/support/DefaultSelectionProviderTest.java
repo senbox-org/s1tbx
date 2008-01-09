@@ -3,6 +3,7 @@ package org.esa.beam.framework.ui.application.support;
 import junit.framework.TestCase;
 
 import javax.swing.JList;
+import javax.swing.JTable;
 
 import org.esa.beam.framework.ui.application.SelectionProvider;
 import org.esa.beam.framework.ui.application.SelectionChangeListener;
@@ -27,7 +28,24 @@ public class DefaultSelectionProviderTest extends TestCase {
         testSelectionProviderInterface(selectionProvider);
     }
 
-    private void testSelectionProviderInterface(SelectionProvider selectionProvider) {
+// todo
+    public void testTable() {
+//        final JTable table = new JTable(DATA);
+//        final TableSelectionProvider selectionProvider = new TableSelectionProvider(table);
+//        assertSame(table, selectionProvider.getTable());
+//        assertSame(DefaultSelection.EMPTY, selectionProvider.getSelection());
+//        testSelectionProviderInterface(selectionProvider);
+
+//        final JTable otherTable = new JTable(DATA);
+//        otherTable.setSelectedIndices(new int[] {2, 0, 3});
+//        selectionProvider.setTable(otherTable);
+//        assertSame(otherTable, selectionProvider.getTable());
+//        assertEquals(new DefaultSelection(new Object[] { "Sauerkraut", "Äpfel","Wacholderbeeren"}),
+//        selectionProvider.getSelection());
+//        testSelectionProviderInterface(selectionProvider);
+    }
+
+    private static void testSelectionProviderInterface(SelectionProvider selectionProvider) {
         final SelectionChangeHandler listener = new SelectionChangeHandler();
         selectionProvider.addSelectionChangeListener(listener);
 
