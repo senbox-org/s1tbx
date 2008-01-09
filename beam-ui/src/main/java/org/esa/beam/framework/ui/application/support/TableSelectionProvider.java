@@ -10,6 +10,9 @@ import javax.swing.event.ListSelectionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+/**
+ * todo
+ */
 public class TableSelectionProvider extends AbstractSelectionProvider {
 
     private final ListSelectionListener tableSelectionListener;
@@ -26,7 +29,8 @@ public class TableSelectionProvider extends AbstractSelectionProvider {
     /**
      * Gets the current selection.
      * The default implementation returns the selected row indices of the table.
-     * If overridden, make sure also {@link #setSelection} is appropriately overridden.
+     * If overridden, make sure also {@link #setSelection(org.esa.beam.framework.ui.application.Selection)} and {@link #handleTableSelectionChanged(javax.swing.event.ListSelectionEvent)}
+     * are appropriately overridden.
      * @return The current selection.
      */
     public Selection getSelection() {
@@ -44,10 +48,15 @@ public class TableSelectionProvider extends AbstractSelectionProvider {
     /**
      * Sets the current selection.
      * The default implementation expects the selected row indices of the table in the given selection.
-     * If overridden, make sure also {@link #getSelection} is appropriately overridden.
+     * If overridden, make sure also {@link #getSelection()} and {@link #handleTableSelectionChanged(javax.swing.event.ListSelectionEvent)}
+     * are appropriately overridden.
      * @param selection The current selection.
      */
     public void setSelection(Selection selection) {
+        if (selection.isEmpty()) {
+            table.getSelectionModel().clearSelection();
+            return;
+        }
         final Object[] elements = selection.getElements();
         table.getSelectionModel().setValueIsAdjusting(true);
         table.getSelectionModel().clearSelection();
@@ -68,6 +77,16 @@ public class TableSelectionProvider extends AbstractSelectionProvider {
             this.table = table;
             installTableListeners();
             fireSelectionChange(this.table);
+        }
+    }
+
+    /**
+     * todo
+     * @param e
+     */
+    protected void handleTableSelectionChanged(ListSelectionEvent e) {
+        if (!e.getValueIsAdjusting()) {
+            fireSelectionChange(table);
         }
     }
 
@@ -97,9 +116,7 @@ public class TableSelectionProvider extends AbstractSelectionProvider {
     private class TableSelectionListener implements ListSelectionListener {
 
         public void valueChanged(ListSelectionEvent e) {
-            if (!e.getValueIsAdjusting()) {
-                fireSelectionChange(table);
-            }
+            handleTableSelectionChanged(e);
         }
     }
 }

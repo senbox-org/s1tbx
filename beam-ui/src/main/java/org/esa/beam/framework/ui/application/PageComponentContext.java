@@ -42,6 +42,4 @@ public interface PageComponentContext {
     SelectionProvider getSelectionProvider();
 
     void setSelectionProvider(SelectionProvider selectionProvider);
-
-     // SelectionProviderFactory getSelectionProviderFactory();
 }

@@ -9,6 +9,9 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeModel;
 
+/**
+ *
+ */
 public class TreeSelectionProvider extends AbstractSelectionProvider {
 
     private final TreeSelectionListener treeSelectionListener;
