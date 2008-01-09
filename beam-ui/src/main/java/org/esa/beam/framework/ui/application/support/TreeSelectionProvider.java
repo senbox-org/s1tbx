@@ -22,13 +22,13 @@ public class TreeSelectionProvider extends AbstractSelectionProvider {
     }
 
     public Selection getSelection() {
-        TreePath[] treePaths = tree.getSelectionPaths();
+        final TreePath[] treePaths = tree.getSelectionPaths();
         final Selection selection;
         if (treePaths != null) {
-            Object[] elements = new Object[treePaths.length];
+            final Object[] elements = new Object[treePaths.length];
             for (int i = 0; i < treePaths.length; i++) {
-                TreePath treePath = treePaths[i];
-                elements[i] = treePath.getLastPathComponent();
+                final Object[] path = treePaths[i].getPath();
+                elements[i] = path;
             }
             selection = new DefaultSelection(elements);
         } else {
@@ -39,15 +39,16 @@ public class TreeSelectionProvider extends AbstractSelectionProvider {
 
     public void setSelection(Selection selection) {
         final Object[] elements = selection.getElements();
-        if (elements.length == 0) {
+        if (elements.length > 0) {
+            TreePath[] treePaths = new TreePath[elements.length];
+            for (int i = 0; i < elements.length; i++) {
+                final Object[] path = (Object[]) elements[i];
+                treePaths[i] = new TreePath(path);
+            }
+            tree.setSelectionPaths(treePaths);
+        } else {
             tree.clearSelection();
-            return;
         }
-        TreePath[] treePaths = new TreePath[elements.length];
-        for (int i = 0; i < elements.length; i++) {
-            treePaths[i] = new TreePath(elements[i]);
-        }
-        tree.setSelectionPaths(treePaths);
     }
 
     public JTree getTree() {
@@ -63,9 +64,13 @@ public class TreeSelectionProvider extends AbstractSelectionProvider {
         }
     }
 
+    protected void handleTreeSelectionChanged(TreeSelectionEvent event) {
+        fireSelectionChange(tree);
+    }
+
     private class TreeSelectionHandler implements TreeSelectionListener {
         public void valueChanged(TreeSelectionEvent e) {
-            fireSelectionChange(tree);
+            handleTreeSelectionChanged(e);
         }
     }
 }
