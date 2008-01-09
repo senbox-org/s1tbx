@@ -1,13 +1,11 @@
 package org.esa.beam.framework.ui.application.support;
 
-import org.esa.beam.framework.ui.application.support.DefaultSelection;
 import org.esa.beam.framework.ui.application.Selection;
 
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeModel;
 
 /**
  *
@@ -45,7 +43,11 @@ public class TreeSelectionProvider extends AbstractSelectionProvider {
             tree.clearSelection();
             return;
         }
-        // todo
+        TreePath[] treePaths = new TreePath[elements.length];
+        for (int i = 0; i < elements.length; i++) {
+            treePaths[i] = new TreePath(elements[i]);
+        }
+        tree.setSelectionPaths(treePaths);
     }
 
     public JTree getTree() {
