@@ -23,8 +23,17 @@ public class TableSelectionProvider extends AbstractSelectionProvider {
         installTableListeners();
     }
 
+    /**
+     * Gets the current selection.
+     * The default implementation returns the selected row indices of the table.
+     * If overridden, make sure also {@link #setSelection} is appropriately overridden.
+     * @return The current selection.
+     */
     public Selection getSelection() {
         int[] indexes = table.getSelectedRows();
+        if (indexes.length == 0) {
+            return DefaultSelection.EMPTY;
+        }
         Integer[] elements = new Integer[indexes.length];
         for (int i = 0; i < indexes.length; i++) {
             elements[i] = indexes[i];
@@ -32,8 +41,21 @@ public class TableSelectionProvider extends AbstractSelectionProvider {
         return new DefaultSelection(elements);
     }
 
+    /**
+     * Sets the current selection.
+     * The default implementation expects the selected row indices of the table in the given selection.
+     * If overridden, make sure also {@link #getSelection} is appropriately overridden.
+     * @param selection The current selection.
+     */
     public void setSelection(Selection selection) {
-        // todo
+        final Object[] elements = selection.getElements();
+        table.getSelectionModel().setValueIsAdjusting(true);
+        table.getSelectionModel().clearSelection();
+        for (Object element : elements) {
+            final int index = (Integer) element;
+            table.addRowSelectionInterval(index, index);
+        }
+        table.getSelectionModel().setValueIsAdjusting(false);
     }
 
     public JTable getTable() {

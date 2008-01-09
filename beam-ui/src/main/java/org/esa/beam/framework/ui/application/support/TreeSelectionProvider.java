@@ -7,6 +7,7 @@ import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeModel;
 
 public class TreeSelectionProvider extends AbstractSelectionProvider {
 
@@ -36,6 +37,11 @@ public class TreeSelectionProvider extends AbstractSelectionProvider {
     }
 
     public void setSelection(Selection selection) {
+        final Object[] elements = selection.getElements();
+        if (elements.length == 0) {
+            tree.clearSelection();
+            return;
+        }
         // todo
     }
 
