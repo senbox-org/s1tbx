@@ -174,6 +174,7 @@ public abstract class AbstractTool implements Tool, Drawable {
      * disables a tool.
      *
      * @see #isActive
+     * @return true, if so
      */
     public boolean isCanceled() {
         return _canceled;
@@ -233,24 +234,28 @@ public abstract class AbstractTool implements Tool, Drawable {
 
     /**
      * Invoked when a key has been pressed.
+     * @param e The tool input event.
      */
     public void keyPressed(ToolInputEvent e) {
     }
 
     /**
      * Invoked when a key has been released.
+     * @param e The tool input event.
      */
     public void keyReleased(ToolInputEvent e) {
     }
 
     /**
      * Invoked when a key has been typed. This event occurs when a key press is followed by a key release.
+     * @param e The tool input event.
      */
     public void keyTyped(ToolInputEvent e) {
     }
 
     /**
      * Invoked when the mouse has been clicked on a component.
+     * @param e The tool input event.
      */
     public void mouseClicked(ToolInputEvent e) {
     }
@@ -259,36 +264,42 @@ public abstract class AbstractTool implements Tool, Drawable {
      * Invoked when a mouse button is pressed on a component and then dragged.  Mouse drag events will continue to be
      * delivered to the component where the first originated until the mouse button is released (regardless of whether
      * the mouse position is within the bounds of the component).
+     * @param e The tool input event.
      */
     public void mouseDragged(ToolInputEvent e) {
     }
 
     /**
      * Invoked when the mouse enters a component.
+     * @param e The tool input event.
      */
     public void mouseEntered(ToolInputEvent e) {
     }
 
     /**
      * Invoked when the mouse exits a component.
+     * @param e The tool input event.
      */
     public void mouseExited(ToolInputEvent e) {
     }
 
     /**
      * Invoked when the mouse button has been moved on a component (with no buttons no down).
+     * @param e The tool input event.
      */
     public void mouseMoved(ToolInputEvent e) {
     }
 
     /**
      * Invoked when a mouse button has been pressed on a component.
+     * @param e The tool input event.
      */
     public void mousePressed(ToolInputEvent e) {
     }
 
     /**
      * Invoked when a mouse button has been released on a component.
+     * @param e The tool input event.
      */
     public void mouseReleased(ToolInputEvent e) {
     }
