@@ -8,7 +8,9 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
 
 /**
- *
+ * A selection provider that wraps a {@link JTree}.
+ * Elements contained in {@link Selection}s handled by this provider
+ * represent currently selected tree node paths as {@code Object[]} values.
  */
 public class TreeSelectionProvider extends AbstractSelectionProvider {
 

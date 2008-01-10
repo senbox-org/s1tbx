@@ -11,7 +11,9 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 /**
- * todo
+ * A selection provider that wraps a {@link JTable}.
+ * Elements contained in {@link Selection}s handled by this provider
+ * represent currently selected table row index as an {@link Integer} value.
  */
 public class TableSelectionProvider extends AbstractSelectionProvider {
 

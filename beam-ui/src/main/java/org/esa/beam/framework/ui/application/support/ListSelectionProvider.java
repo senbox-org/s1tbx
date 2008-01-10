@@ -1,6 +1,5 @@
 package org.esa.beam.framework.ui.application.support;
 
-import org.esa.beam.framework.ui.application.support.DefaultSelection;
 import org.esa.beam.framework.ui.application.Selection;
 
 import javax.swing.JList;
@@ -8,6 +7,11 @@ import javax.swing.ListModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+/**
+ * A selection provider that wraps a {@link javax.swing.JList}.
+ * Elements contained in {@link Selection}s handled by this provider
+ * represent currently selected list objects.
+ */
 public class ListSelectionProvider extends AbstractSelectionProvider {
 
     private final ListSelectionListener listSelectionListener;
