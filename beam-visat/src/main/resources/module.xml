@@ -1274,7 +1274,7 @@
         <action>
             <id>selectTool</id>
             <class>org.esa.beam.visat.actions.ToolAction</class>
-            <tool>org.esa.beam.framework.ui.tool.impl.SelectTool</tool>
+            <tool>org.esa.beam.visat.actions.SelectTool</tool>
             <parent>tools</parent>
             <text>Select</text>
             <shortDescr>Selection Tool</shortDescr>
