@@ -82,12 +82,8 @@ public class TableSelectionProvider extends AbstractSelectionProvider {
         }
     }
 
-    /**
-     * todo
-     * @param e
-     */
-    protected void handleTableSelectionChanged(ListSelectionEvent e) {
-        if (!e.getValueIsAdjusting()) {
+    protected void handleTableSelectionChanged(ListSelectionEvent event) {
+        if (!event.getValueIsAdjusting()) {
             fireSelectionChange(table);
         }
     }

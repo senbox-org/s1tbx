@@ -77,11 +77,15 @@ public class ListSelectionProvider extends AbstractSelectionProvider {
         }
     }
 
+    protected void handleListSelectionChange(ListSelectionEvent event) {
+        if (!event.getValueIsAdjusting()) {
+            fireSelectionChange(list);
+        }
+    }
+
     private class ListSelectionHandler implements ListSelectionListener {
-        public void valueChanged(ListSelectionEvent e) {
-            if (!e.getValueIsAdjusting()) {
-                fireSelectionChange(list);
-            }
+        public void valueChanged(ListSelectionEvent event) {
+            handleListSelectionChange(event);
         }
     }
 }
