@@ -16,24 +16,96 @@
  */
 package org.esa.beam.framework.ui.tool.impl;
 
-import org.esa.beam.framework.draw.Drawable;
+import com.bc.layer.AbstractLayer;
+import com.bc.layer.Layer;
+import com.bc.layer.LayerModel;
+import com.bc.swing.GraphicsPane;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.AbstractTool;
+import org.esa.beam.framework.ui.tool.ToolInputEvent;
 
 /**
- * This class acts as a placeholder for a 'real' select tool. It is not implemented yet.
+ * A tool used to select items in a {@link ProductSceneView}.
  */
 public class SelectTool extends AbstractTool {
+    public static final String SELECT_TOOL_PROPERTY_NAME = "selectTool";
 
+    private static final Delegator DRAG = new Delegator() {
+        public void execute(AbstractTool delegate, ToolInputEvent event) {
+            delegate.mouseDragged(event);
+        }
+    };
+    private static final Delegator MOVE = new Delegator() {
+        public void execute(AbstractTool delegate, ToolInputEvent event) {
+            delegate.mouseMoved(event);
+        }
+    };
+    private static final Delegator RELEASE = new Delegator() {
+        public void execute(AbstractTool delegate, ToolInputEvent event) {
+            delegate.mouseReleased(event);
+        }
+    };
+    private static final Delegator PRESS = new Delegator() {
+        public void execute(AbstractTool delegate, ToolInputEvent event) {
+            delegate.mousePressed(event);
+        }
+    };
+    private static final Delegator CLICK = new Delegator() {
+        public void execute(AbstractTool delegateTool, ToolInputEvent event) {
+            delegateTool.mouseClicked(event);
+        }
+    };
 
-    public SelectTool() {
+    @Override
+    public void mouseClicked(ToolInputEvent e) {
+        handleInputEvent(e, CLICK);
     }
 
-    /**
-     * Gets a thing that can be drawn while the tool is working.
-     *
-     * @return always <code>null</code>
-     */
-    public Drawable getDrawable() {
-        return null;
+    @Override
+    public void mousePressed(ToolInputEvent e) {
+        handleInputEvent(e, PRESS);
+    }
+
+    @Override
+    public void mouseReleased(ToolInputEvent e) {
+        handleInputEvent(e, RELEASE);
+    }
+
+    @Override
+    public void mouseMoved(ToolInputEvent e) {
+        handleInputEvent(e, MOVE);
+    }
+
+    @Override
+    public void mouseDragged(ToolInputEvent e) {
+        handleInputEvent(e, DRAG);
+    }
+
+    private AbstractTool getDelegateTool(Layer layer) {
+        AbstractTool delegate = null;
+        if (layer instanceof AbstractLayer) {
+            AbstractLayer abstractLayer = (AbstractLayer) layer;
+            final Object value = abstractLayer.getPropertyValue(SELECT_TOOL_PROPERTY_NAME);
+            if (value instanceof AbstractTool) {
+                delegate = (AbstractTool) value;
+            }
+        }
+        return delegate;
+    }
+
+    private void handleInputEvent(ToolInputEvent e, Delegator method) {
+        final GraphicsPane graphicsPane = (GraphicsPane) e.getComponent();
+        final LayerModel layerModel = graphicsPane.getLayerModel();
+        for (int i = 0; i < layerModel.getLayerCount(); i++) {
+            final Layer layer = layerModel.getLayer(i);
+            AbstractTool delegate = getDelegateTool(layer);
+            if (delegate != null) {
+                method.execute(delegate, e);
+            }
+        }
+    }
+
+    private interface Delegator {
+        public void execute(AbstractTool delegate, ToolInputEvent event);
     }
 }

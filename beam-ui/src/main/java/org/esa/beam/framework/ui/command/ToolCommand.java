@@ -36,57 +36,52 @@ import java.awt.event.ActionEvent;
  */
 public class ToolCommand extends SelectableCommand {
 
-    private Tool _tool;
-    private final ToolListener _toolListener;
+    private Tool tool;
+    private final ToolListener toolListener;
 
     public ToolCommand(String commandID) {
         super(commandID);
-        _toolListener = new InternalToolListener();
+        toolListener = new InternalToolListener();
     }
 
     public ToolCommand(String commandID, CommandStateListener listener, Tool tool) {
         super(commandID);
-        _toolListener = new InternalToolListener();
+        toolListener = new InternalToolListener();
         setTool(tool);
         addCommandStateListener(listener);
     }
 
     public Tool getTool() {
-        return _tool;
+        return tool;
     }
 
     public void setTool(Tool tool) {
         Guardian.assertNotNull("tool", tool);
-        Tool oldTool = _tool;
+        Tool oldTool = this.tool;
         if (tool == oldTool) {
             return;
         }
         if (oldTool != null) {
-            oldTool.removeToolListener(_toolListener);
+            oldTool.removeToolListener(toolListener);
         }
-        _tool = tool;
-        _tool.addToolListener(_toolListener);
-        setSelected(_tool.isActive());
-        setEnabled(_tool.isEnabled());
+        this.tool = tool;
+        this.tool.addToolListener(toolListener);
+        setSelected(this.tool.isActive());
+        setEnabled(this.tool.isEnabled());
     }
 
     @Override
     public void setSelected(boolean selected) {
         super.setSelected(selected);
-        if (selected) {
-            _tool.activate();
-        } else {
-            _tool.deactivate();
-        }
+        adjustToolActivationState();
     }
 
     @Override
     public void setEnabled(boolean enabled) {
-//        Debug.trace("ToolCommand.setEnabled " + enabled);
         super.setEnabled(enabled);
-        _tool.setEnabled(enabled);
+        tool.setEnabled(enabled);
+        adjustToolActivationState();
     }
-
 
     /**
      * Adds a command state listener.
@@ -125,18 +120,30 @@ public class ToolCommand extends SelectableCommand {
 
     @Override
     protected Action createAction() {
-        return (AbstractAction) new AbstractAction() {
+        return new AbstractAction() {
 
             /**
              * Invoked when an action occurs.
              */
             public void actionPerformed(ActionEvent actionEvent) {
-                if (!_tool.isActive()) {
-                    _tool.activate();
+                if (!tool.isActive()) {
+                    tool.activate();
                     fireActionPerformed(actionEvent, null);
                 }
             }
         };
+    }
+
+    private void adjustToolActivationState() {
+        if (isSelected() && isEnabled()) {
+            if (!tool.isActive()) {
+                tool.activate();
+            }
+        } else if (!isSelected() || !isEnabled()) {
+            if (tool.isActive()) {
+                tool.deactivate();
+            }
+        }
     }
 
 

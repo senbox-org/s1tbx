@@ -9,6 +9,8 @@ import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.AbstractTool;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
+import org.esa.beam.framework.ui.tool.ToolAdapter;
+import org.esa.beam.framework.ui.tool.ToolEvent;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.*;
@@ -32,24 +34,24 @@ public class MagicStickTool extends AbstractTool {
     private ToolForm toolForm;
 
     public MagicStickTool() {
+        addToolListener(new ToolAdapter() {
+            @Override
+            public void toolActivated(ToolEvent toolEvent) {
+                if (dialog == null) {
+                    initDialog();
+                }
+                dialog.setVisible(true);
+            }
+
+            @Override
+            public void toolDeactivated(ToolEvent toolEvent) {
+                if (dialog != null) {
+                    dialog.setVisible(false);
+                }
+            }
+        });
     }
 
-    @Override
-    public void activate() {
-        super.activate();
-        if (dialog == null) {
-            initDialog();
-        }
-        dialog.setVisible(true);
-    }
-
-    @Override
-    public void deactivate() {
-        if (dialog != null) {
-            dialog.setVisible(false);
-        }
-        super.deactivate();
-    }
 
     @Override
     public void mouseClicked(ToolInputEvent e) {
