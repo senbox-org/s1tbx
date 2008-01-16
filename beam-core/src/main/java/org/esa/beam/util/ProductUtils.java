@@ -240,7 +240,7 @@ public class ProductUtils {
 
     public static BufferedImage createRgbImage(final RasterDataNode[] rasterDataNodes, ProgressMonitor pm) throws
             IOException {
-           return createRgbImage(rasterDataNodes, null, pm);
+        return createRgbImage(rasterDataNodes, null, pm);
     }
 
     /**
@@ -358,23 +358,30 @@ public class ProductUtils {
                 int pixelIndex = 0;
                 for (int i = 0; i < rgbSamples.length; i += numColorComponents) {
                     if (noDataColor != null && !raster.isPixelValid(pixelIndex)) {
-                        rgbSamples[i] = (byte) noDataColor.getBlue();
-                        rgbSamples[i + 1] = (byte) noDataColor.getGreen();
-                        rgbSamples[i + 2] = (byte) noDataColor.getRed();
                         if (numColorComponents == 4) {
-                            rgbSamples[i + 3] = (byte) noDataColor.getAlpha();
+                            rgbSamples[i] = (byte) noDataColor.getAlpha();
+                            rgbSamples[i + 1] = (byte) noDataColor.getBlue();
+                            rgbSamples[i + 2] = (byte) noDataColor.getGreen();
+                            rgbSamples[i + 3] = (byte) noDataColor.getRed();
+                        } else {
+                            rgbSamples[i] = (byte) noDataColor.getBlue();
+                            rgbSamples[i + 1] = (byte) noDataColor.getGreen();
+                            rgbSamples[i + 2] = (byte) noDataColor.getRed();
                         }
                     } else {
                         colorIndex = rgbSamples[i] & 0xff;
-                        // BufferedImage.TYPE_3BYTE_BGR order
-                        rgbSamples[i] = b[colorIndex];
-                        rgbSamples[i + 1] = g[colorIndex];
-                        rgbSamples[i + 2] = r[colorIndex];
                         if (numColorComponents == 4) {
-                            rgbSamples[i + 3] = (byte) 255;
+                            rgbSamples[i] = (byte) 255;
+                            rgbSamples[i + 1] = b[colorIndex];
+                            rgbSamples[i + 2] = g[colorIndex];
+                            rgbSamples[i + 3] = r[colorIndex];
+                        } else {
+                            rgbSamples[i] = b[colorIndex];
+                            rgbSamples[i + 1] = g[colorIndex];
+                            rgbSamples[i + 2] = r[colorIndex];
                         }
                     }
-                        pixelIndex++;
+                    pixelIndex++;
                 }
                 pm.worked(1);
             }
@@ -382,13 +389,25 @@ public class ProductUtils {
             // Create a BufferedImage of type TYPE_3BYTE_BGR (the fastest type)
             //
             final ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_sRGB);
-            final ColorModel cm = new ComponentColorModel(cs,
-                                                          false, // hasAlpha,
-                                                          false, //isAlphaPremultiplied,
-                                                          Transparency.OPAQUE, //  transparency,
-                                                          DataBuffer.TYPE_BYTE); //transferType
+            final ColorModel cm;
+            if (numColorComponents == 4) {
+                cm = new ComponentColorModel(cs,
+                                             true, // hasAlpha,
+                                             false, //isAlphaPremultiplied,
+                                             Transparency.TRANSLUCENT, //  transparency,
+                                             DataBuffer.TYPE_BYTE); //transferType
+            } else {
+                cm = new ComponentColorModel(cs,
+                                             false, // hasAlpha,
+                                             false, //isAlphaPremultiplied,
+                                             Transparency.OPAQUE, //  transparency,
+                                             DataBuffer.TYPE_BYTE); //transferType
+
+            }
             final DataBuffer db = new DataBufferByte(rgbSamples, rgbSamples.length);
-            final WritableRaster wr = Raster.createInterleavedRaster(db, width, height, numColorComponents * width, numColorComponents, RGB_BAND_OFFSETS,
+            final WritableRaster wr = Raster.createInterleavedRaster(db, width, height,
+                                                                     numColorComponents * width,
+                                                                     numColorComponents, RGB_BAND_OFFSETS,
                                                                      null);
             bufferedImage = new BufferedImage(cm, wr, false, null);
         } finally {
@@ -1258,7 +1277,7 @@ public class ProductUtils {
             }
             for (int i = 128; i < 256; i++) {
                 r[i] = (byte) 255;
-                g[i] = (byte) (2 * (i-128));
+                g[i] = (byte) (2 * (i - 128));
                 b[i] = (byte) 0; // (2 * (i-128));
                 a[i] = (byte) 255;
             }
