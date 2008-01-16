@@ -62,6 +62,10 @@ public class ProductUtils {
             2, 1, 0
     };
 
+    private static final int[] RGBA_BAND_OFFSETS = new int[]{
+            3, 2, 1, 0,
+    };
+
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Basic Image Creation Routines
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -407,7 +411,9 @@ public class ProductUtils {
             final DataBuffer db = new DataBufferByte(rgbSamples, rgbSamples.length);
             final WritableRaster wr = Raster.createInterleavedRaster(db, width, height,
                                                                      numColorComponents * width,
-                                                                     numColorComponents, RGB_BAND_OFFSETS,
+                                                                     numColorComponents,
+                                                                     numColorComponents == 4 ?
+                                                                             RGBA_BAND_OFFSETS : RGB_BAND_OFFSETS,
                                                                      null);
             bufferedImage = new BufferedImage(cm, wr, false, null);
         } finally {
