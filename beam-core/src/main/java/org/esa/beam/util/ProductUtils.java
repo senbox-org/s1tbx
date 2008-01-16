@@ -238,6 +238,11 @@ public class ProductUtils {
         return bufferedImage;
     }
 
+    public static BufferedImage createRgbImage(final RasterDataNode[] rasterDataNodes, ProgressMonitor pm) throws
+            IOException {
+           return createRgbImage(rasterDataNodes, null, pm);
+    }
+
     /**
      * @deprecated in 4.0, use {@link #createRgbImage(org.esa.beam.framework.datamodel.RasterDataNode[],com.bc.ceres.core.ProgressMonitor)} instead
      */
@@ -256,7 +261,9 @@ public class ProductUtils {
      * @throws IOException if the given raster data is not loaded and reload causes an I/O error
      * @see RasterDataNode#setImageInfo
      */
-    public static BufferedImage createRgbImage(final RasterDataNode[] rasterDataNodes, ProgressMonitor pm) throws
+    public static BufferedImage createRgbImage(final RasterDataNode[] rasterDataNodes,
+                                               Color noDataColor,
+                                               ProgressMonitor pm) throws
             IOException {
         Guardian.assertNotNull("rasterDataNodes", rasterDataNodes);
         if (rasterDataNodes.length != 1 && rasterDataNodes.length != 3) {
@@ -268,8 +275,9 @@ public class ProductUtils {
         final int width = rasterDataNodes[0].getSceneRasterWidth();
         final int height = rasterDataNodes[0].getSceneRasterHeight();
 
+        final int numColorComponents = (noDataColor == null || noDataColor.getAlpha() == 255) ? 3 : 4;
         final int numPixels = width * height;
-        final byte[] rgbSamples = new byte[3 * numPixels];
+        final byte[] rgbSamples = new byte[numColorComponents * numPixels];
 
         final String[] progressMessages = new String[]{
                 /*I18N*/
@@ -347,12 +355,26 @@ public class ProductUtils {
                     b[i] = (byte) palette[i].getBlue();
                 }
                 int colorIndex;
-                for (int i = 0; i < rgbSamples.length; i += 3) {
-                    colorIndex = rgbSamples[i] & 0xff;
-                    // BufferedImage.TYPE_3BYTE_BGR order
-                    rgbSamples[i] = b[colorIndex];
-                    rgbSamples[i + 1] = g[colorIndex];
-                    rgbSamples[i + 2] = r[colorIndex];
+                int pixelIndex = 0;
+                for (int i = 0; i < rgbSamples.length; i += numColorComponents) {
+                    if (noDataColor != null && !raster.isPixelValid(pixelIndex)) {
+                        rgbSamples[i] = (byte) noDataColor.getBlue();
+                        rgbSamples[i + 1] = (byte) noDataColor.getGreen();
+                        rgbSamples[i + 2] = (byte) noDataColor.getRed();
+                        if (numColorComponents == 4) {
+                            rgbSamples[i + 3] = (byte) noDataColor.getAlpha();
+                        }
+                    } else {
+                        colorIndex = rgbSamples[i] & 0xff;
+                        // BufferedImage.TYPE_3BYTE_BGR order
+                        rgbSamples[i] = b[colorIndex];
+                        rgbSamples[i + 1] = g[colorIndex];
+                        rgbSamples[i + 2] = r[colorIndex];
+                        if (numColorComponents == 4) {
+                            rgbSamples[i + 3] = (byte) 255;
+                        }
+                    }
+                        pixelIndex++;
                 }
                 pm.worked(1);
             }
@@ -366,7 +388,7 @@ public class ProductUtils {
                                                           Transparency.OPAQUE, //  transparency,
                                                           DataBuffer.TYPE_BYTE); //transferType
             final DataBuffer db = new DataBufferByte(rgbSamples, rgbSamples.length);
-            final WritableRaster wr = Raster.createInterleavedRaster(db, width, height, 3 * width, 3, RGB_BAND_OFFSETS,
+            final WritableRaster wr = Raster.createInterleavedRaster(db, width, height, numColorComponents * width, numColorComponents, RGB_BAND_OFFSETS,
                                                                      null);
             bufferedImage = new BufferedImage(cm, wr, false, null);
         } finally {
