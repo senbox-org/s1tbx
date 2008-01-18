@@ -723,12 +723,12 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             final Product product = getProductSafe();
             final Term term = createValidMaskTerm(); // todo nf/** - CHECK PERF: isn't it term from _validPixelExpression only?
             product.maskProductData(offsetX, offsetY,
-                                    width, height,
-                                    term,
-                                    rasterData,
-                                    false,
-                                    isNoDataValueUsed() ? getNoDataValue() : 0.0,
-                                    pm);
+                    width, height,
+                    term,
+                    rasterData,
+                    false,
+                    isNoDataValueUsed() ? getNoDataValue() : 0.0,
+                    pm);
         }
     }
 
@@ -773,7 +773,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             final String bitmaskExpr = _roiDefinition.getBitmaskExpr();
             if (!StringUtils.isNullOrEmpty(bitmaskExpr) && bitmaskExpr.indexOf(oldExternalName) > -1) {
                 final String newBitmaskExpression = StringUtils.replaceWord(bitmaskExpr, oldExternalName,
-                                                                            newExternalName);
+                        newExternalName);
                 final ROIDefinition newRoiDef = _roiDefinition.createCopy();
                 newRoiDef.setBitmaskExpr(newBitmaskExpression);
                 // a new roi definition must be set to inform product node listeners because a roi image
@@ -817,6 +817,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * Returns true if the raster data of this <code>RasterDataNode</code> is loaded or elsewhere available, otherwise
      * false.
+     *
      * @return true, if so.
      */
     public boolean hasRasterData() {
@@ -1694,10 +1695,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         final ColorPaletteDef gradationCurve = new ColorPaletteDef(min, center, max);
 
         ImageInfo imageInfo = new ImageInfo((float) scale(histogram.getMin()),
-                                            (float) scale(histogram.getMax()),
-                                            histogram.getBinCounts(),
-                                            256,
-                                            gradationCurve);
+                (float) scale(histogram.getMax()),
+                histogram.getBinCounts(),
+                256,
+                gradationCurve);
 
         stopWatch.stopAndTrace("RasterDataNode.createDefaultImageInfo, mark 3");
 
@@ -1798,10 +1799,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
         // Create the result image
         final IndexColorModel cm = new IndexColorModel(8, 2,
-                                                       new byte[]{b00, (byte) color.getRed()},
-                                                       new byte[]{b00, (byte) color.getGreen()},
-                                                       new byte[]{b00, (byte) color.getBlue()},
-                                                       0);
+                new byte[]{b00, (byte) color.getRed()},
+                new byte[]{b00, (byte) color.getGreen()},
+                new byte[]{b00, (byte) color.getBlue()},
+                0);
         final BufferedImage bi = new BufferedImage(w, h, BufferedImage.TYPE_BYTE_INDEXED, cm);
 
         // The ROI's data buffer
@@ -1995,11 +1996,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             if (roiDefinition.isShapeEnabled() && roiShapeFigure != null) {
                 // @todo 1 nf/nf - save memory by just allocating the image for the shape's bounding box
                 final BufferedImage bi2 = new BufferedImage(w, h,
-                                                            BufferedImage.TYPE_BYTE_INDEXED,
-                                                            new IndexColorModel(8, 2,
-                                                                                new byte[]{b00, bFF},
-                                                                                new byte[]{b00, bFF},
-                                                                                new byte[]{b00, bFF}));
+                        BufferedImage.TYPE_BYTE_INDEXED,
+                        new IndexColorModel(8, 2,
+                                new byte[]{b00, bFF},
+                                new byte[]{b00, bFF},
+                                new byte[]{b00, bFF}));
                 final Graphics2D graphics2D = bi2.createGraphics();
                 graphics2D.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
                 graphics2D.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DISABLE);
@@ -2071,8 +2072,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         quantizeRasterData(newMin, newMax, gamma, rgbSamples, offset, 3, pm);
     }
 
-    private void quantizeRasterData(double newMin, double newMax, double gamma, byte[] samples, int offset, int stride,
-                                    ProgressMonitor pm) throws IOException {
+    public void quantizeRasterData(double newMin, double newMax, double gamma, byte[] samples, int offset, int stride,
+                                   ProgressMonitor pm) throws IOException {
         final ProductData sceneRasterData = getSceneRasterData();
         final double rawMin = scaleInverse(newMin);
         final double rawMax = scaleInverse(newMax);
@@ -2109,8 +2110,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param range   the value range in which the histogram will be computed
      * @param pm      a monitor to inform the user about progress
      * @return the resulting raw data histogram
-     * @see #isScalingApplied()
      * @throws java.io.IOException if an I/O error occurs
+     * @see #isScalingApplied()
      */
     public Histogram computeRasterDataHistogram(final ROI roi,
                                                 final int numBins,
@@ -2123,12 +2124,12 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             final ProductData rasterData = getRasterData();
             if (rasterData != null) {
                 return Histogram.computeHistogramGeneric(rasterData.getElems(),
-                                                         rasterData.isUnsigned(),
-                                                         createPixelValidator(0, roi),
-                                                         numBins,
-                                                         range,
-                                                         null,
-                                                         SubProgressMonitor.create(pm, 1));
+                        rasterData.isUnsigned(),
+                        createPixelValidator(0, roi),
+                        numBins,
+                        range,
+                        null,
+                        SubProgressMonitor.create(pm, 1));
             } else {
                 return computeRasterDataHistogramFromFile(roi, numBins, range, SubProgressMonitor.create(pm, 1));
             }
@@ -2176,9 +2177,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         final ProductData rasterData = getRasterData();
         if (rasterData != null) {
             return Range.computeRangeGeneric(rasterData.getElems(),
-                                             rasterData.isUnsigned(),
-                                             createPixelValidator(0, roi),
-                                             null, pm);
+                    rasterData.isUnsigned(),
+                    createPixelValidator(0, roi),
+                    null, pm);
         } else {
             return computeRasterDataRangeFromFile(roi, pm);
         }
@@ -2201,8 +2202,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         final ProductData rasterData = getRasterData();
         if (rasterData != null) {
             return Statistics.computeStatisticsDouble(new RasterDataDoubleList(rasterData),
-                                                      createPixelValidator(0, roi),
-                                                      null, pm);
+                    createPixelValidator(0, roi),
+                    null, pm);
         } else {
             return computeStatisticsFromFile(roi, pm);
         }
@@ -2212,18 +2213,18 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     private Statistics computeStatisticsFromFile(final ROI roi, ProgressMonitor pm) throws IOException {
         final LinkedList<Statistics> list = new LinkedList<Statistics>();
         processRasterData("Computing statistics for raster '" + getDisplayName() + "'",
-                          new RasterDataProcessor() {
-                              public void processRasterDataBuffer(final ProductData buffer, final int y0,
-                                                                  final int numLines, ProgressMonitor pm) throws
-                                      IOException {
-                                  final RasterDataDoubleList values = new RasterDataDoubleList(buffer);
-                                  final IndexValidator pixelValidator = createPixelValidator(y0, roi);
-                                  final Statistics statistics = Statistics.computeStatisticsDouble(values,
-                                                                                                   pixelValidator,
-                                                                                                   null, pm);
-                                  list.add(statistics);
-                              }
-                          }, pm);
+                new RasterDataProcessor() {
+                    public void processRasterDataBuffer(final ProductData buffer, final int y0,
+                                                        final int numLines, ProgressMonitor pm) throws
+                            IOException {
+                        final RasterDataDoubleList values = new RasterDataDoubleList(buffer);
+                        final IndexValidator pixelValidator = createPixelValidator(y0, roi);
+                        final Statistics statistics = Statistics.computeStatisticsDouble(values,
+                                pixelValidator,
+                                null, pm);
+                        list.add(statistics);
+                    }
+                }, pm);
         final Statistics[] statisticsArray = list.toArray(new Statistics[list.size()]);
         return Statistics.computeStatistics(statisticsArray, null);
     }
@@ -2231,14 +2232,14 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     private Range computeRasterDataRangeFromFile(final ROI roi, ProgressMonitor pm) throws IOException {
         final Range range = new Range(Double.MAX_VALUE, Double.MAX_VALUE * -1);
         processRasterData("Computing value range for raster '" + getDisplayName() + "'",
-                          new RasterDataProcessor() {
-                              public void processRasterDataBuffer(ProductData buffer, int y0, int numLines,
-                                                                  ProgressMonitor pm) throws IOException {
-                                  final IndexValidator pixelValidator = createPixelValidator(y0, roi);
-                                  range.aggregate(buffer.getElems(), buffer.isUnsigned(),
-                                                  pixelValidator, pm);
-                              }
-                          }, pm);
+                new RasterDataProcessor() {
+                    public void processRasterDataBuffer(ProductData buffer, int y0, int numLines,
+                                                        ProgressMonitor pm) throws IOException {
+                        final IndexValidator pixelValidator = createPixelValidator(y0, roi);
+                        range.aggregate(buffer.getElems(), buffer.isUnsigned(),
+                                pixelValidator, pm);
+                    }
+                }, pm);
 
         return range;
     }
@@ -2249,14 +2250,14 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                                                          ProgressMonitor pm) throws IOException {
         final Histogram histogram = new Histogram(new int[numBins], range.getMin(), range.getMax());
         processRasterData("Computing histogram for raster '" + getDisplayName() + "'",
-                          new RasterDataProcessor() {
-                              public void processRasterDataBuffer(ProductData buffer, int y0, int numLines,
-                                                                  ProgressMonitor pm) throws IOException {
-                                  final IndexValidator pixelValidator = createPixelValidator(y0, roi);
-                                  histogram.aggregate(buffer.getElems(), buffer.isUnsigned(),
-                                                      pixelValidator, pm);
-                              }
-                          }, pm);
+                new RasterDataProcessor() {
+                    public void processRasterDataBuffer(ProductData buffer, int y0, int numLines,
+                                                        ProgressMonitor pm) throws IOException {
+                        final IndexValidator pixelValidator = createPixelValidator(y0, roi);
+                        histogram.aggregate(buffer.getElems(), buffer.isUnsigned(),
+                                pixelValidator, pm);
+                    }
+                }, pm);
         return histogram;
     }
 
@@ -2267,14 +2268,14 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                                             final int stride,
                                             final byte[] gammaCurve, ProgressMonitor pm) throws IOException {
         processRasterData("Quantizing raster '" + getDisplayName() + "'",
-                          new RasterDataProcessor() {
-                              public void processRasterDataBuffer(ProductData buffer, int y0, int numLines,
-                                                                  ProgressMonitor pm) {
-                                  int pos = y0 * getRasterWidth() * stride;
-                                  quantizeRasterData(buffer, rawMin, rawMax, samples, pos + offset, stride, gammaCurve,
-                                                     pm);
-                              }
-                          }, pm);
+                new RasterDataProcessor() {
+                    public void processRasterDataBuffer(ProductData buffer, int y0, int numLines,
+                                                        ProgressMonitor pm) {
+                        int pos = y0 * getRasterWidth() * stride;
+                        quantizeRasterData(buffer, rawMin, rawMax, samples, pos + offset, stride, gammaCurve,
+                                pm);
+                    }
+                }, pm);
     }
 
     private void processRasterData(String message, RasterDataProcessor processor, ProgressMonitor pm) throws
@@ -2322,7 +2323,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param lineOffset the absolute line offset, zero based
      * @param roi        an optional ROI
      * @return a new validator instance, never null
-     * @throws IOException  if an I/O error occurs
+     * @throws IOException if an I/O error occurs
      */
     public IndexValidator createPixelValidator(int lineOffset, final ROI roi) throws IOException {
         if (isValidMaskUsed()) {
@@ -2449,7 +2450,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                                            byte[] samples, int offset, int stride, byte[] resampleLUT,
                                            ProgressMonitor pm) {
         Quantizer.quantizeGeneric(sceneRasterData.getElems(), sceneRasterData.isUnsigned(), rawMin, rawMax, samples,
-                                  offset, stride, pm);
+                offset, stride, pm);
         if (resampleLUT != null && resampleLUT.length == 256) {
             for (int i = 0; i < samples.length; i++) {
                 samples[i] = resampleLUT[samples[i] & 0xff];
