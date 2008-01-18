@@ -28,6 +28,7 @@ public class VisatActivator implements Activator, ToolViewDescriptorRegistry {
     private List<VisatPlugIn> pluginRegistry;
     private List<Command> commandRegistry;
     private Map<String, ToolViewDescriptor> toolViewDescriptorRegistry;
+    private ServiceRegistry<VisatPlugIn> visatPluginRegistry;
 
     public VisatActivator() {
     }
@@ -37,7 +38,14 @@ public class VisatActivator implements Activator, ToolViewDescriptorRegistry {
     }
 
     public VisatPlugIn[] getPlugins() {
-        return pluginRegistry.toArray(new VisatPlugIn[0]);
+        Set<VisatPlugIn> visatPlugins = visatPluginRegistry.getServices();
+        pluginRegistry = new ArrayList<VisatPlugIn>();
+        Debug.trace("registering visat plugins...");
+        for (VisatPlugIn plugin : visatPlugins) {
+            pluginRegistry.add(plugin);
+            Debug.trace("visat plugin registered: " + plugin.getClass().getName());
+        }
+        return visatPlugins.toArray(new VisatPlugIn[visatPlugins.size()]);
     }
 
     public Command[] getCommands() {
@@ -61,20 +69,11 @@ public class VisatActivator implements Activator, ToolViewDescriptorRegistry {
         this.moduleContext = moduleContext;
 
         ServiceRegistryFactory factory = ServiceRegistryFactory.getInstance();
-        ServiceRegistry<VisatPlugIn> visatPluginRegistry = factory.getServiceRegistry(VisatPlugIn.class);
+        visatPluginRegistry = factory.getServiceRegistry(VisatPlugIn.class);
         Iterable<VisatPlugIn> iterable = SystemUtils.loadServices(VisatPlugIn.class, getClass().getClassLoader());
         for (VisatPlugIn service : iterable) {
             visatPluginRegistry.addService(service);
         }
-        Set<VisatPlugIn> visatPlugins = visatPluginRegistry.getServices();
-        pluginRegistry = new ArrayList<VisatPlugIn>();
-        Debug.trace("registering visat plugins...");
-        for (VisatPlugIn plugin : visatPlugins) {
-            pluginRegistry.add(plugin);
-            Debug.trace("visat plugin registered: " + plugin.getClass().getName());
-        }
-
-
         List<ToolViewDescriptor> toolViewDescriptors = BeamCoreActivator.loadExecutableExtensions(moduleContext,
                                                                                                   "toolViews",
                                                                                                   "toolView",
