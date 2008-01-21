@@ -46,7 +46,7 @@ public class VisatActivator implements Activator, ToolViewDescriptorRegistry {
     }
 
     public ToolViewDescriptor[] getToolViewDescriptors() {
-        return toolViewDescriptorRegistry.values().toArray(new ToolViewDescriptor[0]);
+        return toolViewDescriptorRegistry.values().toArray(new ToolViewDescriptor[toolViewDescriptorRegistry.values().size()]);
     }
 
     public ToolViewDescriptor getToolViewDescriptor(String viewDescriptorId) {
