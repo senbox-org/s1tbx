@@ -25,7 +25,6 @@ public class VisatActivator implements Activator, ToolViewDescriptorRegistry {
 
     private static VisatActivator instance;
     private ModuleContext moduleContext;
-    private List<VisatPlugIn> pluginRegistry;
     private List<Command> commandRegistry;
     private Map<String, ToolViewDescriptor> toolViewDescriptorRegistry;
     private ServiceRegistry<VisatPlugIn> visatPluginRegistry;
@@ -39,12 +38,6 @@ public class VisatActivator implements Activator, ToolViewDescriptorRegistry {
 
     public VisatPlugIn[] getPlugins() {
         Set<VisatPlugIn> visatPlugins = visatPluginRegistry.getServices();
-        pluginRegistry = new ArrayList<VisatPlugIn>();
-        Debug.trace("registering visat plugins...");
-        for (VisatPlugIn plugin : visatPlugins) {
-            pluginRegistry.add(plugin);
-            Debug.trace("visat plugin registered: " + plugin.getClass().getName());
-        }
         return visatPlugins.toArray(new VisatPlugIn[visatPlugins.size()]);
     }
 
@@ -70,10 +63,7 @@ public class VisatActivator implements Activator, ToolViewDescriptorRegistry {
 
         ServiceRegistryFactory factory = ServiceRegistryFactory.getInstance();
         visatPluginRegistry = factory.getServiceRegistry(VisatPlugIn.class);
-        Iterable<VisatPlugIn> iterable = SystemUtils.loadServices(VisatPlugIn.class, getClass().getClassLoader());
-        for (VisatPlugIn service : iterable) {
-            visatPluginRegistry.addService(service);
-        }
+
         List<ToolViewDescriptor> toolViewDescriptors = BeamCoreActivator.loadExecutableExtensions(moduleContext,
                                                                                                   "toolViews",
                                                                                                   "toolView",
@@ -94,6 +84,5 @@ public class VisatActivator implements Activator, ToolViewDescriptorRegistry {
         this.moduleContext = null;
         this.commandRegistry.clear();
         this.toolViewDescriptorRegistry.clear();
-        this.pluginRegistry.clear();
     }
 }
