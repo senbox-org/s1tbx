@@ -9,10 +9,7 @@ import org.esa.beam.BeamCoreActivator;
 import org.esa.beam.framework.ui.application.ToolViewDescriptor;
 import org.esa.beam.framework.ui.application.ToolViewDescriptorRegistry;
 import org.esa.beam.framework.ui.command.Command;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.SystemUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
