@@ -9,6 +9,7 @@ import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ROIDefinition;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.ui.SelectExportMethodDialog;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.CommandEvent;
@@ -246,11 +247,12 @@ public class ExportROIPixelsAction extends ExecCommand {
                                            final ROI roi, ProgressMonitor pm) throws IOException {
 
         final Band[] bands = product.getBands();
+        final TiePointGrid[] tiePointGrids = product.getTiePointGrids();
         final GeoCoding geoCoding = product.getGeoCoding();
         final int w = product.getSceneRasterWidth();
         final int h = product.getSceneRasterHeight();
 
-        writeHeaderLine(out, geoCoding, bands);
+        writeHeaderLine(out, geoCoding, bands, tiePointGrids);
 
         pm.beginTask("Writing pixel data...", h);
         try {
@@ -260,7 +262,7 @@ public class ExportROIPixelsAction extends ExecCommand {
                 }
                 for (int x = 0; x < w; x++) {
                     if (roi.contains(x, y)) {
-                        writeDataLine(out, geoCoding, bands, x, y);
+                        writeDataLine(out, geoCoding, bands, tiePointGrids, x, y);
                     }
                 }
                 pm.worked(1);
@@ -278,26 +280,27 @@ public class ExportROIPixelsAction extends ExecCommand {
      * @param out       the data output writer
      * @param geoCoding the product's geo-coding
      * @param bands     the array of bands to be considered
+     * @param tiePointGrids
      */
     private static void writeHeaderLine(final PrintWriter out,
                                         final GeoCoding geoCoding,
-                                        final Band[] bands) {
+                                        final Band[] bands, TiePointGrid[] tiePointGrids) {
         out.print("Pixel-X");
         out.print("\t");
         out.print("Pixel-Y");
-        out.print("\t");
         if (geoCoding != null) {
+            out.print("\t");
             out.print("Longitude");
             out.print("\t");
             out.print("Latitude");
-            out.print("\t");
         }
-        for (int i = 0; i < bands.length; i++) {
-            final Band band = bands[i];
+        for (final Band band : bands) {
+            out.print("\t");
             out.print(band.getName());
-            if (i < bands.length - 1) {
-                out.print("\t");
-            }
+        }
+        for (final TiePointGrid tiePointGrid : tiePointGrids) {
+            out.print("\t");
+            out.print(tiePointGrid.getName());
         }
         out.print("\n");
     }
@@ -308,13 +311,14 @@ public class ExportROIPixelsAction extends ExecCommand {
      * @param out       the data output writer
      * @param geoCoding the product's geo-coding
      * @param bands     the array of bands that provide pixel values
+     * @param tiePointGrids
      * @param x         the current pixel's X coordinate
      * @param y         the current pixel's Y coordinate
      */
     private static void writeDataLine(final PrintWriter out,
                                       final GeoCoding geoCoding,
                                       final Band[] bands,
-                                      int x,
+                                      TiePointGrid[] tiePointGrids, int x,
                                       int y) throws IOException {
         final PixelPos pixelPos = new PixelPos(x + 0.5f, y + 0.5f);
         final int[] intPixel = new int[1];
@@ -323,16 +327,15 @@ public class ExportROIPixelsAction extends ExecCommand {
         out.print(String.valueOf(pixelPos.x));
         out.print("\t");
         out.print(String.valueOf(pixelPos.y));
-        out.print("\t");
         if (geoCoding != null) {
             final GeoPos geoPos = geoCoding.getGeoPos(pixelPos, null);
+            out.print("\t");
             out.print(String.valueOf(geoPos.lon));
             out.print("\t");
             out.print(String.valueOf(geoPos.lat));
-            out.print("\t");
         }
-        for (int i = 0; i < bands.length; i++) {
-            final Band band = bands[i];
+        for (final Band band : bands) {
+            out.print("\t");
             if (band.isFloatingPointType()) {
                 band.readPixels(x, y, 1, 1, floatPixel, ProgressMonitor.NULL);
                 out.print(floatPixel[0]);
@@ -340,9 +343,11 @@ public class ExportROIPixelsAction extends ExecCommand {
                 band.readPixels(x, y, 1, 1, intPixel, ProgressMonitor.NULL);
                 out.print(intPixel[0]);
             }
-            if (i < bands.length - 1) {
-                out.print("\t");
-            }
+        }
+        for (final TiePointGrid grid : tiePointGrids) {
+            grid.readPixels(x, y, 1, 1, floatPixel, ProgressMonitor.NULL);
+            out.print("\t");
+            out.print(floatPixel[0]);
         }
         out.print("\n");
     }

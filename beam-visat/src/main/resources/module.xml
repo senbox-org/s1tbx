@@ -14,6 +14,7 @@
         Changes in 4.2<br>
         [BEAM-735] Not able to orthorectify MERIS_FRS products<br>
         [BEAM-734] VISAT tile cache capacity cannot be changed<br>
+        [BEAM-730] Export of pixel data shall include auxdata<br>
         [BEAM-728] Map-projection dialog shall allow for tie-point grid inclusion<br>
         [BEAM-726] Memory not fully released after closing a product<br>
         [BEAM-718] Show all product formats in reopen menu<br>
