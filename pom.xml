@@ -30,8 +30,8 @@
     </issueManagement>
 
     <scm>
-        <connection>scm:svn:https://www.brockmann-consult.de/svn/os/ceres-0.x/trunc</connection>
-        <url>https://www.brockmann-consult.de/svn/os/ceres-0.x/trunc</url>
+        <connection>scm:svn:https://www.brockmann-consult.de/svn/os/ceres/trunc</connection>
+        <url>https://www.brockmann-consult.de/svn/os/ceres/trunc</url>
     </scm>
 
     <licenses>
