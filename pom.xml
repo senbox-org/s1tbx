@@ -29,6 +29,11 @@
         <url>http://www.brockmann-consult.de/beam-jira/browse/CERES</url>
     </issueManagement>
 
+    <scm>
+        <connection>scm:svn:https://www.brockmann-consult.de/svn/os/ceres-0.x/trunc</connection>
+        <url>https://www.brockmann-consult.de/svn/os/ceres-0.x/trunc</url>
+    </scm>
+
     <licenses>
         <license>
             <name>GNU General Public License (GPL)</name>
@@ -133,7 +138,9 @@
                     <excludePackageNames>*.internal:com.bc.ceres.site</excludePackageNames>
                     <aggregate>true</aggregate>
                     <quiet>true</quiet>
-                    <links><link>http://java.sun.com/javase/6/docs/api/</link></links>
+                    <links>
+                        <link>http://java.sun.com/javase/6/docs/api/</link>
+                    </links>
                     <groups>
                         <group>
                             <title>Ceres Core API</title>
@@ -141,11 +148,14 @@
                         </group>
                         <group>
                             <title>Ceres Binding API</title>
-                            <packages>com.bc.ceres.binding:com.bc.ceres.binding.accessors:com.bc.ceres.binding.converters:com.bc.ceres.binding.validators:com.bc.ceres.binding.dom:com.bc.ceres.binding.swing</packages>
+                            <packages>
+                                com.bc.ceres.binding:com.bc.ceres.binding.accessors:com.bc.ceres.binding.converters:com.bc.ceres.binding.validators:com.bc.ceres.binding.dom:com.bc.ceres.binding.swing
+                            </packages>
                         </group>
                         <group>
                             <title>Ceres Swing API</title>
-                            <packages>com.bc.ceres.swing.update:com.bc.ceres.swing.progress:com.bc.ceres.swing</packages>
+                            <packages>com.bc.ceres.swing.update:com.bc.ceres.swing.progress:com.bc.ceres.swing
+                            </packages>
                         </group>
                     </groups>
                 </configuration>
@@ -174,4 +184,5 @@
             </roles>
         </developer>
     </developers>
+
 </project>
