@@ -12,6 +12,14 @@
 
     <packaging>jar</packaging>
 
+    <repositories>
+        <repository>
+            <id>bc-public</id>
+            <name>Public Maven Repository at Brockmann-Consult</name>
+            <url>http://www.brockmann-consult.de/mvn/os</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>com.install4j</groupId>
