@@ -615,7 +615,7 @@ public final class ParserImpl implements Parser {
         } else if (tt == Tokenizer.TT_OCT_INT) {
             t1 = new Term.ConstI(convertOctIntToken());
         } else if (tt == Tokenizer.TT_STRING) {
-            reportError("Data type 'String' is not supported.");
+            t1 = new Term.ConstS(convertStringToken());
         } else if (tt == Tokenizer.TT_KEYWORD) {
             String keyword = _tokenizer.getToken();
             if (keyword.equalsIgnoreCase("true")) {
@@ -642,6 +642,10 @@ public final class ParserImpl implements Parser {
             _tokenizer.pushBack();
         }
         return t1;
+    }
+
+    private String convertStringToken() {
+        return _tokenizer.getToken();
     }
 
     private Term parseCallOrRef(final String name) throws ParseException {

@@ -48,4 +48,9 @@ public class EvalException extends RuntimeException {
     public EvalException(final String message) {
         super(message);
     }
+
+
+    public EvalException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

@@ -26,11 +26,12 @@ import java.util.List;
  * concrete <code>Term</code> implementations each representing either an
  * an atomic leave (number constant, symbol reference) or a node
  * (e.g. binary operator, function call) within an expression tree.
- *
+ * <p/>
  * <p> Instances of this class are normally created using an expression parser
  * which implements the <code>{@link com.bc.jexp.Parser}</code> interface.
  * The <code>{@link com.bc.jexp.impl.ParserImpl}</code> class provides a default
  * implementation of such a parser.
+ *
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
  * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:43 $
  */
@@ -39,15 +40,19 @@ public abstract class Term {
     /**
      * The ID for the <code>boolean</code> type.
      */
-    public final static  int TYPE_B = 1;
+    public final static int TYPE_B = 1;
     /**
      * The ID for the <code>int</code> type.
      */
-    public final static  int TYPE_I = 2;
+    public final static int TYPE_I = 2;
     /**
      * The ID for the <code>double</code> type.
      */
-    public final static  int TYPE_D = 3;
+    public final static int TYPE_D = 3;
+    /**
+     * The ID for the <code>string</code> type.
+     */
+    public final static int TYPE_S = 4;
 
     /**
      * The empty term array.
@@ -56,6 +61,7 @@ public abstract class Term {
 
     /**
      * Gets the term's "natural" return type.
+     *
      * @return the type, should always be one of the <code>TYPE_</code>X constants
      *         defined in this class.
      */
@@ -63,6 +69,7 @@ public abstract class Term {
 
     /**
      * Evaluates this term to a <code>boolean</code> value.
+     *
      * @param context the application dependant environment.
      * @return a <code>boolean</code> value
      * @throws EvalException if the evaluation fails
@@ -71,6 +78,7 @@ public abstract class Term {
 
     /**
      * Evaluates this term to an <code>int</code> value.
+     *
      * @param env the application dependant environment.
      * @return an <code>int</code> value
      * @throws EvalException if the evaluation fails
@@ -79,6 +87,7 @@ public abstract class Term {
 
     /**
      * Evaluates this term to a <code>double</code> value.
+     *
      * @param env the application dependant environment.
      * @return a <code>double</code> value
      * @throws EvalException if the evaluation fails
@@ -86,7 +95,20 @@ public abstract class Term {
     public abstract double evalD(EvalEnv env);
 
     /**
+     * Evaluates this term to a <code>String</code> value.
+     * The default implementation simply returns the value of {@link #toString()}.
+     *
+     * @param env the application dependant environment.
+     * @return a <code>String</code> value
+     * @throws EvalException if the evaluation fails
+     */
+    public String evalS(EvalEnv env) {
+        return toString();
+    }
+
+    /**
      * Returns an array of terms which are children of this term.
+     *
      * @return an array of terms, never <code>null</code> but can be empty
      */
     public Term[] getChildren() {
@@ -101,6 +123,7 @@ public abstract class Term {
 
     /**
      * Tests whether or not this term "naturally" returns a <code>boolean</code>.
+     *
      * @return <code>true</code> if so
      */
     public final boolean isB() {
@@ -109,6 +132,7 @@ public abstract class Term {
 
     /**
      * Tests whether or not this term "naturally" returns an <code>int</code>.
+     *
      * @return <code>true</code> if so
      */
     public final boolean isI() {
@@ -117,6 +141,7 @@ public abstract class Term {
 
     /**
      * Tests whether or not this term "naturally" returns a <code>double</code>.
+     *
      * @return <code>true</code> if so
      */
     public final boolean isD() {
@@ -125,6 +150,7 @@ public abstract class Term {
 
     /**
      * Tests whether or not this term "naturally" returns a numeric value.
+     *
      * @return <code>true</code> if so
      */
     public final boolean isN() {
@@ -133,6 +159,7 @@ public abstract class Term {
 
     /**
      * Converts an <code>int</code> to a <code>boolean</code>.
+     *
      * @param value the value to be converted
      * @return the conversion result, which is <code>value != 0</code>.
      */
@@ -142,6 +169,7 @@ public abstract class Term {
 
     /**
      * Converts a <code>double</code> to a <code>boolean</code>.
+     *
      * @param value the value to be converted
      * @return the conversion result, which is <code>value != 0.0</code>.
      */
@@ -151,6 +179,7 @@ public abstract class Term {
 
     /**
      * Converts a <code>boolean</code> to an <code>int</code>.
+     *
      * @param value the value to be converted
      * @return the conversion result, which is <code>value ? 1 : 0</code>.
      */
@@ -160,6 +189,7 @@ public abstract class Term {
 
     /**
      * Converts a <code>double</code> to an <code>int</code>.
+     *
      * @param value the value to be converted
      * @return the conversion result, which is <code>(int) value</code>.
      */
@@ -169,6 +199,7 @@ public abstract class Term {
 
     /**
      * Converts a <code>boolean</code> to an <code>double</code>.
+     *
      * @param value the value to be converted
      * @return the conversion result, which is <code>value ? 1.0 : 0.0</code>.
      */
@@ -306,6 +337,52 @@ public abstract class Term {
         }
     }
 
+    public static class ConstS extends Term {
+        private final String _value;
+
+        public ConstS(String value) {
+            this._value = value;
+        }
+
+        public int getRetType() {
+            return TYPE_S;
+        }
+
+        public boolean evalB(EvalEnv context) {
+            if (_value.equalsIgnoreCase("true") ||
+                    _value.equalsIgnoreCase("false")) {
+                return Boolean.valueOf(_value);
+            } else {
+                throw new EvalException("Not a boolean.");
+            }
+        }
+
+        public int evalI(EvalEnv env) {
+            try {
+                return Integer.valueOf(_value);
+            } catch (NumberFormatException e) {
+                throw new EvalException("Not an integer.", e);
+            }
+        }
+
+        public double evalD(EvalEnv env) {
+            try {
+                return Double.valueOf(_value);
+            } catch (NumberFormatException e) {
+                throw new EvalException("Not a double.", e);
+            }
+        }
+
+        @Override
+        public String evalS(EvalEnv env) {
+            return _value;
+        }
+
+        public String toString() {
+            return "\"" + _value + "\"";
+        }
+    }
+
     /////////////////////////////////////////////////////////////////////////
 
     /**
@@ -399,7 +476,6 @@ public abstract class Term {
             return getParamString(_function.getName(), _args);
         }
     }
-
 
     /////////////////////////////////////////////////////////////////////////
 
@@ -567,7 +643,6 @@ public abstract class Term {
         }
     }
 
-
     /**
      * An abstract unary (= 1 operand) operation.
      */
@@ -590,7 +665,7 @@ public abstract class Term {
     /**
      * The conditional operation
      * <blockquote>
-     *      <i>b-term</i> <code>?</code> <i>term</i> <code>:</code> <i>term</i>
+     * <i>b-term</i> <code>?</code> <i>term</i> <code>:</code> <i>term</i>
      * </blockquote>
      */
     public static final class Cond extends Op {
@@ -624,7 +699,7 @@ public abstract class Term {
     /**
      * The assignment operation
      * <blockquote>
-     *      <i>variable-ref-term</i> <code>=</code> <i>term</i>
+     * <i>variable-ref-term</i> <code>=</code> <i>term</i>
      * </blockquote>
      */
     public static final class Assign extends Binary {
@@ -651,7 +726,7 @@ public abstract class Term {
     /**
      * The logical NOT operation
      * <blockquote>
-     *      <code>!</code> <i>b-term</i>
+     * <code>!</code> <i>b-term</i>
      * </blockquote>
      */
     public static final class NotB extends UnaryB {
@@ -670,7 +745,7 @@ public abstract class Term {
     /**
      * The logical AND operation:
      * <blockquote>
-     *      <i>b-term</i> <code>&&</code> <i>b-term</i>
+     * <i>b-term</i> <code>&&</code> <i>b-term</i>
      * </blockquote>
      */
     public static final class AndB extends BinaryB {
@@ -689,7 +764,7 @@ public abstract class Term {
     /**
      * The logical OR operation:
      * <blockquote>
-     *      <i>b-term</i> <code>||</code> <i>b-term</i>
+     * <i>b-term</i> <code>||</code> <i>b-term</i>
      * </blockquote>
      */
     public static final class OrB extends BinaryB {
@@ -708,7 +783,7 @@ public abstract class Term {
     /**
      * The bitwise NOT operation:
      * <blockquote>
-     *      <code>~</code> <i>i-term</i>
+     * <code>~</code> <i>i-term</i>
      * </blockquote>
      */
     public static final class NotI extends UnaryI {
@@ -727,7 +802,7 @@ public abstract class Term {
     /**
      * The bitwise XOR operation:
      * <blockquote>
-     *      <i>i-term</i> <code>^</code> <i>i-term</i>
+     * <i>i-term</i> <code>^</code> <i>i-term</i>
      * </blockquote>
      */
     public static final class XOrI extends BinaryI {
@@ -746,7 +821,7 @@ public abstract class Term {
     /**
      * The bitwise AND operation:
      * <blockquote>
-     *      <i>i-term</i> <code>&</code> <i>i-term</i>
+     * <i>i-term</i> <code>&</code> <i>i-term</i>
      * </blockquote>
      */
     public static final class AndI extends BinaryI {
@@ -765,7 +840,7 @@ public abstract class Term {
     /**
      * The bitwise OR operation:
      * <blockquote>
-     *      <i>i-term</i> <code>|</code> <i>i-term</i>
+     * <i>i-term</i> <code>|</code> <i>i-term</i>
      * </blockquote>
      */
     public static final class OrI extends BinaryI {
@@ -784,7 +859,7 @@ public abstract class Term {
     /**
      * The numerical NEG operation:
      * <blockquote>
-     *      <code>-</code> <i>d-term</i>
+     * <code>-</code> <i>d-term</i>
      * </blockquote>
      */
     public static final class Neg extends UnaryN {
@@ -809,7 +884,7 @@ public abstract class Term {
     /**
      * The numerical ADD operation:
      * <blockquote>
-     *      <i>n-term</i> <code>+</code> <i>n-term</i>
+     * <i>n-term</i> <code>+</code> <i>n-term</i>
      * </blockquote>
      */
     public static final class Add extends BinaryN {
@@ -832,7 +907,7 @@ public abstract class Term {
     /**
      * The numerical SUB operation:
      * <blockquote>
-     *      <i>n-term</i> <code>-</code> <i>n-term</i>
+     * <i>n-term</i> <code>-</code> <i>n-term</i>
      * </blockquote>
      */
     public static final class Sub extends BinaryN {
@@ -850,13 +925,12 @@ public abstract class Term {
         }
     }
 
-
     /////////////////////////////////////////////////////////////////////////
 
     /**
      * The numerical MUL operation:
      * <blockquote>
-     *      <i>n-term</i> <code>*</code> <i>n-term</i>
+     * <i>n-term</i> <code>*</code> <i>n-term</i>
      * </blockquote>
      */
     public static final class Mul extends BinaryN {
@@ -874,13 +948,12 @@ public abstract class Term {
         }
     }
 
-
     /////////////////////////////////////////////////////////////////////////
 
     /**
      * The numerical DIV operation:
      * <blockquote>
-     *      <i>n-term</i> <code>/</code> <i>n-term</i>
+     * <i>n-term</i> <code>/</code> <i>n-term</i>
      * </blockquote>
      */
     public static final class Div extends BinaryN {
@@ -903,7 +976,7 @@ public abstract class Term {
     /**
      * The numerical MOD (modulo) operation:
      * <blockquote>
-     *      <i>n-term</i> <code>%</code> <i>n-term</i>
+     * <i>n-term</i> <code>%</code> <i>n-term</i>
      * </blockquote>
      */
     public static final class Mod extends BinaryN {
@@ -921,13 +994,12 @@ public abstract class Term {
         }
     }
 
-
     /////////////////////////////////////////////////////////////////////////
 
     /**
      * The boolean EQ operation:
      * <blockquote>
-     *      <i>b-term</i> <code>==</code> <i>b-term</i>
+     * <i>b-term</i> <code>==</code> <i>b-term</i>
      * </blockquote>
      */
     public static final class EqB extends BinaryB {
@@ -946,7 +1018,7 @@ public abstract class Term {
     /**
      * The integer EQ operation:
      * <blockquote>
-     *      <i>i-term</i> <code>==</code> <i>i-term</i>
+     * <i>i-term</i> <code>==</code> <i>i-term</i>
      * </blockquote>
      */
     public static final class EqI extends BinaryB {
@@ -965,7 +1037,7 @@ public abstract class Term {
     /**
      * The double EQ operation:
      * <blockquote>
-     *      <i>d-term</i> <code>==</code> <i>d-term</i>
+     * <i>d-term</i> <code>==</code> <i>d-term</i>
      * </blockquote>
      */
     public static final class EqD extends BinaryB {
@@ -984,7 +1056,7 @@ public abstract class Term {
     /**
      * The boolean NEQ operation:
      * <blockquote>
-     *      <i>b-term</i> <code>!=</code> <i>b-term</i>
+     * <i>b-term</i> <code>!=</code> <i>b-term</i>
      * </blockquote>
      */
     public static final class NEqB extends BinaryB {
@@ -1003,7 +1075,7 @@ public abstract class Term {
     /**
      * The integer NEQ operation:
      * <blockquote>
-     *      <i>i-term</i> <code>!=</code> <i>i-term</i>
+     * <i>i-term</i> <code>!=</code> <i>i-term</i>
      * </blockquote>
      */
     public static final class NEqI extends BinaryB {
@@ -1022,7 +1094,7 @@ public abstract class Term {
     /**
      * The double NEQ operation:
      * <blockquote>
-     *      <i>d-term</i> <code>!=</code> <i>d-term</i>
+     * <i>d-term</i> <code>!=</code> <i>d-term</i>
      * </blockquote>
      */
     public static final class NEqD extends BinaryB {
@@ -1041,7 +1113,7 @@ public abstract class Term {
     /**
      * The integer LT operation:
      * <blockquote>
-     *      <i>i-term</i> <code>&lt;</code> <i>i-term</i>
+     * <i>i-term</i> <code>&lt;</code> <i>i-term</i>
      * </blockquote>
      */
     public static final class LtI extends BinaryB {
@@ -1060,7 +1132,7 @@ public abstract class Term {
     /**
      * The double LT operation:
      * <blockquote>
-     *      <i>d-term</i> <code>&lt;</code> <i>d-term</i>
+     * <i>d-term</i> <code>&lt;</code> <i>d-term</i>
      * </blockquote>
      */
     public static final class LtD extends BinaryB {
@@ -1079,7 +1151,7 @@ public abstract class Term {
     /**
      * The integer LE operation:
      * <blockquote>
-     *      <i>i-term</i> <code>&lt;=</code> <i>i-term</i>
+     * <i>i-term</i> <code>&lt;=</code> <i>i-term</i>
      * </blockquote>
      */
     public static final class LeI extends BinaryB {
@@ -1098,7 +1170,7 @@ public abstract class Term {
     /**
      * The double LE operation:
      * <blockquote>
-     *      <i>d-term</i> <code>&lt;=</code> <i>d-term</i>
+     * <i>d-term</i> <code>&lt;=</code> <i>d-term</i>
      * </blockquote>
      */
     public static final class LeD extends BinaryB {
@@ -1112,13 +1184,12 @@ public abstract class Term {
         }
     }
 
-
     /////////////////////////////////////////////////////////////////////////
 
     /**
      * The integer GT operation:
      * <blockquote>
-     *      <i>i-term</i> <code>&gt;</code> <i>i-term</i>
+     * <i>i-term</i> <code>&gt;</code> <i>i-term</i>
      * </blockquote>
      */
     public static final class GtI extends BinaryB {
@@ -1137,7 +1208,7 @@ public abstract class Term {
     /**
      * The double GT operation:
      * <blockquote>
-     *      <i>d-term</i> <code>&gt;</code> <i>d-term</i>
+     * <i>d-term</i> <code>&gt;</code> <i>d-term</i>
      * </blockquote>
      */
     public static final class GtD extends BinaryB {
@@ -1156,7 +1227,7 @@ public abstract class Term {
     /**
      * The integer GE operation:
      * <blockquote>
-     *      <i>i-term</i> <code>&gt;=</code> <i>i-term</i>
+     * <i>i-term</i> <code>&gt;=</code> <i>i-term</i>
      * </blockquote>
      */
     public static final class GeI extends BinaryB {
@@ -1175,7 +1246,7 @@ public abstract class Term {
     /**
      * The double GE operation:
      * <blockquote>
-     *      <i>d-term</i> <code>&gt;=</code> <i>d-term</i>
+     * <i>d-term</i> <code>&gt;=</code> <i>d-term</i>
      * </blockquote>
      */
     public static final class GeD extends BinaryB {
@@ -1188,4 +1259,5 @@ public abstract class Term {
             return _arg1.evalD(env) >= _arg2.evalD(env);
         }
     }
+
 }
