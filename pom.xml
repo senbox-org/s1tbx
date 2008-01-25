@@ -405,6 +405,10 @@
                     <exclude>target</exclude>
                 </configuration>
             </plugin>
+            <plugin>
+                <artifactId>maven-eclipse-plugin</artifactId>
+                <version>2.3-bc</version>
+            </plugin>
 
             <plugin>
                 <groupId>com.bc.maven.plugins</groupId>
