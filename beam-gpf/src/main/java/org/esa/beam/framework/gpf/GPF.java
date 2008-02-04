@@ -1,11 +1,18 @@
 package org.esa.beam.framework.gpf;
 
+import org.esa.beam.framework.dataio.ProductReader;
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
+import org.esa.beam.framework.gpf.internal.OperatorContext;
+import org.esa.beam.framework.gpf.internal.OperatorImage;
+import org.esa.beam.framework.gpf.internal.OperatorProductReader;
 import org.esa.beam.framework.gpf.internal.OperatorSpiRegistryImpl;
 import org.esa.beam.util.Guardian;
 
+import javax.media.jai.JAI;
+import java.awt.image.RenderedImage;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
@@ -207,5 +214,13 @@ public class GPF {
      */
     public static void setDefaultInstance(GPF defaultInstance) {
         GPF.defaultInstance = defaultInstance;
+    }
+
+    public static void updateProduct(Product p) {
+        final ProductReader productReader = p.getProductReader();
+        if (productReader instanceof OperatorProductReader) {
+            OperatorProductReader operatorProductReader = (OperatorProductReader) productReader;
+            operatorProductReader.getOperatorContext().update();
+        }
     }
 }

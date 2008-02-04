@@ -246,6 +246,7 @@ public class OperatorContext {
             for (OperatorImage image : operatorImages) {
                 image.dispose();
                 JAI.getDefaultInstance().getTileCache().removeTiles(image);
+                // todo - check: band.setImage(null)?  (nf - 03.02.2008)
             }
             targetImages.clear();
             operator.dispose();
@@ -304,6 +305,20 @@ public class OperatorContext {
         initPassThrough();
         initTargetImages();
         initGraphMetadata();
+
+        for (Product sourceProduct : sourceProductList) {
+            sourceProduct.addProductNodeListener(new ProductNodeListenerAdapter() {
+                @Override
+                public void nodeChanged(ProductNodeEvent event) {
+                    if (event.getPropertyName().equals("image")
+                            && event.getSourceNode() instanceof Band
+                            && ((Band) event.getSourceNode()).getImage() instanceof OperatorImage)  {
+                        System.out.println("event = " + event);
+                        update();
+                    }
+                }
+            });
+        }
 
         ProductReader oldProductReader = targetProduct.getProductReader();
         if (oldProductReader == null) {
@@ -394,7 +409,7 @@ public class OperatorContext {
             final MetadataElement childME = new MetadataElement(name);
             addDomToMetadata(childDE, childME);
             parentME.addElement(childME);
-            
+
             if (childDE.getAttributeNames().length != 0) {
                 String[] attributeNames = childDE.getAttributeNames();
                 for (String attributeName : attributeNames) {
@@ -683,4 +698,21 @@ public class OperatorContext {
         }
     }
 
+    public synchronized void update() {
+        final Product product = getTargetProduct();
+        for (Band band : product.getBands()) {
+            final OperatorImage oldImage = targetImages.get(band);
+            if (oldImage != null) {
+                targetImages.remove(band);
+                JAI.getDefaultInstance().getTileCache().removeTiles(oldImage);
+                oldImage.dispose();
+                final OperatorImage newImage = new OperatorImage(band, this);
+                targetImages.put(band, newImage);
+                if (band.getImage() == oldImage) {
+                    System.out.println("newImage = " + newImage);
+                    band.setImage(newImage);
+                }
+            }
+        }
+    }
 }

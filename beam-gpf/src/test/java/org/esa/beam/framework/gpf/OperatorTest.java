@@ -9,6 +9,7 @@ import org.esa.beam.framework.datamodel.VirtualBand;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.operators.common.PassThroughOp;
 
+import java.awt.image.RenderedImage;
 import java.io.IOException;
 
 
@@ -59,6 +60,49 @@ public class OperatorTest extends TestCase {
         Product product = new Product("foo", "grunt", 1, 1);
         product.addBand("bar", ProductData.TYPE_FLOAT64);
         return product;
+    }
+
+    public void testOperatorUpdate() throws IOException, OperatorException {
+        Product a = new Product("a", "T", 2, 2);
+        a.addBand(new VirtualBand("x", ProductData.TYPE_FLOAT64, 2, 2, "X+Y"));
+
+        Product b = new Product("b", "T", 2, 2);
+        b.addBand(new VirtualBand("x", ProductData.TYPE_FLOAT64, 2, 2, "X-Y"));
+
+        MulConstOp opA = new MulConstOp(a, 3.0);
+        MulConstOp opB = new MulConstOp(b, 2.0);
+        AddOp opC = new AddOp(opA.getTargetProduct(),
+                                opB.getTargetProduct());
+
+        Product pA = opA.getTargetProduct();
+        Product pB = opB.getTargetProduct();
+        Product pC = opC.getTargetProduct();
+
+        RenderedImage iA = pA.getBand("x").getImage();
+        RenderedImage iB = pB.getBand("x").getImage();
+        RenderedImage iC = pC.getBand("x").getImage();
+
+        assertEquals(3.0*(0+0) + 2.0*(0-0), iC.getData().getSampleDouble(0,0,0), 1e-10);
+        assertEquals(3.0*(1+0) + 2.0*(1-0), iC.getData().getSampleDouble(1,0,0), 1e-10);
+        assertEquals(3.0*(0+1) + 2.0*(0-1), iC.getData().getSampleDouble(0,1,0), 1e-10);
+        assertEquals(3.0*(1+1) + 2.0*(1-1), iC.getData().getSampleDouble(1,1,0), 1e-10);
+
+        opA.setFactor(5.0);
+        GPF.updateProduct(pA);
+
+        opB.setFactor(4.0);
+        GPF.updateProduct(pB);
+
+        assertNotSame(iA, pA.getBand("x").getImage());
+        assertNotSame(iB, pB.getBand("x").getImage());
+        assertNotSame(iC, pC.getBand("x").getImage());
+
+        iC = pC.getBand("x").getImage();
+
+        assertEquals(5.0*(0+0) + 4.0*(0-0), iC.getData().getSampleDouble(0,0,0), 1e-10);
+        assertEquals(5.0*(1+0) + 4.0*(1-0), iC.getData().getSampleDouble(1,0,0), 1e-10);
+        assertEquals(5.0*(0+1) + 4.0*(0-1), iC.getData().getSampleDouble(0,1,0), 1e-10);
+        assertEquals(5.0*(1+1) + 4.0*(1-1), iC.getData().getSampleDouble(1,1,0), 1e-10);
     }
 
     public void testPlainOpUsage() throws IOException, OperatorException {
@@ -150,11 +194,19 @@ public class OperatorTest extends TestCase {
         private Product sourceProduct;
         @TargetProduct
         private Product targetProduct;
-        private double constant;
+        private double factor;
 
-        public MulConstOp(Product sourceProduct, double constant) {
+        public MulConstOp(Product sourceProduct, double factor) {
             this.sourceProduct = sourceProduct;
-            this.constant = constant;
+            this.factor = factor;
+        }
+
+        public double getFactor() {
+            return factor;
+        }
+
+        public void setFactor(double factor) {
+            this.factor = factor;
         }
 
         @Override
@@ -173,7 +225,7 @@ public class OperatorTest extends TestCase {
             Tile sourceTile = getSourceTile(sourceBand, targetTile.getRectangle(), pm);
             for (int y = 0; y < targetTile.getHeight(); y++) {
                 for (int x = 0; x < targetTile.getWidth(); x++) {
-                    targetTile.setSample(x, y, sourceTile.getSampleDouble(x, y) * constant);
+                    targetTile.setSample(x, y, sourceTile.getSampleDouble(x, y) * factor);
                 }
             }
         }

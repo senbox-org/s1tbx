@@ -17,9 +17,13 @@ public class OperatorImage extends RasterDataNodeOpImage {
 
     private OperatorContext operatorContext;
 
-    protected OperatorImage(Band targetBand, OperatorContext operatorContext) {
+    public OperatorImage(Band targetBand, OperatorContext operatorContext) {
         super(targetBand, createSingleBandedImageLayout(targetBand));
         this.operatorContext = operatorContext;
+    }
+
+    public OperatorContext getOperatorContext() {
+        return operatorContext;
     }
 
     public Band getTargetBand() {

@@ -2490,7 +2490,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     // JAIJAIJAI
     public void setImage(RenderedImage image) {
-        _image = image;
+        final RenderedImage oldImage = _image;
+        if (oldImage != image) {
+            _image = image;
+            fireProductNodeChanged("image", oldImage);
+        };
     }
 
     public static interface RasterDataProcessor {
