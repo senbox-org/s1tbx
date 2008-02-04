@@ -66,4 +66,12 @@ public interface Symbol {
      * @throws EvalException if the evaluation fails
      */
     double evalD(EvalEnv env) throws EvalException;
+
+    /**
+     * Evaluates this symbol to a <code>String</code> value.
+     * @param env the application dependant environment.
+     * @return a <code>double</code> value
+     * @throws EvalException if the evaluation fails
+     */
+    String evalS(EvalEnv env) throws EvalException;
 }

@@ -285,6 +285,10 @@ class ComputeValidMaskOp extends Operator {
             }
             return sample;
         }
+
+        public String evalS(EvalEnv env) throws EvalException {
+            return Double.toString(evalD(env));
+        }
     }
 
     private static class SingleFlagSymbolAdapter extends RasterDataSymbolAdapter {

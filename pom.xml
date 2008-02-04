@@ -419,7 +419,7 @@
                         <phase>process-sources</phase>
                         <goals>
                             <goal>template</goal>
-                        </goals>
+                        </goals>                                     
                     </execution>
                 </executions>
                 <configuration>

@@ -88,4 +88,9 @@ public class RasterDataSymbol implements Symbol {
         final int elemIndex = ((RasterDataEvalEnv) env).getElemIndex();
         return _data.getElemDoubleAt(elemIndex);
     }
+
+    public String evalS(EvalEnv env) throws EvalException {
+        final double value = evalD(env);
+        return Double.toString(value);
+    }
 }

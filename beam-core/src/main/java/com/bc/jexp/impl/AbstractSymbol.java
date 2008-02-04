@@ -26,12 +26,11 @@ import com.bc.jexp.Term;
  * Provides an abstract implementation of the <code>{@link com.bc.jexp.Symbol}</code> interface.
  * Subclassers must still implement the <code>eval</code>X method group.
  *
+ * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
+ * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:43 $
  * @see com.bc.jexp.Symbol#evalB
  * @see com.bc.jexp.Symbol#evalI
  * @see com.bc.jexp.Symbol#evalD
- *
- * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:43 $
  */
 public abstract class AbstractSymbol implements Symbol {
 
@@ -64,6 +63,10 @@ public abstract class AbstractSymbol implements Symbol {
         public double evalD(final EvalEnv env) {
             return Term.toD(evalB(env));
         }
+
+        public String evalS(final EvalEnv env) {
+            return Term.toS(evalB(env));
+        }
     }
 
     public abstract static class I extends AbstractSymbol {
@@ -79,6 +82,10 @@ public abstract class AbstractSymbol implements Symbol {
         public double evalD(final EvalEnv env) {
             return evalI(env);
         }
+
+        public String evalS(final EvalEnv env) {
+            return Term.toS(evalI(env));
+        }
     }
 
     public abstract static class D extends AbstractSymbol {
@@ -93,6 +100,10 @@ public abstract class AbstractSymbol implements Symbol {
 
         public int evalI(final EvalEnv env) {
             return Term.toI(evalD(env));
+        }
+
+        public String evalS(final EvalEnv env) {
+            return Term.toS(evalD(env));
         }
     }
 }

@@ -123,6 +123,10 @@ public abstract class AbstractExpressionValidator extends StringValidator {
         public double evalD(EvalEnv env) throws EvalException {
             return 0;
         }
+
+        public String evalS(EvalEnv env) throws EvalException {
+            return "0";
+        }
     }
 
     private static class DummyFunction extends AbstractFunction.D {

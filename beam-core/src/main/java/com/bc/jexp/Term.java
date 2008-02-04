@@ -207,6 +207,36 @@ public abstract class Term {
         return value ? 1.0 : 0.0;
     }
 
+    /**
+     * Converts a <code>boolean</code> to a <code>String</code>.
+     *
+     * @param value the value to be converted
+     * @return the conversion result, which is <code>value ? 1.0 : 0.0</code>.
+     */
+    public static String toS(final boolean value) {
+        return Boolean.toString(value);
+    }
+
+    /**
+     * Converts a <code>integer</code> to a <code>String</code>.
+     *
+     * @param value the value to be converted
+     * @return the conversion result, which is <code>value ? 1.0 : 0.0</code>.
+     */
+    public static String toS(final int value) {
+        return Integer.toString(value);
+    }
+
+    /**
+     * Converts a <code>double</code> to a <code>String</code>.
+     *
+     * @param value the value to be converted
+     * @return the conversion result, which is <code>value ? 1.0 : 0.0</code>.
+     */
+    public static String toS(final double value) {
+        return Double.toString(value);
+    }
+
     private static String getParamString(final String name, final Term[] args) {
         final StringBuffer sb = new StringBuffer();
         sb.append(name);
@@ -420,6 +450,10 @@ public abstract class Term {
             return _symbol.evalD(env);
         }
 
+        public String evalS(EvalEnv env) {
+            return _symbol.evalS(env);
+        }
+
         public String toString() {
             return _symbol.getName();
         }
@@ -466,7 +500,7 @@ public abstract class Term {
 
         public double evalD(final EvalEnv env) {
             return _function.evalD(env, _args);
-        }
+        }       
 
         public Term[] getChildren() {
             return getArgs();
