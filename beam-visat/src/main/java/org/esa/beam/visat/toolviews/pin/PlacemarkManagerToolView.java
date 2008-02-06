@@ -732,8 +732,8 @@ class PlacemarkManagerToolView extends AbstractToolView {
     private void exportSelectedPlacemarks() {
         final BeamFileChooser fileChooser = new BeamFileChooser();
         String roleLabel = firstLetterUp(placemarkDescriptor.getRoleLabel());
-        fileChooser.setDialogTitle("Export " + roleLabel + "s");   /*I18N*/
-        setComponentName(fileChooser, "Export");
+        fileChooser.setDialogTitle("Export Selected " + roleLabel + "s");   /*I18N*/
+        setComponentName(fileChooser, "Export_Selected");
         fileChooser.addChoosableFileFilter(getTextFileFilter());
         fileChooser.setFileFilter(getPlacemarkFileFilter());
         final File ioDir = getIODir();
@@ -784,6 +784,7 @@ class PlacemarkManagerToolView extends AbstractToolView {
         final BeamFileChooser fileChooser = new BeamFileChooser();
         String roleLabel = firstLetterUp(placemarkDescriptor.getRoleLabel());
         fileChooser.setDialogTitle("Export " + roleLabel + " Data Table");/*I18N*/
+        setComponentName(fileChooser,"Export_Data_Table");
         fileChooser.setFileFilter(getTextFileFilter());
         final File ioDir = getIODir();
         fileChooser.setCurrentDirectory(ioDir);
