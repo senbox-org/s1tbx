@@ -21,13 +21,23 @@ import java.util.ArrayList;
 
 
 public class DefaultSingleTargetProductDialogTest extends TestCase {
+    private static final TestOp.Spi SPI = new TestOp.Spi();
+
+    @Override
+    protected void setUp() throws Exception {
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(SPI);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(SPI);
+    }
 
     public void testNothing() {
     }
 
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, IllegalAccessException, InstantiationException {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new TestOp.Spi());
         TestApp app = new TestApp();
         final SingleTargetProductDialog dialog = DefaultSingleTargetProductDialog.createDefaultDialog(TestOp.Spi.class.getName(), app);
         dialog.show();

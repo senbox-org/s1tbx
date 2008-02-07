@@ -4,6 +4,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 
 import java.awt.Rectangle;
+import java.util.Iterator;
 
 
 /**
@@ -18,19 +19,27 @@ import java.awt.Rectangle;
  * <p>Three ways are provided to access and manipulate the sample data of a target tile:</p>
  * <p>(1) This is the simplest but also slowest way to modify sample data of a tile:</p>
  * <pre>
- *   for (int y = getMinY(); y &lt;= getMaxY(); y++) {
- *       for (int x = getMinX(); x &lt;= getMaxX(); x++) {
+ *   for (int y = tile.getMinY(); y &lt;= tile.getMaxY(); y++) {
+ *       for (int x = tile.getMinX(); x &lt;= tile.getMaxX(); x++) {
  *           // compute sample value...
  *           tile.setSample(x, y, sample);
  *       }
  *   }
  * </pre>
+ * which can also be written even simpler using a tile itertor:
+ * <pre>
+  *   for (Tile.Pos pos : tile) {
+  *       // compute sample value...
+  *       tile.setSample(pos.x, pos.y, sample);
+  *   }
+  * </pre>
+ *
  * <p>(2) More performance is gained if the sample data buffer is checked out and committed
  * (required after modification only):</p>
  * <pre>
  *   ProductData samples = tile.getRawSamples(); // check out
- *   for (int y = 0; y &lt; getHeight(); y++) {
- *       for (int x = 0; x &lt; getWidth(); x++) {
+ *   for (int y = 0; y &lt; tile.getHeight(); y++) {
+ *       for (int x = 0; x &lt; tile.getWidth(); x++) {
  *           // compute sample value...
  *           samples.setElemFloatAt(y * getWidth() + x, sample);
  *           // ...
@@ -38,15 +47,15 @@ import java.awt.Rectangle;
  *   }
  *   tile.setRawSamples(samples); // commit
  * </pre>
- * <p>(3) The the fastest way to read from or write to sample data is direct access to the sample data
- * via the primitive data buffer arrays:</p>
+ * <p>(3) The the fastest way to read from or write to sample data is to directly access the sample data
+ * via their primitive data buffers:</p>
  * <pre>
  *   float[] samples = tile.getDataBufferFloat();
  *   float sample;
  *   int offset = tile.getScanlineOffset();
- *   for (int y = 0; y &lt; getHeight(); y++) {
+ *   for (int y = 0; y &lt; tile.getHeight(); y++) {
  *       int index = offset;
- *       for (int x = 0; x &lt; getWidth(); x++) {
+ *       for (int x = 0; x &lt; tile.getWidth(); x++) {
  *           // compute sample value...
  *           samples[index] = sample;
  *           index++;
@@ -65,7 +74,7 @@ import java.awt.Rectangle;
  * @author Marco Zühlke
  * @since 4.1
  */
-public interface Tile {
+public interface Tile extends Iterable<Tile.Pos> {
 
     /**
      * Gets the {@code RasterDataNode} associated with this tile,
@@ -419,4 +428,61 @@ public interface Tile {
      * @param sample   The sample as {@code boolean} value.
      */
     void setSample(int x, int y, int bitIndex, boolean sample);
+
+    /**
+     * Gets an iterator which can be used to visit all pixels in the tile.
+     * Using the iterator in a single loop
+     * <pre>
+     * for (Tile.Pos pos: tile) {
+     *    int x = pos.x;
+     *    int y = pos.y;
+     *    // ...
+     * }
+     * </pre>
+     * is equivalent to iterating over all pixels using two nested loops
+     * <pre>
+     * for (int y = tile.getMinY(); y <= tile.getMaxY(); y++) {
+     *     for (int x = tile.getMinX(); x <= tile.getMaxX(); x++) {
+     *         // ...
+     *     }
+     * }
+     * </pre>
+     */
+    @Override
+    Iterator<Pos> iterator();
+
+    /**
+     * A pixel position within the tile's raster.
+     */
+    public final class Pos {
+        public final int x;
+        public final int y;
+
+        public Pos(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) {
+                return true;
+            } else if (obj instanceof Pos) {
+                Pos pos = (Pos) obj;
+                return pos.x == x && pos.y == y;
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public int hashCode() {
+            return x - y;
+        }
+
+        @Override
+        public String toString() {
+            return getClass().getName() + "[x=" + x + ",y=" + y + "]";
+        }
+    }
 }

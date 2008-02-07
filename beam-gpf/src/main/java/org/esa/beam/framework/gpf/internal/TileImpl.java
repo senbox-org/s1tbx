@@ -12,6 +12,7 @@ import java.awt.image.ComponentSampleModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
+import java.util.Iterator;
 
 /**
  * A {@link Tile} implementation backed by a {@link java.awt.image.Raster}.
@@ -256,5 +257,10 @@ public class TileImpl implements Tile {
         long longSample = raster.getSample(x, y, 0);
         long newSample = BitSetter.setFlag(longSample, bitIndex, sample);
         writableRaster.setSample(x, y, 0, newSample);
+    }
+
+    @Override
+    public Iterator<Pos> iterator() {
+        return new DefaultTileIterator(getRectangle());
     }
 }

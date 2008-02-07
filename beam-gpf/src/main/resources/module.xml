@@ -8,6 +8,7 @@
         <![CDATA[<p>From 4.1 to 4.2:<br/>
             [BEAM-762] Operator within VISAT don't warn, when file already exist<br/>
             [BEAM-760] The target product selector throws NullPointerException<br/>
+            [BEAM-776] Provide TileIterator to loop over all tile pixels<br/>
         </p>]]>
     </changelog>
 
