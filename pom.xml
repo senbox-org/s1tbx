@@ -114,9 +114,11 @@
         <module>beam-geotiff-writer</module>
         <module>beam-hdf5-writer</module>
 
+		<module>beam-shapefile-reader</module>
+
         <module>lib-hdf</module>
         <module>lib-netcdf</module>
-
+		
     </modules>
 
     <dependencyManagement>
