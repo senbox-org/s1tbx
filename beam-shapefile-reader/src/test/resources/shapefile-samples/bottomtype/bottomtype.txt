@@ -1,0 +1,271 @@
+Identification_Information:
+  Citation:
+    Citation_Information:
+      Originator: Seth Ackerman
+      Publication_Date: 2006
+      Title: bottomtype: Defined Map Units of the seafloor of Boston Harbor and Approaches
+      Geospatial_Data_Presentation_Form: vector digital data
+      Series_Information:
+        Series_Name: Open-File Report
+        Issue_Identification: 2006-1008
+      Publication_Information:
+        Publication_Place: Woods Hole Science Center, Woods Hole, MA
+        Publisher: U.S. Geological Survey, Coastal and Marine Geology Program
+      Online_Linkage: http://pubs.usgs.gov/of/2006/1008/gis/datazipped/bottomtype.zip
+      Larger_Work_Citation:
+        Citation_Information:
+          Originator: Ackerman, S.D.
+          Originator: Butman, B.
+          Originator: Barnhardt, W.B.
+          Originator: Danforth, W.W.
+          Originator: Crocker, J.M.
+          Publication_Date: 2006
+          Title: High-Resolution Geologic Mapping of the Inner Continental Shelf: Boston Harbor and Approaches, Massachusetts
+          Series_Information:
+            Series_Name: Open-File Report
+            Issue_Identification: 2006-1008
+          Publication_Information:
+            Publication_Place: Woods Hole Science Center, Woods Hole, MA
+            Publisher: U.S. Geological Survey, Coastal and Marine Geology Program
+          Other_Citation_Details: 1 DVD-ROM
+          Online_Linkage: <http://pubs.usgs.gov/of/2006/1008/>
+  Description:
+    Abstract: This data is a qualitatively-derived interpretative polygon shapefile defining the bottom types of the seafloor from Boston Harbor and the harbor approaches, Massachusetts. Approximately 170 km² of sidescan sonar and bathymetric data were collected by the National Oceanic and Atmospheric Administration (NOAA) Ship Whiting in 2000 and 2001 and reprocessed and gridded by the Massachusetts Office of Coastal Zone Management (CZM) and the U.S. Geological Survey (USGS).
+    Purpose: The geophysical dataset were collected by the National Oceanic and Atmospheric Administration (NOAA) National Ocean Service (NOS) branch as part of their periodic hydrographic mapping for nautical charting. The raw datasets were provided by NOAA to the Massachusetts Office of Coastal Zone Management (CZM) and the U.S. Geological Survey (USGS) in Woods Hole, MA as part of a cooperative agreement to provide high resolution bathymetry and backscatter intensity maps and digital GIS information for resource management, scientific research, industry and the public.
+  Time_Period_of_Content:
+    Time_Period_Information:
+      Range_of_Dates/Times:
+        Beginning_Date: 20000919
+        Ending_Date: 20011030
+    Currentness_Reference: ground condition
+  Status:
+    Progress: Complete
+    Maintenance_and_Update_Frequency: None planned
+  Spatial_Domain:
+    Bounding_Coordinates:
+      West_Bounding_Coordinate: -71.054017
+      East_Bounding_Coordinate: -70.816866
+      North_Bounding_Coordinate: 42.437853
+      South_Bounding_Coordinate: 42.256352
+  Keywords:
+    Theme:
+      Theme_Keyword_Thesaurus: General
+      Theme_Keyword: U.S. Geological Survey
+      Theme_Keyword: USGS
+      Theme_Keyword: Coastal and Marine Geology Program
+      Theme_Keyword: CMGP
+      Theme_Keyword: Woods Hole Science Center
+      Theme_Keyword: WHSC
+      Theme_Keyword: Massachusetts Office of Coastal Zone Management
+      Theme_Keyword: CZM
+      Theme_Keyword: Seafloor
+      Theme_Keyword: Marine Geology
+      Theme_Keyword: field activity serial number RAFA04019
+      Theme_Keyword: Interpretation
+      Theme_Keyword: Bathymetry
+      Theme_Keyword: Backscatter
+      Theme_Keyword: Slope
+      Theme_Keyword: Topography
+      Theme_Keyword: National Oceanic and Atmospheric Administration
+      Theme_Keyword: NOAA
+      Theme_Keyword: National Ocean Service
+      Theme_Keyword: NOS
+      Theme_Keyword: NOAA Ship Whiting
+      Theme_Keyword: Hydrographic Survey
+      Theme_Keyword: ESRI Shapefile
+      Theme_Keyword: Bottom Type
+    Theme:
+      Theme_Keyword_Thesaurus: ISO 19115 Topic Category
+      Theme_Keyword: oceans and estuaries
+      Theme_Keyword: geoscientificinformation
+    Place:
+      Place_Keyword_Thesaurus: General
+      Place_Keyword: Massachusetts Bay
+      Place_Keyword: Atlantic Ocean
+      Place_Keyword: Boston Harbor
+      Place_Keyword: Nahant
+      Place_Keyword: Boston
+      Place_Keyword: Hull
+      Place_Keyword: Hubline
+      Place_Keyword: Boston Harbor Islands
+    Stratum:
+      Stratum_Keyword_Thesaurus: General
+      Stratum_Keyword: Seafloor
+  Access_Constraints: None
+  Use_Constraints: Public domain data from the U.S. Government are freely redistributable with proper metadata and source attribution.  Please recognize the U.S. Geological Survey (USGS) as the source of this information.
+  Point_of_Contact:
+    Contact_Information:
+      Contact_Person_Primary:
+        Contact_Person: Seth Ackerman
+        Contact_Organization: Massachusetts Office of Coastal Zone Management
+      Contact_Position: Geologist
+      Contact_Address:
+        Address_Type: mailing and physical address
+        Address: 384 Woods Hole Rd.
+        City: Woods Hole
+        State_or_Province: MA
+        Postal_Code: 02543-1598
+        Country: USA
+      Contact_Voice_Telephone: 508-548-8700 x2315
+      Contact_Facsimile_Telephone: 508-457-2310
+      Contact_Electronic_Mail_Address: seth.ackerman@state.ma.us
+  Native_Data_Set_Environment: Microsoft Windows XP Version 5.1 (Build 2600) Service Pack 2; ESRI ArcCatalog 9.1.0.722
+Data_Quality_Information:
+  Lineage:
+    Source_Information:
+      Source_Time_Period_of_Content:
+        Time_Period_Information:
+          Range_of_Dates/Times:
+            Beginning_Date: 20000919
+            Ending_Date: 20011030
+        Source_Currentness_Reference: ground condition
+      Source_Contribution: The original geophysical data for this project were collected during four hydrographic surveys conducted by NOAA NOS in 2000 and 2001 on the NOAA Ship Whiting and its launches 1005/1014.  Multibeam bathymetric data were acquired with a Reson SeaBat 8101 and sidescan sonar backscatter data were acquired with Edgetech model 272-T (100 kHz) or the Klein T-5500 (455 kHz) sonar systems.  The NOAA acquisition vessels were also equipped with Odom Echotrac DF3200 MKII echosounders that logged high-frequency (100 kHz) vertical-beam soundings concurrently throughout the sidescan sonar and multibeam bathymetry surveying operations.  Vertical-beam soundings were recorded in Hypack raw format and later converted to CARIS HDCS format.  The NOAA Office of Coast Survey cleaned and merged the data and performed tide corrections using CARIS HIPS.
+    Process_Step:
+      Process_Description: The study area was separated into six units based on local bottom slope, backscatter intensity, surficial sediment texture and anthropogenic activity. These units were delineated qualitatively at a scale of 1:30,000 in areas where both new sidescan sonar and bathymetric data are available (about 155 km2, the source data sets were derived from the datasets described in the previous process step). A local bottom slope was calculated from the 30-m gridded bathymetry as the average slope between the central pixel and the surrounding 8 pixels. Areas smaller than about 200 meters were not delineated. The shapefile was created in ArcGIS 9.1 (ArcMap) by alternating the hillshade, slope and backscatter rasters overlay and manually drawing polygons for the regions representing the six classes of defined bottom type.
+      Process_Contact:
+        Contact_Information:
+          Contact_Person_Primary:
+            Contact_Person: Seth Ackerman
+            Contact_Organization: Massachusetts Office of Coastal Zone Management
+          Contact_Position: Geologist
+          Contact_Address:
+            Address_Type: mailing and physical address
+            Address: c/o U.S. Geological Survey
+            Address: 384 Woods Hole Rd.
+            City: Woods Hole
+            State_or_Province: MA
+            Postal_Code: 02543-1598
+            Country: USA
+          Contact_Voice_Telephone: 508-548-8700 x2315
+          Contact_Facsimile_Telephone: 508-457-2310
+          Contact_Electronic_Mail_Address: seth.ackerman@state.ma.us
+Spatial_Data_Organization_Information:
+  Direct_Spatial_Reference_Method: Vector
+  Point_and_Vector_Object_Information:
+    SDTS_Terms_Description:
+      SDTS_Point_and_Vector_Object_Type: G-polygon
+      Point_and_Vector_Object_Count: 6
+  Raster_Object_Information:
+    Raster_Object_Type: Grid Cell
+    Row_Count: 657
+    Column_Count: 648
+    Vertical_Count: 1
+Spatial_Reference_Information:
+  Horizontal_Coordinate_System_Definition:
+    Planar:
+      Grid_Coordinate_System:
+        Grid_Coordinate_System_Name: Universal Transverse Mercator
+        Universal_Transverse_Mercator:
+          UTM_Zone_Number: 19
+          Transverse_Mercator:
+            Scale_Factor_at_Central_Meridian: 0.999600
+            Longitude_of_Central_Meridian: -69.000000
+            Latitude_of_Projection_Origin: 0.000000
+            False_Easting: 500000.000000
+            False_Northing: 0.000000
+      Planar_Coordinate_Information:
+        Planar_Coordinate_Encoding_Method: coordinate pair
+        Coordinate_Representation:
+          Abscissa_Resolution: 0.000032
+          Ordinate_Resolution: 0.000032
+        Planar_Distance_Units: meters
+    Geodetic_Model:
+      Horizontal_Datum_Name: D_WGS_1984
+      Ellipsoid_Name: WGS_1984
+      Semi-major_Axis: 6378137.000000
+      Denominator_of_Flattening_Ratio: 298.257224
+Entity_and_Attribute_Information:
+  Detailed_Description:
+    Entity_Type:
+      Entity_Type_Label: bottomtype
+    Attribute:
+      Attribute_Label: FID
+      Attribute_Definition: Internal feature number.
+      Attribute_Definition_Source: ESRI
+      Attribute_Domain_Values:
+        Unrepresentable_Domain: Sequential unique whole numbers that are automatically generated.
+    Attribute:
+      Attribute_Label: Shape
+      Attribute_Definition: Feature geometry.
+      Attribute_Definition_Source: ESRI
+      Attribute_Domain_Values:
+        Unrepresentable_Domain: Coordinates defining the features.
+    Attribute:
+      Attribute_Label: FID_newCla
+      Attribute_Definition: Classification ID number
+    Attribute:
+      Attribute_Label: Zone
+      Attribute_Definition: Seafloor map unit name (see Open File Report 2006-1008 for full description of each zone)
+    Attribute:
+      Attribute_Label: Area_km
+      Attribute_Definition: Area (in square kilometers) of each zone in the survey area
+Distribution_Information:
+  Distributor:
+    Contact_Information:
+      Contact_Person_Primary:
+        Contact_Person: Seth Ackerman
+        Contact_Organization: Massachusetts Office of Coastal Zone Management
+      Contact_Position: Geologist
+      Contact_Address:
+        Address_Type: mailing and physical address
+        Address: c/o U.S. Geological Survey
+        Address: 384 Woods Hole Rd.
+        City: Woods Hole
+        State_or_Province: MA
+        Postal_Code: 02543-1598
+        Country: USA
+      Contact_Voice_Telephone: 508-548-8700 x2315
+      Contact_Facsimile_Telephone: 508-457-2310
+      Contact_Electronic_Mail_Address: seth.ackerman@state.ma.us
+  Resource_Description: Downloadable Data
+  Distribution_Liability:
+    Although this data set has been used by the U.S. Geological Survey (USGS), no warranty, expressed or implied, is made by the USGS as to the accuracy of the data and/or related materials.  The act of distribution shall not constitute any such warranty, and no responsibility is assumed by the USGS in the use of these data or related materials.
+
+    Any use of trade, product, or firm names is for descriptive purposes only and does not imply endorsement by the U.S. Government.
+  Standard_Order_Process:
+    Digital_Form:
+      Digital_Transfer_Information:
+        Format_Name: Shapefile
+        Format_Version_Number: ArcGIS 9.x
+        Format_Specification: ESRI Polygon Shapefile
+        File_Decompression_Technique: no compression applied
+        Transfer_Size: 0.865
+      Digital_Transfer_Option:
+        Online_Option:
+          Computer_Contact_Information:
+            Network_Address:
+              Network_Resource_Name: <http://pubs.usgs.gov/of/2006/1008/gis/datazipped/bottomtype.zip>
+              Network_Resource_Name: <http://pubs.usgs.gov/of/2006/1008/html/appendix1.html>
+              Network_Resource_Name: <http://pubs.usgs.gov/of/2006/1008/gis/OFR_2006_1008/shapes/>
+        Offline_Option:
+          Offline_Media: DVD-ROM
+          Recording_Format: UDF
+    Fees: None
+  Technical_Prerequisites: These data are available in Environmental Systems Research Institute (ESRI) Shapefile format. The user must have software capable of importing and processing the data file.
+Metadata_Reference_Information:
+  Metadata_Date: 20060712
+  Metadata_Contact:
+    Contact_Information:
+      Contact_Person_Primary:
+        Contact_Person: Seth Ackerman
+        Contact_Organization: Massachusetts Office of Coastal Zone Management
+      Contact_Position: Geologist
+      Contact_Address:
+        Address_Type: mailing and physical address
+        Address: c/o U.S. Geological Survey
+        Address: 384 Woods Hole Rd.
+        City: Woods Hole
+        State_or_Province: MA
+        Postal_Code: 02543-1598
+        Country: USA
+      Contact_Voice_Telephone: 508-548-8700 x2315
+      Contact_Facsimile_Telephone: 508-457-2310
+      Contact_Electronic_Mail_Address: seth.ackerman@state.ma.us
+  Metadata_Standard_Name: FGDC Content Standards for Digital Geospatial Metadata
+  Metadata_Standard_Version: FGDC-STD-001-1998
+  Metadata_Time_Convention: local time
+  Metadata_Access_Constraints: None
+  Metadata_Use_Constraints: None
+  Metadata_Extensions:
+    Online_Linkage: http://www.esri.com/metadata/esriprof80.html
+    Profile_Name: ESRI Metadata Profile

@@ -1,0 +1,527 @@
+Identification_Information:
+  Citation:
+    Citation_Information:
+      Originator: Seth Ackerman
+      Publication_Date: 2006
+      Title: sedgrabs: Surficial sediment data from USGS Field Activity 04019
+      Edition: 1.0
+      Geospatial_Data_Presentation_Form: vector digital data
+      Series_Information:
+        Series_Name: Open-File Report
+        Issue_Identification: 2006-1008
+      Publication_Information:
+        Publication_Place: Woods Hole Science Center, Woods Hole, MA
+        Publisher: U.S. Geological Survey, Coastal and Marine Geology Program
+      Online_Linkage: http://pubs.usgs.gov/of/2006/1008/gis/datazipped/sedgrabs.zip
+      Larger_Work_Citation:
+        Citation_Information:
+          Originator: Ackerman, S.D.
+          Originator: Butman, B.
+          Originator: Barnhardt, W.B.
+          Originator: Danforth, W.W.
+          Originator: Crocker, J.M.
+          Publication_Date: 2006
+          Title: High-Resolution Geologic Mapping of the Inner Continental Shelf: Boston Harbor and Approaches, Massachusetts
+          Series_Information:
+            Series_Name: Open-File Report
+            Issue_Identification: 2006-1008
+          Publication_Information:
+            Publication_Place: Woods Hole Science Center, Woods Hole, MA
+            Publisher: U.S. Geological Survey, Coastal and Marine Geology Program
+          Other_Citation_Details: 1 DVD-ROM
+          Online_Linkage: http://pubs.usgs.gov/of/2006/1008
+  Description:
+    Abstract: This data set includes the locations, identifiers, grain-size data and(or) textural descriptions of surficial sediments collected at stations based on topographic and backscatter data of the seafloor in Boston Harbor and the harbor appraoches, Massachusetts.  The sediments were collected with a modified Van Veen grab (mini-SEABOSS) during USGS survey 04019, conducted September 14-17, 2004.
+    Purpose: This data set was produced to ground-truth (verify) topography and backscatter intensity of the seafloor in Boston Harbor and the harbor appraoches, Massachusetts.  The acoustic data associated with this project were collected with multibeam, vertical-beam and sidescan sonar systems in 2000 and 2001, by NOAA NOS for hydrographic mapping purposes.
+  Time_Period_of_Content:
+    Time_Period_Information:
+      Range_of_Dates/Times:
+        Beginning_Date: 20040914
+        Ending_Date: 20040917
+    Currentness_Reference: ground condition
+  Status:
+    Progress: Complete
+    Maintenance_and_Update_Frequency: None planned
+  Spatial_Domain:
+    Bounding_Coordinates:
+      West_Bounding_Coordinate: -71.047248
+      East_Bounding_Coordinate: -70.825337
+      North_Bounding_Coordinate: 42.434524
+      South_Bounding_Coordinate: 42.269389
+  Keywords:
+    Theme:
+      Theme_Keyword_Thesaurus: General
+      Theme_Keyword: U.S. Geological Survey
+      Theme_Keyword: USGS
+      Theme_Keyword: Woods Hole Science Center
+      Theme_Keyword: WHSC
+      Theme_Keyword: Coastal and Marine Geology Program
+      Theme_Keyword: CMGP
+      Theme_Keyword: RV Rafael
+      Theme_Keyword: ArcView Shapefile
+      Theme_Keyword: Massachusetts Office of Coastal Zone Management
+      Theme_Keyword: CZM
+      Theme_Keyword: surficial sediment classification
+      Theme_Keyword: sediment data
+      Theme_Keyword: sediments
+      Theme_Keyword: sediment samples
+      Theme_Keyword: ground-truth
+      Theme_Keyword: gravel
+      Theme_Keyword: sand
+      Theme_Keyword: silt
+      Theme_Keyword: clay
+      Theme_Keyword: stations
+      Theme_Keyword: sea floor
+      Theme_Keyword: Field Activity Number 04019
+      Theme_Keyword: Van Veen grab sampler
+      Theme_Keyword: small SEABOSS sampler
+      Theme_Keyword: National Oceanic and Atmospheric Administration
+      Theme_Keyword: NOAA
+      Theme_Keyword: National Ocean Service
+      Theme_Keyword: NOS
+      Theme_Keyword: NOAA Ship Whiting
+      Theme_Keyword: Hydrographic Survey
+    Theme:
+      Theme_Keyword_Thesaurus: ISO 19115 Topic Category
+      Theme_Keyword: oceans and estuaries
+      Theme_Keyword: oceans and coastal
+      Theme_Keyword: environment
+      Theme_Keyword: location
+      Theme_Keyword: geoscientific information
+    Place:
+      Place_Keyword_Thesaurus: General
+      Place_Keyword: Massachusetts Bay
+      Place_Keyword: Atlantic Ocean
+      Place_Keyword: Boston Harbor
+      Place_Keyword: Nahant
+      Place_Keyword: Boston
+      Place_Keyword: Hull
+      Place_Keyword: Hubline
+      Place_Keyword: Boston Harbor Islands
+  Access_Constraints: None
+  Use_Constraints: Public domain data from the U.S. Government are freely redistributable with proper metadata and source attribution. Please recognize the U.S. Geological Survey (USGS) as the source of this information.
+  Point_of_Contact:
+    Contact_Information:
+      Contact_Person_Primary:
+        Contact_Person: Seth Ackerman
+        Contact_Organization: Massachusetts Office of Coastal Zone Management
+      Contact_Position: Geologist
+      Contact_Address:
+        Address_Type: mailing and physical address
+        Address: 384 Woods Hole Rd.
+        City: Woods Hole
+        State_or_Province: MA
+        Postal_Code: 02543-1598
+        Country: USA
+      Contact_Voice_Telephone: 508-548-8700 x2315
+      Contact_Facsimile_Telephone: 508-457-2310
+      Contact_Electronic_Mail_Address: seth.ackerman@state.ma.us
+  Browse_Graphic:
+    Browse_Graphic_File_Type: GIF
+  Native_Data_Set_Environment: Microsoft Windows XP Version 5.1 (Build 2600) Service Pack 2; ESRI ArcCatalog 9.1.0.722
+Data_Quality_Information:
+  Attribute_Accuracy:
+    Attribute_Accuracy_Report: All attributes were checked in a consistent manner
+  Logical_Consistency_Report: No additional checks for topological consistency were performed on this data.
+  Completeness_Report: All available grain-size data collected during the RV Rafael cruise 04019 are included in this data set.
+  Positional_Accuracy:
+    Horizontal_Positional_Accuracy:
+      Horizontal_Positional_Accuracy_Report: Navigation was by differential GPS; positional accuracy to less than 10 m
+  Lineage:
+    Source_Information:
+      Source_Time_Period_of_Content:
+        Time_Period_Information:
+          Range_of_Dates/Times:
+            Beginning_Date: 20040914
+            Ending_Date: 20040917
+        Source_Currentness_Reference: ground condition
+    Process_Step:
+      Process_Description: Samples were collected by grab sampler and analyzed in the laboratory.  Coarse fraction determined by sieve; fine fraction determined by Coulter Counter.  Visual descriptions were used for rocky/bouldery stations where samples could not be collected.  See Poppe, Williams, Paskevich (2005, http://woodshole.er.usgs.gov/openfile/of2005-1001/) for analytical specifics.
+      Source_Produced_Citation_Abbreviation: rafa04019_seddata.txt
+      Process_Contact:
+        Contact_Information:
+          Contact_Person_Primary:
+            Contact_Person: L.J. Poppe
+            Contact_Organization: U.S. Geological Survey
+          Contact_Position: Geologist
+          Contact_Address:
+            Address_Type: mailing and physical address
+            Address: 384 Woods Hole Road
+            City: Woods Hole
+            State_or_Province: MA
+            Postal_Code: 02543-1598
+            Country: USA
+          Contact_Voice_Telephone: (508) 548-8700 x2314
+          Contact_Facsimile_Telephone: (508) 457-2310
+          Contact_Electronic_Mail_Address: lpoppe@usgs.gov
+    Process_Step:
+      Process_Description: The shapefile was created in ArcView from the ASCII comma-delimited files created by the laboratory's software.
+      Source_Used_Citation_Abbreviation: rafa04019_seddata.txt
+      Source_Produced_Citation_Abbreviation: rafa04019_seddata.shp
+      Process_Contact:
+        Contact_Information:
+          Contact_Person_Primary:
+            Contact_Person: Seth Ackerman
+            Contact_Organization: Massachusetts Office of Coastal Zone Management
+          Contact_Position: Geologist
+          Contact_Address:
+            Address_Type: mailing and physical address
+            Address: c/o U.S. Geological Survey
+            Address: 384 Woods Hole Rd.
+            City: Woods Hole
+            State_or_Province: MA
+            Postal_Code: 02543-1598
+            Country: USA
+          Contact_Voice_Telephone: 508-548-8700 x2315
+          Contact_Facsimile_Telephone: 508-457-2310
+          Contact_Electronic_Mail_Address: seth.ackerman@state.ma.us
+Spatial_Data_Organization_Information:
+  Direct_Spatial_Reference_Method: Vector
+  Point_and_Vector_Object_Information:
+    SDTS_Terms_Description:
+      SDTS_Point_and_Vector_Object_Type: Entity point
+      Point_and_Vector_Object_Count: 64
+Spatial_Reference_Information:
+  Horizontal_Coordinate_System_Definition:
+    Planar:
+      Grid_Coordinate_System:
+        Grid_Coordinate_System_Name: Universal Transverse Mercator
+        Universal_Transverse_Mercator:
+          UTM_Zone_Number: 19
+          Transverse_Mercator:
+            Scale_Factor_at_Central_Meridian: 0.999600
+            Longitude_of_Central_Meridian: -69.000000
+            Latitude_of_Projection_Origin: 0.000000
+            False_Easting: 500000.000000
+            False_Northing: 0.000000
+      Planar_Coordinate_Information:
+        Planar_Coordinate_Encoding_Method: coordinate pair
+        Coordinate_Representation:
+          Abscissa_Resolution: 0.000032
+          Ordinate_Resolution: 0.000032
+        Planar_Distance_Units: meters
+    Geodetic_Model:
+      Horizontal_Datum_Name: D_WGS_1984
+      Ellipsoid_Name: WGS_1984
+      Semi-major_Axis: 6378137.000000
+      Denominator_of_Flattening_Ratio: 298.257224
+Entity_and_Attribute_Information:
+  Detailed_Description:
+    Entity_Type:
+      Entity_Type_Label: sedgrabs
+      Entity_Type_Definition: Shapefile Attribute Table
+      Entity_Type_Definition_Source: ESRI
+    Attribute:
+      Attribute_Label: FID
+      Attribute_Definition: Internal feature number.
+      Attribute_Definition_Source: ESRI
+      Attribute_Domain_Values:
+        Unrepresentable_Domain: Sequential unique whole numbers that are automatically generated.
+    Attribute:
+      Attribute_Label: Shape
+      Attribute_Definition: Feature geometry.
+      Attribute_Definition_Source: ESRI
+      Attribute_Domain_Values:
+        Unrepresentable_Domain: Coordinates defining the features.
+    Attribute:
+      Attribute_Label: ID
+    Attribute:
+      Attribute_Label: LABNO
+      Attribute_Definition: USGS unique identifier consisting of two characters and three numerics
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+      Attribute_Domain_Values:
+        Unrepresentable_Domain: String of width 5
+    Attribute:
+      Attribute_Label: STATIONID
+      Attribute_Definition: Sample name assigned in the field
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+      Attribute_Domain_Values:
+        Unrepresentable_Domain: String of width 5
+    Attribute:
+      Attribute_Label: PROJECTID
+      Attribute_Definition: Project under which the samples were taken
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: CRUISEID
+      Attribute_Definition: Name or number of cruise during which the samples were collected
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: PRINCIPAL
+      Attribute_Definition: Name (initial and last name) of the principal investigator
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: MONTH
+      Attribute_Definition: Calendar month sample was analyzed
+      Attribute_Definition_Source: USGS
+    Attribute:
+      Attribute_Label: DAY
+      Attribute_Definition: Day sample was analyzed
+      Attribute_Definition_Source: USGS
+    Attribute:
+      Attribute_Label: YEAR
+      Attribute_Definition: Day sample was analyzed
+      Attribute_Definition_Source: USGS
+    Attribute:
+      Attribute_Label: LATITUDE
+      Attribute_Definition: Latitude coordinate of sample location
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: LONGITUDE
+      Attribute_Definition: Longitude coordinate of sample location
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: DEVICE
+      Attribute_Definition: Device used to collect sample
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+      Attribute_Domain_Values:
+        Unrepresentable_Domain: SMALL SEABOSS
+    Attribute:
+      Attribute_Label: AREA
+      Attribute_Definition: General geographic area
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: DEPTH_M
+      Attribute_Definition: Depth or sounding in meters
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: T_DEPTH
+      Attribute_Definition: Top depth of the sample below sediment-water interface in centimeters
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: B_DEPTH
+      Attribute_Definition: Bottom depth of the sample below sediment-water interface in centimeters
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+      Attribute_Domain_Values:
+        Enumerated_Domain:
+          Enumerated_Domain_Value: 2
+          Enumerated_Domain_Value_Definition: Depth in sediment in cm
+    Attribute:
+      Attribute_Label: WEIGHT
+      Attribute_Definition: Weight of dry sample in grams
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: ZGRAVEL
+      Attribute_Definition: Gravel content in percent dry weight
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: ZSAND
+      Attribute_Definition: Sand content in percent dry weight
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: ZSILT
+      Attribute_Definition: Silt content in percent dry weight
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: ZCLAY
+      Attribute_Definition: Clay content in percent dry weight
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: SEDCLASS
+      Attribute_Definition: Sediment description based on Shepard 1954
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary (See Shepard (1954))
+    Attribute:
+      Attribute_Label: MEDIAN
+      Attribute_Definition: Middle point in the grain-size distribution in phi units
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: MEAN
+      Attribute_Definition: Average value in the grain-size distribution in phi units
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: STDDEV
+      Attribute_Definition: Standard deviation of the grain size distribution
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: SKEWNESS
+      Attribute_Definition: Deviation from symmetrical form of the grain-size distribution
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: KURTOSIS
+      Attribute_Definition: Degree of curvature near the mode of the grain-size distribution
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: MODE_1_CLA
+      Attribute_Definition: First mode in phi units
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: MODE_1_FRE
+      Attribute_Definition: Frequency percent of the first mode
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: MODE_2_CLA
+      Attribute_Definition: Second mode in phi units
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: MODE_2_FRE
+      Attribute_Definition: Frequency percent of the second mode
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: MODE_3_CLA
+      Attribute_Definition: Third mode in phi units
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: MODE_3_FRE
+      Attribute_Definition: Frequency percent of the third mode
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: NMODES
+      Attribute_Definition: Number of modes
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: PHI_11
+      Attribute_Definition: Cumulative weight percent of the sample in the 11 phi fraction
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: PHI_10
+      Attribute_Definition: Cumulative weight percent of the sample in the 10 phi fraction
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: PHI_9
+      Attribute_Definition: Cumulative weight percent of the sample in the 9 phi fraction
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: PHI_8
+      Attribute_Definition: Cumulative weight percent of the sample in the 8 phi fraction
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: PHI_7
+      Attribute_Definition: Cumulative weight percent of the sample in the 7 phi fraction
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: PHI_6
+      Attribute_Definition: Cumulative weight percent of the sample in the 6 phi fraction
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: PHI_5
+      Attribute_Definition: Cumulative weight percent of the sample in the 5 phi fraction
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: PHI_4
+      Attribute_Definition: Cumulative weight percent of the sample in the 4 phi fraction
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: PHI_3
+      Attribute_Definition: Cumulative weight percent of the sample in the 3 phi fraction
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: PHI_2
+      Attribute_Definition: Cumulative weight percent of the sample in the 2 phi fraction
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: PHI_1
+      Attribute_Definition: Cumulative weight percent of the sample in the 1 phi fraction
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: PHI_0
+      Attribute_Definition: Cumulative weight percent of the sample in the 0 phi fraction
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: PHIM1
+      Attribute_Definition: Cumulative weight percent of the sample in the -1 phi fraction
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: PHIM2
+      Attribute_Definition: Cumulative weight percent of the sample in the -2 phi fraction
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: PHIM3
+      Attribute_Definition: Cumulative weight percent of the sample in the -3 phi fraction
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: PHIM4
+      Attribute_Definition: Cumulative weight percent of the sample in the -4 phi fraction
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: PHIM5
+      Attribute_Definition: Cumulative weight percent of the sample in the -5 phi fraction
+      Attribute_Definition_Source: USGS East Coast Sediment Texture Database data dictionary
+    Attribute:
+      Attribute_Label: ACKTIME
+      Attribute_Definition: Time in seconds from Jan 1, 2004 12:00:01 AM
+    Attribute:
+      Attribute_Label: PHOTONO
+      Attribute_Definition: Original photo number as recorded by the digital camera used to take the on-deck sample photos
+    Attribute:
+      Attribute_Label: HOTLINK
+      Attribute_Definition: Field used to hotlink the sample photo in ArcMap or ArcView
+    Attribute:
+      Attribute_Label: ZONE
+      Attribute_Definition: Seafloor zone that the sample lies in (zone corresponds to the polygons in the shapefile "bottomtype.shp")
+Distribution_Information:
+  Distributor:
+    Contact_Information:
+      Contact_Person_Primary:
+        Contact_Person: Seth Ackerman
+        Contact_Organization: Massachusetts Office of Coastal Zone Management
+      Contact_Position: Geologist
+      Contact_Address:
+        Address_Type: mailing and physical address
+        Address: 384 Woods Hole Road
+        City: Woods Hole
+        State_or_Province: MA
+        Postal_Code: 02543-1598
+        Country: USA
+      Contact_Voice_Telephone: (508) 548-8700 x2315
+      Contact_Facsimile_Telephone: (508) 457-2310
+      Contact_Electronic_Mail_Address: seth.ackerman@state.ma.us
+  Resource_Description: Downloadable Data
+  Distribution_Liability:
+    Although all data have been used by the USGS, no warranty, expressed or implied, is made by the USGS as to the accuracy of the data and/or related materials. The act of distribution shall not constitute any such warranty, and no responsibility is assumed by the USGS in the use of these data or related materials.
+
+    Any use of trade, product, or firm names is for descriptive purposes only and does not imply endorsement by the U.S. Government.
+  Standard_Order_Process:
+    Digital_Form:
+      Digital_Transfer_Information:
+        Format_Name: Shapefile
+        Format_Version_Number: ArcGIS 9.x
+        Format_Specification: ESRI Point Shapefile
+        Format_Information_Content: The SHP file contains the geospatial data. The SHX file contains the index of the geospatial data. The DBF file contains the attribute data in dBASE format. The PRJ file contains the coordinate system information (optional). The AVL file contains the legend information (optional). The SBN and SBX files contain the spatial index of the geospatial data (optional). The XML file contains the metadata describing the data set <data set name>.shp.xml. An ASCII version of the metadata file. A browse graphic showing the data layer coverage and extent (optional).
+        File_Decompression_Technique: zip archive
+        Transfer_Size: 0.007
+      Digital_Transfer_Option:
+        Online_Option:
+          Computer_Contact_Information:
+            Network_Address:
+              Network_Resource_Name: http://pubs.usgs.gov/of/2006/1008/gis/datazipped/seddata.zip
+              Network_Resource_Name: http://pubs.usgs.gov/of/2006/1008/html/appendix1.html
+              Network_Resource_Name: http://pubs.usgs.gov/of/2006/1008/gis/OFR_2006_1008/shapes/
+          Access_Instructions: Data are downloadable via the World Wide Web (WWW).
+        Offline_Option:
+          Offline_Media: DVD-ROM
+          Recording_Capacity:
+            Recording_Density: 4.75
+            Recording_Density_Units: Gbytes
+          Recording_Format: UDF
+    Fees: None
+  Technical_Prerequisites: These data are available in Environmental Systems Research Institute (ESRI) shapefile format. The user must have ArcGIS® or ArcView® 3.0 or greater software to read and process the data file. In lieu of ArcView or ArcGIS, the user may utilize another GIS application package capable of importing data. A free data viewer, ArcExplorer, capable of displaying the data is available from ESRI at www.esri.com.
+  Available_Time_Period:
+    Time_Period_Information:
+      Single_Date/Time:
+        Calendar_Date: 2004
+Metadata_Reference_Information:
+  Metadata_Date: 20060803
+  Metadata_Contact:
+    Contact_Information:
+      Contact_Person_Primary:
+        Contact_Person: Seth Ackerman
+        Contact_Organization: Massachusetts Office of Coastal Zone Management
+      Contact_Position: Geologist
+      Contact_Address:
+        Address_Type: mailing and physical address
+        Address: c/o U.S. Geological Survey
+        Address: 384 Woods Hole Rd.
+        City: Woods Hole
+        State_or_Province: MA
+        Postal_Code: 02543-1598
+        Country: USA
+      Contact_Voice_Telephone: 508-548-8700 x2315
+      Contact_Facsimile_Telephone: 508-457-2310
+      Contact_Electronic_Mail_Address: seth.ackerman@state.ma.us
+  Metadata_Standard_Name: FGDC Content Standards for Digital Geospatial Metadata
+  Metadata_Standard_Version: FGDC-STD-001-1998
+  Metadata_Time_Convention: local time
+  Metadata_Access_Constraints: None
+  Metadata_Use_Constraints: None
+  Metadata_Extensions:
+    Online_Linkage: http://www.esri.com/metadata/esriprof80.html
+    Profile_Name: ESRI Metadata Profile

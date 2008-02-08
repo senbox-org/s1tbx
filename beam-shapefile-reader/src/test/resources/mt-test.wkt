@@ -1,0 +1,107 @@
+// Use concatenated transform
+CONCAT_MT[
+    // Use affine map to convert feet into meters.
+    PARAM_MT["Affine",
+        PARAMETER["num_row",3],
+        PARAMETER["num_col",3],
+        PARAMETER["elt_0_0",0.3048006096012192],
+        PARAMETER["elt_0_1",0],
+        PARAMETER["elt_0_2",0],
+        PARAMETER["elt_1_0",0],
+        PARAMETER["elt_1_1",0.3048006096012192],
+        PARAMETER["elt_1_2",0],
+        PARAMETER["elt_2_0",0],
+        PARAMETER["elt_2_1",0],
+        PARAMETER["elt_2_2",1]
+    ],
+    // Undo the California state plane projection.
+    INVERSE_MT[
+        // Projection converts metres to (lon,lat).
+        PARAM_MT["Lambert_Conformal_Conic_2SP",
+            PARAMETER["latitude_of_origin",41.66666666666662],
+            PARAMETER["central_meridian",39.99999999999996],
+            PARAMETER["standard_parallel_1",39.3333333333333],
+            PARAMETER["standard_parallel_2",-121.9999999999999],
+            PARAMETER["false_easting",609601.2192024385],
+            PARAMETER["false_northing",0],
+            PARAMETER["semi_major",6378206.4],
+            PARAMETER["semi_minor",6356583.8]
+        ]
+    ],
+    // Use affine map to change (lon,lat) to (lon,lat,0).
+    PARAM_MT["Affine",
+        PARAMETER["num_row",4],
+        PARAMETER["num_col",3],
+        PARAMETER["elt_0_0",0],
+        PARAMETER["elt_0_1",1],
+        PARAMETER["elt_0_2",0],
+        PARAMETER["elt_1_0",1],
+        PARAMETER["elt_1_1",0],
+        PARAMETER["elt_1_2",0],
+        PARAMETER["elt_2_0",0],
+        PARAMETER["elt_2_1",0],
+        PARAMETER["elt_2_2",0],
+        PARAMETER["elt_3_0",0],
+        PARAMETER["elt_3_1",0],
+        PARAMETER["elt_3_2",1]
+    ],
+    // Convert (lon,lat,0) to geocentric (X,Y,Z).
+    PARAM_MT["Ellipsoid_To_Geocentric",
+        PARAMETER["semi_major",6378206.4],
+        PARAMETER["semi_minor",6356583.8]
+    ],
+    // Use affine map for Bursa Wolf transformation.
+    PARAM_MT["Affine",
+        PARAMETER["num_row",4],
+        PARAMETER["num_col",4],
+        PARAMETER["elt_0_0",1],
+        PARAMETER["elt_0_1",0],
+        PARAMETER["elt_0_2",0],
+        PARAMETER["elt_0_3",3],
+        PARAMETER["elt_1_0",0],
+        PARAMETER["elt_1_1",1],
+        PARAMETER["elt_1_2",0],
+        PARAMETER["elt_1_3",-142],
+        PARAMETER["elt_2_0",0],
+        PARAMETER["elt_2_1",0],
+        PARAMETER["elt_2_2",1],
+        PARAMETER["elt_2_3",-183],
+        PARAMETER["elt_3_0",0],
+        PARAMETER["elt_3_1",0],
+        PARAMETER["elt_3_2",0],
+        PARAMETER["elt_3_3",1]
+    ],
+    // Convert (X,Y,Z) to (lon,lat,hgt).
+    PARAM_MT["Geocentric_To_Ellipsoid",
+        PARAMETER["semi_major",6378137],
+        PARAMETER["semi_minor",6356752.314140356]
+    ],
+    // Discard height, converting (lon,lat,hgt) into (lon,lat).
+    PARAM_MT["Affine",
+        PARAMETER["num_row",3],
+        PARAMETER["num_col",4],
+        PARAMETER["elt_0_0",0],
+        PARAMETER["elt_0_1",1],
+        PARAMETER["elt_0_2",0],
+        PARAMETER["elt_0_3",0],
+        PARAMETER["elt_1_0",1],
+        PARAMETER["elt_1_1",0],
+        PARAMETER["elt_1_2",0],
+        PARAMETER["elt_1_3",0],
+        PARAMETER["elt_2_0",0],
+        PARAMETER["elt_2_1",0],
+        PARAMETER["elt_2_2",0],
+        PARAMETER["elt_2_3",1]
+    ],
+    // Reapply state plane projection.
+    PARAM_MT["Lambert_Conformal_Conic_2SP",
+        PARAMETER["latitude_of_origin",41.66666666666662],
+        PARAMETER["central_meridian",39.99999999999996],
+        PARAMETER["standard_parallel_1",39.3333333333333],
+        PARAMETER["standard_parallel_2",-121.9999999999999],
+        PARAMETER["false_easting",2000000],
+        PARAMETER["false_northing",500000],
+        PARAMETER["semi_major",6378137],
+        PARAMETER["semi_minor",6356752.314140356]
+    ]
+]
