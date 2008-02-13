@@ -416,7 +416,7 @@ class GeoCodingPanel extends TextPagePanel {
                     sb.append("\n");
                 }
 
-                final String yCCode = fX.createCFunctionCode("compute_y", "lat", "lon");
+                final String yCCode = fY.createCFunctionCode("compute_y", "lat", "lon");
                 if (yCCode != null) {
                     sb.append("\n");
                     sb.append(yCCode);

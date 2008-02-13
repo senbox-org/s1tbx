@@ -12,6 +12,7 @@
     <changelog>
         <![CDATA[
         Changes in 4.2<br>
+        [BEAM-787] C-Function code for x approximation is printed twice<br>
         [BEAM-735] Not able to orthorectify MERIS_FRS products<br>
         [BEAM-734] VISAT tile cache capacity cannot be changed<br>
         [BEAM-730] Export of pixel data shall include auxdata<br>
