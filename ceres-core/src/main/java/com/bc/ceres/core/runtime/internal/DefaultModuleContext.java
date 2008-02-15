@@ -2,12 +2,12 @@ package com.bc.ceres.core.runtime.internal;
 
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.ExtensionManager;
 import com.bc.ceres.core.runtime.Module;
 import com.bc.ceres.core.runtime.ModuleContext;
 import com.bc.ceres.core.runtime.RuntimeConfig;
 import com.bc.ceres.core.runtime.ProxyConfig;
 
-import java.net.Proxy;
 import java.net.URL;
 import java.util.logging.Logger;
 
@@ -17,6 +17,10 @@ public class DefaultModuleContext implements ModuleContext {
 
     public DefaultModuleContext(ModuleImpl module) {
         this.module = module;
+    }
+
+    public <E> E getExtension(Class<E> extensionType) {
+        return ExtensionManager.getInstance().getExtension(this, extensionType);
     }
 
     public RuntimeConfig getRuntimeConfig() {

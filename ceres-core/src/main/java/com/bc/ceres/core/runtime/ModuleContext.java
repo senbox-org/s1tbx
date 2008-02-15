@@ -2,6 +2,7 @@ package com.bc.ceres.core.runtime;
 
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.Extendible;
 
 import java.net.Proxy;
 import java.net.URL;
@@ -12,7 +13,7 @@ import java.util.logging.Logger;
  * <p/>
  * This interface is not intended to be implemented by clients.</p>
  */
-public interface ModuleContext {
+public interface ModuleContext extends Extendible {
     /**
      * Gets the Ceres runtime configuration.
      * @return the Ceres runtime configuration.

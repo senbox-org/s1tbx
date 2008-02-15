@@ -1,9 +1,6 @@
 package com.bc.ceres.core.runtime.internal;
 
-import com.bc.ceres.core.Assert;
-import com.bc.ceres.core.CoreException;
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
+import com.bc.ceres.core.*;
 import static com.bc.ceres.core.runtime.Constants.SYSTEM_MODULE_NAME;
 import com.bc.ceres.core.runtime.*;
 
@@ -42,6 +39,10 @@ public class RuntimeImpl implements ModuleRuntime {
         this.config = config;
         this.commandLineArgs = commandLineArgs;
         this.progressMonitor = progressMonitor;
+    }
+
+    public <E> E getExtension(Class<E> extensionType) {
+        return ExtensionManager.getInstance().getExtension(this, extensionType);
     }
 
     public RuntimeConfig getRuntimeConfig() {

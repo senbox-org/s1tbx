@@ -22,7 +22,7 @@ public abstract class ExtensionManager {
 
     public abstract <T> List<ExtensionFactory<T>> getExtensionFactories(Class<T> extendibleType);
 
-    public <ET, T> ET getExtension(T extendibleObject, Class<ET> extensionType) {
+    public <E, T> E getExtension(T extendibleObject, Class<E> extensionType) {
         Assert.notNull(extendibleObject, "extendibleObject");
         Assert.notNull(extensionType, "extensionType");
         final Class<T> extendibleType = (Class<T>) extendibleObject.getClass();
@@ -33,7 +33,7 @@ public abstract class ExtensionManager {
         return null;
     }
 
-    public <T, ET> ExtensionFactory<T> findFactory(Class<T> extendibleType, Class<ET> extensionType) {
+    public <T, E> ExtensionFactory<T> findFactory(Class<T> extendibleType, Class<E> extensionType) {
         Assert.notNull(extendibleType, "extendibleType");
         Assert.notNull(extensionType, "extensionType");
         final List<ExtensionFactory<T>> factoryList = getExtensionFactories(extendibleType);
