@@ -13,6 +13,7 @@
         -->
         <![CDATA[
         Changes in 0.7<br>
+        [CERES-025] Add support for extension objects
         [CERES-024] Splash screen shall not be top-most<br>
         [CERES-020] Runtime does not consider version-controlled dependencies<br>
         [CERES-007] Use Version class in Module interface<br>
