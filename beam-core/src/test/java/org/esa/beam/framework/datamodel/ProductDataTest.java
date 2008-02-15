@@ -25,6 +25,18 @@ public class ProductDataTest extends TestCase {
         super(name);
     }
 
+    public void testPrimitiveArrayFactoryMethods() {
+        assertTrue(ProductData.createInstance(new byte[1]) instanceof ProductData.Byte);
+        assertTrue(ProductData.createUnsignedInstance(new byte[1]) instanceof ProductData.UByte);
+        assertTrue(ProductData.createInstance(new short[1]) instanceof ProductData.Short);
+        assertTrue(ProductData.createUnsignedInstance(new short[1]) instanceof ProductData.UShort);
+        assertTrue(ProductData.createInstance(new int[1]) instanceof ProductData.Int);
+        assertTrue(ProductData.createUnsignedInstance(new int[1]) instanceof ProductData.UInt);
+        assertTrue(ProductData.createInstance(new long[1]) instanceof ProductData.UInt);
+        assertTrue(ProductData.createInstance(new float[1]) instanceof ProductData.Float);
+        assertTrue(ProductData.createInstance(new double[1]) instanceof ProductData.Double);
+    }
+
     public void testGetElemSizeInBytes() {
         assertEquals(1, ProductData.getElemSize(ProductData.TYPE_ASCII));
         assertEquals(4, ProductData.getElemSize(ProductData.TYPE_FLOAT32));

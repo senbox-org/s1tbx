@@ -256,6 +256,42 @@ public abstract class ProductData implements Cloneable {
         }
     }
 
+    public static ProductData createInstance(byte[] elems) {
+        Guardian.assertNotNull("elems", elems);
+        return new ProductData.Byte(elems);
+    }
+
+    public static ProductData createUnsignedInstance(byte[] elems) {
+        Guardian.assertNotNull("elems", elems);
+        return new ProductData.UByte(elems);
+    }
+
+    public static ProductData createInstance(short[] elems) {
+        Guardian.assertNotNull("elems", elems);
+        return new ProductData.Short(elems);
+    }
+
+    public static ProductData createUnsignedInstance(short[] elems) {
+        Guardian.assertNotNull("elems", elems);
+        return new ProductData.UShort(elems);
+    }
+
+    public static ProductData createInstance(int[] elems) {
+        Guardian.assertNotNull("elems", elems);
+        return new ProductData.Int(elems);
+    }
+
+    public static ProductData createUnsignedInstance(int[] elems) {
+        Guardian.assertNotNull("elems", elems);
+        return new ProductData.UInt(elems);
+    }
+
+    @Deprecated
+    public static ProductData createInstance(long[] elems) {
+        Guardian.assertNotNull("elems", elems);
+        return new ProductData.UInt(elems);
+    }
+
     public static ProductData createInstance(String strData) {
         Guardian.assertNotNull("strData", strData);
         return new ProductData.ASCII(strData);
@@ -269,21 +305,6 @@ public abstract class ProductData implements Cloneable {
     public static ProductData createInstance(double[] elems) {
         Guardian.assertNotNull("elems", elems);
         return new ProductData.Double(elems);
-    }
-
-    public static ProductData createInstance(short[] elems) {
-        Guardian.assertNotNull("elems", elems);
-        return new ProductData.Short(elems);
-    }
-
-    public static ProductData createInstance(int[] elems) {
-        Guardian.assertNotNull("elems", elems);
-        return new ProductData.Int(elems);
-    }
-
-    public static ProductData createInstance(long[] elems) {
-        Guardian.assertNotNull("elems", elems);
-        return new ProductData.UInt(elems);
     }
 
     /**
@@ -939,7 +960,7 @@ public abstract class ProductData implements Cloneable {
          *
          * @param numElems the number of elements, must not be less than one
          */
-        protected Byte(int numElems) {
+        public Byte(int numElems) {
             this(numElems, false);
         }
 
@@ -958,7 +979,7 @@ public abstract class ProductData implements Cloneable {
          *
          * @param array the elements
          */
-        protected Byte(byte[] array) {
+        public Byte(byte[] array) {
             this(array, false);
         }
 
@@ -1172,7 +1193,7 @@ public abstract class ProductData implements Cloneable {
          *
          * @param numElems the number of elements, must not be less than one
          */
-        protected UByte(int numElems) {
+        public UByte(int numElems) {
             super(numElems, true);
         }
 
@@ -1181,7 +1202,7 @@ public abstract class ProductData implements Cloneable {
          *
          * @param array the elements
          */
-        protected UByte(byte[] array) {
+        public UByte(byte[] array) {
             super(array, true);
         }
 
@@ -1283,7 +1304,7 @@ public abstract class ProductData implements Cloneable {
          *
          * @param numElems the number of elements, must not be less than one
          */
-        protected Short(int numElems) {
+        public Short(int numElems) {
             this(numElems, false);
         }
 
@@ -1302,7 +1323,7 @@ public abstract class ProductData implements Cloneable {
          *
          * @param array the elements
          */
-        protected Short(short[] array) {
+        public Short(short[] array) {
             this(array, false);
         }
 
@@ -1510,7 +1531,7 @@ public abstract class ProductData implements Cloneable {
          *
          * @param numElems the number of elements, must not be less than one
          */
-        protected UShort(int numElems) {
+        public UShort(int numElems) {
             super(numElems, true);
         }
 
@@ -1519,7 +1540,7 @@ public abstract class ProductData implements Cloneable {
          *
          * @param array the elements
          */
-        protected UShort(short[] array) {
+        public UShort(short[] array) {
             super(array, true);
         }
 
@@ -1620,7 +1641,7 @@ public abstract class ProductData implements Cloneable {
          *
          * @param numElems the number of elements, must not be less than one
          */
-        protected Int(int numElems) {
+        public Int(int numElems) {
             this(numElems, false);
         }
 
@@ -1639,7 +1660,7 @@ public abstract class ProductData implements Cloneable {
          *
          * @param array the elements
          */
-        protected Int(int[] array) {
+        public Int(int[] array) {
             this(array, false);
         }
 
@@ -1848,7 +1869,7 @@ public abstract class ProductData implements Cloneable {
          *
          * @param numElems the number of elements, must not be less than one
          */
-        protected UInt(int numElems) {
+        public UInt(int numElems) {
             super(numElems, true);
         }
 
@@ -1857,7 +1878,7 @@ public abstract class ProductData implements Cloneable {
          *
          * @param array the elements
          */
-        protected UInt(int[] array) {
+        public UInt(int[] array) {
             super(array, true);
         }
 
@@ -1975,7 +1996,7 @@ public abstract class ProductData implements Cloneable {
          *
          * @param array the array reference
          */
-        protected Float(float[] array) {
+        public Float(float[] array) {
             super(TYPE_FLOAT32);
             _array = array;
         }
@@ -1985,7 +2006,7 @@ public abstract class ProductData implements Cloneable {
          *
          * @param numElems the number of elements, must not be less than one
          */
-        protected Float(int numElems) {
+        public Float(int numElems) {
             super(TYPE_FLOAT32);
             _array = new float[numElems];
         }
@@ -2193,7 +2214,7 @@ public abstract class ProductData implements Cloneable {
          *
          * @param array the array reference
          */
-        protected Double(double[] array) {
+        public Double(double[] array) {
             super(TYPE_FLOAT64);
             _array = array;
         }
@@ -2203,7 +2224,7 @@ public abstract class ProductData implements Cloneable {
          *
          * @param numElems the number of elements, must not be less than one
          */
-        protected Double(int numElems) {
+        public Double(int numElems) {
             super(TYPE_FLOAT64);
             _array = new double[numElems];
         }
@@ -2390,7 +2411,7 @@ public abstract class ProductData implements Cloneable {
          *
          * @param length the ASCII string length
          */
-        protected ASCII(int length) {
+        public ASCII(int length) {
             super(length);
         }
 
@@ -2505,7 +2526,7 @@ public abstract class ProductData implements Cloneable {
         /**
          * Constructs a new <code>UTC</code> value.
          */
-        protected UTC() {
+        public UTC() {
             super(3);
         }
 
@@ -2514,7 +2535,7 @@ public abstract class ProductData implements Cloneable {
          *
          * @param elems an array containg at least the three elements <code>{days, seconds, microSeconds}</code>
          */
-        protected UTC(int[] elems) {
+        public UTC(int[] elems) {
             this(elems[0], elems[1], elems[2]);
         }
 
