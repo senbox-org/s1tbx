@@ -102,4 +102,13 @@ public class ValueContainer {
     public ValueDescriptor getValueDescriptor(String propertyName) {
         return getModel(propertyName).getDescriptor();
     }
+
+    public void setDefaultValues() throws ValidationException {
+        for (final ValueModel model : getModels()) {
+            final ValueDescriptor descriptor = model.getDescriptor();
+            if (descriptor.getDefaultValue() != null) {
+                model.setValue(descriptor.getDefaultValue());
+            }
+        }
+    }
 }

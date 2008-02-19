@@ -18,11 +18,6 @@ public class ValueModel {
     public ValueModel(ValueDescriptor descriptor, ValueAccessor accessor) {
         this.descriptor = descriptor;
         this.accessor = accessor;
-        try {
-            initializeValue();
-        } catch (ValidationException e) {
-            throw new IllegalArgumentException(e);
-        }
     }
 
     public ValueDescriptor getDescriptor() {
@@ -92,35 +87,4 @@ public class ValueModel {
         container.getPropertyChangeSupport().removePropertyChangeListener(descriptor.getName(), l);
     }
 
-
-    private void initializeValue() throws ValidationException {
-        // todo - use descriptor.isDefaultValueSet() to check, if true, always set any default value incl. null
-        if (descriptor.getDefaultValue() != null) {
-            setValue(descriptor.getDefaultValue());
-        } else {
-            // primitive types shall have initial values in all kinds of value model
-            final Class<?> type = descriptor.getType();
-            if (getValue() == null && type.isPrimitive()) {
-                if (type.equals(Boolean.TYPE)) {
-                    setValue(false);
-                } else if (type.equals(Character.TYPE)) {
-                    setValue((char) 0);
-                } else if (type.equals(Byte.TYPE)) {
-                    setValue((byte) 0);
-                } else if (type.equals(Short.TYPE)) {
-                    setValue((short) 0);
-                } else if (type.equals(Integer.TYPE)) {
-                    setValue(0);
-                } else if (type.equals(Long.TYPE)) {
-                    setValue((long) 0);
-                } else if (type.equals(Float.TYPE)) {
-                    setValue((float) 0);
-                } else if (type.equals(Double.TYPE)) {
-                    setValue((double) 0);
-                } else {
-                    // todo - warn: new primitive Java type since 1.6?
-                }
-            }
-        }
-    }
 }

@@ -224,7 +224,7 @@ public class SwingBindingContext {
                 Class<?> type = valueDescriptor.getType();
 
                 if (Number.class.isAssignableFrom(type)) {
-                    Number defaultValue = (Number) valueDescriptor.getDefaultValue();
+                    Number defaultValue = (Number) valueDescriptor.getDefaultValue(); // todo - why not the current value? (mp,nf - 18.02.2008)
                     double min = valueDescriptor.getValueRange().getMin();
                     double max = valueDescriptor.getValueRange().getMax();
                     // todo - get step size from interval

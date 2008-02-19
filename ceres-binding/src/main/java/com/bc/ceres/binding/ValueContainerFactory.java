@@ -7,7 +7,6 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.Map.Entry;
 
-// todo - rename to ValueContainerFactory
 
 /**
  * A factory for {@link ValueContainer}s
@@ -36,41 +35,52 @@ public class ValueContainerFactory {
         return valueDescriptorFactory;
     }
 
-    public ValueContainer createObjectBackedValueContainer(Object object) {
-        Class<?> type = object.getClass();
-        Field[] declaredFields = type.getDeclaredFields();
-        ValueContainer vc = new ValueContainer();
-        for (Field field : declaredFields) {
-            final ValueDescriptor valueDescriptor = createValueDescriptor(field);
-            if (valueDescriptor != null) {
-                vc.addModel(new ValueModel(valueDescriptor, new ClassFieldAccessor(object, field)));
-            }
-        }
-        return vc;
+    private interface ValueAccessorFactory {
+        ValueAccessor create(Field field);
     }
 
-    public ValueContainer createValueBackedValueContainer(Class<?> type) {
-        Field[] declaredFields = type.getDeclaredFields();
-        ValueContainer vc = new ValueContainer();
-        for (Field field : declaredFields) {
-            final ValueDescriptor valueDescriptor = createValueDescriptor(field);
-            if (valueDescriptor != null) {
-                vc.addModel(new ValueModel(valueDescriptor, new DefaultValueAccessor()));
-            }
+    private class ObjectBackedValueAccessorFactory implements ValueAccessorFactory{
+        private Object object;
+
+        private ObjectBackedValueAccessorFactory(Object object) {
+            this.object = object;
         }
-        return vc;
+
+        public ValueAccessor create(Field field) {
+            return new ClassFieldAccessor(object, field);
+        }
     }
 
-    public ValueContainer createMapBackedValueContainer(Class<?> type, Map<String, Object> map) {
-        Field[] declaredFields = type.getDeclaredFields();
-        ValueContainer vc = new ValueContainer();
-        for (Field field : declaredFields) {
-            final ValueDescriptor valueDescriptor = createValueDescriptor(field);
-            if (valueDescriptor != null) {
-                vc.addModel(new ValueModel(valueDescriptor, new MapEntryAccessor(map, field.getName())));
-            }
+    private class MapBackedValueAccessorFactory implements ValueAccessorFactory{
+        private Map<String, Object> map;
+
+        private MapBackedValueAccessorFactory(Map<String, Object> map) {
+            this.map = map;
         }
-        return vc;
+
+        public ValueAccessor create(Field field) {
+            return new  MapEntryAccessor(map, field.getName(), field.getType());
+        }
+    }
+
+    private class ValueBackedValueAccessorFactory implements ValueAccessorFactory{
+
+        public ValueAccessor create(Field field) {
+            return new DefaultValueAccessor(field.getType());
+        }
+    }
+
+    public ValueContainer createObjectBackedValueContainer(Object wrappedObject) {
+        return x(wrappedObject.getClass(), new ObjectBackedValueAccessorFactory(wrappedObject));
+    }
+
+    public ValueContainer createValueBackedValueContainer(Class<?> templateType) {
+        return x(templateType, new ValueBackedValueAccessorFactory());
+    }
+
+
+    public ValueContainer createMapBackedValueContainer(Class<?> templateType, Map<String, Object> map) {
+        return x(templateType, new MapBackedValueAccessorFactory(map));
     }
 
     public static ValueContainer createMapBackedValueContainer(Map<String, Object> map) {
@@ -78,7 +88,8 @@ public class ValueContainerFactory {
         for (Entry<String, Object> entry : map.entrySet()) {
             String name = entry.getKey();
             Object value = entry.getValue();
-            vc.addModel(new ValueModel(createValueDescriptor(name, value), new MapEntryAccessor(map, name)));
+            vc.addModel(new ValueModel(createValueDescriptor(name, value.getClass()),
+                                       new MapEntryAccessor(map, name, value.getClass())));
         }
         return vc;
     }
@@ -92,9 +103,8 @@ public class ValueContainerFactory {
         return valueDescriptor;
     }
 
-    private static ValueDescriptor createValueDescriptor(String name, Object value) {
-        final ValueDescriptor valueDescriptor = new ValueDescriptor(name, value.getClass());
-        valueDescriptor.setDefaultValue(value);
+    private static ValueDescriptor createValueDescriptor(String name, Class<? extends Object> type) {
+        final ValueDescriptor valueDescriptor = new ValueDescriptor(name, type);
         initValueDescriptor(valueDescriptor);
         return valueDescriptor;
     }
@@ -110,6 +120,8 @@ public class ValueContainerFactory {
 
     private static Validator createValidator(ValueDescriptor vd) {
         List<Validator> validators = new ArrayList<Validator>(3);
+
+        validators.add(new TypeValidator());
 
         if (vd.isNotNull()) {
             validators.add(new NotNullValidator());
@@ -138,5 +150,24 @@ public class ValueContainerFactory {
             validator = new MultiValidator(validators);
         }
         return validator;
+    }
+
+    private ValueContainer x(Class<?> type, ValueAccessorFactory valueAccessorFactory) {
+        ValueContainer vc = new ValueContainer();
+        collect(vc, type, valueAccessorFactory);
+        return vc;
+    }
+
+    private void collect(ValueContainer vc, Class<?> type, ValueAccessorFactory valueAccessorFactory) {
+        if (!type.equals(Object.class)) {
+            collect(vc, type.getSuperclass(), valueAccessorFactory);
+            Field[] declaredFields = type.getDeclaredFields();
+            for (Field field : declaredFields) {
+                final ValueDescriptor valueDescriptor = createValueDescriptor(field);
+                if (valueDescriptor != null) {
+                    vc.addModel(new ValueModel(valueDescriptor, valueAccessorFactory.create(field)));
+                }
+            }
+        }
     }
 }

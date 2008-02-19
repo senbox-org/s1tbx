@@ -5,6 +5,8 @@ import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.ValueRange;
 
+import java.text.MessageFormat;
+
 public class IntervalValidator implements Validator {
     private final ValueRange valueRange;
 
@@ -15,7 +17,9 @@ public class IntervalValidator implements Validator {
     public void validateValue(ValueModel valueModel, Object value) throws ValidationException {
         if (value instanceof Number) {
             if (!valueRange.contains(((Number) value).doubleValue())) {
-                throw new ValidationException("Value for '" + valueModel.getDescriptor().getDisplayName() + "' is out of range '" + valueRange + "'.");
+                throw new ValidationException(MessageFormat.format("Value for ''{0}'' is out of range ''{1}''.", 
+                                                                   valueModel.getDescriptor().getDisplayName(),
+                                                                   valueRange));
             }
         }
     }

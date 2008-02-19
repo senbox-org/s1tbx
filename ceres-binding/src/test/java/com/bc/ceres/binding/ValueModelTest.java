@@ -23,110 +23,107 @@ public class ValueModelTest extends TestCase {
 
     public void testValueBackedValueContainer() throws ValidationException {
         ValueContainer vc = valueContainerFactory.createValueBackedValueContainer(Pojo.class);
-
-        ValueModel nameModel = vc.getModel("name");
-        assertNotNull(nameModel);
-        nameModel.setValue("Bert");
-        assertEquals("Bert", vc.getModel("name").getValue());
-
         MyPropertyChangeListener pcl = new MyPropertyChangeListener();
-        nameModel.addPropertyChangeListener(pcl);
+        vc.addPropertyChangeListener(pcl);
 
-        nameModel.setValue("Ernie");
-        assertEquals("Ernie", vc.getModel("name").getValue());
-        assertEquals("name", pcl.evt.getPropertyName());
-        assertEquals("Bert", pcl.evt.getOldValue());
-        assertEquals("Ernie", pcl.evt.getNewValue());
-
-        ValueModel ageModel = vc.getModel("age");
-        ageModel.setValue(16);
-        assertEquals(16, vc.getModel("age").getValue());
-
-        ValueModel weightModel = vc.getModel("weight");
-        weightModel.setValue(72.9);
-        assertEquals(72.9, vc.getModel("weight").getValue());
+        testValueContainerModels(vc);
+        
+        assertEquals("(name:null-->Ernie)(age:0-->16)(weight:0.0-->72.9)(code:" + '\0' + "-->#)", pcl.trace);
     }
 
     public void testMapBackedValueContainer() throws ValidationException {
         final HashMap<String, Object> map = new HashMap<String, Object>();
         ValueContainer vc = valueContainerFactory.createMapBackedValueContainer(Pojo.class, map);
-
-        ValueModel nameModel = vc.getModel("name");
-        assertNotNull(nameModel);
-        nameModel.setValue("Bert");
-        assertEquals("Bert", vc.getModel("name").getValue());
-        assertEquals("Bert", map.get("name"));
-
         MyPropertyChangeListener pcl = new MyPropertyChangeListener();
-        nameModel.addPropertyChangeListener(pcl);
+        vc.addPropertyChangeListener(pcl);
 
-        nameModel.setValue("Ernie");
-        assertEquals("Ernie", vc.getModel("name").getValue());
+        testValueContainerModels(vc);
+
+        assertEquals("(name:null-->Ernie)(age:0-->16)(weight:0.0-->72.9)(code:" + '\0' + "-->#)", pcl.trace);
+        assertEquals('#', map.get("code"));
         assertEquals("Ernie", map.get("name"));
-        assertEquals("name", pcl.evt.getPropertyName());
-        assertEquals("Bert", pcl.evt.getOldValue());
-        assertEquals("Ernie", pcl.evt.getNewValue());
-
-        ValueModel ageModel = vc.getModel("age");
-        ageModel.setValue(16);
-        assertEquals(16, vc.getModel("age").getValue());
         assertEquals(16, map.get("age"));
-
-        ValueModel weightModel = vc.getModel("weight");
-        weightModel.setValue(72.9);
-        assertEquals(72.9, vc.getModel("weight").getValue());
         assertEquals(72.9, map.get("weight"));
     }
 
     public void testObjectBackedValueContainer() throws ValidationException {
         Pojo pojo = new Pojo();
         ValueContainer vc = valueContainerFactory.createObjectBackedValueContainer(pojo);
-
-        ValueModel nameModel = vc.getModel("name");
-        assertNotNull(nameModel);
-        nameModel.setValue("Bert");
-        assertEquals("Bert", pojo.name);
-
-        pojo.name = "Bibo";
-        assertEquals("Bibo", nameModel.getValue());
-
         MyPropertyChangeListener pcl = new MyPropertyChangeListener();
-        nameModel.addPropertyChangeListener(pcl);
+        vc.addPropertyChangeListener(pcl);
 
-        nameModel.setValue("Ernie");
+        testValueContainerModels(vc);
+
+        assertEquals("(name:Hermann-->Ernie)(age:59-->16)(weight:82.5-->72.9)(code:X-->#)", pcl.trace);
+        assertEquals('#', pojo.code);
         assertEquals("Ernie", pojo.name);
-        assertEquals("name", pcl.evt.getPropertyName());
-        assertEquals("Bibo", pcl.evt.getOldValue());
-        assertEquals("Ernie", pcl.evt.getNewValue());
-
-        ValueModel ageModel = vc.getModel("age");
-        ageModel.setValue(16);
-        assertEquals(16, vc.getModel("age").getValue());
         assertEquals(16, pojo.age);
-
-        ValueModel weightModel = vc.getModel("weight");
-        weightModel.setValue(72.9);
-        assertEquals(72.9, vc.getModel("weight").getValue());
         assertEquals(72.9, pojo.weight);
     }
 
-    public void testInitialValues() {
+    private void testValueContainerModels(ValueContainer vc) throws ValidationException {
+
+        final ValueModel nameModel = vc.getModel("name");
+        assertNotNull(nameModel);
+        nameModel.setValue("Ernie");
+        assertEquals("Ernie", nameModel.getValue());
+        try {
+            nameModel.setValue(3);
+            fail("ValidationException expected");
+        } catch (ValidationException e) {
+        }
+
+        final ValueModel ageModel = vc.getModel("age");
+        assertNotNull(ageModel);
+        ageModel.setValue(16);
+        assertEquals(16, ageModel.getValue());
+        try {
+            ageModel.setValue("");
+            fail("ValidationException expected");
+        } catch (ValidationException e) {
+        }
+
+        final ValueModel weightModel = vc.getModel("weight");
+        assertNotNull(weightModel);
+        weightModel.setValue(72.9);
+        assertEquals(72.9, weightModel.getValue());
+        try {
+            weightModel.setValue("");
+            fail("ValidationException expected");
+        } catch (ValidationException e) {
+        }
+
+        final ValueModel codeModel = vc.getModel("code");
+        assertNotNull(codeModel);
+        codeModel.setValue('#');
+        assertEquals('#', codeModel.getValue());
+        try {
+            codeModel.setValue(2.5);
+            fail("ValidationException expected");
+        } catch (ValidationException e) {
+        }
+
+        final ValueModel unknownModel = vc.getModel("unknown");
+        assertNull(unknownModel);
     }
 
-    public void testDefaultValues() {
+    public void testDefaultValues() throws ValidationException {
         ValueContainerFactory vcFactory = new ValueContainerFactory(new ValueDescriptorFactory() {
             public ValueDescriptor createValueDescriptor(Field field) {
                 ValueDescriptor descriptor = new ValueDescriptor(field.getName(), field.getType());
                 if (!field.getName().endsWith("NoDefault")) {
                     if (field.getType().equals(String.class)) {
                         descriptor.setConverter(new StringConverter());
-                        descriptor.setDefaultValue("It's a string.");
+                        descriptor.setDefaultValue("Kurt");
+                    } else if (field.getType().equals(char.class)) {
+                        descriptor.setConverter(new IntegerConverter());
+                        descriptor.setDefaultValue('Y');
                     } else if (field.getType().equals(int.class)) {
                         descriptor.setConverter(new IntegerConverter());
                         descriptor.setDefaultValue(42);
                     } else if (field.getType().equals(double.class)) {
                         descriptor.setConverter(new DoubleConverter());
-                        descriptor.setDefaultValue(3.67);
+                        descriptor.setDefaultValue(90.0);
                     } else {
                         fail("Test is not prepared for " + field.getType() + " types.");
                     }
@@ -135,37 +132,76 @@ public class ValueModelTest extends TestCase {
             }
         });
 
-        ValueContainer container = vcFactory.createValueBackedValueContainer(Pojo.class);
-        assertEquals("It's a string.", container.getValue("name"));
-        assertEquals(42, container.getValue("age"));
-        assertEquals(3.67, container.getValue("weight"));
-        assertEquals(null, container.getValue("nameNoDefault"));
-        assertEquals(0, container.getValue("ageNoDefault"));
-        assertEquals(0.0, container.getValue("weightNoDefault"));
+        ValueContainer container;
+
+        container = vcFactory.createObjectBackedValueContainer(new Pojo());
+        testCurrentValuesUsed(container);
+        container.setDefaultValues();
+        testDefaultValuesUsed(container);
+
+        container = vcFactory.createValueBackedValueContainer(Pojo.class);
+        testInitialValuesUsed(container);
+        container.setDefaultValues();
+        testDefaultValuesUsed(container);
 
         HashMap<String, Object> map = new HashMap<String, Object>(5);
         container = vcFactory.createMapBackedValueContainer(Pojo.class, map);
-        assertEquals("It's a string.", container.getValue("name"));
-        assertEquals(42, container.getValue("age"));
-        assertEquals(3.67, container.getValue("weight"));
-        assertEquals(null, container.getValue("nameNoDefault"));
-        assertEquals(0, container.getValue("ageNoDefault"));
-        assertEquals(0.0, container.getValue("weightNoDefault"));
+        testInitialValuesUsed(container);
+        container.setDefaultValues();
+        testDefaultValuesUsed(container);
 
-        container = vcFactory.createObjectBackedValueContainer(new Pojo());
-        assertEquals("It's a string.", container.getValue("name"));
+        map.clear();
+        map.put("code", 'X');
+        map.put("name", "Hermann");
+        map.put("age", 59);
+        map.put("weight", 82.5);
+        container = vcFactory.createMapBackedValueContainer(Pojo.class, map);
+        testCurrentValuesUsed(container);
+        container.setDefaultValues();
+        testDefaultValuesUsed(container);
+    }
+
+    private void testInitialValuesUsed(ValueContainer container) {
+        assertEquals('\0', container.getValue("code"));
+        assertEquals(null, container.getValue("name"));
+        assertEquals(0, container.getValue("age"));
+        assertEquals(0.0, container.getValue("weight"));
+        testUnhandledValues(container);
+    }
+
+    private void testCurrentValuesUsed(ValueContainer container) {
+        assertEquals('X', container.getValue("code"));
+        assertEquals("Hermann", container.getValue("name"));
+        assertEquals(59, container.getValue("age"));
+        assertEquals(82.5, container.getValue("weight"));
+        testUnhandledValues(container);
+    }
+
+    private void testDefaultValuesUsed(ValueContainer container) {
+        assertEquals('Y', container.getValue("code"));
+        assertEquals("Kurt", container.getValue("name"));
         assertEquals(42, container.getValue("age"));
-        assertEquals(3.67, container.getValue("weight"));
+        assertEquals(90.0, container.getValue("weight"));
+        testUnhandledValues(container);
+    }
+
+    private void testUnhandledValues(ValueContainer container) {
+        assertEquals('\0', container.getValue("codeNoDefault"));
         assertEquals(null, container.getValue("nameNoDefault"));
         assertEquals(0, container.getValue("ageNoDefault"));
         assertEquals(0.0, container.getValue("weightNoDefault"));
     }
 
-    static class Pojo {
+    static class PojoBase {
+        char code = 'X';
+        char codeNoDefault;
+    }
 
-        String name;
-        int age;
-        double weight;
+    static class Pojo extends PojoBase {
+
+        String name = "Hermann";
+        int age = 59;
+        double weight = 82.5;
 
         String nameNoDefault;
         int ageNoDefault;
@@ -174,10 +210,10 @@ public class ValueModelTest extends TestCase {
 
     private static class MyPropertyChangeListener implements PropertyChangeListener {
 
-        PropertyChangeEvent evt;
+        String trace = "";
 
         public void propertyChange(PropertyChangeEvent evt) {
-            this.evt = evt;
+            trace += "(" + evt.getPropertyName() + ":" + evt.getOldValue() + "-->" + evt.getNewValue() + ")";
         }
     }
 }
