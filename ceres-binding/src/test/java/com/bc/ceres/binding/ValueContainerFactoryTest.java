@@ -11,7 +11,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 
 
-public class ValueModelTest extends TestCase {
+public class ValueContainerFactoryTest extends TestCase {
 
     private ValueContainerFactory valueContainerFactory;
 
@@ -23,6 +23,7 @@ public class ValueModelTest extends TestCase {
 
     public void testValueBackedValueContainer() throws ValidationException {
         ValueContainer vc = valueContainerFactory.createValueBackedValueContainer(Pojo.class);
+
         MyPropertyChangeListener pcl = new MyPropertyChangeListener();
         vc.addPropertyChangeListener(pcl);
 
@@ -34,6 +35,8 @@ public class ValueModelTest extends TestCase {
     public void testMapBackedValueContainer() throws ValidationException {
         final HashMap<String, Object> map = new HashMap<String, Object>();
         ValueContainer vc = valueContainerFactory.createMapBackedValueContainer(Pojo.class, map);
+        assertEquals(0, map.size());
+
         MyPropertyChangeListener pcl = new MyPropertyChangeListener();
         vc.addPropertyChangeListener(pcl);
 
@@ -108,29 +111,7 @@ public class ValueModelTest extends TestCase {
     }
 
     public void testDefaultValues() throws ValidationException {
-        ValueContainerFactory vcFactory = new ValueContainerFactory(new ValueDescriptorFactory() {
-            public ValueDescriptor createValueDescriptor(Field field) {
-                ValueDescriptor descriptor = new ValueDescriptor(field.getName(), field.getType());
-                if (!field.getName().endsWith("NoDefault")) {
-                    if (field.getType().equals(String.class)) {
-                        descriptor.setConverter(new StringConverter());
-                        descriptor.setDefaultValue("Kurt");
-                    } else if (field.getType().equals(char.class)) {
-                        descriptor.setConverter(new IntegerConverter());
-                        descriptor.setDefaultValue('Y');
-                    } else if (field.getType().equals(int.class)) {
-                        descriptor.setConverter(new IntegerConverter());
-                        descriptor.setDefaultValue(42);
-                    } else if (field.getType().equals(double.class)) {
-                        descriptor.setConverter(new DoubleConverter());
-                        descriptor.setDefaultValue(90.0);
-                    } else {
-                        fail("Test is not prepared for " + field.getType() + " types.");
-                    }
-                }
-                return descriptor;
-            }
-        });
+        ValueContainerFactory vcFactory = new ValueContainerFactory(new MyValueDescriptorFactory());
 
         ValueContainer container;
 
@@ -146,8 +127,10 @@ public class ValueModelTest extends TestCase {
 
         HashMap<String, Object> map = new HashMap<String, Object>(5);
         container = vcFactory.createMapBackedValueContainer(Pojo.class, map);
+        assertEquals(0, map.size());
         testInitialValuesUsed(container);
         container.setDefaultValues();
+        assertEquals(4, map.size()); // 4 default values set
         testDefaultValuesUsed(container);
 
         map = new HashMap<String, Object>(5);
@@ -156,8 +139,10 @@ public class ValueModelTest extends TestCase {
         map.put("age", 59);
         map.put("weight", 82.5);
         container = vcFactory.createMapBackedValueContainer(Pojo.class, map);
+        assertEquals(4, map.size());
         testCurrentValuesUsed(container);
         container.setDefaultValues();
+        assertEquals(4, map.size()); // no change in size, 4 default values set
         testDefaultValuesUsed(container);
     }
 
@@ -214,6 +199,30 @@ public class ValueModelTest extends TestCase {
 
         public void propertyChange(PropertyChangeEvent evt) {
             trace += "(" + evt.getPropertyName() + ":" + evt.getOldValue() + "-->" + evt.getNewValue() + ")";
+        }
+    }
+
+    private static class MyValueDescriptorFactory implements ValueDescriptorFactory {
+        public ValueDescriptor createValueDescriptor(Field field) {
+            ValueDescriptor descriptor = new ValueDescriptor(field.getName(), field.getType());
+            if (!field.getName().endsWith("NoDefault")) {
+                if (field.getType().equals(String.class)) {
+                    descriptor.setConverter(new StringConverter());
+                    descriptor.setDefaultValue("Kurt");
+                } else if (field.getType().equals(char.class)) {
+                    descriptor.setConverter(new IntegerConverter());
+                    descriptor.setDefaultValue('Y');
+                } else if (field.getType().equals(int.class)) {
+                    descriptor.setConverter(new IntegerConverter());
+                    descriptor.setDefaultValue(42);
+                } else if (field.getType().equals(double.class)) {
+                    descriptor.setConverter(new DoubleConverter());
+                    descriptor.setDefaultValue(90.0);
+                } else {
+                    fail("Test is not prepared for " + field.getType() + " types.");
+                }
+            }
+            return descriptor;
         }
     }
 }

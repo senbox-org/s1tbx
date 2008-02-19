@@ -7,17 +7,13 @@ import java.util.Map;
 /**
  * ValueAccessor for values stored in a {@link Map}.
  */
-public class MapEntryAccessor extends TypesafeValueAccessor {
+public class MapEntryAccessor implements ValueAccessor {
     private Map<String, Object> map;
     private String key;
 
-    public MapEntryAccessor(Map<String, Object> map, String key, Class<?> type) {
-        super(type);
+    public MapEntryAccessor(Map<String, Object> map, String key) {
         this.map = map;
         this.key = key;
-        if (map.get(key) == null) {
-            setValue(getInitialValue());
-        }
     }
 
     /**
@@ -31,7 +27,6 @@ public class MapEntryAccessor extends TypesafeValueAccessor {
      * {@inheritDoc}
      */
     public void setValue(Object value) {
-        checkValue(value);
         if (value == null) {
             map.remove(key);
         } else {

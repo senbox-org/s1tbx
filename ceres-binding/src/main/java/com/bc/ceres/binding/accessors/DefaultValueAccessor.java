@@ -5,7 +5,7 @@ import com.bc.ceres.binding.ValueAccessor;
 /**
  * A value accessor for values stored as plain Java object.
  */
-public class DefaultValueAccessor extends TypesafeValueAccessor {
+public class DefaultValueAccessor implements ValueAccessor {
     private Object value;
 
     /**
@@ -13,8 +13,6 @@ public class DefaultValueAccessor extends TypesafeValueAccessor {
      * @param valueType the type of the value
      */
     public DefaultValueAccessor(Class<?> valueType) {
-        super(valueType);
-        value = getInitialValue();
     }
 
     /**
@@ -28,7 +26,6 @@ public class DefaultValueAccessor extends TypesafeValueAccessor {
      * {@inheritDoc}
      */
     public void setValue(Object value) {
-        checkValue(value);
         this.value = value;
     }
 }

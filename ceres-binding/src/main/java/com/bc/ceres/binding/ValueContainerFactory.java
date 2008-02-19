@@ -63,7 +63,7 @@ public class ValueContainerFactory {
         }
 
         public ValueAccessor create(Field field) {
-            return new MapEntryAccessor(map, field.getName(), field.getType());
+            return new MapEntryAccessor(map, field.getName());
         }
     }
 
@@ -114,7 +114,7 @@ public class ValueContainerFactory {
             String name = entry.getKey();
             Object value = entry.getValue();
             vc.addModel(new ValueModel(createValueDescriptor(name, value.getClass()),
-                                       new MapEntryAccessor(map, name, value.getClass())));
+                                       new MapEntryAccessor(map, name)));
         }
         return vc;
     }
@@ -140,6 +140,9 @@ public class ValueContainerFactory {
         }
         if (valueDescriptor.getValidator() == null) {
             valueDescriptor.setValidator(createValidator(valueDescriptor));
+        }
+        if (valueDescriptor.getDefaultValue() == null && valueDescriptor.getType().isPrimitive()) {
+            valueDescriptor.setDefaultValue(ValueModel.INITIAL_VALUES.get(valueDescriptor.getType()));
         }
     }
 

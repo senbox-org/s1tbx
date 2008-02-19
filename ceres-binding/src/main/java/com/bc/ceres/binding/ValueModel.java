@@ -1,6 +1,7 @@
 package com.bc.ceres.binding;
 
 import java.beans.PropertyChangeListener;
+import java.util.HashMap;
 
 /**
  * A model for a value, e.g. a field of an object instance. A value model is composed of a {@link ValueDescriptor} and
@@ -11,8 +12,24 @@ import java.beans.PropertyChangeListener;
  */
 public class ValueModel {
 
+    static final HashMap<Class<?>, Object> INITIAL_VALUES;
+
+    static  {
+        INITIAL_VALUES = new HashMap<Class<?>, Object>(17);
+        INITIAL_VALUES.put(Boolean.TYPE, Boolean.FALSE);
+        INITIAL_VALUES.put(Character.TYPE, (char) 0);
+        INITIAL_VALUES.put(Byte.TYPE, (byte) 0);
+        INITIAL_VALUES.put(Short.TYPE, (short) 0);
+        INITIAL_VALUES.put(Integer.TYPE, 0);
+        INITIAL_VALUES.put(Long.TYPE, (long) 0);
+        INITIAL_VALUES.put(Float.TYPE, (float) 0);
+        INITIAL_VALUES.put(Double.TYPE, (double) 0);
+    }
+
     private final ValueDescriptor descriptor;
+
     private final ValueAccessor accessor;
+
     private ValueContainer container;
 
     public ValueModel(ValueDescriptor descriptor, ValueAccessor accessor) {
@@ -51,7 +68,11 @@ public class ValueModel {
     }
 
     public Object getValue() {
-        return accessor.getValue();
+        final Object value = accessor.getValue();
+        if (value == null && descriptor.getType().isPrimitive()) {
+            return INITIAL_VALUES.get(descriptor.getType());
+        }
+        return value;
     }
 
     public void setValue(Object value) throws ValidationException {
@@ -61,6 +82,7 @@ public class ValueModel {
         }
         validate(value);
         accessor.setValue(value);
+
         if (container != null) {
             container.getPropertyChangeSupport().firePropertyChange(descriptor.getName(), oldValue, value);
         }
@@ -87,4 +109,7 @@ public class ValueModel {
         container.getPropertyChangeSupport().removePropertyChangeListener(descriptor.getName(), l);
     }
 
+    private Object getPrimitiveInitialValue(Class<?> valueType) {
+        return INITIAL_VALUES.get(valueType);
+    }
 }
