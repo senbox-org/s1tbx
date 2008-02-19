@@ -1,10 +1,14 @@
 package com.bc.ceres.binding;
 
+import com.bc.ceres.binding.accessors.ClassFieldAccessor;
+import com.bc.ceres.binding.accessors.DefaultValueAccessor;
+import com.bc.ceres.binding.accessors.MapEntryAccessor;
 import com.bc.ceres.binding.validators.*;
-import com.bc.ceres.binding.accessors.*;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 
@@ -39,7 +43,7 @@ public class ValueContainerFactory {
         ValueAccessor create(Field field);
     }
 
-    private class ObjectBackedValueAccessorFactory implements ValueAccessorFactory{
+    private class ObjectBackedValueAccessorFactory implements ValueAccessorFactory {
         private Object object;
 
         private ObjectBackedValueAccessorFactory(Object object) {
@@ -51,7 +55,7 @@ public class ValueContainerFactory {
         }
     }
 
-    private class MapBackedValueAccessorFactory implements ValueAccessorFactory{
+    private class MapBackedValueAccessorFactory implements ValueAccessorFactory {
         private Map<String, Object> map;
 
         private MapBackedValueAccessorFactory(Map<String, Object> map) {
@@ -59,28 +63,49 @@ public class ValueContainerFactory {
         }
 
         public ValueAccessor create(Field field) {
-            return new  MapEntryAccessor(map, field.getName(), field.getType());
+            return new MapEntryAccessor(map, field.getName(), field.getType());
         }
     }
 
-    private class ValueBackedValueAccessorFactory implements ValueAccessorFactory{
+    private class ValueBackedValueAccessorFactory implements ValueAccessorFactory {
 
         public ValueAccessor create(Field field) {
             return new DefaultValueAccessor(field.getType());
         }
     }
 
-    public ValueContainer createObjectBackedValueContainer(Object wrappedObject) {
-        return x(wrappedObject.getClass(), new ObjectBackedValueAccessorFactory(wrappedObject));
+    /**
+     * Creates a value container for the given object.
+     * The factory method will not modify the object, thus not setting any default values.
+     *
+     * @param object the backing object
+     * @return the value container
+     */
+    public ValueContainer createObjectBackedValueContainer(Object object) {
+        return create(object.getClass(), new ObjectBackedValueAccessorFactory(object), false);
     }
 
-    public ValueContainer createValueBackedValueContainer(Class<?> templateType) {
-        return x(templateType, new ValueBackedValueAccessorFactory());
-    }
-
-
+    /**
+     * Creates a value container for the given template type and map backing the values.
+     * The factory method will not modify the given map, thus not setting any default values.
+     *
+     * @param templateType the template type
+     * @param map          the map which backs the values
+     * @return the value container
+     */
     public ValueContainer createMapBackedValueContainer(Class<?> templateType, Map<String, Object> map) {
-        return x(templateType, new MapBackedValueAccessorFactory(map));
+        return create(templateType, new MapBackedValueAccessorFactory(map), false);
+    }
+
+    /**
+     * Creates a value container for the given template type.
+     * The value model returned will have its values set to defaults (if specified).
+     *
+     * @param templateType the template type
+     * @return the value container
+     */
+    public ValueContainer createValueBackedValueContainer(Class<?> templateType) {
+        return create(templateType, new ValueBackedValueAccessorFactory(), true);
     }
 
     public static ValueContainer createMapBackedValueContainer(Map<String, Object> map) {
@@ -152,9 +177,16 @@ public class ValueContainerFactory {
         return validator;
     }
 
-    private ValueContainer x(Class<?> type, ValueAccessorFactory valueAccessorFactory) {
+    private ValueContainer create(Class<?> type, ValueAccessorFactory valueAccessorFactory, boolean setDefaultValues) {
         ValueContainer vc = new ValueContainer();
         collect(vc, type, valueAccessorFactory);
+        if (setDefaultValues) {
+            try {
+                vc.setDefaultValues();
+            } catch (ValidationException e) {
+                throw new IllegalStateException(e);
+            }
+        }
         return vc;
     }
 

@@ -140,7 +140,7 @@ public class ValueModelTest extends TestCase {
         testDefaultValuesUsed(container);
 
         container = vcFactory.createValueBackedValueContainer(Pojo.class);
-        testInitialValuesUsed(container);
+        testDefaultValuesUsed(container);
         container.setDefaultValues();
         testDefaultValuesUsed(container);
 
@@ -150,7 +150,7 @@ public class ValueModelTest extends TestCase {
         container.setDefaultValues();
         testDefaultValuesUsed(container);
 
-        map.clear();
+        map = new HashMap<String, Object>(5);
         map.put("code", 'X');
         map.put("name", "Hermann");
         map.put("age", 59);
