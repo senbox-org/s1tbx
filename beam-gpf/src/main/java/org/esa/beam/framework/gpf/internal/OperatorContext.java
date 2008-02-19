@@ -17,7 +17,6 @@
 package org.esa.beam.framework.gpf.internal;
 
 import com.bc.ceres.binding.*;
-import com.bc.ceres.binding.accessors.ClassFieldAccessor;
 import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.core.Assert;
@@ -64,6 +63,7 @@ public class OperatorContext {
     private Xpp3Dom configuration;
     private Logger logger;
     private boolean disposed;
+    private ValueContainer valueContainer;
 
     public OperatorContext(Operator operator) {
         this.operator = operator;
@@ -297,7 +297,7 @@ public class OperatorContext {
     private void initializeOperator() throws OperatorException {
         Assert.state(operator != null, "operator != null");
 
-        injectParameters();
+        injectParameterValues();
         injectConfiguration();
         initSourceProductFields();
         operator.initialize();
@@ -306,25 +306,19 @@ public class OperatorContext {
         initTargetImages();
         initGraphMetadata();
 
-        for (Product sourceProduct : sourceProductList) {
-            sourceProduct.addProductNodeListener(new ProductNodeListenerAdapter() {
-                @Override
-                public void nodeChanged(ProductNodeEvent event) {
-                    if (event.getPropertyName().equals("image")
-                            && event.getSourceNode() instanceof Band
-                            && ((Band) event.getSourceNode()).getImage() instanceof OperatorImage)  {
-                        System.out.println("event = " + event);
-                        update();
-                    }
-                }
-            });
-        }
-
         ProductReader oldProductReader = targetProduct.getProductReader();
         if (oldProductReader == null) {
             OperatorProductReader operatorProductReader = new OperatorProductReader(this);
             targetProduct.setProductReader(operatorProductReader);
         }
+    }
+
+    private ValueContainer getOperatorValueContainer() {
+        if (valueContainer == null) {
+            ValueContainerFactory containerFactory = new ValueContainerFactory(new ParameterDescriptorFactory());
+            valueContainer = containerFactory.createObjectBackedValueContainer(operator);
+        }
+        return valueContainer;
     }
 
     private void initGraphMetadata() {
@@ -679,18 +673,23 @@ public class OperatorContext {
         }
     }
 
-    public void injectParameters() throws OperatorException {
+    public void injectParameterDefaultValues() throws OperatorException {
+        try {
+            getOperatorValueContainer().setDefaultValues();
+        } catch (ValidationException e) {
+            throw new OperatorException(String.format(e.getMessage(), e));
+        }
+    }
+
+    private void injectParameterValues() throws OperatorException {
         if (parameters != null) {
-            final ValueDescriptorFactory valueDescriptorFactory = new ParameterDescriptorFactory();
-            for (String valueName : parameters.keySet()) {
-                final Field field = getField(operator, valueName);
-                if (field == null) {
-                    throw new OperatorException(String.format("Unknown parameter '%s'.", valueName));
+            for (String parameterName : parameters.keySet()) {
+                final ValueModel valueModel = getOperatorValueContainer().getModel(parameterName);
+                if (valueModel == null) {
+                    throw new OperatorException(String.format("Unknown parameter '%s'.", parameterName));
                 }
-                final ValueDescriptor valueDescriptor = valueDescriptorFactory.createValueDescriptor(field);
-                final ValueModel valueModel = new ValueModel(valueDescriptor, new ClassFieldAccessor(operator, field));
                 try {
-                    valueModel.setValue(parameters.get(valueName));
+                    valueModel.setValue(parameters.get(parameterName));
                 } catch (ValidationException e) {
                     throw new OperatorException(String.format(e.getMessage(), e));
                 }
@@ -698,21 +697,4 @@ public class OperatorContext {
         }
     }
 
-    public synchronized void update() {
-        final Product product = getTargetProduct();
-        for (Band band : product.getBands()) {
-            final OperatorImage oldImage = targetImages.get(band);
-            if (oldImage != null) {
-                targetImages.remove(band);
-                JAI.getDefaultInstance().getTileCache().removeTiles(oldImage);
-                oldImage.dispose();
-                final OperatorImage newImage = new OperatorImage(band, this);
-                targetImages.put(band, newImage);
-                if (band.getImage() == oldImage) {
-                    System.out.println("newImage = " + newImage);
-                    band.setImage(newImage);
-                }
-            }
-        }
-    }
 }

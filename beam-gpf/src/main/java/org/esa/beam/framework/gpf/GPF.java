@@ -216,11 +216,4 @@ public class GPF {
         GPF.defaultInstance = defaultInstance;
     }
 
-    public static void updateProduct(Product p) {
-        final ProductReader productReader = p.getProductReader();
-        if (productReader instanceof OperatorProductReader) {
-            OperatorProductReader operatorProductReader = (OperatorProductReader) productReader;
-            operatorProductReader.getOperatorContext().update();
-        }
-    }
 }

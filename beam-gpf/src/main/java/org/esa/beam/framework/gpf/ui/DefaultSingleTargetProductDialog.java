@@ -2,6 +2,7 @@ package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueContainerFactory;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.swing.PropertyPane;
 import com.bc.ceres.binding.swing.SwingBindingContext;
 import org.esa.beam.framework.datamodel.Product;
@@ -58,6 +59,12 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         ValueContainerFactory factory = new ValueContainerFactory(new ParameterDescriptorFactory());
         parameterMap = new HashMap<String, Object>();
         ValueContainer valueContainer = factory.createMapBackedValueContainer(operatorSpi.getOperatorClass(), parameterMap);
+        try {
+            valueContainer.setDefaultValues();
+        } catch (ValidationException e) {
+// todo - handle exception here
+            e.printStackTrace();
+        }
         SwingBindingContext context = new SwingBindingContext(valueContainer);
 
         ParametersPane parametersPane = new ParametersPane(context);

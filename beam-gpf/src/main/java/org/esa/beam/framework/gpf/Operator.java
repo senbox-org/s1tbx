@@ -66,6 +66,7 @@ public abstract class Operator {
      */
     protected Operator() {
         context = new OperatorContext(this);
+        context.injectParameterDefaultValues();
     }
 
     /**

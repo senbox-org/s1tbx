@@ -1,9 +1,7 @@
 package org.esa.beam.framework.gpf.annotations;
 
 import com.bc.ceres.binding.*;
-import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomConverter;
-
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;

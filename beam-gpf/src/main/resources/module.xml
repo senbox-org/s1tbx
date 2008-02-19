@@ -10,6 +10,8 @@
             [BEAM-760] The target product selector throws NullPointerException<br/>
             [BEAM-773] gpt shall no longer log warnings to console<br/>
             [BEAM-776] Provide TileIterator to loop over all tile pixels<br/>
+            [BEAM-790] Inherited parameter annotations of GPF operators ignored<br/>
+            [BEAM-792] Control setting of operator parameter default values<br/>
         </p>]]>
     </changelog>
 

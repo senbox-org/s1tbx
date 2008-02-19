@@ -36,8 +36,9 @@ public class DefaultSingleTargetProductDialogTest extends TestCase {
     public void testNothing() {
     }
 
-    public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, IllegalAccessException, InstantiationException {
+    public static void main(String[] args) throws Exception {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(SPI);
         TestApp app = new TestApp();
         final SingleTargetProductDialog dialog = DefaultSingleTargetProductDialog.createDefaultDialog(TestOp.Spi.class.getName(), app);
         dialog.show();
