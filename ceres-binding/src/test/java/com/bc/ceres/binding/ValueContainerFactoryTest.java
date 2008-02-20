@@ -28,7 +28,7 @@ public class ValueContainerFactoryTest extends TestCase {
         vc.addPropertyChangeListener(pcl);
 
         testValueContainerModels(vc);
-        
+
         assertEquals("(name:null-->Ernie)(age:0-->16)(weight:0.0-->72.9)(code:" + '\0' + "-->#)", pcl.trace);
     }
 
@@ -177,20 +177,45 @@ public class ValueContainerFactoryTest extends TestCase {
         assertEquals(0.0, container.getValue("weightNoDefault"));
     }
 
-    static class PojoBase {
+    abstract static class PojoBase {
         char code = 'X';
         char codeNoDefault;
     }
 
     static class Pojo extends PojoBase {
-
-        String name = "Hermann";
+        String name; //= "Hermann";
         int age = 59;
         double weight = 82.5;
 
         String nameNoDefault;
         int ageNoDefault;
         double weightNoDefault;
+    }
+
+    abstract static class A {
+        A() {
+            try {
+                getClass().getDeclaredField("x").setInt(this, 42);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    static class B extends A {
+        int x;
+
+        B() {
+        }
+
+        B(int x) {
+            this.x = x;
+        }
+    }
+
+    public void testDerivedClassReflectionWorksInBaseClassInitializer() {
+        assertEquals(42, new B().x);
+        assertEquals(99, new B(99).x);
     }
 
     private static class MyPropertyChangeListener implements PropertyChangeListener {
@@ -225,4 +250,5 @@ public class ValueContainerFactoryTest extends TestCase {
             return descriptor;
         }
     }
+
 }
