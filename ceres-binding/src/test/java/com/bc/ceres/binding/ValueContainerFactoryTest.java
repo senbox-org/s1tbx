@@ -183,7 +183,7 @@ public class ValueContainerFactoryTest extends TestCase {
     }
 
     static class Pojo extends PojoBase {
-        String name; //= "Hermann";
+        String name = "Hermann";
         int age = 59;
         double weight = 82.5;
 
