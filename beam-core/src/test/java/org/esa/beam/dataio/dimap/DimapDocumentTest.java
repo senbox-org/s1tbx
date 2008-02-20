@@ -470,9 +470,9 @@ public class DimapDocumentTest extends TestCase {
         points[0] = new ColorPaletteDef.Point(0.1d, Color.black); //black = new Color(  0,   0,   0, 255)
         points[1] = new ColorPaletteDef.Point(1.3d, Color.cyan);  //cyan  = new Color(  0, 255, 255, 255)
         points[2] = new ColorPaletteDef.Point(2.8d, Color.white); //white = new Color(255, 255, 255, 255)
-        ColorPaletteDef paleteDefinition = new ColorPaletteDef(points);
+        ColorPaletteDef paleteDefinition = new ColorPaletteDef(points, 180);
         int[] bins = new int[]{4, 5, 4, 7, 5, 8};
-        return new ImageInfo(-0.2f, 3f, bins, 180, paleteDefinition);
+        return new ImageInfo(-0.2f, 3f, bins, paleteDefinition);
     }
 
     public String getExpectedXML(Product product, int geocodingType, boolean withGeocoding,

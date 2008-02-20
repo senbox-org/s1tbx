@@ -6,14 +6,14 @@
  */
 package org.esa.beam.framework.datamodel;
 
-import java.awt.Color;
-import java.awt.image.IndexColorModel;
-
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ObjectUtils;
 import org.esa.beam.util.math.Histogram;
 import org.esa.beam.util.math.MathUtils;
+
+import java.awt.Color;
+import java.awt.image.IndexColorModel;
 
 /**
  * This class contains information about how a product's raster data node is displayed as an image.
@@ -27,14 +27,13 @@ public class ImageInfo implements Cloneable {
     public static final String HISTOGRAM_MATCHING_EQUALIZE = "equalize";
     public static final String HISTOGRAM_MATCHING_NORMALIZE = "normalize";
 
-    private float _gamma;
-    private ColorPaletteDef _colorPaletteDef;
-    private int _numColors;
-    private Color[] _colorPalette;
-    private float _minSample;
-    private float _maxSample;
-    private int[] _histogramBins;
-    private Scaling _scaling;
+    private float gamma;
+    private ColorPaletteDef colorPaletteDef;
+    private Color[] colorPalette;
+    private float minSample;
+    private float maxSample;
+    private int[] histogramBins;
+    private Scaling scaling;
 
     // Color palette view properties.
     // Used by ContrastStretchPane, properties currently not saved in DIMAP.
@@ -55,8 +54,7 @@ public class ImageInfo implements Cloneable {
         this(minSample,
              maxSample,
              histogramBins,
-             256,
-             new ColorPaletteDef(minSample, maxSample));
+             new ColorPaletteDef(256, minSample, maxSample));
     }
 
     /**
@@ -76,8 +74,7 @@ public class ImageInfo implements Cloneable {
         this(minSample,
              maxSample,
              histogramBins,
-             numColors,
-             new ColorPaletteDef(colorPalettePoints));
+             new ColorPaletteDef(colorPalettePoints, numColors));
     }
 
     /**
@@ -88,22 +85,37 @@ public class ImageInfo implements Cloneable {
      * @param histogramBins   the histogram pixel counts, can be <code>null</code>
      * @param numColors       the number of colors for the color palette
      * @param colorPaletteDef the color palette definition
+     * @deprecated since 4.2, use {@link #ImageInfo(float, float, int[], ColorPaletteDef)} instead
      */
     public ImageInfo(float minSample,
                      float maxSample,
                      int[] histogramBins,
                      int numColors,
                      ColorPaletteDef colorPaletteDef) {
+        this(minSample, maxSample, histogramBins, colorPaletteDef);
+        this.colorPaletteDef.setNumColors(numColors);
+    }
+
+    /**
+     * Constructs a new basic display information instance.
+     *
+     * @param minSample       the statistical minimum sample value
+     * @param maxSample       the statistical maximum sample value
+     * @param histogramBins   the histogram pixel counts, can be <code>null</code>
+     * @param colorPaletteDef the color palette definition
+     */
+    public ImageInfo(float minSample,
+                     float maxSample,
+                     int[] histogramBins,
+                     ColorPaletteDef colorPaletteDef) {
         Guardian.assertNotNull("colorPaletteDef", colorPaletteDef);
-        //Guardian.assertNotNull("histogram", histogram);
-        _minSample = minSample;
-        _maxSample = maxSample;
-        _histogramBins = histogramBins;
-        _scaling = Scaling.IDENTITY;
-        _colorPaletteDef = colorPaletteDef;
-        _numColors = numColors;
-        _colorPalette = null;
-        _gamma = 1.0f;
+        this.minSample = minSample;
+        this.maxSample = maxSample;
+        this.histogramBins = histogramBins;
+        this.colorPaletteDef = colorPaletteDef;
+        scaling = Scaling.IDENTITY;
+        colorPalette = null;
+        gamma = 1.0f;
     }
 
     /**
@@ -112,16 +124,14 @@ public class ImageInfo implements Cloneable {
      * @return the histogram, or <code>null</code> if a histogram is not available.
      */
     public Histogram getHistogram() {
-        return isHistogramAvailable() ? new Histogram(_histogramBins, _minSample, _maxSample) : null;
+        return isHistogramAvailable() ? new Histogram(histogramBins, minSample, maxSample) : null;
     }
 
     /**
      * Gets a suitable round factor for the given number of digits.
      *
-     * @param numDigits
-     *
+     * @param numDigits the number of digits.
      * @return a suitable round factor
-     *
      * @see org.esa.beam.util.math.MathUtils#computeRoundFactor(double, double, int)
      */
     public double getRoundFactor(int numDigits) {
@@ -129,41 +139,45 @@ public class ImageInfo implements Cloneable {
     }
 
     public Scaling getScaling() {
-        return _scaling;
+        return scaling;
     }
 
     public void setScaling(Scaling scaling) {
         Guardian.assertNotNull("scaling", scaling);
-        _scaling = scaling;
+        this.scaling = scaling;
     }
 
     /**
-     * Gets the minimum sample value.
+     * @return the minimum sample value.
      */
     public float getMinSample() {
-        return _minSample;
+        return minSample;
     }
 
     /**
      * Sets the minimum sample value.
+     *
+     * @param minSample the minimum sample value.
      */
     public void setMinSample(float minSample) {
-        _minSample = minSample;
+        this.minSample = minSample;
     }
 
     /**
-     * Gets the maximum sample value.
+     * @return the maximum sample value.
      */
     public float getMaxSample() {
-        return _maxSample;
+        return maxSample;
     }
 
 
     /**
      * Sets the maximum sample value.
+     *
+     * @param maxSample the maximum sample value.
      */
     public void setMaxSample(float maxSample) {
-        _maxSample = maxSample;
+        this.maxSample = maxSample;
     }
 
     /**
@@ -252,15 +266,15 @@ public class ImageInfo implements Cloneable {
     }
 
     public boolean isGammaActive() {
-        return _gamma >= 0 && _gamma != 1.0;
+        return gamma >= 0 && gamma != 1.0;
     }
 
     public float getGamma() {
-        return _gamma;
+        return gamma;
     }
 
     public void setGamma(float gamma) {
-        _gamma = gamma;
+        this.gamma = gamma;
     }
 
     /**
@@ -269,7 +283,7 @@ public class ImageInfo implements Cloneable {
      * @return the histogram pixel counts, can be <code>null</code> if not available
      */
     public int[] getHistogramBins() {
-        return _histogramBins;
+        return histogramBins;
     }
 
     /**
@@ -278,7 +292,7 @@ public class ImageInfo implements Cloneable {
      * @return <code>true</code> if so
      */
     public boolean isHistogramAvailable() {
-        return _histogramBins != null && _histogramBins.length > 0;
+        return histogramBins != null && histogramBins.length > 0;
     }
 
     /**
@@ -293,8 +307,8 @@ public class ImageInfo implements Cloneable {
         if (getMinSample() != getMinHistogramViewSample() || getMaxSample() != getMaxHistogramViewSample()) {
             return (float)
                     (getHistogramBins().length
-                     / (scaleInverse(getMaxSample()) - scaleInverse(getMinSample()))
-                     * (scaleInverse(getMaxHistogramViewSample()) - scaleInverse(getMinHistogramViewSample()))
+                            / (scaleInverse(getMaxSample()) - scaleInverse(getMinSample()))
+                            * (scaleInverse(getMaxHistogramViewSample()) - scaleInverse(getMinHistogramViewSample()))
                     );
         }
         return getHistogramBins().length;
@@ -311,8 +325,8 @@ public class ImageInfo implements Cloneable {
         }
         if (getMinSample() != getMinHistogramViewSample()) {
             return (float) ((getHistogramBins().length - 1)
-                            / (scaleInverse(getMaxSample()) - scaleInverse(getMinSample()))
-                            * (scaleInverse(getMinHistogramViewSample()) - scaleInverse(getMinSample())));
+                    / (scaleInverse(getMaxSample()) - scaleInverse(getMinSample()))
+                    * (scaleInverse(getMinHistogramViewSample()) - scaleInverse(getMinSample())));
         }
         return 0;
     }
@@ -324,7 +338,7 @@ public class ImageInfo implements Cloneable {
      * @return the gradation curve, never <code>null</code>
      */
     public ColorPaletteDef getColorPaletteDef() {
-        return _colorPaletteDef;
+        return colorPaletteDef;
     }
 
     /**
@@ -335,71 +349,31 @@ public class ImageInfo implements Cloneable {
      */
     public void setColorPaletteDef(ColorPaletteDef colorPaletteDef) {
         Guardian.assertNotNull("colorPaletteDef", colorPaletteDef);
-        _colorPaletteDef = colorPaletteDef;
+        this.colorPaletteDef = colorPaletteDef;
     }
 
     /**
-     * Returns the number of colors used to compute the color palette.
+     * @return the number of colors used to compute the color palette.
      */
     public int getNumColors() {
-        return _numColors;
+        return colorPaletteDef.getNumColors();
     }
 
     /**
-     * Returns the color palette. If no such exists a new one is computed from the gradation curve.
+     * @return the color palette. If no such exists a new one is computed from the gradation curve.
      */
     public Color[] getColorPalette() {
         if (isColorPaletteOutOfDate()) {
             computeColorPalette();
         }
-        return _colorPalette;
+        return colorPalette;
     }
 
     /**
      * (Re-)Computes the color palette for this basic display information instance.
      */
     public void computeColorPalette() {
-        Debug.assertNotNull(getColorPaletteDef());
-        Debug.assertTrue(getColorPaletteDef().getNumPoints() >= 2);
-        if (isColorPaletteOutOfDate()) {
-            _colorPalette = new Color[_numColors];
-        }
-        for (int i = 0; i < _numColors; i++) {
-            _colorPalette[i] = Color.black;
-        }
-        double minDisplay = scaleInverse(getMinDisplaySample());
-        double maxDisplay = scaleInverse(getMaxDisplaySample());
-        double displayRange = maxDisplay - minDisplay;
-        ColorPaletteDef.Point p1, p2;
-        for (int j = 0; j < getColorPaletteDef().getNumPoints() - 1; j++) {
-            p1 = getColorPaletteDef().getPointAt(j);
-            p2 = getColorPaletteDef().getPointAt(j + 1);
-            double minSample = scaleInverse(p1.getSample());
-            double maxSample = scaleInverse(p2.getSample());
-            long palIndex1 = MathUtils.roundAndCrop(_numColors * (minSample - minDisplay) / displayRange, 0,
-                                                    _numColors - 1);
-            final long palIndex2 = MathUtils.roundAndCrop(_numColors * (maxSample - minDisplay) / displayRange, 0,
-                                                    _numColors - 1);
-            final long palRange = palIndex2 - palIndex1 + 1;
-            for (int i = (int) palIndex1; i <= palIndex2; i++) {
-                final float w = (float) (i - palIndex1) / (float) palRange;
-                final float r1 = p1.getColor().getRed();
-                final float r2 = p2.getColor().getRed();
-                final float g1 = p1.getColor().getGreen();
-                final float g2 = p2.getColor().getGreen();
-                final float b1 = p1.getColor().getBlue();
-                final float b2 = p2.getColor().getBlue();
-                final int red = MathUtils.roundAndCrop(r1 + w * (r2 - r1), 0, 255);
-                final int green = MathUtils.roundAndCrop(g1 + w * (g2 - g1), 0, 255);
-                final int blue = MathUtils.roundAndCrop(b1 + w * (b2 - b1), 0, 255);
-                _colorPalette[i] = new Color(red, green, blue);
-            }
-        }
-        // Adjust outer bounds
-        p1 = getColorPaletteDef().getFirstPoint();
-        p2 = getColorPaletteDef().getLastPoint();
-        _colorPalette[0] = p1.getColor();
-        _colorPalette[_numColors-1] = p2.getColor();
+        this.colorPalette = colorPaletteDef.createColourPalette(this.scaling);
     }
 
     public IndexColorModel createColorModel() {
@@ -421,9 +395,9 @@ public class ImageInfo implements Cloneable {
      * Indicates whether some object object is "equal to" this basic display information instance.
      *
      * @param object the reference object with which to compare.
-     *
      * @return <code>true</code> if this object is the same as the obj argument; <code>false</code> otherwise
      */
+    @Override
     public boolean equals(Object object) {
         if (object == this) {
             return true;
@@ -449,6 +423,7 @@ public class ImageInfo implements Cloneable {
      *
      * @return a copy of this object
      */
+    @Override
     public Object clone() {
         return createDeepCopy();
     }
@@ -463,9 +438,8 @@ public class ImageInfo implements Cloneable {
         ImageInfo imageInfo = new ImageInfo(getMinSample(),
                                             getMaxSample(),
                                             getHistogramBins(),
-                                            getNumColors(),
                                             getColorPaletteDef().createDeepCopy());
-        imageInfo.setGamma(_gamma);
+        imageInfo.setGamma(gamma);
         imageInfo.setMinHistogramViewSample(getMinHistogramViewSample());
         imageInfo.setMaxHistogramViewSample(getMaxHistogramViewSample());
         imageInfo.setHistogramViewGain(getHistogramViewGain());
@@ -474,7 +448,7 @@ public class ImageInfo implements Cloneable {
     }
 
     private boolean isColorPaletteOutOfDate() {
-        return _colorPalette == null || _numColors != _colorPalette.length;
+        return colorPalette == null || getColorPaletteDef().getNumColors() != colorPalette.length;
     }
 
     public double getNormalizedHistogramViewSampleValue(double sample) {
@@ -561,16 +535,16 @@ public class ImageInfo implements Cloneable {
      * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
      */
     public void dispose() {
-        _colorPalette = null;
-        _histogramBins = null;
-        _scaling = null;
-        if (_colorPaletteDef != null) {
-            _colorPaletteDef.dispose();
-            _colorPaletteDef = null;
+        colorPalette = null;
+        histogramBins = null;
+        scaling = null;
+        if (colorPaletteDef != null) {
+            colorPaletteDef.dispose();
+            colorPaletteDef = null;
         }
     }
 
     private double scaleInverse(double value) {
-        return _scaling.scaleInverse(value);
+        return scaling.scaleInverse(value);
     }
 }

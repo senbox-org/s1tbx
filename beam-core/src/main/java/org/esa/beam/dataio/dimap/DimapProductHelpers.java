@@ -972,7 +972,7 @@ public class DimapProductHelpers {
             final float maxSample = getSample(bandStatisticsElem, DimapProductConstants.TAG_STX_MAX);
             ImageInfo imageInfo = null;
             if (Float.compare(minSample, Float.NaN) != 0 && Float.compare(maxSample, Float.NaN) != 0) {
-                imageInfo = new ImageInfo(minSample, maxSample, bins, numColors, new ColorPaletteDef(points));
+                imageInfo = new ImageInfo(minSample, maxSample, bins, new ColorPaletteDef(points, numColors));
             } else {
                 BeamLogManager.getSystemLogger().severe("could not create image info");
             }

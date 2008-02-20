@@ -1697,7 +1697,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         ImageInfo imageInfo = new ImageInfo((float) scale(histogram.getMin()),
                 (float) scale(histogram.getMax()),
                 histogram.getBinCounts(),
-                256,
                 gradationCurve);
 
         stopWatch.stopAndTrace("RasterDataNode.createDefaultImageInfo, mark 3");
