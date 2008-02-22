@@ -40,6 +40,7 @@ public class Range {
      */
     public double getMin() {
         return _min;
+
     }
 
     /**
