@@ -37,9 +37,9 @@ public class ImageInfo implements Cloneable {
 
     // Color palette view properties.
     // Used by ContrastStretchPane, properties currently not saved in DIMAP.
-    private Float _histogramViewGain = null;
-    private Float _minHistogramViewSample = null;
-    private Float _maxHistogramViewSample = null;
+    private Float _histogramViewGain;
+    private Float _minHistogramViewSample;
+    private Float _maxHistogramViewSample;
 
     /**
      * Constructs a new basic display information instance.

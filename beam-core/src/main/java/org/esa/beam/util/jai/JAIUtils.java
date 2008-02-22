@@ -20,6 +20,7 @@ import com.bc.ceres.core.Assert;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ImageUtils;
+import org.esa.beam.util.IntMap;
 
 import javax.media.jai.DataBufferFloat;
 import javax.media.jai.*;
@@ -797,6 +798,76 @@ public class JAIUtils {
         Assert.state(tileSize != -1);
         return tileSize;
     }
+
+    public static PlanarImage createMapping2(RenderedImage sourceImage, IntMap indexMap) {
+        final Raster sourceData = sourceImage.getData();
+        final WritableRaster targetData = sourceData.createCompatibleWritableRaster();
+        final DataBuffer targetBuffer = targetData.getDataBuffer();
+        for (int i = 0; i < targetBuffer.getSize(); i++) {
+            final int index = indexMap.get(sourceData.getDataBuffer().getElem(i));
+            targetBuffer.setElem(i, index);
+        }
+
+        final BufferedImage image = new BufferedImage(sourceData.getWidth(),
+                                                      sourceData.getHeight(),
+                                                      BufferedImage.TYPE_BYTE_GRAY);
+        image.setData(targetData);
+        return PlanarImage.wrapRenderedImage(image);
+    }
+
+    public static PlanarImage createMapping(RenderedImage sourceImage, IntMap indexMap) {
+        if (sourceImage.getSampleModel().getNumBands() != 1) {
+            throw new IllegalArgumentException();
+        }
+        int[] keys = indexMap.keys();
+        int keyMin = Integer.MAX_VALUE;
+        int keyMax = Integer.MIN_VALUE;
+        int valueMin = Integer.MAX_VALUE;
+        int valueMax = Integer.MIN_VALUE;
+        for (int key : keys) {
+            keyMin = Math.min(keyMin, key);
+            keyMax = Math.max(keyMax, key);
+            final int value = indexMap.get(key);
+            if (value != IntMap.NULL) {
+                valueMin = Math.min(valueMin, value);
+                valueMax = Math.max(valueMax, value);
+            }
+        }
+        final int keyRange = 1 + keyMax - keyMin;
+        final int valueRange = 1 + valueMax - valueMin;
+        if (keyRange > Short.MAX_VALUE) {
+            throw new IllegalArgumentException();
+        }
+        LookupTableJAI lookup;
+        if (valueRange <= 256) {
+            final byte[] table = new byte[keyRange];
+            for (int i = 0; i < table.length; i++) {
+                final int value = indexMap.get(i);
+                System.out.println("i=" + i + "," + "value = " + value);
+                table[i] = (byte) (value != IntMap.NULL ? value : valueMin);
+            }
+            lookup = new LookupTableJAI(table, keyMin);
+        } else if (valueRange <= Short.MAX_VALUE) {
+            final short[] table = new short[keyRange];
+            for (int i = 0; i < table.length; i++) {
+                final int value = indexMap.get(i);
+                table[i] = (short) (value != IntMap.NULL ? value : valueMin);
+            }
+            lookup = new LookupTableJAI(table, keyMin, false);
+        } else {
+            final int[] table = new int[keyRange];
+            for (int i = 0; i < table.length; i++) {
+                final int value = indexMap.get(i);
+                table[i] = value != IntMap.NULL ? value : valueMin;
+            }
+            lookup = new LookupTableJAI(table, keyMin);
+        }
+        ParameterBlock pb = new ParameterBlock();
+        pb.addSource(sourceImage);
+        pb.add(lookup);
+        return JAI.create("lookup", pb, null);
+    }
+
 
 } // ImageUtils
 

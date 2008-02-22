@@ -2,6 +2,9 @@ package org.esa.beam.util;
 
 import junit.framework.TestCase;
 
+import java.util.Set;
+import java.util.HashSet;
+
 public class IntMapTest extends TestCase {
 
     public void testIntMap() {
@@ -74,5 +77,23 @@ public class IntMapTest extends TestCase {
             intMap.remove(i);
         }
         assertEquals(0, intMap.size());
+    }
+
+    public void testKeys() {
+        IntMap intMap = new IntMap(10, 100);
+        intMap.put(234, 5);
+        intMap.put(2, 9);
+        intMap.put(534, 1);
+        intMap.put(22, 43);
+        final int[] keys = intMap.keys();
+        Set<Integer> keySet = new HashSet<Integer>();
+        for (int key : keys) {
+            keySet.add(key);
+        }
+        assertEquals(4, keySet.size());
+        assertTrue(keySet.contains(234));
+        assertTrue(keySet.contains(2));
+        assertTrue(keySet.contains(534));
+        assertTrue(keySet.contains(22));
     }
 }

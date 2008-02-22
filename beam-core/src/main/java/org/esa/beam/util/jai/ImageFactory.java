@@ -3,10 +3,9 @@ package org.esa.beam.util.jai;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import org.esa.beam.framework.datamodel.BitmaskDef;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Debug;
+import org.esa.beam.util.IntMap;
 import org.esa.beam.util.math.Histogram;
 
 import javax.media.jai.*;
@@ -18,6 +17,7 @@ import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /*
  * New fully JAI-backed, tiled image creation (nf, 20.09.2007). IN PROGRESS!
@@ -44,8 +44,8 @@ public class ImageFactory {
         Assert.state(rasterDataNodes.length == 1 || rasterDataNodes.length == 3 || rasterDataNodes.length == 4,
                      "invalid number of bands");
 
-        pm.beginTask("Creating image...", rasterDataNodes.length * 300 + 1);
 
+        pm.beginTask("Creating image...", rasterDataNodes.length * 300 + 1);
         PlanarImage image;
         try {
             PlanarImage[] sourceImages = createSourceImages(rasterDataNodes, pm);
@@ -71,7 +71,6 @@ public class ImageFactory {
                 raster.setImage(planarImage);
             }
             RasterDataNodeOpImage.setProgressMonitor(planarImage, SubProgressMonitor.create(pm, 1));
-            final ImageInfo imageInfo;
             if (raster.getImageInfo() == null) {
                 Debug.trace("planarImage = " + planarImage);
                 Debug.trace("  Computing extrema for [" + planarImage + "]...");
@@ -88,27 +87,68 @@ public class ImageFactory {
                 checkCanceled(pm);
                 pm.worked(100);
                 Debug.trace("  Extrema computed.");
-                Debug.trace("  Computing histogram...");
-                // todo - construct ROI from no-data image here
-                // todo - make no-data image property of RasterDataNode
-                RenderedOp histogramImage = JAIUtils.createHistogramImage(planarImage, 512, extrema[0], extrema[1]);
-                Histogram histogram = u(histogramImage);
-                Debug.trace("  Histogram computed.");
-                imageInfo = raster.createDefaultImageInfo(null, histogram, true); // Note: this method expects a raw data histogram!
-                raster.setImageInfo(imageInfo);
+
+                if (!raster.isFloatingPointType()) {
+                    final int valueRange = (int) (extrema[1] - extrema[0]);
+                    if (valueRange <= 256) {
+                        ArrayList<ColorPaletteDef.Point> pList = new ArrayList<ColorPaletteDef.Point>(valueRange);
+                        for (int j = 0; j < valueRange; j++) {
+                            final Color color = new Color((float) Math.random(), (float) Math.random(), (float) Math.random());
+                            pList.add(new ColorPaletteDef.Point(extrema[0] + j, color));
+                        }
+                        final ColorPaletteDef.Point[] points = pList.toArray(new ColorPaletteDef.Point[pList.size()]);
+                        ColorPaletteDef cpd = new ColorPaletteDef(points, true);
+                        ImageInfo imageInfo = new ImageInfo((float) extrema[0], (float) extrema[1], null, cpd);
+                        raster.setImageInfo(imageInfo);
+                    }
+                }
+
+                if (raster.getImageInfo() == null) {
+                    Debug.trace("  Computing histogram...");
+                    // todo - construct ROI from no-data image here
+                    // todo - make no-data image property of RasterDataNode
+                    RenderedOp histogramImage = JAIUtils.createHistogramImage(planarImage, 512, extrema[0], extrema[1]);
+                    Histogram histogram = u(histogramImage);
+                    Debug.trace("  Histogram computed.");
+                    ImageInfo imageInfo = raster.createDefaultImageInfo(null, histogram, true); // Note: this method expects a raw data histogram!
+                    raster.setImageInfo(imageInfo);
+                }
                 checkCanceled(pm);
                 pm.worked(100);
             } else {
-                imageInfo = raster.getImageInfo();
                 pm.worked(200);
             }
 
-            final double newMin = raster.scaleInverse(imageInfo.getMinDisplaySample());
-            final double newMax = raster.scaleInverse(imageInfo.getMaxDisplaySample());
-            final double gamma = 1.0; //imageInfo.getGamma();  // todo
+            ImageInfo imageInfo = raster.getImageInfo();
+            Assert.notNull(imageInfo);
 
-            planarImage = JAIUtils.createRescaleOp(planarImage, 255.0 / (newMax - newMin), 255.0 * newMin / (newMin - newMax));
-            planarImage = JAIUtils.createFormatOp(planarImage, DataBuffer.TYPE_BYTE);
+
+            if (imageInfo.getColorPaletteDef().isDiscrete()) {
+                final IntMap sampleColorIndexMap = new IntMap((int) imageInfo.getMinDisplaySample() - 1, 4098);
+                final ColorPaletteDef.Point[] points = imageInfo.getColorPaletteDef().getPoints();
+                for (int colorIndex = 0; colorIndex < points.length; colorIndex++) {
+                    sampleColorIndexMap.put((int) points[colorIndex].getSample(), colorIndex);
+                }
+
+//                final ProductData data = raster.getSceneRasterData();
+//                for (int pixelIndex = 0; pixelIndex < data.getNumElems(); pixelIndex++) {
+//                    final int colorIndex = sampleColorIndexMap.get(data.getElemIntAt(pixelIndex));
+//                    rgbSamples[pixelIndex * numColorComponents] = colorIndex != IntMap.NULL ? (byte) colorIndex : 0;
+//                }
+
+                planarImage = JAIUtils.createMapping(planarImage, sampleColorIndexMap);
+
+            }   else {
+                final double newMin = raster.scaleInverse(imageInfo.getMinDisplaySample());
+                final double newMax = raster.scaleInverse(imageInfo.getMaxDisplaySample());
+                final double gamma = 1.0; //imageInfo.getGamma();  // todo - use gamma
+                // todo - honour log-scaled bands
+                planarImage = JAIUtils.createRescaleOp(planarImage,
+                                                       255.0 / (newMax - newMin),
+                                                       255.0 * newMin / (newMin - newMax));
+                planarImage = JAIUtils.createFormatOp(planarImage,
+                                                      DataBuffer.TYPE_BYTE);
+            }
             sourceImages[i] = planarImage;
             checkCanceled(pm);
             pm.worked(100);

@@ -1,26 +1,24 @@
 package org.esa.beam.util;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class IntMap {
     public static final int NULL = Integer.MIN_VALUE;
     private final Map<Integer, Integer> map;
-    private final int[] buffer;
-    private final int bufferOffset;
+    private final int[] table;
+    private final int tableOffset;
     private int size;
 
     public IntMap() {
         this(0, 1024);
     }
 
-    public IntMap(int bufferOffset, int bufferSize) {
+    public IntMap(int tableOffset, int bufferSize) {
         map = new TreeMap<Integer, Integer>();
-        buffer = new int[bufferSize];
-        this.bufferOffset = bufferOffset;
+        table = new int[bufferSize];
+        this.tableOffset = tableOffset;
         this.size = 0;
-        Arrays.fill(buffer, NULL);
+        Arrays.fill(table, NULL);
     }
 
     public int size() {
@@ -31,10 +29,10 @@ public class IntMap {
         if (value == NULL) {
             throw new IllegalArgumentException("value");
         }
-        final int i = key - bufferOffset;
-        if (i >= 0 && i < buffer.length) {
-            final int oldValue = buffer[i];
-            buffer[i] = value;
+        final int index = key - tableOffset;
+        if (index >= 0 && index < table.length) {
+            final int oldValue = table[index];
+            table[index] = value;
             if (oldValue == NULL) {
                 size++;
             }
@@ -47,10 +45,10 @@ public class IntMap {
     }
 
     public void remove(int key) {
-        final int i = key - bufferOffset;
-        if (i >= 0 && i < buffer.length) {
-            final int oldValue = buffer[i];
-            buffer[i] = NULL;
+        final int index = key - tableOffset;
+        if (index >= 0 && index < table.length) {
+            final int oldValue = table[index];
+            table[index] = NULL;
             if (oldValue != NULL) {
                 size--;
             }
@@ -63,9 +61,9 @@ public class IntMap {
     }
 
     public int get(int key) {
-        final int i = key - bufferOffset;
-        if (i >= 0 && i < buffer.length) {
-            return buffer[i];
+        final int index = key - tableOffset;
+        if (index >= 0 && index < table.length) {
+            return table[index];
         } else {
             final Integer oldValue = map.get(key);
             if (oldValue != null) {
@@ -74,5 +72,21 @@ public class IntMap {
                 return NULL;
             }
         }
+    }
+
+    public int[] keys() {
+        int j = 0;
+        final int[] keys = new int[size()];
+        for (int index = 0; index < table.length; index++) {
+            int value = table[index];
+            if (value != NULL) {
+                keys[j++] = index + tableOffset;
+            }
+        }
+        final Set<Integer> set = map.keySet();
+        for (Integer key : set) {
+            keys[j++] = key;
+        }
+        return keys;
     }
 }
