@@ -8,50 +8,76 @@ import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
+import java.util.Set;
+import java.util.HashSet;
 
 public class JAIUtilsTest extends TestCase {
 
-    public void testMappingImage() {
-        final BufferedImage sourceImage = new BufferedImage(4, 4, BufferedImage.TYPE_USHORT_GRAY);
-        final short[] sourceValues = {
+    public void testIntMapOp() {
+
+        testIntMapOp(BufferedImage.TYPE_USHORT_GRAY, new int[]{
                 868, 393, 565, 101,
                 393, 454, 868, 393,
                 747, 191, 101, 393,
                 393, 565, 191, 101
-        };
-        for (int i = 0; i < sourceValues.length; i++) {
-            sourceImage.getRaster().getDataBuffer().setElem(i, sourceValues[i]);
-        }
-
-        final IntMap intMap = new IntMap(100, 1000);
-        intMap.put(868, 0);
-        intMap.put(393, 1);
-        intMap.put(565, 2);
-        intMap.put(101, 3);
-        intMap.put(454, 4);
-        intMap.put(747, 5);
-        intMap.put(191, 6);
-        final PlanarImage targetImage = JAIUtils.createMapping(sourceImage, intMap);
-
-        assertNotNull(targetImage);
-        assertEquals(1, targetImage.getNumBands());
-        assertEquals(sourceImage.getWidth(), targetImage.getWidth());
-        assertEquals(sourceImage.getTileWidth(), targetImage.getTileWidth());
-        assertEquals(DataBuffer.TYPE_BYTE, targetImage.getSampleModel().getDataType());
-        final Raster targetData = targetImage.getData();
-        final DataBuffer dataBuffer = targetData.getDataBuffer();
-        final int[] expectedValues = {
+        }, DataBuffer.TYPE_BYTE, new int[]{
                 0, 1, 2, 3,
                 1, 4, 0, 1,
                 5, 6, 3, 1,
                 1, 2, 6, 3
-        };
-        for (int i = 0; i < expectedValues.length; i++) {
-            final int elem = targetData.getDataBuffer().getElem(i);
-            System.out.println("elem = " + elem);
+        });
 
-            //assertEquals("i=" + i, expectedValues[i], elem);
+        testIntMapOp(BufferedImage.TYPE_BYTE_GRAY, new int[]{
+                86, 39, 56, 10,
+                39, 45, 86, 39,
+                74, 19, 10, 39,
+                39, 56, 19, 10
+        }, DataBuffer.TYPE_BYTE, new int[]{
+                0, 1, 2, 3,
+                1, 4, 0, 1,
+                5, 6, 3, 1,
+                1, 2, 6, 3
+        });
+    }
+
+    private void testIntMapOp(int sourceType, int[] sourceSamples, int expectedTargetType, int[] expectedTargetSamples) {
+        final BufferedImage sourceImage = createSourceImage(sourceType, sourceSamples);
+        final IntMap intMap = createIntMap(sourceImage);
+        final PlanarImage targetImage = JAIUtils.createIntMap(sourceImage, intMap);
+        assertNotNull(targetImage);
+        assertEquals(1, targetImage.getNumBands());
+        assertEquals(sourceImage.getWidth(), targetImage.getWidth());
+        assertEquals(sourceImage.getHeight(), targetImage.getHeight());
+        assertEquals(expectedTargetType, targetImage.getSampleModel().getDataType());
+        final Raster targetData = targetImage.getData();
+        final DataBuffer dataBuffer = targetData.getDataBuffer();
+        for (int i = 0; i < expectedTargetSamples.length; i++) {
+            final int elem = targetData.getDataBuffer().getElem(i);
+            assertEquals("i=" + i, expectedTargetSamples[i], elem);
         }
+    }
+
+    private static IntMap createIntMap(BufferedImage sourceImage) {
+        final DataBuffer dataBuffer = sourceImage.getRaster().getDataBuffer();
+        final Set<Integer> set = new HashSet<Integer>();
+        final IntMap intMap = new IntMap(0, 1000);
+        for (int i = 0; i < dataBuffer.getSize(); i++) {
+            final int elem = dataBuffer.getElem(i);
+            if (!set.contains(elem)) {
+                System.out.println("elem = " + elem);
+                 intMap.put(elem, intMap.size());
+                set.add(elem);
+            }
+        }
+        return intMap;
+    }
+
+    private static BufferedImage createSourceImage(int sourceType, int[] sourceValues) {
+        final BufferedImage sourceImage = new BufferedImage(4, 4, sourceType);
+        for (int i = 0; i < sourceValues.length; i++) {
+            sourceImage.getRaster().getDataBuffer().setElem(i, sourceValues[i]);
+        }
+        return sourceImage;
     }
 
 

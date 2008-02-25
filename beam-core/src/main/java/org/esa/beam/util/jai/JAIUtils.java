@@ -815,11 +815,11 @@ public class JAIUtils {
         return PlanarImage.wrapRenderedImage(image);
     }
 
-    public static PlanarImage createMapping(RenderedImage sourceImage, IntMap indexMap) {
+    public static PlanarImage createIntMap(RenderedImage sourceImage, IntMap intMap) {
         if (sourceImage.getSampleModel().getNumBands() != 1) {
             throw new IllegalArgumentException();
         }
-        int[] keys = indexMap.keys();
+        int[] keys = intMap.keys();
         int keyMin = Integer.MAX_VALUE;
         int keyMax = Integer.MIN_VALUE;
         int valueMin = Integer.MAX_VALUE;
@@ -827,7 +827,7 @@ public class JAIUtils {
         for (int key : keys) {
             keyMin = Math.min(keyMin, key);
             keyMax = Math.max(keyMax, key);
-            final int value = indexMap.get(key);
+            final int value = intMap.get(key);
             if (value != IntMap.NULL) {
                 valueMin = Math.min(valueMin, value);
                 valueMax = Math.max(valueMax, value);
@@ -842,22 +842,22 @@ public class JAIUtils {
         if (valueRange <= 256) {
             final byte[] table = new byte[keyRange];
             for (int i = 0; i < table.length; i++) {
-                final int value = indexMap.get(i);
-                System.out.println("i=" + i + "," + "value = " + value);
+                final int value = intMap.get(keyMin + i);
+                //System.out.println("i=" + i + "," + "value = " + value);
                 table[i] = (byte) (value != IntMap.NULL ? value : valueMin);
             }
             lookup = new LookupTableJAI(table, keyMin);
-        } else if (valueRange <= Short.MAX_VALUE) {
+        } else if (valueRange <= 65536) {
             final short[] table = new short[keyRange];
             for (int i = 0; i < table.length; i++) {
-                final int value = indexMap.get(i);
+                final int value = intMap.get(keyMin + i);
                 table[i] = (short) (value != IntMap.NULL ? value : valueMin);
             }
-            lookup = new LookupTableJAI(table, keyMin, false);
+            lookup = new LookupTableJAI(table, keyMin, valueRange > 32767);
         } else {
             final int[] table = new int[keyRange];
             for (int i = 0; i < table.length; i++) {
-                final int value = indexMap.get(i);
+                final int value = intMap.get(keyMin + i);
                 table[i] = value != IntMap.NULL ? value : valueMin;
             }
             lookup = new LookupTableJAI(table, keyMin);

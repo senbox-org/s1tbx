@@ -136,7 +136,7 @@ public class ImageFactory {
 //                    rgbSamples[pixelIndex * numColorComponents] = colorIndex != IntMap.NULL ? (byte) colorIndex : 0;
 //                }
 
-                planarImage = JAIUtils.createMapping(planarImage, sampleColorIndexMap);
+                planarImage = JAIUtils.createIntMap(planarImage, sampleColorIndexMap);
 
             }   else {
                 final double newMin = raster.scaleInverse(imageInfo.getMinDisplaySample());

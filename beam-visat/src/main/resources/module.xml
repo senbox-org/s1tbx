@@ -148,6 +148,22 @@
         </toolView>
 
         <toolView>
+            <id>org.esa.beam.visat.toolviews.lm.LayersToolView</id>
+            <class>org.esa.beam.visat.toolviews.lm.LayersToolView</class>
+            <title>Layer Manager</title>
+            <tabTitle>Layers</tabTitle>
+            <mnemonic>L</mnemonic>
+            <accelerator>ctrl alt L</accelerator>
+            <smallIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay16.gif</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay24.gif</largeIcon>
+            <!--<helpId>TODO</helpId>-->
+            <description>Display and modify layers of an image view.</description>
+            <initState>DOCKED</initState>
+            <initSide>WEST</initSide>
+            <initIndex>0</initIndex>
+        </toolView>
+
+        <toolView>
             <id>org.esa.beam.visat.toolviews.pixelinfo.PixelInfoToolView</id>
             <class>org.esa.beam.visat.toolviews.pixelinfo.PixelInfoToolView</class>
             <title>Pixel Info View</title>
