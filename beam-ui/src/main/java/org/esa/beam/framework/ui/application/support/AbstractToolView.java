@@ -4,10 +4,11 @@ import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.ui.application.PageComponentContext;
 import org.esa.beam.framework.ui.application.PageComponentDescriptor;
 import org.esa.beam.framework.ui.application.ToolView;
-import org.esa.beam.util.Debug;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.Icon;
+import javax.swing.SwingUtilities;
+import java.awt.Container;
+import java.awt.Window;
 import java.beans.PropertyChangeListener;
 
 
@@ -120,28 +121,48 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
     public void dispose() {
     }
 
-    // todo - rename to getPaneControl()
+    /**
+     * Gets the content pane of this tool window's part.
+     *
+     * @return The content pane of this tool window's part.
+     * @deprecated since 4.2, use {@link #getPaneControl()}
+     */
+    @Deprecated
+    public Container getContentPane() {
+        return getPaneControl();
+    }
+
     /**
      * Gets the content pane of this tool window's part.
      *
      * @return The content pane of this tool window's part.
      */
-    public Container getContentPane() {
+    public Container getPaneControl() {
         return context != null ? context.getPane().getControl() : null;
     }
 
-    // todo - rename to getPaneWindow()
+    /**
+     * Gets the first {@link Window} ancestor of this tool window's content pane, or
+     * {@code null} if it is (currently) not contained inside a {@code Window}.
+     *
+     * @return The first {@code Window} ancestor, or {@code null}.
+     * @deprecated since 4.2, use {@link #getPaneControl()}
+     */
+    @Deprecated
+    public Window getWindowAncestor() {
+        return getPaneWindow();
+    }
+
     /**
      * Gets the first {@link Window} ancestor of this tool window's content pane, or
      * {@code null} if it is (currently) not contained inside a {@code Window}.
      *
      * @return The first {@code Window} ancestor, or {@code null}.
      */
-    public Window getWindowAncestor() {
-        Container contentPane = getContentPane();
-        return contentPane != null ? SwingUtilities.getWindowAncestor(contentPane) : null;
+    public Window getPaneWindow() {
+        Container container = getPaneControl();
+        return container != null ? SwingUtilities.getWindowAncestor(container) : null;
     }
-
 
     /**
      * Sets the actual window title which may be different from what {@link org.esa.beam.framework.ui.application.PageComponentDescriptor#getTitle()} returns.
@@ -149,8 +170,7 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
      * @param title The window's title.
      */
     public void setTitle(String title) {
-        // todo
-        Debug.trace("TODO: implement setTitle(\"" + title + "\")");
+        descriptor.setTitle(title);
     }
 
 
