@@ -14,7 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.esa.beam.visat.toolviews.cspal;
+package org.esa.beam.visat.toolviews.imageinfo;
 
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
@@ -29,29 +29,17 @@ import org.esa.beam.util.math.Histogram;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.math.Range;
 
-import javax.swing.JColorChooser;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 
-// @todo 1 nf/nf add API docu
 
-public class ContrastStretchPane extends JPanel {
+class ColourPaletteEditorPanel extends JPanel {
 
     public static final String NO_DISPLAY_INFO_TEXT = "No image information available.";
     public static final String FONT_NAME = "Verdana";
@@ -68,7 +56,7 @@ public class ContrastStretchPane extends JPanel {
     public static final Dimension PREF_COMPONENT_SIZE
             = new Dimension(PREF_HISTO_WIDTH + 2 * HOR_BORDER_SIZE,
                             PREF_HISTO_HEIGHT + PALETTE_HEIGHT + SLIDER_HEIGHT / 2
-                            + 2 * HOR_BORDER_SIZE + FONT_SIZE);
+                                    + 2 * HOR_BORDER_SIZE + FONT_SIZE);
     public static final BasicStroke STROKE_1 = new BasicStroke(1.0f);
     public static final BasicStroke STROKE_2 = new BasicStroke(2.0f);
     public static final BasicStroke DASHED_STROKE = new BasicStroke(0.75F, BasicStroke.CAP_SQUARE,
@@ -90,7 +78,7 @@ public class ContrastStretchPane extends JPanel {
     private Color[] _rgbColorPal;
     private byte[] _gammaCurve;
 
-    public ContrastStretchPane() {
+    public ColourPaletteEditorPanel() {
         _labelFont = createLabelFont();
         _sliderShape = createSliderShape();
         _sliderBaseLineRect = new Rectangle();
@@ -148,7 +136,7 @@ public class ContrastStretchPane extends JPanel {
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this,
                                           "Failed to create image information for '" + raster.getName() + "':\n" +
-                                          e.getMessage(),
+                                                  e.getMessage(),
                                           "I/O Error",
                                           JOptionPane.ERROR_MESSAGE);
             return null;
@@ -876,7 +864,7 @@ public class ContrastStretchPane extends JPanel {
                     if (!isRGBMode()) {
                         sliderIndex = getSelectedSliderIndex(evt);
                         if (sliderIndex != INVALID_INDEX) {
-                            Color newColor = JColorChooser.showDialog(ContrastStretchPane.this,
+                            Color newColor = JColorChooser.showDialog(ColourPaletteEditorPanel.this,
                                                                       "Gradation point color",
                                                                       getGradationCurvePointAt(sliderIndex).getColor());
                             if (newColor != null) {
@@ -887,8 +875,8 @@ public class ContrastStretchPane extends JPanel {
                     }
                     sliderIndex = getSelectedSliderTextIndex(evt);
                     if (isRGBMode()
-                        && !isFirstSliderSelected(sliderIndex)
-                        && !isLastSliderSelected(sliderIndex)) {
+                            && !isFirstSliderSelected(sliderIndex)
+                            && !isLastSliderSelected(sliderIndex)) {
                         sliderIndex = INVALID_INDEX;
                     }
                     if (sliderIndex != INVALID_INDEX) {
@@ -963,7 +951,7 @@ public class ContrastStretchPane extends JPanel {
 
         private JPopupMenu createContextMenu(final int sliderIndex, MouseEvent mouseEvent) {
             JPopupMenu contextMenu = new JPopupMenu("Gradation curve points"); /* I18N */
-            contextMenu.setInvoker(ContrastStretchPane.this);
+            contextMenu.setInvoker(ColourPaletteEditorPanel.this);
             JMenuItem menuItem = createMenuItemAddNewSlider(sliderIndex, mouseEvent);
             if (menuItem != null) {
                 contextMenu.add(menuItem);

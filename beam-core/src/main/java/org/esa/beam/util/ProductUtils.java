@@ -320,29 +320,12 @@ public class ProductUtils {
 
                     checkCanceled(pm);
 
-                    if (!raster.isFloatingPointType()) {
-                        final int valueRange = (int) (range.getMax() - range.getMin());
-                        if (valueRange <= 256) {
-                            ArrayList<ColorPaletteDef.Point> pList = new ArrayList<ColorPaletteDef.Point>(valueRange);
-                            for (int j = 0; j < valueRange; j++) {
-                                final Color color = new Color((float) Math.random(), (float) Math.random(), (float) Math.random());
-                                pList.add(new ColorPaletteDef.Point(range.getMin() + j, color));
-                            }
-                            final ColorPaletteDef.Point[] points = pList.toArray(new ColorPaletteDef.Point[pList.size()]);
-                            ColorPaletteDef cpd = new ColorPaletteDef(points, true);
-                            ImageInfo imageInfo = new ImageInfo((float) range.getMin(), (float) range.getMax(), null, cpd);
-                            raster.setImageInfo(imageInfo);
-                        }
-                    }
+                    final Histogram histogram = raster.computeRasterDataHistogram(null, 512, range,
+                                                                                  ProgressMonitor.NULL);
+                    pm.worked(1);
 
-                    if (raster.getImageInfo() == null) {
-                        final Histogram histogram = raster.computeRasterDataHistogram(null, 512, range,
-                                                                                      ProgressMonitor.NULL);
-                        pm.worked(1);
-
-                        ImageInfo imageInfo = raster.createDefaultImageInfo(null, histogram, true);
-                        raster.setImageInfo(imageInfo);
-                    }
+                    ImageInfo imageInfo = raster.createDefaultImageInfo(null, histogram, true);
+                    raster.setImageInfo(imageInfo);
                 }
 
                 ImageInfo imageInfo = raster.getImageInfo();

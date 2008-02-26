@@ -1,4 +1,4 @@
-package org.esa.beam.visat.toolviews.cspal;
+package org.esa.beam.visat.toolviews.imageinfo;
 
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.ui.product.ProductSceneView;
@@ -6,17 +6,13 @@ import org.esa.beam.framework.ui.product.ProductSceneView;
 import javax.swing.AbstractButton;
 import java.awt.Component;
 
-/**
- * Created by IntelliJ IDEA.
- * User: Norman
- * Date: 26.02.2008
- * Time: 13:47:52
- * To change this template use File | Settings | File Templates.
- */
-public interface SpecificForm {
+
+interface SpecificForm {
     void reset();
 
     ImageInfo getCurrentImageInfo();
+
+    void setCurrentImageInfo(ImageInfo imageInfo);
 
     void initProductSceneView(ProductSceneView productSceneView);
 
@@ -31,4 +27,5 @@ public interface SpecificForm {
     String getTitle();
 
     void releaseProductSceneView();
+
 }

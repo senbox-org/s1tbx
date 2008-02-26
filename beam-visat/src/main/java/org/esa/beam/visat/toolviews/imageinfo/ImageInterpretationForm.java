@@ -14,7 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.esa.beam.visat.toolviews.cspal;
+package org.esa.beam.visat.toolviews.imageinfo;
 
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.BeamUiActivator;
@@ -50,11 +50,11 @@ import java.util.ArrayList;
 /**
  * The contrast stretch window.
  */
-public class ImageInterpretationForm {
+class ImageInterpretationForm {
 
-    private final static String _PREFERENCES_KEY_IO_DIR = "visat.color_palettes.dir";
-    private final static String _FILE_EXTENSION = ".cpd";
+    private final static String PREFERENCES_KEY_IO_DIR = "visat.color_palettes.dir";
 
+    private final static String FILE_EXTENSION = ".cpd";
     private VisatApp _visatApp;
     private PropertyMap _preferences;
     private AbstractButton _applyButton;
@@ -63,10 +63,10 @@ public class ImageInterpretationForm {
     private AbstractButton importButton;
     private AbstractButton exportButton;
     private SuppressibleOptionPane _suppressibleOptionPane;
+
     private ProductNodeListener _rasterDataChangedListener;
 
     private ProductSceneView productSceneView;
-
     private Band[] _bandsToBeModified;
     private BeamFileFilter _beamFileFilter;
     private final ProductNodeListener _productNodeListener;
@@ -74,8 +74,8 @@ public class ImageInterpretationForm {
     private JPanel mainPanel;
     private final ImageInterpretationToolView toolView;
     private SpecificForm specificForm;
-    private static final EmptyForm EMPTY_FORM = new EmptyForm();
-    private ContinousForm continousForm;
+    private SpecificForm switcher1BandForm;
+    private SpecificForm continous3BandForm;
     private JPanel buttonPane;
     private AbstractButton helpButton;
 
@@ -106,26 +106,33 @@ public class ImageInterpretationForm {
         final SpecificForm oldForm = specificForm;
         final SpecificForm newForm;
         if (this.productSceneView != null) {
-            if (oldForm instanceof ContinousForm) {
-               newForm = oldForm;
-            } else {
-                if (continousForm == null) {
-                    continousForm = new ContinousForm(this);
+            if (this.productSceneView.isRGB()) {
+                if (oldForm instanceof Continuous3BandForm) {
+                    newForm = oldForm;
+                } else {
+                    if (continous3BandForm == null) {
+                        continous3BandForm = new Continuous3BandForm(this);
+                    }
+                    newForm = continous3BandForm;
                 }
-                newForm = continousForm;
+            } else {
+                if (oldForm instanceof ContinuousForm) {
+                    newForm = oldForm;
+                } else {
+                    if (switcher1BandForm == null) {
+                        switcher1BandForm = new Switcher1BandForm(this);
+                    }
+                    newForm = switcher1BandForm;
+                }
             }
         } else {
-            if (oldForm instanceof EmptyForm) {
-               newForm = oldForm;
-            } else {
-               newForm = EMPTY_FORM;
-            }
+            newForm = EmptyForm.INSTANCE;
         }
 
         if (newForm != oldForm) {
             specificForm = newForm;
-            installSpecificFormUI();
             specificForm.initProductSceneView(productSceneView);
+            installSpecificFormUI();
             oldForm.releaseProductSceneView();
         }
     }
@@ -162,7 +169,7 @@ public class ImageInterpretationForm {
 
     public void initMainPanel() {
 
-        specificForm = EMPTY_FORM;
+        specificForm = EmptyForm.INSTANCE;
 
         _applyButton = new JButton("Apply");
         _applyButton.setName("ApplyButton");
@@ -249,7 +256,7 @@ public class ImageInterpretationForm {
         updateState();
     }
 
-    private void installSpecificFormUI() {
+    public void installSpecificFormUI() {
         installButtons();
 
         mainPanel.removeAll();
@@ -282,10 +289,11 @@ public class ImageInterpretationForm {
         for (int i = 0; i < additionalButtons.length; i++) {
             AbstractButton button = additionalButtons[i];
             buttonPane.add(button, gbc);
-            if (i % 2 == 0) {
+            if (i % 2 == 1) {
                 gbc.gridy++;
             }
         }
+        gbc.gridy++;
         gbc.fill = GridBagConstraints.VERTICAL;
         gbc.weighty = 1.0;
         gbc.gridwidth = 2;
@@ -400,7 +408,7 @@ public class ImageInterpretationForm {
 
     private void setIODir(final File dir) {
         if (_preferences != null) {
-            _preferences.setPropertyString(_PREFERENCES_KEY_IO_DIR, dir.getPath());
+            _preferences.setPropertyString(PREFERENCES_KEY_IO_DIR, dir.getPath());
         }
     }
 
@@ -410,7 +418,7 @@ public class ImageInterpretationForm {
             dir.mkdirs();
         }
         if (_preferences != null) {
-            dir = new File(_preferences.getPropertyString(_PREFERENCES_KEY_IO_DIR, dir.getPath()));
+            dir = new File(_preferences.getPropertyString(PREFERENCES_KEY_IO_DIR, dir.getPath()));
         }
         return dir;
     }
@@ -418,8 +426,8 @@ public class ImageInterpretationForm {
     private BeamFileFilter getOrCreateColorPaletteDefinitionFileFilter() {
         if (_beamFileFilter == null) {
             final String formatName = "COLOR_PALETTE_DEFINITION_FILE";
-            final String description = "Color palette definition files (*" + _FILE_EXTENSION + ")";  /*I18N*/
-            _beamFileFilter = new BeamFileFilter(formatName, _FILE_EXTENSION, description);
+            final String description = "Color palette definition files (*" + FILE_EXTENSION + ")";  /*I18N*/
+            _beamFileFilter = new BeamFileFilter(formatName, FILE_EXTENSION, description);
         }
         return _beamFileFilter;
     }
@@ -474,7 +482,7 @@ public class ImageInterpretationForm {
                 if (!_visatApp.promptForOverwrite(file)) {
                     return;
                 }
-                file = FileUtils.ensureExtension(file, _FILE_EXTENSION);
+                file = FileUtils.ensureExtension(file, FILE_EXTENSION);
                 try {
                     final ColorPaletteDef colorPaletteDef = imageInfo.getColorPaletteDef();
                     ColorPaletteDef.storeColorPaletteDef(colorPaletteDef, file);

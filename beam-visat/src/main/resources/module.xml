@@ -197,24 +197,9 @@
 
 
         <toolView>
-            <id>org.esa.beam.visat.toolviews.cspal.ImageInterpretationToolView</id>
-            <class>org.esa.beam.visat.toolviews.cspal.ImageInterpretationToolView</class>
+            <id>org.esa.beam.visat.toolviews.imageinfo.ImageInterpretationToolView</id>
+            <class>org.esa.beam.visat.toolviews.imageinfo.ImageInterpretationToolView</class>
             <title>Image Interpretation</title>
-            <mnemonic>C</mnemonic>
-            <accelerator>ctrl alt C</accelerator>
-            <description>Contrast stretch and colorize a selected image view.</description>
-            <smallIcon>/org/esa/beam/resources/images/icons/ContrastStretch16.gif</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/ContrastStretch24.gif</largeIcon>
-            <!--<helpId>TODO</helpId>-->
-            <initState>HIDDEN</initState>
-            <initSide>SOUTH</initSide>
-            <initIndex>0</initIndex>
-        </toolView>
-
-        <toolView>
-            <id>org.esa.beam.visat.toolviews.cspal.ContrastStretchToolView</id>
-            <class>org.esa.beam.visat.toolviews.cspal.ContrastStretchToolView</class>
-            <title>Contrast Stretch</title>
             <mnemonic>C</mnemonic>
             <accelerator>ctrl alt C</accelerator>
             <description>Contrast stretch and colorize a selected image view.</description>
