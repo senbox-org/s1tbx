@@ -24,6 +24,7 @@ import java.util.ArrayList;
  */
 
 public class ImageFactory {
+    private static final boolean I_AM_A_TEMP_VARIABLE_WHICH_WILL_BE_REMOVED_LATER = Boolean.getBoolean("beam.useDiscreteColorPaletteDef");
 
     public static PlanarImage createOverlayedRgbImage(final RasterDataNode[] rasterDataNodes,
                                                       final String histogramMatching,
@@ -88,20 +89,21 @@ public class ImageFactory {
                 pm.worked(100);
                 Debug.trace("  Extrema computed.");
 
-//                if (!raster.isFloatingPointType()) {
-//                    final int valueRange = (int) (extrema[1] - extrema[0]);
-//                    if (valueRange <= 256) {
-//                        ArrayList<ColorPaletteDef.Point> pList = new ArrayList<ColorPaletteDef.Point>(valueRange);
-//                        for (int j = 0; j < valueRange; j++) {
-//                            final Color color = new Color((float) Math.random(), (float) Math.random(), (float) Math.random());
-//                            pList.add(new ColorPaletteDef.Point(extrema[0] + j, color));
-//                        }
-//                        final ColorPaletteDef.Point[] points = pList.toArray(new ColorPaletteDef.Point[pList.size()]);
-//                        ColorPaletteDef cpd = new ColorPaletteDef(points, true);
-//                        ImageInfo imageInfo = new ImageInfo((float) extrema[0], (float) extrema[1], null, cpd);
-//                        raster.setImageInfo(imageInfo);
-//                    }
-//                }
+                if (I_AM_A_TEMP_VARIABLE_WHICH_WILL_BE_REMOVED_LATER 
+                        && !raster.isFloatingPointType()) {
+                    final int valueRange = (int) (extrema[1] - extrema[0]);
+                    if (valueRange <= 256) {
+                        ArrayList<ColorPaletteDef.Point> pList = new ArrayList<ColorPaletteDef.Point>(valueRange);
+                        for (int j = 0; j < valueRange; j++) {
+                            final Color color = new Color((float) Math.random(), (float) Math.random(), (float) Math.random());
+                            pList.add(new ColorPaletteDef.Point(extrema[0] + j, color));
+                        }
+                        final ColorPaletteDef.Point[] points = pList.toArray(new ColorPaletteDef.Point[pList.size()]);
+                        ColorPaletteDef cpd = new ColorPaletteDef(points, true);
+                        ImageInfo imageInfo = new ImageInfo((float) extrema[0], (float) extrema[1], null, cpd);
+                        raster.setImageInfo(imageInfo);
+                    }
+                }
 
                 if (raster.getImageInfo() == null) {
                     Debug.trace("  Computing histogram...");
