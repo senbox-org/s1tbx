@@ -1161,9 +1161,9 @@ public class ContrastStretchToolView extends AbstractToolView {
             removeDataChangedListener(ContrastStretchToolView.this.getProductSceneView());
             if (view != null) {
                 addDataChangedListener(view);
-                ContrastStretchToolView.this.setProductSceneView(view);
+                setProductSceneView(view);
             } else {
-                ContrastStretchToolView.this.setProductSceneView(null);
+                setProductSceneView(null);
             }
         }
 

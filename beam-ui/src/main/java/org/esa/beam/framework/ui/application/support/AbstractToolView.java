@@ -170,7 +170,8 @@ public abstract class AbstractToolView extends AbstractControlFactory implements
      * @param title The window's title.
      */
     public void setTitle(String title) {
-        descriptor.setTitle(title);
+        // todo - set title of dockable frame 
+        // descriptor.setTitle(title);
     }
 
 
