@@ -1107,7 +1107,7 @@ public class ProductUtils {
      * @param sourceBandName the name of the band to be copied.
      * @param sourceProduct  the source product.
      * @param targetProduct  the target product.
-     * @return the copied band, or <code>null</code> if the sourceProduct does not contain a band with the given name.
+     * @return the copy of the band, or <code>null</code> if the sourceProduct does not contain a band with the given name.
      */
     public static Band copyBand(String sourceBandName, Product sourceProduct, Product targetProduct) {
         return copyBand(sourceBandName, sourceProduct, sourceBandName, targetProduct);
@@ -1120,7 +1120,7 @@ public class ProductUtils {
      * @param sourceProduct  the source product.
      * @param targetBandName the name of the band copied.
      * @param targetProduct  the target product.
-     * @return the copied band, or <code>null</code> if the sourceProduct does not contain a band with the given name.
+     * @return the copy of the band, or <code>null</code> if the sourceProduct does not contain a band with the given name.
      */
     public static Band copyBand(String sourceBandName, Product sourceProduct,
                                 String targetBandName, Product targetProduct) {
