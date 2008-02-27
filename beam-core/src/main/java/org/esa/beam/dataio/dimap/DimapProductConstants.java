@@ -420,11 +420,19 @@ public final class DimapProductConstants {
     public final static String TAG_DATASET_COMMENTS = "DATASET_COMMENTS";
 
     // BEAM-Dimap flag coding tags
+    // todo - FIXME!!! this is against DIMAP naming convention!!! (nf)
     public final static String TAG_FLAG_CODING = "Flag_Coding";
     public final static String TAG_FLAG = "Flag";
     public final static String TAG_FLAG_NAME = "Flag_Name";
     public final static String TAG_FLAG_INDEX = "Flag_Index";
     public final static String TAG_FLAG_DESCRIPTION = "Flag_description";
+
+    // BEAM-Dimap index coding tags
+    public final static String TAG_INDEX_CODING = "Index_Coding";
+    public final static String TAG_INDEX = "Index";
+    public final static String TAG_INDEX_NAME = "INDEX_NAME";
+    public final static String TAG_INDEX_VALUE = "INDEX_VALUE";
+    public final static String TAG_INDEX_DESCRIPTION = "INDEX_DESCRIPTION";
 
     // BEAM-Dimap raster dimension tags
     public final static String TAG_RASTER_DIMENSIONS = "Raster_Dimensions";

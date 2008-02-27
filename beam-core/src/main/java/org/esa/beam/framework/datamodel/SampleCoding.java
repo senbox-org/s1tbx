@@ -39,5 +39,22 @@ public class SampleCoding extends MetadataElement {
         super.addAttribute(attribute);
     }
 
+     /**
+      * Adds a new coding value to this sample coding.
+      *
+      * @param name        the coding name
+      * @param value    the value
+      * @param description the description text
+      * @throws IllegalArgumentException if <code>name</code> is null
+      */
+     public void addValue(String name, int value, String description) {
+         Guardian.assertNotNull("name", name);
+         MetadataAttribute attribute = new MetadataAttribute(name, ProductData.TYPE_INT32);
+         attribute.setDataElems(new int[]{value});
+         if (description != null) {
+             attribute.setDescription(description);
+         }
+         addAttribute(attribute);
+     }
 
 }

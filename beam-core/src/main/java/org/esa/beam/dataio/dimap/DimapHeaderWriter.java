@@ -79,6 +79,7 @@ public final class DimapHeaderWriter extends XmlWriter {
         writeProductionElements(indent);
         writeGeoCoding(indent);
         writeFlagCoding(indent);
+        writeIndexCoding(indent);
         writeRasterDimensionElements(indent);
         writeDataAccessElements(indent);
         writeTiePointGridElements(indent);
@@ -569,25 +570,37 @@ public final class DimapHeaderWriter extends XmlWriter {
     }
 
     protected void writeFlagCoding(int indent) {
-        final String[] codingNames = _product.getFlagCodingNames();
-        for (String codingName : codingNames) {
+        SampleCoding[] a = _product.getFlagCodingGroup().toArray(new FlagCoding[0]);
+        vvv(indent, a, DimapProductConstants.TAG_FLAG_CODING, DimapProductConstants.TAG_FLAG, DimapProductConstants.TAG_FLAG_NAME, DimapProductConstants.TAG_FLAG_INDEX, DimapProductConstants.TAG_FLAG_DESCRIPTION);
+    }
+
+    protected void writeIndexCoding(int indent) {
+        SampleCoding[] a = _product.getIndexCodingGroup().toArray(new IndexCoding[0]);
+        vvv(indent, a, DimapProductConstants.TAG_INDEX_CODING, DimapProductConstants.TAG_INDEX, DimapProductConstants.TAG_INDEX_NAME, DimapProductConstants.TAG_INDEX_VALUE, DimapProductConstants.TAG_INDEX_DESCRIPTION);
+    }
+
+    private void vvv(int indent, SampleCoding[] a, String tagCoding, String tagFlag, String tagName, String tagIndex, String tagDescription) {
+        for (SampleCoding sampleCoding : a) {
             final String[][] attributes = new String[1][];
-            attributes[0] = new String[]{DimapProductConstants.ATTRIB_NAME, codingName};
-            final String[] fcTags = createTags(indent, DimapProductConstants.TAG_FLAG_CODING, attributes);
+            attributes[0] = new String[]{DimapProductConstants.ATTRIB_NAME, sampleCoding.getName()};
+            final String[] fcTags = createTags(indent, tagCoding, attributes);
             println(fcTags[0]);
-            final FlagCoding flagCoding = _product.getFlagCoding(codingName);
-            final String[] flagNames = flagCoding.getFlagNames();
-            for (String flagName : flagNames) {
-                final MetadataAttribute flag = flagCoding.getFlag(flagName);
-                final String[] fTags = createTags(indent + 1, DimapProductConstants.TAG_FLAG);
-                println(fTags[0]);
-                printLine(indent + 2, DimapProductConstants.TAG_FLAG_NAME, flag.getName());
-                printLine(indent + 2, DimapProductConstants.TAG_FLAG_INDEX, flag.getData().getElemInt());
-                printLine(indent + 2, DimapProductConstants.TAG_FLAG_DESCRIPTION, flag.getDescription());
-                println(fTags[1]);
-            }
-            println(fcTags[1]);
+            uuu(indent, sampleCoding, fcTags, tagFlag, tagName, tagIndex, tagDescription);
         }
+    }
+
+    private void uuu(int indent, SampleCoding sampleCoding, String[] fcTags, String tagFlag, String tagName, String tagIndex, String tagDescription) {
+        final String[] names = sampleCoding.getAttributeNames();
+        for (String name : names) {
+            final MetadataAttribute attribute = sampleCoding.getAttribute(name) ;
+            final String[] fTags = createTags(indent + 1, tagFlag);
+            println(fTags[0]);
+            printLine(indent + 2, tagName, attribute.getName());
+            printLine(indent + 2, tagIndex, attribute.getData().getElemInt());
+            printLine(indent + 2, tagDescription, attribute.getDescription());
+            println(fTags[1]);
+        }
+        println(fcTags[1]);
     }
 
     protected void writeGeoCoding(final int indent) {

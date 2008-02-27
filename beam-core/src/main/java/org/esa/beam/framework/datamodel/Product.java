@@ -117,6 +117,9 @@ public class Product extends ProductNode {
     private final ProductNodeList<FlagCoding> _flagCodings;
     private final ProductNodeList<BitmaskDef> _bitmaskDefs;
 
+    private final ProductNodeGroup<FlagCoding> flagCodingGroup;
+    private final ProductNodeGroup<IndexCoding> indexCodingGroup;
+
     private final ProductNodeGroup<Pin> pinGroup;
     private final ProductNodeGroup<Pin> gcpGroup;
 
@@ -207,8 +210,11 @@ public class Product extends ProductNode {
         _flagCodings = new ProductNodeList<FlagCoding>();
         _bitmaskDefs = new ProductNodeList<BitmaskDef>();
 
-        pinGroup = new ProductNodeGroup<Pin>(this, "pins", "The group which stores all product pins.");
-        gcpGroup = new ProductNodeGroup<Pin>(this, "pins", "The group which stores all product pins.");
+        indexCodingGroup = new ProductNodeGroup<IndexCoding>(this, "index_codings", "The group which stores index codings.");
+        flagCodingGroup = new ProductNodeGroup<FlagCoding>(this, "flag_codings", "The group which stores flag codings.");
+
+        pinGroup = new ProductNodeGroup<Pin>(this, "pins", "The group which stores pins.");
+        gcpGroup = new ProductNodeGroup<Pin>(this, "ground_control_points", "The group which stores ground control points.");
         addProductNodeListener(createNameChangedHandler());
     }
 
@@ -910,13 +916,23 @@ public class Product extends ProductNode {
     //////////////////////////////////////////////////////////////////////////
     // Flag-coding support
 
+    public ProductNodeGroup<FlagCoding> getFlagCodingGroup() {
+        return flagCodingGroup;
+    }
+
+    public ProductNodeGroup<IndexCoding> getIndexCodingGroup() {
+        return indexCodingGroup;
+    }
+
     /**
      * Adds the given flag coding to this product.
      *
      * @param flagCoding the flag coding to added, ignored if <code>null</code>
+     * @deprecated since 4.2, use {@link #getFlagCodingGroup()} instead
      */
+    @Deprecated
     public void addFlagCoding(final FlagCoding flagCoding) {
-        addNamedNode(flagCoding, _flagCodings);
+        getFlagCodingGroup().add(flagCoding);
     }
 
     /**
@@ -924,19 +940,22 @@ public class Product extends ProductNode {
      *
      * @param flagCoding the flag coding to be removed, ignored if <code>null</code>
      * @return <code>true</code> on success
+     * @deprecated since 4.2, use {@link #getFlagCodingGroup()} instead
      */
+    @Deprecated
     public boolean removeFlagCoding(final FlagCoding flagCoding) {
-        // todo - remove from referencing bands too? (nf - 2007-08-24)
-        return removeNamedNode(flagCoding, _flagCodings);
+        return getFlagCodingGroup().remove(flagCoding);
     }
 
     /**
      * Returns the number of flag codings contained in this product.
      *
      * @return the number of flag codings
+     * @deprecated since 4.2, use {@link #getFlagCodingGroup()} instead
      */
+    @Deprecated
     public int getNumFlagCodings() {
-        return _flagCodings.size();
+        return getFlagCodingGroup().getNodeCount();
     }
 
     /**
@@ -945,9 +964,11 @@ public class Product extends ProductNode {
      * @param index the flag coding index
      * @return the flag coding at the given index
      * @throws IndexOutOfBoundsException if the index is out of bounds
+     * @deprecated since 4.2, use {@link #getFlagCodingGroup()} instead
      */
+    @Deprecated
     public FlagCoding getFlagCodingAt(final int index) {
-        return _flagCodings.getAt(index);
+        return getFlagCodingGroup().get(index);
     }
 
     /**
@@ -955,9 +976,11 @@ public class Product extends ProductNode {
      *
      * @return a string array containing the names of the flag codings contained in this product. If this product has no
      *         flag coding a zero-length-array is returned.
+     * @deprecated since 4.2, use {@link #getFlagCodingGroup()} instead
      */
+    @Deprecated
     public String[] getFlagCodingNames() {
-        return _flagCodings.getNames();
+        return getFlagCodingGroup().getNodeNames();
     }
 
     /**
@@ -966,10 +989,11 @@ public class Product extends ProductNode {
      * @param name the flag coding name
      * @return the flag coding with the given name or <code>null</code> if a flag coding with the given name is not
      *         contained in this product.
+     * @deprecated since 4.2, use {@link #getFlagCodingGroup()} instead
      */
+    @Deprecated
     public FlagCoding getFlagCoding(final String name) {
-        Guardian.assertNotNullOrEmpty("name", name);
-        return _flagCodings.get(name);
+        return getFlagCodingGroup().get(name);
     }
 
     /**
@@ -978,10 +1002,11 @@ public class Product extends ProductNode {
      * @param name the name, must not be <code>null</code>
      * @return <code>true</code> if a flag coding with the given name is contained in this product, <code>false</code>
      *         otherwise
+     * @deprecated since 4.2, use {@link #getFlagCodingGroup()} instead
      */
+    @Deprecated
     public boolean containsFlagCoding(final String name) {
-        Guardian.assertNotNullOrEmpty("name", name);
-        return _flagCodings.contains(name);
+        return getFlagCodingGroup().contains(name);
     }
 
     /**
@@ -996,7 +1021,9 @@ public class Product extends ProductNode {
      * @return the array of all flag names. If this product does not support flags, an empty array is returned, but
      *         never <code>null</code>.
      * @see #createTerm(String)
+     * @deprecated since 4.2, use {@link #getFlagCodingGroup()} instead
      */
+    @Deprecated
     public String[] getAllFlagNames() {
         final ArrayList<String> l = new ArrayList<String>(32);
         for (int i = 0; i < getNumBands(); i++) {
@@ -2620,6 +2647,7 @@ public class Product extends ProductNode {
     public void setPreferredTileSize(Dimension preferredTileSize) {
         _preferredTileSize = preferredTileSize;
     }
+
 }
 
 

@@ -19,20 +19,10 @@ package org.esa.beam.dataio.dimap;
 import org.esa.beam.dataio.dimap.spi.DimapPersistable;
 import org.esa.beam.dataio.dimap.spi.DimapPersistence;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.esa.beam.framework.dataop.maptransf.Ellipsoid;
-import org.esa.beam.framework.dataop.maptransf.MapInfo;
-import org.esa.beam.framework.dataop.maptransf.MapProjection;
-import org.esa.beam.framework.dataop.maptransf.MapProjectionRegistry;
-import org.esa.beam.framework.dataop.maptransf.MapTransform;
-import org.esa.beam.framework.dataop.maptransf.MapTransformDescriptor;
+import org.esa.beam.framework.dataop.maptransf.*;
 import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.dataop.resamp.ResamplingFactory;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.XmlHelper;
+import org.esa.beam.util.*;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.math.FXYSum;
@@ -50,12 +40,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -686,6 +671,7 @@ public class DimapProductHelpers {
             setDescription(product);
             addBitmaskDefinitions(product);
             addFlagsCoding(product);
+            addIndexCoding(product);
             addBands(product);
             addTiePointGrids(product);
             addDisplayInfosToBandsAndTiePointGrids(product);
@@ -706,9 +692,9 @@ public class DimapProductHelpers {
         private void addPins(Product product) {
             Element pinGroup = getRootElement().getChild(DimapProductConstants.TAG_PIN_GROUP);
             List pinElements;
-            if(pinGroup != null) {
+            if (pinGroup != null) {
                 pinElements = pinGroup.getChildren(DimapProductConstants.TAG_PLACEMARK);
-            }else {
+            } else {
                 // get pins of old DIMAP files prior version 2.3
                 pinElements = getRootElement().getChildren(DimapProductConstants.TAG_PIN);
             }
@@ -724,10 +710,10 @@ public class DimapProductHelpers {
 
         private void addGcps(Product product) {
             Element gcpGroupElement = getRootElement().getChild(DimapProductConstants.TAG_GCP_GROUP);
-            List gcpElements ;
-            if(gcpGroupElement != null) {
+            List gcpElements;
+            if (gcpGroupElement != null) {
                 gcpElements = gcpGroupElement.getChildren(DimapProductConstants.TAG_PLACEMARK);
-            }else {
+            } else {
                 gcpElements = Collections.EMPTY_LIST;
             }
             for (Object gcpElement : gcpElements) {
@@ -1089,29 +1075,65 @@ public class DimapProductHelpers {
         }
 
         private void addFlagsCoding(Product product) {
-            final List children = getRootElement().getChildren(DimapProductConstants.TAG_FLAG_CODING);
-            for (Iterator iterator = children.iterator(); iterator.hasNext();) {
-                final Element flagCodingElem = (Element) iterator.next();
-                final FlagCoding flagCoding = new FlagCoding(
-                        flagCodingElem.getAttributeValue(DimapProductConstants.ATTRIB_NAME));
-                product.addFlagCoding(flagCoding);
-                final List flags = flagCodingElem.getChildren(DimapProductConstants.TAG_FLAG);
-                for (Iterator it = flags.iterator(); it.hasNext();) {
-                    final Element flag = (Element) it.next();
-                    final String name = flag.getChildTextTrim(DimapProductConstants.TAG_FLAG_NAME);
-                    final int mask = Integer.parseInt(flag.getChildTextTrim(DimapProductConstants.TAG_FLAG_INDEX));
-                    final String description = flag.getChildTextTrim(DimapProductConstants.TAG_FLAG_DESCRIPTION);
-                    flagCoding.addFlag(name, mask, description);
+            addSampleCoding(product,
+                DimapProductConstants.TAG_FLAG_CODING,
+                DimapProductConstants.TAG_FLAG,
+                DimapProductConstants.TAG_FLAG_NAME,
+                DimapProductConstants.TAG_FLAG_INDEX,
+                DimapProductConstants.TAG_FLAG_DESCRIPTION);
+        }
+
+        private void addIndexCoding(Product product) {
+            addSampleCoding(product,
+                DimapProductConstants.TAG_INDEX_CODING,
+                DimapProductConstants.TAG_INDEX,
+                DimapProductConstants.TAG_INDEX_NAME,
+                DimapProductConstants.TAG_INDEX_VALUE,
+                DimapProductConstants.TAG_INDEX_DESCRIPTION);
+        }
+
+        private void addSampleCoding(Product product,
+                                     String tagFlagCoding,
+                                     String tagFlag,
+                                     String tagFlagName,
+                                     String tagFlagIndex,
+                                     String tagFlagDescription) {
+            final List children = getRootElement().getChildren(tagFlagCoding);
+            for (Object aChildren : children) {
+                final Element flagCodingElem = (Element) aChildren;
+                final String codingName = flagCodingElem.getAttributeValue(DimapProductConstants.ATTRIB_NAME);
+                final SampleCoding sampleCoding;
+                if (tagFlag.equals(DimapProductConstants.TAG_INDEX)) {
+                    final IndexCoding indexCoding = new IndexCoding(codingName);
+                    product.getIndexCodingGroup().add(indexCoding);
+                    sampleCoding = indexCoding;
+                } else {
+                    final FlagCoding flagCoding = new FlagCoding(codingName);
+                    product.getFlagCodingGroup().add(flagCoding);
+                    sampleCoding = flagCoding;
                 }
+                vvv(tagFlag, tagFlagName, tagFlagIndex, tagFlagDescription, flagCodingElem, sampleCoding);
             }
         }
+
+        private void vvv(String tagList, String tagName, String tagValue, String tagDescription, Element flagCodingElem, SampleCoding sampleCoding) {
+            final List list = flagCodingElem.getChildren(tagList);
+            for (Object o : list) {
+                final Element element = (Element) o;
+                final String name = element.getChildTextTrim(tagName);
+                final int value = Integer.parseInt(element.getChildTextTrim(tagValue));
+                final String description = element.getChildTextTrim(tagDescription);
+                sampleCoding.addValue(name, value, description);
+            }
+        }
+
 
         private void addBitmaskDefinitions(Product product) {
             final Element bitmaskDefs = getRootElement().getChild(DimapProductConstants.TAG_BITMASK_DEFINITIONS);
             List bitmaskDefList;
-            if(bitmaskDefs != null) {
+            if (bitmaskDefs != null) {
                 bitmaskDefList = bitmaskDefs.getChildren(DimapProductConstants.TAG_BITMASK_DEFINITION);
-            }else {
+            } else {
                 bitmaskDefList = getRootElement().getChildren(DimapProductConstants.TAG_BITMASK_DEFINITION);
             }
             for (Iterator iterator = bitmaskDefList.iterator(); iterator.hasNext();) {

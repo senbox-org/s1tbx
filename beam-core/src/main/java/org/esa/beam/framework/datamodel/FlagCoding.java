@@ -65,13 +65,7 @@ public class FlagCoding extends SampleCoding {
      * @throws IllegalArgumentException if <code>name</code> is null
      */
     public void addFlag(String name, int flagMask, String description) {
-        Guardian.assertNotNull("name", name);
-        MetadataAttribute attribute = new MetadataAttribute(name, ProductData.TYPE_INT32);
-        attribute.setDataElems(new int[]{flagMask});
-        if (description != null) {
-            attribute.setDescription(description);
-        }
-        addAttribute(attribute);
+        addValue(name, flagMask, description);
     }
 
     /**

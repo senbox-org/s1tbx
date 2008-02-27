@@ -55,18 +55,22 @@ import java.io.IOException;
  */
 public class Band extends AbstractBand {
 
-    public final static String PROPERTY_NAME_FLAG_CODING = "flagCoding";
+    public final static String PROPERTY_NAME_SAMPLE_CODING = "sampleCoding";
     public final static String PROPERTY_NAME_SOLAR_FLUX = "solarFlux";
-
-
     public final static String PROPERTY_NAME_SPECTRAL_BAND_INDEX = "spectralBandIndex";
     public final static String PROPERTY_NAME_SPECTRAL_BANDWIDTH = "spectralBandwidth";
     public final static String PROPERTY_NAME_SPECTRAL_WAVELENGTH = "spectralWavelength";
 
     /**
+     * @deprecated since 4.2, use {@link #PROPERTY_NAME_SAMPLE_CODING}
+     */
+    @Deprecated
+    public final static String PROPERTY_NAME_FLAG_CODING = "flagCoding";
+
+    /**
      * If this band contains flag data, this is the flag coding.
      */
-    private FlagCoding _flagCoding;
+    private SampleCoding sampleCoding;
 
     private int _spectralBandIndex;
     private float _spectralWavelength;
@@ -96,7 +100,7 @@ public class Band extends AbstractBand {
      * @return a non-null value if this band is a flag dataset, <code>null</code> otherwise
      */
     public FlagCoding getFlagCoding() {
-        return _flagCoding;
+        return getSampleCoding() instanceof FlagCoding ? (FlagCoding) getSampleCoding() : null;
     }
 
     /**
@@ -104,18 +108,11 @@ public class Band extends AbstractBand {
      *
      * @param flagCoding a non-null value representing the flag coding
      * @throws IllegalStateException if this band does not contain integer pixels
+     * @deprecated since 4.2, use {@link #setSampleCoding(SampleCoding)} instead
      */
+    @Deprecated
     public void setFlagCoding(FlagCoding flagCoding) {
-        if (flagCoding != null) {
-            if (!hasIntPixels()) {
-                throw new IllegalStateException("band does not contain integer pixels");
-            }
-        }
-        if (_flagCoding != flagCoding) {
-            _flagCoding = flagCoding;
-            fireProductNodeChanged(PROPERTY_NAME_FLAG_CODING);
-            setModified(true);
-        }
+       setSampleCoding(flagCoding);
     }
 
     /**
@@ -125,6 +122,52 @@ public class Band extends AbstractBand {
      */
     public boolean isFlagBand() {
         return getFlagCoding() != null;
+    }
+
+    /**
+     * Gets the index coding for this band.
+     *
+     * @return a non-null value if this band is a flag dataset, <code>null</code> otherwise
+     */
+    public IndexCoding getIndexCoding() {
+        return getSampleCoding() instanceof IndexCoding ? (IndexCoding) getSampleCoding() : null;
+    }
+
+    /**
+     * Tests whether or not this band is an index band (<code>getIndexCoding() != null</code>).
+     *
+     * @return <code>true</code> if so
+     */
+    public boolean isIndexBand() {
+        return getIndexCoding() != null;
+    }
+
+    /**
+     * Gets the sample coding.
+     *
+     * @return the sample coding, or {@value null} if not set.
+     */
+    public SampleCoding getSampleCoding() {
+        return sampleCoding;
+    }
+
+    /**
+     * Sets the sample coding for this band.
+     *
+     * @param sampleCoding the sample coding
+     * @throws IllegalArgumentException if this band does not contain integer pixels
+     */
+    public void setSampleCoding(SampleCoding sampleCoding) {
+        if (sampleCoding != null) {
+            if (!hasIntPixels()) {
+                throw new IllegalArgumentException("band does not contain integer pixels");
+            }
+        }
+        if (this.sampleCoding != sampleCoding) {
+            this.sampleCoding = sampleCoding;
+            fireProductNodeChanged(PROPERTY_NAME_SAMPLE_CODING);
+            setModified(true);
+        }
     }
 
     /**
@@ -451,9 +494,9 @@ public class Band extends AbstractBand {
      */
     @Override
     public void dispose() {
-        // don't dispose _flagCoding, its only a reference
-        _flagCoding = null;
         super.dispose();
+        // don't dispose _sampleCoding, its only a reference
+        sampleCoding = null;
     }
 }
 
