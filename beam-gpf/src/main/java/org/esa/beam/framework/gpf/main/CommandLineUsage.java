@@ -187,6 +187,9 @@ class CommandLineUsage {
         if (!parameter.defaultValue().isEmpty()) {
             descriptionLines.add(MessageFormat.format("Default value is ''{0}''.", parameter.defaultValue()));
         }
+        if (!parameter.unit().isEmpty()) {
+            descriptionLines.add(MessageFormat.format("Parameter Unit is ''{0}''.", parameter.unit()));
+        }
         if (parameter.notNull()) {
             descriptionLines.add("This is a mandatory parameter.");
         }
