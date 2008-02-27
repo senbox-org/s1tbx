@@ -20,45 +20,54 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-public class LinkedListProductVisitor implements ProductVisitor {
+public class LinkedListProductVisitor extends ProductVisitorAdapter {
 
     private List<String> _visitedList = new LinkedList<String>();
 
     public LinkedListProductVisitor() {
     }
 
+    @Override
     public void visit(Product product) {
         _visitedList.add(product.getName());
     }
 
+    @Override
     public void visit(MetadataElement group) {
         _visitedList.add(group.getName());
     }
 
+    @Override
     public void visit(Band band) {
         _visitedList.add(band.getName());
     }
 
+    @Override
     public void visit(VirtualBand virtualBand) {
         _visitedList.add(virtualBand.getName());
     }
 
+    @Override
     public void visit(TiePointGrid grid) {
         _visitedList.add(grid.getName());
     }
 
+    @Override
     public void visit(FlagCoding flagCoding) {
         _visitedList.add(flagCoding.getName());
     }
 
+    @Override
     public void visit(MetadataAttribute attribute) {
         _visitedList.add(attribute.getName());
     }
 
+    @Override
     public void visit(BitmaskDef bitmaskDef) {
         _visitedList.add(bitmaskDef.getName());
     }
 
+    @Override
     public void visit(ProductNodeGroup group) {
         _visitedList.add(group.getName());
     }

@@ -22,52 +22,52 @@ import org.esa.beam.util.Guardian;
 
 /**
  * Provides the information required to decode integer sample values that
- * are combined of single flags (bit indexes).
+ * represent index values (e.g. types, classes, categories).
  */
-public class FlagCoding extends SampleCoding {
+public class IndexCoding extends SampleCoding {
 
     /**
-     * Constructs a new flag coding object with the given name.
+     * Constructs a new index coding object with the given name.
      *
      * @param name the name
      */
-    public FlagCoding(String name) {
+    public IndexCoding(String name) {
         super(name);
     }
 
     /**
-     * Returns a metadata attribute wich is the representation of the flag with the given name. This method delegates to
+     * Returns a metadata attribute wich is the representation of the index with the given name. This method delegates to
      * getPropertyValue(String).
      *
      * @param name the flag name
      * @return a metadata attribute wich is the representation of the flag with the given name
      */
-    public MetadataAttribute getFlag(String name) {
+    public MetadataAttribute getIndex(String name) {
         return getAttribute(name);
     }
 
     /**
-     * Returns a string array which contains the names of all flags contained in this <code>FlagCoding</code> object.
+     * Returns a string array which contains the names of all indexes contained in this <code>IndexCoding</code> object.
      *
      * @return a string array which contains all names of this <code>FlagCoding</code>.<br> If this
      *         <code>FlagCoding</code> does not contain any flag, <code>null</code> is returned
      */
-    public String[] getFlagNames() {
+    public String[] getIndexNames() {
         return getAttributeNames();
     }
 
     /**
-     * Adds a new flag definition to this flags coding.
+     * Adds a new index definition to this flags coding.
      *
-     * @param name        the flag name
-     * @param flagMask    the flag's bit mask
+     * @param name        the index name
+     * @param value       the index value
      * @param description the description text
      * @throws IllegalArgumentException if <code>name</code> is null
      */
-    public void addFlag(String name, int flagMask, String description) {
+    public void addIndex(String name, int value, String description) {
         Guardian.assertNotNull("name", name);
         MetadataAttribute attribute = new MetadataAttribute(name, ProductData.TYPE_INT32);
-        attribute.setDataElems(new int[]{flagMask});
+        attribute.setDataElems(new int[]{value});
         if (description != null) {
             attribute.setDescription(description);
         }
@@ -81,11 +81,11 @@ public class FlagCoding extends SampleCoding {
      * @return flagMask the flag's bit mask as a 32 bit integer
      * @throws IllegalArgumentException if <code>name</code> is null, or a flag with the name does not exist
      */
-    public int getFlagMask(String name) {
+    public int getIndexValue(String name) {
         Guardian.assertNotNull("name", name);
         MetadataAttribute attribute = getAttribute(name);
         if (attribute == null) {
-            throw new IllegalArgumentException("flag '" + name + "' not found");
+            throw new IllegalArgumentException("index '" + name + "' not found");
         }
         Debug.assertTrue(attribute.getData().isInt());
         Debug.assertTrue(attribute.getData().isScalar());

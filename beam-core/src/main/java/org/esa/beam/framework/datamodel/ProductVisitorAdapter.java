@@ -65,6 +65,10 @@ public class ProductVisitorAdapter implements ProductVisitor {
     public void visit(FlagCoding flagCoding) {
     }
 
+    public void visit(IndexCoding indexCoding) {
+
+    }
+
     public void visit(BitmaskDef bitmaskDef) {
     }
 

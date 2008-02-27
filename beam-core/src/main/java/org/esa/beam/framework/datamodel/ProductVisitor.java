@@ -79,6 +79,13 @@ public interface ProductVisitor {
     void visit(FlagCoding flagCoding);
 
     /**
+     * Visits an index coding.
+     *
+     * @param indexCoding the index coding to be visited
+     */
+    void visit(IndexCoding indexCoding);
+
+    /**
      * Visits a bitmask definition.
      *
      * @param bitmaskDef the bitmask definition to be visited
