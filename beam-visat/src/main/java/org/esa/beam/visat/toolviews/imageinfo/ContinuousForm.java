@@ -16,7 +16,7 @@ import java.beans.PropertyChangeListener;
 
 abstract class ContinuousForm implements SpecificForm {
 
-    protected final ImageInterpretationForm imageForm;
+    protected final ColorManipulationForm imageForm;
     protected AbstractButton autoStretch95Button;
     protected AbstractButton autoStretch100Button;
     protected AbstractButton zoomInVButton;
@@ -30,7 +30,7 @@ abstract class ContinuousForm implements SpecificForm {
     protected ProductSceneView productSceneView;
 
 
-    protected ContinuousForm(final ImageInterpretationForm imageForm) {
+    protected ContinuousForm(final ColorManipulationForm imageForm) {
         this.imageForm = imageForm;
 
         colorPaletteEditorPanel = new ColourPaletteEditorPanel();
@@ -130,11 +130,11 @@ abstract class ContinuousForm implements SpecificForm {
     }
 
     protected AbstractButton createToggleButton(String s) {
-        return ImageInterpretationForm.createToggleButton(s);
+        return ColorManipulationForm.createToggleButton(s);
     }
 
     protected AbstractButton createButton(String s) {
-        return ImageInterpretationForm.createButton(s);
+        return ColorManipulationForm.createButton(s);
     }
 
     // super!

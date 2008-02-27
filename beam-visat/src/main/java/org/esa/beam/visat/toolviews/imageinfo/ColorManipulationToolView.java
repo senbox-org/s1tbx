@@ -24,17 +24,17 @@ import javax.swing.JComponent;
 /**
  * The contrast stretch window.
  */
-public class ImageInterpretationToolView extends AbstractToolView {
+public class ColorManipulationToolView extends AbstractToolView {
 
-    public static final String ID = ImageInterpretationToolView.class.getName();
-    private ImageInterpretationForm imageInterpretationForm;
+    public static final String ID = ColorManipulationToolView.class.getName();
+    private ColorManipulationForm colorManipulationForm;
 
-    public ImageInterpretationToolView() {
+    public ColorManipulationToolView() {
     }
 
     @Override
     protected JComponent createControl() {
-        imageInterpretationForm = new ImageInterpretationForm(this);
-        return imageInterpretationForm.getMainPanel();
+        colorManipulationForm = new ColorManipulationForm(this);
+        return colorManipulationForm.getMainPanel();
     }
 }

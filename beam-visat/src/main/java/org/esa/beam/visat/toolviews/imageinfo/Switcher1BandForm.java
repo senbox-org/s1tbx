@@ -14,6 +14,8 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import com.bc.ceres.core.Assert;
+
 class Switcher1BandForm implements SpecificForm {
 
     private SpecificForm currentForm;
@@ -22,10 +24,10 @@ class Switcher1BandForm implements SpecificForm {
     private JRadioButton discreteButton;
     private SpecificForm discrete1BandForm;
     private SpecificForm continuous1BandForm;
-    private final ImageInterpretationForm imageForm;
+    private final ColorManipulationForm imageForm;
     private ProductSceneView productSceneView;
 
-    protected Switcher1BandForm(final ImageInterpretationForm imageForm) {
+    protected Switcher1BandForm(final ColorManipulationForm imageForm) {
         this.imageForm = imageForm;
         currentForm = EmptyForm.INSTANCE;
 
@@ -59,6 +61,7 @@ class Switcher1BandForm implements SpecificForm {
     }
 
     public void initProductSceneView(ProductSceneView productSceneView) {
+        Assert.notNull(productSceneView, "productSceneView");
         this.productSceneView = productSceneView;
         final ImageInfo imageInfo = productSceneView.getRaster().getImageInfo();
         setCurrentImageInfo(imageInfo);

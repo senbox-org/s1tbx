@@ -197,12 +197,12 @@
 
 
         <toolView>
-            <id>org.esa.beam.visat.toolviews.imageinfo.ImageInterpretationToolView</id>
-            <class>org.esa.beam.visat.toolviews.imageinfo.ImageInterpretationToolView</class>
-            <title>Image Interpretation</title>
+            <id>org.esa.beam.visat.toolviews.imageinfo.ColorManipulationToolView</id>
+            <class>org.esa.beam.visat.toolviews.imageinfo.ColorManipulationToolView</class>
+            <title>Color Manipulation</title>
             <mnemonic>C</mnemonic>
             <accelerator>ctrl alt C</accelerator>
-            <description>Contrast stretch and colorize a selected image view.</description>
+            <description>Allows image color manipulation and contrast stretching.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/ContrastStretch16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/ContrastStretch24.gif</largeIcon>
             <!--<helpId>TODO</helpId>-->

@@ -9,11 +9,13 @@ import javax.swing.AbstractButton;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import com.bc.ceres.core.Assert;
+
 class Continuous1BandForm extends ContinuousForm {
 
     private AbstractButton evenDistButton;
 
-    public Continuous1BandForm(final ImageInterpretationForm imageForm) {
+    public Continuous1BandForm(final ColorManipulationForm imageForm) {
         super(imageForm);
         evenDistButton = createButton("icons/EvenDistribution24.gif");
         evenDistButton.setName("evenDistButton");
@@ -60,6 +62,7 @@ class Continuous1BandForm extends ContinuousForm {
     }
 
     public void updateState() {
+        Assert.notNull(productSceneView, "productSceneView");
         colorPaletteEditorPanel.setUnit(productSceneView.getRaster().getUnit());
         colorPaletteEditorPanel.setRGBColor(null);
         imageForm.revalidate();

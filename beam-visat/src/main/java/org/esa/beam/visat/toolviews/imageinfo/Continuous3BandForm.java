@@ -21,6 +21,8 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import com.bc.ceres.core.Assert;
+
 class Continuous3BandForm extends ContinuousForm {
     private final static Color[] RGB_COLORS = new Color[]{Color.RED, Color.GREEN, Color.BLUE};
 
@@ -43,7 +45,7 @@ class Continuous3BandForm extends ContinuousForm {
 
     private Unloader unloader;
 
-    public Continuous3BandForm(final ImageInterpretationForm imageForm) {
+    public Continuous3BandForm(final ColorManipulationForm imageForm) {
         super(imageForm);
 
         initParameters();
@@ -200,6 +202,7 @@ class Continuous3BandForm extends ContinuousForm {
     }
 
     public void updateState() {
+        Assert.notNull(productSceneView, "productSceneView");
         final int index = getSelectedRgbIndex();
         if (index != -1) {
             updateImageInfo(index);

@@ -50,7 +50,7 @@ import java.util.ArrayList;
 /**
  * The contrast stretch window.
  */
-class ImageInterpretationForm {
+class ColorManipulationForm {
 
     private final static String PREFERENCES_KEY_IO_DIR = "visat.color_palettes.dir";
 
@@ -72,15 +72,15 @@ class ImageInterpretationForm {
     private final ProductNodeListener _productNodeListener;
     private boolean auxDataInstalled;
     private JPanel mainPanel;
-    private final ImageInterpretationToolView toolView;
+    private final ColorManipulationToolView toolView;
     private SpecificForm specificForm;
     private SpecificForm switcher1BandForm;
     private SpecificForm continous3BandForm;
     private JPanel buttonPane;
     private AbstractButton helpButton;
 
-    public ImageInterpretationForm(ImageInterpretationToolView imageInterpretationToolView) {
-        this.toolView = imageInterpretationToolView;
+    public ColorManipulationForm(ColorManipulationToolView colorManipulationToolView) {
+        this.toolView = colorManipulationToolView;
         _visatApp = VisatApp.getApp();
         _preferences = _visatApp.getPreferences();
         _productNodeListener = createProductNodeListener();
@@ -597,7 +597,7 @@ class ImageInterpretationForm {
         @Override
         public void internalFrameActivated(final InternalFrameEvent e) {
             final ProductSceneView view = getProductSceneView(e);
-            removeDataChangedListener(ImageInterpretationForm.this.getProductSceneView());
+            removeDataChangedListener(ColorManipulationForm.this.getProductSceneView());
             if (view != null) {
                 addDataChangedListener(view);
                 setProductSceneView(view);
@@ -609,9 +609,9 @@ class ImageInterpretationForm {
         @Override
         public void internalFrameDeactivated(final InternalFrameEvent e) {
             final ProductSceneView view = getProductSceneView(e);
-            if (ImageInterpretationForm.this.getProductSceneView() == view) {
-                removeDataChangedListener(ImageInterpretationForm.this.getProductSceneView());
-                ImageInterpretationForm.this.setProductSceneView(null);
+            if (ColorManipulationForm.this.getProductSceneView() == view) {
+                removeDataChangedListener(ColorManipulationForm.this.getProductSceneView());
+                ColorManipulationForm.this.setProductSceneView(null);
             }
         }
 

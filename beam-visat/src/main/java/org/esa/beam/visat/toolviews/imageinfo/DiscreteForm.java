@@ -8,9 +8,12 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import java.awt.Component;
 
+import com.bc.ceres.core.Assert;
+
 class DiscreteForm implements SpecificForm {
     private ImageInfo currentImageInfo;
     private JLabel contentPanel;
+    private ProductSceneView productSceneView;
 
     public DiscreteForm() {
         contentPanel = new JLabel("I am concrete dicrete!");
@@ -43,9 +46,11 @@ class DiscreteForm implements SpecificForm {
 
     public void initProductSceneView(ProductSceneView productSceneView) {
 
+        this.productSceneView = productSceneView;
     }
 
     public void releaseProductSceneView() {
+        this.productSceneView = null;
 
     }
 
@@ -54,6 +59,7 @@ class DiscreteForm implements SpecificForm {
     }
 
     public void updateState() {
+        Assert.notNull(productSceneView, "productSceneView");
 
     }
 }
