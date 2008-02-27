@@ -305,15 +305,7 @@ public class ColorPaletteDef {
     }
 
     private Color[] createDiscreteColourPalette() {
-//        final Color[] colors = new Color[numColors];
-//        for (int i = 0; i < points.size(); i++) {
-//            colors[i] = points.get(i).getColor();
-//        }
-//        return colors;
-        final Color[] colors = new Color[256];
-        for (int i = 0; i < colors.length; i++) {
-            colors[i] = i % 2 == 0 ? Color.BLACK : Color.WHITE;
-        }
+        final Color[] colors = new Color[numColors];
         for (int i = 0; i < points.size(); i++) {
             colors[i] = points.get(i).getColor();
         }
