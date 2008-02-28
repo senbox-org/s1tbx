@@ -21,7 +21,7 @@ import java.awt.Color;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
 import org.jdom.Element;
 
-//@todo 1 he/** - add (more) class documentation
+//@todo 1 se/** - add (more) class documentation
 
 public class XmlHelper {
 

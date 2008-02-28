@@ -18,7 +18,7 @@ package org.esa.beam.util.jai;
 
 import java.awt.geom.AffineTransform;
 
-//@todo 1 he/** - add (more) class documentation
+//@todo 1 se/** - add (more) class documentation
 
 public class RectificationGrid {
 

@@ -35,7 +35,7 @@ import org.esa.beam.framework.processor.Request;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ObjectUtils;
 
-//@todo 1 he/** - add (more) class documentation
+//@todo 1 se/** - add (more) class documentation
 
 public abstract class SmacAbstractProcessor {
 

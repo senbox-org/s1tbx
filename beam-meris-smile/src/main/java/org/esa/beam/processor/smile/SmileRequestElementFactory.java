@@ -137,7 +137,7 @@ public class SmileRequestElementFactory implements RequestElementFactory {
             properties.setDefaultValue(new File((File) defaultValue, SmileConstants.DEFAULT_OUTPUT_PRODUCT_NAME));
         }
         defaultOutputProductParameter.setDefaultValue();
-        // @todo 1 nf/he - also set default output format here, so that it fits to SmileConstants.DEFAULT_FILE_NAME's extension (.dim)
+        // @todo 1 nf/se - also set default output format here, so that it fits to SmileConstants.DEFAULT_FILE_NAME's extension (.dim)
         return defaultOutputProductParameter;
     }
 

@@ -177,7 +177,7 @@ public class ROIDefinition implements Cloneable {
         return clone;
     }
 
-    // @todo 1 nf/he - recognize _pinUseEnabled
+    // @todo 1 nf/se - recognize _pinUseEnabled
     public void writeXML(final XmlWriter writer, int indent) {
         Guardian.assertNotNull("writer", writer);
         Guardian.assertGreaterThan("indent", indent, -1);

@@ -91,14 +91,14 @@ public class Range {
     }
 
     /**
-     * @deprecated in 4.0, use {@link #aggregate(Object, boolean, IndexValidator, com.bc.ceres.core.ProgressMonitor)} 
+     * @deprecated in 4.0, use {@link #aggregate(Object, boolean, IndexValidator, com.bc.ceres.core.ProgressMonitor)}
      */
     public void aggregate(final Object values, boolean unsigned,
                           final IndexValidator validator) {
         aggregate(values, unsigned, validator, ProgressMonitor.NULL);
     }
 
-    // @todo he/nf - add documentation
+    // @todo se/nf - add documentation
     public void aggregate(final Object values, boolean unsigned,
                           final IndexValidator validator, ProgressMonitor pm) {
         Guardian.assertNotNull("validator", validator);

@@ -349,7 +349,7 @@ public class SmileProcessor extends Processor {
         if (productType == null) {
             throw new ProcessorException(SmileConstants.LOG_MSG_NO_INPUT_TYPE);
         }
-        // @todo 1 nf/he - make sure its not dangerous to copy source product type
+        // @todo 1 nf/se - make sure its not dangerous to copy source product type
         // productType += "_SMILE";
         int sceneWidth = _inputProduct.getSceneRasterWidth();
         int sceneHeight = _inputProduct.getSceneRasterHeight();
@@ -447,7 +447,7 @@ public class SmileProcessor extends Processor {
         final int width = _inputProduct.getSceneRasterWidth();
         final int height = _inputProduct.getSceneRasterHeight();
 
-        // @todo 3 he/he - move this code block to another method
+        // @todo 3 se/se - move this code block to another method
         assert _bandNamesToProcessIn != null;
         final Set<Integer> bandIndexSet = new HashSet<Integer>();
         for (final String bandNameToProcess : _bandNamesToProcessIn) {

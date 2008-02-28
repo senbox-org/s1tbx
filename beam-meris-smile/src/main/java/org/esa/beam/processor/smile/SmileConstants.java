@@ -28,7 +28,7 @@ import org.esa.beam.framework.processor.ProcessorConstants;
 public class SmileConstants implements ProcessorConstants {
 
     // default value for logging file parameter default filename
-    // @todo 1 nf/he - remove this param, its not required
+    // @todo 1 nf/se - remove this param, its not required
     public static final String DEFAULT_LOG_FILE_FILENAME = "smile_corr_log.txt";
 
     // name for the processor logger

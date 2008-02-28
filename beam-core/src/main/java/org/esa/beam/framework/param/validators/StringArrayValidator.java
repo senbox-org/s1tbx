@@ -26,7 +26,7 @@ import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.StringUtils;
 
-//@todo 1 he/** - add (more) class documentation
+//@todo 1 se/** - add (more) class documentation
 
 public class StringArrayValidator extends AbstractParamValidator {
 
