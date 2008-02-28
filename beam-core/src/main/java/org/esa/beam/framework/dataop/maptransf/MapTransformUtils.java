@@ -19,7 +19,7 @@ package org.esa.beam.framework.dataop.maptransf;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.math.MathUtils;
 
-//@todo 1 he/** - add (more) class documentation
+//@todo 1 se/** - add (more) class documentation
 
 public class MapTransformUtils {
 

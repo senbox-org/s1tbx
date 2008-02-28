@@ -24,7 +24,7 @@ import java.awt.event.MouseListener;
 import javax.swing.Timer;
 import javax.swing.event.MouseInputListener;
 
-//@todo 1 he/** - add (more) class documentation
+//@todo 1 se/** - add (more) class documentation
 
 public final class MouseEventFilterFactory {
 

@@ -459,7 +459,7 @@ public class JAIUtils {
                 y_int = 0.0;
             }
 
-            // @todo 3 h3/nf - (dpc1) duplicated code -> search (dpc2)
+            // @todo 3 se/nf - (dpc1) duplicated code -> search (dpc2)
             byte[][] lut = new byte[bands][256];
             for (int j = 0; j < bands; j++) {
                 byte[] lutb = lut[j];
@@ -494,7 +494,7 @@ public class JAIUtils {
                 y_int = 0.0;
             }
 
-            // @todo 3 h3/nf - (dpc2) duplicated code -> search (dpc1)
+            // @todo 3 se/nf - (dpc2) duplicated code -> search (dpc1)
             byte[][] lut = new byte[bands][65536];
             for (int j = 0; j < bands; j++) {
                 byte[] lutb = lut[j];

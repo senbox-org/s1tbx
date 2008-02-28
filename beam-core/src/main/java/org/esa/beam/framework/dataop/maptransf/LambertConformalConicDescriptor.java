@@ -138,13 +138,13 @@ public class LambertConformalConicDescriptor implements MapTransformDescriptor {
      */
     public Parameter[] getParameters() {
     	final Parameter[] parameters = new Parameter[PARAMETER_NAMES.length];
-        
+
     	for (int i = 0; i < parameters.length; ++i) {
             parameters[i] = new Parameter(PARAMETER_NAMES[i], PARAMETER_DEFAULT_VALUES[i]);
             parameters[i].getProperties().setLabel(PARAMETER_LABELS[i]);
             parameters[i].getProperties().setPhysicalUnit(PARAMETER_UNITS[i]);
         }
-    	
+
         return parameters;
     }
 
@@ -154,7 +154,7 @@ public class LambertConformalConicDescriptor implements MapTransformDescriptor {
     public double[] getParameterDefaultValues() {
     	final double[] values = new double[PARAMETER_DEFAULT_VALUES.length];
     	System.arraycopy(PARAMETER_DEFAULT_VALUES, 0, values, 0, values.length);
-    	
+
         return values;
     }
 
@@ -198,7 +198,7 @@ public class LambertConformalConicDescriptor implements MapTransformDescriptor {
         private double _n;
         private double _invN;
         private double _rho0;
-        private double _e; //@todo he - excentizitaet
+        private double _e; //@todo se - excentizitaet
         private double _c;
         private double _invC;
         private double _k0;
@@ -286,7 +286,7 @@ public class LambertConformalConicDescriptor implements MapTransformDescriptor {
         public double[] getParameterValues() {
         	final double[] values = new double[_parameterValues.length];
         	System.arraycopy(_parameterValues, 0, values, 0, values.length);
-        	
+
             return values;
         }
 

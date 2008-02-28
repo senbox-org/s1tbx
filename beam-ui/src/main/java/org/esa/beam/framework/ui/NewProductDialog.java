@@ -48,7 +48,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
-//@todo 1 he/** - add (more) class documentation
+//@todo 1 se/** - add (more) class documentation
 
 public class NewProductDialog extends ModalDialog {
 

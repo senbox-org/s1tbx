@@ -27,7 +27,7 @@ import org.esa.beam.processor.binning.database.TemporalBinDatabase;
 import java.io.File;
 import java.io.IOException;
 
-//@todo 1 he/nf - class documentation
+//@todo 1 se/nf - class documentation
 
 public class L3InitialProcessor extends L3SubProcessor {
 
