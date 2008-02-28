@@ -19,7 +19,7 @@ package org.esa.beam.framework.param;
 
 import junit.framework.TestCase;
 
-// @todo 1 he/he - write more tests
+// @todo 1 se/se - write more tests
 
 public class ParameterTest extends TestCase {
 

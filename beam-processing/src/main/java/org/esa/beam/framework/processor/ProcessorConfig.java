@@ -17,7 +17,7 @@
 package org.esa.beam.framework.processor;
 
 
-//@todo 1 he/** - add (more) class documentation
+//@todo 1 se/** - add (more) class documentation
 
 public class ProcessorConfig {
 

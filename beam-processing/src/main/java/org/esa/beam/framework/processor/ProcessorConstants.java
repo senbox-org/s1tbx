@@ -16,7 +16,7 @@
  */
 package org.esa.beam.framework.processor;
 
-// @todo 1 bc/he - provide docu and turn into static class
+// @todo 1 bc/se - provide docu and turn into static class
 
 public interface ProcessorConstants {
 

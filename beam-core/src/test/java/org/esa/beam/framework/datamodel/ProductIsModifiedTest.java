@@ -26,7 +26,7 @@ public class ProductIsModifiedTest extends TestCase {
     }
 
     /*
-     * @todo 1 he/he - tests must be implemented to ensure the modified flag
+     * @todo 1 se/se - tests must be implemented to ensure the modified flag
      * usability for save only modified product nodes.
      */
     public void testProductConstructors() {

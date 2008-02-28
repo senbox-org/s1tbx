@@ -31,7 +31,7 @@ import org.esa.beam.framework.datamodel.PinSymbol;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.ui.ModalDialog;
 
-//@todo 1 he/he - class dokumentation
+//@todo 1 se/se - class dokumentation
 
 public class PinSymbolDialog extends ModalDialog {
 

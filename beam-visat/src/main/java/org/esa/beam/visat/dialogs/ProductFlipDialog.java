@@ -216,7 +216,7 @@ public class ProductFlipDialog extends ModalDialog {
     private void updateUI() {
         Product product = getSourceProduct();
         Dimension outputRasterSize = new Dimension(product.getSceneRasterWidth(), product.getSceneRasterHeight());
-        // @todo 1 nf/he - although this code looks stupid,
+        // @todo 1 nf/se - although this code looks stupid,
         // it will help us to derive a base class from this class
         // which can then be used by the MapProjectionDialog too
         if (outputRasterSize != null) {
