@@ -164,7 +164,7 @@ class CommandLineUsage {
         for (Entry<Field, TargetProperty> entry : propertyMap.entrySet()) {
             final Field propertyField = entry.getKey();
             final TargetProperty property = entry.getValue();
-                String propertySyntax = MessageFormat.format("{1} {0}", getTargetPropertyName(propertyField, property), getTypeName(propertyField.getType()));
+                String propertySyntax = MessageFormat.format("{0} {1}", propertyField.getType().getSimpleName(), getTargetPropertyName(propertyField, property));
                 final ArrayList<String> descriptionLines = createTargetPropertyDescriptionLines(propertyField, property);
                 docElementList.add(new DocElement(propertySyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
         }
