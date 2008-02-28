@@ -20,7 +20,7 @@ import java.awt.Point;
 
 import org.esa.beam.framework.datamodel.GeoPos;
 
-//@todo 1 he/tb - class documentation
+//@todo 1 se/tb - class documentation
 
 public interface BinLocator {
 

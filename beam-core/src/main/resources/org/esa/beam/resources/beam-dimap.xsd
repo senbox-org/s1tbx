@@ -240,7 +240,7 @@
 
     <xsd:complexType name="BEAM_Shape_Figure_Simple">
         <xsd:attribute name="type" type="BEAM_Shape_Types" use="required"/>
-        <xsd:attribute name="value" type="BEAM_CSV_floats" use="required"/> <!-- @todo 3 he/he - BEAM_CSV_floats -->
+        <xsd:attribute name="value" type="BEAM_CSV_floats" use="required"/> <!-- @todo 3 se/se - BEAM_CSV_floats -->
     </xsd:complexType>
 
     <xsd:complexType name="BEAM_Shape_Figure_Path">
@@ -249,7 +249,7 @@
                 <xsd:element name="SEGMENT" fixed="" maxOccurs="unbounded">
                     <xsd:complexType>
                         <xsd:attribute name="type" type="BEAM_SEGMET_Types" use="required"/>
-                        <xsd:attribute name="value" type="BEAM_CSV_floats" use="required"/> <!-- @todo 3 he/he - BEAM_CSV_floats -->
+                        <xsd:attribute name="value" type="BEAM_CSV_floats" use="required"/> <!-- @todo 3 se/se - BEAM_CSV_floats -->
                     </xsd:complexType>
                 </xsd:element>
                 <xsd:element name="SEGMENT" fixed="">
@@ -280,7 +280,7 @@
         <xsd:attribute name="value" use="required">
             <xsd:simpleType>
                 <xsd:restriction base="xsd:string">
-                    <xsd:pattern value=".*"/>  <!-- @todo 3 he/he - pattern oder restrictionen fuer expressions -->
+                    <xsd:pattern value=".*"/>  <!-- @todo 3 se/se - pattern oder restrictionen fuer expressions -->
                 </xsd:restriction>
             </xsd:simpleType>
         </xsd:attribute>
@@ -419,31 +419,31 @@
 
     <xsd:simpleType name="BEAM_CSV_Integer">
         <xsd:restriction base="xsd:string">
-            <xsd:pattern value="(\d+,)*\d+"/>   <!-- @todo 3 he/he - Pattern so correct? -->
+            <xsd:pattern value="(\d+,)*\d+"/>   <!-- @todo 3 se/se - Pattern so correct? -->
         </xsd:restriction>
     </xsd:simpleType>
 
     <xsd:simpleType name="BEAM_CSV_Identifiers">
         <xsd:restriction base="xsd:string">
-            <xsd:pattern value="([a-zA-Z_][a-zA-Z0-9._]*,)*[a-zA-Z_][a-zA-Z0-9._]*"/>   <!-- @todo 3 he/he - Pattern so correct? -->
+            <xsd:pattern value="([a-zA-Z_][a-zA-Z0-9._]*,)*[a-zA-Z_][a-zA-Z0-9._]*"/>   <!-- @todo 3 se/se - Pattern so correct? -->
         </xsd:restriction>
     </xsd:simpleType>
 
     <xsd:simpleType name="BEAM_Identifier">
         <xsd:restriction base="xsd:string">
-            <xsd:pattern value="[a-zA-Z_][a-zA-Z0-9._]*"/>   <!-- @todo 3 he/he - Pattern so correct? -->
+            <xsd:pattern value="[a-zA-Z_][a-zA-Z0-9._]*"/>   <!-- @todo 3 se/se - Pattern so correct? -->
         </xsd:restriction>
     </xsd:simpleType>
 
     <xsd:simpleType name="BEAM_FileName">
         <xsd:restriction base="xsd:string">
-            <xsd:pattern value="[a-zA-Z_][a-zA-Z0-9._]*(.dim|.DIM)"/>   <!-- @todo 3 he/he - Pattern fuer *.dim oder *.DIM so correct?-->
+            <xsd:pattern value="[a-zA-Z_][a-zA-Z0-9._]*(.dim|.DIM)"/>   <!-- @todo 3 se/se - Pattern fuer *.dim oder *.DIM so correct?-->
         </xsd:restriction>
     </xsd:simpleType>
 
     <xsd:simpleType name="BEAM_ENVI_HEADER_FilePath">
         <xsd:restriction base="xsd:string">
-            <xsd:pattern value="[a-zA-Z_][a-zA-Z0-9._/]*(.hdr|.HDR)"/>   <!-- @todo 3 he/he - Pattern fuer *.hdr oder *.HDR so correct?-->
+            <xsd:pattern value="[a-zA-Z_][a-zA-Z0-9._/]*(.hdr|.HDR)"/>   <!-- @todo 3 se/se - Pattern fuer *.hdr oder *.HDR so correct?-->
         </xsd:restriction>
     </xsd:simpleType>
 

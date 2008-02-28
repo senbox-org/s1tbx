@@ -19,7 +19,7 @@ package org.esa.beam.processor.binning.algorithm;
 import org.esa.beam.framework.processor.ProcessorException;
 import org.esa.beam.processor.binning.database.Bin;
 
-//@todo 1 he/tb - class dokumentation
+//@todo 1 se/tb - class dokumentation
 
 public interface Algorithm {
 

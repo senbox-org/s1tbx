@@ -29,7 +29,7 @@ import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.draw.ShapeFigure;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
 
-//@todo 1 he/** - add (more) class documentation
+//@todo 1 se/** - add (more) class documentation
 
 public abstract class AbstractCreateLineTool extends AbstractCreateFigureTool {
 

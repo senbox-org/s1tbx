@@ -45,7 +45,7 @@ import org.esa.beam.util.Guardian;
  */
 public class BandChooser extends ModalDialog {
 
-    // @todo 3 nf/he - see ProductSubsetDialog for a similar declarations  (code smell!)
+    // @todo 3 nf/se - see ProductSubsetDialog for a similar declarations  (code smell!)
     private static final Font _SMALL_PLAIN_FONT = new Font("SansSerif", Font.PLAIN, 10);
     private static final Font _SMALL_ITALIC_FONT = _SMALL_PLAIN_FONT.deriveFont(Font.ITALIC);
 

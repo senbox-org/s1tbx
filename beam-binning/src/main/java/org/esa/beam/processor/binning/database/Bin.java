@@ -16,7 +16,7 @@
  */
 package org.esa.beam.processor.binning.database;
 
-//@todo 1 he/tb - class dokumentation
+//@todo 1 se/tb - class dokumentation
 
 public interface Bin {
 

@@ -141,7 +141,7 @@ public class ComboBoxEditor extends AbstractParamEditor {
             }
         }
 
-//@todo 1 he/nf - IMPORTANT! must we set enabled when user sets uiEnabled (= false) in Paramerter?
+//@todo 1 se/nf - IMPORTANT! must we set enabled when user sets uiEnabled (= false) in Paramerter?
         setEnabled(!getParameter().getProperties().isReadOnly());
 //        jComboBox.setEnabled(!getParameter().getProperties().isReadOnly());
         jComboBox.setEditable(!getParameter().getProperties().isValueSetBound());

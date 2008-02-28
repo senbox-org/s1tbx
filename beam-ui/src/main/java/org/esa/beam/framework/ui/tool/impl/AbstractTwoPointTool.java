@@ -18,7 +18,7 @@ import java.util.Map;
 
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
 
-//@todo 1 he/** - add (more) class documentation
+//@todo 1 se/** - add (more) class documentation
 
 public abstract class AbstractTwoPointTool extends AbstractCreateFigureTool {
 
