@@ -158,6 +158,9 @@ public class TestOps {
 
         @TargetProperty(alias = "PI", description = "The ratio of any circle's circumference to its diameter")
         private double pi;
+        
+        @TargetProperty
+        private String[] names;
 
         @Override
         public void initialize() {
