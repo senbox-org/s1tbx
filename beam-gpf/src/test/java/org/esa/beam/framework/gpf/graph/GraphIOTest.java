@@ -207,9 +207,9 @@ public class GraphIOTest extends TestCase {
                         "    <sources>\n" +
                         "      <input>bert</input>\n" +
                         "    </sources>\n" +
-//                        "    <parameters>\n" +
-//                        "       <threshold ref=\"bert.pi\"/>\n" +
-//                        "    </parameters>\n" +
+                        "    <parameters>\n" +
+                        "       <threshold ref=\"bert.pi\"/>\n" +
+                        "    </parameters>\n" +
                         "  </node>\n" +
                         "</graph>";
 
@@ -234,9 +234,9 @@ public class GraphIOTest extends TestCase {
         assertNotNull(targetProperty);
         assertEquals(3.142, (Double) targetProperty, 0.0);
 
-//        NodeContext bazNodeContext = graphContext.getNodeContext(bazNode);
-//        TestOps.Op2 op2 = (TestOps.Op2) bazNodeContext.getOperator();
-//        assertEquals(3.142, op2.threshold, 0.0);
+        NodeContext bazNodeContext = graphContext.getNodeContext(bazNode);
+        TestOps.Op2 op2 = (TestOps.Op2) bazNodeContext.getOperator();
+        assertEquals(3.142, op2.threshold, 0.0);
     }
 
     public void testGraphWithReferenceWithoutSourceProduct() {
@@ -257,9 +257,9 @@ public class GraphIOTest extends TestCase {
                         "    <sources>\n" +
                         "      <input>grunt</input>\n" +
                         "    </sources>\n" +
-//                        "    <parameters>\n" +
-//                        "       <threshold ref=\"bert.pi\"/>\n" +
-//                        "    </parameters>\n" +
+                        "    <parameters>\n" +
+                        "       <threshold ref=\"bert.pi\"/>\n" +
+                        "    </parameters>\n" +
                         "  </node>\n" +
                         "</graph>";
 
@@ -286,8 +286,8 @@ public class GraphIOTest extends TestCase {
         assertNotNull(targetProperty);
         assertEquals(3.142, (Double) targetProperty, 0.0);
 
-//        NodeContext bazNodeContext = graphContext.getNodeContext(bazNode);
-//        TestOps.Op2 op2 = (TestOps.Op2) bazNodeContext.getOperator();
-//        assertEquals(3.142, op2.threshold, 0.0);
+        NodeContext bazNodeContext = graphContext.getNodeContext(bazNode);
+        TestOps.Op2 op2 = (TestOps.Op2) bazNodeContext.getOperator();
+        assertEquals(3.142, op2.threshold, 0.0);
     }
 }

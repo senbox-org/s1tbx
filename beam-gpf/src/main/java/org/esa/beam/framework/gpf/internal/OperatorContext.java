@@ -26,6 +26,8 @@ import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.annotations.*;
+import org.esa.beam.framework.gpf.graph.OperatorConfiguration;
+import org.esa.beam.framework.gpf.graph.OperatorConfiguration.PropertyReference;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.jai.RasterDataNodeOpImage;
 
@@ -61,7 +63,7 @@ public class OperatorContext {
     private Map<String, Product> sourceProductMap;
     private Map<String, Object> targetPropertyMap;
     private Map<Band, OperatorImage> targetImageMap;
-    private Xpp3Dom configuration;
+    private OperatorConfiguration configuration;
     private Logger logger;
     private boolean disposed;
     private ValueContainer valueContainer;
@@ -194,8 +196,8 @@ public class OperatorContext {
     }
 
 
-    public void setConfiguration(Xpp3Dom configuration) {
-        this.configuration = configuration;
+    public void setConfiguration(OperatorConfiguration opConfiguration) {
+        this.configuration = opConfiguration;
     }
 
     public boolean isInitialized() {
@@ -689,10 +691,20 @@ public class OperatorContext {
         }
     }
 
-    private static void configureValue(Xpp3Dom parentElement, Object value) throws ValidationException, ConversionException {
-        final Xpp3DomElement xpp3DomElement = Xpp3DomElement.createDomElement(parentElement);
-        final DefaultDomConverter domConverter = new DefaultDomConverter(value.getClass(), new ParameterDescriptorFactory());
+    private static void configureValue(OperatorConfiguration operatorConfiguration, Object value) throws ValidationException, ConversionException {
+        final Xpp3DomElement xpp3DomElement = Xpp3DomElement.createDomElement(operatorConfiguration.getConfiguration());
+        ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory();
+        final DefaultDomConverter domConverter = new DefaultDomConverter(value.getClass(), parameterDescriptorFactory);
         domConverter.convertDomToValue(xpp3DomElement, value);
+        
+        ValueContainerFactory valueContainerFactory = new ValueContainerFactory(parameterDescriptorFactory);
+        final ValueContainer valueContainer = valueContainerFactory.createObjectBackedValueContainer(value);
+        Set<PropertyReference> referenceSet = operatorConfiguration.getReferenceSet();
+        for (PropertyReference reference : referenceSet) {
+            ValueModel valueModel = valueContainer.getModel(reference.getParameterName());
+            Operator referedOperator = reference.getOperator();
+            valueModel.setValue(referedOperator.getTargetProperty(reference.getPropertyName()));
+        }
     }
 
     private static Field getField(Object object, String valueName) {

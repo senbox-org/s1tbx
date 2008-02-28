@@ -78,8 +78,8 @@ class NodeContext {
         operatorContext.setSourceProduct(id, sourceProduct);
     }
 
-    public void setParameters(Xpp3Dom configuration) {
-        operatorContext.setConfiguration(configuration);
+    public void setParameters(OperatorConfiguration opConfiguration) {
+        operatorContext.setConfiguration(opConfiguration);
     }
 
     public Product getSourceProduct(String id) {

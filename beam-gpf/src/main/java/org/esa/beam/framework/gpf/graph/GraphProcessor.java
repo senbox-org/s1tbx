@@ -16,6 +16,7 @@ import org.esa.beam.util.math.MathUtils;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
+import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 
 /**
  * The <code>GraphProcessor</code> is responsible for executing processing
@@ -252,7 +253,9 @@ public class GraphProcessor {
                 nodeContext.addSourceProduct(source.getName(), sourceNodeContext.getTargetProduct());
             }
             Node node = nodeContext.getNode();
-            nodeContext.setParameters(node.getConfiguration());
+            Xpp3Dom configuration = node.getConfiguration();
+            OperatorConfiguration opConfiguration = OperatorConfiguration.extractReferences(configuration, graphContext);
+            nodeContext.setParameters(opConfiguration);
             nodeContext.initTargetProduct();
             graphContext.getInitNodeContextDeque().addFirst(nodeContext);
 
