@@ -13,4 +13,8 @@ public class TestPojo {
 
     @Parameter(interval = "(0, 100]")
     double percentage;
+
+    @TargetProperty(alias = "bert",
+                    description = "a test property")
+    int property;
 }

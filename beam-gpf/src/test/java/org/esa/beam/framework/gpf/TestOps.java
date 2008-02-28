@@ -150,4 +150,34 @@ public class TestOps {
             }
         }
     }
+
+    @OperatorMetadata(alias = "Op4")
+    public static class Op4 extends Operator {
+        @TargetProduct
+        private Product targetProduct;
+
+        @TargetProperty
+        private double pi;
+
+        @Override
+        public void initialize() {
+            targetProduct = new Product("Op1Name", "Op1Type", RASTER_WIDTH, RASTER_HEIGHT);
+            targetProduct.addBand(new Band("Op1A", ProductData.TYPE_INT8, RASTER_WIDTH, RASTER_HEIGHT));
+            pi = 3.142;
+        }
+
+        @Override
+        public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) {
+            System.out.println("=====>>>>>> Op4.computeBand  start");
+            registerCall("Op4;");
+            System.out.println("=====>>>>>> Op4.computeBand  end");
+        }
+
+        public static class Spi extends OperatorSpi {
+
+            public Spi() {
+                super(Op4.class);
+            }
+        }
+    }
 }

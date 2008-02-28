@@ -59,7 +59,8 @@ public class OperatorContext {
     private List<Product> sourceProductList;
     private Map<String, Object> parameters;
     private Map<String, Product> sourceProductMap;
-    private Map<Band, OperatorImage> targetImages;
+    private Map<String, Object> targetPropertyMap;
+    private Map<Band, OperatorImage> targetImageMap;
     private Xpp3Dom configuration;
     private Logger logger;
     private boolean disposed;
@@ -71,6 +72,7 @@ public class OperatorContext {
         this.computeTileStackMethodUsage = canOperatorComputeTileStack(operator.getClass());
         this.sourceProductList = new ArrayList<Product>(3);
         this.sourceProductMap = new HashMap<String, Product>(3);
+        this.targetPropertyMap = new HashMap<String, Object>(3);
         this.logger = Logger.getAnonymousLogger();
     }
 
@@ -151,6 +153,12 @@ public class OperatorContext {
         this.targetProduct = targetProduct;
     }
 
+    public Object getTargetProperty(String name) {
+        getTargetProduct();
+
+        return targetPropertyMap.get(name);
+    }
+
     public boolean isPassThrough() {
         return passThrough;
     }
@@ -228,7 +236,7 @@ public class OperatorContext {
     }
 
     public OperatorImage getTargetImage(Band band) {
-        return targetImages.get(band);
+        return targetImageMap.get(band);
     }
 
     public boolean isDisposed() {
@@ -242,13 +250,13 @@ public class OperatorContext {
             configuration = null;
             sourceProductMap.clear();
             sourceProductList.clear();
-            Collection<OperatorImage> operatorImages = targetImages.values();
+            Collection<OperatorImage> operatorImages = targetImageMap.values();
             for (OperatorImage image : operatorImages) {
                 image.dispose();
                 JAI.getDefaultInstance().getTileCache().removeTiles(image);
                 // todo - check: band.setImage(null)?  (nf - 03.02.2008)
             }
-            targetImages.clear();
+            targetImageMap.clear();
             operator.dispose();
         }
     }
@@ -264,18 +272,18 @@ public class OperatorContext {
 
     private static boolean canOperatorComputeTile(Class<? extends Operator> aClass) {
         return implementsMethod(aClass, "computeTile",
-                                new Class[]{
-                                        Band.class,
-                                        Tile.class,
-                                        ProgressMonitor.class});
+                new Class[]{
+                        Band.class,
+                        Tile.class,
+                        ProgressMonitor.class});
     }
 
     private static boolean canOperatorComputeTileStack(Class<? extends Operator> aClass) {
         return implementsMethod(aClass, "computeTileStack",
-                                new Class[]{
-                                        Map.class,
-                                        Rectangle.class,
-                                        ProgressMonitor.class});
+                new Class[]{
+                        Map.class,
+                        Rectangle.class,
+                        ProgressMonitor.class});
     }
 
     private static boolean implementsMethod(Class<?> aClass, String methodName, Class[] methodParameterTypes) {
@@ -302,8 +310,11 @@ public class OperatorContext {
         initSourceProductFields();
         operator.initialize();
         initTargetProduct();
+        initTargetProperties();
         initPassThrough();
-        initTargetImages();
+        if (!passThrough) {
+            initTargetImages();
+        }
         initGraphMetadata();
 
         ProductReader oldProductReader = targetProduct.getProductReader();
@@ -438,18 +449,18 @@ public class OperatorContext {
     private void initTargetImages() {
         if (targetProduct.getPreferredTileSize() == null) {
             Dimension tileSize = JAIUtils.computePreferredTileSize(targetProduct.getSceneRasterWidth(),
-                                                                   targetProduct.getSceneRasterHeight(), 4);
+                    targetProduct.getSceneRasterHeight(), 4);
             targetProduct.setPreferredTileSize(tileSize);
         }
 
         Band[] bands = targetProduct.getBands();
-        targetImages = new HashMap<Band, OperatorImage>(bands.length * 2);
+        targetImageMap = new HashMap<Band, OperatorImage>(bands.length * 2);
         for (Band band : bands) {
             OperatorImage image = new OperatorImage(band, this);
             if (band.getImage() == null) {
                 band.setImage(image);
             }
-            targetImages.put(band, image);
+            targetImageMap.put(band, image);
         }
     }
 
@@ -460,7 +471,7 @@ public class OperatorContext {
             if (targetProductAnnotation != null) {
                 if (!declaredField.getType().equals(Product.class)) {
                     String msg = String.format("Operator '%s': Field '%s' annotated as target product is not of type '%s'.",
-                                               operator.getClass().getSimpleName(), declaredField.getName(), Product.class);
+                            operator.getClass().getSimpleName(), declaredField.getName(), Product.class);
                     throw new OperatorException(msg);
                 }
                 final Product targetProduct = (Product) getOperatorFieldValue(declaredField);
@@ -471,7 +482,7 @@ public class OperatorContext {
                         setOperatorFieldValue(declaredField, this.targetProduct);
                     } else {
                         final String message = String.format("Operator '%s': No target product set.",
-                                                             operator.getClass().getSimpleName());
+                                operator.getClass().getSimpleName());
                         throw new OperatorException(message);
                     }
                 }
@@ -479,8 +490,34 @@ public class OperatorContext {
         }
         if (targetProduct == null) {
             final String message = String.format("Operator '%s': No target product set.",
-                                                 operator.getClass().getSimpleName());
+                    operator.getClass().getSimpleName());
             throw new OperatorException(message);
+        }
+    }
+
+    private void initTargetProperties() throws OperatorException {
+        Field[] declaredFields = operator.getClass().getDeclaredFields();
+        for (Field declaredField : declaredFields) {
+            TargetProperty targetPropertyAnnotation = declaredField.getAnnotation(TargetProperty.class);
+            if (targetPropertyAnnotation != null) {
+                Object propertyValue = getOperatorFieldValue(declaredField);
+                String fieldName = declaredField.getName();
+                if (targetPropertyMap.containsKey(fieldName)) {
+                    final String message = String.format("Operator '%s': Name of field '%s' is already used as target property alias.",
+                            operator.getClass().getSimpleName(), fieldName);
+                    throw new OperatorException(message);
+                }
+                targetPropertyMap.put(fieldName, propertyValue);
+                if (!targetPropertyAnnotation.alias().isEmpty()) {
+                    String aliasName = targetPropertyAnnotation.alias();
+                    if (targetPropertyMap.containsKey(aliasName)) {
+                        final String message = String.format("Operator '%s': Alias of field '%s' is already used by another target property.",
+                                operator.getClass().getSimpleName(), aliasName);
+                        throw new OperatorException(message);
+                    }
+                    targetPropertyMap.put(aliasName, propertyValue);
+                }
+            }
         }
     }
 
@@ -506,9 +543,9 @@ public class OperatorContext {
             }
             if (sourceProduct != null) {
                 validateSourceProduct(declaredField.getName(),
-                                      sourceProduct,
-                                      sourceProductAnnotation.type(),
-                                      sourceProductAnnotation.bands());
+                        sourceProduct,
+                        sourceProductAnnotation.type(),
+                        sourceProductAnnotation.bands());
                 setSourceProductFieldValue(declaredField, sourceProduct);
             } else {
                 sourceProduct = getSourceProductFieldValue(declaredField);
@@ -556,9 +593,9 @@ public class OperatorContext {
             }
             for (Product sourceProduct : sourceProducts) {
                 validateSourceProduct(declaredField.getName(),
-                                      sourceProduct,
-                                      sourceProductsAnnotation.type(),
-                                      sourceProductsAnnotation.bands());
+                        sourceProduct,
+                        sourceProductsAnnotation.type(),
+                        sourceProductsAnnotation.bands());
             }
         } else {
             String text = "Source products (field '%s') must be of type '%s'.";
@@ -600,7 +637,7 @@ public class OperatorContext {
             for (String bandName : bandNames) {
                 if (!sourceProduct.containsBand(bandName)) {
                     String msg = String.format("A source product (field '%s') does not contain the band '%s'",
-                                               fieldName, bandName);
+                            fieldName, bandName);
                     throw new OperatorException(msg);
                 }
             }
@@ -696,5 +733,4 @@ public class OperatorContext {
             }
         }
     }
-
 }

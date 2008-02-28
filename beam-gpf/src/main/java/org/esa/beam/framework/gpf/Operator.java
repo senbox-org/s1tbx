@@ -53,6 +53,7 @@ import java.util.logging.Logger;
  * @see org.esa.beam.framework.gpf.annotations.OperatorMetadata
  * @see org.esa.beam.framework.gpf.annotations.Parameter
  * @see org.esa.beam.framework.gpf.annotations.TargetProduct
+ * @see org.esa.beam.framework.gpf.annotations.TargetProperty
  * @see org.esa.beam.framework.gpf.annotations.SourceProduct
  * @see org.esa.beam.framework.gpf.annotations.SourceProducts
  * @since 4.1
@@ -232,12 +233,12 @@ public abstract class Operator {
     /**
      * Gets the target product for the operator.
      * <p/>
-     * <p>If a target product has not been set so far, calling this method will result in a
+     * <p>If the target product is not set, calling this method results in a
      * call to {@link #initialize()}.</p>
      *
      * @return The target product.
-     * @throws OperatorException May be caused by {@link #initialize()}, if the operator has not yet been initialised,
-     *                           or if the target product has not been set.
+     * @throws OperatorException May be caused by {@link #initialize()}, if the operator is not initialised,
+     *                           or if the target product is not set.
      */
     public final Product getTargetProduct() throws OperatorException {
         return context.getTargetProduct();
@@ -252,6 +253,21 @@ public abstract class Operator {
      */
     protected final void setTargetProduct(Product targetProduct) {
         context.setTargetProduct(targetProduct);
+    }
+
+    /**
+     * Gets a target property of the operator.
+     * <p/>
+     * <p>If the requested target property is not set, calling this method results in a
+     * call to {@link #initialize()}.</p>
+     *
+     * @param name the name of the property requested.
+     * @return the target property requested.
+     * @throws OperatorException May be caused by {@link #initialize()}, if the operator is not initialised,
+     *                           or if the target product is not been set.
+     */
+    public final Object getTargetProperty(String name) throws OperatorException {
+        return context.getTargetProperty(name);
     }
 
     /**

@@ -6,12 +6,13 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.VirtualBand;
-import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.framework.gpf.annotations.TargetProperty;
 import org.esa.beam.framework.gpf.operators.common.PassThroughOp;
 
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
 
 
 public class OperatorTest extends TestCase {
@@ -172,9 +173,9 @@ public class OperatorTest extends TestCase {
     }
 
     private void testParameterValues(ParameterDefaultValueOp op, int pi, double pd) {
-        assertEquals((byte)123, op.pb);
+        assertEquals((byte) 123, op.pb);
         assertEquals('a', op.pc);
-        assertEquals((short)321, op.ph);
+        assertEquals((short) 321, op.ph);
         assertEquals(pi, op.pi);
         assertEquals(1234512345L, op.pl);
         assertEquals(123.45F, op.pf, 1e-5);
@@ -183,7 +184,7 @@ public class OperatorTest extends TestCase {
 
         assertNotNull(op.pab);
         assertEquals(3, op.pab.length);
-        assertEquals((byte)123, op.pab[0]);
+        assertEquals((byte) 123, op.pab[0]);
         assertNotNull(op.pac);
         assertEquals(3, op.pac.length);
         assertEquals('a', op.pac[0]);
@@ -191,7 +192,7 @@ public class OperatorTest extends TestCase {
         assertEquals('c', op.pac[2]);
         assertNotNull(op.pah);
         assertEquals(3, op.pah.length);
-        assertEquals((short)321, op.pah[0]);
+        assertEquals((short) 321, op.pah[0]);
         assertNotNull(op.pai);
         assertEquals(3, op.pai.length);
         assertEquals(12345, op.pai[0]);
@@ -211,11 +212,28 @@ public class OperatorTest extends TestCase {
         assertEquals("z", op.pas[2]);
     }
 
+    public void testPropertyOp() {
+        final Operator op = new PropertyOp();
+        final Object targetProperty = op.getTargetProperty("property");
+
+        assertNotNull(targetProperty);
+        assertEquals(42, targetProperty);
+    }
+
+    public void testWrongPropertyOp() {
+        final Operator op = new WrongPropertyOp();
+        try {
+            op.getTargetProperty("property");
+            fail("duplicated property name expected");
+        } catch (OperatorException e) {
+        }
+    }
+
     private static class MulConstOp extends Operator {
         private Product sourceProduct;
         @TargetProduct
         private Product targetProduct;
-        @Parameter  (defaultValue = "100")
+        @Parameter(defaultValue = "100")
         private double factor;
 
         public MulConstOp(Product sourceProduct, double factor) {
@@ -291,38 +309,38 @@ public class OperatorTest extends TestCase {
 
     public static class ParameterDefaultValueOp extends Operator {
 
-        @Parameter (defaultValue = "123")
+        @Parameter(defaultValue = "123")
         byte pb;
-        @Parameter (defaultValue = "a")
+        @Parameter(defaultValue = "a")
         char pc;
-        @Parameter (defaultValue = "321")
+        @Parameter(defaultValue = "321")
         short ph;
-        @Parameter (defaultValue = "12345")
+        @Parameter(defaultValue = "12345")
         int pi;
-        @Parameter (defaultValue = "1234512345")
+        @Parameter(defaultValue = "1234512345")
         long pl;
-        @Parameter (defaultValue = "123.45")
+        @Parameter(defaultValue = "123.45")
         float pf;
-        @Parameter (defaultValue = "0.12345")
+        @Parameter(defaultValue = "0.12345")
         double pd;
-        @Parameter (defaultValue = "x")
+        @Parameter(defaultValue = "x")
         String ps;
 
-        @Parameter (defaultValue = "123,122,121")
+        @Parameter(defaultValue = "123,122,121")
         byte[] pab;
-        @Parameter (defaultValue = "a,b,c")
+        @Parameter(defaultValue = "a,b,c")
         char[] pac;
-        @Parameter (defaultValue = "321,331,341")
+        @Parameter(defaultValue = "321,331,341")
         short[] pah;
-        @Parameter (defaultValue = "12345,32345,42345")
+        @Parameter(defaultValue = "12345,32345,42345")
         int[] pai;
-        @Parameter (defaultValue = "1234512345,2234512345,3234512345")
+        @Parameter(defaultValue = "1234512345,2234512345,3234512345")
         long[] pal;
-        @Parameter (defaultValue = "123.45,133.45,143.45")
+        @Parameter(defaultValue = "123.45,133.45,143.45")
         float[] paf;
-        @Parameter (defaultValue = "0.12345,-0.12345,1.12345")
+        @Parameter(defaultValue = "0.12345,-0.12345,1.12345")
         double[] pad;
-        @Parameter (defaultValue = "x,y,z")
+        @Parameter(defaultValue = "x,y,z")
         String[] pas;
 
         boolean initialized = false;
@@ -339,4 +357,32 @@ public class OperatorTest extends TestCase {
         @Parameter(defaultValue = "/usr/marco")
         File pf;
     }
+
+    public static class PropertyOp extends Operator {
+
+        @TargetProperty
+        int property;
+
+        @Override
+        public void initialize() throws OperatorException {
+            property = 42;
+            setTargetProduct(new Product("A", "AT", 10, 10));
+        }
+    }
+
+    public static class WrongPropertyOp extends Operator {
+
+        @TargetProperty
+        int property;
+
+        @TargetProperty(alias = "property")
+        double foo;
+
+        @Override
+        public void initialize() throws OperatorException {
+            property = 42;
+            setTargetProduct(new Product("A", "AT", 10, 10));
+        }
+    }
+
 }

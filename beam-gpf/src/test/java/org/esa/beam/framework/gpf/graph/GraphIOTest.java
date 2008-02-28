@@ -12,12 +12,14 @@ public class GraphIOTest extends TestCase {
     private TestOps.Op1.Spi operatorSpi1 = new TestOps.Op1.Spi();
     private TestOps.Op2.Spi operatorSpi2 = new TestOps.Op2.Spi();
     private TestOps.Op3.Spi operatorSpi3 = new TestOps.Op3.Spi();
+    private TestOps.Op4.Spi operatorSpi4 = new TestOps.Op4.Spi();
 
     @Override
     protected void setUp() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(operatorSpi1);
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(operatorSpi2);
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(operatorSpi3);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(operatorSpi4);
     }
 
     @Override
@@ -25,6 +27,7 @@ public class GraphIOTest extends TestCase {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(operatorSpi1);
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(operatorSpi2);
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(operatorSpi3);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(operatorSpi4);
     }
 
     public void testEmptyChain() throws Exception {
@@ -188,5 +191,103 @@ public class GraphIOTest extends TestCase {
         // System.out.println("xml = " + xml);
         StringReader reader = new StringReader(xml);
         return GraphIO.read(reader);
+    }
+
+    public void testGraphWithReference() {
+        String xml =
+                "<graph>\n" +
+                        "  <id>foo</id>\n" +
+                        "  <node>\n" +
+                        "    <id>bert</id>\n" +
+                        "    <operator>Op4</operator>\n" +
+                        "  </node>\n" +
+                        "  <node>\n" +
+                        "    <id>baz</id>\n" +
+                        "    <operator>Op2</operator>\n" +
+                        "    <sources>\n" +
+                        "      <input>bert</input>\n" +
+                        "    </sources>\n" +
+//                        "    <parameters>\n" +
+//                        "       <threshold ref=\"bert.pi\"/>\n" +
+//                        "    </parameters>\n" +
+                        "  </node>\n" +
+                        "</graph>";
+
+        Graph graph = GraphIO.read(new StringReader(xml));
+
+        final Node bertNode = graph.getNode("bert");
+        assertEquals("Op4", bertNode.getOperatorName());
+        final Node bazNode = graph.getNode("baz");
+        assertEquals("Op2", bazNode.getOperatorName());
+
+        GraphProcessor processor = new GraphProcessor();
+        GraphContext graphContext = null;
+        try {
+            graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
+        } catch (GraphException e) {
+            fail(e.getMessage());
+        }
+
+        NodeContext bertNodeContext = graphContext.getNodeContext(bertNode);
+        TestOps.Op4 op4 = (TestOps.Op4) bertNodeContext.getOperator();
+        final Object targetProperty = op4.getTargetProperty("pi");
+        assertNotNull(targetProperty);
+        assertEquals(3.142, (Double) targetProperty, 0.0);
+
+//        NodeContext bazNodeContext = graphContext.getNodeContext(bazNode);
+//        TestOps.Op2 op2 = (TestOps.Op2) bazNodeContext.getOperator();
+//        assertEquals(3.142, op2.threshold, 0.0);
+    }
+
+    public void testGraphWithReferenceWithoutSourceProduct() {
+        String xml =
+                "<graph>\n" +
+                        "  <id>foo</id>\n" +
+                        "  <node>\n" +
+                        "    <id>grunt</id>\n" +
+                        "    <operator>Op1</operator>\n" +
+                        "  </node>\n" +
+                        "  <node>\n" +
+                        "    <id>bert</id>\n" +
+                        "    <operator>Op4</operator>\n" +
+                        "  </node>\n" +
+                        "  <node>\n" +
+                        "    <id>baz</id>\n" +
+                        "    <operator>Op2</operator>\n" +
+                        "    <sources>\n" +
+                        "      <input>grunt</input>\n" +
+                        "    </sources>\n" +
+//                        "    <parameters>\n" +
+//                        "       <threshold ref=\"bert.pi\"/>\n" +
+//                        "    </parameters>\n" +
+                        "  </node>\n" +
+                        "</graph>";
+
+        Graph graph = GraphIO.read(new StringReader(xml));
+
+        final Node gruntNode = graph.getNode("grunt");
+        assertEquals("Op1", gruntNode.getOperatorName());
+        final Node bazNode = graph.getNode("baz");
+        assertEquals("Op2", bazNode.getOperatorName());
+        final Node bertNode = graph.getNode("bert");
+        assertEquals("Op4", bertNode.getOperatorName());
+
+        GraphProcessor processor = new GraphProcessor();
+        GraphContext graphContext = null;
+        try {
+            graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
+        } catch (GraphException e) {
+            fail(e.getMessage());
+        }
+
+        NodeContext bertNodeContext = graphContext.getNodeContext(bertNode);
+        TestOps.Op4 op4 = (TestOps.Op4) bertNodeContext.getOperator();
+        final Object targetProperty = op4.getTargetProperty("pi");
+        assertNotNull(targetProperty);
+        assertEquals(3.142, (Double) targetProperty, 0.0);
+
+//        NodeContext bazNodeContext = graphContext.getNodeContext(bazNode);
+//        TestOps.Op2 op2 = (TestOps.Op2) bazNodeContext.getOperator();
+//        assertEquals(3.142, op2.threshold, 0.0);
     }
 }
