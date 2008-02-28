@@ -314,9 +314,9 @@ public class OperatorContext {
         initTargetProduct();
         initTargetProperties();
         initPassThrough();
-        if (!passThrough) {
+//        if (!passThrough) {
             initTargetImages();
-        }
+//        }
         initGraphMetadata();
 
         ProductReader oldProductReader = targetProduct.getProductReader();
