@@ -12,6 +12,7 @@ public class OperatorClassDescriptor {
     private final Class<? extends Operator> operatorClass;
     private Map<Field, SourceProduct> sourceProductDescriptors;
     private Map<Field, Parameter> parameterDescriptors;
+    private Map<Field, TargetProperty> propertyDescriptors;
     private OperatorMetadata operatorMetadata;
     private TargetProduct targetProduct;
     private SourceProducts sourceProducts;
@@ -64,10 +65,19 @@ public class OperatorClassDescriptor {
     public final Map<Field, Parameter> getParameters() {
         return parameterDescriptors;
     }
+    
+    /**
+     * @return The operator's target properties descriptors,
+     *         or {@code null} if no operator field has been declared with a {@link org.esa.beam.framework.gpf.annotations.TargetProperty} annotation.
+     */
+    public final Map<Field, TargetProperty> getTargetProperties() {
+        return propertyDescriptors;
+    }
 
     private void processAnnotations() {
         sourceProductDescriptors = new HashMap<Field, SourceProduct>();
         parameterDescriptors = new HashMap<Field, Parameter>();
+        propertyDescriptors = new HashMap<Field, TargetProperty>();
         processAnnotationsRec(operatorClass);
     }
 
@@ -97,6 +107,10 @@ public class OperatorClassDescriptor {
             final Parameter parameter = declaredField.getAnnotation(Parameter.class);
             if (parameter != null) {
                 parameterDescriptors.put(declaredField, parameter);
+            }
+            final TargetProperty targetProperty = declaredField.getAnnotation(TargetProperty.class);
+            if (targetProperty != null) {
+                propertyDescriptors.put(declaredField, targetProperty);
             }
         }
     }

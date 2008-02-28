@@ -12,6 +12,7 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
+import org.esa.beam.framework.gpf.annotations.TargetProperty;
 import org.esa.beam.framework.gpf.internal.OperatorClassDescriptor;
 import org.esa.beam.framework.gpf.internal.Xpp3DomElement;
 
@@ -90,6 +91,7 @@ class CommandLineUsage {
         usageText.append(MessageFormat.format("  {0} {1} [options] ", CommandLineTool.TOOL_NAME, operatorName));
         ArrayList<DocElement> sourceDocElementList = createSourceDocuElementList(operatorClassDescriptor);
         ArrayList<DocElement> paramDocElementList = createParamDocuElementList(operatorClassDescriptor);
+        ArrayList<DocElement> propertyDocElementList = createPropertyDocuElementList(operatorClassDescriptor);
         final SourceProducts productsDescriptor = operatorClassDescriptor.getSourceProducts();
         if (productsDescriptor != null) {
             appendSourceFiles(usageText, productsDescriptor);
@@ -102,7 +104,12 @@ class CommandLineUsage {
             usageText.append(operatorClassDescriptor.getOperatorMetadata().description());
             usageText.append("\n");
         }
-
+        if (propertyDocElementList.size() > 0) {
+            usageText.append("\nComputed Properties:\n");
+            appendDocElementList(usageText, propertyDocElementList);
+        }
+        
+        usageText.append("\n");
         if (sourceDocElementList.size() > 0) {
             usageText.append("\nSource Options:\n");
             appendDocElementList(usageText, sourceDocElementList);
@@ -146,6 +153,20 @@ class CommandLineUsage {
                 final ArrayList<String> descriptionLines = createParamDescriptionLines(paramField, parameter);
                 docElementList.add(new DocElement(paramSyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
             }
+        }
+        return docElementList;
+    }
+    
+    private static ArrayList<DocElement> createPropertyDocuElementList(OperatorClassDescriptor operatorClassDescriptor) {
+        // todo - somewhere here occurs a NullPoinzerException
+        ArrayList<DocElement> docElementList = new ArrayList<DocElement>(10);
+        final Map<Field, TargetProperty> propertyMap = operatorClassDescriptor.getTargetProperties();
+        for (Entry<Field, TargetProperty> entry : propertyMap.entrySet()) {
+            final Field propertyField = entry.getKey();
+            final TargetProperty property = entry.getValue();
+                String propertySyntax = MessageFormat.format("{1} {0}", getTargetPropertyName(propertyField, property), getTypeName(propertyField.getType()));
+                final ArrayList<String> descriptionLines = createTargetPropertyDescriptionLines(propertyField, property);
+                docElementList.add(new DocElement(propertySyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
         }
         return docElementList;
     }
@@ -214,6 +235,15 @@ class CommandLineUsage {
         } else {
             descriptionLines.add("This is a mandatory source.");
         }
+        return descriptionLines;
+    }
+
+    private static ArrayList<String> createTargetPropertyDescriptionLines(Field propertyField, TargetProperty property) {
+        final ArrayList<String> descriptionLines = new ArrayList<String>();
+        if (!property.description().isEmpty()) {
+            descriptionLines.add(property.description());
+        } 
+
         return descriptionLines;
     }
 
@@ -340,6 +370,10 @@ class CommandLineUsage {
 
     private static String getParameterName(Field paramField, Parameter parameter) {
         return parameter.alias().isEmpty() ? paramField.getName() : parameter.alias();
+    }
+
+    private static String getTargetPropertyName(Field paramField, TargetProperty property) {
+        return property.alias().isEmpty() ? paramField.getName() : property.alias();
     }
 
     private static String getSourceProductId(Field sourceProductField, SourceProduct sourceProduct) {

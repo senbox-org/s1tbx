@@ -156,7 +156,7 @@ public class TestOps {
         @TargetProduct
         private Product targetProduct;
 
-        @TargetProperty
+        @TargetProperty(alias = "PI", description = "The ratio of any circle's circumference to its diameter")
         private double pi;
 
         @Override

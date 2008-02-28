@@ -16,18 +16,21 @@ import java.util.Map;
 public class CommandLineToolOperatorTest extends TestCase {
     private OpCommandLineContext context;
     private CommandLineTool clTool;
-    private static final TestOps.Op3.Spi OP_SPI = new TestOps.Op3.Spi();
+    private static final TestOps.Op3.Spi OP3_SPI = new TestOps.Op3.Spi();
+    private static final TestOps.Op4.Spi OP4_SPI = new TestOps.Op4.Spi();
 
     @Override
     protected void setUp() throws Exception {
         context = new OpCommandLineContext();
         clTool = new CommandLineTool(context);
-        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(OP_SPI);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(OP3_SPI);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(OP4_SPI);
     }
 
     @Override
     protected void tearDown() throws Exception {
-        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(OP_SPI);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(OP3_SPI);
+        GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(OP4_SPI);
     }
 
     public void testPrintUsage() throws Exception {
@@ -35,15 +38,28 @@ public class CommandLineToolOperatorTest extends TestCase {
         clTool.run(new String[]{"-h"});
         assertTrue(context.output.startsWith("Usage:\n  gpt <op>|<graph-file> [options] "));
 
-        System.out.println("\n" + context.output + "\n");
+//        System.out.println("\n" + context.output + "\n");
     }
 
-    public void testPrintOperatorUsage() throws Exception {
+    public void testPrintOp3Usage() throws Exception {
         assertTrue(context.output.length() == 0);
         clTool.run(new String[]{"Op3", "-h"});
         assertTrue(context.output.startsWith("Usage:\n  gpt Op3 [options] "));
 
-        System.out.println("\n" + context.output + "\n");
+//        System.out.println("\n" + context.output + "\n");
+    }
+
+    public void testPrintOp4Usage() throws Exception {
+        assertTrue(context.output.length() == 0);
+        clTool.run(new String[]{"Op4", "-h"});
+        assertTrue(context.output.startsWith(
+                "Usage:\n" +
+                "  gpt Op4 [options] \n" +
+        		"\n" +
+        		"Computed Properties:\n" +
+        		"double PI    The ratio of any circle's circumference to its diameter"));
+
+//        System.out.println("\n" + context.output + "\n");
     }
 
     public void testOperatorSingleSource() throws Exception {
