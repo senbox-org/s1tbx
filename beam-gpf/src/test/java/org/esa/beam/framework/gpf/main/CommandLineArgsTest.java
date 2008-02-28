@@ -1,10 +1,20 @@
 package org.esa.beam.framework.gpf.main;
 
 import junit.framework.TestCase;
+import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.OperatorException;
+import org.esa.beam.framework.gpf.OperatorSpi;
+import org.esa.beam.framework.gpf.OperatorSpiRegistry;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
+import org.esa.beam.framework.gpf.annotations.Parameter;
+import org.esa.beam.framework.gpf.annotations.SourceProduct;
+import org.esa.beam.framework.gpf.annotations.TargetProduct;
 
 import java.util.SortedMap;
 
 public class CommandLineArgsTest extends TestCase {
+
     private static final int K = 1024;
     private static final int M = 1024 * 1024;
 
@@ -247,6 +257,51 @@ public class CommandLineArgsTest extends TestCase {
         String usageText = CommandLineUsage.getUsageText();
         assertNotNull(usageText);
         assertTrue(usageText.length() > 10);
+    }
+
+    public void testUsageTextForOperator() throws Exception {
+        final String opName = "TestOpName";
+        final String opDesc = "Creates a thing";
+        final String srcProdAlias = "wasweissich";
+        final String paramDefaultValue = "24.5";
+        final String paramUnit = "Zwetschken";
+        final String paramDesc = "Wert Beschreibung";
+        @OperatorMetadata(alias = opName, description = opDesc)
+        class TestOp extends Operator {
+
+            @Parameter(defaultValue = paramDefaultValue, unit = paramUnit, description = paramDesc)
+            double value;
+
+            @SourceProduct(alias = srcProdAlias)
+            Object sourceProduct;
+
+            @TargetProduct
+            Object targetProduct;
+
+            public void initialize() throws OperatorException {
+            }
+        }
+        class TestSpi extends OperatorSpi {
+
+            public TestSpi() {
+                super(TestOp.class);
+            }
+        }
+
+        final TestSpi testSpi = new TestSpi();
+
+        final GPF gpf = GPF.getDefaultInstance();
+        final OperatorSpiRegistry spiRegistry = gpf.getOperatorSpiRegistry();
+        spiRegistry.addOperatorSpi(testSpi);
+        assertSame(testSpi, spiRegistry.getOperatorSpi(opName));
+        String usageText = CommandLineUsage.getUsageText(opName);
+        assertNotNull(usageText);
+        assertTrue(usageText.contains(opName));
+        assertTrue(usageText.contains(opDesc));
+        assertTrue(usageText.contains(srcProdAlias));
+        assertTrue(usageText.contains(paramDefaultValue));
+        assertTrue(usageText.contains(paramDesc));
+        assertTrue(usageText.contains(paramUnit));
     }
 
     public void testFailures() {
