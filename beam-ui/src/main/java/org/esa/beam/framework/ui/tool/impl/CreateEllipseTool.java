@@ -26,7 +26,7 @@ import java.awt.Stroke;
 import java.util.HashMap;
 import java.util.Map;
 
-//@todo 1 he/** - add (more) class documentation
+//@todo 1 se/** - add (more) class documentation
 
 public class CreateEllipseTool extends CreateRectangleTool {
 

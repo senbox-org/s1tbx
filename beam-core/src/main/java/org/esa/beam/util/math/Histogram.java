@@ -260,7 +260,7 @@ public class Histogram extends Range {
         return -1;
     }
 
-    // @todo he/nf - add documentation
+    // @todo se/nf - add documentation
     @Override
     public void aggregate(final Object values, boolean unsigned,
                           final IndexValidator validator,

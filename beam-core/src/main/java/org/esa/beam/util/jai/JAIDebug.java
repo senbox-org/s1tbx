@@ -27,7 +27,7 @@ import java.awt.image.SampleModel;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ImageUtils;
 
-//@todo 1 he/** - add (more) class documentation
+//@todo 1 se/** - add (more) class documentation
 
 public class JAIDebug extends Debug {
 

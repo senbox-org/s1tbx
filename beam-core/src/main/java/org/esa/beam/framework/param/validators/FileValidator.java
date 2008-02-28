@@ -26,7 +26,7 @@ import org.esa.beam.framework.param.ParamValidateException;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.util.Debug;
 
-//@todo 1 he/** - add (more) class documentation
+//@todo 1 se/** - add (more) class documentation
 
 public class FileValidator extends AbstractParamValidator {
 
