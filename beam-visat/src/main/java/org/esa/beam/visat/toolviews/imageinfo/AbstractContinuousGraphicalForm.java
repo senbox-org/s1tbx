@@ -1,51 +1,40 @@
 package org.esa.beam.visat.toolviews.imageinfo;
 
-import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.AbstractButton;
 import javax.swing.JPanel;
+import javax.swing.JOptionPane;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.io.IOException;
 
-abstract class ContinuousForm implements SpecificForm {
+abstract class AbstractContinuousGraphicalForm implements PaletteEditorForm {
 
-    protected final ColorManipulationForm imageForm;
+    protected final ColorManipulationForm parentForm;
     protected AbstractButton autoStretch95Button;
     protected AbstractButton autoStretch100Button;
     protected AbstractButton zoomInVButton;
     protected AbstractButton zoomOutVButton;
     protected AbstractButton zoomInHButton;
     protected AbstractButton zoomOutHButton;
-
     protected JPanel contentPanel;
-    protected ColourPaletteEditorPanel colorPaletteEditorPanel;
+    protected GraphicalPaletteEditor paletteEditor;
 
-    protected ProductSceneView productSceneView;
+    protected AbstractContinuousGraphicalForm(final ColorManipulationForm parentForm) {
+        this.parentForm = parentForm;
 
-
-    protected ContinuousForm(final ColorManipulationForm imageForm) {
-        this.imageForm = imageForm;
-
-        colorPaletteEditorPanel = new ColourPaletteEditorPanel();
-        colorPaletteEditorPanel.addPropertyChangeListener(RasterDataNode.PROPERTY_NAME_IMAGE_INFO,
-                                                          new PropertyChangeListener() {
-
-                                                              /**
-                                                               * This method gets called when a bound property is changed.
-                                                               *
-                                                               * @param evt A PropertyChangeEvent object describing the event source and the property that has changed.
-                                                               */
-                                                              public void propertyChange(final PropertyChangeEvent evt) {
-                                                                  setApplyEnabled(true);
-                                                              }
-                                                          });
+        paletteEditor = new GraphicalPaletteEditor();
+        paletteEditor.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                parentForm.setApplyEnabled(true);
+            }
+        });
 
         autoStretch95Button = createButton("icons/Auto95Percent24.gif");
         autoStretch95Button.setName("AutoStretch95Button");
@@ -53,7 +42,7 @@ abstract class ContinuousForm implements SpecificForm {
         autoStretch95Button.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
-                colorPaletteEditorPanel.compute95Percent();
+                paletteEditor.compute95Percent();
             }
         });
 
@@ -63,7 +52,7 @@ abstract class ContinuousForm implements SpecificForm {
         autoStretch100Button.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
-                colorPaletteEditorPanel.compute100Percent();
+                paletteEditor.compute100Percent();
             }
         });
 
@@ -73,7 +62,7 @@ abstract class ContinuousForm implements SpecificForm {
         zoomInVButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
-                colorPaletteEditorPanel.computeZoomInVertical();
+                paletteEditor.computeZoomInVertical();
             }
         });
 
@@ -83,7 +72,7 @@ abstract class ContinuousForm implements SpecificForm {
         zoomOutVButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
-                colorPaletteEditorPanel.computeZoomOutVertical();
+                paletteEditor.computeZoomOutVertical();
             }
         });
 
@@ -93,7 +82,7 @@ abstract class ContinuousForm implements SpecificForm {
         zoomInHButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
-                colorPaletteEditorPanel.computeZoomInToSliderLimits();
+                paletteEditor.computeZoomInToSliderLimits();
             }
         });
 
@@ -103,26 +92,16 @@ abstract class ContinuousForm implements SpecificForm {
         zoomOutHButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
-                colorPaletteEditorPanel.computeZoomOutToFullHistogramm();
+                paletteEditor.computeZoomOutToFullHistogramm();
             }
         });
 
         contentPanel = new JPanel(new BorderLayout());
-        contentPanel.add(colorPaletteEditorPanel);
+        contentPanel.add(paletteEditor);
     }
 
     public ImageInfo getCurrentImageInfo() {
-        return colorPaletteEditorPanel.getImageInfo();
-    }
-
-    // call super!
-    public void initProductSceneView(ProductSceneView productSceneView) {
-        Assert.notNull(productSceneView, "productSceneView");
-        this.productSceneView = productSceneView;
-    }
-
-    private void setApplyEnabled(boolean b) {
-        imageForm.setApplyEnabled(b);
+        return paletteEditor.getImageInfo();
     }
 
     public Component getContentPanel() {
@@ -137,9 +116,26 @@ abstract class ContinuousForm implements SpecificForm {
         return ColorManipulationForm.createButton(s);
     }
 
-    // super!
-    public void releaseProductSceneView() {
-        productSceneView = null;
+    public void resetDefaultValues(RasterDataNode raster) {
+        ImageInfo imageInfoRaster = raster.getImageInfo();
+        raster.setImageInfo(null);
+        final ImageInfo newValue = ensureValidImageInfo(raster);
+        raster.setImageInfo(imageInfoRaster);
+        paletteEditor.setImageInfo(newValue);
     }
+
+    public ImageInfo ensureValidImageInfo(RasterDataNode raster) {
+        try {
+            return raster.ensureValidImageInfo();
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(getContentPanel(),
+                                          "Failed to create image information for '" +
+                                                  raster.getName() + "':\n" +e.getMessage(),
+                                          "I/O Error",
+                                          JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+    }
+
 
 }

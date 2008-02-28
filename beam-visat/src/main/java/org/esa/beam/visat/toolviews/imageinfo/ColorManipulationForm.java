@@ -73,9 +73,10 @@ class ColorManipulationForm {
     private boolean auxDataInstalled;
     private JPanel mainPanel;
     private final ColorManipulationToolView toolView;
-    private SpecificForm specificForm;
-    private SpecificForm switcher1BandForm;
-    private SpecificForm continous3BandForm;
+    private PaletteEditorForm paletteEditorForm;
+    private PaletteEditorForm continuous1BandSwitcherForm;
+    private PaletteEditorForm discrete1BandTabularForm;
+    private PaletteEditorForm continuous3BandGraphicalForm;
     private JPanel buttonPane;
     private AbstractButton helpButton;
 
@@ -98,43 +99,76 @@ class ColorManipulationForm {
         if (this.productSceneView != null) {
             this.productSceneView.getProduct().addProductNodeListener(_productNodeListener);
         }
-        installSpecificForm();
+        installSpecificPaletteEditorForm();
         updateState();
     }
 
-    private void installSpecificForm() {
-        final SpecificForm oldForm = specificForm;
-        final SpecificForm newForm;
-        if (this.productSceneView != null) {
-            if (this.productSceneView.isRGB()) {
-                if (oldForm instanceof Continuous3BandForm) {
+    private void installSpecificPaletteEditorForm() {
+        final PaletteEditorForm oldForm = paletteEditorForm;
+        PaletteEditorForm newForm = EmptyPaletteEditorForm.INSTANCE;
+        if (productSceneView != null) {
+            if (isContinuous3BandImage()) {
+                if (oldForm instanceof Continuous3BandGraphicalForm) {
                     newForm = oldForm;
                 } else {
-                    if (continous3BandForm == null) {
-                        continous3BandForm = new Continuous3BandForm(this);
-                    }
-                    newForm = continous3BandForm;
+                    newForm = getContinuous3BandGraphicalForm();
                 }
-            } else {
-                if (oldForm instanceof ContinuousForm) {
+            } else if (isContinuous1BandImage()) {
+                if (oldForm instanceof Continuous1BandSwitcherForm) {
                     newForm = oldForm;
                 } else {
-                    if (switcher1BandForm == null) {
-                        switcher1BandForm = new Switcher1BandForm(this);
-                    }
-                    newForm = switcher1BandForm;
+                    newForm = getContinuous1BandSwitcherForm();
+                }
+            } else if (isDiscrete1BandImage()) {
+                if (oldForm instanceof Discrete1BandTabularForm) {
+                    newForm = oldForm;
+                } else {
+                    newForm = getDiscrete1BandTabularForm();
                 }
             }
-        } else {
-            newForm = EmptyForm.INSTANCE;
         }
 
         if (newForm != oldForm) {
-            specificForm = newForm;
-            specificForm.initProductSceneView(productSceneView);
+            paletteEditorForm = newForm;
             installSpecificFormUI();
-            oldForm.releaseProductSceneView();
+            oldForm.handleFormHidden();
+            paletteEditorForm.handleFormShown(productSceneView);
         }
+    }
+
+    private PaletteEditorForm getContinuous3BandGraphicalForm() {
+        if (continuous3BandGraphicalForm == null) {
+            continuous3BandGraphicalForm = new Continuous3BandGraphicalForm(this);
+        }
+        return continuous3BandGraphicalForm;
+    }
+
+    private PaletteEditorForm getContinuous1BandSwitcherForm() {
+        if (continuous1BandSwitcherForm == null) {
+            continuous1BandSwitcherForm = new Continuous1BandSwitcherForm(this);
+        }
+        return continuous1BandSwitcherForm;
+    }
+
+    private PaletteEditorForm getDiscrete1BandTabularForm() {
+        if (discrete1BandTabularForm == null) {
+            discrete1BandTabularForm = new Discrete1BandTabularForm();
+        }
+        return discrete1BandTabularForm;
+    }
+
+    private boolean isContinuous3BandImage() {
+        return productSceneView.isRGB();
+    }
+
+    private boolean isContinuous1BandImage() {
+        return (productSceneView.getRaster() instanceof Band)
+                && ((Band)productSceneView.getRaster()).getIndexCoding() == null;
+    }
+
+    public boolean isDiscrete1BandImage() {
+        return (productSceneView.getRaster() instanceof Band)
+                && ((Band)productSceneView.getRaster()).getIndexCoding() != null;
     }
 
     public PageComponentDescriptor getPageComponentDescriptor() {
@@ -142,7 +176,7 @@ class ColorManipulationForm {
     }
 
     private void updateTitle() {
-        toolView.setTitle(getPageComponentDescriptor().getTitle() + " - " + specificForm.getTitle());
+        toolView.setTitle(getPageComponentDescriptor().getTitle() + " - " + paletteEditorForm.getTitle(productSceneView));
     }
 
     private void updateState() {
@@ -153,7 +187,7 @@ class ColorManipulationForm {
         resetButton.setEnabled(enabled);
         importButton.setEnabled(enabled);
         exportButton.setEnabled(enabled);
-        specificForm.updateState();
+        paletteEditorForm.updateState(productSceneView);
 
         if (!auxDataInstalled) {
             installAuxData();
@@ -169,7 +203,7 @@ class ColorManipulationForm {
 
     public void initMainPanel() {
 
-        specificForm = EmptyForm.INSTANCE;
+        paletteEditorForm = EmptyPaletteEditorForm.INSTANCE;
 
         _applyButton = new JButton("Apply");
         _applyButton.setName("ApplyButton");
@@ -253,14 +287,14 @@ class ColorManipulationForm {
         //
         _visatApp.addInternalFrameListener(new ContrastStretchIFL());
 
-        updateState();
+        updateState(); // called on EmptyPaletteEditorForm
     }
 
     public void installSpecificFormUI() {
         installButtons();
 
         mainPanel.removeAll();
-        mainPanel.add(BorderLayout.CENTER, specificForm.getContentPanel());
+        mainPanel.add(BorderLayout.CENTER, paletteEditorForm.getContentPanel());
         mainPanel.add(BorderLayout.EAST, buttonPane);
 
         revalidate();
@@ -285,7 +319,7 @@ class ColorManipulationForm {
         buttonPane.add(importButton, gbc);
         buttonPane.add(exportButton, gbc);
         gbc.gridy++;
-        AbstractButton[] additionalButtons = specificForm.getButtons();
+        AbstractButton[] additionalButtons = paletteEditorForm.getButtons();
         for (int i = 0; i < additionalButtons.length; i++) {
             AbstractButton button = additionalButtons[i];
             buttonPane.add(button, gbc);
@@ -324,13 +358,13 @@ class ColorManipulationForm {
 
 
     private void apply() {
-        if (productSceneView == null) {
-            return;
-        }
         setApplyEnabled(false);
-        getToolViewPaneControl().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        specificForm.apply();
-        getToolViewPaneControl().setCursor(Cursor.getDefaultCursor());
+        if (productSceneView != null) {
+            getToolViewPaneControl().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            paletteEditorForm.performApply(productSceneView);
+            getToolViewPaneControl().setCursor(Cursor.getDefaultCursor());
+            VisatApp.getApp().updateImage(productSceneView);
+        }
     }
 
 
@@ -342,7 +376,7 @@ class ColorManipulationForm {
 
     public void reset() {
         if (productSceneView != null) {
-            specificForm.reset();
+            paletteEditorForm.performReset(productSceneView);
         }
     }
 
@@ -392,7 +426,7 @@ class ColorManipulationForm {
                                                         _bandsToBeModified);
         final ArrayList<Band> modifiedRasterList = new ArrayList<Band>();
         if (bandChooser.show() == BandChooser.ID_OK) {
-            final ImageInfo imageInfo = specificForm.getCurrentImageInfo();
+            final ImageInfo imageInfo = paletteEditorForm.getCurrentImageInfo();
             _bandsToBeModified = bandChooser.getSelectedBands();
             for (final Band band : _bandsToBeModified) {
                 band.getImageInfo().transferColorPaletteDef(imageInfo, false);
@@ -433,7 +467,7 @@ class ColorManipulationForm {
     }
 
     private void importColorPaletteDef() {
-        final ImageInfo imageInfo = specificForm.getCurrentImageInfo();
+        final ImageInfo imageInfo = paletteEditorForm.getCurrentImageInfo();
         if (imageInfo == null) {
             // Normaly this code is unreachable because, the export Button
             // is disabled if the _contrastStretchPane has no ImageInfo.
@@ -462,7 +496,7 @@ class ColorManipulationForm {
     }
 
     private void exportColorPaletteDef() {
-        final ImageInfo imageInfo = specificForm.getCurrentImageInfo();
+        final ImageInfo imageInfo = paletteEditorForm.getCurrentImageInfo();
         if (imageInfo == null) {
             // Normaly this code is unreacable because, the export Button
             // is disabled if the _contrastStretchPane have no ImageInfo.
@@ -503,7 +537,7 @@ class ColorManipulationForm {
     }
 
     public boolean isRgbMode() {
-        return productSceneView != null && productSceneView.isRGB();
+        return productSceneView != null && isContinuous3BandImage();
     }
 
     private void showErrorDialog(final String message) {
@@ -526,7 +560,7 @@ class ColorManipulationForm {
                 final String propertyName = event.getPropertyName();
                 if (Product.PROPERTY_NAME_NAME.equalsIgnoreCase(propertyName)) {
                     final ProductNode sourceNode = event.getSourceNode();
-                    if ((productSceneView.isRGB() && sourceNode == productSceneView.getProduct())
+                    if ((isContinuous3BandImage() && sourceNode == productSceneView.getProduct())
                             || sourceNode == productSceneView.getRaster()) {
                         updateTitle();
                     }
@@ -590,7 +624,6 @@ class ColorManipulationForm {
         getToolViewPaneControl().validate();
         getToolViewPaneControl().repaint();
     }
-
 
     private class ContrastStretchIFL extends InternalFrameAdapter {
 

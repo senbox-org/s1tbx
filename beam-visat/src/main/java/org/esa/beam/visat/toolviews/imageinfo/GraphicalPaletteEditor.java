@@ -18,7 +18,6 @@ package org.esa.beam.visat.toolviews.imageinfo;
 
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.param.ParamProperties;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.ui.BorderLayoutUtils;
@@ -30,16 +29,20 @@ import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.math.Range;
 
 import javax.swing.*;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
-import java.io.IOException;
+
+import com.bc.ceres.core.Assert;
 
 
-class ColourPaletteEditorPanel extends JPanel {
+class GraphicalPaletteEditor extends JPanel {
+    public static final String PROPERTY_NAME_IMAGE_INFO = "imageInfo";
 
     public static final String NO_DISPLAY_INFO_TEXT = "No image information available.";
     public static final String FONT_NAME = "Verdana";
@@ -78,15 +81,18 @@ class ColourPaletteEditorPanel extends JPanel {
     private Color[] _rgbColorPal;
     private byte[] _gammaCurve;
 
-    public ColourPaletteEditorPanel() {
+    public GraphicalPaletteEditor() {
         _labelFont = createLabelFont();
         _sliderShape = createSliderShape();
         _sliderBaseLineRect = new Rectangle();
         _paletteRect = new Rectangle();
         _histoRect = new Rectangle();
         _mouseListener = new InternalMouseListener();
-        _imageInfo = null;
-        _rgbColor = null;
+        addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                repaint();
+            }
+        });
     }
 
     public ImageInfo getImageInfo() {
@@ -94,53 +100,98 @@ class ColourPaletteEditorPanel extends JPanel {
     }
 
     public void setImageInfo(final ImageInfo imageInfo) {
-        _imageInfo = imageInfo;
-        deinstallMouseListener();
-        if (_imageInfo != null) {
-            _roundFactor = (float) _imageInfo.getRoundFactor(2);
-            installMouseListener();
+        Assert.notNull(imageInfo, "imageInfo");
+        final ImageInfo oldImageInfo = _imageInfo;
+        if (_imageInfo != imageInfo) {
+            _imageInfo = imageInfo;
+            deinstallMouseListener();
+            if (_imageInfo != null) {
+                _roundFactor = (float) _imageInfo.getRoundFactor(2);
+                installMouseListener();
+            }
+            updateGamma();
+            firePropertyChange(PROPERTY_NAME_IMAGE_INFO, oldImageInfo, _imageInfo);
+            fireStateChanged();
         }
-        updateGamma();
         if (isShowing()) {
             repaint();
         }
     }
 
+    /**
+     * Adds a ChangeListener to the slider.
+     *
+     * @param l the ChangeListener to add
+     * @see #fireStateChanged
+     * @see #removeChangeListener
+     * @since 4.2
+     */
+    public void addChangeListener(ChangeListener l) {
+        listenerList.add(ChangeListener.class, l);
+    }
+
+
+    /**
+     * Removes a ChangeListener from the slider.
+     *
+     * @param l the ChangeListener to remove
+     * @see #fireStateChanged
+     * @see #addChangeListener
+     * @since 4.2
+     */
+    public void removeChangeListener(ChangeListener l) {
+        listenerList.remove(ChangeListener.class, l);
+    }
+
+
+    /**
+     * Returns an array of all the <code>ChangeListener</code>s added
+     * to this JSlider with addChangeListener().
+     *
+     * @return all of the <code>ChangeListener</code>s added or an empty
+     *         array if no listeners have been added
+     * @since 4.2
+     */
+    public ChangeListener[] getChangeListeners() {
+        return listenerList.getListeners(ChangeListener.class);
+    }
+
+
+    /**
+     * Send a {@code ChangeEvent}, whose source is this {@code JSlider}, to
+     * all {@code ChangeListener}s that have registered interest in
+     * {@code ChangeEvent}s.
+     * This method is called each time a {@code ChangeEvent} is received from
+     * the model.
+     * <p>
+     * The event instance is created if necessary, and stored in
+     * {@code changeEvent}.
+     *
+     * @see #addChangeListener
+     * @see javax.swing.event.EventListenerList
+     * @since 4.2
+     */
+    protected void fireStateChanged() {
+        final ChangeEvent event = new ChangeEvent(this);
+        Object[] listeners = listenerList.getListenerList();
+        for (int i = listeners.length - 2; i >= 0; i -= 2) {
+            if (listeners[i]==ChangeListener.class) {
+                ((ChangeListener)listeners[i+1]).stateChanged(event);
+            }
+        }
+    }
+
     public void updateGamma() {
-        if (_imageInfo != null && _imageInfo.isGammaActive() && isRGBMode()) {
+        if (_imageInfo.isGammaActive() && isRGBMode()) {
             _gammaCurve = MathUtils.createGammaCurve(_imageInfo.getGamma(), null);
         } else {
             _gammaCurve = null;
         }
-        repaint();
+        fireStateChanged();
     }
 
     public void setRGBColor(Color rgbColor) {
         _rgbColor = rgbColor;
-    }
-
-    public void resetDefaultValues(RasterDataNode raster) {
-        ImageInfo imageInfoRaster = raster.getImageInfo();
-        raster.setImageInfo(null);
-        final ImageInfo newValue = ensureValidImageInfo(raster);
-        raster.setImageInfo(imageInfoRaster);
-        final ImageInfo oldValue = getImageInfo();
-        setImageInfo(newValue);
-        firePropertyChange(RasterDataNode.PROPERTY_NAME_IMAGE_INFO, oldValue, newValue);
-        repaint();
-    }
-
-    public ImageInfo ensureValidImageInfo(RasterDataNode raster) {
-        try {
-            return raster.ensureValidImageInfo();
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this,
-                                          "Failed to create image information for '" + raster.getName() + "':\n" +
-                                                  e.getMessage(),
-                                          "I/O Error",
-                                          JOptionPane.ERROR_MESSAGE);
-            return null;
-        }
     }
 
     public void compute95Percent() {
@@ -199,10 +250,12 @@ class ColourPaletteEditorPanel extends JPanel {
         }
     }
 
+    @Override
     public Dimension getPreferredSize() {
         return PREF_COMPONENT_SIZE;
     }
 
+    @Override
     public void setBounds(int x, int y, int width, int heigth) {
         super.setBounds(x, y, width, heigth);
         computeSizeAttributes();
@@ -234,6 +287,7 @@ class ColourPaletteEditorPanel extends JPanel {
         repaint();
     }
 
+    @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (getWidth() == 0 || getHeight() == 0) {
@@ -290,7 +344,7 @@ class ColourPaletteEditorPanel extends JPanel {
         if (palette != null) {
             for (int x = _paletteRect.x; x < _paletteRect.x + _paletteRect.width; x++) {
                 long divisor = paletteX2 - paletteX1;
-                int palIndex = 0;
+                int palIndex;
                 if (divisor == 0) {
                     palIndex = x < paletteX1 ? 0 : palette.length - 1;
                 } else {
@@ -362,7 +416,7 @@ class ColourPaletteEditorPanel extends JPanel {
         ColorPaletteDef.Point slider;
         double sliderPos;
         for (int i = 0; i < 2; i++) {
-            Color triangleColor = null;
+            Color triangleColor;
             if (i == 0) {
                 slider = getFirstGradationCurvePoint();
                 g2d.setPaint(Color.black);
@@ -568,14 +622,14 @@ class ColourPaletteEditorPanel extends JPanel {
 
     private float getMaxVisibleHistogramCounts(final int[] histogramBins, float ratio) {
         float totalHistogramCounts = 0;
-        for (int i = 0; i < histogramBins.length; i++) {
-            totalHistogramCounts += histogramBins[i];
+        for (int histogramBin : histogramBins) {
+            totalHistogramCounts += histogramBin;
         }
         final float limitHistogramCounts = totalHistogramCounts * ratio;
         float maxHistogramCounts = 0f;
-        for (int i = 0; i < histogramBins.length; i++) {
-            if (histogramBins[i] < limitHistogramCounts) {
-                maxHistogramCounts = Math.max(maxHistogramCounts, histogramBins[i]);
+        for (int histogramBin : histogramBins) {
+            if (histogramBin < limitHistogramCounts) {
+                maxHistogramCounts = Math.max(maxHistogramCounts, histogramBin);
             }
         }
         return maxHistogramCounts;
@@ -622,21 +676,17 @@ class ColourPaletteEditorPanel extends JPanel {
             ColorPaletteDef.Point lowerPoint = getGradationCurvePointAt(index - 1);
             minValue = lowerPoint.getSample() + Float.MIN_VALUE;
         }
-        double oldValue = p.getSample();
         if (newValue < minValue) {
             newValue = minValue;
         }
         p.setSample(newValue);
-        firePropertyChange(RasterDataNode.PROPERTY_NAME_IMAGE_INFO, oldValue, newValue);
-        repaint();
+        fireStateChanged();
     }
 
     private void setGradationPointColorAt(int index, Color newValue) {
         ColorPaletteDef.Point p = getGradationCurvePointAt(index);
-        Color oldValue = p.getColor();
         p.setColor(newValue);
-        firePropertyChange(RasterDataNode.PROPERTY_NAME_IMAGE_INFO, oldValue, newValue);
-        repaint();
+        fireStateChanged();
     }
 
     private static Font createLabelFont() {
@@ -744,23 +794,17 @@ class ColourPaletteEditorPanel extends JPanel {
         _histoRect.height = _paletteRect.y - _histoRect.y - 3;
     }
 
-    /**
-     * gets the <code>ColorPaletteDef</code> from the current <code>BasicDisplayInfo</code>
-     */
     private ColorPaletteDef getColorPaletteDef() {
         return getImageInfo().getColorPaletteDef();
     }
 
-    /**
-     * Shows a dialog to edit the slider value
-     */
     private void editSliderValue(int sliderIndex) {
         final ColorPaletteDef.Point point = getColorPaletteDef().getPointAt(sliderIndex);
-        final ParamProperties paramProps = new ParamProperties(Double.class, new Double(point.getSample()));
+        final ParamProperties paramProps = new ParamProperties(Double.class, point.getSample());
         paramProps.setLabel("Position");
         paramProps.setPhysicalUnit(_unit);
-        paramProps.setMaxValue(new Double(getMaxSliderValue(sliderIndex)));
-        paramProps.setMinValue(new Double(getMinSliderValue(sliderIndex)));
+        paramProps.setMaxValue(getMaxSliderValue(sliderIndex));
+        paramProps.setMinValue(getMinSliderValue(sliderIndex));
         final Parameter parameter = new Parameter("position", paramProps);
         final JComponent labelComponent = parameter.getEditor().getLabelComponent();
         final JComponent editorComponent = parameter.getEditor().getEditorComponent();
@@ -779,10 +823,9 @@ class ColourPaletteEditorPanel extends JPanel {
             ((JTextComponent) editorComponent).selectAll();
         }
         if (modalDialog.show() == ModalDialog.ID_OK) {
-            Double oldValue = new Double(point.getSample());
             Double newValue = (Double) parameter.getValue();
-            point.setSample(newValue.doubleValue());
-            firePropertyChange(RasterDataNode.PROPERTY_NAME_IMAGE_INFO, oldValue, newValue);
+            point.setSample(newValue);
+            fireStateChanged();
         }
     }
 
@@ -858,13 +901,13 @@ class ColourPaletteEditorPanel extends JPanel {
 
 
         public void mouseClicked(MouseEvent evt) {
-            int sliderIndex = INVALID_INDEX;
+            int sliderIndex;
             if (!maybeShowContextMenu(evt)) {
                 if (SwingUtilities.isLeftMouseButton(evt)) {
                     if (!isRGBMode()) {
                         sliderIndex = getSelectedSliderIndex(evt);
                         if (sliderIndex != INVALID_INDEX) {
-                            Color newColor = JColorChooser.showDialog(ColourPaletteEditorPanel.this,
+                            Color newColor = JColorChooser.showDialog(GraphicalPaletteEditor.this,
                                                                       "Gradation point color",
                                                                       getGradationCurvePointAt(sliderIndex).getColor());
                             if (newColor != null) {
@@ -951,7 +994,7 @@ class ColourPaletteEditorPanel extends JPanel {
 
         private JPopupMenu createContextMenu(final int sliderIndex, MouseEvent mouseEvent) {
             JPopupMenu contextMenu = new JPopupMenu("Gradation curve points"); /* I18N */
-            contextMenu.setInvoker(ColourPaletteEditorPanel.this);
+            contextMenu.setInvoker(GraphicalPaletteEditor.this);
             JMenuItem menuItem = createMenuItemAddNewSlider(sliderIndex, mouseEvent);
             if (menuItem != null) {
                 contextMenu.add(menuItem);
@@ -1003,9 +1046,6 @@ class ColourPaletteEditorPanel extends JPanel {
             return menuItem;
         }
 
-        /**
-         * deletes the selected slider
-         */
         private JMenuItem createMenuItemDeleteSlider(final int removeIndex) {
             JMenuItem menuItem = new JMenuItem("Remove gradient slider");
             menuItem.setMnemonic('D');
@@ -1013,16 +1053,12 @@ class ColourPaletteEditorPanel extends JPanel {
 
                 public void actionPerformed(ActionEvent e) {
                     getColorPaletteDef().removePointAt(removeIndex);
-                    firePropertyChange(RasterDataNode.PROPERTY_NAME_IMAGE_INFO, null, "remove gradient slider");
-                    repaint();
+                    fireStateChanged();
                 }
             });
             return menuItem;
         }
 
-        /**
-         * adds a new slider
-         */
         private JMenuItem createMenuItemAddNewSlider(int insertIndex, final MouseEvent evt) {
             if (isLastSliderSelected(insertIndex)) {
                 return null;
@@ -1048,8 +1084,7 @@ class ColourPaletteEditorPanel extends JPanel {
                     assert getImageInfo() != null;
                     if (index != INVALID_INDEX && index < getColorPaletteDef().getNumPoints() - 1) {
                         if (getColorPaletteDef().createPointAfter(index, getImageInfo().getScaling())) {
-                            firePropertyChange(RasterDataNode.PROPERTY_NAME_IMAGE_INFO, null, "new gradient slider");
-                            repaint();
+                            fireStateChanged();
                         }
                     }
                 }
@@ -1058,13 +1093,7 @@ class ColourPaletteEditorPanel extends JPanel {
         }
 
         private boolean isClickOutsideExistingSliders(int x) {
-            if (x < getAbsoluteSliderPos(getFirstGradationCurvePoint())) {
-                return true;
-            }
-            if (x > getAbsoluteSliderPos(getLastGradationCurvePoint())) {
-                return true;
-            }
-            return false;
+            return x < getAbsoluteSliderPos(getFirstGradationCurvePoint()) || x > getAbsoluteSliderPos(getLastGradationCurvePoint());
         }
 
         private boolean isFirstSliderSelected(int index) {
@@ -1094,9 +1123,7 @@ class ColourPaletteEditorPanel extends JPanel {
             return dy < SLIDER_HEIGHT / 2;
         }
 
-        /**
-         * Get the slider index matched nearest slider triangle
-         */
+
         private int getSelectedSliderIndex(MouseEvent evt) {
             if (isVerticalInSliderArea(evt.getY())) {
                 final int sliderIndex = getNearestSliderIndex(evt.getX());
@@ -1109,9 +1136,6 @@ class ColourPaletteEditorPanel extends JPanel {
             return INVALID_INDEX;
         }
 
-        /**
-         * Get the slider index matched the selected text
-         */
         private int getSelectedSliderTextIndex(MouseEvent evt) {
             float dy = Math.abs(_sliderTextBaseLineY + SLIDER_VALUES_AREA_HEIGHT - evt.getY());
             if (dy < SLIDER_VALUES_AREA_HEIGHT) {
@@ -1187,8 +1211,6 @@ class ColourPaletteEditorPanel extends JPanel {
         }
 
     }
-
-    ;
 
     private double scale(double value) {
         assert _imageInfo != null;

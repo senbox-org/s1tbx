@@ -1,21 +1,18 @@
 package org.esa.beam.visat.toolviews.imageinfo;
 
+import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.visat.VisatApp;
 
 import javax.swing.AbstractButton;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import com.bc.ceres.core.Assert;
-
-class Continuous1BandForm extends ContinuousForm {
+class Continuous1BandGraphicalForm extends AbstractContinuousGraphicalForm {
 
     private AbstractButton evenDistButton;
 
-    public Continuous1BandForm(final ColorManipulationForm imageForm) {
+    public Continuous1BandGraphicalForm(final ColorManipulationForm imageForm) {
         super(imageForm);
         evenDistButton = createButton("icons/EvenDistribution24.gif");
         evenDistButton.setName("evenDistButton");
@@ -27,23 +24,22 @@ class Continuous1BandForm extends ContinuousForm {
         });
     }
 
-    public void reset() {
-        final RasterDataNode raster = productSceneView.getRaster();
-        colorPaletteEditorPanel.resetDefaultValues(raster);
+    public void performReset(ProductSceneView productSceneView) {
+        resetDefaultValues(productSceneView.getRaster());
     }
 
     @Override
-    public void initProductSceneView(ProductSceneView productSceneView) {
-        super.initProductSceneView(productSceneView);
-        setCurrentImageInfo(this.productSceneView.getRaster().getImageInfo());
+    public void handleFormShown(ProductSceneView productSceneView) {
+        Assert.notNull(productSceneView, "productSceneView");
+        setCurrentImageInfo(productSceneView.getRaster().getImageInfo());
     }
 
     private void setApplyEnabled(boolean b) {
-        imageForm.setApplyEnabled(b);
+        parentForm.setApplyEnabled(b);
     }
 
     private void distributeSlidersEvenly() {
-        colorPaletteEditorPanel.distributeSlidersEvenly();
+        paletteEditor.distributeSlidersEvenly();
     }
 
 
@@ -61,33 +57,30 @@ class Continuous1BandForm extends ContinuousForm {
 
     }
 
-    public void updateState() {
+    public void updateState(ProductSceneView productSceneView) {
         Assert.notNull(productSceneView, "productSceneView");
-        colorPaletteEditorPanel.setUnit(productSceneView.getRaster().getUnit());
-        colorPaletteEditorPanel.setRGBColor(null);
-        imageForm.revalidate();
+        paletteEditor.setUnit(productSceneView.getRaster().getUnit());
+        paletteEditor.setRGBColor(null);
+        parentForm.revalidate();
     }
 
     public void setCurrentImageInfo(ImageInfo imageInfo) {
         if (imageInfo != null) {
-            colorPaletteEditorPanel.setImageInfo(imageInfo.createDeepCopy());
+            paletteEditor.setImageInfo(imageInfo.createDeepCopy());
         } else {
-            colorPaletteEditorPanel.setImageInfo(null);
+            paletteEditor.setImageInfo(null);
         }
         setApplyEnabled(false);
     }
 
-    public void apply() {
-        productSceneView.getRaster().setImageInfo(colorPaletteEditorPanel.getImageInfo());
-        VisatApp.getApp().updateImage(productSceneView);
+    public void performApply(ProductSceneView productSceneView) {
+        productSceneView.getRaster().setImageInfo(paletteEditor.getImageInfo());
     }
 
-    @Override
-    public void releaseProductSceneView() {
-        super.releaseProductSceneView();
+    public void handleFormHidden() {
     }
 
-    public String getTitle() {
+    public String getTitle(ProductSceneView productSceneView) {
         return productSceneView.getRaster().getDisplayName();
     }
 }

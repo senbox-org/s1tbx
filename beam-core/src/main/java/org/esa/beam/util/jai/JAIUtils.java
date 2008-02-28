@@ -815,7 +815,7 @@ public class JAIUtils {
         return PlanarImage.wrapRenderedImage(image);
     }
 
-    public static PlanarImage createIntMap(RenderedImage sourceImage, IntMap intMap) {
+    public static PlanarImage createIndexedImage(RenderedImage sourceImage, IntMap intMap) {
         if (sourceImage.getSampleModel().getNumBands() != 1) {
             throw new IllegalArgumentException();
         }

@@ -9,6 +9,7 @@ package org.esa.beam.framework.datamodel;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ObjectUtils;
+import org.esa.beam.util.IntMap;
 import org.esa.beam.util.math.Histogram;
 import org.esa.beam.util.math.MathUtils;
 
@@ -40,6 +41,7 @@ public class ImageInfo implements Cloneable {
     private Float _histogramViewGain;
     private Float _minHistogramViewSample;
     private Float _maxHistogramViewSample;
+    private IntMap sampleToIndexMap;
 
     /**
      * Constructs a new basic display information instance.
@@ -146,6 +148,8 @@ public class ImageInfo implements Cloneable {
         Guardian.assertNotNull("scaling", scaling);
         this.scaling = scaling;
     }
+
+
 
     /**
      * @return the minimum sample value.
@@ -546,5 +550,13 @@ public class ImageInfo implements Cloneable {
 
     private double scaleInverse(double value) {
         return scaling.scaleInverse(value);
+    }
+
+    public IntMap getSampleToIndexMap() {
+        return sampleToIndexMap;
+    }
+
+    public void setSampleToIndexMap(IntMap sampleToIndexMap) {
+        this.sampleToIndexMap = sampleToIndexMap;
     }
 }

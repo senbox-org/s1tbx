@@ -1,25 +1,23 @@
 package org.esa.beam.visat.toolviews.imageinfo;
 
+import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
-import javax.swing.JLabel;
+import javax.swing.JTable;
 import java.awt.Component;
 
-import com.bc.ceres.core.Assert;
-
-class DiscreteForm implements SpecificForm {
+class Continuous1BandTabularForm implements PaletteEditorForm {
     private ImageInfo currentImageInfo;
-    private JLabel contentPanel;
-    private ProductSceneView productSceneView;
+    private JTable contentPanel;
 
-    public DiscreteForm() {
-        contentPanel = new JLabel("I am concrete dicrete!");
+    public Continuous1BandTabularForm() {
+        contentPanel = new JTable(new Object[][]{}, new Object[]{"Value", "Colour", "Label", "Freq."});
     }
 
-    public void apply() {
+    public void performApply(ProductSceneView productSceneView) {
 
     }
 
@@ -40,25 +38,23 @@ class DiscreteForm implements SpecificForm {
         currentImageInfo = imageInfo;
     }
 
-    public String getTitle() {
+    public String getTitle(ProductSceneView productSceneView) {
         return ":P";
     }
 
-    public void initProductSceneView(ProductSceneView productSceneView) {
-
-        this.productSceneView = productSceneView;
+    public void handleFormShown(ProductSceneView productSceneView) {
+        Assert.notNull(productSceneView, "productSceneView");
     }
 
-    public void releaseProductSceneView() {
-        this.productSceneView = null;
+    public void handleFormHidden() {
+    }
+
+    public void performReset(ProductSceneView productSceneView) {
+        Assert.notNull(productSceneView, "productSceneView");
 
     }
 
-    public void reset() {
-
-    }
-
-    public void updateState() {
+    public void updateState(ProductSceneView productSceneView) {
         Assert.notNull(productSceneView, "productSceneView");
 
     }

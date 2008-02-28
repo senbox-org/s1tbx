@@ -363,32 +363,46 @@ public class ColorPaletteDef {
 
     public static class Point {
 
-        private double _sample;
-        private Color _color;
+        private double sample;
+        private Color color;
+        private String label;
 
         public Point() {
             this(0, Color.black);
         }
 
         public Point(double sample, Color color) {
-            _sample = sample;
-            _color = color;
+           this(sample, color, "");
+        }
+
+        public Point(double sample, Color color, String label) {
+            this.sample = sample;
+            this.color = color;
+            this.label = label;
         }
 
         public double getSample() {
-            return _sample;
+            return sample;
         }
 
         public void setSample(double sample) {
-            _sample = sample;
+            this.sample = sample;
         }
 
         public Color getColor() {
-            return _color;
+            return color;
         }
 
         public void setColor(Color color) {
-            _color = color;
+            this.color = color;
+        }
+
+        public String getLabel() {
+            return label;
+        }
+
+        public void setLabel(String label) {
+            this.label = label;
         }
 
         @Override
@@ -409,7 +423,7 @@ public class ColorPaletteDef {
         }
 
         public Point createClone() {
-            return new Point(getSample(), getColor());
+            return new Point(getSample(), getColor(), getLabel());
         }
 
     }

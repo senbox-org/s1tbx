@@ -7,16 +7,16 @@ import javax.swing.AbstractButton;
 import javax.swing.JLabel;
 import java.awt.Component;
 
-class EmptyForm implements SpecificForm {
-    public static final SpecificForm INSTANCE = new EmptyForm();
+class EmptyPaletteEditorForm implements PaletteEditorForm {
+    public static final PaletteEditorForm INSTANCE = new EmptyPaletteEditorForm();
 
-    private EmptyForm() {
+    private EmptyPaletteEditorForm() {
     }
 
-    public void apply() {
+    public void performApply(ProductSceneView productSceneView) {
     }
 
-    public void reset() {
+    public void performReset(ProductSceneView productSceneView) {
     }
 
     public ImageInfo getCurrentImageInfo() {
@@ -26,24 +26,24 @@ class EmptyForm implements SpecificForm {
     public void setCurrentImageInfo(ImageInfo imageInfo) {
     }
 
-    public void initProductSceneView(ProductSceneView productSceneView) {
+    public void handleFormShown(ProductSceneView productSceneView) {
     }
 
-    public void releaseProductSceneView() {
+    public void handleFormHidden() {
     }
 
     public AbstractButton[] getButtons() {
         return new AbstractButton[0];
     }
 
-    public void updateState() {
+    public void updateState(ProductSceneView productSceneView) {
     }
 
     public Component getContentPanel() {
         return new JLabel("No image view selected.");
     }
 
-    public String getTitle() {
+    public String getTitle(ProductSceneView productSceneView) {
         return "Empty";
     }
 

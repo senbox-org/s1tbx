@@ -17,7 +17,6 @@ import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.IOException;
-import java.util.ArrayList;
 
 /*
  * New fully JAI-backed, tiled image creation (nf, 20.09.2007). IN PROGRESS!
@@ -50,7 +49,7 @@ public class ImageFactory {
         PlanarImage image;
         try {
             PlanarImage[] sourceImages = createSourceImages(rasterDataNodes, pm);
-            image = combineBands(rasterDataNodes, sourceImages);
+            image = performIndexToRgbConversion(rasterDataNodes, sourceImages);
             image = performHistogramMatching(image, histogramMatching);
         } finally {
             pm.done();
@@ -60,89 +59,19 @@ public class ImageFactory {
     }
 
     private static PlanarImage[] createSourceImages(RasterDataNode[] rasterDataNodes, ProgressMonitor pm) {
+        prepareRenderedImages(rasterDataNodes);
+        prepareImageInfos(rasterDataNodes, SubProgressMonitor.create(pm, 1));
+
         PlanarImage[] sourceImages = new PlanarImage[rasterDataNodes.length];
         for (int i = 0; i < rasterDataNodes.length; i++) {
             final RasterDataNode raster = rasterDataNodes[i];
-            RenderedImage renderedImage = raster.getImage();
-            PlanarImage planarImage;
-            if (renderedImage != null) {
-                planarImage = PlanarImage.wrapRenderedImage(renderedImage);
+            PlanarImage planarImage = PlanarImage.wrapRenderedImage(raster.getImage());
+
+            if (raster.getImageInfo().getSampleToIndexMap() != null) {
+                planarImage = JAIUtils.createIndexedImage(planarImage, raster.getImageInfo().getSampleToIndexMap());
             } else {
-                planarImage = new RasterDataNodeOpImage(raster);
-                raster.setImage(planarImage);
-            }
-            RasterDataNodeOpImage.setProgressMonitor(planarImage, SubProgressMonitor.create(pm, 1));
-            if (raster.getImageInfo() == null) {
-                Debug.trace("planarImage = " + planarImage);
-                Debug.trace("  Computing extrema for [" + planarImage + "]...");
-                double[] extrema;
-                if (planarImage.getSampleModel().getDataType() == DataBuffer.TYPE_BYTE) {
-                    extrema = new double[]{0.0, 255.0};
-                } else if (planarImage.getSampleModel().getDataType() == DataBuffer.TYPE_SHORT) {
-                    extrema = new double[]{-32768.0, 32767.0};
-                } else if (planarImage.getSampleModel().getDataType() == DataBuffer.TYPE_USHORT) {
-                    extrema = new double[]{0.0, 65535.0};
-                } else {
-                    extrema = JAIUtils.getExtrema(planarImage, null);
-                }
-                checkCanceled(pm);
-                pm.worked(100);
-                Debug.trace("  Extrema computed.");
-
-                if (I_AM_A_TEMP_VARIABLE_WHICH_WILL_BE_REMOVED_LATER 
-                        && !raster.isFloatingPointType()) {
-                    final int valueRange = (int) (extrema[1] - extrema[0]);
-                    if (valueRange <= 256) {
-                        ArrayList<ColorPaletteDef.Point> pList = new ArrayList<ColorPaletteDef.Point>(valueRange);
-                        for (int j = 0; j < valueRange; j++) {
-                            final Color color = new Color((float) Math.random(), (float) Math.random(), (float) Math.random());
-                            pList.add(new ColorPaletteDef.Point(extrema[0] + j, color));
-                        }
-                        final ColorPaletteDef.Point[] points = pList.toArray(new ColorPaletteDef.Point[pList.size()]);
-                        ColorPaletteDef cpd = new ColorPaletteDef(points, true);
-                        ImageInfo imageInfo = new ImageInfo((float) extrema[0], (float) extrema[1], null, cpd);
-                        raster.setImageInfo(imageInfo);
-                    }
-                }
-
-                if (raster.getImageInfo() == null) {
-                    Debug.trace("  Computing histogram...");
-                    // todo - construct ROI from no-data image here
-                    // todo - make no-data image property of RasterDataNode
-                    RenderedOp histogramImage = JAIUtils.createHistogramImage(planarImage, 512, extrema[0], extrema[1]);
-                    Histogram histogram = u(histogramImage);
-                    Debug.trace("  Histogram computed.");
-                    ImageInfo imageInfo = raster.createDefaultImageInfo(null, histogram, true); // Note: this method expects a raw data histogram!
-                    raster.setImageInfo(imageInfo);
-                }
-                checkCanceled(pm);
-                pm.worked(100);
-            } else {
-                pm.worked(200);
-            }
-
-            ImageInfo imageInfo = raster.getImageInfo();
-            Assert.notNull(imageInfo);
-
-
-            if (imageInfo.getColorPaletteDef().isDiscrete()) {
-                final IntMap sampleColorIndexMap = new IntMap((int) imageInfo.getMinDisplaySample() - 1, 4098);
-                final ColorPaletteDef.Point[] points = imageInfo.getColorPaletteDef().getPoints();
-                for (int colorIndex = 0; colorIndex < points.length; colorIndex++) {
-                    sampleColorIndexMap.put((int) points[colorIndex].getSample(), colorIndex);
-                }
-
-//                final ProductData data = raster.getSceneRasterData();
-//                for (int pixelIndex = 0; pixelIndex < data.getNumElems(); pixelIndex++) {
-//                    final int colorIndex = sampleColorIndexMap.get(data.getElemIntAt(pixelIndex));
-//                    rgbSamples[pixelIndex * numColorComponents] = colorIndex != IntMap.NULL ? (byte) colorIndex : 0;
-//                }
-
-                planarImage = JAIUtils.createIntMap(planarImage, sampleColorIndexMap);
-
-            }   else {
-                final double newMin = raster.scaleInverse(imageInfo.getMinDisplaySample());
-                final double newMax = raster.scaleInverse(imageInfo.getMaxDisplaySample());
+                final double newMin = raster.scaleInverse(raster.getImageInfo().getMinDisplaySample());
+                final double newMax = raster.scaleInverse(raster.getImageInfo().getMaxDisplaySample());
                 final double gamma = 1.0; //imageInfo.getGamma();  // todo - use gamma
                 // todo - honour log-scaled bands
                 planarImage = JAIUtils.createRescaleOp(planarImage,
@@ -158,6 +87,89 @@ public class ImageFactory {
         return sourceImages;
     }
 
+    private static void prepareRenderedImages(RasterDataNode[] rasterDataNodes) {
+        for (final RasterDataNode raster : rasterDataNodes) {
+            RenderedImage renderedImage = raster.getImage();
+            if (renderedImage == null) {
+                raster.setImage(new RasterDataNodeOpImage(raster));
+            }
+        }
+    }
+
+    private static void prepareImageInfos(RasterDataNode[] rasterDataNodes, ProgressMonitor pm) {
+        for (final RasterDataNode raster : rasterDataNodes) {
+            final RenderedImage renderedImage = raster.getImage();
+            Assert.notNull(renderedImage);
+            final PlanarImage planarImage = PlanarImage.wrapRenderedImage(renderedImage);
+            if (raster.getImageInfo() == null) {
+                if (raster instanceof Band) {
+                    final IndexCoding indexCoding = ((Band) raster).getIndexCoding();
+                    if (indexCoding != null) {
+                        raster.setImageInfo(createIndexedImageInfo(planarImage, indexCoding));
+                    }
+                }
+                if (raster.getImageInfo() == null) {
+                    Debug.trace("Computing sample extrema for [" + raster.getName() + "]...");
+                    double[] extrema;
+                    if (planarImage.getSampleModel().getDataType() == DataBuffer.TYPE_BYTE) {
+                        extrema = new double[]{0.0, 255.0};
+                    } else if (planarImage.getSampleModel().getDataType() == DataBuffer.TYPE_SHORT) {
+                        extrema = new double[]{-32768.0, 32767.0};
+                    } else if (planarImage.getSampleModel().getDataType() == DataBuffer.TYPE_USHORT) {
+                        extrema = new double[]{0.0, 65535.0};
+                    } else {
+                        extrema = JAIUtils.getExtrema(planarImage, null);
+                    }
+                    checkCanceled(pm);
+                    pm.worked(100);
+                    Debug.trace("Sample extrema computed.");
+
+                    Debug.trace("Computing sample frequencies for [" + raster.getName() + "]...");
+                    // Continuous --> Histogram
+                    // todo - construct ROI from no-data image here
+                    // todo - make no-data image property of RasterDataNode
+                    RenderedOp histogramImage = JAIUtils.createHistogramImage(planarImage, 512, extrema[0], extrema[1]);
+                    Histogram histogram = u(histogramImage);
+                    ImageInfo imageInfo = raster.createDefaultImageInfo(null, histogram, true); // Note: this method expects a raw data histogram!
+                    raster.setImageInfo(imageInfo);
+                    pm.worked(100);
+                    Debug.trace("Sample frequencies computed.");
+                }
+                checkCanceled(pm);
+            } else {
+                pm.worked(200);
+            }
+        }
+    }
+
+    private static ImageInfo createIndexedImageInfo(PlanarImage planarImage, IndexCoding indexCoding) {
+        final MetadataAttribute[] attributes = indexCoding.getAttributes();
+        IntMap sampleToIndexMap = new IntMap();
+        int sampleMin = Integer.MAX_VALUE;
+        int sampleMax = Integer.MIN_VALUE;
+        final ColorPaletteDef.Point[] points = new ColorPaletteDef.Point[attributes.length];
+        for (int index = 0; index < attributes.length; index++) {
+            MetadataAttribute attribute = attributes[index];
+            final int sample = attribute.getData().getElemInt();
+            sampleMin = Math.min(sampleMin, sample);
+            sampleMax = Math.max(sampleMax, sample);
+            sampleToIndexMap.put(sample, index);
+            points[index] = new ColorPaletteDef.Point(sample,
+                                                      new Color((float)Math.random(),
+                                                                (float)Math.random(),
+                                                                (float)Math.random()),
+                                                      attribute.getName());
+        }
+        int[] frequencyCounts = new int[sampleToIndexMap.size()];
+        for (int i = 0; i < frequencyCounts.length; i++) {
+            frequencyCounts[i] = (int)(100*Math.random()); // todo - use planarImage
+        }
+        final ColorPaletteDef def = new ColorPaletteDef(points, true);
+        final ImageInfo imageInfo = new ImageInfo(sampleMin, sampleMax, frequencyCounts, def);
+        imageInfo.setSampleToIndexMap(sampleToIndexMap);
+        return imageInfo;
+    }
+
     private static PlanarImage performHistogramMatching(PlanarImage image, String histogramMatching) {
         if (ImageInfo.HISTOGRAM_MATCHING_EQUALIZE.equalsIgnoreCase(histogramMatching)) {
             image = JAIUtils.createHistogramEqualizedImage(image);
@@ -167,14 +179,13 @@ public class ImageFactory {
         return image;
     }
 
-    private static PlanarImage combineBands(RasterDataNode[] rasterDataNodes, PlanarImage[] sourceImages) {
+    private static PlanarImage performIndexToRgbConversion(RasterDataNode[] rasterDataNodes, PlanarImage[] sourceImages) {
         PlanarImage image;
         if (rasterDataNodes.length == 1) {
             final RasterDataNode raster = rasterDataNodes[0];
             final Color[] palette = raster.getImageInfo().getColorPalette();
-            Assert.state(palette.length == 256, "palette.length == 256");
-            final byte[][] lutData = new byte[3][256];
-            for (int i = 0; i < 256; i++) {
+            final byte[][] lutData = new byte[3][palette.length];
+            for (int i = 0; i < palette.length; i++) {
                 lutData[0][i] = (byte) palette[i].getRed();
                 lutData[1][i] = (byte) palette[i].getGreen();
                 lutData[2][i] = (byte) palette[i].getBlue();
