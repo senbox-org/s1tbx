@@ -347,11 +347,11 @@ public class ProductUtils {
                     final IntMap sampleColorIndexMap = new IntMap((int) imageInfo.getMinDisplaySample() - 1, 4098);
                     final ColorPaletteDef.Point[] points = imageInfo.getColorPaletteDef().getPoints();
                     for (int colorIndex = 0; colorIndex < points.length; colorIndex++) {
-                        sampleColorIndexMap.put((int) points[colorIndex].getSample(), colorIndex);
+                        sampleColorIndexMap.putValue((int) points[colorIndex].getSample(), colorIndex);
                     }
                     final ProductData data = raster.getSceneRasterData();
                     for (int pixelIndex = 0; pixelIndex < data.getNumElems(); pixelIndex++) {
-                        final int colorIndex = sampleColorIndexMap.get(data.getElemIntAt(pixelIndex));
+                        final int colorIndex = sampleColorIndexMap.getValue(data.getElemIntAt(pixelIndex));
                         rgbSamples[pixelIndex * numColorComponents] = colorIndex != IntMap.NULL ? (byte) colorIndex : 0;
                     }
                 }

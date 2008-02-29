@@ -153,14 +153,14 @@ public class ImageFactory {
             final int sample = attribute.getData().getElemInt();
             sampleMin = Math.min(sampleMin, sample);
             sampleMax = Math.max(sampleMax, sample);
-            sampleToIndexMap.put(sample, index);
+            sampleToIndexMap.putValue(sample, index);
             points[index] = new ColorPaletteDef.Point(sample,
                                                       new Color((float)Math.random(),
                                                                 (float)Math.random(),
                                                                 (float)Math.random()),
                                                       attribute.getName());
         }
-        int[] frequencyCounts = new int[sampleToIndexMap.size()];
+        int[] frequencyCounts = new int[sampleToIndexMap.getSize()];
         for (int i = 0; i < frequencyCounts.length; i++) {
             frequencyCounts[i] = (int)(100*Math.random()); // todo - use planarImage
         }

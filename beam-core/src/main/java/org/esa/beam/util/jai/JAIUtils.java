@@ -804,7 +804,7 @@ public class JAIUtils {
         final WritableRaster targetData = sourceData.createCompatibleWritableRaster();
         final DataBuffer targetBuffer = targetData.getDataBuffer();
         for (int i = 0; i < targetBuffer.getSize(); i++) {
-            final int index = indexMap.get(sourceData.getDataBuffer().getElem(i));
+            final int index = indexMap.getValue(sourceData.getDataBuffer().getElem(i));
             targetBuffer.setElem(i, index);
         }
 
@@ -819,7 +819,7 @@ public class JAIUtils {
         if (sourceImage.getSampleModel().getNumBands() != 1) {
             throw new IllegalArgumentException();
         }
-        int[] keys = intMap.keys();
+        int[] keys = intMap.getKeys();
         int keyMin = Integer.MAX_VALUE;
         int keyMax = Integer.MIN_VALUE;
         int valueMin = Integer.MAX_VALUE;
@@ -827,7 +827,7 @@ public class JAIUtils {
         for (int key : keys) {
             keyMin = Math.min(keyMin, key);
             keyMax = Math.max(keyMax, key);
-            final int value = intMap.get(key);
+            final int value = intMap.getValue(key);
             if (value != IntMap.NULL) {
                 valueMin = Math.min(valueMin, value);
                 valueMax = Math.max(valueMax, value);
@@ -836,13 +836,13 @@ public class JAIUtils {
         final int keyRange = 1 + keyMax - keyMin;
         final int valueRange = 1 + valueMax - valueMin;
         if (keyRange > Short.MAX_VALUE) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("intMap: keyRange > Short.MAX_VALUE");
         }
         LookupTableJAI lookup;
         if (valueRange <= 256) {
             final byte[] table = new byte[keyRange];
             for (int i = 0; i < table.length; i++) {
-                final int value = intMap.get(keyMin + i);
+                final int value = intMap.getValue(keyMin + i);
                 //System.out.println("i=" + i + "," + "value = " + value);
                 table[i] = (byte) (value != IntMap.NULL ? value : valueMin);
             }
@@ -850,19 +850,24 @@ public class JAIUtils {
         } else if (valueRange <= 65536) {
             final short[] table = new short[keyRange];
             for (int i = 0; i < table.length; i++) {
-                final int value = intMap.get(keyMin + i);
+                final int value = intMap.getValue(keyMin + i);
                 table[i] = (short) (value != IntMap.NULL ? value : valueMin);
             }
             lookup = new LookupTableJAI(table, keyMin, valueRange > 32767);
         } else {
             final int[] table = new int[keyRange];
             for (int i = 0; i < table.length; i++) {
-                final int value = intMap.get(keyMin + i);
+                final int value = intMap.getValue(keyMin + i);
                 table[i] = value != IntMap.NULL ? value : valueMin;
             }
             lookup = new LookupTableJAI(table, keyMin);
         }
         ParameterBlock pb = new ParameterBlock();
+        pb.addSource(sourceImage);
+        pb.add(new double[]{valueMin - 1});
+        pb.add(new double[]{valueMax});
+        sourceImage = JAI.create("clamp", pb, null);
+        pb = new ParameterBlock();
         pb.addSource(sourceImage);
         pb.add(lookup);
         return JAI.create("lookup", pb, null);

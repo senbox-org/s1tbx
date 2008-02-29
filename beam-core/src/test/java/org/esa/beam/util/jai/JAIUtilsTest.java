@@ -65,7 +65,7 @@ public class JAIUtilsTest extends TestCase {
             final int elem = dataBuffer.getElem(i);
             if (!set.contains(elem)) {
                 System.out.println("elem = " + elem);
-                 intMap.put(elem, intMap.size());
+                 intMap.putValue(elem, intMap.getSize());
                 set.add(elem);
             }
         }

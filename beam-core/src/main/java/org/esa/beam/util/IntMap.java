@@ -21,11 +21,11 @@ public class IntMap {
         Arrays.fill(table, NULL);
     }
 
-    public int size() {
+    public int getSize() {
         return size;
     }
 
-    public void put(int key, int value) {
+    public void putValue(int key, int value) {
         if (value == NULL) {
             throw new IllegalArgumentException("value");
         }
@@ -44,7 +44,7 @@ public class IntMap {
         }
     }
 
-    public void remove(int key) {
+    public void removeValue(int key) {
         final int index = key - tableOffset;
         if (index >= 0 && index < table.length) {
             final int oldValue = table[index];
@@ -60,7 +60,7 @@ public class IntMap {
         }
     }
 
-    public int get(int key) {
+    public int getValue(int key) {
         final int index = key - tableOffset;
         if (index >= 0 && index < table.length) {
             return table[index];
@@ -74,9 +74,13 @@ public class IntMap {
         }
     }
 
-    public int[] keys() {
+    /**
+     * Gets the array of keys in this map, sorted in ascending order.
+     * @return the array of keys in the map
+     */
+    public int[] getKeys() {
+        final int[] keys = new int[getSize()];
         int j = 0;
-        final int[] keys = new int[size()];
         for (int index = 0; index < table.length; index++) {
             int value = table[index];
             if (value != NULL) {
@@ -87,6 +91,42 @@ public class IntMap {
         for (Integer key : set) {
             keys[j++] = key;
         }
+        Arrays.sort(keys);
         return keys;
+    }
+
+    /**
+     * Gets the key/value pairs.
+     * The array is sorted in ascending key order.
+     * @return the key/value pairs with {@code pairs[i] = {key, value}}
+     */
+    public int[][] getPairs() {
+        final int[] keys = getKeys();
+        final int[][] pairs = new int[keys.length][2];
+        for (int i = 0; i < keys.length; i++) {
+            pairs[i][0] = keys[i];
+            pairs[i][1] = getValue(keys[i]);
+        }
+        return pairs;
+    }
+
+    /**
+     * Gets the key/value ranges.
+     * @return {@code ranges = {{keyMin, keyMax}, {valueMin, valueMax}}}
+     */
+    public int[][] getRanges() {
+        int[] keys = getKeys();
+        int keyMin = Integer.MAX_VALUE;
+        int keyMax = Integer.MIN_VALUE;
+        int valueMin = Integer.MAX_VALUE;
+        int valueMax = Integer.MIN_VALUE;
+        for (int key : keys) {
+            keyMin = Math.min(keyMin, key);
+            keyMax = Math.max(keyMax, key);
+            final int value = getValue(key);
+            valueMin = Math.min(valueMin, value);
+            valueMax = Math.max(valueMax, value);
+        }
+        return new int[][]{{keyMin, keyMax}, {valueMin, valueMax}};
     }
 }

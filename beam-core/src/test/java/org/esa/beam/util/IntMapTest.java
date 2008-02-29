@@ -10,53 +10,53 @@ public class IntMapTest extends TestCase {
     public void testIntMap() {
         IntMap intMap = new IntMap(-10, 110);
 
-        assertEquals(0, intMap.size());
+        assertEquals(0, intMap.getSize());
 
-        intMap.put(-10000, -4);
-        intMap.put(-1000, -3);
-        intMap.put(-100, -2);
-        intMap.put(-10, -1);
-        intMap.put(1, 0);
-        intMap.put(10, 1);
-        intMap.put(100, 2);
-        intMap.put(1000, 3);
-        intMap.put(10000, 4);
+        intMap.putValue(-10000, -4);
+        intMap.putValue(-1000, -3);
+        intMap.putValue(-100, -2);
+        intMap.putValue(-10, -1);
+        intMap.putValue(1, 0);
+        intMap.putValue(10, 1);
+        intMap.putValue(100, 2);
+        intMap.putValue(1000, 3);
+        intMap.putValue(10000, 4);
 
-        assertEquals(9, intMap.size());
+        assertEquals(9, intMap.getSize());
 
-        assertEquals(-4, intMap.get(-10000));
-        assertEquals(-3, intMap.get(-1000));
-        assertEquals(-2, intMap.get(-100));
-        assertEquals(-1, intMap.get(-10));
-        assertEquals(0, intMap.get(1));
-        assertEquals(1, intMap.get(10));
-        assertEquals(2, intMap.get(100));
-        assertEquals(3, intMap.get(1000));
-        assertEquals(4, intMap.get(10000));
+        assertEquals(-4, intMap.getValue(-10000));
+        assertEquals(-3, intMap.getValue(-1000));
+        assertEquals(-2, intMap.getValue(-100));
+        assertEquals(-1, intMap.getValue(-10));
+        assertEquals(0, intMap.getValue(1));
+        assertEquals(1, intMap.getValue(10));
+        assertEquals(2, intMap.getValue(100));
+        assertEquals(3, intMap.getValue(1000));
+        assertEquals(4, intMap.getValue(10000));
 
-        assertEquals(IntMap.NULL, intMap.get(-10000 + 1));
-        assertEquals(IntMap.NULL, intMap.get(-1000 + 1));
-        assertEquals(IntMap.NULL, intMap.get(-100 + 1));
-        assertEquals(IntMap.NULL, intMap.get(-10 + 1));
-        assertEquals(IntMap.NULL, intMap.get(1 - 1));
-        assertEquals(IntMap.NULL, intMap.get(10 - 1));
-        assertEquals(IntMap.NULL, intMap.get(100 - 1));
-        assertEquals(IntMap.NULL, intMap.get(1000 - 1));
-        assertEquals(IntMap.NULL, intMap.get(10000 - 1));
+        assertEquals(IntMap.NULL, intMap.getValue(-10000 + 1));
+        assertEquals(IntMap.NULL, intMap.getValue(-1000 + 1));
+        assertEquals(IntMap.NULL, intMap.getValue(-100 + 1));
+        assertEquals(IntMap.NULL, intMap.getValue(-10 + 1));
+        assertEquals(IntMap.NULL, intMap.getValue(1 - 1));
+        assertEquals(IntMap.NULL, intMap.getValue(10 - 1));
+        assertEquals(IntMap.NULL, intMap.getValue(100 - 1));
+        assertEquals(IntMap.NULL, intMap.getValue(1000 - 1));
+        assertEquals(IntMap.NULL, intMap.getValue(10000 - 1));
 
-        intMap.remove(1);
-        assertEquals(8, intMap.size());
-        assertEquals(IntMap.NULL, intMap.get(1));
+        intMap.removeValue(1);
+        assertEquals(8, intMap.getSize());
+        assertEquals(IntMap.NULL, intMap.getValue(1));
 
-        intMap.remove(1000);
-        assertEquals(7, intMap.size());
-        assertEquals(IntMap.NULL, intMap.get(1000));
+        intMap.removeValue(1000);
+        assertEquals(7, intMap.getSize());
+        assertEquals(IntMap.NULL, intMap.getValue(1000));
 
-        intMap.remove(10000 - 1);
-        assertEquals(7, intMap.size());
+        intMap.removeValue(10000 - 1);
+        assertEquals(7, intMap.getSize());
 
         try {
-            intMap.put(1, IntMap.NULL);
+            intMap.putValue(1, IntMap.NULL);
             fail();
         } catch (IllegalArgumentException e) {
             // ok
@@ -65,35 +65,69 @@ public class IntMapTest extends TestCase {
 
     public void testSequentialAccess() {
         IntMap intMap = new IntMap();
-        assertEquals(0, intMap.size());
+        assertEquals(0, intMap.getSize());
         for (int i = -10000; i <= 10000; i++) {
-            intMap.put(i, i + 99);
+            intMap.putValue(i, i + 99);
         }
         for (int i = -10000; i <= 10000; i++) {
-            assertEquals(i + 99, intMap.get(i));
+            assertEquals(i + 99, intMap.getValue(i));
         }
-        assertEquals(20001, intMap.size());
+        assertEquals(20001, intMap.getSize());
         for (int i = -10000; i <= 10000; i++) {
-            intMap.remove(i);
+            intMap.removeValue(i);
         }
-        assertEquals(0, intMap.size());
+        assertEquals(0, intMap.getSize());
     }
 
     public void testKeys() {
         IntMap intMap = new IntMap(10, 100);
-        intMap.put(234, 5);
-        intMap.put(2, 9);
-        intMap.put(534, 1);
-        intMap.put(22, 43);
-        final int[] keys = intMap.keys();
-        Set<Integer> keySet = new HashSet<Integer>();
-        for (int key : keys) {
-            keySet.add(key);
-        }
-        assertEquals(4, keySet.size());
-        assertTrue(keySet.contains(234));
-        assertTrue(keySet.contains(2));
-        assertTrue(keySet.contains(534));
-        assertTrue(keySet.contains(22));
+        intMap.putValue(234, 5);
+        intMap.putValue(2, 9);
+        intMap.putValue(534, 1);
+        intMap.putValue(22, 43);
+        intMap.putValue(-8, 8232);
+        final int[] keys = intMap.getKeys();
+        assertEquals(5, keys.length);
+        assertEquals(-8, keys[0]);
+        assertEquals(2, keys[1]);
+        assertEquals(22, keys[2]);
+        assertEquals(234, keys[3]);
+        assertEquals(534, keys[4]);
+    }
+
+    public void testPairs() {
+        IntMap intMap = new IntMap(10, 100);
+        intMap.putValue(234, 5);
+        intMap.putValue(2, 9);
+        intMap.putValue(534, 1);
+        intMap.putValue(22, 43);
+        intMap.putValue(-8, 8232);
+        final int[][] pairs = intMap.getPairs();
+        assertEquals(5, pairs.length);
+        assertEquals(-8, pairs[0][0]);
+        assertEquals(2, pairs[1][0]);
+        assertEquals(22, pairs[2][0]);
+        assertEquals(234, pairs[3][0]);
+        assertEquals(534, pairs[4][0]);
+        assertEquals(8232, pairs[0][1]);
+        assertEquals(9, pairs[1][1]);
+        assertEquals(43, pairs[2][1]);
+        assertEquals(5, pairs[3][1]);
+        assertEquals(1, pairs[4][1]);
+    }
+
+    public void testRanges() {
+        IntMap intMap = new IntMap(10, 100);
+        intMap.putValue(234, 5);
+        intMap.putValue(2, 9);
+        intMap.putValue(534, 1);
+        intMap.putValue(22, 43);
+        intMap.putValue(-8, 8232);
+        final int[][] ranges = intMap.getRanges();
+        assertEquals(2, ranges.length);
+        assertEquals(-8, ranges[0][0]);
+        assertEquals(534, ranges[0][1]);
+        assertEquals(1, ranges[1][0]);
+        assertEquals(8232, ranges[1][1]);
     }
 }
