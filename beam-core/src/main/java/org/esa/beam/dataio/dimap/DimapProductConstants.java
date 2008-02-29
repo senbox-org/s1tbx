@@ -515,6 +515,7 @@ public final class DimapProductConstants {
     public final static String TAG_BAND_WAVELEN = "BAND_WAVELEN";
     public final static String TAG_WAVELEN_UNIT = "WAVELEN_UNIT";
     public final static String TAG_FLAG_CODING_NAME = "FLAG_CODING_NAME";
+    public final static String TAG_INDEX_CODING_NAME = "INDEX_CODING_NAME";
     public final static String TAG_SCALING_FACTOR = "SCALING_FACTOR";
     public final static String TAG_SCALING_OFFSET = "SCALING_OFFSET";
     public final static String TAG_SCALING_LOG_10 = "LOG10_SCALED";

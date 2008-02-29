@@ -22,11 +22,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.esa.beam.GlobalTestConfig;
 import org.esa.beam.GlobalTestTools;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.BeamConstants;
 
 import java.io.File;
@@ -161,8 +157,9 @@ public class DimapWriteAndReadTest extends TestCase {
         final Product product = new Product("name", BeamConstants.MERIS_FR_L1B_PRODUCT_TYPE_NAME, sceneRasterWidth,
                                             sceneRasterHeight);
         addFlagCoding(product);
+        addIndexCoding(product);
         addBands(product);
-        assertEquals("NumBands", 3, product.getNumBands());
+        assertEquals("NumBands", 4, product.getNumBands());
         addTiePointGrids(product);
         assertEquals("NumTiePointGrids", 2, product.getNumTiePointGrids());
         return product;
@@ -172,7 +169,14 @@ public class DimapWriteAndReadTest extends TestCase {
         final FlagCoding flagCoding = new FlagCoding("Flags");
         flagCoding.addFlag("land", 1, "Land Flag");
         flagCoding.addFlag("bright", 2, "Bright Flag");
-        product.addFlagCoding(flagCoding);
+        product.getFlagCodingGroup().add(flagCoding);
+    }
+
+    private static void addIndexCoding(Product product) {
+        final IndexCoding indexCoding = new IndexCoding("Indexes");
+        indexCoding.addIndex("land", 12, "Land Index");
+        indexCoding.addIndex("bright", 13, "Bright Index");
+        product.getIndexCodingGroup().add(indexCoding);
     }
 
     private static void compareTiePointGrids(Product expProduct, Product currentProduct, StringBuffer diff) {
@@ -278,6 +282,22 @@ public class DimapWriteAndReadTest extends TestCase {
                 diff.append(
                         "SceneRasterHeight of Band " + i + " expected <" + expBand.getSceneRasterHeight() + "> but was <" + currentBand.getSceneRasterHeight() + ">\r\n");
             }
+            if (expBand.getFlagCoding() != null && !(currentBand.getFlagCoding() != null)) {
+                diff.append(
+                        "FlagCoding of Band " + i + " expected non null\r\n");
+            }
+            if (expBand.getFlagCoding() != null && currentBand.getFlagCoding() != null && !expBand.getFlagCoding().getName().equals(currentBand.getFlagCoding().getName())) {
+                diff.append(
+                        "FlagCoding of Band " + i + " not equal\r\n");
+            }
+            if (expBand.getIndexCoding() != null && !(currentBand.getIndexCoding() != null)) {
+                diff.append(
+                        "IndexCoding of Band " + i + " expected non null\r\n");
+            }
+            if (expBand.getIndexCoding() != null && currentBand.getIndexCoding() != null && !expBand.getIndexCoding().getName().equals(currentBand.getIndexCoding().getName())) {
+                diff.append(
+                        "IndexCoding of Band " + i + " not equal\r\n");
+            }
             if (currentBand.getData() == null) {
                 diff.append("current Band " + i + " has no data>\r\n");
             }
@@ -298,6 +318,7 @@ public class DimapWriteAndReadTest extends TestCase {
     private static void addBands(Product product) {
         final String descriptionExpansion = "-Description";
         final String flagsBandName = "flags";
+        final String indexesBandName = "indexes";
         final String band1Name = "band1";
         final String band2Name = "band2";
 //        final String vbName = "vb1";
@@ -307,8 +328,14 @@ public class DimapWriteAndReadTest extends TestCase {
         product.addBand(flagsBandName, ProductData.TYPE_INT8);
         final Band flagsBand = product.getBand(flagsBandName);
         flagsBand.setDescription(flagsBandName + descriptionExpansion);
-        flagsBand.setFlagCoding(product.getFlagCodingAt(0));
+        flagsBand.setSampleCoding(product.getFlagCodingGroup().get(0));
         fillBandWithData(flagsBand);
+
+        product.addBand(indexesBandName, ProductData.TYPE_INT16);
+        final Band indexesBand = product.getBand(indexesBandName);
+        indexesBand.setDescription(indexesBandName + descriptionExpansion);
+        indexesBand.setSampleCoding(product.getIndexCodingGroup().get(0));
+        fillBandWithData(indexesBand);
 
         product.addBand(band1Name, ProductData.TYPE_FLOAT32);
         final Band band1 = product.getBand(band1Name);
@@ -323,21 +350,10 @@ public class DimapWriteAndReadTest extends TestCase {
 
     private static void fillBandWithData(Band band) {
         final ProductData productData = band.createCompatibleRasterData();
-        if (productData.getType() == ProductData.TYPE_FLOAT32) {
-            final float[] floats = new float[productData.getNumElems()];
-            for (int i = 0; i < floats.length; i++) {
-                floats[i] = i * 2.4f;
-            }
-            productData.setElems(floats);
-            band.setData(productData);
+        final int n = productData.getNumElems();
+        for (int i = 0; i < n; i++) {
+            productData.setElemDoubleAt(i, i * 2.4);
         }
-        if (productData.getType() == ProductData.TYPE_INT8) {
-            final byte[] bytes = new byte[productData.getNumElems()];
-            for (int i = 0; i < bytes.length; i++) {
-                bytes[i] = (byte) i;
-            }
-            productData.setElems(bytes);
-            band.setData(productData);
-        }
+        band.setData(productData);
     }
 }

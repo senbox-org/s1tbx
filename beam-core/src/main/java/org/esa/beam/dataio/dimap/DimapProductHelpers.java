@@ -1186,6 +1186,7 @@ public class DimapProductHelpers {
                 setSpectralBandIndex(element, band);
                 setScaling(element, band);
                 setFlagCoding(element, band, product);
+                setIndexCoding(element, band, product);
                 setNoDataValueUsed(element, band);
                 setNoDataValue(element, band);
             }
@@ -1198,9 +1199,19 @@ public class DimapProductHelpers {
         private static void setFlagCoding(final Element element, final Band band, Product product) {
             final String codingName = element.getChildTextTrim(DimapProductConstants.TAG_FLAG_CODING_NAME);
             if (codingName != null) {
-                final FlagCoding flagCoding = product.getFlagCoding(codingName);
+                final FlagCoding flagCoding = product.getFlagCodingGroup().get(codingName);
                 if (flagCoding != null) {
-                    band.setFlagCoding(flagCoding);
+                    band.setSampleCoding(flagCoding);
+                }
+            }
+        }
+
+        private static void setIndexCoding(Element element, Band band, Product product) {
+            final String codingName = element.getChildTextTrim(DimapProductConstants.TAG_INDEX_CODING_NAME);
+            if (codingName != null) {
+                final IndexCoding indexCoding = product.getIndexCodingGroup().get(codingName);
+                if (indexCoding != null) {
+                    band.setSampleCoding(indexCoding);
                 }
             }
         }

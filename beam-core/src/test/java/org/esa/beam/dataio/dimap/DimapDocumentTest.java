@@ -865,6 +865,7 @@ public class DimapDocumentTest extends TestCase {
         pw.println("            <SOLAR_FLUX>" + 0.0f + "</SOLAR_FLUX>");
         pw.println("            <BAND_WAVELEN>" + 0.0f + "</BAND_WAVELEN>");
         pw.println("            <BANDWIDTH>0.0</BANDWIDTH>");
+        pw.println("            <INDEX_CODING_NAME>IndexCoding</INDEX_CODING_NAME>");
         pw.println("            <SCALING_FACTOR>1.0</SCALING_FACTOR>");
         pw.println("            <SCALING_OFFSET>0.0</SCALING_OFFSET>");
         pw.println("            <LOG10_SCALED>false</LOG10_SCALED>");
@@ -1372,6 +1373,10 @@ public class DimapDocumentTest extends TestCase {
                 FlagCoding flagCoding = band.getFlagCoding();
                 if (flagCoding != null) {
                     JDomHelper.addElement(DimapProductConstants.TAG_FLAG_CODING_NAME, flagCoding.getName(), sbiElem);
+                }
+                IndexCoding indexCoding = band.getIndexCoding();
+                if (indexCoding != null) {
+                    JDomHelper.addElement(DimapProductConstants.TAG_INDEX_CODING_NAME, indexCoding.getName(), sbiElem);
                 }
                 imageInterpreElem.addContent(sbiElem);
             }

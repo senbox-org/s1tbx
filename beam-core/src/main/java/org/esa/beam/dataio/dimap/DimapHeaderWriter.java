@@ -224,6 +224,10 @@ public final class DimapHeaderWriter extends XmlWriter {
                     if (flagCoding != null) {
                         printLine(indent + 2, DimapProductConstants.TAG_FLAG_CODING_NAME, flagCoding.getName());
                     }
+                    final IndexCoding indexCoding = band.getIndexCoding();
+                    if (indexCoding != null) {
+                        printLine(indent + 2, DimapProductConstants.TAG_INDEX_CODING_NAME, indexCoding.getName());
+                    }
                     printLine(indent + 2, DimapProductConstants.TAG_SCALING_FACTOR, band.getScalingFactor());
                     printLine(indent + 2, DimapProductConstants.TAG_SCALING_OFFSET, band.getScalingOffset());
                     printLine(indent + 2, DimapProductConstants.TAG_SCALING_LOG_10, band.isLog10Scaled());
