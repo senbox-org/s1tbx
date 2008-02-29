@@ -156,10 +156,11 @@ public class ImageFactory {
             sampleMin = Math.min(sampleMin, sample);
             sampleMax = Math.max(sampleMax, sample);
             sampleToIndexMap.putValue(sample, index);
+            double t = (index + 1.0) / attributes.length;
             points[index] = new ColorPaletteDef.Point(sample,
-                                                      new Color((float)Math.random(),
-                                                                (float)Math.random(),
-                                                                (float)Math.random()),
+                                                      new Color((float) (0.5 + 0.5 * Math.sin(Math.PI / 3. + t * 4. * Math.PI)),
+                                                                (float) (0.5 + 0.5 * Math.sin(Math.PI / 2. + t * 2. * Math.PI)),
+                                                                (float) (0.5 + 0.5 * Math.sin(Math.PI / 4. + t * 3. * Math.PI))),
                                                       attribute.getName());
         }
         points[points.length-1] = OTHER_POINT;
