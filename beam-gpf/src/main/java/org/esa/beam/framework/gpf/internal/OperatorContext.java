@@ -21,7 +21,6 @@ import com.bc.ceres.binding.dom.DefaultDomConverter;
 import com.bc.ceres.binding.dom.DomElement;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.*;
@@ -314,9 +313,7 @@ public class OperatorContext {
         initTargetProduct();
         initTargetProperties();
         initPassThrough();
-//        if (!passThrough) {
-            initTargetImages();
-//        }
+        initTargetImages();
         initGraphMetadata();
 
         ProductReader oldProductReader = targetProduct.getProductReader();
@@ -511,7 +508,7 @@ public class OperatorContext {
                 if (!targetPropertyAnnotation.alias().isEmpty()) {
                     String aliasName = targetPropertyAnnotation.alias();
                     if (targetPropertyMap.containsKey(aliasName)) {
-                        final String message = formatExceptionString("Alias of field '%s' is already used by another target property.", 
+                        final String message = formatExceptionString("Alias of field '%s' is already used by another target property.",
                                 aliasName);
                         throw new OperatorException(message);
                     }
@@ -692,7 +689,7 @@ public class OperatorContext {
         ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory();
         final DefaultDomConverter domConverter = new DefaultDomConverter(value.getClass(), parameterDescriptorFactory);
         domConverter.convertDomToValue(xpp3DomElement, value);
-        
+
         ValueContainerFactory valueContainerFactory = new ValueContainerFactory(parameterDescriptorFactory);
         final ValueContainer valueContainer = valueContainerFactory.createObjectBackedValueContainer(value);
         Set<PropertyReference> referenceSet = operatorConfiguration.getReferenceSet();
@@ -741,8 +738,8 @@ public class OperatorContext {
             }
         }
     }
-    
-    private String formatExceptionString(String format, Object ... args) {
+
+    private String formatExceptionString(String format, Object... args) {
         return String.format("Operator '%s': " + format, operator.getClass().getSimpleName(), args);
     }
 }
