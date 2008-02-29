@@ -2,7 +2,7 @@ package org.esa.beam.util;
 
 import java.util.*;
 
-public class IntMap {
+public class IntMap implements Cloneable {
     public static final int NULL = Integer.MIN_VALUE;
     private final Map<Integer, Integer> map;
     private final int[] table;
@@ -128,5 +128,15 @@ public class IntMap {
             valueMax = Math.max(valueMax, value);
         }
         return new int[][]{{keyMin, keyMax}, {valueMin, valueMax}};
+    }
+
+    @Override
+    public Object clone() {
+        final IntMap clone = new IntMap(tableOffset, table.length);
+        final int[][] pairs = getPairs();
+        for (int[] pair : pairs) {
+            clone.putValue(pair[0], pair[1]);
+        }
+        return clone;
     }
 }

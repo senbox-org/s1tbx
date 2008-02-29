@@ -23,9 +23,6 @@ class EmptyPaletteEditorForm implements PaletteEditorForm {
         return null;
     }
 
-    public void setCurrentImageInfo(ImageInfo imageInfo) {
-    }
-
     public void handleFormShown(ProductSceneView productSceneView) {
     }
 

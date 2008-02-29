@@ -14,12 +14,14 @@ class Continuous1BandSwitcherForm implements PaletteEditorForm {
 
     private final ColorManipulationForm parentForm;
     private PaletteEditorForm currentPaletteEditorForm;
+    private ImageInfoHolder imageInfoHolder;
     private JPanel contentPanel;
     private JRadioButton graphicalButton;
     private JRadioButton tabularButton;
     private JCheckBox gradientCheckBox;
-    private PaletteEditorForm tabularPaletteEditorForm;
-    private PaletteEditorForm graphicalPaletteEditorForm;
+    private Continuous1BandTabularForm tabularPaletteEditorForm;
+    private Continuous1BandGraphicalForm graphicalPaletteEditorForm;
+    private ImageInfo oldImageInfo;
 
     protected Continuous1BandSwitcherForm(final ColorManipulationForm parentForm) {
         this.parentForm = parentForm;
@@ -53,10 +55,6 @@ class Continuous1BandSwitcherForm implements PaletteEditorForm {
         return currentPaletteEditorForm.getCurrentImageInfo();
     }
 
-    public void setCurrentImageInfo(ImageInfo imageInfo) {
-        currentPaletteEditorForm.setCurrentImageInfo(imageInfo);
-    }
-
     public void handleFormShown(ProductSceneView productSceneView) {
         currentPaletteEditorForm.handleFormShown(productSceneView);
     }
@@ -68,11 +66,13 @@ class Continuous1BandSwitcherForm implements PaletteEditorForm {
             if (tabularPaletteEditorForm == null) {
                 tabularPaletteEditorForm = new Continuous1BandTabularForm();
             }
+            imageInfoHolder =  tabularPaletteEditorForm;
             newForm = tabularPaletteEditorForm;
         } else {
             if (graphicalPaletteEditorForm == null) {
                 graphicalPaletteEditorForm = new Continuous1BandGraphicalForm(parentForm);
             }
+            imageInfoHolder =  graphicalPaletteEditorForm;
             newForm = graphicalPaletteEditorForm;
         }
         if (oldForm != newForm) {
@@ -80,11 +80,14 @@ class Continuous1BandSwitcherForm implements PaletteEditorForm {
 
             currentPaletteEditorForm = newForm;
             currentPaletteEditorForm.handleFormShown(productSceneView);
-            ImageInfo imageInfo = oldForm.getCurrentImageInfo();
-            if (imageInfo == null) {
-                imageInfo = productSceneView.getRaster().getImageInfo();
+
+            oldImageInfo = oldForm.getCurrentImageInfo();
+            if (oldImageInfo == null) { 
+                // oldForm == instanceof EmptyForm
+                oldImageInfo = productSceneView.getRaster().getImageInfo();
             }
-            currentPaletteEditorForm.setCurrentImageInfo(imageInfo);
+
+            imageInfoHolder.setCurrentImageInfo(oldImageInfo);
 
             contentPanel.remove(oldForm.getContentPanel());
             contentPanel.add(currentPaletteEditorForm.getContentPanel(), BorderLayout.CENTER);

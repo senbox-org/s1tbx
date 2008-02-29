@@ -168,7 +168,7 @@ class Continuous3BandGraphicalForm extends AbstractContinuousGraphicalForm {
             final RasterDataNode node = rgbBands[i];
             rgbImageInfos[i] = node.getImageInfo();
             if (i == rgbBandsIndex) {
-                setCurrentImageInfo(rgbImageInfos[i].createDeepCopy());
+                paletteEditor.setImageInfo(rgbImageInfos[i].createDeepCopy());
             }
         }
 
@@ -229,10 +229,6 @@ class Continuous3BandGraphicalForm extends AbstractContinuousGraphicalForm {
         setImageEnhancementsPaneVisible(imageEnhancementsVisible);
         showRgbButtons();
         parentForm.revalidate();
-    }
-
-    public void setCurrentImageInfo(ImageInfo imageInfo) {
-        paletteEditor.setImageInfo(imageInfo);
     }
 
     private void initParameters() {
@@ -312,7 +308,7 @@ class Continuous3BandGraphicalForm extends AbstractContinuousGraphicalForm {
 
     private void updateImageInfo() {
         RasterDataNode rasterDataNode = rgbBands[rgbBandsIndex];
-        setCurrentImageInfo(rgbImageInfos[rgbBandsIndex].createDeepCopy());
+        paletteEditor.setImageInfo(rgbImageInfos[rgbBandsIndex].createDeepCopy());
         paletteEditor.setRGBColor(RGB_COLORS[rgbBandsIndex]);
         paletteEditor.setUnit(rasterDataNode.getUnit());
         rgbBandsParam.setValueAsText(rasterDataNode.getName(), null);

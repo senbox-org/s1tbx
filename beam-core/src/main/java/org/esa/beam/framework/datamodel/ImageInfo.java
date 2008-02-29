@@ -448,6 +448,9 @@ public class ImageInfo implements Cloneable {
         imageInfo.setMaxHistogramViewSample(getMaxHistogramViewSample());
         imageInfo.setHistogramViewGain(getHistogramViewGain());
         imageInfo.setScaling(getScaling());
+        if (sampleToIndexMap != null) {
+            imageInfo.setSampleToIndexMap((IntMap) sampleToIndexMap.clone());
+        }
         return imageInfo;
     }
 
@@ -540,6 +543,7 @@ public class ImageInfo implements Cloneable {
      */
     public void dispose() {
         colorPalette = null;
+        sampleToIndexMap = null;
         histogramBins = null;
         scaling = null;
         if (colorPaletteDef != null) {

@@ -214,7 +214,7 @@ public class ColorPaletteDef {
         for (int i = 0; i < points.length; i++) {
             points[i] = points[i].createClone();
         }
-        return new ColorPaletteDef(points, getNumColors());
+        return new ColorPaletteDef(points, getNumColors(),isDiscrete());
     }
 
     /**

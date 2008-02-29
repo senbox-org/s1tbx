@@ -2,9 +2,6 @@ package org.esa.beam.util;
 
 import junit.framework.TestCase;
 
-import java.util.Set;
-import java.util.HashSet;
-
 public class IntMapTest extends TestCase {
 
     public void testIntMap() {
@@ -129,5 +126,27 @@ public class IntMapTest extends TestCase {
         assertEquals(534, ranges[0][1]);
         assertEquals(1, ranges[1][0]);
         assertEquals(8232, ranges[1][1]);
+    }
+
+
+    public void testClone() {
+        IntMap intMap = new IntMap(10, 100);
+        intMap.putValue(234, 5);
+        intMap.putValue(2, 9);
+        intMap.putValue(534, 1);
+        intMap.putValue(22, 43);
+        intMap.putValue(-8, 8232);
+        final int[][] pairs = ((IntMap)intMap.clone()).getPairs();
+        assertEquals(5, pairs.length);
+        assertEquals(-8, pairs[0][0]);
+        assertEquals(2, pairs[1][0]);
+        assertEquals(22, pairs[2][0]);
+        assertEquals(234, pairs[3][0]);
+        assertEquals(534, pairs[4][0]);
+        assertEquals(8232, pairs[0][1]);
+        assertEquals(9, pairs[1][1]);
+        assertEquals(43, pairs[2][1]);
+        assertEquals(5, pairs[3][1]);
+        assertEquals(1, pairs[4][1]);
     }
 }

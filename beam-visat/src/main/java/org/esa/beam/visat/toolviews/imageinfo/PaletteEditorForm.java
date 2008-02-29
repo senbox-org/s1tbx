@@ -22,8 +22,6 @@ interface PaletteEditorForm {
 
     ImageInfo getCurrentImageInfo();
 
-    void setCurrentImageInfo(ImageInfo imageInfo);
-
     Component getContentPanel();
 
     AbstractButton[] getButtons();

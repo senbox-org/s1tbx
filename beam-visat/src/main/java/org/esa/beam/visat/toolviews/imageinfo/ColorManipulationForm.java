@@ -152,7 +152,7 @@ class ColorManipulationForm {
 
     private PaletteEditorForm getDiscrete1BandTabularForm() {
         if (discrete1BandTabularForm == null) {
-            discrete1BandTabularForm = new Discrete1BandTabularForm();
+            discrete1BandTabularForm = new Discrete1BandTabularForm(this);
         }
         return discrete1BandTabularForm;
     }
@@ -287,7 +287,7 @@ class ColorManipulationForm {
         //
         _visatApp.addInternalFrameListener(new ContrastStretchIFL());
 
-        updateState(); // called on EmptyPaletteEditorForm
+        updateState(); // only called on EmptyPaletteEditorForm
     }
 
     public void installSpecificFormUI() {
@@ -360,10 +360,13 @@ class ColorManipulationForm {
     private void apply() {
         setApplyEnabled(false);
         if (productSceneView != null) {
-            getToolViewPaneControl().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            paletteEditorForm.performApply(productSceneView);
-            getToolViewPaneControl().setCursor(Cursor.getDefaultCursor());
-            VisatApp.getApp().updateImage(productSceneView);
+            try {
+                getToolViewPaneControl().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                paletteEditorForm.performApply(productSceneView);
+                VisatApp.getApp().updateImage(productSceneView);
+            } finally {
+                getToolViewPaneControl().setCursor(Cursor.getDefaultCursor());
+            }
         }
     }
 

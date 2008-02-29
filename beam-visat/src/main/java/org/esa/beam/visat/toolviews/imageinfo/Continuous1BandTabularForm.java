@@ -9,7 +9,7 @@ import javax.swing.JButton;
 import javax.swing.JTable;
 import java.awt.Component;
 
-class Continuous1BandTabularForm implements PaletteEditorForm {
+class Continuous1BandTabularForm implements PaletteEditorForm, ImageInfoHolder  {
     private ImageInfo currentImageInfo;
     private JTable contentPanel;
 
@@ -34,7 +34,7 @@ class Continuous1BandTabularForm implements PaletteEditorForm {
     }
 
     public void setCurrentImageInfo(ImageInfo imageInfo) {
-
+        // todo!
         currentImageInfo = imageInfo;
     }
 
