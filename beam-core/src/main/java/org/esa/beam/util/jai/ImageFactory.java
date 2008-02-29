@@ -23,7 +23,7 @@ import java.io.IOException;
  */
 
 public class ImageFactory {
-    private static final boolean I_AM_A_TEMP_VARIABLE_WHICH_WILL_BE_REMOVED_LATER = Boolean.getBoolean("beam.useDiscreteColorPaletteDef");
+    private static final ColorPaletteDef.Point OTHER_POINT = new ColorPaletteDef.Point(Double.NaN, Color.BLACK, "Other");
 
     public static PlanarImage createOverlayedRgbImage(final RasterDataNode[] rasterDataNodes,
                                                       final String histogramMatching,
@@ -68,7 +68,8 @@ public class ImageFactory {
             PlanarImage planarImage = PlanarImage.wrapRenderedImage(raster.getImage());
 
             if (raster.getImageInfo().getSampleToIndexMap() != null) {
-                planarImage = JAIUtils.createIndexedImage(planarImage, raster.getImageInfo().getSampleToIndexMap());
+                planarImage = JAIUtils.createIndexedImage(planarImage, raster.getImageInfo().getSampleToIndexMap(),
+                                                          raster.getImageInfo().getColorPaletteDef().getNumPoints()-1);
             } else {
                 final double newMin = raster.scaleInverse(raster.getImageInfo().getMinDisplaySample());
                 final double newMax = raster.scaleInverse(raster.getImageInfo().getMaxDisplaySample());
@@ -147,7 +148,8 @@ public class ImageFactory {
         IntMap sampleToIndexMap = new IntMap();
         int sampleMin = Integer.MAX_VALUE;
         int sampleMax = Integer.MIN_VALUE;
-        final ColorPaletteDef.Point[] points = new ColorPaletteDef.Point[attributes.length];
+        // Note: we need one colour more, the last element is the "Other" class
+        final ColorPaletteDef.Point[] points = new ColorPaletteDef.Point[attributes.length + 1];
         for (int index = 0; index < attributes.length; index++) {
             MetadataAttribute attribute = attributes[index];
             final int sample = attribute.getData().getElemInt();
@@ -160,7 +162,8 @@ public class ImageFactory {
                                                                 (float)Math.random()),
                                                       attribute.getName());
         }
-        int[] frequencyCounts = new int[sampleToIndexMap.getSize()];
+        points[points.length-1] = OTHER_POINT;
+        int[] frequencyCounts = new int[attributes.length + 1];
         for (int i = 0; i < frequencyCounts.length; i++) {
             frequencyCounts[i] = (int)(100*Math.random()); // todo - use planarImage
         }

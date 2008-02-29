@@ -815,24 +815,15 @@ public class JAIUtils {
         return PlanarImage.wrapRenderedImage(image);
     }
 
-    public static PlanarImage createIndexedImage(RenderedImage sourceImage, IntMap intMap) {
+    public static PlanarImage createIndexedImage(RenderedImage sourceImage, IntMap intMap, int undefinedIndex) {
         if (sourceImage.getSampleModel().getNumBands() != 1) {
             throw new IllegalArgumentException();
         }
-        int[] keys = intMap.getKeys();
-        int keyMin = Integer.MAX_VALUE;
-        int keyMax = Integer.MIN_VALUE;
-        int valueMin = Integer.MAX_VALUE;
-        int valueMax = Integer.MIN_VALUE;
-        for (int key : keys) {
-            keyMin = Math.min(keyMin, key);
-            keyMax = Math.max(keyMax, key);
-            final int value = intMap.getValue(key);
-            if (value != IntMap.NULL) {
-                valueMin = Math.min(valueMin, value);
-                valueMax = Math.max(valueMax, value);
-            }
-        }
+        final int[][] ranges = intMap.getRanges();
+        final int keyMin = ranges[0][0];
+        final int keyMax = ranges[0][1];
+        final int valueMin = ranges[1][0];
+        final int valueMax = ranges[1][1];
         final int keyRange = 1 + keyMax - keyMin;
         final int valueRange = 1 + valueMax - valueMin;
         if (keyRange > Short.MAX_VALUE) {
@@ -840,32 +831,37 @@ public class JAIUtils {
         }
         LookupTableJAI lookup;
         if (valueRange <= 256) {
-            final byte[] table = new byte[keyRange];
-            for (int i = 0; i < table.length; i++) {
-                final int value = intMap.getValue(keyMin + i);
-                //System.out.println("i=" + i + "," + "value = " + value);
-                table[i] = (byte) (value != IntMap.NULL ? value : valueMin);
+            final byte[] table = new byte[keyRange + 2];
+            for (int i = 1; i < table.length - 1; i++) {
+                final int value = intMap.getValue(keyMin + i - 1);
+                table[i] = (byte) (value != IntMap.NULL ? value : undefinedIndex);
             }
-            lookup = new LookupTableJAI(table, keyMin);
+            table[0] = (byte) undefinedIndex;
+            table[table.length - 1] = (byte) undefinedIndex;
+            lookup = new LookupTableJAI(table, keyMin - 1);
         } else if (valueRange <= 65536) {
-            final short[] table = new short[keyRange];
-            for (int i = 0; i < table.length; i++) {
-                final int value = intMap.getValue(keyMin + i);
-                table[i] = (short) (value != IntMap.NULL ? value : valueMin);
+            final short[] table = new short[keyRange + 2];
+            for (int i = 1; i < table.length; i++) {
+                final int value = intMap.getValue(keyMin + i - 1);
+                table[i] = (short) (value != IntMap.NULL ? value : undefinedIndex);
             }
-            lookup = new LookupTableJAI(table, keyMin, valueRange > 32767);
+            table[0] = (short) undefinedIndex;
+            table[table.length - 1] = (short) undefinedIndex;
+            lookup = new LookupTableJAI(table, keyMin - 1, valueRange > 32767);
         } else {
-            final int[] table = new int[keyRange];
-            for (int i = 0; i < table.length; i++) {
-                final int value = intMap.getValue(keyMin + i);
-                table[i] = value != IntMap.NULL ? value : valueMin;
+            final int[] table = new int[keyRange + 2];
+            for (int i = 1; i < table.length; i++) {
+                final int value = intMap.getValue(keyMin + i - 1);
+                table[i] = value != IntMap.NULL ? value : undefinedIndex;
             }
-            lookup = new LookupTableJAI(table, keyMin);
+            table[0] = undefinedIndex;
+            table[table.length - 1] = undefinedIndex;
+            lookup = new LookupTableJAI(table, keyMin - 1);
         }
         ParameterBlock pb = new ParameterBlock();
         pb.addSource(sourceImage);
-        pb.add(new double[]{valueMin - 1});
-        pb.add(new double[]{valueMax});
+        pb.add(new double[]{keyMin - 1});
+        pb.add(new double[]{keyMax + 1});
         sourceImage = JAI.create("clamp", pb, null);
         pb = new ParameterBlock();
         pb.addSource(sourceImage);

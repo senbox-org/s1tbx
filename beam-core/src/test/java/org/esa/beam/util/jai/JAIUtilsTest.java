@@ -43,7 +43,7 @@ public class JAIUtilsTest extends TestCase {
     private void testIntMapOp(int sourceType, int[] sourceSamples, int expectedTargetType, int[] expectedTargetSamples) {
         final BufferedImage sourceImage = createSourceImage(sourceType, sourceSamples);
         final IntMap intMap = createIntMap(sourceImage);
-        final PlanarImage targetImage = JAIUtils.createIndexedImage(sourceImage, intMap);
+        final PlanarImage targetImage = JAIUtils.createIndexedImage(sourceImage, intMap, 0);
         assertNotNull(targetImage);
         assertEquals(1, targetImage.getNumBands());
         assertEquals(sourceImage.getWidth(), targetImage.getWidth());
