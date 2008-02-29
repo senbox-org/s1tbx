@@ -8,6 +8,7 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.internal.OperatorContext;
 
 import java.awt.Rectangle;
+import java.text.MessageFormat;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -94,7 +95,7 @@ public abstract class Operator {
      * @throws OperatorException If an error occurs during computation of the target raster.
      */
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
-        throw new RuntimeException("not implemented");
+        throw new RuntimeException(MessageFormat.format("{0}: ''computeTile()'' method not implemented", getClass().getSimpleName()));
     }
 
     /**
@@ -107,7 +108,7 @@ public abstract class Operator {
      * @throws OperatorException if an error occurs during computation of the target rasters.
      */
     public void computeTileStack(Map<Band, Tile> targetTiles, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
-        throw new RuntimeException("not implemented");
+        throw new RuntimeException(MessageFormat.format("{0}: ''computeTileStack()'' method not implemented", getClass().getSimpleName()));
     }
 
     /**

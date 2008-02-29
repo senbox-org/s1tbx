@@ -19,6 +19,7 @@ package org.esa.beam.framework.gpf.operators.common;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
@@ -37,8 +38,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @OperatorMetadata(alias = "Merge",
-                  description = "Merges an arbitrary number of source bands into the target product.",
-                  internal = true)
+        description = "Merges an arbitrary number of source bands into the target product.",
+        internal = true)
 public class MergeOp extends Operator {
 
     @Parameter(defaultValue = "mergedProduct", description = "The name of the target product.")
@@ -61,7 +62,7 @@ public class MergeOp extends Operator {
             final int sceneRasterWidth = baseGeoProduct.getSceneRasterWidth();
             final int sceneRasterHeight = baseGeoProduct.getSceneRasterHeight();
             targetProduct = new Product(productName, productType,
-                                        sceneRasterWidth, sceneRasterHeight);
+                    sceneRasterWidth, sceneRasterHeight);
 
             copyGeoCoding(baseGeoProduct, targetProduct);
         } else {
@@ -70,7 +71,7 @@ public class MergeOp extends Operator {
             final int sceneRasterWidth = srcProduct.getSceneRasterWidth();
             final int sceneRasterHeight = srcProduct.getSceneRasterHeight();
             targetProduct = new Product(productName, productType,
-                                        sceneRasterWidth, sceneRasterHeight);
+                    sceneRasterWidth, sceneRasterHeight);
         }
 
         Set<Product> allSrcProducts = new HashSet<Product>();
@@ -127,8 +128,17 @@ public class MergeOp extends Operator {
         }
         if (srcBand.getFlagCoding() != null) {
             FlagCoding srcFlagCoding = srcBand.getFlagCoding();
-            ProductUtils.copyFlagCoding(srcFlagCoding, outputProduct);
-            destBand.setFlagCoding(outputProduct.getFlagCoding(srcFlagCoding.getName()));
+            if (!outputProduct.getFlagCodingGroup().contains(srcFlagCoding.getName())) {
+                ProductUtils.copyFlagCoding(srcFlagCoding, outputProduct);
+            }
+            destBand.setSampleCoding(outputProduct.getFlagCodingGroup().get(srcFlagCoding.getName()));
+        }
+        if (srcBand.getIndexCoding() != null) {
+            IndexCoding srcIndexCoding = srcBand.getIndexCoding();
+            if (!outputProduct.getIndexCodingGroup().contains(srcIndexCoding.getName())) {
+                ProductUtils.copyIndexCoding(srcIndexCoding, outputProduct);
+            }
+            destBand.setSampleCoding(outputProduct.getIndexCodingGroup().get(srcIndexCoding.getName()));
         }
         return destBand;
     }

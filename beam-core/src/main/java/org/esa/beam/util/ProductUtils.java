@@ -321,7 +321,7 @@ public class ProductUtils {
                     checkCanceled(pm);
 
                     final Histogram histogram = raster.computeRasterDataHistogram(null, 512, range,
-                                                                                  ProgressMonitor.NULL);
+                            ProgressMonitor.NULL);
                     pm.worked(1);
 
                     ImageInfo imageInfo = raster.createDefaultImageInfo(null, histogram, true);
@@ -337,12 +337,12 @@ public class ProductUtils {
 //                raster.quantizeRasterData(newMin, newMax, gamma, rgbSamples, singleBand ? 0 : 2 - i,
 //                                          SubProgressMonitor.create(pm, 1));
                     raster.quantizeRasterData(imageInfo.getMinDisplaySample(),
-                                              imageInfo.getMaxDisplaySample(),
-                                              (double) imageInfo.getGamma(),
-                                              rgbSamples,
-                                              singleBand ? 0 : numColorComponents - 1 - i,
-                                              numColorComponents,
-                                              ProgressMonitor.NULL);
+                            imageInfo.getMaxDisplaySample(),
+                            (double) imageInfo.getGamma(),
+                            rgbSamples,
+                            singleBand ? 0 : numColorComponents - 1 - i,
+                            numColorComponents,
+                            ProgressMonitor.NULL);
                 } else {
                     final IntMap sampleColorIndexMap = new IntMap((int) imageInfo.getMinDisplaySample() - 1, 4098);
                     final ColorPaletteDef.Point[] points = imageInfo.getColorPaletteDef().getPoints();
@@ -409,25 +409,25 @@ public class ProductUtils {
             final ColorModel cm;
             if (numColorComponents == 4) {
                 cm = new ComponentColorModel(cs,
-                                             true, // hasAlpha,
-                                             false, //isAlphaPremultiplied,
-                                             Transparency.TRANSLUCENT, //  transparency,
-                                             DataBuffer.TYPE_BYTE); //transferType
+                        true, // hasAlpha,
+                        false, //isAlphaPremultiplied,
+                        Transparency.TRANSLUCENT, //  transparency,
+                        DataBuffer.TYPE_BYTE); //transferType
             } else {
                 cm = new ComponentColorModel(cs,
-                                             false, // hasAlpha,
-                                             false, //isAlphaPremultiplied,
-                                             Transparency.OPAQUE, //  transparency,
-                                             DataBuffer.TYPE_BYTE); //transferType
+                        false, // hasAlpha,
+                        false, //isAlphaPremultiplied,
+                        Transparency.OPAQUE, //  transparency,
+                        DataBuffer.TYPE_BYTE); //transferType
 
             }
             final DataBuffer db = new DataBufferByte(rgbSamples, rgbSamples.length);
             final WritableRaster wr = Raster.createInterleavedRaster(db, width, height,
-                                                                     numColorComponents * width,
-                                                                     numColorComponents,
-                                                                     numColorComponents == 4 ?
-                                                                             RGBA_BAND_OFFSETS : RGB_BAND_OFFSETS,
-                                                                     null);
+                    numColorComponents * width,
+                    numColorComponents,
+                    numColorComponents == 4 ?
+                            RGBA_BAND_OFFSETS : RGB_BAND_OFFSETS,
+                    null);
             bufferedImage = new BufferedImage(cm, wr, false, null);
         } finally {
             pm.done();
@@ -486,13 +486,13 @@ public class ProductUtils {
         final float easting = (float) envelope[0].getX();
         final float northing = (float) envelope[1].getY();
         final MapInfo mapInfo = new MapInfo(mapProjection,
-                                            0.5F,
-                                            0.5F,
-                                            easting,
-                                            northing,
-                                            pixelSize,
-                                            pixelSize,
-                                            gc.getDatum());
+                0.5F,
+                0.5F,
+                easting,
+                northing,
+                pixelSize,
+                pixelSize,
+                gc.getDatum());
         mapInfo.setSceneSizeFitted(true);
         mapInfo.setSceneWidth(targetW);
         mapInfo.setSceneHeight(targetH);
@@ -543,13 +543,13 @@ public class ProductUtils {
         final float northing = (float) pMax.getY() - pixelY * pixelSize;
 
         final MapInfo mapInfo = new MapInfo(mapProjection,
-                                            pixelX,
-                                            pixelY,
-                                            easting,
-                                            northing,
-                                            pixelSize,
-                                            pixelSize,
-                                            gc.getDatum());
+                pixelX,
+                pixelY,
+                easting,
+                northing,
+                pixelSize,
+                pixelSize,
+                gc.getDatum());
         mapInfo.setOrientation((float) orientation);
         mapInfo.setSceneSizeFitted(true);
         mapInfo.setSceneWidth(targetW);
@@ -567,7 +567,7 @@ public class ProductUtils {
         final double mapW = envelope[1].getX() - envelope[0].getX();
         final double mapH = envelope[1].getY() - envelope[0].getY();
         return new Dimension(1 + (int) Math.floor(mapW / pixelSizeX),
-                             1 + (int) Math.floor(mapH / pixelSizeY));
+                1 + (int) Math.floor(mapH / pixelSizeY));
     }
 
     /**
@@ -823,9 +823,9 @@ public class ProductUtils {
                                                  final boolean usePixelCenter) {
         if (rect == null) {
             rect = new Rectangle(0,
-                                 0,
-                                 product.getSceneRasterWidth(),
-                                 product.getSceneRasterHeight());
+                    0,
+                    product.getSceneRasterWidth(),
+                    product.getSceneRasterHeight());
         }
         return createRectBoundary(rect, step, usePixelCenter);
     }
@@ -847,9 +847,9 @@ public class ProductUtils {
     public static PixelPos[] createPixelBoundary(RasterDataNode raster, Rectangle rect, int step) {
         if (rect == null) {
             rect = new Rectangle(0,
-                                 0,
-                                 raster.getSceneRasterWidth(),
-                                 raster.getSceneRasterHeight());
+                    0,
+                    raster.getSceneRasterWidth(),
+                    raster.getSceneRasterHeight());
         }
         return createRectBoundary(rect, step);
     }
@@ -962,8 +962,21 @@ public class ProductUtils {
     public static void copyFlagCoding(FlagCoding sourceFlagCoding, Product target) {
         FlagCoding flagCoding = new FlagCoding(sourceFlagCoding.getName());
         flagCoding.setDescription(sourceFlagCoding.getDescription());
-        target.addFlagCoding(flagCoding);
+        target.getFlagCodingGroup().add(flagCoding);
         copyMetadata(sourceFlagCoding, flagCoding);
+    }
+
+    /**
+     * Copies the given source index coding to the target product
+     *
+     * @param sourceIndexCoding the source index coding
+     * @param target            the target product
+     */
+    public static void copyIndexCoding(IndexCoding sourceIndexCoding, Product target) {
+        IndexCoding indexCoding = new IndexCoding(sourceIndexCoding.getName());
+        indexCoding.setDescription(sourceIndexCoding.getDescription());
+        target.getIndexCodingGroup().add(indexCoding);
+        copyMetadata(sourceIndexCoding, indexCoding);
     }
 
     /**
@@ -1118,9 +1131,9 @@ public class ProductUtils {
             return null;
         }
         Band targetBand = new Band(targetBandName,
-                                   sourceBand.getDataType(),
-                                   sourceBand.getRasterWidth(),
-                                   sourceBand.getRasterHeight());
+                sourceBand.getDataType(),
+                sourceBand.getRasterWidth(),
+                sourceBand.getRasterHeight());
         targetBand.setDescription(sourceBand.getDescription());
         targetBand.setUnit(sourceBand.getUnit());
         targetBand.setScalingFactor(sourceBand.getScalingFactor());
@@ -1226,12 +1239,12 @@ public class ProductUtils {
                                                        final Color background,
                                                        BufferedImage image) throws IOException {
         return createScatterPlotImage(raster1, sampleMin1, sampleMax1,
-                                      raster2, sampleMin2, sampleMax2,
-                                      roi,
-                                      width, height,
-                                      background,
-                                      image,
-                                      ProgressMonitor.NULL);
+                raster2, sampleMin2, sampleMax2,
+                roi,
+                width, height,
+                background,
+                image,
+                ProgressMonitor.NULL);
     }
 
     /**
@@ -1301,9 +1314,9 @@ public class ProductUtils {
                 a[i] = (byte) 255;
             }
             image = new BufferedImage(width,
-                                      height,
-                                      BufferedImage.TYPE_BYTE_INDEXED,
-                                      new IndexColorModel(8, palSize, r, g, b, a));
+                    height,
+                    BufferedImage.TYPE_BYTE_INDEXED,
+                    new IndexColorModel(8, palSize, r, g, b, a));
         }
 
         final int rasterW = raster1.getSceneRasterWidth();
@@ -1439,7 +1452,7 @@ public class ProductUtils {
 
                 final byte[] alphaData = new byte[w * h];
                 product.readBitmask(0, 0, w, h, term, alphaData, (byte) (255 * bitmaskDef.getAlpha()), (byte) 0,
-                                    SubProgressMonitor.create(pm, 1));
+                        SubProgressMonitor.create(pm, 1));
 
                 Debug.trace("ProductSceneView: creating bitmask overlay '" + bitmaskDef.getName() + "'...");
                 BufferedImage alphaBIm = ImageUtils.createGreyscaleColorModelImage(w, h, alphaData);
@@ -1519,7 +1532,7 @@ public class ProductUtils {
 
                 Debug.trace("ProductSceneView: creating bitmask overlay '" + bitmaskDef.getName() + "'...");
                 final RasterDataLoop loop = new RasterDataLoop(0, 0, w, h, new Term[]{term},
-                                                               SubProgressMonitor.create(pm, 1));
+                        SubProgressMonitor.create(pm, 1));
                 loop.forEachPixel(new RasterDataLoop.Body() {
                     public void eval(RasterDataEvalEnv env, int pixelIndex) {
                         if (term.evalB(env)) {
@@ -1558,7 +1571,7 @@ public class ProductUtils {
         final GeoCoding geoCoding = product.getGeoCoding();
         if (geoCoding != null) {
             final PixelPos centerPixelPos = new PixelPos(0.5f * product.getSceneRasterWidth() + 0.5f,
-                                                         0.5f * product.getSceneRasterHeight() + 0.5f);
+                    0.5f * product.getSceneRasterHeight() + 0.5f);
             return geoCoding.getGeoPos(centerPixelPos, null);
         }
         return null;
@@ -1890,7 +1903,7 @@ public class ProductUtils {
             if (MathUtils.equalValues(mapInfo.getOrientation(), 0.0f)) {
                 metadata.setModelPixelScale(mapInfo.getPixelSizeX(), mapInfo.getPixelSizeY());
                 metadata.setModelTiePoint(mapInfo.getPixelX(), mapInfo.getPixelY(),
-                                          mapInfo.getEasting(), mapInfo.getNorthing());
+                        mapInfo.getEasting(), mapInfo.getNorthing());
             } else {
                 double theta = Math.toRadians(mapInfo.getOrientation());
                 Matrix m1 = new Matrix(new double[][]{
@@ -1958,15 +1971,15 @@ public class ProductUtils {
                     metadata.addGeoDoubleParam(GeoTIFFCodes.GeogSemiMajorAxisGeoKey, parameterValues[0]); // semi_major
                     metadata.addGeoDoubleParam(GeoTIFFCodes.GeogSemiMinorAxisGeoKey, parameterValues[1]);  // semi_minor
                     metadata.addGeoDoubleParam(GeoTIFFCodes.ProjNatOriginLatGeoKey,
-                                               parameterValues[2]); // latitude_of_origin (not used)
+                            parameterValues[2]); // latitude_of_origin (not used)
                     metadata.addGeoDoubleParam(GeoTIFFCodes.ProjNatOriginLongGeoKey,
-                                               parameterValues[3]);   // central_meridian
+                            parameterValues[3]);   // central_meridian
                     metadata.addGeoDoubleParam(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey,
-                                               parameterValues[4]);  // scale_factor
+                            parameterValues[4]);  // scale_factor
                     metadata.addGeoDoubleParam(GeoTIFFCodes.ProjFalseEastingGeoKey,
-                                               parameterValues[5]);  // false_easting
+                            parameterValues[5]);  // false_easting
                     metadata.addGeoDoubleParam(GeoTIFFCodes.ProjFalseNorthingGeoKey,
-                                               parameterValues[6]);  // false_northing
+                            parameterValues[6]);  // false_northing
                 }
             } else if (LambertConformalConicDescriptor.NAME.equals(mapTransform.getDescriptor().getName())) {
                 metadata.addGeoShortParam(GeoTIFFCodes.GTModelTypeGeoKey, GeoTIFFCodes.ModelTypeProjected);
@@ -1977,15 +1990,15 @@ public class ProductUtils {
                 metadata.addGeoDoubleParam(GeoTIFFCodes.GeogSemiMajorAxisGeoKey, parameterValues[0]); // semi_major
                 metadata.addGeoDoubleParam(GeoTIFFCodes.GeogSemiMinorAxisGeoKey, parameterValues[1]);  // semi_minor
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjNatOriginLatGeoKey,
-                                           parameterValues[2]); // latitude_of_origin
+                        parameterValues[2]); // latitude_of_origin
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjNatOriginLongGeoKey,
-                                           parameterValues[3]);   // central_meridian
+                        parameterValues[3]);   // central_meridian
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjStdParallel1GeoKey,
-                                           parameterValues[4]);  // latitude_of_intersection_1
+                        parameterValues[4]);  // latitude_of_intersection_1
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjStdParallel2GeoKey,
-                                           parameterValues[5]);  // latitude_of_intersection_2
+                        parameterValues[5]);  // latitude_of_intersection_2
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey,
-                                           parameterValues[6]);  // scale_factor
+                        parameterValues[6]);  // scale_factor
 
             } else if (StereographicDescriptor.NAME.equals(mapTransform.getDescriptor().getName())) {
                 metadata.addGeoShortParam(GeoTIFFCodes.GTModelTypeGeoKey, GeoTIFFCodes.ModelTypeProjected);
@@ -1996,11 +2009,11 @@ public class ProductUtils {
                 metadata.addGeoDoubleParam(GeoTIFFCodes.GeogSemiMajorAxisGeoKey, parameterValues[0]); // semi_major
                 metadata.addGeoDoubleParam(GeoTIFFCodes.GeogSemiMinorAxisGeoKey, parameterValues[1]);  // semi_minor
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjNatOriginLatGeoKey,
-                                           parameterValues[2]); // latitude_of_origin
+                        parameterValues[2]); // latitude_of_origin
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjNatOriginLongGeoKey,
-                                           parameterValues[3]);   // central_meridian
+                        parameterValues[3]);   // central_meridian
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjScaleAtNatOriginGeoKey,
-                                           parameterValues[4]);  // scale_factor
+                        parameterValues[4]);  // scale_factor
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjFalseEastingGeoKey, parameterValues[5]);  // false_easting
                 metadata.addGeoDoubleParam(GeoTIFFCodes.ProjFalseNorthingGeoKey, parameterValues[6]);  // false_northing
             } else if (IdentityTransformDescriptor.NAME.equals(mapTransform.getDescriptor().getName())) {
@@ -2322,10 +2335,10 @@ public class ProductUtils {
                                                  final double defaultNoDataValue,
                                                  final Map<Band, RasterDataNode> addedRasterDataNodes) {
         copyBandsForGeomTransform(sourceProduct,
-                                  targetProduct,
-                                  false,
-                                  defaultNoDataValue,
-                                  addedRasterDataNodes);
+                targetProduct,
+                false,
+                defaultNoDataValue,
+                addedRasterDataNodes);
     }
 
     /**
@@ -2372,21 +2385,21 @@ public class ProductUtils {
                 final Band targetBand;
                 if (sourceBand instanceof VirtualBand) {
                     targetBand = new VirtualBand(sourceBand.getName(),
-                                                 sourceBand.getDataType(),
-                                                 targetProduct.getSceneRasterWidth(),
-                                                 targetProduct.getSceneRasterHeight(),
-                                                 ((VirtualBand) sourceBand).getExpression());
+                            sourceBand.getDataType(),
+                            targetProduct.getSceneRasterWidth(),
+                            targetProduct.getSceneRasterHeight(),
+                            ((VirtualBand) sourceBand).getExpression());
                 } else if (sourceBand.isScalingApplied()) {
                     targetBand = new Band(sourceBand.getName(),
-                                          ProductData.TYPE_FLOAT32,
-                                          targetProduct.getSceneRasterWidth(),
-                                          targetProduct.getSceneRasterHeight());
+                            ProductData.TYPE_FLOAT32,
+                            targetProduct.getSceneRasterWidth(),
+                            targetProduct.getSceneRasterHeight());
                     targetBand.setLog10Scaled(sourceBand.isLog10Scaled());
                 } else {
                     targetBand = new Band(sourceBand.getName(),
-                                          sourceBand.getDataType(),
-                                          targetProduct.getSceneRasterWidth(),
-                                          targetProduct.getSceneRasterHeight());
+                            sourceBand.getDataType(),
+                            targetProduct.getSceneRasterWidth(),
+                            targetProduct.getSceneRasterHeight());
                 }
                 targetBand.setUnit(sourceBand.getUnit());
                 if (sourceBand.getDescription() != null) {
@@ -2427,9 +2440,9 @@ public class ProductUtils {
             for (final TiePointGrid sourceGrid : sourceProduct.getTiePointGrids()) {
                 if (sourceGrid.getGeoCoding() != null) {
                     Band targetBand = new Band(sourceGrid.getName(),
-                                               sourceGrid.getGeophysicalDataType(),
-                                               targetProduct.getSceneRasterWidth(),
-                                               targetProduct.getSceneRasterHeight());
+                            sourceGrid.getGeophysicalDataType(),
+                            targetProduct.getSceneRasterWidth(),
+                            targetProduct.getSceneRasterHeight());
                     targetBand.setUnit(sourceGrid.getUnit());
                     if (sourceGrid.getDescription() != null) {
                         targetBand.setDescription(sourceGrid.getDescription());

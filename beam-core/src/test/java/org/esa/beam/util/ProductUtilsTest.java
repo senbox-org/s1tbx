@@ -466,9 +466,9 @@ public class ProductUtilsTest extends TestCase {
 
     public void testComputeSourcePixelCoordinates() {
         final PixelPos[] pixelCoords = ProductUtils.computeSourcePixelCoordinates(new ProductUtilsTest.SGeoCoding(),
-                                                                                  2, 2,
-                                                                                  new ProductUtilsTest.DGeoCoding(),
-                                                                                  new Rectangle(0, 0, 3, 2));
+                2, 2,
+                new ProductUtilsTest.DGeoCoding(),
+                new Rectangle(0, 0, 3, 2));
 
         assertEquals(3 * 2, pixelCoords.length);
 
@@ -593,7 +593,7 @@ public class ProductUtilsTest extends TestCase {
     public void testCreateRectBoundary_usePixelCenter_false() {
         final boolean notUsePixelCenter = false;
         final PixelPos[] rectBoundary = ProductUtils.createRectBoundary(new Rectangle(2, 3, 15, 20), 7,
-                                                                        notUsePixelCenter);
+                notUsePixelCenter);
         assertEquals(12, rectBoundary.length);
         assertEquals(new PixelPos(2, 3), rectBoundary[0]);
         assertEquals(new PixelPos(9, 3), rectBoundary[1]);
@@ -640,6 +640,46 @@ public class ProductUtilsTest extends TestCase {
         assertEquals(new PixelPos(2.5f, 10.5f), rectBoundary[9]);
     }
 
+    public void testCopyFlagCoding() {
+        final FlagCoding originalFlagCoding = new FlagCoding("sesame street character flags");
+        originalFlagCoding.addFlag("erni", 1, "erni flag");
+        originalFlagCoding.addFlag("bert", 2, "bert flag");
+        originalFlagCoding.addFlag("bibo", 4, "bert flag");
+
+        final Product product = new Product("S", "S", 0, 0);
+        ProductUtils.copyFlagCoding(originalFlagCoding, product);
+
+        final ProductNodeGroup<FlagCoding> flagCodingGroup = product.getFlagCodingGroup();
+        assertNotNull(flagCodingGroup);
+
+        final FlagCoding actualFlagCoding = flagCodingGroup.get("sesame street character flags");
+        assertNotNull(actualFlagCoding);
+        assertNotSame(originalFlagCoding, actualFlagCoding);
+
+        assertMetadataAttributeEqualityInt(originalFlagCoding.getFlag("erni"), actualFlagCoding.getFlag("erni"));
+        assertMetadataAttributeEqualityInt(originalFlagCoding.getFlag("bert"), actualFlagCoding.getFlag("bert"));
+        assertMetadataAttributeEqualityInt(originalFlagCoding.getFlag("bibo"), actualFlagCoding.getFlag("bibo"));
+    }
+
+    public void testCopyIndexCoding() {
+        final IndexCoding originalIndexCoding = new IndexCoding("sesame street characters");
+        originalIndexCoding.addIndex("erni", 0, "erni character");
+        originalIndexCoding.addIndex("bert", 1, "bert character");
+
+        final Product product = new Product("S", "S", 0, 0);
+        ProductUtils.copyIndexCoding(originalIndexCoding, product);
+
+        final ProductNodeGroup<IndexCoding> indexCodingGroup = product.getIndexCodingGroup();
+        assertNotNull(indexCodingGroup);
+
+        final IndexCoding actualIndexCoding = indexCodingGroup.get("sesame street characters");
+        assertNotNull(actualIndexCoding);
+        assertNotSame(originalIndexCoding, actualIndexCoding);
+
+        assertMetadataAttributeEqualityInt(originalIndexCoding.getIndex("erni"), actualIndexCoding.getIndex("erni"));
+        assertMetadataAttributeEqualityInt(originalIndexCoding.getIndex("bert"), actualIndexCoding.getIndex("bert"));
+    }
+
     public void testCopyMetadata() {
         try {
             ProductUtils.copyMetadata((Product) null, (Product) null);
@@ -681,13 +721,14 @@ public class ProductUtilsTest extends TestCase {
         assertNotNull(targetChild.getAttribute("a"));
         assertNotNull(targetChild.getAttribute("b"));
 
-        assertEquals("a", targetChild.getAttribute("a").getName());
-        assertEquals("condition a is true", targetChild.getAttribute("a").getDescription());
-        assertEquals(1, targetChild.getAttribute("a").getData().getElemInt());
+        assertMetadataAttributeEqualityInt(sourceChild.getFlag("a"), targetChild.getAttribute("a"));
+        assertMetadataAttributeEqualityInt(sourceChild.getFlag("b"), targetChild.getAttribute("b"));
+    }
 
-        assertEquals("b", targetChild.getAttribute("b").getName());
-        assertEquals("condition b is true", targetChild.getAttribute("b").getDescription());
-        assertEquals(2, targetChild.getAttribute("b").getData().getElemInt());
+    private static void assertMetadataAttributeEqualityInt(MetadataAttribute expected, MetadataAttribute actual) {
+        assertEquals(expected.getName(), actual.getName());
+        assertEquals(expected.getData().getElemInt(), actual.getData().getElemInt());
+        assertEquals(expected.getDescription(), actual.getDescription());
     }
 }
 
