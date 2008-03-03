@@ -12,6 +12,7 @@
     <changelog>
         <![CDATA[
         Changes in 4.2<br>
+        [BEAM-797] Colour manipulation for index and non-index bands<br>
         [BEAM-787] C-Function code for x approximation is printed twice<br>
         [BEAM-735] Not able to orthorectify MERIS_FRS products<br>
         [BEAM-734] VISAT tile cache capacity cannot be changed<br>
@@ -22,6 +23,7 @@
         [BEAM-716] Module repository location from preferences overwrites location from beam.config<br>
         [BEAM-710] Not able to copy a product using new product dialog<br>
         [BEAM-709] Open dialog should use 'All Files' as default filter<br>
+        
         <br>Changes in 4.1<br>
         [BEAM-482] Pins shall not be selected by default<br>
         [BEAM-603] Select multiple pins<br>

@@ -6,12 +6,13 @@
     
     <changelog>
         <![CDATA[<p>From 4.1 to 4.2:<br/>
-            [BEAM-762] Operator within VISAT don't warn, when file already exist<br/>
             [BEAM-760] The target product selector throws NullPointerException<br/>
+            [BEAM-762] Operator within VISAT don't warn, when file already exist<br/>
             [BEAM-773] gpt shall no longer log warnings to console<br/>
             [BEAM-776] Provide TileIterator to loop over all tile pixels<br/>
             [BEAM-790] Inherited parameter annotations of GPF operators ignored<br/>
             [BEAM-792] Control setting of operator parameter default values<br/>
+            [BEAM-795] Computation of target properties<br/>
         </p>]]>
     </changelog>
 

@@ -56,8 +56,8 @@ public class OperatorConfiguration {
         Xpp3Dom config = new Xpp3Dom(xpp3Dom.getName());
         Set<PropertyReference> references = new HashSet<PropertyReference>();
         Xpp3Dom[] children = xpp3Dom.getChildren();
-        for (int i = 0; i < children.length; i++) {
-            Xpp3Dom child = children[i];
+
+        for (Xpp3Dom child : children) {
             String reference = child.getAttribute("ref");
             if (reference != null) {
                 String[] referenceParts = reference.split("\\.");
@@ -73,6 +73,7 @@ public class OperatorConfiguration {
                 config.addChild(child);
             }
         }
+        
         return new OperatorConfiguration(config, references);
     }
     

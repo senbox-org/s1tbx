@@ -17,6 +17,7 @@
 package org.esa.beam.util.math;
 
 import Jama.Matrix;
+import Jama.SingularValueDecomposition;
 
 /**
  * A utility class which can be used to find approximation functions for a given dataset.
@@ -73,7 +74,7 @@ public class Approximator {
                 b[i] += y * f[i].f(x); // sum y * fi(x)
             }
         }
-        solve(a, b, c);
+        solve2(a, b, c);
     }
 
     /**
@@ -126,7 +127,7 @@ public class Approximator {
                 b[i] += z * f[i].f(x, y);  // sum z * fi(x,y)
             }
         }
-        solve(a, b, c);
+        solve2(a, b, c);
     }
 
     /**
@@ -232,6 +233,7 @@ public class Approximator {
 
     /**
      * Computes <i>y(x) = sum(c[i] * f[i](x), i = 0, n - 1)</i>.
+     *
      * @param f the function vector
      * @param c the coeffcient vector
      * @param x the x value
@@ -248,6 +250,7 @@ public class Approximator {
 
     /**
      * Computes <i>z(x,y) = sum(c[i] * f[i](x,y), i = 0, n - 1)</i>.
+     *
      * @param f the function vector
      * @param c the coeffcient vector
      * @param x the x value
@@ -265,7 +268,7 @@ public class Approximator {
      * @param b matrix B
      * @param c result matrix C
      */
-    public static void solve(final double[][] a, final double[] b, final double[] c) {
+    public static void solve1(final double[][] a, final double[] b, final double[] c) {
         final Matrix matrixA = new Matrix(a);
         final double[][] tempB = new double[b.length][1];
         for (int i = 0; i < tempB.length; i++) {
@@ -273,9 +276,47 @@ public class Approximator {
         }
         final Matrix matrixB = new Matrix(tempB);
         final Matrix matrixC = matrixA.solve(matrixB);
+
         final double[][] tempC = matrixC.getArray();
         for (int i = 0; i < tempB.length; i++) {
             c[i] = tempC[i][0];
+        }
+    }
+
+    /**
+     * Solves the matrix equation A x = b by means of singular value decomposition.
+     *
+     * @param a the matrix A
+     * @param b the vector b
+     * @param x the solution vector x.
+     */
+    private static void solve2(double[][] a, double[] b, double[] x) {
+        final int m = b.length;
+        final int n = x.length;
+
+        final SingularValueDecomposition svd;
+        final Matrix u;
+        final Matrix v;
+
+        svd = new Matrix(a, m, n).svd();
+        u = svd.getU();
+        v = svd.getV();
+
+        final double[] s = svd.getSingularValues();
+        final int rank = svd.rank();
+
+        for (int j = 0; j < rank; j++) {
+            x[j] = 0.0;
+            for (int i = 0; i < m; i++) {
+                x[j] += u.get(i, j) * b[i];
+            }
+            s[j] = x[j] / s[j];
+        }
+        for (int j = 0; j < n; j++) {
+            x[j] = 0.0;
+            for (int i = 0; i < rank; i++) {
+                x[j] += v.get(j, i) * s[i];
+            }
         }
     }
 }
