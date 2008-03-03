@@ -165,6 +165,9 @@ public class BandArithmeticOp extends Operator {
         if (sourceProducts.length == 1) {
             ProductUtils.copyMetadata(sourceProducts[0], targetProduct);
         }
+        if (sourceProducts[0].getPreferredTileSize() != null) {
+            targetProduct.setPreferredTileSize(sourceProducts[0].getPreferredTileSize());
+        }
     }
 
     @Override

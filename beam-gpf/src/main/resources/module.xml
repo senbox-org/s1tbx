@@ -4,6 +4,14 @@
     <version>4.2-SNAPSHOT</version>
     <name>BEAM Graph Processing Framework (GPF)</name>
     
+    <description>The basic framework for processing using Operators and the GTP.</description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2008 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+    
     <changelog>
         <![CDATA[<p>From 4.1 to 4.2:<br/>
             [BEAM-760] The target product selector throws NullPointerException<br/>
