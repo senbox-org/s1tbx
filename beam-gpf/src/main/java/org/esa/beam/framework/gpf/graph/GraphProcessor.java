@@ -1,22 +1,20 @@
 package org.esa.beam.framework.gpf.graph;
 
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
+import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.gpf.internal.OperatorImage;
+import org.esa.beam.util.math.MathUtils;
+
+import javax.media.jai.JAI;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.logging.Logger;
-
-import javax.media.jai.JAI;
-
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.internal.OperatorImage;
-import org.esa.beam.util.math.MathUtils;
-
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 
 /**
  * The <code>GraphProcessor</code> is responsible for executing processing
@@ -259,6 +257,8 @@ public class GraphProcessor {
             nodeContext.initTargetProduct();
             graphContext.getInitNodeContextDeque().addFirst(nodeContext);
 
+        } catch (GraphException e) {
+            throw e;
         } catch (Exception e) {
             throw new GraphException(e.getMessage(), e);
         } finally {
