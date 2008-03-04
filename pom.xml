@@ -118,7 +118,7 @@
 
         <module>lib-hdf</module>
         <module>lib-netcdf</module>
-		
+
     </modules>
 
     <dependencyManagement>
@@ -421,7 +421,7 @@
                         <phase>process-sources</phase>
                         <goals>
                             <goal>template</goal>
-                        </goals>                                     
+                        </goals>
                     </execution>
                 </executions>
                 <configuration>
@@ -541,6 +541,15 @@
             <id>tom</id>
             <name>Thomas Block</name>
             <email>thomas.block@brockmann-consult.de</email>
+            <organization>Brockmann Consult</organization>
+            <roles>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>sabine</id>
+            <name>Sabine Embacher</name>
+            <email>sabine.embacher@brockmann-consult.de</email>
             <organization>Brockmann Consult</organization>
             <roles>
                 <role>Java Developer</role>
