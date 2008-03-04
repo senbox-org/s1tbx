@@ -141,6 +141,9 @@
                             <include>javax.media.jai:mlibwrapper-jai</include>
                             <include>com.thoughtworks.xstream:xstream</include>
                             <include>xpp3:xpp3</include>
+							<include>jfree:jfreechart</include>
+							<include>jfree:jcommon</include>
+							<include>com.lowagie:itext</include>
                         </includes>
                     </dependencySet>
 
