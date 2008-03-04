@@ -110,7 +110,7 @@ class CommandLineArgs {
         }
         if (targetFormatName == null && targetFilepath != null) {
             final String extension = FileUtils.getExtension(targetFilepath);
-            if (extension.isEmpty()) {
+            if (extension == null || extension.isEmpty()) {
                 targetFormatName = ProductIO.DEFAULT_FORMAT_NAME;
                 // todo - decide if to append extension or not  (nf - 29.10.2007)
             } else {
