@@ -22,7 +22,7 @@ package org.esa.beam.util.math;
  * todo - thread safety
  *
  * @author Ralf Quast
- * @version $Revision $ $Date $
+ * @version $Revision$ $Date$
  */
 class ArrayLookupTable {
 
