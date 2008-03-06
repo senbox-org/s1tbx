@@ -22,7 +22,7 @@ package org.esa.beam.util.math;
  * The implementation simply delegates to an {@link ArrayLookupTable}.
  *
  * @author Ralf Quast
- * @version $Revision $ $Date $
+ * @version $Revision$ $Date$
  */
 public class MatrixLookupTable {
     /**
