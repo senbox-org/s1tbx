@@ -28,7 +28,7 @@ import java.util.Random;
  * Test methods for class {@link LookupTable}.
  *
  * @author Ralf Quast
- * @version $Revision: 1.2 $ $Date: 2007-06-14 16:44:43 $
+ * @version $Revision$ $Date$
  */
 public class LookupTableTest extends TestCase {
 
@@ -85,7 +85,7 @@ public class LookupTableTest extends TestCase {
 
         final double[] r = new double[3];
         final double[] x = new double[3];
-        final LookupTable.FracIndex[] fi = LookupTable.FracIndex.createArray(3);
+        final FracIndex[] fi = FracIndex.createArray(3);
         final Random rng = new Random(27182);
 
         for (int i = 0; i < 10; ++i) {
@@ -94,14 +94,14 @@ public class LookupTableTest extends TestCase {
                 r[j] = rng.nextDouble() * (lut.getDimension(j).getMax() - lut.getDimension(j).getMin());
                 x[j] = r[j] + lut.getDimension(j).getMin();
 
-                fi[j].i = (int) r[j];
-                fi[j].f = r[j] % 1.0;
-
+                final double floor = Math.floor(r[j]);
+                fi[j].i = (int) floor;
+                fi[j].f = r[j] - Math.floor(r[j]);
             }
 
             // Check computation of fractional indices
             for (int j = 0; j < 3; ++j) {
-                final LookupTable.FracIndex fracIndex = new LookupTable.FracIndex();
+                final FracIndex fracIndex = new FracIndex();
 
                 LookupTable.computeFracIndex(dimensions[j], x[j], fracIndex);
                 assertEquals(fi[j].i, fracIndex.i);
@@ -116,5 +116,4 @@ public class LookupTableTest extends TestCase {
             assertEquals(expected, b, 1.0E-10);
         }
     }
-
 }

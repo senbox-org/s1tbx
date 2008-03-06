@@ -1,0 +1,104 @@
+/* 
+ * Copyright (C) 2002-2008 by Brockmann Consult
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation. This program is distributed in the hope it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+package org.esa.beam.util.math;
+
+/**
+ * The class {@code MatrixLookupTable} performs the function of
+ * multilinear  interpolation for matrix  lookup tables with an
+ * arbitrary number of dimensions.
+ * <p/>
+ * The implementation simply delegates to an {@link ArrayLookupTable}.
+ *
+ * @author Ralf Quast
+ * @version $Revision $ $Date $
+ */
+public class MatrixLookupTable {
+    /**
+     * The number of rows in the looked-up matrix.
+     */
+    private final int m;
+    /**
+     * The number of columns in the looked-up matrix.
+     */
+    private final int n;
+
+    /**
+     * The delegate.
+     */
+    private final ArrayLookupTable arrayLookupTable;
+
+    public MatrixLookupTable(int m, int n, double[] values, IntervalPartition... dimensions) {
+        this.m = m;
+        this.n = n;
+
+        arrayLookupTable = new ArrayLookupTable(m * n, values, dimensions);
+    }
+
+    public MatrixLookupTable(int m, int n, double[] values, double[]... dimensions) {
+        this(m, n, values, IntervalPartition.createArray(dimensions));
+    }
+
+    /**
+     * Returns the number of dimensions associated with the lookup table.
+     *
+     * @return the number of dimensions.
+     */
+    public final int getDimensionCount() {
+        return arrayLookupTable.getDimensionCount();
+    }
+
+    /**
+     * Returns the dimensions associated with the lookup table.
+     *
+     * @return the dimensions.
+     */
+    public final IntervalPartition[] getDimensions() {
+        return arrayLookupTable.getDimensions();
+    }
+
+    /**
+     * Returns the the ith dimension associated with the lookup table.
+     *
+     * @param i the index number of the dimension of interest
+     * @return the ith dimension.
+     */
+    public final IntervalPartition getDimension(final int i) {
+        return arrayLookupTable.getDimension(i);
+    }
+
+    /**
+     * Returns an interpolated value matrix for the given coordinates.
+     *
+     * @param coordinates the coordinates of the lookup point.
+     * @return the interpolated value matrix.
+     * @throws IllegalArgumentException if the length of the {@code coordinates} array is
+     *                                  not equal to the number of dimensions associated
+     *                                  with the lookup table.
+     * @throws NullPointerException     if the {@code coordinates} array is {@code null}.
+     */
+    public final double[][] getValues(final double... coordinates) throws IllegalArgumentException {
+        return createMatrix(m, n, arrayLookupTable.getValues(coordinates));
+    }
+
+    static double[][] createMatrix(int m, int n, double[] values) {
+        final double[][] matrix = new double[m][n];
+
+        for (int i = 0, j = 0; i < m; ++i, j += n) {
+            System.arraycopy(values, j, matrix[i], 0, n);
+        }
+
+        return matrix;
+    }
+}

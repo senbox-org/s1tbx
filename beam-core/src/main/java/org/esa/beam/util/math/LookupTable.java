@@ -27,55 +27,13 @@ import java.text.MessageFormat;
 /**
  * The class {@code LookupTable} performs the function of multilinear
  * interpolation for lookup tables with an arbitrary number of dimensions.
+ * <p/>
+ * todo - thread safety
  *
  * @author Ralf Quast
- * @version $Revision: 1.3 $ $Date: 2007-06-14 17:26:28 $
+ * @version $Revision$ $Date$
  */
 public class LookupTable {
-
-    /**
-     * The class {@code FracIndex} is a simple representation of
-     * an index with an integral and a fractional component.
-     */
-    static final class FracIndex {
-
-        /**
-         * The integral component.
-         */
-        public int i;
-        /**
-         * The fractional component.
-         */
-        public double f;
-
-        /**
-         * Creates an array of type {@code FracIndex[]}.
-         *
-         * @param length the length of the array being created.
-         * @return the created array.
-         */
-        public static FracIndex[] createArray(int length) {
-            final FracIndex[] fracIndexes = new FracIndex[length];
-
-            for (int i = 0; i < length; i++) {
-                fracIndexes[i] = new FracIndex();
-            }
-
-            return fracIndexes;
-        }
-
-        /**
-         * Sets the fractional component to 0.0 if it is less than
-         * zero, and to 1.0 if it is greater than unity.
-         */
-        public final void truncate() {
-            if (f < 0.0) {
-                f = 0.0;
-            } else if (f > 1.0) {
-                f = 1.0;
-            }
-        }
-    }
 
     /**
      * The lookup values.
@@ -150,7 +108,7 @@ public class LookupTable {
      * @throws IllegalArgumentException if the length of the {@code values} array is is not equal to
      *                                  the number of coordinate grid vertices or any dimension is
      *                                  not an interval partion.
-     * @throws NullPointerException     if the {@code values} array or the dimensions array
+     * @throws NullPointerException     if the {@code values} array or the {@code dimensions} array
      *                                  is {@code null} or any dimension is {@code null}.
      */
     public LookupTable(final double[] values, final double[]... dimensions) throws
@@ -306,7 +264,7 @@ public class LookupTable {
         return count;
     }
 
-    private static <T> void ensureLegalArray(final T[] array) throws IllegalArgumentException, NullPointerException {
+    static <T> void ensureLegalArray(final T[] array) throws IllegalArgumentException, NullPointerException {
         if (array == null) {
             throw new NullPointerException("array == null");
         }
@@ -320,7 +278,7 @@ public class LookupTable {
         }
     }
 
-    private static void ensureLegalArray(final double[] array, final int length) throws
+    static void ensureLegalArray(final double[] array, final int length) throws
             IllegalArgumentException,
             NullPointerException {
         if (array == null) {
@@ -331,5 +289,4 @@ public class LookupTable {
                     "array.length = {0} does not correspond to the expected length {1}", array.length, length));
         }
     }
-
 }
