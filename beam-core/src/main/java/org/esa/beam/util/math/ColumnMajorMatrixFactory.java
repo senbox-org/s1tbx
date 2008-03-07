@@ -14,27 +14,31 @@
  */
 package org.esa.beam.util.math;
 
-import junit.framework.TestCase;
-
-import java.util.Arrays;
-
 /**
- * Tests for class {@link MatrixLookupTable}.
+ * Matrix factory implementation.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$
  */
-public class MatrixLookupTableTest extends TestCase {
+public class ColumnMajorMatrixFactory implements MatrixFactory {
+    /**
+     * Creates a matrix from a given array of values, assuming
+     * a column-major layout of the latter.
+     *
+     * @param m      the number of rows in the matrix being created.
+     * @param n      the number of columns in the matrix being created.
+     * @param values the values.
+     * @return the matrix created from the values array.
+     */
+    public double[][] createMatrix(int m, int n, double[] values) {
+        final double[][] matrix = new double[m][n];
 
-    public void testCreateMatrixFromArray() {
-        final double[] values = {1, 2, 3, 4, 5, 6};
+        for (int j = 0; j < n; ++j) {
+            for (int i = 0; i < m; ++i) {
+                matrix[i][j] = values[j * m + i];
+            }
+        }
 
-        final double[][] matrix = MatrixLookupTable.createMatrix(2, 3, values);
-        assertEquals(2, matrix.length);
-        assertEquals(3, matrix[0].length);
-        assertEquals(3, matrix[1].length);
-
-        assertTrue(Arrays.equals(new double[]{1, 2, 3}, matrix[0]));
-        assertTrue(Arrays.equals(new double[]{4, 5, 6}, matrix[1]));
+        return matrix;
     }
 }

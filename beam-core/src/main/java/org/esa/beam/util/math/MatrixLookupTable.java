@@ -34,20 +34,19 @@ public class MatrixLookupTable {
      */
     private final int n;
 
-    /**
-     * The delegate.
-     */
+    private final MatrixFactory matrixFactory;
     private final ArrayLookupTable arrayLookupTable;
 
-    public MatrixLookupTable(int m, int n, double[] values, IntervalPartition... dimensions) {
+    public MatrixLookupTable(int m, int n, MatrixFactory matrixFactory, double[] values, IntervalPartition... dimensions) {
         this.m = m;
         this.n = n;
+        this.matrixFactory = matrixFactory;
 
         arrayLookupTable = new ArrayLookupTable(m * n, values, dimensions);
     }
 
-    public MatrixLookupTable(int m, int n, double[] values, double[]... dimensions) {
-        this(m, n, values, IntervalPartition.createArray(dimensions));
+    public MatrixLookupTable(int m, int n, MatrixFactory matrixFactory, double[] values, double[]... dimensions) {
+        this(m, n, matrixFactory, values, IntervalPartition.createArray(dimensions));
     }
 
     /**
@@ -89,16 +88,6 @@ public class MatrixLookupTable {
      * @throws NullPointerException     if the {@code coordinates} array is {@code null}.
      */
     public final double[][] getValues(final double... coordinates) throws IllegalArgumentException {
-        return createMatrix(m, n, arrayLookupTable.getValues(coordinates));
-    }
-
-    static double[][] createMatrix(int m, int n, double[] values) {
-        final double[][] matrix = new double[m][n];
-
-        for (int i = 0, j = 0; i < m; ++i, j += n) {
-            System.arraycopy(values, j, matrix[i], 0, n);
-        }
-
-        return matrix;
+        return matrixFactory.createMatrix(m, n, arrayLookupTable.getValues(coordinates));
     }
 }
