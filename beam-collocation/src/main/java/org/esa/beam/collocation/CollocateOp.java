@@ -14,7 +14,7 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,10 +26,10 @@ import java.util.Map;
  * @version $Revision$ $Date$
  */
 @OperatorMetadata(alias = "Collocate",
-                  version = "1.0",
-                  authors = "Ralf Quast",
-                  copyright = "(c) 2007 by Brockmann Consult",
-                  description = "Collocates two products based on their geo-codings.")
+        version = "1.0",
+        authors = "Ralf Quast",
+        copyright = "(c) 2007 by Brockmann Consult",
+        description = "Collocates two products based on their geo-codings.")
 public class CollocateOp extends Operator {
 
     private static final String ORIGINAL_NAME = "${ORIGINAL_NAME}";
@@ -74,9 +74,9 @@ public class CollocateOp extends Operator {
         sourceBandMap = new HashMap<Band, Band>();
 
         targetProduct = new Product(targetProductName,
-                                    masterProduct.getProductType(),
-                                    masterProduct.getSceneRasterWidth(),
-                                    masterProduct.getSceneRasterHeight());
+                masterProduct.getProductType(),
+                masterProduct.getSceneRasterWidth(),
+                masterProduct.getSceneRasterHeight());
 
         final ProductData.UTC utc1 = masterProduct.getStartTime();
         if (utc1 != null) {
@@ -163,7 +163,7 @@ public class CollocateOp extends Operator {
 
                 if (sourceBand.getProduct() == slaveProduct) {
                     collocateSourceBand(sourceBand, sourceRectangle, sourcePixelPositions, targetTile,
-                                        SubProgressMonitor.create(pm, 1));
+                            SubProgressMonitor.create(pm, 1));
                 } else {
                     targetTile.setRawSamples(getSourceTile(sourceBand, targetTile.getRectangle(), pm).getRawSamples());
                 }
@@ -231,7 +231,7 @@ public class CollocateOp extends Operator {
 
                         if (sourcePixelPos != null) {
                             resampling.computeIndex(sourcePixelPos.x, sourcePixelPos.y,
-                                                    sourceRasterWidth, sourceRasterHeight, resamplingIndex);
+                                    sourceRasterWidth, sourceRasterHeight, resamplingIndex);
                             try {
                                 float sample = resampling.resample(resamplingRaster, resamplingIndex);
                                 if (Float.isNaN(sample)) {
