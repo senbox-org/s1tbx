@@ -29,6 +29,7 @@ import java.text.MessageFormat;
  * interpolation for lookup tables with an arbitrary number of dimensions.
  * <p/>
  * todo - thread safety
+ * todo - method for contracting a table (see MAPP-AER processor)
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$
