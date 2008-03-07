@@ -20,7 +20,7 @@ package org.esa.beam.util.math;
  * arbitrary number of dimensions.
  * <p/>
  * todo - thread safety
- * todo - method for contracting a table (see MAPP-AER processor)
+ * todo - method for degrading a table (see {@link LookupTable})
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$
