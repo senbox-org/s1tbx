@@ -37,10 +37,6 @@
 
     <categories>System,Application,Processing</categories>
 
-    <extension point="ceres-core:applications">
-        <application id="GraphProcessor" class="org.esa.beam.framework.gpf.graph.GraphProcessorMain"/>
-    </extension>
-
     <extension point="ceres-core:serviceProviders">
         <serviceProvider>org.esa.beam.framework.gpf.OperatorSpi</serviceProvider>
     </extension>
