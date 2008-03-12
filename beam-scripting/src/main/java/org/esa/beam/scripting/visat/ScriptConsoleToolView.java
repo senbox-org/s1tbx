@@ -1,7 +1,6 @@
 package org.esa.beam.scripting.visat;
 
 import com.bc.ceres.core.Assert;
-import com.bc.ceres.core.runtime.ModuleRuntime;
 import com.jidesoft.status.StatusBar;
 import com.jidesoft.swing.JideScrollPane;
 import org.esa.beam.framework.ui.UIUtils;
@@ -10,9 +9,11 @@ import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.visat.VisatApp;
 
 import javax.script.ScriptEngine;
+import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,6 +22,8 @@ import java.io.InputStreamReader;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CancellationException;
 
 // todo - IMPORTANT NOTE: This code represents a feasibility study. It lacks junit level tests and
@@ -39,7 +42,7 @@ public class ScriptConsoleToolView extends AbstractToolView {
 
     public static final String ID = ScriptConsoleToolView.class.getName();
 
-    private static final String SCRIPT_LANGUAGE_NAME = "JavaScript";
+    private static final String DEFAULT_SCRIPT_LANGUAGE_NAME = "JavaScript";
 
     private VisatApp visat;
     private JTextArea inputTextArea;
@@ -100,6 +103,9 @@ public class ScriptConsoleToolView extends AbstractToolView {
 
         clearAction = new ClearAction();
         toolBar.add(ToolButtonFactory.createButton(clearAction, false));
+        
+        JComboBox comboBox = createLanguageSwitcher();
+        toolBar.add(comboBox);
 
         final JMenuBar menuBar = createMenuBar();
 
@@ -129,7 +135,33 @@ public class ScriptConsoleToolView extends AbstractToolView {
         windowPanel.add(consolePanel, BorderLayout.CENTER);
         windowPanel.add(statusBar, BorderLayout.SOUTH);
 
+        printEngineDetails();
         return windowPanel;
+    }
+    
+    private JComboBox createLanguageSwitcher() {
+        List<ScriptEngineFactory> engineFactories = scriptEngineManager.getEngineFactories();
+        List<String> languageNames = new ArrayList<String>(engineFactories.size());
+        for (ScriptEngineFactory scriptEngineFactory : engineFactories) {
+            if (scriptEngineFactory.getNames().contains(DEFAULT_SCRIPT_LANGUAGE_NAME)) {
+                languageNames.add(DEFAULT_SCRIPT_LANGUAGE_NAME);
+            } else {
+                languageNames.add(scriptEngineFactory.getLanguageName());
+            }
+        }
+        final JComboBox comboBox = new JComboBox(languageNames.toArray());
+        comboBox.setMaximumSize(comboBox.getPreferredSize());
+        comboBox.setSelectedItem(DEFAULT_SCRIPT_LANGUAGE_NAME);
+        comboBox.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedItem = (String) comboBox.getSelectedItem();
+                scriptEngine = scriptEngineManager.getEngineByName(selectedItem);
+                printEngineDetails();
+            }
+        });
+        return comboBox;
     }
 
     private JMenuBar createMenuBar() {
@@ -189,6 +221,23 @@ public class ScriptConsoleToolView extends AbstractToolView {
         }
         return jsMenu;
     }
+    
+    private void printEngineDetails() {
+        out.append("Script engine name: ");
+        out.append(scriptEngine.getFactory().getEngineName());
+        out.append("\n");
+        out.append("Script engine version: ");
+        out.append(scriptEngine.getFactory().getEngineVersion());
+        out.append("\n");
+        out.append("Script language name: ");
+        out.append(scriptEngine.getFactory().getLanguageName());
+        out.append("\n");
+        out.append("Script language version: ");
+        out.append(scriptEngine.getFactory().getLanguageVersion());
+        out.append("\n");
+        outputTextArea.setText(out.toString());
+        out.setLength(0);
+    }
 
     private void initScriptEngine() throws ScriptException, IOException {
         final ClassLoader oldClassLoader = getContextClassLoader();
@@ -197,17 +246,18 @@ public class ScriptConsoleToolView extends AbstractToolView {
             // create a script engine manager
             scriptEngineManager = new ScriptEngineManager(ScriptConsoleToolView.class.getClassLoader());
             // create a JavaScript engine
-            scriptEngine = scriptEngineManager.getEngineByName(SCRIPT_LANGUAGE_NAME);
+            scriptEngine = scriptEngineManager.getEngineByName(DEFAULT_SCRIPT_LANGUAGE_NAME);
 
             final ScriptWriter writer = new ScriptWriter(); // fixme - don't get any output
             scriptEngine.getContext().setWriter(writer);
             scriptEngine.getContext().setErrorWriter(writer);
-            final InputStreamReader streamReader = new InputStreamReader(getClass().getResourceAsStream("visat.js"));
-            try {
-                scriptEngine.eval(streamReader);
-            } finally {
-                streamReader.close();
-            }
+            // dont't eval code by default
+//            final InputStreamReader streamReader = new InputStreamReader(getClass().getResourceAsStream("visat.js"));
+//            try {
+//                scriptEngine.eval(streamReader);
+//            } finally {
+//                streamReader.close();
+//            }
         } finally {
             setContextClassLoader(oldClassLoader);
         }
