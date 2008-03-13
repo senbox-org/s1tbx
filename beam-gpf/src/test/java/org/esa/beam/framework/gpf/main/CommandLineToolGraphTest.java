@@ -220,7 +220,7 @@ public class CommandLineToolGraphTest extends TestCase {
                             "<node id=\"node2\">" +
                             "  <operator>org.esa.beam.framework.gpf.TestOps$Op3$Spi</operator>\n" +
                             "  <sources>\n" +
-                            "    <input1>node1</input1>\n" +
+                            "    <input1 refid=\"node1\"/>\n" +
                             "    <input2>${sourceProduct2}</input2>\n" +
                             "  </sources>\n" +
                             "  <parameters>\n" +

@@ -174,7 +174,7 @@ public class GraphIOTest extends TestCase {
                 "  <node id=\"baz\">\n" +
                 "    <operator>Op2</operator>\n" +
                 "    <sources>\n" +
-                "      <input>grunt</input>\n" +
+                "      <input refid=\"grunt\"/>\n" +
                 "    </sources>\n" +
                 "    <parameters>\n" +
                 "       <threshold>0.86</threshold>\n" +
@@ -183,8 +183,8 @@ public class GraphIOTest extends TestCase {
                 "  <node id=\"bar\">\n" +
                 "    <operator>Op3</operator>\n" +
                 "    <sources>\n" +
-                "      <input1>grunt</input1>\n" +
-                "      <input2>baz</input2>\n" +
+                "      <input1 refid=\"grunt\"/>\n" +
+                "      <input2 refid=\"baz\"/>\n" +
                 "    </sources>\n" +
                 "    <parameters>\n" +
                 "       <ignoreSign>true</ignoreSign>\n" +
@@ -265,7 +265,7 @@ public class GraphIOTest extends TestCase {
                 "  <node id=\"baz\">\n" +
                 "    <operator>Op2</operator>\n" +
                 "    <sources>\n" +
-                "      <input>bert</input>\n" +
+                "      <input refid=\"bert\"/>\n" +
                 "    </sources>\n" +
                 "    <parameters>\n" +
                 "       <threshold refid=\"bert.pi\"/>\n" +
@@ -312,7 +312,7 @@ public class GraphIOTest extends TestCase {
                 "  <node id=\"baz\">\n" +
                 "    <operator>Op2</operator>\n" +
                 "    <sources>\n" +
-                "      <input>grunt</input>\n" +
+                "      <input refid=\"grunt\"/>\n" +
                 "    </sources>\n" +
                 "    <parameters>\n" +
                 "       <threshold refid=\"bert.pi\"/>\n" +

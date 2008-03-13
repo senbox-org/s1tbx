@@ -149,7 +149,7 @@ public class GraphIO {
             NodeSource[] sources = sourceList.getSources();
             for (NodeSource source : sources) {
                 hierarchicalStreamWriter.startNode(source.getName());
-                hierarchicalStreamWriter.setValue(source.getSourceNodeId());
+                hierarchicalStreamWriter.addAttribute("refid", source.getSourceNodeId());
                 hierarchicalStreamWriter.endNode();
             }
         }
@@ -160,8 +160,11 @@ public class GraphIO {
             while (hierarchicalStreamReader.hasMoreChildren()) {
                 hierarchicalStreamReader.moveDown();
                 String name = hierarchicalStreamReader.getNodeName();
-                String sourceNodeId = hierarchicalStreamReader.getValue().trim();
-                sourceList.addSource(new NodeSource(name, sourceNodeId));
+                String refid = hierarchicalStreamReader.getAttribute("refid");
+                if (refid == null) {
+                    refid = hierarchicalStreamReader.getValue().trim();
+                }
+                sourceList.addSource(new NodeSource(name, refid));
                 hierarchicalStreamReader.moveUp();
             }
             return sourceList;
