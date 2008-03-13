@@ -243,7 +243,7 @@ public class GraphIOTest extends TestCase {
                         "      <input>bert</input>\n" +
                         "    </sources>\n" +
                         "    <parameters>\n" +
-                        "       <threshold ref=\"bert.pi\"/>\n" +
+                        "       <threshold refid=\"bert.pi\"/>\n" +
                         "    </parameters>\n" +
                         "  </node>\n" +
                         "</graph>";
@@ -289,7 +289,7 @@ public class GraphIOTest extends TestCase {
                         "      <input>grunt</input>\n" +
                         "    </sources>\n" +
                         "    <parameters>\n" +
-                        "       <threshold ref=\"bert.pi\"/>\n" +
+                        "       <threshold refid=\"bert.pi\"/>\n" +
                         "    </parameters>\n" +
                         "  </node>\n" +
                         "</graph>";

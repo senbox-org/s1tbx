@@ -58,7 +58,7 @@ public class OperatorConfiguration {
         Xpp3Dom[] children = xpp3Dom.getChildren();
 
         for (Xpp3Dom child : children) {
-            String reference = child.getAttribute("ref");
+            String reference = child.getAttribute("refid");
             if (reference != null) {
                 String[] referenceParts = reference.split("\\.");
                 String referenceNodeId = referenceParts[0];
