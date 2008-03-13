@@ -36,7 +36,7 @@ class DefaultCommandLineContext implements CommandLineContext {
         WriteOp.writeProduct(targetProduct, new File(filePath), formatName, ProgressMonitor.NULL);
     }
 
-    public Graph readGraph(String filepath, Map<String, String> parameterMap) throws IOException {
+    public Graph readGraph(String filepath, Map<String, String> parameterMap) throws GraphException, IOException {
         FileReader fileReader = new FileReader(filepath);
         Graph graph;
         try {

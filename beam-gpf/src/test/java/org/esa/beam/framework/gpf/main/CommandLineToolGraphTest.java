@@ -201,12 +201,13 @@ public class CommandLineToolGraphTest extends TestCase {
             writeProductCounter++;
         }
 
-        public Graph readGraph(String filepath, Map<String, String> parameterMap) throws IOException {
+        public Graph readGraph(String filepath, Map<String, String> parameterMap) throws IOException, GraphException {
 
             logString += "g=" + filepath + ";";
 
             String xml =
                     "<graph id=\"chain1\">" +
+                            "<version>1.0</version>" +
                             "<node id=\"node1\">" +
                             "  <operator>org.esa.beam.framework.gpf.TestOps$Op2$Spi</operator>\n" +
                             "  <sources>\n" +

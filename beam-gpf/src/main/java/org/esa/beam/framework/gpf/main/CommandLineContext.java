@@ -13,7 +13,7 @@ interface CommandLineContext {
 
     void writeProduct(Product targetProduct, String filePath, String formatName) throws IOException;
 
-    Graph readGraph(String filepath, Map<String, String> parameterMap) throws IOException;
+    Graph readGraph(String filepath, Map<String, String> parameterMap) throws GraphException, IOException;
 
     void executeGraph(Graph graph) throws GraphException;
 

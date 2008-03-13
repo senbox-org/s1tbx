@@ -12,8 +12,10 @@ import java.util.List;
  */
 public class Graph {
 
+    public static final String CURRENT_VERSION = "1.0";
     // IMPORTANT: Fields are deserialised by GraphIO, don't change names without adopting GraphIO
     private String id;
+    private String version;
     private List<Node> nodeList;
 
 
@@ -24,6 +26,7 @@ public class Graph {
      */
     public Graph(String id) {
         this.id = id;
+        version = CURRENT_VERSION;
         init();
     }
 
@@ -34,6 +37,15 @@ public class Graph {
      */
     public Object getId() {
         return id;
+    }
+    
+    /**
+     * Gets the graph's version 
+     * 
+     * @return the version of the graph
+     */
+    public String getVersion() {
+        return version;
     }
 
     /**

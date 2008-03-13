@@ -204,7 +204,7 @@ class CommandLineTool {
         commandLineContext.writeProduct(targetProduct, filePath, formatName);
     }
 
-    public Graph readGraph(String filepath, Map<String, String> parameterMap) throws IOException {
+    public Graph readGraph(String filepath, Map<String, String> parameterMap) throws IOException, GraphException {
         return commandLineContext.readGraph(filepath, parameterMap);
     }
 

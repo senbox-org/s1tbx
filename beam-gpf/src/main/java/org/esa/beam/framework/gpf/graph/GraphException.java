@@ -2,7 +2,7 @@ package org.esa.beam.framework.gpf.graph;
 
 
 /**
- * A general exception class for all failures that occure
+ * A general exception class for all failures that occurs
  * during the use and execution of {@link Graph}s.
  *
  * @author Maximilian Aulinger

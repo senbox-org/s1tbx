@@ -42,8 +42,9 @@ public class GraphIO {
      *
      * @param reader the readerto use for deserialization
      * @return the deserialized <code>graph</code>
+     * @throws GraphException 
      */
-    public static Graph read(Reader reader) {
+    public static Graph read(Reader reader) throws GraphException {
         return read(reader, null);
     }
 
@@ -56,15 +57,23 @@ public class GraphIO {
      * @param reader    the XML reader
      * @param variables a mapping from template variable names to their string values.
      * @return the deserialized <code>graph</code>
+     * @throws GraphException 
      */
-    public static Graph read(Reader reader, Map<String, String> variables) {
+    public static Graph read(Reader reader, Map<String, String> variables) throws GraphException {
         XStream xStream = initXstream();
         Reader inputReader = reader;
         if (variables != null) {
             inputReader = new TemplateReader(reader, variables);
         }
         // todo - throw exception if a given variable does not exist in the graph definition or if variables are not set.
-        return (Graph) xStream.fromXML(inputReader);
+        Graph graph = (Graph) xStream.fromXML(inputReader);
+        if (graph.getVersion() == null) {
+            throw new GraphException("No version is specified in the graph xml.");
+        } else if (!Graph.CURRENT_VERSION.equals(graph.getVersion())) {
+            throw new GraphException("Wrong version given in the graph xml. " +
+            		"Given version: " + graph.getVersion() + " Current version: "+Graph.CURRENT_VERSION);
+        }
+        return graph;
     }
 
     /**
