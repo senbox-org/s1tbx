@@ -3,7 +3,9 @@ package org.esa.beam.framework.gpf.graph;
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
 import org.esa.beam.framework.gpf.GPF;
+import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.TestOps;
+import org.esa.beam.framework.gpf.operators.common.BandArithmeticOp;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -59,6 +61,46 @@ public class GraphIOTest extends TestCase {
         assertSame(nodes[0], node1Copy);
         assertEquals("Op1", node1Copy.getOperatorName());
     }
+    
+    public void testWriteToXML() throws Exception {
+        Graph graph1 = new Graph("myOneNodeGraph");
+        Node node1 = new Node("node1", "Op1");
+        graph1.addNode(node1);
+
+        StringWriter writer = new StringWriter();
+        GraphIO.write(graph1, writer);
+        String actualXML = writer.toString();
+        String expectedXML = "<graph id=\"myOneNodeGraph\">\n" +
+        		"  <node id=\"node1\">\n" +
+        		"    <operator>Op1</operator>\n" +
+        		"    <sources/>\n" +
+        		"  </node>\n" +
+        		"</graph>";
+        assertEquals(expectedXML, actualXML);
+
+    }
+
+    public void testReadFromXML() throws Exception {
+        String expectedXML = "<graph id=\"myOneNodeGraph\">\n" +
+                "  <node id=\"node1\">\n" +
+                "    <operator>Op1</operator>\n" +
+                "    <sources/>\n" +
+                "  </node>\n" +
+                "</graph>";
+        StringReader reader = new StringReader(expectedXML);
+        Graph graph = GraphIO.read(reader);
+        
+        Node[] nodes = graph.getNodes();
+        assertNotNull(nodes);
+        assertEquals(1, nodes.length);
+        assertNotNull(nodes[0]);
+
+        assertEquals("myOneNodeGraph", graph.getId());
+        Node node1 = graph.getNode("node1");
+        assertNotNull(node1);
+        assertEquals("Op1", node1.getOperatorName());
+
+    }
 
     public void testTwoNodeChain() {
         Graph graph1 = new Graph("myTwoNodeGraph");
@@ -101,14 +143,11 @@ public class GraphIOTest extends TestCase {
 
     public void testReadXml() {
         String xml =
-                "<graph>\n" +
-                        "  <id>foo</id>\n" +
-                        "  <node>\n" +
-                        "    <id>grunt</id>\n" +
+                "<graph id=\"foo\">\n" +
+                        "  <node id=\"grunt\">\n" +
                         "    <operator>Op1</operator>\n" +
                         "  </node>\n" +
-                        "  <node>\n" +
-                        "    <id>baz</id>\n" +
+                        "  <node id=\"baz\">\n" +
                         "    <operator>Op2</operator>\n" +
                         "    <sources>\n" +
                         "      <input>grunt</input>\n" +
@@ -117,8 +156,7 @@ public class GraphIOTest extends TestCase {
                         "       <threshold>0.86</threshold>\n" +
                         "    </parameters>\n" +
                         "  </node>\n" +
-                        "  <node>\n" +
-                        "    <id>bar</id>\n" +
+                        "  <node id=\"bar\">\n" +
                         "    <operator>Op3</operator>\n" +
                         "    <sources>\n" +
                         "      <input1>grunt</input1>\n" +
@@ -188,21 +226,18 @@ public class GraphIOTest extends TestCase {
         StringWriter writer = new StringWriter();
         GraphIO.write(chain1, writer);
         String xml = writer.toString();
-        // System.out.println("xml = " + xml);
+//         System.out.println("xml = " + xml);
         StringReader reader = new StringReader(xml);
         return GraphIO.read(reader);
     }
 
     public void testGraphWithReference() {
         String xml =
-                "<graph>\n" +
-                        "  <id>foo</id>\n" +
-                        "  <node>\n" +
-                        "    <id>bert</id>\n" +
+                "<graph id=\"foo\">\n" +
+                        "  <node id=\"bert\">\n" +
                         "    <operator>Op4</operator>\n" +
                         "  </node>\n" +
-                        "  <node>\n" +
-                        "    <id>baz</id>\n" +
+                        "  <node id=\"baz\">\n" +
                         "    <operator>Op2</operator>\n" +
                         "    <sources>\n" +
                         "      <input>bert</input>\n" +
@@ -241,18 +276,14 @@ public class GraphIOTest extends TestCase {
 
     public void testGraphWithReferenceWithoutSourceProduct() {
         String xml =
-                "<graph>\n" +
-                        "  <id>foo</id>\n" +
-                        "  <node>\n" +
-                        "    <id>grunt</id>\n" +
+                "<graph id=\"foo\">\n" +
+                        "  <node id=\"grunt\">\n" +
                         "    <operator>Op1</operator>\n" +
                         "  </node>\n" +
-                        "  <node>\n" +
-                        "    <id>bert</id>\n" +
+                        "  <node id=\"bert\">\n" +
                         "    <operator>Op4</operator>\n" +
                         "  </node>\n" +
-                        "  <node>\n" +
-                        "    <id>baz</id>\n" +
+                        "  <node id=\"baz\">\n" +
                         "    <operator>Op2</operator>\n" +
                         "    <sources>\n" +
                         "      <input>grunt</input>\n" +

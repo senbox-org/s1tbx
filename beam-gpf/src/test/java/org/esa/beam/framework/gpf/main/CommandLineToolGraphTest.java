@@ -206,10 +206,8 @@ public class CommandLineToolGraphTest extends TestCase {
             logString += "g=" + filepath + ";";
 
             String xml =
-                    "<graph>" +
-                            "<id>chain1</id>" +
-                            "<node>" +
-                            "  <id>node1</id>" +
+                    "<graph id=\"chain1\">" +
+                            "<node id=\"node1\">" +
                             "  <operator>org.esa.beam.framework.gpf.TestOps$Op2$Spi</operator>\n" +
                             "  <sources>\n" +
                             "    <input>${sourceProduct}</input>\n" +
@@ -218,8 +216,7 @@ public class CommandLineToolGraphTest extends TestCase {
                             "    <threshold>${threshold}</threshold>\n" +
                             "  </parameters>\n" +
                             "</node>" +
-                            "<node>" +
-                            "  <id>node2</id>" +
+                            "<node id=\"node2\">" +
                             "  <operator>org.esa.beam.framework.gpf.TestOps$Op3$Spi</operator>\n" +
                             "  <sources>\n" +
                             "    <input1>node1</input1>\n" +

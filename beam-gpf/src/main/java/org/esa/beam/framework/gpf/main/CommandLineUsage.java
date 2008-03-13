@@ -272,11 +272,9 @@ class CommandLineUsage {
     private static void appendXmlUsage(StringBuilder usageText, OperatorClassDescriptor operatorClassDescriptor) {
 
         final DomElement graphElem = Xpp3DomElement.createDomElement("graph");
-        final DomElement graphIdElem = graphElem.createChild("id");
-        graphIdElem.setValue("someGraphId");
+        graphElem.setAttribute("id", "someGraphId");
         final DomElement nodeElem = graphElem.createChild("node");
-        final DomElement nodeIdElem = nodeElem.createChild("id");
-        nodeIdElem.setValue("someNodeId");
+        nodeElem.setAttribute("id", "someNodeId");
         final DomElement operatorElem = nodeElem.createChild("operator");
         operatorElem.setValue(OperatorSpi.getOperatorAlias(operatorClassDescriptor.getOperatorClass()));
         DomElement sourcesElem = nodeElem.createChild("sources");

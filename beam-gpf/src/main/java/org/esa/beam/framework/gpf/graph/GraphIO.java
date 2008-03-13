@@ -81,6 +81,7 @@ public class GraphIO {
 
         xStream.alias("node", Node.class);
         xStream.aliasField("operator", Node.class, "operatorName");
+        xStream.useAttributeFor("id", String.class);
 
         xStream.alias("sources", Node.SourceList.class);
         xStream.aliasField("sources", Node.class, "sourceList");
