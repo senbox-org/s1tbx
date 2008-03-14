@@ -14,6 +14,8 @@
     
     <changelog>
         <![CDATA[<p>From 4.1 to 4.2:<br/>
+            [BEAM-800] Graph xml shall support id/refid syntax<br/>
+            [BEAM-799] Introduce version element in graph xml<br/>
             [BEAM-760] The target product selector throws NullPointerException<br/>
             [BEAM-762] Operator within VISAT don't warn, when file already exist<br/>
             [BEAM-773] gpt shall no longer log warnings to console<br/>
