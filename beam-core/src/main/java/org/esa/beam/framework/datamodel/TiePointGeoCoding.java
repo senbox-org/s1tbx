@@ -38,6 +38,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
     private TiePointGrid _latGrid;
     private TiePointGrid _lonGrid;
     private Datum _datum;
+    private final boolean _swathResampling = true;
 
     private boolean _normalized;
     private float _normalizedLonMin;
@@ -60,7 +61,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
     public TiePointGeoCoding(TiePointGrid latGrid, TiePointGrid lonGrid) {
         this(latGrid, lonGrid, Datum.WGS_84);
     }
-
+    
     /**
      * Constructs geo-coding based on two given tie-point grids.
      *
@@ -85,6 +86,9 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         _datum = datum;
         initNormalizedLonGrid();
         initLatLonMinMax();
+        // detection disabled, mz,mp 18.03.2008
+        // test show big improvements for AVHRR and small ones for MERIS
+//        _swathResampling = detectSwathResampling();
         initApproximations();
     }
 
@@ -189,7 +193,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
     public PixelPos getPixelPos(GeoPos geoPos, PixelPos pixelPos) {
         Approximation[] approximations = _approximations;
         if (approximations != null) {
-            final float lat = normalizeLat(geoPos.lat);
+            float lat = normalizeLat(geoPos.lat);
             float lon = normalizeLon(geoPos.lon);
             if (pixelPos == null) {
                 pixelPos = new PixelPos();
@@ -208,6 +212,11 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
                     }
                 }
                 if (approximation != null) {
+                    if (_swathResampling) {
+                        lat = (float) (lat/90.0);
+                        final float centerLon = approximation.getCenterLon();
+                        lon = (float) Math.sin((lon-centerLon)*MathUtils.DTOR);
+                    }
                     pixelPos.x = (float) approximation.getFX().computeZ(lat, lon);
                     pixelPos.y = (float) approximation.getFY().computeZ(lat, lon);
                 }
@@ -577,7 +586,24 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
 
     private Approximation createApproximation(Rectangle subsetRect) {
         final double[][] data = createWarpPoints(subsetRect);
-
+        
+        float sumLat = 0.0f;
+        float sumLon = 0.0f;
+        for (final double[] point : data) {
+            sumLat += point[0];
+            sumLon += point[1];
+        }
+        float centerLon = sumLon / data.length;
+        float centerLat = sumLat / data.length;
+        final float maxSquareDistance = getMaxSquareDistance(data, centerLat, centerLon);
+        
+        if (_swathResampling) {
+            for (int i = 0; i < data.length; i++) {
+                data[i][0] = data[i][0]/90.0;
+                data[i][1] = Math.sin((data[i][1]-centerLon)*MathUtils.DTOR);
+            }
+        }
+        
         final int[] xIndices = new int[]{0, 1, 2};
         final int[] yIndices = new int[]{0, 1, 3};
 
@@ -602,15 +628,6 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         Debug.trace(
                 "TiePointGeoCoding: Max.error Y = " + maxErrorY + ", " + (maxErrorY < _ABS_ERROR_LIMIT ? "OK" : "too large"));
 
-        float sumLat = 0.0f;
-        float sumLon = 0.0f;
-        for (final double[] point : data) {
-            sumLat += point[0];
-            sumLon += point[1];
-        }
-        float centerLon = sumLon / data.length;
-        float centerLat = sumLat / data.length;
-        final float maxSquareDistance = getMaxSquareDistance(data, centerLat, centerLon);
         return new Approximation(subsetRect, fX, fY, centerLat, centerLon, maxSquareDistance * 1.1f);
     }
 
@@ -680,6 +697,58 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         } else {
             return false;
         }
+    }
+
+    private boolean detectSwathResampling() {
+        final int num = getNormalizedLonGrid().getRasterWidth();
+        float centerLon = 0;
+        for (int i = 0; i < num; i++) {
+            final float lon = getNormalizedLonGrid().getTiePoints()[i];
+            centerLon += lon;
+        }
+        centerLon /= num;
+        float[] data = new float[num];
+        float[] dataSin = new float[num];
+        for (int i = 0; i < num; i++) {
+            final float lon = getNormalizedLonGrid().getTiePoints()[i];
+            data[i] = lon;
+            dataSin[i] = (float) Math.sin((lon-centerLon)*MathUtils.DTOR);
+        }
+        final float result = linearRegression(data);
+        final float resultSin = linearRegression(dataSin);
+        return (resultSin<result);
+    }
+
+    private float linearRegression(float[] data) {
+        final int num = data.length;
+        float sumX = 0;
+        float sumY = 0;
+        float sumXX = 0;
+        float sumYY = 0;
+        float sumXY = 0;
+        for (int x = 0; x < num; x++) {
+            float y = data[x];
+            sumX += x;
+            sumY += y;
+            sumXX += x * x;
+            sumYY += y * y;
+            sumXY += x * y;
+        }
+        float sxx = sumXX - sumX * sumX / num;
+        float sxy = sumXY - sumX * sumY / num;
+        float b = sxy / sxx;
+        float a = (sumY - b * sumX) / num;
+        
+        float squareError = 0;
+        for (int x = 0; x < num; x++) {
+            float y = data[x];
+            float currentResidual = (y-(a + b * x));
+            squareError += currentResidual * currentResidual;
+        }
+        squareError /= num;
+        squareError = (float) Math.sqrt(squareError);
+
+        return squareError;
     }
 
     /////////////////////////////////////////////////////////////////////////

@@ -19,10 +19,11 @@
 
     <changelog>
         <![CDATA[<p>Changes in 4.2:<br/>
-        [BEAM-796] Index coding for classification bands
-        [BEAM-767] Band arithmetic shall handle String types
-        [BEAM-733] Albers Equal Area Conic map projection missing
-        [BEAM-732] Pixel position is not recalculated for GCPs imported from a placemark file
+        [BEAM-801] TiePointGeoCoding should consider non-linear distribution of longitude values across-track<br/>
+        [BEAM-796] Index coding for classification bands<br/>
+        [BEAM-767] Band arithmetic shall handle String types<br/>
+        [BEAM-733] Albers Equal Area Conic map projection missing<br/>
+        [BEAM-732] Pixel position is not recalculated for GCPs imported from a placemark file<br/>
         [BEAM-710] Not able to copy a product using new product dialog<br/>
         [BEAM-522] Map-projection and orthorectification should also transform tie-point grids<br/>
         [BEAM-420] "Matrix is singular" error while computing geo-coding.<br/>
