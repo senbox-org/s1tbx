@@ -3,9 +3,7 @@ package org.esa.beam.framework.gpf.graph;
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
 import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.TestOps;
-import org.esa.beam.framework.gpf.operators.common.BandArithmeticOp;
 
 import java.io.StringReader;
 import java.io.StringWriter;
