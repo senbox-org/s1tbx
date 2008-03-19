@@ -1,0 +1,17 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-shapefile-reader</symbolicName>
+    <version>1.0-SNAPSHOT</version>
+    <name>ESRI Shapefile Reader</name>
+
+    <description>This module loads ESRI shape files.</description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2008 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <categories>Reader</categories>
+
+</module>

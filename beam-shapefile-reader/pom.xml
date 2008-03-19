@@ -2,11 +2,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <artifactId>beam</artifactId>
+        <groupId>org.esa.beam</groupId>
+        <version>4.2-SNAPSHOT</version>
+    </parent>
+    
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-shapefile-reader</artifactId>
     <packaging>jar</packaging>
     <version>1.0-SNAPSHOT</version>
-    <name>ESRI Shapefile Import</name>
+    <name>ESRI Shapefile Reader</name>
     <url>http://maven.apache.org</url>
 
     <dependencies>
@@ -17,21 +23,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <outputDirectory>../modules/${artifactId}-${version}</outputDirectory>
-
-        <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                    <debug>true</debug>
-                    <encoding>ISO-8859-1</encoding>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
 </project>
