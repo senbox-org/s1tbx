@@ -125,6 +125,12 @@ class ColorManipulationForm {
                 } else {
                     newForm = getDiscrete1BandTabularForm();
                 }
+            } else {
+                if (oldForm instanceof Continuous1BandSwitcherForm) {
+                    newForm = oldForm;
+                } else {
+                    newForm = getContinuous1BandSwitcherForm();
+                }
             }
         }
 
