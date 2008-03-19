@@ -213,9 +213,9 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
                 }
                 if (approximation != null) {
                     if (_swathResampling) {
-                        lat = (float) (lat/90.0);
+                        lat = (float) rescaleLatitude(lat);
                         final float centerLon = approximation.getCenterLon();
-                        lon = (float) Math.sin((lon-centerLon)*MathUtils.DTOR);
+                        lon = (float) rescaleLongitude(lon, centerLon);
                     }
                     pixelPos.x = (float) approximation.getFX().computeZ(lat, lon);
                     pixelPos.y = (float) approximation.getFY().computeZ(lat, lon);
@@ -223,6 +223,14 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
             }
         }
         return pixelPos;
+    }
+
+    private double rescaleLongitude(double lon, double centerLon) {
+        return  (lon - centerLon)/90.0;
+    }
+
+    private double rescaleLatitude(double lat) {
+        return  lat/90.0;
     }
 
     /**
@@ -599,8 +607,8 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         
         if (_swathResampling) {
             for (int i = 0; i < data.length; i++) {
-                data[i][0] = data[i][0]/90.0;
-                data[i][1] = Math.sin((data[i][1]-centerLon)*MathUtils.DTOR);
+                data[i][0] = rescaleLatitude(data[i][0]);
+                data[i][1] = rescaleLongitude(data[i][1], centerLon);
             }
         }
         
@@ -712,7 +720,7 @@ public class TiePointGeoCoding extends AbstractGeoCoding {
         for (int i = 0; i < num; i++) {
             final float lon = getNormalizedLonGrid().getTiePoints()[i];
             data[i] = lon;
-            dataSin[i] = (float) Math.sin((lon-centerLon)*MathUtils.DTOR);
+            dataSin[i] = (float) rescaleLongitude(lon, centerLon);
         }
         final float result = linearRegression(data);
         final float resultSin = linearRegression(dataSin);
