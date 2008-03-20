@@ -1,5 +1,9 @@
 package org.esa.beam.framework.gpf.graph;
 
+import java.io.Reader;
+import java.io.Writer;
+import java.util.Map;
+
 import com.bc.ceres.util.TemplateReader;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
@@ -11,10 +15,6 @@ import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.xml.XppDomReader;
 import com.thoughtworks.xstream.io.xml.XppDomWriter;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
-
-import java.io.Reader;
-import java.io.Writer;
-import java.util.Map;
 
 /**
  * The {@link GraphIO} class contains methods for the
@@ -86,15 +86,28 @@ public class GraphIO {
         xStream.setClassLoader(GraphIO.class.getClassLoader());
 
         xStream.alias("graph", Graph.class);
+        xStream.useAttributeFor(Graph.class, "id");
         xStream.addImplicitCollection(Graph.class, "nodeList", Node.class);
+
+        xStream.alias("header", Header.class);
+
+        xStream.alias("target", HeaderTarget.class);
+        xStream.useAttributeFor(HeaderTarget.class, "nodeId");
+        xStream.aliasAttribute(HeaderTarget.class, "nodeId", "refid");
+        
+        xStream.addImplicitCollection(Header.class, "sources", "source", HeaderSource.class);
+        xStream.registerConverter(new HeaderSource.Converter());
+        
+//        xStream.addImplicitCollection(Header.class, "parameters", "parameter", HeaderParameter.class);
+//        xStream.registerConverter(new HeaderParameter.Converter());
 
         xStream.alias("node", Node.class);
         xStream.aliasField("operator", Node.class, "operatorName");
-        xStream.useAttributeFor("id", String.class);
+        xStream.useAttributeFor(Node.class, "id");
 
-        xStream.alias("sources", Node.SourceList.class);
+        xStream.alias("sources", SourceList.class);
         xStream.aliasField("sources", Node.class, "sourceList");
-        xStream.registerConverter(new SourceListConverter());
+        xStream.registerConverter(new SourceList.Converter());
 
         xStream.alias("parameters", Xpp3Dom.class);
         xStream.aliasField("parameters", Node.class, "configuration");
@@ -136,39 +149,4 @@ public class GraphIO {
             return xppDomWriter.getConfiguration();
         }
     }
-
-    private static class SourceListConverter implements Converter {
-
-        public boolean canConvert(Class aClass) {
-            return Node.SourceList.class.equals(aClass);
-        }
-
-        public void marshal(Object object, HierarchicalStreamWriter hierarchicalStreamWriter,
-                            MarshallingContext marshallingContext) {
-            Node.SourceList sourceList = (Node.SourceList) object;
-            NodeSource[] sources = sourceList.getSources();
-            for (NodeSource source : sources) {
-                hierarchicalStreamWriter.startNode(source.getName());
-                hierarchicalStreamWriter.addAttribute("refid", source.getSourceNodeId());
-                hierarchicalStreamWriter.endNode();
-            }
-        }
-
-        public Object unmarshal(HierarchicalStreamReader hierarchicalStreamReader,
-                                UnmarshallingContext unmarshallingContext) {
-            Node.SourceList sourceList = new Node.SourceList();
-            while (hierarchicalStreamReader.hasMoreChildren()) {
-                hierarchicalStreamReader.moveDown();
-                String name = hierarchicalStreamReader.getNodeName();
-                String refid = hierarchicalStreamReader.getAttribute("refid");
-                if (refid == null) {
-                    refid = hierarchicalStreamReader.getValue().trim();
-                }
-                sourceList.addSource(new NodeSource(name, refid));
-                hierarchicalStreamReader.moveUp();
-            }
-            return sourceList;
-        }
-    }
-
 }

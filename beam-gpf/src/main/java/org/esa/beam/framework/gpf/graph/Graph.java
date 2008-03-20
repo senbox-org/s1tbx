@@ -16,6 +16,7 @@ public class Graph {
     // IMPORTANT: Fields are deserialised by GraphIO, don't change names without adopting GraphIO
     private String id;
     private String version;
+    private Header header;
     private List<Node> nodeList;
 
 
@@ -46,6 +47,15 @@ public class Graph {
      */
     public String getVersion() {
         return version;
+    }
+    
+    /**
+     * Gets the graph's header
+     * 
+     * @return the header of the graph
+     */
+    public Header getHeader() {
+        return header;
     }
 
     /**

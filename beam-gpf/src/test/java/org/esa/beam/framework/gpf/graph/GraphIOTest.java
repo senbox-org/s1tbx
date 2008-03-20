@@ -7,6 +7,7 @@ import org.esa.beam.framework.gpf.TestOps;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.List;
 
 public class GraphIOTest extends TestCase {
     private TestOps.Op1.Spi operatorSpi1 = new TestOps.Op1.Spi();
@@ -110,6 +111,74 @@ public class GraphIOTest extends TestCase {
             "</graph>";
         StringReader reader = new StringReader(expectedXML);
         Graph graph = GraphIO.read(reader);
+        
+        Node[] nodes = graph.getNodes();
+        assertNotNull(nodes);
+        assertEquals(1, nodes.length);
+        assertNotNull(nodes[0]);
+
+        assertEquals("myOneNodeGraph", graph.getId());
+        Node node1 = graph.getNode("node1");
+        assertNotNull(node1);
+        assertEquals("Op1", node1.getOperatorName());
+    }
+    
+    public void testReadFromXMLWithHeader() throws Exception {
+        String expectedXML = 
+            "<graph id=\"myOneNodeGraph\">\n" +
+            "  <version>1.0</version>\n" +
+            
+            "  <header>\n" +
+            "    <target refid=\"node1\" />\n" +
+            
+            "    <source name=\"input1\" optional=\"true\" description=\"AATSR L1b TOA\"/>\n" +  // -Sinput1=FILE_PATH
+            "    <source name=\"input2\" description=\"CHRIS/proba\">C:\\data\\x.dim</source>\n" +  // -Sinput2=FILE_PATH
+            
+//            "    <parameter name=\"ignoreSign\" defaultValue=\"true\" type=\"boolean\"/>\n" + // -PignoreSign=false
+//            "    <parameter name=\"regex\" description=\"a regular expression\" type=\"String\"/>\n" +
+//            "    <parameter name=\"threshold\" type=\"double\" interval=\"(0,1]\"/>\n" +
+            "  </header>\n" +
+            
+            "  <node id=\"node1\">\n" +
+            "    <operator>Op1</operator>\n" +
+            "    <sources>\n" +
+            "      <toa refid=\"input1\"/>\n" +
+            "      <chris refid=\"input2\"/>\n" +
+            "    </sources>\n" +
+            "    <parameters>\n" +
+            "       <ignoreSign refid=\"ignoreSign\"/>\n" +
+            "       <expression refid=\"regex\"/>\n" +
+            "    </parameters>\n" +
+            "  </node>\n" +
+            "</graph>";
+        StringReader reader = new StringReader(expectedXML);
+        Graph graph = GraphIO.read(reader);
+        
+        Header header = graph.getHeader();
+        assertNotNull(header);
+        assertEquals("node1", header.getTarget().getNodeId());
+        List<HeaderSource> sources = header.getSources();
+        assertNotNull(sources);
+        assertEquals(2, sources.size());
+        assertEquals("input1", sources.get(0).getName());
+        assertEquals(true, sources.get(0).isOptional());
+        assertEquals("AATSR L1b TOA", sources.get(0).getDescription());
+        assertEquals("input2", sources.get(1).getName());
+        assertEquals(false, sources.get(1).isOptional());
+        assertEquals("C:\\data\\x.dim", sources.get(1).getLocation());
+        
+//        List<HeaderParameter> parameters = header.getParameters();
+//        assertNotNull(parameters);
+//        assertEquals(3, parameters.size());
+//        assertEquals("ignoreSign", parameters.get(0).getName());
+//        assertEquals("true", parameters.get(0).getDefaultValue());
+//        assertEquals("boolean", parameters.get(0).getType());
+//        assertEquals("regex", parameters.get(1).getName());
+//        assertEquals("a regular expression", parameters.get(1).getDescription());
+//        assertEquals("String", parameters.get(1).getType());
+//        assertEquals("threshold", parameters.get(2).getName());
+//        assertEquals("(0,1]", parameters.get(2).getInterval());
+//        assertEquals("double", parameters.get(2).getType());
         
         Node[] nodes = graph.getNodes();
         assertNotNull(nodes);

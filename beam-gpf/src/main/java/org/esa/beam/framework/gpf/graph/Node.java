@@ -1,11 +1,14 @@
 package org.esa.beam.framework.gpf.graph;
 
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.thoughtworks.xstream.converters.MarshallingContext;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 
 /**
  * A node in a processing graph. A <code>Node</code> has an arbitrary nummber
@@ -105,46 +108,6 @@ public class Node {
     public void setConfiguration(Xpp3Dom configuration) {
         this.configuration = configuration;
     }
-
-    /**
-     * A list of {@link NodeSource}s.
-     */
-    public static class SourceList {
-
-        private List<NodeSource> sourceList = new ArrayList<NodeSource>();
-
-        /**
-         * Gets all {@link NodeSource}s.
-         *
-         * @return the {@link NodeSource}s
-         */
-        public NodeSource[] getSources() {
-            return sourceList.toArray(new NodeSource[sourceList.size()]);
-        }
-
-        /**
-         * Gets the {@link NodeSource} at the given index.
-         *
-         * @param index the index
-         * @return the {@link NodeSource}
-         */
-        public NodeSource getSource(int index) {
-            return sourceList.get(index);
-        }
-
-        /**
-         * Adds a {@link NodeSource} to this list.
-         *
-         * @param source the {@link NodeSource}
-         */
-        public void addSource(NodeSource source) {
-            sourceList.add(source);
-        }
-    }
-
-    /////////////////////////////////////////////////////
-    // End of public
-    /////////////////////////////////////////////////////
 
     /**
      * Indirectly used by {@link GraphIO}. DO NOT REMOVE!
