@@ -29,7 +29,7 @@ public class SimpleBinStoreTest extends TestCase {
 
     public void setUp() throws IOException, URISyntaxException {
         locator = new SeaWiFSBinLocator(100);
-        dbDir = new File("", "testdata");
+        dbDir = new File("testdata");
         dbDir.mkdir();
         store = new SimpleBinStore(dbDir, dbName, locator, 5);
         bin = new FloatArrayBin(new int[]{2, 3});

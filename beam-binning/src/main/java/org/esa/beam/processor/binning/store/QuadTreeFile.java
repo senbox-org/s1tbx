@@ -231,7 +231,7 @@ class QuadTreeFile {
             if (targetDir.mkdirs()) {
                 _qtDir = targetDir;
             } else {
-                throw new IOException("failed to create target directory");
+                throw new IOException("failed to create target directory: " + targetDir.getAbsolutePath());
             }
         }
     }

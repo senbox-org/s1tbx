@@ -28,7 +28,7 @@ public class QuadTreeBinStoreTest extends TestCase {
 
     public void setUp() throws IOException, ProcessorException {
         BinLocator locator = new SeaWiFSBinLocator(100);
-        dbDir = new File("", "testdata");
+        dbDir = new File("testdata");
         store = new QuadTreeBinStore(dbDir, dbName, locator.getWidth(), locator.getHeight(), 5);
         bin = new FloatArrayBin(new int[]{2, 3});
         point0 = new Point(0, 0);

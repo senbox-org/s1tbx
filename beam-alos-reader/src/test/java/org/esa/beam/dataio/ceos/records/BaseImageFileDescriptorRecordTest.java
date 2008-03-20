@@ -94,7 +94,7 @@ public abstract class BaseImageFileDescriptorRecordTest extends TestCase {
 
         writeBytes341To392(ios);
 
-        ios.writeBytes("oiklfdöklsgjopesirmfdlknaoiawefölkdd"); // dataFormatTypeId // A36
+        ios.writeBytes("oiklfd4klsgjopesirmfdlknaoiawef5lkdd"); // dataFormatTypeId // A36
         ios.writeBytes("BVFR"); // dataFormatTypeIdCode // A4
         ios.writeBytes(" 753"); // numLeftUnusedBitsInPixelData // I4
         ios.writeBytes(" 357"); // numRightUnusedBitsInPixelData // I4
@@ -136,7 +136,7 @@ public abstract class BaseImageFileDescriptorRecordTest extends TestCase {
 
         assertBytes341To392(record);
 
-        assertEquals("oiklfdöklsgjopesirmfdlknaoiawefölkdd", record.getDataFormatTypeId());
+        assertEquals("oiklfd4klsgjopesirmfdlknaoiawef5lkdd", record.getDataFormatTypeId());
         assertEquals("BVFR", record.getDataFormatTypeIdCode());
         assertEquals(753, record.getNumLeftUnusedBitsInPixelData());
         assertEquals(357, record.getNumRightUnusedBitsInPixelData());
