@@ -117,7 +117,7 @@
 
         <module>lib-hdf</module>
         <module>lib-netcdf</module>
-    <module>beam-diagnostics</module>
+        <module>beam-diagnostics</module>
   </modules>
 
     <dependencyManagement>
@@ -310,7 +310,7 @@
             <dependency>
                 <groupId>com.thoughtworks.xstream</groupId>
                 <artifactId>xstream</artifactId>
-                <version>1.2</version>
+                <version>1.3</version>
             </dependency>
             <dependency>
                 <groupId>xpp3</groupId>
