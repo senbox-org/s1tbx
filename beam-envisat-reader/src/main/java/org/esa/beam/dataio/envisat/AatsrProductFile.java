@@ -303,7 +303,7 @@ public class AatsrProductFile extends ProductFile {
     }
 
     static int calculateSceneRasterHeight(DSD dsdGeoLocationAds) {
-        return (dsdGeoLocationAds.getNumRecords() - 1) * EnvisatConstants.AATSR_LOC_TIE_POINT_SUBSAMPLING_Y;
+        return (dsdGeoLocationAds.getNumRecords() - 1) * EnvisatConstants.AATSR_LOC_TIE_POINT_SUBSAMPLING_Y + 1;
     }
 
     /**
