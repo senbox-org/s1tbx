@@ -271,10 +271,6 @@ public class BandLineReader {
                     destRasterPos,
                     destRasterIncr);
         } else {
-//            System.out.println("sourceMinX = " + sourceMinX);
-//            System.out.println("sourceMaxX = " + sourceMaxX);
-//            System.out.println("sourceStepX = " + sourceStepX);
-           // System.out.println("destRasterPos = " + destRasterPos);
             final double missingValue = productFile.getMissingMDSRPixelValue();
             for (int index = sourceMinX; index < sourceMaxX; index += sourceStepX) {
                 destRaster.setElemDoubleAt(destRasterPos + index, missingValue);

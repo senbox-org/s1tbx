@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-envisat-reader</symbolicName>
-    <version>1.1</version>
+    <version>1.1.100</version>
     <name>Envisat Product Reader</name>
 
     <description>Enables BEAM to read ENVISAT data products.</description>
@@ -13,12 +13,14 @@
 
 
     <changelog><![CDATA[
+       <p>Changes from version 1.1 to 1.1.100:<br/>
+       [BEAM-802] Take attachment flag into account<br/>
        Changes in version 1.1:<br/>
        [BEAM-620] Generify detection of product type<br/>
        [BEAM-624] Support for AT1_NR__2P and AT2_NR__2P products in ENVISAT-format<br/>
        [BEAM-656] Support for MERIS band subset<br/>
        [BEAM-683] Add capability to read from zipped products<br/>
-       ]]></changelog>
+       </p>]]></changelog>
 
 
     <dependency>

@@ -161,20 +161,12 @@ public class RecordReader {
         }
         Debug.assertTrue(record.getInfo() == _recordInfo);
 
-        // check map if data present
-        int mdsIndex = index;
         if (_dsd.getDatasetType() == 'M') {
-            mdsIndex = _productFile.getMappedMDSRIndex(index);
+            index = _productFile.getMappedMDSRIndex(index);
         }
-        if (mdsIndex >= 0) {
-            long pos = _dsd.getDatasetOffset() + (mdsIndex * _dsd.getRecordSize());
-            _productFile.getDataInputStream().seek(pos);
-            record.readFrom(_productFile.getDataInputStream());
-        } else {
-            // if no - return Record filled with No-Data
-//           record.get
-        }
-
+        long pos = _dsd.getDatasetOffset() + (index * _dsd.getRecordSize());
+        _productFile.getDataInputStream().seek(pos);
+        record.readFrom(_productFile.getDataInputStream());
         return record;
     }
 
