@@ -1,9 +1,5 @@
 package org.esa.beam.framework.gpf.graph;
 
-import java.io.Reader;
-import java.io.Writer;
-import java.util.Map;
-
 import com.bc.ceres.util.TemplateReader;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
@@ -15,6 +11,10 @@ import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.xml.XppDomReader;
 import com.thoughtworks.xstream.io.xml.XppDomWriter;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+
+import java.io.Reader;
+import java.io.Writer;
+import java.util.Map;
 
 /**
  * The {@link GraphIO} class contains methods for the
@@ -42,7 +42,7 @@ public class GraphIO {
      *
      * @param reader the readerto use for deserialization
      * @return the deserialized <code>graph</code>
-     * @throws GraphException 
+     * @throws GraphException if an error occurs during reading
      */
     public static Graph read(Reader reader) throws GraphException {
         return read(reader, null);
@@ -57,7 +57,7 @@ public class GraphIO {
      * @param reader    the XML reader
      * @param variables a mapping from template variable names to their string values.
      * @return the deserialized <code>graph</code>
-     * @throws GraphException 
+     * @throws GraphException if an error occurs during reading
      */
     public static Graph read(Reader reader, Map<String, String> variables) throws GraphException {
         XStream xStream = initXstream();
@@ -98,9 +98,9 @@ public class GraphIO {
         xStream.addImplicitCollection(Header.class, "sources", "source", HeaderSource.class);
         xStream.registerConverter(new HeaderSource.Converter());
         
-//        xStream.addImplicitCollection(Header.class, "parameters", "parameter", HeaderParameter.class);
-//        xStream.registerConverter(new HeaderParameter.Converter());
-
+        xStream.addImplicitCollection(Header.class, "parameters", "parameter", HeaderParameter.class);
+        xStream.registerConverter(new HeaderParameter.Converter());
+        
         xStream.alias("node", Node.class);
         xStream.aliasField("operator", Node.class, "operatorName");
         xStream.useAttributeFor(Node.class, "id");

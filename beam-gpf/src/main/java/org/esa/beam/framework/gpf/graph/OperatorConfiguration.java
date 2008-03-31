@@ -16,14 +16,11 @@
  */
 package org.esa.beam.framework.gpf.graph;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
+import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.gpf.Operator;
 
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by marcoz.
@@ -54,7 +51,7 @@ public class OperatorConfiguration {
             return null;
         }
         Xpp3Dom config = new Xpp3Dom(xpp3Dom.getName());
-        Set<PropertyReference> references = new HashSet<PropertyReference>();
+        Set<PropertyReference> references = new HashSet<PropertyReference>(17);
         Xpp3Dom[] children = xpp3Dom.getChildren();
 
         for (Xpp3Dom child : children) {
@@ -66,8 +63,7 @@ public class OperatorConfiguration {
                 Node node = graphContext.getGraph().getNode(referenceNodeId);
                 NodeContext referedNodeContext = graphContext.getNodeContext(node);
                 Operator operator = referedNodeContext.getOperator();
-                PropertyReference propertyReference = new PropertyReference(child.getName(),
-                        propertyName, operator);
+                PropertyReference propertyReference = new PropertyReference(child.getName(), propertyName, operator);
                 references.add(propertyReference);
             } else {
                 config.addChild(child);

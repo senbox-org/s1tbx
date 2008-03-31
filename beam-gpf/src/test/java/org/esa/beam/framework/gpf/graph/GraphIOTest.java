@@ -10,6 +10,7 @@ import java.io.StringWriter;
 import java.util.List;
 
 public class GraphIOTest extends TestCase {
+
     private TestOps.Op1.Spi operatorSpi1 = new TestOps.Op1.Spi();
     private TestOps.Op2.Spi operatorSpi2 = new TestOps.Op2.Spi();
     private TestOps.Op3.Spi operatorSpi3 = new TestOps.Op3.Spi();
@@ -60,7 +61,7 @@ public class GraphIOTest extends TestCase {
         assertSame(nodes[0], node1Copy);
         assertEquals("Op1", node1Copy.getOperatorName());
     }
-    
+
     public void testWriteToXML() throws Exception {
         Graph graph1 = new Graph("myOneNodeGraph");
         Node node1 = new Node("node1", "Op1");
@@ -69,26 +70,26 @@ public class GraphIOTest extends TestCase {
         StringWriter writer = new StringWriter();
         GraphIO.write(graph1, writer);
         String actualXML = writer.toString();
-        String expectedXML = 
-            "<graph id=\"myOneNodeGraph\">\n" +
-            "  <version>1.0</version>\n" +
-            "  <node id=\"node1\">\n" +
-            "    <operator>Op1</operator>\n" +
-            "    <sources/>\n" +
-            "  </node>\n" +
-            "</graph>";
+        String expectedXML =
+                "<graph id=\"myOneNodeGraph\">\n" +
+                "  <version>1.0</version>\n" +
+                "  <node id=\"node1\">\n" +
+                "    <operator>Op1</operator>\n" +
+                "    <sources/>\n" +
+                "  </node>\n" +
+                "</graph>";
         assertEquals(expectedXML, actualXML);
 
     }
 
-    public void testreadXMLWithoutVersion() throws Exception {
-        String expectedXML = 
-            "<graph id=\"myOneNodeGraph\">\n" +
-            "  <node id=\"node1\">\n" +
-            "    <operator>Op1</operator>\n" +
-            "    <sources/>\n" +
-            "  </node>\n" +
-            "</graph>";
+    public void testReadXMLWithoutVersion() throws Exception {
+        String expectedXML =
+                "<graph id=\"myOneNodeGraph\">\n" +
+                "  <node id=\"node1\">\n" +
+                "    <operator>Op1</operator>\n" +
+                "    <sources/>\n" +
+                "  </node>\n" +
+                "</graph>";
         StringReader reader = new StringReader(expectedXML);
         Exception caught = null;
         try {
@@ -100,18 +101,19 @@ public class GraphIOTest extends TestCase {
         assertNotNull(caught);
         assertEquals(GraphException.class, caught.getClass());
     }
+
     public void testReadFromXML() throws Exception {
-        String expectedXML = 
-            "<graph id=\"myOneNodeGraph\">\n" +
-            "  <version>1.0</version>\n" +
-            "  <node id=\"node1\">\n" +
-            "    <operator>Op1</operator>\n" +
-            "    <sources/>\n" +
-            "  </node>\n" +
-            "</graph>";
+        String expectedXML =
+                "<graph id=\"myOneNodeGraph\">\n" +
+                "  <version>1.0</version>\n" +
+                "  <node id=\"node1\">\n" +
+                "    <operator>Op1</operator>\n" +
+                "    <sources/>\n" +
+                "  </node>\n" +
+                "</graph>";
         StringReader reader = new StringReader(expectedXML);
         Graph graph = GraphIO.read(reader);
-        
+
         Node[] nodes = graph.getNodes();
         assertNotNull(nodes);
         assertEquals(1, nodes.length);
@@ -122,38 +124,39 @@ public class GraphIOTest extends TestCase {
         assertNotNull(node1);
         assertEquals("Op1", node1.getOperatorName());
     }
-    
+
     public void testReadFromXMLWithHeader() throws Exception {
-        String expectedXML = 
-            "<graph id=\"myOneNodeGraph\">\n" +
-            "  <version>1.0</version>\n" +
-            
-            "  <header>\n" +
-            "    <target refid=\"node1\" />\n" +
-            
-            "    <source name=\"input1\" optional=\"true\" description=\"AATSR L1b TOA\"/>\n" +  // -Sinput1=FILE_PATH
-            "    <source name=\"input2\" description=\"CHRIS/proba\">C:\\data\\x.dim</source>\n" +  // -Sinput2=FILE_PATH
-            
-//            "    <parameter name=\"ignoreSign\" defaultValue=\"true\" type=\"boolean\"/>\n" + // -PignoreSign=false
-//            "    <parameter name=\"regex\" description=\"a regular expression\" type=\"String\"/>\n" +
-//            "    <parameter name=\"threshold\" type=\"double\" interval=\"(0,1]\"/>\n" +
-            "  </header>\n" +
-            
-            "  <node id=\"node1\">\n" +
-            "    <operator>Op1</operator>\n" +
-            "    <sources>\n" +
-            "      <toa refid=\"input1\"/>\n" +
-            "      <chris refid=\"input2\"/>\n" +
-            "    </sources>\n" +
-            "    <parameters>\n" +
-            "       <ignoreSign refid=\"ignoreSign\"/>\n" +
-            "       <expression refid=\"regex\"/>\n" +
-            "    </parameters>\n" +
-            "  </node>\n" +
-            "</graph>";
+        String expectedXML =
+                "<graph id=\"myOneNodeGraph\">\n" +
+                "  <version>1.0</version>\n" +
+
+                "  <header>\n" +
+                "    <target refid=\"node1\" />\n" +
+
+                "    <source name=\"input1\" optional=\"true\" description=\"AATSR L1b TOA\"/>\n" +  // -Sinput1=FILE_PATH
+                "    <source name=\"input2\" description=\"CHRIS/proba\">C:\\data\\x.dim</source>\n" +  // -Sinput2=FILE_PATH
+
+                "    <parameter name=\"ignoreSign\" defaultValue=\"true\" type=\"boolean\"/>\n" + // -PignoreSign=false
+                "    <parameter name=\"regex\" description=\"a regular expression\" type=\"String\"/>\n" +
+                "    <parameter name=\"threshold\" type=\"double\" interval=\"(0,1]\"/>\n" +
+                "    <parameter name=\"ernie\" type=\"int\" valueSet=\"2,4,6,8\"/>\n" +
+                "  </header>\n" +
+
+                "  <node id=\"node1\">\n" +
+                "    <operator>Op1</operator>\n" +
+                "    <sources>\n" +
+                "      <toa refid=\"input1\"/>\n" +
+                "      <chris refid=\"input2\"/>\n" +
+                "    </sources>\n" +
+                "    <parameters>\n" +
+                "       <ignoreSign refid=\"ignoreSign\"/>\n" +
+                "       <expression refid=\"regex\"/>\n" +
+                "    </parameters>\n" +
+                "  </node>\n" +
+                "</graph>";
         StringReader reader = new StringReader(expectedXML);
         Graph graph = GraphIO.read(reader);
-        
+
         Header header = graph.getHeader();
         assertNotNull(header);
         assertEquals("node1", header.getTarget().getNodeId());
@@ -166,20 +169,28 @@ public class GraphIOTest extends TestCase {
         assertEquals("input2", sources.get(1).getName());
         assertEquals(false, sources.get(1).isOptional());
         assertEquals("C:\\data\\x.dim", sources.get(1).getLocation());
-        
-//        List<HeaderParameter> parameters = header.getParameters();
-//        assertNotNull(parameters);
-//        assertEquals(3, parameters.size());
-//        assertEquals("ignoreSign", parameters.get(0).getName());
-//        assertEquals("true", parameters.get(0).getDefaultValue());
-//        assertEquals("boolean", parameters.get(0).getType());
-//        assertEquals("regex", parameters.get(1).getName());
-//        assertEquals("a regular expression", parameters.get(1).getDescription());
-//        assertEquals("String", parameters.get(1).getType());
-//        assertEquals("threshold", parameters.get(2).getName());
-//        assertEquals("(0,1]", parameters.get(2).getInterval());
-//        assertEquals("double", parameters.get(2).getType());
-        
+
+        List<HeaderParameter> parameters = header.getParameters();
+        assertNotNull(parameters);
+        assertEquals(4, parameters.size());
+        assertEquals("ignoreSign", parameters.get(0).getName());
+        assertEquals("true", parameters.get(0).getDefaultValue());
+        assertEquals("boolean", parameters.get(0).getType());
+        assertEquals("regex", parameters.get(1).getName());
+        assertEquals("a regular expression", parameters.get(1).getDescription());
+        assertEquals("String", parameters.get(1).getType());
+        assertEquals("threshold", parameters.get(2).getName());
+        assertEquals("(0,1]", parameters.get(2).getInterval());
+        assertEquals("double", parameters.get(2).getType());
+        assertEquals("ernie", parameters.get(3).getName());
+
+        final String[] expected = {"2", "4", "6", "8"};
+        assertEquals(expected.length, parameters.get(3).getValueSet().length);
+        for (int i = 0; i < expected.length; i++) {
+            assertEquals(expected[i], parameters.get(3).getValueSet()[i]);
+        }
+        assertEquals("int", parameters.get(3).getType());
+
         Node[] nodes = graph.getNodes();
         assertNotNull(nodes);
         assertEquals(1, nodes.length);

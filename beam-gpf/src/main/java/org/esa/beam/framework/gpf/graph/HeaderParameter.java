@@ -16,13 +16,13 @@
  */
 package org.esa.beam.framework.gpf.graph;
 
-import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.dom.DomConverter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import org.esa.beam.util.StringUtils;
 
 /**
  * Created by marcoz.
@@ -33,6 +33,8 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 public class HeaderParameter {
     private String name;
     private String type;
+
+    private String value;
     private String defaultValue;
     private String description;
     private String label;
@@ -64,6 +66,14 @@ public class HeaderParameter {
     public void setType(String type) {
         this.type = type;
     }
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
     public String getDefaultValue() {
         return defaultValue;
     }
@@ -178,25 +188,29 @@ public class HeaderParameter {
             writer.addAttribute("label", headerParameter.getLabel());
             writer.addAttribute("unit", headerParameter.getUnit());
             writer.addAttribute("interval", headerParameter.getInterval());
-            writer.addAttribute("interval", headerParameter.getInterval());
-//            writer.addAttribute("optional", Boolean
-//                    .toString(headerSource.optional));
-//            writer.setValue(headerSource.getLocation());
-
+            writer.addAttribute("valueSet", StringUtils.arrayToString(headerParameter.getValueSet(), ","));
         }
 
         @Override
         public Object unmarshal(HierarchicalStreamReader reader,
                 UnmarshallingContext context) {
-//            HeaderSource headerSource = new HeaderSource();
-//
-//            headerSource.name = reader.getAttribute("name");
-//            headerSource.description = reader.getAttribute("description");
-//            headerSource.optional = Boolean.parseBoolean(reader
-//                    .getAttribute("optional"));
-//            headerSource.value = reader.getValue();
-//            return headerSource;
-            return null;
+            HeaderParameter headerParameter = new HeaderParameter();
+
+            headerParameter.setName(reader.getAttribute("name"));
+            headerParameter.setType(reader.getAttribute("type"));
+            headerParameter.setDefaultValue(reader.getAttribute("defaultValue"));
+            headerParameter.setDescription(reader.getAttribute("description"));
+            headerParameter.setLabel(reader.getAttribute("label"));
+            headerParameter.setUnit(reader.getAttribute("unit"));
+            headerParameter.setInterval(reader.getAttribute("interval"));
+            final String valueSetString = reader.getAttribute("valueSet");
+            if(valueSetString != null) {
+                headerParameter.setValueSet(StringUtils.toStringArray(valueSetString, ","));
+            }
+
+            headerParameter.setValue(reader.getValue());
+
+            return headerParameter;
         }
     }
     
