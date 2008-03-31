@@ -81,6 +81,8 @@ public class RecordReader {
 
     /**
      * Gets the product file which created this reader.
+     *
+     * @return the product file
      */
     public final ProductFile getProductFile() {
         return _productFile;
@@ -131,7 +133,6 @@ public class RecordReader {
      * <p>Note that the method creates a new record instance each time it is called.
      *
      * @param index the record index, must be <code>&gt;=0</code> and <code>&lt;getDSD().getDatasetOffset()</code>
-     *
      * @throws java.io.IOException if an I/O error occurs
      * @throws java.lang.IndexOutOfBoundsException
      *                             if the index is out of bounds
@@ -149,25 +150,31 @@ public class RecordReader {
      *
      * @param index  the record index, must be <code>&gt;=0</code> and <code>&lt;getDSD().getDatasetOffset()</code>
      * @param record record to be recycled, can be <code>null</code>
-     *
      * @throws java.io.IOException if an I/O error occurs
      * @throws java.lang.IndexOutOfBoundsException
      *                             if the index is out of bounds
      */
     public Record readRecord(int index, Record record) throws IOException {
 
-        if (index < 0 || index >= _dsd.getNumRecords()) {
-            throw new IndexOutOfBoundsException("illegal record index for dataset '" + _dsd.getDatasetName() + "'");
-        }
-
         if (record == null) {
             record = createCompatibleRecord();
         }
         Debug.assertTrue(record.getInfo() == _recordInfo);
 
-        long pos = _dsd.getDatasetOffset() + (index * _dsd.getRecordSize());
-        _productFile.getDataInputStream().seek(pos);
-        record.readFrom(_productFile.getDataInputStream());
+        // check map if data present
+        int mdsIndex = index;
+        if (_dsd.getDatasetType() == 'M') {
+            mdsIndex = _productFile.getMappedMDSRIndex(index);
+        }
+        if (mdsIndex >= 0) {
+            long pos = _dsd.getDatasetOffset() + (mdsIndex * _dsd.getRecordSize());
+            _productFile.getDataInputStream().seek(pos);
+            record.readFrom(_productFile.getDataInputStream());
+        } else {
+            // if no - return Record filled with No-Data
+//           record.get
+        }
+
         return record;
     }
 

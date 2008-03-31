@@ -275,7 +275,6 @@ public abstract class ProductFile {
      * @return the file's product type or <code>null</code> if the product type could not be retrieved.
      */
     public static String getProductType(ImageInputStream dataInputStream) {
-
         String productType = null;
 
         try {
@@ -624,7 +623,6 @@ public abstract class ProductFile {
      *                             if a database I/O error occurs
      */
     public RecordReader getRecordReader(String datasetName) throws IOException, DDDBException {
-
         // See if we have the record reader in the cache
         String datasetNameUC = datasetName.toUpperCase();
         RecordReader recordReader = recordReaderCache.get(datasetNameUC);
@@ -773,6 +771,26 @@ public abstract class ProductFile {
     protected void postProcessSPH(Map parameters) throws IOException {
     }
 
+    /**
+     * Retrieves the file based MDSR index for the image line.
+     * Default implementation returns always the line number requested, if different behaviour is required, please overwrite.
+     *
+     * @param lineIndex line (raster-y) index, zero based
+     * @return the mapped index, a mapped index < 0 means that the record is not present
+     */
+    int getMappedMDSRIndex(int lineIndex) {
+        return lineIndex;
+    }
+
+    /**
+     * Retrieves the raw pixel value to be filled in when a missing MDSR is supplied.
+     *
+     * @return the missing pixel value
+     */
+    double getMissingMDSRPixelValue() {
+        return 0;
+    }
+
     protected DSD[] getDsds() {
         return dsdArray;
     }
@@ -831,16 +849,16 @@ public abstract class ProductFile {
                                    String physicalUnit,
                                    String description) {
         return new BandInfo(bandName,
-                            dataType,
-                            spectralBandIndex,
-                            sampleModel,
-                            scalingMethod,
-                            scalingOffset,
-                            scalingFactor,
-                            validExpression,
-                            flagCoding,
-                            physicalUnit,
-                            description);
+                dataType,
+                spectralBandIndex,
+                sampleModel,
+                scalingMethod,
+                scalingOffset,
+                scalingFactor,
+                validExpression,
+                flagCoding,
+                physicalUnit,
+                description);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -1007,13 +1025,13 @@ public abstract class ProductFile {
                 Header dsd = HeaderParser.getInstance().parseHeader("DSD(" + (i + 1) + ")", dsdBytes);
                 if (dsd.hasParam("DS_NAME")) {
                     dsdArray[i] = new DSD(i,
-                                          dsd.getParamString("DS_NAME").trim(),
-                                          dsd.getParamString("DS_TYPE").charAt(0),
-                                          dsd.getParamString("FILENAME").trim(),
-                                          dsd.getParamUInt("DS_OFFSET"),
-                                          dsd.getParamUInt("DS_SIZE"),
-                                          dsd.getParamInt("NUM_DSR"),
-                                          dsd.getParamInt("DSR_SIZE"));
+                            dsd.getParamString("DS_NAME").trim(),
+                            dsd.getParamString("DS_TYPE").charAt(0),
+                            dsd.getParamString("FILENAME").trim(),
+                            dsd.getParamUInt("DS_OFFSET"),
+                            dsd.getParamUInt("DS_SIZE"),
+                            dsd.getParamInt("NUM_DSR"),
+                            dsd.getParamInt("DSR_SIZE"));
                     Debug.trace("ProductFile: " + dsdArray[i]);
                     dsdCountValid++;
                 } else {

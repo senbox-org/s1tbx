@@ -21,7 +21,7 @@ import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.ProductData;
 
 import javax.imageio.stream.ImageInputStream;
-import java.awt.Color;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -86,6 +86,7 @@ public class AatsrProductFile extends ProductFile {
      * Number of lines per solar angles tie-point in along-track direction
      */
     private int _solTiePointSubSamplingY;
+    private int[] mdsMapIndex;
 
 
     /**
@@ -94,7 +95,6 @@ public class AatsrProductFile extends ProductFile {
      *
      * @param file            the abstract file path representation.
      * @param dataInputStream the seekable data input stream which will be used to read data from the product file.
-     *
      * @throws java.io.IOException if an I/O error occurs
      */
     protected AatsrProductFile(File file, ImageInputStream dataInputStream) throws IOException {
@@ -171,7 +171,6 @@ public class AatsrProductFile extends ProductFile {
      * Overrides the base class method.
      *
      * @param gridWidth for AATSR products, this is the number of tie points in a tie point ADSR
-     *
      * @see org.esa.beam.dataio.envisat.ProductFile#getTiePointSubSamplingX(int)
      */
     public float getTiePointSubSamplingX(int gridWidth) {
@@ -182,7 +181,6 @@ public class AatsrProductFile extends ProductFile {
      * Overrides the base class method.
      *
      * @param gridWidth for AATSR products, this is the number of tie points in a tie point ADSR
-     *
      * @see org.esa.beam.dataio.envisat.ProductFile#getTiePointSubSamplingY(int)
      */
     public float getTiePointSubSamplingY(int gridWidth) {
@@ -205,8 +203,8 @@ public class AatsrProductFile extends ProductFile {
      */
     public String getGADSName() {
         return getProductType().equalsIgnoreCase(EnvisatConstants.AATSR_L1B_TOA_PRODUCT_TYPE_NAME)
-               ? EnvisatConstants.AATSR_L1B_GADS_NAME
-               : null;
+                ? EnvisatConstants.AATSR_L1B_GADS_NAME
+                : null;
     }
 
     /**
@@ -237,7 +235,7 @@ public class AatsrProductFile extends ProductFile {
                     "invalid product: missing DSD for dataset 'NADIR_VIEW_SOLAR_ANGLES_ADS'"); /*I18N*/
         }
 
-        _sceneRasterHeight = mdsDsds[0].getNumRecords();
+        _sceneRasterHeight = calculateSceneRasterHeight(dsdGeoLocationAds);
         int sceneRasterWidth = EnvisatConstants.AATSR_SCENE_RASTER_WIDTH;
 
         int locTiePointGridWidth = EnvisatConstants.AATSR_LOC_TIE_POINT_GRID_WIDTH;
@@ -276,6 +274,36 @@ public class AatsrProductFile extends ProductFile {
         parameters.put("solTiePointGridOffsetY", _solTiePointGridOffsetY);
         parameters.put("solTiePointSubSamplingX", _solTiePointSubSamplingX);
         parameters.put("solTiePointSubSamplingY", _solTiePointSubSamplingY);
+
+        mdsMapIndex = new int[getSceneRasterHeight()];
+        final RecordReader recordReader = getRecordReader("GEOLOCATION_ADS");
+        final int records = recordReader.getNumRecords() - 1;
+        int mdsIndex = 0;
+        for (int geoADSIndex = 0; geoADSIndex < records; geoADSIndex++) {
+            final Record record = recordReader.readRecord(geoADSIndex);
+            final int attachFlag = record.getField("attach_flag").getElemInt(0);
+            for (int line = 0; line < 32; line++) {
+                final int i = geoADSIndex * 32 + line;
+                if (attachFlag == 0) {
+                    mdsMapIndex[i] = mdsIndex;
+                    ++mdsIndex;
+                } else {
+                    mdsMapIndex[i] = -1;
+                }
+            }
+        }
+    }
+
+    int getMappedMDSRIndex(int lineIndex) {
+        return mdsMapIndex[lineIndex];
+    }
+
+    double getMissingMDSRPixelValue() {
+        return -2.0;
+    }
+
+    static int calculateSceneRasterHeight(DSD dsdGeoLocationAds) {
+        return (dsdGeoLocationAds.getNumRecords() - 1) * EnvisatConstants.AATSR_LOC_TIE_POINT_SUBSAMPLING_Y;
     }
 
     /**
@@ -295,7 +323,8 @@ public class AatsrProductFile extends ProductFile {
     /**
      * Returns an array containing the solar spectral flux for each band.
      */
-    public float[] getSpectralBandSolarFluxes() {
+    public float[] getSpectralBandSolarFluxes
+            () {
         return EnvisatConstants.AATSR_SOLAR_FLUXES;
     }
 
@@ -303,11 +332,12 @@ public class AatsrProductFile extends ProductFile {
      * Returns a new default set of bitmask definitions for this product file.
      *
      * @param dsName the name of the flag dataset
-     *
      * @return a new default set, an empty array if no default set is given for this product type, never
      *         <code>null</code>.
      */
-    public BitmaskDef[] createDefaultBitmaskDefs(String dsName) {
+    public BitmaskDef[] createDefaultBitmaskDefs
+            (String
+                    dsName) {
         if (getProductType().endsWith("1P")) {
             if ("confid_flags_nadir".equalsIgnoreCase(dsName) || "confid_flags_fward".equalsIgnoreCase(dsName)) {
                 String prefix = "qln_";
@@ -331,40 +361,46 @@ public class AatsrProductFile extends ProductFile {
     }
 
 
-    private BitmaskDef[] createL1bCloudBMDs(String prefix, String dsName) {
+    private BitmaskDef[] createL1bCloudBMDs
+            (String
+                    prefix, String
+                    dsName) {
         return new BitmaskDef[]{
                 new BitmaskDef(mkBMDNm(prefix, "LAND"), null, dsName + ".LAND", Color.green, 0.5F),
                 new BitmaskDef(mkBMDNm(prefix, "CLOUDY"), null, dsName + ".CLOUDY", Color.cyan, 0.5F),
                 new BitmaskDef(mkBMDNm(prefix, "SUN_GLINT"), null, dsName + ".SUN_GLINT", Color.yellow, 0.5F),
                 new BitmaskDef(mkBMDNm(prefix, "CLOUDY_REFL_HIST"), null, dsName + ".CLOUDY_REFL_HIST", Color.orange,
-                               0.5F),
+                        0.5F),
                 new BitmaskDef(mkBMDNm(prefix, "CLOUDY_SPAT_COHER_16"), null, dsName + ".CLOUDY_SPAT_COHER_16",
-                               Color.red,
-                               0.5F),
+                        Color.red,
+                        0.5F),
                 new BitmaskDef(mkBMDNm(prefix, "CLOUDY_SPAT_COHER_11"), null, dsName + ".CLOUDY_SPAT_COHER_11",
-                               Color.blue,
-                               0.5F),
+                        Color.blue,
+                        0.5F),
                 new BitmaskDef(mkBMDNm(prefix, "CLOUDY_GROSS_12"), null, dsName + ".CLOUDY_GROSS_12", Color.magenta,
-                               0.5F),
+                        0.5F),
                 new BitmaskDef(mkBMDNm(prefix, "CLOUDY_CIRRUS_11_12"), null, dsName + ".CLOUDY_CIRRUS_11_12",
-                               Color.pink,
-                               0.5F),
+                        Color.pink,
+                        0.5F),
                 new BitmaskDef(mkBMDNm(prefix, "CLOUDY_MED_HI_LEVEL_37_12"), null,
-                               dsName + ".CLOUDY_MED_HI_LEVEL_37_12",
-                               Color.yellow, 0.5F),
+                        dsName + ".CLOUDY_MED_HI_LEVEL_37_12",
+                        Color.yellow, 0.5F),
                 new BitmaskDef(mkBMDNm(prefix, "CLOUDY_FOG_LOW_STRATUS_11_37"), null,
-                               dsName + ".CLOUDY_FOG_LOW_STRATUS_11_37", Color.orange, 0.5F),
+                        dsName + ".CLOUDY_FOG_LOW_STRATUS_11_37", Color.orange, 0.5F),
                 new BitmaskDef(mkBMDNm(prefix, "CLOUDY_VW_DIFF_11_12"), null, dsName + ".CLOUDY_VW_DIFF_11_12",
-                               Color.red,
-                               0.5F),
+                        Color.red,
+                        0.5F),
                 new BitmaskDef(mkBMDNm(prefix, "CLOUDY_VW_DIFF_37_11"), null, dsName + ".CLOUDY_VW_DIFF_37_11",
-                               Color.green, 0.5F),
+                        Color.green, 0.5F),
                 new BitmaskDef(mkBMDNm(prefix, "CLOUDY_THERM_HIST_11_12"), null, dsName + ".CLOUDY_THERM_HIST_11_12",
-                               Color.blue, 0.5F)
+                        Color.blue, 0.5F)
         };
     }
 
-    private BitmaskDef[] createL1bConfidBMDs(String prefix, String dsName) {
+    private BitmaskDef[] createL1bConfidBMDs
+            (String
+                    prefix, String
+                    dsName) {
         return new BitmaskDef[]{
                 new BitmaskDef(mkBMDNm(prefix, "BLANKING"), null, dsName + ".BLANKING", Color.red, 0.5F),
                 new BitmaskDef(mkBMDNm(prefix, "COSMETIC"), null, dsName + ".COSMETIC", Color.yellow, 0.5F),
@@ -379,11 +415,12 @@ public class AatsrProductFile extends ProductFile {
         };
     }
 
-    private BitmaskDef[] createL2BMDs() {
+    private BitmaskDef[] createL2BMDs
+            () {
         return new BitmaskDef[]{
                 new BitmaskDef(mkBMDNm("LAND"), null, "flags.LAND", Color.green, 0.5F),
                 new BitmaskDef(mkBMDNm("WATER"), null, "!flags.LAND AND !(flags.NADIR_CLOUD OR flags.FWARD_CLOUD)",
-                               Color.blue, 0.5F),
+                        Color.blue, 0.5F),
                 new BitmaskDef(mkBMDNm("CLOUD"), null, "flags.NADIR_CLOUD OR flags.FWARD_CLOUD", Color.cyan, 0.5F),
                 new BitmaskDef(mkBMDNm("NADIR_CLOUD"), null, "flags.NADIR_CLOUD", Color.cyan, 0.5F),
                 new BitmaskDef(mkBMDNm("NADIR_BLANKING"), null, "flags.NADIR_BLANKING", Color.orange, 0.5F),
@@ -396,17 +433,22 @@ public class AatsrProductFile extends ProductFile {
                 new BitmaskDef(mkBMDNm("CLOUDY_HISTO"), null, "flags.CLOUDY_HISTO", Color.cyan, 0.5F),
                 new BitmaskDef(mkBMDNm("NADIR_SST_ONLY_VALID"), null, "flags.NADIR_SST_ONLY_VALID", Color.red, 0.5F),
                 new BitmaskDef(mkBMDNm("NADIR_SST_ONLY_37_MY_VALID"), null, "flags.NADIR_SST_ONLY_37_MY_VALID",
-                               Color.orange, 0.5F),
+                        Color.orange, 0.5F),
                 new BitmaskDef(mkBMDNm("DUAL_SST_VALID"), null, "flags.DUAL_SST_VALID", Color.red, 0.5F),
                 new BitmaskDef(mkBMDNm("DUAL_SST_VALID_37_MY"), null, "flags.DUAL_SST_VALID_37_MY", Color.orange, 0.5F)
         };
     }
 
-    private String mkBMDNm(String base) {
+    private String mkBMDNm
+            (String
+                    base) {
         return mkBMDNm("", base);
     }
 
-    private String mkBMDNm(String prefix, String base) {
+    private String mkBMDNm
+            (String
+                    prefix, String
+                    base) {
         return (prefix + base).toLowerCase();
     }
 }

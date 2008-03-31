@@ -10,9 +10,7 @@ import junit.framework.TestCase;
 
 public class MerisProductFileTest extends TestCase {
 
-
     public void testDddbProductTypeReplacement() {
-
         // IODD 5
         final int v5 = MerisProductFile.IODD_VERSION_5;
         testDddbProductTypeReplacement("MER_RR__1P_IODD5", "MER_RR__1P", v5);

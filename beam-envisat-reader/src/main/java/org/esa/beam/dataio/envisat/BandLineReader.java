@@ -240,7 +240,6 @@ public class BandLineReader {
      * @param sourceY       the Y-offset (zero-based line index) in source raster co-ordinates
      * @param destRaster    the destination raster which receives the sample values to be read
      * @param destRasterPos the current line offset within the destination raster
-     *
      * @throws java.io.IOException if an I/O error occurs
      */
     public synchronized void readRasterLine(int sourceMinX,
@@ -249,38 +248,49 @@ public class BandLineReader {
                                             int sourceY,
                                             ProductData destRaster,
                                             int destRasterPos) throws IOException {
+        final ProductFile productFile = getProductFile();
+        if (productFile.getMappedMDSRIndex(sourceY) >= 0) {
+            readLineRecord(sourceY);
 
-        readLineRecord(sourceY);
+            int destRasterIncr = 1;
 
-        int destRasterIncr = 1;
 
-        if (getProductFile().storesPixelsInChronologicalOrder()) {
-            destRasterIncr = -1;
-            destRasterPos += (sourceMaxX - sourceMinX) / sourceStepX;
-            int oldSourceMinX = sourceMinX;
-            sourceMinX = getProductFile().getSceneRasterWidth() - 1 - sourceMaxX;
-            sourceMaxX = getProductFile().getSceneRasterWidth() - 1 - oldSourceMinX;
+            if (productFile.storesPixelsInChronologicalOrder()) {
+                destRasterIncr = -1;
+                destRasterPos += (sourceMaxX - sourceMinX) / sourceStepX;
+                int oldSourceMinX = sourceMinX;
+                sourceMinX = productFile.getSceneRasterWidth() - 1 - sourceMaxX;
+                sourceMaxX = productFile.getSceneRasterWidth() - 1 - oldSourceMinX;
+            }
+
+            ensureBandLineDecoder().computeLine(getPixelDataField().getElems(),
+                    sourceMinX,
+                    sourceMaxX,
+                    sourceStepX,
+                    destRaster.getElems(),
+                    destRasterPos,
+                    destRasterIncr);
+        } else {
+//            System.out.println("sourceMinX = " + sourceMinX);
+//            System.out.println("sourceMaxX = " + sourceMaxX);
+//            System.out.println("sourceStepX = " + sourceStepX);
+           // System.out.println("destRasterPos = " + destRasterPos);
+            final double missingValue = productFile.getMissingMDSRPixelValue();
+            for (int index = sourceMinX; index < sourceMaxX; index += sourceStepX) {
+                destRaster.setElemDoubleAt(destRasterPos + index, missingValue);
+            }
         }
-
-        ensureBandLineDecoder().computeLine(getPixelDataField().getElems(),
-                                            sourceMinX,
-                                            sourceMaxX,
-                                            sourceStepX,
-                                            destRaster.getElems(),
-                                            destRasterPos,
-                                            destRasterIncr);
     }
 
     /**
      * Reads the record providing the pixels for the line at the given zero-based line index.
      *
      * @param sourceY the line index
-     *
      * @throws java.io.IOException if an I/O error occurs
      */
     public void readLineRecord(int sourceY) throws IOException {
         getPixelDataReader().readRecord(sourceY,
-                                        getPixelDataRecord());
+                getPixelDataRecord());
     }
 
 
@@ -435,7 +445,7 @@ public class BandLineReader {
                 i = 2 * sourceX;
                 shorts[rasterPos] = (short) (
                         ((bytes[i + 0] & 0xff)) |
-                        ((bytes[i + 1] & 0xff) << 8));
+                                ((bytes[i + 1] & 0xff) << 8));
                 rasterPos += rasterIncr;
             }
         }
@@ -452,8 +462,8 @@ public class BandLineReader {
                 i = 3 * sourceX;
                 ints[rasterPos] =
                         ((bytes[i + 0] & 0xff) << 16) |
-                        ((bytes[i + 1] & 0xff) << 8) |
-                        ((bytes[i + 2] & 0xff));
+                                ((bytes[i + 1] & 0xff) << 8) |
+                                ((bytes[i + 2] & 0xff));
                 rasterPos += rasterIncr;
             }
         }
