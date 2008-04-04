@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-envisat-reader</symbolicName>
-    <version>1.1.100</version>
+    <version>1.2-SNAPSHOT</version>
     <name>Envisat Product Reader</name>
 
     <description>Enables BEAM to read ENVISAT data products.</description>
@@ -13,6 +13,8 @@
 
 
     <changelog><![CDATA[
+       <p>Changes from version 1.1.100 to 1.2:<br/>
+       [BEAM-803] Add support for all ASAR products and format versions
        <p>Changes from version 1.1 to 1.1.100:<br/>
        [BEAM-802] Take attachment flag into account<br/>
        Changes in version 1.1:<br/>
