@@ -557,5 +557,27 @@ public class StringUtilsTest extends TestCase {
         assertEquals("raster+band_1 - band2 * raster.flag + _band + asdbandfer and raster>120",
                      StringUtils.replaceWord(string, regex, replacement));
     }
+
+    public void testIsNumeric() {
+
+        assertFalse(StringUtils.isNumeric("nan", Byte.class));
+        assertFalse(StringUtils.isNumeric("nan", Short.class));
+        assertFalse(StringUtils.isNumeric("nan", Integer.class));
+        assertFalse(StringUtils.isNumeric("nan", Float.class));
+        assertFalse(StringUtils.isNumeric("nan", Double.class));
+
+        assertTrue(StringUtils.isNumeric("123", Byte.class));
+        assertTrue(StringUtils.isNumeric("123", Short.class));
+        assertTrue(StringUtils.isNumeric("123", Integer.class));
+        assertTrue(StringUtils.isNumeric("123", Float.class));
+        assertTrue(StringUtils.isNumeric("123", Double.class));
+
+        assertFalse(StringUtils.isNumeric("123.69", Byte.class));
+        assertFalse(StringUtils.isNumeric("123.69", Short.class));
+        assertFalse(StringUtils.isNumeric("123.69", Integer.class));
+        assertTrue(StringUtils.isNumeric("123.69", Float.class));
+        assertTrue(StringUtils.isNumeric("123.69", Double.class));
+
+    }
 }
 

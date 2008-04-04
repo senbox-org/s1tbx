@@ -248,7 +248,7 @@ public class EnvisatProductReader extends AbstractProductReader {
         return product;
     }
 
-    private void addBandsToProduct(Product product) {
+     private void addBandsToProduct(Product product) {
         Debug.assertNotNull(_productFile);
         Debug.assertNotNull(product);
 
@@ -265,18 +265,24 @@ public class EnvisatProductReader extends AbstractProductReader {
                 if (isNodeAccepted(bandName)) {
                     BandInfo bandInfo = bandLineReader.getBandInfo();
                     Band band;
+
+                    int width = bandInfo.getWidth();
+                    int height = bandInfo.getHeight();
+                    if (getSubsetDef() != null) {
+                        Dimension s = getSubsetDef().getSceneRasterSize(width, height);
+                        width = s.width;
+                        height = s.height;
+                    }
+
                     if (bandLineReader instanceof BandLineReader.Virtual) {
                         final BandLineReader.Virtual virtual = ((BandLineReader.Virtual) bandLineReader);
-                        band = new VirtualBand(bandName,
-                                bandInfo.getDataType(),
-                                getSceneRasterWidth(),
-                                getSceneRasterHeight(),
+                        band = new VirtualBand(bandName, bandInfo.getDataType(),
+                                width, height,
                                 virtual.getExpression());
                     } else {
                         band = new Band(bandName,
                                 bandInfo.getDataType() < ProductData.TYPE_FLOAT32 ? bandInfo.getDataType() : bandLineReader.getPixelDataField().getDataType(),
-                                getSceneRasterWidth(),
-                                getSceneRasterHeight());
+                                width, height);
                     }
                     band.setScalingOffset(bandInfo.getScalingOffset());
                     if (bandName.startsWith("reflec_")) {

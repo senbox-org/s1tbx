@@ -789,4 +789,33 @@ public class StringUtils {
     public static boolean isIdentifier(String s) {
         return Tokenizer.isExternalName(s);
     }
+
+    /**
+     * Checks if the string is numeric
+     * @param str the String input
+     * @param clazz the type to check against
+     * @return true if numeric false if not
+     */
+    public static boolean isNumeric(String str, Class<? extends Number> clazz)
+    {
+        try {
+            if (clazz.equals(Byte.class)) {
+                Byte.parseByte(str);
+            } else if (clazz.equals(Double.class)) {
+                Double.parseDouble(str);
+            } else if (clazz.equals(Float.class)) {
+                Float.parseFloat(str);
+            } else if (clazz.equals(Integer.class)) {
+                Integer.parseInt(str);
+            } else if (clazz.equals(Long.class)) {
+                Long.parseLong(str);
+            } else if (clazz.equals(Short.class)) {
+                Short.parseShort(str);
+            }
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
+    }
+
 }

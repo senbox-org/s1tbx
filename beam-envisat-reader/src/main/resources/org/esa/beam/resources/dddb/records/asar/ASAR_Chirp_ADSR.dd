@@ -11,5 +11,5 @@ chirp_peak_loc   |Float              |samples| 4| 1|*|Peak location of cross-cor
 chirp_power      |Float              |dB     | 4| 1|*|Chirp power|9|
 elev_corr_factor |Float              |*      | 4| 1|*|Elevation gain correction scaling factor applied to range compressed samples|10|
 spare_1          |Spare              |*      |16| 1|*|Spare|11|
-cal_pulse_info   |@+cal_pulse_info.dd|*      | *|32|*|This structure is repeated 32 times: once for each antenna row|12|
+cal_pulse_info   |@+ASAR_Chirp_ADSR.sd/cal_pulse_info.dd|*      | *|32|*|This structure is repeated 32 times: once for each antenna row|12|
 spare_2          |Spare              |*      |16| 1|*|Spare|13|

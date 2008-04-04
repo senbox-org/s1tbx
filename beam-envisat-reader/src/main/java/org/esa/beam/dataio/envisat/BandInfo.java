@@ -74,6 +74,16 @@ public class BandInfo extends DataItemInfo {
     private FlagCoding _flagCoding;
 
     /**
+     * The width of the band
+     */
+    private int _bandWidth;
+
+    /**
+     * The height of the band
+     */
+    private int _bandHeight;
+
+    /**
      * Constructs a new band information object.
      */
     public BandInfo(String bandName,
@@ -86,7 +96,9 @@ public class BandInfo extends DataItemInfo {
                     String validExpression,
                     FlagCoding flagCoding,
                     String physicalUnit,
-                    String description) {
+                    String description,
+                    int width,
+                    int height) {
         super(bandName, dataType, physicalUnit, description);
         _spectralBandIndex = spectralBandIndex;
         _sampleModel = sampleModel;
@@ -95,6 +107,8 @@ public class BandInfo extends DataItemInfo {
         _scalingFactor = scalingFactor;
         _validExpression = validExpression;
         _flagCoding = flagCoding;
+        _bandWidth = width;
+        _bandHeight = height;
     }
 
     /**
@@ -152,4 +166,17 @@ public class BandInfo extends DataItemInfo {
         return _flagCoding;
     }
 
+    /**
+     * Returns the width of the band.
+     */
+    public int getWidth() {
+        return _bandWidth;
+    }
+
+    /**
+     * Returns the height of the band.
+     */
+    public int getHeight() {
+        return _bandHeight;
+    }
 }

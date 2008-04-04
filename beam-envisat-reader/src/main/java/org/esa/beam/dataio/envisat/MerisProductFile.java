@@ -422,19 +422,22 @@ public class MerisProductFile extends ProductFile {
     }
 
     /**
-     * @param bandName
-     * @param dataType
-     * @param spectralBandIndex
-     * @param sampleModel
-     * @param scalingMethod
-     * @param scalingOffset
-     * @param scalingFactor
-     * @param validExpression
-     * @param flagCoding
-     * @param physicalUnit
-     * @param description
-     *
-     * @return a new instance of {@link BandInfo}
+     * * This method just delegates to
+     * {@link BandInfo#BandInfo(String, int, int, int, int, float, float, String, FlagCoding, String, String, int, int)} to
+     * create a new <code>BandInfo</code>.
+     * @param bandName          the name of the band.
+     * @param dataType          the type of the data.
+     * @param spectralBandIndex the spectral band index.
+     * @param sampleModel       the sample model.
+     * @param scalingMethod     the scaling mehtod.
+     * @param scalingOffset     the scaling offset.
+     * @param scalingFactor     the scaling factor.
+     * @param validExpression   the valid expression.
+     * @param flagCoding        the flag codeing.
+     * @param physicalUnit      the physical unit.
+     * @param description       the description.
+     * @param dataSetName       the name of the dataset
+     * @return a newly created <code>BandInfo</code> object.
      */
     public BandInfo createBandInfo(String bandName,
                                    int dataType,
@@ -446,7 +449,8 @@ public class MerisProductFile extends ProductFile {
                                    String validExpression,
                                    FlagCoding flagCoding,
                                    String physicalUnit,
-                                   String description) {
+                                   String description,
+                                   String dataSetName) {
         if (getIODDVersion() >= IODD_VERSION_7) {
             if (scalingMethod == BandInfo.SCALE_LOG10 &&
                 isOldLinearYellowSubstanceScaling(bandName,
@@ -468,7 +472,8 @@ public class MerisProductFile extends ProductFile {
                                     validExpression,
                                     flagCoding,
                                     physicalUnit,
-                                    description);
+                                    description,
+                                    dataSetName);
     }
 
     /**

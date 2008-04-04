@@ -29,14 +29,14 @@ vga_com_pulse_2_flag   |UChar                   |flag          | 1|1|*|Receive G
 vga_com_pulse_zero_flag|UChar                   |flag          | 1|1|*|Receive Gain Droop Compensation Applied Calibration Pulse P2 Order Zero: Nominal Time Delay Applied. 0 = no compensation applied. 1 = compensation applied.|25|
 inv_filt_comp_flag     |UChar                   |flag          | 1|1|*|Inverse FIlter used for range compression (GM Mode only). 0 = matched filter used for range compression. 1 = inverse filter used for range compression|25|
 spare_2                |Spare                   |*             | 6|1|*|Spare|25|
-raw_data_analysis      |@+raw_data_analysis.dd  |*             | *|2|*|Raw Data Analysis|26|
+raw_data_analysis      |@+ASAR_Main_ADSR.sd/raw_data_analysis.dd  |*             | *|2|*|Raw Data Analysis|26|
 spare_3                |Spare                   |*             |32|1|*|Spare|27|
-start_time             |@+start_time.dd         |*             | *|2|*|Time of first input line|28|
-parameter_codes        |@+parameter_codes.dd    |*             | *|1|*|ASAR parameter configuration codes|29|
+start_time             |@+ASAR_Main_ADSR.sd/start_time.dd         |*             | *|2|*|Time of first input line|28|
+parameter_codes        |@+ASAR_Main_ADSR.sd/parameter_codes.dd    |*             | *|1|*|ASAR parameter configuration codes|29|
 spare_4                |Spare                   |*             |60|1|*|Spare|30|
-error_counters         |@+error_counters.dd     |*             | *|1|*|Error counters|31|
+error_counters         |@+ASAR_Main_ADSR.sd/error_counters.dd     |*             | *|1|*|Error counters|31|
 spare_5                |Spare                   |*             |26|1|*|Spare|32|
-image_parameters       |@+image_parameters.dd   |*             | *|1|*|Image Data Set parameters|33|
+image_parameters       |@+ASAR_Main_ADSR.sd/image_parameters.dd   |*             | *|1|*|Image Data Set parameters|33|
 spare_6                |Spare                   |*             |82|1|*|Spare|34|
 first_proc_range_samp  |ULong                   |samples       | 4|1|*|First processed input range sample, first sample is 1|35|
 range_ref              |Float                   |m             | 4|1|*|Range spreading loss reference range|36|
@@ -45,8 +45,8 @@ radar_freq             |Float                   |Hz            | 4|1|*|Radar Fre
 num_looks_range        |UShort                  |looks         | 2|1|*|Number of range looks|39|
 filter_window          |String                  |ascii         | 7|1|*|Matched filter window type:HAMMING or KAISER&Oslash; or NONE&Oslash;&Oslash;&Oslash;|40|
 window_coef_range      |Float                   |*             | 4|1|*|Window coefficient for range-matched filter|41|
-bandwidth              |@+bandwidth.dd          |*             | *|1|*|Bandwidth|42|
-nominal_chirp          |@+nominal_chirp.dd      |*             |* |5|*|Nominal Chirp|43|
+bandwidth              |@+ASAR_Main_ADSR.sd/bandwidth.dd          |*             | *|1|*|Bandwidth|42|
+nominal_chirp          |@+ASAR_Main_ADSR.sd/nominal_chirp.dd      |*             |* |5|*|Nominal Chirp|43|
 spare_7                |Spare                   |*             |60|1|*|Spare|44|
 num_lines_proc         |ULong                   |lines         | 4|1|*|Number of input lines processed|45|
 num_look_az            |UShort                  |looks         | 2|1|*|Number of Azimuth Looks|46|
@@ -58,11 +58,11 @@ az_fm_rate             |Float                   |Hz/sHz/s2Hz/s3| 4|3|*|3 co-effi
 ax_fm_origin           |Float                   |ns            | 4|1|*|2 way slant range time origin (t0) for Azimuth FM rate calculation|52|
 dop_amb_conf           |Float                   |*             | 4|1|*|Doppler Centroid Ambiguity Confidence Measure. Value between 0 and 1, 0 = poorest confidence, 1= highest confidence|53|
 spare_8                |Spare                   |*             |68|1|*|Spare|54|
-calibration_factors    |@+calibration_factors.dd|*             | *|2|*|Calibration factors|55|
-noise_estimation       |@+noise_estimation.dd   |*             | *|1|*|Noise Estimation|56|
+calibration_factors    |@+ASAR_Main_ADSR.sd/calibration_factors.dd|*             | *|2|*|Calibration factors|55|
+noise_estimation       |@+ASAR_Main_ADSR.sd/noise_estimation.dd   |*             | *|1|*|Noise Estimation|56|
 spare_9                |Spare                   |*             |64|1|*|Spare|57|
 spare_10               |Spare                   |*             |12|1|*|Spare|58|
-output_statistics      |@+output_statistics.dd  |*             | *|2|*|Output Data Statistics|59|
+output_statistics      |@+ASAR_Main_ADSR.sd/output_statistics.dd  |*             | *|2|*|Output Data Statistics|59|
 spare_11               |Spare                   |*             |52|1|*|Spare|60|
 echo_comp              |String                  |ascii         | 4|1|*|Compression Method used for echo samples. FBAQ, S&amp;M&Oslash;, NONE|61|
 echo_comp_ratio        |String                  |ascii         | 3|1|*|Compression Ratio for echo samples. 8/4, 8/3, 8/2, or 8/8|62|
@@ -77,5 +77,5 @@ beam_merge_sl_range    |ULong                   |*             | 4|4|*|Number of
 beam_merge_alg_param   |Float                   |*             | 4|4|*|Beam merge algorithm parameter used for beam merging, one value per merge region (1-2, 2-3, 3-4. 4-5)|70|
 lines_per_burst        |ULong                   |lines         | 4|5|*|Number of lines per burst for this image. 5 values for beams SS1 to SS5 in WS and GM modes. Two values for AP mode, all others set to zero.|71|
 spare_13               |Spare                   |*             |28|1|*|Spare|72|
-orbit_state_vectors    |@+orbit_state_vectors.dd|*             | *|5|*|Orbit State Vectors|73|
+orbit_state_vectors    |@+ASAR_Main_ADSR.sd/orbit_state_vectors.dd|*             | *|5|*|Orbit State Vectors|73|
 spare_14               |Spare                   |*             |64|1|*|Spare|74|

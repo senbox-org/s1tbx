@@ -275,6 +275,7 @@ public abstract class ProductFile {
      * @return the file's product type or <code>null</code> if the product type could not be retrieved.
      */
     public static String getProductType(ImageInputStream dataInputStream) {
+
         String productType = null;
 
         try {
@@ -623,6 +624,7 @@ public abstract class ProductFile {
      *                             if a database I/O error occurs
      */
     public RecordReader getRecordReader(String datasetName) throws IOException, DDDBException {
+
         // See if we have the record reader in the cache
         String datasetNameUC = datasetName.toUpperCase();
         RecordReader recordReader = recordReaderCache.get(datasetNameUC);
@@ -821,7 +823,7 @@ public abstract class ProductFile {
 
     /**
      * This method just delegates to
-     * {@link BandInfo#BandInfo(String, int, int, int, int, float, float, String, FlagCoding, String, String)} to
+     * {@link BandInfo#BandInfo(String, int, int, int, int, float, float, String, FlagCoding, String, String, int, int)} to
      * create a new <code>BandInfo</code>.
      *
      * @param bandName          the name of the band.
@@ -835,6 +837,7 @@ public abstract class ProductFile {
      * @param flagCoding        the flag codeing.
      * @param physicalUnit      the physical unit.
      * @param description       the description.
+     * @param dataSetName       the name of the dataset
      * @return a newly created <code>BandInfo</code> object.
      */
     public BandInfo createBandInfo(String bandName,
@@ -847,18 +850,21 @@ public abstract class ProductFile {
                                    String validExpression,
                                    FlagCoding flagCoding,
                                    String physicalUnit,
-                                   String description) {
+                                   String description,
+                                   String dataSetName) {
         return new BandInfo(bandName,
-                dataType,
-                spectralBandIndex,
-                sampleModel,
-                scalingMethod,
-                scalingOffset,
-                scalingFactor,
-                validExpression,
-                flagCoding,
-                physicalUnit,
-                description);
+                            dataType,
+                            spectralBandIndex,
+                            sampleModel,
+                            scalingMethod,
+                            scalingOffset,
+                            scalingFactor,
+                            validExpression,
+                            flagCoding,
+                            physicalUnit,
+                            description,
+                            getSceneRasterWidth(),
+                            getSceneRasterHeight());
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -1025,13 +1031,13 @@ public abstract class ProductFile {
                 Header dsd = HeaderParser.getInstance().parseHeader("DSD(" + (i + 1) + ")", dsdBytes);
                 if (dsd.hasParam("DS_NAME")) {
                     dsdArray[i] = new DSD(i,
-                            dsd.getParamString("DS_NAME").trim(),
-                            dsd.getParamString("DS_TYPE").charAt(0),
-                            dsd.getParamString("FILENAME").trim(),
-                            dsd.getParamUInt("DS_OFFSET"),
-                            dsd.getParamUInt("DS_SIZE"),
-                            dsd.getParamInt("NUM_DSR"),
-                            dsd.getParamInt("DSR_SIZE"));
+                                          dsd.getParamString("DS_NAME").trim(),
+                                          dsd.getParamString("DS_TYPE").charAt(0),
+                                          dsd.getParamString("FILENAME").trim(),
+                                          dsd.getParamUInt("DS_OFFSET"),
+                                          dsd.getParamUInt("DS_SIZE"),
+                                          dsd.getParamInt("NUM_DSR"),
+                                          dsd.getParamInt("DSR_SIZE"));
                     Debug.trace("ProductFile: " + dsdArray[i]);
                     dsdCountValid++;
                 } else {

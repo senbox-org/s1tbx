@@ -35,11 +35,11 @@ origin_easting|Float|m|4|1|*|Map origin, false easting|32|
 origin_northing|Float|m|4|1|*|Map origin, false northing|33|
 center_long|SLong|(1e-6) degrees|4|1|*|Projection centre longitude, deg|34|
 center_lat|SLong|(1e-6) degrees|4|1|*|Projection centre latitude, deg|35|
-standard_parallel_parameters|@+standard_parallel_parameters.dd|*|*|1|*|Standard Parallel parameters|36|
-central_meridian_parameters|@+central_meridian_parameters.dd|*|*|1|*|Central meridian parameters|37|
-projection_parameters|@+projection_parameters.dd|*|*|1|*|Projection dependent parameters|38|
-position_northings_eastings|@+position_northings_eastings.dd|*|*|1|*|Positioning Information in Northings and Eastings|39|
-position_lat_long|@+position_lat_long.dd|*|*|1|*|Positioning Information in Latitude Longitude|40|
+standard_parallel_parameters|@+ASAR_Map_GADS.sd/standard_parallel_parameters.dd|*|*|1|*|Standard Parallel parameters|36|
+central_meridian_parameters|@+ASAR_Map_GADS.sd/central_meridian_parameters.dd|*|*|1|*|Central meridian parameters|37|
+projection_parameters|@+ASAR_Map_GADS.sd/projection_parameters.dd|*|*|1|*|Projection dependent parameters|38|
+position_northings_eastings|@+ASAR_Map_GADS.sd/position_northings_eastings.dd|*|*|1|*|Positioning Information in Northings and Eastings|39|
+position_lat_long|@+ASAR_Map_GADS.sd/position_lat_long.dd|*|*|1|*|Positioning Information in Latitude Longitude|40|
 spare_7|Spare|*|32|1|*|Spare|41|
 image_to_map_coefs|Float|*|4|8|*|8 coefficients to convert a line(L) and sample (S) position to the map projection frame of reference, say (E,N)E = A11 + A12*L + A13 *S + A14 *L*SN = A21 + A22*L + A23 *S + A24 *L*S|42|
 map_to_image_coefs|Float|*|4|8|*|8 coefficients to convert from the map projection (E,N) to line (L) and sample(S) position in the imageL = B11 + B12*E + B13 *N + B14 *E*NS = B21 + B22*E + B23 *N + B24 *E*N|43|

@@ -262,7 +262,7 @@ public class DDDB {
                     String token;
                     for (int columnIndex = 0; columnIndex < tokens.length; columnIndex++) {
 
-                        token = tokens[columnIndex];
+                        token = tokens[columnIndex];                        
                         switch (columnIndex) {
                         case 0:
                             fieldName = token;
@@ -304,8 +304,11 @@ public class DDDB {
                     if (fieldName != null) {
                         if (subExpressionDetected) {
                             // encountered subdataset defining a data structure to be loaded
-                            String subDatasetPath = recordInfoFilePath.substring(0, recordInfoFilePath.length() - 2);
-                            subDatasetPath += "sd/" + dataTypeStr.substring(2, dataTypeStr.length());
+                            //String subDatasetPath = recordInfoFilePath.substring(0, recordInfoFilePath.length() - 2);
+                            //subDatasetPath += "sd/" + dataTypeStr.substring(2, dataTypeStr.length());
+
+                            String subDatasetPath = recordInfoFilePath.substring(0, recordInfoFilePath.lastIndexOf('/'));
+                            subDatasetPath += '/' + dataTypeStr.substring(2, dataTypeStr.length());
 
                             RecordInfo subRecord;
                             String prefix;
@@ -434,13 +437,15 @@ public class DDDB {
                     RecordReader pixelDataReader = null;
                     int pixelDataFieldIndex = -1;
                     String expression = null;
+                    String dataSetName = null;
 
                     if (pixelDataRefStr.startsWith(EXPRESSION_PREFIX)) {
                         expression = pixelDataRefStr.substring(1).trim();
                     } else {
                         final FieldRef fieldRef = FieldRef.parse(pixelDataRefStr);
+                        dataSetName = fieldRef.getDatasetName();
                         try {
-                            pixelDataReader = productFile.getRecordReader(fieldRef.getDatasetName());
+                            pixelDataReader = productFile.getRecordReader(dataSetName);
                             pixelDataFieldIndex = fieldRef.getFieldIndex();
                         } catch (IOException e) {
                             Debug.trace("DDDB: " + e.getMessage());
@@ -489,7 +494,8 @@ public class DDDB {
                                                                          bitmaskExpression,
                                                                          flagsCoding,
                                                                          unit,
-                                                                         description);
+                                                                         description,
+                                                                         dataSetName);
 
                     final BandLineReader bandLineReader;
                     if (pixelDataReader != null) {
@@ -953,6 +959,17 @@ public class DDDB {
         }
 
         return url;
+    }
+
+    /**
+     * Check if a resource exists
+     * @param resourcePath path to resource
+     * @return true if found
+     */
+    static boolean databaseResourceExists(String resourcePath) {
+        String databasePath = DB_DIR_PATH + "/" + resourcePath;
+
+        return DDDB.class.getResource(databasePath) != null;
     }
 
     private boolean isValidDataLine(String[] tokens) {
