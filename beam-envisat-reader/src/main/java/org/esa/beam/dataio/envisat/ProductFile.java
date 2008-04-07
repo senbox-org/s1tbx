@@ -242,7 +242,6 @@ public abstract class ProductFile {
      * @return the file's product type or <code>null</code> if the product type could not be retrieved.
      */
     public static String getProductType(File file) {
-
         ImageInputStream dataInputStream = null;
         String productType = null;
 
@@ -275,7 +274,6 @@ public abstract class ProductFile {
      * @return the file's product type or <code>null</code> if the product type could not be retrieved.
      */
     public static String getProductType(ImageInputStream dataInputStream) {
-
         String productType = null;
 
         try {
@@ -792,6 +790,8 @@ public abstract class ProductFile {
     double getMissingMDSRPixelValue() {
         return 0;
     }
+
+    abstract void setInvalidPixelExpression(Band band);
 
     protected DSD[] getDsds() {
         return dsdArray;

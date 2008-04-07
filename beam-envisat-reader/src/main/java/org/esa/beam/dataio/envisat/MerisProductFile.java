@@ -17,13 +17,14 @@
 package org.esa.beam.dataio.envisat;
 
 import org.esa.beam.framework.dataio.ProductIOException;
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.Debug;
 
 import javax.imageio.stream.ImageInputStream;
-import java.awt.Color;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -182,7 +183,6 @@ public class MerisProductFile extends ProductFile {
      *
      * @param file            the abstract file path representation.
      * @param dataInputStream the seekable data input stream which will be used to read data from the product file.
-     *
      * @throws java.io.IOException if an I/O error occurs
      */
     protected MerisProductFile(File file, ImageInputStream dataInputStream) throws IOException {
@@ -301,7 +301,6 @@ public class MerisProductFile extends ProductFile {
      * <p> The default implementation is empty.
      *
      * @param parameters product specific parameters (possibly referenced within in the DDDB
-     *
      * @throws java.io.IOException if a header format error was detected or if an I/O error occurs
      */
     protected void postProcessMPH(Map parameters) throws IOException {
@@ -384,18 +383,18 @@ public class MerisProductFile extends ProductFile {
     static String getDddbProductTypeReplacement(final String productType, final int ioddVersion) {
         if (ioddVersion == IODD_VERSION_5) {
             if (productType.startsWith(RR__1_PREFIX)
-                || productType.startsWith(FR__1_PREFIX)) {
+                    || productType.startsWith(FR__1_PREFIX)) {
                 return productType + IODD5_SUFFIX;
             }
             // level 2 of IODD 5 is compliant with level 2 of IODD 6
             if (productType.startsWith(RR__2_PREFIX)
-                || productType.startsWith(FR__2_PREFIX)) {
+                    || productType.startsWith(FR__2_PREFIX)) {
                 return productType + IODD6_SUFFIX;
             }
         } else if (ioddVersion == IODD_VERSION_6) {
             // level 1 of IODD 7 is compliant with level 1 of IODD 6, so no action needed here
             if (productType.startsWith(RR__2_PREFIX)
-                || productType.startsWith(FR__2_PREFIX)) {
+                    || productType.startsWith(FR__2_PREFIX)) {
                 return productType + IODD6_SUFFIX;
             }
             // FR full swath are compliant with "nominal" FR
@@ -425,6 +424,7 @@ public class MerisProductFile extends ProductFile {
      * * This method just delegates to
      * {@link BandInfo#BandInfo(String, int, int, int, int, float, float, String, FlagCoding, String, String, int, int)} to
      * create a new <code>BandInfo</code>.
+     *
      * @param bandName          the name of the band.
      * @param dataType          the type of the data.
      * @param spectralBandIndex the spectral band index.
@@ -453,27 +453,27 @@ public class MerisProductFile extends ProductFile {
                                    String dataSetName) {
         if (getIODDVersion() >= IODD_VERSION_7) {
             if (scalingMethod == BandInfo.SCALE_LOG10 &&
-                isOldLinearYellowSubstanceScaling(bandName,
-                                                  scalingOffset,
-                                                  scalingFactor)) {
+                    isOldLinearYellowSubstanceScaling(bandName,
+                            scalingOffset,
+                            scalingFactor)) {
                 getLogger().info("Out-of-date MERIS L2 format detected: band '" +
-                                 EnvisatConstants.MERIS_L2_YELLOW_SUBST_BAND_NAME +
-                                 "': changing scaling from LOG to LINEAR");
+                        EnvisatConstants.MERIS_L2_YELLOW_SUBST_BAND_NAME +
+                        "': changing scaling from LOG to LINEAR");
                 scalingMethod = BandInfo.SCALE_LINEAR;
             }
         }
         return super.createBandInfo(bandName,
-                                    dataType,
-                                    spectralBandIndex,
-                                    sampleModel,
-                                    scalingMethod,
-                                    scalingOffset,
-                                    scalingFactor,
-                                    validExpression,
-                                    flagCoding,
-                                    physicalUnit,
-                                    description,
-                                    dataSetName);
+                dataType,
+                spectralBandIndex,
+                sampleModel,
+                scalingMethod,
+                scalingOffset,
+                scalingFactor,
+                validExpression,
+                flagCoding,
+                physicalUnit,
+                description,
+                dataSetName);
     }
 
     /**
@@ -485,7 +485,7 @@ public class MerisProductFile extends ProductFile {
         final DSD flagsDSD = getDSD("Flags");
         if (flagsDSD != null) {
             if (getProductType().startsWith(RR__1_PREFIX)
-                && flagsDSD.getRecordSize() < 3376) {
+                    && flagsDSD.getRecordSize() < 3376) {
                 _ioddVersion = IODD_VERSION_5;
             }
             if (getProductType().startsWith(FR__1_PREFIX)) {
@@ -493,7 +493,7 @@ public class MerisProductFile extends ProductFile {
                 final String sphDescriptor = sphDescParam.getAsString();
                 final boolean isImagette = sphDescriptor.startsWith("MER_FR_IM");
                 if ((isImagette && flagsDSD.getRecordSize() < 3472)
-                    || (!isImagette && flagsDSD.getRecordSize() < 6736)) {
+                        || (!isImagette && flagsDSD.getRecordSize() < 6736)) {
                     _ioddVersion = IODD_VERSION_5;
                 }
             }
@@ -522,11 +522,20 @@ public class MerisProductFile extends ProductFile {
         }
     }
 
+    void setInvalidPixelExpression(Band band) {
+        if (band.getName().startsWith("reflec_")) {
+            band.setNoDataValueUsed(true);
+            band.setNoDataValue(0);
+        } else {
+            band.setNoDataValueUsed(false);
+            band.setNoDataValue(0);
+        }
+    }
+
     /**
      * Returns the names of all default bitmasks to be used for the band with the given name.
      *
      * @param bandName the band's name
-     *
      * @return the array of bitmask names or null if no bitmasks are applicable
      */
     public String[] getDefaultBitmaskNames(String bandName) {
@@ -548,8 +557,8 @@ public class MerisProductFile extends ProductFile {
                     BITMASKDEF_NAME_INVALID_ALGAL_1
             };
         } else if (bandName.equals("algal_2") ||
-                   bandName.equals("yellow_subs") ||
-                   bandName.equals("total_susp")) {
+                bandName.equals("yellow_subs") ||
+                bandName.equals("total_susp")) {
             return new String[]{
                     BITMASKDEF_NAME_LAND,
                     BITMASKDEF_NAME_CLOUD,
@@ -578,7 +587,7 @@ public class MerisProductFile extends ProductFile {
                     BITMASKDEF_NAME_INVALID_BOA_VEG
             };
         } else if (bandName.equals("rect_refl_nir") ||
-                   bandName.equals("rect_refl_red")) {
+                bandName.equals("rect_refl_red")) {
             return new String[]{
                     BITMASKDEF_NAME_WATER,
                     BITMASKDEF_NAME_CLOUD,
@@ -593,8 +602,8 @@ public class MerisProductFile extends ProductFile {
                     BITMASKDEF_NAME_INVALID_SURF_PRESS
             };
         } else if (bandName.equals("aero_alpha") ||
-                   bandName.equals("aero_epsilon") ||
-                   bandName.startsWith("aero_opt_thick")) {
+                bandName.equals("aero_epsilon") ||
+                bandName.startsWith("aero_opt_thick")) {
             return new String[]{
                     BITMASKDEF_NAME_CLOUD,
                     BITMASKDEF_NAME_COASTLINE,
@@ -608,7 +617,7 @@ public class MerisProductFile extends ProductFile {
                     BITMASKDEF_NAME_INVALID_CLOUD_ALBEDO
             };
         } else if (bandName.equals("cloud_opt_thick") ||
-                   bandName.equals("cloud_type")) {
+                bandName.equals("cloud_type")) {
             return new String[]{
                     BITMASKDEF_NAME_LAND,
                     BITMASKDEF_NAME_WATER,
@@ -635,7 +644,6 @@ public class MerisProductFile extends ProductFile {
      * Returns a new default set of bitmask definitions for this product file.
      *
      * @param flagDsName the name of the flag dataset
-     *
      * @return a new default set, an empty array if no default set is given for thios product type, never
      *         <code>null</code>.
      */
@@ -645,7 +653,7 @@ public class MerisProductFile extends ProductFile {
                     new BitmaskDef(BITMASKDEF_NAME_COASTLINE, null, "l1_flags.COASTLINE", Color.green, 0F),
                     new BitmaskDef(BITMASKDEF_NAME_LAND, null, "l1_flags.LAND_OCEAN", new Color(51, 153, 0), 0.75F),
                     new BitmaskDef(BITMASKDEF_NAME_WATER, null, "NOT l1_flags.LAND_OCEAN", new Color(153, 153, 255),
-                                   0.75F),
+                            0.75F),
                     new BitmaskDef(BITMASKDEF_NAME_COSMETIC, null, "l1_flags.COSMETIC", new Color(204, 153, 255), 0.5F),
                     new BitmaskDef(BITMASKDEF_NAME_DUPLICATED, null, "l1_flags.DUPLICATED", Color.orange, 0.5F),
                     new BitmaskDef(BITMASKDEF_NAME_GLINT_RISK, null, "l1_flags.GLINT_RISK", Color.magenta, 0.5F),
@@ -664,83 +672,83 @@ public class MerisProductFile extends ProductFile {
 
                         // Combined quality flags in red
                         new BitmaskDef(BITMASKDEF_NAME_INVALID_REFLECTANCES, "pixels flagged for invalid reflectances",
-                                       "l2_flags.PCD_1_13 AND (l2_flags.LAND OR l2_flags.WATER OR l2_flags.CLOUD)",
-                                       Color.black, 0F),
+                                "l2_flags.PCD_1_13 AND (l2_flags.LAND OR l2_flags.WATER OR l2_flags.CLOUD)",
+                                Color.black, 0F),
                         new BitmaskDef(BITMASKDEF_NAME_INVALID_WATER_VAPOUR, "pixels flagged for invalid water vapour",
-                                       "l2_flags.PCD_14 AND (l2_flags.LAND OR l2_flags.WATER OR l2_flags.CLOUD)",
-                                       Color.black, 0F),
+                                "l2_flags.PCD_14 AND (l2_flags.LAND OR l2_flags.WATER OR l2_flags.CLOUD)",
+                                Color.black, 0F),
                         new BitmaskDef(BITMASKDEF_NAME_INVALID_ALGAL_1, "water pixels flagged for invalid algal1",
-                                       "l2_flags.WATER AND l2_flags.PCD_15", Color.black, 0F),
+                                "l2_flags.WATER AND l2_flags.PCD_15", Color.black, 0F),
                         new BitmaskDef(BITMASKDEF_NAME_INVALID_ALGAL2_TSM_YS,
-                                       "water pixels flagged for invalid algal2 and yellow_subs and total_susp",
-                                       "l2_flags.WATER AND (l2_flags.PCD_16 OR l2_flags.PCD_17)", Color.black, 0F),
+                                "water pixels flagged for invalid algal2 and yellow_subs and total_susp",
+                                "l2_flags.WATER AND (l2_flags.PCD_16 OR l2_flags.PCD_17)", Color.black, 0F),
                         new BitmaskDef(BITMASKDEF_NAME_INVALID_PHOTOSYN_RAD, "water pixels flagged for invalid PAR",
-                                       "l2_flags.WATER AND l2_flags.PCD_18", Color.black, 0F),
+                                "l2_flags.WATER AND l2_flags.PCD_18", Color.black, 0F),
                         new BitmaskDef(BITMASKDEF_NAME_INVALID_TOA_VEG, "land pixels flagged for invalid toa_veg",
-                                       "l2_flags.LAND AND l2_flags.PCD_15", Color.black, 0F),
+                                "l2_flags.LAND AND l2_flags.PCD_15", Color.black, 0F),
                         new BitmaskDef(BITMASKDEF_NAME_INVALID_BOA_VEG, "land pixels flagged for invalid boa_veg",
-                                       "l2_flags.LAND AND l2_flags.PCD_17", Color.black, 0F),
+                                "l2_flags.LAND AND l2_flags.PCD_17", Color.black, 0F),
                         new BitmaskDef(BITMASKDEF_NAME_INVALID_RECT_REFL,
-                                       "land pixels flagged for invalid rectified reflectances",
-                                       "l2_flags.LAND AND l2_flags.PCD_16", Color.black, 0F),
+                                "land pixels flagged for invalid rectified reflectances",
+                                "l2_flags.LAND AND l2_flags.PCD_16", Color.black, 0F),
                         new BitmaskDef(BITMASKDEF_NAME_INVALID_SURF_PRESS, "land pixels flagged for invalid surf_press",
-                                       "l2_flags.LAND AND l2_flags.PCD_18", Color.black, 0F),
+                                "l2_flags.LAND AND l2_flags.PCD_18", Color.black, 0F),
                         new BitmaskDef(BITMASKDEF_NAME_INVALID_AERO_PRODUCTS,
-                                       "water pixels flagged for invalid aero_epsilon and aero_opt_thick_(i)",
-                                       "l2_flags.PCD_19 AND (l2_flags.LAND OR l2_flags.WATER)", Color.black, 0F),
+                                "water pixels flagged for invalid aero_epsilon and aero_opt_thick_(i)",
+                                "l2_flags.PCD_19 AND (l2_flags.LAND OR l2_flags.WATER)", Color.black, 0F),
                         new BitmaskDef(BITMASKDEF_NAME_INVALID_CLOUD_ALBEDO,
-                                       "cloud pixels flagged for invalid cloud_albedo",
-                                       "l2_flags.CLOUD AND l2_flags.PCD_18", Color.black, 0F),
+                                "cloud pixels flagged for invalid cloud_albedo",
+                                "l2_flags.CLOUD AND l2_flags.PCD_18", Color.black, 0F),
                         new BitmaskDef(BITMASKDEF_NAME_INVALID_CLOUD_OPT_THICK_AND_TYPE,
-                                       "cloud pixels flagged for invalid cloud_opt_thick and cloud_type",
-                                       "l2_flags.CLOUD AND l2_flags.PCD_19", Color.black, 0F),
+                                "cloud pixels flagged for invalid cloud_opt_thick and cloud_type",
+                                "l2_flags.CLOUD AND l2_flags.PCD_19", Color.black, 0F),
                         new BitmaskDef(BITMASKDEF_NAME_INVALID_CLOUD_TOP_PRESS,
-                                       "cloud pixels flagged for invalid cloud_top_press",
-                                       "l2_flags.CLOUD AND l2_flags.PCD_15", Color.black, 0F),
+                                "cloud pixels flagged for invalid cloud_top_press",
+                                "l2_flags.CLOUD AND l2_flags.PCD_15", Color.black, 0F),
 
                         // the conditions that limitate algorithms in pink
                         new BitmaskDef(BITMASKDEF_NAME_HIGH_GLINT, null, "l2_flags.HIGH_GLINT", new Color(204, 0, 204),
-                                       0.5F),
+                                0.5F),
                         new BitmaskDef(BITMASKDEF_NAME_MEDIUM_GLINT, null, "l2_flags.MEDIUM_GLINT",
-                                       new Color(255, 51, 255), 0.5F),
+                                new Color(255, 51, 255), 0.5F),
                         new BitmaskDef(BITMASKDEF_NAME_ICE_HAZE, null, "l2_flags.ICE_HAZE", Color.yellow, 0.5F),
 
                         // the flags for atmospheric correction in blue
                         new BitmaskDef(BITMASKDEF_NAME_ABSOA_CONT, null, "l2_flags.ABSOA_CONT", new Color(0, 102, 255),
-                                       0.5F),
+                                0.5F),
                         new BitmaskDef(BITMASKDEF_NAME_ABSOA_DUST, null, "l2_flags.ABSOA_DUST", new Color(0, 204, 255),
-                                       0.5F),
+                                0.5F),
 
                         // Case2 water flags in ochre
                         new BitmaskDef(BITMASKDEF_NAME_CASE2_S, null, "l2_flags.CASE2_S", new Color(255, 255, 153),
-                                       0.5F),
+                                0.5F),
                         new BitmaskDef(BITMASKDEF_NAME_CASE2_ANOM, null, "l2_flags.CASE2_ANOM", new Color(153, 153, 0),
-                                       0.5F),
+                                0.5F),
                         new BitmaskDef(BITMASKDEF_NAME_CASE2_Y, null, "l2_flags.CASE2_Y", new Color(204, 204, 0), 0.5F),
 
                         // Land product flags
                         new BitmaskDef(BITMASKDEF_NAME_DARK_VEGETATION, null, "l2_flags.DDV", new Color(0, 204, 0),
-                                       0.5F),
+                                0.5F),
                         new BitmaskDef(BITMASKDEF_NAME_TOAVI_BRIGHT, null, "l2_flags.TOAVI_BRIGHT",
-                                       new Color(255, 204, 204), 0.5F),
+                                new Color(255, 204, 204), 0.5F),
                         new BitmaskDef(BITMASKDEF_NAME_TOAVI_BAD, null, "l2_flags.TOAVI_BAD", new Color(255, 153, 102),
-                                       0.5F),
+                                0.5F),
                         new BitmaskDef(BITMASKDEF_NAME_TOAVI_CSI, null, "l2_flags.TOAVI_CSI", new Color(255, 153, 0),
-                                       0.5F),
+                                0.5F),
                         new BitmaskDef(BITMASKDEF_NAME_TOAVI_WS, null, "l2_flags.TOAVI_WS", new Color(204, 102, 0),
-                                       0.5F),
+                                0.5F),
                         new BitmaskDef(BITMASKDEF_NAME_TOAVI_INVAL_REC, null, "l2_flags.TOAVI_INVAL_REC",
-                                       new Color(153, 51, 0), 0.5F),
+                                new Color(153, 51, 0), 0.5F),
                         new BitmaskDef(BITMASKDEF_NAME_P_CONFIDENCE, null, "l2_flags.P_CONFIDENCE",
-                                       new Color(255, 204, 255), 0.5F),
+                                new Color(255, 204, 255), 0.5F),
                         new BitmaskDef(BITMASKDEF_NAME_LOW_PRESSURE, null, "l2_flags.LOW_PRESSURE",
-                                       new Color(204, 204, 255), 0.5F),
+                                new Color(204, 204, 255), 0.5F),
 
                         // L1b copied flags in magenta
                         new BitmaskDef(BITMASKDEF_NAME_COSMETIC, null, "l2_flags.COSMETIC", new Color(204, 153, 255),
-                                       0.5F),
+                                0.5F),
                         new BitmaskDef(BITMASKDEF_NAME_SUSPECT, null, "l2_flags.SUSPECT", new Color(204, 102, 255),
-                                       0.5F),
+                                0.5F),
 
                         // Product Confidence Flags
                         new BitmaskDef(BITMASKDEF_NAME_PCD_1_13, null, "l2_flags.PCD_1_13", Color.red, 0F),
@@ -761,104 +769,104 @@ public class MerisProductFile extends ProductFile {
 
                         // Combined quality flags in red
                         new BitmaskDef(BITMASKDEF_NAME_INVALID_REFLECTANCES,
-                                       "Pixels flagged for invalid reflectances",
-                                       "l2_flags.PCD_1_13 AND (l2_flags.LAND OR l2_flags.WATER OR l2_flags.CLOUD)",
-                                       Color.black, 0F),
+                                "Pixels flagged for invalid reflectances",
+                                "l2_flags.PCD_1_13 AND (l2_flags.LAND OR l2_flags.WATER OR l2_flags.CLOUD)",
+                                Color.black, 0F),
                         new BitmaskDef(BITMASKDEF_NAME_INVALID_WATER_VAPOUR,
-                                       "Pixels flagged for invalid water vapour",
-                                       "l2_flags.PCD_14 AND (l2_flags.LAND OR l2_flags.WATER OR l2_flags.CLOUD)",
-                                       Color.black, 0F),
+                                "Pixels flagged for invalid water vapour",
+                                "l2_flags.PCD_14 AND (l2_flags.LAND OR l2_flags.WATER OR l2_flags.CLOUD)",
+                                Color.black, 0F),
                         new BitmaskDef(BITMASKDEF_NAME_INVALID_ALGAL_1,
-                                       "Water pixels flagged for invalid algal1",
-                                       "l2_flags.WATER AND l2_flags.PCD_15",
-                                       Color.black, 0F),
+                                "Water pixels flagged for invalid algal1",
+                                "l2_flags.WATER AND l2_flags.PCD_15",
+                                Color.black, 0F),
                         new BitmaskDef(BITMASKDEF_NAME_INVALID_ALGAL2_TSM_YS,
-                                       "Water pixels flagged for invalid algal2 and yellow_subs and total_susp",
-                                       "l2_flags.WATER AND (l2_flags.PCD_16 OR l2_flags.PCD_17)", Color.black, 0F),
+                                "Water pixels flagged for invalid algal2 and yellow_subs and total_susp",
+                                "l2_flags.WATER AND (l2_flags.PCD_16 OR l2_flags.PCD_17)", Color.black, 0F),
                         new BitmaskDef(BITMASKDEF_NAME_INVALID_PHOTOSYN_RAD,
-                                       "Water pixels flagged for invalid PAR",
-                                       "l2_flags.WATER AND l2_flags.PCD_18",
-                                       Color.black, 0F),
+                                "Water pixels flagged for invalid PAR",
+                                "l2_flags.WATER AND l2_flags.PCD_18",
+                                Color.black, 0F),
                         new BitmaskDef(BITMASKDEF_NAME_INVALID_TOA_VEG,
-                                       "Land pixels flagged for invalid toa_veg",
-                                       "l2_flags.LAND AND l2_flags.PCD_15",
-                                       Color.black, 0F),
+                                "Land pixels flagged for invalid toa_veg",
+                                "l2_flags.LAND AND l2_flags.PCD_15",
+                                Color.black, 0F),
                         new BitmaskDef(BITMASKDEF_NAME_INVALID_BOA_VEG,
-                                       "Land pixels flagged for invalid boa_veg",
-                                       "l2_flags.LAND AND l2_flags.PCD_17",
-                                       Color.black, 0F),
+                                "Land pixels flagged for invalid boa_veg",
+                                "l2_flags.LAND AND l2_flags.PCD_17",
+                                Color.black, 0F),
                         new BitmaskDef(BITMASKDEF_NAME_INVALID_RECT_REFL,
-                                       "Land pixels flagged for invalid rectified reflectances",
-                                       "l2_flags.LAND AND l2_flags.PCD_16",
-                                       Color.black, 0F),
+                                "Land pixels flagged for invalid rectified reflectances",
+                                "l2_flags.LAND AND l2_flags.PCD_16",
+                                Color.black, 0F),
                         new BitmaskDef(BITMASKDEF_NAME_INVALID_SURF_PRESS,
-                                       "Land pixels flagged for invalid surf_press",
-                                       "l2_flags.LAND AND l2_flags.PCD_18",
-                                       Color.black, 0F),
+                                "Land pixels flagged for invalid surf_press",
+                                "l2_flags.LAND AND l2_flags.PCD_18",
+                                Color.black, 0F),
                         new BitmaskDef(BITMASKDEF_NAME_INVALID_AERO_PRODUCTS,
-                                       "Land and water pixels flagged for invalid aero_alpha and aero_opt_thick_(i)",
-                                       "l2_flags.PCD_19 AND (l2_flags.LAND OR l2_flags.WATER)",
-                                       Color.black, 0F),
+                                "Land and water pixels flagged for invalid aero_alpha and aero_opt_thick_(i)",
+                                "l2_flags.PCD_19 AND (l2_flags.LAND OR l2_flags.WATER)",
+                                Color.black, 0F),
                         new BitmaskDef(BITMASKDEF_NAME_INVALID_CLOUD_ALBEDO,
-                                       "Cloud pixels flagged for invalid cloud_albedo",
-                                       "l2_flags.CLOUD AND l2_flags.PCD_18",
-                                       Color.black, 0F),
+                                "Cloud pixels flagged for invalid cloud_albedo",
+                                "l2_flags.CLOUD AND l2_flags.PCD_18",
+                                Color.black, 0F),
                         new BitmaskDef(BITMASKDEF_NAME_INVALID_CLOUD_OPT_THICK_AND_TYPE,
-                                       "Cloud pixels flagged for invalid cloud_opt_thick and cloud_type",
-                                       "l2_flags.CLOUD AND l2_flags.PCD_19",
-                                       Color.black, 0F),
+                                "Cloud pixels flagged for invalid cloud_opt_thick and cloud_type",
+                                "l2_flags.CLOUD AND l2_flags.PCD_19",
+                                Color.black, 0F),
                         new BitmaskDef(BITMASKDEF_NAME_INVALID_CLOUD_TOP_PRESS,
-                                       "Cloud pixels flagged for invalid cloud_top_press",
-                                       "l2_flags.CLOUD AND l2_flags.PCD_15",
-                                       Color.black, 0F),
+                                "Cloud pixels flagged for invalid cloud_top_press",
+                                "l2_flags.CLOUD AND l2_flags.PCD_15",
+                                Color.black, 0F),
 
                         // the conditions that limitate algorithms in pink
                         new BitmaskDef(BITMASKDEF_NAME_LOW_SUN, null, "l2_flags.LOW_SUN", new Color(153, 0, 153), 0.5F),
                         new BitmaskDef(BITMASKDEF_NAME_HIGH_GLINT, null, "l2_flags.HIGH_GLINT", new Color(204, 0, 204),
-                                       0.5F),
+                                0.5F),
                         new BitmaskDef(BITMASKDEF_NAME_MEDIUM_GLINT, null, "l2_flags.MEDIUM_GLINT",
-                                       new Color(255, 51, 255), 0.5F),
+                                new Color(255, 51, 255), 0.5F),
                         new BitmaskDef(BITMASKDEF_NAME_ICE_HAZE, null, "l2_flags.ICE_HAZE", Color.yellow, 0.5F),
 
                         // the flags for atmospheric correction in blue
                         new BitmaskDef(BITMASKDEF_NAME_LAND_AEROSOL_ON, null, "l2_flags.LARS_ON",
-                                       new Color(51, 51, 255),
-                                       0.25F),
+                                new Color(51, 51, 255),
+                                0.25F),
                         new BitmaskDef(BITMASKDEF_NAME_ABSOA_DUST, null, "l2_flags.ABSOA_DUST", new Color(0, 204, 255),
-                                       0.5F),
+                                0.5F),
                         new BitmaskDef(BITMASKDEF_NAME_BPAC_ON, null, "l2_flags.BPAC_ON", new Color(153, 255, 204),
-                                       0.5F),
+                                0.5F),
 
                         // Case2 water flags in ochre
                         new BitmaskDef(BITMASKDEF_NAME_CASE2_S, null, "l2_flags.CASE2_S", new Color(255, 255, 153),
-                                       0.5F),
+                                0.5F),
                         new BitmaskDef(BITMASKDEF_NAME_CASE2_ANOM, null, "l2_flags.CASE2_ANOM", new Color(153, 153, 0),
-                                       0.5F),
+                                0.5F),
                         new BitmaskDef(BITMASKDEF_NAME_CASE2_Y, null, "l2_flags.CASE2_Y", new Color(204, 204, 0), 0.5F),
 
                         // Land product flags
                         new BitmaskDef(BITMASKDEF_NAME_UNCERTAIN_AEROSOL_MODEL, null, "l2_flags.OOADB",
-                                       new Color(0, 204, 0), 0.5F),
+                                new Color(0, 204, 0), 0.5F),
                         new BitmaskDef(BITMASKDEF_NAME_TOAVI_BRIGHT, null, "l2_flags.TOAVI_BRIGHT",
-                                       new Color(255, 204, 204), 0.5F),
+                                new Color(255, 204, 204), 0.5F),
                         new BitmaskDef(BITMASKDEF_NAME_TOAVI_BAD, null, "l2_flags.TOAVI_BAD", new Color(255, 153, 102),
-                                       0.5F),
+                                0.5F),
                         new BitmaskDef(BITMASKDEF_NAME_TOAVI_CSI, null, "l2_flags.TOAVI_CSI", new Color(255, 153, 0),
-                                       0.5F),
+                                0.5F),
                         new BitmaskDef(BITMASKDEF_NAME_TOAVI_WS, null, "l2_flags.TOAVI_WS", new Color(204, 102, 0),
-                                       0.5F),
+                                0.5F),
                         new BitmaskDef(BITMASKDEF_NAME_TOAVI_INVAL_REC, null, "l2_flags.TOAVI_INVAL_REC",
-                                       new Color(153, 51, 0), 0.5F),
+                                new Color(153, 51, 0), 0.5F),
                         new BitmaskDef(BITMASKDEF_NAME_LOW_PRESSURE, null, "l2_flags.LOW_PRESSURE",
-                                       new Color(204, 204, 255), 0.5F),
+                                new Color(204, 204, 255), 0.5F),
                         new BitmaskDef(BITMASKDEF_NAME_WHITE_SCATTERER, null, "l2_flags.WHITE_SCATTERER",
-                                       new Color(204, 204, 255), 0.5F),
+                                new Color(204, 204, 255), 0.5F),
 
                         // L1b copied flags in magenta
                         new BitmaskDef(BITMASKDEF_NAME_COSMETIC, null, "l2_flags.COSMETIC", new Color(204, 153, 255),
-                                       0.5F),
+                                0.5F),
                         new BitmaskDef(BITMASKDEF_NAME_SUSPECT, null, "l2_flags.SUSPECT", new Color(204, 102, 255),
-                                       0.5F),
+                                0.5F),
 
                         // Product Confidence Flags
                         new BitmaskDef(BITMASKDEF_NAME_PCD_1_13, null, "l2_flags.PCD_1_13", Color.red, 0F),
@@ -892,7 +900,7 @@ public class MerisProductFile extends ProductFile {
                                                              float scalingFactor) {
         final float value = scalingOffset + 1 * scalingFactor;
         return bandName.equals(EnvisatConstants.MERIS_L2_YELLOW_SUBST_BAND_NAME) &&
-               value >= 0.0f;
+                value >= 0.0f;
     }
 
 }

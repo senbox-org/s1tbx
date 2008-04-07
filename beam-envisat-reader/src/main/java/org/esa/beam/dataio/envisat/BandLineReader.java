@@ -253,8 +253,6 @@ public class BandLineReader {
             readLineRecord(sourceY);
 
             int destRasterIncr = 1;
-
-
             if (productFile.storesPixelsInChronologicalOrder()) {
                 destRasterIncr = -1;
                 destRasterPos += (sourceMaxX - sourceMinX) / sourceStepX;

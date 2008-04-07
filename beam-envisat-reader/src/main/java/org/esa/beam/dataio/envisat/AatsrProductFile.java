@@ -17,6 +17,7 @@
 package org.esa.beam.dataio.envisat;
 
 import org.esa.beam.framework.dataio.ProductIOException;
+import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.ProductData;
 
@@ -231,11 +232,10 @@ public class AatsrProductFile extends ProductFile {
         }
         DSD dsdNadirViewSolarAnglesAds = getDSD("NADIR_VIEW_SOLAR_ANGLES_ADS");
         if (dsdNadirViewSolarAnglesAds == null) {
-            throw new ProductIOException(
-                    "invalid product: missing DSD for dataset 'NADIR_VIEW_SOLAR_ANGLES_ADS'"); /*I18N*/
+            throw new ProductIOException("invalid product: missing DSD for dataset 'NADIR_VIEW_SOLAR_ANGLES_ADS'"); /*I18N*/
         }
 
-        _sceneRasterHeight = calculateSceneRasterHeight(dsdGeoLocationAds);
+        _sceneRasterHeight = calculateSceneRasterHeight(dsdGeoLocationAds, mdsDsds[0]);
         int sceneRasterWidth = EnvisatConstants.AATSR_SCENE_RASTER_WIDTH;
 
         int locTiePointGridWidth = EnvisatConstants.AATSR_LOC_TIE_POINT_GRID_WIDTH;
@@ -275,26 +275,32 @@ public class AatsrProductFile extends ProductFile {
         parameters.put("solTiePointSubSamplingX", _solTiePointSubSamplingX);
         parameters.put("solTiePointSubSamplingY", _solTiePointSubSamplingY);
 
-        mdsMapIndex = new int[getSceneRasterHeight()];
-        final RecordReader recordReader = getRecordReader("GEOLOCATION_ADS");
-        final int records = recordReader.getNumRecords() - 1;
-        int mdsIndex = 0;
-        for (int geoADSIndex = 0; geoADSIndex < records; geoADSIndex++) {
-            final Record record = recordReader.readRecord(geoADSIndex);
-            final int attachFlag = record.getField("attach_flag").getElemInt(0);
-            for (int line = 0; line < 32; line++) {
-                final int i = geoADSIndex * 32 + line;
-                if (attachFlag == 0) {
-                    mdsMapIndex[i] = mdsIndex;
-                    ++mdsIndex;
-                } else {
-                    mdsMapIndex[i] = -1;
+
+        if (_sceneRasterHeight > mdsDsds[0].getNumRecords()) {
+            mdsMapIndex = new int[getSceneRasterHeight()];
+            final RecordReader recordReader = getRecordReader("GEOLOCATION_ADS");
+            final int records = recordReader.getNumRecords() - 1;
+            int mdsIndex = 0;
+            for (int geoADSIndex = 0; geoADSIndex < records; geoADSIndex++) {
+                final Record record = recordReader.readRecord(geoADSIndex);
+                final int attachFlag = record.getField("attach_flag").getElemInt(0);
+                for (int line = 0; line < 32; line++) {
+                    final int i = geoADSIndex * 32 + line;
+                    if (attachFlag == 0) {
+                        mdsMapIndex[i] = mdsIndex;
+                        ++mdsIndex;
+                    } else {
+                        mdsMapIndex[i] = -1;
+                    }
                 }
             }
         }
     }
 
     int getMappedMDSRIndex(int lineIndex) {
+        if (mdsMapIndex == null) {
+            return lineIndex;
+        }
         return mdsMapIndex[lineIndex];
     }
 
@@ -302,8 +308,22 @@ public class AatsrProductFile extends ProductFile {
         return -2.0;
     }
 
-    static int calculateSceneRasterHeight(DSD dsdGeoLocationAds) {
-        return (dsdGeoLocationAds.getNumRecords() - 1) * EnvisatConstants.AATSR_LOC_TIE_POINT_SUBSAMPLING_Y + 1;
+    void setInvalidPixelExpression(Band band) {
+        if (band.isFlagBand()) {
+            band.setNoDataValueUsed(false);
+        } else {
+            band.setNoDataValueUsed(true);
+            band.setNoDataValue(-2);            
+        }
+    }
+
+    static int calculateSceneRasterHeight(DSD dsdGeoLocationAds, DSD mdsDsd) {
+        final int linesFromADS = (dsdGeoLocationAds.getNumRecords() - 1) * EnvisatConstants.AATSR_LOC_TIE_POINT_SUBSAMPLING_Y;
+        final int linesFromMDS = mdsDsd.getNumRecords();
+        if (linesFromMDS > linesFromADS) {
+            return linesFromMDS;
+        }
+        return linesFromADS;
     }
 
     /**
@@ -323,8 +343,7 @@ public class AatsrProductFile extends ProductFile {
     /**
      * Returns an array containing the solar spectral flux for each band.
      */
-    public float[] getSpectralBandSolarFluxes
-            () {
+    public float[] getSpectralBandSolarFluxes() {
         return EnvisatConstants.AATSR_SOLAR_FLUXES;
     }
 
@@ -335,9 +354,7 @@ public class AatsrProductFile extends ProductFile {
      * @return a new default set, an empty array if no default set is given for this product type, never
      *         <code>null</code>.
      */
-    public BitmaskDef[] createDefaultBitmaskDefs
-            (String
-                    dsName) {
+    public BitmaskDef[] createDefaultBitmaskDefs(String dsName) {
         if (getProductType().endsWith("1P")) {
             if ("confid_flags_nadir".equalsIgnoreCase(dsName) || "confid_flags_fward".equalsIgnoreCase(dsName)) {
                 String prefix = "qln_";

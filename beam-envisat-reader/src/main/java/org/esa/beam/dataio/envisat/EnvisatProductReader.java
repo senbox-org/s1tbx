@@ -248,70 +248,68 @@ public class EnvisatProductReader extends AbstractProductReader {
         return product;
     }
 
-     private void addBandsToProduct(Product product) {
+    private void addBandsToProduct(Product product) {
         Debug.assertNotNull(_productFile);
         Debug.assertNotNull(product);
 
         BandLineReader[] bandLineReaders = _productFile.getBandLineReaders();
         for (BandLineReader bandLineReader : bandLineReaders) {
-            if (!bandLineReader.isTiePointBased()) {
-                if (!(bandLineReader instanceof BandLineReader.Virtual)) {
-                    if (bandLineReader.getPixelDataReader().getDSD().getDatasetSize() == 0 ||
-                            bandLineReader.getPixelDataReader().getDSD().getNumRecords() == 0) {
-                        continue;
-                    }
-                }
-                String bandName = bandLineReader.getBandName();
-                if (isNodeAccepted(bandName)) {
-                    BandInfo bandInfo = bandLineReader.getBandInfo();
-                    Band band;
-
-                    int width = bandInfo.getWidth();
-                    int height = bandInfo.getHeight();
-                    if (getSubsetDef() != null) {
-                        Dimension s = getSubsetDef().getSceneRasterSize(width, height);
-                        width = s.width;
-                        height = s.height;
-                    }
-
-                    if (bandLineReader instanceof BandLineReader.Virtual) {
-                        final BandLineReader.Virtual virtual = ((BandLineReader.Virtual) bandLineReader);
-                        band = new VirtualBand(bandName, bandInfo.getDataType(),
-                                width, height,
-                                virtual.getExpression());
-                    } else {
-                        band = new Band(bandName,
-                                bandInfo.getDataType() < ProductData.TYPE_FLOAT32 ? bandInfo.getDataType() : bandLineReader.getPixelDataField().getDataType(),
-                                width, height);
-                    }
-                    band.setScalingOffset(bandInfo.getScalingOffset());
-                    if (bandName.startsWith("reflec_")) {
-                        band.setNoDataValueUsed(true);
-                        band.setNoDataValue(0);
-                    } else {
-                        band.setNoDataValueUsed(false);
-                        band.setNoDataValue(0);
-                    }
-                    band.setScalingFactor(bandInfo.getScalingFactor());
-                    band.setLog10Scaled(bandInfo.getScalingMethod() == BandInfo.SCALE_LOG10);
-                    band.setSpectralBandIndex(bandInfo.getSpectralBandIndex());
-                    if (bandInfo.getPhysicalUnit() != null) {
-                        band.setUnit(bandInfo.getPhysicalUnit());
-                    }
-                    if (bandInfo.getDescription() != null) {
-                        band.setDescription(bandInfo.getDescription());
-                    }
-                    if (bandInfo.getFlagCoding() != null) {
-                        product.addFlagCoding(bandInfo.getFlagCoding());
-                        band.setFlagCoding(bandInfo.getFlagCoding());
-                    }
-                    final String expression = bandInfo.getValidExpression();
-                    if (expression != null && expression.trim().length() > 0) {
-                        band.setValidPixelExpression(expression.trim());
-                    }
-                    product.addBand(band);
+            if (bandLineReader.isTiePointBased()) {
+                continue;
+            }
+            if (!(bandLineReader instanceof BandLineReader.Virtual)) {
+                if (bandLineReader.getPixelDataReader().getDSD().getDatasetSize() == 0 ||
+                        bandLineReader.getPixelDataReader().getDSD().getNumRecords() == 0) {
+                    continue;
                 }
             }
+            String bandName = bandLineReader.getBandName();
+            if (isNodeAccepted(bandName)) {
+                BandInfo bandInfo = bandLineReader.getBandInfo();
+                Band band;
+
+                int width = bandInfo.getWidth();
+                int height = bandInfo.getHeight();
+                if (getSubsetDef() != null) {
+                    Dimension s = getSubsetDef().getSceneRasterSize(width, height);
+                    width = s.width;
+                    height = s.height;
+                }
+
+                if (bandLineReader instanceof BandLineReader.Virtual) {
+                    final BandLineReader.Virtual virtual = ((BandLineReader.Virtual) bandLineReader);
+                    band = new VirtualBand(bandName, bandInfo.getDataType(),
+                            width, height,
+                            virtual.getExpression());
+                } else {
+                    band = new Band(bandName,
+                            bandInfo.getDataType() < ProductData.TYPE_FLOAT32 ? bandInfo.getDataType() : bandLineReader.getPixelDataField().getDataType(),
+                            width, height);
+                }
+                band.setScalingOffset(bandInfo.getScalingOffset());
+
+                _productFile.setInvalidPixelExpression(band);
+                
+                band.setScalingFactor(bandInfo.getScalingFactor());
+                band.setLog10Scaled(bandInfo.getScalingMethod() == BandInfo.SCALE_LOG10);
+                band.setSpectralBandIndex(bandInfo.getSpectralBandIndex());
+                if (bandInfo.getPhysicalUnit() != null) {
+                    band.setUnit(bandInfo.getPhysicalUnit());
+                }
+                if (bandInfo.getDescription() != null) {
+                    band.setDescription(bandInfo.getDescription());
+                }
+                if (bandInfo.getFlagCoding() != null) {
+                    product.addFlagCoding(bandInfo.getFlagCoding());
+                    band.setFlagCoding(bandInfo.getFlagCoding());
+                }
+                final String expression = bandInfo.getValidExpression();
+                if (expression != null && expression.trim().length() > 0) {
+                    band.setValidPixelExpression(expression.trim());
+                }
+                product.addBand(band);
+            }
+
         }
         setSpectralBandInfo(product);
     }

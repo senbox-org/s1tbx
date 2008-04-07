@@ -17,7 +17,10 @@
 package org.esa.beam.dataio.envisat;
 
 import org.esa.beam.framework.dataio.ProductIOException;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.BitmaskDef;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.StringUtils;
 
 import javax.imageio.stream.ImageInputStream;
@@ -81,7 +84,9 @@ public class AsarProductFile extends ProductFile {
      */
     private boolean chronologicalOrder;
 
-    enum IODD { VERSION_UNKNOWN, ASAR_3K, ASAR_4A, ASAR_4B }
+    enum IODD {
+        VERSION_UNKNOWN, ASAR_3K, ASAR_4A, ASAR_4B
+    }
 
     /**
      * The IODD version number.
@@ -107,7 +112,6 @@ public class AsarProductFile extends ProductFile {
      *
      * @param file            the abstract file path representation.
      * @param dataInputStream the seekable data input stream which will be used to read data from the product file.
-     *
      * @throws java.io.IOException if an I/O error occurs
      */
     protected AsarProductFile(File file, ImageInputStream dataInputStream) throws IOException {
@@ -174,7 +178,6 @@ public class AsarProductFile extends ProductFile {
      * Overrides the base class method.
      *
      * @param gridWidth for AATSR products, this is the number of tie points in a tie point ADSR
-     *
      * @see org.esa.beam.dataio.envisat.ProductFile#getTiePointSubSamplingX(int)
      */
     @Override
@@ -186,7 +189,6 @@ public class AsarProductFile extends ProductFile {
      * Overrides the base class method.
      *
      * @param gridWidth for AATSR products, this is the number of tie points in a tie point ADSR
-     *
      * @see org.esa.beam.dataio.envisat.ProductFile#getTiePointSubSamplingY(int)
      */
     @Override
@@ -226,7 +228,6 @@ public class AsarProductFile extends ProductFile {
      * <p> The default implementation is empty.
      *
      * @param parameters product specific parameters (possibly referenced within in the DDDB
-     *
      * @throws java.io.IOException if a header format error was detected or if an I/O error occurs
      */
     protected void postProcessMPH(Map parameters) throws IOException {
@@ -261,23 +262,23 @@ public class AsarProductFile extends ProductFile {
         }
 
         sceneRasterHeight = mdsDsds[0].getNumRecords();
-        if(getProductType().equals("ASA_WVI_1P") || getProductType().equals("ASA_WVW_1P") ||
+        if (getProductType().equals("ASA_WVI_1P") || getProductType().equals("ASA_WVW_1P") ||
                 getProductType().equals("ASA_WVS_2P"))
             sceneRasterWidth = -1;
         else
             sceneRasterWidth = getSPH().getParamInt("LINE_LENGTH");
 
-        if(sceneRasterWidth < 0) {                              // handle WSS where LINE_LENGTH is -1
+        if (sceneRasterWidth < 0) {                              // handle WSS where LINE_LENGTH is -1
             int minHeight = mdsDsds[0].getNumRecords();
             int minWidth = mdsDsds[0].getRecordSize();
             for (DSD mdsDsd : mdsDsds) {
 
-                if(mdsDsd.getNumRecords() < minHeight)
+                if (mdsDsd.getNumRecords() < minHeight)
                     minHeight = mdsDsd.getNumRecords();
-                if(mdsDsd.getRecordSize() < minWidth)
+                if (mdsDsd.getRecordSize() < minWidth)
                     minWidth = mdsDsd.getRecordSize();
             }
-            sceneRasterHeight =  minHeight;
+            sceneRasterHeight = minHeight;
             sceneRasterWidth = minWidth;
         }
 
@@ -310,15 +311,26 @@ public class AsarProductFile extends ProductFile {
         }
 
         String firstMDSName = mdsDsds[0].getDatasetName();
-        if(!isValidDatasetName(firstMDSName)) {
-             firstMDSName = firstMDSName.replace(' ', '_');
+        if (!isValidDatasetName(firstMDSName)) {
+            firstMDSName = firstMDSName.replace(' ', '_');
         }
         sceneRasterStartTime = getRecordTime(firstMDSName, "zero_doppler_time", 0);
         sceneRasterStopTime = getRecordTime(firstMDSName, "zero_doppler_time", sceneRasterHeight - 1);
     }
 
+    // @todo tb/** check with IODD if this is correct behaivoiur - right now implements the current global behaviour.
+    void setInvalidPixelExpression(Band band) {
+        if (band.getName().startsWith("reflec_")) {
+            band.setNoDataValueUsed(true);
+            band.setNoDataValue(0);
+        } else {
+            band.setNoDataValueUsed(false);
+            band.setNoDataValue(0);
+        }
+    }
+
     IODD getIODDVersion() {
-        if(_ioddVersion == IODD.VERSION_UNKNOWN) {
+        if (_ioddVersion == IODD.VERSION_UNKNOWN) {
             setIODDVersion();
         }
         return _ioddVersion;
@@ -326,10 +338,10 @@ public class AsarProductFile extends ProductFile {
 
     /**
      * Sets the IODD version which is an indicator for the product format.
-     *
+     * <p/>
      * REF_DOC from version 3H on end with 3H, 3K, 4A, 4B
      * Software can be at least ASAR, NORUT, KSPT_L1B
-     *
+     * <p/>
      * 3H ASAR/3.05, ASAR/3.06, ASAR/3.08
      * 4A ASAR/4.01, ASAR/4.02, ASAR/4.04
      * 4B ASAR/4.05
@@ -340,44 +352,44 @@ public class AsarProductFile extends ProductFile {
         try {
 
             String refDoc = mph.getParamString("REF_DOC").toUpperCase().trim();
-            if(refDoc.endsWith("4B") || refDoc.endsWith("4/B")) {
+            if (refDoc.endsWith("4B") || refDoc.endsWith("4/B")) {
                 _ioddVersion = IODD.ASAR_4B;
-            } else if(refDoc.endsWith("4A") || refDoc.endsWith("4/A")) {
+            } else if (refDoc.endsWith("4A") || refDoc.endsWith("4/A")) {
                 _ioddVersion = IODD.ASAR_4A;
-            } else if(refDoc.endsWith("3K") || refDoc.endsWith("3/K")) {
+            } else if (refDoc.endsWith("3K") || refDoc.endsWith("3/K")) {
                 _ioddVersion = IODD.ASAR_3K;
             } else {
-                char issueCh = refDoc.charAt(refDoc.length()-2);
-                if(Character.isDigit(issueCh)) {
+                char issueCh = refDoc.charAt(refDoc.length() - 2);
+                if (Character.isDigit(issueCh)) {
                     int issue = Character.getNumericValue(issueCh);
-                    if(issue >= 4) {
+                    if (issue >= 4) {
                         _ioddVersion = IODD.ASAR_4B;                             // catch future versions
                     }
                 }
             }
 
             // if version not found from doc_ref then look at the software version
-            if(_ioddVersion == IODD.VERSION_UNKNOWN) {
+            if (_ioddVersion == IODD.VERSION_UNKNOWN) {
 
                 String softwareVersion = mph.getParamString("SOFTWARE_VER").toUpperCase().trim();
-                if(softwareVersion.startsWith("ASAR/3.")) {
+                if (softwareVersion.startsWith("ASAR/3.")) {
                     String versionStr = softwareVersion.substring(5);
-                    if(StringUtils.isNumeric(versionStr, Float.class)) {
+                    if (StringUtils.isNumeric(versionStr, Float.class)) {
                         float versionNum = Float.parseFloat(versionStr);
-                        if(versionNum > 3.08)
+                        if (versionNum > 3.08)
                             _ioddVersion = IODD.ASAR_3K;
                     }
-                } else if(softwareVersion.startsWith("ASAR/4.05")) {
+                } else if (softwareVersion.startsWith("ASAR/4.05")) {
                     _ioddVersion = IODD.ASAR_4B;
-                } else if(softwareVersion.startsWith("ASAR/4.00") || softwareVersion.startsWith("ASAR/4.01") ||
+                } else if (softwareVersion.startsWith("ASAR/4.00") || softwareVersion.startsWith("ASAR/4.01") ||
                         softwareVersion.startsWith("ASAR/4.02") || softwareVersion.startsWith("ASAR/4.03") ||
                         softwareVersion.startsWith("ASAR/4.04")) {
                     _ioddVersion = IODD.ASAR_4A;
                 } else {
                     char versionCh = softwareVersion.charAt(6);
-                    if(Character.isDigit(versionCh)) {
+                    if (Character.isDigit(versionCh)) {
                         int versionNum = Character.getNumericValue(versionCh);
-                        if(versionNum >= 4)
+                        if (versionNum >= 4)
                             _ioddVersion = IODD.ASAR_4B;
                         else
                             _ioddVersion = IODD.VERSION_UNKNOWN;
@@ -385,7 +397,7 @@ public class AsarProductFile extends ProductFile {
                         _ioddVersion = IODD.VERSION_UNKNOWN;
                 }
             }
-        } catch(HeaderEntryNotFoundException e) {
+        } catch (HeaderEntryNotFoundException e) {
             _ioddVersion = IODD.VERSION_UNKNOWN;
         }
     }
@@ -405,20 +417,20 @@ public class AsarProductFile extends ProductFile {
     static String getDddbProductTypeReplacement(final String productType, final IODD ioddVersion) {
         String resource = productType;
         if (ioddVersion == IODD.ASAR_3K) {
-            if(productDDExists(productType + IODD3K_SUFFIX))
-               resource = productType + IODD3K_SUFFIX;
+            if (productDDExists(productType + IODD3K_SUFFIX))
+                resource = productType + IODD3K_SUFFIX;
         } else if (ioddVersion == IODD.ASAR_4A) {
-            if(productDDExists(productType + IODD4A_SUFFIX))
-               resource = productType + IODD4A_SUFFIX;
-            else if(productDDExists(productType + IODD3K_SUFFIX))
-               resource = productType + IODD3K_SUFFIX;
+            if (productDDExists(productType + IODD4A_SUFFIX))
+                resource = productType + IODD4A_SUFFIX;
+            else if (productDDExists(productType + IODD3K_SUFFIX))
+                resource = productType + IODD3K_SUFFIX;
         } else if (ioddVersion == IODD.ASAR_4B) {
-            if(productDDExists(productType + IODD4B_SUFFIX))
-               resource = productType + IODD4B_SUFFIX;
-            else if(productDDExists(productType + IODD4A_SUFFIX))
-               resource = productType + IODD4A_SUFFIX;
-            else if(productDDExists(productType + IODD3K_SUFFIX))
-               resource = productType + IODD3K_SUFFIX;
+            if (productDDExists(productType + IODD4B_SUFFIX))
+                resource = productType + IODD4B_SUFFIX;
+            else if (productDDExists(productType + IODD4A_SUFFIX))
+                resource = productType + IODD4A_SUFFIX;
+            else if (productDDExists(productType + IODD3K_SUFFIX))
+                resource = productType + IODD3K_SUFFIX;
         } else if (ioddVersion == IODD.VERSION_UNKNOWN) {
             return productType;
 
@@ -459,7 +471,6 @@ public class AsarProductFile extends ProductFile {
      * Returns a new default set of bitmask definitions for this product file.
      *
      * @param dsName the name of the flag dataset
-     *
      * @return a new default set, an empty array if no default set is given for this product type, never
      *         <code>null</code>.
      */
@@ -504,8 +515,8 @@ public class AsarProductFile extends ProductFile {
 
         int rasterHeight = sceneRasterHeight;
         int rasterWidth = sceneRasterWidth;
-        
-        if(getProductType().equals("ASA_WSS_1P")) {
+
+        if (getProductType().equals("ASA_WSS_1P")) {
 
             DSD[] mdsDsds = getValidDSDs(EnvisatConstants.DS_TYPE_MEASUREMENT);
             for (DSD mdsDsd : mdsDsds) {
@@ -518,18 +529,18 @@ public class AsarProductFile extends ProductFile {
         }
 
         return new BandInfo(bandName,
-                            dataType,
-                            spectralBandIndex,
-                            sampleModel,
-                            scalingMethod,
-                            scalingOffset,
-                            scalingFactor,
-                            validExpression,
-                            flagCoding,
-                            physicalUnit,
-                            description,
-                            rasterWidth,
-                            rasterHeight);
+                dataType,
+                spectralBandIndex,
+                sampleModel,
+                scalingMethod,
+                scalingOffset,
+                scalingFactor,
+                validExpression,
+                flagCoding,
+                physicalUnit,
+                description,
+                rasterWidth,
+                rasterHeight);
     }
-    
+
 }
