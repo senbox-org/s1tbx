@@ -1,0 +1,85 @@
+ASAR_Main_ADSR|Main Processing parameters|*
+#
+first_zero_doppler_time|@/types/UTC.dd          |MJD           |12|1|*|First Zero Doppler Azimuth time of MDS which this data set describes Time of first range line in the MDS described by this data set.|1|
+attach_flag            |UChar                   |flag          | 1|1|*|Attachment Flag (always set to zero for this ADSR)|2|
+last_zero_doppler_time |@/types/UTC.dd          |MJD           |12|1|*|Last Zero Doppler Azimuth time of MDS which this data set describes Time of last range line in the MDS described by this data set|3|
+work_order_id          |String                  |ascii         |12|1|*|Work Order ID (left-justified)|4|
+time_diff              |Float                   |s             | 4|1|*|Time difference between sensing time of first input line and zero Doppler time of first output image line (tdelta). (TBC)May be used during child product extraction from a stripline product (TBC). Left blank (set to zero) for non-stripline products.|5|
+swath_num               |String                  |ascii         | 3|1|*|Swath number IS1, IS2, IS3, IS4, IS5, IS6, or IS7 for IM, WV and AP modes.SS1 ,SS2, SS3, SS4, SS5  for WSS Products Ws0 for WS and GM modes where only one ADSR for the whole scene is provided|6|
+range_spacing          |Float                   |m             | 4|1|*|Range sample spacing|7|
+azimuth_spacing        |Float                   |m             | 4|1|*|Azimuth sample spacing at image center|8|
+line_time_interval     |Float                   |s             | 4|1|*|Azimuth sample spacing in time (Line Time Interval)|9|
+num_output_lines       |ULong                   |lines         | 4|1|*|Number of output range lines in the image. For WSS products this number will  vary for each sub swath|10|
+num_samples_per_line   |ULong                   |samples       | 4|1|*|Number of samples per output range line (includes zero filled samples)|11|
+data_type              |String                  |ascii         | 5|1|*|Output data type. SWORD, UWORD, or UBYTE|12|
+num_range_lines_per_burst |ULong				|lines		   | 4|1|*|Number of output range lines per burst. Not used for single-beam products|12a|
+time_diff_zero_doppler |Float					|s			   | 4|1|*|Time difference between zero Doppler time and acquisition time of output image lines|12b|
+spare_1                |Spare                   |*             |43|1|*|Spare|13|
+data_analysis_flag     |UChar                   |flag          | 1|1|*|Raw Data Analysis used for Raw Data Correction. 0 = correction done using default parameters. 1 = correction done using raw data analysis results.|14|
+ant_elev_corr_flag     |UChar                   |flag          | 1|1|*|Antenna Elevation Pattern Correction Applied. 0 = no correction applied. 1 = correction applied.|15|
+chirp_extract_flag     |UChar                   |flag          | 1|1|*|Reconstructed Chirp used. 0 = nominal chirp replica used. 1 = reconstructed chirp used.|16|
+srgr_flag              |UChar                   |flag          | 1|1|*|Slant Range to Ground Range Conversion Applied. 0 = no conversion applied. 1 = conversion applied|17|
+dop_cen_flag           |UChar                   |flag          | 1|1|*|Doppler Centroid Estimation Performed. 0 = no estimation done. 1 = estimation done.|18|
+dop_amb_flag           |UChar                   |flag          | 1|1|*|Doppler Ambiguity Estimation Performed. 0 = no estimate done. 1 = estimate done|19|
+range_spread_comp_flag |UChar                   |flag          | 1|1|*|Range-spreading loss compensation Applied. 0 = no compensation applied. 1 = compensation applied.|20|
+detected_flag          |UChar                   |flag          | 1|1|*|Detection Applied. 0 = output product is complex. 1 = output product was detected.|21|
+look_sum_flag          |UChar                   |flag          | 1|1|*|Look Summation Performed. 0 = product is single look. 1 = product is multi-looked.|22|
+rms_equal_flag         |UChar                   |flag          | 1|1|*|RMS Equalization performed. 0= rms equalization not performed during FBAQ decoding. 1 = rms equalization performed during FBAQ decoding.|23|
+ant_scal_flag          |UChar                   |flag          | 1|1|*|Antenna Elevation Gain Scaling Factor Applied. 0= no scaling factor applied. 1 =  scaling factor applied.|24|
+vga_com_echo_flag      |UChar                   |flag          | 1|1|*|Receive Gain Droop Compensation Applied to Echo Data. 0 = no compensation applied. 1 = compensation applied.|25|
+vga_com_pulse_2_flag   |UChar                   |flag          | 1|1|*|Receive Gain Droop Compensation Applied Calibration Pulse P2. 0 = no compensation applied. 1 = compensation applied.|25|
+vga_com_pulse_zero_flag|UChar                   |flag          | 1|1|*|Receive Gain Droop Compensation Applied Calibration Pulse P2 Order Zero: Nominal Time Delay Applied. 0 = no compensation applied. 1 = compensation applied.|25|
+inv_filt_comp_flag     |UChar                   |flag          | 1|1|*|Inverse FIlter used for range compression (GM Mode only). 0 = matched filter used for range compression. 1 = inverse filter used for range compression|25|
+spare_2                |Spare                   |*             | 6|1|*|Spare|25|
+raw_data_analysis      |@+ASAR_Main_ADSR.sd/raw_data_analysis.dd  |*             | *|2|*|Raw Data Analysis. If MDS 2 is not included or if the product is WSS the second set is blanked. values set to 0|26|
+spare_3                |Spare                   |*             |32|1|*|Spare|27|
+start_time             |@+ASAR_Main_ADSR.sd/start_time.dd         |*             | *|2|*|Time of first input line. If MDS 2 is not included or if the product is WSS the second set is blanked. values set to 0|28|
+parameter_codes        |@+ASAR_Main_ADSR.sd/parameter_codes.dd    |*             | *|1|*|ASAR parameter configuration codes. Only one value is filled for each IM and WV modes. Two values are filled for AP mode (for MDS1 and MDS2). Five values are filled for WS and GM modes (for SS1 to SS5, respectively).Unused vales set to zero|29|
+spare_4                |Spare                   |*             |60|1|*|Spare|30|
+error_counters         |@+ASAR_Main_ADSR.sd/error_counters.dd     |*             | *|1|*|Error counters|31|
+spare_5                |Spare                   |*             |26|1|*|Spare|32|
+image_parameters       |@+ASAR_Main_ADSR.sd/image_parameters_IODD_4A.dd |*       | *|1|*|Image Data Set parameters.Only one value is filled for each IM and WV modes. Two values are filled for AP mode (for MDS1 and MDS2). Five values are filled for WS and GM modes (for SS1 to SS5, respectively).Unused vales set to zero|33|
+spare_6                |Spare                   |*             |62|1|*|Spare|34|
+first_proc_range_samp  |ULong                   |samples       | 4|1|*|First processed input range sample, first sample is 1|35|
+range_ref              |Float                   |m             | 4|1|*|Range spreading loss reference range|36|
+range_samp_rate        |Float                   |Hz            | 4|1|*|Range sampling rate|37|
+radar_freq             |Float                   |Hz            | 4|1|*|Radar Frequency|38|
+num_looks_range        |UShort                  |looks         | 2|1|*|Number of range looks|39|
+filter_window          |String                  |ascii         | 7|1|*|Matched filter window type:HAMMING or KAISER&Oslash; or NONE&Oslash;&Oslash;&Oslash;|40|
+window_coef_range      |Float                   |*             | 4|1|*|Window coefficient for range-matched filter|41|
+bandwidth              |@+ASAR_Main_ADSR.sd/bandwidth.dd          |*             | *|1|*|Bandwidth.Only one value is filled for each AP IM and WV modes.  Five values are filled for WS and GM modes (for SS1 to SS5, respectively).Unused vales set to zero|42|
+nominal_chirp          |@+ASAR_Main_ADSR.sd/nominal_chirp.dd      |*             |* |5|*|Nominal Chirp|43|
+spare_7                |Spare                   |*             |60|1|*|Spare|44|
+num_lines_proc         |ULong                   |lines         | 4|1|*|Number of input lines processed|45|
+num_look_az            |UShort                  |looks         | 2|1|*|Number of Azimuth Looks|46|
+look_bw_az             |Float                   |Hz            | 4|1|*|Azimuth Look Bandwidth (null to null) -- this is the nominal value only for GM, WS, and AP.|47|
+to_bw_az               |Float                   |Hz            | 4|1|*|Processed Azimuth bandwidth (null to null) -- this field is used only for IM products and WV imagettes. Filled with zeros otherwise.|48|
+filter_az              |String                  |ascii         | 7|1|*|Matched filter window type:HAMMING or KAISER&Oslash; or NONE&Oslash;&Oslash;&Oslash;|49|
+filter_coef_az         |Float                   |*             | 4|1|*|Window coefficient for azimuth-matched filter|50|
+az_fm_rate             |Float                   |Hz/sHz/s2Hz/s3| 4|3|*|3 co-efficients for Azimuth FM rate: Azimuth FM rate = C0 + C1(tSR-t0) + C2(tSR - t0)2tSR = 2 way slant range time|51|
+ax_fm_origin           |Float                   |ns            | 4|1|*|2 way slant range time origin (t0) for Azimuth FM rate calculation|52|
+dop_amb_conf           |Float                   |*             | 4|1|*|Doppler Centroid Ambiguity Confidence Measure. Value between 0 and 1, 0 = poorest confidence, 1= highest confidence|53|
+spare_8                |Spare                   |*             |68|1|*|Spare|54|
+calibration_factors    |@+ASAR_Main_ADSR.sd/calibration_factors.dd|*             | *|2|*|Calibration factors. If MDS 2 is not included or if the product is WSS the second set is blanked. values set to 0|55|
+noise_estimation       |@+ASAR_Main_ADSR.sd/noise_estimation.dd   |*             | *|1|*|Noise Estimation. If MDS 2 is not included or if the product is WSS the second set is blanked. values set to 0|56|
+spare_9                |Spare                   |*             |64|1|*|Spare|57|
+spare_10               |Spare                   |*             |12|1|*|Spare|58|
+output_statistics      |@+ASAR_Main_ADSR.sd/output_statistics.dd  |*             | *|2|*|Output Data Statistics|59|
+avg_scene_height_ellpsoid	|Float				|m			   | 4|1|*|Average scene height above ellpsoid used for processing|60|
+spare_11               |Spare                   |*             |48|1|*|Spare|61|
+echo_comp              |String                  |ascii         | 4|1|*|Compression Method used for echo samples. FBAQ, S&amp;M&Oslash;, NONE|62|
+echo_comp_ratio        |String                  |ascii         | 3|1|*|Compression Ratio for echo samples. 8/4, 8/3, 8/2, or 8/8|63|
+init_cal_comp          |String                  |ascii         | 4|1|*|Compression Method used for initial calibration samples. FBAQ, S&amp;M&Oslash;, NONE|64|
+init_cal_ratio         |String                  |ascii         | 3|1|*|Compression Ratio for initial calibration samples. 8/4, 8/3, 8/2, or 8/8|65|
+per_cal_comp           |String                  |ascii         | 4|1|*|Compression Method used for periodic calibration samples. FBAQ, S&amp;M&Oslash;, NONE|66|
+per_cal_ratio          |String                  |ascii         | 3|1|*|Compression Ratio for periodic calibration samples. 8/4, 8/3, 8/2, or 8/8|67|
+noise_comp             |String                  |ascii         | 4|1|*|Compression Method used for noise samples. FBAQ, S&amp;M&Oslash;, NONE|68|
+noise_comp_ratio       |String                  |ascii         | 3|1|*|Compression Ratio for noise samples. 8/4, 8/3, 8/2, or 8/8|69|
+spare_12               |Spare                   |*             |64|1|*|Spare|70|
+beam_merge_sl_range    |ULong                   |*             | 4|4|*|Number of slant range samples in beam merging, one value per mergae rregion (1-2, 2-3, 3-4, 4-5)|71|
+beam_merge_alg_param   |Float                   |*             | 4|4|*|Beam merge algorithm parameter used for beam merging, one value per merge region (1-2, 2-3, 3-4. 4-5)|72|
+lines_per_burst        |ULong                   |lines         | 4|5|*|Number of lines per burst for this image. 5 values for beams SS1 to SS5 in WS and GM modes. Two values for AP mode, all others set to zero.|73|
+time_first_SS1_echo	   |@/types/UTC.dd			|MJD		   |12|1|*|Time of first SS1 Echo Source Packet|73a|
+spare_13               |Spare                   |*             |16|1|*|Spare|74|
+orbit_state_vectors    |@+ASAR_Main_ADSR.sd/orbit_state_vectors.dd|*             | *|5|*|Orbit State Vectors|75|
+spare_14               |Spare                   |*             |64|1|*|Spare|76|
