@@ -100,7 +100,7 @@ public class BandLineReader {
     /**
      * Band meta information
      */
-    private BandInfo _bandInfo;
+    private final BandInfo _bandInfo;
     /**
      * The record reader for reading this band's raw pixel values
      */
@@ -170,7 +170,7 @@ public class BandLineReader {
     /**
      * Retrieves a decoder instance for the current band line. Creates a new instance if not done so far.
      */
-    public BandLineDecoder ensureBandLineDecoder() {
+    public synchronized BandLineDecoder ensureBandLineDecoder() {
         if (_bandLineDecoder == null) {
             _bandLineDecoder = createBandLineDecoder(getPixelDataField(), getBandInfo());
             if (_bandLineDecoder == null) {
@@ -242,12 +242,12 @@ public class BandLineReader {
      * @param destRasterPos the current line offset within the destination raster
      * @throws java.io.IOException if an I/O error occurs
      */
-    public void readRasterLine(int sourceMinX,
-                               int sourceMaxX,
-                               int sourceStepX,
-                               int sourceY,
-                               ProductData destRaster,
-                               int destRasterPos) throws IOException {
+    public synchronized void readRasterLine(int sourceMinX,
+                                            int sourceMaxX,
+                                            int sourceStepX,
+                                            int sourceY,
+                                            ProductData destRaster,
+                                            int destRasterPos) throws IOException {
         final ProductFile productFile = getProductFile();
         if (productFile.getMappedMDSRIndex(sourceY) >= 0) {
             readLineRecord(sourceY);
@@ -282,7 +282,7 @@ public class BandLineReader {
      * @param sourceY the line index
      * @throws java.io.IOException if an I/O error occurs
      */
-    public void readLineRecord(int sourceY) throws IOException {
+    public synchronized void readLineRecord(int sourceY) throws IOException {
         getPixelDataReader().readRecord(sourceY,
                                         getPixelDataRecord());
     }

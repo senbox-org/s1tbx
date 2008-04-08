@@ -83,9 +83,9 @@ public class BitmaskOverlayOpImage extends PointOpImage {
                 overlayLoop(targetAccessor, mask,
                             bitmaskDef.getColor(), bitmaskDef.getAlpha());
             } catch (ParseException e) {
-                // todo - what can we do here, inform JAI ImageListener ?
+                throw new RuntimeException(e);
             } catch (IOException e) {
-                // todo - what can we do here, inform JAI ImageListener ?
+                throw new RuntimeException(e);
             }
         }
 
