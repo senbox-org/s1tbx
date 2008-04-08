@@ -18,6 +18,7 @@ package org.esa.beam.dataio.envisat;
 
 import org.esa.beam.util.Debug;
 
+import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
 
 /**
@@ -164,9 +165,12 @@ public class RecordReader {
         if (_dsd.getDatasetType() == 'M') {
             index = _productFile.getMappedMDSRIndex(index);
         }
-        long pos = _dsd.getDatasetOffset() + (index * _dsd.getRecordSize());
-        _productFile.getDataInputStream().seek(pos);
-        record.readFrom(_productFile.getDataInputStream());
+        final long pos = _dsd.getDatasetOffset() + (index * _dsd.getRecordSize());
+        final ImageInputStream istream = _productFile.getDataInputStream();
+        synchronized (istream) {
+            istream.seek(pos);
+            record.readFrom(istream);
+        }
         return record;
     }
 

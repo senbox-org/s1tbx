@@ -726,7 +726,9 @@ public abstract class ProductFile {
      * @throws java.io.IOException if an I/O error occurs
      */
     public void close() throws IOException {
-        dataInputStream.close();
+        synchronized (dataInputStream) {
+            dataInputStream.close();
+        }
     }
 
     /**
@@ -922,7 +924,7 @@ public abstract class ProductFile {
      * @param dataInputStream the seekable data input stream which will be used to read data from the product file.
      * @throws java.io.IOException if an I/O error occurs
      */
-    private void init(File file, ImageInputStream dataInputStream) throws IOException {
+    private void init(final File file, final ImageInputStream dataInputStream) throws IOException {
 
         logger = BeamLogManager.getSystemLogger();
 
@@ -932,12 +934,13 @@ public abstract class ProductFile {
         this.file = file;
 
         this.dataInputStream = dataInputStream;
+        synchronized (dataInputStream) {
+            readMPH();
+            postProcessMPH(parameters);
 
-        readMPH();
-        postProcessMPH(parameters);
-
-        readSPH();
-        postProcessSPH(parameters);
+            readSPH();
+            postProcessSPH(parameters);
+        }
 
         traceDddbFieldSizeParameters();
 
