@@ -52,7 +52,6 @@ import org.esa.beam.util.SystemUtils;
 
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import java.awt.BorderLayout;
@@ -76,58 +75,55 @@ public abstract class L3UI extends AbstractProcessorUI {
 
     public static class Row {
 
-        private final String _bandName;
-        private final String _bitmaskExpression;
-        private final String _algorithmName;
-        private final double _weightCoeffizient;
+        private final String bandName;
+        private final String bitmaskExpression;
+        private final String algorithmName;
+        private final double weightCoefficient;
 
-        public Row(String bandName, String bitmaskExpression, String algorithmName, double weightCoeffizient) {
-            _bandName = bandName;
-            _bitmaskExpression = bitmaskExpression;
-            _algorithmName = algorithmName;
-            _weightCoeffizient = weightCoeffizient;
+        public Row(String bandName, String bitmaskExpression, String algorithmName, double weightCoefficient) {
+            this.bandName = bandName;
+            this.bitmaskExpression = bitmaskExpression;
+            this.algorithmName = algorithmName;
+            this.weightCoefficient = weightCoefficient;
         }
 
         public String getBandName() {
-            return _bandName;
+            return bandName;
         }
 
         public String getBitmaskExpression() {
-            return _bitmaskExpression;
+            return bitmaskExpression;
         }
 
         public String getAlgorithmName() {
-            return _algorithmName;
+            return algorithmName;
         }
 
-        public double getWeightCoeffizient() {
-            return _weightCoeffizient;
+        public double getWeightCoefficient() {
+            return weightCoefficient;
         }
     }
 
     public class ProcessingParamsTable {
 
-        private JTable _jTable;
-        private DefaultTableModel _tableModel;
+        private JTable table;
+        private DefaultTableModel tableModel;
 
         public ProcessingParamsTable() {
-            _tableModel = new DefaultTableModel() {
+            tableModel = new DefaultTableModel() {
                 public boolean isCellEditable(int row, int column) {
-                    if (column == 0) {
-                        return false;
-                    }
-                    return super.isCellEditable(row, column);
+                    return column != 0;
                 }
             };
 
-            _tableModel.setColumnIdentifiers(new String[]{
-                    "<html>Band<br>Name</html>",
-                    "<html>Valid Pixel Expression</html>",
-                    "<html>Aggregation<br>Algorithm</html>",
-                    "<html>Weight<br>Coefficient</html>"
+            tableModel.setColumnIdentifiers(new String[]{
+                    "Band",
+                    "Valid expression",
+                    "Aggregation",
+                    "Weight"
             });
 
-            _jTable = new JTable(_tableModel) {
+            table = new JTable(tableModel) {
                 public Class getColumnClass(int column) {
                     if (column == 3) {
                         return Double.class;
@@ -141,29 +137,29 @@ public abstract class L3UI extends AbstractProcessorUI {
                     updateEstimatedProductSize(ProcessingParamsTable.this);
                 }
             };
-            _jTable.getTableHeader().setReorderingAllowed(false);
+            table.getTableHeader().setReorderingAllowed(false);
 
-            _jTable.getColumnModel().getColumn(0).setPreferredWidth(150);
-            _jTable.getColumnModel().getColumn(1).setPreferredWidth(450);
-            _jTable.getColumnModel().getColumn(2).setPreferredWidth(150);
-            _jTable.getColumnModel().getColumn(3).setPreferredWidth(150);
+            table.getColumnModel().getColumn(0).setPreferredWidth(150);
+            table.getColumnModel().getColumn(1).setPreferredWidth(450);
+            table.getColumnModel().getColumn(2).setPreferredWidth(150);
+            table.getColumnModel().getColumn(3).setPreferredWidth(150);
 
-            _jTable.getColumnModel().getColumn(1).setCellEditor(new ExprEditor(true));
-            _jTable.getColumnModel().getColumn(2).setCellEditor(
+            table.getColumnModel().getColumn(1).setCellEditor(new ExprEditor(true));
+            table.getColumnModel().getColumn(2).setCellEditor(
                     new DefaultCellEditor(new JComboBox(L3Constants.ALGORITHM_VALUE_SET)));
         }
 
         public JComponent getComponent() {
-            final JScrollPane jScrollPane = new JScrollPane(_jTable);
+            final JScrollPane jScrollPane = new JScrollPane(table);
             jScrollPane.setPreferredSize(new Dimension(500, 200));
             return jScrollPane;
         }
 
         public String[] getBandNames() {
-            final int numRows = _jTable.getRowCount();
+            final int numRows = table.getRowCount();
             final String[] bandNames = new String[numRows];
             for (int i = 0; i < bandNames.length; i++) {
-                bandNames[i] = (String) _jTable.getValueAt(i, 0);
+                bandNames[i] = (String) table.getValueAt(i, 0);
             }
             return bandNames;
         }
@@ -173,17 +169,17 @@ public abstract class L3UI extends AbstractProcessorUI {
             if (algorithmName == null || !StringUtils.contains(L3Constants.ALGORITHM_VALUE_SET, algorithmName)) {
                 algorithmName = L3Constants.ALGORITHM_DEFAULT_VALUE;
             }
-            _tableModel.addRow(new Object[]{bandName, validExpression, algorithmName, weightCoefficient});
+            tableModel.addRow(new Object[]{bandName, validExpression, algorithmName, weightCoefficient});
         }
 
         public void remove(final String bandName) {
             final String[] bandNames = getBandNames();
             final int rowToRemove = StringUtils.indexOf(bandNames, bandName);
-            _tableModel.removeRow(rowToRemove);
+            tableModel.removeRow(rowToRemove);
         }
 
         public Row[] getRows() {
-            final List dataList = _tableModel.getDataVector();
+            final List dataList = tableModel.getDataVector();
             final Row[] rows = new Row[dataList.size()];
             for (int i = 0; i < dataList.size(); i++) {
                 final List dataListRow = (List) dataList.get(i);
@@ -197,68 +193,74 @@ public abstract class L3UI extends AbstractProcessorUI {
 
         public void clear() {
             final String[] bandNames = getBandNames();
-            for (int i = 0; i < bandNames.length; i++) {
-                final String bandName = bandNames[i];
+            for (final String bandName : bandNames) {
                 remove(bandName);
             }
         }
 
         public void removeAll() {
-            _tableModel.setRowCount(0);
+            tableModel.setRowCount(0);
         }
     }
 
     public class ExprEditor extends AbstractCellEditor implements TableCellEditor {
 
-        private final JButton button;
-        private String[] value;
-        private int _row;
-        private int _column;
-        private JTable _table;
+        private final JPanel editorComponent;
+        private final JTextField textField;
+
+        private int row;
+        private int column;
+        private JTable table;
 
         public ExprEditor(final boolean booleanExpected) {
-            button = new JButton("...");
+
+            JButton button = new JButton("...");
             final Dimension preferredSize = button.getPreferredSize();
             preferredSize.setSize(25, preferredSize.getHeight());
             button.setPreferredSize(preferredSize);
-            value = new String[1];
+
             final ActionListener actionListener = new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    final int i = editExpression(value, booleanExpected);
-                    if (i == ModalDialog.ID_OK) {
+                    final String newCode = editExpression(textField.getText(), booleanExpected);
+                    if (newCode != null) {
+                        textField.setText(newCode);
                         fireEditingStopped();
-                        final int[] selectedRows = _table.getSelectedRows();
-                        for (int j = 0; j < selectedRows.length; j++) {
-                            final int selectedRow = selectedRows[j];
-                            if (selectedRow != _row) {
-                                _table.setValueAt(value[0], selectedRow, _column);
+/*
+                        final int[] selectedRows = table.getSelectedRows();
+                        for (final int selectedRow : selectedRows) {
+                            if (selectedRow != row) {
+                                table.setValueAt(value[0], selectedRow, column);
                             }
                         }
+*/
                     } else {
                         fireEditingCanceled();
                     }
                 }
             };
             button.addActionListener(actionListener);
+
+            textField = new JTextField();
+
+            editorComponent = new JPanel(new BorderLayout());
+            editorComponent.add(textField);
+            editorComponent.add(button, BorderLayout.EAST);
         }
 
         public Object getCellEditorValue() {
-            return value[0];
+            return textField.getText();
         }
 
-        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+        public Component getTableCellEditorComponent(JTable table,
+                                                     Object value,
+                                                     boolean isSelected,
+                                                     int row,
                                                      int column) {
-            final JPanel renderPanel = new JPanel(new BorderLayout());
-            final DefaultTableCellRenderer defaultRenderer = new DefaultTableCellRenderer();
-            final Component label = defaultRenderer.getTableCellRendererComponent(table, value, isSelected,
-                                                                                  false, row, column);
-            _table = table;
-            _row = row;
-            _column = column;
-            renderPanel.add(label);
-            renderPanel.add(button, BorderLayout.EAST);
-            this.value[0] = (String) value;
-            return renderPanel;
+            this.table = table;
+            this.row = row;
+            this.column = column;
+            textField.setText((String) value);
+            return editorComponent;
         }
     }
 
@@ -267,32 +269,32 @@ public abstract class L3UI extends AbstractProcessorUI {
     protected static final String TAB_NAME_PROCESSING_PARAMETERS = "Processing Parameters";
     protected static final String TAB_NAME_BANDS = "Bands";
 
-    protected L3Processor _processor;
-    protected Vector<Request> _requests;
-    protected L3RequestElementFactory _reqElemFactory;
-    protected ParamGroup _paramGroup;
-    protected File _userDbDir;
-    protected File _userInputDir;
-    protected Logger _logger;
+    protected L3Processor processor;
+    protected Vector<Request> requests;
+    protected L3RequestElementFactory reqElemFactory;
+    protected ParamGroup paramGroup;
+    protected File userDbDir;
+    protected File userInputDir;
+    protected Logger logger;
 
-    protected static final float _kilometersPerDegreee = 40000.f / 360.f;
-    protected static final float _oneMB = 1024 * 1024;
-    protected static final float _oneGB = _oneMB * 1024;
-    protected static final float _oneTB = _oneGB * 1024;
-    protected JLabel _expectedProductSizeLabel;
-    private File _requestFile;
+    protected static final float kilometersPerDegreee = 40000.f / 360.f;
+    protected static final float oneMB = 1024 * 1024;
+    protected static final float oneGB = oneMB * 1024;
+    protected static final float oneTB = oneGB * 1024;
+    protected JLabel expectedProductSizeLabel;
+    private File requestFile;
     private AlgorithmCreator algoCreator;
-    private JPanel _compositePanel;
+    private JPanel compositePanel;
 
     /**
      * Constructs the object with given processor.
      */
     L3UI(L3Processor processor) {
         Guardian.assertNotNull("processor", processor);
-        _processor = processor;
-        _reqElemFactory = (L3RequestElementFactory) _processor.getRequestElementFactory();
-        _requests = new Vector<Request>();
-        _logger = Logger.getLogger(L3Constants.LOGGER_NAME);
+        this.processor = processor;
+        reqElemFactory = (L3RequestElementFactory) this.processor.getRequestElementFactory();
+        requests = new Vector<Request>();
+        logger = Logger.getLogger(L3Constants.LOGGER_NAME);
         algoCreator = new AlgorithmFactory();
     }
 
@@ -300,13 +302,13 @@ public abstract class L3UI extends AbstractProcessorUI {
      * Retrieves the requests currently edited.
      */
     public Vector getRequests() throws ProcessorException {
-        if (_requests == null) {
-            _requests = new Vector<Request>();
+        if (requests == null) {
+            requests = new Vector<Request>();
         }
-        _requests.clear();
-        collectRequestsFromUI(_requests);
-        ((Request) _requests.get(0)).setFile(_requestFile);
-        return _requests;
+        requests.clear();
+        collectRequestsFromUI(requests);
+        ((Request) requests.get(0)).setFile(requestFile);
+        return requests;
     }
 
     /**
@@ -314,10 +316,10 @@ public abstract class L3UI extends AbstractProcessorUI {
      */
     public void setRequests(Vector requests) throws ProcessorException {
         Guardian.assertNotNull("requests", requests);
-        _requests = requests;
+        this.requests = requests;
         if (requests.size() > 0) {
             final Request request = (Request) requests.get(0);
-            _requestFile = request.getFile();
+            requestFile = request.getFile();
         }
         setRequests();
         updateUI();
@@ -327,8 +329,8 @@ public abstract class L3UI extends AbstractProcessorUI {
      * Create a set of new default requests.
      */
     public void setDefaultRequests() throws ProcessorException {
-        _requests = new Vector<Request>();
-        _requestFile = null;
+        requests = new Vector<Request>();
+        requestFile = null;
         setDefaultRequestsImpl();
         updateUI();
     }
@@ -340,7 +342,7 @@ public abstract class L3UI extends AbstractProcessorUI {
     public void setApp(ProcessorApp app) {
         super.setApp(app);
         ensureUserDirs();
-        markIODirChanges(_paramGroup);
+        markIODirChanges(paramGroup);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -369,7 +371,7 @@ public abstract class L3UI extends AbstractProcessorUI {
      * @param panel         whre to add the parameter
      */
     protected void addParameterToGridBagPanel(String parameterName, GridBagConstraints gbc, JPanel panel) {
-        final Parameter parameter = _paramGroup.getParameter(parameterName);
+        final Parameter parameter = paramGroup.getParameter(parameterName);
         if (parameter != null) {
             JLabel label = parameter.getEditor().getLabelComponent();
             JLabel unit = parameter.getEditor().getPhysUnitLabelComponent();
@@ -424,30 +426,30 @@ public abstract class L3UI extends AbstractProcessorUI {
      * Retrieves the current user database directory
      */
     protected File getUserDbDir() {
-        return _userDbDir;
+        return userDbDir;
     }
 
     /**
      * Sets a new user database directory
      */
     protected void setUserDbDir(File newDir) {
-        _userDbDir = newDir;
-        getApp().getPreferences().setPropertyString(L3Constants.USER_DB_DIR, _userDbDir.toString());
+        userDbDir = newDir;
+        getApp().getPreferences().setPropertyString(L3Constants.USER_DB_DIR, userDbDir.toString());
     }
 
     /**
      * Retrieves the current user input directory
      */
     protected File getUserInputDir() {
-        return _userInputDir;
+        return userInputDir;
     }
 
     /**
      * Sets a new user input directory
      */
     protected void setUserInputDir(File newDir) {
-        _userInputDir = newDir;
-        getApp().getPreferences().setPropertyString(L3Constants.USER_INPUT_DIR, _userInputDir.toString());
+        userInputDir = newDir;
+        getApp().getPreferences().setPropertyString(L3Constants.USER_INPUT_DIR, userInputDir.toString());
     }
 
     /**
@@ -456,18 +458,18 @@ public abstract class L3UI extends AbstractProcessorUI {
     private void ensureUserDirs() {
         String dirString = getApp().getPreferences().getPropertyString(L3Constants.USER_DB_DIR);
         if (dirString == null) {
-            _userDbDir = SystemUtils.getUserHomeDir();
-            getApp().getPreferences().setPropertyString(L3Constants.USER_DB_DIR, _userDbDir.toString());
+            userDbDir = SystemUtils.getUserHomeDir();
+            getApp().getPreferences().setPropertyString(L3Constants.USER_DB_DIR, userDbDir.toString());
         } else {
-            _userDbDir = new File(dirString);
+            userDbDir = new File(dirString);
         }
 
         dirString = getApp().getPreferences().getPropertyString(L3Constants.USER_INPUT_DIR);
         if (dirString == null) {
-            _userInputDir = SystemUtils.getUserHomeDir();
-            getApp().getPreferences().setPropertyString(L3Constants.USER_INPUT_DIR, _userInputDir.toString());
+            userInputDir = SystemUtils.getUserHomeDir();
+            getApp().getPreferences().setPropertyString(L3Constants.USER_INPUT_DIR, userInputDir.toString());
         } else {
-            _userInputDir = new File(dirString);
+            userInputDir = new File(dirString);
         }
     }
 
@@ -480,42 +482,41 @@ public abstract class L3UI extends AbstractProcessorUI {
         }
 
         int numVariables = 0;
-        for (int i = 0; i < rows.length; i++) {
-            final Row row = rows[i];
+        for (final Row row : rows) {
             final Algorithm algorithm = algoCreator.getAlgorithm(row.getAlgorithmName());
             numVariables += algorithm.getNumberOfInterpretedVariables();
         }
 
-        Parameter parameter = _paramGroup.getParameter(L3Constants.LAT_MIN_PARAMETER_NAME);
+        Parameter parameter = paramGroup.getParameter(L3Constants.LAT_MIN_PARAMETER_NAME);
         final float latMin = (Float) parameter.getValue();
 
-        parameter = _paramGroup.getParameter(L3Constants.LAT_MAX_PARAMETER_NAME);
+        parameter = paramGroup.getParameter(L3Constants.LAT_MAX_PARAMETER_NAME);
         final float latMax = (Float) parameter.getValue();
 
-        parameter = _paramGroup.getParameter(L3Constants.LON_MIN_PARAMETER_NAME);
+        parameter = paramGroup.getParameter(L3Constants.LON_MIN_PARAMETER_NAME);
         final float lonMin = (Float) parameter.getValue();
 
-        parameter = _paramGroup.getParameter(L3Constants.LON_MAX_PARAMETER_NAME);
+        parameter = paramGroup.getParameter(L3Constants.LON_MAX_PARAMETER_NAME);
         final float lonMax = (Float) parameter.getValue();
 
-        parameter = _paramGroup.getParameter(L3Constants.GRID_CELL_SIZE_PARAM_NAME);
+        parameter = paramGroup.getParameter(L3Constants.GRID_CELL_SIZE_PARAM_NAME);
         final float cellSize = (Float) parameter.getValue();
 
         // the 4 corresponds to the size of a variable in bytes
-        float size = 4 * ((latMax - latMin) * (lonMax - lonMin) * _kilometersPerDegreee * _kilometersPerDegreee * numVariables) / cellSize;
+        float size = 4 * ((latMax - latMin) * (lonMax - lonMin) * kilometersPerDegreee * kilometersPerDegreee * numVariables) / cellSize;
 
         String unit;
-        if (size > _oneTB) {
-            size = size / _oneTB;
+        if (size > oneTB) {
+            size = size / oneTB;
             unit = "TB";
-        } else if (size > _oneGB) {
-            size = size / _oneGB;
+        } else if (size > oneGB) {
+            size = size / oneGB;
             unit = "GB";
         } else {
-            size = size / _oneMB;
+            size = size / oneMB;
             unit = "MB";
         }
-        _expectedProductSizeLabel.setText(size + " " + unit);
+        expectedProductSizeLabel.setText(size + " " + unit);
     }
 
     protected boolean isOneShotUI() {
@@ -526,8 +527,11 @@ public abstract class L3UI extends AbstractProcessorUI {
         JPanel panel = GridBagUtils.createDefaultEmptyBorderPanel();
         final GridBagConstraints gbc = GridBagUtils.createConstraints(null);
 
+        gbc.gridx = 0;
+        gbc.gridy = -1;
+
         if (!isOneShotUI()) {
-            Parameter param = _paramGroup.getParameter(L3Constants.DATABASE_PARAM_NAME);
+            Parameter param = paramGroup.getParameter(L3Constants.DATABASE_PARAM_NAME);
 
             gbc.gridy++;
             gbc.anchor = GridBagConstraints.SOUTHWEST;
@@ -550,7 +554,7 @@ public abstract class L3UI extends AbstractProcessorUI {
         panel.add(inputProductEditor.getUI(), gbc);
 
         if (!isOneShotUI()) {
-            final Parameter logPrefixParam = _paramGroup.getParameter(ProcessorConstants.LOG_PREFIX_PARAM_NAME);
+            final Parameter logPrefixParam = paramGroup.getParameter(ProcessorConstants.LOG_PREFIX_PARAM_NAME);
 
             gbc.gridy++;
             gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -572,7 +576,7 @@ public abstract class L3UI extends AbstractProcessorUI {
 
         gbc.gridwidth = 3;
         if (!isOneShotUI()) {
-            final Parameter databaseParam = _paramGroup.getParameter(L3Constants.DATABASE_PARAM_NAME);
+            final Parameter databaseParam = paramGroup.getParameter(L3Constants.DATABASE_PARAM_NAME);
 
             gbc.gridy++;
             gbc.anchor = GridBagConstraints.SOUTHWEST;
@@ -587,7 +591,7 @@ public abstract class L3UI extends AbstractProcessorUI {
         }
 
 
-        final Parameter outFileParam = _paramGroup.getParameter(L3Constants.OUTPUT_PRODUCT_PARAM_NAME);
+        final Parameter outFileParam = paramGroup.getParameter(L3Constants.OUTPUT_PRODUCT_PARAM_NAME);
 
         gbc.gridy++;
         gbc.anchor = GridBagConstraints.SOUTHWEST;
@@ -603,7 +607,7 @@ public abstract class L3UI extends AbstractProcessorUI {
         panel.add(outFileParam.getEditor().getComponent(), gbc);
 
 
-        final Parameter outFormatParam = _paramGroup.getParameter(ProcessorConstants.OUTPUT_FORMAT_PARAM_NAME);
+        final Parameter outFormatParam = paramGroup.getParameter(ProcessorConstants.OUTPUT_FORMAT_PARAM_NAME);
 
         gbc.gridy++;
         gbc.anchor = GridBagConstraints.WEST;
@@ -618,7 +622,7 @@ public abstract class L3UI extends AbstractProcessorUI {
 
         gbc.insets.top = 7;
 
-        final Parameter tailoringParam = _paramGroup.getParameter(L3Constants.TAILORING_PARAM_NAME);
+        final Parameter tailoringParam = paramGroup.getParameter(L3Constants.TAILORING_PARAM_NAME);
 
         gbc.gridy++;
         gbc.gridwidth = 3;
@@ -631,7 +635,7 @@ public abstract class L3UI extends AbstractProcessorUI {
         }
 
 
-        final Parameter logPrefixParam = _paramGroup.getParameter(ProcessorConstants.LOG_PREFIX_PARAM_NAME);
+        final Parameter logPrefixParam = paramGroup.getParameter(ProcessorConstants.LOG_PREFIX_PARAM_NAME);
 
         gbc.gridy++;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -644,7 +648,7 @@ public abstract class L3UI extends AbstractProcessorUI {
         gbc.insets.top = 0;
         panel.add(logPrefixParam.getEditor().getComponent(), gbc);
 
-        final Parameter logToOutputParam = _paramGroup.getParameter(ProcessorConstants.LOG_TO_OUTPUT_PARAM_NAME);
+        final Parameter logToOutputParam = paramGroup.getParameter(ProcessorConstants.LOG_TO_OUTPUT_PARAM_NAME);
 
         gbc.gridy++;
         gbc.insets.top = 7;
@@ -680,24 +684,27 @@ public abstract class L3UI extends AbstractProcessorUI {
 
         gbc.gridy++;
         gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.insets.bottom = 3;
         gbc.insets.top = 0;
         gbc.gridwidth = 2;
+        gbc.weightx = 1;
+        gbc.weighty = 1;
         panel.add(table.getComponent(), gbc);
 
         return panel;
     }
 
 
-    private int editExpression(String[] value, final boolean booleanExpected) {
+    private String editExpression(String code, final boolean booleanExpected) {
         final Product product;
         try {
             product = getExampleProduct(false);
         } catch (IOException e) {
-            return ModalDialog.ID_CANCEL;
+            return null;
         }
         if (product == null) {
-            return ModalDialog.ID_CANCEL;
+            return null;
         }
         final ProductExpressionPane pep;
         if (booleanExpected) {
@@ -707,12 +714,12 @@ public abstract class L3UI extends AbstractProcessorUI {
             pep = ProductExpressionPane.createGeneralExpressionPane(new Product[]{product}, product,
                                                                     getApp().getPreferences());
         }
-        pep.setCode(value[0]);
-        final int i = pep.showModalDialog(getApp().getMainFrame(), value[0]);
+        pep.setCode(code);
+        final int i = pep.showModalDialog(getApp().getMainFrame(), "Expression Editor");
         if (i == ModalDialog.ID_OK) {
-            value[0] = pep.getCode();
+            return pep.getCode();
         }
-        return i;
+        return null;
     }
 
     protected JPanel createProcessingParametersPanel() throws ProcessorException {
@@ -725,7 +732,7 @@ public abstract class L3UI extends AbstractProcessorUI {
         if (!isOneShotUI()) {
             gbc.gridy++;
             gbc.fill = GridBagConstraints.HORIZONTAL;
-            Parameter dbParam = _paramGroup.getParameter(L3Constants.DATABASE_PARAM_NAME);
+            Parameter dbParam = paramGroup.getParameter(L3Constants.DATABASE_PARAM_NAME);
             panel.add(dbParam.getEditor().getLabelComponent(), gbc);
 
             gbc.gridy++;
@@ -739,9 +746,9 @@ public abstract class L3UI extends AbstractProcessorUI {
         gbc.weightx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        _compositePanel = createCompositePanel();
-        _compositePanel.setBorder(BorderFactory.createTitledBorder("Compositing"));
-        panel.add(_compositePanel, gbc);
+        compositePanel = createCompositePanel();
+        compositePanel.setBorder(BorderFactory.createTitledBorder("Compositing"));
+        panel.add(compositePanel, gbc);
 
 
         gbc.gridy++;
@@ -753,7 +760,7 @@ public abstract class L3UI extends AbstractProcessorUI {
         gbc.weightx = 0;
 
         if (!isOneShotUI()) {
-            final Parameter logPrefixParam = _paramGroup.getParameter(ProcessorConstants.LOG_PREFIX_PARAM_NAME);
+            final Parameter logPrefixParam = paramGroup.getParameter(ProcessorConstants.LOG_PREFIX_PARAM_NAME);
 
             gbc.gridy++;
             gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -774,16 +781,16 @@ public abstract class L3UI extends AbstractProcessorUI {
         gbc.weightx = 1;
         gbc.gridwidth = 1;
 
-        final String text = "Expected L3 Product Size: ";
+        final String text = "Expected L3 product size: ";
         JLabel expectedSizeLabel = new JLabel(text); /*I18N*/
         expectedSizeLabel.setFont(expectedSizeLabel.getFont().deriveFont(Font.ITALIC));
         panel.add(expectedSizeLabel, gbc);
 
         gbc.weightx = 0;
-        _expectedProductSizeLabel = new JLabel("0.00 MB");
-        _expectedProductSizeLabel.setFont(expectedSizeLabel.getFont());
-        _expectedProductSizeLabel.setName(text.substring(0, text.length() - 2));
-        panel.add(_expectedProductSizeLabel, gbc);
+        expectedProductSizeLabel = new JLabel("0.00 MB");
+        expectedProductSizeLabel.setFont(expectedSizeLabel.getFont());
+        expectedProductSizeLabel.setName(text.substring(0, text.length() - 2));
+        panel.add(expectedProductSizeLabel, gbc);
 
 
         updateEstimatedProductSize(null);
@@ -820,14 +827,14 @@ public abstract class L3UI extends AbstractProcessorUI {
                     if (exampleProduct != null) {
                         final Band[] allBands = exampleProduct.getBands();
                         final String[] existingBandNames = table.getBandNames();
-                        final List existingBandList = new ArrayList();
-                        for (int i = 0; i < existingBandNames.length; i++) {
-                            final Band band = exampleProduct.getBand(existingBandNames[i]);
+                        final List<Band> existingBandList = new ArrayList<Band>();
+                        for (String existingBandName : existingBandNames) {
+                            final Band band = exampleProduct.getBand(existingBandName);
                             if (band != null) {
                                 existingBandList.add(band);
                             }
                         }
-                        final Band[] existingBands = (Band[]) existingBandList.toArray(
+                        final Band[] existingBands = existingBandList.toArray(
                                 new Band[existingBandList.size()]);
                         final BandChooser bandChooser = new BandChooser(getApp().getMainFrame(),
                                                                         "Band Chooser", "", /*I18N*/
@@ -835,24 +842,22 @@ public abstract class L3UI extends AbstractProcessorUI {
                                                                         existingBands);
                         if (bandChooser.show() == ModalDialog.ID_OK) {
                             final Row[] rows = table.getRows();
-                            final HashMap rowsMap = new HashMap();
-                            for (int i = 0; i < rows.length; i++) {
-                                final Row row = rows[i];
+                            final HashMap<String, Row> rowsMap = new HashMap<String, Row>();
+                            for (final Row row : rows) {
                                 rowsMap.put(row.getBandName(), row);
                             }
                             table.removeAll();
 
                             final Band[] selectedBands = bandChooser.getSelectedBands();
 
-                            for (int i = 0; i < selectedBands.length; i++) {
-                                final Band selectedBand = selectedBands[i];
+                            for (final Band selectedBand : selectedBands) {
                                 final String bandName = selectedBand.getName();
                                 if (rowsMap.containsKey(bandName)) {
-                                    final Row row = (Row) rowsMap.get(bandName);
+                                    final Row row = rowsMap.get(bandName);
                                     table.add(bandName, row.getBitmaskExpression(), row.getAlgorithmName(),
-                                              row.getWeightCoeffizient());
+                                            row.getWeightCoefficient());
                                 } else {
-                                    table.add(bandName, null, null, 0.5);
+                                    table.add(bandName, selectedBand.getValidMaskExpression(), L3Constants.ALGORITHM_VALUE_ARITHMETIC_MEAN, 1.0);
                                 }
                             }
                         }
@@ -877,8 +882,7 @@ public abstract class L3UI extends AbstractProcessorUI {
                                           final Request initRequest) {
         processingParamsTable.clear();
         final Parameter[] allParameters = initRequest.getAllParameters();
-        for (int i = 0; i < allParameters.length; i++) {
-            Parameter bandNameParam = allParameters[i];
+        for (Parameter bandNameParam : allParameters) {
             final String name = bandNameParam.getName();
             if (name.startsWith(L3Constants.BAND_NAME_PARAMETER_NAME)) {
                 final String suffix;
@@ -906,20 +910,18 @@ public abstract class L3UI extends AbstractProcessorUI {
                 final String algoName;
                 if (algorithmParam == null) {
                     algoName = L3Constants.ALGORITHM_DEFAULT_VALUE;
-                    _logger.info("Parameter '" + algorithmParamName + "' not found. Use the default value '" +
-                                 algoName + "' instead.");
+                    logger.info("Parameter '" + algorithmParamName + "' not found. Using the default value '" +
+                            algoName + "' instead.");
                 } else {
                     algoName = algorithmParam.getValueAsText();
                 }
 
                 final double coeffValue;
-                if (weightCoeffParam == null
-                    && !L3Constants.ALGORITHM_VALUE_SET[0].equalsIgnoreCase(algoName)) {
-                    _logger.info(
-                            "Parameter '" + coefficientParamName + "' not found. Use the default value '0.5' instead.");
-                }
                 if (weightCoeffParam == null) {
-                    coeffValue = 0.5;
+                    coeffValue = algoName.equalsIgnoreCase(L3Constants.ALGORITHM_VALUE_MAXIMUM_LIKELIHOOD) ?  0.5 : 1.0;
+                    logger.info(
+                            "Parameter '" + coefficientParamName + "' not found. Using the default value '"+
+                                coeffValue    +"' instead.");
                 } else {
                     coeffValue = ((Float) weightCoeffParam.getValue()).doubleValue();
                 }
@@ -931,7 +933,7 @@ public abstract class L3UI extends AbstractProcessorUI {
 
     protected boolean validateRequestType(Request request) {
         final String requestType = request.getType();
-        if (!(requestType == L3Constants.REQUEST_TYPE)) {
+        if (!requestType.equals(L3Constants.REQUEST_TYPE)) {
             getApp().showInfoDialog("Illegal request type: '" + requestType + "'", null);
             return false;
         }
@@ -948,22 +950,21 @@ public abstract class L3UI extends AbstractProcessorUI {
             }
         } catch (IOException e) {
             getApp().showErrorDialog("Unable to open the product to validate the request.\n" +
-                                     "An IOException occures while trying to\n" +
-                                     "open the product to use for validating.");
+                                     "An I/O exception occured while trying to\n" +
+                                     "open the product for request validation.");
             return false;
         }
 
         final Parameter[] allParameters = request.getAllParameters();
         int processingParamNumber = 0;
-        for (int i = 0; i < allParameters.length; i++) {
-            final Parameter param = allParameters[i];
+        for (final Parameter param : allParameters) {
             final String name = param.getName();
             if (name.startsWith(L3Constants.BAND_NAME_PARAMETER_NAME)) {
                 processingParamNumber++;
                 final String bandName = param.getValueAsText();
                 if (bandName == null || bandName.trim().length() == 0) {
                     getApp().showInfoDialog("The band name of the processing parameter #" + processingParamNumber
-                                            + " is empty.", null);
+                            + " is empty.", null);
                     return false;
                 }
                 final String postfix = name.substring(name.lastIndexOf("."));
@@ -973,7 +974,7 @@ public abstract class L3UI extends AbstractProcessorUI {
                 final BitmaskDef bitmaskDef = new BitmaskDef("n", "d", expression, null, 0);
                 if (!exampleProduct.isCompatibleBitmaskDef(bitmaskDef)) {
                     getApp().showInfoDialog("The valid expression of the band" +
-                                            "named '" + bandName + "' is not applicable.", null);
+                            "named '" + bandName + "' is not applicable.", null);
                     return false;
                 }
             }
@@ -992,18 +993,18 @@ public abstract class L3UI extends AbstractProcessorUI {
             String paramName;
             paramName = L3Constants.BAND_NAME_PARAMETER_NAME + postfix;
             initRequest.addParameter(
-                    _reqElemFactory.createParameter(paramName, bandName == null ? "" : bandName.trim()));
+                    reqElemFactory.createParameter(paramName, bandName == null ? "" : bandName.trim()));
 
             paramName = L3Constants.BITMASK_PARAMETER_NAME + postfix;
             final String expression = row.getBitmaskExpression();
             initRequest.addParameter(
-                    _reqElemFactory.createParameter(paramName, expression == null ? "" : expression.trim()));
+                    reqElemFactory.createParameter(paramName, expression == null ? "" : expression.trim()));
 
             paramName = L3Constants.ALGORITHM_PARAMETER_NAME + postfix;
-            initRequest.addParameter(_reqElemFactory.createParameter(paramName, row.getAlgorithmName()));
+            initRequest.addParameter(reqElemFactory.createParameter(paramName, row.getAlgorithmName()));
 
             paramName = L3Constants.WEIGHT_COEFFICIENT_PARAMETER_NAME + postfix;
-            initRequest.addParameter(_reqElemFactory.createParameter(paramName, "" + row.getWeightCoeffizient()));
+            initRequest.addParameter(reqElemFactory.createParameter(paramName, "" + row.getWeightCoefficient()));
         }
     }
 
@@ -1015,10 +1016,10 @@ public abstract class L3UI extends AbstractProcessorUI {
         if (request.getNumOutputProducts() > 0) {
             final ProductRef outputProduct = request.getOutputProductAt(0);
             final File file = new File(outputProduct.getFilePath());
-            final Parameter param = _paramGroup.getParameter(L3Constants.OUTPUT_PRODUCT_PARAM_NAME);
+            final Parameter param = paramGroup.getParameter(L3Constants.OUTPUT_PRODUCT_PARAM_NAME);
             param.setValue(file, null);
 
-            final Parameter outFormatParam = _paramGroup.getParameter(ProcessorConstants.OUTPUT_FORMAT_PARAM_NAME);
+            final Parameter outFormatParam = paramGroup.getParameter(ProcessorConstants.OUTPUT_FORMAT_PARAM_NAME);
             if (outputProduct.getFileFormat() == null) {
                 // set default format - beam-dimap
                 outFormatParam.setValue(DimapProductConstants.DIMAP_FORMAT_NAME, null);
@@ -1034,13 +1035,13 @@ public abstract class L3UI extends AbstractProcessorUI {
                 final Parameter changedParam = event.getParameter();
                 if (changedParam.getName().equals(L3Constants.RESAMPLING_TYPE_PARAM_NAME)) {
 
-                    final Parameter paramGCC = _paramGroup.getParameter(L3Constants.GRID_CELL_SIZE_PARAM_NAME);
+                    final Parameter paramGCC = paramGroup.getParameter(L3Constants.GRID_CELL_SIZE_PARAM_NAME);
                     final ParamEditor paramEditorGCC = paramGCC.getEditor();
                     final JLabel labelGCC = paramEditorGCC.getLabelComponent();
                     final JComponent editorGCC = paramEditorGCC.getComponent();
                     final JLabel unitGCC = paramEditorGCC.getPhysUnitLabelComponent();
 
-                    final Parameter paramCPD = _paramGroup.getParameter(L3Constants.CELLS_PER_DEGREE_PARAM_NAME);
+                    final Parameter paramCPD = paramGroup.getParameter(L3Constants.CELLS_PER_DEGREE_PARAM_NAME);
                     final ParamEditor paramEditorCPD = paramCPD.getEditor();
                     final JLabel labelCPD = paramEditorCPD.getLabelComponent();
                     final JComponent editorCPD = paramEditorCPD.getComponent();
@@ -1057,8 +1058,8 @@ public abstract class L3UI extends AbstractProcessorUI {
         };
     }
 
-    protected boolean isFluxConsrving() {
-        final Parameter param = _paramGroup.getParameter(L3Constants.RESAMPLING_TYPE_PARAM_NAME);
+    protected final boolean isFluxConserving() {
+        final Parameter param = paramGroup.getParameter(L3Constants.RESAMPLING_TYPE_PARAM_NAME);
         if (param == null) {
             return false;
         }
@@ -1068,25 +1069,25 @@ public abstract class L3UI extends AbstractProcessorUI {
     private void replaceComponents(final JLabel label, final JLabel newLabel,
                                    final JComponent editor, final JComponent newEditor,
                                    final JLabel unit, final JLabel newUnit) {
-        final GridBagLayout gbl = (GridBagLayout) _compositePanel.getLayout();
+        final GridBagLayout gbl = (GridBagLayout) compositePanel.getLayout();
 
         replaceComponent(gbl, label, newLabel);
         replaceComponent(gbl, editor, newEditor);
         replaceComponent(gbl, unit, newUnit);
 
-        _compositePanel.revalidate();
-        _compositePanel.repaint();
+        compositePanel.revalidate();
+        compositePanel.repaint();
     }
 
     private void replaceComponent(final GridBagLayout gbl, final Component comp, final Component newComp) {
         final GridBagConstraints gbc = gbl.getConstraints(comp);
-        _compositePanel.remove(comp);
-        _compositePanel.add(newComp, gbc);
+        compositePanel.remove(comp);
+        compositePanel.add(newComp, gbc);
     }
 
     protected void updateUIComponent(String paramName, Request request) throws ParamValidateException {
         final Parameter param = request.getParameter(paramName);
-        final Parameter toUpdate = _paramGroup.getParameter(paramName);
+        final Parameter toUpdate = paramGroup.getParameter(paramName);
         if (param != null) {
             toUpdate.setValue(param.getValue());
         } else {

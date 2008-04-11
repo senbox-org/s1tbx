@@ -175,7 +175,9 @@ public final class FileArrayEditor {
         gbc.gridy++;
         gbc.anchor = GridBagConstraints.WEST;
         gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 1;
+        gbc.weighty = 1;
         _basePanel.add(scrollPane, gbc);
 
     }

@@ -38,8 +38,8 @@ public class L3Constants implements ProcessorConstants {
 
     // name of the parameter composite_type
     public static final String TAILORING_PARAM_NAME = "tailoring";
-    public static final String TAILORING_PARAM_LABEL = "Tailor output product to geographic boundaries of available data";
-    public static final String TAILORING_PARAM_DESC = "Determines the product geografic boundary";
+    public static final String TAILORING_PARAM_LABEL = "Tailor output to geographic boundary of input";
+    public static final String TAILORING_PARAM_DESC = "Determines the product geographic boundary";
     public static final Boolean TAILORING_DEFAULT_VALUE = Boolean.TRUE;
 
     // name of the parameter process_type
@@ -116,6 +116,11 @@ public class L3Constants implements ProcessorConstants {
 
     public static final String BAND_NUM_PARAMETER_NAME = "band_num";
 
+
+    public static final String ALGORITHM_VALUE_MAXIMUM_LIKELIHOOD = "Maximum Likelihood";
+    public static final String ALGORITHM_VALUE_ARITHMETIC_MEAN = "Arithmetic Mean";
+    public static final String ALGORITHM_VALUE_MINIMUM_MAXIMUM = "Minimum/Maximum";
+
     // name of the parameter binning_algorithm
     public static final String ALGORITHM_PARAMETER_NAME = "binning_algorithm";
     // the parameter label
@@ -123,9 +128,11 @@ public class L3Constants implements ProcessorConstants {
     // the parameter description
     public static final String ALGORITHM_DESCRIPTION = "Sample value aggregation algorithm name";
     // the value set of the parameter binning_algorithm
-    public static final String[] ALGORITHM_VALUE_SET = {"Maximum Likelihood", "Arithmetic Mean", "Minimum/Maximum"};
+    public static final String[] ALGORITHM_VALUE_SET = {ALGORITHM_VALUE_ARITHMETIC_MEAN,
+                                                        ALGORITHM_VALUE_MAXIMUM_LIKELIHOOD,
+                                                        ALGORITHM_VALUE_MINIMUM_MAXIMUM};
     // default value for the parameter binning_algrithm
-    public static final String ALGORITHM_DEFAULT_VALUE = "Maximum Likelihood";
+    public static final String ALGORITHM_DEFAULT_VALUE = ALGORITHM_VALUE_ARITHMETIC_MEAN;
 
     // name of the parameter weight_coefficient
     public static final String WEIGHT_COEFFICIENT_PARAMETER_NAME = "weight_coefficient";

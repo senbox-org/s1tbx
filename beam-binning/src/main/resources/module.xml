@@ -29,6 +29,8 @@
     <changelog>
         <![CDATA[
         Changes in 2.0.100:<br>
+        [BEAM-806] Default aggregation algorithm should be "Arithmetic Mean" in L3 processor
+        [BEAM-805] Valid pixel expression field in L3 processor GUI should be an editable field
         [BEAM-757] Layout of help pages is not uniform<br>
         ]]>
     </changelog>

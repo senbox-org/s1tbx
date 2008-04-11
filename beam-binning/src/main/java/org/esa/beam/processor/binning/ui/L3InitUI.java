@@ -51,17 +51,17 @@ import java.util.List;
  */
 public class L3InitUI extends L3UI {
 
-    private Request _initRequest;
-    private JTabbedPane _uiPane;
-    private ProcessingParamsTable _processingParamsTable;
-    private Product _exampleProduct;
+    private Request initRequest;
+    private JTabbedPane uiPane;
+    private ProcessingParamsTable processingParamsTable;
+    private Product exampleProduct;
 
     /**
      * Constructs the object with given processor.
      */
     public L3InitUI(L3Processor processor) throws ProcessorException {
         super(processor);
-        _uiPane = null;
+        uiPane = null;
         createParameterGroup();
     }
 
@@ -70,16 +70,16 @@ public class L3InitUI extends L3UI {
      * containertype.
      */
     public JComponent getGuiComponent() {
-        if (_uiPane == null) {
+        if (uiPane == null) {
             try {
                 createUI();
             } catch (ProcessorException e) {
                 Debug.trace(e);
-                _logger.severe("Unable to create user interface: " + e.getMessage());
+                logger.severe("Unable to create user interface: " + e.getMessage());
                 return null;
             }
         }
-        return _uiPane;
+        return uiPane;
     }
 
     protected void setRequests() throws ProcessorException {
@@ -94,40 +94,40 @@ public class L3InitUI extends L3UI {
         request.setType(L3Constants.REQUEST_TYPE);
         addParameterToRequest(request);
 
-        _requests.add(request);
+        this.requests.add(request);
     }
 
     /**
      * Create a set of new default requests.
      */
     protected void setDefaultRequestsImpl() throws ProcessorException {
-        _initRequest = new Request();
+        initRequest = new Request();
 
         try {
-            _initRequest.setType(L3Constants.REQUEST_TYPE);
-            _initRequest.addParameter(
-                    _reqElemFactory.createParameter(L3Constants.PROCESS_TYPE_PARAM_NAME,
+            initRequest.setType(L3Constants.REQUEST_TYPE);
+            initRequest.addParameter(
+                    reqElemFactory.createParameter(L3Constants.PROCESS_TYPE_PARAM_NAME,
                                                     L3Constants.PROCESS_TYPE_INIT));
-            _initRequest.addParameter(_reqElemFactory.generateDefaultDbLocation());
-            _initRequest.addParameter(
-                    _reqElemFactory.createParamWithDefaultValueSet(L3Constants.LAT_MIN_PARAMETER_NAME));
-            _initRequest.addParameter(
-                    _reqElemFactory.createParamWithDefaultValueSet(L3Constants.LAT_MAX_PARAMETER_NAME));
-            _initRequest.addParameter(
-                    _reqElemFactory.createParamWithDefaultValueSet(L3Constants.LON_MIN_PARAMETER_NAME));
-            _initRequest.addParameter(
-                    _reqElemFactory.createParamWithDefaultValueSet(L3Constants.LON_MAX_PARAMETER_NAME));
-            _initRequest.addParameter(
-                    _reqElemFactory.createDefaultLogPatternParameter(L3Constants.DEFAULT_LOG_PREFIX_INIT));
-            _initRequest.addParameter(
-                    _reqElemFactory.createParamWithDefaultValueSet(L3Constants.RESAMPLING_TYPE_PARAM_NAME));
-            _initRequest.addParameter(
-                    _reqElemFactory.createParamWithDefaultValueSet(L3Constants.GRID_CELL_SIZE_PARAM_NAME));
+            initRequest.addParameter(reqElemFactory.generateDefaultDbLocation());
+            initRequest.addParameter(
+                    reqElemFactory.createParamWithDefaultValueSet(L3Constants.LAT_MIN_PARAMETER_NAME));
+            initRequest.addParameter(
+                    reqElemFactory.createParamWithDefaultValueSet(L3Constants.LAT_MAX_PARAMETER_NAME));
+            initRequest.addParameter(
+                    reqElemFactory.createParamWithDefaultValueSet(L3Constants.LON_MIN_PARAMETER_NAME));
+            initRequest.addParameter(
+                    reqElemFactory.createParamWithDefaultValueSet(L3Constants.LON_MAX_PARAMETER_NAME));
+            initRequest.addParameter(
+                    reqElemFactory.createDefaultLogPatternParameter(L3Constants.DEFAULT_LOG_PREFIX_INIT));
+            initRequest.addParameter(
+                    reqElemFactory.createParamWithDefaultValueSet(L3Constants.RESAMPLING_TYPE_PARAM_NAME));
+            initRequest.addParameter(
+                    reqElemFactory.createParamWithDefaultValueSet(L3Constants.GRID_CELL_SIZE_PARAM_NAME));
 
             try {
-                _initRequest.addParameter(_reqElemFactory.createLogToOutputParameter("false"));
+                initRequest.addParameter(reqElemFactory.createLogToOutputParameter("false"));
             } catch (ParamValidateException e) {
-                _logger.warning("Unable to validate parameter '" + ProcessorConstants.LOG_TO_OUTPUT_PARAM_NAME + "'");
+                logger.warning("Unable to validate parameter '" + ProcessorConstants.LOG_TO_OUTPUT_PARAM_NAME + "'");
                 Debug.trace(e);
             }
         } catch (RequestElementFactoryException e) {
@@ -143,11 +143,11 @@ public class L3InitUI extends L3UI {
      * Crates the user interface
      */
     private void createUI() throws ProcessorException {
-        _uiPane = new JTabbedPane();
-        _uiPane.addTab(TAB_NAME_PROCESSING_PARAMETERS, createProcessingParametersPanel());
-        _processingParamsTable = new ProcessingParamsTable();
-        _uiPane.addTab(TAB_NAME_BANDS, createBandsPanel(_processingParamsTable));
-        HelpSys.enableHelp(_uiPane, "binningInitializeTool");
+        uiPane = new JTabbedPane();
+        uiPane.addTab(TAB_NAME_PROCESSING_PARAMETERS, createProcessingParametersPanel());
+        processingParamsTable = new ProcessingParamsTable();
+        uiPane.addTab(TAB_NAME_BANDS, createBandsPanel(processingParamsTable));
+        HelpSys.enableHelp(uiPane, "binningInitializeTool");
     }
 
     public void setApp(ProcessorApp app) {
@@ -171,7 +171,7 @@ public class L3InitUI extends L3UI {
     }
 
     protected Product getExampleProduct(boolean forBandFilter) throws IOException {
-        if (_exampleProduct != null) {
+        if (exampleProduct != null) {
             final int answer;
             if (forBandFilter) {
                 answer = getApp().showQuestionDialog("Do you want to use the example product you have loaded before?",
@@ -180,12 +180,12 @@ public class L3InitUI extends L3UI {
                 answer = JOptionPane.YES_OPTION;
             }
             if (answer == JOptionPane.YES_OPTION) {
-                return _exampleProduct;
+                return exampleProduct;
             } else {
-                _exampleProduct.dispose();
-                _exampleProduct = null;
+                exampleProduct.dispose();
+                exampleProduct = null;
             }
-        } else if (_exampleProduct == null && !forBandFilter) {
+        } else if (exampleProduct == null && !forBandFilter) {
             final int answer = getApp().showQuestionDialog(
                     "Do you want to open an example product to validate the processing request?", null);
             if (answer == JOptionPane.NO_OPTION) {
@@ -195,13 +195,13 @@ public class L3InitUI extends L3UI {
 
         final BeamFileChooser beamFileChooser = new BeamFileChooser();
         beamFileChooser.setCurrentDirectory(getUserInputDir());
-        final int answer = beamFileChooser.showOpenDialog(_uiPane);
+        final int answer = beamFileChooser.showOpenDialog(uiPane);
         if (BeamFileChooser.APPROVE_OPTION == answer) {
             final File selectedFile = beamFileChooser.getSelectedFile();
             final File inputDir = selectedFile.getParentFile();
             setUserInputDir(inputDir);
-            _exampleProduct = ProductIO.readProduct(selectedFile, null);
-            return _exampleProduct;
+            exampleProduct = ProductIO.readProduct(selectedFile, null);
+            return exampleProduct;
         }
         return null;
     }
@@ -210,34 +210,34 @@ public class L3InitUI extends L3UI {
      * Creates the parameter group
      */
     private void createParameterGroup() throws ProcessorException {
-        _paramGroup = new ParamGroup();
+        paramGroup = new ParamGroup();
 
-        _paramGroup.addParameter(_reqElemFactory.generateDefaultDbLocation());
-        _paramGroup.addParameter(_reqElemFactory.createParamWithDefaultValueSet(L3Constants.LAT_MIN_PARAMETER_NAME));
-        _paramGroup.addParameter(_reqElemFactory.createParamWithDefaultValueSet(L3Constants.LAT_MAX_PARAMETER_NAME));
-        _paramGroup.addParameter(_reqElemFactory.createParamWithDefaultValueSet(L3Constants.LON_MIN_PARAMETER_NAME));
-        _paramGroup.addParameter(_reqElemFactory.createParamWithDefaultValueSet(L3Constants.LON_MAX_PARAMETER_NAME));
-        _paramGroup.addParameter(_reqElemFactory.createDefaultLogPatternParameter(L3Constants.DEFAULT_LOG_PREFIX_INIT));
-        _paramGroup.addParameter(
-                _reqElemFactory.createParamWithDefaultValueSet(L3Constants.RESAMPLING_TYPE_PARAM_NAME));
-        _paramGroup.addParameter(_reqElemFactory.createParamWithDefaultValueSet(L3Constants.GRID_CELL_SIZE_PARAM_NAME));
-        _paramGroup.addParameter(
-                _reqElemFactory.createParamWithDefaultValueSet(L3Constants.CELLS_PER_DEGREE_PARAM_NAME));
+        paramGroup.addParameter(reqElemFactory.generateDefaultDbLocation());
+        paramGroup.addParameter(reqElemFactory.createParamWithDefaultValueSet(L3Constants.LAT_MIN_PARAMETER_NAME));
+        paramGroup.addParameter(reqElemFactory.createParamWithDefaultValueSet(L3Constants.LAT_MAX_PARAMETER_NAME));
+        paramGroup.addParameter(reqElemFactory.createParamWithDefaultValueSet(L3Constants.LON_MIN_PARAMETER_NAME));
+        paramGroup.addParameter(reqElemFactory.createParamWithDefaultValueSet(L3Constants.LON_MAX_PARAMETER_NAME));
+        paramGroup.addParameter(reqElemFactory.createDefaultLogPatternParameter(L3Constants.DEFAULT_LOG_PREFIX_INIT));
+        paramGroup.addParameter(
+                reqElemFactory.createParamWithDefaultValueSet(L3Constants.RESAMPLING_TYPE_PARAM_NAME));
+        paramGroup.addParameter(reqElemFactory.createParamWithDefaultValueSet(L3Constants.GRID_CELL_SIZE_PARAM_NAME));
+        paramGroup.addParameter(
+                reqElemFactory.createParamWithDefaultValueSet(L3Constants.CELLS_PER_DEGREE_PARAM_NAME));
 
         try {
-            _paramGroup.addParameter(_reqElemFactory.createLogToOutputParameter("false"));
+            paramGroup.addParameter(reqElemFactory.createLogToOutputParameter("false"));
         } catch (ParamValidateException e) {
-            _logger.warning("Unable to validate parameter '" + ProcessorConstants.LOG_TO_OUTPUT_PARAM_NAME + "'");
+            logger.warning("Unable to validate parameter '" + ProcessorConstants.LOG_TO_OUTPUT_PARAM_NAME + "'");
             Debug.trace(e);
         }
 
-        _paramGroup.addParameter(
-                _reqElemFactory.createParameter(L3Constants.PROCESS_TYPE_PARAM_NAME, L3Constants.PROCESS_TYPE_INIT));
+        paramGroup.addParameter(
+                reqElemFactory.createParameter(L3Constants.PROCESS_TYPE_PARAM_NAME, L3Constants.PROCESS_TYPE_INIT));
 
-        _paramGroup.addParamChangeListener(createResamplingChangeListener());
-        _paramGroup.addParamChangeListener(new ParamChangeListener() {
+        paramGroup.addParamChangeListener(createResamplingChangeListener());
+        paramGroup.addParamChangeListener(new ParamChangeListener() {
             public void parameterValueChanged(ParamChangeEvent event) {
-                updateEstimatedProductSize(_processingParamsTable);
+                updateEstimatedProductSize(processingParamsTable);
             }
         });
     }
@@ -251,8 +251,8 @@ public class L3InitUI extends L3UI {
         String value = null;
         boolean bFound = false;
 
-        for (int n = 0; n < _requests.size(); n++) {
-            request = (Request) _requests.elementAt(n);
+        for (int n = 0; n < requests.size(); n++) {
+            request = (Request) requests.elementAt(n);
             // check for correct type
             value = request.getType();
             if (!request.isRequestType(L3Constants.REQUEST_TYPE)) {
@@ -279,7 +279,7 @@ public class L3InitUI extends L3UI {
         }
 
         if (bFound) {
-            _initRequest = request;
+            initRequest = request;
         } else {
             setDefaultRequests();
         }
@@ -289,23 +289,23 @@ public class L3InitUI extends L3UI {
      * Adds the named Parameter to the request passed in
      */
     private void addParameterToRequest(Request request) throws RequestElementFactoryException {
-        request.addParameter(_paramGroup.getParameter(L3Constants.PROCESS_TYPE_PARAM_NAME));
-        request.addParameter(_paramGroup.getParameter(L3Constants.DATABASE_PARAM_NAME));
-        request.addParameter(_paramGroup.getParameter(L3Constants.LAT_MIN_PARAMETER_NAME));
-        request.addParameter(_paramGroup.getParameter(L3Constants.LAT_MAX_PARAMETER_NAME));
-        request.addParameter(_paramGroup.getParameter(L3Constants.LON_MIN_PARAMETER_NAME));
-        request.addParameter(_paramGroup.getParameter(L3Constants.LON_MAX_PARAMETER_NAME));
-        request.addParameter(_paramGroup.getParameter(L3Constants.LOG_PREFIX_PARAM_NAME));
-        request.addParameter(_paramGroup.getParameter(L3Constants.LOG_TO_OUTPUT_PARAM_NAME));
+        request.addParameter(paramGroup.getParameter(L3Constants.PROCESS_TYPE_PARAM_NAME));
+        request.addParameter(paramGroup.getParameter(L3Constants.DATABASE_PARAM_NAME));
+        request.addParameter(paramGroup.getParameter(L3Constants.LAT_MIN_PARAMETER_NAME));
+        request.addParameter(paramGroup.getParameter(L3Constants.LAT_MAX_PARAMETER_NAME));
+        request.addParameter(paramGroup.getParameter(L3Constants.LON_MIN_PARAMETER_NAME));
+        request.addParameter(paramGroup.getParameter(L3Constants.LON_MAX_PARAMETER_NAME));
+        request.addParameter(paramGroup.getParameter(L3Constants.LOG_PREFIX_PARAM_NAME));
+        request.addParameter(paramGroup.getParameter(L3Constants.LOG_TO_OUTPUT_PARAM_NAME));
 
-        request.addParameter(_paramGroup.getParameter(L3Constants.RESAMPLING_TYPE_PARAM_NAME));
-        if (isFluxConsrving()) {
-            request.addParameter(_paramGroup.getParameter(L3Constants.CELLS_PER_DEGREE_PARAM_NAME));
+        request.addParameter(paramGroup.getParameter(L3Constants.RESAMPLING_TYPE_PARAM_NAME));
+        if (isFluxConserving()) {
+            request.addParameter(paramGroup.getParameter(L3Constants.CELLS_PER_DEGREE_PARAM_NAME));
         } else {
-            request.addParameter(_paramGroup.getParameter(L3Constants.GRID_CELL_SIZE_PARAM_NAME));
+            request.addParameter(paramGroup.getParameter(L3Constants.GRID_CELL_SIZE_PARAM_NAME));
         }
 
-        collectProcessingParameters(_processingParamsTable, request);
+        collectProcessingParameters(processingParamsTable, request);
     }
 
     /**
@@ -313,20 +313,20 @@ public class L3InitUI extends L3UI {
      */
     protected void updateUI() throws ProcessorException {
         try {
-            updateUIComponent(L3Constants.DATABASE_PARAM_NAME, _initRequest);
-            updateUIComponent(L3Constants.RESAMPLING_TYPE_PARAM_NAME, _initRequest);
-            updateUIComponent(L3Constants.GRID_CELL_SIZE_PARAM_NAME, _initRequest);
-            updateUIComponent(L3Constants.CELLS_PER_DEGREE_PARAM_NAME, _initRequest);
-            updateUIComponent(L3Constants.LAT_MIN_PARAMETER_NAME, _initRequest);
-            updateUIComponent(L3Constants.LAT_MAX_PARAMETER_NAME, _initRequest);
-            updateUIComponent(L3Constants.LON_MIN_PARAMETER_NAME, _initRequest);
-            updateUIComponent(L3Constants.LON_MAX_PARAMETER_NAME, _initRequest);
-            updateUIComponent(ProcessorConstants.LOG_PREFIX_PARAM_NAME, _initRequest);
-            updateUIComponent(ProcessorConstants.LOG_TO_OUTPUT_PARAM_NAME, _initRequest);
+            updateUIComponent(L3Constants.DATABASE_PARAM_NAME, initRequest);
+            updateUIComponent(L3Constants.RESAMPLING_TYPE_PARAM_NAME, initRequest);
+            updateUIComponent(L3Constants.GRID_CELL_SIZE_PARAM_NAME, initRequest);
+            updateUIComponent(L3Constants.CELLS_PER_DEGREE_PARAM_NAME, initRequest);
+            updateUIComponent(L3Constants.LAT_MIN_PARAMETER_NAME, initRequest);
+            updateUIComponent(L3Constants.LAT_MAX_PARAMETER_NAME, initRequest);
+            updateUIComponent(L3Constants.LON_MIN_PARAMETER_NAME, initRequest);
+            updateUIComponent(L3Constants.LON_MAX_PARAMETER_NAME, initRequest);
+            updateUIComponent(ProcessorConstants.LOG_PREFIX_PARAM_NAME, initRequest);
+            updateUIComponent(ProcessorConstants.LOG_TO_OUTPUT_PARAM_NAME, initRequest);
 
-            updateProcessingParams(_processingParamsTable, _initRequest);
+            updateProcessingParams(processingParamsTable, initRequest);
 
-            updateEstimatedProductSize(_processingParamsTable);
+            updateEstimatedProductSize(processingParamsTable);
         } catch (ParamValidateException e) {
             throw new ProcessorException(e.getMessage(), e);
         }
@@ -336,8 +336,8 @@ public class L3InitUI extends L3UI {
      * Callback invoked on changes in the algorithm Parameter
      */
     private void handleUpdateAlgorithm() {
-        Parameter algoParam = _paramGroup.getParameter(L3Constants.ALGORITHM_PARAMETER_NAME);
-        Parameter weightParam = _paramGroup.getParameter(L3Constants.WEIGHT_COEFFICIENT_PARAMETER_NAME);
+        Parameter algoParam = paramGroup.getParameter(L3Constants.ALGORITHM_PARAMETER_NAME);
+        Parameter weightParam = paramGroup.getParameter(L3Constants.WEIGHT_COEFFICIENT_PARAMETER_NAME);
         String value = algoParam.getValueAsText();
 
         // check if algorithm requires weight coefficient or not.
@@ -355,7 +355,7 @@ public class L3InitUI extends L3UI {
      * Callback invoked on changes in the database Parameter
      */
     private void handleUpdateDatabase() {
-        Parameter databaseParam = _paramGroup.getParameter(L3Constants.DATABASE_PARAM_NAME);
+        Parameter databaseParam = paramGroup.getParameter(L3Constants.DATABASE_PARAM_NAME);
         File dbFile = (File) databaseParam.getValue();
         dbFile = FileUtils.ensureExtension(dbFile, BinDatabaseConstants.FILE_EXTENSION);
         if (dbFile.exists()) {
@@ -365,7 +365,7 @@ public class L3InitUI extends L3UI {
             try {
                 databaseParam.setValue(dbFile);
             } catch (ParamValidateException e) {
-                _logger.warning(e.getMessage());
+                logger.warning(e.getMessage());
             }
         }
     }

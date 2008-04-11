@@ -45,16 +45,16 @@ import java.util.List;
  */
 public class L3UpdateUI extends L3UI {
 
-    private JPanel _uiPane;
-    private FileArrayEditor _inProductEditor;
-    private Request _updateRequest;
+    private JPanel uiPane;
+    private FileArrayEditor inProductEditor;
+    private Request updateRequest;
 
     /**
      * Constructs the object with given processor.
      */
     public L3UpdateUI(L3Processor processor) throws ProcessorException {
         super(processor);
-        _uiPane = null;
+        uiPane = null;
         createParameterGroup();
     }
 
@@ -63,10 +63,10 @@ public class L3UpdateUI extends L3UI {
      * containertype.
      */
     public JComponent getGuiComponent() {
-        if (_uiPane == null) {
+        if (uiPane == null) {
             createUI();
         }
-        return _uiPane;
+        return uiPane;
     }
 
     @Override
@@ -83,14 +83,14 @@ public class L3UpdateUI extends L3UI {
 
         try {
             request.setType(L3Constants.REQUEST_TYPE);
-            request.addParameter(_reqElemFactory.createParameter(L3Constants.PROCESS_TYPE_PARAM_NAME,
+            request.addParameter(reqElemFactory.createParameter(L3Constants.PROCESS_TYPE_PARAM_NAME,
                                                                  L3Constants.PROCESS_TYPE_UPDATE));
-            request.addParameter(_paramGroup.getParameter(L3Constants.DATABASE_PARAM_NAME));
-            request.addParameter(_paramGroup.getParameter(L3Constants.LOG_PREFIX_PARAM_NAME));
-            request.addParameter(_paramGroup.getParameter(L3Constants.LOG_TO_OUTPUT_PARAM_NAME));
+            request.addParameter(paramGroup.getParameter(L3Constants.DATABASE_PARAM_NAME));
+            request.addParameter(paramGroup.getParameter(L3Constants.LOG_PREFIX_PARAM_NAME));
+            request.addParameter(paramGroup.getParameter(L3Constants.LOG_TO_OUTPUT_PARAM_NAME));
 
             // add all files in the file list editor
-            final List files = _inProductEditor.getFiles();
+            final List files = inProductEditor.getFiles();
             File currentFile = null;
             for (int n = 0; n < files.size(); n++) {
                 currentFile = (File) files.get(n);
@@ -99,7 +99,7 @@ public class L3UpdateUI extends L3UI {
         } catch (IllegalArgumentException e) {
             throw new ProcessorException(e.getMessage(), e);
         }
-        _requests.add(request);
+        this.requests.add(request);
     }
 
     /**
@@ -107,22 +107,22 @@ public class L3UpdateUI extends L3UI {
      */
     @Override
     public void setDefaultRequestsImpl() throws ProcessorException {
-        _updateRequest = new Request();
-        _updateRequest.setType(L3Constants.REQUEST_TYPE);
-        _updateRequest.addParameter(
-                _reqElemFactory.createParameter(L3Constants.PROCESS_TYPE_PARAM_NAME, L3Constants.PROCESS_TYPE_INIT));
-        _updateRequest.addParameter(_reqElemFactory.generateDefaultDbLocation());
-        _updateRequest.addParameter(
-                _reqElemFactory.createDefaultLogPatternParameter(L3Constants.DEFAULT_LOG_PREFIX_UPDATE));
+        updateRequest = new Request();
+        updateRequest.setType(L3Constants.REQUEST_TYPE);
+        updateRequest.addParameter(
+                reqElemFactory.createParameter(L3Constants.PROCESS_TYPE_PARAM_NAME, L3Constants.PROCESS_TYPE_INIT));
+        updateRequest.addParameter(reqElemFactory.generateDefaultDbLocation());
+        updateRequest.addParameter(
+                reqElemFactory.createDefaultLogPatternParameter(L3Constants.DEFAULT_LOG_PREFIX_UPDATE));
         try {
-            final Parameter logToOutputParameter = _reqElemFactory.createLogToOutputParameter("false");
+            final Parameter logToOutputParameter = reqElemFactory.createLogToOutputParameter("false");
             logToOutputParameter.getProperties().setDefaultValue(false);
-            _updateRequest.addParameter(logToOutputParameter);
+            updateRequest.addParameter(logToOutputParameter);
         } catch (ParamValidateException e) {
-            _logger.warning("Unable to validate parameter '" + ProcessorConstants.LOG_TO_OUTPUT_PARAM_NAME + "'");
+            logger.warning("Unable to validate parameter '" + ProcessorConstants.LOG_TO_OUTPUT_PARAM_NAME + "'");
             Debug.trace(e);
         }
-        _inProductEditor.setFiles(new ArrayList());
+        inProductEditor.setFiles(new ArrayList());
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -134,8 +134,8 @@ public class L3UpdateUI extends L3UI {
      */
     private void createUI() {
         initInputProductEditor();
-        _uiPane = createInputProductsPanel(_inProductEditor);
-        HelpSys.enableHelp(_uiPane, "binningUpdateTool");
+        uiPane = createInputProductsPanel(inProductEditor);
+        HelpSys.enableHelp(uiPane, "binningUpdateTool");
     }
 
     private void initInputProductEditor() {
@@ -149,27 +149,27 @@ public class L3UpdateUI extends L3UI {
                 parent.setUserInputDir(newDir);
             }
         };
-        _inProductEditor = new FileArrayEditor(editorParent, "Input products");
+        inProductEditor = new FileArrayEditor(editorParent, "Input products");
     }
 
     /**
      * Creates the parameter group
      */
     private void createParameterGroup() throws ProcessorException {
-        _paramGroup = new ParamGroup();
+        paramGroup = new ParamGroup();
 
-        _paramGroup.addParameter(_reqElemFactory.createParameter(L3Constants.PROCESS_TYPE_PARAM_NAME,
+        paramGroup.addParameter(reqElemFactory.createParameter(L3Constants.PROCESS_TYPE_PARAM_NAME,
                                                                  L3Constants.PROCESS_TYPE_UPDATE));
-        _paramGroup.addParameter(_reqElemFactory.generateDefaultDbLocation());
-        _paramGroup.addParameter(
-                _reqElemFactory.createDefaultLogPatternParameter(L3Constants.DEFAULT_LOG_PREFIX_UPDATE));
+        paramGroup.addParameter(reqElemFactory.generateDefaultDbLocation());
+        paramGroup.addParameter(
+                reqElemFactory.createDefaultLogPatternParameter(L3Constants.DEFAULT_LOG_PREFIX_UPDATE));
         try {
-            _paramGroup.addParameter(_reqElemFactory.createLogToOutputParameter("false"));
+            paramGroup.addParameter(reqElemFactory.createLogToOutputParameter("false"));
         } catch (ParamValidateException e) {
-            _logger.warning("Unable to validate parameter '" + ProcessorConstants.LOG_TO_OUTPUT_PARAM_NAME + "'");
+            logger.warning("Unable to validate parameter '" + ProcessorConstants.LOG_TO_OUTPUT_PARAM_NAME + "'");
             Debug.trace(e);
         }
-        _paramGroup.addParamChangeListener(new ParamChangeListener() {
+        paramGroup.addParamChangeListener(new ParamChangeListener() {
             public void parameterValueChanged(ParamChangeEvent event) {
                 if (event.getParameter().getName().equals(L3Constants.DATABASE_PARAM_NAME)) {
                     handleUpdateDatabase();
@@ -182,13 +182,13 @@ public class L3UpdateUI extends L3UI {
      * Callback invoked on changes in the database Parameter
      */
     private void handleUpdateDatabase() {
-        Parameter databaseParam = _paramGroup.getParameter(L3Constants.DATABASE_PARAM_NAME);
+        Parameter databaseParam = paramGroup.getParameter(L3Constants.DATABASE_PARAM_NAME);
         File dbFile = (File) databaseParam.getValue();
         dbFile = FileUtils.ensureExtension(dbFile, BinDatabaseConstants.FILE_EXTENSION);
         try {
             databaseParam.setValue(dbFile);
         } catch (ParamValidateException e) {
-            _logger.warning(e.getMessage());
+            logger.warning(e.getMessage());
         }
     }
 
@@ -201,8 +201,8 @@ public class L3UpdateUI extends L3UI {
         String value = null;
         boolean bFound = false;
 
-        for (int n = 0; n < _requests.size(); n++) {
-            request = (Request) _requests.elementAt(n);
+        for (int n = 0; n < requests.size(); n++) {
+            request = (Request) requests.elementAt(n);
             // check for correct type
             if (!request.isRequestType(L3Constants.REQUEST_TYPE)) {
                 continue;
@@ -228,7 +228,7 @@ public class L3UpdateUI extends L3UI {
         }
 
         if (bFound) {
-            _updateRequest = request;
+            updateRequest = request;
         } else {
             setDefaultRequests();
         }
@@ -243,28 +243,28 @@ public class L3UpdateUI extends L3UI {
         Parameter param = null;
 
         try {
-            param = _updateRequest.getParameter(L3Constants.DATABASE_PARAM_NAME);
+            param = updateRequest.getParameter(L3Constants.DATABASE_PARAM_NAME);
             if (param != null) {
-                toUpdate = _paramGroup.getParameter(L3Constants.DATABASE_PARAM_NAME);
+                toUpdate = paramGroup.getParameter(L3Constants.DATABASE_PARAM_NAME);
                 toUpdate.setValue(param.getValue());
             }
 
             final List<File> inFiles = new ArrayList<File>();
             ProductRef inProd = null;
-            for (int n = 0; n < _updateRequest.getNumInputProducts(); n++) {
-                inProd = _updateRequest.getInputProductAt(n);
+            for (int n = 0; n < updateRequest.getNumInputProducts(); n++) {
+                inProd = updateRequest.getInputProductAt(n);
                 inFiles.add(inProd.getFile());
             }
-            _inProductEditor.setFiles(inFiles);
+            inProductEditor.setFiles(inFiles);
 
-            param = _updateRequest.getParameter(L3Constants.LOG_PREFIX_PARAM_NAME);
+            param = updateRequest.getParameter(L3Constants.LOG_PREFIX_PARAM_NAME);
             if (param != null) {
-                toUpdate = _paramGroup.getParameter(L3Constants.LOG_PREFIX_PARAM_NAME);
+                toUpdate = paramGroup.getParameter(L3Constants.LOG_PREFIX_PARAM_NAME);
                 toUpdate.setValue(param.getValue());
             }
-            param = _updateRequest.getParameter(L3Constants.LOG_TO_OUTPUT_PARAM_NAME);
+            param = updateRequest.getParameter(L3Constants.LOG_TO_OUTPUT_PARAM_NAME);
             if (param != null) {
-                toUpdate = _paramGroup.getParameter(L3Constants.LOG_TO_OUTPUT_PARAM_NAME);
+                toUpdate = paramGroup.getParameter(L3Constants.LOG_TO_OUTPUT_PARAM_NAME);
                 toUpdate.setValue(param.getValue());
             }
         } catch (ParamValidateException e) {

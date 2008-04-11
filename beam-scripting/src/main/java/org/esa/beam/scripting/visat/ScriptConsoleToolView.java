@@ -65,12 +65,10 @@ public class ScriptConsoleToolView extends AbstractToolView {
         if (scriptEngine == null) {
             try {
                 initScriptEngine();
-            } catch (ScriptException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 visat.showErrorDialog(getTitle(), e.getMessage());
-            } catch (IOException e) {
-                e.printStackTrace();
-                visat.showErrorDialog(getTitle(), e.getMessage());
+                return new JLabel("<html><b>Error:</b><br/><i>" + e.getMessage() + "</i></html>");
             }
         }
 
@@ -247,6 +245,9 @@ public class ScriptConsoleToolView extends AbstractToolView {
             scriptEngineManager = new ScriptEngineManager(ScriptConsoleToolView.class.getClassLoader());
             // create a JavaScript engine
             scriptEngine = scriptEngineManager.getEngineByName(DEFAULT_SCRIPT_LANGUAGE_NAME);
+            if (scriptEngine == null) {
+                throw new ScriptException("No engine for scriptinmg language '" + DEFAULT_SCRIPT_LANGUAGE_NAME + "' found.");
+            }
 
             final ScriptWriter writer = new ScriptWriter(); // fixme - don't get any output
             scriptEngine.getContext().setWriter(writer);

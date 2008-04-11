@@ -40,15 +40,15 @@ import java.util.List;
  */
 public class L3FinalUI extends L3UI {
 
-    private JPanel _uiPane;
-    private Request _finalRequest;
+    private JPanel uiPane;
+    private Request finalRequest;
 
     /**
      * Constructs the object with given processor.
      */
     public L3FinalUI(final L3Processor processor) throws ProcessorException {
         super(processor);
-        _uiPane = null;
+        uiPane = null;
         createParameterGroup();
     }
 
@@ -57,10 +57,10 @@ public class L3FinalUI extends L3UI {
      * containertype.
      */
     public JComponent getGuiComponent() {
-        if (_uiPane == null) {
+        if (uiPane == null) {
             createUI();
         }
-        return _uiPane;
+        return uiPane;
     }
 
     public void setRequests() throws ProcessorException {
@@ -75,30 +75,30 @@ public class L3FinalUI extends L3UI {
         request.setType(L3Constants.REQUEST_TYPE);
         addParameterToRequest(request);
 
-        _requests.add(request);
+        this.requests.add(request);
     }
 
     /**
      * Create a set of new default requests.
      */
     protected void setDefaultRequestsImpl() throws ProcessorException {
-        _finalRequest = new Request();
+        finalRequest = new Request();
 
         try {
-            _finalRequest.setType(L3Constants.REQUEST_TYPE);
-            _finalRequest.addParameter(_reqElemFactory.createParameter(L3Constants.PROCESS_TYPE_PARAM_NAME,
+            finalRequest.setType(L3Constants.REQUEST_TYPE);
+            finalRequest.addParameter(reqElemFactory.createParameter(L3Constants.PROCESS_TYPE_PARAM_NAME,
                                                                        L3Constants.PROCESS_TYPE_FINALIZE));
-            _finalRequest.addParameter(_reqElemFactory.generateDefaultDbLocation());
-            _finalRequest.addParameter(
-                    _reqElemFactory.createParamWithDefaultValueSet(L3Constants.DELETE_DB_PARAMETER_NAME));
-            _finalRequest.addParameter(
-                    _reqElemFactory.createDefaultLogPatternParameter(L3Constants.DEFAULT_LOG_PREFIX_FINAL));
-            _finalRequest.addParameter(
-                    _reqElemFactory.createParamWithDefaultValueSet(L3Constants.TAILORING_PARAM_NAME));
+            finalRequest.addParameter(reqElemFactory.generateDefaultDbLocation());
+            finalRequest.addParameter(
+                    reqElemFactory.createParamWithDefaultValueSet(L3Constants.DELETE_DB_PARAMETER_NAME));
+            finalRequest.addParameter(
+                    reqElemFactory.createDefaultLogPatternParameter(L3Constants.DEFAULT_LOG_PREFIX_FINAL));
+            finalRequest.addParameter(
+                    reqElemFactory.createParamWithDefaultValueSet(L3Constants.TAILORING_PARAM_NAME));
             try {
-                _finalRequest.addParameter(_reqElemFactory.createLogToOutputParameter("false"));
+                finalRequest.addParameter(reqElemFactory.createLogToOutputParameter("false"));
             } catch (ParamValidateException e) {
-                _logger.warning("Unable to validate parameter '" + ProcessorConstants.LOG_TO_OUTPUT_PARAM_NAME + "'");
+                logger.warning("Unable to validate parameter '" + ProcessorConstants.LOG_TO_OUTPUT_PARAM_NAME + "'");
                 Debug.trace(e);
             }
         } catch (RequestElementFactoryException e) {
@@ -116,34 +116,34 @@ public class L3FinalUI extends L3UI {
      * Creates the user interface
      */
     private void createUI() {
-        _uiPane = createOutParamsPane();
-        HelpSys.enableHelp(_uiPane, "binningFinalTool");
+        uiPane = createOutParamsPane();
+        HelpSys.enableHelp(uiPane, "binningFinalTool");
     }
 
     /**
      * Creates the parameter group
      */
     private void createParameterGroup() throws ProcessorException {
-        _paramGroup = new ParamGroup();
+        paramGroup = new ParamGroup();
 
         try {
-            _paramGroup.addParameter(_reqElemFactory.createParameter(L3Constants.PROCESS_TYPE_PARAM_NAME,
+            paramGroup.addParameter(reqElemFactory.createParameter(L3Constants.PROCESS_TYPE_PARAM_NAME,
                                                                      L3Constants.PROCESS_TYPE_FINALIZE));
-            _paramGroup.addParameter(_reqElemFactory.generateDefaultDbLocation());
-            _paramGroup.addParameter(_reqElemFactory.createDefaultOutputProductParameter());
-            _paramGroup.addParameter(_reqElemFactory.createOutputFormatParameter());
-            _paramGroup.addParameter(
-                    _reqElemFactory.createParamWithDefaultValueSet(L3Constants.DELETE_DB_PARAMETER_NAME));
-            _paramGroup.addParameter(
-                    _reqElemFactory.createDefaultLogPatternParameter(L3Constants.DEFAULT_LOG_PREFIX_FINAL));
-            _paramGroup.addParameter(_reqElemFactory.createParamWithDefaultValueSet(L3Constants.TAILORING_PARAM_NAME));
+            paramGroup.addParameter(reqElemFactory.generateDefaultDbLocation());
+            paramGroup.addParameter(reqElemFactory.createDefaultOutputProductParameter());
+            paramGroup.addParameter(reqElemFactory.createOutputFormatParameter());
+            paramGroup.addParameter(
+                    reqElemFactory.createParamWithDefaultValueSet(L3Constants.DELETE_DB_PARAMETER_NAME));
+            paramGroup.addParameter(
+                    reqElemFactory.createDefaultLogPatternParameter(L3Constants.DEFAULT_LOG_PREFIX_FINAL));
+            paramGroup.addParameter(reqElemFactory.createParamWithDefaultValueSet(L3Constants.TAILORING_PARAM_NAME));
             try {
-                _paramGroup.addParameter(_reqElemFactory.createLogToOutputParameter("false"));
+                paramGroup.addParameter(reqElemFactory.createLogToOutputParameter("false"));
             } catch (ParamValidateException e) {
-                _logger.warning("Unable to validate parameter '" + ProcessorConstants.LOG_TO_OUTPUT_PARAM_NAME + "'");
+                logger.warning("Unable to validate parameter '" + ProcessorConstants.LOG_TO_OUTPUT_PARAM_NAME + "'");
                 Debug.trace(e);
             }
-            _paramGroup.addParamChangeListener(new ParamChangeListener() {
+            paramGroup.addParamChangeListener(new ParamChangeListener() {
                 public void parameterValueChanged(final ParamChangeEvent event) {
                     // Must not respect any parameter changes
                 }
@@ -162,8 +162,8 @@ public class L3FinalUI extends L3UI {
         String value = null;
         boolean bFound = false;
 
-        for (int n = 0; n < _requests.size(); n++) {
-            request = (Request) _requests.elementAt(n);
+        for (int n = 0; n < requests.size(); n++) {
+            request = (Request) requests.elementAt(n);
             // check for correct type
             if (!request.isRequestType(L3Constants.REQUEST_TYPE)) {
                 continue;
@@ -189,7 +189,7 @@ public class L3FinalUI extends L3UI {
         }
 
         if (bFound) {
-            _finalRequest = request;
+            finalRequest = request;
         } else {
             setDefaultRequests();
         }
@@ -200,7 +200,7 @@ public class L3FinalUI extends L3UI {
      */
     protected void updateUI() throws ProcessorException {
         try {
-            setOutputFile(_finalRequest);
+            setOutputFile(finalRequest);
             updateUIComponent(L3Constants.DATABASE_PARAM_NAME);
             updateUIComponent(L3Constants.DELETE_DB_PARAMETER_NAME);
             updateUIComponent(ProcessorConstants.LOG_PREFIX_PARAM_NAME);
@@ -214,8 +214,8 @@ public class L3FinalUI extends L3UI {
     private void updateUIComponent(final String paramName) throws ParamValidateException {
         final Parameter param;
         final Parameter toUpdate;
-        param = _finalRequest.getParameter(paramName);
-        toUpdate = _paramGroup.getParameter(paramName);
+        param = finalRequest.getParameter(paramName);
+        toUpdate = paramGroup.getParameter(paramName);
         if (param != null) {
             toUpdate.setValue(param.getValue());
         }
@@ -225,16 +225,16 @@ public class L3FinalUI extends L3UI {
      * Adds all parameter needed for a complete request from the UI components the request passed in.
      */
     private void addParameterToRequest(final Request request) throws ProcessorException {
-        request.addParameter(_reqElemFactory.createParameter(L3Constants.PROCESS_TYPE_PARAM_NAME,
+        request.addParameter(reqElemFactory.createParameter(L3Constants.PROCESS_TYPE_PARAM_NAME,
                                                              L3Constants.PROCESS_TYPE_FINALIZE));
-        request.addParameter(_paramGroup.getParameter(L3Constants.DATABASE_PARAM_NAME));
-        final String fileName = _paramGroup.getParameter(L3Constants.OUTPUT_PRODUCT_PARAM_NAME).getValueAsText();
+        request.addParameter(paramGroup.getParameter(L3Constants.DATABASE_PARAM_NAME));
+        final String fileName = paramGroup.getParameter(L3Constants.OUTPUT_PRODUCT_PARAM_NAME).getValueAsText();
 
-        final String format = _paramGroup.getParameter(ProcessorConstants.OUTPUT_FORMAT_PARAM_NAME).getValueAsText();
+        final String format = paramGroup.getParameter(ProcessorConstants.OUTPUT_FORMAT_PARAM_NAME).getValueAsText();
         request.addOutputProduct(ProcessorUtils.createProductRef(fileName, format));
-        request.addParameter(_paramGroup.getParameter(L3Constants.DELETE_DB_PARAMETER_NAME));
-        request.addParameter(_paramGroup.getParameter(ProcessorConstants.LOG_PREFIX_PARAM_NAME));
-        request.addParameter(_paramGroup.getParameter(ProcessorConstants.LOG_TO_OUTPUT_PARAM_NAME));
-        request.addParameter(_paramGroup.getParameter(L3Constants.TAILORING_PARAM_NAME));
+        request.addParameter(paramGroup.getParameter(L3Constants.DELETE_DB_PARAMETER_NAME));
+        request.addParameter(paramGroup.getParameter(ProcessorConstants.LOG_PREFIX_PARAM_NAME));
+        request.addParameter(paramGroup.getParameter(ProcessorConstants.LOG_TO_OUTPUT_PARAM_NAME));
+        request.addParameter(paramGroup.getParameter(L3Constants.TAILORING_PARAM_NAME));
     }
 }

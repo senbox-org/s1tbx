@@ -53,7 +53,7 @@ public class L3Processor extends Processor {
     private static final String _initName = "BEAM L3 Initial Processor";
     private static final String _updateName = "BEAM L3 Update Processor";
     private static final String _finalName = "BEAM L3 Final Processor";
-    private static final String _version = "2.0.100";
+    private static final String _version = "2.0.100-SNAPSHOT";
     private static final String _copyright = "Copyright (C) 2002-2004 by Brockmann Consult (info@brockmann-consult.de)";
 
     private int _processType;       // mod from _requestType, TLankester 25/04/05
