@@ -81,7 +81,7 @@ public class L3FinalProcessor extends L3SubProcessor {
                         deleteFinalDatabase();
                     }
                 } else {
-                    exportBinDatabase(temporalDB, createProjection(), outputProductRef, getOutputBandNames(),
+                    exportBinDatabase(temporalDB, createProjection(), outputProductRef, context.getBandDefinitions(),
                                       getMetadata(), SubProgressMonitor.create(pm, 1));
                 }
             } finally {
@@ -101,7 +101,7 @@ public class L3FinalProcessor extends L3SubProcessor {
             createFinalDatabase();
             processBinIterpretation(SubProgressMonitor.create(pm, 1));
 
-            exportBinDatabase(finalDB, createProjection(), outputProductRef, getOutputBandNames(),
+            exportBinDatabase(finalDB, createProjection(), outputProductRef, context.getBandDefinitions(),
                               getMetadata(), SubProgressMonitor.create(pm, 1));
         } finally {
             pm.done();
@@ -277,15 +277,14 @@ public class L3FinalProcessor extends L3SubProcessor {
      * @param binDatabase the bin database to be exported
      * @param projection  the projection, that should be used.
      * @param productRef  the productRef, that describes the product to which to export to
-     * @param bandNames   an array with the band names.
-     * @param metadata    an array with the metadata.
+     * @param bandDefinitions
+     *@param metadata    an array with the metadata.
      * @param pm          a monitor to inform the user about progress
-     *
-     * @throws IOException
+ * @throws IOException
      * @throws ProcessorException
      */
     protected void exportBinDatabase(TemporalBinDatabase binDatabase, L3ProjectionRaster projection,
-                                     ProductRef productRef, String[] bandNames, MetadataElement[] metadata,
+                                     ProductRef productRef, L3Context.BandDefinition[] bandDefinitions, MetadataElement[] metadata,
                                      ProgressMonitor pm)
             throws IOException,
                    ProcessorException {
@@ -311,7 +310,7 @@ public class L3FinalProcessor extends L3SubProcessor {
             }
             aborted = false;
             try {
-                exporter.createOutputProduct(productRef, bandNames, metadata);
+                exporter.createOutputProduct(productRef, bandDefinitions, metadata);
                 aborted = exporter.outputBinDatabase(context.getLocator(), SubProgressMonitor.create(pm, 1));
             } catch (IOException e) {
                 throw new ProcessorException("Couldn't export product: " + e.getMessage(), e);
@@ -339,28 +338,6 @@ public class L3FinalProcessor extends L3SubProcessor {
         projection = new L3ProjectionRaster();
 //        }
         return projection;
-    }
-
-    /**
-     * Returns an array of all band names for the output product.
-     *
-     * @return an array with band names.
-     */
-    protected String[] getOutputBandNames() {
-        List<String> bandNames = new ArrayList<String>();
-        // loop over bands and variables and retrieve the appropriate band names
-
-        final L3Context.BandDefinition[] bandDefinitions = context.getBandDefinitions();
-        for (int bandIndex = 0; bandIndex < bandDefinitions.length; bandIndex++) {
-            final L3Context.BandDefinition bandDef = bandDefinitions[bandIndex];
-            final Algorithm algo = bandDef.getAlgorithm();
-            final String bandName = bandDef.getBandName();
-            for (int var = 0; var < algo.getNumberOfInterpretedVariables(); var++) {
-                final String resultBandName = bandName + "_" + algo.getInterpretedVariableNameAt(var);
-                bandNames.add(resultBandName);
-            }
-        }
-        return (String[]) bandNames.toArray(new String[0]);
     }
 
     /**

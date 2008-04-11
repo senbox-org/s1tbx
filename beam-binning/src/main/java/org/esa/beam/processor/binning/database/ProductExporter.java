@@ -19,12 +19,16 @@ import org.esa.beam.framework.processor.ProcessorUtils;
 import org.esa.beam.framework.processor.ProductRef;
 import org.esa.beam.processor.binning.L3Constants;
 import org.esa.beam.processor.binning.L3ProjectionRaster;
+import org.esa.beam.processor.binning.L3Context;
+import org.esa.beam.processor.binning.algorithm.Algorithm;
 import org.esa.beam.util.io.FileUtils;
 
 import java.awt.Point;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.logging.Logger;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Export a TemporalBinDatabse into a product.
@@ -94,12 +98,13 @@ public class ProductExporter {
      * @param outputProductRef
      * @param metadata
      */
-    public void createOutputProduct(ProductRef outputProductRef, String[] bandNames, MetadataElement[] metadata) throws
+    public void createOutputProduct(ProductRef outputProductRef,
+                                    L3Context.BandDefinition[] bandDefinitions,
+                                    MetadataElement[] metadata) throws
                                                                                                                  ProcessorException,
                                                                                                                  IOException {
         logger.info(L3Constants.LOG_MSG_CREATE_OUTPUT);
 
-        Band band;
         final int width = projection.getWidth();
         final int height = projection.getHeight();
         final String fileName = FileUtils.getFileNameFromPath(outputProductRef.getFilePath());
@@ -109,12 +114,20 @@ public class ProductExporter {
         outputProduct = new Product(fileName, "BEAM_L3", width, height);
 
         // loop over bands and variables and create the appropriate bands
-        for (int bandIndex = 0; bandIndex < bandNames.length; bandIndex++) {
-            band = new Band(bandNames[bandIndex], ProductData.TYPE_FLOAT32, width, height);
-            outputProduct.addBand(band);
+        for (final L3Context.BandDefinition bandDef : bandDefinitions) {
+            final Algorithm algo = bandDef.getAlgorithm();
+            final String bandBaseName = bandDef.getBandName();
+            for (int var = 0; var < algo.getNumberOfInterpretedVariables(); var++) {
+                final String variableName = algo.getInterpretedVariableNameAt(var);
+                final String bandName = bandBaseName + "_" + variableName;
+                final Band band = new Band(bandName, ProductData.TYPE_FLOAT32, width, height);
+                if (!variableName.equals("count")) {
+                    band.setValidPixelExpression(bandBaseName + "_count > 0");
+                }
+                outputProduct.addBand(band);
+            }
         }
 
-//        generateTieGeoCoding();
         generateMapGeocoding();
         if (metadata != null) {
             addMetadata(metadata);
