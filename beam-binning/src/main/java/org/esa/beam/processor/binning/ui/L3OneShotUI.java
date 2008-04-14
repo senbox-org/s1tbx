@@ -459,7 +459,7 @@ public class L3OneShotUI extends L3UI {
         String value = algoParam.getValueAsText();
 
         // check if algorithm requires weight coefficient or not.
-        if (value.equalsIgnoreCase(L3Constants.ALGORITHM_VALUE_SET[2])) {
+        if (value.equalsIgnoreCase(L3Constants.ALGORITHM_VALUE_MINIMUM_MAXIMUM)) {
             // is minmax - no weight required
             weightParam.getEditor().setEnabled(false);
         } else {

@@ -261,6 +261,6 @@ final class AMEAlgorithm implements Algorithm {
      * Retrieves the short description string for the algorithm (used by algorithm factory)
      */
     public final String getTypeString() {
-        return L3Constants.ALGORITHM_VALUE_SET[1];
+        return L3Constants.ALGORITHM_VALUE_ARITHMETIC_MEAN;
     }
 }

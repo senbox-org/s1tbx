@@ -33,11 +33,11 @@ public class AlgorithmFactory implements AlgorithmCreator {
     public Algorithm getAlgorithm(String algoName) throws IllegalArgumentException {
         Guardian.assertNotNull("algoName", algoName);
 
-        if (algoName.equalsIgnoreCase(L3Constants.ALGORITHM_VALUE_SET[0])) {
+        if (algoName.equalsIgnoreCase(L3Constants.ALGORITHM_VALUE_MAXIMUM_LIKELIHOOD)) {
             return new MLEAlgorithm();
-        } else if (algoName.equalsIgnoreCase(L3Constants.ALGORITHM_VALUE_SET[1])) {
+        } else if (algoName.equalsIgnoreCase(L3Constants.ALGORITHM_VALUE_ARITHMETIC_MEAN)) {
             return new AMEAlgorithm();
-        } else if (algoName.equalsIgnoreCase(L3Constants.ALGORITHM_VALUE_SET[2])) {
+        } else if (algoName.equalsIgnoreCase(L3Constants.ALGORITHM_VALUE_MINIMUM_MAXIMUM)) {
             return new MINMAXAlgorithm();
         } else {
             throw new IllegalArgumentException("invalid algorithm name: " + algoName);

@@ -294,6 +294,6 @@ final class MLEAlgorithm implements Algorithm {
      * Retrieves the short description string for the algorithm (used by algorithm factory)
      */
     public final String getTypeString() {
-        return L3Constants.ALGORITHM_VALUE_SET[0];
+        return L3Constants.ALGORITHM_VALUE_MAXIMUM_LIKELIHOOD;
     }
 }

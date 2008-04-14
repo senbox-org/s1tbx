@@ -92,14 +92,14 @@ public class L3ConstantsTest extends TestCase {
      * Tests all constants concerning the binning_algorithm parameter for correctness
      */
     public void testBinningAlgorithmParameterConstants() {
-        String[] expValueSet = new String[]{"Maximum Likelihood", "Arithmetic Mean", "Minimum/Maximum"};
+        String[] expValueSet = new String[]{"Arithmetic Mean", "Maximum Likelihood", "Minimum/Maximum"};
 
         assertEquals("binning_algorithm", L3Constants.ALGORITHM_PARAMETER_NAME);
         assertEquals(expValueSet.length, L3Constants.ALGORITHM_VALUE_SET.length);
-        for (int n = 0; n < expValueSet.length; n++) {
-            assertEquals(expValueSet[n], L3Constants.ALGORITHM_VALUE_SET[n]);
+        for (int i = 0; i < expValueSet.length; i++) {
+            assertEquals(expValueSet[i], L3Constants.ALGORITHM_VALUE_SET[i]);
         }
-        assertEquals("Maximum Likelihood", L3Constants.ALGORITHM_DEFAULT_VALUE);
+        assertEquals("Arithmetic Mean", L3Constants.ALGORITHM_DEFAULT_VALUE);
     }
 
     /**

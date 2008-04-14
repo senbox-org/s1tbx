@@ -49,14 +49,14 @@ public class AlgorithmFactoryTest extends TestCase {
 
         algo = algorithmFactory.getAlgorithm("Maximum Likelihood");
         assertNotNull(algo);
-        assertTrue(algo instanceof MLEAlgorithm);
+        assertEquals(MLEAlgorithm.class, algo.getClass());
 
         algo = algorithmFactory.getAlgorithm("Arithmetic Mean");
         assertNotNull(algo);
-        assertTrue(algo instanceof AMEAlgorithm);
+        assertEquals(AMEAlgorithm.class, algo.getClass());
 
         algo = algorithmFactory.getAlgorithm("Minimum/Maximum");
         assertNotNull(algo);
-        assertTrue(algo instanceof MINMAXAlgorithm);
+        assertEquals(MINMAXAlgorithm.class, algo.getClass());
     }
 }

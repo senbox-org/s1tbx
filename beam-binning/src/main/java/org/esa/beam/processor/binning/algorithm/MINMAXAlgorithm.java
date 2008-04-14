@@ -207,6 +207,6 @@ final class MINMAXAlgorithm implements Algorithm {
      * Retrieves the short description string for the algorithm (used by algorithm factory).
      */
     public final String getTypeString() {
-        return L3Constants.ALGORITHM_VALUE_SET[2];
+        return L3Constants.ALGORITHM_VALUE_MINIMUM_MAXIMUM;
     }
 }

@@ -9,6 +9,7 @@ import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.util.PropertyMap;
 
@@ -41,23 +42,24 @@ public class DefaultSingleTargetProductDialogTest extends TestCase {
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(SPI);
         TestApp app = new TestApp();
         final SingleTargetProductDialog dialog = DefaultSingleTargetProductDialog.createDefaultDialog(TestOp.Spi.class.getName(), app);
+        dialog.getJDialog().setTitle("TestOp GUI");
         dialog.show();
     }
 
     public static class TestOp extends Operator {
         @SourceProduct
-        Product slave;
+        Product masterProduct;
         @SourceProduct
-        Product masterGeraet;
+        Product slaveProduct;
         @TargetProduct
         Product target;
         @Parameter(defaultValue = "true")
         boolean copyTiePointGrids;
-        @Parameter(defaultValue = "true")
-        Boolean copyFoo;
+        @Parameter(defaultValue = "false")
+        Boolean copyMetadata;
         @Parameter(interval = "[-1,+1]", defaultValue = "-0.1")
         double threshold;
-        @Parameter(valueSet = {"MA", "MB", "MC"}, defaultValue = "MB")
+        @Parameter(valueSet = {"ME-203", "ME-208", "ME-002"}, defaultValue = "ME-208")
         String method;
 
         @Override
@@ -84,7 +86,7 @@ public class DefaultSingleTargetProductDialogTest extends TestCase {
 
     private static class TestApp implements AppContext {
 
-        private static final String GRUNTZ = "Gruntz";
+        private static final String GRUNTZ = "VISAT";
         private JFrame frame;
         private ArrayList<Product> products = new ArrayList<Product>(10);
         private Product selectedProduct;
@@ -128,3 +130,49 @@ public class DefaultSingleTargetProductDialogTest extends TestCase {
 
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
