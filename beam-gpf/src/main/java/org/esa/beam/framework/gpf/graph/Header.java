@@ -69,10 +69,10 @@ public class Header {
 
     private void init() {
         if (sources == null) {
-            sources = new ArrayList<HeaderSource>();
+            sources = new ArrayList<HeaderSource>(7);
         }
         if (parameters == null) {
-            parameters = new ArrayList<HeaderParameter>();
+            parameters = new ArrayList<HeaderParameter>(7);
         }
     }
 }
