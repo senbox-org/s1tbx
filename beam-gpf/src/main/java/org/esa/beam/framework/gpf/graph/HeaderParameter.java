@@ -189,6 +189,11 @@ public class HeaderParameter {
             writer.addAttribute("unit", headerParameter.getUnit());
             writer.addAttribute("interval", headerParameter.getInterval());
             writer.addAttribute("valueSet", StringUtils.arrayToString(headerParameter.getValueSet(), ","));
+            writer.addAttribute("condition", headerParameter.getCondition());
+            writer.addAttribute("pattern", headerParameter.getPattern());
+            writer.addAttribute("format", headerParameter.getFormat());
+            writer.addAttribute("notNull", String.valueOf(headerParameter.isNotNull()));
+            writer.addAttribute("notEmpty", String.valueOf(headerParameter.isNotEmpty()));
         }
 
         @Override
@@ -207,6 +212,11 @@ public class HeaderParameter {
             if(valueSetString != null) {
                 headerParameter.setValueSet(StringUtils.toStringArray(valueSetString, ","));
             }
+            headerParameter.setCondition(reader.getAttribute("condition"));
+            headerParameter.setPattern(reader.getAttribute("pattern"));
+            headerParameter.setFormat(reader.getAttribute("format"));
+            headerParameter.setNotNull(Boolean.parseBoolean(reader.getAttribute("notNull")));
+            headerParameter.setNotEmpty(Boolean.parseBoolean(reader.getAttribute("notEmpty")));
 
             headerParameter.setValue(reader.getValue());
 
