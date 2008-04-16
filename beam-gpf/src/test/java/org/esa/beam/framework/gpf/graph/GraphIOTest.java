@@ -136,7 +136,7 @@ public class GraphIOTest extends TestCase {
                 "    <source name=\"input1\" optional=\"true\" description=\"AATSR L1b TOA\"/>\n" +  // -Sinput1=FILE_PATH
                 "    <source name=\"input2\" description=\"CHRIS/proba\">C:\\data\\x.dim</source>\n" +  // -Sinput2=FILE_PATH
 
-                "    <parameter name=\"ignoreSign\" defaultValue=\"true\" type=\"boolean\"/>\n" + // -PignoreSign=false
+                "    <parameter name=\"ignore\" defaultValue=\"true\" type=\"boolean\"/>\n" + // -PignoreSign=false
                 "    <parameter name=\"regex\" description=\"a regular expression\" type=\"String\"/>\n" +
                 "    <parameter name=\"threshold\" type=\"double\" interval=\"(0,1]\"/>\n" +
                 "    <parameter name=\"ernie\" type=\"int\" valueSet=\"2,4,6,8\"/>\n" +
@@ -149,7 +149,7 @@ public class GraphIOTest extends TestCase {
                 "      <chris refid=\"input2\"/>\n" +
                 "    </sources>\n" +
                 "    <parameters>\n" +
-                "       <ignoreSign refid=\"ignoreSign\"/>\n" +
+                "       <ignoreSign refid=\"ignore\"/>\n" +
                 "       <expression refid=\"regex\"/>\n" +
                 "    </parameters>\n" +
                 "  </node>\n" +
@@ -173,7 +173,7 @@ public class GraphIOTest extends TestCase {
         List<HeaderParameter> parameters = header.getParameters();
         assertNotNull(parameters);
         assertEquals(4, parameters.size());
-        assertEquals("ignoreSign", parameters.get(0).getName());
+        assertEquals("ignore", parameters.get(0).getName());
         assertEquals("true", parameters.get(0).getDefaultValue());
         assertEquals("boolean", parameters.get(0).getType());
         assertEquals("regex", parameters.get(1).getName());
