@@ -108,6 +108,7 @@ public class BandLineReader {
     private Record _pixelDataRecord;
     private Field _pixelDataField;
     private BandLineDecoder _bandLineDecoder;
+    private int _maxRecordIndex;
 
     private BandLineReader(BandInfo bandInfo) {
         _bandInfo = bandInfo;
@@ -124,6 +125,7 @@ public class BandLineReader {
         _pixelDataRecord = _pixelDataReader.createCompatibleRecord();
         _pixelDataField = _pixelDataRecord.getFieldAt(pixelDataFieldIndex);
         _bandLineDecoder = null; // will be lazily created for 'real' bands only (on demand)
+        _maxRecordIndex = pixelDataReader.getDSD().getNumRecords() - 1;
     }
 
     /**
@@ -249,7 +251,8 @@ public class BandLineReader {
                                             ProductData destRaster,
                                             int destRasterPos) throws IOException {
         final ProductFile productFile = getProductFile();
-        if (productFile.getMappedMDSRIndex(sourceY) >= 0) {
+        final int mappedMdsrIndex = productFile.getMappedMDSRIndex(sourceY);
+        if (mappedMdsrIndex >= 0 && mappedMdsrIndex < _maxRecordIndex) {
             readLineRecord(sourceY);
 
             int destRasterIncr = 1;
@@ -262,12 +265,12 @@ public class BandLineReader {
             }
 
             ensureBandLineDecoder().computeLine(getPixelDataField().getElems(),
-                                                sourceMinX,
-                                                sourceMaxX,
-                                                sourceStepX,
-                                                destRaster.getElems(),
-                                                destRasterPos,
-                                                destRasterIncr);
+                    sourceMinX,
+                    sourceMaxX,
+                    sourceStepX,
+                    destRaster.getElems(),
+                    destRasterPos,
+                    destRasterIncr);
         } else {
             final double missingValue = productFile.getMissingMDSRPixelValue();
             for (int index = sourceMinX; index < sourceMaxX; index += sourceStepX) {
@@ -284,7 +287,7 @@ public class BandLineReader {
      */
     public synchronized void readLineRecord(int sourceY) throws IOException {
         getPixelDataReader().readRecord(sourceY,
-                                        getPixelDataRecord());
+                getPixelDataRecord());
     }
 
 
