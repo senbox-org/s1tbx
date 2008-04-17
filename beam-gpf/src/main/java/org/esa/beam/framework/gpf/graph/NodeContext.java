@@ -51,7 +51,7 @@ class NodeContext {
 
     public void initTargetProduct() throws GraphException {
         try {
-            targetProduct = operatorContext.getTargetProduct();
+            targetProduct = operator.getTargetProduct();
         } catch (OperatorException e) {
             throw new GraphException(e.getMessage(), e);
         }
@@ -75,7 +75,7 @@ class NodeContext {
     }
 
     public void addSourceProduct(String id, Product sourceProduct) {
-        operatorContext.setSourceProduct(id, sourceProduct);
+        operator.setSourceProduct(id, sourceProduct);
     }
 
     public void setParameters(OperatorConfiguration opConfiguration) {
@@ -83,11 +83,11 @@ class NodeContext {
     }
 
     public Product getSourceProduct(String id) {
-        return operatorContext.getSourceProduct(id);
+        return operator.getSourceProduct(id);
     }
 
     public Product[] getSourceProducts() {
-        return operatorContext.getSourceProducts();
+        return operator.getSourceProducts();
     }
 
     private void initOperator() throws GraphException {
