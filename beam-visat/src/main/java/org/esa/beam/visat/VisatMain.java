@@ -22,6 +22,7 @@ import com.jidesoft.utils.Lm;
 import com.jidesoft.utils.SystemInfo;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.util.Debug;
 
@@ -88,30 +89,35 @@ public class VisatMain implements RuntimeRunnable {
 
         Debug.setEnabled(debugEnabled);
 
-        VisatApp.start(progressMonitor);
-        openProducts(productFilepathList);
+        final VisatApp app = createApp();
+        app.startUp(progressMonitor);
+        openProducts(app, productFilepathList);
     }
 
-    private static void openProducts(ArrayList<String> productFilepathList) {
+    protected VisatApp createApp() {
+        return new VisatApp();
+    }
+
+    private static void openProducts(VisatApp app, ArrayList<String> productFilepathList) {
         for (String productFilepath : productFilepathList) {
-            openProduct(productFilepath);
+            openProduct(app, productFilepath);
         }
     }
 
-    private static void openProduct(final String productFilepath) {
+    private static void openProduct(final VisatApp app, final String productFilepath) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                UIUtils.setRootFrameWaitCursor(VisatApp.getApp().getMainFrame());
+                UIUtils.setRootFrameWaitCursor(app.getMainFrame());
                 try {
-                    openProductImpl(productFilepath);
+                    openProductImpl(app, productFilepath);
                 } finally {
-                    UIUtils.setRootFrameDefaultCursor(VisatApp.getApp().getMainFrame());
+                    UIUtils.setRootFrameDefaultCursor(app.getMainFrame());
                 }
             }
         });
     }
 
-    private static void openProductImpl(final String productFilepath) {
+    private static void openProductImpl(VisatApp app, final String productFilepath) {
         final File productFile = new File(productFilepath);
         final Product product;
         try {
@@ -119,22 +125,22 @@ public class VisatMain implements RuntimeRunnable {
             if (product == null) {
                 final MessageFormat mf = new MessageFormat("No reader found for data product\n''{0}''."); /*I18N*/
                 final Object[] args = new Object[]{productFile.getPath()};
-                showError(mf.format(args));
+                showError(app, mf.format(args));
                 return;
             }
         } catch (IOException e) {
             final MessageFormat mf = new MessageFormat("I/O error while opening file\n{0}:\n{1}"); /*I18N*/
             final Object[] args = new Object[]{productFile.getPath(), e.getMessage()};
-            showError(mf.format(args));
+            showError(app, mf.format(args));
             return;
         }
-        VisatApp.getApp().addProduct(product);
+        app.addProduct(product);
     }
 
-    private static void showError(final String message) {
+    private static void showError(BasicApp app, final String message) {
         JOptionPane.showMessageDialog(null,
                                       message,
-                                      "VISAT", /*I18N*/
+                                      app.getAppName(),
                                       JOptionPane.ERROR_MESSAGE);
     }
 }

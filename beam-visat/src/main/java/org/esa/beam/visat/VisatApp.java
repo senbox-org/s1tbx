@@ -114,7 +114,7 @@ import java.text.MessageFormat;
  * @author Sabine Embacher
  * @version $Revision: 1.107 $ $Date: 2007/04/23 13:51:01 $
  */
-public final class VisatApp extends BasicApp {
+public class VisatApp extends BasicApp {
 
     static {
         VisatActivator activator = VisatActivator.getInstance();
@@ -323,31 +323,25 @@ public final class VisatApp extends BasicApp {
     private ProductsToolView productsToolView;
     private final ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
 
-
     /**
      * Constructs the VISAT application instance. The method does not start the application nor does it perform any GUI
      * work.
      */
-    private VisatApp() {
-        super(APP_NAME,
+    public VisatApp() {
+        this(APP_NAME);
+    }
+
+    public VisatApp(String appName) {
+        super(appName,
               APP_SYMBOLIC_NAME,
               APP_VERSION,
               APP_COPYRIGHTINFO,
               null,
               null);
-    }
-
-
-    /**
-     * Starts this application.
-     *
-     * @see VisatMain#run(Object, ProgressMonitor)
-     */
-    static void start(ProgressMonitor pm) throws Exception {
-        if (instance == null) {
-            instance = new VisatApp();
-            instance.startUp(pm);
+        if (instance != null) {
+            throw new IllegalStateException("Only one instance of " + appName + " allowed per VM.");
         }
+        instance = this;
     }
 
     @Override

@@ -23,8 +23,14 @@ import javax.help.HelpSet;
 import javax.help.HelpSetException;
 import java.net.URL;
 import java.util.logging.Level;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.esa.beam.framework.help.HelpSys;
+import org.esa.beam.framework.ui.command.Command;
+import org.esa.beam.framework.ui.application.ToolViewDescriptor;
+import org.esa.beam.framework.ui.application.ToolViewDescriptorRegistry;
 import org.esa.beam.util.TreeNode;
 
 /**
@@ -34,15 +40,60 @@ import org.esa.beam.util.TreeNode;
  * @author Norman Fomferra
  * @version $Revision: 1.7 $ $Date: 2007/04/19 06:56:47 $
  */
-public class BeamUiActivator implements Activator {
+public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
 
+    private static BeamUiActivator instance;
     private ModuleContext moduleContext;
     private TreeNode<HelpSet> helpSetRegistry;
+    private List<Command> commandRegistry;
+    private Map<String, ToolViewDescriptor> toolViewDescriptorRegistry;
     private int helpSetNo;
 
     public void start(ModuleContext moduleContext) throws CoreException {
         this.moduleContext = moduleContext;
         registerHelpSets(moduleContext);
+        List<ToolViewDescriptor> toolViewDescriptors = BeamCoreActivator.loadExecutableExtensions(moduleContext,
+                                                                                                  "toolViews",
+                                                                                                  "toolView",
+                                                                                                  ToolViewDescriptor.class);
+        toolViewDescriptorRegistry = new HashMap<String, ToolViewDescriptor>(2 * toolViewDescriptors.size());
+        for (ToolViewDescriptor toolViewDescriptor : toolViewDescriptors) {
+            toolViewDescriptorRegistry.put(toolViewDescriptor.getId(), toolViewDescriptor);
+        }
+
+        commandRegistry = BeamCoreActivator.loadExecutableExtensions(moduleContext,
+                                                                     "actions",
+                                                                     "action",
+                                                                     Command.class);
+        instance = this;
+    }
+
+    public void stop(ModuleContext moduleContext) throws CoreException {
+        this.helpSetRegistry = null;
+        this.moduleContext = null;
+        commandRegistry = null;
+        toolViewDescriptorRegistry = null;
+        instance = null;
+    }
+
+    public static BeamUiActivator getInstance() {
+        return instance;
+    }
+
+    public ModuleContext getModuleContext() {
+        return moduleContext;
+    }
+
+    public Command[] getCommands() {
+        return commandRegistry.toArray(new Command[commandRegistry.size()]);
+    }
+
+    public ToolViewDescriptor[] getToolViewDescriptors() {
+        return toolViewDescriptorRegistry.values().toArray(new ToolViewDescriptor[toolViewDescriptorRegistry.values().size()]);
+    }
+
+    public ToolViewDescriptor getToolViewDescriptor(String viewDescriptorId) {
+        return toolViewDescriptorRegistry.get(viewDescriptorId);
     }
 
     private void registerHelpSets(ModuleContext moduleContext) {
@@ -69,14 +120,6 @@ public class BeamUiActivator implements Activator {
         for (TreeNode<HelpSet> child : children) {
             addNodeToHelpSys(child);
         }
-    }
-
-    public void stop(ModuleContext moduleContext) throws CoreException {
-        // todo - disposing the HelpSystem should be done here
-        //        currently it's done in BasicApp.handleImminentExit()
-        //        because this module is not stopped until the HelpSystem is running
-        this.moduleContext = null;
-        this.helpSetRegistry = null;
     }
 
     private void registerHelpSet(ConfigurationElement helpSetElement, Module declaringModule) {

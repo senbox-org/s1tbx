@@ -5,14 +5,11 @@ import com.bc.ceres.core.ServiceRegistry;
 import com.bc.ceres.core.ServiceRegistryFactory;
 import com.bc.ceres.core.runtime.Activator;
 import com.bc.ceres.core.runtime.ModuleContext;
-import org.esa.beam.BeamCoreActivator;
+import org.esa.beam.BeamUiActivator;
 import org.esa.beam.framework.ui.application.ToolViewDescriptor;
 import org.esa.beam.framework.ui.application.ToolViewDescriptorRegistry;
 import org.esa.beam.framework.ui.command.Command;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -22,11 +19,13 @@ public class VisatActivator implements Activator, ToolViewDescriptorRegistry {
 
     private static VisatActivator instance;
     private ModuleContext moduleContext;
-    private List<Command> commandRegistry;
-    private Map<String, ToolViewDescriptor> toolViewDescriptorRegistry;
     private ServiceRegistry<VisatPlugIn> visatPluginRegistry;
 
     public VisatActivator() {
+    }
+
+    public static VisatActivator getInstance() {
+        return instance;
     }
 
     public ModuleContext getModuleContext() {
@@ -39,47 +38,27 @@ public class VisatActivator implements Activator, ToolViewDescriptorRegistry {
     }
 
     public Command[] getCommands() {
-        return commandRegistry.toArray(new Command[commandRegistry.size()]);
+        return BeamUiActivator.getInstance().getCommands();
     }
 
     public ToolViewDescriptor[] getToolViewDescriptors() {
-        return toolViewDescriptorRegistry.values().toArray(new ToolViewDescriptor[toolViewDescriptorRegistry.values().size()]);
+        return BeamUiActivator.getInstance().getToolViewDescriptors();
     }
 
     public ToolViewDescriptor getToolViewDescriptor(String viewDescriptorId) {
-        return toolViewDescriptorRegistry.get(viewDescriptorId);
-    }
-
-    public static VisatActivator getInstance() {
-        return instance;
+        return BeamUiActivator.getInstance().getToolViewDescriptor(viewDescriptorId);
     }
 
     public void start(ModuleContext moduleContext) throws CoreException {
         instance = this;
         this.moduleContext = moduleContext;
-
-        ServiceRegistryFactory factory = ServiceRegistryFactory.getInstance();
-        visatPluginRegistry = factory.getServiceRegistry(VisatPlugIn.class);
-
-        List<ToolViewDescriptor> toolViewDescriptors = BeamCoreActivator.loadExecutableExtensions(moduleContext,
-                                                                                                  "toolViews",
-                                                                                                  "toolView",
-                                                                                                  ToolViewDescriptor.class);
-        toolViewDescriptorRegistry = new HashMap<String, ToolViewDescriptor>(2 * toolViewDescriptors.size());
-        for (ToolViewDescriptor toolViewDescriptor : toolViewDescriptors) {
-            toolViewDescriptorRegistry.put(toolViewDescriptor.getId(), toolViewDescriptor);
-        }
-
-        commandRegistry = BeamCoreActivator.loadExecutableExtensions(moduleContext,
-                                                                     "actions",
-                                                                     "action",
-                                                                     Command.class);
+        visatPluginRegistry = ServiceRegistryFactory.getInstance().getServiceRegistry(VisatPlugIn.class);
     }
 
 
     public void stop(ModuleContext moduleContext) throws CoreException {
+        visatPluginRegistry = null;
         this.moduleContext = null;
-        this.commandRegistry.clear();
-        this.toolViewDescriptorRegistry.clear();
+        instance = null;
     }
 }

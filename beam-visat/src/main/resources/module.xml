@@ -12,6 +12,7 @@
     <changelog>
         <![CDATA[
         Changes in 4.2<br>
+        [BEAM-810] Provide VISAT application framework
         [BEAM-797] Colour manipulation for index and non-index bands<br>
         [BEAM-787] C-Function code for x approximation is printed twice<br>
         [BEAM-735] Not able to orthorectify MERIS_FRS products<br>
@@ -79,59 +80,12 @@
         <serviceProvider>org.esa.beam.visat.VisatPlugIn</serviceProvider>
     </extension>
 
-    <!--
-       todo - Describe configuration elements
-    -->
-    <extensionPoint id="toolViews">
-        <toolView type="org.esa.beam.framework.ui.application.ToolViewDescriptor"
-                  class="@descriptorClass"
-                  autoConfig="true">
-            <descriptorClass type="java.lang.Class">
-                org.esa.beam.framework.ui.application.support.DefaultToolViewDescriptor
-            </descriptorClass>
-            <class field="toolViewClass" type="java.lang.Class"/>
-            <title type="java.lang.String"/>
-            <description type="java.lang.String"/>
-            <accelerator type="javax.swing.KeyStroke"/>
-            <icon field="iconPath" type="java.lang.String"/>
-            <mnemonic type="char"/>
-        </toolView>
-    </extensionPoint>
-
-    <!--
-       todo - Describe configuration elements
-    -->
-    <extensionPoint id="actions">
-        <action type="org.esa.beam.framework.ui.command.Command"
-                class="@class"
-                autoConfig="false">
-            <id type="java.lang.String"/>
-            <class type="java.lang.Class"/>
-            <parent type="java.lang.String"/>
-            <text type="java.lang.String"/>
-            <context type="java.lang.String"/>
-            <mnemonic type="char"/>
-            <accelerator type="javax.swing.KeyStroke"/>
-            <placeAtContextTop type="boolean"/>
-            <placeBefore type="java.lang.String"/>
-            <placeAfter type="java.lang.String"/>
-            <separatorBefore type="boolean"/>
-            <separatorAfter type="boolean"/>
-            <shortDescr type="java.lang.String"/>
-            <description type="java.lang.String"/>
-            <smallIcon type="java.lang.String"/>
-            <largeIcon type="java.lang.String"/>
-            <helpId type="java.lang.String"/>
-        </action>
-
-    </extensionPoint>
-
     <extension point="ceres-core:applications">
         <application id="VisatMain" class="org.esa.beam.visat.VisatMain"/>
     </extension>
 
 
-    <extension point="beam-visat:toolViews">
+    <extension point="beam-ui:toolViews">
 
         <toolView>
             <id>org.esa.beam.visat.ProductsToolView</id>
@@ -322,7 +276,7 @@
         </toolView>
     </extension>
 
-    <extension point="beam-visat:actions">
+    <extension point="beam-ui:actions">
         <action>
             <id>reopen</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
