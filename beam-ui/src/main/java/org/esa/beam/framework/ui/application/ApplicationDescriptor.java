@@ -15,6 +15,8 @@ public interface ApplicationDescriptor {
 
     String getFrameIconPath();
 
+    String getImagePath();
+
     String getResourceBundleName();
 
     String getCopyright();
@@ -22,6 +24,4 @@ public interface ApplicationDescriptor {
     String[] getExcludedActions();
 
     String[] getExcludedToolViews();
-
-    String getImagePath();
 }

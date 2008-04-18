@@ -5,10 +5,13 @@ import com.bc.ceres.core.runtime.ConfigurableExtension;
 import com.bc.ceres.core.runtime.ConfigurationElement;
 import com.bc.ceres.core.runtime.Module;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamConverter;
+import com.thoughtworks.xstream.converters.basic.AbstractSingleValueConverter;
+import com.thoughtworks.xstream.converters.SingleValueConverterWrapper;
+import com.thoughtworks.xstream.converters.SingleValueConverter;
 import org.esa.beam.framework.ui.application.ApplicationDescriptor;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class DefaultApplicationDescriptor implements ConfigurableExtension, ApplicationDescriptor {
 
@@ -24,8 +27,8 @@ public class DefaultApplicationDescriptor implements ConfigurableExtension, Appl
     @XStreamAlias("image")
     private String imagePath;
 
-    private ArrayList<String> excludedActions;
-    private ArrayList<String> excludedToolViews;
+    private ArrayList<ID> excludedActions;
+    private ArrayList<ID> excludedToolViews;
 
     private transient String copyright;
     private transient String symbolicName;
@@ -65,11 +68,11 @@ public class DefaultApplicationDescriptor implements ConfigurableExtension, Appl
     }
 
     public String[] getExcludedActions() {
-        return excludedActions != null ? excludedActions.toArray(new String[excludedActions.size()]) : new String[0];
+        return toStringArray(excludedActions);
     }
 
     public String[] getExcludedToolViews() {
-        return excludedToolViews != null ? excludedToolViews.toArray(new String[excludedToolViews.size()]) : new String[0];
+        return toStringArray(excludedToolViews);
     }
 
     public void setDisplayName(String displayName) {
@@ -86,14 +89,6 @@ public class DefaultApplicationDescriptor implements ConfigurableExtension, Appl
 
     public void setFrameIconPath(String frameIconPath) {
         this.frameIconPath = frameIconPath;
-    }
-
-    public void setExcludedActions(String[] excludedActions) {
-        this.excludedActions = new ArrayList<String>(Arrays.asList(excludedActions));
-    }
-
-    public void setExcludedToolViews(String[] excludedToolViews) {
-        this.excludedToolViews = new ArrayList<String>(Arrays.asList(excludedToolViews));
     }
 
     public void setCopyright(String copyright) {
@@ -149,6 +144,46 @@ public class DefaultApplicationDescriptor implements ConfigurableExtension, Appl
         }
         if (imagePath == null) {
             imagePath = "/org/esa/beam/resources/images/about.jpg";
+        }
+    }
+    private String[] toStringArray(ArrayList<ID> idList) {
+        if (idList == null) {
+            return new String[0];
+        }
+        final String[] strings = new String[idList.size()];
+        for (int i = 0; i < idList.size(); i++) {
+            ID id = idList.get(i);
+            strings[i] = id.id;
+        }
+        return strings;
+    }
+
+    @XStreamAlias("id")
+    @XStreamConverter(IDC.class)
+    public static class ID {
+        private String id;
+
+        private ID(String id) {
+            this.id = id;
+        }
+    }
+
+    public static class IDC extends SingleValueConverterWrapper {
+        public IDC() {
+            super(new IDSVC());
+        }
+    }
+
+
+    public static class IDSVC extends AbstractSingleValueConverter {
+        @Override
+        public boolean canConvert(Class type) {
+            return type == ID.class;
+        }
+
+        @Override
+        public Object fromString(String str) {
+            return new ID(str);
         }
     }
 }
