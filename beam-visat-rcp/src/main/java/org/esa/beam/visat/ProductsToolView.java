@@ -23,14 +23,14 @@ public class ProductsToolView extends AbstractToolView {
     public static final String ID = ProductsToolView.class.getName();
 
     /**
-     * VISAT's product tree
+     * Product tree of the application
      */
     private ProductTree productTree;
     private VisatApp visatApp;
 
     public ProductsToolView() {
         this.visatApp = VisatApp.getApp();
-        // We need product tree early, otherwise VISAT cannot add ProductTreeListeners
+        // We need product tree early, otherwise the application cannot add ProductTreeListeners
         initProductTree();
     }
 

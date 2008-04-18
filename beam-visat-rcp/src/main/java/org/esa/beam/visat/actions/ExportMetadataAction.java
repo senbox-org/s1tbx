@@ -20,7 +20,13 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import javax.swing.table.TableModel;
 import java.awt.Dialog;
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.text.MessageFormat;
 
 public class ExportMetadataAction extends ExecCommand {
 
@@ -66,7 +72,7 @@ public class ExportMetadataAction extends ExecCommand {
         final ProductMetadataTable metadataTable = productMetadataView.getMetadataTable();
 
         final String msgText = "How do you want to export the metadata?\n" +
-                "Element '" + metadataTable.getMetadataElement().getName() + "' will be exported.\n"; /*I18N*/
+                               "Element '" + metadataTable.getMetadataElement().getName() + "' will be exported.\n"; /*I18N*/
         // Get export method from user
         final int method = SelectExportMethodDialog.run(VisatApp.getApp().getMainFrame(), getWindowTitle(),
                                                         msgText, event.getCommand().getHelpId());
@@ -163,9 +169,9 @@ public class ExportMetadataAction extends ExecCommand {
 
     private static String createDefaultFileName(ProductMetadataView productMetadataView) {
         return FileUtils.getFilenameWithoutExtension(productMetadataView.getProduct().getName()) +
-                "_" +
-                productMetadataView.getMetadataElement().getName() +
-                ".txt";
+               "_" +
+               productMetadataView.getMetadataElement().getName() +
+               ".txt";
     }
 
     private static String getWindowTitle() {
@@ -177,6 +183,7 @@ public class ExportMetadataAction extends ExecCommand {
      *
      * @param visatApp        An instance of the VISAT application.
      * @param defaultFileName The default file name.
+     *
      * @return The selected file, <code>null</code> means "Cancel".
      */
     private static File promptForFile(final VisatApp visatApp, String defaultFileName) {
@@ -196,10 +203,10 @@ public class ExportMetadataAction extends ExecCommand {
             } else if (file.exists()) {
                 int status = JOptionPane.showConfirmDialog(visatApp.getMainFrame(),
                                                            "The file '" + file + "' already exists.\n" + /*I18N*/
-                                                                   "Overwrite it?", /*I18N*/
-                                                                                    "VISAT - " + DLG_TITLE,
-                                                                                    JOptionPane.YES_NO_CANCEL_OPTION,
-                                                                                    JOptionPane.WARNING_MESSAGE);
+                                                           "Overwrite it?",
+                                                           MessageFormat.format("{0} - {1}", visatApp.getAppName(), DLG_TITLE),
+                                                           JOptionPane.YES_NO_CANCEL_OPTION,
+                                                           JOptionPane.WARNING_MESSAGE);
                 if (status == JOptionPane.CANCEL_OPTION) {
                     return null; // Cancel
                 } else if (status == JOptionPane.NO_OPTION) {
@@ -211,6 +218,7 @@ public class ExportMetadataAction extends ExecCommand {
     }
 
     private static class MetadataExporter {
+
         private final ProductMetadataTable metadataTable;
         private final MetadataElement rootElement;
 

@@ -45,6 +45,7 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.text.MessageFormat;
 
 /**
  * This action exports pins and thier surrounding pixels.
@@ -222,12 +223,13 @@ public class ExportPinPixelsAction extends ExecCommand {
             if (file == null) {
                 return null; // Cancel
             } else if (file.exists()) {
-                final int status = JOptionPane.showConfirmDialog(visatApp.getMainFrame(), "The file '" + file
-                                                                                          + "' already exists.\n" + /* I18N */
-                                                                                          "Overwrite it?", /* I18N */
-                                                                                                           "VISAT - " + COMMAND_NAME,
-                                                                                                           JOptionPane.YES_NO_CANCEL_OPTION,
-                                                                                                           JOptionPane.WARNING_MESSAGE);
+                final String message = MessageFormat.format("The file ''{0}'' already exists.\nOverwrite it?", file);
+                final String title = MessageFormat.format("{0} - {1}", visatApp.getAppName(), COMMAND_NAME);
+                final int status = JOptionPane.showConfirmDialog(visatApp.getMainFrame(),
+                                                                 message,
+                                                                 title,
+                                                                 JOptionPane.YES_NO_CANCEL_OPTION,
+                                                                 JOptionPane.WARNING_MESSAGE);
                 if (status == JOptionPane.CANCEL_OPTION) {
                     return null; // Cancel
                 } else if (status == JOptionPane.NO_OPTION) {

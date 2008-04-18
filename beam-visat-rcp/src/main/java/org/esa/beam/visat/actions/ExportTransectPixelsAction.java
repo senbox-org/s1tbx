@@ -29,6 +29,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.MessageFormat;
 
 public class ExportTransectPixelsAction extends ExecCommand {
 
@@ -210,12 +211,13 @@ public class ExportTransectPixelsAction extends ExecCommand {
             if (file == null) {
                 return null; // Cancel
             } else if (file.exists()) {
+                final String message = MessageFormat.format("The file ''{0}'' already exists.\nOverwrite it?", file);
+                final String title = MessageFormat.format("{0} - {1}", visatApp.getAppName(), DLG_TITLE);
                 int status = JOptionPane.showConfirmDialog(visatApp.getMainFrame(),
-                                                           "The file '" + file + "' already exists.\n" + /*I18N*/
-                                                           "Overwrite it?", /*I18N*/
-                                                                            "VISAT - " + DLG_TITLE,
-                                                                            JOptionPane.YES_NO_CANCEL_OPTION,
-                                                                            JOptionPane.WARNING_MESSAGE);
+                                                           message,
+                                                           title,
+                                                           JOptionPane.YES_NO_CANCEL_OPTION,
+                                                           JOptionPane.WARNING_MESSAGE);
                 if (status == JOptionPane.CANCEL_OPTION) {
                     return null; // Cancel
                 } else if (status == JOptionPane.NO_OPTION) {

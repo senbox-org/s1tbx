@@ -204,12 +204,12 @@ public class SpectrumToolView extends AbstractToolView {
     @Override
     public void componentOpened() {
         if (!tipShown) {
-            VisatApp.getApp().showInfoDialog("Spectrum Tip",
-                                             "Tip: If you press the SHIFT key while moving the mouse cursor over \n" +
-                                                     "an image, VISAT adjusts the diagram axes to the local values at the\n" +
-                                                     "current pixel position, if you release the SHIFT key again, then the\n" +
-                                                     "min/max are accumulated again.", /*I18N*/
-                                                                                       SUPPRESS_MESSAGE_KEY);
+            final String message = "Tip: If you press the SHIFT key while moving the mouse cursor over \n" +
+                                   "an image, " + VisatApp.getApp().getAppName() + " adjusts the diagram axes " +
+                                   "to the local values at the\n" +
+                                   "current pixel position, if you release the SHIFT key again, then the\n" +
+                                   "min/max are accumulated again.";
+            VisatApp.getApp().showInfoDialog("Spectrum Tip", message, SUPPRESS_MESSAGE_KEY);
             tipShown = true;
         }
     }

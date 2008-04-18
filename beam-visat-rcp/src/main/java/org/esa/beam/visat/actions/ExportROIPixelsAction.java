@@ -29,6 +29,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.MessageFormat;
 
 public class ExportROIPixelsAction extends ExecCommand {
 
@@ -217,12 +218,13 @@ public class ExportROIPixelsAction extends ExecCommand {
             if (file == null) {
                 return null; // Cancel
             } else if (file.exists()) {
+                final String message = MessageFormat.format("The file ''{0}'' already exists.\nOverwrite it?", file);
+                final String title = MessageFormat.format("{0} - {1}", visatApp.getAppName(), DLG_TITLE);
                 int status = JOptionPane.showConfirmDialog(visatApp.getMainFrame(),
-                                                           "The file '" + file + "' already exists.\n" + /*I18N*/
-                                                           "Overwrite it?", /*I18N*/
-                                                                            "VISAT - " + DLG_TITLE,
-                                                                            JOptionPane.YES_NO_CANCEL_OPTION,
-                                                                            JOptionPane.WARNING_MESSAGE);
+                                                           message,
+                                                           title,
+                                                           JOptionPane.YES_NO_CANCEL_OPTION,
+                                                           JOptionPane.WARNING_MESSAGE);
                 if (status == JOptionPane.CANCEL_OPTION) {
                     return null; // Cancel
                 } else if (status == JOptionPane.NO_OPTION) {
@@ -277,9 +279,9 @@ public class ExportROIPixelsAction extends ExecCommand {
     /**
      * Writes the header line of the dataset to be exported.
      *
-     * @param out       the data output writer
-     * @param geoCoding the product's geo-coding
-     * @param bands     the array of bands to be considered
+     * @param out           the data output writer
+     * @param geoCoding     the product's geo-coding
+     * @param bands         the array of bands to be considered
      * @param tiePointGrids
      */
     private static void writeHeaderLine(final PrintWriter out,
@@ -308,12 +310,12 @@ public class ExportROIPixelsAction extends ExecCommand {
     /**
      * Writes a data line of the dataset to be exported for the given pixel position.
      *
-     * @param out       the data output writer
-     * @param geoCoding the product's geo-coding
-     * @param bands     the array of bands that provide pixel values
+     * @param out           the data output writer
+     * @param geoCoding     the product's geo-coding
+     * @param bands         the array of bands that provide pixel values
      * @param tiePointGrids
-     * @param x         the current pixel's X coordinate
-     * @param y         the current pixel's Y coordinate
+     * @param x             the current pixel's X coordinate
+     * @param y             the current pixel's Y coordinate
      */
     private static void writeDataLine(final PrintWriter out,
                                       final GeoCoding geoCoding,

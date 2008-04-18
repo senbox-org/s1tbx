@@ -21,7 +21,7 @@ package org.esa.beam.dataio.atsr;
  */
 public interface AtsrConstants {
 
-    // The atsr format name as shown in VISAT
+    // The atsr format name as shown in the application
     String ATSR_FORMAT_NAME = "ATSR";
     // the format description
     String DESCRIPTION = "ATSR1/ATSR2 products";       /*I18N*/

@@ -16,9 +16,9 @@
  */
 package org.esa.beam.visat;
 
-import java.util.logging.Level;
-
 import org.esa.beam.util.logging.BeamLogManager;
+
+import java.util.logging.Level;
 
 /**
  * The <code>VisatPlugInManager</code> class loads, initializes and stores all VISAT plug-ins.
@@ -46,10 +46,16 @@ class VisatPlugInManager {
         for (VisatPlugIn plugin : plugins) {
             try {
                 plugin.start(VisatApp.getApp());
-                BeamLogManager.getSystemLogger().info("VISAT plug-in started: " + plugin.getClass().getName());
+                final String msg = String.format("%s plug-in started: %s",
+                                                 VisatApp.getApp().getAppName(),
+                                                 plugin.getClass().getName());
+                BeamLogManager.getSystemLogger().info(msg);
             } catch (Throwable e) {
                 // Note: it is OK in this case to catch a Throwable, because "foreign" code is executed here
-                BeamLogManager.getSystemLogger().log(Level.SEVERE, "Failed to start VISAT plug-in: " + plugin.getClass().getName(), e);
+                final String msg = String.format("Failed to start %s plug-in: %s",
+                                               VisatApp.getApp().getAppName(),
+                                               plugin.getClass().getName());
+                BeamLogManager.getSystemLogger().log(Level.SEVERE, msg, e);
             }
         }
     }
@@ -63,9 +69,16 @@ class VisatPlugInManager {
             VisatPlugIn plugin = plugins[i];
             try {
                 plugin.stop(VisatApp.getApp());
-                BeamLogManager.getSystemLogger().info("VISAT plug-in stopped: " + plugin.getClass().getName());
+                final String msg = String.format("%s plug-in stopped: %s",
+                                                 VisatApp.getApp().getAppName(),
+                                                 plugin.getClass().getName());
+
+                BeamLogManager.getSystemLogger().info(msg);
             } catch (Throwable e) {
-                BeamLogManager.getSystemLogger().log(Level.SEVERE, "Failed to stop VISAT plug-in: " + plugin.getClass().getName(), e);
+                final String msg = String.format("Failed to stop %s plug-in: %s",
+                                               VisatApp.getApp().getAppName(),
+                                               plugin.getClass().getName());
+                BeamLogManager.getSystemLogger().log(Level.SEVERE, msg, e);
             }
         }
     }

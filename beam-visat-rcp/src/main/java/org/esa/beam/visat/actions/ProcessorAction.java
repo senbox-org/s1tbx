@@ -23,6 +23,7 @@ import org.esa.beam.dataio.dimap.DimapProductReader;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.processor.Processor;
 import org.esa.beam.framework.processor.ProcessorConstants;
 import org.esa.beam.framework.processor.ProcessorException;
@@ -34,7 +35,6 @@ import org.esa.beam.framework.processor.RequestValidator;
 import org.esa.beam.framework.processor.ui.ProcessorApp;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
-import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.visat.VisatApp;
@@ -203,8 +203,9 @@ public class ProcessorAction extends ExecCommand {
                             _processorApp.showErrorDialog(
                                     "The output product\n" +
                                     "  " + outputFile.getPath() + "\n" +
-                                    "already exists and is currently opened in VISAT.\n" +
-                                    "Close this product in VISAT first or select a different name for it.");
+                                    "already exists and is currently opened in " + VisatApp.getApp().getAppName() + ".\n" +
+                                    "Close this product in " + VisatApp.getApp().getAppName() +
+                                    " first or select a different name for it.");
                             return false;
                         }
                     }
@@ -275,7 +276,9 @@ public class ProcessorAction extends ExecCommand {
                 msg.append("The output product has been written to\n"); /*I18N*/
                 msg.append((filesToOpenInVisat.get(0)).getPath());
                 msg.append("\n\n");
-                msg.append("Do you want to open it in VISAT now?\n");/*I18N*/
+                msg.append("Do you want to open it in ");
+                msg.append(VisatApp.getApp().getAppName());
+                msg.append(" now?\n");/*I18N*/
             } else {
                 msg.append(numFilesToOpen);
                 msg.append(" output products have been written to\n"); /*I18N*/
@@ -284,7 +287,9 @@ public class ProcessorAction extends ExecCommand {
                     msg.append("\n");
                 }
                 msg.append("\n");
-                msg.append("Do you want to open them in VISAT now?\n");/*I18N*/
+                msg.append("Do you want to open them in ");
+                msg.append(VisatApp.getApp().getAppName());
+                msg.append(" now?\n");/*I18N*/
             }
 
             final int answer = VisatApp.getApp().showQuestionDialog(_processor.getUITitle(), msg.toString(), null);
@@ -294,12 +299,14 @@ public class ProcessorAction extends ExecCommand {
             }
 
             for (final File productFile : filesToOpenInVisat) {
-                if (productFile == null || !productFile.isFile()) {
+                if (!productFile.isFile()) {
                     final StringBuffer notFoundMsg = new StringBuffer();
                     notFoundMsg.append("For some reason the output product\n"); /*I18N*/
                     notFoundMsg.append("  ").append(productFile.getPath());
                     notFoundMsg.append("\ncould not be found.\n");
-                    notFoundMsg.append("Please use VISAT to open it manually.\n");
+                    notFoundMsg.append("Please use ");
+                    msg.append(VisatApp.getApp().getAppName());
+                    msg.append(" to open it manually.\n");
                     VisatApp.getApp().showWarningDialog(notFoundMsg.toString());
                 }
 
@@ -312,7 +319,9 @@ public class ProcessorAction extends ExecCommand {
                         notReadMsg.append("For some reason the output product\n"); /*I18N*/
                         notReadMsg.append("  ").append(productFile.getPath());
                         notReadMsg.append("\ncould not be read.\n");
-                        notReadMsg.append("Please use VISAT to open it manually.\n");
+                        notReadMsg.append("Please use ");
+                        notReadMsg.append(VisatApp.getApp().getAppName());
+                        notReadMsg.append(" to open it manually.\n");
                         VisatApp.getApp().showWarningDialog(notReadMsg.toString());
                     }
                 } catch (IOException e) {
@@ -323,7 +332,9 @@ public class ProcessorAction extends ExecCommand {
                     readExceptionMsg.append("\ncould not be read.\n");
                     readExceptionMsg.append("The following exception occured:\n");
                     readExceptionMsg.append(e.getMessage()).append("\n");
-                    readExceptionMsg.append("Please use VISAT to open it manually.\n");
+                    readExceptionMsg.append("Please use ");
+                    readExceptionMsg.append(VisatApp.getApp().getAppName());
+                    readExceptionMsg.append(" to open it manually.\n");
                     VisatApp.getApp().showWarningDialog(readExceptionMsg.toString());
                 }
             }

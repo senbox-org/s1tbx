@@ -16,19 +16,18 @@ package org.esa.beam.examples.data_export;
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-import java.io.IOException;
-
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.datamodel.Product;
 
+import java.io.IOException;
+
 /**
  * Gets and dumps out geo-coding information.
  * It shows how to convert from pixel coordinates to geo coordinates and back.
- * Note that you can import the output of this test program in VISAT
- * as transect profile.
+ * Note that you can import the output of this test program in BEAM application as transect profile.
  */
 public class GeoCodingEx {
 

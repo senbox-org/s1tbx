@@ -6,9 +6,8 @@
  */
 package org.esa.beam.visat;
 
-import java.net.URL;
-
 import javax.swing.ImageIcon;
+import java.net.URL;
 
 /**
  * An abstract implementation of the {@link VisatPlugIn} interface.
@@ -18,12 +17,12 @@ public abstract class AbstractVisatPlugIn implements VisatPlugIn {
     }
 
     /**
-     * Called by VISAT before the application shuts down.
+     * Called the application shuts down.
      *
      * <p>Clients shall override this method in order to clean-up the resources they have allocated.
      * This default implementation does nothing.</p>
      *
-     * @param visatApp a reference to the VISAT application instance.
+     * @param visatApp a reference to the application instance.
      */
     public void stop(VisatApp visatApp) {
     }

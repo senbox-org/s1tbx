@@ -422,7 +422,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
                 file = FileUtils.ensureExtension(file, BMD_FILE_EXTENSION_XML);
                 try {
                     final XmlWriter xmlWriter = new XmlWriter(file);
-                    final String[] tags = XmlWriter.createTags(0, "VISAT-BITMASKS");
+                    final String[] tags = XmlWriter.createTags(0, visatApp.getAppName() + "-BITMASKS");
                     xmlWriter.println(tags[0]);
                     for (final BitmaskDef bitmaskDef : bitmaskDefs) {
                         bitmaskDef.writeXML(xmlWriter, 1);

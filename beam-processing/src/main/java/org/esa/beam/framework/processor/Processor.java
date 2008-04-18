@@ -103,9 +103,9 @@ public abstract class Processor {
     }
 
     /**
-     * Retrieves the warning messages that occured during processing (if any). This string is shown in the VISAT dialog
-     * popping up after the processor ended processing with warnings. Override to perform processor specific warning
-     * messages.
+     * Retrieves the warning messages that occured during processing (if any). This string is shown in the
+     * application dialog popping up after the processor ended processing with warnings.
+     * Override to perform processor specific warning messages.
      *
      * @return the messages
      */

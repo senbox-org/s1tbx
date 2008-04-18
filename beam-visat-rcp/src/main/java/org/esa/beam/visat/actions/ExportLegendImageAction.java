@@ -185,7 +185,7 @@ public class ExportLegendImageAction extends AbstractExportImageAction {
         Object value;
 
         value = legendParamGroup.getParameter("legend.usingHeader").getValue();
-        imageLegend.setUsingHeader(((Boolean) value).booleanValue());
+        imageLegend.setUsingHeader((Boolean) value);
 
         value = legendParamGroup.getParameter("legend.headerText").getValue();
         imageLegend.setHeaderText((String) value);
@@ -206,7 +206,7 @@ public class ExportLegendImageAction extends AbstractExportImageAction {
         imageLegend.setBackgroundTransparency(((Number) value).floatValue());
 
         value = legendParamGroup.getParameter("legend.antialiasing").getValue();
-        imageLegend.setAntialiasing(((Boolean) value).booleanValue());
+        imageLegend.setAntialiasing((Boolean) value);
     }
 
 
@@ -231,7 +231,7 @@ public class ExportLegendImageAction extends AbstractExportImageAction {
 
         public ImageLegendDialog(VisatApp visatApp, ParamGroup paramGroup, ImageInfo imageInfo,
                                  boolean transparencyEnabled) {
-            super(visatApp.getMainFrame(), "VISAT - Color Legend Properties", ModalDialog.ID_OK_CANCEL, _HELP_ID);
+            super(visatApp.getMainFrame(), visatApp.getAppName() + " - Color Legend Properties", ID_OK_CANCEL, _HELP_ID);
             _visatApp = visatApp;
             _imageInfo = imageInfo;
             _transparencyEnabled = transparencyEnabled;
@@ -247,7 +247,7 @@ public class ExportLegendImageAction extends AbstractExportImageAction {
         }
 
         private void updateUIState() {
-            boolean headerTextEnabled = ((Boolean) _usingHeaderParam.getValue()).booleanValue();
+            boolean headerTextEnabled = (Boolean) _usingHeaderParam.getValue();
             _headerTextParam.setUIEnabled(headerTextEnabled);
             _backgroundTransparencyParam.setUIEnabled(_transparencyEnabled);
         }
@@ -391,8 +391,8 @@ public class ExportLegendImageAction extends AbstractExportImageAction {
 //                    showPopup(e, image, imageDisplay);
                 }
             });
-            final ModalDialog dialog = new ModalDialog(getParent(), "VISAT - Color Legend Preview", imageDisplay,
-                                                       ModalDialog.ID_OK, null);
+            final ModalDialog dialog = new ModalDialog(getParent(), VisatApp.getApp().getAppName() + " - Color Legend Preview", imageDisplay,
+                                                       ID_OK, null);
             dialog.getJDialog().setResizable(false);
             dialog.show();
         }

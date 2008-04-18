@@ -19,8 +19,17 @@ package org.esa.beam.visat;
 
 import com.bc.ceres.swing.update.ConnectionConfigData;
 import com.bc.ceres.swing.update.ConnectionConfigPane;
-import org.esa.beam.framework.param.*;
-import org.esa.beam.framework.ui.*;
+import org.esa.beam.framework.param.ParamChangeEvent;
+import org.esa.beam.framework.param.ParamChangeListener;
+import org.esa.beam.framework.param.ParamExceptionHandler;
+import org.esa.beam.framework.param.ParamGroup;
+import org.esa.beam.framework.param.ParamProperties;
+import org.esa.beam.framework.param.Parameter;
+import org.esa.beam.framework.ui.GridBagUtils;
+import org.esa.beam.framework.ui.PixelInfoView;
+import org.esa.beam.framework.ui.RGBImageProfilePane;
+import org.esa.beam.framework.ui.SuppressibleOptionPane;
+import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.config.ConfigDialog;
 import org.esa.beam.framework.ui.config.DefaultConfigPage;
 import org.esa.beam.framework.ui.product.ProductSceneView;
@@ -30,15 +39,17 @@ import org.esa.beam.util.SystemUtils;
 import static org.esa.beam.visat.VisatApp.*;
 import org.esa.beam.visat.actions.ShowModuleManagerAction;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.UIManager;
 import java.awt.*;
-import java.util.prefs.Preferences;
 
 public class VisatPreferencesDialog extends ConfigDialog {
 
-    private final static int _PAGE_INSET_TOP = 15;
-    private final static int _LINE_INSET_TOP = 4;
-
+    private static final int _PAGE_INSET_TOP = 15;
+    private static final int _LINE_INSET_TOP = 4;
 
     public VisatPreferencesDialog(VisatApp visatApp, String helpId) {
         super(visatApp.getMainFrame(), helpId);
@@ -72,11 +83,13 @@ public class VisatPreferencesDialog extends ConfigDialog {
             setTitle("UI Behavior"); /*I18N*/
         }
 
+        @Override
         protected void initPageUI() {
             JPanel pageUI = createPageUI();
             setPageUI(pageUI);
         }
 
+        @Override
         protected void initConfigParams(ParamGroup configParams) {
             _suppressibleOptionPane = getApp().getSuppressibleOptionPane();
             _unsupressParam = new Parameter("unsuppress", Boolean.FALSE);
@@ -124,7 +137,8 @@ public class VisatPreferencesDialog extends ConfigDialog {
             configParams.addParameter(param);
 
             param = new Parameter(PROPERTY_KEY_VERSION_CHECK_ENABLED, Boolean.TRUE);
-            param.getProperties().setLabel("Check for new version on VISAT start"); /*I18N*/
+            final String labelText = String.format("Check for new version on %s start", getApp().getAppName());
+            param.getProperties().setLabel(labelText); /*I18N*/
             configParams.addParameter(param);
         }
 
@@ -220,12 +234,14 @@ public class VisatPreferencesDialog extends ConfigDialog {
             return createPageUIContentPane(pageUI);
         }
 
+        @Override
         public void onOK() {
             if ((Boolean) _unsupressParam.getValue()) {
                 _suppressibleOptionPane.unSuppressDialogs();
             }
         }
 
+        @Override
         public void updatePageUI() {
             boolean supressed = _suppressibleOptionPane.areDialogsSuppressed();
             _unsupressParam.setUIEnabled(supressed);
@@ -241,6 +257,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             setTitle("UI Appearance"); /*I18N*/
         }
 
+        @Override
         protected void initConfigParams(ParamGroup configParams) {
             final ParamChangeListener paramChangeListener = new ParamChangeListener() {
                 public void parameterValueChanged(ParamChangeEvent event) {
@@ -277,6 +294,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             configParams.addParameter(param);
         }
 
+        @Override
         protected void initPageUI() {
             JPanel pageUI = createPageUI();
             setPageUI(pageUI);
@@ -409,7 +427,6 @@ public class VisatPreferencesDialog extends ConfigDialog {
     public static class RepositoryConnectionConfigPage extends DefaultConfigPage {
         private ConnectionConfigData connectionConfigData;
         private ConnectionConfigPane connectionConfigPane;
-        private Preferences preferences;
 
         public RepositoryConnectionConfigPage() {
             setTitle("Module Repository"); /*I18N*/
@@ -423,7 +440,6 @@ public class VisatPreferencesDialog extends ConfigDialog {
         protected void initPageUI() {
             connectionConfigData = new ConnectionConfigData();
             connectionConfigPane = new ConnectionConfigPane(connectionConfigData);
-            preferences = Preferences.userNodeForPackage(VisatApp.class).node("repository");
             setPageUI(createPageUIContentPane(connectionConfigPane));
         }
 
@@ -501,6 +517,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
 
                 private static final long serialVersionUID = 1L;
 
+                @Override
                 protected void paintComponent(Graphics g) {
                     super.paintComponent(g);
                     final int totWidth = getWidth();
@@ -546,6 +563,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
         }
 
 
+        @Override
         protected void initConfigParams(ParamGroup configParams) {
             final ParamChangeListener paramChangeListener = new ParamChangeListener() {
                 public void parameterValueChanged(ParamChangeEvent event) {
@@ -554,7 +572,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             };
 
             final ParamProperties propertiesX = new ParamProperties(Float.class);
-            propertiesX.setDefaultValue(new Float(PROPERTY_DEFAULT_PIXEL_OFFSET_FOR_DISPLAY));
+            propertiesX.setDefaultValue(PROPERTY_DEFAULT_PIXEL_OFFSET_FOR_DISPLAY);
             propertiesX.setMinValue(0.0f);
             propertiesX.setMaxValue(1.0f);
             propertiesX.setLabel("Relative pixel-X offset");
@@ -564,7 +582,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
 
 
             final ParamProperties propertiesY = new ParamProperties(Float.class);
-            propertiesY.setDefaultValue(new Float(PROPERTY_DEFAULT_PIXEL_OFFSET_FOR_DISPLAY));
+            propertiesY.setDefaultValue(PROPERTY_DEFAULT_PIXEL_OFFSET_FOR_DISPLAY);
             propertiesY.setMinValue(0.0f);
             propertiesY.setMaxValue(1.0f);
             propertiesY.setLabel("Relative pixel-Y offset");
@@ -587,6 +605,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             setTitle("Data Input/Output");  /*I18N*/
         }
 
+        @Override
         protected void initConfigParams(ParamGroup configParams) {
             Parameter param;
 
@@ -618,6 +637,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             configParams.addParameter(param);
         }
 
+        @Override
         protected void initPageUI() {
             setPageUI(createPageUI());
         }
@@ -627,7 +647,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             GridBagConstraints gbc;
 
             JPanel beamDimap = GridBagUtils.createPanel();
-            //beamDimap.setBorder(UIUtils.createGroupBorder("VISAT Default Format"));  /*I18N*/
+            //beamDimap.setBorder(UIUtils.createGroupBorder("Default Format"));  /*I18N*/
             gbc = GridBagUtils.createConstraints("fill=HORIZONTAL,anchor=WEST, weightx=1");
 
             gbc.gridy = 0;
@@ -662,6 +682,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             setTitle("Layer Properties"); /*I18N*/
         }
 
+        @Override
         protected void initConfigParams(ParamGroup configParams) {
             Parameter param;
 
@@ -670,6 +691,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             configParams.addParameter(param);
         }
 
+        @Override
         protected void initPageUI() {
             JPanel pageUI = createPageUI();
             setPageUI(pageUI);
@@ -704,8 +726,8 @@ public class VisatPreferencesDialog extends ConfigDialog {
             setTitle("Image Layer"); /*I18N*/
         }
 
+        @Override
         protected void initConfigParams(ParamGroup configParams) {
-            ParamGroup group = configParams;
             Parameter param;
 
             param = new Parameter(PROPERTY_KEY_JAI_TILE_CACHE_CAPACITY, 512);
@@ -725,11 +747,11 @@ public class VisatPreferencesDialog extends ConfigDialog {
                     ProductSceneView.IMAGE_INTERPOLATION_BICUBIC,
             });
             param.getProperties().setValueSetBound(true);
-            group.addParameter(param);
+            configParams.addParameter(param);
 
             param = new Parameter("image.background.color", ProductSceneView.DEFAULT_IMAGE_BACKGROUND_COLOR);
             param.getProperties().setLabel("Background color"); /*I18N*/
-            group.addParameter(param);
+            configParams.addParameter(param);
 
             param = new Parameter("image.border.shown", Boolean.TRUE);
             param.getProperties().setLabel("Show image border"); /*I18N*/
@@ -739,15 +761,15 @@ public class VisatPreferencesDialog extends ConfigDialog {
                     updatePageUI();
                 }
             });
-            group.addParameter(param);
+            configParams.addParameter(param);
 
             param = new Parameter("image.border.size", ProductSceneView.DEFAULT_IMAGE_BORDER_SIZE);
             param.getProperties().setLabel("Image border size"); /*I18N*/
-            group.addParameter(param);
+            configParams.addParameter(param);
 
             param = new Parameter("image.border.color", ProductSceneView.DEFAULT_IMAGE_BORDER_COLOR);
             param.getProperties().setLabel("Image border color"); /*I18N*/
-            group.addParameter(param);
+            configParams.addParameter(param);
 
             param = new Parameter("pixel.border.shown", Boolean.TRUE);
             param.getProperties().setLabel("Show pixel border in magnified views"); /*I18N*/
@@ -757,9 +779,10 @@ public class VisatPreferencesDialog extends ConfigDialog {
                     updatePageUI();
                 }
             });
-            group.addParameter(param);
+            configParams.addParameter(param);
         }
 
+        @Override
         protected void initPageUI() {
             JPanel pageUI = createPageUI();
             setPageUI(pageUI);
@@ -859,6 +882,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             return createPageUIContentPane(pageUI);
         }
 
+        @Override
         public void updatePageUI() {
             boolean enabled = (Boolean) getConfigParam("image.border.shown").getValue();
             setConfigParamUIEnabled("image.border.size", enabled);
@@ -872,6 +896,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             setTitle("Graticule Layer"); /*I18N*/
         }
 
+        @Override
         protected void initConfigParams(ParamGroup configParams) {
             Parameter param;
 
@@ -938,6 +963,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             configParams.addParameter(param);
         }
 
+        @Override
         protected void initPageUI() {
             JPanel pageUI = createPageUI();
             setPageUI(pageUI);
@@ -1057,6 +1083,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             return createPageUIContentPane(pageUI);
         }
 
+        @Override
         public void updatePageUI() {
             final boolean resAuto = (Boolean) getConfigParam("graticule.res.auto").getValue();
             getConfigParam("graticule.res.pixels").setUIEnabled(resAuto);
@@ -1076,6 +1103,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             setTitle("Pin Layer"); /*I18N*/
         }
 
+        @Override
         protected void initConfigParams(ParamGroup configParams) {
             Parameter param;
 
@@ -1105,6 +1133,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             configParams.addParameter(param);
         }
 
+        @Override
         protected void initPageUI() {
             JPanel pageUI = createPageUI();
             setPageUI(pageUI);
@@ -1155,6 +1184,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             return createPageUIContentPane(pageUI);
         }
 
+        @Override
         public void updatePageUI() {
             final boolean textEnabled = (Boolean) getConfigParam("pin.text.enabled").getValue();
             getConfigParam("pin.text.fg.color").setUIEnabled(textEnabled);
@@ -1169,6 +1199,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             setTitle("GCP Layer"); /*I18N*/
         }
 
+        @Override
         protected void initConfigParams(ParamGroup configParams) {
             Parameter param;
 
@@ -1198,6 +1229,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             configParams.addParameter(param);
         }
 
+        @Override
         protected void initPageUI() {
             JPanel pageUI = createPageUI();
             setPageUI(pageUI);
@@ -1248,6 +1280,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             return createPageUIContentPane(pageUI);
         }
 
+        @Override
         public void updatePageUI() {
             final boolean textEnabled = (Boolean) getConfigParam("gcp.text.enabled").getValue();
             getConfigParam("gcp.text.fg.color").setUIEnabled(textEnabled);
@@ -1262,8 +1295,8 @@ public class VisatPreferencesDialog extends ConfigDialog {
             setTitle("Shape Layer");
         }
 
+        @Override
         protected void initConfigParams(ParamGroup configParams) {
-            ParamGroup group = configParams;
             Parameter param;
 
             final ParamChangeListener paramChangeListener = new ParamChangeListener() {
@@ -1276,40 +1309,41 @@ public class VisatPreferencesDialog extends ConfigDialog {
             param = new Parameter("shape.outlined", FigureLayer.DEFAULT_SHAPE_OUTLINED);
             param.getProperties().setLabel("Outline shape"); /*I18N*/
             param.addParamChangeListener(paramChangeListener);
-            group.addParameter(param);
+            configParams.addParameter(param);
 
             param = new Parameter("shape.outl.transparency", FigureLayer.DEFAULT_SHAPE_OUTL_TRANSPARENCY);
             param.getProperties().setLabel("Shape outline transparency"); /*I18N*/
             param.getProperties().setMinValue(0.0);
             param.getProperties().setMaxValue(0.95);
-            group.addParameter(param);
+            configParams.addParameter(param);
 
             param = new Parameter("shape.outl.color", FigureLayer.DEFAULT_SHAPE_OUTL_COLOR);
             param.getProperties().setLabel("Shape outline color"); /*I18N*/
-            group.addParameter(param);
+            configParams.addParameter(param);
 
             param = new Parameter("shape.outl.width", FigureLayer.DEFAULT_SHAPE_OUTL_WIDTH);
             param.getProperties().setLabel("Shape outline width"); /*I18N*/
             param.getProperties().setMinValue(0.0);
             param.getProperties().setMaxValue(50.0);
-            group.addParameter(param);
+            configParams.addParameter(param);
 
             param = new Parameter("shape.filled", FigureLayer.DEFAULT_SHAPE_FILLED);
             param.getProperties().setLabel("Fill shape"); /*I18N*/
             param.addParamChangeListener(paramChangeListener);
-            group.addParameter(param);
+            configParams.addParameter(param);
 
             param = new Parameter("shape.fill.transparency", FigureLayer.DEFAULT_SHAPE_FILL_TRANSPARENCY);
             param.getProperties().setLabel("Shape fill transparency"); /*I18N*/
             param.getProperties().setMinValue(0.0);
             param.getProperties().setMaxValue(0.95);
-            group.addParameter(param);
+            configParams.addParameter(param);
 
             param = new Parameter("shape.fill.color", FigureLayer.DEFAULT_SHAPE_FILL_COLOR);
             param.getProperties().setLabel("Shape fill color"); /*I18N*/
-            group.addParameter(param);
+            configParams.addParameter(param);
         }
 
+        @Override
         protected void initPageUI() {
             JPanel pageUI = createPageUI();
             setPageUI(pageUI);
@@ -1382,6 +1416,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             return createPageUIContentPane(pageUI);
         }
 
+        @Override
         public void updatePageUI() {
             boolean outlined = (Boolean) getConfigParam("shape.outlined").getValue();
             setConfigParamUIEnabled("shape.outl.transparency", outlined);
@@ -1400,21 +1435,22 @@ public class VisatPreferencesDialog extends ConfigDialog {
             setTitle("ROI Layer");
         }
 
+        @Override
         protected void initConfigParams(ParamGroup configParams) {
-            ParamGroup group = configParams;
             Parameter param;
 
             param = new Parameter("roi.color", Color.red);
             param.getProperties().setLabel("ROI color"); /*I18N*/
-            group.addParameter(param);
+            configParams.addParameter(param);
 
             param = new Parameter("roi.transparency", 0.5);
             param.getProperties().setLabel("ROI transparency"); /*I18N*/
             param.getProperties().setMinValue(0.0);
             param.getProperties().setMaxValue(0.95);
-            group.addParameter(param);
+            configParams.addParameter(param);
         }
 
+        @Override
         protected void initPageUI() {
             JPanel pageUI = createPageUI();
             setPageUI(pageUI);
@@ -1449,6 +1485,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             return createPageUIContentPane(pageUI);
         }
 
+        @Override
         public void updatePageUI() {
         }
     }
@@ -1459,21 +1496,22 @@ public class VisatPreferencesDialog extends ConfigDialog {
             setTitle("No-Data Layer");
         }
 
+        @Override
         protected void initConfigParams(ParamGroup configParams) {
-            ParamGroup group = configParams;
             Parameter param;
 
             param = new Parameter("noDataOverlay.color", Color.ORANGE);
             param.getProperties().setLabel("No-data overlay color"); /*I18N*/
-            group.addParameter(param);
+            configParams.addParameter(param);
 
             param = new Parameter("noDataOverlay.transparency", 0.3);
             param.getProperties().setLabel("No-data overlay transparency"); /*I18N*/
             param.getProperties().setMinValue(0.0);
             param.getProperties().setMaxValue(0.95);
-            group.addParameter(param);
+            configParams.addParameter(param);
         }
 
+        @Override
         protected void initPageUI() {
             JPanel pageUI = createPageUI();
             setPageUI(pageUI);
@@ -1507,6 +1545,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             return createPageUIContentPane(pageUI);
         }
 
+        @Override
         public void updatePageUI() {
         }
     }
@@ -1517,6 +1556,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             setTitle("Logging"); /*I18N*/
         }
 
+        @Override
         protected void initConfigParams(ParamGroup configParams) {
             Parameter param;
 
@@ -1535,7 +1575,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
 //            param.getProperties().setLabel("Logfile path");
 //            configParams.addParameter(param);
 
-            param = new Parameter(PROPERTY_KEY_APP_LOG_PREFIX, "visat");
+            param = new Parameter(PROPERTY_KEY_APP_LOG_PREFIX, getApp().getAppName().toLowerCase());
             param.getProperties().setFileSelectionMode(ParamProperties.FSM_FILES_ONLY);
             param.getProperties().setLabel("Log filename prefix");
             configParams.addParameter(param);
@@ -1567,6 +1607,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             configParams.addParameter(param);
         }
 
+        @Override
         protected void initPageUI() {
             JPanel panel = createPageUI();
 
@@ -1617,7 +1658,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
 
             gbc.gridwidth = 2;
             gbc.insets.top = 25;
-            final JLabel label = new JLabel("Note: changes on this page are not effective until restart of VISAT");
+            final JLabel label = new JLabel("Note: changes on this page are not effective until restart of " + getApp().getAppName());
             configureNoteLabel(label);
             logConfigPane.add(label, gbc);
             gbc.gridy++;
@@ -1625,6 +1666,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             return createPageUIContentPane(logConfigPane);
         }
 
+        @Override
         public void updatePageUI() {
             boolean enabled = (Boolean) getConfigParam(PROPERTY_KEY_APP_LOG_ENABLED).getValue();
             setConfigParamUIEnabled(PROPERTY_KEY_APP_LOG_PREFIX, enabled);
@@ -1636,24 +1678,26 @@ public class VisatPreferencesDialog extends ConfigDialog {
 
     public static class RGBImageProfilePage extends DefaultConfigPage {
 
-        private RGBImageProfilePane _profilePane;
-
         public RGBImageProfilePage() {
             setTitle("RGB-Image Profiles"); /*I18N*/
         }
 
+        @Override
         public PropertyMap getConfigParamValues(final PropertyMap propertyMap) {
             return propertyMap;
         }
 
+        @Override
         public void setConfigParamValues(final PropertyMap propertyMap, final ParamExceptionHandler errorHandler) {
         }
 
+        @Override
         protected void initConfigParams(final ParamGroup configParams) {
         }
 
+        @Override
         protected void initPageUI() {
-            _profilePane = new RGBImageProfilePane(new PropertyMap());   // todo - propertyMap must be used!
+            RGBImageProfilePane _profilePane = new RGBImageProfilePane(new PropertyMap());
             setPageUI(_profilePane);
         }
     }
@@ -1664,11 +1708,13 @@ public class VisatPreferencesDialog extends ConfigDialog {
             setTitle("Product Settings"); /*I18N*/
         }
 
+        @Override
         protected void initPageUI() {
             JPanel pageUI = createPageUI();
             setPageUI(pageUI);
         }
 
+        @Override
         protected void initConfigParams(ParamGroup configParams) {
             Parameter param = new Parameter(PROPERTY_KEY_GEOLOCATION_EPS,
                                             new Float(PROPERTY_DEFAULT_GEOLOCATION_EPS));
