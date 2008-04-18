@@ -37,7 +37,9 @@ public class OperatorImage extends RasterDataNodeOpImage {
             operatorContext.getOperator().computeTileStack(targetTiles, destRect, getProgressMonitor());
         } else {
             Tile targetTile = createTargetTile(destRect, tile);
-            operatorContext.getOperator().computeTile(getTargetBand(), targetTile, getProgressMonitor());
+            if (operatorContext.isComputeTileMethodUsable()) {
+                operatorContext.getOperator().computeTile(getTargetBand(), targetTile, getProgressMonitor());
+            }
         }
     }
 

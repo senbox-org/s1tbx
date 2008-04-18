@@ -12,6 +12,8 @@ import javax.media.jai.JAI;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 import java.util.logging.Logger;
@@ -252,7 +254,7 @@ public class GraphProcessor {
             }
             Node node = nodeContext.getNode();
             Xpp3Dom configuration = node.getConfiguration();
-            OperatorConfiguration opConfiguration = OperatorConfiguration.extractReferences(configuration, graphContext);
+            OperatorConfiguration opConfiguration = OperatorConfiguration.extractReferences(configuration, graphContext, Collections.EMPTY_MAP);
             nodeContext.setParameters(opConfiguration);
             nodeContext.initTargetProduct();
             graphContext.getInitNodeContextDeque().addFirst(nodeContext);

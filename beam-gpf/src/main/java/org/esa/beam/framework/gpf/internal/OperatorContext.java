@@ -25,8 +25,9 @@ import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.annotations.*;
+import org.esa.beam.framework.gpf.graph.GraphOp;
 import org.esa.beam.framework.gpf.graph.OperatorConfiguration;
-import org.esa.beam.framework.gpf.graph.OperatorConfiguration.PropertyReference;
+import org.esa.beam.framework.gpf.graph.OperatorConfiguration.Reference;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.jai.RasterDataNodeOpImage;
 
@@ -290,7 +291,6 @@ public class OperatorContext {
     private static boolean implementsMethod(Class<?> aClass, String methodName, Class[] methodParameterTypes) {
         while (true) {
             if (Operator.class.equals(aClass)
-                    || Operator.class.equals(aClass)
                     || !Operator.class.isAssignableFrom(aClass)) {
                 return false;
             }
@@ -306,13 +306,17 @@ public class OperatorContext {
     private void initializeOperator() throws OperatorException {
         Assert.state(operator != null, "operator != null");
 
-        injectParameterValues();
-        injectConfiguration();
-        initSourceProductFields();
+        if (!(operator instanceof GraphOp)) {
+            injectParameterValues();
+            injectConfiguration();
+            initSourceProductFields();
+        }
         operator.initialize();
         initTargetProduct();
         initTargetProperties();
-        initPassThrough();
+        if (!(operator instanceof GraphOp)) {
+            initPassThrough();
+        }
         initTargetImages();
         initGraphMetadata();
 
@@ -692,11 +696,10 @@ public class OperatorContext {
 
         ValueContainerFactory valueContainerFactory = new ValueContainerFactory(parameterDescriptorFactory);
         final ValueContainer valueContainer = valueContainerFactory.createObjectBackedValueContainer(value);
-        Set<PropertyReference> referenceSet = operatorConfiguration.getReferenceSet();
-        for (PropertyReference reference : referenceSet) {
+        Set<Reference> referenceSet = operatorConfiguration.getReferenceSet();
+        for (Reference reference : referenceSet) {
             ValueModel valueModel = valueContainer.getModel(reference.getParameterName());
-            Operator referedOperator = reference.getOperator();
-            valueModel.setValue(referedOperator.getTargetProperty(reference.getPropertyName()));
+            valueModel.setValue(reference.getValue());
         }
     }
 
@@ -740,6 +743,11 @@ public class OperatorContext {
     }
 
     private String formatExceptionString(String format, Object... args) {
-        return String.format("Operator '%s': " + format, operator.getClass().getSimpleName(), args);
+        Object[] allArgs = new Object[args.length+1];
+        allArgs[0] = operator.getClass().getSimpleName();
+        for (int i = 1; i < allArgs.length; i++) {
+            allArgs[i] = args[i-1];
+        }
+        return String.format("Operator '%s': " + format, allArgs);
     }
 }

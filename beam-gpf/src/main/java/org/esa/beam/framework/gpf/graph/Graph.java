@@ -36,7 +36,7 @@ public class Graph {
      *
      * @return the id of the graph
      */
-    public Object getId() {
+    public String getId() {
         return id;
     }
     

@@ -30,10 +30,7 @@ public class PassThroughOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-    }
-
-    @Override
-    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+        targetProduct = sourceProduct;
     }
 
     public static class Spi extends OperatorSpi {
