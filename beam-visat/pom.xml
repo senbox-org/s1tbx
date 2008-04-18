@@ -21,42 +21,8 @@
     <dependencies>
         <dependency>
             <groupId>org.esa.beam</groupId>
-            <artifactId>beam-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-ui</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.bc.ceres</groupId>
-            <artifactId>ceres-binding</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.esa.beam</groupId>
-            <artifactId>beam-processing</artifactId>
+            <artifactId>beam-visat-rcp</artifactId>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <configuration>
-                            <tasks>
-                                <property name="helpdir" value="${project.build.outputDirectory}/doc/help"/>
-                                <ant antfile="../build.xml" target="create-jh-search-db"/>
-                            </tasks>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>

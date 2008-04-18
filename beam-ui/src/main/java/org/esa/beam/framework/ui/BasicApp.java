@@ -16,6 +16,7 @@
  */
 package org.esa.beam.framework.ui;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.jidesoft.action.*;
@@ -27,6 +28,8 @@ import com.jidesoft.swing.FolderChooser;
 import com.jidesoft.swing.JideMenu;
 import com.jidesoft.swing.LayoutPersistence;
 import org.esa.beam.framework.help.HelpSys;
+import org.esa.beam.framework.ui.application.ApplicationDescriptor;
+import org.esa.beam.framework.ui.application.support.DefaultApplicationDescriptor;
 import org.esa.beam.framework.ui.command.*;
 import org.esa.beam.util.*;
 import org.esa.beam.util.io.BeamFileChooser;
@@ -87,15 +90,7 @@ public class BasicApp {
 
     private boolean _uiDefaultsInitialized;
 
-    /////////////////////////////////////////////////////////////////////////
-    // Application Data
-    //
-    private final String _appName;
-    private final String _appSymbolicName;
-    private final String _appResource;
-    private final String _appVersion;
-    private final String _appCopyrightInfo;
-    private final String _appLoggerName;
+    private final ApplicationDescriptor applicationDescriptor;
 
     private File _preferencesFile;
 
@@ -116,7 +111,6 @@ public class BasicApp {
     private ContainerListener _popupMenuListener;
     private Logger _logger;
     private Formatter _logFormatter;
-    private Set<Object> _jobs;
     private ActionListener _closeHandler;
 
     // todo - move somewhere else
@@ -134,13 +128,28 @@ public class BasicApp {
     }
 
 
+    public BasicApp(ApplicationDescriptor applicationDescriptor) {
+        Assert.notNull(applicationDescriptor, "applicationDescriptor");
+        this.applicationDescriptor = applicationDescriptor;
+        if (applicationDescriptor.getSymbolicName() != null) {
+            BeamLogManager.setSystemLoggerName(applicationDescriptor.getSymbolicName());
+        }
+        _fileHistory = new FileHistory(10, "recent.files");
+        _mouseOverActionHandler = new MouseOverActionHandler();
+        _closeHandler = new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                shutDown();
+            }
+        };
+    }
+
     /**
      * Constructs a new application frame and creates the GUI.
      *
      * @param appName          the application base name, appears in the frame's title bar
-     * @param appSymbolicName
+     * @param appSymbolicName  the symbolic name of the application
      * @param appVersion       the version string
-     * @param appCopyrightInfo
+     * @param appCopyrightInfo the copyright information text
      * @param appResource      the resource path of the application's resource bundle, can be <code>null</code> if the
      *                         application does not use resource bundles
      * @param appLoggerName    the logger name for the application logging, can be <code>null</code> if the application
@@ -153,28 +162,16 @@ public class BasicApp {
                        String appCopyrightInfo,
                        String appResource,
                        String appLoggerName) {
+        this(createApplicationDescriptor(appName,
+                                         appSymbolicName,
+                                         appVersion,
+                                         appCopyrightInfo,
+                                         appResource,
+                                         appLoggerName));
+    }
 
-        Guardian.assertNotNull("appName", appName);
-        Guardian.assertNotNull("appVersion", appVersion);
-        Guardian.assertNotNull("appCopyrightInfo", appCopyrightInfo);
-
-        _appName = appName;
-        _appSymbolicName = appSymbolicName;
-        _appVersion = appVersion;
-        _appCopyrightInfo = appCopyrightInfo;
-        _appResource = appResource;
-        _appLoggerName = appLoggerName;
-        if (_appLoggerName != null) {
-            BeamLogManager.setSystemLoggerName(_appLoggerName);
-        }
-
-        _fileHistory = new FileHistory(10, "recent.files");
-        _mouseOverActionHandler = new MouseOverActionHandler();
-        _closeHandler = new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                shutDown();
-            }
-        };
+    public ApplicationDescriptor getApplicationDescriptor() {
+        return applicationDescriptor;
     }
 
     /**
@@ -238,6 +235,7 @@ public class BasicApp {
      * Clients can override this method in order to implement application specific initialisation code.</li> <li> The
      * method <code>applyPreferences</code> is called.</li> <li> The main frame is shown.</li> <li> The splash screen
      * (if any) is closed.</li> </ol>
+     *
      * @param pm a progress monitor, e.g. for splash-screen
      * @throws Exception if an error occurs
      */
@@ -250,9 +248,6 @@ public class BasicApp {
 
         try {
             pm.beginTask("Starting " + getAppName(), 6);
-
-            // Create set for jobs
-            _jobs = new HashSet<Object>();
 
             pm.setSubTaskName("Loading preferences...");
             initLogger();
@@ -307,7 +302,7 @@ public class BasicApp {
     private void logStartUpInfo() {
         _logger.info("BEAM user directory is '" + _beamUserDir + "'");    /*I18N*/
         if (_resourceBundle != null) {
-            _logger.info("Resource bundle loaded from '" + _appResource + "'"); /*I18N*/
+            _logger.info("Resource bundle loaded from '" + applicationDescriptor.getResourceBundleName() + "'"); /*I18N*/
         }
         if (_preferencesFile != null) {
             _logger.info("User preferences loaded from '" + _preferencesFile.getPath() + "'");/*I18N*/
@@ -422,8 +417,12 @@ public class BasicApp {
         });
     }
 
+    public String getAppCopyright() {
+        return applicationDescriptor.getCopyright();
+    }
+
     private void initLogger() {
-        _logFormatter = BeamLogManager.createFormatter(_appName, _appVersion, _appCopyrightInfo);
+        _logFormatter = BeamLogManager.createFormatter(getAppName(), getAppVersion(), getAppCopyright());
         BeamLogManager.configureSystemLogger(_logFormatter, false);
         _logger = BeamLogManager.getSystemLogger();
     }
@@ -475,16 +474,16 @@ public class BasicApp {
 
     private void initShutdownHook() {
 
-        Thread shutdownHook = new Thread(_appName + " shut-down hook") {
+        Thread shutdownHook = new Thread(getAppName() + " shut-down hook") {
 
             @Override
             public void run() {
                 if (isStartedUp() && !isShuttingDown()) {
                     unexpectedShutdown = true; // fix BEAM-712 (nf 2007.11.02)
-                    _logger.severe("Unexpectedly shutting down " + _appName);/*I18N*/
+                    _logger.severe("Unexpectedly shutting down " + getAppName());/*I18N*/
                     handleImminentExit();
                 } else {
-                    _logger.severe("Nominally shutting down " + _appName);/*I18N*/
+                    _logger.severe("Nominally shutting down " + getAppName());/*I18N*/
                 }
             }
         };
@@ -493,7 +492,7 @@ public class BasicApp {
     }
 
     /**
-     * Creates a tool bar for this application.
+     * @return the tool bar for this application.
      */
     protected CommandBar createMainToolBar() {
         return null;
@@ -501,21 +500,21 @@ public class BasicApp {
 
 
     /**
-     * Creates the main pane for this application.
+     * @return the main pane for this application.
      */
     protected JComponent createMainPane() {
         return new JPanel();
     }
 
     /**
-     * Creates the menu bar for this application.
+     * @return the menu bar for this application.
      */
     protected CommandBar createMainMenuBar() {
         return null;
     }
 
     /**
-     * Creates a standard status bar for this application.
+     * @return a standard status bar for this application.
      */
     protected com.jidesoft.status.StatusBar createStatusBar() {
         return null;
@@ -528,7 +527,11 @@ public class BasicApp {
      * @return the frame icon, or <code>null</code> if no icon is used
      */
     protected ImageIcon createFrameIcon() {
-        URL iconURL = getClass().getResource(getImageResourcePath() + "icons/BeamIcon16.gif");
+        final String path = applicationDescriptor.getFrameIconPath();
+        if (path == null) {
+            return null;
+        }
+        URL iconURL = getClass().getResource(path);
         if (iconURL == null) {
             return null;
         }
@@ -543,6 +546,7 @@ public class BasicApp {
      * <p/>The default implementation does nothing.
      *
      * @param pm a progress monitor, can be used to signal progress
+     * @throws Exception if an error occures
      */
     protected void initClient(ProgressMonitor pm) throws Exception {
     }
@@ -555,6 +559,7 @@ public class BasicApp {
      * <p/>The default implementation does nothing.
      *
      * @param pm a progress monitor, can be used to signal progress
+     * @throws Exception if an error occures
      */
     protected void initClientUI(ProgressMonitor pm) throws Exception {
     }
@@ -592,24 +597,24 @@ public class BasicApp {
     }
 
     /**
-     * Returns the name of this application.
+     * @return The (display) name of this application.
      */
     public String getAppName() {
-        return _appName;
+        return applicationDescriptor.getDisplayName();
     }
 
     /**
-     * Returns the symbolic name of this application.
+     * @return The symbolic name of this application.
      */
     public String getAppSymbolicName() {
-        return _appSymbolicName;
+        return applicationDescriptor.getSymbolicName();
     }
 
     /**
-     * Returns the version string of this application.
+     * @return The version string of this application.
      */
     public String getAppVersion() {
-        return _appVersion;
+        return applicationDescriptor.getVersion();
     }
 
     /**
@@ -622,17 +627,20 @@ public class BasicApp {
     }
 
     /**
-     * Returns the path where application images such as toolbar icons are stored. The returned path is relative to this
-     * application's class path.
+     * @return The path where application images such as toolbar icons are stored.
+     *         The returned path is relative to this
+     *         application's class path.
      */
     public String getImageResourcePath() {
         return _IMAGE_RESOURCE_PATH;
     }
 
     /**
-     * Gets the <code>LabelStatusBarItem</code> component used for displaying status messages. <p> If the application does notr have
-     * a status bar, <code>null</code> should be returned. <p> The default implementation searches for a label the
-     * status bar and returns it.
+     * @return The <code>LabelStatusBarItem</code> component used for displaying status messages.
+     *         <p> If the application does notr have
+     *         a status bar, <code>null</code> should be returned.
+     *         <p> The default implementation searches for a label the
+     *         status bar and returns it.
      */
     private LabelStatusBarItem getStatusBarLabel() {
         if (_statusBar != null) {
@@ -678,6 +686,8 @@ public class BasicApp {
 
     /**
      * Sets the status bar message to the given message string.
+     *
+     * @param message the message to display
      */
     public final void setStatusBarMessage(String message) {
         LabelStatusBarItem label = getStatusBarLabel();
@@ -694,8 +704,7 @@ public class BasicApp {
     }
 
     /**
-     * Sets the current status bar message string. If this application does not have a status bar, <code>null</code> is
-     * returned.
+     * @return The current status bar message string.
      */
     public final String getStatusBarMessage() {
         LabelStatusBarItem label = getStatusBarLabel();
@@ -750,9 +759,7 @@ public class BasicApp {
         }
     }
 
-    /**
-     * Finds the 'root' parent name of the given command.
-     */
+     // The 'root' parent name of the given command.
     private String findRootParent(Command command) {
         String parent = command.getParent();
         if (parent != null) {
@@ -872,7 +879,7 @@ public class BasicApp {
 
         try {
             _logger.info("Storing user preferences in '" + _preferencesFile.getPath() + "'...");/*I18N*/
-            getPreferences().store(_preferencesFile, _appName + " " + _appVersion + " - User preferences file");
+            getPreferences().store(_preferencesFile, getAppName() + " " + getAppVersion() + " - User preferences file");
             _logger.info("User preferences stored");/*I18N*/
         } catch (IOException e) {
             _logger.warning("Failed to store user preferences");/*I18N*/
@@ -1098,6 +1105,8 @@ public class BasicApp {
 
     /**
      * Sets the current document title which appears in this frame's title bar.
+     *
+     * @param currentDocTitle the title
      */
     public final void setCurrentDocTitle(String currentDocTitle) {
         final String mainFrameTitle = getMainFrameTitle();
@@ -1178,10 +1187,11 @@ public class BasicApp {
     /**
      * Opens a standard file-safe dialog box.
      *
-     * @param title      a dialog-box title
-     * @param dirsOnly   whether or not to select only directories
-     * @param fileFilter the file filter to be used, can be <code>null</code>
-     * @param fileName   the initial filename
+     * @param title            a dialog-box title
+     * @param dirsOnly         whether or not to select only directories
+     * @param fileFilter       the file filter to be used, can be <code>null</code>
+     * @param defaultExtension the extension used as default
+     * @param fileName         the initial filename
      * @return the file selected by the user or <code>null</code> if the user canceled file selection
      */
     public final File showFileSaveDialog(String title,
@@ -1203,6 +1213,7 @@ public class BasicApp {
      * @param title              a dialog-box title
      * @param dirsOnly           whether or not to select only directories
      * @param fileFilter         the file filter to be used, can be <code>null</code>
+     * @param defaultExtension   the extension used as default
      * @param fileName           the initial filename
      * @param lastDirPropertyKey the key under which the last directory the user visited is stored
      * @return the file selected by the user or <code>null</code> if the user canceled file selection
@@ -1271,7 +1282,7 @@ public class BasicApp {
      * @param job any job-like object
      */
     public final synchronized void registerJob(Object job) {
-        _jobs.add(job);
+
     }
 
     /**
@@ -1281,7 +1292,6 @@ public class BasicApp {
      * @param job any job-like object
      */
     public final synchronized void unregisterJob(Object job) {
-        _jobs.remove(job);
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -1355,12 +1365,12 @@ public class BasicApp {
         if (_suppressibleOptionPane != null && !StringUtils.isNullOrEmpty(preferencesKey)) {
             _suppressibleOptionPane.showMessageDialog(preferencesKey, getMainFrame(),
                                                       message,
-                                                      _appName + " - " + title,
+                                                      getAppName() + " - " + title,
                                                       messageType);
         } else {
             JOptionPane.showMessageDialog(getMainFrame(),
                                           message,
-                                          _appName + " - " + title,
+                                          getAppName() + " - " + title,
                                           messageType);
         }
     }
@@ -1378,7 +1388,7 @@ public class BasicApp {
             return _suppressibleOptionPane.showConfirmDialog(preferencesKey,
                                                              getMainFrame(),
                                                              message,
-                                                             _appName + " - " + title,
+                                                             getAppName() + " - " + title,
                                                              allowCancel
                                                                      ? JOptionPane.YES_NO_CANCEL_OPTION
                                                                      : JOptionPane.YES_NO_OPTION,
@@ -1386,7 +1396,7 @@ public class BasicApp {
         } else {
             return JOptionPane.showConfirmDialog(getMainFrame(),
                                                  message,
-                                                 _appName + " - " + title,
+                                                 getAppName() + " - " + title,
                                                  allowCancel
                                                          ? JOptionPane.YES_NO_CANCEL_OPTION
                                                          : JOptionPane.YES_NO_OPTION,
@@ -1458,7 +1468,7 @@ public class BasicApp {
 
     public final void initLogging() {
         BeamLogManager.removeRootLoggerHandlers();
-        if (_appLoggerName != null) {
+        if (getAppSymbolicName() != null) {
             if (!getPreferences().getProperties().containsKey(PROPERTY_KEY_APP_LOG_ENABLED)) {
                 getPreferences().setPropertyBool(PROPERTY_KEY_APP_LOG_ENABLED, false);
             }
@@ -1491,13 +1501,11 @@ public class BasicApp {
                     cacheHandler.transferRecords(handler);
                 }
                 _logger.addHandler(handler);
-                // todo - LOG LEVEL TEMPORARILY NOT CONFIGURED!!!!
-//                _logger.setLevel(logLevel == SystemUtils.LL_DEBUG ? Level.FINEST :
-//                                 logLevel == SystemUtils.LL_INFO ? Level.INFO :
-//                                 logLevel == SystemUtils.LL_WARNING ? Level.WARNING :
-//                                 logLevel == SystemUtils.LL_ERROR ? Level.SEVERE :
-//                                 Level.INFO);
-                _logger.setLevel(Level.ALL);
+                _logger.setLevel(logLevel == SystemUtils.LL_DEBUG ? Level.FINEST :
+                        logLevel == SystemUtils.LL_INFO ? Level.INFO :
+                                logLevel == SystemUtils.LL_WARNING ? Level.WARNING :
+                                        logLevel == SystemUtils.LL_ERROR ? Level.SEVERE :
+                                                Level.INFO);
                 getPreferences().setPropertyString(PROPERTY_KEY_APP_LOG_PREFIX, logPrefix);
                 getPreferences().setPropertyString(PROPERTY_KEY_APP_LOG_LEVEL,
                                                    logLevel == SystemUtils.LL_DEBUG ? SystemUtils.LLS_DEBUG :
@@ -1565,7 +1573,7 @@ public class BasicApp {
     }
 
     private String getMainFrameTitle() {
-        return _appName + " " + _appVersion;
+        return getAppName() + " " + getAppVersion();
     }
 
 //    private void initHelpSystem(SplashScreen splashScreen) {
@@ -1632,12 +1640,11 @@ public class BasicApp {
         _appUserDir.mkdir();
     }
 
-    /**
-     * Loads locale-specific resources: strings, images, et cetera
-     */
+
+    // Loads locale-specific resources: strings, images, et cetera
     private void initResources() throws MissingResourceException {
-        if (_appResource != null) {
-            _resourceBundle = ResourceBundle.getBundle(_appResource, Locale.getDefault(), getClass().getClassLoader());
+        if (applicationDescriptor.getResourceBundleName() != null) {
+            _resourceBundle = ResourceBundle.getBundle(applicationDescriptor.getResourceBundleName(), Locale.getDefault(), getClass().getClassLoader());
         } else {
             _resourceBundle = null;
         }
@@ -1694,6 +1701,22 @@ public class BasicApp {
                 }
             }
         }
+    }
+
+    private static ApplicationDescriptor createApplicationDescriptor(String appName,
+                                                                     String appSymbolicName,
+                                                                     String appVersion,
+                                                                     String appCopyrightInfo,
+                                                                     String appResource,
+                                                                     String appLoggerName) {
+        final DefaultApplicationDescriptor applicationDescriptor = new DefaultApplicationDescriptor();
+        applicationDescriptor.setDisplayName(appName);
+        applicationDescriptor.setSymbolicName(appSymbolicName);
+        applicationDescriptor.setVersion(appVersion);
+        applicationDescriptor.setCopyright(appCopyrightInfo);
+        applicationDescriptor.setResourceBundleName(appResource);
+        applicationDescriptor.setLoggerName(appLoggerName);
+        return applicationDescriptor;
     }
 
     public static class MainFrame extends DefaultDockableBarDockableHolder {

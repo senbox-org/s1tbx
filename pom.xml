@@ -80,6 +80,7 @@
         <module>beam-core</module>
         <module>beam-ui</module>
         <module>beam-pconvert</module>
+        <module>beam-visat-rcp</module>
         <module>beam-visat</module>
         <module>beam-gpf</module>
         <module>beam-gpf-docgen</module>
@@ -118,10 +119,7 @@
         <module>lib-hdf</module>
         <module>lib-netcdf</module>
 
-
-<!--
         <module>nest-dat</module>
--->
 
   </modules>
 
@@ -178,7 +176,7 @@
             </dependency>
             <dependency>
                 <groupId>org.esa.beam</groupId>
-                <artifactId>beam-processing-chain</artifactId>
+                <artifactId>beam-visat-rcp</artifactId>
                 <version>4.2-SNAPSHOT</version>
             </dependency>
             <dependency>

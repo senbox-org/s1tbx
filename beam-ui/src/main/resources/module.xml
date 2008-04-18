@@ -43,6 +43,25 @@
     <!--
        todo - Describe configuration elements
     -->
+    <extensionPoint id="applicationDescriptors">
+        <applicationDescriptor type="org.esa.beam.framework.ui.application.ApplicationDescriptor"
+                               class="@descriptorClass"
+                               autoConfig="true">
+            <descriptorClass type="java.lang.Class">
+                org.esa.beam.framework.ui.application.support.DefaultApplicationDescriptor
+            </descriptorClass>
+            <applicationId type="java.lang.String"/>   <!-- ID of the ceres application -->
+            <displayName type="java.lang.String"/>
+            <frameIcon field="iconPath" type="java.lang.String"/>
+            <resourceBundle type="java.lang.String"/>
+            <excludedActions type="java.lang.String[]"/>
+            <excludedToolViews type="java.lang.String[]"/>
+        </applicationDescriptor>
+    </extensionPoint>
+
+    <!--
+       todo - Describe configuration elements
+    -->
     <extensionPoint id="toolViews">
         <toolView type="org.esa.beam.framework.ui.application.ToolViewDescriptor"
                   class="@descriptorClass"
@@ -86,5 +105,5 @@
         </action>
 
     </extensionPoint>
-    
+
 </module>

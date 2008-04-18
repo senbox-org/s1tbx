@@ -39,7 +39,7 @@
 
     <categories>Application,Processor,Geometry,VISAT,Level-3,Envisat,MERIS,AATSR,AVHRR,CHRIS</categories>
 
-    <extension point="beam-visat:actions">
+    <extension point="beam-ui:actions">
         <action>
             <id>Binning</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>

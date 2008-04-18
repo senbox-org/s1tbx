@@ -18,20 +18,20 @@ package org.esa.beam;
 
 import com.bc.ceres.core.CoreException;
 import com.bc.ceres.core.runtime.*;
+import org.esa.beam.framework.help.HelpSys;
+import org.esa.beam.framework.ui.application.ToolViewDescriptor;
+import org.esa.beam.framework.ui.application.ToolViewDescriptorRegistry;
+import org.esa.beam.framework.ui.application.ApplicationDescriptor;
+import org.esa.beam.framework.ui.command.Command;
+import org.esa.beam.util.TreeNode;
 
 import javax.help.HelpSet;
 import javax.help.HelpSetException;
 import java.net.URL;
-import java.util.logging.Level;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-
-import org.esa.beam.framework.help.HelpSys;
-import org.esa.beam.framework.ui.command.Command;
-import org.esa.beam.framework.ui.application.ToolViewDescriptor;
-import org.esa.beam.framework.ui.application.ToolViewDescriptorRegistry;
-import org.esa.beam.util.TreeNode;
+import java.util.logging.Level;
 
 /**
  * The activator for the BEAM UI module. Registers help set extensions.
@@ -45,35 +45,47 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
     private static BeamUiActivator instance;
     private ModuleContext moduleContext;
     private TreeNode<HelpSet> helpSetRegistry;
-    private List<Command> commandRegistry;
+    private Map<String, Command> actionRegistry;
     private Map<String, ToolViewDescriptor> toolViewDescriptorRegistry;
+    private ApplicationDescriptor applicationDescriptor;
     private int helpSetNo;
 
     public void start(ModuleContext moduleContext) throws CoreException {
         this.moduleContext = moduleContext;
-        registerHelpSets(moduleContext);
-        List<ToolViewDescriptor> toolViewDescriptors = BeamCoreActivator.loadExecutableExtensions(moduleContext,
-                                                                                                  "toolViews",
-                                                                                                  "toolView",
-                                                                                                  ToolViewDescriptor.class);
-        toolViewDescriptorRegistry = new HashMap<String, ToolViewDescriptor>(2 * toolViewDescriptors.size());
-        for (ToolViewDescriptor toolViewDescriptor : toolViewDescriptors) {
-            toolViewDescriptorRegistry.put(toolViewDescriptor.getId(), toolViewDescriptor);
-        }
-
-        commandRegistry = BeamCoreActivator.loadExecutableExtensions(moduleContext,
-                                                                     "actions",
-                                                                     "action",
-                                                                     Command.class);
         instance = this;
+        registerHelpSets(moduleContext);
+        registerToolViews(moduleContext);
+        registerActions(moduleContext);
+        registerApplicationDescriptors(moduleContext);
     }
 
     public void stop(ModuleContext moduleContext) throws CoreException {
         this.helpSetRegistry = null;
         this.moduleContext = null;
-        commandRegistry = null;
+        actionRegistry = null;
         toolViewDescriptorRegistry = null;
+        applicationDescriptor = null;
         instance = null;
+    }
+
+    private void registerApplicationDescriptors(ModuleContext moduleContext) {
+        final List<ApplicationDescriptor> applicationDescriptorList = BeamCoreActivator.loadExecutableExtensions(moduleContext, "applicationDescriptors", "applicationDescriptor", ApplicationDescriptor.class);
+        final String appId = getApplicationId();
+        for (ApplicationDescriptor applicationDescriptor : applicationDescriptorList) {
+            if (appId.equals(applicationDescriptor.getApplicationId())) {
+                this.applicationDescriptor = applicationDescriptor;
+            }
+            final String[] toolViewIds = applicationDescriptor.getExcludedToolViews();
+            for (String toolViewId : toolViewIds) {
+                BeamUiActivator.getInstance().removeToolViewDescriptor(toolViewId);
+                moduleContext.getLogger().info(String.format("Removed toolview [%s]", toolViewId));
+            }
+            final String[] actionIds = applicationDescriptor.getExcludedActions();
+            for (String actionId : actionIds) {
+                BeamUiActivator.getInstance().removeAction(actionId);
+                moduleContext.getLogger().info(String.format("Removed action [%s]", actionId));
+            }
+        }
     }
 
     public static BeamUiActivator getInstance() {
@@ -84,8 +96,16 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
         return moduleContext;
     }
 
+    public String getApplicationId() {
+        return moduleContext.getRuntimeConfig().getApplicationId();
+    }
+
+    public ApplicationDescriptor getApplicationDescriptor() {
+        return applicationDescriptor;
+    }
+
     public Command[] getCommands() {
-        return commandRegistry.toArray(new Command[commandRegistry.size()]);
+        return actionRegistry.values().toArray(new Command[actionRegistry.size()]);
     }
 
     public ToolViewDescriptor[] getToolViewDescriptors() {
@@ -94,6 +114,46 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
 
     public ToolViewDescriptor getToolViewDescriptor(String viewDescriptorId) {
         return toolViewDescriptorRegistry.get(viewDescriptorId);
+    }
+
+    public void removeToolViewDescriptor(String viewDescriptorId) {
+        toolViewDescriptorRegistry.remove(viewDescriptorId);
+    }
+
+    public void removeAction(String actionId) {
+        actionRegistry.remove(actionId);
+    }
+
+    private void registerToolViews(ModuleContext moduleContext) {
+        List<ToolViewDescriptor> toolViewDescriptorList = BeamCoreActivator.loadExecutableExtensions(moduleContext,
+                                                                                                     "toolViews",
+                                                                                                     "toolView",
+                                                                                                     ToolViewDescriptor.class);
+        toolViewDescriptorRegistry = new HashMap<String, ToolViewDescriptor>(2 * toolViewDescriptorList.size());
+        for (ToolViewDescriptor toolViewDescriptor : toolViewDescriptorList) {
+            final String toolViewId = toolViewDescriptor.getId();
+            final ToolViewDescriptor existingViewDescriptor = toolViewDescriptorRegistry.get(toolViewId);
+            if (existingViewDescriptor != null) {
+                moduleContext.getLogger().info(String.format("Tool view [%s] has been redeclared!\n", toolViewId));
+            }
+            toolViewDescriptorRegistry.put(toolViewId, toolViewDescriptor);
+        }
+    }
+
+    private void registerActions(ModuleContext moduleContext) {
+        final List<Command> actionList = BeamCoreActivator.loadExecutableExtensions(moduleContext,
+                                                                                    "actions",
+                                                                                    "action",
+                                                                                    Command.class);
+        actionRegistry = new HashMap<String, Command>(2 * actionList.size());
+        for (Command action : actionList) {
+            final String actionId = action.getCommandID();
+            final Command existingAction = actionRegistry.get(actionId);
+            if (existingAction != null) {
+                moduleContext.getLogger().info(String.format("Action [%s] has been redeclared!\n", actionId));
+            }
+            actionRegistry.put(actionId, action);
+        }
     }
 
     private void registerHelpSets(ModuleContext moduleContext) {
@@ -196,4 +256,5 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
             moduleContext.getLogger().severe(message);
         }
     }
+
 }

@@ -32,6 +32,8 @@ import org.esa.beam.util.SystemUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.logging.Level;
 
 /**
@@ -108,4 +110,32 @@ public class BeamCoreActivator implements Activator {
         }
         return executableExtensions;
     }
+//
+//    // todo - move this method elsewhere. ModuleContext or Module?
+//    public static <T> List<T> loadExecutableExtensions(ModuleContext moduleContext,
+//                                                       String extensionPointId,
+//                                                       String elementName,
+//                                                       String keyElementName,
+//                                                       Class<T> extensionType) {
+//        Module module = moduleContext.getModule();
+//        ExtensionPoint extensionPoint = module.getExtensionPoint(extensionPointId);
+//        ConfigurationElement[] configurationElements = keyElementName != null ? extensionPoint.getConfigurationElements(keyElementName) : extensionPoint.getConfigurationElements();
+//        List<T> executableExtensions = new ArrayList<T>(32);
+//        for (ConfigurationElement configurationElement : configurationElements) {
+//            ConfigurationElement[] children = configurationElement.getChildren(elementName);
+//            for (ConfigurationElement child : children) {
+//                try {
+//                    ModuleState moduleState = child.getDeclaringExtension().getDeclaringModule().getState();
+//                    if (moduleState.isOneOf(ModuleState.STARTING, ModuleState.RESOLVED)) {
+//                        T executableExtension = child.createExecutableExtension(extensionType);
+//                        executableExtensions.add(executableExtension);
+//                    }
+//                } catch (CoreException e) {
+//                    // todo - better throw CoreException? Or better register error in moduleContext?
+//                    moduleContext.getLogger().log(Level.SEVERE, e.getMessage(), e);
+//                }
+//            }
+//        }
+//        return executableExtensions;
+//    }
 }
