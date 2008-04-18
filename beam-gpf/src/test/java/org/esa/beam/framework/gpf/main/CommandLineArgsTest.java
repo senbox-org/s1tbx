@@ -294,7 +294,7 @@ public class CommandLineArgsTest extends TestCase {
         final OperatorSpiRegistry spiRegistry = gpf.getOperatorSpiRegistry();
         spiRegistry.addOperatorSpi(testSpi);
         assertSame(testSpi, spiRegistry.getOperatorSpi(opName));
-        String usageText = CommandLineUsage.getUsageText(opName);
+        String usageText = CommandLineUsage.getUsageTextForOperator(opName);
         assertNotNull(usageText);
         assertTrue(usageText.contains(opName));
         assertTrue(usageText.contains(opDesc));

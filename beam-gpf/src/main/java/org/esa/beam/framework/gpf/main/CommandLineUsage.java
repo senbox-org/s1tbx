@@ -13,10 +13,17 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProperty;
+import org.esa.beam.framework.gpf.graph.Graph;
+import org.esa.beam.framework.gpf.graph.GraphException;
+import org.esa.beam.framework.gpf.graph.GraphIO;
+import org.esa.beam.framework.gpf.graph.Header;
+import org.esa.beam.framework.gpf.graph.HeaderSource;
 import org.esa.beam.framework.gpf.internal.OperatorClassDescriptor;
 import org.esa.beam.framework.gpf.internal.Xpp3DomElement;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
@@ -80,7 +87,50 @@ class CommandLineUsage {
         return sb.toString();
     }
 
-    public static String getUsageText(String operatorName) {
+    public static String getUsageTextForXML(String graphFilepath) {
+        StringBuilder usageText = new StringBuilder(1024);
+        try {
+            Graph graph = GraphIO.read(new FileReader(graphFilepath));
+            Header header = graph.getHeader();
+            usageText.append("Usage:\n");
+            usageText.append(MessageFormat.format("  {0} {1} [options] ", CommandLineTool.TOOL_NAME, graphFilepath));
+            ArrayList<DocElement> sourceDocElementList = createSourceDocuElementList(header.getSources());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (GraphException e) {
+            e.printStackTrace();
+        }
+        return usageText.toString();
+    }
+    
+    private static ArrayList<DocElement> createSourceDocuElementList(List<HeaderSource> sources) {
+        ArrayList<DocElement> docElementList = new ArrayList<DocElement>(10);
+        for (HeaderSource headerSource : sources) {
+            String sourceSyntax = MessageFormat.format("  -S{0}=<file>", headerSource.getName());
+            final ArrayList<String> descriptionLines = createSourceDecriptionLines(headerSource);
+            docElementList.add(new DocElement(sourceSyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
+        }
+        return docElementList;
+    }
+    
+    private static ArrayList<String> createSourceDecriptionLines(HeaderSource headerSource) {
+        final ArrayList<String> descriptionLines = new ArrayList<String>();
+        if (!headerSource.getDescription().isEmpty()) {
+            descriptionLines.add(headerSource.getDescription());
+        } else {
+            descriptionLines.add(MessageFormat.format("Sets source ''{0}'' to <filepath>.", headerSource.getName()));
+        }
+        if (headerSource.isOptional()) {
+            descriptionLines.add("This is an optional source.");
+        } else {
+            descriptionLines.add("This is a mandatory source.");
+        }
+        return descriptionLines;
+    }
+
+    ////////////////////////////////////////////////////////////////////
+    
+    public static String getUsageTextForOperator(String operatorName) {
         final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(operatorName);
         if (operatorSpi == null) {
             return MessageFormat.format("Unknown operator ''{0}''.", operatorName);
