@@ -1,0 +1,252 @@
+/*
+ * $Id: AbstractExportImageAction.java,v 1.3 2007/04/18 13:01:13 norman Exp $
+ *
+ * Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation. This program is distributed in the hope it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+package org.esa.beam.visat.actions;
+
+import com.sun.media.jai.codec.ImageCodec;
+import com.sun.media.jai.codec.ImageEncoder;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.ui.command.ExecCommand;
+import org.esa.beam.framework.ui.command.SelectableCommand;
+import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.framework.help.HelpSys;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.geotiff.GeoTIFF;
+import org.esa.beam.util.geotiff.GeoTIFFMetadata;
+import org.esa.beam.util.io.BeamFileChooser;
+import org.esa.beam.util.io.BeamFileFilter;
+import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.visat.VisatApp;
+
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.image.RenderedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+
+/**
+ * Created by Marco Peters.
+ *
+ * @author Marco Peters
+ * @version $Revision: 1.3 $ $Date: 2007/04/18 13:01:13 $
+ */
+public abstract class AbstractExportImageAction extends ExecCommand {
+
+    public static final String EXPORT_IMAGE_CMD_ID = "exportImageFile";
+    public static final String EXPORT_ROI_IMAGE_CMD_ID = "exportROIImageFile";
+    public static final String EXPORT_LEGEND_IMAGE_CMD_ID = "exportLegendImageFile";
+
+
+    private static final String[] BMP_FORMAT_DESCRIPTION = {"BMP", "bmp", "BMP - Microsoft Windows Bitmap"};
+    private static final String[] PNG_FORMAT_DESCRIPTION = {"PNG", "png", "PNG - Portable Network Graphics"};
+    private static final String[] JPEG_FORMAT_DESCRIPTION = {
+            "JPEG", "jpg,jpeg", "JPEG - Joint Photographic Experts Group"
+    };
+
+    // not yet used
+//    private static final String[] JPEG2K_FORMAT_DESCRIPTION = {
+//            "JPEG2000", "jpg,jpeg", "JPEG 2000 - Joint Photographic Experts Group"
+//    };
+
+    private static final String[] TIFF_FORMAT_DESCRIPTION = {"TIFF", "tif,tiff", "TIFF - Tagged Image File Format"};
+    private static final String[] GEOTIFF_FORMAT_DESCRIPTION = {
+            "GeoTIFF", "tif,tiff", "GeoTIFF - TIFF with geo-location"
+    };
+
+
+    private final static String[][] IMAGE_FORMAT_DESCRIPTIONS = {
+            BMP_FORMAT_DESCRIPTION,
+            PNG_FORMAT_DESCRIPTION,
+            JPEG_FORMAT_DESCRIPTION,
+            TIFF_FORMAT_DESCRIPTION,
+    };
+
+    private final static String[][] SCENE_IMAGE_FORMAT_DESCRIPTIONS = {
+            BMP_FORMAT_DESCRIPTION,
+            PNG_FORMAT_DESCRIPTION,
+            JPEG_FORMAT_DESCRIPTION,
+            TIFF_FORMAT_DESCRIPTION,
+            GEOTIFF_FORMAT_DESCRIPTION,
+    };
+    private static final String[] TRANSPARENCY_IMAGE_FORMATS = new String[]{"TIFF", "PNG"};
+
+    private static final String IMAGE_EXPORT_DIR_PREFERENCES_KEY = "user.image.export.dir";
+
+
+    private BeamFileFilter[] imageFileFilters;
+    private BeamFileFilter[] sceneImageFileFilters;
+
+    public AbstractExportImageAction() {
+        imageFileFilters = new BeamFileFilter[IMAGE_FORMAT_DESCRIPTIONS.length];
+        for (int i = 0; i < IMAGE_FORMAT_DESCRIPTIONS.length; i++) {
+            imageFileFilters[i] = createFileFilter(IMAGE_FORMAT_DESCRIPTIONS[i]);
+        }
+        sceneImageFileFilters = new BeamFileFilter[SCENE_IMAGE_FORMAT_DESCRIPTIONS.length];
+        for (int i = 0; i < SCENE_IMAGE_FORMAT_DESCRIPTIONS.length; i++) {
+            sceneImageFileFilters[i] = createFileFilter(SCENE_IMAGE_FORMAT_DESCRIPTIONS[i]);
+        }
+
+    }
+
+    protected void exportImage(final VisatApp visatApp,
+                               final BeamFileFilter[] filters,
+                               final SelectableCommand command) {
+
+        final ProductSceneView view = visatApp.getSelectedProductSceneView();
+        if (view == null) {
+            return;
+        }
+        final Product product = view.getProduct();
+
+        final String lastDir = visatApp.getPreferences().getPropertyString(IMAGE_EXPORT_DIR_PREFERENCES_KEY,
+                                                                           SystemUtils.getUserHomeDir().getPath());
+        final File currentDir = new File(lastDir);
+
+        final BeamFileChooser fileChooser = new BeamFileChooser();
+        HelpSys.enableHelpKey(fileChooser, command.getHelpId());
+        fileChooser.setCurrentDirectory(currentDir);
+        for (int i = 0; i < filters.length; i++) {
+            BeamFileFilter filter = filters[i];
+            Debug.trace("export image: supported format " + (i + 1) + ": " + filter.getFormatName());
+            fileChooser.addChoosableFileFilter(filter); // note: also selects current file filter!
+        }
+        fileChooser.setAcceptAllFileFilterUsed(false);
+
+        final String imageBaseName = FileUtils.getFilenameWithoutExtension(view.getProduct().getName()).replace('.',
+                                                                                                                '_');
+        configureFileChooser(fileChooser, view, imageBaseName);
+
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+        Dimension fileChooserSize = fileChooser.getPreferredSize();
+        if (fileChooserSize != null) {
+            fileChooser.setPreferredSize(new Dimension(fileChooserSize.width + 120, fileChooserSize.height));
+        } else {
+            fileChooser.setPreferredSize(new Dimension(512, 256));
+        }
+
+        int result = fileChooser.showSaveDialog(visatApp.getMainFrame());
+        File file = fileChooser.getSelectedFile();
+        fileChooser.addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                // @todo never comes here, why?
+                Debug.trace(evt.toString());
+            }
+        });
+        final File currentDirectory = fileChooser.getCurrentDirectory();
+        if (currentDirectory != null) {
+            visatApp.getPreferences().setPropertyString(IMAGE_EXPORT_DIR_PREFERENCES_KEY, currentDirectory.getPath());
+        }
+        if (result != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+        if (file == null || file.getName().equals("")) {
+            return;
+        }
+        final boolean entireImageSelected = isEntireImageSelected();
+
+        final BeamFileFilter fileFilter = fileChooser.getBeamFileFilter();
+        String imageFormat = fileFilter != null ? fileFilter.getFormatName() : "TIFF";
+        if (imageFormat.equals("GeoTIFF") && !entireImageSelected) {
+            final int status = visatApp.showQuestionDialog("GeoTIFF is not applicable to image clippings.\n" +
+                                                           "Shall TIFF format be used instead?", null);
+            if (status == JOptionPane.YES_OPTION) {
+                imageFormat = "TIFF";
+            } else {
+                return;
+            }
+        }
+        if (!visatApp.promptForOverwrite(file)) {
+            return;
+        }
+        visatApp.setStatusBarMessage("Saving image as " + file.getPath() + "...");
+        visatApp.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        try {
+            RenderedImage image = createImage(imageFormat, view);
+
+            boolean geoTIFFWritten = false;
+            if (imageFormat.equals("GeoTIFF") && entireImageSelected) {
+                final GeoTIFFMetadata metadata = ProductUtils.createGeoTIFFMetadata(product);
+                if (metadata != null) {
+                    GeoTIFF.writeImage(image, file, metadata);
+                    geoTIFFWritten = true;
+                }
+            }
+
+            if (!geoTIFFWritten) {
+                final OutputStream stream = new FileOutputStream(file);
+                try {
+                    ImageEncoder encoder = ImageCodec.createImageEncoder(imageFormat, stream, null);
+                    encoder.encode(image);
+                } finally {
+                    stream.close();
+                }
+            }
+
+        } catch (OutOfMemoryError e) {
+            visatApp.showOutOfMemoryErrorDialog("The image could not be exported.");
+        } catch (Throwable e) {
+            visatApp.handleUnknownException(e);
+        } finally {
+            visatApp.getMainFrame().setCursor(Cursor.getDefaultCursor());
+            visatApp.clearStatusBarMessage();
+        }
+    }
+
+    protected abstract RenderedImage createImage(String imageFormat, ProductSceneView view);
+
+    protected abstract boolean isEntireImageSelected();
+
+    protected abstract void configureFileChooser(BeamFileChooser fileChooser, ProductSceneView view,
+                                                 String imageBaseName);
+
+    protected BeamFileFilter[] getImageFileFilters() {
+        return imageFileFilters;
+    }
+
+    protected BeamFileFilter[] getSceneImageFileFilters() {
+        return sceneImageFileFilters;
+    }
+
+    protected VisatApp getVisatApp() {
+        return VisatApp.getApp();
+    }
+
+    protected static boolean isTransparencySupportedByFormat(String formatName) {
+        final String[] formats = TRANSPARENCY_IMAGE_FORMATS;
+        for (int i = 0; i < formats.length; i++) {
+            if (formats[i].equalsIgnoreCase(formatName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static BeamFileFilter createFileFilter(String[] description) {
+        final String formatName = description[0];
+        final String formatExt = description[1];
+        final String formatDescr = description[2];
+        return new BeamFileFilter(formatName, formatExt, formatDescr);
+    }
+
+}

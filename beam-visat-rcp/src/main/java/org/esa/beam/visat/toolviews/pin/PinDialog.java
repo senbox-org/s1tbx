@@ -1,0 +1,493 @@
+/*
+ * $Id: PinDialog.java,v 1.1 2007/04/19 10:41:38 norman Exp $
+ *
+ * Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation. This program is distributed in the hope it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+package org.esa.beam.visat.toolviews.pin;
+
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.param.ParamChangeEvent;
+import org.esa.beam.framework.param.ParamChangeListener;
+import org.esa.beam.framework.param.Parameter;
+import org.esa.beam.framework.ui.GridBagUtils;
+import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.util.Guardian;
+
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.text.JTextComponent;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
+
+/**
+ * A dialog used to create new pins or edit existing pins.
+ */
+public class PinDialog extends ModalDialog {
+
+    private final Product product;
+    private Parameter paramName;
+    private Parameter paramLabel;
+    private Parameter paramUsePixelPos;
+    private Parameter paramLat;
+    private Parameter paramLon;
+    private Parameter paramPixelX;
+    private Parameter paramPixelY;
+    private Parameter paramDescription;
+    private PinSymbol symbol;
+    private JLabel symbolLabel;
+    private Parameter paramColorOutline;
+    private Parameter paramColorFill;
+    private boolean canGetPixelPos;
+    private boolean canGetGeoPos;
+    private boolean adjusting;
+    private boolean symbolChanged;
+    private PlacemarkDescriptor placemarkDescriptor;
+    private boolean simultaneousEditingAllowed;
+
+
+    /**
+     * @deprecated in 4.1, use {@link #PinDialog(Window,Product,PlacemarkDescriptor,boolean)} instead
+     */
+    public PinDialog(final Window parent, final Product product) {
+        this(parent, product, PinDescriptor.INSTANCE, false);
+    }
+
+    public PinDialog(final Window parent, final Product product, final PlacemarkDescriptor placemarkDescriptor,
+                     boolean simultaneousEditingAllowed) {
+        super(parent, "New " + placemarkDescriptor.getRoleLabel(), ModalDialog.ID_OK_CANCEL, null); /*I18N*/
+        Guardian.assertNotNull("product", product);
+        this.product = product;
+        this.placemarkDescriptor = placemarkDescriptor;
+        this.simultaneousEditingAllowed = simultaneousEditingAllowed;
+        initParameter();
+        creatUI();
+    }
+
+    public boolean isSimultaneousEditingAllowed() {
+        return simultaneousEditingAllowed;
+    }
+
+    public Product getProduct() {
+        return product;
+    }
+
+    @Override
+    protected void onOK() {
+        if (!product.containsPixel(getPixelX(), getPixelY())) {
+            showInformationDialog("The " + placemarkDescriptor.getRoleLabel() + " cannot be set because\n" +
+                    "its pixel coordinate is out of bounds."); /*I18N*/
+            return;
+        }
+        if (Pin.isValidNodeName(getName())) {
+            if (symbolChanged) {
+                // Create new symbol instance so an event is fired by pin when new symbol is set.
+                updateSymbolInstance();
+            }
+            super.onOK();
+        } else {
+            showInformationDialog("'" + getName() + "' is not a valid " + placemarkDescriptor.getRoleLabel() + " name."); /*I18N*/
+        }
+    }
+
+    private void updateSymbolInstance() {
+        PinSymbol symbol = PinSymbol.createDefaultPinSymbol();
+        symbol.setOutlineColor(this.symbol.getOutlineColor());
+        symbol.setOutlineStroke(this.symbol.getOutlineStroke());
+        symbol.setFillPaint(this.symbol.getFillPaint());
+        symbol.setFilled(this.symbol.isFilled());
+        this.symbol = symbol;
+    }
+
+    public String getName() {
+        return paramName.getValueAsText();
+    }
+
+    public void setName(String name) {
+        paramName.setValueAsText(name, null);
+    }
+
+    public String getLabel() {
+        return paramLabel.getValueAsText();
+    }
+
+    public void setLabel(String label) {
+        paramLabel.setValueAsText(label, null);
+    }
+
+    public boolean isUsePixelPos() {
+        return (Boolean) paramUsePixelPos.getValue();
+    }
+
+    /**
+     * Sets whether or not to use the pixel co-ordinates instead of geographic co-ordinates. Has no effect if the
+     * current product is null.
+     *
+     * @param usePixelPos whether or not to use the pixel co-ordinates instead of geographic co-ordinates
+     */
+    public void setUsePixelPos(boolean usePixelPos) {
+        paramUsePixelPos.setValue(usePixelPos, null);
+    }
+
+    public float getLat() {
+        return (Float) paramLat.getValue();
+    }
+
+    public void setLat(float lat) {
+        paramLat.setValue(lat, null);
+    }
+
+    public float getLon() {
+        return (Float) paramLon.getValue();
+    }
+
+    public void setLon(float lon) {
+        paramLon.setValue(lon, null);
+    }
+
+    public GeoPos getGeoPos() {
+        return new GeoPos(getLat(), getLon());
+    }
+
+    public void setGeoPos(GeoPos geoPos) {
+        if (geoPos != null) {
+            setLat(geoPos.lat);
+            setLon(geoPos.lon);
+        } else {
+            setLat(0.0f);
+            setLon(0.0f);
+        }
+    }
+
+    public PixelPos getPixelPos() {
+        return new PixelPos(getPixelX(), getPixelY());
+    }
+
+    public void setPixelPos(PixelPos pixelPos) {
+        if (pixelPos != null) {
+            setPixelX(pixelPos.x);
+            setPixelY(pixelPos.y);
+        } else {
+            setPixelX(0.0F);
+            setPixelY(0.0F);
+        }
+    }
+
+    public float getPixelX() {
+        return (Float) paramPixelX.getValue();
+    }
+
+    public void setPixelX(float pixelX) {
+        paramPixelX.setValue(pixelX, null);
+    }
+
+    public float getPixelY() {
+        return (Float) paramPixelY.getValue();
+    }
+
+    public void setPixelY(float pixelY) {
+        paramPixelY.setValue(pixelY, null);
+    }
+
+    public String getDescription() {
+        return paramDescription.getValueAsText();
+    }
+
+    public void setDescription(String description) {
+        paramDescription.setValueAsText(description, null);
+    }
+
+    public PinSymbol getPinSymbol() {
+        return symbol;
+    }
+
+    public void setPinSymbol(PinSymbol symbol) {
+        Color fillColor = (Color) symbol.getFillPaint();
+        Color outlineColor = symbol.getOutlineColor();
+        paramColorFill.setValue(fillColor, null);
+        paramColorOutline.setValue(outlineColor, null);
+        this.symbol = symbol;
+    }
+
+    private void initParameter() {
+        GeoCoding geoCoding = product.getGeoCoding();
+        boolean hasGeoCoding = geoCoding != null;
+        canGetPixelPos = hasGeoCoding && geoCoding.canGetPixelPos();
+        canGetGeoPos = hasGeoCoding && geoCoding.canGetGeoPos();
+
+        paramName = new Parameter("paramName", "");
+        paramName.getProperties().setLabel("Name");/*I18N*/
+
+        paramLabel = new Parameter("paramLabel", "");
+        paramLabel.getProperties().setLabel("Label");/*I18N*/
+
+        boolean usePixelPos = !hasGeoCoding;
+        paramUsePixelPos = new Parameter("paramUsePixelPos", usePixelPos);
+        paramUsePixelPos.getProperties().setLabel("Use pixel position");/*I18N*/
+        paramUsePixelPos.setUIEnabled(canGetPixelPos || canGetGeoPos);
+        paramUsePixelPos.addParamChangeListener(new ParamChangeListener() {
+            public void parameterValueChanged(ParamChangeEvent event) {
+                if (isSimultaneousEditingAllowed()) {
+                    boolean value = isUsePixelPos();
+                    paramLat.setUIEnabled(!value);
+                    paramLon.setUIEnabled(!value);
+                    paramPixelX.setUIEnabled(value);
+                    paramPixelY.setUIEnabled(value);
+                }
+            }
+        });
+
+        ParamChangeListener geoChangeListener = new ParamChangeListener() {
+            public void parameterValueChanged(ParamChangeEvent event) {
+                updatePixelPos();
+            }
+        };
+
+        paramLat = new Parameter("paramLat", 0.0f);
+        paramLat.getProperties().setLabel("Lat");/*I18N*/
+        paramLat.getProperties().setPhysicalUnit("deg"); /*I18N*/
+        paramLat.setUIEnabled(!usePixelPos || !isSimultaneousEditingAllowed());
+        paramLat.addParamChangeListener(geoChangeListener);
+
+        paramLon = new Parameter("paramLon", 0.0f);
+        paramLon.getProperties().setLabel("Lon");/*I18N*/
+        paramLon.getProperties().setPhysicalUnit("deg");/*I18N*/
+        paramLon.setUIEnabled(!usePixelPos || !isSimultaneousEditingAllowed());
+        paramLon.addParamChangeListener(geoChangeListener);
+
+        ParamChangeListener pixelChangeListener = new ParamChangeListener() {
+            public void parameterValueChanged(ParamChangeEvent event) {
+                updateGeoPos();
+            }
+        };
+
+        paramPixelX = new Parameter("paramPixelX", 0.0F);
+        paramPixelX.getProperties().setLabel("Pixel X");
+        paramPixelX.setUIEnabled(usePixelPos || !isSimultaneousEditingAllowed());
+        paramPixelX.addParamChangeListener(pixelChangeListener);
+
+        paramPixelY = new Parameter("paramPixelY", 0.0F);
+        paramPixelY.getProperties().setLabel("Pixel Y");
+        paramPixelY.setUIEnabled(usePixelPos || !isSimultaneousEditingAllowed());
+        paramPixelY.addParamChangeListener(pixelChangeListener);
+
+        paramDescription = new Parameter("paramDesc", "");
+        paramDescription.getProperties().setLabel("Description"); /*I18N*/
+        paramDescription.getProperties().setNumRows(3);
+
+        if (symbol == null) {
+            symbol = placemarkDescriptor.createDefaultSymbol();
+        }
+
+        ParamChangeListener colorChangelistener = new ParamChangeListener() {
+            public void parameterValueChanged(ParamChangeEvent event) {
+                symbol.setFillPaint((Paint) paramColorFill.getValue());
+                symbol.setOutlineColor((Color) paramColorOutline.getValue());
+                symbolLabel.repaint();
+                symbolChanged = true;
+            }
+        };
+
+        paramColorOutline = new Parameter("outlineColor", symbol.getOutlineColor());
+        paramColorOutline.getProperties().setLabel("Outline color");
+        paramColorOutline.getProperties().setNullValueAllowed(true);
+        paramColorOutline.addParamChangeListener(colorChangelistener);
+        paramColorOutline.setUIEnabled(symbol.getIcon() == null);
+
+        paramColorFill = new Parameter("fillColor", symbol.getFillPaint());
+        paramColorFill.getProperties().setLabel("Fill color");
+        paramColorFill.getProperties().setNullValueAllowed(true);
+        paramColorFill.addParamChangeListener(colorChangelistener);
+        paramColorFill.setUIEnabled(symbol.getIcon() == null);
+    }
+
+    private void creatUI() {
+
+        symbolLabel = new JLabel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (g instanceof Graphics2D) {
+                    Graphics2D g2d = (Graphics2D) g;
+                    final PixelPos refPoint = symbol.getRefPoint();
+                    Rectangle2D bounds = symbol.getBounds();
+                    double tx = refPoint.getX() - bounds.getX() / 2;
+                    double ty = refPoint.getY() - bounds.getY() / 2;
+                    g2d.translate(tx, ty);
+                    symbol.draw(g2d);
+                    g2d.translate(-tx, -ty);
+                }
+            }
+        };
+        symbolLabel.setPreferredSize(new Dimension(40, 40));
+
+        JPanel dialogPane = GridBagUtils.createPanel();
+        final GridBagConstraints gbc = GridBagUtils.createDefaultConstraints();
+        gbc.insets.top = 3;
+
+        gbc.gridy++;
+        gbc.gridwidth = 1;
+        GridBagUtils.addToPanel(dialogPane, paramName.getEditor().getLabelComponent(), gbc);
+        gbc.gridwidth = 4;
+        GridBagUtils.addToPanel(dialogPane, paramName.getEditor().getComponent(), gbc,
+                                "weightx=1, fill=HORIZONTAL");
+        gbc.gridy++;
+        gbc.gridwidth = 1;
+        GridBagUtils.addToPanel(dialogPane, paramLabel.getEditor().getLabelComponent(), gbc);
+        gbc.gridwidth = 4;
+        GridBagUtils.addToPanel(dialogPane, paramLabel.getEditor().getComponent(), gbc,
+                                "weightx=1, fill=HORIZONTAL");
+        if (isSimultaneousEditingAllowed()) {
+            gbc.gridwidth = 5;
+            gbc.gridy++;
+            GridBagUtils.addToPanel(dialogPane, paramUsePixelPos.getEditor().getComponent(), gbc);
+        }
+
+        gbc.gridy++;
+        GridBagUtils.addToPanel(dialogPane, paramPixelX.getEditor().getLabelComponent(), gbc,
+                                "weightx=0, gridwidth=1");
+        final int space = 30;
+        gbc.insets.right -= 2;
+        GridBagUtils.addToPanel(dialogPane, paramPixelX.getEditor().getComponent(), gbc, "weightx=1");
+        gbc.insets.right += 2;
+        gbc.insets.left -= 2;
+        GridBagUtils.addToPanel(dialogPane, new JLabel(""), gbc, "weightx=0");
+        gbc.insets.left += 2;
+        gbc.insets.left += space;
+        GridBagUtils.addToPanel(dialogPane, paramLon.getEditor().getLabelComponent(), gbc, "weightx=0");
+        gbc.insets.left -= space;
+        GridBagUtils.addToPanel(dialogPane, paramLon.getEditor().getComponent(), gbc, "weightx=1");
+        GridBagUtils.addToPanel(dialogPane, paramLon.getEditor().getPhysUnitLabelComponent(), gbc, "weightx=0");
+
+        gbc.gridy++;
+        GridBagUtils.addToPanel(dialogPane, paramPixelY.getEditor().getLabelComponent(), gbc);
+        gbc.insets.right -= 2;
+        GridBagUtils.addToPanel(dialogPane, paramPixelY.getEditor().getComponent(), gbc, "weightx=1");
+        gbc.insets.right += 2;
+        gbc.insets.left -= 2;
+        GridBagUtils.addToPanel(dialogPane, new JLabel(""), gbc, "weightx=0");
+        gbc.insets.left += 2;
+        gbc.insets.left += space;
+        GridBagUtils.addToPanel(dialogPane, paramLat.getEditor().getLabelComponent(), gbc, "weightx=0");
+        gbc.insets.left -= space;
+        GridBagUtils.addToPanel(dialogPane, paramLat.getEditor().getComponent(), gbc, "weightx=1");
+        GridBagUtils.addToPanel(dialogPane, paramLat.getEditor().getPhysUnitLabelComponent(), gbc, "weightx=0");
+
+
+        final int symbolSpace = 10;
+
+        gbc.gridy++;
+        gbc.insets.top += symbolSpace;
+        GridBagUtils.addToPanel(dialogPane, createSymbolPane(), gbc, "fill=NONE, gridwidth=5, weightx=0");
+
+        gbc.gridy++;
+        GridBagUtils.addToPanel(dialogPane, paramDescription.getEditor().getLabelComponent(), gbc, "fill=BOTH");
+        gbc.insets.top -= symbolSpace;
+        gbc.gridy++;
+        GridBagUtils.addToPanel(dialogPane, paramDescription.getEditor().getComponent(), gbc, "weighty=1");
+
+        setContent(dialogPane);
+
+        final JComponent editorComponent = paramName.getEditor().getEditorComponent();
+        if (editorComponent instanceof JTextComponent) {
+            JTextComponent tc = (JTextComponent) editorComponent;
+            tc.selectAll();
+        }
+    }
+
+    private JPanel createSymbolPane() {
+        final GridBagConstraints gbc = GridBagUtils.createDefaultConstraints();
+        gbc.insets.top = 3;
+        final JPanel symbolPanel = GridBagUtils.createPanel();
+
+        gbc.gridheight = 1;
+
+        gbc.gridy = 0;
+        gbc.gridx = 0;
+        symbolPanel.add(paramColorFill.getEditor().getLabelComponent(), gbc);
+        gbc.gridx = 1;
+        symbolPanel.add(paramColorFill.getEditor().getComponent(), gbc);
+
+        gbc.gridy = 1;
+        gbc.gridx = 0;
+        symbolPanel.add(paramColorOutline.getEditor().getLabelComponent(), gbc);
+        gbc.gridx = 1;
+        symbolPanel.add(paramColorOutline.getEditor().getComponent(), gbc);
+
+        gbc.gridy = 0;
+        gbc.gridx = 2;
+        gbc.gridheight = 2;
+        gbc.insets.left = 10;
+        symbolPanel.add(symbolLabel, gbc);
+        gbc.insets.left = 0;
+
+        return symbolPanel;
+    }
+
+    private void updatePixelPos() {
+        if (canGetPixelPos && !adjusting) {
+            adjusting = true;
+            PixelPos pixelPos = placemarkDescriptor.updatePixelPos(product.getGeoCoding(), getGeoPos(), getPixelPos());
+            setPixelPos(pixelPos);
+            adjusting = false;
+        }
+    }
+
+    private void updateGeoPos() {
+        if (canGetGeoPos && !adjusting) {
+            adjusting = true;
+            GeoPos geoPos = placemarkDescriptor.updateGeoPos(product.getGeoCoding(), getPixelPos(), getGeoPos());
+            setGeoPos(geoPos);
+            adjusting = false;
+        }
+    }
+
+    /**
+     * Turns the first letter of the given string to upper case.
+     *
+     * @param string the string to change
+     * @return a changed string
+     */
+    private static String firstLetterUp(String string) {
+        String firstChar = string.substring(0, 1).toUpperCase();
+        return firstChar + string.substring(1);
+    }
+
+    public static boolean showEditPinDialog(Window parent, Product product, Pin pin,
+                                            PlacemarkDescriptor placemarkDescriptor) {
+        final PinDialog pinDialog = new PinDialog(parent, product, placemarkDescriptor,
+                                                  placemarkDescriptor instanceof PinDescriptor);
+        String titelPrefix = pin.getProduct() == null ? "New" : "Edit"; /*I18N*/
+        String roleLabel = firstLetterUp(placemarkDescriptor.getRoleLabel());
+
+        pinDialog.getJDialog().setTitle(titelPrefix + " " + roleLabel);
+        pinDialog.getJDialog().setName(titelPrefix + "_" + roleLabel);
+        pinDialog.setName(pin.getName());
+        pinDialog.setLabel(pin.getLabel());
+        pinDialog.setDescription(pin.getDescription() != null ? pin.getDescription() : "");
+        pinDialog.setPixelPos(pin.getPixelPos());
+        pinDialog.setGeoPos(pin.getGeoPos());
+        pinDialog.setPinSymbol(pin.getSymbol());
+        boolean ok = (pinDialog.show() == ID_OK);
+        if (ok) {
+            pin.setName(pinDialog.getName());
+            pin.setLabel(pinDialog.getLabel());
+            pin.setDescription(pinDialog.getDescription());
+            pin.setGeoPos(pinDialog.getGeoPos());
+            pin.setPixelPos(pinDialog.getPixelPos());
+            pin.setSymbol(pinDialog.getPinSymbol());
+        }
+        return ok;
+    }
+}
