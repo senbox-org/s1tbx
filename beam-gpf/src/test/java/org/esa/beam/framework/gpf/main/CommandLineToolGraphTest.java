@@ -25,6 +25,26 @@ public class CommandLineToolGraphTest extends TestCase {
         clTool = new CommandLineTool(context);
     }
 
+    public void testGraphUsageMessage() throws Exception {
+        final String[] args = new String[]{"-h", "graph.xml"};
+
+        clTool.run(args);
+
+        final String message = context.m;
+        assertNotNull(message);
+        assertTrue(message.contains("Usage:"));
+        assertTrue(message.contains("Source Options:"));
+        assertTrue(message.contains("sourceProduct1"));
+        assertTrue(message.contains("First source product"));
+        assertTrue(message.contains("sourceProduct2"));
+        assertTrue(message.contains("Parameter Options:"));
+        assertTrue(message.contains("threshold"));
+        assertTrue(message.contains("Threshold value"));
+        assertTrue(message.contains("expression"));
+
+        System.out.println(message);
+    }
+
     public void testGraphOnly() throws Exception {
         testGraph(new String[]{"graph.xml"},
                   3,
@@ -207,7 +227,14 @@ public class CommandLineToolGraphTest extends TestCase {
 
             String xml =
                     "<graph id=\"chain1\">" +
-                            "<version>1.0</version>" +
+                            "<version>1.0</version>\n" +
+                            "<header>\n" +
+                            "<target refid=\"node2\"/>\n" +
+                            "<source name=\"sourceProduct1\" description=\"First source product\"/>\n" +
+                            "<source name=\"sourceProduct2\"/>\n" +
+                            "<parameter name=\"threshold\" type=\"double\" description=\"Threshold value\"/>\n" +
+                            "<parameter name=\"expression\" type=\"String\"/>\n" +
+                            "</header>\n" +
                             "<node id=\"node1\">" +
                             "  <operator>org.esa.beam.framework.gpf.TestOps$Op2$Spi</operator>\n" +
                             "  <sources>\n" +

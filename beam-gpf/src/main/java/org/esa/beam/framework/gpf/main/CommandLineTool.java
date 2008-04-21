@@ -65,7 +65,8 @@ class CommandLineTool {
             if (lineArgs.getOperatorName() != null) {
                 commandLineContext.print(CommandLineUsage.getUsageTextForOperator(lineArgs.getOperatorName()));
             } else if (lineArgs.getGraphFilepath() != null) {
-                commandLineContext.print(CommandLineUsage.getUsageTextForXML(lineArgs.getGraphFilepath()));
+                commandLineContext.print(CommandLineUsage.getUsageTextForGraph(lineArgs.getGraphFilepath(),
+                        commandLineContext));
             } else {
                 commandLineContext.print(CommandLineUsage.getUsageText());
             }

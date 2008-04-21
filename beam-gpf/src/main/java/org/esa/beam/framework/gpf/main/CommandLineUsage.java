@@ -8,18 +8,12 @@ import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.OperatorSpiRegistry;
-import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
-import org.esa.beam.framework.gpf.annotations.Parameter;
-import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.esa.beam.framework.gpf.annotations.SourceProducts;
-import org.esa.beam.framework.gpf.annotations.TargetProperty;
+import org.esa.beam.framework.gpf.annotations.*;
 import org.esa.beam.framework.gpf.graph.*;
 import org.esa.beam.framework.gpf.internal.OperatorClassDescriptor;
 import org.esa.beam.framework.gpf.internal.Xpp3DomElement;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
@@ -53,10 +47,10 @@ class CommandLineUsage {
         StringBuilder opListText = new StringBuilder(1024);
         appendDocElementList(opListText, docElementList);
         return MessageFormat.format(usagePattern,
-                                    CommandLineTool.TOOL_NAME,
-                                    CommandLineTool.DEFAULT_TARGET_FILEPATH,
-                                    CommandLineTool.DEFAULT_FORMAT_NAME,
-                                    opListText.toString());
+                CommandLineTool.TOOL_NAME,
+                CommandLineTool.DEFAULT_TARGET_FILEPATH,
+                CommandLineTool.DEFAULT_FORMAT_NAME,
+                opListText.toString());
     }
 
     private static String getUsagePattern() {
@@ -83,37 +77,38 @@ class CommandLineUsage {
         return sb.toString();
     }
 
-    public static String getUsageTextForXML(String graphFilePath) {
-        final StringBuilder usageText = new StringBuilder(1024);
+    public static String getUsageTextForGraph(String path, CommandLineContext commandLineContext) {
         final Graph graph;
-
         try {
-            graph = GraphIO.read(new FileReader(graphFilePath));
-        } catch (FileNotFoundException e) {
-            return MessageFormat.format("file ''{0}'' could not be found.", graphFilePath);
+            graph = commandLineContext.readGraph(path, new HashMap<String, String>());
         } catch (GraphException e) {
-            return MessageFormat.format("an error occurred when reading the graph file: {0}",
-                    e.getMessage());
+            return e.getMessage();
+        } catch (IOException e) {
+            return e.getMessage();
         }
+        
+        final StringBuilder usageText = new StringBuilder(1024);
+        final Header header = graph.getHeader();
 
-        Header header = graph.getHeader();
-        usageText.append("Usage:\n");
-        usageText.append(MessageFormat.format("  {0} {1} [options] ", CommandLineTool.TOOL_NAME, graphFilePath));
-        ArrayList<DocElement> sourceDocElementList = createSourceDocuElementList(header.getSources());
-        ArrayList<DocElement> paramDocElementList = createParamDocuElementList(header.getParameters());
+        if (header != null) {
+            usageText.append("Usage:\n");
+            usageText.append(MessageFormat.format("  {0} {1} [options] ", CommandLineTool.TOOL_NAME, path));
+            ArrayList<DocElement> sourceDocElementList = createSourceDocuElementList(header.getSources());
+            ArrayList<DocElement> paramDocElementList = createParamDocuElementList(header.getParameters());
 
-        if (sourceDocElementList.size() > 0) {
-            usageText.append("\nSource Options:\n");
-            appendDocElementList(usageText, sourceDocElementList);
-        }
-        if (paramDocElementList.size() > 0) {
-            usageText.append("\nParameter Options:\n");
-            appendDocElementList(usageText, paramDocElementList);
+            if (sourceDocElementList.size() > 0) {
+                usageText.append("\nSource Options:\n");
+                appendDocElementList(usageText, sourceDocElementList);
+            }
+            if (paramDocElementList.size() > 0) {
+                usageText.append("\nParameter Options:\n");
+                appendDocElementList(usageText, paramDocElementList);
+            }
         }
 
         return usageText.toString();
     }
-    
+
     private static ArrayList<DocElement> createSourceDocuElementList(List<HeaderSource> sources) {
         ArrayList<DocElement> docElementList = new ArrayList<DocElement>(10);
         for (HeaderSource headerSource : sources) {
@@ -139,12 +134,14 @@ class CommandLineUsage {
 
     private static ArrayList<String> createParamDescriptionLines(HeaderParameter parameter) {
         final ArrayList<String> descriptionLines = new ArrayList<String>();
-        if (!parameter.getDescription().isEmpty()) {
-            descriptionLines.add(parameter.getDescription());
+        final String description = parameter.getDescription();
+
+        if (!(description == null || description.isEmpty())) {
+            descriptionLines.add(description);
         } else {
             descriptionLines.add(MessageFormat.format("Sets parameter ''{0}'' to <{1}>.",
-                                                      parameter.getName(),
-                                                      parameter.getType()));
+                    parameter.getName(),
+                    parameter.getType()));
         }
         final String interval = parameter.getInterval();
         if (!(interval == null || interval.isEmpty())) {
@@ -176,14 +173,16 @@ class CommandLineUsage {
         if (parameter.isNotEmpty()) {
             descriptionLines.add("Value must not be empty.");
         }
-        
+
         return descriptionLines;
     }
 
     private static ArrayList<String> createSourceDecriptionLines(HeaderSource headerSource) {
         final ArrayList<String> descriptionLines = new ArrayList<String>();
-        if (!headerSource.getDescription().isEmpty()) {
-            descriptionLines.add(headerSource.getDescription());
+
+        final String description = headerSource.getDescription();
+        if (!(description == null || description.isEmpty())) {
+            descriptionLines.add(description);
         } else {
             descriptionLines.add(MessageFormat.format("Sets source ''{0}'' to <filepath>.", headerSource.getName()));
         }
@@ -196,7 +195,7 @@ class CommandLineUsage {
     }
 
     ////////////////////////////////////////////////////////////////////
-    
+
     public static String getUsageTextForOperator(String operatorName) {
         final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(operatorName);
         if (operatorSpi == null) {
@@ -225,7 +224,7 @@ class CommandLineUsage {
             usageText.append("\nComputed Properties:\n");
             appendDocElementList(usageText, propertyDocElementList);
         }
-        
+
         usageText.append("\n");
         if (sourceDocElementList.size() > 0) {
             usageText.append("\nSource Options:\n");
@@ -254,7 +253,7 @@ class CommandLineUsage {
             usageText.append("<source-file-1> <source-file-2> <source-file-3>");
         } else if (productsDescriptor.count() > 3) {
             usageText.append(MessageFormat.format("<source-file-1> <source-file-2> ... <source-file-{0}>",
-                                                  productsDescriptor.count()));
+                    productsDescriptor.count()));
         }
     }
 
@@ -273,7 +272,7 @@ class CommandLineUsage {
         }
         return docElementList;
     }
-    
+
     private static ArrayList<DocElement> createPropertyDocuElementList(OperatorClassDescriptor operatorClassDescriptor) {
         // todo - somewhere here occurs a NullPoinzerException
         ArrayList<DocElement> docElementList = new ArrayList<DocElement>(10);
@@ -281,9 +280,9 @@ class CommandLineUsage {
         for (Entry<Field, TargetProperty> entry : propertyMap.entrySet()) {
             final Field propertyField = entry.getKey();
             final TargetProperty property = entry.getValue();
-                String propertySyntax = MessageFormat.format("{0} {1}", propertyField.getType().getSimpleName(), getTargetPropertyName(propertyField, property));
-                final ArrayList<String> descriptionLines = createTargetPropertyDescriptionLines(propertyField, property);
-                docElementList.add(new DocElement(propertySyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
+            String propertySyntax = MessageFormat.format("{0} {1}", propertyField.getType().getSimpleName(), getTargetPropertyName(propertyField, property));
+            final ArrayList<String> descriptionLines = createTargetPropertyDescriptionLines(propertyField, property);
+            docElementList.add(new DocElement(propertySyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
         }
         return docElementList;
     }
@@ -307,8 +306,8 @@ class CommandLineUsage {
             descriptionLines.add(parameter.description());
         } else {
             descriptionLines.add(MessageFormat.format("Sets parameter ''{0}'' to <{1}>.",
-                                                      getParameterName(paramField, parameter),
-                                                      getTypeName(paramField.getType())));
+                    getParameterName(paramField, parameter),
+                    getTypeName(paramField.getType())));
         }
         if (!parameter.interval().isEmpty()) {
             descriptionLines.add(MessageFormat.format("Valid interval is {0}.", parameter.interval()));
@@ -359,7 +358,7 @@ class CommandLineUsage {
         final ArrayList<String> descriptionLines = new ArrayList<String>();
         if (!property.description().isEmpty()) {
             descriptionLines.add(property.description());
-        } 
+        }
 
         return descriptionLines;
     }
