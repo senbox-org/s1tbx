@@ -1,8 +1,7 @@
 package com.bc.ceres.core.runtime.internal;
 
 import com.bc.ceres.core.CoreException;
-import com.bc.ceres.core.runtime.ModuleState;
-import com.bc.ceres.core.runtime.Version;
+import com.bc.ceres.core.runtime.*;
 import junit.framework.TestCase;
 
 import java.io.IOException;
@@ -201,6 +200,109 @@ public class ModuleResolverTest extends TestCase {
     private static File getCanonicalFile(URL url) throws IOException, URISyntaxException {
         return new File(url.toURI()).getCanonicalFile();
     }
+
+    public void testExtensionsAndExtensionPoints() throws CoreException, IOException {
+
+        Module module_a = moduleRegistry.getModule(1);
+        Module module_b = moduleRegistry.getModule(2);
+        Module module_c = moduleRegistry.getModule(3);
+        Module module_d = moduleRegistry.getModule(4);
+        Module module_e = moduleRegistry.getModule(5);
+
+        final ModuleResolver moduleResolver = new ModuleResolver(ModuleResolver.class.getClassLoader(),
+                                                                 false);
+        moduleResolver.resolve((ModuleImpl) module_a);
+        moduleResolver.resolve((ModuleImpl) module_b);
+        moduleResolver.resolve((ModuleImpl) module_c);
+        moduleResolver.resolve((ModuleImpl) module_d);
+        moduleResolver.resolve((ModuleImpl) module_e);
+
+
+        assertNotNull(module_a);
+        assertNotNull(module_b);
+        assertNotNull(module_c);
+        assertNotNull(module_d);
+        assertNotNull(module_e);
+
+        Extension e_31 = module_c.getExtensions()[0];
+        Extension e_32 = module_c.getExtensions()[1];
+        Extension e_33 = module_c.getExtensions()[2];
+        Extension e_34 = module_c.getExtensions()[3];
+        Extension e_35 = module_c.getExtensions()[4];
+        Extension e_36 = module_c.getExtensions()[5];
+
+        assertEquals(3, module_b.getExtensionPoints().length);
+        ExtensionPoint ep_21 = module_b.getExtensionPoints()[0];
+        ExtensionPoint ep_22 = module_b.getExtensionPoints()[1];
+        ExtensionPoint ep_23 = module_b.getExtensionPoints()[2];
+
+        assertEquals(2, module_d.getExtensionPoints().length);
+        ExtensionPoint ep_41 = module_d.getExtensionPoints()[0];
+        ExtensionPoint ep_42 = module_d.getExtensionPoints()[1];
+
+        assertSame(ep_21, e_31.getExtensionPoint());
+        assertSame(ep_21, e_32.getExtensionPoint());
+        assertSame(ep_22, e_33.getExtensionPoint());
+        assertSame(ep_23, e_34.getExtensionPoint());
+        assertSame(ep_23, e_35.getExtensionPoint());
+        assertSame(ep_23, e_36.getExtensionPoint());
+
+        assertSame(ep_23, e_35.getExtensionPoint());
+        assertSame(ep_23, e_36.getExtensionPoint());
+
+        assertSame(ep_21, moduleRegistry.getExtensionPoint("module-b:ep-1"));
+        assertSame(ep_22, moduleRegistry.getExtensionPoint("module-b:ep-2"));
+        assertSame(ep_23, moduleRegistry.getExtensionPoint("module-b:ep-3"));
+
+        assertEquals(3, ep_21.getExtensions().length);
+        assertEquals(4, ep_22.getExtensions().length);
+        assertEquals(6, ep_23.getExtensions().length);
+        assertEquals(0, ep_41.getExtensions().length);
+        assertEquals(2, ep_42.getExtensions().length);
+
+        assertEquals(3, moduleRegistry.getExtensions("module-b:ep-1").length);
+        assertEquals(4, moduleRegistry.getExtensions("module-b:ep-2").length);
+        assertEquals(6, moduleRegistry.getExtensions("module-b:ep-3").length);
+        assertEquals(0, moduleRegistry.getExtensions("module-d:ep-1").length);
+        assertEquals(2, moduleRegistry.getExtensions("module-d:ep-2").length);
+
+        // Test that the two extension points declared in module-b are returned first
+        // and appear in the order they are declared.
+        Extension[] extensions = moduleRegistry.getExtensions("module-b:ep-2");
+        assertEquals("e-bb21", extensions[0].getId());
+        assertEquals("e-bb22", extensions[1].getId());
+
+
+        assertSame(e_31, module_c.getExtension("e-cb11"));
+        assertSame(e_32, module_c.getExtension("e-cb12"));
+        assertSame(e_33, module_c.getExtension("e-cb21"));
+        assertSame(e_34, module_c.getExtension("e-cb31"));
+        assertSame(e_35, module_c.getExtension("e-cb32"));
+        assertSame(e_36, module_c.getExtension("e-cb33"));
+
+        final Extension[] module_5_extensions = module_e.getExtensions();
+        assertEquals(7, module_5_extensions.length);
+        assertSame(module_b.getExtensionPoint("ep-1"), module_5_extensions[0].getExtensionPoint());
+        assertSame(module_b.getExtensionPoint("ep-2"), module_5_extensions[1].getExtensionPoint());
+        assertSame(module_b.getExtensionPoint("ep-3"), module_5_extensions[2].getExtensionPoint());
+        assertSame(module_b.getExtensionPoint("ep-3"), module_5_extensions[3].getExtensionPoint());
+        assertSame(module_d.getExtensionPoint("ep-2"), module_5_extensions[4].getExtensionPoint());
+        assertSame(module_d.getExtensionPoint("ep-2"), module_5_extensions[5].getExtensionPoint());
+        // Test inherited extension point module-b:ep-3
+        assertSame(module_b.getExtensionPoint("ep-3"), module_5_extensions[6].getExtensionPoint());
+
+        final Extension[] module_2_extensions = moduleRegistry.getExtensions("module-b:ep-3");
+        assertEquals(6, module_2_extensions.length);
+        assertSame(module_c.getExtension("e-cb31"), module_2_extensions[0]);
+        assertSame(module_c.getExtension("e-cb32"), module_2_extensions[1]);
+        assertSame(module_c.getExtension("e-cb33"), module_2_extensions[2]);
+        assertSame(module_e.getExtension("e-eb31"), module_2_extensions[3]);
+        assertSame(module_e.getExtension("e-eb32"), module_2_extensions[4]);
+        // Test inherited extension point module-b:ep-3
+        assertSame(module_e.getExtension("e-ed33"), module_2_extensions[5]);
+    }
+
+
 
     public void testCyclicModuleDependencies() throws CoreException, IOException {
         ModuleRegistry cyclicModuleRegistry = TestHelpers.createModuleRegistry(new String[]{

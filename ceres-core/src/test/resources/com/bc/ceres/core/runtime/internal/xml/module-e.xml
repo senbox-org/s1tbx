@@ -22,4 +22,7 @@
     <extension id="e-eb32" point="module-b:ep-3"/>
     <extension id="e-ed21" point="module-d:ep-2"/>
     <extension id="e-ed22" point="module-d:ep-2"/>
+    <!-- Note: the next extension refers to the point "module-b:ep-3",
+     because "module-d" does not define "ep-3", but "module-b" does -->
+    <extension id="e-ed33" point="module-d:ep-3"/>
 </module>

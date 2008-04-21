@@ -12,18 +12,19 @@
            <li>[CERES-006] TODO: Configure excluded/included modules</li>
         -->
         <![CDATA[
-        Changes in 0.7<br>
-        [CERES-025] Add support for extension objects
-        [CERES-024] Splash screen shall not be top-most<br>
-        [CERES-020] Runtime does not consider version-controlled dependencies<br>
-        [CERES-007] Use Version class in Module interface<br>
-        <br>Changes in 0.6<br>
-        [CERES-008] Speed up module repository scanning<br>
-        [CERES-009] Replace simple extension points by META-INF/services<br>
-        [CERES-011] Support standard Java SPI mechanism<br>
-        [CERES-012] Cyclic dependency detection needs simplification<br>
-        [CERES-013] Optional dependencies not handled<br>
-        [CERES-014] Provide custom splash screen implementation<br>
+        Changes in 0.7<br/>
+        [CERES-027] Modules shall inherit extension points<br/>
+        [CERES-025] Add support for extension objects<br/>
+        [CERES-024] Splash screen shall not be top-most<br/>
+        [CERES-020] Runtime does not consider version-controlled dependencies<br/>
+        [CERES-007] Use Version class in Module interface<br/>
+        <br/>Changes in 0.6<br/>
+        [CERES-008] Speed up module repository scanning<br/>
+        [CERES-009] Replace simple extension points by META-INF/services<br/>
+        [CERES-011] Support standard Java SPI mechanism<br/>
+        [CERES-012] Cyclic dependency detection needs simplification<br/>
+        [CERES-013] Optional dependencies not handled<br/>
+        [CERES-014] Provide custom splash screen implementation<br/>
         ]]>
     </changelog>
 

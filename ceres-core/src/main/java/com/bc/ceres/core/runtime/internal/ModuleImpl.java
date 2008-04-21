@@ -199,6 +199,9 @@ public class ModuleImpl implements Module {
     }
 
     public ExtensionPoint getExtensionPoint(String extensionPointId) {
+        if (extensionPoints == null) {
+            return null;
+        }
         for (ExtensionPointImpl extensionPoint : extensionPoints) {
             if (extensionPoint.getId().equals(extensionPointId)) {
                 return extensionPoint;
@@ -208,6 +211,9 @@ public class ModuleImpl implements Module {
     }
 
     public Extension getExtension(String extensionId) {
+        if (extensions == null) {
+            return null;
+        }
         for (Extension extension : extensions) {
             if (extensionId.equals(extension.getId())) {
                 return extension;

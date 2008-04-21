@@ -126,11 +126,11 @@ public class ModuleRegistryTest extends TestCase {
 
     public void testRegisterAndGetModule() throws CoreException, IOException {
         ModuleRegistry moduleRegistry = TestHelpers.createModuleRegistry(new String[]{
-                "xml/module-a.xml",
-                "xml/module-b.xml",
-                "xml/module-c.xml",
-                "xml/module-d.xml",
-                "xml/module-e.xml",
+                /*id=1*/ "xml/module-a.xml",
+                /*id=2*/ "xml/module-b.xml",
+                /*id=3*/ "xml/module-c.xml",
+                /*id=4*/ "xml/module-d.xml",
+                /*id=5*/ "xml/module-e.xml",
         });
 
         Module module_1 = moduleRegistry.getModule(1);

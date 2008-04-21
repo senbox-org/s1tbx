@@ -56,7 +56,7 @@ public class ExtensionImpl implements Extension {
         if (extensionPoint == null) {
             ModuleRegistry registry = declaringModule.getRegistry();
             if (registry != null) {
-                extensionPoint = registry.getExtensionPoint(point);
+                extensionPoint = registry.getExtensionPoint(point, declaringModule);
                 if (extensionPoint != null) {
                     // Set root of all shema elements
                     configurationElement.setShemaElement(

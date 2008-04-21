@@ -8,11 +8,7 @@ import com.bc.ceres.core.runtime.Module;
 
 import java.net.URL;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * A registry for {@link ModuleImpl}s and their extension points.
@@ -22,7 +18,7 @@ public class ModuleRegistry {
 
     private Map<Long, ModuleImpl> idToModuleMap;
     private Map<URL, ModuleImpl> locationToModuleMap;
-    private Map<String, Object> symbolicNameToModulesMap;
+    private Map<String, Object> symbolicNameToModulesMap;  // maps to either a ModuleImpl or a List<ModuleImpl>
     private Map<String, ExtensionPoint> extensionPointMap;
 
     /**
@@ -96,7 +92,6 @@ public class ModuleRegistry {
      * Gets the module for the given module identifier.
      *
      * @param moduleId the module identifier
-     *
      * @return the module or <code>null</code> if not found
      */
     public ModuleImpl getModule(long moduleId) {
@@ -109,7 +104,6 @@ public class ModuleRegistry {
      * Gets the module for the given module identifier.
      *
      * @param url the module location
-     *
      * @return the module or <code>null</code> if not found
      */
     public ModuleImpl getModule(URL url) {
@@ -121,7 +115,6 @@ public class ModuleRegistry {
      * Gets the module for the given module identifier.
      *
      * @param symbolicName the module's symbolic name
-     *
      * @return the module or <code>null</code> if not found
      */
     public ModuleImpl[] getModules(String symbolicName) {
@@ -154,7 +147,6 @@ public class ModuleRegistry {
      * Gets the extension point for the given extension point identifier.
      *
      * @param extensionPointId the qualified extension point identifier in the form <code>&lt;moduleId&gt;:&lt;extensionPointId&gt;</code>.
-     *
      * @return the extension point or <code>null</code> if not found
      */
     public ExtensionPoint getExtensionPoint(String extensionPointId) {
@@ -163,6 +155,29 @@ public class ModuleRegistry {
         }
         return extensionPointMap.get(extensionPointId);
     }
+
+    /**
+     * Gets the extension point for the given extension point identifier. The  declaring module
+     * is used to search the dependency tree for inherited extension points, if a point with the given fully qualified
+     * name has not been registered directly.
+     *
+     * @param extensionPointId the qualified extension point identifier in the form <code>&lt;moduleId&gt;:&lt;extensionPointId&gt;</code>.
+     * @param declaringModule the declaring module
+     * @return the extension point or <code>null</code> if not found
+     */
+    public ExtensionPoint getExtensionPoint(String extensionPointId, ModuleImpl declaringModule) {
+        ExtensionPoint point = getExtensionPoint(extensionPointId);
+        if (point == null) {
+            String extensionPointIdSimple = extensionPointId;
+            final int index = extensionPointId.indexOf(':');
+            if (index > 0) {
+                extensionPointIdSimple = extensionPointId.substring(index + 1);
+            }
+            point = findExtensionPoint(declaringModule, extensionPointIdSimple);
+        }
+        return point;
+    }
+
 
     /**
      * Gets all extension points defined so far.
@@ -178,7 +193,6 @@ public class ModuleRegistry {
      * Gets all extensions for the given extension point identifier.
      *
      * @param extensionPointId the qualified extension point identifier in the form <code>&lt;moduleId&gt;:&lt;extensionPointId&gt;</code>.
-     *
      * @return the extension points
      */
     public Extension[] getExtensions(String extensionPointId) {
@@ -231,5 +245,26 @@ public class ModuleRegistry {
         } else {
             throw new IllegalStateException();
         }
+    }
+
+
+    private static ExtensionPoint findExtensionPoint(ModuleImpl module, String extensionPointIdSimple) {
+        final ModuleImpl[] dependencies = module.getModuleDependencies();
+        if (dependencies == null) {
+            return null;
+        }
+        for (ModuleImpl dependency : dependencies) {
+            final ExtensionPoint point1 = dependency.getExtensionPoint(extensionPointIdSimple);
+            if (point1 != null) {
+                return point1;
+            }
+        }
+        for (ModuleImpl dependency : dependencies) {
+            final ExtensionPoint point1 = findExtensionPoint(dependency, extensionPointIdSimple);
+            if (point1 != null) {
+                return point1;
+            }
+        }
+        return null;
     }
 }

@@ -188,11 +188,19 @@ public class ModuleManifestParserTest
                    "module-e", "1.0",
                    "jar", null, "This is Module E",
                    DefaultActivator.class.getName(),
-                   3, 0, 6);
+                   3, 0, 7);
 
         testDependency(module_e, 0, "module-b", null, "2.4.2-SNAPSHOT");
         testDependency(module_e, 1, "module-d", null, "3");
         testDependency(module_e, 2, null, "netcdf", "1.2.4");
+
+        testExtension(module_e.getExtensions()[0],  module_e, "e-eb11", "module-b:ep-1");
+        testExtension(module_e.getExtensions()[1],  module_e, "e-eb21", "module-b:ep-2");
+        testExtension(module_e.getExtensions()[2],  module_e, "e-eb31", "module-b:ep-3");
+        testExtension(module_e.getExtensions()[3],  module_e, "e-eb32", "module-b:ep-3");
+        testExtension(module_e.getExtensions()[4],  module_e, "e-ed21", "module-d:ep-2");
+        testExtension(module_e.getExtensions()[5],  module_e, "e-ed22", "module-d:ep-2");
+        testExtension(module_e.getExtensions()[6],  module_e, "e-ed33", "module-d:ep-3");
     }
 
     public void testModuleMinimum() throws IOException, CoreException {
