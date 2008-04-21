@@ -11,14 +11,10 @@ public class AatsrProductFileTest extends TestCase {
         final int numLines_2 = (numRecords_2 - 1) * 32;
 
         DSD geolocationDSD = new DSD(0, "ignore", 'A', "", 12, 13, numRecords_1, 14);
-        DSD firstMDSDSD = new DSD(0, "mds", 'M', "", 12, 13, numLines_1, 14);
-
-
-        assertEquals(numLines_1, AatsrProductFile.calculateSceneRasterHeight(geolocationDSD, firstMDSDSD));
+        assertEquals(numLines_1, AatsrProductFile.calculateSceneRasterHeight(geolocationDSD, numLines_1));
 
         geolocationDSD = new DSD(0, "ignore", 'A', "", 12, 13, numRecords_2, 14);
-        firstMDSDSD = new DSD(0, "mds", 'M', "", 12, 13, numRecords_2, 14);
-        assertEquals(numLines_2, AatsrProductFile.calculateSceneRasterHeight(geolocationDSD, firstMDSDSD));
+        assertEquals(numLines_2, AatsrProductFile.calculateSceneRasterHeight(geolocationDSD, numLines_2));
     }
 
     public void testCalculateSceneRasterHeight_MDS_DSD_lessLines() {
@@ -28,12 +24,10 @@ public class AatsrProductFileTest extends TestCase {
         final int numLines_2 = (numRecords_2 - 1) * 32;
 
         DSD geolocationDSD = new DSD(0, "ignore", 'A', "", 12, 13, numRecords_1, 14);
-        DSD firstMDSDSD = new DSD(0, "mds", 'M', "", 12, 13, numLines_1 - 32, 14);
-        assertEquals(numLines_1, AatsrProductFile.calculateSceneRasterHeight(geolocationDSD, firstMDSDSD));
+        assertEquals(numLines_1, AatsrProductFile.calculateSceneRasterHeight(geolocationDSD, numLines_1 - 12));
 
         geolocationDSD = new DSD(0, "ignore", 'A', "", 12, 13, numRecords_2, 14);
-        firstMDSDSD = new DSD(0, "mds", 'M', "", 12, 13, numRecords_2 - 128, 14);
-        assertEquals(numLines_2, AatsrProductFile.calculateSceneRasterHeight(geolocationDSD, firstMDSDSD));
+        assertEquals(numLines_2, AatsrProductFile.calculateSceneRasterHeight(geolocationDSD, numLines_2 - 24));
     }
 
     public void testCalculateSceneRasterHeight_MDS_DSD_moreLines() {
@@ -43,12 +37,10 @@ public class AatsrProductFileTest extends TestCase {
         final int numLines_2 = (numRecords_2 - 1) * 32;
 
         DSD geolocationDSD = new DSD(0, "ignore", 'A', "", 12, 13, numRecords_1, 14);
-        DSD firstMDSDSD = new DSD(0, "mds", 'M', "", 12, 13, numLines_1 + 5, 14);
-        assertEquals(numLines_1 + 5, AatsrProductFile.calculateSceneRasterHeight(geolocationDSD, firstMDSDSD));
+        assertEquals(numLines_1 + 5, AatsrProductFile.calculateSceneRasterHeight(geolocationDSD, numLines_1 + 5));
 
         geolocationDSD = new DSD(0, "ignore", 'A', "", 12, 13, numRecords_2, 14);
-        firstMDSDSD = new DSD(0, "mds", 'M', "", 12, 13, numLines_2 + 11, 14);
-        assertEquals(numLines_2 + 11, AatsrProductFile.calculateSceneRasterHeight(geolocationDSD, firstMDSDSD));
+        assertEquals(numLines_2 + 11, AatsrProductFile.calculateSceneRasterHeight(geolocationDSD, numLines_2 + 11));
     }
 
 }

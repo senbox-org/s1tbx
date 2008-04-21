@@ -20,11 +20,13 @@ import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.util.StringUtils;
 
 import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 
 
@@ -221,10 +223,13 @@ public class AatsrProductFile extends ProductFile {
      * @param parameters product specific parameters (possibly referenced within in the DDDB
      */
     protected void postProcessSPH(Map parameters) throws IOException {
-
         DSD[] mdsDsds = getValidDSDs(EnvisatConstants.DS_TYPE_MEASUREMENT);
+        int numMDSR;
         if (mdsDsds.length == 0) {
-            throw new ProductIOException("no valid measurements datasets found in this AATSR product"); /*I18N*/
+            //throw new ProductIOException("no valid measurements datasets found in this AATSR product"); /*I18N*/
+            numMDSR = 0;
+        } else {
+            numMDSR = mdsDsds[0].getNumRecords();
         }
         DSD dsdGeoLocationAds = getDSD("GEOLOCATION_ADS");
         if (dsdGeoLocationAds == null) {
@@ -235,7 +240,7 @@ public class AatsrProductFile extends ProductFile {
             throw new ProductIOException("invalid product: missing DSD for dataset 'NADIR_VIEW_SOLAR_ANGLES_ADS'"); /*I18N*/
         }
 
-        _sceneRasterHeight = calculateSceneRasterHeight(dsdGeoLocationAds, mdsDsds[0]);
+        _sceneRasterHeight = calculateSceneRasterHeight(dsdGeoLocationAds, numMDSR);
         int sceneRasterWidth = EnvisatConstants.AATSR_SCENE_RASTER_WIDTH;
 
         int locTiePointGridWidth = EnvisatConstants.AATSR_LOC_TIE_POINT_GRID_WIDTH;
@@ -276,7 +281,7 @@ public class AatsrProductFile extends ProductFile {
         parameters.put("solTiePointSubSamplingY", _solTiePointSubSamplingY);
 
 
-        if (_sceneRasterHeight > mdsDsds[0].getNumRecords()) {
+        if (_sceneRasterHeight > numMDSR) {
             mdsMapIndex = new int[getSceneRasterHeight()];
             final RecordReader recordReader = getRecordReader("GEOLOCATION_ADS");
             final int records = recordReader.getNumRecords() - 1;
@@ -313,15 +318,33 @@ public class AatsrProductFile extends ProductFile {
             band.setNoDataValueUsed(false);
         } else {
             band.setNoDataValueUsed(true);
-            band.setNoDataValue(-2);            
+            band.setNoDataValue(-2);
         }
     }
 
-    static int calculateSceneRasterHeight(DSD dsdGeoLocationAds, DSD mdsDsd) {
+    /**
+     * Override because of the AATSR attachment flag treating. Valis dsds might have zero MDSR's attached because the
+     * attachment_flag is rised for the whole (subset) product.
+     *
+     * @param datasetType the desired dataset type
+     * @return all valis dsds conforming to the dataset type
+     */
+    public DSD[] getValidDSDs(char datasetType) {
+        ArrayList<DSD> dsdList = new ArrayList<DSD>();
+        for (int i = 0; i < getNumDSDs(); i++) {
+            final DSD dsd = getDSDAt(i);
+            if (dsd.getDatasetType() == datasetType && !StringUtils.isNullOrEmpty(dsd.getDatasetName())) {
+                dsdList.add(dsd);
+            }
+        }
+
+        return dsdList.toArray(new DSD[dsdList.size()]);
+    }
+
+    static int calculateSceneRasterHeight(DSD dsdGeoLocationAds, int numMDSR) {
         final int linesFromADS = (dsdGeoLocationAds.getNumRecords() - 1) * EnvisatConstants.AATSR_LOC_TIE_POINT_SUBSAMPLING_Y;
-        final int linesFromMDS = mdsDsd.getNumRecords();
-        if (linesFromMDS > linesFromADS) {
-            return linesFromMDS;
+        if (numMDSR > linesFromADS) {
+            return numMDSR;
         }
         return linesFromADS;
     }

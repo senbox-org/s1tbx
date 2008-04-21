@@ -252,7 +252,7 @@ public class BandLineReader {
                                             int destRasterPos) throws IOException {
         final ProductFile productFile = getProductFile();
         final int mappedMdsrIndex = productFile.getMappedMDSRIndex(sourceY);
-        if (mappedMdsrIndex >= 0 && mappedMdsrIndex < _maxRecordIndex) {
+        if (mappedMdsrIndex >= 0 && mappedMdsrIndex <= _maxRecordIndex) {
             readLineRecord(sourceY);
 
             int destRasterIncr = 1;
