@@ -13,11 +13,7 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.SourceProducts;
 import org.esa.beam.framework.gpf.annotations.TargetProperty;
-import org.esa.beam.framework.gpf.graph.Graph;
-import org.esa.beam.framework.gpf.graph.GraphException;
-import org.esa.beam.framework.gpf.graph.GraphIO;
-import org.esa.beam.framework.gpf.graph.Header;
-import org.esa.beam.framework.gpf.graph.HeaderSource;
+import org.esa.beam.framework.gpf.graph.*;
 import org.esa.beam.framework.gpf.internal.OperatorClassDescriptor;
 import org.esa.beam.framework.gpf.internal.Xpp3DomElement;
 
@@ -87,19 +83,34 @@ class CommandLineUsage {
         return sb.toString();
     }
 
-    public static String getUsageTextForXML(String graphFilepath) {
-        StringBuilder usageText = new StringBuilder(1024);
+    public static String getUsageTextForXML(String graphFilePath) {
+        final StringBuilder usageText = new StringBuilder(1024);
+        final Graph graph;
+
         try {
-            Graph graph = GraphIO.read(new FileReader(graphFilepath));
-            Header header = graph.getHeader();
-            usageText.append("Usage:\n");
-            usageText.append(MessageFormat.format("  {0} {1} [options] ", CommandLineTool.TOOL_NAME, graphFilepath));
-            ArrayList<DocElement> sourceDocElementList = createSourceDocuElementList(header.getSources());
+            graph = GraphIO.read(new FileReader(graphFilePath));
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            return MessageFormat.format("file ''{0}'' could not be found.", graphFilePath);
         } catch (GraphException e) {
-            e.printStackTrace();
+            return MessageFormat.format("an error occurred when reading the graph file: {0}",
+                    e.getMessage());
         }
+
+        Header header = graph.getHeader();
+        usageText.append("Usage:\n");
+        usageText.append(MessageFormat.format("  {0} {1} [options] ", CommandLineTool.TOOL_NAME, graphFilePath));
+        ArrayList<DocElement> sourceDocElementList = createSourceDocuElementList(header.getSources());
+        ArrayList<DocElement> paramDocElementList = createParamDocuElementList(header.getParameters());
+
+        if (sourceDocElementList.size() > 0) {
+            usageText.append("\nSource Options:\n");
+            appendDocElementList(usageText, sourceDocElementList);
+        }
+        if (paramDocElementList.size() > 0) {
+            usageText.append("\nParameter Options:\n");
+            appendDocElementList(usageText, paramDocElementList);
+        }
+
         return usageText.toString();
     }
     
@@ -110,9 +121,65 @@ class CommandLineUsage {
             final ArrayList<String> descriptionLines = createSourceDecriptionLines(headerSource);
             docElementList.add(new DocElement(sourceSyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
         }
+
         return docElementList;
     }
-    
+
+    private static ArrayList<DocElement> createParamDocuElementList(List<HeaderParameter> parameterList) {
+        ArrayList<DocElement> docElementList = new ArrayList<DocElement>(10);
+
+        for (HeaderParameter parameter : parameterList) {
+            String paramSyntax = MessageFormat.format("  -P{0}=<{1}>", parameter.getName(), parameter.getType());
+            final ArrayList<String> descriptionLines = createParamDescriptionLines(parameter);
+            docElementList.add(new DocElement(paramSyntax, descriptionLines.toArray(new String[descriptionLines.size()])));
+        }
+
+        return docElementList;
+    }
+
+    private static ArrayList<String> createParamDescriptionLines(HeaderParameter parameter) {
+        final ArrayList<String> descriptionLines = new ArrayList<String>();
+        if (!parameter.getDescription().isEmpty()) {
+            descriptionLines.add(parameter.getDescription());
+        } else {
+            descriptionLines.add(MessageFormat.format("Sets parameter ''{0}'' to <{1}>.",
+                                                      parameter.getName(),
+                                                      parameter.getType()));
+        }
+        final String interval = parameter.getInterval();
+        if (!(interval == null || interval.isEmpty())) {
+            descriptionLines.add(MessageFormat.format("Valid interval is {0}.", interval));
+        }
+        final String pattern = parameter.getPattern();
+        if (!(pattern == null || pattern.isEmpty())) {
+            descriptionLines.add(MessageFormat.format("Pattern for valid values is ''{0}''.", pattern));
+        }
+        final String format = parameter.getFormat();
+        if (!(format == null || format.isEmpty())) {
+            descriptionLines.add(MessageFormat.format("Format for valid values is ''{0}''.", format));
+        }
+        final String[] valueSet = parameter.getValueSet();
+        if (!(valueSet == null || valueSet.length == 0)) {
+            descriptionLines.add(MessageFormat.format("Value must be one of {0}.", toString(valueSet)));
+        }
+        final String defaultValue = parameter.getDefaultValue();
+        if (!(defaultValue == null || defaultValue.isEmpty())) {
+            descriptionLines.add(MessageFormat.format("Default value is ''{0}''.", defaultValue));
+        }
+        final String unit = parameter.getUnit();
+        if (!(unit == null || unit.isEmpty())) {
+            descriptionLines.add(MessageFormat.format("Parameter Unit is ''{0}''.", unit));
+        }
+        if (parameter.isNotNull()) {
+            descriptionLines.add("This is a mandatory parameter.");
+        }
+        if (parameter.isNotEmpty()) {
+            descriptionLines.add("Value must not be empty.");
+        }
+        
+        return descriptionLines;
+    }
+
     private static ArrayList<String> createSourceDecriptionLines(HeaderSource headerSource) {
         final ArrayList<String> descriptionLines = new ArrayList<String>();
         if (!headerSource.getDescription().isEmpty()) {
