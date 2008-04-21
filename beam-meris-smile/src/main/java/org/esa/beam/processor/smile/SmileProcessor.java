@@ -57,6 +57,7 @@ import java.util.logging.Logger;
 public class SmileProcessor extends Processor {
 
     public static final String PROCESSOR_NAME = "BEAM Smile Correction Processor";
+    public static final String PROCESSOR_SYMBOLIC_NAME = "beam-meris-smile";
     public static final String VERSION_STRING = "1.1.2";
     public static final String COPYRIGHT_INFO = "Copyright (C) 2002-2004 by Brockmann Consult (info@brockmann-consult.de)";
 
@@ -181,6 +182,15 @@ public class SmileProcessor extends Processor {
     @Override
     public String getName() {
         return PROCESSOR_NAME;
+    }
+
+
+    /**
+     * Returns the symbolic name of the processor.
+     */
+    @Override
+    public String getSymbolicName() {
+        return PROCESSOR_SYMBOLIC_NAME;
     }
 
     /**

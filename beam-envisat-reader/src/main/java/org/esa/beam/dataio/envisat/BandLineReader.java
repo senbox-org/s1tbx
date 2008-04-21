@@ -20,6 +20,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.Debug;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * A <code>BandLineReader</code> instance is used read and decode single lines of the geophysical raster data stored in
@@ -273,8 +274,9 @@ public class BandLineReader {
                     destRasterIncr);
         } else {
             final double missingValue = productFile.getMissingMDSRPixelValue();
-            for (int index = sourceMinX; index < sourceMaxX; index += sourceStepX) {
-                destRaster.setElemDoubleAt(destRasterPos + index, missingValue);
+            for (int index = sourceMinX; index <= sourceMaxX; index += sourceStepX) {
+                destRaster.setElemDoubleAt(destRasterPos, missingValue);
+                destRasterPos++;
             }
         }
     }
