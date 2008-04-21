@@ -36,7 +36,7 @@
 
     <categories>Application,Processor,Geometry,Level-3,MERIS,AVHRR,ATSR,Envisat,ERS,ASAR,VISAT</categories>
 
-    <extension point="beam-visat:actions">
+    <extension point="beam-ui:actions">
         <action>
             <id>MosaicProcessorPlugIn</id>
             <class>org.esa.beam.visat.actions.ProcessorAction</class>

@@ -16,32 +16,20 @@
  */
 package org.esa.beam.util;
 
+import com.bc.ceres.core.runtime.internal.RuntimeActivator;
 import org.esa.beam.util.logging.BeamLogManager;
 
 import javax.swing.UIManager;
 import java.awt.Image;
 import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.io.InputStream;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.awt.datatransfer.*;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.security.CodeSource;
-import java.util.NoSuchElementException;
-import java.util.StringTokenizer;
-import java.util.ServiceLoader;
-import java.util.Enumeration;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -86,7 +74,7 @@ public class SystemUtils {
      * Name of BEAM's auxdata directory.
      */
     public static final String AUXDATA_DIR_NAME = "auxdata";
-    public static final String CACHE_DIR_NAME = ".beam" + File.separator + "cache";
+    public static final String CACHE_DIR_NAME = "cache";
     public static final String BEAM_PLUGIN_PATH_PROPERTY_NAME = "beam.plugin.path";
 
     private static final String _H5_CLASS_NAME = "ncsa.hdf.hdf5lib.H5";
@@ -111,6 +99,39 @@ public class SystemUtils {
      */
     public static File getUserHomeDir() {
         return new File(System.getProperty("user.home", "."));
+    }
+
+    /**
+     * Gets the current user's application data directory.
+     *
+     * @return the current user's application data directory
+     * @since BEAM 4.2
+     */
+    public static File getApplicationUserDir() {
+        return getApplicationUserDir(false);
+    }
+
+    /**
+     * Optionally creates and returns the current user's application data directory.
+     *
+     * @param force if true, the directory will be created if it didn't exist before
+     * @return the current user's application data directory
+     * @since BEAM 4.2
+     */
+    public static File getApplicationUserDir(boolean force) {
+        String contextId = null;
+        if (RuntimeActivator.getInstance() != null
+                && RuntimeActivator.getInstance().getModuleContext() != null) {
+            contextId = RuntimeActivator.getInstance().getModuleContext().getRuntimeConfig().getContextId();
+        }
+        if (contextId == null) {
+            contextId = System.getProperty("ceres.context", "beam");
+        }
+        final File dir = new File(getUserHomeDir(), "." + contextId);
+        if (force && !dir.exists()) {
+            dir.mkdirs();
+        }
+        return dir;
     }
 
     /**
@@ -174,8 +195,8 @@ public class SystemUtils {
      * <p/>
      * <p> If this mechanism described above does not succeed the method returns the current working directory.
      *
+     * @param url the URL
      * @return an assumption of an application's home directory, never <code>null</code>
-     *
      * @throws IllegalArgumentException if the given url is <code>null</code>.
      */
     public static File getApplicationHomeDir(final URL url) {
@@ -218,10 +239,8 @@ public class SystemUtils {
      * Retrieves the file name of a class. For example, the string <code>"Date.class"</code> is returned for the
      * class <code>java.util.Date</code>.
      *
-     * @param aClass
-     *
+     * @param aClass The class.
      * @return the file name of the given class
-     *
      * @throws IllegalArgumentException if the given parameter is <code>null</code>.
      */
     public static String getClassFileName(final Class aClass) {
@@ -291,12 +310,11 @@ public class SystemUtils {
     /**
      * Gets the default BEAM cache directory. This is the directory
      * where BEAM stores temporary data.
-     * <p>Its value is <code><i>$USER_HOME</i>/.beam/cache</code>.</p>
      *
      * @return the default cache directory
      */
     public static File getDefaultBeamCacheDir() {
-        return new File(getUserHomeDir(), CACHE_DIR_NAME);
+        return new File(getApplicationHomeDir(), CACHE_DIR_NAME);
     }
 
     /**
@@ -305,9 +323,9 @@ public class SystemUtils {
      * <p>Its value is <code><i>$BEAM_HOME</i>/auxdata</code>.</p>
      *
      * @return the auxdata directory
-     *
      * @deprecated in 4.0, use {@link ResourceScanner} instead
      */
+    @Deprecated
     public static File getBeamAuxdataDir() {
         CodeSource cs = SystemUtils.class.getProtectionDomain().getCodeSource();
         if (cs != null) {
@@ -326,15 +344,13 @@ public class SystemUtils {
      * Replace the separator character '/' with the system-dependent path-separator character.
      *
      * @param urlPath an URL path or any other string containing the forward slash '/' as directory separator.
-     *
      * @return a path string with all occurrences of '/'
-     *
      * @throws IllegalArgumentException if the given parameter is <code>null</code>.
      */
     public static String convertToLocalPath(String urlPath) {
         Guardian.assertNotNull("urlPath", urlPath);
         if (File.separatorChar != _URL_DIR_SEPARATOR_CHAR
-            && urlPath.indexOf(_URL_DIR_SEPARATOR_CHAR) >= 0) {
+                && urlPath.indexOf(_URL_DIR_SEPARATOR_CHAR) >= 0) {
             return urlPath.replace(_URL_DIR_SEPARATOR_CHAR,
                                    File.separatorChar);
         }
@@ -370,7 +386,6 @@ public class SystemUtils {
      * suffixed with a dot ('.') character.
      *
      * @param e the exception
-     *
      * @return a modified message text, or <code>null</code> if <code>e</code> was null.
      */
     public static String createHumanReadableExceptionMessage(final Exception e) {
@@ -442,10 +457,10 @@ public class SystemUtils {
         final String currentLafName = UIManager.getLookAndFeel().getClass().getName();
 
         return System.getProperty(macOsSpecificPropertyKey) != null
-               && systemLafName.equals(currentLafName);
+                && systemLafName.equals(currentLafName);
     }
 
-    private static  boolean isServiceLoaderAvailable() {
+    private static boolean isServiceLoaderAvailable() {
         try {
             Class.forName("java.util.ServiceLoader");
             return true;
@@ -456,6 +471,7 @@ public class SystemUtils {
 
     /**
      * Loads services from all <code>META-INF/services/</code> resources.
+     *
      * @param serviceType the type of the service to be loaded.
      * @return the services of type <code>serviceType</code> found.
      */
@@ -469,6 +485,7 @@ public class SystemUtils {
 
     /**
      * Loads services from all <code>META-INF/services/</code> resources.
+     *
      * @param serviceType the type of the service to be loaded.
      * @param classLoader the class loader.
      * @return the services of type <code>serviceType</code> found.
@@ -481,7 +498,7 @@ public class SystemUtils {
         }
     }
 
-    private static <S>Iterable<S> loadServicesWithoutServiceLoader(Class<S> serviceType, ClassLoader classLoader) {
+    private static <S> Iterable<S> loadServicesWithoutServiceLoader(Class<S> serviceType, ClassLoader classLoader) {
         ArrayList<S> services = new ArrayList<S>(32);
         try {
             Enumeration<URL> resources = classLoader.getResources("META-INF/services/" + serviceType.getName());
@@ -586,7 +603,7 @@ public class SystemUtils {
 
         // Returns image
         public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException,
-                                                                IOException {
+                IOException {
             if (!DataFlavor.imageFlavor.equals(flavor)) {
                 throw new UnsupportedFlavorException(flavor);
             }

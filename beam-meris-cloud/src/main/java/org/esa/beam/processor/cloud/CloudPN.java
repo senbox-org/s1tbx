@@ -110,9 +110,8 @@ public class CloudPN extends ProcessingNode {
     private static File AUXDATA_DIR;
 
     static {
-        String symbolicName = "cloud-probability-processor";    // todo - get the symbolicName from processor
-        String relPath = ".beam" + File.separator + symbolicName + File.separator + "auxdata";
-        File defaultAuxdataDir = new File(SystemUtils.getUserHomeDir(), relPath);
+        String symbolicName = "beam-meris-cloud"; // todo - get the symbolicName from processor
+        File defaultAuxdataDir = new File(SystemUtils.getApplicationUserDir(), symbolicName + "/auxdata");
         String auxdataDirPath = System.getProperty(CloudPN.CLOUD_AUXDATA_DIR_PROPERTY,
                                                    defaultAuxdataDir.getAbsolutePath());
         AUXDATA_DIR = new File(auxdataDirPath);

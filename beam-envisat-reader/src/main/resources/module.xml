@@ -35,7 +35,7 @@
 
     <categories>Reader,Envisat,MERIS,AATSR,ASAR,ERS</categories>
 
-    <extension point="beam-visat:actions">
+    <extension point="beam-ui:actions">
         <action>
             <id>importEnvisatProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>

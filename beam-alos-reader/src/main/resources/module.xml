@@ -24,7 +24,7 @@
 
     <categories>Reader,ALOS,AVNIR,PRISM</categories>
 
-    <extension point="beam-visat:actions">
+    <extension point="beam-ui:actions">
         <action>
             <id>importAvnir2Product</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>

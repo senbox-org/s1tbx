@@ -379,7 +379,7 @@ public class RGBImageProfilePane extends JPanel {
         if (_lastDir != null) {
             return _lastDir;
         } else {
-            return RGBImageProfileManager.getDefaultProfilesDir();
+            return RGBImageProfileManager.getProfilesDir();
         }
     }
 

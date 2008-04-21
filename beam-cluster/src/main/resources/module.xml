@@ -30,7 +30,7 @@
     <categories>VISAT,Processing</categories>
 
     <!--
-        <extension point="beam-visat:actions">
+        <extension point="beam-ui:actions">
             <action>
                 <id>clusterAnalysis</id>
                 <helpID>clusterAnalysis</helpID>

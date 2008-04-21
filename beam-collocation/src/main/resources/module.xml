@@ -31,7 +31,7 @@
 
     <categories>VISAT,Processing,Collocation</categories>
 
-    <extension point="beam-visat:actions">
+    <extension point="beam-ui:actions">
         <action>
             <id>collocation</id>
             <helpID>collocation</helpID>

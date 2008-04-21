@@ -52,6 +52,6 @@ public class DefaultApplicationDescriptorTest extends TestCase {
         assertEquals(3, defaultApplicationDescriptor.getExcludedToolViews().length);
         assertEquals("tv1", defaultApplicationDescriptor.getExcludedToolViews()[0]);
         assertEquals("tv2", defaultApplicationDescriptor.getExcludedToolViews()[1]);
-        assertEquals("tv3", defaultApplicationDescriptor.getExcludedToolViews()[1]);
+        assertEquals("tv3", defaultApplicationDescriptor.getExcludedToolViews()[2]);
     }
 }

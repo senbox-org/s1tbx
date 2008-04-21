@@ -456,7 +456,7 @@ class ColorManipulationForm {
     }
 
     private File getIODir() {
-        File dir = new File(SystemUtils.getUserHomeDir(), ".beam/beam-ui/auxdata/color-palettes");
+        File dir = new File(SystemUtils.getApplicationHomeDir(), "beam-ui/auxdata/color-palettes");
         if (!dir.exists()) {
             dir.mkdirs();
         }

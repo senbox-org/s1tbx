@@ -27,7 +27,7 @@
 
     <categories>Reader,MODIS,HDF,VISAT</categories>
 
-    <extension point="beam-visat:actions">
+    <extension point="beam-ui:actions">
         <action>
             <id>importModisProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>

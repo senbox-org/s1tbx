@@ -23,17 +23,15 @@ import java.util.logging.Level;
  */
 public class RGBImageProfileManager {
 
-    public static final String DEFAULT_PROFILES_DIR_NAME = "rgb_profiles";
-
     private static RGBImageProfileManager _instance;
     private final List<RGBImageProfile> _profiles;
-    private static File defaultProfilesDir;
+    private static File profilesDir;
 
     static {
-        defaultProfilesDir = new File(SystemUtils.getUserHomeDir(),
-                                      ".beam/beam-core/auxdata/" + DEFAULT_PROFILES_DIR_NAME);
-        if (!defaultProfilesDir.exists()) {
-            defaultProfilesDir.mkdirs();
+        profilesDir = new File(SystemUtils.getApplicationHomeDir(),
+                               "beam-core/auxdata/rgb_profiles");
+        if (!profilesDir.exists()) {
+            profilesDir.mkdirs();
         }
     }
 
@@ -42,8 +40,8 @@ public class RGBImageProfileManager {
         loadDefaultProfiles();
     }
 
-    public static File getDefaultProfilesDir() {
-        return defaultProfilesDir;
+    public static File getProfilesDir() {
+        return profilesDir;
     }
 
     public static RGBImageProfileManager getInstance() {
@@ -74,26 +72,32 @@ public class RGBImageProfileManager {
     }
 
     public RGBImageProfile[] getAllProfiles() {
-        return (RGBImageProfile[]) _profiles.toArray(new RGBImageProfile[_profiles.size()]);
+        return _profiles.toArray(new RGBImageProfile[_profiles.size()]);
     }
 
     /**
      * Loads all profiles from the BEAM default RGB profile location.
      */
     private void loadDefaultProfiles() {
-        final File[] files = getDefaultProfilesDir().listFiles(new FilenameFilter() {
+        if (getProfilesDir().exists()) {
+            BeamLogManager.getSystemLogger().log(Level.INFO, "Directory for RGB-image profiles not found: " + getProfilesDir());
+        }
+        final File[] files = getProfilesDir().listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 return name.endsWith(RGBImageProfile.FILENAME_EXTENSION) || name.endsWith(
                         RGBImageProfile.FILENAME_EXTENSION.toUpperCase());
             }
         });
-        for (int i = 0; i < files.length; i++) {
-            File file = files[i];
-            try {
-                addProfile(RGBImageProfile.loadProfile(file));
-            } catch (IOException e) {
-                BeamLogManager.getSystemLogger().log(Level.SEVERE, "Failed to load RGB-image profile " + file, e);
+        if (files != null) {
+            for (File file : files) {
+                try {
+                    addProfile(RGBImageProfile.loadProfile(file));
+                } catch (IOException e) {
+                    BeamLogManager.getSystemLogger().log(Level.SEVERE, "Failed to load RGB-image profile from " + file, e);
+                }
             }
+        } else {
+            BeamLogManager.getSystemLogger().log(Level.INFO, "No RGB-image profiles found in " + getProfilesDir());
         }
     }
 }

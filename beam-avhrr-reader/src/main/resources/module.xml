@@ -23,7 +23,7 @@
 
     <categories>Reader,AVHRR</categories>
 
-    <extension point="beam-visat:actions">
+    <extension point="beam-ui:actions">
         <action>
             <id>importNoaaAvhrr3L1bProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>

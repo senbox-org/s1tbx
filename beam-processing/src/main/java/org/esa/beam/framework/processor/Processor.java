@@ -603,15 +603,15 @@ public abstract class Processor {
     }
 
     public void installAuxdata() throws ProcessorException {
+        File auxdataInstallDir = getAuxdataInstallDir();
+        if (auxdataInstallDir == null) {
+            auxdataInstallDir = getDefaultAuxdataInstallDir();
+            setAuxdataInstallDir(auxdataInstallDir);
+        }
         try {
-            File auxdataInstallDir = getAuxdataInstallDir();
-            if (auxdataInstallDir == null) {
-                auxdataInstallDir = getDefaultAuxdataInstallDir();
-                setAuxdataInstallDir(auxdataInstallDir);
-            }
             installAuxdata(ResourceInstaller.getSourceUrl(getClass()), "auxdata/", auxdataInstallDir);
         } catch (IOException e) {
-            throw new ProcessorException("Failed to install auxdata.", e);
+            throw new ProcessorException("Failed to install auxdata into " + auxdataInstallDir, e);
         }
     }
 
@@ -649,8 +649,7 @@ public abstract class Processor {
 
     public File getDefaultAuxdataInstallDir() {
         if (_defaultAuxdataInstallDir == null) {
-            String relPath = ".beam" + File.separator + getSymbolicName() + File.separator + "auxdata";
-            _defaultAuxdataInstallDir = new File(SystemUtils.getUserHomeDir(), relPath);
+            _defaultAuxdataInstallDir = new File(SystemUtils.getApplicationUserDir(), getSymbolicName() + "/auxdata");
         }
         return _defaultAuxdataInstallDir;
     }

@@ -119,6 +119,7 @@
         <module>lib-hdf</module>
         <module>lib-netcdf</module>
 
+        <module>nest-dat</module>
 
   </modules>
 

@@ -37,7 +37,7 @@
 
     <categories>Application,Processor,MERIS</categories>
 
-    <extension point="beam-visat:actions">
+    <extension point="beam-ui:actions">
         <action>
             <id>smileScientificToolPlugIn</id>
             <class>org.esa.beam.visat.actions.ProcessorAction</class>

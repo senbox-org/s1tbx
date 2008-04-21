@@ -58,7 +58,7 @@
 
     <categories>Reader,CHRIS</categories>
 
-    <extension point="beam-visat:actions">
+    <extension point="beam-ui:actions">
         <action>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <id>importChrisProduct</id>
