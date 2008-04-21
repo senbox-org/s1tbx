@@ -1,5 +1,9 @@
 package org.esa.beam.framework.gpf.graph;
 
+import java.io.Reader;
+import java.io.Writer;
+import java.util.Map;
+
 import com.bc.ceres.util.TemplateReader;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
@@ -11,10 +15,6 @@ import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.xml.XppDomReader;
 import com.thoughtworks.xstream.io.xml.XppDomWriter;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
-
-import java.io.Reader;
-import java.io.Writer;
-import java.util.Map;
 
 /**
  * The {@link GraphIO} class contains methods for the
@@ -113,6 +113,9 @@ public class GraphIO {
         xStream.aliasField("parameters", Node.class, "configuration");
         xStream.registerConverter(new Xpp3DomConverter());
 
+        xStream.alias("appData", ApplicationData.class);
+        xStream.addImplicitCollection(Graph.class, "appData", ApplicationData.class);
+        xStream.registerConverter(new ApplicationData.AppConverter());
         return xStream;
     }
 
@@ -138,7 +141,6 @@ public class GraphIO {
                 XppDomReader source = new XppDomReader(child);
                 copier.copy(source, hierarchicalStreamWriter);
             }
-
         }
 
         public Object unmarshal(HierarchicalStreamReader hierarchicalStreamReader,

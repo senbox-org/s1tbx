@@ -3,6 +3,8 @@ package org.esa.beam.framework.gpf.graph;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+
 /**
  * Represents a directed acyclic graph (DAG) of {@link Node}s.
  *
@@ -18,6 +20,7 @@ public class Graph {
     private String version;
     private Header header;
     private List<Node> nodeList;
+    private List<ApplicationData> appData;
 
 
     /**
@@ -124,6 +127,33 @@ public class Graph {
     public Node[] getNodes() {
         return nodeList.toArray(new Node[nodeList.size()]);
     }
+    
+    /**
+     * Returns the Application data for the given application ID or null,
+     * if for this id no application is available.
+     * 
+     * @param appId
+     * @return the application data as an Xpp3Dom
+     */
+    public Xpp3Dom getAppData(String appId) {
+        for (ApplicationData applicationData : appData) {
+            if (applicationData.getAppId().equals(appId)) {
+                return applicationData.getData();
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Sets the application data for the given ID
+     * 
+     * @param appId The application ID.
+     * @param data The application data as Xpp3Dom.
+     */
+    public void setAppData(String appId, Xpp3Dom data) {
+        ApplicationData applicationData = new ApplicationData(appId, data);
+        this.appData.add(applicationData);
+    }
 
     /**
      * Indirectly used by {@link GraphIO}. DO NOT REMOVE!
@@ -139,6 +169,8 @@ public class Graph {
         if (this.nodeList == null) {
             this.nodeList = new ArrayList<Node>();
         }
+        if (this.appData == null) {
+            this.appData = new ArrayList<ApplicationData>();
+        }
     }
-
 }

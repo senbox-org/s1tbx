@@ -1,6 +1,8 @@
 package org.esa.beam.framework.gpf.graph;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+
 import junit.framework.TestCase;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.TestOps;
@@ -79,6 +81,43 @@ public class GraphIOTest extends TestCase {
                 "  </node>\n" +
                 "</graph>";
         assertEquals(expectedXML, actualXML);
+    }
+    
+    public void testWriteToXMLWithApplicationData() throws Exception {
+        Graph graph1 = new Graph("myOneNodeGraph");
+        Node node1 = new Node("node1", "Op1");
+        graph1.addNode(node1);
+        
+        Xpp3Dom xpp3Dom = new Xpp3Dom("");
+        Xpp3Dom font = new Xpp3Dom("font");
+        font.setValue("big");
+        xpp3Dom.addChild(font);
+        graph1.setAppData("foo", xpp3Dom);
+
+        Xpp3Dom xpp3Dom2 = new Xpp3Dom("");
+        Xpp3Dom colour = new Xpp3Dom("colour");
+        colour.setValue("red");
+        xpp3Dom2.addChild(colour);
+        graph1.setAppData("baz", xpp3Dom2);
+        
+        StringWriter writer = new StringWriter();
+        GraphIO.write(graph1, writer);
+        String actualXML = writer.toString();
+        String expectedXML =
+                "<graph id=\"myOneNodeGraph\">\n" +
+                "  <version>1.0</version>\n" +
+                "  <node id=\"node1\">\n" +
+                "    <operator>Op1</operator>\n" +
+                "    <sources/>\n" +
+                "  </node>\n" +
+                "  <appData appId=\"foo\">\n" +
+                "    <font>big</font>\n" +
+                "  </appData>\n" +
+                "  <appData appId=\"baz\">\n" +
+                "    <colour>red</colour>\n" +
+                "  </appData>\n" +
+                "</graph>";
+        assertEquals(expectedXML, actualXML);
 
     }
 
@@ -124,6 +163,41 @@ public class GraphIOTest extends TestCase {
         assertNotNull(node1);
         assertEquals("Op1", node1.getOperatorName());
     }
+    
+    public void testReadFromXMLWithAppData() throws Exception {
+        String expectedXML =
+                "<graph id=\"myOneNodeGraph\">\n" +
+                "  <version>1.0</version>\n" +
+                "  <node id=\"node1\">\n" +
+                "    <operator>Op1</operator>\n" +
+                "    <sources/>\n" +
+                "  </node>\n" +
+                
+                " <appData appId=\"foo\">\n" +
+                "    <font>Big</font>\n" +
+                "    <colour>red</colour>\n" +
+                " </appData>\n" +
+                " <appData appId=\"bar\">\n" +
+                "    <textmode>true</textmode>\n" +
+                " </appData>\n" +
+                
+                "</graph>";
+        StringReader reader = new StringReader(expectedXML);
+        Graph graph = GraphIO.read(reader);
+        
+        Xpp3Dom fooData = graph.getAppData("foo");
+        assertNotNull(fooData);
+        assertEquals(2, fooData.getChildCount());
+        assertEquals("Big", fooData.getChild("font").getValue());
+        assertEquals("red", fooData.getChild("colour").getValue());
+        
+        Xpp3Dom barData = graph.getAppData("bar");
+        assertNotNull(barData);
+        assertEquals(1, barData.getChildCount());
+        assertEquals("true", barData.getChild("textmode").getValue());
+        
+    }
+
 
     public void testReadFromXMLWithHeader() throws Exception {
         String expectedXML =
