@@ -205,7 +205,7 @@ public abstract class Processor {
     public abstract String getName();
 
     /**
-     * Returns the symbolic name of this application.
+     * Returns the symbolic name of the processor.
      */
     public String getSymbolicName() {
         return StringUtils.createValidName(getName().toLowerCase(), new char[]{'-', '.'},

@@ -151,6 +151,14 @@ public class RadToReflProcessor extends Processor {
     }
 
     /**
+     * Returns the symbolic name of the processor.
+     */
+    @Override
+    public String getSymbolicName() {
+        return RadToReflConstants.PROCESSOR_SYMBOLIC_NAME;
+    }
+
+    /**
      * Retrieves a version string of the processor
      */
     @Override

@@ -48,6 +48,7 @@ import java.util.logging.Logger;
 public class SstProcessor extends Processor {
 
     public static final String PROCESSOR_NAME = "BEAM SST Processor";
+    private static final String PROCESSOR_SYMBOLIC_NAME = "beam-aatsr-sst";
     private static final String _nadirSstBandName = "nadir_sst";
     private static final String _dualSstBandName = "dual_sst";
     private static final String _version = "1.4.100";
@@ -206,6 +207,14 @@ public class SstProcessor extends Processor {
     @Override
     public String getName() {
         return PROCESSOR_NAME;
+    }
+
+    /**
+     * Returns the symbolic name of the processor.
+     */
+    @Override
+    public String getSymbolicName() {
+        return PROCESSOR_SYMBOLIC_NAME;
     }
 
     /**

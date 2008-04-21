@@ -48,6 +48,7 @@ import java.util.logging.Logger;
 public final class FlhMciProcessor extends Processor {
 
     public static final String PROCESSOR_NAME = "BEAM FLH/MCI Processor";
+    private static final String PROCESSOR_SYMBOLIC_NAME = "beam-flhmci";
     public static final String PROCESSOR_VERSION = "1.6.100";
     public static final String PROCESSOR_COPYRIGHT = "Copyright (C) 2002-2004 by Brockmann Consult (info@brockmann-consult.de)";
 
@@ -206,6 +207,14 @@ public final class FlhMciProcessor extends Processor {
     @Override
     public final String getName() {
         return PROCESSOR_NAME;
+    }
+
+    /**
+     * Returns the symbolic name of the processor.
+     */
+    @Override
+    public String getSymbolicName() {
+        return PROCESSOR_SYMBOLIC_NAME;
     }
 
     /**

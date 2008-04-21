@@ -70,20 +70,23 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
 
     private void registerApplicationDescriptors(ModuleContext moduleContext) {
         final List<ApplicationDescriptor> applicationDescriptorList = BeamCoreActivator.loadExecutableExtensions(moduleContext, "applicationDescriptors", "applicationDescriptor", ApplicationDescriptor.class);
-        final String appId = getApplicationId();
+        final String applicationId = getApplicationId();
         for (ApplicationDescriptor applicationDescriptor : applicationDescriptorList) {
-            if (appId.equals(applicationDescriptor.getApplicationId())) {
+            if (applicationId.equals(applicationDescriptor.getApplicationId())) {
+                moduleContext.getLogger().info(String.format("Using application descriptor [%s]", applicationId));
                 this.applicationDescriptor = applicationDescriptor;
-            }
-            final String[] toolViewIds = applicationDescriptor.getExcludedToolViews();
-            for (String toolViewId : toolViewIds) {
-                BeamUiActivator.getInstance().removeToolViewDescriptor(toolViewId);
-                moduleContext.getLogger().info(String.format("Removed toolview [%s]", toolViewId));
-            }
-            final String[] actionIds = applicationDescriptor.getExcludedActions();
-            for (String actionId : actionIds) {
-                BeamUiActivator.getInstance().removeAction(actionId);
-                moduleContext.getLogger().info(String.format("Removed action [%s]", actionId));
+                final String[] toolViewIds = applicationDescriptor.getExcludedToolViews();
+                for (String toolViewId : toolViewIds) {
+                    BeamUiActivator.getInstance().removeToolViewDescriptor(toolViewId);
+                    moduleContext.getLogger().info(String.format("Removed toolview [%s]", toolViewId));
+                }
+                final String[] actionIds = applicationDescriptor.getExcludedActions();
+                for (String actionId : actionIds) {
+                    BeamUiActivator.getInstance().removeAction(actionId);
+                    moduleContext.getLogger().info(String.format("Removed action [%s]", actionId));
+                }
+            } else {
+                moduleContext.getLogger().warning(String.format("Ignoring application descriptor [%s]", applicationId));
             }
         }
     }

@@ -24,6 +24,7 @@ public class MosaicConstants {
     //@todo 1 se/nf - check correct english of the entire class
 
     public static final String PROCESSOR_NAME = "BEAM Mosaic Processor";
+    public static final String PROCESSOR_SYMBOLIC_NAME = "beam-mosaic";
     public static final String VERSION_STRING = "2.2.100";
     public static final String COPYRIGHT_INFO = "Copyright (C) 2002-2004 by Brockmann Consult (info@brockmann-consult.de)";
 

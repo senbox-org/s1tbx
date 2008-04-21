@@ -46,6 +46,7 @@ import java.util.logging.Logger;
 public class CloudProcessor extends Processor {
 
     public static final String PROCESSOR_NAME = "Cloud Probability Processor";
+    private static final String PROCESSOR_SYMBOLIC_NAME = "beam-meris-cloud";
     private static final String PROCESSOR_VERSION = "1.5.101";
     private static final String PROCESSOR_COPYRIGHT = "Copyright (C) 2004 by ESA, FUB and Brockmann Consult";
 
@@ -125,6 +126,14 @@ public class CloudProcessor extends Processor {
     @Override
     public String getName() {
         return PROCESSOR_NAME;
+    }
+
+    /**
+     * Returns the symbolic name of the processor.
+     */
+    @Override
+    public String getSymbolicName() {
+        return PROCESSOR_SYMBOLIC_NAME;
     }
 
     /**

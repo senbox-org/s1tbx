@@ -50,6 +50,7 @@ public class L3Processor extends Processor {
     private static final int TYPE_FINALIZE = 3;
 
     public static final String PROCESSOR_NAME = "BEAM L3 Processor";
+    private static final String PROCESSOR_SYMBOLIC_NAME = "beam-binning";
     private static final String _initName = "BEAM L3 Initial Processor";
     private static final String _updateName = "BEAM L3 Update Processor";
     private static final String _finalName = "BEAM L3 Final Processor";
@@ -119,6 +120,14 @@ public class L3Processor extends Processor {
         }
 
         return strRet;
+    }
+
+    /**
+     * Returns the symbolic name of the processor.
+     */
+    @Override
+    public String getSymbolicName() {
+        return PROCESSOR_SYMBOLIC_NAME;
     }
 
     /**

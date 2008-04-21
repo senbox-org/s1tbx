@@ -229,6 +229,11 @@ public class MosaicProcessor extends Processor {
     }
 
     @Override
+    public String getSymbolicName() {
+        return MosaicConstants.PROCESSOR_SYMBOLIC_NAME;
+    }
+
+    @Override
     public String getVersion() {
         return MosaicConstants.VERSION_STRING;
     }
