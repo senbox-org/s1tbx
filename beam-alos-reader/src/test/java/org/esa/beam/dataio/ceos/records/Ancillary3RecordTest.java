@@ -75,7 +75,7 @@ public class Ancillary3RecordTest extends TestCase {
         ios.writeBytes(" 4.920000000000000E+03"); // firstPointTotalSeconds // F22.15
         ios.writeBytes(" 6.000000000000000E+01"); // intervalTimeBetweenPoints // F22.15
         // referenceCoordinateSystem // A64
-        ios.writeBytes("ölksdfjpawendöslkdslpovamreoifmölskdasdkfjaoeifmölkdsfödlsfjiooe");
+        ios.writeBytes("alksdfjpawendbslkdslpovamreoifmclskdasdkfjaoeifmdlkdsfedlsfjiooe");
         CeosTestHelper.writeBlanks(ios, 22); // greenwichMeanHourAngle // F22.15
         ios.writeBytes("       2.0000000"); // positionalErrorFlightDirection // F16.7
         ios.writeBytes("       2.1111111"); // positionalErrorFlightVerticalDirection // F16.7
@@ -114,7 +114,7 @@ public class Ancillary3RecordTest extends TestCase {
         assertEquals(5643, record.getFirstPointTotalDays());
         assertEquals(4.92E+03, record.getFirstPointTotalSeconds(), 1e-10);
         assertEquals(6.0E+01, record.getIntervalTimeBetweenPoints(), 1e-10);
-        assertEquals("ölksdfjpawendöslkdslpovamreoifmölskdasdkfjaoeifmölkdsfödlsfjiooe",
+        assertEquals("alksdfjpawendbslkdslpovamreoifmclskdasdkfjaoeifmdlkdsfedlsfjiooe",
                      record.getReferenceCoordinateSystem());
         assertEquals(2.0000000, record.getPositionalErrorFlightDirection(), 1e-10);
         assertEquals(2.1111111, record.getPositionalErrorFlightVerticalDirection(), 1e-10);
