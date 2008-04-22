@@ -43,7 +43,9 @@ public class DefaultSingleTargetProductDialogTest extends TestCase {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(SPI);
         TestApp app = new TestApp();
-        final SingleTargetProductDialog dialog = DefaultSingleTargetProductDialog.createDefaultDialog(TestOp.Spi.class.getName(), app);
+        final DefaultSingleTargetProductDialog dialog = (DefaultSingleTargetProductDialog) DefaultSingleTargetProductDialog.createDefaultDialog(
+                TestOp.Spi.class.getName(), app);
+        dialog.setTargetProductNameSuffix("_test");
         dialog.getJDialog().setTitle("TestOp GUI");
         dialog.show();
     }

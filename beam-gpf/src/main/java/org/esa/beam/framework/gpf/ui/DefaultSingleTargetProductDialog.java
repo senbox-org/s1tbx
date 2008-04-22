@@ -1,9 +1,8 @@
 package org.esa.beam.framework.gpf.ui;
 
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueContainerFactory;
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.swing.PropertyPane;
 import com.bc.ceres.binding.swing.SwingBindingContext;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
@@ -12,6 +11,8 @@ import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.TableLayout;
+import org.esa.beam.framework.ui.application.SelectionChangeListener;
+import org.esa.beam.framework.ui.application.SelectionChangeEvent;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -23,6 +24,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+// todo (mp, 2008/04/22) add abillity to set the ProductFilter to SourceProductSelectors
 
 /**
  * WARNING: This class belongs to a preliminary API and may change in future releases.
@@ -36,6 +39,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
     private Map<Field, SourceProductSelector> sourceProductSelectorMap;
     private Map<String, Object> parameterMap;
     private JTabbedPane form;
+    private String targetProductNameSuffix;
 
     public static SingleTargetProductDialog createDefaultDialog(String operatorName, AppContext appContext) {
         return new DefaultSingleTargetProductDialog(operatorName, appContext, operatorName, null);
@@ -44,6 +48,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
     public DefaultSingleTargetProductDialog(String operatorName, AppContext appContext, String title, String helpID) {
         super(appContext, title, helpID);
         this.operatorName = operatorName;
+        targetProductNameSuffix = "";
 
         final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(operatorName);
         if (operatorSpi == null) {
@@ -55,9 +60,8 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         if (sourceProductSelectorList.size() > 1) {
             setSourceProductSelectorLabels();
         }
-
         ValueContainerFactory factory = new ValueContainerFactory(new ParameterDescriptorFactory());
-        parameterMap = new HashMap<String, Object>();
+        parameterMap = new HashMap<String, Object>(17);
         ValueContainer valueContainer = factory.createMapBackedValueContainer(operatorSpi.getOperatorClass(), parameterMap);
         try {
             valueContainer.setDefaultValues();
@@ -83,6 +87,14 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         }
         ioParametersPanel.add(getTargetProductSelector().createDefaultPanel());
         ioParametersPanel.add(tableLayout.createVerticalSpacer());
+        sourceProductSelectorList.get(0).addSelectionChangeListener(new SelectionChangeListener() {
+            public void selectionChanged(SelectionChangeEvent event) {
+                final Product element = (Product) event.getSelection().getFirstElement();
+                final TargetProductSelectorModel targetProductSelectorModel = getTargetProductSelector().getModel();
+                targetProductSelectorModel.setProductName(element.getName() + getTargetProductNameSuffix());
+            }
+        });
+
 
         this.form = new JTabbedPane();
         this.form.add("I/O Parameters", ioParametersPanel);
@@ -96,7 +108,9 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         for (Field field : fields) {
             final SourceProduct annot = field.getAnnotation(SourceProduct.class);
             if (annot != null) {
+                final ProductFilter productFilter = new AnnotatedSourceProductFilter(annot);
                 SourceProductSelector sourceProductSelector = new SourceProductSelector(getAppContext());
+                sourceProductSelector.setProductFilter(productFilter);
                 sourceProductSelectorList.add(sourceProductSelector);
                 sourceProductSelectorMap.put(field, sourceProductSelector);
             }
@@ -116,7 +130,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             }
             if (label == null) {
                 String name = field.getName();
-                if (label == null && !annot.alias().isEmpty()) {
+                if (!annot.alias().isEmpty()) {
                     name = annot.alias();
                 }
                 label = ParametersPane.createDisplayName(name);
@@ -150,9 +164,6 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
     private void initSourceProductSelectors() {
         for (SourceProductSelector sourceProductSelector : sourceProductSelectorList) {
             sourceProductSelector.initProducts();
-            if (sourceProductSelector.getProductCount() > 0) {
-                sourceProductSelector.setSelectedIndex(0);
-            }
         }
     }
 
@@ -174,5 +185,37 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             sourceProducts.put(key, selector.getSelectedProduct());
         }
         return sourceProducts;
+    }
+
+    public String getTargetProductNameSuffix() {
+        return targetProductNameSuffix;
+    }
+
+    public void setTargetProductNameSuffix(String suffix) {
+        targetProductNameSuffix = suffix;
+    }
+
+    private static class AnnotatedSourceProductFilter implements ProductFilter {
+
+        private final SourceProduct annot;
+
+        public AnnotatedSourceProductFilter(SourceProduct annot) {
+            this.annot = annot;
+        }
+
+        public boolean accept(Product product) {
+
+            if (!annot.type().isEmpty() && !product.getProductType().matches(annot.type())) {
+                return false;
+            }
+
+            for (String bandName : annot.bands()) {
+                if(!product.containsBand(bandName)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 }

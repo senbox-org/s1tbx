@@ -1,5 +1,21 @@
 package org.esa.beam.framework.gpf.ui;
 
+import org.esa.beam.framework.dataio.ProductIO;
+import org.esa.beam.framework.dataio.ProductIOPlugInManager;
+import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.BasicApp;
+import org.esa.beam.framework.ui.TableLayout;
+import org.esa.beam.framework.ui.application.SelectionChangeListener;
+import org.esa.beam.framework.ui.application.SelectionChangeEvent;
+import org.esa.beam.framework.ui.application.support.DefaultSelection;
+import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.io.BeamFileChooser;
+
+import javax.swing.*;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -10,33 +26,8 @@ import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Iterator;
-
-import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
-
-import org.esa.beam.framework.dataio.ProductIO;
-import org.esa.beam.framework.dataio.ProductIOPlugInManager;
-import org.esa.beam.framework.dataio.ProductReaderPlugIn;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.BasicApp;
-import org.esa.beam.framework.ui.TableLayout;
-import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.io.BeamFileChooser;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * WARNING: This class belongs to a preliminary API and may change in future releases.
@@ -48,12 +39,14 @@ import org.esa.beam.util.io.BeamFileChooser;
 public class SourceProductSelector {
 
     private AppContext appContext;
+    private ProductFilter productFilter;
     private Product extraProduct;
     private File currentDirectory;
     private DefaultComboBoxModel productListModel;
     private JLabel productNameLabel;
     private JButton productFileChooserButton;
     private JComboBox productNameComboBox;
+    private List<SelectionChangeListener> selectionListeners;
 
     public SourceProductSelector(AppContext appContext) {
         this(appContext, "Name:");
@@ -77,6 +70,7 @@ public class SourceProductSelector {
             public void actionPerformed(ActionEvent e) {
                 final Product product = (Product) productNameComboBox.getSelectedItem();
                 if (product != null) {
+                    fireSelectionChanged();
                     if (product.getFileLocation() != null) {
                         productNameComboBox.setToolTipText(product.getFileLocation().getPath());
                     } else {
@@ -87,12 +81,31 @@ public class SourceProductSelector {
                 }
             }
         });
+
+        productFilter = new AllProductFilter();
+        selectionListeners = new ArrayList<SelectionChangeListener>(7);
+    }
+
+    /**
+     * @return the product filter, default is a filter which accepts all products
+     */
+    public ProductFilter getProductFilter() {
+        return productFilter;
+    }
+
+    /**
+     * @param  productFilter the product filter
+     */
+    public void setProductFilter(ProductFilter productFilter) {
+        this.productFilter = productFilter;
     }
 
     public void initProducts() {
         productListModel.removeAllElements();
         for (Product product : appContext.getProducts()) {
-            productListModel.addElement(product);
+            if(productFilter.accept(product)) {
+                productListModel.addElement(product);
+            }
         }
         productListModel.setSelectedItem(appContext.getSelectedProduct());
     }
@@ -123,13 +136,15 @@ public class SourceProductSelector {
         if (productListModelContains(product)) {
             productListModel.setSelectedItem(product);
         } else {
-            if (extraProduct != null) {
-                productListModel.removeElement(extraProduct);
-                extraProduct.dispose();
+            if (productFilter.accept(product)) {
+                if (extraProduct != null) {
+                    productListModel.removeElement(extraProduct);
+                    extraProduct.dispose();
+                }
+                productListModel.addElement(product);
+                productListModel.setSelectedItem(product);
+                extraProduct = product;
             }
-            productListModel.addElement(product);
-            productListModel.setSelectedItem(product);
-            extraProduct = product;
         }
     }
 
@@ -139,6 +154,21 @@ public class SourceProductSelector {
         }
         extraProduct = null;
         productListModel.removeAllElements();
+    }
+
+    public void addSelectionChangeListener(SelectionChangeListener listener) {
+        selectionListeners.add(listener);
+    }
+
+    public void removeSelectionChangeListener(SelectionChangeListener listener) {
+        selectionListeners.remove(listener);
+    }
+
+    private void fireSelectionChanged() {
+        for (SelectionChangeListener changeListener : selectionListeners) {
+            final DefaultSelection selection = new DefaultSelection(productNameComboBox.getSelectedItem());
+            changeListener.selectionChanged(new SelectionChangeEvent(productNameComboBox, selection));
+        }
     }
 
     // UI Components
@@ -196,8 +226,10 @@ public class SourceProductSelector {
             chooser.setDialogTitle("Select Source Product");
             final Iterator<ProductReaderPlugIn> iterator = ProductIOPlugInManager.getInstance().getAllReaderPlugIns();
             while (iterator.hasNext()) {
+                // todo - (mp, 2008/04/22)check if product file filter is applicable
                 chooser.addChoosableFileFilter(iterator.next().getProductFileFilter());
             }
+            // todo - (mp, 2008/04/22)check if product file filter is applicable
             chooser.setAcceptAllFileFilterUsed(true);
             chooser.setFileFilter(chooser.getAcceptAllFileFilter());
         }
@@ -217,27 +249,35 @@ public class SourceProductSelector {
                 try {
                     product = ProductIO.readProduct(file, null);
                     if (product == null) {
-                        throw new IOException(
-                                MessageFormat.format("File ''{0}'' is not of appropriate type.", file.getPath()));
+                        throw new IOException(MessageFormat.format("File ''{0}'' could not be read.", file.getPath()));
                     }
-                    setSelectedProduct(product);
+
+                    if(productFilter.accept(product)) {
+                        setSelectedProduct(product);
+                    } else {
+                        final String message = String.format("Product [%s] is not a valid source.",
+                                                             product.getFileLocation().getCanonicalPath());
+                        handleError(window, message);
+                        product.dispose();
+                    }
                 } catch (IOException e) {
-                    handleError(window, e);
+                    handleError(window, e.getMessage());
                 } catch (Exception e) {
                     if (product != null) {
                         product.dispose();
                     }
-                    handleError(window, e);
+                    handleError(window, e.getMessage());
+                    e.printStackTrace();
                 }
                 currentDirectory = chooser.getCurrentDirectory();
                 appContext.getPreferences().setPropertyString(BasicApp.PROPERTY_KEY_APP_LAST_OPEN_DIR, currentDirectory.getAbsolutePath());
             }
         }
 
-        private void handleError(final Component component, final Throwable t) {
+        private void handleError(final Component component, final String message) {
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
-                    JOptionPane.showMessageDialog(component, t.getMessage(), "Error",
+                    JOptionPane.showMessageDialog(component, message, "Error",
                                                   JOptionPane.ERROR_MESSAGE);
                 }
             });
@@ -298,4 +338,10 @@ public class SourceProductSelector {
         }
     }
 
+    private static class AllProductFilter implements ProductFilter {
+
+        public boolean accept(Product product) {
+            return true;
+        }
+    }
 }
