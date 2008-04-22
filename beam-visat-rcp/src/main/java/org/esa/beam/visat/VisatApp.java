@@ -1225,6 +1225,9 @@ public class VisatApp extends BasicApp {
      * Creates a new product scene view and opens an internal frame for it.
      */
     public void openProductSceneView(final RasterDataNode raster, final String helpId) {
+        setStatusBarMessage("Creating image view...");
+        UIUtils.setRootFrameWaitCursor(getMainFrame());
+
         final SwingWorker worker = new ProgressMonitorSwingWorker<ProductSceneImage, Object>(getMainFrame(),
                                                                                              "Creating single band image") {
 
@@ -1241,15 +1244,17 @@ public class VisatApp extends BasicApp {
 
             @Override
             public void done() {
-                ProductSceneImage productSceneImage;
+                UIUtils.setRootFrameDefaultCursor(getMainFrame());
+                clearStatusBarMessage();
+
+                final ProductSceneImage productSceneImage;
                 try {
                     productSceneImage = get();
-                } catch (Exception e) {
-                    // should not happen
+                } catch (OutOfMemoryError e) {
+                    showOutOfMemoryErrorDialog("The image view could not be created.");
                     return;
-                }
-
-                if (productSceneImage == null) {
+                } catch (Exception e) {
+                    handleUnknownException(e);
                     return;
                 }
 
@@ -1293,25 +1298,43 @@ public class VisatApp extends BasicApp {
      * Creates a new rgb product scene view and opens an internal frame for it.
      */
     public void openProductSceneViewRGB(final Product product, final String helpId) {
+        final RGBImageProfilePane profilePane = new RGBImageProfilePane(getPreferences(), product);
+        final boolean ok = profilePane.showDialog(getMainFrame(), "Select RGB-Image Channels", helpId);
+        if (!ok) {
+            return;
+        }
+        final String[] rgbaExpressions = profilePane.getRgbaExpressions();
+        if (profilePane.getStoreProfileInProduct()) {
+            RGBImageProfile.storeRgbaExpressions(product, rgbaExpressions);
+        }
+
+        final RGBImageProfile selectedProfile = profilePane.getSelectedProfile();
+        final String name = selectedProfile != null ? selectedProfile.getName().replace("_", " ") : "";
+
         final SwingWorker worker = new ProgressMonitorSwingWorker<ProductSceneImage, Object>(getMainFrame(),
                                                                                              "Create RGB Image View") {
 
             @Override
             protected ProductSceneImage doInBackground(ProgressMonitor pm) throws Exception {
-                return createRGBProductSceneImage(product, helpId, pm);
+                return createProductSceneImageRGB(name, product, rgbaExpressions, helpId, pm);
             }
 
             @Override
             protected void done() {
-                ProductSceneImage productSceneImage;
+                getMainFrame().setCursor(Cursor.getDefaultCursor());
+
+                final ProductSceneImage productSceneImage;
                 try {
                     productSceneImage = get();
+                } catch (OutOfMemoryError e) {
+                    showOutOfMemoryErrorDialog("The RGB image view could not be created."); /*I18N*/
+                    return;
                 } catch (Exception e) {
+                    handleUnknownException(e);
                     return;
                 }
-                if (productSceneImage == null) {
-                    return;
-                }
+                clearStatusBarMessage();
+
                 ProductSceneView productSceneView = new ProductSceneView(productSceneImage);
                 productSceneView.setCommandUIFactory(getCommandUIFactory());
                 productSceneView.setNoDataOverlayEnabled(false);
@@ -1326,6 +1349,7 @@ public class VisatApp extends BasicApp {
                 updateState();
             }
         };
+        setStatusBarMessage("Creating RGB image view...");  /*I18N*/
         singleThreadExecutor.submit(worker);
     }
 
@@ -1585,11 +1609,9 @@ public class VisatApp extends BasicApp {
     }
 
     private ProductSceneImage createProductSceneImage(final RasterDataNode raster, final String helpId,
-                                                      ProgressMonitor pm) {
+                                                      ProgressMonitor pm) throws Exception {
         Debug.assertNotNull(raster);
-        final String message = "Creating image view...";
-        setStatusBarMessage(message);
-        UIUtils.setRootFrameWaitCursor(getMainFrame());
+        Debug.assertNotNull(pm);
 
         final boolean mustLoadData;
         // JAIJAIJAI
@@ -1601,7 +1623,7 @@ public class VisatApp extends BasicApp {
         }
 
         ProductSceneImage productSceneImage = null;
-        pm.beginTask(message, mustLoadData ? 2 : 1);
+        pm.beginTask("Creating image view...", mustLoadData ? 2 : 1);
         try {
             if (mustLoadData) {
                 loadProductRasterDataImpl(raster, SubProgressMonitor.create(pm, 1));
@@ -1622,15 +1644,9 @@ public class VisatApp extends BasicApp {
             } else {
                 productSceneImage = ProductSceneImage.create(raster, SubProgressMonitor.create(pm, 1));
             }
-        } catch (OutOfMemoryError e) {
-            showOutOfMemoryErrorDialog("The image view could not be created.");
-        } catch (Exception e) {
-            handleUnknownException(e);
         } finally {
             pm.done();
         }
-        UIUtils.setRootFrameDefaultCursor(getMainFrame());
-        clearStatusBarMessage();
 
         return productSceneImage;
     }
@@ -1651,19 +1667,8 @@ public class VisatApp extends BasicApp {
         private boolean dataLoaded;
     }
 
-    private ProductSceneImage createRGBProductSceneImage(final Product product, final String helpId,
-                                                         ProgressMonitor pm) {
-        final RGBImageProfilePane profilePane = new RGBImageProfilePane(getPreferences(), product);
-        final boolean ok = profilePane.showDialog(getMainFrame(), "Select RGB-Image Channels", helpId);
-        if (!ok) {
-            return null;
-        }
-        final String[] rgbaExpressions = profilePane.getRgbaExpressions();
-        if (profilePane.getStoreProfileInProduct()) {
-            RGBImageProfile.storeRgbaExpressions(product, rgbaExpressions);
-        }
-
-        setStatusBarMessage("Creating RGB image view...");  /*I18N*/
+    private ProductSceneImage createProductSceneImageRGB(String name, final Product product, String[] rgbaExpressions, final String helpId,
+                                                         ProgressMonitor pm) throws Exception {
         getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         pm.beginTask("Creating RGB image view...", 2);
         RGBBand[] rgbBands = null;
@@ -1674,19 +1679,12 @@ public class VisatApp extends BasicApp {
                                         SubProgressMonitor.create(pm, 1));
             productSceneImage = ProductSceneImage.create(rgbBands[0].band, rgbBands[1].band, rgbBands[2].band,
                                                          SubProgressMonitor.create(pm, 1));
-            final RGBImageProfile selectedProfile = profilePane.getSelectedProfile();
-            final String name = selectedProfile != null ? selectedProfile.getName().replace("_", " ") : "";
             productSceneImage.setName(name);
-        } catch (OutOfMemoryError e) {
-            errorOccured = true;
-            showOutOfMemoryErrorDialog("The RGB image view could not be created."); /*I18N*/
         } catch (Exception e) {
             errorOccured = true;
-            handleUnknownException(e);
+            throw e;
         } finally {
             pm.done();
-            getMainFrame().setCursor(Cursor.getDefaultCursor());
-            clearStatusBarMessage();
             if (rgbBands != null) {
                 releaseRgbBands(rgbBands, errorOccured);
             }
