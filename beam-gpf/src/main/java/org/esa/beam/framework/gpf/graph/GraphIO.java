@@ -4,6 +4,8 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.Map;
 
+import org.esa.beam.framework.gpf.internal.ApplicationData;
+
 import com.bc.ceres.util.TemplateReader;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
@@ -113,8 +115,8 @@ public class GraphIO {
         xStream.aliasField("parameters", Node.class, "configuration");
         xStream.registerConverter(new Xpp3DomConverter());
 
-        xStream.alias("appData", ApplicationData.class);
-        xStream.addImplicitCollection(Graph.class, "appData", ApplicationData.class);
+        xStream.alias("applicationData", ApplicationData.class);
+        xStream.addImplicitCollection(Graph.class, "applicationData", ApplicationData.class);
         xStream.registerConverter(new ApplicationData.AppConverter());
         return xStream;
     }

@@ -110,12 +110,12 @@ public class GraphIOTest extends TestCase {
                 "    <operator>Op1</operator>\n" +
                 "    <sources/>\n" +
                 "  </node>\n" +
-                "  <appData appId=\"foo\">\n" +
+                "  <applicationData id=\"foo\">\n" +
                 "    <font>big</font>\n" +
-                "  </appData>\n" +
-                "  <appData appId=\"baz\">\n" +
+                "  </applicationData>\n" +
+                "  <applicationData id=\"baz\">\n" +
                 "    <colour>red</colour>\n" +
-                "  </appData>\n" +
+                "  </applicationData>\n" +
                 "</graph>";
         assertEquals(expectedXML, actualXML);
 
@@ -173,25 +173,25 @@ public class GraphIOTest extends TestCase {
                 "    <sources/>\n" +
                 "  </node>\n" +
                 
-                " <appData appId=\"foo\">\n" +
+                " <applicationData id=\"foo\">\n" +
                 "    <font>Big</font>\n" +
                 "    <colour>red</colour>\n" +
-                " </appData>\n" +
-                " <appData appId=\"bar\">\n" +
+                " </applicationData>\n" +
+                " <applicationData id=\"bar\">\n" +
                 "    <textmode>true</textmode>\n" +
-                " </appData>\n" +
+                " </applicationData>\n" +
                 
                 "</graph>";
         StringReader reader = new StringReader(expectedXML);
         Graph graph = GraphIO.read(reader);
         
-        Xpp3Dom fooData = graph.getAppData("foo");
+        Xpp3Dom fooData = graph.getApplicationData("foo");
         assertNotNull(fooData);
         assertEquals(2, fooData.getChildCount());
         assertEquals("Big", fooData.getChild("font").getValue());
         assertEquals("red", fooData.getChild("colour").getValue());
         
-        Xpp3Dom barData = graph.getAppData("bar");
+        Xpp3Dom barData = graph.getApplicationData("bar");
         assertNotNull(barData);
         assertEquals(1, barData.getChildCount());
         assertEquals("true", barData.getChild("textmode").getValue());

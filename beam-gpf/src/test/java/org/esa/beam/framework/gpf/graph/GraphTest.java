@@ -1,5 +1,7 @@
 package org.esa.beam.framework.gpf.graph;
 
+import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
+
 import junit.framework.TestCase;
 
 public class GraphTest extends TestCase {
@@ -53,6 +55,27 @@ public class GraphTest extends TestCase {
         } catch (IllegalArgumentException e) {
             // expected
         }
+    }
+    
+    public void testapplicationData() throws Exception {
+        Graph graph = new Graph("chain1");
+        assertNull(graph.getApplicationData("foo"));
+        
+        Xpp3Dom xpp3Dom1 = new Xpp3Dom("");
+        Xpp3Dom font = new Xpp3Dom("font");
+        font.setValue("big");
+        xpp3Dom1.addChild(font);
+        graph.setAppData("foo", xpp3Dom1);
+        
+        assertSame(xpp3Dom1, graph.getApplicationData("foo"));
+        
+        Xpp3Dom xpp3Dom2 = new Xpp3Dom("");
+        Xpp3Dom font2 = new Xpp3Dom("font");
+        font2.setValue("small");
+        xpp3Dom2.addChild(font2);
+        graph.setAppData("foo", xpp3Dom2);
+        
+        assertSame(xpp3Dom2, graph.getApplicationData("foo"));
     }
 
 }

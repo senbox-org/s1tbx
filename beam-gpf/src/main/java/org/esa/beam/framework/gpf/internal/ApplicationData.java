@@ -14,7 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package org.esa.beam.framework.gpf.graph;
+package org.esa.beam.framework.gpf.internal;
 
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
@@ -51,7 +51,7 @@ public class ApplicationData {
      * 
      * @return the appId
      */
-    public String getAppId() {
+    public String getId() {
         return appId;
     }
     
@@ -66,12 +66,14 @@ public class ApplicationData {
  
     public static class AppConverter implements Converter {
 
+        private static final String ID_ATTRIBUTE_NAME = "id";
+
         @Override
         public void marshal(Object source, HierarchicalStreamWriter writer,
                 MarshallingContext context) {
             
             ApplicationData applicationData = (ApplicationData) source;
-            writer.addAttribute("appId", applicationData.appId);
+            writer.addAttribute(ID_ATTRIBUTE_NAME, applicationData.appId);
             Xpp3Dom[] children = applicationData.data.getChildren();
             for (Xpp3Dom child : children) {
                 HierarchicalStreamCopier copier = new HierarchicalStreamCopier();
@@ -85,7 +87,7 @@ public class ApplicationData {
                 UnmarshallingContext context) {
             HierarchicalStreamCopier copier = new HierarchicalStreamCopier();
             XppDomWriter xppDomWriter = new XppDomWriter();
-            String appId = reader.getAttribute("appId");
+            String appId = reader.getAttribute(ID_ATTRIBUTE_NAME);
             copier.copy(reader, xppDomWriter);
             Xpp3Dom xpp3Dom = xppDomWriter.getConfiguration();
             return new ApplicationData(appId, xpp3Dom);

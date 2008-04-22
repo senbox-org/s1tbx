@@ -3,6 +3,8 @@ package org.esa.beam.framework.gpf.graph;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.esa.beam.framework.gpf.internal.ApplicationData;
+
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 
 /**
@@ -20,7 +22,7 @@ public class Graph {
     private String version;
     private Header header;
     private List<Node> nodeList;
-    private List<ApplicationData> appData;
+    private List<ApplicationData> applicationData;
 
 
     /**
@@ -132,13 +134,13 @@ public class Graph {
      * Returns the Application data for the given application ID or null,
      * if for this id no application is available.
      * 
-     * @param appId
+     * @param appId the application ID
      * @return the application data as an Xpp3Dom
      */
-    public Xpp3Dom getAppData(String appId) {
-        for (ApplicationData applicationData : appData) {
-            if (applicationData.getAppId().equals(appId)) {
-                return applicationData.getData();
+    public Xpp3Dom getApplicationData(String appId) {
+        for (ApplicationData appData : applicationData) {
+            if (appData.getId().equals(appId)) {
+                return appData.getData();
             }
         }
         return null;
@@ -147,12 +149,18 @@ public class Graph {
     /**
      * Sets the application data for the given ID
      * 
-     * @param appId The application ID.
+     * @param id The application ID.
      * @param data The application data as Xpp3Dom.
      */
-    public void setAppData(String appId, Xpp3Dom data) {
-        ApplicationData applicationData = new ApplicationData(appId, data);
-        this.appData.add(applicationData);
+    public void setAppData(String id, Xpp3Dom data) {
+        for (int i = 0; i < applicationData.size(); i++) {
+            if (applicationData.get(i).getId().equals(id)) {
+                applicationData.remove(i);
+                break;
+            }
+        }
+        ApplicationData appData = new ApplicationData(id, data);
+        this.applicationData.add(appData);
     }
 
     /**
@@ -169,8 +177,8 @@ public class Graph {
         if (this.nodeList == null) {
             this.nodeList = new ArrayList<Node>();
         }
-        if (this.appData == null) {
-            this.appData = new ArrayList<ApplicationData>();
+        if (this.applicationData == null) {
+            this.applicationData = new ArrayList<ApplicationData>();
         }
     }
 }
