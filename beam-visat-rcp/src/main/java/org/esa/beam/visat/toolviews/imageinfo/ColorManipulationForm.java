@@ -45,6 +45,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -79,6 +80,7 @@ class ColorManipulationForm {
     private PaletteEditorForm continuous3BandGraphicalForm;
     private JPanel buttonPane;
     private AbstractButton helpButton;
+    private File ioDir;
 
     public ColorManipulationForm(ColorManipulationToolView colorManipulationToolView) {
         this.toolView = colorManipulationToolView;
@@ -453,17 +455,18 @@ class ColorManipulationForm {
         if (_preferences != null) {
             _preferences.setPropertyString(PREFERENCES_KEY_IO_DIR, dir.getPath());
         }
+        this.ioDir = dir; 
     }
 
     private File getIODir() {
-        File dir = new File(SystemUtils.getApplicationHomeDir(), "beam-ui/auxdata/color-palettes");
-        if (!dir.exists()) {
-            dir.mkdirs();
+        if (ioDir == null) {
+            if (_preferences != null) {
+                ioDir = new File(_preferences.getPropertyString(PREFERENCES_KEY_IO_DIR, getSystemAuxdataDir().getPath()));
+            } else {
+                ioDir = getSystemAuxdataDir();
+            }
         }
-        if (_preferences != null) {
-            dir = new File(_preferences.getPropertyString(PREFERENCES_KEY_IO_DIR, dir.getPath()));
-        }
-        return dir;
+        return ioDir;
     }
 
     private BeamFileFilter getOrCreateColorPaletteDefinitionFileFilter() {
@@ -667,9 +670,9 @@ class ColorManipulationForm {
     }
 
     private void installAuxData() {
-        URL codeSourceUrl = BeamUiActivator.class.getProtectionDomain().getCodeSource().getLocation();
-        final ResourceInstaller resourceInstaller = new ResourceInstaller(codeSourceUrl, "auxdata/color_palettes/",
-                                                                          getIODir());
+        final URL codeSourceUrl = BeamUiActivator.class.getProtectionDomain().getCodeSource().getLocation();
+        final File auxdataDir = getSystemAuxdataDir();
+        final ResourceInstaller resourceInstaller = new ResourceInstaller(codeSourceUrl, "auxdata/color_palettes/", auxdataDir);
         ProgressMonitorSwingWorker swingWorker = new ProgressMonitorSwingWorker(toolView.getPaneControl(), "Installing Auxdata") {
             @Override
             protected Object doInBackground(com.bc.ceres.core.ProgressMonitor progressMonitor) throws Exception {
@@ -677,8 +680,33 @@ class ColorManipulationForm {
                 auxDataInstalled = true;
                 return Boolean.TRUE;
             }
+
+            /**
+             * Executed on the <i>Event Dispatch Thread</i> after the {@code doInBackground}
+             * method is finished. The default
+             * implementation does nothing. Subclasses may override this method to
+             * perform completion actions on the <i>Event Dispatch Thread</i>. Note
+             * that you can query status inside the implementation of this method to
+             * determine the result of this task or whether this task has been cancelled.
+             *
+             * @see #doInBackground
+             * @see #isCancelled()
+             * @see #get
+             */
+            @Override
+            protected void done() {
+                try {
+                    get();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         };
         swingWorker.executeWithBlocking();
+    }
+
+    private File getSystemAuxdataDir() {
+        return new File(SystemUtils.getApplicationUserDir(), "beam-ui/auxdata/color-palettes");
     }
 
 }
