@@ -143,6 +143,11 @@ class Discrete1BandTabularForm implements PaletteEditorForm {
                 return Double.isNaN(point.getSample()) ? "Uncoded" : ""+ (int)point.getSample();
             } else if (columnIndex == 3) {
                 // todo - return abundance percentage
+                if (imageInfo == null
+                        || imageInfo.getHistogramBins() == null
+                        || imageInfo.getHistogramBins().length >= getRowCount()) {
+                    return Double.NaN;
+                }
                 return imageInfo.getHistogramBins()[rowIndex];
             } else {
                 return 0;
