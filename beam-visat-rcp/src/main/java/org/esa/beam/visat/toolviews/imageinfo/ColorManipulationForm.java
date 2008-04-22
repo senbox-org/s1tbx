@@ -45,6 +45,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.logging.Level;
 import java.util.concurrent.ExecutionException;
 
 
@@ -673,7 +674,7 @@ class ColorManipulationForm {
         final URL codeSourceUrl = BeamUiActivator.class.getProtectionDomain().getCodeSource().getLocation();
         final File auxdataDir = getSystemAuxdataDir();
         final ResourceInstaller resourceInstaller = new ResourceInstaller(codeSourceUrl, "auxdata/color_palettes/", auxdataDir);
-        ProgressMonitorSwingWorker swingWorker = new ProgressMonitorSwingWorker(toolView.getPaneControl(), "Installing Auxdata") {
+        ProgressMonitorSwingWorker swingWorker = new ProgressMonitorSwingWorker(toolView.getPaneControl(), "Installing Auxdata...") {
             @Override
             protected Object doInBackground(com.bc.ceres.core.ProgressMonitor progressMonitor) throws Exception {
                 resourceInstaller.install(".*.cpd", progressMonitor);
@@ -698,7 +699,7 @@ class ColorManipulationForm {
                 try {
                     get();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    _visatApp.getLogger().log(Level.SEVERE, "Could not install auxdata", e);
                 }
             }
         };
