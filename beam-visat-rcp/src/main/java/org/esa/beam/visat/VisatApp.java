@@ -1229,12 +1229,12 @@ public class VisatApp extends BasicApp {
         UIUtils.setRootFrameWaitCursor(getMainFrame());
 
         final SwingWorker worker = new ProgressMonitorSwingWorker<ProductSceneImage, Object>(getMainFrame(),
-                                                                                             "Creating single band image") {
+                                                                                             getAppName() + " - Creating image for '"+raster.getName()+"'") {
 
             @Override
             protected ProductSceneImage doInBackground(ProgressMonitor pm) throws Exception {
                 try {
-                    return createProductSceneImage(raster, helpId, pm);
+                    return createProductSceneImage(raster, pm);
                 } finally {
                     if (pm.isCanceled()) {
                         raster.unloadRasterData();
@@ -1299,7 +1299,7 @@ public class VisatApp extends BasicApp {
      */
     public void openProductSceneViewRGB(final Product product, final String helpId) {
         final RGBImageProfilePane profilePane = new RGBImageProfilePane(getPreferences(), product);
-        final boolean ok = profilePane.showDialog(getMainFrame(), "Select RGB-Image Channels", helpId);
+        final boolean ok = profilePane.showDialog(getMainFrame(), getAppName() + " - Select RGB-Image Channels", helpId);
         if (!ok) {
             return;
         }
@@ -1312,11 +1312,11 @@ public class VisatApp extends BasicApp {
         final String name = selectedProfile != null ? selectedProfile.getName().replace("_", " ") : "";
 
         final SwingWorker worker = new ProgressMonitorSwingWorker<ProductSceneImage, Object>(getMainFrame(),
-                                                                                             "Create RGB Image View") {
+                                                                                             getAppName() + " - Creating image for '" + name + "'") {
 
             @Override
             protected ProductSceneImage doInBackground(ProgressMonitor pm) throws Exception {
-                return createProductSceneImageRGB(name, product, rgbaExpressions, helpId, pm);
+                return createProductSceneImageRGB(name, product, rgbaExpressions, pm);
             }
 
             @Override
@@ -1608,7 +1608,7 @@ public class VisatApp extends BasicApp {
         return status;
     }
 
-    private ProductSceneImage createProductSceneImage(final RasterDataNode raster, final String helpId,
+    private ProductSceneImage createProductSceneImage(final RasterDataNode raster,
                                                       ProgressMonitor pm) throws Exception {
         Debug.assertNotNull(raster);
         Debug.assertNotNull(pm);
@@ -1623,8 +1623,8 @@ public class VisatApp extends BasicApp {
         }
 
         ProductSceneImage productSceneImage = null;
-        pm.beginTask("Creating image view...", mustLoadData ? 2 : 1);
         try {
+            pm.beginTask("Creating image...", mustLoadData ? 2 : 1);
             if (mustLoadData) {
                 loadProductRasterDataImpl(raster, SubProgressMonitor.create(pm, 1));
                 if (!raster.hasRasterData()) {
@@ -1667,14 +1667,14 @@ public class VisatApp extends BasicApp {
         private boolean dataLoaded;
     }
 
-    private ProductSceneImage createProductSceneImageRGB(String name, final Product product, String[] rgbaExpressions, final String helpId,
+    private ProductSceneImage createProductSceneImageRGB(String name, final Product product, String[] rgbaExpressions,
                                                          ProgressMonitor pm) throws Exception {
         getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        pm.beginTask("Creating RGB image view...", 2);
         RGBBand[] rgbBands = null;
         boolean errorOccured = false;
         ProductSceneImage productSceneImage = null;
         try {
+            pm.beginTask("Creating RGB image...", 2);
             rgbBands = allocateRgbBands(product, rgbaExpressions, getDataAutoLoadLimit(),
                                         SubProgressMonitor.create(pm, 1));
             productSceneImage = ProductSceneImage.create(rgbBands[0].band, rgbBands[1].band, rgbBands[2].band,
