@@ -12,7 +12,8 @@
     <changelog>
         <![CDATA[
         Changes in 4.2<br>
-        [BEAM-810] Provide VISAT application framework
+        [BEAM-812] Closing product causes Exception in ScatterPlot<br>
+        [BEAM-810] Provide VISAT application framework<br>
         [BEAM-797] Colour manipulation for index and non-index bands<br>
         [BEAM-787] C-Function code for x approximation is printed twice<br>
         [BEAM-735] Not able to orthorectify MERIS_FRS products<br>

@@ -109,7 +109,6 @@ class ScatterPlotPanel extends PagePanel {
             rasterNameParams[var].setValue(rasterName, null);
         } else {
             rasterNameParams[var].getProperties().setValueSet(new String[0]);
-            rasterNameParams[var].setValue("", null);
         }
 
         if ((Boolean) autoMinMaxParams[var].getValue()) {
