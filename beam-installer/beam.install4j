@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<install4j version="4.0.8" transformSequenceNumber="1">
+<install4j version="4.1.1" transformSequenceNumber="2">
   <directoryPresets config="./src/main/resources/images" />
-  <application name="BEAM" distributionSourceDir="" applicationId="2648-9058-9483-8098" mediaDir="../target/installers" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" keepModificationTimes="true" shortName="beam" publisher="Brockmann Consult" publisherWeb="http://www.brockmann-consult.de" version="4.2-20080304" allPathsRelative="true" backupOnSave="true" autoSave="true" convertDotsToUnderscores="false" macSignature="????" javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="true">
+  <application name="BEAM" distributionSourceDir="" applicationId="2648-9058-9483-8098" mediaDir="../target/installers" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" keepModificationTimes="true" shortName="beam" publisher="Brockmann Consult" publisherWeb="http://www.brockmann-consult.de" version="4.2-20080429" allPathsRelative="true" backupOnSave="true" autoSave="true" convertDotsToUnderscores="false" macSignature="????" javaMinVersion="1.6" javaMaxVersion="" allowBetaVM="true" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false">
       <principalLanguage id="en" customLocalizationFile="" />
       <additionalLanguages />
@@ -14,6 +14,7 @@
     <variables />
   </application>
   <files>
+    <filesets />
     <roots />
     <mountPoints>
       <mountPoint id="17" root="" location="" mode="755" />
@@ -27,11 +28,11 @@
     <components />
   </files>
   <launchers>
-    <launcher name="visat" id="19" external="false" excludeFromMenu="false" menuName="VISAT" icnsFile="" pngIcon16File="./src/main/resources/images/beam-icon-16.png" pngIcon32File="./src/main/resources/images/visat-icon-32.png" macServiceDependencies="" swtApp="false">
+    <launcher name="visat" id="19" external="false" excludeFromMenu="false" menuName="VISAT" icnsFile="" pngIcon16File="./src/main/resources/images/beam-icon-16.png" pngIcon32File="./src/main/resources/images/visat-icon-32.png" macServiceDependencies="" swtApp="false" fileset="">
       <executable name="visat" type="1" iconSet="true" iconFile="" executableDir="bin" redirectStderr="true" stderrFile="error.log" redirectStdout="false" stdoutFile="output.log" failOnStderrOutput="true" executableMode="1" changeWorkingDirectory="true" workingDirectory=".." singleInstance="false" serviceStartType="2" serviceDependencies="" serviceDescription="" jreLocation="" executionLevel="asInvoker">
         <versionInfo include="false" fileVersion="" fileDescription="" legalCopyright="" internalName="" />
       </executable>
-      <splashScreen show="false" autoOff="true" alwaysOnTop="true" width="653" height="195" bitmapFile="../target/beam-installer-files/bin/splash.png">
+      <splashScreen show="false" autoOff="true" alwaysOnTop="true" width="653" height="195" bitmapFile="../target/beam-installer-files/bin/splash.png" java6SplashScreen="false">
         <text>
           <statusLine x="20" y="20" text="" font="Arial" fontSize="8" fontColor="0,0,0" fontWeight="500" />
           <versionLine x="20" y="40" text="version ${compiler:sys.version}" font="Arial" fontSize="8" fontColor="0,0,0" fontWeight="500" />
@@ -50,672 +51,727 @@
       </customScript>
     </launcher>
   </launchers>
-  <installerGui installerType="1" suggestPreviousProgramGroup="true" addOnAppId="" suggestPreviousLocations="true" allowUnattended="true" allowConsole="true" useCustomInstallerHeaderImage="true" customInstallerHeaderImage="./src/main/resources/images/beam-installer.png" useCustomUninstallerHeaderImage="true" customUninstallerHeaderImage="./src/main/resources/images/beam-installer.png" customSize="false" customWidth="500" customHeight="390" useCustomIcon="false" customIcnsFile="" customPngIcon16File="./images/beam-icon-16.png" customPngIcon32File="./images/beam-icon-32.png" customIcoFile="" vmParameters="" watermark="true" resizable="true" suppressProgressDialog="false">
+  <installerGui installerType="1" suggestPreviousProgramGroup="true" addOnAppId="" suggestPreviousLocations="true">
     <customCode useInstalledFiles="false">
       <directory location="./target/classes" />
     </customCode>
-    <installerScreens>
-      <screen name="" id="1" beanClass="com.install4j.runtime.beans.screens.WelcomeScreen" rollbackBarrier="false" backButton="2" finishScreen="false">
+    <applications>
+      <application name="" id="installer" beanClass="com.install4j.runtime.beans.applications.InstallerApplication" enabled="true" commentSet="false" comment="" customIcnsFile="" customIcoFile="">
         <serializedBean>
           <java class="java.beans.XMLDecoder">
-            <object class="com.install4j.runtime.beans.screens.WelcomeScreen" />
-          </java>
-        </serializedBean>
-        <condition />
-        <validation />
-        <actions />
-        <formComponents />
-      </screen>
-      <screen name="" id="1342" beanClass="com.install4j.runtime.beans.screens.LicenseScreen" rollbackBarrier="false" backButton="2" finishScreen="false">
-        <serializedBean>
-          <java class="java.beans.XMLDecoder">
-            <object class="com.install4j.runtime.beans.screens.LicenseScreen">
-              <void property="acceptInitiallySelected">
-                <boolean>true</boolean>
-              </void>
-              <void property="displayedTextFile">
+            <object class="com.install4j.runtime.beans.applications.InstallerApplication">
+              <void property="customHeaderImage">
                 <object class="com.install4j.api.beans.ExternalFile">
-                  <string>./src/main/resources/gpl.html</string>
+                  <string>./src/main/resources/images/beam-installer.png</string>
                 </object>
               </void>
             </object>
           </java>
         </serializedBean>
-        <condition />
-        <validation />
-        <actions />
-        <formComponents />
-      </screen>
-      <screen name="" id="2" beanClass="com.install4j.runtime.beans.screens.InstallationDirectoryScreen" rollbackBarrier="false" backButton="2" finishScreen="false">
-        <serializedBean>
-          <java class="java.beans.XMLDecoder">
-            <object class="com.install4j.runtime.beans.screens.InstallationDirectoryScreen" />
-          </java>
-        </serializedBean>
-        <condition />
-        <validation />
-        <actions />
-        <formComponents />
-      </screen>
-      <screen name="" id="3" beanClass="com.install4j.runtime.beans.screens.ComponentsScreen" rollbackBarrier="false" backButton="2" finishScreen="false">
-        <serializedBean>
-          <java class="java.beans.XMLDecoder">
-            <object class="com.install4j.runtime.beans.screens.ComponentsScreen" />
-          </java>
-        </serializedBean>
-        <condition />
-        <validation />
-        <actions />
-        <formComponents />
-      </screen>
-      <screen name="" id="4" beanClass="com.install4j.runtime.beans.screens.StandardProgramGroupScreen" rollbackBarrier="false" backButton="2" finishScreen="false">
-        <serializedBean>
-          <java class="java.beans.XMLDecoder">
-            <object class="com.install4j.runtime.beans.screens.StandardProgramGroupScreen">
-              <void property="allowUserChangeEnabled">
-                <boolean>false</boolean>
-              </void>
-            </object>
-          </java>
-        </serializedBean>
-        <condition />
-        <validation />
-        <actions />
-        <formComponents />
-      </screen>
-      <screen name="" id="5" beanClass="com.install4j.runtime.beans.screens.InstallationScreen" rollbackBarrier="true" backButton="2" finishScreen="false">
-        <serializedBean>
-          <java class="java.beans.XMLDecoder">
-            <object class="com.install4j.runtime.beans.screens.InstallationScreen" />
-          </java>
-        </serializedBean>
-        <condition />
-        <validation />
-        <actions>
-          <action name="" id="6" beanClass="com.install4j.runtime.beans.actions.InstallFilesAction" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+        <startup>
+          <screen name="" id="15" beanClass="com.install4j.runtime.beans.screens.StartupScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="false">
             <serializedBean>
               <java class="java.beans.XMLDecoder">
-                <object class="com.install4j.runtime.beans.actions.InstallFilesAction" />
+                <object class="com.install4j.runtime.beans.screens.StartupScreen" />
               </java>
             </serializedBean>
             <condition />
-          </action>
-          <action name="" id="240" beanClass="com.install4j.runtime.beans.actions.control.SetVariableAction" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+            <validation />
+            <preActivation />
+            <postActivation />
+            <actions />
+            <formComponents />
+          </screen>
+        </startup>
+        <screens>
+          <screen name="" id="1" beanClass="com.install4j.runtime.beans.screens.WelcomeScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="false">
             <serializedBean>
               <java class="java.beans.XMLDecoder">
-                <object class="com.install4j.runtime.beans.actions.control.SetVariableAction">
-                  <void property="script">
-                    <object class="com.install4j.api.beans.ScriptProperty">
-                      <void property="value">
-                        <string>Math.min(1023, SystemInfo.getPhysicalMemory() / 1024 / 1024) +
-                                                    "M"</string>
-                      </void>
+                <object class="com.install4j.runtime.beans.screens.WelcomeScreen" />
+              </java>
+            </serializedBean>
+            <condition />
+            <validation />
+            <preActivation />
+            <postActivation />
+            <actions />
+            <formComponents />
+          </screen>
+          <screen name="" id="1342" beanClass="com.install4j.runtime.beans.screens.LicenseScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="false">
+            <serializedBean>
+              <java class="java.beans.XMLDecoder">
+                <object class="com.install4j.runtime.beans.screens.LicenseScreen">
+                  <void property="acceptInitiallySelected">
+                    <boolean>true</boolean>
+                  </void>
+                  <void property="displayedTextFile">
+                    <object class="com.install4j.api.beans.ExternalFile">
+                      <string>./src/main/resources/gpl.html</string>
                     </object>
                   </void>
-                  <void property="variableName">
-                    <string>maxHeapSize</string>
+                </object>
+              </java>
+            </serializedBean>
+            <condition />
+            <validation />
+            <preActivation />
+            <postActivation />
+            <actions />
+            <formComponents />
+          </screen>
+          <screen name="" id="2" beanClass="com.install4j.runtime.beans.screens.InstallationDirectoryScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="false">
+            <serializedBean>
+              <java class="java.beans.XMLDecoder">
+                <object class="com.install4j.runtime.beans.screens.InstallationDirectoryScreen" />
+              </java>
+            </serializedBean>
+            <condition />
+            <validation />
+            <preActivation />
+            <postActivation />
+            <actions />
+            <formComponents />
+          </screen>
+          <screen name="" id="3" beanClass="com.install4j.runtime.beans.screens.ComponentsScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="false">
+            <serializedBean>
+              <java class="java.beans.XMLDecoder">
+                <object class="com.install4j.runtime.beans.screens.ComponentsScreen" />
+              </java>
+            </serializedBean>
+            <condition />
+            <validation />
+            <preActivation />
+            <postActivation />
+            <actions />
+            <formComponents />
+          </screen>
+          <screen name="" id="4" beanClass="com.install4j.runtime.beans.screens.StandardProgramGroupScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="false">
+            <serializedBean>
+              <java class="java.beans.XMLDecoder">
+                <object class="com.install4j.runtime.beans.screens.StandardProgramGroupScreen">
+                  <void property="allowUserChangeEnabled">
+                    <boolean>false</boolean>
                   </void>
                 </object>
               </java>
             </serializedBean>
             <condition />
-          </action>
-          <action name="" id="238" beanClass="com.install4j.runtime.beans.actions.misc.AddVmOptionsAction" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+            <validation />
+            <preActivation />
+            <postActivation />
+            <actions />
+            <formComponents />
+          </screen>
+          <screen name="" id="5" beanClass="com.install4j.runtime.beans.screens.InstallationScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="true" backButton="2" finishScreen="false">
             <serializedBean>
               <java class="java.beans.XMLDecoder">
-                <object class="com.install4j.runtime.beans.actions.misc.AddVmOptionsAction">
-                  <void property="launcherId">
-                    <string>19</string>
-                  </void>
-                  <void property="vmOptions">
-                    <array class="java.lang.String" length="4">
-                      <void index="0">
-                        <string>-Xmx${installer:maxHeapSize}</string>
-                      </void>
-                      <void index="1">
-                        <string>-Dbeam.home=${installer:sys.installationDir}</string>
-                      </void>
-                      <void index="2">
-                        <string>-Dbeam.splash.image=${installer:sys.installationDir}/bin/splash.png</string>
-                      </void>
-                      <void index="3">
-                        <string />
-                      </void>
-                    </array>
-                  </void>
-                </object>
+                <object class="com.install4j.runtime.beans.screens.InstallationScreen" />
               </java>
             </serializedBean>
             <condition />
-          </action>
-          <action name="" id="7" beanClass="com.install4j.runtime.beans.actions.desktop.CreateProgramGroupAction" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
-            <serializedBean>
-              <java class="java.beans.XMLDecoder">
-                <object class="com.install4j.runtime.beans.actions.desktop.CreateProgramGroupAction">
-                  <void property="programGroupEntryConfigs">
-                    <void method="add">
-                      <object class="com.install4j.runtime.beans.screens.components.ProgramGroupEntryConfig">
-                        <void property="name">
-                          <string>BEAM Website</string>
-                        </void>
-                        <void property="target">
-                          <object class="java.io.File">
-                            <string>beam-website.url</string>
+            <validation />
+            <preActivation />
+            <postActivation />
+            <actions>
+              <action name="" id="6" beanClass="com.install4j.runtime.beans.actions.InstallFilesAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.InstallFilesAction" />
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+              <action name="" id="240" beanClass="com.install4j.runtime.beans.actions.control.SetVariableAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.control.SetVariableAction">
+                      <void property="script">
+                        <object class="com.install4j.api.beans.ScriptProperty">
+                          <void property="value">
+                            <string>Math.min(1023, SystemInfo.getPhysicalMemory() / 1024 / 1024) +
+                                                    "M"</string>
+                          </void>
+                        </object>
+                      </void>
+                      <void property="variableName">
+                        <string>maxHeapSize</string>
+                      </void>
+                    </object>
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+              <action name="" id="238" beanClass="com.install4j.runtime.beans.actions.misc.AddVmOptionsAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.misc.AddVmOptionsAction">
+                      <void property="launcherId">
+                        <string>19</string>
+                      </void>
+                      <void property="vmOptions">
+                        <array class="java.lang.String" length="4">
+                          <void index="0">
+                            <string>-Xmx${installer:maxHeapSize}</string>
+                          </void>
+                          <void index="1">
+                            <string>-Dbeam.home=${installer:sys.installationDir}</string>
+                          </void>
+                          <void index="2">
+                            <string>-Dbeam.splash.image=${installer:sys.installationDir}/bin/splash.png</string>
+                          </void>
+                          <void index="3">
+                            <string />
+                          </void>
+                        </array>
+                      </void>
+                    </object>
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+              <action name="" id="7" beanClass="com.install4j.runtime.beans.actions.desktop.CreateProgramGroupAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.desktop.CreateProgramGroupAction">
+                      <void property="programGroupEntryConfigs">
+                        <void method="add">
+                          <object class="com.install4j.runtime.beans.screens.components.ProgramGroupEntryConfig">
+                            <void property="name">
+                              <string>BEAM Website</string>
+                            </void>
+                            <void property="target">
+                              <object class="java.io.File">
+                                <string>beam-website.url</string>
+                              </object>
+                            </void>
                           </object>
                         </void>
-                      </object>
-                    </void>
-                  </void>
-                  <void property="programGroupName">
-                    <string>beam-4.1</string>
-                  </void>
-                </object>
-              </java>
-            </serializedBean>
-            <condition />
-          </action>
-          <action name="" id="4356" beanClass="com.install4j.runtime.beans.actions.desktop.CreateStartMenuEntryAction" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
-            <serializedBean>
-              <java class="java.beans.XMLDecoder">
-                <object class="com.install4j.runtime.beans.actions.desktop.CreateStartMenuEntryAction">
-                  <void property="arguments">
-                    <string>/K ${installer:sys.installationDir}\bin\beam-cli.bat</string>
-                  </void>
-                  <void property="entryName">
-                    <string>${installer:sys.programGroupDir}\Command Line</string>
-                  </void>
-                  <void property="file">
-                    <object class="java.io.File">
-                      <string>${installer:sys.system32Dir}/cmd.exe</string>
+                      </void>
+                      <void property="programGroupName">
+                        <string>beam-4.1</string>
+                      </void>
                     </object>
-                  </void>
-                </object>
-              </java>
-            </serializedBean>
-            <condition>Util.isWindowsInstaller()</condition>
-          </action>
-          <action name="" id="4354" beanClass="com.bc.install4j.ScriptPatcherAction" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
-            <serializedBean>
-              <java class="java.beans.XMLDecoder">
-                <object class="com.bc.install4j.ScriptPatcherAction" />
-              </java>
-            </serializedBean>
-            <condition />
-          </action>
-          <action name="" id="4152" beanClass="com.install4j.runtime.beans.actions.files.SetModeAction" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
-            <serializedBean>
-              <java class="java.beans.XMLDecoder">
-                <object class="com.install4j.runtime.beans.actions.files.SetModeAction">
-                  <void property="file">
-                    <object class="java.io.File">
-                      <string>bin</string>
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+              <action name="" id="4356" beanClass="com.install4j.runtime.beans.actions.desktop.CreateStartMenuEntryAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.desktop.CreateStartMenuEntryAction">
+                      <void property="arguments">
+                        <string>/K ${installer:sys.installationDir}\bin\beam-cli.bat</string>
+                      </void>
+                      <void property="entryName">
+                        <string>${installer:sys.programGroupDir}\Command Line</string>
+                      </void>
+                      <void property="file">
+                        <object class="java.io.File">
+                          <string>${installer:sys.system32Dir}/cmd.exe</string>
+                        </object>
+                      </void>
                     </object>
-                  </void>
-                  <void property="mode">
-                    <string>775</string>
-                  </void>
-                  <void property="recursive">
-                    <boolean>true</boolean>
-                  </void>
-                </object>
-              </java>
-            </serializedBean>
-            <condition />
-          </action>
-          <action name="" id="8" beanClass="com.install4j.runtime.beans.actions.desktop.RegisterAddRemoveAction" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
-            <serializedBean>
-              <java class="java.beans.XMLDecoder">
-                <object class="com.install4j.runtime.beans.actions.desktop.RegisterAddRemoveAction">
-                  <void property="itemName">
-                    <string>BEAM 4.2-20080118</string>
-                  </void>
-                </object>
-              </java>
-            </serializedBean>
-            <condition />
-          </action>
-        </actions>
-        <formComponents />
-      </screen>
-      <screen name="" id="1111" beanClass="com.install4j.runtime.beans.screens.FileAssociationsScreen" rollbackBarrier="false" backButton="2" finishScreen="false">
-        <serializedBean>
-          <java class="java.beans.XMLDecoder">
-            <object class="com.install4j.runtime.beans.screens.FileAssociationsScreen" />
-          </java>
-        </serializedBean>
-        <condition />
-        <validation />
-        <actions>
-          <action name="" id="1344" beanClass="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
-            <serializedBean>
-              <java class="java.beans.XMLDecoder">
-                <object class="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction">
-                  <void property="description">
-                    <string>BEAM-DIMAP data file</string>
-                  </void>
-                  <void property="extension">
-                    <string>dim</string>
-                  </void>
-                  <void property="launcherId">
-                    <string>19</string>
-                  </void>
-                  <void property="windowsIconFile">
-                    <object class="com.install4j.api.beans.ExternalFile">
-                      <string>./src/main/resources/images/dim-icon-32.ico</string>
+                  </java>
+                </serializedBean>
+                <condition>Util.isWindowsInstaller()</condition>
+              </action>
+              <action name="" id="4354" beanClass="com.bc.install4j.ScriptPatcherAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.bc.install4j.ScriptPatcherAction" />
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+              <action name="" id="4152" beanClass="com.install4j.runtime.beans.actions.files.SetModeAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.files.SetModeAction">
+                      <void property="file">
+                        <object class="java.io.File">
+                          <string>bin</string>
+                        </object>
+                      </void>
+                      <void property="mode">
+                        <string>775</string>
+                      </void>
+                      <void property="recursive">
+                        <boolean>true</boolean>
+                      </void>
                     </object>
-                  </void>
-                </object>
-              </java>
-            </serializedBean>
-            <condition />
-          </action>
-          <action name="" id="1345" beanClass="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
-            <serializedBean>
-              <java class="java.beans.XMLDecoder">
-                <object class="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction">
-                  <void property="description">
-                    <string>ENVISAT data file</string>
-                  </void>
-                  <void property="extension">
-                    <string>N1</string>
-                  </void>
-                  <void property="launcherId">
-                    <string>19</string>
-                  </void>
-                  <void property="windowsIconFile">
-                    <object class="com.install4j.api.beans.ExternalFile">
-                      <string>./src/main/resources/images/n1-icon-32.ico</string>
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+              <action name="" id="8" beanClass="com.install4j.runtime.beans.actions.desktop.RegisterAddRemoveAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.desktop.RegisterAddRemoveAction">
+                      <void property="itemName">
+                        <string>BEAM 4.2-20080118</string>
+                      </void>
                     </object>
-                  </void>
-                </object>
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+            </actions>
+            <formComponents />
+          </screen>
+          <screen name="" id="1111" beanClass="com.install4j.runtime.beans.screens.FileAssociationsScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="false">
+            <serializedBean>
+              <java class="java.beans.XMLDecoder">
+                <object class="com.install4j.runtime.beans.screens.FileAssociationsScreen" />
               </java>
             </serializedBean>
             <condition />
-          </action>
-          <action name="" id="2310" beanClass="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
-            <serializedBean>
-              <java class="java.beans.XMLDecoder">
-                <object class="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction">
-                  <void property="description">
-                    <string>ERS-1 data file</string>
-                  </void>
-                  <void property="extension">
-                    <string>E1</string>
-                  </void>
-                  <void property="launcherId">
-                    <string>19</string>
-                  </void>
-                  <void property="selected">
-                    <boolean>false</boolean>
-                  </void>
-                  <void property="windowsIconFile">
-                    <object class="com.install4j.api.beans.ExternalFile">
-                      <string>./src/main/resources/images/visat.ico</string>
+            <validation />
+            <preActivation />
+            <postActivation />
+            <actions>
+              <action name="" id="1344" beanClass="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction">
+                      <void property="description">
+                        <string>BEAM-DIMAP data file</string>
+                      </void>
+                      <void property="extension">
+                        <string>dim</string>
+                      </void>
+                      <void property="launcherId">
+                        <string>19</string>
+                      </void>
+                      <void property="windowsIconFile">
+                        <object class="com.install4j.api.beans.ExternalFile">
+                          <string>./src/main/resources/images/dim-icon-32.ico</string>
+                        </object>
+                      </void>
                     </object>
-                  </void>
-                </object>
-              </java>
-            </serializedBean>
-            <condition />
-          </action>
-          <action name="" id="2311" beanClass="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
-            <serializedBean>
-              <java class="java.beans.XMLDecoder">
-                <object class="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction">
-                  <void property="description">
-                    <string>ERS-2 data file</string>
-                  </void>
-                  <void property="extension">
-                    <string>E2</string>
-                  </void>
-                  <void property="launcherId">
-                    <string>19</string>
-                  </void>
-                  <void property="selected">
-                    <boolean>false</boolean>
-                  </void>
-                  <void property="windowsIconFile">
-                    <object class="com.install4j.api.beans.ExternalFile">
-                      <string>./src/main/resources/images/visat.ico</string>
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+              <action name="" id="1345" beanClass="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction">
+                      <void property="description">
+                        <string>ENVISAT data file</string>
+                      </void>
+                      <void property="extension">
+                        <string>N1</string>
+                      </void>
+                      <void property="launcherId">
+                        <string>19</string>
+                      </void>
+                      <void property="windowsIconFile">
+                        <object class="com.install4j.api.beans.ExternalFile">
+                          <string>./src/main/resources/images/n1-icon-32.ico</string>
+                        </object>
+                      </void>
                     </object>
-                  </void>
-                </object>
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+              <action name="" id="2310" beanClass="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction">
+                      <void property="description">
+                        <string>ERS-1 data file</string>
+                      </void>
+                      <void property="extension">
+                        <string>E1</string>
+                      </void>
+                      <void property="launcherId">
+                        <string>19</string>
+                      </void>
+                      <void property="selected">
+                        <boolean>false</boolean>
+                      </void>
+                      <void property="windowsIconFile">
+                        <object class="com.install4j.api.beans.ExternalFile">
+                          <string>./src/main/resources/images/visat.ico</string>
+                        </object>
+                      </void>
+                    </object>
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+              <action name="" id="2311" beanClass="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.desktop.CreateFileAssociationAction">
+                      <void property="description">
+                        <string>ERS-2 data file</string>
+                      </void>
+                      <void property="extension">
+                        <string>E2</string>
+                      </void>
+                      <void property="launcherId">
+                        <string>19</string>
+                      </void>
+                      <void property="selected">
+                        <boolean>false</boolean>
+                      </void>
+                      <void property="windowsIconFile">
+                        <object class="com.install4j.api.beans.ExternalFile">
+                          <string>./src/main/resources/images/visat.ico</string>
+                        </object>
+                      </void>
+                    </object>
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+            </actions>
+            <formComponents />
+          </screen>
+          <screen name="" id="9" beanClass="com.install4j.runtime.beans.screens.FinishedScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="true">
+            <serializedBean>
+              <java class="java.beans.XMLDecoder">
+                <object class="com.install4j.runtime.beans.screens.FinishedScreen" />
               </java>
             </serializedBean>
             <condition />
-          </action>
-        </actions>
-        <formComponents />
-      </screen>
-      <screen name="" id="9" beanClass="com.install4j.runtime.beans.screens.FinishedScreen" rollbackBarrier="false" backButton="2" finishScreen="true">
-        <serializedBean>
-          <java class="java.beans.XMLDecoder">
-            <object class="com.install4j.runtime.beans.screens.FinishedScreen" />
-          </java>
-        </serializedBean>
-        <condition />
-        <validation />
-        <actions>
-          <action name="" id="3743" beanClass="com.install4j.runtime.beans.actions.finish.ExecuteLauncherAction" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
-            <serializedBean>
-              <java class="java.beans.XMLDecoder">
-                <object class="com.install4j.runtime.beans.actions.finish.ExecuteLauncherAction">
-                  <void property="launcherId">
-                    <string>19</string>
-                  </void>
-                </object>
-              </java>
-            </serializedBean>
-            <condition>context.getBooleanVariable("executeLauncherAction") &amp;&amp;
+            <validation />
+            <preActivation />
+            <postActivation />
+            <actions>
+              <action name="" id="3743" beanClass="com.install4j.runtime.beans.actions.finish.ExecuteLauncherAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.finish.ExecuteLauncherAction">
+                      <void property="launcherId">
+                        <string>19</string>
+                      </void>
+                    </object>
+                  </java>
+                </serializedBean>
+                <condition>context.getBooleanVariable("executeLauncherAction") &amp;&amp;
                             (!context.isUnattended())</condition>
-          </action>
-        </actions>
-        <formComponents>
-          <formComponent name="Execute launcher" id="3744" beanClass="com.install4j.runtime.beans.formcomponents.CheckboxComponent" insetTop="" insetLeft="" insetBottom="" insetRight="" resetInitOnPrevious="false">
-            <serializedBean>
-              <java class="java.beans.XMLDecoder">
-                <object class="com.install4j.runtime.beans.formcomponents.CheckboxComponent">
-                  <void property="checkboxText">
-                    <string>Run BEAM</string>
-                  </void>
-                  <void property="initiallySelected">
-                    <boolean>true</boolean>
-                  </void>
-                  <void property="variableName">
-                    <string>executeLauncherAction</string>
-                  </void>
-                </object>
-              </java>
-            </serializedBean>
-            <initScript />
-          </formComponent>
-          <formComponent name="" id="4015" beanClass="com.install4j.runtime.beans.formcomponents.HyperlinkLabelComponent" insetTop="" insetLeft="" insetBottom="" insetRight="" resetInitOnPrevious="false">
-            <serializedBean>
-              <java class="java.beans.XMLDecoder">
-                <object class="com.install4j.runtime.beans.formcomponents.HyperlinkLabelComponent">
-                  <void property="hyperlinkText">
-                    <string>Visit the BEAM project website!</string>
-                  </void>
-                  <void property="url">
-                    <string>http://envisat.esa.int/beam</string>
-                  </void>
-                </object>
-              </java>
-            </serializedBean>
-            <initScript />
-          </formComponent>
-        </formComponents>
-      </screen>
-    </installerScreens>
-    <uninstallerScreens>
-      <screen name="" id="10" beanClass="com.install4j.runtime.beans.screens.UninstallWelcomeScreen" rollbackBarrier="false" backButton="2" finishScreen="false">
+              </action>
+            </actions>
+            <formComponents>
+              <formComponent name="Execute launcher" id="3744" beanClass="com.install4j.runtime.beans.formcomponents.CheckboxComponent" enabled="true" commentSet="false" comment="" insetTop="" insetLeft="" insetBottom="" insetRight="" resetInitOnPrevious="false">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.formcomponents.CheckboxComponent">
+                      <void property="checkboxText">
+                        <string>Run BEAM</string>
+                      </void>
+                      <void property="initiallySelected">
+                        <boolean>true</boolean>
+                      </void>
+                      <void property="variableName">
+                        <string>executeLauncherAction</string>
+                      </void>
+                    </object>
+                  </java>
+                </serializedBean>
+                <initScript />
+              </formComponent>
+              <formComponent name="" id="4015" beanClass="com.install4j.runtime.beans.formcomponents.HyperlinkLabelComponent" enabled="true" commentSet="false" comment="" insetTop="" insetLeft="" insetBottom="" insetRight="" resetInitOnPrevious="false">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.formcomponents.HyperlinkLabelComponent">
+                      <void property="hyperlinkText">
+                        <string>Visit the BEAM project website!</string>
+                      </void>
+                      <void property="url">
+                        <string>http://envisat.esa.int/beam</string>
+                      </void>
+                    </object>
+                  </java>
+                </serializedBean>
+                <initScript />
+              </formComponent>
+            </formComponents>
+          </screen>
+        </screens>
+      </application>
+      <application name="" id="uninstaller" beanClass="com.install4j.runtime.beans.applications.UninstallerApplication" enabled="true" commentSet="false" comment="" customIcnsFile="" customIcoFile="">
         <serializedBean>
           <java class="java.beans.XMLDecoder">
-            <object class="com.install4j.runtime.beans.screens.UninstallWelcomeScreen" />
+            <object class="com.install4j.runtime.beans.applications.UninstallerApplication">
+              <void property="customHeaderImage">
+                <object class="com.install4j.api.beans.ExternalFile">
+                  <string>./src/main/resources/images/beam-installer.png</string>
+                </object>
+              </void>
+            </object>
           </java>
         </serializedBean>
-        <condition />
-        <validation />
-        <actions />
-        <formComponents />
-      </screen>
-      <screen name="" id="11" beanClass="com.install4j.runtime.beans.screens.UninstallationScreen" rollbackBarrier="false" backButton="2" finishScreen="false">
-        <serializedBean>
-          <java class="java.beans.XMLDecoder">
-            <object class="com.install4j.runtime.beans.screens.UninstallationScreen" />
-          </java>
-        </serializedBean>
-        <condition />
-        <validation />
-        <actions>
-          <action name="" id="12" beanClass="com.install4j.runtime.beans.actions.UninstallFilesAction" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+        <startup>
+          <screen name="" id="16" beanClass="com.install4j.runtime.beans.screens.StartupScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="false">
             <serializedBean>
               <java class="java.beans.XMLDecoder">
-                <object class="com.install4j.runtime.beans.actions.UninstallFilesAction" />
+                <object class="com.install4j.runtime.beans.screens.StartupScreen" />
               </java>
             </serializedBean>
             <condition />
-          </action>
-          <action name="" id="4172" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+            <validation />
+            <preActivation />
+            <postActivation />
+            <actions />
+            <formComponents />
+          </screen>
+        </startup>
+        <screens>
+          <screen name="" id="10" beanClass="com.install4j.runtime.beans.screens.UninstallWelcomeScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="false">
             <serializedBean>
               <java class="java.beans.XMLDecoder">
-                <object class="com.install4j.runtime.beans.actions.files.DeleteFileAction">
-                  <void property="file">
-                    <object class="java.io.File">
-                      <string>${installer:sys.installationDir}/modules</string>
-                    </object>
-                  </void>
-                  <void property="recurse">
-                    <boolean>true</boolean>
-                  </void>
-                </object>
+                <object class="com.install4j.runtime.beans.screens.UninstallWelcomeScreen" />
               </java>
             </serializedBean>
             <condition />
-          </action>
-        </actions>
-        <formComponents />
-      </screen>
-      <screen name="" id="4173" beanClass="com.install4j.runtime.beans.screens.AdditionalConfirmationsScreen" rollbackBarrier="false" backButton="2" finishScreen="false">
-        <serializedBean>
-          <java class="java.beans.XMLDecoder">
-            <object class="com.install4j.runtime.beans.screens.AdditionalConfirmationsScreen" />
-          </java>
-        </serializedBean>
-        <condition />
-        <validation />
-        <actions>
-          <action name="" id="4177" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage=" Failed to remove BEAM application data.">
+            <validation />
+            <preActivation />
+            <postActivation />
+            <actions />
+            <formComponents />
+          </screen>
+          <screen name="" id="11" beanClass="com.install4j.runtime.beans.screens.UninstallationScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="false">
             <serializedBean>
               <java class="java.beans.XMLDecoder">
-                <object class="com.install4j.runtime.beans.actions.files.DeleteFileAction">
-                  <void property="file">
-                    <object class="java.io.File">
-                      <string>${installer:sys.userHome}/.beam</string>
+                <object class="com.install4j.runtime.beans.screens.UninstallationScreen" />
+              </java>
+            </serializedBean>
+            <condition />
+            <validation />
+            <preActivation />
+            <postActivation />
+            <actions>
+              <action name="" id="12" beanClass="com.install4j.runtime.beans.actions.UninstallFilesAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.UninstallFilesAction" />
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+              <action name="" id="4172" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage="">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.files.DeleteFileAction">
+                      <void property="file">
+                        <object class="java.io.File">
+                          <string>${installer:sys.installationDir}/modules</string>
+                        </object>
+                      </void>
+                      <void property="recurse">
+                        <boolean>true</boolean>
+                      </void>
                     </object>
-                  </void>
-                  <void property="recurse">
-                    <boolean>true</boolean>
-                  </void>
-                </object>
-              </java>
-            </serializedBean>
-            <condition>context.getBooleanVariable("removeAppData")</condition>
-          </action>
-        </actions>
-        <formComponents>
-          <formComponent name="" id="4174" beanClass="com.install4j.runtime.beans.formcomponents.CheckboxComponent" insetTop="" insetLeft="" insetBottom="" insetRight="" resetInitOnPrevious="false">
+                  </java>
+                </serializedBean>
+                <condition />
+              </action>
+            </actions>
+            <formComponents />
+          </screen>
+          <screen name="" id="4173" beanClass="com.install4j.runtime.beans.screens.AdditionalConfirmationsScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="false">
             <serializedBean>
               <java class="java.beans.XMLDecoder">
-                <object class="com.install4j.runtime.beans.formcomponents.CheckboxComponent">
-                  <void property="checkboxText">
-                    <string>Remove BEAM application data</string>
-                  </void>
-                  <void property="initiallySelected">
-                    <boolean>true</boolean>
-                  </void>
-                  <void property="variableName">
-                    <string>removeAppData</string>
-                  </void>
-                </object>
+                <object class="com.install4j.runtime.beans.screens.AdditionalConfirmationsScreen" />
               </java>
             </serializedBean>
-            <initScript />
-          </formComponent>
-          <formComponent name="" id="4176" beanClass="com.install4j.runtime.beans.formcomponents.MultilineLabelComponent" insetTop="" insetLeft="" insetBottom="" insetRight="" resetInitOnPrevious="false">
-            <serializedBean>
-              <java class="java.beans.XMLDecoder">
-                <object class="com.install4j.runtime.beans.formcomponents.MultilineLabelComponent">
-                  <void property="labelText">
-                    <string>BEAM application data such as user preferences and caches are stored in
+            <condition />
+            <validation />
+            <preActivation />
+            <postActivation />
+            <actions>
+              <action name="" id="4177" beanClass="com.install4j.runtime.beans.actions.files.DeleteFileAction" enabled="true" commentSet="false" comment="" rollbackBarrier="false" multiExec="false" failureStrategy="1" errorMessage=" Failed to remove BEAM application data.">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.actions.files.DeleteFileAction">
+                      <void property="file">
+                        <object class="java.io.File">
+                          <string>${installer:sys.userHome}/.beam</string>
+                        </object>
+                      </void>
+                      <void property="recurse">
+                        <boolean>true</boolean>
+                      </void>
+                    </object>
+                  </java>
+                </serializedBean>
+                <condition>context.getBooleanVariable("removeAppData")</condition>
+              </action>
+            </actions>
+            <formComponents>
+              <formComponent name="" id="4174" beanClass="com.install4j.runtime.beans.formcomponents.CheckboxComponent" enabled="true" commentSet="false" comment="" insetTop="" insetLeft="" insetBottom="" insetRight="" resetInitOnPrevious="false">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.formcomponents.CheckboxComponent">
+                      <void property="checkboxText">
+                        <string>Remove BEAM application data</string>
+                      </void>
+                      <void property="initiallySelected">
+                        <boolean>true</boolean>
+                      </void>
+                      <void property="variableName">
+                        <string>removeAppData</string>
+                      </void>
+                    </object>
+                  </java>
+                </serializedBean>
+                <initScript />
+              </formComponent>
+              <formComponent name="" id="4176" beanClass="com.install4j.runtime.beans.formcomponents.MultilineLabelComponent" enabled="true" commentSet="false" comment="" insetTop="" insetLeft="" insetBottom="" insetRight="" resetInitOnPrevious="false">
+                <serializedBean>
+                  <java class="java.beans.XMLDecoder">
+                    <object class="com.install4j.runtime.beans.formcomponents.MultilineLabelComponent">
+                      <void property="labelText">
+                        <string>BEAM application data such as user preferences and caches are stored in
 the directory '${installer:sys.userHome}/.beam'. 
 This directory will be entirely removed if you select this option.</string>
-                  </void>
-                </object>
+                      </void>
+                    </object>
+                  </java>
+                </serializedBean>
+                <initScript />
+              </formComponent>
+            </formComponents>
+          </screen>
+          <screen name="" id="14" beanClass="com.install4j.runtime.beans.screens.UninstallFailureScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="true">
+            <serializedBean>
+              <java class="java.beans.XMLDecoder">
+                <object class="com.install4j.runtime.beans.screens.UninstallFailureScreen" />
               </java>
             </serializedBean>
-            <initScript />
-          </formComponent>
-        </formComponents>
-      </screen>
-      <screen name="" id="14" beanClass="com.install4j.runtime.beans.screens.UninstallFailureScreen" rollbackBarrier="false" backButton="2" finishScreen="true">
-        <serializedBean>
-          <java class="java.beans.XMLDecoder">
-            <object class="com.install4j.runtime.beans.screens.UninstallFailureScreen" />
-          </java>
-        </serializedBean>
-        <condition />
-        <validation />
-        <actions />
-        <formComponents />
-      </screen>
-      <screen name="" id="13" beanClass="com.install4j.runtime.beans.screens.UninstallSuccessScreen" rollbackBarrier="false" backButton="2" finishScreen="true">
-        <serializedBean>
-          <java class="java.beans.XMLDecoder">
-            <object class="com.install4j.runtime.beans.screens.UninstallSuccessScreen" />
-          </java>
-        </serializedBean>
-        <condition />
-        <validation />
-        <actions />
-        <formComponents />
-      </screen>
-    </uninstallerScreens>
-    <installerStartup>
-      <screen name="" id="15" beanClass="com.install4j.runtime.beans.screens.StartupScreen" rollbackBarrier="false" backButton="2" finishScreen="false">
-        <serializedBean>
-          <java class="java.beans.XMLDecoder">
-            <object class="com.install4j.runtime.beans.screens.StartupScreen" />
-          </java>
-        </serializedBean>
-        <condition />
-        <validation />
-        <actions />
-        <formComponents />
-      </screen>
-    </installerStartup>
-    <uninstallerStartup>
-      <screen name="" id="16" beanClass="com.install4j.runtime.beans.screens.StartupScreen" rollbackBarrier="false" backButton="2" finishScreen="false">
-        <serializedBean>
-          <java class="java.beans.XMLDecoder">
-            <object class="com.install4j.runtime.beans.screens.StartupScreen" />
-          </java>
-        </serializedBean>
-        <condition />
-        <validation />
-        <actions />
-        <formComponents />
-      </screen>
-    </uninstallerStartup>
+            <condition />
+            <validation />
+            <preActivation />
+            <postActivation />
+            <actions />
+            <formComponents />
+          </screen>
+          <screen name="" id="13" beanClass="com.install4j.runtime.beans.screens.UninstallSuccessScreen" enabled="true" commentSet="false" comment="" rollbackBarrier="false" backButton="2" finishScreen="true">
+            <serializedBean>
+              <java class="java.beans.XMLDecoder">
+                <object class="com.install4j.runtime.beans.screens.UninstallSuccessScreen" />
+              </java>
+            </serializedBean>
+            <condition />
+            <validation />
+            <preActivation />
+            <postActivation />
+            <actions />
+            <formComponents />
+          </screen>
+        </screens>
+      </application>
+    </applications>
   </installerGui>
   <mediaSets>
-    <win32 name="Windows" id="20" mediaFileName="" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" requires64bit="false" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" includedJRE="windows-x86-1.6.0_03" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" customInstallBaseDir="" createUninstallIcon="true" contentFilesType="1" downloadURL="" runAsAdmin="true">
+    <win32 name="Windows" id="20" mediaFileName="" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" requires64bit="false" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" includedJRE="windows-x86-1.6.0_05" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" customInstallBaseDir="" createUninstallIcon="true" contentFilesType="1" downloadURL="" runAsAdmin="true">
       <excludedLaunchers />
       <excludedComponents />
+      <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude>
-        <entry location="bin/aatsr-sst.command" launcher="false" />
-        <entry location="bin/aatsr-sst.sh" launcher="false" />
-        <entry location="bin/beam-cli.command" launcher="false" />
-        <entry location="bin/beam-cli.sh" launcher="false" />
-        <entry location="bin/binning.command" launcher="false" />
-        <entry location="bin/binning.sh" launcher="false" />
-        <entry location="bin/flhmci.command" launcher="false" />
-        <entry location="bin/flhmci.sh" launcher="false" />
-        <entry location="bin/mapproj.command" launcher="false" />
-        <entry location="bin/mapproj.sh" launcher="false" />
-        <entry location="bin/meris-cloud.command" launcher="false" />
-        <entry location="bin/meris-cloud.sh" launcher="false" />
-        <entry location="bin/meris-rad2refl.command" launcher="false" />
-        <entry location="bin/meris-rad2refl.sh" launcher="false" />
-        <entry location="bin/meris-smac.command" launcher="false" />
-        <entry location="bin/meris-smac.sh" launcher="false" />
-        <entry location="bin/meris-smile.command" launcher="false" />
-        <entry location="bin/meris-smile.sh" launcher="false" />
-        <entry location="bin/mosaic.command" launcher="false" />
-        <entry location="bin/mosaic.sh" launcher="false" />
-        <entry location="bin/pconvert.command" launcher="false" />
-        <entry location="bin/pconvert.sh" launcher="false" />
-        <entry location="bin/visat-d.command" launcher="false" />
-        <entry location="bin/visat-d.sh" launcher="false" />
+        <entry location="bin/aatsr-sst.command" fileType="regular" />
+        <entry location="bin/aatsr-sst.sh" fileType="regular" />
+        <entry location="bin/beam-cli.command" fileType="regular" />
+        <entry location="bin/beam-cli.sh" fileType="regular" />
+        <entry location="bin/binning.command" fileType="regular" />
+        <entry location="bin/binning.sh" fileType="regular" />
+        <entry location="bin/flhmci.command" fileType="regular" />
+        <entry location="bin/flhmci.sh" fileType="regular" />
+        <entry location="bin/mapproj.command" fileType="regular" />
+        <entry location="bin/mapproj.sh" fileType="regular" />
+        <entry location="bin/meris-cloud.command" fileType="regular" />
+        <entry location="bin/meris-cloud.sh" fileType="regular" />
+        <entry location="bin/meris-rad2refl.command" fileType="regular" />
+        <entry location="bin/meris-rad2refl.sh" fileType="regular" />
+        <entry location="bin/meris-smac.command" fileType="regular" />
+        <entry location="bin/meris-smac.sh" fileType="regular" />
+        <entry location="bin/meris-smile.command" fileType="regular" />
+        <entry location="bin/meris-smile.sh" fileType="regular" />
+        <entry location="bin/mosaic.command" fileType="regular" />
+        <entry location="bin/mosaic.sh" fileType="regular" />
+        <entry location="bin/pconvert.command" fileType="regular" />
+        <entry location="bin/pconvert.sh" fileType="regular" />
+        <entry location="bin/visat-d.command" fileType="regular" />
+        <entry location="bin/visat-d.sh" fileType="regular" />
       </exclude>
       <variables />
-      <excludedInstallerScreens />
-      <excludedUninstallerScreens />
     </win32>
     <macosFolder name="Mac OS X Folder" id="126" mediaFileName="" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" requires64bit="false" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" customInstallBaseDir="" createUninstallIcon="true" contentFilesType="1" downloadURL="">
       <excludedLaunchers>
         <launcher id="1086" />
       </excludedLaunchers>
       <excludedComponents />
+      <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude>
-        <entry location="beam-website.url" launcher="false" />
-        <entry location="bin/aatsr-sst.bat" launcher="false" />
-        <entry location="bin/aatsr-sst.sh" launcher="false" />
-        <entry location="bin/beam-cli.bat" launcher="false" />
-        <entry location="bin/beam-cli.sh" launcher="false" />
-        <entry location="bin/binning.bat" launcher="false" />
-        <entry location="bin/binning.sh" launcher="false" />
-        <entry location="bin/flhmci.bat" launcher="false" />
-        <entry location="bin/flhmci.sh" launcher="false" />
-        <entry location="bin/mapproj.bat" launcher="false" />
-        <entry location="bin/mapproj.sh" launcher="false" />
-        <entry location="bin/meris-cloud.bat" launcher="false" />
-        <entry location="bin/meris-cloud.sh" launcher="false" />
-        <entry location="bin/meris-rad2refl.bat" launcher="false" />
-        <entry location="bin/meris-rad2refl.sh" launcher="false" />
-        <entry location="bin/meris-smac.bat" launcher="false" />
-        <entry location="bin/meris-smac.sh" launcher="false" />
-        <entry location="bin/meris-smile.bat" launcher="false" />
-        <entry location="bin/meris-smile.sh" launcher="false" />
-        <entry location="bin/mosaic.bat" launcher="false" />
-        <entry location="bin/mosaic.sh" launcher="false" />
-        <entry location="bin/pconvert.bat" launcher="false" />
-        <entry location="bin/pconvert.sh" launcher="false" />
-        <entry location="bin/visat-d.bat" launcher="false" />
-        <entry location="bin/visat-d.sh" launcher="false" />
+        <entry location="beam-website.url" fileType="regular" />
+        <entry location="bin/aatsr-sst.bat" fileType="regular" />
+        <entry location="bin/aatsr-sst.sh" fileType="regular" />
+        <entry location="bin/beam-cli.bat" fileType="regular" />
+        <entry location="bin/beam-cli.sh" fileType="regular" />
+        <entry location="bin/binning.bat" fileType="regular" />
+        <entry location="bin/binning.sh" fileType="regular" />
+        <entry location="bin/flhmci.bat" fileType="regular" />
+        <entry location="bin/flhmci.sh" fileType="regular" />
+        <entry location="bin/mapproj.bat" fileType="regular" />
+        <entry location="bin/mapproj.sh" fileType="regular" />
+        <entry location="bin/meris-cloud.bat" fileType="regular" />
+        <entry location="bin/meris-cloud.sh" fileType="regular" />
+        <entry location="bin/meris-rad2refl.bat" fileType="regular" />
+        <entry location="bin/meris-rad2refl.sh" fileType="regular" />
+        <entry location="bin/meris-smac.bat" fileType="regular" />
+        <entry location="bin/meris-smac.sh" fileType="regular" />
+        <entry location="bin/meris-smile.bat" fileType="regular" />
+        <entry location="bin/meris-smile.sh" fileType="regular" />
+        <entry location="bin/mosaic.bat" fileType="regular" />
+        <entry location="bin/mosaic.sh" fileType="regular" />
+        <entry location="bin/pconvert.bat" fileType="regular" />
+        <entry location="bin/pconvert.sh" fileType="regular" />
+        <entry location="bin/visat-d.bat" fileType="regular" />
+        <entry location="bin/visat-d.sh" fileType="regular" />
       </exclude>
       <variables />
-      <excludedInstallerScreens />
-      <excludedUninstallerScreens />
     </macosFolder>
-    <unixInstaller name="Unix Installer" id="128" mediaFileName="" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" requires64bit="false" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" includedJRE="linux-x86-1.6.0_03_client_only" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" customInstallBaseDir="" createUninstallIcon="true" contentFilesType="1" downloadURL="">
+    <unixInstaller name="Unix Installer" id="128" mediaFileName="" installDir="${compiler:sys.shortName}-${compiler:sys.version}" overridePrincipalLanguage="false" requires64bit="false" runPostProcessor="false" postProcessor="" failOnPostProcessorError="false" includedJRE="linux-x86-1.6.0_05" manualJREEntry="false" bundleType="1" jreURL="" jreFtpURL="" jreShared="false" customInstallBaseDir="" createUninstallIcon="true" contentFilesType="1" downloadURL="">
       <excludedLaunchers>
         <launcher id="1086" />
       </excludedLaunchers>
       <excludedComponents />
+      <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude>
-        <entry location="beam-website.url" launcher="false" />
-        <entry location="bin/aatsr-sst.bat" launcher="false" />
-        <entry location="bin/aatsr-sst.command" launcher="false" />
-        <entry location="bin/beam-cli.bat" launcher="false" />
-        <entry location="bin/beam-cli.command" launcher="false" />
-        <entry location="bin/binning.bat" launcher="false" />
-        <entry location="bin/binning.command" launcher="false" />
-        <entry location="bin/flhmci.bat" launcher="false" />
-        <entry location="bin/flhmci.command" launcher="false" />
-        <entry location="bin/mapproj.bat" launcher="false" />
-        <entry location="bin/mapproj.command" launcher="false" />
-        <entry location="bin/meris-cloud.bat" launcher="false" />
-        <entry location="bin/meris-cloud.command" launcher="false" />
-        <entry location="bin/meris-rad2refl.bat" launcher="false" />
-        <entry location="bin/meris-rad2refl.command" launcher="false" />
-        <entry location="bin/meris-smac.bat" launcher="false" />
-        <entry location="bin/meris-smac.command" launcher="false" />
-        <entry location="bin/meris-smile.bat" launcher="false" />
-        <entry location="bin/meris-smile.command" launcher="false" />
-        <entry location="bin/mosaic.bat" launcher="false" />
-        <entry location="bin/mosaic.command" launcher="false" />
-        <entry location="bin/pconvert.bat" launcher="false" />
-        <entry location="bin/pconvert.command" launcher="false" />
-        <entry location="bin/visat-d.bat" launcher="false" />
-        <entry location="bin/visat-d.command" launcher="false" />
+        <entry location="beam-website.url" fileType="regular" />
+        <entry location="bin/aatsr-sst.bat" fileType="regular" />
+        <entry location="bin/aatsr-sst.command" fileType="regular" />
+        <entry location="bin/beam-cli.bat" fileType="regular" />
+        <entry location="bin/beam-cli.command" fileType="regular" />
+        <entry location="bin/binning.bat" fileType="regular" />
+        <entry location="bin/binning.command" fileType="regular" />
+        <entry location="bin/flhmci.bat" fileType="regular" />
+        <entry location="bin/flhmci.command" fileType="regular" />
+        <entry location="bin/mapproj.bat" fileType="regular" />
+        <entry location="bin/mapproj.command" fileType="regular" />
+        <entry location="bin/meris-cloud.bat" fileType="regular" />
+        <entry location="bin/meris-cloud.command" fileType="regular" />
+        <entry location="bin/meris-rad2refl.bat" fileType="regular" />
+        <entry location="bin/meris-rad2refl.command" fileType="regular" />
+        <entry location="bin/meris-smac.bat" fileType="regular" />
+        <entry location="bin/meris-smac.command" fileType="regular" />
+        <entry location="bin/meris-smile.bat" fileType="regular" />
+        <entry location="bin/meris-smile.command" fileType="regular" />
+        <entry location="bin/mosaic.bat" fileType="regular" />
+        <entry location="bin/mosaic.command" fileType="regular" />
+        <entry location="bin/pconvert.bat" fileType="regular" />
+        <entry location="bin/pconvert.command" fileType="regular" />
+        <entry location="bin/visat-d.bat" fileType="regular" />
+        <entry location="bin/visat-d.command" fileType="regular" />
       </exclude>
       <variables />
-      <excludedInstallerScreens />
-      <excludedUninstallerScreens />
       <installerScript mode="1" file="">
         <scriptLines />
       </installerScript>
@@ -725,33 +781,34 @@ This directory will be entirely removed if you select this option.</string>
         <launcher id="1086" />
       </excludedLaunchers>
       <excludedComponents />
+      <excludedBeans />
       <overriddenPrincipalLanguage id="en" customLocalizationFile="" />
       <exclude>
-        <entry location="beam-website.url" launcher="false" />
-        <entry location="bin/aatsr-sst.bat" launcher="false" />
-        <entry location="bin/aatsr-sst.command" launcher="false" />
-        <entry location="bin/beam-cli.bat" launcher="false" />
-        <entry location="bin/beam-cli.command" launcher="false" />
-        <entry location="bin/binning.bat" launcher="false" />
-        <entry location="bin/binning.command" launcher="false" />
-        <entry location="bin/flhmci.bat" launcher="false" />
-        <entry location="bin/flhmci.command" launcher="false" />
-        <entry location="bin/mapproj.bat" launcher="false" />
-        <entry location="bin/mapproj.command" launcher="false" />
-        <entry location="bin/meris-cloud.bat" launcher="false" />
-        <entry location="bin/meris-cloud.command" launcher="false" />
-        <entry location="bin/meris-rad2refl.bat" launcher="false" />
-        <entry location="bin/meris-rad2refl.command" launcher="false" />
-        <entry location="bin/meris-smac.bat" launcher="false" />
-        <entry location="bin/meris-smac.command" launcher="false" />
-        <entry location="bin/meris-smile.bat" launcher="false" />
-        <entry location="bin/meris-smile.command" launcher="false" />
-        <entry location="bin/mosaic.bat" launcher="false" />
-        <entry location="bin/mosaic.command" launcher="false" />
-        <entry location="bin/pconvert.bat" launcher="false" />
-        <entry location="bin/pconvert.command" launcher="false" />
-        <entry location="bin/visat-d.bat" launcher="false" />
-        <entry location="bin/visat-d.command" launcher="false" />
+        <entry location="beam-website.url" fileType="regular" />
+        <entry location="bin/aatsr-sst.bat" fileType="regular" />
+        <entry location="bin/aatsr-sst.command" fileType="regular" />
+        <entry location="bin/beam-cli.bat" fileType="regular" />
+        <entry location="bin/beam-cli.command" fileType="regular" />
+        <entry location="bin/binning.bat" fileType="regular" />
+        <entry location="bin/binning.command" fileType="regular" />
+        <entry location="bin/flhmci.bat" fileType="regular" />
+        <entry location="bin/flhmci.command" fileType="regular" />
+        <entry location="bin/mapproj.bat" fileType="regular" />
+        <entry location="bin/mapproj.command" fileType="regular" />
+        <entry location="bin/meris-cloud.bat" fileType="regular" />
+        <entry location="bin/meris-cloud.command" fileType="regular" />
+        <entry location="bin/meris-rad2refl.bat" fileType="regular" />
+        <entry location="bin/meris-rad2refl.command" fileType="regular" />
+        <entry location="bin/meris-smac.bat" fileType="regular" />
+        <entry location="bin/meris-smac.command" fileType="regular" />
+        <entry location="bin/meris-smile.bat" fileType="regular" />
+        <entry location="bin/meris-smile.command" fileType="regular" />
+        <entry location="bin/mosaic.bat" fileType="regular" />
+        <entry location="bin/mosaic.command" fileType="regular" />
+        <entry location="bin/pconvert.bat" fileType="regular" />
+        <entry location="bin/pconvert.command" fileType="regular" />
+        <entry location="bin/visat-d.bat" fileType="regular" />
+        <entry location="bin/visat-d.command" fileType="regular" />
       </exclude>
       <variables />
       <preInstallScript mode="1" file="">
@@ -770,6 +827,7 @@ This directory will be entirely removed if you select this option.</string>
   </mediaSets>
   <buildIds buildAll="false">
     <mediaSet refId="20" />
+    <mediaSet refId="126" />
     <mediaSet refId="128" />
   </buildIds>
 </install4j>
