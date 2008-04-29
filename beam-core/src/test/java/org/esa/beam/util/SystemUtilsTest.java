@@ -53,53 +53,6 @@ public class SystemUtilsTest extends TestCase {
         final URL url = SystemUtils.class.getResource(SystemUtils.getClassFileName(SystemUtils.class));
         assertNotNull(url);
         assertTrue("url = " + url.getPath(), url.getPath().endsWith("/org/esa/beam/util/SystemUtils.class"));
-
-// Use this code to check out URL properties
-//        System.out.println("url = " + url);
-//        System.out.println("url.protocol = " + url.getProtocol());
-//        System.out.println("url.path = " + url.getPath());
-    }
-
-    public void testGetApplicationHomeDirWithWindowsFileUrl() {
-
-        String actualPath;
-
-        if (File.separatorChar == '\\') {
-            actualPath = getActualApplicationHomePath(
-                    "jar:file:/C:\\Programme\\beam-3.2\\lib\\beam.jar!/org/esa/beam/visat/VisatMain.class");
-            assertEquals("C:\\Programme\\beam-3.2", actualPath);
-
-            actualPath = getActualApplicationHomePath(
-                    "jar:file:/C:\\Programme\\theapp\\bin\\beam.jar!/org/esa/beam/visat/VisatMain.class");
-            assertEquals("C:\\Programme\\theapp", actualPath);
-
-            actualPath = getActualApplicationHomePath(
-                    "jar:file:/C:\\Programme\\theapp\\beam.jar!/org/esa/beam/visat/VisatMain.class");
-            assertEquals("C:\\Programme\\theapp", actualPath);
-
-            actualPath = getActualApplicationHomePath(
-                    "file:/C:\\Projects\\beam3\\classes\\org\\esa\\beam\\visat\\VisatMain.class");
-            assertEquals("C:\\Projects\\beam3", actualPath);
-        } else if (File.separatorChar == '/') {
-
-            actualPath = getActualApplicationHomePath(
-                    "jar:file:/usr/local/beam-3.2/lib/beam.jar!/org/esa/beam/visat/VisatMain.class");
-            assertEquals("/usr/local/beam-3.2", actualPath);
-
-            actualPath = getActualApplicationHomePath(
-                    "jar:file:/usr/local/theapp/bin/beam.jar!/org/esa/beam/visat/VisatMain.class");
-            assertEquals("/usr/local/theapp", actualPath);
-
-            actualPath = getActualApplicationHomePath(
-                    "jar:file:/usr/local/theapp/beam.jar!/org/esa/beam/visat/VisatMain.class");
-            assertEquals("/usr/local/theapp", actualPath);
-
-            actualPath = getActualApplicationHomePath(
-                    "file:/home/norman/MyProjects/beam3/classes/org/esa/beam/visat/VisatMain.class");
-            assertEquals("/home/norman/MyProjects/beam3", actualPath);
-        } else {
-            System.err.println("test not performed for File.separatorChar = '" + File.separatorChar + "'");
-        }
     }
 
     public void testGetUserName() {
@@ -118,9 +71,20 @@ public class SystemUtilsTest extends TestCase {
         assertNotNull(SystemUtils.getClassPathFiles());
     }
 
-
     public void testGetApplicationHomeDir() {
-        assertNotNull(SystemUtils.getApplicationHomeDir());
+        final File applicationHomeDir = SystemUtils.getApplicationHomeDir();
+        assertNotNull(applicationHomeDir);
+        assertTrue(applicationHomeDir.exists());
+        assertTrue(new File(applicationHomeDir, "modules").exists());
+        assertTrue(!applicationHomeDir.getPath().contains("modules"));
+        assertTrue(!applicationHomeDir.getPath().contains(".jar"));
+    }
+
+    public void testGetApplicationDataDir() {
+        final File applicationDataDir = SystemUtils.getApplicationDataDir();
+        assertNotNull(applicationDataDir);
+        final String prefix = SystemUtils.getUserHomeDir().getPath();
+        assertTrue(applicationDataDir.getPath().startsWith(prefix));
     }
 
     public void testCreateHumanReadableExceptionMessage() {

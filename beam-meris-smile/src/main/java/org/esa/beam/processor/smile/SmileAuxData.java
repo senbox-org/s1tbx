@@ -49,7 +49,7 @@ public class SmileAuxData {
 
     private static File getDefaultAuxdataDir() {
         String symbolicName = "beam-meris-smile"; // todo - get the symbolicName from processor
-        File defaultAuxdataDir = new File(SystemUtils.getApplicationUserDir(), symbolicName + "/auxdata");
+        File defaultAuxdataDir = new File(SystemUtils.getApplicationDataDir(), symbolicName + "/auxdata");
         String auxdataDirPath = System.getProperty(SmileConstants.AUXDATA_DIR_PROPERTY,
                                                    defaultAuxdataDir.getAbsolutePath());
         return new File(auxdataDirPath);

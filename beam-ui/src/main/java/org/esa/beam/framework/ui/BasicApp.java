@@ -1632,7 +1632,7 @@ public class BasicApp {
         if (userHome == null) {
             throw new IllegalStateException("Java system property 'user.home' not set");
         }
-        _beamUserDir = SystemUtils.getApplicationUserDir(true);
+        _beamUserDir = SystemUtils.getApplicationDataDir(true);
         _appUserDir = new File(_beamUserDir, getAppSymbolicName());
         _appUserDir.mkdir();
     }

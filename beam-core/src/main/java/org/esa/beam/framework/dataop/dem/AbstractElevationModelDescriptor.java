@@ -40,7 +40,7 @@ public abstract class AbstractElevationModelDescriptor implements ElevationModel
     private File demInstallDir;
 
     protected AbstractElevationModelDescriptor() {
-        demPropertiesDir = new File(SystemUtils.getApplicationHomeDir(),
+        demPropertiesDir = new File(SystemUtils.getApplicationDataDir(),
                                     "beam-core/auxdata/dem" + File.separator + getName());
         if (!demPropertiesDir.exists()) {
             demPropertiesDir.mkdirs();

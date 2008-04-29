@@ -107,8 +107,8 @@ public class SystemUtils {
      * @return the current user's application data directory
      * @since BEAM 4.2
      */
-    public static File getApplicationUserDir() {
-        return getApplicationUserDir(false);
+    public static File getApplicationDataDir() {
+        return getApplicationDataDir(false);
     }
 
     /**
@@ -118,7 +118,16 @@ public class SystemUtils {
      * @return the current user's application data directory
      * @since BEAM 4.2
      */
-    public static File getApplicationUserDir(boolean force) {
+    public static File getApplicationDataDir(boolean force) {
+        String contextId = getApplicationContextId();
+        final File dir = new File(getUserHomeDir(), "." + contextId);
+        if (force && !dir.exists()) {
+            dir.mkdirs();
+        }
+        return dir;
+    }
+
+    private static String getApplicationContextId() {
         String contextId = null;
         if (RuntimeActivator.getInstance() != null
                 && RuntimeActivator.getInstance().getModuleContext() != null) {
@@ -127,11 +136,7 @@ public class SystemUtils {
         if (contextId == null) {
             contextId = System.getProperty("ceres.context", "beam");
         }
-        final File dir = new File(getUserHomeDir(), "." + contextId);
-        if (force && !dir.exists()) {
-            dir.mkdirs();
-        }
-        return dir;
+        return contextId;
     }
 
     /**
@@ -177,6 +182,12 @@ public class SystemUtils {
      * @return an assumption of an application's home directory, never <code>null</code>
      */
     public static File getApplicationHomeDir() {
+        final String id = getApplicationContextId();
+        final String homeDirPath = System.getProperty(id + ".home");
+        if (homeDirPath != null) {
+            return new File(homeDirPath);
+        }
+        // Use fallback
         final URL url = SystemUtils.class.getResource(getClassFileName(SystemUtils.class));
         return getApplicationHomeDir(url);
     }
@@ -184,16 +195,10 @@ public class SystemUtils {
     /**
      * Extracts an application's home directory from the given URL.
      * <p/>
-     * The URL is than scanned for the last occurence of the strings <code>&quot;/lib/&quot;</code> or - if that
-     * could not be found - for <code>&quot;/classes/&quot;</code>. If this succeeds the method returns the absolute
-     * (parent) path to the directory <code>lib</code>, resp. <code>classes</code> within this class's URL, which is
+     * The URL is than scanned for the last occurence of the string <code>&quot;/modules/&quot;</code>.
+     * If this succeeds the method returns the absolute
+     * (parent) path to the directory which contains <code>modules</code>, which is
      * then assumed to be the requested home directory.
-     * <p/>
-     * <p> In other words, the method assumes as a first guess that the class file for this class is found somewhere
-     * under <i>home-dir></i><code>/lib</code> or <i>home-dir</i><code>/classes</code> with <i>home-dir</i> beeing
-     * the path to the home directory.
-     * <p/>
-     * <p> If this mechanism described above does not succeed the method returns the current working directory.
      *
      * @param url the URL
      * @return an assumption of an application's home directory, never <code>null</code>
@@ -215,19 +220,7 @@ public class SystemUtils {
     }
 
     private static String stripClassLibraryPaths(String path) {
-        int pos = path.lastIndexOf("/lib/beam.jar!/");
-        if (pos >= 0) {
-            path = path.substring(0, pos);
-        }
-        pos = path.lastIndexOf("/bin/beam.jar!/");
-        if (pos >= 0) {
-            path = path.substring(0, pos);
-        }
-        pos = path.lastIndexOf("/beam.jar!/");
-        if (pos >= 0) {
-            path = path.substring(0, pos);
-        }
-        pos = path.lastIndexOf("/classes/");
+        int pos = path.lastIndexOf("/modules/");
         if (pos >= 0) {
             path = path.substring(0, pos);
         }
@@ -314,7 +307,7 @@ public class SystemUtils {
      * @return the default cache directory
      */
     public static File getDefaultBeamCacheDir() {
-        return new File(getApplicationHomeDir(), CACHE_DIR_NAME);
+        return new File(getApplicationDataDir(), CACHE_DIR_NAME);
     }
 
     /**

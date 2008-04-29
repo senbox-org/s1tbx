@@ -28,7 +28,7 @@ public class RGBImageProfileManager {
     private static File profilesDir;
 
     static {
-        profilesDir = new File(SystemUtils.getApplicationHomeDir(),
+        profilesDir = new File(SystemUtils.getApplicationDataDir(),
                                "beam-core/auxdata/rgb_profiles");
         if (!profilesDir.exists()) {
             profilesDir.mkdirs();

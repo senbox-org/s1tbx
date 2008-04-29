@@ -46,7 +46,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.logging.Level;
-import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -707,7 +706,7 @@ class ColorManipulationForm {
     }
 
     private File getSystemAuxdataDir() {
-        return new File(SystemUtils.getApplicationUserDir(), "beam-ui/auxdata/color-palettes");
+        return new File(SystemUtils.getApplicationDataDir(), "beam-ui/auxdata/color-palettes");
     }
 
 }

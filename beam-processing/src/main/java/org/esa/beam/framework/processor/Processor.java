@@ -649,7 +649,7 @@ public abstract class Processor {
 
     public File getDefaultAuxdataInstallDir() {
         if (_defaultAuxdataInstallDir == null) {
-            _defaultAuxdataInstallDir = new File(SystemUtils.getApplicationUserDir(), getSymbolicName() + "/auxdata");
+            _defaultAuxdataInstallDir = new File(SystemUtils.getApplicationDataDir(), getSymbolicName() + "/auxdata");
         }
         return _defaultAuxdataInstallDir;
     }
