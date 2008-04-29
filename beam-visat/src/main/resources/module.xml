@@ -70,6 +70,10 @@
         <applicationDescriptor>
             <applicationId>VisatMain</applicationId>
             <displayName>VISAT</displayName>
+            <excludedToolViews>
+                <id>org.esa.beam.visat.diag.JaiMonitorToolView</id>
+                <id>org.esa.beam.visat.toolviews.lm.LayersToolView</id>
+            </excludedToolViews>
         </applicationDescriptor>
     </extension>
 
