@@ -45,7 +45,19 @@ public class MatrixLookupTable {
         arrayLookupTable = new ArrayLookupTable(m * n, values, dimensions);
     }
 
+    public MatrixLookupTable(int m, int n, MatrixFactory matrixFactory, float[] values, IntervalPartition... dimensions) {
+        this.m = m;
+        this.n = n;
+        this.matrixFactory = matrixFactory;
+
+        arrayLookupTable = new ArrayLookupTable(m * n, values, dimensions);
+    }
+
     public MatrixLookupTable(int m, int n, MatrixFactory matrixFactory, double[] values, double[]... dimensions) {
+        this(m, n, matrixFactory, values, IntervalPartition.createArray(dimensions));
+    }
+
+    public MatrixLookupTable(int m, int n, MatrixFactory matrixFactory, float[] values, double[]... dimensions) {
         this(m, n, matrixFactory, values, IntervalPartition.createArray(dimensions));
     }
 

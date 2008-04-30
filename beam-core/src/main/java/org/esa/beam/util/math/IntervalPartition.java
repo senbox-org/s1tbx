@@ -41,16 +41,30 @@ public class IntervalPartition {
      * @throws NullPointerException     if the sequence is {@code null}.
      */
     public IntervalPartition(final double... sequence) {
-        if (sequence == null) {
-            throw new NullPointerException("sequence == null");
-        }
-        if (sequence.length < 2) {
+        this(new Array.Double(sequence));
+    }
+
+    /**
+     * Constructs an interval partition from a sequence of real numbers.
+     *
+     * @param sequence the sequence. The sequence must increase strictly and
+     *                 consist of at least two real numbers.
+     * @throws IllegalArgumentException if the sequence is not strictly increasing
+     *                                  or consists of less than two real numbers.
+     * @throws NullPointerException     if the sequence is {@code null}.
+     */
+    public IntervalPartition(final float... sequence) {
+        this(new Array.Float(sequence));
+    }
+
+    private IntervalPartition(final Array sequence) {
+        if (sequence.getLength() < 2) {
             throw new IllegalArgumentException("sequence.length < 2");
         }
         ensureStrictIncrease(sequence);
 
-        this.partition = new double[sequence.length];
-        System.arraycopy(sequence, 0, this.partition, 0, sequence.length);
+        partition = new double[sequence.getLength()];
+        sequence.copyTo(0, partition, 0, partition.length);
     }
 
     /**
@@ -65,7 +79,36 @@ public class IntervalPartition {
      * @throws NullPointerException     if the array of sequences or any sequence
      *                                  is {@code null}.
      */
-    public static IntervalPartition[] createArray(double[]... sequences) {
+    public static IntervalPartition[] createArray(final double[]... sequences) {
+        if (sequences == null) {
+            throw new NullPointerException("sequences == null");
+        }
+        if (sequences.length == 0) {
+            throw new IllegalArgumentException("sequences.length == 0");
+        }
+
+        final IntervalPartition[] partitions = new IntervalPartition[sequences.length];
+
+        for (int i = 0; i < partitions.length; ++i) {
+            partitions[i] = new IntervalPartition(sequences[i]);
+        }
+
+        return partitions;
+    }
+
+    /**
+     * Creates an array of interval partitions from an array of sequences.
+     *
+     * @param sequences the array of sequences. Each sequence must increase strictly
+     *                  and consist of at least two real numbers.
+     * @return the created array of interval partitions.
+     * @throws IllegalArgumentException if the length of the sequence array is zero
+     *                                  or any sequence is not strictly increasing
+     *                                  or consists of less than two real numbers.
+     * @throws NullPointerException     if the array of sequences or any sequence
+     *                                  is {@code null}.
+     */
+    public static IntervalPartition[] createArray(final float[]... sequences) {
         if (sequences == null) {
             throw new NullPointerException("sequences == null");
         }
@@ -138,9 +181,9 @@ public class IntervalPartition {
         return mesh;
     }
 
-    private static void ensureStrictIncrease(final double... sequence) throws IllegalArgumentException {
-        for (int i = 1; i < sequence.length; ++i) {
-            if (sequence[i - 1] < sequence[i]) {
+    private static void ensureStrictIncrease(final Array sequence) throws IllegalArgumentException {
+        for (int i = 1; i < sequence.getLength(); ++i) {
+            if (sequence.getValue(i - 1) < sequence.getValue(i)) {
                 continue;
             }
             throw new IllegalArgumentException("sequence is not strictly increasing");

@@ -32,7 +32,7 @@ public class IntervalPartitionTest extends TestCase {
 
     public void testConstructor() {
         try {
-            new IntervalPartition(null);
+            new IntervalPartition((double[]) null);
             fail();
         } catch (NullPointerException expected) {
         }

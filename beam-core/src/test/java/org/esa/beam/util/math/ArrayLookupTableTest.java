@@ -62,4 +62,19 @@ public class ArrayLookupTableTest extends TestCase {
         assertTrue(Arrays.equals(new double[]{1.5, 5.5}, lut.getValues(0.5, 0.5)));
         assertTrue(Arrays.equals(new double[]{2.5, 6.5}, lut.getValues(1.0, 0.5)));
     }
+
+    public void testArrayInterpolationWithFloatValues() {
+        final double[][] dimensions = new double[][]{{0, 1}, {0, 1}};
+        final float[] values = new float[]{0, 4, 1, 5, 2, 6, 3, 7};
+
+        final ArrayLookupTable lut = new ArrayLookupTable(2, values, dimensions);
+        assertTrue(Arrays.equals(new double[]{0.0, 4.0}, lut.getValues(0.0, 0.0)));
+        assertTrue(Arrays.equals(new double[]{1.0, 5.0}, lut.getValues(0.0, 1.0)));
+        assertTrue(Arrays.equals(new double[]{2.0, 6.0}, lut.getValues(1.0, 0.0)));
+        assertTrue(Arrays.equals(new double[]{3.0, 7.0}, lut.getValues(1.0, 1.0)));
+
+        assertTrue(Arrays.equals(new double[]{0.5, 4.5}, lut.getValues(0.0, 0.5)));
+        assertTrue(Arrays.equals(new double[]{1.5, 5.5}, lut.getValues(0.5, 0.5)));
+        assertTrue(Arrays.equals(new double[]{2.5, 6.5}, lut.getValues(1.0, 0.5)));
+    }
 }

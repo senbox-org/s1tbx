@@ -30,7 +30,7 @@ class ArrayLookupTable {
     /**
      * The lookup values.
      */
-    private final double[] values;
+    private final Array values;
     /**
      * The dimensions associated with the lookup table.
      */
@@ -67,9 +67,68 @@ class ArrayLookupTable {
      * @throws NullPointerException     if the {@code values} array or the {@code dimensions} array
      *                                  is {@code null} or any dimension is {@code null}.
      */
-    public ArrayLookupTable(int length, final double[] values, final IntervalPartition... dimensions) throws
-            IllegalArgumentException,
-            NullPointerException {
+    public ArrayLookupTable(int length, final double[] values, final IntervalPartition... dimensions) {
+        this(length, new Array.Double(values), dimensions);
+    }
+
+    /**
+     * Constructs an array lookup table for the lookup values and dimensions supplied as arguments.
+     *
+     * @param length     the length of the looked-up value array.
+     * @param values     the lookup values. The {@code values} array must be laid out in row-major
+     *                   order, so that the dimension associated with the last axis varies fastest.
+     * @param dimensions the interval partitions defining the dimensions associated with the lookup
+     *                   table. An interval partition is a strictly increasing sequence of at least
+     *                   two real numbers, see {@link IntervalPartition}.
+     * @throws IllegalArgumentException if {@code length} is less than {@code 1} or the length of
+     *                                  {@code values} is not equal to {@code length} times the number
+     *                                  of coordinate grid vertices.
+     * @throws NullPointerException     if the {@code values} array or the {@code dimensions} array
+     *                                  is {@code null} or any dimension is {@code null}.
+     */
+    public ArrayLookupTable(int length, final float[] values, final IntervalPartition... dimensions) {
+        this(length, new Array.Float(values), dimensions);
+    }
+
+    /**
+     * Constructs an array lookup table for the lookup values and dimensions supplied as arguments.
+     *
+     * @param length     the length of the looked-up value array.
+     * @param values     the lookup values. The {@code values} array must be laid out in row-major
+     *                   order, so that the dimension associated with the last axis varies fastest.
+     * @param dimensions the interval partitions defining the dimensions associated with the lookup
+     *                   table. An interval partition is a strictly increasing sequence of at least
+     *                   two real numbers, see {@link IntervalPartition}.
+     * @throws IllegalArgumentException if {@code length} is less than {@code 1} or the length of
+     *                                  {@code values} is not equal to {@code length} times the number
+     *                                  of coordinate grid vertices.
+     * @throws NullPointerException     if the {@code values} array or the {@code dimensions} array
+     *                                  is {@code null} or any dimension is {@code null}.
+     */
+    public ArrayLookupTable(int length, final double[] values, final double[]... dimensions) {
+        this(length, values, IntervalPartition.createArray(dimensions));
+    }
+
+    /**
+     * Constructs an array lookup table for the lookup values and dimensions supplied as arguments.
+     *
+     * @param length     the length of the looked-up value array.
+     * @param values     the lookup values. The {@code values} array must be laid out in row-major
+     *                   order, so that the dimension associated with the last axis varies fastest.
+     * @param dimensions the interval partitions defining the dimensions associated with the lookup
+     *                   table. An interval partition is a strictly increasing sequence of at least
+     *                   two real numbers, see {@link IntervalPartition}.
+     * @throws IllegalArgumentException if {@code length} is less than {@code 1} or the length of
+     *                                  {@code values} is not equal to {@code length} times the number
+     *                                  of coordinate grid vertices.
+     * @throws NullPointerException     if the {@code values} array or the {@code dimensions} array
+     *                                  is {@code null} or any dimension is {@code null}.
+     */
+    public ArrayLookupTable(int length, final float[] values, final double[]... dimensions) {
+        this(length, values, IntervalPartition.createArray(dimensions));
+    }
+
+    private ArrayLookupTable(int length, final Array values, final IntervalPartition... dimensions) {
         if (length < 1) {
             throw new IllegalArgumentException("length < 1");
         }
@@ -93,27 +152,6 @@ class ArrayLookupTable {
 
         v = new double[1 << n][length];
         fracIndexes = FracIndex.createArray(n);
-    }
-
-    /**
-     * Constructs an array lookup table for the lookup values and dimensions supplied as arguments.
-     *
-     * @param length     the length of the looked-up value array.
-     * @param values     the lookup values. The {@code values} array must be laid out in row-major
-     *                   order, so that the dimension associated with the last axis varies fastest.
-     * @param dimensions the interval partitions defining the dimensions associated with the lookup
-     *                   table. An interval partition is a strictly increasing sequence of at least
-     *                   two real numbers, see {@link IntervalPartition}.
-     * @throws IllegalArgumentException if {@code length} is less than {@code 1} or the length of
-     *                                  {@code values} is not equal to {@code length} times the number
-     *                                  of coordinate grid vertices.
-     * @throws NullPointerException     if the {@code values} array or the {@code dimensions} array
-     *                                  is {@code null} or any dimension is {@code null}.
-     */
-    public ArrayLookupTable(int length, final double[] values, final double[]... dimensions) throws
-            IllegalArgumentException,
-            NullPointerException {
-        this(length, values, IntervalPartition.createArray(dimensions));
     }
 
     /**
@@ -170,7 +208,7 @@ class ArrayLookupTable {
             origin += fracIndexes[i].i * strides[i];
         }
         for (int i = 0; i < v.length; ++i) {
-            System.arraycopy(values, origin + o[i], v[i], 0, v[i].length);
+            values.copyTo(origin + o[i], v[i], 0, v[i].length);
         }
         for (int i = dimensions.length; i-- > 0;) {
             final int m = 1 << i;
