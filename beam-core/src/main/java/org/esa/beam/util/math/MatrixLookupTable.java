@@ -19,7 +19,7 @@ package org.esa.beam.util.math;
  * multilinear  interpolation for matrix  lookup tables with an
  * arbitrary number of dimensions.
  * <p/>
- * The implementation simply delegates to an {@link ArrayLookupTable}.
+ * The implementation simply delegates to an {@link VectorLookupTable}.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$
@@ -35,14 +35,14 @@ public class MatrixLookupTable {
     private final int n;
 
     private final MatrixFactory matrixFactory;
-    private final ArrayLookupTable arrayLookupTable;
+    private final VectorLookupTable vectorLookupTable;
 
     public MatrixLookupTable(int m, int n, MatrixFactory matrixFactory, double[] values, IntervalPartition... dimensions) {
         this.m = m;
         this.n = n;
         this.matrixFactory = matrixFactory;
 
-        arrayLookupTable = new ArrayLookupTable(m * n, values, dimensions);
+        vectorLookupTable = new VectorLookupTable(m * n, values, dimensions);
     }
 
     public MatrixLookupTable(int m, int n, MatrixFactory matrixFactory, float[] values, IntervalPartition... dimensions) {
@@ -50,7 +50,7 @@ public class MatrixLookupTable {
         this.n = n;
         this.matrixFactory = matrixFactory;
 
-        arrayLookupTable = new ArrayLookupTable(m * n, values, dimensions);
+        vectorLookupTable = new VectorLookupTable(m * n, values, dimensions);
     }
 
     public MatrixLookupTable(int m, int n, MatrixFactory matrixFactory, double[] values, double[]... dimensions) {
@@ -67,7 +67,7 @@ public class MatrixLookupTable {
      * @return the number of dimensions.
      */
     public final int getDimensionCount() {
-        return arrayLookupTable.getDimensionCount();
+        return vectorLookupTable.getDimensionCount();
     }
 
     /**
@@ -76,7 +76,7 @@ public class MatrixLookupTable {
      * @return the dimensions.
      */
     public final IntervalPartition[] getDimensions() {
-        return arrayLookupTable.getDimensions();
+        return vectorLookupTable.getDimensions();
     }
 
     /**
@@ -86,7 +86,7 @@ public class MatrixLookupTable {
      * @return the ith dimension.
      */
     public final IntervalPartition getDimension(final int i) {
-        return arrayLookupTable.getDimension(i);
+        return vectorLookupTable.getDimension(i);
     }
 
     /**
@@ -100,6 +100,6 @@ public class MatrixLookupTable {
      * @throws NullPointerException     if the {@code coordinates} array is {@code null}.
      */
     public final double[][] getValues(final double... coordinates) throws IllegalArgumentException {
-        return matrixFactory.createMatrix(m, n, arrayLookupTable.getValues(coordinates));
+        return matrixFactory.createMatrix(m, n, vectorLookupTable.getValues(coordinates));
     }
 }

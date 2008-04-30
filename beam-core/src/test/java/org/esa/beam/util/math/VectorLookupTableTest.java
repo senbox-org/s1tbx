@@ -19,18 +19,18 @@ import junit.framework.TestCase;
 import java.util.Arrays;
 
 /**
- * Tests for class {@link ArrayLookupTable}.
+ * Tests for class {@link VectorLookupTable}.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$
  */
-public class ArrayLookupTableTest extends TestCase {
+public class VectorLookupTableTest extends TestCase {
 
     public void testArrayInterpolation1D() {
         final double[] dimension = new double[]{0, 1};
         final double[] values = new double[]{0, 2, 1, 3};
 
-        final ArrayLookupTable lut = new ArrayLookupTable(2, values, dimension);
+        final VectorLookupTable lut = new VectorLookupTable(2, values, dimension);
         assertEquals(1, lut.getDimensionCount());
 
         assertEquals(0.0, lut.getDimension(0).getMin(), 0.0);
@@ -45,7 +45,7 @@ public class ArrayLookupTableTest extends TestCase {
         final double[][] dimensions = new double[][]{{0, 1}, {0, 1}};
         final double[] values = new double[]{0, 4, 1, 5, 2, 6, 3, 7};
 
-        final ArrayLookupTable lut = new ArrayLookupTable(2, values, dimensions);
+        final VectorLookupTable lut = new VectorLookupTable(2, values, dimensions);
         assertEquals(2, lut.getDimensionCount());
 
         assertEquals(0.0, lut.getDimension(0).getMin(), 0.0);
@@ -67,7 +67,7 @@ public class ArrayLookupTableTest extends TestCase {
         final double[][] dimensions = new double[][]{{0, 1}, {0, 1}};
         final float[] values = new float[]{0, 4, 1, 5, 2, 6, 3, 7};
 
-        final ArrayLookupTable lut = new ArrayLookupTable(2, values, dimensions);
+        final VectorLookupTable lut = new VectorLookupTable(2, values, dimensions);
         assertTrue(Arrays.equals(new double[]{0.0, 4.0}, lut.getValues(0.0, 0.0)));
         assertTrue(Arrays.equals(new double[]{1.0, 5.0}, lut.getValues(0.0, 1.0)));
         assertTrue(Arrays.equals(new double[]{2.0, 6.0}, lut.getValues(1.0, 0.0)));

@@ -15,8 +15,8 @@
 package org.esa.beam.util.math;
 
 /**
- * The class {@code ArrayLookupTable} performs the function of
- * multilinear  interpolation for array lookup  tables with an
+ * The class {@code VectorLookupTable} performs the function of
+ * multilinear  interpolation for vector lookup  tables with an
  * arbitrary number of dimensions.
  * <p/>
  * todo - thread safety
@@ -25,7 +25,7 @@ package org.esa.beam.util.math;
  * @author Ralf Quast
  * @version $Revision$ $Date$
  */
-class ArrayLookupTable {
+public class VectorLookupTable {
 
     /**
      * The lookup values.
@@ -55,7 +55,7 @@ class ArrayLookupTable {
     /**
      * Constructs an array lookup table for the lookup values and dimensions supplied as arguments.
      *
-     * @param length     the length of the looked-up value array.
+     * @param length     the length of the looked-up vector.
      * @param values     the lookup values. The {@code values} array must be laid out in row-major
      *                   order, so that the dimension associated with the last axis varies fastest.
      * @param dimensions the interval partitions defining the dimensions associated with the lookup
@@ -67,14 +67,14 @@ class ArrayLookupTable {
      * @throws NullPointerException     if the {@code values} array or the {@code dimensions} array
      *                                  is {@code null} or any dimension is {@code null}.
      */
-    public ArrayLookupTable(int length, final double[] values, final IntervalPartition... dimensions) {
+    public VectorLookupTable(int length, final double[] values, final IntervalPartition... dimensions) {
         this(length, new Array.Double(values), dimensions);
     }
 
     /**
      * Constructs an array lookup table for the lookup values and dimensions supplied as arguments.
      *
-     * @param length     the length of the looked-up value array.
+     * @param length     the length of the looked-up vector.
      * @param values     the lookup values. The {@code values} array must be laid out in row-major
      *                   order, so that the dimension associated with the last axis varies fastest.
      * @param dimensions the interval partitions defining the dimensions associated with the lookup
@@ -86,14 +86,14 @@ class ArrayLookupTable {
      * @throws NullPointerException     if the {@code values} array or the {@code dimensions} array
      *                                  is {@code null} or any dimension is {@code null}.
      */
-    public ArrayLookupTable(int length, final float[] values, final IntervalPartition... dimensions) {
+    public VectorLookupTable(int length, final float[] values, final IntervalPartition... dimensions) {
         this(length, new Array.Float(values), dimensions);
     }
 
     /**
      * Constructs an array lookup table for the lookup values and dimensions supplied as arguments.
      *
-     * @param length     the length of the looked-up value array.
+     * @param length     the length of the looked-up vector.
      * @param values     the lookup values. The {@code values} array must be laid out in row-major
      *                   order, so that the dimension associated with the last axis varies fastest.
      * @param dimensions the interval partitions defining the dimensions associated with the lookup
@@ -105,14 +105,14 @@ class ArrayLookupTable {
      * @throws NullPointerException     if the {@code values} array or the {@code dimensions} array
      *                                  is {@code null} or any dimension is {@code null}.
      */
-    public ArrayLookupTable(int length, final double[] values, final double[]... dimensions) {
+    public VectorLookupTable(int length, final double[] values, final double[]... dimensions) {
         this(length, values, IntervalPartition.createArray(dimensions));
     }
 
     /**
      * Constructs an array lookup table for the lookup values and dimensions supplied as arguments.
      *
-     * @param length     the length of the looked-up value array.
+     * @param length     the length of the looked-up vector.
      * @param values     the lookup values. The {@code values} array must be laid out in row-major
      *                   order, so that the dimension associated with the last axis varies fastest.
      * @param dimensions the interval partitions defining the dimensions associated with the lookup
@@ -124,11 +124,11 @@ class ArrayLookupTable {
      * @throws NullPointerException     if the {@code values} array or the {@code dimensions} array
      *                                  is {@code null} or any dimension is {@code null}.
      */
-    public ArrayLookupTable(int length, final float[] values, final double[]... dimensions) {
+    public VectorLookupTable(int length, final float[] values, final double[]... dimensions) {
         this(length, values, IntervalPartition.createArray(dimensions));
     }
 
-    private ArrayLookupTable(int length, final Array values, final IntervalPartition... dimensions) {
+    private VectorLookupTable(int length, final Array values, final IntervalPartition... dimensions) {
         if (length < 1) {
             throw new IllegalArgumentException("length < 1");
         }
