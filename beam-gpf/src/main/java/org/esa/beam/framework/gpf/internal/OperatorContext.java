@@ -51,6 +51,7 @@ import java.util.regex.Pattern;
  * @since 4.1
  */
 public class OperatorContext {
+    private static final String OPERATION_CANCELED_MESSAGE = "Operation canceled.";
     private String id;
     private Product targetProduct;
     private OperatorSpi operatorSpi;
@@ -167,7 +168,7 @@ public class OperatorContext {
 
     public void checkForCancelation(ProgressMonitor pm) throws OperatorException {
         if (pm.isCanceled()) {
-            throw new OperatorException("Operation canceled.");
+            throw new OperatorException(OPERATION_CANCELED_MESSAGE);
         }
     }
 

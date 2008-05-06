@@ -127,7 +127,7 @@ public class LookupTable {
      * @throws NullPointerException     if the {@code values} array or the {@code dimensions} array
      *                                  is {@code null} or any dimension is {@code null}.
      */
-    public LookupTable(final float[] values, final double[]... dimensions) {
+    public LookupTable(final float[] values, final float[]... dimensions) {
         this(values, IntervalPartition.createArray(dimensions));
     }
 

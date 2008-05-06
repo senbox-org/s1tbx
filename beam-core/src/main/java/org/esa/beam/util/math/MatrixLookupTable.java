@@ -38,27 +38,27 @@ public class MatrixLookupTable {
     private final VectorLookupTable vectorLookupTable;
 
     public MatrixLookupTable(int m, int n, MatrixFactory matrixFactory, double[] values, IntervalPartition... dimensions) {
-        this.m = m;
-        this.n = n;
-        this.matrixFactory = matrixFactory;
-
-        vectorLookupTable = new VectorLookupTable(m * n, values, dimensions);
+        this(m, n, matrixFactory, new Array.Double(values), dimensions);
     }
 
     public MatrixLookupTable(int m, int n, MatrixFactory matrixFactory, float[] values, IntervalPartition... dimensions) {
-        this.m = m;
-        this.n = n;
-        this.matrixFactory = matrixFactory;
-
-        vectorLookupTable = new VectorLookupTable(m * n, values, dimensions);
+        this(m, n, matrixFactory, new Array.Float(values), dimensions);
     }
 
     public MatrixLookupTable(int m, int n, MatrixFactory matrixFactory, double[] values, double[]... dimensions) {
         this(m, n, matrixFactory, values, IntervalPartition.createArray(dimensions));
     }
 
-    public MatrixLookupTable(int m, int n, MatrixFactory matrixFactory, float[] values, double[]... dimensions) {
+    public MatrixLookupTable(int m, int n, MatrixFactory matrixFactory, float[] values, float[]... dimensions) {
         this(m, n, matrixFactory, values, IntervalPartition.createArray(dimensions));
+    }
+
+    private MatrixLookupTable(int m, int n, MatrixFactory matrixFactory, Array values, IntervalPartition... dimensions) {
+        this.m = m;
+        this.n = n;
+        this.matrixFactory = matrixFactory;
+
+        vectorLookupTable = new VectorLookupTable(m * n, values, dimensions);
     }
 
     /**

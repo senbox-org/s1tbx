@@ -2514,7 +2514,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (oldImage != image) {
             _image = image;
             fireProductNodeChanged("image", oldImage);
-        };
+        }
     }
 
     public static interface RasterDataProcessor {

@@ -64,7 +64,7 @@ public class VectorLookupTableTest extends TestCase {
     }
 
     public void testArrayInterpolationWithFloatValues() {
-        final double[][] dimensions = new double[][]{{0, 1}, {0, 1}};
+        final float[][] dimensions = new float[][]{{0, 1}, {0, 1}};
         final float[] values = new float[]{0, 4, 1, 5, 2, 6, 3, 7};
 
         final VectorLookupTable lut = new VectorLookupTable(2, values, dimensions);

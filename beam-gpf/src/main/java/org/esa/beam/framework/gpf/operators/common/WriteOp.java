@@ -18,8 +18,7 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.JAI;
-import java.awt.Dimension;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,7 +39,7 @@ public class WriteOp extends Operator {
     private String formatName;
 
     private ProductWriter productWriter;
-    private List<Band> bandsToWrite;
+    private List<Band> writableBands;
     private boolean productFileWritten;
 
     public WriteOp() {
@@ -60,17 +59,17 @@ public class WriteOp extends Operator {
             throw new OperatorException("No product writer for the '" + formatName + "' format available");
         }
         productWriter.setIncrementalMode(false);
-        Band[] bands = targetProduct.getBands();
-        bandsToWrite = new ArrayList<Band>(bands.length);
-        for (Band band : bands) {
+        final Band[] bands = targetProduct.getBands();
+        writableBands = new ArrayList<Band>(bands.length);
+        for (final Band band : bands) {
             if (productWriter.shouldWrite(band)) {
-                bandsToWrite.add(band);
+                writableBands.add(band);
             }
         }
     }
 
     @Override
-    public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         if (!productFileWritten) {
             try {
                 productWriter.writeProductNodes(targetProduct, file);
@@ -79,26 +78,23 @@ public class WriteOp extends Operator {
                 throw new OperatorException(e);
             }
         }
-        if (bandsToWrite.contains(band)) {
-            Rectangle rectangle = targetTile.getRectangle();
-            ProductWriter productWriterOld = null;
+        if (writableBands.contains(targetBand)) {
+            final Rectangle rectangle = targetTile.getRectangle();
+            final ProductWriter oldProductWriter = targetProduct.getProductWriter();
+
             try {
-                Tile tile = getSourceTile(band, rectangle, pm);
-                ProductData dataBuffer = tile.getRawSamples();
-                productWriterOld = targetProduct.getProductWriter();
+                final Tile tile = getSourceTile(targetBand, rectangle, pm);
+                final ProductData rawSamples = tile.getRawSamples();
                 targetProduct.setProductWriter(productWriter);
-                band.writeRasterData(rectangle.x, rectangle.y,
-                                     rectangle.width, rectangle.height, dataBuffer, pm);
+                targetBand.writeRasterData(rectangle.x, rectangle.y, rectangle.width, rectangle.height, rawSamples, pm);
             } catch (IOException e) {
-                Throwable cause = e.getCause();
+                final Throwable cause = e.getCause();
                 if (cause instanceof OperatorException) {
                     throw (OperatorException) cause;
                 }
                 throw new OperatorException(e);
             } finally {
-                if (productWriterOld != null) {
-                    targetProduct.setProductWriter(productWriterOld);
-                }
+                targetProduct.setProductWriter(oldProductWriter);
             }
         }
     }
@@ -106,10 +102,11 @@ public class WriteOp extends Operator {
     @Override
     public void dispose() {
         try {
-            targetProduct.closeIO();
+            productWriter.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            // ignore
         }
+        writableBands.clear();
     }
 
     public static class Spi extends OperatorSpi {
@@ -119,41 +116,53 @@ public class WriteOp extends Operator {
     }
 
     public static void writeProduct(Product product, File file, String formatName, ProgressMonitor pm) {
-        WriteOp writeOp = new WriteOp(product, file, formatName);
-        Product outputProduct = writeOp.getTargetProduct();
+        final WriteOp writeOp = new WriteOp(product, file, formatName);
+        final Product targetProduct = writeOp.getTargetProduct();
 
-        Dimension defaultTileSize = product.getPreferredTileSize();
-        if (defaultTileSize == null) {
-            defaultTileSize = JAI.getDefaultTileSize();
+        Dimension tileSize = product.getPreferredTileSize();
+        if (tileSize == null) {
+            tileSize = JAI.getDefaultTileSize();
         }
-        final int rasterHeight = outputProduct.getSceneRasterHeight();
-        final int rasterWidth = outputProduct.getSceneRasterWidth();
-        Rectangle productBounds = new Rectangle(rasterWidth, rasterHeight);
-        int numXTiles = MathUtils.ceilInt(productBounds.width / (double) defaultTileSize.width);
-        int numYTiles = MathUtils.ceilInt(productBounds.height / (double) defaultTileSize.height);
-        final Band[] bands = outputProduct.getBands();
 
-        pm.beginTask("Writing product...", numXTiles * numYTiles * bands.length * 2);
+        final int rasterHeight = targetProduct.getSceneRasterHeight();
+        final int rasterWidth = targetProduct.getSceneRasterWidth();
+        final Rectangle boundary = new Rectangle(rasterWidth, rasterHeight);
+        final int tileCountX = MathUtils.ceilInt(boundary.width / (double) tileSize.width);
+        final int tileCountY = MathUtils.ceilInt(boundary.height / (double) tileSize.height);
+        final Band[] targetBands = targetProduct.getBands();
+
         try {
-            for (int tileY = 0; tileY < numYTiles; tileY++) {
-                for (int tileX = 0; tileX < numXTiles; tileX++) {
+            pm.beginTask("Writing product...", tileCountX * tileCountY * targetBands.length * 2);
+
+            for (int tileY = 0; tileY < tileCountY; tileY++) {
+                for (int tileX = 0; tileX < tileCountX; tileX++) {
                     writeOp.checkForCancelation(pm);
-                    // todo - delete file(s)  (nf - 2007.10.30)
 
-                    Rectangle tileRectangle = new Rectangle(tileX
-                            * defaultTileSize.width, tileY
-                            * defaultTileSize.height, defaultTileSize.width,
-                                                      defaultTileSize.height);
-                    Rectangle intersection = productBounds
-                            .intersection(tileRectangle);
+                    final Rectangle tileRectangle = new Rectangle(tileX * tileSize.width,
+                                                                  tileY * tileSize.height,
+                                                                  tileSize.width,
+                                                                  tileSize.height);
+                    final Rectangle intersection = boundary.intersection(tileRectangle);
 
-                    for (Band band : bands) {
-                        Tile tile = writeOp.getSourceTile(band, intersection, SubProgressMonitor.create(pm, 1));
-                        writeOp.computeTile(band, tile, SubProgressMonitor.create(pm, 1));
+                    for (final Band band : targetBands) {
+                        final Tile tile = writeOp.getSourceTile(band, intersection, new SubProgressMonitor(pm, 1));
+                        writeOp.computeTile(band, tile, new SubProgressMonitor(pm, 1));
                     }
                 }
             }
+        } catch (OperatorException e) {
+            if ("Operation canceled.".equals(e.getMessage())) {
+                try {
+                    writeOp.productWriter.deleteOutput();
+                } catch (IOException ignored) {
+                }
+            }
+            throw e;
         } finally {
+            try {
+                writeOp.productWriter.close();
+            } catch (IOException ignored) {
+            }
             pm.done();
         }
     }

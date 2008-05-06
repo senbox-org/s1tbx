@@ -124,11 +124,11 @@ public class VectorLookupTable {
      * @throws NullPointerException     if the {@code values} array or the {@code dimensions} array
      *                                  is {@code null} or any dimension is {@code null}.
      */
-    public VectorLookupTable(int length, final float[] values, final double[]... dimensions) {
+    public VectorLookupTable(int length, final float[] values, final float[]... dimensions) {
         this(length, values, IntervalPartition.createArray(dimensions));
     }
 
-    private VectorLookupTable(int length, final Array values, final IntervalPartition... dimensions) {
+    VectorLookupTable(int length, final Array values, final IntervalPartition... dimensions) {
         if (length < 1) {
             throw new IllegalArgumentException("length < 1");
         }
