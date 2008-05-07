@@ -33,7 +33,7 @@ public class DropoutCorrection {
         /**
          * This type includes all eight surrounding pixels.
          */
-        N8("8-Connected", new double[]{0.7, 1.0, 0.7, 1.0, 0.0, 1.0, 0.7, 1.0, 0.7});
+        N8("8-Connected", new double[]{1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0});
 
         private final String name;
         private final double[] weights;

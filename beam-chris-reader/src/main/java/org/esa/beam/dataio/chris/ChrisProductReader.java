@@ -182,8 +182,7 @@ public class ChrisProductReader extends AbstractProductReader {
                 continue;
             }
             final String globalAttribute = chrisFile.getGlobalAttribute(name);
-            mph.addAttribute(new MetadataAttribute(name,
-                                                   ProductData.createInstance(globalAttribute), true));
+            mph.addAttribute(new MetadataAttribute(name, ProductData.createInstance(globalAttribute), true));
 
             if (ChrisConstants.ATTR_NAME_SOLAR_ZENITH_ANGLE.equals(name)) {
                 addSolarAzimuthAngleIfPossible(product, mph);
