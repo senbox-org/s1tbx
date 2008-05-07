@@ -33,10 +33,14 @@ public class WriteOp extends Operator {
     @SourceProduct(alias = "input")
     private Product sourceProduct;
 
-    @Parameter(description = "The file to which the data product is written.")
+    @Parameter(description = "The output file to which the data product is written.")
     private File file;
-    @Parameter(defaultValue = ProductIO.DEFAULT_FORMAT_NAME)
+    @Parameter(defaultValue = ProductIO.DEFAULT_FORMAT_NAME,
+               description = "The name of the output file format.")
     private String formatName;
+    @Parameter(defaultValue = "true",
+               description = "If true, all output files are deleted when the write operation has failed.")
+    private boolean deleteOutputOnFailure;
 
     private ProductWriter productWriter;
     private List<Band> writableBands;
@@ -45,10 +49,15 @@ public class WriteOp extends Operator {
     public WriteOp() {
     }
 
-    public WriteOp(Product product, File file, String formatName) {
-        this.sourceProduct = product;
+    public WriteOp(Product sourceProduct, File file, String formatName) {
+        this(sourceProduct, file, formatName, true);
+    }
+
+    public WriteOp(Product sourceProduct, File file, String formatName, boolean deleteOutputOnFailure) {
+        this.sourceProduct = sourceProduct;
         this.file = file;
         this.formatName = formatName;
+        this.deleteOutputOnFailure = deleteOutputOnFailure;
     }
 
     @Override
@@ -70,29 +79,32 @@ public class WriteOp extends Operator {
 
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
-        if (!productFileWritten) {
-            try {
-                productWriter.writeProductNodes(targetProduct, file);
-                productFileWritten = true;
-            } catch (IOException e) {
-                throw new OperatorException(e);
-            }
-        }
         if (writableBands.contains(targetBand)) {
-            final Rectangle rectangle = targetTile.getRectangle();
             final ProductWriter oldProductWriter = targetProduct.getProductWriter();
-
             try {
-                final Tile tile = getSourceTile(targetBand, rectangle, pm);
-                final ProductData rawSamples = tile.getRawSamples();
+                if (!productFileWritten) {
+                    productWriter.writeProductNodes(targetProduct, file);
+                    productFileWritten = true;
+                }
+                final Rectangle rectangle = targetTile.getRectangle();
+                final Tile sourceTile = getSourceTile(targetBand, rectangle, pm);
+                final ProductData rawSamples = sourceTile.getRawSamples();
+
                 targetProduct.setProductWriter(productWriter);
                 targetBand.writeRasterData(rectangle.x, rectangle.y, rectangle.width, rectangle.height, rawSamples, pm);
-            } catch (IOException e) {
-                final Throwable cause = e.getCause();
-                if (cause instanceof OperatorException) {
-                    throw (OperatorException) cause;
+            } catch (Exception e) {
+                if (deleteOutputOnFailure) {
+                    try {
+                        productWriter.deleteOutput();
+                        productFileWritten = false;
+                    } catch (IOException ignored) {
+                    }
                 }
-                throw new OperatorException(e);
+                if (e instanceof OperatorException) {
+                    throw (OperatorException) e;
+                } else {
+                    throw new OperatorException(e);
+                }
             } finally {
                 targetProduct.setProductWriter(oldProductWriter);
             }
@@ -115,11 +127,16 @@ public class WriteOp extends Operator {
         }
     }
 
-    public static void writeProduct(Product product, File file, String formatName, ProgressMonitor pm) {
-        final WriteOp writeOp = new WriteOp(product, file, formatName);
+    public static void writeProduct(Product sourceProduct, File file, String formatName, ProgressMonitor pm) {
+        writeProduct(sourceProduct, file, formatName, true, pm);
+    }
+
+    public static void writeProduct(Product sourceProduct, File file, String formatName, boolean deleteOutputOnFailure,
+                                    ProgressMonitor pm) {
+        final WriteOp writeOp = new WriteOp(sourceProduct, file, formatName, deleteOutputOnFailure);
         final Product targetProduct = writeOp.getTargetProduct();
 
-        Dimension tileSize = product.getPreferredTileSize();
+        Dimension tileSize = targetProduct.getPreferredTileSize();
         if (tileSize == null) {
             tileSize = JAI.getDefaultTileSize();
         }
@@ -151,7 +168,7 @@ public class WriteOp extends Operator {
                 }
             }
         } catch (OperatorException e) {
-            if ("Operation canceled.".equals(e.getMessage())) {
+            if (deleteOutputOnFailure) {
                 try {
                     writeOp.productWriter.deleteOutput();
                 } catch (IOException ignored) {

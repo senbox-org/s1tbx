@@ -16,11 +16,8 @@
  */
 package org.esa.beam.framework.gpf.operators.common;
 
-import java.io.File;
-import java.io.StringReader;
-
+import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
-
 import org.esa.beam.GlobalTestConfig;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
@@ -37,13 +34,13 @@ import org.esa.beam.framework.gpf.graph.Graph;
 import org.esa.beam.framework.gpf.graph.GraphContext;
 import org.esa.beam.framework.gpf.graph.GraphIO;
 import org.esa.beam.framework.gpf.graph.GraphProcessor;
-import org.esa.beam.framework.gpf.internal.TileImpl;
 
-import com.bc.ceres.core.ProgressMonitor;
+import java.io.File;
+import java.io.StringReader;
 
 /**
  * Created by marcoz.
- * 
+ *
  * @author marcoz
  * @version $Revision: $ $Date: $
  */
@@ -75,56 +72,56 @@ public class WriteOpTest extends TestCase {
                     + "  <version>1.0</version>\n"
                     + "  <header>\n"
                     + "    <target refid=\"node2\" />\n"
-                    + "  </header>\n" 
+                    + "  </header>\n"
                     + "  <node id=\"node1\">\n"
-                    + "    <operator>MockFiller</operator>\n" 
+                    + "    <operator>MockFiller</operator>\n"
                     + "  </node>\n"
                     + "  <node id=\"node2\">\n"
                     + "    <operator>Write</operator>\n"
                     + "    <sources>\n"
-                    + "      <input refid=\"node1\"/>\n" 
+                    + "      <input refid=\"node1\"/>\n"
                     + "    </sources>\n"
-                    + "    <parameters>\n" 
-                    + "       <file>"+ file.getAbsolutePath()+ "</file>\n"
-                    + "    </parameters>\n" 
-                    + "  </node>\n" 
+                    + "    <parameters>\n"
+                    + "       <file>" + file.getAbsolutePath() + "</file>\n"
+                    + "       <deleteOutputOnFailure>false</deleteOutputOnFailure>\n"
+                    + "    </parameters>\n"
+                    + "  </node>\n"
                     + "</graph>";
             StringReader reader = new StringReader(graphOpXml);
             Graph graph = GraphIO.read(reader);
 
-             GraphProcessor processor = new GraphProcessor();
-             GraphContext graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
-             processor.executeGraphContext(graphContext, ProgressMonitor.NULL);
-             Product[] outputProducts = graphContext.getOutputProducts();
-             outputProducts[0].dispose();
-             
-             Product readProduct = ProductIO.readProduct(file, null);
-             assertEquals("writtenProduct", readProduct.getName());
-             assertEquals(1, readProduct.getNumBands());
-             Band band1 = readProduct.getBandAt(0);
-             assertEquals("Op1A", band1.getName());
-             assertEquals(RASTER_SIZE, band1.getSceneRasterWidth());
-             band1.loadRasterData();
-             assertEquals(42, band1.getPixelInt(0, 0));
-             readProduct.dispose();
+            GraphProcessor processor = new GraphProcessor();
+            GraphContext graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
+            processor.executeGraphContext(graphContext, ProgressMonitor.NULL);
+            Product[] outputProducts = graphContext.getOutputProducts();
+            outputProducts[0].dispose();
+
+            Product readProduct = ProductIO.readProduct(file, null);
+            assertEquals("writtenProduct", readProduct.getName());
+            assertEquals(1, readProduct.getNumBands());
+            Band band1 = readProduct.getBandAt(0);
+            assertEquals("Op1A", band1.getName());
+            assertEquals(RASTER_SIZE, band1.getSceneRasterWidth());
+            band1.loadRasterData();
+            assertEquals(42, band1.getPixelInt(0, 0));
+            readProduct.dispose();
         } finally {
             File parentFile = file.getParentFile();
             deleteDirectory(parentFile);
         }
     }
-    
-    private static void emptyDirectory(File file) {
-        File afile[] = file.listFiles();
-        if(afile == null) {
+
+    private static void emptyDirectory(File directory) {
+        final File[] files = directory.listFiles();
+        if (files == null) {
             return;
         }
-        for(int i = 0; i < afile.length; i++) {
-            File file1 = afile[i];
-            if(file1.isDirectory()) {
-                deleteDirectory(file1);
-                file1.delete();
+        for (final File file : files) {
+            if (file.isDirectory()) {
+                deleteDirectory(file);
+                file.delete();
             } else {
-                file1.delete();
+                file.delete();
             }
         }
     }
@@ -133,10 +130,10 @@ public class WriteOpTest extends TestCase {
         emptyDirectory(file);
         file.delete();
     }
-    
+
     @OperatorMetadata(alias = "MockFiller")
     public static class MockFillerOp extends Operator {
-        
+
         @TargetProduct
         private Product targetProduct;
 
