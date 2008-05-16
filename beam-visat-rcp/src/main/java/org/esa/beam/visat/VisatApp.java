@@ -1295,7 +1295,8 @@ public class VisatApp extends BasicApp {
     }
 
     /**
-     * Creates a new rgb product scene view and opens an internal frame for it.
+     * Asks the user to select or define a RGB profile from which the product scene view will be
+     * created and opend as internal frame.
      */
     public void openProductSceneViewRGB(final Product product, final String helpId) {
         final RGBImageProfilePane profilePane = new RGBImageProfilePane(getPreferences(), product);
@@ -1311,7 +1312,15 @@ public class VisatApp extends BasicApp {
         final RGBImageProfile selectedProfile = profilePane.getSelectedProfile();
         final String name = selectedProfile != null ? selectedProfile.getName().replace("_", " ") : "";
 
-        final SwingWorker worker = new ProgressMonitorSwingWorker<ProductSceneImage, Object>(getMainFrame(),
+        openProductSceneViewRGB(name, product, rgbaExpressions, helpId);
+    }
+
+    /**
+     * Creates product scene view using the given RGBA expressions.
+     */
+    public void openProductSceneViewRGB(final String name, final Product product, final String[] rgbaExpressions,
+                         final String helpId) {
+        final SwingWorker<ProductSceneImage, Object> worker = new ProgressMonitorSwingWorker<ProductSceneImage, Object>(getMainFrame(),
                                                                                              getAppName() + " - Creating image for '" + name + "'") {
 
             @Override
