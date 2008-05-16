@@ -157,9 +157,12 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         DefaultMutableTreeNode productTreeNode = createProductTreeNode(product);
         rootNode.add(productTreeNode);
         getTreeModel().nodesWereInserted(rootNode, new int[]{rootNode.getIndex(productTreeNode)});
-        final TreePath lastLeafPath = new TreePath(productTreeNode.getLastLeaf().getPath());
-        makeVisible(lastLeafPath);
-        scrollPathToVisible(lastLeafPath);
+//        final TreePath lastLeafPath = new TreePath(productTreeNode.getLastLeaf().getPath());
+//        makeVisible(lastLeafPath);
+        final TreePath productTreeNodePath = new TreePath(productTreeNode.getPath());
+        expandPath(productTreeNodePath);
+//        makeVisible(productTreeNodePath);
+        scrollPathToVisible(productTreeNodePath);
         invalidate();
         doLayout();
         fireProductAdded(product);

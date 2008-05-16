@@ -10,6 +10,7 @@
     <changelog>
         <![CDATA[
         Changes in 4.2<br>
+        [BEAM-819] Newly opened products should not be expanded<br/>
         [BEAM-726] Memory not fully released after closing a product<br>
         [BEAM-712] Processors produce visat.exe zombies<br>
         [BEAM-694] Bandarithmetic gives acces to latitude and longitude using the provided geocoding<br>
