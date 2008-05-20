@@ -246,7 +246,7 @@ public class ScriptConsoleToolView extends AbstractToolView {
             // create a JavaScript engine
             scriptEngine = scriptEngineManager.getEngineByName(DEFAULT_SCRIPT_LANGUAGE_NAME);
             if (scriptEngine == null) {
-                throw new ScriptException("No engine for scriptinmg language '" + DEFAULT_SCRIPT_LANGUAGE_NAME + "' found.");
+                throw new ScriptException("No engine for scripting language '" + DEFAULT_SCRIPT_LANGUAGE_NAME + "' found.");
             }
 
             final ScriptWriter writer = new ScriptWriter(); // fixme - don't get any output
