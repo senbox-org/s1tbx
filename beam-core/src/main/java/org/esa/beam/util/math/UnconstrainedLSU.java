@@ -18,58 +18,71 @@ package org.esa.beam.util.math;
 
 import Jama.Matrix;
 
+import java.text.MessageFormat;
+
 /**
- * A pixel spectrum is assumed to be a linear superposition of
- * the spectra of the end-members, which therefore are the basic of this class.
+ * Performs an unconstrained linear spectral unmixing.
  *
- * @author Helmut Schiller, GKSS
+ * @author Ralf Quast
+ * @author Helmut Schiller (GKSS)
+ * @version $Revision$ $Date$
  * @since 4.1
  */
 public class UnconstrainedLSU implements SpectralUnmixing {
 
-    private final Matrix endMembers;
-    private final Matrix Apinv;
+    private final double[][] endmemberMatrix;
+    private final double[][] inverseEndmemberMatrix;
 
     /**
-     * Constructs a new <code>LinearSpectralUnmixing</code> for the given matrix.
+     * Constructs a new instance of this class.
      *
-     * @param endMembers The matrix of end-members, nrow = # of spectral channels, ncol = # of endmembers.
+     * @param endmembers the endmembers, where
+     *                   number of rows = number of spectral channels
+     *                   number of cols = number of endmember spectra
      */
-    public UnconstrainedLSU(Matrix endMembers) {
-        this.endMembers = endMembers;
-        this.Apinv = endMembers.inverse();
-    }
-
-    /**
-     * @return The matrix of end-members, nrow = # of spectral channels, ncol = # of endmembers.
-     */
-    public Matrix getEndMembers() {
-        return endMembers;
-    }
-
-    /**
-     * Gets the abundances of given spectra by performing an unconstrained, linear unmixing.
-     *
-     * @param specs the spectra, nrow = # of spectral channels, ncol= # of spectra to be unmixed
-     * @return the abundances, nrow = # of endmembers, ncol = # of unmixed spectra
-     */
-    public Matrix unmix(Matrix specs) {
-        if (specs.getRowDimension() != endMembers.getRowDimension()) {
-            throw new IllegalArgumentException("specs.getRowDimension() != endmembers.getRowDimension()");
+    public UnconstrainedLSU(double[][] endmembers) {
+        if (!LinearAlgebra.isMatrix(endmembers)) {
+            throw new IllegalArgumentException("Parameter 'endmembers' is not a matrix.");
         }
-        return this.Apinv.times(specs);
+
+        endmemberMatrix = endmembers;
+        inverseEndmemberMatrix = new Matrix(endmembers).inverse().getArrayCopy();
     }
 
     /**
-     * Gets the spectra for given abundances.
+     * Returns the endmembers.
      *
-     * @param abundances the abundances, nrow = # of endmembers, ncol = # of unmixed spectra
-     * @return the resulting spectra, nrow = # of endmembers, ncol = # of mixed spectra
+     * @return endmembers the endmembers, where
+     *         number of rows = number of spectral channels
+     *         number of cols = number of endmember spectra
      */
-    public Matrix mix(Matrix abundances) {
-        if (abundances.getRowDimension() != endMembers.getColumnDimension()) {
-            throw new IllegalArgumentException("specs.getRowDimension() != endmembers.getRowDimension()");
+    public double[][] getEndmembers() {
+        return endmemberMatrix;
+    }
+
+    @Override
+    public double[][] unmix(double[][] spectra) {
+        final int actualRowCount = spectra.length;
+        final int expectedRowCount = endmemberMatrix.length;
+
+        if (actualRowCount != expectedRowCount) {
+            throw new IllegalArgumentException(MessageFormat.format(
+                    "Parameter ''spectra'' is not a matrix with {0} rows.", expectedRowCount));
         }
-        return endMembers.times(abundances);
+
+        return LinearAlgebra.multiply(inverseEndmemberMatrix, spectra);
+    }
+
+    @Override
+    public double[][] mix(double[][] abundances) {
+        final int actualRowCount = abundances.length;
+        final int expectedRowCount = endmemberMatrix[0].length;
+
+        if (actualRowCount != expectedRowCount) {
+            throw new IllegalArgumentException(MessageFormat.format(
+                    "Parameter ''abundances'' is not a matrix with {0} rows.", expectedRowCount));
+        }
+
+        return LinearAlgebra.multiply(endmemberMatrix, abundances);
     }
 }

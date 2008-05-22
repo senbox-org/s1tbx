@@ -14,44 +14,45 @@ import java.io.InputStreamReader;
  */
 public class LinearSpectralUnmixingTest extends TestCase {
 
-    public void testUnmixing() throws IOException {
+    private Matrix endmembers;
+    private Matrix spectra;
 
-        Matrix endmembers = Matrix.read(getResourceReader("endmember-spectra.csv"));
-        SpectralUnmixing mlm = new UnconstrainedLSU(endmembers);
+    public void testUnconstrainedUnmixing() throws IOException {
+        SpectralUnmixing mlm = new UnconstrainedLSU(endmembers.getArray());
 
-        Matrix spectra = Matrix.read(getResourceReader("pixel-spectra.csv"));
+        Matrix abundUnconstrBeam = new Matrix(mlm.unmix(spectra.getArray()));
 
-        Matrix abundUnconstrBeam = mlm.unmix(spectra);
         Matrix abundUnconstrEnvi = Matrix.read(getResourceReader("abundances-unconstr-envi.csv"));
         Matrix abundUnconstrExpected = Matrix.read(getResourceReader("abundances-unconstr-expected.csv"));
         assertEquals("Difference of abundances (BEAM minus ENVI, unconstrained)",
-                     0.0,
-                     maxAbs(abundUnconstrBeam.minus(abundUnconstrEnvi)),
-                     1e-4);
+                0.0,
+                maxAbs(abundUnconstrBeam.minus(abundUnconstrEnvi)),
+                1e-4);
         assertEquals("Difference of abundances (BEAM minus EXPECTED, unconstrained)",
-                     0.0,
-                     maxAbs(abundUnconstrBeam.minus(abundUnconstrExpected)),
-                     1e-7);
+                0.0,
+                maxAbs(abundUnconstrBeam.minus(abundUnconstrExpected)),
+                1e-7);
+    }
 
-        SpectralUnmixing mlmC = new ConstrainedLSU(endmembers);
-        Matrix abundConstrBeam = mlmC.unmix(spectra);
+    public void testConstrainedUnmixing() throws IOException {
+        SpectralUnmixing mlmC = new ConstrainedLSU(endmembers.getArray());
+        Matrix abundConstrBeam = new Matrix(mlmC.unmix(spectra.getArray()));
+        
         Matrix abundConstrEnvi = Matrix.read(getResourceReader("abundances-constr-envi.csv"));
         Matrix abundConstrExpected = Matrix.read(getResourceReader("abundances-constr-expected.csv"));
         assertEquals("Difference of abundances (BEAM minus ENVI, constrained)",
-                     0.0,
-                     maxAbs(abundConstrBeam.minus(abundConstrEnvi)),
-                     1e-2);
+                0.0,
+                maxAbs(abundConstrBeam.minus(abundConstrEnvi)),
+                1e-2);
         assertEquals("Difference of abundances (BEAM minus EXPECTED, constrained)",
-                     0.0,
-                     maxAbs(abundConstrBeam.minus(abundConstrExpected)),
-                     1e-7);
+                0.0,
+                maxAbs(abundConstrBeam.minus(abundConstrExpected)),
+                1e-7);
 
         assertEquals("Sum of abundances must be 1 (constrained)",
-                     0.0,
-                     maxAbsDeltaRowSumFromOne(abundConstrBeam),
-                     1e-15);
-
-
+                0.0,
+                maxAbsDeltaRowSumFromOne(abundConstrBeam),
+                1e-15);
     }
 
     private static double maxAbs(Matrix matrix) {
@@ -94,5 +95,10 @@ public class LinearSpectralUnmixingTest extends TestCase {
             fail("resource not found: " + resourceName);
         }
         return new BufferedReader(new InputStreamReader(stream));
+    }
+
+    protected void setUp() throws Exception {
+        endmembers = Matrix.read(getResourceReader("endmember-spectra.csv"));
+        spectra = Matrix.read(getResourceReader("pixel-spectra.csv"));
     }
 }

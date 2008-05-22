@@ -2,49 +2,46 @@ package org.esa.beam.util.math;
 
 import Jama.Matrix;
 
+import java.util.Arrays;
+
 /**
- * A pixel spectrum is assumed to be a linear superposition of
- * the spectra of the end-members, which therefore are the basis of this class.
- * The constraint is sum(abundances)=1 for each pixel.
+ * Performs a constrained linear spectral unmixing, where the sum
+ * of abundances always is equal to unity.
  *
- * @author Helmut Schiller, GKSS
+ * @author Ralf Quast
+ * @author Helmut Schiller (GKSS)
+ * @version $Revision$ $Date$
  * @since 4.1
  */
 public class ConstrainedLSU extends UnconstrainedLSU {
 
-    private final Matrix ATAinv;
-    private final Matrix Z;
+    private final double[] z;
+    private final double[] a;
 
     /**
-     * Constructs a new <code>LinearSpectralUnmixing</code> for the given matrix.
+     * Constructs a new instance of this class.
      *
-     * @param endMembers the matrix of end-members, nrow = # of spectral channels, ncol = # of endmembers
+     * @param endmembers the endmembers, where
+     *                   number of rows = number of spectral channels
+     *                   number of cols = number of endmember spectra
      */
-    public ConstrainedLSU(Matrix endMembers) {
-        super(endMembers);
-        this.ATAinv = (((endMembers.transpose()).times(endMembers))).inverse();
-        this.Z = new Matrix(1, endMembers.getColumnDimension(), 1.);
+    public ConstrainedLSU(double[][] endmembers) {
+        super(endmembers);
+
+        final Matrix matrix = new Matrix(endmembers);
+        final double[][] inverseAtA = matrix.transpose().times(matrix).inverse().getArrayCopy();
+
+        z = new double[endmembers[0].length];
+        Arrays.fill(z, 1.0);
+
+        a = LinearAlgebra.multiply(inverseAtA, z);
+        LinearAlgebra.multiply(a, 1.0 / LinearAlgebra.innerProduct(LinearAlgebra.multiply(z, inverseAtA), z));
     }
 
-    /**
-     * Gets the abundances of given spectra by performing a constrained, linear unmixing.
-     * The constraint is sum(abundances)=1 for each pixel.
-     *
-     * @param specs nrow = # of spectral channels, ncol= # of spectra to be unmixed
-     * @return the abundances, nrow = # of endmembers, ncol = # of unmixed spectra
-     */
     @Override
-    public Matrix unmix(Matrix specs) {
-        if (specs.getRowDimension() != getEndMembers().getRowDimension()) {
-            throw new IllegalArgumentException("specs.getRowDimension() != endmembers.getRowDimension()");
-        }
-        Matrix res, hr;
-        Matrix au = super.unmix(specs);
-        hr = this.ATAinv.times(Z.transpose()).times(
-                Z.times(ATAinv).times(Z.transpose()).inverse()).times(
-                Z.times(au).minus(
-                        (new Matrix(1, specs.getColumnDimension(), 1.))));
-        res = au.minus(hr);
-        return res;
+    public double[][] unmix(double[][] spectra) {
+        final double[][] abundances = super.unmix(spectra);
+
+        return LinearAlgebra.subtract(abundances, a, LinearAlgebra.multiplyAndSubtract(z, abundances, 1.0));
     }
 }

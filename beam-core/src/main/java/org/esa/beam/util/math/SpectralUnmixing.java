@@ -1,22 +1,36 @@
 package org.esa.beam.util.math;
 
-import Jama.Matrix;
-
+/**
+ * Linear spectral unmixing interface.
+ *
+ * @author Norman Fomferra.
+ * @version $Revision$ $Date$
+ */
 public interface SpectralUnmixing {
 
     /**
-     * Gets the abundances by performing an unmixing of the given spectra.
+     * Performs a linear spectral unmixing of a set of spectra.
      *
-     * @param specs the spectra, nrow = # of spectral channels, ncol= # of spectra to be unmixed
-     * @return the abundances, nrow = # of endmembers, ncol = # of unmixed spectra
+     * @param spectra the spectra, where
+     *                number of rows = number of spectral channels
+     *                number of cols = number of spectra
+     *
+     * @return the abundances, where
+     *         number of rows = number of endmembers
+     *         number of cols = number of spectra
      */
-    Matrix unmix(Matrix specs);
+    double[][] unmix(double[][] spectra);
 
     /**
-     * Gets the spectra for the given abundances.
+     * Calculates the spectra for a set of abundances.
      *
-     * @param abundances the abundances, nrow = # of endmembers, ncol = # of unmixed spectra
-     * @return the resulting spectra, nrow = # of endmembers, ncol = # of mixed spectra
+     * @param abundances the abundances, where
+     *                   number of rows = number of endmembers
+     *                   number of cols = number of spectra
+     *
+     * @return the resulting spectra, where
+     *         number of rows = number of spectral channels
+     *         number of cols = number of spectra
      */
-    Matrix mix(Matrix abundances);
+    double[][] mix(double[][] abundances);
 }

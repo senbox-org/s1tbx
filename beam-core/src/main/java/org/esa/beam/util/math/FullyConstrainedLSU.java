@@ -2,42 +2,49 @@ package org.esa.beam.util.math;
 
 import Jama.Matrix;
 
+/**
+ * Performs a fully constrained linear spectral unmixing, where all
+ * abundances are non-negative and their sum is equal to unity.
+ *
+ * @author Helmut Schiller (GKSS)
+ * @author Ralf Quast
+ * @version $Revision$ $Date$
+ * @since 4.1
+ */
 public class FullyConstrainedLSU implements SpectralUnmixing {
 
-    private int nchem, nmemb;
-    private SpectralUnmixing[][] trialModels;
-    private boolean[][][] sortedemcombs;
+    private final int nchem;
+    private final int nmemb;
 
-    public FullyConstrainedLSU(Matrix endmembs) {
+    private final SpectralUnmixing[][] trialModels;
+    private final boolean[][][] sortedemcombs;
 
-        this.nchem = endmembs.getRowDimension();
-        this.nmemb = endmembs.getColumnDimension();
-        int nposs = posp(nmemb) - 1;
-        //System.out.println(nposs);
+    public FullyConstrainedLSU(double[][] endmembers) {
+        if (!LinearAlgebra.isMatrix(endmembers)) {
+            throw new IllegalArgumentException("Parameter 'endmembers' is not a matrix.");
+        }
+
+        nchem = endmembers.length;
+        nmemb = endmembers[0].length;
+
+        final int nposs = (1 << nmemb) - 1;
         int rb[] = new int[nposs];
         for (int i = 0; i < nposs; i++) {
             rb[i] = i + 1;
         }
 
-        boolean[][] emcombs = new boolean[nposs][nmemb];
+        final boolean[][] emcombs = new boolean[nposs][nmemb];
         for (int k = 0; k < nposs; k++) {
             int zpot = 1;
             for (int l = 0; l < nmemb; l++) {
                 int h = zpot & rb[k];
-                if (h > 0) {
-                    emcombs[k][l] = true;
-                } else {
-                    emcombs[k][l] = false;
-                }
+                emcombs[k][l] = h > 0;
                 zpot *= 2;
-                //System.out.println(k+1+"  "+l+"  "+zpot+" "+h+" "+emcombs[k][l]);
             }
-            //System.out.println();
         }
-        int[] numbin = new int[nposs];
+        final int[] numbin = new int[nposs];
         for (int k = 0; k < nposs; k++) {
-            numbin[k] = cttrue(emcombs[k]);
-            //System.out.println(numbin[k]);
+            numbin[k] = countTrue(emcombs[k]);
         }
         sortedemcombs = new boolean[nmemb][][];
         trialModels = new ConstrainedLSU[nmemb][];
@@ -48,7 +55,6 @@ public class FullyConstrainedLSU implements SpectralUnmixing {
                     nc++;
                 }
             }
-            //System.out.println(nmemb-nem-1+"  "+nc);
             sortedemcombs[nmemb - nem - 1] = new boolean[nc][nmemb];
             trialModels[nmemb - nem - 1] = new ConstrainedLSU[nc];
         }
@@ -56,54 +62,48 @@ public class FullyConstrainedLSU implements SpectralUnmixing {
             int nc = 0;
             for (int p = 0; p < nposs; p++) {
                 if (nem + 1 == numbin[p]) {
-                    for (int m = 0; m < nmemb; m++) {
-                        sortedemcombs[nmemb - nem - 1][nc][m] = emcombs[p][m];
-                    }
-                    Matrix trem = extractCols(endmembs, sortedemcombs[nmemb - nem - 1][nc]);
+                    System.arraycopy(emcombs[p], 0, sortedemcombs[nmemb - nem - 1][nc], 0, nmemb);
+                    double[][] trem = extractColumns(endmembers, sortedemcombs[nmemb - nem - 1][nc]);
                     trialModels[nmemb - nem - 1][nc] = new ConstrainedLSU(trem);
-                    //System.out.print(nmemb-nem-1+"  "+nc+"  ");
-                    //for(int m=0; m<nmemb; m++) System.out.print(sortedemcombs[nmemb-nem-1][nc][m]+"  ");
-                    //System.out.println();
                     nc++;
                 }
             }
         }
     }
 
-    private Matrix unmix0(Matrix specs) {
-        // endlos bei negativen spektren- oder endmembs-anteilen
-        Matrix res = new Matrix(nmemb, specs.getColumnDimension());
-        for (int nspek = 0; nspek < specs.getColumnDimension(); nspek++) {
-            Matrix singlesp = specs.getMatrix(0, nchem - 1, nspek, nspek);
+    @Override
+    public double[][] unmix(double[][] spectra) {
+        final int colCount = spectra[0].length;
+
+        final Matrix res = new Matrix(nmemb, colCount);
+        for (int nspek = 0; nspek < colCount; nspek++) {
+            final double[][] singlesp = extractSingleColum(spectra, nspek);
             for (int nc = 0; nc < nmemb; nc++) {
                 boolean foundlegal = false;
-                int nmods = trialModels[nc].length;
-                boolean allabupos[] = new boolean[nmods];
-                Matrix[] abuc = new Matrix[nmods];
+                final int nmods = trialModels[nc].length;
+                final boolean allabupos[] = new boolean[nmods];
+                final double[][][] abuc = new double[nmods][][];
                 for (int m = 0; m < nmods; m++) {
                     allabupos[m] = true;
                 }
-                double err[] = new double[nmods];
+                final double err[] = new double[nmods];
                 for (int m = 0; m < nmods; m++) {
-                    //System.out.println(nc+"  "+m+"  "+nmods);
                     abuc[m] = trialModels[nc][m].unmix(singlesp);
-                    for (int k = 0; k < abuc[m].getRowDimension(); k++) {
-                        if (abuc[m].get(k, 0) < 0.) {
+                    for (int k = 0; k < abuc[m].length; k++) {
+                        if (abuc[m][k][0] < 0.0) {
                             allabupos[m] = false;
                         }
                     }
-                    //abuc[m].transpose().print(12, 4);
                     if (allabupos[m]) {
                         foundlegal = true;
-                        Matrix rspek = trialModels[nc][m].mix(abuc[m]);
-                        double sum = 0.;
+                        final double[][] rspek = trialModels[nc][m].mix(abuc[m]);
+                        double sum = 0.0;
                         for (int k = 0; k < nchem; k++) {
-                            double diff = singlesp.get(k, 0) - rspek.get(k, 0);
+                            final double diff = singlesp[k][0] - rspek[k][0];
                             sum += diff * diff;
                         }
                         err[m] = sum;
                     }
-                    //System.out.println(nc+"  "+m+"  "+allabupos[m]);
                 }
                 if (foundlegal) {
                     int mbest = -1;
@@ -116,8 +116,8 @@ public class FullyConstrainedLSU implements SpectralUnmixing {
                             }
                         }
                     }
-                    double[][] abucd = abuc[mbest].getArray();
-                    double[][] abu = new double[nmemb][1];
+                    final double[][] abucd = abuc[mbest];
+                    final double[][] abu = new double[nmemb][1];
                     int take = 0;
                     for (int k = 0; k < nmemb; k++) {
                         if (sortedemcombs[nc][mbest][k]) {
@@ -130,55 +130,58 @@ public class FullyConstrainedLSU implements SpectralUnmixing {
                 }
             }
         }
-        return res;
+
+        return res.getArrayCopy();
     }
 
-    public Matrix unmix(Matrix specs) {
-        return unmix0(specs);
-    }
-
-    public Matrix mix(Matrix abundances) {
+    @Override
+    public double[][] mix(double[][] abundances) {
         return trialModels[0][0].mix(abundances);
     }
 
-    private Matrix extractCols(Matrix M, boolean[] take) {
+    private static double[][] extractColumns(double[][] a, boolean[] columns) {
+        final int rowCount = a.length;
+        final int colCount = a[0].length;
+
         int hm = 0;
-        int nrow = M.getRowDimension();
-        int ncol = M.getColumnDimension();
-        for (int i = 0; i < take.length; i++) {
-            if (take[i]) {
+        for (final boolean column : columns) {
+            if (column) {
                 hm++;
             }
         }
-        double[][] res = new double[nrow][hm];
-        int tc = 0;
-        for (int ic = 0; ic < ncol; ic++) {
-            if (take[ic]) {
-                for (int ir = 0; ir < nrow; ir++) {
-                    res[ir][tc] = M.get(ir, ic);
+
+        final double[][] c = new double[rowCount][hm];
+
+        for (int j = 0, k = 0; j < colCount; j++) {
+            if (columns[j]) {
+                for (int i = 0; i < rowCount; i++) {
+                    c[i][k] = a[i][j];
                 }
-                tc++;
+                k++;
             }
         }
-        return new Matrix(res);
+
+        return c;
     }
 
-    static int posp(int n) {
-        int res = 1;
-        for (int i = 0; i < n; i++) {
-            res *= 2;
+    private static double[][] extractSingleColum(double[][] a, int j) {
+        final double[][] c = new double[a.length][1];
+
+        for (int i = 0; i < a.length; i++) {
+            c[i][0] = a[i][j];
         }
-        return res;
+
+        return c;
     }
 
-    static int cttrue(boolean[] combs) {
-        int res = 0;
-        for (int i = 0; i < combs.length; i++) {
-            if (combs[i]) {
-                res++;
+    private static int countTrue(boolean[] combs) {
+        int count = 0;
+        for (final boolean comb : combs) {
+            if (comb) {
+                count++;
             }
         }
-        return res;
-    }
 
+        return count;
+    }
 }

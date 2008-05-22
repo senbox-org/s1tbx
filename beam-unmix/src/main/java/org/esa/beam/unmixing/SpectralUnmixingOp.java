@@ -14,7 +14,6 @@
  */
 package org.esa.beam.unmixing;
 
-import Jama.Matrix;
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
@@ -35,7 +34,7 @@ import org.esa.beam.util.math.FullyConstrainedLSU;
 import org.esa.beam.util.math.SpectralUnmixing;
 import org.esa.beam.util.math.UnconstrainedLSU;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -47,10 +46,10 @@ import java.util.Map;
  * Implements a spectral unmixing algorithm.
  */
 @OperatorMetadata(alias = "Unmix",
-                  version = "1.0",
-                  authors = "Norman Fomferra, Helmut Schiller",
-                  copyright = "(c) 2007 by Brockmann Consult",
-                  description = "Performs a linear spectral unmixing.")
+        version = "1.0",
+        authors = "Norman Fomferra, Helmut Schiller",
+        copyright = "(c) 2007 by Brockmann Consult",
+        description = "Performs a linear spectral unmixing.")
 public class SpectralUnmixingOp extends Operator {
 
     private final String TYPE_1 = "Unconstrained LSU";
@@ -155,20 +154,20 @@ public class SpectralUnmixingOp extends Operator {
         }
 
         if (TYPE_1.equals(unmixingModelName)) {
-            spectralUnmixing = new UnconstrainedLSU(new Matrix(lsuMatrixElements));
+            spectralUnmixing = new UnconstrainedLSU(lsuMatrixElements);
         } else if (TYPE_2.equals(unmixingModelName)) {
-            spectralUnmixing = new ConstrainedLSU(new Matrix(lsuMatrixElements));
+            spectralUnmixing = new ConstrainedLSU(lsuMatrixElements);
         } else if (TYPE_3.equals(unmixingModelName)) {
-            spectralUnmixing = new FullyConstrainedLSU(new Matrix(lsuMatrixElements));
+            spectralUnmixing = new FullyConstrainedLSU(lsuMatrixElements);
         } else if (unmixingModelName == null) {
-            spectralUnmixing = new UnconstrainedLSU(new Matrix(lsuMatrixElements));
+            spectralUnmixing = new UnconstrainedLSU(lsuMatrixElements);
         }
 
         int width = sourceProduct.getSceneRasterWidth();
         int height = sourceProduct.getSceneRasterHeight();
 
         targetProduct = new Product(sourceProduct.getName() + "_unmixed",
-                                    "SpectralUnmixing", width, height);
+                "SpectralUnmixing", width, height);
 
         abundanceBands = new Band[numEndmembers];
         for (int i = 0; i < numEndmembers; i++) {
@@ -301,15 +300,11 @@ public class SpectralUnmixingOp extends Operator {
     }
 
     private double[][] unmix(double[][] ia) {
-        Matrix im = new Matrix(ia);
-        Matrix om = spectralUnmixing.unmix(im);
-        return om.getArray();
+        return spectralUnmixing.unmix(ia);
     }
 
     private double[][] mix(double[][] ia) {
-        Matrix im = new Matrix(ia);
-        Matrix om = spectralUnmixing.mix(im);
-        return om.getArray();
+        return spectralUnmixing.mix(ia);
     }
 
     public static int findEndmemberSpectralIndex(double[] endmemberWavelengths, double sourceBandWavelength, double maxBandwidth) {
