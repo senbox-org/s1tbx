@@ -381,6 +381,7 @@ public class BasicApp {
         getMainFrame().getDockingManager().setShowGripper(false);
         getMainFrame().getDockingManager().setDragGripperOnly(false);
         getMainFrame().getDockingManager().setContinuousLayout(true);
+        getMainFrame().getDockingManager().setAutoDockingAsDefault(false);
         getMainFrame().getDockingManager().setHideFloatingFramesWhenDeactivate(true);
         getMainFrame().getDockingManager().setHideFloatingFramesOnSwitchOutOfApplication(true);
 //        getMainFrame().getDockingManager().setOutlineMode(DockingManager.PARTIAL_OUTLINE_MODE);
