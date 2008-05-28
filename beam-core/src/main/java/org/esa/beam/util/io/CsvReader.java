@@ -127,7 +127,7 @@ public class CsvReader extends LineNumberReader {
 
         StringTokenizer st = new StringTokenizer(line, new String(getSeparators()));
 
-        String tokens[] = new String[st.countTokens()];
+        String[] tokens = new String[st.countTokens()];
         for (int i = 0; i < tokens.length; i++) {
             tokens[i] = st.nextToken().trim();
         }

@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.logging.Logger;
 
 //@todo 2 tb/tb implement reading of valid range attribute
@@ -31,7 +32,8 @@ import java.util.logging.Logger;
 public class ModisProductDb {
 
     private static final String DB_PATH = "/org/esa/beam/resources/modisdb";
-    private static final int EXP_NUM_SDS_RECORDS = 9;
+    public static final int EXP_NUM_SDS_DEFAULT_RECORD = 9;
+    public static final int EXP_NUM_SDS_SPECTRAL_RECORD = 12;
     private static final int EXP_NUM_GEO_RECORDS_MIN = 2;
     private static final int EXP_NUM_GEO_RECORDS_MAX = 3;
     private static final int EXP_NUM_FLIP_RECORDS = 2;
@@ -39,7 +41,7 @@ public class ModisProductDb {
 
     private static ModisProductDb _instance = null;
 
-    private HashMap _productTypes = null;
+    private HashMap<String, String> _productTypes = null;
     private HashMap _productDescriptions = null;
     private Logger _logger;
     private static final String META_KEY = "META";
@@ -69,15 +71,15 @@ public class ModisProductDb {
      * @return <code>true</code> if the given product type is suported, otherwise <code>false</code>.
      */
     public boolean isSupportedProduct(final String typeString) throws ProductIOException {
-        if (_productTypes == null) {
-            try {
-                loadProductTypes();
-            } catch (IOException e) {
-                throw new ProductIOException(e.getMessage());
-            }
-        }
-
+        ensureSupportedProductTypes();
         return _productTypes.get(typeString) != null;
+    }
+
+    public String[] getSupportetProductTypes() throws ProductIOException {
+        ensureSupportedProductTypes();
+        final Set<String> keySet = _productTypes.keySet();
+        final String[] result = new String[keySet.size()];
+        return keySet.toArray(result);
     }
 
     /**
@@ -217,16 +219,27 @@ public class ModisProductDb {
     }
 
     /**
+     * ensure that the list of supported product types is loaded
+     */
+    private void ensureSupportedProductTypes() throws ProductIOException {
+        if (_productTypes == null) {
+            try {
+                loadProductTypes();
+            } catch (IOException e) {
+                throw new ProductIOException(e.getMessage());
+            }
+        }
+    }
+
+    /**
      * Loads the list of supported product types.
      */
-    private void loadProductTypes() throws MalformedURLException,
-                                           IOException {
-        _productTypes = new HashMap();
-        String[] records;
+    private void loadProductTypes() throws IOException {
+        _productTypes = new HashMap<String, String>();
 
         final CsvReader reader = getCsvReader("products.dd");
 
-        while ((records = reader.readRecord()) != null) {
+        for (String[] records = reader.readRecord(); records != null; records = reader.readRecord()) {
             if (records.length == 2) {
                 _productTypes.put(records[0], records[1]);
             } else {
@@ -264,12 +277,10 @@ public class ModisProductDb {
      */
     private ModisProductDescription loadProductDescription(final String prodType) throws MalformedURLException,
                                                                                          IOException {
-        if (_productTypes == null) {
-            loadProductTypes();
-        }
+        ensureSupportedProductTypes();
 
         final ModisProductDescription description = new ModisProductDescription();
-        final String productFile = (String) _productTypes.get(prodType);
+        final String productFile = _productTypes.get(prodType);
         final CsvReader reader = getCsvReader(productFile);
 
         String[] records;
@@ -283,12 +294,10 @@ public class ModisProductDb {
             if (records[0].equalsIgnoreCase(META_KEY)) {
                 // @todo 4 tb/tb - implement
             } else if (records[0].equalsIgnoreCase(SDS_KEY)) {
-                if (records.length != EXP_NUM_SDS_RECORDS) {
+                if (!description.addBand(records)) {
                     _logger.severe("Invalid number of records in SDS description for product type '" + prodType + "'.");
                     continue;
                 }
-                description.addBand(records[1], records[2], records[3], records[4], records[5], records[6], records[7],
-                                    records[8]);
             } else if (records[0].equalsIgnoreCase(GEO_KEY)) {
                 if ((records.length < EXP_NUM_GEO_RECORDS_MIN) || (records.length > EXP_NUM_GEO_RECORDS_MAX)) {
                     _logger.severe("Invalid number of records in GEO description for product type '" + prodType + "'.");

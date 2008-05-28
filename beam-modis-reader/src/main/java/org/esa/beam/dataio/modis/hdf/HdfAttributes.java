@@ -17,64 +17,27 @@
 package org.esa.beam.dataio.modis.hdf;
 
 import ncsa.hdf.hdflib.HDFConstants;
-import ncsa.hdf.hdflib.HDFException;
-import ncsa.hdf.hdflib.HDFLibrary;
-import org.esa.beam.util.Debug;
 import org.esa.beam.util.StringUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class HdfGlobalAttributes {
+public class HdfAttributes {
 
-    private HashMap _attributes;
-    private List _attributeList;
+    private HashMap<String, HdfAttributeContainer> _attributesMap;
+    private List<HdfAttributeContainer> _attributeList;
 
     /**
      * Creates the object with default parameters.
-     */
-    public HdfGlobalAttributes() {
-        _attributes = new HashMap();
-        _attributeList = new ArrayList();
-    }
-
-    /**
-     * Reads the global attributes from the hdf file passed in.
      *
-     * @param sdId the HD interface identifier of the file
+     * @param attributes the list of global attributes
      */
-    public void read(final int sdId) throws HDFException {
-        Debug.trace("reading global attributes ...");
-        final int[] fileInfo = new int[2];
-
-        // request number of datasets (fileInfo[0]) and number of global attributes (fileInfo[1])
-        if (HDFLibrary.SDfileinfo(sdId, fileInfo)) {
-            final int[] sdAttrInfo = new int[2];
-            final String[] sdVal = new String[1];
-
-            for (int n = 0; n < fileInfo[1]; n++) {
-                sdVal[0] = "";
-                if (HDFLibrary.SDattrinfo(sdId, n, sdVal, sdAttrInfo)) {
-                    final int attrSize = HDFLibrary.DFKNTsize(sdAttrInfo[0]) * sdAttrInfo[1] + 1;
-                    final byte[] buf = new byte[attrSize];
-
-                    if (HDFLibrary.SDreadattr(sdId, n, buf)) {
-                        final String attrName = sdVal[0].trim();
-                        final HdfAttributeContainer attribute
-                                = HdfUtils.decodeByteBufferToAttribute(buf, sdAttrInfo[0], sdAttrInfo[1], attrName);
-
-                        if (attribute != null) {
-                            _attributes.put(attrName, attribute);
-                            _attributeList.add(attribute);
-                            Debug.trace("... " + attrName + ": " + attribute.getStringValue());
-                        }
-                    }
-                }
-            }
+    public HdfAttributes(final List<HdfAttributeContainer> attributes) {
+        _attributeList = attributes;
+        _attributesMap = new HashMap<String, HdfAttributeContainer>();
+        for (HdfAttributeContainer container : attributes) {
+            _attributesMap.put(container.getName(), container);
         }
-
-        Debug.trace("... success");
     }
 
     /**
@@ -87,7 +50,7 @@ public class HdfGlobalAttributes {
      *         type {@link String}.
      */
     public String getStringAttributeValue(String attributeName) {
-        HdfAttributeContainer cont = (HdfAttributeContainer) _attributes.get(attributeName);
+        HdfAttributeContainer cont = _attributesMap.get(attributeName);
         if (cont != null && cont.getHdfType() == HDFConstants.DFNT_CHAR) {
             return cont.getStringValue();
         } else {
@@ -107,7 +70,7 @@ public class HdfGlobalAttributes {
      */
     public int[] getIntAttributeValue(final String attributeName) {
         int[] nRet = null;
-        final HdfAttributeContainer cont = (HdfAttributeContainer) _attributes.get(attributeName);
+        final HdfAttributeContainer cont = _attributesMap.get(attributeName);
 
         if (cont != null) {
             if (cont.getHdfType() == HDFConstants.DFNT_INT32) {
@@ -134,7 +97,11 @@ public class HdfGlobalAttributes {
      * @return the attribute at the given index
      */
     public HdfAttributeContainer getAttributeAt(final int index) {
-        return (HdfAttributeContainer) _attributeList.get(index);
+        return _attributeList.get(index);
     }
+
+    // #############################################
+    // #############   END OF PUBLIC   #############
+    // #############################################
 
 }

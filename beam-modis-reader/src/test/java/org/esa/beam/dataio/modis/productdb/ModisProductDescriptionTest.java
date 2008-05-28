@@ -70,11 +70,20 @@ public class ModisProductDescriptionTest extends TestCase {
         String expB_2_BandName = "band_name_2";
         String expB_2_DescName = "desc_name_2";
 
+        final String[] record1 = {
+                    "ignored",
+                    expB_1_Name, expB_1_spectral, expB_1_ScaleMethod, expB_1_Scale,
+                    expB_1_Offset, expB_1_Unit, expB_1_BandName, expB_1_DescName
+        };
+        final String[] record2 = {
+                    "ignored",
+                    expB_2_Name, expB_2_spectral, expB_2_ScaleMethod, expB_2_Scale,
+                    expB_2_Offset, expB_2_Unit, expB_2_BandName, expB_2_DescName
+        };
+
         // add two bands
-        _prod.addBand(expB_1_Name, expB_1_spectral, expB_1_ScaleMethod, expB_1_Scale,
-                      expB_1_Offset, expB_1_Unit, expB_1_BandName, expB_1_DescName);
-        _prod.addBand(expB_2_Name, expB_2_spectral, expB_2_ScaleMethod, expB_2_Scale,
-                      expB_2_Offset, expB_2_Unit, expB_2_BandName, expB_2_DescName);
+        _prod.addBand(record1);
+        _prod.addBand(record2);
 
         // retrieve description object for band 1 - and check
         ModisBandDescription band = _prod.getBandDescription(expB_1_Name);

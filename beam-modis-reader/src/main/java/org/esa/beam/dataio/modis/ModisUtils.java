@@ -12,19 +12,16 @@
  */
 package org.esa.beam.dataio.modis;
 
-import ncsa.hdf.hdflib.HDFConstants;
-import ncsa.hdf.hdflib.HDFException;
-import ncsa.hdf.hdflib.HDFLibrary;
 import org.esa.beam.util.DateTimeUtils;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.logging.BeamLogManager;
 import org.esa.beam.util.math.Range;
 
 import java.text.ParseException;
 import java.util.Date;
 
 public class ModisUtils {
+
 
     /**
      * Decodes the "band_names" attribute string into a new band name
@@ -55,12 +52,11 @@ public class ModisUtils {
      * @return the band name extension
      */
     public static float[] decodeSpectralInformation(String bandExt, float[] recycle) {
-        int idx;
-
         if ((recycle == null) || recycle.length < 3) {
             recycle = new float[3];
         }
 
+        final int idx;
         // removes all non-number characters
         bandExt = bandExt.replaceAll("\\D", "");
         idx = Integer.parseInt(bandExt) - 1;
@@ -113,8 +109,15 @@ public class ModisUtils {
      *
      * @return a date
      */
-    public static Date createDateFromStrings(String date, String time) throws ParseException {
-        final String dateTimeString = date + ' ' + time.substring(0, time.length() - 3);
+    public static Date createDateFromStrings(final String date, final String time) throws ParseException {
+        final String expectedTimeString = "00:00:00.000";
+        final String dateTimeString;
+        if (time.length() < expectedTimeString.length()) {
+            final String perfection = expectedTimeString.substring(time.length());
+            dateTimeString = date + " " + time + perfection;
+        } else {
+            dateTimeString = date + ' ' + time.substring(0, expectedTimeString.length());
+        }
         return DateTimeUtils.stringToUTC(dateTimeString);
     }
 
@@ -132,37 +135,6 @@ public class ModisUtils {
         for (int i = 0; i < dimSize.length; i++) {
             dimSize[i] = 0;
         }
-    }
-
-    /**
-     * Retrieves a string attribute with given name from the sds specified.
-     *
-     * @@param sdsId
-     * @@param name
-     * @@return a string attribute
-     */
-    static String getNamedStringAttribute(int sdsId, String name) throws HDFException {
-        if (name == null) {
-            return null;
-        }
-
-        final int attrIdx = HDFLibrary.SDfindattr(sdsId, name);
-        if (attrIdx == HDFConstants.FAIL) {
-            return null;
-        }
-
-        final int[] attrInfo = new int[2];
-        final String[] dsName = new String[]{""};
-        if (HDFLibrary.SDattrinfo(sdsId, attrIdx, dsName, attrInfo)) {
-            final int attrSize = HDFLibrary.DFKNTsize(attrInfo[0]) * attrInfo[1];
-            final byte[] buf = new byte[attrSize];
-            if (HDFLibrary.SDreadattr(sdsId, attrIdx, buf)) {
-                final String strRet = new String(buf);
-                return strRet.trim();
-            }
-        }
-        BeamLogManager.getSystemLogger().warning("Unable to access the attribute '" + name + '\'');
-        return null;
     }
 
     public static String createBandName(String baseName, String extensions, int index) {

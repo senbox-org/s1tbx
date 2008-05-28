@@ -29,8 +29,12 @@ public class HdfDimension {
      * Creates the object with default data
      */
     HdfDimension() {
-        _name = "";
-        _value = 0;
+        this("", 0);
+    }
+
+    HdfDimension(final String name, final int value) {
+        _name = name;
+        _value = value;
     }
 
     /**

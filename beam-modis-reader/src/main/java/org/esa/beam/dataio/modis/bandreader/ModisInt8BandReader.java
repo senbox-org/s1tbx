@@ -18,7 +18,7 @@ package org.esa.beam.dataio.modis.bandreader;
 
 import com.bc.ceres.core.ProgressMonitor;
 import ncsa.hdf.hdflib.HDFException;
-import ncsa.hdf.hdflib.HDFLibrary;
+import org.esa.beam.dataio.modis.hdf.lib.HDF;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.ProductData;
 
@@ -61,28 +61,19 @@ public class ModisInt8BandReader extends ModisBandReader {
      * @param pm            a monitor to inform the user about progress
      */
     @Override
-    public void readBandData(final int sourceOffsetX, final int sourceOffsetY, final int sourceWidth,
-                             final int sourceHeight, final int sourceStepX, final int sourceStepY,
-                             final int destOffsetX, final int destOffsetY, final int destWidth,
-                             final int destHeight, final ProductData destBuffer, ProgressMonitor pm) throws
-                                                                                                     HDFException,
-                                                                                                     ProductIOException {
-        _start[_yCoord] = sourceOffsetY;
-        _start[_xCoord] = sourceOffsetX;
-        _count[_yCoord] = 1;
-        _count[_xCoord] = sourceWidth;
-        _stride[_yCoord] = sourceStepY;
-        _stride[_xCoord] = sourceStepX;
-
+    public void readBandDataImpl(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
+                                 int sourceStepX,
+                                 int sourceStepY, int destOffsetX, int destOffsetY, int destWidth, int destHeight,
+                                 ProductData destBuffer, ProgressMonitor pm) throws HDFException, ProductIOException {
         final byte min;
         final byte max;
-        final byte fill = (byte) _fillValue;
-        if (_validRange != null) {
-            min = (byte) _validRange.getMin();
-            max = (byte) _validRange.getMax();
-        } else {
+        final byte fill = (byte) Math.floor(_fillValue + 0.5);
+        if (_validRange == null) {
             min = Byte.MIN_VALUE;
             max = Byte.MAX_VALUE;
+        } else {
+            min = (byte) Math.floor(_validRange.getMin() + 0.5);
+            max = (byte) Math.floor(_validRange.getMax() + 0.5);
         }
 
         final byte[] targetData = (byte[]) destBuffer.getElems();
@@ -97,13 +88,13 @@ public class ModisInt8BandReader extends ModisBandReader {
                 if (pm.isCanceled()) {
                     break;
                 }
-                HDFLibrary.SDreaddata(_sdsId, _start, _stride, _count, _line);
+                HDF.getWrap().SDreaddata(_sdsId, _start, _stride, _count, _line);
                 for (int x = 0; x < sourceWidth; x++) {
-                    if (_line[x] < min || _line[x] > max) {
-                        targetData[targetIdx] = fill;
-                    } else {
-                        targetData[targetIdx] = _line[x];
+                    final byte value = _line[x];
+                    if (value < min || value > max) {
+                        _line[x] = fill;
                     }
+                    targetData[targetIdx] = _line[x];
                     ++targetIdx;
                 }
                 _start[_yCoord] += sourceStepY;

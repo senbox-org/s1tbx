@@ -22,6 +22,7 @@ public class ModisBandDescription {
     private String _unitName;
     private String _bandName;
     private String _descName;
+    private ModisSpectralInfo _specInfo;
 
     /**
      * Creates the object with given parameter set.
@@ -33,6 +34,7 @@ public class ModisBandDescription {
      * @param offsetName    name of the attribute containing the scale offsets
      * @param unitName      name off the attribute containing the physical unit
      * @param bandName      name of the attribute containing the spectral extensions (band names)
+     * @param descName      name of the attribute containing a description of the band
      */
     public ModisBandDescription(final String name, final String isSpectral, final String scalingMethod,
                                 final String scaleName, final String offsetName,
@@ -128,4 +130,15 @@ public class ModisBandDescription {
         return _descName;
     }
 
+    public void setSpecInfo(final ModisSpectralInfo specInfo) {
+        _specInfo = specInfo;
+    }
+
+    public ModisSpectralInfo getSpecInfo() {
+        return _specInfo;
+    }
+
+    public boolean hasSpectralInfo() {
+        return _specInfo != null;
+    }
 }

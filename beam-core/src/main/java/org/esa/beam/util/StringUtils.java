@@ -63,7 +63,7 @@ public class StringUtils {
         if (separators == null || separators.length == 0) {
             throw new IllegalArgumentException(UtilConstants.MSG_NULL_OR_EMPTY_SEPARATOR);
         }
-                                                                                                                                
+
         if (tokens == null) {
             tokens = new Vector();
         }

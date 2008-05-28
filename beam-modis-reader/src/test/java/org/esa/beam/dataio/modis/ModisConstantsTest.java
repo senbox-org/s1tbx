@@ -22,11 +22,14 @@ import junit.framework.TestSuite;
 
 public class ModisConstantsTest extends TestCase {
 
-    private static float[] expWavelength = {645.f, 858.5f, 469.f, 555.f, 1240.f, 1640.f, 2130.f, 412.5f, 443.f, 488.f,
+    private static float[] expWavelength = {
+            645.f, 858.5f, 469.f, 555.f, 1240.f, 1640.f, 2130.f, 412.5f, 443.f, 488.f,
             531.f, 551.f, 667.f, 678.f, 748.f, 869.5f, 905.f, 936.f, 940.f, 3750.f,
             3959.f, 3959.f, 4050.f, 4465.5f, 4515.5f, 1375.f, 6715.f, 7325.f, 8550.f,
-            9730.f, 11030.f, 12020.f, 13335.f, 13635.f, 13935.f, 14235.f};
-    private static float[] expBandwidth = {50.f,
+            9730.f, 11030.f, 12020.f, 13335.f, 13635.f, 13935.f, 14235.f
+    };
+    private static float[] expBandwidth = {
+            50.f,
             35.f,
             20.f,
             20.f,
@@ -61,7 +64,8 @@ public class ModisConstantsTest extends TestCase {
             300.f,
             300.f,
             300.f,
-            300.f};
+            300.f
+    };
 
     public ModisConstantsTest(String name) {
         super(name);

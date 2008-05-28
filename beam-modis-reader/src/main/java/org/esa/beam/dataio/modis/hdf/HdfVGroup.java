@@ -18,7 +18,7 @@ package org.esa.beam.dataio.modis.hdf;
 
 import ncsa.hdf.hdflib.HDFConstants;
 import ncsa.hdf.hdflib.HDFException;
-import ncsa.hdf.hdflib.HDFLibrary;
+import org.esa.beam.dataio.modis.hdf.lib.HDF;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,47 +37,41 @@ public class HdfVGroup {
      * @return a vector of groups
      */
     public static HdfVGroup[] getGroups(int fileId) throws HDFException {
-        if (!HDFLibrary.Vstart(fileId)) {
+        if (!HDF.getWrap().Vstart(fileId)) {
             throw new HDFException("Unable to access HDF file.");
         }
 
-        final List groupList = new ArrayList();
+        final List<HdfVGroup> groupList = new ArrayList<HdfVGroup>();
 
         // get the total number of lone vgroups
-        final int numGroups = HDFLibrary.Vlone(fileId, new int[1], 0);
+        final int numGroups = HDF.getWrap().Vlone(fileId, new int[1], 0);
         if (numGroups > 0) {
             final int[] refArray = new int[numGroups];
-            HDFLibrary.Vlone(fileId, refArray, refArray.length);
+            HDF.getWrap().Vlone(fileId, refArray, refArray.length);
 
             // now loop over groups
             for (int n = 0; n < refArray.length; n++) {
-                final int groupId = HDFLibrary.Vattach(fileId, refArray[n], "r");
+                final int groupId = HDF.getWrap().Vattach(fileId, refArray[n], "r");
 
                 if (groupId == HDFConstants.FAIL) {
-                    HDFLibrary.Vdetach(groupId);
+                    HDF.getWrap().Vdetach(groupId);
                     continue;
                 }
 
                 String[] s = {""};
-                HDFLibrary.Vgetname(groupId, s);
+                HDF.getWrap().Vgetname(groupId, s);
                 final String groupName = s[0].trim();
 
-                HDFLibrary.Vgetclass(groupId, s);
+                HDF.getWrap().Vgetclass(groupId, s);
                 final String groupClass = s[0].trim();
 
                 groupList.add(new HdfVGroup(groupId, groupName, groupClass));
             }
         }
 
-        HDFLibrary.Vend(fileId);
+        HDF.getWrap().Vend(fileId);
 
-        HdfVGroup[] vecRet = new HdfVGroup[groupList.size()];
-
-        for (int n = 0; n < groupList.size(); n++) {
-            vecRet[n] = (HdfVGroup) groupList.get(n);
-        }
-
-        return vecRet;
+        return groupList.toArray(new HdfVGroup[groupList.size()]);
     }
 
     /**

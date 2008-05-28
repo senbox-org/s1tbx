@@ -176,7 +176,7 @@ public class DimapProductWriter extends AbstractProductWriter {
     }
 
     /**
-     * Deletes the physically representation of the product from the hard disk. (oder anderem datenträger???)
+     * Deletes the physically representation of the product from the hard disk. (oder anderem datentrï¿½ger???)
      */
     public void deleteOutput() throws IOException {
         flush();
@@ -427,12 +427,12 @@ public class DimapProductWriter extends AbstractProductWriter {
     }
 
     /**
-     * Entfernt alle zu löschenden dateifragmente aus dem Product bevor der header und die bänder geschrieben werden.
-     * Das ist nur notwendig, für den fall daß der Benutzer ein DIMAP-Product geöffnet hat, darin eine oderer mehrere
-     * product nodes gelöscht und anschließend nodes mit den gleichen namen erzeugt hat. Sind die gelöschten und
-     * wiedererstellten nodes zum Beispiel Bänder, so würde der writer diese neu erzeugten Banddaten nicht schreiben,
-     * wenn diese zuvor nicht von der Festplatte gelöscht worden sind. Bevor banddaten von der Festplatte gelöscht
-     * werden können ist es notwendig den reader zu schließen (reader.close()) damit dieser die Dateien zum löschen frei
+     * Entfernt alle zu lï¿½schenden dateifragmente aus dem Product bevor der header und die bï¿½nder geschrieben werden.
+     * Das ist nur notwendig, fï¿½r den fall daï¿½ der Benutzer ein DIMAP-Product geï¿½ffnet hat, darin eine oderer mehrere
+     * product nodes gelï¿½scht und anschlieï¿½end nodes mit den gleichen namen erzeugt hat. Sind die gelï¿½schten und
+     * wiedererstellten nodes zum Beispiel Bï¿½nder, so wï¿½rde der writer diese neu erzeugten Banddaten nicht schreiben,
+     * wenn diese zuvor nicht von der Festplatte gelï¿½scht worden sind. Bevor banddaten von der Festplatte gelï¿½scht
+     * werden kï¿½nnen ist es notwendig den reader zu schlieï¿½en (reader.close()) damit dieser die Dateien zum lï¿½schen frei
      * gibt.
      *
      * @throws IOException if an IOException occurs.

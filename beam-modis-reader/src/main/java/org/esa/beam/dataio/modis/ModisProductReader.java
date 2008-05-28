@@ -15,10 +15,11 @@ package org.esa.beam.dataio.modis;
 import com.bc.ceres.core.ProgressMonitor;
 import ncsa.hdf.hdflib.HDFConstants;
 import ncsa.hdf.hdflib.HDFException;
-import ncsa.hdf.hdflib.HDFLibrary;
 import org.esa.beam.dataio.modis.bandreader.ModisBandReader;
 import org.esa.beam.dataio.modis.hdf.HdfAttributeContainer;
-import org.esa.beam.dataio.modis.hdf.HdfGlobalAttributes;
+import org.esa.beam.dataio.modis.hdf.HdfAttributes;
+import org.esa.beam.dataio.modis.hdf.HdfUtils;
+import org.esa.beam.dataio.modis.hdf.lib.HDF;
 import org.esa.beam.dataio.modis.productdb.ModisProductDb;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
@@ -40,9 +41,8 @@ import java.util.logging.Logger;
 
 public class ModisProductReader extends AbstractProductReader {
 
-    private final HdfGlobalAttributes _globalHdfAttrs;
+    private HdfAttributes _globalHdfAttrs;
     private final HashMap _bandReader;
-    private final ModisProductDb _productDb;
     private final Logger _logger;
     private int _fileId;
     private int _sdStart;
@@ -60,9 +60,7 @@ public class ModisProductReader extends AbstractProductReader {
         _fileId = HDFConstants.FAIL;
         _sdStart = HDFConstants.FAIL;
 
-        _globalHdfAttrs = new HdfGlobalAttributes();
         _bandReader = new HashMap();
-        _productDb = ModisProductDb.getInstance();
 
         _logger = BeamLogManager.getSystemLogger();
     }
@@ -91,9 +89,9 @@ public class ModisProductReader extends AbstractProductReader {
 
                 // and finish file access
                 // ----------------------
-                HDFLibrary.SDend(_sdStart);
+                HDF.getWrap().SDend(_sdStart);
                 _sdStart = HDFConstants.FAIL;
-                HDFLibrary.Hclose(_fileId);
+                HDF.getWrap().Hclose(_fileId);
                 _fileId = HDFConstants.FAIL;
 
             } catch (HDFException e) {
@@ -110,12 +108,13 @@ public class ModisProductReader extends AbstractProductReader {
 
 
     /**
-     * The template method which is called by the method after an optional spatial subset has been applied to the input
-     * parameters.
+     * The template method which is called by the method after an optional spatial subset has
+     * been applied to the input parameters.
      * <p/>
-     * <p>The destination band, buffer and region parameters are exactly the ones passed to the original  call. Since
-     * the <code>destOffsetX</code> and <code>destOffsetY</code> parameters are already taken into acount in the
-     * <code>sourceOffsetX</code> and <code>sourceOffsetY</code> parameters, an implementor of this method is free to
+     * <p>The destination band, buffer and region parameters are exactly the ones passed to
+     * the original  call. Since the <code>destOffsetX</code> and <code>destOffsetY</code>
+     * parameters are already taken into acount in the <code>sourceOffsetX</code> and
+     * <code>sourceOffsetY</code> parameters, an implementor of this method is free to
      * ignore them.
      *
      * @param sourceOffsetX the absolute X-offset in source raster co-ordinates
@@ -156,7 +155,6 @@ public class ModisProductReader extends AbstractProductReader {
             ioException.initCause(e);
             throw ioException;
         }
-
     }
 
     /**
@@ -172,29 +170,29 @@ public class ModisProductReader extends AbstractProductReader {
                                                     IllegalFileFormatException {
         final File inFile = getInputFile();
 
-        Product prod;
+        Product product;
         try {
             try {
                 final String path = inFile.getPath();
-                _fileId = HDFLibrary.Hopen(path, HDFConstants.DFACC_RDONLY);
-                _sdStart = HDFLibrary.SDstart(path, HDFConstants.DFACC_RDONLY);
+                _fileId = HDF.getWrap().Hopen(path, HDFConstants.DFACC_RDONLY);
+                _sdStart = HDF.getWrap().SDstart(path, HDFConstants.DFACC_RDONLY);
 
                 readGlobalMetaData(inFile);
                 checkProductType();
                 //checkDayNightMode();
-                createFileReader();
+                _fileReader = createFileReader();
 
                 final Dimension productDim = _globalAttributes.getProductDimensions();
-                prod = new Product(_globalAttributes.getProductName(), _globalAttributes.getProductType(),
-                                   productDim.width, productDim.height, this);
-                prod.setFileLocation(inFile);
-                _fileReader.addRastersAndGeocoding(_sdStart, _globalAttributes, prod);
+                product = new Product(_globalAttributes.getProductName(), _globalAttributes.getProductType(),
+                                      productDim.width, productDim.height, this);
+                product.setFileLocation(inFile);
+                _fileReader.addRastersAndGeocoding(_sdStart, _globalAttributes, product);
 
                 // add all metadata if required
                 // ----------------------------
                 if (!isMetadataIgnored()) {
                     // add the metadata
-                    addMetadata(prod);
+                    addMetadata(product);
                 }
 
                 // ModisProductDb db = ModisProductDb.getInstance();
@@ -207,27 +205,27 @@ public class ModisProductReader extends AbstractProductReader {
 //                }
                 final Date sensingStart = _globalAttributes.getSensingStart();
                 if (sensingStart != null) {
-                    prod.setStartTime(ProductData.UTC.create(sensingStart, 0));
+                    product.setStartTime(ProductData.UTC.create(sensingStart, 0));
                 }
                 final Date sensingStop = _globalAttributes.getSensingStop();
                 if (sensingStop != null) {
-                    prod.setEndTime(ProductData.UTC.create(sensingStop, 0));
+                    product.setEndTime(ProductData.UTC.create(sensingStop, 0));
                 }
             } finally {
-                HDFLibrary.Hclose(_fileId);
+                HDF.getWrap().Hclose(_fileId);
             }
         } catch (HDFException e) {
             throw new ProductIOException(e.getMessage());
         }
-        return prod;
+        return product;
     }
 
-    private void createFileReader() {
-        _fileReader = new ModisFileReader();
+    private ModisFileReader createFileReader() {
+        return new ModisFileReader();
 //        if (isImappFormat()) {
-//            _fileReader = new ModisImappFileReader();
+//            return new ModisImappFileReader();
 //        } else {
-//            _fileReader = new ModisDaacFileReader();
+//            return new ModisDaacFileReader();
 //        }
     }
 
@@ -250,16 +248,14 @@ public class ModisProductReader extends AbstractProductReader {
      */
     private void readGlobalMetaData(File inFile) throws HDFException,
                                                         ProductIOException {
-        _globalHdfAttrs.read(_sdStart);
+        _globalHdfAttrs = HdfUtils.readAttributes(_sdStart);
 
         // check wheter daac or imapp
         if (isImappFormat()) {
-            _globalAttributes = new ModisImappAttributes(inFile, _sdStart);
+            _globalAttributes = new ModisImappAttributes(inFile, _sdStart, _globalHdfAttrs);
         } else {
-            _globalAttributes = new ModisDaacAttributes();
+            _globalAttributes = new ModisDaacAttributes(_globalHdfAttrs);
         }
-
-        _globalAttributes.decode(_globalHdfAttrs);
     }
 
     private boolean isImappFormat() {
@@ -296,7 +292,8 @@ public class ModisProductReader extends AbstractProductReader {
      */
     private void checkProductType() throws ProductIOException {
         final String productType = _globalAttributes.getProductType();
-        if (!_productDb.isSupportedProduct(productType)) {
+        final ModisProductDb db = ModisProductDb.getInstance();
+        if (!db.isSupportedProduct(productType)) {
             throw new ProductIOException("Unsupported product of type '" + productType + '\'');
         }
     }

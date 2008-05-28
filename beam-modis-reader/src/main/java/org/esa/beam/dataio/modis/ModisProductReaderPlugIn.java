@@ -12,7 +12,7 @@
  */
 package org.esa.beam.dataio.modis;
 
-import ncsa.hdf.hdflib.HDFLibrary;
+import org.esa.beam.dataio.modis.hdf.lib.HDF;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -77,7 +77,7 @@ public class ModisProductReaderPlugIn implements ProductReaderPlugIn {
         if ((file != null) && (file.exists()) && (file.isFile())) {
             if (file.getPath().toLowerCase().endsWith(ModisConstants.DEFAULT_FILE_EXTENSION)) {
                 try {
-                    if (HDFLibrary.Hishdf(file.getPath())) {
+                    if (HDF.getWrap().Hishdf(file.getPath())) {
                         bRet = DecodeQualification.SUITABLE;
                     }
                 } catch (Exception e) {

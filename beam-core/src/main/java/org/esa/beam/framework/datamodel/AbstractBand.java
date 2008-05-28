@@ -789,7 +789,7 @@ public abstract class AbstractBand extends RasterDataNode {
 
         setRasterData(targetRasterData);
         // todo - NaN values created in BandArithmetic.computeBand are ignored if
-        // todo - although isValidMaskUsed() returns true (nf 2007-08-21) 
+        // todo - although isValidMaskUsed() returns true (nf 2007-08-21)
         if (isValidMaskUsed()) {
             computeValidMask(ProgressMonitor.NULL);
         }

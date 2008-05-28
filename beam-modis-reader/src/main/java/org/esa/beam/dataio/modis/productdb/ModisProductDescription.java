@@ -20,8 +20,8 @@ import java.util.Vector;
 
 public class ModisProductDescription {
 
-    private HashMap _bands;
     private Vector _bandVec;
+    private HashMap _bands;
     private HashMap _tiePoints;
     private Vector _tiePointVec;
 
@@ -42,21 +42,33 @@ public class ModisProductDescription {
     /**
      * Adds a new band description to the product description.
      *
-     * @param name          the name of the band set (MODIS 3d - band block)
-     * @param isSpectral    whether this set of bands are spectral bands or not
-     * @param scalingMethod the name of the scaling scaling method to be used
-     * @param scale         the name of the scaling factor attribute
-     * @param offset        the name of the scaling offset attribute
-     * @param unit          the name of the physical unit attribute
-     * @param bandName      the name of the attribute containing the (spectral) band names
-     * @param descName      name of the attribute containing a description of the band
+     * @param record the record contining all the necessary band information
+     * @return true if a band can be added
      */
-    public void addBand(String name, String isSpectral, String scalingMethod, String scale, String offset, String unit,
-                        String bandName, String descName) {
-        ModisBandDescription bandDesc = new ModisBandDescription(name, isSpectral, scalingMethod, scale, offset, unit,
-                                                                 bandName, descName);
+    public boolean addBand(final String[] record) {
+        if (record == null) {
+            return false;
+        }
+        if (record.length != ModisProductDb.EXP_NUM_SDS_DEFAULT_RECORD
+            && record.length != ModisProductDb.EXP_NUM_SDS_SPECTRAL_RECORD) {
+            return false;
+        }
+
+        final ModisBandDescription bandDesc = new ModisBandDescription(
+                    record[1], record[2], record[3], record[4],
+                    record[5], record[6], record[7], record[8]);
+
+        if (record.length == ModisProductDb.EXP_NUM_SDS_SPECTRAL_RECORD) {
+            final String spectralWavelength = record[9];
+            final String spectralBandwidth = record[10];
+            final String spectralBandIndex = record[11];
+            final ModisSpectralInfo specInfo = new ModisSpectralInfo(
+                        spectralWavelength, spectralBandwidth, spectralBandIndex);
+            bandDesc.setSpecInfo(specInfo);
+        }
         _bandVec.add(bandDesc);
-        _bands.put(name, bandDesc);
+        _bands.put(bandDesc.getName(), bandDesc);
+        return true;
     }
 
     /**

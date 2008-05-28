@@ -3,12 +3,6 @@ package org.esa.beam.dataio.modis;
 import junit.framework.TestCase;
 import org.esa.beam.util.math.Range;
 
-import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-
-
 public class ModisUtilsTest extends TestCase {
 
     private static final String TestCoreString =
@@ -67,37 +61,6 @@ public class ModisUtilsTest extends TestCase {
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException expected) {
         }
-    }
-
-    public void testCreateDateFromStrings() throws ParseException {
-        final Calendar cal = GregorianCalendar.getInstance();
-        final String date_1 = "2005-08-22";
-        final String time_1 = "12:22:09.887666";
-
-
-        final Date testDate_1 = ModisUtils.createDateFromStrings(date_1, time_1);
-        assertNotNull(testDate_1);
-        cal.setTime(testDate_1);
-        assertEquals(2005, cal.get(Calendar.YEAR));
-        assertEquals(8 - 1, cal.get(Calendar.MONTH));
-        assertEquals(22, cal.get(Calendar.DAY_OF_MONTH));
-        assertEquals(12, cal.get(Calendar.HOUR_OF_DAY));
-        assertEquals(22, cal.get(Calendar.MINUTE));
-        assertEquals(9, cal.get(Calendar.SECOND));
-        assertEquals(887, cal.get(Calendar.MILLISECOND));
-
-        final String date_2 = "2004-07-10";
-        final String time_2 = "21:55:11.123456";
-        final Date testDate_2 = ModisUtils.createDateFromStrings(date_2, time_2);
-        assertNotNull(testDate_2);
-        cal.setTime(testDate_2);
-        assertEquals(2004, cal.get(Calendar.YEAR));
-        assertEquals(7 - 1, cal.get(Calendar.MONTH));
-        assertEquals(10, cal.get(Calendar.DAY_OF_MONTH));
-        assertEquals(21, cal.get(Calendar.HOUR_OF_DAY));
-        assertEquals(55, cal.get(Calendar.MINUTE));
-        assertEquals(11, cal.get(Calendar.SECOND));
-        assertEquals(123, cal.get(Calendar.MILLISECOND));
     }
 
     public void testGetIncrementOffset() {

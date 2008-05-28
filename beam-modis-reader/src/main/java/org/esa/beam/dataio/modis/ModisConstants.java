@@ -4,10 +4,10 @@
  * Copyright (C) 2002,2003  by Brockmann Consult (info@brockmann-consult.de)
  *
  * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the 
- * Free Software Foundation. This program is distributed in the hope it will 
- * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
- * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation. This program is distributed in the hope it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  */
 package org.esa.beam.dataio.modis;
@@ -194,4 +194,7 @@ public class ModisConstants {
     public static final String DAY_NIGHT_FLAG_KEY = "DAYNIGHTFLAG";
     public static final String DAY_NIGHT_FLAG_DAY_VALUE = "Day";
     public static final String BAND_NAME_KEY = "long_name";
+    public static final String EOS_TYPE_GRID = "EOS_TYPE_GRID";
+    public static final String EOS_TYPE_SWATH = "EOS_TYPE_SWATH";
+    public static final String EOS_TYPE_POINT = "EOS_TYPE_POINT";
 }

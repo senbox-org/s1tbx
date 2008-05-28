@@ -1,10 +1,12 @@
 package org.esa.beam.dataio.modis;
 
 import ncsa.hdf.hdflib.HDFException;
-import ncsa.hdf.hdflib.HDFLibrary;
+import org.esa.beam.dataio.modis.hdf.HdfAttributes;
 import org.esa.beam.dataio.modis.hdf.HdfDataField;
-import org.esa.beam.dataio.modis.hdf.HdfGlobalAttributes;
+import org.esa.beam.dataio.modis.hdf.HdfUtils;
+import org.esa.beam.dataio.modis.hdf.lib.HDF;
 import org.esa.beam.framework.dataio.ProductIOException;
+import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
@@ -22,9 +24,9 @@ class ModisImappAttributes implements ModisGlobalAttributes {
     private final File _inFile;
     private final Logger _logger;
     private final int _sdId;
-    private final Dimension _productDimension;
-    private final HashMap _dimensionMap;
-    private final HashMap _subsamplingMap;
+    private Dimension _productDimension;
+    private HashMap<String, Integer> _dimensionMap;
+    private HashMap<String, IncrementOffset> _subsamplingMap;
 
     private String _productName;
     private String _productType;
@@ -32,13 +34,14 @@ class ModisImappAttributes implements ModisGlobalAttributes {
     private Date _sensingStop;
 
 
-    public ModisImappAttributes(File inFile, int sdId) {
+    public ModisImappAttributes(File inFile, int sdId, final HdfAttributes hdfAttributes) throws ProductIOException {
         _logger = BeamLogManager.getSystemLogger();
-        _productDimension = new Dimension(0, 0);
-        _dimensionMap = new HashMap();
-        _subsamplingMap = new HashMap();
         _inFile = inFile;
         this._sdId = sdId;
+
+        parseFileNameAndType();
+        parseProductDimensions();
+        extractStartAndStopTimes(hdfAttributes);
     }
 
     public String getProductName() {
@@ -57,34 +60,41 @@ class ModisImappAttributes implements ModisGlobalAttributes {
         return true;
     }
 
-    public HdfDataField getDatafield(String name) throws ProductIOException {
-        HdfDataField result = null;
+    public String getEosType() {
+        return null;
+    }
 
+    public GeoCoding createGeocoding() {
+        return null;
+    }
+
+    public HdfDataField getDatafield(String name) throws ProductIOException {
         final String widthName = name + "_width";
         final String heightName = name + "_height";
         final String layersName = name + "_z";
-        Integer width = (Integer) _dimensionMap.get(widthName);
-        Integer height = (Integer) _dimensionMap.get(heightName);
-        Integer z = (Integer) _dimensionMap.get(layersName);
+        Integer width = _dimensionMap.get(widthName);
+        Integer height = _dimensionMap.get(heightName);
+        Integer z = _dimensionMap.get(layersName);
 
-        if (width != null && height != null) {
-            result = new HdfDataField();
-            result.setWidth(width);
-            result.setHeight(height);
-            if (z != null) {
-                result.setLayers(z);
-            } else {
-                result.setLayers(1);
-            }
-            result.setDimensionNames(new String[]{widthName, heightName, layersName});
-            result.setName(name);
+        if (width == null || height == null) {
+            return null;
         }
 
-        return result;
+        final HdfDataField dataField = new HdfDataField();
+        dataField.setWidth(width);
+        dataField.setHeight(height);
+        if (z != null) {
+            dataField.setLayers(z);
+        } else {
+            dataField.setLayers(1);
+        }
+        dataField.setDimensionNames(new String[]{widthName, heightName, layersName});
+        dataField.setName(name);
+        return dataField;
     }
 
-    public int[] getTiePointSubsAndOffset(String dimensionName) {
-        IncrementOffset incrementOffset = (IncrementOffset) _subsamplingMap.get(dimensionName);
+    public int[] getSubsamplingAndOffset(String dimensionName) {
+        final IncrementOffset incrementOffset = _subsamplingMap.get(dimensionName);
         if (incrementOffset != null) {
             int[] result = new int[2];
             result[0] = incrementOffset.increment;
@@ -103,18 +113,11 @@ class ModisImappAttributes implements ModisGlobalAttributes {
         return _sensingStop;
     }
 
-    public void decode(final HdfGlobalAttributes hdfAttributes) throws ProductIOException {
-        parseFileNamendType();
-        parseProductDimensions();
-
-        extractStartAndStopTimes(hdfAttributes);
-    }
-
     ///////////////////////////////////////////////////////////////////////////
     /////// END OF PUBLIC
     ///////////////////////////////////////////////////////////////////////////
 
-    private void parseFileNamendType() {
+    final private void parseFileNameAndType() {
         _productName = FileUtils.getFilenameWithoutExtension(_inFile);
         final int index = _productName.indexOf('.');
         if (index > 0) {
@@ -129,17 +132,19 @@ class ModisImappAttributes implements ModisGlobalAttributes {
         // @todo 1 tb/tb this is a rather crude method to retrieve the product dimension: scan all datasets.
         // Find out if there is a clever and more performant way to do this
         int[] numDatasets = new int[1];
-
+        int maxWidth = 0;
+        int maxHeight = 0;
+        _dimensionMap = new HashMap<String, Integer>();
         try {
-            HDFLibrary.SDfileinfo(_sdId, numDatasets);
+            HDF.getWrap().SDfileinfo(_sdId, numDatasets);
 
             int[] dimSize = new int[3];
             int[] dimInfo = new int[3];
             String[] dimName = {""};
             for (int n = 0; n < numDatasets[0]; n++) {
-                final int sdsId = HDFLibrary.SDselect(_sdId, n);
+                final int sdsId = HDF.getWrap().SDselect(_sdId, n);
 
-                if (!HDFLibrary.SDgetinfo(sdsId, dimName, dimSize, dimInfo)) {
+                if (!HDF.getWrap().SDgetinfo(sdsId, dimName, dimSize, dimInfo)) {
                     final String msg = "Unable to retrieve meta information for dataset '" + dimName[0] + '\'';
                     _logger.severe(msg);
                     throw new HDFException(msg);
@@ -147,53 +152,46 @@ class ModisImappAttributes implements ModisGlobalAttributes {
 
                 final String widthName = dimName[0] + "_width";
                 final String heightName = dimName[0] + "_height";
+                final String zName = dimName[0] + "_z";
+
                 if (dimSize[2] == 0) {
-                    if (_productDimension.width < dimSize[1]) {
-                        _productDimension.width = dimSize[1];
-                    }
-                    if (_productDimension.height < dimSize[0]) {
-                        _productDimension.height = dimSize[0];
-                    }
+                    maxWidth = Math.max(maxWidth, dimSize[1]);
+                    maxHeight = Math.max(maxHeight, dimSize[0]);
                     _dimensionMap.put(widthName, dimSize[1]);
                     _dimensionMap.put(heightName, dimSize[0]);
                 } else {
-                    if (_productDimension.width < dimSize[2]) {
-                        _productDimension.width = dimSize[2];
-                    }
-                    if (_productDimension.height < dimSize[1]) {
-                        _productDimension.height = dimSize[1];
-                    }
+                    maxWidth = Math.max(maxWidth, dimSize[2]);
+                    maxHeight = Math.max(maxHeight, dimSize[1]);
                     _dimensionMap.put(widthName, dimSize[2]);
                     _dimensionMap.put(heightName, dimSize[1]);
-                    _dimensionMap.put(dimName[0] + "_z", dimSize[0]);
+                    _dimensionMap.put(zName, dimSize[0]);
                 }
 
                 ModisUtils.clearDimensionArrays(dimInfo, dimSize);
                 addTiePointOffsetAndSubsampling(sdsId, widthName, heightName);
 
-                HDFLibrary.SDendaccess(sdsId);
+                HDF.getWrap().SDendaccess(sdsId);
             }
         } catch (HDFException e) {
             throw new ProductIOException(e.getMessage());
+        } finally {
+            _productDimension = new Dimension(maxWidth, maxHeight);
         }
     }
 
     private void addTiePointOffsetAndSubsampling(int sdsId, String widthName, String heightName) throws HDFException {
-        String lineNumbers = ModisUtils.getNamedStringAttribute(sdsId, "line_numbers");
-        IncrementOffset incrementOffset;
+        final String lineNumbers = HdfUtils.getNamedStringAttribute(sdsId, "line_numbers");
+        _subsamplingMap = new HashMap<String, IncrementOffset>();
         if (StringUtils.isNotNullAndNotEmpty(lineNumbers)) {
-            incrementOffset = ModisUtils.getIncrementOffset(lineNumbers);
-            _subsamplingMap.put(heightName, incrementOffset);
-
+            _subsamplingMap.put(heightName, ModisUtils.getIncrementOffset(lineNumbers));
         }
-        String frameNumbers = ModisUtils.getNamedStringAttribute(sdsId, "frame_numbers");
+        final String frameNumbers = HdfUtils.getNamedStringAttribute(sdsId, "frame_numbers");
         if (StringUtils.isNotNullAndNotEmpty(frameNumbers)) {
-            incrementOffset = ModisUtils.getIncrementOffset(frameNumbers);
-            _subsamplingMap.put(widthName, incrementOffset);
+            _subsamplingMap.put(widthName, ModisUtils.getIncrementOffset(frameNumbers));
         }
     }
 
-    private void extractStartAndStopTimes(HdfGlobalAttributes hdfAttributes) throws ProductIOException {
+    private void extractStartAndStopTimes(HdfAttributes hdfAttributes) throws ProductIOException {
         try {
             final String startDate = hdfAttributes.getStringAttributeValue(ModisConstants.RANGE_BEGIN_DATE_KEY);
             final String startTime = hdfAttributes.getStringAttributeValue(ModisConstants.RANGE_BEGIN_TIME_KEY);

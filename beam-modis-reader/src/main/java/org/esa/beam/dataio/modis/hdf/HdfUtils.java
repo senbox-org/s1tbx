@@ -14,10 +14,15 @@ package org.esa.beam.dataio.modis.hdf;
 
 import ncsa.hdf.hdflib.HDFConstants;
 import ncsa.hdf.hdflib.HDFException;
-import ncsa.hdf.hdflib.HDFLibrary;
 import ncsa.hdf.hdflib.HDFNativeData;
+import org.esa.beam.dataio.modis.hdf.lib.HDF;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.util.Debug;
+import org.esa.beam.util.logging.BeamLogManager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class HdfUtils {
 
@@ -68,10 +73,10 @@ public class HdfUtils {
      *
      * @return a new {@link HdfAttributeContainer} with the decoded string as value.
      */
-    public static HdfAttributeContainer decodeByteBufferToAttribute(byte[] buf, int NT, int count, String name) throws
-                                                                                                                HDFException {
+    public static HdfAttributeContainer decodeByteBufferToAttribute(byte[] buf, int NT, int count, String name)
+            throws HDFException {
         final String strVal;
-        final int incr = HDFLibrary.DFKNTsize(NT);
+        final int incr = HDF.getWrap().DFKNTsize(NT);
 
         String strTemp;
 
@@ -223,5 +228,80 @@ public class HdfUtils {
             attrib = new MetadataAttribute(container.getName(), prodData, true);
         }
         return attrib;
+    }
+
+    /**
+     * Reads the global attributes from the hdf file passed in.
+     *
+     * @param sdId the HD interface identifier of the file
+     *
+     * @return an instance of HdfGlobalAttributes which contains all the
+     *         global hdf attributes read from file.
+     *
+     * @throws ncsa.hdf.hdflib.HDFException -
+     */
+    final static public HdfAttributes readAttributes(final int sdId) throws HDFException {
+        Debug.trace("reading global attributes ...");
+
+        final List<HdfAttributeContainer> attributes = new ArrayList<HdfAttributeContainer>();
+
+        final int[] fileInfo = new int[2];
+        // request number of datasets (fileInfo[0]) and number of global attributes (fileInfo[1])
+        if (HDF.getWrap().SDfileinfo(sdId, fileInfo)) {
+            final int[] sdAttrInfo = new int[2];
+            final String[] sdVal = new String[1];
+
+            for (int n = 0; n < fileInfo[1]; n++) {
+                sdVal[0] = "";
+                if (HDF.getWrap().SDattrinfo(sdId, n, sdVal, sdAttrInfo)) {
+                    final int attrSize = HDF.getWrap().DFKNTsize(sdAttrInfo[0]) * sdAttrInfo[1] + 1;
+                    final byte[] buf = new byte[attrSize];
+
+                    if (HDF.getWrap().SDreadattr(sdId, n, buf)) {
+                        final String attrName = sdVal[0].trim();
+                        final HdfAttributeContainer attribute
+                                = decodeByteBufferToAttribute(buf, sdAttrInfo[0], sdAttrInfo[1], attrName);
+
+                        if (attribute != null) {
+                            attributes.add(attribute);
+                            Debug.trace("... " + attrName + ": " + attribute.getStringValue());
+                        }
+                    }
+                }
+            }
+        }
+
+        Debug.trace("... success");
+        return new HdfAttributes(attributes);
+    }
+
+    /**
+     * Retrieves a string attribute with given name from the sds specified.
+     *
+     * @@param sdsId
+     * @@param name
+     * @@return a string attribute
+     */
+    public static String getNamedStringAttribute(int sdsId, String name) throws HDFException {
+        if (name == null) {
+            return null;
+        }
+
+        final int attrIdx = HDF.getWrap().SDfindattr(sdsId, name);
+        if (attrIdx == HDFConstants.FAIL) {
+            return null;
+        }
+
+        final int[] attrInfo = new int[2];
+        final String[] dsName = new String[]{""};
+        if (HDF.getWrap().SDattrinfo(sdsId, attrIdx, dsName, attrInfo)) {
+            final int attrSize = HDF.getWrap().DFKNTsize(attrInfo[0]) * attrInfo[1];
+            final byte[] buf = new byte[attrSize];
+            if (HDF.getWrap().SDreadattr(sdsId, attrIdx, buf)) {
+                return new String(buf).trim();
+            }
+        }
+        BeamLogManager.getSystemLogger().warning("Unable to access the attribute '" + name + '\'');
+        return null;
     }
 }
