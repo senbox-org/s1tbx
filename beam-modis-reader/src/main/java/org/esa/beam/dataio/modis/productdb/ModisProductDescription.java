@@ -42,33 +42,53 @@ public class ModisProductDescription {
     /**
      * Adds a new band description to the product description.
      *
-     * @param record the record contining all the necessary band information
-     * @return true if a band can be added
+     * @param name          the name of the band (without spectral extension)
+     * @param isSpectral    whether the badnd is a spectral band or not
+     * @param scalingMethod the scaling method to be used for this band (lin, exp ..)
+     * @param scaleName     name of the attribute containing the scale factors
+     * @param offsetName    name of the attribute containing the scale offsets
+     * @param unitName      name off the attribute containing the physical unit
+     * @param bandName      name of the attribute containing the spectral extensions (band names)
+     * @param descName      name of the attribute containing a description of the band
      */
-    public boolean addBand(final String[] record) {
-        if (record == null) {
-            return false;
-        }
-        if (record.length != ModisProductDb.EXP_NUM_SDS_DEFAULT_RECORD
-            && record.length != ModisProductDb.EXP_NUM_SDS_SPECTRAL_RECORD) {
-            return false;
-        }
+    public void addBand(String name, String isSpectral, String scalingMethod, String scaleName,
+                        String offsetName, String unitName, String bandName, String descName) {
+        addBand(new ModisBandDescription(
+                    name, isSpectral, scalingMethod, scaleName,
+                    offsetName, unitName, bandName, descName));
+    }
 
+    /**
+     * Adds a new band description to the product description.
+     *
+     * @param name               the name of the band (without spectral extension)
+     * @param isSpectral         whether the badnd is a spectral band or not
+     * @param scalingMethod      the scaling method to be used for this band (lin, exp ..)
+     * @param scaleName          name of the attribute containing the scale factors
+     * @param offsetName         name of the attribute containing the scale offsets
+     * @param unitName           name off the attribute containing the physical unit
+     * @param bandName           name of the attribute containing the spectral extensions (band names)
+     * @param descName           name of the attribute containing a description of the band
+     * @param spectralWaveLength the spectral wavelength in nm (nanomater) units
+     * @param spectralBandWidth  the spectral bandwidth in nm (nanomater) units
+     * @param spectralBandIndex  the (zero-based) spectral band index
+     */
+    public void addBand(final String name, final String isSpectral, final String scalingMethod,
+                        final String scaleName, final String offsetName, final String unitName,
+                        final String bandName, final String descName,
+                        final String spectralWaveLength, final String spectralBandWidth,
+                        final String spectralBandIndex) {
         final ModisBandDescription bandDesc = new ModisBandDescription(
-                    record[1], record[2], record[3], record[4],
-                    record[5], record[6], record[7], record[8]);
+                    name, isSpectral, scalingMethod, scaleName,
+                    offsetName, unitName, bandName, descName);
+        bandDesc.setSpecInfo(new ModisSpectralInfo(
+                    spectralWaveLength, spectralBandWidth, spectralBandIndex));
+        addBand(bandDesc);
+    }
 
-        if (record.length == ModisProductDb.EXP_NUM_SDS_SPECTRAL_RECORD) {
-            final String spectralWavelength = record[9];
-            final String spectralBandwidth = record[10];
-            final String spectralBandIndex = record[11];
-            final ModisSpectralInfo specInfo = new ModisSpectralInfo(
-                        spectralWavelength, spectralBandwidth, spectralBandIndex);
-            bandDesc.setSpecInfo(specInfo);
-        }
+    private void addBand(final ModisBandDescription bandDesc) {
         _bandVec.add(bandDesc);
         _bands.put(bandDesc.getName(), bandDesc);
-        return true;
     }
 
     /**

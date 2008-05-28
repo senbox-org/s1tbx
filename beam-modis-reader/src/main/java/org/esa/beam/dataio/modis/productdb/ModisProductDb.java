@@ -294,9 +294,20 @@ public class ModisProductDb {
             if (records[0].equalsIgnoreCase(META_KEY)) {
                 // @todo 4 tb/tb - implement
             } else if (records[0].equalsIgnoreCase(SDS_KEY)) {
-                if (!description.addBand(records)) {
+                if (records.length != ModisProductDb.EXP_NUM_SDS_DEFAULT_RECORD
+                    && records.length != ModisProductDb.EXP_NUM_SDS_SPECTRAL_RECORD) {
                     _logger.severe("Invalid number of records in SDS description for product type '" + prodType + "'.");
                     continue;
+                }
+                if (records.length == ModisProductDb.EXP_NUM_SDS_SPECTRAL_RECORD) {
+                    description.addBand(
+                                records[1], records[2], records[3], records[4],
+                                records[5], records[6], records[7], records[8],
+                                records[9], records[10], records[11]);
+                } else {
+                    description.addBand(
+                                records[1], records[2], records[3], records[4],
+                                records[5], records[6], records[7], records[8]);
                 }
             } else if (records[0].equalsIgnoreCase(GEO_KEY)) {
                 if ((records.length < EXP_NUM_GEO_RECORDS_MIN) || (records.length > EXP_NUM_GEO_RECORDS_MAX)) {

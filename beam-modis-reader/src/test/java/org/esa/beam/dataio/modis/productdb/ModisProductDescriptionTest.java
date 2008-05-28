@@ -12,33 +12,17 @@
  */
 package org.esa.beam.dataio.modis.productdb;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 public class ModisProductDescriptionTest extends TestCase {
 
     private ModisProductDescription _prod;
 
-    public ModisProductDescriptionTest(String name) {
-        super(name);
-    }
-
-    public static Test suite() {
-        return new TestSuite(ModisProductDescriptionTest.class);
-    }
-
-    /**
-     * Initializes the test environment
-     */
     protected void setUp() {
         _prod = new ModisProductDescription();
         assertTrue(_prod != null);
     }
 
-    /**
-     * Tests the default constructor
-     */
     public void testDefaultConstruction() {
         assertEquals(0, _prod.getBandNames().length);
         assertNull(_prod.getBandDescription("no_band"));
@@ -61,6 +45,10 @@ public class ModisProductDescriptionTest extends TestCase {
         String expB_1_Unit = "unit_1";
         String expB_1_BandName = "band_name_1";
         String expB_1_DescName = "desc_name_1";
+        String expB_1_SpectralWL = "680.5";
+        String expB_1_SpectralBW = "56.7";
+        String expB_1_SpectralBI = "4";
+
         String expB_2_Name = "band_2";
         String expB_2_spectral = "false";
         String expB_2_ScaleMethod = "scale_method_2";
@@ -70,37 +58,35 @@ public class ModisProductDescriptionTest extends TestCase {
         String expB_2_BandName = "band_name_2";
         String expB_2_DescName = "desc_name_2";
 
-        final String[] record1 = {
-                    "ignored",
-                    expB_1_Name, expB_1_spectral, expB_1_ScaleMethod, expB_1_Scale,
-                    expB_1_Offset, expB_1_Unit, expB_1_BandName, expB_1_DescName
-        };
-        final String[] record2 = {
-                    "ignored",
-                    expB_2_Name, expB_2_spectral, expB_2_ScaleMethod, expB_2_Scale,
-                    expB_2_Offset, expB_2_Unit, expB_2_BandName, expB_2_DescName
-        };
-
         // add two bands
-        _prod.addBand(record1);
-        _prod.addBand(record2);
+        _prod.addBand(expB_1_Name, expB_1_spectral, expB_1_ScaleMethod, expB_1_Scale,
+                      expB_1_Offset, expB_1_Unit, expB_1_BandName, expB_1_DescName,
+                      expB_1_SpectralWL, expB_1_SpectralBW, expB_1_SpectralBI);
+        _prod.addBand(expB_2_Name, expB_2_spectral, expB_2_ScaleMethod, expB_2_Scale,
+                      expB_2_Offset, expB_2_Unit, expB_2_BandName, expB_2_DescName);
 
         // retrieve description object for band 1 - and check
         ModisBandDescription band = _prod.getBandDescription(expB_1_Name);
         assertNotNull(band);
         assertEquals(expB_1_Name, band.getName());
-        assertEquals(expB_1_spectral.equalsIgnoreCase("true"), band.isSpectral());
+        assertEquals(expB_1_spectral, "" + band.isSpectral());
         assertEquals(expB_1_ScaleMethod, band.getScalingMethod());
         assertEquals(expB_1_Scale, band.getScaleAttribName());
         assertEquals(expB_1_Offset, band.getOffsetAttribName());
         assertEquals(expB_1_Unit, band.getUnitAttribName());
         assertEquals(expB_1_BandName, band.getBandAttribName());
+        assertEquals(true, band.hasSpectralInfo());
+        final ModisSpectralInfo spectralInfo = band.getSpecInfo();
+        assertNotNull(spectralInfo);
+        assertEquals(expB_1_SpectralWL, "" + spectralInfo.getSpectralWavelength());
+        assertEquals(expB_1_SpectralBW, "" + spectralInfo.getSpectralBandwidth());
+        assertEquals(expB_1_SpectralBI, "" + spectralInfo.getSpectralBandIndex());
 
         // retrieve description object for band 2 - and check
         band = _prod.getBandDescription(expB_2_Name);
         assertNotNull(band);
         assertEquals(expB_2_Name, band.getName());
-        assertEquals(Boolean.valueOf(expB_2_spectral).booleanValue(), band.isSpectral());
+        assertEquals(expB_2_spectral, "" + band.isSpectral());
         assertEquals(expB_2_ScaleMethod, band.getScalingMethod());
         assertEquals(expB_2_Scale, band.getScaleAttribName());
         assertEquals(expB_2_Offset, band.getOffsetAttribName());
@@ -225,5 +211,10 @@ public class ModisProductDescriptionTest extends TestCase {
         _prod.setExternalGeolocationPattern(null);
         assertEquals(false, _prod.hasExternalGeolocation());
         assertEquals(null, _prod.getExternalGeolocationPattern());
+    }
+
+    public void testAddSpectralInformation() {
+
+
     }
 }
