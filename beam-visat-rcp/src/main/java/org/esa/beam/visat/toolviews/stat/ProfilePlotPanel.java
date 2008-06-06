@@ -14,9 +14,14 @@ import org.esa.beam.util.math.MathUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.Plot;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.data.Range;
+import org.jfree.ui.RectangleInsets;
 
 import javax.swing.*;
 import java.awt.*;
@@ -197,7 +202,10 @@ class ProfilePlotPanel extends PagePanel {
                 true,
                 false
         );
-        chart.getPlot().setNoDataMessage(NO_DATA_MESSAGE);
+        final XYPlot plot = chart.getXYPlot();
+
+        plot.setNoDataMessage(NO_DATA_MESSAGE);
+        plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
 
         profilePlotDisplay = new ChartPanel(chart);
         profilePlotDisplay.getPopupMenu().add(createCopyDataToClipboardMenuItem());

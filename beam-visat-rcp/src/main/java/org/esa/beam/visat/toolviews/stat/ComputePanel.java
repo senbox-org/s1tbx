@@ -2,6 +2,7 @@ package org.esa.beam.visat.toolviews.stat;
 
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.layer.ROILayer;
 
 import javax.swing.*;
@@ -62,9 +63,17 @@ class ComputePanel extends JPanel {
                 useRoiCheckBox.setEnabled(isROIUsable());
             }
         });
-        setLayout(new BorderLayout(2, 2));
-        add(computeButton, BorderLayout.NORTH);
-        add(useRoiCheckBox, BorderLayout.SOUTH);
+        final TableLayout tableLayout = new TableLayout(1);
+        tableLayout.setTableAnchor(TableLayout.Anchor.SOUTHWEST);
+        tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        tableLayout.setTableWeightX(1.0);
+        tableLayout.setRowWeightY(0,1.0); 
+        setLayout(tableLayout);
+
+
+        add(new JPanel());
+        add(useRoiCheckBox);
+        add(computeButton);
 
         setRaster(raster);
     }

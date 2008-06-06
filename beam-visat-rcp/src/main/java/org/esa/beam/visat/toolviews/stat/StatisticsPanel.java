@@ -45,7 +45,7 @@ class StatisticsPanel extends TextPagePanel {
     protected void initContent() {
         super.initContent();
         computePanel = ComputePanel.createComputePane(getAllPixelActionListener(), getRoiActionListener(), getRaster());
-        add(computePanel, BorderLayout.SOUTH);
+        add(computePanel, BorderLayout.EAST);
     }
 
     private ActionListener getAllPixelActionListener() {

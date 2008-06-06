@@ -19,6 +19,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.ui.RectangleInsets;
 
 import javax.media.jai.ROI;
 import javax.swing.*;
@@ -124,17 +125,19 @@ class HistogramPanel extends PagePanel {
         dataset = new XYSeriesCollection();
         chart = ChartFactory.createHistogram(
                 "Histogram",
-                null,
-                null,
+                "Value Bin",
+                "Frequency",
                 dataset,
                 PlotOrientation.VERTICAL,
                 false,  // Legend?
                 true,
                 false
         );
-        XYPlot plot = (XYPlot) chart.getPlot();
+        XYPlot plot = chart.getXYPlot();
+
         plot.setForegroundAlpha(0.85f);
         plot.setNoDataMessage(NO_DATA_MESSAGE);
+        plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));        
         XYBarRenderer renderer = (XYBarRenderer) plot.getRenderer();
         renderer.setDrawBarOutline(false);
 

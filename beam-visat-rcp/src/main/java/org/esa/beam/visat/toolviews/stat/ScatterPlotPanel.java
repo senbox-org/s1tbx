@@ -11,6 +11,7 @@ import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamGroup;
 import org.esa.beam.framework.param.Parameter;
+import org.esa.beam.framework.param.editors.ComboBoxEditor;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.Debug;
@@ -150,6 +151,7 @@ class ScatterPlotPanel extends PagePanel {
         rasterNameParams[var].getProperties().setValueSet(availableBands);
         rasterNameParams[var].getProperties().setValueSetBound(true);
         rasterNameParams[var].getProperties().setDescription("Band name"); /*I18N*/
+        rasterNameParams[var].getProperties().setEditorClass(ComboBoxEditor.class);
         paramGroup.addParameter(rasterNameParams[var]);
 
 //        final Parameter[] autoMinMaxParams = getAutoMinMaxParams();
@@ -189,6 +191,7 @@ class ScatterPlotPanel extends PagePanel {
         computePanel = ComputePanel.createComputePane(actionAll, actionROI, getRaster());
 
         plot = new XYImagePlot();
+
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
         plot.setNoDataMessage(NO_DATA_MESSAGE);
 
