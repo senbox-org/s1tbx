@@ -148,8 +148,10 @@ public class ModisProductReader extends AbstractProductReader {
         }
 
         try {
-            reader.readBandData(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight, sourceStepX, sourceStepY,
-                                destOffsetX, destOffsetY, destWidth, destHeight, destBuffer, pm);
+            reader.readBandData(sourceOffsetX, sourceOffsetY,
+                                sourceWidth, sourceHeight,
+                                sourceStepX, sourceStepY,
+                                destBuffer, pm);
         } catch (HDFException e) {
             final IOException ioException = new IOException(e.getMessage());
             ioException.initCause(e);
@@ -166,8 +168,7 @@ public class ModisProductReader extends AbstractProductReader {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected Product readProductNodesImpl() throws IOException,
-                                                    IllegalFileFormatException {
+    protected Product readProductNodesImpl() throws IOException, IllegalFileFormatException {
         final File inFile = getInputFile();
 
         Product product;

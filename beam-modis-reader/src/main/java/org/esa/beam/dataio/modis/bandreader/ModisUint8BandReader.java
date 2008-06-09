@@ -16,15 +16,18 @@
  */
 package org.esa.beam.dataio.modis.bandreader;
 
-import com.bc.ceres.core.ProgressMonitor;
 import ncsa.hdf.hdflib.HDFException;
 import org.esa.beam.dataio.modis.hdf.lib.HDF;
-import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.ProductData;
 
 public class ModisUint8BandReader extends ModisBandReader {
 
     private byte[] _line;
+    private short min;
+    private short max;
+    private byte fill;
+    private byte[] targetData;
+    private int targetIdx;
 
     public ModisUint8BandReader(final int sdsId, final int layer, final boolean is3d) {
         super(sdsId, layer, is3d);
@@ -40,14 +43,10 @@ public class ModisUint8BandReader extends ModisBandReader {
         return ProductData.TYPE_UINT8;
     }
 
-    @Override
-    public void readBandDataImpl(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
-                                 int sourceStepX,
-                                 int sourceStepY, int destOffsetX, int destOffsetY, int destWidth, int destHeight,
-                                 ProductData destBuffer, ProgressMonitor pm) throws HDFException, ProductIOException {
-        final short min;
-        final short max;
-        final byte fill = (byte) Math.floor(_fillValue + 0.5);
+    protected void prepareForReading(final int sourceOffsetX, final int sourceOffsetY, final int sourceWidth,
+                                     final int sourceHeight, final int sourceStepX, final int sourceStepY,
+                                     final ProductData destBuffer) {
+        fill = (byte) Math.floor(_fillValue + 0.5);
         if (_validRange == null) {
             min = 0;
             max = Byte.MAX_VALUE * 2 + 1;
@@ -55,42 +54,26 @@ public class ModisUint8BandReader extends ModisBandReader {
             min = (short) Math.floor(_validRange.getMin() + 0.5);
             max = (short) Math.floor(_validRange.getMax() + 0.5);
         }
-
-        final byte[] targetData = (byte[]) destBuffer.getElems();
-        int targetIdx = 0;
-
+        targetData = (byte[]) destBuffer.getElems();
+        targetIdx = 0;
         ensureLineWidth(sourceWidth);
+    }
 
-        pm.beginTask("Reading band '" + getName() + "'...", sourceHeight);
-        // loop over lines
-        try {
-            for (int y = 0; y < sourceHeight; y += sourceStepY) {
-                if (pm.isCanceled()) {
-                    break;
-                }
-                HDF.getWrap().SDreaddata(_sdsId, _start, _stride, _count, _line);
-                for (int x = 0; x < sourceWidth; x++) {
-                    final int value = _line[x] & 0xff;
-                    if (value < min || value > max) {
-                        _line[x] = fill;
-                    }
-                    destBuffer.setElemFloatAt(targetIdx, _line[x]);
-//                    targetData[targetIdx] = _line[x];
-                    ++targetIdx;
-                }
-                _start[_yCoord] += sourceStepY;
-                pm.worked(1);
-            }
-        } finally {
-            pm.done();
+    protected void readLine() throws HDFException {
+        HDF.getWrap().SDreaddata(_sdsId, _start, _stride, _count, _line);
+    }
+
+    protected void validate(final int x) {
+        final int value = _line[x] & 0xff;
+        if (value < min || value > max) {
+            _line[x] = fill;
         }
     }
 
-    /**
-     * Makes sure that the scan line buffer is present and of the correct size
-     *
-     * @param sourceWidth
-     */
+    protected void assign(final int x) {
+        targetData[targetIdx++] = _line[x];
+    }
+
     private void ensureLineWidth(final int sourceWidth) {
         if ((_line == null) || (_line.length != sourceWidth)) {
             _line = new byte[sourceWidth];

@@ -64,7 +64,9 @@ abstract public class ModisBandReader {
     /**
      * Creates a band reader with given scientific dataset identifier
      *
-     * @param sdsId
+     * @param sdsId the dataset ID
+     * @param layer the layer
+     * @param is3d  true if the dataset is a 3d dataset
      */
     public ModisBandReader(final int sdsId, final int layer, final boolean is3d) {
         _sdsId = sdsId;
@@ -99,7 +101,7 @@ abstract public class ModisBandReader {
     /**
      * Sets the name of the band
      *
-     * @param name
+     * @param name the name for this band reader
      */
     public void setName(final String name) {
         _name = name;
@@ -117,7 +119,7 @@ abstract public class ModisBandReader {
     /**
      * Converts a string to a scaling method enum value.
      *
-     * @param scaleMethod
+     * @param scaleMethod the scale method as string
      *
      * @return the enum value either {@link #SCALE_LINEAR}, {@link #SCALE_EXPONENTIAL},
      *         {@link #SCALE_POW_10}, {@link #SCALE_SLOPE_INTERCEPT} or {@link #SCALE_UNKNOWN} if the given string
@@ -141,8 +143,8 @@ abstract public class ModisBandReader {
     /**
      * Sets scale and offset for scaled bands (scaling that cannot be handled by the product io framework)
      *
-     * @param scale
-     * @param offset
+     * @param scale  the scaling used by this band reader
+     * @param offset the offset used by this band reader
      */
     public void setScaleAndOffset(final float scale, final float offset) {
         _scale = scale;
@@ -152,17 +154,28 @@ abstract public class ModisBandReader {
     /**
      * Sets the valid range for this specific band reader, value in unscaled counts
      *
-     * @param validRange
+     * @param validRange the raw data valid range
      */
     public void setValidRange(Range validRange) {
         _validRange = validRange;
     }
 
+    abstract protected void prepareForReading(final int sourceOffsetX, final int sourceOffsetY,
+                                              final int sourceWidth, final int sourceHeight,
+                                              final int sourceStepX, final int sourceStepY,
+                                              final ProductData destBuffer);
+
+    abstract protected void readLine() throws HDFException;
+
+    abstract protected void validate(final int x);
+
+    abstract protected void assign(final int x);
+
     /**
      * Sets the fill value, i.e. the value set where the measurement data is out-of-scope
      * value in unscaled measurements counts
      *
-     * @param fillValue
+     * @param fillValue the fill value if any raw data is not in the valid range
      */
     public void setFillValue(double fillValue) {
         _fillValue = fillValue;
@@ -176,20 +189,18 @@ abstract public class ModisBandReader {
     abstract public int getDataType();
 
     /**
-     * @deprecated in 4.0, use {@link #readBandDataImpl(int, int, int, int, int, int, int, int, int, int, org.esa.beam.framework.datamodel.ProductData, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #readBandData(int, int, int, int, int, int, org.esa.beam.framework.datamodel.ProductData, com.bc.ceres.core.ProgressMonitor)} instead
      */
     public void readBandData(int sourceOffsetX, int sourceOffsetY, int sourceWidth,
                              int sourceHeight, int sourceStepX, int sourceStepY,
                              int destOffsetX, int destOffsetY, int destWidth,
                              int destHeight, ProductData destBuffer) throws HDFException,
                                                                             ProductIOException {
-        readBandDataImpl(sourceOffsetX, sourceOffsetY,
-                         sourceWidth, sourceHeight,
-                         sourceStepX, sourceStepY,
-                         destOffsetX, destOffsetY,
-                         destWidth, destHeight,
-                         destBuffer,
-                         ProgressMonitor.NULL);
+        readBandData(sourceOffsetX, sourceOffsetY,
+                     sourceWidth, sourceHeight,
+                     sourceStepX, sourceStepY,
+                     destBuffer,
+                     ProgressMonitor.NULL);
     }
 
     /**
@@ -204,10 +215,6 @@ abstract public class ModisBandReader {
      * @param sourceHeight  the height of region providing samples to be read given in source raster co-ordinates
      * @param sourceStepX   the sub-sampling in X direction within the region providing samples to be read
      * @param sourceStepY   the sub-sampling in Y direction within the region providing samples to be read
-     * @param destOffsetX   the X-offset in the band's raster co-ordinates
-     * @param destOffsetY   the Y-offset in the band's raster co-ordinates
-     * @param destWidth     the width of region to be read given in the band's raster co-ordinates
-     * @param destHeight    the height of region to be read given in the band's raster co-ordinates
      * @param destBuffer    the destination buffer which receives the sample values to be read
      * @param pm            a monitor to inform the user about progress
      *
@@ -216,9 +223,8 @@ abstract public class ModisBandReader {
      *                                      -
      */
     public void readBandData(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
-                             int sourceStepX, int sourceStepY, int destOffsetX, int destOffsetY,
-                             int destWidth, int destHeight, ProductData destBuffer, ProgressMonitor pm)
-            throws HDFException, ProductIOException {
+                             int sourceStepX, int sourceStepY, ProductData destBuffer, ProgressMonitor pm)
+                throws HDFException, ProductIOException {
         _start[_yCoord] = sourceOffsetY;
         _start[_xCoord] = sourceOffsetX;
         _count[_yCoord] = 1;
@@ -226,35 +232,26 @@ abstract public class ModisBandReader {
         _stride[_yCoord] = sourceStepY;
         _stride[_xCoord] = sourceStepX;
 
-        readBandDataImpl(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight, sourceStepX, sourceStepY,
-                         destOffsetX, destOffsetY, destWidth, destHeight, destBuffer, pm);
-    }
+        prepareForReading(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight,
+                          sourceStepX, sourceStepY, destBuffer);
 
-    /**
-     * <p>The destination band, buffer and region parameters are exactly the ones passed to the original  call. Since
-     * the <code>destOffsetX</code> and <code>destOffsetY</code> parameters are already taken into acount in the
-     * <code>sourceOffsetX</code> and <code>sourceOffsetY</code> parameters, an implementor of this method is free to
-     * ignore them.
-     *
-     * @param sourceOffsetX the absolute X-offset in source raster co-ordinates
-     * @param sourceOffsetY the absolute Y-offset in source raster co-ordinates
-     * @param sourceWidth   the width of region providing samples to be read given in source raster co-ordinates
-     * @param sourceHeight  the height of region providing samples to be read given in source raster co-ordinates
-     * @param sourceStepX   the sub-sampling in X direction within the region providing samples to be read
-     * @param sourceStepY   the sub-sampling in Y direction within the region providing samples to be read
-     * @param destOffsetX   the X-offset in the band's raster co-ordinates
-     * @param destOffsetY   the Y-offset in the band's raster co-ordinates
-     * @param destWidth     the width of region to be read given in the band's raster co-ordinates
-     * @param destHeight    the height of region to be read given in the band's raster co-ordinates
-     * @param destBuffer    the destination buffer which receives the sample values to be read
-     * @param pm            a monitor to inform the user about progress
-     *
-     * @throws ncsa.hdf.hdflib.HDFException -
-     * @throws org.esa.beam.framework.dataio.ProductIOException
-     *                                      -
-     */
-    public abstract void readBandDataImpl(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
-                                          int sourceStepX, int sourceStepY, int destOffsetX, int destOffsetY,
-                                          int destWidth, int destHeight, ProductData destBuffer, ProgressMonitor pm)
-            throws HDFException, ProductIOException;
+        pm.beginTask("Reading band '" + getName() + "'...", sourceHeight);
+        // loop over lines
+        try {
+            for (int y = 0; y < sourceHeight; y += sourceStepY) {
+                if (pm.isCanceled()) {
+                    break;
+                }
+                readLine();
+                for (int x = 0; x < sourceWidth; x++) {
+                    validate(x);
+                    assign(x);
+                }
+                _start[_yCoord] += sourceStepY;
+                pm.worked(1);
+            }
+        } finally {
+            pm.done();
+        }
+    }
 }

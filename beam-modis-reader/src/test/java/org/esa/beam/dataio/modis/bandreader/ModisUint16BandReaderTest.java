@@ -31,7 +31,7 @@ public class ModisUint16BandReaderTest extends HDFTestCase {
         reader.setValidRange(new Range(4, Short.MAX_VALUE * 2 - 3));
 
         // Method under test
-        reader.readBandDataImpl(0, 0, 4, 3, 1, 1, 0, 0, 4, 3, buffer, ProgressMonitor.NULL);
+        reader.readBandData(0, 0, 4, 3, 1, 1, buffer, ProgressMonitor.NULL);
 
         final int[] expected = {65529, 65531, fill, fill, fill, fill, 5, 7, 9, 11, 13, 15};
         for (int i = 0; i < expected.length; i++) {
@@ -54,7 +54,7 @@ public class ModisUint16BandReaderTest extends HDFTestCase {
 
         try {
             // Method under test
-            reader.readBandDataImpl(0, 0, 4, 3, 1, 1, 0, 0, 4, 3, buffer, ProgressMonitor.NULL);
+            reader.readBandData(0, 0, 4, 3, 1, 1, buffer, ProgressMonitor.NULL);
             fail();
         } catch (HDFException e) {
             assertEquals("TestMessage", e.getMessage());
