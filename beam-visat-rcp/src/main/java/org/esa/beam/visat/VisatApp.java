@@ -2189,7 +2189,7 @@ public class VisatApp extends BasicApp {
                 "drawPolylineTool",
                 "drawPolygonTool",
                 "deleteShape",
-                "magicStickTool",
+//                "magicStickTool",
                 null,
                 "convertShapeToROI",
                 "convertROIToShape",
