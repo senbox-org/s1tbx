@@ -1,30 +1,30 @@
 package org.esa.beam.visat.actions.rangefinder;
 
-import org.esa.beam.framework.ui.tool.AbstractTool;
-import org.esa.beam.framework.ui.tool.ToolInputEvent;
-import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.datamodel.GeoCoding;
 import org.esa.beam.framework.datamodel.GeoPos;
 import org.esa.beam.framework.datamodel.PixelPos;
 import org.esa.beam.framework.dataop.maptransf.Ellipsoid;
-import org.esa.beam.visat.VisatApp;
+import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.product.ProductSceneView;
+import org.esa.beam.framework.ui.tool.AbstractTool;
+import org.esa.beam.framework.ui.tool.ToolInputEvent;
 import org.esa.beam.util.math.MathUtils;
+import org.esa.beam.visat.VisatApp;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.SwingUtilities;
-import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.util.List;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A tool representing the range finder.
@@ -134,7 +134,8 @@ public class RangeFinderTool extends AbstractTool {
             detailsButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     final Window parentWindow = SwingUtilities.getWindowAncestor(detailsButton);
-                    ModalDialog detailsDialog = org.esa.beam.visat.actions.rangefinder.RangeFinderTool.createDetailsDialog(parentWindow, distanceDatas);
+                    ModalDialog detailsDialog = org.esa.beam.visat.actions.rangefinder.RangeFinderTool.createDetailsDialog(
+                                parentWindow, distanceDatas);
                     detailsDialog.show();
                 }
             });
@@ -146,7 +147,8 @@ public class RangeFinderTool extends AbstractTool {
             messagePane.add(new JLabel("Distance: " + distance + " +/- " + distanceError + " km"));
             messagePane.add(buttonPane, BorderLayout.SOUTH);
 
-            JOptionPane.showMessageDialog(VisatApp.getApp().getMainFrame(), messagePane, org.esa.beam.visat.actions.rangefinder.RangeFinderTool.TITLE,
+            JOptionPane.showMessageDialog(VisatApp.getApp().getMainFrame(), messagePane,
+                                          org.esa.beam.visat.actions.rangefinder.RangeFinderTool.TITLE,
                                           JOptionPane.INFORMATION_MESSAGE);
             finish();
             _pointList.clear();
@@ -170,20 +172,20 @@ public class RangeFinderTool extends AbstractTool {
             distance += dd.distance;
             distanceError += dd.distanceError;
             message.append(
-                    "Distance between points " + i + " to " + (i + 1) + " in pixels:\n" +
-                    "XH[" + dd.xH + "] to XN[" + dd.xN + "]: " + Math.abs(dd.xH - dd.xN) + "\n" +
-                    "YH[" + dd.yH + "] to YN[" + dd.yN + "]: " + Math.abs(dd.yH - dd.yN) + "\n" +
-                    "\n" +
-                    "LonH: " + dd.lonH + "   LatH: " + dd.latH + "\n" +
-                    "LonN: " + dd.lonN + "   LatN: " + dd.latN + "\n" +
-                    "\n" +
-                    "LamH: " + dd.lamH + "   PhiH: " + dd.phiH + "\n" +
-                    "LamN: " + dd.lamN + "   PhiN: " + dd.phiN + "\n" +
-                    "\n" +
-                    "Mean earth radius used: " + DistanceData.MEAN_EARTH_RADIUS_KM + " km" + "\n" +
-                    "\n" +
-                    "Distance: " + dd.distance + " +/- " + dd.distanceError + " km\n" +
-                    "\n\n"           /*I18N*/
+                        "Distance between points " + i + " to " + (i + 1) + " in pixels:\n" +
+                        "XH[" + dd.xH + "] to XN[" + dd.xN + "]: " + Math.abs(dd.xH - dd.xN) + "\n" +
+                        "YH[" + dd.yH + "] to YN[" + dd.yN + "]: " + Math.abs(dd.yH - dd.yN) + "\n" +
+                        "\n" +
+                        "LonH: " + dd.lonH + "   LatH: " + dd.latH + "\n" +
+                        "LonN: " + dd.lonN + "   LatN: " + dd.latN + "\n" +
+                        "\n" +
+                        "LamH: " + dd.lamH + "   PhiH: " + dd.phiH + "\n" +
+                        "LamN: " + dd.lamN + "   PhiN: " + dd.phiN + "\n" +
+                        "\n" +
+                        "Mean earth radius used: " + DistanceData.MEAN_EARTH_RADIUS_KM + " km" + "\n" +
+                        "\n" +
+                        "Distance: " + dd.distance + " +/- " + dd.distanceError + " km\n" +
+                        "\n\n"           /*I18N*/
             );
         }
         message.insert(0, "Total distance: " + distance + " +/- " + distanceError + " km\n" +
@@ -194,7 +196,8 @@ public class RangeFinderTool extends AbstractTool {
         content.setPreferredSize(new Dimension(300, 150));
 
         final ModalDialog detailsWindow = new ModalDialog(parentWindow,
-                                                          org.esa.beam.visat.actions.rangefinder.RangeFinderTool.TITLE + " - Details", /*I18N*/
+                                                          org.esa.beam.visat.actions.rangefinder.RangeFinderTool.TITLE + " - Details",
+                                                          /*I18N*/
                                                           ModalDialog.ID_OK,
                                                           null);
         detailsWindow.setContent(content);
@@ -217,48 +220,47 @@ public class RangeFinderTool extends AbstractTool {
 
         return defaultToolkit.createCustomCursor(cursorIcon.getImage(), hotSpot, cursorName);
     }
-private static class DistanceData {
 
-    final static float MIN_EARTH_RADIUS = (float) Ellipsoid.WGS_84.getSemiMinor();
-    final static float MAX_EARTH_RADIUS = (float) Ellipsoid.WGS_84.getSemiMajor();
-    final static float MEAN_EARTH_RADIUS = 6371000;
+    private static class DistanceData {
 
-    final static float MEAN_EARTH_RADIUS_KM = 0.001f * MEAN_EARTH_RADIUS;
-    final static float MEAN_ERROR_FACTOR = MIN_EARTH_RADIUS / MAX_EARTH_RADIUS;
+        final static float MIN_EARTH_RADIUS = (float) Ellipsoid.WGS_84.getSemiMinor();
+        final static float MAX_EARTH_RADIUS = (float) Ellipsoid.WGS_84.getSemiMajor();
+        final static float MEAN_EARTH_RADIUS_M = 6371000;
+        final static float MEAN_EARTH_RADIUS_KM = MEAN_EARTH_RADIUS_M * 0.001f;
+        final static float MEAN_ERROR_FACTOR = MIN_EARTH_RADIUS / MAX_EARTH_RADIUS;
 
-    final int xH;
-    final int yH;
-    final int xN;
-    final int yN;
-    final float lonH;
-    final float latH;
-    final float lonN;
-    final float latN;
-    final float lamH;
-    final float phiH;
-    final float lamN;
-    final float phiN;
-    final float distance;
-    final float distanceError;
+        final int xH;
+        final int yH;
+        final int xN;
+        final int yN;
+        final float lonH;
+        final float latH;
+        final float lonN;
+        final float latN;
+        final float lamH;
+        final float phiH;
+        final float lamN;
+        final float phiN;
+        final float distance;
+        final float distanceError;
 
-    public DistanceData(GeoCoding geoCoding, final Point pH, final Point pN) {
-        this.xH = pH.x;
-        this.yH = pH.y;
-        this.xN = pN.x;
-        this.yN = pN.y;
-        final GeoPos geoPosH = geoCoding.getGeoPos(new PixelPos(xH, yH), null);
-        final GeoPos geoPosN = geoCoding.getGeoPos(new PixelPos(xN, yN), null);
-        this.lonH = geoPosH.getLon();
-        this.latH = geoPosH.getLat();
-        this.lonN = geoPosN.getLon();
-        this.latN = geoPosN.getLat();
-        this.lamH = (float) (MathUtils.DTOR * lonH);
-        this.phiH = (float) (MathUtils.DTOR * latH);
-        this.lamN = (float) (MathUtils.DTOR * lonN);
-        this.phiN = (float) (MathUtils.DTOR * latN);
-        this.distance = (float) (MEAN_EARTH_RADIUS_KM * Math.acos(
-                Math.sin(phiH) * Math.sin(phiN) + Math.cos(phiH) * Math.cos(phiN) * Math.cos(Math.abs(lamN - lamH))));
-        this.distanceError = distance * (1 - MEAN_ERROR_FACTOR);
+        public DistanceData(GeoCoding geoCoding, final Point pH, final Point pN) {
+            this.xH = pH.x;
+            this.yH = pH.y;
+            this.xN = pN.x;
+            this.yN = pN.y;
+            final GeoPos geoPosH = geoCoding.getGeoPos(new PixelPos(xH, yH), null);
+            final GeoPos geoPosN = geoCoding.getGeoPos(new PixelPos(xN, yN), null);
+            this.lonH = geoPosH.getLon();
+            this.latH = geoPosH.getLat();
+            this.lonN = geoPosN.getLon();
+            this.latN = geoPosN.getLat();
+            this.lamH = (float) (MathUtils.DTOR * lonH);
+            this.phiH = (float) (MathUtils.DTOR * latH);
+            this.lamN = (float) (MathUtils.DTOR * lonN);
+            this.phiN = (float) (MathUtils.DTOR * latN);
+            this.distance = (float) MathUtils.sphereDistance(MEAN_EARTH_RADIUS_KM, lamH, phiH, lamN, phiN);
+            this.distanceError = distance * (1 - MEAN_ERROR_FACTOR);
+        }
     }
-}
 }

@@ -551,5 +551,44 @@ public class MathUtils {
         }
         return rectangles;
     }
+
+    /**
+     * @param sphereRadius the radius of the sphere
+     * @param lambda1_deg  the lambda angle of point one, in degree
+     * @param phi1_deg     the phi angle of point one, in degree
+     * @param lambda2_deg  the lambda angle of point two, in degree
+     * @param phi2_deg     the phi angle of point one, in degree
+     *
+     * @return the distance described by the two given points (lambda/phi) on the
+     *         top of sphere described by the given radius
+     */
+    public final static double sphereDistanceDeg(final double sphereRadius,
+                                                 final double lambda1_deg, final double phi1_deg,
+                                                 final double lambda2_deg, final double phi2_deg) {
+        final double conv = MathUtils.DTOR;
+        return sphereDistance(sphereRadius,
+                              conv * lambda1_deg, conv * phi1_deg,
+                              conv * lambda2_deg, conv * phi2_deg);
+    }
+
+    /**
+     * @param sphereRadius the radius of the sphere
+     * @param lambda1_rad  the lambda angle of point one, in radians
+     * @param phi1_rad     the phi angle of point one, in radians
+     * @param lambda2_rad  the lambda angle of point two, in radians
+     * @param phi2_rad     the phi angle of point one, in radians
+     *
+     * @return the distance described by the two given points (lambda/phi) on the
+     *         top of sphere described by the given radius
+     */
+    public final static double sphereDistance(final double sphereRadius,
+                                              final double lambda1_rad, final double phi1_rad,
+                                              final double lambda2_rad, final double phi2_rad) {
+        final double deltaLambda = lambda1_rad - lambda2_rad;
+        final double cosDeltaLambda = Math.cos(deltaLambda);
+        final double sinPhi = Math.sin(phi1_rad) * Math.sin(phi2_rad);
+        final double cosPhi = Math.cos(phi1_rad) * Math.cos(phi2_rad);
+        return sphereRadius * Math.acos(sinPhi + cosPhi * cosDeltaLambda);
+    }
 }
 

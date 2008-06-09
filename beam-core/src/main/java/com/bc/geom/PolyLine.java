@@ -52,25 +52,18 @@ public class PolyLine {
 
     public double getDistance(final float x, final float y) {
         double smallestDistPoints = Double.MAX_VALUE;
-        double smallestDistLine = Double.MAX_VALUE;
         double pointsDist = smallestDistPoints;
-        double lineDist = smallestDistLine;
         if (_lines != null && _lines.size() > 0) {
             for (final Line2D.Float line : _lines) {
                 final double distPoints = line.ptSegDistSq(x, y);
-                final double distLine = line.ptSegDist(x, y);
                 if (distPoints < smallestDistPoints) {
                     smallestDistPoints = distPoints;
-                }
-                if (distLine < smallestDistLine) {
-                    smallestDistLine = distLine;
                 }
             }
 
             pointsDist = Math.sqrt(smallestDistPoints);
-            lineDist = smallestDistLine;
         }
 
-        return lineDist < pointsDist ? lineDist : pointsDist;
+        return pointsDist;
     }
 }

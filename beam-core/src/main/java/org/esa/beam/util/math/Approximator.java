@@ -90,7 +90,7 @@ public class Approximator {
      * @param f       the function vector, each function has the form z=f(x,y)
      * @param c       the resulting coefficient vector, must have the same size as the function vector
      */
-    public static void approximateFXY(final double data[][],
+    public static void approximateFXY(final double[][] data,
                                       final int[] indices,
                                       final FXY[] f,
                                       final double[] c) {

@@ -17,29 +17,13 @@
 
 package org.esa.beam.util.math;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
 
 
 public class MathUtilsTest extends TestCase {
-
-    public MathUtilsTest(String testName) {
-        super(testName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(MathUtilsTest.class);
-    }
-
-    protected void setUp() {
-    }
-
-    protected void tearDown() {
-    }
 
     public void testEqualValues() {
 
@@ -163,15 +147,15 @@ public class MathUtilsTest extends TestCase {
     public void testDegToRad() {
         float[] degrees = {0.f, 10.f, 23.f, 45.f, 89.f, 90.f, 134.f, 265.f, 312.f};
         float[] radians = {
-            0.f,
-            0.17453293f,
-            0.40142573f,
-            0.78539816f,
-            1.55334303f,
-            1.57079633f,
-            2.33874119f,
-            4.62512252f,
-            5.44542727f
+                    0.f,
+                    0.17453293f,
+                    0.40142573f,
+                    0.78539816f,
+                    1.55334303f,
+                    1.57079633f,
+                    2.33874119f,
+                    4.62512252f,
+                    5.44542727f
         };
 
         for (int n = 0; n < degrees.length; n++) {
@@ -185,14 +169,14 @@ public class MathUtilsTest extends TestCase {
     public void testRadToDeg() {
         float[] radians = {0.1f, 0.3f, 0.6f, 0.9f, 1.12f, 1.6f, 2.7f, 3.8f};
         float[] degrees = {
-            5.72957795f,
-            17.18873385f,
-            34.37746771f,
-            51.56620156f,
-            64.17127305f,
-            91.67324722f,
-            154.69860469f,
-            217.72396215f
+                    5.72957795f,
+                    17.18873385f,
+                    34.37746771f,
+                    51.56620156f,
+                    64.17127305f,
+                    91.67324722f,
+                    154.69860469f,
+                    217.72396215f
         };
 
         for (int n = 0; n < radians.length; n++) {
