@@ -365,7 +365,7 @@
                         <!--<descriptor>src/main/assembly/src.xml</descriptor>-->
                         <!-- <descriptor>src/main/assembly/beam-web-help.xml</descriptor> -->
                         <descriptor>src/main/assembly/bin.xml</descriptor>
-                        <!-- <descriptor>src/main/assembly/installer-files.xml</descriptor> -->
+                        <descriptor>src/main/assembly/installer-files.xml</descriptor>
                     </descriptors>
                 </configuration>
             </plugin>

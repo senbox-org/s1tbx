@@ -2,12 +2,15 @@ package org.esa.beam.cluster.visat;
 
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.command.CommandEvent;
+import org.esa.beam.framework.ui.AppCommand;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.gpf.ui.DefaultSingleTargetProductDialog;
 import org.esa.beam.visat.VisatApp;
+import org.esa.beam.visat.actions.AbstractVisatAction;
 
 import javax.swing.JOptionPane;
 
-public class ClusterAnalysisAction extends ExecCommand {
+public class ClusterAnalysisAction extends AbstractVisatAction {
 
     @Override
     public void updateState(CommandEvent commandEvent) {
@@ -15,11 +18,14 @@ public class ClusterAnalysisAction extends ExecCommand {
         setEnabled(selectedProduct != null);
     }
 
+
+
     @Override
     public void actionPerformed(final CommandEvent event) {
         Product selectedProduct = VisatApp.getApp().getSelectedProduct();
         if (selectedProduct != null) {
-            VisatApp.getApp().showMessageDialog("Cluster Analysis", "Sorry GUI mode not implemented yet.", JOptionPane.INFORMATION_MESSAGE, null);
+            DefaultSingleTargetProductDialog productDialog = new DefaultSingleTargetProductDialog("ClucovClusterAnalysis", getAppContext(), "CLUCOV Cluster Analysis", null);
+            productDialog.show();
         }
     }
 }

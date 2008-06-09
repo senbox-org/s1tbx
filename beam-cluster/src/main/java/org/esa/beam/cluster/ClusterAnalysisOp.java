@@ -34,7 +34,7 @@ import java.util.Set;
 /**
  * Implements a cluster analysis using the CLUCOV algorithm.
  */
-@OperatorMetadata(alias = "ClusterAnalysis",
+@OperatorMetadata(alias = "ClucovClusterAnalysis",
                   version = "1.0",
                   authors = "Helmut Schiller, Norman Fomferra",
                   copyright = "(c) 2007 by Brockmann Consult",
@@ -71,6 +71,7 @@ public class ClusterAnalysisOp extends Operator {
         int width = sourceProduct.getSceneRasterWidth();
         int height = sourceProduct.getSceneRasterHeight();
         targetProduct = new Product("clucov", "clucov", width, height);
+// todo - use option to decide if to output probability bands         
 //        for (int i = 0; i < featureBands.length; i++) {
 //            Band featureBand = featureBands[i];
 //            Band propabBand = targetProduct.addBand(featureBand.getName() + "_prob", ProductData.TYPE_UINT8);
@@ -87,7 +88,7 @@ public class ClusterAnalysisOp extends Operator {
     public void computeTile(Band band, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         if (clucov == null) {
             try {
-                computeClusters();
+                computeClusters(pm);
                 storeClustersInProduct();
             } catch (IOException e) {
                 throw new OperatorException(e);
@@ -102,6 +103,7 @@ public class ClusterAnalysisOp extends Operator {
                 for (int x = rectangle.x; x < rectangle.x + rectangle.width; x++) {
                     int dsIndex = y * sourceWidth + x;
                     targetTile.setSample(x, y, ds.group[dsIndex]);
+                    checkForCancelation(pm);
                 }
             }
         }
@@ -126,7 +128,7 @@ public class ClusterAnalysisOp extends Operator {
         }
     }
 
-    private void computeClusters() throws IOException {
+    private void computeClusters(ProgressMonitor pm) throws IOException {
         int width = sourceProduct.getSceneRasterWidth();
         int height = sourceProduct.getSceneRasterHeight();
         double[] scanLine = new double[width];
@@ -138,7 +140,6 @@ public class ClusterAnalysisOp extends Operator {
             for (int i = 0; i < featureBands.length; i++) {
                 Band featureBand = featureBands[i];
                 featureBand.readPixels(0, y, width, 1, scanLine, ProgressMonitor.NULL);
-
                 // todo - handle no-data!
                 for (int x = 0; x < width; x++) {
                     dsVectors[x][i] = scanLine[x];
@@ -147,6 +148,7 @@ public class ClusterAnalysisOp extends Operator {
             for (int x = 0; x < width; x++) {
                 ds.add(dsVectors[x]);
             }
+            checkForCancelation(pm);
         }
         clucov = new Clucov(ds);
         //clucov.
