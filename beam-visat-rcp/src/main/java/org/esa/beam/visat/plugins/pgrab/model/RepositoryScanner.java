@@ -9,6 +9,7 @@ package org.esa.beam.visat.plugins.pgrab.model;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.util.io.FileUtils;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -48,7 +49,9 @@ public class RepositoryScanner {
     public static class DirectoryFileFilter implements FileFilter {
 
         public boolean accept(final File file) {
-            return file.isDirectory();
+            boolean isDataWithDim = file.getName().endsWith(".data") 
+            && FileUtils.exchangeExtension(file, ".dim").exists();
+            return file.isDirectory() && !isDataWithDim;
         }
     }
 }
