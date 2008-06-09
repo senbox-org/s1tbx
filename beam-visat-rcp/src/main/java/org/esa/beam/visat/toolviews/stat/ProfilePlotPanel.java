@@ -14,17 +14,17 @@ import org.esa.beam.util.math.MathUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.data.Range;
 import org.jfree.ui.RectangleInsets;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
 import java.io.IOException;
 
 /**
@@ -41,10 +41,10 @@ class ProfilePlotPanel extends PagePanel {
     private static final int VAR1 = 0;
     private static final int VAR2 = 1;
 
-    private final static LayerObserver figureLayerObserver = LayerObserver.getInstance(FigureLayer.class);
-    private final static Parameter[] autoMinMaxParams = new Parameter[2];
-    private final static Parameter[] minParams = new Parameter[2];
-    private final static Parameter[] maxParams = new Parameter[2];
+    private static final LayerObserver figureLayerObserver = LayerObserver.getInstance(FigureLayer.class);
+    private static final Parameter[] autoMinMaxParams = new Parameter[2];
+    private static final Parameter[] minParams = new Parameter[2];
+    private static final Parameter[] maxParams = new Parameter[2];
     private static Parameter markVerticesParam = new Parameter("markVertices");
     private static boolean isInitialized = false;
 
@@ -54,7 +54,7 @@ class ProfilePlotPanel extends PagePanel {
     private XYSeriesCollection dataset;
     private TransectProfileData profileData;
 
-    public ProfilePlotPanel(final ToolView parentDialog) {
+    ProfilePlotPanel(ToolView parentDialog) {
         super(parentDialog);
         figureLayerObserver.addLayerObserverListener(new LayerObserver.LayerObserverListener() {
             public void layerChanged() {
@@ -70,7 +70,7 @@ class ProfilePlotPanel extends PagePanel {
     }
 
     @Override
-    protected void setRaster(final RasterDataNode raster) {
+    protected void setRaster(RasterDataNode raster) {
         final RasterDataNode oldRaster = super.getRaster();
         if (oldRaster != raster) {
             figureLayerObserver.setRaster(raster);
@@ -144,13 +144,13 @@ class ProfilePlotPanel extends PagePanel {
         initParameters(VAR2);
         paramGroup.addParamChangeListener(new ParamChangeListener() {
 
-            public void parameterValueChanged(final ParamChangeEvent event) {
+            public void parameterValueChanged(ParamChangeEvent event) {
                 updateUIState();
             }
         });
     }
 
-    private void initParameters(final int var) {
+    private void initParameters(int var) {
 
         final String paramPrefix = "var" + var + ".";
         final String axis = (var == VAR1) ? "X" : "Y";
@@ -237,7 +237,7 @@ class ProfilePlotPanel extends PagePanel {
     }
 
 
-    private void updateUIState(final int var) {
+    private void updateUIState(int var) {
         if (!isInitialized) {
             return;
         }
@@ -285,7 +285,7 @@ class ProfilePlotPanel extends PagePanel {
         return optionsPane;
     }
 
-    private static JPanel createOptionsPane(final int var) {
+    private static JPanel createOptionsPane(int var) {
 
         final JPanel optionsPane = GridBagUtils.createPanel();
         final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=WEST,fill=HORIZONTAL");
@@ -319,7 +319,7 @@ class ProfilePlotPanel extends PagePanel {
     protected String getDataAsText() {
         try {
             return StatisticsUtils.TransectProfile.createTransectProfileText(getRaster());
-        } catch (IOException e) {
+        } catch (IOException ignore) {
             return "";
         }
     }
