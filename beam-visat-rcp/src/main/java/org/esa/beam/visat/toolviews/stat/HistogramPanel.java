@@ -141,10 +141,13 @@ class HistogramPanel extends PagePanel {
                 true,
                 false
         );
-        XYBarRenderer renderer = (XYBarRenderer) chart.getXYPlot().getRenderer();
+        final XYPlot xyPlot = chart.getXYPlot();
+        XYBarRenderer renderer = (XYBarRenderer) xyPlot.getRenderer();
         renderer.setDrawBarOutline(false);
+        renderer.setBaseToolTipGenerator(new XYPlotToolTipGenerator());
 
         histogramDisplay = createChartPanel(chart);
+
         final ActionListener actionAll = new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {

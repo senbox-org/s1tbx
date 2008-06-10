@@ -9,15 +9,11 @@ import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.param.validators.NumberValidator;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.TableLayout;
-import org.esa.beam.framework.ui.UIUtils;
-import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.framework.ui.application.ToolView;
-import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.layer.FigureLayer;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.labels.CustomXYToolTipGenerator;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.event.AxisChangeEvent;
 import org.jfree.chart.event.AxisChangeListener;
@@ -25,13 +21,11 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.RectangleInsets;
 
 import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.AbstractButton;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.io.IOException;
@@ -54,7 +48,7 @@ class ProfilePlotPanel extends PagePanel {
     private static final LayerObserver figureLayerObserver = LayerObserver.getInstance(FigureLayer.class);
     private static final Parameter[] minParams = new Parameter[2];
     private static final Parameter[] maxParams = new Parameter[2];
-    private Parameter markVerticesParam ;
+    private Parameter markSegmentsParam;
     private static boolean isInitialized = false;
 
     private ParamGroup paramGroup;
@@ -120,7 +114,7 @@ class ProfilePlotPanel extends PagePanel {
         dataset.removeAllSeries();
         if (profileData != null) {
             final float[] sampleValues = profileData.getSampleValues();
-            if (profileData.getNumShapeVertices() <= 2 || !(Boolean) markVerticesParam.getValue()) {
+            if (profileData.getNumShapeVertices() <= 2 || !(Boolean) markSegmentsParam.getValue()) {
                 XYSeries series = new XYSeries("Sample Values");
                 for (int i = 0; i < sampleValues.length; i++) {
                     series.add(i, sampleValues[i]);
@@ -129,7 +123,7 @@ class ProfilePlotPanel extends PagePanel {
             } else {
                 final XYSeries[] xySerieses = new XYSeries[profileData.getNumShapeVertices() - 1];
                 for (int i = 0; i < xySerieses.length; i++) {
-                    final XYSeries series = new XYSeries("Sample Values Vertice_" + i);
+                    final XYSeries series = new XYSeries("Sample Values Segment " + i);
                     for (int x = profileData.getShapeVertexIndexes()[i]; x <= profileData.getShapeVertexIndexes()[i + 1]; x++) {
                         series.add(x, sampleValues[x]);
                     }
@@ -137,7 +131,7 @@ class ProfilePlotPanel extends PagePanel {
                 }
             }
             profilePlotDisplay.restoreAutoBounds();
-            markVerticesParam.setUIEnabled(profileData.getShapeVertices().length > 2);
+            markSegmentsParam.setUIEnabled(profileData.getShapeVertices().length > 2);
         }
     }
 
@@ -149,7 +143,7 @@ class ProfilePlotPanel extends PagePanel {
         paramGroup.addParamChangeListener(new ParamChangeListener() {
 
             public void parameterValueChanged(ParamChangeEvent event) {
-                if(event.getParameter().equals(markVerticesParam)) {
+                if(event.getParameter().equals(markSegmentsParam)) {
                    updateDataSet();
                 }
                 updateUIState();
@@ -184,11 +178,11 @@ class ProfilePlotPanel extends PagePanel {
         paramGroup.addParameter(maxParams[varIndex]);
 
         if (varIndex == VAR1) {
-            markVerticesParam = new Parameter(paramPrefix + "markVertices", false);
-            markVerticesParam.getProperties().setLabel("Mark vertices");
-            markVerticesParam.getProperties().setDescription("Toggle whether or not to mark vertices");    /*I18N*/
-            markVerticesParam.setValue(false, null);
-            paramGroup.addParameter(markVerticesParam);
+            markSegmentsParam = new Parameter(paramPrefix + "markSegments", false);
+            markSegmentsParam.getProperties().setLabel("Mark segments");
+            markSegmentsParam.getProperties().setDescription("Toggle whether or not to mark segements");    /*I18N*/
+            markSegmentsParam.setValue(false, null);
+            paramGroup.addParameter(markSegmentsParam);
         }
     }
 
@@ -209,20 +203,7 @@ class ProfilePlotPanel extends PagePanel {
 
         plot.setNoDataMessage(NO_DATA_MESSAGE);
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
-        plot.getRenderer().setBaseToolTipGenerator(new CustomXYToolTipGenerator(){
-            @Override
-            public String generateToolTip(XYDataset data, int series, int item) {
-                final Comparable key = data.getSeriesKey(series);
-                final double valueX = data.getXValue(series, item);
-                final double valueY = data.getYValue(series, item);
-                return String.format("%s: X = %6.2f, Y = %6.2f", key, valueX, valueY);
-            }
-
-            @Override
-            public Object clone() throws CloneNotSupportedException {
-                return super.clone();
-            }
-        });
+        plot.getRenderer().setBaseToolTipGenerator(new XYPlotToolTipGenerator());
         profilePlotDisplay = new ChartPanel(chart);
         profilePlotDisplay.setInitialDelay(200);
         profilePlotDisplay.setDismissDelay(1500);
@@ -260,7 +241,7 @@ class ProfilePlotPanel extends PagePanel {
         if (!isInitialized) {
             return;
         }
-        markVerticesParam.setUIEnabled(profileData != null && profileData.getShapeVertices().length > 2);
+        markSegmentsParam.setUIEnabled(profileData != null && profileData.getShapeVertices().length > 2);
         updateParamState(VAR1);
         updateParamState(VAR2);
         adjustAxis();
@@ -338,7 +319,7 @@ class ProfilePlotPanel extends PagePanel {
 
         if (varIndex == VAR1) {
             GridBagUtils.setAttributes(gbc, "gridwidth=2,gridy=3,insets.top=4");
-            GridBagUtils.addToPanel(optionsPane, markVerticesParam.getEditor().getComponent(), gbc,
+            GridBagUtils.addToPanel(optionsPane, markSegmentsParam.getEditor().getComponent(), gbc,
                                     "gridx=0,weightx=0");
         }
 

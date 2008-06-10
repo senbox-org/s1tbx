@@ -200,7 +200,8 @@ class ScatterPlotPanel extends PagePanel {
 
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
         plot.setNoDataMessage(NO_DATA_MESSAGE);
-
+        plot.getRenderer().setBaseToolTipGenerator(new XYPlotToolTipGenerator());
+        
 //        NumberAxis scaleAxis = new NumberAxis("Scale");
 //        scaleAxis.setTickLabelFont(new Font("Dialog", Font.PLAIN, 7));
 //        PaintScaleLegend legend = new PaintScaleLegend(new GrayPaintScale(), scaleAxis);
