@@ -7,6 +7,7 @@ import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamGroup;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.ui.GridBagUtils;
+import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.math.Histogram;
 import org.esa.beam.util.math.MathUtils;
@@ -36,7 +37,8 @@ import java.io.IOException;
 class HistogramPanel extends PagePanel {
 
     private final static String NO_DATA_MESSAGE = "No histogram computed yet.";  /*I18N*/
-    private final static String TITLE_PREFIX = "Histogram";    /*I18N*/
+    private static final String CHART_TITLE = "Histogram";
+    private final static String TITLE_PREFIX = CHART_TITLE;    /*I18N*/
 
 
     private Parameter numBinsParam;
@@ -47,17 +49,22 @@ class HistogramPanel extends PagePanel {
     private boolean histogramComputing;
     private ComputePanel computePanel;
     private XYSeriesCollection dataset;
+
     private JFreeChart chart;
     private Histogram histogram;
 
 
-    public HistogramPanel(final ToolView parentDialog) {
-        super(parentDialog);
+    public HistogramPanel(final ToolView parentDialog, String helpID) {
+        super(parentDialog, helpID);
     }
 
     @Override
     protected String getTitlePrefix() {
         return TITLE_PREFIX;
+    }
+
+    public JFreeChart getChart() {
+        return chart;
     }
 
     @Override
@@ -75,6 +82,7 @@ class HistogramPanel extends PagePanel {
             if (!(Boolean) autoMinMaxEnabledParam.getValue()) {
                 return;
             }
+            chart.setTitle(getRaster() != null ? CHART_TITLE + " for " + getRaster().getName() : CHART_TITLE);
             histoMinParam.setDefaultValue();
             histoMaxParam.setDefaultValue();
         }
@@ -115,7 +123,7 @@ class HistogramPanel extends PagePanel {
 
         paramGroup.addParamChangeListener(new ParamChangeListener() {
 
-            public void parameterValueChanged(final ParamChangeEvent event) {
+            public void parameterValueChanged(ParamChangeEvent event) {
                 updateUIState();
             }
         });
@@ -124,7 +132,7 @@ class HistogramPanel extends PagePanel {
     private void createUI() {
         dataset = new XYSeriesCollection();
         chart = ChartFactory.createHistogram(
-                "Histogram",
+                CHART_TITLE,
                 "Value Bin",
                 "Frequency",
                 dataset,
@@ -133,35 +141,51 @@ class HistogramPanel extends PagePanel {
                 true,
                 false
         );
-        XYPlot plot = chart.getXYPlot();
-
-        plot.setForegroundAlpha(0.85f);
-        plot.setNoDataMessage(NO_DATA_MESSAGE);
-        plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));        
-        XYBarRenderer renderer = (XYBarRenderer) plot.getRenderer();
+        XYBarRenderer renderer = (XYBarRenderer) chart.getXYPlot().getRenderer();
         renderer.setDrawBarOutline(false);
 
+        histogramDisplay = createChartPanel(chart);
         final ActionListener actionAll = new ActionListener() {
 
-            public void actionPerformed(final ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 computeHistogram(false);
             }
         };
         final ActionListener actionROI = new ActionListener() {
 
-            public void actionPerformed(final ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
                 computeHistogram(true);
             }
         };
         computePanel = ComputePanel.createComputePane(actionAll, actionROI, getRaster());
-        histogramDisplay = new ChartPanel(chart);
-        histogramDisplay.getPopupMenu().add(createCopyDataToClipboardMenuItem());
-        final JPanel rightPanel = new JPanel(new BorderLayout());
-        rightPanel.add(createOptionsPane(), BorderLayout.NORTH);
-        rightPanel.add(computePanel, BorderLayout.SOUTH);
-        this.add(histogramDisplay, BorderLayout.CENTER);
-        this.add(rightPanel, BorderLayout.EAST);
+        final TableLayout rightPanelLayout = new TableLayout(1);
+        final JPanel rightPanel = new JPanel(rightPanelLayout);
+        rightPanelLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        rightPanelLayout.setRowWeightY(3, 1.0);
+        rightPanelLayout.setRowAnchor(4, TableLayout.Anchor.EAST);
+        rightPanel.add(computePanel);
+        rightPanel.add(createOptionsPane());
+        rightPanel.add(createChartButtonPanel(histogramDisplay));
+        rightPanel.add(new JPanel());   // filler
+        final JPanel helpPanel = new JPanel(new BorderLayout());
+        helpPanel.add(getHelpButton(), BorderLayout.EAST);
+        rightPanel.add(helpPanel);
+
+        add(histogramDisplay, BorderLayout.CENTER);
+        add(rightPanel, BorderLayout.EAST);
         updateUIState();
+    }
+
+    private ChartPanel createChartPanel(JFreeChart chart) {
+        XYPlot plot = chart.getXYPlot();
+
+        plot.setForegroundAlpha(0.85f);
+        plot.setNoDataMessage(NO_DATA_MESSAGE);
+        plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
+
+        ChartPanel chartPanel= new ChartPanel(chart);
+        chartPanel.getPopupMenu().add(createCopyDataToClipboardMenuItem());
+        return chartPanel;
     }
 
     private void updateUIState() {
@@ -201,10 +225,6 @@ class HistogramPanel extends PagePanel {
                                 "gridx=0,weightx=1");
         GridBagUtils.addToPanel(optionsPane, histoMaxParam.getEditor().getComponent(), gbc, "gridx=1,weightx=0");
 
-        // Dummy
-        GridBagUtils.setAttributes(gbc, "gridwidth=1,gridy=4,insets.top=2");
-        GridBagUtils.addToPanel(optionsPane, new JLabel(" "), gbc, "gridx=0,weightx=1,weighty=1");
-
         optionsPane.setBorder(BorderFactory.createTitledBorder("X"));
 
         return optionsPane;
@@ -218,7 +238,7 @@ class HistogramPanel extends PagePanel {
             JOptionPane.showMessageDialog(getParentComponent(),
                                           "Failed to compute histogram.\nAn I/O error occured:\n" + e.getMessage(),
                                           /*I18N*/
-                                          "Histogram", /*I18N*/
+                                          CHART_TITLE, /*I18N*/
                                           JOptionPane.ERROR_MESSAGE);
             setHistogram(null);
             return;
@@ -268,14 +288,14 @@ class HistogramPanel extends PagePanel {
                             JOptionPane.showMessageDialog(getParentComponent(),
                                                           "The ROI is empty or no pixels found between min/max.\n"
                                                                   + "A valid histogram could not be computed.",
-                                                          "Histogram",
+                                                          CHART_TITLE,
                                                           JOptionPane.WARNING_MESSAGE);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                         JOptionPane.showMessageDialog(getParentComponent(),
                                                       "Failed to compute histogram.\nAn internal error occured:\n" + e.getMessage(),
-                                                      "Histogram",
+                                                      CHART_TITLE,
                                                       JOptionPane.ERROR_MESSAGE);
                     }
                 }

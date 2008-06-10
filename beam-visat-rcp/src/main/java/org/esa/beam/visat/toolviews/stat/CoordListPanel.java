@@ -30,8 +30,8 @@ class CoordListPanel extends TextPagePanel {
     private static final LayerObserver _figureLayerObserver = LayerObserver.getInstance(FigureLayer.class);
 
 
-    public CoordListPanel(final ToolView parentDialog) {
-        super(parentDialog, _DEFAULT_COORDLIST_TEXT);
+    public CoordListPanel(final ToolView parentDialog, String helpID) {
+        super(parentDialog, _DEFAULT_COORDLIST_TEXT, helpID);
         _figureLayerObserver.addLayerObserverListener(new LayerObserver.LayerObserverListener() {
             public void layerChanged() {
                 updateContent();

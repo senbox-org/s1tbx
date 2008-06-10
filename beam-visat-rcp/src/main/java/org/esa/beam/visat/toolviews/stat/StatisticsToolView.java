@@ -48,9 +48,6 @@ public class StatisticsToolView extends AbstractToolView {
     private int _currTabIndex;
 
     private JTabbedPane _tabbedPane;
-    // todo - reanimate help for each pane
-    //  private JButton _helpButton;
-
 
     public StatisticsToolView() {
     }
@@ -68,17 +65,17 @@ public class StatisticsToolView extends AbstractToolView {
     public JComponent createControl() {
 
         _tabbedPane = new JTabbedPane();
-        _tabbedPane.add("Information", new InformationPanel(this)); /*I18N*/
-        _tabbedPane.add("Geo-Coding", new GeoCodingPanel(this));/*I18N*/
-        _tabbedPane.add("Statistics", new StatisticsPanel(this)); /*I18N*/
-        _tabbedPane.add("Histogram", new HistogramPanel(this));  /*I18N*/
-        _tabbedPane.add("Scatter Plot", new ScatterPlotPanel(this)); /*I18N*/
-        _tabbedPane.add("Profile Plot", new ProfilePlotPanel(this));  /*I18N*/
-        _tabbedPane.add("Co-ordinate List", new CoordListPanel(this));  /*I18N*/
+        _tabbedPane.add("Information", new InformationPanel(this, _helpIDs[0])); /*I18N*/
+        _tabbedPane.add("Geo-Coding", new GeoCodingPanel(this, _helpIDs[1]));/*I18N*/
+        _tabbedPane.add("Statistics", new StatisticsPanel(this, _helpIDs[2])); /*I18N*/
+        _tabbedPane.add("Histogram", new HistogramPanel(this, _helpIDs[3]));  /*I18N*/
+        _tabbedPane.add("Scatter Plot", new ScatterPlotPanel(this, _helpIDs[4])); /*I18N*/
+        _tabbedPane.add("Profile Plot", new ProfilePlotPanel(this, _helpIDs[5]));  /*I18N*/
+        _tabbedPane.add("Coordinate List", new CoordListPanel(this, _helpIDs[6]));  /*I18N*/
 
         _tabbedPane.addChangeListener(new ChangeListener() {
 
-            public void stateChanged(final ChangeEvent e) {
+            public void stateChanged(ChangeEvent e) {
                 if (_tabbedPane.getSelectedIndex() != _currTabIndex) {
                     _currTabIndex = _tabbedPane.getSelectedIndex();
                     updateUIState();
@@ -107,43 +104,11 @@ public class StatisticsToolView extends AbstractToolView {
         setCurrentHelpID(_helpIDs[_currTabIndex]);
     }
 
-    private void setCurrentHelpID(final String helpID) {
-        HelpSys.enableHelpKey(getContentPane(), helpID);
+    private void setCurrentHelpID(String helpID) {
+        HelpSys.enableHelpKey(getPaneControl(), helpID);
         HelpSys.enableHelpKey(_tabbedPane, helpID);
         HelpSys.getHelpBroker().setCurrentID(helpID);
     }
-
-// todo - reanimate help for each pane
-//
-//    private JPanel createStdButtonPane() {
-//        final JButton cancelButton = new JButton("Close");  /*I18N*/
-//        cancelButton.addActionListener(new ActionListener() {
-//
-//            public void actionPerformed(final ActionEvent e) {
-//                // setVisible(false);
-//            }
-//        });
-//
-//        _helpButton = new JButton("Help");      /*I18N*/
-//        _helpButton.setMnemonic('H');
-////        _helpButton.addActionListener(new ActionListener() {
-////
-////            public void actionPerformed(ActionEvent e) {
-////                if (_helpBroker != null) {
-////                    String helpID = _helpIDs[_currTabIndex];
-////                    _helpBroker.setCurrentID(helpID);
-////                    _helpBroker.setViewDisplayed(true);
-////                    _helpBroker.setDisplayed(true);
-////                }
-////            }
-////        });
-//
-//        final JPanel stdButtonPane = new JPanel(new FlowLayout(FlowLayout.RIGHT, 4, 4));
-//        stdButtonPane.add(cancelButton);
-//        stdButtonPane.add(_helpButton);
-//
-//        return stdButtonPane;
-//    }
 
     private void updateUIState() {
         if (_tabbedPane != null) {

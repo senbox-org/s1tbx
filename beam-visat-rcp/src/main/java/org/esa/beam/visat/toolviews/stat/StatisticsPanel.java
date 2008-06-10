@@ -5,12 +5,17 @@ import com.bc.ceres.swing.progress.DialogProgressMonitor;
 import org.esa.beam.framework.datamodel.ROIDefinition;
 import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.application.ToolView;
+import org.esa.beam.framework.ui.tool.ToolButtonFactory;
+import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.Statistics;
 
 import javax.media.jai.ROI;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
+import javax.swing.JPanel;
+import javax.swing.AbstractButton;
 import java.awt.BorderLayout;
 import java.awt.Dialog;
 import java.awt.event.ActionEvent;
@@ -31,8 +36,8 @@ class StatisticsPanel extends TextPagePanel {
     private ActionListener allPixelsActionListener;
     private ActionListener roiActionListener;
 
-    public StatisticsPanel(final ToolView parentDialog) {
-        super(parentDialog, DEFAULT_STATISTICS_TEXT);
+    public StatisticsPanel(final ToolView parentDialog, String helpID) {
+        super(parentDialog, DEFAULT_STATISTICS_TEXT, helpID);
 
     }
 
@@ -45,7 +50,13 @@ class StatisticsPanel extends TextPagePanel {
     protected void initContent() {
         super.initContent();
         computePanel = ComputePanel.createComputePane(getAllPixelActionListener(), getRoiActionListener(), getRaster());
-        add(computePanel, BorderLayout.EAST);
+        final JPanel rightPanel = new JPanel(new BorderLayout());
+        rightPanel.add(computePanel, BorderLayout.NORTH);
+        final JPanel helpPanel = new JPanel(new BorderLayout());
+        helpPanel.add(getHelpButton(), BorderLayout.EAST);
+        rightPanel.add(helpPanel,BorderLayout.SOUTH);
+
+        add(rightPanel, BorderLayout.EAST);
     }
 
     private ActionListener getAllPixelActionListener() {

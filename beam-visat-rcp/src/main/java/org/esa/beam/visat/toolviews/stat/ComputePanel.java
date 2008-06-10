@@ -67,13 +67,10 @@ class ComputePanel extends JPanel {
         tableLayout.setTableAnchor(TableLayout.Anchor.SOUTHWEST);
         tableLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
         tableLayout.setTableWeightX(1.0);
-        tableLayout.setRowWeightY(0,1.0); 
         setLayout(tableLayout);
 
-
-        add(new JPanel());
-        add(useRoiCheckBox);
         add(computeButton);
+        add(useRoiCheckBox);
 
         setRaster(raster);
     }

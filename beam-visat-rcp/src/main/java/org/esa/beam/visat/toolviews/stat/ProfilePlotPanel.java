@@ -8,21 +8,30 @@ import org.esa.beam.framework.param.ParamGroup;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.param.validators.NumberValidator;
 import org.esa.beam.framework.ui.GridBagUtils;
+import org.esa.beam.framework.ui.TableLayout;
+import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.framework.ui.application.ToolView;
+import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.layer.FigureLayer;
-import org.esa.beam.util.math.MathUtils;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.labels.CustomXYToolTipGenerator;
+import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.event.AxisChangeEvent;
+import org.jfree.chart.event.AxisChangeListener;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.RectangleInsets;
 
 import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.AbstractButton;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.io.IOException;
@@ -34,18 +43,18 @@ import java.io.IOException;
  */
 class ProfilePlotPanel extends PagePanel {
 
-    private static final String TITLE_PREFIX = "Profile Plot"; /*I18N*/
+    private static final String CHART_TITLE = "Profile Plot";
+    private static final String TITLE_PREFIX = CHART_TITLE; /*I18N*/
     private static final String NO_DATA_MESSAGE = "No profile plot computed yet. " +
-            "It will be computed if a shape is added to the image view.";    /*I18N*/
+                                                  "It will be computed if a shape is added to the image view.";    /*I18N*/
 
     private static final int VAR1 = 0;
     private static final int VAR2 = 1;
 
     private static final LayerObserver figureLayerObserver = LayerObserver.getInstance(FigureLayer.class);
-    private static final Parameter[] autoMinMaxParams = new Parameter[2];
     private static final Parameter[] minParams = new Parameter[2];
     private static final Parameter[] maxParams = new Parameter[2];
-    private static Parameter markVerticesParam = new Parameter("markVertices");
+    private Parameter markVerticesParam ;
     private static boolean isInitialized = false;
 
     private ParamGroup paramGroup;
@@ -54,8 +63,10 @@ class ProfilePlotPanel extends PagePanel {
     private XYSeriesCollection dataset;
     private TransectProfileData profileData;
 
-    ProfilePlotPanel(ToolView parentDialog) {
-        super(parentDialog);
+    private boolean axisAdjusting = false;
+
+    ProfilePlotPanel(ToolView parentDialog, String helpId) {
+        super(parentDialog, helpId);
         figureLayerObserver.addLayerObserverListener(new LayerObserver.LayerObserverListener() {
             public void layerChanged() {
                 updateContent();
@@ -82,7 +93,6 @@ class ProfilePlotPanel extends PagePanel {
     protected void initContent() {
         initParameters();
         createUI();
-        isInitialized = true;
         updateContent();
     }
 
@@ -96,45 +106,39 @@ class ProfilePlotPanel extends PagePanel {
         } catch (IOException e) {
             JOptionPane.showMessageDialog(getParent(),
                                           "Failed to compute profile plot.\n" +
-                                                  "An I/O error occured:" + e.getMessage(),
+                                          "An I/O error occured:" + e.getMessage(),
                                           "I/O error",
                                           JOptionPane.ERROR_MESSAGE);   /*I18N*/
             return;
         }
+        chart.setTitle(getRaster() != null ? CHART_TITLE + " for " + getRaster().getName() : CHART_TITLE);
+        updateDataSet();
+        updateUIState();
+    }
+
+    private void updateDataSet() {
         dataset.removeAllSeries();
         if (profileData != null) {
-            XYSeries series = new XYSeries("Sample Values");
             final float[] sampleValues = profileData.getSampleValues();
-            for (int i = 0; i < sampleValues.length; i++) {
-                series.add(i, sampleValues[i]);
+            if (profileData.getNumShapeVertices() <= 2 || !(Boolean) markVerticesParam.getValue()) {
+                XYSeries series = new XYSeries("Sample Values");
+                for (int i = 0; i < sampleValues.length; i++) {
+                    series.add(i, sampleValues[i]);
+                }
+                dataset.addSeries(series);
+            } else {
+                final XYSeries[] xySerieses = new XYSeries[profileData.getNumShapeVertices() - 1];
+                for (int i = 0; i < xySerieses.length; i++) {
+                    final XYSeries series = new XYSeries("Sample Values Vertice_" + i);
+                    for (int x = profileData.getShapeVertexIndexes()[i]; x <= profileData.getShapeVertexIndexes()[i + 1]; x++) {
+                        series.add(x, sampleValues[x]);
+                    }
+                    dataset.addSeries(series);
+                }
             }
-            dataset.addSeries(series);
-
-            final Number minX = 0;
-            final Number maxX = profileData.getNumPixels() - 1;
-            final Number minY = StatisticsUtils.round(profileData.getSampleMin());
-            final Number maxY = StatisticsUtils.round(profileData.getSampleMax());
-
-            minParams[VAR1].getProperties().setMinValue(minX);
-            minParams[VAR1].getProperties().setMaxValue(maxX);
-            minParams[VAR1].setValue(minX, null);
-            maxParams[VAR1].getProperties().setMinValue(minX);
-            maxParams[VAR1].getProperties().setMaxValue(maxX);
-            maxParams[VAR1].setValue(maxX, null);
-
-            minParams[VAR2].setValue(minY, null);
-            //            minParams[VAR2].getProperties().setMinValue(minY);
-            //            minParams[VAR2].getProperties().setMaxValue(maxY);
-            maxParams[VAR2].setValue(maxY, null);
-            //            maxParams[VAR2].getProperties().setMinValue(minY);
-            //            maxParams[VAR2].getProperties().setMaxValue(maxY);
-
+            profilePlotDisplay.restoreAutoBounds();
             markVerticesParam.setUIEnabled(profileData.getShapeVertices().length > 2);
         }
-
-        updateUIState();
-
-        setDiagramProperties();
     }
 
 
@@ -145,46 +149,45 @@ class ProfilePlotPanel extends PagePanel {
         paramGroup.addParamChangeListener(new ParamChangeListener() {
 
             public void parameterValueChanged(ParamChangeEvent event) {
+                if(event.getParameter().equals(markVerticesParam)) {
+                   updateDataSet();
+                }
                 updateUIState();
             }
         });
     }
 
-    private void initParameters(int var) {
+    private void initParameters(int varIndex) {
 
-        final String paramPrefix = "var" + var + ".";
-        final String axis = (var == VAR1) ? "X" : "Y";
+        final String paramPrefix = "var" + varIndex + ".";
+        final String axis = (varIndex == VAR1) ? "X" : "Y";
         Object paramValue;
 
-        autoMinMaxParams[var] = new Parameter(paramPrefix + "autoMinMax", Boolean.TRUE);
-        autoMinMaxParams[var].getProperties().setLabel("Auto min/max");    /*I18N*/
-        autoMinMaxParams[var].getProperties().setDescription("Automatically detect min/max for " + axis);  /*I18N*/
-        paramGroup.addParameter(autoMinMaxParams[var]);
-
-        paramValue = !(var == VAR1) ? new Float(0.0f) : new Integer(0);
-        minParams[var] = new Parameter(paramPrefix + "min", paramValue);
-        minParams[var].getProperties().setLabel("Min:");
-        minParams[var].getProperties().setDescription("Minimum display value for " + axis);    /*I18N*/
-        minParams[var].getProperties().setNumCols(7);
-        if (var == VAR1) {
-            minParams[var].getProperties().setValidatorClass(NumberValidator.class);
+        paramValue = !(varIndex == VAR1) ? new Float(0.0f) : new Integer(0);
+        minParams[varIndex] = new Parameter(paramPrefix + "min", paramValue);
+        minParams[varIndex].getProperties().setLabel("Min:");
+        minParams[varIndex].getProperties().setDescription("Minimum display value for " + axis);    /*I18N*/
+        minParams[varIndex].getProperties().setNumCols(7);
+        if (varIndex == VAR1) {
+            minParams[varIndex].getProperties().setValidatorClass(NumberValidator.class);
         }
-        paramGroup.addParameter(minParams[var]);
+        paramGroup.addParameter(minParams[varIndex]);
 
-        paramValue = !(var == VAR1) ? new Float(100.0f) : new Integer(100);
-        maxParams[var] = new Parameter(paramPrefix + "max", paramValue);
-        maxParams[var].getProperties().setLabel("Max:");
-        maxParams[var].getProperties().setDescription("Maximum display value for " + axis);    /*I18N*/
-        maxParams[var].getProperties().setNumCols(7);
-        if (var == VAR1) {
-            maxParams[var].getProperties().setValidatorClass(NumberValidator.class);
+        paramValue = !(varIndex == VAR1) ? new Float(100.0f) : new Integer(100);
+        maxParams[varIndex] = new Parameter(paramPrefix + "max", paramValue);
+        maxParams[varIndex].getProperties().setLabel("Max:");
+        maxParams[varIndex].getProperties().setDescription("Maximum display value for " + axis);    /*I18N*/
+        maxParams[varIndex].getProperties().setNumCols(7);
+        if (varIndex == VAR1) {
+            maxParams[varIndex].getProperties().setValidatorClass(NumberValidator.class);
         }
-        paramGroup.addParameter(maxParams[var]);
+        paramGroup.addParameter(maxParams[varIndex]);
 
-        if (var == VAR1) {
-            markVerticesParam = new Parameter(paramPrefix + "markVertices", Boolean.TRUE);
+        if (varIndex == VAR1) {
+            markVerticesParam = new Parameter(paramPrefix + "markVertices", false);
             markVerticesParam.getProperties().setLabel("Mark vertices");
             markVerticesParam.getProperties().setDescription("Toggle whether or not to mark vertices");    /*I18N*/
+            markVerticesParam.setValue(false, null);
             paramGroup.addParameter(markVerticesParam);
         }
     }
@@ -193,8 +196,8 @@ class ProfilePlotPanel extends PagePanel {
 
         dataset = new XYSeriesCollection();
         chart = ChartFactory.createXYLineChart(
-                "Profile Plot",
-                "Way [pixel]",
+                CHART_TITLE,
+                "Way (pixel)",
                 "Sample value",
                 dataset,
                 PlotOrientation.VERTICAL,
@@ -206,111 +209,140 @@ class ProfilePlotPanel extends PagePanel {
 
         plot.setNoDataMessage(NO_DATA_MESSAGE);
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
+        plot.getRenderer().setBaseToolTipGenerator(new CustomXYToolTipGenerator(){
+            @Override
+            public String generateToolTip(XYDataset data, int series, int item) {
+                final Comparable key = data.getSeriesKey(series);
+                final double valueX = data.getXValue(series, item);
+                final double valueY = data.getYValue(series, item);
+                return String.format("%s: X = %6.2f, Y = %6.2f", key, valueX, valueY);
+            }
 
+            @Override
+            public Object clone() throws CloneNotSupportedException {
+                return super.clone();
+            }
+        });
         profilePlotDisplay = new ChartPanel(chart);
+        profilePlotDisplay.setInitialDelay(200);
+        profilePlotDisplay.setDismissDelay(1500);
+        profilePlotDisplay.setReshowDelay(200);
         profilePlotDisplay.getPopupMenu().add(createCopyDataToClipboardMenuItem());
-        this.add(profilePlotDisplay, BorderLayout.CENTER);
-        this.add(createOptionsPane(), BorderLayout.EAST);
+        final AxisChangeListener axisListener = new AxisChangeListener() {
+            public void axisChanged(AxisChangeEvent event) {
+                adjustAxisParameter();
+            }
+        };
+        final ValueAxis domainAxis = plot.getDomainAxis();
+        final ValueAxis rangeAxis = plot.getRangeAxis();
+        domainAxis.addChangeListener(axisListener);
+        rangeAxis.addChangeListener(axisListener);
+
+        final TableLayout rightPanelLayout = new TableLayout(1);
+        final JPanel rightPanel = new JPanel(rightPanelLayout);
+        rightPanelLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
+        rightPanelLayout.setRowWeightY(2, 1.0);
+        rightPanelLayout.setRowAnchor(3, TableLayout.Anchor.EAST);
+        rightPanel.add(createOptionsPane());
+        rightPanel.add(createChartButtonPanel(profilePlotDisplay));
+        rightPanel.add(new JPanel());   // filler
+        final JPanel helpPanel = new JPanel(new BorderLayout());
+        helpPanel.add(getHelpButton(), BorderLayout.EAST);
+        rightPanel.add(helpPanel);
+        
+        add(profilePlotDisplay, BorderLayout.CENTER);
+        add(rightPanel, BorderLayout.EAST);
+        isInitialized = true;
+
     }
 
     private void updateUIState() {
         if (!isInitialized) {
             return;
         }
-        updateUIState(VAR1);
-        updateUIState(VAR2);
-        setDiagramProperties();
+        markVerticesParam.setUIEnabled(profileData != null && profileData.getShapeVertices().length > 2);
+        updateParamState(VAR1);
+        updateParamState(VAR2);
+        adjustAxis();
     }
 
-    private void setDiagramProperties() {
-        if (!isInitialized) {
-            return;
-        }
- // todo
-        /*
-        profilePlotDisplay.setDiagramProperties(((Number) minParams[VAR1].getValue()).intValue(),
-                                                 ((Number) maxParams[VAR1].getValue()).intValue(),
-                                                 ((Number) minParams[VAR2].getValue()).floatValue(),
-                                                 ((Number) maxParams[VAR2].getValue()).floatValue(),
-                                                 (Boolean) markVerticesParam.getValue());
-*/
-    }
+    private void adjustAxisParameter() {
+        if (!axisAdjusting) {
+            axisAdjusting = true;
+            try {
+                final ValueAxis domainAxis = chart.getXYPlot().getDomainAxis();
+                minParams[VAR1].setValue((int) Math.floor(domainAxis.getLowerBound()), null);
+                maxParams[VAR1].setValue((int) Math.ceil(domainAxis.getUpperBound()), null);
 
-
-    private void updateUIState(int var) {
-        if (!isInitialized) {
-            return;
-        }
-
-
-        if (profileData == null) {
-            minParams[var].setUIEnabled(false);
-            maxParams[var].setUIEnabled(false);
-            return;
-        }
-
-        final boolean autoMinMaxEnabled = (Boolean) autoMinMaxParams[var].getValue();
-        minParams[var].setUIEnabled(!autoMinMaxEnabled);
-        maxParams[var].setUIEnabled(!autoMinMaxEnabled);
-
-        if (autoMinMaxEnabled) {
-            if (var == VAR1) {
-                minParams[var].setValue(0, null);
-                maxParams[var].setValue(profileData.getNumPixels() - 1, null);
-            } else {
-                final float v = MathUtils.computeRoundFactor(profileData.getSampleMin(), profileData.getSampleMax(), 4);
-                minParams[var].setValue(StatisticsUtils.round(profileData.getSampleMin(), v), null);
-                maxParams[var].setValue(StatisticsUtils.round(profileData.getSampleMax(), v), null);
-            }
-        } else {
-            final float min = ((Number) minParams[var].getValue()).floatValue();
-            final float max = ((Number) maxParams[var].getValue()).floatValue();
-            if (min > max) {
-                minParams[var].setValue(max, null);
-                maxParams[var].setValue(min, null);
+                final ValueAxis rangeAxis = chart.getXYPlot().getRangeAxis();
+                minParams[VAR2].setValueAsText(String.format("%7.2f", rangeAxis.getLowerBound()), null);
+                maxParams[VAR2].setValueAsText(String.format("%7.2f", rangeAxis.getUpperBound()), null);
+            } finally {
+                axisAdjusting = false;
             }
         }
     }
 
+    private void adjustAxis() {
+        if (!axisAdjusting) {
+            axisAdjusting = true;
+            try {
+                final ValueAxis domainAxis = chart.getXYPlot().getDomainAxis();
+                final int lowerDomain = ((Number) minParams[VAR1].getValue()).intValue();
+                final int upperDomain = ((Number) maxParams[VAR1].getValue()).intValue();
+                domainAxis.setRange(lowerDomain, upperDomain);
 
-    private static JPanel createOptionsPane() {
+                final ValueAxis rangeAxis = chart.getXYPlot().getRangeAxis();
+                final float lowerRange = ((Number) minParams[VAR2].getValue()).floatValue();
+                final float upperRnge = ((Number) maxParams[VAR2].getValue()).floatValue();
+                rangeAxis.setRange(lowerRange, upperRnge);
+            } finally {
+                axisAdjusting = false;
+            }
+        }
+    }
+
+    private void updateParamState(int varIndex) {
+        if (!isInitialized) {
+            return;
+        }
+        minParams[varIndex].setUIEnabled(profileData != null);
+        maxParams[varIndex].setUIEnabled(profileData != null);
+    }
+
+
+    private JPanel createOptionsPane() {
         final JPanel optionsPane = GridBagUtils.createPanel();
         final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=NORTHWEST,fill=BOTH");
 
         GridBagUtils.setAttributes(gbc, "gridy=1,weightx=1");
         GridBagUtils.addToPanel(optionsPane, createOptionsPane(VAR1), gbc, "gridy=0,insets.top=0");
         GridBagUtils.addToPanel(optionsPane, createOptionsPane(VAR2), gbc, "gridy=1,insets.top=7");
-        GridBagUtils.addVerticalFiller(optionsPane, gbc);
-
         return optionsPane;
     }
 
-    private static JPanel createOptionsPane(int var) {
+    private JPanel createOptionsPane(int varIndex) {
 
         final JPanel optionsPane = GridBagUtils.createPanel();
         final GridBagConstraints gbc = GridBagUtils.createConstraints("anchor=WEST,fill=HORIZONTAL");
 
-        GridBagUtils.setAttributes(gbc, "gridwidth=2,gridy=0,insets.top=4");
-        GridBagUtils.addToPanel(optionsPane, autoMinMaxParams[var].getEditor().getComponent(), gbc,
-                                "gridx=0,weightx=1");
-
         GridBagUtils.setAttributes(gbc, "gridwidth=1,gridy=1,insets.top=2");
-        GridBagUtils.addToPanel(optionsPane, minParams[var].getEditor().getLabelComponent(), gbc,
+        GridBagUtils.addToPanel(optionsPane, minParams[varIndex].getEditor().getLabelComponent(), gbc,
                                 "gridx=0,weightx=1");
-        GridBagUtils.addToPanel(optionsPane, minParams[var].getEditor().getComponent(), gbc, "gridx=1,weightx=0");
+        GridBagUtils.addToPanel(optionsPane, minParams[varIndex].getEditor().getComponent(), gbc, "gridx=1,weightx=0");
 
         GridBagUtils.setAttributes(gbc, "gridwidth=1,gridy=2,insets.top=2");
-        GridBagUtils.addToPanel(optionsPane, maxParams[var].getEditor().getLabelComponent(), gbc,
+        GridBagUtils.addToPanel(optionsPane, maxParams[varIndex].getEditor().getLabelComponent(), gbc,
                                 "gridx=0,weightx=1");
-        GridBagUtils.addToPanel(optionsPane, maxParams[var].getEditor().getComponent(), gbc, "gridx=1,weightx=0");
+        GridBagUtils.addToPanel(optionsPane, maxParams[varIndex].getEditor().getComponent(), gbc, "gridx=1,weightx=0");
 
-        if (var == VAR1) {
+        if (varIndex == VAR1) {
             GridBagUtils.setAttributes(gbc, "gridwidth=2,gridy=3,insets.top=4");
             GridBagUtils.addToPanel(optionsPane, markVerticesParam.getEditor().getComponent(), gbc,
                                     "gridx=0,weightx=0");
         }
 
-        optionsPane.setBorder(BorderFactory.createTitledBorder(var == 0 ? "X" : "Y"));
+        optionsPane.setBorder(BorderFactory.createTitledBorder(varIndex == 0 ? "X" : "Y"));
 
         return optionsPane;
     }

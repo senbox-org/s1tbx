@@ -19,8 +19,8 @@ abstract class TextPagePanel extends PagePanel {
 
     private JTextArea textArea;
 
-    public TextPagePanel(final ToolView parentDialog, final String defaultText) {
-        super(parentDialog);
+    public TextPagePanel(final ToolView parentDialog, final String defaultText, String helpId) {
+        super(parentDialog, helpId);
         textArea.setText(defaultText);
     }
 

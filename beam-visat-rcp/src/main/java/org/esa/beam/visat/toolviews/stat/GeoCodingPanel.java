@@ -19,8 +19,8 @@ class GeoCodingPanel extends TextPagePanel {
     private static final String _TITLE_PREFIX = "Geo-Coding";   /*I18N*/
     private GeoCoding _geoCoding;
 
-    public GeoCodingPanel(final ToolView parentDialog) {
-        super(parentDialog, _DEFAULT_GEOCODING_TEXT);
+    public GeoCodingPanel(final ToolView parentDialog, String helpID) {
+        super(parentDialog, _DEFAULT_GEOCODING_TEXT, helpID);
     }
 
     @Override

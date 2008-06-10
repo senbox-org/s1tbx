@@ -21,8 +21,8 @@ class InformationPanel extends TextPagePanel {
     private static final String _DEFAULT_INFORMATION_TEXT = "No information available."; /*I18N*/
     private static final String _TITLE_PREFIX = "Information";  /*I18N*/
 
-    public InformationPanel(final ToolView parentDialog) {
-        super(parentDialog, _DEFAULT_INFORMATION_TEXT);
+    public InformationPanel(final ToolView parentDialog, String helpID) {
+        super(parentDialog, _DEFAULT_INFORMATION_TEXT, helpID);
     }
 
     @Override

@@ -482,19 +482,19 @@ public class Diagram {
     }
 
     private String getAxisText(DiagramAxis axis) {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(37);
         if (axis.getName() != null && axis.getName().length() > 0) {
             sb.append(axis.getName());
         }
         if (axis.getUnit() != null && axis.getUnit().length() > 0) {
-            sb.append(" [");
+            sb.append(" (");
             sb.append(axis.getUnit());
-            sb.append("]");
+            sb.append(")");
         }
         return sb.toString();
     }
 
-    public DiagramGraph getClosestGraph(final int x, final int y) {
+    public DiagramGraph getClosestGraph(int x, int y) {
         double minDist = Double.MAX_VALUE;
 
         Point2D.Double a = new Point2D.Double();
