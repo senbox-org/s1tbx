@@ -160,7 +160,7 @@ class ProfilePlotPanel extends PagePanel {
     private void initParameters(int varIndex) {
 
         final String paramPrefix = "var" + varIndex + ".";
-        final String axis = (varIndex == VAR1) ? "X" : "Y";
+        final String axis = (varIndex == VAR1) ? "X-Axis" : "Y-Axis";
         Object paramValue;
 
         paramValue = !(varIndex == VAR1) ? new Float(0.0f) : new Integer(0);
@@ -342,7 +342,7 @@ class ProfilePlotPanel extends PagePanel {
                                     "gridx=0,weightx=0");
         }
 
-        optionsPane.setBorder(BorderFactory.createTitledBorder(varIndex == 0 ? "X" : "Y"));
+        optionsPane.setBorder(BorderFactory.createTitledBorder(varIndex == 0 ? "X-Axis" : "Y-Axis"));
 
         return optionsPane;
     }
