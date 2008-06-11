@@ -202,7 +202,7 @@
             <dependency>
                 <groupId>ucar.netcdf</groupId>
                 <artifactId>lib-netcdf</artifactId>
-                <version>2.2.22</version>
+                <version>2.2.16</version>
             </dependency>
 
             <!-- JAI Libraries ############################################# -->
