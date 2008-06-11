@@ -1,16 +1,23 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-netcdf-reader</symbolicName>
-    <version>1.0</version>
+    <version>1.0.100-SNAPSHOT</version>
     <name>NetCDF Product Reader</name>
     <description>
         A product reader for NetCDF files conforming to the
         Climate and Forecast (CF) metadata conventions.
     </description>
+    
+    <changelog>
+        <![CDATA[
+        Changes in 1.0.100:<br>
+        [BEAM-821] MERIS L3 MGVI cannot be opened in BEAM<br>
+        ]]>
+    </changelog>
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
-    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <copyright>(C) 2008 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
     

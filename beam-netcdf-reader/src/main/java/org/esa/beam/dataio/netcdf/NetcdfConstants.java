@@ -20,7 +20,9 @@ public interface NetcdfConstants {
     String GLOBAL_ATTRIBUTES_NAME = "global_attributes";
 
     String SCALE_FACTOR_ATT_NAME = "scale_factor";
+    String SLOPE_ATT_NAME = "slope";
     String ADD_OFFSET_ATT_NAME = "add_offset";
+    String INTERCEPT_ATT_NAME = "intercept";
     String FILL_VALUE_ATT_NAME = "_FillValue";
     String MISSING_VALUE_ATT_NAME = "missing_value";
     String VALID_MIN_ATT_NAME = "valid_min";

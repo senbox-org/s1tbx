@@ -41,6 +41,7 @@ public class NcRasterDim {
     }
 
 
+    @Override
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
@@ -53,6 +54,7 @@ public class NcRasterDim {
         return false;
     }
 
+    @Override
     public int hashCode() {
         return dimX.hashCode() +
                dimY.hashCode();

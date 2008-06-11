@@ -44,26 +44,44 @@ public class NetcdfReaderUtils {
     public static Band createBand(final Variable variable, final int rasterWidth, final int rasterHeight) {
         final NcAttributeMap attMap = NcAttributeMap.create(variable);
         final Band band = new Band(NcVariableMap.getAbsoluteName(variable),
-                                   getRasterDataType(variable.getDataType(), variable.isUnsigned()),
+                                   getRasterDataType(variable),
                                    rasterWidth,
                                    rasterHeight);
         band.setDescription(variable.getDescription());
         band.setUnit(variable.getUnitsString());
-        band.setScalingFactor(attMap.getValue(NetcdfConstants.SCALE_FACTOR_ATT_NAME, 1.0));
-        band.setScalingOffset(attMap.getValue(NetcdfConstants.ADD_OFFSET_ATT_NAME, 0.0));
-
-        final Number fillValue = attMap.getNumericValue(NetcdfConstants.FILL_VALUE_ATT_NAME);
-        if (fillValue != null) {
-            band.setNoDataValue(fillValue.doubleValue());
+        band.setScalingFactor(getScalingFactor(attMap));
+        band.setScalingOffset(getAddOffset(attMap));
+        
+        final Number noDataValue = getNoDataValue(attMap);
+        if (noDataValue != null) {
+            band.setNoDataValue(noDataValue.doubleValue());
             band.setNoDataValueUsed(true);
-        } else {
-            final Number missingValue = attMap.getNumericValue(NetcdfConstants.MISSING_VALUE_ATT_NAME);
-            if (missingValue != null) {
-                band.setNoDataValue(missingValue.doubleValue());
-                band.setNoDataValueUsed(true);
-            }
         }
         return band;
+    }
+    
+    private static double getScalingFactor(NcAttributeMap attMap) {
+        Number numValue = attMap.getNumericValue(NetcdfConstants.SCALE_FACTOR_ATT_NAME);
+        if (numValue == null) {
+            numValue = attMap.getNumericValue(NetcdfConstants.SLOPE_ATT_NAME);
+        }
+        return numValue != null ? numValue.doubleValue() : 1.0;
+    }
+    
+    private static double getAddOffset(NcAttributeMap attMap) {
+        Number numValue = attMap.getNumericValue(NetcdfConstants.ADD_OFFSET_ATT_NAME);
+        if (numValue == null) {
+            numValue = attMap.getNumericValue(NetcdfConstants.INTERCEPT_ATT_NAME);
+        }
+        return numValue != null ? numValue.doubleValue() : 0.0;
+    }
+    
+    private static Number getNoDataValue(NcAttributeMap attMap) {
+        Number noDataValue = attMap.getNumericValue(NetcdfConstants.FILL_VALUE_ATT_NAME);
+        if (noDataValue == null) {
+            noDataValue = attMap.getNumericValue(NetcdfConstants.MISSING_VALUE_ATT_NAME);
+        }
+        return noDataValue;
     }
 
     public static MapInfoX createMapInfoX(final Variable lonVar,
@@ -140,6 +158,14 @@ public class NetcdfReaderUtils {
         mapInfo.setSceneHeight(sceneRasterHeight);
         return new MapInfoX(mapInfo, yFlipped);
     }
+    
+    public static int getRasterDataType(Variable variable) {
+        NetcdfDataTypeWorkarounds workarounds = NetcdfDataTypeWorkarounds.getInstance();
+        if (workarounds.hasWorkaroud(variable.getName(), variable.getDataType())) {
+            return workarounds.getRasterDataType(variable.getName(), variable.getDataType());
+        }
+        return getRasterDataType(variable.getDataType(), variable.isUnsigned());
+    }
 
     public static boolean isValidRasterDataType(final DataType dataType) {
         return getRasterDataType(dataType, false) != -1;
@@ -188,21 +214,21 @@ public class NetcdfReaderUtils {
         return createMetadataElementFromAttributeList(variable.getAttributes(), variable.getName());
     }
 
-    private static MetadataElement createMetadataElementFromVariableList(final List variableList, String elementName) {
+    private static MetadataElement createMetadataElementFromVariableList(final List<Variable> variableList, String elementName) {
         MetadataElement metadataElement = new MetadataElement(elementName);
         for (int i = 0; i < variableList.size(); i++) {
-            Variable variable = (Variable) variableList.get(i);
+            Variable variable = variableList.get(i);
             metadataElement.addElement(createMetadataElement(variable));
         }
         return metadataElement;
     }
 
-    private static MetadataElement createMetadataElementFromAttributeList(final List attributeList,
+    private static MetadataElement createMetadataElementFromAttributeList(final List<Attribute> attributeList,
                                                                           String elementName) {
         // todo - note that we still do not support NetCDF data type 'char' here!
         MetadataElement metadataElement = new MetadataElement(elementName);
         for (int i = 0; i < attributeList.size(); i++) {
-            Attribute attribute = (Attribute) attributeList.get(i);
+            Attribute attribute = attributeList.get(i);
             final int productDataType = getProductDataType(attribute.getDataType(), false, false);
             if (productDataType != -1) {
                 ProductData productData;
@@ -306,12 +332,12 @@ public class NetcdfReaderUtils {
     private static Variable[] getRasterVariables(Map<NcRasterDim, List<Variable>> variableLists,
                                                  NcRasterDim rasterDim) {
         final List<Variable> list = variableLists.get(rasterDim);
-        return (Variable[]) list.toArray(new Variable[list.size()]);
+        return list.toArray(new Variable[list.size()]);
     }
 
     private static NcRasterDim getBestRasterDim(Map<NcRasterDim, List<Variable>> variableListMap) {
 
-        final NcRasterDim[] keys = (NcRasterDim[]) variableListMap.keySet().toArray(new NcRasterDim[0]);
+        final NcRasterDim[] keys = variableListMap.keySet().toArray(new NcRasterDim[0]);
         if (keys.length == 0) {
             return null;
         }
@@ -342,9 +368,9 @@ public class NetcdfReaderUtils {
     }
 
     private static void collectVariableLists(Group group, Map<NcRasterDim, List<Variable>> variableLists) {
-        final List variables = group.getVariables();
+        final List<Variable> variables = group.getVariables();
         for (int i = 0; i < variables.size(); i++) {
-            Variable variable = (Variable) variables.get(i);
+            Variable variable = variables.get(i);
             final int rank = variable.getRank();
             if (rank >= 2 && isValidRasterDataType(variable.getDataType())) {
                 final Dimension dimX = variable.getDimension(rank - 1);
@@ -360,9 +386,9 @@ public class NetcdfReaderUtils {
                 }
             }
         }
-        final List subGroups = group.getGroups();
+        final List<Group> subGroups = group.getGroups();
         for (int i = 0; i < subGroups.size(); i++) {
-            Group subGroup = (Group) subGroups.get(i);
+            Group subGroup = subGroups.get(i);
             collectVariableLists(subGroup, variableLists);
         }
     }

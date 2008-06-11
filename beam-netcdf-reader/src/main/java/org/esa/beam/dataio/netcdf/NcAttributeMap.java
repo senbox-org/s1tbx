@@ -16,10 +16,10 @@ import java.util.Map;
  */
 public class NcAttributeMap {
 
-    private Map _map;
+    private Map<String, Attribute> _map;
 
     public NcAttributeMap(int initialCapacity) {
-        _map = new HashMap(initialCapacity);
+        _map = new HashMap<String, Attribute>(initialCapacity);
     }
 
     public NcAttributeMap(Attribute[] attributes) {
@@ -29,8 +29,8 @@ public class NcAttributeMap {
         }
     }
 
-    private NcAttributeMap(List attributes) {
-        this((Attribute[]) attributes.toArray(new Attribute[attributes.size()]));
+    private NcAttributeMap(List<Attribute> attributes) {
+        this(attributes.toArray(new Attribute[attributes.size()]));
     }
 
     public static NcAttributeMap create(NetcdfFile file) {
@@ -46,7 +46,7 @@ public class NcAttributeMap {
     }
 
     public Attribute get(String name) {
-        return (Attribute) _map.get(name);
+        return _map.get(name);
     }
 
     public void put(Attribute attribute) {

@@ -15,10 +15,10 @@ import java.util.Map;
  */
 public class NcVariableMap {
 
-    private Map _map;
+    private Map<String, Variable> _map;
 
     public NcVariableMap(int initialCapacity) {
-        _map = new HashMap(initialCapacity);
+        _map = new HashMap<String, Variable>(initialCapacity);
     }
 
     public NcVariableMap(Variable[] variables) {
@@ -28,8 +28,8 @@ public class NcVariableMap {
         }
     }
 
-    private NcVariableMap(List variables) {
-        this((Variable[]) variables.toArray(new Variable[variables.size()]));
+    private NcVariableMap(List<Variable> variables) {
+        this(variables.toArray(new Variable[variables.size()]));
     }
 
     public static NcVariableMap create(NetcdfFile file) {
@@ -48,7 +48,7 @@ public class NcVariableMap {
      * @return The variable or null.
      */
     public Variable get(String name) {
-        return (Variable) _map.get(name);
+        return _map.get(name);
     }
 
     /**
