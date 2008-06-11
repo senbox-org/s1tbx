@@ -33,14 +33,15 @@ import java.awt.Window;
 import java.awt.Component;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.util.Vector;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
 /**
+ * The base class for {@link ModalDialog} and {@link ModelessDialog}.
+ *
  * @author Norman Fomferra
- * @version $Revision: 1.3 $  $Date: 2007/04/18 13:01:13 $
+ * @since BEAM 4.2
  */
 public abstract class AbstractDialog {
 
@@ -66,19 +67,207 @@ public abstract class AbstractDialog {
         this.dialog = dialog;
         this.buttonMask = buttonMask;
         setButtonID(0);
-        createUI(otherButtons);
+        initUI(otherButtons);
         setHelpID(helpID);
     }
 
+    /**
+     * Gets the underlying Swing dialog passed to the constructor.
+     * @return the underlying Swing dialog.
+     */
+    public JDialog getJDialog() {
+        return dialog;
+    }
+
+    /**
+     * Gets the owner of the dialog.
+     * @return The owner of the dialog.
+     */
+    public Window getParent() {
+        return parent;
+    }
+
+    /**
+     * Gets the button mask passed to the constructor.
+     * @return The button mask.
+     */
     public int getButtonMask() {
         return buttonMask;
     }
 
+    /**
+     * Gets the identifier for the most recently pressed button.
+     * @return The identifier for the most recently pressed button.
+     */
+    public int getButtonID() {
+        return buttonId;
+    }
+
+    /**
+     * Sets the identifier for the most recently pressed button.
+     * @param buttonID The identifier for the most recently pressed button.
+     */
     protected void setButtonID(final int buttonID) {
         buttonId = buttonID;
     }
 
-    protected void createUI(Object[] otherItems) {
+    /**
+     * Gets the help identifier for the dialog.
+     * @return The help identifier.
+     */
+    public String getHelpID() {
+        return helpId;
+    }
+
+    /**
+     * Sets the help identifier for the dialog.
+     * @param helpID The help identifier.
+     */
+    public void setHelpID(String helpID) {
+        helpId = helpID;
+        updateHelpID();
+    }
+
+    /**
+     * Gets the dialog's content component.
+     * @return The dialog's content component.
+     */
+    public Component getContent() {
+        return content;
+    }
+
+    /**
+     * Sets the dialog's content component.
+     * @param content The dialog's content component.
+     */
+    public void setContent(Component content) {
+        if (this.content != null) {
+            dialog.getContentPane().remove(this.content);
+        }
+        this.content = content;
+        dialog.getContentPane().add(this.content, BorderLayout.CENTER);
+        dialog.validate();
+        updateHelpID();
+    }
+
+    /**
+     * Sets the dialog's content.
+     * @param content The dialog's content.
+     */
+    public void setContent(Object content) {
+        Component component;
+        if (content instanceof Component) {
+            component = (Component) content;
+        } else {
+            component = new JLabel(content.toString());
+        }
+        setContent(component);
+    }
+
+    /**
+     * Shows the dialog.
+     * @return the identifier of the last button pressed or zero if this is a modeless dialog.
+     */
+    public int show() {
+        setButtonID(0);
+        if (!shown) {
+            dialog.pack();
+            center();
+        }
+        dialog.setVisible(true);
+        shown = true;
+        return getButtonID();
+    }
+
+    /**
+     * Hides the dialog. This method does nothing else than hiding the underlying Swing dialog.
+     * @see #getJDialog() 
+     */
+    public void hide() {
+        dialog.setVisible(false);
+    }
+
+    /**
+     * This method is called, when the user clicks the close button of the dialog's top window bar.
+     * It can also be called directly.
+     * Override to implement the dialog's default close behaviour.
+     */
+    public abstract void close();
+
+    /**
+     * Centers the dialog within its parent window.
+     */
+    public void center() {
+        UIUtils.centerComponent(dialog, parent);
+    }
+
+    /**
+     * Shows an error dialog on top of this dialog.
+     * @param errorMessage The message.
+     */
+    public void showErrorDialog(String errorMessage) {
+        showMessageDialog(errorMessage, JOptionPane.ERROR_MESSAGE);
+    }
+
+    /**
+     * Shows an information dialog on top of this dialog.
+     * @param infoMessage The message.
+     */
+    public void showInformationDialog(String infoMessage) {
+        showMessageDialog(infoMessage, JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    /**
+     * Shows a warning dialog on top of this dialog.
+     * @param warningMessage The message.
+     */
+    public void showWarningDialog(String warningMessage) {
+        showMessageDialog(warningMessage, JOptionPane.WARNING_MESSAGE);
+    }
+
+    /**
+     * Called if the help button has been clicked.
+     * Clients should override this method to implement a different behaviour.
+     */
+    protected void onHelp() {
+        if (helpId == null) {
+            showInformationDialog("Sorry, no help theme available."); /*I18N*/
+        }
+    }
+
+    /**
+     * Called if the reset button has been clicked.
+     * The default implementation does nothing.
+     * Clients should override this method to implement meaningful behaviour.
+     */
+    protected void onReset() {
+    }
+
+    /**
+     * Called if a non-standard button has been clicked.
+     * The default implementation calls {@link #hide()}.
+     * Clients should override this method to implement meaningful behaviour.
+     */
+    protected void onOther() {
+        hide();
+    }
+
+    /**
+     * Called in order to perform input validation.
+     * @return {@code true} if and only if the validation was successful.
+     */
+    protected boolean verifyUserInput() {
+        return true;
+    }
+
+    /**
+     * Called by the constructor in order to initialise the user interface.
+     * Override to add extra buttons to the given list of buttons.
+     * @param buttons The container for the new extra buttons.
+     */
+    protected abstract void collectButtons(List<AbstractButton> buttons);
+
+    private void initUI(Object[] otherItems) {
 
         JPanel buttonRow = new JPanel();
         buttonRow.setLayout(new BoxLayout(buttonRow, BoxLayout.X_AXIS));
@@ -93,12 +282,14 @@ public abstract class AbstractDialog {
 
         ArrayList<AbstractButton> buttons = new ArrayList<AbstractButton>();
 
-        addStandardButtons(buttons);
+        collectButtons(buttons);
 
         if (otherItems != null) {
             for (Object otherItem : otherItems) {
                 if (otherItem instanceof String) {
-                    JButton otherButton = new JButton((String) otherItem);
+                    String text = (String) otherItem;
+                    JButton otherButton = new JButton(text);
+                    otherButton.setName(getQualifiedPropertyName(text));
                     otherButton.addActionListener(new ActionListener() {
 
                         public void actionPerformed(ActionEvent e) {
@@ -127,6 +318,7 @@ public abstract class AbstractDialog {
 
         if ((buttonMask & ID_RESET) != 0) {
             JButton button = new JButton("Reset"); /*I18N*/
+            button.setName(getQualifiedPropertyName("reset"));
             button.setMnemonic('R');
             button.addActionListener(new ActionListener() {
 
@@ -141,8 +333,8 @@ public abstract class AbstractDialog {
 
         if ((buttonMask & ID_HELP) != 0) {
             JButton button = new JButton("Help"); /*I18N*/
+            button.setName(getQualifiedPropertyName("help"));
             button.setMnemonic('H');
-            button.setIcon(UIUtils.loadImageIcon("/org/esa/beam/resources/images/icons/Help16.gif"));
             button.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
@@ -154,9 +346,10 @@ public abstract class AbstractDialog {
             helpButton = button;
         }
 
+        buttonRow.add(Box.createHorizontalGlue());
         for (int i = 0; i < buttons.size(); i++) {
             if (i != 0) {
-                buttonRow.add(Box.createRigidArea(new Dimension(6, 0)));
+                buttonRow.add(Box.createRigidArea(new Dimension(4, 0)));
             }
             buttonRow.add(buttons.get(i));
         }
@@ -165,32 +358,13 @@ public abstract class AbstractDialog {
 
             @Override
             public void windowClosing(WindowEvent e) {
-                closeDialog();
+                close();
             }
         });
     }
 
-
-    protected abstract void addStandardButtons(List<AbstractButton> buttons);
-
-    private void initHelpBroker() {
-        HelpSet helpSet = HelpSys.getHelpSet();
-        if (helpSet != null) {
-            helpBroker = helpSet.createHelpBroker();
-            if (helpBroker instanceof DefaultHelpBroker) {
-                DefaultHelpBroker defaultHelpBroker = (DefaultHelpBroker) helpBroker;
-                defaultHelpBroker.setActivationWindow(getJDialog());
-            }
-        }
-    }
-
-    public String getHelpID() {
-        return helpId;
-    }
-
-    public void setHelpID(String helpID) {
-        helpId = helpID;
-        updateHelpID();
+    protected String getQualifiedPropertyName(String name) {
+        return getClass().getSimpleName() + "." + name;
     }
 
     private void updateHelpID() {
@@ -229,93 +403,19 @@ public abstract class AbstractDialog {
         }
     }
 
-    public JDialog getJDialog() {
-        return dialog;
-    }
-
-    public Window getParent() {
-        return parent;
-    }
-
-    /**
-     * Shows the dialog.
-     * @return the identifier of the last button pressed or -1.
-     */
-    public int show() {
-        setButtonID(-1);
-        if (!shown) {
-            dialog.pack();
-            center();
+    private void initHelpBroker() {
+        HelpSet helpSet = HelpSys.getHelpSet();
+        if (helpSet != null) {
+            helpBroker = helpSet.createHelpBroker();
+            if (helpBroker instanceof DefaultHelpBroker) {
+                DefaultHelpBroker defaultHelpBroker = (DefaultHelpBroker) helpBroker;
+                defaultHelpBroker.setActivationWindow(getJDialog());
+            }
         }
-        dialog.setVisible(true);
-        shown = true;
-        return getButtonID();
-    }
-
-
-    /**
-     * Hides the dialog.
-     */
-    public void hide() {
-        dialog.setVisible(false);
-    }
-
-    public void center() {
-        UIUtils.centerComponent(dialog, parent);
-    }
-
-    public int getButtonID() {
-        return buttonId;
-    }
-
-    public void setContent(Object content) {
-        Component comp;
-        if (content instanceof Component) {
-            comp = (Component) content;
-        } else {
-            comp = new JLabel(content.toString());
-        }
-        if (this.content != null) {
-            dialog.getContentPane().remove(this.content);
-        }
-        this.content = comp;
-        dialog.getContentPane().add(this.content, BorderLayout.CENTER);
-        dialog.validate();
-        updateHelpID();
-    }
-
-    public void showErrorDialog(String errorMessage) {
-        showMessageDialog(errorMessage, JOptionPane.ERROR_MESSAGE);
-    }
-
-    public void showInformationDialog(String infoMessage) {
-        showMessageDialog(infoMessage, JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    public void showWarningDialog(String warningMessage) {
-        showMessageDialog(warningMessage, JOptionPane.WARNING_MESSAGE);
-    }
-
-    protected abstract void closeDialog();
-
-    protected void onHelp() {
-        if (helpId == null) {
-            showInformationDialog("Sorry, no help theme available."); /*I18N*/
-        }
-    }
-
-    protected void onReset() {
-    }
-
-    protected void onOther() {
-        hide();
-    }
-
-    protected boolean verifyUserInput() {
-        return true;
     }
 
     private void showMessageDialog(String message, int messageType) {
         JOptionPane.showMessageDialog(getJDialog(), message, getJDialog().getTitle(), messageType);
     }
+
 }

@@ -16,40 +16,30 @@
  */
 package org.esa.beam.framework.ui;
 
-import org.esa.beam.framework.help.HelpSys;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.logging.BeamLogManager;
-
-import javax.help.BadIDException;
-import javax.help.DefaultHelpBroker;
-import javax.help.HelpBroker;
-import javax.help.HelpSet;
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.AbstractButton;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.*;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * The <code>ModalDialog</code> is a helper class to quickly construct modal dialogs. The dialogs created with this
- * class have a unique border and font and a standard button row for the typical buttons like 'OK', 'Cancel' etc.
+ * class have a unique border and font and a standard button row for the typical buttons like "OK", "Cancel" etc.
  * <p/>
  * <p>Instances of a modal dialog are created with a parent component, a title, the actual dialog content component, and
  * a bit-combination of the standard buttons to be used.
  * <p/>
- * <p>The dialog can be used directly or the class is overridden in order to override the methods <code>onOK</code>,
- * <code>onCancel</code> etc. which are automatically called if a user presses the corresponding button.
+ * <p>The dialog can be used directly or the class is overridden in order to override the methods {@link #onOK()},
+ * {@link #onCancel()} etc. which are called if a user presses the corresponding button.
  * <p/>
  * <p>A limited way of input validation is provided by the  <code>verifyUserInput</code> method which can be overridden
- * in order to return <code>false</code> if a user input is invalid. In this case the <code>onOK</code>,
- * <code>onYes</code> and <code>onNo</code> methods are NOT called.
+ * in order to return <code>false</code> if a user input is invalid. In this case the {@link #onOK()},
+ * {@link #onYes()} and {@link #onNo()} methods are NOT called.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.3 $  $Date: 2007/04/18 13:01:13 $
+ * @since BEAM 1.0
  */
 public class ModalDialog extends AbstractDialog {
 
@@ -80,12 +70,68 @@ public class ModalDialog extends AbstractDialog {
         super(new JDialog(parent, title, JDialog.DEFAULT_MODALITY_TYPE), buttonMask, otherButtons, helpID);
     }
 
+    /**
+     * This method is called, when the user clicks the "cancel" button or the "close" button of
+     * the top bar of the dialog window. It can also be called directly.
+     * The method sets the button identifier to {@link #ID_CANCEL} and calls {@link #onCancel()}.
+     */
     @Override
-    protected void addStandardButtons(List<AbstractButton> buttons) {
+    public void close() {
+        setButtonID(ID_CANCEL);
+        onCancel();
+    }
+
+    /**
+     * @deprecated  Since BEAM 4.2 {@link #close()} is used instead.
+     */
+    @Deprecated
+    protected final void cancelDialog() {
+        close();
+    }
+
+    /**
+     * Called if the "OK" button has been clicked.
+     * The default implementation calls {@link #hide()}.
+     * Clients should override this method to implement meaningful behaviour.
+     */
+    protected void onOK() {
+        hide();
+    }
+
+    /**
+     * Called if the "Yes" button has been clicked.
+     * The default implementation calls {@link #hide()}.
+     * Clients should override this method to implement meaningful behaviour.
+     */
+    protected void onYes() {
+        hide();
+    }
+
+    /**
+     * Called if the "No" button has been clicked.
+     * The default implementation calls {@link #hide()}.
+     * Clients should override this method to implement meaningful behaviour.
+     */
+    protected void onNo() {
+        hide();
+    }
+
+    /**
+     * Called if the "Cancel" button has been clicked.
+     * The default implementation calls {@link #hide()}.
+     * Clients should override this method to implement meaningful behaviour.
+     */
+    protected void onCancel() {
+        hide();
+    }
+
+    @Override
+    protected void collectButtons(List<AbstractButton> buttons) {
         int buttonMask = getButtonMask();
         if ((buttonMask & ID_OK) != 0) {
             JButton button = new JButton("OK");  /*I18N*/
             button.setMnemonic('O');
+            button.setName(getQualifiedPropertyName("ok"));
             button.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
@@ -102,6 +148,7 @@ public class ModalDialog extends AbstractDialog {
         if ((buttonMask & ID_YES) != 0) {
             JButton button = new JButton("Yes");  /*I18N*/
             button.setMnemonic('Y');
+            button.setName(getQualifiedPropertyName("yes"));
             button.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
@@ -117,6 +164,8 @@ public class ModalDialog extends AbstractDialog {
         }
         if ((buttonMask & ID_NO) != 0) {
             JButton button = new JButton("No"); /*I18N*/
+            button.setMnemonic('N');
+            button.setName(getQualifiedPropertyName("no"));
             button.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
@@ -130,11 +179,12 @@ public class ModalDialog extends AbstractDialog {
         }
         if ((buttonMask & ID_CANCEL) != 0) {
             JButton button = new JButton("Cancel");  /*I18N*/
+            button.setMnemonic('C');
+            button.setName(getQualifiedPropertyName("cancel"));
             button.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
-                    setButtonID(ID_CANCEL);
-                    onCancel();
+                    close();
                 }
             });
             buttons.add(button);
@@ -142,29 +192,4 @@ public class ModalDialog extends AbstractDialog {
         }
     }
 
-    @Override
-    protected void closeDialog() {
-        cancelDialog();
-    }
-
-    protected void cancelDialog() {
-        setButtonID(ID_CANCEL);
-        onCancel();
-    }
-
-    protected void onOK() {
-        hide();
-    }
-
-    protected void onYes() {
-        hide();
-    }
-
-    protected void onNo() {
-        hide();
-    }
-
-    protected void onCancel() {
-        hide();
-    }
 }

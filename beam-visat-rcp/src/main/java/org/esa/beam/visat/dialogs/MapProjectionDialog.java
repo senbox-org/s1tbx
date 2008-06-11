@@ -184,19 +184,19 @@ public class MapProjectionDialog extends ModalDialog {
             final ElevationModelDescriptor demDescriptor = elevationModelRegistry.getDescriptor(demName);
             if (demDescriptor == null) {
                 showErrorDialog("The DEM '" + demName + "' is not supported.");
-                cancelDialog();
+                close();
                 return false;
             }
             if (demDescriptor.isInstallingDem()) {
                 showErrorDialog("The DEM '" + demName + "' is currently being installed.");
-                cancelDialog();
+                close();
                 return false;
             }
             if (!demDescriptor.isDemInstalled()) {
                 final boolean ok = demDescriptor.installDemFiles(_parent);
                 if (ok) {
                     // close dialog becuase DEM will be installed first
-                    cancelDialog();
+                    close();
                 }
                 return false;
             }

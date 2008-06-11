@@ -34,6 +34,8 @@ import java.util.*;
 import java.util.logging.Logger;
 
 /**
+ * A modeless dialog providing an "Apply" and "Close" button.
+ * 
  * @author Norman Fomferra
  * @version $Revision: 1.3 $  $Date: 2007/04/18 13:01:13 $
  */
@@ -63,12 +65,42 @@ public class ModelessDialog extends AbstractDialog {
         super(new JDialog(parent, title, Dialog.ModalityType.MODELESS), buttonMask, otherButtons, helpID);
     }
 
+    /**
+     * This method is called, when the user clicks the "close" button of the bottom button row
+     * or the "close" button of the top bar of the dialog window. It can also be called directly.
+     * The method sets the button identifier to {@link #ID_CLOSE} and calls {@link #onClose()}.
+     */
     @Override
-    protected void addStandardButtons(java.util.List<AbstractButton> buttons) {
+    public void close() {
+        setButtonID(ID_CLOSE);
+        onClose();
+    }
+
+    /**
+     * Called if the "Apply" button has been clicked.
+     * The default implementation does nothing.
+     * Clients should override this method to implement meaningful behaviour.
+     */
+    protected void onApply() {
+    }
+
+    /**
+     * Called if the "Close" button has been clicked.
+     * The default implementation calls {@link #hide()}.
+     * Clients should override this method to implement meaningful behaviour.
+     */
+    protected void onClose() {
+        hide();
+    }
+
+
+    @Override
+    protected void collectButtons(java.util.List<AbstractButton> buttons) {
         int buttonMask = getButtonMask();
         if ((buttonMask & ID_APPLY) != 0) {
             JButton button = new JButton("Apply");  /*I18N*/
             button.setMnemonic('A');
+            button.setName(getQualifiedPropertyName("apply"));
             button.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
@@ -85,6 +117,7 @@ public class ModelessDialog extends AbstractDialog {
         if ((buttonMask & ID_CLOSE) != 0) {
             JButton button = new JButton("Close");  /*I18N*/
             button.setMnemonic('C');
+            button.setName(getQualifiedPropertyName("close"));
             button.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
@@ -97,16 +130,4 @@ public class ModelessDialog extends AbstractDialog {
         }
     }
 
-    @Override
-    protected void closeDialog() {
-        setButtonID(ID_CLOSE);
-        onClose();
-    }
-
-    protected void onApply() {
-    }
-
-    protected void onClose() {
-        hide();
-    }
 }
