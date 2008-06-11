@@ -2,16 +2,17 @@ package org.esa.beam.visat.toolviews.lm;
 
 import com.jidesoft.combobox.FileChooserPanel;
 import com.jidesoft.combobox.FileNameChooserComboBox;
-import com.jidesoft.combobox.PopupPanel;
 import com.jidesoft.combobox.ListComboBox;
-import com.jidesoft.converter.*;
+import com.jidesoft.combobox.PopupPanel;
+import com.jidesoft.converter.ConverterContext;
+import com.jidesoft.converter.EnumConverter;
+import com.jidesoft.converter.ObjectConverterManager;
 import com.jidesoft.grid.*;
 import com.jidesoft.icons.IconsFactory;
 import com.jidesoft.swing.CheckBoxTree;
 import com.jidesoft.swing.JideScrollPane;
-import com.jidesoft.swing.JideSwingUtilities;
 import com.jidesoft.swing.JideSplitPane;
-import com.lowagie.text.Rectangle;
+import com.jidesoft.swing.JideSwingUtilities;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.visat.VisatApp;
 
