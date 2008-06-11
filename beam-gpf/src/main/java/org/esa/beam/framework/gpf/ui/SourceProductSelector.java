@@ -4,6 +4,7 @@ import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.framework.ui.AppContext;
@@ -48,6 +49,7 @@ public class SourceProductSelector {
     private JButton productFileChooserButton;
     private JComboBox productNameComboBox;
     private List<SelectionChangeListener> selectionListeners;
+    private final ProductManager.Listener productManagerListener;
 
     public SourceProductSelector(AppContext appContext) {
         this(appContext, "Name:");
@@ -78,13 +80,23 @@ public class SourceProductSelector {
                         productNameComboBox.setToolTipText(product.getDisplayName());
                     }
                 } else {
-                    productNameComboBox.setToolTipText("Selects a source product.");
+                    productNameComboBox.setToolTipText("Select a source product.");
                 }
             }
         });
 
         productFilter = new AllProductFilter();
         selectionListeners = new ArrayList<SelectionChangeListener>(7);
+
+        productManagerListener = new ProductManager.Listener() {
+            public void productAdded(ProductManager.Event event) {
+                 addProduct(event.getProduct());
+            }
+
+            public void productRemoved(ProductManager.Event event) {
+                removeProduct(event.getProduct());
+            }
+        };
     }
 
     /**
@@ -101,14 +113,13 @@ public class SourceProductSelector {
         this.productFilter = productFilter;
     }
 
-    public void initProducts() {
+    public synchronized void initProducts() {
         productListModel.removeAllElements();
         for (Product product : appContext.getProductManager().getProducts()) {
-            if (productFilter.accept(product)) {
-                productListModel.addElement(product);
-            }
+            addProduct(product);
         }
         productListModel.setSelectedItem(appContext.getSelectedProduct());
+        appContext.getProductManager().addListener(productManagerListener)       ;
     }
 
     public int getProductCount() {
@@ -149,7 +160,8 @@ public class SourceProductSelector {
         }
     }
 
-    public void releaseProducts() {
+    public synchronized void releaseProducts() {
+        appContext.getProductManager().removeListener(productManagerListener)       ;
         if (extraProduct != null && getSelectedProduct() != extraProduct) {
             extraProduct.dispose();
         }
@@ -170,6 +182,16 @@ public class SourceProductSelector {
             final DefaultSelection selection = new DefaultSelection(productNameComboBox.getSelectedItem());
             changeListener.selectionChanged(new SelectionChangeEvent(productNameComboBox, selection));
         }
+    }
+
+    private void addProduct(Product product) {
+        if (productFilter.accept(product)) {
+            productListModel.addElement(product);
+        }
+    }
+
+    private void removeProduct() {
+        productListModel.removeElement(extraProduct);
     }
 
     // UI Components
