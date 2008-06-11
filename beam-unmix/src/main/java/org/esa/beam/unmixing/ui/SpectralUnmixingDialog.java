@@ -20,14 +20,13 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
-import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.gpf.ui.DefaultAppContext;
+import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.unmixing.Endmember;
 import org.esa.beam.unmixing.SpectralUnmixingOp;
 
 import javax.swing.JDialog;
-import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import java.util.Map;
@@ -115,16 +114,32 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
 
     public static void main(String[] args) throws IllegalAccessException, UnsupportedLookAndFeelException, InstantiationException, ClassNotFoundException {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-
+        float[] wl = new float[]{
+                412.6395569f,
+                442.5160217f,
+                489.8732910f,
+                509.8299866f,
+                559.7575684f,
+                619.7247925f,
+                664.7286987f,
+                680.9848022f,
+                708.4989624f,
+                753.5312500f,
+                761.7092285f,
+                778.5520020f,
+                864.8800049f,
+                884.8975830f,
+                899.9100342f
+        };
         final Product inputProduct = new Product("MER_RR_1P", "MER_RR_1P", 16, 16);
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < wl.length; i++) {
             Band band = inputProduct.addBand("radiance_" + (i + 1), ProductData.TYPE_FLOAT32);
-            band.setSpectralWavelength(500 + i * 30);
+            band.setSpectralWavelength(wl[i]);
             band.setSpectralBandIndex(i);
         }
         inputProduct.addBand("l1_flags", ProductData.TYPE_UINT32);
 
-        DefaultAppContext context = new DefaultAppContext("Killer App");
+        DefaultAppContext context = new DefaultAppContext("dev0");
         context.getProductManager().addProduct(inputProduct);
         context.setSelectedProduct(inputProduct);
         SpectralUnmixingDialog dialog = new SpectralUnmixingDialog(context);

@@ -24,11 +24,15 @@ class SpectralUnmixingFormModel {
 
         this.operatorParameters = new HashMap<String, Object>();
         this.operatorValueContainer = ParameterDescriptorFactory.createMapBackedOperatorValueContainer(SpectralUnmixingOp.Spi.class.getName(), operatorParameters);
-
+        try {
+            this.operatorValueContainer.setDefaultValues();
+        } catch (ValidationException e) {
+            // ignore, validation will be performed again later
+        }
         try {
             this.operatorValueContainer.getModel("sourceBandNames").setValue(getInitialBandNames());
         } catch (ValidationException e) {
-            // ignore
+            // ignore here, validation will be performed again later
         }
         bandListModel = new DefaultListModel();
         updateBandListModel();
