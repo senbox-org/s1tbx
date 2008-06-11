@@ -14,6 +14,7 @@
     
     <changelog>
         <![CDATA[<p>From 4.1 to 4.2:<br/>
+            [BEAM-770] gpt prints stack trace when invoked without sources<br/>
             [BEAM-786] gpt reports NullPointerException if -f<format> option is missing<br/>
             [BEAM-811] Graph should contain an application specific data section<br/>
             [BEAM-530] Explicit declaration of sources, targets and parameters in graph xml<br/>

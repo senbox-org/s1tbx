@@ -57,29 +57,31 @@ class CommandLineTool {
         this.commandLineContext = commandLineContext;
     }
 
-    void run(String[] args) throws Exception {
+    void run(String[] args) {
 
         CommandLineArgs lineArgs = new CommandLineArgs(args);
-
-        if (lineArgs.isHelpRequested()) {
-            if (lineArgs.getOperatorName() != null) {
-                commandLineContext.print(CommandLineUsage.getUsageTextForOperator(lineArgs.getOperatorName()));
-            } else if (lineArgs.getGraphFilepath() != null) {
-                commandLineContext.print(CommandLineUsage.getUsageTextForGraph(lineArgs.getGraphFilepath(),
-                        commandLineContext));
-            } else {
-                commandLineContext.print(CommandLineUsage.getUsageText());
-            }
-            return;
-        }
-
         try {
+            lineArgs.parseArguments();
+            lineArgs.validateArguments();
+            
+            if (lineArgs.isHelpRequested()) {
+                if (lineArgs.getOperatorName() != null) {
+                    commandLineContext.print(CommandLineUsage.getUsageTextForOperator(lineArgs.getOperatorName()));
+                } else if (lineArgs.getGraphFilepath() != null) {
+                    commandLineContext.print(CommandLineUsage.getUsageTextForGraph(lineArgs.getGraphFilepath(),
+                            commandLineContext));
+                } else {
+                    commandLineContext.print(CommandLineUsage.getUsageText());
+                }
+                return;
+            }
+        
             run(lineArgs);
         } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
             if (lineArgs.isStackTraceDump()) {
                 e.printStackTrace(System.err);
             }
-            throw e;
         }
     }
 

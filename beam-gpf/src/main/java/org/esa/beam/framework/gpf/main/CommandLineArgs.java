@@ -33,7 +33,7 @@ class CommandLineArgs {
     private static final int M = K * 1024;
     private static final int G = M * 1024;
 
-    public CommandLineArgs(String[] args) throws Exception {
+    public CommandLineArgs(String[] args) {
         this.args = args.clone();
         if (this.args.length == 0) {
             helpRequested = true;
@@ -44,7 +44,16 @@ class CommandLineArgs {
         targetFilepathMap = new TreeMap<String, String>();
         parameterMap = new TreeMap<String, String>();
         tileCacheCapacity = Math.max(512 * M, Runtime.getRuntime().maxMemory() / (2 * M));
-
+        
+        // look for "-e" early do enable verbose error reports 
+        for (int i = 0; i < this.args.length; i++) {
+            if (this.args[i].equals("-e")) {
+                stackTraceDump = true;
+            }
+        }
+    }
+    
+    public void parseArguments() throws Exception {
         int argCount = 0;
         for (int i = 0; i < this.args.length; i++) {
             String arg = this.args[i];
@@ -61,7 +70,7 @@ class CommandLineArgs {
                 } else if (arg.equals("-h")) {
                     helpRequested = true;
                 } else if (arg.equals("-e")) {
-                    stackTraceDump = true;
+                    // already parsed
                 } else if (arg.equals("-t")) {
                     targetFilepath = parseOptionArgument(arg, i);
                     i++;
@@ -99,6 +108,9 @@ class CommandLineArgs {
                 argCount++;
             }
         }
+    }
+    
+    public void validateArguments() throws Exception {
         if (operatorName == null && graphFilepath == null && !helpRequested) {
             throw error("Either operator name or graph XML file must be given");
         }
