@@ -12,6 +12,7 @@
     <changelog>
         <![CDATA[
         Changes in 4.2<br/>
+        [BEAM-826] Support for user defined layout<br/>
         [BEAM-825] Use JFreeChart for plots in staistic dialogs<br/>
         [BEAM-812] Closing product causes Exception in ScatterPlot<br/>
         [BEAM-810] Provide VISAT application framework<br/>
@@ -1402,6 +1403,41 @@
             <context>image</context>
             <helpId>drawPolygonTool</helpId>
         </action>
+
+        <action>
+            <id>layout</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <parent>view</parent>
+            <placeAfter>showToolViews</placeAfter>
+            <text>Layout</text>
+            <mnemonic>L</mnemonic>
+            <shortDescr>Load or save layout.</shortDescr>
+        </action>
+        <action>
+            <id>loadUserLayout</id>
+            <class>org.esa.beam.visat.actions.layout.LoadUserLayoutAction</class>
+            <parent>layout</parent>
+            <text>Load User Layout</text>
+            <shortDescr>Load the user layout.</shortDescr>
+        </action>
+        <action>
+            <id>saveAsUserLayout</id>
+            <class>org.esa.beam.visat.actions.layout.SaveAsUserLayoutAction</class>
+            <parent>layout</parent>
+            <placeAfter>loadUserLayout</placeAfter>
+            <text>Save as User Layout</text>
+            <shortDescr>Save as user layout.</shortDescr>
+            <longDescr>Save the current layout as user layout.</longDescr>
+        </action>
+        <action>
+            <id>resetLayout</id>
+            <class>org.esa.beam.visat.actions.layout.ResetLayoutAction</class>
+            <parent>layout</parent>
+            <placeAfter>saveAsUserLayout</placeAfter>
+            <text>Reset to Default Layout</text>
+            <shortDescr>Reset to initial layout.</shortDescr>
+        </action>
+
 <!--
         <action>
             <id>magicStickTool</id>
