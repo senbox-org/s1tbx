@@ -25,6 +25,7 @@ import org.esa.beam.framework.gpf.operators.common.WriteOp;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.ui.ModalDialog;
+import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.util.SystemUtils;
 
 import java.io.File;
@@ -40,7 +41,7 @@ import javax.swing.JOptionPane;
  * @author Marco Peters
  * @version $Revision$ $Date$
  */
-public abstract class SingleTargetProductDialog extends ModalDialog {
+public abstract class SingleTargetProductDialog extends ModelessDialog {
 
     private TargetProductSelector targetProductSelector;
     private AppContext appContext;
@@ -68,7 +69,7 @@ public abstract class SingleTargetProductDialog extends ModalDialog {
     }
 
     @Override
-    protected void onOK() {
+    protected void onApply() {
         final String productName = targetProductSelector.getModel().getProductName();
         if (productName == null || productName.isEmpty()) {
             showErrorDialog("Please specify a target product name.");
@@ -106,10 +107,9 @@ public abstract class SingleTargetProductDialog extends ModalDialog {
             final ProgressMonitorSwingWorker worker = new ProductWriterSwingWorker(targetProduct);
             worker.executeWithBlocking();
         } else if (targetProductSelector.getModel().isOpenInAppSelected()) {
+            // todo - check for existance
             appContext.addProduct(targetProduct);
         }
-
-        hide();
     }
 
     private class ProductWriterSwingWorker extends ProgressMonitorSwingWorker<Product, Object> {
