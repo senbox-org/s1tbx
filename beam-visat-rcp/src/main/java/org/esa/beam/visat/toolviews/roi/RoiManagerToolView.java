@@ -159,11 +159,6 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
             product.addProductNodeListener(roiDefinitionPNL);
         }
 
-        /**
-         * This listener is required to add or remove the roiDefinitionPNL above when new products are opened or closed.
-         */
-//        VisatApp.getApp().addProductTreeListener(new ROIDefinitionPTL());
-
         paramGroup.addParamChangeListener(new ParamChangeListener() {
             public void parameterValueChanged(ParamChangeEvent event) {
                 updateUIState();
@@ -1184,28 +1179,4 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
             }
         }
     }
-
-
-//    private class ROIDefinitionPTL implements ProductTreeListener {
-//
-//        public void productAdded(Product product) {
-//            product.addProductNodeListener(roiDefinitionPNL);
-//        }
-//
-//        public void productRemoved(Product product) {
-//            product.removeProductNodeListener(roiDefinitionPNL);
-//        }
-//
-//        public void productSelected(Product product, int clickCount) {
-//        }
-//
-//        public void metadataElementSelected(MetadataElement group, int clickCount) {
-//        }
-//
-//        public void tiePointGridSelected(TiePointGrid tiePointGrid, int clickCount) {
-//        }
-//
-//        public void bandSelected(Band band, int clickCount) {
-//        }
-//    }
 }
