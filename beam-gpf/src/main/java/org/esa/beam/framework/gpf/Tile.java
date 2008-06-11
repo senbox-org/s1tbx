@@ -431,7 +431,8 @@ public interface Tile extends Iterable<Tile.Pos> {
 
     /**
      * Gets an iterator which can be used to visit all pixels in the tile.
-     * Using the iterator in a single loop
+     * The method allows this tile to be the target of the Java "foreach" statement.
+     * Using the tile as an iterator in a single loop
      * <pre>
      * for (Tile.Pos pos: tile) {
      *    int x = pos.x;
