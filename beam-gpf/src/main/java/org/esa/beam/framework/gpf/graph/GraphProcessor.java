@@ -212,8 +212,8 @@ public class GraphProcessor {
             for (NodeSource source : node.getSources()) {
                 Node sourceNode = graph.getNode(source.getSourceNodeId());
                 if (sourceNode == null) {
-                    throw new GraphException("Missing source. Node Id: " + node.getId()
-                            + " Source Id: " + source.getSourceNodeId());
+                    throw new GraphException("Missing source. Node Id: '" + node.getId()
+                            + "' Source Id: '" + source.getSourceNodeId()+"'");
                 }
                 graphContext.getNodeContext(sourceNode).incrementReferenceCount();
                 source.setSourceNode(sourceNode);  // todo - use getNodeContext()

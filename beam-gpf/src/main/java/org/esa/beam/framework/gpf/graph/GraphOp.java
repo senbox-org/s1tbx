@@ -36,9 +36,9 @@ public class GraphOp extends Operator {
                 if (sourceNode == null
                         && !isSourceNodeIdInHeader(sourceNodeId, graph
                                 .getHeader().getSources())) {
-                    throw new GraphException("Missing source. Node Id: "
-                            + node.getId() + " Source Id: "
-                            + source.getSourceNodeId());
+                    throw new GraphException("Missing source. Node Id: '"
+                            + node.getId() + "' Source Id: '"
+                            + source.getSourceNodeId()+"'");
                 }
                 if (sourceNode != null) {
                     graphContext.getNodeContext(sourceNode)
