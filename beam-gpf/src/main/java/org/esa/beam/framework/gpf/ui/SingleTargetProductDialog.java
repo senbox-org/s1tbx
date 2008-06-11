@@ -22,10 +22,10 @@ import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.operators.common.WriteOp;
-import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.ModelessDialog;
+import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.util.SystemUtils;
 
 import java.io.File;
@@ -108,9 +108,11 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
             worker.executeWithBlocking();
         } else if (targetProductSelector.getModel().isOpenInAppSelected()) {
             // todo - check for existance
-            appContext.addProduct(targetProduct);
+            appContext.getProductManager().addProduct(targetProduct);
         }
     }
+
+
 
     private class ProductWriterSwingWorker extends ProgressMonitorSwingWorker<Product, Object> {
         private final Product targetProduct;
@@ -151,7 +153,7 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
             try {
                 final Product targetProduct = get();
                 if (model.isOpenInAppSelected()) {
-                    appContext.addProduct(targetProduct);
+                    appContext.getProductManager().addProduct(targetProduct);
                 }
             } catch (InterruptedException e) {
                 // ignore

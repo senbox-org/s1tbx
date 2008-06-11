@@ -1,8 +1,8 @@
 package org.esa.beam.unmixing.ui;
 
-import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.diagram.DiagramCanvas;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
+import org.esa.beam.framework.ui.AppContext;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;

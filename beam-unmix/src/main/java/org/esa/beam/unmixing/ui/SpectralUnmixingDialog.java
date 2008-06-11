@@ -21,16 +21,15 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.ui.SingleTargetProductDialog;
+import org.esa.beam.framework.gpf.ui.DefaultAppContext;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.unmixing.Endmember;
 import org.esa.beam.unmixing.SpectralUnmixingOp;
-import org.esa.beam.util.PropertyMap;
 
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import java.awt.Window;
 import java.util.Map;
 
 
@@ -125,37 +124,10 @@ public class SpectralUnmixingDialog extends SingleTargetProductDialog {
         }
         inputProduct.addBand("l1_flags", ProductData.TYPE_UINT32);
 
-        SpectralUnmixingDialog dialog = new SpectralUnmixingDialog(new AppContext() {
-            private PropertyMap preferences = new PropertyMap();
-
-            public void addProduct(Product product) {
-                System.out.println("product added: " + product);
-            }
-
-            public Product[] getProducts() {
-                return new Product[]{inputProduct};
-            }
-
-            public Product getSelectedProduct() {
-                return inputProduct;
-            }
-
-            public Window getApplicationWindow() {
-                return null;
-            }
-
-            public String getApplicationName() {
-                return "Killer App";
-            }
-
-            public void handleError(Throwable e) {
-                JOptionPane.showMessageDialog(getApplicationWindow(), e.getMessage());
-            }
-
-            public PropertyMap getPreferences() {
-                return preferences;
-            }
-        });
+        DefaultAppContext context = new DefaultAppContext("Killer App");
+        context.getProductManager().addProduct(inputProduct);
+        context.setSelectedProduct(inputProduct);
+        SpectralUnmixingDialog dialog = new SpectralUnmixingDialog(context);
         dialog.getJDialog().setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.show();
     }

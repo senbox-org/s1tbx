@@ -4,11 +4,11 @@ import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.ui.TableLayout;
-import org.esa.beam.framework.ui.application.SelectionChangeListener;
+import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.application.SelectionChangeEvent;
+import org.esa.beam.framework.ui.application.SelectionChangeListener;
 import org.esa.beam.framework.ui.application.support.DefaultSelection;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
@@ -25,14 +25,15 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
 
 /**
  * WARNING: This class belongs to a preliminary API and may change in future releases.
  * todo - add capability to select/add/remove multiple soures (nf - 27.11.2007)
  * todo - add capability to specify optional sources
+ *
  * @author Ralf Quast
  * @version $Revision$ $Date$
  */
@@ -94,7 +95,7 @@ public class SourceProductSelector {
     }
 
     /**
-     * @param  productFilter the product filter
+     * @param productFilter the product filter
      */
     public void setProductFilter(ProductFilter productFilter) {
         this.productFilter = productFilter;
@@ -102,8 +103,8 @@ public class SourceProductSelector {
 
     public void initProducts() {
         productListModel.removeAllElements();
-        for (Product product : appContext.getProducts()) {
-            if(productFilter.accept(product)) {
+        for (Product product : appContext.getProductManager().getProducts()) {
+            if (productFilter.accept(product)) {
                 productListModel.addElement(product);
             }
         }
@@ -252,7 +253,7 @@ public class SourceProductSelector {
                         throw new IOException(MessageFormat.format("File ''{0}'' could not be read.", file.getPath()));
                     }
 
-                    if(productFilter.accept(product)) {
+                    if (productFilter.accept(product)) {
                         setSelectedProduct(product);
                     } else {
                         final String message = String.format("Product [%s] is not a valid source.",
@@ -301,18 +302,19 @@ public class SourceProductSelector {
             return cellRendererComponent;
         }
     }
-    
+
     /**
      * To let the popup menu be wider than the closed combobox.
      * Adapted an idea from http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6257236
      */
-    private static class ProductPopupMenuListener  implements PopupMenuListener {
-        
+    private static class ProductPopupMenuListener implements PopupMenuListener {
+
         public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
             JComboBox box = (JComboBox) e.getSource();
             Object comp = box.getUI().getAccessibleChild(box, 0);
-            if (!(comp instanceof JPopupMenu))
+            if (!(comp instanceof JPopupMenu)) {
                 return;
+            }
             JComponent scrollPane = (JComponent) ((JPopupMenu) comp)
                     .getComponent(0);
             Dimension size = new Dimension();

@@ -46,6 +46,7 @@ public class BeamFileChooser extends JFileChooser {
     private ResizeHandler _resizeHandler;
 
     public BeamFileChooser() {
+        super();
         init();
     }
 

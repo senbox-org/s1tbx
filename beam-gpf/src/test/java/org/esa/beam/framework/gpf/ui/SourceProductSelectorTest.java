@@ -3,10 +3,7 @@ package org.esa.beam.framework.gpf.ui;
 import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.util.PropertyMap;
 
-import javax.swing.JOptionPane;
-import java.awt.Window;
 import java.io.File;
 
 /**
@@ -16,17 +13,18 @@ import java.io.File;
 public class SourceProductSelectorTest extends TestCase {
 
     private Product[] defaultProducts;
-    private AppContext appContext;
+    private DefaultAppContext appContext;
 
 
     @Override
     protected void setUp() throws Exception {
+        appContext = new DefaultAppContext("Fart, fart!");
         defaultProducts = new Product[4];
         for (int i = 0; i < defaultProducts.length; i++) {
             defaultProducts[i] = new Product("P" + i, "T" + i, 10, 10);
+            appContext.getProductManager().addProduct(defaultProducts[i]);
         }
-        appContext = new MockAppContext();
-
+        appContext.setSelectedProduct(defaultProducts[0]);
     }
 
     public void testCreatedUIComponentsNotNull() {
@@ -111,35 +109,4 @@ public class SourceProductSelectorTest extends TestCase {
         assertSame(defaultProducts[2], selector.getSelectedProduct());
     }
 
-    private class MockAppContext implements AppContext {
-        private PropertyMap preferences = new PropertyMap();
-
-        public void addProduct(Product product) {
-            System.out.println("product added: " + product);
-        }
-
-        public Product[] getProducts() {
-            return defaultProducts;
-        }
-
-        public Product getSelectedProduct() {
-            return defaultProducts[0];
-        }
-
-        public Window getApplicationWindow() {
-            return null;
-        }
-
-        public String getApplicationName() {
-            return "Killer App";
-        }
-
-        public void handleError(Throwable e) {
-            JOptionPane.showMessageDialog(getApplicationWindow(), e.getMessage());
-        }
-
-        public PropertyMap getPreferences() {
-            return preferences;
-        }
-    }
 }

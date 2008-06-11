@@ -1,11 +1,11 @@
 package org.esa.beam.unmixing.ui;
 
-import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.diagram.DefaultDiagramGraphStyle;
 import org.esa.beam.framework.ui.diagram.Diagram;
 import org.esa.beam.framework.ui.diagram.DiagramAxis;
 import org.esa.beam.framework.ui.diagram.DiagramGraph;
 import org.esa.beam.framework.ui.diagram.DiagramGraphIO;
+import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.unmixing.Endmember;
 import org.esa.beam.unmixing.SpectralUnmixingOp;
 import org.esa.beam.util.PropertyMap;

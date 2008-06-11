@@ -17,6 +17,7 @@
 package org.esa.beam.visat.actions;
 
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductManager;
 import org.esa.beam.framework.ui.AppCommand;
 import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.util.PropertyMap;
@@ -46,8 +47,8 @@ public abstract class AbstractVisatAction extends AppCommand {
             this.toolTitle = toolTitle;
         }
 
-        public Product[] getProducts() {
-            return VisatApp.getApp().getProductManager().getProducts();
+        public ProductManager getProductManager() {
+            return VisatApp.getApp().getProductManager();
         }
 
         public Product getSelectedProduct() {
@@ -60,10 +61,6 @@ public abstract class AbstractVisatAction extends AppCommand {
 
         public String getApplicationName() {
             return VisatApp.getApp().getAppName();
-        }
-
-        public void addProduct(Product product) {
-            VisatApp.getApp().addProduct(product);
         }
 
         public void handleError(Throwable e) {

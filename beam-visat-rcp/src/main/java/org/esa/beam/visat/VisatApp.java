@@ -318,8 +318,17 @@ public class VisatApp extends BasicApp {
 
             internalFrameListeners = new ArrayList<InternalFrameListener>(10);
             propertyMapChangeListeners = new ArrayList<PropertyMapChangeListener>(4);
-            productManager = new ProductManager();
             productNodeListener = createProductNodeListener();
+            productManager = new ProductManager();
+            productManager.addListener(new ProductManager.Listener() {
+                public void productAdded(ProductManager.Event event) {
+                      event.getProduct().addProductNodeListener(productNodeListener);
+                }
+
+                public void productRemoved(ProductManager.Event event) {
+                    event.getProduct().removeProductNodeListener(productNodeListener);
+                }
+            });
 
             getMainFrame().getDockingManager().setHideFloatingFramesOnSwitchOutOfApplication(true);
             getMainFrame().getDockingManager().setHideFloatingFramesWhenDeactivate(false);
@@ -576,7 +585,6 @@ public class VisatApp extends BasicApp {
      */
     public void addProduct(final Product product) {
         getProductManager().addProduct(product);
-        product.addProductNodeListener(productNodeListener);
     }
 
     /**
@@ -586,7 +594,6 @@ public class VisatApp extends BasicApp {
      */
     public void removeProduct(final Product product) {
         getProductManager().removeProduct(product);
-        product.removeProductNodeListener(productNodeListener);
     }
 
     /**

@@ -165,7 +165,7 @@ public abstract class AbstractDialog {
     }
 
     /**
-     * Shows the dialog.
+     * Shows the dialog. Overrides shall call {@code super.show()} at the end.
      * @return the identifier of the last button pressed or zero if this is a modeless dialog.
      */
     public int show() {
@@ -180,7 +180,7 @@ public abstract class AbstractDialog {
     }
 
     /**
-     * Hides the dialog. This method does nothing else than hiding the underlying Swing dialog.
+     * Hides the dialog. Overrides shall call {@code super.hide()} at the end. This method does nothing else than hiding the underlying Swing dialog.
      * @see #getJDialog() 
      */
     public void hide() {

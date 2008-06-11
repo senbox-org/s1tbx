@@ -9,8 +9,8 @@ import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.TableLayout;
+import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.application.SelectionChangeListener;
 import org.esa.beam.framework.ui.application.SelectionChangeEvent;
 

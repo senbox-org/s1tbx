@@ -45,17 +45,34 @@ public class ProductManager {
     }
 
     /**
-     * @return The number of products in this product manager.
+     * @deprecated Since BEAM 4.2 use {@link #getProductCount()} instead.
      */
+    @Deprecated
     public int getNumProducts() {
         return products.size();
     }
 
     /**
+     * @return The number of products in this product manager.
+     */
+    public int getProductCount() {
+        return products.size();
+    }
+
+    /**
+     * @deprecated Since BEAM 4.2 use {@link #getProduct(int)} instead.
+     */
+    @Deprecated
+    public Product getProductAt(int index) {
+        return products.getAt(index);
+    }
+
+    /**
+     * Gets the product at the given index.
      * @param index the index
      * @return The product at the given index.
      */
-    public Product getProductAt(int index) {
+    public Product getProduct(int index) {
         return products.getAt(index);
     }
 
@@ -257,6 +274,7 @@ public class ProductManager {
      * @param listener The listener.
      * @deprecated use #removeListener
      */
+    @Deprecated
     public void removeProductListener(Listener listener) {
         removeListener(listener);
     }
