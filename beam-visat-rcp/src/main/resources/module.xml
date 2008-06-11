@@ -11,39 +11,40 @@
 
     <changelog>
         <![CDATA[
-        Changes in 4.2<br>
-        [BEAM-812] Closing product causes Exception in ScatterPlot<br>
-        [BEAM-810] Provide VISAT application framework<br>
-        [BEAM-797] Colour manipulation for index and non-index bands<br>
-        [BEAM-787] C-Function code for x approximation is printed twice<br>
-        [BEAM-735] Not able to orthorectify MERIS_FRS products<br>
-        [BEAM-734] VISAT tile cache capacity cannot be changed<br>
-        [BEAM-730] Export of pixel data shall include auxdata<br>
-        [BEAM-728] Map-projection dialog shall allow for tie-point grid inclusion<br>
-        [BEAM-726] Memory not fully released after closing a product<br>
-        [BEAM-718] Show all product formats in reopen menu<br>
-        [BEAM-716] Module repository location from preferences overwrites location from beam.config<br>
-        [BEAM-710] Not able to copy a product using new product dialog<br>
-        [BEAM-709] Open dialog should use 'All Files' as default filter<br>
-
-        <br>Changes in 4.1<br>
-        [BEAM-482] Pins shall not be selected by default<br>
-        [BEAM-603] Select multiple pins<br>
-        [BEAM-613] Product not shown in product tree view<br>
-        [BEAM-632] Make pins available for all product types<br>
-        [BEAM-633] Ask before removing pins<br>
-        [BEAM-634] Make pin size independent of zoom factor<br>
-        [BEAM-636] Make pin labels nicer<br>
-        [BEAM-660] Speedup image creation process<br>
-        [BEAM-671] Pin pixel coordinates should be floating point numbers<br>
-        [BEAM-672] Include spectral unmixing tool<br>
-        [BEAM-673] Allow for multiple spectra in spectrum view<br>
-        [BEAM-677] Support for ground control points (GCPs)<br>
-        [BEAM-678] Change pin location by dragging<br>
-        [BEAM-684] Pixel-info view functions only if initially visible<br>
-        [BEAM-696] Placemarks should be copied to output product<br>
-        [BEAM-698] Sortable table of pins and GCPs<br>
-        [BEAM-699] Editable cells of pin and GCP tables<br>
+        Changes in 4.2<br/>
+        [BEAM-825] Use JFreeChart for plots in staistic dialogs<br/>
+        [BEAM-812] Closing product causes Exception in ScatterPlot<br/>
+        [BEAM-810] Provide VISAT application framework<br/>
+        [BEAM-797] Colour manipulation for index and non-index bands<br/>
+        [BEAM-787] C-Function code for x approximation is printed twice<br/>
+        [BEAM-735] Not able to orthorectify MERIS_FRS products<br/>
+        [BEAM-734] VISAT tile cache capacity cannot be changed<br/>
+        [BEAM-730] Export of pixel data shall include auxdata<br/>
+        [BEAM-728] Map-projection dialog shall allow for tie-point grid inclusion<br/>
+        [BEAM-726] Memory not fully released after closing a product<br/>
+        [BEAM-718] Show all product formats in reopen menu<br/>
+        [BEAM-716] Module repository location from preferences overwrites location from beam.config<br/>
+        [BEAM-710] Not able to copy a product using new product dialog<br/>
+        [BEAM-709] Open dialog should use 'All Files' as default filter<br/>
+        [BEAM-693] ROI not visible if converted from shapey<br/>
+        <br/>Changes in 4.1<br/>
+        [BEAM-482] Pins shall not be selected by default<br/>
+        [BEAM-603] Select multiple pins<br/>
+        [BEAM-613] Product not shown in product tree view<br/>
+        [BEAM-632] Make pins available for all product types<br/>
+        [BEAM-633] Ask before removing pins<br/>
+        [BEAM-634] Make pin size independent of zoom factor<br/>
+        [BEAM-636] Make pin labels nicer<br/>
+        [BEAM-660] Speedup image creation process<br/>
+        [BEAM-671] Pin pixel coordinates should be floating point numbers<br/>
+        [BEAM-672] Include spectral unmixing tool<br/>
+        [BEAM-673] Allow for multiple spectra in spectrum view<br/>
+        [BEAM-677] Support for ground control points (GCPs)<br/>
+        [BEAM-678] Change pin location by dragging<br/>
+        [BEAM-684] Pixel-info view functions only if initially visible<br/>
+        [BEAM-696] Placemarks should be copied to output product<br/>
+        [BEAM-698] Sortable table of pins and GCPs<br/>
+        [BEAM-699] Editable cells of pin and GCP tables<br/>
         ]]>
     </changelog>
 
