@@ -108,7 +108,7 @@ public class CommandLineToolOperatorTest extends TestCase {
 
         });
         try {
-            tool.run(new String[]{"Op3", "-Sinput1=vercingetorix.dim", "-Sinput2=asterix.N1"});
+            tool.run(new String[]{"Op3", "-Sinput1=vercingetorix.dim", "-Sinput2=asterix.N1", "-e"});
             fail("Exception expected for reason: " + "No reader found");
         } catch (Exception e) {
             // expected

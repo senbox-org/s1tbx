@@ -57,12 +57,11 @@ class CommandLineTool {
         this.commandLineContext = commandLineContext;
     }
 
-    void run(String[] args) {
+    void run(String[] args) throws Exception {
 
         CommandLineArgs lineArgs = new CommandLineArgs(args);
         try {
             lineArgs.parseArguments();
-            lineArgs.validateArguments();
             
             if (lineArgs.isHelpRequested()) {
                 if (lineArgs.getOperatorName() != null) {
@@ -78,10 +77,10 @@ class CommandLineTool {
         
             run(lineArgs);
         } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
             if (lineArgs.isStackTraceDump()) {
                 e.printStackTrace(System.err);
             }
+            throw e;
         }
     }
 

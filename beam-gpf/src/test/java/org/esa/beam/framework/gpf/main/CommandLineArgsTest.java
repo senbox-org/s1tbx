@@ -29,11 +29,13 @@ public class CommandLineArgsTest extends TestCase {
 
     public void testNoArgsRequestsHelp() throws Exception {
         CommandLineArgs lineArgs = new CommandLineArgs(new String[]{});
+        lineArgs.parseArguments();
         assertEquals(true, lineArgs.isHelpRequested());
     }
 
     public void testHelpOption() throws Exception {
         CommandLineArgs lineArgs = new CommandLineArgs(new String[]{"MapProj", "-h"});
+        lineArgs.parseArguments();
         assertEquals(true, lineArgs.isHelpRequested());
         assertEquals("MapProj", lineArgs.getOperatorName());
         assertEquals(null, lineArgs.getGraphFilepath());
@@ -46,6 +48,7 @@ public class CommandLineArgsTest extends TestCase {
 
     public void testOpOnly() throws Exception {
         CommandLineArgs lineArgs = new CommandLineArgs(new String[]{"MapProj"});
+        lineArgs.parseArguments();
         assertEquals(false, lineArgs.isHelpRequested());
         assertEquals("MapProj", lineArgs.getOperatorName());
         assertEquals(null, lineArgs.getGraphFilepath());
@@ -58,6 +61,7 @@ public class CommandLineArgsTest extends TestCase {
 
     public void testOpWithSource() throws Exception {
         CommandLineArgs lineArgs = new CommandLineArgs(new String[]{"MapProj", "source.dim"});
+        lineArgs.parseArguments();
         assertEquals("MapProj", lineArgs.getOperatorName());
         assertEquals(null, lineArgs.getGraphFilepath());
         assertEquals(CommandLineTool.DEFAULT_TARGET_FILEPATH, lineArgs.getTargetFilepath());
@@ -71,6 +75,7 @@ public class CommandLineArgsTest extends TestCase {
 
     public void testOpWithTargetAndSource() throws Exception {
         CommandLineArgs lineArgs = new CommandLineArgs(new String[]{"MapProj", "-t", "output.dim", "source.dim"});
+        lineArgs.parseArguments();
         assertEquals("MapProj", lineArgs.getOperatorName());
         assertEquals(null, lineArgs.getGraphFilepath());
         assertEquals("output.dim", lineArgs.getTargetFilepath());
@@ -84,6 +89,7 @@ public class CommandLineArgsTest extends TestCase {
 
     public void testMinimumGraph() throws Exception {
         CommandLineArgs lineArgs = new CommandLineArgs(new String[]{"./map-proj.xml", "source.dim"});
+        lineArgs.parseArguments();
         assertEquals(null, lineArgs.getOperatorName());
         assertEquals("./map-proj.xml", lineArgs.getGraphFilepath());
         assertEquals(CommandLineTool.DEFAULT_TARGET_FILEPATH, lineArgs.getTargetFilepath());
@@ -96,6 +102,8 @@ public class CommandLineArgsTest extends TestCase {
 
     public void testGraphOnly() throws Exception {
         CommandLineArgs lineArgs = new CommandLineArgs(new String[]{"./map-proj.xml"});
+        lineArgs.parseArguments();
+        lineArgs.parseArguments();
         assertEquals(null, lineArgs.getOperatorName());
         assertEquals("./map-proj.xml", lineArgs.getGraphFilepath());
         assertEquals(CommandLineTool.DEFAULT_TARGET_FILEPATH, lineArgs.getTargetFilepath());
@@ -106,18 +114,23 @@ public class CommandLineArgsTest extends TestCase {
 
     public void testFormatDetection() throws Exception {
         CommandLineArgs lineArgs = new CommandLineArgs(new String[]{"MapProj", "-t", "target.dim", "source.dim"});
+        lineArgs.parseArguments();
         assertEquals(CommandLineTool.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
         lineArgs = new CommandLineArgs(new String[]{"MapProj", "source.dim"});
+        lineArgs.parseArguments();
         assertEquals(CommandLineTool.DEFAULT_FORMAT_NAME, lineArgs.getTargetFormatName());
     }
 
     public void testFormatOption() throws Exception {
         CommandLineArgs lineArgs;
         lineArgs = new CommandLineArgs(new String[]{"MapProj", "-t", "target.h5", "-f", "HDF-5", "source.dim"});
+        lineArgs.parseArguments();
         assertEquals("HDF-5", lineArgs.getTargetFormatName());
         lineArgs = new CommandLineArgs(new String[]{"MapProj", "-f", "GeoTIFF", "-t", "target.tif", "source.dim"});
+        lineArgs.parseArguments();
         assertEquals("GeoTIFF", lineArgs.getTargetFormatName());
         lineArgs = new CommandLineArgs(new String[]{"MapProj", "-f", "BEAM-DIMAP", "-t", "target.dim", "source.dim"});
+        lineArgs.parseArguments();
         assertEquals("BEAM-DIMAP", lineArgs.getTargetFormatName());
     }
 
@@ -131,6 +144,7 @@ public class CommandLineArgsTest extends TestCase {
                 "-PpixelOffsetY=1.0",
                 "source.dim",
         });
+        lineArgs.parseArguments();
         SortedMap<String, String> parameterMap = lineArgs.getParameterMap();
         assertEquals("0.02", parameterMap.get("pixelSizeX"));
         assertEquals("0.03", parameterMap.get("pixelSizeY"));
@@ -145,6 +159,7 @@ public class CommandLineArgsTest extends TestCase {
                 "-p",
                 "param.properties",
         });
+        lineArgs.parseArguments();
         assertEquals("param.properties", lineArgs.getParameterFilepath());
     }
 
@@ -157,6 +172,7 @@ public class CommandLineArgsTest extends TestCase {
                 "MapProj",
                 "source.dim",
         });
+        lineArgs.parseArguments();
         assertEquals(Math.max(512 * M, maxMem / (2 * M)), lineArgs.getTileCacheCapacity());
 
         // test some valid value
@@ -166,6 +182,7 @@ public class CommandLineArgsTest extends TestCase {
                 "-c",
                 "16M",
         });
+        lineArgs.parseArguments();
         assertEquals(16 * M, lineArgs.getTileCacheCapacity());
 
         // test some valid value
@@ -175,6 +192,7 @@ public class CommandLineArgsTest extends TestCase {
                 "-c",
                 "16000K",
         });
+        lineArgs.parseArguments();
         assertEquals(16000 * K, lineArgs.getTileCacheCapacity());
 
         // test some valid value
@@ -184,6 +202,7 @@ public class CommandLineArgsTest extends TestCase {
                 "-c",
                 "16000000",
         });
+        lineArgs.parseArguments();
         assertEquals(16000000, lineArgs.getTileCacheCapacity());
 
         // test 100% is within range
@@ -193,28 +212,31 @@ public class CommandLineArgsTest extends TestCase {
                 "-c",
                 (maxMem / M) + "",
         });
+        lineArgs.parseArguments();
         assertEquals(maxMem / M, lineArgs.getTileCacheCapacity());
 
         // test min value
         try {
-            new CommandLineArgs(new String[]{
+            CommandLineArgs commandLineArgs = new CommandLineArgs(new String[]{
                     "MapProj",
                     "source.dim",
                     "-c",
                     "0",
             });
+            commandLineArgs.parseArguments();
             fail("Exception expected (interval?)");
         } catch (Exception e) {
         }
 
         // test max value exceeded
         try {
-            new CommandLineArgs(new String[]{
+            CommandLineArgs commandLineArgs = new CommandLineArgs(new String[]{
                     "MapProj",
                     "source.dim",
                     "-c",
                     (maxMem / M + 1) + "M",
             });
+            commandLineArgs.parseArguments();
             fail("Exception expected, (interval?)");
         } catch (Exception e) {
         }
@@ -227,6 +249,7 @@ public class CommandLineArgsTest extends TestCase {
                 "-Tsnow=./out/snowMask.dim",
                 "source.dim",
         });
+        lineArgs.parseArguments();
         SortedMap<String, String> targetMap = lineArgs.getTargetFilepathMap();
         assertNotNull(targetMap);
         assertEquals(2, targetMap.size());
@@ -247,6 +270,7 @@ public class CommandLineArgsTest extends TestCase {
                 "-Pthreshold=5.0",
                 "source.dim",
         });
+        lineArgs.parseArguments();
         SortedMap<String, String> sourceMap = lineArgs.getSourceFilepathMap();
         assertNotNull(sourceMap);
         assertEquals("./inp/NDVI.dim", sourceMap.get("ndviProduct"));
@@ -316,7 +340,8 @@ public class CommandLineArgsTest extends TestCase {
 
     private void testFailure(String[] args, String reason) {
         try {
-            new CommandLineArgs(args);
+            CommandLineArgs commandLineArgs = new CommandLineArgs(args);
+            commandLineArgs.parseArguments();
             fail("Exception expected for reason: " + reason);
         } catch (Exception e) {
             // ok

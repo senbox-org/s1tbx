@@ -9,9 +9,13 @@ import org.esa.beam.util.logging.BeamLogManager;
  */
 public class Main {
 
-    public static void main(String[] args) {
-        BeamLogManager.removeRootLoggerHandlers(); 
-        new CommandLineTool().run(args);
+    public static void main(String[] args) throws Exception {
+        try {
+            BeamLogManager.removeRootLoggerHandlers(); 
+            new CommandLineTool().run(args);
+        } catch (Exception e) {
+            System.err.println("\nError: " + e.getMessage());
+        }
     }
 
 }

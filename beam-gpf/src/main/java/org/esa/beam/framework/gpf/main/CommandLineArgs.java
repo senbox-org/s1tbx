@@ -37,7 +37,6 @@ class CommandLineArgs {
         this.args = args.clone();
         if (this.args.length == 0) {
             helpRequested = true;
-            return;
         }
 
         sourceFilepathMap = new TreeMap<String, String>();
@@ -108,9 +107,7 @@ class CommandLineArgs {
                 argCount++;
             }
         }
-    }
-    
-    public void validateArguments() throws Exception {
+   
         if (operatorName == null && graphFilepath == null && !helpRequested) {
             throw error("Either operator name or graph XML file must be given");
         }
