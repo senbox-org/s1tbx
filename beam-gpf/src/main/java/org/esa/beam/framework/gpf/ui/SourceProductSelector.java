@@ -94,7 +94,11 @@ public class SourceProductSelector {
             }
 
             public void productRemoved(ProductManager.Event event) {
-                removeProduct(event.getProduct());
+                Product product = event.getProduct();
+                if (productListModel.getSelectedItem() == product) {
+                    productListModel.setSelectedItem(null);
+                    productListModel.removeElement(product);
+                }
             }
         };
     }
