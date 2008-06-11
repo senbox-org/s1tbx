@@ -328,11 +328,6 @@
                 <artifactId>jcommon</artifactId>
                 <version>1.0.12</version>
             </dependency>
-            <dependency>
-                <groupId>com.lowagie</groupId>
-                <artifactId>itext</artifactId>
-                <version>2.1.2</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
