@@ -16,33 +16,20 @@
  */
 package org.esa.beam.framework.ui;
 
-import org.esa.beam.framework.help.HelpSys;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.logging.BeamLogManager;
-
-import javax.help.BadIDException;
-import javax.help.DefaultHelpBroker;
-import javax.help.HelpBroker;
-import javax.help.HelpSet;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.*;
-import java.util.logging.Logger;
+import javax.swing.JDialog;
+import java.awt.Dialog;
+import java.awt.Window;
 
 /**
- * A modeless dialog providing an "Apply" and "Close" button.
- * 
+ * <p>A helper class used to implement standard modeless dialogs.</p>
+ * <p>The dialog can be used directly (which doesn't make much sense) or the class is used as base class in
+ * order to override the methods {@link #onApply()}, {@link #onClose()} etc. which are called if a user
+ * presses the corresponding button.<p/>
+ *
  * @author Norman Fomferra
- * @version $Revision: 1.3 $  $Date: 2007/04/18 13:01:13 $
+ * @since BEAM 4.2
  */
 public class ModelessDialog extends AbstractDialog {
-
-    public static final int ID_APPLY = 0x0001;
-    public static final int ID_CLOSE = 0x0008;
 
     public static final int ID_APPLY_CLOSE = ID_APPLY | ID_CLOSE;
     public static final int ID_APPLY_CLOSE_HELP = ID_APPLY_CLOSE | ID_HELP;
@@ -56,7 +43,7 @@ public class ModelessDialog extends AbstractDialog {
     }
 
     public ModelessDialog(Window parent, String title, Object content, int buttonMask, Object[] otherButtons,
-                       String helpID) {
+                          String helpID) {
         this(parent, title, buttonMask, otherButtons, helpID);
         setContent(content);
     }
@@ -75,59 +62,4 @@ public class ModelessDialog extends AbstractDialog {
         setButtonID(ID_CLOSE);
         onClose();
     }
-
-    /**
-     * Called if the "Apply" button has been clicked.
-     * The default implementation does nothing.
-     * Clients should override this method to implement meaningful behaviour.
-     */
-    protected void onApply() {
-    }
-
-    /**
-     * Called if the "Close" button has been clicked.
-     * The default implementation calls {@link #hide()}.
-     * Clients should override this method to implement meaningful behaviour.
-     */
-    protected void onClose() {
-        hide();
-    }
-
-
-    @Override
-    protected void collectButtons(java.util.List<AbstractButton> buttons) {
-        int buttonMask = getButtonMask();
-        if ((buttonMask & ID_APPLY) != 0) {
-            JButton button = new JButton("Apply");  /*I18N*/
-            button.setMnemonic('A');
-            button.setName(getQualifiedPropertyName("apply"));
-            button.addActionListener(new ActionListener() {
-
-                public void actionPerformed(ActionEvent e) {
-                    setButtonID(ID_APPLY);
-                    if (verifyUserInput()) {
-                        onApply();
-                    }
-                }
-            });
-            buttons.add(button);
-            button.setDefaultCapable(true);
-            getJDialog().getRootPane().setDefaultButton(button);
-        }
-        if ((buttonMask & ID_CLOSE) != 0) {
-            JButton button = new JButton("Close");  /*I18N*/
-            button.setMnemonic('C');
-            button.setName(getQualifiedPropertyName("close"));
-            button.addActionListener(new ActionListener() {
-
-                public void actionPerformed(ActionEvent e) {
-                    setButtonID(ID_CLOSE);
-                    onClose();
-                }
-            });
-            buttons.add(button);
-            button.setVerifyInputWhenFocusTarget(false);
-        }
-    }
-
 }

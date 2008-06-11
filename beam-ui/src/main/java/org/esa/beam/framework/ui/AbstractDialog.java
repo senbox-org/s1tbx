@@ -35,19 +35,36 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.logging.Logger;
 
 /**
- * The base class for {@link ModalDialog} and {@link ModelessDialog}.
- *
+  * The <code>AbstractDialog</code> is the base class for {@link ModalDialog} and {@link ModelessDialog},
+  * two helper classes used to quickly construct modal and modeless dialogs. The dialogs created with this
+  * class have a unique border and font and a standard button row for the typical buttons like "OK", "Cancel" etc.
+  * <p/>
+  * <p>Instances of a modal dialog are created with a parent component, a title, the actual dialog content component, and
+  * a bit-combination of the standard buttons to be used.
+  * <p/>
+  * <p>A limited way of input validation is provided by the  <code>verifyUserInput</code> method which can be overridden
+  * in order to return <code>false</code> if a user input is invalid. In this case the {@link #onOK()},
+  * {@link #onYes()} and {@link #onNo()} methods are NOT called.
+  *
  * @author Norman Fomferra
  * @since BEAM 4.2
  */
 public abstract class AbstractDialog {
 
-    public static final int ID_RESET = 0x0010;
-    public static final int ID_HELP = 0x0020;
-    public static final int ID_OTHER = 0x8000;
+    public static final int ID_OK = 0x0001;
+    public static final int ID_YES = 0x0002;
+    public static final int ID_NO = 0x0004;
+    public static final int ID_APPLY = 0x0008;
+    public static final int ID_CLOSE = 0x0010;
+    public static final int ID_CANCEL = 0x0020;
+    public static final int ID_RESET = 0x0040;
+    public static final int ID_HELP = 0x0080;
+    public static final int ID_OTHER = 0xAAAAAAAA;
 
     private final JDialog dialog;
     private final Window parent;
@@ -56,16 +73,17 @@ public abstract class AbstractDialog {
     private int buttonId;
     private Component content;
     private boolean shown;
+    private Map<Integer,AbstractButton> buttonMap;
 
     // Java help support
     private String helpId;
     private HelpBroker helpBroker;
-    private JButton helpButton;
 
     protected AbstractDialog(JDialog dialog, int buttonMask, Object[] otherButtons, String helpID) {
         this.parent = (Window) dialog.getParent();
         this.dialog = dialog;
         this.buttonMask = buttonMask;
+        this.buttonMap = new HashMap<Integer, AbstractButton>(5);
         setButtonID(0);
         initUI(otherButtons);
         setHelpID(helpID);
@@ -165,6 +183,15 @@ public abstract class AbstractDialog {
     }
 
     /**
+     * Gest the button for the given identifier.
+     * @param buttonID The button identifier.
+     * @return The button, or {@code null}.
+     */
+    public AbstractButton getButton(int buttonID) {
+        return buttonMap.get(buttonID);
+    }
+
+    /**
      * Shows the dialog. Overrides shall call {@code super.show()} at the end.
      * @return the identifier of the last button pressed or zero if this is a modeless dialog.
      */
@@ -226,13 +253,56 @@ public abstract class AbstractDialog {
     }
 
     /**
-     * Called if the help button has been clicked.
-     * Clients should override this method to implement a different behaviour.
+     * Called if the "OK" button has been clicked.
+     * The default implementation calls {@link #hide()}.
+     * Clients should override this method to implement meaningful behaviour.
      */
-    protected void onHelp() {
-        if (helpId == null) {
-            showInformationDialog("Sorry, no help theme available."); /*I18N*/
-        }
+    protected void onOK() {
+        hide();
+    }
+
+    /**
+     * Called if the "Yes" button has been clicked.
+     * The default implementation calls {@link #hide()}.
+     * Clients should override this method to implement meaningful behaviour.
+     */
+    protected void onYes() {
+        hide();
+    }
+
+    /**
+     * Called if the "No" button has been clicked.
+     * The default implementation calls {@link #hide()}.
+     * Clients should override this method to implement meaningful behaviour.
+     */
+    protected void onNo() {
+        hide();
+    }
+
+    /**
+     * Called if the "Cancel" button has been clicked.
+     * The default implementation calls {@link #hide()}.
+     * Clients should override this method to implement meaningful behaviour.
+     */
+    protected void onCancel() {
+        hide();
+    }
+
+    /**
+     * Called if the "Apply" button has been clicked.
+     * The default implementation does nothing.
+     * Clients should override this method to implement meaningful behaviour.
+     */
+    protected void onApply() {
+    }
+
+    /**
+     * Called if the "Close" button has been clicked.
+     * The default implementation calls {@link #hide()}.
+     * Clients should override this method to implement meaningful behaviour.
+     */
+    protected void onClose() {
+        hide();
     }
 
     /**
@@ -241,6 +311,16 @@ public abstract class AbstractDialog {
      * Clients should override this method to implement meaningful behaviour.
      */
     protected void onReset() {
+    }
+
+    /**
+     * Called if the help button has been clicked.
+     * Clients should override this method to implement a different behaviour.
+     */
+    protected void onHelp() {
+        if (helpId == null) {
+            showInformationDialog("Sorry, no help theme available."); /*I18N*/
+        }
     }
 
     /**
@@ -262,10 +342,11 @@ public abstract class AbstractDialog {
 
     /**
      * Called by the constructor in order to initialise the user interface.
-     * Override to add extra buttons to the given list of buttons.
-     * @param buttons The container for the new extra buttons.
+     * The default implementation does nothing.
+     * @param buttons The container into which new buttons shall be collected.
      */
-    protected abstract void collectButtons(List<AbstractButton> buttons);
+    protected void collectButtons(List<AbstractButton> buttons) {
+    }
 
     private void initUI(Object[] otherItems) {
 
@@ -316,6 +397,105 @@ public abstract class AbstractDialog {
             }
         }
 
+        if ((buttonMask & ID_OK) != 0) {
+            JButton button = new JButton("OK");  /*I18N*/
+            button.setMnemonic('O');
+            button.setName(getQualifiedPropertyName("ok"));
+            button.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    setButtonID(ID_OK);
+                    if (verifyUserInput()) {
+                        onOK();
+                    }
+                }
+            });
+            buttons.add(button);
+            button.setDefaultCapable(true);
+            getJDialog().getRootPane().setDefaultButton(button);
+            registerButton(ID_OK, button);
+        }
+        if ((buttonMask & ID_YES) != 0) {
+            JButton button = new JButton("Yes");  /*I18N*/
+            button.setMnemonic('Y');
+            button.setName(getQualifiedPropertyName("yes"));
+            button.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    setButtonID(ID_YES);
+                    if (verifyUserInput()) {
+                        onYes();
+                    }
+                }
+            });
+            buttons.add(button);
+            button.setDefaultCapable(true);
+            getJDialog().getRootPane().setDefaultButton(button);
+            registerButton(ID_YES, button);
+        }
+        if ((buttonMask & ID_NO) != 0) {
+            JButton button = new JButton("No"); /*I18N*/
+            button.setMnemonic('N');
+            button.setName(getQualifiedPropertyName("no"));
+            button.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    setButtonID(ID_NO);
+                    if (verifyUserInput()) {
+                        onNo();
+                    }
+                }
+            });
+            buttons.add(button);
+            registerButton(ID_NO, button);
+        }
+        if ((buttonMask & ID_CANCEL) != 0) {
+            JButton button = new JButton("Cancel");  /*I18N*/
+            button.setMnemonic('C');
+            button.setName(getQualifiedPropertyName("cancel"));
+            button.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    close();
+                }
+            });
+            buttons.add(button);
+            button.setVerifyInputWhenFocusTarget(false);
+            registerButton(ID_CANCEL, button);
+        }
+        if ((buttonMask & ID_APPLY) != 0) {
+            JButton button = new JButton("Apply");  /*I18N*/
+            button.setMnemonic('A');
+            button.setName(getQualifiedPropertyName("apply"));
+            button.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    setButtonID(ID_APPLY);
+                    if (verifyUserInput()) {
+                        onApply();
+                    }
+                }
+            });
+            buttons.add(button);
+            button.setDefaultCapable(true);
+            getJDialog().getRootPane().setDefaultButton(button);
+            registerButton(ID_APPLY, button);
+        }
+        if ((buttonMask & ID_CLOSE) != 0) {
+            JButton button = new JButton("Close");  /*I18N*/
+            button.setMnemonic('C');
+            button.setName(getQualifiedPropertyName("close"));
+            button.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    setButtonID(ID_CLOSE);
+                    onClose();
+                }
+            });
+            buttons.add(button);
+            button.setVerifyInputWhenFocusTarget(false);
+            registerButton(ID_CLOSE, button);
+        }
         if ((buttonMask & ID_RESET) != 0) {
             JButton button = new JButton("Reset"); /*I18N*/
             button.setName(getQualifiedPropertyName("reset"));
@@ -329,6 +509,7 @@ public abstract class AbstractDialog {
                 }
             });
             buttons.add(button);
+            registerButton(ID_RESET, button);
         }
 
         if ((buttonMask & ID_HELP) != 0) {
@@ -343,7 +524,7 @@ public abstract class AbstractDialog {
                 }
             });
             buttons.add(button);
-            helpButton = button;
+            registerButton(ID_HELP, button);
         }
 
         buttonRow.add(Box.createHorizontalGlue());
@@ -365,6 +546,10 @@ public abstract class AbstractDialog {
 
     protected String getQualifiedPropertyName(String name) {
         return getClass().getSimpleName() + "." + name;
+    }
+
+    protected void registerButton(int buttonID, AbstractButton button) {
+        buttonMap.put(buttonID, button);
     }
 
     private void updateHelpID() {
@@ -397,6 +582,7 @@ public abstract class AbstractDialog {
         if (getJDialog().getContentPane() != null) {
             helpBroker.enableHelpKey(getJDialog().getContentPane(), helpId, helpSet);
         }
+        AbstractButton helpButton = getButton(ID_HELP);
         if (helpButton != null) {
             helpBroker.enableHelpKey(helpButton, helpId, helpSet);
             helpBroker.enableHelpOnButton(helpButton, helpId, helpSet);

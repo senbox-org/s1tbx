@@ -19,6 +19,7 @@ package org.esa.beam.framework.gpf.ui;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import com.sun.media.jai.codec.PNGEncodeParam;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.operators.common.WriteOp;
@@ -31,8 +32,11 @@ import org.esa.beam.util.SystemUtils;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.concurrent.ExecutionException;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
 
 import javax.swing.JOptionPane;
+import javax.swing.AbstractButton;
 
 /**
  * WARNING: This class belongs to a preliminary API and may change in future releases.
@@ -46,6 +50,10 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
     private TargetProductSelector targetProductSelector;
     private AppContext appContext;
 
+    public SingleTargetProductDialog(AppContext appContext, String title, String helpID) {
+        this(appContext, title, ID_APPLY_CLOSE_HELP, helpID);
+    }
+
     public SingleTargetProductDialog(AppContext appContext, String title, int buttonMask, String helpID) {
         super(appContext.getApplicationWindow(), title, buttonMask, helpID);
         this.appContext = appContext;
@@ -54,10 +62,41 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
         String saveDir = appContext.getPreferences().getPropertyString(BasicApp.PROPERTY_KEY_APP_LAST_SAVE_DIR, homeDirPath);
         targetProductSelector.getModel().setProductDir(new File(saveDir));
         targetProductSelector.getOpenInAppCheckBox().setText("Open in " + appContext.getApplicationName());
+        targetProductSelector.getModel().getValueContainer().addPropertyChangeListener(new PropertyChangeListener() {
+
+            public void propertyChange(PropertyChangeEvent evt) {
+                 if (evt.getPropertyName().equals("saveToFileSelected") ||
+                         evt.getPropertyName().equals("openInAppSelected")) {
+                     updateApplyButton();
+                 }
+            }
+        });
+        updateApplyButton();
     }
 
-    public SingleTargetProductDialog(AppContext appContext, String title, String helpID) {
-        this(appContext, title, ModalDialog.ID_OK_CANCEL_HELP, helpID);
+    private void updateApplyButton() {
+        boolean save = targetProductSelector.getModel().isSaveToFileSelected();
+        boolean open = targetProductSelector.getModel().isOpenInAppSelected();
+
+        AbstractButton button = getButton(ID_APPLY);
+        if (save && open) {
+            button.setText("Save & Open");
+            button.setMnemonic('S');
+            button.setEnabled(true);
+        } else if (save) {
+            button.setText("Save");
+            button.setMnemonic('S');
+            button.setEnabled(true);
+        } else if (open) {
+            button.setText("Open");
+            button.setMnemonic('O');
+            button.setEnabled(true);
+        } else {
+            button.setText("Save");
+            button.setMnemonic('S');
+            button.setEnabled(false);
+        }
+
     }
 
     public AppContext getAppContext() {
