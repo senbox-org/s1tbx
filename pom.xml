@@ -481,7 +481,7 @@
                 <configuration>
                     <aggregate>true</aggregate>
                     <subpackages>
-                        org.esa.beam.framework:org.esa.beam.util:org.esa.beam.visat
+                        org.esa.beam.framework:org.esa.beam.util:org.esa.beam.visat:com.bc.jexp
                     </subpackages>
                     <excludePackageNames>
                         *.internal:org.esa.beam.visat.*
