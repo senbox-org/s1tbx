@@ -1,4 +1,4 @@
-package org.esa.beam.visat.diag;
+package org.esa.beam.visat.toolviews.diag;
 
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 

@@ -175,8 +175,6 @@
         </toolView>
 
 
-
-
         <toolView>
             <id>org.esa.beam.visat.toolviews.pin.PinManagerToolView</id>
             <class>org.esa.beam.visat.toolviews.pin.PinManagerToolView</class>
@@ -269,6 +267,17 @@
             <initSide>SOUTH</initSide>
             <initIndex>0</initIndex>
         </toolView>
+
+        <toolView>
+            <id>org.esa.beam.visat.toolviews.diag.JaiMonitorToolView</id>
+            <class>org.esa.beam.visat.toolviews.diag.JaiMonitorToolView</class>
+            <title>Tile Cache Diagnostics</title>
+            <tabTitle>Diagnostics</tabTitle>
+            <initState>HIDDEN</initState>
+            <initSide>WEST</initSide>
+            <initIndex>0</initIndex>
+        </toolView>
+
     </extension>
 
     <extension point="beam-ui:actions">
@@ -1439,20 +1448,21 @@
             <shortDescr>Reset to initial layout.</shortDescr>
         </action>
 
-<!--
-        <action>
-            <id>magicStickTool</id>
-            <class>org.esa.beam.visat.actions.ToolAction</class>
-            <tool>org.esa.beam.visat.actions.magic.MagicStickTool</tool>
-            <parent>tools</parent>
-            <placeAfter>selectTool</placeAfter>
-            <text>Magic Stick</text>
-            <shortDescr>Creates a ROI using a magic stick</shortDescr>
-            <largeIcon>icons/MagicStickTool24.gif</largeIcon>
-            <selected>false</selected>
-            <context>image</context>
-            <helpId>magicStickTool</helpId>
-        </action>
--->        
+        <!--
+                <action>
+                    <id>magicStickTool</id>
+                    <class>org.esa.beam.visat.actions.ToolAction</class>
+                    <tool>org.esa.beam.visat.actions.magic.MagicStickTool</tool>
+                    <parent>tools</parent>
+                    <placeAfter>selectTool</placeAfter>
+                    <text>Magic Stick</text>
+                    <shortDescr>Creates a ROI using a magic stick</shortDescr>
+                    <largeIcon>icons/MagicStickTool24.gif</largeIcon>
+                    <selected>false</selected>
+                    <context>image</context>
+                    <helpId>magicStickTool</helpId>
+                </action>
+        -->
+
     </extension>
 </module>

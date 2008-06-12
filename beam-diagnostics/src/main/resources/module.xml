@@ -24,8 +24,8 @@
 
     <extension point="beam-visat:toolViews">
         <toolView>
-            <id>org.esa.beam.visat.diag.JaiMonitorToolView</id>
-            <class>org.esa.beam.visat.diag.JaiMonitorToolView</class>
+            <id>org.esa.beam.visat.toolviews.diag.JaiMonitorToolView</id>
+            <class>org.esa.beam.visat.toolviews.diag.JaiMonitorToolView</class>
             <title>Tile Cache Diagnostics</title>
             <tabTitle>Diagnostics</tabTitle>
             <initState>DOCKED</initState>

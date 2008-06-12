@@ -1,4 +1,4 @@
-package org.esa.beam.visat.diag;
+package org.esa.beam.visat.toolviews.diag;
 
 import com.sun.media.jai.util.CacheDiagnostics;
 import org.jfree.chart.ChartPanel;

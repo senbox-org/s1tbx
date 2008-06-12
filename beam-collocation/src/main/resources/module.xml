@@ -10,8 +10,11 @@
 
     <changelog>
         <![CDATA[
-        Changes in 1.0.1:<br>
-        [BEAM-757] Layout of help pages is not uniform<br>
+        Changes in 1.1:<br/>
+        [BEAM-???] todo - Parameter validation is incomplete<br/>
+        [BEAM-???] todo - Show resulting names of components in dialog<br/>
+        Changes in 1.0.1:<br/>
+        [BEAM-757] Layout of help pages is not uniform<br/>
         ]]>
     </changelog>
 
