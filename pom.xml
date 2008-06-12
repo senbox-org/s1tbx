@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -114,14 +115,14 @@
         <module>beam-geotiff-writer</module>
         <module>beam-hdf5-writer</module>
         <module>beam-diagnostics</module>
-		<module>beam-shapefile-reader</module>
+        <module>beam-shapefile-reader</module>
 
         <module>lib-hdf</module>
         <module>lib-netcdf</module>
 
         <!--<module>nest-dat</module>-->
 
-  </modules>
+    </modules>
 
     <dependencyManagement>
         <dependencies>
@@ -478,9 +479,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
-                    <destDir>../target/site/apidocs/${artifactId}-${version}/apidoc</destDir>
-                    <!-- Creates an HTML version of each source file and adds links documentation -->
-                    <linksource>true</linksource>
+                    <aggregate>true</aggregate>
                     <excludePackageNames>
                         *.internal;org.esa.beam.visat.toolviews.*;org.esa.beam.visat.actions.*;org.esa.beam.visat.plugins.*;org.esa.beam.visat.dialogs.*;org.esa.beam.examples.*;org.esa.beam.dataio.*;org.esa.beam.processor.*;com.bc.beam.processor.*;org.esa.beam.pconvert
                     </excludePackageNames>
