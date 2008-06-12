@@ -114,6 +114,36 @@
         </toolView>
 
         <toolView>
+            <id>org.esa.beam.visat.toolviews.imageinfo.ColorManipulationToolView</id>
+            <class>org.esa.beam.visat.toolviews.imageinfo.ColorManipulationToolView</class>
+            <title>Color Manipulation</title>
+            <mnemonic>C</mnemonic>
+            <accelerator>ctrl alt C</accelerator>
+            <description>Allows image color manipulation and contrast stretching.</description>
+            <smallIcon>/org/esa/beam/resources/images/icons/ContrastStretch16.gif</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/ContrastStretch24.gif</largeIcon>
+            <!--<helpId>TODO</helpId>-->
+            <initState>DOCKED</initState>
+            <initSide>WEST</initSide>
+            <initIndex>1</initIndex>
+        </toolView>
+
+        <toolView>
+            <id>org.esa.beam.visat.toolviews.nav.NavigationToolView</id>
+            <class>org.esa.beam.visat.toolviews.nav.NavigationToolView</class>
+            <title>Navigation</title>
+            <mnemonic>N</mnemonic>
+            <accelerator>ctrl alt N</accelerator>
+            <description>Zoom and pan a selected image view.</description>
+            <smallIcon>/org/esa/beam/resources/images/icons/Navigation16.gif</smallIcon>
+            <largeIcon>/org/esa/beam/resources/images/icons/Navigation24.gif</largeIcon>
+            <helpId>showNavigationWnd</helpId>
+            <initState>DOCKED</initState>
+            <initSide>WEST</initSide>
+            <initIndex>1</initIndex>
+        </toolView>
+
+        <toolView>
             <id>org.esa.beam.visat.toolviews.pixelinfo.PixelInfoToolView</id>
             <class>org.esa.beam.visat.toolviews.pixelinfo.PixelInfoToolView</class>
             <title>Pixel Info View</title>
@@ -146,35 +176,6 @@
 
 
 
-        <toolView>
-            <id>org.esa.beam.visat.toolviews.imageinfo.ColorManipulationToolView</id>
-            <class>org.esa.beam.visat.toolviews.imageinfo.ColorManipulationToolView</class>
-            <title>Color Manipulation</title>
-            <mnemonic>C</mnemonic>
-            <accelerator>ctrl alt C</accelerator>
-            <description>Allows image color manipulation and contrast stretching.</description>
-            <smallIcon>/org/esa/beam/resources/images/icons/ContrastStretch16.gif</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/ContrastStretch24.gif</largeIcon>
-            <!--<helpId>TODO</helpId>-->
-            <initState>HIDDEN</initState>
-            <initSide>SOUTH</initSide>
-            <initIndex>0</initIndex>
-        </toolView>
-
-        <toolView>
-            <id>org.esa.beam.visat.toolviews.nav.NavigationToolView</id>
-            <class>org.esa.beam.visat.toolviews.nav.NavigationToolView</class>
-            <title>Navigation</title>
-            <mnemonic>N</mnemonic>
-            <accelerator>ctrl alt N</accelerator>
-            <description>Zoom and pan a selected image view.</description>
-            <smallIcon>/org/esa/beam/resources/images/icons/Navigation16.gif</smallIcon>
-            <largeIcon>/org/esa/beam/resources/images/icons/Navigation24.gif</largeIcon>
-            <helpId>showNavigationWnd</helpId>
-            <initState>HIDDEN</initState>
-            <initSide>SOUTH</initSide>
-            <initIndex>0</initIndex>
-        </toolView>
 
         <toolView>
             <id>org.esa.beam.visat.toolviews.pin.PinManagerToolView</id>
