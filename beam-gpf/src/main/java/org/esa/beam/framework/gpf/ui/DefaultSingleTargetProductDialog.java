@@ -60,20 +60,6 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         if (sourceProductSelectorList.size() > 1) {
             setSourceProductSelectorLabels();
         }
-        ValueContainerFactory factory = new ValueContainerFactory(new ParameterDescriptorFactory());
-        parameterMap = new HashMap<String, Object>(17);
-        ValueContainer valueContainer = factory.createMapBackedValueContainer(operatorSpi.getOperatorClass(), parameterMap);
-        try {
-            valueContainer.setDefaultValues();
-        } catch (ValidationException e) {
-// todo - handle exception here
-            e.printStackTrace();
-        }
-        SwingBindingContext context = new SwingBindingContext(valueContainer);
-
-        ParametersPane parametersPane = new ParametersPane(context);
-        JComponent processingParametersPanel = new JScrollPane(parametersPane.createPanel());
-        processingParametersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
 
         final TableLayout tableLayout = new TableLayout(1);
         tableLayout.setTableAnchor(TableLayout.Anchor.WEST);
@@ -98,7 +84,24 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
 
         this.form = new JTabbedPane();
         this.form.add("I/O Parameters", ioParametersPanel);
-        this.form.add("Processing Parameters", processingParametersPanel);
+
+        ValueContainerFactory factory = new ValueContainerFactory(new ParameterDescriptorFactory());
+        parameterMap = new HashMap<String, Object>(17);
+        ValueContainer valueContainer = factory.createMapBackedValueContainer(operatorSpi.getOperatorClass(), parameterMap);
+        try {
+            valueContainer.setDefaultValues();
+        } catch (ValidationException e) {
+// todo - handle exception here
+            e.printStackTrace();
+        }
+        if(valueContainer.getModels().length > 0) {
+            SwingBindingContext context = new SwingBindingContext(valueContainer);
+            ParametersPane parametersPane = new ParametersPane(context);
+            JComponent processingParametersPanel = new JScrollPane(parametersPane.createPanel());
+            processingParametersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
+            this.form.add("Processing Parameters", processingParametersPanel);
+        }
+
     }
 
     private void initSourceProductSelectors(OperatorSpi operatorSpi) {
