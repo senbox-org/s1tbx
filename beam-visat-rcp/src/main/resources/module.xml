@@ -1409,7 +1409,7 @@
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <parent>view</parent>
             <placeAfter>showToolViews</placeAfter>
-            <text>Layout</text>
+            <text>Manage Layout</text>
             <mnemonic>L</mnemonic>
             <shortDescr>Load or save layout.</shortDescr>
         </action>
