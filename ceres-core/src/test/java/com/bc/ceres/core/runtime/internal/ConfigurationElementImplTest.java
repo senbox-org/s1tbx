@@ -30,7 +30,7 @@ import java.io.IOException;
  * Created by Marco Peters.
  *
  * @author Marco Peters
- * @version $Revision: 1.3 $ $Date: 2007/04/13 09:50:37 $
+ * @version $Revision$ $Date$
  */
 public class ConfigurationElementImplTest extends TestCase {
 

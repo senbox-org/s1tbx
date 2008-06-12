@@ -24,7 +24,7 @@ import java.io.*;
  * Created by Marco Peters.
  *
  * @author Marco Peters
- * @version $Revision: 1.1 $ $Date: 2007/03/28 10:43:29 $
+ * @version $Revision$ $Date$
  */
 public class PrintWriterProgressMonitorTest extends TestCase {
 
