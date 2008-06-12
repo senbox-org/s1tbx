@@ -75,18 +75,32 @@ public class ValueContainerFactory {
     }
 
     /**
-     * Creates a value container for the given object.
+     * Creates a value container for the given object used to store the values.
      * The factory method will not modify the object, thus not setting any default values.
      *
      * @param object the backing object
      * @return the value container
      */
     public ValueContainer createObjectBackedValueContainer(Object object) {
-        return create(object.getClass(), new ObjectBackedValueAccessorFactory(object), false);
+        return createObjectBackedValueContainer(object.getClass(), object);
     }
 
     /**
-     * Creates a value container for the given template type and map backing the values.
+     * Creates a value container for for the given template type and object used to store the values.
+     * The object's class does not necessarily be the same as the template type, but is shall
+     * contain all the fields contained in the template type.
+     * The factory method will not modify the object, thus not setting any default values.
+     *
+     * @param templateType the template type
+     * @param object       the backing object
+     * @return the value container
+     */
+    public ValueContainer createObjectBackedValueContainer(Class<?> templateType, Object object) {
+        return create(templateType, new ObjectBackedValueAccessorFactory(object), false);
+    }
+
+    /**
+     * Creates a value container for the given template type and a map used to store the values.
      * The factory method will not modify the given map, thus not setting any default values.
      *
      * @param templateType the template type
