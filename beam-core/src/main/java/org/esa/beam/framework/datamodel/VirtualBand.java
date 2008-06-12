@@ -49,7 +49,7 @@ import java.util.WeakHashMap;
  * and <code>writePixel</code> perform the inverse operations in this case.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.4 $ $Date: 2007/03/19 15:52:28 $
+ * @version $Revision$ $Date$
  * @see ProductData
  * @see #getPixels
  * @see #setPixels

@@ -30,7 +30,7 @@ import java.io.IOException;
  * A special-purpose product reader used to build subsets of data products.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.3 $ $Date: 2007/03/19 15:52:27 $
+ * @version $Revision$ $Date$
  */
 public class ProductSubsetBuilder extends AbstractProductBuilder {
 

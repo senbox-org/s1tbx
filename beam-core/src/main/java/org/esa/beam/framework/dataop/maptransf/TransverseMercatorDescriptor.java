@@ -27,7 +27,7 @@ import java.awt.geom.Point2D;
  * this transformation has taken from the proj4 map projection API (http://remotesensing.org/proj/).
  *
  * @author Tom Block
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:45 $
+ * @version $Revision$ $Date$
  */
 public class TransverseMercatorDescriptor implements MapTransformDescriptor {
 

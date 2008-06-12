@@ -33,7 +33,7 @@ import java.io.IOException;
  * Usually, tie-point grids are a sub-sampling of a data product's scene resolution.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.3 $ $Date: 2007/03/19 15:52:28 $
+ * @version $Revision$ $Date$
  */
 public class TiePointGrid extends RasterDataNode {
 

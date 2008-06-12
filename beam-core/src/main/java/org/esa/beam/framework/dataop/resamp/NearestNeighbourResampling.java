@@ -5,7 +5,7 @@ package org.esa.beam.framework.dataop.resamp;
 /**
  * This class implements the Nearest Neighbour resampling method.
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:45 $
+ * @version $Revision$ $Date$
  */
 final class NearestNeighbourResampling implements Resampling {
 

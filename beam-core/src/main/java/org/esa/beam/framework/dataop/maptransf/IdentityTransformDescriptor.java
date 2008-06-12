@@ -25,7 +25,7 @@ import org.esa.beam.framework.param.Parameter;
  * The descriptor for a map transformation which represents the identity transformation.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:45 $
+ * @version $Revision$ $Date$
  */
 public class IdentityTransformDescriptor implements MapTransformDescriptor {
 

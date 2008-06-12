@@ -25,7 +25,7 @@ import java.util.Locale;
  * The <code>ProductIOPlugIn</code> interface is the base for all data product reader or writer plug-ins.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.5 $ $Date: 2007/02/09 11:05:57 $
+ * @version $Revision$ $Date$
  */
 public interface ProductIOPlugIn {
 

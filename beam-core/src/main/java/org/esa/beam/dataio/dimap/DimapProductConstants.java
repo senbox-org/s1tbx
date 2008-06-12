@@ -21,7 +21,7 @@ package org.esa.beam.dataio.dimap;
  *
  * @author Sabine Embacher
  * @author Marco Peters
- * @version $Revision: 1.2 $ $Date: 2007/02/19 14:02:58 $
+ * @version $Revision$ $Date$
  */
 public final class DimapProductConstants {
 

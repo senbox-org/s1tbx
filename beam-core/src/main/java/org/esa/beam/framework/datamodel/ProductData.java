@@ -57,7 +57,7 @@ import java.util.*;
  * <code>float</code>, <code>double</code> and <code>String</code>.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.2 $ $Date: 2007/02/19 12:58:42 $
+ * @version $Revision$ $Date$
  */
 public abstract class ProductData implements Cloneable {
 

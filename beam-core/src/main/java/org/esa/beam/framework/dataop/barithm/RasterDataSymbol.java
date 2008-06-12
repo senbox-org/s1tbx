@@ -33,7 +33,7 @@ import org.esa.beam.util.Debug;
  * The resulting term in this case is an instance of <code>{@link com.bc.jexp.Term.Ref}</code>.
  *
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:45 $
+ * @version $Revision$ $Date$
  */
 
 public class RasterDataSymbol implements Symbol {

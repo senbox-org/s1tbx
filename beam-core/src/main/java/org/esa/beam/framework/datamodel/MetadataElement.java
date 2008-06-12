@@ -25,7 +25,7 @@ import org.esa.beam.util.Guardian;
  *
  * @author Norman Fomferra
  * @author Sabine Embacher
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:45 $
+ * @version $Revision$ $Date$
  */
 public class MetadataElement extends ProductNode {
 

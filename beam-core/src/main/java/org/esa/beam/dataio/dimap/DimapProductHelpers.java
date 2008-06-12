@@ -49,7 +49,7 @@ import java.util.logging.Level;
  * @author Sabine Embacher
  * @author Norman Fomferra
  * @author Marco Peters
- * @version $Revision: 1.7 $ $Date: 2007/02/19 14:02:58 $
+ * @version $Revision$ $Date$
  */
 public class DimapProductHelpers {
 

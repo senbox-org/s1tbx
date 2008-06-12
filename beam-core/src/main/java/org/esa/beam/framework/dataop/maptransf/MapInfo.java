@@ -25,7 +25,7 @@ import org.esa.beam.util.Guardian;
  * raster co-ordinate system and back.
  *
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
- * @version $Revision: 1.2 $ $Date: 2006/12/04 11:23:09 $
+ * @version $Revision$ $Date$
  */
 public class MapInfo implements Cloneable {
 

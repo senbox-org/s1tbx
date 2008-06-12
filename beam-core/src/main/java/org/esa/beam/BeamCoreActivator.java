@@ -43,7 +43,7 @@ import java.util.logging.Level;
  * It is invoked by the {@link ModuleRuntime ceres runtime} to activate the {@code beam-core} module.</i>
  *
  * @author Marco Peters
- * @version $Revision: 1.14 $ $Date: 2007/03/22 16:56:59 $
+ * @version $Revision$ $Date$
  */
 public class BeamCoreActivator implements Activator {
 

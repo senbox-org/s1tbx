@@ -30,7 +30,7 @@ import java.io.IOException;
  *
  * @author Norman Fomferra
  * @author Sabine Embacher
- * @version $Revision: 1.2 $ $Date: 2006/12/08 13:48:36 $
+ * @version $Revision$ $Date$
  * @see #writeProductNodes
  */
 public abstract class AbstractProductWriter implements ProductWriter {

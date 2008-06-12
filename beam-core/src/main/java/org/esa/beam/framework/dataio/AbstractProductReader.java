@@ -33,7 +33,7 @@ import java.io.IOException;
  * methods.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.3 $ $Date: 2007/03/19 15:52:27 $
+ * @version $Revision$ $Date$
  * @see #readProductNodes
  * @see #readBandRasterData
  */

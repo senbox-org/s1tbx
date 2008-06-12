@@ -30,7 +30,7 @@ import java.io.IOException;
  *
  * @author Norman Fomferra
  * @author Sabine Embacher
- * @version $Revision: 1.3 $ $Date: 2007/03/19 15:52:27 $
+ * @version $Revision$ $Date$
  * @see ProductReader
  */
 public interface ProductWriter {

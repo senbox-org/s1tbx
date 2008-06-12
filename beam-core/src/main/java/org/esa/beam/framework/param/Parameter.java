@@ -35,7 +35,7 @@ import java.beans.PropertyChangeListener;
  *
  * @author Norman Fomferra
  * @author Sabine Embacher
- * @version $Revision: 1.1.1.1 $  $Date: 2006/09/11 08:16:46 $
+ * @version $Revision$  $Date$
  * @see ParamProperties
  * @see ParamEditor
  * @see ParamValidator

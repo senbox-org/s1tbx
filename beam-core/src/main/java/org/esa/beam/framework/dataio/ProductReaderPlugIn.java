@@ -26,7 +26,7 @@ package org.esa.beam.framework.dataio;
  * a classpath scan.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.3 $ $Date: 2006/09/29 06:53:30 $
+ * @version $Revision$ $Date$
  * @see ProductWriterPlugIn
  */
 public interface ProductReaderPlugIn extends ProductIOPlugIn {

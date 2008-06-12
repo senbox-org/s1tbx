@@ -21,7 +21,7 @@ package org.esa.beam.framework.param;
  * <code>Parameter</code> class accept a <code>ParamExceptionHandler</code> argument for this purpose.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1.1.1 $  $Date: 2006/09/11 08:16:46 $
+ * @version $Revision$  $Date$
  * @see Parameter
  */
 public interface ParamExceptionHandler {

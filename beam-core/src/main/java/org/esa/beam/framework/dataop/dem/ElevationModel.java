@@ -13,7 +13,7 @@ import org.esa.beam.framework.datamodel.GeoPos;
  * specified geographical datum for a given geographical position.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1.1.1 $
+ * @version $Revision$
  */
 public interface ElevationModel {
 

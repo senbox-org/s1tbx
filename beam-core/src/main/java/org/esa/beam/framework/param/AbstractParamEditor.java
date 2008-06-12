@@ -29,7 +29,7 @@ import java.awt.event.ActionListener;
  * by providing some default method implementations and several utility methods for common editors.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.2 $  $Date: 2006/12/13 15:35:57 $
+ * @version $Revision$  $Date$
  * @see ParamEditor
  * @see ParamValidator
  * @see ParamExceptionHandler

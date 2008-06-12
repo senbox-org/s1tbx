@@ -47,7 +47,7 @@ import java.util.Iterator;
  *
  * @author Norman Fomferra
  * @author Sabine Embacher
- * @version $Revision: 1.9 $ $Date: 2007/04/17 10:03:50 $
+ * @version $Revision$ $Date$
  */
 public class ProductIO {
 

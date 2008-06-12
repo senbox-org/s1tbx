@@ -22,7 +22,7 @@ import java.util.EventListener;
  * A listener interested in figure changes.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1 $  $Date: 2006/10/10 14:47:22 $
+ * @version $Revision$  $Date$
  */
 public interface FigureChangeListener extends EventListener {
 

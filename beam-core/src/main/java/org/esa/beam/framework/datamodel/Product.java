@@ -48,7 +48,7 @@ import java.util.*;
  * necessarily store data in the same format. Furthermore, it is not mandatory for a product to have both of them.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.3 $ $Date: 2006/12/08 13:48:36 $
+ * @version $Revision$ $Date$
  */
 public class Product extends ProductNode {
 

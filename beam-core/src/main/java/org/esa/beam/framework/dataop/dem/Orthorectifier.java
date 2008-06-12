@@ -25,7 +25,7 @@ import org.esa.beam.util.math.RsMathUtils;
  * @author Norman Fomferra
  * @author Sabine Embacher
  * @author Marco Peters
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:45 $
+ * @version $Revision$ $Date$
  */
 public class Orthorectifier implements GeoCoding {
 

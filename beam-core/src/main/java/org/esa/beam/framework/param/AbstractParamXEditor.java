@@ -36,7 +36,7 @@ import javax.swing.JTextField;
  * purpose editor is invoked by pressing the "..." button usually located to the right of the value display.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1.1.1 $  $Date: 2006/09/11 08:16:46 $
+ * @version $Revision$  $Date$
  */
 public abstract class AbstractParamXEditor extends AbstractParamEditor {
 

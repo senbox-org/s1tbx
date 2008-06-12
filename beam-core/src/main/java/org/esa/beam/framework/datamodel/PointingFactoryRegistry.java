@@ -27,7 +27,7 @@ import java.util.Set;
  * Created by Marco Peters.
  *
  * @author Marco Peters
- * @version $Revision: 1.3 $ $Date: 2007/03/22 14:11:08 $
+ * @version $Revision$ $Date$
  */
 public class PointingFactoryRegistry {
 

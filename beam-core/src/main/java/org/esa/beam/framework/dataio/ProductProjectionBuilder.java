@@ -37,7 +37,7 @@ import java.util.Map;
  * A special purpose product reader used to build map-projected data products.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.4 $ $Date: 2007/03/19 15:52:27 $
+ * @version $Revision$ $Date$
  */
 public class ProductProjectionBuilder extends AbstractProductBuilder {
 

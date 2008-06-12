@@ -36,7 +36,7 @@ import org.esa.beam.util.Guardian;
  * A figure which uses a <code>java.awt.Shape</code> for its representation.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1 $  $Date: 2006/10/10 14:47:22 $
+ * @version $Revision$  $Date$
  */
 public class ShapeFigure extends AbstractFigure {
 

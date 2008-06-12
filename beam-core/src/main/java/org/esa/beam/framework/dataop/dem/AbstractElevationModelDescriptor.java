@@ -27,7 +27,7 @@ import java.util.Properties;
  * in order to download and install the DEM.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.7 $
+ * @version $Revision$
  */
 public abstract class AbstractElevationModelDescriptor implements ElevationModelDescriptor {
 

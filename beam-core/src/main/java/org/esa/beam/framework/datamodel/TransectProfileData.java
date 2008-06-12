@@ -30,7 +30,7 @@ import java.io.IOException;
  * A container for data which fully describes a transect profile.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.2 $ $Date: 2006/12/08 13:48:37 $
+ * @version $Revision$ $Date$
  */
 public class TransectProfileData {
 

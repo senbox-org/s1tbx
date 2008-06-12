@@ -26,7 +26,7 @@ import org.esa.beam.util.Guardian;
  * <p><i>Note that this class is not yet public API and may change in future releases.</i></p>
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:45 $
+ * @version $Revision$ $Date$
  */
 public class IntegerizedSinusoidalDescriptor implements MapTransformDescriptor {
 

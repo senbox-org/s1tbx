@@ -22,7 +22,7 @@ import java.awt.Graphics2D;
  * Clients implementing this interface can be drawn on a <code>Graphics2D</code> drawing surface.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1 $  $Date: 2006/10/10 14:47:22 $
+ * @version $Revision$  $Date$
  */
 public interface Drawable {
 

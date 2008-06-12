@@ -46,7 +46,7 @@ import java.util.Map;
  * The product writer for BEAM DIMAP products.
  *
  * @author Sabine Embacher
- * @version $Revision: 1.2 $ $Date: 2006/12/08 13:48:36 $
+ * @version $Revision$ $Date$
  */
 public class DimapProductWriter extends AbstractProductWriter {
 

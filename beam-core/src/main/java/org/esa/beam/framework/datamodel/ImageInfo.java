@@ -20,7 +20,7 @@ import java.awt.image.IndexColorModel;
  * This class contains information about how a product's raster data node is displayed as an image.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:45 $
+ * @version $Revision$ $Date$
  */
 public class ImageInfo implements Cloneable {
 

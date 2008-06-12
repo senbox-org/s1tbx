@@ -24,7 +24,7 @@ import org.esa.beam.util.Guardian;
  * A product node event informs a product change listener about the source of the notification.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:45 $
+ * @version $Revision$ $Date$
  * @see ProductNodeListener
  */
 public class ProductNodeEvent extends EventObject {

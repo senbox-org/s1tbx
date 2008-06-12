@@ -10,7 +10,7 @@ package org.esa.beam.framework.datamodel;
  * The scaling method used for geophysical value transformation in a {@link Band}.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:45 $
+ * @version $Revision$ $Date$
  */
 public interface Scaling {
 

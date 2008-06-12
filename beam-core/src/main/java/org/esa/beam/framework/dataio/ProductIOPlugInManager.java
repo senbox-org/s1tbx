@@ -33,7 +33,7 @@ import java.util.Set;
  * <p> This class implements the singleton design pattern, since only one manager instance is required in the system.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.14 $ $Date: 2007/03/22 14:11:08 $
+ * @version $Revision$ $Date$
  */
 public class ProductIOPlugInManager {
 

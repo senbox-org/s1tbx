@@ -23,7 +23,7 @@ package org.esa.beam.framework.datamodel;
  * method of an <code>Product</code> (or any other <code>ProductNode</code>).
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:45 $
+ * @version $Revision$ $Date$
  * @see org.esa.beam.framework.datamodel.Product#acceptVisitor(ProductVisitor)
  * @see ProductNode#acceptVisitor(ProductVisitor)
  */

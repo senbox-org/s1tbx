@@ -26,7 +26,7 @@ import org.jdom.Element;
  * <p><i>Note that this class is not yet public API. Interface may chhange in future releases.</i></p>
  *
  * @author Marco Peters
- * @version $Revision: 1.2 $ $Date: 2007/03/22 16:56:59 $
+ * @version $Revision$ $Date$
  */
 public class GeneralFilterBandPersistableSpi implements DimapPersistableSpi {
 

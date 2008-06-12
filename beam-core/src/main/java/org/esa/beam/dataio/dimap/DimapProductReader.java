@@ -56,7 +56,7 @@ import java.util.Map;
  *
  * @author Sabine Embacher
  * @author Norman Fomferra
- * @version $Revision: 1.4 $ $Date: 2007/03/19 15:52:27 $
+ * @version $Revision$ $Date$
  * @see org.esa.beam.dataio.dimap.DimapProductReaderPlugIn
  */
 public class DimapProductReader extends AbstractProductReader {

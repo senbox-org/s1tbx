@@ -23,7 +23,7 @@ import java.util.Stack;
  * A default implementation of the <code>ProductVisitor</code> interface.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:45 $
+ * @version $Revision$ $Date$
  */
 public class ProductVisitorAdapter implements ProductVisitor {
 

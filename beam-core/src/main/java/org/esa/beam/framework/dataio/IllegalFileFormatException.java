@@ -21,7 +21,7 @@ package org.esa.beam.framework.dataio;
  * A <code>ProductIOException</code> that is thrown by <code>ProductReader</code>s
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:45 $
+ * @version $Revision$ $Date$
  */
 public class IllegalFileFormatException extends ProductIOException {
 

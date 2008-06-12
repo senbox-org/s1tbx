@@ -10,7 +10,7 @@ import java.util.Collection;
  * A type-safe container for elements of the type <code>ProductNode</code>.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:45 $
+ * @version $Revision$ $Date$
  */
 public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
 

@@ -28,7 +28,7 @@ import java.util.Locale;
  *
  * @author Sabine Embacher
  * @author Norman Fomferra
- * @version $Revision: 1.4 $ $Date: 2006/10/11 10:36:41 $
+ * @version $Revision$ $Date$
  */
 public class DimapProductWriterPlugIn implements ProductWriterPlugIn {
 

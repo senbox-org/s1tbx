@@ -34,7 +34,7 @@ import java.util.Map;
  * <p>A default implementation for the Figure interface are provided by the <code>AbstractFigure</code> class.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1 $  $Date: 2006/10/10 14:47:22 $
+ * @version $Revision$  $Date$
  * @see FigureHandle
  * @see AbstractFigure
  */

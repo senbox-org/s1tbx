@@ -37,7 +37,7 @@ import org.esa.beam.framework.dataop.maptransf.UTMProjection;
  * This utility class is used to write ENVI header files.
  *
  * @author Tom Block
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:44 $
+ * @version $Revision$ $Date$
  */
 class EnviHeader {
 

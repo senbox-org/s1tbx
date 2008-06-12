@@ -30,7 +30,7 @@ import org.esa.beam.framework.param.editors.*;
  * <code>Parameter</code>'s editor.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.2 $  $Date: 2006/10/10 14:47:22 $
+ * @version $Revision$  $Date$
  * @see Parameter
  * @see ParamProperties
  * @see ParamEditor

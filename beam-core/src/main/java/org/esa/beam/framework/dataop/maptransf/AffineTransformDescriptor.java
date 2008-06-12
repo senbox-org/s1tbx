@@ -27,7 +27,7 @@ import org.esa.beam.framework.param.Parameter;
  * A map transform which implements an affine transformation.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:45 $
+ * @version $Revision$ $Date$
  */
 public class AffineTransformDescriptor implements MapTransformDescriptor {
 

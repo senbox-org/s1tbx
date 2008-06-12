@@ -31,7 +31,7 @@ import com.bc.jexp.Term;
  * transparancy.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:45 $
+ * @version $Revision$ $Date$
  */
 public class BitmaskDef extends ProductNode {
 

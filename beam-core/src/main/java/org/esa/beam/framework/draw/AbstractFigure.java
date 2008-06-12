@@ -28,7 +28,7 @@ import javax.swing.event.EventListenerList;
  * An abstract implementation the <code>Figure</code> interface.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1 $  $Date: 2006/10/10 14:47:22 $
+ * @version $Revision$  $Date$
  */
 public abstract class AbstractFigure implements Figure {
 

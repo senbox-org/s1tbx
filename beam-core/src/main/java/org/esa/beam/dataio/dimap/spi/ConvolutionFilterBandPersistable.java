@@ -33,7 +33,7 @@ import java.util.ArrayList;
  * <p><i>Note that this class is not yet public API. Interface may chhange in future releases.</i></p>
  *
  * @author Marco Peters
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:44 $
+ * @version $Revision$ $Date$
  */
 class ConvolutionFilterBandPersistable implements DimapPersistable {
 

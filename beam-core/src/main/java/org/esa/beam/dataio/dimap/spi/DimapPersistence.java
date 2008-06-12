@@ -26,7 +26,7 @@ import java.util.Iterator;
  * <p><i>Note that this class is not yet public API. Interface may change in future releases.</i></p>
  * 
  * @author Marco Peters
- * @version $Revision: 1.3 $ $Date: 2007/03/22 16:56:59 $
+ * @version $Revision$ $Date$
  */
 public class DimapPersistence {
 

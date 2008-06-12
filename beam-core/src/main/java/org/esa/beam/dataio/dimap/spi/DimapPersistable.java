@@ -26,7 +26,7 @@ import org.jdom.Element;
  * <p><i>Note that this class is not yet public API. Interface may change in future releases.</i></p>
  * 
  * @author Marco Peters
- * @version $Revision: 1.2 $ $Date: 2007/03/22 16:56:58 $
+ * @version $Revision$ $Date$
  */
 public interface DimapPersistable {
     Object createObjectFromXml(Element element, Product product);

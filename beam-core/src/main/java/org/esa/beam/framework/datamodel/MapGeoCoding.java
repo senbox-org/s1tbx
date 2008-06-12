@@ -30,7 +30,7 @@ import java.awt.geom.Point2D;
  * A geo-coding based on a cartographical map.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:45 $
+ * @version $Revision$ $Date$
  */
 public class MapGeoCoding extends AbstractGeoCoding {
 
