@@ -1,6 +1,8 @@
 package org.esa.beam.dataio.merisl3;
 
 import java.awt.Point;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class ISINGrid {
 
@@ -13,8 +15,6 @@ public final class ISINGrid {
      */
     public static final int DEFAULT_ROW_COUNT = 2160; // number of latitude rows
 
-    private static ISINGrid instance;
-
     private final int rowCount;
     private final double binSize;
     private final double deltaLat;
@@ -23,13 +23,6 @@ public final class ISINGrid {
     private final int[] rowLength;
     private final int[] binOffsets;
     private final int totalBinCount;
-
-    public synchronized static ISINGrid getDefault() {
-        if (instance == null) {
-            instance = new ISINGrid(DEFAULT_ROW_COUNT);
-        }
-        return instance;
-    }
 
     public ISINGrid(int rowCount) {
         this.rowCount = rowCount;
@@ -166,5 +159,25 @@ public final class ISINGrid {
     public int getBinIndex(int rowIndex, double lon) {
         final int colIndex = getColIndex(rowIndex, lon);
         return getBinOffset(rowIndex) + colIndex;
+    }
+    /**
+     * Detects the row count from the product name.
+     * 
+     * @param productName the name of the L3 product
+     * 
+     * @return the row count
+     */
+    public static int detectRowCount(String productName) {
+        Pattern p = Pattern.compile(".*_(\\d{4})x(\\d{4})_.*");
+        Matcher m = p.matcher(productName);
+        if (m.matches() && m.groupCount() == 2) {
+            String binSize1 = m.group(1);
+            String binSize2 = m.group(2);
+            if (binSize1.equals(binSize2)) {
+                int binSize = Integer.parseInt(binSize1);
+                return (int) Math.round(Math.PI * RE * 1000/ binSize);
+            }
+        }
+        return DEFAULT_ROW_COUNT;
     }
 }

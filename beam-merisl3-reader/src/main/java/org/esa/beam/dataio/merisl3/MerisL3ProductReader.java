@@ -85,7 +85,7 @@ public class MerisL3ProductReader extends AbstractProductReader {
         _netcdfFile = NetcdfFile.open(path);
 
         try {
-            _grid = ISINGrid.getDefault();
+            _grid = new ISINGrid(ISINGrid.detectRowCount(path));
             _sceneRasterWidth = _grid.getRowCount() * 2;
             _sceneRasterHeight = _grid.getRowCount();
             _product = new Product(FileUtils.getFilenameWithoutExtension(new File(path)),

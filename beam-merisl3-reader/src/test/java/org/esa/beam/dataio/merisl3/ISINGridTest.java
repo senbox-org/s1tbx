@@ -6,7 +6,7 @@ import java.awt.Point;
 
 public class ISINGridTest extends TestCase {
 
-    private ISINGrid grid = ISINGrid.getDefault();
+    private ISINGrid grid = new ISINGrid(ISINGrid.DEFAULT_ROW_COUNT);
 
     public void testDefaults() {
         assertEquals(2160, ISINGrid.DEFAULT_ROW_COUNT);
@@ -98,8 +98,6 @@ public class ISINGridTest extends TestCase {
     }
 
     public void test_getBinIndex() {
-        final Point point = new Point();
-
         assertEquals((0) + 2, grid.getBinIndex(new Point(2, 0)));
         assertEquals((3) + 7, grid.getBinIndex(new Point(7, 1)));
         assertEquals((3 + 9) + 11, grid.getBinIndex(new Point(11, 2)));
@@ -178,6 +176,17 @@ public class ISINGridTest extends TestCase {
 
     public void test_getBinIndexWithLon() {
 
+    }
+    public void testDetectRowCount() throws Exception {
+        final String name9277 = "L3_ENV_MER_A443_m__20030301_GLOB_SI_ACR_9277x9277_-90+90+-180+180_0000.nc";
+        assertEquals(2160, ISINGrid.detectRowCount(name9277));
+        
+        final String name4320 = "L3_ENV_MER_CHL1_d__20070101_GLOB_SI_ESA_4638x4638_-90+90+-180+180_0000.nc";
+        assertEquals(4320, ISINGrid.detectRowCount(name4320));
+        
+        // fallback
+        final String nameFoo = "foo";
+        assertEquals(2160, ISINGrid.detectRowCount(nameFoo));
     }
 }
 
