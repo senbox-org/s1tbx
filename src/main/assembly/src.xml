@@ -9,6 +9,7 @@
         <fileSet>
             <excludes>
                 <exclude>**/.cvsignore</exclude>
+                <exclude>**/.svnignore</exclude>
                 <exclude>**/*.ipr</exclude>
                 <exclude>**/*.iml</exclude>
                 <exclude>**/*.iws</exclude>
