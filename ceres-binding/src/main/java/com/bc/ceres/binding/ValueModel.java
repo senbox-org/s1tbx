@@ -14,7 +14,7 @@ public class ValueModel {
 
     static final HashMap<Class<?>, Object> INITIAL_VALUES;
 
-    static  {
+    static {
         INITIAL_VALUES = new HashMap<Class<?>, Object>(17);
         INITIAL_VALUES.put(Boolean.TYPE, Boolean.FALSE);
         INITIAL_VALUES.put(Character.TYPE, (char) 0);
@@ -107,6 +107,11 @@ public class ValueModel {
             throw new IllegalStateException("container == null");
         }
         container.getPropertyChangeSupport().removePropertyChangeListener(descriptor.getName(), l);
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getName() + "[name=" + getDescriptor().getName() + ",value=" + getValueAsText() + "]";
     }
 
     private Object getPrimitiveInitialValue(Class<?> valueType) {
