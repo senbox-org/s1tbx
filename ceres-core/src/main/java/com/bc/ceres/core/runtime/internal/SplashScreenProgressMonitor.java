@@ -321,6 +321,7 @@ public class SplashScreenProgressMonitor extends NullProgressMonitor {
             bufferImage = new BufferedImage(bounds.width, bounds.height, BufferedImage.TYPE_INT_ARGB);
             bufferGraphics = bufferImage.createGraphics();
             setBounds(bounds);
+            setFocusable(false);
             setAlwaysOnTop(false);
             setVisible(true);
         }
