@@ -65,16 +65,7 @@ public class PropertyEditor {
     }
 
     private void show(final EditorContent editorContent) {
-        _dialog = new ModalDialog(_visatApp.getMainFrame(),
-                                  getTitleText(editorContent),
-                                  editorContent,
-                                  ModalDialog.ID_OK_CANCEL_HELP,
-                                  "propertyEditor") {
-            @Override
-            protected boolean verifyUserInput() {
-                return editorContent.validateProperties();
-            }
-        };
+        _dialog = new PropertyEditorDialog(editorContent);
         if (_dialog.show() == ModalDialog.ID_OK) {
             editorContent.changeProperties();
         }
@@ -663,6 +654,20 @@ public class PropertyEditor {
                 || RasterDataNode.PROPERTY_NAME_NO_DATA_VALUE_USED.equals(propertyName)
                 || RasterDataNode.PROPERTY_NAME_VALID_PIXEL_EXPRESSION.equals(propertyName)
                 || RasterDataNode.PROPERTY_NAME_DATA.equals(propertyName);
+    }
+
+    class PropertyEditorDialog extends ModalDialog {
+        private final EditorContent editorContent;
+
+        public PropertyEditorDialog(EditorContent editorContent) {
+            super(PropertyEditor.this._visatApp.getMainFrame(), PropertyEditor.getTitleText(editorContent), editorContent, ModalDialog.ID_OK_CANCEL_HELP, "propertyEditor");
+            this.editorContent = editorContent;
+        }
+
+        @Override
+            protected boolean verifyUserInput() {
+            return editorContent.validateProperties();
+        }
     }
 }
 

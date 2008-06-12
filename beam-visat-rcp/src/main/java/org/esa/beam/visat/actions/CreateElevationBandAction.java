@@ -171,32 +171,7 @@ public class CreateElevationBandAction extends ExecCommand {
         p3.add(p1, BorderLayout.NORTH);
         p3.add(p2, BorderLayout.SOUTH);
 
-        final ModalDialog dialog = new ModalDialog(VisatApp.getApp().getMainFrame(), DIALOG_TITLE,
-                                                   ModalDialog.ID_OK_CANCEL_HELP, getHelpId()) {
-            @Override
-            protected boolean verifyUserInput() {
-                String message = null;
-                final String bandName = nameField.getText().trim();
-                if (bandName.equals("")) {
-                    message = "Please enter a name for the new elevation band.";
-                } else if (!ProductNode.isValidNodeName(bandName)) {
-                    message = MessageFormat.format("The band name ''{0}'' appears not to be valid.\n" +
-                                                   "Please choose another one.",
-                                                   bandName);
-                } else if (product.containsBand(bandName)) {
-                    message = MessageFormat.format("The selected product already contains a band named ''{0}''.\n" +
-                                                   "Please choose another one.",
-                                                   bandName);
-                } else if (demList.getSelectedValue() == null) {
-                    message = "Please select a DEM.";
-                }
-                if (message != null) {
-                    VisatApp.getApp().showErrorDialog(DIALOG_TITLE, message);
-                    return false;
-                }
-                return true;
-            }
-        };
+        final ModalDialog dialog = new CreateElevationBandDialog(nameField, product, demList);
         dialog.setContent(p3);
 
         if (dialog.show() == ModalDialog.ID_OK) {
@@ -214,5 +189,42 @@ public class CreateElevationBandAction extends ExecCommand {
 
         String bandName;
         String demName;
+    }
+
+    class CreateElevationBandDialog extends ModalDialog {
+        private final JTextField nameField;
+        private final Product product;
+        private final JList demList;
+
+        public CreateElevationBandDialog(JTextField nameField, Product product, JList demList) {
+            super(VisatApp.getApp().getMainFrame(), CreateElevationBandAction.DIALOG_TITLE, ModalDialog.ID_OK_CANCEL_HELP, CreateElevationBandAction.this.getHelpId());
+            this.nameField = nameField;
+            this.product = product;
+            this.demList = demList;
+        }
+
+        @Override
+            protected boolean verifyUserInput() {
+            String message = null;
+            final String bandName = nameField.getText().trim();
+            if (bandName.equals("")) {
+                message = "Please enter a name for the new elevation band.";
+            } else if (!ProductNode.isValidNodeName(bandName)) {
+                message = MessageFormat.format("The band name ''{0}'' appears not to be valid.\n" +
+                                               "Please choose another one.",
+                                               bandName);
+            } else if (product.containsBand(bandName)) {
+                message = MessageFormat.format("The selected product already contains a band named ''{0}''.\n" +
+                                               "Please choose another one.",
+                                               bandName);
+            } else if (demList.getSelectedValue() == null) {
+                message = "Please select a DEM.";
+            }
+            if (message != null) {
+                VisatApp.getApp().showErrorDialog(DIALOG_TITLE, message);
+                return false;
+            }
+            return true;
+        }
     }
 }

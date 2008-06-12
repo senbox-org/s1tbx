@@ -281,31 +281,7 @@ public class CreateFilteredBandAction extends ExecCommand {
         namePanel.add(nameField, BorderLayout.CENTER);
         contentPane.add(namePanel, BorderLayout.SOUTH);
 
-        final ModalDialog dialog = new ModalDialog(VisatApp.getApp().getMainFrame(),
-                                                   TITLE, ModalDialog.ID_OK_CANCEL_HELP,
-                                                   getHelpId()) {
-            @Override
-            protected boolean verifyUserInput() {
-                String message = null;
-                final String bandName = nameField.getText().trim();
-                if (bandName.equals("")) {
-                    message = "Please enter a name for the new filtered band."; /*I18N*/
-                } else if (!ProductNode.isValidNodeName(bandName)) {
-                    message = MessageFormat.format("The band name ''{0}'' appears not to be valid.\n" +
-                                                   "Please choose a different band name.", bandName); /*I18N*/
-                } else if (product.containsBand(bandName)) {
-                    message = MessageFormat.format("The selected product already contains a band named ''{0}''.\n" +
-                                                   "Please choose a different band name.", bandName); /*I18N*/
-                } else if (getSelectedFilter(tree) == null) {
-                    message = "Please select a filter.";    /*I18N*/
-                }
-                if (message != null) {
-                    VisatApp.getApp().showErrorDialog(TITLE, message);
-                    return false;
-                }
-                return true;
-            }
-        };
+        final ModalDialog dialog = new CreateFilteredBandDialog(nameField, product, tree);
         dialog.setContent(contentPane);
         if (dialog.show() == ModalDialog.ID_OK) {
             return new DialogData(nameField.getText(), getSelectedFilter(tree));
@@ -471,6 +447,41 @@ public class CreateFilteredBandAction extends ExecCommand {
                 return toString().equals(other.toString()) && operator == other.operator;
             }
             return false;
+        }
+    }
+
+    class CreateFilteredBandDialog extends ModalDialog {
+        private final JTextField nameField;
+        private final Product product;
+        private final JTree tree;
+
+        public CreateFilteredBandDialog(JTextField nameField, Product product, JTree tree) {
+            super(VisatApp.getApp().getMainFrame(), CreateFilteredBandAction.TITLE, ModalDialog.ID_OK_CANCEL_HELP, CreateFilteredBandAction.this.getHelpId());
+            this.nameField = nameField;
+            this.product = product;
+            this.tree = tree;
+        }
+
+        @Override
+            protected boolean verifyUserInput() {
+            String message = null;
+            final String bandName = nameField.getText().trim();
+            if (bandName.equals("")) {
+                message = "Please enter a name for the new filtered band."; /*I18N*/
+            } else if (!ProductNode.isValidNodeName(bandName)) {
+                message = MessageFormat.format("The band name ''{0}'' appears not to be valid.\n" +
+                                               "Please choose a different band name.", bandName); /*I18N*/
+            } else if (product.containsBand(bandName)) {
+                message = MessageFormat.format("The selected product already contains a band named ''{0}''.\n" +
+                                               "Please choose a different band name.", bandName); /*I18N*/
+            } else if (getSelectedFilter(tree) == null) {
+                message = "Please select a filter.";    /*I18N*/
+            }
+            if (message != null) {
+                VisatApp.getApp().showErrorDialog(TITLE, message);
+                return false;
+            }
+            return true;
         }
     }
 }

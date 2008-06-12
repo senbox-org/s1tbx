@@ -162,30 +162,7 @@ public class ExpressionPane extends JPanel {
     }
 
     public int showModalDialog(Window parent, String title) {
-
-        ModalDialog dialog = new ModalDialog(parent,
-                                             title,
-                                             this,
-                                             ModalDialog.ID_OK_CANCEL | ModalDialog.ID_HELP,
-                                             HELP_ID) {
-
-            @Override
-            protected void onOK() {
-                updateCodeHistory();
-                super.onOK();
-            }
-
-            @Override
-            protected boolean verifyUserInput() {
-                checkCode();
-                String lastErrorMessage = getLastErrorMessage();
-                if (lastErrorMessage != null) {
-                    JOptionPane.showMessageDialog(getJDialog(), lastErrorMessage, "Error", JOptionPane.ERROR_MESSAGE);
-                    return false;
-                }
-                return true;
-            }
-        };
+        ModalDialog dialog = new ExpressionPaneDialog(parent, title);
         return dialog.show();
     }
 
@@ -885,6 +862,29 @@ public class ExpressionPane extends JPanel {
             undoButton.setEnabled(canUndo);
             historyUpButton.setEnabled(hasHistory && historyIndex < history.size() - 1);
             historyDownButton.setEnabled(hasHistory && historyIndex >= 0);
+        }
+    }
+
+    class ExpressionPaneDialog extends ModalDialog {
+        public ExpressionPaneDialog(Window parent, String title) {
+            super(parent, title, ExpressionPane.this, ModalDialog.ID_OK_CANCEL | ModalDialog.ID_HELP, ExpressionPane.HELP_ID);
+        }
+
+        @Override
+            protected void onOK() {
+            updateCodeHistory();
+            super.onOK();
+        }
+
+        @Override
+            protected boolean verifyUserInput() {
+            checkCode();
+            String lastErrorMessage = getLastErrorMessage();
+            if (lastErrorMessage != null) {
+                JOptionPane.showMessageDialog(getJDialog(), lastErrorMessage, "Error", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+            return true;
         }
     }
 }
