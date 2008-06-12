@@ -1,11 +1,10 @@
 package org.esa.beam.collocation.visat;
 
 import com.bc.ceres.binding.*;
-
+import org.esa.beam.collocation.CollocateOp;
 import org.esa.beam.collocation.ResamplingType;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 
 import javax.swing.ComboBoxModel;
@@ -14,10 +13,7 @@ import java.io.File;
 import java.lang.reflect.Field;
 
 /**
- * Created by IntelliJ IDEA.
- *
  * @author Ralf Quast
- * @version $Revision$ $Date$
  */
 class CollocationFormModel {
 
@@ -40,8 +36,8 @@ class CollocationFormModel {
         createNewProduct = true;
         renameMasterComponents = true;
         renameSlaveComponents = true;
-        masterComponentPattern = "${ORIGINAL_NAME}";
-        slaveComponentPattern = "${ORIGINAL_NAME}";
+        masterComponentPattern = CollocateOp.SOURCE_NAME_REFERENCE;
+        slaveComponentPattern = CollocateOp.SOURCE_NAME_REFERENCE;
 
         this.targetProductSelectorModel = targetProductSelectorModel;
         resamplingComboBoxModel = new DefaultComboBoxModel(ResamplingType.values());

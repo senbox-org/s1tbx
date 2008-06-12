@@ -20,19 +20,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Collocation operator.
+ * The "Collocate" operator.
  *
  * @author Ralf Quast
- * @version $Revision$ $Date$
+ * @since BEAM 4.1
  */
 @OperatorMetadata(alias = "Collocate",
-        version = "1.0",
-        authors = "Ralf Quast",
-        copyright = "(c) 2007 by Brockmann Consult",
-        description = "Collocates two products based on their geo-codings.")
+                  version = "1.0",
+                  authors = "Ralf Quast",
+                  copyright = "(c) 2007 by Brockmann Consult",
+                  description = "Collocates two products based on their geo-codings.")
 public class CollocateOp extends Operator {
 
-    private static final String ORIGINAL_NAME = "${ORIGINAL_NAME}";
+    public static final String SOURCE_NAME_REFERENCE = "${ORIGINAL_NAME}";
     private static final String NEAREST_NEIGHBOUR = "NEAREST_NEIGHBOUR";
     private static final String BILINEAR_INTERPOLATION = "BILINEAR_INTERPOLATION";
     private static final String CUBIC_CONVOLUTION = "CUBIC_CONVOLUTION";
@@ -74,9 +74,9 @@ public class CollocateOp extends Operator {
         sourceBandMap = new HashMap<Band, Band>();
 
         targetProduct = new Product(targetProductName,
-                masterProduct.getProductType(),
-                masterProduct.getSceneRasterWidth(),
-                masterProduct.getSceneRasterHeight());
+                                    masterProduct.getProductType(),
+                                    masterProduct.getSceneRasterWidth(),
+                                    masterProduct.getSceneRasterHeight());
 
         final ProductData.UTC utc1 = masterProduct.getStartTime();
         if (utc1 != null) {
@@ -98,7 +98,7 @@ public class CollocateOp extends Operator {
         }
         if (renameMasterComponents) {
             for (final Band band : targetProduct.getBands()) {
-                band.setName(masterComponentPattern.replace(ORIGINAL_NAME, band.getName()));
+                band.setName(masterComponentPattern.replace(SOURCE_NAME_REFERENCE, band.getName()));
             }
         }
         copyBitmaskDefs(masterProduct, renameMasterComponents, masterComponentPattern);
@@ -106,7 +106,7 @@ public class CollocateOp extends Operator {
         for (final Band sourceBand : slaveProduct.getBands()) {
             String targetBandName = sourceBand.getName();
             if (renameSlaveComponents) {
-                targetBandName = slaveComponentPattern.replace(ORIGINAL_NAME, targetBandName);
+                targetBandName = slaveComponentPattern.replace(SOURCE_NAME_REFERENCE, targetBandName);
             }
             final Band targetBand = targetProduct.addBand(targetBandName, sourceBand.getDataType());
 
@@ -163,7 +163,7 @@ public class CollocateOp extends Operator {
 
                 if (sourceBand.getProduct() == slaveProduct) {
                     collocateSourceBand(sourceBand, sourceRectangle, sourcePixelPositions, targetTile,
-                            SubProgressMonitor.create(pm, 1));
+                                        SubProgressMonitor.create(pm, 1));
                 } else {
                     targetTile.setRawSamples(getSourceTile(sourceBand, targetTile.getRectangle(), pm).getRawSamples());
                 }
@@ -231,7 +231,7 @@ public class CollocateOp extends Operator {
 
                         if (sourcePixelPos != null) {
                             resampling.computeIndex(sourcePixelPos.x, sourcePixelPos.y,
-                                    sourceRasterWidth, sourceRasterHeight, resamplingIndex);
+                                                    sourceRasterWidth, sourceRasterHeight, resamplingIndex);
                             try {
                                 float sample = resampling.resample(resamplingRaster, resamplingIndex);
                                 if (Float.isNaN(sample)) {
@@ -267,7 +267,7 @@ public class CollocateOp extends Operator {
             for (final BitmaskDef sourceDef : sourceDefs) {
                 final BitmaskDef targetDef = sourceDef.createCopy();
                 if (rename) {
-                    targetDef.setName(pattern.replace(ORIGINAL_NAME, sourceDef.getName()));
+                    targetDef.setName(pattern.replace(SOURCE_NAME_REFERENCE, sourceDef.getName()));
                     for (final Band targetBand : targetProduct.getBands()) {
                         targetDef.updateExpression(sourceBandMap.get(targetBand).getName(), targetBand.getName());
                     }
@@ -281,7 +281,7 @@ public class CollocateOp extends Operator {
         if (flagCoding != null) {
             String flagCodingName = flagCoding.getName();
             if (rename) {
-                flagCodingName = pattern.replace(ORIGINAL_NAME, flagCodingName);
+                flagCodingName = pattern.replace(SOURCE_NAME_REFERENCE, flagCodingName);
             }
             final Product product = band.getProduct();
             if (!product.containsFlagCoding(flagCodingName)) {

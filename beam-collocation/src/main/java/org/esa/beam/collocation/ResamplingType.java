@@ -18,12 +18,6 @@ package org.esa.beam.collocation;
 
 import org.esa.beam.framework.dataop.resamp.Resampling;
 
-/**
- * Created by marcoz.
- *
- * @author marcoz
- * @version $Revision: $ $Date: $
- */
 public enum ResamplingType {
     NEAREST_NEIGHBOUR(Resampling.NEAREST_NEIGHBOUR), 
     BILINEAR_INTERPOLATION(Resampling.BILINEAR_INTERPOLATION), 
@@ -44,7 +38,7 @@ public enum ResamplingType {
         return resampling.toString();
     }
 
-    public final static String[] valuesAsString() {
+    public static String[] valuesAsString() {
         ResamplingType[] values = values();
         String[] stringValues = new String[values.length];
         for (int i = 0; i < values.length; i++) {
