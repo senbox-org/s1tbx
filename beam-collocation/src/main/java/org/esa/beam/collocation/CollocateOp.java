@@ -13,6 +13,7 @@ import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.StringUtils;
 
 import java.awt.Rectangle;
 import java.text.MessageFormat;
@@ -23,16 +24,19 @@ import java.util.Map;
  * The "Collocate" operator.
  *
  * @author Ralf Quast
+ * @author Norman Fomferra
  * @since BEAM 4.1
  */
 @OperatorMetadata(alias = "Collocate",
-                  version = "1.0",
-                  authors = "Ralf Quast",
-                  copyright = "(c) 2007 by Brockmann Consult",
+                  version = "1.1",
+                  authors = "Ralf Quast, Norman Fomferra",
+                  copyright = "(c) 2007-2008 by Brockmann Consult",
                   description = "Collocates two products based on their geo-codings.")
 public class CollocateOp extends Operator {
 
     public static final String SOURCE_NAME_REFERENCE = "${ORIGINAL_NAME}";
+    public static final String DEFAULT_MASTER_COMPONENT_PATTERN = "${ORIGINAL_NAME}_M";
+    public static final String DEFAULT_SLAVE_COMPONENT_PATTERN = "${ORIGINAL_NAME}_S";
     private static final String NEAREST_NEIGHBOUR = "NEAREST_NEIGHBOUR";
     private static final String BILINEAR_INTERPOLATION = "BILINEAR_INTERPOLATION";
     private static final String CUBIC_CONVOLUTION = "CUBIC_CONVOLUTION";
@@ -46,13 +50,13 @@ public class CollocateOp extends Operator {
     private Product targetProduct;
     @Parameter
     private String targetProductName;
-    @Parameter
+    @Parameter(defaultValue = "true")
     private boolean renameMasterComponents;
-    @Parameter
+    @Parameter(defaultValue = "true")
     private boolean renameSlaveComponents;
-    @Parameter
+    @Parameter(defaultValue = DEFAULT_MASTER_COMPONENT_PATTERN)
     private String masterComponentPattern;
-    @Parameter
+    @Parameter(defaultValue = DEFAULT_SLAVE_COMPONENT_PATTERN)
     private String slaveComponentPattern;
     @Parameter(valueSet = {NEAREST_NEIGHBOUR, BILINEAR_INTERPOLATION, CUBIC_CONVOLUTION}, defaultValue = NEAREST_NEIGHBOUR)
     private ResamplingType resamplingType;
@@ -69,6 +73,15 @@ public class CollocateOp extends Operator {
             throw new OperatorException(
                     MessageFormat.format("Product ''{0}'' has no geo-coding.", slaveProduct.getName()));
         }
+        if (renameMasterComponents && StringUtils.isNullOrEmpty(masterComponentPattern)) {
+            throw new OperatorException(
+                    MessageFormat.format("Parameter ''{0}'' must be set to a non-empty string pattern.", "masterComponentPattern"));
+        }
+        if (renameSlaveComponents && StringUtils.isNullOrEmpty(slaveComponentPattern)) {
+            throw new OperatorException(
+                    MessageFormat.format("Parameter ''{0}'' must be set to a non-empty string pattern.", "slaveComponentPattern"));
+        }
+
         // todo - further validation
         // todo - product type
         sourceBandMap = new HashMap<Band, Band>();
@@ -136,7 +149,7 @@ public class CollocateOp extends Operator {
         }
         copyBitmaskDefs(slaveProduct, renameSlaveComponents, slaveComponentPattern);
 
-        // todo - slave metadata
+        // todo - slave metadata!?
         // todo - slave tie point grids
     }
 
