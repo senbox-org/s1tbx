@@ -18,6 +18,7 @@
         [BEAM-810] Provide VISAT application framework<br/>
         [BEAM-797] Colour manipulation for index and non-index bands<br/>
         [BEAM-787] C-Function code for x approximation is printed twice<br/>
+        [BEAM-738] Toolwindows sometimes disappear<br/>
         [BEAM-735] Not able to orthorectify MERIS_FRS products<br/>
         [BEAM-734] VISAT tile cache capacity cannot be changed<br/>
         [BEAM-730] Export of pixel data shall include auxdata<br/>
