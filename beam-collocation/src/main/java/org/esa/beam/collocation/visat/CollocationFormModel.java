@@ -6,6 +6,7 @@ import org.esa.beam.collocation.ResamplingType;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
+import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
@@ -33,22 +34,46 @@ class CollocationFormModel {
     private final ValueContainer valueContainer;
 
     public CollocationFormModel(TargetProductSelectorModel targetProductSelectorModel) {
-        createNewProduct = true;
-        renameMasterComponents = true;
-        renameSlaveComponents = true;
-        masterComponentPattern = CollocateOp.SOURCE_NAME_REFERENCE;
-        slaveComponentPattern = CollocateOp.SOURCE_NAME_REFERENCE;
-
         this.targetProductSelectorModel = targetProductSelectorModel;
-        resamplingComboBoxModel = new DefaultComboBoxModel(ResamplingType.values());
+        this.createNewProduct = true;
+        this.resamplingComboBoxModel = new DefaultComboBoxModel(ResamplingType.values());
+        this.valueContainer = createValueContainer(CollocateOp.Spi.class.getName(), this);
+    }
 
+    // todo - this is a generally useful helper method!
+    public static ValueContainer createValueContainer(String operatorName, Object object)  {
         final ValueContainerFactory factory = new ValueContainerFactory(new ValueDescriptorFactory() {
             public ValueDescriptor createValueDescriptor(Field field) {
                 return new ValueDescriptor(field.getName(), field.getType());
             }
         });
 
-        valueContainer = factory.createObjectBackedValueContainer(this);
+        ValueContainer vc1 = factory.createObjectBackedValueContainer(object);
+
+        ValueContainer vc0 = ParameterDescriptorFactory.createMapBackedOperatorValueContainer(operatorName);
+        try {
+            vc0.setDefaultValues();
+        } catch (ValidationException e) {
+            // todo - ok here?
+            e.printStackTrace();
+        }
+
+        ValueModel[] vma0 = vc0.getModels();
+        for (ValueModel vm0 : vma0) {
+            ValueModel vm1 = vc1.getModel(vm0.getDescriptor().getName());
+            System.out.println("vm0 = " + vm0);
+            System.out.println("vm1 = " + vm1);
+            if (vm1 != null) {
+                try {
+                    vm1.setValue(vm0.getValue());
+                } catch (ValidationException e) {
+                    // todo - ok here?
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return vc1;
     }
 
     public ValueContainer getValueContainer() {

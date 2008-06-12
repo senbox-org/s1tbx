@@ -9,9 +9,18 @@ import org.esa.beam.framework.gpf.OperatorSpiRegistry;
 
 import java.lang.reflect.Field;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.regex.Pattern;
 
 public class ParameterDescriptorFactory implements ValueDescriptorFactory {
+
+    public static ValueContainer createMapBackedOperatorValueContainer(String operatorName) {
+        return createMapBackedOperatorValueContainer(operatorName, new HashMap<String, Object>());
+    }
+
+    public static ValueContainer createMapBackedOperatorValueContainer(String operatorName, Map<String, Object> operatorParameters) {
+        return createVCF().createMapBackedValueContainer(getOpType(operatorName), operatorParameters);
+    }
 
     public ParameterDescriptorFactory() {
     }
@@ -102,16 +111,18 @@ public class ParameterDescriptorFactory implements ValueDescriptorFactory {
         return valueDescriptor;
     }
 
-    public static ValueContainer createMapBackedOperatorValueContainer(String operatorName, Map<String, Object> operatorParameters) {
+    private static ValueContainerFactory createVCF() {
+        return new ValueContainerFactory(new ParameterDescriptorFactory());
+    }
+
+    private static Class<? extends Operator> getOpType(String operatorName) {
         final OperatorSpiRegistry registry = GPF.getDefaultInstance().getOperatorSpiRegistry();
         registry.loadOperatorSpis();
         OperatorSpi operatorSpi = registry.getOperatorSpi(operatorName);
         if (operatorSpi == null) {
             throw new IllegalStateException("Operator SPI not found for operator [" + operatorName + "]");
         }
-        Class<? extends Operator> operatorClass = operatorSpi.getOperatorClass();
-        ValueContainerFactory factory = new ValueContainerFactory(new ParameterDescriptorFactory());
-        return factory.createMapBackedValueContainer(operatorClass, operatorParameters);
+        return operatorSpi.getOperatorClass();
     }
 
     private static boolean isNull(Object value) {
@@ -133,5 +144,4 @@ public class ParameterDescriptorFactory implements ValueDescriptorFactory {
     private static boolean isSet(String[] value) {
         return !ParameterDescriptorFactory.isNull(value) && !ParameterDescriptorFactory.isEmpty(value);
     }
-
 }

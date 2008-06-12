@@ -148,7 +148,7 @@ public class CollocationForm extends JPanel {
         layout.setCellPadding(1, 0, new Insets(3, 3, 3, 3));
 
         final JPanel panel = new JPanel(layout);
-        panel.setBorder(BorderFactory.createTitledBorder("Component Renaming"));
+        panel.setBorder(BorderFactory.createTitledBorder("Renaming of Source Product Components"));
         panel.add(renameMasterComponentsCheckBox);
         panel.add(masterComponentPatternField);
         panel.add(renameSlaveComponentsCheckBox);
