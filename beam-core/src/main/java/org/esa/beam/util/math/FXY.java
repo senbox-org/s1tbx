@@ -20,7 +20,7 @@ package org.esa.beam.util.math;
  * Represents a function <i>f(x,y)</i>.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:47 $
+ * @version $Revision$ $Date$
  */
 public interface FXY {
 

@@ -29,7 +29,7 @@ import org.esa.beam.visat.VisatApp;
  * This action saves the selected product.
  *
  * @author Marco Peters
- * @version $Revision: 1.2 $ $Date: 2006/11/21 09:05:56 $
+ * @version $Revision$ $Date$
  */
 public class SaveAction extends ExecCommand {
 

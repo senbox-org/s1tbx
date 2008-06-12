@@ -32,7 +32,7 @@ import java.io.IOException;
  * This class represents an image file of an Avnir-2 product.
  *
  * @author Marco Peters
- * @version $Revision: 1.3 $ $Date: 2007/04/17 10:03:50 $
+ * @version $Revision$ $Date$
  */
 class Avnir2ImageFile {
 

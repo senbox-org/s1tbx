@@ -24,7 +24,7 @@ import org.esa.beam.visat.VisatApp;
  * This Action toggels the visibility of the status bar.
  *
  * @author Marco Peters
- * @version $Revision: 1.1 $ $Date: 2006/11/16 09:14:28 $
+ * @version $Revision$ $Date$
  */
 public class ShowStatusBarAction extends ExecCommand {
 

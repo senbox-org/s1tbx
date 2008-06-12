@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Provides a simple default implementation for a {@link ViewModel}.
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
- * @version $Revision: 1.2 $ $Date: 2006/10/23 06:38:14 $
+ * @version $Revision$ $Date$
  */
 public class DefaultViewModel implements ViewModel {
     /**

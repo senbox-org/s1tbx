@@ -51,7 +51,7 @@ import com.jidesoft.swing.JideToggleButton;
  * The <code>ToolButtonFactory</code> can be used to create tool bar buttons which have a consistent look and feel.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.3 $  $Date: 2006/10/12 08:47:25 $
+ * @version $Revision$  $Date$
  */
 public class ToolButtonFactory {
 

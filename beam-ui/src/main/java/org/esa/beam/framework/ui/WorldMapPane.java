@@ -31,7 +31,7 @@ import java.awt.image.BufferedImage;
  * This class displays a world map with the given products on top.
  *
  * @author Marco Peters
- * @version $Revision: 1.2 $ $Date: 2006/12/08 13:48:36 $
+ * @version $Revision$ $Date$
  */
 public final class WorldMapPane extends JPanel {
 

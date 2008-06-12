@@ -14,7 +14,7 @@ import javax.swing.SwingUtilities;
  * VISAT's band arithmetic feature.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.2 $ $Date: 2007/04/19 10:28:47 $
+ * @version $Revision$ $Date$
  */
 public class BandArithmeticAction extends ExecCommand {
 

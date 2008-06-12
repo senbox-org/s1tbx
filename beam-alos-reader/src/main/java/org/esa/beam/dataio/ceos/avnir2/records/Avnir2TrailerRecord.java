@@ -27,7 +27,7 @@ import java.io.IOException;
  * Created by Marco.
  *
  * @author Marco
- * @version $Revision: 1.1 $ $Date: 2006/09/13 09:12:34 $
+ * @version $Revision$ $Date$
  */
 public class Avnir2TrailerRecord extends BaseTrailerRecord {
 

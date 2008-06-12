@@ -38,7 +38,7 @@ import java.util.logging.Logger;
  * product files which have been opened for <i>read-only</i> access.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.3 $ $Date: 2007/02/09 09:55:12 $
+ * @version $Revision$ $Date$
  */
 public abstract class ProductFile {
 

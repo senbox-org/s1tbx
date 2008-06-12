@@ -34,7 +34,7 @@ import java.util.Map;
  * ASAR data products.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.3 $ $Date: 2007/02/09 09:55:12 $
+ * @version $Revision$ $Date$
  * @see org.esa.beam.dataio.envisat.ProductFile
  */
 public class AsarProductFile extends ProductFile {

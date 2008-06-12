@@ -38,7 +38,7 @@ import javax.swing.border.EmptyBorder;
 import com.bc.swing.TitledPane;
 /**
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
- * @version $Revision: 1.1 $ $Date: 2006/10/10 14:47:35 $
+ * @version $Revision$ $Date$
  */
 public class DockablePane extends JPanel implements DockableComponent {
 

@@ -34,7 +34,7 @@ import java.net.URL;
  * This action shows the update module manager
  *
  * @author Marco Peters
- * @version $Revision: 1.7 $ $Date: 2007/04/18 13:01:13 $
+ * @version $Revision$ $Date$
  */
 public class ShowModuleManagerAction extends ExecCommand {
 

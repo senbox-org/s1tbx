@@ -44,7 +44,7 @@ import java.util.Map;
  * A product writer implementation for the HDF5 format.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.3 $ $Date: 2006/12/08 13:48:35 $
+ * @version $Revision$ $Date$
  */
 public class Hdf5ProductWriter extends AbstractProductWriter {
 

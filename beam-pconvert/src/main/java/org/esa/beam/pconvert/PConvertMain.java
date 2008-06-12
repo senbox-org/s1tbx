@@ -63,7 +63,7 @@ import java.util.List;
  * @author Norman Fomferra
  * @author Sabine Embacher
  * @author Marco Z�hlke
- * @version $Revision: 1.2 $ $Date: 2007/03/28 12:47:52 $
+ * @version $Revision$ $Date$
  */
 public class PConvertMain {
 

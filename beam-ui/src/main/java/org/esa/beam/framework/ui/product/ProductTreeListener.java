@@ -28,7 +28,7 @@ import org.esa.beam.framework.datamodel.TiePointGrid;
  *
  * @author Norman Fomferra
  * @author Sabine Embacher
- * @version $Revision: 1.1 $ $Date: 2006/10/10 14:47:37 $
+ * @version $Revision$ $Date$
  * @see org.esa.beam.framework.ui.product.ProductTree
  */
 public interface ProductTreeListener extends EventListener {

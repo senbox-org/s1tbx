@@ -23,7 +23,7 @@ import org.esa.beam.framework.draw.Figure;
  * An editor which is used by tools to draw themselfes and to let them add, remove and query figures.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1 $  $Date: 2006/10/10 14:47:38 $
+ * @version $Revision$  $Date$
  */
 public interface DrawingEditor {
 

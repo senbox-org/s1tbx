@@ -32,7 +32,7 @@ import java.util.Map;
  * Created by marcoz.
  *
  * @author marcoz
- * @version $Revision: $ $Date: $
+ * @version $Revision$ $Date$
  */
 public class BandArithmeticOpTest extends TestCase {
 

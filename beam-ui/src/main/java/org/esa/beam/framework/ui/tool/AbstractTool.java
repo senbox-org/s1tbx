@@ -29,7 +29,7 @@ import org.esa.beam.framework.draw.Drawable;
  * An abstract implementation of the tool interface.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1 $  $Date: 2006/10/10 14:47:38 $
+ * @version $Revision$  $Date$
  */
 public abstract class AbstractTool implements Tool, Drawable {
 

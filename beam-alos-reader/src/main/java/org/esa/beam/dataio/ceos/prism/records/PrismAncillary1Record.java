@@ -28,7 +28,7 @@ import java.io.IOException;
  * Created by Marco Peters.
  *
  * @author Marco Peters
- * @version $Revision: 1.1 $ $Date: 2006/09/13 09:12:34 $
+ * @version $Revision$ $Date$
  */
 public class PrismAncillary1Record extends Ancillary1Record {
 

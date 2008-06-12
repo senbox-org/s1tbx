@@ -24,7 +24,7 @@ import org.esa.beam.visat.VisatApp;
  * This action opens the VISAT preferences dialog.
  *
  * @author Marco Peters
- * @version $Revision: 1.1 $ $Date: 2006/11/15 16:21:48 $
+ * @version $Revision$ $Date$
  */
 public class PreferencesAction extends ExecCommand {
 

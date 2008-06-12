@@ -26,7 +26,7 @@ import java.util.Locale;
  * <p/>
  *
  * @author Norman Fomferra
- * @version $Revision: 1.2 $ $Date: 2007/02/09 09:54:49 $
+ * @version $Revision$ $Date$
  */
 public class ErsProductReaderPlugIn extends EnvisatProductReaderPlugIn {
 

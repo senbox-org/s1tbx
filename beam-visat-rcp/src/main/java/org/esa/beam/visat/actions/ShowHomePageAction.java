@@ -12,7 +12,7 @@ import java.io.IOException;
  * web page.
  *
  * @author Ralf Quast
- * @version $Revision: 1.1 $ $Date: 2007/03/23 14:17:18 $
+ * @version $Revision$ $Date$
  */
 public class ShowHomePageAction extends ExecCommand {
     private static final String HOME_PAGE_URL_DEFAULT =

@@ -43,7 +43,7 @@ import java.awt.image.RenderedImage;
  * This component itself is not opaque, because the <code>ImageDisplay</code> fills the entire area.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.4 $  $Date: 2007/04/23 13:50:27 $
+ * @version $Revision$  $Date$
  * @see ImageDisplay
  */
 public class BasicImageView extends BasicView {

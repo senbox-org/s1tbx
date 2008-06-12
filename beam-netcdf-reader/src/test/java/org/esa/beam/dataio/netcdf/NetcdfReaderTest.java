@@ -15,7 +15,7 @@ import java.util.Calendar;
  * Tests class {@link NetcdfReader}.
  *
  * @author Ralf Quast
- * @version $Revision: 1.2 $ $Date: 2007/02/07 14:00:51 $
+ * @version $Revision$ $Date$
  */
 public class NetcdfReaderTest extends TestCase {
 

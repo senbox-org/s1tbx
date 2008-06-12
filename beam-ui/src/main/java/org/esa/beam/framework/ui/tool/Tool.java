@@ -29,7 +29,7 @@ import org.esa.beam.framework.draw.Drawable;
  * tools are usually mutually exclusive - only one tool can be activated at the same time.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1 $  $Date: 2006/10/10 14:47:38 $
+ * @version $Revision$  $Date$
  */
 public interface Tool {
 

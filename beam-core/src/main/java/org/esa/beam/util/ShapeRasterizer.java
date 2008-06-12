@@ -31,7 +31,7 @@ import org.esa.beam.util.math.MathUtils;
  * Instances of this class are used to rasterize the outline of a <code>java.awt.Shape</code>.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:47 $
+ * @version $Revision$ $Date$
  */
 public class ShapeRasterizer {
 

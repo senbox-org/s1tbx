@@ -51,7 +51,7 @@ import java.text.MessageFormat;
  * This action exports pins and thier surrounding pixels.
  *
  * @author Marco Peters
- * @version $Revision: 1.1 $ $Date: 2007/04/19 10:16:11 $
+ * @version $Revision$ $Date$
  */
 public class ExportPinPixelsAction extends ExecCommand {
 

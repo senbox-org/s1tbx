@@ -44,7 +44,7 @@ import java.util.Comparator;
  * Description of WorldMapProvider
  *
  * @author Marco Peters
- * @version $Revision: 1.1 $ $Date: 2007/04/19 10:28:49 $
+ * @version $Revision$ $Date$
  */
 public class WorldMapProvider implements DataProvider {
 

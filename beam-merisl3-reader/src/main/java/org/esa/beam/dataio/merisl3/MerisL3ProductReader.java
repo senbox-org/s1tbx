@@ -45,7 +45,7 @@ import java.util.Arrays;
  * exclusively for data products having the standard MERIS Binned Level-3 format.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.3 $ $Date: 2007/03/19 15:52:29 $
+ * @version $Revision$ $Date$
  * @see org.esa.beam.dataio.merisl3.MerisL3ProductReaderPlugIn
  */
 public class MerisL3ProductReader extends AbstractProductReader {

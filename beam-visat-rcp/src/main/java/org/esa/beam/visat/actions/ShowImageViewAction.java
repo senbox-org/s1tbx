@@ -26,7 +26,7 @@ import org.esa.beam.visat.VisatApp;
  * This action opens an image view of the currently selected raster.
  *
  * @author Marco Peters
- * @version $Revision: 1.1 $ $Date: 2006/11/15 16:21:49 $
+ * @version $Revision$ $Date$
  */
 public class ShowImageViewAction extends ExecCommand {
 

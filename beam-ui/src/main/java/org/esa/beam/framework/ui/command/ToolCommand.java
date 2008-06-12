@@ -32,7 +32,7 @@ import java.awt.event.ActionEvent;
  * A command which activates a tool.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.3 $  $Date: 2006/11/22 13:05:36 $
+ * @version $Revision$  $Date$
  */
 public class ToolCommand extends SelectableCommand {
 

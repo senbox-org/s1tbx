@@ -44,7 +44,7 @@ import java.util.Date;
  * @author Norman Fomferra
  * @author Ralf Quast
  * @author Marco Zuehlke
- * @version $Revision: $ $Date: $
+ * @version $Revision$ $Date$
  */
 public class ChrisProductReader extends AbstractProductReader {
 

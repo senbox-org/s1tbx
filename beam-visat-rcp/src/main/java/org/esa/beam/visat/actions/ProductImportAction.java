@@ -61,7 +61,7 @@ import java.util.Iterator;
  * This action imports a product of the associated format.
  *
  * @author Marco Peters
- * @version $Revision: 1.9 $ $Date: 2007/04/18 13:01:13 $
+ * @version $Revision$ $Date$
  */
 public class ProductImportAction extends ExecCommand {
 

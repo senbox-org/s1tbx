@@ -31,7 +31,7 @@ import org.esa.beam.util.TreeNode;
  * Created by marcoz.
  *
  * @author marcoz
- * @version $Revision: 1.2 $ $Date: 2007/04/23 13:51:01 $
+ * @version $Revision$ $Date$
  */
 public class BarBuilder {
 	

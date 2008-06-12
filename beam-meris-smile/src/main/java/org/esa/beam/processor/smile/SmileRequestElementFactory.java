@@ -32,7 +32,7 @@ import org.esa.beam.util.SystemUtils;
  * Responsible for creating the elements for a processing request used by the Smile Correction Processor.
  *
  * @author Sabine Embacher
- * @version $Revision: 1.2 $ $Date: 2007/04/13 14:39:34 $
+ * @version $Revision$ $Date$
  */
 public class SmileRequestElementFactory implements RequestElementFactory {
 

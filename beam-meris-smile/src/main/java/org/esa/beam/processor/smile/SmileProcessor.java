@@ -52,7 +52,7 @@ import java.util.logging.Logger;
  *
  * @author Sabine Embacher
  * @author Norman Fomferra
- * @version $Revision: 1.14 $ $Date: 2007/03/28 11:37:01 $
+ * @version $Revision$ $Date$
  */
 public class SmileProcessor extends Processor {
 

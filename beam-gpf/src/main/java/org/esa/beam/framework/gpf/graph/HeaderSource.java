@@ -26,7 +26,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
  * Created by marcoz.
  *
  * @author marcoz
- * @version $Revision: $ $Date: $
+ * @version $Revision$ $Date$
  */
 public class HeaderSource {
     private String name;

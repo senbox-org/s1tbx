@@ -24,7 +24,7 @@ import org.esa.beam.visat.VisatApp;
  * This Action toggels the visibility of a tool bar.
  *
  * @author Marco Peters
- * @version $Revision: 1.3 $ $Date: 2007/03/26 08:59:16 $
+ * @version $Revision$ $Date$
  */
 public class ShowToolBarAction extends ExecCommand {
 

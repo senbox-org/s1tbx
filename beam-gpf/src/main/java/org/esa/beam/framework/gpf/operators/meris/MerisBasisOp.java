@@ -27,7 +27,7 @@ import org.esa.beam.util.ProductUtils;
  * Created by marcoz.
  *
  * @author marcoz
- * @version $Revision: $ $Date: $
+ * @version $Revision$ $Date$
  */
 public abstract class MerisBasisOp extends Operator {
 

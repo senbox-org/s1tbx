@@ -41,7 +41,7 @@ import com.bc.view.ViewModelChangeListener;
  * by a {@link javax.swing.JComponent} but it's {@link com.bc.view.ViewModel}. For this reason
  * the view component must implement the {@link com.bc.view.ScrollableView} interface.
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
- * @version $Revision: 1.2 $ $Date: 2006/10/23 06:38:14 $
+ * @version $Revision$ $Date$
  */
 public class ViewPane extends JComponent {
     private static final long serialVersionUID = -2634482999458990218L;

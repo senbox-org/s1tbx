@@ -42,7 +42,7 @@ import java.util.ResourceBundle;
  *
  * @author Norman Fomferra
  * @author Sabine Embacher
- * @version $Revision: 1.11 $  $Date: 2007/03/22 13:22:11 $
+ * @version $Revision$  $Date$
  */
 public abstract class Command implements ConfigurableExtension {
 

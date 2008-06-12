@@ -36,7 +36,7 @@ import java.text.MessageFormat;
  * Created by Marco Peters.
  *
  * @author Marco Peters
- * @version $Revision: 1.1 $ $Date: 2006/11/22 13:05:35 $
+ * @version $Revision$ $Date$
  */
 public class ToolAction extends ToolCommand {
 

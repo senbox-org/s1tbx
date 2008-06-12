@@ -21,7 +21,7 @@ package com.bc.jexp.impl;
  * into lexicographical tokens which are regognized by the parser.
  *
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:43 $
+ * @version $Revision$ $Date$
  * @see ParserImpl
  */
 public final class Tokenizer {

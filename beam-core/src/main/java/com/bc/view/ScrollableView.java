@@ -21,7 +21,7 @@ package com.bc.view;
  * <p>
  * This interface shall be implemented by a {@link javax.swing.JComponent} in order to allow scrolling and zooming.
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:43 $
+ * @version $Revision$ $Date$
  */
 public interface ScrollableView  {
     /**

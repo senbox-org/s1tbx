@@ -33,7 +33,7 @@ import java.awt.Rectangle;
  * Created by marcoz.
  *
  * @author marcoz
- * @version $Revision: 1.1 $ $Date: 2007/03/27 12:51:05 $
+ * @version $Revision$ $Date$
  */
 @OperatorMetadata(alias = "RRToFRS", internal = true)
 public class RRToFRSOp extends Operator {

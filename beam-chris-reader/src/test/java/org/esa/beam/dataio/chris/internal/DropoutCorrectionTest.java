@@ -9,7 +9,7 @@ import java.awt.*;
  * Tests for class {@link DropoutCorrection}.
  *
  * @author Ralf Quast
- * @version $Revision: 1.3 $ $Date: 2007/04/18 16:01:35 $
+ * @version $Revision$ $Date$
  */
 public class DropoutCorrectionTest extends TestCase {
 

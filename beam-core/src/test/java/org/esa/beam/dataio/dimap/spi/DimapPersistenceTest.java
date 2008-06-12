@@ -30,7 +30,7 @@ import org.jdom.Element;
  * Created by marco.
  *
  * @author marco
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:51 $
+ * @version $Revision$ $Date$
  */
 public class DimapPersistenceTest extends TestCase {
 

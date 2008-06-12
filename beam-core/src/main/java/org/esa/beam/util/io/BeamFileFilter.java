@@ -26,7 +26,7 @@ import java.util.ArrayList;
  * A <code>FileFilter</code> with file extensions support.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1 $  $Date: 2006/10/11 10:36:41 $
+ * @version $Revision$  $Date$
  */
 public class BeamFileFilter extends FileFilter {
 

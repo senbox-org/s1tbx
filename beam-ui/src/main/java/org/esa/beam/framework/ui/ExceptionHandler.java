@@ -22,7 +22,7 @@ package org.esa.beam.framework.ui;
  * Methods who catch exceptions can use this handler to popup an error Dialog.
  *
  * @author Sabine embacher
- * @version $Revision: 1.1 $  $Date: 2006/10/10 14:47:38 $
+ * @version $Revision$  $Date$
  * @see org.esa.beam.framework.ui.product.ProductTree
  */
 public interface ExceptionHandler {

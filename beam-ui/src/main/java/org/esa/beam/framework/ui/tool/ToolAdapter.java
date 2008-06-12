@@ -20,7 +20,7 @@ package org.esa.beam.framework.ui.tool;
  * Provides (empty) default implementations for all operations of the <code>ToolListener</code> interface.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1 $  $Date: 2006/10/10 14:47:38 $
+ * @version $Revision$  $Date$
  */
 public class ToolAdapter implements ToolListener {
 

@@ -20,7 +20,7 @@ package org.esa.beam.dataio.atsr;
  * This interface defines frequently used constants for ERS GBT products.
  *
  * @author Tom Block
- * @version $Revision: 1.1 $ $Date: 2006/09/12 13:19:07 $
+ * @version $Revision$ $Date$
  */
 public interface AtsrGBTConstants {
 

@@ -28,7 +28,7 @@ import java.io.IOException;
  * Created by marcoz.
  *
  * @author marcoz
- * @version $Revision: 1.3 $ $Date: 2007/03/22 09:17:00 $
+ * @version $Revision$ $Date$
  */
 public class CloudReader implements BandReader {
 

@@ -84,7 +84,7 @@ import java.util.concurrent.Executors;
  * @author Norman Fomferra
  * @author Marco Peters
  * @author Sabine Embacher
- * @version $Revision: 1.107 $ $Date: 2007/04/23 13:51:01 $
+ * @version $Revision$ $Date$
  */
 public class VisatApp extends BasicApp {
 

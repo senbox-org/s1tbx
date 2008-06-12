@@ -41,7 +41,7 @@ import java.util.ArrayList;
  * @author Marco Peters
  * @author Sabine Embacher
  * @author Norman Fomferra
- * @version $Revision: 1.2 $ $Date: 2006/12/08 13:48:35 $
+ * @version $Revision$ $Date$
  */
 public class GeoTIFFProductWriter extends AbstractProductWriter {
 

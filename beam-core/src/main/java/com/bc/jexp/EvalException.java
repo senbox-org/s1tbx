@@ -26,7 +26,7 @@ package com.bc.jexp;
  * clause any subclasses of <code>EvalException</code> since it is derived from
  * <code>java.lang.RuntimeException</code>.
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:43 $
+ * @version $Revision$ $Date$
  */
 public class EvalException extends RuntimeException {
 

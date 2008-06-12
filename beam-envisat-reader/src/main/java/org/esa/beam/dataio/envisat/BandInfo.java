@@ -24,7 +24,7 @@ import org.esa.beam.framework.datamodel.FlagCoding;
  * <p> Note that this class is public only as a side-effect of the implementation.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1 $ $Date: 2006/09/18 06:34:32 $
+ * @version $Revision$ $Date$
  */
 public class BandInfo extends DataItemInfo {
 

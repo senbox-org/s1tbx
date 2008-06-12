@@ -23,7 +23,7 @@ import org.esa.beam.framework.processor.ProcessorConstants;
  *
  * @author Sabine Embacher
  * @author Norman Fomferra
- * @version $Revision: 1.2 $ $Date: 2006/09/11 10:02:01 $
+ * @version $Revision$ $Date$
  */
 public class SmileConstants implements ProcessorConstants {
 

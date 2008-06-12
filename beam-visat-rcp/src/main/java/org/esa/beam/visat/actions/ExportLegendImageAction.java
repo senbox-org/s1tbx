@@ -54,7 +54,7 @@ import java.awt.image.RenderedImage;
  * Created by Marco Peters.
  *
  * @author Marco Peters
- * @version $Revision: 1.2 $ $Date: 2007/02/09 11:05:57 $
+ * @version $Revision$ $Date$
  */
 public class ExportLegendImageAction extends AbstractExportImageAction {
 

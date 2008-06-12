@@ -28,7 +28,7 @@ import org.esa.beam.util.StringUtils;
  * Created by marcoz.
  *
  * @author marcoz
- * @version $Revision: $ $Date: $
+ * @version $Revision$ $Date$
  */
 public class HeaderParameter {
     private String name;

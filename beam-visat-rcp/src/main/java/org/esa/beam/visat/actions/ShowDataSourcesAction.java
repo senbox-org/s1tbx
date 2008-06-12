@@ -16,7 +16,7 @@ import java.net.URL;
  * web page.
  *
  * @author Ralf Quast
- * @version $Revision: 1.5 $ $Date: 2007/04/20 07:14:56 $
+ * @version $Revision$ $Date$
  */
 public class ShowDataSourcesAction extends ExecCommand {
     private static final String DATASOURCES_RESOURCE_PATH = "/doc/help/general/BeamDataSources.html";

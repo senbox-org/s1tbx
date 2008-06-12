@@ -36,7 +36,7 @@ import java.awt.image.BufferedImage;
  * The selected product is painted highlighted.
  *
  * @author Marco Peters
- * @version $Revision: 1.2 $ $Date: 2006/10/25 14:10:08 $
+ * @version $Revision$ $Date$
  */
 public class WorldMapPainter {
     private static final String _FONT_NAME = "Verdana";

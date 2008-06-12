@@ -25,7 +25,7 @@ import org.esa.beam.util.Guardian;
  * <p> All functions have been implemented with extreme caution in order to provide a maximum performance.
  *
  * @author Tom Block
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:47 $
+ * @version $Revision$ $Date$
  */
 public class RsMathUtils {
 

@@ -4,7 +4,7 @@ package org.esa.beam.dataio.chris;
  * Class representing the scan line layout for CHRIS images.
  *
  * @author Ralf Quast
- * @version $Revision: 1.2 $ $Date: 2007/04/03 14:05:42 $
+ * @version $Revision$ $Date$
  */
 class ScanLineLayout {
 

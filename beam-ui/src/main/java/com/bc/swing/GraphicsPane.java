@@ -43,7 +43,7 @@ import com.bc.view.ViewModelChangeListener;
  * graphics pane.
  *
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
- * @version $Revision: 1.2 $ $Date: 2007/04/23 13:41:24 $
+ * @version $Revision$ $Date$
  */
 public class GraphicsPane extends JComponent implements ScrollableView {
 

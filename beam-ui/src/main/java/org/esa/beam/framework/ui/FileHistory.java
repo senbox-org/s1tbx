@@ -24,7 +24,7 @@ import java.io.File;
  * skipped..
  *
  * @author Norman Fomferra
- * @version $Revision: 1.2 $  $Date: 2007/03/28 14:27:50 $
+ * @version $Revision$  $Date$
  */
 public class FileHistory extends UserInputHistory {
 

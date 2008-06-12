@@ -24,7 +24,7 @@ import org.esa.beam.framework.dataop.dem.ElevationModelRegistry;
  * Created by Marco Peters.
  *
  * @author Marco Peters
- * @version $Revision: 1.2 $ $Date: 2006/09/21 07:43:28 $
+ * @version $Revision$ $Date$
  */
 public class DescriptorLoadedAsServiceTest extends TestCase {
 

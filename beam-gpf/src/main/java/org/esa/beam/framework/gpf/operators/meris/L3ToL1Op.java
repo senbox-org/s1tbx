@@ -42,7 +42,7 @@ import com.bc.ceres.core.ProgressMonitor;
  * Created by marcoz.
  *
  * @author marcoz
- * @version $Revision: 1.1 $ $Date: 2007/03/27 12:51:05 $
+ * @version $Revision$ $Date$
  */
 @OperatorMetadata(alias = "L3ToL1", internal = true)
 public class L3ToL1Op extends MerisBasisOp {

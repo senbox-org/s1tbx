@@ -43,7 +43,7 @@ import java.util.Vector;
  * images can be displayed using this widget.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.6 $ $Date: 2007/04/23 13:40:49 $
+ * @version $Revision$ $Date$
  * @see PixelPositionListener
  */
 public class ImageDisplay extends GraphicsPane {

@@ -26,7 +26,7 @@ import java.util.List;
  * Created by marco.
  *
  * @author marco
- * @version $Revision: 1.2 $ $Date: 2007/03/22 16:56:59 $
+ * @version $Revision$ $Date$
  */
 public class DimapPersistableRegistryTest extends TestCase {
 

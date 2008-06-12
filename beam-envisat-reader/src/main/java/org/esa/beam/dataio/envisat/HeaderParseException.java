@@ -21,7 +21,7 @@ package org.esa.beam.dataio.envisat;
  * An exception that can occur while parsing the ENVISAT MPH or SPH.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1 $ $Date: 2006/09/18 06:34:32 $
+ * @version $Revision$ $Date$
  * @see org.esa.beam.dataio.envisat.Header
  */
 public class HeaderParseException extends Exception {

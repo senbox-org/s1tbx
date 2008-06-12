@@ -30,7 +30,7 @@ import java.io.IOException;
  * @author Marco Peters
  * @author Sabine Embacher
  * @author Norman Fomferra
- * @version $Revision: 1.2 $ $Date: 2006/12/08 13:48:35 $
+ * @version $Revision$ $Date$
  */
 class GeoTiffBandWriter {
 

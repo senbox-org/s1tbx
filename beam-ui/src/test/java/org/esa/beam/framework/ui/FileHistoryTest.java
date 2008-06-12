@@ -30,7 +30,7 @@ import java.io.IOException;
  * skipped..
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1 $  $Date: 2006/10/10 14:47:40 $
+ * @version $Revision$  $Date$
  */
 public class FileHistoryTest extends TestCase {
 

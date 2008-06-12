@@ -36,7 +36,7 @@ import java.util.Vector;
  * <p> Note this class has public access as a side-effect of the implementation.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1 $ $Date: 2006/09/18 06:34:32 $
+ * @version $Revision$ $Date$
  * @see org.esa.beam.dataio.envisat.RecordInfo
  */
 public class DDDB {

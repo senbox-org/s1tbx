@@ -33,7 +33,7 @@ import java.io.IOException;
  * The product reader for ERS ATSR products.
  *
  * @author Tom Block
- * @version $Revision: 1.3 $ $Date: 2007/03/19 15:52:28 $
+ * @version $Revision$ $Date$
  */
 public class AtsrProductReader extends AbstractProductReader {
 

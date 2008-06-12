@@ -26,7 +26,7 @@ import org.esa.beam.visat.actions.ToolAction;
  * This action can measure the distance covered by a path of points.
  *
  * @author Marco Peters
- * @version $Revision: 1.1 $ $Date: 2007/04/19 10:16:12 $
+ * @version $Revision$ $Date$
  */
 public class RangeFinderToolAction extends ToolAction {
 

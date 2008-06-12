@@ -38,7 +38,7 @@ import java.util.logging.Level;
  *
  * @author Marco Peters
  * @author Norman Fomferra
- * @version $Revision: 1.7 $ $Date: 2007/04/19 06:56:47 $
+ * @version $Revision$ $Date$
  */
 public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
 

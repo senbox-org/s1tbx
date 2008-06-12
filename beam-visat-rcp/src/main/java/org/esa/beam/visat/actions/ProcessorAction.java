@@ -54,7 +54,7 @@ import java.util.logging.Level;
  * This action starts the associated processor.
  *
  * @author Marco Peters
- * @version $Revision: 1.6 $ $Date: 2007/04/18 13:01:13 $
+ * @version $Revision$ $Date$
  */
 public class ProcessorAction extends ExecCommand {
 

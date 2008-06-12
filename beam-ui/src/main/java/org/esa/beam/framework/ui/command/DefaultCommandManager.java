@@ -34,7 +34,7 @@ import java.util.Map;
  *
  * @author Sabine Embacher
  * @author Norman Fomferra
- * @version $Revision: 1.5 $  $Date: 2006/11/22 13:05:36 $
+ * @version $Revision$  $Date$
  * @see Command
  * @see java.util.ResourceBundle
  */

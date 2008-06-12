@@ -33,7 +33,7 @@ import java.util.Locale;
  * <p/>
  *
  * @author Norman Fomferra
- * @version $Revision: 1.6 $ $Date: 2006/11/15 09:22:13 $
+ * @version $Revision$ $Date$
  * @see org.esa.beam.dataio.merisl3.MerisL3ProductReader
  */
 public class MerisL3ProductReaderPlugIn implements ProductReaderPlugIn {

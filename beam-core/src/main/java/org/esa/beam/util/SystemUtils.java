@@ -39,7 +39,7 @@ import java.util.logging.Level;
  *
  * @author Norman Fomferra
  * @author Sabine Embacher
- * @version $Revision: 1.7 $ $Date: 2007/04/12 07:50:55 $
+ * @version $Revision$ $Date$
  */
 public class SystemUtils {
 

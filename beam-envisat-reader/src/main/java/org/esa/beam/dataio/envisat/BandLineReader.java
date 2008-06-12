@@ -37,7 +37,7 @@ import java.util.Arrays;
  * a certain geophysical parameter.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1 $ $Date: 2006/09/18 06:34:32 $
+ * @version $Revision$ $Date$
  * @see org.esa.beam.dataio.envisat.ProductFile#getBandLineReader
  * @see org.esa.beam.dataio.envisat.RecordReader
  */

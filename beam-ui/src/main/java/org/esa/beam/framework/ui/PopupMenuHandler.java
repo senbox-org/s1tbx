@@ -33,7 +33,7 @@ import org.esa.beam.util.Guardian;
  * popup-menu is created by the <code>PopupMenuFactory</code> instance passed to the constructor of this class.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1 $  $Date: 2006/10/10 14:47:39 $
+ * @version $Revision$  $Date$
  * @see PopupMenuFactory
  */
 public class PopupMenuHandler implements MouseListener, KeyListener {

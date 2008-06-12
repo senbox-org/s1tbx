@@ -33,7 +33,7 @@ import com.bc.jnn.JnnNet;
  * Created by marcoz.
  *
  * @author marcoz
- * @version $Revision: 1.2 $ $Date: 2007/04/25 14:15:07 $
+ * @version $Revision$ $Date$
  */
 public class CloudAlgorithm {
 	private static final String PARAM_1_KEY = "param_1";

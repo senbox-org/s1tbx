@@ -27,7 +27,7 @@ import javax.swing.JOptionPane;
  * This action deletes the current shape.
  *
  * @author Marco Peters
- * @version $Revision: 1.1 $ $Date: 2006/11/15 16:21:48 $
+ * @version $Revision$ $Date$
  */
 public class DeleteShapeAction extends ExecCommand {
 

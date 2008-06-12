@@ -32,7 +32,7 @@ import java.util.Calendar;
  * Created by marco.
  *
  * @author marco
- * @version $Revision: 1.2 $ $Date: 2006/09/14 09:15:55 $
+ * @version $Revision$ $Date$
  */
 public abstract class BaseSceneHeaderRecordTest extends TestCase {
 

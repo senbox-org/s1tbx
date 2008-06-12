@@ -25,7 +25,7 @@ import java.net.URL;
  * Created by marcoz.
  *
  * @author marcoz
- * @version $Revision: 1.6 $ $Date: 2007/04/25 14:15:06 $
+ * @version $Revision$ $Date$
  */
 public class CloudAlgorithmTest extends TestCase {
 

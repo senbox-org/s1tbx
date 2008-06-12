@@ -35,7 +35,7 @@ import java.io.InputStream;
  * This utility class is responsible for loading the world map image.
  *
  * @author Marco Peters
- * @version $Revision: 1.6 $ $Date: 2007/04/20 11:44:24 $
+ * @version $Revision$ $Date$
  */
 public class WorldMapImageLoader {
 

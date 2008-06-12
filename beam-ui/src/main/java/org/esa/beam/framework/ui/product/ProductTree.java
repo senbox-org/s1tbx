@@ -60,7 +60,7 @@ import java.util.List;
  *
  * @author Norman Fomferra
  * @author Sabine Embacher
- * @version $Revision: 1.5 $ $Date: 2006/12/11 10:14:25 $
+ * @version $Revision$ $Date$
  * @see org.esa.beam.framework.ui.product.ProductTreeListener
  * @see org.esa.beam.framework.datamodel.Product
  */

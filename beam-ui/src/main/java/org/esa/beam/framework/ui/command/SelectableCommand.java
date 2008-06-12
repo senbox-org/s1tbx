@@ -28,7 +28,7 @@ import java.util.ResourceBundle;
  * A command which also has a 'selected' state.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.5 $  $Date: 2006/11/22 13:05:36 $
+ * @version $Revision$  $Date$
  */
 public abstract class SelectableCommand extends Command {
 

@@ -29,7 +29,7 @@ import org.esa.beam.util.PropertyMap;
  *
  * @author Norman Fomferra
  * @author Sabine Embacher
- * @version $Revision: 1.1 $  $Date: 2006/10/10 14:47:36 $
+ * @version $Revision$  $Date$
  */
 public interface ConfigPage {
 

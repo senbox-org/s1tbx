@@ -46,7 +46,7 @@ import java.io.IOException;
  * This class represents an image file of a Prism product.
  *
  * @author Sabine Embacher
- * @version $Revision: 1.3 $ $Date: 2007/04/17 10:03:50 $
+ * @version $Revision$ $Date$
  */
 class PrismImageFile {
 

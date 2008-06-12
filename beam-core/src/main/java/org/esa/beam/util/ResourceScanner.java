@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
  * The scanner searches for all resources in the given locations.
  *
  * @author Marco Peters
- * @version $Revision: 1.9 $ $Date: 2006/12/20 08:50:50 $
+ * @version $Revision$ $Date$
  */
 public class ResourceScanner {
 

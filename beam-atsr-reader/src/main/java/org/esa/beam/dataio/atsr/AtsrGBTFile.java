@@ -28,7 +28,7 @@ import java.io.IOException;
  * An ERS ATSR file specialization for ATSR GBT products.
  *
  * @author Tom Block
- * @version $Revision: 1.1 $ $Date: 2006/09/12 13:19:07 $
+ * @version $Revision$ $Date$
  */
 public class AtsrGBTFile extends AtsrFile {
 

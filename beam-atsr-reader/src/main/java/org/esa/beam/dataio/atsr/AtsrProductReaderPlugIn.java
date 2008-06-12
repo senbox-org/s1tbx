@@ -29,7 +29,7 @@ import java.util.Locale;
  * The plug-in providing the product reader for ERS ATSR products.
  *
  * @author Tom Block
- * @version $Revision: 1.6 $ $Date: 2007/01/25 10:26:57 $
+ * @version $Revision$ $Date$
  */
 public class AtsrProductReaderPlugIn implements ProductReaderPlugIn {
 

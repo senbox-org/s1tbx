@@ -42,7 +42,7 @@ import java.io.StringReader;
  * Created by marcoz.
  *
  * @author marcoz
- * @version $Revision: $ $Date: $
+ * @version $Revision$ $Date$
  */
 public class WriteOpTest extends TestCase {
     private static final int RASTER_SIZE = 4;

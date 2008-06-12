@@ -65,7 +65,7 @@ import java.util.logging.Formatter;
  * dialog boxes.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.43 $  $Date: 2007/04/23 13:51:01 $
+ * @version $Revision$  $Date$
  * @see org.esa.beam.framework.ui.command.Command
  * @see org.esa.beam.framework.ui.command.ExecCommand
  * @see org.esa.beam.framework.ui.command.CommandGroup

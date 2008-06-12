@@ -30,7 +30,7 @@ import java.util.Arrays;
  * Created by marco.
  *
  * @author marco
- * @version $Revision: 1.1 $ $Date: 2006/09/13 09:12:35 $
+ * @version $Revision$ $Date$
  */
 public class Avnir2LeaderFDRTest extends BaseLeaderFileDescriptorRecordTest {
 

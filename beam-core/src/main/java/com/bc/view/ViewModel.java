@@ -21,7 +21,7 @@ import java.awt.geom.Rectangle2D;
 /**
  * Provides the model for a view on an infinite area given in floating-point coordinates.
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:43 $
+ * @version $Revision$ $Date$
  */
 public interface ViewModel  {
 

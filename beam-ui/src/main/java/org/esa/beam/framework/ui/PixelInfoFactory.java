@@ -16,7 +16,7 @@ package org.esa.beam.framework.ui;
  * A factory for pixel information at a given pixel position.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1 $ $Date: 2006/10/10 14:47:38 $
+ * @version $Revision$ $Date$
  */
 public interface PixelInfoFactory {
 

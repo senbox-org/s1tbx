@@ -24,7 +24,7 @@ import org.esa.beam.visat.VisatApp;
  * This action saves the selected product and asking the user new file location.
  *
  * @author Marco Peters
- * @version $Revision: 1.1 $ $Date: 2006/11/15 16:21:49 $
+ * @version $Revision$ $Date$
  */
 public class SaveAsAction extends ExecCommand {
 

@@ -26,7 +26,7 @@ import java.io.File;
  * processor implementation to influence the process of generating request elements with a <code>RequestLoader</code>.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.2 $ $Date: 2007/04/13 14:33:02 $
+ * @version $Revision$ $Date$
  * @see RequestLoader
  * @see Request
  */

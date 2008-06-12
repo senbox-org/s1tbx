@@ -30,7 +30,7 @@ import java.io.IOException;
  * Created by marco.
  *
  * @author marco
- * @version $Revision: 1.1 $ $Date: 2006/09/13 09:12:36 $
+ * @version $Revision$ $Date$
  */
 public abstract class BaseLeaderFileDescriptorRecordTest extends TestCase {
 

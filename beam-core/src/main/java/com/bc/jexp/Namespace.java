@@ -21,7 +21,7 @@ package com.bc.jexp;
  * Namespaces are used by a <code>{@link com.bc.jexp.Parser}</code> in order
  * to resolve to symbol references and function calls.
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:43 $
+ * @version $Revision$ $Date$
  */
 public interface Namespace {
 

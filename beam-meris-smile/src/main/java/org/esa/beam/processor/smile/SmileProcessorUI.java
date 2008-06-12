@@ -53,7 +53,7 @@ import java.util.logging.Logger;
  * The interface for the Smile Correction Processor.
  *
  * @author Sabine Embacher
- * @version $Revision: 1.6 $ $Date: 2007/04/18 13:01:13 $
+ * @version $Revision$ $Date$
  */
 public class SmileProcessorUI extends AbstractProcessorUI {
 

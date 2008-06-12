@@ -37,7 +37,7 @@ import java.io.File;
  * The general BEAM file chooser.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.3 $  $Date: 2007/03/27 15:49:20 $
+ * @version $Revision$  $Date$
  */
 public class BeamFileChooser extends JFileChooser {
 

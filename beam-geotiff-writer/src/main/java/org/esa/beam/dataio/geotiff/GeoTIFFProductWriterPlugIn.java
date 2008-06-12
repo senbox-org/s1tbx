@@ -29,7 +29,7 @@ import java.util.Locale;
  * @author Marco Peters
  * @author Sabine Embacher
  * @author Norman Fomferra
- * @version $Revision: 1.4 $ $Date: 2006/10/11 10:36:42 $
+ * @version $Revision$ $Date$
  */
 public class GeoTIFFProductWriterPlugIn implements ProductWriterPlugIn {
 

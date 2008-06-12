@@ -20,7 +20,7 @@ package org.esa.beam.processor.binning;
  * One-Shot L3 processor
  *
  * @author Marco Peters
- * @version $Revision: 1.1 $ $Date: 2006/11/17 14:09:08 $
+ * @version $Revision$ $Date$
  */
 public class OneShotL3Processor extends L3Processor {
 

@@ -31,7 +31,7 @@ import java.io.IOException;
  * Created by Marco.
  *
  * @author Marco
- * @version $Revision: 1.2 $ $Date: 2006/09/14 09:15:56 $
+ * @version $Revision$ $Date$
  */
 public abstract class BaseTrailerRecordTest extends TestCase {
 

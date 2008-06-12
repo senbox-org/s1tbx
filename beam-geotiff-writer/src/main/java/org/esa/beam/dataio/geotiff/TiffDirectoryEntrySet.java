@@ -9,7 +9,7 @@ import java.util.TreeMap;
  * @author Marco Peters
  * @author Sabine Embacher
  * @author Norman Fomferra
- * @version $Revision: 1.1 $ $Date: 2006/09/14 13:19:21 $
+ * @version $Revision$ $Date$
  */
 class TiffDirectoryEntrySet {
 

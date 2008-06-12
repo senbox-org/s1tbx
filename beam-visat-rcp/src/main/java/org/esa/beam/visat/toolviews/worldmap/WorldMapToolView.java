@@ -51,7 +51,7 @@ import java.awt.event.ActionListener;
  * @author Sabine Embacher
  * @author Norman Fomferra
  * @author Marco Peters
- * @version $Revision: 1.1 $ $Date: 2007/04/19 10:41:39 $
+ * @version $Revision$ $Date$
  */
 public class WorldMapToolView extends AbstractToolView {
 

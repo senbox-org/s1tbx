@@ -24,7 +24,7 @@ package org.esa.beam.framework.ui.command;
  * The <code>CommandAdapter</code> is a ...
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1 $  $Date: 2006/10/10 14:47:36 $
+ * @version $Revision$  $Date$
  */
 public class CommandAdapter implements CommandListener {
 

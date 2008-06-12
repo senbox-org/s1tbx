@@ -26,7 +26,7 @@ import java.util.Iterator;
  * Created by Marco Peters.
  *
  * @author Marco Peters
- * @version $Revision: 1.2 $ $Date: 2006/11/02 10:46:18 $
+ * @version $Revision$ $Date$
  */
 public class ReaderLoadedAsServiceTest extends TestCase {
 

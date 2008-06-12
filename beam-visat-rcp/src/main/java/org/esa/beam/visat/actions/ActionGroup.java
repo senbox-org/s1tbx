@@ -22,7 +22,7 @@ import org.esa.beam.framework.ui.command.CommandGroup;
  * Created by Marco Peters.
  *
  * @author Marco Peters
- * @version $Revision: 1.1 $ $Date: 2006/11/17 14:09:08 $
+ * @version $Revision$ $Date$
  */
 public class ActionGroup extends CommandGroup {
 

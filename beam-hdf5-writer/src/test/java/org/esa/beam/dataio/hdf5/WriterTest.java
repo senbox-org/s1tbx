@@ -22,7 +22,7 @@ import junit.framework.TestCase;
  * Created by Marco Peters.
  *
  * @author Marco Peters
- * @version $Revision: 1.2 $ $Date: 2006/10/05 13:22:21 $
+ * @version $Revision$ $Date$
  */
 public class WriterTest extends TestCase {
 

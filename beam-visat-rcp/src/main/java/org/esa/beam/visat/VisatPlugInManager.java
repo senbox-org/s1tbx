@@ -26,7 +26,7 @@ import java.util.logging.Level;
  *
  * @author Sabine Embacher
  * @author Norman Fomferra
- * @version $Revision: 1.5 $ $Date: 2006/11/01 10:27:34 $
+ * @version $Revision$ $Date$
  */
 class VisatPlugInManager {
 

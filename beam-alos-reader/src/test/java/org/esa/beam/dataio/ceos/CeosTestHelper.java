@@ -24,7 +24,7 @@ import java.util.Arrays;
  * Created by Marco Peters.
  *
  * @author Marco Peters
- * @version $Revision: 1.1 $ $Date: 2006/09/14 09:15:56 $
+ * @version $Revision$ $Date$
  */
 public class CeosTestHelper {
 

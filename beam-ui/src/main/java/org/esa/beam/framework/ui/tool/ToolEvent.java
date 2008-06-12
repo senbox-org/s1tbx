@@ -22,7 +22,7 @@ import java.util.EventObject;
  * A special event type which is fired by tools to inform tool listeners about state changes of a tool.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1 $  $Date: 2006/10/10 14:47:38 $
+ * @version $Revision$  $Date$
  */
 public class ToolEvent extends EventObject {
 

@@ -25,7 +25,7 @@ import java.awt.image.RenderedImage;
  * <code>PixelPositionListener</code>s to instances of the <code>ImageDisplay</code> UI component.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1 $ $Date: 2006/10/10 14:47:38 $
+ * @version $Revision$ $Date$
  * @see ImageDisplay
  */
 public interface PixelPositionListener {

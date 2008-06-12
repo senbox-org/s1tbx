@@ -23,7 +23,7 @@ import java.util.StringTokenizer;
  *
  * @author Norman Fomferra
  * @author Sabine Embacher
- * @version $Revision: 1.4 $ $Date: 2006/10/20 14:24:12 $
+ * @version $Revision$ $Date$
  */
 public class SmileAuxData {
 

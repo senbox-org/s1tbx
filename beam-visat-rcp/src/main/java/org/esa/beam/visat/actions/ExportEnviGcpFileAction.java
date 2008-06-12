@@ -38,7 +38,7 @@ import java.io.IOException;
  * This actions exports ground control points of the selected product in a ENVI format.
  *
  * @author Marco Peters
- * @version $Revision: 1.2 $ $Date: 2007/04/18 13:01:13 $
+ * @version $Revision$ $Date$
  */
 public class ExportEnviGcpFileAction extends ExecCommand {
 

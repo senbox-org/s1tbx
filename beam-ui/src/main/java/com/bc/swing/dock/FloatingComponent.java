@@ -27,7 +27,7 @@ import javax.swing.Icon;
  * <p>Usually this interface will be implemented by classes which extend
  * some kind of window, e.g. a JDialog or JFrame.
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
- * @version $Revision: 1.1 $ $Date: 2006/10/10 14:47:35 $
+ * @version $Revision$ $Date$
  */
 public interface FloatingComponent {
 

@@ -33,7 +33,7 @@ import java.net.URL;
  * @author Tom Block
  * @author Sabine Embacher
  * @author Norman Fomferra
- * @version $Revision: 1.1.1.1 $  $Date: 2006/09/11 08:16:47 $
+ * @version $Revision$  $Date$
  */
 public class FileUtils {
 

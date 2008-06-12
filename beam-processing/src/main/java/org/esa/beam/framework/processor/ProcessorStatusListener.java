@@ -20,7 +20,7 @@ package org.esa.beam.framework.processor;
  * Listens to processing events fired by a <code>Processor</code> instance.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1 $  $Date: 2006/10/10 14:47:34 $
+ * @version $Revision$  $Date$
  * @see ProcessorStatusEvent
  * @see Processor#addProcessorStatusListener
  * @see Processor#removeProcessorStatusListener

@@ -38,7 +38,7 @@ import java.util.List;
  * This action deletes the currently selected product node, if possible.
  *
  * @author Marco Peters
- * @version $Revision: 1.1 $ $Date: 2006/11/15 16:21:48 $
+ * @version $Revision$ $Date$
  */
 public class DeleteAction extends ExecCommand {
 

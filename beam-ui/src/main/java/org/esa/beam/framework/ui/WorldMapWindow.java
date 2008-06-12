@@ -38,7 +38,7 @@ import java.awt.event.ActionListener;
  * @author Sabine Embacher
  * @author Norman Fomferra
  * @author Marco Peters
- * @version $Revision: 1.3 $ $Date: 2007/04/18 13:01:13 $
+ * @version $Revision$ $Date$
  */
 public class WorldMapWindow extends JDialog {
 

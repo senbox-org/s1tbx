@@ -20,7 +20,7 @@ package org.esa.beam.processor.smile;
  * The implementation of the Smile Correction algorithm.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1.1.1 $ $Date: 2006/09/11 08:16:53 $
+ * @version $Revision$ $Date$
  */
 public class SmileCorrectionAlgorithm {
 

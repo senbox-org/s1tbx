@@ -11,7 +11,7 @@ import static java.lang.Math.sqrt;
  * algorithm developed by Luis Gomez Chova.
  *
  * @author Ralf Quast
- * @version $Revision: $ $Date: $
+ * @version $Revision$ $Date$
  */
 public class DropoutCorrection {
 

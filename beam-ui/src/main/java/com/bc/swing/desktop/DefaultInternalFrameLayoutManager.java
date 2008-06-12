@@ -23,7 +23,7 @@ import javax.swing.JInternalFrame;
 
 /**
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
- * @version $Revision: 1.1 $ $Date: 2006/10/10 14:47:35 $
+ * @version $Revision$ $Date$
  */
 public class DefaultInternalFrameLayoutManager implements InternalFrameLayoutManager {
     public void moveFrameToVisible(final JDesktopPane desktopPane, final JInternalFrame internalFrame) {

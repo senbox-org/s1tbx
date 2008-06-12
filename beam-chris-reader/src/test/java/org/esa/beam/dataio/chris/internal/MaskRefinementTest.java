@@ -6,7 +6,7 @@ import junit.framework.TestCase;
  * Tests for class {@link MaskRefinement}.
  *
  * @author Ralf Quast
- * @version $Revision: 1.5 $ $Date: 2007/04/18 16:01:35 $
+ * @version $Revision$ $Date$
  */
 public class MaskRefinementTest extends TestCase {
 

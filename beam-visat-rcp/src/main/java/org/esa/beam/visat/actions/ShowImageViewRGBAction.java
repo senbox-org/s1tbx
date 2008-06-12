@@ -25,7 +25,7 @@ import org.esa.beam.visat.VisatApp;
  * This action open a RGB image view on the currently selected Product.
  *
  * @author Marco Peters
- * @version $Revision: 1.1 $ $Date: 2006/11/15 16:21:49 $
+ * @version $Revision$ $Date$
  */
 public class ShowImageViewRGBAction extends ExecCommand {
 

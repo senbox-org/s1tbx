@@ -43,7 +43,7 @@ import javax.swing.event.MenuListener;
 
 /**
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
- * @version $Revision: 1.4 $ $Date: 2006/10/12 09:51:31 $
+ * @version $Revision$ $Date$
  */
 public class TabbedDesktopPane extends JPanel {
 

@@ -34,7 +34,7 @@ import java.awt.image.*;
  * <p> All functions have been implemented with extreme caution in order to provide a maximum performance.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.2 $ $Date: 2006/12/08 13:48:37 $
+ * @version $Revision$ $Date$
  */
 public class ImageUtils {
 

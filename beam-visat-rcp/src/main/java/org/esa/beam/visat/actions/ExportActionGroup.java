@@ -23,7 +23,7 @@ import org.esa.beam.visat.VisatApp;
  * Created by Marco Peters.
  *
  * @author Marco Peters
- * @version $Revision: 1.1 $ $Date: 2006/11/17 14:09:08 $
+ * @version $Revision$ $Date$
  */
 public class ExportActionGroup extends ActionGroup {
 

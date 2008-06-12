@@ -22,7 +22,7 @@ import junit.framework.TestCase;
  * Created by marcoz.
  *
  * @author marcoz
- * @version $Revision: $ $Date: $
+ * @version $Revision$ $Date$
  */
 public class BitSetterTest extends TestCase {
 

@@ -24,7 +24,7 @@ import org.esa.beam.framework.ui.tool.Tool;
  * which are applied to all commands in the list.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.6 $  $Date: 2006/11/22 13:05:36 $
+ * @version $Revision$  $Date$
  */
 public interface CommandManager {
 

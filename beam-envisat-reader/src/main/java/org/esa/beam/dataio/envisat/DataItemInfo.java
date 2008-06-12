@@ -24,7 +24,7 @@ import org.esa.beam.util.Debug;
  * The <code>DataItemInfo</code> class represents a named item having a specific data type.
  *
  * @author Norman Fomferra
- * @version $Revision: 1.1 $ $Date: 2006/09/18 06:34:32 $
+ * @version $Revision$ $Date$
  */
 public abstract class DataItemInfo extends ItemInfo {
 
