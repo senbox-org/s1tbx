@@ -114,7 +114,6 @@
         <module>beam-landsat-reader</module>
         <module>beam-geotiff-writer</module>
         <module>beam-hdf5-writer</module>
-        <module>beam-diagnostics</module>
         <module>beam-shapefile-reader</module>
 
         <module>lib-hdf</module>
@@ -484,7 +483,7 @@
                         org.esa.beam.framework:org.esa.beam.util:org.esa.beam.visat:com.bc.jexp
                     </subpackages>
                     <excludePackageNames>
-                        *.internal:org.esa.beam.visat.*
+                        *.internal:org.esa.beam.visat.toolviews:org.esa.beam.visat.actions:org.esa.beam.visat.dialogs:org.esa.beam.visat.plugins
                     </excludePackageNames>
 					<maxmemory>256m</maxmemory>
                     <quiet>true</quiet>
