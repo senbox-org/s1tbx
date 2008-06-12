@@ -44,7 +44,7 @@
             <largeIcon>/org/esa/beam/scripting/visat/icons/utilities-terminal-22.png</largeIcon>
             <!--<helpId>TODO</helpId>-->
             <description>Scripting Console.</description>
-            <initState>DOCKED</initState>
+            <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>
             <initIndex>0</initIndex>
         </toolView>
