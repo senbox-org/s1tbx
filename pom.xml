@@ -358,10 +358,10 @@
                 <version>2.2-beta-1</version>
                 <configuration>
                     <descriptors>
-                        <!--<descriptor>src/main/assembly/src.xml</descriptor>-->
                         <!-- <descriptor>src/main/assembly/beam-web-help.xml</descriptor> -->
                         <descriptor>src/main/assembly/bin.xml</descriptor>
                         <descriptor>src/main/assembly/installer-files.xml</descriptor>
+                        <descriptor>src/main/assembly/src.xml</descriptor>
                     </descriptors>
                 </configuration>
             </plugin>
@@ -480,10 +480,13 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
                     <aggregate>true</aggregate>
+                    <subpackages>
+                        org.esa.beam.framework:org.esa.beam.util:org.esa.beam.visat
+                    </subpackages>
                     <excludePackageNames>
-                        *.internal;org.esa.beam.visat.toolviews.*;org.esa.beam.visat.actions.*;org.esa.beam.visat.plugins.*;org.esa.beam.visat.dialogs.*;org.esa.beam.examples.*;org.esa.beam.dataio.*;org.esa.beam.processor.*;com.bc.beam.processor.*;org.esa.beam.pconvert
+                        *.internal:org.esa.beam.visat.*
                     </excludePackageNames>
-                    <!-- Shuts off non-error and non-warning messages-->
+					<maxmemory>256m</maxmemory>
                     <quiet>true</quiet>
                 </configuration>
             </plugin>
