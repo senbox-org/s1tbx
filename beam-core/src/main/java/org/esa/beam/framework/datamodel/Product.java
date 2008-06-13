@@ -928,7 +928,7 @@ public class Product extends ProductNode {
      * Adds the given flag coding to this product.
      *
      * @param flagCoding the flag coding to added, ignored if <code>null</code>
-     * @deprecated since 4.2, use {@link #getFlagCodingGroup()} instead
+     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
      */
     @Deprecated
     public void addFlagCoding(final FlagCoding flagCoding) {
@@ -940,7 +940,7 @@ public class Product extends ProductNode {
      *
      * @param flagCoding the flag coding to be removed, ignored if <code>null</code>
      * @return <code>true</code> on success
-     * @deprecated since 4.2, use {@link #getFlagCodingGroup()} instead
+     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
      */
     @Deprecated
     public boolean removeFlagCoding(final FlagCoding flagCoding) {
@@ -951,7 +951,7 @@ public class Product extends ProductNode {
      * Returns the number of flag codings contained in this product.
      *
      * @return the number of flag codings
-     * @deprecated since 4.2, use {@link #getFlagCodingGroup()} instead
+     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
      */
     @Deprecated
     public int getNumFlagCodings() {
@@ -964,7 +964,7 @@ public class Product extends ProductNode {
      * @param index the flag coding index
      * @return the flag coding at the given index
      * @throws IndexOutOfBoundsException if the index is out of bounds
-     * @deprecated since 4.2, use {@link #getFlagCodingGroup()} instead
+     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
      */
     @Deprecated
     public FlagCoding getFlagCodingAt(final int index) {
@@ -976,7 +976,7 @@ public class Product extends ProductNode {
      *
      * @return a string array containing the names of the flag codings contained in this product. If this product has no
      *         flag coding a zero-length-array is returned.
-     * @deprecated since 4.2, use {@link #getFlagCodingGroup()} instead
+     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
      */
     @Deprecated
     public String[] getFlagCodingNames() {
@@ -989,7 +989,7 @@ public class Product extends ProductNode {
      * @param name the flag coding name
      * @return the flag coding with the given name or <code>null</code> if a flag coding with the given name is not
      *         contained in this product.
-     * @deprecated since 4.2, use {@link #getFlagCodingGroup()} instead
+     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
      */
     @Deprecated
     public FlagCoding getFlagCoding(final String name) {
@@ -1002,7 +1002,7 @@ public class Product extends ProductNode {
      * @param name the name, must not be <code>null</code>
      * @return <code>true</code> if a flag coding with the given name is contained in this product, <code>false</code>
      *         otherwise
-     * @deprecated since 4.2, use {@link #getFlagCodingGroup()} instead
+     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
      */
     @Deprecated
     public boolean containsFlagCoding(final String name) {
@@ -1021,7 +1021,7 @@ public class Product extends ProductNode {
      * @return the array of all flag names. If this product does not support flags, an empty array is returned, but
      *         never <code>null</code>.
      * @see #createTerm(String)
-     * @deprecated since 4.2, use {@link #getFlagCodingGroup()} instead
+     * @deprecated since BEAM 4.2, use {@link #getFlagCodingGroup()} instead
      */
     @Deprecated
     public String[] getAllFlagNames() {
@@ -1980,6 +1980,12 @@ public class Product extends ProductNode {
         }
         for (int i = 0; i < getNumTiePointGrids(); i++) {
             getTiePointGridAt(i).acceptVisitor(visitor);
+        }
+        ProductNodeGroup<FlagCoding> flagCodingGroup = getFlagCodingGroup();
+        FlagCoding[] flagCodings = flagCodingGroup.toArray(new FlagCoding[0]);
+        for (FlagCoding flagCoding : flagCodings) {
+            flagCoding.acceptVisitor(visitor);
+
         }
         for (int i = 0; i < getNumFlagCodings(); i++) {
             getFlagCodingAt(i).acceptVisitor(visitor);
