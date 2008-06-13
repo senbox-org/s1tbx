@@ -669,6 +669,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * or {@code null}.
      * @deprecated since BEAM 4.2, use {@link #getValidMaskExpression()} instead
      */
+    @Deprecated
     public String getDataMaskExpression() {
         return getValidMaskExpression();
     }
@@ -1608,6 +1609,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * @deprecated in 4.0, use {@link #ensureValidImageInfo(double[],boolean,ProgressMonitor)}
      */
+    @Deprecated
     public ImageInfo ensureValidImageInfo(double[] histoSkipAreas, boolean ignoreInvalidZero) throws IOException {
         return ensureValidImageInfo(histoSkipAreas, ignoreInvalidZero, ProgressMonitor.NULL);
     }
@@ -1638,6 +1640,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * @deprecated in 4.0, use {@link #createDefaultImageInfo(double[],boolean,ProgressMonitor)}
      */
+    @Deprecated
     public ImageInfo createDefaultImageInfo(double[] histoSkipAreas, boolean ignoreInvalidZero) throws IOException {
         return createDefaultImageInfo(histoSkipAreas, ignoreInvalidZero, ProgressMonitor.NULL);
     }
@@ -1727,6 +1730,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * @deprecated in 4.0, use {@link #createColorIndexedImage(ProgressMonitor)} instead
      */
+    @Deprecated
     public BufferedImage createColorIndexedImage() throws IOException {
         return createColorIndexedImage(ProgressMonitor.NULL);
     }
@@ -1748,6 +1752,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * @deprecated in 4.0, use {@link #createRgbImage(ProgressMonitor)} instead
      */
+    @Deprecated
     public BufferedImage createRgbImage() throws IOException {
         return createRgbImage(ProgressMonitor.NULL);
     }
@@ -1769,6 +1774,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * @deprecated in 4.0, use {@link #createROI(ProgressMonitor)} instead
      */
+    @Deprecated
     public ROI createROI() throws IOException {
         return createROI(ProgressMonitor.NULL);
     }
@@ -1788,6 +1794,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * @deprecated in 4.0, use {@link #createROIImage(java.awt.Color,com.bc.ceres.core.ProgressMonitor)} instead
      */
+    @Deprecated
     public synchronized BufferedImage createROIImage(final Color color) throws IOException {
         return createROIImage(color, ProgressMonitor.NULL);
     }
@@ -1795,6 +1802,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * Creates a new ROI image for the current ROI definition.
      *
+     * @param color the ROI color
+     * @param pm a progress monitor
      * @return a new ROI instance or null if no ROI definition is available
      */
     public synchronized BufferedImage createROIImage(final Color color, ProgressMonitor pm) throws IOException {
@@ -2067,6 +2076,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * @deprecated in 4.0, use {@link #quantizeRasterData(double,double,double,com.bc.ceres.core.ProgressMonitor)} instead
      */
+    @Deprecated
     public byte[] quantizeRasterData(final double newMin, final double newMax, final double gamma) throws IOException {
         return quantizeRasterData(newMin, newMax, gamma, ProgressMonitor.NULL);
     }
@@ -2081,6 +2091,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * @deprecated in 4.0, use {@link #quantizeRasterData(double,double,double,byte[],int,com.bc.ceres.core.ProgressMonitor)}
      */
+    @Deprecated
     public void quantizeRasterData(double newMin, double newMax, final double gamma, byte[] rgbSamples,
                                    int offset) throws IOException {
         quantizeRasterData(newMin, newMax, gamma, rgbSamples, offset, 3, ProgressMonitor.NULL);
@@ -2110,6 +2121,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * @deprecated in 4.0, use {@link #computeRasterDataHistogram(ROI,int,Range,ProgressMonitor)}
      */
+    @Deprecated
     public Histogram computeRasterDataHistogram(final ROI roi,
                                                 final int numBins,
                                                 Range range) throws IOException {
@@ -2177,6 +2189,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * @deprecated in 4.0, use {@link #computeRasterDataRange(javax.media.jai.ROI,com.bc.ceres.core.ProgressMonitor)} instead
      */
+    @Deprecated
     public Range computeRasterDataRange(final ROI roi) throws IOException {
         return computeRasterDataRange(roi, ProgressMonitor.NULL);
     }
@@ -2191,6 +2204,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @return the resulting histogram
      * @see #isScalingApplied()
      * @see #isLog10Scaled()
+     * @throws java.io.IOException
      */
     public Range computeRasterDataRange(final ROI roi, ProgressMonitor pm) throws IOException {
         final ProductData rasterData = getRasterData();
@@ -2207,6 +2221,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * @deprecated in 4.0, use {@link #computeStatistics(javax.media.jai.ROI,com.bc.ceres.core.ProgressMonitor)} instead
      */
+    @Deprecated
     public Statistics computeStatistics(final ROI roi) throws IOException {
         return computeStatistics(roi, ProgressMonitor.NULL);
     }
@@ -2215,6 +2230,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Computes statistics for this raster data instance.
      *
      * @param roi on optional ROI, can be <code>null</code>
+     * @param pm
      * @return the statistics
      */
     public Statistics computeStatistics(final ROI roi, ProgressMonitor pm) throws IOException {
@@ -2581,48 +2597,55 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /////////////////////////////////////////////////////////////////////////
 
     /**
-     * @deprecated in 4.1, no replacement
+     * @deprecated in BEAM 4.1, no replacement
      */
+    @Deprecated
     private byte[] dataMask;
 
     /**
-     * @deprecated in 4.1, use {@link #isValidMaskUsed()}
+     * @deprecated in BEAM 4.1, use {@link #isValidMaskUsed()}
      */
+    @Deprecated
     public boolean isDataMaskUsed() {
         return isValidMaskUsed();
     }
 
     /**
-     * @deprecated in 4.1, use {@link #getValidMask()}
+     * @deprecated in BEAM 4.1, use {@link #getValidMask()}
      */
+    @Deprecated
     public byte[] getDataMask() {
         return dataMask;
     }
 
     /**
-     * @deprecated in 4.1, use {@link #setValidMask(org.esa.beam.util.BitRaster)}
+     * @deprecated in BEAM 4.1, use {@link #setValidMask(org.esa.beam.util.BitRaster)}
      */
+    @Deprecated
     protected void setDataMask(final byte[] dataMask) {
         this.dataMask = dataMask;
     }
 
     /**
-     * @deprecated in 4.1, use {@link #ensureValidMaskComputed(com.bc.ceres.core.ProgressMonitor)}
+     * @deprecated in BEAM 4.1, use {@link #ensureValidMaskComputed(com.bc.ceres.core.ProgressMonitor)}
      */
+    @Deprecated
     public void ensureDataMaskIsAvailable() throws IOException {
         ensureValidMaskComputed(ProgressMonitor.NULL);
     }
 
     /**
-     * @deprecated in 4.1, use {@link #computeValidMask}
+     * @deprecated in BEAM 4.1, use {@link #computeValidMask}
      */
+    @Deprecated
     protected synchronized void computeDataMask() throws IOException {
         computeValidMask(ProgressMonitor.NULL);
     }
 
     /**
-     * @deprecated in 4.1, use {@link RasterDataNode#createPixelValidator(int,javax.media.jai.ROI)}
+     * @deprecated in BEAM 4.1, use {@link RasterDataNode#createPixelValidator(int,javax.media.jai.ROI)}
      */
+    @Deprecated
     public class PixelValidator implements IndexValidator {
 
         private final int _y0;

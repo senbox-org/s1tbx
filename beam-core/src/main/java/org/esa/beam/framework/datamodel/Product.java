@@ -1095,21 +1095,21 @@ public class Product extends ProductNode {
     }
 
     /**
-     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
     public boolean addPin(final Pin pin) {
         return pinGroup.add(pin);
     }
 
     /**
-     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
     public boolean removePin(final Pin pin) {
         return pinGroup.remove(pin);
     }
 
     /**
-     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
     public int getNumPins() {
         return pinGroup.getNodeCount();
@@ -1123,21 +1123,21 @@ public class Product extends ProductNode {
     }
 
     /**
-     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
     public Pin getPin(final String name) {
         return pinGroup.get(name);
     }
 
     /**
-     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
     public boolean containsPin(final String name) {
         return pinGroup.contains(name);
     }
 
     /**
-     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
     public int getPinIndex(final String name) {
         return pinGroup.indexOf(name);
@@ -1147,42 +1147,42 @@ public class Product extends ProductNode {
      * Gets all defined pins of this product.
      *
      * @return all defined pins of this product, never null
-     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()}
+     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()}
      */
     public Pin[] getPins() {
         return pinGroup.toArray(new Pin[0]);
     }
 
     /**
-     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
     public String[] getPinNames() {
         return pinGroup.getNodeNames();
     }
 
     /**
-     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
     public void setSelectedPin(final int index) {
         pinGroup.setSelectedNode(index);
     }
 
     /**
-     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
     public void setSelectedPin(final String name) {
         pinGroup.setSelectedNode(name);
     }
 
     /**
-     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
     public Pin getSelectedPin() {
         return pinGroup.getSelectedNode();
     }
 
     /**
-     * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
+     * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
     public Pin[] getSelectedPins() {
         Collection<Pin> selectedNodes = pinGroup.getSelectedNodes();
@@ -1480,7 +1480,7 @@ public class Product extends ProductNode {
     // Valid-mask Support
 
     /**
-     * @deprecated in 4.1, no replacement
+     * @deprecated in BEAM 4.1, no replacement
      */
     public final int getBytePackedBitmaskRasterWidth() {
         int _bytePackedBitmaskRasterWidth = getSceneRasterWidth() / 8;
@@ -1491,7 +1491,7 @@ public class Product extends ProductNode {
     }
 
     /**
-     * @deprecated in 4.1, use {@link #getValidMask(String)}
+     * @deprecated in BEAM 4.1, use {@link #getValidMask(String)}
      */
     public byte[] getValidMask(final Object id) {
         try {
@@ -1502,21 +1502,21 @@ public class Product extends ProductNode {
     }
 
     /**
-     * @deprecated in 4.1, use {@link #createValidMask(String,com.bc.ceres.core.ProgressMonitor)}
+     * @deprecated in BEAM 4.1, use {@link #createValidMask(String,com.bc.ceres.core.ProgressMonitor)}
      */
     public byte[] createPixelMask(final String expression) throws IOException {
         return createValidMask(expression, ProgressMonitor.NULL).createBytePackedBitmaskRasterData();
     }
 
     /**
-     * @deprecated in 4.1, use {@link #createValidMask(com.bc.jexp.Term,com.bc.ceres.core.ProgressMonitor)}
+     * @deprecated in BEAM 4.1, use {@link #createValidMask(com.bc.jexp.Term,com.bc.ceres.core.ProgressMonitor)}
      */
     public byte[] createPixelMask(final Term term) throws IOException {
         return createValidMask(term, ProgressMonitor.NULL).createBytePackedBitmaskRasterData();
     }
 
     /**
-     * @deprecated in 4.1, use {@link #releaseValidMask(org.esa.beam.util.BitRaster)}
+     * @deprecated in BEAM 4.1, use {@link #releaseValidMask(org.esa.beam.util.BitRaster)}
      */
     public void releasePixelMask(final byte[] pixelMask) {
         // do nothing
@@ -1596,6 +1596,7 @@ public class Product extends ProductNode {
      * the related bit in the mask is set.
      *
      * @param expression the boolean expression, e.g. "l2_flags.LAND && reflec_10 >= 0.0"
+     * @param pm a progress monitor
      * @return a bit-packed mask for all pixels of the scene, never null
      * @throws IOException if an I/O error occurs
      * @see #createTerm(String)
