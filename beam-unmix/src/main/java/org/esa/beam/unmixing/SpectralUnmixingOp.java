@@ -52,9 +52,9 @@ import java.util.Map;
         description = "Performs a linear spectral unmixing.")
 public class SpectralUnmixingOp extends Operator {
 
-    private final String TYPE_1 = "Unconstrained LSU";
-    private final String TYPE_2 = "Constrained LSU";
-    private final String TYPE_3 = "Fully Constrained LSU";
+    private final String UC_LSU = "Unconstrained LSU";
+    private final String C_LSU = "Constrained LSU";
+    private final String FC_LSU = "Fully Constrained LSU";
 
     @SourceProduct(description = "The source product.")
     Product sourceProduct;
@@ -71,7 +71,7 @@ public class SpectralUnmixingOp extends Operator {
     @Parameter(description = "A text file containing (additional) endmembers in a table. Wavelengths must be given in nanometers.")
     File endmemberFile;
 
-    @Parameter(description = "The unmixing model.", valueSet = {TYPE_1, TYPE_2, TYPE_3}, defaultValue = TYPE_2)
+    @Parameter(description = "The unmixing model.", valueSet = {UC_LSU, C_LSU, FC_LSU}, defaultValue = C_LSU)
     String unmixingModelName;
 
     @Parameter(description = "The suffix for the generated abundance band names (name = endmember + suffix).", pattern = "[a-zA-Z_0-9]*", notNull = true, defaultValue = "_abundance")
@@ -153,11 +153,11 @@ public class SpectralUnmixingOp extends Operator {
             }
         }
 
-        if (TYPE_1.equals(unmixingModelName)) {
+        if (UC_LSU.equals(unmixingModelName)) {
             spectralUnmixing = new UnconstrainedLSU(lsuMatrixElements);
-        } else if (TYPE_2.equals(unmixingModelName)) {
+        } else if (C_LSU.equals(unmixingModelName)) {
             spectralUnmixing = new ConstrainedLSU(lsuMatrixElements);
-        } else if (TYPE_3.equals(unmixingModelName)) {
+        } else if (FC_LSU.equals(unmixingModelName)) {
             spectralUnmixing = new FullyConstrainedLSU(lsuMatrixElements);
         } else if (unmixingModelName == null) {
             spectralUnmixing = new UnconstrainedLSU(lsuMatrixElements);
