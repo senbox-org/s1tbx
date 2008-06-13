@@ -238,4 +238,10 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
         return selectedNodes;
     }
 
+    @Override
+    public void updateExpression(final String oldExternalName, final String newExternalName) {
+        for (final ProductNode  node : toArray()) {
+            node.updateExpression(oldExternalName, newExternalName);
+        }
+    }
 }

@@ -254,6 +254,11 @@ public class Product extends ProductNode {
                         public void visit(BitmaskDef bitmaskDef) {
                             bitmaskDef.updateExpression(oldExternName, newExternName);
                         }
+
+                        @Override
+                        public void visit(ProductNodeGroup group) {
+                            group.updateExpression(oldExternName, newExternName);
+                        }
                     };
                     acceptVisitor(productVisitorAdapter);
                 }
@@ -1982,15 +1987,8 @@ public class Product extends ProductNode {
         for (int i = 0; i < getNumTiePointGrids(); i++) {
             getTiePointGridAt(i).acceptVisitor(visitor);
         }
-        ProductNodeGroup<FlagCoding> flagCodingGroup = getFlagCodingGroup();
-        FlagCoding[] flagCodings = flagCodingGroup.toArray(new FlagCoding[0]);
-        for (FlagCoding flagCoding : flagCodings) {
-            flagCoding.acceptVisitor(visitor);
-
-        }
-        for (int i = 0; i < getNumFlagCodings(); i++) {
-            getFlagCodingAt(i).acceptVisitor(visitor);
-        }
+        getFlagCodingGroup().acceptVisitor(visitor);
+        getIndexCodingGroup().acceptVisitor(visitor);
         for (int i = 0; i < getNumBitmaskDefs(); i++) {
             getBitmaskDefAt(i).acceptVisitor(visitor);
         }

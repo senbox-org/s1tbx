@@ -76,6 +76,8 @@ public class ProductTest extends TestCase {
         assertEquals(expectedList, visitor.getVisitedList());
 
         _product.acceptVisitor(visitor);
+        expectedList.add("flag_codings");
+        expectedList.add("index_codings");
         expectedList.add("metadata");
         expectedList.add("product");
         assertEquals(expectedList, visitor.getVisitedList());
