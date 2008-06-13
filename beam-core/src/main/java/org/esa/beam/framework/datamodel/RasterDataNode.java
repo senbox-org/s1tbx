@@ -580,7 +580,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public void setValidPixelExpression(final String validPixelExpression) {
         if (!ObjectUtils.equalObjects(_validPixelExpression, validPixelExpression)) {
             _validPixelExpression = validPixelExpression;
-            setDefaultROIBitmaskExpr();
             resetValidMask();
             setModified(true);
             fireProductNodeChanged(PROPERTY_NAME_VALID_PIXEL_EXPRESSION);
@@ -2474,19 +2473,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         if (resampleLUT != null && resampleLUT.length == 256) {
             for (int i = 0; i < samples.length; i++) {
                 samples[i] = resampleLUT[samples[i] & 0xff];
-            }
-        }
-    }
-
-    private void setDefaultROIBitmaskExpr() {
-        if (getValidPixelExpression() != null) {
-            ROIDefinition roiDefinition = getROIDefinition();
-            if (roiDefinition == null) {
-                roiDefinition = new ROIDefinition();
-                setROIDefinition(roiDefinition);
-            }
-            if (StringUtils.isNullOrEmpty(roiDefinition.getBitmaskExpr())) {
-                roiDefinition.setBitmaskExpr(getValidPixelExpression());
             }
         }
     }
