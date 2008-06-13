@@ -60,7 +60,7 @@ class PrismImageFile {
     private long _startPosImageRecords;
 
     public PrismImageFile(final ImageInputStream imageStream) throws IOException,
-                                                                     IllegalCeosFormatException {
+            IllegalCeosFormatException {
         _ceosReader = new CeosFileReader(imageStream);
         _imageFileDescriptorRecord = new ImageFileDescriptorRecord(_ceosReader);
         _width = _imageFileDescriptorRecord.getNumImagePixelsPerLine();
@@ -75,13 +75,13 @@ class PrismImageFile {
     void readBandRasterData(final int sourceOffsetX, final int sourceOffsetY,
                             final int sourceWidth, final int sourceHeight,
                             final int sourceStepX, final int sourceStepY,
-                            final PrismProductReader.DataBuffer destBuffer,
+                            final DataBuffer destBuffer,
                             final int destOffsetX,
                             // the x-offset inside the destination buffer for the part to be written
                             final int destWidth,   // the line part to be written inside the destination buffer
                             final ProgressMonitor pm)
             throws IOException,
-                   IllegalCeosFormatException {
+            IllegalCeosFormatException {
 
         final int sourceMinY = sourceOffsetY;
         final int sourceMaxY = sourceOffsetY + sourceHeight - 1;
@@ -113,14 +113,14 @@ class PrismImageFile {
     }
 
     private void readSourceLine(final int y, final int sourceOffsetX, final byte[] srcLine) throws IOException,
-                                                                                                   IllegalCeosFormatException {
+            IllegalCeosFormatException {
         final ImageRecord imageRecord = getImageRecord(y);
         _ceosReader.seek(imageRecord.getImageDataStart() + sourceOffsetX);
         _ceosReader.readB1(srcLine);
     }
 
     private ImageRecord getImageRecord(final int line) throws IOException,
-                                                              IllegalCeosFormatException {
+            IllegalCeosFormatException {
         if (_imageRecords[line] == null) {
             _ceosReader.seek(_imageRecordLength * line + _startPosImageRecords);
             _imageRecords[line] = new ImageRecord(_ceosReader);

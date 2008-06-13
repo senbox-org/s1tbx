@@ -26,8 +26,8 @@ import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.util.TreeNode;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
@@ -68,6 +68,30 @@ public class PrismProductReader extends AbstractProductReader {
             _prismDir = null;
         }
         super.close();
+    }
+
+    /**
+     * Retrieves a set of TreeNode objects that represent the physical product structure as stored on the harddrive.
+     * The tree consisty of:
+     * - a root node (the one returned) pointing to the directory that CONTAINS the product
+     * - any number of nested children that compose the product.
+     * Each TreeNod is configured as follows:
+     * - id: contains a string representation of the path. For the root node, this is the
+     * absolute path to the parent of the file returned by Product.getFileLocation().
+     * For all subsequent nodes, the node name.
+     * - content: each node stores as content a java.io.File object that physically defines the node.
+     * <p/>
+     * The method returns null when a TreeNode can not be assembled (i.e. in-memory product, created from stream ...)
+     *
+     * @return the root TreeNode or null
+     */
+    public TreeNode<File> getProductComponents() {
+        final File input = CeosHelper.getFileFromInput(getInput());
+        if (input == null) {
+            return null;
+        }
+
+        return _prismDir.getProductComponents();
     }
 
     /**
@@ -172,35 +196,6 @@ public class PrismProductReader extends AbstractProductReader {
             pm.done();
         }
 
-    }
-
-    /**
-     * The class is public for the benefit of the implementation of an other class
-     * and the API may change in future releases of the software.
-     */
-    public static class DataBuffer {
-
-        private final ProductData _buffer;
-        private final Point _location;
-        private final Dimension _dimension;
-
-        public DataBuffer(final ProductData buffer, final int x, final int y, final int width, final int height) {
-            _buffer = buffer;
-            _location = new Point(x, y);
-            _dimension = new Dimension(width, height);
-        }
-
-        public ProductData getBuffer() {
-            return _buffer;
-        }
-
-        public Point getLocation() {
-            return _location;
-        }
-
-        public Dimension getDimension() {
-            return _dimension;
-        }
     }
 }
 
