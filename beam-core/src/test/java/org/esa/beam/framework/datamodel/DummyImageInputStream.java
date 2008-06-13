@@ -22,7 +22,7 @@ import java.nio.ByteOrder;
 import javax.imageio.stream.IIOByteBuffer;
 import javax.imageio.stream.ImageInputStream;
 
-class DummyImageInputStream implements ImageInputStream {
+public class DummyImageInputStream implements ImageInputStream {
 
 // J2SDK 1.4 >>>>
     public void setByteOrder(ByteOrder byteOrder) {

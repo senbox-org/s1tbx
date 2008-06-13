@@ -2,25 +2,12 @@ package org.esa.beam.dataio.ceos.avnir2;
 
 import org.esa.beam.dataio.ceos.CeosHelper;
 import org.esa.beam.dataio.ceos.IllegalCeosFormatException;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.FXYGeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.dataop.maptransf.Datum;
-import org.esa.beam.framework.dataop.maptransf.Ellipsoid;
-import org.esa.beam.framework.dataop.maptransf.MapInfo;
-import org.esa.beam.framework.dataop.maptransf.MapProjection;
-import org.esa.beam.framework.dataop.maptransf.MapTransform;
-import org.esa.beam.framework.dataop.maptransf.MapTransformFactory;
-import org.esa.beam.framework.dataop.maptransf.StereographicDescriptor;
-import org.esa.beam.framework.dataop.maptransf.UTM;
+import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.dataop.maptransf.*;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
+import org.esa.beam.util.StringUtils;
+import org.esa.beam.util.TreeNode;
 import org.esa.beam.util.math.FXYSum;
 
 import javax.imageio.stream.FileImageInputStream;
@@ -28,13 +15,7 @@ import javax.imageio.stream.ImageInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * This class represents a product directory of an Avnir-2 product.
@@ -60,8 +41,8 @@ class Avnir2ProductDirectory {
     private final int _sceneWidth;
     private final int _sceneHeight;
 
-    public Avnir2ProductDirectory(final File dir) throws IOException,
-                                                         IllegalCeosFormatException {
+    Avnir2ProductDirectory(final File dir) throws IOException,
+            IllegalCeosFormatException {
         Guardian.assertNotNull("dir", dir);
 
         _baseDir = dir;
@@ -87,11 +68,11 @@ class Avnir2ProductDirectory {
         assertSameWidthAndHeightForAllImages();
     }
 
-    public Product createProduct() throws IOException,
-                                          IllegalCeosFormatException {
-        final Product product = new Product(getProductName(),
-                                            getProductType(),
-                                            _sceneWidth, _sceneHeight);
+    Product createProduct() throws IOException,
+            IllegalCeosFormatException {
+        final Product product = new Product(_volumeDirectoryFile.getProductName(),
+                getProductType(),
+                _sceneWidth, _sceneHeight);
         product.setFileLocation(_baseDir);
 
         for (int i = 0; i < _imageFiles.length; i++) {
@@ -110,13 +91,52 @@ class Avnir2ProductDirectory {
         return product;
     }
 
+    TreeNode<File> getProductComponents() {
+        try {
+            File parentDir = _baseDir.getParentFile();
+            final TreeNode<File> root = new TreeNode<File>(parentDir.getCanonicalPath());
+            root.setContent(parentDir);
+
+            final TreeNode<File> dir = new TreeNode<File>(_baseDir.getName());
+            dir.setContent(_baseDir);
+            root.addChild(dir);
+
+            File volumeFile = CeosHelper.getVolumeFile(_baseDir);
+            addFileToDir(dir, volumeFile);
+
+            addFileToDir(dir, new File(_volumeDirectoryFile.getLeaderFileName()));
+            addFileToDir(dir, new File(_volumeDirectoryFile.getTrailerFileName()));
+            String supplemental = _volumeDirectoryFile.getSupplementalFileName();
+            if (StringUtils.isNotNullAndNotEmpty(supplemental)) {
+                addFileToDir(dir, new File(supplemental));
+            }
+            final String[] imageFileNames = _volumeDirectoryFile.getImageFileNames();
+            for (int i = 0; i < imageFileNames.length; i++) {
+                addFileToDir(dir, new File(imageFileNames[i]));
+            }
+
+            return root;
+            // @todo 2 tb/** log exceptions somewhere
+        } catch (IOException e) {
+            return null;
+        } catch (IllegalCeosFormatException e) {
+            return null;
+        }
+    }
+
+    private void addFileToDir(TreeNode<File> dir, File file) {
+        final TreeNode<File> fileNode = new TreeNode<File>(file.getName());
+        fileNode.setContent(file);
+        dir.addChild(fileNode);
+    }
+
     private String getProductType() throws IOException,
-                                           IllegalCeosFormatException {
+            IllegalCeosFormatException {
         return Avnir2Constants.PRODUCT_TYPE_PREFIX + _leaderFile.getProductLevel();
     }
 
     private void addGeoCoding(final Product product) throws IllegalCeosFormatException,
-                                                            IOException {
+            IOException {
 
         final String usedProjection = _leaderFile.getUsedProjection();
         if (Avnir2Constants.MAP_PROJECTION_RAW.equalsIgnoreCase(usedProjection)) {
@@ -134,9 +154,9 @@ class Avnir2ProductDirectory {
                 final FXYSum.Cubic funcY = new FXYSum.Cubic(CeosHelper.sortToFXYSumOrder(uncorrectedCoeffs[3]));
 
                 final FXYGeoCoding gc = new FXYGeoCoding(0.0f, 0.0f, 1.0f, 1.0f,
-                                                         funcX, funcY,
-                                                         funcLat, funcLon,
-                                                         Datum.ITRF_97);
+                        funcX, funcY,
+                        funcLat, funcLon,
+                        Datum.ITRF_97);
                 band.setGeoCoding(gc);
             }
 
@@ -157,9 +177,9 @@ class Avnir2ProductDirectory {
             final float orientationAngle = (float) _leaderFile.getUTMOrientationAngle();
 
             final MapInfo mapInfo = new MapInfo(UTM.createProjection(zoneIndex - 1, isSouth),
-                                                _sceneWidth * 0.5f, _sceneHeight * 0.5f,
-                                                (float) easting, (float) northing,
-                                                (float) pixelSizeX, (float) pixelSizeY, Datum.ITRF_97);
+                    _sceneWidth * 0.5f, _sceneHeight * 0.5f,
+                    (float) easting, (float) northing,
+                    (float) pixelSizeX, (float) pixelSizeY, Datum.ITRF_97);
             mapInfo.setOrientation(orientationAngle);
             mapInfo.setSceneWidth(_sceneWidth);
             mapInfo.setSceneHeight(_sceneHeight);
@@ -178,7 +198,7 @@ class Avnir2ProductDirectory {
 
 
             final MapTransform transform = MapTransformFactory.createTransform(StereographicDescriptor.TYPE_ID,
-                                                                               parameterValues);
+                    parameterValues);
             final MapProjection projection = new MapProjection(StereographicDescriptor.NAME, transform);
             final double pixelSizeX = _leaderFile.getNominalInterPixelDistance();
             final double pixelSizeY = _leaderFile.getNominalInterLineDistance();
@@ -187,9 +207,9 @@ class Avnir2ProductDirectory {
             final int sceneRasterWidth = product.getSceneRasterWidth();
             final int sceneRasterHeight = product.getSceneRasterHeight();
             final MapInfo mapInfo = new MapInfo(projection,
-                                                sceneRasterWidth * 0.5f, sceneRasterHeight * 0.5f,
-                                                (float) easting, (float) northing,
-                                                (float) pixelSizeX, (float) pixelSizeY, Datum.ITRF_97);
+                    sceneRasterWidth * 0.5f, sceneRasterHeight * 0.5f,
+                    (float) easting, (float) northing,
+                    (float) pixelSizeX, (float) pixelSizeY, Datum.ITRF_97);
             mapInfo.setOrientation((float) _leaderFile.getPSOrientationAngle());
             mapInfo.setSceneWidth(sceneRasterWidth);
             mapInfo.setSceneHeight(sceneRasterHeight);
@@ -213,8 +233,7 @@ class Avnir2ProductDirectory {
 
     }
 
-    public Avnir2ImageFile getImageFile(final Band band) throws IOException,
-                                                                IllegalCeosFormatException {
+    Avnir2ImageFile getImageFile(final Band band) throws IOException, IllegalCeosFormatException {
         for (int i = 0; i < _imageFiles.length; i++) {
             final Avnir2ImageFile imageFile = _imageFiles[i];
             if (band.getName().equals(imageFile.getBandName())) {
@@ -224,7 +243,7 @@ class Avnir2ProductDirectory {
         return null;
     }
 
-    public void close() throws IOException {
+    void close() throws IOException {
         for (int i = 0; i < _imageFiles.length; i++) {
             _imageFiles[i].close();
             _imageFiles[i] = null;
@@ -243,9 +262,9 @@ class Avnir2ProductDirectory {
     }
 
     private Band createBand(final Avnir2ImageFile avnir2ImageFile) throws IOException,
-                                                                          IllegalCeosFormatException {
+            IllegalCeosFormatException {
         final Band band = new Band(avnir2ImageFile.getBandName(), ProductData.TYPE_UINT8,
-                                   _sceneWidth, _sceneHeight);
+                _sceneWidth, _sceneHeight);
         final int bandIndex = avnir2ImageFile.getBandIndex();
         band.setSpectralBandIndex(bandIndex - 1);
         band.setSpectralWavelength(avnir2ImageFile.getSpectralWavelength());
@@ -267,12 +286,11 @@ class Avnir2ProductDirectory {
     }
 
     private void addMetaData(final Product product) throws IOException,
-                                                           IllegalCeosFormatException {
+            IllegalCeosFormatException {
         final MetadataElement metadata = new MetadataElement("SPH");
         metadata.addElement(_leaderFile.getMapProjectionMetadata());
         metadata.addElement(_leaderFile.getRadiometricMetadata());
         metadata.addElement(_leaderFile.getPlatformMetadata());
-        addSupplementalMetadata(metadata);
         addSummaryMetadata(metadata);
 
         product.getMetadataRoot().addElement(metadata);
@@ -305,28 +323,13 @@ class Avnir2ProductDirectory {
             // stripp of double quotes
             final String strippedData = data.substring(1, data.length() - 1);
             final MetadataAttribute attribute = new MetadataAttribute((String) entry.getKey(),
-                                                                      new ProductData.ASCII(strippedData),
-                                                                      true);
+                    new ProductData.ASCII(strippedData),
+                    true);
             summaryMetadata.addAttribute(attribute);
         }
 
         parent.addElement(summaryMetadata);
     }
-
-
-    /**
-     * Adds the metadata contained in the supplemental file to the given
-     * parent <code>MetadataElement</code>. Not implemented yet.
-     *
-     * @param parent the parent <code>MetadataElement</code>
-     */
-    private void addSupplementalMetadata(final MetadataElement parent) {
-        if (_supplementalFile == null) {
-            return;
-        }
-        // @todo 2 tb/** is there something to implement at this point??
-    }
-
 
     private int getMinSampleValue(final int[] histogram) {
         // search for first non zero value
@@ -348,42 +351,37 @@ class Avnir2ProductDirectory {
         return 0;
     }
 
-    private String getProductName() {
-        return _volumeDirectoryFile.getProductName();
-    }
-
     private String getProductDescription() throws IOException,
-                                                  IllegalCeosFormatException {
+            IllegalCeosFormatException {
         return Avnir2Constants.PRODUCT_DESCRIPTION_PREFIX + _leaderFile.getProductLevel();
     }
 
     private void assertSameWidthAndHeightForAllImages() throws IOException,
-                                                               IllegalCeosFormatException {
+            IllegalCeosFormatException {
         for (int i = 0; i < _imageFiles.length; i++) {
             final Avnir2ImageFile imageFile = _imageFiles[i];
             Guardian.assertTrue("_sceneWidth == imageFile[" + i + "].getRasterWidth()",
-                                _sceneWidth == imageFile.getRasterWidth());
+                    _sceneWidth == imageFile.getRasterWidth());
             Guardian.assertTrue("_sceneHeight == imageFile[" + i + "].getRasterHeight()",
-                                _sceneHeight == imageFile.getRasterHeight());
+                    _sceneHeight == imageFile.getRasterHeight());
         }
     }
 
     private ProductData.UTC getUTCScanStartTime() throws IOException,
-                                                         IllegalCeosFormatException {
+            IllegalCeosFormatException {
         final Calendar imageStartDate = _leaderFile.getDateImageWasTaken();
         imageStartDate.add(Calendar.MILLISECOND, _imageFiles[0].getTotalMillisInDayOfLine(0));
         return ProductData.UTC.create(imageStartDate.getTime(), _imageFiles[0].getMicrosecondsOfLine(0));
     }
 
     private ProductData.UTC getUTCScanStopTime() throws IOException,
-                                                        IllegalCeosFormatException {
+            IllegalCeosFormatException {
         final Calendar imageStartDate = _leaderFile.getDateImageWasTaken();
         imageStartDate.add(Calendar.MILLISECOND, _imageFiles[0].getTotalMillisInDayOfLine(_sceneHeight - 1));
         return ProductData.UTC.create(imageStartDate.getTime(), _imageFiles[0].getMicrosecondsOfLine(_sceneHeight - 1));
     }
 
     private ImageInputStream createInputStream(final String fileName) throws IOException {
-        return (ImageInputStream) new FileImageInputStream(new File(_baseDir, fileName));
+        return new FileImageInputStream(new File(_baseDir, fileName));
     }
-
 }

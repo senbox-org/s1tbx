@@ -4,11 +4,11 @@ import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.dataio.ceos.IllegalCeosFormatException;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.DecodeQualification;
-import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.util.TreeNode;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,14 +53,37 @@ public class Avnir2ProductReader extends AbstractProductReader {
     }
 
     /**
+     * Retrieves a set of TreeNode objects that represent the physical product structure as stored on the harddrive.
+     * The tree consisty of:
+     * - a root node (the one returned) pointing to the directory that CONTAINS the product
+     * - any number of nested children that compose the product.
+     * Each TreeNod is configured as follows:
+     * - id: contains a string representation of the path. For the root node, this is the
+     * absolute path to the parent of the file returned by Product.getFileLocation().
+     * For all subsequent nodes, the node name.
+     * - content: each node stores as content a java.io.File object that physically defines the node.
+     * <p/>
+     * The method returns null when a TreeNode can not be assembled (i.e. in-memory product, created from stream ...)
+     *
+     * @return the root TreeNode or null
+     */
+    public TreeNode<File> getProductComponents() {
+        final File input = getFileFromInput(getInput());
+        if (input == null) {
+            return null;
+        }
+
+        return _avnir2Dir.getProductComponents();
+    }
+
+    /**
      * Returns a <code>File</code> if the given input is a <code>String</code> or <code>File</code>,
      * otherwise it returns null;
      *
      * @param input an input object of unknown type
-     *
      * @return a <code>File</code> or <code>null</code> it the input can not be resolved to a <code>File</code>.
      */
-    public static File getFileFromInput(final Object input) {
+    static File getFileFromInput(final Object input) {
         if (input instanceof String) {
             return new File((String) input);
         } else if (input instanceof File) {
@@ -78,8 +101,7 @@ public class Avnir2ProductReader extends AbstractProductReader {
      * @throws java.io.IOException if an I/O error occurs
      */
     @Override
-    protected Product readProductNodesImpl() throws IOException,
-                                                    IllegalFileFormatException {
+    protected Product readProductNodesImpl() throws IOException {
         final ProductReaderPlugIn readerPlugIn = getReaderPlugIn();
         final Object input = getInput();
         if (readerPlugIn.getDecodeQualification(input) == DecodeQualification.UNABLE) {
@@ -112,11 +134,11 @@ public class Avnir2ProductReader extends AbstractProductReader {
         try {
             final Avnir2ImageFile imageFile = _avnir2Dir.getImageFile(destBand);
             imageFile.readBandRasterData(sourceOffsetX, sourceOffsetY,
-                                         sourceWidth, sourceHeight,
-                                         sourceStepX, sourceStepY,
-                                         destOffsetX, destOffsetY,
-                                         destWidth, destHeight,
-                                         destBuffer, pm);
+                    sourceWidth, sourceHeight,
+                    sourceStepX, sourceStepY,
+                    destOffsetX, destOffsetY,
+                    destWidth, destHeight,
+                    destBuffer, pm);
         } catch (IllegalCeosFormatException e) {
             final IOException ioException = new IOException(e.getMessage());
             ioException.initCause(e);

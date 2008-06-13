@@ -24,7 +24,9 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
+import org.esa.beam.util.TreeNode;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -232,17 +234,17 @@ public abstract class AbstractProductReader implements ProductReader {
         int sourceHeight = sourceStepY * (destHeight - 1) + 1;
 
         readBandRasterDataImpl(sourceOffsetX,
-                               sourceOffsetY,
-                               sourceWidth,
-                               sourceHeight,
-                               sourceStepX,
-                               sourceStepY,
-                               destBand,
-                               destOffsetX,
-                               destOffsetY,
-                               destWidth,
-                               destHeight,
-                               destBuffer, pm);
+                sourceOffsetY,
+                sourceWidth,
+                sourceHeight,
+                sourceStepX,
+                sourceStepY,
+                destBand,
+                destOffsetX,
+                destOffsetY,
+                destWidth,
+                destHeight,
+                destBuffer, pm);
     }
 
     /**
@@ -303,6 +305,42 @@ public abstract class AbstractProductReader implements ProductReader {
     }
 
     /**
+     * Retrieves a set of TreeNode objects that represent the physical product structure as stored on the harddrive.
+     * The tree consisty of:
+     * - a root node (the one returned) pointing to the directory that CONTAINS the product
+     * - any number of nested children that compose the product.
+     * Each TreeNod is configured as follows:
+     * - id: contains a string representation of the path. For the root node, this is the
+     * absolute path to the parent of the file returned by Product.getFileLocation().
+     * For all subsequent nodes, the node name.
+     * - content: each node stores as content a java.io.File object that physically defines the node.
+     * <p/>
+     * The method returns null when a TreeNode can not be assembled (i.e. in-memory product, created from stream ...)
+     *
+     * @return the root TreeNode or null
+     */
+    public TreeNode<File> getProductComponents() {
+        Object input = getInput();
+        File inputFile;
+        if (input instanceof File) {
+            inputFile = (File) input;
+        } else if (input instanceof String) {
+            inputFile = new File((String) input);
+        } else {
+            return null;
+        }
+
+        File parent = inputFile.getParentFile();
+        TreeNode<File> result = new TreeNode<File>(parent.getName());
+        result.setContent(parent);
+
+        TreeNode<File> productFile = new TreeNode<File>(inputFile.getName());
+        productFile.setContent(inputFile);
+        result.addChild(productFile);
+        return result;
+    }
+
+    /**
      * Checks if the given object is an instance of one of the valid input types for this product reader.
      *
      * @param input the input object passed to {@link #readProductNodes(Object,ProductSubsetDef)}
@@ -317,8 +355,9 @@ public abstract class AbstractProductReader implements ProductReader {
                     return true;
                 }
             }
+            return false;
         }
-        return false;
+        return true;
     }
 
     /**
@@ -368,14 +407,14 @@ public abstract class AbstractProductReader implements ProductReader {
                     " degree");
         }
         return new TiePointGrid(gridName,
-                                gridWidth,
-                                gridHeight,
-                                offsetX,
-                                offsetY,
-                                subSamplingX,
-                                subSamplingY,
-                                tiePoints,
-                                gridDiscontinutity);
+                gridWidth,
+                gridHeight,
+                offsetX,
+                offsetY,
+                subSamplingX,
+                subSamplingY,
+                tiePoints,
+                gridDiscontinutity);
     }
 
     /**
