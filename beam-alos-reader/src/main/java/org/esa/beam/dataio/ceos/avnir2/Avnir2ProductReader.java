@@ -1,6 +1,7 @@
 package org.esa.beam.dataio.ceos.avnir2;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.esa.beam.dataio.ceos.CeosHelper;
 import org.esa.beam.dataio.ceos.IllegalCeosFormatException;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.DecodeQualification;
@@ -68,28 +69,12 @@ public class Avnir2ProductReader extends AbstractProductReader {
      * @return the root TreeNode or null
      */
     public TreeNode<File> getProductComponents() {
-        final File input = getFileFromInput(getInput());
+        final File input = CeosHelper.getFileFromInput(getInput());
         if (input == null) {
             return null;
         }
 
         return _avnir2Dir.getProductComponents();
-    }
-
-    /**
-     * Returns a <code>File</code> if the given input is a <code>String</code> or <code>File</code>,
-     * otherwise it returns null;
-     *
-     * @param input an input object of unknown type
-     * @return a <code>File</code> or <code>null</code> it the input can not be resolved to a <code>File</code>.
-     */
-    static File getFileFromInput(final Object input) {
-        if (input instanceof String) {
-            return new File((String) input);
-        } else if (input instanceof File) {
-            return (File) input;
-        }
-        return null;
     }
 
     /**
@@ -107,7 +92,7 @@ public class Avnir2ProductReader extends AbstractProductReader {
         if (readerPlugIn.getDecodeQualification(input) == DecodeQualification.UNABLE) {
             throw new IOException("Unsupported product format."); /*I18N*/
         }
-        final File fileFromInput = getFileFromInput(getInput());
+        final File fileFromInput = CeosHelper.getFileFromInput(getInput());
         Product product;
         try {
             _avnir2Dir = new Avnir2ProductDirectory(fileFromInput.getParentFile());

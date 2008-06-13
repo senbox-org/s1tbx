@@ -21,6 +21,7 @@ import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.dataio.ceos.CeosHelper;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -45,7 +46,7 @@ public class PrismProductReaderPlugIn implements ProductReaderPlugIn {
      * @return true if this product reader can decode the given input, otherwise false.
      */
     public DecodeQualification getDecodeQualification(final Object input) {
-        final File file = PrismProductReader.getFileFromInput(input);
+        final File file = CeosHelper.getFileFromInput(input);
         if (file == null) {
             return DecodeQualification.UNABLE;
         }

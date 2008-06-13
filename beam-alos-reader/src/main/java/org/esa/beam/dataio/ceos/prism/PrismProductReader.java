@@ -18,17 +18,16 @@ package org.esa.beam.dataio.ceos.prism;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
+import org.esa.beam.dataio.ceos.CeosHelper;
 import org.esa.beam.dataio.ceos.IllegalCeosFormatException;
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.DecodeQualification;
-import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 
-import java.awt.Dimension;
-import java.awt.Point;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
@@ -72,23 +71,6 @@ public class PrismProductReader extends AbstractProductReader {
     }
 
     /**
-     * Returns a <code>File</code> if the given input is a <code>String</code> or <code>File</code>,
-     * otherwise it returns null;
-     *
-     * @param input an input object of unknown type
-     *
-     * @return a <code>File</code> or <code>null</code> it the input can not be resolved to a <code>File</code>.
-     */
-    public static File getFileFromInput(final Object input) {
-        if (input instanceof String) {
-            return new File((String) input);
-        } else if (input instanceof File) {
-            return (File) input;
-        }
-        return null;
-    }
-
-    /**
      * Provides an implementation of the <code>readProductNodes</code> interface method. Clients implementing this
      * method can be sure that the input object and eventually the subset information has already been set.
      * <p/>
@@ -97,14 +79,13 @@ public class PrismProductReader extends AbstractProductReader {
      * @throws java.io.IOException if an I/O error occurs
      */
     @Override
-    protected Product readProductNodesImpl() throws IOException,
-                                                    IllegalFileFormatException {
+    protected Product readProductNodesImpl() throws IOException {
         final ProductReaderPlugIn readerPlugIn = getReaderPlugIn();
         final Object input = getInput();
         if (readerPlugIn.getDecodeQualification(input) == DecodeQualification.UNABLE) {
             throw new IOException("Unsupported product format."); /*I18N*/
         }
-        final File fileFromInput = PrismProductReader.getFileFromInput(getInput());
+        final File fileFromInput = CeosHelper.getFileFromInput(getInput());
         final Product product;
         try {
             _prismDir = new PrismProductDirectory(fileFromInput.getParentFile());
@@ -126,10 +107,10 @@ public class PrismProductReader extends AbstractProductReader {
                                           int bufferY, int bufferWidth, int bufferHeight, ProductData buffer,
                                           ProgressMonitor pm) throws IOException {
         final DataBuffer destBuffer = new DataBuffer(buffer,
-                                                     bufferX,
-                                                     bufferY,
-                                                     bufferWidth,
-                                                     bufferHeight);
+                bufferX,
+                bufferY,
+                bufferWidth,
+                bufferHeight);
 
         final PrismImageFile[] imageFiles = _prismDir.getImageFiles();
 
@@ -178,10 +159,10 @@ public class PrismProductReader extends AbstractProductReader {
                 final int destWidth = ccdSourceWidth / sourceStepX;
 
                 imageFile.readBandRasterData(ccdSourceOffsetX, sourceOffsetY,
-                                             ccdSourceWidth, sourceHeight,
-                                             sourceStepX, sourceStepY,
-                                             destBuffer,
-                                             destOffsetX, destWidth, SubProgressMonitor.create(pm, 1));
+                        ccdSourceWidth, sourceHeight,
+                        sourceStepX, sourceStepY,
+                        destBuffer,
+                        destOffsetX, destWidth, SubProgressMonitor.create(pm, 1));
             }
         } catch (IllegalCeosFormatException e) {
             final IOException ioException = new IOException(e.getMessage());
