@@ -5,6 +5,7 @@ import org.esa.beam.framework.dataio.ProductSubsetDef;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * A type-safe container for elements of the type <code>ProductNode</code>.
@@ -96,7 +97,9 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
     }
 
     /**
-     * Tests whether a product with the given name is contained in this list.
+     * Tests whether a node with the given name is contained in this group.
+     * @param name the name
+     * @return true, if so
      */
     public boolean contains(String name) {
         return nodeList.contains(name);
@@ -104,16 +107,17 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
 
     /**
      * Tests whether the given product is contained in this list.
+     * @param node the node
+     * @return true, if so
      */
     public boolean contains(final T node) {
         return nodeList.contains(node);
     }
 
     /**
-     * Adds the given product to this product manager if it does not already exists and sets it's reference number one
-     * biger than the greatest reference number in this product manager.
+     * Adds the given node to this group.
      *
-     * @param node the product to be added, ignored if <code>null</code>
+     * @param node the node to be added, ignored if <code>null</code>
      */
     public boolean add(T node) {
         Assert.notNull(node, "node");
@@ -130,9 +134,10 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
     }
 
     /**
-     * Removes the given product from this product manager if it exists.
+     * Removes the given node from this group.
      *
-     * @param node the product to be removed
+     * @param node the node to be removed
+     * @return true, if the node was removed
      */
     public boolean remove(T node) {
         Assert.notNull(node, "node");
@@ -149,7 +154,7 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
     }
 
     /**
-     * Removes all product from this group.
+     * Removes all nodes from this group.
      */
     public void removeAll() {
         final ProductNode[] nodes = toArray();
@@ -163,15 +168,16 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
     }
 
     /**
-     * Gets all removed product nodes.
+     * Gets all removed node nodes.
      *
-     * @return a collection of all removed product nodes.
+     * @return a collection of all removed node nodes.
      */
     public Collection<T> getRemovedNodes() {
         return nodeList.getRemovedNodes();
     }
 
 
+    @Override
     public long getRawStorageSize(ProductSubsetDef subsetDef) {
         long size = 0;
         ProductNode[] nodes = toArray();
@@ -183,6 +189,7 @@ public class ProductNodeGroup<T extends ProductNode> extends ProductNode {
         return size;
     }
 
+    @Override
     public void acceptVisitor(ProductVisitor visitor) {
         visitor.visit(this);
     }
