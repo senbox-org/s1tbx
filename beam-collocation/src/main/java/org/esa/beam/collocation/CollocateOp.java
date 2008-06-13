@@ -41,24 +41,41 @@ public class CollocateOp extends Operator {
     private static final String BILINEAR_INTERPOLATION = "BILINEAR_INTERPOLATION";
     private static final String CUBIC_CONVOLUTION = "CUBIC_CONVOLUTION";
 
-    @SourceProduct(alias = "master")
+    @SourceProduct(alias = "master", description = "The source product which serves as master.")
     private Product masterProduct;
-    @SourceProduct(alias = "slave")
+
+    @SourceProduct(alias = "slave", description = "The source product which serves as slave.")
     private Product slaveProduct;
 
-    @TargetProduct
+    @TargetProduct(description = "The target product which will use the master's grid.")
     private Product targetProduct;
-    @Parameter
+
+    @Parameter(defaultValue = "_collocated", 
+               description = "The name of the target product")
     private String targetProductName;
-    @Parameter(defaultValue = "true")
+
+    @Parameter(defaultValue = "true",
+               description = "Whether or nor components of the master product shall be renamed in the target product.")
     private boolean renameMasterComponents;
-    @Parameter(defaultValue = "true")
+
+    @Parameter(defaultValue = "true",
+               description = "Whether or nor components of the slave product shall be renamed in the target product.")
     private boolean renameSlaveComponents;
-    @Parameter(defaultValue = DEFAULT_MASTER_COMPONENT_PATTERN)
+
+    @Parameter(defaultValue = DEFAULT_MASTER_COMPONENT_PATTERN,
+               description = "The text pattern to be used when renaming master components.")
     private String masterComponentPattern;
-    @Parameter(defaultValue = DEFAULT_SLAVE_COMPONENT_PATTERN)
+
+    @Parameter(defaultValue = DEFAULT_SLAVE_COMPONENT_PATTERN,
+               description = "The text pattern to be used when renaming slave components.")
     private String slaveComponentPattern;
-    @Parameter(valueSet = {NEAREST_NEIGHBOUR, BILINEAR_INTERPOLATION, CUBIC_CONVOLUTION}, defaultValue = NEAREST_NEIGHBOUR)
+
+//    @Parameter(defaultValue = "true",
+//               description = "If true, slave tie-point grids will become bands in the target product, otherwise they will be resampled to tiepoint grids again.")
+//    private boolean slaveTiePointGridsBecomeBands;
+
+    @Parameter(valueSet = {NEAREST_NEIGHBOUR, BILINEAR_INTERPOLATION, CUBIC_CONVOLUTION},
+               defaultValue = NEAREST_NEIGHBOUR, description = "The method to be used when resampling the slave grid onto the master grid.")
     private ResamplingType resamplingType;
 
     private transient Map<Band, Band> sourceBandMap;
@@ -82,7 +99,6 @@ public class CollocateOp extends Operator {
                     MessageFormat.format("Parameter ''{0}'' must be set to a non-empty string pattern.", "slaveComponentPattern"));
         }
 
-        // todo - further validation
         // todo - product type
         sourceBandMap = new HashMap<Band, Band>();
 
@@ -150,12 +166,11 @@ public class CollocateOp extends Operator {
         copyBitmaskDefs(slaveProduct, renameSlaveComponents, slaveComponentPattern);
 
         // todo - slave metadata!?
-        // todo - slave tie point grids
     }
 
     @Override
     public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle, ProgressMonitor pm) throws OperatorException {
-        pm.beginTask("collocating bands...", targetProduct.getNumBands() + 1);
+        pm.beginTask("Collocating bands...", targetProduct.getNumBands() + 1);
         try {
             final PixelPos[] sourcePixelPositions = ProductUtils.computeSourcePixelCoordinates(
                     slaveProduct.getGeoCoding(),
@@ -214,7 +229,7 @@ public class CollocateOp extends Operator {
         sourceBandMap = null;
     }
 
-    private void collocateSourceBand(Band sourceBand, Rectangle sourceRectangle, PixelPos[] sourcePixelPositions,
+    private void collocateSourceBand(RasterDataNode sourceBand, Rectangle sourceRectangle, PixelPos[] sourcePixelPositions,
                                      Tile targetTile, ProgressMonitor pm) throws OperatorException {
         pm.beginTask(MessageFormat.format("collocating band {0}", sourceBand.getName()), targetTile.getHeight());
         try {
@@ -225,7 +240,7 @@ public class CollocateOp extends Operator {
             final int sourceRasterWidth = slaveProduct.getSceneRasterWidth();
 
             final Resampling resampling;
-            if (sourceBand.isFlagBand() || isValidPixelExpressionUsed(sourceBand)) {
+            if (isFlagBand(sourceBand) || isValidPixelExpressionUsed(sourceBand)) {
                 resampling = ResamplingType.NEAREST_NEIGHBOUR.getResampling();
             } else {
                 resampling = resamplingType.getResampling();
@@ -349,8 +364,12 @@ public class CollocateOp extends Operator {
         return new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
     }
 
-    private static boolean isValidPixelExpressionUsed(Band band) {
-        final String validPixelExpression = band.getValidPixelExpression();
+    private static boolean isFlagBand(RasterDataNode sourceRaster) {
+        return (sourceRaster instanceof Band && ((Band)sourceRaster).isFlagBand());
+    }
+
+    private static boolean isValidPixelExpressionUsed(RasterDataNode sourceRaster) {
+        final String validPixelExpression = sourceRaster.getValidPixelExpression();
         return validPixelExpression != null && !validPixelExpression.trim().isEmpty();
     }
 
