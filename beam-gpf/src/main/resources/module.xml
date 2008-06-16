@@ -14,7 +14,8 @@
     
     <changelog>
         <![CDATA[<p>From 4.1 to 4.2:<br/>
-            [BEAM-827] Standard dialogs for operators should be modeless
+            [BEAM-827] Standard dialogs for operators should be modeless<br/>
+            [BEAM-822] GPT crash with virtual bands<br/>
             [BEAM-811] Graph XML should contain an application specific data section<br/>
             [BEAM-800] Graph XML shall support id/refid syntax<br/>
             [BEAM-799] Introduce version element in graph xml<br/>

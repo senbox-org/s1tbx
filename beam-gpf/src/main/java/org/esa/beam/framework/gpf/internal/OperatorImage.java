@@ -58,16 +58,23 @@ public class OperatorImage extends RasterDataNodeOpImage {
         Map<Band, Tile> targetTiles = new HashMap<Band, Tile>(bands.length * 2);
         if (operatorContext.isPassThrough()) {
             for (Band band : bands) {
-                targetTiles.put(band, operatorContext.getSourceTile(band, targetRectangle, getProgressMonitor()));
+                if (isBandComputedByOperator(band)) {
+                    targetTiles.put(band, operatorContext.getSourceTile(band, targetRectangle, getProgressMonitor()));
+                }
             }
         } else {
             for (Band band : bands) {
-                WritableRaster tileRaster = getWritableTile(band, targetTileRaster);
-                targetTiles.put(band, createTargetTile(band, tileRaster, targetRectangle));
+                if (isBandComputedByOperator(band)) {
+                    WritableRaster tileRaster = getWritableTile(band, targetTileRaster);
+                    targetTiles.put(band, createTargetTile(band, tileRaster, targetRectangle));
+                }
             }
         }
-        Assert.state(targetTiles.size() == bands.length);
         return targetTiles;
+    }
+
+    private boolean isBandComputedByOperator(Band band) {
+        return band.getImage() instanceof OperatorImage;
     }
 
     private WritableRaster getWritableTile(Band band, WritableRaster targetTileRaster) {
@@ -75,10 +82,10 @@ public class OperatorImage extends RasterDataNodeOpImage {
         if (band == getTargetBand()) {
             tileRaster = targetTileRaster;
         } else {
-            OperatorImage image = operatorContext.getTargetImage(band);
-            Assert.notNull(image);
-            Assert.state(image != this);
-            tileRaster = image.getWritableTile(targetTileRaster.getBounds());
+            RasterDataNodeOpImage rasterImage = operatorContext.getTargetImage(band);
+            Assert.state(rasterImage != this);
+            Assert.state(rasterImage instanceof OperatorImage);
+            tileRaster = ((OperatorImage) rasterImage).getWritableTile(targetTileRaster.getBounds());
         }
         return tileRaster;
     }

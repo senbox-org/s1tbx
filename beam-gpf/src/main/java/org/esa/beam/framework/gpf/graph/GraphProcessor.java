@@ -5,14 +5,13 @@ import com.bc.ceres.core.SubProgressMonitor;
 import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.gpf.internal.OperatorImage;
+import org.esa.beam.util.jai.RasterDataNodeOpImage;
 import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.JAI;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
@@ -196,7 +195,7 @@ public class GraphProcessor {
     }
 
     private static void forceTileComputation(NodeContext nodeContext, Band band, int tileX, int tileY) {
-        OperatorImage image = nodeContext.getTargetImage(band);
+        RasterDataNodeOpImage image = nodeContext.getTargetImage(band);
         /////////////////////////////////////////////////////////////////////
         //
         // GPF pull-processing is triggered here!!!
@@ -213,7 +212,7 @@ public class GraphProcessor {
                 Node sourceNode = graph.getNode(source.getSourceNodeId());
                 if (sourceNode == null) {
                     throw new GraphException("Missing source. Node Id: '" + node.getId()
-                            + "' Source Id: '" + source.getSourceNodeId()+"'");
+                            + "' Source Id: '" + source.getSourceNodeId() + "'");
                 }
                 graphContext.getNodeContext(sourceNode).incrementReferenceCount();
                 source.setSourceNode(sourceNode);  // todo - use getNodeContext()

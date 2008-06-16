@@ -61,7 +61,7 @@ public class RRToFRSOp extends Operator {
         Band[] srcBands = rrProduct.getBands();
         for (Band sourceBand : srcBands) {
             Band targetBand = targetProduct.addBand(sourceBand.getName(), sourceBand.getDataType());
-            ProductUtils.copySpectralAttributes(sourceBand, targetBand);
+            ProductUtils.copySpectralBandProperties(sourceBand, targetBand);
             targetBand.setDescription(sourceBand.getDescription());
             targetBand.setUnit(sourceBand.getUnit());
             targetBand.setScalingFactor(sourceBand.getScalingFactor());

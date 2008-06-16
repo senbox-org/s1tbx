@@ -73,7 +73,7 @@ public class L3ToL1Op extends MerisBasisOp {
         Band[] l3Bands = l3Product.getBands();
         for (Band sourceBand : l3Bands) {
             Band targetBand = targetProduct.addBand(sourceBand.getName(), sourceBand.getDataType());
-            ProductUtils.copySpectralAttributes(sourceBand, targetBand);
+            ProductUtils.copySpectralBandProperties(sourceBand, targetBand);
             targetBand.setDescription(sourceBand.getDescription());
             targetBand.setUnit(sourceBand.getUnit());
             targetBand.setScalingFactor(sourceBand.getScalingFactor());

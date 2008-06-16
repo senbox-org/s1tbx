@@ -504,7 +504,7 @@ public final class FlhMciProcessor extends Processor {
         _lineheightBand = new Band(_lineheightBandName, ProductData.TYPE_FLOAT32, sceneWidth, sceneHeight);
         _lineheightBand.setUnit(_signalBand.getUnit());
         _lineheightBand.setDescription(FlhMciConstants.LINEHEIGHT_BAND_DESCRIPTION);
-        ProductUtils.copySpectralAttributes(_signalBand, _lineheightBand);
+        ProductUtils.copySpectralBandProperties(_signalBand, _lineheightBand);
         _outputProduct.addBand(_lineheightBand);
 
         if (_processSlope) {

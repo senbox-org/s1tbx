@@ -343,7 +343,7 @@ public class RadToReflProcessor extends Processor {
                 outputBand.setDescription(outputBandDescription);
             }
             outputBand.setUnit(EnvisatConstants.MERIS_REFLECTANCE_UNIT);
-            ProductUtils.copySpectralAttributes(inputBand, outputBand);
+            ProductUtils.copySpectralBandProperties(inputBand, outputBand);
 
             outputBand.setNoDataValue(inputBand.getNoDataValue());
             outputBand.setNoDataValueUsed(inputBand.isNoDataValueUsed());

@@ -54,6 +54,10 @@ public class CollocateOp extends Operator {
                description = "The name of the target product")
     private String targetProductName;
 
+    @Parameter(defaultValue = "COLLOCATED",
+               description = "The type of the target product")
+    private String targetProductType;
+
     @Parameter(defaultValue = "true",
                description = "Whether or nor components of the master product shall be renamed in the target product.")
     private boolean renameMasterComponents;
@@ -78,7 +82,7 @@ public class CollocateOp extends Operator {
                defaultValue = NEAREST_NEIGHBOUR, description = "The method to be used when resampling the slave grid onto the master grid.")
     private ResamplingType resamplingType;
 
-    private transient Map<Band, Band> sourceBandMap;
+    private transient Map<Band, RasterDataNode> sourceRasterMap;
 
     @Override
     public void initialize() throws OperatorException {
@@ -99,11 +103,10 @@ public class CollocateOp extends Operator {
                     MessageFormat.format("Parameter ''{0}'' must be set to a non-empty string pattern.", "slaveComponentPattern"));
         }
 
-        // todo - product type
-        sourceBandMap = new HashMap<Band, Band>();
+        sourceRasterMap = new HashMap<Band, RasterDataNode>(31);
 
-        targetProduct = new Product(targetProductName,
-                                    masterProduct.getProductType(),
+        targetProduct = new Product(targetProductName != null ? targetProductName : masterProduct.getName() + "_" + slaveProduct.getName(),
+                                    targetProductType != null ? targetProductType : masterProduct.getProductType(),
                                     masterProduct.getSceneRasterWidth(),
                                     masterProduct.getSceneRasterHeight());
 
@@ -123,7 +126,7 @@ public class CollocateOp extends Operator {
         for (final Band sourceBand : masterProduct.getBands()) {
             final Band targetBand = ProductUtils.copyBand(sourceBand.getName(), masterProduct, targetProduct);
             setFlagCoding(targetBand, sourceBand.getFlagCoding(), renameMasterComponents, masterComponentPattern);
-            sourceBandMap.put(targetBand, sourceBand);
+            sourceRasterMap.put(targetBand, sourceBand);
         }
         if (renameMasterComponents) {
             for (final Band band : targetProduct.getBands()) {
@@ -138,28 +141,25 @@ public class CollocateOp extends Operator {
                 targetBandName = slaveComponentPattern.replace(SOURCE_NAME_REFERENCE, targetBandName);
             }
             final Band targetBand = targetProduct.addBand(targetBandName, sourceBand.getDataType());
-
-            targetBand.setDescription(sourceBand.getDescription());
-            targetBand.setUnit(sourceBand.getUnit());
-            targetBand.setScalingFactor(sourceBand.getScalingFactor());
-            targetBand.setScalingOffset(sourceBand.getScalingOffset());
-            targetBand.setLog10Scaled(sourceBand.isLog10Scaled());
-
-            ProductUtils.copySpectralAttributes(sourceBand, targetBand);
-            targetBand.setNoDataValueUsed(sourceBand.isNoDataValueUsed());
-            targetBand.setNoDataValue(sourceBand.getNoDataValue());
-            targetBand.setValidPixelExpression(sourceBand.getValidPixelExpression());
-
+            ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
             setFlagCoding(targetBand, sourceBand.getFlagCoding(), renameSlaveComponents, slaveComponentPattern);
-            sourceBandMap.put(targetBand, sourceBand);
+            sourceRasterMap.put(targetBand, sourceBand);
         }
+        for (final TiePointGrid sourceGrid : slaveProduct.getTiePointGrids()) {
+            String targetBandName = sourceGrid.getName();
+            if (renameSlaveComponents) {
+                targetBandName = slaveComponentPattern.replace(SOURCE_NAME_REFERENCE, targetBandName);
+            }
+            final Band targetBand = targetProduct.addBand(targetBandName, sourceGrid.getDataType());
+            ProductUtils.copyRasterDataNodeProperties(sourceGrid, targetBand);
+            sourceRasterMap.put(targetBand, sourceGrid);
+        }
+
         for (final Band targetBand : targetProduct.getBands()) {
-            for (final Band band : targetProduct.getBands()) {
-                final Band sourceBand = sourceBandMap.get(band);
-                if (sourceBand != null) {
-                    if (sourceBand.getProduct() == slaveProduct) {
-                        targetBand.updateExpression(sourceBand.getName(), band.getName());
-                    }
+            final RasterDataNode sourceRaster = sourceRasterMap.get(targetBand);
+            if (sourceRaster != null) {
+                if (sourceRaster.getProduct() == slaveProduct) {
+                    targetBand.updateExpression(sourceRaster.getName(), targetBand.getName());
                 }
             }
         }
@@ -186,14 +186,14 @@ public class CollocateOp extends Operator {
 
             for (final Band targetBand : targetProduct.getBands()) {
                 checkForCancelation(pm);
-                final Band sourceBand = sourceBandMap.get(targetBand);
+                final RasterDataNode sourceRaster = sourceRasterMap.get(targetBand);
                 final Tile targetTile = targetTileMap.get(targetBand);
 
-                if (sourceBand.getProduct() == slaveProduct) {
-                    collocateSourceBand(sourceBand, sourceRectangle, sourcePixelPositions, targetTile,
+                if (sourceRaster.getProduct() == slaveProduct) {
+                    collocateSourceBand(sourceRaster, sourceRectangle, sourcePixelPositions, targetTile,
                                         SubProgressMonitor.create(pm, 1));
                 } else {
-                    targetTile.setRawSamples(getSourceTile(sourceBand, targetTile.getRectangle(), pm).getRawSamples());
+                    targetTile.setRawSamples(getSourceTile(sourceRaster, targetTile.getRectangle(), pm).getRawSamples());
                 }
                 pm.worked(1);
             }
@@ -204,9 +204,9 @@ public class CollocateOp extends Operator {
 
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
-        final Band sourceBand = sourceBandMap.get(targetBand);
+        final RasterDataNode sourceRaster = sourceRasterMap.get(targetBand);
 
-        if (sourceBand.getProduct() == slaveProduct) {
+        if (sourceRaster.getProduct() == slaveProduct) {
             final PixelPos[] sourcePixelPositions = ProductUtils.computeSourcePixelCoordinates(
                     slaveProduct.getGeoCoding(),
                     slaveProduct.getSceneRasterWidth(),
@@ -218,15 +218,15 @@ public class CollocateOp extends Operator {
                     slaveProduct.getSceneRasterWidth(),
                     slaveProduct.getSceneRasterHeight());
 
-            collocateSourceBand(sourceBand, sourceRectangle, sourcePixelPositions, targetTile, pm);
+            collocateSourceBand(sourceRaster, sourceRectangle, sourcePixelPositions, targetTile, pm);
         } else {
-            targetTile.setRawSamples(getSourceTile(sourceBand, targetTile.getRectangle(), pm).getRawSamples());
+            targetTile.setRawSamples(getSourceTile(sourceRaster, targetTile.getRectangle(), pm).getRawSamples());
         }
     }
 
     @Override
     public void dispose() {
-        sourceBandMap = null;
+        sourceRasterMap = null;
     }
 
     private void collocateSourceBand(RasterDataNode sourceBand, Rectangle sourceRectangle, PixelPos[] sourcePixelPositions,
@@ -297,7 +297,7 @@ public class CollocateOp extends Operator {
                 if (rename) {
                     targetDef.setName(pattern.replace(SOURCE_NAME_REFERENCE, sourceDef.getName()));
                     for (final Band targetBand : targetProduct.getBands()) {
-                        targetDef.updateExpression(sourceBandMap.get(targetBand).getName(), targetBand.getName());
+                        targetDef.updateExpression(sourceRasterMap.get(targetBand).getName(), targetBand.getName());
                     }
                 }
                 targetProduct.addBitmaskDef(targetDef);

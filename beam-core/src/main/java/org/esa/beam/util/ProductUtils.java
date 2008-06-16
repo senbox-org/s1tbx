@@ -1134,17 +1134,55 @@ public class ProductUtils {
                 sourceBand.getDataType(),
                 sourceBand.getRasterWidth(),
                 sourceBand.getRasterHeight());
-        targetBand.setDescription(sourceBand.getDescription());
-        targetBand.setUnit(sourceBand.getUnit());
-        targetBand.setScalingFactor(sourceBand.getScalingFactor());
-        targetBand.setScalingOffset(sourceBand.getScalingOffset());
-        targetBand.setLog10Scaled(sourceBand.isLog10Scaled());
-        targetBand.setNoDataValueUsed(sourceBand.isNoDataValueUsed());
-        targetBand.setNoDataValue(sourceBand.getNoDataValue());
-        targetBand.setValidPixelExpression(sourceBand.getValidPixelExpression());
-        copySpectralAttributes(sourceBand, targetBand);
+        copyRasterDataNodeProperties(sourceBand, targetBand);
         targetProduct.addBand(targetBand);
         return targetBand;
+    }
+
+    /**
+     * Copies all properties from source band to the target band.
+     *
+     * @param sourceRaster the source band
+     * @param targetRaster the target band
+     * @see #copySpectralBandProperties
+     */
+    public static void copyRasterDataNodeProperties(RasterDataNode sourceRaster, RasterDataNode targetRaster) {
+        targetRaster.setDescription(sourceRaster.getDescription());
+        targetRaster.setUnit(sourceRaster.getUnit());
+        targetRaster.setScalingFactor(sourceRaster.getScalingFactor());
+        targetRaster.setScalingOffset(sourceRaster.getScalingOffset());
+        targetRaster.setLog10Scaled(sourceRaster.isLog10Scaled());
+        targetRaster.setNoDataValueUsed(sourceRaster.isNoDataValueUsed());
+        targetRaster.setNoDataValue(sourceRaster.getNoDataValue());
+        targetRaster.setValidPixelExpression(sourceRaster.getValidPixelExpression());
+        if (sourceRaster instanceof Band && targetRaster instanceof Band) {
+            Band sourceBand = (Band) sourceRaster;
+            Band targetBand = (Band) targetRaster;
+            copySpectralBandProperties(sourceBand, targetBand);
+        }
+    }
+
+    /**
+     * Copies the spectral properties from source band to target band. These properties are:
+     * <ul>
+     * <li>{@link org.esa.beam.framework.datamodel.Band#getSpectralBandIndex() spectral band index},</li>
+     * <li>{@link org.esa.beam.framework.datamodel.Band#getSpectralWavelength() the central wavelength},</li>
+     * <li>{@link org.esa.beam.framework.datamodel.Band#getSpectralBandwidth() the spectral bandwidth} and</li>
+     * <li>{@link org.esa.beam.framework.datamodel.Band#getSolarFlux() the solar spectral flux}.</li>
+     * </ul>
+     *
+     * @param sourceBand the source band
+     * @param targetBand the target band
+     * @see #copyRasterDataNodeProperties
+     */
+    public static void copySpectralBandProperties(Band sourceBand, Band targetBand) {
+        Guardian.assertNotNull("source", sourceBand);
+        Guardian.assertNotNull("target", targetBand);
+
+        targetBand.setSpectralBandIndex(sourceBand.getSpectralBandIndex());
+        targetBand.setSpectralWavelength(sourceBand.getSpectralWavelength());
+        targetBand.setSpectralBandwidth(sourceBand.getSpectralBandwidth());
+        targetBand.setSolarFlux(sourceBand.getSolarFlux());
     }
 
     /**
@@ -1158,7 +1196,9 @@ public class ProductUtils {
      *
      * @param source the source band
      * @param target the target band
+     * @deprecated since BEAM 4.2, use {@link #copySpectralBandProperties(org.esa.beam.framework.datamodel.Band, org.esa.beam.framework.datamodel.Band)}
      */
+    @Deprecated
     public static void copySpectralAttributes(Band source, Band target) {
         Guardian.assertNotNull("source", source);
         Guardian.assertNotNull("target", target);
@@ -2416,7 +2456,7 @@ public class ProductUtils {
                     targetBand.setGeophysicalNoDataValue(defaultNoDataValue);
                 }
                 targetBand.setNoDataValueUsed(true);
-                ProductUtils.copySpectralAttributes(sourceBand, targetBand);
+                ProductUtils.copySpectralBandProperties(sourceBand, targetBand);
                 FlagCoding sourceFlagCoding = sourceBand.getFlagCoding();
                 if (sourceFlagCoding != null) {
                     String flagCodingName = sourceFlagCoding.getName();

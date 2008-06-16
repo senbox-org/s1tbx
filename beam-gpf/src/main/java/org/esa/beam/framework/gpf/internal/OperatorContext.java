@@ -63,7 +63,7 @@ public class OperatorContext {
     private Map<String, Object> parameters;
     private Map<String, Product> sourceProductMap;
     private Map<String, Object> targetPropertyMap;
-    private Map<Band, OperatorImage> targetImageMap;
+    private Map<Band, RasterDataNodeOpImage> targetImageMap;
     private OperatorConfiguration configuration;
     private Logger logger;
     private boolean disposed;
@@ -174,6 +174,7 @@ public class OperatorContext {
 
     public OperatorSpi getOperatorSpi() {
         if (operatorSpi == null) {
+            // create anonymous SPI
             operatorSpi = new OperatorSpi(operator.getClass()) {
             };
         }
@@ -227,7 +228,7 @@ public class OperatorContext {
         try {
             /////////////////////////////////////////////////////////////////////
             //
-            // Note: GPF pull-processing is triggered here!!!
+            // Note: GPF pull-processing is triggered here!
             //
             Raster awtRaster = image.getData(rectangle); // Note: copyData is NOT faster!
             //
@@ -238,7 +239,7 @@ public class OperatorContext {
         }
     }
 
-    public OperatorImage getTargetImage(Band band) {
+    public RasterDataNodeOpImage getTargetImage(Band band) {
         return targetImageMap.get(band);
     }
 
@@ -253,11 +254,13 @@ public class OperatorContext {
             configuration = null;
             sourceProductMap.clear();
             sourceProductList.clear();
-            Collection<OperatorImage> operatorImages = targetImageMap.values();
-            for (OperatorImage image : operatorImages) {
+            Collection<RasterDataNodeOpImage> operatorImages = targetImageMap.values();
+            for (RasterDataNodeOpImage image : operatorImages) {
+                if (image.getRasterDataNode().getImage() instanceof OperatorImage) {
+                    image.getRasterDataNode().setImage(null);
+                }
                 image.dispose();
                 JAI.getDefaultInstance().getTileCache().removeTiles(image);
-                // todo - check: band.setImage(null)?  (nf - 03.02.2008)
             }
             targetImageMap.clear();
             operator.dispose();
@@ -458,9 +461,17 @@ public class OperatorContext {
         }
 
         Band[] bands = targetProduct.getBands();
-        targetImageMap = new HashMap<Band, OperatorImage>(bands.length * 2);
+        targetImageMap = new HashMap<Band, RasterDataNodeOpImage>(bands.length * 2);
         for (Band band : bands) {
-            OperatorImage image = new OperatorImage(band, this);
+            final RasterDataNodeOpImage image;
+            // Note: "instanceof" has intentionally not been used
+            if (band.getClass() == Band.class) {
+                // Create an image that calls the operator to compute a tile
+                image = new OperatorImage(band, this);
+            } else {
+                // Create an image that calls Band.readRasterDataNode() to compute a tile (VirtualBand, FilterBand, ...)
+                image = new RasterDataNodeOpImage(band);
+            }
             if (band.getImage() == null) {
                 band.setImage(image);
             }
@@ -474,7 +485,7 @@ public class OperatorContext {
             TargetProduct targetProductAnnotation = declaredField.getAnnotation(TargetProduct.class);
             if (targetProductAnnotation != null) {
                 if (!declaredField.getType().equals(Product.class)) {
-                    String msg = formatExceptionString("Field '%s' annotated as target product is not of type '%s'.",
+                    String msg = formatExceptionMessage("Field '%s' annotated as target product is not of type '%s'.",
                             declaredField.getName(), Product.class);
                     throw new OperatorException(msg);
                 }
@@ -485,14 +496,14 @@ public class OperatorContext {
                     if (this.targetProduct != null) {
                         setOperatorFieldValue(declaredField, this.targetProduct);
                     } else {
-                        final String message = formatExceptionString("No target product set.");
+                        final String message = formatExceptionMessage("No target product set.");
                         throw new OperatorException(message);
                     }
                 }
             }
         }
         if (targetProduct == null) {
-            final String message = formatExceptionString("No target product set.");
+            final String message = formatExceptionMessage("No target product set.");
             throw new OperatorException(message);
         }
     }
@@ -505,7 +516,7 @@ public class OperatorContext {
                 Object propertyValue = getOperatorFieldValue(declaredField);
                 String fieldName = declaredField.getName();
                 if (targetPropertyMap.containsKey(fieldName)) {
-                    final String message = formatExceptionString("Name of field '%s' is already used as target property alias.",
+                    final String message = formatExceptionMessage("Name of field '%s' is already used as target property alias.",
                             fieldName);
                     throw new OperatorException(message);
                 }
@@ -513,7 +524,7 @@ public class OperatorContext {
                 if (!targetPropertyAnnotation.alias().isEmpty()) {
                     String aliasName = targetPropertyAnnotation.alias();
                     if (targetPropertyMap.containsKey(aliasName)) {
-                        final String message = formatExceptionString("Alias of field '%s' is already used by another target property.",
+                        final String message = formatExceptionMessage("Alias of field '%s' is already used by another target property.",
                                 aliasName);
                         throw new OperatorException(message);
                     }
@@ -555,13 +566,13 @@ public class OperatorContext {
                     setSourceProduct(declaredField.getName(), sourceProduct);
                 } else if (!sourceProductAnnotation.optional()) {
                     String text = "Mandatory source product (field '%s') not set.";
-                    String msg = formatExceptionString(text, declaredField.getName());
+                    String msg = formatExceptionMessage(text, declaredField.getName());
                     throw new OperatorException(msg);
                 }
             }
         } else {
             String text = "A source product (field '%s') must be of type '%s'.";
-            String msg = formatExceptionString(text, declaredField.getName(), Product.class.getName());
+            String msg = formatExceptionMessage(text, declaredField.getName(), Product.class.getName());
             throw new OperatorException(msg);
         }
     }
@@ -583,13 +594,13 @@ public class OperatorContext {
             }
             if (sourceProductsAnnotation.count() < 0) {
                 if (sourceProducts.length == 0) {
-                    String msg = formatExceptionString("At least a single source product expected.");
+                    String msg = formatExceptionMessage("At least a single source product expected.");
                     throw new OperatorException(msg);
                 }
             } else if (sourceProductsAnnotation.count() > 0) {
                 if (sourceProductsAnnotation.count() != sourceProducts.length) {
                     String text = "Wrong number of source products. Required %d, found %d.";
-                    String msg = formatExceptionString(text, sourceProductsAnnotation.count(), sourceProducts.length);
+                    String msg = formatExceptionMessage(text, sourceProductsAnnotation.count(), sourceProducts.length);
                     throw new OperatorException(msg);
                 }
             }
@@ -601,7 +612,7 @@ public class OperatorContext {
             }
         } else {
             String text = "Source products (field '%s') must be of type '%s'.";
-            String msg = formatExceptionString(text, declaredField.getName(), Product[].class.getName());
+            String msg = formatExceptionMessage(text, declaredField.getName(), Product[].class.getName());
             throw new OperatorException(msg);
         }
     }
@@ -626,7 +637,7 @@ public class OperatorContext {
         if (!typeRegExp.isEmpty()) {
             final String productType = sourceProduct.getProductType();
             if (!typeRegExp.equalsIgnoreCase(productType) && !Pattern.matches(typeRegExp, productType)) {
-                String msg = formatExceptionString(
+                String msg = formatExceptionMessage(
                         "A source product (field '%s') of type '%s' does not match type '%s'",
                         fieldName,
                         productType,
@@ -638,7 +649,7 @@ public class OperatorContext {
         if (bandNames.length != 0) {
             for (String bandName : bandNames) {
                 if (!sourceProduct.containsBand(bandName)) {
-                    String msg = formatExceptionString("A source product (field '%s') does not contain the band '%s'",
+                    String msg = formatExceptionMessage("A source product (field '%s') does not contain the band '%s'",
                             fieldName, bandName);
                     throw new OperatorException(msg);
                 }
@@ -654,7 +665,7 @@ public class OperatorContext {
             try {
                 return declaredField.get(getOperator());
             } catch (IllegalAccessException e) {
-                String msg = formatExceptionString("Unable to get declared field '%s'.", declaredField.getName());
+                String msg = formatExceptionMessage("Unable to get declared field '%s'.", declaredField.getName());
                 throw new OperatorException(msg, e);
             }
         } finally {
@@ -669,7 +680,7 @@ public class OperatorContext {
             try {
                 declaredField.set(getOperator(), value);
             } catch (IllegalAccessException e) {
-                String msg = formatExceptionString("Unable to set declared field '%s'", declaredField.getName());
+                String msg = formatExceptionMessage("Unable to set declared field '%s'", declaredField.getName());
                 throw new OperatorException(msg, e);
             }
         } finally {
@@ -684,7 +695,7 @@ public class OperatorContext {
             } catch (OperatorException e) {
                 throw e;
             } catch (Throwable t) {
-                throw new OperatorException(formatExceptionString("%s", t.getMessage()), t);
+                throw new OperatorException(formatExceptionMessage("%s", t.getMessage()), t);
             }
         }
     }
@@ -704,26 +715,11 @@ public class OperatorContext {
         }
     }
 
-    private static Field getField(Object object, String valueName) {
-        try {
-            return object.getClass().getDeclaredField(valueName);
-        } catch (NoSuchFieldException e) {
-            final Field[] declaredFields = object.getClass().getDeclaredFields();
-            for (Field declaredField : declaredFields) {
-                final Parameter parameter = declaredField.getAnnotation(Parameter.class);
-                if (parameter != null && !parameter.alias().isEmpty() && valueName.equals(parameter.alias())) {
-                    return declaredField;
-                }
-            }
-            return null;
-        }
-    }
-
     public void injectParameterDefaultValues() throws OperatorException {
         try {
             getOperatorValueContainer().setDefaultValues();
         } catch (ValidationException e) {
-            throw new OperatorException(formatExceptionString("%s", e.getMessage()), e);
+            throw new OperatorException(formatExceptionMessage("%s", e.getMessage()), e);
         }
     }
 
@@ -732,23 +728,21 @@ public class OperatorContext {
             for (String parameterName : parameters.keySet()) {
                 final ValueModel valueModel = getOperatorValueContainer().getModel(parameterName);
                 if (valueModel == null) {
-                    throw new OperatorException(formatExceptionString("Unknown parameter '%s'.", parameterName));
+                    throw new OperatorException(formatExceptionMessage("Unknown parameter '%s'.", parameterName));
                 }
                 try {
                     valueModel.setValue(parameters.get(parameterName));
                 } catch (ValidationException e) {
-                    throw new OperatorException(formatExceptionString("%s", e.getMessage()), e);
+                    throw new OperatorException(formatExceptionMessage("%s", e.getMessage()), e);
                 }
             }
         }
     }
 
-    private String formatExceptionString(String format, Object... args) {
+    private String formatExceptionMessage(String format, Object... args) {
         Object[] allArgs = new Object[args.length+1];
         allArgs[0] = operator.getClass().getSimpleName();
-        for (int i = 1; i < allArgs.length; i++) {
-            allArgs[i] = args[i-1];
-        }
+        System.arraycopy(args, 0, allArgs, 1, allArgs.length - 1);
         return String.format("Operator '%s': " + format, allArgs);
     }
 }

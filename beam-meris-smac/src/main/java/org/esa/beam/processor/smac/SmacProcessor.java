@@ -619,7 +619,7 @@ public class SmacProcessor extends Processor {
                                inBand.getSceneRasterWidth(),
                                inBand.getSceneRasterHeight());
             outBand.setUnit(inBand.getUnit());
-            ProductUtils.copySpectralAttributes(inBand, outBand);
+            ProductUtils.copySpectralBandProperties(inBand, outBand);
             outBand.setDescription(description + inBand.getName());
             _outputProduct.addBand(outBand);
         }

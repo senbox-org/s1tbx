@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GPFTest extends TestCase {
+public class GPFFacadeTest extends TestCase {
 
     public void testDefaultSettings() {
         GPF gpf = GPF.getDefaultInstance();
@@ -29,7 +29,7 @@ public class GPFTest extends TestCase {
     public void testOperatorApi() throws IOException, OperatorException, URISyntaxException {
         GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
 
-        String filePath = GPFTest.class.getResource("test-product.dim").toURI().getPath();
+        String filePath = GPFFacadeTest.class.getResource("test-product.dim").toURI().getPath();
 
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("file", new File(filePath));
@@ -69,7 +69,7 @@ public class GPFTest extends TestCase {
         GPF.getDefaultInstance().getOperatorSpiRegistry().loadOperatorSpis();
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new FooOpSpi());
 
-        String filePath = GPFTest.class.getResource("test-product.dim").toURI().getPath();
+        String filePath = GPFFacadeTest.class.getResource("test-product.dim").toURI().getPath();
 
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("file", new File(filePath));
@@ -96,7 +96,7 @@ public class GPFTest extends TestCase {
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new FooOpSpi());
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(new FoosOpSpi());
 
-        String filePath = GPFTest.class.getResource("test-product.dim").toURI().getPath();
+        String filePath = GPFFacadeTest.class.getResource("test-product.dim").toURI().getPath();
 
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("file", new File(filePath));

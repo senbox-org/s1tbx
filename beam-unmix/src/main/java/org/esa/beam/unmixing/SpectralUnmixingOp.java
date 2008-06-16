@@ -179,7 +179,7 @@ public class SpectralUnmixingOp extends Operator {
             for (int i = 0; i < errorBands.length; i++) {
                 final String erroBandName = sourceBands[i].getName() + errorBandNameSuffix;
                 errorBands[i] = targetProduct.addBand(erroBandName, ProductData.TYPE_FLOAT32);
-                ProductUtils.copySpectralAttributes(sourceBands[i], errorBands[i]);
+                ProductUtils.copySpectralBandProperties(sourceBands[i], errorBands[i]);
             }
             summaryErrorBand = targetProduct.addBand("summary_error", ProductData.TYPE_FLOAT32);
             summaryErrorBand.setDescription("Root mean square error");

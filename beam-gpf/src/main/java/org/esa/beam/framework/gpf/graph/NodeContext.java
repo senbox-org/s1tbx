@@ -1,12 +1,11 @@
 package org.esa.beam.framework.gpf.graph;
 
 import com.bc.ceres.core.Assert;
-import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.*;
 import org.esa.beam.framework.gpf.internal.OperatorContext;
-import org.esa.beam.framework.gpf.internal.OperatorImage;
+import org.esa.beam.util.jai.RasterDataNodeOpImage;
 
 import java.lang.reflect.Field;
 
@@ -62,7 +61,7 @@ class NodeContext {
         return targetProduct;
     }
 
-    public OperatorImage getTargetImage(Band band) {
+    public RasterDataNodeOpImage getTargetImage(Band band) {
         return operatorContext.getTargetImage(band);
     }
 
