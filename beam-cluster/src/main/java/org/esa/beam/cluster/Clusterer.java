@@ -13,8 +13,6 @@
  */
 package org.esa.beam.cluster;
 
-import org.esa.beam.cluster.Distribution;
-
 import static java.lang.Math.exp;
 import java.util.Arrays;
 import java.util.Comparator;
