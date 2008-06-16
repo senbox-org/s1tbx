@@ -140,9 +140,9 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
         }
 
         targetProduct.setName(targetProductSelector.getModel().getProductName());
-        targetProduct.setFileLocation(productFile);
 
         if (targetProductSelector.getModel().isSaveToFileSelected()) {
+            targetProduct.setFileLocation(productFile);
             final ProgressMonitorSwingWorker worker = new ProductWriterSwingWorker(targetProduct);
             worker.executeWithBlocking();
         } else if (targetProductSelector.getModel().isOpenInAppSelected()) {
