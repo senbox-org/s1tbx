@@ -211,7 +211,7 @@ public abstract class ProductFile {
     }
 
     /**
-     * Returns the abstract file path representation.
+     * @return the abstract file path representation.
      */
     public File getFile() {
         return file;
@@ -220,6 +220,7 @@ public abstract class ProductFile {
     /**
      * Tests if the given file is an ENVISAT data product file.
      *
+     * @param file the file to test
      * @return <code>true</code> if so, <code>false</code> otherwise
      */
     public static boolean isEnvisatFile(File file) {
@@ -239,6 +240,7 @@ public abstract class ProductFile {
      * Gets the product type of the given ENVISAT product file. If the given file does not represent a path to a 'true'
      * ENVISAT product or if an I/O error occurs, the method returns <code>null</code>.
      *
+     * @param file the ENVISAT product file
      * @return the file's product type or <code>null</code> if the product type could not be retrieved.
      */
     public static String getProductType(File file) {
@@ -271,6 +273,7 @@ public abstract class ProductFile {
      * Gets the product type of the given ENVISAT product file. If the given file does not represent a path to a 'true'
      * ENVISAT product or if an I/O error occurs, the method returns <code>null</code>.
      *
+     * @param dataInputStream the data input stream
      * @return the file's product type or <code>null</code> if the product type could not be retrieved.
      */
     public static String getProductType(ImageInputStream dataInputStream) {
@@ -413,6 +416,7 @@ public abstract class ProductFile {
      * Determines whether the pixels of a the scan lines in this product data file are stored in chronolgical order have
      * to be flipped before they apear in "natural" way such that the first pixel of the first line is the most
      * north-west pixel.
+     * @return true, if so
      */
     public abstract boolean storesPixelsInChronologicalOrder();
 
@@ -436,21 +440,21 @@ public abstract class ProductFile {
     }
 
     /**
-     * Returns the sensing-start time as a <code>Date</code> object.
+     * @return the sensing-start time as a <code>Date</code> object.
      */
     public Date getSensingStart() {
         return sensingStart;
     }
 
     /**
-     * Returns the sensing-stop time as a <code>Date</code> object.
+     * @return the sensing-stop time as a <code>Date</code> object.
      */
     public Date getSensingStop() {
         return sensingStop;
     }
 
     /**
-     * Returns the total product size in bytes.
+     * @return the total product size in bytes.
      */
     public int getProductSize() {
         return productSize;
@@ -488,6 +492,7 @@ public abstract class ProductFile {
     /**
      * Gets the DSD with the specified index.
      *
+     * @param index the DSD index
      * @return the DSD with the given index
      * @throws java.lang.ArrayIndexOutOfBoundsException
      *          if the index is out of bounds
@@ -586,11 +591,11 @@ public abstract class ProductFile {
     public String[] getValidDatasetNames(int datasetType) throws IOException {
         String[] datasetNames = DDDB.getInstance().getDatasetNames(getDddbProductType());
         ArrayList<String> nameList = new ArrayList<String>();
-        for (int i = 0; i < datasetNames.length; i++) {
-            DSD dsd = getDSD(datasetNames[i]);
+        for (String datasetName : datasetNames) {
+            DSD dsd = getDSD(datasetName);
             if (dsd != null && !dsd.isDatasetEmpty()) {
                 if (datasetType == -1 || datasetType == dsd.getDatasetType()) {
-                    nameList.add(datasetNames[i]);
+                    nameList.add(datasetName);
                 }
             }
         }
@@ -602,7 +607,8 @@ public abstract class ProductFile {
     /**
      * Tests if the given dataset name is a valid dataset name for this product file.
      *
-     * @return <code>true</code> if so
+     * @param name the dataset name
+     * @return <code>true</code>, if so
      * @throws java.io.IOException if an I/O error occurs
      */
     public boolean isValidDatasetName(String name) throws IOException {
@@ -620,6 +626,7 @@ public abstract class ProductFile {
      * @throws java.io.IOException if an appropriate DSD could not be found in the product file
      * @throws org.esa.beam.dataio.envisat.DDDBException
      *                             if a database I/O error occurs
+     * @return the record reader
      */
     public RecordReader getRecordReader(String datasetName) throws IOException, DDDBException {
 
@@ -699,8 +706,9 @@ public abstract class ProductFile {
     }
 
     /**
-     * Gets a reader for the geophysical band with the given name.
+     * Gets a reader for the geophysical band.
      *
+     * @param band the band
      * @return the geophysical band reader, or <code>null</code> if this product doesn't support reading band data or if
      *         the a band with the given name was not found
      */
@@ -709,11 +717,11 @@ public abstract class ProductFile {
             _bandLineReaderMap = new java.util.Hashtable<Band, BandLineReader>();
             BandLineReader[] bandLineReaders = getBandLineReaders();
             final Product product = band.getProduct();
-            for (int i = 0; i < bandLineReaders.length; i++) {
-                final String bandName = bandLineReaders[i].getBandName();
+            for (BandLineReader bandLineReader : bandLineReaders) {
+                final String bandName = bandLineReader.getBandName();
                 final Band key = product.getBand(bandName);
                 if (key != null) {
-                    _bandLineReaderMap.put(key, bandLineReaders[i]);
+                    _bandLineReaderMap.put(key, bandLineReader);
                 }
             }
         }
@@ -881,6 +889,7 @@ public abstract class ProductFile {
      * appropriate <code>ProductFile</code> subclass instance for it, otherwise a default <code>ProductFile</code>
      * instance is created.
      *
+     * @param file the Envisat product file
      * @param dataInputStream the seekable data input stream which will be used to read data from the product file.
      * @return an object representing the opened ENVISAT product file, never <code>null</code>
      * @throws java.io.IOException if an I/O error occurs
@@ -1019,7 +1028,7 @@ public abstract class ProductFile {
         byte[] sphBytes = new byte[sphSizeActual];
         System.arraycopy(sphBytesAll, 0, sphBytes, 0, sphSizeActual);
 
-        int dsdCountValid = 0;
+        int dsdCountValid;
 
         try {
             sph = HeaderParser.getInstance().parseHeader("SPH", sphBytes);
@@ -1029,30 +1038,26 @@ public abstract class ProductFile {
             byte[] dsdBytes = new byte[dsdSize];
             dsdArray = new DSD[numDSDs];
             for (int i = 0; i < numDSDs; i++) {
-                dsdArray[i] = null;
                 System.arraycopy(sphBytesAll, sphSizeActual + i * dsdSize, dsdBytes, 0, dsdSize);
-                Header dsd = HeaderParser.getInstance().parseHeader("DSD(" + (i + 1) + ")", dsdBytes);
-                if (dsd.hasParam("DS_NAME")) {
-                    dsdArray[i] = new DSD(i,
-                                          dsd.getParamString("DS_NAME").trim(),
-                                          dsd.getParamString("DS_TYPE").charAt(0),
-                                          dsd.getParamString("FILENAME").trim(),
-                                          dsd.getParamUInt("DS_OFFSET"),
-                                          dsd.getParamUInt("DS_SIZE"),
-                                          dsd.getParamInt("NUM_DSR"),
-                                          dsd.getParamInt("DSR_SIZE"));
-                    Debug.trace("ProductFile: " + dsdArray[i]);
-                    dsdCountValid++;
-                } else {
-                    StringBuffer message = new StringBuffer();
-                    message.append("DSD(");
-                    message.append(i + 1);
-                    message.append(") is empty or even invalid");/*I18N*/
-                    getLogger().finest(message.toString());
-                }
-                if (dsdArray[i] == null) {
-                    break;
-                }
+                String dsdKey = "DSD(" + (i + 1) + ")";
+                Header dsd = HeaderParser.getInstance().parseHeader(dsdKey, dsdBytes);
+                String dsName = dsd.hasParam("DS_NAME") ? dsd.getParamString("DS_NAME") : "";
+                String dsType = dsd.hasParam("DS_TYPE") ? dsd.getParamString("DS_TYPE") + "?" : "?";
+                String filename = dsd.hasParam("FILENAME") ? dsd.getParamString("FILENAME") : "";
+                long dsOffset = dsd.hasParam("DS_OFFSET") ? dsd.getParamUInt("DS_OFFSET") : 0L;
+                long dsSize = dsd.hasParam("DS_SIZE") ? dsd.getParamUInt("DS_SIZE") : 0L;
+                int numDsr = dsd.hasParam("NUM_DSR") ? dsd.getParamInt("NUM_DSR") : 0;
+                int dsrSize = dsd.hasParam("DSR_SIZE") ? dsd.getParamInt("DSR_SIZE") : 0;
+                dsdArray[i] = new DSD(i,
+                                      dsName.trim(),
+                                      dsType.charAt(0),
+                                      filename.trim(),
+                                      dsOffset,
+                                      dsSize,
+                                      numDsr,
+                                      dsrSize);
+                Debug.trace("ProductFile: " + dsdArray[i]);
+                dsdCountValid++;
             }
         } catch (HeaderParseException e) {
             throw new ProductIOException(e.getMessage());
