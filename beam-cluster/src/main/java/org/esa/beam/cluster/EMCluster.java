@@ -21,12 +21,12 @@ package org.esa.beam.cluster;
  * @author Ralf Quast
  * @version $Revision $ $Date $
  */
-public class Cluster {
+public class EMCluster {
 
     final Distribution distribution;
     final double priorProbability;
 
-    public Cluster(Distribution distribution, double priorProbability) {
+    public EMCluster(Distribution distribution, double priorProbability) {
         this.priorProbability = priorProbability;
         this.distribution = distribution;
     }

@@ -44,7 +44,7 @@ import java.util.Map;
                   authors = "Ralf Quast",
                   copyright = "(c) 2007 by Brockmann Consult",
                   description = "Performs an expectation-maximization (EM) cluster analysis.")
-public class FindClustersOp extends Operator {
+public class EMClusterOp extends Operator {
 
     @SourceProduct(alias = "source")
     private Product sourceProduct;
@@ -62,20 +62,20 @@ public class FindClustersOp extends Operator {
                description = "Determines whether the posterior probabilities are included as band data.")
     private boolean includeProbabilityBands;
 
-    private transient Comparator<Cluster> clusterComparator;
+    private transient Comparator<EMCluster> clusterComparator;
     private transient Band[] sourceBands;
     private transient Band clusterMapBand;
     private transient Band[] probabilityBands;
 
-    public FindClustersOp() {
+    public EMClusterOp() {
     }
 
-    public FindClustersOp(Product sourceProduct,
+    public EMClusterOp(Product sourceProduct,
                           int clusterCount,
                           int iterationCount,
                           String[] sourceBandNames,
                           boolean includeProbabilityBands,
-                          Comparator<Cluster> clusterComparator) {
+                          Comparator<EMCluster> clusterComparator) {
         this.sourceProduct = sourceProduct;
         this.clusterCount = clusterCount;
         this.iterationCount = iterationCount;
@@ -148,7 +148,7 @@ public class FindClustersOp extends Operator {
         pm.beginTask("Computing clusters...", iterationCount + 2);
 
         try {
-            final Clusterer clusterer = createClusterer(SubProgressMonitor.create(pm, 1));
+            final EMClusterer clusterer = createClusterer(SubProgressMonitor.create(pm, 1));
 
             for (int i = 0; i < iterationCount; ++i) {
                 checkForCancelation(pm);
@@ -156,7 +156,7 @@ public class FindClustersOp extends Operator {
                 pm.worked(1);
             }
 
-            final ClusterSet clusterSet;
+            final EMClusterSet clusterSet;
             if (clusterComparator == null) {
                 clusterSet = clusterer.getClusters();
             } else {
@@ -206,7 +206,7 @@ public class FindClustersOp extends Operator {
         return index;
     }
 
-    private Clusterer createClusterer(ProgressMonitor pm) {
+    private EMClusterer createClusterer(ProgressMonitor pm) {
         final int sceneWidth = sourceProduct.getSceneRasterWidth();
         final int sceneHeight = sourceProduct.getSceneRasterHeight();
 
@@ -229,13 +229,13 @@ public class FindClustersOp extends Operator {
             pm.done();
         }
 
-        return new Clusterer(points, clusterCount);
+        return new EMClusterer(points, clusterCount);
     }
 
     public static class Spi extends OperatorSpi {
 
         public Spi() {
-            super(FindClustersOp.class);
+            super(EMClusterOp.class);
         }
     }
 }

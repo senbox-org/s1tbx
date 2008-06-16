@@ -20,7 +20,7 @@ public class ClusterAnalysisAction extends AbstractVisatAction {
         Product selectedProduct = VisatApp.getApp().getSelectedProduct();
         if (selectedProduct != null) {
             DefaultSingleTargetProductDialog productDialog =
-                    new DefaultSingleTargetProductDialog("FindClusters", getAppContext(), "EM Cluster Analysis", null);
+                    new DefaultSingleTargetProductDialog("EMClusterAnalysis", getAppContext(), "EM Cluster Analysis", null);
             productDialog.show();
         }
     }

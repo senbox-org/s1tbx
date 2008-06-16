@@ -27,8 +27,9 @@ import java.util.Random;
  * @author Ralf Quast
  * @version $Revision: 2221 $ $Date: 2008-06-16 11:19:52 +0200 (Mo, 16 Jun 2008) $
  */
-public class Clusterer {
+public class EMClusterer {
 
+    private static final int SEED = 5489;
     private final int pointCount;
     private final int dimensionCount;
     private final double[][] points;
@@ -49,8 +50,8 @@ public class Clusterer {
      *
      * @return the cluster decomposition.
      */
-    public static ClusterSet findClusters(double[][] points, int clusterCount, int iterationCount) {
-        return new Clusterer(points, clusterCount).findClusters(iterationCount);
+    public static EMClusterSet findClusters(double[][] points, int clusterCount, int iterationCount) {
+        return new EMClusterer(points, clusterCount).findClusters(iterationCount);
     }
 
     /**
@@ -59,24 +60,9 @@ public class Clusterer {
      * @param points       the data points.
      * @param clusterCount the number of clusters.
      */
-    public Clusterer(double[][] points, int clusterCount) {
-        this(points.length, points[0].length, points, clusterCount, 5489);
-    }
-
-    /**
-     * Constructs a new instance of this class.
-     *
-     * @param pointCount     the number of data points.
-     * @param dimensionCount the number of dimension in point space.
-     * @param points         the data points.
-     * @param clusterCount   the number of clusters.
-     * @param seed           the seed used for random initialization.
-     */
-    private Clusterer(int pointCount, int dimensionCount, double[][] points, int clusterCount, int seed) {
-        // todo: check arguments
-
-        this.pointCount = pointCount;
-        this.dimensionCount = dimensionCount;
+    public EMClusterer(double[][] points, int clusterCount) {
+        pointCount = points.length;
+        dimensionCount = points[0].length;
         this.points = points;
         this.clusterCount = clusterCount;
 
@@ -86,7 +72,7 @@ public class Clusterer {
         covariances = new double[clusterCount][dimensionCount][dimensionCount];
         distributions = new Distribution[clusterCount];
 
-        initialize(new Random(seed));
+        initialize(new Random(SEED));
     }
 
     /**
@@ -96,7 +82,7 @@ public class Clusterer {
      *
      * @return the cluster decomposition.
      */
-    private ClusterSet findClusters(int iterationCount) {
+    private EMClusterSet findClusters(int iterationCount) {
         while (iterationCount > 0) {
             iterate();
             iterationCount--;
@@ -120,18 +106,18 @@ public class Clusterer {
      *
      * @return the clusters found.
      */
-    public ClusterSet getClusters() {
+    public EMClusterSet getClusters() {
         return getClusters(new PriorProbabilityClusterComparator());
     }
 
-    public ClusterSet getClusters(Comparator<Cluster> clusterComparator) {
-        final Cluster[] clusters = new Cluster[clusterCount];
+    public EMClusterSet getClusters(Comparator<EMCluster> clusterComparator) {
+        final EMCluster[] clusters = new EMCluster[clusterCount];
         for (int k = 0; k < clusterCount; ++k) {
-            clusters[k] = new Cluster(distributions[k], p[k]);
+            clusters[k] = new EMCluster(distributions[k], p[k]);
         }
         Arrays.sort(clusters, clusterComparator);
 
-        return new ClusterSet(clusters);
+        return new EMClusterSet(clusters);
     }
 
     /**
@@ -139,7 +125,7 @@ public class Clusterer {
      *
      * @param random the random number generator used for initialization.
      */
-    public void initialize(Random random) {
+    private void initialize(Random random) {
         calculateMeans(random);
 
         for (int k = 0; k < clusterCount; ++k) {
@@ -272,9 +258,9 @@ public class Clusterer {
      * <p/>
      * Compares two clusters according to their prior probability.
      */
-    private static class PriorProbabilityClusterComparator implements Comparator<Cluster> {
+    private static class PriorProbabilityClusterComparator implements Comparator<EMCluster> {
 
-        public int compare(Cluster c1, Cluster c2) {
+        public int compare(EMCluster c1, EMCluster c2) {
             return Double.compare(c2.getPriorProbability(), c1.getPriorProbability());
         }
     }

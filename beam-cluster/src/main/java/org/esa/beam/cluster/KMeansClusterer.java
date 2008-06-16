@@ -1,8 +1,4 @@
-package org.esa.beam.cluster;
-
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Random;/*
+/*
  * Copyright (C) 2002-2008 by Brockmann Consult
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,6 +12,10 @@ import java.util.Random;/*
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+package org.esa.beam.cluster;
+
+import java.util.Arrays;
+import java.util.Random;
 
 /**
  * todo - add API doc
@@ -26,14 +26,13 @@ import java.util.Random;/*
  */
 public class KMeansClusterer {
 
-
+    private static final int SEED = 31415;
     private final int pointCount;
     private final int dimensionCount;
     private final double[][] points;
     private final int clusterCount;
 
     private final double[][] means;
-    private int[] h;
 
     /**
      * Finds a collection of clusters for a given set of data points.
@@ -44,7 +43,7 @@ public class KMeansClusterer {
      *
      * @return the cluster decomposition.
      */
-    public static ClusterSet findClusters(double[][] points, int clusterCount, int iterationCount) {
+    public static KMeansClusterSet findClusters(double[][] points, int clusterCount, int iterationCount) {
         return new KMeansClusterer(points, clusterCount).findClusters(iterationCount);
     }
 
@@ -55,53 +54,16 @@ public class KMeansClusterer {
      * @param clusterCount the number of clusters.
      */
     public KMeansClusterer(double[][] points, int clusterCount) {
-        this(points, clusterCount, 0.0);
-    }
-
-    /**
-     * Constructs a new instance of this class.
-     *
-     * @param points       the data points.
-     * @param clusterCount the number of clusters.
-     * @param dist         the minimum distance to be exceeded by any pair of initial clusters.
-     */
-    public KMeansClusterer(double[][] points, int clusterCount, double dist) {
-        this(points, clusterCount, dist, 31415);
-    }
-
-    /**
-     * Constructs a new instance of this class.
-     *
-     * @param points       the data points.
-     * @param clusterCount the number of clusters.
-     * @param dist         the minimum distance to be exceeded by any pair of initial clusters.
-     * @param seed         the seed used for the random initialization of clusters.
-     */
-    public KMeansClusterer(double[][] points, int clusterCount, double dist, int seed) {
-        this(points.length, points[0].length, points, clusterCount, seed);
-    }
-
-    /**
-     * Constructs a new instance of this class.
-     *
-     * @param pointCount     the number of data points.
-     * @param dimensionCount the number of dimension in point space.
-     * @param points         the data points.
-     * @param clusterCount   the number of clusters.
-     * @param seed           the seed used for the random initialization of clusters.
-     */
-    private KMeansClusterer(int pointCount, int dimensionCount, double[][] points, int clusterCount,
-                            int seed) {
         // todo: check arguments
 
-        this.pointCount = pointCount;
-        this.dimensionCount = dimensionCount;
+        pointCount = points.length;
+        dimensionCount = points[0].length;
         this.points = points;
         this.clusterCount = clusterCount;
 
         means = new double[clusterCount][dimensionCount];
 
-        initialize(seed);
+        initialize(new Random(SEED));
     }
 
     /**
@@ -111,7 +73,7 @@ public class KMeansClusterer {
      *
      * @return the cluster decomposition.
      */
-    private ClusterSet findClusters(int iterationCount) {
+    private KMeansClusterSet findClusters(int iterationCount) {
         while (iterationCount > 0) {
             iterate();
             iterationCount--;
@@ -158,28 +120,21 @@ public class KMeansClusterer {
      *
      * @return the clusters found.
      */
-    public ClusterSet getClusters() {
-        return getClusters(new DefaultClusterComparator());
-    }
 
-    public ClusterSet getClusters(Comparator<Cluster> clusterComparator) {
-        final Cluster[] clusters = new Cluster[clusterCount];
+    public KMeansClusterSet getClusters() {
+        final KMeansCluster[] clusters = new KMeansCluster[clusterCount];
         for (int k = 0; k < clusterCount; ++k) {
             clusters[k] = new KMeansCluster(means[k]);
         }
-        Arrays.sort(clusters, clusterComparator);
-
-        return new ClusterSet(clusters);
+        return new KMeansClusterSet(clusters);
     }
 
     /**
      * Randomly initializes the clusters using the k-means method.
      *
-     * @param seed the seed value used for initializing the random number generator.
+     * @param random the random number generator used for initialization.
      */
-    private void initialize(int seed) {
-        final Random random = new Random(seed);
-
+    private void initialize(Random random) {
         for (int k = 0; k < clusterCount; ++k) {
             boolean accepted = true;
             do {
@@ -209,15 +164,5 @@ public class KMeansClusterer {
         }
 
         return d;
-    }
-
-    /**
-     * Cluster comparator.
-     */
-    private static class DefaultClusterComparator implements Comparator<Cluster> {
-
-        public int compare(Cluster c1, Cluster c2) {
-            return Double.compare(c2.getPriorProbability(), c1.getPriorProbability());
-        }
     }
 }

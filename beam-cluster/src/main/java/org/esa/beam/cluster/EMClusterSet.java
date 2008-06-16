@@ -23,11 +23,11 @@ import static java.lang.Math.exp;
  * @version $Revision$ $Date$
  * @since BEAM 4.2
  */
-public class ClusterSet {
+public class EMClusterSet {
 
-    private final Cluster[] clusters;
+    private final EMCluster[] clusters;
 
-    public ClusterSet(Cluster[] clusters) {
+    public EMClusterSet(EMCluster[] clusters) {
         this.clusters = clusters;
     }
 
