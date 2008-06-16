@@ -1,14 +1,10 @@
 package org.esa.beam.cluster.visat;
 
-import org.esa.beam.framework.ui.command.ExecCommand;
-import org.esa.beam.framework.ui.command.CommandEvent;
-import org.esa.beam.framework.ui.AppCommand;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.ui.DefaultSingleTargetProductDialog;
+import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.AbstractVisatAction;
-
-import javax.swing.JOptionPane;
 
 public class ClusterAnalysisAction extends AbstractVisatAction {
 
@@ -19,12 +15,12 @@ public class ClusterAnalysisAction extends AbstractVisatAction {
     }
 
 
-
     @Override
     public void actionPerformed(final CommandEvent event) {
         Product selectedProduct = VisatApp.getApp().getSelectedProduct();
         if (selectedProduct != null) {
-            DefaultSingleTargetProductDialog productDialog = new DefaultSingleTargetProductDialog("ClucovClusterAnalysis", getAppContext(), "CLUCOV Cluster Analysis", null);
+            DefaultSingleTargetProductDialog productDialog =
+                    new DefaultSingleTargetProductDialog("FindClusters", getAppContext(), "EM Cluster Analysis", null);
             productDialog.show();
         }
     }
