@@ -23,13 +23,13 @@ slant_range_time  |GEOLOCATION_GRID_ADS.7        |*   |Float |*|Linear_Scale|0.0
 incident_angle    |GEOLOCATION_GRID_ADS.8        |*   |Float |*|Linear_Scale|0.0|1.0    |*|*                                 |deg|Incident angle
 latitude          |GEOLOCATION_GRID_ADS.9        |*   |Float |*|Linear_Scale|0.0|1.0E-06|*|*                                 |deg|Latitude of the tie points (WGS-84), positive N
 longitude         |GEOLOCATION_GRID_ADS.10       |*   |Float |*|Linear_Scale|0.0|1.0E-06|*|*                                 |deg|Longitude of the tie points (WGS-84), Greenwich origin, positive E
-ds1_i	          |MDS1.4                        |1OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Wide Swath Mode SLC real
-ds1_q	          |MDS1.4                        |2OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Wide Swath Mode SLC imaginary
-ds2_i	          |MDS2.4                        |1OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Wide Swath Mode SLC real
-ds2_q	          |MDS2.4                        |2OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Wide Swath Mode SLC imaginary
-ds3_i	          |MDS3.4                        |1OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Wide Swath Mode SLC real
-ds3_q	          |MDS3.4                        |2OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Wide Swath Mode SLC imaginary
-ds4_i	          |MDS4.4                        |1OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Wide Swath Mode SLC real
-ds4_q	          |MDS4.4                        |2OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Wide Swath Mode SLC imaginary
-ds5_i	          |MDS5.4                        |1OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Wide Swath Mode SLC real
-ds5_q	          |MDS5.4                        |2OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Wide Swath Mode SLC imaginary
+i_1	          |MDS1.4                        |1OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Wide Swath Mode SLC real
+q_1	          |MDS1.4                        |2OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Wide Swath Mode SLC imaginary
+i_2	          |MDS2.4                        |1OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Wide Swath Mode SLC real
+q_2	          |MDS2.4                        |2OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Wide Swath Mode SLC imaginary
+i_3	          |MDS3.4                        |1OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Wide Swath Mode SLC real
+q_3	          |MDS3.4                        |2OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Wide Swath Mode SLC imaginary
+i_4	          |MDS4.4                        |1OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Wide Swath Mode SLC real
+q_4	          |MDS4.4                        |2OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Wide Swath Mode SLC imaginary
+i_5	          |MDS5.4                        |1OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Wide Swath Mode SLC real
+q_5	          |MDS5.4                        |2OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Wide Swath Mode SLC imaginary

@@ -60,3 +60,9 @@ records/meris/MER_RR__2P_MDSR_16.dd - changed band description
 2007/01/17
 Added support for
 SAR_IMP_1P, SAR_IMG_1P, AT1_TOA_1P, AT2_TOA_1P from ERS-1/2 in ENVISAT format
+
+2008/03/19
+Added support for versions 3H, 3K, 4A and 4B of ASAR products
+
+2008/04/25
+Added support for ASA_XCA_AX, DOR_POR_AX and DOR_VOR_AX 

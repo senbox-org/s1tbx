@@ -1095,7 +1095,7 @@ public abstract class ProductFile {
      *         (file magic 'PRODUCT=' not found).
      * @throws java.io.IOException if an I/O error occurs
      */
-    private static String readProductType(final ImageInputStream dataInputStream)
+    static String readProductType(final ImageInputStream dataInputStream)
             throws IOException {
 
         final byte[] magicBytes = new byte[EnvisatConstants.MAGIC_STRING.length() + EnvisatConstants.PRODUCT_TYPE_STRLEN];

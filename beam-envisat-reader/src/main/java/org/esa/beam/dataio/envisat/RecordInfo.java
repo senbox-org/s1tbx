@@ -188,6 +188,25 @@ public final class RecordInfo extends ItemInfo {
     }
 
     /**
+     * Adds a copy of a recordinfo with a new prefix
+     *
+     * @param subRecord the record info to be added
+     * @param prefix the prefix string to add to the name of each field
+     *
+     * @throws java.lang.IllegalArgumentException
+     *          if recordInfo is null or one of the fields already exists
+     * @see <{FieldInfo}>
+     */
+    final void add(RecordInfo subRecord, String prefix) {
+
+        for (int numFields = 0; numFields < subRecord.getNumFieldInfos(); numFields++) {
+            FieldInfo f = subRecord.getFieldInfoAt(numFields);
+            _fieldInfos.addElement(new FieldInfo(prefix + '.' + f.getName(), f.getDataType(), f.getNumDataElems(),
+                              f.getPhysicalUnit(), f.getDescription()) );
+        }
+    }
+
+    /**
      * Adds a complete record infor to this record info.
      *
      * @param recordInfo the record info to be added
@@ -206,7 +225,7 @@ public final class RecordInfo extends ItemInfo {
      * Updates the record size in bytes. This methos is called after a new field-info has been added to this
      * record-info,
      */
-    private void updateSizeInBytes() {
+    void updateSizeInBytes() {
         _sizeInBytes = 0;
         int n = getNumFieldInfos();
         for (int i = 0; i < n; i++) {

@@ -269,24 +269,24 @@ public class AsarProductFile extends ProductFile {
             sceneRasterWidth = getSPH().getParamInt("LINE_LENGTH");
 
         if (sceneRasterWidth < 0) {                              // handle WSS where LINE_LENGTH is -1
-            int minHeight = mdsDsds[0].getNumRecords();
-            int minWidth = mdsDsds[0].getRecordSize();
+            int maxHeight = mdsDsds[0].getNumRecords();
+            int maxWidth = mdsDsds[0].getRecordSize();
             for (DSD mdsDsd : mdsDsds) {
 
-                if (mdsDsd.getNumRecords() < minHeight)
-                    minHeight = mdsDsd.getNumRecords();
-                if (mdsDsd.getRecordSize() < minWidth)
-                    minWidth = mdsDsd.getRecordSize();
+                if (mdsDsd.getNumRecords() > maxHeight)
+                    maxHeight = mdsDsd.getNumRecords();
+                if (mdsDsd.getRecordSize() > maxWidth)
+                    maxWidth = mdsDsd.getRecordSize();
             }
-            sceneRasterHeight = minHeight;
-            sceneRasterWidth = minWidth;
+            sceneRasterHeight = maxHeight;
+            sceneRasterWidth = maxWidth / 5;
         }
 
         int locTiePointGridWidth = EnvisatConstants.ASAR_LOC_TIE_POINT_GRID_WIDTH;
         int locTiePointGridHeight = dsdGeoLocationAds.getNumRecords();
 
-        locTiePointGridOffsetX = (float) EnvisatConstants.ASAR_LOC_TIE_POINT_OFFSET_X;
-        locTiePointGridOffsetY = (float) EnvisatConstants.ASAR_LOC_TIE_POINT_OFFSET_Y;
+        locTiePointGridOffsetX = EnvisatConstants.ASAR_LOC_TIE_POINT_OFFSET_X;
+        locTiePointGridOffsetY = EnvisatConstants.ASAR_LOC_TIE_POINT_OFFSET_Y;
         locTiePointSubSamplingX = (float) sceneRasterWidth / ((float) EnvisatConstants.ASAR_LOC_TIE_POINT_GRID_WIDTH - 1f);
         locTiePointSubSamplingY = (float) sceneRasterHeight / (float) dsdGeoLocationAds.getNumRecords();
         // @todo 1 nf/** - ASAR
@@ -522,7 +522,7 @@ public class AsarProductFile extends ProductFile {
             for (DSD mdsDsd : mdsDsds) {
                 if (mdsDsd.getDatasetName().equals(dataSetName)) {
                     rasterHeight = mdsDsd.getNumRecords();
-                    rasterWidth = mdsDsd.getRecordSize();
+                    //rasterWidth = mdsDsd.getRecordSize() / 5;
                     break;
                 }
             }

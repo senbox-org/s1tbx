@@ -17,8 +17,15 @@
 package org.esa.beam.dataio.ers;
 
 import org.esa.beam.dataio.envisat.EnvisatProductReaderPlugIn;
+import org.esa.beam.dataio.envisat.ProductFile;
+import org.esa.beam.framework.dataio.DecodeQualification;
 
+import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.MemoryCacheImageInputStream;
 import java.util.Locale;
+import java.io.File;
+import java.io.InputStream;
+import java.io.IOException;
 
 /**
  * The <code>ErsProductReaderPlugIn</code> class is an implementation of the <code>ProductReaderPlugIn</code>
@@ -71,5 +78,41 @@ public class ErsProductReaderPlugIn extends EnvisatProductReaderPlugIn {
     @Override
     public String getDescription(Locale name) {
         return "ERS1/2 AATSR and SAR products";
+    }
+
+    /**
+     * Checks whether the given object is an acceptable input for this product reader and if so, the method checks if
+     * it's content has the ENVISAT format by checking if the first bytes in the file equals the ENVISAT magic file
+     * string <code>PRODUCT=&quot;</code>.
+     * <p/>
+     * <p> ERS product readers accept <code>java.lang.String</code> - a file path, <code>java.io.File</code> - an
+     * abstract file path or a <code>javax.imageio.stream.ImageInputStream</code> - an already opened image input
+     * stream.
+     *
+     * @param input the input object
+     * @return <code>true</code> if the given input is an object referencing a physical ERS in ENVISAT data source.
+     */
+    public DecodeQualification getDecodeQualification(Object input) {
+        if (super.getDecodeQualification(input) == DecodeQualification.INTENDED) {
+            if (input instanceof String) {
+                if(matchesExtension((String)input))
+                    return DecodeQualification.INTENDED;
+            } else if (input instanceof File) {
+                File file = (File)input;
+                if(matchesExtension(file.getName()))
+                    return DecodeQualification.INTENDED;
+            }
+        }
+        return DecodeQualification.UNABLE;
+    }
+
+    private boolean matchesExtension(String filename) {
+        String[] extList = getDefaultFileExtensions();
+        for(String ext: extList) {
+            if(filename.toLowerCase().endsWith(ext.toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Vector;
+import java.util.Arrays;
 
 /**
  * The <code>EnvisatProductReader</code> class is an implementation of the <code>ProductReader</code> interface
@@ -170,13 +171,20 @@ public class EnvisatProductReader extends AbstractProductReader {
         pm.beginTask("Reading band '" + destBand.getName() + "'...", (sourceMaxY - sourceMinY) + 1);
         // For each scan in the data source
         try {
+
+            if(_productFile.getProductType().equalsIgnoreCase("ASA_WSS_1P")) {
+                processWSSImageRecordMetadata(destBand);
+            }
+
             for (int sourceY = sourceMinY; sourceY <= sourceMaxY; sourceY += sourceStepY) {
                 if (pm.isCanceled()) {
                     break;
                 }
+
                 bandLineReader.readRasterLine(sourceMinX, sourceMaxX, sourceStepX,
                         sourceY,
                         destBuffer, destArrayPos);
+
                 destArrayPos += destWidth;
                 pm.worked(sourceStepY);
             }
@@ -191,6 +199,47 @@ public class EnvisatProductReader extends AbstractProductReader {
             pm.done();
         }
 
+    }
+
+    private void processWSSImageRecordMetadata(Band destBand) throws IOException {
+
+        Product product = destBand.getProduct();
+        MetadataElement imgRecElem = product.getMetadataRoot().getElement("Image Record");
+        if(imgRecElem == null) {
+            imgRecElem = new MetadataElement("Image Record");
+            product.getMetadataRoot().addElement(imgRecElem);
+        }
+
+        MetadataElement bandElem = imgRecElem.getElement(destBand.getName());
+        if(bandElem == null) {
+            bandElem = new MetadataElement(destBand.getName());
+            imgRecElem.addElement(bandElem);
+        }
+
+        MetadataElement timeElem = bandElem.getElement("time");
+        if(timeElem == null) {
+            timeElem = new MetadataElement("time");
+            bandElem.addElement(timeElem);
+
+            final BandLineReader bandLineReader = getBandLineReader(destBand);
+            for (int y = 0; y <= destBand.getRasterHeight(); ++y) {
+                bandLineReader.readLineRecord(y);
+
+                saveLineRecord(timeElem, bandLineReader.getPixelDataRecord(), y);
+            }
+        }
+    }
+
+    /** add line record data into the metadata
+     *
+     * @param lineRecord the line record
+     */
+    private static void saveLineRecord(MetadataElement timeElem, Record lineRecord, int line)
+    {
+        Field field0 = lineRecord.getFieldAt(0);
+        MetadataAttribute attribute = new MetadataAttribute(String.valueOf(line), ProductData.TYPE_FLOAT64, 1);
+        attribute.getData().setElemDouble( ((ProductData.UTC)field0.getData()).getMJD() );
+        timeElem.addAttribute(attribute);
     }
 
     private static void maskOutMissingData(Band destBand,
@@ -278,7 +327,7 @@ public class EnvisatProductReader extends AbstractProductReader {
 
                 if (bandLineReader instanceof BandLineReader.Virtual) {
                     final BandLineReader.Virtual virtual = ((BandLineReader.Virtual) bandLineReader);
-                    band = new VirtualBand(bandName, bandInfo.getDataType(),
+                    band = new VirtualBand(bandName, ProductData.TYPE_FLOAT64,//bandInfo.getDataType(),
                             width, height,
                             virtual.getExpression());
                 } else {
@@ -625,19 +674,21 @@ public class EnvisatProductReader extends AbstractProductReader {
         for (int i = 0; i < record.getNumFields(); i++) {
             Field field = record.getFieldAt(i);
 
-            MetadataAttribute attribute = new MetadataAttribute(field.getName(), field.getData(), true);
-            if (field.getInfo().getPhysicalUnit() != null) {
-                attribute.setUnit(field.getInfo().getPhysicalUnit());
-            }
-            if (field.getInfo().getDescription() != null) {
-                attribute.setDescription(field.getInfo().getDescription());
-            }
             String description = field.getInfo().getDescription();
             if (description != null) {
                 if (description.equalsIgnoreCase("Spare")) {
                     continue;
                 }
             }
+
+            MetadataAttribute attribute = new MetadataAttribute(field.getName(), field.getData(), true);
+            if (field.getInfo().getPhysicalUnit() != null) {
+                attribute.setUnit(field.getInfo().getPhysicalUnit());
+            }
+            if (description != null) {
+                attribute.setDescription(field.getInfo().getDescription());
+            }
+
             metadataGroup.addAttribute(attribute);
         }
 
@@ -669,5 +720,4 @@ public class EnvisatProductReader extends AbstractProductReader {
             return TiePointGrid.DISCONT_NONE;
         }
     }
-
 }

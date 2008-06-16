@@ -23,7 +23,11 @@ slant_range_time  |GEOLOCATION_GRID_ADS.7        |*   |Float |*|Linear_Scale|0.0
 incident_angle    |GEOLOCATION_GRID_ADS.8        |*   |Float |*|Linear_Scale|0.0|1.0    |*|*                                 |deg|Incident angle
 latitude          |GEOLOCATION_GRID_ADS.9        |*   |Float |*|Linear_Scale|0.0|1.0E-06|*|*                                 |deg|Latitude of the tie points (WGS-84), positive N
 longitude         |GEOLOCATION_GRID_ADS.10       |*   |Float |*|Linear_Scale|0.0|1.0E-06|*|*                                 |deg|Longitude of the tie points (WGS-84), Greenwich origin, positive E
-ds1_i             |MDS1.4                        |1OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Alternating Polarization SLC Image (i)
-ds1_q             |MDS1.4                        |2OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Alternating Polarization SLC Image (q)
-ds2_i             |MDS2.4                        |1OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Alternating Polarization SLC Image (i)
-ds2_q             |MDS2.4                        |2OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Alternating Polarization SLC Image (q)
+i_1               |MDS1.4                        |1OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Alternating Polarization SLC Image (i)
+q_1               |MDS1.4                        |2OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Alternating Polarization SLC Image (q)
+Intensity_1	      |=pow(i_1,2) + pow(q_1,2)      |*   |Float |*|Linear_Scale|0.0|1.0	|*|* 							     |*  |Intensity Image
+Phase_1		      |=atan2(q_1,i_1) 				 |*   |Float |*|Linear_Scale|0.0|1.0	|*|*								 |*  |Phase Image
+i_2               |MDS2.4                        |1OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Alternating Polarization SLC Image (i)
+q_2               |MDS2.4                        |2OF2|Float |*|Linear_Scale|0.0|1.0    |*|*                                 |*  |Alternating Polarization SLC Image (q)
+Intensity_2	      |=pow(i_2,2) + pow(q_2,2)      |*   |Float |*|Linear_Scale|0.0|1.0	|*|*								 |*  |Intensity Image
+Phase_2		      |=atan2(q_2,i_2) 				 |*   |Float |*|Linear_Scale|0.0|1.0	|*|*								 |*  |Phase Image

@@ -304,23 +304,22 @@ public class DDDB {
                     if (fieldName != null) {
                         if (subExpressionDetected) {
                             // encountered subdataset defining a data structure to be loaded
-                            //String subDatasetPath = recordInfoFilePath.substring(0, recordInfoFilePath.length() - 2);
-                            //subDatasetPath += "sd/" + dataTypeStr.substring(2, dataTypeStr.length());
 
                             String subDatasetPath = recordInfoFilePath.substring(0, recordInfoFilePath.lastIndexOf('/'));
                             subDatasetPath += '/' + dataTypeStr.substring(2, dataTypeStr.length());
 
-                            RecordInfo subRecord;
-                            String prefix;
+                            RecordInfo subRecord = readRecordInfoPath(subDatasetPath, dataTypeStr, parameters);
+                            String prefixStr = dataTypeStr.substring(2, dataTypeStr.length() - 3);
+                            String prefix = prefixStr;
                             for (int n = 1; n <= numDataElems; n++) {
-                                subRecord = readRecordInfoPath(subDatasetPath, dataTypeStr, parameters);
-                                prefix = dataTypeStr.substring(2, dataTypeStr.length() - 3);
+
                                 if (numDataElems > 1) {
-                                    prefix += "." + n;
+                                    prefix = prefixStr + '.' + n;
                                 }
-                                subRecord.setNamePrefix(prefix);
-                                recordInfo.add(subRecord);
+
+                                recordInfo.add(subRecord, prefix);
                             }
+                            recordInfo.updateSizeInBytes();
                         } else {
                             if (dataTypeStr.equalsIgnoreCase("Spare")) {
                                 if (fieldSize > 0 && numDataElems == 1) {

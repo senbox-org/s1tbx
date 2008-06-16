@@ -1,4 +1,4 @@
-ASAR_Image_MDSR_SLC|Measurement Data Set 1|*
+ASAR_Image_MDSR_WSS_SLC|Measurement Data Set 1|*
 #
 zero_doppler_time|@/types/UTC.dd|MJD |12|1               |*|Zero Doppler Time (MJD format)|1|
 quality_flag     |UChar         |flag| 1|1               |*|Quality Indicator (-1 for blank MDSR, 0 otherwise)|2|
