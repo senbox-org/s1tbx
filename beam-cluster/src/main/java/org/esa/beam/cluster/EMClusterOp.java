@@ -39,7 +39,7 @@ import java.util.Map;
  * @author Ralf Quast
  * @version $Revision: 2223 $ $Date: 2008-06-16 11:59:40 +0200 (Mo, 16 Jun 2008) $
  */
-@OperatorMetadata(alias = "FindClusters",
+@OperatorMetadata(alias = "EMClusterAnalysis",
                   version = "1.0",
                   authors = "Ralf Quast",
                   copyright = "(c) 2007 by Brockmann Consult",
