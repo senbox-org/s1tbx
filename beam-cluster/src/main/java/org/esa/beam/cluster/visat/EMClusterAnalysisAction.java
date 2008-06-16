@@ -6,7 +6,7 @@ import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.visat.VisatApp;
 import org.esa.beam.visat.actions.AbstractVisatAction;
 
-public class ClusterAnalysisAction extends AbstractVisatAction {
+public class EMClusterAnalysisAction extends AbstractVisatAction {
 
     @Override
     public void updateState(CommandEvent commandEvent) {
@@ -20,7 +20,7 @@ public class ClusterAnalysisAction extends AbstractVisatAction {
         Product selectedProduct = VisatApp.getApp().getSelectedProduct();
         if (selectedProduct != null) {
             DefaultSingleTargetProductDialog productDialog =
-                    new DefaultSingleTargetProductDialog("ClucovClusterAnalysis", getAppContext(), "Clucov Cluster Analysis", null);
+                    new DefaultSingleTargetProductDialog("EMClusterAnalysis", getAppContext(), "EM Cluster Analysis", null);
             productDialog.show();
         }
     }

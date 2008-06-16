@@ -31,11 +31,19 @@
 
     <extension point="beam-ui:actions">
         <action>
-            <id>clusterAnalysis</id>
-            <helpID>clusterAnalysis</helpID>
-            <class>org.esa.beam.cluster.visat.ClusterAnalysisAction</class>
+            <id>emClusterAnalysis</id>
+            <helpID>emClusterAnalysis</helpID>
+            <class>org.esa.beam.cluster.visat.EMClusterAnalysisAction</class>
             <parent>tools</parent>
-            <text>Cluster Analysis...</text>
+            <text>EM Cluster Analysis...</text>
+            <mnemonic>C</mnemonic>
+        </action>
+        <action>
+            <id>kmeansClusterAnalysis</id>
+            <helpID>kmeansClusterAnalysis</helpID>
+            <class>org.esa.beam.cluster.visat.KMeansClusterAnalysisAction</class>
+            <parent>tools</parent>
+            <text>K-Means Cluster Analysis...</text>
             <mnemonic>C</mnemonic>
         </action>
     </extension>
