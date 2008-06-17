@@ -7,16 +7,19 @@
     <description>Enables BEAM to read ENVISAT data products.</description>
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
-    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <copyright>(C) 2008 by Brockmann Consult GmbH</copyright>
     <url>http://envisat.esa.int/beam</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
 
 
     <changelog><![CDATA[
        <p>Changes from version 1.1.100 to 1.2:<br/>
-       [BEAM-803] Add support for all ASAR products and format versions
+       [BEAM-828] New ASAR products for envisat reader<br/>
+       [BEAM-803] Add support for all ASAR products and format versions<br/>
+       </p>
        <p>Changes from version 1.1 to 1.1.100:<br/>
        [BEAM-802] Take attachment flag into account<br/>
+       </p>
        Changes in version 1.1:<br/>
        [BEAM-620] Generify detection of product type<br/>
        [BEAM-624] Support for AT1_NR__2P and AT2_NR__2P products in ENVISAT-format<br/>
