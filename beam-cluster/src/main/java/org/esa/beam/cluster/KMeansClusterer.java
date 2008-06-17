@@ -15,6 +15,7 @@
 package org.esa.beam.cluster;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Random;
 
 /**
@@ -33,6 +34,7 @@ public class KMeansClusterer {
     private final int clusterCount;
 
     private final double[][] means;
+    private int[] memberCounts;
 
     /**
      * Finds a collection of clusters for a given set of data points.
@@ -55,12 +57,11 @@ public class KMeansClusterer {
      */
     public KMeansClusterer(double[][] points, int clusterCount) {
         // todo: check arguments
-
-        pointCount = points.length;
-        dimensionCount = points[0].length;
         this.points = points;
         this.clusterCount = clusterCount;
-
+        pointCount = points.length;
+        dimensionCount = points[0].length;
+        memberCounts = new int[clusterCount];
         means = new double[clusterCount][dimensionCount];
 
         initialize(new Random(SEED));
@@ -88,27 +89,26 @@ public class KMeansClusterer {
      */
     public void iterate() {
         final double[][] newMeans = new double[clusterCount][dimensionCount];
-        final int[] memberCount = new int[clusterCount];
-
-        for (int i = 0; i < pointCount; ++i) {
+        Arrays.fill(memberCounts, 0);
+        for (int p = 0; p < pointCount; ++p) {
             double minDistance = Double.MAX_VALUE;
             int closestCluster = 0;
-            for (int k = 0; k < clusterCount; ++k) {
-                final double distance = squaredDistance(means[k], points[i]);
+            for (int c = 0; c < clusterCount; ++c) {
+                final double distance = squaredDistance(means[c], points[p]);
                 if (distance < minDistance) {
-                    closestCluster = k;
+                    closestCluster = c;
                     minDistance = distance;
                 }
             }
             for (int l = 0; l < dimensionCount; ++l) {
-                newMeans[closestCluster][l] += points[i][l];
+                newMeans[closestCluster][l] += points[p][l];
             }
-            memberCount[closestCluster]++;
+            memberCounts[closestCluster]++;
         }
-        for (int k = 0; k < clusterCount; ++k) {
-            for (int l = 0; l < dimensionCount; ++l) {
-                if (memberCount[k] > 0) {
-                    means[k][l] = newMeans[k][l] / memberCount[k];
+        for (int c = 0; c < clusterCount; ++c) {
+            for (int d = 0; d < dimensionCount; ++d) {
+                if (memberCounts[c] > 0) {
+                    means[c][d] = newMeans[c][d] / memberCounts[c];
                 }
             }
         }
@@ -123,9 +123,10 @@ public class KMeansClusterer {
 
     public KMeansClusterSet getClusters() {
         final KMeansCluster[] clusters = new KMeansCluster[clusterCount];
-        for (int k = 0; k < clusterCount; ++k) {
-            clusters[k] = new KMeansCluster(means[k]);
+        for (int c = 0; c < clusterCount; ++c) {
+            clusters[c] = new KMeansCluster(means[c], memberCounts[c]);
         }
+        Arrays.sort(clusters, new ClusterComparator());
         return new KMeansClusterSet(clusters);
     }
 
@@ -135,12 +136,12 @@ public class KMeansClusterer {
      * @param random the random number generator used for initialization.
      */
     private void initialize(Random random) {
-        for (int k = 0; k < clusterCount; ++k) {
+        for (int c = 0; c < clusterCount; ++c) {
             boolean accepted = true;
             do {
-                System.arraycopy(points[random.nextInt(pointCount)], 0, means[k], 0, dimensionCount);
-                for (int i = 0; i < k; ++i) {
-                    accepted = !Arrays.equals(means[k], means[i]);
+                System.arraycopy(points[random.nextInt(pointCount)], 0, means[c], 0, dimensionCount);
+                for (int i = 0; i < c; ++i) {
+                    accepted = !Arrays.equals(means[c], means[i]);
                     if (!accepted) {
                         break;
                     }
@@ -158,11 +159,25 @@ public class KMeansClusterer {
      * @return squared Euclidean distance between x and y.
      */
     private double squaredDistance(double[] x, double[] y) {
-        double d = 0.0;
-        for (int l = 0; l < dimensionCount; ++l) {
-            d += (y[l] - x[l]) * (y[l] - x[l]);
+        double distance = 0.0;
+        for (int d = 0; d < dimensionCount; ++d) {
+            distance += (y[d] - x[d]) * (y[d] - x[d]);
         }
 
-        return d;
+        return distance;
+    }
+    
+    /**
+     * Cluster comparator.
+     * <p/>
+     * Compares two clusters according to their membershipCounts.
+     */
+    private static class ClusterComparator implements Comparator<KMeansCluster> {
+
+        public int compare(KMeansCluster c1, KMeansCluster c2) {
+            int thisVal = c1.getMemberCount();
+            int anotherVal = c2.getMemberCount();
+            return (thisVal<anotherVal ? -1 : (thisVal==anotherVal ? 0 : 1));
+        }
     }
 }

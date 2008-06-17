@@ -23,12 +23,18 @@ package org.esa.beam.cluster;
  */
 public class KMeansCluster {
     private final double[] mean;
+    private final int memberCount;
 
-    public KMeansCluster(double[] mean) {
+    public KMeansCluster(double[] mean, int memberCount) {
         this.mean = mean;
+        this.memberCount = memberCount;
     }
 
     public double[] getMean() {
         return mean;
+    }
+    
+    public int getMemberCount() {
+        return memberCount;
     }
 }
