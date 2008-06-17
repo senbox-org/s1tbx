@@ -98,12 +98,10 @@ public class Histogram extends Range {
      * Returns the value range for the case that 2.5% of the sum of all bin values are skipped from the the lower and
      * upper bounds of this histogram.
      *
-     * @param skipInvalidZero if <code>true</code>, zero values possibly caused by invalid samples are skipped
-     *
      * @return the skipped value range, that include 95% of the sum of all bin values
      */
-    public Range findRangeFor95Percent(final boolean skipInvalidZero) {
-        return findRange(LEFT_AREA_SKIPPED_95, RIGHT_AREA_SKIPPED_95, skipInvalidZero);
+    public Range findRangeFor95Percent() {
+        return findRange(LEFT_AREA_SKIPPED_95, RIGHT_AREA_SKIPPED_95);
     }
 
     /**
@@ -116,12 +114,9 @@ public class Histogram extends Range {
      * @param rightHistoAreaSkipped the normalized area (a ratio of the entire area) of samples skipped from the upper
      *                              end of the histogram must be greater than or equal to <code>0.0</code> and less than
      *                              <code>1.0 - leftHistoAreaSkipped</code>
-     * @param skipInvalidZero       if <code>true</code>, zero values possibly caused by invalid samples are skipped
-     *
      * @return the readjusted range
      */
-    public Range findRange(final double leftHistoAreaSkipped, final double rightHistoAreaSkipped,
-                           final boolean skipInvalidZero) {
+    public Range findRange(final double leftHistoAreaSkipped, final double rightHistoAreaSkipped) {
 
         final int numBins = getNumBins();
         final int[] binCounts = getBinCounts();
@@ -133,40 +128,6 @@ public class Histogram extends Range {
         double binCountSum;
         int j1 = jMin;
         int j2 = jMax;
-
-        // Try to filter out zero values caused by invalid pixels by adjusting either j1, j2 or none of them
-        if (skipInvalidZero) {
-            int jZero = getBinIndex(0.0); // index of zero in the histogram
-            if (jZero != -1) {
-                // compute area on left size of index jZero
-                binCountSum = 0;
-                for (int j = 0; j < jZero - 1; j++) {
-                    binCountSum += binCounts[j];
-                }
-                leftArea = binCountSum / numSamples - leftHistoAreaSkipped;
-                leftArea = leftArea < 0.0 ? 0.0 : leftArea;
-
-                // compute area on right size of index jZero
-                binCountSum = 0;
-                for (int j = jZero + 1; j < numBins - 1; j++) {
-                    binCountSum += binCounts[j];
-                }
-                rightArea = binCountSum / numSamples - rightHistoAreaSkipped;
-                rightArea = rightArea < 0.0 ? 0.0 : rightArea;
-
-                if (leftArea < 0.1 * rightArea) {
-                    if (jZero < jMax - 1) {
-                        j1 = jZero + 1;
-                        Debug.trace("Histogram: lower bin index adjusted to " + j1 + " due to invalid zeros");
-                    }
-                } else if (rightArea < 0.1 * leftArea) {
-                    if (jZero > jMin + 1) {
-                        j2 = jZero - 1;
-                        Debug.trace("Histogram: upper bin index adjusted to " + j2 + " due to invalid zeros");
-                    }
-                }
-            }
-        }
 
         binCountSum = 0;
         for (; j1 <= jMax; j1++) {
@@ -260,7 +221,6 @@ public class Histogram extends Range {
         return -1;
     }
 
-    // @todo se/nf - add documentation
     @Override
     public void aggregate(final Object values, boolean unsigned,
                           final IndexValidator validator,
@@ -1067,5 +1027,24 @@ public class Histogram extends Range {
             throw new IllegalArgumentException("values has an illegal type: " + values.getClass());
         }
         return histogram;
+    }
+
+
+    /**
+     * @deprecated since BEAM 4.2, use {@link #findRangeFor95Percent()} instead.
+     */
+    @Deprecated
+    public Range findRangeFor95Percent(final boolean skipInvalidZero) {
+        return findRangeFor95Percent();
+    }
+
+    /**
+     * @deprecated since BEAM 4.2, use {@link #findRange(double, double)} instead.
+     */
+    @Deprecated
+    public Range findRange(final double leftHistoAreaSkipped,
+                           final double rightHistoAreaSkipped,
+                           final boolean skipInvalidZero) {
+         return findRange(leftHistoAreaSkipped, rightHistoAreaSkipped);
     }
 }

@@ -131,7 +131,8 @@ public class ImageFactory {
                     // todo - make no-data image property of RasterDataNode
                     RenderedOp histogramImage = JAIUtils.createHistogramImage(planarImage, 512, extrema[0], extrema[1]);
                     Histogram histogram = u(histogramImage);
-                    ImageInfo imageInfo = raster.createDefaultImageInfo(null, histogram, true); // Note: this method expects a raw data histogram!
+                    // Note: createDefaultImageInfo() expects a raw data histogram!
+                    ImageInfo imageInfo = raster.createDefaultImageInfo(null, histogram);
                     raster.setImageInfo(imageInfo);
                     pm.worked(100);
                     Debug.trace("Sample frequencies computed.");

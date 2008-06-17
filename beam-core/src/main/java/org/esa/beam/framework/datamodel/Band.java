@@ -22,6 +22,7 @@ import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.util.Guardian;
+import org.esa.beam.util.math.Histogram;
 
 import java.awt.Rectangle;
 import java.io.IOException;
@@ -72,10 +73,10 @@ public class Band extends AbstractBand {
      */
     private SampleCoding sampleCoding;
 
-    private int _spectralBandIndex;
-    private float _spectralWavelength;
-    private float _spectralBandwidth;
-    private float _solarFlux;
+    private int spectralBandIndex;
+    private float spectralWavelength;
+    private float spectralBandwidth;
+    private float solarFlux;
 
     /**
      * Constructs a new <code>Band</code>.
@@ -176,7 +177,7 @@ public class Band extends AbstractBand {
      * @return the (zero-based) spectral band index or <code>-1</code> if it is unknown
      */
     public int getSpectralBandIndex() {
-        return _spectralBandIndex;
+        return spectralBandIndex;
     }
 
     /**
@@ -185,8 +186,8 @@ public class Band extends AbstractBand {
      * @param spectralBandIndex the (zero-based) spectral band index or <code>-1</code> if it is unknown
      */
     public void setSpectralBandIndex(int spectralBandIndex) {
-        if (_spectralBandIndex != spectralBandIndex) {
-            _spectralBandIndex = spectralBandIndex;
+        if (this.spectralBandIndex != spectralBandIndex) {
+            this.spectralBandIndex = spectralBandIndex;
             fireProductNodeChanged(PROPERTY_NAME_SPECTRAL_BAND_INDEX);
             setModified(true);
         }
@@ -199,7 +200,7 @@ public class Band extends AbstractBand {
      *         not known.
      */
     public float getSpectralWavelength() {
-        return _spectralWavelength;
+        return spectralWavelength;
     }
 
     /**
@@ -209,8 +210,8 @@ public class Band extends AbstractBand {
      *                           the wavelength is not known.
      */
     public void setSpectralWavelength(float spectralWavelength) {
-        if (_spectralWavelength != spectralWavelength) {
-            _spectralWavelength = spectralWavelength;
+        if (this.spectralWavelength != spectralWavelength) {
+            this.spectralWavelength = spectralWavelength;
             fireProductNodeChanged(PROPERTY_NAME_SPECTRAL_WAVELENGTH);
             setModified(true);
         }
@@ -223,7 +224,7 @@ public class Band extends AbstractBand {
      *         known.
      */
     public float getSpectralBandwidth() {
-        return _spectralBandwidth;
+        return spectralBandwidth;
     }
 
     /**
@@ -233,8 +234,8 @@ public class Band extends AbstractBand {
      *                          or the spectral bandwidth is not known.
      */
     public void setSpectralBandwidth(float spectralBandwidth) {
-        if (_spectralBandwidth != spectralBandwidth) {
-            _spectralBandwidth = spectralBandwidth;
+        if (this.spectralBandwidth != spectralBandwidth) {
+            this.spectralBandwidth = spectralBandwidth;
             fireProductNodeChanged(PROPERTY_NAME_SPECTRAL_BANDWIDTH);
             setModified(true);
         }
@@ -248,7 +249,7 @@ public class Band extends AbstractBand {
      *         is not known.
      */
     public float getSolarFlux() {
-        return _solarFlux;
+        return solarFlux;
     }
 
     /**
@@ -259,8 +260,8 @@ public class Band extends AbstractBand {
      *                  solar flux is not known.
      */
     public void setSolarFlux(float solarFlux) {
-        if (_solarFlux != solarFlux) {
-            _solarFlux = solarFlux;
+        if (this.solarFlux != solarFlux) {
+            this.solarFlux = solarFlux;
             fireProductNodeChanged(PROPERTY_NAME_SOLAR_FLUX);
             setModified(true);
         }

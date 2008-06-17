@@ -313,7 +313,7 @@ public class ProductUtils {
                 final RasterDataNode raster = rasterDataNodes[i];
 
                 if (raster.getImageInfo() == null) {
-// todo - Proformance boost. But better change SubProgressMonitor implementation.
+// todo - Performance boost. But better change SubProgressMonitor implementation.
 //                    final Range range = raster.computeRasterDataRange(null, SubProgressMonitor.create(pm, 1));
                     final Range range = raster.computeRasterDataRange(null, ProgressMonitor.NULL);
                     pm.worked(1);
@@ -324,7 +324,7 @@ public class ProductUtils {
                             ProgressMonitor.NULL);
                     pm.worked(1);
 
-                    ImageInfo imageInfo = raster.createDefaultImageInfo(null, histogram, true);
+                    ImageInfo imageInfo = raster.createDefaultImageInfo(null, histogram);
                     raster.setImageInfo(imageInfo);
                 }
 

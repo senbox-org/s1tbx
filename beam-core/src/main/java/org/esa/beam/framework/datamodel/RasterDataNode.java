@@ -1596,22 +1596,14 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * Returns the image information for this raster data node.
      * <p/>
-     * <p>The method simply returns the value of <code>ensureValidImageInfo(null, true)</code>.
+     * <p>The method simply returns the value of <code>ensureValidImageInfo(null, ProgressMonitor.NULL)</code>.
      *
-     * @return a valid image information instance, never <code>null</code>.
+     * @return a valid image information instance.
      * @throws IOException if an I/O error occurs
      * @see #ensureValidImageInfo(double[],boolean)
      */
     public ImageInfo ensureValidImageInfo() throws IOException {
-        return ensureValidImageInfo(null, true, ProgressMonitor.NULL);
-    }
-
-    /**
-     * @deprecated in 4.0, use {@link #ensureValidImageInfo(double[],boolean,ProgressMonitor)}
-     */
-    @Deprecated
-    public ImageInfo ensureValidImageInfo(double[] histoSkipAreas, boolean ignoreInvalidZero) throws IOException {
-        return ensureValidImageInfo(histoSkipAreas, ignoreInvalidZero, ProgressMonitor.NULL);
+        return ensureValidImageInfo(null, ProgressMonitor.NULL);
     }
 
     /**
@@ -1622,27 +1614,17 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @param histoSkipAreas    only used, if new image info is created (see <code>{@link #createDefaultImageInfo}</code>
      *                          method)
-     * @param ignoreInvalidZero only used, if new image info is created (see <code>{@link #createDefaultImageInfo}</code>
-     *                          method)
      * @return a valid image information instance, never <code>null</code>.
      * @throws IOException if an I/O error occurs
      */
-    public ImageInfo ensureValidImageInfo(double[] histoSkipAreas, boolean ignoreInvalidZero, ProgressMonitor pm) throws
+    public ImageInfo ensureValidImageInfo(double[] histoSkipAreas, ProgressMonitor pm) throws
             IOException {
         ImageInfo imageInfo = getImageInfo();
         if (imageInfo == null) {
-            imageInfo = createDefaultImageInfo(histoSkipAreas, ignoreInvalidZero, pm);
+            imageInfo = createDefaultImageInfo(histoSkipAreas, pm);
             setImageInfo(imageInfo);
         }
         return imageInfo;
-    }
-
-    /**
-     * @deprecated in 4.0, use {@link #createDefaultImageInfo(double[],boolean,ProgressMonitor)}
-     */
-    @Deprecated
-    public ImageInfo createDefaultImageInfo(double[] histoSkipAreas, boolean ignoreInvalidZero) throws IOException {
-        return createDefaultImageInfo(histoSkipAreas, ignoreInvalidZero, ProgressMonitor.NULL);
     }
 
     /**
@@ -1654,14 +1636,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *                          histogram to be excluded when determining the value range for a linear constrast
      *                          stretching. Can be <code>null</code>, in this case <code>{0.01, 0.04}</code> resp. 5% of
      *                          the entire area is skipped.
-     * @param ignoreInvalidZero if <code>true</code> the method tries to exclude zero from the value range for a linear
-     *                          constrast stretching
      * @param pm                a monitor to inform the user about progress
      * @return a valid image information instance, never <code>null</code>.
      * @throws IOException if an I/O error occurs
      */
-    public ImageInfo createDefaultImageInfo(double[] histoSkipAreas, boolean ignoreInvalidZero,
-                                            ProgressMonitor pm) throws IOException {
+    public ImageInfo createDefaultImageInfo(double[] histoSkipAreas, ProgressMonitor pm) throws IOException {
         final StopWatch stopWatch = new StopWatch();
 
         stopWatch.start();
@@ -1673,7 +1652,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         Debug.trace("histogram bin count sum = " + histogram.getBinCountsSum());
         Debug.trace("histogram max bin count = " + histogram.getMaxBinCount());
 
-        return createDefaultImageInfo(histoSkipAreas, histogram, ignoreInvalidZero);
+        return createDefaultImageInfo(histoSkipAreas, histogram);
     }
 
     /**
@@ -1686,19 +1665,17 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *                          stretching. Can be <code>null</code>, in this case <code>{0.01, 0.04}</code> resp. 5% of
      *                          the entire area is skipped.
      * @param histogram         the histogram to create the image information.
-     * @param ignoreInvalidZero if <code>true</code> the method tries to exclude zero from the value range for a linear
-     *                          constrast stretching.
      * @return a valid image information instance, never <code>null</code>.
      */
-    public ImageInfo createDefaultImageInfo(double[] histoSkipAreas, Histogram histogram, boolean ignoreInvalidZero) {
+    public ImageInfo createDefaultImageInfo(double[] histoSkipAreas, Histogram histogram) {
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         final Range range;
         if (histoSkipAreas != null) {
-            range = histogram.findRange(histoSkipAreas[0], histoSkipAreas[1], ignoreInvalidZero);
+            range = histogram.findRange(histoSkipAreas[0], histoSkipAreas[1]);
         } else {
-            range = histogram.findRange(0.01, 0.04, ignoreInvalidZero);
+            range = histogram.findRange(0.01, 0.04);
         }
 
         stopWatch.stopAndTrace("RasterDataNode.createDefaultImageInfo, mark 2");
@@ -1728,7 +1705,49 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * @deprecated in 4.0, use {@link #createColorIndexedImage(ProgressMonitor)} instead
+     * @deprecated since BEAM 4.0, use {@link #ensureValidImageInfo(double[],ProgressMonitor)}
+     */
+    @Deprecated
+    public ImageInfo ensureValidImageInfo(double[] histoSkipAreas, boolean ignoreInvalidZero) throws IOException {
+        return ensureValidImageInfo(histoSkipAreas, ProgressMonitor.NULL);
+    }
+
+    /**
+     * @deprecated since BEAM 4.2, use {@link #ensureValidImageInfo(double[],ProgressMonitor)}
+     */
+    @Deprecated
+    public ImageInfo ensureValidImageInfo(double[] histoSkipAreas, boolean ignoreInvalidZero, ProgressMonitor pm) throws
+            IOException {
+        return ensureValidImageInfo(histoSkipAreas, pm);
+    }
+
+    /**
+     * @deprecated since BEAM 4.0, use {@link #createDefaultImageInfo(double[],ProgressMonitor)}
+     */
+    @Deprecated
+    public ImageInfo createDefaultImageInfo(double[] histoSkipAreas, boolean ignoreInvalidZero) throws IOException {
+        return createDefaultImageInfo(histoSkipAreas, ProgressMonitor.NULL);
+    }
+
+    /**
+     * @deprecated since BEAM 4.2, use {@link #createDefaultImageInfo(double[],ProgressMonitor)}
+     */
+    @Deprecated
+    public ImageInfo createDefaultImageInfo(double[] histoSkipAreas, boolean ignoreInvalidZero, ProgressMonitor pm) throws IOException {
+        return createDefaultImageInfo(histoSkipAreas, pm);
+    }
+
+    /**
+     * @deprecated since BEAM 4.2, use {@link #createDefaultImageInfo(double[],Histogram)}
+     */
+    @Deprecated
+    public ImageInfo createDefaultImageInfo(double[] histoSkipAreas, Histogram histogram, boolean ignoreInvalidZero) {
+        return  createDefaultImageInfo(histoSkipAreas, histogram);
+    }
+
+
+    /**
+     * @deprecated since BEAM 4.0, use {@link #createColorIndexedImage(ProgressMonitor)} instead
      */
     @Deprecated
     public BufferedImage createColorIndexedImage() throws IOException {
@@ -1750,7 +1769,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * @deprecated in 4.0, use {@link #createRgbImage(ProgressMonitor)} instead
+     * @deprecated since BEAM 4.0, use {@link #createRgbImage(ProgressMonitor)} instead
      */
     @Deprecated
     public BufferedImage createRgbImage() throws IOException {
