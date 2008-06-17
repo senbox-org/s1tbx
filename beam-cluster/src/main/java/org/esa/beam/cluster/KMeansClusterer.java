@@ -28,13 +28,26 @@ import java.util.Random;
 public class KMeansClusterer {
 
     private static final int SEED = 31415;
-    private final int pointCount;
+//    private final int pointCount;
     private final int dimensionCount;
-    private final double[][] points;
+//    private final double[][] points;
+    private final PixelIter iter;
+    private final RandomSceneIter sceneIter;
     private final int clusterCount;
 
     private final double[][] means;
     private int[] memberCounts;
+
+    public KMeansClusterer(PixelIter iter, RandomSceneIter sceneIter, int clusterCount) {
+        this.iter = iter;
+        this.sceneIter = sceneIter;
+        this.clusterCount = clusterCount;
+        dimensionCount = iter.getTileCount();
+        memberCounts = new int[clusterCount];
+        means = new double[clusterCount][dimensionCount];
+
+        initialize(new Random(SEED));
+    }
 
     /**
      * Finds a collection of clusters for a given set of data points.
@@ -45,9 +58,9 @@ public class KMeansClusterer {
      *
      * @return the cluster decomposition.
      */
-    public static KMeansClusterSet findClusters(double[][] points, int clusterCount, int iterationCount) {
-        return new KMeansClusterer(points, clusterCount).findClusters(iterationCount);
-    }
+//    public static KMeansClusterSet findClusters(double[][] points, int clusterCount, int iterationCount) {
+//        return new KMeansClusterer(points, clusterCount).findClusters(iterationCount);
+//    }
 
     /**
      * Constructs a new instance of this class.
@@ -55,17 +68,17 @@ public class KMeansClusterer {
      * @param points       the data points.
      * @param clusterCount the number of clusters.
      */
-    public KMeansClusterer(double[][] points, int clusterCount) {
-        // todo: check arguments
-        this.points = points;
-        this.clusterCount = clusterCount;
-        pointCount = points.length;
-        dimensionCount = points[0].length;
-        memberCounts = new int[clusterCount];
-        means = new double[clusterCount][dimensionCount];
-
-        initialize(new Random(SEED));
-    }
+//    public KMeansClusterer(double[][] points, int clusterCount) {
+//        // todo: check arguments
+//        this.points = points;
+//        this.clusterCount = clusterCount;
+//        pointCount = points.length;
+//        dimensionCount = points[0].length;
+//        memberCounts = new int[clusterCount];
+//        means = new double[clusterCount][dimensionCount];
+//
+//        initialize(new Random(SEED));
+//    }
 
     /**
      * Finds a collection of clusters.
@@ -90,18 +103,21 @@ public class KMeansClusterer {
     public void iterate() {
         final double[][] newMeans = new double[clusterCount][dimensionCount];
         Arrays.fill(memberCounts, 0);
-        for (int p = 0; p < pointCount; ++p) {
+        final double[] point = new double[dimensionCount];
+        while (iter.hasNext()) {
+            iter.next();
+            iter.getValue(point);
             double minDistance = Double.MAX_VALUE;
             int closestCluster = 0;
             for (int c = 0; c < clusterCount; ++c) {
-                final double distance = squaredDistance(means[c], points[p]);
+                final double distance = squaredDistance(means[c], point);
                 if (distance < minDistance) {
                     closestCluster = c;
                     minDistance = distance;
                 }
             }
-            for (int l = 0; l < dimensionCount; ++l) {
-                newMeans[closestCluster][l] += points[p][l];
+            for (int d = 0; d < dimensionCount; ++d) {
+                newMeans[closestCluster][d] += point[d];
             }
             memberCounts[closestCluster]++;
         }
@@ -139,7 +155,8 @@ public class KMeansClusterer {
         for (int c = 0; c < clusterCount; ++c) {
             boolean accepted = true;
             do {
-                System.arraycopy(points[random.nextInt(pointCount)], 0, means[c], 0, dimensionCount);
+                means[c] = sceneIter.getNextValue();
+//                System.arraycopy(points[random.nextInt(pointCount)], 0, means[c], 0, dimensionCount);
                 for (int i = 0; i < c; ++i) {
                     accepted = !Arrays.equals(means[c], means[i]);
                     if (!accepted) {
@@ -161,7 +178,8 @@ public class KMeansClusterer {
     private double squaredDistance(double[] x, double[] y) {
         double distance = 0.0;
         for (int d = 0; d < dimensionCount; ++d) {
-            distance += (y[d] - x[d]) * (y[d] - x[d]);
+            final double difference = y[d] - x[d];
+            distance += difference * difference;
         }
 
         return distance;

@@ -148,26 +148,28 @@ public class KMeansClusterOp extends Operator {
         final int sceneWidth = sourceProduct.getSceneRasterWidth();
         final int sceneHeight = sourceProduct.getSceneRasterHeight();
 
-        final double[][] points = new double[sceneWidth * sceneHeight][sourceBands.length];
+//        final double[][] points = new double[sceneWidth * sceneHeight][sourceBands.length];
 
+        final Tile[] sourceTiles = new Tile[sourceBands.length];
         try {
             pm.beginTask("Extracting data points...", sourceBands.length * sceneHeight);
-
             for (int i = 0; i < sourceBands.length; i++) {
-                for (int y = 0; y < sceneHeight; y++) {
-                    final Tile sourceTile = getSourceTile(sourceBands[i], new Rectangle(0, y, sceneWidth, 1), pm);
-                    for (int x = 0; x < sceneWidth; x++) {
-                        final double sample = sourceTile.getSampleDouble(x, y);
-                        points[y * sceneWidth + x][i] = sample;
-                    }
-                    pm.worked(1);
-                }
+                sourceTiles[i] = getSourceTile(sourceBands[i], new Rectangle(0, 0, sceneWidth, sceneHeight), pm);
+//                for (int y = 0; y < sceneHeight; y++) {
+//                    final Tile sourceTile = getSourceTile(sourceBands[i], new Rectangle(0, y, sceneWidth, 1), pm);
+//                    for (int x = 0; x < sceneWidth; x++) {
+//                        final double sample = sourceTile.getSampleDouble(x, y);
+//                        points[y * sceneWidth + x][i] = sample;
+//                    }
+//                    pm.worked(1);
+//                }
             }
         } finally {
             pm.done();
         }
-
-        return new KMeansClusterer(points, clusterCount);
+        final PixelIter iter = new PixelIter(sourceTiles);
+        final RandomSceneIter sceneIter = new RandomSceneIter(this, sourceBands, 42);
+        return new KMeansClusterer(iter, sceneIter, clusterCount);
     }
 
     public static class Spi extends OperatorSpi {
