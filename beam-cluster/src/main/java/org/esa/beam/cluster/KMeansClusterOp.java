@@ -14,8 +14,11 @@
  */
 package org.esa.beam.cluster;
 
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
+import java.awt.Dimension;
+import java.awt.Rectangle;
+
+import javax.media.jai.JAI;
+
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.Product;
@@ -28,9 +31,12 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.util.math.MathUtils;
 
-import java.awt.*;
-import java.util.Map;
+import sun.java2d.SunGraphicsEnvironment.TTFilter;
+
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 
 /**
  * Operator for k-means cluster analysis.
@@ -60,6 +66,7 @@ public class KMeansClusterOp extends Operator {
 
     private transient Band[] sourceBands;
     private transient Band clusterMapBand;
+    private transient KMeansClusterSet clusterSet;
 
     public KMeansClusterOp() {
     }
@@ -75,7 +82,6 @@ public class KMeansClusterOp extends Operator {
         final String type = sourceProduct.getProductType() + "_CLUSTERS";
 
         final Product targetProduct = new Product(name, type, width, height);
-        targetProduct.setPreferredTileSize(width, height);  //TODO ????
 
         clusterMapBand = new Band("cluster_map", ProductData.TYPE_INT16, width, height);
         clusterMapBand.setDescription("Cluster map");
@@ -108,34 +114,23 @@ public class KMeansClusterOp extends Operator {
     }
 
     @Override
-    public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle,
-                                 ProgressMonitor pm) throws OperatorException {
-        pm.beginTask("Computing clusters...", iterationCount + 2);
-
+    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
+        pm.beginTask("Computing clusters...", 2);
         try {
-            final KMeansClusterer clusterer = createClusterer(SubProgressMonitor.create(pm, 1));
-
-            for (int i = 0; i < iterationCount; ++i) {
-                checkForCancelation(pm);
-                clusterer.iterate();
-                pm.worked(1);
-            }
-
-            final KMeansClusterSet clusterSet = clusterer.getClusters();
-
+            final KMeansClusterSet theClusterSet = getClusterSet(SubProgressMonitor.create(pm, 1));
+            final Rectangle targetRectangle = targetTile.getRectangle();
             final Tile[] sourceTiles = new Tile[sourceBands.length];
             for (int i = 0; i < sourceTiles.length; i++) {
                 sourceTiles[i] = getSourceTile(sourceBands[i], targetRectangle, ProgressMonitor.NULL);
             }
 
-            final Tile clusterMapTile = targetTileMap.get(clusterMapBand);
             double[] point = new double[sourceTiles.length];
             for (int y = targetRectangle.y; y < targetRectangle.y + targetRectangle.height; y++) {
                 for (int x = targetRectangle.x; x < targetRectangle.x + targetRectangle.width; x++) {
                     for (int i = 0; i < sourceTiles.length; i++) {
                         point[i] = sourceTiles[i].getSampleDouble(x, y);
                     }
-                    clusterMapTile.setSample(x, y, clusterSet.getMembership(point));
+                    targetTile.setSample(x, y, theClusterSet.getMembership(point));
                 }
             }
             pm.worked(1);
@@ -144,34 +139,68 @@ public class KMeansClusterOp extends Operator {
         }
     }
 
-    private KMeansClusterer createClusterer(ProgressMonitor pm) {
-        final int sceneWidth = sourceProduct.getSceneRasterWidth();
-        final int sceneHeight = sourceProduct.getSceneRasterHeight();
+    private synchronized KMeansClusterSet getClusterSet(ProgressMonitor pm) {
+        if (clusterSet == null) {
+            Rectangle[] tileRectangles = getAllTileRactangles();
+            pm.beginTask("Extracting data points...", tileRectangles.length * iterationCount * 2 + 1);
+            try {
+                final KMeansClusterer clusterer = new KMeansClusterer(clusterCount, sourceBands.length);
+                clusterer.initialize(new RandomSceneIter(this, sourceBands, 42));
+                pm.worked(1);
+                for (int i = 0; i < iterationCount; ++i) {
+                    for (Rectangle rectangle : tileRectangles) {
+                        checkForCancelation(pm);
+                        PixelIter pixelIterr = createPixelIterr(rectangle, SubProgressMonitor.create(pm, 1));
+                        clusterer.iterate(pixelIterr);
+                        pm.worked(1);
+                    }
+                }
+                clusterSet = clusterer.getClusters();
+            } finally {
+                pm.done();
+            }
+        }
+        return clusterSet;
+    }
+    
+    private Rectangle[] getAllTileRactangles() {
+        Dimension tileSize = targetProduct.getPreferredTileSize();
+        final int rasterHeight = targetProduct.getSceneRasterHeight();
+        final int rasterWidth = targetProduct.getSceneRasterWidth();
+        final Rectangle boundary = new Rectangle(rasterWidth, rasterHeight);
+        final int tileCountX = MathUtils.ceilInt(boundary.width / (double) tileSize.width);
+        final int tileCountY = MathUtils.ceilInt(boundary.height / (double) tileSize.height);
 
-//        final double[][] points = new double[sceneWidth * sceneHeight][sourceBands.length];
+        Rectangle[] rectangles = new Rectangle[tileCountX * tileCountY];
+        int index = 0;
+        for (int tileY = 0; tileY < tileCountY; tileY++) {
+            for (int tileX = 0; tileX < tileCountX; tileX++) {
+                final Rectangle tileRectangle = new Rectangle(tileX * tileSize.width,
+                                                                  tileY * tileSize.height,
+                                                                  tileSize.width,
+                                                                  tileSize.height);
+                final Rectangle intersection = boundary.intersection(tileRectangle);
+                rectangles[index] = intersection;
+                index++;
+            }
+        }
+        return rectangles;
+    }
 
+    private PixelIter createPixelIterr(Rectangle rectangle, ProgressMonitor pm) {
         final Tile[] sourceTiles = new Tile[sourceBands.length];
         try {
-            pm.beginTask("Extracting data points...", sourceBands.length * sceneHeight);
+            pm.beginTask("Extracting data points...", sourceBands.length);
             for (int i = 0; i < sourceBands.length; i++) {
-                sourceTiles[i] = getSourceTile(sourceBands[i], new Rectangle(0, 0, sceneWidth, sceneHeight), pm);
-//                for (int y = 0; y < sceneHeight; y++) {
-//                    final Tile sourceTile = getSourceTile(sourceBands[i], new Rectangle(0, y, sceneWidth, 1), pm);
-//                    for (int x = 0; x < sceneWidth; x++) {
-//                        final double sample = sourceTile.getSampleDouble(x, y);
-//                        points[y * sceneWidth + x][i] = sample;
-//                    }
-//                    pm.worked(1);
-//                }
+                sourceTiles[i] = getSourceTile(sourceBands[i], rectangle, SubProgressMonitor.create(pm, 1));
+                pm.worked(1);
             }
         } finally {
             pm.done();
         }
-        final PixelIter iter = new PixelIter(sourceTiles);
-        final RandomSceneIter sceneIter = new RandomSceneIter(this, sourceBands, 42);
-        return new KMeansClusterer(iter, sceneIter, clusterCount);
+        return new PixelIter(sourceTiles);
     }
-
+    
     public static class Spi extends OperatorSpi {
 
         public Spi() {

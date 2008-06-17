@@ -27,80 +27,48 @@ import java.util.Random;
  */
 public class KMeansClusterer {
 
-    private static final int SEED = 31415;
-//    private final int pointCount;
     private final int dimensionCount;
-//    private final double[][] points;
-    private final PixelIter iter;
-    private final RandomSceneIter sceneIter;
     private final int clusterCount;
 
     private final double[][] means;
     private int[] memberCounts;
 
-    public KMeansClusterer(PixelIter iter, RandomSceneIter sceneIter, int clusterCount) {
-        this.iter = iter;
-        this.sceneIter = sceneIter;
-        this.clusterCount = clusterCount;
-        dimensionCount = iter.getTileCount();
-        memberCounts = new int[clusterCount];
-        means = new double[clusterCount][dimensionCount];
-
-        initialize(new Random(SEED));
-    }
-
-    /**
-     * Finds a collection of clusters for a given set of data points.
-     *
-     * @param points         the data points.
-     * @param clusterCount   the number of clusters.
-     * @param iterationCount the number of EM iterations to be made.
-     *
-     * @return the cluster decomposition.
-     */
-//    public static KMeansClusterSet findClusters(double[][] points, int clusterCount, int iterationCount) {
-//        return new KMeansClusterer(points, clusterCount).findClusters(iterationCount);
-//    }
-
     /**
      * Constructs a new instance of this class.
      *
-     * @param points       the data points.
-     * @param clusterCount the number of clusters.
+     * @param clusterCount      the number of clusters.
+     * @param dimensionCount    the number of dimensions.
      */
-//    public KMeansClusterer(double[][] points, int clusterCount) {
-//        // todo: check arguments
-//        this.points = points;
-//        this.clusterCount = clusterCount;
-//        pointCount = points.length;
-//        dimensionCount = points[0].length;
-//        memberCounts = new int[clusterCount];
-//        means = new double[clusterCount][dimensionCount];
-//
-//        initialize(new Random(SEED));
-//    }
-
-    /**
-     * Finds a collection of clusters.
-     *
-     * @param iterationCount the number of EM iterations to be made.
-     *
-     * @return the cluster decomposition.
-     */
-    private KMeansClusterSet findClusters(int iterationCount) {
-        while (iterationCount > 0) {
-            iterate();
-            iterationCount--;
-        }
-
-        return getClusters();
+    public KMeansClusterer(int clusterCount, int dimensionCount) {
+        this.clusterCount = clusterCount;
+        this.dimensionCount = dimensionCount;
+        memberCounts = new int[clusterCount];
+        means = new double[clusterCount][dimensionCount];
     }
-
+    
+    /**
+     * Randomly initializes the clusters using the k-means method.
+     */
+    public void initialize(RandomSceneIter sceneIter) {
+        for (int c = 0; c < clusterCount; ++c) {
+            boolean accepted = true;
+            do {
+                means[c] = sceneIter.getNextValue();
+                for (int i = 0; i < c; ++i) {
+                    accepted = !Arrays.equals(means[c], means[i]);
+                    if (!accepted) {
+                        break;
+                    }
+                }
+            } while (!accepted);
+        }
+    }
+    
     /**
      * Carries out a single EM iteration.
      * todo - make private when observer notifications implemented
      */
-    public void iterate() {
+    public void iterate(PixelIter iter) {
         final double[][] newMeans = new double[clusterCount][dimensionCount];
         Arrays.fill(memberCounts, 0);
         final double[] point = new double[dimensionCount];
@@ -136,7 +104,6 @@ public class KMeansClusterer {
      *
      * @return the clusters found.
      */
-
     public KMeansClusterSet getClusters() {
         final KMeansCluster[] clusters = new KMeansCluster[clusterCount];
         for (int c = 0; c < clusterCount; ++c) {
@@ -144,27 +111,6 @@ public class KMeansClusterer {
         }
         Arrays.sort(clusters, new ClusterComparator());
         return new KMeansClusterSet(clusters);
-    }
-
-    /**
-     * Randomly initializes the clusters using the k-means method.
-     *
-     * @param random the random number generator used for initialization.
-     */
-    private void initialize(Random random) {
-        for (int c = 0; c < clusterCount; ++c) {
-            boolean accepted = true;
-            do {
-                means[c] = sceneIter.getNextValue();
-//                System.arraycopy(points[random.nextInt(pointCount)], 0, means[c], 0, dimensionCount);
-                for (int i = 0; i < c; ++i) {
-                    accepted = !Arrays.equals(means[c], means[i]);
-                    if (!accepted) {
-                        break;
-                    }
-                }
-            } while (!accepted);
-        }
     }
 
     /**
