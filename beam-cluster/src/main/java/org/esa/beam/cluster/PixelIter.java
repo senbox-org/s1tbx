@@ -40,26 +40,10 @@ public class PixelIter {
         return iterator.hasNext();
     }
 
-    public Tile.Pos next() {
-        pos = iterator.next();
-        return pos;
-    }
-
-    public double getValue(int tileIndex) {
-        return tiles[tileIndex].getSampleDouble(pos.x, pos.y);
-    }
-
-    public double getValue(int tileIndex, Tile.Pos pos) {
-        return tiles[tileIndex].getSampleDouble(pos.x, pos.y);
-    }
-
-    public int getTileCount() {
-        return tiles.length;
-    }
-
-    public void getValue(double[] point) {
+    public void next(double[] point) {
         for (int i = 0; i < point.length; i++) {
             point[i] = tiles[i].getSampleDouble(pos.x, pos.y);
         }
+        pos = iterator.next();
     }
 }

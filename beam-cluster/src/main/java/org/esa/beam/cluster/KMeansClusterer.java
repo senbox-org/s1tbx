@@ -16,7 +16,6 @@ package org.esa.beam.cluster;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Random;
 
 /**
  * todo - add API doc
@@ -29,9 +28,8 @@ public class KMeansClusterer {
 
     private final int dimensionCount;
     private final int clusterCount;
-
     private final double[][] means;
-    private int[] memberCounts;
+    private final int[] memberCounts;
 
     /**
      * Constructs a new instance of this class.
@@ -42,8 +40,8 @@ public class KMeansClusterer {
     public KMeansClusterer(int clusterCount, int dimensionCount) {
         this.clusterCount = clusterCount;
         this.dimensionCount = dimensionCount;
-        memberCounts = new int[clusterCount];
-        means = new double[clusterCount][dimensionCount];
+        this.memberCounts = new int[clusterCount];
+        this.means = new double[clusterCount][dimensionCount];
     }
     
     /**
@@ -66,15 +64,13 @@ public class KMeansClusterer {
     
     /**
      * Carries out a single EM iteration.
-     * todo - make private when observer notifications implemented
      */
     public void iterate(PixelIter iter) {
         final double[][] newMeans = new double[clusterCount][dimensionCount];
         Arrays.fill(memberCounts, 0);
         final double[] point = new double[dimensionCount];
         while (iter.hasNext()) {
-            iter.next();
-            iter.getValue(point);
+            iter.next(point);
             double minDistance = Double.MAX_VALUE;
             int closestCluster = 0;
             for (int c = 0; c < clusterCount; ++c) {
@@ -100,7 +96,6 @@ public class KMeansClusterer {
 
     /**
      * Returns the clusters found.
-     * todo - make private when observer notifications implemented
      *
      * @return the clusters found.
      */
