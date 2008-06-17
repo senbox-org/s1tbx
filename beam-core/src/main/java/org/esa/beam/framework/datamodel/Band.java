@@ -22,8 +22,8 @@ import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.util.Guardian;
-import org.esa.beam.util.math.Histogram;
 
+import java.awt.Color;
 import java.awt.Rectangle;
 import java.io.IOException;
 
@@ -113,7 +113,7 @@ public class Band extends AbstractBand {
      */
     @Deprecated
     public void setFlagCoding(FlagCoding flagCoding) {
-       setSampleCoding(flagCoding);
+        setSampleCoding(flagCoding);
     }
 
     /**
@@ -283,7 +283,7 @@ public class Band extends AbstractBand {
      * @throws IllegalArgumentException if the raster is null
      * @throws IllegalStateException    if this product raster was not added to a product so far, or if the product to which
      *                                  this product raster belongs to, has no associated product reader
-     * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData(Band, int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor) 
+     * @see org.esa.beam.framework.dataio.ProductReader#readBandRasterData(Band, int, int, int, int, ProductData, com.bc.ceres.core.ProgressMonitor)
      */
     @Override
     public void readRasterData(int offsetX, int offsetY, int width, int height, ProductData rasterData,
@@ -498,6 +498,36 @@ public class Band extends AbstractBand {
         super.dispose();
         // don't dispose _sampleCoding, its only a reference
         sampleCoding = null;
+    }
+
+    @Override
+    public ImageInfo createDefaultImageInfo(double[] histoSkipAreas, ProgressMonitor pm) throws IOException {
+        if (getSampleCoding() instanceof IndexCoding) {
+            return createDefaultImageInfo((IndexCoding) getSampleCoding());
+        } else {
+            return super.createDefaultImageInfo(histoSkipAreas, pm);
+        }
+    }
+
+    private ImageInfo createDefaultImageInfo(IndexCoding indexCoding) {
+        int numIndexes = indexCoding.getNumAttributes();
+        int vMin = Integer.MAX_VALUE;
+        int vMax = Integer.MIN_VALUE;
+        for (int i = 0; i < numIndexes; i++) {
+            int value = indexCoding.getSampleValue(i);
+            vMin = Math.min(value, vMin);
+            vMax = Math.max(value, vMax);
+        }
+        ColorPaletteDef.Point[] points = new ColorPaletteDef.Point[numIndexes];
+        for (int i = 0; i < points.length; i++) {
+            String name = indexCoding.getSampleName(i);
+            int value = indexCoding.getSampleValue(i);
+            points[i] = new ColorPaletteDef.Point(value, new Color((float) Math.random(),
+                                                                   (float) Math.random(),
+                                                                   (float) Math.random()),
+                                                  name);
+        }
+        return new ImageInfo(vMin, vMax, null, new ColorPaletteDef(points, true));
     }
 }
 

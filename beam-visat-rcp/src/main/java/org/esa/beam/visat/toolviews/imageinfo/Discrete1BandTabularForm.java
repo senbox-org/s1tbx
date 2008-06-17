@@ -1,15 +1,15 @@
 package org.esa.beam.visat.toolviews.imageinfo;
 
+import com.bc.ceres.core.Assert;
 import com.jidesoft.grid.ColorCellEditor;
 import com.jidesoft.grid.ColorCellRenderer;
-import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.*;
-import javax.swing.event.TableModelListener;
 import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.Color;
@@ -29,23 +29,23 @@ class Discrete1BandTabularForm implements PaletteEditorForm {
             }
         });
 
-        final JTable jTable =  new JTable(tableModel);
-        jTable.setDefaultRenderer(Double.class, new PercentageRenderer());
+        final JTable table = new JTable(tableModel);
+        table.setDefaultRenderer(Double.class, new PercentageRenderer());
         final ColorCellRenderer colorCellRenderer = new ColorCellRenderer();
         colorCellRenderer.setColorValueVisible(false);
-        jTable.setDefaultRenderer(Color.class, colorCellRenderer);
-        jTable.setDefaultEditor(Color.class, new ColorCellEditor());
+        table.setDefaultRenderer(Color.class, colorCellRenderer);
+        table.setDefaultEditor(Color.class, new ColorCellEditor());
 
-        jTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        final JScrollPane tableScrollPane = new JScrollPane(jTable);
-        tableScrollPane.getViewport().setPreferredSize(jTable.getPreferredSize());
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        final JScrollPane tableScrollPane = new JScrollPane(table);
+        tableScrollPane.getViewport().setPreferredSize(table.getPreferredSize());
         contentPanel = tableScrollPane;
     }
 
 
     public void performApply(ProductSceneView productSceneView) {
         Assert.notNull(productSceneView, "productSceneView");
-        productSceneView.getRaster().setImageInfo(tableModel.getImageInfo());
+        productSceneView.getRaster().setImageInfo(tableModel.getImageInfo().createDeepCopy());
     }
 
     public void performReset(ProductSceneView productSceneView) {
@@ -99,7 +99,7 @@ class Discrete1BandTabularForm implements PaletteEditorForm {
     private static class ImageInfoTableModel extends AbstractTableModel {
 
         private ImageInfo imageInfo;
-        private static final String[] COLUMN_NAMES = new String[]{"Label",  "Colour", "Value", "Freq."};
+        private static final String[] COLUMN_NAMES = new String[]{"Label", "Colour", "Value", "Freq."};
         private static final Class<?>[] COLUMN_TYPES = new Class<?>[]{String.class, Color.class, String.class, Double.class};
 
         private ImageInfoTableModel(ImageInfo imageInfo) {
@@ -126,11 +126,11 @@ class Discrete1BandTabularForm implements PaletteEditorForm {
         }
 
         public int getColumnCount() {
-                    return COLUMN_NAMES.length;
-                }
+            return COLUMN_NAMES.length;
+        }
 
         public int getRowCount() {
-            return imageInfo != null ?  imageInfo.getColorPaletteDef().getNumPoints() : 0;
+            return imageInfo != null ? imageInfo.getColorPaletteDef().getNumPoints() : 0;
         }
 
         public Object getValueAt(int rowIndex, int columnIndex) {
@@ -140,7 +140,7 @@ class Discrete1BandTabularForm implements PaletteEditorForm {
             } else if (columnIndex == 1) {
                 return point.getColor();
             } else if (columnIndex == 2) {
-                return Double.isNaN(point.getSample()) ? "Uncoded" : ""+ (int)point.getSample();
+                return Double.isNaN(point.getSample()) ? "Uncoded" : "" + (int) point.getSample();
             } else if (columnIndex == 3) {
                 // todo - return abundance percentage
                 if (imageInfo == null

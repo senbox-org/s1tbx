@@ -547,7 +547,7 @@ public class PConvertMain {
             log("loading raster data for band '" + band.getName() + "'...");
             try {
                 band.loadRasterData(ProgressMonitor.NULL);
-                band.ensureValidImageInfo(_histoSkipRatios, true, ProgressMonitor.NULL);
+                band.ensureValidImageInfo(_histoSkipRatios, ProgressMonitor.NULL);
                 if (colorPaletteDef != null) {
                     band.getImageInfo().setColorPaletteDef(colorPaletteDef);
                 }

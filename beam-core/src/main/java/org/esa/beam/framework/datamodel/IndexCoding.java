@@ -34,7 +34,7 @@ public class IndexCoding extends SampleCoding {
     public IndexCoding(String name) {
         super(name);
     }
-
+    
     /**
      * Returns a metadata attribute wich is the representation of the index with the given name. This method delegates to
      * getPropertyValue(String).

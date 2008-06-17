@@ -1,12 +1,11 @@
 package org.esa.beam.framework.datamodel;
 
 import org.esa.beam.util.Guardian;
-import org.esa.beam.util.Debug;
 
- /**
-  * Provides the information required to decode integer sample values that
-  * are combined of single flags (bit indexes).
-  */
+/**
+ * Provides the information required to decode integer sample values that
+ * are combined of single flags (bit indexes).
+ */
 public class SampleCoding extends MetadataElement {
     public SampleCoding(String name) {
         super(name);
@@ -39,22 +38,42 @@ public class SampleCoding extends MetadataElement {
         super.addAttribute(attribute);
     }
 
-     /**
-      * Adds a new coding value to this sample coding.
-      *
-      * @param name        the coding name
-      * @param value    the value
-      * @param description the description text
-      * @throws IllegalArgumentException if <code>name</code> is null
-      */
-     public void addValue(String name, int value, String description) {
-         Guardian.assertNotNull("name", name);
-         MetadataAttribute attribute = new MetadataAttribute(name, ProductData.TYPE_INT32);
-         attribute.setDataElems(new int[]{value});
-         if (description != null) {
-             attribute.setDescription(description);
-         }
-         addAttribute(attribute);
-     }
+    /**
+     * Adds a new coding value to this sample coding.
+     *
+     * @param name        the coding name
+     * @param value       the value
+     * @param description the description text
+     * @throws IllegalArgumentException if <code>name</code> is null
+     */
+    public void addValue(String name, int value, String description) {
+        Guardian.assertNotNull("name", name);
+        MetadataAttribute attribute = new MetadataAttribute(name, ProductData.TYPE_INT32);
+        attribute.setDataElems(new int[]{value});
+        if (description != null) {
+            attribute.setDescription(description);
+        }
+        addAttribute(attribute);
+    }
+
+    /**
+     * Gets the sample name at the specified attribute index.
+     *
+     * @param index the attribute index.
+     * @return the sample name.
+     */
+    public String getSampleName(int index) {
+        return getAttributeAt(index).getName();
+    }
+
+    /**
+     * Gets the sample value at the specified attribute index.
+     *
+     * @param index the attribute index.
+     * @return the sample value.
+     */
+    public int getSampleValue(int index) {
+        return getAttributeAt(index).getData().getElemInt();
+    }
 
 }

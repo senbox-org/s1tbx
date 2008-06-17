@@ -311,26 +311,9 @@ public class ProductUtils {
                 pm.setSubTaskName(singleBand ? singleMessage : progressMessages[i]);
                 checkCanceled(pm);
                 final RasterDataNode raster = rasterDataNodes[i];
-
-                if (raster.getImageInfo() == null) {
-// todo - Performance boost. But better change SubProgressMonitor implementation.
-//                    final Range range = raster.computeRasterDataRange(null, SubProgressMonitor.create(pm, 1));
-                    final Range range = raster.computeRasterDataRange(null, ProgressMonitor.NULL);
-                    pm.worked(1);
-
-                    checkCanceled(pm);
-
-                    final Histogram histogram = raster.computeRasterDataHistogram(null, 512, range,
-                            ProgressMonitor.NULL);
-                    pm.worked(1);
-
-                    ImageInfo imageInfo = raster.createDefaultImageInfo(null, histogram);
-                    raster.setImageInfo(imageInfo);
-                }
-
-                ImageInfo imageInfo = raster.getImageInfo();
+                ImageInfo imageInfo = raster.ensureValidImageInfo(null, ProgressMonitor.NULL);
+                pm.worked(2);
                 checkCanceled(pm);
-
                 final ColorPaletteDef paletteDef = imageInfo.getColorPaletteDef();
                 if (!paletteDef.isDiscrete()) {
                     // todo - Proformance boost. But better change SubProgressMonitor implementation.
