@@ -182,10 +182,8 @@ class Continuous3BandGraphicalForm extends AbstractContinuousGraphicalForm {
         setAvailableBandNames(productSceneView);
         redButton.setSelected(true);
         gammaParam.setUIEnabled(true);
-
-
         setRgbBandsComponentColors();
-
+        setApplyEnabled(false);
     }
 
     @Override

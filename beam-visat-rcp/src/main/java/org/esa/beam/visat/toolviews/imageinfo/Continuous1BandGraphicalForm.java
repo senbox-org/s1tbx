@@ -37,14 +37,9 @@ class Continuous1BandGraphicalForm extends AbstractContinuousGraphicalForm imple
     public void handleFormShown(ProductSceneView productSceneView) {
         Assert.notNull(productSceneView, "productSceneView");
         setCurrentImageInfo(productSceneView.getRaster().getImageInfo());
-        setApplyEnabled(false);
     }
 
     public void handleFormHidden() {
-    }
-
-    private void setApplyEnabled(boolean b) {
-        parentForm.setApplyEnabled(b);
     }
 
     private void distributeSlidersEvenly() {
@@ -79,7 +74,7 @@ class Continuous1BandGraphicalForm extends AbstractContinuousGraphicalForm imple
         } else {
             paletteEditor.setImageInfo(null);
         }
-        setApplyEnabled(false);
+        parentForm.setApplyEnabled(false);
     }
 
     public String getTitle(ProductSceneView productSceneView) {

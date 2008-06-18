@@ -16,16 +16,17 @@ import java.awt.Color;
 import java.awt.Component;
 import java.text.NumberFormat;
 
-class Discrete1BandTabularForm implements PaletteEditorForm {
+class Discrete1BandTabularForm implements PaletteEditorForm, ImageInfoHolder {
+    private final ColorManipulationForm parentForm;
     private JComponent contentPanel;
-
     private ImageInfoTableModel tableModel;
 
-    public Discrete1BandTabularForm(final ColorManipulationForm colorManipulationForm) {
+    public Discrete1BandTabularForm(ColorManipulationForm parentForm) {
+        this.parentForm = parentForm;
         tableModel = new ImageInfoTableModel(null);
         tableModel.addTableModelListener(new TableModelListener() {
             public void tableChanged(TableModelEvent e) {
-                colorManipulationForm.setApplyEnabled(true);
+                Discrete1BandTabularForm.this.parentForm.setApplyEnabled(true);
             }
         });
 
@@ -45,14 +46,15 @@ class Discrete1BandTabularForm implements PaletteEditorForm {
 
     public void performApply(ProductSceneView productSceneView) {
         Assert.notNull(productSceneView, "productSceneView");
-        productSceneView.getRaster().setImageInfo(tableModel.getImageInfo().createDeepCopy());
+        productSceneView.getRaster().setImageInfo(getCurrentImageInfo().createDeepCopy());
     }
 
     public void performReset(ProductSceneView productSceneView) {
     }
 
     public void handleFormShown(ProductSceneView productSceneView) {
-        tableModel.setImageInfo(productSceneView.getRaster().getImageInfo().createDeepCopy());
+        Assert.notNull(productSceneView, "productSceneView");
+        setCurrentImageInfo(productSceneView.getRaster().getImageInfo().createDeepCopy());
     }
 
     public void handleFormHidden() {
@@ -64,7 +66,7 @@ class Discrete1BandTabularForm implements PaletteEditorForm {
 
 
     public AbstractButton[] getButtons() {
-        return new AbstractButton[]{};
+        return new AbstractButton[]{ new JButton(";D")}; // todo
     }
 
     public Component getContentPanel() {
@@ -75,8 +77,13 @@ class Discrete1BandTabularForm implements PaletteEditorForm {
         return tableModel.getImageInfo();
     }
 
+    public void setCurrentImageInfo(ImageInfo imageInfo) {
+        tableModel.setImageInfo(imageInfo);
+
+    }
+
     public String getTitle(ProductSceneView productSceneView) {
-        return "Indexed";
+        return ";D";  // todo
     }
 
     private static class PercentageRenderer extends DefaultTableCellRenderer {
@@ -149,9 +156,10 @@ class Discrete1BandTabularForm implements PaletteEditorForm {
                     return Double.NaN;
                 }
                 return imageInfo.getHistogramBins()[rowIndex];
-            } else {
-                return 0;
+            } else if (columnIndex == 4) {
+                return 0.0;
             }
+            return null;
         }
 
         @Override

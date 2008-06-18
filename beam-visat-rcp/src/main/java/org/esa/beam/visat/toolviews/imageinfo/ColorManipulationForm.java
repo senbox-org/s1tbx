@@ -56,21 +56,21 @@ class ColorManipulationForm {
     private final static String PREFERENCES_KEY_IO_DIR = "visat.color_palettes.dir";
 
     private final static String FILE_EXTENSION = ".cpd";
-    private VisatApp _visatApp;
-    private PropertyMap _preferences;
-    private AbstractButton _applyButton;
+    private VisatApp visatApp;
+    private PropertyMap preferences;
+    private AbstractButton applyButton;
     private AbstractButton resetButton;
-    private AbstractButton _multiApplyButton;
+    private AbstractButton multiApplyButton;
     private AbstractButton importButton;
     private AbstractButton exportButton;
-    private SuppressibleOptionPane _suppressibleOptionPane;
+    private SuppressibleOptionPane suppressibleOptionPane;
 
-    private ProductNodeListener _rasterDataChangedListener;
+    private ProductNodeListener rasterDataChangedListener;
 
     private ProductSceneView productSceneView;
-    private Band[] _bandsToBeModified;
-    private BeamFileFilter _beamFileFilter;
-    private final ProductNodeListener _productNodeListener;
+    private Band[] bandsToBeModified;
+    private BeamFileFilter beamFileFilter;
+    private final ProductNodeListener productNodeListener;
     private boolean auxDataInstalled;
     private JPanel mainPanel;
     private final ColorManipulationToolView toolView;
@@ -84,9 +84,9 @@ class ColorManipulationForm {
 
     public ColorManipulationForm(ColorManipulationToolView colorManipulationToolView) {
         this.toolView = colorManipulationToolView;
-        _visatApp = VisatApp.getApp();
-        _preferences = _visatApp.getPreferences();
-        _productNodeListener = createProductNodeListener();
+        visatApp = VisatApp.getApp();
+        preferences = visatApp.getPreferences();
+        productNodeListener = createProductNodeListener();
     }
 
     public ProductSceneView getProductSceneView() {
@@ -95,11 +95,11 @@ class ColorManipulationForm {
 
     public void setProductSceneView(final ProductSceneView productSceneView) {
         if (this.productSceneView != null) {
-            this.productSceneView.getProduct().removeProductNodeListener(_productNodeListener);
+            this.productSceneView.getProduct().removeProductNodeListener(productNodeListener);
         }
         this.productSceneView = productSceneView;
         if (this.productSceneView != null) {
-            this.productSceneView.getProduct().addProductNodeListener(_productNodeListener);
+            this.productSceneView.getProduct().addProductNodeListener(productNodeListener);
         }
         installSpecificPaletteEditorForm();
         updateState();
@@ -213,10 +213,10 @@ class ColorManipulationForm {
 
         paletteEditorForm = EmptyPaletteEditorForm.INSTANCE;
 
-        _applyButton = new JButton("Apply");
-        _applyButton.setName("ApplyButton");
-        _applyButton.setMnemonic('A');
-        _applyButton.addActionListener(new ActionListener() {
+        applyButton = new JButton("Apply");
+        applyButton.setName("ApplyButton");
+        applyButton.setMnemonic('A');
+        applyButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
                 apply();
@@ -233,10 +233,10 @@ class ColorManipulationForm {
             }
         });
 
-        _multiApplyButton = createButton("icons/MultiAssignBands24.gif");
-        _multiApplyButton.setName("MultiApplyButton");
-        _multiApplyButton.setToolTipText("Apply to other bands"); /*I18N*/
-        _multiApplyButton.addActionListener(new ActionListener() {
+        multiApplyButton = createButton("icons/MultiAssignBands24.gif");
+        multiApplyButton.setName("MultiApplyButton");
+        multiApplyButton.setToolTipText("Apply to other bands"); /*I18N*/
+        multiApplyButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
                 applyMultipleColorPaletteDef();
@@ -282,18 +282,18 @@ class ColorManipulationForm {
             HelpSys.enableHelpKey(getToolViewPaneControl(), getPageComponentDescriptor().getHelpId());
         }
 
-        final ProductSceneView productSceneView = _visatApp.getSelectedProductSceneView();
+        final ProductSceneView productSceneView = visatApp.getSelectedProductSceneView();
         addDataChangedListener(productSceneView);
         setProductSceneView(productSceneView);
-        setSuppressibleOptionPane(_visatApp.getSuppressibleOptionPane());
+        setSuppressibleOptionPane(visatApp.getSuppressibleOptionPane());
 
-        _rasterDataChangedListener = createRasterDataChangedListner();
+        rasterDataChangedListener = createRasterDataChangedListner();
 
         // Add an internal frame listsner to VISAT so that we can update our
         // contrast stretch dialog with the information of the currently activated
         // product scene view.
         //
-        _visatApp.addInternalFrameListener(new ContrastStretchIFL());
+        visatApp.addInternalFrameListener(new ContrastStretchIFL());
 
         updateState(); // only called on EmptyPaletteEditorForm
     }
@@ -317,12 +317,12 @@ class ColorManipulationForm {
         gbc.gridwidth = 2;
         gbc.insets.bottom = 3;
         gbc.gridy = 1;
-        buttonPane.add(_applyButton, gbc);
+        buttonPane.add(applyButton, gbc);
         gbc.insets.bottom = 0;
         gbc.gridwidth = 1;
         gbc.gridy++;
         buttonPane.add(resetButton, gbc);
-        buttonPane.add(_multiApplyButton, gbc);
+        buttonPane.add(multiApplyButton, gbc);
         gbc.gridy++;
         buttonPane.add(importButton, gbc);
         buttonPane.add(exportButton, gbc);
@@ -349,11 +349,11 @@ class ColorManipulationForm {
     }
 
     public SuppressibleOptionPane getSuppressibleOptionPane() {
-        return _suppressibleOptionPane;
+        return suppressibleOptionPane;
     }
 
     public void setSuppressibleOptionPane(final SuppressibleOptionPane suppressibleOptionPane) {
-        _suppressibleOptionPane = suppressibleOptionPane;
+        this.suppressibleOptionPane = suppressibleOptionPane;
     }
 
     public void showMessageDialog(String propertyName, String message, String title) {
@@ -381,8 +381,8 @@ class ColorManipulationForm {
 
     public void setApplyEnabled(final boolean enabled) {
         final boolean canApply = productSceneView != null;
-        _applyButton.setEnabled(canApply && enabled);
-        _multiApplyButton.setEnabled(canApply && (!enabled && (!isRgbMode() && _visatApp != null)));
+        applyButton.setEnabled(canApply && enabled);
+        multiApplyButton.setEnabled(canApply && (!enabled && (!isRgbMode() && visatApp != null)));
     }
 
     public void reset() {
@@ -434,12 +434,12 @@ class ColorManipulationForm {
                                                         "Apply to other bands", /*I18N*/
                                                         getPageComponentDescriptor().getHelpId(),
                                                         availableBands,
-                                                        _bandsToBeModified);
+                                                        bandsToBeModified);
         final ArrayList<Band> modifiedRasterList = new ArrayList<Band>();
         if (bandChooser.show() == BandChooser.ID_OK) {
             final ImageInfo imageInfo = paletteEditorForm.getCurrentImageInfo();
-            _bandsToBeModified = bandChooser.getSelectedBands();
-            for (final Band band : _bandsToBeModified) {
+            bandsToBeModified = bandChooser.getSelectedBands();
+            for (final Band band : bandsToBeModified) {
                 band.getImageInfo().transferColorPaletteDef(imageInfo, false);
                 modifiedRasterList.add(band);
             }
@@ -448,20 +448,20 @@ class ColorManipulationForm {
         final Band[] rasters = new Band[modifiedRasterList.size()];
         modifiedRasterList.toArray(rasters);
         modifiedRasterList.clear();
-        _visatApp.updateImages(rasters);
+        visatApp.updateImages(rasters);
     }
 
     private void setIODir(final File dir) {
-        if (_preferences != null) {
-            _preferences.setPropertyString(PREFERENCES_KEY_IO_DIR, dir.getPath());
+        if (preferences != null) {
+            preferences.setPropertyString(PREFERENCES_KEY_IO_DIR, dir.getPath());
         }
         this.ioDir = dir; 
     }
 
     private File getIODir() {
         if (ioDir == null) {
-            if (_preferences != null) {
-                ioDir = new File(_preferences.getPropertyString(PREFERENCES_KEY_IO_DIR, getSystemAuxdataDir().getPath()));
+            if (preferences != null) {
+                ioDir = new File(preferences.getPropertyString(PREFERENCES_KEY_IO_DIR, getSystemAuxdataDir().getPath()));
             } else {
                 ioDir = getSystemAuxdataDir();
             }
@@ -470,12 +470,12 @@ class ColorManipulationForm {
     }
 
     private BeamFileFilter getOrCreateColorPaletteDefinitionFileFilter() {
-        if (_beamFileFilter == null) {
+        if (beamFileFilter == null) {
             final String formatName = "COLOR_PALETTE_DEFINITION_FILE";
             final String description = "Color palette definition files (*" + FILE_EXTENSION + ")";  /*I18N*/
-            _beamFileFilter = new BeamFileFilter(formatName, FILE_EXTENSION, description);
+            beamFileFilter = new BeamFileFilter(formatName, FILE_EXTENSION, description);
         }
-        return _beamFileFilter;
+        return beamFileFilter;
     }
 
     private void importColorPaletteDef() {
@@ -525,7 +525,7 @@ class ColorManipulationForm {
         }
         if (result == JFileChooser.APPROVE_OPTION) {
             if (file != null) {
-                if (!_visatApp.promptForOverwrite(file)) {
+                if (!visatApp.promptForOverwrite(file)) {
                     return;
                 }
                 file = FileUtils.ensureExtension(file, FILE_EXTENSION);
@@ -554,8 +554,8 @@ class ColorManipulationForm {
 
     private void showErrorDialog(final String message) {
         if (message != null && message.trim().length() > 0) {
-            if (_visatApp != null) {
-                _visatApp.showErrorDialog(message);
+            if (visatApp != null) {
+                visatApp.showErrorDialog(message);
             } else {
                 JOptionPane.showMessageDialog(getToolViewPaneControl(),
                                               message,
@@ -591,7 +591,7 @@ class ColorManipulationForm {
         if (productSceneView != null) {
             final Product product = productSceneView.getProduct();
             if (product != null) {
-                product.addProductNodeListener(_rasterDataChangedListener);
+                product.addProductNodeListener(rasterDataChangedListener);
             }
         }
     }
@@ -600,7 +600,7 @@ class ColorManipulationForm {
         if (productSceneView != null) {
             final Product product = productSceneView.getProduct();
             if (product != null) {
-                product.removeProductNodeListener(_rasterDataChangedListener);
+                product.removeProductNodeListener(rasterDataChangedListener);
             }
         }
     }
@@ -698,7 +698,7 @@ class ColorManipulationForm {
                 try {
                     get();
                 } catch (Exception e) {
-                    _visatApp.getLogger().log(Level.SEVERE, "Could not install auxdata", e);
+                    visatApp.getLogger().log(Level.SEVERE, "Could not install auxdata", e);
                 }
             }
         };

@@ -7,27 +7,33 @@ import javax.swing.*;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+
+import com.jidesoft.combobox.ColorComboBox;
+import com.bc.ceres.binding.ValueContainerFactory;
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.swing.SwingBindingContext;
 
 class Continuous1BandSwitcherForm implements PaletteEditorForm {
 
     private final ColorManipulationForm parentForm;
     private PaletteEditorForm currentPaletteEditorForm;
-    private ImageInfoHolder imageInfoHolder;
     private JPanel contentPanel;
     private JRadioButton graphicalButton;
     private JRadioButton tabularButton;
-    private JCheckBox gradientCheckBox;
+    private JCheckBox discretePaletteCheckBox;
     private Continuous1BandTabularForm tabularPaletteEditorForm;
     private Continuous1BandGraphicalForm graphicalPaletteEditorForm;
-    private ImageInfo oldImageInfo;
+    private ValueContainer valueContainer;
 
     protected Continuous1BandSwitcherForm(final ColorManipulationForm parentForm) {
         this.parentForm = parentForm;
         currentPaletteEditorForm = EmptyPaletteEditorForm.INSTANCE;
-        graphicalButton = new JRadioButton("graphical");
-        tabularButton = new JRadioButton("tabular");
+        graphicalButton = new JRadioButton("Graphical editor");
+        tabularButton = new JRadioButton("Tabular editor");
         final ButtonGroup group = new ButtonGroup();
         group.add(graphicalButton);
         group.add(tabularButton);
@@ -35,16 +41,45 @@ class Continuous1BandSwitcherForm implements PaletteEditorForm {
         final SwitcherActionListener switcherActionListener = new SwitcherActionListener();
         graphicalButton.addActionListener(switcherActionListener);
         tabularButton.addActionListener(switcherActionListener);
-        gradientCheckBox = new JCheckBox("Create gradient");
-        final JPanel switcherPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        switcherPanel.add(new JLabel("Palette editor: "));
-        switcherPanel.add(graphicalButton);
-        switcherPanel.add(tabularButton);
-        final JPanel gradientCurvePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        gradientCurvePanel.add(gradientCheckBox);
+        final JPanel northPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        northPanel.add(graphicalButton);
+        northPanel.add(tabularButton);
+        final JPanel southPanel = new JPanel(new BorderLayout(4,4));
+        discretePaletteCheckBox = new JCheckBox("Discrete palette");
+        southPanel.add(discretePaletteCheckBox, BorderLayout.WEST);
+        southPanel.add(createNoDataColorChooser(), BorderLayout.CENTER);
         contentPanel = new JPanel(new BorderLayout());
-        contentPanel.add(switcherPanel, BorderLayout.NORTH);
-        contentPanel.add(gradientCurvePanel, BorderLayout.SOUTH);
+        contentPanel.add(northPanel, BorderLayout.NORTH);
+        contentPanel.add(southPanel, BorderLayout.SOUTH);
+
+        valueContainer = ValueContainerFactory.createMapBackedValueContainer(new HashMap<String, Object>());
+        SwingBindingContext context = new SwingBindingContext(valueContainer);
+        context.bind(discretePaletteCheckBox, "discretePalette");
+        context.bind();
+    }
+
+    private JPanel createNoDataColorChooser() {
+        final ButtonGroup group = new ButtonGroup();
+        final JRadioButton b1 = new JRadioButton("is transparent", false);
+        final JRadioButton b2 = new JRadioButton("has colour:", true);
+        group.add(b1);
+        group.add(b2);
+        final ColorComboBox colorComboBox = new ColorComboBox();
+        colorComboBox.setColorValueVisible(false);
+        colorComboBox.setSelectedColor(Color.YELLOW);
+        colorComboBox.setAllowDefaultColor(true);
+        b2.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                 colorComboBox.setEnabled(b2.isSelected());
+            }
+        });
+
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0,0));
+        panel.add(new JLabel("No-data"));
+        panel.add(b1);
+        panel.add(b2);
+        panel.add(colorComboBox);
+        return panel;
     }
 
     public void performReset(ProductSceneView productSceneView) {
@@ -62,9 +97,10 @@ class Continuous1BandSwitcherForm implements PaletteEditorForm {
     private void switchForm(ProductSceneView productSceneView) {
         final PaletteEditorForm oldForm = currentPaletteEditorForm;
         final PaletteEditorForm newForm;
+        ImageInfoHolder imageInfoHolder;
         if (tabularButton.isSelected()) {
             if (tabularPaletteEditorForm == null) {
-                tabularPaletteEditorForm = new Continuous1BandTabularForm();
+                tabularPaletteEditorForm = new Continuous1BandTabularForm(parentForm);
             }
             imageInfoHolder =  tabularPaletteEditorForm;
             newForm = tabularPaletteEditorForm;
@@ -81,12 +117,11 @@ class Continuous1BandSwitcherForm implements PaletteEditorForm {
             currentPaletteEditorForm = newForm;
             currentPaletteEditorForm.handleFormShown(productSceneView);
 
-            oldImageInfo = oldForm.getCurrentImageInfo();
+            ImageInfo oldImageInfo = oldForm.getCurrentImageInfo();
             if (oldImageInfo == null) { 
                 // oldForm == instanceof EmptyForm
                 oldImageInfo = productSceneView.getRaster().getImageInfo();
             }
-
             imageInfoHolder.setCurrentImageInfo(oldImageInfo);
 
             contentPanel.remove(oldForm.getContentPanel());

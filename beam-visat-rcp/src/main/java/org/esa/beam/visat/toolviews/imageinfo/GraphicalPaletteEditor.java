@@ -65,29 +65,29 @@ class GraphicalPaletteEditor extends JPanel {
     public static final BasicStroke DASHED_STROKE = new BasicStroke(0.75F, BasicStroke.CAP_SQUARE,
                                                                     BasicStroke.JOIN_MITER, 1.0F, new float[]{5.0F},
                                                                     0.0F);
-    private ImageInfo _imageInfo;
+    private ImageInfo imageInfo;
 
-    private Font _labelFont;
-    private final Shape _sliderShape;
-    private int _sliderTextBaseLineY;
-    private final Rectangle _sliderBaseLineRect;
-    private final Rectangle _paletteRect;
-    private final Rectangle _histoRect;
-    private float _roundFactor;
-    private final InternalMouseListener _mouseListener;
-    private String _unit;
-    private double[] _factors;
-    private Color _rgbColor;
-    private Color[] _rgbColorPal;
-    private byte[] _gammaCurve;
+    private Font labelFont;
+    private final Shape sliderShape;
+    private int sliderTextBaseLineY;
+    private final Rectangle sliderBaseLineRect;
+    private final Rectangle paletteRect;
+    private final Rectangle histoRect;
+    private float roundFactor;
+    private final InternalMouseListener internalMouseListener;
+    private String unit;
+    private double[] factors;
+    private Color rgbColor;
+    private Color[] rgbColorPal;
+    private byte[] gammaCurve;
 
     public GraphicalPaletteEditor() {
-        _labelFont = createLabelFont();
-        _sliderShape = createSliderShape();
-        _sliderBaseLineRect = new Rectangle();
-        _paletteRect = new Rectangle();
-        _histoRect = new Rectangle();
-        _mouseListener = new InternalMouseListener();
+        labelFont = createLabelFont();
+        sliderShape = createSliderShape();
+        sliderBaseLineRect = new Rectangle();
+        paletteRect = new Rectangle();
+        histoRect = new Rectangle();
+        internalMouseListener = new InternalMouseListener();
         addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
                 repaint();
@@ -96,21 +96,21 @@ class GraphicalPaletteEditor extends JPanel {
     }
 
     public ImageInfo getImageInfo() {
-        return _imageInfo;
+        return imageInfo;
     }
 
     public void setImageInfo(final ImageInfo imageInfo) {
         Assert.notNull(imageInfo, "imageInfo");
-        final ImageInfo oldImageInfo = _imageInfo;
-        if (_imageInfo != imageInfo) {
-            _imageInfo = imageInfo;
+        final ImageInfo oldImageInfo = this.imageInfo;
+        if (this.imageInfo != imageInfo) {
+            this.imageInfo = imageInfo;
             deinstallMouseListener();
-            if (_imageInfo != null) {
-                _roundFactor = (float) _imageInfo.getRoundFactor(2);
+            if (this.imageInfo != null) {
+                roundFactor = (float) this.imageInfo.getRoundFactor(2);
                 installMouseListener();
             }
             updateGamma();
-            firePropertyChange(PROPERTY_NAME_IMAGE_INFO, oldImageInfo, _imageInfo);
+            firePropertyChange(PROPERTY_NAME_IMAGE_INFO, oldImageInfo, this.imageInfo);
             fireStateChanged();
         }
         if (isShowing()) {
@@ -182,16 +182,16 @@ class GraphicalPaletteEditor extends JPanel {
     }
 
     public void updateGamma() {
-        if (_imageInfo.isGammaActive() && isRGBMode()) {
-            _gammaCurve = MathUtils.createGammaCurve(_imageInfo.getGamma(), null);
+        if (imageInfo.isGammaActive() && isRGBMode()) {
+            gammaCurve = MathUtils.createGammaCurve(imageInfo.getGamma(), null);
         } else {
-            _gammaCurve = null;
+            gammaCurve = null;
         }
         fireStateChanged();
     }
 
     public void setRGBColor(Color rgbColor) {
-        _rgbColor = rgbColor;
+        this.rgbColor = rgbColor;
     }
 
     public void compute95Percent() {
@@ -230,13 +230,13 @@ class GraphicalPaletteEditor extends JPanel {
         final double lastPS = scaleInverse(getLastGradationCurvePoint().getSample());
         final double dsn = lastPS - firstPS;
         for (int i = 0; i < (getNumGradationCurvePoints() - 1); i++) {
-            final double value = scale(firstPS + _factors[i] * dsn);
+            final double value = scale(firstPS + factors[i] * dsn);
             setGradationPointSampleAt(i, value);
         }
     }
 
     private void computeFactors() {
-        _factors = new double[getNumGradationCurvePoints()];
+        factors = new double[getNumGradationCurvePoints()];
         final double firstPS = scaleInverse(getFirstGradationCurvePoint().getSample());
         final double lastPS = scaleInverse(getLastGradationCurvePoint().getSample());
         double dsn = lastPS - firstPS;
@@ -246,7 +246,7 @@ class GraphicalPaletteEditor extends JPanel {
         for (int i = 0; i < getNumGradationCurvePoints(); i++) {
             final double sample = scaleInverse(getGradationCurvePointAt(i).getSample());
             final double dsi = sample - firstPS;
-            _factors[i] = dsi / dsn;
+            factors[i] = dsi / dsn;
         }
     }
 
@@ -262,7 +262,7 @@ class GraphicalPaletteEditor extends JPanel {
     }
 
     public void setUnit(String unit) {
-        _unit = unit;
+        this.unit = unit;
     }
 
     public void computeZoomInToSliderLimits() {
@@ -300,7 +300,7 @@ class GraphicalPaletteEditor extends JPanel {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        g2d.setFont(_labelFont);
+        g2d.setFont(labelFont);
         FontMetrics fontMetrics = g2d.getFontMetrics();
         computeSizeAttributes();
 
@@ -336,13 +336,13 @@ class GraphicalPaletteEditor extends JPanel {
     }
 
     private void drawPalette(Graphics2D g2d) {
-        long paletteX1 = _paletteRect.x + Math.round(getRelativeSliderPos(getFirstGradationCurvePoint()));
-        long paletteX2 = _paletteRect.x + Math.round(getRelativeSliderPos(getLastGradationCurvePoint()));
+        long paletteX1 = paletteRect.x + Math.round(getRelativeSliderPos(getFirstGradationCurvePoint()));
+        long paletteX2 = paletteRect.x + Math.round(getRelativeSliderPos(getLastGradationCurvePoint()));
         g2d.setStroke(STROKE_1);
         computeColorPalette();
         Color[] palette = getColorPalette();
         if (palette != null) {
-            for (int x = _paletteRect.x; x < _paletteRect.x + _paletteRect.width; x++) {
+            for (int x = paletteRect.x; x < paletteRect.x + paletteRect.width; x++) {
                 long divisor = paletteX2 - paletteX1;
                 int palIndex;
                 if (divisor == 0) {
@@ -357,31 +357,31 @@ class GraphicalPaletteEditor extends JPanel {
                     palIndex = palette.length - 1;
                 }
                 g2d.setColor(palette[palIndex]);
-                g2d.drawLine(x, _paletteRect.y, x, _paletteRect.y + _paletteRect.height);
+                g2d.drawLine(x, paletteRect.y, x, paletteRect.y + paletteRect.height);
             }
         }
         g2d.setStroke(STROKE_1);
         g2d.setColor(Color.darkGray);
-        g2d.draw(_paletteRect);
+        g2d.draw(paletteRect);
     }
 
     private Color[] getColorPalette() {
         if (isRGBMode()) {
-            return _rgbColorPal;
+            return rgbColorPal;
         } else {
             return getImageInfo().getColorPalette();
         }
     }
 
     private void drawSliders(Graphics2D g2d) {
-        g2d.translate(_sliderBaseLineRect.x, _sliderBaseLineRect.y);
+        g2d.translate(sliderBaseLineRect.x, sliderBaseLineRect.y);
         g2d.setStroke(STROKE_1);
         if (isRGBMode()) {
             drawSlidersForRGBDisplay(g2d);
         } else {
             drawSlidersForMonoDisplay(g2d);
         }
-        g2d.translate(-_sliderBaseLineRect.x, -_sliderBaseLineRect.y);
+        g2d.translate(-sliderBaseLineRect.x, -sliderBaseLineRect.y);
     }
 
     private void drawSlidersForMonoDisplay(Graphics2D g2d) {
@@ -393,11 +393,11 @@ class GraphicalPaletteEditor extends JPanel {
             g2d.translate(sliderPos, 0.0d);
 
             g2d.setPaint(slider.getColor());
-            g2d.fill(_sliderShape);
+            g2d.fill(sliderShape);
 
             int gray = (slider.getColor().getRed() + slider.getColor().getGreen() + slider.getColor().getBlue()) / 3;
             g2d.setColor(gray < 128 ? Color.white : Color.black);
-            g2d.draw(_sliderShape);
+            g2d.draw(sliderShape);
 
             String text = String.valueOf(round(slider.getSample()));
             g2d.setColor(Color.black);
@@ -423,14 +423,14 @@ class GraphicalPaletteEditor extends JPanel {
                 triangleColor = Color.white;
             } else {
                 slider = getLastGradationCurvePoint();
-                g2d.setPaint(_rgbColor);
+                g2d.setPaint(rgbColor);
                 triangleColor = Color.black;
             }
             sliderPos = getRelativeSliderPos(slider);
             g2d.translate(sliderPos, 0.0F);
-            g2d.fill(_sliderShape);
+            g2d.fill(sliderShape);
             g2d.setColor(triangleColor);
-            g2d.draw(_sliderShape);
+            g2d.draw(sliderShape);
             g2d.setColor(Color.black);
 
             String text = String.valueOf(round(slider.getSample()));
@@ -448,7 +448,7 @@ class GraphicalPaletteEditor extends JPanel {
 
     private void drawHistogramPane(Graphics2D g2d) {
         Shape oldClip = g2d.getClip();
-        g2d.setClip(_histoRect.x - 1, _histoRect.y - 1, _histoRect.width + 2, _histoRect.height + 2);
+        g2d.setClip(histoRect.x - 1, histoRect.y - 1, histoRect.width + 2, histoRect.height + 2);
 
         drawHistogram(g2d);
         drawGradationCurve(g2d);
@@ -461,7 +461,7 @@ class GraphicalPaletteEditor extends JPanel {
     private void drawHistogramBorder(Graphics2D g2d) {
         g2d.setStroke(STROKE_1);
         g2d.setColor(Color.darkGray);
-        g2d.draw(_histoRect);
+        g2d.draw(histoRect);
     }
 
     private void drawHistogramText(Graphics2D g2d) {
@@ -483,20 +483,20 @@ class GraphicalPaletteEditor extends JPanel {
 
         final String sUnitValue;
 
-        if (_unit != null && _unit.length() > 0) {
-            sUnitValue = _unit;
+        if (unit != null && unit.length() > 0) {
+            sUnitValue = unit;
             maxPrefixWidth = Math.max(maxPrefixWidth, sUnitWidth);
             final int sUnitValueWidth = metrics.stringWidth(sUnitValue);
             maxValueWidth = Math.max(maxValueWidth, sUnitValueWidth);
         } else {
             sUnitValue = "";
         }
-        final int xStartPosPrefix = _histoRect.x + _histoRect.width - 5 - maxPrefixWidth - maxValueWidth;
-        final int xStartPosValues = _histoRect.x + _histoRect.width - 2 - maxValueWidth;
+        final int xStartPosPrefix = histoRect.x + histoRect.width - 5 - maxPrefixWidth - maxValueWidth;
+        final int xStartPosValues = histoRect.x + histoRect.width - 2 - maxValueWidth;
 
         String[] strings = new String[]{sMin, sMinValue, sMax, sMaxValue, sUnit, sUnitValue};
 
-        final int yStartPos = _histoRect.y + 1;
+        final int yStartPos = histoRect.y + 1;
 
         g2d.setColor(this.getBackground());
         drawStrings(g2d, strings, xStartPosPrefix - 1, xStartPosValues - 1, yStartPos);
@@ -534,8 +534,8 @@ class GraphicalPaletteEditor extends JPanel {
         int x1, y1, x2, y2;
 
         point = getFirstGradationCurvePoint();
-        x1 = _histoRect.x;
-        y1 = _histoRect.y + _histoRect.height - 1;
+        x1 = histoRect.x;
+        y1 = histoRect.y + histoRect.height - 1;
         x2 = (int) getAbsoluteSliderPos(point);
         y2 = y1;
         g2d.drawLine(x1, y1, x2, y2);
@@ -544,13 +544,13 @@ class GraphicalPaletteEditor extends JPanel {
         x1 = x2;
         y1 = y2;
         x2 = (int) getAbsoluteSliderPos(point);
-        y2 = _histoRect.y + 1;
-        if (_gammaCurve != null) {
+        y2 = histoRect.y + 1;
+        if (gammaCurve != null) {
             int xx = x1;
             int yy = y1;
             for (int x = x1 + 1; x <= x2; x++) {
                 int i = MathUtils.roundAndCrop((255.9f * (x - x1)) / (x2 - x1), 0, 255);
-                int y = y1 + ((y2 - y1) * (_gammaCurve[i] & 0xff)) / 256;
+                int y = y1 + ((y2 - y1) * (gammaCurve[i] & 0xff)) / 256;
                 g2d.drawLine(xx, yy, x, y);
                 //System.out.println("x=" + x + ", y=" + y);
                 xx = x;
@@ -562,8 +562,8 @@ class GraphicalPaletteEditor extends JPanel {
 
         x1 = x2;
         y1 = y2;
-        x2 = _histoRect.x + _histoRect.width;
-        y2 = _histoRect.y + 1;
+        x2 = histoRect.x + histoRect.width;
+        y2 = histoRect.y + 1;
         g2d.drawLine(x1, y1, x2, y2);
 
         // Vertical lines
@@ -571,9 +571,9 @@ class GraphicalPaletteEditor extends JPanel {
         for (int i = 0; i < getNumGradationCurvePoints(); i++) {
             point = getGradationCurvePointAt(i);
             x1 = (int) getAbsoluteSliderPos(point);
-            y1 = _histoRect.y + _histoRect.height - 1;
+            y1 = histoRect.y + histoRect.height - 1;
             x2 = x1;
-            y2 = _histoRect.y + 1;
+            y2 = histoRect.y + 1;
             g2d.drawLine(x1, y1, x2, y2);
         }
     }
@@ -591,11 +591,11 @@ class GraphicalPaletteEditor extends JPanel {
             final int firstVisibleBinIndex = MathUtils.floorAndCrop(firstVisibleBinIndexFloat, 0,
                                                                     histogramBins.length - 1);
             final float indexDelta = firstVisibleBinIndexFloat - firstVisibleBinIndex;
-            final float maxHistoRectHeight = 0.9f * _histoRect.height;
+            final float maxHistoRectHeight = 0.9f * histoRect.height;
             float numVisibleBins = imageInfo.getHistogramViewBinCount();
             if (numVisibleBins > 0 && maxHistogramCounts > 0) {
                 g2d.setStroke(new BasicStroke(1.0F));
-                final float binWidth = (float) _histoRect.width / numVisibleBins;
+                final float binWidth = (float) histoRect.width / numVisibleBins;
                 final float pixelOffs = indexDelta * binWidth;
                 final float countsScale = (gain * maxHistoRectHeight) / maxHistogramCounts;
                 if ((numVisibleBins + firstVisibleBinIndex) < histogramBins.length) {
@@ -605,14 +605,14 @@ class GraphicalPaletteEditor extends JPanel {
                 for (int i = 0; i < (int) numVisibleBins; i++) {
                     final float counts = histogramBins[i + firstVisibleBinIndex];
                     float binHeight = countsScale * counts;
-                    if (binHeight >= _histoRect.height) {
+                    if (binHeight >= histoRect.height) {
                         // must crop here because on highly centered histograms this value is FAR beyond the rectangle
                         // and then triggers an exception when trying to draw it.
-                        binHeight = _histoRect.height - 1;
+                        binHeight = histoRect.height - 1;
                     }
-                    final float y1 = _histoRect.y + _histoRect.height - 1 - binHeight;
+                    final float y1 = histoRect.y + histoRect.height - 1 - binHeight;
 
-                    final float x1 = _histoRect.x + binWidth * i - pixelOffs - 0.5f * binWidth;
+                    final float x1 = histoRect.x + binWidth * i - pixelOffs - 0.5f * binWidth;
                     r.setRect(x1, y1, binWidth, binHeight);
                     g2d.fill(r);
                 }
@@ -636,13 +636,13 @@ class GraphicalPaletteEditor extends JPanel {
     }
 
     private void installMouseListener() {
-        addMouseListener(_mouseListener);
-        addMouseMotionListener(_mouseListener);
+        addMouseListener(internalMouseListener);
+        addMouseMotionListener(internalMouseListener);
     }
 
     private void deinstallMouseListener() {
-        removeMouseListener(_mouseListener);
-        removeMouseMotionListener(_mouseListener);
+        removeMouseListener(internalMouseListener);
+        removeMouseMotionListener(internalMouseListener);
     }
 
     private int getNumGradationCurvePoints() {
@@ -703,13 +703,13 @@ class GraphicalPaletteEditor extends JPanel {
     }
 
     private boolean isRGBMode() {
-        return _rgbColor != null;
+        return rgbColor != null;
     }
 
     private double computeSliderValueForX(int sliderIndex, int x) {
         final double minVS = scaleInverse(getImageInfo().getMinHistogramViewSample());
         final double maxVS = scaleInverse(getImageInfo().getMaxHistogramViewSample());
-        final double value = scale(minVS + (x - _sliderBaseLineRect.x) * (maxVS - minVS) / _sliderBaseLineRect.width);
+        final double value = scale(minVS + (x - sliderBaseLineRect.x) * (maxVS - minVS) / sliderBaseLineRect.width);
         if (isFirstSliderIndex(sliderIndex)) {
             return Math.min(value, getLastGradationCurvePoint().getSample());
         }
@@ -743,7 +743,7 @@ class GraphicalPaletteEditor extends JPanel {
     }
 
     private double round(double value) {
-        return MathUtils.round(value, _roundFactor);
+        return MathUtils.round(value, roundFactor);
     }
 
     private double getMinSliderValue(int sliderIndex) {
@@ -763,11 +763,11 @@ class GraphicalPaletteEditor extends JPanel {
     }
 
     private double getAbsoluteSliderPos(final ColorPaletteDef.Point point) {
-        return _sliderBaseLineRect.x + getRelativeSliderPos(point);
+        return sliderBaseLineRect.x + getRelativeSliderPos(point);
     }
 
     private double getRelativeSliderPos(final ColorPaletteDef.Point point) {
-        return getImageInfo().getNormalizedHistogramViewSampleValue(point.getSample()) * _sliderBaseLineRect.width;
+        return getImageInfo().getNormalizedHistogramViewSampleValue(point.getSample()) * sliderBaseLineRect.width;
     }
 
     private void computeSizeAttributes() {
@@ -776,22 +776,22 @@ class GraphicalPaletteEditor extends JPanel {
 
         int imageWidth = totWidth - 2 * HOR_BORDER_SIZE;
 
-        _sliderTextBaseLineY = totHeight - VER_BORDER_SIZE - SLIDER_VALUES_AREA_HEIGHT;
+        sliderTextBaseLineY = totHeight - VER_BORDER_SIZE - SLIDER_VALUES_AREA_HEIGHT;
 
-        _sliderBaseLineRect.x = HOR_BORDER_SIZE;
-        _sliderBaseLineRect.y = _sliderTextBaseLineY - SLIDER_HEIGHT / 2;
-        _sliderBaseLineRect.width = imageWidth;
-        _sliderBaseLineRect.height = 1;
+        sliderBaseLineRect.x = HOR_BORDER_SIZE;
+        sliderBaseLineRect.y = sliderTextBaseLineY - SLIDER_HEIGHT / 2;
+        sliderBaseLineRect.width = imageWidth;
+        sliderBaseLineRect.height = 1;
 
-        _paletteRect.x = HOR_BORDER_SIZE;
-        _paletteRect.y = _sliderBaseLineRect.y - PALETTE_HEIGHT;
-        _paletteRect.width = imageWidth;
-        _paletteRect.height = PALETTE_HEIGHT;
+        paletteRect.x = HOR_BORDER_SIZE;
+        paletteRect.y = sliderBaseLineRect.y - PALETTE_HEIGHT;
+        paletteRect.width = imageWidth;
+        paletteRect.height = PALETTE_HEIGHT;
 
-        _histoRect.x = HOR_BORDER_SIZE;
-        _histoRect.y = VER_BORDER_SIZE;
-        _histoRect.width = imageWidth;
-        _histoRect.height = _paletteRect.y - _histoRect.y - 3;
+        histoRect.x = HOR_BORDER_SIZE;
+        histoRect.y = VER_BORDER_SIZE;
+        histoRect.width = imageWidth;
+        histoRect.height = paletteRect.y - histoRect.y - 3;
     }
 
     private ColorPaletteDef getColorPaletteDef() {
@@ -802,7 +802,7 @@ class GraphicalPaletteEditor extends JPanel {
         final ColorPaletteDef.Point point = getColorPaletteDef().getPointAt(sliderIndex);
         final ParamProperties paramProps = new ParamProperties(Double.class, point.getSample());
         paramProps.setLabel("Position");
-        paramProps.setPhysicalUnit(_unit);
+        paramProps.setPhysicalUnit(unit);
         paramProps.setMaxValue(getMaxSliderValue(sliderIndex));
         paramProps.setMinValue(getMinSliderValue(sliderIndex));
         final Parameter parameter = new Parameter("position", paramProps);
@@ -840,21 +840,21 @@ class GraphicalPaletteEditor extends JPanel {
     public void computeColorPalette() {
         if (isRGBMode()) {
             final int numColors = 256;
-            if (_rgbColorPal == null) {
-                _rgbColorPal = new Color[numColors];
+            if (rgbColorPal == null) {
+                rgbColorPal = new Color[numColors];
             }
-            final int redMult = _rgbColor.getRed() / 255;
-            final int greenMult = _rgbColor.getGreen() / 255;
-            final int blueMult = _rgbColor.getBlue() / 255;
+            final int redMult = rgbColor.getRed() / 255;
+            final int greenMult = rgbColor.getGreen() / 255;
+            final int blueMult = rgbColor.getBlue() / 255;
             for (int i = 0; i < numColors; i++) {
                 int j = i;
-                if (_gammaCurve != null) {
-                    j = _gammaCurve[i] & 0xff;
+                if (gammaCurve != null) {
+                    j = gammaCurve[i] & 0xff;
                 }
                 final int r = j * redMult;
                 final int g = j * greenMult;
                 final int b = j * blueMult;
-                _rgbColorPal[i] = new Color(r, g, b);
+                rgbColorPal[i] = new Color(r, g, b);
             }
         } else {
             getImageInfo().computeColorPalette();
@@ -948,8 +948,8 @@ class GraphicalPaletteEditor extends JPanel {
             setDragging(true);
             if (getDraggedSliderIndex() != INVALID_INDEX) {
                 int x = mouseEvent.getX();
-                x = Math.max(x, _sliderBaseLineRect.x);
-                x = Math.min(x, _sliderBaseLineRect.x + _sliderBaseLineRect.width);
+                x = Math.max(x, sliderBaseLineRect.x);
+                x = Math.min(x, sliderBaseLineRect.x + sliderBaseLineRect.width);
                 final double newSample = computeSliderValueForX(getDraggedSliderIndex(), x);
                 setGradationPointSampleAt(getDraggedSliderIndex(), newSample);
 
@@ -1114,12 +1114,12 @@ class GraphicalPaletteEditor extends JPanel {
 
 
         private boolean isVerticalInColorBarArea(int y) {
-            final int dy = Math.abs(_paletteRect.y + PALETTE_HEIGHT / 2 - y);
+            final int dy = Math.abs(paletteRect.y + PALETTE_HEIGHT / 2 - y);
             return dy < PALETTE_HEIGHT / 2;
         }
 
         private boolean isVerticalInSliderArea(int y) {
-            final int dy = Math.abs(_sliderBaseLineRect.y - y);
+            final int dy = Math.abs(sliderBaseLineRect.y - y);
             return dy < SLIDER_HEIGHT / 2;
         }
 
@@ -1137,7 +1137,7 @@ class GraphicalPaletteEditor extends JPanel {
         }
 
         private int getSelectedSliderTextIndex(MouseEvent evt) {
-            float dy = Math.abs(_sliderTextBaseLineY + SLIDER_VALUES_AREA_HEIGHT - evt.getY());
+            float dy = Math.abs(sliderTextBaseLineY + SLIDER_VALUES_AREA_HEIGHT - evt.getY());
             if (dy < SLIDER_VALUES_AREA_HEIGHT) {
                 final int sliderIndex = getNearestSliderIndex(evt.getX());
                 final ColorPaletteDef.Point point = getGradationCurvePointAt(sliderIndex);
@@ -1207,19 +1207,19 @@ class GraphicalPaletteEditor extends JPanel {
 
         private void resetState() {
             setDraggedSliderIndex(INVALID_INDEX);
-            _factors = null;
+            factors = null;
         }
 
     }
 
     private double scale(double value) {
-        assert _imageInfo != null;
-        return _imageInfo.getScaling().scale(value);
+        assert imageInfo != null;
+        return imageInfo.getScaling().scale(value);
     }
 
     private double scaleInverse(double value) {
-        assert _imageInfo != null;
-        return _imageInfo.getScaling().scaleInverse(value);
+        assert imageInfo != null;
+        return imageInfo.getScaling().scaleInverse(value);
     }
 
 }
