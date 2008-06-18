@@ -4,6 +4,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.resamp.Resampling;
+import org.esa.beam.framework.dataop.barithm.BandArithmetic;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -146,6 +147,7 @@ public class CollocateOp extends Operator {
             setFlagCoding(targetBand, sourceBand.getFlagCoding(), renameSlaveComponents, slaveComponentPattern);
             sourceRasterMap.put(targetBand, sourceBand);
         }
+
         for (final TiePointGrid sourceGrid : slaveProduct.getTiePointGrids()) {
             String targetBandName = sourceGrid.getName();
             if (renameSlaveComponents) {
@@ -160,10 +162,13 @@ public class CollocateOp extends Operator {
             final RasterDataNode sourceRaster = sourceRasterMap.get(targetBand);
             if (sourceRaster != null) {
                 if (sourceRaster.getProduct() == slaveProduct) {
-                    targetBand.updateExpression(sourceRaster.getName(), targetBand.getName());
+                    targetBand.updateExpression(
+                            BandArithmetic.createExternalName(sourceRaster.getName()),
+                            BandArithmetic.createExternalName(targetBand.getName()));
                 }
             }
         }
+
         copyBitmaskDefs(slaveProduct, renameSlaveComponents, slaveComponentPattern);
 
         // todo - slave metadata!?
@@ -298,7 +303,9 @@ public class CollocateOp extends Operator {
                 if (rename) {
                     targetDef.setName(pattern.replace(SOURCE_NAME_REFERENCE, sourceDef.getName()));
                     for (final Band targetBand : targetProduct.getBands()) {
-                        targetDef.updateExpression(sourceRasterMap.get(targetBand).getName(), targetBand.getName());
+                        targetDef.updateExpression(
+                                BandArithmetic.createExternalName(sourceRasterMap.get(targetBand).getName()),
+                                BandArithmetic.createExternalName(targetBand.getName()));
                     }
                 }
                 targetProduct.addBitmaskDef(targetDef);
