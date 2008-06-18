@@ -16,8 +16,14 @@ package org.esa.beam.unmixing;
 
 import junit.framework.TestCase;
 
-public class UnmixingOperatorTest extends TestCase {
-    public void testIt() {
-        assertTrue(true);
+public class SpectralUnmixingOpTest extends TestCase {
+    public void testDefaults() {
+        SpectralUnmixingOp op = new SpectralUnmixingOp();
+        assertEquals("_error", op.getErrorBandNameSuffix());
+        assertEquals("_abundance", op.getAbundanceBandNameSuffix());
+        assertEquals(null, op.getEndmemberFile());
+        assertEquals(10.0, op.getMinBandwidth());
+        assertEquals(false, op.getComputeErrorBands());
+        assertEquals(null, op.getSourceBandNames());
     }
 }

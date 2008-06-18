@@ -92,6 +92,74 @@ public class SpectralUnmixingOp extends Operator {
     private Band summaryErrorBand;
     private SpectralUnmixing spectralUnmixing;
 
+    public SpectralUnmixingOp() {
+    }
+
+
+    public String[] getSourceBandNames() {
+        return sourceBandNames;
+    }
+
+    public void setSourceBandNames(String[] sourceBandNames) {
+        this.sourceBandNames = sourceBandNames;
+    }
+
+    public Endmember[] getEndmembers() {
+        return endmembers;
+    }
+
+    public void setEndmembers(Endmember[] endmembers) {
+        this.endmembers = endmembers;
+    }
+
+    public File getEndmemberFile() {
+        return endmemberFile;
+    }
+
+    public void setEndmemberFile(File endmemberFile) {
+        this.endmemberFile = endmemberFile;
+    }
+
+    public String getUnmixingModelName() {
+        return unmixingModelName;
+    }
+
+    public void setUnmixingModelName(String unmixingModelName) {
+        this.unmixingModelName = unmixingModelName;
+    }
+
+    public String getAbundanceBandNameSuffix() {
+        return abundanceBandNameSuffix;
+    }
+
+    public void setAbundanceBandNameSuffix(String abundanceBandNameSuffix) {
+        this.abundanceBandNameSuffix = abundanceBandNameSuffix;
+    }
+
+    public String getErrorBandNameSuffix() {
+        return errorBandNameSuffix;
+    }
+
+    public void setErrorBandNameSuffix(String errorBandNameSuffix) {
+        this.errorBandNameSuffix = errorBandNameSuffix;
+    }
+
+    public boolean getComputeErrorBands() {
+        return computeErrorBands;
+    }
+
+    public void setComputeErrorBands(boolean computeErrorBands) {
+        this.computeErrorBands = computeErrorBands;
+    }
+
+    public double getMinBandwidth() {
+        return minBandwidth;
+    }
+
+    public void setMinBandwidth(double minBandwidth) {
+        this.minBandwidth = minBandwidth;
+    }
+
     @Override
     public void initialize() throws OperatorException {
         if (computeErrorBands) {
