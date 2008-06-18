@@ -55,7 +55,7 @@ class Continuous1BandSwitcherForm implements PaletteEditorForm {
         valueContainer = ValueContainerFactory.createMapBackedValueContainer(new HashMap<String, Object>());
         SwingBindingContext context = new SwingBindingContext(valueContainer);
         context.bind(discretePaletteCheckBox, "discretePalette");
-        context.bind();
+        // context.bind();
     }
 
     private JPanel createNoDataColorChooser() {
