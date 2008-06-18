@@ -3,8 +3,8 @@ package org.esa.beam.collocation;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
+import org.esa.beam.framework.dataop.resamp.Resampling;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -51,7 +51,7 @@ public class CollocateOp extends Operator {
     @TargetProduct(description = "The target product which will use the master's grid.")
     private Product targetProduct;
 
-    @Parameter(defaultValue = "_collocated", 
+    @Parameter(defaultValue = "_collocated",
                description = "The name of the target product")
     @Deprecated
     private String targetProductName;
@@ -85,6 +85,70 @@ public class CollocateOp extends Operator {
     private ResamplingType resamplingType;
 
     private transient Map<Band, RasterDataNode> sourceRasterMap;
+
+    public Product getMasterProduct() {
+        return masterProduct;
+    }
+
+    public void setMasterProduct(Product masterProduct) {
+        this.masterProduct = masterProduct;
+    }
+
+    public Product getSlaveProduct() {
+        return slaveProduct;
+    }
+
+    public void setSlaveProduct(Product slaveProduct) {
+        this.slaveProduct = slaveProduct;
+    }
+
+    public String getTargetProductType() {
+        return targetProductType;
+    }
+
+    public void setTargetProductType(String targetProductType) {
+        this.targetProductType = targetProductType;
+    }
+
+    public boolean getRenameMasterComponents() {
+        return renameMasterComponents;
+    }
+
+    public void setRenameMasterComponents(boolean renameMasterComponents) {
+        this.renameMasterComponents = renameMasterComponents;
+    }
+
+    public boolean getRenameSlaveComponents() {
+        return renameSlaveComponents;
+    }
+
+    public void setRenameSlaveComponents(boolean renameSlaveComponents) {
+        this.renameSlaveComponents = renameSlaveComponents;
+    }
+
+    public String getMasterComponentPattern() {
+        return masterComponentPattern;
+    }
+
+    public void setMasterComponentPattern(String masterComponentPattern) {
+        this.masterComponentPattern = masterComponentPattern;
+    }
+
+    public String getSlaveComponentPattern() {
+        return slaveComponentPattern;
+    }
+
+    public void setSlaveComponentPattern(String slaveComponentPattern) {
+        this.slaveComponentPattern = slaveComponentPattern;
+    }
+
+    public ResamplingType getResamplingType() {
+        return resamplingType;
+    }
+
+    public void setResamplingType(ResamplingType resamplingType) {
+        this.resamplingType = resamplingType;
+    }
 
     @Override
     public void initialize() throws OperatorException {
@@ -158,13 +222,15 @@ public class CollocateOp extends Operator {
             sourceRasterMap.put(targetBand, sourceGrid);
         }
 
-        for (final Band targetBand : targetProduct.getBands()) {
-            final RasterDataNode sourceRaster = sourceRasterMap.get(targetBand);
-            if (sourceRaster != null) {
-                if (sourceRaster.getProduct() == slaveProduct) {
-                    targetBand.updateExpression(
-                            BandArithmetic.createExternalName(sourceRaster.getName()),
-                            BandArithmetic.createExternalName(targetBand.getName()));
+        for (final Band targetBandOuter : targetProduct.getBands()) {
+            for (final Band targetBandInner : targetProduct.getBands()) {
+                final RasterDataNode sourceRaster = sourceRasterMap.get(targetBandInner);
+                if (sourceRaster != null) {
+                    if (sourceRaster.getProduct() == slaveProduct) {
+                        targetBandOuter.updateExpression(
+                                BandArithmetic.createExternalName(sourceRaster.getName()),
+                                BandArithmetic.createExternalName(targetBandInner.getName()));
+                    }
                 }
             }
         }
@@ -373,7 +439,7 @@ public class CollocateOp extends Operator {
     }
 
     private static boolean isFlagBand(RasterDataNode sourceRaster) {
-        return (sourceRaster instanceof Band && ((Band)sourceRaster).isFlagBand());
+        return (sourceRaster instanceof Band && ((Band) sourceRaster).isFlagBand());
     }
 
     private static boolean isValidPixelExpressionUsed(RasterDataNode sourceRaster) {
