@@ -88,18 +88,26 @@ class ModisDaacUtils {
     public static String extractProductType(String s) throws ProductIOException {
         final ModisProductDb db = ModisProductDb.getInstance();
 
+        ArrayList<String> prodType = extractProductTypeBySeparatorChar(s, db, ".");
+        if (prodType.size() == 1) {
+            return prodType.get(0);
+        }
+        prodType = extractProductTypeBySeparatorChar(s, db, "_");
+        if (prodType.size() == 1) {
+            return prodType.get(0);
+        }
+        return "";
+    }
+
+    private static ArrayList<String> extractProductTypeBySeparatorChar(String s, ModisProductDb db, String delim) throws ProductIOException {
         final ArrayList<String> prodType = new ArrayList<String>();
-        final StringTokenizer tokenizer = new StringTokenizer(s, ".");
+        final StringTokenizer tokenizer = new StringTokenizer(s, delim);
         while (tokenizer.hasMoreTokens()) {
             final String token = tokenizer.nextToken();
             if (db.isSupportedProduct(token)) {
                 prodType.add(token);
             }
         }
-        if (prodType.size() == 1) {
-            return prodType.get(0);
-        } else {
-            return "";
-        }
+        return prodType;
     }
 }
