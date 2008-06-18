@@ -1,8 +1,8 @@
 package org.esa.beam.dataio.envisat;
 
 import junit.framework.TestCase;
-import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.dataio.ProductIOException;
 
 import java.io.IOException;
 
@@ -29,68 +29,51 @@ public class TestEnvisatAuxReader extends TestCase {
         super.tearDown();
     }
 
-    public void testOpenFile() {
-
+    public void testOpenFile() throws IOException {
         EnvisatAuxReader reader = new EnvisatAuxReader();
 
-        try {
-            reader.readProduct(envisatXCAFilePath);
+        reader.readProduct(envisatXCAFilePath);
 
-            getAuxDataFromGADS(reader);
-
-        } catch (IOException e) {
-
-        }
+        getAuxDataFromGADS(reader);
     }
 
-    public void testZipFiles() {
-
+    public void testZipFiles() throws IOException {
         EnvisatAuxReader reader = new EnvisatAuxReader();
 
-        try {
-            reader.readProduct(envisatXCAZipFilePath);
+        reader.readProduct(envisatXCAZipFilePath);
 
-            reader.readProduct(envisatXCAGZFilePath);
-
-        } catch (IOException e) {
-
-        }
+        reader.readProduct(envisatXCAGZFilePath);
     }
 
-    static void getAuxDataFromGADS(EnvisatAuxReader reader) {
+    static void getAuxDataFromGADS(EnvisatAuxReader reader) throws ProductIOException {
+        ProductData cal_im_vv_data = reader.getAuxData("ext_cal_im_vv");
+        final float[] floats = ((float[]) cal_im_vv_data.getElems());
 
-        try {
-            ProductData cal_im_vv_data = reader.getAuxData("ext_cal_im_vv");
-            final float[] floats = ((float[]) cal_im_vv_data.getElems());
-
-            for (float val : floats) {
-                System.out.print(val + ", ");
-            }
-            System.out.println();
-
-            ProductData elevAngleData = reader.getAuxData("elev_ang_is1");
-            float elevAngle1 = elevAngleData.getElemFloat();
-            System.out.print("elevation angle: " + elevAngle1);
-            System.out.println();
-            //assertEquals(elevAngle1, 16.628);
-
-            ProductData patData = reader.getAuxData("pattern_is1");
-            final float[] pattern1 = ((float[]) patData.getElems());
-
-            System.out.print("num values " + pattern1.length);
-            System.out.println();
-
-            //for (float val : pattern1) {
-            //    System.out.print(val + ", ");
-            //}
-            System.out.println();
-
-            String num = patData.getElemStringAt(0);
-            System.out.print(num);
-
-        } catch (ProductIOException e) {
-
+        for (float val : floats) {
+            System.out.print(val + ", ");
         }
+        System.out.println();
+
+        ProductData elevAngleData = reader.getAuxData("elev_ang_is1");
+        float elevAngle1 = elevAngleData.getElemFloat();
+        System.out.print("elevation angle: " + elevAngle1);
+        System.out.println();
+        //assertEquals(elevAngle1, 16.628);
+
+        ProductData patData = reader.getAuxData("pattern_is1");
+        final float[] pattern1 = ((float[]) patData.getElems());
+
+        System.out.print("num values " + pattern1.length);
+        System.out.println();
+
+        //for (float val : pattern1) {
+        //    System.out.print(val + ", ");
+        //}
+        System.out.println();
+
+        String num = patData.getElemStringAt(0);
+        System.out.print(num);
+
     }
 
 }
