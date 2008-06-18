@@ -117,7 +117,7 @@ class ModisImappAttributes implements ModisGlobalAttributes {
     /////// END OF PUBLIC
     ///////////////////////////////////////////////////////////////////////////
 
-    final private void parseFileNameAndType() {
+    private void parseFileNameAndType() {
         _productName = FileUtils.getFilenameWithoutExtension(_inFile);
         final int index = _productName.indexOf('.');
         if (index > 0) {
@@ -135,6 +135,7 @@ class ModisImappAttributes implements ModisGlobalAttributes {
         int maxWidth = 0;
         int maxHeight = 0;
         _dimensionMap = new HashMap<String, Integer>();
+        _subsamplingMap = new HashMap<String, IncrementOffset>();
         try {
             HDF.getWrap().SDfileinfo(_sdId, numDatasets);
 
@@ -181,7 +182,6 @@ class ModisImappAttributes implements ModisGlobalAttributes {
 
     private void addTiePointOffsetAndSubsampling(int sdsId, String widthName, String heightName) throws HDFException {
         final String lineNumbers = HdfUtils.getNamedStringAttribute(sdsId, "line_numbers");
-        _subsamplingMap = new HashMap<String, IncrementOffset>();
         if (StringUtils.isNotNullAndNotEmpty(lineNumbers)) {
             _subsamplingMap.put(heightName, ModisUtils.getIncrementOffset(lineNumbers));
         }
