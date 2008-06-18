@@ -25,5 +25,6 @@ public class SpectralUnmixingOpTest extends TestCase {
         assertEquals(10.0, op.getMinBandwidth());
         assertEquals(false, op.getComputeErrorBands());
         assertEquals(null, op.getSourceBandNames());
+        assertEquals("Constrained LSU", op.getUnmixingModelName());
     }
 }
