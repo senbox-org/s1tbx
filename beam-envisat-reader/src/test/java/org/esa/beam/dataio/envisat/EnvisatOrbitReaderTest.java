@@ -11,12 +11,12 @@ import java.util.Date;
  *
  * @author lveci
  */
-public class TestEnvisatOrbitReader extends TestCase {
+public class EnvisatOrbitReaderTest extends TestCase {
 
     String doris_por_orbit = "P:\\nest\\nest\\ESA Data\\Orbits\\Doris\\por\\200804\\DOR_POR_AXVF-P20080427_015500_20080424_215527_20080426_002327";
     String doris_vor_orbit = "P:\\nest\\nest\\ESA Data\\Orbits\\Doris\\vor\\200803\\DOR_VOR_AXVF-P20080428_114800_20080330_215527_20080401_002327";
 
-    public TestEnvisatOrbitReader(String name) {
+    public EnvisatOrbitReaderTest(String name) {
         super(name);
     }
 

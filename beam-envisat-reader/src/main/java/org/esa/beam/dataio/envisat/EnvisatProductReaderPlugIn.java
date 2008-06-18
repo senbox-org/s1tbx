@@ -109,8 +109,10 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
                 return DecodeQualification.INTENDED;
             }
 
-            final InputStream inputStream = getCompressedInputStream(inputFile);
-            if (inputStream == null) {
+            final InputStream inputStream;
+            try {
+                inputStream = getInflaterInputStream(inputFile);
+            } catch (IOException e) {
                 return DecodeQualification.UNABLE;
             }
 
@@ -161,36 +163,37 @@ public class EnvisatProductReaderPlugIn implements ProductReaderPlugIn {
     }
 
     /**
-     * Retrieves an inputStream from a compressed file
+     * Opens an input stream for a compressed file (.gz or .zip).
      *
-     * @param inputFile the input file
-     * @return an inputStream if decoding is possible, else null
+     * @param file the compressed file
+     * @return the input stream
+     * @throws java.io.IOException if an I/O error occured
      */
-    static InputStream getCompressedInputStream(File inputFile) {
-        final ZipFile productZip;
-        final ZipEntry zipEntry;
-        InputStream inputStream;
-
-        try {
-            if (inputFile.getName().endsWith(".gz")) {
-                final FileInputStream fileStream = new FileInputStream(inputFile);
-                inputStream = new GZIPInputStream(fileStream);
-            } else {
-                productZip = new ZipFile(inputFile, ZipFile.OPEN_READ);
-                if (productZip.size() != 1) {
-                    return null;
-                }
-                final Enumeration<? extends ZipEntry> entries = productZip.entries();
-                zipEntry = entries.nextElement();
-                if (zipEntry == null || zipEntry.isDirectory()) {
-                    return null;
-                }
-                inputStream = productZip.getInputStream(zipEntry);
+    static InputStream getInflaterInputStream(File file) throws IOException {
+        if (file.getName().endsWith(".gz")) {
+            try {
+                return createGZIPInputStream(file);
+            } catch (IOException e) {
+                // ok, try ZIP
             }
-        } catch (IOException e) {
-            return null;
         }
+        return createZIPInputStream(file);
+    }
 
-        return inputStream;
+    private static InputStream createZIPInputStream(File file) throws IOException {
+        final ZipFile productZip = new ZipFile(file, ZipFile.OPEN_READ);
+        if (productZip.size() != 1) {
+            throw new IOException("Illegal ZIP format, single file entry expected.");
+        }
+        final Enumeration<? extends ZipEntry> entries = productZip.entries();
+        final ZipEntry zipEntry = entries.nextElement();
+        if (zipEntry == null || zipEntry.isDirectory()) {
+            throw new IOException("Illegal ZIP format, single file entry expected.");
+        }
+        return productZip.getInputStream(zipEntry);
+    }
+
+    private static InputStream createGZIPInputStream(File file) throws IOException {
+        return new GZIPInputStream(new FileInputStream(file));
     }
 }

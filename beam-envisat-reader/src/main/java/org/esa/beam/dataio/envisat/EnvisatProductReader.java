@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Vector;
-import java.util.Arrays;
 
 /**
  * The <code>EnvisatProductReader</code> class is an implementation of the <code>ProductReader</code> interface
@@ -102,17 +101,18 @@ public class EnvisatProductReader extends AbstractProductReader {
     @Override
     protected Product readProductNodesImpl() throws IOException {
         final Object input = getInput();
-        if (input instanceof String) {
-            _productFile = ProductFile.open((String) input);
-        } else if (input instanceof File) {
+        if (input instanceof String || input instanceof File) {
+            File file = new File(input.toString());
             try {
-                _productFile = ProductFile.open((File) input);
+                _productFile = ProductFile.open(file);
             } catch (IOException e) {
-                final InputStream inputStream = EnvisatProductReaderPlugIn.getCompressedInputStream((File) input);
-                if (inputStream == null) {
-                    throw e;    // @todo tb/tb maybe another exception here???
+                final InputStream inputStream;
+                try {
+                    inputStream = EnvisatProductReaderPlugIn.getInflaterInputStream(file);
+                } catch (IOException e1) {
+                    throw new IOException("Not an ENVISAT product or ENVISAT product type not supported: " + file, e1);
                 }
-                _productFile = ProductFile.open((File) input, new FileCacheImageInputStream(inputStream, null));
+                _productFile = ProductFile.open(file, new FileCacheImageInputStream(inputStream, null));
             }
         } else if (input instanceof ImageInputStream) {
             _productFile = ProductFile.open((ImageInputStream) input);

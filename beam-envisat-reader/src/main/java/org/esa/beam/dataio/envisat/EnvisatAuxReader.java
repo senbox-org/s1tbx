@@ -1,14 +1,17 @@
 package org.esa.beam.dataio.envisat;
 
-import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.dataio.ProductIOException;
+import org.esa.beam.framework.datamodel.ProductData;
 
+import javax.imageio.stream.FileCacheImageInputStream;
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
-import javax.imageio.stream.FileCacheImageInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Date;
 
 /**
@@ -23,88 +26,70 @@ public class EnvisatAuxReader {
      * Represents the product's file.
      */
     protected ProductFile _productFile;
-    
+
     public EnvisatAuxReader() {
     }
 
     /**
      * Reads a data product and returns a in-memory representation of it. This method was called by
      * <code>readProductNodes(input, subsetInfo)</code> of the abstract superclass.
+     *
      * @param input A file or path to the aux file
      * @throws java.lang.IllegalArgumentException
      *                             if <code>input</code> type is not one of the supported input sources.
      * @throws java.io.IOException if an I/O error occurs
      */
     public void readProduct(Object input) throws IOException {
-        File file;
-
+        final String filePath;
         if (input instanceof String) {
-            java.net.URL resURL = EnvisatAuxReader.class.getClassLoader().getResource((String) input);
-            if (resURL != null) {
-                file = new File(resURL.getPath());
-            } else {
-                file = new File((String) input);
-            }
-
-        } else if(input instanceof File) {
-            file = (File)input;
+            filePath = (String) input;
+        } else if (input instanceof File) {
+            filePath = ( (File) input).getPath();
         } else {
-            throw new ProductIOException("readProduct input is not a File or path");
+            throw new IllegalArgumentException("input");
         }
 
-        ImageInputStream imgInputStream = null;
-        if(file.exists()) {
-            imgInputStream = new FileImageInputStream(file);
-        } else {
-            file = new File(file.getAbsolutePath() + ".zip");
-            final InputStream inputStream = EnvisatProductReaderPlugIn.getCompressedInputStream(file);
-            if(inputStream == null)
-                throw new IOException("ENVISAT aux product " + file.getAbsolutePath() + " not found");
-
-            imgInputStream = new FileCacheImageInputStream(inputStream, null);
-        }
-
-        String productType = ProductFile.readProductType(imgInputStream);
+        File file = getFile(filePath);
+        ImageInputStream iis = getImageInputStream(file);
+        String productType = ProductFile.readProductType(iis);
         if (productType == null) {
-            throw new IOException("not an ENVISAT product or ENVISAT product type not supported");
+            throw new IOException("Not an ENVISAT product or ENVISAT product type not supported: " + filePath);
         }
         // We use only the first 9 characters for comparision, since the 10th can be either 'P' or 'C'
         String productTypeUC = productType.toUpperCase().substring(0, 9);
 
-        ProductFile productFile = null;
-
         if (productTypeUC.startsWith("AS")) {
-             _productFile = new AsarXCAProductFile(file, imgInputStream);
-        } else if(productTypeUC.startsWith("DOR")) {
-             _productFile = new DorisOrbitProductFile(file, imgInputStream);
+            _productFile = new AsarXCAProductFile(file, iis);
+        } else if (productTypeUC.startsWith("DOR")) {
+            _productFile = new DorisOrbitProductFile(file, iis);
         } else {
-             throw new IOException("not an ENVISAT product or ENVISAT product type not supported");
+            throw new IOException("Not an ENVISAT product or ENVISAT product type not supported.");
         }
 
     }
 
-    public Date getSensingStart()
-    {
+    public Date getSensingStart() {
         return _productFile.getSensingStart();
     }
 
-    public Date getSensingStop()
-    {
+    public Date getSensingStop() {
         return _productFile.getSensingStop();
     }
 
-    public ProductData getAuxData(String name) throws ProductIOException
-    {
-        if(_productFile == null)
+    public ProductData getAuxData(String name) throws ProductIOException {
+        if (_productFile == null) {
             throw new ProductIOException("Auxiliary data file has not been read yet");
+        }
 
         Record gads = _productFile.getGADS();
-        if(gads == null)
+        if (gads == null) {
             throw new ProductIOException("GADS not found in Auxiliary data file");
+        }
 
         Field field = gads.getField(name);
-        if(field == null)
+        if (field == null) {
             return null;
+        }
 
         return field.getData();
     }
@@ -127,4 +112,47 @@ public class EnvisatAuxReader {
         }
     }
 
+    private File getFile(String filePath) throws FileNotFoundException {
+        File file = null;
+
+        String[] exts = new String[] {"", ".gz", ".zip"};
+        for (String ext : exts) {
+            URI fileUri = getFileURI(filePath + ext);
+            if (fileUri != null) {
+                file = new File(fileUri);
+                if (file.exists()) {
+                    break;
+                }
+            }
+            file = new File(filePath + ext);
+            if (file.exists()) {
+                break;
+            }
+        }
+        if (file == null) {
+            throw new FileNotFoundException("ENVISAT auxiliary product not not found: " + filePath);
+        }
+        return file;
+    }
+
+    private ImageInputStream getImageInputStream(File file) throws IOException {
+        if (file.getName().endsWith(".zip") || file.getName().endsWith(".gz")) {
+            return new FileCacheImageInputStream(EnvisatProductReaderPlugIn.getInflaterInputStream(file), null);
+        } else {
+            return new FileImageInputStream(file);
+        }
+    }
+
+    private URI getFileURI(String filePath) {
+        URI fileUri = null;
+        URL fileUrl = EnvisatAuxReader.class.getClassLoader().getResource(filePath);
+        if (fileUrl != null) {
+            try {
+                fileUri = fileUrl.toURI();
+            } catch (URISyntaxException e) {
+                // ok
+            }
+        }
+        return fileUri;
+    }
 }
