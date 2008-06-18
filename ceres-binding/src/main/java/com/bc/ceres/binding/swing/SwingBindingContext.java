@@ -41,18 +41,30 @@ public class SwingBindingContext {
         return errorHandler;
     }
 
-    public void enable(final JComponent component, final String propertyName, final boolean value) {
-        valueContainer.addPropertyChangeListener(propertyName, new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent evt) {
-                setEnabledImpl(component, propertyName, value);
-            }
-        });
-        setEnabledImpl(component, propertyName, value);
+    public void enable(final JComponent component, final String propertyName, final Object condition) {
+        bindEnabling(component, propertyName, condition, true);
     }
 
-    private void setEnabledImpl(JComponent component, String propertyName, boolean value) {
-        Boolean propertyValue = (Boolean) valueContainer.getValue(propertyName);
-        component.setEnabled(value == (propertyValue != null && propertyValue));
+    public void disable(final JComponent component, final String propertyName, final Object condition) {
+        bindEnabling(component, propertyName, condition, false);
+    }
+
+    private void bindEnabling(final JComponent component, final String propertyName, final Object condition, final boolean enabled) {
+        valueContainer.addPropertyChangeListener(propertyName, new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                setEnabled(component, propertyName, condition, enabled);
+            }
+        });
+        setEnabled(component, propertyName, condition, enabled);
+    }
+
+    private void setEnabled(JComponent component, String propertyName, Object condition, boolean enabled) {
+        boolean conditionIsTrue = condition.equals(valueContainer.getValue(propertyName));
+        if (conditionIsTrue) {
+            component.setEnabled(enabled);
+        }
+        // todo - this is the alternative, but it does not allow for multiple OR-ed enables/disables (nf - 18.06.2008)
+        // component.setEnabled(conditionIsTrue ? enabled : !enabled);
     }
 
     public void bind(final JTextField textField, final String propertyName) {
