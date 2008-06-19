@@ -42,10 +42,12 @@ public class ButtonGroupBinding extends Binding implements ChangeListener {
 
     @Override
     protected void adjustComponentImpl() {
-        Object value = getValueContainer().getValue(getPropertyName());
-        AbstractButton button = valueToButtonMap.get(value);
-        if (button != null) {
-            button.setSelected(true);
+        Object value = getPropertyValue();
+        if (value != null) {
+            AbstractButton button = valueToButtonMap.get(value);
+            if (button != null) {
+                button.setSelected(true);
+            }
         }
     }
 

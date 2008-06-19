@@ -64,7 +64,7 @@ public class SpinnerBinding extends Binding implements ChangeListener {
     @Override
     protected void adjustComponentImpl() {
         try {
-            Object value = getValueContainer().getValue(getPropertyName());
+            Object value = getPropertyValue();
             spinner.setValue(value);
         } catch (Exception e) {
             handleError(e);

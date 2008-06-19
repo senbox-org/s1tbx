@@ -51,7 +51,7 @@ public class ListSelectionBinding extends Binding implements ListSelectionListen
 
     @Override
     protected void adjustComponentImpl() {
-        Object array = getValueContainer().getValue(getPropertyName());
+        Object array = getPropertyValue();
         if (array != null) {
             ListModel model = list.getModel();
             int size = model.getSize();

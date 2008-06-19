@@ -31,7 +31,7 @@ public class FormattedTextFieldBinding extends Binding implements PropertyChange
     @Override
     protected void adjustComponentImpl() {
         try {
-            Object value = getValueContainer().getValue(getPropertyName());
+            Object value = getPropertyValue();
             textField.setValue(value);
         } catch (Exception e) {
             handleError(e);

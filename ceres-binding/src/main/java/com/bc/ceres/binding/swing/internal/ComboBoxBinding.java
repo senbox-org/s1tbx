@@ -42,7 +42,7 @@ public class ComboBoxBinding extends Binding implements ActionListener {
     @Override
     protected void adjustComponentImpl() {
         try {
-            Object value = getValueContainer().getValue(getPropertyName());
+            Object value = getPropertyValue();
             comboBox.setSelectedItem(value);
         } catch (Exception e) {
             handleError(e);

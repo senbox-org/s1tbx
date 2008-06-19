@@ -53,6 +53,18 @@ public abstract class Binding {
         return propertyName;
     }
 
+    public Object getPropertyValue() {
+        return context.getValueContainer().getValue(getPropertyName());
+    }
+
+    public void setPropertyValue(Object propertyValue) {
+        try {
+            context.getValueContainer().setValue(getPropertyName(), propertyValue);
+        } catch (Exception e) {
+            handleError(e);
+        }
+    }
+
     public final boolean isAdjustingComponent() {
         return adjustingComponent;
     }
@@ -65,14 +77,6 @@ public abstract class Binding {
             } finally {
                 adjustingComponent = false;
             }
-        }
-    }
-
-    public void setPropertyValue(Object propertyValue) {
-        try {
-            context.getValueContainer().setValue(getPropertyName(), propertyValue);
-        } catch (Exception e) {
-            handleError(e);
         }
     }
 

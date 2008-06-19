@@ -29,7 +29,7 @@ public abstract class AbstractButtonBinding extends Binding {
     @Override
     protected void adjustComponentImpl() {
         try {
-            boolean selected = (Boolean) getValueContainer().getValue(getPropertyName());
+            boolean selected = (Boolean) getPropertyValue();
             button.setSelected(selected);
         } catch (Exception e) {
             handleError(e);
