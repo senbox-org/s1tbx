@@ -61,7 +61,7 @@ public class VisatMain implements RuntimeRunnable {
             args = (String[]) argument;
         }
 
-        Locale.setDefault(Locale.ENGLISH); // Force usage of english locale
+        Locale.setDefault(Locale.UK); // Force usage of British English locale
 
         Lm.verifyLicense("Brockmann Consult", "BEAM", "lCzfhklpZ9ryjomwWxfdupxIcuIoCxg2");
         // set special properties for Mac OS X
