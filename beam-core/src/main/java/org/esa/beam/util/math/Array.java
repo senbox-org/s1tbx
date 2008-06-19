@@ -20,7 +20,7 @@ package org.esa.beam.util.math;
  * @author Ralf Quast
  * @version $Revision$ $Date$
  */
-interface Array {
+public interface Array {
 
     /**
      * Returns the length of the primitive array wrapped.
