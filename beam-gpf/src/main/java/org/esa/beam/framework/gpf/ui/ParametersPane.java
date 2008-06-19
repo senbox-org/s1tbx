@@ -2,7 +2,8 @@ package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueModel;
-import com.bc.ceres.binding.swing.SwingBindingContext;
+import com.bc.ceres.binding.swing.BindingContext;
+import com.bc.ceres.binding.swing.Binding;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,14 +12,21 @@ import java.awt.event.ActionListener;
 import java.io.File;
 
 /**
- * If the {@code displayName} property is set, it will be used as label, otherwise
- * a label is derived from the {@code name} property.
+ * A utility class used to create a {@link JPanel} containg default Swing components and their corresponding bindings for the
+ * {@link ValueContainer} given by the {@link BindingContext}.
+ * <p/>
+ * <p>If the {@code displayName} property of a {@link com.bc.ceres.binding.ValueDescriptor ValueDescriptor} is set, it will be used as label, otherwise
+ * a label is derived from the {@code name} property.</p>
  */
 public class ParametersPane {
-    SwingBindingContext bindingContext;
+    private final BindingContext bindingContext;
 
-    public ParametersPane(SwingBindingContext bindingContext) {
+    public ParametersPane(BindingContext bindingContext) {
         this.bindingContext = bindingContext;
+    }
+
+    public BindingContext getBindingContext() {
+        return bindingContext;
     }
 
     public JPanel createPanel() {
@@ -49,14 +57,17 @@ public class ParametersPane {
                 editorComponent = checkBox;
             } else if (File.class.isAssignableFrom(type)) {
                 JTextField textField = new JTextField();
-                bindingContext.bind(textField, model.getDescriptor().getName());
+                final Binding binding = bindingContext.bind(textField, model.getDescriptor().getName());
                 JPanel subPanel = new JPanel(new BorderLayout(2, 2));
                 subPanel.add(textField, BorderLayout.CENTER);
                 JButton etcButton = new JButton("...");
                 etcButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         JFileChooser fileChooser = new JFileChooser();
-                        fileChooser.showDialog(panel, "Select");
+                        int i = fileChooser.showDialog(panel, "Select");
+                        if (i == JFileChooser.APPROVE_OPTION && fileChooser.getSelectedFile() != null) {
+                            binding.setPropertyValue(fileChooser.getSelectedFile());
+                        }
                     }
                 });
                 subPanel.add(etcButton, BorderLayout.EAST);

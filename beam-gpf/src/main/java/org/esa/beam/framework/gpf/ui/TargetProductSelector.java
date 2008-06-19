@@ -1,6 +1,6 @@
 package org.esa.beam.framework.gpf.ui;
 
-import com.bc.ceres.binding.swing.SwingBindingContext;
+import com.bc.ceres.binding.swing.BindingContext;
 import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.util.io.FileChooserFactory;
 
@@ -59,7 +59,7 @@ public class TargetProductSelector {
     }
 
     private void bindComponents() {
-        final SwingBindingContext bc = new SwingBindingContext(model.getValueContainer());
+        final BindingContext bc = new BindingContext(model.getValueContainer());
 
         bc.bind(productNameTextField, "productName");
         bc.bind(saveToFileCheckBox, "saveToFileSelected");

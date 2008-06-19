@@ -1,6 +1,5 @@
 package org.esa.beam.unmixing.ui;
 
-import com.bc.ceres.binding.swing.SwingBindingContext;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
@@ -13,6 +12,8 @@ import java.awt.BorderLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import com.bc.ceres.binding.swing.BindingContext;
 
 class SpectralUnmixingForm extends JPanel {
     AppContext appContext;
@@ -66,8 +67,7 @@ class SpectralUnmixingForm extends JPanel {
     }
 
     private void bindComponents() {
-        SwingBindingContext bindingContext = new SwingBindingContext(formModel.getOperatorValueContainer());
-
+        BindingContext bindingContext = new BindingContext(formModel.getOperatorValueContainer());
         bindingContext.bind(unmixingModelName, "unmixingModelName");
         bindingContext.bind(abundanceBandNameSuffix, "abundanceBandNameSuffix");
         bindingContext.bind(errorBandNameSuffix, "errorBandNameSuffix");

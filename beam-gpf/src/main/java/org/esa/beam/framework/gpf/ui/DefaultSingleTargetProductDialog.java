@@ -3,16 +3,16 @@ package org.esa.beam.framework.gpf.ui;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueContainerFactory;
-import com.bc.ceres.binding.swing.SwingBindingContext;
+import com.bc.ceres.binding.swing.BindingContext;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
-import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.framework.ui.AppContext;
-import org.esa.beam.framework.ui.application.SelectionChangeListener;
+import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.framework.ui.application.SelectionChangeEvent;
+import org.esa.beam.framework.ui.application.SelectionChangeListener;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -94,8 +94,8 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
 // todo - handle exception here
             e.printStackTrace();
         }
-        if(valueContainer.getModels().length > 0) {
-            SwingBindingContext context = new SwingBindingContext(valueContainer);
+        if (valueContainer.getModels().length > 0) {
+            BindingContext context = new BindingContext(valueContainer);
             ParametersPane parametersPane = new ParametersPane(context);
             JComponent processingParametersPanel = new JScrollPane(parametersPane.createPanel());
             processingParametersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
@@ -213,7 +213,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             }
 
             for (String bandName : annot.bands()) {
-                if(!product.containsBand(bandName)) {
+                if (!product.containsBand(bandName)) {
                     return false;
                 }
             }

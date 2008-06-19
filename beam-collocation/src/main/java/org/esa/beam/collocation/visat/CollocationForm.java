@@ -1,6 +1,5 @@
 package org.esa.beam.collocation.visat;
 
-import com.bc.ceres.binding.swing.SwingBindingContext;
 import org.esa.beam.framework.gpf.ui.SourceProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 import org.esa.beam.framework.ui.TableLayout;
@@ -11,6 +10,8 @@ import java.awt.BorderLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import com.bc.ceres.binding.swing.BindingContext;
 
 /**
  * Form for geographic collocation dialog.
@@ -96,8 +97,7 @@ public class CollocationForm extends JPanel {
     }
 
     private void bindComponents() {
-        final SwingBindingContext sbc = new SwingBindingContext(model.getValueContainer());
-
+        final BindingContext sbc = new BindingContext(model.getValueContainer());
         sbc.bind(masterProductSelector.getProductNameComboBox(), "masterProduct");
         sbc.bind(slaveProductSelector.getProductNameComboBox(), "slaveProduct");
         sbc.bind(renameMasterComponentsCheckBox, "renameMasterComponents");

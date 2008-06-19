@@ -15,7 +15,7 @@ import java.util.HashMap;
 import com.jidesoft.combobox.ColorComboBox;
 import com.bc.ceres.binding.ValueContainerFactory;
 import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.swing.SwingBindingContext;
+import com.bc.ceres.binding.swing.BindingContext;
 
 class Continuous1BandSwitcherForm implements PaletteEditorForm {
 
@@ -28,58 +28,63 @@ class Continuous1BandSwitcherForm implements PaletteEditorForm {
     private Continuous1BandTabularForm tabularPaletteEditorForm;
     private Continuous1BandGraphicalForm graphicalPaletteEditorForm;
     private ValueContainer valueContainer;
+    private ColorComboBox noDataColorComboBox;
+    private JRadioButton noDataIsTransparentButton;
+    private JRadioButton noDataIsColoredButton;
 
     protected Continuous1BandSwitcherForm(final ColorManipulationForm parentForm) {
         this.parentForm = parentForm;
         currentPaletteEditorForm = EmptyPaletteEditorForm.INSTANCE;
         graphicalButton = new JRadioButton("Graphical editor");
         tabularButton = new JRadioButton("Tabular editor");
-        final ButtonGroup group = new ButtonGroup();
-        group.add(graphicalButton);
-        group.add(tabularButton);
+        final ButtonGroup editorGroup = new ButtonGroup();
+        editorGroup.add(graphicalButton);
+        editorGroup.add(tabularButton);
         graphicalButton.setSelected(true);
         final SwitcherActionListener switcherActionListener = new SwitcherActionListener();
         graphicalButton.addActionListener(switcherActionListener);
         tabularButton.addActionListener(switcherActionListener);
+
+        noDataIsTransparentButton = new JRadioButton("is transparent", false);
+        noDataIsColoredButton = new JRadioButton("has colour:", true);
+        final ButtonGroup noDataButtonGroup = new ButtonGroup();
+        noDataButtonGroup.add(noDataIsTransparentButton);
+        noDataButtonGroup.add(noDataIsColoredButton);
+        noDataColorComboBox = new ColorComboBox();
+        noDataColorComboBox.setColorValueVisible(false);
+        noDataColorComboBox.setSelectedColor(Color.YELLOW);
+        noDataColorComboBox.setAllowDefaultColor(true);
+        discretePaletteCheckBox = new JCheckBox("Discrete palette");
+
+        JPanel noDataPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0,0));
+        noDataPanel.add(new JLabel("No-data"));
+        noDataPanel.add(noDataIsTransparentButton);
+        noDataPanel.add(noDataIsColoredButton);
+        noDataPanel.add(noDataColorComboBox);
+
         final JPanel northPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         northPanel.add(graphicalButton);
         northPanel.add(tabularButton);
+
         final JPanel southPanel = new JPanel(new BorderLayout(4,4));
-        discretePaletteCheckBox = new JCheckBox("Discrete palette");
         southPanel.add(discretePaletteCheckBox, BorderLayout.WEST);
-        southPanel.add(createNoDataColorChooser(), BorderLayout.CENTER);
+        southPanel.add(noDataPanel, BorderLayout.CENTER);
         contentPanel = new JPanel(new BorderLayout());
         contentPanel.add(northPanel, BorderLayout.NORTH);
         contentPanel.add(southPanel, BorderLayout.SOUTH);
 
-        valueContainer = ValueContainerFactory.createMapBackedValueContainer(new HashMap<String, Object>());
-        SwingBindingContext context = new SwingBindingContext(valueContainer);
+        HashMap<String, Object> propertyMap = new HashMap<String, Object>();
+        propertyMap.put("discretePalette", Boolean.FALSE);
+        propertyMap.put("noDataIsTransparent", Boolean.FALSE);
+        propertyMap.put("noDataIsColored", Boolean.TRUE);
+        propertyMap.put("noDataColor", Color.ORANGE);
+
+        valueContainer = ValueContainerFactory.createMapBackedValueContainer(propertyMap);
+        BindingContext context = new BindingContext(valueContainer);
         context.bind(discretePaletteCheckBox, "discretePalette");
-        // context.bind();
-    }
-
-    private JPanel createNoDataColorChooser() {
-        final ButtonGroup group = new ButtonGroup();
-        final JRadioButton b1 = new JRadioButton("is transparent", false);
-        final JRadioButton b2 = new JRadioButton("has colour:", true);
-        group.add(b1);
-        group.add(b2);
-        final ColorComboBox colorComboBox = new ColorComboBox();
-        colorComboBox.setColorValueVisible(false);
-        colorComboBox.setSelectedColor(Color.YELLOW);
-        colorComboBox.setAllowDefaultColor(true);
-        b2.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                 colorComboBox.setEnabled(b2.isSelected());
-            }
-        });
-
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0,0));
-        panel.add(new JLabel("No-data"));
-        panel.add(b1);
-        panel.add(b2);
-        panel.add(colorComboBox);
-        return panel;
+        context.bind(noDataIsTransparentButton, "noDataIsTransparent");
+        context.bind(noDataIsColoredButton, "noDataIsColored");
+        context.enable(noDataColorComboBox, "noDataIsColored", true);
     }
 
     public void performReset(ProductSceneView productSceneView) {
