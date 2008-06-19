@@ -2,6 +2,7 @@ package org.esa.beam.visat.toolviews.stat;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.param.ParamChangeEvent;
 import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamGroup;
@@ -18,13 +19,19 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.data.xy.XIntervalSeries;
+import org.jfree.data.xy.XIntervalSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
 import javax.media.jai.ROI;
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingWorker;
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.GridBagConstraints;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -33,12 +40,13 @@ import java.io.IOException;
  * A pane within the statistcs window which displays a histogram.
  *
  * @author Marco Peters
+ * @version $Revision$ $Date$
  */
 class HistogramPanel extends PagePanel {
 
-    private final static String NO_DATA_MESSAGE = "No histogram computed yet.";  /*I18N*/
+    private static final String NO_DATA_MESSAGE = "No histogram computed yet.";  /*I18N*/
     private static final String CHART_TITLE = "Histogram";
-    private final static String TITLE_PREFIX = CHART_TITLE;    /*I18N*/
+    private static final String TITLE_PREFIX = CHART_TITLE;    /*I18N*/
 
 
     private Parameter numBinsParam;
@@ -48,7 +56,7 @@ class HistogramPanel extends PagePanel {
     private ChartPanel histogramDisplay;
     private boolean histogramComputing;
     private ComputePanel computePanel;
-    private XYSeriesCollection dataset;
+    private XIntervalSeriesCollection dataset;
 
     private JFreeChart chart;
     private Histogram histogram;
@@ -130,10 +138,10 @@ class HistogramPanel extends PagePanel {
     }
 
     private void createUI() {
-        dataset = new XYSeriesCollection();
+        dataset = new XIntervalSeriesCollection();
         chart = ChartFactory.createHistogram(
                 CHART_TITLE,
-                "Value Bin",
+                "Values",
                 "Frequency",
                 dataset,
                 PlotOrientation.VERTICAL,
@@ -186,8 +194,9 @@ class HistogramPanel extends PagePanel {
         plot.setNoDataMessage(NO_DATA_MESSAGE);
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
 
-        ChartPanel chartPanel= new ChartPanel(chart);
+        ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.getPopupMenu().add(createCopyDataToClipboardMenuItem());
+        chartPanel.setPreferredSize(new Dimension(300,200));
         return chartPanel;
     }
 
@@ -257,7 +266,8 @@ class HistogramPanel extends PagePanel {
             range = new Range(getRaster().scaleInverse(min), getRaster().scaleInverse(max));
         }
 
-        final SwingWorker<Histogram, Object> swingWorker = new ProgressMonitorSwingWorker<Histogram, Object>(this.histogramDisplay, "Computing histogram") {
+        final SwingWorker<Histogram, Object> swingWorker = new ProgressMonitorSwingWorker<Histogram, Object>(
+                this.histogramDisplay, "Computing histogram") {
             @Override
             protected Histogram doInBackground(ProgressMonitor pm) throws Exception {
                 return getRaster().computeRasterDataHistogram(roi, numBins, range, pm);
@@ -290,7 +300,7 @@ class HistogramPanel extends PagePanel {
                         } else {
                             JOptionPane.showMessageDialog(getParentComponent(),
                                                           "The ROI is empty or no pixels found between min/max.\n"
-                                                                  + "A valid histogram could not be computed.",
+                                                          + "A valid histogram could not be computed.",
                                                           CHART_TITLE,
                                                           JOptionPane.WARNING_MESSAGE);
                         }
@@ -310,15 +320,29 @@ class HistogramPanel extends PagePanel {
 
     private void setHistogram(Histogram histogram) {
         this.histogram = histogram;
-        dataset.removeAllSeries();
+        dataset = new XIntervalSeriesCollection();
         if (this.histogram != null) {
             final int[] binCounts = this.histogram.getBinCounts();
-            final XYSeries series = new XYSeries(getRaster().getName());
+            final RasterDataNode raster = getRaster();
+            final XIntervalSeries series = new XIntervalSeries(raster.getName());
             for (int i = 0; i < binCounts.length; i++) {
-                series.add(i, binCounts[i]);
+                final double xMin = raster.scale(histogram.getRange(i).getMin());
+                final double xMax = raster.scale(histogram.getRange(i).getMax());
+                final double xAvg = (xMin + xMax) * 0.5;
+                series.add(xAvg, xMin, xMax, binCounts[i]);
             }
             dataset.addSeries(series);
+            chart.getXYPlot().getDomainAxis().setLabel(getAxisLabel(raster));
         }
+        chart.getXYPlot().setDataset(dataset);
+    }
+
+    private static String getAxisLabel(RasterDataNode raster) {
+        final String unit = raster.getUnit();
+        if (unit != null) {
+            return raster.getName() + " (" + unit + ")";
+        }
+        return raster.getName();
     }
 
     private Container getParentComponent() {
@@ -349,7 +373,7 @@ class HistogramPanel extends PagePanel {
         sb.append("Histogram maximum:\t").append(max).append("\t").append(getRaster().getUnit()).append("\n");
         sb.append("Histogram bin size:\t").append(
                 getRaster().isLog10Scaled() ? ("NA\t") : ((max - min) / numBins + "\t") +
-                        getRaster().getUnit() + "\n");
+                                                         getRaster().getUnit() + "\n");
         sb.append("Histogram #bins:\t").append(numBins).append("\n");
         sb.append('\n');
 

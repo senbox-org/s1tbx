@@ -21,6 +21,9 @@ import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.VisatApp;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.ValueAxis;
+import org.jfree.data.Range;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -269,8 +272,18 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         zoomOutButton.setName("zoomOutButton.");
         zoomOutButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                final Rectangle2D chartArea = chartPanel.getChartRenderingInfo().getChartArea();
-                chartPanel.zoomOutBoth(chartArea.getCenterX(), chartArea.getCenterY());
+                final JFreeChart chart= chartPanel.getChart();
+                final boolean rangeAxisOOR = isAxisOutOfRange(chartPanel, chart.getXYPlot().getRangeAxis());
+                final boolean domainAxisOOR = isAxisOutOfRange(chartPanel, chart.getXYPlot().getDomainAxis());
+                // prevent from zooming out to far
+                if(rangeAxisOOR || domainAxisOOR) {
+                    chartPanel.restoreAutoBounds();
+                }else {
+                    final Rectangle2D chartArea = chartPanel.getChartRenderingInfo().getChartArea();
+                    chartPanel.zoomOutBoth(chartArea.getCenterX(), chartArea.getCenterY());
+                }
+
+
             }
         });
         final AbstractButton zoomAllButton = ToolButtonFactory.createButton(
@@ -330,6 +343,15 @@ abstract class PagePanel extends JPanel implements ProductNodeListener {
         buttonPane.add(saveButton);
         buttonPane.add(printButton);
         return buttonPane;
+    }
+
+    private static boolean isAxisOutOfRange(ChartPanel chartPanel, ValueAxis axis) {
+        final Range currentRange = axis.getRange();
+        final Range defaultRange = chartPanel.getChart().getXYPlot().getDataRange(axis);
+        final double outFactor = chartPanel.getZoomOutFactor();
+        final Range nextRange = Range.scale(currentRange, outFactor);
+        return nextRange.getLowerBound() < defaultRange.getLowerBound() ||
+                          nextRange.getUpperBound() > defaultRange.getUpperBound();
     }
 
     class PopupHandler extends MouseAdapter {

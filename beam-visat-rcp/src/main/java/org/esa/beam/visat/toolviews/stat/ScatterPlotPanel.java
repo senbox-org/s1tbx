@@ -20,6 +20,14 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.Range;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.title.Title;
+import org.jfree.chart.title.TextTitle;
+import org.jfree.chart.event.AxisChangeListener;
+import org.jfree.chart.event.AxisChangeEvent;
+import org.jfree.chart.event.ChartChangeListener;
+import org.jfree.chart.event.ChartChangeEvent;
+import org.jfree.chart.event.PlotChangeListener;
+import org.jfree.chart.event.PlotChangeEvent;
 import org.jfree.ui.RectangleInsets;
 
 import javax.media.jai.ROI;
@@ -37,11 +45,11 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
-import java.text.MessageFormat;
 
 
 /**
@@ -70,7 +78,7 @@ class ScatterPlotPanel extends PagePanel {
     private boolean adjustingAutoMinMax;
     private XYImagePlot plot;
 
-    public ScatterPlotPanel(ToolView parentDialog, String helpId) {
+    ScatterPlotPanel(ToolView parentDialog, String helpId) {
         super(parentDialog, helpId);
     }
 
@@ -97,9 +105,17 @@ class ScatterPlotPanel extends PagePanel {
             final String[] availableBands = createAvailableBandList();
             updateParameters(X_VAR, availableBands);
             updateParameters(Y_VAR, availableBands);
-            final JFreeChart chart = scatterPlotDisplay.getChart();
-            chart.setTitle(getRaster() != null ? CHART_TITLE + " for " + getRaster().getName() : CHART_TITLE);
+            setChartTitle();
         }
+    }
+
+    private void setChartTitle() {
+        final JFreeChart chart = scatterPlotDisplay.getChart();
+        final List<Title> subtitles = new ArrayList<Title>(7);
+        subtitles.add(new TextTitle(MessageFormat.format("{0}, {1}",
+                                           rasterNameParams[X_VAR].getValueAsText(), 
+                                           rasterNameParams[Y_VAR].getValueAsText())));
+        chart.setSubtitles(subtitles);
     }
 
     private void updateParameters(int varIndex, String[] availableBands) {
@@ -152,7 +168,6 @@ class ScatterPlotPanel extends PagePanel {
         } else {
             rasterName = "";
         }
-//        final Parameter[] rasterNameParams = getRasterNameParams();
         rasterNameParams[varIndex] = new Parameter(paramPrefix + "rasterName", rasterName);
         rasterNameParams[varIndex].getProperties().setValueSet(availableBands);
         rasterNameParams[varIndex].getProperties().setValueSetBound(true);
@@ -160,20 +175,17 @@ class ScatterPlotPanel extends PagePanel {
         rasterNameParams[varIndex].getProperties().setEditorClass(ComboBoxEditor.class);
         paramGroup.addParameter(rasterNameParams[varIndex]);
 
-//        final Parameter[] autoMinMaxParams = getAutoMinMaxParams();
         autoMinMaxParams[varIndex] = new Parameter(paramPrefix + "autoMinMax", Boolean.TRUE);
         autoMinMaxParams[varIndex].getProperties().setLabel("Auto min/max");
         autoMinMaxParams[varIndex].getProperties().setDescription("Automatically detect min/max");  /*I18N*/
         paramGroup.addParameter(autoMinMaxParams[varIndex]);
 
-//        getMinParams();
         minParams[varIndex] = new Parameter(paramPrefix + "min", 0.0);
         minParams[varIndex].getProperties().setLabel("Min:");
         minParams[varIndex].getProperties().setDescription("Minimum display value");    /*I18N*/
         minParams[varIndex].getProperties().setNumCols(7);
         paramGroup.addParameter(minParams[varIndex]);
 
-//        getMaxParams();
         maxParams[varIndex] = new Parameter(paramPrefix + "max", 100.0);
         maxParams[varIndex].getProperties().setLabel("Max:");
         maxParams[varIndex].getProperties().setDescription("Maximum display value");    /*I18N*/
@@ -201,7 +213,7 @@ class ScatterPlotPanel extends PagePanel {
         plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
         plot.setNoDataMessage(NO_DATA_MESSAGE);
         plot.getRenderer().setBaseToolTipGenerator(new XYPlotToolTipGenerator());
-        
+
 //        NumberAxis scaleAxis = new NumberAxis("Scale");
 //        scaleAxis.setTickLabelFont(new Font("Dialog", Font.PLAIN, 7));
 //        PaintScaleLegend legend = new PaintScaleLegend(new GrayPaintScale(), scaleAxis);
@@ -260,6 +272,7 @@ class ScatterPlotPanel extends PagePanel {
         updateComputePane();
         updateUIState(X_VAR);
         updateUIState(Y_VAR);
+        setChartTitle();
     }
 
     private void updateComputePane() {
@@ -438,7 +451,7 @@ class ScatterPlotPanel extends PagePanel {
     private String getAxisLabel(RasterDataNode raster) {
         final String unit = raster.getUnit();
         if (unit != null) {
-            return raster.getName() + " [" + unit + "]";
+            return raster.getName() + " (" + unit + ")";
         }
         return raster.getName();
     }
