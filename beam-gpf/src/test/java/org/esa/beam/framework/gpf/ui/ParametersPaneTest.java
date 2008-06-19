@@ -9,7 +9,6 @@ import java.awt.Component;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.util.HashMap;
 
 
 public class ParametersPaneTest extends TestCase {
@@ -35,18 +34,18 @@ public class ParametersPaneTest extends TestCase {
         assertEquals(JPanel.class, components[13].getClass()); // Spacer!
 
         assertEquals("useLogFile", components[0].getName());
-        assertEquals("Use log file", ((JCheckBox)components[0]).getText());
-        assertEquals("Threshold:", ((JLabel)components[1]).getText());
+        assertEquals("Use log file", ((JCheckBox) components[0]).getText());
+        assertEquals("Threshold:", ((JLabel) components[1]).getText());
         assertEquals("threshold", components[2].getName());
-        assertEquals("Iteration limit:", ((JLabel)components[3]).getText());
+        assertEquals("Iteration limit:", ((JLabel) components[3]).getText());
         assertEquals("iterationLimit", components[4].getName());
-        assertEquals("Max iteration count:", ((JLabel)components[5]).getText());
+        assertEquals("Max iteration count:", ((JLabel) components[5]).getText());
         assertEquals("maxIterationCount", components[6].getName());
-        assertEquals("Resampling method:", ((JLabel)components[7]).getText());
+        assertEquals("Resampling method:", ((JLabel) components[7]).getText());
         assertEquals("resamplingMethod", components[8].getName());
-        assertEquals("Product description:", ((JLabel)components[9]).getText());
+        assertEquals("Product description:", ((JLabel) components[9]).getText());
         assertEquals("productDescription", components[10].getName());
-        assertEquals("Image file:", ((JLabel)components[11]).getText());
+        assertEquals("Image file:", ((JLabel) components[11]).getText());
         assertEquals("imageFile", components[12].getName());
     }
 
