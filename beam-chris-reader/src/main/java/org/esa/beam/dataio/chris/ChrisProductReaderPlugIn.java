@@ -35,6 +35,7 @@ public class ChrisProductReaderPlugIn implements ProductReaderPlugIn {
         } catch (Throwable t) {
             // ignore, {@code hdfLibraryAvailable} is already {@code false}
         }
+        //noinspection StaticVariableUsedBeforeInitialization
         if (!hdfLibraryAvailable) {
             BeamLogManager.getSystemLogger().info("HDF library is not available");
         }
