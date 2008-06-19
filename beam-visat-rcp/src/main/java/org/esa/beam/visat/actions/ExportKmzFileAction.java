@@ -2,18 +2,10 @@ package org.esa.beam.visat.actions;
 
 import com.sun.media.jai.codec.ImageCodec;
 import com.sun.media.jai.codec.ImageEncoder;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.GeoPos;
-import org.esa.beam.framework.datamodel.ImageLegend;
-import org.esa.beam.framework.datamodel.MapGeoCoding;
-import org.esa.beam.framework.datamodel.Pin;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
-import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.dataop.maptransf.IdentityTransformDescriptor;
+import org.esa.beam.framework.dataop.maptransf.MapTransformDescriptor;
 import org.esa.beam.framework.help.HelpSys;
-import org.esa.beam.framework.ui.ImageDisplay;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
@@ -27,13 +19,12 @@ import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
-import java.awt.image.WritableRaster;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.text.MessageFormat;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -57,35 +48,31 @@ public class ExportKmzFileAction extends ExecCommand {
 
     @Override
     public void actionPerformed(CommandEvent event) {
-        exportImage(VisatApp.getApp());
+        ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
+        final GeoCoding geoCoding = view.getProduct().getGeoCoding();
+        if (geoCoding instanceof MapGeoCoding) {
+            MapGeoCoding mapGeoCoding = (MapGeoCoding) geoCoding;
+            MapTransformDescriptor transformDescriptor = mapGeoCoding.getMapInfo()
+                    .getMapProjection().getMapTransform().getDescriptor();
+            String typeID = transformDescriptor.getTypeID();
+            if (typeID.equals(IdentityTransformDescriptor.TYPE_ID)) {
+                exportImage(view);
+            }
+        }else {
+            String message = MessageFormat.format("Product must be in ''{0}'' projection.",
+                                                  IdentityTransformDescriptor.NAME);
+            VisatApp.getApp().showInfoDialog(message, null);
+        }
     }
 
     @Override
     public void updateState(CommandEvent event) {
         ProductSceneView view = VisatApp.getApp().getSelectedProductSceneView();
-        boolean enabled = false;
-        if (view != null) {
-            final GeoCoding geoCoding = view.getProduct().getGeoCoding();
-            if (geoCoding instanceof MapGeoCoding) {
-                MapGeoCoding mapGeoCoding = (MapGeoCoding) geoCoding;
-                String typeID = mapGeoCoding.getMapInfo()
-                        .getMapProjection().getMapTransform()
-                        .getDescriptor().getTypeID();
-                if (typeID.equals(IdentityTransformDescriptor.TYPE_ID)) {
-                    enabled = true;
-                }
-            }
-        }
-        setEnabled(enabled);
+        setEnabled(view != null);
     }
 
-    private void exportImage(final VisatApp visatApp) {
-
-        final ProductSceneView view = visatApp.getSelectedProductSceneView();
-        if (view == null) {
-            return;
-        }
-
+    private void exportImage(ProductSceneView sceneView) {
+        VisatApp visatApp = VisatApp.getApp();
         final String lastDir = visatApp.getPreferences().getPropertyString(
                 IMAGE_EXPORT_DIR_PREFERENCES_KEY,
                 SystemUtils.getUserHomeDir().getPath());
@@ -98,7 +85,7 @@ public class ExportKmzFileAction extends ExecCommand {
         fileChooser.setAcceptAllFileFilterUsed(false);
 
         fileChooser.setDialogTitle(visatApp.getAppName() + " - " + "Export KMZ"); /* I18N */
-        fileChooser.setCurrentFilename(view.getRaster().getName());
+        fileChooser.setCurrentFilename(sceneView.getRaster().getName());
 
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
@@ -139,24 +126,24 @@ public class ExportKmzFileAction extends ExecCommand {
 
 
         try {
-            RenderedImage image = ExportImageAction.createImage(view, true);
+            RenderedImage image = ExportImageAction.createImage(sceneView, true);
 
             String imageType = "PNG";
             String imageName = "overlay.png";
             ZipOutputStream outStream = new ZipOutputStream(new FileOutputStream(file));
             try {
                 outStream.putNextEntry(new ZipEntry("overlay.kml"));
-                final String kmlContent = formatKML(view, imageName);
+                final String kmlContent = formatKML(sceneView, imageName);
                 outStream.write(kmlContent.getBytes());
 
                 outStream.putNextEntry(new ZipEntry(imageName));
                 ImageEncoder encoder = ImageCodec.createImageEncoder(imageType, outStream, null);
                 encoder.encode(image);
 
-                if (!view.isRGB()) {
+                if (!sceneView.isRGB()) {
                     outStream.putNextEntry(new ZipEntry("legend.png"));
                     encoder = ImageCodec.createImageEncoder("PNG", outStream, null);
-                    encoder.encode(createImageLegend(view.getRaster()));
+                    encoder.encode(createImageLegend(sceneView.getRaster()));
                 }
             } finally {
                 outStream.close();
@@ -193,7 +180,7 @@ public class ExportKmzFileAction extends ExecCommand {
         String pinKml = "";
         ProductNodeGroup<Pin> pinGroup = product.getPinGroup();
         Pin[] pins = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
-        for (Pin pin : pins) {            
+        for (Pin pin : pins) {
             GeoPos geoPos = pin.getGeoPos();
             if (geoPos != null && product.containsPixel(pin.getPixelPos())) {
                 pinKml += String.format(
@@ -220,36 +207,36 @@ public class ExportKmzFileAction extends ExecCommand {
             name = raster.getName();
             description = raster.getDescription() + "\n" + product.getName();
             legendKml = "  <ScreenOverlay>\n"
-                        + "    <name>Legend</name>\n"
-                        + "    <Icon>\n"
-                        + "      <href>legend.png</href>\n"
-                        + "    </Icon>\n"
-                        + "    <overlayXY x=\"0\" y=\"1\" xunits=\"fraction\" yunits=\"fraction\" />\n"
-                        + "    <screenXY x=\"0\" y=\"1\" xunits=\"fraction\" yunits=\"fraction\" />\n"
-                        + "  </ScreenOverlay>\n";
+                    + "    <name>Legend</name>\n"
+                    + "    <Icon>\n"
+                    + "      <href>legend.png</href>\n"
+                    + "    </Icon>\n"
+                    + "    <overlayXY x=\"0\" y=\"1\" xunits=\"fraction\" yunits=\"fraction\" />\n"
+                    + "    <screenXY x=\"0\" y=\"1\" xunits=\"fraction\" yunits=\"fraction\" />\n"
+                    + "  </ScreenOverlay>\n";
         }
 
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-               + "<kml xmlns=\"http://earth.google.com/kml/2.0\">\n"
-               + "<Document>\n"
-               + "  <name>" + name + "</name>\n"
-               + "  <description>" + description + "</description>\n"
-               + "  <GroundOverlay>\n"
-               + "    <name>Raster data</name>\n"
-               + "    <LatLonBox>\n"
-               + "      <north>" + upperLeftGP.getLat() + "</north>\n"
-               + "      <south>" + lowerRightGP.getLat() + "</south>\n"
-               + "      <east>" + eastLon + "</east>\n"
-               + "      <west>" + upperLeftGP.getLon() + "</west>\n"
-               + "    </LatLonBox>\n"
-               + "    <Icon>\n"
-               + "      <href>" + imageName + "</href>\n"
-               + "    </Icon>\n"
-               + "  </GroundOverlay>\n"
-               + legendKml
-               + pinKml
-               + "</Document>\n"
-               + "</kml>\n";
+                + "<kml xmlns=\"http://earth.google.com/kml/2.0\">\n"
+                + "<Document>\n"
+                + "  <name>" + name + "</name>\n"
+                + "  <description>" + description + "</description>\n"
+                + "  <GroundOverlay>\n"
+                + "    <name>Raster data</name>\n"
+                + "    <LatLonBox>\n"
+                + "      <north>" + upperLeftGP.getLat() + "</north>\n"
+                + "      <south>" + lowerRightGP.getLat() + "</south>\n"
+                + "      <east>" + eastLon + "</east>\n"
+                + "      <west>" + upperLeftGP.getLon() + "</west>\n"
+                + "    </LatLonBox>\n"
+                + "    <Icon>\n"
+                + "      <href>" + imageName + "</href>\n"
+                + "    </Icon>\n"
+                + "  </GroundOverlay>\n"
+                + legendKml
+                + pinKml
+                + "</Document>\n"
+                + "</kml>\n";
     }
 
     private static ImageLegend initImageLegend(RasterDataNode raster) {
