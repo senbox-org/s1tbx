@@ -11,7 +11,6 @@ import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.JFormattedTextField;
-import java.lang.reflect.Field;
 import java.util.Arrays;
 
 /**
@@ -20,13 +19,13 @@ import java.util.Arrays;
  * @author Marco Peters
  * @version $Revision$ $Date$
  */
-public class SwingBindingContextTest extends TestCase {
+public class BindingContextTest extends TestCase {
 
-    private SwingBindingContext binding;
+    private BindingContext binding;
     private ValueContainer valueContainer;
 
     private ValueContainer valueContainer2;
-    private SwingBindingContext binding2;
+    private BindingContext binding2;
     private TestPojo pojo;
 
     @Override
@@ -35,12 +34,12 @@ public class SwingBindingContextTest extends TestCase {
 
         valueContainer = valueContainerFactory.createValueBackedValueContainer(TestPojo.class);
         valueContainer.getValueDescriptor("valueSetBoundIntValue").setValueSet(new ValueSet(TestPojo.intValueSet));
-        binding = new SwingBindingContext(valueContainer);
+        binding = new BindingContext(valueContainer);
 
         pojo = new TestPojo();
         valueContainer2 = valueContainerFactory.createObjectBackedValueContainer(pojo);
         valueContainer2.getValueDescriptor("valueSetBoundIntValue").setValueSet(new ValueSet(TestPojo.intValueSet));
-        binding2 = new SwingBindingContext(valueContainer2);
+        binding2 = new BindingContext(valueContainer2);
     }
 
     public void testBindSpinner() throws ValidationException {

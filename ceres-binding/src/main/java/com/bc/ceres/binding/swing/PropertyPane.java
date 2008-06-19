@@ -1,23 +1,38 @@
 package com.bc.ceres.binding.swing;
 
 import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionListener;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.DocumentEvent;
+import java.awt.BorderLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
 
 /**
- * If the {@code displayName} property is set, it will be used as label, otherwise
- * a label is derived from the {@code name} property.
+ * A utility class used to create a {@link JPanel} containg default Swing components and their corresponding bindings for the
+ * {@link ValueContainer} given by the {@link BindingContext}.
+ * <p/>
+ * <p>If the {@code displayName} property of a {@link ValueDescriptor ValueDescriptor} is set, it will be used as label, otherwise
+ * a label is derived from the {@code name} property.</p>
  */
 public class PropertyPane {
-    SwingBindingContext bindingContext;
+    private final BindingContext bindingContext;
 
-    public PropertyPane(SwingBindingContext bindingContext) {
+    public PropertyPane(BindingContext bindingContext) {
         this.bindingContext = bindingContext;
+    }
+
+    public BindingContext getBindingContext() {
+        return bindingContext;
     }
 
     public JPanel createPanel() {
@@ -35,26 +50,29 @@ public class PropertyPane {
         for (ValueModel model : models) {
             JComponent editorComponent;
             if (Number.class.isAssignableFrom(model.getDescriptor().getType())) {
-                JTextField textField = new JTextField();
+                final JTextField textField = new JTextField();
                 textField.setHorizontalAlignment(JTextField.RIGHT);
                 int fontSize = textField.getFont().getSize();
                 textField.setFont(new Font("Courier", Font.PLAIN, fontSize));
                 bindingContext.bind(textField, model.getDescriptor().getName());
                 editorComponent = textField;
             } else if (Boolean.class.isAssignableFrom(model.getDescriptor().getType())) {
-                JCheckBox checkBox = new JCheckBox();
+                final JCheckBox checkBox = new JCheckBox();
                 bindingContext.bind(checkBox, model.getDescriptor().getName());
                 editorComponent = checkBox;
             } else if (File.class.isAssignableFrom(model.getDescriptor().getType())) {
-                JTextField textField = new JTextField();
-                bindingContext.bind(textField, model.getDescriptor().getName());
+                final JTextField textField = new JTextField();
+                final Binding binding = bindingContext.bind(textField, model.getDescriptor().getName());
                 JPanel subPanel = new JPanel(new BorderLayout(2, 2));
                 subPanel.add(textField, BorderLayout.CENTER);
                 JButton etcButton = new JButton("...");
                 etcButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         JFileChooser fileChooser = new JFileChooser();
-                        fileChooser.showDialog(panel, "Select");
+                        int i = fileChooser.showDialog(panel, "Select");
+                        if (i == JFileChooser.APPROVE_OPTION && fileChooser.getSelectedFile() != null) {
+                            binding.setPropertyValue(fileChooser.getSelectedFile());
+                        }
                     }
                 });
                 subPanel.add(etcButton, BorderLayout.EAST);

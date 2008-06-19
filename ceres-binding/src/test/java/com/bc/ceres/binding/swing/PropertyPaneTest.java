@@ -7,6 +7,8 @@ import javax.swing.*;
 import java.awt.Component;
 import java.io.File;
 import java.util.HashMap;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
 
 public class PropertyPaneTest extends TestCase {
     public void testComponentsInPanel() throws ConversionException {
@@ -51,7 +53,7 @@ public class PropertyPaneTest extends TestCase {
         vc.getValueDescriptor("resamplingMethod").setValueSet(
                 new ValueSet(new String[]{"NN", "CC", "BQ"}));
 
-        SwingBindingContext sbc = new SwingBindingContext(vc, new SwingBindingContext.ErrorHandler() {
+        BindingContext sbc = new BindingContext(vc, new BindingContext.ErrorHandler() {
             public void handleError(JComponent component, Exception e) {
                 JOptionPane.showMessageDialog(null, e.getMessage());
             }
@@ -67,5 +69,12 @@ public class PropertyPaneTest extends TestCase {
         frame.add(panel);
         frame.pack();
         frame.setVisible(true);
+
+        propertyPane.getBindingContext().getValueContainer().addPropertyChangeListener(new PropertyChangeListener() {
+
+            public void propertyChange(PropertyChangeEvent evt) {
+                System.out.println("ValueContainer." + evt.getPropertyName() + " = " + evt.getNewValue());
+            }
+        });
     }
 }
