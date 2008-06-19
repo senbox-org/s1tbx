@@ -18,7 +18,7 @@ import java.util.Arrays;
  * Created by Marco Peters.
  *
  * @author Marco Peters
- * @version $Revision:$ $Date:$
+ * @version $Revision$ $Date$
  */
 public class SwingBindingContextTest extends TestCase {
 
@@ -34,10 +34,12 @@ public class SwingBindingContextTest extends TestCase {
         ValueContainerFactory valueContainerFactory = new ValueContainerFactory();
 
         valueContainer = valueContainerFactory.createValueBackedValueContainer(TestPojo.class);
+        valueContainer.getValueDescriptor("valueSetBoundIntValue").setValueSet(new ValueSet(TestPojo.intValueSet));
         binding = new SwingBindingContext(valueContainer);
 
         pojo = new TestPojo();
         valueContainer2 = valueContainerFactory.createObjectBackedValueContainer(pojo);
+        valueContainer2.getValueDescriptor("valueSetBoundIntValue").setValueSet(new ValueSet(TestPojo.intValueSet));
         binding2 = new SwingBindingContext(valueContainer2);
     }
 
@@ -171,6 +173,58 @@ public class SwingBindingContextTest extends TestCase {
         assertEquals(false, radioButton1.isSelected());
     }
 
+    public void testBindButtonGroup() throws ValidationException {
+        JRadioButton radioButton1 = new JRadioButton();
+        JRadioButton radioButton2 = new JRadioButton();
+        JRadioButton radioButton3 = new JRadioButton();
+
+        ButtonGroup buttonGroup = new ButtonGroup();
+        buttonGroup.add(radioButton1);
+        buttonGroup.add(radioButton2);
+        buttonGroup.add(radioButton3);
+
+        ValueModel m = valueContainer.getModel("valueSetBoundIntValue");
+
+        m.setValue(TestPojo.intValueSet[0]);
+
+        binding.bind(buttonGroup, "valueSetBoundIntValue");
+
+        assertEquals(true, radioButton1.isSelected());
+        assertEquals(false, radioButton2.isSelected());
+        assertEquals(false, radioButton3.isSelected());
+        assertEquals(TestPojo.intValueSet[0], m.getValue());
+
+        radioButton3.doClick();
+        assertEquals(false, radioButton1.isSelected());
+        assertEquals(false, radioButton2.isSelected());
+        assertEquals(true, radioButton3.isSelected());
+        assertEquals(TestPojo.intValueSet[2], m.getValue());
+
+        radioButton2.doClick();
+        assertEquals(false, radioButton1.isSelected());
+        assertEquals(true, radioButton2.isSelected());
+        assertEquals(false, radioButton3.isSelected());
+        assertEquals(TestPojo.intValueSet[1], m.getValue());
+
+        m.setValue(TestPojo.intValueSet[0]);
+        assertEquals(true, radioButton1.isSelected());
+        assertEquals(false, radioButton2.isSelected());
+        assertEquals(false, radioButton3.isSelected());
+        assertEquals(TestPojo.intValueSet[0], m.getValue());
+
+        m.setValue(TestPojo.intValueSet[2]);
+        assertEquals(false, radioButton1.isSelected());
+        assertEquals(false, radioButton2.isSelected());
+        assertEquals(true, radioButton3.isSelected());
+        assertEquals(TestPojo.intValueSet[2], m.getValue());
+
+        m.setValue(TestPojo.intValueSet[1]);
+        assertEquals(false, radioButton1.isSelected());
+        assertEquals(true, radioButton2.isSelected());
+        assertEquals(false, radioButton3.isSelected());
+        assertEquals(TestPojo.intValueSet[1], m.getValue());
+    }
+
     public void testBindListSelection() throws ValidationException {
         JList list = new JList(new Integer[]{3, 4, 5, 6, 7});
         binding.bind(list, "listValue", true);
@@ -190,5 +244,8 @@ public class SwingBindingContextTest extends TestCase {
         double doubleValue;
         String stringValue;
         int[] listValue;
+
+        int valueSetBoundIntValue;
+        static Integer[] intValueSet = new Integer[] {101, 102, 103};
     }
 }

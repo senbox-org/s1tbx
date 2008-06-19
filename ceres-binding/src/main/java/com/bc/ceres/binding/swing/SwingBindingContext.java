@@ -14,9 +14,10 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.Array;
+import java.util.*;
 
 // todo  - this class needs a refactoring
-// todo - extract AbstractBinding classes
+// todo - extract Binding classes
 // todo - check if we can generalize bind() method
 
 public class SwingBindingContext {
@@ -41,30 +42,34 @@ public class SwingBindingContext {
         return errorHandler;
     }
 
-    public void enable(final JComponent component, final String propertyName, final Object condition) {
-        bindEnabling(component, propertyName, condition, true);
+    public void enable(final JComponent component, final String propertyName, final Object propertyCondition) {
+        bindEnabling(component, propertyName, propertyCondition, true);
     }
 
-    public void disable(final JComponent component, final String propertyName, final Object condition) {
-        bindEnabling(component, propertyName, condition, false);
+    public void disable(final JComponent component, final String propertyName, final Object propertyCondition) {
+        bindEnabling(component, propertyName, propertyCondition, false);
     }
 
-    private void bindEnabling(final JComponent component, final String propertyName, final Object condition, final boolean enabled) {
+    private void bindEnabling(final JComponent component,
+                              final String propertyName,
+                              final Object propertyCondition,
+                              final boolean componentEnabled) {
         valueContainer.addPropertyChangeListener(propertyName, new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
-                setEnabled(component, propertyName, condition, enabled);
+                setEnabled(component, propertyName, propertyCondition, componentEnabled);
             }
         });
-        setEnabled(component, propertyName, condition, enabled);
+        setEnabled(component, propertyName, propertyCondition, componentEnabled);
     }
 
-    private void setEnabled(JComponent component, String propertyName, Object condition, boolean enabled) {
-        boolean conditionIsTrue = condition.equals(valueContainer.getValue(propertyName));
-        if (conditionIsTrue) {
-            component.setEnabled(enabled);
-        }
-        // todo - this is the alternative, but it does not allow for multiple OR-ed enables/disables (nf - 18.06.2008)
-        // component.setEnabled(conditionIsTrue ? enabled : !enabled);
+    private void setEnabled(JComponent component,
+                            String propertyName,
+                            Object propertyCondition,
+                            boolean componentEnabled) {
+        Object propertyValue = valueContainer.getValue(propertyName);
+        boolean conditionIsTrue = propertyValue == propertyCondition
+                || (propertyValue != null && propertyValue.equals(propertyCondition));
+        component.setEnabled(conditionIsTrue ? componentEnabled : !componentEnabled);
     }
 
     public void bind(final JTextField textField, final String propertyName) {
@@ -121,8 +126,18 @@ public class SwingBindingContext {
         comboBoxBinding.adjustWidget();
     }
 
+    public void bind(final ButtonGroup buttonGroup, final String propertyName) {
+        bind(buttonGroup, propertyName,
+             createButtonToValueMap(buttonGroup, getValueContainer(), propertyName));
+    }
+
+    public void bind(final ButtonGroup buttonGroup, final String propertyName, 
+                     final Map<AbstractButton, Object> propertyValues) {
+        ButtonGroupBinding binding = new ButtonGroupBinding(buttonGroup, propertyName, propertyValues);
+        binding.adjustWidget();
+    }
+
     private void handleError(JComponent component, Exception e) {
-        System.out.println("e = " + e);
         errorHandler.handleError(component, e);
     }
 
@@ -167,13 +182,12 @@ public class SwingBindingContext {
     }
 
 
-    abstract class AbstractBinding {
+    abstract class Binding {
 
-        private String propertyName;
+        private final String propertyName;
         private boolean adjustingWidget;
-//        private boolean adjustingProperty;
 
-        public AbstractBinding(String propertyName) {
+        public Binding(String propertyName) {
             this.propertyName = propertyName;
             valueContainer.addPropertyChangeListener(new PropertyChangeListener() {
                 public void propertyChange(PropertyChangeEvent evt) {
@@ -182,32 +196,13 @@ public class SwingBindingContext {
             });
         }
 
-//        public boolean isAdjustingProperty() {
-//            return adjustingProperty;
-//        }
-
-        public boolean isAdjustingWidget() {
-            return adjustingWidget;
-        }
-
         public String getPropertyName() {
             return propertyName;
         }
 
-//        public final void adjustProperty() {
-//            if (!adjustingProperty) {
-//                try {
-//                    adjustingProperty = true;
-//                    adjustPropertyImpl();
-//                } finally {
-//                    adjustingProperty = false;
-//                }
-//            }
-//        }
-//
-//        protected void adjustPropertyImpl() {
-//            adjustWidget();
-//        }
+        public boolean isAdjustingWidget() {
+            return adjustingWidget;
+        }
 
         public void adjustWidget() {
             if (!adjustingWidget) {
@@ -221,9 +216,20 @@ public class SwingBindingContext {
         }
 
         protected abstract void adjustWidgetImpl();
+
+        protected abstract JComponent getPrimaryComponent();
+
+        protected void adjustProperty(Object propertyValue) {
+            try {
+                valueContainer.setValue(getPropertyName(), propertyValue);
+            } catch (Exception e) {
+                handleError(getPrimaryComponent(), e);
+            }
+        }
+
     }
 
-    class SpinnerBinding extends SwingBindingContext.AbstractBinding implements ChangeListener {
+    class SpinnerBinding extends Binding implements ChangeListener {
 
         final JSpinner spinner;
 
@@ -261,11 +267,7 @@ public class SwingBindingContext {
         }
 
         public void stateChanged(ChangeEvent evt) {
-            try {
-                valueContainer.setValue(getPropertyName(), spinner.getValue());
-            } catch (Exception e) {
-                handleError(spinner, e);
-            }
+            adjustProperty(spinner.getValue());
         }
 
         @Override
@@ -277,9 +279,14 @@ public class SwingBindingContext {
                 handleError(spinner, e);
             }
         }
+
+        @Override
+        protected JComponent getPrimaryComponent() {
+            return spinner;
+        }
     }
 
-    class ListSelectionBinding extends SwingBindingContext.AbstractBinding implements ListSelectionListener {
+    class ListSelectionBinding extends Binding implements ListSelectionListener {
 
         private final JList list;
 
@@ -330,9 +337,70 @@ public class SwingBindingContext {
                 list.setSelectedIndices(indices);
             }
         }
+
+        @Override
+        protected JComponent getPrimaryComponent() {
+            return list;
+        }
     }
 
-    class TextFieldBinding extends SwingBindingContext.AbstractBinding implements ActionListener {
+    private static Map<AbstractButton, Object> createButtonToValueMap(ButtonGroup buttonGroup, ValueContainer valueContainer, String propertyName) {
+        ValueSet valueSet = valueContainer.getValueDescriptor(propertyName).getValueSet();
+        if (valueSet == null) {
+            throw new IllegalStateException("valueSet == null");
+        }
+        Object[] items = valueSet.getItems();
+        if (buttonGroup.getButtonCount() != items.length) {
+            throw new IllegalStateException("buttonGroup.getButtonCount() != items.length");
+        }
+        Enumeration<AbstractButton> buttonEnum = buttonGroup.getElements();
+        HashMap<AbstractButton, Object> buttonToValueMap = new HashMap<AbstractButton, Object>(items.length);
+        for (Object item : items) {
+            buttonToValueMap.put(buttonEnum.nextElement(), item);
+        }
+        return buttonToValueMap;
+    }
+
+    class ButtonGroupBinding extends Binding implements ChangeListener {
+        private final ButtonGroup buttonGroup;
+        private final Map<AbstractButton, Object> buttonToValueMap;
+        private final Map<Object, AbstractButton> valueToButtonMap;
+
+        ButtonGroupBinding(ButtonGroup buttonGroup, String propertyName, Map<AbstractButton, Object> buttonToValueMap) {
+            super(propertyName);
+            this.buttonGroup = buttonGroup;
+            this.buttonToValueMap = buttonToValueMap;
+            this.valueToButtonMap = new HashMap<Object, AbstractButton>(buttonToValueMap.size());
+
+            Enumeration<AbstractButton> buttonEnum = buttonGroup.getElements();
+            while (buttonEnum.hasMoreElements()) {
+                AbstractButton button = buttonEnum.nextElement();
+                button.addChangeListener(this);
+                valueToButtonMap.put(buttonToValueMap.get(button), button);
+            }
+        }
+
+        @Override
+        protected void adjustWidgetImpl() {
+            Object value = getValueContainer().getValue(getPropertyName());
+            AbstractButton button = valueToButtonMap.get(value);
+            if (button != null) {
+                button.setSelected(true);
+            }
+        }
+
+        @Override
+        protected JComponent getPrimaryComponent() {
+            return buttonGroup.getElements().nextElement();
+        }
+
+        public void stateChanged(ChangeEvent event) {
+            AbstractButton button = (AbstractButton) event.getSource();
+            adjustProperty(buttonToValueMap.get(button));
+        }
+    }
+
+    class TextFieldBinding extends Binding implements ActionListener {
 
         private final JTextField textField;
 
@@ -364,9 +432,14 @@ public class SwingBindingContext {
         public InputVerifier createInputVerifier() {
             return new TextFieldVerifier(this);
         }
+
+        @Override
+        protected JComponent getPrimaryComponent() {
+            return textField;
+        }
     }
 
-    class FormattedTextFieldBinding extends SwingBindingContext.AbstractBinding implements PropertyChangeListener {
+    class FormattedTextFieldBinding extends Binding implements PropertyChangeListener {
 
         private final JFormattedTextField textField;
 
@@ -392,9 +465,14 @@ public class SwingBindingContext {
                 handleError(textField, e);
             }
         }
+
+        @Override
+        protected JComponent getPrimaryComponent() {
+            return textField;
+        }
     }
 
-    class ComboBoxBinding extends SwingBindingContext.AbstractBinding implements ActionListener {
+    class ComboBoxBinding extends Binding implements ActionListener {
 
         final JComboBox comboBox;
 
@@ -410,11 +488,7 @@ public class SwingBindingContext {
         }
 
         public void actionPerformed(ActionEvent event) {
-            try {
-                valueContainer.setValue(getPropertyName(), comboBox.getSelectedItem());
-            } catch (Exception e) {
-                handleError(comboBox, e);
-            }
+            adjustProperty(comboBox.getSelectedItem());
         }
 
         @Override
@@ -426,61 +500,66 @@ public class SwingBindingContext {
                 handleError(comboBox, e);
             }
         }
+
+        @Override
+        protected JComponent getPrimaryComponent() {
+            return comboBox;
+        }
     }
 
-    class CheckBoxBinding extends SwingBindingContext.AbstractBinding implements ActionListener {
+    class ButtonBinding extends Binding {
 
-        private final JCheckBox checkBox;
+        private final AbstractButton button;
+
+        public ButtonBinding(String propertyName, AbstractButton button) {
+            super(propertyName);
+            this.button = button;
+        }
+
+        public AbstractButton getButton() {
+            return button;
+        }
+
+        @Override
+        protected void adjustWidgetImpl() {
+            try {
+                boolean selected = (Boolean) valueContainer.getValue(getPropertyName());
+                button.setSelected(selected);
+            } catch (Exception e) {
+                handleError(button, e);
+            }
+        }
+
+        protected void adjustProperty() {
+            adjustProperty(getButton().isSelected());
+        }
+
+        @Override
+        protected JComponent getPrimaryComponent() {
+            return getButton();
+        }
+    }
+
+    class CheckBoxBinding extends ButtonBinding implements ActionListener {
 
         public CheckBoxBinding(String propertyName, JCheckBox checkBox) {
-            super(propertyName);
-            this.checkBox = checkBox;
+            super(propertyName, checkBox);
         }
 
         public void actionPerformed(ActionEvent event) {
-            try {
-                valueContainer.setValue(getPropertyName(), checkBox.isSelected());
-            } catch (Exception e) {
-                handleError(checkBox, e);
-            }
+            adjustProperty();
         }
 
-        @Override
-        protected void adjustWidgetImpl() {
-            try {
-                boolean selected = (Boolean) valueContainer.getValue(getPropertyName());
-                checkBox.setSelected(selected);
-            } catch (Exception e) {
-                handleError(checkBox, e);
-            }
-        }
     }
 
-    class RadioButtonBinding extends SwingBindingContext.AbstractBinding implements ChangeListener {
-
-        private final JRadioButton radioButton;
+    class RadioButtonBinding extends ButtonBinding implements ChangeListener  {
 
         public RadioButtonBinding(String propertyName, JRadioButton radioButton) {
-            super(propertyName);
-            this.radioButton = radioButton;
+            super(propertyName, radioButton);
         }
 
-        public void stateChanged(ChangeEvent event) {
-            try {
-                valueContainer.setValue(getPropertyName(), radioButton.isSelected());
-            } catch (Exception e) {
-                handleError(radioButton, e);
-            }
-        }
-
-        @Override
-        protected void adjustWidgetImpl() {
-            try {
-                boolean selected = (Boolean) valueContainer.getValue(getPropertyName());
-                radioButton.setSelected(selected);
-            } catch (Exception e) {
-                handleError(radioButton, e);
-            }
+        public void stateChanged(ChangeEvent e) {
+            adjustProperty();
         }
     }
 
