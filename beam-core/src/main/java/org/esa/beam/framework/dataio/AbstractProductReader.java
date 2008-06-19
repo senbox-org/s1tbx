@@ -146,7 +146,7 @@ public abstract class AbstractProductReader implements ProductReader {
      */
     public Product readProductNodes(Object input,
                                     ProductSubsetDef subsetDef) throws IOException {
-        // (nf, 26.09.2007) removed (input == null) check, null inputs (= no sources) shall be allowed 
+        // (nf, 26.09.2007) removed (input == null) check, null inputs (= no sources) shall be allowed
         if (input != null && !isInstanceOfValidInputType(input)) {
             throw new IllegalArgumentException("invalid input source: " + input);
         }
@@ -320,8 +320,8 @@ public abstract class AbstractProductReader implements ProductReader {
      * @return the root TreeNode or null
      */
     public TreeNode<File> getProductComponents() {
-        Object input = getInput();
-        File inputFile;
+        final Object input = getInput();
+        final File inputFile;
         if (input instanceof File) {
             inputFile = (File) input;
         } else if (input instanceof String) {
@@ -330,11 +330,11 @@ public abstract class AbstractProductReader implements ProductReader {
             return null;
         }
 
-        File parent = inputFile.getParentFile();
-        TreeNode<File> result = new TreeNode<File>(parent.getName());
+        final File parent = inputFile.getParentFile();
+        final TreeNode<File> result = new TreeNode<File>(parent.getName());
         result.setContent(parent);
 
-        TreeNode<File> productFile = new TreeNode<File>(inputFile.getName());
+        final TreeNode<File> productFile = new TreeNode<File>(inputFile.getName());
         productFile.setContent(inputFile);
         result.addChild(productFile);
         return result;
