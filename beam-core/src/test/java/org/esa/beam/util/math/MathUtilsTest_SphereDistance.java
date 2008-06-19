@@ -25,18 +25,33 @@ public class MathUtilsTest_SphereDistance extends TestCase {
         final double meanEarthRadius_km = 6371.0;
         final double meanEarthDiameter_km = meanEarthRadius_km * 2;
         final double sphereOutline = meanEarthDiameter_km * Math.PI;
-        final double lam1_rad = MathUtils.DTOR * 90.0;
+        double lam1_rad = MathUtils.DTOR * 90.0;
         final double phi1_rad = MathUtils.DTOR * 0.0;
-        final double lam2_rad = MathUtils.DTOR * 80.0;
+        double lam2_rad = MathUtils.DTOR * 80.0;
         final double phi2_rad = MathUtils.DTOR * 0.0;
 
         // expected value
         final double expected = sphereOutline / 36;
 
         // method under Test
-        final double distance = MathUtils.sphereDistance(meanEarthRadius_km,
-                                                         lam1_rad, phi1_rad,
-                                                         lam2_rad, phi2_rad);
+        double distance = MathUtils.sphereDistance(meanEarthRadius_km,
+                                                   lam1_rad, phi1_rad,
+                                                   lam2_rad, phi2_rad);
+
+        assertEquals(expected, distance, 1.0e-11);
+
+        lam1_rad = MathUtils.DTOR * 80.0;
+        lam2_rad = MathUtils.DTOR * 90.0;
+        distance = MathUtils.sphereDistance(meanEarthRadius_km,
+                                            lam1_rad, phi1_rad,
+                                            lam2_rad, phi2_rad);
+        assertEquals(expected, distance, 1.0e-11);
+
+        lam1_rad = MathUtils.DTOR * -175.0;
+        lam2_rad = MathUtils.DTOR * 175.0;
+        distance = MathUtils.sphereDistance(meanEarthRadius_km,
+                                            lam1_rad, phi1_rad,
+                                            lam2_rad, phi2_rad);
 
         assertEquals(expected, distance, 1.0e-11);
     }
@@ -46,17 +61,25 @@ public class MathUtilsTest_SphereDistance extends TestCase {
         final double meanEarthDiameter_km = meanEarthRadius_km * 2;
         final double sphereOutline = meanEarthDiameter_km * Math.PI;
         final double lam1_rad = MathUtils.DTOR * 55.0;
-        final double phi1_rad = MathUtils.DTOR * -5.0;
+        double phi1_rad = MathUtils.DTOR * -5.0;
         final double lam2_rad = MathUtils.DTOR * 55.0;
-        final double phi2_rad = MathUtils.DTOR * 5.0;
+        double phi2_rad = MathUtils.DTOR * 5.0;
 
         // expected value
         final double expected = sphereOutline / 36;
 
         // method under Test
-        final double distance = MathUtils.sphereDistance(meanEarthRadius_km,
-                                                         lam1_rad, phi1_rad,
-                                                         lam2_rad, phi2_rad);
+        double distance = MathUtils.sphereDistance(meanEarthRadius_km,
+                                                   lam1_rad, phi1_rad,
+                                                   lam2_rad, phi2_rad);
+
+        assertEquals(expected, distance, 1.0e-11);
+
+        phi1_rad = MathUtils.DTOR * 5.0;
+        phi2_rad = MathUtils.DTOR * -5.0;
+        distance = MathUtils.sphereDistance(meanEarthRadius_km,
+                                            lam1_rad, phi1_rad,
+                                            lam2_rad, phi2_rad);
 
         assertEquals(expected, distance, 1.0e-11);
     }

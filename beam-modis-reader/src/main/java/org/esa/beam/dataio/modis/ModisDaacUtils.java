@@ -107,7 +107,7 @@ class ModisDaacUtils {
             if (db.isSupportedProduct(token)) {
                 prodType.add(token);
             }
-        }
+        } 
         return prodType;
     }
 }
