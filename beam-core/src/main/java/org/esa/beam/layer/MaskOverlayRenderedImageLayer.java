@@ -26,7 +26,6 @@ public abstract class MaskOverlayRenderedImageLayer extends RenderedImageLayer {
         this.raster = raster;
         this.propertyNameColor = getPropertyName("color");
         this.propertyNameTransparency = getPropertyName("transparency");
-        setBorderPainted(false);
         setColor(DEFAULT_COLOR);
         setTransparency(DEFAULT_TRANSPARENCY);
     }

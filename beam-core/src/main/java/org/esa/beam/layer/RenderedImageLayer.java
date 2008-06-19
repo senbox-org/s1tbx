@@ -21,24 +21,16 @@ import com.bc.view.ViewModel;
 import org.esa.beam.util.Debug;
 
 import javax.media.jai.PlanarImage;
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.*;
 
-/**
- * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
- */
 public class RenderedImageLayer extends StyledLayer {
-    private static final BasicStroke BORDER_STROKE = new BasicStroke(1.0f);
 
     private RenderedImage image;
     private AffineTransform transform;
-    private final String propertyNameBorderPainted;
-    private final String propertyNameBorderColor;
 
     public RenderedImageLayer(RenderedImage image) {
         this(image, null);
@@ -57,10 +49,6 @@ public class RenderedImageLayer extends StyledLayer {
     public RenderedImageLayer(RenderedImage image, AffineTransform transform) {
         this.image = image;
         this.transform = transform;
-        this.propertyNameBorderPainted = getPropertyName("borderPainted");
-        this.propertyNameBorderColor = getPropertyName("borderColor");
-        setBorderPainted(true);
-        setBorderColor(Color.WHITE);
         updateBoundingBox();
     }
 
@@ -86,22 +74,6 @@ public class RenderedImageLayer extends StyledLayer {
         fireLayerChanged();
     }
 
-    public boolean isBorderPainted() {
-        Boolean borderPainted = (Boolean) getPropertyValue(propertyNameBorderPainted);
-        return borderPainted != null && borderPainted;
-    }
-
-    public void setBorderPainted(boolean borderPainted) {
-        setPropertyValue(propertyNameBorderPainted, borderPainted);
-    }
-
-    public Color getBorderColor() {
-        return (Color) getPropertyValue(propertyNameBorderColor);
-    }
-
-    public void setBorderColor(Color borderColor) {
-        setPropertyValue(propertyNameBorderColor, borderColor);
-    }
 
     private void updateBoundingBox() {
         final Rectangle imageRect = image != null ? new Rectangle(0, 0, image.getWidth(), image.getHeight()) : new Rectangle();
@@ -117,7 +89,6 @@ public class RenderedImageLayer extends StyledLayer {
             return;
         }
 
-        drawImageBorder(g2d);
         if (image instanceof BufferedImage) {
             g2d.drawRenderedImage(image, transform);
         } else {
@@ -198,19 +169,6 @@ public class RenderedImageLayer extends StyledLayer {
         }
     }
 
-    private void drawImageBorder(Graphics2D g2d) {
-        if (!isBorderPainted()) {
-            return;
-        }
-        final Color borderColor = getBorderColor();
-        if (borderColor != null) {
-            final Rectangle2D boundingBox = getBoundingBox();
-            g2d.setColor(borderColor);
-            g2d.setStroke(BORDER_STROKE);
-            g2d.draw(boundingBox);
-        }
-    }
-
     private int XtoTileX(int x) {
         return (x - image.getTileGridXOffset()) / image.getTileWidth();
     }
@@ -237,13 +195,4 @@ public class RenderedImageLayer extends StyledLayer {
         transform = null;
         super.dispose();
     }
-
-    protected String getPropertyNameBorderColor() {
-        return propertyNameBorderColor;
-    }
-
-    protected String getPropertyNameBorderPainted() {
-        return propertyNameBorderPainted;
-    }
-
 }
