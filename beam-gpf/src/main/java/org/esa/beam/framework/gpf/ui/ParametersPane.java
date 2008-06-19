@@ -92,7 +92,7 @@ public class ParametersPane {
                 gbc.weightx = 1.0;
                 panel.add(checkBox, gbc);
             } else {
-                JLabel label = new JLabel(getDisplayName(model) + ": ");
+                JLabel label = new JLabel(getDisplayName(model) + ":");
                 gbc.gridx = 0;
                 gbc.weightx = 0.0;
                 panel.add(label, gbc);

@@ -2,15 +2,14 @@ package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.binding.*;
 import com.bc.ceres.binding.swing.BindingContext;
+import junit.framework.TestCase;
 
 import javax.swing.*;
 import java.awt.Component;
-import java.util.HashMap;
-import java.io.File;
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
-
-import junit.framework.TestCase;
+import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.util.HashMap;
 
 
 public class ParametersPaneTest extends TestCase {
@@ -18,40 +17,53 @@ public class ParametersPaneTest extends TestCase {
         ParametersPane parametersPane = createParametersPane();
         JPanel panel = parametersPane.createPanel();
         Component[] components = panel.getComponents();
-        assertEquals(7 + 7 +  1, components.length);  // #labels + #comps + 1 spacer
-        HashMap<String,Component> editors = new HashMap<String, Component>(10);
-        for (int i = 0; i < components.length - 1; i++) {
-            Component component = components[i];
-            if (i % 2 == 0) {
-                // parameter label
-                assertTrue("Label expected at " + i, component instanceof JLabel);
-            } else if (i < components.length-1) {
-                // parameter editor
-                assertTrue("Name missing for component at " + i, component.getName() != null);
-                editors.put(component.getName(), component);
-            }
-        }
-        assertTrue(editors.get("threshold") instanceof JTextField);
-        assertTrue(editors.get("iterationLimit") instanceof JTextField);
-        assertTrue(editors.get("maxIterationCount") instanceof JTextField);
-        assertTrue(editors.get("useLogFile") instanceof JCheckBox);
-        assertTrue(editors.get("resamplingMethod") instanceof JComboBox);
-        assertTrue(editors.get("productDescription") instanceof JTextField);
-        assertTrue(editors.get("imageFile") instanceof JPanel);
+        assertEquals(14, components.length);
+
+        assertEquals(JCheckBox.class, components[0].getClass());
+        assertEquals(JLabel.class, components[1].getClass());
+        assertEquals(JTextField.class, components[2].getClass());
+        assertEquals(JLabel.class, components[3].getClass());
+        assertEquals(JTextField.class, components[4].getClass());
+        assertEquals(JLabel.class, components[5].getClass());
+        assertEquals(JTextField.class, components[6].getClass());
+        assertEquals(JLabel.class, components[7].getClass());
+        assertEquals(JComboBox.class, components[8].getClass());
+        assertEquals(JLabel.class, components[9].getClass());
+        assertEquals(JTextField.class, components[10].getClass());
+        assertEquals(JLabel.class, components[11].getClass());
+        assertEquals(JPanel.class, components[12].getClass());
+        assertEquals(JPanel.class, components[13].getClass()); // Spacer!
+
+        assertEquals("useLogFile", components[0].getName());
+        assertEquals("Use log file", ((JCheckBox)components[0]).getText());
+        assertEquals("Threshold:", ((JLabel)components[1]).getText());
+        assertEquals("threshold", components[2].getName());
+        assertEquals("Iteration limit:", ((JLabel)components[3]).getText());
+        assertEquals("iterationLimit", components[4].getName());
+        assertEquals("Max iteration count:", ((JLabel)components[5]).getText());
+        assertEquals("maxIterationCount", components[6].getName());
+        assertEquals("Resampling method:", ((JLabel)components[7]).getText());
+        assertEquals("resamplingMethod", components[8].getName());
+        assertEquals("Product description:", ((JLabel)components[9]).getText());
+        assertEquals("productDescription", components[10].getName());
+        assertEquals("Image file:", ((JLabel)components[11]).getText());
+        assertEquals("imageFile", components[12].getName());
+    }
+
+    private static class V {
+        boolean useLogFile = true;
+        double threshold = 0.5;
+        float iterationLimit = 0.1f;
+        int maxIterationCount = 10;
+        String resamplingMethod = "NN";
+        String productDescription = "All purpose";
+        File imageFile = new File(".").getAbsoluteFile();
     }
 
     private static ParametersPane createParametersPane() throws ConversionException {
-        HashMap<String, Object> map = new HashMap<String, Object>();
-        map.put("threshold", 0.5);
-        map.put("iterationLimit", 0.1f);
-        map.put("maxIterationCount", 10);
-        map.put("useLogFile", true);
-        map.put("resamplingMethod", "NN");
-        map.put("productDescription", "All purpose");
-        map.put("imageFile", new File(".").getAbsoluteFile());
+        ValueContainerFactory factory = new ValueContainerFactory();
+        ValueContainer vc = factory.createObjectBackedValueContainer(new V());
 
-
-        ValueContainer vc = ValueContainerFactory.createMapBackedValueContainer(map);
         vc.getValueDescriptor("threshold").setValueRange(ValueRange.parseValueRange("[0,1)")); // todo - not recognised (nf - 24.10.2007)
         vc.getValueDescriptor("resamplingMethod").setValueSet(
                 new ValueSet(new String[]{"NN", "CC", "BQ"}));
