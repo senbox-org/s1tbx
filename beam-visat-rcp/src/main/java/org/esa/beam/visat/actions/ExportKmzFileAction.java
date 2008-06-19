@@ -23,15 +23,10 @@ import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.BorderFactory;
-import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
-import javax.swing.JPanel;
-import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
@@ -44,23 +39,25 @@ import java.util.zip.ZipOutputStream;
 
 public class ExportKmzFileAction extends ExecCommand {
 
-    final BeamFileFilter[] kmlFilefilter;
+    final BeamFileFilter kmzFileFilter;
 
     public static final String EXPORT_KML_CMD_ID = "exportKmzFile";
 
-    private static final String[] KML_FORMAT_DESCRIPTION = {"KMZ", "kmz",
+    private static final String[] KMZ_FORMAT_DESCRIPTION = {"KMZ", "kmz",
             "KMZ - Google Earth File Format"};
 
     private static final String IMAGE_EXPORT_DIR_PREFERENCES_KEY = "user.image.export.dir";
 
     public ExportKmzFileAction() {
-        kmlFilefilter = new BeamFileFilter[1];
-        kmlFilefilter[0] = createFileFilter(KML_FORMAT_DESCRIPTION);
+        final String formatName = KMZ_FORMAT_DESCRIPTION[0];
+        final String formatExt = KMZ_FORMAT_DESCRIPTION[1];
+        final String formatDescr = KMZ_FORMAT_DESCRIPTION[2];
+        kmzFileFilter = new BeamFileFilter(formatName, formatExt, formatDescr);
     }
 
     @Override
     public void actionPerformed(CommandEvent event) {
-        exportImage(VisatApp.getApp(), kmlFilefilter);
+        exportImage(VisatApp.getApp());
     }
 
     @Override
@@ -82,7 +79,7 @@ public class ExportKmzFileAction extends ExecCommand {
         setEnabled(enabled);
     }
 
-    private void exportImage(final VisatApp visatApp, final BeamFileFilter[] filters) {
+    private void exportImage(final VisatApp visatApp) {
 
         final ProductSceneView view = visatApp.getSelectedProductSceneView();
         if (view == null) {
@@ -97,24 +94,11 @@ public class ExportKmzFileAction extends ExecCommand {
         final BeamFileChooser fileChooser = new BeamFileChooser();
         HelpSys.enableHelpKey(fileChooser, getHelpId());
         fileChooser.setCurrentDirectory(currentDir);
-        for (int i = 0; i < filters.length; i++) {
-            BeamFileFilter filter = filters[i];
-            Debug.trace("export image: supported format " + (i + 1) + ": " + filter.getFormatName());
-            fileChooser.addChoosableFileFilter(filter); // note: also selects current file filter!
-        }
+        fileChooser.addChoosableFileFilter(kmzFileFilter);
         fileChooser.setAcceptAllFileFilterUsed(false);
-
-        final JCheckBox buttonTransparancy = new JCheckBox("Mark No-Data as transparent",
-                                                           true); /* I18N */
 
         fileChooser.setDialogTitle(visatApp.getAppName() + " - " + "Export KMZ"); /* I18N */
         fileChooser.setCurrentFilename(view.getRaster().getName());
-        final JPanel panel = new JPanel(new GridLayout(1, 1));
-        panel.setBorder(BorderFactory.createTitledBorder("Options")); /* I18N */
-        panel.add(buttonTransparancy);
-        final JPanel accessory = new JPanel(new BorderLayout());
-        accessory.add(panel, BorderLayout.NORTH);
-        fileChooser.setAccessory(accessory);
 
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
@@ -146,27 +130,22 @@ public class ExportKmzFileAction extends ExecCommand {
         if (file == null || file.getName().equals("")) {
             return;
         }
-        boolean isNoDataTranparent = buttonTransparancy.isSelected();
 
         if (!visatApp.promptForOverwrite(file)) {
             return;
         }
-        visatApp.setStatusBarMessage("Saving image as " + file.getPath() + "..."); /*I18N*/
+        visatApp.setStatusBarMessage("Saving KMZ..."); /*I18N*/
         visatApp.getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
 
         try {
-            RenderedImage image = createRasterImage(view, isNoDataTranparent);
+            RenderedImage image = ExportImageAction.createImage(view, true);
 
-            String imageType = "JPEG";
-            String imageName = "image.jpg";
-            if (isNoDataTranparent) {
-                imageType = "PNG";
-                imageName = "image.png";
-            }
+            String imageType = "PNG";
+            String imageName = "overlay.png";
             ZipOutputStream outStream = new ZipOutputStream(new FileOutputStream(file));
             try {
-                outStream.putNextEntry(new ZipEntry("kml.kml"));
+                outStream.putNextEntry(new ZipEntry("overlay.kml"));
                 final String kmlContent = formatKML(view, imageName);
                 outStream.write(kmlContent.getBytes());
 
@@ -197,44 +176,6 @@ public class ExportKmzFileAction extends ExecCommand {
         return imageLegend.createImage();
     }
 
-    private static RenderedImage createRasterImage(final ProductSceneView view, boolean isNoDataTranparent) {
-        view.setPinOverlayEnabled(false);
-        final ImageDisplay imageDisplay = view.getImageDisplay();
-        final BufferedImage bi;
-        final double modelOffsetXOld = imageDisplay.getViewModel().getModelOffsetX();
-        final double modelOffsetYOld = imageDisplay.getViewModel().getModelOffsetY();
-        final double viewScaleOld = imageDisplay.getViewModel().getViewScale();
-        imageDisplay.getViewModel().setModelOffset(0, 0, 1.0);
-
-        if (isNoDataTranparent) {
-            bi = new BufferedImage(imageDisplay.getImageWidth(),
-                                   imageDisplay.getImageHeight(),
-                                   BufferedImage.TYPE_4BYTE_ABGR);
-            imageDisplay.paintComponent(bi.createGraphics());
-
-            WritableRaster alphaRaster = bi.getAlphaRaster();
-            RasterDataNode raster = view.getRaster();
-            for (int y = 0; y < raster.getRasterHeight(); y++) {
-                for (int x = 0; x < raster.getRasterWidth(); x++) {
-                    if (!raster.isPixelValid(x, y)) {
-                        int[] t = new int[1];
-                        t[0] = 0;
-                        alphaRaster.setPixel(x, y, t);
-                    }
-                }
-            }
-        } else {
-            bi = new BufferedImage(imageDisplay.getImageWidth(),
-                                   imageDisplay.getImageHeight(),
-                                   BufferedImage.TYPE_3BYTE_BGR);
-            imageDisplay.paintComponent(bi.createGraphics());
-        }
-        imageDisplay.getViewModel().setModelOffset(modelOffsetXOld,
-                                                   modelOffsetYOld, viewScaleOld);
-        view.setPinOverlayEnabled(true);
-        return bi;
-    }
-
     private static String formatKML(ProductSceneView view, String imageName) {
         final RasterDataNode raster = view.getRaster();
         final Product product = raster.getProduct();
@@ -248,7 +189,6 @@ public class ExportKmzFileAction extends ExecCommand {
         if (geoCoding.isCrossingMeridianAt180()) {
             eastLon += 360;
         }
-
 
         String pinKml = "";
         ProductNodeGroup<Pin> pinGroup = product.getPinGroup();
@@ -327,13 +267,7 @@ public class ExportKmzFileAction extends ExecCommand {
     private static String getLegendHeaderText(RasterDataNode raster) {
         String unit = raster.getUnit() != null ? raster.getUnit() : "-";
         unit = unit.replace('*', ' ');
-        return "[" + unit + "]";
+        return "(" + unit + ")";
     }
 
-    private static BeamFileFilter createFileFilter(String[] description) {
-        final String formatName = description[0];
-        final String formatExt = description[1];
-        final String formatDescr = description[2];
-        return new BeamFileFilter(formatName, formatExt, formatDescr);
-    }
 }

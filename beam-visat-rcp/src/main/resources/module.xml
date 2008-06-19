@@ -527,10 +527,10 @@
             <id>exportKmzFile</id>
             <class>org.esa.beam.visat.actions.ExportKmzFileAction</class>
             <parent>export</parent>
-            <text>Export KML...</text>
+            <text>Export Google Earth KMZ...</text>
             <mnemonic>K</mnemonic>
-            <shortDescr>Export as KML file.</shortDescr>
-            <description>Export a KML file for the currently displayed image.</description>
+            <shortDescr>Export the currently displayed image as Google Earth KMZ file.</shortDescr>
+            <description>Export the currently displayed image as Google Earth KMZ file.</description>
             <context>image</context>
             <helpId>exportKmzFile</helpId>
         </action>

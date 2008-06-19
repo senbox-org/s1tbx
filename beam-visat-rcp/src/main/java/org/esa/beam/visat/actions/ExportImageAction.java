@@ -76,23 +76,36 @@ public class ExportImageAction extends AbstractExportImageAction {
 
     @Override
     protected RenderedImage createImage(String imageFormat, ProductSceneView view) {
+        return createImage(view, isEntireImageSelected());
+    }
+
+    public static RenderedImage createImage(ProductSceneView view, boolean entireImage) {
         final ImageDisplay imageDisplay = view.getImageDisplay();
+        boolean oldOpaque = imageDisplay.isOpaque();
         final BufferedImage bi;
-        if (isEntireImageSelected()) {
-            final double modelOffsetXOld = imageDisplay.getViewModel().getModelOffsetX();
-            final double modelOffsetYOld = imageDisplay.getViewModel().getModelOffsetY();
-            final double viewScaleOld = imageDisplay.getViewModel().getViewScale();
-            imageDisplay.getViewModel().setModelOffset(0, 0, 1.0);
-            bi = new BufferedImage(imageDisplay.getImageWidth(),
-                                   imageDisplay.getImageHeight(),
-                                   BufferedImage.TYPE_3BYTE_BGR);
-            imageDisplay.paintComponent(bi.createGraphics());
-            imageDisplay.getViewModel().setModelOffset(modelOffsetXOld, modelOffsetYOld, viewScaleOld);
-        } else {
-            bi = new BufferedImage(imageDisplay.getWidth(),
-                                   imageDisplay.getHeight(),
-                                   BufferedImage.TYPE_3BYTE_BGR);
-            imageDisplay.paint(bi.createGraphics());
+        try {
+            imageDisplay.setOpaque(false);
+            if (entireImage) {
+                final double modelOffsetXOld = imageDisplay.getViewModel().getModelOffsetX();
+                final double modelOffsetYOld = imageDisplay.getViewModel().getModelOffsetY();
+                final double viewScaleOld = imageDisplay.getViewModel().getViewScale();
+                try {
+                    imageDisplay.getViewModel().setModelOffset(0, 0, 1.0);
+                    bi = new BufferedImage(imageDisplay.getImageWidth(),
+                                           imageDisplay.getImageHeight(),
+                                           BufferedImage.TYPE_4BYTE_ABGR);
+                    imageDisplay.paintComponent(bi.createGraphics());
+                } finally {
+                    imageDisplay.getViewModel().setModelOffset(modelOffsetXOld, modelOffsetYOld, viewScaleOld);
+                }
+            } else {
+                bi = new BufferedImage(imageDisplay.getWidth(),
+                                       imageDisplay.getHeight(),
+                                       BufferedImage.TYPE_4BYTE_ABGR);
+                imageDisplay.paint(bi.createGraphics());
+            }
+        } finally {
+            imageDisplay.setOpaque(oldOpaque);
         }
         return bi;
     }
