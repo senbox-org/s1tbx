@@ -14,7 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
-abstract class AbstractContinuousGraphicalForm implements PaletteEditorForm {
+abstract class AbstractContinuousGraphicalForm implements ImageInfoEditor {
 
     protected final ColorManipulationForm parentForm;
     protected AbstractButton autoStretch95Button;
@@ -96,8 +96,8 @@ abstract class AbstractContinuousGraphicalForm implements PaletteEditorForm {
             }
         });
 
-        contentPanel = new JPanel(new BorderLayout());
-        contentPanel.add(paletteEditor);
+        contentPanel = new JPanel(new BorderLayout(2, 2));
+        contentPanel.add(paletteEditor, BorderLayout.CENTER);
     }
 
     public ImageInfo getCurrentImageInfo() {

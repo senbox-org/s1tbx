@@ -14,7 +14,7 @@ import javax.swing.table.AbstractTableModel;
 import java.awt.Component;
 import java.awt.Color;
 
-class Continuous1BandTabularForm implements PaletteEditorForm, ImageInfoHolder  {
+class Continuous1BandTabularForm implements ImageInfoEditor, ImageInfoHolder  {
     private final ColorManipulationForm parentForm;
     private ImageInfoTableModel tableModel;
     private JScrollPane contentPanel;
@@ -46,7 +46,7 @@ class Continuous1BandTabularForm implements PaletteEditorForm, ImageInfoHolder  
     }
 
     public AbstractButton[] getButtons() {
-        return new AbstractButton[]{new JButton(":D")};  // todo
+        return new AbstractButton[]{};  // todo
     }
 
     public Component getContentPanel() {

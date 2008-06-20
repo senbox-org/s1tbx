@@ -8,7 +8,6 @@ package org.esa.beam.framework.datamodel;
 
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
-import org.esa.beam.util.ObjectUtils;
 import org.esa.beam.util.IntMap;
 import org.esa.beam.util.math.Histogram;
 import org.esa.beam.util.math.MathUtils;
@@ -38,10 +37,11 @@ public class ImageInfo implements Cloneable {
 
     // Color palette view properties.
     // Used by ContrastStretchPane, properties currently not saved in DIMAP.
-    private Float _histogramViewGain;
-    private Float _minHistogramViewSample;
-    private Float _maxHistogramViewSample;
+    private Float histogramViewGain;
+    private Float minHistogramViewSample;
+    private Float maxHistogramViewSample;
     private IntMap sampleToIndexMap;
+    private Color noDataColor;
 
     /**
      * Constructs a new basic display information instance.
@@ -89,6 +89,7 @@ public class ImageInfo implements Cloneable {
      * @param colorPaletteDef the color palette definition
      * @deprecated since 4.2, use {@link #ImageInfo(float, float, int[], ColorPaletteDef)} instead
      */
+    @Deprecated
     public ImageInfo(float minSample,
                      float maxSample,
                      int[] histogramBins,
@@ -118,6 +119,7 @@ public class ImageInfo implements Cloneable {
         scaling = Scaling.IDENTITY;
         colorPalette = null;
         gamma = 1.0f;
+        noDataColor = null;
     }
 
     /**
@@ -148,7 +150,6 @@ public class ImageInfo implements Cloneable {
         Guardian.assertNotNull("scaling", scaling);
         this.scaling = scaling;
     }
-
 
 
     /**
@@ -212,8 +213,8 @@ public class ImageInfo implements Cloneable {
      * @return the minimum histogram view sample
      */
     public float getMinHistogramViewSample() {
-        if (_minHistogramViewSample != null) {
-            return _minHistogramViewSample;
+        if (minHistogramViewSample != null) {
+            return minHistogramViewSample;
         }
         return getMinSample();
     }
@@ -224,7 +225,7 @@ public class ImageInfo implements Cloneable {
      * @param minViewSample the minimum histogram view sample
      */
     public void setMinHistogramViewSample(float minViewSample) {
-        _minHistogramViewSample = minViewSample;
+        minHistogramViewSample = minViewSample;
     }
 
     /**
@@ -233,8 +234,8 @@ public class ImageInfo implements Cloneable {
      * @return the maximum histogram view sample
      */
     public float getMaxHistogramViewSample() {
-        if (_maxHistogramViewSample != null) {
-            return _maxHistogramViewSample;
+        if (maxHistogramViewSample != null) {
+            return maxHistogramViewSample;
         }
         return getMaxSample();
     }
@@ -245,7 +246,7 @@ public class ImageInfo implements Cloneable {
      * @param maxViewSample the maximum histogram view sample
      */
     public void setMaxHistogramViewSample(float maxViewSample) {
-        _maxHistogramViewSample = maxViewSample;
+        maxHistogramViewSample = maxViewSample;
     }
 
     /**
@@ -254,8 +255,8 @@ public class ImageInfo implements Cloneable {
      * @return the histogram view gain
      */
     public float getHistogramViewGain() {
-        if (_histogramViewGain != null) {
-            return _histogramViewGain;
+        if (histogramViewGain != null) {
+            return histogramViewGain;
         }
         return 1.0f;
     }
@@ -266,7 +267,7 @@ public class ImageInfo implements Cloneable {
      * @param gain the histogram view gain
      */
     public void setHistogramViewGain(float gain) {
-        _histogramViewGain = gain;
+        histogramViewGain = gain;
     }
 
     public boolean isGammaActive() {
@@ -367,7 +368,7 @@ public class ImageInfo implements Cloneable {
      * @return the color palette. If no such exists a new one is computed from the gradation curve.
      */
     public Color[] getColorPalette() {
-        if (isColorPaletteOutOfDate()) {
+        if (colorPalette == null) {
             computeColorPalette();
         }
         return colorPalette;
@@ -396,66 +397,31 @@ public class ImageInfo implements Cloneable {
     }
 
     /**
-     * Indicates whether some object object is "equal to" this basic display information instance.
-     *
-     * @param object the reference object with which to compare.
-     * @return <code>true</code> if this object is the same as the obj argument; <code>false</code> otherwise
-     */
-    @Override
-    public boolean equals(Object object) {
-        if (object == this) {
-            return true;
-        } else if (object instanceof ImageInfo) {
-            ImageInfo other = (ImageInfo) object;
-            if (other.getMinSample() != getMinSample()) {
-                return false;
-            }
-            if (other.getMaxSample() != getMaxSample()) {
-                return false;
-            }
-            if (other.getNumColors() != getNumColors()) {
-                return false;
-            }
-            return ObjectUtils.equalObjects(other.getColorPaletteDef(), getColorPaletteDef());
-        }
-        return false;
-    }
-
-    /**
-     * Creates and returns a copy of this object. The method simply returns the value of
-     * <code>createDeepClone()</code>.
+     * Creates and returns a copy of this object.
      *
      * @return a copy of this object
      */
     @Override
-    public Object clone() {
-        return createDeepCopy();
+    public final Object clone() {
+        try {
+            ImageInfo imageInfo = (ImageInfo) super.clone();
+            if (sampleToIndexMap != null) {
+                imageInfo.setSampleToIndexMap((IntMap) sampleToIndexMap.clone());
+            }
+            return imageInfo;
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-
     /**
-     * Creates and returns a "deep" copy of this object.
+     * Creates and returns a "deep" copy of this object. The method simply returns the value of
+     * {@link #clone()}.
      *
      * @return a copy of this object
      */
     public ImageInfo createDeepCopy() {
-        ImageInfo imageInfo = new ImageInfo(getMinSample(),
-                                            getMaxSample(),
-                                            getHistogramBins(),
-                                            getColorPaletteDef().createDeepCopy());
-        imageInfo.setGamma(gamma);
-        imageInfo.setMinHistogramViewSample(getMinHistogramViewSample());
-        imageInfo.setMaxHistogramViewSample(getMaxHistogramViewSample());
-        imageInfo.setHistogramViewGain(getHistogramViewGain());
-        imageInfo.setScaling(getScaling());
-        if (sampleToIndexMap != null) {
-            imageInfo.setSampleToIndexMap((IntMap) sampleToIndexMap.clone());
-        }
-        return imageInfo;
-    }
-
-    private boolean isColorPaletteOutOfDate() {
-        return colorPalette == null || getColorPaletteDef().getNumColors() != colorPalette.length;
+        return (ImageInfo) clone();
     }
 
     public double getNormalizedHistogramViewSampleValue(double sample) {
@@ -562,5 +528,13 @@ public class ImageInfo implements Cloneable {
 
     public void setSampleToIndexMap(IntMap sampleToIndexMap) {
         this.sampleToIndexMap = sampleToIndexMap;
+    }
+
+    public Color getNoDataColor() {
+        return noDataColor;
+    }
+
+    public void setNoDataColor(Color noDataColor) {
+        this.noDataColor = noDataColor;
     }
 }

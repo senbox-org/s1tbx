@@ -7,8 +7,8 @@ import javax.swing.AbstractButton;
 import javax.swing.JLabel;
 import java.awt.Component;
 
-class EmptyPaletteEditorForm implements PaletteEditorForm {
-    public static final PaletteEditorForm INSTANCE = new EmptyPaletteEditorForm();
+class EmptyPaletteEditorForm implements ImageInfoEditor {
+    public static final ImageInfoEditor INSTANCE = new EmptyPaletteEditorForm();
 
     private EmptyPaletteEditorForm() {
     }

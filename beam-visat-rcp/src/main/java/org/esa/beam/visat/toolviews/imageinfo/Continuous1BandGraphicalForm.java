@@ -22,6 +22,7 @@ class Continuous1BandGraphicalForm extends AbstractContinuousGraphicalForm imple
                 distributeSlidersEvenly();
             }
         });
+
     }
 
     public void performApply(ProductSceneView productSceneView) {

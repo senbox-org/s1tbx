@@ -16,7 +16,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.text.NumberFormat;
 
-class Discrete1BandTabularForm implements PaletteEditorForm, ImageInfoHolder {
+class Discrete1BandTabularForm implements ImageInfoEditor, ImageInfoHolder {
     private final ColorManipulationForm parentForm;
     private JComponent contentPanel;
     private ImageInfoTableModel tableModel;
@@ -31,7 +31,6 @@ class Discrete1BandTabularForm implements PaletteEditorForm, ImageInfoHolder {
         });
 
         final JTable table = new JTable(tableModel);
-        table.setDefaultRenderer(Double.class, new PercentageRenderer());
         final ColorCellRenderer colorCellRenderer = new ColorCellRenderer();
         colorCellRenderer.setColorValueVisible(false);
         table.setDefaultRenderer(Color.class, colorCellRenderer);
@@ -46,7 +45,9 @@ class Discrete1BandTabularForm implements PaletteEditorForm, ImageInfoHolder {
 
     public void performApply(ProductSceneView productSceneView) {
         Assert.notNull(productSceneView, "productSceneView");
-        productSceneView.getRaster().setImageInfo(getCurrentImageInfo().createDeepCopy());
+        ImageInfo imageInfo = getCurrentImageInfo().createDeepCopy();
+        imageInfo.computeColorPalette();
+        productSceneView.getRaster().setImageInfo(imageInfo);
     }
 
     public void performReset(ProductSceneView productSceneView) {
@@ -66,7 +67,7 @@ class Discrete1BandTabularForm implements PaletteEditorForm, ImageInfoHolder {
 
 
     public AbstractButton[] getButtons() {
-        return new AbstractButton[]{ new JButton(";D")}; // todo
+        return new AbstractButton[]{}; // todo
     }
 
     public Component getContentPanel() {

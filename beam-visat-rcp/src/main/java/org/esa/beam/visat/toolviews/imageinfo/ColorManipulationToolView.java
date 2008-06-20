@@ -27,14 +27,13 @@ import javax.swing.JComponent;
 public class ColorManipulationToolView extends AbstractToolView {
 
     public static final String ID = ColorManipulationToolView.class.getName();
-    private ColorManipulationForm colorManipulationForm;
 
     public ColorManipulationToolView() {
     }
 
     @Override
     protected JComponent createControl() {
-        colorManipulationForm = new ColorManipulationForm(this);
-        return colorManipulationForm.getMainPanel();
+        ColorManipulationForm colorManipulationForm = new ColorManipulationForm(this);
+        return colorManipulationForm.getContentPanel();
     }
 }

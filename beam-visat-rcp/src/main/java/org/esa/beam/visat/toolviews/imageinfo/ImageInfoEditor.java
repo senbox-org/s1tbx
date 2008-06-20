@@ -7,7 +7,7 @@ import javax.swing.AbstractButton;
 import java.awt.Component;
 
 
-interface PaletteEditorForm {
+interface ImageInfoEditor {
     void handleFormShown(ProductSceneView productSceneView);
 
     void handleFormHidden();
@@ -20,6 +20,7 @@ interface PaletteEditorForm {
 
     String getTitle(ProductSceneView productSceneView);
 
+    // todo rename to getImageInfo()
     ImageInfo getCurrentImageInfo();
 
     Component getContentPanel();

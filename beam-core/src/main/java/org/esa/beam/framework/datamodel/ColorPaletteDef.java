@@ -36,7 +36,7 @@ import java.util.Vector;
  * contained in the curve. This allows a better image interpretation because certain colors correspond to certain sample
  * values even if the curve points are used to create color gradient palettes.
  */
-public class ColorPaletteDef {
+public class ColorPaletteDef implements Cloneable{
 
     private final static String _PROPERTY_KEY_NUM_POINTS = "numPoints";
     private final static String _PROPERTY_KEY_COLOR = "color";
@@ -47,7 +47,8 @@ public class ColorPaletteDef {
      */
     private Vector<Point> points;
     private int numColors;
-    private final boolean discrete;
+    private boolean discrete;
+    private boolean gradient;
 
     public ColorPaletteDef(double minSample, double maxSample) {
         this(minSample, 0.5F * (maxSample + minSample), maxSample);
@@ -66,14 +67,14 @@ public class ColorPaletteDef {
     }
 
     public ColorPaletteDef(Point[] points, boolean discrete) {
-        this(points, discrete ? points.length : 256, discrete);
+        this(points, discrete ? points.length : 256, discrete, !discrete);
     }
 
     public ColorPaletteDef(Point[] points, int numColors) {
-        this(points, numColors, false);
+        this(points, numColors, false, true);
     }
 
-    private ColorPaletteDef(Point[] points, int numColors, boolean discrete) {
+    private ColorPaletteDef(Point[] points, int numColors, boolean discrete, boolean gradient) {
         Guardian.assertGreaterThan("numColors", numColors, 1);
         Guardian.assertNotNull("points", points);
         Guardian.assertGreaterThan("points.length", points.length, 1);
@@ -81,6 +82,15 @@ public class ColorPaletteDef {
         this.points = new Vector<Point>(points.length);
         this.points.addAll(Arrays.asList(points));
         this.discrete = discrete;
+        this.gradient = gradient;
+    }
+
+    public boolean isGradient() {
+        return gradient;
+    }
+
+    public void setGradient(boolean gradient) {
+        this.gradient = gradient;
     }
 
     public boolean isDiscrete() {
@@ -193,28 +203,24 @@ public class ColorPaletteDef {
     }
 
     @Override
-    public boolean equals(Object other) {
-        if (other == this) {
-            return true;
-        } else if (other instanceof ColorPaletteDef) {
-            ColorPaletteDef gradationCurve = (ColorPaletteDef) other;
-            return gradationCurve.points.equals(points);
-        } else {
-            return false;
+    public final Object clone() {
+        try {
+            ColorPaletteDef def = (ColorPaletteDef) super.clone();
+            Vector<Point> pointVector = new Vector<Point>();
+            pointVector.setSize(points.size());
+            for (int i = 0; i < points.size(); i++) {
+                Point point = points.get(i);
+                pointVector.set(i, point.createClone());
+            }
+            def.points = pointVector;
+            return def;
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public Object clone() {
-        return createDeepCopy();
     }
 
     public ColorPaletteDef createDeepCopy() {
-        ColorPaletteDef.Point[] points = getPoints();
-        for (int i = 0; i < points.length; i++) {
-            points[i] = points[i].createClone();
-        }
-        return new ColorPaletteDef(points, getNumColors(),isDiscrete());
+        return (ColorPaletteDef) clone();
     }
 
     /**
@@ -298,13 +304,15 @@ public class ColorPaletteDef {
 
     public Color[] createColourPalette(Scaling scaling) {
         if (discrete) {
-            return createDiscreteColourPalette();
-        } else {
+            return createDiscreteColourLookup();
+        } else if (gradient) {
             return createGradientColourPalette(scaling);
+        } else {
+            return createDiscreteColourPalette(scaling);
         }
     }
 
-    private Color[] createDiscreteColourPalette() {
+    private Color[] createDiscreteColourLookup() {
         final Color[] colors = new Color[numColors];
         for (int i = 0; i < points.size(); i++) {
             colors[i] = points.get(i).getColor();
@@ -312,7 +320,16 @@ public class ColorPaletteDef {
         return colors;
     }
 
+    private Color[] createDiscreteColourPalette(Scaling scaling) {
+        return createColourPalette(scaling, false);
+    }
+
+
     private Color[] createGradientColourPalette(Scaling scaling) {
+        return createColourPalette(scaling, true);
+    }
+
+    private Color[] createColourPalette(Scaling scaling, boolean gradient) {
         Debug.assertTrue(getNumPoints() >= 2);
         final int numColors = getNumColors();
         final Color[] colorPalette = new Color[numColors];
@@ -321,47 +338,51 @@ public class ColorPaletteDef {
         for (int i = 0; i < numColors; i++) {
             final double w = i / (numColors - 1.0);
             final double sample = minDisplay + w * (maxDisplay - minDisplay);
-            colorPalette[i] = computeColor(scaling, sample, minDisplay, maxDisplay);
+            colorPalette[i] = computeColor(scaling, sample, minDisplay, maxDisplay, gradient);
         }
         return colorPalette;
     }
 
-    private Color computeColor(Scaling scaling, double sample, double minDisplay, double maxDisplay) {
+    private Color computeColor(Scaling scaling, double sample, double minDisplay, double maxDisplay, boolean gradient) {
         final Color c;
         if (sample <= minDisplay) {
             c = getFirstPoint().getColor();
         } else if (sample >= maxDisplay) {
             c = getLastPoint().getColor();
         } else {
-            c = computeColor(scaling, sample);
+            c = computeColor(scaling, sample, gradient);
         }
         return c;
     }
 
-    private Color computeColor(final Scaling scaling, final double sample) {
+    private Color computeColor(final Scaling scaling, final double sample, boolean gradient) {
         for (int i = 0; i < getNumPoints() - 1; i++) {
             final Point p1 = getPointAt(i);
             final Point p2 = getPointAt(i + 1);
             final double sample1 = scaling.scaleInverse(p1.getSample());
             final double sample2 = scaling.scaleInverse(p2.getSample());
             if (sample >= sample1 && sample <= sample2) {
-                final double f = (sample - sample1) / (sample2 - sample1);
-                final double r1 = p1.getColor().getRed();
-                final double r2 = p2.getColor().getRed();
-                final double g1 = p1.getColor().getGreen();
-                final double g2 = p2.getColor().getGreen();
-                final double b1 = p1.getColor().getBlue();
-                final double b2 = p2.getColor().getBlue();
-                final int red = (int) MathUtils.roundAndCrop(r1 + f * (r2 - r1), 0L, 255L);
-                final int green = (int) MathUtils.roundAndCrop(g1 + f * (g2 - g1), 0L, 255L);
-                final int blue = (int) MathUtils.roundAndCrop(b1 + f * (b2 - b1), 0L, 255L);
-                return new Color(red, green, blue);
+                if (gradient) {
+                    final double f = (sample - sample1) / (sample2 - sample1);
+                    final double r1 = p1.getColor().getRed();
+                    final double r2 = p2.getColor().getRed();
+                    final double g1 = p1.getColor().getGreen();
+                    final double g2 = p2.getColor().getGreen();
+                    final double b1 = p1.getColor().getBlue();
+                    final double b2 = p2.getColor().getBlue();
+                    final int red = (int) MathUtils.roundAndCrop(r1 + f * (r2 - r1), 0L, 255L);
+                    final int green = (int) MathUtils.roundAndCrop(g1 + f * (g2 - g1), 0L, 255L);
+                    final int blue = (int) MathUtils.roundAndCrop(b1 + f * (b2 - b1), 0L, 255L);
+                    return new Color(red, green, blue);
+                } else {
+                    return p1.getColor();
+                }
             }
         }
         return Color.BLACK;
     }
 
-    public static class Point {
+    public static class Point implements Cloneable {
 
         private double sample;
         private Color color;
@@ -372,7 +393,7 @@ public class ColorPaletteDef {
         }
 
         public Point(double sample, Color color) {
-           this(sample, color, "");
+            this(sample, color, "");
         }
 
         public Point(double sample, Color color, String label) {
@@ -406,24 +427,16 @@ public class ColorPaletteDef {
         }
 
         @Override
-        public boolean equals(Object other) {
-            if (other == this) {
-                return true;
-            } else if (other instanceof Point) {
-                Point p = (Point) other;
-                return p.getSample() == getSample() && p.getColor().equals(getColor());
-            } else {
-                return false;
+        public final Object clone() {
+            try {
+                return super.clone();
+            } catch (CloneNotSupportedException e) {
+                throw new RuntimeException(e);
             }
         }
 
-        @Override
-        public Object clone() {
-            return createClone();
-        }
-
         public Point createClone() {
-            return new Point(getSample(), getColor(), getLabel());
+            return (Point) clone();
         }
 
     }

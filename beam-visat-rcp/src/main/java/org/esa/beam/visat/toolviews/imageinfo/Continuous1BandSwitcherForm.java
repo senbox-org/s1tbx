@@ -4,39 +4,26 @@ import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.*;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.Color;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
 
-import com.jidesoft.combobox.ColorComboBox;
-import com.bc.ceres.binding.ValueContainerFactory;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.swing.BindingContext;
-
-class Continuous1BandSwitcherForm implements PaletteEditorForm {
+class Continuous1BandSwitcherForm implements ImageInfoEditor {
 
     private final ColorManipulationForm parentForm;
-    private PaletteEditorForm currentPaletteEditorForm;
     private JPanel contentPanel;
     private JRadioButton graphicalButton;
     private JRadioButton tabularButton;
-    private JCheckBox discretePaletteCheckBox;
+    private JCheckBox gradientPaletteCheckBox;
+    private ImageInfoEditor imageInfoEditor;
     private Continuous1BandTabularForm tabularPaletteEditorForm;
     private Continuous1BandGraphicalForm graphicalPaletteEditorForm;
-    private ValueContainer valueContainer;
-    private ColorComboBox noDataColorComboBox;
-    private JRadioButton noDataIsTransparentButton;
-    private JRadioButton noDataIsColoredButton;
 
     protected Continuous1BandSwitcherForm(final ColorManipulationForm parentForm) {
         this.parentForm = parentForm;
-        currentPaletteEditorForm = EmptyPaletteEditorForm.INSTANCE;
-        graphicalButton = new JRadioButton("Graphical editor");
-        tabularButton = new JRadioButton("Tabular editor");
+        imageInfoEditor = EmptyPaletteEditorForm.INSTANCE;
+        graphicalButton = new JRadioButton("Sliders");
+        tabularButton = new JRadioButton("Table");
         final ButtonGroup editorGroup = new ButtonGroup();
         editorGroup.add(graphicalButton);
         editorGroup.add(tabularButton);
@@ -44,83 +31,66 @@ class Continuous1BandSwitcherForm implements PaletteEditorForm {
         final SwitcherActionListener switcherActionListener = new SwitcherActionListener();
         graphicalButton.addActionListener(switcherActionListener);
         tabularButton.addActionListener(switcherActionListener);
+        gradientPaletteCheckBox = new JCheckBox("Gradient");
+        gradientPaletteCheckBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+              setDiscreteMode();
+            }
+        });
 
-        noDataIsTransparentButton = new JRadioButton("is transparent", false);
-        noDataIsColoredButton = new JRadioButton("has colour:", true);
-        final ButtonGroup noDataButtonGroup = new ButtonGroup();
-        noDataButtonGroup.add(noDataIsTransparentButton);
-        noDataButtonGroup.add(noDataIsColoredButton);
-        noDataColorComboBox = new ColorComboBox();
-        noDataColorComboBox.setColorValueVisible(false);
-        noDataColorComboBox.setSelectedColor(Color.YELLOW);
-        noDataColorComboBox.setAllowDefaultColor(true);
-        discretePaletteCheckBox = new JCheckBox("Discrete palette");
+        final JPanel editorSwitcherPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 2));
+        editorSwitcherPanel.add(new JLabel("Editor:"));
+        editorSwitcherPanel.add(graphicalButton);
+        editorSwitcherPanel.add(tabularButton);
 
-        JPanel noDataPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0,0));
-        noDataPanel.add(new JLabel("No-data"));
-        noDataPanel.add(noDataIsTransparentButton);
-        noDataPanel.add(noDataIsColoredButton);
-        noDataPanel.add(noDataColorComboBox);
+        final JPanel northPanel = new JPanel(new BorderLayout(2,2));
+        northPanel.add(editorSwitcherPanel, BorderLayout.WEST);
+        northPanel.add(gradientPaletteCheckBox, BorderLayout.EAST);
 
-        final JPanel northPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        northPanel.add(graphicalButton);
-        northPanel.add(tabularButton);
-
-        final JPanel southPanel = new JPanel(new BorderLayout(4,4));
-        southPanel.add(discretePaletteCheckBox, BorderLayout.WEST);
-        southPanel.add(noDataPanel, BorderLayout.CENTER);
         contentPanel = new JPanel(new BorderLayout());
         contentPanel.add(northPanel, BorderLayout.NORTH);
-        contentPanel.add(southPanel, BorderLayout.SOUTH);
-
-        HashMap<String, Object> propertyMap = new HashMap<String, Object>();
-        propertyMap.put("discretePalette", Boolean.FALSE);
-        propertyMap.put("noDataIsTransparent", Boolean.FALSE);
-        propertyMap.put("noDataIsColored", Boolean.TRUE);
-        propertyMap.put("noDataColor", Color.ORANGE);
-
-        valueContainer = ValueContainerFactory.createMapBackedValueContainer(propertyMap);
-        BindingContext context = new BindingContext(valueContainer);
-        context.bind(discretePaletteCheckBox, "discretePalette");
-        context.bind(noDataIsTransparentButton, "noDataIsTransparent");
-        context.bind(noDataIsColoredButton, "noDataIsColored");
-        context.enable(noDataColorComboBox, "noDataIsColored", true);
     }
 
     public void performReset(ProductSceneView productSceneView) {
-        currentPaletteEditorForm.performReset(productSceneView);
+        imageInfoEditor.performReset(productSceneView);
     }
 
     public ImageInfo getCurrentImageInfo() {
-        return currentPaletteEditorForm.getCurrentImageInfo();
+        return imageInfoEditor.getCurrentImageInfo();
     }
 
     public void handleFormShown(ProductSceneView productSceneView) {
-        currentPaletteEditorForm.handleFormShown(productSceneView);
+        imageInfoEditor.handleFormShown(productSceneView);
+    }
+
+    private void setDiscreteMode() {
+        imageInfoEditor.getCurrentImageInfo().getColorPaletteDef().setGradient(gradientPaletteCheckBox.isSelected());
+        imageInfoEditor.getContentPanel().repaint();
+        parentForm.setApplyEnabled(true);
     }
 
     private void switchForm(ProductSceneView productSceneView) {
-        final PaletteEditorForm oldForm = currentPaletteEditorForm;
-        final PaletteEditorForm newForm;
+        final ImageInfoEditor oldForm = imageInfoEditor;
+        final ImageInfoEditor newForm;
         ImageInfoHolder imageInfoHolder;
         if (tabularButton.isSelected()) {
             if (tabularPaletteEditorForm == null) {
                 tabularPaletteEditorForm = new Continuous1BandTabularForm(parentForm);
             }
-            imageInfoHolder =  tabularPaletteEditorForm;
+            imageInfoHolder = tabularPaletteEditorForm;
             newForm = tabularPaletteEditorForm;
         } else {
             if (graphicalPaletteEditorForm == null) {
                 graphicalPaletteEditorForm = new Continuous1BandGraphicalForm(parentForm);
             }
-            imageInfoHolder =  graphicalPaletteEditorForm;
+            imageInfoHolder = graphicalPaletteEditorForm;
             newForm = graphicalPaletteEditorForm;
         }
         if (oldForm != newForm) {
             oldForm.handleFormHidden();
 
-            currentPaletteEditorForm = newForm;
-            currentPaletteEditorForm.handleFormShown(productSceneView);
+            imageInfoEditor = newForm;
+            imageInfoEditor.handleFormShown(productSceneView);
 
             ImageInfo oldImageInfo = oldForm.getCurrentImageInfo();
             if (oldImageInfo == null) { 
@@ -130,19 +100,23 @@ class Continuous1BandSwitcherForm implements PaletteEditorForm {
             imageInfoHolder.setCurrentImageInfo(oldImageInfo);
 
             contentPanel.remove(oldForm.getContentPanel());
-            contentPanel.add(currentPaletteEditorForm.getContentPanel(), BorderLayout.CENTER);
+            contentPanel.add(imageInfoEditor.getContentPanel(), BorderLayout.CENTER);
 
             parentForm.installSpecificFormUI();
         }
     }
 
     public AbstractButton[] getButtons() {
-        return currentPaletteEditorForm.getButtons();
+        return imageInfoEditor.getButtons();
     }
 
     public void updateState(ProductSceneView productSceneView) {
         switchForm(productSceneView);
-        currentPaletteEditorForm.updateState(productSceneView);
+        imageInfoEditor.updateState(productSceneView);
+        ImageInfo imageInfo = productSceneView.getRaster().getImageInfo();
+        if (imageInfo != null) {
+            gradientPaletteCheckBox.setSelected(imageInfo.getColorPaletteDef().isGradient());
+        }
     }
 
     public Component getContentPanel() {
@@ -150,15 +124,15 @@ class Continuous1BandSwitcherForm implements PaletteEditorForm {
     }
 
     public void performApply(ProductSceneView productSceneView) {
-        currentPaletteEditorForm.performApply(productSceneView);
+        imageInfoEditor.performApply(productSceneView);
     }
 
     public String getTitle(ProductSceneView productSceneView) {
-        return currentPaletteEditorForm.getTitle(productSceneView);
+        return imageInfoEditor.getTitle(productSceneView);
     }
 
     public void handleFormHidden() {
-        currentPaletteEditorForm.handleFormHidden();
+        imageInfoEditor.handleFormHidden();
     }
 
     private class SwitcherActionListener implements ActionListener {
