@@ -901,7 +901,7 @@ public abstract class ProductFile {
 
         String productType = readProductType(dataInputStream);
         if (productType == null) {
-            throw new IOException("not an ENVISAT product or ENVISAT product type not supported");
+            throw new ProductIOException("not an ENVISAT product or ENVISAT product type not supported");
         }
         // We use only the first 9 characters for comparision, since the 10th can be either 'P' or 'C'
         String productTypeUC = productType.toUpperCase().substring(0, 9);

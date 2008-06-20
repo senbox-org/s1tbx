@@ -110,7 +110,7 @@ public class EnvisatProductReader extends AbstractProductReader {
                 try {
                     inputStream = EnvisatProductReaderPlugIn.getInflaterInputStream(file);
                 } catch (IOException e1) {
-                    throw new IOException("Not an ENVISAT product or ENVISAT product type not supported: " + file, e1);
+                    throw e;
                 }
                 _productFile = ProductFile.open(file, new FileCacheImageInputStream(inputStream, null));
             }
