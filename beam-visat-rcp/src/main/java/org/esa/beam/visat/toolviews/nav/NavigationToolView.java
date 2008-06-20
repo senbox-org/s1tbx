@@ -18,11 +18,7 @@ package org.esa.beam.visat.toolviews.nav;
 
 import com.bc.view.ViewModel;
 import com.bc.view.ViewModelChangeListener;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListener;
-import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.ImageDisplay;
@@ -32,31 +28,16 @@ import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
+import org.esa.beam.util.PropertyMap;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.AbstractButton;
-import javax.swing.BorderFactory;
-import javax.swing.JComponent;
-import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
+import java.awt.*;
+import java.awt.event.*;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
@@ -74,61 +55,67 @@ public class NavigationToolView extends AbstractToolView {
     public static final double MIN_PERCENT_VALUE = 100.0 / VIEW_SCALE_MAX;
     public static final double MAX_PERCENT_VALUE = 100.0 * VIEW_SCALE_MAX;
 
-    private ProductSceneView _currentView;
-    private NavigationCanvas _canvas;
-    private AbstractButton _zoomInButton;
-    private AbstractButton _zoomZeroButton;
-    private AbstractButton _zoomOutButton;
-    private AbstractButton _zoomAllButton;
-    private AbstractButton _syncViewsButton;
-    private JTextField _percentField;
-    private JSlider _zoomSlider;
-    private ViewModelChangeHandler _imageDisplayCH;
-    private ImageDisplayResizeHandler _imageDisplayRH;
-    private DecimalFormat _percentFormat;
-    private ProductSceneView.ImageUpdateListener _imageUpdateHandler;
-    private ProductNodeListener _productNodeListener;
+    private ProductSceneView currentView;
+    private NavigationCanvas canvas;
+    private AbstractButton zoomInButton;
+    private AbstractButton zoomZeroButton;
+    private AbstractButton zoomOutButton;
+    private AbstractButton zoomAllButton;
+    private AbstractButton syncViewsButton;
+    private JTextField percentField;
+    private JSlider zoomSlider;
+    private ViewModelChangeHandler imageDisplayCH;
+    private ImageDisplayResizeHandler imageDisplayRH;
+    private DecimalFormat percentFormat;
+    private ProductSceneView.ImageUpdateListener imageUpdateHandler;
+    private ProductNodeListener productNodeListener;
 
     public NavigationToolView() {
-        _imageDisplayCH = new ViewModelChangeHandler();
-        _imageDisplayRH = new ImageDisplayResizeHandler();
+        imageDisplayCH = new ViewModelChangeHandler();
+        imageDisplayRH = new ImageDisplayResizeHandler();
         final DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols(Locale.ENGLISH);
-        _percentFormat = new DecimalFormat("#####.##", decimalFormatSymbols);
-        _percentFormat.setGroupingUsed(false);
-        _percentFormat.setDecimalSeparatorAlwaysShown(false);
-        _imageUpdateHandler = new ProductSceneView.ImageUpdateListener() {
+        percentFormat = new DecimalFormat("#####.##", decimalFormatSymbols);
+        percentFormat.setGroupingUsed(false);
+        percentFormat.setDecimalSeparatorAlwaysShown(false);
+        imageUpdateHandler = new ProductSceneView.ImageUpdateListener() {
             public void handleImageUpdated(final ProductSceneView view) {
-                _canvas.updateImage();
+                canvas.updateImage();
             }
         };
-        _productNodeListener = createProductNodeListener();
+        productNodeListener = createProductNodeListener();
+
+        // Add an internal frame listener to VISAT so that we can update our
+        // navigation window with the information of the currently activated
+        // product scene view.
+        //
+        VisatApp.getApp().addInternalFrameListener(new NavigationIFL());
     }
 
     public ProductSceneView getCurrentView() {
-        return _currentView;
+        return currentView;
     }
 
     public void setCurrentView(final ProductSceneView newView) {
-        final ProductSceneView oldView = _currentView;
+        final ProductSceneView oldView = currentView;
         if (oldView != newView) {
             if (oldView != null) {
-                oldView.removeImageUpdateListener(_imageUpdateHandler);
-                _currentView.getProduct().removeProductNodeListener(_productNodeListener);
+                oldView.removeImageUpdateListener(imageUpdateHandler);
+                currentView.getProduct().removeProductNodeListener(productNodeListener);
                 if (oldView.getImageDisplay() != null) {
-                    oldView.getImageDisplay().getViewModel().removeViewModelChangeListener(_imageDisplayCH);
-                    oldView.getImageDisplay().removeComponentListener(_imageDisplayRH);
+                    oldView.getImageDisplay().getViewModel().removeViewModelChangeListener(imageDisplayCH);
+                    oldView.getImageDisplay().removeComponentListener(imageDisplayRH);
                 }
             }
-            _currentView = newView;
-            if (_currentView != null) {
-                _currentView.addImageUpdateListener(_imageUpdateHandler);
-                _currentView.getProduct().addProductNodeListener(_productNodeListener);
-                if (_currentView.getImageDisplay() != null) {
-                    _currentView.getImageDisplay().getViewModel().addViewModelChangeListener(_imageDisplayCH);
-                    _currentView.getImageDisplay().addComponentListener(_imageDisplayRH);
+            currentView = newView;
+            if (currentView != null) {
+                currentView.addImageUpdateListener(imageUpdateHandler);
+                currentView.getProduct().addProductNodeListener(productNodeListener);
+                if (currentView.getImageDisplay() != null) {
+                    currentView.getImageDisplay().getViewModel().addViewModelChangeListener(imageDisplayCH);
+                    currentView.getImageDisplay().addComponentListener(imageDisplayRH);
                 }
             }
-            _canvas.updateImage();
+            canvas.updateImage();
             updateState();
             updateValues();
             // nf: the following repaint() call is for some reason important.
@@ -145,46 +132,46 @@ public class NavigationToolView extends AbstractToolView {
     @Override
     public JComponent createControl() {
 
-        _zoomInButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomIn24.gif"), false);
-        _zoomInButton.setToolTipText("Zoom in."); /*I18N*/
-        _zoomInButton.setName("zoomInButton");
-        _zoomInButton.addActionListener(new ActionListener() {
+        zoomInButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomIn24.gif"), false);
+        zoomInButton.setToolTipText("Zoom in."); /*I18N*/
+        zoomInButton.setName("zoomInButton");
+        zoomInButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 zoom(getCurrentImageDisplay().getViewModel().getViewScale() * ZOOM_FACTOR);
             }
         });
 
-        _zoomZeroButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomZero24.gif"), false);
-        _zoomZeroButton.setToolTipText("Actual Pixels."); /*I18N*/
-        _zoomZeroButton.setName("zoomZeroButton");
-        _zoomZeroButton.addActionListener(new ActionListener() {
+        zoomZeroButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomZero24.gif"), false);
+        zoomZeroButton.setToolTipText("Actual Pixels."); /*I18N*/
+        zoomZeroButton.setName("zoomZeroButton");
+        zoomZeroButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 zoom(1.0);
             }
         });
 
-        _zoomOutButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomOut24.gif"), false);
-        _zoomOutButton.setName("zoomOutButton");
-        _zoomOutButton.setToolTipText("Zoom out."); /*I18N*/
-        _zoomOutButton.addActionListener(new ActionListener() {
+        zoomOutButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomOut24.gif"), false);
+        zoomOutButton.setName("zoomOutButton");
+        zoomOutButton.setToolTipText("Zoom out."); /*I18N*/
+        zoomOutButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 zoom(getCurrentImageDisplay().getViewModel().getViewScale() / ZOOM_FACTOR);
             }
         });
 
-        _zoomAllButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomAll24.gif"), false);
-        _zoomAllButton.setName("zoomAllButton");
-        _zoomAllButton.setToolTipText("Zoom all."); /*I18N*/
-        _zoomAllButton.addActionListener(new ActionListener() {
+        zoomAllButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/ZoomAll24.gif"), false);
+        zoomAllButton.setName("zoomAllButton");
+        zoomAllButton.setToolTipText("Zoom all."); /*I18N*/
+        zoomAllButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 zoomAll();
             }
         });
 
-        _syncViewsButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Chain24.gif"), true);
-        _syncViewsButton.setToolTipText("Synchronize compatible product views."); /*I18N*/
-        _syncViewsButton.setName("syncViewsButton");
-        _syncViewsButton.addActionListener(new ActionListener() {
+        syncViewsButton = ToolButtonFactory.createButton(UIUtils.loadImageIcon("icons/Chain24.gif"), true);
+        syncViewsButton.setToolTipText("Synchronize compatible product views."); /*I18N*/
+        syncViewsButton.setName("syncViewsButton");
+        syncViewsButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 maybeSynchronizeCompatibleProductViews();
             }
@@ -203,19 +190,19 @@ public class NavigationToolView extends AbstractToolView {
         gbc.weighty = 0.0;
 
         gbc.gridy = 0;
-        eastPane.add(_zoomInButton, gbc);
+        eastPane.add(zoomInButton, gbc);
 
         gbc.gridy++;
-        eastPane.add(_zoomZeroButton, gbc);
+        eastPane.add(zoomZeroButton, gbc);
 
         gbc.gridy++;
-        eastPane.add(_zoomOutButton, gbc);
+        eastPane.add(zoomOutButton, gbc);
 
         gbc.gridy++;
-        eastPane.add(_zoomAllButton, gbc);
+        eastPane.add(zoomAllButton, gbc);
 
         gbc.gridy++;
-        eastPane.add(_syncViewsButton, gbc);
+        eastPane.add(syncViewsButton, gbc);
 
         gbc.gridy++;
         gbc.weighty = 1.0;
@@ -227,49 +214,49 @@ public class NavigationToolView extends AbstractToolView {
         gbc.gridy++;
         eastPane.add(helpButton, gbc);
 
-        _percentField = new JTextField();
-        _percentField.setColumns(5);
-        _percentField.setHorizontalAlignment(JTextField.RIGHT);
-        _percentField.addActionListener(new ActionListener() {
+        percentField = new JTextField();
+        percentField.setColumns(5);
+        percentField.setHorizontalAlignment(JTextField.RIGHT);
+        percentField.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 applyPercentValue();
             }
         });
-        _percentField.addFocusListener(new FocusAdapter() {
+        percentField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(final FocusEvent e) {
                 applyPercentValue();
             }
         });
 
-        _zoomSlider = new JSlider(JSlider.HORIZONTAL);
-        _zoomSlider.setValue(0);
-        _zoomSlider.setMinimum(-100);
-        _zoomSlider.setMaximum(+100);
-        _zoomSlider.setPaintTicks(false);
-        _zoomSlider.setPaintLabels(false);
-        _zoomSlider.setSnapToTicks(false);
-        _zoomSlider.setPaintTrack(true);
-        _zoomSlider.addChangeListener(new ChangeListener() {
+        zoomSlider = new JSlider(JSlider.HORIZONTAL);
+        zoomSlider.setValue(0);
+        zoomSlider.setMinimum(-100);
+        zoomSlider.setMaximum(+100);
+        zoomSlider.setPaintTicks(false);
+        zoomSlider.setPaintLabels(false);
+        zoomSlider.setSnapToTicks(false);
+        zoomSlider.setPaintTrack(true);
+        zoomSlider.addChangeListener(new ChangeListener() {
             public void stateChanged(final ChangeEvent e) {
-                zoom(sliderValueToViewScale(_zoomSlider.getValue()));
+                zoom(sliderValueToViewScale(zoomSlider.getValue()));
             }
         });
 
         final JPanel percentPane = new JPanel(new BorderLayout());
-        percentPane.add(_percentField, BorderLayout.WEST);
+        percentPane.add(percentField, BorderLayout.WEST);
         percentPane.add(new JLabel("%"), BorderLayout.EAST);
 
         final JPanel sliderPane = new JPanel(new BorderLayout(2, 2));
         sliderPane.add(percentPane, BorderLayout.WEST);
-        sliderPane.add(_zoomSlider, BorderLayout.CENTER);
+        sliderPane.add(zoomSlider, BorderLayout.CENTER);
 
-        _canvas = new NavigationCanvas(this);
-        _canvas.setBackground(new Color(138, 133, 128)); // image background
-        _canvas.setForeground(new Color(153, 153, 204)); // slider overlay
+        canvas = new NavigationCanvas(this);
+        canvas.setBackground(new Color(138, 133, 128)); // image background
+        canvas.setForeground(new Color(153, 153, 204)); // slider overlay
 
         final JPanel centerPane = new JPanel(new BorderLayout(4, 4));
-        centerPane.add(BorderLayout.CENTER, _canvas);
+        centerPane.add(BorderLayout.CENTER, canvas);
         centerPane.add(BorderLayout.SOUTH, sliderPane);
 
         final JPanel mainPane = new JPanel(new BorderLayout(8, 8));
@@ -287,11 +274,6 @@ public class NavigationToolView extends AbstractToolView {
             HelpSys.enableHelpKey(mainPane, getDescriptor().getHelpId());
         }
 
-        // Add an internal frame listener to VISAT so that we can update our
-        // navigation window with the information of the currently activated
-        // product scene view.
-        //
-        VisatApp.getApp().addInternalFrameListener(new NavigationIFL());
 
         setCurrentView(VisatApp.getApp().getSelectedProductSceneView());
 
@@ -311,9 +293,9 @@ public class NavigationToolView extends AbstractToolView {
 
     private double getPercentFieldValue() {
         double viewScale;
-        final String text = _percentField.getText();
+        final String text = percentField.getText();
         try {
-            final Number number = _percentFormat.parse(text);
+            final Number number = percentFormat.parse(text);
             viewScale = number.doubleValue() / 100.0;
         } catch (ParseException ignore) {
             viewScale = getCurrentImageDisplay().getViewModel().getViewScale();
@@ -322,7 +304,7 @@ public class NavigationToolView extends AbstractToolView {
     }
 
     private void setPercentFieldValue(final double viewScale) {
-        _percentField.setText(_percentFormat.format(viewScale));
+        percentField.setText(percentFormat.format(viewScale));
     }
 
     public void setModelOffset(final double modelOffsetX, final double modelOffsetY) {
@@ -353,7 +335,7 @@ public class NavigationToolView extends AbstractToolView {
     }
 
     private void maybeSynchronizeCompatibleProductViews() {
-        if (_syncViewsButton.isSelected()) {
+        if (syncViewsButton.isSelected()) {
             synchronizeCompatibleProductViews();
         }
     }
@@ -371,7 +353,7 @@ public class NavigationToolView extends AbstractToolView {
                 if (view != currentView) {
                     final Product otherProduct = view.getRaster().getProduct();
                     if (otherProduct == currentProduct ||
-                        otherProduct.isCompatibleProduct(currentProduct, 1.0e-3f)) {
+                            otherProduct.isCompatibleProduct(currentProduct, 1.0e-3f)) {
                         view.getImageDisplay().getViewModel().setModelOffset(
                                 currentView.getImageDisplay().getViewModel().getModelOffsetX(),
                                 currentView.getImageDisplay().getViewModel().getModelOffsetY(),
@@ -384,7 +366,6 @@ public class NavigationToolView extends AbstractToolView {
 
     /**
      * @param sliderValue a value between -MAX_SLIDER_VALUE and +MAX_SLIDER_VALUE
-     *
      * @return the corresponding value between  1/VIEW_SCALE_MAX and VIEW_SCALE_MAX
      */
     private static double sliderValueToViewScale(final int sliderValue) {
@@ -402,7 +383,6 @@ public class NavigationToolView extends AbstractToolView {
 
     /**
      * @param viewScale a value between  1/VIEW_SCALE_MAX and VIEW_SCALE_MAX
-     *
      * @return the corresponding value between -MAX_SLIDER_VALUE and +MAX_SLIDER_VALUE
      */
     private static int viewScaleToSliderValue(final double viewScale) {
@@ -441,21 +421,21 @@ public class NavigationToolView extends AbstractToolView {
     private void updateState() {
         updateTitle();
         final boolean canNavigate = getCurrentView() != null;
-        _zoomInButton.setEnabled(canNavigate);
-        _zoomZeroButton.setEnabled(canNavigate);
-        _zoomOutButton.setEnabled(canNavigate);
-        _zoomAllButton.setEnabled(canNavigate);
-        _zoomSlider.setEnabled(canNavigate);
-        _syncViewsButton.setEnabled(canNavigate);
-        _percentField.setEnabled(canNavigate);
+        zoomInButton.setEnabled(canNavigate);
+        zoomZeroButton.setEnabled(canNavigate);
+        zoomOutButton.setEnabled(canNavigate);
+        zoomAllButton.setEnabled(canNavigate);
+        zoomSlider.setEnabled(canNavigate);
+        syncViewsButton.setEnabled(canNavigate);
+        percentField.setEnabled(canNavigate);
     }
 
     private void updateTitle() {
-        if (_currentView != null) {
-            if (_currentView.isRGB()) {
-                setTitle(getDescriptor().getTitle() + " - " + _currentView.getProduct().getProductRefString() + " RGB");     /*I18N*/
+        if (currentView != null) {
+            if (currentView.isRGB()) {
+                setTitle(getDescriptor().getTitle() + " - " + currentView.getProduct().getProductRefString() + " RGB");     /*I18N*/
             } else {
-                setTitle(getDescriptor().getTitle() + " - " + _currentView.getRaster().getDisplayName());
+                setTitle(getDescriptor().getTitle() + " - " + currentView.getRaster().getDisplayName());
             }
         } else {
             setTitle(getDescriptor().getTitle());
@@ -463,14 +443,14 @@ public class NavigationToolView extends AbstractToolView {
     }
 
     private void updateValues() {
-        if (_canvas.isUpdatingImageDisplay()) {
+        if (canvas.isUpdatingImageDisplay()) {
             return;
         }
         final ImageDisplay imageDisplay = getCurrentImageDisplay();
         if (imageDisplay != null) {
-            _canvas.updateSlider();
+            canvas.updateSlider();
             final int sliderValue = viewScaleToSliderValue(imageDisplay.getViewModel().getViewScale());
-            _zoomSlider.setValue(sliderValue);
+            zoomSlider.setValue(sliderValue);
             final double viewScalePercent = 100.0 * roundAndCropViewScale(imageDisplay.getViewModel().getViewScale());
             setPercentFieldValue(viewScalePercent);
         }
@@ -487,7 +467,7 @@ public class NavigationToolView extends AbstractToolView {
 
         @Override
         public void componentResized(final ComponentEvent e) {
-            _canvas.updateSlider();
+            canvas.updateSlider();
         }
     }
 
@@ -497,8 +477,8 @@ public class NavigationToolView extends AbstractToolView {
             public void nodeChanged(final ProductNodeEvent event) {
                 if (event.getPropertyName().equalsIgnoreCase(Product.PROPERTY_NAME_NAME)) {
                     final ProductNode sourceNode = event.getSourceNode();
-                    if ((_currentView.isRGB() && sourceNode == _currentView.getProduct())
-                        || sourceNode == _currentView.getRaster()) {
+                    if ((currentView.isRGB() && sourceNode == currentView.getProduct())
+                            || sourceNode == currentView.getRaster()) {
                         updateTitle();
                     }
                 }
@@ -514,14 +494,15 @@ public class NavigationToolView extends AbstractToolView {
          */
         @Override
         public void internalFrameOpened(InternalFrameEvent e) {
+            // May be called without having the actual window control created
             final Container contentPane = e.getInternalFrame().getContentPane();
             if (contentPane instanceof ProductSceneView) {
-                final boolean showNavigationWin = VisatApp.getApp().getPreferences().getPropertyBool(
-                        VisatApp.PROPERTY_KEY_AUTO_SHOW_NAVIGATION, true);
-                if (showNavigationWin) {
+                PropertyMap preferences = VisatApp.getApp().getPreferences();
+                final boolean showWindow = preferences.getPropertyBool(VisatApp.PROPERTY_KEY_AUTO_SHOW_NAVIGATION, true);
+                if (showWindow) {
                     ApplicationPage page = VisatApp.getApp().getPage();
                     ToolView toolView = page.getToolView(NavigationToolView.ID);
-                    if(toolView != null && !toolView.getDescriptor().isVisible()) {
+                    if (toolView != null) {
                         page.showToolView(NavigationToolView.ID);
                     }
                 }
@@ -530,20 +511,24 @@ public class NavigationToolView extends AbstractToolView {
 
         @Override
         public void internalFrameActivated(InternalFrameEvent e) {
-            final Container contentPane = e.getInternalFrame().getContentPane();
-            if (contentPane instanceof ProductSceneView) {
-                final ProductSceneView view = (ProductSceneView) contentPane;
-                setCurrentView(view);
-            } else {
-                setCurrentView(null);
+            if (isControlCreated()) {
+                final Container contentPane = e.getInternalFrame().getContentPane();
+                if (contentPane instanceof ProductSceneView) {
+                    final ProductSceneView view = (ProductSceneView) contentPane;
+                    setCurrentView(view);
+                } else {
+                    setCurrentView(null);
+                }
             }
         }
 
         @Override
         public void internalFrameDeactivated(InternalFrameEvent e) {
-            final Container contentPane = e.getInternalFrame().getContentPane();
-            if (contentPane instanceof ProductSceneView) {
-                setCurrentView(null);
+            if (isControlCreated()) {
+                final Container contentPane = e.getInternalFrame().getContentPane();
+                if (contentPane instanceof ProductSceneView) {
+                    setCurrentView(null);
+                }
             }
         }
     }
