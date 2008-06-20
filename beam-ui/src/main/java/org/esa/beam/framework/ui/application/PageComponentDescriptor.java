@@ -101,12 +101,12 @@ public interface PageComponentDescriptor extends PropertyChangeEmitter {
     void setLargeIcon(Icon icon);
 
     /**
-     * @return <code>true</code> if the window is visable, <code>false</code> otherwise.
+     * @return <code>true</code> if the window is visible, <code>false</code> otherwise.
      */
     boolean isVisible();
 
     /**
-     * @param state <code>true</code> if the window shall become visable, <code>false</code> otherwise.
+     * @param state <code>true</code> if the window shall become visible, <code>false</code> otherwise.
      */
     void setVisible(boolean state);
 
