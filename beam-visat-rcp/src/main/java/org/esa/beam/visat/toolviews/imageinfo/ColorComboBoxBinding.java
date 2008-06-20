@@ -32,7 +32,6 @@ class ColorComboBoxBinding extends Binding {
 
     private void adjustPropertyValue() {
         Color value = colorComboBox.getSelectedColor();
-        System.out.println("#################################### value = " + value);
         setValue(value);
     }
 
