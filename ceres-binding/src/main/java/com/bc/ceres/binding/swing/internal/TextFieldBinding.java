@@ -1,14 +1,15 @@
 package com.bc.ceres.binding.swing.internal;
 
+import com.bc.ceres.binding.ConversionException;
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.swing.Binding;
 import com.bc.ceres.binding.swing.BindingContext;
-import com.bc.ceres.binding.swing.internal.TextFieldVerifier;
 
-import javax.swing.JTextField;
 import javax.swing.InputVerifier;
 import javax.swing.JComponent;
-import java.awt.event.ActionListener;
+import javax.swing.JTextField;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * A binding for a {@link javax.swing.JTextField} component.
@@ -29,20 +30,28 @@ public class TextFieldBinding extends Binding implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
-        adjustValueContainer();
+        adjustValue();
     }
 
     @Override
-    protected void adjustComponentImpl() {
-        String text = getValueContainer().getAsText(getPropertyName());
+    protected void adjustComponentsImpl() {
+        String text = getValueContainer().getAsText(getName());
         textField.setText(text);
     }
 
-    boolean adjustValueContainer() {
+    @Override
+    public JComponent getPrimaryComponent() {
+        return textField;
+    }
+
+    boolean adjustValue() {
         try {
-            getValueContainer().setFromText(getPropertyName(), textField.getText());
+            getValueContainer().setFromText(getName(), textField.getText());
             return true;
-        } catch (Exception e) {
+        } catch (ValidationException e) {
+            handleError(e);
+            return false;
+        } catch (ConversionException e) {
             handleError(e);
             return false;
         }
@@ -50,10 +59,5 @@ public class TextFieldBinding extends Binding implements ActionListener {
 
     public InputVerifier createInputVerifier() {
         return new TextFieldVerifier(this);
-    }
-
-    @Override
-    protected JComponent getPrimaryComponent() {
-        return textField;
     }
 }

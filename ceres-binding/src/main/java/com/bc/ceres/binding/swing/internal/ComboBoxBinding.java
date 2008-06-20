@@ -5,19 +5,19 @@ import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.swing.Binding;
 import com.bc.ceres.binding.swing.BindingContext;
 
-import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * A binding for a {@link javax.swing.JComboBox} component.
-*
-* @author Norman Fomferra
-* @version $Revision$ $Date$
-* @since BEAM 4.2
-*/
+ *
+ * @author Norman Fomferra
+ * @version $Revision$ $Date$
+ * @since BEAM 4.2
+ */
 public class ComboBoxBinding extends Binding implements ActionListener {
 
     final JComboBox comboBox;
@@ -36,21 +36,17 @@ public class ComboBoxBinding extends Binding implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent event) {
-        setPropertyValue(comboBox.getSelectedItem());
+        setValue(comboBox.getSelectedItem());
     }
 
     @Override
-    protected void adjustComponentImpl() {
-        try {
-            Object value = getPropertyValue();
-            comboBox.setSelectedItem(value);
-        } catch (Exception e) {
-            handleError(e);
-        }
+    protected void adjustComponentsImpl() {
+        Object value = getValue();
+        comboBox.setSelectedItem(value);
     }
 
     @Override
-    protected JComponent getPrimaryComponent() {
+    public JComponent getPrimaryComponent() {
         return comboBox;
     }
 }

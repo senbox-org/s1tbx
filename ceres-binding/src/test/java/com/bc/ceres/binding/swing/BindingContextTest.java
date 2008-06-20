@@ -21,135 +21,168 @@ import java.util.Arrays;
  */
 public class BindingContextTest extends TestCase {
 
-    private BindingContext binding;
-    private ValueContainer valueContainer;
+    private BindingContext bindingContextVB;
+    private ValueContainer valueContainerVB;
 
-    private ValueContainer valueContainer2;
-    private BindingContext binding2;
+    private ValueContainer valueContainerOB;
+    private BindingContext bindingContextOB;
     private TestPojo pojo;
 
     @Override
     protected void setUp() throws Exception {
         ValueContainerFactory valueContainerFactory = new ValueContainerFactory();
 
-        valueContainer = valueContainerFactory.createValueBackedValueContainer(TestPojo.class);
-        valueContainer.getValueDescriptor("valueSetBoundIntValue").setValueSet(new ValueSet(TestPojo.intValueSet));
-        binding = new BindingContext(valueContainer);
+        valueContainerVB = valueContainerFactory.createValueBackedValueContainer(TestPojo.class);
+        valueContainerVB.getValueDescriptor("valueSetBoundIntValue").setValueSet(new ValueSet(TestPojo.intValueSet));
+        bindingContextVB = new BindingContext(valueContainerVB);
 
         pojo = new TestPojo();
-        valueContainer2 = valueContainerFactory.createObjectBackedValueContainer(pojo);
-        valueContainer2.getValueDescriptor("valueSetBoundIntValue").setValueSet(new ValueSet(TestPojo.intValueSet));
-        binding2 = new BindingContext(valueContainer2);
+        valueContainerOB = valueContainerFactory.createObjectBackedValueContainer(pojo);
+        valueContainerOB.getValueDescriptor("valueSetBoundIntValue").setValueSet(new ValueSet(TestPojo.intValueSet));
+        bindingContextOB = new BindingContext(valueContainerOB);
     }
 
     public void testBindSpinner() throws ValidationException {
         JSpinner spinner = new JSpinner();
-        binding.bind(spinner, "intValue");
+        Binding binding = bindingContextVB.bind(spinner, "intValue");
+        assertNotNull(binding);
+        assertSame(spinner, binding.getPrimaryComponent());
+        assertNotNull(binding.getSecondaryComponents());
+        assertEquals(0, binding.getSecondaryComponents().length);
 
         assertEquals("intValue", spinner.getName());
 
         spinner.setValue(3);
-        assertEquals(3, valueContainer.getValue("intValue"));
+        assertEquals(3, valueContainerVB.getValue("intValue"));
 
-        valueContainer.setValue("intValue", 76);
+        valueContainerVB.setValue("intValue", 76);
         assertEquals(76, spinner.getValue());
+
     }
 
-    public void testBindCombobox() throws ValidationException {
+    public void testBindComboBox() throws ValidationException {
         JComboBox combobox = new JComboBox(new Integer[]{1, 3, 7});
-        binding.bind(combobox, "intValue");
+        Binding binding = bindingContextVB.bind(combobox, "intValue");
+        assertNotNull(binding);
+        assertSame(combobox, binding.getPrimaryComponent());
+        assertNotNull(binding.getSecondaryComponents());
+        assertEquals(0, binding.getSecondaryComponents().length);
 
         assertEquals("intValue", combobox.getName());
 
         combobox.setSelectedItem(3);
-        assertEquals(3, valueContainer.getValue("intValue"));
+        assertEquals(3, valueContainerVB.getValue("intValue"));
 
-        valueContainer.setValue("intValue", 1);
+        valueContainerVB.setValue("intValue", 1);
         assertEquals(1, combobox.getSelectedItem());
     }
 
     public void testBindTextField() throws ValidationException {
         JTextField textField = new JTextField();
-        binding.bind(textField, "stringValue");
+        Binding binding = bindingContextVB.bind(textField, "stringValue");
+        assertNotNull(binding);
+        assertSame(textField, binding.getPrimaryComponent());
+        assertNotNull(binding.getSecondaryComponents());
+        assertEquals(0, binding.getSecondaryComponents().length);
 
         assertEquals("stringValue", textField.getName());
 
         textField.setText("Bibo");
         textField.postActionEvent();
-        assertEquals("Bibo", valueContainer.getValue("stringValue"));
+        assertEquals("Bibo", valueContainerVB.getValue("stringValue"));
 
-        valueContainer.setValue("stringValue", "Samson");
+        valueContainerVB.setValue("stringValue", "Samson");
         assertEquals("Samson", textField.getText());
     }
 
     public void testBindTextField2() throws ValidationException {
         JTextField textField = new JTextField();
-        binding2.bind(textField, "stringValue");
+        Binding binding = bindingContextOB.bind(textField, "stringValue");
+        assertNotNull(binding);
+        assertSame(textField, binding.getPrimaryComponent());
+        assertNotNull(binding.getSecondaryComponents());
+        assertEquals(0, binding.getSecondaryComponents().length);
 
         assertEquals("stringValue", textField.getName());
 
         textField.setText("Bibo");
         textField.postActionEvent();
-        assertEquals("Bibo", valueContainer2.getValue("stringValue"));
+        assertEquals("Bibo", valueContainerOB.getValue("stringValue"));
 
-        valueContainer2.setValue("stringValue", "Samson");
+        valueContainerOB.setValue("stringValue", "Samson");
         assertEquals("Samson", pojo.stringValue);
         assertEquals("Samson", textField.getText());
 
         pojo.stringValue = "Oscar";
-        assertSame("Oscar", valueContainer2.getValue("stringValue"));
+        assertSame("Oscar", valueContainerOB.getValue("stringValue"));
         assertNotSame("Oscar", textField.getText()); // value change not detected by binding
     }
 
     public void testBindFormattedTextFieldToString() throws ValidationException {
         JFormattedTextField textField = new JFormattedTextField();
-        binding.bind(textField, "stringValue");
+        Binding binding = bindingContextVB.bind(textField, "stringValue");
+        assertNotNull(binding);
+        assertSame(textField, binding.getPrimaryComponent());
+        assertNotNull(binding.getSecondaryComponents());
+        assertEquals(0, binding.getSecondaryComponents().length);
 
         assertEquals("stringValue", textField.getName());
 
         textField.setValue("Bibo");
-        assertEquals("Bibo", valueContainer.getValue("stringValue"));
+        assertEquals("Bibo", valueContainerVB.getValue("stringValue"));
 
-        valueContainer.setValue("stringValue", "Samson");
+        valueContainerVB.setValue("stringValue", "Samson");
         assertEquals("Samson", textField.getValue());
     }
 
     public void testBindFormattedTextFieldToDouble() throws ValidationException {
         JFormattedTextField textField = new JFormattedTextField();
-        binding.bind(textField, "doubleValue");
+        Binding binding = bindingContextVB.bind(textField, "doubleValue");
+        assertNotNull(binding);
+        assertSame(textField, binding.getPrimaryComponent());
+        assertNotNull(binding.getSecondaryComponents());
+        assertEquals(0, binding.getSecondaryComponents().length);
 
         assertEquals("doubleValue", textField.getName());
 
         textField.setValue(3.14);
-        assertEquals(3.14, valueContainer.getValue("doubleValue"));
+        assertEquals(3.14, valueContainerVB.getValue("doubleValue"));
 
-        valueContainer.setValue("doubleValue", 2.71);
+        valueContainerVB.setValue("doubleValue", 2.71);
         assertEquals(2.71, textField.getValue());
     }
 
     public void testBindCheckBox() throws ValidationException {
         JCheckBox checkBox = new JCheckBox();
-        binding.bind(checkBox, "booleanValue");
+        Binding binding = bindingContextVB.bind(checkBox, "booleanValue");
+        assertNotNull(binding);
+        assertSame(checkBox, binding.getPrimaryComponent());
+        assertNotNull(binding.getSecondaryComponents());
+        assertEquals(0, binding.getSecondaryComponents().length);
 
         assertEquals("booleanValue", checkBox.getName());
 
         checkBox.doClick();
-        assertEquals(true, valueContainer.getValue("booleanValue"));
+        assertEquals(true, valueContainerVB.getValue("booleanValue"));
 
-        valueContainer.setValue("booleanValue", false);
+        valueContainerVB.setValue("booleanValue", false);
         assertEquals(false, checkBox.isSelected());
     }
 
     public void testBindRadioButton() throws ValidationException {
         JRadioButton radioButton = new JRadioButton();
-        binding.bind(radioButton, "booleanValue");
+        Binding binding = bindingContextVB.bind(radioButton, "booleanValue");
+        assertNotNull(binding);
+        assertSame(radioButton, binding.getPrimaryComponent());
+        assertNotNull(binding.getSecondaryComponents());
+        assertEquals(0, binding.getSecondaryComponents().length);
 
         assertEquals("booleanValue", radioButton.getName());
 
         radioButton.doClick();
-        assertEquals(true, valueContainer.getValue("booleanValue"));
+        assertEquals(true, valueContainerVB.getValue("booleanValue"));
 
-        valueContainer.setValue("booleanValue", false);
+        valueContainerVB.setValue("booleanValue", false);
         assertEquals(false, radioButton.isSelected());
     }
     
@@ -159,16 +192,20 @@ public class BindingContextTest extends TestCase {
         ButtonGroup buttonGroup = new ButtonGroup();
         buttonGroup.add(radioButton1);
         buttonGroup.add(radioButton2);
-        binding.bind(radioButton1, "booleanValue");
+        Binding binding = bindingContextVB.bind(radioButton1, "booleanValue");
+        assertNotNull(binding);
+        assertSame(radioButton1, binding.getPrimaryComponent());
+        assertNotNull(binding.getSecondaryComponents());
+        assertEquals(0, binding.getSecondaryComponents().length);
 
         assertEquals("booleanValue", radioButton1.getName());
 
         radioButton1.doClick();
-        assertEquals(true, valueContainer.getValue("booleanValue"));
+        assertEquals(true, valueContainerVB.getValue("booleanValue"));
         radioButton2.doClick();
-        assertEquals(false, valueContainer.getValue("booleanValue"));
+        assertEquals(false, valueContainerVB.getValue("booleanValue"));
 
-        valueContainer.setValue("booleanValue", false);
+        valueContainerVB.setValue("booleanValue", false);
         assertEquals(false, radioButton1.isSelected());
     }
 
@@ -182,11 +219,17 @@ public class BindingContextTest extends TestCase {
         buttonGroup.add(radioButton2);
         buttonGroup.add(radioButton3);
 
-        ValueModel m = valueContainer.getModel("valueSetBoundIntValue");
+        ValueModel m = valueContainerVB.getModel("valueSetBoundIntValue");
 
         m.setValue(TestPojo.intValueSet[0]);
 
-        binding.bind(buttonGroup, "valueSetBoundIntValue");
+        Binding binding = bindingContextVB.bind(buttonGroup, "valueSetBoundIntValue");
+        assertNotNull(binding);
+        assertSame(radioButton1, binding.getPrimaryComponent());
+        assertNotNull(binding.getSecondaryComponents());
+        assertEquals(2, binding.getSecondaryComponents().length);
+        assertSame(radioButton2, binding.getSecondaryComponents()[0]);
+        assertSame(radioButton3, binding.getSecondaryComponents()[1]);
 
         assertEquals(true, radioButton1.isSelected());
         assertEquals(false, radioButton2.isSelected());
@@ -226,14 +269,18 @@ public class BindingContextTest extends TestCase {
 
     public void testBindListSelection() throws ValidationException {
         JList list = new JList(new Integer[]{3, 4, 5, 6, 7});
-        binding.bind(list, "listValue", true);
+        Binding binding = bindingContextVB.bind(list, "listValue", true);
+        assertNotNull(binding);
+        assertSame(list, binding.getPrimaryComponent());
+        assertNotNull(binding.getSecondaryComponents());
+        assertEquals(0, binding.getSecondaryComponents().length);
 
         assertEquals("listValue", list.getName());
 
         list.setSelectedIndex(2);
-        assertTrue(Arrays.equals(new int[]{5}, (int[]) valueContainer.getValue("listValue")));
+        assertTrue(Arrays.equals(new int[]{5}, (int[]) valueContainerVB.getValue("listValue")));
 
-        valueContainer.setValue("listValue", new int[]{6});
+        valueContainerVB.setValue("listValue", new int[]{6});
         assertEquals(6, list.getSelectedValue());
     }
 

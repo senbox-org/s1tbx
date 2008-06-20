@@ -1,9 +1,8 @@
 package com.bc.ceres.binding.swing.internal;
 
-import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.Validator;
-import com.bc.ceres.binding.swing.internal.TextFieldBinding;
+import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.core.Assert;
 
 import javax.swing.InputVerifier;
@@ -12,11 +11,11 @@ import javax.swing.JTextField;
 
 /**
  * An {@link javax.swing.InputVerifier} used by the {@link TextFieldBinding}.
-*
-* @author Norman Fomferra
-* @version $Revision$ $Date$
-* @since BEAM 4.2
-*/
+ *
+ * @author Norman Fomferra
+ * @version $Revision$ $Date$
+ * @since BEAM 4.2
+ */
 class TextFieldVerifier extends InputVerifier {
     private TextFieldBinding binding;
 
@@ -37,7 +36,7 @@ class TextFieldVerifier extends InputVerifier {
     public boolean verify(JComponent input) {
         try {
             final String text = ((JTextField) input).getText();
-            final String name = binding.getPropertyName();
+            final String name = binding.getName();
             final ValueDescriptor descriptor = binding.getValueContainer().getValueDescriptor(name);
             final Converter converter = descriptor.getConverter();
             Assert.notNull(converter);
@@ -65,6 +64,6 @@ class TextFieldVerifier extends InputVerifier {
      */
     @Override
     public boolean shouldYieldFocus(JComponent input) {
-        return binding.adjustValueContainer();
+        return binding.adjustValue();
     }
 }

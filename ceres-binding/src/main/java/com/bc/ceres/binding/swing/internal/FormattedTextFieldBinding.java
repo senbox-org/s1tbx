@@ -3,17 +3,18 @@ package com.bc.ceres.binding.swing.internal;
 import com.bc.ceres.binding.swing.Binding;
 import com.bc.ceres.binding.swing.BindingContext;
 
-import javax.swing.JFormattedTextField;
 import javax.swing.JComponent;
-import java.beans.PropertyChangeListener;
+import javax.swing.JFormattedTextField;
 import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 /**
  * A binding for a {@link javax.swing.JFormattedTextField} component.
-* @author Norman Fomferra
-* @version $Revision$ $Date$
-* @since BEAM 4.2
-*/
+ *
+ * @author Norman Fomferra
+ * @version $Revision$ $Date$
+ * @since BEAM 4.2
+ */
 public class FormattedTextFieldBinding extends Binding implements PropertyChangeListener {
 
     private final JFormattedTextField textField;
@@ -25,21 +26,17 @@ public class FormattedTextFieldBinding extends Binding implements PropertyChange
     }
 
     public void propertyChange(PropertyChangeEvent e) {
-        setPropertyValue(textField.getValue());
+        setValue(textField.getValue());
     }
 
     @Override
-    protected void adjustComponentImpl() {
-        try {
-            Object value = getPropertyValue();
-            textField.setValue(value);
-        } catch (Exception e) {
-            handleError(e);
-        }
+    protected void adjustComponentsImpl() {
+        Object value = getValue();
+        textField.setValue(value);
     }
 
     @Override
-    protected JComponent getPrimaryComponent() {
+    public JComponent getPrimaryComponent() {
         return textField;
     }
 }

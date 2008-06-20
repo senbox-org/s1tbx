@@ -1,24 +1,24 @@
 package com.bc.ceres.binding.swing.internal;
 
-import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.swing.Binding;
 import com.bc.ceres.binding.swing.BindingContext;
 
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.ListSelectionEvent;
+import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.ListModel;
-import javax.swing.JComponent;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.lang.reflect.Array;
 
 /**
  * A binding for a selection within a {@link javax.swing.JList} component.
-*
-* @author Norman Fomferra
-* @version $Revision$ $Date$
-* @since BEAM 4.2
-*/
+ *
+ * @author Norman Fomferra
+ * @version $Revision$ $Date$
+ * @since BEAM 4.2
+ */
 public class ListSelectionBinding extends Binding implements ListSelectionListener {
 
     private final JList list;
@@ -33,10 +33,10 @@ public class ListSelectionBinding extends Binding implements ListSelectionListen
         if (e.getValueIsAdjusting()) {
             return;
         }
-        if (isAdjustingComponent()) {
+        if (isAdjustingComponents()) {
             return;
         }
-        final ValueModel model = getValueContainer().getModel(getPropertyName());
+        final ValueModel model = getValueContainer().getModel(getName());
         Object[] selectedValues = list.getSelectedValues();
         Object array = Array.newInstance(model.getDescriptor().getType().getComponentType(), selectedValues.length);
         for (int i = 0; i < selectedValues.length; i++) {
@@ -50,8 +50,8 @@ public class ListSelectionBinding extends Binding implements ListSelectionListen
     }
 
     @Override
-    protected void adjustComponentImpl() {
-        Object array = getPropertyValue();
+    protected void adjustComponentsImpl() {
+        Object array = getValue();
         if (array != null) {
             ListModel model = list.getModel();
             int size = model.getSize();
@@ -73,7 +73,7 @@ public class ListSelectionBinding extends Binding implements ListSelectionListen
     }
 
     @Override
-    protected JComponent getPrimaryComponent() {
+    public JComponent getPrimaryComponent() {
         return list;
     }
 }

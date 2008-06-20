@@ -8,11 +8,11 @@ import javax.swing.JComponent;
 
 /**
  * An abstract binding for a {@link javax.swing.AbstractButton} component.
-*
-* @author Norman Fomferra
-* @version $Revision$ $Date$
-* @since BEAM 4.2
-*/
+ *
+ * @author Norman Fomferra
+ * @version $Revision$ $Date$
+ * @since BEAM 4.2
+ */
 public abstract class AbstractButtonBinding extends Binding {
 
     private final AbstractButton button;
@@ -27,21 +27,17 @@ public abstract class AbstractButtonBinding extends Binding {
     }
 
     @Override
-    protected void adjustComponentImpl() {
-        try {
-            boolean selected = (Boolean) getPropertyValue();
-            button.setSelected(selected);
-        } catch (Exception e) {
-            handleError(e);
-        }
-    }
-
-    protected void adjustProperty() {
-        setPropertyValue(getButton().isSelected());
+    protected void adjustComponentsImpl() {
+        boolean selected = (Boolean) getValue();
+        button.setSelected(selected);
     }
 
     @Override
-    protected JComponent getPrimaryComponent() {
-        return getButton();
+    public JComponent getPrimaryComponent() {
+        return button;
+    }
+
+    protected void adjustProperty() {
+        setValue(getButton().isSelected());
     }
 }

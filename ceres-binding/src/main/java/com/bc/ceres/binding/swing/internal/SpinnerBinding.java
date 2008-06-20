@@ -58,21 +58,17 @@ public class SpinnerBinding extends Binding implements ChangeListener {
     }
 
     public void stateChanged(ChangeEvent evt) {
-        setPropertyValue(spinner.getValue());
+        setValue(spinner.getValue());
     }
 
     @Override
-    protected void adjustComponentImpl() {
-        try {
-            Object value = getPropertyValue();
-            spinner.setValue(value);
-        } catch (Exception e) {
-            handleError(e);
-        }
+    protected void adjustComponentsImpl() {
+        Object value = getValue();
+        spinner.setValue(value);
     }
 
     @Override
-    protected JComponent getPrimaryComponent() {
+    public JComponent getPrimaryComponent() {
         return spinner;
     }
 }

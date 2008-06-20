@@ -1,6 +1,7 @@
 package com.bc.ceres.binding.swing;
 
 
+import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
@@ -8,8 +9,10 @@ import com.bc.ceres.binding.swing.internal.*;
 import com.bc.ceres.core.Assert;
 
 import javax.swing.*;
+import java.awt.Window;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.text.MessageFormat;
 import java.util.Map;
 
 /**
@@ -48,28 +51,28 @@ public class BindingContext {
     public Binding bind(final JTextField textField, final String propertyName) {
         configureComponent(textField, propertyName);
         Binding binding = new TextFieldBinding(this, textField, propertyName);
-        binding.adjustComponent();
+        binding.adjustComponents();
         return binding;
     }
 
     public Binding bind(final JFormattedTextField textField, final String propertyName) {
         configureComponent(textField, propertyName);
         Binding binding = new FormattedTextFieldBinding(this, textField, propertyName);
-        binding.adjustComponent();
+        binding.adjustComponents();
         return binding;
     }
 
     public Binding bind(final JCheckBox checkBox, final String propertyName) {
         configureComponent(checkBox, propertyName);
         Binding binding = new CheckBoxBinding(this, propertyName, checkBox);
-        binding.adjustComponent();
+        binding.adjustComponents();
         return binding;
     }
 
     public Binding bind(JRadioButton radioButton, String propertyName) {
         configureComponent(radioButton, propertyName);
         Binding binding = new RadioButtonBinding(this, propertyName, radioButton);
-        binding.adjustComponent();
+        binding.adjustComponents();
         return binding;
     }
 
@@ -77,7 +80,7 @@ public class BindingContext {
         if (selectionIsValue) {
             configureComponent(list, propertyName);
             Binding binding = new ListSelectionBinding(this, list, propertyName);
-            binding.adjustComponent();
+            binding.adjustComponents();
             return binding;
         } else {
             throw new RuntimeException("not implemented");
@@ -87,14 +90,14 @@ public class BindingContext {
     public Binding bind(final JSpinner spinner, final String propertyName) {
         configureComponent(spinner, propertyName);
         Binding binding = new SpinnerBinding(this, propertyName, spinner);
-        binding.adjustComponent();
+        binding.adjustComponents();
         return binding;
     }
 
     public Binding bind(final JComboBox comboBox, final String propertyName) {
         configureComponent(comboBox, propertyName);
         Binding binding = new ComboBoxBinding(this, propertyName, comboBox);
-        binding.adjustComponent();
+        binding.adjustComponents();
         return binding;
     }
 
@@ -106,7 +109,7 @@ public class BindingContext {
     public Binding bind(final ButtonGroup buttonGroup, final String propertyName,
                         final Map<AbstractButton, Object> propertyValues) {
         Binding binding = new ButtonGroupBinding(this, buttonGroup, propertyName, propertyValues);
-        binding.adjustComponent();
+        binding.adjustComponents();
         return binding;
     }
 
@@ -118,8 +121,8 @@ public class BindingContext {
         bindEnabling(component, propertyName, propertyCondition, false);
     }
 
-    public void handleError(JComponent component, Exception e) {
-        errorHandler.handleError(component, e);
+    public void handleError(Exception exception, JComponent component) {
+        errorHandler.handleError(exception, component);
     }
 
     private void configureComponent(JComponent component, String propertyName) {
@@ -174,14 +177,23 @@ public class BindingContext {
 
     public interface ErrorHandler {
 
-        void handleError(JComponent component, Exception e);
+        void handleError(Exception exception, JComponent component);
     }
 
     public static class DefaultErrorHandler implements BindingContext.ErrorHandler {
 
-        public void handleError(JComponent component, Exception e) {
-            JOptionPane.showMessageDialog(component, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            component.requestFocus();
+        public void handleError(Exception exception, JComponent component) {
+            Window window = component != null ? SwingUtilities.windowForComponent(component) : null;
+            if (exception instanceof ValidationException) {
+                JOptionPane.showMessageDialog(window, exception.getMessage(), "Invalid Input", JOptionPane.ERROR_MESSAGE);
+            } else {
+                String message = MessageFormat.format("An internal error occured:\nType: {0}\nMessage: {1}\n", exception.getClass(), exception.getMessage());
+                JOptionPane.showMessageDialog(window, message, "Internal Error", JOptionPane.ERROR_MESSAGE);
+                exception.printStackTrace();
+            }
+            if (component != null) {
+                component.requestFocus();
+            }
         }
     }
 

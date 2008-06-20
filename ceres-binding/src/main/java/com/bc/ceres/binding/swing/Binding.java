@@ -5,20 +5,22 @@ import com.bc.ceres.binding.ValueContainer;
 import javax.swing.JComponent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * A bi-directional binding between a Swing component and a property in a value container.
+ * A bi-directional binding between obne or more Swing components and a property in a value container.
  * <p/>
  * Clients are asked to add an appropriate change listener to their Swing component
  * in order to set the corresponding property value in the {@link ValueContainer}.
  * <p/>
  * Whenever the value of the named property changes in the {@link ValueContainer},
- * the template method {@link #adjustComponent()} will be called.
- * Clients implement the {@link #adjustComponentImpl()} method
+ * the template method {@link #adjustComponents()} will be called.
+ * Clients implement the {@link #adjustComponentsImpl()} method
  * in order to adjust their Swing component according the new property value.
  * Note that {@code adjustComponentImpl()} will <i>not</i> be recursively called again, if the
  * the property value changes within the {@code adjustComponentImpl()} code. In this case,
- * the value of {@link #isAdjustingComponent() adjustingComponent} will be {@code true}.
+ * the value of {@link #isAdjustingComponents() adjustingComponent} will be {@code true}.
  * <p/>
  *
  * @author Norman Fomferra
@@ -28,15 +30,16 @@ import java.beans.PropertyChangeListener;
 public abstract class Binding {
 
     private final BindingContext context;
-    private final String propertyName;
-    private boolean adjustingComponent;
+    private final String name;
+    private Set<JComponent> secondaryComponents;
+    private boolean adjustingComponents;
 
-    public Binding(BindingContext context, String propertyName) {
+    public Binding(BindingContext context, String name) {
         this.context = context;
-        this.propertyName = propertyName;
-        context.getValueContainer().addPropertyChangeListener(propertyName, new PropertyChangeListener() {
+        this.name = name;
+        context.getValueContainer().addPropertyChangeListener(name, new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
-                adjustComponent();
+                adjustComponents();
             }
         });
     }
@@ -49,43 +52,83 @@ public abstract class Binding {
         return context.getValueContainer();
     }
 
-    public final String getPropertyName() {
-        return propertyName;
+    public final String getName() {
+        return name;
     }
 
-    public Object getPropertyValue() {
-        return context.getValueContainer().getValue(getPropertyName());
+    public Object getValue() {
+        return context.getValueContainer().getValue(getName());
     }
 
-    public void setPropertyValue(Object propertyValue) {
+    public void setValue(Object propertyValue) {
         try {
-            context.getValueContainer().setValue(getPropertyName(), propertyValue);
+            context.getValueContainer().setValue(getName(), propertyValue);
         } catch (Exception e) {
             handleError(e);
         }
     }
 
-    public final boolean isAdjustingComponent() {
-        return adjustingComponent;
+    public final boolean isAdjustingComponents() {
+        return adjustingComponents;
     }
 
-    public void adjustComponent() {
-        if (!adjustingComponent) {
+    public void adjustComponents() {
+        if (!adjustingComponents) {
             try {
-                adjustingComponent = true;
-                adjustComponentImpl();
+                adjustingComponents = true;
+                adjustComponentsImpl();
+            } catch (Exception e) {
+                handleError(e);
             } finally {
-                adjustingComponent = false;
+                adjustingComponents = false;
             }
         }
     }
 
-    public void handleError(Exception e) {
-        context.handleError(getPrimaryComponent(), e);
+    public void handleError(Exception exception) {
+        context.handleError(exception, getPrimaryComponent());
     }
 
-    protected abstract void adjustComponentImpl();
+    protected abstract void adjustComponentsImpl();
 
-    protected abstract JComponent getPrimaryComponent();
+    public void enableComponents() {
+        setComponentsEnabled(true);
+    }
 
+    public void disableComponents() {
+        setComponentsEnabled(false);
+    }
+
+    private synchronized void setComponentsEnabled(boolean enabled) {
+        getPrimaryComponent().setEnabled(enabled);
+        if (secondaryComponents != null) {
+            for (JComponent component : secondaryComponents) {
+                component.setEnabled(enabled);
+            }
+        }
+    }
+
+    public abstract JComponent getPrimaryComponent();
+
+    public JComponent[] getSecondaryComponents() {
+        if (secondaryComponents == null) {
+            return new JComponent[0];
+        }
+        return secondaryComponents.toArray(new JComponent[secondaryComponents.size()]);
+    }
+
+    public void attachSecondaryComponent(JComponent component) {
+        synchronized (this) {
+            if (secondaryComponents == null) {
+                secondaryComponents = new HashSet<JComponent>();
+            }
+            secondaryComponents.add(component);
+        }
+    }
+
+    public void detachSecondaryComponent(JComponent component) {
+        if (secondaryComponents != null) {
+            secondaryComponents.remove(component);
+        }
+    }
 }

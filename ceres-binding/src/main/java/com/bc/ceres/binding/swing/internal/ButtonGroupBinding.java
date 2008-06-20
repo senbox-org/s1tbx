@@ -23,6 +23,7 @@ import java.util.Map;
  */
 public class ButtonGroupBinding extends Binding implements ChangeListener {
     private final ButtonGroup buttonGroup;
+    private AbstractButton firstButton;
     private final Map<AbstractButton, Object> buttonToValueMap;
     private final Map<Object, AbstractButton> valueToButtonMap;
 
@@ -33,16 +34,22 @@ public class ButtonGroupBinding extends Binding implements ChangeListener {
         this.valueToButtonMap = new HashMap<Object, AbstractButton>(buttonToValueMap.size());
 
         Enumeration<AbstractButton> buttonEnum = buttonGroup.getElements();
-        while (buttonEnum.hasMoreElements()) {
+        int count = buttonGroup.getButtonCount();
+        for (int i = 0; i < count; i++) {
             AbstractButton button = buttonEnum.nextElement();
             button.addChangeListener(this);
             valueToButtonMap.put(buttonToValueMap.get(button), button);
+            if (i == 0) {
+                firstButton = button;
+            } else {
+                attachSecondaryComponent(button);
+            }
         }
     }
 
     @Override
-    protected void adjustComponentImpl() {
-        Object value = getPropertyValue();
+    protected void adjustComponentsImpl() {
+        Object value = getValue();
         if (value != null) {
             AbstractButton button = valueToButtonMap.get(value);
             if (button != null) {
@@ -52,13 +59,13 @@ public class ButtonGroupBinding extends Binding implements ChangeListener {
     }
 
     @Override
-    protected JComponent getPrimaryComponent() {
-        return buttonGroup.getElements().nextElement();
+    public JComponent getPrimaryComponent() {
+        return firstButton;
     }
 
     public void stateChanged(ChangeEvent event) {
         AbstractButton button = (AbstractButton) event.getSource();
-        setPropertyValue(buttonToValueMap.get(button));
+        setValue(buttonToValueMap.get(button));
     }
 
     public static Map<AbstractButton, Object> createButtonToValueMap(ButtonGroup buttonGroup, ValueContainer valueContainer, String propertyName) {
