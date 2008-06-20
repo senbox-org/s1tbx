@@ -68,7 +68,8 @@ public class ParametersPaneTest extends TestCase {
                 new ValueSet(new String[]{"NN", "CC", "BQ"}));
 
         BindingContext sbc = new BindingContext(vc, new BindingContext.ErrorHandler() {
-            public void handleError(JComponent component, Exception e) {
+            @Override
+            public void handleError(Exception e, JComponent component) {
                 JOptionPane.showMessageDialog(null, e.getMessage());
             }
         });
