@@ -197,6 +197,7 @@ public class PropertyFileParameterPage extends ParameterPage {
         // property file editor
         gbc.gridy++;
         gbc.gridwidth = 3;
+        gbc.weighty = 1;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.insets.top = 5;
         panel.add(textPane, gbc);
