@@ -41,9 +41,9 @@ public class PixelIter {
     }
 
     public void next(double[] point) {
+        pos = iterator.next();
         for (int i = 0; i < point.length; i++) {
             point[i] = tiles[i].getSampleDouble(pos.x, pos.y);
         }
-        pos = iterator.next();
     }
 }
