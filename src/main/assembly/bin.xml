@@ -99,7 +99,6 @@
                 <exclude>org.esa.beam:beam-bootstrap</exclude>
                 <exclude>org.esa.beam:beam-installer</exclude>
                 <exclude>org.esa.beam:beam-gpf-docgen</exclude>
-                <exclude>org.esa.beam:beam-cluster</exclude>    <!-- todo - include if it should be released-->
             </excludes>
 
             <binaries>
