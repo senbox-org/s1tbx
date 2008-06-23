@@ -16,7 +16,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.text.NumberFormat;
 
-class Discrete1BandTabularForm implements ImageInfoEditor, ImageInfoHolder {
+class Discrete1BandTabularForm implements ImageInfoEditor {
     private final ColorManipulationForm parentForm;
     private JComponent contentPanel;
     private ImageInfoTableModel tableModel;
@@ -35,6 +35,8 @@ class Discrete1BandTabularForm implements ImageInfoEditor, ImageInfoHolder {
         colorCellRenderer.setColorValueVisible(false);
         table.setDefaultRenderer(Color.class, colorCellRenderer);
         table.setDefaultEditor(Color.class, new ColorCellEditor());
+        table.getTableHeader().setReorderingAllowed(false);
+        table.getColumnModel().getColumn(1).setPreferredWidth(140);
 
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         final JScrollPane tableScrollPane = new JScrollPane(table);
@@ -45,17 +47,18 @@ class Discrete1BandTabularForm implements ImageInfoEditor, ImageInfoHolder {
 
     public void performApply(ProductSceneView productSceneView) {
         Assert.notNull(productSceneView, "productSceneView");
-        ImageInfo imageInfo = getCurrentImageInfo().createDeepCopy();
+        ImageInfo imageInfo = getImageInfo().createDeepCopy();
         imageInfo.computeColorPalette();
         productSceneView.getRaster().setImageInfo(imageInfo);
     }
 
     public void performReset(ProductSceneView productSceneView) {
+        parentForm.resetDefaultValues(productSceneView.getRaster());
     }
 
     public void handleFormShown(ProductSceneView productSceneView) {
         Assert.notNull(productSceneView, "productSceneView");
-        setCurrentImageInfo(productSceneView.getRaster().getImageInfo().createDeepCopy());
+        setImageInfo(productSceneView.getRaster().getImageInfo().createDeepCopy());
     }
 
     public void handleFormHidden() {
@@ -74,11 +77,11 @@ class Discrete1BandTabularForm implements ImageInfoEditor, ImageInfoHolder {
         return contentPanel;
     }
 
-    public ImageInfo getCurrentImageInfo() {
+    public ImageInfo getImageInfo() {
         return tableModel.getImageInfo();
     }
 
-    public void setCurrentImageInfo(ImageInfo imageInfo) {
+    public void setImageInfo(ImageInfo imageInfo) {
         tableModel.setImageInfo(imageInfo);
 
     }

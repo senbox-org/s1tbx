@@ -55,8 +55,12 @@ class Continuous1BandSwitcherForm implements ImageInfoEditor {
         imageInfoEditor.performReset(productSceneView);
     }
 
-    public ImageInfo getCurrentImageInfo() {
-        return imageInfoEditor.getCurrentImageInfo();
+    public ImageInfo getImageInfo() {
+        return imageInfoEditor.getImageInfo();
+    }
+
+    public void setImageInfo(ImageInfo imageInfo) {
+        imageInfoEditor.setImageInfo(imageInfo);
     }
 
     public void handleFormShown(ProductSceneView productSceneView) {
@@ -64,7 +68,7 @@ class Continuous1BandSwitcherForm implements ImageInfoEditor {
     }
 
     private void setDiscreteMode() {
-        imageInfoEditor.getCurrentImageInfo().getColorPaletteDef().setGradient(gradientPaletteCheckBox.isSelected());
+        imageInfoEditor.getImageInfo().getColorPaletteDef().setGradient(gradientPaletteCheckBox.isSelected());
         imageInfoEditor.getContentPanel().repaint();
         parentForm.setApplyEnabled(true);
     }
@@ -72,18 +76,15 @@ class Continuous1BandSwitcherForm implements ImageInfoEditor {
     private void switchForm(ProductSceneView productSceneView) {
         final ImageInfoEditor oldForm = imageInfoEditor;
         final ImageInfoEditor newForm;
-        ImageInfoHolder imageInfoHolder;
         if (tabularButton.isSelected()) {
             if (tabularPaletteEditorForm == null) {
                 tabularPaletteEditorForm = new Continuous1BandTabularForm(parentForm);
             }
-            imageInfoHolder = tabularPaletteEditorForm;
             newForm = tabularPaletteEditorForm;
         } else {
             if (graphicalPaletteEditorForm == null) {
                 graphicalPaletteEditorForm = new Continuous1BandGraphicalForm(parentForm);
             }
-            imageInfoHolder = graphicalPaletteEditorForm;
             newForm = graphicalPaletteEditorForm;
         }
         if (oldForm != newForm) {
@@ -92,12 +93,12 @@ class Continuous1BandSwitcherForm implements ImageInfoEditor {
             imageInfoEditor = newForm;
             imageInfoEditor.handleFormShown(productSceneView);
 
-            ImageInfo oldImageInfo = oldForm.getCurrentImageInfo();
+            ImageInfo oldImageInfo = oldForm.getImageInfo();
             if (oldImageInfo == null) { 
-                // oldForm == instanceof EmptyForm
+                // here: oldForm == instanceof EmptyForm
                 oldImageInfo = productSceneView.getRaster().getImageInfo();
             }
-            imageInfoHolder.setCurrentImageInfo(oldImageInfo);
+            imageInfoEditor.setImageInfo(oldImageInfo);
 
             contentPanel.remove(oldForm.getContentPanel());
             contentPanel.add(imageInfoEditor.getContentPanel(), BorderLayout.CENTER);

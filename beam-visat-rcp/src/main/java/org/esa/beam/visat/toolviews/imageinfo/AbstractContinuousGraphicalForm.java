@@ -2,6 +2,7 @@ package org.esa.beam.visat.toolviews.imageinfo;
 
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.AbstractButton;
 import javax.swing.JPanel;
@@ -100,8 +101,16 @@ abstract class AbstractContinuousGraphicalForm implements ImageInfoEditor {
         contentPanel.add(paletteEditor, BorderLayout.CENTER);
     }
 
-    public ImageInfo getCurrentImageInfo() {
+    public void performReset(ProductSceneView productSceneView) {
+        parentForm.resetDefaultValues(productSceneView.getRaster());
+    }
+
+    public ImageInfo getImageInfo() {
         return paletteEditor.getImageInfo();
+    }
+
+    public void setImageInfo(ImageInfo imageInfo) {
+        paletteEditor.setImageInfo(imageInfo);
     }
 
     public Component getContentPanel() {
@@ -115,27 +124,4 @@ abstract class AbstractContinuousGraphicalForm implements ImageInfoEditor {
     protected AbstractButton createButton(String s) {
         return ColorManipulationForm.createButton(s);
     }
-
-    public void resetDefaultValues(RasterDataNode raster) {
-        ImageInfo imageInfoRaster = raster.getImageInfo();
-        raster.setImageInfo(null);
-        final ImageInfo newValue = ensureValidImageInfo(raster);
-        raster.setImageInfo(imageInfoRaster);
-        paletteEditor.setImageInfo(newValue);
-    }
-
-    public ImageInfo ensureValidImageInfo(RasterDataNode raster) {
-        try {
-            return raster.ensureValidImageInfo();
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(getContentPanel(),
-                                          "Failed to create image information for '" +
-                                                  raster.getName() + "':\n" +e.getMessage(),
-                                          "I/O Error",
-                                          JOptionPane.ERROR_MESSAGE);
-            return null;
-        }
-    }
-
-
 }

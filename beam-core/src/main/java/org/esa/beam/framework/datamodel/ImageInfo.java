@@ -128,7 +128,7 @@ public class ImageInfo implements Cloneable {
      * @return the histogram, or <code>null</code> if a histogram is not available.
      */
     public Histogram getHistogram() {
-        return isHistogramAvailable() ? new Histogram(histogramBins, minSample, maxSample) : null;
+        return isHistogramAvailable() ? new Histogram(histogramBins, scaleInverse(minSample), scaleInverse(maxSample)) : null;
     }
 
     /**

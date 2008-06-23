@@ -20,8 +20,9 @@ interface ImageInfoEditor {
 
     String getTitle(ProductSceneView productSceneView);
 
-    // todo rename to getImageInfo()
-    ImageInfo getCurrentImageInfo();
+    ImageInfo getImageInfo();
+
+    void setImageInfo(ImageInfo imageInfo);
 
     Component getContentPanel();
 

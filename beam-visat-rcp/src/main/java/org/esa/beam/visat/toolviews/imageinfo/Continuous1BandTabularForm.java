@@ -14,7 +14,7 @@ import javax.swing.table.AbstractTableModel;
 import java.awt.Component;
 import java.awt.Color;
 
-class Continuous1BandTabularForm implements ImageInfoEditor, ImageInfoHolder  {
+class Continuous1BandTabularForm implements ImageInfoEditor  {
     private final ColorManipulationForm parentForm;
     private ImageInfoTableModel tableModel;
     private JScrollPane contentPanel;
@@ -33,6 +33,9 @@ class Continuous1BandTabularForm implements ImageInfoEditor, ImageInfoHolder  {
         colorCellRenderer.setColorValueVisible(false);
         table.setDefaultRenderer(Color.class, colorCellRenderer);
         table.setDefaultEditor(Color.class, new ColorCellEditor());
+        table.getTableHeader().setReorderingAllowed(false);
+        table.getColumnModel().getColumn(0).setPreferredWidth(140);
+        table.getColumnModel().getColumn(1).setPreferredWidth(140);
 
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         final JScrollPane tableScrollPane = new JScrollPane(table);
@@ -42,7 +45,13 @@ class Continuous1BandTabularForm implements ImageInfoEditor, ImageInfoHolder  {
 
     public void performApply(ProductSceneView productSceneView) {
         Assert.notNull(productSceneView, "productSceneView");
-        productSceneView.getRaster().setImageInfo(getCurrentImageInfo().createDeepCopy());
+        ImageInfo imageInfo = getImageInfo().createDeepCopy();
+        imageInfo.computeColorPalette();
+        productSceneView.getRaster().setImageInfo(imageInfo);
+    }
+
+    public void performReset(ProductSceneView productSceneView) {
+        parentForm.resetDefaultValues(productSceneView.getRaster());
     }
 
     public AbstractButton[] getButtons() {
@@ -53,11 +62,11 @@ class Continuous1BandTabularForm implements ImageInfoEditor, ImageInfoHolder  {
         return contentPanel;
     }
 
-    public ImageInfo getCurrentImageInfo() {
+    public ImageInfo getImageInfo() {
         return tableModel.getImageInfo();
     }
 
-    public void setCurrentImageInfo(ImageInfo imageInfo) {
+    public void setImageInfo(ImageInfo imageInfo) {
         tableModel.setImageInfo(imageInfo);
         parentForm.setApplyEnabled(false);
     }
@@ -68,15 +77,10 @@ class Continuous1BandTabularForm implements ImageInfoEditor, ImageInfoHolder  {
 
     public void handleFormShown(ProductSceneView productSceneView) {
         Assert.notNull(productSceneView, "productSceneView");
-        setCurrentImageInfo(productSceneView.getRaster().getImageInfo());
+        setImageInfo(productSceneView.getRaster().getImageInfo());
     }
 
     public void handleFormHidden() {
-    }
-
-    public void performReset(ProductSceneView productSceneView) {
-        Assert.notNull(productSceneView, "productSceneView");
-
     }
 
     public void updateState(ProductSceneView productSceneView) {

@@ -8,7 +8,7 @@ import javax.swing.AbstractButton;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-class Continuous1BandGraphicalForm extends AbstractContinuousGraphicalForm implements ImageInfoHolder {
+class Continuous1BandGraphicalForm extends AbstractContinuousGraphicalForm  {
 
     private AbstractButton evenDistButton;
 
@@ -30,14 +30,10 @@ class Continuous1BandGraphicalForm extends AbstractContinuousGraphicalForm imple
         productSceneView.getRaster().setImageInfo(paletteEditor.getImageInfo());
     }
 
-    public void performReset(ProductSceneView productSceneView) {
-        resetDefaultValues(productSceneView.getRaster());
-    }
-
     @Override
     public void handleFormShown(ProductSceneView productSceneView) {
         Assert.notNull(productSceneView, "productSceneView");
-        setCurrentImageInfo(productSceneView.getRaster().getImageInfo());
+        setImageInfo(productSceneView.getRaster().getImageInfo());
     }
 
     public void handleFormHidden() {
@@ -69,7 +65,7 @@ class Continuous1BandGraphicalForm extends AbstractContinuousGraphicalForm imple
         parentForm.revalidate();
     }
 
-    public void setCurrentImageInfo(ImageInfo imageInfo) {
+    public void setImageInfo(ImageInfo imageInfo) {
         if (imageInfo != null) {
             paletteEditor.setImageInfo(imageInfo.createDeepCopy());
         } else {

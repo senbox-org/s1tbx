@@ -81,7 +81,7 @@ class Continuous3BandGraphicalForm extends AbstractContinuousGraphicalForm {
 
         final ActionListener listener = new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
-                rgbImageInfos[rgbBandsIndex] = getCurrentImageInfo();
+                rgbImageInfos[rgbBandsIndex] = getImageInfo();
                 rgbBandsIndex = redButton.isSelected() ? 0 : greenButton.isSelected() ? 1 : 2;
                 updateImageInfo();
                 setRgbBandsComponentColors();
@@ -151,8 +151,9 @@ class Continuous3BandGraphicalForm extends AbstractContinuousGraphicalForm {
         setAvailableBandNames(productSceneView);
     }
 
+    @Override
     public void performReset(ProductSceneView productSceneView) {
-        resetDefaultValues(rgbBands[rgbBandsIndex]);
+        parentForm.resetDefaultValues(rgbBands[rgbBandsIndex]);
     }
 
     @Override
@@ -236,7 +237,7 @@ class Continuous3BandGraphicalForm extends AbstractContinuousGraphicalForm {
                 final RasterDataNode availableBand = getAvailableBand(name);
                 Assert.notNull(availableBand, "availableBand");
                 if (rgbBands[rgbBandsIndex] != availableBand) {
-                    final ImageInfo imageInfo = ensureValidImageInfo(availableBand);
+                    final ImageInfo imageInfo = parentForm.createDefaultImageInfo(availableBand);
                     if (imageInfo != null) {
                         unloader.unloadUnusedRasterData(rgbBands[rgbBandsIndex]);
                         rgbBands[rgbBandsIndex] = availableBand;
@@ -311,7 +312,7 @@ class Continuous3BandGraphicalForm extends AbstractContinuousGraphicalForm {
         paletteEditor.setUnit(rasterDataNode.getUnit());
         rgbBandsParam.setValueAsText(rasterDataNode.getName(), null);
         rgbBandsParam.getProperties().setValueSetBound(true);
-        gammaParam.setValue(getCurrentImageInfo().getGamma(), null);
+        gammaParam.setValue(getImageInfo().getGamma(), null);
     }
 
 

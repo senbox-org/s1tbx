@@ -1679,8 +1679,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         double center = scale(0.5 * (scaleInverse(min) + scaleInverse(max)));
         final ColorPaletteDef gradationCurve = new ColorPaletteDef(min, center, max);
 
-        return new ImageInfo((float) scale(histogram.getMin()),
-                             (float) scale(histogram.getMax()),
+        return new ImageInfo((float)min, (float)max,
                              histogram.getBinCounts(),
                              gradationCurve);
     }

@@ -30,6 +30,7 @@ import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.ResourceInstaller;
 import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.math.Histogram;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
@@ -415,6 +416,7 @@ class ColorManipulationForm {
     public void reset() {
         if (productSceneView != null) {
             imageInfoEditor.performReset(productSceneView);
+            applyButton.setEnabled(true);
         }
     }
 
@@ -464,7 +466,7 @@ class ColorManipulationForm {
                                                         bandsToBeModified);
         final ArrayList<Band> modifiedRasterList = new ArrayList<Band>();
         if (bandChooser.show() == BandChooser.ID_OK) {
-            final ImageInfo imageInfo = imageInfoEditor.getCurrentImageInfo();
+            final ImageInfo imageInfo = imageInfoEditor.getImageInfo();
             bandsToBeModified = bandChooser.getSelectedBands();
             for (final Band band : bandsToBeModified) {
                 band.getImageInfo().transferColorPaletteDef(imageInfo, false);
@@ -506,7 +508,7 @@ class ColorManipulationForm {
     }
 
     private void importColorPaletteDef() {
-        final ImageInfo imageInfo = imageInfoEditor.getCurrentImageInfo();
+        final ImageInfo imageInfo = imageInfoEditor.getImageInfo();
         if (imageInfo == null) {
             // Normaly this code is unreachable because, the export Button
             // is disabled if the _contrastStretchPane has no ImageInfo.
@@ -535,7 +537,7 @@ class ColorManipulationForm {
     }
 
     private void exportColorPaletteDef() {
-        final ImageInfo imageInfo = imageInfoEditor.getCurrentImageInfo();
+        final ImageInfo imageInfo = imageInfoEditor.getImageInfo();
         if (imageInfo == null) {
             // Normaly this code is unreacable because, the export Button
             // is disabled if the _contrastStretchPane have no ImageInfo.
@@ -738,11 +740,33 @@ class ColorManipulationForm {
 
     private void setNoDataColor() {
         Color color = noDataColorForm.getNoDataColor();
-        ImageInfo imageInfo = imageInfoEditor.getCurrentImageInfo();
+        ImageInfo imageInfo = imageInfoEditor.getImageInfo();
         if (imageInfo != null) {
             imageInfo.setNoDataColor(color);
             imageInfoEditor.getContentPanel().repaint();
             setApplyEnabled(true);
+        }
+    }
+
+    public void resetDefaultValues(RasterDataNode raster) {
+        imageInfoEditor.setImageInfo(createDefaultImageInfo(raster));
+    }
+
+    public ImageInfo createDefaultImageInfo(RasterDataNode raster) {
+        Histogram histogram = raster.getImageInfo().getHistogram();
+        if (histogram != null) {
+            return raster.createDefaultImageInfo(null, histogram);
+        } else {
+            try {
+                return raster.createDefaultImageInfo(null, com.bc.ceres.core.ProgressMonitor.NULL);
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(getContentPanel(),
+                                              "Failed to create image information for '" +
+                                                      raster.getName() + "':\n" +e.getMessage(),
+                                              "I/O Error",
+                                              JOptionPane.ERROR_MESSAGE);
+                return null;
+            }
         }
     }
 

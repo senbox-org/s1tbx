@@ -1583,10 +1583,11 @@ public class ProductUtils {
                 }
                 final float alpha = bitmaskDef.getAlpha();
                 final Color color = bitmaskDef.getColor();
+                final float overlayAlpha = color.getAlpha() * alpha;
                 final float overlayAlphaRed = color.getRed() * alpha;
                 final float overlayAlphaGreen = color.getGreen() * alpha;
                 final float overlayAlphaBlue = color.getBlue() * alpha;
-                final float alphaInv = (1 - alpha);
+                final float transparency = (1 - alpha);
 
 // the formula to compute the new destination color
 // newColor = overlayColor * alpha + oldColor * (1 - alpha)
@@ -1598,18 +1599,21 @@ public class ProductUtils {
                     public void eval(RasterDataEvalEnv env, int pixelIndex) {
                         if (term.evalB(env)) {
                             final int oldRGB = overlayBIm.getRGB(env.getPixelX(), env.getPixelY());
+                            final int oldAlpha = (oldRGB & 0xff000000) >> 24;
                             final int oldRed = (oldRGB & 0x00ff0000) >> 16;
                             final int oldGreen = (oldRGB & 0x0000ff00) >> 8;
                             final int oldBlue = oldRGB & 0x000000ff;
 
-                            int rgb = 0;
-                            rgb += overlayAlphaRed + oldRed * alphaInv;
-                            rgb = rgb << 8;
-                            rgb += overlayAlphaGreen + oldGreen * alphaInv;
-                            rgb = rgb << 8;
-                            rgb += overlayAlphaBlue + oldBlue * alphaInv;
+                            int argb = 0;
+                            argb += overlayAlpha + oldAlpha * transparency;
+                            argb = argb << 8;
+                            argb += overlayAlphaRed + oldRed * transparency;
+                            argb = argb << 8;
+                            argb += overlayAlphaGreen + oldGreen * transparency;
+                            argb = argb << 8;
+                            argb += overlayAlphaBlue + oldBlue * transparency;
 
-                            overlayBIm.setRGB(env.getPixelX(), env.getPixelY(), rgb);
+                            overlayBIm.setRGB(env.getPixelX(), env.getPixelY(), argb);
                         }
                     }
                 }, "Drawing bitmasks..."); /*I18N*/

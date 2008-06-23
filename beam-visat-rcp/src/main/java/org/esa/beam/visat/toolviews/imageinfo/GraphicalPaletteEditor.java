@@ -314,7 +314,8 @@ class GraphicalPaletteEditor extends JPanel {
     }
 
     private boolean isValidHistogramm() {
-        return getImageInfo().getHistogram().getMin() <= getImageInfo().getHistogram().getMax();
+        Histogram histogram = getImageInfo().getHistogram();
+        return histogram.getMin() <= histogram.getMax();
     }
 
     public void computeZoomOutVertical() {
