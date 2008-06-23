@@ -7,6 +7,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * A bi-directional binding between obne or more Swing components and a property in a value container.
@@ -31,7 +33,7 @@ public abstract class Binding {
 
     private final BindingContext context;
     private final String name;
-    private Set<JComponent> secondaryComponents;
+    private List<JComponent> secondaryComponents;
     private boolean adjustingComponents;
 
     public Binding(BindingContext context, String name) {
@@ -120,9 +122,11 @@ public abstract class Binding {
     public void attachSecondaryComponent(JComponent component) {
         synchronized (this) {
             if (secondaryComponents == null) {
-                secondaryComponents = new HashSet<JComponent>();
+                secondaryComponents = new ArrayList<JComponent>();
             }
-            secondaryComponents.add(component);
+            if (!secondaryComponents.contains(component)) {
+                secondaryComponents.add(component);
+            }
         }
     }
 
