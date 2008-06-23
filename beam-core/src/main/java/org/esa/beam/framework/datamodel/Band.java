@@ -26,6 +26,7 @@ import org.esa.beam.util.Guardian;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.io.IOException;
+import java.util.Random;
 
 
 /**
@@ -518,14 +519,13 @@ public class Band extends AbstractBand {
             vMin = Math.min(value, vMin);
             vMax = Math.max(value, vMax);
         }
+        Random random = new Random();
+        random.setSeed(42);
         ColorPaletteDef.Point[] points = new ColorPaletteDef.Point[numIndexes];
         for (int i = 0; i < points.length; i++) {
             String name = indexCoding.getSampleName(i);
             int value = indexCoding.getSampleValue(i);
-            points[i] = new ColorPaletteDef.Point(value, new Color((float) Math.random(),
-                                                                   (float) Math.random(),
-                                                                   (float) Math.random()),
-                                                  name);
+            points[i] = new ColorPaletteDef.Point(value, new Color(random.nextFloat(), random.nextFloat(), random.nextFloat()), name);
         }
         return new ImageInfo(vMin, vMax, null, new ColorPaletteDef(points, true));
     }
