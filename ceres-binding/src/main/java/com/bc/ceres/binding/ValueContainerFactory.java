@@ -39,40 +39,6 @@ public class ValueContainerFactory {
         return valueDescriptorFactory;
     }
 
-    private interface ValueAccessorFactory {
-        ValueAccessor create(Field field);
-    }
-
-    private class ObjectBackedValueAccessorFactory implements ValueAccessorFactory {
-        private Object object;
-
-        private ObjectBackedValueAccessorFactory(Object object) {
-            this.object = object;
-        }
-
-        public ValueAccessor create(Field field) {
-            return new ClassFieldAccessor(object, field);
-        }
-    }
-
-    private class MapBackedValueAccessorFactory implements ValueAccessorFactory {
-        private Map<String, Object> map;
-
-        private MapBackedValueAccessorFactory(Map<String, Object> map) {
-            this.map = map;
-        }
-
-        public ValueAccessor create(Field field) {
-            return new MapEntryAccessor(map, field.getName());
-        }
-    }
-
-    private class ValueBackedValueAccessorFactory implements ValueAccessorFactory {
-
-        public ValueAccessor create(Field field) {
-            return new DefaultValueAccessor();
-        }
-    }
 
     /**
      * Creates a value container for the given object.
@@ -207,6 +173,41 @@ public class ValueContainerFactory {
                     vc.addModel(new ValueModel(valueDescriptor, valueAccessorFactory.create(field)));
                 }
             }
+        }
+    }
+
+    private interface ValueAccessorFactory {
+        ValueAccessor create(Field field);
+    }
+
+    private class ObjectBackedValueAccessorFactory implements ValueAccessorFactory {
+        private Object object;
+
+        private ObjectBackedValueAccessorFactory(Object object) {
+            this.object = object;
+        }
+
+        public ValueAccessor create(Field field) {
+            return new ClassFieldAccessor(object, field);
+        }
+    }
+
+    private class MapBackedValueAccessorFactory implements ValueAccessorFactory {
+        private Map<String, Object> map;
+
+        private MapBackedValueAccessorFactory(Map<String, Object> map) {
+            this.map = map;
+        }
+
+        public ValueAccessor create(Field field) {
+            return new MapEntryAccessor(map, field.getName());
+        }
+    }
+
+    private class ValueBackedValueAccessorFactory implements ValueAccessorFactory {
+
+        public ValueAccessor create(Field field) {
+            return new DefaultValueAccessor();
         }
     }
 }

@@ -11,6 +11,10 @@ public class ValueRange {
     private boolean minIncluded;
     private boolean maxIncluded;
 
+    public ValueRange(double min, double max) {
+        this(min, max, true, true);
+    }
+
     public ValueRange(double min, double max, boolean minIncluded, boolean maxIncluded) {
         this.min = min;
         this.max = max;
