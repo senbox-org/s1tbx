@@ -2314,7 +2314,7 @@ Changes in VISAT - GCP EXPORT
 1) Fixed wrong order of ground control points written (lat/lon instead of
    lon/lat as expected)
 
-2) The number of GCP's written has been reduced to a value acceptable for ENVI.
+2) The number of GCPs written has been reduced to a value acceptable for ENVI.
    This property can be changed in the "Visat.preferences" file.
 
-3) The accuracy of the GCP's has been improved (at least 4 digits now)
+3) The accuracy of the GCPs has been improved (at least 4 digits now)
