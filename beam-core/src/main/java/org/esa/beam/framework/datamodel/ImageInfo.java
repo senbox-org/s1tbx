@@ -292,6 +292,16 @@ public class ImageInfo implements Cloneable {
     }
 
     /**
+     * Sets the histogram pixel counts.
+     *
+     * @param histogramBins the histogram pixel counts, may be <code>null</code> to signal inavailibility
+     */
+    public void setHistogramBins(int[] histogramBins) {
+        this.histogramBins = histogramBins;
+    }
+
+
+    /**
      * Gets whether or not a histogram is available.
      *
      * @return <code>true</code> if so

@@ -60,6 +60,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public final static String PROPERTY_NAME_ROI_DEFINITION = "roiDefinition";
     public final static String PROPERTY_NAME_SCALING_FACTOR = "scalingFactor";
     public final static String PROPERTY_NAME_SCALING_OFFSET = "scalingOffset";
+    public final static String PROPERTY_NAME_SAMPLE_RANGE = "sampleRange";
+    public final static String PROPERTY_NAME_SAMPLE_FREQUENCIES = "sampleFrequencies";
     public final static String PROPERTY_NAME_NO_DATA_VALUE = "noDataValue";
     public final static String PROPERTY_NAME_NO_DATA_VALUE_USED = "noDataValueUsed";
     public final static String PROPERTY_NAME_VALID_PIXEL_EXPRESSION = "validPixelExpression";
@@ -89,47 +91,49 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * The raster's width.
      */
-    private final int _rasterWidth;
+    private final int rasterWidth;
 
     /**
      * The raster's height.
      */
-    private final int _rasterHeight;
+    private final int rasterHeight;
 
-    private double _scalingFactor;
-    private double _scalingOffset;
-    private boolean _log10Scaled;
-    private boolean _scalingApplied;
+    private double scalingFactor;
+    private double scalingOffset;
+    private boolean log10Scaled;
+    private boolean scalingApplied;
 
-    private boolean _noDataValueUsed;
-    private ProductData _noData;
-    private double _geophysicalNoDataValue; // invariant, depending on _noData
-    private String _validPixelExpression;
+    private boolean noDataValueUsed;
+    private ProductData noData;
+    private double geophysicalNoDataValue; // invariant, depending on _noData
+    private String validPixelExpression;
 
-    private BitRaster _validMask;
-    private Term _validMaskTerm;
-    private boolean _validMaskInProgress; // used to prevent from infinite recursion due to data reloading in data-mask terms
+    private BitRaster validMask;
+    private Term validMaskTerm;
+    private boolean validMaskInProgress; // used to prevent from infinite recursion due to data reloading in data-mask terms
 
-    private GeoCoding _geoCoding;
+    private GeoCoding geoCoding;
 
-    // @todo 1 nf/nf - v3.0: add min/max properties here
+    private Range sampleRange;  // todo - DIMAP I/O!
+    private int[] sampleFrequencies; // todo - DIMAP I/O!
 
-    private ImageInfo _imageInfo;
-    private BitmaskOverlayInfo _bitmaskOverlayInfo;
-    private ROIDefinition _roiDefinition;
+    private ImageInfo imageInfo;
+    private BitmaskOverlayInfo bitmaskOverlayInfo;
+    private ROIDefinition roiDefinition;
 
     /**
      * Should be set by readers only, don't copy this property for bands which use a product builder
      */
-    private boolean _maskProductDataEnabled;
+    private boolean maskProductDataEnabled;
 
     /**
      * Number of bytes used for internal read buffer.
      */
     private static final int READ_BUFFER_MAX_SIZE = 8 * 1024 * 1024; // 8 MB
-    private Pointing _pointing;
+    private Pointing pointing;
 
-    private RenderedImage _image;
+    private RenderedImage image;
+    private ProductNodeListenerAdapter validMaskPNL;
 
     /**
      * Constructs an object of type <code>RasterDataNode</code>.
@@ -152,21 +156,24 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                 && dataType != ProductData.TYPE_FLOAT64) {
             throw new IllegalArgumentException("dataType is invalid");
         }
-        _rasterWidth = width;
-        _rasterHeight = height;
-        _scalingFactor = 1.0;
-        _scalingOffset = 0.0;
-        _log10Scaled = false;
-        _scalingApplied = false;
+        rasterWidth = width;
+        rasterHeight = height;
+        scalingFactor = 1.0;
+        scalingOffset = 0.0;
+        log10Scaled = false;
+        scalingApplied = false;
 
-        _noData = null;
-        _noDataValueUsed = false;
-        _geophysicalNoDataValue = 0.0;
-        _validPixelExpression = null;
+        noData = null;
+        noDataValueUsed = false;
+        geophysicalNoDataValue = 0.0;
+        validPixelExpression = null;
 
-        _validMaskTerm = null;
-        _validMask = null;
-        _validMaskInProgress = false;
+        validMaskTerm = null;
+        validMask = null;
+        validMaskInProgress = false;
+
+        sampleRange = null;
+        sampleFrequencies = null;
     }
 
     /**
@@ -195,7 +202,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @return the width of the raster
      */
     public final int getRasterWidth() {
-        return _rasterWidth;
+        return rasterWidth;
     }
 
     /**
@@ -204,7 +211,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @return the height of the raster
      */
     public final int getRasterHeight() {
-        return _rasterHeight;
+        return rasterHeight;
     }
 
     /**
@@ -222,13 +229,13 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @return the geo-coding
      */
     public GeoCoding getGeoCoding() {
-        if (_geoCoding == null) {
+        if (geoCoding == null) {
             final Product product = getProduct();
             if (product != null) {
                 return product.getGeoCoding();
             }
         }
-        return _geoCoding;
+        return geoCoding;
     }
 
     /**
@@ -241,14 +248,14 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see Product#setGeoCoding(GeoCoding)
      */
     public void setGeoCoding(final GeoCoding geoCoding) {
-        if (!ObjectUtils.equalObjects(geoCoding, _geoCoding)) {
-            _geoCoding = geoCoding;
+        if (!ObjectUtils.equalObjects(geoCoding, this.geoCoding)) {
+            this.geoCoding = geoCoding;
 
             // If our product has no geo-coding yet, it is set to the current one, if any
-            if (_geoCoding != null) {
+            if (this.geoCoding != null) {
                 final Product product = getProduct();
                 if (product != null && product.getGeoCoding() == null) {
-                    product.setGeoCoding(_geoCoding);
+                    product.setGeoCoding(this.geoCoding);
                 }
             }
             fireProductNodeChanged(PROPERTY_NAME_GEOCODING);
@@ -279,10 +286,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @return the pointing object, or null if a pointing is not available
      */
     public Pointing getPointing() {
-        if (_pointing == null || _pointing.getGeoCoding() == getGeoCoding()) {
-            _pointing = createPointing();
+        if (pointing == null || pointing.getGeoCoding() == getGeoCoding()) {
+            pointing = createPointing();
         }
-        return _pointing;
+        return pointing;
     }
 
     /**
@@ -302,7 +309,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     @Override
     public boolean isFloatingPointType() {
-        return _scalingApplied || super.isFloatingPointType();
+        return scalingApplied || super.isFloatingPointType();
     }
 
     /**
@@ -332,7 +339,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #isScalingApplied()
      */
     public final double getScalingFactor() {
-        return _scalingFactor;
+        return scalingFactor;
     }
 
     /**
@@ -342,8 +349,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #isScalingApplied()
      */
     public final void setScalingFactor(double scalingFactor) {
-        if (_scalingFactor != scalingFactor) {
-            _scalingFactor = scalingFactor;
+        if (this.scalingFactor != scalingFactor) {
+            this.scalingFactor = scalingFactor;
             setScalingApplied();
             fireProductNodeChanged(PROPERTY_NAME_SCALING_FACTOR);
             setGeophysicalNoDataValue();
@@ -359,7 +366,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #isScalingApplied()
      */
     public final double getScalingOffset() {
-        return _scalingOffset;
+        return scalingOffset;
     }
 
     /**
@@ -369,8 +376,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #isScalingApplied()
      */
     public final void setScalingOffset(double scalingOffset) {
-        if (_scalingOffset != scalingOffset) {
-            _scalingOffset = scalingOffset;
+        if (this.scalingOffset != scalingOffset) {
+            this.scalingOffset = scalingOffset;
             setScalingApplied();
             fireProductNodeChanged(PROPERTY_NAME_SCALING_OFFSET);
             setGeophysicalNoDataValue();
@@ -387,7 +394,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #isScalingApplied()
      */
     public final boolean isLog10Scaled() {
-        return _log10Scaled;
+        return log10Scaled;
     }
 
     /**
@@ -398,8 +405,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #isScalingApplied()
      */
     public final void setLog10Scaled(boolean log10Scaled) {
-        if (_log10Scaled != log10Scaled) {
-            _log10Scaled = log10Scaled;
+        if (this.log10Scaled != log10Scaled) {
+            this.log10Scaled = log10Scaled;
             setScalingApplied();
             setGeophysicalNoDataValue();
             fireProductNodeChanged(PROPERTY_NAME_LOG_10_SCALED);
@@ -420,8 +427,23 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #isLog10Scaled
      */
     public final boolean isScalingApplied() {
-        return _scalingApplied;
+        return scalingApplied;
     }
+
+    /**
+     * Tests if the given name is the name of a property which is relevant for the computation of the valid mask.
+     *
+     * @param propertyName the  name to test
+     * @return {@code true}, if so.
+     * @since BEAM 4.2
+     */
+    public boolean isValidMaskProperty(final String propertyName) {
+        return PROPERTY_NAME_NO_DATA_VALUE.equals(propertyName)
+                || PROPERTY_NAME_NO_DATA_VALUE_USED.equals(propertyName)
+                || PROPERTY_NAME_VALID_PIXEL_EXPRESSION.equals(propertyName)
+                || PROPERTY_NAME_DATA.equals(propertyName);
+    }
+
 
     /**
      * Tests whether or not a no-data value has been specified. The no-data value is not-specified unless either
@@ -432,14 +454,14 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #setNoDataValue(double)
      */
     public boolean isNoDataValueSet() {
-        return _noData != null;
+        return noData != null;
     }
 
     /**
      * Clears the no-data value, so that {@link #isNoDataValueSet()} will return <code>false</code>.
      */
     public void clearNoDataValue() {
-        _noData = null;
+        noData = null;
         setGeophysicalNoDataValue();
     }
 
@@ -454,7 +476,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #isNoDataValueSet()
      */
     public boolean isNoDataValueUsed() {
-        return _noDataValueUsed;
+        return noDataValueUsed;
     }
 
     /**
@@ -471,11 +493,12 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #isNoDataValueUsed()
      */
     public void setNoDataValueUsed(boolean noDataValueUsed) {
-        if (_noDataValueUsed != noDataValueUsed) {
-            _noDataValueUsed = noDataValueUsed;
+        if (this.noDataValueUsed != noDataValueUsed) {
+            this.noDataValueUsed = noDataValueUsed;
             resetValidMask();
             setModified(true);
             fireProductNodeChanged(PROPERTY_NAME_NO_DATA_VALUE_USED);
+            fireProductNodeDataChanged();
         }
     }
 
@@ -493,7 +516,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #isNoDataValueSet()
      */
     public double getNoDataValue() {
-        return isNoDataValueSet() ? _noData.getElemDouble() : 0.0;
+        return isNoDataValueSet() ? noData.getElemDouble() : 0.0;
     }
 
     /**
@@ -512,15 +535,20 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #isNoDataValueSet()
      */
     public void setNoDataValue(final double noDataValue) {
-        if (_noData == null || getNoDataValue() != noDataValue) {
-            if (_noData == null) {
-                _noData = createCompatibleProductData(1);
+        if (noData == null || getNoDataValue() != noDataValue) {
+            if (noData == null) {
+                noData = createCompatibleProductData(1);
             }
-            _noData.setElemDouble(noDataValue);
+            noData.setElemDouble(noDataValue);
             setGeophysicalNoDataValue();
-            resetValidMask();
+            if (isNoDataValueUsed()) {
+                resetValidMask();
+            }
             setModified(true);
             fireProductNodeChanged(PROPERTY_NAME_NO_DATA_VALUE);
+            if (isNoDataValueUsed()) {
+                fireProductNodeDataChanged();
+            }
         }
     }
 
@@ -535,7 +563,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #setGeophysicalNoDataValue(double)
      */
     public double getGeophysicalNoDataValue() {
-        return _geophysicalNoDataValue;
+        return geophysicalNoDataValue;
     }
 
     /**
@@ -564,7 +592,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @return the valid mask expression.
      */
     public String getValidPixelExpression() {
-        return _validPixelExpression;
+        return validPixelExpression;
     }
 
     /**
@@ -578,11 +606,12 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param validPixelExpression the valid mask expression, can be null
      */
     public void setValidPixelExpression(final String validPixelExpression) {
-        if (!ObjectUtils.equalObjects(_validPixelExpression, validPixelExpression)) {
-            _validPixelExpression = validPixelExpression;
+        if (!ObjectUtils.equalObjects(this.validPixelExpression, validPixelExpression)) {
+            this.validPixelExpression = validPixelExpression;
             resetValidMask();
             setModified(true);
             fireProductNodeChanged(PROPERTY_NAME_VALID_PIXEL_EXPRESSION);
+            fireProductNodeDataChanged();
         }
     }
 
@@ -614,7 +643,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #ensureValidMaskComputed(com.bc.ceres.core.ProgressMonitor)
      */
     public BitRaster getValidMask() {
-        return _validMask;
+        return validMask;
     }
 
     /**
@@ -628,7 +657,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #ensureValidMaskComputed(com.bc.ceres.core.ProgressMonitor)
      */
     protected void setValidMask(final BitRaster validMask) {
-        _validMask = validMask;
+        this.validMask = validMask;
     }
 
     /**
@@ -657,11 +686,11 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     private Term getValidMaskTerm() {
-        return _validMaskTerm;
+        return validMaskTerm;
     }
 
     private void setValidMaskTerm(Term dataMaskTerm) {
-        _validMaskTerm = dataMaskTerm;
+        validMaskTerm = dataMaskTerm;
     }
 
     /**
@@ -705,37 +734,37 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     protected synchronized void computeValidMask(ProgressMonitor pm) throws IOException {
-        if (_validMaskInProgress) {
+        if (validMaskInProgress) {
             // prevent from infinite recursion due to data reloading in evaluation of valid-mask terms
             return;
         }
-        _validMaskInProgress = true;
+        validMaskInProgress = true;
         try {
             computeValidMaskImpl(pm);
         } finally {
-            _validMaskInProgress = false;
+            validMaskInProgress = false;
         }
     }
 
     protected synchronized void maskProductData(int offsetX, int offsetY, int width, int height,
                                                 ProductData rasterData, ProgressMonitor pm) throws IOException {
-        if (_validMaskInProgress) {
+        if (validMaskInProgress) {
             // prevent from infinite recursion due to data reloading in evaluation of valid-mask terms
             return;
         }
-        _validMaskInProgress = true;
+        validMaskInProgress = true;
         try {
             maskProductDataImpl(offsetX, offsetY, width, height, rasterData, pm);
         } finally {
-            _validMaskInProgress = false;
+            validMaskInProgress = false;
         }
     }
 
     private void computeValidMaskImpl(ProgressMonitor pm) throws IOException {
-        _validMask = null;
+        validMask = null;
         final Term term = createValidMaskTerm();
         if (term != null) {
-            _validMask = getProduct().createValidMask(term, pm);
+            validMask = getProduct().createValidMask(term, pm);
         }
     }
 
@@ -782,21 +811,21 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     @Override
     public void updateExpression(final String oldExternalName, final String newExternalName) {
-        if (_validPixelExpression == null) {
+        if (validPixelExpression == null) {
             return;
         }
-        final String expression = StringUtils.replaceWord(_validPixelExpression, oldExternalName, newExternalName);
-        if (!_validPixelExpression.equals(expression)) {
-            _validPixelExpression = expression;
+        final String expression = StringUtils.replaceWord(validPixelExpression, oldExternalName, newExternalName);
+        if (!validPixelExpression.equals(expression)) {
+            validPixelExpression = expression;
             setModified(true);
         }
 
-        if (_roiDefinition != null) {
-            final String bitmaskExpr = _roiDefinition.getBitmaskExpr();
+        if (roiDefinition != null) {
+            final String bitmaskExpr = roiDefinition.getBitmaskExpr();
             if (!StringUtils.isNullOrEmpty(bitmaskExpr) && bitmaskExpr.indexOf(oldExternalName) > -1) {
                 final String newBitmaskExpression = StringUtils.replaceWord(bitmaskExpr, oldExternalName,
                                                                             newExternalName);
-                final ROIDefinition newRoiDef = _roiDefinition.createCopy();
+                final ROIDefinition newRoiDef = roiDefinition.createCopy();
                 newRoiDef.setBitmaskExpr(newBitmaskExpression);
                 // a new roi definition must be set to inform product node listeners because a roi image
                 // is only automatically updated if a product node listener is informed of changes.
@@ -908,6 +937,54 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
+     * Gets the value range.
+     *
+     * @return the value range, or {@code null} if not (yet) known
+     * @since BEAM 4.2
+     */
+    public Range getSampleRange() {
+        return sampleRange;
+    }
+
+    /**
+     * Sets the value range.
+     *
+     * @param sampleRange the value range, or {@code null} if unknown
+     * @since BEAM 4.2
+     */
+    public void setSampleRange(Range sampleRange) {
+        Range oldValue = this.sampleRange;
+        if (oldValue != sampleRange) {
+            this.sampleRange = sampleRange;
+            fireProductNodeChanged(PROPERTY_NAME_SAMPLE_RANGE, oldValue);
+        }
+    }
+
+    /**
+     * Gets the histogram.
+     *
+     * @return the histogram, or {@code null} if not (yet) known
+     * @since BEAM 4.2
+     */
+    public int[] getSampleFrequencies() {
+        return sampleFrequencies;
+    }
+
+    /**
+     * Sets the histogram.
+     *
+     * @param sampleFrequencies the histogram, or {@code null} if unknown
+     * @since BEAM 4.2
+     */
+    public void setSampleFrequencies(int[] sampleFrequencies) {
+        int[] oldValue = this.sampleFrequencies;
+        if (oldValue != sampleFrequencies) {
+            this.sampleFrequencies = sampleFrequencies;
+            fireProductNodeChanged(PROPERTY_NAME_SAMPLE_FREQUENCIES, oldValue);
+        }
+    }
+
+    /**
      * Releases all of the resources used by this object instance and all of its owned children. Its primary use is to
      * allow the garbage collector to perform a vanilla job.
      * <p/>
@@ -918,27 +995,27 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     @Override
     public void dispose() {
-        _validMask = null;
-        _validMaskTerm = null;
-        if (_imageInfo != null) {
-            _imageInfo.dispose();
-            _imageInfo = null;
+        validMask = null;
+        validMaskTerm = null;
+        if (imageInfo != null) {
+            imageInfo.dispose();
+            imageInfo = null;
         }
-        if (_bitmaskOverlayInfo != null) {
-            _bitmaskOverlayInfo.dispose();
-            _bitmaskOverlayInfo = null;
+        if (bitmaskOverlayInfo != null) {
+            bitmaskOverlayInfo.dispose();
+            bitmaskOverlayInfo = null;
         }
-        if (_roiDefinition != null) {
-            _roiDefinition.dispose();
-            _roiDefinition = null;
+        if (roiDefinition != null) {
+            roiDefinition.dispose();
+            roiDefinition = null;
         }
-        if (_image != null) {
-            JAI.getDefaultInstance().getTileCache().removeTiles(_image);
-            if (_image instanceof PlanarImage) {
-                PlanarImage planarImage = (PlanarImage) _image;
+        if (image != null) {
+            JAI.getDefaultInstance().getTileCache().removeTiles(image);
+            if (image instanceof PlanarImage) {
+                PlanarImage planarImage = (PlanarImage) image;
                 planarImage.dispose();
             }
-            _image = null;
+            image = null;
         }
         super.dispose();
     }
@@ -963,7 +1040,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see #setValidPixelExpression(String)
      */
     public boolean isPixelValid(int x, int y) {
-        return _validMask == null || _validMask.isSet(x, y);
+        return validMask == null || validMask.isSet(x, y);
     }
 
     /**
@@ -986,7 +1063,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @since 4.1
      */
     public boolean isPixelValid(int pixelIndex) {
-        return _validMask == null || _validMask.isSet(pixelIndex);
+        return validMask == null || validMask.isSet(pixelIndex);
     }
 
     /**
@@ -1517,7 +1594,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @return the image info or null
      */
     public ImageInfo getImageInfo() {
-        return _imageInfo;
+        return imageInfo;
     }
 
     /**
@@ -1526,10 +1603,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @param imageInfo the image info, can be null
      */
     public void setImageInfo(ImageInfo imageInfo) {
-        if (_imageInfo != imageInfo) {
-            _imageInfo = imageInfo;
-            if (_imageInfo != null) {
-                _imageInfo.setScaling(this);
+        if (this.imageInfo != imageInfo) {
+            this.imageInfo = imageInfo;
+            if (this.imageInfo != null) {
+                this.imageInfo.setScaling(this);
             }
             fireProductNodeChanged(PROPERTY_NAME_IMAGE_INFO);
             setModified(true);
@@ -1540,15 +1617,15 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Gets the bitmask overlay info for image display
      */
     public BitmaskOverlayInfo getBitmaskOverlayInfo() {
-        return _bitmaskOverlayInfo;
+        return bitmaskOverlayInfo;
     }
 
     /**
      * Sets the bitmask overlay info for image display
      */
     public void setBitmaskOverlayInfo(BitmaskOverlayInfo bitmaskOverlayInfo) {
-        if (_bitmaskOverlayInfo != bitmaskOverlayInfo) {
-            _bitmaskOverlayInfo = bitmaskOverlayInfo;
+        if (this.bitmaskOverlayInfo != bitmaskOverlayInfo) {
+            this.bitmaskOverlayInfo = bitmaskOverlayInfo;
             fireProductNodeChanged(PROPERTY_NAME_BITMASK_OVERLAY_INFO);
             setModified(true);
         }
@@ -1573,15 +1650,15 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Gets the ROI definition for image display
      */
     public ROIDefinition getROIDefinition() {
-        return _roiDefinition;
+        return roiDefinition;
     }
 
     /**
      * Sets the ROI definition for image display
      */
     public void setROIDefinition(ROIDefinition roiDefinition) {
-        if (_roiDefinition != roiDefinition) {
-            _roiDefinition = roiDefinition;
+        if (this.roiDefinition != roiDefinition) {
+            this.roiDefinition = roiDefinition;
             fireProductNodeChanged(PROPERTY_NAME_ROI_DEFINITION);
             setModified(true);
         }
@@ -1615,7 +1692,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      *
      * @param histoSkipAreas only used, if new image info is created (see <code>{@link #createDefaultImageInfo}</code>
      *                       method)
-     * @param pm a progress monitor
+     * @param pm             a progress monitor
      * @return a valid image information instance, never <code>null</code>.
      * @throws IOException if an I/O error occurs
      */
@@ -1679,7 +1756,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         double center = scale(0.5 * (scaleInverse(min) + scaleInverse(max)));
         final ColorPaletteDef gradationCurve = new ColorPaletteDef(min, center, max);
 
-        return new ImageInfo((float)min, (float)max,
+        return new ImageInfo((float) min, (float) max,
                              histogram.getBinCounts(),
                              gradationCurve);
     }
@@ -2388,8 +2465,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @return the scaled value
      */
     public final double scale(double v) {
-        v = v * _scalingFactor + _scalingOffset;
-        if (_log10Scaled) {
+        v = v * scalingFactor + scalingOffset;
+        if (log10Scaled) {
             v = Math.pow(10.0, v);
         }
         return v;
@@ -2404,15 +2481,15 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @return the scaled value
      */
     public final double scaleInverse(double v) {
-        if (_log10Scaled) {
+        if (log10Scaled) {
             v = Math.log10(v);
         }
-        return (v - _scalingOffset) / _scalingFactor;
+        return (v - scalingOffset) / scalingFactor;
     }
 
 
     private void setScalingApplied() {
-        _scalingApplied = getScalingFactor() != 1.0
+        scalingApplied = getScalingFactor() != 1.0
                 || getScalingOffset() != 0.0
                 || isLog10Scaled();
     }
@@ -2493,27 +2570,27 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     private void setGeophysicalNoDataValue() {
-        _geophysicalNoDataValue = scale(getNoDataValue());
+        geophysicalNoDataValue = scale(getNoDataValue());
     }
 
     public boolean isMaskProductDataEnabled() {
-        return _maskProductDataEnabled;
+        return maskProductDataEnabled;
     }
 
     public void setMaskProductDataEnabled(boolean maskProductDataEnabled) {
-        _maskProductDataEnabled = maskProductDataEnabled;
+        this.maskProductDataEnabled = maskProductDataEnabled;
     }
 
     // JAIJAIJAI
     public RenderedImage getImage() {
-        return _image;
+        return image;
     }
 
     // JAIJAIJAI
     public void setImage(RenderedImage image) {
-        final RenderedImage oldImage = _image;
+        final RenderedImage oldImage = this.image;
         if (oldImage != image) {
-            _image = image;
+            this.image = image;
             fireProductNodeChanged("image", oldImage);
         }
     }
