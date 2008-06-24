@@ -34,13 +34,13 @@ import java.io.IOException;
  */
 public class TransectProfileData {
 
-    private final Point2D[] _shapeVertices;
-    private final int[] _shapeVertexIndexes;
-    private final Point2D[] _pixelPositions;
-    private final GeoPos[] _geoPositions;
-    private final float[] _sampleValues;
-    private float _sampleMin;
-    private float _sampleMax;
+    private final Point2D[] shapeVertices;
+    private final int[] shapeVertexIndexes;
+    private final Point2D[] pixelPositions;
+    private final GeoPos[] geoPositions;
+    private final float[] sampleValues;
+    private float sampleMin;
+    private float sampleMax;
 
     public static TransectProfileData create(RasterDataNode raster, Shape shape) throws IOException {
         return new TransectProfileData(raster, shape);
@@ -52,87 +52,92 @@ public class TransectProfileData {
         if (raster.getProduct() == null) {
             throw new IllegalArgumentException("raster without product");
         }
+        raster.ensureValidMaskComputed(ProgressMonitor.NULL);
 
         ShapeRasterizer rasterizer = new ShapeRasterizer();
-        _shapeVertices = rasterizer.getVertices(shape);
-        _shapeVertexIndexes = new int[_shapeVertices.length];
-        _pixelPositions = rasterizer.rasterize(_shapeVertices, _shapeVertexIndexes);
-        _sampleValues = new float[_pixelPositions.length];
-        _sampleMin = Float.MAX_VALUE;
-        _sampleMax = -Float.MAX_VALUE;
+        shapeVertices = rasterizer.getVertices(shape);
+        shapeVertexIndexes = new int[shapeVertices.length];
+        pixelPositions = rasterizer.rasterize(shapeVertices, shapeVertexIndexes);
+        sampleValues = new float[pixelPositions.length];
+        sampleMin = Float.MAX_VALUE;
+        sampleMax = -Float.MAX_VALUE;
 
         GeoCoding geoCoding = raster.getGeoCoding();
         if (geoCoding != null) {
-            _geoPositions = new GeoPos[_pixelPositions.length];
+            geoPositions = new GeoPos[pixelPositions.length];
         } else {
-            _geoPositions = null;
+            geoPositions = null;
         }
 
         PixelPos pixelPos = new PixelPos();
-        float sampleValue;
         float[] sampleBuffer = new float[1];
-        for (int i = 0; i < _pixelPositions.length; i++) {
-            pixelPos.x = (float) _pixelPositions[i].getX() + 0.5f;
-            pixelPos.y = (float) _pixelPositions[i].getY() + 0.5f;
+        for (int i = 0; i < pixelPositions.length; i++) {
+            pixelPos.x = (float) pixelPositions[i].getX() + 0.5f;
+            pixelPos.y = (float) pixelPositions[i].getY() + 0.5f;
             final int x = MathUtils.floorInt(pixelPos.x);
             final int y = MathUtils.floorInt(pixelPos.y);
             if (x >= 0 && x < raster.getSceneRasterWidth()
                 && y >= 0 && y < raster.getSceneRasterHeight()) {
 
+                float sampleValue;
                 if (raster.hasRasterData()) {
                     sampleValue = raster.getPixelFloat(x, y);
                 } else {
                     raster.readPixels(x, y, 1, 1, sampleBuffer, ProgressMonitor.NULL);
                     sampleValue = sampleBuffer[0];
                 }
-                if (sampleValue < _sampleMin) {
-                    _sampleMin = sampleValue;
+                if (raster.isPixelValid(x, y)) {
+                    if (sampleValue < sampleMin) {
+                        sampleMin = sampleValue;
+                    }
+                    if (sampleValue > sampleMax) {
+                        sampleMax = sampleValue;
+                    }
+                    sampleValues[i] = sampleValue;
+                }else {
+                    sampleValues[i] = Float.NaN;
                 }
-                if (sampleValue > _sampleMax) {
-                    _sampleMax = sampleValue;
-                }
-                _sampleValues[i] = sampleValue;
             }
 
-            if (_geoPositions != null) {
-                _geoPositions[i] = geoCoding.getGeoPos(pixelPos, null);
+            if (geoPositions != null) {
+                geoPositions[i] = geoCoding.getGeoPos(pixelPos, null);
             }
         }
     }
 
     public int getNumPixels() {
-        return _pixelPositions.length;
+        return pixelPositions.length;
     }
 
     public int getNumShapeVertices() {
-        return _shapeVertices.length;
+        return shapeVertices.length;
     }
 
     public Point2D[] getShapeVertices() {
-        return _shapeVertices;
+        return shapeVertices;
     }
 
     public int[] getShapeVertexIndexes() {
-        return _shapeVertexIndexes;
+        return shapeVertexIndexes;
     }
 
     public Point2D[] getPixelPositions() {
-        return _pixelPositions;
+        return pixelPositions;
     }
 
     public GeoPos[] getGeoPositions() {
-        return _geoPositions;
+        return geoPositions;
     }
 
     public float[] getSampleValues() {
-        return _sampleValues;
+        return sampleValues;
     }
 
     public float getSampleMin() {
-        return _sampleMin;
+        return sampleMin;
     }
 
     public float getSampleMax() {
-        return _sampleMax;
+        return sampleMax;
     }
 }

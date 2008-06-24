@@ -41,7 +41,7 @@ public class StatisticsUtils {
     }
 
     public static String getDiagramLabel(final RasterDataNode raster) {
-        final StringBuffer sb = new StringBuffer();
+        final StringBuilder sb = new StringBuilder();
         sb.append(raster.getName());
         if (StringUtils.isNotNullAndNotEmpty(raster.getUnit())) {
             sb.append(" [");
@@ -90,7 +90,7 @@ public class StatisticsUtils {
             final GeoPos[] geoPositions = data.getGeoPositions();
             final float[] sampleValues = data.getSampleValues();
 
-            final StringBuffer sb = new StringBuffer(1024);
+            final StringBuilder sb = new StringBuilder(1024);
             final String formatString = "%1$-10s\t";
 
             sb.append(String.format(formatString, "Index"));
@@ -113,8 +113,11 @@ public class StatisticsUtils {
                     sb.append(String.format(formatString, String.valueOf(geoPos.lat)));
                     sb.append(String.format(formatString, String.valueOf(geoPos.lon)));
                 }
-//                sb.append(MathUtils.round(sampleValues[i], 1000.0));
-                sb.append(String.format(formatString, String.valueOf(sampleValues[i])));
+                if(Float.isNaN(sampleValues[i])){
+                    sb.append(String.format(formatString, "No Data"));
+                }else {
+                    sb.append(String.format(formatString, String.valueOf(sampleValues[i])));
+                }
                 sb.append(" \n");
             }
 
