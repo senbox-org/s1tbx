@@ -48,7 +48,7 @@ public class ButtonGroupBinding extends Binding implements ChangeListener {
     }
 
     @Override
-    protected void adjustComponentsImpl() {
+    protected void doAdjustComponents() {
         Object value = getValue();
         if (value != null) {
             AbstractButton button = valueToButtonMap.get(value);

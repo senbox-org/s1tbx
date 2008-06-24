@@ -40,7 +40,7 @@ public class ComboBoxBinding extends Binding implements ActionListener {
     }
 
     @Override
-    protected void adjustComponentsImpl() {
+    protected void doAdjustComponents() {
         Object value = getValue();
         comboBox.setSelectedItem(value);
     }

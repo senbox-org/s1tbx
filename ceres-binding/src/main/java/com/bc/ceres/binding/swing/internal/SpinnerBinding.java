@@ -62,7 +62,7 @@ public class SpinnerBinding extends Binding implements ChangeListener {
     }
 
     @Override
-    protected void adjustComponentsImpl() {
+    protected void doAdjustComponents() {
         Object value = getValue();
         spinner.setValue(value);
     }

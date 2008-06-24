@@ -34,7 +34,7 @@ public class TextFieldBinding extends Binding implements ActionListener {
     }
 
     @Override
-    protected void adjustComponentsImpl() {
+    protected void doAdjustComponents() {
         String text = getValueContainer().getAsText(getName());
         textField.setText(text);
     }

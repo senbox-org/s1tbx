@@ -27,7 +27,7 @@ public abstract class AbstractButtonBinding extends Binding {
     }
 
     @Override
-    protected void adjustComponentsImpl() {
+    protected void doAdjustComponents() {
         boolean selected = (Boolean) getValue();
         button.setSelected(selected);
     }

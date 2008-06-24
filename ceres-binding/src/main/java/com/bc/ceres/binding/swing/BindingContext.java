@@ -121,6 +121,13 @@ public class BindingContext {
         bindEnabling(component, propertyName, propertyCondition, false);
     }
 
+    /**
+     * Delegates the call to the error handler.
+     * @param exception The error.
+     * @param component The Swing component in which the error occured.
+     * @see #getErrorHandler()
+     * @see #setErrorHandler(ErrorHandler)
+     */
     public void handleError(Exception exception, JComponent component) {
         errorHandler.handleError(exception, component);
     }

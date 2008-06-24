@@ -50,7 +50,7 @@ public class ListSelectionBinding extends Binding implements ListSelectionListen
     }
 
     @Override
-    protected void adjustComponentsImpl() {
+    protected void doAdjustComponents() {
         Object array = getValue();
         if (array != null) {
             ListModel model = list.getModel();

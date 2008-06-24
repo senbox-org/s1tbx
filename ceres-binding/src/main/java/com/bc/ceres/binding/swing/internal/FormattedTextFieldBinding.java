@@ -30,7 +30,7 @@ public class FormattedTextFieldBinding extends Binding implements PropertyChange
     }
 
     @Override
-    protected void adjustComponentsImpl() {
+    protected void doAdjustComponents() {
         Object value = getValue();
         textField.setValue(value);
     }
