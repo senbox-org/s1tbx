@@ -54,7 +54,9 @@ public class GcpManagerToolView extends PlacemarkManagerToolView {
             if (oldProduct != null) {
                 oldProduct.removeProductNodeListener(geoCodinglistener);
             }
-            product.addProductNodeListener(geoCodinglistener);
+            if(product != null) {
+                product.addProductNodeListener(geoCodinglistener);
+            }
         }
         super.setProduct(product);
 
