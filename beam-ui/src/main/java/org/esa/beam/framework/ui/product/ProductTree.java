@@ -257,14 +257,26 @@ public class ProductTree extends JTree implements PopupMenuFactory {
 
     private DefaultMutableTreeNode createProductTreeNode(Product product) {
         DefaultMutableTreeNode productTreeNode = new DefaultMutableTreeNode(product);
+
         DefaultMutableTreeNode metadataGroupTreeNode = createMetadataNodes(product);
-        DefaultMutableTreeNode flagCodingsGroupTreeNode = createFlagCodingNodes(product);
-        DefaultMutableTreeNode tiePointGridGroupTreeNode = createTiePointGridNodes(product);
-        DefaultMutableTreeNode bandsGroupTreeNode = createBandNodes(product);
         productTreeNode.add(metadataGroupTreeNode);
-        productTreeNode.add(flagCodingsGroupTreeNode);
+
+        DefaultMutableTreeNode flagCodingsGroupTreeNode = createFlagCodingNodes(product);
+        if (flagCodingsGroupTreeNode != null) {
+            productTreeNode.add(flagCodingsGroupTreeNode);
+        }
+
+        DefaultMutableTreeNode indexCodingsGroupTreeNode = createIndexCodingNodes(product);
+        if (indexCodingsGroupTreeNode != null) {
+            productTreeNode.add(indexCodingsGroupTreeNode);
+        }
+
+        DefaultMutableTreeNode tiePointGridGroupTreeNode = createTiePointGridNodes(product);
         productTreeNode.add(tiePointGridGroupTreeNode);
+
+        DefaultMutableTreeNode bandsGroupTreeNode = createBandNodes(product);
         productTreeNode.add(bandsGroupTreeNode);
+
         return productTreeNode;
     }
 
@@ -314,12 +326,29 @@ public class ProductTree extends JTree implements PopupMenuFactory {
     }
 
     private static DefaultMutableTreeNode createFlagCodingNodes(Product product) {
+        ProductNodeGroup<FlagCoding> productNodeGroup = product.getFlagCodingGroup();
+        if (productNodeGroup.getNodeCount() == 0) {
+            return null;
+        }
         DefaultMutableTreeNode flagCodingsGroupTreeNode = new DefaultMutableTreeNode("Flag Codings");
-        for (int i = 0; i < product.getNumFlagCodings(); i++) {
-            DefaultMutableTreeNode childTreeNode = new DefaultMutableTreeNode(product.getFlagCodingAt(i));
+        for (int i = 0; i < productNodeGroup.getNodeCount(); i++) {
+            DefaultMutableTreeNode childTreeNode = new DefaultMutableTreeNode(productNodeGroup.get(i));
             flagCodingsGroupTreeNode.add(childTreeNode);
         }
         return flagCodingsGroupTreeNode;
+    }
+
+    private static DefaultMutableTreeNode createIndexCodingNodes(Product product) {
+        ProductNodeGroup<IndexCoding> productNodeGroup = product.getIndexCodingGroup();
+        if (productNodeGroup.getNodeCount() == 0) {
+            return null;
+        }
+        DefaultMutableTreeNode indexCodingsGroupTreeNode = new DefaultMutableTreeNode("Index Codings");
+        for (int i = 0; i < productNodeGroup.getNodeCount(); i++) {
+            DefaultMutableTreeNode childTreeNode = new DefaultMutableTreeNode(productNodeGroup.get(i));
+            indexCodingsGroupTreeNode.add(childTreeNode);
+        }
+        return indexCodingsGroupTreeNode;
     }
 
     private class PTMouseListener extends MouseAdapter {
@@ -360,29 +389,33 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         ImageIcon productIcon;
         ImageIcon groupOpenIcon;
         ImageIcon groupClosedIcon;
-        ImageIcon bandAsSwathIcon;
-        ImageIcon bandAsSwathIconDisabled;
-        ImageIcon bandAsGridIcon;
-        ImageIcon bandAsGridIconDisabled;
         ImageIcon metadataIcon;
+        ImageIcon bandAsSwathIcon;
+        ImageIcon bandAsSwathIconUnloaded;
+        ImageIcon bandAsGridIcon;
+        ImageIcon bandAsGridIconUnloaded;
         ImageIcon bandFlagsIcon;
-        ImageIcon bandFlagsIconDisabled;
+        ImageIcon bandFlagsIconUnloaded;
+        ImageIcon bandIndexesIcon;
+        ImageIcon bandIndexesIconUnloaded;
         ImageIcon bandVirtualIcon;
-        ImageIcon bandVirtualIconDisabled;
+        ImageIcon bandVirtualIconUnloaded;
 
         public PTCellRenderer() {
             productIcon = UIUtils.loadImageIcon("icons/RsProduct16.gif");
             groupOpenIcon = UIUtils.loadImageIcon("icons/RsGroupOpen16.gif");
             groupClosedIcon = UIUtils.loadImageIcon("icons/RsGroupClosed16.gif");
-            bandAsSwathIcon = UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif");
-            bandAsSwathIconDisabled = UIUtils.loadImageIcon("icons/RsBandAsSwath16Disabled.gif");
-            bandAsGridIcon = UIUtils.loadImageIcon("icons/RsBandAsGrid16.gif");
-            bandAsGridIconDisabled = UIUtils.loadImageIcon("icons/RsBandAsGrid16Disabled.gif");
             metadataIcon = UIUtils.loadImageIcon("icons/RsMetaData16.gif");
+            bandAsSwathIcon = UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif");
+            bandAsSwathIconUnloaded = UIUtils.loadImageIcon("icons/RsBandAsSwath16Disabled.gif");
+            bandAsGridIcon = UIUtils.loadImageIcon("icons/RsBandAsGrid16.gif");
+            bandAsGridIconUnloaded = UIUtils.loadImageIcon("icons/RsBandAsGrid16Disabled.gif");
+            bandIndexesIcon = UIUtils.loadImageIcon("icons/RsBandIndexes16.gif");
+            bandIndexesIconUnloaded = UIUtils.loadImageIcon("icons/RsBandIndexes16Disabled.gif");
             bandFlagsIcon = UIUtils.loadImageIcon("icons/RsBandFlags16.gif");
-            bandFlagsIconDisabled = UIUtils.loadImageIcon("icons/RsBandFlags16Disabled.gif");
+            bandFlagsIconUnloaded = UIUtils.loadImageIcon("icons/RsBandFlags16Disabled.gif");
             bandVirtualIcon = UIUtils.loadImageIcon("icons/RsBandVirtual16.gif");
-            bandVirtualIconDisabled = UIUtils.loadImageIcon("icons/RsBandVirtual16Disabled.gif");
+            bandVirtualIconUnloaded = UIUtils.loadImageIcon("icons/RsBandVirtual16Disabled.gif");
         }
 
         @Override
@@ -455,19 +488,25 @@ public class ProductTree extends JTree implements PopupMenuFactory {
                         if (band.hasRasterData()) {
                             this.setIcon(bandVirtualIcon);
                         } else {
-                            this.setIcon(bandVirtualIconDisabled);
+                            this.setIcon(bandVirtualIconUnloaded);
                         }
-                    } else if (band.getFlagCoding() == null) {
-                        if (band.hasRasterData()) {
-                            this.setIcon(bandAsSwathIcon);
-                        } else {
-                            this.setIcon(bandAsSwathIconDisabled);
-                        }
-                    } else {
+                    } else if (band.getFlagCoding() != null) {
                         if (band.hasRasterData()) {
                             this.setIcon(bandFlagsIcon);
                         } else {
-                            this.setIcon(bandFlagsIconDisabled);
+                            this.setIcon(bandFlagsIconUnloaded);
+                        }
+                    } else if (band.getIndexCoding() != null) {
+                        if (band.hasRasterData()) {
+                            this.setIcon(bandIndexesIcon);
+                        } else {
+                            this.setIcon(bandIndexesIconUnloaded);
+                        }
+                    } else {
+                        if (band.hasRasterData()) {
+                            this.setIcon(bandAsSwathIcon);
+                        } else {
+                            this.setIcon(bandAsSwathIconUnloaded);
                         }
                     }
                     toolTipBuffer.append(", raster size = ");
