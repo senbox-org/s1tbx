@@ -17,7 +17,7 @@ import org.esa.beam.framework.datamodel.Product;
  * <ul>
  * <li>the gcp file to be written</li>
  * <li>the satellite product to be opened</li>
- * <li>the resolution of the gcp's, i.e. how many pixels inbetween two gcp's</li>
+ * <li>the resolution of the GCPs, i.e. how many pixels inbetween two GCPs</li>
  * </ul>
  */
 public class GcpExportMain {
