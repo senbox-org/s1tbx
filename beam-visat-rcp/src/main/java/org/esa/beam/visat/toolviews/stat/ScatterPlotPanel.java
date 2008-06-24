@@ -412,6 +412,17 @@ class ScatterPlotPanel extends PagePanel {
                     final double maxX = scatterPlot.getRangeX().getMax();
                     final double minY = scatterPlot.getRangeY().getMin();
                     final double maxY = scatterPlot.getRangeY().getMax();
+                    if(minX > maxX || minY > maxY) {
+                        JOptionPane.showMessageDialog(getParentDialogContentPane(),
+                                                      "Failed to compute scatter plot.\n" +
+                                                      "No Pixels considered..",
+                                                      /*I18N*/
+                                                      CHART_TITLE, /*I18N*/
+                                                      JOptionPane.ERROR_MESSAGE);
+                        plot.setDataset(null);                        
+                        return;
+
+                    }
                     plot.setImage(scatterPlot.getImage());
                     plot.setImageDataBounds(new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY));
                     setAutoRange(X_VAR, scatterPlot.getRangeX());
