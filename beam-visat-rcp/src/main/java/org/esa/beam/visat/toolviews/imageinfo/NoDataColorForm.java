@@ -1,9 +1,7 @@
 package org.esa.beam.visat.toolviews.imageinfo;
 
 import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
-import com.bc.ceres.binding.accessors.ClassFieldAccessor;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.jidesoft.combobox.ColorComboBox;
 
@@ -11,7 +9,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.Color;
 import java.awt.FlowLayout;
-import java.lang.reflect.Field;
 
 class NoDataColorForm {
     static final String NO_DATA_COLOR_PROPERTY = "noDataColor";
@@ -29,7 +26,7 @@ class NoDataColorForm {
         noDataColorComboBox.setAllowDefaultColor(true);
 
         valueContainer = new ValueContainer();
-        valueContainer.addModel(createValueModel(this, NO_DATA_COLOR_PROPERTY));
+        valueContainer.addModel(ValueModel.create(this, NO_DATA_COLOR_PROPERTY));
 
         BindingContext context = new BindingContext(valueContainer);
         noDataColorBinding = new ColorComboBoxBinding(context, noDataColorComboBox, NO_DATA_COLOR_PROPERTY);
@@ -39,17 +36,6 @@ class NoDataColorForm {
         contentPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 2, 2));
         contentPanel.add(label);
         contentPanel.add(noDataColorComboBox);
-    }
-
-    public static ValueModel createValueModel(Object object, String name) {
-        Field field;
-        try {
-            field = object.getClass().getDeclaredField(name);
-        } catch (NoSuchFieldException e) {
-            throw new IllegalStateException(e);
-        }
-        return new ValueModel(new ValueDescriptor(name, field.getType()),
-                              new ClassFieldAccessor(object, field));
     }
 
     public Color getNoDataColor() {
