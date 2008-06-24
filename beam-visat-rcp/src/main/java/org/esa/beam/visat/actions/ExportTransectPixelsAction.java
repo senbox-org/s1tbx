@@ -33,7 +33,7 @@ import java.text.MessageFormat;
 
 public class ExportTransectPixelsAction extends ExecCommand {
 
-    private final static String DLG_TITLE = "Export Transect Pixels";
+    private static final String DLG_TITLE = "Export Transect Pixels";
     private static final String ERR_MSG_BASE = "Transect pixels cannot be exported:\n";
 
     /**
@@ -90,7 +90,6 @@ public class ExportTransectPixelsAction extends ExecCommand {
         // Compute total number of transect pixels
         final int numTransectPixels = getNumTransectPixels(raster.getProduct(), transectProfileData);
 
-        final String questionText = "How do you want to export the pixel values?\n"; /*I18N*/
         String numPixelsText;
         if (numTransectPixels == 1) {
             numPixelsText = "One transect pixel will be exported.\n"; /*I18N*/
@@ -98,6 +97,7 @@ public class ExportTransectPixelsAction extends ExecCommand {
             numPixelsText = numTransectPixels + " transect pixels will be exported.\n"; /*I18N*/
         }
         // Get export method from user
+        final String questionText = "How do you want to export the pixel values?\n"; /*I18N*/
         final int method = SelectExportMethodDialog.run(VisatApp.getApp().getMainFrame(), getWindowTitle(),
                                                         questionText + numPixelsText, getHelpId());
 
@@ -129,17 +129,17 @@ public class ExportTransectPixelsAction extends ExecCommand {
             return; // Cancel
         }
 
-        final SwingWorker swingWorker = new SwingWorker<Exception, Object>() {
+        final SwingWorker<Exception, Object> swingWorker = new SwingWorker<Exception, Object>() {
 
             @Override
             protected Exception doInBackground() throws Exception {
-                boolean success;
                 Exception returnValue = null;
                 ProgressMonitor pm = new DialogProgressMonitor(VisatApp.getApp().getMainFrame(), DLG_TITLE,
                                                                Dialog.ModalityType.APPLICATION_MODAL);
                 try {
-                    success = exportTransectPixels(out, raster.getProduct(), transectProfileData, numTransectPixels,
-                                                   pm);
+                    boolean success = exportTransectPixels(out, raster.getProduct(), transectProfileData,
+                                                           numTransectPixels,
+                                                           pm);
                     if (success && clipboardText != null) {
                         SystemUtils.copyToClipboard(clipboardText.toString());
                         clipboardText.setLength(0);
@@ -250,8 +250,7 @@ public class ExportTransectPixelsAction extends ExecCommand {
 
         pm.beginTask("Writing pixel data...", numTransectPixels);
         try {
-            for (int i = 0; i < pixelPositions.length; i++) {
-                Point2D pixelPosition = pixelPositions[i];
+            for (Point2D pixelPosition : pixelPositions) {
                 int x = (int) Math.floor(pixelPosition.getX());
                 int y = (int) Math.floor(pixelPosition.getY());
                 if (x >= 0 && x < product.getSceneRasterWidth()
@@ -275,8 +274,7 @@ public class ExportTransectPixelsAction extends ExecCommand {
 
         final Point2D[] pixelPositions = transectProfileData.getPixelPositions();
         int numTransectPixels = 0;
-        for (int i = 0; i < pixelPositions.length; i++) {
-            Point2D pixelPosition = pixelPositions[i];
+        for (Point2D pixelPosition : pixelPositions) {
             int x = (int) Math.floor(pixelPosition.getX());
             int y = (int) Math.floor(pixelPosition.getY());
             if (x >= 0 && x < product.getSceneRasterWidth()
@@ -323,10 +321,8 @@ public class ExportTransectPixelsAction extends ExecCommand {
                                       final GeoCoding geoCoding,
                                       final Band[] bands,
                                       int x,
-                                      int y) throws IOException {
+                                      int y) {
         final PixelPos pixelPos = new PixelPos(x + 0.5f, y + 0.5f);
-        final int[] intPixel = new int[1];
-        final float[] floatPixel = new float[1];
 
         out.print(String.valueOf(pixelPos.x));
         out.print("\t");
@@ -341,13 +337,8 @@ public class ExportTransectPixelsAction extends ExecCommand {
         }
         for (int i = 0; i < bands.length; i++) {
             final Band band = bands[i];
-            if (band.isFloatingPointType()) {
-                band.readPixels(x, y, 1, 1, floatPixel, ProgressMonitor.NULL);
-                out.print(floatPixel[0]);
-            } else {
-                band.readPixels(x, y, 1, 1, intPixel, ProgressMonitor.NULL);
-                out.print(intPixel[0]);
-            }
+            final String pixelString = band.getPixelString(x, y);
+            out.print(pixelString);
             if (i < bands.length - 1) {
                 out.print("\t");
             }

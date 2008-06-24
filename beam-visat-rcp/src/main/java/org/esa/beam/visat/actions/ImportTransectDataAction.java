@@ -81,7 +81,7 @@ public class ImportTransectDataAction extends ExecCommand {
         final RasterDataNode raster = productSceneView.getRaster();
         final GeoCoding geoCoding = raster.getProduct().getGeoCoding();
 
-        Shape shape = null;
+        Shape shape;
         try {
             shape = loadShape(file, geoCoding);
             if (shape == null) {
@@ -99,8 +99,6 @@ public class ImportTransectDataAction extends ExecCommand {
                                                        raster.getSceneRasterWidth(),
                                                        raster.getSceneRasterHeight());
         final Rectangle2D shapeBounds = shape.getBounds2D();
-//        Debug.trace("rasterBounds = " + rasterBounds);
-//        Debug.trace("shapeBounds = " + shapeBounds);
         if (!rasterBounds.contains(shapeBounds)
             && !shapeBounds.contains(rasterBounds)
             && !shape.intersects(rasterBounds)) {
@@ -116,115 +114,119 @@ public class ImportTransectDataAction extends ExecCommand {
     private static Shape loadShape(final File file, final GeoCoding geoCoding) throws IOException {
         final FileReader fileReader = new FileReader(file);
         final LineNumberReader reader = new LineNumberReader(fileReader);
-
-        final StreamTokenizer st = new StreamTokenizer(reader);
-        st.resetSyntax();
-        st.eolIsSignificant(true);
-        st.lowerCaseMode(true);
-        st.commentChar('#');
-        st.whitespaceChars(' ', ' ');
-        st.whitespaceChars('\t', '\t');
-        st.wordChars(33, 255);
-
-        final float[] values = new float[]{0.0F, 0.0F, 0.0F, 0.0F}; // values for {x, y, lat, lon}
-        final boolean[] valid = new boolean[]{false, false, false, false}; // {x, y, lat, lon} columns valid?
-        final int[] indices = new int[]{0, 1, 2, 3}; // indexes of {x, y, lat, lon} columns
-        final PixelPos pixelPos = new PixelPos();
-        final GeoPos geoPos = new GeoPos();
-
-        boolean headerAvailable = false;
         GeneralPath generalPath = null;
-        int column = 0;
 
-        while (true) {
-            final int tt = st.nextToken();
+        try {
 
-            if (tt == StreamTokenizer.TT_EOF
-                || tt == StreamTokenizer.TT_EOL) {
-                final boolean xyAvailable = valid[0] && valid[1];
-                final boolean latLonAvailable = valid[2] && valid[3] && geoCoding != null && geoCoding.canGetPixelPos();
-                if (xyAvailable || latLonAvailable) {
-                    float x = values[0];
-                    float y = values[1];
-                    if (latLonAvailable) {
-                        geoPos.lat = values[2];
-                        geoPos.lon = values[3];
-                        geoCoding.getPixelPos(geoPos, pixelPos);
-                        x = pixelPos.x;
-                        y = pixelPos.y;
-                        // Debug.trace("lat="+geoPos.lat + ", lon=" +geoPos.lon+ ", " + x + ", y=" + y);
-                    }
+            final StreamTokenizer st = new StreamTokenizer(reader);
+            st.resetSyntax();
+            st.eolIsSignificant(true);
+            st.lowerCaseMode(true);
+            st.commentChar('#');
+            st.whitespaceChars(' ', ' ');
+            st.whitespaceChars('\t', '\t');
+            st.wordChars(33, 255);
 
-                    // Do not add positions which are out of bounds, it leads to scrambled shapes
-                    if (x != -1 && y != -1) {
-                        if (generalPath == null) {
-                            generalPath = new GeneralPath();
-                            generalPath.moveTo(x, y);
-                        } else {
-                            generalPath.lineTo(x, y);
+            final float[] values = new float[]{0.0F, 0.0F, 0.0F, 0.0F}; // values for {x, y, lat, lon}
+            final boolean[] valid = new boolean[]{false, false, false, false}; // {x, y, lat, lon} columns valid?
+            final int[] indices = new int[]{0, 1, 2, 3}; // indexes of {x, y, lat, lon} columns
+            final PixelPos pixelPos = new PixelPos();
+            final GeoPos geoPos = new GeoPos();
+
+            boolean headerAvailable = false;
+            int column = 0;
+
+            while (true) {
+                final int tt = st.nextToken();
+
+                if (tt == StreamTokenizer.TT_EOF
+                    || tt == StreamTokenizer.TT_EOL) {
+                    final boolean xyAvailable = valid[0] && valid[1];
+                    final boolean latLonAvailable = valid[2] && valid[3] && geoCoding != null && geoCoding.canGetPixelPos();
+                    if (xyAvailable || latLonAvailable) {
+                        float x = values[0];
+                        float y = values[1];
+                        if (latLonAvailable) {
+                            geoPos.lat = values[2];
+                            geoPos.lon = values[3];
+                            geoCoding.getPixelPos(geoPos, pixelPos);
+                            x = pixelPos.x;
+                            y = pixelPos.y;
                         }
+
+                        // Do not add positions which are out of bounds, it leads to scrambled shapes
+                        if (x != -1 && y != -1) {
+                            if (generalPath == null) {
+                                generalPath = new GeneralPath();
+                                generalPath.moveTo(x, y);
+                            } else {
+                                generalPath.lineTo(x, y);
+                            }
+                        }
+
                     }
 
-                }
-
-                for (int i = 0; i < 4; i++) {
-                    values[i] = 0.0F;
-                    valid[i] = false;
-                }
-
-                if (tt == StreamTokenizer.TT_EOF) {
-                    column = 0;
-                    break;
-                } else if (tt == StreamTokenizer.TT_EOL) {
-                    column = 0;
-                }
-            } else if (tt == StreamTokenizer.TT_WORD) {
-                final String token = st.sval;
-                int headerText = -1;
-                if (token.equalsIgnoreCase("x")
-                    || token.equalsIgnoreCase("pixel-x")
-                    || token.equalsIgnoreCase("pixel_x")) {
-                    indices[0] = column;
-                    headerText = 0;
-                } else if (token.equalsIgnoreCase("y")
-                           || token.equalsIgnoreCase("pixel-y")
-                           || token.equalsIgnoreCase("pixel_y")) {
-                    indices[1] = column;
-                    headerText = 1;
-                } else if (token.equalsIgnoreCase("lat")
-                           || token.equalsIgnoreCase("latitude")) {
-                    indices[2] = column;
-                    headerText = 2;
-                } else if (token.equalsIgnoreCase("lon")
-                           || token.equalsIgnoreCase("long")
-                           || token.equalsIgnoreCase("longitude")) {
-                    indices[3] = column;
-                    headerText = 3;
-                } else {
                     for (int i = 0; i < 4; i++) {
-                        if (column == indices[i]) {
-                            try {
-                                values[i] = Float.parseFloat(token);
-                                valid[i] = true;
-                                break;
-                            } catch (NumberFormatException e) {
+                        values[i] = 0.0F;
+                        valid[i] = false;
+                    }
+
+                    if (tt == StreamTokenizer.TT_EOF) {
+                        column = 0;
+                        break;
+                    } else if (tt == StreamTokenizer.TT_EOL) {
+                        column = 0;
+                    }
+                } else if (tt == StreamTokenizer.TT_WORD) {
+                    final String token = st.sval;
+                    int headerText = -1;
+                    if ("x".equalsIgnoreCase(token)
+                        || "pixel-x".equalsIgnoreCase(token)
+                        || "pixel_x".equalsIgnoreCase(token)) {
+                        indices[0] = column;
+                        headerText = 0;
+                    } else if ("y".equalsIgnoreCase(token)
+                               || "pixel-y".equalsIgnoreCase(token)
+                               || "pixel_y".equalsIgnoreCase(token)) {
+                        indices[1] = column;
+                        headerText = 1;
+                    } else if ("lat".equalsIgnoreCase(token)
+                               || "latitude".equalsIgnoreCase(token)) {
+                        indices[2] = column;
+                        headerText = 2;
+                    } else if ("lon".equalsIgnoreCase(token)
+                               || "long".equalsIgnoreCase(token)
+                               || "longitude".equalsIgnoreCase(token)) {
+                        indices[3] = column;
+                        headerText = 3;
+                    } else {
+                        for (int i = 0; i < 4; i++) {
+                            if (column == indices[i]) {
+                                try {
+                                    values[i] = Float.parseFloat(token);
+                                    valid[i] = true;
+                                    break;
+                                } catch (NumberFormatException ignore) {
+                                }
                             }
                         }
                     }
-                }
-                if (!headerAvailable && headerText >= 0) {
-                    for (int i = 0; i < indices.length; i++) {
-                        if (headerText != i) {
-                            indices[i] = -1;
+                    if (!headerAvailable && headerText >= 0) {
+                        for (int i = 0; i < indices.length; i++) {
+                            if (headerText != i) {
+                                indices[i] = -1;
+                            }
                         }
+                        headerAvailable = true;
                     }
-                    headerAvailable = true;
+                    column++;
+                } else {
+                    Debug.assertTrue(false);
                 }
-                column++;
-            } else {
-                Debug.assertTrue(false);
-                //Debug.trace("unknown character '"+(char)tt+"'");
             }
+        } finally {
+            reader.close();
+            fileReader.close();
         }
         return generalPath;
     }
