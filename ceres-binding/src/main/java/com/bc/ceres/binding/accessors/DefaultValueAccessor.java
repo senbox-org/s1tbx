@@ -10,9 +10,8 @@ public class DefaultValueAccessor implements ValueAccessor {
 
     /**
      * Constructs a new {@code DefaultValueAccessor} with a {@code null} default value.
-     * @param valueType the type of the value
      */
-    public DefaultValueAccessor(Class<?> valueType) {
+    public DefaultValueAccessor() {
     }
 
     /**

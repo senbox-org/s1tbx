@@ -70,7 +70,7 @@ public class ValueContainerFactory {
     private class ValueBackedValueAccessorFactory implements ValueAccessorFactory {
 
         public ValueAccessor create(Field field) {
-            return new DefaultValueAccessor(field.getType());
+            return new DefaultValueAccessor();
         }
     }
 

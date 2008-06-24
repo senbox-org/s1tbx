@@ -1,7 +1,14 @@
 package com.bc.ceres.binding;
 
+import com.bc.ceres.binding.accessors.ClassFieldAccessor;
+import com.bc.ceres.binding.accessors.MapEntryAccessor;
+import com.bc.ceres.binding.accessors.DefaultValueAccessor;
+import com.bc.ceres.binding.validators.TypeValidator;
+
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
+import java.util.Map;
+import java.lang.reflect.Field;
 
 /**
  * A model for a value, e.g. a field of an object instance. A value model is composed of a {@link ValueDescriptor} and
@@ -16,7 +23,7 @@ public class ValueModel {
 
     static {
         INITIAL_VALUES = new HashMap<Class<?>, Object>(17);
-        INITIAL_VALUES.put(Boolean.TYPE, Boolean.FALSE);
+        INITIAL_VALUES.put(Boolean.TYPE, false);
         INITIAL_VALUES.put(Character.TYPE, (char) 0);
         INITIAL_VALUES.put(Byte.TYPE, (byte) 0);
         INITIAL_VALUES.put(Short.TYPE, (short) 0);
@@ -35,6 +42,35 @@ public class ValueModel {
     public ValueModel(ValueDescriptor descriptor, ValueAccessor accessor) {
         this.descriptor = descriptor;
         this.accessor = accessor;
+    }
+
+    public static ValueModel create(Object object, String name) {
+        Field field;
+        try {
+            field = object.getClass().getDeclaredField(name);
+        } catch (NoSuchFieldException e) {
+            throw new IllegalStateException(e);
+        }
+        ValueModel vm = new ValueModel(new ValueDescriptor(name, field.getType()),
+                                       new ClassFieldAccessor(object, field));
+        vm.getDescriptor().setValidator(new TypeValidator());
+        return vm;
+    }
+
+    public static ValueModel create(Map<String, Object> map, String name, Class<?> type) {
+        ValueModel vm = new ValueModel(new ValueDescriptor(name, type),
+                                       new MapEntryAccessor(map, name));
+        vm.getDescriptor().setValidator(new TypeValidator());
+        initPrimitiveValue(type, vm);
+        return vm;
+    }
+
+    public static ValueModel create(String name, Class<?> type) {
+        ValueModel vm = new ValueModel(new ValueDescriptor(name, type),
+                                       new DefaultValueAccessor());
+        vm.getDescriptor().setValidator(new TypeValidator());
+        initPrimitiveValue(type, vm);
+        return vm;
     }
 
     public ValueDescriptor getDescriptor() {
@@ -114,7 +150,17 @@ public class ValueModel {
         return getClass().getName() + "[name=" + getDescriptor().getName() + ",value=" + getValueAsText() + "]";
     }
 
-    private Object getPrimitiveInitialValue(Class<?> valueType) {
+    private static void initPrimitiveValue(Class<?> type, ValueModel vm) {
+        if (type.isPrimitive()) {
+            try {
+                vm.setValue(getPrimitiveInitialValue(type));
+            } catch (ValidationException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+    }
+
+    private static Object getPrimitiveInitialValue(Class<?> valueType) {
         return INITIAL_VALUES.get(valueType);
     }
 }
