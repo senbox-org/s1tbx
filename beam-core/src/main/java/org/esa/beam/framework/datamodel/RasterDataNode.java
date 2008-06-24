@@ -787,7 +787,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         final Product product = getProductSafe();
         Term term = getValidMaskTerm();
         if (term == null) {
-            final String dataMaskExpression = getDataMaskExpression();
+            final String dataMaskExpression = getValidMaskExpression();
             if (dataMaskExpression != null) {
                 try {
                     term = product.createTerm(dataMaskExpression);

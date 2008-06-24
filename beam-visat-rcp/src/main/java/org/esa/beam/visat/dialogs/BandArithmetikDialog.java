@@ -218,7 +218,6 @@ public class BandArithmetikDialog extends ModalDialog {
                         percentage = 1;
                     }
                     String message = _numInvalids + " of " + numPixelsTotal + " pixels (< " + percentage + "%) are invalid due to arithmetic exceptions.\n"; /*I18N*/
-                    int status;
                     if (noDataValueUsed) {
                         message += "These pixels have been set to " + noDataValue + ".\n\n";  /*I18N*/
                     } else {
@@ -226,13 +225,13 @@ public class BandArithmetikDialog extends ModalDialog {
                     }
                     message += "Do you still want to use the suspicious computed data?\n"      /*I18N*/
                             + "If you select \"No\", all computed data will be lost.";  /*I18N*/
-                    status = showQuestionDialog("Invalid Pixel Warning", message);   /*I18N*/
+                    int status = showQuestionDialog("Invalid Pixel Warning", message);
                     if (status != JOptionPane.YES_OPTION) {
                         ok = false;
                     }
                 }
 
-                BandArithmetikDialog.this.finalOnOk(ok);
+                finalOnOk(ok);
             }
         };
 
