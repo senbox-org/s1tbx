@@ -35,7 +35,7 @@ import java.util.concurrent.ExecutionException;
  * GCP geo-coding form.
  *
  * @author Marco Peters
- * @version $Revision:$ $Date:$
+ * @version $Revision$ $Date$
  */
 class GcpGeoCodingForm extends JPanel {
 
@@ -184,11 +184,11 @@ class GcpGeoCodingForm extends JPanel {
         final GcpGeoCoding.Method method = (GcpGeoCoding.Method) methodComboBox.getSelectedItem();
         if (currentProduct != null && currentProduct.getGcpGroup().getNodeCount() >= method.getTermCountP()) {
             attachButton.setEnabled(true);
-            warningLabel.setText("OK, enough GCP's for selected method");
+            warningLabel.setText("OK, enough GCPs for selected method");
             warningLabel.setForeground(Color.GREEN.darker());
         } else {
             attachButton.setEnabled(false);
-            warningLabel.setText("Not enough GCP's for selected method");
+            warningLabel.setText("Not enough GCPs for selected method");
             warningLabel.setForeground(Color.RED.darker());
         }
     }
