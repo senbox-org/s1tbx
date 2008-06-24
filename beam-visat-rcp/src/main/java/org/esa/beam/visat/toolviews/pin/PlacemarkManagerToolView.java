@@ -398,14 +398,14 @@ class PlacemarkManagerToolView extends AbstractToolView {
     }
 
 
-    private void addCellRenderer(TableColumnModel columnModel) {
+    protected void addCellRenderer(TableColumnModel columnModel) {
         columnModel.getColumn(0).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.000")));
         columnModel.getColumn(1).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.000")));
         columnModel.getColumn(2).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.000000")));
         columnModel.getColumn(3).setCellRenderer(new FloatTableCellRenderer(new DecimalFormat("0.000000")));
     }
 
-    private void addCellEditor(TableColumnModel columnModel) {
+    protected void addCellEditor(TableColumnModel columnModel) {
         columnModel.getColumn(0).setCellEditor(new PinXCellEditor(placemarkDescriptor));
         columnModel.getColumn(1).setCellEditor(new PinYCellEditor(placemarkDescriptor));
         columnModel.getColumn(2).setCellEditor(new PinLonCellEditor(placemarkDescriptor));
@@ -1254,11 +1254,11 @@ class PlacemarkManagerToolView extends AbstractToolView {
         }
     }
 
-    private static class FloatTableCellRenderer extends DefaultTableCellRenderer {
+    static class FloatTableCellRenderer extends DefaultTableCellRenderer {
 
         private DecimalFormat format;
 
-        public FloatTableCellRenderer(DecimalFormat format) {
+        FloatTableCellRenderer(DecimalFormat format) {
             this.format = format;
         }
 
