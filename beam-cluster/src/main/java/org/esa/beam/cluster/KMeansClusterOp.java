@@ -61,7 +61,8 @@ public class KMeansClusterOp extends Operator {
     @Parameter(label = "Number of iterations", defaultValue = "30")
     private int iterationCount;
     @Parameter(label = "Source band names",
-               description = "The names of the bands being used for the cluster analysis.")
+               description = "The names of the bands being used for the cluster analysis.",
+               sourceProductId = "source")
     private String[] sourceBandNames;
 
     private transient Band[] sourceBands;

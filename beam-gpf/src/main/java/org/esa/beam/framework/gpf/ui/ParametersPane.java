@@ -1,15 +1,31 @@
 package org.esa.beam.framework.gpf.ui;
 
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueModel;
-import com.bc.ceres.binding.swing.BindingContext;
-import com.bc.ceres.binding.swing.Binding;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.ValueSet;
+import com.bc.ceres.binding.swing.Binding;
+import com.bc.ceres.binding.swing.BindingContext;
 
 /**
  * A utility class used to create a {@link JPanel} containg default Swing components and their corresponding bindings for the
@@ -73,10 +89,18 @@ public class ParametersPane {
                 subPanel.add(etcButton, BorderLayout.EAST);
                 editorComponent = subPanel;
             } else {
-                if (model.getDescriptor().getValueSet() != null) {
-                    JComboBox comboBox = new JComboBox();
-                    bindingContext.bind(comboBox, model.getDescriptor().getName());
-                    editorComponent = comboBox;
+                ValueSet valueSet = model.getDescriptor().getValueSet();
+                if (valueSet != null) {
+                    if (type.isArray()) {
+                        final JList list = new JList();
+                        bindingContext.bind(list, model.getDescriptor().getName(), true);
+                        editorComponent = new JScrollPane(list);
+                    } else {
+                        JComboBox comboBox = new JComboBox();
+                        bindingContext.bind(comboBox, model.getDescriptor().getName());
+                        editorComponent = comboBox;
+                        
+                    }
                 } else {
                     JTextField textField = new JTextField();
                     bindingContext.bind(textField, model.getDescriptor().getName());
@@ -127,9 +151,9 @@ public class ParametersPane {
     }
 
     private static String getDisplayName(ValueModel model) {
-        Object label = model.getDescriptor().getDisplayName();
+        String label = model.getDescriptor().getDisplayName();
         if (label != null) {
-            return label.toString();
+            return label;
         }
         String name = model.getDescriptor().getName().replace("_", " ");
         return createDisplayName(name);

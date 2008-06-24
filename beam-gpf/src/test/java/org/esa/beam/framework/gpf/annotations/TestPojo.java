@@ -14,6 +14,12 @@ public class TestPojo {
     @Parameter(interval = "(0, 100]")
     double percentage;
 
+    @Parameter(label="a nice desciption", valueSet = {"0", "13", "42"})
+    double threshold;
+    
+    @Parameter(valueSet = {"0", "13", "42"})
+    double[] thresholdArray;
+    
     @TargetProperty(alias = "bert",
                     description = "a test property")
     int property;

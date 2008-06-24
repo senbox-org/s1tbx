@@ -311,9 +311,9 @@ public class OperatorContext {
         Assert.state(operator != null, "operator != null");
 
         if (!(operator instanceof GraphOp)) {
+            initSourceProductFields();
             injectParameterValues();
             injectConfiguration();
-            initSourceProductFields();
         }
         operator.initialize();
         initTargetProduct();
@@ -731,6 +731,16 @@ public class OperatorContext {
                     throw new OperatorException(formatExceptionMessage("Unknown parameter '%s'.", parameterName));
                 }
                 try {
+                    ValueDescriptor descriptor = valueModel.getDescriptor();
+                    if (((String) descriptor.getProperty("sourceId")) != null) {
+                        String sourceId = (String) descriptor.getProperty("sourceId");
+                        Product sourceProduct = getSourceProduct(sourceId);
+                        if (sourceProduct == null) {
+                            throw new OperatorException(formatExceptionMessage("Unknown sourceId '%s'.", sourceId));
+                        }
+                        ValueSet valueSet = new ValueSet(sourceProduct.getBandNames());
+                        descriptor.setValueSet(valueSet);
+                    }
                     valueModel.setValue(parameters.get(parameterName));
                 } catch (ValidationException e) {
                     throw new OperatorException(formatExceptionMessage("%s", e.getMessage()), e);

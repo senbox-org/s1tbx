@@ -157,4 +157,12 @@ public @interface Parameter {
      * @return The DOM converter class.
      */
     Class<? extends DomConverter> domConverter() default DomConverter.class;
+
+    /**
+     * The band names of the product referred to by this id make up the
+     * valueSet of this parameter.
+     * 
+     * @return the source product id.
+     */
+    String sourceProductId() default "";
 }

@@ -72,6 +72,8 @@ public class ParameterDescriptorFactory implements ValueDescriptorFactory {
         }
         if (ParameterDescriptorFactory.isSet(parameter.label())) {
             valueDescriptor.setDisplayName(parameter.label());
+        } else {
+            valueDescriptor.setDisplayName(valueDescriptor.getName());
         }
         if (ParameterDescriptorFactory.isSet(parameter.alias())) {
             valueDescriptor.setAlias(parameter.alias());
@@ -100,13 +102,23 @@ public class ParameterDescriptorFactory implements ValueDescriptorFactory {
             valueDescriptor.setFormat(parameter.format());
         }
         if (isSet(parameter.valueSet())) {
-            Converter converter = valueDescriptor.getConverter();
+            Converter converter;
+            if (valueDescriptor.getType().isArray()) {
+                Class<?> componentType = valueDescriptor.getType().getComponentType();
+                converter = ConverterRegistry.getInstance().getConverter(componentType);
+            } else {
+                converter = valueDescriptor.getConverter();
+            }
             ValueSet valueSet = ValueSet.parseValueSet(parameter.valueSet(), converter);
             valueDescriptor.setValueSet(valueSet);
         }
         if (isSet(parameter.defaultValue())) {
             Converter converter = valueDescriptor.getConverter();
             valueDescriptor.setDefaultValue(converter.parse(parameter.defaultValue()));
+        }
+        if (isSet(parameter.sourceProductId())) {
+            valueDescriptor.setProperty("sourceId", parameter.sourceProductId());
+            valueDescriptor.setValueSet(new ValueSet(new String[0]));
         }
         return valueDescriptor;
     }

@@ -1,9 +1,17 @@
 package org.esa.beam.framework.gpf.ui;
 
-import com.bc.ceres.binding.ValidationException;
-import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueContainerFactory;
-import com.bc.ceres.binding.swing.BindingContext;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.border.EmptyBorder;
+
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -14,16 +22,13 @@ import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.framework.ui.application.SelectionChangeEvent;
 import org.esa.beam.framework.ui.application.SelectionChangeListener;
 
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.border.EmptyBorder;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueContainerFactory;
+import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.swing.Binding;
+import com.bc.ceres.binding.swing.BindingContext;
 
 // todo (mp, 2008/04/22) add abillity to set the ProductFilter to SourceProductSelectors
 
@@ -87,7 +92,7 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
 
         ValueContainerFactory factory = new ValueContainerFactory(new ParameterDescriptorFactory());
         parameterMap = new HashMap<String, Object>(17);
-        ValueContainer valueContainer = factory.createMapBackedValueContainer(operatorSpi.getOperatorClass(), parameterMap);
+        final ValueContainer valueContainer = factory.createMapBackedValueContainer(operatorSpi.getOperatorClass(), parameterMap);
         try {
             valueContainer.setDefaultValues();
         } catch (ValidationException e) {
@@ -100,6 +105,21 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
             JComponent processingParametersPanel = new JScrollPane(parametersPane.createPanel());
             processingParametersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
             this.form.add("Processing Parameters", processingParametersPanel);
+            
+            
+            for (final Field field : sourceProductSelectorMap.keySet()) {
+                final SourceProductSelector sourceProductSelector = sourceProductSelectorMap.get(field);
+                final String sourceAlias = field.getAnnotation(SourceProduct.class).alias();
+            
+                for (ValueModel valueModel : valueContainer.getModels()) {
+                    ValueDescriptor parameterDescriptor = valueModel.getDescriptor();
+                    String sourceId = (String) parameterDescriptor.getProperty("sourceId");
+                    if (sourceId != null && (sourceId.equals(field.getName()) || sourceId.equals(sourceAlias))) {
+                        SelectionChangeListener valueSetUpdater = new ValueSetUpdater(parameterDescriptor);
+                        sourceProductSelector.addSelectionChangeListener(valueSetUpdater);                        
+                    }
+                }
+            }
         }
 
     }
