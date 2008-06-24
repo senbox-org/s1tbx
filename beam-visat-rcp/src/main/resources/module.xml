@@ -12,6 +12,8 @@
     <changelog>
         <![CDATA[
         Changes in 4.2<br/>
+        [BEAM-830] Compute ROI area does not finish<br/>
+        [BEAM-829] Geo-position of pins is not updated if geo-coding changes<br/>
         [BEAM-826] Support for user defined layout<br/>
         [BEAM-825] Use JFreeChart for plots in staistic dialogs<br/>
         [BEAM-812] Closing product causes Exception in ScatterPlot<br/>
