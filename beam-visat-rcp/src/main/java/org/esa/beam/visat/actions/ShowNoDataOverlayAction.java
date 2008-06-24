@@ -4,10 +4,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.DialogProgressMonitor;
 import com.bc.layer.Layer;
 import com.bc.layer.LayerModel;
-import org.esa.beam.framework.datamodel.ProductManager;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
-import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
@@ -105,10 +102,12 @@ public class ShowNoDataOverlayAction extends ExecCommand {
             }
 
             private void maybeUpdateAllNoDataOverlays(final ProductNodeEvent event) {
-                if (isNoDataOverlayRelevantPropertyName(event.getPropertyName()) &&
-                        event.getSourceNode() instanceof RasterDataNode) {
-                    final RasterDataNode rasterDataNode = (RasterDataNode) event.getSourceNode();
-                    updateAllNoDataOverlays(visatApp, rasterDataNode);
+                ProductNode productNode = event.getSourceNode();
+                if (productNode instanceof RasterDataNode) {
+                    RasterDataNode rasterDataNode = (RasterDataNode) productNode;
+                    if (rasterDataNode.isValidMaskProperty(event.getPropertyName())) {
+                        updateAllNoDataOverlays(visatApp, rasterDataNode);
+                    }
                 }
             }
 
