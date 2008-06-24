@@ -2,18 +2,18 @@ package com.bc.ceres.binding.validators;
 
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.Validator;
+import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
-import com.bc.ceres.binding.ValueSet;
 
 public class ValueSetValidator implements Validator {
-    private final ValueSet valueSet;
+    private final ValueDescriptor valueDescriptor;
 
-    public ValueSetValidator(ValueSet valueSet) {
-        this.valueSet = valueSet;
+    public ValueSetValidator(ValueDescriptor valueDescriptor) {
+        this.valueDescriptor = valueDescriptor;
     }
 
     public void validateValue(ValueModel valueModel, Object value) throws ValidationException {
-        if (!valueSet.contains(value)) {
+        if (!valueDescriptor.getValueSet().contains(value)) {
             throw new ValidationException("Value for '" + valueModel.getDescriptor().getDisplayName() + "' is invalid.");
         }
     }

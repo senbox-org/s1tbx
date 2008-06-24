@@ -1,15 +1,22 @@
 package com.bc.ceres.binding.swing.internal;
 
 import com.bc.ceres.binding.ValidationException;
+import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.swing.Binding;
 import com.bc.ceres.binding.swing.BindingContext;
 
+import javax.swing.AbstractListModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.ListModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.lang.reflect.Array;
 
 /**
@@ -19,13 +26,17 @@ import java.lang.reflect.Array;
  * @version $Revision$ $Date$
  * @since BEAM 4.2
  */
-public class ListSelectionBinding extends Binding implements ListSelectionListener {
+public class ListSelectionBinding extends Binding implements ListSelectionListener, PropertyChangeListener {
 
     private final JList list;
 
     public ListSelectionBinding(BindingContext context, JList list, String propertyName) {
         super(context, propertyName);
         this.list = list;
+        
+        getValueDescriptor().addPropertyChangeListener(this);
+        updateListModel();
+        
         list.addListSelectionListener(this);
     }
 
@@ -75,5 +86,22 @@ public class ListSelectionBinding extends Binding implements ListSelectionListen
     @Override
     public JComponent getPrimaryComponent() {
         return list;
+    }
+    
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getSource() == getValueDescriptor() && evt.getPropertyName().equals("valueSet")) {
+            updateListModel();
+        }
+    }
+
+    private ValueDescriptor getValueDescriptor() {
+        return getValueContainer().getValueDescriptor(getName());
+    }
+
+    private void updateListModel() {
+        ValueSet valueSet = getValueDescriptor().getValueSet();
+        if (valueSet != null) {
+            list.setListData(valueSet.getItems());
+        }
     }
 }

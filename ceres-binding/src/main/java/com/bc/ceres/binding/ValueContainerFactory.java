@@ -161,7 +161,11 @@ public class ValueContainerFactory {
             validators.add(new PatternValidator(vd.getPattern()));
         }
         if (vd.getValueSet() != null) {
-            validators.add(new ValueSetValidator(vd.getValueSet()));
+            Validator valueSetValidator = new ValueSetValidator(vd);
+            if (vd.getType().isArray()) {
+                valueSetValidator = new ArrayValidator(valueSetValidator);
+            }
+            validators.add(valueSetValidator);
         }
         if (vd.getValueRange() != null) {
             validators.add(new IntervalValidator(vd.getValueRange()));

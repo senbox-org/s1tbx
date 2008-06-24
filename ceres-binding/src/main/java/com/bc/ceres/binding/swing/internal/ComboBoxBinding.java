@@ -10,6 +10,8 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 /**
  * A binding for a {@link javax.swing.JComboBox} component.
@@ -18,7 +20,7 @@ import java.awt.event.ActionListener;
  * @version $Revision$ $Date$
  * @since BEAM 4.2
  */
-public class ComboBoxBinding extends Binding implements ActionListener {
+public class ComboBoxBinding extends Binding implements ActionListener, PropertyChangeListener {
 
     final JComboBox comboBox;
 
@@ -26,11 +28,8 @@ public class ComboBoxBinding extends Binding implements ActionListener {
         super(context, propertyName);
         this.comboBox = comboBox;
 
-        ValueDescriptor valueDescriptor = getValueContainer().getValueDescriptor(propertyName);
-        ValueSet valueSet = valueDescriptor.getValueSet();
-        if (valueSet != null) {
-            comboBox.setModel(new DefaultComboBoxModel(valueSet.getItems()));
-        }
+        getValueDescriptor().addPropertyChangeListener(this);
+        updateComboBoxModel();
 
         comboBox.addActionListener(this);
     }
@@ -48,5 +47,23 @@ public class ComboBoxBinding extends Binding implements ActionListener {
     @Override
     public JComponent getPrimaryComponent() {
         return comboBox;
+    }
+
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getSource() == getValueDescriptor() && evt.getPropertyName().equals("valueSet")) {
+            updateComboBoxModel();
+        }
+    }
+
+    private ValueDescriptor getValueDescriptor() {
+        return getValueContainer().getValueDescriptor(getName());
+    }
+
+    private void updateComboBoxModel() {
+        ValueSet valueSet = getValueDescriptor().getValueSet();
+        if (valueSet != null) {
+            comboBox.setModel(new DefaultComboBoxModel(valueSet.getItems()));
+        
+        }
     }
 }
