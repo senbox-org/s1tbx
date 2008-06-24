@@ -52,70 +52,70 @@ import java.util.*;
  */
 public class Product extends ProductNode {
 
-    public final static String METADATA_ROOT_NAME = "metadata";
-    public final static String HISTORY_ROOT_NAME = "history";
+    public static final String METADATA_ROOT_NAME = "metadata";
+    public static final String HISTORY_ROOT_NAME = "history";
 
 
-    public final static String PROPERTY_NAME_FILE_LOCATION = "fileLocation";
-    public final static String PROPERTY_NAME_GEOCODING = "geoCoding";
-    public final static String PROPERTY_NAME_POINTING = "pointing";
-    public final static String PROPERTY_NAME_PRODUCT_TYPE = "productType";
+    public static final String PROPERTY_NAME_FILE_LOCATION = "fileLocation";
+    public static final String PROPERTY_NAME_GEOCODING = "geoCoding";
+    public static final String PROPERTY_NAME_POINTING = "pointing";
+    public static final String PROPERTY_NAME_PRODUCT_TYPE = "productType";
 
     /**
      * The location file of this product.
      */
-    private File _fileLocation;
+    private File fileLocation;
 
     /**
      * The reader for this product. Once the reader is set, and can never be changed again.
      */
-    private ProductReader _reader;
+    private ProductReader reader;
 
     /**
      * The writer for this product. The writer is an exchangeable property of a product.
      */
-    private ProductWriter _writer;
+    private ProductWriter writer;
 
     /**
      * The geo-coding of this product, if any.
      */
-    private GeoCoding _geoCoding;
+    private GeoCoding geoCoding;
 
     /**
      * The list of product listeners.
      */
-    private List<ProductNodeListener> _listeners;
+    private List<ProductNodeListener> listeners;
 
     /**
      * This product's type ID.
      */
-    private String _productType;
+    private String productType;
 
     /**
      * The scene width of the product
      */
-    private final int _sceneRasterWidth;
+    private final int sceneRasterWidth;
 
     /**
      * The scene height of the product
      */
-    private final int _sceneRasterHeight;
+    private final int sceneRasterHeight;
 
     /**
      * The start time of the first raster line.
      */
-    private ProductData.UTC _startTime;
+    private ProductData.UTC startTime;
 
     /**
      * The start time of the first raster line.
      */
-    private ProductData.UTC _endTime;
+    private ProductData.UTC endTime;
 
-    private final MetadataElement _metadataRoot;
-    private final ProductNodeList<Band> _bands;
-    private final ProductNodeList<TiePointGrid> _tiePointGrids;
-    private final ProductNodeList<FlagCoding> _flagCodings;
-    private final ProductNodeList<BitmaskDef> _bitmaskDefs;
+    private final MetadataElement metadataRoot;
+    private final ProductNodeList<Band> bands;
+    private final ProductNodeList<TiePointGrid> tiePointGrids;
+    private final ProductNodeList<FlagCoding> flagCodings;
+    private final ProductNodeList<BitmaskDef> bitmaskDefs;
 
     private final ProductNodeGroup<FlagCoding> flagCodingGroup;
     private final ProductNodeGroup<IndexCoding> indexCodingGroup;
@@ -126,22 +126,22 @@ public class Product extends ProductNode {
     /**
      * The internal reference number of this product
      */
-    private int _refNo;
+    private int refNo;
 
     /**
      * The internal reference string of this product
      */
-    private String _refStr;
+    private String refStr;
 
-    private ProductManager _productManager;
-    private Map<String, BitRaster> _validMasks;
-    private Map<String, RenderedImage> _validMaskImages;
+    private ProductManager productManager;
+    private Map<String, BitRaster> validMasks;
+    private Map<String, RenderedImage> validMaskImages;
 
-    private PointingFactory _pointingFactory;
+    private PointingFactory pointingFactory;
 
-    private String _quicklookBandName;
+    private String quicklookBandName;
 
-    private Dimension _preferredTileSize;
+    private Dimension preferredTileSize;
 
 
     /**
@@ -164,27 +164,12 @@ public class Product extends ProductNode {
      * @param sceneRasterWidth  the scene width in pixels for this data product
      * @param sceneRasterHeight the scene height in pixels for this data product
      * @param reader            the reader used to create this product and read data from it.
-     * @see org.esa.beam.framework.dataio.ProductReader
+     * @see ProductReader
      */
     public Product(final String name, final String type, final int sceneRasterWidth, final int sceneRasterHeight,
                    final ProductReader reader) {
         this(null, name, type, sceneRasterWidth, sceneRasterHeight, reader);
     }
-
-//    /**
-//     * Constructs a new product with the given URL and the given reader.
-//     *
-//     * @param fileLocation the product storage fileLocation
-//     * @param type the product type
-//     * @param sceneRasterWidth the scene width in pixels for this data product
-//     * @param sceneRasterHeight the scene height in pixels for this data product
-//     * @param reader the reader used to create this product and read data from it.
-//     * @see org.esa.beam.framework.dataio.ProductReader
-//     */
-//    public Product(File fileLocation, String type, int sceneRasterWidth, int sceneRasterHeight, ProductReader reader) {
-//        this(fileLocation, extractProductName(fileLocation), type, sceneRasterWidth, sceneRasterHeight, reader);
-//    }
-//
 
     /*
      * Internally used constructor. Is kept private to keep product name and file location consistent.
@@ -198,17 +183,17 @@ public class Product extends ProductNode {
                     final ProductReader reader) {
         super(name);
         Guardian.assertNotNullOrEmpty("type", type);
-        _fileLocation = fileLocation;
-        _productType = type;
-        _reader = reader;
-        _sceneRasterWidth = sceneRasterWidth;
-        _sceneRasterHeight = sceneRasterHeight;
-        _metadataRoot = new MetadataElement(METADATA_ROOT_NAME);
-        _metadataRoot.setOwner(this);
-        _bands = new ProductNodeList<Band>();
-        _tiePointGrids = new ProductNodeList<TiePointGrid>();
-        _flagCodings = new ProductNodeList<FlagCoding>();
-        _bitmaskDefs = new ProductNodeList<BitmaskDef>();
+        this.fileLocation = fileLocation;
+        productType = type;
+        this.reader = reader;
+        this.sceneRasterWidth = sceneRasterWidth;
+        this.sceneRasterHeight = sceneRasterHeight;
+        metadataRoot = new MetadataElement(METADATA_ROOT_NAME);
+        metadataRoot.setOwner(this);
+        bands = new ProductNodeList<Band>();
+        tiePointGrids = new ProductNodeList<TiePointGrid>();
+        flagCodings = new ProductNodeList<FlagCoding>();
+        bitmaskDefs = new ProductNodeList<BitmaskDef>();
 
         indexCodingGroup = new ProductNodeGroup<IndexCoding>(this, "index_codings", "The group which stores index codings.");
         flagCodingGroup = new ProductNodeGroup<FlagCoding>(this, "flag_codings", "The group which stores flag codings.");
@@ -216,6 +201,29 @@ public class Product extends ProductNode {
         pinGroup = new ProductNodeGroup<Pin>(this, "pins", "The group which stores pins.");
         gcpGroup = new ProductNodeGroup<Pin>(this, "ground_control_points", "The group which stores ground control points.");
         addProductNodeListener(createNameChangedHandler());
+        addProductNodeListener(createGeoCodingChangedHandler());
+    }
+
+    private ProductNodeListenerAdapter createGeoCodingChangedHandler() {
+        return new ProductNodeListenerAdapter() {
+
+            @Override
+            public void nodeChanged(ProductNodeEvent event) {
+                if (PROPERTY_NAME_GEOCODING.equals(event.getPropertyName())) {
+                    final ProductNodeGroup<Pin> pinGroup = getPinGroup();
+                    for (int i = 0; i < pinGroup.getNodeCount(); i++) {
+                        final Pin pin = pinGroup.get(i);
+                        final PinDescriptor pinDescriptor = PinDescriptor.INSTANCE;
+                        final GeoPos geoPos = pin.getGeoPos();
+                        pinDescriptor.updateGeoPos(getGeoCoding(),
+                                                   pin.getPixelPos(),
+                                                   geoPos);
+                        pin.setGeoPos(geoPos);
+                    }
+                }
+
+            }
+        };
     }
 
     private ProductNodeListener createNameChangedHandler() {
@@ -273,7 +281,7 @@ public class Product extends ProductNode {
      * @return the file location, may be <code>null</code>
      */
     public File getFileLocation() {
-        return _fileLocation;
+        return fileLocation;
     }
 
     /**
@@ -282,7 +290,7 @@ public class Product extends ProductNode {
      * @param fileLocation the file location, may be <code>null</code>
      */
     public void setFileLocation(final File fileLocation) {
-        _fileLocation = fileLocation;
+        this.fileLocation = fileLocation;
     }
 
 
@@ -306,7 +314,7 @@ public class Product extends ProductNode {
      * @return the product type string
      */
     public String getProductType() {
-        return _productType;
+        return productType;
     }
 
     /**
@@ -316,9 +324,9 @@ public class Product extends ProductNode {
      */
     public void setProductType(final String productType) {
         Guardian.assertNotNullOrEmpty("productType", productType);
-        if (!ObjectUtils.equalObjects(_productType, productType)) {
-            final String oldType = _productType;
-            _productType = productType;
+        if (!ObjectUtils.equalObjects(this.productType, productType)) {
+            final String oldType = this.productType;
+            this.productType = productType;
             fireProductNodeChanged(PROPERTY_NAME_PRODUCT_TYPE, oldType);
             setModified(true);
         }
@@ -333,7 +341,7 @@ public class Product extends ProductNode {
      */
     public void setProductReader(final ProductReader reader) {
         Guardian.assertNotNull("ProductReader", reader);
-        _reader = reader;
+        this.reader = reader;
     }
 
     /**
@@ -344,7 +352,7 @@ public class Product extends ProductNode {
      */
     @Override
     public ProductReader getProductReader() {
-        return _reader;
+        return reader;
     }
 
     /**
@@ -354,7 +362,7 @@ public class Product extends ProductNode {
      * @param writer the product writer, can be <code>null</code>
      */
     public void setProductWriter(final ProductWriter writer) {
-        _writer = writer;
+        this.writer = writer;
     }
 
     /**
@@ -365,7 +373,7 @@ public class Product extends ProductNode {
      */
     @Override
     public ProductWriter getProductWriter() {
-        return _writer;
+        return writer;
     }
 
     /**
@@ -375,9 +383,9 @@ public class Product extends ProductNode {
      * @see #closeIO
      */
     public void closeProductReader() throws IOException {
-        if (_reader != null) {
-            _reader.close();
-            _reader = null;
+        if (reader != null) {
+            reader.close();
+            reader = null;
         }
     }
 
@@ -388,10 +396,10 @@ public class Product extends ProductNode {
      * @see #closeIO
      */
     public void closeProductWriter() throws IOException {
-        if (_writer != null) {
-            _writer.flush();
-            _writer.close();
-            _writer = null;
+        if (writer != null) {
+            writer.flush();
+            writer.close();
+            writer = null;
         }
     }
 
@@ -406,12 +414,13 @@ public class Product extends ProductNode {
      * @see #dispose
      */
     public void closeIO() throws IOException {
-        IOException eI = null, eO = null;
+        IOException eI = null;
         try {
             closeProductReader();
         } catch (IOException e) {
             eI = e;
         }
+        IOException eO = null;
         try {
             closeProductWriter();
         } catch (IOException e) {
@@ -440,39 +449,39 @@ public class Product extends ProductNode {
     public void dispose() {
         try {
             closeIO();
-        } catch (IOException e) {
+        } catch (IOException ignore) {
             // ignore
         }
 
-        _reader = null;
-        _writer = null;
+        reader = null;
+        writer = null;
 
-        _bands.dispose();
-        _tiePointGrids.dispose();
-        _bitmaskDefs.dispose();
-        _flagCodings.dispose();
-        _metadataRoot.dispose();
-        _pointingFactory = null;
-        _productManager = null;
+        bands.dispose();
+        tiePointGrids.dispose();
+        bitmaskDefs.dispose();
+        flagCodings.dispose();
+        metadataRoot.dispose();
+        pointingFactory = null;
+        productManager = null;
         pinGroup.dispose();
         gcpGroup.dispose();
 
-        if (_geoCoding != null) {
-            _geoCoding.dispose();
-            _geoCoding = null;
+        if (geoCoding != null) {
+            geoCoding.dispose();
+            geoCoding = null;
         }
 
-        if (_validMasks != null) {
-            _validMasks.clear();
-            _validMasks = null;
+        if (validMasks != null) {
+            validMasks.clear();
+            validMasks = null;
         }
 
-        if (_listeners != null) {
-            _listeners.clear();
-            _listeners = null;
+        if (listeners != null) {
+            listeners.clear();
+            listeners = null;
         }
 
-        _fileLocation = null;
+        fileLocation = null;
     }
 
     /**
@@ -481,7 +490,7 @@ public class Product extends ProductNode {
      * @return the pointing factory or null, if none
      */
     public PointingFactory getPointingFactory() {
-        return _pointingFactory;
+        return pointingFactory;
     }
 
     /**
@@ -490,7 +499,7 @@ public class Product extends ProductNode {
      * @param pointingFactory the pointing factory
      */
     public void setPointingFactory(PointingFactory pointingFactory) {
-        _pointingFactory = pointingFactory;
+        this.pointingFactory = pointingFactory;
     }
 
     /**
@@ -508,8 +517,8 @@ public class Product extends ProductNode {
      */
     public void setGeoCoding(final GeoCoding geoCoding) {
         checkGeoCoding(geoCoding);
-        if (!ObjectUtils.equalObjects(_geoCoding, geoCoding)) {
-            _geoCoding = geoCoding;
+        if (!ObjectUtils.equalObjects(this.geoCoding, geoCoding)) {
+            this.geoCoding = geoCoding;
             fireProductNodeChanged(PROPERTY_NAME_GEOCODING);
             setModified(true);
         }
@@ -521,7 +530,7 @@ public class Product extends ProductNode {
      * @return the geo-coding, can be <code>null</code> if this product is not geo-coded.
      */
     public GeoCoding getGeoCoding() {
-        return _geoCoding;
+        return geoCoding;
     }
 
     /**
@@ -577,7 +586,7 @@ public class Product extends ProductNode {
      * @return the scene width in pixels for this data product.
      */
     public int getSceneRasterWidth() {
-        return _sceneRasterWidth;
+        return sceneRasterWidth;
     }
 
     /**
@@ -586,7 +595,7 @@ public class Product extends ProductNode {
      * @return the scene height in pixels for this data product.
      */
     public int getSceneRasterHeight() {
-        return _sceneRasterHeight;
+        return sceneRasterHeight;
     }
 
     /**
@@ -600,7 +609,7 @@ public class Product extends ProductNode {
      * @return the sensing start time, can be null e.g. for non-swath products
      */
     public ProductData.UTC getStartTime() {
-        return _startTime;
+        return startTime;
     }
 
     /**
@@ -614,7 +623,7 @@ public class Product extends ProductNode {
      * @param startTime the sensing start time, can be null
      */
     public void setStartTime(final ProductData.UTC startTime) {
-        _startTime = startTime;
+        this.startTime = startTime;
     }
 
     /**
@@ -628,7 +637,7 @@ public class Product extends ProductNode {
      * @return the stop time , can be null e.g. for non-swath products
      */
     public ProductData.UTC getEndTime() {
-        return _endTime;
+        return endTime;
     }
 
     /**
@@ -642,7 +651,7 @@ public class Product extends ProductNode {
      * @param endTime the sensing stop time, can be null
      */
     public void setEndTime(final ProductData.UTC endTime) {
-        _endTime = endTime;
+        this.endTime = endTime;
     }
 
     /**
@@ -651,7 +660,7 @@ public class Product extends ProductNode {
      * @return the metadata root element
      */
     public MetadataElement getMetadataRoot() {
-        return _metadataRoot;
+        return metadataRoot;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -667,7 +676,7 @@ public class Product extends ProductNode {
             throw new IllegalArgumentException("The Product '" + getName() + "' already contains " +
                     "a tie-point grid with the name '" + tiePointGrid.getName() + "'.");
         }
-        addNamedNode(tiePointGrid, _tiePointGrids);
+        addNamedNode(tiePointGrid, tiePointGrids);
     }
 
     /**
@@ -677,7 +686,7 @@ public class Product extends ProductNode {
      * @return <code>true</code> if node could be removed
      */
     public boolean removeTiePointGrid(final TiePointGrid tiePointGrid) {
-        return removeNamedNode(tiePointGrid, _tiePointGrids);
+        return removeNamedNode(tiePointGrid, tiePointGrids);
     }
 
     /**
@@ -686,7 +695,7 @@ public class Product extends ProductNode {
      * @return the number of tie-point grids
      */
     public int getNumTiePointGrids() {
-        return _tiePointGrids.size();
+        return tiePointGrids.size();
     }
 
     /**
@@ -697,7 +706,7 @@ public class Product extends ProductNode {
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public TiePointGrid getTiePointGridAt(final int index) {
-        return _tiePointGrids.getAt(index);
+        return tiePointGrids.getAt(index);
     }
 
     /**
@@ -707,7 +716,7 @@ public class Product extends ProductNode {
      *         no tie-point grids a zero-length-array is returned.
      */
     public String[] getTiePointGridNames() {
-        return _tiePointGrids.getNames();
+        return tiePointGrids.getNames();
     }
 
     /**
@@ -733,7 +742,7 @@ public class Product extends ProductNode {
      */
     public TiePointGrid getTiePointGrid(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
-        return _tiePointGrids.get(name);
+        return tiePointGrids.get(name);
     }
 
     /**
@@ -746,7 +755,7 @@ public class Product extends ProductNode {
      */
     public int getTiePointGridIndex(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
-        return _tiePointGrids.indexOf(name);
+        return tiePointGrids.indexOf(name);
     }
 
     /**
@@ -758,7 +767,7 @@ public class Product extends ProductNode {
      */
     public boolean containsTiePointGrid(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
-        return _tiePointGrids.contains(name);
+        return tiePointGrids.contains(name);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -779,7 +788,7 @@ public class Product extends ProductNode {
             throw new IllegalArgumentException("The Product '" + getName() + "' already contains " +
                     "a band with the name '" + band.getName() + "'.");
         }
-        addNamedNode(band, _bands);
+        addNamedNode(band, bands);
     }
 
     /**
@@ -800,16 +809,17 @@ public class Product extends ProductNode {
      * Removes the given band from this product.
      *
      * @param band the band to be removed, ignored if <code>null</code>
+     * @return {@code true} if removed succesfully, otherwise {@code false}
      */
     public boolean removeBand(final Band band) {
-        return removeNamedNode(band, _bands);
+        return removeNamedNode(band, bands);
     }
 
     /**
-     * Returns the number of bands contained in this product.
+     * @return the number of bands contained in this product.
      */
     public int getNumBands() {
-        return _bands.size();
+        return bands.size();
     }
 
     /**
@@ -820,7 +830,7 @@ public class Product extends ProductNode {
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public Band getBandAt(final int index) {
-        return _bands.getAt(index);
+        return bands.getAt(index);
     }
 
     /**
@@ -830,7 +840,7 @@ public class Product extends ProductNode {
      *         a zero-length-array is returned.
      */
     public String[] getBandNames() {
-        return _bands.getNames();
+        return bands.getNames();
     }
 
     /**
@@ -840,9 +850,7 @@ public class Product extends ProductNode {
      *         returned.
      */
     public Band[] getBands() {
-        final Band[] bands = new Band[getNumBands()];
-        _bands.toArray(bands);
-        return bands;
+        return bands.toArray(new Band[getNumBands()]);
     }
 
 
@@ -856,7 +864,7 @@ public class Product extends ProductNode {
      */
     public Band getBand(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
-        return _bands.get(name);
+        return bands.get(name);
     }
 
     /**
@@ -868,7 +876,7 @@ public class Product extends ProductNode {
      */
     public int getBandIndex(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
-        return _bands.indexOf(name);
+        return bands.indexOf(name);
     }
 
     /**
@@ -881,7 +889,7 @@ public class Product extends ProductNode {
      */
     public boolean containsBand(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
-        return _bands.contains(name);
+        return bands.contains(name);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -1030,7 +1038,7 @@ public class Product extends ProductNode {
      */
     @Deprecated
     public String[] getAllFlagNames() {
-        final ArrayList<String> l = new ArrayList<String>(32);
+        final List<String> l = new ArrayList<String>(32);
         for (int i = 0; i < getNumBands(); i++) {
             final Band band = getBandAt(i);
             if (band.getFlagCoding() != null) {
@@ -1102,6 +1110,7 @@ public class Product extends ProductNode {
     /**
      * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
+    @Deprecated
     public boolean addPin(final Pin pin) {
         return pinGroup.add(pin);
     }
@@ -1109,6 +1118,7 @@ public class Product extends ProductNode {
     /**
      * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
+    @Deprecated
     public boolean removePin(final Pin pin) {
         return pinGroup.remove(pin);
     }
@@ -1116,6 +1126,7 @@ public class Product extends ProductNode {
     /**
      * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
+    @Deprecated
     public int getNumPins() {
         return pinGroup.getNodeCount();
     }
@@ -1123,6 +1134,7 @@ public class Product extends ProductNode {
     /**
      * @deprecated in 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
+    @Deprecated
     public Pin getPinAt(final int index) {
         return pinGroup.get(index);
     }
@@ -1130,6 +1142,7 @@ public class Product extends ProductNode {
     /**
      * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
+    @Deprecated
     public Pin getPin(final String name) {
         return pinGroup.get(name);
     }
@@ -1137,6 +1150,7 @@ public class Product extends ProductNode {
     /**
      * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
+    @Deprecated
     public boolean containsPin(final String name) {
         return pinGroup.contains(name);
     }
@@ -1144,6 +1158,7 @@ public class Product extends ProductNode {
     /**
      * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
+    @Deprecated
     public int getPinIndex(final String name) {
         return pinGroup.indexOf(name);
     }
@@ -1154,6 +1169,7 @@ public class Product extends ProductNode {
      * @return all defined pins of this product, never null
      * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()}
      */
+    @Deprecated
     public Pin[] getPins() {
         return pinGroup.toArray(new Pin[0]);
     }
@@ -1161,6 +1177,7 @@ public class Product extends ProductNode {
     /**
      * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
+    @Deprecated
     public String[] getPinNames() {
         return pinGroup.getNodeNames();
     }
@@ -1168,6 +1185,7 @@ public class Product extends ProductNode {
     /**
      * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
+    @Deprecated
     public void setSelectedPin(final int index) {
         pinGroup.setSelectedNode(index);
     }
@@ -1175,6 +1193,7 @@ public class Product extends ProductNode {
     /**
      * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
+    @Deprecated
     public void setSelectedPin(final String name) {
         pinGroup.setSelectedNode(name);
     }
@@ -1182,6 +1201,7 @@ public class Product extends ProductNode {
     /**
      * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
+    @Deprecated
     public Pin getSelectedPin() {
         return pinGroup.getSelectedNode();
     }
@@ -1189,6 +1209,7 @@ public class Product extends ProductNode {
     /**
      * @deprecated in BEAM 4.1, use {@link #getPinGroup() getPinGroup()} and the {@link ProductNodeGroup} API.
      */
+    @Deprecated
     public Pin[] getSelectedPins() {
         Collection<Pin> selectedNodes = pinGroup.getSelectedNodes();
         return selectedNodes.toArray(new Pin[0]);
@@ -1207,7 +1228,7 @@ public class Product extends ProductNode {
             final String defaultDescription = getSuitableBitmaskDefDescription(bitmaskDef);
             bitmaskDef.setDescription(defaultDescription);
         }
-        addNamedNode(bitmaskDef, _bitmaskDefs);
+        addNamedNode(bitmaskDef, bitmaskDefs);
     }
 
     /**
@@ -1217,8 +1238,8 @@ public class Product extends ProductNode {
      * @param index      the destination index for the given bitmask definition
      */
     public void moveBitmaskDef(final BitmaskDef bitmaskdef, final int index) {
-        _bitmaskDefs.remove(bitmaskdef);
-        _bitmaskDefs.insert(bitmaskdef, index);
+        bitmaskDefs.remove(bitmaskdef);
+        bitmaskDefs.insert(bitmaskdef, index);
     }
 
     /**
@@ -1228,7 +1249,7 @@ public class Product extends ProductNode {
      * @return <code>true</code> on success
      */
     public boolean removeBitmaskDef(final BitmaskDef bitmaskDef) {
-        final boolean result = removeNamedNode(bitmaskDef, _bitmaskDefs);
+        final boolean result = removeNamedNode(bitmaskDef, bitmaskDefs);
         removeBitmaskDef(getBands(), bitmaskDef);
         removeBitmaskDef(getTiePointGrids(), bitmaskDef);
         return result;
@@ -1249,7 +1270,7 @@ public class Product extends ProductNode {
      * @return the number of bitmask definitions
      */
     public int getNumBitmaskDefs() {
-        return _bitmaskDefs.size();
+        return bitmaskDefs.size();
     }
 
     /**
@@ -1260,7 +1281,7 @@ public class Product extends ProductNode {
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
     public BitmaskDef getBitmaskDefAt(final int index) {
-        return _bitmaskDefs.getAt(index);
+        return bitmaskDefs.getAt(index);
     }
 
     /**
@@ -1270,7 +1291,7 @@ public class Product extends ProductNode {
      *         has no bitmask definitions a zero-length-array is returned.
      */
     public String[] getBitmaskDefNames() {
-        return _bitmaskDefs.getNames();
+        return bitmaskDefs.getNames();
     }
 
     /**
@@ -1282,7 +1303,7 @@ public class Product extends ProductNode {
      */
     public BitmaskDef getBitmaskDef(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
-        return _bitmaskDefs.get(name);
+        return bitmaskDefs.get(name);
     }
 
     /**
@@ -1308,7 +1329,7 @@ public class Product extends ProductNode {
      */
     public boolean containsBitmaskDef(final String name) {
         Guardian.assertNotNullOrEmpty("name", name);
-        return _bitmaskDefs.contains(name);
+        return bitmaskDefs.contains(name);
     }
 
     /**
@@ -1407,7 +1428,7 @@ public class Product extends ProductNode {
             pixelPos.y = 0.5f;
             getGeoCoding().getGeoPos(pixelPos, geoPos1);
             product.getGeoCoding().getGeoPos(pixelPos, geoPos2);
-            if (!(equalsLatLon(geoPos1, geoPos2, eps))) {
+            if (!equalsLatLon(geoPos1, geoPos2, eps)) {
                 return false;
             }
 
@@ -1415,7 +1436,7 @@ public class Product extends ProductNode {
             pixelPos.y = 0.5f;
             getGeoCoding().getGeoPos(pixelPos, geoPos1);
             product.getGeoCoding().getGeoPos(pixelPos, geoPos2);
-            if (!(equalsLatLon(geoPos1, geoPos2, eps))) {
+            if (!equalsLatLon(geoPos1, geoPos2, eps)) {
                 return false;
             }
 
@@ -1423,7 +1444,7 @@ public class Product extends ProductNode {
             pixelPos.y = getSceneRasterHeight() - 1 + 0.5f;
             getGeoCoding().getGeoPos(pixelPos, geoPos1);
             product.getGeoCoding().getGeoPos(pixelPos, geoPos2);
-            if (!(equalsLatLon(geoPos1, geoPos2, eps))) {
+            if (!equalsLatLon(geoPos1, geoPos2, eps)) {
                 return false;
             }
 
@@ -1431,7 +1452,7 @@ public class Product extends ProductNode {
             pixelPos.y = getSceneRasterHeight() - 1 + 0.5f;
             getGeoCoding().getGeoPos(pixelPos, geoPos1);
             product.getGeoCoding().getGeoPos(pixelPos, geoPos2);
-            if (!(equalsLatLon(geoPos1, geoPos2, eps))) {
+            if (!equalsLatLon(geoPos1, geoPos2, eps)) {
                 return false;
             }
         }
@@ -1455,12 +1476,12 @@ public class Product extends ProductNode {
      */
     public void replaceBitmaskDef(final BitmaskDef bitmaskDefOld, final BitmaskDef bitmaskDefNew) {
         if (bitmaskDefNew != null) {
-            final int insertIndex = _bitmaskDefs.indexOf(bitmaskDefOld);
+            final int insertIndex = bitmaskDefs.indexOf(bitmaskDefOld);
             if (insertIndex == -1) {
                 addBitmaskDef(bitmaskDefNew);
             } else {
-                _bitmaskDefs.remove(bitmaskDefOld);
-                _bitmaskDefs.insert(bitmaskDefNew, insertIndex);
+                bitmaskDefs.remove(bitmaskDefOld);
+                bitmaskDefs.insert(bitmaskDefNew, insertIndex);
             }
         }
         final Band[] bands = getBands();
@@ -1487,6 +1508,7 @@ public class Product extends ProductNode {
     /**
      * @deprecated in BEAM 4.1, no replacement
      */
+    @Deprecated
     public final int getBytePackedBitmaskRasterWidth() {
         int _bytePackedBitmaskRasterWidth = getSceneRasterWidth() / 8;
         if (getSceneRasterWidth() % 8 != 0) {
@@ -1498,6 +1520,7 @@ public class Product extends ProductNode {
     /**
      * @deprecated in BEAM 4.1, use {@link #getValidMask(String)}
      */
+    @Deprecated
     public byte[] getValidMask(final Object id) {
         try {
             return createPixelMask(id.toString());
@@ -1509,6 +1532,7 @@ public class Product extends ProductNode {
     /**
      * @deprecated in BEAM 4.1, use {@link #createValidMask(String,com.bc.ceres.core.ProgressMonitor)}
      */
+    @Deprecated
     public byte[] createPixelMask(final String expression) throws IOException {
         return createValidMask(expression, ProgressMonitor.NULL).createBytePackedBitmaskRasterData();
     }
@@ -1516,6 +1540,7 @@ public class Product extends ProductNode {
     /**
      * @deprecated in BEAM 4.1, use {@link #createValidMask(com.bc.jexp.Term,com.bc.ceres.core.ProgressMonitor)}
      */
+    @Deprecated
     public byte[] createPixelMask(final Term term) throws IOException {
         return createValidMask(term, ProgressMonitor.NULL).createBytePackedBitmaskRasterData();
     }
@@ -1523,14 +1548,15 @@ public class Product extends ProductNode {
     /**
      * @deprecated in BEAM 4.1, use {@link #releaseValidMask(org.esa.beam.util.BitRaster)}
      */
+    @Deprecated
     public void releasePixelMask(final byte[] pixelMask) {
         // do nothing
     }
 
 
     public RenderedImage getValidMaskImage(final String id) {
-        if (_validMaskImages != null) {
-            return _validMaskImages.get(id);
+        if (validMaskImages != null) {
+            return validMaskImages.get(id);
         }
         return null;
     }
@@ -1540,13 +1566,13 @@ public class Product extends ProductNode {
         if (newImage != null) {
             Guardian.assertEquals("newImage", newImage.getWidth(), getSceneRasterWidth());
             Guardian.assertEquals("newImage", newImage.getHeight(), getSceneRasterHeight());
-            if (_validMaskImages == null) {
-                _validMaskImages = new HashMap<String, RenderedImage>();
+            if (validMaskImages == null) {
+                validMaskImages = new HashMap<String, RenderedImage>();
             }
-            oldImage = _validMaskImages.put(id, newImage);
+            oldImage = validMaskImages.put(id, newImage);
         } else {
-            if (_validMaskImages != null) {
-                oldImage = _validMaskImages.remove(id);
+            if (validMaskImages != null) {
+                oldImage = validMaskImages.remove(id);
             }
         }
         if (oldImage != null) {
@@ -1567,8 +1593,8 @@ public class Product extends ProductNode {
      * @see #createValidMask(String,com.bc.ceres.core.ProgressMonitor)
      */
     public BitRaster getValidMask(final String id) {
-        if (_validMasks != null) {
-            return _validMasks.get(id);
+        if (validMasks != null) {
+            return validMasks.get(id);
         }
         return null;
     }
@@ -1584,13 +1610,13 @@ public class Product extends ProductNode {
         if (validMask != null) {
             Guardian.assertEquals("validMask", validMask.getWidth(), getSceneRasterWidth());
             Guardian.assertEquals("validMask", validMask.getHeight(), getSceneRasterHeight());
-            if (_validMasks == null) {
-                _validMasks = new HashMap<String, BitRaster>();
+            if (validMasks == null) {
+                validMasks = new HashMap<String, BitRaster>();
             }
-            _validMasks.put(id, validMask);
+            validMasks.put(id, validMask);
         } else {
-            if (_validMasks != null) {
-                _validMasks.remove(id);
+            if (validMasks != null) {
+                validMasks.remove(id);
             }
         }
     }
@@ -1671,8 +1697,8 @@ public class Product extends ProductNode {
      * @see #createValidMask(String,com.bc.ceres.core.ProgressMonitor)
      */
     public void releaseValidMask(final BitRaster validMask) {
-        if (_validMasks != null) {
-            final Collection<BitRaster> bitRasters = _validMasks.values();
+        if (validMasks != null) {
+            final Collection<BitRaster> bitRasters = validMasks.values();
             for (Iterator<BitRaster> iterator = bitRasters.iterator(); iterator.hasNext();) {
                 final BitRaster bitRaster = iterator.next();
                 if (validMask == bitRaster) {
@@ -2008,11 +2034,11 @@ public class Product extends ProductNode {
      */
     public boolean addProductNodeListener(final ProductNodeListener listener) {
         if (listener != null) {
-            if (_listeners == null) {
-                _listeners = new ArrayList<ProductNodeListener>();
+            if (listeners == null) {
+                listeners = new ArrayList<ProductNodeListener>();
             }
-            if (!_listeners.contains(listener)) {
-                _listeners.add(listener);
+            if (!listeners.contains(listener)) {
+                listeners.add(listener);
                 return true;
             }
         }
@@ -2023,13 +2049,13 @@ public class Product extends ProductNode {
      * Removes a <code>ProductNodeListener</code> from this product.
      */
     public void removeProductNodeListener(final ProductNodeListener listener) {
-        if (listener != null && _listeners != null) {
-            _listeners.remove(listener);
+        if (listener != null && listeners != null) {
+            listeners.remove(listener);
         }
     }
 
     protected boolean hasProductNodeListeners() {
-        return _listeners != null && _listeners.size() > 0;
+        return listeners != null && listeners.size() > 0;
     }
 
     protected void fireNodeChanged(final ProductNode sourceNode, final String propertyName) {
@@ -2067,7 +2093,7 @@ public class Product extends ProductNode {
     }
 
     private void fireEvent(final ProductNodeEvent event) {
-        fireEvent(event, _listeners.toArray(new ProductNodeListener[0]));
+        fireEvent(event, listeners.toArray(new ProductNodeListener[0]));
     }
 
     static void fireEvent(final ProductNodeEvent event, final ProductNodeListener[] productNodeListeners) {
@@ -2097,7 +2123,7 @@ public class Product extends ProductNode {
      * Returns the reference number of this product.
      */
     public int getRefNo() {
-        return _refNo;
+        return refNo;
     }
 
     /**
@@ -2109,23 +2135,23 @@ public class Product extends ProductNode {
      */
     public void setRefNo(final int refNo) {
         Guardian.assertWithinRange("refNo", refNo, 1, Integer.MAX_VALUE);
-        if (_refNo != 0 && _refNo != refNo) {
-            throw new IllegalStateException("_refNo != 0 && _refNo != refNo");
+        if (this.refNo != 0 && this.refNo != refNo) {
+            throw new IllegalStateException("refNo != 0 && refNo != refNo");
         }
-        _refNo = refNo;
-        _refStr = "[" + _refNo + "]";
+        this.refNo = refNo;
+        refStr = "[" + this.refNo + "]";
     }
 
     public void resetRefNo() {
-        _refNo = 0;
-        _refStr = null;
+        refNo = 0;
+        refStr = null;
     }
 
     /**
      * Returns the reference string of this product.
      */
     String getRefStr() {
-        return _refStr;
+        return refStr;
     }
 
     /**
@@ -2134,7 +2160,7 @@ public class Product extends ProductNode {
      * @return this product's manager, can be <code>null</code>
      */
     public ProductManager getProductManager() {
-        return _productManager;
+        return productManager;
     }
 
     /**
@@ -2144,7 +2170,7 @@ public class Product extends ProductNode {
      * @param productManager this product's manager, can be <code>null</code>
      */
     void setProductManager(final ProductManager productManager) {
-        _productManager = productManager;
+        this.productManager = productManager;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -2288,10 +2314,10 @@ public class Product extends ProductNode {
             }
             final MetadataElement metadataRoot = getMetadataRoot();
             metadataRoot.setModified(false);
-            _bands.clearRemovedList();
-            _bitmaskDefs.clearRemovedList();
-            _flagCodings.clearRemovedList();
-            _tiePointGrids.clearRemovedList();
+            bands.clearRemovedList();
+            bitmaskDefs.clearRemovedList();
+            flagCodings.clearRemovedList();
+            tiePointGrids.clearRemovedList();
             pinGroup.clearRemovedList();
             gcpGroup.clearRemovedList();
         }
@@ -2329,7 +2355,7 @@ public class Product extends ProductNode {
      * @return the name of the quicklook band, or null if none has been defined
      */
     public String getQuicklookBandName() {
-        return _quicklookBandName;
+        return quicklookBandName;
     }
 
     /**
@@ -2338,7 +2364,7 @@ public class Product extends ProductNode {
      * @param quicklookBandName the name of the quicklook band, or null
      */
     public void setQuicklookBandName(String quicklookBandName) {
-        _quicklookBandName = quicklookBandName;
+        this.quicklookBandName = quicklookBandName;
     }
 
 //    private static String extractProductName(File file) {
@@ -2516,10 +2542,10 @@ public class Product extends ProductNode {
      */
     public ProductNode[] getRemovedChildNodes() {
         final ArrayList<ProductNode> removedNodes = new ArrayList<ProductNode>();
-        removedNodes.addAll(_bands.getRemovedNodes());
-        removedNodes.addAll(_bitmaskDefs.getRemovedNodes());
-        removedNodes.addAll(_flagCodings.getRemovedNodes());
-        removedNodes.addAll(_tiePointGrids.getRemovedNodes());
+        removedNodes.addAll(bands.getRemovedNodes());
+        removedNodes.addAll(bitmaskDefs.getRemovedNodes());
+        removedNodes.addAll(flagCodings.getRemovedNodes());
+        removedNodes.addAll(tiePointGrids.getRemovedNodes());
         removedNodes.addAll(pinGroup.getRemovedNodes());
         removedNodes.addAll(gcpGroup.getRemovedNodes());
         return removedNodes.toArray(new ProductNode[removedNodes.size()]);
@@ -2626,7 +2652,7 @@ public class Product extends ProductNode {
      * @see RasterDataNode#setImage(java.awt.image.RenderedImage)
      */
     public Dimension getPreferredTileSize() {
-        return _preferredTileSize;
+        return preferredTileSize;
     }
 
     /**
@@ -2650,7 +2676,7 @@ public class Product extends ProductNode {
      * @see RasterDataNode#setImage(java.awt.image.RenderedImage)
      */
     public void setPreferredTileSize(Dimension preferredTileSize) {
-        _preferredTileSize = preferredTileSize;
+        this.preferredTileSize = preferredTileSize;
     }
 
 }
