@@ -73,10 +73,6 @@ class NoDataColorForm {
     }
 
     public void enable(boolean enabled) {
-        if (enabled) {
-            noDataColorBinding.enableComponents();
-        } else {
-            noDataColorBinding.disableComponents();
-        }
+        noDataColorBinding.setComponentsEnabledState(enabled);
     }
 }

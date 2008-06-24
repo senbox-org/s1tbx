@@ -31,12 +31,11 @@ class ColorComboBoxBinding extends Binding {
     }
 
     private void adjustPropertyValue() {
-        Color value = colorComboBox.getSelectedColor();
-        setValue(value);
+        setValue(colorComboBox.getSelectedColor());
     }
 
     @Override
-    protected void adjustComponentsImpl() {
+    protected void doAdjustComponents() {
         colorComboBox.setSelectedColor((Color) getValue());
     }
 
