@@ -137,7 +137,7 @@ public class PropertyEditor {
         public Parameter _paramValidPixelExpr;
         private Parameter _paramVBExpression;
         private boolean _virtualBandPropertyChanged;
-        private boolean _noDataPropertyChanged;
+        private boolean _validMaskPropertyChanged;
 
         public EditorContent(final ProductNode node) {
             _node = node;
@@ -268,35 +268,38 @@ public class PropertyEditor {
 
         public void changeProperties() {
             _virtualBandPropertyChanged = false;
-            _noDataPropertyChanged = false;
+            _validMaskPropertyChanged = false;
 
             final ProductNodeHandler listener = new ProductNodeHandler();
-            _node.getProduct().addProductNodeListener(listener);
 
-            _node.setName(_paramName.getValueAsText());
-            _node.setDescription(_paramDescription.getValueAsText());
-            if (_product != null) {
-                _product.setProductType(_paramProductType.getValueAsText());
-            }
-            if (_rasterDataNode != null) {
-                final boolean noDataValueUsed = ((Boolean) _paramNoDataValueUsed.getValue()).booleanValue();
-                _rasterDataNode.setNoDataValueUsed(noDataValueUsed);
-                if (noDataValueUsed) {
-                    _rasterDataNode.setGeophysicalNoDataValue(((Double) _paramNoDataValue.getValue()).doubleValue());
+            try {
+                _node.getProduct().addProductNodeListener(listener);
+                _node.setName(_paramName.getValueAsText());
+                _node.setDescription(_paramDescription.getValueAsText());
+                if (_product != null) {
+                    _product.setProductType(_paramProductType.getValueAsText());
                 }
-                _rasterDataNode.setUnit(_paramGeophysUnit.getValueAsText());
-                _rasterDataNode.setValidPixelExpression(_paramValidPixelExpr.getValueAsText());
+                if (_rasterDataNode != null) {
+                    final boolean noDataValueUsed = ((Boolean) _paramNoDataValueUsed.getValue()).booleanValue();
+                    _rasterDataNode.setNoDataValueUsed(noDataValueUsed);
+                    if (noDataValueUsed) {
+                        _rasterDataNode.setGeophysicalNoDataValue(((Double) _paramNoDataValue.getValue()).doubleValue());
+                    }
+                    _rasterDataNode.setUnit(_paramGeophysUnit.getValueAsText());
+                    _rasterDataNode.setValidPixelExpression(_paramValidPixelExpr.getValueAsText());
+                }
+                if (_band != null) {
+                    _band.setSpectralWavelength(((Float) _paramSpectralWavelength.getValue()).floatValue());
+                    _band.setSpectralBandwidth(((Float) _paramSpectralBandwidth.getValue()).floatValue());
+                }
+                if (_virtualBand != null) {
+                    _virtualBand.setExpression(_paramVBExpression.getValueAsText());
+                }
+            } finally {
+                _node.getProduct().removeProductNodeListener(listener);
             }
-            if (_band != null) {
-                _band.setSpectralWavelength(((Float) _paramSpectralWavelength.getValue()).floatValue());
-                _band.setSpectralBandwidth(((Float) _paramSpectralBandwidth.getValue()).floatValue());
-            }
-            if (_virtualBand != null) {
-                _virtualBand.setExpression(_paramVBExpression.getValueAsText());
-            }
-            _node.getProduct().removeProductNodeListener(listener);
 
-            if (_rasterDataNode != null && (_virtualBandPropertyChanged || _noDataPropertyChanged)) {
+            if (_rasterDataNode != null && (_virtualBandPropertyChanged || _validMaskPropertyChanged)) {
                 updateImages();
             }
         }
@@ -317,7 +320,7 @@ public class PropertyEditor {
                             }
                         }
                         pm.worked(1);
-                        if (_noDataPropertyChanged) {
+                        if (_validMaskPropertyChanged) {
                             final JInternalFrame internalFrame = _visatApp.findInternalFrame(_rasterDataNode);
                             if (internalFrame != null) {
                                 final ProductSceneView productSceneView = getProductSceneView(internalFrame);
@@ -618,8 +621,12 @@ public class PropertyEditor {
                 if (isVirtualBandRelevantPropertyName(event.getPropertyName())) {
                     _virtualBandPropertyChanged = true;
                 }
-                if (isNoDataOverlayRelevantPropertyName(event.getPropertyName())) {
-                    _noDataPropertyChanged = true;
+                ProductNode productNode = event.getSourceNode();
+                if (productNode instanceof RasterDataNode) {
+                    RasterDataNode rasterDataNode = (RasterDataNode) productNode;
+                    if (rasterDataNode.isValidMaskProperty(event.getPropertyName())) {
+                        _validMaskPropertyChanged = true;
+                    }
                 }
             }
         }
@@ -647,13 +654,6 @@ public class PropertyEditor {
 
     private static boolean isVirtualBandRelevantPropertyName(final String propertyName) {
         return VirtualBand.PROPERTY_NAME_EXPRESSION.equals(propertyName);
-    }
-
-    private static boolean isNoDataOverlayRelevantPropertyName(final String propertyName) {
-        return RasterDataNode.PROPERTY_NAME_NO_DATA_VALUE.equals(propertyName)
-                || RasterDataNode.PROPERTY_NAME_NO_DATA_VALUE_USED.equals(propertyName)
-                || RasterDataNode.PROPERTY_NAME_VALID_PIXEL_EXPRESSION.equals(propertyName)
-                || RasterDataNode.PROPERTY_NAME_DATA.equals(propertyName);
     }
 
     class PropertyEditorDialog extends ModalDialog {
