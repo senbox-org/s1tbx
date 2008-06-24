@@ -16,6 +16,7 @@
  */
 package org.esa.beam.visat.toolviews.imageinfo;
 
+import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.param.ParamProperties;
@@ -29,16 +30,14 @@ import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.math.Range;
 
 import javax.swing.*;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
-
-import com.bc.ceres.core.Assert;
 
 
 class GraphicalPaletteEditor extends JPanel {
@@ -163,7 +162,7 @@ class GraphicalPaletteEditor extends JPanel {
      * {@code ChangeEvent}s.
      * This method is called each time a {@code ChangeEvent} is received from
      * the model.
-     * <p>
+     * <p/>
      * The event instance is created if necessary, and stored in
      * {@code changeEvent}.
      *
@@ -175,8 +174,8 @@ class GraphicalPaletteEditor extends JPanel {
         final ChangeEvent event = new ChangeEvent(this);
         Object[] listeners = listenerList.getListenerList();
         for (int i = listeners.length - 2; i >= 0; i -= 2) {
-            if (listeners[i]==ChangeListener.class) {
-                ((ChangeListener)listeners[i+1]).stateChanged(event);
+            if (listeners[i] == ChangeListener.class) {
+                ((ChangeListener) listeners[i + 1]).stateChanged(event);
             }
         }
     }
@@ -301,21 +300,26 @@ class GraphicalPaletteEditor extends JPanel {
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         g2d.setFont(labelFont);
-        FontMetrics fontMetrics = g2d.getFontMetrics();
         computeSizeAttributes();
 
-        if (getImageInfo() != null && isValidHistogramm()) {
+        if (getImageInfo() != null && isValidRange()) {
             drawPalette(g2d);
             drawSliders(g2d);
-            drawHistogramPane(g2d);
+            if (isHistogramAvailable()) {
+                drawHistogramPane(g2d);
+            }
         } else {
+            FontMetrics fontMetrics = g2d.getFontMetrics();
             drawMissingBasicDisplayInfoMessage(g2d, fontMetrics);
         }
     }
 
-    private boolean isValidHistogramm() {
-        Histogram histogram = getImageInfo().getHistogram();
-        return histogram.getMin() <= histogram.getMax();
+    private boolean isHistogramAvailable() {
+        return imageInfo.isHistogramAvailable();
+    }
+
+    private boolean isValidRange() {
+        return imageInfo.getMinSample() <= imageInfo.getMaxSample();
     }
 
     public void computeZoomOutVertical() {

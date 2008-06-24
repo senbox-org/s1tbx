@@ -30,10 +30,10 @@ import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.ResourceInstaller;
 import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.math.Histogram;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
+import org.esa.beam.util.math.Histogram;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.*;
@@ -42,13 +42,13 @@ import javax.swing.event.InternalFrameEvent;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.logging.Level;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
 
 
 /**
@@ -187,12 +187,12 @@ class ColorManipulationForm {
 
     private boolean isContinuous1BandImage() {
         return (productSceneView.getRaster() instanceof Band)
-                && ((Band)productSceneView.getRaster()).getIndexCoding() == null;
+                && ((Band) productSceneView.getRaster()).getIndexCoding() == null;
     }
 
     public boolean isDiscrete1BandImage() {
         return (productSceneView.getRaster() instanceof Band)
-                && ((Band)productSceneView.getRaster()).getIndexCoding() != null;
+                && ((Band) productSceneView.getRaster()).getIndexCoding() != null;
     }
 
     public PageComponentDescriptor getPageComponentDescriptor() {
@@ -484,7 +484,7 @@ class ColorManipulationForm {
         if (preferences != null) {
             preferences.setPropertyString(PREFERENCES_KEY_IO_DIR, dir.getPath());
         }
-        this.ioDir = dir; 
+        this.ioDir = dir;
     }
 
     private File getIODir() {
@@ -753,7 +753,15 @@ class ColorManipulationForm {
     }
 
     public ImageInfo createDefaultImageInfo(RasterDataNode raster) {
-        Histogram histogram = raster.getImageInfo().getHistogram();
+        Histogram histogram = null;
+        ImageInfo imageInfo = raster.getImageInfo();
+        if (imageInfo != null) {
+            int[] bins = raster.getImageInfo().getHistogramBins();
+            histogram = new Histogram(bins,
+                                      imageInfo.getScaling().scaleInverse(imageInfo.getMinSample()),
+                                      imageInfo.getScaling().scaleInverse(imageInfo.getMaxSample()));
+        }
+
         if (histogram != null) {
             return raster.createDefaultImageInfo(null, histogram);
         } else {
@@ -762,7 +770,7 @@ class ColorManipulationForm {
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(getContentPanel(),
                                               "Failed to create image information for '" +
-                                                      raster.getName() + "':\n" +e.getMessage(),
+                                                      raster.getName() + "':\n" + e.getMessage(),
                                               "I/O Error",
                                               JOptionPane.ERROR_MESSAGE);
                 return null;
