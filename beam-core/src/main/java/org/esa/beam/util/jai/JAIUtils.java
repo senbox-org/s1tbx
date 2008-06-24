@@ -22,21 +22,29 @@ import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ImageUtils;
 import org.esa.beam.util.IntMap;
 
-import javax.media.jai.DataBufferFloat;
 import javax.media.jai.*;
 import javax.media.jai.operator.CompositeDescriptor;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.RenderingHints;
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.IndexColorModel;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
+import java.awt.image.WritableRaster;
 import java.awt.image.renderable.ParameterBlock;
 import java.util.HashMap;
+import java.util.Arrays;
 
 /**
  * A collection of global JAI functions allowing a type-safe usage of various JAI imaging operators.
  */
 public class JAIUtils {
+
     static final int TILE_SIZE_STEP = 64;
     static final int MIN_TILE_SIZE = 4 * TILE_SIZE_STEP;
     static final int MAX_TILE_SIZE = 10 * TILE_SIZE_STEP;
@@ -417,6 +425,7 @@ public class JAIUtils {
      * @param image  the source image, can be of any type
      * @param window the range window
      * @param level  the range level
+     *
      * @return a rescaled version of the source image
      */
     public static PlanarImage createWindowLevelImage(RenderedImage image,
@@ -435,6 +444,7 @@ public class JAIUtils {
      * @param image the source image, can be of any type
      * @param low   the minimum value of the range
      * @param high  the maximum value of the range
+     *
      * @return a rescaled version of the source image
      */
     public static PlanarImage createRescaledImage(RenderedImage image,
@@ -483,7 +493,7 @@ public class JAIUtils {
             dst = JAI.create("lookup", pb, null);
 
         } else if (dtype == DataBuffer.TYPE_SHORT
-                || dtype == DataBuffer.TYPE_USHORT) {
+                   || dtype == DataBuffer.TYPE_USHORT) {
 
             // use a lookup table for rescaling
             if (high != low) {
@@ -522,8 +532,8 @@ public class JAIUtils {
             dst = JAI.create("lookup", pb, null);
 
         } else if (dtype == DataBuffer.TYPE_INT
-                || dtype == DataBuffer.TYPE_FLOAT
-                || dtype == DataBuffer.TYPE_DOUBLE) {
+                   || dtype == DataBuffer.TYPE_FLOAT
+                   || dtype == DataBuffer.TYPE_DOUBLE) {
 
             // use the rescale and format ops
             if (high != low) {
@@ -641,21 +651,33 @@ public class JAIUtils {
 
     /**
      * Creates a normalization CDF image.
+     * @param sourceImage the image to normalze
+     * @return the normalized image
      */
     public static RenderedOp createHistogramNormalizedImage(PlanarImage sourceImage) {
         final double[] minmax = getNativeMinMaxOf(sourceImage, null);
         final double dev = minmax[1] - minmax[0];
         final double mean = minmax[0] + 0.5 * dev;
         final double stdDev = 0.25 * dev;
-        return createHistogramNormalizedImage(sourceImage,
-                                              new double[]{mean, mean, mean},
-                                              new double[]{stdDev, stdDev, stdDev});
+        int numBands = sourceImage.getSampleModel().getNumBands();
+        final double[] means = new double[numBands];
+        Arrays.fill(means, mean);
+        final double[] stdDevs = new double[numBands];
+        Arrays.fill(stdDevs, stdDev);
+        return createHistogramNormalizedImage(sourceImage, means, stdDevs);
     }
 
     /**
      * Creates a normalization CDF image.
+     * @param sourceImage The image to normalize
+     * @param mean The mean values for each band of the image.
+     * @param stdDev The standard deviation for each band of the image.
+     * @return the normalized image
      */
-    public static RenderedOp createHistogramNormalizedImage(PlanarImage sourceImage, double[] mean, double[] stDev) {
+    public static RenderedOp createHistogramNormalizedImage(PlanarImage sourceImage, double[] mean, double[] stdDev) {
+        int numBands = sourceImage.getSampleModel().getNumBands();
+        Assert.argument(numBands == mean.length, "length of mean must be equal to number of bands in the image");
+        Assert.argument(numBands == stdDev.length, "length of stdDev must be equal to number of bands in the image");
 
         Histogram histogram = getHistogramOf(sourceImage);
         if (histogram == null) {
@@ -663,19 +685,18 @@ public class JAIUtils {
             histogram = getHistogramOf(sourceImage);
         }
 
-        int numBands = sourceImage.getSampleModel().getNumBands();
         float[][] normCDF = new float[numBands][];
         for (int b = 0; b < numBands; b++) {
             int binCount = histogram.getNumBins(b);
             normCDF[b] = new float[binCount];
             double mu = mean[b];
-            double twoSigmaSquared = 2.0 * stDev[b] * stDev[b];
+            double twoSigmaSquared = 2.0 * stdDev[b] * stdDev[b];
             normCDF[b][0] =
                     (float) Math.exp(-mu * mu / twoSigmaSquared);
             for (int i = 1; i < binCount; i++) {
                 double deviation = i - mu;
                 normCDF[b][i] = normCDF[b][i - 1] +
-                        (float) Math.exp(-deviation * deviation / twoSigmaSquared);
+                                (float) Math.exp(-deviation * deviation / twoSigmaSquared);
             }
         }
 
