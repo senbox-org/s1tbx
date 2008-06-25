@@ -116,7 +116,7 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
             return;
         }
         File productFile = targetProductSelector.getModel().getProductFile();
-        if (productFile.exists()) {
+        if (productFile.exists() && targetProductSelector.getModel().isSaveToFileSelected()) {
             String message = "The specified output file\n\"{0}\"\n already exists.\n\n" + 
                     "Do you want to overwrite the existing file?";
             String formatedMessage = MessageFormat.format(message, productFile.getAbsolutePath());
