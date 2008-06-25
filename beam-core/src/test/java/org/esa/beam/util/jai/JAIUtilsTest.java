@@ -122,6 +122,9 @@ public class JAIUtilsTest extends TestCase {
         assertEquals(new Dimension(498, 498), JAIUtils.computePreferredTileSize(4481, 4481, 1));
         assertEquals(new Dimension(498, 309), JAIUtils.computePreferredTileSize(4481, (4481 - 1) * 2 + 1, 1));
         assertEquals(new Dimension(498, 611), JAIUtils.computePreferredTileSize(4481, (4481 - 1) * 3 + 1, 1));
+
+        // A NEST SAR Image
+        assertEquals(new Dimension(624, 436), JAIUtils.computePreferredTileSize(5602, 5221, 4));
     }
 
 
