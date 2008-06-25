@@ -6,13 +6,16 @@ import org.esa.beam.framework.gpf.ui.TargetProductSelector;
 import org.esa.beam.framework.gpf.ui.TargetProductSelectorModel;
 import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.application.SelectionChangeEvent;
+import org.esa.beam.framework.ui.application.SelectionChangeListener;
 
 import javax.swing.*;
 import java.awt.BorderLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
+import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.swing.BindingContext;
 
 class SpectralUnmixingForm extends JPanel {
@@ -77,16 +80,34 @@ class SpectralUnmixingForm extends JPanel {
     }
 
     private void createComponents() {
-        sourceProductSelector.getProductNameComboBox().addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                final Product selectedProduct = sourceProductSelector.getSelectedProduct();
+        sourceBandNames = new JList();
+        
+        final ValueDescriptor valueDescriptor = formModel.getOperatorValueContainer().getValueDescriptor("sourceBandNames");
+        SelectionChangeListener valueSetUpdater = new SelectionChangeListener() {
+
+            @Override
+            public void selectionChanged(SelectionChangeEvent event) {
+                final Product selectedProduct = (Product) event.getSelection().getFirstElement();
+                final String[] validNames;
+                if (selectedProduct != null) {
+                    String[] bandNames = selectedProduct.getBandNames();
+                    ArrayList<String> names = new ArrayList<String>(bandNames.length);
+                    for (String bandName : bandNames) {
+                        if (selectedProduct.getBand(bandName).getSpectralWavelength() > 0.0) {
+                            names.add(bandName);
+                        }
+                    }
+                    validNames = names.toArray(new String[names.size()]);
+                } else {
+                    validNames = new String[0];
+                }
+                final ValueSet valueSet = new ValueSet(validNames);
+                valueDescriptor.setValueSet(valueSet);
                 formModel.setSourceProduct(selectedProduct);
-                sourceBandNames.setModel(formModel.getBandListModel());
                 updateTargetProductName(selectedProduct);
             }
-        });
-        sourceBandNames = new JList();
-        sourceBandNames.setModel(formModel.getBandListModel());
+        };
+        sourceProductSelector.addSelectionChangeListener(valueSetUpdater);
 
         final TargetProductSelectorModel targetProductSelectorModel = targetProductSelector.getModel();
         targetProductSelectorModel.setSaveToFileSelected(true);

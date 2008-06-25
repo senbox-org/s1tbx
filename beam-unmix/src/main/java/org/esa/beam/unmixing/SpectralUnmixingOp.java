@@ -62,7 +62,7 @@ public class SpectralUnmixingOp extends Operator {
     @TargetProduct(description = "The target product.")
     Product targetProduct;
 
-    @Parameter(description = "The list of spectral bands providing the source spectrum.", alias = "sourceBands", itemAlias = "band")
+    @Parameter(description = "The list of spectral bands providing the source spectrum.", alias = "sourceBands", itemAlias = "band", sourceProductId="sourceProduct")
     String[] sourceBandNames;
 
     @Parameter(description = "The list of endmember spectra. Wavelengths must be given in nanometers.", itemAlias = "endmember")
