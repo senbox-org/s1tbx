@@ -272,7 +272,9 @@ public class ProductTree extends JTree implements PopupMenuFactory {
         }
 
         DefaultMutableTreeNode tiePointGridGroupTreeNode = createTiePointGridNodes(product);
-        productTreeNode.add(tiePointGridGroupTreeNode);
+        if(tiePointGridGroupTreeNode != null) {
+            productTreeNode.add(tiePointGridGroupTreeNode);
+        }
 
         DefaultMutableTreeNode bandsGroupTreeNode = createBandNodes(product);
         productTreeNode.add(bandsGroupTreeNode);
@@ -317,6 +319,9 @@ public class ProductTree extends JTree implements PopupMenuFactory {
     }
 
     private static DefaultMutableTreeNode createTiePointGridNodes(Product product) {
+        if (product.getNumTiePointGrids() == 0) {
+            return null;
+        }
         DefaultMutableTreeNode tiePointGridGroupTreeNode = new DefaultMutableTreeNode("Tie Point Grids");
         for (int i = 0; i < product.getNumTiePointGrids(); i++) {
             DefaultMutableTreeNode childTreeNode = new DefaultMutableTreeNode(product.getTiePointGridAt(i));
