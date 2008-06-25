@@ -29,13 +29,14 @@ package org.esa.beam.util.math;
  */
 public class IntervalPartition {
 
-    private double[] partition;
+    private double[] sequence;
 
     /**
      * Constructs an interval partition from a sequence of real numbers.
      *
      * @param sequence the sequence. The sequence must increase strictly and
      *                 consist of at least two real numbers.
+     *
      * @throws IllegalArgumentException if the sequence is not strictly increasing
      *                                  or consists of less than two real numbers.
      * @throws NullPointerException     if the sequence is {@code null}.
@@ -49,6 +50,7 @@ public class IntervalPartition {
      *
      * @param sequence the sequence. The sequence must increase strictly and
      *                 consist of at least two real numbers.
+     *
      * @throws IllegalArgumentException if the sequence is not strictly increasing
      *                                  or consists of less than two real numbers.
      * @throws NullPointerException     if the sequence is {@code null}.
@@ -63,8 +65,8 @@ public class IntervalPartition {
         }
         ensureStrictIncrease(sequence);
 
-        partition = new double[sequence.getLength()];
-        sequence.copyTo(0, partition, 0, partition.length);
+        this.sequence = new double[sequence.getLength()];
+        sequence.copyTo(0, this.sequence, 0, this.sequence.length);
     }
 
     /**
@@ -72,7 +74,9 @@ public class IntervalPartition {
      *
      * @param sequences the array of sequences. Each sequence must increase strictly
      *                  and consist of at least two real numbers.
+     *
      * @return the created array of interval partitions.
+     *
      * @throws IllegalArgumentException if the length of the sequence array is zero
      *                                  or any sequence is not strictly increasing
      *                                  or consists of less than two real numbers.
@@ -101,7 +105,9 @@ public class IntervalPartition {
      *
      * @param sequences the array of sequences. Each sequence must increase strictly
      *                  and consist of at least two real numbers.
+     *
      * @return the created array of interval partitions.
+     *
      * @throws IllegalArgumentException if the length of the sequence array is zero
      *                                  or any sequence is not strictly increasing
      *                                  or consists of less than two real numbers.
@@ -131,35 +137,45 @@ public class IntervalPartition {
      * @return the cardinal number.
      */
     public final int getCardinal() {
-        return partition.length;
+        return sequence.length;
     }
 
     /**
-     * Returns the ith real number in the interval partition.
+     * Returns the ith number in the interval partition.
      *
      * @param i the index number of the real number of interest.
+     *
      * @return the ith real number.
      */
     public final double get(int i) {
-        return partition[i];
+        return sequence[i];
     }
 
     /**
-     * Returns the maximum (i.e. final) real number in the partition.
+     * Returns the sequence of all numbers in the interval partition.
      *
-     * @return the maximum real number in the partition.
+     * @return the sequence of all numbers.
+     */
+    public final double[] getSequence() {
+        return sequence.clone();
+    }
+
+    /**
+     * Returns the maximum (i.e. final) number in the partition.
+     *
+     * @return the maximum number in the partition.
      */
     public final double getMax() {
-        return partition[partition.length - 1];
+        return sequence[sequence.length - 1];
     }
 
     /**
-     * Returns the minimum (i.e. first) real number in the partition.
+     * Returns the minimum (i.e. first) number in the partition.
      *
-     * @return the minimum real number in the partition.
+     * @return the minimum number in the partition.
      */
     public final double getMin() {
-        return partition[0];
+        return sequence[0];
     }
 
     /**
@@ -171,8 +187,8 @@ public class IntervalPartition {
     public final double getMesh() {
         double mesh = 0.0;
 
-        for (int i = 1; i < partition.length; ++i) {
-            final double length = partition[i] - partition[i - 1];
+        for (int i = 1; i < sequence.length; ++i) {
+            final double length = sequence[i] - sequence[i - 1];
             if (length > mesh) {
                 mesh = length;
             }
