@@ -455,8 +455,19 @@ public class OperatorContext {
 
     private void initTargetImages() {
         if (targetProduct.getPreferredTileSize() == null) {
-            Dimension tileSize = JAIUtils.computePreferredTileSize(targetProduct.getSceneRasterWidth(),
-                    targetProduct.getSceneRasterHeight(), 4);
+            Dimension tileSize = null;
+            for (Product sourceProduct : sourceProductList) {
+                if (sourceProduct.getPreferredTileSize() != null &&
+                        sourceProduct.getSceneRasterWidth() == targetProduct.getSceneRasterWidth() &&
+                        sourceProduct.getSceneRasterHeight() == targetProduct.getSceneRasterHeight()) {
+                    tileSize = sourceProduct.getPreferredTileSize();
+                    break;
+                }
+            }
+            if (tileSize == null) {
+                tileSize = JAIUtils.computePreferredTileSize(targetProduct.getSceneRasterWidth(),
+                        targetProduct.getSceneRasterHeight(), 4);
+            }
             targetProduct.setPreferredTileSize(tileSize);
         }
 
