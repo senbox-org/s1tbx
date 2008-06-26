@@ -46,7 +46,6 @@ public class GraphProcessingObserverTest extends TestCase {
         graph.addNode(new Node("a", OpMock.Spi.class.getName()));
 
         GraphContext graphContext = processor.createGraphContext(graph, ProgressMonitor.NULL);
-        graphContext.setPreferredTileSize(new Dimension(10, 5));
         processor.executeGraphContext(graphContext, ProgressMonitor.NULL);
 
         assertEquals(6, observerMock.entries.size());
@@ -66,6 +65,7 @@ public class GraphProcessingObserverTest extends TestCase {
         public void initialize() throws OperatorException {
             product = new Product(getClass().getSimpleName(), getClass().getSimpleName(), 10, 10);
             product.addBand("band_1", ProductData.TYPE_INT32);
+            product.setPreferredTileSize(new Dimension(10, 5));
         }
 
         @Override

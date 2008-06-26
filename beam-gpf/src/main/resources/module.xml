@@ -14,7 +14,7 @@
     
     <changelog>
         <![CDATA[<p>From 4.1 to 4.2:<br/>
-            [BEAM-833] GPT computes incomplete output rasters<br/>   TODO!
+            [BEAM-833] GPT computes incomplete output rasters<br/>
             [BEAM-827] Standard dialogs for operators should be modeless<br/>
             [BEAM-822] GPT crash with virtual bands<br/>
             [BEAM-811] Graph XML should contain an application specific data section<br/>

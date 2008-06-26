@@ -11,10 +11,17 @@ import org.esa.beam.util.math.MathUtils;
 import javax.media.jai.JAI;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.image.RenderedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 /**
@@ -145,47 +152,81 @@ public class GraphProcessor {
     public void executeGraphContext(GraphContext graphContext, ProgressMonitor pm) {
         fireProcessingStarted(graphContext);
 
-        Rectangle rectangleUnion = new Rectangle();
         NodeContext[] outputNodeContexts = graphContext.getOutputNodeContexts();
-        for (NodeContext outputNodeContext : outputNodeContexts) {
-            Product targetProduct = outputNodeContext.getTargetProduct();
-            rectangleUnion.add(getProductBounds(targetProduct));
+        Map<Dimension, List<NodeContext>> tileDimMap = buildTileDimensionMap(outputNodeContexts);
+        
+        List<Dimension> dimList = new ArrayList<Dimension>(tileDimMap.keySet());
+        Collections.sort(dimList, new Comparator<Dimension>() {
+
+            @Override
+            public int compare(Dimension d1, Dimension d2) {
+                Long area1 = Long.valueOf(d1.width * d1.height);
+                Long area2 = Long.valueOf(d2.width * d2.height);
+                return area1.compareTo(area2);
+            }
+        });
+        
+        int numPmTicks = 0;
+        for (Dimension dimension : dimList) {
+            numPmTicks += dimension.width * dimension.height * tileDimMap.get(dimension).size();
         }
-        Dimension defaultTileSize = JAI.getDefaultTileSize();
-        int numXTiles = MathUtils.ceilInt(rectangleUnion.width / (double) defaultTileSize.width);
-        int numYTiles = MathUtils.ceilInt(rectangleUnion.height / (double) defaultTileSize.height);
-        // todo - FIXMEEEE!
-        // use per-image tile def in order to iter correctly over all target products
-        pm.beginTask("Computing raster data...", numXTiles * numYTiles);
-        for (int tileY = 0; tileY < numYTiles; tileY++) {
-            for (int tileX = 0; tileX < numXTiles; tileX++) {
-                if (pm.isCanceled()) {
-                    break;
-                }
-                Rectangle tileRectangle = new Rectangle(tileX * defaultTileSize.width,
-                                                        tileY * defaultTileSize.height,
-                                                        defaultTileSize.width,
-                                                        defaultTileSize.height);
-                fireTileStarted(graphContext, tileRectangle);
-                for (NodeContext nodeContext : outputNodeContexts) {
-                    Product targetProduct = nodeContext.getTargetProduct();
-                    if (getProductBounds(targetProduct).intersects(tileRectangle)) {
-                        if (nodeContext.canComputeTileStack()) {
-                            Band band = targetProduct.getBandAt(0);
-                            forceTileComputation(nodeContext, band, tileX, tileY);
-                        } else {
-                            for (Band band : targetProduct.getBands()) {
-                                forceTileComputation(nodeContext, band, tileX, tileY);
-                            }
+        
+        try {
+            pm.beginTask("Computing raster data...", numPmTicks);
+            for (Dimension dimension : dimList) {
+                List<NodeContext> nodeContextList = tileDimMap.get(dimension);
+                final int numXTiles = dimension.width;
+                final int numYTiles = dimension.height;
+                Dimension tileSize = nodeContextList.get(0).getTargetProduct().getPreferredTileSize();
+                for (int tileY = 0; tileY < numYTiles; tileY++) {
+                    for (int tileX = 0; tileX < numXTiles; tileX++) {
+                        if (pm.isCanceled()) {
+                            return;
                         }
+                        Rectangle tileRectangle = new Rectangle(tileX * tileSize.width,
+                                tileY * tileSize.height,
+                                tileSize.width,
+                                tileSize.height);
+                        fireTileStarted(graphContext, tileRectangle);
+                        for (NodeContext nodeContext : nodeContextList) {
+                            Product targetProduct = nodeContext.getTargetProduct();
+                            if (nodeContext.canComputeTileStack()) {
+                                Band band = targetProduct.getBandAt(0);
+                                forceTileComputation(nodeContext, band, tileX, tileY);
+                            } else {
+                                for (Band band : targetProduct.getBands()) {
+                                    forceTileComputation(nodeContext, band, tileX, tileY);
+                                }
+                            }
+                            pm.worked(1);
+                        }
+                        fireTileStopped(graphContext, tileRectangle);
                     }
                 }
-                fireTileStopped(graphContext, tileRectangle);
-                pm.worked(1);
             }
+        } finally {
+            pm.done();
+            fireProcessingStopped(graphContext);
         }
-        pm.done();
-        fireProcessingStopped(graphContext);
+    }
+
+    private Map<Dimension, List<NodeContext>> buildTileDimensionMap(NodeContext[] outputNodeContexts) {
+        final int mapSize = outputNodeContexts.length;
+        Map<Dimension, List<NodeContext>> tileSizeMap = new HashMap<Dimension, List<NodeContext>>(mapSize);
+        for (NodeContext outputNodeContext : outputNodeContexts) {
+            Product targetProduct = outputNodeContext.getTargetProduct();
+            RenderedImage image = targetProduct.getBandAt(0).getImage();
+            final int numXTiles = image.getNumXTiles();
+            final int numYTiles = image.getNumYTiles();
+            Dimension tileDim = new Dimension(numXTiles, numYTiles);
+            List<NodeContext> nodeContextList = tileSizeMap.get(tileDim);
+            if (nodeContextList == null) {
+                nodeContextList = new ArrayList<NodeContext>(mapSize);
+                tileSizeMap.put(tileDim, nodeContextList);
+            }
+            nodeContextList.add(outputNodeContext);
+        }
+        return tileSizeMap;
     }
 
     private static Rectangle getProductBounds(Product targetProduct) {
