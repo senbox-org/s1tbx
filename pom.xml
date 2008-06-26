@@ -266,12 +266,19 @@
             </dependency>
 
 
-            <!-- JUnit Libraries ############################################# -->
+            <!-- Test Libraries ############################################# -->
 
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>3.8.1</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-all</artifactId>
+                <version>1.4</version>
                 <scope>test</scope>
             </dependency>
 
@@ -335,6 +342,10 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
         </dependency>
     </dependencies>
 
@@ -485,7 +496,7 @@
                     <excludePackageNames>
                         *.internal:org.esa.beam.visat.toolviews:org.esa.beam.visat.actions:org.esa.beam.visat.dialogs:org.esa.beam.visat.plugins
                     </excludePackageNames>
-					<maxmemory>256m</maxmemory>
+                    <maxmemory>256m</maxmemory>
                     <quiet>true</quiet>
                 </configuration>
             </plugin>
