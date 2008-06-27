@@ -17,8 +17,6 @@ package org.esa.beam.cluster;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 
-import javax.media.jai.JAI;
-
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.Product;
@@ -31,9 +29,8 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.MathUtils;
-
-import sun.java2d.SunGraphicsEnvironment.TTFilter;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
@@ -82,8 +79,12 @@ public class KMeansClusterOp extends Operator {
         final String name = sourceProduct.getName() + "_CLUSTERS";
         final String type = sourceProduct.getProductType() + "_CLUSTERS";
 
-        final Product targetProduct = new Product(name, type, width, height);
-
+        targetProduct = new Product(name, type, width, height);
+        ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
+        ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
+        targetProduct.setStartTime(sourceProduct.getStartTime());
+        targetProduct.setEndTime(sourceProduct.getEndTime());
+        
         clusterMapBand = new Band("cluster_map", ProductData.TYPE_INT16, width, height);
         clusterMapBand.setDescription("Cluster map");
         targetProduct.addBand(clusterMapBand);

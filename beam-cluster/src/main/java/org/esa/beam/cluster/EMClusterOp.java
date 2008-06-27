@@ -28,6 +28,7 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.util.ProductUtils;
 
 import java.awt.*;
 import java.util.Comparator;
@@ -93,7 +94,12 @@ public class EMClusterOp extends Operator {
         final String name = sourceProduct.getName() + "_CLUSTERS";
         final String type = sourceProduct.getProductType() + "_CLUSTERS";
 
-        final Product targetProduct = new Product(name, type, width, height);
+        targetProduct = new Product(name, type, width, height);
+        ProductUtils.copyTiePointGrids(sourceProduct, targetProduct);
+        ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
+        targetProduct.setStartTime(sourceProduct.getStartTime());
+        targetProduct.setEndTime(sourceProduct.getEndTime());
+        
         targetProduct.setPreferredTileSize(width, height);  //TODO ????
 
         if (includeProbabilityBands) {
