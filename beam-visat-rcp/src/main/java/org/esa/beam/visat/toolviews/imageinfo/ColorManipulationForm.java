@@ -718,6 +718,7 @@ class ColorManipulationForm {
         public void internalFrameActivated(final InternalFrameEvent e) {
             final ProductSceneView view = getProductSceneViewByFrame(e);
             setProductSceneView(view);
+            System.out.println("ColorManipulationForm.internalFrameActivated: view = " + view.getScene().getName());
         }
 
         @Override
@@ -726,6 +727,7 @@ class ColorManipulationForm {
             if (getProductSceneView() == view) {
                 setProductSceneView(null);
             }
+            System.out.println("ColorManipulationForm.internalFrameDeactivated: view = " + view.getScene().getName());
         }
 
         private ProductSceneView getProductSceneViewByFrame(final InternalFrameEvent e) {

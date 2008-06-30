@@ -103,6 +103,8 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
 
             parentForm.installButtons();
             parentForm.revalidateToolViewPaneControl();
+        } else {
+            childForm.updateFormModel(productSceneView);
         }
     }
 
