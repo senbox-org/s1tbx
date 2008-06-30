@@ -1,0 +1,349 @@
+/*
+ * $Id$
+ *
+ * Copyright (C) 2002 by Brockmann Consult (info@brockmann-consult.de)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation. This program is distributed in the hope it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+package org.esa.beam.dataio.obpg.hdf;
+
+import ncsa.hdf.hdflib.HDFConstants;
+import ncsa.hdf.hdflib.HDFException;
+import org.esa.beam.framework.dataio.ProductIOException;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.FlagCoding;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.util.Debug;
+import org.esa.beam.dataio.obpg.bandreader.ObpgBandReaderFactory;
+import org.esa.beam.dataio.obpg.bandreader.ObpgBandReader;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
+public class ObpgUtils {
+
+    static final String KEY_NAME = "Product Name";
+    static final String KEY_TYPE = "Title";
+    static final String KEY_WIDTH = "Pixels per Scan Line";
+    static final String KEY_HEIGHT = "Number of Scan Lines";
+    static final String SCIENTIFIC_METADATA = "Scientific_Metadata";
+
+    HdfFacade hdf = new HdfFacade();
+
+    /**
+     * Converts a <code>HdfAttribute</code> to a <code>MetadataAttribute</code>
+     *
+     * @param hdfAttribute the hdf attribute to convert
+     *
+     * @return the product metadata attribute
+     */
+    public MetadataAttribute attributeToMetadata(final HdfAttribute hdfAttribute) {
+        ProductData prodData = null;
+        MetadataAttribute attrib = null;
+
+        switch (hdfAttribute.getHdfType()) {
+        case HDFConstants.DFNT_CHAR:
+        case HDFConstants.DFNT_UCHAR8:
+            prodData = ProductData.createInstance(hdfAttribute.getStringValue());
+            break;
+
+        case HDFConstants.DFNT_UINT8:
+        case HDFConstants.DFNT_INT8:
+        case HDFConstants.DFNT_UINT16:
+        case HDFConstants.DFNT_INT16:
+        case HDFConstants.DFNT_INT32:
+        case HDFConstants.DFNT_UINT32:
+            prodData = ProductData.createInstance(hdfAttribute.getIntValues());
+            break;
+
+        case HDFConstants.DFNT_FLOAT32:
+            prodData = ProductData.createInstance(hdfAttribute.getFloatValues());
+            break;
+
+        case HDFConstants.DFNT_DOUBLE:
+            prodData = ProductData.createInstance(hdfAttribute.getDoubleValues());
+            break;
+        }
+
+        if (prodData != null) {
+            attrib = new MetadataAttribute(hdfAttribute.getName(), prodData, true);
+        }
+        return attrib;
+    }
+
+    /**
+     * Decodes the hdf data type into a product data type.
+     *
+     * @param hdfType
+     *
+     * @return product data type
+     *
+     * @see ProductData
+     */
+    public int decodeHdfDataType(final int hdfType) {
+        switch (hdfType) {
+        case HDFConstants.DFNT_UCHAR8:
+        case HDFConstants.DFNT_UINT8:
+            return ProductData.TYPE_UINT8;
+
+        case HDFConstants.DFNT_CHAR8:
+        case HDFConstants.DFNT_INT8:
+            return ProductData.TYPE_INT8;
+
+        case HDFConstants.DFNT_INT16:
+            return ProductData.TYPE_INT16;
+
+        case HDFConstants.DFNT_UINT16:
+            return ProductData.TYPE_UINT16;
+
+        case HDFConstants.DFNT_INT32:
+            return ProductData.TYPE_INT32;
+
+        case HDFConstants.DFNT_UINT32:
+            return ProductData.TYPE_UINT32;
+
+        case HDFConstants.DFNT_FLOAT32:
+            return ProductData.TYPE_FLOAT32;
+
+        case HDFConstants.DFNT_FLOAT64:
+            return ProductData.TYPE_FLOAT64;
+
+        default:
+            return ProductData.TYPE_UNDEFINED;
+        }
+    }
+
+    /**
+     * Reads the global attributes from the hdf file passed in.
+     *
+     * @param sdStart the HD interface identifier of the file
+     *
+     * @return an instance of HdfGlobalAttributes which contains all the
+     *         global hdf attributes read from file.
+     *
+     * @throws ncsa.hdf.hdflib.HDFException -
+     */
+    public List<HdfAttribute> readGlobalAttributes(final int sdStart) throws HDFException {
+        Debug.trace("reading global attributes ...");
+
+        // request number of datasets (fileInfo[0]) and number of global attributes (fileInfo[1])
+        final SDFileInfo fileInfo1 = hdf.getSDFileInfo(sdStart);
+        if (fileInfo1 != null) {
+            return hdf.readAttributes(sdStart, fileInfo1.attributeCount);
+        } else {
+            final String message = "Unable to read global metadata";
+            Debug.trace("... " + message);
+            throw new HDFException(message);
+        }
+    }
+
+    public static File getInputFile(final Object o) {
+        final File inputFile;
+        if (o instanceof File) {
+            inputFile = (File) o;
+        } else if (o instanceof String) {
+            inputFile = new File((String) o);
+        } else {
+            throw new IllegalArgumentException("unsupported input source: " + o);
+        }
+        return inputFile;
+    }
+
+    public Product createProductBody(final List<HdfAttribute> globalAttributes) throws ProductIOException {
+        String productName = null;
+        String productType = null;
+        Integer sceneRasterWidth = null;
+        Integer sceneRasterHeight = null;
+        for (HdfAttribute attribute : globalAttributes) {
+            final String name = attribute.getName();
+            if (KEY_NAME.equals(name)) {
+                productName = attribute.getStringValue().trim();
+            } else if (KEY_TYPE.equals(name)) {
+                productType = "OBPG " + attribute.getStringValue().trim();
+            } else if (KEY_WIDTH.equals(name) && attribute.getElemCount() == 1) {
+                sceneRasterWidth = attribute.getIntValues()[0];
+            } else if (KEY_HEIGHT.equals(name) && attribute.getElemCount() == 1) {
+                sceneRasterHeight = attribute.getIntValues()[0];
+            }
+        }
+        if (productName == null) {
+            throw new ProductIOException("Global attribute <" + KEY_NAME + "> is missing");
+        } else if (productType == null) {
+            throw new ProductIOException("Global attribute <" + KEY_TYPE + "> is missing");
+        } else if (sceneRasterWidth == null) {
+            throw new ProductIOException("Global attribute <" + KEY_WIDTH + "> is missing");
+        } else if (sceneRasterHeight == null) {
+            throw new ProductIOException("Global attribute <" + KEY_HEIGHT + "> is missing");
+        }
+        return new Product(productName, productType, sceneRasterWidth, sceneRasterHeight);
+    }
+
+    public void addGlobalMetadata(final Product product, final List<HdfAttribute> globalAttributes) {
+        final MetadataElement globalElement = new MetadataElement("GlobalAttributes");
+        addAttributesToElement(globalAttributes, globalElement);
+
+        final MetadataElement metadataRoot = product.getMetadataRoot();
+        metadataRoot.addElement(globalElement);
+    }
+
+    public SdsInfo[] extractSdsData(final int sdStart) throws HDFException {
+        final SDFileInfo sdFileInfo = hdf.getSDFileInfo(sdStart);
+        final ArrayList<SdsInfo> sdsInfoList = new ArrayList<SdsInfo>();
+        for (int i = 0; i < sdFileInfo.sdsCount; i++) {
+            sdsInfoList.add(hdf.getSdsInfo(sdStart, i));
+        }
+
+        return sdsInfoList.toArray(new SdsInfo[sdsInfoList.size()]);
+    }
+
+    public int openHdfFileReadOnly(final String path) throws HDFException {
+        final int fileId = hdf.openHdfFileReadOnly(path);
+        return fileId;
+    }
+
+    public int openSdInterfaceReadOnly(final String path) throws HDFException {
+        final int sdStart = hdf.openSdInterfaceReadOnly(path);
+        return sdStart;
+    }
+
+    public boolean closeHdfFile(final int fileId) throws HDFException {
+        return hdf.closeHdfFile(fileId);
+    }
+
+    public boolean isHdfFile(final String path) throws HDFException {
+        return hdf.isHdfFile(path);
+    }
+
+    public SdsInfo getSdsInfo(final int sdsId) throws HDFException {
+        return hdf.getSdsInfo(sdsId);
+    }
+
+    public void addScientificMetadata(final Product product, final SdsInfo[] sdsInfos) throws HDFException {
+        final MetadataElement metadataElement = product.getMetadataRoot().getElement(SCIENTIFIC_METADATA);
+        final MetadataElement scientific;
+        if (metadataElement == null) {
+            scientific = new MetadataElement(SCIENTIFIC_METADATA);
+            product.getMetadataRoot().addElement(scientific);
+        } else {
+            scientific = metadataElement;
+        }
+        for (SdsInfo sdsInfo : sdsInfos) {
+            if (sdsInfo.getNumDimensions() == 1) {
+                final String name = sdsInfo.getName();
+                final MetadataElement sdsElement = new MetadataElement(name);
+                scientific.addElement(sdsElement);
+
+                final int dataType = decodeHdfDataType(sdsInfo.getHdfDataType());
+                final ProductData data = ProductData.createInstance(dataType, sdsInfo.getDimensions()[0]);
+                hdf.readProductData(sdsInfo, data);
+                final MetadataAttribute attribute = new MetadataAttribute("data", data, true);
+                sdsElement.addAttribute(attribute);
+
+                final List<HdfAttribute> list = hdf.readAttributes(sdsInfo.getSdsID(), sdsInfo.getNumAttributes());
+                for (HdfAttribute hdfAttribute : list) {
+                    final String attribName = hdfAttribute.getName();
+                    if ("units".equals(attribName)) {
+                        attribute.setUnit(hdfAttribute.getStringValue());
+                    } else if ("long_name".equals(attribName)) {
+                        attribute.setDescription(hdfAttribute.getStringValue());
+                    } else {
+                        addAttributeToElement(sdsElement, hdfAttribute);
+                    }
+                }
+            }
+        }
+    }
+
+    public Map<Band, ObpgBandReader> addBandsAndTiePointGrids(final Product product, final SdsInfo[] sdsInfos) throws HDFException {
+        final HashMap<Band, ObpgBandReader> readerMap = new HashMap<Band, ObpgBandReader>();
+        final int sceneRasterWidth = product.getSceneRasterWidth();
+        final int sceneRasterHeight = product.getSceneRasterHeight();
+        for (SdsInfo sdsInfo : sdsInfos) {
+            if (sdsInfo.getNumDimensions() == 2) {
+                final int[] dimensions = sdsInfo.getDimensions();
+                final int height = dimensions[0];
+                final int width = dimensions[1];
+                if (height != sceneRasterHeight
+                    || width != sceneRasterWidth) {
+                    addTiePointGrid(product, sdsInfo);
+                } else{
+                    final String name = sdsInfo.getName();
+                    final int dataType = decodeHdfDataType(sdsInfo.getHdfDataType());
+                    final Band band = new Band(name, dataType, width, height);
+                    product.addBand(band);
+                    final ObpgBandReader[] bandReaders = ObpgBandReaderFactory.getReaders(sdsInfo, dataType);
+                    readerMap.put(band, bandReaders[0]);
+                    final List<HdfAttribute> list = hdf.readAttributes(sdsInfo.getSdsID(), sdsInfo.getNumAttributes());
+                    FlagCoding flagCoding = null;
+                    for (HdfAttribute hdfAttribute : list) {
+                        final String attribName = hdfAttribute.getName();
+                        if ("units".equals(attribName)) {
+                            band.setUnit(hdfAttribute.getStringValue());
+                        } else if ("long_name".equals(attribName)) {
+                            band.setDescription(hdfAttribute.getStringValue());
+                        } else if ("slope".equals(attribName)) {
+                            band.setScalingFactor(hdfAttribute.getDoubleValues()[0]);
+                        } else if ("intercept".equals(attribName)) {
+                            band.setScalingOffset(hdfAttribute.getDoubleValues()[0]);
+                        } else if (attribName.matches("f\\d\\d_name")) {
+                            if (flagCoding == null) {
+                                flagCoding = new FlagCoding("Coding_" + name);
+                            }
+                            final String flagName = hdfAttribute.getStringValue();
+                            final int flagMask = convertToFlagMask(attribName);
+                            flagCoding.addFlag(flagName, flagMask, "");
+                        } else {
+//                        addAttributeToElement(sdsElement, hdfAttribute);
+                        }
+                    }
+                    if (flagCoding != null) {
+                        band.setSampleCoding(flagCoding);
+                        product.getFlagCodingGroup().add(flagCoding);
+                    }
+                }
+            }
+        }
+        return readerMap;
+    }
+
+    private void addTiePointGrid(final Product product, final SdsInfo sdsInfo) {
+
+    }
+
+    int convertToFlagMask(String name) {
+        if (name.matches("f\\d\\d_name")) {
+            final String number = name.substring(1, 3);
+            final int i = Integer.parseInt(number) - 1;
+            if (i >= 0) {
+                return 1 << i;
+            }
+        }
+        return 0;
+    }
+
+    private void addAttributesToElement(final List<HdfAttribute> attributes, final MetadataElement element) {
+        for (HdfAttribute hdfAttribute : attributes) {
+            addAttributeToElement(element, hdfAttribute);
+        }
+    }
+
+    private void addAttributeToElement(final MetadataElement element, final HdfAttribute hdfAttribute) {
+        final MetadataAttribute metadataAttribute = attributeToMetadata(hdfAttribute);
+        element.addAttribute(metadataAttribute);
+    }
+}

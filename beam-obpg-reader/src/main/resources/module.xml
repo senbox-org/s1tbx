@@ -1,0 +1,43 @@
+<module>
+    <manifestVersion>1.0.0</manifestVersion>
+    <symbolicName>beam-obpg-reader</symbolicName>
+    <version>1.0</version>
+    <name>OBPG Level-2 Product Reader</name>
+
+
+    <description>A reader for OBPG(MODIS) Level-2 data products.</description>
+
+    <vendor>Brockmann Consult GmbH</vendor>
+    <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
+    <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
+    <url>http://envisat.esa.int/beam</url>
+    <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+
+    <dependency>
+        <module>beam-core</module>
+    </dependency>
+    <dependency>
+        <module>lib-hdf</module>
+    </dependency>
+    <dependency>
+        <module>beam-visat</module>
+        <optional>true</optional>
+    </dependency>
+
+    <categories>Reader,OBPG,MODIS,HDF,VISAT</categories>
+
+    <extension point="beam-ui:actions">
+        <action>
+            <id>importObpgProduct</id>
+            <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <formatName>OBPG(MODIS)</formatName>
+            <useAllFileFilter>true</useAllFileFilter>
+            <mnemonic>O</mnemonic>
+            <shortDescr>Import a OBPG(MODIS) L2 data product or subset.</shortDescr>
+            <description>Import a OBPG(MODIS) L2 data product or product subset.</description>
+            <helpId>importObpgProduct</helpId>
+        </action>
+    </extension>
+
+</module>
