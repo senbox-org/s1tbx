@@ -33,12 +33,10 @@ import org.esa.beam.util.SystemUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
-import org.esa.beam.util.math.Histogram;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.*;
-import javax.swing.event.InternalFrameAdapter;
-import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -68,38 +66,77 @@ class ColorManipulationForm {
     private AbstractButton exportButton;
     private SuppressibleOptionPane suppressibleOptionPane;
 
-    private ProductNodeListener rasterDataChangedListener;
-
     private ProductSceneView productSceneView;
     private Band[] bandsToBeModified;
     private BeamFileFilter beamFileFilter;
     private final ProductNodeListener productNodeListener;
-    private boolean auxDataInstalled;
+    private boolean defaultColorPalettesInstalled;
     private JPanel contentPanel;
     private final ColorManipulationToolView toolView;
-    private ImageInfoEditor imageInfoEditor;
-    private ImageInfoEditor continuous1BandSwitcherForm;
-    private ImageInfoEditor discrete1BandTabularForm;
-    private ImageInfoEditor continuous3BandGraphicalForm;
+    private ColorManipulationChildForm childForm;
+    private ColorManipulationChildForm continuous1BandSwitcherForm;
+    private ColorManipulationChildForm discrete1BandTabularForm;
+    private ColorManipulationChildForm continuous3BandGraphicalForm;
     private JPanel buttonsPanel;
     private AbstractButton helpButton;
     private File ioDir;
     private NoDataColorForm noDataColorForm;
     private JPanel editorPanel;
+    private ImageInfo imageInfo; // our model!
 
     public ColorManipulationForm(ColorManipulationToolView colorManipulationToolView) {
         this.toolView = colorManipulationToolView;
         visatApp = VisatApp.getApp();
         preferences = visatApp.getPreferences();
-        productNodeListener = createProductNodeListener();
-        noDataColorForm = new NoDataColorForm();
+        productNodeListener = new ColorManipulationPNL();
     }
 
     public ProductSceneView getProductSceneView() {
         return productSceneView;
     }
 
-    public void setProductSceneView(final ProductSceneView productSceneView) {
+    public JPanel getContentPanel() {
+        if (contentPanel == null) {
+            initContentPanel();
+        }
+        if (!defaultColorPalettesInstalled) {
+            installDefaultColorPalettes();
+        }
+        return contentPanel;
+    }
+
+    public void revalidateToolViewPaneControl() {
+        getToolViewPaneControl().invalidate();
+        getToolViewPaneControl().validate();
+        getToolViewPaneControl().repaint();
+    }
+
+    public static AbstractButton createButton(final String iconPath) {
+        return ToolButtonFactory.createButton(UIUtils.loadImageIcon(iconPath), false);
+    }
+
+    public static AbstractButton createToggleButton(final String iconPath) {
+        return ToolButtonFactory.createButton(UIUtils.loadImageIcon(iconPath), true);
+    }
+
+    private Component getToolViewPaneControl() {
+        return toolView.getPaneControl();
+    }
+
+    public ImageInfo getImageInfo() {
+        return imageInfo;
+    }
+
+
+    ChangeListener createApplyEnablerChangeListener() {
+        return new ApplyEnablerCL();
+    }
+
+    TableModelListener createApplyEnablerTableModelListener() {
+        return new ApplyEnablerTML();
+    }
+
+    private void setProductSceneView(final ProductSceneView productSceneView) {
         if (this.productSceneView != null) {
             this.productSceneView.getProduct().removeProductNodeListener(productNodeListener);
         }
@@ -107,23 +144,36 @@ class ColorManipulationForm {
         if (this.productSceneView != null) {
             this.productSceneView.getProduct().addProductNodeListener(productNodeListener);
         }
-        installSpecificPaletteEditorForm();
+
+        if (this.productSceneView != null) {
+            setImageInfoCopy(this.productSceneView.getScene().getImageInfo());
+        }
+
+        installChildForm();
+
+        final boolean enabled = this.productSceneView != null;
+        resetButton.setEnabled(enabled);
+        importButton.setEnabled(enabled);
+        exportButton.setEnabled(enabled);
+        noDataColorForm.setEnabled(enabled);
         updateNoDataForm();
-        updateState();
+        updateTitle();
+
+        setApplyEnabled(false);
     }
 
     private void updateNoDataForm() {
-        if (this.productSceneView != null) {
-            ImageInfo imageInfo = this.productSceneView.getRaster().getImageInfo();
+        if (productSceneView != null) {
+            ImageInfo imageInfo = productSceneView.getRaster().getImageInfo();
             if (imageInfo != null) {
                 noDataColorForm.setNoDataColor(imageInfo.getNoDataColor());
             }
         }
     }
 
-    private void installSpecificPaletteEditorForm() {
-        final ImageInfoEditor oldForm = imageInfoEditor;
-        ImageInfoEditor newForm = EmptyPaletteEditorForm.INSTANCE;
+    private void installChildForm() {
+        final ColorManipulationChildForm oldForm = childForm;
+        ColorManipulationChildForm newForm = EmptyImageInfoForm.INSTANCE;
         if (productSceneView != null) {
             if (isContinuous3BandImage()) {
                 if (oldForm instanceof Continuous3BandGraphicalForm) {
@@ -153,28 +203,38 @@ class ColorManipulationForm {
         }
 
         if (newForm != oldForm) {
-            imageInfoEditor = newForm;
-            installSpecificFormUI();
-            oldForm.handleFormHidden();
-            imageInfoEditor.handleFormShown(productSceneView);
+            childForm = newForm;
+
+            installButtons();
+            editorPanel.removeAll();
+            editorPanel.add(childForm.getContentPanel(), BorderLayout.CENTER);
+            if (!(childForm instanceof EmptyImageInfoForm)) {
+                editorPanel.add(noDataColorForm.getContentPanel(), BorderLayout.SOUTH);
+            }
+            revalidateToolViewPaneControl();
+
+            if (oldForm != null) {
+                oldForm.handleFormHidden(productSceneView);
+            }
+            childForm.handleFormShown(productSceneView);
         }
     }
 
-    private ImageInfoEditor getContinuous3BandGraphicalForm() {
+    private ColorManipulationChildForm getContinuous3BandGraphicalForm() {
         if (continuous3BandGraphicalForm == null) {
             continuous3BandGraphicalForm = new Continuous3BandGraphicalForm(this);
         }
         return continuous3BandGraphicalForm;
     }
 
-    private ImageInfoEditor getContinuous1BandSwitcherForm() {
+    private ColorManipulationChildForm getContinuous1BandSwitcherForm() {
         if (continuous1BandSwitcherForm == null) {
             continuous1BandSwitcherForm = new Continuous1BandSwitcherForm(this);
         }
         return continuous1BandSwitcherForm;
     }
 
-    private ImageInfoEditor getDiscrete1BandTabularForm() {
+    private ColorManipulationChildForm getDiscrete1BandTabularForm() {
         if (discrete1BandTabularForm == null) {
             discrete1BandTabularForm = new Discrete1BandTabularForm(this);
         }
@@ -190,45 +250,27 @@ class ColorManipulationForm {
                 && ((Band) productSceneView.getRaster()).getIndexCoding() == null;
     }
 
-    public boolean isDiscrete1BandImage() {
+    private boolean isDiscrete1BandImage() {
         return (productSceneView.getRaster() instanceof Band)
                 && ((Band) productSceneView.getRaster()).getIndexCoding() != null;
     }
 
-    public PageComponentDescriptor getPageComponentDescriptor() {
+    private PageComponentDescriptor getToolViewDescriptor() {
         return toolView.getDescriptor();
     }
 
     private void updateTitle() {
-        toolView.setTitle(getPageComponentDescriptor().getTitle() + " - " + imageInfoEditor.getTitle(productSceneView));
-    }
-
-    private void updateState() {
-        updateTitle();
-
-        setApplyEnabled(false);
-        final boolean enabled = productSceneView != null;
-        resetButton.setEnabled(enabled);
-        importButton.setEnabled(enabled);
-        exportButton.setEnabled(enabled);
-        imageInfoEditor.updateState(productSceneView);
-        noDataColorForm.enable(enabled);
-
-        if (!auxDataInstalled) {
-            installAuxData();
+        String titlePostfix = "";
+        if (productSceneView != null) {
+            titlePostfix = " - " + productSceneView.getScene().getName();
         }
+        // todo - this doesn't work at all!!!
+        toolView.setTitle(getToolViewDescriptor().getTitle() + titlePostfix);
     }
 
-    public JPanel getContentPanel() {
-        if (contentPanel == null) {
-            initContentPanel();
-        }
-        return contentPanel;
-    }
+    private void initContentPanel() {
 
-    public void initContentPanel() {
-
-        imageInfoEditor = EmptyPaletteEditorForm.INSTANCE;
+        noDataColorForm = new NoDataColorForm();
 
         applyButton = new JButton("Apply");
         applyButton.setName("ApplyButton");
@@ -236,7 +278,7 @@ class ColorManipulationForm {
         applyButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
-                apply();
+                applyChanges();
             }
         });
 
@@ -246,7 +288,7 @@ class ColorManipulationForm {
         resetButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
-                reset();
+                resetToDefaults();
             }
         });
 
@@ -282,7 +324,6 @@ class ColorManipulationForm {
         });
         exportButton.setEnabled(true);
 
-
         helpButton = createButton("icons/Help24.gif");
         helpButton.setToolTipText("Help."); /*I18N*/
         helpButton.setName("helpButton");
@@ -296,47 +337,33 @@ class ColorManipulationForm {
         contentPanel.add(editorPanel, BorderLayout.CENTER);
         contentPanel.add(buttonsPanel, BorderLayout.EAST);
 
-        installSpecificFormUI();
+        installHelp();
+        this.suppressibleOptionPane = visatApp.getSuppressibleOptionPane();
 
-        if (getPageComponentDescriptor().getHelpId() != null) {
-            HelpSys.enableHelpOnButton(helpButton, getPageComponentDescriptor().getHelpId());
-            HelpSys.enableHelpKey(getToolViewPaneControl(), getPageComponentDescriptor().getHelpId());
-        }
-
-        final ProductSceneView productSceneView = visatApp.getSelectedProductSceneView();
-        addDataChangedListener(productSceneView);
-        setProductSceneView(productSceneView);
-        setSuppressibleOptionPane(visatApp.getSuppressibleOptionPane());
-
-        rasterDataChangedListener = createRasterDataChangedListner();
+        setProductSceneView(visatApp.getSelectedProductSceneView());
 
         // Add an internal frame listsner to VISAT so that we can update our
         // contrast stretch dialog with the information of the currently activated
         // product scene view.
         //
-        visatApp.addInternalFrameListener(new ContrastStretchIFL());
+        visatApp.addInternalFrameListener(new ColorManipulationIFL());
 
-        noDataColorForm.getValueContainer().addPropertyChangeListener(new PropertyChangeListener() {
+        noDataColorForm.addPropertyChangeListener(new PropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent evt) {
                 setNoDataColor();
             }
         });
-
-        updateState();
     }
 
-    public void installSpecificFormUI() {
-        installButtons();
-
-        editorPanel.removeAll();
-        editorPanel.add(imageInfoEditor.getContentPanel(), BorderLayout.CENTER);
-        editorPanel.add(noDataColorForm.getContentPanel(), BorderLayout.SOUTH);
-
-        revalidate();
+    private void installHelp() {
+        if (getToolViewDescriptor().getHelpId() != null) {
+            HelpSys.enableHelpOnButton(helpButton, getToolViewDescriptor().getHelpId());
+            HelpSys.enableHelpKey(getToolViewPaneControl(), getToolViewDescriptor().getHelpId());
+        }
     }
 
-    private void installButtons() {
+    void installButtons() {
         buttonsPanel.removeAll();
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.CENTER;
@@ -355,7 +382,7 @@ class ColorManipulationForm {
         buttonsPanel.add(importButton, gbc);
         buttonsPanel.add(exportButton, gbc);
         gbc.gridy++;
-        AbstractButton[] additionalButtons = imageInfoEditor.getButtons();
+        AbstractButton[] additionalButtons = childForm.getButtons();
         for (int i = 0; i < additionalButtons.length; i++) {
             AbstractButton button = additionalButtons[i];
             buttonsPanel.add(button, gbc);
@@ -376,36 +403,37 @@ class ColorManipulationForm {
         buttonsPanel.add(helpButton, gbc);
     }
 
-    public SuppressibleOptionPane getSuppressibleOptionPane() {
-        return suppressibleOptionPane;
-    }
-
-    public void setSuppressibleOptionPane(final SuppressibleOptionPane suppressibleOptionPane) {
-        this.suppressibleOptionPane = suppressibleOptionPane;
-    }
-
     public void showMessageDialog(String propertyName, String message, String title) {
-        getSuppressibleOptionPane().showMessageDialog(propertyName,
-                                                      getToolViewPaneControl(),
-                                                      message,
-                                                      getPageComponentDescriptor().getTitle() + title,
-                                                      JOptionPane.INFORMATION_MESSAGE);
+        suppressibleOptionPane.showMessageDialog(propertyName,
+                                                 getToolViewPaneControl(),
+                                                 message,
+                                                 getToolViewDescriptor().getTitle() + title,
+                                                 JOptionPane.INFORMATION_MESSAGE);
     }
 
 
-    private void apply() {
+    private void applyChanges() {
         setApplyEnabled(false);
         if (productSceneView != null) {
             try {
                 getToolViewPaneControl().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                imageInfoEditor.performApply(productSceneView);
+                if (!isRgbMode()) {
+                    productSceneView.getRaster().setImageInfo(imageInfo);
+                }
+                productSceneView.getScene().setImageInfo(imageInfo);
+                setImageInfoCopy(imageInfo);
+                childForm.updateFormModel(productSceneView);
                 VisatApp.getApp().updateImage(productSceneView);
             } finally {
                 getToolViewPaneControl().setCursor(Cursor.getDefaultCursor());
             }
         }
+        setApplyEnabled(false);
     }
 
+    private void setImageInfoCopy(ImageInfo imageInfo) {
+        this.imageInfo = imageInfo.createDeepCopy();
+    }
 
     public void setApplyEnabled(final boolean enabled) {
         final boolean canApply = productSceneView != null;
@@ -413,9 +441,9 @@ class ColorManipulationForm {
         multiApplyButton.setEnabled(canApply && (!enabled && (!isRgbMode() && visatApp != null)));
     }
 
-    public void reset() {
+    private void resetToDefaults() {
         if (productSceneView != null) {
-            imageInfoEditor.performReset(productSceneView);
+            setDefaultImageInfo(productSceneView.getRaster());
             applyButton.setEnabled(true);
         }
     }
@@ -454,22 +482,21 @@ class ColorManipulationForm {
         if (availableBands.length == 0) {
             JOptionPane.showMessageDialog(getToolViewPaneControl(),
                                           "No other bands available.", /*I18N*/
-                                          getPageComponentDescriptor().getTitle(),
+                                          getToolViewDescriptor().getTitle(),
                                           JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         final BandChooser bandChooser = new BandChooser(toolView.getPaneWindow(),
                                                         "Apply to other bands", /*I18N*/
-                                                        getPageComponentDescriptor().getHelpId(),
+                                                        getToolViewDescriptor().getHelpId(),
                                                         availableBands,
                                                         bandsToBeModified);
         final ArrayList<Band> modifiedRasterList = new ArrayList<Band>();
         if (bandChooser.show() == BandChooser.ID_OK) {
-            final ImageInfo imageInfo = imageInfoEditor.getImageInfo();
             bandsToBeModified = bandChooser.getSelectedBands();
             for (final Band band : bandsToBeModified) {
-                band.getImageInfo().transferColorPaletteDef(imageInfo, false);
+                band.getImageInfo().transferColorPaletteDef(getImageInfo(), false);
                 modifiedRasterList.add(band);
             }
         }
@@ -508,7 +535,7 @@ class ColorManipulationForm {
     }
 
     private void importColorPaletteDef() {
-        final ImageInfo imageInfo = imageInfoEditor.getImageInfo();
+        final ImageInfo imageInfo = getImageInfo();
         if (imageInfo == null) {
             // Normaly this code is unreachable because, the export Button
             // is disabled if the _contrastStretchPane has no ImageInfo.
@@ -528,7 +555,7 @@ class ColorManipulationForm {
                 try {
                     final ColorPaletteDef colorPaletteDef = ColorPaletteDef.loadColorPaletteDef(file);
                     imageInfo.transferColorPaletteDef(colorPaletteDef, false);
-                    apply();
+                    applyChanges();
                 } catch (IOException e) {
                     showErrorDialog("Failed to import color palette definition.\n" + e.getMessage());
                 }
@@ -537,7 +564,7 @@ class ColorManipulationForm {
     }
 
     private void exportColorPaletteDef() {
-        final ImageInfo imageInfo = imageInfoEditor.getImageInfo();
+        final ImageInfo imageInfo = getImageInfo();
         if (imageInfo == null) {
             // Normaly this code is unreacable because, the export Button
             // is disabled if the _contrastStretchPane have no ImageInfo.
@@ -569,15 +596,7 @@ class ColorManipulationForm {
     }
 
 
-    public static AbstractButton createButton(final String path) {
-        return ToolButtonFactory.createButton(UIUtils.loadImageIcon(path), false);
-    }
-
-    public static AbstractButton createToggleButton(final String path) {
-        return ToolButtonFactory.createButton(UIUtils.loadImageIcon(path), true);
-    }
-
-    public boolean isRgbMode() {
+    private boolean isRgbMode() {
         return productSceneView != null && isContinuous3BandImage();
     }
 
@@ -594,111 +613,7 @@ class ColorManipulationForm {
         }
     }
 
-    private ProductNodeListener createProductNodeListener() {
-        return new ProductNodeListenerAdapter() {
-            @Override
-            public void nodeChanged(final ProductNodeEvent event) {
-                final String propertyName = event.getPropertyName();
-                if (Product.PROPERTY_NAME_NAME.equalsIgnoreCase(propertyName)) {
-                    final ProductNode sourceNode = event.getSourceNode();
-                    if ((isContinuous3BandImage() && sourceNode == productSceneView.getProduct())
-                            || sourceNode == productSceneView.getRaster()) {
-                        updateTitle();
-                    }
-                } else if (DataNode.PROPERTY_NAME_UNIT.equalsIgnoreCase(propertyName)) {
-                    // todo - ???
-                    // final DataNode dataNode = (DataNode) event.getSourceNode();
-                    // _colorPaletteEditorPanel.setUnit(dataNode.getUnit());
-                    // revalidate();
-                }
-            }
-        };
-    }
-
-
-    private void addDataChangedListener(final ProductSceneView productSceneView) {
-        if (productSceneView != null) {
-            final Product product = productSceneView.getProduct();
-            if (product != null) {
-                product.addProductNodeListener(rasterDataChangedListener);
-            }
-        }
-    }
-
-    private void removeDataChangedListener(final ProductSceneView productSceneView) {
-        if (productSceneView != null) {
-            final Product product = productSceneView.getProduct();
-            if (product != null) {
-                product.removeProductNodeListener(rasterDataChangedListener);
-            }
-        }
-    }
-
-    private ProductNodeListener createRasterDataChangedListner() {
-        return new ProductNodeListenerAdapter() {
-
-            @Override
-            public void nodeDataChanged(final ProductNodeEvent event) {
-                recomputeDisplayInformation(event);
-            }
-        };
-    }
-
-    private void recomputeDisplayInformation(final ProductNodeEvent event) {
-        if (event.getSourceNode() instanceof RasterDataNode) {
-            final RasterDataNode rasterDataNode = (RasterDataNode) event.getSourceNode();
-            final RasterDataNode[] rasters = getProductSceneView().getRasters();
-            for (RasterDataNode raster : rasters) {
-                if (raster == rasterDataNode && raster.getRasterData() != null) {
-                    reset();
-                }
-            }
-        }
-    }
-
-    public Component getToolViewPaneControl() {
-        return toolView.getPaneControl();
-    }
-
-    public void revalidate() {
-        getToolViewPaneControl().invalidate();
-        getToolViewPaneControl().validate();
-        getToolViewPaneControl().repaint();
-    }
-
-    private class ContrastStretchIFL extends InternalFrameAdapter {
-
-        @Override
-        public void internalFrameActivated(final InternalFrameEvent e) {
-            final ProductSceneView view = getProductSceneView(e);
-            removeDataChangedListener(ColorManipulationForm.this.getProductSceneView());
-            if (view != null) {
-                addDataChangedListener(view);
-                setProductSceneView(view);
-            } else {
-                setProductSceneView(null);
-            }
-        }
-
-        @Override
-        public void internalFrameDeactivated(final InternalFrameEvent e) {
-            final ProductSceneView view = getProductSceneView(e);
-            if (ColorManipulationForm.this.getProductSceneView() == view) {
-                removeDataChangedListener(ColorManipulationForm.this.getProductSceneView());
-                ColorManipulationForm.this.setProductSceneView(null);
-            }
-        }
-
-        private ProductSceneView getProductSceneView(final InternalFrameEvent e) {
-            ProductSceneView view = null;
-            if (e.getInternalFrame().getContentPane() instanceof ProductSceneView) {
-                view = (ProductSceneView) e.getInternalFrame().getContentPane();
-            }
-            return view;
-        }
-    }
-
-    private void installAuxData() {
+    private void installDefaultColorPalettes() {
         final URL codeSourceUrl = BeamUiActivator.class.getProtectionDomain().getCodeSource().getLocation();
         final File auxdataDir = getSystemAuxdataDir();
         final ResourceInstaller resourceInstaller = new ResourceInstaller(codeSourceUrl, "auxdata/color_palettes/", auxdataDir);
@@ -706,7 +621,7 @@ class ColorManipulationForm {
             @Override
             protected Object doInBackground(com.bc.ceres.core.ProgressMonitor progressMonitor) throws Exception {
                 resourceInstaller.install(".*.cpd", progressMonitor);
-                auxDataInstalled = true;
+                defaultColorPalettesInstalled = true;
                 return Boolean.TRUE;
             }
 
@@ -740,42 +655,101 @@ class ColorManipulationForm {
 
     private void setNoDataColor() {
         Color color = noDataColorForm.getNoDataColor();
-        ImageInfo imageInfo = imageInfoEditor.getImageInfo();
+        ImageInfo imageInfo = getImageInfo();
         if (imageInfo != null) {
             imageInfo.setNoDataColor(color);
-            imageInfoEditor.getContentPanel().repaint();
             setApplyEnabled(true);
         }
     }
 
-    public void resetDefaultValues(RasterDataNode raster) {
-        imageInfoEditor.setImageInfo(createDefaultImageInfo(raster));
+    public void setDefaultImageInfo(RasterDataNode raster) {
+//        childForm.setImageInfo(createDefaultImageInfo(raster));
     }
 
     public ImageInfo createDefaultImageInfo(RasterDataNode raster) {
-        Histogram histogram = null;
-        ImageInfo imageInfo = raster.getImageInfo();
-        if (imageInfo != null) {
-            int[] bins = raster.getImageInfo().getHistogramBins();
-            histogram = new Histogram(bins,
-                                      imageInfo.getScaling().scaleInverse(imageInfo.getMinSample()),
-                                      imageInfo.getScaling().scaleInverse(imageInfo.getMaxSample()));
+        try {
+            return raster.createDefaultImageInfo(null, com.bc.ceres.core.ProgressMonitor.NULL);
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(getContentPanel(),
+                                          "Failed to create image information for '" +
+                                                  raster.getName() + "':\n" + e.getMessage(),
+                                          "I/O Error",
+                                          JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+    }
+
+    private class ColorManipulationPNL extends ProductNodeListenerAdapter {
+        @Override
+        public void nodeChanged(final ProductNodeEvent event) {
+            final String propertyName = event.getPropertyName();
+            if (Product.PROPERTY_NAME_NAME.equalsIgnoreCase(propertyName)) {
+                final ProductNode sourceNode = event.getSourceNode();
+                if ((isContinuous3BandImage() && sourceNode == productSceneView.getProduct())
+                        || sourceNode == productSceneView.getRaster()) {
+                    updateTitle();
+                }
+            } else if (DataNode.PROPERTY_NAME_UNIT.equalsIgnoreCase(propertyName)) {
+                // todo - ???
+                // final DataNode dataNode = (DataNode) event.getSourceNode();
+                // _colorPaletteEditorPanel.setUnit(dataNode.getUnit());
+                // revalidate();
+            }
         }
 
-        if (histogram != null) {
-            return raster.createDefaultImageInfo(null, histogram);
-        } else {
-            try {
-                return raster.createDefaultImageInfo(null, com.bc.ceres.core.ProgressMonitor.NULL);
-            } catch (IOException e) {
-                JOptionPane.showMessageDialog(getContentPanel(),
-                                              "Failed to create image information for '" +
-                                                      raster.getName() + "':\n" + e.getMessage(),
-                                              "I/O Error",
-                                              JOptionPane.ERROR_MESSAGE);
-                return null;
+        @Override
+        public void nodeDataChanged(final ProductNodeEvent event) {
+            if (event.getSourceNode() instanceof RasterDataNode) {
+                final RasterDataNode rasterDataNode = (RasterDataNode) event.getSourceNode();
+                final RasterDataNode[] rasters = getProductSceneView().getRasters();
+                for (RasterDataNode raster : rasters) {
+                    if (raster == rasterDataNode && raster.getRasterData() != null) {
+                        resetToDefaults();
+                    }
+                }
             }
         }
     }
 
+    private class ColorManipulationIFL extends InternalFrameAdapter {
+
+        @Override
+        public void internalFrameActivated(final InternalFrameEvent e) {
+            final ProductSceneView view = getProductSceneViewByFrame(e);
+            if (view != null) {
+                setProductSceneView(view);
+            } else {
+                setProductSceneView(null);
+            }
+        }
+
+        @Override
+        public void internalFrameDeactivated(final InternalFrameEvent e) {
+            final ProductSceneView view = getProductSceneViewByFrame(e);
+            if (getProductSceneView() == view) {
+                setProductSceneView(null);
+            }
+        }
+
+        private ProductSceneView getProductSceneViewByFrame(final InternalFrameEvent e) {
+            ProductSceneView view = null;
+            if (e.getInternalFrame().getContentPane() instanceof ProductSceneView) {
+                view = (ProductSceneView) e.getInternalFrame().getContentPane();
+            }
+            return view;
+        }
+    }
+
+    class ApplyEnablerCL implements ChangeListener {
+        public void stateChanged(ChangeEvent e) {
+            setApplyEnabled(true);
+        }
+    }
+
+
+    class ApplyEnablerTML implements TableModelListener {
+        public void tableChanged(TableModelEvent e) {
+            setApplyEnabled(true);
+        }
+    }
 }

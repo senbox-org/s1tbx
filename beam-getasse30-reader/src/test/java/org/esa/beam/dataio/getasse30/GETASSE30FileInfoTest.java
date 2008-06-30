@@ -80,7 +80,7 @@ public class GETASSE30FileInfoTest extends TestCase {
             GETASSE30FileInfo.parseEastingNorthing(null);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException expected) {
-            assertTrue(expected.getMessage().indexOf("null") > -1);
+            // ok
         } catch (ParseException e) {
             fail("IllegalArgumentException expected");
         }

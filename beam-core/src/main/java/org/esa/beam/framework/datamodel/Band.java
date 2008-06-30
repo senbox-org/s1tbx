@@ -527,7 +527,7 @@ public class Band extends AbstractBand {
             int value = indexCoding.getSampleValue(i);
             points[i] = new ColorPaletteDef.Point(value, new Color(random.nextFloat(), random.nextFloat(), random.nextFloat()), name);
         }
-        return new ImageInfo(vMin, vMax, null, new ColorPaletteDef(points, true));
+        return new ImageInfo(new ColorPaletteDef(points));
     }
 }
 

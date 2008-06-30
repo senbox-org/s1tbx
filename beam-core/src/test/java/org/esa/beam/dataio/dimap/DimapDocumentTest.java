@@ -409,7 +409,8 @@ public class DimapDocumentTest extends TestCase {
         Band band1 = new Band("Band1", ProductData.TYPE_INT16, sceneRasterWidth, sceneRasterHeight);
         band1.setUnit("unit for " + band1.getName());
         band1.setDescription(band1.getName() + "-Description");
-        band1.setImageInfo(createBasicDisplayInfo());
+        band1.setStx(createStx());
+        band1.setImageInfo(createImageInfo());
         band1.setROIDefinition(createROIDefinition());
         band1.setSolarFlux(0.12f);
         band1.setSpectralWavelength(23.45f);
@@ -471,14 +472,18 @@ public class DimapDocumentTest extends TestCase {
         return roiDefinition;
     }
 
-    private ImageInfo createBasicDisplayInfo() {
+    private RasterDataNode.Stx createStx() {
+        int[] bins = new int[]{4, 5, 4, 7, 5, 8};
+        return new RasterDataNode.Stx(-0.2, 3, bins);
+    }
+
+    private ImageInfo createImageInfo() {
         ColorPaletteDef.Point[] points = new ColorPaletteDef.Point[3];
         points[0] = new ColorPaletteDef.Point(0.1d, Color.black); //black = new Color(  0,   0,   0, 255)
         points[1] = new ColorPaletteDef.Point(1.3d, Color.cyan);  //cyan  = new Color(  0, 255, 255, 255)
         points[2] = new ColorPaletteDef.Point(2.8d, Color.white); //white = new Color(255, 255, 255, 255)
         ColorPaletteDef paleteDefinition = new ColorPaletteDef(points, 180);
-        int[] bins = new int[]{4, 5, 4, 7, 5, 8};
-        return new ImageInfo(-0.2f, 3f, bins, paleteDefinition);
+        return new ImageInfo(paleteDefinition);
     }
 
     public String getExpectedXML(Product product, int geocodingType, boolean withGeocoding,

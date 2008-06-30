@@ -1,57 +1,64 @@
 package org.esa.beam.visat.toolviews.imageinfo;
 
 import com.bc.ceres.core.Assert;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.param.*;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.*;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Set;
 
-class Continuous3BandGraphicalForm extends AbstractContinuousGraphicalForm {
-    private final static Color[] RGB_COLORS = new Color[]{Color.RED, Color.GREEN, Color.BLUE};
+class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
+
+    private final ColorManipulationForm parentForm;
+    private final ImageInfoEditor imageInfoEditor;
+    private final ImageInfoEditorSupport imageInfoEditorSupport;
+    private final JPanel contentPanel;
 
     private JRadioButton redButton;
     private JRadioButton greenButton;
     private JRadioButton blueButton;
-    private AbstractButton imageEnhancementsButton;
-    private boolean imageEnhancementsVisible;
-    private JPanel imageEnhancementsPane;
-    private Parameter gammaParam;
-
-    private Parameter histogramMatchingParam;
-
     private JPanel rgbSettingsPane;
-
-    private Parameter rgbBandsParam;
-    private final ImageInfo[] rgbImageInfos;
-    private final RasterDataNode[] rgbBands;
+    private AbstractButton imageEnhancementsButton;
+    private JPanel imageEnhancementsPane;
+    private boolean imageEnhancementsVisible;
+    private int channel;
+    private final RgbChannelEditorModel[] models;
+    private final RasterDataNode[] channelRasters;
     private HashMap<String, RasterDataNode> availableBandMap;
-
     private Unloader unloader;
-    private int rgbBandsIndex;
+
+    private Parameter gammaParam;
+    private Parameter histogramMatchingParam;
+    private Parameter rgbBandsParam;
+
+    private final ChangeListener applyEnablerCL;
+
 
     public Continuous3BandGraphicalForm(final ColorManipulationForm parentForm) {
-        super(parentForm);
+        this.parentForm = parentForm;
+
+        imageInfoEditor = new ImageInfoEditor();
+
+        this.imageInfoEditorSupport = new ImageInfoEditorSupport(imageInfoEditor);
+
+        contentPanel = new JPanel(new BorderLayout(2, 2));
+        contentPanel.add(imageInfoEditor, BorderLayout.CENTER);
 
         initParameters();
 
-        rgbImageInfos = new ImageInfo[3];
-        rgbBands = new Band[3];
+        models = new RgbChannelEditorModel[3];
+        channelRasters = new Band[3];
         availableBandMap = new HashMap<String, RasterDataNode>(31);
 
-        imageEnhancementsButton = createToggleButton("icons/ImageEnhancements24.gif");
+        imageEnhancementsButton = ImageInfoEditorSupport.createToggleButton("icons/ImageEnhancements24.gif");
         imageEnhancementsButton.setName("imageEnhancementsButton");
         imageEnhancementsButton.setToolTipText("Show/hide image enhancements pane"); /*I18N*/
         imageEnhancementsButton.addActionListener(new ActionListener() {
@@ -77,14 +84,12 @@ class Continuous3BandGraphicalForm extends AbstractContinuousGraphicalForm {
         rgbButtonGroup.add(greenButton);
         rgbButtonGroup.add(blueButton);
         redButton.setSelected(true);
-        rgbBandsIndex = 0;
+        channel = 0;
 
         final ActionListener listener = new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
-                rgbImageInfos[rgbBandsIndex] = getImageInfo();
-                rgbBandsIndex = redButton.isSelected() ? 0 : greenButton.isSelected() ? 1 : 2;
-                updateImageInfo();
-                setRgbBandsComponentColors();
+                channel = redButton.isSelected() ? 0 : greenButton.isSelected() ? 1 : 2;
+                acknowledgeChannel();
             }
         };
         redButton.addActionListener(listener);
@@ -101,8 +106,8 @@ class Continuous3BandGraphicalForm extends AbstractContinuousGraphicalForm {
         rgbSourcePane.add(rgbBandsParam.getEditor().getEditorComponent(), BorderLayout.CENTER);
 
         rgbSettingsPane = new JPanel(new BorderLayout());
-        rgbSettingsPane.setBorder(BorderFactory.createEmptyBorder(0, GraphicalPaletteEditor.HOR_BORDER_SIZE, 2,
-                                                                  GraphicalPaletteEditor.HOR_BORDER_SIZE));
+        rgbSettingsPane.setBorder(BorderFactory.createEmptyBorder(0, ImageInfoEditor.HOR_BORDER_SIZE, 2,
+                                                                  ImageInfoEditor.HOR_BORDER_SIZE));
         rgbSettingsPane.add(rgbButtonsPane, BorderLayout.NORTH);
         rgbSettingsPane.add(rgbSourcePane, BorderLayout.SOUTH);
 
@@ -112,9 +117,9 @@ class Continuous3BandGraphicalForm extends AbstractContinuousGraphicalForm {
         imageEnhancementsPane = GridBagUtils.createPanel();
         imageEnhancementsPane.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(0,
-                                                GraphicalPaletteEditor.HOR_BORDER_SIZE,
+                                                ImageInfoEditor.HOR_BORDER_SIZE,
                                                 0,
-                                                GraphicalPaletteEditor.HOR_BORDER_SIZE),
+                                                ImageInfoEditor.HOR_BORDER_SIZE),
                 BorderFactory.createTitledBorder("Image Enhancements"))); /*I18N*/
         gbc.gridwidth = 1;
 
@@ -134,100 +139,80 @@ class Continuous3BandGraphicalForm extends AbstractContinuousGraphicalForm {
         gbc.weightx = 0.25;
         imageEnhancementsPane.add(histogramMatchingParam.getEditor().getEditorComponent(), gbc);
 
-        unloader = new Unloader(VisatApp.getApp());
+        unloader = new Unloader();
+
+        applyEnablerCL = parentForm.createApplyEnablerChangeListener();
     }
 
-    public void performApply(ProductSceneView productSceneView) {
-        rgbImageInfos[rgbBandsIndex] = paletteEditor.getImageInfo();
-        for (int i = 0; i < rgbBands.length; i++) {
-            rgbBands[i].setImageInfo(rgbImageInfos[i]);
-        }
-        final RasterDataNode[] oldRGBRasters = productSceneView.getRasters().clone();
-        productSceneView.setRasters(rgbBands.clone());
-        productSceneView.setHistogramMatching(histogramMatchingParam.getValueAsText());
-        for (RasterDataNode oldRGBRaster : oldRGBRasters) {
-            unloader.unloadUnusedRasterData(oldRGBRaster);
-        }
-        setAvailableBandNames(productSceneView);
-    }
-
-    @Override
-    public void performReset(ProductSceneView productSceneView) {
-        parentForm.resetDefaultValues(rgbBands[rgbBandsIndex]);
+    public Component getContentPanel() {
+        return contentPanel;
     }
 
     @Override
     public void handleFormShown(ProductSceneView productSceneView) {
-        Assert.notNull(productSceneView, "productSceneView");
+        updateFormModel(productSceneView);
+        setAvailableBandNames(productSceneView);
+        setImageEnhancementsPaneVisible(imageEnhancementsVisible);
+        showRgbButtons();
+        parentForm.revalidateToolViewPaneControl();
+    }
 
-        rgbBands[0] = productSceneView.getRedRaster();
-        rgbBands[1] = productSceneView.getGreenRaster();
-        rgbBands[2] = productSceneView.getBlueRaster();
+    @Override
+    public void handleFormHidden(ProductSceneView productSceneView) {
+        imageInfoEditor.getModel().removeChangeListener(applyEnablerCL);
+        imageInfoEditor.setModel(null);
+        availableBandMap.clear();
+        models[0] = null;
+        models[1] = null;
+        models[2] = null;
+        channelRasters[0] = null;
+        channelRasters[1] = null;
+        channelRasters[2] = null;
+    }
 
-        final int length = rgbBands.length;
+    @Override
+    public void updateFormModel(ProductSceneView productSceneView) {
+        RasterDataNode[] rasters = productSceneView.getRasters();
+        this.channelRasters[0] = rasters[0];
+        this.channelRasters[1] = rasters[1];
+        this.channelRasters[2] = rasters[2];
+
+        final int length = this.channelRasters.length;
         for (int i = 0; i < length; i++) {
-            final RasterDataNode node = rgbBands[i];
-            rgbImageInfos[i] = node.getImageInfo();
-            if (i == rgbBandsIndex) {
-                paletteEditor.setImageInfo(rgbImageInfos[i].createDeepCopy());
-            }
+            models[i] = new RgbChannelEditorModel(parentForm.getImageInfo(), i);
+            models[i].addChangeListener(applyEnablerCL);
         }
 
-        histogramMatchingParam.setValue(productSceneView.getHistogramMatching(), new ParamExceptionHandler() {
+        acknowledgeChannel();
+        
+        gammaParam.setValue(parentForm.getImageInfo().getRgbProfile().getSampleDisplayGamma(channel), null);
+        histogramMatchingParam.setValue(parentForm.getImageInfo().getHistogramMatching(), new ParamExceptionHandler() {
             public boolean handleParamException(ParamException e) {
                 histogramMatchingParam.setValue(ImageInfo.HISTOGRAM_MATCHING_OFF, null);
                 return true;
             }
         });
 
-        setAvailableBandNames(productSceneView);
-        redButton.setSelected(true);
-        gammaParam.setUIEnabled(true);
-        setRgbBandsComponentColors();
-        setApplyEnabled(false);
-    }
-
-    @Override
-    public void handleFormHidden() {
-        availableBandMap.clear();
-        rgbImageInfos[0] = null;
-        rgbImageInfos[1] = null;
-        rgbImageInfos[2] = null;
-        rgbBands[0] = null;
-        rgbBands[1] = null;
-        rgbBands[2] = null;
-    }
-
-    private void setApplyEnabled(boolean b) {
-        parentForm.setApplyEnabled(b);
     }
 
     private void showGammaTip() {
         parentForm.showMessageDialog("gamma.rgb.tip",
-                                    "Tip:\n" +
-                                            "Gamma values between 0.6 and 0.9 tend to yield best results.\n" +
-                                            "Press enter key after you have typed in a new value for gamma.",
-                                    " Tip");
+                                     "Tip:\n" +
+                                             "Gamma values between 0.6 and 0.9 tend to yield best results.\n" +
+                                             "Press enter key after you have typed in a new value for gamma.",
+                                     " Tip");
     }
 
     public AbstractButton[] getButtons() {
         return new AbstractButton[]{
-                autoStretch95Button,
-                autoStretch100Button,
-                zoomInVButton,
-                zoomOutVButton,
-                zoomInHButton,
-                zoomOutHButton,
+                imageInfoEditorSupport.autoStretch95Button,
+                imageInfoEditorSupport.autoStretch100Button,
+                imageInfoEditorSupport.zoomInVButton,
+                imageInfoEditorSupport.zoomOutVButton,
+                imageInfoEditorSupport.zoomInHButton,
+                imageInfoEditorSupport.zoomOutHButton,
                 imageEnhancementsButton
         };
-    }
-
-    public void updateState(ProductSceneView productSceneView) {
-        Assert.notNull(productSceneView, "productSceneView");
-        updateImageInfo();
-        setImageEnhancementsPaneVisible(imageEnhancementsVisible);
-        showRgbButtons();
-        parentForm.revalidate();
     }
 
     private void initParameters() {
@@ -236,14 +221,15 @@ class Continuous3BandGraphicalForm extends AbstractContinuousGraphicalForm {
                 final String name = rgbBandsParam.getValueAsText();
                 final RasterDataNode availableBand = getAvailableBand(name);
                 Assert.notNull(availableBand, "availableBand");
-                if (rgbBands[rgbBandsIndex] != availableBand) {
+                if (channelRasters[channel] != availableBand) {
                     final ImageInfo imageInfo = parentForm.createDefaultImageInfo(availableBand);
                     if (imageInfo != null) {
-                        unloader.unloadUnusedRasterData(rgbBands[rgbBandsIndex]);
-                        rgbBands[rgbBandsIndex] = availableBand;
-                        rgbImageInfos[rgbBandsIndex] = availableBand.getImageInfo();
-                        updateImageInfo();
-                        setApplyEnabled(true);
+                        unloader.unloadUnusedRasterData(channelRasters[channel]);
+                        channelRasters[channel] = availableBand;
+                        models[channel] = new RgbChannelEditorModel(parentForm.getImageInfo(), channel);
+                        models[channel].setDisplayProperties(availableBand);
+                        acknowledgeChannel();
+                        parentForm.setApplyEnabled(true);
                     } else {
                         rgbBandsParam.setValue(event.getOldValue(), null);
                     }
@@ -258,10 +244,10 @@ class Continuous3BandGraphicalForm extends AbstractContinuousGraphicalForm {
 
         final ParamChangeListener imageEnhancementsListener = new ParamChangeListener() {
             public void parameterValueChanged(final ParamChangeEvent event) {
-                if (paletteEditor != null && paletteEditor.getImageInfo() != null) {
+                if (imageInfoEditor != null && parentForm.getImageInfo() != null) {
                     final float gamma = ((Number) gammaParam.getValue()).floatValue();
-                    paletteEditor.getImageInfo().setGamma(gamma);
-                    paletteEditor.updateGamma();
+                    imageInfoEditor.getModel().setGamma(gamma);
+                    imageInfoEditor.getModel().fireStateChanged();
                 }
             }
         };
@@ -305,14 +291,12 @@ class Continuous3BandGraphicalForm extends AbstractContinuousGraphicalForm {
     }
 
 
-    private void updateImageInfo() {
-        RasterDataNode rasterDataNode = rgbBands[rgbBandsIndex];
-        paletteEditor.setImageInfo(rgbImageInfos[rgbBandsIndex].createDeepCopy());
-        paletteEditor.setRGBColor(RGB_COLORS[rgbBandsIndex]);
-        paletteEditor.setUnit(rasterDataNode.getUnit());
-        rgbBandsParam.setValueAsText(rasterDataNode.getName(), null);
-        rgbBandsParam.getProperties().setValueSetBound(true);
-        gammaParam.setValue(getImageInfo().getGamma(), null);
+    private void acknowledgeChannel() {
+        RasterDataNode channelRaster = channelRasters[channel];
+        final RgbChannelEditorModel model = models[channel];
+        model.setDisplayProperties(channelRaster);
+        imageInfoEditor.setModel(model);
+        rgbBandsParam.setValueAsText(channelRaster.getName(), null);
     }
 
 
@@ -339,40 +323,21 @@ class Continuous3BandGraphicalForm extends AbstractContinuousGraphicalForm {
         rgbBandsParam.setValueSet(valueSet);
     }
 
-    private void setRgbBandsComponentColors() {
-        Color foreground = null;
-        if (redButton.isSelected()) {
-            foreground = new Color(128, 0, 0); // Color.darkred;
-        } else if (greenButton.isSelected()) {
-            foreground = new Color(0, 128, 0); // Color.darkgreen;
-        } else if (blueButton.isSelected()) {
-            foreground = new Color(0, 0, 128); // Color.darkblue;
-        }
-        final JComponent component = rgbBandsParam.getEditor().getComponent();
-        component.setForeground(foreground);
-    }
-
     private RasterDataNode getAvailableBand(final String name) {
         return availableBandMap.get(name);
     }
 
-    public String getTitle(ProductSceneView productSceneView) {
-        return productSceneView.getProduct().getProductRefString() + " RGB";
-    }
-
     private static class Unloader {
 
-        private VisatApp _app;
 
-        public Unloader(final VisatApp app) {
-            _app = app;
+        public Unloader() {
         }
 
         public void unloadUnusedRasterData(final RasterDataNode raster) {
             if (raster == null) {
                 return;
             }
-            if (!_app.hasRasterProductSceneView(raster) && !raster.isSynthetic()) {
+            if (!VisatApp.getApp().hasRasterProductSceneView(raster) && !raster.isSynthetic()) {
                 raster.unloadRasterData();
             }
         }

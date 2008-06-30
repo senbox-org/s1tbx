@@ -17,6 +17,7 @@
 package org.esa.beam.framework.ui.product;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.Assert;
 import com.bc.layer.Layer;
 import com.bc.layer.LayerModel;
 import org.esa.beam.framework.datamodel.*;
@@ -80,37 +81,12 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
     public static final double DEFAULT_IMAGE_BORDER_SIZE = 2.0;
     public static final int DEFAULT_IMAGE_VIEW_BORDER_SIZE = 64;
 
-    private ArrayList<ImageUpdateListener> _imageUpdateListenerList;
-    private RasterChangeHandler _rasterChangeHandler;
     private ProductSceneImage sceneImage;
-
-    /**
-     * @see ProductSceneImage#create(org.esa.beam.framework.datamodel.RasterDataNode,com.bc.layer.LayerModel,com.bc.ceres.core.ProgressMonitor)
-     * @deprecated in 4.1, use {@link #ProductSceneView(ProductSceneImage)} instead
-     */
-    public ProductSceneView(RasterDataNode raster, LayerModel layerModel) throws IOException {
-        this(ProductSceneImage.create(raster, layerModel, ProgressMonitor.NULL));
-    }
-
-    /**
-     * @see ProductSceneImage#create(org.esa.beam.framework.datamodel.RasterDataNode,com.bc.ceres.core.ProgressMonitor)
-     * @deprecated in 4.1, use {@link #ProductSceneView(ProductSceneImage)} instead
-     */
-    public ProductSceneView(RasterDataNode raster) throws IOException {
-        this(ProductSceneImage.create(raster, ProgressMonitor.NULL));
-    }
-
-    /**
-     * @see ProductSceneImage#create(org.esa.beam.framework.datamodel.RasterDataNode,org.esa.beam.framework.datamodel.RasterDataNode,org.esa.beam.framework.datamodel.RasterDataNode,com.bc.ceres.core.ProgressMonitor)
-     * @deprecated in 4.1, use {@link #ProductSceneView(ProductSceneImage)} instead
-     */
-    public ProductSceneView(RasterDataNode redRaster,
-                            RasterDataNode greenRaster,
-                            RasterDataNode blueRaster) throws IOException {
-        this(ProductSceneImage.create(redRaster, greenRaster, blueRaster, ProgressMonitor.NULL));
-    }
+    private ArrayList<ImageUpdateListener> imageUpdateListenerList;
+    private RasterChangeHandler rasterChangeHandler;
 
     public ProductSceneView(ProductSceneImage sceneImage) {
+        Assert.notNull(sceneImage, "sceneImage");
         this.sceneImage = sceneImage;
         setSourceImage(sceneImage.getImage());
         getImageDisplay().setLayerModel(sceneImage.getLayerModel());
@@ -120,10 +96,10 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
         getImageDisplay().setPreferredSize(modelArea.getSize());
         setPixelInfoFactory(this);
 
-        _rasterChangeHandler = new RasterChangeHandler();
-        getRaster().getProduct().addProductNodeListener(_rasterChangeHandler);
+        rasterChangeHandler = new RasterChangeHandler();
+        getRaster().getProduct().addProductNodeListener(rasterChangeHandler);
 
-        _imageUpdateListenerList = new ArrayList<ImageUpdateListener>();
+        imageUpdateListenerList = new ArrayList<ImageUpdateListener>();
     }
 
     /**
@@ -137,7 +113,7 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
      */
     @Override
     public void dispose() {
-        getRaster().getProduct().removeProductNodeListener(_rasterChangeHandler);
+        getRaster().getProduct().removeProductNodeListener(rasterChangeHandler);
         for (int i = 0; i < sceneImage.getRasters().length; i++) {
             final RasterDataNode raster = sceneImage.getRasters()[i];
             if (raster instanceof RGBChannel) {
@@ -147,8 +123,8 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
             sceneImage.getRasters()[i] = null;
         }
         sceneImage = null;
-        _imageUpdateListenerList.clear();
-        _imageUpdateListenerList = null;
+        imageUpdateListenerList.clear();
+        imageUpdateListenerList = null;
         super.dispose();
     }
 
@@ -162,7 +138,7 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
     }
 
     /**
-     * Returns the associated product.
+     * @return  the associated product.
      */
     public Product getProduct() {
         return getRaster().getProduct();
@@ -183,8 +159,20 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
      *
      * @param index the zero-based product raster index
      * @return the product raster with the given index
+     * @deprecated since BEAM 4.2, use {@link #getRaster(int)}
      */
+    @Deprecated
     public RasterDataNode getRasterAt(int index) {
+        return getRaster(index);
+    }
+
+    /**
+     * Gets the product raster with the specified index.
+     *
+     * @param index the zero-based product raster index
+     * @return the product raster with the given index
+     */
+    public RasterDataNode getRaster(int index) {
         return sceneImage.getRasters()[index];
     }
 
@@ -202,6 +190,7 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
      *
      * @return the red product raster, or <code>null</code> if this is single band view
      */
+    @Deprecated
     public RasterDataNode getRedRaster() {
         return isRGB() ? sceneImage.getRasters()[0] : null;
     }
@@ -211,6 +200,7 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
      *
      * @return the green product raster, or <code>null</code> if this is single band view
      */
+    @Deprecated
     public RasterDataNode getGreenRaster() {
         return isRGB() ? sceneImage.getRasters()[1] : null;
     }
@@ -220,6 +210,7 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
      *
      * @return the blue product raster, or <code>null</code> if this is single band view
      */
+    @Deprecated
     public RasterDataNode getBlueRaster() {
         return isRGB() ? sceneImage.getRasters()[2] : null;
     }
@@ -238,6 +229,7 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
      *
      * @param rasters the rasters to be set
      */
+    @Deprecated
     public void setRasters(final RasterDataNode[] rasters) {
         if (sceneImage.getRasters().length == 1) {
             sceneImage.getRasters()[0] = rasters[0];
@@ -255,6 +247,7 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
      * @param greenRaster
      * @param blueRaster
      */
+    @Deprecated
     public void setRasters(RasterDataNode redRaster, RasterDataNode greenRaster, RasterDataNode blueRaster) {
         if (sceneImage.getRasters().length == 1) {
             sceneImage.getRasters()[0] = redRaster;
@@ -273,20 +266,14 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
         return sceneImage.getRasters().length == 3;
     }
 
+    @Deprecated
     public String getHistogramMatching() {
-        return sceneImage.getHistogramMatching();
+        return sceneImage.getImageInfo().getHistogramMatching();
     }
 
+    @Deprecated
     public void setHistogramMatching(String histogramMatching) {
-        if (histogramMatching == null) {
-            histogramMatching = ImageInfo.HISTOGRAM_MATCHING_OFF;
-        }
-        if (sceneImage.getHistogramMatching().equals(histogramMatching)) {
-            return;
-        }
-        String oldValue = sceneImage.getHistogramMatching();
-        sceneImage.setHistogramMatching(histogramMatching);
-        firePropertyChange(PROPERTY_KEY_HISTOGRAM_MATCHING, oldValue, sceneImage.getHistogramMatching());
+        sceneImage.getImageInfo().setHistogramMatching(histogramMatching);
     }
 
     public boolean isNoDataOverlayEnabled() {
@@ -401,15 +388,15 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
     public void updateImage(ProgressMonitor pm) throws IOException {
         StopWatch stopWatch = new StopWatch();
         Cursor oldCursor = UIUtils.setRootFrameWaitCursor(this);
-        final RenderedImage sourceImage = createSourceImage(pm);
+        final RenderedImage sourceImage = createImage(pm);
         setSourceImage(sourceImage);
         stopWatch.stopAndTrace("ProductSceneView.updateImage");
         fireImageUpdated();
         UIUtils.setRootFrameCursor(this, oldCursor);
     }
 
-    private RenderedImage createSourceImage(ProgressMonitor pm) throws IOException {
-        return ProductSceneImage.createImage(getRasters(), getHistogramMatching(), pm);
+    private RenderedImage createImage(ProgressMonitor pm) throws IOException {
+        return sceneImage.createImage(pm);
     }
 
 
@@ -642,15 +629,15 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
      * Gets all layer manager listeners of this layer.
      */
     public ImageUpdateListener[] getImageUpdateListeners() {
-        return _imageUpdateListenerList.toArray(new ImageUpdateListener[_imageUpdateListenerList.size()]);
+        return imageUpdateListenerList.toArray(new ImageUpdateListener[imageUpdateListenerList.size()]);
     }
 
     /**
      * Adds a layer manager listener to this layer.
      */
     public void addImageUpdateListener(ImageUpdateListener listener) {
-        if (listener != null && !_imageUpdateListenerList.contains(listener)) {
-            _imageUpdateListenerList.add(listener);
+        if (listener != null && !imageUpdateListenerList.contains(listener)) {
+            imageUpdateListenerList.add(listener);
         }
     }
 
@@ -659,12 +646,12 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
      */
     public void removeImageUpdateListener(ImageUpdateListener listener) {
         if (listener != null) {
-            _imageUpdateListenerList.remove(listener);
+            imageUpdateListenerList.remove(listener);
         }
     }
 
     public void fireImageUpdated() {
-        for (ImageUpdateListener a_imageUpdateListenerList : _imageUpdateListenerList) {
+        for (ImageUpdateListener a_imageUpdateListenerList : imageUpdateListenerList) {
             a_imageUpdateListenerList.handleImageUpdated(this);
         }
     }

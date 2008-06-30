@@ -13,8 +13,8 @@ import org.esa.beam.util.Guardian;
  */
 public class Range {
 
-    private double _min;
-    private double _max;
+    private double min;
+    private double max;
 
     /**
      * Constructs a new range object. Minimum and maximum are set to zero.
@@ -29,8 +29,8 @@ public class Range {
      * @param max the maximum value
      */
     public Range(double min, double max) {
-        _min = min;
-        _max = max;
+        this.min = min;
+        this.max = max;
     }
 
     /**
@@ -39,7 +39,7 @@ public class Range {
      * @return the mimimum value
      */
     public double getMin() {
-        return _min;
+        return min;
 
     }
 
@@ -49,7 +49,7 @@ public class Range {
      * @param min the mimimum value
      */
     public void setMin(double min) {
-        _min = min;
+        this.min = min;
     }
 
     /**
@@ -58,7 +58,7 @@ public class Range {
      * @return the maximum value
      */
     public double getMax() {
-        return _max;
+        return max;
     }
 
     /**
@@ -67,7 +67,7 @@ public class Range {
      * @param max the maximum value
      */
     public void setMax(double max) {
-        _max = max;
+        this.max = max;
     }
 
     /**
@@ -87,7 +87,7 @@ public class Range {
      * @return <code>true</code> if minimum value is greater than the maximum value
      */
     public boolean isValid() {
-        return Math.abs(_max - _min) < MathUtils.EPS;
+        return Math.abs(max - min) < MathUtils.EPS;
     }
 
     /**

@@ -2054,6 +2054,13 @@ public class Product extends ProductNode {
         }
     }
 
+    public ProductNodeListener[] getProductNodeListeners() {
+        if (listeners == null) {
+            return new ProductNodeListener[0];
+        }
+        return listeners.toArray(new ProductNodeListener[0]);
+    }
+
     protected boolean hasProductNodeListeners() {
         return listeners != null && listeners.size() > 0;
     }

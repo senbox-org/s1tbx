@@ -34,6 +34,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 public class RGBImageProfilePane extends JPanel {
 
@@ -601,7 +602,8 @@ public class RGBImageProfilePane extends JPanel {
         for (int i = 0; i < size; i++) {
             final ProfileItem item = (ProfileItem) _profileModel.getElementAt(i);
             final RGBImageProfile knownProfile = item.getProfile();
-            if (knownProfile.isInternal() == internal && profile.equalExpressions(knownProfile)) {
+            if (knownProfile.isInternal() == internal
+                    && Arrays.equals(profile.getExpressions(), knownProfile.getExpressions())) {
                 return knownProfile;
             }
         }

@@ -20,9 +20,9 @@ public class Histogram extends Range {
     public static final float LEFT_AREA_SKIPPED_95 = 0.025F;
     public static final float RIGHT_AREA_SKIPPED_95 = 0.025F;
 
-    private int[] _binCounts;
-    private int _maxBinCount;
-    private int _binCountsSum;
+    private int[] binCounts;
+    private int maxBinCount;
+    private int binCountsSum;
 
     /**
      * Constructs a new instance for the given bin counts and the given value range.
@@ -41,7 +41,7 @@ public class Histogram extends Range {
      * @return the number of bins
      */
     public int getNumBins() {
-        return _binCounts.length;
+        return binCounts.length;
     }
 
     /**
@@ -50,7 +50,7 @@ public class Histogram extends Range {
      * @return the bin values
      */
     public int[] getBinCounts() {
-        return _binCounts;
+        return binCounts;
     }
 
     /**
@@ -72,7 +72,7 @@ public class Histogram extends Range {
      * @param binCounts the bin values
      */
     public void setBinCounts(int[] binCounts) {
-        _binCounts = binCounts;
+        this.binCounts = binCounts;
         updateBinCountSumAndBinCountMax();
     }
 
@@ -82,7 +82,7 @@ public class Histogram extends Range {
      * @return the maximum bin value
      */
     public int getMaxBinCount() {
-        return _maxBinCount;
+        return maxBinCount;
     }
 
     /**
@@ -91,7 +91,7 @@ public class Histogram extends Range {
      * @return the sum of all counts.
      */
     public int getBinCountsSum() {
-        return _binCountsSum;
+        return binCountsSum;
     }
 
     /**
@@ -239,16 +239,16 @@ public class Histogram extends Range {
 
     private void updateBinCountSumAndBinCountMax() {
         final int[] binCounts = getBinCounts();
-        _maxBinCount = Integer.MIN_VALUE;
-        _binCountsSum = 0;
+        maxBinCount = Integer.MIN_VALUE;
+        binCountsSum = 0;
         int binCount;
         if (binCounts != null) {
             for (int i = 0; i < binCounts.length; i++) {
                 binCount = binCounts[i];
-                if (_maxBinCount < binCount) {
-                    _maxBinCount = binCount;
+                if (maxBinCount < binCount) {
+                    maxBinCount = binCount;
                 }
-                _binCountsSum += binCount;
+                binCountsSum += binCount;
             }
         }
     }

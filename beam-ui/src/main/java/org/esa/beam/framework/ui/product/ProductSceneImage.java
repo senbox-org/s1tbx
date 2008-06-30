@@ -16,7 +16,9 @@
  */
 package org.esa.beam.framework.ui.product;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.layer.DefaultLayerModel;
 import com.bc.layer.Layer;
 import com.bc.layer.LayerModel;
@@ -24,7 +26,6 @@ import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.layer.*;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.jai.ImageFactory;
 
 import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
@@ -32,23 +33,24 @@ import java.io.IOException;
 
 public class ProductSceneImage {
 
+    private String name;
+    private ImageInfo imageInfo;
     private RasterDataNode[] rasters;
-    private String histogramMatching;
     private RenderedImage image;
     private Rectangle modelArea;
     private LayerModel layerModel;
-    private String name;
-
 
     /**
      * Creates a color indexed product scene for the given product raster.
      *
      * @param raster the product raster, must not be null
      * @param pm     a monitor to inform the user about progress
+     * @return a color indexed product scene image
+     * @throws java.io.IOException if the image creation failed due to an I/O problem
      */
     public static ProductSceneImage create(RasterDataNode raster, ProgressMonitor pm) throws IOException {
         Guardian.assertNotNull("raster", raster);
-        return new ProductSceneImage(new RasterDataNode[]{raster}, null, pm);
+        return new ProductSceneImage(raster.getDisplayName(), new RasterDataNode[]{raster}, raster.getImageInfo(), null, pm);
     }
 
     /**
@@ -58,43 +60,54 @@ public class ProductSceneImage {
      * @param greenRaster the product raster used for the green color component, must not be null
      * @param blueRaster  the product raster used for the blue color component, must not be null
      * @param pm          a monitor to inform the user about progress
+     * @return an RGB product scene image
+     * @throws java.io.IOException if the image creation failed due to an I/O problem
      */
     public static ProductSceneImage create(RasterDataNode redRaster,
                                            RasterDataNode greenRaster,
                                            RasterDataNode blueRaster,
                                            ProgressMonitor pm) throws IOException {
-        Guardian.assertNotNull("redRaster", redRaster);
-        Guardian.assertNotNull("greenRaster", greenRaster);
-        Guardian.assertNotNull("blueRaster", blueRaster);
-        return new ProductSceneImage(new RasterDataNode[]{redRaster, greenRaster, blueRaster}, null, pm);
+        Assert.notNull(redRaster, "redRaster");
+        Assert.notNull(greenRaster, "greenRaster");
+        Assert.notNull(blueRaster, "blueRaster");
+        return new ProductSceneImage("RGB", new RasterDataNode[]{redRaster, greenRaster, blueRaster}, null, null, pm);
     }
 
     /**
      * Creates a color indexed product scene for the given product raster.
      *
      * @param raster     the product raster, must not be null
-     * @param layerModel the layer model to be reused, must not be null
-     * @param pm         a monitor to inform the user about progress
+     * @param imageInfo  the image information
+     *@param layerModel the layer model to be reused, must not be null
+     * @param pm         a monitor to inform the user about progress @return a color indexed product scene image
+     * @throws java.io.IOException if the image creation failed due to an I/O problem
      */
-    public static ProductSceneImage create(RasterDataNode raster, LayerModel layerModel, ProgressMonitor pm) throws
+    public static ProductSceneImage create(RasterDataNode raster, ImageInfo imageInfo, LayerModel layerModel, ProgressMonitor pm) throws
             IOException {
-        Guardian.assertNotNull("raster", raster);
-        Guardian.assertNotNull("layerModel", layerModel);
-        return new ProductSceneImage(new RasterDataNode[]{raster}, layerModel, pm);
+        Assert.notNull(raster, "raster");
+        Assert.notNull(layerModel, "layerModel");
+        return new ProductSceneImage(raster.getDisplayName(), new RasterDataNode[]{raster}, imageInfo, layerModel, pm);
     }
 
-    private ProductSceneImage(RasterDataNode[] rasters, LayerModel layerModel, ProgressMonitor pm) throws IOException {
+    private ProductSceneImage(String name, RasterDataNode[] rasters, ImageInfo imageInfo, LayerModel layerModel, ProgressMonitor pm) throws IOException {
+        this.name = name;
+        this.imageInfo = imageInfo;
         this.rasters = rasters;
-        name = "";
-        histogramMatching = ImageInfo.HISTOGRAM_MATCHING_OFF;
         if (layerModel == null) {
             image = createImage(pm);
-            layerModel = createLayer(image);
+            layerModel = createLayerModel(image);
         } else {
             image = ((RenderedImageLayer) layerModel.getLayer(0)).getImage();
         }
         initLayerModel(layerModel);
         this.layerModel = layerModel;
+    }
+
+    /**
+     * @return the associated product.
+     */
+    private Product getProduct() {
+        return getRaster().getProduct();
     }
 
     public String getName() {
@@ -103,6 +116,14 @@ public class ProductSceneImage {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public ImageInfo getImageInfo() {
+        return imageInfo;
+    }
+
+    public void setImageInfo(ImageInfo imageInfo) {
+        this.imageInfo = imageInfo;
     }
 
     RenderedImage getImage() {
@@ -119,14 +140,6 @@ public class ProductSceneImage {
 
     RasterDataNode[] getRasters() {
         return rasters;
-    }
-
-    String getHistogramMatching() {
-        return histogramMatching;
-    }
-
-    void setHistogramMatching(String histogramMatching) {
-        this.histogramMatching = histogramMatching;
     }
 
     Layer getLayer(String name) {
@@ -166,14 +179,7 @@ public class ProductSceneImage {
         return rasters[0];
     }
 
-    /**
-     * Returns the associated product.
-     */
-    private Product getProduct() {
-        return getRaster().getProduct();
-    }
-
-    private LayerModel createLayer(RenderedImage image) {
+    private LayerModel createLayerModel(RenderedImage image) {
         DefaultLayerModel layerModel = new DefaultLayerModel();
         layerModel.addLayer(new RenderedImageLayer(image));
         layerModel.addLayer(new NoDataLayer(getRaster()));
@@ -186,7 +192,7 @@ public class ProductSceneImage {
     }
 
     private void initLayerModel(LayerModel layerModel) {
-        final int size = ProductSceneView.DEFAULT_IMAGE_VIEW_BORDER_SIZE; // @todo 3 nf/** - use preferences to obtain image border size value
+        final int size = ProductSceneView.DEFAULT_IMAGE_VIEW_BORDER_SIZE;
         modelArea = new Rectangle(-size, -size,
                                   image.getWidth() + 2 * size,
                                   image.getHeight() + 2 * size);
@@ -210,17 +216,17 @@ public class ProductSceneImage {
         gcpLayer.setTextEnabled(false);
     }
 
-    private RenderedImage createImage(ProgressMonitor pm) throws IOException {
-        return createImage(this.rasters, this.histogramMatching, pm);
-    }
-
-    public static RenderedImage createImage(RasterDataNode[] rasters, String histogramMatching, ProgressMonitor pm) throws IOException {
-        // JAIJAIJAI
-        if (Boolean.getBoolean("beam.imageTiling.enabled")) {
-            return ImageFactory.createOverlayedRgbImage(rasters, histogramMatching, pm);
+    RenderedImage createImage(ProgressMonitor pm) throws IOException {
+        if (imageInfo != null) {
+            return ProductUtils.createRgbImage(rasters, imageInfo, pm);
         } else {
-            return ProductUtils.createOverlayedImage(rasters, histogramMatching, pm);
+            pm.beginTask("Computing image", 1+3);
+            try {
+                imageInfo = ProductUtils.createRgbImageInfo(rasters, SubProgressMonitor.create(pm, 1));
+                return ProductUtils.createRgbImage(rasters, imageInfo, SubProgressMonitor.create(pm, 3));
+            } finally {
+                pm.done();
+            }
         }
     }
-
 }

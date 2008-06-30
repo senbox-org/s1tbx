@@ -32,10 +32,10 @@ import org.esa.beam.framework.dataop.maptransf.*;
 import org.esa.beam.util.geotiff.EPSGCodes;
 import org.esa.beam.util.geotiff.GeoTIFFCodes;
 import org.esa.beam.util.geotiff.GeoTIFFMetadata;
-import org.esa.beam.util.jai.JAIDebug;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.math.IndexValidator;
 import org.esa.beam.util.math.MathUtils;
+import org.esa.beam.util.math.Range;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ROI;
@@ -63,6 +63,7 @@ public class ProductUtils {
     private static final int[] RGBA_BAND_OFFSETS = new int[]{
             3, 2, 1, 0,
     };
+    private static final String MSG_CREATING_IMAGE = "Creating image";
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Basic Image Creation Routines
@@ -90,12 +91,14 @@ public class ProductUtils {
      * @throws IOException if the given raster data is not loaded and reload causes an I/O error
      * @see RasterDataNode#setImageInfo
      * @see RasterDataNode#setBitmaskOverlayInfo
+     * @deprecated since BEAM 4.2, use {@link #createRgbImage(org.esa.beam.framework.datamodel.RasterDataNode[], org.esa.beam.framework.datamodel.ImageInfo, com.bc.ceres.core.ProgressMonitor)}
      */
+    @Deprecated
     public static RenderedImage createOverlayedImage(final Product product,
                                                      final int[] bandIndices,
                                                      final String histogramMatching) throws IOException {
-        Guardian.assertNotNull("product", product);
-        Guardian.assertNotNull("bandIndices", bandIndices);
+        Assert.notNull(product, "product");
+        Assert.notNull(bandIndices, "bandIndices");
         if (bandIndices.length != 1 && bandIndices.length != 3) {
             throw new IllegalArgumentException("bandIndices.length is not 1 and not 3");
         }
@@ -103,15 +106,7 @@ public class ProductUtils {
         for (int i = 0; i < bands.length; i++) {
             bands[i] = product.getBandAt(bandIndices[i]);
         }
-        return createOverlayedImage(bands, histogramMatching);
-    }
-
-    /**
-     * @deprecated in 4.0, use {@link #createOverlayedImage(RasterDataNode[],String,ProgressMonitor)} instead
-     */
-    public static RenderedImage createOverlayedImage(final RasterDataNode[] rasterDataNodes,
-                                                     final String histogramMatching) throws IOException {
-        return createOverlayedImage(rasterDataNodes, histogramMatching, ProgressMonitor.NULL);
+        return createOverlayedImage(bands, histogramMatching, ProgressMonitor.NULL);
     }
 
     /**
@@ -125,7 +120,7 @@ public class ProductUtils {
      * ImageInfo}</code> and <code>{@link org.esa.beam.framework.datamodel.BitmaskOverlayInfo BitmaskOverlayInfo}</code>
      * properties of each of the bands.
      *
-     * @param rasterDataNodes   the array of raster data nodes to be used for image creation, if length is one a
+     * @param rasters           the array of raster data nodes to be used for image creation, if length is one a
      *                          greyscale/palette-based image is created, if the length is three, a RGB image is
      *                          created
      * @param histogramMatching the optional histogram matching to be performed: can be either
@@ -138,63 +133,340 @@ public class ProductUtils {
      * @see RasterDataNode#setImageInfo
      * @see RasterDataNode#setBitmaskOverlayInfo
      * @see org.esa.beam.framework.datamodel.ImageInfo
+     * @deprecated since BEAM 4.2, use {@link #createRgbImage(org.esa.beam.framework.datamodel.RasterDataNode[], org.esa.beam.framework.datamodel.ImageInfo, com.bc.ceres.core.ProgressMonitor)} )}
      */
-    public static RenderedImage createOverlayedImage(final RasterDataNode[] rasterDataNodes,
+    @Deprecated
+    public static RenderedImage createOverlayedImage(final RasterDataNode[] rasters,
                                                      final String histogramMatching,
                                                      final ProgressMonitor pm) throws IOException {
-        Guardian.assertNotNull("rasterDataNodes", rasterDataNodes);
-        if (rasterDataNodes.length != 1 && rasterDataNodes.length != 3) {
-            throw new IllegalArgumentException("rasterDataNodes.length is not 1 and not 3");
-        }
-
-        final RasterDataNode raster = rasterDataNodes[0];
-        final StopWatch stopWatch = new StopWatch();
-
-        stopWatch.start();
-        BufferedImage overlayBIm;
-        BitmaskDef[] bitmaskDefs = raster.getBitmaskDefs();
-        pm.beginTask("Creating image...", rasterDataNodes.length + (bitmaskDefs.length > 0 ? 1 : 0));
+        pm.beginTask(MSG_CREATING_IMAGE, 4);
         try {
-            overlayBIm = createRgbImage(rasterDataNodes, SubProgressMonitor.create(pm, rasterDataNodes.length));
-            stopWatch.stopAndTrace("ProductSceneView.createOverlayedImage: base RGB image created");
-
-            final boolean doEqualize = ImageInfo.HISTOGRAM_MATCHING_EQUALIZE.equalsIgnoreCase(histogramMatching);
-            final boolean doNormalize = ImageInfo.HISTOGRAM_MATCHING_NORMALIZE.equalsIgnoreCase(histogramMatching);
-            if (doEqualize || doNormalize) {
-                PlanarImage sourcePIm = PlanarImage.wrapRenderedImage(overlayBIm);
-                sourcePIm = JAIUtils.createTileFormatOp(sourcePIm, 512, 512);
-                if (doEqualize) {
-                    sourcePIm = JAIUtils.createHistogramEqualizedImage(sourcePIm);
-                    stopWatch.stopAndTrace("ProductSceneView.createOverlayedImage: histogram-equalized image created");
-                } else {
-                    sourcePIm = JAIUtils.createHistogramNormalizedImage(sourcePIm);
-                    stopWatch.stopAndTrace("ProductSceneView.createOverlayedImage: histogram-normalized image created");
-                }
-                overlayBIm = sourcePIm.getAsBufferedImage();
-            }
-
-            if (bitmaskDefs.length > 0) {
-                // @todo 3 nf/nf - check: for RGB, BitmaskOverlayInfo is always taken from the red raster?
-                stopWatch.start();
-                overlayBIm = overlayBitmasks(raster, overlayBIm, SubProgressMonitor.create(pm, 1));
-                stopWatch.stopAndTrace("ProductSceneView.createOverlayedImage: overlays added");
-            }
-
-            JAIDebug.trace("overlayBIm", overlayBIm);
+            ImageInfo imageInfo = createRgbImageInfo(rasters, SubProgressMonitor.create(pm, 1));
+            imageInfo.setHistogramMatching(histogramMatching);
+            return createRgbImage(rasters, imageInfo, SubProgressMonitor.create(pm, 3));
         } finally {
             pm.done();
         }
-
-        return overlayBIm;
     }
-
 
     /**
-     * @deprecated in 4.0, use {@link #createColorIndexedImage(RasterDataNode,ProgressMonitor)} instead
+     * Creates a RGB image from the given array of <code>{@link org.esa.beam.framework.datamodel.RasterDataNode}</code>s.
+     * The given array <code>rasterDataNodes</code> contain three raster data nodes to be used for the red, green and
+     * blue components of the RGB image to be created.
+     *
+     * @param rasters an array of exactly three raster nodes to be used for the R,G and B component.
+     * @param pm      a monitor to inform the user about progress
+     * @return the RGB image
+     * @throws IOException if the given raster data is not loaded and reload causes an I/O error
+     * @see RasterDataNode#setImageInfo
+     * @deprecated since BEAM 4.2, use {@link #createRgbImage(org.esa.beam.framework.datamodel.RasterDataNode[], org.esa.beam.framework.datamodel.ImageInfo, com.bc.ceres.core.ProgressMonitor)} instead
      */
-    public static BufferedImage createColorIndexedImage(final RasterDataNode rasterDataNode) throws IOException {
-        return createColorIndexedImage(rasterDataNode, ProgressMonitor.NULL);
+    @Deprecated
+    public static BufferedImage createRgbImage(RasterDataNode[] rasters, ProgressMonitor pm) throws IOException {
+        pm.beginTask(MSG_CREATING_IMAGE, 4);
+        try {
+            ImageInfo imageInfo = createRgbImageInfo(rasters, SubProgressMonitor.create(pm, 1));
+            imageInfo.setNoDataColor(null);
+            return createRgbImage(rasters, imageInfo, SubProgressMonitor.create(pm, 3));
+        } finally {
+            pm.done();
+        }
     }
+
+    /**
+     * Creates a RGB image from the given array of <code>{@link org.esa.beam.framework.datamodel.RasterDataNode}</code>s.
+     * The given array <code>rasterDataNodes</code> contain three raster data nodes to be used for the red, green and
+     * blue components of the RGB image to be created.
+     *
+     * @param rasters     an array of exactly three raster nodes to be used for the R,G and B component.
+     * @param noDataColor the no-data color, if {@code null}, no-data areas will be transparent
+     * @param pm          a monitor to inform the user about progress
+     * @return the RGB image
+     * @throws IOException if the given raster data is not loaded and reload causes an I/O error
+     * @see RasterDataNode#setImageInfo
+     * @deprecated since BEAM 4.2, use {@link #createRgbImage(org.esa.beam.framework.datamodel.RasterDataNode[], org.esa.beam.framework.datamodel.ImageInfo, com.bc.ceres.core.ProgressMonitor)} instead
+     */
+    @Deprecated
+    public static BufferedImage createRgbImage(final RasterDataNode[] rasters,
+                                               Color noDataColor,
+                                               ProgressMonitor pm) throws IOException {
+        pm.beginTask(MSG_CREATING_IMAGE, 4);
+        try {
+            ImageInfo imageInfo = createRgbImageInfo(rasters, SubProgressMonitor.create(pm, 1));
+            imageInfo.setNoDataColor(noDataColor);
+            return createRgbImage(rasters, imageInfo, SubProgressMonitor.create(pm, 3));
+        } finally {
+            pm.done();
+        }
+    }
+
+    public static ImageInfo createRgbImageInfo(RasterDataNode[] rasters, ProgressMonitor pm) throws IOException {
+        Assert.notNull(rasters, "rasters");
+        Assert.argument(rasters.length == 1 || rasters.length == 3, "rasters.length == 1 || rasters.length == 3");
+        if (rasters.length == 1) {
+            return rasters[0].ensureValidImageInfo(null, pm);
+        } else {
+            pm.beginTask("Computing image information", 3);
+            final RGBImageProfile rgbProfile;
+            try {
+                rgbProfile = new RGBImageProfile("Current Profile");
+                for (int i = 0; i < rasters.length; i++) {
+                    RasterDataNode raster = rasters[i];
+                    if (raster instanceof VirtualBand) {
+                        VirtualBand virtualBand = (VirtualBand) raster;
+                        rgbProfile.setExpression(i, virtualBand.getExpression());
+                    } else {
+                        rgbProfile.setExpression(i, BandArithmetic.createExternalName(raster.getName()));
+                    }
+                    final RasterDataNode.Stx stx = raster.ensureValidStx(SubProgressMonitor.create(pm, 1));
+                    double minSample = raster.scale(stx.getMinSample());
+                    double maxSample = raster.scale(stx.getMaxSample());
+                    rgbProfile.setSampleDisplayRange(i, new Range(minSample, maxSample));
+                }
+            } finally {
+                pm.done();
+            }
+            return new ImageInfo(rgbProfile);
+        }
+    }
+
+    public static BufferedImage createRgbImage(final RasterDataNode[] rasters,
+                                               final ImageInfo imageInfo,
+                                               final ProgressMonitor pm) throws IOException {
+        Assert.notNull(rasters, "rasters");
+        Assert.argument(rasters.length == 1 || rasters.length == 3, "rasters.length == 1 || rasters.length == 3");
+
+        final RasterDataNode raster0 = rasters[0];
+        BitmaskDef[] bitmaskDefs = raster0.getBitmaskDefs();
+        pm.beginTask(MSG_CREATING_IMAGE, 3 + 3 + bitmaskDefs.length);
+        try {
+            BufferedImage overlayBIm;
+            if (rasters.length == 1) {
+                overlayBIm = create1BandRgbImage(raster0, imageInfo, SubProgressMonitor.create(pm, 3));
+            } else {
+                overlayBIm = create3BandRgbImage(rasters, imageInfo, SubProgressMonitor.create(pm, 3));
+            }
+            if (bitmaskDefs.length > 0) {
+                overlayBIm = overlayBitmasks(raster0, overlayBIm, SubProgressMonitor.create(pm, bitmaskDefs.length));
+            }
+            return overlayBIm;
+        } finally {
+            pm.done();
+        }
+    }
+
+    private static BufferedImage create1BandRgbImage(final RasterDataNode raster,
+                                                     final ImageInfo imageInfo,
+                                                     final ProgressMonitor pm) throws IOException {
+        Assert.notNull(raster, "raster");
+        Assert.notNull(imageInfo, "imageInfo");
+        Assert.argument(imageInfo.getColorPaletteDef() != null, "imageInfo.getColorPaletteDef() != null");
+        Assert.notNull(pm, "pm");
+
+        Color noDataColor = imageInfo.getNoDataColor();
+        if (noDataColor == null) {
+            noDataColor = new Color(0, 0, 0, 0);
+        }
+
+        IndexCoding indexCoding = null;
+        if (raster instanceof Band) {
+            Band band = (Band) raster;
+            indexCoding = band.getIndexCoding();
+        }
+
+        final int width = raster.getSceneRasterWidth();
+        final int height = raster.getSceneRasterHeight();
+        final int numColorComponents = noDataColor.getAlpha() == 255 ? 3 : 4;
+        final int numPixels = width * height;
+        final byte[] rgbSamples = new byte[numColorComponents * numPixels];
+
+        pm.beginTask(MSG_CREATING_IMAGE, 2);
+        try {
+            final Color[] palette;
+            // Compute indices into palette --> rgbSamples
+            if (indexCoding == null) {
+                raster.quantizeRasterData(imageInfo.getMinDisplaySample(),
+                                          imageInfo.getMaxDisplaySample(),
+                                          1.0,
+                                          rgbSamples,
+                                          0,
+                                          numColorComponents,
+                                          ProgressMonitor.NULL);
+                palette = raster.getImageInfo().createColorPalette();
+            } else {
+                final IntMap sampleColorIndexMap = new IntMap((int) imageInfo.getMinDisplaySample() - 1, 4098);
+                final ColorPaletteDef.Point[] points = imageInfo.getColorPaletteDef().getPoints();
+                for (int colorIndex = 0; colorIndex < points.length; colorIndex++) {
+                    sampleColorIndexMap.putValue((int) points[colorIndex].getSample(), colorIndex);
+                }
+                final ProductData data = raster.getSceneRasterData();
+                for (int pixelIndex = 0; pixelIndex < data.getNumElems(); pixelIndex++) {
+                    int sample = data.getElemIntAt(pixelIndex);
+                    int colorIndex = sampleColorIndexMap.getValue(sample);
+                    // todo - use no-data color if colorIndex == IntMap.NULL ???
+                    rgbSamples[pixelIndex * numColorComponents] = colorIndex != IntMap.NULL ? (byte) colorIndex : 0;
+                }
+                palette = raster.getImageInfo().getColors();
+            }
+
+            pm.worked(1);
+            checkCanceled(pm);
+
+            final byte[] r = new byte[palette.length];
+            final byte[] g = new byte[palette.length];
+            final byte[] b = new byte[palette.length];
+            for (int i = 0; i < palette.length; i++) {
+                r[i] = (byte) palette[i].getRed();
+                g[i] = (byte) palette[i].getGreen();
+                b[i] = (byte) palette[i].getBlue();
+            }
+            int colorIndex;
+            int pixelIndex = 0;
+            for (int i = 0; i < rgbSamples.length; i += numColorComponents) {
+                if (raster.isPixelValid(pixelIndex)) {
+                    colorIndex = rgbSamples[i] & 0xff;
+                    if (numColorComponents == 4) {
+                        rgbSamples[i] = (byte) 255;
+                        rgbSamples[i + 1] = b[colorIndex];
+                        rgbSamples[i + 2] = g[colorIndex];
+                        rgbSamples[i + 3] = r[colorIndex];
+                    } else {
+                        rgbSamples[i] = b[colorIndex];
+                        rgbSamples[i + 1] = g[colorIndex];
+                        rgbSamples[i + 2] = r[colorIndex];
+                    }
+                } else {
+                    if (numColorComponents == 4) {
+                        rgbSamples[i] = (byte) noDataColor.getAlpha();
+                        rgbSamples[i + 1] = (byte) noDataColor.getBlue();
+                        rgbSamples[i + 2] = (byte) noDataColor.getGreen();
+                        rgbSamples[i + 3] = (byte) noDataColor.getRed();
+                    } else {
+                        rgbSamples[i] = (byte) noDataColor.getBlue();
+                        rgbSamples[i + 1] = (byte) noDataColor.getGreen();
+                        rgbSamples[i + 2] = (byte) noDataColor.getRed();
+                    }
+                }
+                pixelIndex++;
+            }
+
+            pm.worked(1);
+            final BufferedImage image = createBufferedImage(width, height, numColorComponents, rgbSamples);
+            return applyHistogramMatching(image, imageInfo.getHistogramMatching());
+
+        } finally {
+            pm.done();
+        }
+    }
+
+    private static BufferedImage create3BandRgbImage(final RasterDataNode[] rasters,
+                                                     final ImageInfo imageInfo,
+                                                     final ProgressMonitor pm) throws IOException {
+        Assert.notNull(rasters, "rasters");
+        Assert.argument(rasters.length == 3, "rasters.length == 3");
+        Assert.notNull(pm, "pm");
+
+        Color noDataColor = imageInfo.getNoDataColor();
+        if (noDataColor == null) {
+            noDataColor = new Color(0, 0, 0, 0);
+        }
+
+        final int width = rasters[0].getSceneRasterWidth();
+        final int height = rasters[0].getSceneRasterHeight();
+        final int numColorComponents = noDataColor.getAlpha() == 255 ? 3 : 4;
+        final int numPixels = width * height;
+        final byte[] rgbSamples = new byte[numColorComponents * numPixels];
+
+        final String[] progressMessages = new String[]{
+                /*I18N*/
+                "Computing red channel",
+                "Computing green channel",
+                "Computing blue channel"
+        };
+
+        pm.beginTask(MSG_CREATING_IMAGE, 4);
+        try {
+            // Compute indices into palette --> rgbSamples
+            for (int i = 0; i < rasters.length; i++) {
+                final RasterDataNode raster = rasters[i];
+                pm.setSubTaskName(progressMessages[i]);
+                raster.quantizeRasterData(imageInfo.getRgbProfile().getSampleDisplayRange(i).getMin(),
+                                          imageInfo.getRgbProfile().getSampleDisplayRange(i).getMax(),
+                                          imageInfo.getRgbProfile().getSampleDisplayGamma(i),
+                                          rgbSamples,
+                                          numColorComponents - 1 - i,
+                                          numColorComponents,
+                                          ProgressMonitor.NULL);
+                pm.worked(1);
+                checkCanceled(pm);
+            }
+
+            boolean validMaskUsed0 = rasters[0].isValidMaskUsed();
+            boolean validMaksUsed1 = rasters[1].isValidMaskUsed();
+            boolean validMaskUsed2 = rasters[2].isValidMaskUsed();
+            boolean pixelValid;
+            if (validMaskUsed0 || validMaksUsed1 || validMaskUsed2) {
+                int pixelIndex = 0;
+                for (int i = 0; i < rgbSamples.length; i += numColorComponents) {
+                    pixelValid = rasters[0].isPixelValid(pixelIndex)
+                            && rasters[1].isPixelValid(pixelIndex)
+                            && rasters[2].isPixelValid(pixelIndex);
+                    if (!pixelValid) {
+                        if (numColorComponents == 4) {
+                            rgbSamples[i] = (byte) noDataColor.getAlpha();
+                            rgbSamples[i + 1] = (byte) noDataColor.getBlue();
+                            rgbSamples[i + 2] = (byte) noDataColor.getGreen();
+                            rgbSamples[i + 3] = (byte) noDataColor.getRed();
+                        } else {
+                            rgbSamples[i] = (byte) noDataColor.getBlue();
+                            rgbSamples[i + 1] = (byte) noDataColor.getGreen();
+                            rgbSamples[i + 2] = (byte) noDataColor.getRed();
+                        }
+                    } else {
+                        if (numColorComponents == 4) {
+                            rgbSamples[i] = (byte) 255;
+                        }
+                    }
+                    pixelIndex++;
+                }
+            }
+
+            final BufferedImage image = createBufferedImage(width, height, numColorComponents, rgbSamples);
+            return applyHistogramMatching(image, imageInfo.getHistogramMatching());
+
+        } finally {
+            pm.done();
+        }
+    }
+
+    private static BufferedImage createBufferedImage(int width, int height, int numColorComponents, byte[] rgbSamples) {
+        // Create a BufferedImage of type TYPE_3BYTE_BGR (the fastest type)
+        final ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_sRGB);
+        final ColorModel cm;
+        if (numColorComponents == 4) {
+            cm = new ComponentColorModel(cs,
+                                         true, // hasAlpha,
+                                         false, //isAlphaPremultiplied,
+                                         Transparency.TRANSLUCENT, //  transparency,
+                                         DataBuffer.TYPE_BYTE); //transferType
+        } else {
+            cm = new ComponentColorModel(cs,
+                                         false, // hasAlpha,
+                                         false, //isAlphaPremultiplied,
+                                         Transparency.OPAQUE, //  transparency,
+                                         DataBuffer.TYPE_BYTE); //transferType
+
+        }
+        final DataBuffer db = new DataBufferByte(rgbSamples, rgbSamples.length);
+        final WritableRaster wr = Raster.createInterleavedRaster(db, width, height,
+                                                                 numColorComponents * width,
+                                                                 numColorComponents,
+                                                                 numColorComponents == 4 ?
+                                                                         RGBA_BAND_OFFSETS : RGB_BAND_OFFSETS,
+                                                                 null);
+        return new BufferedImage(cm, wr, false, null);
+    }
+
 
     /**
      * Creates a greyscale image from the given <code>{@link org.esa.beam.framework.datamodel.RasterDataNode}</code>.
@@ -211,252 +483,33 @@ public class ProductUtils {
     public static BufferedImage createColorIndexedImage(final RasterDataNode rasterDataNode,
                                                         ProgressMonitor pm) throws IOException {
         Guardian.assertNotNull("rasterDataNode", rasterDataNode);
-
         final int width = rasterDataNode.getSceneRasterWidth();
         final int height = rasterDataNode.getSceneRasterHeight();
-
-        final StopWatch stopWatch = new StopWatch();
-
-        stopWatch.start();
         final ImageInfo imageInfo = rasterDataNode.ensureValidImageInfo();
-        stopWatch.stopAndTrace("ProductUtils.createColorIndexedImage, mark 1");
-
-        final double newMin = imageInfo.getMinDisplaySample();
-        final double newMax = imageInfo.getMaxDisplaySample();
-        final double gamma = (double) imageInfo.getGamma();
-
-        stopWatch.start();
-        final byte[] colorIndexes = rasterDataNode.quantizeRasterData(newMin, newMax, gamma, pm);
-        stopWatch.stopAndTrace("ProductUtils.createColorIndexedImage, mark 2");
-
-        stopWatch.start();
+        final double newMin = imageInfo.getColorPaletteDef().getFirstPoint().getSample();
+        final double newMax = imageInfo.getColorPaletteDef().getLastPoint().getSample();
+        final byte[] colorIndexes = rasterDataNode.quantizeRasterData(newMin, newMax, 1.0, pm);
         final IndexColorModel cm = imageInfo.createColorModel();
         final SampleModel sm = cm.createCompatibleSampleModel(width, height);
         final DataBuffer db = new DataBufferByte(colorIndexes, colorIndexes.length);
         final WritableRaster wr = WritableRaster.createWritableRaster(sm, db, null);
-        final BufferedImage bufferedImage = new BufferedImage(cm, wr, false, null);
-        stopWatch.stopAndTrace("ProductUtils.createColorIndexedImage, mark 3");
-
-        return bufferedImage;
+        return new BufferedImage(cm, wr, false, null);
     }
 
-    public static BufferedImage createRgbImage(final RasterDataNode[] rasterDataNodes, ProgressMonitor pm) throws
-            IOException {
-        return createRgbImage(rasterDataNodes, null, pm);
-    }
-
-    /**
-     * @deprecated in 4.0, use {@link #createRgbImage(org.esa.beam.framework.datamodel.RasterDataNode[],com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public static BufferedImage createRgbImage(final RasterDataNode[] rasterDataNodes) throws IOException {
-        return createRgbImage(rasterDataNodes, ProgressMonitor.NULL);
-    }
-
-    /**
-     * Creates a RGB image from the given array of <code>{@link org.esa.beam.framework.datamodel.RasterDataNode}</code>s.
-     * The given array <code>rasterDataNodes</code> contain three raster data nodes to be used for the red, green and
-     * blue components of the RGB image to be created.
-     *
-     * @param rasterDataNodes an array of exactly three raster nodes to be used for the R,G and B component.
-     * @param pm              a monitor to inform the user about progress
-     * @return the RGB image
-     * @throws IOException if the given raster data is not loaded and reload causes an I/O error
-     * @see RasterDataNode#setImageInfo
-     */
-    public static BufferedImage createRgbImage(final RasterDataNode[] rasterDataNodes,
-                                               Color noDataColor,
-                                               ProgressMonitor pm) throws
-            IOException {
-        Guardian.assertNotNull("rasterDataNodes", rasterDataNodes);
-        if (rasterDataNodes.length != 1 && rasterDataNodes.length != 3) {
-            throw new IllegalArgumentException("rasterDataNodes.length is not 1 and not 3");
-        }
-
-        final boolean singleBand = rasterDataNodes.length == 1;
-        final StopWatch stopWatch = new StopWatch();
-        final int width = rasterDataNodes[0].getSceneRasterWidth();
-        final int height = rasterDataNodes[0].getSceneRasterHeight();
-
-        if (noDataColor == null) {
-            ImageInfo imageInfo = rasterDataNodes[0].getImageInfo();
-            if (imageInfo != null) {
-                noDataColor = imageInfo.getNoDataColor();
-            }
-        }
-        if (noDataColor == null) {
-            noDataColor = new Color(0, 0, 0, 0);
-        }
-
-        final int numColorComponents = noDataColor.getAlpha() == 255 ? 3 : 4;
-        final int numPixels = width * height;
-        final byte[] rgbSamples = new byte[numColorComponents * numPixels];
-
-        final String[] progressMessages = new String[]{
-                /*I18N*/
-                "Computing red channel",
-                "Computing green channel",
-                "Computing blue channel"
-        };
-
-        BufferedImage bufferedImage = null;
-        int progressMax;
-        if (singleBand) {
-            progressMax = 2;
-        } else {
-            progressMax = 3;
-        }
-        for (final RasterDataNode node : rasterDataNodes) {
-            if (node.getImageInfo() == null) {
-                progressMax += 2;
-            }
-        }
-        final String singleMessage = "Computing image";
-        final String rgbMessage = "Computing RGB image";
-        pm.beginTask(singleBand ? singleMessage : rgbMessage, progressMax);
-        try {
-            // Compute indices into palette --> rgbSamples
-            for (int i = 0; i < rasterDataNodes.length; i++) {
-                pm.setSubTaskName(singleBand ? singleMessage : progressMessages[i]);
-                checkCanceled(pm);
-                final RasterDataNode raster = rasterDataNodes[i];
-                ImageInfo imageInfo = raster.ensureValidImageInfo(null, ProgressMonitor.NULL);
-                pm.worked(2);
-                checkCanceled(pm);
-                final ColorPaletteDef paletteDef = imageInfo.getColorPaletteDef();
-                if (!paletteDef.isDiscrete()) {
-                    raster.quantizeRasterData(imageInfo.getMinDisplaySample(),
-                                              imageInfo.getMaxDisplaySample(),
-                                              (double) imageInfo.getGamma(),
-                                              rgbSamples,
-                                              singleBand ? 0 : numColorComponents - 1 - i,
-                                              numColorComponents,
-                                              ProgressMonitor.NULL);
-                } else {
-                    final IntMap sampleColorIndexMap = new IntMap((int) imageInfo.getMinDisplaySample() - 1, 4098);
-                    final ColorPaletteDef.Point[] points = imageInfo.getColorPaletteDef().getPoints();
-                    for (int colorIndex = 0; colorIndex < points.length; colorIndex++) {
-                        sampleColorIndexMap.putValue((int) points[colorIndex].getSample(), colorIndex);
-                    }
-                    final ProductData data = raster.getSceneRasterData();
-                    for (int pixelIndex = 0; pixelIndex < data.getNumElems(); pixelIndex++) {
-                        final int colorIndex = sampleColorIndexMap.getValue(data.getElemIntAt(pixelIndex));
-                        rgbSamples[pixelIndex * numColorComponents] = colorIndex != IntMap.NULL ? (byte) colorIndex : 0;
-                    }
-                }
-                pm.worked(1);
-            }
-
-            checkCanceled(pm);
-            if (singleBand) {
-                final RasterDataNode raster = rasterDataNodes[0];
-                final Color[] palette = raster.getImageInfo().getColorPalette();
-                Guardian.assertWithinRange("palette.length must be between 2 and 256", palette.length, 2, 256);
-                final byte[] r = new byte[palette.length];
-                final byte[] g = new byte[palette.length];
-                final byte[] b = new byte[palette.length];
-                for (int i = 0; i < palette.length; i++) {
-                    r[i] = (byte) palette[i].getRed();
-                    g[i] = (byte) palette[i].getGreen();
-                    b[i] = (byte) palette[i].getBlue();
-                }
-                int colorIndex;
-                int pixelIndex = 0;
-                for (int i = 0; i < rgbSamples.length; i += numColorComponents) {
-                    if (raster.isPixelValid(pixelIndex)) {
-                        colorIndex = rgbSamples[i] & 0xff;
-                        if (numColorComponents == 4) {
-                            rgbSamples[i] = (byte) 255;
-                            rgbSamples[i + 1] = b[colorIndex];
-                            rgbSamples[i + 2] = g[colorIndex];
-                            rgbSamples[i + 3] = r[colorIndex];
-                        } else {
-                            rgbSamples[i] = b[colorIndex];
-                            rgbSamples[i + 1] = g[colorIndex];
-                            rgbSamples[i + 2] = r[colorIndex];
-                        }
-                    } else {
-                        if (numColorComponents == 4) {
-                            rgbSamples[i] = (byte) noDataColor.getAlpha();
-                            rgbSamples[i + 1] = (byte) noDataColor.getBlue();
-                            rgbSamples[i + 2] = (byte) noDataColor.getGreen();
-                            rgbSamples[i + 3] = (byte) noDataColor.getRed();
-                        } else {
-                            rgbSamples[i] = (byte) noDataColor.getBlue();
-                            rgbSamples[i + 1] = (byte) noDataColor.getGreen();
-                            rgbSamples[i + 2] = (byte) noDataColor.getRed();
-                        }
-                    }
-                    pixelIndex++;
-                }
-                pm.worked(1);
+    private static BufferedImage applyHistogramMatching(BufferedImage overlayBIm, String histogramMatching) {
+        final boolean doEqualize = ImageInfo.HISTOGRAM_MATCHING_EQUALIZE.equalsIgnoreCase(histogramMatching);
+        final boolean doNormalize = ImageInfo.HISTOGRAM_MATCHING_NORMALIZE.equalsIgnoreCase(histogramMatching);
+        if (doEqualize || doNormalize) {
+            PlanarImage sourcePIm = PlanarImage.wrapRenderedImage(overlayBIm);
+            sourcePIm = JAIUtils.createTileFormatOp(sourcePIm, 512, 512);
+            if (doEqualize) {
+                sourcePIm = JAIUtils.createHistogramEqualizedImage(sourcePIm);
             } else {
-                boolean validMaskUsed0 = rasterDataNodes[0].isValidMaskUsed();
-                boolean validMaksUsed1 = rasterDataNodes[1].isValidMaskUsed();
-                boolean validMaskUsed2 = rasterDataNodes[2].isValidMaskUsed();
-                boolean pixelValid;
-                if (validMaskUsed0 || validMaksUsed1 || validMaskUsed2) {
-                    int pixelIndex = 0;
-                    for (int i = 0; i < rgbSamples.length; i += numColorComponents) {
-                        pixelValid = rasterDataNodes[0].isPixelValid(pixelIndex)
-                                && rasterDataNodes[1].isPixelValid(pixelIndex)
-                                && rasterDataNodes[2].isPixelValid(pixelIndex);
-                        if (!pixelValid) {
-                            if (numColorComponents == 4) {
-                                rgbSamples[i] = (byte) noDataColor.getAlpha();
-                                rgbSamples[i + 1] = (byte) noDataColor.getBlue();
-                                rgbSamples[i + 2] = (byte) noDataColor.getGreen();
-                                rgbSamples[i + 3] = (byte) noDataColor.getRed();
-                            } else {
-                                rgbSamples[i] = (byte) noDataColor.getBlue();
-                                rgbSamples[i + 1] = (byte) noDataColor.getGreen();
-                                rgbSamples[i + 2] = (byte) noDataColor.getRed();
-                            }
-                        } else {
-                            if (numColorComponents == 4) {
-                                rgbSamples[i] = (byte) 255;
-                            }
-                        }
-                        pixelIndex++;
-                    }
-                }
+                sourcePIm = JAIUtils.createHistogramNormalizedImage(sourcePIm);
             }
-
-            // Create a BufferedImage of type TYPE_3BYTE_BGR (the fastest type)
-            //
-            final ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_sRGB);
-            final ColorModel cm;
-            if (numColorComponents == 4) {
-                cm = new ComponentColorModel(cs,
-                                             true, // hasAlpha,
-                                             false, //isAlphaPremultiplied,
-                                             Transparency.TRANSLUCENT, //  transparency,
-                                             DataBuffer.TYPE_BYTE); //transferType
-            } else {
-                cm = new ComponentColorModel(cs,
-                                             false, // hasAlpha,
-                                             false, //isAlphaPremultiplied,
-                                             Transparency.OPAQUE, //  transparency,
-                                             DataBuffer.TYPE_BYTE); //transferType
-
-            }
-            final DataBuffer db = new DataBufferByte(rgbSamples, rgbSamples.length);
-            final WritableRaster wr = Raster.createInterleavedRaster(db, width, height,
-                                                                     numColorComponents * width,
-                                                                     numColorComponents,
-                                                                     numColorComponents == 4 ?
-                                                                             RGBA_BAND_OFFSETS : RGB_BAND_OFFSETS,
-                                                                     null);
-            bufferedImage = new BufferedImage(cm, wr, false, null);
+            overlayBIm = sourcePIm.getAsBufferedImage();
         }
-
-        finally
-
-        {
-            pm.done();
-        }
-
-        stopWatch.stopAndTrace("ProductUtils.createRgbImage");
-        return bufferedImage;
+        return overlayBIm;
     }
 
     private static void checkCanceled(ProgressMonitor pm) throws IOException {
@@ -1530,14 +1583,6 @@ public class ProductUtils {
     }
 
     /**
-     * @deprecated in 4.0, use {@link #overlayBitmasks(org.esa.beam.framework.datamodel.RasterDataNode,java.awt.image.BufferedImage,com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public static BufferedImage overlayBitmasks(final RasterDataNode raster, final BufferedImage overlayBIm) throws
-            IOException {
-        return overlayBitmasks(raster, overlayBIm, ProgressMonitor.NULL);
-    }
-
-    /**
      * Draws all the activated bitmasks to the given ovelayBIm image.
      *
      * @param raster     the raster data node which contains all the activated bitmask definitions
@@ -1616,7 +1661,7 @@ public class ProductUtils {
                             overlayBIm.setRGB(env.getPixelX(), env.getPixelY(), argb);
                         }
                     }
-                }, "Drawing bitmasks..."); /*I18N*/
+                }, "Overlaying bitmasks..."); /*I18N*/
 
 // needed to stop creating a wrong image with not completly computed masks.
                 if (pm.isCanceled()) {
@@ -2609,4 +2654,5 @@ public class ProductUtils {
         }
         return path;
     }
+
 }

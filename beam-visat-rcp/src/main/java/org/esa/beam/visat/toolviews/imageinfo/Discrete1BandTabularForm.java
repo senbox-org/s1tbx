@@ -1,6 +1,5 @@
 package org.esa.beam.visat.toolviews.imageinfo;
 
-import com.bc.ceres.core.Assert;
 import com.jidesoft.grid.ColorCellEditor;
 import com.jidesoft.grid.ColorCellRenderer;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
@@ -16,19 +15,17 @@ import java.awt.Color;
 import java.awt.Component;
 import java.text.NumberFormat;
 
-class Discrete1BandTabularForm implements ImageInfoEditor {
+class Discrete1BandTabularForm implements ColorManipulationChildForm {
     private final ColorManipulationForm parentForm;
     private JComponent contentPanel;
     private ImageInfoTableModel tableModel;
+    private final TableModelListener applyEnablerTML;
 
     public Discrete1BandTabularForm(ColorManipulationForm parentForm) {
         this.parentForm = parentForm;
         tableModel = new ImageInfoTableModel(null);
-        tableModel.addTableModelListener(new TableModelListener() {
-            public void tableChanged(TableModelEvent e) {
-                Discrete1BandTabularForm.this.parentForm.setApplyEnabled(true);
-            }
-        });
+        applyEnablerTML = parentForm.createApplyEnablerTableModelListener();
+
 
         final JTable table = new JTable(tableModel);
         final ColorCellRenderer colorCellRenderer = new ColorCellRenderer();
@@ -44,30 +41,19 @@ class Discrete1BandTabularForm implements ImageInfoEditor {
         contentPanel = tableScrollPane;
     }
 
-
-    public void performApply(ProductSceneView productSceneView) {
-        Assert.notNull(productSceneView, "productSceneView");
-        ImageInfo imageInfo = getImageInfo().createDeepCopy();
-        imageInfo.computeColorPalette();
-        productSceneView.getRaster().setImageInfo(imageInfo);
-    }
-
-    public void performReset(ProductSceneView productSceneView) {
-        parentForm.resetDefaultValues(productSceneView.getRaster());
-    }
-
     public void handleFormShown(ProductSceneView productSceneView) {
-        Assert.notNull(productSceneView, "productSceneView");
-        setImageInfo(productSceneView.getRaster().getImageInfo().createDeepCopy());
+        tableModel.setImageInfo(parentForm.getImageInfo());
+        tableModel.addTableModelListener(applyEnablerTML);
     }
 
-    public void handleFormHidden() {
+    public void handleFormHidden(ProductSceneView productSceneView) {
+        tableModel.removeTableModelListener(applyEnablerTML);
         tableModel.setImageInfo(null);
     }
 
-    public void updateState(ProductSceneView productSceneView) {
+    public void updateFormModel(ProductSceneView productSceneView) {
+        tableModel.setImageInfo(parentForm.getImageInfo());
     }
-
 
     public AbstractButton[] getButtons() {
         return new AbstractButton[]{}; // todo
@@ -75,19 +61,6 @@ class Discrete1BandTabularForm implements ImageInfoEditor {
 
     public Component getContentPanel() {
         return contentPanel;
-    }
-
-    public ImageInfo getImageInfo() {
-        return tableModel.getImageInfo();
-    }
-
-    public void setImageInfo(ImageInfo imageInfo) {
-        tableModel.setImageInfo(imageInfo);
-
-    }
-
-    public String getTitle(ProductSceneView productSceneView) {
-        return ";D";  // todo
     }
 
     private static class PercentageRenderer extends DefaultTableCellRenderer {

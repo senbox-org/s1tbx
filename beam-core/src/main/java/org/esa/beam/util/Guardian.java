@@ -16,6 +16,8 @@
  */
 package org.esa.beam.util;
 
+import com.bc.ceres.core.Assert;
+
 /**
  * This utility class which provides several static <code>assert</code>XXX methods which can be used to internally check
  * the arguments passed to methods.
@@ -39,15 +41,12 @@ public class Guardian {
      * }
      * </pre>
      *
-     * @param message  the message text
+     * @param message   the message text
      * @param condition the condition which must be true
-     *
      * @throws IllegalArgumentException if <code>condition</code> is <code>false</code>
      */
     public static void assertTrue(String message, boolean condition) {
-        if (!condition) {
-            throw new IllegalArgumentException(message);
-        }
+        Assert.argument(condition, message);
     }
 
     /**
@@ -65,13 +64,11 @@ public class Guardian {
      *
      * @param exprText  the test expression as text
      * @param exprValue the test expression result
-     *
      * @throws IllegalArgumentException if <code>exprValue</code> is <code>null</code>
      */
     public static void assertNotNull(String exprText, Object exprValue) {
         if (exprValue == null) {
-            final StringBuffer sb = createExprStringBuffer(exprText).append(" is null");
-            throw new IllegalArgumentException(sb.toString());
+            throw new IllegalArgumentException("[" + exprText + "] is null");
         }
     }
 
@@ -90,7 +87,6 @@ public class Guardian {
      *
      * @param exprText  the test expression as text
      * @param exprValue the test expression result
-     *
      * @throws IllegalArgumentException if <code>exprValue</code> is <code>null</code> or an empty string
      */
     public static void assertNotNullOrEmpty(String exprText, String exprValue) {
@@ -148,7 +144,6 @@ public class Guardian {
      * @param exprText  the test expression as text
      * @param exprValue the test expression result
      * @param limit     the lower limit for the expression result
-     *
      * @throws IllegalArgumentException if the <code>exprValue</code> is less than or equal to <code>limit</code>
      */
     public static void assertGreaterThan(String exprText, long exprValue, long limit) {
@@ -174,8 +169,8 @@ public class Guardian {
      * }
      * </pre>
      *
-     * @param exprText the test expression as text
-     * @param exprValue   the test expression result
+     * @param exprText      the test expression as text
+     * @param exprValue     the test expression result
      * @param expectedValue the expected value
      * @throws IllegalArgumentException if the <code>exprValue</code> is not equal to <code>expectedValue</code>
      */
@@ -196,8 +191,8 @@ public class Guardian {
      * }
      * </pre>
      *
-     * @param exprText the test expression as text
-     * @param exprValue   the test expression result
+     * @param exprText      the test expression as text
+     * @param exprValue     the test expression result
      * @param expectedValue the expected value
      * @throws IllegalArgumentException if the <code>exprValue</code> is not equal to <code>expectedValue</code>
      */
@@ -226,8 +221,8 @@ public class Guardian {
      * }
      * </pre>
      *
-     * @param exprText the test expression as text
-     * @param exprValue   the test expression result
+     * @param exprText      the test expression as text
+     * @param exprValue     the test expression result
      * @param expectedValue the expected value
      * @throws IllegalArgumentException if the <code>exprValue</code> is not equal to <code>expectedValue</code>
      */
@@ -256,9 +251,8 @@ public class Guardian {
      * }
      * </pre>
      *
-     * @param exprText the test expression as text
-     * @param exprValue   the actual value
-     *
+     * @param exprText      the test expression as text
+     * @param exprValue     the actual value
      * @param expectedValue the expected value
      * @throws IllegalArgumentException if the <code>expected</code> is not identical to <code>actual</code>
      */
@@ -290,7 +284,6 @@ public class Guardian {
      * @param exprValue the expression result
      * @param rangeMin  the range lower limit
      * @param rangeMax  the range upper limit
-     *
      * @throws IllegalArgumentException if the <code>exprValue</code> is less than <code>rangeMin</code> or greater than <code>rangeMax</code>
      */
     public static void assertWithinRange(String exprText, long exprValue, long rangeMin, long rangeMax) {
@@ -323,7 +316,6 @@ public class Guardian {
      * @param exprValue the expression result
      * @param rangeMin  the range lower limit
      * @param rangeMax  the range upper limit
-     *
      * @throws IllegalArgumentException if the <code>exprValue</code> is less than <code>rangeMin</code> or greater than <code>rangeMax</code>
      */
     public static void assertWithinRange(String exprText, double exprValue, double rangeMin, double rangeMax) {

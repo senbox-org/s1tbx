@@ -66,6 +66,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public final static String PROPERTY_NAME_NO_DATA_VALUE_USED = "noDataValueUsed";
     public final static String PROPERTY_NAME_VALID_PIXEL_EXPRESSION = "validPixelExpression";
     public final static String PROPERTY_NAME_GEOCODING = Product.PROPERTY_NAME_GEOCODING;
+    public final static String PROPERTY_NAME_STATISTICS = "stx";
 
     /**
      * Text returned by the <code>{@link #getPixelString}</code> method if no data is available at the given pixel
@@ -114,8 +115,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     private GeoCoding geoCoding;
 
-    private Range sampleRange;  // todo - DIMAP I/O!
-    private int[] sampleFrequencies; // todo - DIMAP I/O!
+    private Stx stx;
 
     private ImageInfo imageInfo;
     private BitmaskOverlayInfo bitmaskOverlayInfo;
@@ -172,8 +172,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         validMask = null;
         validMaskInProgress = false;
 
-        sampleRange = null;
-        sampleFrequencies = null;
     }
 
     /**
@@ -937,54 +935,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Gets the value range.
-     *
-     * @return the value range, or {@code null} if not (yet) known
-     * @since BEAM 4.2
-     */
-    public Range getSampleRange() {
-        return sampleRange;
-    }
-
-    /**
-     * Sets the value range.
-     *
-     * @param sampleRange the value range, or {@code null} if unknown
-     * @since BEAM 4.2
-     */
-    public void setSampleRange(Range sampleRange) {
-        Range oldValue = this.sampleRange;
-        if (oldValue != sampleRange) {
-            this.sampleRange = sampleRange;
-            fireProductNodeChanged(PROPERTY_NAME_SAMPLE_RANGE, oldValue);
-        }
-    }
-
-    /**
-     * Gets the histogram.
-     *
-     * @return the histogram, or {@code null} if not (yet) known
-     * @since BEAM 4.2
-     */
-    public int[] getSampleFrequencies() {
-        return sampleFrequencies;
-    }
-
-    /**
-     * Sets the histogram.
-     *
-     * @param sampleFrequencies the histogram, or {@code null} if unknown
-     * @since BEAM 4.2
-     */
-    public void setSampleFrequencies(int[] sampleFrequencies) {
-        int[] oldValue = this.sampleFrequencies;
-        if (oldValue != sampleFrequencies) {
-            this.sampleFrequencies = sampleFrequencies;
-            fireProductNodeChanged(PROPERTY_NAME_SAMPLE_FREQUENCIES, oldValue);
-        }
-    }
-
-    /**
      * Releases all of the resources used by this object instance and all of its owned children. Its primary use is to
      * allow the garbage collector to perform a vanilla job.
      * <p/>
@@ -1719,9 +1669,39 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @return a valid image information instance, never <code>null</code>.
      * @throws IOException if an I/O error occurs
      */
-    public ImageInfo createDefaultImageInfo(double[] histoSkipAreas, ProgressMonitor pm) throws IOException {
-        Histogram histogram = computeRasterDataHistogram(null, 512, null, pm);
-        return createDefaultImageInfo(histoSkipAreas, histogram);
+    public synchronized ImageInfo createDefaultImageInfo(double[] histoSkipAreas, ProgressMonitor pm) throws IOException {
+        Stx stx = ensureValidStx(pm);
+        Histogram histogram = new Histogram(stx.getSampleFrequencies(), stx.getMinSample(), stx.getMaxSample());
+        final Range range;
+        if (histoSkipAreas != null) {
+            range = histogram.findRange(histoSkipAreas[0], histoSkipAreas[1]);
+        } else {
+            range = histogram.findRange(0.01, 0.04);
+        }
+
+        final double min, max;
+        if (range.getMin() != range.getMax()) {
+            min = scale(range.getMin());
+            max = scale(range.getMax());
+        } else {
+            min = scale(histogram.getMin());
+            max = scale(histogram.getMax());
+        }
+
+        double center = scale(0.5 * (scaleInverse(min) + scaleInverse(max)));
+        final ColorPaletteDef gradationCurve = new ColorPaletteDef(min, center, max);
+
+        return new ImageInfo(gradationCurve);
+    }
+
+    public Stx ensureValidStx(ProgressMonitor pm) throws IOException {
+        Stx stx = getStx();
+        if (stx == null || stx.isDirty()) {
+            Histogram histogram = computeRasterDataHistogram(null, 512, null, pm);
+            stx = new Stx(histogram.getMin(), histogram.getMax(), histogram.getBinCounts());
+            setStx(stx);
+        }
+        return stx;
     }
 
     /**
@@ -1762,28 +1742,12 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * @deprecated since BEAM 4.0, use {@link #ensureValidImageInfo(double[],ProgressMonitor)}
-     */
-    @Deprecated
-    public ImageInfo ensureValidImageInfo(double[] histoSkipAreas, boolean ignoreInvalidZero) throws IOException {
-        return ensureValidImageInfo(histoSkipAreas, ProgressMonitor.NULL);
-    }
-
-    /**
      * @deprecated since BEAM 4.2, use {@link #ensureValidImageInfo(double[],ProgressMonitor)}
      */
     @Deprecated
     public ImageInfo ensureValidImageInfo(double[] histoSkipAreas, boolean ignoreInvalidZero, ProgressMonitor pm) throws
             IOException {
         return ensureValidImageInfo(histoSkipAreas, pm);
-    }
-
-    /**
-     * @deprecated since BEAM 4.0, use {@link #createDefaultImageInfo(double[],ProgressMonitor)}
-     */
-    @Deprecated
-    public ImageInfo createDefaultImageInfo(double[] histoSkipAreas, boolean ignoreInvalidZero) throws IOException {
-        return createDefaultImageInfo(histoSkipAreas, ProgressMonitor.NULL);
     }
 
     /**
@@ -1802,15 +1766,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         return createDefaultImageInfo(histoSkipAreas, histogram);
     }
 
-
-    /**
-     * @deprecated since BEAM 4.0, use {@link #createColorIndexedImage(ProgressMonitor)} instead
-     */
-    @Deprecated
-    public BufferedImage createColorIndexedImage() throws IOException {
-        return createColorIndexedImage(ProgressMonitor.NULL);
-    }
-
     /**
      * Creates an image for this raster data node. The method simply returns <code>ProductUtils.createColorIndexedImage(this,
      * null)</code>.
@@ -1819,18 +1774,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @return a greyscale/palette-based image for this raster data node
      * @throws IOException if the raster data is not loaded so far and reload causes an I/O error
      * @see #setImageInfo
-     * @see org.esa.beam.util.ProductUtils#createColorIndexedImage
      */
     public BufferedImage createColorIndexedImage(ProgressMonitor pm) throws IOException {
         return ProductUtils.createColorIndexedImage(this, pm);
-    }
-
-    /**
-     * @deprecated since BEAM 4.0, use {@link #createRgbImage(ProgressMonitor)} instead
-     */
-    @Deprecated
-    public BufferedImage createRgbImage() throws IOException {
-        return createRgbImage(ProgressMonitor.NULL);
     }
 
     /**
@@ -1844,17 +1790,20 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @see org.esa.beam.util.ProductUtils#createRgbImage
      */
     public BufferedImage createRgbImage(ProgressMonitor pm) throws IOException {
-        return ProductUtils.createRgbImage(new RasterDataNode[]{this}, pm);
+        if (imageInfo != null) {
+            return ProductUtils.createRgbImage(new RasterDataNode[]{this}, imageInfo, pm);
+        } else {
+            pm.beginTask("Creating image", 1+3);
+            BufferedImage rgbImage;
+            try {
+                imageInfo = createDefaultImageInfo(null, SubProgressMonitor.create(pm, 1));
+                rgbImage = ProductUtils.createRgbImage(new RasterDataNode[]{this}, imageInfo, SubProgressMonitor.create(pm, 3));
+            } finally {
+                pm.done();
+            }
+            return rgbImage;
+        }
     }
-
-    /**
-     * @deprecated in 4.0, use {@link #createROI(ProgressMonitor)} instead
-     */
-    @Deprecated
-    public ROI createROI() throws IOException {
-        return createROI(ProgressMonitor.NULL);
-    }
-
     /**
      * Creates a new ROI from the current ROI definition.
      *
@@ -1865,14 +1814,6 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public ROI createROI(ProgressMonitor pm) throws IOException {
         final BufferedImage bi = createROIImage(Color.red, pm);
         return bi != null ? new ROI(bi, 1) : null;
-    }
-
-    /**
-     * @deprecated in 4.0, use {@link #createROIImage(java.awt.Color,com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    @Deprecated
-    public synchronized BufferedImage createROIImage(final Color color) throws IOException {
-        return createROIImage(color, ProgressMonitor.NULL);
     }
 
     /**
@@ -2588,10 +2529,22 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     // JAIJAIJAI
     public void setImage(RenderedImage image) {
-        final RenderedImage oldImage = this.image;
-        if (oldImage != image) {
+        final RenderedImage oldValue = this.image;
+        if (oldValue != image) {
             this.image = image;
-            fireProductNodeChanged("image", oldImage);
+            fireProductNodeChanged("image", oldValue);
+        }
+    }
+
+    public Stx getStx() {
+        return stx;
+    }
+
+    public void setStx(Stx stx) {
+        final Stx oldValue = this.stx;
+        if (oldValue != stx) {
+            this.stx = stx;
+            fireProductNodeChanged(PROPERTY_NAME_STATISTICS, oldValue);
         }
     }
 
@@ -2745,4 +2698,38 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
 
+    // todo - DIMAP I/O!
+    public static class Stx {
+        private final double sampleMin;
+        private final double sampleMax;
+        private final int[] sampleFrequencies;
+        private boolean dirty;
+
+        public Stx(double sampleMin, double sampleMax, int[] sampleFrequencies) {
+            this.sampleMin = sampleMin;
+            this.sampleMax = sampleMax;
+            this.sampleFrequencies = sampleFrequencies;
+            dirty = false;
+        }
+
+        public double getMinSample() {
+            return sampleMin;
+        }
+
+        public double getMaxSample() {
+            return sampleMax;
+        }
+
+        public int[] getSampleFrequencies() {
+            return sampleFrequencies;
+        }
+
+        public boolean isDirty() {
+            return dirty;
+        }
+
+        public void setDirty(boolean dirty) {
+            this.dirty = dirty;
+        }
+    }
 }

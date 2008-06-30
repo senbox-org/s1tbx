@@ -294,8 +294,7 @@ public class ImageLegend {
     }
 
     private void drawPalette(Graphics2D g2d) {
-        _imageInfo.computeColorPalette();
-        final Color[] palette = _imageInfo.getColorPalette();
+        final Color[] palette = _imageInfo.createColorPalette();
         final int x1 = _paletteRect.x;
         final int x2 = _paletteRect.x + _paletteRect.width;
         final int y1 = _paletteRect.y;

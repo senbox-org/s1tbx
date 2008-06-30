@@ -805,7 +805,7 @@ public class VisatApp extends BasicApp {
                 final ProductSceneView view = (ProductSceneView) contentPane;
                 final int numRasters = view.getNumRasters();
                 for (int j = 0; j < numRasters; j++) {
-                    if (view.getRasterAt(j) == raster) {
+                    if (view.getRaster(j) == raster) {
                         return frame;
                     }
                 }
@@ -831,7 +831,7 @@ public class VisatApp extends BasicApp {
                 final ProductSceneView view = (ProductSceneView) contentPane;
                 final int numRasters = view.getNumRasters();
                 for (int j = 0; j < numRasters; j++) {
-                    if (view.getRasterAt(j) == raster) {
+                    if (view.getRaster(j) == raster) {
                         frameList.add(frame);
                     }
                 }
@@ -961,7 +961,7 @@ public class VisatApp extends BasicApp {
                     final ProductSceneView productSceneView = (ProductSceneView) contentPane;
                     final int numRasters = productSceneView.getNumRasters();
                     for (int j = 0; j < numRasters; j++) {
-                        final RasterDataNode rasterAt = productSceneView.getRasterAt(j);
+                        final RasterDataNode rasterAt = productSceneView.getRaster(j);
                         if (rasterAt == raster) {
                             return true;
                         }
@@ -983,7 +983,7 @@ public class VisatApp extends BasicApp {
                 for (int j = 0; j < rasters.length && !updateView; j++) {
                     final RasterDataNode raster = rasters[j];
                     for (int k = 0; k < view.getNumRasters() && !updateView; k++) {
-                        if (view.getRasterAt(k) == raster) {
+                        if (view.getRaster(k) == raster) {
                             updateView = true;
                         }
                     }
@@ -1648,15 +1648,11 @@ public class VisatApp extends BasicApp {
                 }
             }
             final JInternalFrame[] frames = findInternalFrames(raster, 1);
-            final LayerModel layerModel;
             if (frames.length > 0) {
                 final ProductSceneView view = (ProductSceneView) frames[0].getContentPane();
-                layerModel = view.getImageDisplay().getLayerModel();
-            } else {
-                layerModel = null;
-            }
-            if (layerModel != null) {
-                productSceneImage = ProductSceneImage.create(raster, layerModel, SubProgressMonitor.create(pm, 1));
+                final LayerModel layerModel = view.getImageDisplay().getLayerModel();
+                final ImageInfo imageInfo = view.getScene().getImageInfo();
+                productSceneImage = ProductSceneImage.create(raster, imageInfo, layerModel, SubProgressMonitor.create(pm, 1));
             } else {
                 productSceneImage = ProductSceneImage.create(raster, SubProgressMonitor.create(pm, 1));
             }
@@ -2551,7 +2547,7 @@ public class VisatApp extends BasicApp {
 
                 JInternalFrame otherFrame = null;
                 for (int i = 0; i < numRasters; i++) {
-                    final RasterDataNode raster = productSceneView.getRasterAt(i);
+                    final RasterDataNode raster = productSceneView.getRaster(i);
                     otherFrame = findInternalFrame(raster);
                     // If this band is not referenced by other frames anymore:
                     if (otherFrame == null) {

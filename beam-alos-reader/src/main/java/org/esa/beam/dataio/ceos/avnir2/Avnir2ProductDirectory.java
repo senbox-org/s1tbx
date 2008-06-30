@@ -17,6 +17,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
 
+import com.bc.ceres.core.ProgressMonitor;
+
 /**
  * This class represents a product directory of an Avnir-2 product.
  * <p/>
@@ -278,7 +280,8 @@ class Avnir2ProductDirectory {
         final int[] histogramBins = _trailerFile.getHistogramBinsForBand(bandIndex);
         final float scaledMinSample = (float) (getMinSampleValue(histogramBins) * scalingFactor + scalingOffset);
         final float scaledMaxSample = (float) (getMaxSampleValue(histogramBins) * scalingFactor + scalingOffset);
-        final ImageInfo imageInfo = new ImageInfo(scaledMinSample, scaledMaxSample, histogramBins);
+        band.setStx(new RasterDataNode.Stx(scaledMinSample, scaledMaxSample, histogramBins));
+        final ImageInfo imageInfo = band.createDefaultImageInfo(null, ProgressMonitor.NULL);
         band.setImageInfo(imageInfo);
         band.setDescription("Radiance band " + avnir2ImageFile.getBandIndex());
 

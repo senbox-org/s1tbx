@@ -1,41 +1,19 @@
 package org.esa.beam.visat.toolviews.imageinfo;
 
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.ui.product.ProductSceneView;
-
 import javax.swing.AbstractButton;
-import javax.swing.JPanel;
-import javax.swing.JOptionPane;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ChangeEvent;
-import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 
-abstract class AbstractContinuousGraphicalForm implements ImageInfoEditor {
+class ImageInfoEditorSupport {
 
-    protected final ColorManipulationForm parentForm;
-    protected AbstractButton autoStretch95Button;
-    protected AbstractButton autoStretch100Button;
-    protected AbstractButton zoomInVButton;
-    protected AbstractButton zoomOutVButton;
-    protected AbstractButton zoomInHButton;
-    protected AbstractButton zoomOutHButton;
-    protected JPanel contentPanel;
-    protected GraphicalPaletteEditor paletteEditor;
+    public final AbstractButton autoStretch95Button;
+    public final AbstractButton autoStretch100Button;
+    public final AbstractButton zoomInVButton;
+    public final AbstractButton zoomOutVButton;
+    public final AbstractButton zoomInHButton;
+    public final AbstractButton zoomOutHButton;
 
-    protected AbstractContinuousGraphicalForm(final ColorManipulationForm parentForm) {
-        this.parentForm = parentForm;
-
-        paletteEditor = new GraphicalPaletteEditor();
-        paletteEditor.addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent e) {
-                parentForm.setApplyEnabled(true);
-            }
-        });
+    protected ImageInfoEditorSupport(final ImageInfoEditor imageInfoEditor) {
 
         autoStretch95Button = createButton("icons/Auto95Percent24.gif");
         autoStretch95Button.setName("AutoStretch95Button");
@@ -43,7 +21,7 @@ abstract class AbstractContinuousGraphicalForm implements ImageInfoEditor {
         autoStretch95Button.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
-                paletteEditor.compute95Percent();
+                imageInfoEditor.compute95Percent();
             }
         });
 
@@ -53,7 +31,7 @@ abstract class AbstractContinuousGraphicalForm implements ImageInfoEditor {
         autoStretch100Button.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
-                paletteEditor.compute100Percent();
+                imageInfoEditor.compute100Percent();
             }
         });
 
@@ -63,7 +41,7 @@ abstract class AbstractContinuousGraphicalForm implements ImageInfoEditor {
         zoomInVButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
-                paletteEditor.computeZoomInVertical();
+                imageInfoEditor.computeZoomInVertical();
             }
         });
 
@@ -73,7 +51,7 @@ abstract class AbstractContinuousGraphicalForm implements ImageInfoEditor {
         zoomOutVButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
-                paletteEditor.computeZoomOutVertical();
+                imageInfoEditor.computeZoomOutVertical();
             }
         });
 
@@ -83,7 +61,7 @@ abstract class AbstractContinuousGraphicalForm implements ImageInfoEditor {
         zoomInHButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
-                paletteEditor.computeZoomInToSliderLimits();
+                imageInfoEditor.computeZoomInToSliderLimits();
             }
         });
 
@@ -93,35 +71,16 @@ abstract class AbstractContinuousGraphicalForm implements ImageInfoEditor {
         zoomOutHButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
-                paletteEditor.computeZoomOutToFullHistogramm();
+                imageInfoEditor.computeZoomOutToFullHistogramm();
             }
         });
-
-        contentPanel = new JPanel(new BorderLayout(2, 2));
-        contentPanel.add(paletteEditor, BorderLayout.CENTER);
     }
 
-    public void performReset(ProductSceneView productSceneView) {
-        parentForm.resetDefaultValues(productSceneView.getRaster());
-    }
-
-    public ImageInfo getImageInfo() {
-        return paletteEditor.getImageInfo();
-    }
-
-    public void setImageInfo(ImageInfo imageInfo) {
-        paletteEditor.setImageInfo(imageInfo);
-    }
-
-    public Component getContentPanel() {
-        return contentPanel;
-    }
-
-    protected AbstractButton createToggleButton(String s) {
+    public static AbstractButton createToggleButton(String s) {
         return ColorManipulationForm.createToggleButton(s);
     }
 
-    protected AbstractButton createButton(String s) {
+    public static AbstractButton createButton(String s) {
         return ColorManipulationForm.createButton(s);
     }
 }

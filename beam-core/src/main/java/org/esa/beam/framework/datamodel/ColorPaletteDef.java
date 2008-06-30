@@ -48,7 +48,6 @@ public class ColorPaletteDef implements Cloneable{
     private Vector<Point> points;
     private int numColors;
     private boolean discrete;
-    private boolean gradient;
 
     public ColorPaletteDef(double minSample, double maxSample) {
         this(minSample, 0.5F * (maxSample + minSample), maxSample);
@@ -63,38 +62,25 @@ public class ColorPaletteDef implements Cloneable{
     }
 
     public ColorPaletteDef(Point[] points) {
-        this(points, true);
-    }
-
-    public ColorPaletteDef(Point[] points, boolean discrete) {
-        this(points, discrete ? points.length : 256, discrete, !discrete);
+        this(points, 256);
     }
 
     public ColorPaletteDef(Point[] points, int numColors) {
-        this(points, numColors, false, true);
-    }
-
-    private ColorPaletteDef(Point[] points, int numColors, boolean discrete, boolean gradient) {
         Guardian.assertGreaterThan("numColors", numColors, 1);
         Guardian.assertNotNull("points", points);
         Guardian.assertGreaterThan("points.length", points.length, 1);
         this.numColors = numColors;
         this.points = new Vector<Point>(points.length);
         this.points.addAll(Arrays.asList(points));
-        this.discrete = discrete;
-        this.gradient = gradient;
-    }
-
-    public boolean isGradient() {
-        return gradient;
-    }
-
-    public void setGradient(boolean gradient) {
-        this.gradient = gradient;
+        this.discrete = false;
     }
 
     public boolean isDiscrete() {
         return discrete;
+    }
+
+    public void setDiscrete(boolean discrete) {
+        this.discrete = discrete;
     }
 
     public int getNumColors() {
@@ -102,11 +88,7 @@ public class ColorPaletteDef implements Cloneable{
     }
 
     public void setNumColors(int numColors) {
-        if (discrete) {
-            setNumPoints(numColors);
-        } else {
-            this.numColors = numColors;
-        }
+        this.numColors = numColors;
     }
 
     public int getNumPoints() {
@@ -136,7 +118,6 @@ public class ColorPaletteDef implements Cloneable{
 
     public void insertPointAfter(int index, Point point) {
         points.insertElementAt(point, index + 1);
-        maybeAdjustNumColors();
     }
 
     /**
@@ -158,7 +139,7 @@ public class ColorPaletteDef implements Cloneable{
             final double min = Math.min(point1.getSample(), point2.getSample());
             final double middle;
             middle = scaling.scale(0.5 * (scaling.scaleInverse(min) + scaling.scaleInverse(max)));
-            newPoint = new Point(middle, createCenterColor(point1, point2));
+            newPoint = new Point(middle, getCenterColor(point1.getColor(), point2.getColor()));
             insertPointAfter(index, newPoint);
             return true;
         }
@@ -166,28 +147,39 @@ public class ColorPaletteDef implements Cloneable{
     }
 
     /**
-     * creates the center color between the given two points
+     * Creates the center color between the colors of the given two points.
      *
-     * @param p1 the first point.
-     * @param p2 the last point.
+     * @param p1 1st point
+     * @param p2 2nd point
+     * @return the center color
+     * @deprecated since BEAM 4.2, use {@link #getCenterColor(java.awt.Color, java.awt.Color)}
+     */
+    @Deprecated
+    public static Color createCenterColor(Point p1, Point p2) {
+        return getCenterColor(p1.getColor(), p2.getColor());
+    }
+
+    /**
+     * Creates the center color between the given two colors.
+     *
+     * @param c1 1st color
+     * @param c2 2nd color
      * @return the center color
      */
-    public static Color createCenterColor(Point p1, Point p2) {
-        return new Color(0.5F * (p1.getColor().getRed() + p2.getColor().getRed()) / 255.0F,
-                         0.5F * (p1.getColor().getGreen() + p2.getColor().getGreen()) / 255.0F,
-                         0.5F * (p1.getColor().getBlue() + p2.getColor().getBlue()) / 255.0F);
+    public static Color getCenterColor(Color c1, Color c2) {
+        return new Color(0.5F * (c1.getRed() + c2.getRed()) / 255.0F,
+                         0.5F * (c1.getGreen() + c2.getGreen()) / 255.0F,
+                         0.5F * (c1.getBlue() + c2.getBlue()) / 255.0F);
     }
 
 
     public void removePointAt(int index) {
         check2PointsMinimum();
         points.remove(index);
-        maybeAdjustNumColors();
     }
 
     public void addPoint(Point point) {
         points.add(point);
-        maybeAdjustNumColors();
     }
 
     public Point[] getPoints() {
@@ -296,40 +288,19 @@ public class ColorPaletteDef implements Cloneable{
         }
     }
 
-    private void maybeAdjustNumColors() {
-        if (discrete) {
-            numColors = getNumPoints();
-        }
-    }
-
-    public Color[] createColourPalette(Scaling scaling) {
-        if (discrete) {
-            return createDiscreteColourLookup();
-        } else if (gradient) {
-            return createGradientColourPalette(scaling);
-        } else {
-            return createDiscreteColourPalette(scaling);
-        }
-    }
-
-    private Color[] createDiscreteColourLookup() {
-        final Color[] colors = new Color[numColors];
+    public Color[] getColors() {
+        final Color[] colors = new Color[points.size()];
         for (int i = 0; i < points.size(); i++) {
             colors[i] = points.get(i).getColor();
         }
         return colors;
     }
 
-    private Color[] createDiscreteColourPalette(Scaling scaling) {
-        return createColourPalette(scaling, false);
+    public Color[] createColorPalette(Scaling scaling) {
+        return createColourPalette(scaling);
     }
 
-
-    private Color[] createGradientColourPalette(Scaling scaling) {
-        return createColourPalette(scaling, true);
-    }
-
-    private Color[] createColourPalette(Scaling scaling, boolean gradient) {
+    private Color[] createColourPalette(Scaling scaling) {
         Debug.assertTrue(getNumPoints() >= 2);
         final int numColors = getNumColors();
         final Color[] colorPalette = new Color[numColors];
@@ -338,31 +309,33 @@ public class ColorPaletteDef implements Cloneable{
         for (int i = 0; i < numColors; i++) {
             final double w = i / (numColors - 1.0);
             final double sample = minDisplay + w * (maxDisplay - minDisplay);
-            colorPalette[i] = computeColor(scaling, sample, minDisplay, maxDisplay, gradient);
+            colorPalette[i] = computeColor(scaling, sample, minDisplay, maxDisplay);
         }
         return colorPalette;
     }
 
-    private Color computeColor(Scaling scaling, double sample, double minDisplay, double maxDisplay, boolean gradient) {
+    private Color computeColor(Scaling scaling, double sample, double minDisplay, double maxDisplay) {
         final Color c;
         if (sample <= minDisplay) {
             c = getFirstPoint().getColor();
         } else if (sample >= maxDisplay) {
             c = getLastPoint().getColor();
         } else {
-            c = computeColor(scaling, sample, gradient);
+            c = computeColor(scaling, sample);
         }
         return c;
     }
 
-    private Color computeColor(final Scaling scaling, final double sample, boolean gradient) {
+    private Color computeColor(final Scaling scaling, final double sample) {
         for (int i = 0; i < getNumPoints() - 1; i++) {
             final Point p1 = getPointAt(i);
             final Point p2 = getPointAt(i + 1);
             final double sample1 = scaling.scaleInverse(p1.getSample());
             final double sample2 = scaling.scaleInverse(p2.getSample());
             if (sample >= sample1 && sample <= sample2) {
-                if (gradient) {
+                if (discrete) {
+                    return p1.getColor();
+                } else {
                     final double f = (sample - sample1) / (sample2 - sample1);
                     final double r1 = p1.getColor().getRed();
                     final double r2 = p2.getColor().getRed();
@@ -374,8 +347,6 @@ public class ColorPaletteDef implements Cloneable{
                     final int green = (int) MathUtils.roundAndCrop(g1 + f * (g2 - g1), 0L, 255L);
                     final int blue = (int) MathUtils.roundAndCrop(b1 + f * (b2 - b1), 0L, 255L);
                     return new Color(red, green, blue);
-                } else {
-                    return p1.getColor();
                 }
             }
         }

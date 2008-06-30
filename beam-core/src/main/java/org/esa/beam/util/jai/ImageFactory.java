@@ -67,10 +67,6 @@ public class ImageFactory {
             final RasterDataNode raster = rasterDataNodes[i];
             PlanarImage planarImage = PlanarImage.wrapRenderedImage(raster.getImage());
 
-            if (raster.getImageInfo().getSampleToIndexMap() != null) {
-                planarImage = JAIUtils.createIndexedImage(planarImage, raster.getImageInfo().getSampleToIndexMap(),
-                                                          raster.getImageInfo().getColorPaletteDef().getNumPoints()-1);
-            } else {
                 final double newMin = raster.scaleInverse(raster.getImageInfo().getMinDisplaySample());
                 final double newMax = raster.scaleInverse(raster.getImageInfo().getMaxDisplaySample());
                 final double gamma = 1.0; //imageInfo.getGamma();  // todo - use gamma
@@ -80,7 +76,6 @@ public class ImageFactory {
                                                        255.0 * newMin / (newMin - newMax));
                 planarImage = JAIUtils.createFormatOp(planarImage,
                                                       DataBuffer.TYPE_BYTE);
-            }
             sourceImages[i] = planarImage;
             checkCanceled(pm);
             pm.worked(100);
@@ -169,9 +164,8 @@ public class ImageFactory {
         for (int i = 0; i < frequencyCounts.length; i++) {
             frequencyCounts[i] = (int)(100*Math.random()); // todo - use planarImage
         }
-        final ColorPaletteDef def = new ColorPaletteDef(points, true);
+        final ColorPaletteDef def = new ColorPaletteDef(points);
         final ImageInfo imageInfo = new ImageInfo(sampleMin, sampleMax, frequencyCounts, def);
-        imageInfo.setSampleToIndexMap(sampleToIndexMap);
         return imageInfo;
     }
 
@@ -188,7 +182,7 @@ public class ImageFactory {
         PlanarImage image;
         if (rasterDataNodes.length == 1) {
             final RasterDataNode raster = rasterDataNodes[0];
-            final Color[] palette = raster.getImageInfo().getColorPalette();
+            final Color[] palette = raster.getImageInfo().createColorPalette();
             final byte[][] lutData = new byte[3][palette.length];
             for (int i = 0; i < palette.length; i++) {
                 lutData[0][i] = (byte) palette[i].getRed();

@@ -9,15 +9,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.beans.PropertyChangeListener;
 
 class NoDataColorForm {
     static final String NO_DATA_COLOR_PROPERTY = "noDataColor";
 
-    private ValueContainer valueContainer;
     private JPanel contentPanel;
     private ColorComboBoxBinding noDataColorBinding;
-    @SuppressWarnings({"UnusedDeclaration"})
-    private Color noDataColor;
 
     NoDataColorForm() {
         JLabel label = new JLabel("No-data color:");
@@ -25,13 +23,13 @@ class NoDataColorForm {
         noDataColorComboBox.setColorValueVisible(false);
         noDataColorComboBox.setAllowDefaultColor(true);
 
-        valueContainer = new ValueContainer();
-        valueContainer.addModel(ValueModel.create(this, NO_DATA_COLOR_PROPERTY));
+        ValueContainer valueContainer = new ValueContainer();
+        valueContainer.addModel(ValueModel.create(NO_DATA_COLOR_PROPERTY, Color.class));
 
         BindingContext context = new BindingContext(valueContainer);
         noDataColorBinding = new ColorComboBoxBinding(context, noDataColorComboBox, NO_DATA_COLOR_PROPERTY);
-        noDataColorBinding.adjustComponents();
         noDataColorBinding.attachSecondaryComponent(label);
+        noDataColorBinding.adjustComponents();
 
         contentPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 2, 2));
         contentPanel.add(label);
@@ -46,19 +44,15 @@ class NoDataColorForm {
         noDataColorBinding.setValue(color);
     }
 
-    public boolean isNoDataColorUsed() {
-        return getNoDataColor() != null;
-    }
-
-    public ValueContainer getValueContainer() {
-        return valueContainer;
-    }
-
     public JPanel getContentPanel() {
         return contentPanel;
     }
 
-    public void enable(boolean enabled) {
+    public void setEnabled(boolean enabled) {
         noDataColorBinding.setComponentsEnabledState(enabled);
+    }
+
+    public void addPropertyChangeListener(PropertyChangeListener propertyChangeListener) {
+        noDataColorBinding.getContext().getValueContainer().addPropertyChangeListener(propertyChangeListener);
     }
 }

@@ -550,9 +550,8 @@ public class DimapProductHelpers {
         if (rootElement != null) {
             imageInterpretation = rootElement.getChild(DimapProductConstants.TAG_IMAGE_INTERPRETATION);
         }
-        final List spectralBandInfos = imageInterpretation.getChildren(DimapProductConstants.TAG_SPECTRAL_BAND_INFO);
-        for (Iterator iterator = spectralBandInfos.iterator(); iterator.hasNext();) {
-            final Element bandInfo = (Element) iterator.next();
+        final List<Element> spectralBandInfos = imageInterpretation.getChildren(DimapProductConstants.TAG_SPECTRAL_BAND_INFO);
+        for (Element bandInfo : spectralBandInfos) {
             final String actualBandIndex = bandInfo.getChildTextTrim(DimapProductConstants.TAG_BAND_INDEX);
             if (index.equals(actualBandIndex)) {
                 return bandInfo.getChildTextTrim(DimapProductConstants.TAG_BAND_NAME);
@@ -944,52 +943,44 @@ public class DimapProductHelpers {
                 if (bandName != null) { // todo - check why this happens
                     final Band band = product.getBand(bandName);
                     if (band != null) {
-                        band.setImageInfo(createBasicDisplayInfo(bandStatisticsElem));
+                        band.setStx(createStx(bandStatisticsElem));
+                        band.setImageInfo(createImageInfo(bandStatisticsElem));
                     }
                 }
             }
         }
 
-        private static ImageInfo createBasicDisplayInfo(Element bandStatisticsElem) {
-            final ColorPaletteDef.Point[] points = getColorPalettePoins(bandStatisticsElem);
+        private static RasterDataNode.Stx createStx(Element bandStatisticsElem) {
+            final Double minSample = getSample(bandStatisticsElem, DimapProductConstants.TAG_STX_MIN);
+            final Double maxSample = getSample(bandStatisticsElem, DimapProductConstants.TAG_STX_MAX);
             final int[] bins = getHistogramBins(bandStatisticsElem);
+            if (minSample != null && maxSample != null) {
+                return new RasterDataNode.Stx(minSample, maxSample, bins);
+            }
+            return null;
+        }
+
+        private static ImageInfo createImageInfo(Element bandStatisticsElem) {
+            final ColorPaletteDef.Point[] points = getColorPalettePoins(bandStatisticsElem);
             final int numColors = getNumColors(bandStatisticsElem);
-            final float minSample = getSample(bandStatisticsElem, DimapProductConstants.TAG_STX_MIN);
-            final float maxSample = getSample(bandStatisticsElem, DimapProductConstants.TAG_STX_MAX);
-            ImageInfo imageInfo = null;
-            if (Float.compare(minSample, Float.NaN) != 0 && Float.compare(maxSample, Float.NaN) != 0) {
-                imageInfo = new ImageInfo(minSample, maxSample, bins, new ColorPaletteDef(points, numColors));
-            } else {
-                BeamLogManager.getSystemLogger().severe("could not create image info");
-            }
-            if (imageInfo != null) {
-                setGamma(bandStatisticsElem, imageInfo);
-            }
-            return imageInfo;
+            return new ImageInfo(new ColorPaletteDef(points, numColors));
         }
 
-        private static void setGamma(Element bandStatisticsElem, final ImageInfo imageInfo) {
-            final float gamma = getSample(bandStatisticsElem, DimapProductConstants.TAG_GAMMA);
-            if (Float.compare(gamma, Float.NaN) != 0) {
-                imageInfo.setGamma(gamma);
-            }
-        }
-
-        private static float getSample(Element bandStatisticsElem, String tag) {
+        private static Double getSample(Element bandStatisticsElem, String tag) {
             final String sampleStr = bandStatisticsElem.getChildTextTrim(tag);
             if (sampleStr != null) {
                 try {
-                    return Float.parseFloat(sampleStr);
+                    return Double.parseDouble(sampleStr);
                 } catch (NumberFormatException e) {
                     BeamLogManager.getSystemLogger().severe(
                             "Number format exception at reading DIMAP product tag '" + tag + "'");
                     BeamLogManager.getSystemLogger().log(Level.SEVERE,
                                                          "Number format exception at reading DIMAP product tag '" + tag + "'",
                                                          e);
-                    return Float.NaN;
+                    return null;
                 }
             } else {
-                return Float.NaN;
+                return null;
             }
         }
 
@@ -1005,6 +996,9 @@ public class DimapProductHelpers {
 
         private static int[] getHistogramBins(Element bandStatisticsElem) {
             final String histogramValues = bandStatisticsElem.getChildTextTrim(DimapProductConstants.TAG_HISTOGRAM);
+            if (StringUtils.isNullOrEmpty(histogramValues)) {
+                return null;
+            }
             return StringUtils.toIntArray(histogramValues, null);
         }
 

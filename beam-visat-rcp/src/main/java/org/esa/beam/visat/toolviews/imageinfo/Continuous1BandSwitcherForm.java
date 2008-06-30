@@ -8,20 +8,20 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-class Continuous1BandSwitcherForm implements ImageInfoEditor {
+class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
 
     private final ColorManipulationForm parentForm;
     private JPanel contentPanel;
     private JRadioButton graphicalButton;
     private JRadioButton tabularButton;
-    private JCheckBox gradientPaletteCheckBox;
-    private ImageInfoEditor imageInfoEditor;
+    private JCheckBox discreteColorsCheckBox;
+    private ColorManipulationChildForm childForm;
     private Continuous1BandTabularForm tabularPaletteEditorForm;
     private Continuous1BandGraphicalForm graphicalPaletteEditorForm;
 
     protected Continuous1BandSwitcherForm(final ColorManipulationForm parentForm) {
         this.parentForm = parentForm;
-        imageInfoEditor = EmptyPaletteEditorForm.INSTANCE;
+        childForm = EmptyImageInfoForm.INSTANCE;
         graphicalButton = new JRadioButton("Sliders");
         tabularButton = new JRadioButton("Table");
         final ButtonGroup editorGroup = new ButtonGroup();
@@ -31,10 +31,10 @@ class Continuous1BandSwitcherForm implements ImageInfoEditor {
         final SwitcherActionListener switcherActionListener = new SwitcherActionListener();
         graphicalButton.addActionListener(switcherActionListener);
         tabularButton.addActionListener(switcherActionListener);
-        gradientPaletteCheckBox = new JCheckBox("Gradient");
-        gradientPaletteCheckBox.addActionListener(new ActionListener() {
+        discreteColorsCheckBox = new JCheckBox("Discrete colors");
+        discreteColorsCheckBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-              setDiscreteMode();
+              setDiscreteColorsMode();
             }
         });
 
@@ -45,37 +45,42 @@ class Continuous1BandSwitcherForm implements ImageInfoEditor {
 
         final JPanel northPanel = new JPanel(new BorderLayout(2,2));
         northPanel.add(editorSwitcherPanel, BorderLayout.WEST);
-        northPanel.add(gradientPaletteCheckBox, BorderLayout.EAST);
+        northPanel.add(discreteColorsCheckBox, BorderLayout.EAST);
 
         contentPanel = new JPanel(new BorderLayout());
         contentPanel.add(northPanel, BorderLayout.NORTH);
     }
 
-    public void performReset(ProductSceneView productSceneView) {
-        imageInfoEditor.performReset(productSceneView);
-    }
-
-    public ImageInfo getImageInfo() {
-        return imageInfoEditor.getImageInfo();
-    }
-
-    public void setImageInfo(ImageInfo imageInfo) {
-        imageInfoEditor.setImageInfo(imageInfo);
-    }
-
+    @Override
     public void handleFormShown(ProductSceneView productSceneView) {
-        imageInfoEditor.handleFormShown(productSceneView);
+        switchForm(productSceneView);
+        ImageInfo imageInfo = parentForm.getImageInfo();
+        if (imageInfo != null) {
+            discreteColorsCheckBox.setSelected(imageInfo.getColorPaletteDef().isDiscrete());
+        }
     }
 
-    private void setDiscreteMode() {
-        imageInfoEditor.getImageInfo().getColorPaletteDef().setGradient(gradientPaletteCheckBox.isSelected());
-        imageInfoEditor.getContentPanel().repaint();
+    @Override
+    public void handleFormHidden(ProductSceneView productSceneView) {
+        childForm.handleFormHidden(productSceneView);
+    }
+
+    @Override
+    public void updateFormModel(ProductSceneView productSceneView) {
+        childForm.updateFormModel(productSceneView);
+    }
+
+    private void setDiscreteColorsMode() {
+        parentForm.getImageInfo().getColorPaletteDef().setDiscrete(discreteColorsCheckBox.isSelected());
+        if (childForm == graphicalPaletteEditorForm) {
+            graphicalPaletteEditorForm.getImageInfoEditor().getModel().fireStateChanged();
+        }
         parentForm.setApplyEnabled(true);
     }
 
     private void switchForm(ProductSceneView productSceneView) {
-        final ImageInfoEditor oldForm = imageInfoEditor;
-        final ImageInfoEditor newForm;
+        final ColorManipulationChildForm oldForm = childForm;
+        final ColorManipulationChildForm newForm;
         if (tabularButton.isSelected()) {
             if (tabularPaletteEditorForm == null) {
                 tabularPaletteEditorForm = new Continuous1BandTabularForm(parentForm);
@@ -88,57 +93,30 @@ class Continuous1BandSwitcherForm implements ImageInfoEditor {
             newForm = graphicalPaletteEditorForm;
         }
         if (oldForm != newForm) {
-            oldForm.handleFormHidden();
+            oldForm.handleFormHidden(productSceneView);
 
-            imageInfoEditor = newForm;
-            imageInfoEditor.handleFormShown(productSceneView);
-
-            ImageInfo oldImageInfo = oldForm.getImageInfo();
-            if (oldImageInfo == null) { 
-                // here: oldForm == instanceof EmptyForm
-                oldImageInfo = productSceneView.getRaster().getImageInfo();
-            }
-            imageInfoEditor.setImageInfo(oldImageInfo);
+            childForm = newForm;
+            childForm.handleFormShown(productSceneView);
 
             contentPanel.remove(oldForm.getContentPanel());
-            contentPanel.add(imageInfoEditor.getContentPanel(), BorderLayout.CENTER);
+            contentPanel.add(childForm.getContentPanel(), BorderLayout.CENTER);
 
-            parentForm.installSpecificFormUI();
+            parentForm.installButtons();
+            parentForm.revalidateToolViewPaneControl();
         }
     }
 
     public AbstractButton[] getButtons() {
-        return imageInfoEditor.getButtons();
-    }
-
-    public void updateState(ProductSceneView productSceneView) {
-        switchForm(productSceneView);
-        imageInfoEditor.updateState(productSceneView);
-        ImageInfo imageInfo = productSceneView.getRaster().getImageInfo();
-        if (imageInfo != null) {
-            gradientPaletteCheckBox.setSelected(imageInfo.getColorPaletteDef().isGradient());
-        }
+        return childForm.getButtons();
     }
 
     public Component getContentPanel() {
         return contentPanel;
     }
 
-    public void performApply(ProductSceneView productSceneView) {
-        imageInfoEditor.performApply(productSceneView);
-    }
-
-    public String getTitle(ProductSceneView productSceneView) {
-        return imageInfoEditor.getTitle(productSceneView);
-    }
-
-    public void handleFormHidden() {
-        imageInfoEditor.handleFormHidden();
-    }
-
     private class SwitcherActionListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            updateState(parentForm.getProductSceneView());
+            switchForm(parentForm.getProductSceneView());
         }
     }
 }

@@ -292,14 +292,16 @@ public final class DimapHeaderWriter extends XmlWriter {
                 final String[] bsTags = createTags(indent + 1, DimapProductConstants.TAG_BAND_STATISTICS);
                 sXmlW.println(bsTags[0]);
                 sXmlW.printLine(indent + 2, DimapProductConstants.TAG_BAND_INDEX, i);
-                sXmlW.printLine(indent + 2, DimapProductConstants.TAG_STX_MIN, imageInfo.getMinSample());
-                sXmlW.printLine(indent + 2, DimapProductConstants.TAG_STX_MAX, imageInfo.getMaxSample());
-                final int[] bins = imageInfo.getHistogramBins();
-                if (bins != null && bins.length > 0) {
-                    sXmlW.printLine(indent + 2, DimapProductConstants.TAG_HISTOGRAM, StringUtils.arrayToCsv(bins));
+                if (band.getStx() != null) {
+                    sXmlW.printLine(indent + 2, DimapProductConstants.TAG_STX_MIN, band.scale(band.getStx().getMinSample()));
+                    sXmlW.printLine(indent + 2, DimapProductConstants.TAG_STX_MAX, band.scale(band.getStx().getMaxSample()));
+                    final int[] bins = band.getStx().getSampleFrequencies();
+                    if (bins != null && bins.length > 0) {
+                        sXmlW.printLine(indent + 2, DimapProductConstants.TAG_HISTOGRAM, StringUtils.arrayToCsv(bins));
+                    }
                 }
-                sXmlW.printLine(indent + 2, DimapProductConstants.TAG_NUM_COLORS, imageInfo.getNumColors());
                 final ColorPaletteDef paletteDefinition = imageInfo.getColorPaletteDef();
+                sXmlW.printLine(indent + 2, DimapProductConstants.TAG_NUM_COLORS, paletteDefinition.getNumColors());
                 final Iterator iterator = paletteDefinition.getIterator();
                 while (iterator.hasNext()) {
                     final ColorPaletteDef.Point point = (ColorPaletteDef.Point) iterator.next();
@@ -309,7 +311,8 @@ public final class DimapHeaderWriter extends XmlWriter {
                     XmlHelper.printColorTag(indent + 3, point.getColor(), sXmlW);
                     sXmlW.println(cppTags[1]);
                 }
-                sXmlW.printLine(indent + 2, DimapProductConstants.TAG_GAMMA, imageInfo.getGamma());
+                 // todo - update DIMAP format due to imageInfo API changes (nf/mp 30.06.2008)
+                sXmlW.printLine(indent + 2, DimapProductConstants.TAG_GAMMA, 1.0);
                 sXmlW.println(bsTags[1]);
             }
         }

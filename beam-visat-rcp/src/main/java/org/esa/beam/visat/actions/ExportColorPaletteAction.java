@@ -79,7 +79,7 @@ public class ExportColorPaletteAction extends ExecCommand {
 
     @Override
     public void updateState(CommandEvent event) {
-        setEnabled(getSelectedColorPalette() != null);
+        setEnabled(getSelectedImageInfo() != null);
 
     }
 
@@ -94,7 +94,7 @@ public class ExportColorPaletteAction extends ExecCommand {
 
     private static void writeColorPalette(RasterDataNode raster, FileWriter writer) throws IOException {
         ImageInfo imageInfo = raster.getImageInfo();
-        Color[] colorPalette = imageInfo.getColorPalette();
+        Color[] colorPalette = imageInfo.createColorPalette();
         double s1 = imageInfo.getColorPaletteDef().getFirstPoint().getSample();
         double s2 = imageInfo.getColorPaletteDef().getLastPoint().getSample();
         int numColors = colorPalette.length;
@@ -127,15 +127,6 @@ public class ExportColorPaletteAction extends ExecCommand {
         }
         return null;
     }
-
-    private static Color[] getSelectedColorPalette() {
-        ImageInfo imageInfo = getSelectedImageInfo();
-        if (imageInfo != null) {
-            return imageInfo.getColorPalette();
-        }
-        return null;
-    }
-
 
     private static PropertyMap getPreferences() {
         return getVisatApp().getPreferences();
