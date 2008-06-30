@@ -60,8 +60,10 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
 
     @Override
     public void handleFormHidden(ProductSceneView productSceneView) {
-        imageInfoEditor.getModel().removeChangeListener(applyEnablerCL);
-        imageInfoEditor.setModel(null);
+        if (imageInfoEditor.getModel() != null) {  // todo
+            imageInfoEditor.getModel().removeChangeListener(applyEnablerCL);
+            imageInfoEditor.setModel(null);
+        }
         final Product product = productSceneView.getProduct();
         for (ProductNodeListener listener : product.getProductNodeListeners()) {
             if (listener instanceof ModelUpdaterPNL) {

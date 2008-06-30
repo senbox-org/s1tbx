@@ -137,8 +137,9 @@ class ColorManipulationForm {
     }
 
     private void setProductSceneView(final ProductSceneView productSceneView) {
-        if (this.productSceneView != null) {
-            this.productSceneView.getProduct().removeProductNodeListener(productNodeListener);
+        ProductSceneView productSceneViewOld = this.productSceneView;
+        if (productSceneViewOld != null) {
+            productSceneViewOld.getProduct().removeProductNodeListener(productNodeListener);
         }
         this.productSceneView = productSceneView;
         if (this.productSceneView != null) {
@@ -149,7 +150,7 @@ class ColorManipulationForm {
             setImageInfoCopy(this.productSceneView.getScene().getImageInfo());
         }
 
-        installChildForm();
+        installChildForm(productSceneViewOld);
 
         final boolean enabled = this.productSceneView != null;
         resetButton.setEnabled(enabled);
@@ -171,7 +172,7 @@ class ColorManipulationForm {
         }
     }
 
-    private void installChildForm() {
+    private void installChildForm(ProductSceneView productSceneViewOld) {
         final ColorManipulationChildForm oldForm = childForm;
         ColorManipulationChildForm newForm = EmptyImageInfoForm.INSTANCE;
         if (productSceneView != null) {
@@ -214,7 +215,7 @@ class ColorManipulationForm {
             revalidateToolViewPaneControl();
 
             if (oldForm != null) {
-                oldForm.handleFormHidden(productSceneView);
+                oldForm.handleFormHidden(productSceneViewOld);
             }
             childForm.handleFormShown(productSceneView);
         }
@@ -716,11 +717,7 @@ class ColorManipulationForm {
         @Override
         public void internalFrameActivated(final InternalFrameEvent e) {
             final ProductSceneView view = getProductSceneViewByFrame(e);
-            if (view != null) {
-                setProductSceneView(view);
-            } else {
-                setProductSceneView(null);
-            }
+            setProductSceneView(view);
         }
 
         @Override
