@@ -17,6 +17,7 @@
 package org.esa.beam.visat.toolviews.imageinfo;
 
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import com.bc.ceres.core.ProgressMonitor;
 import org.esa.beam.BeamUiActivator;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.help.HelpSys;
@@ -339,7 +340,7 @@ class ColorManipulationForm {
         contentPanel.add(buttonsPanel, BorderLayout.EAST);
 
         installHelp();
-        this.suppressibleOptionPane = visatApp.getSuppressibleOptionPane();
+        suppressibleOptionPane = visatApp.getSuppressibleOptionPane();
 
         setProductSceneView(visatApp.getSelectedProductSceneView());
 
@@ -357,11 +358,11 @@ class ColorManipulationForm {
         });
     }
 
-    private void installHelp() {
-        if (getToolViewDescriptor().getHelpId() != null) {
-            HelpSys.enableHelpOnButton(helpButton, getToolViewDescriptor().getHelpId());
-            HelpSys.enableHelpKey(getToolViewPaneControl(), getToolViewDescriptor().getHelpId());
-        }
+
+    public void setApplyEnabled(final boolean enabled) {
+        final boolean canApply = productSceneView != null;
+        applyButton.setEnabled(canApply && enabled);
+        multiApplyButton.setEnabled(canApply && (!enabled && (!isRgbMode() && visatApp != null)));
     }
 
     void installButtons() {
@@ -404,6 +405,13 @@ class ColorManipulationForm {
         buttonsPanel.add(helpButton, gbc);
     }
 
+    private void installHelp() {
+        if (getToolViewDescriptor().getHelpId() != null) {
+            HelpSys.enableHelpOnButton(helpButton, getToolViewDescriptor().getHelpId());
+            HelpSys.enableHelpKey(getToolViewPaneControl(), getToolViewDescriptor().getHelpId());
+        }
+    }
+
     public void showMessageDialog(String propertyName, String message, String title) {
         suppressibleOptionPane.showMessageDialog(propertyName,
                                                  getToolViewPaneControl(),
@@ -436,15 +444,10 @@ class ColorManipulationForm {
         this.imageInfo = imageInfo.createDeepCopy();
     }
 
-    public void setApplyEnabled(final boolean enabled) {
-        final boolean canApply = productSceneView != null;
-        applyButton.setEnabled(canApply && enabled);
-        multiApplyButton.setEnabled(canApply && (!enabled && (!isRgbMode() && visatApp != null)));
-    }
-
     private void resetToDefaults() {
         if (productSceneView != null) {
             setDefaultImageInfo(productSceneView.getRaster());
+            childForm.updateFormModel(getProductSceneView());
             applyButton.setEnabled(true);
         }
     }
@@ -556,7 +559,9 @@ class ColorManipulationForm {
                 try {
                     final ColorPaletteDef colorPaletteDef = ColorPaletteDef.loadColorPaletteDef(file);
                     imageInfo.transferColorPaletteDef(colorPaletteDef, false);
-                    applyChanges();
+                    setImageInfoCopy(imageInfo);
+                    childForm.updateFormModel(getProductSceneView());
+                    setApplyEnabled(true);
                 } catch (IOException e) {
                     showErrorDialog("Failed to import color palette definition.\n" + e.getMessage());
                 }
@@ -620,7 +625,7 @@ class ColorManipulationForm {
         final ResourceInstaller resourceInstaller = new ResourceInstaller(codeSourceUrl, "auxdata/color_palettes/", auxdataDir);
         ProgressMonitorSwingWorker swingWorker = new ProgressMonitorSwingWorker(toolView.getPaneControl(), "Installing Auxdata...") {
             @Override
-            protected Object doInBackground(com.bc.ceres.core.ProgressMonitor progressMonitor) throws Exception {
+            protected Object doInBackground(ProgressMonitor progressMonitor) throws Exception {
                 resourceInstaller.install(".*.cpd", progressMonitor);
                 defaultColorPalettesInstalled = true;
                 return Boolean.TRUE;
@@ -663,13 +668,13 @@ class ColorManipulationForm {
         }
     }
 
-    public void setDefaultImageInfo(RasterDataNode raster) {
-//        childForm.setImageInfo(createDefaultImageInfo(raster));
+    private void setDefaultImageInfo(RasterDataNode raster) {
+        setImageInfoCopy(createDefaultImageInfo(raster));
     }
 
     public ImageInfo createDefaultImageInfo(RasterDataNode raster) {
         try {
-            return raster.createDefaultImageInfo(null, com.bc.ceres.core.ProgressMonitor.NULL);
+            return raster.createDefaultImageInfo(null, ProgressMonitor.NULL);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(getContentPanel(),
                                           "Failed to create image information for '" +
