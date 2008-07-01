@@ -13,6 +13,7 @@ import java.awt.Window;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -26,6 +27,7 @@ public class BindingContext {
 
     private final ValueContainer valueContainer;
     private BindingContext.ErrorHandler errorHandler;
+    private Map<String, Binding> bindingMap;
 
     public BindingContext(ValueContainer valueContainer) {
         this(valueContainer, new BindingContext.DefaultErrorHandler());
@@ -34,6 +36,7 @@ public class BindingContext {
     public BindingContext(ValueContainer valueContainer, BindingContext.ErrorHandler errorHandler) {
         this.valueContainer = valueContainer;
         this.errorHandler = errorHandler;
+        this.bindingMap = new HashMap<String, Binding>(17);
     }
 
     public ValueContainer getValueContainer() {
@@ -48,38 +51,55 @@ public class BindingContext {
         this.errorHandler = errorHandler;
     }
 
-    public Binding bind(final JTextField textField, final String propertyName) {
-        configureComponent(textField, propertyName);
+    public Binding getBinding(String propertyName) {
+        return bindingMap.get(propertyName);
+    }
+
+    public Binding addBinding(Binding binding) {
+        return bindingMap.put(binding.getName(), binding);
+    }
+
+    public Binding removeBinding(String propertyName) {
+        return bindingMap.remove(propertyName);
+    }
+
+    public Binding bind(final String propertyName, final JTextField textField) {
+        configureComponent(propertyName, textField);
         Binding binding = new TextFieldBinding(this, textField, propertyName);
+        addBinding(binding);
         binding.adjustComponents();
         return binding;
     }
 
-    public Binding bind(final JFormattedTextField textField, final String propertyName) {
-        configureComponent(textField, propertyName);
+    public Binding bind(final String propertyName, final JFormattedTextField textField) {
+        configureComponent(propertyName, textField);
         Binding binding = new FormattedTextFieldBinding(this, textField, propertyName);
+        addBinding(binding);
         binding.adjustComponents();
         return binding;
     }
 
-    public Binding bind(final JCheckBox checkBox, final String propertyName) {
-        configureComponent(checkBox, propertyName);
-        Binding binding = new CheckBoxBinding(this, propertyName, checkBox);
+    public Binding bind(final String propertyName, final JCheckBox checkBox) {
+        configureComponent(propertyName, checkBox);
+        Binding binding = new AbstractButtonBinding(this, propertyName, checkBox);
+        addBinding(binding);
         binding.adjustComponents();
         return binding;
     }
 
-    public Binding bind(JRadioButton radioButton, String propertyName) {
-        configureComponent(radioButton, propertyName);
-        Binding binding = new RadioButtonBinding(this, propertyName, radioButton);
+    public Binding bind(String propertyName, JRadioButton radioButton) {
+        configureComponent(propertyName, radioButton);
+        Binding binding = new AbstractButtonBinding(this, propertyName, radioButton);
+        addBinding(binding);
         binding.adjustComponents();
         return binding;
     }
 
-    public Binding bind(final JList list, final String propertyName, final boolean selectionIsValue) {
+    public Binding bind(final String propertyName, final JList list, final boolean selectionIsValue) {
         if (selectionIsValue) {
-            configureComponent(list, propertyName);
+            configureComponent(propertyName, list);
             Binding binding = new ListSelectionBinding(this, list, propertyName);
+            addBinding(binding);
             binding.adjustComponents();
             return binding;
         } else {
@@ -87,42 +107,60 @@ public class BindingContext {
         }
     }
 
-    public Binding bind(final JSpinner spinner, final String propertyName) {
-        configureComponent(spinner, propertyName);
+    public Binding bind(final String propertyName, final JSpinner spinner) {
+        configureComponent(propertyName, spinner);
         Binding binding = new SpinnerBinding(this, propertyName, spinner);
+        addBinding(binding);
         binding.adjustComponents();
         return binding;
     }
 
-    public Binding bind(final JComboBox comboBox, final String propertyName) {
-        configureComponent(comboBox, propertyName);
+    public Binding bind(final String propertyName, final JComboBox comboBox) {
+        configureComponent(propertyName, comboBox);
         Binding binding = new ComboBoxBinding(this, propertyName, comboBox);
+        addBinding(binding);
         binding.adjustComponents();
         return binding;
     }
 
-    public Binding bind(final ButtonGroup buttonGroup, final String propertyName) {
-        return bind(buttonGroup, propertyName,
-                    ButtonGroupBinding.createButtonToValueMap(buttonGroup, getValueContainer(), propertyName));
+    public Binding bind(final String propertyName, final ButtonGroup buttonGroup) {
+        return bind(propertyName, buttonGroup, ButtonGroupBinding.createButtonToValueMap(buttonGroup, getValueContainer(), propertyName));
     }
 
-    public Binding bind(final ButtonGroup buttonGroup, final String propertyName,
-                        final Map<AbstractButton, Object> propertyValues) {
-        Binding binding = new ButtonGroupBinding(this, buttonGroup, propertyName, propertyValues);
+    public Binding bind(final String propertyName, final ButtonGroup buttonGroup, final Map<AbstractButton, Object> valueSet) {
+        Binding binding = new ButtonGroupBinding(this, buttonGroup, propertyName, valueSet);
+        addBinding(binding);
         binding.adjustComponents();
         return binding;
     }
 
-    public void enable(final JComponent component, final String propertyName, final Object propertyCondition) {
-        bindEnabling(component, propertyName, propertyCondition, true);
+    public void enable(final String propertyName, final JComponent component, final Object propertyCondition) {
+        bindEnabling(propertyName, component, propertyCondition, true);
     }
 
-    public void disable(final JComponent component, final String propertyName, final Object propertyCondition) {
-        bindEnabling(component, propertyName, propertyCondition, false);
+    public void disable(final String propertyName, final JComponent component, final Object propertyCondition) {
+        bindEnabling(propertyName, component, propertyCondition, false);
+    }
+
+    public void addPropertyChangeListener(PropertyChangeListener l) {
+        valueContainer.addPropertyChangeListener(l);
+    }
+
+    public void addPropertyChangeListener(String name, PropertyChangeListener l) {
+        valueContainer.addPropertyChangeListener(name, l);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener l) {
+        valueContainer.removePropertyChangeListener(l);
+    }
+
+    public void removePropertyChangeListener(String name, PropertyChangeListener l) {
+        valueContainer.removePropertyChangeListener(name, l);
     }
 
     /**
      * Delegates the call to the error handler.
+     *
      * @param exception The error.
      * @param component The Swing component in which the error occured.
      * @see #getErrorHandler()
@@ -132,7 +170,7 @@ public class BindingContext {
         errorHandler.handleError(exception, component);
     }
 
-    private void configureComponent(JComponent component, String propertyName) {
+    private void configureComponent(String propertyName, JComponent component) {
         Assert.notNull(component, "component");
         Assert.notNull(propertyName, "propertyName");
         final ValueModel valueModel = valueContainer.getModel(propertyName);
@@ -160,22 +198,22 @@ public class BindingContext {
     }
 
 
-    private void bindEnabling(final JComponent component,
-                              final String propertyName,
+    private void bindEnabling(final String propertyName,
+                              final JComponent component,
                               final Object propertyCondition,
                               final boolean componentEnabled) {
         valueContainer.addPropertyChangeListener(propertyName, new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
-                setEnabled(component, propertyName, propertyCondition, componentEnabled);
+                setEnabled(propertyName, component, propertyCondition, componentEnabled);
             }
         });
-        setEnabled(component, propertyName, propertyCondition, componentEnabled);
+        setEnabled(propertyName, component, propertyCondition, componentEnabled);
     }
 
-    private void setEnabled(JComponent component,
-                            String propertyName,
-                            Object propertyCondition,
-                            boolean componentEnabled) {
+    private void setEnabled(final String propertyName,
+                            final JComponent component,
+                            final Object propertyCondition,
+                            final boolean componentEnabled) {
         Object propertyValue = valueContainer.getValue(propertyName);
         boolean conditionIsTrue = propertyValue == propertyCondition
                 || (propertyValue != null && propertyValue.equals(propertyCondition));
@@ -187,7 +225,7 @@ public class BindingContext {
         void handleError(Exception exception, JComponent component);
     }
 
-    public static class DefaultErrorHandler implements BindingContext.ErrorHandler {
+    private static class DefaultErrorHandler implements BindingContext.ErrorHandler {
 
         public void handleError(Exception exception, JComponent component) {
             Window window = component != null ? SwingUtilities.windowForComponent(component) : null;
@@ -203,6 +241,4 @@ public class BindingContext {
             }
         }
     }
-
-
 }

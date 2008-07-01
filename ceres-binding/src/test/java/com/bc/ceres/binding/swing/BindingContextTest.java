@@ -44,7 +44,7 @@ public class BindingContextTest extends TestCase {
 
     public void testBindSpinner() throws ValidationException {
         JSpinner spinner = new JSpinner();
-        Binding binding = bindingContextVB.bind(spinner, "intValue");
+        Binding binding = bindingContextVB.bind("intValue", spinner);
         assertNotNull(binding);
         assertSame(spinner, binding.getPrimaryComponent());
         assertNotNull(binding.getSecondaryComponents());
@@ -62,7 +62,7 @@ public class BindingContextTest extends TestCase {
 
     public void testBindComboBox() throws ValidationException {
         JComboBox combobox = new JComboBox(new Integer[]{1, 3, 7});
-        Binding binding = bindingContextVB.bind(combobox, "intValue");
+        Binding binding = bindingContextVB.bind("intValue", combobox);
         assertNotNull(binding);
         assertSame(combobox, binding.getPrimaryComponent());
         assertNotNull(binding.getSecondaryComponents());
@@ -79,7 +79,7 @@ public class BindingContextTest extends TestCase {
 
     public void testBindTextField() throws ValidationException {
         JTextField textField = new JTextField();
-        Binding binding = bindingContextVB.bind(textField, "stringValue");
+        Binding binding = bindingContextVB.bind("stringValue", textField);
         assertNotNull(binding);
         assertSame(textField, binding.getPrimaryComponent());
         assertNotNull(binding.getSecondaryComponents());
@@ -97,7 +97,7 @@ public class BindingContextTest extends TestCase {
 
     public void testBindTextField2() throws ValidationException {
         JTextField textField = new JTextField();
-        Binding binding = bindingContextOB.bind(textField, "stringValue");
+        Binding binding = bindingContextOB.bind("stringValue", textField);
         assertNotNull(binding);
         assertSame(textField, binding.getPrimaryComponent());
         assertNotNull(binding.getSecondaryComponents());
@@ -120,7 +120,7 @@ public class BindingContextTest extends TestCase {
 
     public void testBindFormattedTextFieldToString() throws ValidationException {
         JFormattedTextField textField = new JFormattedTextField();
-        Binding binding = bindingContextVB.bind(textField, "stringValue");
+        Binding binding = bindingContextVB.bind("stringValue", textField);
         assertNotNull(binding);
         assertSame(textField, binding.getPrimaryComponent());
         assertNotNull(binding.getSecondaryComponents());
@@ -137,7 +137,7 @@ public class BindingContextTest extends TestCase {
 
     public void testBindFormattedTextFieldToDouble() throws ValidationException {
         JFormattedTextField textField = new JFormattedTextField();
-        Binding binding = bindingContextVB.bind(textField, "doubleValue");
+        Binding binding = bindingContextVB.bind("doubleValue", textField);
         assertNotNull(binding);
         assertSame(textField, binding.getPrimaryComponent());
         assertNotNull(binding.getSecondaryComponents());
@@ -154,7 +154,7 @@ public class BindingContextTest extends TestCase {
 
     public void testBindCheckBox() throws ValidationException {
         JCheckBox checkBox = new JCheckBox();
-        Binding binding = bindingContextVB.bind(checkBox, "booleanValue");
+        Binding binding = bindingContextVB.bind("booleanValue", checkBox);
         assertNotNull(binding);
         assertSame(checkBox, binding.getPrimaryComponent());
         assertNotNull(binding.getSecondaryComponents());
@@ -171,7 +171,7 @@ public class BindingContextTest extends TestCase {
 
     public void testBindRadioButton() throws ValidationException {
         JRadioButton radioButton = new JRadioButton();
-        Binding binding = bindingContextVB.bind(radioButton, "booleanValue");
+        Binding binding = bindingContextVB.bind("booleanValue", radioButton);
         assertNotNull(binding);
         assertSame(radioButton, binding.getPrimaryComponent());
         assertNotNull(binding.getSecondaryComponents());
@@ -186,29 +186,6 @@ public class BindingContextTest extends TestCase {
         assertEquals(false, radioButton.isSelected());
     }
     
-    public void testBindRadioButtonWithGroup() throws ValidationException {
-        JRadioButton radioButton1 = new JRadioButton();
-        JRadioButton radioButton2 = new JRadioButton();
-        ButtonGroup buttonGroup = new ButtonGroup();
-        buttonGroup.add(radioButton1);
-        buttonGroup.add(radioButton2);
-        Binding binding = bindingContextVB.bind(radioButton1, "booleanValue");
-        assertNotNull(binding);
-        assertSame(radioButton1, binding.getPrimaryComponent());
-        assertNotNull(binding.getSecondaryComponents());
-        assertEquals(0, binding.getSecondaryComponents().length);
-
-        assertEquals("booleanValue", radioButton1.getName());
-
-        radioButton1.doClick();
-        assertEquals(true, valueContainerVB.getValue("booleanValue"));
-        radioButton2.doClick();
-        assertEquals(false, valueContainerVB.getValue("booleanValue"));
-
-        valueContainerVB.setValue("booleanValue", false);
-        assertEquals(false, radioButton1.isSelected());
-    }
-
     public void testBindButtonGroup() throws ValidationException {
         JRadioButton radioButton1 = new JRadioButton();
         JRadioButton radioButton2 = new JRadioButton();
@@ -223,7 +200,7 @@ public class BindingContextTest extends TestCase {
 
         m.setValue(TestPojo.intValueSet[0]);
 
-        Binding binding = bindingContextVB.bind(buttonGroup, "valueSetBoundIntValue");
+        Binding binding = bindingContextVB.bind("valueSetBoundIntValue", buttonGroup);
         assertNotNull(binding);
         assertSame(radioButton1, binding.getPrimaryComponent());
         assertNotNull(binding.getSecondaryComponents());
@@ -269,7 +246,7 @@ public class BindingContextTest extends TestCase {
 
     public void testBindListSelection() throws ValidationException {
         JList list = new JList(new Integer[]{3, 4, 5, 6, 7});
-        Binding binding = bindingContextVB.bind(list, "listValue", true);
+        Binding binding = bindingContextVB.bind("listValue", list, true);
         assertNotNull(binding);
         assertSame(list, binding.getPrimaryComponent());
         assertNotNull(binding.getSecondaryComponents());

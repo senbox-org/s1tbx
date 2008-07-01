@@ -44,7 +44,7 @@ public abstract class Binding {
     public Binding(BindingContext context, String name) {
         this.context = context;
         this.name = name;
-        context.getValueContainer().addPropertyChangeListener(name, new PropertyChangeListener() {
+        context.addPropertyChangeListener(name, new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
                 adjustComponents();
             }

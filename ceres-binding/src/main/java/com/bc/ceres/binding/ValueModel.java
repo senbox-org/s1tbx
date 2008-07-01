@@ -150,6 +150,7 @@ public class ValueModel {
     private static ValueModel createModel(ValueDescriptor descriptor, ValueAccessor accessor) {
         ValueModel vm = new ValueModel(descriptor, accessor);
         vm.getDescriptor().setValidator(new TypeValidator());
+        vm.getDescriptor().setConverter(ConverterRegistry.getInstance().getConverter(descriptor.getType()));
         return vm;
     }
 

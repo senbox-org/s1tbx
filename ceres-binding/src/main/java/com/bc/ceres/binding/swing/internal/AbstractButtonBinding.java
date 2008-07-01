@@ -5,6 +5,8 @@ import com.bc.ceres.binding.swing.BindingContext;
 
 import javax.swing.AbstractButton;
 import javax.swing.JComponent;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 /**
  * An abstract binding for a {@link javax.swing.AbstractButton} component.
@@ -13,13 +15,14 @@ import javax.swing.JComponent;
  * @version $Revision$ $Date$
  * @since BEAM 4.2
  */
-public abstract class AbstractButtonBinding extends Binding {
+public class AbstractButtonBinding extends Binding implements ActionListener {
 
     private final AbstractButton button;
 
     public AbstractButtonBinding(BindingContext context, String propertyName, AbstractButton button) {
         super(context, propertyName);
         this.button = button;
+        this.button.addActionListener(this);
     }
 
     public AbstractButton getButton() {
@@ -34,10 +37,10 @@ public abstract class AbstractButtonBinding extends Binding {
 
     @Override
     public JComponent getPrimaryComponent() {
-        return button;
+        return getButton();
     }
 
-    protected void adjustProperty() {
+    public void actionPerformed(ActionEvent e) {
         setValue(getButton().isSelected());
     }
 }

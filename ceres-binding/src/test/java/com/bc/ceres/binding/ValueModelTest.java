@@ -4,6 +4,8 @@ import junit.framework.TestCase;
 
 import java.util.HashMap;
 
+import com.bc.ceres.binding.validators.TypeValidator;
+
 public class ValueModelTest extends TestCase {
     private static final long LEGAL_PLONG = 999L;
     private static final Long LEGAL_OLONG = 999L;
@@ -45,6 +47,8 @@ public class ValueModelTest extends TestCase {
         assertNotNull(vm.getDescriptor());
         assertEquals("plong", vm.getDescriptor().getName());
         assertSame(Long.TYPE, vm.getDescriptor().getType());
+        assertNotNull(vm.getDescriptor().getConverter());
+        assertTrue(vm.getDescriptor().getValidator() instanceof TypeValidator);
         assertTrue(vm.getValue() instanceof Long);
         assertEquals(expectedValue, vm.getValue());
         testSetLegalValue(vm);
@@ -55,6 +59,8 @@ public class ValueModelTest extends TestCase {
         assertNotNull(vm.getDescriptor());
         assertEquals("olong", vm.getDescriptor().getName());
         assertSame(Long.class, vm.getDescriptor().getType());
+        assertNotNull(vm.getDescriptor().getConverter());
+        assertTrue(vm.getDescriptor().getValidator() instanceof TypeValidator);
         assertEquals(expectedValue, vm.getValue());
         testSetLegalValue(vm);
         testSetIllegalValue(vm);

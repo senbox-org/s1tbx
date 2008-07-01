@@ -13,6 +13,8 @@ import javax.swing.event.ChangeListener;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 /**
  * A binding for a set of {@link javax.swing.AbstractButton} components sharing a multiple-exclusion scope.
@@ -21,7 +23,7 @@ import java.util.Map;
  * @version $Revision$ $Date$
  * @since BEAM 4.2
  */
-public class ButtonGroupBinding extends Binding implements ChangeListener {
+public class ButtonGroupBinding extends Binding implements ActionListener {
     private final ButtonGroup buttonGroup;
     private AbstractButton firstButton;
     private final Map<AbstractButton, Object> buttonToValueMap;
@@ -37,7 +39,7 @@ public class ButtonGroupBinding extends Binding implements ChangeListener {
         int count = buttonGroup.getButtonCount();
         for (int i = 0; i < count; i++) {
             AbstractButton button = buttonEnum.nextElement();
-            button.addChangeListener(this);
+            button.addActionListener(this);
             valueToButtonMap.put(buttonToValueMap.get(button), button);
             if (i == 0) {
                 firstButton = button;
@@ -45,6 +47,10 @@ public class ButtonGroupBinding extends Binding implements ChangeListener {
                 attachSecondaryComponent(button);
             }
         }
+    }
+
+    public ButtonGroup getButtonGroup() {
+        return buttonGroup;
     }
 
     @Override
@@ -63,8 +69,8 @@ public class ButtonGroupBinding extends Binding implements ChangeListener {
         return firstButton;
     }
 
-    public void stateChanged(ChangeEvent event) {
-        AbstractButton button = (AbstractButton) event.getSource();
+    public void actionPerformed(ActionEvent e) {
+        AbstractButton button = (AbstractButton) e.getSource();
         setValue(buttonToValueMap.get(button));
     }
 
