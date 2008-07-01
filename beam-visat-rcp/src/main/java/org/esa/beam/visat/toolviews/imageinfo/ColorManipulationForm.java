@@ -741,19 +741,6 @@ class ColorManipulationForm {
                 // revalidate();
             }
         }
-
-        @Override
-        public void nodeDataChanged(final ProductNodeEvent event) {
-            if (event.getSourceNode() instanceof RasterDataNode) {
-                final RasterDataNode rasterDataNode = (RasterDataNode) event.getSourceNode();
-                final RasterDataNode[] rasters = getProductSceneView().getRasters();
-                for (RasterDataNode raster : rasters) {
-                    if (raster == rasterDataNode && raster.getRasterData() != null) {
-                        resetToDefaults();
-                    }
-                }
-            }
-        }
     }
 
     private class ColorManipulationIFL extends InternalFrameAdapter {

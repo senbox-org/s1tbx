@@ -83,7 +83,7 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
     private static class ImageInfoTableModel extends AbstractTableModel {
 
         private ImageInfo imageInfo;
-        private static final String[] COLUMN_NAMES = new String[]{"Label", "Colour", "Value", "Freq."};
+        private static final String[] COLUMN_NAMES = new String[]{"Label", "Color", "Value", "Freq."};
         private static final Class<?>[] COLUMN_TYPES = new Class<?>[]{String.class, Color.class, String.class, Double.class};
 
         private ImageInfoTableModel(ImageInfo imageInfo) {
