@@ -63,9 +63,9 @@ public class KMeansClusterOp extends Operator {
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(label = "Number of clusters", defaultValue = "14")
+    @Parameter(label = "Number of clusters", defaultValue = "14", interval = "(0,*)")
     private int clusterCount;
-    @Parameter(label = "Number of iterations", defaultValue = "30")
+    @Parameter(label = "Number of iterations", defaultValue = "30", interval = "(0,*)")
     private int iterationCount;
     @Parameter(label = "Source band names",
                description = "The names of the bands being used for the cluster analysis.",
