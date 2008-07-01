@@ -54,6 +54,7 @@ public class RandomSceneIter {
         final double[] value = new double[rdn.length];
 
         boolean valid = false;
+        int counter = 0;
         while (!valid) {
             final int x = random.nextInt(rasterWidth);
             final int y = random.nextInt(rasterHeight);
@@ -64,6 +65,10 @@ public class RandomSceneIter {
                     value[i] = sourceTile.getSampleDouble(x, y);
                 }
                 valid = true;
+            }
+            counter++;
+            if (counter > 100 ) {
+                throw new IllegalArgumentException("ROI contains too few pixel to initialize the clustering.");
             }
         }
         return value;
