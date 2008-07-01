@@ -16,13 +16,14 @@
  */
 package org.esa.beam.visat.toolviews.imageinfo;
 
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.ValueRange;
+import com.bc.ceres.binding.swing.BindingContext;
+import com.jidesoft.combobox.ColorChooserPanel;
+import com.jidesoft.popup.JidePopup;
+import com.jidesoft.swing.JideMenu;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
-import org.esa.beam.framework.param.ParamProperties;
-import org.esa.beam.framework.param.Parameter;
-import org.esa.beam.framework.ui.BorderLayoutUtils;
-import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.framework.ui.UIUtils;
-import org.esa.beam.util.Debug;
 import org.esa.beam.util.math.Histogram;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.math.Range;
@@ -30,12 +31,15 @@ import org.esa.beam.util.math.Range;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.text.JTextComponent;
+import javax.swing.event.PopupMenuListener;
+import javax.swing.event.PopupMenuEvent;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 
 class ImageInfoEditor extends JPanel {
@@ -76,6 +80,7 @@ class ImageInfoEditor extends JPanel {
     private double[] factors;
     private Color[] palette;
     private ImageInfoEditor.ModelCL modelCL;
+    private JidePopup popup;
 
     public ImageInfoEditor() {
         labelFont = createLabelFont();
@@ -700,35 +705,6 @@ class ImageInfoEditor extends JPanel {
         histoRect.height = paletteRect.y - histoRect.y - 3;
     }
 
-    private void editSliderSample(int sliderIndex) {
-        final ParamProperties paramProps = new ParamProperties(Double.class, getSliderSample(sliderIndex));
-        paramProps.setLabel("Position");
-        paramProps.setPhysicalUnit(getModel().getUnit());
-        paramProps.setMaxValue(getMaxSliderSample(sliderIndex));
-        paramProps.setMinValue(getMinSliderSample(sliderIndex));
-        final Parameter parameter = new Parameter("position", paramProps);
-        final JComponent labelComponent = parameter.getEditor().getLabelComponent();
-        final JComponent editorComponent = parameter.getEditor().getEditorComponent();
-        final JLabel unitComponent = parameter.getEditor().getPhysUnitLabelComponent();
-
-        final ModalDialog modalDialog = new ModalDialog(SwingUtilities.getWindowAncestor(this),
-                                                        "Adjust Gradient Slider " + sliderIndex, /*I18N*/
-                                                        ModalDialog.ID_OK_CANCEL, null);
-        final JPanel content = BorderLayoutUtils.createPanel(editorComponent, labelComponent, BorderLayout.WEST);
-        if (unitComponent != null) {
-            content.add(unitComponent, BorderLayout.EAST);
-        }
-
-        modalDialog.setContent(content);
-        if (editorComponent instanceof JTextComponent) {
-            ((JTextComponent) editorComponent).selectAll();
-        }
-        if (modalDialog.show() == ModalDialog.ID_OK) {
-            Double newValue = (Double) parameter.getValue();
-            setSliderSample(sliderIndex, newValue);
-        }
-    }
-
     public double getHistogramViewBinCount() {
         if (!isHistogramAvailable()) {
             return -1;
@@ -767,11 +743,81 @@ class ImageInfoEditor extends JPanel {
         return (sample - minVisibleSample) / delta;
     }
 
+    private void editSliderColor(MouseEvent evt, final int sliderIndex) {
+        final ColorChooserPanel panel = new ColorChooserPanel(ColorChooserPanel.PALETTE_COLOR_40,
+                                                              true,     // allow more colors
+                                                              true);    // allow default color
+        final Color selectedColor = getSliderColor(sliderIndex);
+        if (selectedColor.equals(new Color(0, 0, 0, 0))) {
+            panel.setSelectedColor(null);
+        } else {
+            panel.setSelectedColor(selectedColor);
+        }
+
+        popup = new JidePopup();
+        popup.setOwner(ImageInfoEditor.this);
+        popup.setDefaultFocusComponent(panel);
+        popup.setContentPane(panel);
+        popup.setAttachable(true);
+        popup.setMovable(true);
+        popup.showPopup(evt.getXOnScreen(), evt.getYOnScreen());
+
+        panel.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                popup.hidePopup();
+                final Color selectedColor = panel.getSelectedColor();
+                if (selectedColor != null) {
+                    setSliderColor(sliderIndex, selectedColor);
+                } else {
+                    setSliderColor(sliderIndex, new Color(0, 0, 0, 0));
+                }
+
+            }
+        });
+    }
+
+    private void editSliderSample(MouseEvent evt, final int sliderIndex) {
+        hidePopup();
+
+        final ValueContainer vc = new ValueContainer();
+        vc.addModel(ValueModel.createModel("sample", getSliderSample(sliderIndex)));
+        vc.getValueDescriptor("sample").setValueRange(new ValueRange(getMinSliderSample(sliderIndex), getMaxSliderSample(sliderIndex)));
+        vc.getValueDescriptor("sample").setUnit(getModel().getUnit());
+
+        final BindingContext ctx = new BindingContext(vc);
+        final JFormattedTextField field = new JFormattedTextField(16);
+        ctx.bind("sample", field);
+
+        showPopup(evt, field);
+
+        ctx.addPropertyChangeListener("sample", new PropertyChangeListener() {
+
+            public void propertyChange(PropertyChangeEvent evt) {
+                popup.hidePopup();
+                setSliderSample(sliderIndex, (Double) ctx.getBinding("sample").getValue());
+            }
+        });
+    }
+
+    private void showPopup(MouseEvent evt, JComponent component) {
+        popup = new JidePopup();
+        popup.getContentPane().add(component);
+        popup.setOwner(ImageInfoEditor.this);
+        popup.setDefaultFocusComponent(component);
+        popup.setAttachable(true);
+        popup.showPopup(evt.getXOnScreen(), evt.getYOnScreen());
+    }
+
+    private void hidePopup() {
+        if (popup != null && popup.isVisible()) {
+            popup.hidePopupImmediately();
+            popup = null;
+        }
+    }
+
     private class InternalMouseListener implements MouseListener, MouseMotionListener {
 
         private int draggedSliderIndex;
-        private JPopupMenu contextMenu;
-        private boolean contextMenuShowing;
         private boolean dragging;
 
         public InternalMouseListener() {
@@ -787,55 +833,47 @@ class ImageInfoEditor extends JPanel {
         }
 
         public void mousePressed(MouseEvent mouseEvent) {
-            Debug.trace("mousePressed");
-            if (!maybeShowContextMenu(mouseEvent)) {
-                resetState();
-                Debug.trace("ContrastStretchPane.mouseDragged: mark 1");
-                setDraggedSliderIndex(getNearestSliderIndex(mouseEvent.getX(), mouseEvent.getY()));
-                if (isFirstSliderDragged() || isLastSliderDragged()) {
-                    computeFactors();
-                }
+            hidePopup();
+            resetState();
+            setDraggedSliderIndex(getNearestSliderIndex(mouseEvent.getX(), mouseEvent.getY()));
+            if (isFirstSliderDragged() || isLastSliderDragged()) {
+                computeFactors();
             }
         }
 
-        public void mouseReleased(MouseEvent mouseEvent) {
-            setDragging(false);
-            if (!maybeShowContextMenu(mouseEvent)) {
-                doDragSlider(mouseEvent, false);
+        public void mouseReleased(MouseEvent evt) {
+            if (!isDragging()) {
+                maybeShowSliderActions(evt);
+                if (popup == null && SwingUtilities.isLeftMouseButton(evt)) {
+                    int mode = 0;
+                    int sliderIndex = getSelectedSliderIndex(evt);
+                    if (sliderIndex != INVALID_INDEX && getModel().isColorEditable()) {
+                        mode = 1;
+                    }
+                    if (mode == 0) {
+                        if (sliderIndex == INVALID_INDEX) {
+                            sliderIndex = getSelectedSliderTextIndex(evt);
+                        }
+                        if (sliderIndex != INVALID_INDEX) {
+                            mode = 2;
+                        }
+                    }
+                    if (mode == 1) {
+                        editSliderColor(evt, sliderIndex);
+                    } else if (mode == 2) {
+                        editSliderSample(evt, sliderIndex);
+                    }
+                }
+            }
+            if (popup == null) {
+                doDragSlider(evt, false);
+                setDragging(false);
                 setDraggedSliderIndex(INVALID_INDEX);
             }
         }
 
-
         public void mouseClicked(MouseEvent evt) {
-            int sliderIndex;
-            if (!maybeShowContextMenu(evt)) {
-                if (SwingUtilities.isLeftMouseButton(evt)) {
-                    if (getModel().isColorEditable()) {
-                        sliderIndex = getSelectedSliderIndex(evt);
-                        if (sliderIndex != INVALID_INDEX) {
-                            Color newColor = JColorChooser.showDialog(ImageInfoEditor.this,
-                                                                      "Gradation point color",
-                                                                      getSliderColor(sliderIndex));
-                            if (newColor != null) {
-                                setSliderColor(sliderIndex, newColor);
-                            }
-                            return;
-                        }
-                    }
-                    sliderIndex = getSelectedSliderTextIndex(evt);
-                    if (sliderIndex != INVALID_INDEX) {
-                        editSliderSample(sliderIndex);
-                        repaint();
-                    }
-                }
-                if (contextMenu != null && !contextMenuShowing) {
-                    contextMenu.setVisible(false);
-                    repaint();
-                    contextMenu = null;
-                }
-                contextMenuShowing = false;
-            }
+            maybeShowSliderActions(evt);
         }
 
         public void mouseEntered(MouseEvent mouseEvent) {
@@ -870,24 +908,16 @@ class ImageInfoEditor extends JPanel {
             }
         }
 
-        private boolean maybeShowContextMenu(MouseEvent mouseEvent) {
-            if (getModel().isColorEditable()) {
-                if (mouseEvent.isPopupTrigger()) {
-                    final int sliderIndex = getSelectedSliderIndex(mouseEvent);
-                    contextMenu = createContextMenu(sliderIndex, mouseEvent);
-                    if (contextMenu != null && contextMenu.getComponentCount() > 0) {
-                        UIUtils.showPopup(contextMenu, mouseEvent);
-                        contextMenuShowing = true;
-                        return true;
-                    }
-                }
+        private void maybeShowSliderActions(MouseEvent mouseEvent) {
+            if (getModel().isColorEditable() && mouseEvent.isPopupTrigger()) {
+                final int sliderIndex = getSelectedSliderIndex(mouseEvent);
+                showSliderActions(mouseEvent, sliderIndex);
             }
-            return false;
         }
 
         private void setDraggedSliderIndex(final int draggedSliderIndex) {
             if (this.draggedSliderIndex != draggedSliderIndex) {
-                Debug.trace("ContrastStretchPane.setDraggedSliderIndex(" + draggedSliderIndex + ") called");
+                // Debug.trace("ContrastStretchPane.setDraggedSliderIndex(" + draggedSliderIndex + ") called");
                 this.draggedSliderIndex = draggedSliderIndex;
             }
         }
@@ -896,25 +926,32 @@ class ImageInfoEditor extends JPanel {
             return draggedSliderIndex;
         }
 
-        private JPopupMenu createContextMenu(final int sliderIndex, MouseEvent mouseEvent) {
-            JPopupMenu contextMenu = new JPopupMenu("Gradation curve points"); /* I18N */
-            contextMenu.setInvoker(ImageInfoEditor.this);
-            JMenuItem menuItem = createMenuItemAddNewSlider(sliderIndex, mouseEvent);
+        private void showSliderActions(MouseEvent evt, final int sliderIndex) {
+            popup = new JidePopup(); /* I18N */
+            popup.setOwner(ImageInfoEditor.this);
+            final JMenu jMenu = new JMenu();
+            JMenuItem menuItem = createMenuItemAddNewSlider(sliderIndex, evt);
             if (menuItem != null) {
-                contextMenu.add(menuItem);
+                jMenu.add(menuItem);
             }
             if (getSliderCount() > 3 && sliderIndex != INVALID_INDEX) {
                 menuItem = createMenuItemDeleteSlider(sliderIndex);
-                contextMenu.add(menuItem);
+                jMenu.add(menuItem);
             }
             if (getSliderCount() > 2 && sliderIndex > 0 && sliderIndex < getSliderCount() - 1) {
                 menuItem = createMenuItemCenterSampleValue(sliderIndex);
-                contextMenu.add(menuItem);
+                jMenu.add(menuItem);
                 menuItem = createMenuItemCenterColorValue(sliderIndex);
-                contextMenu.add(menuItem);
-                contextMenu.setVisible(true);
+                jMenu.add(menuItem);
             }
-            return contextMenu;
+            if (jMenu.getItemCount() > 0) {
+                final JPopupMenu menu = jMenu.getPopupMenu();
+                menu.setVisible(true);
+                popup.add(menu.getComponent());
+                popup.showPopup(evt.getXOnScreen(), evt.getYOnScreen());
+            } else {
+                popup = null;
+            }
         }
 
         private JMenuItem createMenuItemCenterColorValue(final int sliderIndex) {
@@ -927,6 +964,7 @@ class ImageInfoEditor extends JPanel {
                 public void actionPerformed(ActionEvent actionEvent) {
                     final Color newColor = ColorPaletteDef.getCenterColor(getSliderColor(sliderIndex - 1), getSliderColor(sliderIndex + 1));
                     setSliderColor(sliderIndex, newColor);
+                    hidePopup();
                 }
             });
             return menuItem;
@@ -941,6 +979,7 @@ class ImageInfoEditor extends JPanel {
                 public void actionPerformed(ActionEvent actionEvent) {
                     final double center = scale(0.5d * (scaleInverse(getSliderSample(sliderIndex - 1)) + scaleInverse(getSliderSample(sliderIndex + 1))));
                     setSliderSample(sliderIndex, center, false);
+                    hidePopup();
                 }
             });
             return menuItem;
@@ -953,6 +992,7 @@ class ImageInfoEditor extends JPanel {
 
                 public void actionPerformed(ActionEvent e) {
                     getModel().removeSlider(removeIndex);
+                    hidePopup();
                 }
             });
             return menuItem;
@@ -984,6 +1024,7 @@ class ImageInfoEditor extends JPanel {
                     if (index != INVALID_INDEX && index < getModel().getSliderCount() - 1) {
                         getModel().createSliderAfter(index);
                     }
+                    hidePopup();
                 }
             });
             return menuItem;

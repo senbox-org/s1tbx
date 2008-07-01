@@ -169,7 +169,8 @@ public class ColorPaletteDef implements Cloneable{
     public static Color getCenterColor(Color c1, Color c2) {
         return new Color(0.5F * (c1.getRed() + c2.getRed()) / 255.0F,
                          0.5F * (c1.getGreen() + c2.getGreen()) / 255.0F,
-                         0.5F * (c1.getBlue() + c2.getBlue()) / 255.0F);
+                         0.5F * (c1.getBlue() + c2.getBlue()) / 255.0F,
+                         0.5F * (c1.getAlpha() + c2.getAlpha()) / 255.0F);
     }
 
 
@@ -343,10 +344,13 @@ public class ColorPaletteDef implements Cloneable{
                     final double g2 = p2.getColor().getGreen();
                     final double b1 = p1.getColor().getBlue();
                     final double b2 = p2.getColor().getBlue();
+                    final double a1 = p1.getColor().getAlpha();
+                    final double a2 = p2.getColor().getAlpha();
                     final int red = (int) MathUtils.roundAndCrop(r1 + f * (r2 - r1), 0L, 255L);
                     final int green = (int) MathUtils.roundAndCrop(g1 + f * (g2 - g1), 0L, 255L);
                     final int blue = (int) MathUtils.roundAndCrop(b1 + f * (b2 - b1), 0L, 255L);
-                    return new Color(red, green, blue);
+                    final int alpha = (int) MathUtils.roundAndCrop(a1 + f * (a2 - a1), 0L, 255L);
+                    return new Color(red, green, blue, alpha);
                 }
             }
         }

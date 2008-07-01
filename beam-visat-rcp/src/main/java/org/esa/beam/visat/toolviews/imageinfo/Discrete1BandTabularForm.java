@@ -7,7 +7,6 @@ import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.*;
-import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -25,7 +24,6 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
         this.parentForm = parentForm;
         tableModel = new ImageInfoTableModel(null);
         applyEnablerTML = parentForm.createApplyEnablerTableModelListener();
-
 
         final JTable table = new JTable(tableModel);
         final ColorCellRenderer colorCellRenderer = new ColorCellRenderer();
@@ -122,7 +120,8 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
             if (columnIndex == 0) {
                 return point.getLabel();
             } else if (columnIndex == 1) {
-                return point.getColor();
+                final Color color = point.getColor();
+                return color.equals(ImageInfo.NO_COLOR) ? null : color;
             } else if (columnIndex == 2) {
                 return Double.isNaN(point.getSample()) ? "Uncoded" : "" + (int) point.getSample();
             } else if (columnIndex == 3) {
@@ -146,7 +145,8 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
                 point.setLabel((String) aValue);
                 fireTableCellUpdated(rowIndex, columnIndex);
             } else if (columnIndex == 1) {
-                point.setColor((Color) aValue);
+                final Color color = (Color) aValue;
+                point.setColor(color == null ? ImageInfo.NO_COLOR : color);
                 fireTableCellUpdated(rowIndex, columnIndex);
             }
         }

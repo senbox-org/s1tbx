@@ -282,73 +282,55 @@ public class ProductUtils {
 
         pm.beginTask(MSG_CREATING_IMAGE, 2);
         try {
-            final Color[] palette;
+            final double minSample = imageInfo.getColorPaletteDef().getFirstPoint().getSample();
+            final double maxSample = imageInfo.getColorPaletteDef().getLastPoint().getSample();
             // Compute indices into palette --> rgbSamples
             if (indexCoding == null) {
-                raster.quantizeRasterData(imageInfo.getMinDisplaySample(),
-                                          imageInfo.getMaxDisplaySample(),
+                raster.quantizeRasterData(minSample,
+                                          maxSample,
                                           1.0,
                                           rgbSamples,
                                           0,
                                           numColorComponents,
                                           ProgressMonitor.NULL);
-                palette = raster.getImageInfo().createColorPalette();
+                final IndexValidator indexValidator = new IndexValidator() {
+                    public boolean validateIndex(int pixelIndex) {
+                        return raster.isPixelValid(pixelIndex);
+                    }
+                };
+                convertPaletteToRgbSamples(raster.getImageInfo().createColorPalette(), noDataColor, numColorComponents, rgbSamples, indexValidator);
             } else {
-                final IntMap sampleColorIndexMap = new IntMap((int) imageInfo.getMinDisplaySample() - 1, 4098);
+                final IntMap sampleColorIndexMap = new IntMap((int) minSample - 1, 4098);
                 final ColorPaletteDef.Point[] points = imageInfo.getColorPaletteDef().getPoints();
                 for (int colorIndex = 0; colorIndex < points.length; colorIndex++) {
                     sampleColorIndexMap.putValue((int) points[colorIndex].getSample(), colorIndex);
                 }
+                final int noDataIndex = points.length < 255 ? points.length + 1 : 0;
                 final ProductData data = raster.getSceneRasterData();
                 for (int pixelIndex = 0; pixelIndex < data.getNumElems(); pixelIndex++) {
                     int sample = data.getElemIntAt(pixelIndex);
                     int colorIndex = sampleColorIndexMap.getValue(sample);
-                    // todo - use no-data color if colorIndex == IntMap.NULL ???
-                    rgbSamples[pixelIndex * numColorComponents] = colorIndex != IntMap.NULL ? (byte) colorIndex : 0;
+                    rgbSamples[pixelIndex * numColorComponents] = colorIndex != IntMap.NULL ? (byte) colorIndex : (byte) noDataIndex;
                 }
-                palette = raster.getImageInfo().getColors();
+                Color[] palette = raster.getImageInfo().getColors();
+                if (noDataIndex > 0) {
+                    Color[] c = new Color[palette.length + 1];
+                    System.arraycopy(palette, 0, c, 0, palette.length);
+                    palette = c;
+                    palette[palette.length - 1] = ImageInfo.NO_COLOR;
+                }
+                final IndexValidator indexValidator = new IndexValidator() {
+                    public boolean validateIndex(int pixelIndex) {
+                        return raster.isPixelValid(pixelIndex)
+                                && (noDataIndex == 0 || (rgbSamples[pixelIndex * numColorComponents] & 0xff) != noDataIndex);
+                    }
+                };
+                convertPaletteToRgbSamples(palette, noDataColor, numColorComponents, rgbSamples, indexValidator);
             }
 
             pm.worked(1);
             checkCanceled(pm);
 
-            final byte[] r = new byte[palette.length];
-            final byte[] g = new byte[palette.length];
-            final byte[] b = new byte[palette.length];
-            for (int i = 0; i < palette.length; i++) {
-                r[i] = (byte) palette[i].getRed();
-                g[i] = (byte) palette[i].getGreen();
-                b[i] = (byte) palette[i].getBlue();
-            }
-            int colorIndex;
-            int pixelIndex = 0;
-            for (int i = 0; i < rgbSamples.length; i += numColorComponents) {
-                if (raster.isPixelValid(pixelIndex)) {
-                    colorIndex = rgbSamples[i] & 0xff;
-                    if (numColorComponents == 4) {
-                        rgbSamples[i] = (byte) 255;
-                        rgbSamples[i + 1] = b[colorIndex];
-                        rgbSamples[i + 2] = g[colorIndex];
-                        rgbSamples[i + 3] = r[colorIndex];
-                    } else {
-                        rgbSamples[i] = b[colorIndex];
-                        rgbSamples[i + 1] = g[colorIndex];
-                        rgbSamples[i + 2] = r[colorIndex];
-                    }
-                } else {
-                    if (numColorComponents == 4) {
-                        rgbSamples[i] = (byte) noDataColor.getAlpha();
-                        rgbSamples[i + 1] = (byte) noDataColor.getBlue();
-                        rgbSamples[i + 2] = (byte) noDataColor.getGreen();
-                        rgbSamples[i + 3] = (byte) noDataColor.getRed();
-                    } else {
-                        rgbSamples[i] = (byte) noDataColor.getBlue();
-                        rgbSamples[i + 1] = (byte) noDataColor.getGreen();
-                        rgbSamples[i + 2] = (byte) noDataColor.getRed();
-                    }
-                }
-                pixelIndex++;
-            }
 
             pm.worked(1);
             final BufferedImage image = createBufferedImage(width, height, numColorComponents, rgbSamples);
@@ -356,6 +338,50 @@ public class ProductUtils {
 
         } finally {
             pm.done();
+        }
+    }
+
+
+
+    private static void convertPaletteToRgbSamples(Color[] palette, Color noDataColor, int numColorComponents, byte[] rgbSamples, IndexValidator indexValidator) {
+        final byte[] r = new byte[palette.length];
+        final byte[] g = new byte[palette.length];
+        final byte[] b = new byte[palette.length];
+        final byte[] a = new byte[palette.length];
+        for (int i = 0; i < palette.length; i++) {
+            r[i] = (byte) palette[i].getRed();
+            g[i] = (byte) palette[i].getGreen();
+            b[i] = (byte) palette[i].getBlue();
+            a[i] = (byte) palette[i].getAlpha();
+        }
+        int colorIndex;
+        int pixelIndex = 0;
+        for (int i = 0; i < rgbSamples.length; i += numColorComponents) {
+            if (indexValidator.validateIndex(pixelIndex)) {
+                colorIndex = rgbSamples[i] & 0xff;
+                if (numColorComponents == 4) {
+                    rgbSamples[i] = a[colorIndex];
+                    rgbSamples[i + 1] = b[colorIndex];
+                    rgbSamples[i + 2] = g[colorIndex];
+                    rgbSamples[i + 3] = r[colorIndex];
+                } else {
+                    rgbSamples[i] = b[colorIndex];
+                    rgbSamples[i + 1] = g[colorIndex];
+                    rgbSamples[i + 2] = r[colorIndex];
+                }
+            } else {
+                if (numColorComponents == 4) {
+                    rgbSamples[i] = (byte) noDataColor.getAlpha();
+                    rgbSamples[i + 1] = (byte) noDataColor.getBlue();
+                    rgbSamples[i + 2] = (byte) noDataColor.getGreen();
+                    rgbSamples[i + 3] = (byte) noDataColor.getRed();
+                } else {
+                    rgbSamples[i] = (byte) noDataColor.getBlue();
+                    rgbSamples[i + 1] = (byte) noDataColor.getGreen();
+                    rgbSamples[i + 2] = (byte) noDataColor.getRed();
+                }
+            }
+            pixelIndex++;
         }
     }
 

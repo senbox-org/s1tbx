@@ -24,6 +24,8 @@ import com.bc.ceres.core.Assert;
  */
 public class ImageInfo implements Cloneable {
 
+    public static final Color NO_COLOR = new Color(0,0,0,0);
+
     public static final String HISTOGRAM_MATCHING_OFF = "off";
     public static final String HISTOGRAM_MATCHING_EQUALIZE = "equalize";
     public static final String HISTOGRAM_MATCHING_NORMALIZE = "normalize";

@@ -102,7 +102,8 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
         public Object getValueAt(int rowIndex, int columnIndex) {
             final ColorPaletteDef.Point point = imageInfo.getColorPaletteDef().getPointAt(rowIndex);
             if (columnIndex == 0) {
-                return point.getColor();
+                final Color color = point.getColor();
+                return color.equals(ImageInfo.NO_COLOR) ? null : color;
             } else if (columnIndex == 1) {
                 return point.getSample();
             }
@@ -113,7 +114,8 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
         public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
             final ColorPaletteDef.Point point = imageInfo.getColorPaletteDef().getPointAt(rowIndex);
             if (columnIndex == 0) {
-                point.setColor((Color) aValue);
+                final Color color = (Color) aValue;
+                point.setColor(color == null ? ImageInfo.NO_COLOR : color);
                 fireTableCellUpdated(rowIndex, columnIndex);
             } else if (columnIndex == 1) {
                 point.setSample((Double) aValue);
