@@ -173,7 +173,7 @@ class ImageInfoEditor extends JPanel {
         final double dsn = lastPS - firstPS;
         for (int i = 0; i < (getSliderCount() - 1); i++) {
             final double value = scale(firstPS + factors[i] * dsn);
-            setSliderSample(i, value, false);
+            setSliderSample(i, value, adjusting);
         }
     }
 
@@ -593,15 +593,17 @@ class ImageInfoEditor extends JPanel {
     private void setSliderSample(int index, double newValue, boolean adjusting) {
         // todo - WHAT IS THIS??!?!? (nf - 27.06.2008)
         // {{
-        double minValue = Double.NEGATIVE_INFINITY;
-        if (index > 0 && index < getSliderCount() - 1) {
-            minValue = getSliderSample(index - 1) + Float.MIN_VALUE;
-        }
-        if (newValue < minValue) {
-            newValue = minValue;
+        if (adjusting) {
+            double minValue = Double.NEGATIVE_INFINITY;
+            if (index > 0 && index < getSliderCount() - 1) {
+                minValue = getSliderSample(index - 1) + Float.MIN_VALUE;
+            }
+            if (newValue < minValue) {
+                newValue = minValue;
+            }
         }
         // }}
-        getModel().setAdjustingSlider(adjusting);
+
         setSliderSample(index, newValue);
     }
 

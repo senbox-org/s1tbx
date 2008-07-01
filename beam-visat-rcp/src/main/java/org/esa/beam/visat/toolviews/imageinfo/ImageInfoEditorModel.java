@@ -23,7 +23,6 @@ abstract class ImageInfoEditorModel {
     private Double histogramViewGain;
     private Double minHistogramViewSample;
     private Double maxHistogramViewSample;
-    private boolean adjustingSlider;
 
     protected ImageInfoEditorModel(ImageInfo imageInfo) {
         this.imageInfo = imageInfo;
@@ -78,14 +77,6 @@ abstract class ImageInfoEditorModel {
     public void setHistogramMatching(String mode) {
         getImageInfo().setHistogramMatching(mode);
         fireStateChanged();
-    }
-
-    public boolean isAdjustingSlider() {
-        return adjustingSlider;
-    }
-
-    public void setAdjustingSlider(boolean adjustingSlider) {
-        this.adjustingSlider = adjustingSlider;
     }
 
     public String getUnit() {
