@@ -13,40 +13,49 @@ public class ValueModelTest extends TestCase {
     Long olong;
 
     public void testFactoryUsingClassFieldAccessor() throws ValidationException {
-        testPLong(ValueModel.create(this, "plong"));
-        testOLong(ValueModel.create(this, "olong"));
+        testPLong(ValueModel.createClassFieldModel(this, "plong"), 0L);
+        testOLong(ValueModel.createClassFieldModel(this, "olong"), null);
+        assertEquals(LEGAL_PLONG, plong);
+        assertEquals(LEGAL_OLONG, olong);
+        testPLong(ValueModel.createClassFieldModel(this, "plong", 42L), 42L);
+        testOLong(ValueModel.createClassFieldModel(this, "olong", 43L), 43L);
         assertEquals(LEGAL_PLONG, plong);
         assertEquals(LEGAL_OLONG, olong);
     }
 
     public void testFactoryUsingMapEntryAccessor() throws ValidationException {
         HashMap<String, Object> map = new HashMap<String, Object>();
-        testPLong(ValueModel.create(map, "plong", Long.TYPE));
-        testOLong(ValueModel.create(map, "olong", Long.class));
+        testPLong(ValueModel.createMapEntryModel(map, "plong", Long.TYPE), 0L);
+        testOLong(ValueModel.createMapEntryModel(map, "olong", Long.class), null);
+        assertEquals(LEGAL_OLONG, map.get("plong"));
+        assertEquals(LEGAL_OLONG, map.get("olong"));
+        testPLong(ValueModel.createMapEntryModel(map, "plong", Long.TYPE, 42L), 42L);
+        testOLong(ValueModel.createMapEntryModel(map, "olong", Long.class, 43L), 43L);
         assertEquals(LEGAL_OLONG, map.get("plong"));
         assertEquals(LEGAL_OLONG, map.get("olong"));
     }
 
-    public void testFactoryUsingDefaultAccessor() throws ValidationException {
-        testPLong(ValueModel.create("plong", Long.TYPE));
-        testOLong(ValueModel.create("olong", Long.class));
+    public void testDefaultFactoryWithType() throws ValidationException {
+        testPLong(ValueModel.createModel("plong", Long.TYPE), 0L);
+        testOLong(ValueModel.createModel("olong", Long.class), null);
+        testOLong(ValueModel.createModel("olong", 42L), 42L);
     }
 
-    private void testPLong(ValueModel vm) throws ValidationException {
+    private void testPLong(ValueModel vm, Object expectedValue) throws ValidationException {
         assertNotNull(vm.getDescriptor());
         assertEquals("plong", vm.getDescriptor().getName());
         assertSame(Long.TYPE, vm.getDescriptor().getType());
         assertTrue(vm.getValue() instanceof Long);
-        assertEquals(0L, vm.getValue());
+        assertEquals(expectedValue, vm.getValue());
         testSetLegalValue(vm);
         testSetIllegalValue(vm);
     }
 
-    private void testOLong(ValueModel vm) throws ValidationException {
+    private void testOLong(ValueModel vm, Object expectedValue) throws ValidationException {
         assertNotNull(vm.getDescriptor());
         assertEquals("olong", vm.getDescriptor().getName());
         assertSame(Long.class, vm.getDescriptor().getType());
-        assertEquals(null, vm.getValue());
+        assertEquals(expectedValue, vm.getValue());
         testSetLegalValue(vm);
         testSetIllegalValue(vm);
     }

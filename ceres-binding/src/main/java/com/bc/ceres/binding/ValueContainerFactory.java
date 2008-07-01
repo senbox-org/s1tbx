@@ -108,7 +108,7 @@ public class ValueContainerFactory {
             valueDescriptor.setValidator(createValidator(valueDescriptor));
         }
         if (valueDescriptor.getDefaultValue() == null && valueDescriptor.getType().isPrimitive()) {
-            valueDescriptor.setDefaultValue(ValueModel.INITIAL_VALUES.get(valueDescriptor.getType()));
+            valueDescriptor.setDefaultValue(ValueModel.PRIMITIVE_ZERO_VALUES.get(valueDescriptor.getType()));
         }
     }
 

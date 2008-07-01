@@ -19,18 +19,18 @@ import java.lang.reflect.Field;
  */
 public class ValueModel {
 
-    static final HashMap<Class<?>, Object> INITIAL_VALUES;
+    static final HashMap<Class<?>, Object> PRIMITIVE_ZERO_VALUES;
 
     static {
-        INITIAL_VALUES = new HashMap<Class<?>, Object>(17);
-        INITIAL_VALUES.put(Boolean.TYPE, false);
-        INITIAL_VALUES.put(Character.TYPE, (char) 0);
-        INITIAL_VALUES.put(Byte.TYPE, (byte) 0);
-        INITIAL_VALUES.put(Short.TYPE, (short) 0);
-        INITIAL_VALUES.put(Integer.TYPE, 0);
-        INITIAL_VALUES.put(Long.TYPE, (long) 0);
-        INITIAL_VALUES.put(Float.TYPE, (float) 0);
-        INITIAL_VALUES.put(Double.TYPE, (double) 0);
+        PRIMITIVE_ZERO_VALUES = new HashMap<Class<?>, Object>(17);
+        PRIMITIVE_ZERO_VALUES.put(Boolean.TYPE, false);
+        PRIMITIVE_ZERO_VALUES.put(Character.TYPE, (char) 0);
+        PRIMITIVE_ZERO_VALUES.put(Byte.TYPE, (byte) 0);
+        PRIMITIVE_ZERO_VALUES.put(Short.TYPE, (short) 0);
+        PRIMITIVE_ZERO_VALUES.put(Integer.TYPE, 0);
+        PRIMITIVE_ZERO_VALUES.put(Long.TYPE, (long) 0);
+        PRIMITIVE_ZERO_VALUES.put(Float.TYPE, (float) 0);
+        PRIMITIVE_ZERO_VALUES.put(Double.TYPE, (double) 0);
     }
 
     private final ValueDescriptor descriptor;
@@ -44,33 +44,30 @@ public class ValueModel {
         this.accessor = accessor;
     }
 
-    public static ValueModel create(Object object, String name) {
-        Field field;
-        try {
-            field = object.getClass().getDeclaredField(name);
-        } catch (NoSuchFieldException e) {
-            throw new IllegalStateException(e);
-        }
-        ValueModel vm = new ValueModel(new ValueDescriptor(name, field.getType()),
-                                       new ClassFieldAccessor(object, field));
-        vm.getDescriptor().setValidator(new TypeValidator());
-        return vm;
+    public static ValueModel createClassFieldModel(Object object, String name) {
+        final Field field = getField(object, name);
+        return createModel(new ValueDescriptor(name, field.getType()), new ClassFieldAccessor(object, field));
     }
 
-    public static ValueModel create(Map<String, Object> map, String name, Class<?> type) {
-        ValueModel vm = new ValueModel(new ValueDescriptor(name, type),
-                                       new MapEntryAccessor(map, name));
-        vm.getDescriptor().setValidator(new TypeValidator());
-        initPrimitiveValue(type, vm);
-        return vm;
+    public static ValueModel createClassFieldModel(Object object, String name, Object value) {
+        final Field field = getField(object, name);
+        return createModel(new ValueDescriptor(name, field.getType()), new ClassFieldAccessor(object, field), value);
     }
 
-    public static ValueModel create(String name, Class<?> type) {
-        ValueModel vm = new ValueModel(new ValueDescriptor(name, type),
-                                       new DefaultValueAccessor());
-        vm.getDescriptor().setValidator(new TypeValidator());
-        initPrimitiveValue(type, vm);
-        return vm;
+    public static ValueModel createMapEntryModel(Map<String, Object> map, String name, Class<?> type) {
+        return createModel(new ValueDescriptor(name, type), new MapEntryAccessor(map, name), null);
+    }
+
+    public static ValueModel createMapEntryModel(Map<String, Object> map, String name, Class<?> type, Object value) {
+        return createModel(new ValueDescriptor(name, type), new MapEntryAccessor(map, name), value);
+    }
+
+    public static ValueModel createModel(String name, Class<?> type) {
+        return createModel(new ValueDescriptor(name, type), new DefaultValueAccessor(), null);
+    }
+
+    public static ValueModel createModel(String name, Object value) {
+        return createModel(new ValueDescriptor(name, value.getClass()), new DefaultValueAccessor(), value);
     }
 
     public ValueDescriptor getDescriptor() {
@@ -106,7 +103,7 @@ public class ValueModel {
     public Object getValue() {
         final Object value = accessor.getValue();
         if (value == null && descriptor.getType().isPrimitive()) {
-            return INITIAL_VALUES.get(descriptor.getType());
+            return PRIMITIVE_ZERO_VALUES.get(descriptor.getType());
         }
         return value;
     }
@@ -150,17 +147,32 @@ public class ValueModel {
         return getClass().getName() + "[name=" + getDescriptor().getName() + ",value=" + getValueAsText() + "]";
     }
 
-    private static void initPrimitiveValue(Class<?> type, ValueModel vm) {
-        if (type.isPrimitive()) {
-            try {
-                vm.setValue(getPrimitiveInitialValue(type));
-            } catch (ValidationException e) {
-                throw new IllegalStateException(e);
-            }
-        }
+    private static ValueModel createModel(ValueDescriptor descriptor, ValueAccessor accessor) {
+        ValueModel vm = new ValueModel(descriptor, accessor);
+        vm.getDescriptor().setValidator(new TypeValidator());
+        return vm;
     }
 
-    private static Object getPrimitiveInitialValue(Class<?> valueType) {
-        return INITIAL_VALUES.get(valueType);
+    private static ValueModel createModel(ValueDescriptor descriptor, ValueAccessor accessor, Object value) {
+        ValueModel vm = createModel(descriptor, accessor);
+        if (value == null && descriptor.getType().isPrimitive()) {
+            value = PRIMITIVE_ZERO_VALUES.get(descriptor.getType());
+        }
+        try {
+            vm.setValue(value);
+        } catch (ValidationException e) {
+            throw new IllegalStateException(e);
+        }
+        return vm;
+    }
+
+    private static Field getField(Object object, String name) {
+        Field field;
+        try {
+            field = object.getClass().getDeclaredField(name);
+        } catch (NoSuchFieldException e) {
+            throw new IllegalStateException(e);
+        }
+        return field;
     }
 }
