@@ -3,6 +3,7 @@ package org.esa.beam.visat.toolviews.imageinfo;
 import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.Scaling;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.ImageInfo;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -12,6 +13,7 @@ import java.awt.Color;
 
 abstract class ImageInfoEditorModel {
 
+    private final ImageInfo imageInfo;
     protected final EventListenerList listenerList;
     private Scaling scaling;
     private String unit;
@@ -23,8 +25,13 @@ abstract class ImageInfoEditorModel {
     private Double maxHistogramViewSample;
     private boolean adjustingSlider;
 
-    protected ImageInfoEditorModel() {
-        listenerList = new EventListenerList();
+    protected ImageInfoEditorModel(ImageInfo imageInfo) {
+        this.imageInfo = imageInfo;
+        this.listenerList = new EventListenerList();
+    }
+
+    public ImageInfo getImageInfo() {
+        return imageInfo;
     }
 
     public void setDisplayProperties(RasterDataNode raster) {
@@ -63,6 +70,15 @@ abstract class ImageInfoEditorModel {
     public abstract void setGamma(double gamma);
 
     public abstract byte[] getGammaCurve();
+
+    public String getHistogramMatching() {
+        return getImageInfo().getHistogramMatching();
+    }
+
+    public void setHistogramMatching(String mode) {
+        getImageInfo().setHistogramMatching(mode);
+        fireStateChanged();
+    }
 
     public boolean isAdjustingSlider() {
         return adjustingSlider;

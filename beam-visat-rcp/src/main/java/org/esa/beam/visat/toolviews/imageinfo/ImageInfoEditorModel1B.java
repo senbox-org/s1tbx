@@ -4,6 +4,8 @@ import org.esa.beam.framework.datamodel.ImageInfo;
 
 import java.awt.Color;
 
+import com.bc.ceres.core.Assert;
+
 /**
  * todo - add API doc
 *
@@ -11,11 +13,11 @@ import java.awt.Color;
 * @version $Revision$ $Date$
 * @since BEAM 4.2
 */
-class ColorPaletteEditorModel extends ImageInfoEditorModel {
-    private final ImageInfo imageInfo;
+class ImageInfoEditorModel1B extends ImageInfoEditorModel {
 
-    ColorPaletteEditorModel(ImageInfo imageInfo) {
-        this.imageInfo = imageInfo;
+    ImageInfoEditorModel1B(ImageInfo imageInfo) {
+        super(imageInfo);
+        Assert.argument(imageInfo.getColorPaletteDef() != null, "imageInfo");
     }
 
     @Override
@@ -25,34 +27,34 @@ class ColorPaletteEditorModel extends ImageInfoEditorModel {
 
     @Override
     public int getSliderCount() {
-        return imageInfo.getColorPaletteDef().getNumPoints();
+        return getImageInfo().getColorPaletteDef().getNumPoints();
     }
 
     @Override
     public double getSliderSample(int index) {
-        return imageInfo.getColorPaletteDef().getPointAt(index).getSample();
+        return getImageInfo().getColorPaletteDef().getPointAt(index).getSample();
     }
 
     @Override
     public void setSliderSample(int index, double sample) {
-        imageInfo.getColorPaletteDef().getPointAt(index).setSample(sample);
+        getImageInfo().getColorPaletteDef().getPointAt(index).setSample(sample);
         fireStateChanged();
     }
 
     @Override
     public Color getSliderColor(int index) {
-        return imageInfo.getColorPaletteDef().getPointAt(index).getColor();
+        return getImageInfo().getColorPaletteDef().getPointAt(index).getColor();
     }
 
     @Override
     public void setSliderColor(int index, Color color) {
-        imageInfo.getColorPaletteDef().getPointAt(index).setColor(color);
+        getImageInfo().getColorPaletteDef().getPointAt(index).setColor(color);
         fireStateChanged();
     }
 
     @Override
     public void createSliderAfter(int index) {
-        final boolean b = imageInfo.getColorPaletteDef().createPointAfter(index, getScaling());
+        final boolean b = getImageInfo().getColorPaletteDef().createPointAfter(index, getScaling());
         if (b) {
             fireStateChanged();
         }
@@ -60,13 +62,13 @@ class ColorPaletteEditorModel extends ImageInfoEditorModel {
 
     @Override
     public void removeSlider(int index) {
-        imageInfo.getColorPaletteDef().removePointAt(index);
+        getImageInfo().getColorPaletteDef().removePointAt(index);
         fireStateChanged();
     }
 
     @Override
     public Color[] createColorPalette() {
-        return imageInfo.getColorPaletteDef().createColorPalette(getScaling());
+        return getImageInfo().getColorPaletteDef().createColorPalette(getScaling());
     }
 
     @Override

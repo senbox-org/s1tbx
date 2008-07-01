@@ -71,12 +71,12 @@ class SpectralUnmixingForm extends JPanel {
 
     private void bindComponents() {
         BindingContext bindingContext = new BindingContext(formModel.getOperatorValueContainer());
-        bindingContext.bind(unmixingModelName, "unmixingModelName");
-        bindingContext.bind(abundanceBandNameSuffix, "abundanceBandNameSuffix");
-        bindingContext.bind(errorBandNameSuffix, "errorBandNameSuffix");
-        bindingContext.bind(sourceBandNames, "sourceBandNames", true);
-        bindingContext.bind(computeErrorBands, "computeErrorBands");
-        bindingContext.bind(minBandwidth, "minBandwidth");
+        bindingContext.bind("unmixingModelName", unmixingModelName);
+        bindingContext.bind("abundanceBandNameSuffix", abundanceBandNameSuffix);
+        bindingContext.bind("errorBandNameSuffix", errorBandNameSuffix);
+        bindingContext.bind("sourceBandNames", sourceBandNames, true);
+        bindingContext.bind("computeErrorBands", computeErrorBands);
+        bindingContext.bind("minBandwidth", minBandwidth);
     }
 
     private void createComponents() {

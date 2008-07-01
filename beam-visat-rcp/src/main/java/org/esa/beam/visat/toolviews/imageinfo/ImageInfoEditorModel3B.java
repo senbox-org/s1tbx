@@ -6,23 +6,21 @@ import org.esa.beam.util.math.MathUtils;
 
 import java.awt.Color;
 
-/**
- * todo - add API doc
-*
-* @author Norman Fomferra
-* @version $Revision$ $Date$
-* @since BEAM 4.2
-*/
-class RgbChannelEditorModel extends ImageInfoEditorModel {
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.core.Assert;
+
+
+class ImageInfoEditorModel3B extends ImageInfoEditorModel {
     private final static Color[] RGB_COLORS = new Color[]{Color.RED, Color.GREEN, Color.BLUE};
 
-    private final ImageInfo imageInfo;
     private final int channel;
     private byte[] gammaCurve;
 
-    RgbChannelEditorModel(ImageInfo imageInfo, int channel) {
-        this.imageInfo = imageInfo;
+    ImageInfoEditorModel3B(ImageInfo imageInfo, int channel) {
+        super(imageInfo);
         this.channel = channel;
+        Assert.argument(imageInfo.getRgbProfile() != null, "imageInfo");
     }
 
     @Override
@@ -32,7 +30,7 @@ class RgbChannelEditorModel extends ImageInfoEditorModel {
 
     @Override
     public double getSliderSample(int index) {
-        final Range range = imageInfo.getRgbProfile().getSampleDisplayRange(channel);
+        final Range range = getImageInfo().getRgbProfile().getSampleDisplayRange(channel);
         if (index == 0) {
             return range.getMin();
         } else {
@@ -42,7 +40,7 @@ class RgbChannelEditorModel extends ImageInfoEditorModel {
 
     @Override
     public void setSliderSample(int index, double sample) {
-        final Range range = imageInfo.getRgbProfile().getSampleDisplayRange(channel);
+        final Range range = getImageInfo().getRgbProfile().getSampleDisplayRange(channel);
         if (index == 0) {
              range.setMin(sample);
         } else {
@@ -102,17 +100,17 @@ class RgbChannelEditorModel extends ImageInfoEditorModel {
 
     @Override
     public boolean isGammaActive() {
-        return imageInfo.getRgbProfile().isSampleDisplayGammaActive(channel);
+        return getImageInfo().getRgbProfile().isSampleDisplayGammaActive(channel);
     }
 
     @Override
     public double getGamma() {
-        return imageInfo.getRgbProfile().getSampleDisplayGamma(channel);
+        return getImageInfo().getRgbProfile().getSampleDisplayGamma(channel);
     }
 
     @Override
     public void setGamma(double gamma) {
-        imageInfo.getRgbProfile().setSampleDisplayGamma(channel, gamma);
+        getImageInfo().getRgbProfile().setSampleDisplayGamma(channel, gamma);
         gammaCurve = null;
         fireStateChanged();
     }

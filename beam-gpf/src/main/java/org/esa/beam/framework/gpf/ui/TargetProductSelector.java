@@ -61,11 +61,11 @@ public class TargetProductSelector {
     private void bindComponents() {
         final BindingContext bc = new BindingContext(model.getValueContainer());
 
-        bc.bind(productNameTextField, "productName");
-        bc.bind(saveToFileCheckBox, "saveToFileSelected");
-        bc.bind(openInAppCheckBox, "openInAppSelected");
-        bc.bind(formatNameComboBox, "formatName");
-        bc.bind(productDirTextField, "productDir");
+        bc.bind("productName", productNameTextField);
+        bc.bind("saveToFileSelected", saveToFileCheckBox);
+        bc.bind("openInAppSelected", openInAppCheckBox);
+        bc.bind("formatName", formatNameComboBox);
+        bc.bind("productDir", productDirTextField);
 
         model.getValueContainer().addPropertyChangeListener("productDir", new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {

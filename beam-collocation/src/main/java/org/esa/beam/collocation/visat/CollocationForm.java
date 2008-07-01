@@ -98,12 +98,12 @@ public class CollocationForm extends JPanel {
 
     private void bindComponents() {
         final BindingContext sbc = new BindingContext(model.getValueContainer());
-        sbc.bind(masterProductSelector.getProductNameComboBox(), "masterProduct");
-        sbc.bind(slaveProductSelector.getProductNameComboBox(), "slaveProduct");
-        sbc.bind(renameMasterComponentsCheckBox, "renameMasterComponents");
-        sbc.bind(renameSlaveComponentsCheckBox, "renameSlaveComponents");
-        sbc.bind(masterComponentPatternField, "masterComponentPattern");
-        sbc.bind(slaveComponentPatternField, "slaveComponentPattern");
+        sbc.bind("masterProduct", masterProductSelector.getProductNameComboBox());
+        sbc.bind("slaveProduct", slaveProductSelector.getProductNameComboBox());
+        sbc.bind("renameMasterComponents", renameMasterComponentsCheckBox);
+        sbc.bind("renameSlaveComponents", renameSlaveComponentsCheckBox);
+        sbc.bind("masterComponentPattern", masterComponentPatternField);
+        sbc.bind("slaveComponentPattern", slaveComponentPatternField);
     }
 
     private JPanel createSourceProductPanel() {

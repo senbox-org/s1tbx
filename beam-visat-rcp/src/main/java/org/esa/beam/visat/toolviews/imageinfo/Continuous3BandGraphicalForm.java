@@ -1,17 +1,28 @@
 package org.esa.beam.visat.toolviews.imageinfo;
 
+import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.ValueModel;
+import com.bc.ceres.binding.ValueRange;
+import com.bc.ceres.binding.ValueSet;
+import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.core.Assert;
-import org.esa.beam.framework.datamodel.*;
-import org.esa.beam.framework.param.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.GridBagUtils;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.VisatApp;
 
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -21,42 +32,139 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
     private final ImageInfoEditor imageInfoEditor;
     private final ImageInfoEditorSupport imageInfoEditorSupport;
     private final JPanel contentPanel;
+    private final AbstractButton imageEnhancementsButton;
+    private final JPanel imageEnhancementsPane;
 
-    private JRadioButton redButton;
-    private JRadioButton greenButton;
-    private JRadioButton blueButton;
-    private JPanel rgbSettingsPane;
-    private AbstractButton imageEnhancementsButton;
-    private JPanel imageEnhancementsPane;
-    private boolean imageEnhancementsVisible;
-    private int channel;
-    private final RgbChannelEditorModel[] models;
-    private final RasterDataNode[] channelRasters;
-    private HashMap<String, RasterDataNode> availableBandMap;
-    private Unloader unloader;
-
-    private Parameter gammaParam;
-    private Parameter histogramMatchingParam;
-    private Parameter rgbBandsParam;
-
+    private final ImageInfoEditorModel3B[] models;
+    private final RasterDataNode[] channelSources;
+    private final HashMap<String, RasterDataNode> channelSourcesMap;
+    private final RasterDataUnloader rasterDataUnloader;
     private final ChangeListener applyEnablerCL;
+    private final BindingContext bindingContext;
 
+    private int channel;
+    double gamma = 1.0;
+    String channelSourceName = "";
+    String histogramMatching = "";
+
+    private boolean gammaTipShown;
 
     public Continuous3BandGraphicalForm(final ColorManipulationForm parentForm) {
         this.parentForm = parentForm;
 
         imageInfoEditor = new ImageInfoEditor();
 
-        this.imageInfoEditorSupport = new ImageInfoEditorSupport(imageInfoEditor);
+        imageInfoEditorSupport = new ImageInfoEditorSupport(imageInfoEditor);
+        applyEnablerCL = parentForm.createApplyEnablerChangeListener();
+        rasterDataUnloader = new RasterDataUnloader();
+        models = new ImageInfoEditorModel3B[3];
+        channelSources = new Band[3];
+        channelSourcesMap = new HashMap<String, RasterDataNode>(31);
+        channel = 0;
 
-        contentPanel = new JPanel(new BorderLayout(2, 2));
-        contentPanel.add(imageInfoEditor, BorderLayout.CENTER);
+        final ValueContainer valueContainer = new ValueContainer();
+        valueContainer.addModel(ValueModel.createClassFieldModel(this, "channel", 0));
+        valueContainer.addModel(ValueModel.createClassFieldModel(this, "channelSourceName", ""));
+        valueContainer.addModel(ValueModel.createClassFieldModel(this, "gamma", 1.0));
+        valueContainer.addModel(ValueModel.createClassFieldModel(this, "histogramMatching", ImageInfo.HISTOGRAM_MATCHING_OFF));
 
-        initParameters();
+        valueContainer.getModel("channel").getDescriptor().setValueSet(new ValueSet(new Integer[]{0, 1, 2}));
 
-        models = new RgbChannelEditorModel[3];
-        channelRasters = new Band[3];
-        availableBandMap = new HashMap<String, RasterDataNode>(31);
+        valueContainer.getModel("gamma").getDescriptor().setValueRange(new ValueRange(1.0 / 10.0, 10.0));
+        valueContainer.getModel("gamma").getDescriptor().setDefaultValue(1.0);
+        valueContainer.addPropertyChangeListener("gamma", new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                JOptionPane.showMessageDialog(null, "gamma = " + gamma);
+                imageInfoEditor.getModel().setGamma(gamma);
+            }
+        });
+
+        valueContainer.getModel("histogramMatching").getDescriptor().setNotNull(true);
+        valueContainer.getModel("histogramMatching").getDescriptor().setValueSet(new ValueSet(
+                new String[]{
+                        ImageInfo.HISTOGRAM_MATCHING_OFF,
+                        ImageInfo.HISTOGRAM_MATCHING_EQUALIZE,
+                        ImageInfo.HISTOGRAM_MATCHING_NORMALIZE
+                }));
+
+        valueContainer.addPropertyChangeListener("histogramMatching", new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                JOptionPane.showMessageDialog(null, "histogramMatching = " + histogramMatching);
+                imageInfoEditor.getModel().setHistogramMatching(histogramMatching);
+            }
+        });
+
+        bindingContext = new BindingContext(valueContainer);
+
+        JRadioButton rChannelButton = new JRadioButton("Red");
+        JRadioButton gChannelButton = new JRadioButton("Green");
+        JRadioButton bChannelButton = new JRadioButton("Blue");
+        rChannelButton.setName("rChannelButton");
+        gChannelButton.setName("gChannelButton");
+        bChannelButton.setName("bChannelButton");
+
+        final ButtonGroup channelButtonGroup = new ButtonGroup();
+        channelButtonGroup.add(rChannelButton);
+        channelButtonGroup.add(gChannelButton);
+        channelButtonGroup.add(bChannelButton);
+
+        bindingContext.bind("channel", channelButtonGroup);
+        bindingContext.addPropertyChangeListener("channel", new PropertyChangeListener() {
+
+            public void propertyChange(PropertyChangeEvent evt) {
+                JOptionPane.showMessageDialog(null, "channel = " + channel);
+                acknowledgeChannel();
+            }
+        });
+
+        JTextField gammaField = new JTextField();
+        gammaField.setColumns(6);
+        gammaField.setHorizontalAlignment(JTextField.RIGHT);
+        bindingContext.bind("gamma", gammaField);
+
+        JComboBox histogramMatchingBox = new JComboBox();
+        bindingContext.bind("histogramMatching", histogramMatchingBox);
+
+        JComboBox channelRasterNameBox = new JComboBox();
+        channelRasterNameBox.setEditable(false);
+        bindingContext.bind("channelSourceName", channelRasterNameBox);
+
+        bindingContext.addPropertyChangeListener("channelSourceName", new PropertyChangeListener() {
+
+            public void propertyChange(PropertyChangeEvent evt) {
+                final RasterDataNode channelSource = channelSourcesMap.get(channelSourceName);
+                JOptionPane.showMessageDialog(null, "channelSourceName = " + channelSourceName);
+                Assert.notNull(channelSource, "availableBand");
+                if (channelSources[channel] != channelSource) {
+                    final RasterDataNode.Stx stx = Continuous3BandGraphicalForm.this.parentForm.getStx(channelSource);
+                    if (stx != null) {
+                        rasterDataUnloader.unloadUnusedRasterData(channelSources[channel]);
+                        channelSources[channel] = channelSource;
+                        models[channel] = new ImageInfoEditorModel3B(Continuous3BandGraphicalForm.this.parentForm.getImageInfo(), channel);
+                        models[channel].setDisplayProperties(channelSource);
+                        acknowledgeChannel();
+                        Continuous3BandGraphicalForm.this.parentForm.setApplyEnabled(true);
+                    } else {
+                        bindingContext.getBinding("channelSourceName").setValue(evt.getOldValue());
+                    }
+                }
+            }
+        });
+
+        final JPanel channelButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        channelButtonPanel.add(rChannelButton);
+        channelButtonPanel.add(gChannelButton);
+        channelButtonPanel.add(bChannelButton);
+
+        final JPanel channelRasterPanel = new JPanel(new BorderLayout());
+        channelRasterPanel.add(new JLabel("Source: "), BorderLayout.WEST);
+        channelRasterPanel.add(channelRasterNameBox, BorderLayout.CENTER);
+
+        JPanel channelSettingsPane = new JPanel(new BorderLayout());
+        channelSettingsPane.setBorder(BorderFactory.createEmptyBorder(0, ImageInfoEditor.HOR_BORDER_SIZE, 2,
+                                                                      ImageInfoEditor.HOR_BORDER_SIZE));
+        channelSettingsPane.add(channelButtonPanel, BorderLayout.NORTH);
+        channelSettingsPane.add(channelRasterPanel, BorderLayout.SOUTH);
 
         imageEnhancementsButton = ImageInfoEditorSupport.createToggleButton("icons/ImageEnhancements24.gif");
         imageEnhancementsButton.setName("imageEnhancementsButton");
@@ -64,84 +172,35 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
         imageEnhancementsButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
-                imageEnhancementsVisible = imageEnhancementsButton.isSelected();
-                if (imageEnhancementsVisible) {
-                    showGammaTip();
-                }
-                setImageEnhancementsPaneVisible(imageEnhancementsVisible);
+                setImageEnhancementsPaneVisible(imageEnhancementsButton.isSelected());
             }
         });
-
-        redButton = new JRadioButton("Red ");
-        greenButton = new JRadioButton("Green ");
-        blueButton = new JRadioButton("Blue ");
-        redButton.setName("redButton");
-        greenButton.setName("greenButton");
-        blueButton.setName("blueButton");
-
-        final ButtonGroup rgbButtonGroup = new ButtonGroup();
-        rgbButtonGroup.add(redButton);
-        rgbButtonGroup.add(greenButton);
-        rgbButtonGroup.add(blueButton);
-        redButton.setSelected(true);
-        channel = 0;
-
-        final ActionListener listener = new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                channel = redButton.isSelected() ? 0 : greenButton.isSelected() ? 1 : 2;
-                acknowledgeChannel();
-            }
-        };
-        redButton.addActionListener(listener);
-        greenButton.addActionListener(listener);
-        blueButton.addActionListener(listener);
-
-        final JPanel rgbButtonsPane = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        rgbButtonsPane.add(redButton);
-        rgbButtonsPane.add(greenButton);
-        rgbButtonsPane.add(blueButton);
-
-        final JPanel rgbSourcePane = new JPanel(new BorderLayout());
-        rgbSourcePane.add(new JLabel("Source: "), BorderLayout.WEST);
-        rgbSourcePane.add(rgbBandsParam.getEditor().getEditorComponent(), BorderLayout.CENTER);
-
-        rgbSettingsPane = new JPanel(new BorderLayout());
-        rgbSettingsPane.setBorder(BorderFactory.createEmptyBorder(0, ImageInfoEditor.HOR_BORDER_SIZE, 2,
-                                                                  ImageInfoEditor.HOR_BORDER_SIZE));
-        rgbSettingsPane.add(rgbButtonsPane, BorderLayout.NORTH);
-        rgbSettingsPane.add(rgbSourcePane, BorderLayout.SOUTH);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         imageEnhancementsPane = GridBagUtils.createPanel();
-        imageEnhancementsPane.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createEmptyBorder(0,
-                                                ImageInfoEditor.HOR_BORDER_SIZE,
-                                                0,
-                                                ImageInfoEditor.HOR_BORDER_SIZE),
-                BorderFactory.createTitledBorder("Image Enhancements"))); /*I18N*/
         gbc.gridwidth = 1;
 
         gbc.gridy = 0;
         gbc.gridx = 0;
         gbc.weightx = 0.75;
-        imageEnhancementsPane.add(gammaParam.getEditor().getLabelComponent(), gbc);
+        imageEnhancementsPane.add(new JLabel("Gamma:"), gbc);
         gbc.gridx = 1;
         gbc.weightx = 0.25;
-        imageEnhancementsPane.add(gammaParam.getEditor().getEditorComponent(), gbc);
+        imageEnhancementsPane.add(gammaField, gbc);
 
         gbc.gridy = 1;
         gbc.gridx = 0;
         gbc.weightx = 0.75;
-        imageEnhancementsPane.add(histogramMatchingParam.getEditor().getLabelComponent(), gbc);
+        imageEnhancementsPane.add(new JLabel("Histogram matching:"), gbc);
         gbc.gridx = 1;
         gbc.weightx = 0.25;
-        imageEnhancementsPane.add(histogramMatchingParam.getEditor().getEditorComponent(), gbc);
+        imageEnhancementsPane.add(histogramMatchingBox, gbc);
 
-        unloader = new Unloader();
-
-        applyEnablerCL = parentForm.createApplyEnablerChangeListener();
+        contentPanel = new JPanel(new BorderLayout(2, 2));
+        contentPanel.add(channelSettingsPane, BorderLayout.NORTH);
+        contentPanel.add(imageInfoEditor, BorderLayout.CENTER);
     }
 
     public Component getContentPanel() {
@@ -152,8 +211,7 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
     public void handleFormShown(ProductSceneView productSceneView) {
         updateFormModel(productSceneView);
         setAvailableBandNames(productSceneView);
-        setImageEnhancementsPaneVisible(imageEnhancementsVisible);
-        showRgbButtons();
+        setImageEnhancementsPaneVisible(imageEnhancementsButton.isSelected());
         parentForm.revalidateToolViewPaneControl();
     }
 
@@ -161,46 +219,44 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
     public void handleFormHidden(ProductSceneView productSceneView) {
         imageInfoEditor.getModel().removeChangeListener(applyEnablerCL);
         imageInfoEditor.setModel(null);
-        availableBandMap.clear();
+        channelSourcesMap.clear();
         models[0] = null;
         models[1] = null;
         models[2] = null;
-        channelRasters[0] = null;
-        channelRasters[1] = null;
-        channelRasters[2] = null;
+        channelSources[0] = null;
+        channelSources[1] = null;
+        channelSources[2] = null;
     }
 
     @Override
     public void updateFormModel(ProductSceneView productSceneView) {
         RasterDataNode[] rasters = productSceneView.getRasters();
-        this.channelRasters[0] = rasters[0];
-        this.channelRasters[1] = rasters[1];
-        this.channelRasters[2] = rasters[2];
+        this.channelSources[0] = rasters[0];
+        this.channelSources[1] = rasters[1];
+        this.channelSources[2] = rasters[2];
 
-        final int length = this.channelRasters.length;
+        final int length = this.channelSources.length;
         for (int i = 0; i < length; i++) {
-            models[i] = new RgbChannelEditorModel(parentForm.getImageInfo(), i);
+            models[i] = new ImageInfoEditorModel3B(parentForm.getImageInfo(), i);
             models[i].addChangeListener(applyEnablerCL);
         }
 
         acknowledgeChannel();
-        
-        gammaParam.setValue(parentForm.getImageInfo().getRgbProfile().getSampleDisplayGamma(channel), null);
-        histogramMatchingParam.setValue(parentForm.getImageInfo().getHistogramMatching(), new ParamExceptionHandler() {
-            public boolean handleParamException(ParamException e) {
-                histogramMatchingParam.setValue(ImageInfo.HISTOGRAM_MATCHING_OFF, null);
-                return true;
-            }
-        });
 
+        final ImageInfoEditorModel3B model = models[channel];
+        bindingContext.getBinding("gamma").setValue(model.getGamma());
+        bindingContext.getBinding("histogramMatching").setValue(model.getHistogramMatching());
     }
 
     private void showGammaTip() {
-        parentForm.showMessageDialog("gamma.rgb.tip",
-                                     "Tip:\n" +
-                                             "Gamma values between 0.6 and 0.9 tend to yield best results.\n" +
-                                             "Press enter key after you have typed in a new value for gamma.",
-                                     " Tip");
+        if (!gammaTipShown) {
+            gammaTipShown = true;
+            parentForm.showMessageDialog("gamma.rgb.tip",
+                                         "Tip:\n" +
+                                                 "Gamma values between 0.6 and 0.9 tend to yield best results.\n" +
+                                                 "Press enter key after you have typed in a new value for gamma.",
+                                         " Tip");
+        }
     }
 
     public AbstractButton[] getButtons() {
@@ -215,66 +271,9 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
         };
     }
 
-    private void initParameters() {
-        final ParamChangeListener rgbListener = new ParamChangeListener() {
-            public void parameterValueChanged(final ParamChangeEvent event) {
-                final String name = rgbBandsParam.getValueAsText();
-                final RasterDataNode availableBand = getAvailableBand(name);
-                Assert.notNull(availableBand, "availableBand");
-                if (channelRasters[channel] != availableBand) {
-                    final ImageInfo imageInfo = parentForm.createDefaultImageInfo(availableBand);
-                    if (imageInfo != null) {
-                        unloader.unloadUnusedRasterData(channelRasters[channel]);
-                        channelRasters[channel] = availableBand;
-                        models[channel] = new RgbChannelEditorModel(parentForm.getImageInfo(), channel);
-                        models[channel].setDisplayProperties(availableBand);
-                        acknowledgeChannel();
-                        parentForm.setApplyEnabled(true);
-                    } else {
-                        rgbBandsParam.setValue(event.getOldValue(), null);
-                    }
-                }
-            }
-        };
-
-        rgbBandsParam = new Parameter("rgbBands");
-        rgbBandsParam.getProperties().setValueSet(new String[]{""});
-        rgbBandsParam.getProperties().setValueSetBound(true);
-        rgbBandsParam.addParamChangeListener(rgbListener);
-
-        final ParamChangeListener imageEnhancementsListener = new ParamChangeListener() {
-            public void parameterValueChanged(final ParamChangeEvent event) {
-                if (imageInfoEditor != null && parentForm.getImageInfo() != null) {
-                    final float gamma = ((Number) gammaParam.getValue()).floatValue();
-                    imageInfoEditor.getModel().setGamma(gamma);
-                    imageInfoEditor.getModel().fireStateChanged();
-                }
-            }
-        };
-        gammaParam = new Parameter("gamma", 1.0f);
-        gammaParam.getProperties().setLabel("Gamma");
-        gammaParam.getProperties().setDescription("Gamma value");
-        gammaParam.getProperties().setDefaultValue(1.0f);
-        gammaParam.getProperties().setMinValue(1.0f / 10.0f);
-        gammaParam.getProperties().setMaxValue(10.0f);
-        gammaParam.getProperties().setNumCols(6);
-        gammaParam.addParamChangeListener(imageEnhancementsListener);
-
-        histogramMatchingParam = new Parameter("histogramMatching", ImageInfo.HISTOGRAM_MATCHING_OFF);
-        histogramMatchingParam.getProperties().setValueSet(new String[]{
-                ImageInfo.HISTOGRAM_MATCHING_OFF,
-                ImageInfo.HISTOGRAM_MATCHING_EQUALIZE,
-                ImageInfo.HISTOGRAM_MATCHING_NORMALIZE
-        });
-        histogramMatchingParam.getProperties().setNullValueAllowed(false);
-        histogramMatchingParam.getProperties().setValueSetBound(true);
-        histogramMatchingParam.getProperties().setLabel("Histogram matching");
-        histogramMatchingParam.getProperties().setDescription("Apply histogram matching");
-        histogramMatchingParam.addParamChangeListener(imageEnhancementsListener);
-    }
-
     private void setImageEnhancementsPaneVisible(final boolean visible) {
         if (visible) {
+            showGammaTip();
             if (imageEnhancementsPane.getParent() != contentPanel) {
                 contentPanel.add(BorderLayout.SOUTH, imageEnhancementsPane);
                 contentPanel.revalidate();
@@ -292,45 +291,35 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
 
 
     private void acknowledgeChannel() {
-        RasterDataNode channelRaster = channelRasters[channel];
-        final RgbChannelEditorModel model = models[channel];
-        model.setDisplayProperties(channelRaster);
+        RasterDataNode channelSource = channelSources[channel];
+        final ImageInfoEditorModel3B model = models[channel];
+        model.setDisplayProperties(channelSource);
         imageInfoEditor.setModel(model);
-        rgbBandsParam.setValueAsText(channelRaster.getName(), null);
+        bindingContext.getBinding("channelSourceName").setValue( channelSource.getName());
     }
 
-
-    private void showRgbButtons() {
-        if (!contentPanel.isAncestorOf(rgbSettingsPane)) {
-            contentPanel.add(rgbSettingsPane, BorderLayout.NORTH);
-        }
-    }
 
     private void setAvailableBandNames(ProductSceneView productSceneView) {
-        availableBandMap.clear();
+        channelSourcesMap.clear();
         final Band[] bands = productSceneView.getProduct().getBands();
         for (Band band : bands) {
             if (band.getSampleCoding() == null) {
-                availableBandMap.put(band.getName(), band);
+                channelSourcesMap.put(band.getName(), band);
             }
         }
         final RasterDataNode[] rasters = productSceneView.getRasters();
         for (final RasterDataNode raster : rasters) {
-            availableBandMap.put(raster.getName(), raster);
+            channelSourcesMap.put(raster.getName(), raster);
         }
-        final Set<String> set = availableBandMap.keySet();
+        final Set<String> set = channelSourcesMap.keySet();
         final String[] valueSet = set.toArray(new String[set.size()]);
-        rgbBandsParam.setValueSet(valueSet);
+        bindingContext.getValueContainer().getModel("channelSourceName").getDescriptor().setValueSet(new ValueSet(valueSet));
     }
 
-    private RasterDataNode getAvailableBand(final String name) {
-        return availableBandMap.get(name);
-    }
-
-    private static class Unloader {
+    private static class RasterDataUnloader {
 
 
-        public Unloader() {
+        public RasterDataUnloader() {
         }
 
         public void unloadUnusedRasterData(final RasterDataNode raster) {

@@ -65,15 +65,15 @@ public class ParametersPane {
                 textField.setHorizontalAlignment(JTextField.RIGHT);
                 int fontSize = textField.getFont().getSize();
                 textField.setFont(new Font("Courier", Font.PLAIN, fontSize));
-                bindingContext.bind(textField, model.getDescriptor().getName());
+                bindingContext.bind(model.getDescriptor().getName(), textField);
                 editorComponent = textField;
             } else if (isBooleanType(type)) {
                 JCheckBox checkBox = new JCheckBox();
-                bindingContext.bind(checkBox, model.getDescriptor().getName());
+                bindingContext.bind(model.getDescriptor().getName(), checkBox);
                 editorComponent = checkBox;
             } else if (File.class.isAssignableFrom(type)) {
                 JTextField textField = new JTextField();
-                final Binding binding = bindingContext.bind(textField, model.getDescriptor().getName());
+                final Binding binding = bindingContext.bind(model.getDescriptor().getName(), textField);
                 JPanel subPanel = new JPanel(new BorderLayout(2, 2));
                 subPanel.add(textField, BorderLayout.CENTER);
                 JButton etcButton = new JButton("...");
@@ -93,17 +93,17 @@ public class ParametersPane {
                 if (valueSet != null) {
                     if (type.isArray()) {
                         final JList list = new JList();
-                        bindingContext.bind(list, model.getDescriptor().getName(), true);
+                        bindingContext.bind(model.getDescriptor().getName(), list, true);
                         editorComponent = new JScrollPane(list);
                     } else {
                         JComboBox comboBox = new JComboBox();
-                        bindingContext.bind(comboBox, model.getDescriptor().getName());
+                        bindingContext.bind(model.getDescriptor().getName(), comboBox);
                         editorComponent = comboBox;
                         
                     }
                 } else {
                     JTextField textField = new JTextField();
-                    bindingContext.bind(textField, model.getDescriptor().getName());
+                    bindingContext.bind(model.getDescriptor().getName(), textField);
                     editorComponent = textField;
                 }
             }

@@ -74,7 +74,7 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
 
     @Override
     public void updateFormModel(ProductSceneView productSceneView) {
-        ColorPaletteEditorModel model = new ColorPaletteEditorModel(parentForm.getImageInfo());
+        ImageInfoEditorModel1B model = new ImageInfoEditorModel1B(parentForm.getImageInfo());
         model.setDisplayProperties(productSceneView.getRaster());
         model.addChangeListener(applyEnablerCL);
         imageInfoEditor.setModel(model);

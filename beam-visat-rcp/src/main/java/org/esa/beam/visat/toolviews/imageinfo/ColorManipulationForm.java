@@ -712,11 +712,24 @@ class ColorManipulationForm {
 
     public ImageInfo createDefaultImageInfo(RasterDataNode raster) {
         try {
-            return raster.createDefaultImageInfo(null, ProgressMonitor.NULL);
+            return raster.createDefaultImageInfo(null, ProgressMonitor.NULL);  // todo - use PM
         } catch (IOException e) {
             JOptionPane.showMessageDialog(getContentPanel(),
                                           "Failed to create image information for '" +
                                           raster.getName() + "':\n" + e.getMessage(),
+                                          "I/O Error",
+                                          JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+    }
+
+    public RasterDataNode.Stx getStx(RasterDataNode raster) {
+        try {
+            return raster.ensureValidStx(ProgressMonitor.NULL); // todo - use PM
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(getContentPanel(),
+                                          "Failed to load statistics for '" +
+                                                  raster.getName() + "':\n" + e.getMessage(),
                                           "I/O Error",
                                           JOptionPane.ERROR_MESSAGE);
             return null;
