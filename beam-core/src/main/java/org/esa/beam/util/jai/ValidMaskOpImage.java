@@ -29,7 +29,7 @@ public class ValidMaskOpImage extends RasterDataNodeOpImage {
                                             DataBuffer.TYPE_BYTE));
         final Product product = rasterDataNode.getProduct();
         try {
-            this.term = product.createTerm(rasterDataNode.getValidPixelExpression());
+            this.term = product.createTerm(rasterDataNode.getValidMaskExpression());
         } catch (ParseException e) {
             throw new IllegalArgumentException("rasterDataNode", e);
         }
