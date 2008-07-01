@@ -22,6 +22,8 @@ import org.esa.beam.framework.datamodel.RasterDataNode;
 import java.util.Random;
 import java.awt.*;
 
+import javax.media.jai.ROI;
+
 import com.bc.ceres.core.ProgressMonitor;
 
 /**
@@ -34,11 +36,13 @@ import com.bc.ceres.core.ProgressMonitor;
 public class RandomSceneIter {
     private final Operator operator;
     private final Random random;
-    private RasterDataNode[] rdn;
+    private final RasterDataNode[] rdn;
+    private final ROI roi;
 
-    public RandomSceneIter(Operator operator, RasterDataNode[] rdn, int seed) {
+    public RandomSceneIter(Operator operator, RasterDataNode[] rdn, ROI roi, int seed) {
         this.operator = operator;
         this.rdn = rdn;
+        this.roi = roi;
         random = new Random(seed);
     }
 
@@ -47,15 +51,20 @@ public class RandomSceneIter {
 
         final int rasterWidth = product.getSceneRasterWidth();
         final int rasterHeight = product.getSceneRasterHeight();
-
-        final int x = random.nextInt(rasterWidth);
-        final int y = random.nextInt(rasterHeight);
-
         final double[] value = new double[rdn.length];
-        final Rectangle rectangle = new Rectangle(x, y, 1, 1);
-        for (int i = 0; i < rdn.length; i++) {
-            final Tile sourceTile = operator.getSourceTile(rdn[i], rectangle, ProgressMonitor.NULL);
-            value[i] = sourceTile.getSampleDouble(x, y);
+
+        boolean valid = false;
+        while (!valid) {
+            final int x = random.nextInt(rasterWidth);
+            final int y = random.nextInt(rasterHeight);
+            if (roi.contains(x, y)) {
+                final Rectangle rectangle = new Rectangle(x, y, 1, 1);
+                for (int i = 0; i < rdn.length; i++) {
+                    final Tile sourceTile = operator.getSourceTile(rdn[i], rectangle, ProgressMonitor.NULL);
+                    value[i] = sourceTile.getSampleDouble(x, y);
+                }
+                valid = true;
+            }
         }
         return value;
     }

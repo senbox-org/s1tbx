@@ -69,8 +69,9 @@ public class KMeansClusterer {
         final double[][] newMeans = new double[clusterCount][dimensionCount];
         Arrays.fill(memberCounts, 0);
         final double[] point = new double[dimensionCount];
+        iter.next();
         while (iter.hasNext()) {
-            iter.next(point);
+            iter.getSample(point);
             double minDistance = Double.MAX_VALUE;
             int closestCluster = 0;
             for (int c = 0; c < clusterCount; ++c) {
@@ -84,6 +85,7 @@ public class KMeansClusterer {
                 newMeans[closestCluster][d] += point[d];
             }
             memberCounts[closestCluster]++;
+            iter.next();
         }
         for (int c = 0; c < clusterCount; ++c) {
             for (int d = 0; d < dimensionCount; ++d) {

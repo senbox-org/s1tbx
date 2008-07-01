@@ -14,9 +14,11 @@
  */
 package org.esa.beam.cluster;
 
-import org.esa.beam.framework.gpf.Tile;
-
 import java.util.Iterator;
+
+import javax.media.jai.ROI;
+
+import org.esa.beam.framework.gpf.Tile;
 
 /**
  * todo - add API doc
@@ -29,21 +31,33 @@ public class PixelIter {
 
     private final Tile[] tiles;
     private final Iterator<Tile.Pos> iterator;
-    private Tile.Pos pos;
+    private final ROI roi;
+    private Tile.Pos nextPos;
 
-    public PixelIter(Tile[] tiles) {
+    public PixelIter(Tile[] tiles, ROI roi) {
         this.tiles = tiles;
+        this.roi = roi;
         iterator = tiles[0].iterator();
+        nextPos = null;
     }
 
     public boolean hasNext() {
-        return iterator.hasNext();
+        return nextPos != null;
     }
 
-    public void next(double[] point) {
-        pos = iterator.next();
+    public void next() {
+        while (iterator.hasNext()) {
+            nextPos = iterator.next();
+            if (roi.contains(nextPos.x, nextPos.y)) {
+                return;
+            }
+        }
+        nextPos = null;
+    }
+    
+    public void getSample(double[] point) {
         for (int i = 0; i < point.length; i++) {
-            point[i] = tiles[i].getSampleDouble(pos.x, pos.y);
+            point[i] = tiles[i].getSampleDouble(nextPos.x, nextPos.y);
         }
     }
 }
