@@ -133,10 +133,6 @@ public class KMeansClusterOp extends Operator {
 
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
-        if (targetBand != clusterMapBand) {
-            writeRoi(targetTile);
-            return;
-        }
         pm.beginTask("Computing clusters...", 2);
         try {
             final KMeansClusterSet theClusterSet = getClusterSet(SubProgressMonitor.create(pm, 1));
@@ -164,20 +160,6 @@ public class KMeansClusterOp extends Operator {
             pm.done();
         }
     }
-
-    private void writeRoi(Tile targetTile) {
-        final Rectangle targetRectangle = targetTile.getRectangle();
-        for (int y = targetRectangle.y; y < targetRectangle.y + targetRectangle.height; y++) {
-            for (int x = targetRectangle.x; x < targetRectangle.x + targetRectangle.width; x++) {
-                if (roi.contains(x, y)) {
-                    targetTile.setSample(x, y, 1);
-                } else {
-                    targetTile.setSample(x, y, 0);
-                }
-            }
-        }
-    }
-
 
     private synchronized KMeansClusterSet getClusterSet(ProgressMonitor pm) {
         if (clusterSet == null) {
@@ -245,17 +227,20 @@ public class KMeansClusterOp extends Operator {
     private void joinRoiAndNoDataMask(ProgressMonitor pm) {
         if (StringUtils.isNotNullAndNotEmpty(roiBandName)) {
             Band roiBand = sourceProduct.getBand(roiBandName);
-            try {
-                roi = roiBand.createROI(pm);
-            } catch (IOException e) {
-                throw new OperatorException(e);
+            if (roiBand.isROIUsable()) {
+                try {
+                    roi = roiBand.createROI(pm);
+                } catch (IOException e) {
+                    throw new OperatorException(e);
+                }
             }
         }
         Set<String> validMaskSet = new HashSet<String>(sourceBands.length);
         for (int i = 0; i < sourceBands.length; i++) {
             Band band = sourceBands[i];
             String validExpression = band.getValidMaskExpression();
-            if (!validMaskSet.contains(validExpression)) {
+            if (StringUtils.isNotNullAndNotEmpty(validExpression)
+                    && !validMaskSet.contains(validExpression)) {
                 validMaskSet.add(validExpression);
                 PlanarImage noDataImage = new ValidMaskOpImage(band);
                 ROI noDataROI = new ROI(noDataImage, 1);
