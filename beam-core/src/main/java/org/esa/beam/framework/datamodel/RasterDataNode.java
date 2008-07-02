@@ -1671,37 +1671,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      */
     public synchronized ImageInfo createDefaultImageInfo(double[] histoSkipAreas, ProgressMonitor pm) throws IOException {
         Stx stx = ensureValidStx(pm);
-        Histogram histogram = new Histogram(stx.getSampleFrequencies(), stx.getMinSample(), stx.getMaxSample());
-        final Range range;
-        if (histoSkipAreas != null) {
-            range = histogram.findRange(histoSkipAreas[0], histoSkipAreas[1]);
-        } else {
-            range = histogram.findRange(0.01, 0.04);
-        }
-
-        final double min, max;
-        if (range.getMin() != range.getMax()) {
-            min = scale(range.getMin());
-            max = scale(range.getMax());
-        } else {
-            min = scale(histogram.getMin());
-            max = scale(histogram.getMax());
-        }
-
-        double center = scale(0.5 * (scaleInverse(min) + scaleInverse(max)));
-        final ColorPaletteDef gradationCurve = new ColorPaletteDef(min, center, max);
-
-        return new ImageInfo(gradationCurve);
-    }
-
-    public Stx ensureValidStx(ProgressMonitor pm) throws IOException {
-        Stx stx = getStx();
-        if (stx == null || stx.isDirty()) {
-            Histogram histogram = computeRasterDataHistogram(null, 512, null, pm);
-            stx = new Stx(histogram.getMin(), histogram.getMax(), histogram.getBinCounts());
-            setStx(stx);
-        }
-        return stx;
+        Histogram histogram = new Histogram(stx.getSampleFrequencies(),
+                                            stx.getMinSample(),
+                                            stx.getMaxSample());
+        return createDefaultImageInfo(histoSkipAreas, histogram);
     }
 
     /**
@@ -1736,9 +1709,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         double center = scale(0.5 * (scaleInverse(min) + scaleInverse(max)));
         final ColorPaletteDef gradationCurve = new ColorPaletteDef(min, center, max);
 
-        return new ImageInfo((float) min, (float) max,
-                             histogram.getBinCounts(),
-                             gradationCurve);
+        return new ImageInfo(gradationCurve);
     }
 
     /**
@@ -2546,6 +2517,16 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             this.stx = stx;
             fireProductNodeChanged(PROPERTY_NAME_STATISTICS, oldValue);
         }
+    }
+
+    public Stx ensureValidStx(ProgressMonitor pm) throws IOException {
+        Stx stx = getStx();
+        if (stx == null || stx.isDirty()) {
+            Histogram histogram = computeRasterDataHistogram(null, 512, null, pm);
+            stx = new Stx(histogram.getMin(), histogram.getMax(), histogram.getBinCounts());
+            setStx(stx);
+        }
+        return stx;
     }
 
     public static interface RasterDataProcessor {
