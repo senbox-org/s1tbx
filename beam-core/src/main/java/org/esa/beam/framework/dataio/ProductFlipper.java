@@ -25,6 +25,7 @@ import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
+import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
@@ -283,6 +284,7 @@ public class ProductFlipper extends AbstractProductBuilder {
             addMetadataToProduct(product);
             addTiePointGridsToProduct(product);
             addFlagCodingsToProduct(product);
+            addIndexCodingsToProduct(product);
             addGeoCodingToProduct(product);
         }
         addBandsToProduct(product);
@@ -321,14 +323,19 @@ public class ProductFlipper extends AbstractProductBuilder {
                 destBand.setSpectralBandwidth(sourceBand.getSpectralBandwidth());
                 destBand.setSolarFlux(sourceBand.getSolarFlux());
                 FlagCoding sourceFlagCoding = sourceBand.getFlagCoding();
+                IndexCoding sourceIndexCoding = sourceBand.getIndexCoding();
                 if (sourceFlagCoding != null) {
                     String flagCodingName = sourceFlagCoding.getName();
-                    FlagCoding destFlagCoding = product.getFlagCoding(flagCodingName);
-                    Debug.assertNotNull(
-                            destFlagCoding); // should not happen because flag codings should be already in product
-                    destBand.setFlagCoding(destFlagCoding);
+                    FlagCoding destFlagCoding = product.getFlagCodingGroup().get(flagCodingName);
+                    Debug.assertNotNull(destFlagCoding); // should not happen because flag codings should be already in product
+                    destBand.setSampleCoding(destFlagCoding);
+                } else if (sourceIndexCoding != null) {
+                    String indexCodingName = sourceIndexCoding.getName();
+                    IndexCoding destIndexCoding = product.getIndexCodingGroup().get(indexCodingName);
+                    Debug.assertNotNull(destIndexCoding); // should not happen because index codings should be already in product
+                    destBand.setSampleCoding(destIndexCoding);
                 } else {
-                    destBand.setFlagCoding(null);
+                    destBand.setSampleCoding(null);
                 }
                 ImageInfo sourceImageInfo = sourceBand.getImageInfo();
                 if (sourceImageInfo != null) {

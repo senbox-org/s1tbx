@@ -404,6 +404,7 @@ public class ProductProjectionBuilder extends AbstractProductBuilder {
         if (!isMetadataIgnored()) {
             addMetadataToProduct(product);
             addFlagCodingsToProduct(product);
+            addIndexCodingsToProduct(product);
         }
         addGeoCodingToProduct(product);
         addBandsToProduct(product);

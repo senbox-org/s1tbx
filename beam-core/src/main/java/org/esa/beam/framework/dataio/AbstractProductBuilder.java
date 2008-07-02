@@ -93,12 +93,24 @@ public abstract class AbstractProductBuilder extends AbstractProductReader {
     }
 
     protected void addFlagCodingsToProduct(Product product) {
-        for (int i = 0; i < getSourceProduct().getNumFlagCodings(); i++) {
-            FlagCoding sourceFlagCoding = getSourceProduct().getFlagCodingAt(i);
+        final ProductNodeGroup<FlagCoding> flagCodingGroup = getSourceProduct().getFlagCodingGroup();
+        for (int i = 0; i < flagCodingGroup.getNodeCount(); i++) {
+            FlagCoding sourceFlagCoding = flagCodingGroup.get(i);
             FlagCoding destFlagCoding = new FlagCoding(sourceFlagCoding.getName());
             destFlagCoding.setDescription(sourceFlagCoding.getDescription());
             cloneFlags(sourceFlagCoding, destFlagCoding);
-            product.addFlagCoding(destFlagCoding);
+            product.getFlagCodingGroup().add(destFlagCoding);
+        }
+    }
+
+    protected void addIndexCodingsToProduct(Product product) {
+        final ProductNodeGroup<IndexCoding> indexCodingGroup = getSourceProduct().getIndexCodingGroup();
+        for (int i = 0; i < indexCodingGroup.getNodeCount(); i++) {
+            IndexCoding sourceIndexCoding = indexCodingGroup.get(i);
+            IndexCoding destIndexCoding = new IndexCoding(sourceIndexCoding.getName());
+            destIndexCoding.setDescription(sourceIndexCoding.getDescription());
+            cloneIndexes(sourceIndexCoding, destIndexCoding);
+            product.getIndexCodingGroup().add(destIndexCoding);
         }
     }
 
@@ -139,6 +151,10 @@ public abstract class AbstractProductBuilder extends AbstractProductReader {
     }
 
     protected void cloneFlags(FlagCoding sourceFlagCoding, FlagCoding destFlagCoding) {
+        cloneMetadataElementsAndAttributes(sourceFlagCoding, destFlagCoding, 1);
+    }
+
+    protected void cloneIndexes(IndexCoding sourceFlagCoding, IndexCoding destFlagCoding) {
         cloneMetadataElementsAndAttributes(sourceFlagCoding, destFlagCoding, 1);
     }
 

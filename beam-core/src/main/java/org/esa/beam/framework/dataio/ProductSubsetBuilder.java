@@ -312,6 +312,7 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
             addMetadataToProduct(product);
             addTiePointGridsToProduct(product);
             addFlagCodingsToProduct(product);
+            addIndexCodingsToProduct(product);
         }
         addBandsToProduct(product);
         if (!isMetadataIgnored()) {
@@ -465,14 +466,19 @@ public class ProductSubsetBuilder extends AbstractProductBuilder {
                 destBand.setNoDataValueUsed(sourceBand.isNoDataValueUsed());
                 destBand.setValidPixelExpression(sourceBand.getValidPixelExpression());
                 FlagCoding sourceFlagCoding = sourceBand.getFlagCoding();
+                IndexCoding sourceIndexCoding = sourceBand.getIndexCoding();
                 if (sourceFlagCoding != null) {
                     String flagCodingName = sourceFlagCoding.getName();
-                    FlagCoding destFlagCoding = product.getFlagCoding(flagCodingName);
-                    Debug.assertNotNull(
-                            destFlagCoding); // should not happen because flag codings should be already in product
-                    destBand.setFlagCoding(destFlagCoding);
+                    FlagCoding destFlagCoding = product.getFlagCodingGroup().get(flagCodingName);
+                    Debug.assertNotNull(destFlagCoding); // should not happen because flag codings should be already in product
+                    destBand.setSampleCoding(destFlagCoding);
+                } else if (sourceIndexCoding != null) {
+                    String indexCodingName = sourceIndexCoding.getName();
+                    IndexCoding destIndexCoding = product.getIndexCodingGroup().get(indexCodingName);
+                    Debug.assertNotNull(destIndexCoding); // should not happen because index codings should be already in product
+                    destBand.setSampleCoding(destIndexCoding);
                 } else {
-                    destBand.setFlagCoding(null);
+                    destBand.setSampleCoding(null);
                 }
 
                 product.addBand(destBand);

@@ -2557,15 +2557,21 @@ public class ProductUtils {
                 targetBand.setNoDataValueUsed(true);
                 ProductUtils.copySpectralBandProperties(sourceBand, targetBand);
                 FlagCoding sourceFlagCoding = sourceBand.getFlagCoding();
+                IndexCoding sourceIndexCoding = sourceBand.getIndexCoding();
                 if (sourceFlagCoding != null) {
                     String flagCodingName = sourceFlagCoding.getName();
-                    FlagCoding targetFlagCoding = targetProduct.getFlagCoding(flagCodingName);
-                    Debug.assertNotNull(
-                            targetFlagCoding); // should not happen because flag codings should be already in product
-                    targetBand.setFlagCoding(targetFlagCoding);
+                    FlagCoding destFlagCoding = targetProduct.getFlagCodingGroup().get(flagCodingName);
+                    Debug.assertNotNull(destFlagCoding); // should not happen because flag codings should be already in product
+                    targetBand.setSampleCoding(destFlagCoding);
+                } else if (sourceIndexCoding != null) {
+                    String indexCodingName = sourceIndexCoding.getName();
+                    IndexCoding destIndexCoding = targetProduct.getIndexCodingGroup().get(indexCodingName);
+                    Debug.assertNotNull(destIndexCoding); // should not happen because index codings should be already in product
+                    targetBand.setSampleCoding(destIndexCoding);
                 } else {
-                    targetBand.setFlagCoding(null);
+                    targetBand.setSampleCoding(null);
                 }
+
                 ImageInfo sourceImageInfo = sourceBand.getImageInfo();
                 if (sourceImageInfo != null) {
                     targetBand.setImageInfo(sourceImageInfo.createDeepCopy());
