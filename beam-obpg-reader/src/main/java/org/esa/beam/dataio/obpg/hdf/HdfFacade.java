@@ -16,15 +16,15 @@
  */
 package org.esa.beam.dataio.obpg.hdf;
 
-import ncsa.hdf.hdflib.HDFException;
 import ncsa.hdf.hdflib.HDFConstants;
+import ncsa.hdf.hdflib.HDFException;
 import ncsa.hdf.hdflib.HDFNativeData;
 import org.esa.beam.dataio.obpg.hdf.lib.HDF;
-import org.esa.beam.util.Debug;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.util.Debug;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 public class HdfFacade {
 
@@ -55,7 +55,7 @@ public class HdfFacade {
     }
 
     public List<HdfAttribute> readAttributes(final int sdsId, final int numAttributes) throws
-                                                                                             HDFException {
+                                                                                       HDFException {
         final List<HdfAttribute> attributes = new ArrayList<HdfAttribute>();
 
         final int[] sdAttrInfo = new int[2];
@@ -224,9 +224,13 @@ public class HdfFacade {
 
     public ProductData readProductData(SdsInfo sdsInfo, ProductData data) throws HDFException {
         final int sdsID = sdsInfo.getSdsID();
-        final int[] start = new int[3] ;
-        final int[] stride = new int[]{1,1,1};
-        final int[] count = new int[]{sdsInfo.getDimensions()[0],0,0};
+        final int[] start = new int[]{0, 0, 0};
+        final int[] stride = new int[]{1, 1, 1};
+        final int[] count = new int[]{0, 0, 0};
+        final int[] dimensions = sdsInfo.getDimensions();
+        for (int i = 0; i < dimensions.length; i++) {
+            count[i] = dimensions[i];
+        }
         final Object buffer = data.getElems();
         HDF.getWrap().SDreaddata(sdsID, start, stride, count, buffer);
         return data;

@@ -169,11 +169,9 @@ public class ModisProductReader extends AbstractProductReader {
      */
     @Override
     protected Product readProductNodesImpl() throws IOException, IllegalFileFormatException {
-        final File inFile = getInputFile();
-
-        Product product;
         try {
             try {
+                final File inFile = getInputFile();
                 final String path = inFile.getPath();
                 _fileId = HDF.getWrap().Hopen(path, HDFConstants.DFACC_RDONLY);
                 _sdStart = HDF.getWrap().SDstart(path, HDFConstants.DFACC_RDONLY);
@@ -184,6 +182,7 @@ public class ModisProductReader extends AbstractProductReader {
                 _fileReader = createFileReader();
 
                 final Dimension productDim = _globalAttributes.getProductDimensions();
+                final Product product;
                 product = new Product(_globalAttributes.getProductName(), _globalAttributes.getProductType(),
                                       productDim.width, productDim.height, this);
                 product.setFileLocation(inFile);
@@ -212,13 +211,13 @@ public class ModisProductReader extends AbstractProductReader {
                 if (sensingStop != null) {
                     product.setEndTime(ProductData.UTC.create(sensingStop, 0));
                 }
+                return product;
             } finally {
                 HDF.getWrap().Hclose(_fileId);
             }
         } catch (HDFException e) {
             throw new ProductIOException(e.getMessage());
         }
-        return product;
     }
 
     private ModisFileReader createFileReader() {

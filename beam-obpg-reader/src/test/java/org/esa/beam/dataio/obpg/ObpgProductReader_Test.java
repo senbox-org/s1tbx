@@ -16,14 +16,12 @@
  */
 package org.esa.beam.dataio.obpg;
 
-import ncsa.hdf.hdflib.HDFConstants;
 import ncsa.hdf.hdflib.HDFException;
 import org.esa.beam.dataio.obpg.hdf.HdfAttribute;
 import org.esa.beam.dataio.obpg.hdf.ObpgUtils;
 import org.esa.beam.dataio.obpg.hdf.SdsInfo;
 import org.esa.beam.framework.datamodel.Product;
 import static org.mockito.Mockito.*;
-import org.mockito.Mockito;
 import org.mockito.InOrder;
 
 import java.io.File;
@@ -82,7 +80,8 @@ public class ObpgProductReader_Test extends TestCase {
         order.verify(obpgUtilsMock, times(1)).addGlobalMetadata(prodRet, new ArrayList<HdfAttribute>());
         order.verify(obpgUtilsMock, times(1)).extractSdsData(sdStart);
         order.verify(obpgUtilsMock, times(1)).addScientificMetadata(prodRet, sdsInfos);
-        order.verify(obpgUtilsMock, times(1)).addBandsAndTiePointGrids(prodRet, sdsInfos);
+        order.verify(obpgUtilsMock, times(1)).addBands(prodRet, sdsInfos);
+        order.verify(obpgUtilsMock, times(1)).addGeocoding(prodRet, sdsInfos);
         order.verify(obpgUtilsMock, times(1)).closeHdfFile(fileID);
         verifyNoMoreInteractions(obpgUtilsMock);
     }

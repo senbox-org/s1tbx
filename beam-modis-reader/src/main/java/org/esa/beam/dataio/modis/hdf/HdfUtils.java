@@ -250,7 +250,6 @@ public class HdfUtils {
         if (HDF.getWrap().SDfileinfo(sdId, fileInfo)) {
             final int[] sdAttrInfo = new int[2];
             final String[] sdVal = new String[1];
-
             for (int n = 0; n < fileInfo[1]; n++) {
                 sdVal[0] = "";
                 if (HDF.getWrap().SDattrinfo(sdId, n, sdVal, sdAttrInfo)) {

@@ -16,24 +16,27 @@
  */
 package org.esa.beam.dataio.obpg.hdf;
 
+import com.bc.ceres.core.ProgressMonitor;
 import ncsa.hdf.hdflib.HDFConstants;
 import ncsa.hdf.hdflib.HDFException;
+import org.esa.beam.dataio.obpg.bandreader.ObpgBandReader;
+import org.esa.beam.dataio.obpg.bandreader.ObpgBandReaderFactory;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.MetadataElement;
+import org.esa.beam.framework.datamodel.PixelGeoCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.Debug;
-import org.esa.beam.dataio.obpg.bandreader.ObpgBandReaderFactory;
-import org.esa.beam.dataio.obpg.bandreader.ObpgBandReader;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 public class ObpgUtils {
 
@@ -269,7 +272,7 @@ public class ObpgUtils {
         }
     }
 
-    public Map<Band, ObpgBandReader> addBandsAndTiePointGrids(final Product product, final SdsInfo[] sdsInfos) throws HDFException {
+    public Map<Band, ObpgBandReader> addBands(final Product product, final SdsInfo[] sdsInfos) throws HDFException {
         final HashMap<Band, ObpgBandReader> readerMap = new HashMap<Band, ObpgBandReader>();
         final int sceneRasterWidth = product.getSceneRasterWidth();
         final int sceneRasterHeight = product.getSceneRasterHeight();
@@ -278,10 +281,7 @@ public class ObpgUtils {
                 final int[] dimensions = sdsInfo.getDimensions();
                 final int height = dimensions[0];
                 final int width = dimensions[1];
-                if (height != sceneRasterHeight
-                    || width != sceneRasterWidth) {
-                    addTiePointGrid(product, sdsInfo);
-                } else{
+                if (height == sceneRasterHeight && width == sceneRasterWidth) {
                     final String name = sdsInfo.getName();
                     final int dataType = decodeHdfDataType(sdsInfo.getHdfDataType());
                     final Band band = new Band(name, dataType, width, height);
@@ -307,8 +307,6 @@ public class ObpgUtils {
                             final String flagName = hdfAttribute.getStringValue();
                             final int flagMask = convertToFlagMask(attribName);
                             flagCoding.addFlag(flagName, flagMask, "");
-                        } else {
-//                        addAttributeToElement(sdsElement, hdfAttribute);
                         }
                     }
                     if (flagCoding != null) {
@@ -321,8 +319,91 @@ public class ObpgUtils {
         return readerMap;
     }
 
-    private void addTiePointGrid(final Product product, final SdsInfo sdsInfo) {
+    public void addGeocoding(final Product product, final SdsInfo[] sdsInfos) throws HDFException, IOException {
+        SdsInfo longitudeSds = null;
+        SdsInfo latitudeSds = null;
+        for (SdsInfo sdsInfo : sdsInfos) {
+            final String name = sdsInfo.getName();
+            if ("longitude".equals(name)) {
+                longitudeSds = sdsInfo;
+            } else if ("latitude".equals(name)) {
+                latitudeSds = sdsInfo;
+            }
+        }
+        if (latitudeSds == null || longitudeSds == null) {
+            throw new ProductIOException("Unable to applay a Geocoding");
+        }
+        final ProductData lonRawData = readData(longitudeSds);
+        final ProductData latRawData = readData(latitudeSds);
+        final Band latBand = product.addBand(latitudeSds.getName(), ProductData.TYPE_FLOAT32);
+        final Band lonBand = product.addBand(longitudeSds.getName(), ProductData.TYPE_FLOAT32);
 
+        final MetadataElement scientificElement = product.getMetadataRoot().getElement(SCIENTIFIC_METADATA);
+        final MetadataElement cntlPointElem = scientificElement.getElement("cntl_pt_cols");
+        final MetadataAttribute attribute = cntlPointElem.getAttribute("data");
+        final int[] colPoints = (int[]) attribute.getDataElems();
+
+        computeLatLonBandData(latBand, lonBand, latRawData, lonRawData, colPoints);
+
+        product.setGeoCoding(new PixelGeoCoding(latBand, lonBand, null, 5, ProgressMonitor.NULL));
+    }
+
+    private void computeLatLonBandData(final Band latBand, final Band lonBand,
+                                       final ProductData latRawData, final ProductData lonRawData,
+                                       final int[] colPoints) {
+        latBand.ensureRasterData();
+        lonBand.ensureRasterData();
+        final float[] latRawFloats = (float[]) latRawData.getElems();
+        final float[] lonRawFloats = (float[]) lonRawData.getElems();
+        final float[] latFloats = (float[]) latBand.getDataElems();
+        final float[] lonFloats = (float[]) lonBand.getDataElems();
+        final int rawWidth = colPoints.length;
+        final int width = latBand.getRasterWidth();
+        final int height = latBand.getRasterHeight();
+
+        int colPointIdx = 0;
+        int p1 = colPoints[colPointIdx] - 1;
+        int p2 = colPoints[++colPointIdx] - 1;
+        for (int x = 0; x < width; x++) {
+            if (x == p2 && colPointIdx < rawWidth - 1) {
+                p1 = p2;
+                p2 = colPoints[++colPointIdx] - 1;
+            }
+            final int steps = p2 - p1;
+            final double step = 1.0 / steps;
+            final double weight = step * (x - p1);
+            for (int y = 0; y < height; y++) {
+                final int rawPos2 = y * rawWidth + colPointIdx;
+                final int rawPos1 = rawPos2 - 1;
+                final int pos = y * width + x;
+                latFloats[pos] = computePixel(latRawFloats[rawPos1], latRawFloats[rawPos2], weight);
+                lonFloats[pos] = computePixel(lonRawFloats[rawPos1], lonRawFloats[rawPos2], weight);
+            }
+        }
+        latBand.setSynthetic(true);
+        lonBand.setSynthetic(true);
+    }
+
+    private float computePixel(final float a, final float b, final double weight) {
+        if ((b - a) > 180) {
+            final float b2 = b - 360;
+            final double v = a + (b2 - a) * weight;
+            if (v >= -180) {
+                return (float) v;
+            } else {
+                return (float) (v + 360);
+            }
+        } else {
+            return (float) (a + (b - a) * weight);
+        }
+    }
+
+    private ProductData readData(SdsInfo sdsInfo) throws HDFException {
+        final int[] longDims = sdsInfo.getDimensions();
+        final int numElems = longDims[0] * longDims[1];
+        final int dataType = decodeHdfDataType(sdsInfo.getHdfDataType());
+        final ProductData data = ProductData.createInstance(dataType, numElems);
+        return hdf.readProductData(sdsInfo, data);
     }
 
     int convertToFlagMask(String name) {
