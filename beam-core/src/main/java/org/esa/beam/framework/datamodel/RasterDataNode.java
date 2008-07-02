@@ -1555,9 +1555,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public void setImageInfo(ImageInfo imageInfo) {
         if (this.imageInfo != imageInfo) {
             this.imageInfo = imageInfo;
-            if (this.imageInfo != null) {
-                this.imageInfo.setScaling(this);
-            }
+//            if (this.imageInfo != null) {
+//                this.imageInfo.setScaling(this);
+//            }
             fireProductNodeChanged(PROPERTY_NAME_IMAGE_INFO);
             setModified(true);
         }
@@ -1709,7 +1709,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         double center = scale(0.5 * (scaleInverse(min) + scaleInverse(max)));
         final ColorPaletteDef gradationCurve = new ColorPaletteDef(min, center, max);
 
-        return new ImageInfo(gradationCurve);
+        final ImageInfo imageInfo1 = new ImageInfo(gradationCurve);
+        return imageInfo1;
     }
 
     /**

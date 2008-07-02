@@ -18,6 +18,7 @@ package org.esa.beam.visat.actions;
 
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
@@ -94,9 +95,10 @@ public class ExportColorPaletteAction extends ExecCommand {
 
     private static void writeColorPalette(RasterDataNode raster, FileWriter writer) throws IOException {
         ImageInfo imageInfo = raster.getImageInfo();
-        Color[] colorPalette = imageInfo.createColorPalette();
-        double s1 = imageInfo.getColorPaletteDef().getFirstPoint().getSample();
-        double s2 = imageInfo.getColorPaletteDef().getLastPoint().getSample();
+        final ColorPaletteDef paletteDef = imageInfo.getColorPaletteDef();
+        Color[] colorPalette = paletteDef.createColorPalette(raster);
+        double s1 = paletteDef.getFirstPoint().getSample();
+        double s2 = paletteDef.getLastPoint().getSample();
         int numColors = colorPalette.length;
         writer.write("# Band: " + raster.getName() + "\n");
         writer.write("# Sample unit: " + raster.getUnit() + "\n");

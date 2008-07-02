@@ -51,8 +51,6 @@ public class ImageInfo implements Cloneable {
 
     // todo - move to RasterDataNode.Statistics (nf/mp - 26.06.2008)
     @Deprecated
-    private Scaling scaling; // raw data --> geophys.
-    @Deprecated
     private float minSample;
     @Deprecated
     private float maxSample;
@@ -165,7 +163,6 @@ public class ImageInfo implements Cloneable {
         this.noDataColor = null;
         this.histogramMatching = ImageInfo.HISTOGRAM_MATCHING_OFF;
 
-        scaling = Scaling.IDENTITY;
         this.minSample = minSample;
         this.maxSample = maxSample;
         this.histogramBins = histogramBins;
@@ -227,13 +224,15 @@ public class ImageInfo implements Cloneable {
      * (Re-)Computes the color palette for this basic display information instance.
      *
      * @return the color palette
+     * @deprecated since BEAM 4.2, use {@link #getColorPaletteDef()}.{@link ColorPaletteDef#createColorPalette(Scaling) createColorPalette(Scaling)}
      */
+    @Deprecated
     public Color[] createColorPalette() {
-        return colorPaletteDef != null ? colorPaletteDef.createColorPalette(this.scaling) : new Color[0];
+        return colorPaletteDef != null ? colorPaletteDef.createColorPalette(Scaling.IDENTITY) : new Color[0];
     }
 
-    public IndexColorModel createColorModel() {
-        Color[] palette = createColorPalette();
+    public IndexColorModel createColorModel(Scaling scaling) {
+        Color[] palette = colorPaletteDef.createColorPalette(scaling);
         final int numColors = palette.length;
         final byte[] red = new byte[numColors];
         final byte[] green = new byte[numColors];
@@ -306,7 +305,6 @@ public class ImageInfo implements Cloneable {
      */
     public void dispose() {
         histogramBins = null;
-        scaling = null;
         if (colorPaletteDef != null) {
             colorPaletteDef.dispose();
             colorPaletteDef = null;
@@ -372,7 +370,8 @@ public class ImageInfo implements Cloneable {
      */
     @Deprecated
     public Histogram getHistogram() {
-        return isHistogramAvailable() ? new Histogram(histogramBins, scaleInverse(minSample), scaleInverse(maxSample)) : null;
+        return isHistogramAvailable() ? new Histogram(histogramBins, Scaling.IDENTITY.scaleInverse((double) minSample),
+                                                      Scaling.IDENTITY.scaleInverse((double) maxSample)) : null;
     }
 
     /**
@@ -393,7 +392,7 @@ public class ImageInfo implements Cloneable {
      */
     @Deprecated
     public Scaling getScaling() {
-        return scaling;
+        return Scaling.IDENTITY;
     }
 
     /**
@@ -401,8 +400,6 @@ public class ImageInfo implements Cloneable {
      */
     @Deprecated
     public void setScaling(Scaling scaling) {
-        Guardian.assertNotNull("scaling", scaling);
-        this.scaling = scaling;
     }
 
 
@@ -451,7 +448,7 @@ public class ImageInfo implements Cloneable {
      * Gets the minimum display sample value for a linear contrast stretch operation.
      *
      * @return the minimum display sample
-     * @deprecated since BEAM 4.2, use {@link org.esa.beam.framework.datamodel.ColorPaletteDef#getFirstPoint()}
+     * @deprecated since BEAM 4.2, use {@link ColorPaletteDef#getFirstPoint()}
      */
     @Deprecated
     public double getMinDisplaySample() {
@@ -464,7 +461,7 @@ public class ImageInfo implements Cloneable {
      * Gets the maximum display sample value for a linear contrast stretch operation.
      *
      * @return the maximum display sample
-     * @deprecated since BEAM 4.2, use {@link org.esa.beam.framework.datamodel.ColorPaletteDef#getLastPoint()}
+     * @deprecated since BEAM 4.2, use {@link ColorPaletteDef#getLastPoint()}
      */
     @Deprecated
     public double getMaxDisplaySample() {
@@ -619,8 +616,10 @@ public class ImageInfo implements Cloneable {
         if (getMinSample() != getMinHistogramViewSample() || getMaxSample() != getMaxHistogramViewSample()) {
             return (float)
                     (getHistogramBins().length
-                            / (scaleInverse(getMaxSample()) - scaleInverse(getMinSample()))
-                            * (scaleInverse(getMaxHistogramViewSample()) - scaleInverse(getMinHistogramViewSample()))
+                            / (Scaling.IDENTITY.scaleInverse((double) getMaxSample()) - Scaling.IDENTITY.scaleInverse(
+                            (double) getMinSample()))
+                            * (Scaling.IDENTITY.scaleInverse((double) getMaxHistogramViewSample()) - Scaling.IDENTITY.scaleInverse(
+                            (double) getMinHistogramViewSample()))
                     );
         }
         return getHistogramBins().length;
@@ -638,8 +637,10 @@ public class ImageInfo implements Cloneable {
         }
         if (getMinSample() != getMinHistogramViewSample()) {
             return (float) ((getHistogramBins().length - 1)
-                    / (scaleInverse(getMaxSample()) - scaleInverse(getMinSample()))
-                    * (scaleInverse(getMinHistogramViewSample()) - scaleInverse(getMinSample())));
+                    / (Scaling.IDENTITY.scaleInverse((double) getMaxSample()) - Scaling.IDENTITY.scaleInverse(
+                    (double) getMinSample()))
+                    * (Scaling.IDENTITY.scaleInverse((double) getMinHistogramViewSample()) - Scaling.IDENTITY.scaleInverse(
+                    (double) getMinSample())));
         }
         return 0;
     }
@@ -659,7 +660,7 @@ public class ImageInfo implements Cloneable {
      */
     @Deprecated
     public Color[] getColorPalette() {
-        return createColorPalette();
+        return colorPaletteDef.createColorPalette(Scaling.IDENTITY);
     }
 
     /**
@@ -683,21 +684,14 @@ public class ImageInfo implements Cloneable {
      */
     @Deprecated
     public double getNormalizedDisplaySampleValue(double sample) {
-        final double minDisplaySample;
-        final double maxDisplaySample;
-        minDisplaySample = scaleInverse(getColorPaletteDef().getFirstPoint().getSample());
-        maxDisplaySample = scaleInverse(getColorPaletteDef().getLastPoint().getSample());
-        sample = scaleInverse(sample);
+        final double minDisplaySample = Scaling.IDENTITY.scaleInverse(getColorPaletteDef().getFirstPoint().getSample());
+        final double maxDisplaySample = Scaling.IDENTITY.scaleInverse(getColorPaletteDef().getLastPoint().getSample());
+        sample = Scaling.IDENTITY.scaleInverse(sample);
         double delta = maxDisplaySample - minDisplaySample;
         if (delta == 0 || Double.isNaN(delta)) {
             delta = 1;
         }
         return (sample - minDisplaySample) / delta;
-    }
-
-    @Deprecated
-    private double scaleInverse(double value) {
-        return scaling.scaleInverse(value);
     }
 
 }

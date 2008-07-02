@@ -84,7 +84,8 @@ public class ExportLegendImageAction extends AbstractExportImageAction {
         modifyHeaderText(legendParamGroup, view.getRaster());
         fileChooser.setDialogTitle(getVisatApp().getAppName() + " - Export Color Legend Image"); /*I18N*/
         fileChooser.setCurrentFilename(imageBaseName + "_legend");
-        imageLegend = new ImageLegend(view.getRaster().getImageInfo());
+        final RasterDataNode raster = view.getRaster();
+        imageLegend = new ImageLegend(raster.getImageInfo(), raster);
         fileChooser.setAccessory(createImageLegendAccessory(getVisatApp(),
                                                             fileChooser,
                                                             legendParamGroup,
@@ -105,9 +106,8 @@ public class ExportLegendImageAction extends AbstractExportImageAction {
 
     private static ParamGroup createLegendParamGroup() {
         ParamGroup paramGroup = new ParamGroup();
-        Parameter param;
 
-        param = new Parameter("legend.usingHeader", Boolean.TRUE);
+        Parameter param = new Parameter("legend.usingHeader", Boolean.TRUE);
         param.getProperties().setLabel("Show header text");
         paramGroup.addParameter(param);
 
@@ -123,10 +123,10 @@ public class ExportLegendImageAction extends AbstractExportImageAction {
         param.getProperties().setValueSetBound(true);
         paramGroup.addParameter(param);
 
-        param = new Parameter("legend.fontSize", new Integer(14));
+        param = new Parameter("legend.fontSize", 14);
         param.getProperties().setLabel("Font size");
-        param.getProperties().setMinValue(new Integer(4));
-        param.getProperties().setMaxValue(new Integer(100));
+        param.getProperties().setMinValue(4);
+        param.getProperties().setMaxValue(100);
         paramGroup.addParameter(param);
 
         param = new Parameter("legend.foregroundColor", Color.black);
@@ -137,10 +137,10 @@ public class ExportLegendImageAction extends AbstractExportImageAction {
         param.getProperties().setLabel("Background color");
         paramGroup.addParameter(param);
 
-        param = new Parameter("legend.backgroundTransparency", new Float(0.0f));
+        param = new Parameter("legend.backgroundTransparency", 0.0f);
         param.getProperties().setLabel("Background transparency");
-        param.getProperties().setMinValue(new Float(0.0f));
-        param.getProperties().setMaxValue(new Float(1.0f));
+        param.getProperties().setMinValue(0.0f);
+        param.getProperties().setMaxValue(1.0f);
         paramGroup.addParameter(param);
 
         param = new Parameter("legend.antialiasing", Boolean.TRUE);
@@ -169,7 +169,7 @@ public class ExportLegendImageAction extends AbstractExportImageAction {
                 final BeamFileFilter fileFilter = (BeamFileFilter) fileChooser.getFileFilter();
                 final ImageLegendDialog dialog = new ImageLegendDialog(visatApp,
                                                                        legendParamGroup,
-                                                                       imageLegend.getImageInfo(),
+                                                                       imageLegend,
                                                                        isTransparencySupportedByFormat(
                                                                                fileFilter.getFormatName()));
                 dialog.show();
@@ -214,32 +214,34 @@ public class ExportLegendImageAction extends AbstractExportImageAction {
 
         private static final String _HELP_ID = "";
 
-        private VisatApp _visatApp;
-        private ImageInfo _imageInfo;
-        private boolean _transparencyEnabled;
+        private VisatApp visatApp;
+        private ImageInfo imageInfo;
+        private RasterDataNode raster;
+        private boolean transparencyEnabled;
 
-        private ParamGroup _paramGroup;
+        private ParamGroup paramGroup;
 
-        private Parameter _usingHeaderParam;
-        private Parameter _headerTextParam;
-        private Parameter _orientationParam;
-        private Parameter _fontSizeParam;
-        private Parameter _backgroundColorParam;
-        private Parameter _foregroundColorParam;
-        private Parameter _antialiasingParam;
-        private Parameter _backgroundTransparencyParam;
+        private Parameter usingHeaderParam;
+        private Parameter headerTextParam;
+        private Parameter orientationParam;
+        private Parameter fontSizeParam;
+        private Parameter backgroundColorParam;
+        private Parameter foregroundColorParam;
+        private Parameter antialiasingParam;
+        private Parameter backgroundTransparencyParam;
 
-        public ImageLegendDialog(VisatApp visatApp, ParamGroup paramGroup, ImageInfo imageInfo,
+        public ImageLegendDialog(VisatApp visatApp, ParamGroup paramGroup, ImageLegend imageLegend,
                                  boolean transparencyEnabled) {
             super(visatApp.getMainFrame(), visatApp.getAppName() + " - Color Legend Properties", ID_OK_CANCEL, _HELP_ID);
-            _visatApp = visatApp;
-            _imageInfo = imageInfo;
-            _transparencyEnabled = transparencyEnabled;
-            _paramGroup = paramGroup;
+            this.visatApp = visatApp;
+            imageInfo = imageLegend.getImageInfo();
+            raster = imageLegend.getRaster();
+            this.transparencyEnabled = transparencyEnabled;
+            this.paramGroup = paramGroup;
             initParams();
             initUI();
             updateUIState();
-            _paramGroup.addParamChangeListener(new ParamChangeListener() {
+            this.paramGroup.addParamChangeListener(new ParamChangeListener() {
                 public void parameterValueChanged(ParamChangeEvent event) {
                     updateUIState();
                 }
@@ -247,25 +249,25 @@ public class ExportLegendImageAction extends AbstractExportImageAction {
         }
 
         private void updateUIState() {
-            boolean headerTextEnabled = (Boolean) _usingHeaderParam.getValue();
-            _headerTextParam.setUIEnabled(headerTextEnabled);
-            _backgroundTransparencyParam.setUIEnabled(_transparencyEnabled);
+            boolean headerTextEnabled = (Boolean) usingHeaderParam.getValue();
+            headerTextParam.setUIEnabled(headerTextEnabled);
+            backgroundTransparencyParam.setUIEnabled(transparencyEnabled);
         }
 
         public ParamGroup getParamGroup() {
-            return _paramGroup;
+            return paramGroup;
         }
 
         public void setHeaderText(String text) {
-            _headerTextParam.setValue(text, null);
+            headerTextParam.setValue(text, null);
         }
 
         public boolean isTransparencyEnabled() {
-            return _transparencyEnabled;
+            return transparencyEnabled;
         }
 
         public void setTransparencyEnabled(boolean transparencyEnabled) {
-            _transparencyEnabled = transparencyEnabled;
+            this.transparencyEnabled = transparencyEnabled;
             updateUIState();
         }
 
@@ -274,12 +276,12 @@ public class ExportLegendImageAction extends AbstractExportImageAction {
         }
 
         public ImageInfo getImageInfo() {
-            return _imageInfo;
+            return imageInfo;
         }
 
         @Override
         protected void onOK() {
-            getParamGroup().getParameterValues(_visatApp.getPreferences());
+            getParamGroup().getParameterValues(visatApp.getPreferences());
             super.onOK();
         }
 
@@ -301,44 +303,44 @@ public class ExportLegendImageAction extends AbstractExportImageAction {
 
             gbc.gridy = 0;
             gbc.gridwidth = 2;
-            p.add(_usingHeaderParam.getEditor().getEditorComponent(), gbc);
+            p.add(usingHeaderParam.getEditor().getEditorComponent(), gbc);
 
             gbc.gridy++;
             gbc.gridwidth = 1;
-            p.add(_headerTextParam.getEditor().getLabelComponent(), gbc);
-            p.add(_headerTextParam.getEditor().getEditorComponent(), gbc);
+            p.add(headerTextParam.getEditor().getLabelComponent(), gbc);
+            p.add(headerTextParam.getEditor().getEditorComponent(), gbc);
 
             gbc.gridy++;
             gbc.insets.top = 10;
-            p.add(_orientationParam.getEditor().getLabelComponent(), gbc);
-            p.add(_orientationParam.getEditor().getEditorComponent(), gbc);
+            p.add(orientationParam.getEditor().getLabelComponent(), gbc);
+            p.add(orientationParam.getEditor().getEditorComponent(), gbc);
 
             gbc.gridy++;
             gbc.insets.top = 3;
-            p.add(_fontSizeParam.getEditor().getLabelComponent(), gbc);
-            p.add(_fontSizeParam.getEditor().getEditorComponent(), gbc);
+            p.add(fontSizeParam.getEditor().getLabelComponent(), gbc);
+            p.add(fontSizeParam.getEditor().getEditorComponent(), gbc);
 
             gbc.gridy++;
             gbc.insets.top = 10;
-            p.add(_foregroundColorParam.getEditor().getLabelComponent(), gbc);
-            p.add(_foregroundColorParam.getEditor().getEditorComponent(), gbc);
+            p.add(foregroundColorParam.getEditor().getLabelComponent(), gbc);
+            p.add(foregroundColorParam.getEditor().getEditorComponent(), gbc);
 
             gbc.gridy++;
             gbc.insets.top = 3;
-            p.add(_backgroundColorParam.getEditor().getLabelComponent(), gbc);
-            p.add(_backgroundColorParam.getEditor().getEditorComponent(), gbc);
+            p.add(backgroundColorParam.getEditor().getLabelComponent(), gbc);
+            p.add(backgroundColorParam.getEditor().getEditorComponent(), gbc);
 
             gbc.gridy++;
             gbc.insets.top = 3;
-            p.add(_backgroundTransparencyParam.getEditor().getLabelComponent(), gbc);
-            p.add(_backgroundTransparencyParam.getEditor().getEditorComponent(), gbc);
+            p.add(backgroundTransparencyParam.getEditor().getLabelComponent(), gbc);
+            p.add(backgroundTransparencyParam.getEditor().getEditorComponent(), gbc);
 
             gbc.gridy++;
 
             gbc.insets.top = 10;
             gbc.gridx = 0;
             gbc.anchor = GridBagConstraints.NORTHWEST;
-            p.add(_antialiasingParam.getEditor().getEditorComponent(), gbc);
+            p.add(antialiasingParam.getEditor().getEditorComponent(), gbc);
 
             gbc.insets.top = 10;
             gbc.gridx = 1;
@@ -351,18 +353,18 @@ public class ExportLegendImageAction extends AbstractExportImageAction {
         }
 
         private void initParams() {
-            _usingHeaderParam = _paramGroup.getParameter("legend.usingHeader");
-            _headerTextParam = _paramGroup.getParameter("legend.headerText");
-            _orientationParam = _paramGroup.getParameter("legend.orientation");
-            _fontSizeParam = _paramGroup.getParameter("legend.fontSize");
-            _foregroundColorParam = _paramGroup.getParameter("legend.foregroundColor");
-            _backgroundColorParam = _paramGroup.getParameter("legend.backgroundColor");
-            _backgroundTransparencyParam = _paramGroup.getParameter("legend.backgroundTransparency");
-            _antialiasingParam = _paramGroup.getParameter("legend.antialiasing");
+            usingHeaderParam = paramGroup.getParameter("legend.usingHeader");
+            headerTextParam = paramGroup.getParameter("legend.headerText");
+            orientationParam = paramGroup.getParameter("legend.orientation");
+            fontSizeParam = paramGroup.getParameter("legend.fontSize");
+            foregroundColorParam = paramGroup.getParameter("legend.foregroundColor");
+            backgroundColorParam = paramGroup.getParameter("legend.backgroundColor");
+            backgroundTransparencyParam = paramGroup.getParameter("legend.backgroundTransparency");
+            antialiasingParam = paramGroup.getParameter("legend.antialiasing");
         }
 
         private void showPreview() {
-            final ImageLegend imageLegend = new ImageLegend(getImageInfo());
+            final ImageLegend imageLegend = new ImageLegend(getImageInfo(), raster);
             getImageLegend(imageLegend);
             final BufferedImage image = imageLegend.createImage();
             final ImageDisplay imageDisplay = new ImageDisplay(image);

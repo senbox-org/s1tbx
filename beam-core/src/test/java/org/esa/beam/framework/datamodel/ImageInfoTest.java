@@ -14,7 +14,6 @@ import junit.framework.TestCase;
 public class ImageInfoTest extends TestCase {
     public void testConstructors() {
         ImageInfo imageInfo = new ImageInfo(0.0f, 10.0f, null);
-        assertEquals(256, imageInfo.getNumColors());
         assertEquals(256, imageInfo.getColorPaletteDef().getNumColors());
 
         imageInfo = new ImageInfo(0.0f, 10.0f, null, 16, new ColorPaletteDef.Point[] {
@@ -23,11 +22,9 @@ public class ImageInfoTest extends TestCase {
                 new ColorPaletteDef.Point(500, Color.BLUE),
                 new ColorPaletteDef.Point(600, Color.WHITE)
         });
-        assertEquals(16, imageInfo.getNumColors());
         assertEquals(16, imageInfo.getColorPaletteDef().getNumColors());
 
         imageInfo.getColorPaletteDef().setNumColors(4);
-        assertEquals(4, imageInfo.getNumColors());
         assertEquals(4, imageInfo.getColorPaletteDef().getNumColors());
     }
 }

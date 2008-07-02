@@ -3,12 +3,23 @@ package org.esa.beam.util.jai;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.Band;
+import org.esa.beam.framework.datamodel.BitmaskDef;
+import org.esa.beam.framework.datamodel.ColorPaletteDef;
+import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.IntMap;
 import org.esa.beam.util.math.Histogram;
 
-import javax.media.jai.*;
+import javax.media.jai.ImageLayout;
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.ROI;
+import javax.media.jai.RasterFactory;
+import javax.media.jai.RenderedOp;
 import java.awt.Color;
 import java.awt.RenderingHints;
 import java.awt.image.DataBuffer;
@@ -23,7 +34,9 @@ import java.io.IOException;
  */
 
 public class ImageFactory {
-    private static final ColorPaletteDef.Point OTHER_POINT = new ColorPaletteDef.Point(Double.NaN, Color.BLACK, "Other");
+
+    private static final ColorPaletteDef.Point OTHER_POINT = new ColorPaletteDef.Point(Double.NaN, Color.BLACK,
+                                                                                       "Other");
 
     public static PlanarImage createOverlayedRgbImage(final RasterDataNode[] rasterDataNodes,
                                                       final String histogramMatching,
@@ -67,15 +80,16 @@ public class ImageFactory {
             final RasterDataNode raster = rasterDataNodes[i];
             PlanarImage planarImage = PlanarImage.wrapRenderedImage(raster.getImage());
 
-                final double newMin = raster.scaleInverse(raster.getImageInfo().getMinDisplaySample());
-                final double newMax = raster.scaleInverse(raster.getImageInfo().getMaxDisplaySample());
-                final double gamma = 1.0; //imageInfo.getGamma();  // todo - use gamma
-                // todo - honour log-scaled bands
-                planarImage = JAIUtils.createRescaleOp(planarImage,
-                                                       255.0 / (newMax - newMin),
-                                                       255.0 * newMin / (newMin - newMax));
-                planarImage = JAIUtils.createFormatOp(planarImage,
-                                                      DataBuffer.TYPE_BYTE);
+            final ColorPaletteDef def = raster.getImageInfo().getColorPaletteDef();
+            final double newMin = raster.scaleInverse(def.getFirstPoint().getSample());
+            final double newMax = raster.scaleInverse(def.getLastPoint().getSample());
+            final double gamma = 1.0; //imageInfo.getGamma();  // todo - use gamma
+            // todo - honour log-scaled bands
+            planarImage = JAIUtils.createRescaleOp(planarImage,
+                                                   255.0 / (newMax - newMin),
+                                                   255.0 * newMin / (newMin - newMax));
+            planarImage = JAIUtils.createFormatOp(planarImage,
+                                                  DataBuffer.TYPE_BYTE);
             sourceImages[i] = planarImage;
             checkCanceled(pm);
             pm.worked(100);
@@ -154,15 +168,18 @@ public class ImageFactory {
             sampleToIndexMap.putValue(sample, index);
             double t = (index + 1.0) / attributes.length;
             points[index] = new ColorPaletteDef.Point(sample,
-                                                      new Color((float) (0.5 + 0.5 * Math.sin(Math.PI / 3. + t * 4. * Math.PI)),
-                                                                (float) (0.5 + 0.5 * Math.sin(Math.PI / 2. + t * 2. * Math.PI)),
-                                                                (float) (0.5 + 0.5 * Math.sin(Math.PI / 4. + t * 3. * Math.PI))),
+                                                      new Color((float) (0.5 + 0.5 * Math.sin(
+                                                              Math.PI / 3. + t * 4. * Math.PI)),
+                                                                (float) (0.5 + 0.5 * Math.sin(
+                                                                        Math.PI / 2. + t * 2. * Math.PI)),
+                                                                (float) (0.5 + 0.5 * Math.sin(
+                                                                        Math.PI / 4. + t * 3. * Math.PI))),
                                                       attribute.getName());
         }
-        points[points.length-1] = OTHER_POINT;
+        points[points.length - 1] = OTHER_POINT;
         int[] frequencyCounts = new int[attributes.length + 1];
         for (int i = 0; i < frequencyCounts.length; i++) {
-            frequencyCounts[i] = (int)(100*Math.random()); // todo - use planarImage
+            frequencyCounts[i] = (int) (100 * Math.random()); // todo - use planarImage
         }
         final ColorPaletteDef def = new ColorPaletteDef(points);
         final ImageInfo imageInfo = new ImageInfo(sampleMin, sampleMax, frequencyCounts, def);
@@ -178,11 +195,12 @@ public class ImageFactory {
         return image;
     }
 
-    private static PlanarImage performIndexToRgbConversion(RasterDataNode[] rasterDataNodes, PlanarImage[] sourceImages) {
+    private static PlanarImage performIndexToRgbConversion(RasterDataNode[] rasterDataNodes,
+                                                           PlanarImage[] sourceImages) {
         PlanarImage image;
         if (rasterDataNodes.length == 1) {
             final RasterDataNode raster = rasterDataNodes[0];
-            final Color[] palette = raster.getImageInfo().createColorPalette();
+            final Color[] palette = raster.getImageInfo().getColorPaletteDef().createColorPalette(raster);
             final byte[][] lutData = new byte[3][palette.length];
             for (int i = 0; i < palette.length; i++) {
                 lutData[0][i] = (byte) palette[i].getRed();

@@ -240,7 +240,7 @@ public class ExportKmzFileAction extends ExecCommand {
     }
 
     private static ImageLegend initImageLegend(RasterDataNode raster) {
-        ImageLegend imageLegend = new ImageLegend(raster.getImageInfo());
+        ImageLegend imageLegend = new ImageLegend(raster.getImageInfo(), raster);
 
         imageLegend.setHeaderText(getLegendHeaderText(raster));
         imageLegend.setOrientation(ImageLegend.VERTICAL);

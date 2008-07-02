@@ -1262,7 +1262,7 @@ public class DimapDocumentTest extends TestCase {
                         JDomHelper.addElement(DimapProductConstants.TAG_HISTOGRAM, StringUtils.arrayToCsv(bins),
                                               bandStatisticsElem);
                     }
-                    JDomHelper.addElement(DimapProductConstants.TAG_NUM_COLORS, imageInfo.getNumColors(),
+                    JDomHelper.addElement(DimapProductConstants.TAG_NUM_COLORS, imageInfo.getColorPaletteDef().getNumColors(),
                                           bandStatisticsElem);
                     ColorPaletteDef paletteDefinition = imageInfo.getColorPaletteDef();
 

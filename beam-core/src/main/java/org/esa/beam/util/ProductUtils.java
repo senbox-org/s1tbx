@@ -78,7 +78,7 @@ public class ProductUtils {
      * contains one element, a greyscale/palette based on-band image is created. If it has three elements an RGB image
      * will be created.
      * <p/>
-     * <p>The method uses the image display information given by the <code>{@link org.esa.beam.framework.datamodel.ImageInfo
+     * <p>The method uses the image display information given by the <code>{@link ImageInfo
      * ImageInfo}</code> and <code>{@link org.esa.beam.framework.datamodel.BitmaskOverlayInfo BitmaskOverlayInfo}</code>
      * properties of each of the bands.
      *
@@ -92,7 +92,7 @@ public class ProductUtils {
      * @throws IOException if the given raster data is not loaded and reload causes an I/O error
      * @see RasterDataNode#setImageInfo
      * @see RasterDataNode#setBitmaskOverlayInfo
-     * @deprecated since BEAM 4.2, use {@link #createRgbImage(org.esa.beam.framework.datamodel.RasterDataNode[], org.esa.beam.framework.datamodel.ImageInfo, com.bc.ceres.core.ProgressMonitor)}
+     * @deprecated since BEAM 4.2, use {@link #createRgbImage(RasterDataNode[], ImageInfo, com.bc.ceres.core.ProgressMonitor)}
      */
     @Deprecated
     public static RenderedImage createOverlayedImage(final Product product,
@@ -111,13 +111,13 @@ public class ProductUtils {
     }
 
     /**
-     * Creates an image from the given <code>{@link org.esa.beam.framework.datamodel.RasterDataNode}</code>s. If no
+     * Creates an image from the given <code>{@link RasterDataNode}</code>s. If no
      * bitmasks are defined, a non-overlayed image is created.
      * <p/>
      * <p>Depending on the number of <code>RasterDataNode</code>s given in the array a greyscale/palette-based or RGB
      * image is created.
      * <p/>
-     * <p>The method uses the image display information given by the <code>{@link org.esa.beam.framework.datamodel.ImageInfo
+     * <p>The method uses the image display information given by the <code>{@link ImageInfo
      * ImageInfo}</code> and <code>{@link org.esa.beam.framework.datamodel.BitmaskOverlayInfo BitmaskOverlayInfo}</code>
      * properties of each of the bands.
      *
@@ -133,8 +133,8 @@ public class ProductUtils {
      * @throws IOException if the given raster data is not loaded and reload causes an I/O error
      * @see RasterDataNode#setImageInfo
      * @see RasterDataNode#setBitmaskOverlayInfo
-     * @see org.esa.beam.framework.datamodel.ImageInfo
-     * @deprecated since BEAM 4.2, use {@link #createRgbImage(org.esa.beam.framework.datamodel.RasterDataNode[], org.esa.beam.framework.datamodel.ImageInfo, com.bc.ceres.core.ProgressMonitor)} )}
+     * @see ImageInfo
+     * @deprecated since BEAM 4.2, use {@link #createRgbImage(RasterDataNode[], ImageInfo, com.bc.ceres.core.ProgressMonitor)} )}
      */
     @Deprecated
     public static RenderedImage createOverlayedImage(final RasterDataNode[] rasters,
@@ -151,7 +151,7 @@ public class ProductUtils {
     }
 
     /**
-     * Creates a RGB image from the given array of <code>{@link org.esa.beam.framework.datamodel.RasterDataNode}</code>s.
+     * Creates a RGB image from the given array of <code>{@link RasterDataNode}</code>s.
      * The given array <code>rasterDataNodes</code> contain three raster data nodes to be used for the red, green and
      * blue components of the RGB image to be created.
      *
@@ -160,7 +160,7 @@ public class ProductUtils {
      * @return the RGB image
      * @throws IOException if the given raster data is not loaded and reload causes an I/O error
      * @see RasterDataNode#setImageInfo
-     * @deprecated since BEAM 4.2, use {@link #createRgbImage(org.esa.beam.framework.datamodel.RasterDataNode[], org.esa.beam.framework.datamodel.ImageInfo, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated since BEAM 4.2, use {@link #createRgbImage(RasterDataNode[], ImageInfo, com.bc.ceres.core.ProgressMonitor)} instead
      */
     @Deprecated
     public static BufferedImage createRgbImage(RasterDataNode[] rasters, ProgressMonitor pm) throws IOException {
@@ -174,7 +174,7 @@ public class ProductUtils {
     }
 
     /**
-     * Creates a RGB image from the given array of <code>{@link org.esa.beam.framework.datamodel.RasterDataNode}</code>s.
+     * Creates a RGB image from the given array of <code>{@link RasterDataNode}</code>s.
      * The given array <code>rasterDataNodes</code> contain three raster data nodes to be used for the red, green and
      * blue components of the RGB image to be created.
      *
@@ -184,7 +184,7 @@ public class ProductUtils {
      * @return the RGB image
      * @throws IOException if the given raster data is not loaded and reload causes an I/O error
      * @see RasterDataNode#setImageInfo
-     * @deprecated since BEAM 4.2, use {@link #createRgbImage(org.esa.beam.framework.datamodel.RasterDataNode[], org.esa.beam.framework.datamodel.ImageInfo, com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated since BEAM 4.2, use {@link #createRgbImage(RasterDataNode[], ImageInfo, com.bc.ceres.core.ProgressMonitor)} instead
      */
     @Deprecated
     public static BufferedImage createRgbImage(final RasterDataNode[] rasters,
@@ -291,7 +291,7 @@ public class ProductUtils {
                         return raster.isPixelValid(pixelIndex);
                     }
                 };
-                palette = raster.getImageInfo().createColorPalette();
+                palette = raster.getImageInfo().getColorPaletteDef().createColorPalette(raster);
                 pm.worked(50);
                 checkCanceled(pm);
             } else {
@@ -498,10 +498,10 @@ public class ProductUtils {
 
 
     /**
-     * Creates a greyscale image from the given <code>{@link org.esa.beam.framework.datamodel.RasterDataNode}</code>.
+     * Creates a greyscale image from the given <code>{@link RasterDataNode}</code>.
      * <p/>
      * <p>The method uses the given raster data node's image information (an instance of <code>{@link
-     * org.esa.beam.framework.datamodel.ImageInfo}</code>) to create the image.
+     * ImageInfo}</code>) to create the image.
      *
      * @param rasterDataNode the raster data node, must not be <code>null</code>
      * @param pm             a monitor to inform the user about progress
@@ -518,7 +518,7 @@ public class ProductUtils {
         final double newMin = imageInfo.getColorPaletteDef().getFirstPoint().getSample();
         final double newMax = imageInfo.getColorPaletteDef().getLastPoint().getSample();
         final byte[] colorIndexes = rasterDataNode.quantizeRasterData(newMin, newMax, 1.0, pm);
-        final IndexColorModel cm = imageInfo.createColorModel();
+        final IndexColorModel cm = imageInfo.createColorModel(rasterDataNode);
         final SampleModel sm = cm.createCompatibleSampleModel(width, height);
         final DataBuffer db = new DataBufferByte(colorIndexes, colorIndexes.length);
         final WritableRaster wr = WritableRaster.createWritableRaster(sm, db, null);
@@ -1090,7 +1090,7 @@ public class ProductUtils {
      * @param sourceProduct the source product
      * @param targetProduct the target product
      * @see org.esa.beam.framework.datamodel.Product#getBitmaskDefs()
-     * @see org.esa.beam.framework.datamodel.RasterDataNode#getBitmaskOverlayInfo()
+     * @see RasterDataNode#getBitmaskOverlayInfo()
      */
     public static void copyBitmaskDefsAndOverlays(final Product sourceProduct, final Product targetProduct) {
         Guardian.assertNotNull("sourceProduct", sourceProduct);
@@ -1524,7 +1524,7 @@ public class ProductUtils {
     }
 
     /**
-     * @deprecated in 4.0, use {@link #overlayBitmasks(org.esa.beam.framework.datamodel.RasterDataNode,javax.media.jai.PlanarImage,com.bc.ceres.core.ProgressMonitor)} instead
+     * @deprecated in 4.0, use {@link #overlayBitmasks(RasterDataNode,javax.media.jai.PlanarImage,com.bc.ceres.core.ProgressMonitor)} instead
      */
     public static PlanarImage overlayBitmasks(RasterDataNode raster, PlanarImage overlayPIm) throws IOException {
         return overlayBitmasks(raster, overlayPIm, ProgressMonitor.NULL);
@@ -2484,20 +2484,20 @@ public class ProductUtils {
      * Adds raster data nodes of a source product as bands to the given target product. This method is especially usefull if the target
      * product is a geometric transformation (e.g. map-projection) of the source product.
      * <p>If
-     * {@link org.esa.beam.framework.datamodel.RasterDataNode#isScalingApplied() sourceBand.scalingApplied} is true,
+     * {@link RasterDataNode#isScalingApplied() sourceBand.scalingApplied} is true,
      * this method will always create the related target band with the raw data type {@link ProductData#TYPE_FLOAT32},
      * regardless which raw data type the source band has.
-     * In this case, {@link org.esa.beam.framework.datamodel.RasterDataNode#getScalingFactor() targetBand.scalingFactor}
-     * will always be 1.0, {@link org.esa.beam.framework.datamodel.RasterDataNode#getScalingOffset() targetBand.scalingOffset}
+     * In this case, {@link RasterDataNode#getScalingFactor() targetBand.scalingFactor}
+     * will always be 1.0, {@link RasterDataNode#getScalingOffset() targetBand.scalingOffset}
      * will always be 0.0 and
-     * {@link org.esa.beam.framework.datamodel.RasterDataNode#isLog10Scaled() targetBand.log10Scaled} will be taken from the source band.
+     * {@link RasterDataNode#isLog10Scaled() targetBand.log10Scaled} will be taken from the source band.
      * This ensures that source pixel resampling methods operating on floating point
      * data can be stored without loss in accuracy in the target band.
      * <p/>
      * <p>Furthermore, the
-     * {@link org.esa.beam.framework.datamodel.RasterDataNode#isNoDataValueSet() targetBands.noDataValueSet}
-     * and {@link org.esa.beam.framework.datamodel.RasterDataNode#isNoDataValueUsed() targetBands.noDataValueUsed}
-     * properties will always be true for all added target bands. The {@link org.esa.beam.framework.datamodel.RasterDataNode#getGeophysicalNoDataValue() targetBands.geophysicalNoDataValue},
+     * {@link RasterDataNode#isNoDataValueSet() targetBands.noDataValueSet}
+     * and {@link RasterDataNode#isNoDataValueUsed() targetBands.noDataValueUsed}
+     * properties will always be true for all added target bands. The {@link RasterDataNode#getGeophysicalNoDataValue() targetBands.geophysicalNoDataValue},
      * will be either the one from the source band, if any, or otherwise the one passed into this method.
      *
      * @param sourceProduct        the source product as the source for the band specifications. Must be not
