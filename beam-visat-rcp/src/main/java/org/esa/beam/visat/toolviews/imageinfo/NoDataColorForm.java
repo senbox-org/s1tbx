@@ -11,6 +11,8 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.beans.PropertyChangeListener;
 
+import org.esa.beam.framework.datamodel.ImageInfo;
+
 class NoDataColorForm {
     static final String NO_DATA_COLOR_PROPERTY = "noDataColor";
 
@@ -24,7 +26,7 @@ class NoDataColorForm {
         noDataColorComboBox.setAllowDefaultColor(true);
 
         ValueContainer valueContainer = new ValueContainer();
-        valueContainer.addModel(ValueModel.createModel(NO_DATA_COLOR_PROPERTY, Color.class));
+        valueContainer.addModel(ValueModel.createModel(NO_DATA_COLOR_PROPERTY, ImageInfo.NO_COLOR));
 
         BindingContext context = new BindingContext(valueContainer);
         noDataColorBinding = new ColorComboBoxBinding(context, noDataColorComboBox, NO_DATA_COLOR_PROPERTY);

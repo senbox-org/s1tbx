@@ -9,6 +9,8 @@ import java.awt.Color;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import org.esa.beam.framework.datamodel.ImageInfo;
+
 /**
  * A binding for the JIDE {@link ColorComboBox}.
  *
@@ -31,12 +33,14 @@ class ColorComboBoxBinding extends Binding {
     }
 
     private void adjustPropertyValue() {
-        setValue(colorComboBox.getSelectedColor());
+        final Color color = colorComboBox.getSelectedColor();
+        setValue(color == null ? ImageInfo.NO_COLOR : color);
     }
 
     @Override
     protected void doAdjustComponents() {
-        colorComboBox.setSelectedColor((Color) getValue());
+        final Color color = (Color) getValue();
+        colorComboBox.setSelectedColor(ImageInfo.NO_COLOR.equals(color) ? null : color);
     }
 
     @Override

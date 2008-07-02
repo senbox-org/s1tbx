@@ -273,7 +273,7 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
 
     @Deprecated
     public void setHistogramMatching(String histogramMatching) {
-        sceneImage.getImageInfo().setHistogramMatching(histogramMatching);
+        sceneImage.getImageInfo().setHistogramMatching(histogramMatching == null ? ImageInfo.HISTOGRAM_MATCHING_OFF : histogramMatching);
     }
 
     public boolean isNoDataOverlayEnabled() {

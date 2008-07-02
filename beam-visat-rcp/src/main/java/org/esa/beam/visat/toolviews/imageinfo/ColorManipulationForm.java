@@ -184,9 +184,7 @@ class ColorManipulationForm {
     private void updateNoDataForm() {
         if (productSceneView != null) {
             ImageInfo imageInfo = productSceneView.getRaster().getImageInfo();
-            if (imageInfo != null) {
-                noDataColorForm.setNoDataColor(imageInfo.getNoDataColor());
-            }
+            noDataColorForm.setNoDataColor(imageInfo.getNoDataColor());
         }
     }
 
@@ -698,10 +696,10 @@ class ColorManipulationForm {
     }
 
     private void setNoDataColor() {
-        Color color = noDataColorForm.getNoDataColor();
+        Color noDataColor = noDataColorForm.getNoDataColor();
         ImageInfo imageInfo = getImageInfo();
         if (imageInfo != null) {
-            imageInfo.setNoDataColor(color);
+            imageInfo.setNoDataColor(noDataColor == null ? ImageInfo.NO_COLOR : noDataColor);
             setApplyEnabled(true);
         }
     }

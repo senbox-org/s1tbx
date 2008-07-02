@@ -48,6 +48,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Arrays;
 
 /**
  * This class provides many static factory methods to be used in conjunction with data products.
@@ -142,7 +143,7 @@ public class ProductUtils {
         pm.beginTask(MSG_CREATING_IMAGE, 4);
         try {
             ImageInfo imageInfo = createRgbImageInfo(rasters, SubProgressMonitor.create(pm, 1));
-            imageInfo.setHistogramMatching(histogramMatching);
+            imageInfo.setHistogramMatching(histogramMatching == null ? ImageInfo.HISTOGRAM_MATCHING_OFF : histogramMatching);
             return createRgbImage(rasters, imageInfo, SubProgressMonitor.create(pm, 3));
         } finally {
             pm.done();
@@ -166,7 +167,6 @@ public class ProductUtils {
         pm.beginTask(MSG_CREATING_IMAGE, 4);
         try {
             ImageInfo imageInfo = createRgbImageInfo(rasters, SubProgressMonitor.create(pm, 1));
-            imageInfo.setNoDataColor(null);
             return createRgbImage(rasters, imageInfo, SubProgressMonitor.create(pm, 3));
         } finally {
             pm.done();
@@ -193,7 +193,7 @@ public class ProductUtils {
         pm.beginTask(MSG_CREATING_IMAGE, 4);
         try {
             ImageInfo imageInfo = createRgbImageInfo(rasters, SubProgressMonitor.create(pm, 1));
-            imageInfo.setNoDataColor(noDataColor);
+            imageInfo.setNoDataColor(noDataColor == null ? ImageInfo.NO_COLOR : noDataColor);
             return createRgbImage(rasters, imageInfo, SubProgressMonitor.create(pm, 3));
         } finally {
             pm.done();
@@ -263,27 +263,20 @@ public class ProductUtils {
         Assert.argument(imageInfo.getColorPaletteDef() != null, "imageInfo.getColorPaletteDef() != null");
         Assert.notNull(pm, "pm");
 
-        Color noDataColor = imageInfo.getNoDataColor();
-        if (noDataColor == null) {
-            noDataColor = new Color(0, 0, 0, 0);
-        }
-
-        IndexCoding indexCoding = null;
-        if (raster instanceof Band) {
-            Band band = (Band) raster;
-            indexCoding = band.getIndexCoding();
-        }
-
+        final  IndexCoding indexCoding = (raster instanceof Band) ? ((Band)raster).getIndexCoding() : null;
         final int width = raster.getSceneRasterWidth();
         final int height = raster.getSceneRasterHeight();
-        final int numColorComponents = noDataColor.getAlpha() == 255 ? 3 : 4;
         final int numPixels = width * height;
+        final int numColorComponents = imageInfo.getColorComponentCount();
         final byte[] rgbSamples = new byte[numColorComponents * numPixels];
+        final double minSample = imageInfo.getColorPaletteDef().getFirstPoint().getSample();
+        final double maxSample = imageInfo.getColorPaletteDef().getLastPoint().getSample();
 
-        pm.beginTask(MSG_CREATING_IMAGE, 2);
+        pm.beginTask(MSG_CREATING_IMAGE, 100);
         try {
-            final double minSample = imageInfo.getColorPaletteDef().getFirstPoint().getSample();
-            final double maxSample = imageInfo.getColorPaletteDef().getLastPoint().getSample();
+            Color[] palette;
+            final IndexValidator indexValidator;
+
             // Compute indices into palette --> rgbSamples
             if (indexCoding == null) {
                 raster.quantizeRasterData(minSample,
@@ -293,12 +286,14 @@ public class ProductUtils {
                                           0,
                                           numColorComponents,
                                           ProgressMonitor.NULL);
-                final IndexValidator indexValidator = new IndexValidator() {
+                indexValidator = new IndexValidator() {
                     public boolean validateIndex(int pixelIndex) {
                         return raster.isPixelValid(pixelIndex);
                     }
                 };
-                convertPaletteToRgbSamples(raster.getImageInfo().createColorPalette(), noDataColor, numColorComponents, rgbSamples, indexValidator);
+                palette = raster.getImageInfo().createColorPalette();
+                pm.worked(50);
+                checkCanceled(pm);
             } else {
                 final IntMap sampleColorIndexMap = new IntMap((int) minSample - 1, 4098);
                 final ColorPaletteDef.Point[] points = imageInfo.getColorPaletteDef().getPoints();
@@ -312,29 +307,31 @@ public class ProductUtils {
                     int colorIndex = sampleColorIndexMap.getValue(sample);
                     rgbSamples[pixelIndex * numColorComponents] = colorIndex != IntMap.NULL ? (byte) colorIndex : (byte) noDataIndex;
                 }
-                Color[] palette = raster.getImageInfo().getColors();
+                palette = raster.getImageInfo().getColors();
                 if (noDataIndex > 0) {
-                    Color[] c = new Color[palette.length + 1];
-                    System.arraycopy(palette, 0, c, 0, palette.length);
-                    palette = c;
+                    palette = Arrays.copyOf(palette, palette.length + 1);
                     palette[palette.length - 1] = ImageInfo.NO_COLOR;
                 }
-                final IndexValidator indexValidator = new IndexValidator() {
+                indexValidator = new IndexValidator() {
                     public boolean validateIndex(int pixelIndex) {
                         return raster.isPixelValid(pixelIndex)
                                 && (noDataIndex == 0 || (rgbSamples[pixelIndex * numColorComponents] & 0xff) != noDataIndex);
                     }
                 };
-                convertPaletteToRgbSamples(palette, noDataColor, numColorComponents, rgbSamples, indexValidator);
+                pm.worked(50);
+                checkCanceled(pm);
             }
 
-            pm.worked(1);
+            convertPaletteToRgbSamples(palette, imageInfo.getNoDataColor(), numColorComponents, rgbSamples, indexValidator);
+            pm.worked(40);
             checkCanceled(pm);
 
+            BufferedImage image = createBufferedImage(width, height, numColorComponents, rgbSamples);
+            image = applyHistogramMatching(image, imageInfo.getHistogramMatching());
+            pm.worked(10);
+            checkCanceled(pm);
 
-            pm.worked(1);
-            final BufferedImage image = createBufferedImage(width, height, numColorComponents, rgbSamples);
-            return applyHistogramMatching(image, imageInfo.getHistogramMatching());
+            return image;
 
         } finally {
             pm.done();
@@ -403,19 +400,18 @@ public class ProductUtils {
         final int numPixels = width * height;
         final byte[] rgbSamples = new byte[numColorComponents * numPixels];
 
-        final String[] progressMessages = new String[]{
-                /*I18N*/
+        final String[] taskMessages = new String[]{
                 "Computing red channel",
                 "Computing green channel",
                 "Computing blue channel"
         };
 
-        pm.beginTask(MSG_CREATING_IMAGE, 4);
+        pm.beginTask(MSG_CREATING_IMAGE, 100);
         try {
             // Compute indices into palette --> rgbSamples
             for (int i = 0; i < rasters.length; i++) {
                 final RasterDataNode raster = rasters[i];
-                pm.setSubTaskName(progressMessages[i]);
+                pm.setSubTaskName(taskMessages[i]);
                 raster.quantizeRasterData(imageInfo.getRgbProfile().getSampleDisplayRange(i).getMin(),
                                           imageInfo.getRgbProfile().getSampleDisplayRange(i).getMax(),
                                           imageInfo.getRgbProfile().getSampleDisplayGamma(i),
@@ -423,7 +419,7 @@ public class ProductUtils {
                                           numColorComponents - 1 - i,
                                           numColorComponents,
                                           ProgressMonitor.NULL);
-                pm.worked(1);
+                pm.worked(30);
                 checkCanceled(pm);
             }
 
@@ -456,9 +452,16 @@ public class ProductUtils {
                     pixelIndex++;
                 }
             }
+            pm.worked(5);
+            checkCanceled(pm);
 
-            final BufferedImage image = createBufferedImage(width, height, numColorComponents, rgbSamples);
-            return applyHistogramMatching(image, imageInfo.getHistogramMatching());
+
+            BufferedImage image = createBufferedImage(width, height, numColorComponents, rgbSamples);
+            image = applyHistogramMatching(image, imageInfo.getHistogramMatching());
+            pm.worked(5);
+            checkCanceled(pm);
+
+            return image;
 
         } finally {
             pm.done();

@@ -67,7 +67,7 @@ public class ImageInfo implements Cloneable {
     public ImageInfo(ColorPaletteDef colorPaletteDef) {
         Assert.notNull(colorPaletteDef, "colorPaletteDef");
         this.colorPaletteDef = colorPaletteDef;
-        this.noDataColor = null;
+        this.noDataColor = NO_COLOR;
         this.histogramMatching = ImageInfo.HISTOGRAM_MATCHING_OFF;
     }
 
@@ -79,7 +79,7 @@ public class ImageInfo implements Cloneable {
     public ImageInfo(RGBImageProfile rgbProfile) {
         Assert.notNull(rgbProfile, "rgbProfile");
         this.rgbProfile = rgbProfile;
-        this.noDataColor = null;
+        this.noDataColor = NO_COLOR;
         this.histogramMatching = ImageInfo.HISTOGRAM_MATCHING_OFF;
     }
 
@@ -188,6 +188,7 @@ public class ImageInfo implements Cloneable {
      * @param colorPaletteDef the color palette definition, can be <code>null</code>
      */
     public void setColorPaletteDef(ColorPaletteDef colorPaletteDef) {
+        Assert.notNull(colorPaletteDef, "colorPaletteDef");
         this.colorPaletteDef = colorPaletteDef;
     }
 
@@ -196,6 +197,7 @@ public class ImageInfo implements Cloneable {
     }
 
     public void setRgbProfile(RGBImageProfile rgbProfile) {
+        Assert.notNull(rgbProfile, "rgbProfile");
         this.rgbProfile = rgbProfile;
     }
 
@@ -204,6 +206,7 @@ public class ImageInfo implements Cloneable {
     }
 
     public void setNoDataColor(Color noDataColor) {
+        Assert.notNull(noDataColor, "noDataColor");
         this.noDataColor = noDataColor;
     }
 
@@ -212,14 +215,12 @@ public class ImageInfo implements Cloneable {
     }
 
     public void setHistogramMatching(String histogramMatching) {
-        if (histogramMatching == null) {
-            histogramMatching = ImageInfo.HISTOGRAM_MATCHING_OFF;
-        }
+        Assert.notNull(histogramMatching, "histogramMatching");
         this.histogramMatching = histogramMatching;
     }
 
     public Color[] getColors() {
-        return colorPaletteDef.getColors();
+        return colorPaletteDef != null ? colorPaletteDef.getColors() : new Color[0];
     }
 
     /**
@@ -228,7 +229,7 @@ public class ImageInfo implements Cloneable {
      * @return the color palette
      */
     public Color[] createColorPalette() {
-        return colorPaletteDef.createColorPalette(this.scaling);
+        return colorPaletteDef != null ? colorPaletteDef.createColorPalette(this.scaling) : new Color[0];
     }
 
     public IndexColorModel createColorModel() {
@@ -244,6 +245,23 @@ public class ImageInfo implements Cloneable {
             blue[i] = (byte) color.getBlue();
         }
         return new IndexColorModel(numColors <= 256 ? 8 : 16, numColors, red, green, blue);
+    }
+
+    /**
+     * Gets the number of color components the image shall have using an instance of this {@code ImageInfo}.
+     * @return {@code 3} for RGB images, {@code 4} for RGB images with an alpha channel (transparency)
+     */
+    public int getColorComponentCount() {
+        if (noDataColor.getAlpha() < 255) {
+            return 4;
+        }
+        final Color[] colors = getColors();
+        for (Color color : colors) {
+            if (color.getAlpha() < 255) {
+                return 4;
+            }
+        }
+        return 3;
     }
 
     /**
