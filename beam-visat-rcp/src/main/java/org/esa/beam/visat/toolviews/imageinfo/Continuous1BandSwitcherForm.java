@@ -71,6 +71,11 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
         childForm.updateFormModel(productSceneView);
     }
 
+    @Override
+    public MoreOptionsForm getMoreOptionsForm() {
+        return childForm.getMoreOptionsForm();
+    }
+
     public RasterDataNode[] getRasters() {
         return childForm.getRasters();
     }

@@ -19,12 +19,14 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
     private final ColorManipulationForm parentForm;
     private ImageInfoTableModel tableModel;
     private JScrollPane contentPanel;
+    private final MoreOptionsForm moreOptionsForm;
     private final TableModelListener applyEnablerTML;
 
     public Continuous1BandTabularForm(ColorManipulationForm parentForm) {
         this.parentForm = parentForm;
         tableModel = new ImageInfoTableModel(null);
         applyEnablerTML = parentForm.createApplyEnablerTableModelListener();
+        moreOptionsForm = new MoreOptionsForm(parentForm);
 
         final JTable table = new JTable(tableModel);
         final ColorCellRenderer colorCellRenderer = new ColorCellRenderer();
@@ -65,6 +67,11 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
 
     public RasterDataNode[] getRasters() {
         return parentForm.getProductSceneView().getRasters();
+    }
+
+    @Override
+    public MoreOptionsForm getMoreOptionsForm() {
+        return moreOptionsForm;
     }
 
     private static class ImageInfoTableModel extends AbstractTableModel {

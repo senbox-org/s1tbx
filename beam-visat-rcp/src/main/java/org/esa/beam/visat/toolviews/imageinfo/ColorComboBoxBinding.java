@@ -21,7 +21,7 @@ import org.esa.beam.framework.datamodel.ImageInfo;
 class ColorComboBoxBinding extends Binding {
     ColorComboBox colorComboBox;
 
-    public ColorComboBoxBinding(BindingContext context, ColorComboBox colorComboBox, String propertyName) {
+    public ColorComboBoxBinding(BindingContext context, String propertyName, ColorComboBox colorComboBox) {
         super(context, propertyName);
         this.colorComboBox = colorComboBox;
         colorComboBox.addPropertyChangeListener(new PropertyChangeListener() {

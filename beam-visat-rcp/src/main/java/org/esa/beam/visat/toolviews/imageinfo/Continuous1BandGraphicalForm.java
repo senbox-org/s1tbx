@@ -20,17 +20,16 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
     private final ImageInfoEditorSupport imageInfoEditorSupport;
     private final JPanel contentPanel;
     private final AbstractButton evenDistButton;
+    private final MoreOptionsForm moreOptionsForm;
     private ChangeListener applyEnablerCL;
 
     public Continuous1BandGraphicalForm(final ColorManipulationForm parentForm) {
         this.parentForm = parentForm;
-
         imageInfoEditor = new ImageInfoEditor();
-
         imageInfoEditorSupport = new ImageInfoEditorSupport(imageInfoEditor);
-
         contentPanel = new JPanel(new BorderLayout(2, 2));
         contentPanel.add(imageInfoEditor, BorderLayout.CENTER);
+        moreOptionsForm = new MoreOptionsForm(parentForm);
 
         evenDistButton = ImageInfoEditorSupport.createButton("icons/EvenDistribution24.gif");
         evenDistButton.setName("evenDistButton");
@@ -81,8 +80,14 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
         parentForm.revalidateToolViewPaneControl();
     }
 
+    @Override
     public RasterDataNode[] getRasters() {
         return parentForm.getProductSceneView().getRasters();
+    }
+
+    @Override
+    public MoreOptionsForm getMoreOptionsForm() {
+        return moreOptionsForm;
     }
 
     private void distributeSlidersEvenly() {

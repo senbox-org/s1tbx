@@ -18,7 +18,6 @@ package org.esa.beam.visat.toolviews.imageinfo;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-import com.jidesoft.swing.TitledSeparator;
 import org.esa.beam.BeamUiActivator;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.help.HelpSys;
@@ -29,38 +28,20 @@ import org.esa.beam.framework.ui.application.PageComponentDescriptor;
 import org.esa.beam.framework.ui.product.BandChooser;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
+import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.ResourceInstaller;
 import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.AbstractButton;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.InternalFrameAdapter;
-import javax.swing.event.InternalFrameEvent;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
+import javax.swing.*;
+import javax.swing.event.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -100,9 +81,10 @@ class ColorManipulationForm {
     private JPanel buttonsPanel;
     private AbstractButton helpButton;
     private File ioDir;
-    private NoDataColorForm noDataColorForm;
+    private MoreOptionsForm moreOptionsForm;
     private JPanel editorPanel;
     private ImageInfo imageInfo; // our model!
+    private MoreOptionsPane moreOptionsPane;
 
     public ColorManipulationForm(ColorManipulationToolView colorManipulationToolView) {
         this.toolView = colorManipulationToolView;
@@ -176,9 +158,8 @@ class ColorManipulationForm {
         resetButton.setEnabled(enabled);
         importButton.setEnabled(enabled);
         exportButton.setEnabled(enabled);
-        noDataColorForm.setEnabled(enabled);
         if (enabled) {
-            noDataColorForm.setNoDataColor(getImageInfo().getNoDataColor());
+            moreOptionsForm.setNoDataColor(getImageInfo().getNoDataColor());
         }
 
         updateTitle();
@@ -217,24 +198,19 @@ class ColorManipulationForm {
             }
         }
 
+        moreOptionsForm = null;
         if (newForm != oldForm) {
             childForm = newForm;
 
             installButtons();
             editorPanel.removeAll();
             editorPanel.add(childForm.getContentPanel(), BorderLayout.CENTER);
-            if (!(childForm instanceof EmptyImageInfoForm)) {
-                final JPanel p1 = new JPanel(new BorderLayout(2,2));
-                final JLabel l = new JLabel("More Options");
-                l.setForeground(Color.BLUE);
-                final TitledSeparator titledSeparator = new TitledSeparator(l, TitledSeparator.TYPE_PARTIAL_ETCHED);
-                p1.add(titledSeparator, BorderLayout.WEST);
-                p1.add(titledSeparator, BorderLayout.CENTER);
-
-                final JPanel p2 = new JPanel(new BorderLayout());
-                p2.add(p1, BorderLayout.NORTH);
-                p2.add(noDataColorForm.getContentPanel(), BorderLayout.SOUTH);
-                editorPanel.add(p2, BorderLayout.SOUTH);
+            moreOptionsForm = childForm.getMoreOptionsForm();
+            if (moreOptionsForm != null) {
+                moreOptionsForm.setNoDataColor(getImageInfo().getNoDataColor());
+                moreOptionsForm.setHistogramMatching(getImageInfo().getHistogramMatching());
+                moreOptionsPane.setComponent(moreOptionsForm.getContentPanel());
+                editorPanel.add(moreOptionsPane.getContentPanel(), BorderLayout.SOUTH);
             }
             revalidateToolViewPaneControl();
 
@@ -272,12 +248,12 @@ class ColorManipulationForm {
 
     private boolean isContinuous1BandImage() {
         return (productSceneView.getRaster() instanceof Band)
-               && ((Band) productSceneView.getRaster()).getIndexCoding() == null;
+                && ((Band) productSceneView.getRaster()).getIndexCoding() == null;
     }
 
     private boolean isDiscrete1BandImage() {
         return (productSceneView.getRaster() instanceof Band)
-               && ((Band) productSceneView.getRaster()).getIndexCoding() != null;
+                && ((Band) productSceneView.getRaster()).getIndexCoding() != null;
     }
 
     private PageComponentDescriptor getToolViewDescriptor() {
@@ -295,7 +271,7 @@ class ColorManipulationForm {
 
     private void initContentPanel() {
 
-        noDataColorForm = new NoDataColorForm();
+        moreOptionsPane = new MoreOptionsPane(this);
 
         applyButton = new JButton("Apply");
         applyButton.setName("ApplyButton");
@@ -372,13 +348,6 @@ class ColorManipulationForm {
         // product scene view.
         //
         visatApp.addInternalFrameListener(new ColorManipulationIFL());
-
-        noDataColorForm.addPropertyChangeListener(new PropertyChangeListener() {
-
-            public void propertyChange(PropertyChangeEvent evt) {
-                setNoDataColor();
-            }
-        });
     }
 
 
@@ -599,7 +568,7 @@ class ColorManipulationForm {
     private void applyColorPaletteDef(ColorPaletteDef colorPaletteDef, RasterDataNode targetRaster,
                                       ImageInfo targetImageInfo) {
         boolean colorsOnly = false;
-        if(targetRaster instanceof Band) {
+        if (targetRaster instanceof Band) {
             colorsOnly = ((Band) targetRaster).getIndexCoding() != null;
         }
         if (colorsOnly) {
@@ -706,15 +675,6 @@ class ColorManipulationForm {
         return new File(SystemUtils.getApplicationDataDir(), "beam-ui/auxdata/color-palettes");
     }
 
-    private void setNoDataColor() {
-        ImageInfo imageInfo = getImageInfo();
-        if (imageInfo != null) { // --> is not empty form?
-            Color color = noDataColorForm.getNoDataColor();
-            getImageInfo().setNoDataColor(color);
-            setApplyEnabled(true);
-        }
-    }
-
     public ImageInfo createDefaultImageInfo() {
         try {
             return ProductUtils.createDefaultImageInfo(productSceneView.getRasters(), ProgressMonitor.NULL);
@@ -748,7 +708,7 @@ class ColorManipulationForm {
             if (Product.PROPERTY_NAME_NAME.equalsIgnoreCase(propertyName)) {
                 final ProductNode sourceNode = event.getSourceNode();
                 if ((isContinuous3BandImage() && sourceNode == productSceneView.getProduct())
-                    || sourceNode == productSceneView.getRaster()) {
+                        || sourceNode == productSceneView.getRaster()) {
                     updateTitle();
                 }
             } else if (DataNode.PROPERTY_NAME_UNIT.equalsIgnoreCase(propertyName)) {
@@ -799,4 +759,5 @@ class ColorManipulationForm {
             setApplyEnabled(true);
         }
     }
+
 }

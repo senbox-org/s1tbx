@@ -70,15 +70,6 @@ abstract class ImageInfoEditorModel {
 
     public abstract byte[] getGammaCurve();
 
-    public String getHistogramMatching() {
-        return getImageInfo().getHistogramMatching();
-    }
-
-    public void setHistogramMatching(String mode) {
-        getImageInfo().setHistogramMatching(mode);
-        fireStateChanged();
-    }
-
     public String getUnit() {
         return unit;
     }

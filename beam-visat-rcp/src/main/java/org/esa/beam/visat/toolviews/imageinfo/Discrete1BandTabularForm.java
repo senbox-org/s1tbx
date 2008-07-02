@@ -20,11 +20,13 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
     private JComponent contentPanel;
     private ImageInfoTableModel tableModel;
     private final TableModelListener applyEnablerTML;
+    private MoreOptionsForm moreOptionsForm;
 
     public Discrete1BandTabularForm(ColorManipulationForm parentForm) {
         this.parentForm = parentForm;
         tableModel = new ImageInfoTableModel(null);
         applyEnablerTML = parentForm.createApplyEnablerTableModelListener();
+        moreOptionsForm = new MoreOptionsForm(parentForm);
 
         final JTable table = new JTable(tableModel);
         final ColorCellRenderer colorCellRenderer = new ColorCellRenderer();
@@ -40,30 +42,41 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
         contentPanel = tableScrollPane;
     }
 
+    @Override
     public void handleFormShown(ProductSceneView productSceneView) {
         tableModel.setImageInfo(parentForm.getImageInfo());
         tableModel.addTableModelListener(applyEnablerTML);
     }
 
+    @Override
     public void handleFormHidden(ProductSceneView productSceneView) {
         tableModel.removeTableModelListener(applyEnablerTML);
         tableModel.setImageInfo(null);
     }
 
+    @Override
     public void updateFormModel(ProductSceneView productSceneView) {
         tableModel.setImageInfo(parentForm.getImageInfo());
     }
 
+    @Override
     public AbstractButton[] getButtons() {
         return new AbstractButton[]{}; // todo
     }
 
+    @Override
     public Component getContentPanel() {
         return contentPanel;
     }
 
+    @Override
     public RasterDataNode[] getRasters() {
         return parentForm.getProductSceneView().getRasters();
+    }
+
+    @Override
+    public MoreOptionsForm getMoreOptionsForm() {
+        return moreOptionsForm;
     }
 
     private static class PercentageRenderer extends DefaultTableCellRenderer {

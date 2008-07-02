@@ -33,4 +33,8 @@ class EmptyImageInfoForm implements ColorManipulationChildForm {
     public RasterDataNode[] getRasters() {
         return new RasterDataNode[0];
     }
+
+    public MoreOptionsForm getMoreOptionsForm() {
+        return null;
+    }
 }
