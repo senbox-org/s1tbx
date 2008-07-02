@@ -126,6 +126,14 @@ public class ProductSceneImage {
         this.imageInfo = imageInfo;
     }
 
+    public RasterDataNode[] getRasters() {
+        return rasters;
+    }
+
+    public void setRasters(RasterDataNode[] rasters) {
+        this.rasters = rasters;
+    }
+
     RenderedImage getImage() {
         return image;
     }
@@ -136,10 +144,6 @@ public class ProductSceneImage {
 
     LayerModel getLayerModel() {
         return layerModel;
-    }
-
-    RasterDataNode[] getRasters() {
-        return rasters;
     }
 
     Layer getLayer(String name) {

@@ -18,6 +18,7 @@ package org.esa.beam.visat.toolviews.imageinfo;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
+import com.jidesoft.swing.TitledSeparator;
 import org.esa.beam.BeamUiActivator;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.help.HelpSys;
@@ -31,6 +32,7 @@ import org.esa.beam.framework.ui.tool.ToolButtonFactory;
 import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.ResourceInstaller;
 import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
@@ -175,17 +177,13 @@ class ColorManipulationForm {
         importButton.setEnabled(enabled);
         exportButton.setEnabled(enabled);
         noDataColorForm.setEnabled(enabled);
-        updateNoDataForm();
+        if (enabled) {
+            noDataColorForm.setNoDataColor(getImageInfo().getNoDataColor());
+        }
+
         updateTitle();
 
         setApplyEnabled(false);
-    }
-
-    private void updateNoDataForm() {
-        if (productSceneView != null) {
-            ImageInfo imageInfo = productSceneView.getRaster().getImageInfo();
-            noDataColorForm.setNoDataColor(imageInfo.getNoDataColor());
-        }
     }
 
     private void installChildForm(ProductSceneView productSceneViewOld) {
@@ -226,7 +224,17 @@ class ColorManipulationForm {
             editorPanel.removeAll();
             editorPanel.add(childForm.getContentPanel(), BorderLayout.CENTER);
             if (!(childForm instanceof EmptyImageInfoForm)) {
-                editorPanel.add(noDataColorForm.getContentPanel(), BorderLayout.SOUTH);
+                final JPanel p1 = new JPanel(new BorderLayout(2,2));
+                final JLabel l = new JLabel("More Options");
+                l.setForeground(Color.BLUE);
+                final TitledSeparator titledSeparator = new TitledSeparator(l, TitledSeparator.TYPE_PARTIAL_ETCHED);
+                p1.add(titledSeparator, BorderLayout.WEST);
+                p1.add(titledSeparator, BorderLayout.CENTER);
+
+                final JPanel p2 = new JPanel(new BorderLayout());
+                p2.add(p1, BorderLayout.NORTH);
+                p2.add(noDataColorForm.getContentPanel(), BorderLayout.SOUTH);
+                editorPanel.add(p2, BorderLayout.SOUTH);
             }
             revalidateToolViewPaneControl();
 
@@ -301,7 +309,7 @@ class ColorManipulationForm {
 
         resetButton = createButton("icons/Undo24.gif");
         resetButton.setName("ResetButton");
-        resetButton.setToolTipText("Reset to default values"); /*I18N*/
+        resetButton.setToolTipText("Reset to defaults"); /*I18N*/
         resetButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(final ActionEvent e) {
@@ -443,8 +451,11 @@ class ColorManipulationForm {
                 getToolViewPaneControl().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 if (!isRgbMode()) {
                     productSceneView.getRaster().setImageInfo(imageInfo);
+                    productSceneView.getScene().setImageInfo(imageInfo);
+                } else {
+                    productSceneView.getScene().setRasters(childForm.getRasters());
+                    productSceneView.getScene().setImageInfo(imageInfo);
                 }
-                productSceneView.getScene().setImageInfo(imageInfo);
                 setImageInfoCopy(imageInfo);
                 childForm.updateFormModel(productSceneView);
                 VisatApp.getApp().updateImage(productSceneView);
@@ -461,7 +472,7 @@ class ColorManipulationForm {
 
     private void resetToDefaults() {
         if (productSceneView != null) {
-            setDefaultImageInfo(productSceneView.getRaster());
+            setImageInfoCopy(createDefaultImageInfo());
             childForm.updateFormModel(getProductSceneView());
             applyButton.setEnabled(true);
         }
@@ -696,25 +707,20 @@ class ColorManipulationForm {
     }
 
     private void setNoDataColor() {
-        Color noDataColor = noDataColorForm.getNoDataColor();
         ImageInfo imageInfo = getImageInfo();
-        if (imageInfo != null) {
-            imageInfo.setNoDataColor(noDataColor == null ? ImageInfo.NO_COLOR : noDataColor);
+        if (imageInfo != null) { // --> is not empty form?
+            Color color = noDataColorForm.getNoDataColor();
+            getImageInfo().setNoDataColor(color);
             setApplyEnabled(true);
         }
     }
 
-    private void setDefaultImageInfo(RasterDataNode raster) {
-        setImageInfoCopy(createDefaultImageInfo(raster));
-    }
-
-    public ImageInfo createDefaultImageInfo(RasterDataNode raster) {
+    public ImageInfo createDefaultImageInfo() {
         try {
-            return raster.createDefaultImageInfo(null, ProgressMonitor.NULL);  // todo - use PM
+            return ProductUtils.createDefaultImageInfo(productSceneView.getRasters(), ProgressMonitor.NULL);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(getContentPanel(),
-                                          "Failed to create image information for '" +
-                                          raster.getName() + "':\n" + e.getMessage(),
+                                          "Failed to create default image settings:\n" + e.getMessage(),
                                           "I/O Error",
                                           JOptionPane.ERROR_MESSAGE);
             return null;

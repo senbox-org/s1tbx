@@ -81,6 +81,10 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
         parentForm.revalidateToolViewPaneControl();
     }
 
+    public RasterDataNode[] getRasters() {
+        return parentForm.getProductSceneView().getRasters();
+    }
+
     private void distributeSlidersEvenly() {
         imageInfoEditor.distributeSlidersEvenly();
     }

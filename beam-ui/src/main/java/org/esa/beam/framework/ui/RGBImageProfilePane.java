@@ -603,7 +603,7 @@ public class RGBImageProfilePane extends JPanel {
             final ProfileItem item = (ProfileItem) _profileModel.getElementAt(i);
             final RGBImageProfile knownProfile = item.getProfile();
             if (knownProfile.isInternal() == internal
-                    && Arrays.equals(profile.getExpressions(), knownProfile.getExpressions())) {
+                    && Arrays.equals(profile.getRgbExpressions(), knownProfile.getRgbExpressions())) {
                 return knownProfile;
             }
         }

@@ -4,6 +4,7 @@ import com.jidesoft.grid.ColorCellEditor;
 import com.jidesoft.grid.ColorCellRenderer;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.*;
@@ -59,6 +60,10 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
 
     public Component getContentPanel() {
         return contentPanel;
+    }
+
+    public RasterDataNode[] getRasters() {
+        return parentForm.getProductSceneView().getRasters();
     }
 
     private static class PercentageRenderer extends DefaultTableCellRenderer {

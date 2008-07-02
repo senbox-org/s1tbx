@@ -72,7 +72,7 @@ class ImageInfoEditorModel1B extends ImageInfoEditorModel {
     }
 
     @Override
-    public boolean isGammaActive() {
+    public boolean isGammaUsed() {
         return false;
     }
 

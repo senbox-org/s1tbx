@@ -14,12 +14,14 @@ public class RGBImageProfileTest extends TestCase {
         final RGBImageProfile profile = new RGBImageProfile("X");
         assertEquals("X", profile.getName());
         assertEquals(false, profile.isInternal());
-        assertEquals("", profile.getExpression(0));
-        assertEquals("", profile.getExpression(1));
-        assertEquals("", profile.getExpression(2));
-        assertEquals("", profile.getExpression(3));
-        assertNotNull(profile.getExpressions());
-        assertEquals(4, profile.getExpressions().length);
+        assertEquals("", profile.getRedExpression());
+        assertEquals("", profile.getGreenExpression());
+        assertEquals("", profile.getBlueExpression());
+        assertEquals("", profile.getAlphaExpression());
+        assertNotNull(profile.getRgbExpressions());
+        assertEquals(3, profile.getRgbExpressions().length);
+        assertNotNull(profile.getRgbaExpressions());
+        assertEquals(4, profile.getRgbaExpressions().length);
     }
 
     public void testEqualsAndHashCode() {
@@ -37,43 +39,50 @@ public class RGBImageProfileTest extends TestCase {
         assertFalse(profile1.equals(profile5));
 
         assertTrue(profile1.hashCode() == profile2.hashCode());
-        assertTrue(profile1.hashCode() != profile3.hashCode());
+        assertTrue(profile1.hashCode() == profile3.hashCode());
         assertTrue(profile1.hashCode() != profile4.hashCode());
-        assertTrue(profile1.hashCode() != profile5.hashCode());
+        assertTrue(profile1.hashCode() == profile5.hashCode());
     }
 
     public void testThatComponentsMustNotBeNull() {
         final RGBImageProfile profile = new RGBImageProfile("X");
         try {
-            profile.setExpression(0, null);
+            profile.setRedExpression(null);
             fail();
-        } catch (NullPointerException e) {
+        } catch (IllegalArgumentException e) {
         }
         try {
-            profile.setExpression(1, null);
+            profile.setGreenExpression(null);
             fail();
-        } catch (NullPointerException e) {
+        } catch (IllegalArgumentException e) {
         }
         try {
-            profile.setExpression(2, null);
+            profile.setBlueExpression(null);
             fail();
-        } catch (NullPointerException e) {
+        } catch (IllegalArgumentException e) {
         }
         try {
-            profile.setExpression(3, null);
+            profile.setAlphaExpression(null);
             fail();
-        } catch (NullPointerException e) {
+        } catch (IllegalArgumentException e) {
         }
     }
 
     public void testComponentsAsArrays() {
         final RGBImageProfile profile = new RGBImageProfile("X");
-        profile.setExpression(0, "radiance_1");
-        profile.setExpression(1, "radiance_2");
-        profile.setExpression(2, "radiance_4");
-        profile.setExpression(3, "l1_flags.LAND ? 0 : 1");
+        profile.setRedExpression("radiance_1");
+        profile.setGreenExpression("radiance_2");
+        profile.setBlueExpression("radiance_4");
+        profile.setAlphaExpression("l1_flags.LAND ? 0 : 1");
 
-        final String[] rgbaExpressions = profile.getExpressions();
+        final String[] rgbExpressions = profile.getRgbExpressions();
+        assertNotNull(rgbExpressions);
+        assertEquals(3, rgbExpressions.length);
+        assertEquals("radiance_1", rgbExpressions[0]);
+        assertEquals("radiance_2", rgbExpressions[1]);
+        assertEquals("radiance_4", rgbExpressions[2]);
+
+        final String[] rgbaExpressions = profile.getRgbaExpressions();
         assertNotNull(rgbaExpressions);
         assertEquals(4, rgbaExpressions.length);
         assertEquals("radiance_1", rgbaExpressions[0]);

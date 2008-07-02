@@ -35,20 +35,21 @@ import org.esa.beam.util.geotiff.GeoTIFFMetadata;
 import org.esa.beam.util.jai.JAIUtils;
 import org.esa.beam.util.math.IndexValidator;
 import org.esa.beam.util.math.MathUtils;
-import org.esa.beam.util.math.Range;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ROI;
-import java.awt.*;
-import java.awt.color.ColorSpace;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.geom.*;
 import java.awt.image.*;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Arrays;
 
 /**
  * This class provides many static factory methods to be used in conjunction with data products.
@@ -200,33 +201,36 @@ public class ProductUtils {
         }
     }
 
+    public static ImageInfo createDefaultImageInfo(RasterDataNode[] rasters, ProgressMonitor pm) throws IOException {
+        return createImageInfo(rasters, false, pm);
+    }
+
     public static ImageInfo createRgbImageInfo(RasterDataNode[] rasters, ProgressMonitor pm) throws IOException {
+        return createImageInfo(rasters, true, pm);
+    }
+
+    public static ImageInfo createImageInfo(RasterDataNode[] rasters, boolean assignMissingImageInfos, ProgressMonitor pm) throws IOException {
         Assert.notNull(rasters, "rasters");
         Assert.argument(rasters.length == 1 || rasters.length == 3, "rasters.length == 1 || rasters.length == 3");
         if (rasters.length == 1) {
-            return rasters[0].ensureValidImageInfo(null, pm);
+            return assignMissingImageInfos ? rasters[0].ensureValidImageInfo(null, pm) : rasters[0].createDefaultImageInfo(null, pm);
         } else {
             pm.beginTask("Computing image information", 3);
-            final RGBImageProfile rgbProfile;
+            final RGBChannelDef rgbChannelDef = new RGBChannelDef();
             try {
-                rgbProfile = new RGBImageProfile("Current Profile");
                 for (int i = 0; i < rasters.length; i++) {
                     RasterDataNode raster = rasters[i];
-                    if (raster instanceof VirtualBand) {
-                        VirtualBand virtualBand = (VirtualBand) raster;
-                        rgbProfile.setExpression(i, virtualBand.getExpression());
-                    } else {
-                        rgbProfile.setExpression(i, BandArithmetic.createExternalName(raster.getName()));
-                    }
                     final RasterDataNode.Stx stx = raster.ensureValidStx(SubProgressMonitor.create(pm, 1));
                     double minSample = raster.scale(stx.getMinSample());
                     double maxSample = raster.scale(stx.getMaxSample());
-                    rgbProfile.setSampleDisplayRange(i, new Range(minSample, maxSample));
+                    rgbChannelDef.setSourceName(i, raster.getName());
+                    rgbChannelDef.setMinDisplaySample(i, minSample);
+                    rgbChannelDef.setMaxDisplaySample(i, maxSample);
                 }
             } finally {
                 pm.done();
             }
-            return new ImageInfo(rgbProfile);
+            return new ImageInfo(rgbChannelDef);
         }
     }
 
@@ -263,7 +267,7 @@ public class ProductUtils {
         Assert.argument(imageInfo.getColorPaletteDef() != null, "imageInfo.getColorPaletteDef() != null");
         Assert.notNull(pm, "pm");
 
-        final  IndexCoding indexCoding = (raster instanceof Band) ? ((Band)raster).getIndexCoding() : null;
+        final IndexCoding indexCoding = (raster instanceof Band) ? ((Band) raster).getIndexCoding() : null;
         final int width = raster.getSceneRasterWidth();
         final int height = raster.getSceneRasterHeight();
         final int numPixels = width * height;
@@ -326,7 +330,7 @@ public class ProductUtils {
             pm.worked(40);
             checkCanceled(pm);
 
-            BufferedImage image = createBufferedImage(width, height, numColorComponents, rgbSamples);
+            BufferedImage image = createBufferedImage(imageInfo, width, height, rgbSamples);
             image = applyHistogramMatching(image, imageInfo.getHistogramMatching());
             pm.worked(10);
             checkCanceled(pm);
@@ -337,7 +341,6 @@ public class ProductUtils {
             pm.done();
         }
     }
-
 
 
     private static void convertPaletteToRgbSamples(Color[] palette, Color noDataColor, int numColorComponents, byte[] rgbSamples, IndexValidator indexValidator) {
@@ -387,16 +390,15 @@ public class ProductUtils {
                                                      final ProgressMonitor pm) throws IOException {
         Assert.notNull(rasters, "rasters");
         Assert.argument(rasters.length == 3, "rasters.length == 3");
+        Assert.notNull(imageInfo, "imageInfo");
+        Assert.argument(imageInfo.getRgbChannelDef() != null, "imageInfo.getRgbChannelDef() != null");
         Assert.notNull(pm, "pm");
 
         Color noDataColor = imageInfo.getNoDataColor();
-        if (noDataColor == null) {
-            noDataColor = new Color(0, 0, 0, 0);
-        }
 
         final int width = rasters[0].getSceneRasterWidth();
         final int height = rasters[0].getSceneRasterHeight();
-        final int numColorComponents = noDataColor.getAlpha() == 255 ? 3 : 4;
+        final int numColorComponents = imageInfo.getColorComponentCount();
         final int numPixels = width * height;
         final byte[] rgbSamples = new byte[numColorComponents * numPixels];
 
@@ -412,9 +414,9 @@ public class ProductUtils {
             for (int i = 0; i < rasters.length; i++) {
                 final RasterDataNode raster = rasters[i];
                 pm.setSubTaskName(taskMessages[i]);
-                raster.quantizeRasterData(imageInfo.getRgbProfile().getSampleDisplayRange(i).getMin(),
-                                          imageInfo.getRgbProfile().getSampleDisplayRange(i).getMax(),
-                                          imageInfo.getRgbProfile().getSampleDisplayGamma(i),
+                raster.quantizeRasterData(imageInfo.getRgbChannelDef().getMinDisplaySample(i),
+                                          imageInfo.getRgbChannelDef().getMaxDisplaySample(i),
+                                          imageInfo.getRgbChannelDef().getGamma(i),
                                           rgbSamples,
                                           numColorComponents - 1 - i,
                                           numColorComponents,
@@ -456,7 +458,7 @@ public class ProductUtils {
             checkCanceled(pm);
 
 
-            BufferedImage image = createBufferedImage(width, height, numColorComponents, rgbSamples);
+            BufferedImage image = createBufferedImage(imageInfo, width, height, rgbSamples);
             image = applyHistogramMatching(image, imageInfo.getHistogramMatching());
             pm.worked(5);
             checkCanceled(pm);
@@ -468,29 +470,14 @@ public class ProductUtils {
         }
     }
 
-    private static BufferedImage createBufferedImage(int width, int height, int numColorComponents, byte[] rgbSamples) {
-        // Create a BufferedImage of type TYPE_3BYTE_BGR (the fastest type)
-        final ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_sRGB);
-        final ColorModel cm;
-        if (numColorComponents == 4) {
-            cm = new ComponentColorModel(cs,
-                                         true, // hasAlpha,
-                                         false, //isAlphaPremultiplied,
-                                         Transparency.TRANSLUCENT, //  transparency,
-                                         DataBuffer.TYPE_BYTE); //transferType
-        } else {
-            cm = new ComponentColorModel(cs,
-                                         false, // hasAlpha,
-                                         false, //isAlphaPremultiplied,
-                                         Transparency.OPAQUE, //  transparency,
-                                         DataBuffer.TYPE_BYTE); //transferType
-
-        }
+    private static BufferedImage createBufferedImage(ImageInfo imageInfo, int width, int height, byte[] rgbSamples) {
+        final ComponentColorModel cm = imageInfo.createComponentColorModel();
         final DataBuffer db = new DataBufferByte(rgbSamples, rgbSamples.length);
+        final int colorComponentCount = imageInfo.getColorComponentCount();
         final WritableRaster wr = Raster.createInterleavedRaster(db, width, height,
-                                                                 numColorComponents * width,
-                                                                 numColorComponents,
-                                                                 numColorComponents == 4 ?
+                                                                 colorComponentCount * width,
+                                                                 colorComponentCount,
+                                                                 colorComponentCount == 4 ?
                                                                          RGBA_BAND_OFFSETS : RGB_BAND_OFFSETS,
                                                                  null);
         return new BufferedImage(cm, wr, false, null);
@@ -518,7 +505,7 @@ public class ProductUtils {
         final double newMin = imageInfo.getColorPaletteDef().getFirstPoint().getSample();
         final double newMax = imageInfo.getColorPaletteDef().getLastPoint().getSample();
         final byte[] colorIndexes = rasterDataNode.quantizeRasterData(newMin, newMax, 1.0, pm);
-        final IndexColorModel cm = imageInfo.createColorModel(rasterDataNode);
+        final IndexColorModel cm = imageInfo.createIndexColorModel(rasterDataNode);
         final SampleModel sm = cm.createCompatibleSampleModel(width, height);
         final DataBuffer db = new DataBufferByte(colorIndexes, colorIndexes.length);
         final WritableRaster wr = WritableRaster.createWritableRaster(sm, db, null);

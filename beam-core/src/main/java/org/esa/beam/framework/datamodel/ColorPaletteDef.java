@@ -298,10 +298,6 @@ public class ColorPaletteDef implements Cloneable{
     }
 
     public Color[] createColorPalette(Scaling scaling) {
-        return createColourPalette(scaling);
-    }
-
-    private Color[] createColourPalette(Scaling scaling) {
         Debug.assertTrue(getNumPoints() >= 2);
         final int numColors = getNumColors();
         final Color[] colorPalette = new Color[numColors];

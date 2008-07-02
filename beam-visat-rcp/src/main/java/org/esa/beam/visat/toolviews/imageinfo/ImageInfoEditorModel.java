@@ -62,7 +62,7 @@ abstract class ImageInfoEditorModel {
 
     public abstract Color[] createColorPalette();
 
-    public abstract boolean isGammaActive();
+    public abstract boolean isGammaUsed();
 
     public abstract double getGamma();
 

@@ -975,7 +975,7 @@ class ImageInfoEditor extends JPanel {
         private JMenuItem createMenuItemCenterColorValue(final int sliderIndex) {
             JMenuItem menuItem;
             menuItem = new JMenuItem();
-            menuItem.setText("Center gradient"); /* I18N */
+            menuItem.setText("Center slider colour"); /* I18N */
             menuItem.setMnemonic('c');
             menuItem.addActionListener(new ActionListener() {
 
@@ -990,7 +990,7 @@ class ImageInfoEditor extends JPanel {
 
         private JMenuItem createMenuItemCenterSampleValue(final int sliderIndex) {
             JMenuItem menuItem = new JMenuItem();
-            menuItem.setText("Center position"); /* I18N */
+            menuItem.setText("Center slider position"); /* I18N */
             menuItem.setMnemonic('s');
             menuItem.addActionListener(new ActionListener() {
 
@@ -1004,7 +1004,7 @@ class ImageInfoEditor extends JPanel {
         }
 
         private JMenuItem createMenuItemDeleteSlider(final int removeIndex) {
-            JMenuItem menuItem = new JMenuItem("Remove gradient slider");
+            JMenuItem menuItem = new JMenuItem("Remove slider");
             menuItem.setMnemonic('D');
             menuItem.addActionListener(new ActionListener() {
 
@@ -1033,7 +1033,7 @@ class ImageInfoEditor extends JPanel {
                 return null;
             }
             final int index = insertIndex;
-            JMenuItem menuItem = new JMenuItem("Add new gradient slider");
+            JMenuItem menuItem = new JMenuItem("Add new slider");
             menuItem.setMnemonic('A');
             menuItem.addActionListener(new ActionListener() {
 

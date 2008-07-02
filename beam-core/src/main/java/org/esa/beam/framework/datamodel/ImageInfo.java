@@ -6,15 +6,18 @@
  */
 package org.esa.beam.framework.datamodel;
 
+import com.bc.ceres.core.Assert;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.math.Histogram;
 import org.esa.beam.util.math.MathUtils;
 
 import java.awt.Color;
+import java.awt.Transparency;
+import java.awt.color.ColorSpace;
+import java.awt.image.ComponentColorModel;
+import java.awt.image.DataBuffer;
 import java.awt.image.IndexColorModel;
-
-import com.bc.ceres.core.Assert;
 
 /**
  * This class contains information about how a product's raster data node is displayed as an image.
@@ -24,7 +27,7 @@ import com.bc.ceres.core.Assert;
  */
 public class ImageInfo implements Cloneable {
 
-    public static final Color NO_COLOR = new Color(0,0,0,0);
+    public static final Color NO_COLOR = new Color(0, 0, 0, 0);
 
     public static final String HISTOGRAM_MATCHING_OFF = "off";
     public static final String HISTOGRAM_MATCHING_EQUALIZE = "equalize";
@@ -32,7 +35,7 @@ public class ImageInfo implements Cloneable {
 
     private ColorPaletteDef colorPaletteDef;
     // todo - save in DIMAP   (nf/mp - 26.06.2008)
-    private RGBImageProfile rgbProfile;
+    private RGBChannelDef rgbChannelDef;
     // todo - save in DIMAP   (nf/mp - 26.06.2008)
     private Color noDataColor;
     // todo - include in module and DIMAP XML (nf/mp - 26.06.2008)
@@ -65,6 +68,7 @@ public class ImageInfo implements Cloneable {
     public ImageInfo(ColorPaletteDef colorPaletteDef) {
         Assert.notNull(colorPaletteDef, "colorPaletteDef");
         this.colorPaletteDef = colorPaletteDef;
+        this.rgbChannelDef = null;
         this.noDataColor = NO_COLOR;
         this.histogramMatching = ImageInfo.HISTOGRAM_MATCHING_OFF;
     }
@@ -72,16 +76,17 @@ public class ImageInfo implements Cloneable {
     /**
      * Constructs a new RGB image information instance.
      *
-     * @param rgbProfile the RGB profile
+     * @param rgbChannelDef the RGB channel definition
      */
-    public ImageInfo(RGBImageProfile rgbProfile) {
-        Assert.notNull(rgbProfile, "rgbProfile");
-        this.rgbProfile = rgbProfile;
+    public ImageInfo(RGBChannelDef rgbChannelDef) {
+        Assert.notNull(rgbChannelDef, "rgbChannelDef");
+        this.colorPaletteDef = null;
+        this.rgbChannelDef = rgbChannelDef;
         this.noDataColor = NO_COLOR;
         this.histogramMatching = ImageInfo.HISTOGRAM_MATCHING_OFF;
     }
 
-    // todo - remove from BEAM code
+
     /**
      * Constructs a new basic display information instance.
      *
@@ -143,6 +148,7 @@ public class ImageInfo implements Cloneable {
         this(minSample, maxSample, histogramBins, colorPaletteDef);
         this.colorPaletteDef.setNumColors(numColors);
     }
+
     // todo - remove from BEAM code
     /**
      * Constructs a new basic display information instance.
@@ -159,6 +165,7 @@ public class ImageInfo implements Cloneable {
                      int[] histogramBins,
                      ColorPaletteDef colorPaletteDef) {
         Guardian.assertNotNull("colorPaletteDef", colorPaletteDef);
+        this.rgbChannelDef = null;
         this.colorPaletteDef = colorPaletteDef;
         this.noDataColor = null;
         this.histogramMatching = ImageInfo.HISTOGRAM_MATCHING_OFF;
@@ -169,33 +176,23 @@ public class ImageInfo implements Cloneable {
     }
 
     /**
-     * Gets the color palette definition used to compute the linear contrast streching limits and the color palette
-     * gradients.
+     * Gets the color palette definition as used for images created from single bands.
      *
-     * @return the gradation curve, can be <code>null</code>
+     * @return The color palette definition. Can be {@code null}.
+     *         In this case {@link #getRgbChannelDef()} is non-null.
      */
     public ColorPaletteDef getColorPaletteDef() {
         return colorPaletteDef;
     }
 
     /**
-     * Sets the color palette definition used to compute the linear contrast streching limits and the color palette
-     * gradients.
+     * Gets the RGB(A) channel definition as used for images created from 3 tp 4 bands.
      *
-     * @param colorPaletteDef the color palette definition, can be <code>null</code>
+     * @return The RGB(A) channel definition.
+     *         Can be {@code null}. In this case {@link #getColorPaletteDef()} is non-null.
      */
-    public void setColorPaletteDef(ColorPaletteDef colorPaletteDef) {
-        Assert.notNull(colorPaletteDef, "colorPaletteDef");
-        this.colorPaletteDef = colorPaletteDef;
-    }
-
-    public RGBImageProfile getRgbProfile() {
-        return rgbProfile;
-    }
-
-    public void setRgbProfile(RGBImageProfile rgbProfile) {
-        Assert.notNull(rgbProfile, "rgbProfile");
-        this.rgbProfile = rgbProfile;
+    public RGBChannelDef getRgbChannelDef() {
+        return rgbChannelDef;
     }
 
     public Color getNoDataColor() {
@@ -221,17 +218,34 @@ public class ImageInfo implements Cloneable {
     }
 
     /**
-     * (Re-)Computes the color palette for this basic display information instance.
+     * Gets the number of color components the image shall have using an instance of this {@code ImageInfo}.
      *
-     * @return the color palette
-     * @deprecated since BEAM 4.2, use {@link #getColorPaletteDef()}.{@link ColorPaletteDef#createColorPalette(Scaling) createColorPalette(Scaling)}
+     * @return {@code 3} for RGB images, {@code 4} for RGB images with an alpha channel (transparency)
      */
-    @Deprecated
-    public Color[] createColorPalette() {
-        return colorPaletteDef != null ? colorPaletteDef.createColorPalette(Scaling.IDENTITY) : new Color[0];
+    public int getColorComponentCount() {
+        if (noDataColor.getAlpha() < 255) {
+            return 4;
+        }
+        if (colorPaletteDef != null) {
+            final Color[] colors = colorPaletteDef.getColors();
+            for (Color color : colors) {
+                if (color.getAlpha() < 255) {
+                    return 4;
+                }
+            }
+        }
+        if (rgbChannelDef != null) {
+            if (rgbChannelDef.isAlphaUsed()) {
+                return 4;
+            }
+        }
+        return 3;
     }
 
-    public IndexColorModel createColorModel(Scaling scaling) {
+    public IndexColorModel createIndexColorModel(Scaling scaling) {
+        if (colorPaletteDef == null) {
+            return null;
+        }
         Color[] palette = colorPaletteDef.createColorPalette(scaling);
         final int numColors = palette.length;
         final byte[] red = new byte[numColors];
@@ -246,21 +260,24 @@ public class ImageInfo implements Cloneable {
         return new IndexColorModel(numColors <= 256 ? 8 : 16, numColors, red, green, blue);
     }
 
-    /**
-     * Gets the number of color components the image shall have using an instance of this {@code ImageInfo}.
-     * @return {@code 3} for RGB images, {@code 4} for RGB images with an alpha channel (transparency)
-     */
-    public int getColorComponentCount() {
-        if (noDataColor.getAlpha() < 255) {
-            return 4;
+    public ComponentColorModel createComponentColorModel() {
+        final ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_sRGB);
+        ComponentColorModel cm;
+        if (getColorComponentCount() == 4) {
+            cm = new ComponentColorModel(cs,
+                                         true, // hasAlpha,
+                                         false, //isAlphaPremultiplied,
+                                         Transparency.TRANSLUCENT, //  transparency,
+                                         DataBuffer.TYPE_BYTE); //transferType
+        } else {
+            cm = new ComponentColorModel(cs,
+                                         false, // hasAlpha,
+                                         false, //isAlphaPremultiplied,
+                                         Transparency.OPAQUE, //  transparency,
+                                         DataBuffer.TYPE_BYTE); //transferType
+
         }
-        final Color[] colors = getColors();
-        for (Color color : colors) {
-            if (color.getAlpha() < 255) {
-                return 4;
-            }
-        }
-        return 3;
+        return cm;
     }
 
     /**
@@ -272,11 +289,11 @@ public class ImageInfo implements Cloneable {
     public final Object clone() {
         try {
             ImageInfo imageInfo = (ImageInfo) super.clone();
-            if (rgbProfile != null) {
-                imageInfo.rgbProfile = (RGBImageProfile) rgbProfile.clone();
-            }
             if (colorPaletteDef != null) {
                 imageInfo.colorPaletteDef = (ColorPaletteDef) colorPaletteDef.clone();
+            }
+            if (rgbChannelDef != null) {
+                imageInfo.rgbChannelDef = (RGBChannelDef) rgbChannelDef.clone();
             }
             return imageInfo;
         } catch (CloneNotSupportedException e) {
@@ -307,8 +324,9 @@ public class ImageInfo implements Cloneable {
         histogramBins = null;
         if (colorPaletteDef != null) {
             colorPaletteDef.dispose();
-            colorPaletteDef = null;
         }
+        colorPaletteDef = null;
+        rgbChannelDef = null;
     }
 
     public void transferColorPaletteDef(final ImageInfo sourceImageInfo, boolean changeColorsOnly) {
@@ -546,7 +564,7 @@ public class ImageInfo implements Cloneable {
     }
 
     /**
-     * @deprecated since BEAM 4.2, use {@link org.esa.beam.framework.datamodel.RGBImageProfile#isSampleDisplayGammaActive(int)}
+     * @deprecated since BEAM 4.2, use {@link org.esa.beam.framework.datamodel.RGBImageProfile#isGammaActive(int)}
      */
     @Deprecated
     public boolean isGammaActive() {
@@ -554,7 +572,7 @@ public class ImageInfo implements Cloneable {
     }
 
     /**
-     * @deprecated since BEAM 4.2, use {@link org.esa.beam.framework.datamodel.RGBImageProfile#getSampleDisplayGamma(int)}
+     * @deprecated since BEAM 4.2, use {@link org.esa.beam.framework.datamodel.RGBImageProfile#getGamma(int)}
      */
     @Deprecated
     public float getGamma() {
@@ -562,7 +580,7 @@ public class ImageInfo implements Cloneable {
     }
 
     /**
-     * @deprecated since BEAM 4.2, use {@link org.esa.beam.framework.datamodel.RGBImageProfile#setSampleDisplayGamma(int, double)}
+     * @deprecated since BEAM 4.2, use {@link org.esa.beam.framework.datamodel.RGBImageProfile#setGamma(int, double)}
      */
     @Deprecated
     public void setGamma(float gamma) {
@@ -670,6 +688,9 @@ public class ImageInfo implements Cloneable {
     public void computeColorPalette() {
     }
 
+    @Deprecated
+    public void setColorPaletteDef(ColorPaletteDef cpd) {
+    }
 
     /**
      * @deprecated since BEAM 4.2, GUI code
@@ -692,6 +713,28 @@ public class ImageInfo implements Cloneable {
             delta = 1;
         }
         return (sample - minDisplaySample) / delta;
+    }
+
+    /**
+     * (Re-)Computes the color palette for this basic display information instance.
+     *
+     * @return the color palette
+     * @deprecated since BEAM 4.2, use {@link #getColorPaletteDef()}.{@link ColorPaletteDef#createColorPalette(Scaling) createColorPalette(Scaling)}
+     */
+    @Deprecated
+    public Color[] createColorPalette() {
+        return colorPaletteDef != null ? colorPaletteDef.createColorPalette(Scaling.IDENTITY) : new Color[0];
+    }
+
+    /**
+     * (Re-)Computes the color palette for this basic display information instance.
+     *
+     * @return the color model
+     * @deprecated since BEAM 4.2, use {@link #getColorPaletteDef()}.{@link ColorPaletteDef#createColorPalette(Scaling) createColorPalette(Scaling)}
+     */
+    @Deprecated
+    public IndexColorModel createColorModel() {
+        return createIndexColorModel(Scaling.IDENTITY);
     }
 
 }

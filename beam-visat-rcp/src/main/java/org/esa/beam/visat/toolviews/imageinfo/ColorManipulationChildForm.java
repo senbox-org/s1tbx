@@ -1,6 +1,7 @@
 package org.esa.beam.visat.toolviews.imageinfo;
 
 import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.AbstractButton;
@@ -18,4 +19,5 @@ interface ColorManipulationChildForm {
 
     AbstractButton[] getButtons();
 
+    RasterDataNode[] getRasters();
 }

@@ -1,6 +1,7 @@
 package org.esa.beam.visat.toolviews.imageinfo;
 
 import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.*;
@@ -68,6 +69,10 @@ class Continuous1BandSwitcherForm implements ColorManipulationChildForm {
     @Override
     public void updateFormModel(ProductSceneView productSceneView) {
         childForm.updateFormModel(productSceneView);
+    }
+
+    public RasterDataNode[] getRasters() {
+        return childForm.getRasters();
     }
 
     private void setDiscreteColorsMode() {
