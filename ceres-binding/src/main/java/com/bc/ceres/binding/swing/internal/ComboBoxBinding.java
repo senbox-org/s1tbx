@@ -62,8 +62,13 @@ public class ComboBoxBinding extends Binding implements ActionListener, Property
     private void updateComboBoxModel() {
         ValueSet valueSet = getValueDescriptor().getValueSet();
         if (valueSet != null) {
-            comboBox.setModel(new DefaultComboBoxModel(valueSet.getItems()));
-        
+            final Object oldValue = getValue();
+            final DefaultComboBoxModel aModel = new DefaultComboBoxModel(valueSet.getItems());
+            if (!valueSet.contains(oldValue)) {
+                aModel.addElement(oldValue);
+            }
+            comboBox.setModel(aModel);
+            comboBox.setSelectedItem(oldValue);
         }
     }
 }
