@@ -22,24 +22,37 @@ import com.bc.ceres.binding.ValueRange;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.jidesoft.combobox.ColorChooserPanel;
 import com.jidesoft.popup.JidePopup;
-import com.jidesoft.swing.JideMenu;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.util.math.Histogram;
 import org.esa.beam.util.math.MathUtils;
 import org.esa.beam.util.math.Range;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JFormattedTextField;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
+import javax.swing.text.NumberFormatter;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.PopupMenuListener;
-import javax.swing.event.PopupMenuEvent;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.text.Format;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 
 class ImageInfoEditor extends JPanel {
@@ -79,7 +92,7 @@ class ImageInfoEditor extends JPanel {
     private final InternalMouseListener internalMouseListener;
     private double[] factors;
     private Color[] palette;
-    private ImageInfoEditor.ModelCL modelCL;
+    private ModelCL modelCL;
     private JidePopup popup;
 
     public ImageInfoEditor() {
@@ -781,11 +794,16 @@ class ImageInfoEditor extends JPanel {
 
         final ValueContainer vc = new ValueContainer();
         vc.addModel(ValueModel.createModel("sample", getSliderSample(sliderIndex)));
+        vc.getValueDescriptor("sample").setDisplayName("sample");
         vc.getValueDescriptor("sample").setValueRange(new ValueRange(getMinSliderSample(sliderIndex), getMaxSliderSample(sliderIndex)));
         vc.getValueDescriptor("sample").setUnit(getModel().getUnit());
 
         final BindingContext ctx = new BindingContext(vc);
-        final JFormattedTextField field = new JFormattedTextField(16);
+        final NumberFormatter formatter = new NumberFormatter(new DecimalFormat("#0.0#"));
+        formatter.setValueClass(Double.class); // to ensure that double values are returned
+        final JFormattedTextField field = new JFormattedTextField(formatter);
+        field.setColumns(11);
+        field.setHorizontalAlignment(JFormattedTextField.RIGHT);
         ctx.bind("sample", field);
 
         showPopup(evt, field);
