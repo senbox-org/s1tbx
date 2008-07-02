@@ -167,8 +167,7 @@ public class KMeansClusterOp extends Operator {
             pm.beginTask("Extracting data points...", tileRectangles.length * iterationCount * 2 + 2);
             try {
                 joinRoiAndNoDataMask(SubProgressMonitor.create(pm, 1));
-                final KMeansClusterer clusterer = new KMeansClusterer(clusterCount, sourceBands.length);
-                clusterer.initialize(new RandomSceneIter(this, sourceBands, roi, 42));
+                final KMeansClusterer clusterer = createClusterer();
                 pm.worked(1);
                 for (int i = 0; i < iterationCount; ++i) {
                     for (Rectangle rectangle : tileRectangles) {
@@ -184,6 +183,17 @@ public class KMeansClusterOp extends Operator {
             }
         }
         return clusterSet;
+    }
+
+    private KMeansClusterer createClusterer() {
+        final KMeansClusterer clusterer = new KMeansClusterer(clusterCount, sourceBands.length);
+        RandomSceneIter randomSceneIter = new RandomSceneIter(this, sourceBands, roi, 42);
+        if (randomSceneIter.getRoiMemberCount() < clusterCount) {
+            throw new IllegalArgumentException("The ROI contains "+
+                    randomSceneIter.getRoiMemberCount()+" pixel. These are too few to initialize the clustering.");
+        }
+        clusterer.initialize(randomSceneIter);
+        return clusterer;
     }
     
     private Rectangle[] getAllTileRactangles() {

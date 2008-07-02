@@ -14,62 +14,61 @@
  */
 package org.esa.beam.cluster;
 
-import org.esa.beam.framework.gpf.Operator;
-import org.esa.beam.framework.gpf.Tile;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-
+import java.awt.Rectangle;
 import java.util.Random;
-import java.awt.*;
 
 import javax.media.jai.ROI;
 
+import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.gpf.Operator;
+import org.esa.beam.framework.gpf.Tile;
+
 import com.bc.ceres.core.ProgressMonitor;
 
-/**
- * todo - add API doc
- *
- * @author Ralf Quast
- * @version $Revision$ $Date$
- * @since BEAM 4.2
- */
 public class RandomSceneIter {
     private final Operator operator;
     private final Random random;
     private final RasterDataNode[] rdn;
-    private final ROI roi;
+    private final int[] xValue;
+    private final int[] yValue;
+    private final int roiMemberCount;
 
     public RandomSceneIter(Operator operator, RasterDataNode[] rdn, ROI roi, int seed) {
         this.operator = operator;
         this.rdn = rdn;
-        this.roi = roi;
         random = new Random(seed);
+        final int rasterWidth = rdn[0].getSceneRasterWidth();
+        final int rasterHeight = rdn[0].getSceneRasterHeight();
+        final int size = rasterWidth * rasterHeight;
+        xValue = new int[size];
+        yValue = new int[size];
+        int i = 0;
+        for (int y = 0; y < rasterHeight; y++) {
+            for (int x = 0; x < rasterWidth; x++) {
+                if (roi.contains(x, y)) {
+                    xValue[i] = x;
+                    yValue[i] = y;
+                    i++;
+                }
+            }
+        }
+        roiMemberCount = i;
+    }
+    
+    public int getRoiMemberCount() {
+        return roiMemberCount;
     }
 
     public double[] getNextValue() {
-        final Product product = operator.getSourceProduct("source");
-
-        final int rasterWidth = product.getSceneRasterWidth();
-        final int rasterHeight = product.getSceneRasterHeight();
         final double[] value = new double[rdn.length];
 
-        boolean valid = false;
-        int counter = 0;
-        while (!valid) {
-            final int x = random.nextInt(rasterWidth);
-            final int y = random.nextInt(rasterHeight);
-            if (roi.contains(x, y)) {
-                final Rectangle rectangle = new Rectangle(x, y, 1, 1);
-                for (int i = 0; i < rdn.length; i++) {
-                    final Tile sourceTile = operator.getSourceTile(rdn[i], rectangle, ProgressMonitor.NULL);
-                    value[i] = sourceTile.getSampleDouble(x, y);
-                }
-                valid = true;
-            }
-            counter++;
-            if (counter > 100 ) {
-                throw new IllegalArgumentException("ROI contains too few pixel to initialize the clustering.");
-            }
+        final int randomIndex = random.nextInt(roiMemberCount);
+        final int x = xValue[randomIndex];
+        final int y = yValue[randomIndex];
+        final Rectangle rectangle = new Rectangle(x, y, 1, 1);
+        for (int i = 0; i < rdn.length; i++) {
+            final Tile sourceTile = operator.getSourceTile(rdn[i], rectangle, ProgressMonitor.NULL);
+            value[i] = sourceTile.getSampleDouble(x, y);
         }
         return value;
     }
