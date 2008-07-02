@@ -322,7 +322,7 @@ public class VisatApp extends BasicApp {
             productManager = new ProductManager();
             productManager.addListener(new ProductManager.Listener() {
                 public void productAdded(ProductManager.Event event) {
-                      event.getProduct().addProductNodeListener(productNodeListener);
+                    event.getProduct().addProductNodeListener(productNodeListener);
                 }
 
                 public void productRemoved(ProductManager.Event event) {
@@ -396,7 +396,7 @@ public class VisatApp extends BasicApp {
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
                         instance.showInfoDialog("You are using " + getAppName() + " in JAI tiled image mode.\n" +
-                                "THIS MODE IS STILL UNDER DEVELOPMENT!",
+                                                "THIS MODE IS STILL UNDER DEVELOPMENT!",
                                                 "beam.imageTiling.warn");
                     }
                 });
@@ -781,7 +781,7 @@ public class VisatApp extends BasicApp {
             if (contentPane instanceof ProductSceneView) {
                 final ProductSceneView view = (ProductSceneView) contentPane;
                 if ((numBands == -1 || view.getNumRasters() == numBands) &&
-                        view.getRaster() == raster) {
+                    view.getRaster() == raster) {
                     frameList.add(frame);
                 }
             }
@@ -1063,7 +1063,7 @@ public class VisatApp extends BasicApp {
                 }
             }
             if (!modifiedOrNew.contains(product)
-                    && product.isModified()) {
+                && product.isModified()) {
                 modifiedOrNew.add(product);
             }
         }
@@ -1075,13 +1075,15 @@ public class VisatApp extends BasicApp {
             if (modifiedProducts.length == 1) {
                 message.append("The following product has been modified:"); /*I18N*/
                 message.append("\n    ").append(modifiedProducts[0].getDisplayName());
-                message.append(String.format("\n\nDo you want to save this product before exiting %s?", getAppName())); /*I18N*/
+                message.append(String.format("\n\nDo you want to save this product before exiting %s?",
+                                             getAppName())); /*I18N*/
             } else {
                 message.append("The following products have been modified:"); /*I18N*/
                 for (Product modifiedProduct : modifiedProducts) {
                     message.append("\n    ").append(modifiedProduct.getDisplayName());
                 }
-                message.append(String.format("\n\nDo you want to save these products before exiting %s?", getAppName())); /*I18N*/
+                message.append(String.format("\n\nDo you want to save these products before exiting %s?",
+                                             getAppName())); /*I18N*/
             }
             final int result = showQuestionDialog("Products Modified", message.toString(), true, null);
             if (result == JOptionPane.YES_OPTION) {
@@ -1236,7 +1238,7 @@ public class VisatApp extends BasicApp {
         UIUtils.setRootFrameWaitCursor(getMainFrame());
 
         final SwingWorker worker = new ProgressMonitorSwingWorker<ProductSceneImage, Object>(getMainFrame(),
-                                                                                             getAppName() + " - Creating image for '"+raster.getName()+"'") {
+                                                                                             getAppName() + " - Creating image for '" + raster.getName() + "'") {
 
             @Override
             protected ProductSceneImage doInBackground(ProgressMonitor pm) throws Exception {
@@ -1284,7 +1286,7 @@ public class VisatApp extends BasicApp {
                     @Override
                     public void nodeChanged(final ProductNodeEvent event) {
                         if (event.getSourceNode() == raster &&
-                                event.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
+                            event.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
                             internalFrame.setTitle(createInternalFrameTitle(raster));
                         }
                     }
@@ -1307,7 +1309,8 @@ public class VisatApp extends BasicApp {
      */
     public void openProductSceneViewRGB(final Product product, final String helpId) {
         final RGBImageProfilePane profilePane = new RGBImageProfilePane(getPreferences(), product);
-        final boolean ok = profilePane.showDialog(getMainFrame(), getAppName() + " - Select RGB-Image Channels", helpId);
+        final boolean ok = profilePane.showDialog(getMainFrame(), getAppName() + " - Select RGB-Image Channels",
+                                                  helpId);
         if (!ok) {
             return;
         }
@@ -1326,9 +1329,10 @@ public class VisatApp extends BasicApp {
      * Creates product scene view using the given RGBA expressions.
      */
     public void openProductSceneViewRGB(final String name, final Product product, final String[] rgbaExpressions,
-                         final String helpId) {
-        final SwingWorker<ProductSceneImage, Object> worker = new ProgressMonitorSwingWorker<ProductSceneImage, Object>(getMainFrame(),
-                                                                                             getAppName() + " - Creating image for '" + name + "'") {
+                                        final String helpId) {
+        final SwingWorker<ProductSceneImage, Object> worker = new ProgressMonitorSwingWorker<ProductSceneImage, Object>(
+                    getMainFrame(),
+                    getAppName() + " - Creating image for '" + name + "'") {
 
             @Override
             protected ProductSceneImage doInBackground(ProgressMonitor pm) throws Exception {
@@ -1456,7 +1460,7 @@ public class VisatApp extends BasicApp {
             final StringBuilder message = new StringBuilder();
             message.append("Some (new) products are derived from the product you want to close now.\n");
             message.append(
-                    "You cannot close this product until you have closed (or saved) the following product(s):\n");
+                        "You cannot close this product until you have closed (or saved) the following product(s):\n");
             for (String name : derivedProductNameList) {
                 message.append("  ").append(name).append("\n");
             }
@@ -1468,17 +1472,17 @@ public class VisatApp extends BasicApp {
             StringBuilder message = null;
             if (product.getFileLocation() == null) {
                 message = new StringBuilder("The product\n" +
-                        "  " + product.getDisplayName() + "\n" +
-                        "you want to close has not been saved yet.\n");
+                                            "  " + product.getDisplayName() + "\n" +
+                                            "you want to close has not been saved yet.\n");
             } else if (product.isModified()) {
                 message = new StringBuilder("The product\n" +
-                        "  " + product.getDisplayName() + "\n" +
-                        "has been modified.\n");
+                                            "  " + product.getDisplayName() + "\n" +
+                                            "has been modified.\n");
             }
             if (message != null) {
                 message.append("After closing this product all modifications will be lost.\n" +
-                        "\n" +
-                        "Do you really want to close this product now?");
+                               "\n" +
+                               "Do you really want to close this product now?");
                 final int pressedButton = showQuestionDialog("Product Modified", message.toString(), null);
                 if (pressedButton != JOptionPane.YES_OPTION) {
                     return false;
@@ -1523,9 +1527,9 @@ public class VisatApp extends BasicApp {
         final File file = product.getFileLocation();
         if (file.isFile() && !file.canWrite()) {
             showWarningDialog("The product\n" +
-                    "'" + file.getPath() + "'\n" +
-                    "exists and cannot be overwritten, because it is read only.\n" +
-                    "Please choose another file or remove the write protection."); /*I18N*/
+                              "'" + file.getPath() + "'\n" +
+                              "exists and cannot be overwritten, because it is read only.\n" +
+                              "Please choose another file or remove the write protection."); /*I18N*/
             return false;
         }
 
@@ -1559,7 +1563,7 @@ public class VisatApp extends BasicApp {
                 for (final String name : names) {
                     //     'processing_request' must not be removed. It would stop mosaic from functioning.
                     if (!"MPH".equals(name) && !"SPH".equals(name) && !"History".equals(
-                            name) && !"processing_request".equals(name)) {
+                                name) && !"processing_request".equals(name)) {
                         final MetadataElement element = metadataRoot.getElement(name);
                         metadataElements.add(element);
                         metadataRoot.removeElement(element);
@@ -1598,7 +1602,7 @@ public class VisatApp extends BasicApp {
                 if (canceled) {
                     int result = JOptionPane.showConfirmDialog(getMainFrame(),
                                                                "Cancel saving may lead to an unreadable product.\n\n"
-                                                                       + "Do you really want to cancel the save process?",
+                                                               + "Do you really want to cancel the save process?",
                                                                "Cancel Process", JOptionPane.YES_NO_OPTION);
                     if (result != JOptionPane.YES_OPTION) {
                         super.setCanceled(false);
@@ -1652,7 +1656,8 @@ public class VisatApp extends BasicApp {
                 final ProductSceneView view = (ProductSceneView) frames[0].getContentPane();
                 final LayerModel layerModel = view.getImageDisplay().getLayerModel();
                 final ImageInfo imageInfo = view.getScene().getImageInfo();
-                productSceneImage = ProductSceneImage.create(raster, imageInfo, layerModel, SubProgressMonitor.create(pm, 1));
+                productSceneImage = ProductSceneImage.create(raster, imageInfo, layerModel,
+                                                             SubProgressMonitor.create(pm, 1));
             } else {
                 productSceneImage = ProductSceneImage.create(raster, SubProgressMonitor.create(pm, 1));
             }
@@ -1787,7 +1792,7 @@ public class VisatApp extends BasicApp {
                 @Override
                 public void nodeChanged(final ProductNodeEvent event) {
                     if (event.getSourceNode() == element &&
-                            event.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
+                        event.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
                         internalFrame.setTitle(element.getDisplayName());
                     }
                 }
@@ -1824,11 +1829,11 @@ public class VisatApp extends BasicApp {
         if (reader != null && !(reader instanceof DimapProductReader)) {
             final int answer = showQuestionDialog("Save Product As",
                                                   "In order to save the product\n" +
-                                                          "   " + product.getDisplayName() + "\n" +
-                                                          "it has to be converted to the BEAM-DIMAP format.\n" +
-                                                          "The current product and all of its views will be closed.\n" +
-                                                          "Depending on the product size the conversion also may take a while.\n\n" +
-                                                          "Do you really want to convert the product now?\n",
+                                                  "   " + product.getDisplayName() + "\n" +
+                                                  "it has to be converted to the BEAM-DIMAP format.\n" +
+                                                  "The current product and all of its views will be closed.\n" +
+                                                  "Depending on the product size the conversion also may take a while.\n\n" +
+                                                  "Do you really want to convert the product now?\n",
                                                   "productConversionRequired"); /*I18N*/
             if (answer != 0) { // Zero means YES
                 return;
@@ -1859,8 +1864,8 @@ public class VisatApp extends BasicApp {
             if (file.exists()) {
                 final int answer = showQuestionDialog("Product Exists",
                                                       "The selected directory already contains a data product with the name\n" +
-                                                              "'" + file.getName() + "'.\n\n" +
-                                                              "Do you really want to overwrite this product?\n", null); /*I18N*/
+                                                      "'" + file.getName() + "'.\n\n" +
+                                                      "Do you really want to overwrite this product?\n", null); /*I18N*/
                 if (answer == 0) { // Zero means YES
                     break;
                 } else {
@@ -2021,8 +2026,8 @@ public class VisatApp extends BasicApp {
                     final Object defaultValue = parameter.getProperties().getDefaultValue();
                     showErrorDialog("Error in Preferences",
                                     String.format("A problem has been detected in the preferences settings of %s:\n\n"
-                                            + "Value for parameter '%s' is invalid.\n"
-                                            + "Its default value '%s' will be used instead.",
+                                                  + "Value for parameter '%s' is invalid.\n"
+                                                  + "Its default value '%s' will be used instead.",
                                                   getAppName(), parameter.getName(), defaultValue));
                     try {
                         parameter.setDefaultValue();
@@ -2123,15 +2128,15 @@ public class VisatApp extends BasicApp {
         toolBar.addDockableBarListener(new ToolBarListener());
 
         addCommandsToToolBar(toolBar, new String[]{
-                "new",
-                "open",
-                "save",
-                null,
-                "preferences",
-                "properties",
-                null,
-                "showUpdateDialog",
-                "helpTopics",
+                    "new",
+                    "open",
+                    "save",
+                    null,
+                    "preferences",
+                    "properties",
+                    null,
+                    "showUpdateDialog",
+                    "helpTopics",
         });
 
         return toolBar;
@@ -2144,12 +2149,12 @@ public class VisatApp extends BasicApp {
         toolBar.addDockableBarListener(new ToolBarListener());
 
         addCommandsToToolBar(toolBar, new String[]{
-                "showNoDataOverlay",
-                "showROIOverlay",
-                "showShapeOverlay",
-                "showGraticuleOverlay",
-                PinDescriptor.INSTANCE.getShowLayerCommandId(),
-                GcpDescriptor.INSTANCE.getShowLayerCommandId(),
+                    "showNoDataOverlay",
+                    "showROIOverlay",
+                    "showShapeOverlay",
+                    "showGraticuleOverlay",
+                    PinDescriptor.INSTANCE.getShowLayerCommandId(),
+                    GcpDescriptor.INSTANCE.getShowLayerCommandId(),
         });
 
         return toolBar;
@@ -2162,11 +2167,11 @@ public class VisatApp extends BasicApp {
         toolBar.addDockableBarListener(new ToolBarListener());
 
         addCommandsToToolBar(toolBar, new String[]{
-                "openInformationDialog",
-                "openGeoCodingInfoDialog",
-                "openStatisticsDialog",
-                "openHistogramDialog",
-                "openScatterPlotDialog",
+                    "openInformationDialog",
+                    "openGeoCodingInfoDialog",
+                    "openStatisticsDialog",
+                    "openHistogramDialog",
+                    "openScatterPlotDialog",
         });
 
         return toolBar;
@@ -2179,23 +2184,23 @@ public class VisatApp extends BasicApp {
         toolBar.addDockableBarListener(new ToolBarListener());
 
         addCommandsToToolBar(toolBar, new String[]{
-                // These IDs are defined in the module.xml
-                "selectTool",
-                "rangeFinder",
-                "zoomTool",
-                "pannerTool",
-                "pinTool",
-                "gcpTool",
-                "drawLineTool",
-                "drawRectangleTool",
-                "drawEllipseTool",
-                "drawPolylineTool",
-                "drawPolygonTool",
-                "deleteShape",
+                    // These IDs are defined in the module.xml
+                    "selectTool",
+                    "rangeFinder",
+                    "zoomTool",
+                    "pannerTool",
+                    "pinTool",
+                    "gcpTool",
+                    "drawLineTool",
+                    "drawRectangleTool",
+                    "drawEllipseTool",
+                    "drawPolylineTool",
+                    "drawPolygonTool",
+                    "deleteShape",
 //                "magicStickTool",
-                null,
-                "convertShapeToROI",
-                "convertROIToShape",
+                    null,
+                    "convertShapeToROI",
+                    "convertROIToShape",
         });
 
         return toolBar;
@@ -2554,7 +2559,7 @@ public class VisatApp extends BasicApp {
                         final boolean autoUnload = getPreferences().getPropertyBool(PROPERTY_KEY_AUTO_UNLOAD_DATA,
                                                                                     true);
                         // If auto-unload is on, unload data
-                        if (autoUnload && !raster.isSynthetic()) {
+                        if (autoUnload && !raster.isSynthetic() && !raster.isReadOnly()) {
                             Debug.trace("Unloading raster data of '" + raster.getName() + "'...");
                             raster.unloadRasterData();
                             Debug.trace("Raster data unloaded.");
@@ -2614,7 +2619,7 @@ public class VisatApp extends BasicApp {
 
         @Override
         public void visit(final Band band) {
-            if (band.getRasterData() != null) {
+            if (band.getRasterData() != null && !band.isReadOnly()) {
                 getLogger().info("Unloading raster data of '" + band.getName() + "'...");
                 band.unloadRasterData();
                 getLogger().info("Raster data unloaded.");
@@ -2723,7 +2728,7 @@ public class VisatApp extends BasicApp {
                 BeamFileFilter productFileFilter = plugIn.getProductFileFilter();
                 fileChooser.addChoosableFileFilter(productFileFilter);
                 if (!ALL_FILES_IDENTIFIER.equals(lastFormat) &&
-                        productFileFilter.getFormatName().equals(lastFormat)) {
+                    productFileFilter.getFormatName().equals(lastFormat)) {
                     actualFileFilter = productFileFilter;
                 }
             }
