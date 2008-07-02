@@ -6,15 +6,16 @@
  */
 package org.esa.beam.framework.datamodel;
 
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
 import Jama.LUDecomposition;
 import Jama.Matrix;
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.maptransf.Datum;
+import org.esa.beam.util.BitRaster;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
-import org.esa.beam.util.BitRaster;
+import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.IndexValidator;
 
 import java.io.IOException;
@@ -48,6 +49,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
     private static float D2R = (float) (Math.PI / 180.0);
 
     private GeoCoding _pixelPosEstimator;
+    private Boolean _crossingMeridianAt180;
     private Band _latBand;
     private Band _lonBand;
     private String _validMask;
@@ -89,7 +91,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         }
         if (latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2) {
             throw new IllegalArgumentException(
-                    "latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2");
+                        "latBand.getProduct().getSceneRasterWidth() < 2 || latBand.getProduct().getSceneRasterHeight() < 2");
         }
         if (searchRadius <= 0) {
             throw new IllegalArgumentException("searchRadius <= 0");
@@ -99,17 +101,21 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         _validMask = validMask;
         _searchRadius = searchRadius;
         _pixelPosEstimator = latBand.getProduct().getGeoCoding();
+        if (_pixelPosEstimator != null) {
+            _crossingMeridianAt180 = _pixelPosEstimator.isCrossingMeridianAt180();
+        }
         initData(latBand, lonBand, validMask, pm);
     }
 
     private void initData(final Band latBand, final Band lonBand, final String validMaskExpr, ProgressMonitor pm) throws
-                                                                                                              IOException {
+                                                                                                                  IOException {
         try {
             pm.beginTask("Preparing data for pixel based geo-coding...", 4);
             _latGrid = PixelGrid.create(latBand, SubProgressMonitor.create(pm, 1));
             _lonGrid = PixelGrid.create(lonBand, SubProgressMonitor.create(pm, 1));
             if (validMaskExpr != null && validMaskExpr.trim().length() > 0) {
-                final BitRaster validMask = latBand.getProduct().createValidMask(validMaskExpr, SubProgressMonitor.create(pm, 1));
+                final BitRaster validMask = latBand.getProduct().createValidMask(validMaskExpr,
+                                                                                 SubProgressMonitor.create(pm, 1));
                 fillInvalidGaps(_latGrid.getRasterWidth(),
                                 _latGrid.getRasterHeight(),
                                 new RasterDataNode.ValidMaskValidator(_latGrid.getRasterHeight(), 0, validMask),
@@ -227,7 +233,21 @@ public class PixelGeoCoding extends AbstractGeoCoding {
      * @return <code>true</code>, if so
      */
     public boolean isCrossingMeridianAt180() {
-        return _pixelPosEstimator.isCrossingMeridianAt180();
+        if (_crossingMeridianAt180 == null) {
+            _crossingMeridianAt180 = false;
+            final PixelPos[] pixelPoses = ProductUtils.createPixelBoundary(_lonBand, null, 1);
+            float firstLonValue = _lonBand.getPixelFloat(0, 0);
+            for (int i = 1; i < pixelPoses.length; i++) {
+                final PixelPos pixelPos = pixelPoses[i];
+                float secondLonValue = _lonBand.getPixelFloat((int) pixelPos.x, (int) pixelPos.y);
+                if (Math.abs(firstLonValue - secondLonValue) > 180) {
+                    _crossingMeridianAt180 = true;
+                    break;
+                }
+                firstLonValue = secondLonValue;
+            }
+        }
+        return _crossingMeridianAt180;
     }
 
     /**
@@ -492,7 +512,7 @@ public class PixelGeoCoding extends AbstractGeoCoding {
                 System.out.print("  ");
             }
             System.out.println(
-                    depth + ": (" + x + "," + y + ") (" + w + "," + h + ") " + definitelyOutside + "  " + pixelFound);
+                        depth + ": (" + x + "," + y + ") (" + w + "," + h + ") " + definitelyOutside + "  " + pixelFound);
         }
         return pixelFound;
     }
