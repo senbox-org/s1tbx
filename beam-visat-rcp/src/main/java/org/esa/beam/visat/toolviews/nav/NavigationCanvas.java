@@ -180,7 +180,6 @@ public class NavigationCanvas extends JPanel {
         if (imageDisplay == null || _thumbnail == null) {
             return;
         }
-        Debug.trace(getClass().getName() + ".updateImageContent() BEGIN");
         final Graphics2D graphics = _thumbnail.createGraphics();
         final ImageDisplay painter = new ImageDisplay(imageDisplay.getImage());
         painter.setSize(_thumbnail.getWidth(), _thumbnail.getHeight());
@@ -193,7 +192,6 @@ public class NavigationCanvas extends JPanel {
         painter.paintComponent(graphics);
         painter.dispose();
         graphics.dispose();
-        Debug.trace(getClass().getName() + ".updateImageContent() END");
     }
 
     /**
