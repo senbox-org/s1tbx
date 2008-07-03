@@ -1,7 +1,7 @@
 package org.esa.beam.visat.toolviews.imageinfo;
 
-import com.bc.ceres.core.ProgressMonitor;
-import org.esa.beam.framework.datamodel.*;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.AbstractButton;
@@ -11,7 +11,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 
 class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
 
@@ -54,20 +53,13 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
     @Override
     public void handleFormShown(ProductSceneView productSceneView) {
         updateFormModel(productSceneView);
-        productSceneView.getProduct().addProductNodeListener(new ModelUpdaterPNL(productSceneView.getRaster()));
     }
 
     @Override
     public void handleFormHidden(ProductSceneView productSceneView) {
-        if (imageInfoEditor.getModel() != null) {  // todo
+        if (imageInfoEditor.getModel() != null) {
             imageInfoEditor.getModel().removeChangeListener(applyEnablerCL);
             imageInfoEditor.setModel(null);
-        }
-        final Product product = productSceneView.getProduct();
-        for (ProductNodeListener listener : product.getProductNodeListeners()) {
-            if (listener instanceof ModelUpdaterPNL) {
-                product.removeProductNodeListener(listener);
-            }
         }
     }
 
@@ -78,6 +70,15 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
         model.addChangeListener(applyEnablerCL);
         imageInfoEditor.setModel(model);
         parentForm.revalidateToolViewPaneControl();
+    }
+
+
+    @Override
+    public void handleRasterPropertyChange(ProductNodeEvent event, RasterDataNode raster) {
+        imageInfoEditor.getModel().setDisplayProperties(raster);
+        if (event.getPropertyName().equals(RasterDataNode.PROPERTY_NAME_STATISTICS)) {
+            imageInfoEditor.compute100Percent();
+        }
     }
 
     @Override
@@ -106,35 +107,4 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
                 evenDistButton,
         };
     }
-
-    private class ModelUpdaterPNL extends ProductNodeListenerAdapter {
-        private RasterDataNode raster;
-
-        private ModelUpdaterPNL(RasterDataNode raster) {
-            this.raster = raster;
-        }
-
-        @Override
-        public void nodeChanged(ProductNodeEvent event) {
-            if (event.getSourceNode() == raster) {
-                if (event.getPropertyName().equals(RasterDataNode.PROPERTY_NAME_UNIT)) {
-                    imageInfoEditor.getModel().setDisplayProperties(raster);
-                } else if (event.getPropertyName().equals(RasterDataNode.PROPERTY_NAME_STATISTICS)) {
-                    imageInfoEditor.getModel().setDisplayProperties(raster);
-                    imageInfoEditor.compute100Percent();
-                } else if (raster.isValidMaskProperty(event.getPropertyName())) {
-                    if (raster.getStx() != null) {
-                        raster.getStx().setDirty(true);
-                    }
-                    try {
-                        raster.getStx(ProgressMonitor.NULL);
-                    } catch (IOException e) {
-                        // todo - handle exception here
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-    }
-
 }

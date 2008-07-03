@@ -2,6 +2,7 @@ package org.esa.beam.visat.toolviews.imageinfo;
 
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.AbstractButton;
@@ -14,6 +15,8 @@ interface ColorManipulationChildForm {
     void handleFormHidden(ProductSceneView productSceneView);
 
     void updateFormModel(ProductSceneView productSceneView);
+
+    void handleRasterPropertyChange(ProductNodeEvent event, RasterDataNode raster);
 
     Component getContentPanel();
 

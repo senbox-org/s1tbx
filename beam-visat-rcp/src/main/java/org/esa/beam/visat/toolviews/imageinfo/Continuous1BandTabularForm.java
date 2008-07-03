@@ -5,6 +5,7 @@ import com.jidesoft.grid.ColorCellRenderer;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.AbstractButton;
@@ -43,35 +44,45 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
         contentPanel = tableScrollPane;
     }
 
-    public AbstractButton[] getToolButtons() {
-        return new AbstractButton[]{};  // todo - ?
-    }
-
-    public Component getContentPanel() {
-        return contentPanel;
-    }
-
+    @Override
     public void handleFormShown(ProductSceneView productSceneView) {
         tableModel.setImageInfo(parentForm.getImageInfo());
         tableModel.addTableModelListener(applyEnablerTML);
     }
 
+    @Override
     public void handleFormHidden(ProductSceneView productSceneView) {
         tableModel.removeTableModelListener(applyEnablerTML);
         tableModel.setImageInfo(null);
     }
 
+    @Override
     public void updateFormModel(ProductSceneView productSceneView) {
         tableModel.setImageInfo(parentForm.getImageInfo());
     }
 
-    public RasterDataNode[] getRasters() {
-        return parentForm.getProductSceneView().getRasters();
+    @Override
+    public void handleRasterPropertyChange(ProductNodeEvent event, RasterDataNode raster) {
+    }
+
+    @Override
+    public Component getContentPanel() {
+        return contentPanel;
+    }
+
+    @Override
+    public AbstractButton[] getToolButtons() {
+        return new AbstractButton[0];
     }
 
     @Override
     public MoreOptionsForm getMoreOptionsForm() {
         return moreOptionsForm;
+    }
+
+    @Override
+    public RasterDataNode[] getRasters() {
+        return parentForm.getProductSceneView().getRasters();
     }
 
     private static class ImageInfoTableModel extends AbstractTableModel {

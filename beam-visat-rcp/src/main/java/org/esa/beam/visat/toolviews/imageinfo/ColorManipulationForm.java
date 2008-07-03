@@ -709,18 +709,28 @@ class ColorManipulationForm {
 
         @Override
         public void nodeChanged(final ProductNodeEvent event) {
-            final String propertyName = event.getPropertyName();
-            if (Product.PROPERTY_NAME_NAME.equalsIgnoreCase(propertyName)) {
-                final ProductNode sourceNode = event.getSourceNode();
-                if ((isContinuous3BandImage() && sourceNode == productSceneView.getProduct())
-                        || sourceNode == productSceneView.getRaster()) {
-                    updateTitle();
+            final RasterDataNode[] rasters = childForm.getRasters();
+            RasterDataNode raster = null;
+            for (RasterDataNode dataNode : rasters) {
+                if (event.getSourceNode() == dataNode) {
+                    raster = (RasterDataNode) event.getSourceNode();
                 }
-            } else if (DataNode.PROPERTY_NAME_UNIT.equalsIgnoreCase(propertyName)) {
-                // todo - ???
-                // final DataNode dataNode = (DataNode) event.getSourceNode();
-                // _colorPaletteEditorPanel.setUnit(dataNode.getUnit());
-                // revalidate();
+            }
+            if (raster != null) {
+                final String propertyName = event.getPropertyName();
+                if (ProductNode.PROPERTY_NAME_NAME.equalsIgnoreCase(propertyName)) {
+                    updateTitle();
+                    childForm.handleRasterPropertyChange(event, raster);
+                } else if (RasterDataNode.PROPERTY_NAME_UNIT.equalsIgnoreCase(propertyName)) {
+                    childForm.handleRasterPropertyChange(event, raster);
+                } else if (RasterDataNode.PROPERTY_NAME_STATISTICS.equalsIgnoreCase(propertyName)) {
+                    childForm.handleRasterPropertyChange(event, raster);
+                } else if (RasterDataNode.isValidMaskProperty(propertyName)) {
+                    if (raster.getStx() != null) {
+                        raster.getStx().setDirty(true); // force recreation of statistics
+                    }
+                    getStx(raster);
+                }
             }
         }
     }

@@ -8,6 +8,7 @@ import com.bc.ceres.binding.swing.BindingContext;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.visat.VisatApp;
 
@@ -191,6 +192,14 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
         moreOptionsForm.getBindingContext().getValueContainer().getModel(CHANNEL_SOURCE_NAME_PROPERTY).getDescriptor().setValueSet(new ValueSet(sourceNames));
 
         acknowledgeChannel();
+    }
+
+    @Override
+    public void handleRasterPropertyChange(ProductNodeEvent event, RasterDataNode raster) {
+        imageInfoEditor.getModel().setDisplayProperties(raster);
+        if (event.getPropertyName().equals(RasterDataNode.PROPERTY_NAME_STATISTICS)) {
+            imageInfoEditor.compute100Percent();
+        }
     }
 
     @Override

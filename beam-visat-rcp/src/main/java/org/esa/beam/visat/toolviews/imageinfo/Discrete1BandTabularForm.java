@@ -5,6 +5,7 @@ import com.jidesoft.grid.ColorCellRenderer;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.*;
@@ -57,6 +58,10 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
     @Override
     public void updateFormModel(ProductSceneView productSceneView) {
         tableModel.setImageInfo(parentForm.getImageInfo());
+    }
+
+    @Override
+    public void handleRasterPropertyChange(ProductNodeEvent event, RasterDataNode raster) {
     }
 
     @Override

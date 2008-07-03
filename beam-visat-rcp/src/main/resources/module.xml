@@ -821,7 +821,7 @@
             <class>org.esa.beam.visat.actions.ShowImageViewRGBAction</class>
             <placeAfter>showImageView</placeAfter>
             <parent>view</parent>
-            <text>Open RGB Image View</text>
+            <text>Open RGB Image View...</text>
             <mnemonic>R</mnemonic>
             <accellerator>control alt G</accellerator>
             <shortDescr>Open RGB image view.</shortDescr>

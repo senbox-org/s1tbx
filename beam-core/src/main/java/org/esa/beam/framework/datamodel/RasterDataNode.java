@@ -434,7 +434,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * @return {@code true}, if so.
      * @since BEAM 4.2
      */
-    public boolean isValidMaskProperty(final String propertyName) {
+    public static boolean isValidMaskProperty(final String propertyName) {
         return PROPERTY_NAME_NO_DATA_VALUE.equals(propertyName)
                 || PROPERTY_NAME_NO_DATA_VALUE_USED.equals(propertyName)
                 || PROPERTY_NAME_VALID_PIXEL_EXPRESSION.equals(propertyName)
