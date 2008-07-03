@@ -2,6 +2,8 @@ package org.esa.beam.framework.gpf.annotations;
 
 import com.bc.ceres.binding.*;
 import com.bc.ceres.binding.dom.DomConverter;
+
+import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -14,6 +16,8 @@ import java.util.regex.Pattern;
 
 public class ParameterDescriptorFactory implements ValueDescriptorFactory {
 
+    private Map<String, Product> sourceProductMap;
+
     public static ValueContainer createMapBackedOperatorValueContainer(String operatorName) {
         return createMapBackedOperatorValueContainer(operatorName, new HashMap<String, Object>());
     }
@@ -23,6 +27,10 @@ public class ParameterDescriptorFactory implements ValueDescriptorFactory {
     }
 
     public ParameterDescriptorFactory() {
+    }
+
+    public ParameterDescriptorFactory(Map<String, Product> sourceProductMap) {
+        this.sourceProductMap = sourceProductMap;
     }
 
     public ValueDescriptor createValueDescriptor(Field field) {
@@ -118,7 +126,15 @@ public class ParameterDescriptorFactory implements ValueDescriptorFactory {
         }
         if (isSet(parameter.sourceProductId())) {
             valueDescriptor.setProperty("sourceId", parameter.sourceProductId());
-            valueDescriptor.setValueSet(new ValueSet(new String[0]));
+            String[] values = new String[0];
+            if (sourceProductMap != null) {
+                String sourceProductId = parameter.sourceProductId();
+                Product product = sourceProductMap.get(sourceProductId);
+                if (product != null) {
+                    values = product.getBandNames();
+                }
+            }
+            valueDescriptor.setValueSet(new ValueSet(values));
         }
         return valueDescriptor;
     }

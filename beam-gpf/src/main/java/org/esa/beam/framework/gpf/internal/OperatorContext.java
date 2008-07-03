@@ -333,7 +333,7 @@ public class OperatorContext {
 
     private ValueContainer getOperatorValueContainer() {
         if (valueContainer == null) {
-            ValueContainerFactory containerFactory = new ValueContainerFactory(new ParameterDescriptorFactory());
+            ValueContainerFactory containerFactory = new ValueContainerFactory(new ParameterDescriptorFactory(sourceProductMap));
             valueContainer = containerFactory.createObjectBackedValueContainer(operator);
         }
         return valueContainer;
@@ -349,7 +349,7 @@ public class OperatorContext {
         convertOperatorContextToMetadata(this, targetGraphME);
     }
 
-    private static void convertOperatorContextToMetadata(OperatorContext context, MetadataElement targetGraphME) {
+    private void convertOperatorContextToMetadata(OperatorContext context, MetadataElement targetGraphME) {
         String opId = context.getId();
         boolean contains = false;
         for (MetadataElement element : targetGraphME.getElements()) {
@@ -384,7 +384,7 @@ public class OperatorContext {
         }
         targetNodeME.addElement(targetSourcesME);
 
-        final DefaultDomConverter domConverter = new DefaultDomConverter(context.operator.getClass(), new ParameterDescriptorFactory());
+        final DefaultDomConverter domConverter = new DefaultDomConverter(context.operator.getClass(), new ParameterDescriptorFactory(sourceProductMap));
         final Xpp3DomElement parametersDom = Xpp3DomElement.createDomElement("parameters");
         domConverter.convertValueToDom(context.operator, parametersDom);
         final MetadataElement targetParametersME = new MetadataElement("parameters");
@@ -711,9 +711,9 @@ public class OperatorContext {
         }
     }
 
-    private static void configureValue(OperatorConfiguration operatorConfiguration, Object value) throws ValidationException, ConversionException {
+    private void configureValue(OperatorConfiguration operatorConfiguration, Object value) throws ValidationException, ConversionException {
         final Xpp3DomElement xpp3DomElement = Xpp3DomElement.createDomElement(operatorConfiguration.getConfiguration());
-        ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory();
+        ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
         final DefaultDomConverter domConverter = new DefaultDomConverter(value.getClass(), parameterDescriptorFactory);
         domConverter.convertDomToValue(xpp3DomElement, value);
 
