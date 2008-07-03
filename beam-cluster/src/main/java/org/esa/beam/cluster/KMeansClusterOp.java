@@ -14,8 +14,12 @@
  */
 package org.esa.beam.cluster;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.awt.image.IndexColorModel;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -27,6 +31,7 @@ import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -166,7 +171,8 @@ public class KMeansClusterOp extends Operator {
             Rectangle[] tileRectangles = getAllTileRactangles();
             pm.beginTask("Extracting data points...", tileRectangles.length * iterationCount * 2 + 2);
             try {
-                joinRoiAndNoDataMask(SubProgressMonitor.create(pm, 1));
+                joinRoiAndNoDataMask();
+                pm.worked(1);
                 final KMeansClusterer clusterer = createClusterer();
                 pm.worked(1);
                 for (int i = 0; i < iterationCount; ++i) {
@@ -178,6 +184,8 @@ public class KMeansClusterOp extends Operator {
                     }
                 }
                 clusterSet = clusterer.getClusters();
+            } catch (IOException e) {
+                throw new OperatorException(e);
             } finally {
                 pm.done();
             }
@@ -234,12 +242,12 @@ public class KMeansClusterOp extends Operator {
         return new PixelIter(sourceTiles, roi);
     }
     
-    private void joinRoiAndNoDataMask(ProgressMonitor pm) {
+    private void joinRoiAndNoDataMask() throws IOException {
         if (StringUtils.isNotNullAndNotEmpty(roiBandName)) {
             Band roiBand = sourceProduct.getBand(roiBandName);
             if (roiBand.isROIUsable()) {
                 try {
-                    roi = roiBand.createROI(pm);
+                    roi = roiBand.createROI(ProgressMonitor.NULL);
                 } catch (IOException e) {
                     throw new OperatorException(e);
                 }
@@ -252,15 +260,41 @@ public class KMeansClusterOp extends Operator {
             if (StringUtils.isNotNullAndNotEmpty(validExpression)
                     && !validMaskSet.contains(validExpression)) {
                 validMaskSet.add(validExpression);
-                PlanarImage noDataImage = new ValidMaskOpImage(band);
-                ROI noDataROI = new ROI(noDataImage, 1);
+                // using ValidMaskOpImage does not work correctly. Use workaround (mz, 03.07.2008)
+                // PlanarImage noDataImage = new ValidMaskOpImage(band);
+                BufferedImage noDataImage = createValidMaskImage(band);
+                ROI noDataRoi = new ROI(noDataImage, 1);
                 if(roi == null) {
-                    roi = noDataROI;
+                    roi = noDataRoi;
                 } else {
-                    roi = roi.intersect(noDataROI);
+                    roi = roi.intersect(noDataRoi);
                 }
             }
         }
+    }
+    
+    private BufferedImage createValidMaskImage(RasterDataNode raster) throws IOException {
+        final byte b00 = (byte) 0;
+        final byte b01 = (byte) 1;
+        final int width = raster.getSceneRasterWidth();
+        final int height = raster.getSceneRasterHeight();
+        final Color color = Color.WHITE;
+        final IndexColorModel cm = new IndexColorModel(8, 2,
+                                                       new byte[]{b00, (byte) color.getRed()},
+                                                       new byte[]{b00, (byte) color.getGreen()},
+                                                       new byte[]{b00, (byte) color.getBlue()},
+                                                       0);
+        final BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_INDEXED, cm);
+        final byte[] imageDataBuffer = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
+        raster.ensureValidMaskComputed(ProgressMonitor.NULL);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (raster.isPixelValid(x, y)) {
+                    imageDataBuffer[y * width + x] = b01;
+                }
+            }
+        }
+        return bi;
     }
     
     
