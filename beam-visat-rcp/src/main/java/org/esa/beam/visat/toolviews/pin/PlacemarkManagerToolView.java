@@ -483,20 +483,26 @@ class PlacemarkManagerToolView extends AbstractToolView {
         }
     }
 
-    private static PinSymbol createPinSymbolCopy(PinSymbol currentSymbol) {
-        final PinSymbol pinSymbol = new PinSymbol(currentSymbol.getName(), currentSymbol.getShape());
-        if(currentSymbol.getFillPaint() instanceof Color) {
-            final Color color = (Color) currentSymbol.getFillPaint();
+    private static PinSymbol createPinSymbolCopy(PinSymbol symbol) {
+        final PinSymbol pinSymbol = new PinSymbol(symbol.getName(), symbol.getShape());
+        final ImageIcon icon = symbol.getIcon();
+        if (icon != null) {
+            pinSymbol.setIcon(icon);
+        }
+        if(symbol.getFillPaint() instanceof Color) {
+            final Color color = (Color) symbol.getFillPaint();
             pinSymbol.setFillPaint(new Color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()));
         }
-        pinSymbol.setFilled(currentSymbol.isFilled());
-        final Color outlineColor = currentSymbol.getOutlineColor();
-        pinSymbol.setOutlineColor(new Color(outlineColor.getRed(),  outlineColor.getGreen(), outlineColor.getBlue(), outlineColor.getAlpha()));
+        pinSymbol.setFilled(symbol.isFilled());
+        final Color outlineColor = symbol.getOutlineColor();
+        if (outlineColor != null) {
+            pinSymbol.setOutlineColor(new Color(outlineColor.getRed(),  outlineColor.getGreen(), outlineColor.getBlue(), outlineColor.getAlpha()));
+        }
         if (pinSymbol.getOutlineStroke() instanceof BasicStroke) {
             BasicStroke basicStroke = (BasicStroke) pinSymbol.getOutlineStroke();
             pinSymbol.setOutlineStroke(new BasicStroke(basicStroke.getLineWidth()));
         }
-        final PixelPos refPoint = currentSymbol.getRefPoint();
+        final PixelPos refPoint = symbol.getRefPoint();
         pinSymbol.setRefPoint(new PixelPos(refPoint.x, refPoint.y));
         return pinSymbol;
     }
