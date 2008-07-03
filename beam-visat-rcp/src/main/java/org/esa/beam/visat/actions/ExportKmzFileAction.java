@@ -126,7 +126,7 @@ public class ExportKmzFileAction extends ExecCommand {
 
 
         try {
-            RenderedImage image = ExportImageAction.createImage(sceneView, true);
+            RenderedImage image = ExportImageAction.createImage(sceneView, true, true);
 
             String imageType = "PNG";
             String imageName = "overlay.png";

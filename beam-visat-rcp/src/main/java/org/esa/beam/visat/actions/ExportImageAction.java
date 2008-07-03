@@ -76,15 +76,16 @@ public class ExportImageAction extends AbstractExportImageAction {
 
     @Override
     protected RenderedImage createImage(String imageFormat, ProductSceneView view) {
-        return createImage(view, isEntireImageSelected());
+        return createImage(view, isEntireImageSelected(), !"BMP".equals(imageFormat));
     }
 
-    public static RenderedImage createImage(ProductSceneView view, boolean entireImage) {
+    static RenderedImage createImage(ProductSceneView view, boolean entireImage, boolean useAlpha) {
         final ImageDisplay imageDisplay = view.getImageDisplay();
         boolean oldOpaque = imageDisplay.isOpaque();
         final BufferedImage bi;
         try {
             imageDisplay.setOpaque(false);
+            final int imageType = useAlpha ? BufferedImage.TYPE_4BYTE_ABGR : BufferedImage.TYPE_3BYTE_BGR;
             if (entireImage) {
                 final double modelOffsetXOld = imageDisplay.getViewModel().getModelOffsetX();
                 final double modelOffsetYOld = imageDisplay.getViewModel().getModelOffsetY();
@@ -93,7 +94,7 @@ public class ExportImageAction extends AbstractExportImageAction {
                     imageDisplay.getViewModel().setModelOffset(0, 0, 1.0);
                     bi = new BufferedImage(imageDisplay.getImageWidth(),
                                            imageDisplay.getImageHeight(),
-                                           BufferedImage.TYPE_4BYTE_ABGR);
+                                           imageType);
                     imageDisplay.paintComponent(bi.createGraphics());
                 } finally {
                     imageDisplay.getViewModel().setModelOffset(modelOffsetXOld, modelOffsetYOld, viewScaleOld);
@@ -101,7 +102,7 @@ public class ExportImageAction extends AbstractExportImageAction {
             } else {
                 bi = new BufferedImage(imageDisplay.getWidth(),
                                        imageDisplay.getHeight(),
-                                       BufferedImage.TYPE_4BYTE_ABGR);
+                                       imageType);
                 imageDisplay.paint(bi.createGraphics());
             }
         } finally {
