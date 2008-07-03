@@ -130,8 +130,8 @@ public class DefaultDomConverter implements DomConverter {
                         Object item = convertDomToValueImpl(arrayElements[i], domConverter,
                                                             itemConverter, itemType);
                         Array.set(childValue, i, item);
-                        valueModel.setValue(childValue);
                     }
+                    valueModel.setValue(childValue);
                 }
             } else {
                 childValue = convertDomToValueImpl(childElement, 
