@@ -424,34 +424,33 @@ public class ProductUtils {
                 checkCanceled(pm);
             }
 
-            boolean validMaskUsed0 = rasters[0].isValidMaskUsed();
-            boolean validMaksUsed1 = rasters[1].isValidMaskUsed();
-            boolean validMaskUsed2 = rasters[2].isValidMaskUsed();
+            final boolean validMaskUsed = rasters[0].isValidMaskUsed()
+                    || rasters[1].isValidMaskUsed()
+                    || rasters[2].isValidMaskUsed();
             boolean pixelValid;
-            if (validMaskUsed0 || validMaksUsed1 || validMaskUsed2) {
-                int pixelIndex = 0;
-                for (int i = 0; i < rgbSamples.length; i += numColorComponents) {
-                    pixelValid = rasters[0].isPixelValid(pixelIndex)
-                            && rasters[1].isPixelValid(pixelIndex)
-                            && rasters[2].isPixelValid(pixelIndex);
-                    if (!pixelValid) {
-                        if (numColorComponents == 4) {
-                            rgbSamples[i] = (byte) noDataColor.getAlpha();
-                            rgbSamples[i + 1] = (byte) noDataColor.getBlue();
-                            rgbSamples[i + 2] = (byte) noDataColor.getGreen();
-                            rgbSamples[i + 3] = (byte) noDataColor.getRed();
-                        } else {
-                            rgbSamples[i] = (byte) noDataColor.getBlue();
-                            rgbSamples[i + 1] = (byte) noDataColor.getGreen();
-                            rgbSamples[i + 2] = (byte) noDataColor.getRed();
-                        }
-                    } else {
-                        if (numColorComponents == 4) {
-                            rgbSamples[i] = (byte) 255;
-                        }
+            int pixelIndex = 0;
+            for (int i = 0; i < rgbSamples.length; i += numColorComponents) {
+                pixelValid = !validMaskUsed
+                        || rasters[0].isPixelValid(pixelIndex)
+                        && rasters[1].isPixelValid(pixelIndex)
+                        && rasters[2].isPixelValid(pixelIndex);
+                if (pixelValid) {
+                    if (numColorComponents == 4) {
+                        rgbSamples[i] = (byte) 255;
                     }
-                    pixelIndex++;
+                } else {
+                    if (numColorComponents == 4) {
+                        rgbSamples[i] = (byte) noDataColor.getAlpha();
+                        rgbSamples[i + 1] = (byte) noDataColor.getBlue();
+                        rgbSamples[i + 2] = (byte) noDataColor.getGreen();
+                        rgbSamples[i + 3] = (byte) noDataColor.getRed();
+                    } else {
+                        rgbSamples[i] = (byte) noDataColor.getBlue();
+                        rgbSamples[i + 1] = (byte) noDataColor.getGreen();
+                        rgbSamples[i + 2] = (byte) noDataColor.getRed();
+                    }
                 }
+                pixelIndex++;
             }
             pm.worked(5);
             checkCanceled(pm);
