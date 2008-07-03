@@ -5,6 +5,7 @@ import org.esa.beam.util.Guardian;
 /**
  * Provides the information required to decode integer sample values that
  * are combined of single flags (bit indexes).
+ * @since BEAM 4.2
  */
 public class SampleCoding extends MetadataElement {
     public SampleCoding(String name) {
@@ -54,6 +55,15 @@ public class SampleCoding extends MetadataElement {
             attribute.setDescription(description);
         }
         addAttribute(attribute);
+    }
+
+    /**
+     * Gets the number of coded sample values.
+     *
+     * @return the number of coded sample values
+     */
+    public int getSampleCount() {
+        return getNumAttributes();
     }
 
     /**

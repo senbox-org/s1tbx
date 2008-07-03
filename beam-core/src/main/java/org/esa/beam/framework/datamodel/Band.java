@@ -22,11 +22,13 @@ import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.util.Guardian;
+import org.esa.beam.util.IntMap;
 
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.Random;
+import java.util.HashMap;
 
 
 /**
@@ -483,6 +485,46 @@ public class Band extends AbstractBand {
     @Override
     public void removeFromFile(ProductWriter productWriter) {
         productWriter.removeBand(this);
+    }
+
+    @Override
+    protected Stx computeStx(ProgressMonitor pm) throws IOException {
+        final IndexCoding indexCoding = getIndexCoding();
+        if (indexCoding == null) {
+            return super.computeStx(pm);
+        }
+
+        final int sampleCount = indexCoding.getSampleCount();
+        final HashMap<Integer, int[]> sampleMap = new HashMap<Integer, int[]>(3 * sampleCount);
+        for (int i = 0; i < sampleCount; i++) {
+            sampleMap.put(indexCoding.getSampleValue(i), new int[1]);
+        }
+
+        processRasterData("Computing statistics for band '" + getDisplayName() + "'", new RasterDataProcessor() {
+            public void processRasterDataBuffer(ProductData buffer, int y0, int numLines, ProgressMonitor pm) throws IOException {
+                final int n = buffer.getNumElems();
+                for (int i = 0; i < n; i++) {
+                    final int sample = buffer.getElemIntAt(i);
+                    final int[] bin = sampleMap.get(sample);
+                    if (bin != null) {
+                        bin[0] += 1;
+                    }
+                }
+            }
+        }, pm);
+
+        int minSample = Integer.MAX_VALUE;
+        int maxSample = Integer.MIN_VALUE;
+        int[] sampleFrequencies = new int[sampleCount];
+        for (int i = 0; i < sampleCount; i++) {
+            final int sample = indexCoding.getSampleValue(i);
+            minSample = Math.min(minSample, sample);
+            maxSample = Math.max(maxSample, sample);
+            final int[] bin = sampleMap.get(sample);
+            sampleFrequencies[i] = bin[0];
+        }
+
+        return new Stx(minSample, maxSample, sampleFrequencies);
     }
 
     /**

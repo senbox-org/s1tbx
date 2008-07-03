@@ -23,6 +23,7 @@ import org.esa.beam.util.Guardian;
 /**
  * Provides the information required to decode integer sample values that
  * represent index values (e.g. types, classes, categories).
+ * @since BEAM 4.2
  */
 public class IndexCoding extends SampleCoding {
 

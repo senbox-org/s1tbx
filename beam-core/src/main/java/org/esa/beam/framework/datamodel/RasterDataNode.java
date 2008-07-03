@@ -2202,7 +2202,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                           }, pm);
     }
 
-    private void processRasterData(String message, RasterDataProcessor processor, ProgressMonitor pm) throws
+    protected void processRasterData(String message, RasterDataProcessor processor, ProgressMonitor pm) throws
             IOException {
         Debug.trace("RasterDataNode.processRasterData: " + message);
         int readBufferLineCount = getReadBufferLineCount();
@@ -2394,12 +2394,24 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         this.maskProductDataEnabled = maskProductDataEnabled;
     }
 
-    // JAIJAIJAI
+    /**
+     * Gets the rendered image associated with this {@code RasterDataNode}.
+     * This image is currently not used for display purposes.
+     * Used by GPF. This method belongs to preliminary API and may be removed or changed in the future.
+     * @return The rendered image.
+     * @since BEAM 4.2
+     */
     public RenderedImage getImage() {
         return image;
     }
 
-    // JAIJAIJAI
+    /**
+     * Sets the rendered image associated with this {@code RasterDataNode}.
+     * This image is currently not used for display purposes.
+     * Used by GPF. This method belongs to preliminary API and may be removed or changed in the future.
+     * @param image The rendered image.
+     * @since BEAM 4.2
+     */
     public void setImage(RenderedImage image) {
         final RenderedImage oldValue = this.image;
         if (oldValue != image) {
@@ -2410,8 +2422,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
     /**
      * Gets the statistics.
+     * This method belongs to preliminary API and may be removed or changed in the future.
      * @return The statistics or {@code null} if not yet set.
      * @see #getStx(com.bc.ceres.core.ProgressMonitor)
+     * @since BEAM 4.2
      */
     public Stx getStx() {
         return stx;
@@ -2421,15 +2435,16 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     /**
      * Gets the statistics.
      * If the statistics have not been set before they are computed using the given progress monitor {@code pm} and then set.
+     * This method belongs to preliminary API and may be removed or changed in the future.
      * @param pm A progress monitor which is used to compute the new statistics, if required.
      * @return The statistics.
      * @throws java.io.IOException if an I/O error occures
+     * @since BEAM 4.2
      */
     public Stx getStx(ProgressMonitor pm) throws IOException {
         Stx stx = getStx();
         if (stx == null || stx.isDirty()) {
-            Histogram histogram = computeRasterDataHistogram(null, 512, null, pm);
-            stx = new Stx(histogram.getMin(), histogram.getMax(), histogram.getBinCounts());
+            stx = computeStx(pm);
             setStx(stx);
         }
         return stx;
@@ -2439,7 +2454,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
      * Sets the statistics. It is the responsibility of the caller to ensure that the given statistics
      * are really related to this {@code RasterDataNode}'s raster data.
      * The method fires a property change event for the property {@link #PROPERTY_NAME_STATISTICS}.
+     * This method belongs to preliminary API and may be removed or changed in the future.
      * @param stx The statistics. May be {@code null}.
+     * @since BEAM 4.2
      */
     public void setStx(Stx stx) {
         final Stx oldValue = this.stx;
@@ -2447,6 +2464,19 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             this.stx = stx;
             fireProductNodeChanged(PROPERTY_NAME_STATISTICS, oldValue);
         }
+    }
+
+    /**
+     * Computes the statistics. May be overridden.
+     * This method belongs to preliminary API and may be removed or changed in the future.
+     * @param pm A progress monitor which is used to compute the new statistics, if required.
+     * @return The statistics.
+     * @throws java.io.IOException if an I/O error occures
+     * @since BEAM 4.2
+     */
+    protected Stx computeStx(ProgressMonitor pm) throws IOException {
+        Histogram histogram = computeRasterDataHistogram(null, 512, null, pm);
+        return new Stx(histogram.getMin(), histogram.getMax(), histogram.getBinCounts());
     }
 
     public static interface RasterDataProcessor {
@@ -2523,17 +2553,26 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
 
-    // todo - DIMAP I/O!
+    /**
+     * Premininary API. Use at your own risk.
+     * @since BEAM 4.2
+     */
     public static class Stx {
         private final double sampleMin;
         private final double sampleMax;
         private final int[] sampleFrequencies;
+        private final double sampleFrequenciesSum;
         private boolean dirty;
 
         public Stx(double sampleMin, double sampleMax, int[] sampleFrequencies) {
             this.sampleMin = sampleMin;
             this.sampleMax = sampleMax;
             this.sampleFrequencies = sampleFrequencies;
+            double sum = 0;
+            for (int sampleFrequency : sampleFrequencies) {
+                sum += sampleFrequency;
+            }
+            sampleFrequenciesSum = sum;
             dirty = false;
         }
 
@@ -2547,6 +2586,10 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
 
         public int[] getSampleFrequencies() {
             return sampleFrequencies;
+        }
+
+        public double getSampleFrequenciesSum() {
+            return sampleFrequenciesSum;
         }
 
         public boolean isDirty() {

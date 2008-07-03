@@ -131,7 +131,7 @@ public class IntMap implements Cloneable {
     }
 
     @Override
-    public Object clone() {
+    public Object clone() {        
         final IntMap clone = new IntMap(tableOffset, table.length);
         final int[][] pairs = getPairs();
         for (int[] pair : pairs) {
