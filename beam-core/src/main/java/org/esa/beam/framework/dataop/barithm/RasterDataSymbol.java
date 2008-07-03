@@ -43,7 +43,7 @@ public class RasterDataSymbol implements Symbol {
     private final RasterDataNode _raster;
     protected ProductData _data;
 
-    protected RasterDataSymbol(final String symbolName, final RasterDataNode raster) {
+    public RasterDataSymbol(final String symbolName, final RasterDataNode raster) {
         _symbolName = symbolName;
         _symbolType = raster.isFloatingPointType() ? Term.TYPE_D : Term.TYPE_I;
         _raster = raster;

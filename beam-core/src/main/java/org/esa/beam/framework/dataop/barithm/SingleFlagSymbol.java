@@ -38,7 +38,7 @@ public class SingleFlagSymbol extends RasterDataSymbol {
 
     private int _flagMask;
 
-    protected SingleFlagSymbol(final String symbolName, final RasterDataNode raster, final int flagMask) {
+    public SingleFlagSymbol(final String symbolName, final RasterDataNode raster, final int flagMask) {
         super(symbolName, raster);
         _flagMask = flagMask;
     }

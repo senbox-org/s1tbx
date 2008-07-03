@@ -201,8 +201,8 @@ public class ImageLegend {
         labels = new String[n];
         labelWidths = new int[n];
         int textHeight = fontMetrics.getHeight();
-        final double minValue = imageInfo.getColorPaletteDef().getFirstPoint().getSample();
-        final double maxValue = imageInfo.getColorPaletteDef().getLastPoint().getSample();
+        final double minValue = imageInfo.getColorPaletteDef().getMinDisplaySample();
+        final double maxValue = imageInfo.getColorPaletteDef().getMaxDisplaySample();
         double roundFactor = MathUtils.computeRoundFactor(minValue, maxValue, 2);
         for (int i = 0; i < n; i++) {
             ColorPaletteDef.Point slider = getGradationCurvePointAt(i);
@@ -384,8 +384,8 @@ public class ImageLegend {
     }
 
     private double normalizeSample(double sample) {
-        final double minDisplaySample = getRaster().scaleInverse(getImageInfo().getColorPaletteDef().getFirstPoint().getSample());
-        final double maxDisplaySample = getRaster().scaleInverse(getImageInfo().getColorPaletteDef().getLastPoint().getSample());
+        final double minDisplaySample = getRaster().scaleInverse(getImageInfo().getColorPaletteDef().getMinDisplaySample());
+        final double maxDisplaySample = getRaster().scaleInverse(getImageInfo().getColorPaletteDef().getMaxDisplaySample());
         sample = getRaster().scaleInverse(sample);
         double delta = maxDisplaySample - minDisplaySample;
         if (delta == 0 || Double.isNaN(delta)) {

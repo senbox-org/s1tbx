@@ -97,8 +97,8 @@ public class ExportColorPaletteAction extends ExecCommand {
         ImageInfo imageInfo = raster.getImageInfo();
         final ColorPaletteDef paletteDef = imageInfo.getColorPaletteDef();
         Color[] colorPalette = paletteDef.createColorPalette(raster);
-        double s1 = paletteDef.getFirstPoint().getSample();
-        double s2 = paletteDef.getLastPoint().getSample();
+        double s1 = paletteDef.getMinDisplaySample();
+        double s2 = paletteDef.getMaxDisplaySample();
         int numColors = colorPalette.length;
         writer.write("# Band: " + raster.getName() + "\n");
         writer.write("# Sample unit: " + raster.getUnit() + "\n");

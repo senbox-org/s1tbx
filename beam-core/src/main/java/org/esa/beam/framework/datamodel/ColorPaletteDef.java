@@ -97,7 +97,7 @@ public class ColorPaletteDef implements Cloneable{
 
     public void setNumPoints(int numPoints) {
         while (getNumPoints() < numPoints) {
-            addPoint(new Point(getLastPoint().getSample() + 1.0, Color.BLACK));
+            addPoint(new Point(getMaxDisplaySample() + 1.0, Color.BLACK));
         }
         while (getNumPoints() > numPoints) {
             removePointAt(getNumPoints() - 1);
@@ -114,6 +114,14 @@ public class ColorPaletteDef implements Cloneable{
 
     public Point getLastPoint() {
         return points.lastElement();
+    }
+
+    public double getMinDisplaySample() {
+        return getFirstPoint().getSample();
+    }
+
+    public double getMaxDisplaySample() {
+        return getLastPoint().getSample();
     }
 
     public void insertPointAfter(int index, Point point) {
@@ -301,8 +309,8 @@ public class ColorPaletteDef implements Cloneable{
         Debug.assertTrue(getNumPoints() >= 2);
         final int numColors = getNumColors();
         final Color[] colorPalette = new Color[numColors];
-        final double minDisplay = scaling.scaleInverse(getFirstPoint().getSample());
-        final double maxDisplay = scaling.scaleInverse(getLastPoint().getSample());
+        final double minDisplay = scaling.scaleInverse(getMinDisplaySample());
+        final double maxDisplay = scaling.scaleInverse(getMaxDisplaySample());
         for (int i = 0; i < numColors; i++) {
             final double w = i / (numColors - 1.0);
             final double sample = minDisplay + w * (maxDisplay - minDisplay);

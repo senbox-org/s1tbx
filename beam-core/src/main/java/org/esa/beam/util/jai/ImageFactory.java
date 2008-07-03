@@ -81,8 +81,8 @@ public class ImageFactory {
             PlanarImage planarImage = PlanarImage.wrapRenderedImage(raster.getImage());
 
             final ColorPaletteDef def = raster.getImageInfo().getColorPaletteDef();
-            final double newMin = raster.scaleInverse(def.getFirstPoint().getSample());
-            final double newMax = raster.scaleInverse(def.getLastPoint().getSample());
+            final double newMin = raster.scaleInverse(def.getMinDisplaySample());
+            final double newMax = raster.scaleInverse(def.getMaxDisplaySample());
             final double gamma = 1.0; //imageInfo.getGamma();  // todo - use gamma
             // todo - honour log-scaled bands
             planarImage = JAIUtils.createRescaleOp(planarImage,

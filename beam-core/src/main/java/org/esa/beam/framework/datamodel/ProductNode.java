@@ -123,11 +123,10 @@ public abstract class ProductNode {
     }
 
     /**
-     * If a subclass extend the rule for valid names this method must be overwritten.
-     *
      * @param trimmedName The trimmed name.
-     * @deprecated Since 4.1. Don't use this.
+     * @deprecated Since 4.1. Don't use this anymore.
      */
+    @Deprecated
     protected void additionalNameCheck(String trimmedName) {
     }
 

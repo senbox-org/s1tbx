@@ -1728,6 +1728,25 @@ public class Product extends ProductNode {
         return parser.parse(expression);
     }
 
+    public Term createTerm(final String expression, RasterDataNode ... extraRasters) throws ParseException {
+        final WritableNamespace namespace = BandArithmetic.createDefaultNamespace(new Product[]{getProductSafe()});
+        final Symbol[] symbols = namespace.getAllSymbols();
+        for (RasterDataNode extraRaster : extraRasters) {
+            boolean registered = false;
+            for (Symbol symbol : symbols) {
+                if (symbol.getName().equals(extraRaster.getName())) {
+                    registered = true;
+                    break;
+                }
+            }
+            if (!registered) {
+                namespace.registerSymbol(new RasterDataSymbol(extraRaster.getName(), extraRaster));
+            }
+        }
+        final Parser parser = new ParserImpl(namespace, false);
+        return parser.parse(expression);
+    }
+
     /**
      * @see #readBitmask(int,int,int,int,com.bc.jexp.Term,boolean[],com.bc.ceres.core.ProgressMonitor)
      */

@@ -143,7 +143,7 @@ public class ProductUtils {
                                                      final ProgressMonitor pm) throws IOException {
         pm.beginTask(MSG_CREATING_IMAGE, 4);
         try {
-            ImageInfo imageInfo = createRgbImageInfo(rasters, SubProgressMonitor.create(pm, 1));
+            ImageInfo imageInfo = createImageInfo(rasters, true, SubProgressMonitor.create(pm, 1));
             imageInfo.setHistogramMatching(histogramMatching == null ? ImageInfo.HISTOGRAM_MATCHING_OFF : histogramMatching);
             return createRgbImage(rasters, imageInfo, SubProgressMonitor.create(pm, 3));
         } finally {
@@ -167,7 +167,7 @@ public class ProductUtils {
     public static BufferedImage createRgbImage(RasterDataNode[] rasters, ProgressMonitor pm) throws IOException {
         pm.beginTask(MSG_CREATING_IMAGE, 4);
         try {
-            ImageInfo imageInfo = createRgbImageInfo(rasters, SubProgressMonitor.create(pm, 1));
+            ImageInfo imageInfo = createImageInfo(rasters, true, SubProgressMonitor.create(pm, 1));
             return createRgbImage(rasters, imageInfo, SubProgressMonitor.create(pm, 3));
         } finally {
             pm.done();
@@ -193,7 +193,7 @@ public class ProductUtils {
                                                ProgressMonitor pm) throws IOException {
         pm.beginTask(MSG_CREATING_IMAGE, 4);
         try {
-            ImageInfo imageInfo = createRgbImageInfo(rasters, SubProgressMonitor.create(pm, 1));
+            ImageInfo imageInfo = createImageInfo(rasters, true, SubProgressMonitor.create(pm, 1));
             imageInfo.setNoDataColor(noDataColor == null ? ImageInfo.NO_COLOR : noDataColor);
             return createRgbImage(rasters, imageInfo, SubProgressMonitor.create(pm, 3));
         } finally {
@@ -201,36 +201,35 @@ public class ProductUtils {
         }
     }
 
-    public static ImageInfo createDefaultImageInfo(RasterDataNode[] rasters, ProgressMonitor pm) throws IOException {
-        return createImageInfo(rasters, false, pm);
-    }
-
-    public static ImageInfo createRgbImageInfo(RasterDataNode[] rasters, ProgressMonitor pm) throws IOException {
-        return createImageInfo(rasters, true, pm);
-    }
-
+    /**
+     * Creates image creation information.
+     * @param rasters The raster data nodes.
+     * @param assignMissingImageInfos if {@code true}, it is ensured that to all {@code RasterDataNode}s a valid {@code ImageInfo} will be assigned.
+     * @param pm The progress monitor.
+     * @return image information
+     * @throws IOException if an I/O error occurs
+     * @since BEAM 4.2
+     */
     public static ImageInfo createImageInfo(RasterDataNode[] rasters, boolean assignMissingImageInfos, ProgressMonitor pm) throws IOException {
         Assert.notNull(rasters, "rasters");
         Assert.argument(rasters.length == 1 || rasters.length == 3, "rasters.length == 1 || rasters.length == 3");
         if (rasters.length == 1) {
-            return assignMissingImageInfos ? rasters[0].ensureValidImageInfo(null, pm) : rasters[0].createDefaultImageInfo(null, pm);
+            return assignMissingImageInfos ? rasters[0].getImageInfo(pm) : rasters[0].createDefaultImageInfo(null, pm);
         } else {
-            pm.beginTask("Computing image information", 3);
-            final RGBChannelDef rgbChannelDef = new RGBChannelDef();
             try {
+                pm.beginTask("Computing image information", 3);
+                final RGBChannelDef rgbChannelDef = new RGBChannelDef();
                 for (int i = 0; i < rasters.length; i++) {
                     RasterDataNode raster = rasters[i];
-                    final RasterDataNode.Stx stx = raster.ensureValidStx(SubProgressMonitor.create(pm, 1));
-                    double minSample = raster.scale(stx.getMinSample());
-                    double maxSample = raster.scale(stx.getMaxSample());
+                    ImageInfo imageInfo = assignMissingImageInfos ? raster.getImageInfo(pm) : raster.createDefaultImageInfo(null, SubProgressMonitor.create(pm, 1));
                     rgbChannelDef.setSourceName(i, raster.getName());
-                    rgbChannelDef.setMinDisplaySample(i, minSample);
-                    rgbChannelDef.setMaxDisplaySample(i, maxSample);
+                    rgbChannelDef.setMinDisplaySample(i, imageInfo.getColorPaletteDef().getMinDisplaySample());
+                    rgbChannelDef.setMaxDisplaySample(i, imageInfo.getColorPaletteDef().getMaxDisplaySample());
                 }
+                return new ImageInfo(rgbChannelDef);
             } finally {
                 pm.done();
             }
-            return new ImageInfo(rgbChannelDef);
         }
     }
 
@@ -273,8 +272,8 @@ public class ProductUtils {
         final int numPixels = width * height;
         final int numColorComponents = imageInfo.getColorComponentCount();
         final byte[] rgbSamples = new byte[numColorComponents * numPixels];
-        final double minSample = imageInfo.getColorPaletteDef().getFirstPoint().getSample();
-        final double maxSample = imageInfo.getColorPaletteDef().getLastPoint().getSample();
+        final double minSample = imageInfo.getColorPaletteDef().getMinDisplaySample();
+        final double maxSample = imageInfo.getColorPaletteDef().getMaxDisplaySample();
 
         pm.beginTask(MSG_CREATING_IMAGE, 100);
         try {
@@ -501,9 +500,9 @@ public class ProductUtils {
         Guardian.assertNotNull("rasterDataNode", rasterDataNode);
         final int width = rasterDataNode.getSceneRasterWidth();
         final int height = rasterDataNode.getSceneRasterHeight();
-        final ImageInfo imageInfo = rasterDataNode.ensureValidImageInfo();
-        final double newMin = imageInfo.getColorPaletteDef().getFirstPoint().getSample();
-        final double newMax = imageInfo.getColorPaletteDef().getLastPoint().getSample();
+        final ImageInfo imageInfo = rasterDataNode.getImageInfo(ProgressMonitor.NULL);
+        final double newMin = imageInfo.getColorPaletteDef().getMinDisplaySample();
+        final double newMax = imageInfo.getColorPaletteDef().getMaxDisplaySample();
         final byte[] colorIndexes = rasterDataNode.quantizeRasterData(newMin, newMax, 1.0, pm);
         final IndexColorModel cm = imageInfo.createIndexColorModel(rasterDataNode);
         final SampleModel sm = cm.createCompatibleSampleModel(width, height);

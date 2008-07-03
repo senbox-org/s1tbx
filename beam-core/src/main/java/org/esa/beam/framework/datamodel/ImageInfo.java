@@ -350,10 +350,10 @@ public class ImageInfo implements Cloneable {
                 currentCPD.getPointAt(i).setColor(sourceCPD.getPointAt(i).getColor());
             }
         } else {
-            double min1 = currentCPD.getFirstPoint().getSample();
-            double max1 = currentCPD.getLastPoint().getSample();
-            double min2 = sourceCPD.getFirstPoint().getSample();
-            double max2 = sourceCPD.getLastPoint().getSample();
+            double min1 = currentCPD.getMinDisplaySample();
+            double max1 = currentCPD.getMaxDisplaySample();
+            double min2 = sourceCPD.getMinDisplaySample();
+            double max2 = sourceCPD.getMaxDisplaySample();
             double a, b;
             // Check if source range fits into this range
             if (min2 >= min1 && max2 <= max1) {
@@ -362,8 +362,8 @@ public class ImageInfo implements Cloneable {
                 b = 1.0;
             } else {
                 // --> sourcerange overlaps this range, sample conversion
-                min1 = currentCPD.getFirstPoint().getSample();
-                max1 = currentCPD.getLastPoint().getSample();
+                min1 = currentCPD.getMinDisplaySample();
+                max1 = currentCPD.getMaxDisplaySample();
                 double delta1 = (max1 > min1) ? max1 - min1 : 1;
                 double delta2 = (max2 > min2) ? max2 - min2 : 1;
                 a = min1 - min2 * delta1 / delta2;
@@ -466,26 +466,22 @@ public class ImageInfo implements Cloneable {
      * Gets the minimum display sample value for a linear contrast stretch operation.
      *
      * @return the minimum display sample
-     * @deprecated since BEAM 4.2, use {@link ColorPaletteDef#getFirstPoint()}
+     * @deprecated since BEAM 4.2, use {@link ColorPaletteDef#getMinDisplaySample}
      */
     @Deprecated
     public double getMinDisplaySample() {
-        Debug.assertNotNull(getColorPaletteDef());
-        Debug.assertTrue(getColorPaletteDef().getNumPoints() >= 2);
-        return getColorPaletteDef().getFirstPoint().getSample();
+        return getColorPaletteDef().getMinDisplaySample();
     }
 
     /**
      * Gets the maximum display sample value for a linear contrast stretch operation.
      *
      * @return the maximum display sample
-     * @deprecated since BEAM 4.2, use {@link ColorPaletteDef#getLastPoint()}
+     * @deprecated since BEAM 4.2, use {@link ColorPaletteDef#getMaxDisplaySample}
      */
     @Deprecated
     public double getMaxDisplaySample() {
-        Debug.assertNotNull(getColorPaletteDef());
-        Debug.assertTrue(getColorPaletteDef().getNumPoints() >= 2);
-        return getColorPaletteDef().getLastPoint().getSample();
+        return getColorPaletteDef().getMaxDisplaySample();
     }
 
     /**
@@ -705,8 +701,8 @@ public class ImageInfo implements Cloneable {
      */
     @Deprecated
     public double getNormalizedDisplaySampleValue(double sample) {
-        final double minDisplaySample = Scaling.IDENTITY.scaleInverse(getColorPaletteDef().getFirstPoint().getSample());
-        final double maxDisplaySample = Scaling.IDENTITY.scaleInverse(getColorPaletteDef().getLastPoint().getSample());
+        final double minDisplaySample = Scaling.IDENTITY.scaleInverse(getColorPaletteDef().getMinDisplaySample());
+        final double maxDisplaySample = Scaling.IDENTITY.scaleInverse(getColorPaletteDef().getMaxDisplaySample());
         sample = Scaling.IDENTITY.scaleInverse(sample);
         double delta = maxDisplaySample - minDisplaySample;
         if (delta == 0 || Double.isNaN(delta)) {

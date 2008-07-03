@@ -682,7 +682,7 @@ class ColorManipulationForm {
 
     public ImageInfo createDefaultImageInfo() {
         try {
-            return ProductUtils.createDefaultImageInfo(productSceneView.getRasters(), ProgressMonitor.NULL);
+            return ProductUtils.createImageInfo(productSceneView.getRasters(), false, ProgressMonitor.NULL);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(getContentPanel(),
                                           "Failed to create default image settings:\n" + e.getMessage(),

@@ -654,13 +654,13 @@ public class Hdf5ProductWriter extends AbstractProductWriter {
                 createScalarAttribute(datasetID, "IMAGE_VERSION", 1.2F);
 
                 if (band.getImageInfo() != null) {
-                    final RasterDataNode.Stx stx = band.ensureValidStx(ProgressMonitor.NULL);
+                    final RasterDataNode.Stx stx = band.getStx(ProgressMonitor.NULL);
                     createScalarAttribute(datasetID, "min_sample", stx.getMinSample());
                     createScalarAttribute(datasetID, "max_sample", stx.getMaxSample());
                     final ColorPaletteDef paletteDef = band.getImageInfo().getColorPaletteDef();
                     float[] minmax = new float[]{
-                            (float) paletteDef.getFirstPoint().getSample(),
-                            (float) paletteDef.getLastPoint().getSample()
+                            (float) paletteDef.getMinDisplaySample(),
+                            (float) paletteDef.getMaxDisplaySample()
                     };
                     createArrayAttribute(datasetID, "IMAGE_MINMAXRANGE", minmax);
                 }

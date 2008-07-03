@@ -17,8 +17,7 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.jexp.ParseException;
-import com.bc.jexp.Term;
+import com.bc.jexp.*;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataop.barithm.BandArithmetic;
@@ -61,10 +60,10 @@ public class VirtualBand extends Band {
     public static final String PROPERTY_NAME_CHECK_INVALIDS = "checkInvalids";
     public static final String PROPERTY_NAME_EXPRESSION = "expression";
 
-    private String _expression;
-    private Map<ProductData, Term> _termMap;
-    private boolean _checkInvalids;
-    private int _numInvalidPixels;
+    private String expression;
+    private Map<ProductData, Term> termMap;
+    private boolean checkInvalids;
+    private int numInvalidPixels;
 
 
     /**
@@ -81,16 +80,16 @@ public class VirtualBand extends Band {
                        final String expression) {
         super(name, dataType, width, height);
         setSpectralBandIndex(-1);
-        _expression = expression;
+        this.expression = expression;
     }
 
     public String getExpression() {
-        return _expression;
+        return expression;
     }
 
     public void setExpression(final String expression) {
-        if (!ObjectUtils.equalObjects(_expression, expression)) {
-            _expression = expression;
+        if (!ObjectUtils.equalObjects(this.expression, expression)) {
+            this.expression = expression;
             disposeTermMap();
             setImageInfo(null);
             setModified(true);
@@ -103,32 +102,32 @@ public class VirtualBand extends Band {
      */
     @Override
     public void updateExpression(final String oldExternalName, final String newExternalName) {
-        final String expression = StringUtils.replaceWord(_expression, oldExternalName, newExternalName);
-        if (!_expression.equals(expression)) {
-            _expression = expression;
+        final String expression = StringUtils.replaceWord(this.expression, oldExternalName, newExternalName);
+        if (!this.expression.equals(expression)) {
+            this.expression = expression;
             setModified(true);
         }
         super.updateExpression(oldExternalName, newExternalName);
     }
 
     public boolean getCheckInvalids() {
-        return _checkInvalids;
+        return checkInvalids;
     }
 
     public void setCheckInvalids(final boolean checkInvalids) {
-        if (_checkInvalids != checkInvalids) {
-            _checkInvalids = checkInvalids;
+        if (this.checkInvalids != checkInvalids) {
+            this.checkInvalids = checkInvalids;
             fireProductNodeChanged(PROPERTY_NAME_CHECK_INVALIDS);
             setModified(true);
         }
     }
 
     public int getNumInvalidPixels() {
-        return _numInvalidPixels;
+        return numInvalidPixels;
     }
 
     private void setNumInvalidPixels(final int numInvalidPixels) {
-        _numInvalidPixels = numInvalidPixels;
+        this.numInvalidPixels = numInvalidPixels;
     }
 
 
@@ -336,23 +335,22 @@ public class VirtualBand extends Band {
         super.dispose();
     }
 
-    private Term getTerm(final ProductData pd) throws ParseException {
-        if (_termMap == null) {
-            _termMap = new WeakHashMap<ProductData, Term>(10);
+    private synchronized Term getTerm(final ProductData pd) throws ParseException {
+        if (termMap == null) {
+            termMap = new WeakHashMap<ProductData, Term>(10);
         }
-
-        Term term = _termMap.get(pd);
+        Term term = termMap.get(pd);
         if (term == null) {
-            term = getProductSafe().createTerm(getExpression());
-            _termMap.put(pd, term);
+            term = getProductSafe().createTerm(expression, this);
+            termMap.put(pd, term);
         }
         return term;
     }
 
     private void disposeTermMap() {
-        if (_termMap != null) {
-            _termMap.clear();
-            _termMap = null;
+        if (termMap != null) {
+            termMap.clear();
+            termMap = null;
         }
     }
 }

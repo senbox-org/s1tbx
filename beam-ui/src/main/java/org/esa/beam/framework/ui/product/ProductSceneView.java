@@ -705,6 +705,9 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
                   product.getSceneRasterHeight(),
                   expression);
             setOwner(product);
+            setCheckInvalids(true);
+            setNoDataValue(0);
+            setNoDataValueUsed(true);
         }
     }
 }

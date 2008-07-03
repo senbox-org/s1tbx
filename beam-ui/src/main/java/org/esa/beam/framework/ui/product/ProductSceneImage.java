@@ -226,7 +226,7 @@ public class ProductSceneImage {
         } else {
             pm.beginTask("Computing image", 1+3);
             try {
-                imageInfo = ProductUtils.createRgbImageInfo(rasters, SubProgressMonitor.create(pm, 1));
+                imageInfo = ProductUtils.createImageInfo(rasters, true, SubProgressMonitor.create(pm, 1));
                 return ProductUtils.createRgbImage(rasters, imageInfo, SubProgressMonitor.create(pm, 3));
             } finally {
                 pm.done();

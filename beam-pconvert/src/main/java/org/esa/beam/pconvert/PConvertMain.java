@@ -219,7 +219,7 @@ public class PConvertMain {
 
         String bandIndicesStr = null;
         String histoSkipPercentStr = null;
-        List fileList = new LinkedList();
+        List<File> fileList = new LinkedList<File>();
         String maxResStr = null;
         String forcedWidthStr = null;
         String forcedHeightStr = null;
@@ -495,7 +495,6 @@ public class PConvertMain {
                     }
                 } finally {
                     product.dispose();
-                    product = null;
                 }
             } else {
                 warn("no appropriate reader found for input file format");
@@ -547,7 +546,7 @@ public class PConvertMain {
             log("loading raster data for band '" + band.getName() + "'...");
             try {
                 band.loadRasterData(ProgressMonitor.NULL);
-                band.ensureValidImageInfo(_histoSkipRatios, ProgressMonitor.NULL);
+                band.getImageInfo(_histoSkipRatios, ProgressMonitor.NULL);
                 if (colorPaletteDef != null) {
                     band.getImageInfo().setColorPaletteDef(colorPaletteDef);
                 }
@@ -710,8 +709,8 @@ public class PConvertMain {
             if (!productSubsetDef.isEntireProductSelected()) {
                 product = product.createSubset(productSubsetDef, null, null);
                 final String[] messages = ProductUtils.removeInvalidExpressions(product);
-                for (int i = 0; i < messages.length; i++) {
-                    warn(messages[i]);
+                for (String message : messages) {
+                    warn(message);
                 }
             }
         }
