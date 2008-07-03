@@ -60,7 +60,7 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
     }
 
     @Override
-    public AbstractButton[] getButtons() {
+    public AbstractButton[] getToolButtons() {
         return new AbstractButton[]{}; // todo
     }
 

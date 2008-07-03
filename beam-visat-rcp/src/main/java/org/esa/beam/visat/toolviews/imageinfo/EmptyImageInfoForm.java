@@ -22,7 +22,7 @@ class EmptyImageInfoForm implements ColorManipulationChildForm {
     public void updateFormModel(ProductSceneView productSceneView) {
     }
 
-    public AbstractButton[] getButtons() {
+    public AbstractButton[] getToolButtons() {
         return new AbstractButton[0];
     }
 

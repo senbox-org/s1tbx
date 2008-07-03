@@ -95,7 +95,7 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
     }
 
 
-    public AbstractButton[] getButtons() {
+    public AbstractButton[] getToolButtons() {
         return new AbstractButton[]{
                 imageInfoEditorSupport.autoStretch95Button,
                 imageInfoEditorSupport.autoStretch100Button,

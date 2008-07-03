@@ -78,10 +78,9 @@ class ColorManipulationForm {
     private ColorManipulationChildForm continuous1BandSwitcherForm;
     private ColorManipulationChildForm discrete1BandTabularForm;
     private ColorManipulationChildForm continuous3BandGraphicalForm;
-    private JPanel buttonsPanel;
+    private JPanel toolButtonsPanel;
     private AbstractButton helpButton;
     private File ioDir;
-    private MoreOptionsForm moreOptionsForm;
     private JPanel editorPanel;
     private ImageInfo imageInfo; // our model!
     private MoreOptionsPane moreOptionsPane;
@@ -156,7 +155,6 @@ class ColorManipulationForm {
 
         updateTitle();
         updateToolButtons();
-        updateMoreOptionsForm();
 
         setApplyEnabled(false);
     }
@@ -192,16 +190,15 @@ class ColorManipulationForm {
             }
         }
 
-        moreOptionsForm = null;
         if (newForm != oldForm) {
             childForm = newForm;
 
-            installButtons();
+            installToolButtons();
+            installMoreOptions();
+
             editorPanel.removeAll();
             editorPanel.add(childForm.getContentPanel(), BorderLayout.CENTER);
-            moreOptionsForm = childForm.getMoreOptionsForm();
-            if (moreOptionsForm != null) {
-                moreOptionsPane.setComponent(moreOptionsForm.getContentPanel());
+            if (!(childForm instanceof EmptyImageInfoForm)) {
                 editorPanel.add(moreOptionsPane.getContentPanel(), BorderLayout.SOUTH);
             }
             revalidateToolViewPaneControl();
@@ -213,18 +210,20 @@ class ColorManipulationForm {
         }
     }
 
+    private void updateTitle() {
+        String titlePostfix = "";
+        if (productSceneView != null) {
+            titlePostfix = " - " + productSceneView.getScene().getName();
+        }
+        // todo - this doesn't work at all!!!
+        toolView.setTitle(getToolViewDescriptor().getTitle() + titlePostfix);
+    }
+
     private void updateToolButtons() {
         final boolean enabled = this.productSceneView != null;
         resetButton.setEnabled(enabled);
         importButton.setEnabled(enabled);
         exportButton.setEnabled(enabled);
-    }
-
-    private void updateMoreOptionsForm() {
-        if (moreOptionsForm != null) {
-            moreOptionsForm.setNoDataColor(getImageInfo().getNoDataColor());
-            moreOptionsForm.setHistogramMatching(getImageInfo().getHistogramMatching());
-        }
     }
 
     private ColorManipulationChildForm getContinuous3BandGraphicalForm() {
@@ -264,15 +263,6 @@ class ColorManipulationForm {
 
     private PageComponentDescriptor getToolViewDescriptor() {
         return toolView.getDescriptor();
-    }
-
-    private void updateTitle() {
-        String titlePostfix = "";
-        if (productSceneView != null) {
-            titlePostfix = " - " + productSceneView.getScene().getName();
-        }
-        // todo - this doesn't work at all!!!
-        toolView.setTitle(getToolViewDescriptor().getTitle() + titlePostfix);
     }
 
     private void initContentPanel() {
@@ -336,13 +326,13 @@ class ColorManipulationForm {
         helpButton.setName("helpButton");
 
         editorPanel = new JPanel(new BorderLayout(4, 4));
-        buttonsPanel = GridBagUtils.createPanel();
+        toolButtonsPanel = GridBagUtils.createPanel();
 
         contentPanel = new JPanel(new BorderLayout(4, 4));
         contentPanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         contentPanel.setPreferredSize(new Dimension(320, 200));
         contentPanel.add(editorPanel, BorderLayout.CENTER);
-        contentPanel.add(buttonsPanel, BorderLayout.EAST);
+        contentPanel.add(toolButtonsPanel, BorderLayout.EAST);
 
         installHelp();
         suppressibleOptionPane = visatApp.getSuppressibleOptionPane();
@@ -363,8 +353,8 @@ class ColorManipulationForm {
         multiApplyButton.setEnabled(canApply && (!enabled && (!isRgbMode() && visatApp != null)));
     }
 
-    void installButtons() {
-        buttonsPanel.removeAll();
+    void installToolButtons() {
+        toolButtonsPanel.removeAll();
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.fill = GridBagConstraints.NONE;
@@ -372,20 +362,20 @@ class ColorManipulationForm {
         gbc.gridwidth = 2;
         gbc.insets.bottom = 3;
         gbc.gridy = 1;
-        buttonsPanel.add(applyButton, gbc);
+        toolButtonsPanel.add(applyButton, gbc);
         gbc.insets.bottom = 0;
         gbc.gridwidth = 1;
         gbc.gridy++;
-        buttonsPanel.add(resetButton, gbc);
-        buttonsPanel.add(multiApplyButton, gbc);
+        toolButtonsPanel.add(resetButton, gbc);
+        toolButtonsPanel.add(multiApplyButton, gbc);
         gbc.gridy++;
-        buttonsPanel.add(importButton, gbc);
-        buttonsPanel.add(exportButton, gbc);
+        toolButtonsPanel.add(importButton, gbc);
+        toolButtonsPanel.add(exportButton, gbc);
         gbc.gridy++;
-        AbstractButton[] additionalButtons = childForm.getButtons();
+        AbstractButton[] additionalButtons = childForm.getToolButtons();
         for (int i = 0; i < additionalButtons.length; i++) {
             AbstractButton button = additionalButtons[i];
-            buttonsPanel.add(button, gbc);
+            toolButtonsPanel.add(button, gbc);
             if (i % 2 == 1) {
                 gbc.gridy++;
             }
@@ -394,13 +384,22 @@ class ColorManipulationForm {
         gbc.fill = GridBagConstraints.VERTICAL;
         gbc.weighty = 1.0;
         gbc.gridwidth = 2;
-        buttonsPanel.add(new JLabel(" "), gbc); // filler
+        toolButtonsPanel.add(new JLabel(" "), gbc); // filler
         gbc.fill = GridBagConstraints.NONE;
         gbc.weighty = 0.0;
         gbc.gridwidth = 1;
         gbc.gridy++;
         gbc.gridx = 1;
-        buttonsPanel.add(helpButton, gbc);
+        toolButtonsPanel.add(helpButton, gbc);
+    }
+
+    void installMoreOptions() {
+        final MoreOptionsForm moreOptionsForm = childForm.getMoreOptionsForm();
+        if (moreOptionsForm != null) {
+            moreOptionsForm.setNoDataColor(getImageInfo().getNoDataColor());
+            moreOptionsForm.setHistogramMatching(getImageInfo().getHistogramMatching());
+            moreOptionsPane.setComponent(moreOptionsForm.getContentPanel());
+        }
     }
 
     private void installHelp() {

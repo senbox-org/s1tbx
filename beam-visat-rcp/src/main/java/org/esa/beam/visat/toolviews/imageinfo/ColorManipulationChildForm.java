@@ -17,7 +17,7 @@ interface ColorManipulationChildForm {
 
     Component getContentPanel();
 
-    AbstractButton[] getButtons();
+    AbstractButton[] getToolButtons();
 
     RasterDataNode[] getRasters();
 

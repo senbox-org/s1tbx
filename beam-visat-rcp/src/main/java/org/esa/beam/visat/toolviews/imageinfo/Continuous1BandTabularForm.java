@@ -43,7 +43,7 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
         contentPanel = tableScrollPane;
     }
 
-    public AbstractButton[] getButtons() {
+    public AbstractButton[] getToolButtons() {
         return new AbstractButton[]{};  // todo - ?
     }
 
