@@ -45,15 +45,16 @@ public class PinSymbol extends ShapeFigure {
 
     private static final Color SELECTION_COLOR = new Color(255, 255, 0, 200);
 
+    public PinSymbol(String name, ImageIcon icon) {
+        this(name, new Rectangle(0, 0, icon.getIconWidth(), icon.getIconHeight()));
+        setIcon(icon);
+    }
+
     public PinSymbol(String name, Shape shape) {
         super(shape, false, null);
         setName(name);
     }
 
-    public PinSymbol(String name, ImageIcon icon) {
-        this(name, new Rectangle(0, 0, icon.getIconWidth(), icon.getIconHeight()));
-        setIcon(icon);
-    }
 
     public void drawSelected(Graphics2D g2d) {
         draw(g2d, true);

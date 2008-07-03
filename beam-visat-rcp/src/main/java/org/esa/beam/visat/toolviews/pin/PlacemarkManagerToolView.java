@@ -47,14 +47,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.Point;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -467,7 +460,7 @@ class PlacemarkManagerToolView extends AbstractToolView {
         if (PinDialog.showEditPinDialog(getWindowAncestor(), product, newPin, placemarkDescriptor)) {
             makePinNameUnique(newPin);
             getPlacemarkGroup().add(newPin);
-            PinTool.setPlacemarkSelected(getPlacemarkGroup(), newPin, true);
+            PlacemarkTool.setPlacemarkSelected(getPlacemarkGroup(), newPin, true);
             updateUIState();
         }
     }
@@ -481,14 +474,31 @@ class PlacemarkManagerToolView extends AbstractToolView {
                              activePlacemark.getDescription(),
                              activePlacemark.getPixelPos(),
                              activePlacemark.getGeoPos(),
-                             new PinSymbol(activePlacemark.getSymbol().getName(),
-                                           activePlacemark.getSymbol().getShape()));
+                             createPinSymbolCopy(activePlacemark.getSymbol()));
         if (PinDialog.showEditPinDialog(getWindowAncestor(), product, newPin, placemarkDescriptor)) {
             makePinNameUnique(newPin);
             getPlacemarkGroup().add(newPin);
-            PinTool.setPlacemarkSelected(getPlacemarkGroup(), newPin, true);
+            PlacemarkTool.setPlacemarkSelected(getPlacemarkGroup(), newPin, true);
             updateUIState();
         }
+    }
+
+    private static PinSymbol createPinSymbolCopy(PinSymbol currentSymbol) {
+        final PinSymbol pinSymbol = new PinSymbol(currentSymbol.getName(), currentSymbol.getShape());
+        if(currentSymbol.getFillPaint() instanceof Color) {
+            final Color color = (Color) currentSymbol.getFillPaint();
+            pinSymbol.setFillPaint(new Color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()));
+        }
+        pinSymbol.setFilled(currentSymbol.isFilled());
+        final Color outlineColor = currentSymbol.getOutlineColor();
+        pinSymbol.setOutlineColor(new Color(outlineColor.getRed(),  outlineColor.getGreen(), outlineColor.getBlue(), outlineColor.getAlpha()));
+        if (pinSymbol.getOutlineStroke() instanceof BasicStroke) {
+            BasicStroke basicStroke = (BasicStroke) pinSymbol.getOutlineStroke();
+            pinSymbol.setOutlineStroke(new BasicStroke(basicStroke.getLineWidth()));
+        }
+        final PixelPos refPoint = currentSymbol.getRefPoint();
+        pinSymbol.setRefPoint(new PixelPos(refPoint.x, refPoint.y));
+        return pinSymbol;
     }
 
     private ProductNodeGroup<Pin> getPlacemarkGroup() {
