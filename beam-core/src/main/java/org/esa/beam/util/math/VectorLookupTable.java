@@ -55,7 +55,7 @@ public class VectorLookupTable {
     /**
      * Constructs an array lookup table for the lookup values and dimensions supplied as arguments.
      *
-     * @param length     the length of the looked-up vector.
+     * @param length     the length of the lookup vector.
      * @param values     the lookup values. The {@code values} array must be laid out in row-major
      *                   order, so that the dimension associated with the last axis varies fastest.
      * @param dimensions the interval partitions defining the dimensions associated with the lookup
@@ -74,7 +74,7 @@ public class VectorLookupTable {
     /**
      * Constructs an array lookup table for the lookup values and dimensions supplied as arguments.
      *
-     * @param length     the length of the looked-up vector.
+     * @param length     the length of the lookup vector.
      * @param values     the lookup values. The {@code values} array must be laid out in row-major
      *                   order, so that the dimension associated with the last axis varies fastest.
      * @param dimensions the interval partitions defining the dimensions associated with the lookup
@@ -93,7 +93,7 @@ public class VectorLookupTable {
     /**
      * Constructs an array lookup table for the lookup values and dimensions supplied as arguments.
      *
-     * @param length     the length of the looked-up vector.
+     * @param length     the length of the lookup vector.
      * @param values     the lookup values. The {@code values} array must be laid out in row-major
      *                   order, so that the dimension associated with the last axis varies fastest.
      * @param dimensions the interval partitions defining the dimensions associated with the lookup
@@ -112,7 +112,7 @@ public class VectorLookupTable {
     /**
      * Constructs an array lookup table for the lookup values and dimensions supplied as arguments.
      *
-     * @param length     the length of the looked-up vector.
+     * @param length     the length of the lookup vector.
      * @param values     the lookup values. The {@code values} array must be laid out in row-major
      *                   order, so that the dimension associated with the last axis varies fastest.
      * @param dimensions the interval partitions defining the dimensions associated with the lookup
@@ -138,7 +138,7 @@ public class VectorLookupTable {
 
         this.values = values;
         this.dimensions = dimensions;
-
+        
         final int n = dimensions.length;
 
         strides = new int[n];

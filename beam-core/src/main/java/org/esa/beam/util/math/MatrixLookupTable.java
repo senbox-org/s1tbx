@@ -24,7 +24,7 @@ package org.esa.beam.util.math;
  * @author Ralf Quast
  * @version $Revision$ $Date$
  */
-public class MatrixLookupTable {
+class MatrixLookupTable {
     /**
      * The number of rows in the looked-up matrix.
      */
