@@ -54,6 +54,7 @@ class MoreOptionsPane {
         collapsed = true;
 
         headerButton = ToolButtonFactory.createButton(icons[0], false);
+        headerButton.setName("MoreOptionsPane.headerButton");
         headerButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 setCollapsed(!isCollapsed());
@@ -63,10 +64,12 @@ class MoreOptionsPane {
         final JPanel titleBar = new JPanel(new BorderLayout(2, 2));
         titleBar.add(headerButton, BorderLayout.WEST);
         headerSeparator = new TitledSeparator(headerLabels[0], TitledSeparator.TYPE_PARTIAL_ETCHED, SwingConstants.LEFT);
+        headerSeparator.setName("MoreOptionsPane.headerSeparator");
         titleBar.add(headerSeparator, BorderLayout.CENTER);
 
         contentPanel = new JPanel(new BorderLayout(2, 2));
         contentPanel.add(titleBar, BorderLayout.NORTH);
+        contentPanel.setName("MoreOptionsPane.contentPanel");
     }
 
     private void printDefaults(UIDefaults uiDefaults, String name) {

@@ -127,7 +127,7 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
                         raster.getStx().setDirty(true);
                     }
                     try {
-                        raster.ensureValidStx(ProgressMonitor.NULL);
+                        raster.getStx(ProgressMonitor.NULL);
                     } catch (IOException e) {
                         // todo - handle exception here
                         e.printStackTrace();

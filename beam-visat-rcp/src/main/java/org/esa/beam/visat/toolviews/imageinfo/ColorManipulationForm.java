@@ -694,7 +694,7 @@ class ColorManipulationForm {
 
     public RasterDataNode.Stx getStx(RasterDataNode raster) {
         try {
-            return raster.ensureValidStx(ProgressMonitor.NULL); // todo - use PM
+            return raster.getStx(ProgressMonitor.NULL); // todo - use PM
         } catch (IOException e) {
             JOptionPane.showMessageDialog(getContentPanel(),
                                           "Failed to load statistics for '" +
