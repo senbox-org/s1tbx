@@ -7,14 +7,12 @@ import com.bc.ceres.binding.swing.Binding;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.jidesoft.combobox.ColorComboBox;
 import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.Color;
-import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.beans.PropertyChangeListener;
@@ -76,7 +74,9 @@ class MoreOptionsForm {
         final PropertyChangeListener pcl = new PropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent evt) {
-                updateImageInfo();
+                getParentForm().getImageInfo().setNoDataColor(getNoDataColor());
+                getParentForm().getImageInfo().setHistogramMatching(getHistogramMatching());
+                getParentForm().setApplyEnabled(true);
             }
         };
 
@@ -136,9 +136,4 @@ class MoreOptionsForm {
         bindingContext.addPropertyChangeListener(propertyName, propertyChangeListener);
     }
 
-    private void updateImageInfo() {
-        getParentForm().getImageInfo().setNoDataColor(getNoDataColor());
-        getParentForm().getImageInfo().setHistogramMatching(getHistogramMatching());
-        getParentForm().setApplyEnabled(true);
-    }
 }

@@ -75,6 +75,9 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
         moreOptionsForm.getBindingContext().getValueContainer().addModel(channelSourceNameModel);
         moreOptionsForm.getBindingContext().bind(CHANNEL_SOURCE_NAME_PROPERTY, channelSourceNameBox);
 
+        moreOptionsForm.addRow(new JLabel("Gamma non-linearity: "), gammaField);
+        moreOptionsForm.addRow(new JLabel("Source band: "), channelSourceNameBox);
+
         final ValueContainer valueContainer = new ValueContainer();
         valueContainer.addModel(ValueModel.createClassFieldModel(this, "channel", 0));
         valueContainer.getModel("channel").getDescriptor().setValueSet(new ValueSet(new Integer[]{0, 1, 2}));
@@ -110,7 +113,6 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
         contentPanel.add(channelButtonPanel, BorderLayout.NORTH);
         contentPanel.add(imageInfoEditor, BorderLayout.CENTER);
 
-        moreOptionsForm.addRow(new JLabel("Gamma non-linearity: "), gammaField);
         moreOptionsForm.getBindingContext().addPropertyChangeListener(GAMMA_PROPERTY, new PropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent evt) {

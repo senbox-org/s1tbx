@@ -154,15 +154,9 @@ class ColorManipulationForm {
 
         installChildForm(productSceneViewOld);
 
-        final boolean enabled = this.productSceneView != null;
-        resetButton.setEnabled(enabled);
-        importButton.setEnabled(enabled);
-        exportButton.setEnabled(enabled);
-        if (enabled) {
-            moreOptionsForm.setNoDataColor(getImageInfo().getNoDataColor());
-        }
-
         updateTitle();
+        updateToolButtons();
+        updateMoreOptionsForm();
 
         setApplyEnabled(false);
     }
@@ -207,8 +201,6 @@ class ColorManipulationForm {
             editorPanel.add(childForm.getContentPanel(), BorderLayout.CENTER);
             moreOptionsForm = childForm.getMoreOptionsForm();
             if (moreOptionsForm != null) {
-                moreOptionsForm.setNoDataColor(getImageInfo().getNoDataColor());
-                moreOptionsForm.setHistogramMatching(getImageInfo().getHistogramMatching());
                 moreOptionsPane.setComponent(moreOptionsForm.getContentPanel());
                 editorPanel.add(moreOptionsPane.getContentPanel(), BorderLayout.SOUTH);
             }
@@ -218,6 +210,20 @@ class ColorManipulationForm {
                 oldForm.handleFormHidden(productSceneViewOld);
             }
             childForm.handleFormShown(productSceneView);
+        }
+    }
+
+    private void updateToolButtons() {
+        final boolean enabled = this.productSceneView != null;
+        resetButton.setEnabled(enabled);
+        importButton.setEnabled(enabled);
+        exportButton.setEnabled(enabled);
+    }
+
+    private void updateMoreOptionsForm() {
+        if (moreOptionsForm != null) {
+            moreOptionsForm.setNoDataColor(getImageInfo().getNoDataColor());
+            moreOptionsForm.setHistogramMatching(getImageInfo().getHistogramMatching());
         }
     }
 
