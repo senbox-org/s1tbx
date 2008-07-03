@@ -19,7 +19,7 @@ interface ColorManipulationChildForm {
 
     AbstractButton[] getToolButtons();
 
-    RasterDataNode[] getRasters();
-
     MoreOptionsForm getMoreOptionsForm();
+
+    RasterDataNode[] getRasters();
 }
