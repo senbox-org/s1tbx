@@ -22,7 +22,6 @@ import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.util.Guardian;
-import org.esa.beam.util.IntMap;
 
 import java.awt.Color;
 import java.awt.Rectangle;
@@ -488,6 +487,27 @@ public class Band extends AbstractBand {
     }
 
     @Override
+    public ImageInfo createDefaultImageInfo(double[] histoSkipAreas, ProgressMonitor pm) throws IOException {
+        final IndexCoding indexCoding = getIndexCoding();
+        if (indexCoding == null) {
+            return super.createDefaultImageInfo(histoSkipAreas, pm);
+        }
+
+        final int sampleCount = indexCoding.getSampleCount();
+        Random random = new Random(0xCAFEBABE);
+        ColorPaletteDef.Point[] points = new ColorPaletteDef.Point[sampleCount];
+        for (int i = 0; i < points.length; i++) {
+            String name = indexCoding.getSampleName(i);
+            int value = indexCoding.getSampleValue(i);
+            final Color color = new Color(random.nextFloat(),
+                                          random.nextFloat(),
+                                          random.nextFloat());
+            points[i] = new ColorPaletteDef.Point(value, color, name);
+        }
+        return new ImageInfo(new ColorPaletteDef(points));
+    }
+
+    @Override
     protected Stx computeStx(ProgressMonitor pm) throws IOException {
         final IndexCoding indexCoding = getIndexCoding();
         if (indexCoding == null) {
@@ -543,34 +563,6 @@ public class Band extends AbstractBand {
         sampleCoding = null;
     }
 
-    @Override
-    public ImageInfo createDefaultImageInfo(double[] histoSkipAreas, ProgressMonitor pm) throws IOException {
-        if (getSampleCoding() instanceof IndexCoding) {
-            return createDefaultImageInfo((IndexCoding) getSampleCoding());
-        } else {
-            return super.createDefaultImageInfo(histoSkipAreas, pm);
-        }
-    }
-
-    private ImageInfo createDefaultImageInfo(IndexCoding indexCoding) {
-        int numIndexes = indexCoding.getNumAttributes();
-        int vMin = Integer.MAX_VALUE;
-        int vMax = Integer.MIN_VALUE;
-        for (int i = 0; i < numIndexes; i++) {
-            int value = indexCoding.getSampleValue(i);
-            vMin = Math.min(value, vMin);
-            vMax = Math.max(value, vMax);
-        }
-        Random random = new Random();
-        random.setSeed(42);
-        ColorPaletteDef.Point[] points = new ColorPaletteDef.Point[numIndexes];
-        for (int i = 0; i < points.length; i++) {
-            String name = indexCoding.getSampleName(i);
-            int value = indexCoding.getSampleValue(i);
-            points[i] = new ColorPaletteDef.Point(value, new Color(random.nextFloat(), random.nextFloat(), random.nextFloat()), name);
-        }
-        return new ImageInfo(new ColorPaletteDef(points));
-    }
 }
 
 

@@ -58,6 +58,7 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
 
     @Override
     public void updateFormModel(ProductSceneView productSceneView) {
+        parentForm.getStx(productSceneView.getRaster());
         tableModel.fireTableDataChanged();
     }
 
@@ -129,10 +130,16 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
         }
 
         public int getRowCount() {
-            return getImageInfo() != null ? getImageInfo().getColorPaletteDef().getNumPoints() : 0;
+            if (getImageInfo() == null) {
+                return 0;
+            }
+            return getImageInfo().getColorPaletteDef().getNumPoints();
         }
 
         public Object getValueAt(int rowIndex, int columnIndex) {
+            if (getImageInfo() == null) {
+                return null;
+            }
             final ColorPaletteDef.Point point = getImageInfo().getColorPaletteDef().getPointAt(rowIndex);
             if (columnIndex == 0) {
                 return point.getLabel();
@@ -156,6 +163,9 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
 
         @Override
         public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+            if (getImageInfo() == null) {
+                return;
+            }
             final ColorPaletteDef.Point point = getImageInfo().getColorPaletteDef().getPointAt(rowIndex);
             if (columnIndex == 0) {
                 point.setLabel((String) aValue);

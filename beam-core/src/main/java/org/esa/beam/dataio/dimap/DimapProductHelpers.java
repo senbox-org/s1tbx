@@ -961,7 +961,7 @@ public class DimapProductHelpers {
         }
 
         private static ImageInfo createImageInfo(Element bandStatisticsElem) {
-            final ColorPaletteDef.Point[] points = getColorPalettePoins(bandStatisticsElem);
+            final ColorPaletteDef.Point[] points = getColorPalettePoints(bandStatisticsElem);
             final int numColors = getNumColors(bandStatisticsElem);
             return new ImageInfo(new ColorPaletteDef(points, numColors));
         }
@@ -1002,7 +1002,7 @@ public class DimapProductHelpers {
             return StringUtils.toIntArray(histogramValues, null);
         }
 
-        private static ColorPaletteDef.Point[] getColorPalettePoins(Element bandStatisticsElem) {
+        private static ColorPaletteDef.Point[] getColorPalettePoints(Element bandStatisticsElem) {
             final List colorPalettePointElems = bandStatisticsElem.getChildren(
                     DimapProductConstants.TAG_COLOR_PALETTE_POINT);
             ColorPaletteDef.Point[] points = null;
