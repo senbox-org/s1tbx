@@ -15,8 +15,9 @@ import javax.swing.JPanel;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.beans.PropertyChangeListener;
+import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 class MoreOptionsForm {
     static final String NO_DATA_COLOR_PROPERTY = "noDataColor";
@@ -67,6 +68,7 @@ class MoreOptionsForm {
         constraints.anchor = GridBagConstraints.BASELINE;
         constraints.weightx = 0.5;
         constraints.weighty = 0.0;
+        constraints.insets = new Insets(1, 0, 1, 0);
 
         addRow(noDataColorLabel, noDataColorComboBox);
         addRow(histogramMatchingLabel, histogramMatchingBox);
