@@ -1619,9 +1619,9 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     public final ImageInfo createDefaultImageInfo(double[] histoSkipAreas, Histogram histogram) {
         final Range range;
         if (histoSkipAreas != null) {
-            range = histogram.findRange(histoSkipAreas[0], histoSkipAreas[1]);
+            range = histogram.findRange(histoSkipAreas[0], histoSkipAreas[1], true, false);
         } else {
-            range = histogram.findRange(0.01, 0.04);
+            range = histogram.findRange(0.01, 0.04, true, false);
         }
 
         final double min, max;

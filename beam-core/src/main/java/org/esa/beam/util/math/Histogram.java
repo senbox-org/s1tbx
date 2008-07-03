@@ -117,19 +117,66 @@ public class Histogram extends Range {
      * @return the readjusted range
      */
     public Range findRange(final double leftHistoAreaSkipped, final double rightHistoAreaSkipped) {
+        return findRange(leftHistoAreaSkipped, rightHistoAreaSkipped, false, false);
+    }
+
+    public Range findRange(final double leftHistoAreaSkipped, final double rightHistoAreaSkipped, boolean skipLeftPeek, boolean skipRightPeek) {
 
         final int numBins = getNumBins();
         final int[] binCounts = getBinCounts();
-        final int numSamples = getBinCountsSum();
+        final int numSamplesTotal = getBinCountsSum();
         final int jMin = 0;
         final int jMax = numBins - 1;
 
-        double leftArea, rightArea;
-        double binCountSum;
-        int j1 = jMin;
+        int j1 = 0;
         int j2 = jMax;
+        int numSamples = numSamplesTotal;
 
-        binCountSum = 0;
+        if (skipLeftPeek) {
+            int jSkip = -1;
+            for (int j = 1; j <= jMax; j++) {
+                final int c0 = binCounts[j];
+                final int c1 = binCounts[j - 1];
+                final int c2 = j < 2 ? 0 : binCounts[j - 2];
+                if (c1 > 0) {
+                    if (c0 == 0 && c2 == 0) {
+                        jSkip = j;
+                    }
+                    break;
+                }
+            }
+            if (jSkip != -1) {
+                j1 = jSkip;
+                numSamples -= binCounts[jSkip];
+            }
+        }
+        if (skipRightPeek) {
+            int jSkip = -1;
+            for (int j = jMax - 1; j >= 0; j--) {
+                final int c0 = binCounts[j];
+                final int c1 = binCounts[j + 1];
+                final int c2 = j < jMax - 2 ? 0 : binCounts[j + 2];
+                if (c1 > 0) {
+                    if (c0 == 0 && c2 == 0) {
+                        jSkip = j;
+                    }
+                    break;
+                }
+            }
+            if (jSkip != -1) {
+                j2 = jSkip;
+                numSamples -= binCounts[jSkip];
+            }
+        }
+
+        if (j1 >= j2 || numSamples <= 0) {
+            j1 = jMin;
+            j2 = jMax;
+            numSamples = numSamplesTotal;
+        }
+
+        double leftArea, rightArea;
+        double binCountSum = 0.0;
         for (; j1 <= jMax; j1++) {
             binCountSum += binCounts[j1];
             leftArea = binCountSum / numSamples;
@@ -180,7 +227,6 @@ public class Histogram extends Range {
      * Gets the data value range for the given bin index.
      *
      * @param binIndex the bin index
-     *
      * @return the data value range
      */
     public Range getRange(int binIndex) {
@@ -192,7 +238,6 @@ public class Histogram extends Range {
      *
      * @param binIndex1 the first bin index
      * @param binIndex2 the second bin index
-     *
      * @return the data value range
      */
     public Range getRange(int binIndex1, int binIndex2) {
@@ -204,7 +249,6 @@ public class Histogram extends Range {
      * Gets the bin index for the given value.
      *
      * @param value the value
-     *
      * @return the bin index or <code>-1</code> if the value is not covered by this histogram.
      */
     public int getBinIndex(double value) {
@@ -277,9 +321,7 @@ public class Histogram extends Range {
      * @param numBins   the number of bins for the histogram
      * @param range     the value range, if <code>null</code> the range is automatically computed
      * @param pm        a monitor to inform the user about progress
-     *
      * @return the histogram for the given array
-     *
      * @see #computeHistogramUByte
      */
     public static Histogram computeHistogramByte(final byte[] values,
@@ -355,9 +397,7 @@ public class Histogram extends Range {
      * @param numBins   the number of bins for the histogram
      * @param range     the value range, if <code>null</code> the range is automatically computed
      * @param pm        a monitor to inform the user about progress
-     *
      * @return the histogram for the given array
-     *
      * @see #computeHistogramByte
      */
     public static Histogram computeHistogramUByte(final byte[] values,
@@ -431,9 +471,7 @@ public class Histogram extends Range {
      *                  IndexValidator#TRUE} instead.
      * @param numBins   the number of bins for the histogram
      * @param range     the value range, if <code>null</code> the range is automatically computed
-     *
      * @return the histogram for the given array
-     *
      * @see #computeHistogramUShort
      */
     public static Histogram computeHistogramShort(final short[] values,
@@ -508,9 +546,7 @@ public class Histogram extends Range {
      * @param numBins   the number of bins for the histogram
      * @param range     the value range, if <code>null</code> the range is automatically computed
      * @param pm        a monitor to inform the user about progress
-     *
      * @return the histogram for the given array
-     *
      * @see #computeHistogramShort
      */
     public static Histogram computeHistogramUShort(final short[] values,
@@ -586,9 +622,7 @@ public class Histogram extends Range {
      * @param range     the value range, if <code>null</code> the range is automatically computed
      * @param histogram a histogram instance to be reused, can be <code>null</code>
      * @param pm        a monitor to inform the user about progress
-     *
      * @return the histogram for the given array
-     *
      * @see #computeHistogramUInt
      */
     public static Histogram computeHistogramInt(final int[] values,
@@ -666,9 +700,7 @@ public class Histogram extends Range {
      * @param range     the value range, if <code>null</code> the range is automatically computed
      * @param histogram a histogram instance to be reused, can be <code>null</code>
      * @param pm        a monitor to inform the user about progress
-     *
      * @return the histogram for the given array of values
-     *
      * @see #computeHistogramInt
      */
     public static Histogram computeHistogramUInt(final int[] values,
@@ -744,9 +776,7 @@ public class Histogram extends Range {
      * @param range     the value range, if <code>null</code> the range is automatically computed
      * @param histogram a histogram instance to be reused, can be <code>null</code>
      * @param pm        a monitor to inform the user about progress
-     *
      * @return the histogram for the given array of values
-     *
      * @see #computeHistogramDouble
      */
     public static Histogram computeHistogramFloat(final float[] values,
@@ -826,9 +856,7 @@ public class Histogram extends Range {
      * @param range     the value range, if <code>null</code> the range is automatically computed
      * @param histogram a histogram instance to be reused, can be <code>null</code>
      * @param pm        a monitor to inform the user about progress
-     *
      * @return the histogram for the given array of values
-     *
      * @see #computeHistogramFloat
      */
     public static Histogram computeHistogramDouble(final double[] values,
@@ -907,9 +935,7 @@ public class Histogram extends Range {
      * @param numBins   the number of bins for the histogram
      * @param range     the value range, if <code>null</code> the range is automatically computed
      * @param pm        a monitor to inform the user about progress
-     *
      * @return the histogram for the given values
-     *
      * @see #computeHistogramByte
      */
     public static Histogram computeHistogramDouble(final DoubleList values,
@@ -986,9 +1012,7 @@ public class Histogram extends Range {
      * @param numBins   the number of bins for the histogram
      * @param range     the value range, if <code>null</code> the range is automatically computed
      * @param pm        a monitor to inform the user about progress
-     *
      * @return the histogram for the given values
-     *
      * @see #computeHistogramByte
      */
     public static Histogram computeHistogramGeneric(final Object values,
@@ -1035,16 +1059,16 @@ public class Histogram extends Range {
      */
     @Deprecated
     public Range findRangeFor95Percent(final boolean skipInvalidZero) {
-        return findRangeFor95Percent();
+        return findRange(LEFT_AREA_SKIPPED_95, RIGHT_AREA_SKIPPED_95, skipInvalidZero, false);
     }
 
-    /**
-     * @deprecated since BEAM 4.2, use {@link #findRange(double, double)} instead.
-     */
-    @Deprecated
-    public Range findRange(final double leftHistoAreaSkipped,
-                           final double rightHistoAreaSkipped,
-                           final boolean skipInvalidZero) {
-         return findRange(leftHistoAreaSkipped, rightHistoAreaSkipped);
-    }
+//    /**
+//     * @deprecated since BEAM 4.2, use {@link #findRange(double, double)} instead.
+//     */
+//    @Deprecated
+//    public Range findRange(final double leftHistoAreaSkipped,
+//                           final double rightHistoAreaSkipped,
+//                           final boolean skipInvalidZero) {
+//         return findRange(leftHistoAreaSkipped, rightHistoAreaSkipped);
+//    }
 }
