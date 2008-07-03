@@ -24,7 +24,7 @@ package org.esa.beam.util.math;
  * @author Ralf Quast
  * @version $Revision$ $Date$
  */
-class MatrixLookupTable {
+public class MatrixLookupTable {
     /**
      * The number of rows in the looked-up matrix.
      */
@@ -59,6 +59,13 @@ class MatrixLookupTable {
         this.matrixFactory = matrixFactory;
 
         vectorLookupTable = new VectorLookupTable(m * n, values, dimensions);
+    }
+
+    public MatrixLookupTable(int m, int n, MatrixFactory matrixFactory, VectorLookupTable vectorLookupTable) {
+        this.m = m;
+        this.n = n;
+        this.matrixFactory = matrixFactory;
+        this.vectorLookupTable = vectorLookupTable;
     }
 
     /**
