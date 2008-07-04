@@ -12,19 +12,14 @@
  */
 package org.esa.beam.framework.datamodel;
 
-import java.awt.Color;
-
+import com.bc.jexp.Term;
 import org.esa.beam.dataio.dimap.DimapProductConstants;
+import org.esa.beam.dataio.dimap.DimapProductHelpers;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
-import org.esa.beam.util.Debug;
-import org.esa.beam.util.Guardian;
-import org.esa.beam.util.ObjectUtils;
-import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.XmlHelper;
-import org.esa.beam.util.XmlWriter;
+import org.esa.beam.util.*;
 import org.jdom.Element;
 
-import com.bc.jexp.Term;
+import java.awt.Color;
 
 /**
  * Represents a bitmask definition comprising the bitmask properties name, description, flag expression color and
@@ -67,7 +62,6 @@ public class BitmaskDef extends ProductNode {
      * property if the given string representation of the expression can be compiled.
      *
      * @param expr the string representation of the expression
-     *
      * @throws IllegalArgumentException if the expression is invalid (and not parsable)
      */
     public void setExpr(String expr) {
@@ -147,7 +141,6 @@ public class BitmaskDef extends ProductNode {
      * Sets the transparency value. The valid value range is <code>0.0F</code> to <code>1.0F</code>.
      *
      * @param transparency the transparency value
-     *
      * @throws IllegalArgumentException if the given transparency value is out of range.
      */
     public void setTransparency(float transparency) {
@@ -206,7 +199,6 @@ public class BitmaskDef extends ProductNode {
      * Gets the size in bytes of this product node.
      *
      * @param subsetDef if not <code>null</code> the subset may limit the size returned
-     *
      * @return the size in bytes.
      */
     @Override
@@ -238,7 +230,7 @@ public class BitmaskDef extends ProductNode {
         attributes[0] = new String[]{DimapProductConstants.ATTRIB_VALUE, expr};
         writer.printLine(indent + 1, DimapProductConstants.TAG_BITMASK_EXPRESSION, attributes, null);
 
-        XmlHelper.printColorTag(indent + 1, getColor(), writer);
+        DimapProductHelpers.printColorTag(indent + 1, getColor(), writer);
 
         attributes[0] = new String[]{DimapProductConstants.ATTRIB_VALUE, String.valueOf(getTransparency())};
         writer.printLine(indent + 1, DimapProductConstants.TAG_BITMASK_TRANSPARENCY, attributes, null);
@@ -256,7 +248,7 @@ public class BitmaskDef extends ProductNode {
         }
         final String expression = element.getChild(DimapProductConstants.TAG_BITMASK_EXPRESSION).getAttributeValue(
                 DimapProductConstants.ATTRIB_VALUE).trim();
-        final Color color = XmlHelper.createColor(element.getChild(DimapProductConstants.TAG_BITMASK_COLOR));
+        final Color color = DimapProductHelpers.createColor(element.getChild(DimapProductConstants.TAG_BITMASK_COLOR));
         final String value = element.getChild(DimapProductConstants.TAG_BITMASK_TRANSPARENCY).getAttributeValue(
                 DimapProductConstants.ATTRIB_VALUE);
         float transparency = 0.5F;

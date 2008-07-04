@@ -16,36 +16,24 @@
  */
 package org.esa.beam.util;
 
-import java.awt.Color;
-
-import org.esa.beam.dataio.dimap.DimapProductConstants;
+import org.esa.beam.dataio.dimap.DimapProductHelpers;
 import org.jdom.Element;
 
-//@todo 1 se/** - add (more) class documentation
+import java.awt.Color;
 
+/**
+ * @deprecated since BEAM 4.2
+ */
+@Deprecated
 public class XmlHelper {
 
+    @Deprecated
     public static void printColorTag(int indent, Color color, XmlWriter pw) {
-        if (color == null) {
-            return;
-        }
-        if (pw == null) {
-            return;
-        }
-        final String[][] attributes = new String[4][];
-        attributes[0] = new String[]{DimapProductConstants.ATTRIB_RED, String.valueOf(color.getRed())};
-        attributes[1] = new String[]{DimapProductConstants.ATTRIB_GREEN, String.valueOf(color.getGreen())};
-        attributes[2] = new String[]{DimapProductConstants.ATTRIB_BLUE, String.valueOf(color.getBlue())};
-        attributes[3] = new String[]{DimapProductConstants.ATTRIB_ALPHA, String.valueOf(color.getAlpha())};
-        pw.printLine(indent, DimapProductConstants.TAG_COLOR, attributes, null);
+        DimapProductHelpers.printColorTag(indent, color, pw);
     }
 
+    @Deprecated
     public static Color createColor(Element colorElem) {
-        int red = Integer.parseInt(colorElem.getAttributeValue(DimapProductConstants.ATTRIB_RED));
-        int green = Integer.parseInt(colorElem.getAttributeValue(DimapProductConstants.ATTRIB_GREEN));
-        int blue = Integer.parseInt(colorElem.getAttributeValue(DimapProductConstants.ATTRIB_BLUE));
-        int alpha = Integer.parseInt(colorElem.getAttributeValue(DimapProductConstants.ATTRIB_ALPHA));
-        Color color = new Color(red, green, blue, alpha);
-        return color;
+        return DimapProductHelpers.createColor(colorElem);
     }
 }

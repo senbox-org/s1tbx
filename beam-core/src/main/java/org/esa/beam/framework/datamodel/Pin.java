@@ -17,11 +17,11 @@
 package org.esa.beam.framework.datamodel;
 
 import org.esa.beam.dataio.dimap.DimapProductConstants;
+import org.esa.beam.dataio.dimap.DimapProductHelpers;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ObjectUtils;
-import org.esa.beam.util.XmlHelper;
 import org.esa.beam.util.XmlWriter;
 import org.jdom.Element;
 
@@ -46,7 +46,7 @@ public class Pin extends ProductNode {
     public final static String PROPERTY_NAME_PIXELPOS = "pixelPos";
     public final static String PROPERTY_NAME_PINSYMBOL = "pinSymbol";
     private static final String PROPERTY_NAME_LABEL = "label";
-    
+
     private String label;
     private PixelPos pixelPos;
     private GeoPos geoPos;
@@ -55,6 +55,7 @@ public class Pin extends ProductNode {
     /**
      * @deprecated in 4.1, use {@link Pin#Pin(String, String, String, PixelPos, GeoPos, PinSymbol)}
      */
+    @Deprecated
     public Pin(String name, String label, PixelPos pixelPos) {
         this(name, label, "", pixelPos, null, PinSymbol.createDefaultPinSymbol());
     }
@@ -62,6 +63,7 @@ public class Pin extends ProductNode {
     /**
      * @deprecated in 4.1, use {@link Pin#Pin(String, String, String, PixelPos, GeoPos, PinSymbol)}
      */
+    @Deprecated
     public Pin(String name, String label, GeoPos geoPos) {
         this(name, label, "", null, geoPos, PinSymbol.createDefaultPinSymbol());
     }
@@ -111,7 +113,6 @@ public class Pin extends ProductNode {
      * Gets an estimated, raw storage size in bytes of this product node.
      *
      * @param subsetDef if not <code>null</code> the subset may limit the size returned
-     *
      * @return the size in bytes.
      */
     @Override
@@ -145,6 +146,7 @@ public class Pin extends ProductNode {
     /**
      * @deprecated in 4.1, no replacement. Pin symbols are not in raster coordinates anymore
      */
+    @Deprecated
     public boolean isPixelPosContainedInSymbolShape(float pixelX, float pixelY) {
         Shape shape = getSymbol().getShape();
         if (shape != null) {
@@ -187,7 +189,6 @@ public class Pin extends ProductNode {
      *
      * @return the pixel position or null if the product to which this pin was added has no {@link
      *         <code>GeoCoding</code>} or the GeoCoding cannot provide the correct pixel position.
-     *
      * @see GeoCoding#canGetPixelPos()
      */
     public PixelPos getPixelPos() {
@@ -242,7 +243,7 @@ public class Pin extends ProductNode {
     private void writeColor(final String tagName, final int indent, final Color color, final XmlWriter writer) {
         String[] colorTags = XmlWriter.createTags(indent, tagName);
         writer.println(colorTags[0]);
-        XmlHelper.printColorTag(indent + 1, color, writer);
+        DimapProductHelpers.printColorTag(indent + 1, color, writer);
         writer.println(colorTags[1]);
     }
 
@@ -262,9 +263,9 @@ public class Pin extends ProductNode {
      */
     public static Pin createPlacemark(Element element, PinSymbol symbol) {
         if (!DimapProductConstants.TAG_PLACEMARK.equals(element.getName()) &&
-            !DimapProductConstants.TAG_PIN.equals(element.getName())) {
+                !DimapProductConstants.TAG_PIN.equals(element.getName())) {
             throw new IllegalArgumentException("Element '" + DimapProductConstants.TAG_PLACEMARK + "' or '" +
-                                               DimapProductConstants.TAG_PIN + "' expected.");
+                    DimapProductConstants.TAG_PIN + "' expected.");
         }
         final String name = element.getAttributeValue(DimapProductConstants.ATTRIB_NAME);
         if (name == null) {
@@ -329,7 +330,7 @@ public class Pin extends ProductNode {
             Element colorElem = elem.getChild(DimapProductConstants.TAG_COLOR);
             if (colorElem != null) {
                 try {
-                    return XmlHelper.createColor(colorElem);
+                    return DimapProductHelpers.createColor(colorElem);
                 } catch (NumberFormatException e) {
                     Debug.trace(e);
                 } catch (IllegalArgumentException e) {

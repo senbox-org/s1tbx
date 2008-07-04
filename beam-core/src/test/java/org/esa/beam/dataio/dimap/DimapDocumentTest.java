@@ -483,7 +483,10 @@ public class DimapDocumentTest extends TestCase {
         points[1] = new ColorPaletteDef.Point(1.3d, Color.cyan);  //cyan  = new Color(  0, 255, 255, 255)
         points[2] = new ColorPaletteDef.Point(2.8d, Color.white); //white = new Color(255, 255, 255, 255)
         ColorPaletteDef paleteDefinition = new ColorPaletteDef(points, 180);
-        return new ImageInfo(paleteDefinition);
+        final ImageInfo imageInfo = new ImageInfo(paleteDefinition);
+        imageInfo.setNoDataColor(Color.BLUE);
+        imageInfo.setHistogramMatching(ImageInfo.HistogramMatching.Normalize);
+        return imageInfo;
     }
 
     public String getExpectedXML(Product product, int geocodingType, boolean withGeocoding,
@@ -737,8 +740,8 @@ public class DimapDocumentTest extends TestCase {
         pw.println("    <Image_Display>");
         pw.println("        <Band_Statistics>");
         pw.println("            <BAND_INDEX>0</BAND_INDEX>");
-        pw.println("            <STX_MIN>" + -0.2f + "</STX_MIN>");
-        pw.println("            <STX_MAX>" + 3.0f + "</STX_MAX>");
+        pw.println("            <STX_MIN>" + -0.2 + "</STX_MIN>");
+        pw.println("            <STX_MAX>" + 3.0 + "</STX_MAX>");
         pw.println("            <HISTOGRAM>4,5,4,7,5,8</HISTOGRAM>");
         pw.println("            <NUM_COLORS>180</NUM_COLORS>");
         pw.println("            <Color_Palette_Point>");
@@ -753,7 +756,8 @@ public class DimapDocumentTest extends TestCase {
         pw.println("                <SAMPLE>2.8</SAMPLE>");
         pw.println("                <COLOR red=\"255\" green=\"255\" blue=\"255\" alpha=\"255\" />");
         pw.println("            </Color_Palette_Point>");
-        pw.println("            <GAMMA>1.0</GAMMA>");
+        pw.println("            <NO_DATA_COLOR red=\"0\" green=\"0\" blue=\"255\" alpha=\"255\" />");
+        pw.println("            <HISTOGRAM_MATCHING>Normalize</HISTOGRAM_MATCHING>");
         pw.println("        </Band_Statistics>");
         pw.println("        <Bitmask_Overlay>");
         pw.println("            <BAND_INDEX>1</BAND_INDEX>");

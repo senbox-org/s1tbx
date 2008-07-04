@@ -155,6 +155,35 @@ public class DimapProductHelpers {
         return null;
     }
 
+    public static void printColorTag(int indent, Color color, XmlWriter pw) {
+        printColorTag(indent, DimapProductConstants.TAG_COLOR, color, pw);
+    }
+
+    public static void printColorTag(int indent, String tag, Color color, XmlWriter pw) {
+        if (color == null) {
+            return;
+        }
+        if (pw == null) {
+            return;
+        }
+        final String[][] attributes = new String[4][];
+        attributes[0] = new String[]{DimapProductConstants.ATTRIB_RED, String.valueOf(color.getRed())};
+        attributes[1] = new String[]{DimapProductConstants.ATTRIB_GREEN, String.valueOf(color.getGreen())};
+        attributes[2] = new String[]{DimapProductConstants.ATTRIB_BLUE, String.valueOf(color.getBlue())};
+        attributes[3] = new String[]{DimapProductConstants.ATTRIB_ALPHA, String.valueOf(color.getAlpha())};
+        pw.printLine(indent, tag, attributes, null);
+    }
+
+    public static Color createColor(Element colorElem) {
+        int red = Integer.parseInt(colorElem.getAttributeValue(DimapProductConstants.ATTRIB_RED));
+        int green = Integer.parseInt(colorElem.getAttributeValue(DimapProductConstants.ATTRIB_GREEN));
+        int blue = Integer.parseInt(colorElem.getAttributeValue(DimapProductConstants.ATTRIB_BLUE));
+        final String alphaStr = colorElem.getAttributeValue(DimapProductConstants.ATTRIB_ALPHA);
+        int alpha = alphaStr != null ? Integer.parseInt(alphaStr) : 255;
+        return new Color(red, green, blue, alpha);
+    }
+
+
     static GeoCoding[] createGeoCoding(Document dom, Product product) {
         Debug.assertNotNull(dom);
         Debug.assertNotNull(product);
@@ -963,7 +992,16 @@ public class DimapProductHelpers {
         private static ImageInfo createImageInfo(Element bandStatisticsElem) {
             final ColorPaletteDef.Point[] points = getColorPalettePoints(bandStatisticsElem);
             final int numColors = getNumColors(bandStatisticsElem);
-            return new ImageInfo(new ColorPaletteDef(points, numColors));
+            final ImageInfo imageInfo = new ImageInfo(new ColorPaletteDef(points, numColors));
+            final Element noDataElem = bandStatisticsElem.getChild(DimapProductConstants.TAG_NO_DATA_COLOR);
+            if (noDataElem != null) {
+                imageInfo.setNoDataColor(createColor(noDataElem));
+            }
+            final Element histomElem = bandStatisticsElem.getChild(DimapProductConstants.TAG_HISTOGRAM_MATCHING);
+            if (histomElem != null && histomElem.getValue() != null) {
+                imageInfo.setHistogramMatching(ImageInfo.getHistogramMatching(histomElem.getValue()));
+            }
+            return imageInfo;
         }
 
         private static Double getSample(Element bandStatisticsElem, String tag) {
@@ -1011,7 +1049,7 @@ public class DimapProductHelpers {
                 points = new ColorPaletteDef.Point[colorPalettePointElems.size()];
                 for (int i = 0; i < points.length; i++) {
                     final Element colorPalettePointElem = (Element) iteratorCPPE.next();
-                    final Color color = XmlHelper.createColor(
+                    final Color color = DimapProductHelpers.createColor(
                             colorPalettePointElem.getChild(DimapProductConstants.TAG_COLOR));
                     final double sample = getSample(colorPalettePointElem);
                     points[i] = new ColorPaletteDef.Point(sample, color);
@@ -1070,20 +1108,20 @@ public class DimapProductHelpers {
 
         private void addFlagsCoding(Product product) {
             addSampleCoding(product,
-                DimapProductConstants.TAG_FLAG_CODING,
-                DimapProductConstants.TAG_FLAG,
-                DimapProductConstants.TAG_FLAG_NAME,
-                DimapProductConstants.TAG_FLAG_INDEX,
-                DimapProductConstants.TAG_FLAG_DESCRIPTION);
+                            DimapProductConstants.TAG_FLAG_CODING,
+                            DimapProductConstants.TAG_FLAG,
+                            DimapProductConstants.TAG_FLAG_NAME,
+                            DimapProductConstants.TAG_FLAG_INDEX,
+                            DimapProductConstants.TAG_FLAG_DESCRIPTION);
         }
 
         private void addIndexCoding(Product product) {
             addSampleCoding(product,
-                DimapProductConstants.TAG_INDEX_CODING,
-                DimapProductConstants.TAG_INDEX,
-                DimapProductConstants.TAG_INDEX_NAME,
-                DimapProductConstants.TAG_INDEX_VALUE,
-                DimapProductConstants.TAG_INDEX_DESCRIPTION);
+                            DimapProductConstants.TAG_INDEX_CODING,
+                            DimapProductConstants.TAG_INDEX,
+                            DimapProductConstants.TAG_INDEX_NAME,
+                            DimapProductConstants.TAG_INDEX_VALUE,
+                            DimapProductConstants.TAG_INDEX_DESCRIPTION);
         }
 
         private void addSampleCoding(Product product,

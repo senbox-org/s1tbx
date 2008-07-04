@@ -30,8 +30,11 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 
-//@todo 1 se/nf - class documentation
-
+/**
+ * Utility class for writing XML.
+ * @deprecated since BEAM 4.2, XML shall only be written via a DOM (e.g. JDOM). Used by BEAM-DIMAP product writer.
+ */
+@Deprecated
 public class XmlWriter {
 
     public final static String XML_HEADER_LINE = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>";

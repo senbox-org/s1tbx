@@ -234,7 +234,7 @@ public final class DimapProductConstants {
      *      &lt;KERNEL_DATA&gt;kernelData[]&lt;/KERNEL_DATA&gt;
      *    &lt;/Filter_Kernel&gt;
      *  &lt;/Filter_Band_Info&gt;
-     *
+     * <p/>
      * <b>GeneralFilterBand</b>
      * &lt;Filter_Band_Info bandType="GeneralFilterBand"&gt;
      *   &lt;FILTER_SOURCE&gt;bandName&lt;/FILTER_SOURCE&gt;
@@ -245,24 +245,24 @@ public final class DimapProductConstants {
      * </pre>
      * </td></tr>
      * <tr>
-     *     <td valign="top">2.2.0</td>
-     *     <td>
-     *         After a bugfixing in the ProductData classes, the DIMAP Product Format<br>
-     *         have canged the output of uInt8, uInt16, uInt32 and UTC Values.
-     *         <ul>
-     *             <li>
-     *                 Now the unsigned values are written as unsigned Values.<br>
-     *                 Formally the large unsigned values was written as complementary<br>
-     *                 negative values.
-     *             </li>
-     *             <li>
-     *                 Now the UTG Value was written as human readable text.<br>
-     *                 The UTC Value formally was written as a sequence of three values<br>
-     *                 which defines the date, the seconds an the microseconds fraction.
-     *             </li>
-     *         </ul>
-     *         In this Version it ist possible to open older formats too.
-     *     </td>
+     * <td valign="top">2.2.0</td>
+     * <td>
+     * After a bugfixing in the ProductData classes, the DIMAP Product Format<br>
+     * have canged the output of uInt8, uInt16, uInt32 and UTC Values.
+     * <ul>
+     * <li>
+     * Now the unsigned values are written as unsigned Values.<br>
+     * Formally the large unsigned values was written as complementary<br>
+     * negative values.
+     * </li>
+     * <li>
+     * Now the UTG Value was written as human readable text.<br>
+     * The UTC Value formally was written as a sequence of three values<br>
+     * which defines the date, the seconds an the microseconds fraction.
+     * </li>
+     * </ul>
+     * In this Version it ist possible to open older formats too.
+     * </td>
      * </tr>
      * <tr> <td valign="top">2.3.0</td>
      * <td> Since version 4.1 BEAM supports ground control points (GCPs),
@@ -293,15 +293,24 @@ public final class DimapProductConstants {
      *  &lt;/Bitmask_Definitions&gt;
      * </pre>
      * </td></tr>
+     * <tr>
+     * <td valign="top">2.4.0</td>
+     * <td> Since version 4.2 BEAM, we have
+     * <pre>
+     *  &lt;NO_DATA_COLOR red="234" green="25" blue="0" alpha="255" /&gt;
+     *  &lt;HISTOGRAM_MATCHING&gt;Normalize&lt;/HISTOGRAM_MATCHING&gt;
+     * </pre>
+     * </td>
+     * </tr>
      * </table>
      */
-    public final static String DIMAP_CURRENT_VERSION = "2.3.0";
+    public final static String DIMAP_CURRENT_VERSION = "2.4.0";
 
     // BEAM-Dimap default text
     public final static String DIMAP_METADATA_PROFILE = "BEAM-DATAMODEL-V1";
     public final static String DIMAP_DATASET_SERIES = "BEAM-PRODUCT";
     public final static String DATASET_PRODUCER_NAME = " ";
-//    public final static String DATASET_PRODUCER_NAME = "Brockmann-Consult | Phone +49 (04152) 889 300";
+    //    public final static String DATASET_PRODUCER_NAME = "Brockmann-Consult | Phone +49 (04152) 889 300";
     public final static String DATA_FILE_FORMAT = "ENVI";
     public final static String DATA_FILE_FORMAT_DESCRIPTION = "ENVI File Format";
     public final static String DATA_FILE_ORGANISATION = "BAND_SEPARATE";
@@ -483,6 +492,8 @@ public final class DimapProductConstants {
     public final static String TAG_SAMPLE = "SAMPLE";
     public final static String TAG_COLOR = "COLOR";
     public final static String TAG_GAMMA = "GAMMA";
+    public final static String TAG_NO_DATA_COLOR = "NO_DATA_COLOR";
+    public final static String TAG_HISTOGRAM_MATCHING = "HISTOGRAM_MATCHING";
     public final static String TAG_BITMASK_OVERLAY = "Bitmask_Overlay";
     public final static String TAG_BITMASK = "BITMASK";
     public final static String TAG_ROI_DEFINITION = "ROI_Definition";
@@ -530,14 +541,14 @@ public final class DimapProductConstants {
     public final static String TAG_VIRTUAL_BAND_INVALID_VALUE = "INVALID_VALUE";
     public final static String TAG_VIRTUAL_BAND_USE_INVALID_VALUE = "USE_INVALID_VALUE";
 
-// Filter bands support
+    // Filter bands support
     public static final String TAG_FILTER_BAND_INFO = "Filter_Band_Info";
     public static final String TAG_FILTER_SOURCE = "FILTER_SOURCE";
     public static final String TAG_FILTER_KERNEL = "Filter_Kernel";
     public static final String TAG_FILTER_SUB_WINDOW_WIDTH = "FILTER_SUB_WINDOW_WIDTH";
     public static final String TAG_FILTER_SUB_WINDOW_HEIGHT = "FILTER_SUB_WINDOW_HEIGHT";
     public static final String TAG_FILTER_OPERATOR_CLASS_NAME = "FILTER_OPERATOR_CLASS_NAME";
-    
+
     // Kernel support
     public static final String TAG_KERNEL_HEIGHT = "KERNEL_HEIGHT";
     public static final String TAG_KERNEL_WIDTH = "KERNEL_WIDTH";
@@ -598,21 +609,50 @@ public final class DimapProductConstants {
     // BEAM-Dimap gcp tags
     public final static String TAG_GCP_GROUP = "Gcp_Group";
 
-    /**@deprecated in 4.1, use {@link #TAG_PLACEMARK_LABEL} */
+    /**
+     * @deprecated in 4.1, use {@link #TAG_PLACEMARK_LABEL}
+     */
+    @Deprecated
     public final static String TAG_PIN_LABEL = TAG_PLACEMARK_LABEL;
-    /**@deprecated in 4.1, use {@link #TAG_PLACEMARK_DESCRIPTION} */
-    public final static String TAG_PIN_DESCRIPTION = TAG_PLACEMARK_DESCRIPTION;
-    /**@deprecated in 4.1, use {@link #TAG_PLACEMARK_LATITUDE} */
+    /**
+     * @deprecated in 4.1, use {@link #TAG_PLACEMARK_DESCRIPTION}
+     */
+    @Deprecated
+    public final static String TAG_PIN_DESCRIPTION;
+
+    static {
+        TAG_PIN_DESCRIPTION = TAG_PLACEMARK_DESCRIPTION;
+    }
+
+    /**
+     * @deprecated in 4.1, use {@link #TAG_PLACEMARK_LATITUDE}
+     */
+    @Deprecated
     public final static String TAG_PIN_LATITUDE = TAG_PLACEMARK_LATITUDE;
-    /**@deprecated in 4.1, use {@link #TAG_PLACEMARK_LONGITUDE} */
+    /**
+     * @deprecated in 4.1, use {@link #TAG_PLACEMARK_LONGITUDE}
+     */
+    @Deprecated
     public final static String TAG_PIN_LONGITUDE = TAG_PLACEMARK_LONGITUDE;
-    /**@deprecated in 4.1, use {@link #TAG_PLACEMARK_PIXEL_X} */
+    /**
+     * @deprecated in 4.1, use {@link #TAG_PLACEMARK_PIXEL_X}
+     */
+    @Deprecated
     public final static String TAG_PIN_PIXEL_X = TAG_PLACEMARK_PIXEL_X;
-    /**@deprecated in 4.1, use {@link #TAG_PLACEMARK_PIXEL_Y} */
+    /**
+     * @deprecated in 4.1, use {@link #TAG_PLACEMARK_PIXEL_Y}
+     */
+    @Deprecated
     public final static String TAG_PIN_PIXEL_Y = TAG_PLACEMARK_PIXEL_Y;
-    /**@deprecated in 4.1, use {@link #TAG_PLACEMARK_FILL_COLOR} */
+    /**
+     * @deprecated in 4.1, use {@link #TAG_PLACEMARK_FILL_COLOR}
+     */
+    @Deprecated
     public final static String TAG_PIN_FILL_COLOR = TAG_PLACEMARK_FILL_COLOR;
-    /**@deprecated in 4.1, use {@link #TAG_PLACEMARK_OUTLINE_COLOR} */
+    /**
+     * @deprecated in 4.1, use {@link #TAG_PLACEMARK_OUTLINE_COLOR}
+     */
+    @Deprecated
     public final static String TAG_PIN_OUTLINE_COLOR = TAG_PLACEMARK_OUTLINE_COLOR;
 
     // attribute
