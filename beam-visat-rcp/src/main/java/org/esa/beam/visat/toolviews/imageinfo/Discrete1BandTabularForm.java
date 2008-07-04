@@ -4,10 +4,7 @@ import com.jidesoft.grid.ColorCellEditor;
 import com.jidesoft.grid.ColorCellRenderer;
 import com.jidesoft.grid.SortableTable;
 import com.bc.ceres.core.Assert;
-import org.esa.beam.framework.datamodel.ColorPaletteDef;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 
 import javax.swing.*;
@@ -158,9 +155,16 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
                 final double frequency = frequencies[rowIndex];
                 return frequency / stx.getSampleCount();
             } else  if (columnIndex == 4) {
-                // todo - show description property of IndexCoding attribute here!
-                return "todo - show description property of IndexCoding attribute here!";
-
+                final RasterDataNode raster = parentForm.getProductSceneView().getRaster();
+                if (raster instanceof Band) {
+                    Band band = (Band) raster;
+                    final IndexCoding indexCoding = band.getIndexCoding();
+                    if (indexCoding != null && rowIndex < indexCoding.getSampleCount()) {
+                        final String text = indexCoding.getAttributeAt(rowIndex).getDescription();
+                        return text != null ? text : "";
+                    }
+                }
+                return "";
             }
             return null;
         }
