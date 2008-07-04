@@ -125,7 +125,7 @@ public class ProductUtils {
      * @param rasters           the array of raster data nodes to be used for image creation, if length is one a
      *                          greyscale/palette-based image is created, if the length is three, a RGB image is
      *                          created
-     * @param histogramMatching the optional histogram matching to be performed: can be either
+     * @param histogramMatchingMode the optional histogram matching to be performed: can be either
      *                          <code>ImageInfo.HISTOGRAM_MATCHING_EQUALIZE</code> or <code>ImageInfo.HISTOGRAM_MATCHING_NORMALIZE</code>.
      *                          If this parameter is <code>null</code> or any other value, no histogram matching is
      *                          applied.
@@ -139,12 +139,12 @@ public class ProductUtils {
      */
     @Deprecated
     public static RenderedImage createOverlayedImage(final RasterDataNode[] rasters,
-                                                     final String histogramMatching,
+                                                     final String histogramMatchingMode,
                                                      final ProgressMonitor pm) throws IOException {
         pm.beginTask(MSG_CREATING_IMAGE, 4);
         try {
             ImageInfo imageInfo = createImageInfo(rasters, true, SubProgressMonitor.create(pm, 1));
-            imageInfo.setHistogramMatching(histogramMatching == null ? ImageInfo.HISTOGRAM_MATCHING_OFF : histogramMatching);
+            imageInfo.setHistogramMatching(ImageInfo.getHistogramMatching(histogramMatchingMode));
             return createRgbImage(rasters, imageInfo, SubProgressMonitor.create(pm, 3));
         } finally {
             pm.done();
@@ -510,9 +510,9 @@ public class ProductUtils {
         return new BufferedImage(cm, wr, false, null);
     }
 
-    private static BufferedImage applyHistogramMatching(BufferedImage overlayBIm, String histogramMatching) {
-        final boolean doEqualize = ImageInfo.HISTOGRAM_MATCHING_EQUALIZE.equalsIgnoreCase(histogramMatching);
-        final boolean doNormalize = ImageInfo.HISTOGRAM_MATCHING_NORMALIZE.equalsIgnoreCase(histogramMatching);
+    private static BufferedImage applyHistogramMatching(BufferedImage overlayBIm, ImageInfo.HistogramMatching histogramMatching) {
+        final boolean doEqualize = ImageInfo.HistogramMatching.Equalize == histogramMatching;
+        final boolean doNormalize = ImageInfo.HistogramMatching.Normalize == histogramMatching;
         if (doEqualize || doNormalize) {
             PlanarImage sourcePIm = PlanarImage.wrapRenderedImage(overlayBIm);
             sourcePIm = JAIUtils.createTileFormatOp(sourcePIm, 512, 512);

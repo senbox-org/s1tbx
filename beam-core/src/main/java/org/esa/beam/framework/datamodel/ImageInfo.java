@@ -29,9 +29,24 @@ public class ImageInfo implements Cloneable {
 
     public static final Color NO_COLOR = new Color(0, 0, 0, 0);
 
+    /**
+     * @deprecated since BEAM 4.2, use enum {@link HistogramMatching}
+     */
+    @Deprecated
     public static final String HISTOGRAM_MATCHING_OFF = "off";
+    @Deprecated
     public static final String HISTOGRAM_MATCHING_EQUALIZE = "equalize";
+    @Deprecated
     public static final String HISTOGRAM_MATCHING_NORMALIZE = "normalize";
+
+    /**
+     * Enumerates the possible histogram matching modes.
+     */
+    public enum HistogramMatching {
+        None,
+        Equalize,
+        Normalize
+    }
 
     private ColorPaletteDef colorPaletteDef;
     // todo - save in DIMAP   (nf/mp - 26.06.2008)
@@ -39,12 +54,9 @@ public class ImageInfo implements Cloneable {
     // todo - save in DIMAP   (nf/mp - 26.06.2008)
     private Color noDataColor;
     // todo - include in module and DIMAP XML (nf/mp - 26.06.2008)
-    // todo - use enum (nf/mp - 26.06.2008)
-    private String histogramMatching;
+    private HistogramMatching histogramMatching;
 
-    //todo - this GUI code, move this elsewhere (nf/mp - 26.06.2008)
-    // Color palette view properties.
-    // Used by ContrastStretchPane, properties currently not saved in DIMAP.
+    // The following properties have been moved to org.esa.beam.visat.toolviews.imageinfo.ImageInfoEditorModel
     @Deprecated
     private Float histogramViewGain;
     @Deprecated
@@ -52,7 +64,7 @@ public class ImageInfo implements Cloneable {
     @Deprecated
     private Float maxHistogramViewSample;
 
-    // todo - move to RasterDataNode.Statistics (nf/mp - 26.06.2008)
+    // The following properties have been moved to RasterDataNode.Stx.
     @Deprecated
     private float minSample;
     @Deprecated
@@ -70,7 +82,7 @@ public class ImageInfo implements Cloneable {
         this.colorPaletteDef = colorPaletteDef;
         this.rgbChannelDef = null;
         this.noDataColor = NO_COLOR;
-        this.histogramMatching = ImageInfo.HISTOGRAM_MATCHING_OFF;
+        this.histogramMatching = HistogramMatching.None;
     }
 
     /**
@@ -83,7 +95,7 @@ public class ImageInfo implements Cloneable {
         this.colorPaletteDef = null;
         this.rgbChannelDef = rgbChannelDef;
         this.noDataColor = NO_COLOR;
-        this.histogramMatching = ImageInfo.HISTOGRAM_MATCHING_OFF;
+        this.histogramMatching = HistogramMatching.None;
     }
 
 
@@ -168,7 +180,7 @@ public class ImageInfo implements Cloneable {
         this.rgbChannelDef = null;
         this.colorPaletteDef = colorPaletteDef;
         this.noDataColor = null;
-        this.histogramMatching = ImageInfo.HISTOGRAM_MATCHING_OFF;
+        this.histogramMatching = HistogramMatching.None;
 
         this.minSample = minSample;
         this.maxSample = maxSample;
@@ -204,11 +216,11 @@ public class ImageInfo implements Cloneable {
         this.noDataColor = noDataColor;
     }
 
-    public String getHistogramMatching() {
+    public HistogramMatching getHistogramMatching() {
         return histogramMatching;
     }
 
-    public void setHistogramMatching(String histogramMatching) {
+    public void setHistogramMatching(HistogramMatching histogramMatching) {
         Assert.notNull(histogramMatching, "histogramMatching");
         this.histogramMatching = histogramMatching;
     }
@@ -375,6 +387,22 @@ public class ImageInfo implements Cloneable {
             }
         }
     }
+
+    /**
+     * Converts a string to a histogram matching.
+     * @param mode  the histogram matching string
+     * @return the histogram matching. {@link ImageInfo.HistogramMatching#None} if {@code maode} is not "Equalize" or "Normalize".
+     */
+    public static ImageInfo.HistogramMatching getHistogramMatching(String mode) {
+         ImageInfo.HistogramMatching histogramMatchingEnum = ImageInfo.HistogramMatching.None;
+         if ("Equalize".equalsIgnoreCase(mode)) {
+               histogramMatchingEnum = ImageInfo.HistogramMatching.Equalize;
+         } else if ("Normalize".equalsIgnoreCase(mode)) {
+               histogramMatchingEnum = ImageInfo.HistogramMatching.Normalize;
+         }
+         return histogramMatchingEnum;
+     }
+
 
     /////////////////////////////////////////////////////////////////////////
     // DEPRECATED API!!!

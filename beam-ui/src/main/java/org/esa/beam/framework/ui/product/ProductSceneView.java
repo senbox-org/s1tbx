@@ -263,17 +263,25 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
     }
 
     public boolean isRGB() {
-        return sceneImage.getRasters().length == 3;
+        return sceneImage.getRasters().length >= 3;
     }
 
+    /**
+     * @deprecated since BEAM 4.2, no replacement
+     * @return {@code sceneImage.getImageInfo().getHistogramMatching().toString()}
+     */
     @Deprecated
     public String getHistogramMatching() {
-        return sceneImage.getImageInfo().getHistogramMatching();
+        return sceneImage.getImageInfo().getHistogramMatching().toString();
     }
 
+    /**
+     * @deprecated since BEAM 4.2, no replacement
+     * @param histogramMatching  histogram matching
+     */
     @Deprecated
     public void setHistogramMatching(String histogramMatching) {
-        sceneImage.getImageInfo().setHistogramMatching(histogramMatching == null ? ImageInfo.HISTOGRAM_MATCHING_OFF : histogramMatching);
+        sceneImage.getImageInfo().setHistogramMatching(ImageInfo.getHistogramMatching(histogramMatching));
     }
 
     public boolean isNoDataOverlayEnabled() {

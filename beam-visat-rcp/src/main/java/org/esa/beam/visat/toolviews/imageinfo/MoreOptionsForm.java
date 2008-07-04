@@ -33,15 +33,16 @@ class MoreOptionsForm {
         this.parentForm = parentForm;
         ValueContainer valueContainer = new ValueContainer();
         valueContainer.addModel(ValueModel.createModel(NO_DATA_COLOR_PROPERTY, ImageInfo.NO_COLOR));
-        valueContainer.addModel(ValueModel.createModel(HISTOGRAM_MATCHING_PROPERTY, ImageInfo.HISTOGRAM_MATCHING_OFF));
+        valueContainer.addModel(ValueModel.createModel(HISTOGRAM_MATCHING_PROPERTY, ImageInfo.HistogramMatching.None));
 
         valueContainer.getModel(HISTOGRAM_MATCHING_PROPERTY).getDescriptor().setNotNull(true);
         valueContainer.getModel(HISTOGRAM_MATCHING_PROPERTY).getDescriptor().setValueSet(new ValueSet(
-                new String[]{
-                        ImageInfo.HISTOGRAM_MATCHING_OFF,
-                        ImageInfo.HISTOGRAM_MATCHING_EQUALIZE,
-                        ImageInfo.HISTOGRAM_MATCHING_NORMALIZE
-                }));
+                new ImageInfo.HistogramMatching[]{
+                        ImageInfo.HistogramMatching.None,
+                        ImageInfo.HistogramMatching.Equalize,
+                        ImageInfo.HistogramMatching.Normalize,
+                })
+        );
 
 
         JLabel noDataColorLabel = new JLabel("No-data colour: ");
@@ -118,12 +119,12 @@ class MoreOptionsForm {
         getBindingContext().getBinding(NO_DATA_COLOR_PROPERTY).setValue(color);
     }
 
-    public String getHistogramMatching() {
-        return (String) getBindingContext().getBinding(HISTOGRAM_MATCHING_PROPERTY).getValue();
+    public ImageInfo.HistogramMatching getHistogramMatching() {
+        return (ImageInfo.HistogramMatching) getBindingContext().getBinding(HISTOGRAM_MATCHING_PROPERTY).getValue();
     }
 
-    public void setHistogramMatching(String mode) {
-        getBindingContext().getBinding(HISTOGRAM_MATCHING_PROPERTY).setValue(mode);
+    public void setHistogramMatching(ImageInfo.HistogramMatching histogramMatching) {
+        getBindingContext().getBinding(HISTOGRAM_MATCHING_PROPERTY).setValue(histogramMatching);
     }
 
     public JPanel getContentPanel() {
