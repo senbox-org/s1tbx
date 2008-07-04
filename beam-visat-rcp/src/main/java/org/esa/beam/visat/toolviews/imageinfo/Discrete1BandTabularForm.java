@@ -2,6 +2,7 @@ package org.esa.beam.visat.toolviews.imageinfo;
 
 import com.jidesoft.grid.ColorCellEditor;
 import com.jidesoft.grid.ColorCellRenderer;
+import com.jidesoft.grid.SortableTable;
 import com.bc.ceres.core.Assert;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
@@ -30,7 +31,7 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
         applyEnablerTML = parentForm.createApplyEnablerTableModelListener();
         moreOptionsForm = new MoreOptionsForm(parentForm);
 
-        final JTable table = new JTable(tableModel);
+        final JTable table = new SortableTable(tableModel);
         final ColorCellRenderer colorCellRenderer = new ColorCellRenderer();
         colorCellRenderer.setColorValueVisible(false);
         table.setDefaultRenderer(Color.class, colorCellRenderer);
