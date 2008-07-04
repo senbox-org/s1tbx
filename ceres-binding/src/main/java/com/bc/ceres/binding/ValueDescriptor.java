@@ -241,6 +241,40 @@ public class ValueDescriptor {
         return this.propertyChangeSupport.getPropertyChangeListeners();
     }
 
+
+    /////////////////////////////////////////////////////////////////////////
+    // Package Local
+
+    static ValueDescriptor createValueDescriptor(String name, Class<? extends Object> type) {
+        final ValueDescriptor valueDescriptor = new ValueDescriptor(name, type);
+        valueDescriptor.initialize();
+        return valueDescriptor;
+    }
+
+    static ValueDescriptor createValueDescriptor(Field field, ClassFieldDescriptorFactory factory) {
+        final ValueDescriptor valueDescriptor = factory.createValueDescriptor(field);
+        if (valueDescriptor == null) {
+            return null;
+        }
+        valueDescriptor.initialize();
+        return valueDescriptor;
+    }
+
+    /////////////////////////////////////////////////////////////////////////
+    // Private
+
+    private void initialize() {
+        if (getConverter() == null) {
+            setDefaultConverter();
+        }
+        if (getValidator() == null) {
+            setValidator(createValidator(this));
+        }
+        if (getDefaultValue() == null && getType().isPrimitive()) {
+            setDefaultValue(ValueModel.PRIMITIVE_ZERO_VALUES.get(getType()));
+        }
+    }
+
     private void firePropertyChange(String propertyName, Object newValue, Object oldValue) {
         if (propertyChangeSupport == null) {
             return;
@@ -261,7 +295,7 @@ public class ValueDescriptor {
         return v != null && (Boolean) v;
     }
 
-    static Validator createValidator(ValueDescriptor vd) {
+    private static Validator createValidator(ValueDescriptor vd) {
         List<Validator> validators = new ArrayList<Validator>(3);
     
         validators.add(new TypeValidator());
@@ -299,30 +333,4 @@ public class ValueDescriptor {
         return validator;
     }
 
-    static void initValueDescriptor(ValueDescriptor valueDescriptor) {
-        if (valueDescriptor.getConverter() == null) {
-            valueDescriptor.setDefaultConverter();
-        }
-        if (valueDescriptor.getValidator() == null) {
-            valueDescriptor.setValidator(createValidator(valueDescriptor));
-        }
-        if (valueDescriptor.getDefaultValue() == null && valueDescriptor.getType().isPrimitive()) {
-            valueDescriptor.setDefaultValue(ValueModel.PRIMITIVE_ZERO_VALUES.get(valueDescriptor.getType()));
-        }
-    }
-
-    static ValueDescriptor createValueDescriptor(String name, Class<? extends Object> type) {
-        final ValueDescriptor valueDescriptor = new ValueDescriptor(name, type);
-        initValueDescriptor(valueDescriptor);
-        return valueDescriptor;
-    }
-
-    static ValueDescriptor createValueDescriptor(Field field, ClassFieldDescriptorFactory factory) {
-        final ValueDescriptor valueDescriptor = factory.createValueDescriptor(field);
-        if (valueDescriptor == null) {
-            return null;
-        }
-        initValueDescriptor(valueDescriptor);
-        return valueDescriptor;
-    }
 }

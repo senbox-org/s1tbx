@@ -46,28 +46,28 @@ public class ValueModel {
 
     public static ValueModel createClassFieldModel(Object object, String name) {
         final Field field = getField(object, name);
-        return createModel(new ValueDescriptor(name, field.getType()), new ClassFieldAccessor(object, field));
+        return createModel(createValueDescriptor(name, field.getType()), new ClassFieldAccessor(object, field));
     }
 
     public static ValueModel createClassFieldModel(Object object, String name, Object value) {
         final Field field = getField(object, name);
-        return createModel(new ValueDescriptor(name, field.getType()), new ClassFieldAccessor(object, field), value);
+        return createModel(createValueDescriptor(name, field.getType()), new ClassFieldAccessor(object, field), value);
     }
 
     public static ValueModel createMapEntryModel(Map<String, Object> map, String name, Class<?> type) {
-        return createModel(new ValueDescriptor(name, type), new MapEntryAccessor(map, name), null);
+        return createModel(createValueDescriptor(name, type), new MapEntryAccessor(map, name), null);
     }
 
     public static ValueModel createMapEntryModel(Map<String, Object> map, String name, Class<?> type, Object value) {
-        return createModel(new ValueDescriptor(name, type), new MapEntryAccessor(map, name), value);
+        return createModel(createValueDescriptor(name, type), new MapEntryAccessor(map, name), value);
     }
 
     public static ValueModel createModel(String name, Class<?> type) {
-        return createModel(new ValueDescriptor(name, type), new DefaultValueAccessor(), null);
+        return createModel(createValueDescriptor(name, type), new DefaultValueAccessor(), null);
     }
 
     public static ValueModel createModel(String name, Object value) {
-        return createModel(new ValueDescriptor(name, value.getClass()), new DefaultValueAccessor(), value);
+        return createModel(createValueDescriptor(name, value.getClass()), new DefaultValueAccessor(), value);
     }
 
     public ValueDescriptor getDescriptor() {
@@ -145,6 +145,10 @@ public class ValueModel {
     @Override
     public String toString() {
         return getClass().getName() + "[name=" + getDescriptor().getName() + ",value=" + getValueAsText() + "]";
+    }
+
+    private static ValueDescriptor createValueDescriptor(String name, Class<?> type) {
+        return new ValueDescriptor(name, type);
     }
 
     private static ValueModel createModel(ValueDescriptor descriptor, ValueAccessor accessor) {
