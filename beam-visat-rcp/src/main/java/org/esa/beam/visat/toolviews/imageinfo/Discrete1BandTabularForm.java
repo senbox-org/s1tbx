@@ -104,8 +104,8 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
         }
     }
 
-    private static final String[] COLUMN_NAMES = new String[]{"Label", "Color", "Value", "Freq."};
-    private static final Class<?>[] COLUMN_TYPES = new Class<?>[]{String.class, Color.class, String.class, Double.class};
+    private static final String[] COLUMN_NAMES = new String[]{"Label", "Color", "Value", "Frequency", "Description"};
+    private static final Class<?>[] COLUMN_TYPES = new Class<?>[]{String.class, Color.class, String.class, Double.class, String.class};
 
     private class ImageInfoTableModel extends AbstractTableModel {
 
@@ -156,8 +156,11 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
                 final int[] frequencies = stx.getSampleFrequencies();
                 Assert.notNull(frequencies, "frequencies");
                 final double frequency = frequencies[rowIndex];
-                final double numPixels = raster.getSceneRasterWidth() * raster.getSceneRasterHeight();
-                return frequency / numPixels;
+                return frequency / stx.getSampleCount();
+            } else  if (columnIndex == 4) {
+                // todo - show description property of IndexCoding attribute here!
+                return "todo - show description property of IndexCoding attribute here!";
+
             }
             return null;
         }

@@ -22,6 +22,7 @@ import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.util.Guardian;
+import org.esa.beam.util.math.IndexValidator;
 
 import java.awt.Color;
 import java.awt.Rectangle;
@@ -522,12 +523,15 @@ public class Band extends AbstractBand {
 
         processRasterData("Computing statistics for band '" + getDisplayName() + "'", new RasterDataProcessor() {
             public void processRasterDataBuffer(ProductData buffer, int y0, int numLines, ProgressMonitor pm) throws IOException {
+                final IndexValidator pixelValidator = createPixelValidator(y0, null);
                 final int n = buffer.getNumElems();
                 for (int i = 0; i < n; i++) {
-                    final int sample = buffer.getElemIntAt(i);
-                    final int[] bin = sampleMap.get(sample);
-                    if (bin != null) {
-                        bin[0] += 1;
+                    if (pixelValidator.validateIndex(i)) {
+                        final int sample = buffer.getElemIntAt(i);
+                        final int[] bin = sampleMap.get(sample);
+                        if (bin != null) {
+                            bin[0] += 1;
+                        }
                     }
                 }
             }

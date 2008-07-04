@@ -2561,18 +2561,18 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         private final double sampleMin;
         private final double sampleMax;
         private final int[] sampleFrequencies;
-        private final double sampleFrequenciesSum;
+        private final long sampleCount;
         private boolean dirty;
 
         public Stx(double sampleMin, double sampleMax, int[] sampleFrequencies) {
             this.sampleMin = sampleMin;
             this.sampleMax = sampleMax;
             this.sampleFrequencies = sampleFrequencies;
-            double sum = 0;
+            long sum = 0;
             for (int sampleFrequency : sampleFrequencies) {
                 sum += sampleFrequency;
             }
-            sampleFrequenciesSum = sum;
+            sampleCount = sum;
             dirty = false;
         }
 
@@ -2588,8 +2588,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             return sampleFrequencies;
         }
 
-        public double getSampleFrequenciesSum() {
-            return sampleFrequenciesSum;
+        public long getSampleCount() {
+            return sampleCount;
         }
 
         public boolean isDirty() {
