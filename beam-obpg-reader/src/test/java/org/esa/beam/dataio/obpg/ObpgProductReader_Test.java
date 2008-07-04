@@ -82,6 +82,7 @@ public class ObpgProductReader_Test extends TestCase {
         order.verify(obpgUtilsMock, times(1)).addScientificMetadata(prodRet, sdsInfos);
         order.verify(obpgUtilsMock, times(1)).addBands(prodRet, sdsInfos);
         order.verify(obpgUtilsMock, times(1)).addGeocoding(prodRet, sdsInfos);
+        order.verify(obpgUtilsMock, times(1)).addBismaskDefinitions(prodRet);
         order.verify(obpgUtilsMock, times(1)).closeHdfFile(fileID);
         verifyNoMoreInteractions(obpgUtilsMock);
     }

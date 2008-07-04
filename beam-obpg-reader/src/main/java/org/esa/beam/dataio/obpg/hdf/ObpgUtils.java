@@ -44,7 +44,8 @@ public class ObpgUtils {
     static final String KEY_TYPE = "Title";
     static final String KEY_WIDTH = "Pixels per Scan Line";
     static final String KEY_HEIGHT = "Number of Scan Lines";
-    static final String SCIENTIFIC_METADATA = "Scientific_Metadata";
+    static final String SENSOR_BAND_PARAMETERS = "Sensor_Band_Parameters";
+    static final String SCAN_LINE_ATTRIBUTES = "Scan_Line_Attributes";
 
     HdfFacade hdf = new HdfFacade();
 
@@ -193,11 +194,13 @@ public class ObpgUtils {
         } else if (sceneRasterHeight == null) {
             throw new ProductIOException("Global attribute <" + KEY_HEIGHT + "> is missing");
         }
-        return new Product(productName, productType, sceneRasterWidth, sceneRasterHeight);
+        final Product product = new Product(productName, productType, sceneRasterWidth, sceneRasterHeight);
+        product.setDescription(productName);
+        return product;
     }
 
     public void addGlobalMetadata(final Product product, final List<HdfAttribute> globalAttributes) {
-        final MetadataElement globalElement = new MetadataElement("GlobalAttributes");
+        final MetadataElement globalElement = new MetadataElement("Global_Attributes");
         addAttributesToElement(globalAttributes, globalElement);
 
         final MetadataElement metadataRoot = product.getMetadataRoot();
@@ -237,25 +240,26 @@ public class ObpgUtils {
     }
 
     public void addScientificMetadata(final Product product, final SdsInfo[] sdsInfos) throws HDFException {
-        final MetadataElement metadataElement = product.getMetadataRoot().getElement(SCIENTIFIC_METADATA);
-        final MetadataElement scientific;
-        if (metadataElement == null) {
-            scientific = new MetadataElement(SCIENTIFIC_METADATA);
-            product.getMetadataRoot().addElement(scientific);
-        } else {
-            scientific = metadataElement;
-        }
+        final int numLines = product.getSceneRasterHeight();
+        final MetadataElement sensorBandParam = getMetadataElementSave(product, SENSOR_BAND_PARAMETERS);
+        final MetadataElement scanLineAttrib = getMetadataElementSave(product, SCAN_LINE_ATTRIBUTES);
         for (SdsInfo sdsInfo : sdsInfos) {
             if (sdsInfo.getNumDimensions() == 1) {
                 final String name = sdsInfo.getName();
-                final MetadataElement sdsElement = new MetadataElement(name);
-                scientific.addElement(sdsElement);
 
                 final int dataType = decodeHdfDataType(sdsInfo.getHdfDataType());
-                final ProductData data = ProductData.createInstance(dataType, sdsInfo.getDimensions()[0]);
+                final int size = sdsInfo.getDimensions()[0];
+                final ProductData data = ProductData.createInstance(dataType, size);
                 hdf.readProductData(sdsInfo, data);
                 final MetadataAttribute attribute = new MetadataAttribute("data", data, true);
+
+                final MetadataElement sdsElement = new MetadataElement(name);
                 sdsElement.addAttribute(attribute);
+                if (size == numLines) {
+                    scanLineAttrib.addElement(sdsElement);
+                } else {
+                    sensorBandParam.addElement(sdsElement);
+                }
 
                 final List<HdfAttribute> list = hdf.readAttributes(sdsInfo.getSdsID(), sdsInfo.getNumAttributes());
                 for (HdfAttribute hdfAttribute : list) {
@@ -272,10 +276,23 @@ public class ObpgUtils {
         }
     }
 
+    private MetadataElement getMetadataElementSave(Product product, String name) {
+        final MetadataElement metadataElement = product.getMetadataRoot().getElement(name);
+        final MetadataElement namedElem;
+        if (metadataElement == null) {
+            namedElem = new MetadataElement(name);
+            product.getMetadataRoot().addElement(namedElem);
+        } else {
+            namedElem = metadataElement;
+        }
+        return namedElem;
+    }
+
     public Map<Band, ObpgBandReader> addBands(final Product product, final SdsInfo[] sdsInfos) throws HDFException {
         final HashMap<Band, ObpgBandReader> readerMap = new HashMap<Band, ObpgBandReader>();
         final int sceneRasterWidth = product.getSceneRasterWidth();
         final int sceneRasterHeight = product.getSceneRasterHeight();
+        int spectralBandIndex = 0;
         for (SdsInfo sdsInfo : sdsInfos) {
             if (sdsInfo.getNumDimensions() == 2) {
                 final int[] dimensions = sdsInfo.getDimensions();
@@ -286,6 +303,12 @@ public class ObpgUtils {
                     final int dataType = decodeHdfDataType(sdsInfo.getHdfDataType());
                     final Band band = new Band(name, dataType, width, height);
                     product.addBand(band);
+                    if (name.matches("nLw_\\d{3,}")) {
+                        final float wavelength = Float.parseFloat(name.substring(4));
+                        band.setSpectralWavelength(wavelength);
+                        band.setSpectralBandIndex(spectralBandIndex++);
+                    }
+
                     final ObpgBandReader[] bandReaders = ObpgBandReaderFactory.getReaders(sdsInfo, dataType);
                     readerMap.put(band, bandReaders[0]);
                     final List<HdfAttribute> list = hdf.readAttributes(sdsInfo.getSdsID(), sdsInfo.getNumAttributes());
@@ -302,7 +325,7 @@ public class ObpgUtils {
                             band.setScalingOffset(hdfAttribute.getDoubleValues()[0]);
                         } else if (attribName.matches("f\\d\\d_name")) {
                             if (flagCoding == null) {
-                                flagCoding = new FlagCoding("Coding_" + name);
+                                flagCoding = new FlagCoding(name);
                             }
                             final String flagName = hdfAttribute.getStringValue();
                             final int flagMask = convertToFlagMask(attribName);
@@ -338,7 +361,7 @@ public class ObpgUtils {
         final Band latBand = product.addBand(latitudeSds.getName(), ProductData.TYPE_FLOAT32);
         final Band lonBand = product.addBand(longitudeSds.getName(), ProductData.TYPE_FLOAT32);
 
-        final MetadataElement scientificElement = product.getMetadataRoot().getElement(SCIENTIFIC_METADATA);
+        final MetadataElement scientificElement = product.getMetadataRoot().getElement(SENSOR_BAND_PARAMETERS);
         final MetadataElement cntlPointElem = scientificElement.getElement("cntl_pt_cols");
         final MetadataAttribute attribute = cntlPointElem.getAttribute("data");
         final int[] colPoints = (int[]) attribute.getDataElems();
@@ -346,6 +369,10 @@ public class ObpgUtils {
         computeLatLonBandData(latBand, lonBand, latRawData, lonRawData, colPoints);
 
         product.setGeoCoding(new PixelGeoCoding(latBand, lonBand, null, 5, ProgressMonitor.NULL));
+    }
+
+    public void addBismaskDefinitions(Product product) {
+        //@todo   
     }
 
     private void computeLatLonBandData(final Band latBand, final Band lonBand,

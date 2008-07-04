@@ -18,6 +18,7 @@ import org.esa.beam.dataio.obpg.hdf.ObpgUtils;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
+import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.logging.BeamLogManager;
 
@@ -34,6 +35,13 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
     public static final String READER_DESCRIPTION = "NASA OBPG Level-2 Data Products";
     public static final String FORMAT_NAME = "NASA_OBPG";
 
+    private static final String[] magicStrings = {
+                "MODISA Level-2 Data",
+                "MODIST Level-2 Data",
+                "SeaWiFS Level-2 Data",
+                "CZCS Level-2 Data",
+                "OCTS Level-2 Data"
+    };
 
     private static boolean hdfLibAvailable = false;
 
@@ -84,14 +92,11 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
                     if ("Title".equals(hdfAttribute.getName())) {
                         final String value = hdfAttribute.getStringValue();
                         if (value != null) {
-                            if (value.startsWith("MODISA Level-2 Data")
-                                || value.startsWith("MODIST Level-2 Data")
-                                    || value.startsWith("SeaWiFS Level-2 Data")
-                                    || value.startsWith("CZCS Level-2 Data")
-                                || value.startsWith("OCTS Level-2 Data")) {
+                            if (StringUtils.containsIgnoreCase(magicStrings, value.trim())) {
                                 return DecodeQualification.INTENDED;
                             }
                         }
+                        break;
                     }
                 }
             } finally {

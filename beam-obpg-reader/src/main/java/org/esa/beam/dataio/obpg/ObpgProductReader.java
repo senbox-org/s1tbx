@@ -69,6 +69,7 @@ public class ObpgProductReader extends AbstractProductReader {
                 obpgUtils.addScientificMetadata(product, sdsInfos);
                 readerMap = obpgUtils.addBands(product, sdsInfos);
                 obpgUtils.addGeocoding(product, sdsInfos);
+                obpgUtils.addBismaskDefinitions(product);
                 return product;
             } finally {
                 obpgUtils.closeHdfFile(fileId);

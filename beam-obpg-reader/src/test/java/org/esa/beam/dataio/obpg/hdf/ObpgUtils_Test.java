@@ -63,7 +63,7 @@ public class ObpgUtils_Test extends TestCase {
         final ObpgUtils obpgUtils = new ObpgUtils();
         obpgUtils.addGlobalMetadata(product, globalAttributes);
 
-        final MetadataElement globalElement = product.getMetadataRoot().getElement("GlobalAttributes");
+        final MetadataElement globalElement = product.getMetadataRoot().getElement("Global_Attributes");
         assertNotNull(globalElement);
         assertEquals(0, globalElement.getNumElements());
         assertEquals(4, globalElement.getNumAttributes());
