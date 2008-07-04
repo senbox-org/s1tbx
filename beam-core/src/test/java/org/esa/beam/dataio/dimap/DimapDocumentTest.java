@@ -1257,11 +1257,11 @@ public class DimapDocumentTest extends TestCase {
                     Element bandStatisticsElem = new Element(DimapProductConstants.TAG_BAND_STATISTICS);
                     imageDisplayElem.addContent(bandStatisticsElem);
                     JDomHelper.addElement(DimapProductConstants.TAG_BAND_INDEX, i, bandStatisticsElem);
-                    JDomHelper.addElement(DimapProductConstants.TAG_STX_MIN, imageInfo.getMinSample(),
+                    JDomHelper.addElement(DimapProductConstants.TAG_STX_MIN, band.getStx().getMinSample(),
                                           bandStatisticsElem);
-                    JDomHelper.addElement(DimapProductConstants.TAG_STX_MAX, imageInfo.getMaxSample(),
+                    JDomHelper.addElement(DimapProductConstants.TAG_STX_MAX, band.getStx().getMaxSample(),
                                           bandStatisticsElem);
-                    final int[] bins = imageInfo.getHistogramBins();
+                    final int[] bins = band.getStx().getSampleFrequencies();
                     if (bins != null && bins.length > 0) {
                         JDomHelper.addElement(DimapProductConstants.TAG_HISTOGRAM, StringUtils.arrayToCsv(bins),
                                               bandStatisticsElem);

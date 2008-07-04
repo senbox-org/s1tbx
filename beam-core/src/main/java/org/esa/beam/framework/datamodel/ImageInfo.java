@@ -7,7 +7,6 @@
 package org.esa.beam.framework.datamodel;
 
 import com.bc.ceres.core.Assert;
-import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.math.Histogram;
 import org.esa.beam.util.math.MathUtils;
@@ -51,9 +50,7 @@ public class ImageInfo implements Cloneable {
     private ColorPaletteDef colorPaletteDef;
     // todo - save in DIMAP   (nf/mp - 26.06.2008)
     private RGBChannelDef rgbChannelDef;
-    // todo - save in DIMAP   (nf/mp - 26.06.2008)
     private Color noDataColor;
-    // todo - include in module and DIMAP XML (nf/mp - 26.06.2008)
     private HistogramMatching histogramMatching;
 
     // The following properties have been moved to org.esa.beam.visat.toolviews.imageinfo.ImageInfoEditorModel
@@ -96,95 +93,6 @@ public class ImageInfo implements Cloneable {
         this.rgbChannelDef = rgbChannelDef;
         this.noDataColor = NO_COLOR;
         this.histogramMatching = HistogramMatching.None;
-    }
-
-
-    /**
-     * Constructs a new basic display information instance.
-     *
-     * @param minSample     the statistical minimum sample value
-     * @param maxSample     the statistical maximum sample value
-     * @param histogramBins the histogram pixel counts, can be <code>null</code>
-     * @deprecated since BEAM 4.2, statistical information is now available via {@link RasterDataNode#getStx()}
-     */
-    @Deprecated
-    public ImageInfo(float minSample,
-                     float maxSample,
-                     int[] histogramBins) {
-        this(minSample,
-             maxSample,
-             histogramBins,
-             new ColorPaletteDef(256, minSample, maxSample));
-    }
-
-    // todo - remove from BEAM code
-    /**
-     * Constructs a new basic display information instance.
-     *
-     * @param minSample          the statistical minimum sample value
-     * @param maxSample          the statistical maximum sample value
-     * @param histogramBins      the histogram pixel counts, can be <code>null</code>
-     * @param numColors          the number of colors for the color palette
-     * @param colorPalettePoints the points of the gradation curve
-     * @deprecated since BEAM 4.2, statistical information is now available via {@link RasterDataNode#getStx()}
-     */
-    @Deprecated
-    public ImageInfo(float minSample,
-                     float maxSample,
-                     int[] histogramBins,
-                     int numColors,
-                     ColorPaletteDef.Point[] colorPalettePoints) {
-        this(minSample,
-             maxSample,
-             histogramBins,
-             new ColorPaletteDef(colorPalettePoints, numColors));
-    }
-
-    // todo - remove from BEAM code
-    /**
-     * Constructs a new basic display information instance.
-     *
-     * @param minSample       the statistical minimum sample value
-     * @param maxSample       the statistical maximum sample value
-     * @param histogramBins   the histogram pixel counts, can be <code>null</code>
-     * @param numColors       the number of colors for the color palette
-     * @param colorPaletteDef the color palette definition
-     * @deprecated since BEAM 4.2, statistical information is now available via {@link RasterDataNode#getStx()}
-     */
-    @Deprecated
-    public ImageInfo(float minSample,
-                     float maxSample,
-                     int[] histogramBins,
-                     int numColors,
-                     ColorPaletteDef colorPaletteDef) {
-        this(minSample, maxSample, histogramBins, colorPaletteDef);
-        this.colorPaletteDef.setNumColors(numColors);
-    }
-
-    // todo - remove from BEAM code
-    /**
-     * Constructs a new basic display information instance.
-     *
-     * @param minSample       the statistical minimum sample value
-     * @param maxSample       the statistical maximum sample value
-     * @param histogramBins   the histogram pixel counts, can be <code>null</code>
-     * @param colorPaletteDef the color palette definition
-     * @deprecated since BEAM 4.2, statistical information is now available via {@link RasterDataNode#getStx()}
-     */
-    @Deprecated
-    public ImageInfo(float minSample,
-                     float maxSample,
-                     int[] histogramBins,
-                     ColorPaletteDef colorPaletteDef) {
-        Guardian.assertNotNull("colorPaletteDef", colorPaletteDef);
-        this.rgbChannelDef = null;
-        this.colorPaletteDef = colorPaletteDef;
-        this.noDataColor = null;
-        this.histogramMatching = HistogramMatching.None;
-
-        this.minSample = minSample;
-        this.maxSample = maxSample;
-        this.histogramBins = histogramBins;
     }
 
     /**
@@ -333,7 +241,6 @@ public class ImageInfo implements Cloneable {
      * <p>Overrides of this method should always call <code>super.dispose();</code> after disposing this instance.
      */
     public void dispose() {
-        histogramBins = null;
         if (colorPaletteDef != null) {
             colorPaletteDef.dispose();
         }
@@ -390,19 +297,19 @@ public class ImageInfo implements Cloneable {
 
     /**
      * Converts a string to a histogram matching.
-     * @param mode  the histogram matching string
+     *
+     * @param mode the histogram matching string
      * @return the histogram matching. {@link ImageInfo.HistogramMatching#None} if {@code maode} is not "Equalize" or "Normalize".
      */
     public static ImageInfo.HistogramMatching getHistogramMatching(String mode) {
-         ImageInfo.HistogramMatching histogramMatchingEnum = ImageInfo.HistogramMatching.None;
-         if ("Equalize".equalsIgnoreCase(mode)) {
-               histogramMatchingEnum = ImageInfo.HistogramMatching.Equalize;
-         } else if ("Normalize".equalsIgnoreCase(mode)) {
-               histogramMatchingEnum = ImageInfo.HistogramMatching.Normalize;
-         }
-         return histogramMatchingEnum;
-     }
-
+        ImageInfo.HistogramMatching histogramMatchingEnum = ImageInfo.HistogramMatching.None;
+        if ("Equalize".equalsIgnoreCase(mode)) {
+            histogramMatchingEnum = ImageInfo.HistogramMatching.Equalize;
+        } else if ("Normalize".equalsIgnoreCase(mode)) {
+            histogramMatchingEnum = ImageInfo.HistogramMatching.Normalize;
+        }
+        return histogramMatchingEnum;
+    }
 
     /////////////////////////////////////////////////////////////////////////
     // DEPRECATED API!!!
@@ -588,7 +495,7 @@ public class ImageInfo implements Cloneable {
     }
 
     /**
-     * @deprecated since BEAM 4.2, use {@link org.esa.beam.framework.datamodel.RGBImageProfile#isGammaActive(int)}
+     * @deprecated since BEAM 4.2, use {@link RGBChannelDef#setGamma(int, double)}
      */
     @Deprecated
     public boolean isGammaActive() {
@@ -596,7 +503,7 @@ public class ImageInfo implements Cloneable {
     }
 
     /**
-     * @deprecated since BEAM 4.2, use {@link org.esa.beam.framework.datamodel.RGBImageProfile#getGamma(int)}
+     * @deprecated since BEAM 4.2, use {@link RGBChannelDef#setGamma(int, double)}
      */
     @Deprecated
     public float getGamma() {
@@ -604,7 +511,7 @@ public class ImageInfo implements Cloneable {
     }
 
     /**
-     * @deprecated since BEAM 4.2, use {@link org.esa.beam.framework.datamodel.RGBImageProfile#setGamma(int, double)}
+     * @deprecated since BEAM 4.2, use {@link RGBChannelDef#setGamma(int, double)}
      */
     @Deprecated
     public void setGamma(float gamma) {
@@ -759,6 +666,91 @@ public class ImageInfo implements Cloneable {
     @Deprecated
     public IndexColorModel createColorModel() {
         return createIndexColorModel(Scaling.IDENTITY);
+    }
+
+    /**
+     * Constructs a new basic display information instance.
+     *
+     * @param minSample     the statistical minimum sample value
+     * @param maxSample     the statistical maximum sample value
+     * @param histogramBins the histogram pixel counts, can be <code>null</code>
+     * @deprecated since BEAM 4.2, statistical information is now available via {@link RasterDataNode#getStx()}
+     */
+    @Deprecated
+    public ImageInfo(float minSample,
+                     float maxSample,
+                     int[] histogramBins) {
+        this(minSample,
+             maxSample,
+             histogramBins,
+             new ColorPaletteDef(256, minSample, maxSample));
+    }
+
+    /**
+     * Constructs a new basic display information instance.
+     *
+     * @param minSample          the statistical minimum sample value
+     * @param maxSample          the statistical maximum sample value
+     * @param histogramBins      the histogram pixel counts, can be <code>null</code>
+     * @param numColors          the number of colors for the color palette
+     * @param colorPalettePoints the points of the gradation curve
+     * @deprecated since BEAM 4.2, statistical information is now available via {@link RasterDataNode#getStx()}
+     */
+    @Deprecated
+    public ImageInfo(float minSample,
+                     float maxSample,
+                     int[] histogramBins,
+                     int numColors,
+                     ColorPaletteDef.Point[] colorPalettePoints) {
+        this(minSample,
+             maxSample,
+             histogramBins,
+             new ColorPaletteDef(colorPalettePoints, numColors));
+    }
+
+    /**
+     * Constructs a new basic display information instance.
+     *
+     * @param minSample       the statistical minimum sample value
+     * @param maxSample       the statistical maximum sample value
+     * @param histogramBins   the histogram pixel counts, can be <code>null</code>
+     * @param numColors       the number of colors for the color palette
+     * @param colorPaletteDef the color palette definition
+     * @deprecated since BEAM 4.2, statistical information is now available via {@link RasterDataNode#getStx()}
+     */
+    @Deprecated
+    public ImageInfo(float minSample,
+                     float maxSample,
+                     int[] histogramBins,
+                     int numColors,
+                     ColorPaletteDef colorPaletteDef) {
+        this(minSample, maxSample, histogramBins, colorPaletteDef);
+        this.colorPaletteDef.setNumColors(numColors);
+    }
+
+    /**
+     * Constructs a new basic display information instance.
+     *
+     * @param minSample       the statistical minimum sample value
+     * @param maxSample       the statistical maximum sample value
+     * @param histogramBins   the histogram pixel counts, can be <code>null</code>
+     * @param colorPaletteDef the color palette definition
+     * @deprecated since BEAM 4.2, statistical information is now available via {@link RasterDataNode#getStx()}
+     */
+    @Deprecated
+    public ImageInfo(float minSample,
+                     float maxSample,
+                     int[] histogramBins,
+                     ColorPaletteDef colorPaletteDef) {
+        Guardian.assertNotNull("colorPaletteDef", colorPaletteDef);
+        this.rgbChannelDef = null;
+        this.colorPaletteDef = colorPaletteDef;
+        this.noDataColor = null;
+        this.histogramMatching = HistogramMatching.None;
+
+        this.minSample = minSample;
+        this.maxSample = maxSample;
+        this.histogramBins = histogramBins;
     }
 
 }

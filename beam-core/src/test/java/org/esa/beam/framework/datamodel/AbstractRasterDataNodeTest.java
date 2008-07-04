@@ -29,9 +29,9 @@ public abstract class AbstractRasterDataNodeTest extends AbstractDataNodeTest {
     public void testSetAndGetBandStatistics() {
         RasterDataNode rasterDataNode = createRasterDataNode();
         assertEquals(null, rasterDataNode.getImageInfo());
-        final ImageInfo basicDisplayInfo = new ImageInfo(2, 3, null);
-        rasterDataNode.setImageInfo(basicDisplayInfo);
-        assertSame(basicDisplayInfo, rasterDataNode.getImageInfo());
+        final ImageInfo imageInfo = new ImageInfo(new ColorPaletteDef(0, 1));
+        rasterDataNode.setImageInfo(imageInfo);
+        assertSame(imageInfo, rasterDataNode.getImageInfo());
     }
 
     public void testValidMaskExpressionIsAdjustedIfNodeNameChanged() {

@@ -548,22 +548,10 @@ public class PConvertMain {
                 band.loadRasterData(ProgressMonitor.NULL);
                 band.getImageInfo(_histoSkipRatios, ProgressMonitor.NULL);
                 if (colorPaletteDef != null) {
-                    band.getImageInfo().setColorPaletteDef(colorPaletteDef);
+                    band.getImageInfo().transferColorPaletteDef(colorPaletteDef, true);
                 }
-
-                final String dataMaskExpr = band.getDataMaskExpression();
-                if (_noDataColor != null && dataMaskExpr != null) {
-                    BitmaskOverlayInfo bitmaskOverlayInfo = band
-                            .getBitmaskOverlayInfo();
-                    if (bitmaskOverlayInfo == null) {
-                        bitmaskOverlayInfo = new BitmaskOverlayInfo();
-                    }
-                    BitmaskDef bitmaskDef = new BitmaskDef("nodatalayer_"
-                                                           + band.getName(), "", "NOT "
-                                                                                 + dataMaskExpr, _noDataColor,
-                                                                                                 1 - (_noDataColor.getAlpha() / 255f));
-                    bitmaskOverlayInfo.addBitmaskDef(bitmaskDef);
-                    band.setBitmaskOverlayInfo(bitmaskOverlayInfo);
+                if (_noDataColor != null) {
+                    band.getImageInfo().setNoDataColor(_noDataColor);
                 }
             } catch (IOException e) {
                 Debug.trace(e);

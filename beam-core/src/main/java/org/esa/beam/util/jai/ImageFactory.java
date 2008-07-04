@@ -3,23 +3,12 @@ package org.esa.beam.util.jai;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
-import org.esa.beam.framework.datamodel.ColorPaletteDef;
-import org.esa.beam.framework.datamodel.ImageInfo;
-import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.RasterDataNode;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.IntMap;
 import org.esa.beam.util.math.Histogram;
 
-import javax.media.jai.ImageLayout;
-import javax.media.jai.JAI;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.ROI;
-import javax.media.jai.RasterFactory;
-import javax.media.jai.RenderedOp;
+import javax.media.jai.*;
 import java.awt.Color;
 import java.awt.RenderingHints;
 import java.awt.image.DataBuffer;
@@ -83,7 +72,6 @@ public class ImageFactory {
             final ColorPaletteDef def = raster.getImageInfo().getColorPaletteDef();
             final double newMin = raster.scaleInverse(def.getMinDisplaySample());
             final double newMax = raster.scaleInverse(def.getMaxDisplaySample());
-            final double gamma = 1.0; //imageInfo.getGamma();  // todo - use gamma
             // todo - honour log-scaled bands
             planarImage = JAIUtils.createRescaleOp(planarImage,
                                                    255.0 / (newMax - newMin),
@@ -115,7 +103,7 @@ public class ImageFactory {
                 if (raster instanceof Band) {
                     final IndexCoding indexCoding = ((Band) raster).getIndexCoding();
                     if (indexCoding != null) {
-                        raster.setImageInfo(createIndexedImageInfo(planarImage, indexCoding));
+                        raster.setImageInfo(createIndexedImageInfo(planarImage, raster, indexCoding));
                     }
                 }
                 if (raster.getImageInfo() == null) {
@@ -153,18 +141,14 @@ public class ImageFactory {
         }
     }
 
-    private static ImageInfo createIndexedImageInfo(PlanarImage planarImage, IndexCoding indexCoding) {
+    private static ImageInfo createIndexedImageInfo(PlanarImage planarImage, RasterDataNode raster, IndexCoding indexCoding) {
         final MetadataAttribute[] attributes = indexCoding.getAttributes();
         IntMap sampleToIndexMap = new IntMap();
-        int sampleMin = Integer.MAX_VALUE;
-        int sampleMax = Integer.MIN_VALUE;
         // Note: we need one colour more, the last element is the "Other" class
         final ColorPaletteDef.Point[] points = new ColorPaletteDef.Point[attributes.length + 1];
         for (int index = 0; index < attributes.length; index++) {
             MetadataAttribute attribute = attributes[index];
             final int sample = attribute.getData().getElemInt();
-            sampleMin = Math.min(sampleMin, sample);
-            sampleMax = Math.max(sampleMax, sample);
             sampleToIndexMap.putValue(sample, index);
             double t = (index + 1.0) / attributes.length;
             points[index] = new ColorPaletteDef.Point(sample,
@@ -177,13 +161,7 @@ public class ImageFactory {
                                                       attribute.getName());
         }
         points[points.length - 1] = OTHER_POINT;
-        int[] frequencyCounts = new int[attributes.length + 1];
-        for (int i = 0; i < frequencyCounts.length; i++) {
-            frequencyCounts[i] = (int) (100 * Math.random()); // todo - use planarImage
-        }
-        final ColorPaletteDef def = new ColorPaletteDef(points);
-        final ImageInfo imageInfo = new ImageInfo(sampleMin, sampleMax, frequencyCounts, def);
-        return imageInfo;
+        return new ImageInfo(new ColorPaletteDef(points));
     }
 
     private static PlanarImage performHistogramMatching(PlanarImage image, String histogramMatching) {
