@@ -6,7 +6,7 @@
     <name>BEAM Cluster Analysis</name>
 
     <description>
-        The cluster analysis tool is used too ...
+        Cluster analysis.
     </description>
 
     <changelog>
@@ -27,14 +27,22 @@
         <module>beam-gpf</module>
     </dependency>
 
-    <categories>VISAT,Processing</categories>
+    <categories>VISAT,Processing,Image Analysis</categories>
 
     <extension point="beam-ui:actions">
+        <action>
+            <id>imageAnalysis</id>
+            <class>org.esa.beam.visat.actions.ActionGroup</class>
+            <parent>tools</parent>
+            <text>Image Analysis Tools</text>
+            <mnemonic>A</mnemonic>
+            <shortDescr>Image analysis tools.</shortDescr>
+        </action>
         <action>
             <id>emClusterAnalysis</id>
             <helpID>emClusterAnalysis</helpID>
             <class>org.esa.beam.cluster.visat.EMClusterAnalysisAction</class>
-            <parent>tools</parent>
+            <parent>imageAnalysis</parent>
             <text>EM Cluster Analysis...</text>
             <mnemonic>C</mnemonic>
         </action>
@@ -42,7 +50,7 @@
             <id>kmeansClusterAnalysis</id>
             <helpID>kmeansClusterAnalysis</helpID>
             <class>org.esa.beam.cluster.visat.KMeansClusterAnalysisAction</class>
-            <parent>tools</parent>
+            <parent>imageAnalysis</parent>
             <text>K-Means Cluster Analysis...</text>
             <mnemonic>C</mnemonic>
         </action>

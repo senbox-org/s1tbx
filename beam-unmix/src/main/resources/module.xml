@@ -29,14 +29,14 @@
         <module>beam-gpf</module>
     </dependency>
 
-    <categories>VISAT,Processing</categories>
+    <categories>VISAT,Processing,Image Analysis</categories>
 
     <extension point="beam-visat:actions">
         <action>
+            <class>org.esa.beam.unmixing.visat.SpectralUnmixingAction</class>
             <id>spectralUnmixing</id>
             <helpID>spectralUnmixing</helpID>
-            <class>org.esa.beam.unmixing.visat.SpectralUnmixingAction</class>
-            <parent>tools</parent>
+            <parent>imageAnalysis</parent>
             <text>Spectral Unmixing...</text>
             <mnemonic>U</mnemonic>
         </action>
