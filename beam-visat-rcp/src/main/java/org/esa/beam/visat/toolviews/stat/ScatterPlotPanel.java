@@ -18,6 +18,7 @@ import org.esa.beam.framework.ui.application.ToolView;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.math.Range;
+import org.esa.beam.util.math.MathUtils;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.title.Title;
@@ -408,10 +409,10 @@ class ScatterPlotPanel extends PagePanel {
             public void done() {
                 try {
                     final ScatterPlot scatterPlot = get();
-                    final double minX = scatterPlot.getRangeX().getMin();
-                    final double maxX = scatterPlot.getRangeX().getMax();
-                    final double minY = scatterPlot.getRangeY().getMin();
-                    final double maxY = scatterPlot.getRangeY().getMax();
+                    double minX = scatterPlot.getRangeX().getMin();
+                    double maxX = scatterPlot.getRangeX().getMax();
+                    double minY = scatterPlot.getRangeY().getMin();
+                    double maxY = scatterPlot.getRangeY().getMax();
                     if(minX > maxX || minY > maxY) {
                         JOptionPane.showMessageDialog(getParentDialogContentPane(),
                                                       "Failed to compute scatter plot.\n" +
@@ -423,10 +424,19 @@ class ScatterPlotPanel extends PagePanel {
                         return;
 
                     }
+
+                    if (MathUtils.equalValues(minX, maxX, 1.0e-4)) {
+                        minX = Math.round(minX);
+                        maxX = Math.round(maxX+0.5);
+                    }
+                    if (MathUtils.equalValues(maxY, maxY, 1.0e-4)) {
+                        minY = Math.round(minY);
+                        maxY = Math.round(maxY+0.5);
+                    }
                     plot.setImage(scatterPlot.getImage());
                     plot.setImageDataBounds(new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY));
-                    setAutoRange(X_VAR, scatterPlot.getRangeX());
-                    setAutoRange(Y_VAR, scatterPlot.getRangeY());
+                    setAutoRange(X_VAR, new Range(minX, maxX));
+                    setAutoRange(Y_VAR, new Range(minY, maxY));
                     plot.getDomainAxis().setLabel(getAxisLabel(getRaster(X_VAR)));
                     plot.getRangeAxis().setLabel(getAxisLabel(getRaster(Y_VAR)));
                 } catch (InterruptedException e) {

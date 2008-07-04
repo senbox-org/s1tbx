@@ -68,10 +68,10 @@ import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.List;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class RoiManagerToolView extends AbstractToolView implements ParamExceptionHandler {
 
@@ -79,19 +79,19 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
 
     private static final String _FILE_EXTENSION = ".roi";
 
-    private VisatApp _visatApp;
-    private PropertyMap _propertyMap;
+    private VisatApp visatApp;
+    private PropertyMap propertyMap;
     private final ParamGroup paramGroup;
-    private AbstractButton _applyButton;
-    private AbstractButton _resetButton;
-    private AbstractButton _undoButton;
-    private AbstractButton _multiAssignToBandsButton;
-    private AbstractButton _multiAssignToProductsButton;
-    private AbstractButton _importButton;
-    private AbstractButton _exportButton;
-    private AbstractButton _zoomToButton;
-    private ProductSceneView _productSceneView;
-    private ROIDefinition _roiDefinitionUndo;
+    private AbstractButton applyButton;
+    private AbstractButton resetButton;
+    private AbstractButton undoButton;
+    private AbstractButton multiAssignToBandsButton;
+    private AbstractButton multiAssignToProductsButton;
+    private AbstractButton importButton;
+    private AbstractButton exportButton;
+    private AbstractButton zoomToButton;
+    private ProductSceneView productSceneView;
+    private ROIDefinition roiDefinitionUndo;
 
     private Parameter operatorParam;
     private Parameter invertParam;
@@ -103,14 +103,14 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
     private Parameter bitmaskExprParam;
     private Parameter pinsEnabledParam;
 
-    private final Command[] _shapeCommands;
-    private JPanel _shapeToolsRow;
-    private final String[] _operatorValueSet = new String[]{"OR", "AND"};
-    private BeamFileFilter _roiDefinitionFileFilter;
-    // TODO -  (nf) replace _bandsToBeModified with a String (name) array, memory leaks occur here!!!
-    private Band[] _bandsToBeModified;
+    private final Command[] shapeCommands;
+    private JPanel shapeToolsRow;
+    private final String[] operatorValueSet = new String[]{"OR", "AND"};
+    private BeamFileFilter roiDefinitionFileFilter;
+    // TODO -  (nf) replace bandsToBeModified with a String (name) array, memory leaks occur here!!!
+    private Band[] bandsToBeModified;
     private LayerModelChangeHandler _layerModelChangeHandler;
-    private Figure _shapeFigure;
+    private Figure shapeFigure;
     private final ProductNodeListener _productNodeListener;
 
     private ProductNodeListener roiDefinitionPNL;
@@ -118,8 +118,8 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
 
 
     public RoiManagerToolView() {
-        _visatApp = VisatApp.getApp();
-        CommandManager commandManager = _visatApp.getCommandManager();
+        visatApp = VisatApp.getApp();
+        CommandManager commandManager = visatApp.getCommandManager();
         ToolCommand drawLineTool = commandManager.getToolCommand("drawLineTool");
         ToolCommand drawRectangleTool = commandManager.getToolCommand("drawRectangleTool");
         ToolCommand drawEllipseTool = commandManager.getToolCommand("drawEllipseTool");
@@ -127,17 +127,17 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
         ToolCommand drawPolygonTool = commandManager.getToolCommand("drawPolygonTool");
 
         paramGroup = new ParamGroup();
-        _shapeCommands = new Command[]{
+        shapeCommands = new Command[]{
                 drawLineTool,
                 drawPolylineTool,
                 drawRectangleTool,
                 drawEllipseTool,
                 drawPolygonTool,
         };
-        _propertyMap = _visatApp.getPreferences();
+        propertyMap = visatApp.getPreferences();
         _layerModelChangeHandler = new LayerModelChangeHandler();
         _productNodeListener = createProductNodeListener();
-        _bandsToBeModified = new Band[0];
+        bandsToBeModified = new Band[0];
         initParams();
         roiDefPane = createRoiDefinitionPane();
 
@@ -169,46 +169,48 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
     }
 
     public void setProductSceneView(ProductSceneView productSceneView) {
-        if (_productSceneView == productSceneView) {
+        if (this.productSceneView == productSceneView) {
             return;
         }
-        if (_productSceneView != null) {
-            _productSceneView.getImageDisplay().getLayerModel().removeLayerModelChangeListener(
+        if (this.productSceneView != null) {
+            this.productSceneView.getImageDisplay().getLayerModel().removeLayerModelChangeListener(
                     _layerModelChangeHandler);
-            _productSceneView.getProduct().removeProductNodeListener(_productNodeListener);
+            this.productSceneView.getProduct().removeProductNodeListener(_productNodeListener);
         }
 
-        _productSceneView = productSceneView;
-        _roiDefinitionUndo = null;
+        this.productSceneView = productSceneView;
+        roiDefinitionUndo = null;
 
-        if (_productSceneView != null) {
-            _shapeFigure = _productSceneView.getRasterROIShapeFigure();
-            if (_shapeFigure == null) {
-                _shapeFigure = _productSceneView.getCurrentShapeFigure();
+        if (this.productSceneView != null) {
+            shapeFigure = this.productSceneView.getRasterROIShapeFigure();
+            if (shapeFigure == null) {
+                shapeFigure = this.productSceneView.getCurrentShapeFigure();
             }
-            _productSceneView.getImageDisplay().getLayerModel().addLayerModelChangeListener(_layerModelChangeHandler);
-            _productSceneView.getProduct().addProductNodeListener(_productNodeListener);
-            _roiDefinitionUndo = getCurrentROIDefinition();
-            setUIParameterValues(_roiDefinitionUndo);
+            this.productSceneView.getImageDisplay().getLayerModel().addLayerModelChangeListener(_layerModelChangeHandler);
+            this.productSceneView.getProduct().addProductNodeListener(_productNodeListener);
+            roiDefinitionUndo = getCurrentROIDefinition();
+            setUIParameterValues(roiDefinitionUndo);
             resetBitmaskFlagNames();
             bitmaskExprParam.getProperties().setPropertyValue(BooleanExpressionEditor.PROPERTY_KEY_SELECTED_PRODUCT,
-                                                               _productSceneView.getProduct());
+                                                              this.productSceneView.getProduct());
             updateUIState();
         } else {
             bitmaskExprParam.getProperties().setPropertyValue(BooleanExpressionEditor.PROPERTY_KEY_SELECTED_PRODUCT,
-                                                               null);
+                                                              null);
             updateUIState();
         }
 
         updateTitle();
 
-            setApplyEnabled(false);
-            _resetButton.setEnabled(false);
+        setApplyEnabled(false);
+        resetButton.setEnabled(false);
+        VisatApp.getApp().updateROIImage(productSceneView, true);
     }
 
     private void updateTitle() {
-        if (_productSceneView != null) {
-            setTitle(MessageFormat.format("{0} - {1}", getDescriptor().getTitle(), getCurrentRaster().getDisplayName()));
+        if (productSceneView != null) {
+            setTitle(
+                    MessageFormat.format("{0} - {1}", getDescriptor().getTitle(), getCurrentRaster().getDisplayName()));
         } else {
             setTitle(getDescriptor().getTitle());
         }
@@ -250,7 +252,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
         bitmaskExprParam.getProperties().setEditorClass(BooleanExpressionEditor.class);
         bitmaskExprParam.getProperties().setValidatorClass(BooleanExpressionValidator.class);
         bitmaskExprParam.getProperties().setPropertyValue(BooleanExpressionEditor.PROPERTY_KEY_PREFERENCES,
-                                                           _propertyMap);
+                                                          propertyMap);
         bitmaskExprParam.getProperties().setLabel("Conditional expression:"); /*I18N*/
         bitmaskExprParam.getProperties().setDescription("The condition  al expression"); /*I18N*/
         paramGroup.addParameter(bitmaskExprParam);
@@ -264,7 +266,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
         operatorParam.getProperties().setEditorClass(ComboBoxEditor.class);
         operatorParam.getProperties().setLabel("Combine criteria with: "); /*I18N*/
         operatorParam.getProperties().setDescription("Specify the criteria combination operator"); /*I18N*/
-        operatorParam.getProperties().setValueSet(_operatorValueSet);
+        operatorParam.getProperties().setValueSet(operatorValueSet);
         operatorParam.getProperties().setValueSetBound(true);
         paramGroup.addParameter(operatorParam);
 
@@ -287,19 +289,19 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
         gbc.gridwidth = 2;
         gbc.weightx = 0.5;
         gbc.insets.bottom = 4;
-        buttonPane.add(_applyButton, gbc);
+        buttonPane.add(applyButton, gbc);
         gbc.insets.bottom = 0;
         gbc.gridwidth = 1;
         gbc.gridy = 2;
-        buttonPane.add(_undoButton, gbc);
+        buttonPane.add(undoButton, gbc);
         gbc.gridy++;
-        buttonPane.add(_multiAssignToBandsButton, gbc);
-        buttonPane.add(_multiAssignToProductsButton, gbc);
+        buttonPane.add(multiAssignToBandsButton, gbc);
+        buttonPane.add(multiAssignToProductsButton, gbc);
         gbc.gridy++;
-        buttonPane.add(_importButton, gbc);
-        buttonPane.add(_exportButton, gbc);
+        buttonPane.add(importButton, gbc);
+        buttonPane.add(exportButton, gbc);
         gbc.gridy++;
-        buttonPane.add(_zoomToButton, gbc);
+        buttonPane.add(zoomToButton, gbc);
         gbc.gridy++;
         gbc.fill = GridBagConstraints.VERTICAL;
         gbc.weighty = 1.0;
@@ -322,144 +324,114 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
             HelpSys.enableHelpKey(mainPane, getDescriptor().getHelpId());
         }
 
-//        VisatApp.getApp().getProductManager().addListener(new ROIDefinitionPML());
-//
-//        // Add an internal frame listener to VISAT so that we can update our
-//        // contrast stretch dialog with the information of the currently activated
-//        // product scene view.
-//        //
-//        VisatApp.getApp().addInternalFrameListener(new ROIDefinitionIFL());
-//
-//        /**
-//         * This listener is required to repaint the product scene view if the ROI definition was changed
-//         * per assign ROI to other products.
-//         */
-//        roiDefinitionPNL = new ROIDefinitionPNL();
-//        Product[] products = VisatApp.getApp().getProductManager().getProducts();
-//        for (Product product : products) {
-//            product.addProductNodeListener(roiDefinitionPNL);
-//        }
-//
-//        /**
-//         * This listener is required to add or remove the roiDefinitionPNL above when new products are opened or closed.
-//         */
-////        VisatApp.getApp().addProductTreeListener(new ROIDefinitionPTL());
-//
-//        paramGroup.addParamChangeListener(new ParamChangeListener() {
-//            public void parameterValueChanged(ParamChangeEvent event) {
-//                updateUIState();
-//                setApplyEnabled(true);
-//            }
-//        });
-
         updateUIState();
         setProductSceneView(VisatApp.getApp().getSelectedProductSceneView());
         return mainPane;
     }
 
     private JPanel createRoiDefinitionPane() {
-        _shapeToolsRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 1, 1));
-        if (_shapeCommands != null) {
-            for (final Command command : _shapeCommands) {
+        shapeToolsRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 1, 1));
+        if (shapeCommands != null) {
+            for (final Command command : shapeCommands) {
                 if (command != null) {
-                    _shapeToolsRow.add(command.createToolBarButton());
+                    shapeToolsRow.add(command.createToolBarButton());
                 } else {
-                    _shapeToolsRow.add(new JLabel("  "));
+                    shapeToolsRow.add(new JLabel("  "));
                 }
             }
         }
 
         final JPanel roiDefPane = createROIDefPane();
 
-        _applyButton = new JButton("Apply");
-        _applyButton.setToolTipText("Assign ROI to selected band"); /*I18N*/
-        _applyButton.setMnemonic('A');
-        _applyButton.setName("ApplyButton");
-        _applyButton.addActionListener(new ActionListener() {
+        applyButton = new JButton("Apply");
+        applyButton.setToolTipText("Assign ROI to selected band"); /*I18N*/
+        applyButton.setMnemonic('A');
+        applyButton.setName("ApplyButton");
+        applyButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
                 apply();
             }
         });
 
-        _undoButton = createButton("icons/Undo24.gif");
-        _undoButton.setToolTipText("Undo ROI assignment"); /*I18N*/
-        _undoButton.setName("UndoButton");
-        _undoButton.addActionListener(new ActionListener() {
+        undoButton = createButton("icons/Undo24.gif");
+        undoButton.setToolTipText("Undo ROI assignment"); /*I18N*/
+        undoButton.setName("UndoButton");
+        undoButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
                 undo();
             }
         });
 
-        _multiAssignToBandsButton = createButton("icons/MultiAssignBands24.gif");
-        _multiAssignToBandsButton.setToolTipText("Apply to other bands"); /*I18N*/
-        _multiAssignToBandsButton.setName("AssignToBandsButton");
-        _multiAssignToBandsButton.addActionListener(new ActionListener() {
+        multiAssignToBandsButton = createButton("icons/MultiAssignBands24.gif");
+        multiAssignToBandsButton.setToolTipText("Apply to other bands"); /*I18N*/
+        multiAssignToBandsButton.setName("AssignToBandsButton");
+        multiAssignToBandsButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
                 multiAssignToBands();
             }
         });
 
-        _multiAssignToProductsButton = createButton("icons/MultiAssignProducts24.gif");
-        _multiAssignToProductsButton.setToolTipText("Apply to other products"); /*I18N*/
-        _multiAssignToProductsButton.setName("MultiAssignButton");
-        _multiAssignToProductsButton.addActionListener(new ActionListener() {
+        multiAssignToProductsButton = createButton("icons/MultiAssignProducts24.gif");
+        multiAssignToProductsButton.setToolTipText("Apply to other products"); /*I18N*/
+        multiAssignToProductsButton.setName("MultiAssignButton");
+        multiAssignToProductsButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
                 multiAssignToProducts();
             }
         });
 
-        _resetButton = createButton("icons/Undo24.gif");
-        _resetButton.setToolTipText("Reset ROI to default values"); /*I18N*/
-        _resetButton.setName("ResetButton");
-        _resetButton.addActionListener(new ActionListener() {
+        resetButton = createButton("icons/Undo24.gif");
+        resetButton.setToolTipText("Reset ROI to default values"); /*I18N*/
+        resetButton.setName("ResetButton");
+        resetButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
                 reset();
             }
         });
 
-        _importButton = createButton("icons/Import24.gif");
-        _importButton.setToolTipText("Import ROI from text file."); /*I18N*/
-        _importButton.setName("ImportButton");
-        _importButton.addActionListener(new ActionListener() {
+        importButton = createButton("icons/Import24.gif");
+        importButton.setToolTipText("Import ROI from text file."); /*I18N*/
+        importButton.setName("ImportButton");
+        importButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
                 importROIDef();
             }
         });
-        _importButton.setEnabled(true);
+        importButton.setEnabled(true);
 
-        _exportButton = createButton("icons/Export24.gif");
-        _exportButton.setToolTipText("Export ROI to text file."); /*I18N*/
-        _exportButton.setName("ExportButton");
-        _exportButton.addActionListener(new ActionListener() {
+        exportButton = createButton("icons/Export24.gif");
+        exportButton.setToolTipText("Export ROI to text file."); /*I18N*/
+        exportButton.setName("ExportButton");
+        exportButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
                 exportROIDef();
             }
         });
-        _exportButton.setEnabled(true);
+        exportButton.setEnabled(true);
 
-        _zoomToButton = createButton("icons/ZoomTo24.gif");
-        _zoomToButton.setToolTipText("Zoom to ROI."); /*I18N*/
-        _zoomToButton.setName("ZoomButton");
-        _zoomToButton.addActionListener(new ActionListener() {
+        zoomToButton = createButton("icons/ZoomTo24.gif");
+        zoomToButton.setToolTipText("Zoom to ROI."); /*I18N*/
+        zoomToButton.setName("ZoomButton");
+        zoomToButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
                 zoomToROI();
             }
         });
-        _zoomToButton.setEnabled(false);
+        zoomToButton.setEnabled(false);
         return roiDefPane;
     }
 
     private void multiAssignToBands() {
-        final RasterDataNode[] protectedRasters = _productSceneView.getRasters();
-        Band[] availableBands = _productSceneView.getProduct().getBands();
+        final RasterDataNode[] protectedRasters = productSceneView.getRasters();
+        Band[] availableBands = productSceneView.getProduct().getBands();
         final List<Band> availableBandList = new ArrayList<Band>(availableBands.length);
         for (final Band availableBand : availableBands) {
             boolean validBand = true;
@@ -484,27 +456,27 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
         final BandChooser bandChooser = new BandChooser(getPaneWindow(),
                                                         "Apply to other Bands", getDescriptor().getHelpId(),
                                                         availableBands,
-                                                        _bandsToBeModified);
+                                                        bandsToBeModified);
         if (bandChooser.show() == BandChooser.ID_OK) {
             final ROIDefinition roiDefinition = getCurrentROIDefinition();
-            _bandsToBeModified = bandChooser.getSelectedBands();
-            for (final Band band : _bandsToBeModified) {
+            bandsToBeModified = bandChooser.getSelectedBands();
+            for (final Band band : bandsToBeModified) {
                 band.setROIDefinition(roiDefinition.createCopy());
             }
         }
     }
 
     private void multiAssignToProducts() {
-        final ProductSceneView selectedProductSceneView = _visatApp.getSelectedProductSceneView();
+        final ProductSceneView selectedProductSceneView = visatApp.getSelectedProductSceneView();
         final RasterDataNode currentRaster = selectedProductSceneView.getRaster();
         final Product currentProduct = currentRaster.getProduct();
 
         final String title = "Transfer ROI";   /*I18N*/
-        final Product[] products = _visatApp.getProductManager().getProducts();
+        final Product[] products = visatApp.getProductManager().getProducts();
         final Product[] allProducts = extractAllProducts(products, currentProduct);
 
         final ProductChooser productChooser = new ProductChooser(getPaneWindow(), title, null, allProducts, null,
-                                                                                            currentRaster.getName());
+                                                                 currentRaster.getName());
         final int result = productChooser.show();
         final Product[] selectedProducts;
         if (result == ProductChooser.ID_OK) {
@@ -515,7 +487,8 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
 
         final ROIDefinition currentRoiDefinition = currentRaster.getROIDefinition();
         if (currentRoiDefinition == null) {
-            _visatApp.showErrorDialog(MessageFormat.format("No ROI defined for ''{0}''", currentRaster.getDisplayName())); /*I18N*/
+            visatApp.showErrorDialog(
+                    MessageFormat.format("No ROI defined for ''{0}''", currentRaster.getDisplayName())); /*I18N*/
             return;
         }
 
@@ -617,7 +590,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
             if (result == JFileChooser.APPROVE_OPTION) {
                 File file = fileChooser.getSelectedFile();
                 if (file != null) {
-                    if (!_visatApp.promptForOverwrite(file)) {
+                    if (!visatApp.promptForOverwrite(file)) {
                         return;
                     }
                     setIODir(file.getAbsoluteFile().getParentFile());
@@ -635,10 +608,10 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
     }
 
     private void zoomToROI() {
-        if (_productSceneView == null) {
+        if (productSceneView == null) {
             return;
         }
-        final RenderedImage roiImage = _productSceneView.getROIImage();
+        final RenderedImage roiImage = productSceneView.getROIImage();
         final Raster data = roiImage.getData();
         final int width = roiImage.getWidth();
         final int height = roiImage.getHeight();
@@ -661,16 +634,16 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
             return;
         }
         rect.grow(50, 50);
-        _productSceneView.getImageDisplay().zoom(rect);
+        productSceneView.getImageDisplay().zoom(rect);
     }
 
     private BeamFileFilter getOrCreateRoiDefinitionFileFilter() {
-        if (_roiDefinitionFileFilter == null) {
+        if (roiDefinitionFileFilter == null) {
             final String formatName = "ROI_DEFINITION_FILE";
             final String description = MessageFormat.format("ROI definition files (*{0})", _FILE_EXTENSION);
-            _roiDefinitionFileFilter = new BeamFileFilter(formatName, _FILE_EXTENSION, description);
+            roiDefinitionFileFilter = new BeamFileFilter(formatName, _FILE_EXTENSION, description);
         }
-        return _roiDefinitionFileFilter;
+        return roiDefinitionFileFilter;
     }
 
     private static void writeROIToFile(ROIDefinition roi, File outputFile) throws IOException {
@@ -716,21 +689,21 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
 
 
     private void setApplyEnabled(boolean enabled) {
-        final boolean canApply = _productSceneView != null;
-        _applyButton.setEnabled(canApply && enabled);
-        _multiAssignToBandsButton.setEnabled(canApply && (!enabled && _visatApp != null));
+        final boolean canApply = productSceneView != null;
+        applyButton.setEnabled(canApply && enabled);
+        multiAssignToBandsButton.setEnabled(canApply && (!enabled && visatApp != null));
     }
 
     private void setIODir(File dir) {
-        if (_propertyMap != null && dir != null) {
-            _propertyMap.setPropertyString("roi.io.dir", dir.getPath());
+        if (propertyMap != null && dir != null) {
+            propertyMap.setPropertyString("roi.io.dir", dir.getPath());
         }
     }
 
     private File getIODir() {
         File dir = SystemUtils.getUserHomeDir();
-        if (_propertyMap != null) {
-            dir = new File(_propertyMap.getPropertyString("roi.io.dir", dir.getPath()));
+        if (propertyMap != null) {
+            dir = new File(propertyMap.getPropertyString("roi.io.dir", dir.getPath()));
         }
         return dir;
     }
@@ -744,15 +717,15 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
     }
 
     private void undo() {
-        if (_roiDefinitionUndo != null) {
-            resetImpl(_roiDefinitionUndo);
+        if (roiDefinitionUndo != null) {
+            resetImpl(roiDefinitionUndo);
         } else {
             reset();
         }
     }
 
     private void applyImpl(ROIDefinition roiDefNew) {
-        if (_productSceneView == null) {
+        if (productSceneView == null) {
             return;
         }
 
@@ -763,18 +736,15 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
 
         final String warningMessage = checkApplicability(roiDefNew);
         if (warningMessage != null) {
-            _visatApp.showWarningDialog(warningMessage);
+            visatApp.showWarningDialog(warningMessage);
             return;
         }
 
         setApplyEnabled(false);
-        _resetButton.setEnabled(false);
+        resetButton.setEnabled(false);
 
-        _productSceneView.setROIOverlayEnabled(true);
+        productSceneView.setROIOverlayEnabled(true);
         setCurrentROIDefinition(roiDefNew);
-// The folowing line is not necessary because in the line "setCurrentROIDefinition(roiDefNew);"
-// the roi image is updated
-//        _visatApp.updateROIImage(_productSceneView, true);
     }
 
     private void resetImpl(ROIDefinition roiDefNew) {
@@ -854,7 +824,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
     }
 
     private JComponent createShapesPane() {
-        return _shapeToolsRow;
+        return shapeToolsRow;
     }
 
     private JComponent createValueRangePane() {
@@ -888,10 +858,10 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
 
         // Get boolean switches
         //
-        final boolean roiPossible = _productSceneView != null; //&& ProductData.isFloatingPointType(_productSceneView.getRaster().getDataType());
+        final boolean roiPossible = productSceneView != null; //&& ProductData.isFloatingPointType(productSceneView.getRaster().getDataType());
         final boolean valueRangeCritSet = (Boolean) valueRangeEnabledParam.getValue();
-        final boolean shapesCritPossible = _shapeFigure != null;
-        final boolean zoomToPossible = _productSceneView != null && _productSceneView.getROIImage() != null;
+        final boolean shapesCritPossible = shapeFigure != null;
+        final boolean zoomToPossible = productSceneView != null && productSceneView.getROIImage() != null;
         final boolean shapesCritSet = (Boolean) shapesEnabledParam.getValue();
         boolean bitmaskCritPossible = false;
         boolean bitmaskCritSet = (Boolean) bitmaskEnabledParam.getValue();
@@ -904,8 +874,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
                 final boolean hasFlagCoding = product.getFlagCodingGroup().getNodeCount() > 0;
                 final boolean hasBands = product.getNumBands() > 0;
                 final int hasTiePointGrids = product.getNumTiePointGrids();
-                if (hasFlagCoding || hasBands || hasTiePointGrids > 0)
-                {
+                if (hasFlagCoding || hasBands || hasTiePointGrids > 0) {
                     bitmaskCritPossible = true;
                 }
             }
@@ -947,24 +916,24 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
         bitmaskEnabledParam.setUIEnabled(roiPossible && bitmaskCritPossible);
         bitmaskExprParam.setUIEnabled(roiPossible && bitmaskCritPossible && bitmaskCritSet);
         pinsEnabledParam.setUIEnabled(roiPossible && pinCritPossible);
-        _exportButton.setEnabled(roiPossible);
-        _importButton.setEnabled(roiPossible);
+        exportButton.setEnabled(roiPossible);
+        importButton.setEnabled(roiPossible);
         if (roiPossible) {
-            _undoButton.setEnabled(_roiDefinitionUndo != null);
-            _multiAssignToProductsButton.setEnabled(_visatApp != null
-                                                    && _visatApp.getProductManager().getNumProducts() > 1);
+            undoButton.setEnabled(roiDefinitionUndo != null);
+            multiAssignToProductsButton.setEnabled(visatApp != null
+                                                    && visatApp.getProductManager().getProductCount() > 1);
         } else {
-            _applyButton.setEnabled(false);
-            _multiAssignToBandsButton.setEnabled(false);
-            _multiAssignToProductsButton.setEnabled(false);
-            _resetButton.setEnabled(false);
-            _undoButton.setEnabled(false);
+            applyButton.setEnabled(false);
+            multiAssignToBandsButton.setEnabled(false);
+            multiAssignToProductsButton.setEnabled(false);
+            resetButton.setEnabled(false);
+            undoButton.setEnabled(false);
         }
         if (!shapesCritPossible) {
             shapesEnabledParam.setValue(Boolean.FALSE, null);
         }
 
-        _zoomToButton.setEnabled(zoomToPossible);
+        zoomToButton.setEnabled(zoomToPossible);
     }
 
     private ROIDefinition getCurrentROIDefinition() {
@@ -976,13 +945,13 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
     }
 
     private RasterDataNode getCurrentRaster() {
-        return _productSceneView.getRaster();
+        return productSceneView.getRaster();
     }
 
     public void setUIParameterValues(ROIDefinition roiDefinition) {
 
         if (roiDefinition != null) {
-            _shapeFigure = roiDefinition.getShapeFigure();
+            shapeFigure = roiDefinition.getShapeFigure();
             shapesEnabledParam.setValue(roiDefinition.isShapeEnabled(), null);
             valueRangeEnabledParam.setValue(roiDefinition.isValueRangeEnabled(), null);
             valueRangeMinParam.setValue(roiDefinition.getValueRangeMin(), null);
@@ -990,10 +959,10 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
             bitmaskEnabledParam.setValue(roiDefinition.isBitmaskEnabled(), null);
             bitmaskExprParam.setValue(roiDefinition.getBitmaskExpr(), null);
             pinsEnabledParam.setValue(roiDefinition.isPinUseEnabled(), null);
-            operatorParam.setValue(roiDefinition.isOrCombined() ? _operatorValueSet[0] : _operatorValueSet[1], null);
+            operatorParam.setValue(roiDefinition.isOrCombined() ? operatorValueSet[0] : operatorValueSet[1], null);
             invertParam.setValue(roiDefinition.isInverted(), null);
         } else {
-            _shapeFigure = _productSceneView != null ? _productSceneView.getCurrentShapeFigure() : null;
+            shapeFigure = productSceneView != null ? productSceneView.getCurrentShapeFigure() : null;
             shapesEnabledParam.setValue(Boolean.FALSE, this);
             valueRangeEnabledParam.setValue(Boolean.FALSE, this);
             valueRangeMinParam.setValue(0.0F, this);
@@ -1009,7 +978,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
     private ROIDefinition createROIDefinition() {
         final ROIDefinition roiDefinition = new ROIDefinition();
         // View acts as a value-model for figures in this case
-        roiDefinition.setShapeFigure(_shapeFigure);
+        roiDefinition.setShapeFigure(shapeFigure);
         roiDefinition.setShapeEnabled((Boolean) shapesEnabledParam.getValue());
         roiDefinition.setValueRangeEnabled((Boolean) valueRangeEnabledParam.getValue());
         roiDefinition.setValueRangeMin(((Number) valueRangeMinParam.getValue()).floatValue());
@@ -1024,7 +993,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
     }
 
     private Product getProduct() {
-        return _productSceneView != null ? _productSceneView.getProduct() : null;
+        return productSceneView != null ? productSceneView.getProduct() : null;
     }
 
 
@@ -1055,8 +1024,10 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
 
     private String checkApplicability(ROIDefinition roiDefNew) {
         if (roiDefNew != null) {
-            if (roiDefNew.getValueRangeMin() >= roiDefNew.getValueRangeMax()) {
-                return "Value Range:\nMinimum value is greater than or equal to selected maximum value."; /*I18N*/
+            if (roiDefNew.isValueRangeEnabled()) {
+                if (roiDefNew.getValueRangeMin() >= roiDefNew.getValueRangeMax()) {
+                    return "Value Range:\nMinimum value is greater than or equal to selected maximum value."; /*I18N*/
+                }
             }
 
             final Product product = getProduct();
@@ -1082,8 +1053,8 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
                     if (ProductNode.PROPERTY_NAME_NAME.equalsIgnoreCase(event.getPropertyName())) {
                         updateTitle();
                     } else if (RasterDataNode.PROPERTY_NAME_ROI_DEFINITION.equalsIgnoreCase(event.getPropertyName())) {
-                        _roiDefinitionUndo = getCurrentROIDefinition();
-                        setUIParameterValues(_roiDefinitionUndo);
+                        roiDefinitionUndo = getCurrentROIDefinition();
+                        setUIParameterValues(roiDefinitionUndo);
                     }
                     updateUIState();
                 }
@@ -1107,13 +1078,13 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
 
         @Override
         public void handleLayerModelChanged(LayerModel layerModel) {
-            if (_productSceneView != null) {
-                final Figure currentShapeFigure = _productSceneView.getCurrentShapeFigure();
+            if (productSceneView != null) {
+                final Figure currentShapeFigure = productSceneView.getCurrentShapeFigure();
                 if (currentShapeFigure != null) {
-                    _shapeFigure = currentShapeFigure;
+                    shapeFigure = currentShapeFigure;
                 }
                 updateUIState();
-                _applyButton.setEnabled(true);
+                applyButton.setEnabled(true);
             }
         }
     }
