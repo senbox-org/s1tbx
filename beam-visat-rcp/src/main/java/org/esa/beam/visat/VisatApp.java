@@ -2267,12 +2267,6 @@ public class VisatApp extends BasicApp {
         position.setToolTip("Displays pixel position");
         statusBar.add(position, JideBoxLayout.FLEXIBLE);
 
-        final OvrInsStatusBarItem ovr = new OvrInsStatusBarItem();
-        Debug.trace(ovr.getItemName());
-        ovr.setPreferredWidth(50);
-        ovr.setAlignment(JLabel.CENTER);
-        statusBar.add(ovr, JideBoxLayout.FLEXIBLE);
-
         final TimeStatusBarItem time = new TimeStatusBarItem();
         Debug.trace(time.getItemName());
         time.setPreferredWidth(80);
