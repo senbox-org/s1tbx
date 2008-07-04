@@ -2251,16 +2251,13 @@ public class VisatApp extends BasicApp {
         final com.jidesoft.status.StatusBar statusBar = new com.jidesoft.status.StatusBar();
 
         final LabelStatusBarItem message = new LabelStatusBarItem(MESSAGE_STATUS_BAR_ITEM_KEY);
-        Debug.trace(message.getItemName());
         message.setText("Ready.");
         message.setPreferredWidth(600);
         message.setAlignment(JLabel.LEFT);
         message.setToolTip("Displays status messages.");
         statusBar.add(message, JideBoxLayout.FLEXIBLE);
 
-        final LabelStatusBarItem position = new LabelStatusBarItem("Position");
-        Debug.trace(position.getItemName());
-        position.setName("Position");
+        final LabelStatusBarItem position = new LabelStatusBarItem(POSITION_STATUS_BAR_ITEM_KEY);
         position.setText("");
         position.setPreferredWidth(80);
         position.setAlignment(JLabel.CENTER);
@@ -2268,14 +2265,12 @@ public class VisatApp extends BasicApp {
         statusBar.add(position, JideBoxLayout.FLEXIBLE);
 
         final TimeStatusBarItem time = new TimeStatusBarItem();
-        Debug.trace(time.getItemName());
         time.setPreferredWidth(80);
         time.setUpdateInterval(1000);
         time.setAlignment(JLabel.CENTER);
         statusBar.add(time, JideBoxLayout.FLEXIBLE);
 
         final MemoryStatusBarItem gc = new MemoryStatusBarItem();
-        Debug.trace(gc.getItemName());
         gc.setPreferredWidth(100);
         gc.setUpdateInterval(1000);
         gc.setGcIcon(UIUtils.loadImageIcon("icons/GC18.gif"));
