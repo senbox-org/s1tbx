@@ -171,7 +171,12 @@ public class KMeansClusterOp extends Operator {
             Rectangle[] tileRectangles = getAllTileRactangles();
             pm.beginTask("Extracting data points...", tileRectangles.length * iterationCount * 2 + 2);
             try {
-                joinRoiAndNoDataMask();
+                Band roiBand = null;
+                if (StringUtils.isNotNullAndNotEmpty(roiBandName)) {
+                    roiBand = sourceProduct.getBand(roiBandName);
+                }
+                RoiCombiner roiCombiner = new RoiCombiner(sourceBands, roiBand);
+                roi = roiCombiner.getCombinedRoi();
                 pm.worked(1);
                 final KMeansClusterer clusterer = createClusterer();
                 pm.worked(1);
@@ -241,62 +246,6 @@ public class KMeansClusterOp extends Operator {
         }
         return new PixelIter(sourceTiles, roi);
     }
-    
-    private void joinRoiAndNoDataMask() throws IOException {
-        if (StringUtils.isNotNullAndNotEmpty(roiBandName)) {
-            Band roiBand = sourceProduct.getBand(roiBandName);
-            if (roiBand.isROIUsable()) {
-                try {
-                    roi = roiBand.createROI(ProgressMonitor.NULL);
-                } catch (IOException e) {
-                    throw new OperatorException(e);
-                }
-            }
-        }
-        Set<String> validMaskSet = new HashSet<String>(sourceBands.length);
-        for (int i = 0; i < sourceBands.length; i++) {
-            Band band = sourceBands[i];
-            String validExpression = band.getValidMaskExpression();
-            if (StringUtils.isNotNullAndNotEmpty(validExpression)
-                    && !validMaskSet.contains(validExpression)) {
-                validMaskSet.add(validExpression);
-                // using ValidMaskOpImage does not work correctly. Use workaround (mz, 03.07.2008)
-                // PlanarImage noDataImage = new ValidMaskOpImage(band);
-                BufferedImage noDataImage = createValidMaskImage(band);
-                ROI noDataRoi = new ROI(noDataImage, 1);
-                if(roi == null) {
-                    roi = noDataRoi;
-                } else {
-                    roi = roi.intersect(noDataRoi);
-                }
-            }
-        }
-    }
-    
-    private BufferedImage createValidMaskImage(RasterDataNode raster) throws IOException {
-        final byte b00 = (byte) 0;
-        final byte b01 = (byte) 1;
-        final int width = raster.getSceneRasterWidth();
-        final int height = raster.getSceneRasterHeight();
-        final Color color = Color.WHITE;
-        final IndexColorModel cm = new IndexColorModel(8, 2,
-                                                       new byte[]{b00, (byte) color.getRed()},
-                                                       new byte[]{b00, (byte) color.getGreen()},
-                                                       new byte[]{b00, (byte) color.getBlue()},
-                                                       0);
-        final BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_INDEXED, cm);
-        final byte[] imageDataBuffer = ((DataBufferByte) bi.getRaster().getDataBuffer()).getData();
-        raster.ensureValidMaskComputed(ProgressMonitor.NULL);
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                if (raster.isPixelValid(x, y)) {
-                    imageDataBuffer[y * width + x] = b01;
-                }
-            }
-        }
-        return bi;
-    }
-    
     
     public static class Spi extends OperatorSpi {
 
