@@ -923,8 +923,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
             multiAssignToProductsButton.setEnabled(visatApp != null
                                                     && visatApp.getProductManager().getProductCount() > 1);
         } else {
-            applyButton.setEnabled(false);
-            multiAssignToBandsButton.setEnabled(false);
+            setApplyEnabled(false);
             multiAssignToProductsButton.setEnabled(false);
             resetButton.setEnabled(false);
             undoButton.setEnabled(false);
@@ -1084,7 +1083,6 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
                     shapeFigure = currentShapeFigure;
                 }
                 updateUIState();
-                applyButton.setEnabled(true);
             }
         }
     }
