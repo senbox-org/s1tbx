@@ -426,12 +426,12 @@ class ScatterPlotPanel extends PagePanel {
                     }
 
                     if (MathUtils.equalValues(minX, maxX, 1.0e-4)) {
-                        minX = Math.round(minX);
-                        maxX = Math.round(maxX+0.5);
+                        minX = Math.floor(minX);
+                        maxX = Math.ceil(maxX);
                     }
                     if (MathUtils.equalValues(maxY, maxY, 1.0e-4)) {
-                        minY = Math.round(minY);
-                        maxY = Math.round(maxY+0.5);
+                        minY = Math.floor(minY);
+                        maxY = Math.ceil(maxY);
                     }
                     plot.setImage(scatterPlot.getImage());
                     plot.setImageDataBounds(new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY));
