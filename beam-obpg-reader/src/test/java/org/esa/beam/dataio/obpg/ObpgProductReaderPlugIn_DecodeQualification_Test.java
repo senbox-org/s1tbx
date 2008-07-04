@@ -177,4 +177,52 @@ public class ObpgProductReaderPlugIn_DecodeQualification_Test extends HDFTestCas
         order.verify(obpgUtilsMock, times(1)).closeHdfFile(222);
         verifyNoMoreInteractions(obpgUtilsMock);
     }
+
+    public void test_INTENDED___CZCS_Level_2_Data() throws HDFException {
+        final ArrayList<HdfAttribute> attributeList = new ArrayList<HdfAttribute>();
+        attributeList.add(new HdfAttribute("Title", HDFConstants.DFNT_CHAR8, "CZCS Level-2 Data", 17));
+        attributeList.add(new HdfAttribute("anyName2", 6, "gsche", 5));
+
+        stub(obpgUtilsMock.isHdfFile(anyString())).toReturn(true);
+        stub(obpgUtilsMock.openHdfFileReadOnly(anyString())).toReturn(222);
+        stub(obpgUtilsMock.openSdInterfaceReadOnly(anyString())).toReturn(333);
+        stub(obpgUtilsMock.readGlobalAttributes(anyInt())).toReturn(attributeList);
+        stub(obpgUtilsMock.closeHdfFile(anyInt())).toReturn(true);
+
+        final DecodeQualification qualification = plugIn.getDecodeQualification(file);
+
+        assertEquals(DecodeQualification.INTENDED, qualification);
+
+        final InOrder order = inOrder(obpgUtilsMock);
+        order.verify(obpgUtilsMock, times(1)).isHdfFile(file.getPath());
+        order.verify(obpgUtilsMock, times(1)).openHdfFileReadOnly(file.getPath());
+        order.verify(obpgUtilsMock, times(1)).openSdInterfaceReadOnly(file.getPath());
+        order.verify(obpgUtilsMock, times(1)).readGlobalAttributes(333);
+        order.verify(obpgUtilsMock, times(1)).closeHdfFile(222);
+        verifyNoMoreInteractions(obpgUtilsMock);
+    }
+
+    public void test_INTENDED___OCTS_Level_2_Data() throws HDFException {
+        final ArrayList<HdfAttribute> attributeList = new ArrayList<HdfAttribute>();
+        attributeList.add(new HdfAttribute("Title", HDFConstants.DFNT_CHAR8, "OCTS Level-2 Data", 17));
+        attributeList.add(new HdfAttribute("anyName2", 6, "gsche", 5));
+
+        stub(obpgUtilsMock.isHdfFile(anyString())).toReturn(true);
+        stub(obpgUtilsMock.openHdfFileReadOnly(anyString())).toReturn(222);
+        stub(obpgUtilsMock.openSdInterfaceReadOnly(anyString())).toReturn(333);
+        stub(obpgUtilsMock.readGlobalAttributes(anyInt())).toReturn(attributeList);
+        stub(obpgUtilsMock.closeHdfFile(anyInt())).toReturn(true);
+
+        final DecodeQualification qualification = plugIn.getDecodeQualification(file);
+
+        assertEquals(DecodeQualification.INTENDED, qualification);
+
+        final InOrder order = inOrder(obpgUtilsMock);
+        order.verify(obpgUtilsMock, times(1)).isHdfFile(file.getPath());
+        order.verify(obpgUtilsMock, times(1)).openHdfFileReadOnly(file.getPath());
+        order.verify(obpgUtilsMock, times(1)).openSdInterfaceReadOnly(file.getPath());
+        order.verify(obpgUtilsMock, times(1)).readGlobalAttributes(333);
+        order.verify(obpgUtilsMock, times(1)).closeHdfFile(222);
+        verifyNoMoreInteractions(obpgUtilsMock);
+    }
 }

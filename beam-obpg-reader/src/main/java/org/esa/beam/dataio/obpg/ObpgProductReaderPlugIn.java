@@ -15,7 +15,6 @@ package org.esa.beam.dataio.obpg;
 import ncsa.hdf.hdflib.HDFConstants;
 import org.esa.beam.dataio.obpg.hdf.HdfAttribute;
 import org.esa.beam.dataio.obpg.hdf.ObpgUtils;
-import org.esa.beam.dataio.obpg.hdf.lib.HDF;
 import org.esa.beam.framework.dataio.DecodeQualification;
 import org.esa.beam.framework.dataio.ProductReader;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
@@ -74,7 +73,6 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
                 if (!hdfLibAvailable
                     || file == null
                     || !file.isFile()
-                    || !file.getPath().toLowerCase().endsWith("." + DEFAULT_FILE_EXTENSION)
                     || !utils.isHdfFile(file.getPath())) {
                     return DecodeQualification.UNABLE;
                 }
@@ -86,7 +84,9 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
                         final String value = hdfAttribute.getStringValue();
                         if (value != null) {
                             if (value.startsWith("MODISA Level-2 Data")
-                                || value.startsWith("MODIST Level-2 Data")) {
+                                || value.startsWith("MODIST Level-2 Data")
+                                || value.startsWith("CZCS Level-2 Data")
+                                || value.startsWith("OCTS Level-2 Data")) {
                                 return DecodeQualification.INTENDED;
                             }
                         }
