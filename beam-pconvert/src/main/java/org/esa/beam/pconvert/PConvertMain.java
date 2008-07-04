@@ -17,6 +17,7 @@
 package org.esa.beam.pconvert;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.dataio.dimap.DimapProductWriterPlugIn;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
@@ -287,7 +288,7 @@ public class PConvertMain {
         // Check output directory
 
         if (_outputDir != null && !_outputDir.exists()) {
-            error("output directory not found");
+            error("output directory not found: " + _outputDir.getAbsolutePath());
         }
 
         if (_rgbProfile != null && !_rgbProfile.exists()) {
@@ -562,7 +563,25 @@ public class PConvertMain {
         // create image
         try {
             log("creating RGB image...");
-            image = ProductUtils.createOverlayedImage(product, _bandIndices, _histogramMatching);
+            final Band[] bands = new Band[_bandIndices.length];
+            for (int i = 0; i < bands.length; i++) {
+                bands[i] = product.getBandAt(_bandIndices[i]);
+            }
+
+            ImageInfo imageInfo = ProductUtils.createImageInfo(bands, true, ProgressMonitor.NULL);
+            if(imageInfo.getNoDataColor().getAlpha() <255 && "BMP".equalsIgnoreCase(_formatName)) {
+                if(_noDataColor != null) {
+                    imageInfo.setNoDataColor(_noDataColor);
+                }else {
+                    imageInfo.setNoDataColor(Color.BLACK);
+                }
+            }
+            imageInfo.setHistogramMatching(ImageInfo.getHistogramMatching(_histogramMatching));
+            image = ProductUtils.createRgbImage(bands, imageInfo, ProgressMonitor.NULL);
+            if(image.getColorModel().hasAlpha() && "BMP".equalsIgnoreCase(_formatName)) {
+                error("failed to write image: BMP does not support transparency");
+                return;
+            }
         } catch (Exception e) {
             Debug.trace(e);
             error("failed to create image: " + e.getMessage());
