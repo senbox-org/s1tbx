@@ -42,14 +42,7 @@ class CollocationFormModel {
 
     // todo - this is a generally useful helper method!
     public static ValueContainer createValueContainer(String operatorName, Object object)  {
-        final ValueContainerFactory factory = new ValueContainerFactory(new ValueDescriptorFactory() {
-            public ValueDescriptor createValueDescriptor(Field field) {
-                return new ValueDescriptor(field.getName(), field.getType());
-            }
-        });
-
-        ValueContainer vc1 = factory.createObjectBackedValueContainer(object);
-
+        ValueContainer vc1 = ValueContainer.createObjectBacked(object);
         ValueContainer vc0 = ParameterDescriptorFactory.createMapBackedOperatorValueContainer(operatorName);
         try {
             vc0.setDefaultValues();

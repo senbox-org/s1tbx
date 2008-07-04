@@ -60,8 +60,7 @@ public class ParametersPaneTest extends TestCase {
     }
 
     private static ParametersPane createParametersPane() throws ConversionException {
-        ValueContainerFactory factory = new ValueContainerFactory();
-        ValueContainer vc = factory.createObjectBackedValueContainer(new V());
+        ValueContainer vc = ValueContainer.createObjectBacked(new V());
 
         vc.getValueDescriptor("threshold").setValueRange(ValueRange.parseValueRange("[0,1)")); // todo - not recognised (nf - 24.10.2007)
         vc.getValueDescriptor("resamplingMethod").setValueSet(

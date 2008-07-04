@@ -333,8 +333,8 @@ public class OperatorContext {
 
     private ValueContainer getOperatorValueContainer() {
         if (valueContainer == null) {
-            ValueContainerFactory containerFactory = new ValueContainerFactory(new ParameterDescriptorFactory(sourceProductMap));
-            valueContainer = containerFactory.createObjectBackedValueContainer(operator);
+            ClassFieldDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory(sourceProductMap);
+            valueContainer = ValueContainer.createObjectBacked(operator, parameterDescriptorFactory);
         }
         return valueContainer;
     }
@@ -717,8 +717,7 @@ public class OperatorContext {
         final DefaultDomConverter domConverter = new DefaultDomConverter(value.getClass(), parameterDescriptorFactory);
         domConverter.convertDomToValue(xpp3DomElement, value);
 
-        ValueContainerFactory valueContainerFactory = new ValueContainerFactory(parameterDescriptorFactory);
-        final ValueContainer valueContainer = valueContainerFactory.createObjectBackedValueContainer(value);
+        final ValueContainer valueContainer = ValueContainer.createObjectBacked(value, parameterDescriptorFactory);
         Set<Reference> referenceSet = operatorConfiguration.getReferenceSet();
         for (Reference reference : referenceSet) {
             ValueModel valueModel = valueContainer.getModel(reference.getParameterName());

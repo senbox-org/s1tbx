@@ -24,7 +24,6 @@ import org.esa.beam.framework.ui.application.SelectionChangeListener;
 
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueContainerFactory;
 import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.swing.BindingContext;
@@ -89,9 +88,9 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         this.form = new JTabbedPane();
         this.form.add("I/O Parameters", ioParametersPanel);
 
-        ValueContainerFactory factory = new ValueContainerFactory(new ParameterDescriptorFactory());
+        ParameterDescriptorFactory parameterDescriptorFactory = new ParameterDescriptorFactory();
         parameterMap = new HashMap<String, Object>(17);
-        final ValueContainer valueContainer = factory.createMapBackedValueContainer(operatorSpi.getOperatorClass(), parameterMap);
+        final ValueContainer valueContainer = ValueContainer.createMapBacked(parameterMap, operatorSpi.getOperatorClass(), parameterDescriptorFactory);
         try {
             valueContainer.setDefaultValues();
         } catch (ValidationException e) {

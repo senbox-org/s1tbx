@@ -35,12 +35,7 @@ public class TargetProductSelectorModel {
     private final ValueContainer valueContainer;
 
     TargetProductSelectorModel() {
-        final ValueContainerFactory factory = new ValueContainerFactory(new ValueDescriptorFactory() {
-            public ValueDescriptor createValueDescriptor(Field field) {
-                return new ValueDescriptor(field.getName(), field.getType());
-            }
-        });
-        valueContainer = factory.createObjectBackedValueContainer(this);
+        valueContainer = ValueContainer.createObjectBacked(this);
         valueContainer.addPropertyChangeListener("saveToFileSelected", new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
                 if (!(Boolean) evt.getNewValue()) {

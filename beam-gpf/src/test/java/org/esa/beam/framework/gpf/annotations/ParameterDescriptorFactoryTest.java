@@ -21,7 +21,6 @@ import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.ValueAccessor;
 import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueContainerFactory;
 import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.accessors.DefaultValueAccessor;
@@ -39,8 +38,7 @@ public class ParameterDescriptorFactoryTest extends TestCase{
     public void setUp() {
         ParameterDescriptorFactory pdf = new ParameterDescriptorFactory();
         TestPojo testPojo = new TestPojo();
-        ValueContainerFactory valueContainerFactory = new ValueContainerFactory(pdf);
-        valueContainer = valueContainerFactory.createObjectBackedValueContainer(testPojo);
+        valueContainer = ValueContainer.createObjectBacked(testPojo, pdf);
     }
     
     public void testPercentageField() throws Exception {

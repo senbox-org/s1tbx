@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 
-public class ParameterDescriptorFactory implements ValueDescriptorFactory {
+public class ParameterDescriptorFactory implements ClassFieldDescriptorFactory {
 
     private Map<String, Product> sourceProductMap;
 
@@ -23,7 +23,7 @@ public class ParameterDescriptorFactory implements ValueDescriptorFactory {
     }
 
     public static ValueContainer createMapBackedOperatorValueContainer(String operatorName, Map<String, Object> operatorParameters) {
-        return createVCF().createMapBackedValueContainer(getOpType(operatorName), operatorParameters);
+        return ValueContainer.createMapBacked(operatorParameters, getOpType(operatorName), new ParameterDescriptorFactory());
     }
 
     public ParameterDescriptorFactory() {
@@ -137,10 +137,6 @@ public class ParameterDescriptorFactory implements ValueDescriptorFactory {
             valueDescriptor.setValueSet(new ValueSet(values));
         }
         return valueDescriptor;
-    }
-
-    private static ValueContainerFactory createVCF() {
-        return new ValueContainerFactory(new ParameterDescriptorFactory());
     }
 
     private static Class<? extends Operator> getOpType(String operatorName) {
