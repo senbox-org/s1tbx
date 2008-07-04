@@ -21,6 +21,7 @@ public class EMClusterAnalysisAction extends AbstractVisatAction {
         if (selectedProduct != null) {
             DefaultSingleTargetProductDialog productDialog =
                     new DefaultSingleTargetProductDialog("EMClusterAnalysis", getAppContext(), "EM Cluster Analysis", null);
+            productDialog.setTargetProductNameSuffix("_em");
             productDialog.show();
         }
     }

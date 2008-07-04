@@ -27,7 +27,6 @@ import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueContainerFactory;
 import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
-import com.bc.ceres.binding.swing.Binding;
 import com.bc.ceres.binding.swing.BindingContext;
 
 // todo (mp, 2008/04/22) add abillity to set the ProductFilter to SourceProductSelectors
@@ -80,9 +79,9 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         ioParametersPanel.add(tableLayout.createVerticalSpacer());
         sourceProductSelectorList.get(0).addSelectionChangeListener(new SelectionChangeListener() {
             public void selectionChanged(SelectionChangeEvent event) {
-                final Product element = (Product) event.getSelection().getFirstElement();
+                final Product selectedProduct = (Product) event.getSelection().getFirstElement();
                 final TargetProductSelectorModel targetProductSelectorModel = getTargetProductSelector().getModel();
-                targetProductSelectorModel.setProductName(element.getName() + getTargetProductNameSuffix());
+                targetProductSelectorModel.setProductName(selectedProduct.getName() + getTargetProductNameSuffix());
             }
         });
 

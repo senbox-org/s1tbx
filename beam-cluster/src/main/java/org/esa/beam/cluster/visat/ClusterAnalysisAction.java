@@ -21,6 +21,7 @@ public class ClusterAnalysisAction extends AbstractVisatAction {
         if (selectedProduct != null) {
             DefaultSingleTargetProductDialog productDialog =
                     new DefaultSingleTargetProductDialog("ClucovClusterAnalysis", getAppContext(), "Clucov Cluster Analysis", null);
+            productDialog.setTargetProductNameSuffix("_clucov");
             productDialog.show();
         }
     }

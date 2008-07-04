@@ -21,6 +21,7 @@ public class KMeansClusterAnalysisAction extends AbstractVisatAction {
         if (selectedProduct != null) {
             DefaultSingleTargetProductDialog productDialog =
                     new DefaultSingleTargetProductDialog("KMeansClusterAnalysis", getAppContext(), "K-Means Cluster Analysis", null);
+            productDialog.setTargetProductNameSuffix("_kmeans");
             productDialog.show();
         }
     }
