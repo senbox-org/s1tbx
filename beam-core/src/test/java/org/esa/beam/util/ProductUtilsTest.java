@@ -18,6 +18,7 @@
 package org.esa.beam.util;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -42,66 +43,6 @@ public class ProductUtilsTest extends TestCase {
 
     public static Test suite() {
         return new TestSuite(ProductUtilsTest.class);
-    }
-
-    public void testCreateBufferedImageRGB() {
-        final VirtualBand redRaster = new VirtualBand("bn", ProductData.TYPE_FLOAT32, 2, 3, "0");
-        final VirtualBand greenRaster = new VirtualBand("bn", ProductData.TYPE_FLOAT32, 2, 3, "0");
-        final VirtualBand blueRaster = new VirtualBand("bn", ProductData.TYPE_FLOAT32, 2, 3, "0");
-        final float[] floatsr = new float[]{1, 2, 3, 4, 5, 6};
-        final float[] floatsg = new float[]{1, 2, 3, 5, 6, 7};
-        final float[] floatsb = new float[]{1, 2, 3, 6, 7, 8};
-        redRaster.ensureRasterData();
-        redRaster.setDataElems(floatsr);
-        greenRaster.ensureRasterData();
-        greenRaster.setDataElems(floatsg);
-        blueRaster.ensureRasterData();
-        blueRaster.setDataElems(floatsb);
-        final VirtualBand[] virtualBands = new VirtualBand[]{redRaster, greenRaster, blueRaster};
-        BufferedImage bufferedImageRGB = null;
-        try {
-            bufferedImageRGB = ProductUtils.createRgbImage(virtualBands, ProgressMonitor.NULL);
-        } catch (IOException e) {
-            fail("unexpected IOException");
-        }
-
-        assertNotNull(bufferedImageRGB);
-
-//        Expected RGB values
-//                 R        G        B          HEX
-//        0,0  00000000 00000000 00000000    00 00 00
-//        1,0  00110011 00101010 00100100    33 2A 24
-//        0,1  01100110 01010101 01001001    66 55 49
-//        1,1  10011001 10101010 10110110    99 AA B6
-//        0,2  11001100 11010101 11011011    CC D5 DB
-//        1,2  11111111 11111111 11111111    FF FF FF
-
-        int rgb;
-        final int withoutAlpha = 0x00ffffff;
-
-        rgb = bufferedImageRGB.getRGB(0, 0);
-        rgb = rgb & withoutAlpha;
-        assertEquals(0x000000, rgb);
-
-        rgb = bufferedImageRGB.getRGB(1, 0);
-        rgb = rgb & withoutAlpha;
-        assertEquals(0x332A24, rgb);
-
-        rgb = bufferedImageRGB.getRGB(0, 1);
-        rgb = rgb & withoutAlpha;
-        assertEquals(0x665549, rgb);
-
-        rgb = bufferedImageRGB.getRGB(1, 1);
-        rgb = rgb & withoutAlpha;
-        assertEquals(0x99AAB6, rgb);
-
-        rgb = bufferedImageRGB.getRGB(0, 2);
-        rgb = rgb & withoutAlpha;
-        assertEquals(0xCCD5DB, rgb);
-
-        rgb = bufferedImageRGB.getRGB(1, 2);
-        rgb = rgb & withoutAlpha;
-        assertEquals(0xFFFFFF, rgb);
     }
 
     public void testGetAngleSum() {
