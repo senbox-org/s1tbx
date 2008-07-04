@@ -30,14 +30,14 @@ public class HdfFacade {
 
     public SDFileInfo getSDFileInfo(int sdStart) throws HDFException {
         final int[] ints = new int[2];
-        if (HDF.getWrap().SDfileinfo(sdStart, ints)) {
+        if (HDF.getInstance().SDfileinfo(sdStart, ints)) {
             return new SDFileInfo(ints[0], ints[1]);
         }
         return null;
     }
 
     public SdsInfo getSdsInfo(int sdStart, int index) throws HDFException {
-        final int sdsID = HDF.getWrap().SDselect(sdStart, index);
+        final int sdsID = HDF.getInstance().SDselect(sdStart, index);
         return getSdsInfo(sdsID);
     }
 
@@ -45,7 +45,7 @@ public class HdfFacade {
         final String[] name = new String[]{""};
         final int[] dimensions = new int[3];
         final int[] dimsDtAttribs = new int[3];
-        if (HDF.getWrap().SDgetinfo(sdsID, name, dimensions, dimsDtAttribs)) {
+        if (HDF.getInstance().SDgetinfo(sdsID, name, dimensions, dimsDtAttribs)) {
             final int numDimensions = dimsDtAttribs[0];
             final int hdfDataType = dimsDtAttribs[1];
             final int numAttributes = dimsDtAttribs[2];
@@ -62,11 +62,11 @@ public class HdfFacade {
         final String[] sdVal = new String[1];
         for (int n = 0; n < numAttributes; n++) {
             sdVal[0] = "";
-            if (HDF.getWrap().SDattrinfo(sdsId, n, sdVal, sdAttrInfo)) {
-                final int attrSize = HDF.getWrap().DFKNTsize(sdAttrInfo[0]) * sdAttrInfo[1] + 1;
+            if (HDF.getInstance().SDattrinfo(sdsId, n, sdVal, sdAttrInfo)) {
+                final int attrSize = HDF.getInstance().DFKNTsize(sdAttrInfo[0]) * sdAttrInfo[1] + 1;
                 final byte[] buf = new byte[attrSize];
 
-                if (HDF.getWrap().SDreadattr(sdsId, n, buf)) {
+                if (HDF.getInstance().SDreadattr(sdsId, n, buf)) {
                     final String attrName = sdVal[0].trim();
                     final HdfAttribute attribute
                                 = decodeByteBufferToAttribute(buf, sdAttrInfo[0], sdAttrInfo[1], attrName);
@@ -90,7 +90,7 @@ public class HdfFacade {
     public HdfAttribute decodeByteBufferToAttribute(byte[] buf, int NT, int count, String name)
                 throws HDFException {
         final String strVal;
-        final int incr = HDF.getWrap().DFKNTsize(NT);
+        final int incr = HDF.getInstance().DFKNTsize(NT);
 
         String strTemp;
 
@@ -204,22 +204,22 @@ public class HdfFacade {
     }
 
     public int openHdfFileReadOnly(final String path) throws HDFException {
-        final int fileId = HDF.getWrap().Hopen(path, HDFConstants.DFACC_RDONLY);
+        final int fileId = HDF.getInstance().Hopen(path, HDFConstants.DFACC_RDONLY);
         return fileId;
     }
 
     public int openSdInterfaceReadOnly(final String path) throws HDFException {
-        final int sdStart = HDF.getWrap().SDstart(path, HDFConstants.DFACC_RDONLY);
+        final int sdStart = HDF.getInstance().SDstart(path, HDFConstants.DFACC_RDONLY);
         return sdStart;
     }
 
     public boolean closeHdfFile(final int fileId) throws HDFException {
-        return HDF.getWrap().Hclose(fileId);
+        return HDF.getInstance().Hclose(fileId);
     }
 
 
     public boolean isHdfFile(final String path) throws HDFException {
-        return HDF.getWrap().Hishdf(path);
+        return HDF.getInstance().Hishdf(path);
     }
 
     public ProductData readProductData(SdsInfo sdsInfo, ProductData data) throws HDFException {
@@ -232,7 +232,7 @@ public class HdfFacade {
             count[i] = dimensions[i];
         }
         final Object buffer = data.getElems();
-        HDF.getWrap().SDreaddata(sdsID, start, stride, count, buffer);
+        HDF.getInstance().SDreaddata(sdsID, start, stride, count, buffer);
         return data;
     }
 }

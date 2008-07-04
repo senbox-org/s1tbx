@@ -2,10 +2,8 @@
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-obpg-reader</symbolicName>
     <version>1.0</version>
-    <name>OBPG Level-2 Product Reader</name>
-
-
-    <description>A reader for OBPG(MODIS) Level-2 data products.</description>
+    <name>NASA OBPG Level-2 Data Product Reader</name>
+    <description>A reader for NASA OBPG (Ocean Biology Processing Group) Level-2 Data Products</description>
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>

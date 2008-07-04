@@ -44,7 +44,7 @@ public class ObpgFloat32BandReader extends ObpgBandReader {
     }
 
     protected void readLine() throws HDFException {
-        HDF.getWrap().SDreaddata(_sdsId, _start, _stride, _count, _line);
+        HDF.getInstance().SDreaddata(_sdsId, _start, _stride, _count, _line);
     }
 
     protected void validate(final int x) {

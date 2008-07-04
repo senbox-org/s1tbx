@@ -36,7 +36,7 @@ public class ObpgProductReaderPlugIn_Test extends TestCase {
 
         assertNotNull(fileExtensions);
         assertEquals(1, fileExtensions.length);
-        assertEquals("hdf", fileExtensions[0]);
+        assertEquals(".hdf", fileExtensions[0]);
     }
 
     public void testCreateReaderInstance() {
@@ -52,7 +52,7 @@ public class ObpgProductReaderPlugIn_Test extends TestCase {
 
         assertNotNull(formatNames);
         assertEquals(1, formatNames.length);
-        assertEquals("OBPG(MODIS)", formatNames[0]);
+        assertEquals("NASA_OBPG", formatNames[0]);
     }
 
     public void testGetInputTypes() {
@@ -64,12 +64,6 @@ public class ObpgProductReaderPlugIn_Test extends TestCase {
         assertEquals("java.io.File", classes[1].getName());
     }
 
-    public void testGetDescription() {
-        final String description = plugIn.getDescription(Locale.GERMAN);
-
-        assertEquals("OBPG(MODIS) HDF4 Level-2 Data Products", description);
-    }
-
     public void test() {
         final BeamFileFilter beamFileFilter = plugIn.getProductFileFilter();
 
@@ -78,6 +72,6 @@ public class ObpgProductReaderPlugIn_Test extends TestCase {
         assertNotNull(extensions);
         assertEquals(1, extensions.length);
         assertEquals(".hdf", extensions[0]);
-        assertEquals("OBPG(MODIS)", beamFileFilter.getFormatName());
+        assertEquals("NASA_OBPG", beamFileFilter.getFormatName());
     }
 }

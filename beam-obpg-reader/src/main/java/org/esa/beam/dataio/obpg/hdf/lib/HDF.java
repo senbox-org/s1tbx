@@ -3,24 +3,23 @@ package org.esa.beam.dataio.obpg.hdf.lib;
 import ncsa.hdf.hdflib.HDFException;
 import ncsa.hdf.hdflib.HDFLibrary;
 import org.esa.beam.dataio.obpg.hdf.IHDF;
-import org.esa.beam.dataio.obpg.hdf.SDFileInfo;
 
 public class HDF implements IHDF {
 
-    private static IHDF wrap = new HDF();
+    private static IHDF instance = new HDF();
 
-    final public static IHDF getWrap() {
-        return wrap;
+    public static IHDF getInstance() {
+        return instance;
     }
 
     /**
      * By default this method should not be invoked expect for test cases
      * Can only be invoked in the same package
      *
-     * @param wrap the mock for test case
+     * @param instance the mock for test case
      */
-    final static void setWrap(IHDF wrap) {
-        HDF.wrap = wrap;
+    static void setInstance(IHDF instance) {
+        HDF.instance = instance;
     }
 
     public boolean Hishdf(String path) throws HDFException {

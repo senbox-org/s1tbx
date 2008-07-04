@@ -29,10 +29,10 @@ public abstract class HDFTestCase extends TestCase {
     public void runBare() throws Throwable {
         final IHDF[] ihdf = new IHDF[1];
         try {
-            ihdf[0] = HDF.getWrap();
+            ihdf[0] = HDF.getInstance();
             super.runBare();
         } finally {
-            HDF.setWrap(ihdf[0]);
+            HDF.setInstance(ihdf[0]);
         }
     }
 
@@ -43,6 +43,6 @@ public abstract class HDFTestCase extends TestCase {
      * @param mock
      */
     protected void setHdfMock(IHDF mock) {
-        HDF.setWrap(mock);
+        HDF.setInstance(mock);
     }
 }

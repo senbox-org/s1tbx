@@ -9,11 +9,13 @@
         <version>4.2-SNAPSHOT</version>
     </parent>
 
+
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-obpg-reader</artifactId>
-    <name>OBPG(MODIS) Level-2 Product Reader</name>
+    <name>NASA OBPG Level-2 Data Product Reader</name>
     <version>1.0</version>
     <url>http://envisat.esa.int/beam/</url>
+    <description>A reader for NASA OBPG (Ocean Biology Processing Group) Level-2 Data Products</description>
 
     <dependencies>
         <dependency>

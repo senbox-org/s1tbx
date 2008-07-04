@@ -30,9 +30,10 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
     // This is here just to keep the property name
 //    private static final String HDF4_PROPERTY_KEY = "ncsa.hdf.hdflib.HDFLibrary.hdflib";
 
-    public static final String DEFAULT_FILE_EXTENSION = "hdf";
-    public static final String READER_DESCRIPTION = "OBPG(MODIS) HDF4 Level-2 Data Products";
-    public static final String FORMAT_NAME = "OBPG(MODIS)";
+    public static final String DEFAULT_FILE_EXTENSION = ".hdf";
+    public static final String READER_DESCRIPTION = "NASA OBPG Level-2 Data Products";
+    public static final String FORMAT_NAME = "NASA_OBPG";
+
 
     private static boolean hdfLibAvailable = false;
 
@@ -85,7 +86,8 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
                         if (value != null) {
                             if (value.startsWith("MODISA Level-2 Data")
                                 || value.startsWith("MODIST Level-2 Data")
-                                || value.startsWith("CZCS Level-2 Data")
+                                    || value.startsWith("SeaWiFS Level-2 Data")
+                                    || value.startsWith("CZCS Level-2 Data")
                                 || value.startsWith("OCTS Level-2 Data")) {
                                 return DecodeQualification.INTENDED;
                             }

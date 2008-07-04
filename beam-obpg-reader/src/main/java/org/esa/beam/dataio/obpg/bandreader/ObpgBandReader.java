@@ -93,7 +93,7 @@ abstract public class ObpgBandReader {
      * @throws ncsa.hdf.hdflib.HDFException
      */
     public void close() throws HDFException {
-        HDF.getWrap().SDendaccess(_sdsId);
+        HDF.getInstance().SDendaccess(_sdsId);
         _sdsId = HDFConstants.FAIL;
     }
 
