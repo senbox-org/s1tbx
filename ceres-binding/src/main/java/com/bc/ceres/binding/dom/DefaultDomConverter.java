@@ -11,9 +11,8 @@ import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.ConverterRegistry;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueContainer;
-import com.bc.ceres.binding.ValueContainerFactory;
 import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueDescriptorFactory;
+import com.bc.ceres.binding.ClassFieldDescriptorFactory;
 import com.bc.ceres.binding.ValueModel;
 
 /**
@@ -22,11 +21,11 @@ import com.bc.ceres.binding.ValueModel;
 public class DefaultDomConverter implements DomConverter {
 
     private Class<?> valueType;
-    private ValueContainerFactory valueContainerFactory;
+    private final ClassFieldDescriptorFactory valueDescriptorFactory;
 
-    public DefaultDomConverter(Class<?> valueType, ValueDescriptorFactory valueDescriptorFactory) {
+    public DefaultDomConverter(Class<?> valueType, ClassFieldDescriptorFactory valueDescriptorFactory) {
         this.valueType = valueType;
-        this.valueContainerFactory = new ValueContainerFactory(valueDescriptorFactory);
+        this.valueDescriptorFactory = valueDescriptorFactory;
     }
 
     /**
@@ -40,7 +39,7 @@ public class DefaultDomConverter implements DomConverter {
      * {@inheritDoc}
      */
     public void convertValueToDom(Object value, DomElement parentElement) {
-        final ValueContainer valueContainer = valueContainerFactory.createObjectBackedValueContainer(value);
+        final ValueContainer valueContainer = ValueContainer.createObjectBacked(value, valueDescriptorFactory);
         final ValueModel[] models = valueContainer.getModels();
         for (ValueModel model : models) {
             final ValueDescriptor descriptor = model.getDescriptor();
@@ -81,7 +80,7 @@ public class DefaultDomConverter implements DomConverter {
         }
         HashMap<String, List<Object>> inlinedArrays = null;
         List<Object> inlinedArray;
-        final ValueContainer valueContainer = valueContainerFactory.createObjectBackedValueContainer(value);
+        final ValueContainer valueContainer = ValueContainer.createObjectBacked(value, valueDescriptorFactory);
         final DomElement[] children = parentElement.getChildren();
         for (DomElement childElement : children) {
             final String childElementName = childElement.getName();
@@ -170,7 +169,6 @@ public class DefaultDomConverter implements DomConverter {
                 childValue = null;
             }
         } else {
-            ValueDescriptorFactory valueDescriptorFactory = valueContainerFactory.getValueDescriptorFactory();
             DefaultDomConverter childConverter = new DefaultDomConverter(valueType, valueDescriptorFactory);
             childValue = childConverter.convertDomToValue(childElement, null);
         }

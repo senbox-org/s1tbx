@@ -3,7 +3,7 @@ package com.bc.ceres.binding.dom;
 import com.bc.ceres.binding.ConversionException;
 import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueDescriptorFactory;
+import com.bc.ceres.binding.ClassFieldDescriptorFactory;
 import com.thoughtworks.xstream.io.copy.HierarchicalStreamCopier;
 import com.thoughtworks.xstream.io.xml.XppDomWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;
@@ -22,7 +22,7 @@ import java.lang.reflect.Field;
 
 public class DefaultDomConverterTest extends TestCase {
 
-    private static final ValueDescriptorFactory VALUE_DESCRIPTOR_FACTORY = new ValueDescriptorFactory() {
+    private static final ClassFieldDescriptorFactory VALUE_DESCRIPTOR_FACTORY = new ClassFieldDescriptorFactory() {
         public ValueDescriptor createValueDescriptor(Field field) {
             final ValueDescriptor descriptor = new ValueDescriptor(field.getName(), field.getType());
             final X xAnnotation = field.getAnnotation(X.class);

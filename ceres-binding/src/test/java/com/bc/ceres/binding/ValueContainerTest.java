@@ -11,18 +11,10 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 
 
-public class ValueContainerFactoryTest extends TestCase {
-
-    private ValueContainerFactory valueContainerFactory;
-
-    @Override
-    protected void setUp() throws Exception {
-
-        valueContainerFactory = new ValueContainerFactory();
-    }
+public class ValueContainerTest extends TestCase {
 
     public void testValueBackedValueContainer() throws ValidationException {
-        ValueContainer vc = valueContainerFactory.createValueBackedValueContainer(Pojo.class);
+        ValueContainer vc = ValueContainer.createValueBacked(Pojo.class);
 
         MyPropertyChangeListener pcl = new MyPropertyChangeListener();
         vc.addPropertyChangeListener(pcl);
@@ -34,7 +26,7 @@ public class ValueContainerFactoryTest extends TestCase {
 
     public void testMapBackedValueContainer() throws ValidationException {
         final HashMap<String, Object> map = new HashMap<String, Object>();
-        ValueContainer vc = valueContainerFactory.createMapBackedValueContainer(Pojo.class, map);
+        ValueContainer vc = ValueContainer.createMapBacked(map, Pojo.class);
         assertEquals(0, map.size());
 
         MyPropertyChangeListener pcl = new MyPropertyChangeListener();
@@ -51,7 +43,7 @@ public class ValueContainerFactoryTest extends TestCase {
 
     public void testObjectBackedValueContainer() throws ValidationException {
         Pojo pojo = new Pojo();
-        ValueContainer vc = valueContainerFactory.createObjectBackedValueContainer(pojo);
+        ValueContainer vc = ValueContainer.createObjectBacked(pojo);
         MyPropertyChangeListener pcl = new MyPropertyChangeListener();
         vc.addPropertyChangeListener(pcl);
 
@@ -111,22 +103,22 @@ public class ValueContainerFactoryTest extends TestCase {
     }
 
     public void testDefaultValues() throws ValidationException {
-        ValueContainerFactory vcFactory = new ValueContainerFactory(new MyValueDescriptorFactory());
+        ClassFieldDescriptorFactory valueDescriptorFactory = new MyValueDescriptorFactory();
 
         ValueContainer container;
 
-        container = vcFactory.createObjectBackedValueContainer(new Pojo());
+        container = ValueContainer.createObjectBacked(new Pojo(), valueDescriptorFactory);
         testCurrentValuesUsed(container);
         container.setDefaultValues();
         testDefaultValuesUsed(container);
 
-        container = vcFactory.createValueBackedValueContainer(Pojo.class);
+        container = ValueContainer.createValueBacked(Pojo.class, valueDescriptorFactory);
         testDefaultValuesUsed(container);
         container.setDefaultValues();
         testDefaultValuesUsed(container);
 
         HashMap<String, Object> map = new HashMap<String, Object>(5);
-        container = vcFactory.createMapBackedValueContainer(Pojo.class, map);
+        container = ValueContainer.createMapBacked(map, Pojo.class, valueDescriptorFactory);
         assertEquals(0, map.size());
         testInitialValuesUsed(container);
         container.setDefaultValues();
@@ -138,7 +130,7 @@ public class ValueContainerFactoryTest extends TestCase {
         map.put("name", "Hermann");
         map.put("age", 59);
         map.put("weight", 82.5);
-        container = vcFactory.createMapBackedValueContainer(Pojo.class, map);
+        container = ValueContainer.createMapBacked(map, Pojo.class, valueDescriptorFactory);
         assertEquals(4, map.size());
         testCurrentValuesUsed(container);
         container.setDefaultValues();
@@ -227,7 +219,7 @@ public class ValueContainerFactoryTest extends TestCase {
         }
     }
 
-    private static class MyValueDescriptorFactory implements ValueDescriptorFactory {
+    private static class MyValueDescriptorFactory implements ClassFieldDescriptorFactory {
         public ValueDescriptor createValueDescriptor(Field field) {
             ValueDescriptor descriptor = new ValueDescriptor(field.getName(), field.getType());
             if (!field.getName().endsWith("NoDefault")) {

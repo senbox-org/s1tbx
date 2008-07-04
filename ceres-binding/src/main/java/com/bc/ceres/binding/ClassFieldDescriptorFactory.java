@@ -3,12 +3,12 @@ package com.bc.ceres.binding;
 import java.lang.reflect.Field;
 
 /**
- * A factory for value descriptors derived from object {@link Field}s.
+ * A factory for value descriptors derived from class {@link Field}s.
  *
  * @author Norman Fomferra
  * @since 0.6
  */
-public interface ValueDescriptorFactory {
+public interface ClassFieldDescriptorFactory {
     /**
      * Creates a new value descriptor for the given field.
      *

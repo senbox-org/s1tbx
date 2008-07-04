@@ -1,6 +1,5 @@
 package com.bc.ceres.binding.swing;
 
-import com.bc.ceres.binding.ValueContainerFactory;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.ValueRange;
@@ -36,9 +35,7 @@ public class BindingContextUI {
         country = "Germany";
         healthy = true;
 
-        final ValueContainerFactory valueContainerFactory = new ValueContainerFactory();
-
-        final ValueContainer vc = valueContainerFactory.createObjectBackedValueContainer(this);
+        final ValueContainer vc = ValueContainer.createObjectBacked(this);
 
         vc.getModel("age").getDescriptor().setValueRange(new ValueRange(1, 150));
         vc.getModel("height").getDescriptor().setValueRange(new ValueRange(0.5, 2.5));

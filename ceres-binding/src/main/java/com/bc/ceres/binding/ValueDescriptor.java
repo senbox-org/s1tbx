@@ -2,7 +2,16 @@ package com.bc.ceres.binding;
 
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.binding.dom.DomConverter;
+import com.bc.ceres.binding.validators.ArrayValidator;
+import com.bc.ceres.binding.validators.IntervalValidator;
+import com.bc.ceres.binding.validators.MultiValidator;
+import com.bc.ceres.binding.validators.NotEmptyValidator;
+import com.bc.ceres.binding.validators.NotNullValidator;
+import com.bc.ceres.binding.validators.PatternValidator;
+import com.bc.ceres.binding.validators.TypeValidator;
+import com.bc.ceres.binding.validators.ValueSetValidator;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.beans.PropertyChangeSupport;
@@ -250,5 +259,70 @@ public class ValueDescriptor {
     private boolean getBooleanProperty(String name) {
         Object v = getProperty(name);
         return v != null && (Boolean) v;
+    }
+
+    static Validator createValidator(ValueDescriptor vd) {
+        List<Validator> validators = new ArrayList<Validator>(3);
+    
+        validators.add(new TypeValidator());
+    
+        if (vd.isNotNull()) {
+            validators.add(new NotNullValidator());
+        }
+        if (vd.isNotEmpty()) {
+            validators.add(new NotEmptyValidator());
+        }
+        if (vd.getPattern() != null) {
+            validators.add(new PatternValidator(vd.getPattern()));
+        }
+        if (vd.getValueSet() != null) {
+            Validator valueSetValidator = new ValueSetValidator(vd);
+            if (vd.getType().isArray()) {
+                valueSetValidator = new ArrayValidator(valueSetValidator);
+            }
+            validators.add(valueSetValidator);
+        }
+        if (vd.getValueRange() != null) {
+            validators.add(new IntervalValidator(vd.getValueRange()));
+        }
+        if (vd.getValidator() != null) {
+            validators.add(vd.getValidator());
+        }
+        Validator validator;
+        if (validators.isEmpty()) {
+            validator = null;
+        } else if (validators.size() == 1) {
+            validator = validators.get(0);
+        } else {
+            validator = new MultiValidator(validators);
+        }
+        return validator;
+    }
+
+    static void initValueDescriptor(ValueDescriptor valueDescriptor) {
+        if (valueDescriptor.getConverter() == null) {
+            valueDescriptor.setDefaultConverter();
+        }
+        if (valueDescriptor.getValidator() == null) {
+            valueDescriptor.setValidator(createValidator(valueDescriptor));
+        }
+        if (valueDescriptor.getDefaultValue() == null && valueDescriptor.getType().isPrimitive()) {
+            valueDescriptor.setDefaultValue(ValueModel.PRIMITIVE_ZERO_VALUES.get(valueDescriptor.getType()));
+        }
+    }
+
+    static ValueDescriptor createValueDescriptor(String name, Class<? extends Object> type) {
+        final ValueDescriptor valueDescriptor = new ValueDescriptor(name, type);
+        initValueDescriptor(valueDescriptor);
+        return valueDescriptor;
+    }
+
+    static ValueDescriptor createValueDescriptor(Field field, ClassFieldDescriptorFactory factory) {
+        final ValueDescriptor valueDescriptor = factory.createValueDescriptor(field);
+        if (valueDescriptor == null) {
+            return null;
+        }
+        initValueDescriptor(valueDescriptor);
+        return valueDescriptor;
     }
 }

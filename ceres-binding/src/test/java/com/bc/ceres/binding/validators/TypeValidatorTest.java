@@ -18,8 +18,7 @@ public class TypeValidatorTest extends TestCase {
 
     public void testValidation() throws ValidationException {
         final TypeValidator typeValidator = new TypeValidator();
-        final ValueContainerFactory factory = new ValueContainerFactory();
-        final ValueContainer valueContainer = factory.createObjectBackedValueContainer(this);
+        final ValueContainer valueContainer = ValueContainer.createObjectBacked(this);
 
         String s;
 
