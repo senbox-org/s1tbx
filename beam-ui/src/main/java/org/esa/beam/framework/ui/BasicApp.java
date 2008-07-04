@@ -117,6 +117,10 @@ public class BasicApp {
     public static final String MESSAGE_STATUS_BAR_ITEM_KEY = "Message";
     public static final String POSITION_STATUS_BAR_ITEM_KEY = "Position";
     public static final String TIME_STATUS_BAR_ITEM_KEY = "Time";
+    /**
+     * @deprecated since BEAM 4.2, no replacement
+     */
+    @Deprecated
     public static final String OVRINS_STATUS_BAR_ITEM_KEY = "Message";
     public static final String MEMORY_STATUS_BAR_ITEM_KEY = "Memory";
     private File _beamUserDir;
