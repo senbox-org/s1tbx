@@ -245,7 +245,7 @@ public class ValueDescriptor {
     /////////////////////////////////////////////////////////////////////////
     // Package Local
 
-    static ValueDescriptor createValueDescriptor(String name, Class<? extends Object> type) {
+    static ValueDescriptor createValueDescriptor(String name, Class<?> type) {
         final ValueDescriptor valueDescriptor = new ValueDescriptor(name, type);
         valueDescriptor.initialize();
         return valueDescriptor;
@@ -268,7 +268,7 @@ public class ValueDescriptor {
             setDefaultConverter();
         }
         if (getValidator() == null) {
-            setValidator(createValidator(this));
+            setValidator(createValidator());
         }
         if (getDefaultValue() == null && getType().isPrimitive()) {
             setDefaultValue(ValueModel.PRIMITIVE_ZERO_VALUES.get(getType()));
@@ -295,32 +295,32 @@ public class ValueDescriptor {
         return v != null && (Boolean) v;
     }
 
-    private static Validator createValidator(ValueDescriptor vd) {
+    private Validator createValidator() {
         List<Validator> validators = new ArrayList<Validator>(3);
     
         validators.add(new TypeValidator());
     
-        if (vd.isNotNull()) {
+        if (isNotNull()) {
             validators.add(new NotNullValidator());
         }
-        if (vd.isNotEmpty()) {
+        if (isNotEmpty()) {
             validators.add(new NotEmptyValidator());
         }
-        if (vd.getPattern() != null) {
-            validators.add(new PatternValidator(vd.getPattern()));
+        if (getPattern() != null) {
+            validators.add(new PatternValidator(getPattern()));
         }
-        if (vd.getValueSet() != null) {
-            Validator valueSetValidator = new ValueSetValidator(vd);
-            if (vd.getType().isArray()) {
+        if (getValueSet() != null) {
+            Validator valueSetValidator = new ValueSetValidator(this);
+            if (getType().isArray()) {
                 valueSetValidator = new ArrayValidator(valueSetValidator);
             }
             validators.add(valueSetValidator);
         }
-        if (vd.getValueRange() != null) {
-            validators.add(new IntervalValidator(vd.getValueRange()));
+        if (getValueRange() != null) {
+            validators.add(new IntervalValidator(getValueRange()));
         }
-        if (vd.getValidator() != null) {
-            validators.add(vd.getValidator());
+        if (getValidator() != null) {
+            validators.add(getValidator());
         }
         Validator validator;
         if (validators.isEmpty()) {
