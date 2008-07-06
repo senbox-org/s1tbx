@@ -1,8 +1,8 @@
 package com.bc.ceres.binding.swing.internal;
 
 import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.swing.ComponentAdapter;
 import com.bc.ceres.binding.swing.Binding;
-import com.bc.ceres.binding.swing.BindingContext;
 
 import javax.swing.JComponent;
 import javax.swing.JSpinner;
@@ -18,15 +18,42 @@ import javax.swing.event.ChangeListener;
  * @version $Revision$ $Date$
  * @since BEAM 4.2
  */
-public class SpinnerBinding extends Binding implements ChangeListener {
+public class SpinnerAdapter extends ComponentAdapter implements ChangeListener {
 
     final JSpinner spinner;
 
-    public SpinnerBinding(BindingContext context, String propertyName, JSpinner spinner) {
-        super(context, propertyName);
+    public SpinnerAdapter(JSpinner spinner) {
         this.spinner = spinner;
+    }
 
-        ValueDescriptor valueDescriptor = getValueContainer().getValueDescriptor(propertyName);
+    @Override
+    public JComponent getPrimaryComponent() {
+        return spinner;
+    }
+
+    @Override
+    public void bindComponents() {
+        updateSpinnerModel();
+        spinner.addChangeListener(this);
+    }
+
+    @Override
+    public void unbindComponents() {
+        spinner.removeChangeListener(this);
+    }
+
+    @Override
+    public void adjustComponents() {
+        Object value = getBinding().getValue();
+        spinner.setValue(value);
+    }
+
+    public void stateChanged(ChangeEvent evt) {
+        getBinding().setValue(spinner.getValue());
+    }
+
+    private void updateSpinnerModel() {
+        ValueDescriptor valueDescriptor = getBinding().getContext().getValueContainer().getValueDescriptor(getBinding().getName());
         if (valueDescriptor.getValueRange() != null) {
             Class<?> type = valueDescriptor.getType();
 
@@ -53,22 +80,5 @@ public class SpinnerBinding extends Binding implements ChangeListener {
         } else if (valueDescriptor.getValueSet() != null) {
             spinner.setModel(new SpinnerListModel(valueDescriptor.getValueSet().getItems()));
         }
-
-        spinner.addChangeListener(this);
-    }
-
-    public void stateChanged(ChangeEvent evt) {
-        setValue(spinner.getValue());
-    }
-
-    @Override
-    protected void doAdjustComponents() {
-        Object value = getValue();
-        spinner.setValue(value);
-    }
-
-    @Override
-    public JComponent getPrimaryComponent() {
-        return spinner;
     }
 }

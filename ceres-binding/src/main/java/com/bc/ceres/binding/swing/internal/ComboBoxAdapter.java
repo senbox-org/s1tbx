@@ -2,8 +2,8 @@ package com.bc.ceres.binding.swing.internal;
 
 import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueSet;
+import com.bc.ceres.binding.swing.ComponentAdapter;
 import com.bc.ceres.binding.swing.Binding;
-import com.bc.ceres.binding.swing.BindingContext;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
@@ -20,27 +20,34 @@ import java.beans.PropertyChangeListener;
  * @version $Revision$ $Date$
  * @since BEAM 4.2
  */
-public class ComboBoxBinding extends Binding implements ActionListener, PropertyChangeListener {
+public class ComboBoxAdapter extends ComponentAdapter implements ActionListener, PropertyChangeListener {
 
     final JComboBox comboBox;
 
-    public ComboBoxBinding(BindingContext context, String propertyName, JComboBox comboBox) {
-        super(context, propertyName);
+    public ComboBoxAdapter(JComboBox comboBox) {
         this.comboBox = comboBox;
-
-        getValueDescriptor().addPropertyChangeListener(this);
-        updateComboBoxModel();
-
-        comboBox.addActionListener(this);
     }
 
     public void actionPerformed(ActionEvent event) {
-        setValue(comboBox.getSelectedItem());
+        getBinding().setValue(comboBox.getSelectedItem());
     }
 
     @Override
-    protected void doAdjustComponents() {
-        Object value = getValue();
+    public void bindComponents() {
+        updateComboBoxModel();
+        getValueDescriptor().addPropertyChangeListener(this);
+        comboBox.addActionListener(this);
+    }
+
+    @Override
+    public void unbindComponents() {
+        getValueDescriptor().removePropertyChangeListener(this);
+        comboBox.removeActionListener(this);
+    }
+
+    @Override
+    public void adjustComponents() {
+        Object value = getBinding().getValue();
         comboBox.setSelectedItem(value);
     }
 
@@ -56,13 +63,13 @@ public class ComboBoxBinding extends Binding implements ActionListener, Property
     }
 
     private ValueDescriptor getValueDescriptor() {
-        return getValueContainer().getValueDescriptor(getName());
+        return getBinding().getContext().getValueContainer().getValueDescriptor(getBinding().getName());
     }
 
     private void updateComboBoxModel() {
         ValueSet valueSet = getValueDescriptor().getValueSet();
         if (valueSet != null) {
-            final Object oldValue = getValue();
+            final Object oldValue = getBinding().getValue();
             final DefaultComboBoxModel aModel = new DefaultComboBoxModel(valueSet.getItems());
             if (!valueSet.contains(oldValue)) {
                 aModel.addElement(oldValue);

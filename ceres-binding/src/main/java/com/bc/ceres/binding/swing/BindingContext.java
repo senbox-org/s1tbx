@@ -27,7 +27,7 @@ public class BindingContext {
 
     private final ValueContainer valueContainer;
     private BindingContext.ErrorHandler errorHandler;
-    private Map<String, Binding> bindingMap;
+    private Map<String, BindingImpl> bindingMap;
 
     public BindingContext(ValueContainer valueContainer) {
         this(valueContainer, new BindingContext.DefaultErrorHandler());
@@ -36,7 +36,7 @@ public class BindingContext {
     public BindingContext(ValueContainer valueContainer, BindingContext.ErrorHandler errorHandler) {
         this.valueContainer = valueContainer;
         this.errorHandler = errorHandler;
-        this.bindingMap = new HashMap<String, Binding>(17);
+        this.bindingMap = new HashMap<String, BindingImpl>(17);
     }
 
     public ValueContainer getValueContainer() {
@@ -55,7 +55,7 @@ public class BindingContext {
         return bindingMap.get(propertyName);
     }
 
-    public Binding addBinding(Binding binding) {
+    public Binding addBinding(BindingImpl binding) {
         return bindingMap.put(binding.getName(), binding);
     }
 
@@ -63,75 +63,56 @@ public class BindingContext {
         return bindingMap.remove(propertyName);
     }
 
-    public Binding bind(final String propertyName, final JTextField textField) {
-        configureComponent(propertyName, textField);
-        Binding binding = new TextFieldBinding(this, textField, propertyName);
+    public BindingImpl bind(String propertyName, ComponentAdapter adapter) {
+        BindingImpl binding = new BindingImpl(this, propertyName, adapter);
         addBinding(binding);
+        adapter.setBinding(binding);
+        adapter.bindComponents();
+        binding.bindProperty();
         binding.adjustComponents();
+        configurePrimaryComponent(binding.getName(), binding.getPrimaryComponent());
         return binding;
+    }
+
+    public Binding bind(final String propertyName, final JTextField textField) {
+        return bind(propertyName, new TextFieldAdapter(textField));
     }
 
     public Binding bind(final String propertyName, final JFormattedTextField textField) {
-        configureComponent(propertyName, textField);
-        Binding binding = new FormattedTextFieldBinding(this, textField, propertyName);
-        addBinding(binding);
-        binding.adjustComponents();
-        return binding;
+        return bind(propertyName, new FormattedTextFieldAdapter(textField));
     }
 
     public Binding bind(final String propertyName, final JCheckBox checkBox) {
-        configureComponent(propertyName, checkBox);
-        Binding binding = new AbstractButtonBinding(this, propertyName, checkBox);
-        addBinding(binding);
-        binding.adjustComponents();
-        return binding;
+        return bind(propertyName, new AbstractButtonAdapter(checkBox));
     }
 
     public Binding bind(String propertyName, JRadioButton radioButton) {
-        configureComponent(propertyName, radioButton);
-        Binding binding = new AbstractButtonBinding(this, propertyName, radioButton);
-        addBinding(binding);
-        binding.adjustComponents();
-        return binding;
+        return bind(propertyName, new AbstractButtonAdapter(radioButton));
     }
 
     public Binding bind(final String propertyName, final JList list, final boolean selectionIsValue) {
         if (selectionIsValue) {
-            configureComponent(propertyName, list);
-            Binding binding = new ListSelectionBinding(this, list, propertyName);
-            addBinding(binding);
-            binding.adjustComponents();
-            return binding;
+            return bind(propertyName, new ListSelectionAdapter(list));
         } else {
             throw new RuntimeException("not implemented");
         }
     }
 
     public Binding bind(final String propertyName, final JSpinner spinner) {
-        configureComponent(propertyName, spinner);
-        Binding binding = new SpinnerBinding(this, propertyName, spinner);
-        addBinding(binding);
-        binding.adjustComponents();
-        return binding;
+        return bind(propertyName, new SpinnerAdapter(spinner));
     }
 
     public Binding bind(final String propertyName, final JComboBox comboBox) {
-        configureComponent(propertyName, comboBox);
-        Binding binding = new ComboBoxBinding(this, propertyName, comboBox);
-        addBinding(binding);
-        binding.adjustComponents();
-        return binding;
+        return bind(propertyName, new ComboBoxAdapter(comboBox));
     }
 
     public Binding bind(final String propertyName, final ButtonGroup buttonGroup) {
-        return bind(propertyName, buttonGroup, ButtonGroupBinding.createButtonToValueMap(buttonGroup, getValueContainer(), propertyName));
+        return bind(propertyName, buttonGroup, ButtonGroupAdapter.createButtonToValueMap(buttonGroup, getValueContainer(), propertyName));
     }
 
     public Binding bind(final String propertyName, final ButtonGroup buttonGroup, final Map<AbstractButton, Object> valueSet) {
-        Binding binding = new ButtonGroupBinding(this, buttonGroup, propertyName, valueSet);
-        addBinding(binding);
-        binding.adjustComponents();
-        return binding;
+        ComponentAdapter adapter = new ButtonGroupAdapter(buttonGroup, valueSet);
+        return bind(propertyName, adapter);
     }
 
     public void enable(final String propertyName, final JComponent component, final Object propertyCondition) {
@@ -170,7 +151,7 @@ public class BindingContext {
         errorHandler.handleError(exception, component);
     }
 
-    private void configureComponent(String propertyName, JComponent component) {
+    private void configurePrimaryComponent(String propertyName, JComponent component) {
         Assert.notNull(component, "component");
         Assert.notNull(propertyName, "propertyName");
         final ValueModel valueModel = valueContainer.getModel(propertyName);
@@ -180,15 +161,15 @@ public class BindingContext {
         }
         if (valueModel != null) {
             if (component.getToolTipText() == null) {
-                StringBuilder toolTipText = new StringBuilder();
+                StringBuilder toolTipText = new StringBuilder(32);
                 final ValueDescriptor valueDescriptor = valueModel.getDescriptor();
                 if (valueDescriptor.getDescription() != null) {
                     toolTipText.append(valueDescriptor.getDescription());
                 }
                 if (valueDescriptor.getUnit() != null && !valueDescriptor.getUnit().isEmpty()) {
-                    toolTipText.append(" [");
+                    toolTipText.append(" (");
                     toolTipText.append(valueDescriptor.getUnit());
-                    toolTipText.append("]");
+                    toolTipText.append(")");
                 }
                 if (toolTipText.length() > 0) {
                     component.setToolTipText(toolTipText.toString());

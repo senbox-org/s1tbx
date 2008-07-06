@@ -3,6 +3,7 @@ package com.bc.ceres.binding.swing.internal;
 import com.bc.ceres.binding.Converter;
 import com.bc.ceres.binding.Validator;
 import com.bc.ceres.binding.ValueDescriptor;
+import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.core.Assert;
 
 import javax.swing.InputVerifier;
@@ -10,17 +11,17 @@ import javax.swing.JComponent;
 import javax.swing.JTextField;
 
 /**
- * An {@link javax.swing.InputVerifier} used by the {@link TextFieldBinding}.
+ * An {@link javax.swing.InputVerifier} used by the {@link TextFieldAdapter}.
  *
  * @author Norman Fomferra
  * @version $Revision$ $Date$
  * @since BEAM 4.2
  */
 class TextFieldVerifier extends InputVerifier {
-    private TextFieldBinding binding;
+    private TextFieldAdapter adapter;
 
-    TextFieldVerifier(TextFieldBinding binding) {
-        this.binding = binding;
+    TextFieldVerifier(TextFieldAdapter adapter) {
+        this.adapter = adapter;
     }
 
     /**
@@ -36,14 +37,15 @@ class TextFieldVerifier extends InputVerifier {
     public boolean verify(JComponent input) {
         try {
             final String text = ((JTextField) input).getText();
-            final String name = binding.getName();
-            final ValueDescriptor descriptor = binding.getValueContainer().getValueDescriptor(name);
+            final String name = adapter.getBinding().getName();
+            final ValueContainer valueContainer = adapter.getBinding().getContext().getValueContainer();
+            final ValueDescriptor descriptor = valueContainer.getValueDescriptor(name);
             final Converter converter = descriptor.getConverter();
             Assert.notNull(converter);
             final Object value = converter.parse(text);
             final Validator validator = descriptor.getValidator();
             if (validator != null) {
-                validator.validateValue(binding.getValueContainer().getModel(name), value);
+                validator.validateValue(valueContainer.getModel(name), value);
             }
         } catch (Exception e) {
             return false;
@@ -64,6 +66,6 @@ class TextFieldVerifier extends InputVerifier {
      */
     @Override
     public boolean shouldYieldFocus(JComponent input) {
-        return binding.adjustValue();
+        return adapter.adjustValue();
     }
 }

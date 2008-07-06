@@ -2,14 +2,12 @@ package com.bc.ceres.binding.swing.internal;
 
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueSet;
+import com.bc.ceres.binding.swing.ComponentAdapter;
 import com.bc.ceres.binding.swing.Binding;
-import com.bc.ceres.binding.swing.BindingContext;
 
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,18 +21,29 @@ import java.awt.event.ActionEvent;
  * @version $Revision$ $Date$
  * @since BEAM 4.2
  */
-public class ButtonGroupBinding extends Binding implements ActionListener {
+public class ButtonGroupAdapter extends ComponentAdapter implements ActionListener {
     private final ButtonGroup buttonGroup;
     private AbstractButton firstButton;
     private final Map<AbstractButton, Object> buttonToValueMap;
     private final Map<Object, AbstractButton> valueToButtonMap;
 
-    public ButtonGroupBinding(BindingContext context, ButtonGroup buttonGroup, String propertyName, Map<AbstractButton, Object> buttonToValueMap) {
-        super(context, propertyName);
+    public ButtonGroupAdapter(ButtonGroup buttonGroup, Map<AbstractButton, Object> buttonToValueMap) {
         this.buttonGroup = buttonGroup;
         this.buttonToValueMap = buttonToValueMap;
         this.valueToButtonMap = new HashMap<Object, AbstractButton>(buttonToValueMap.size());
+    }
 
+    public ButtonGroup getButtonGroup() {
+        return buttonGroup;
+    }
+
+    @Override
+    public JComponent getPrimaryComponent() {
+        return firstButton;
+    }
+
+    @Override
+    public void bindComponents() {
         Enumeration<AbstractButton> buttonEnum = buttonGroup.getElements();
         int count = buttonGroup.getButtonCount();
         for (int i = 0; i < count; i++) {
@@ -44,18 +53,29 @@ public class ButtonGroupBinding extends Binding implements ActionListener {
             if (i == 0) {
                 firstButton = button;
             } else {
-                attachSecondaryComponent(button);
+                getBinding().attachSecondaryComponent(button);
             }
         }
     }
 
-    public ButtonGroup getButtonGroup() {
-        return buttonGroup;
+    @Override
+    public void unbindComponents() {
+        Enumeration<AbstractButton> buttonEnum = buttonGroup.getElements();
+        int count = buttonGroup.getButtonCount();
+        for (int i = 0; i < count; i++) {
+            AbstractButton button = buttonEnum.nextElement();
+            button.removeActionListener(this);
+            valueToButtonMap.remove(buttonToValueMap.get(button));
+            if (i > 0) {
+                getBinding().detachSecondaryComponent(button);
+            }
+        }
+        valueToButtonMap.clear();
     }
 
     @Override
-    protected void doAdjustComponents() {
-        Object value = getValue();
+    public void adjustComponents() {
+        Object value = getBinding().getValue();
         if (value != null) {
             AbstractButton button = valueToButtonMap.get(value);
             if (button != null) {
@@ -64,14 +84,9 @@ public class ButtonGroupBinding extends Binding implements ActionListener {
         }
     }
 
-    @Override
-    public JComponent getPrimaryComponent() {
-        return firstButton;
-    }
-
     public void actionPerformed(ActionEvent e) {
         AbstractButton button = (AbstractButton) e.getSource();
-        setValue(buttonToValueMap.get(button));
+        getBinding().setValue(buttonToValueMap.get(button));
     }
 
     public static Map<AbstractButton, Object> createButtonToValueMap(ButtonGroup buttonGroup, ValueContainer valueContainer, String propertyName) {

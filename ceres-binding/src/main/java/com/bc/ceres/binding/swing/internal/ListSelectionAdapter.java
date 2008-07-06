@@ -4,11 +4,9 @@ import com.bc.ceres.binding.ValidationException;
 import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.ValueSet;
+import com.bc.ceres.binding.swing.ComponentAdapter;
 import com.bc.ceres.binding.swing.Binding;
-import com.bc.ceres.binding.swing.BindingContext;
 
-import javax.swing.AbstractListModel;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.ListModel;
@@ -26,43 +24,35 @@ import java.lang.reflect.Array;
  * @version $Revision$ $Date$
  * @since BEAM 4.2
  */
-public class ListSelectionBinding extends Binding implements ListSelectionListener, PropertyChangeListener {
+public class ListSelectionAdapter extends ComponentAdapter implements ListSelectionListener, PropertyChangeListener {
 
     private final JList list;
 
-    public ListSelectionBinding(BindingContext context, JList list, String propertyName) {
-        super(context, propertyName);
+    public ListSelectionAdapter(JList list) {
         this.list = list;
-        
-        getValueDescriptor().addPropertyChangeListener(this);
-        updateListModel();
-        
-        list.addListSelectionListener(this);
-    }
-
-    public void valueChanged(ListSelectionEvent e) {
-        if (e.getValueIsAdjusting()) {
-            return;
-        }
-        if (isAdjustingComponents()) {
-            return;
-        }
-        final ValueModel model = getValueContainer().getModel(getName());
-        Object[] selectedValues = list.getSelectedValues();
-        Object array = Array.newInstance(model.getDescriptor().getType().getComponentType(), selectedValues.length);
-        for (int i = 0; i < selectedValues.length; i++) {
-            Array.set(array, i, selectedValues[i]);
-        }
-        try {
-            model.setValue(array);
-        } catch (ValidationException e1) {
-            handleError(e1);
-        }
     }
 
     @Override
-    protected void doAdjustComponents() {
-        Object array = getValue();
+    public JComponent getPrimaryComponent() {
+        return list;
+    }
+
+    @Override
+    public void bindComponents() {
+        updateListModel();
+        getValueDescriptor().addPropertyChangeListener(this);
+        list.addListSelectionListener(this);
+    }
+
+    @Override
+    public void unbindComponents() {
+        getValueDescriptor().removePropertyChangeListener(this);
+        list.removeListSelectionListener(this);
+    }
+
+    @Override
+    public void adjustComponents() {
+        Object array = getBinding().getValue();
         if (array != null) {
             ListModel model = list.getModel();
             int size = model.getSize();
@@ -83,11 +73,6 @@ public class ListSelectionBinding extends Binding implements ListSelectionListen
         }
     }
 
-    @Override
-    public JComponent getPrimaryComponent() {
-        return list;
-    }
-    
     public void propertyChange(PropertyChangeEvent evt) {
         if (evt.getSource() == getValueDescriptor() && evt.getPropertyName().equals("valueSet")) {
             updateListModel();
@@ -95,13 +80,33 @@ public class ListSelectionBinding extends Binding implements ListSelectionListen
     }
 
     private ValueDescriptor getValueDescriptor() {
-        return getValueContainer().getValueDescriptor(getName());
+        return getBinding().getContext().getValueContainer().getValueDescriptor(getBinding().getName());
     }
 
     private void updateListModel() {
         ValueSet valueSet = getValueDescriptor().getValueSet();
         if (valueSet != null) {
             list.setListData(valueSet.getItems());
+        }
+    }
+
+    public void valueChanged(ListSelectionEvent e) {
+        if (e.getValueIsAdjusting()) {
+            return;
+        }
+        if (getBinding().isAdjustingComponents()) {
+            return;
+        }
+        final ValueModel model = getBinding().getContext().getValueContainer().getModel(getBinding().getName());
+        Object[] selectedValues = list.getSelectedValues();
+        Object array = Array.newInstance(model.getDescriptor().getType().getComponentType(), selectedValues.length);
+        for (int i = 0; i < selectedValues.length; i++) {
+            Array.set(array, i, selectedValues[i]);
+        }
+        try {
+            model.setValue(array);
+        } catch (ValidationException e1) {
+            getBinding().handleError(e1);
         }
     }
 }
