@@ -62,11 +62,11 @@ public class ValueModel {
         return createModel(createValueDescriptor(name, type), new MapEntryAccessor(map, name), value);
     }
 
-    public static ValueModel createModel(String name, Class<?> type) {
+    public static ValueModel createValueModel(String name, Class<?> type) {
         return createModel(createValueDescriptor(name, type), new DefaultValueAccessor(), null);
     }
 
-    public static ValueModel createModel(String name, Object value) {
+    public static ValueModel createValueModel(String name, Object value) {
         return createModel(createValueDescriptor(name, value.getClass()), new DefaultValueAccessor(), value);
     }
 

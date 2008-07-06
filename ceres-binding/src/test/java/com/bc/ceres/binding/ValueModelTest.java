@@ -38,9 +38,9 @@ public class ValueModelTest extends TestCase {
     }
 
     public void testDefaultFactoryWithType() throws ValidationException {
-        testPLong(ValueModel.createModel("plong", Long.TYPE), 0L);
-        testOLong(ValueModel.createModel("olong", Long.class), null);
-        testOLong(ValueModel.createModel("olong", 42L), 42L);
+        testPLong(ValueModel.createValueModel("plong", Long.TYPE), 0L);
+        testOLong(ValueModel.createValueModel("olong", Long.class), null);
+        testOLong(ValueModel.createValueModel("olong", 42L), 42L);
     }
 
     private void testPLong(ValueModel vm, Object expectedValue) throws ValidationException {
