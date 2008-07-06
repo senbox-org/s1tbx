@@ -55,10 +55,8 @@ class MoreOptionsForm {
 
         bindingContext = new BindingContext(valueContainer);
 
-        Binding noDataColorBinding = new ColorComboBoxBinding(bindingContext, NO_DATA_COLOR_PROPERTY, noDataColorComboBox);
-        bindingContext.addBinding(noDataColorBinding);
+        Binding noDataColorBinding = bindingContext.bind(NO_DATA_COLOR_PROPERTY, new ColorComboBoxAdapter(noDataColorComboBox));
         noDataColorBinding.attachSecondaryComponent(noDataColorLabel);
-        noDataColorBinding.adjustComponents();
 
         bindingContext.bind(HISTOGRAM_MATCHING_PROPERTY, histogramMatchingBox);
         bindingContext.getBinding(HISTOGRAM_MATCHING_PROPERTY).attachSecondaryComponent(histogramMatchingLabel);
