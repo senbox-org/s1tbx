@@ -62,8 +62,8 @@ public class ParametersPaneTest extends TestCase {
     private static ParametersPane createParametersPane() throws ConversionException {
         ValueContainer vc = ValueContainer.createObjectBacked(new V());
 
-        vc.getValueDescriptor("threshold").setValueRange(ValueRange.parseValueRange("[0,1)")); // todo - not recognised (nf - 24.10.2007)
-        vc.getValueDescriptor("resamplingMethod").setValueSet(
+        vc.getDescriptor("threshold").setValueRange(ValueRange.parseValueRange("[0,1)")); // todo - not recognised (nf - 24.10.2007)
+        vc.getDescriptor("resamplingMethod").setValueSet(
                 new ValueSet(new String[]{"NN", "CC", "BQ"}));
 
         BindingContext sbc = new BindingContext(vc, new BindingContext.ErrorHandler() {

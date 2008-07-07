@@ -50,11 +50,11 @@ public class TargetProductSelectorModel {
                 }
             }
         });
-        ValueDescriptor productNameDescriptor = valueContainer.getValueDescriptor("productName");
+        ValueDescriptor productNameDescriptor = valueContainer.getDescriptor("productName");
         productNameDescriptor.setValidator(new NotEmptyValidator());
         productNameDescriptor.setDisplayName("target product name");
 
-        ValueDescriptor productDirDescriptor = valueContainer.getValueDescriptor("productDir");
+        ValueDescriptor productDirDescriptor = valueContainer.getDescriptor("productDir");
         productDirDescriptor.setValidator(new NotNullValidator());
         productDirDescriptor.setDisplayName("target product directory");
         

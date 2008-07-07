@@ -794,9 +794,9 @@ class ImageInfoEditor extends JPanel {
 
         final ValueContainer vc = new ValueContainer();
         vc.addModel(ValueModel.createValueModel("sample", getSliderSample(sliderIndex)));
-        vc.getValueDescriptor("sample").setDisplayName("sample");
-        vc.getValueDescriptor("sample").setValueRange(new ValueRange(getMinSliderSample(sliderIndex), getMaxSliderSample(sliderIndex)));
-        vc.getValueDescriptor("sample").setUnit(getModel().getUnit());
+        vc.getDescriptor("sample").setDisplayName("sample");
+        vc.getDescriptor("sample").setValueRange(new ValueRange(getMinSliderSample(sliderIndex), getMaxSliderSample(sliderIndex)));
+        vc.getDescriptor("sample").setUnit(getModel().getUnit());
 
         final BindingContext ctx = new BindingContext(vc);
         final NumberFormatter formatter = new NumberFormatter(new DecimalFormat("#0.0#"));

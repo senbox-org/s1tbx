@@ -43,7 +43,7 @@ public class ParameterDescriptorFactoryTest extends TestCase{
     
     public void testPercentageField() throws Exception {
         final String PERCENTAGE = "percentage";
-        ValueDescriptor valueDescriptor = valueContainer.getValueDescriptor(PERCENTAGE);
+        ValueDescriptor valueDescriptor = valueContainer.getDescriptor(PERCENTAGE);
         assertEquals(PERCENTAGE, valueDescriptor.getName());
         assertNull(valueDescriptor.getAlias());
         assertEquals(0.0, valueDescriptor.getDefaultValue());
@@ -65,7 +65,7 @@ public class ParameterDescriptorFactoryTest extends TestCase{
     
     public void testThresholdField() throws Exception {
         final String FIELD_NAME = "threshold";
-        ValueDescriptor valueDescriptor = valueContainer.getValueDescriptor(FIELD_NAME);
+        ValueDescriptor valueDescriptor = valueContainer.getDescriptor(FIELD_NAME);
         assertEquals(FIELD_NAME, valueDescriptor.getName());
         assertNull(valueDescriptor.getAlias());
         assertEquals(0.0, valueDescriptor.getDefaultValue());
@@ -99,7 +99,7 @@ public class ParameterDescriptorFactoryTest extends TestCase{
     
     public void testThresholdArrayField() throws Exception {
         final String FIELD_NAME = "thresholdArray";
-        ValueDescriptor valueDescriptor = valueContainer.getValueDescriptor(FIELD_NAME);
+        ValueDescriptor valueDescriptor = valueContainer.getDescriptor(FIELD_NAME);
         assertEquals(FIELD_NAME, valueDescriptor.getName());
         assertNull(valueDescriptor.getAlias());
         assertEquals(null, valueDescriptor.getDefaultValue());

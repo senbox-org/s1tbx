@@ -82,7 +82,7 @@ class SpectralUnmixingForm extends JPanel {
     private void createComponents() {
         sourceBandNames = new JList();
         
-        final ValueDescriptor valueDescriptor = formModel.getOperatorValueContainer().getValueDescriptor("sourceBandNames");
+        final ValueDescriptor valueDescriptor = formModel.getOperatorValueContainer().getDescriptor("sourceBandNames");
         SelectionChangeListener valueSetUpdater = new SelectionChangeListener() {
 
             @Override
