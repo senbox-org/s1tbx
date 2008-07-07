@@ -236,15 +236,21 @@ public class PixelGeoCoding extends AbstractGeoCoding {
         if (_crossingMeridianAt180 == null) {
             _crossingMeridianAt180 = false;
             final PixelPos[] pixelPoses = ProductUtils.createPixelBoundary(_lonBand, null, 1);
-            float firstLonValue = _lonBand.getPixelFloat(0, 0);
-            for (int i = 1; i < pixelPoses.length; i++) {
-                final PixelPos pixelPos = pixelPoses[i];
-                float secondLonValue = _lonBand.getPixelFloat((int) pixelPos.x, (int) pixelPos.y);
-                if (Math.abs(firstLonValue - secondLonValue) > 180) {
-                    _crossingMeridianAt180 = true;
-                    break;
+            float[] firstLonValue = new float[1];
+            try {
+                _lonBand.readPixels(0, 0,1,1, firstLonValue);
+                float[] secondLonValue = new float[1];
+                for (int i = 1; i < pixelPoses.length; i++) {
+                    final PixelPos pixelPos = pixelPoses[i];
+                    _lonBand.readPixels((int) pixelPos.x, (int) pixelPos.y ,1,1, secondLonValue);
+                    if (Math.abs(firstLonValue[0] - secondLonValue[0]) > 180) {
+                        _crossingMeridianAt180 = true;
+                        break;
+                    }
+                    firstLonValue[0] = secondLonValue[0];
                 }
-                firstLonValue = secondLonValue;
+            } catch (IOException e) {
+                throw new IllegalStateException("raster data is not readable", e);
             }
         }
         return _crossingMeridianAt180;

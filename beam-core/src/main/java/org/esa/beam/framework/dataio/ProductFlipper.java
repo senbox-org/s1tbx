@@ -21,12 +21,10 @@ import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.FlagCoding;
 import org.esa.beam.framework.datamodel.ImageInfo;
+import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.TiePointGeoCoding;
 import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.dataop.maptransf.Datum;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 
@@ -285,9 +283,11 @@ public class ProductFlipper extends AbstractProductBuilder {
             addTiePointGridsToProduct(product);
             addFlagCodingsToProduct(product);
             addIndexCodingsToProduct(product);
-            addGeoCodingToProduct(product);
         }
         addBandsToProduct(product);
+        if (!isMetadataIgnored()) {
+            addGeoCodingToProduct(product);
+        }
         addBitmaskDefsToProduct(product);
         return product;
     }
@@ -327,12 +327,14 @@ public class ProductFlipper extends AbstractProductBuilder {
                 if (sourceFlagCoding != null) {
                     String flagCodingName = sourceFlagCoding.getName();
                     FlagCoding destFlagCoding = product.getFlagCodingGroup().get(flagCodingName);
-                    Debug.assertNotNull(destFlagCoding); // should not happen because flag codings should be already in product
+                    Debug.assertNotNull(
+                            destFlagCoding); // should not happen because flag codings should be already in product
                     destBand.setSampleCoding(destFlagCoding);
                 } else if (sourceIndexCoding != null) {
                     String indexCodingName = sourceIndexCoding.getName();
                     IndexCoding destIndexCoding = product.getIndexCodingGroup().get(indexCodingName);
-                    Debug.assertNotNull(destIndexCoding); // should not happen because index codings should be already in product
+                    Debug.assertNotNull(
+                            destIndexCoding); // should not happen because index codings should be already in product
                     destBand.setSampleCoding(destIndexCoding);
                 } else {
                     destBand.setSampleCoding(null);
@@ -405,12 +407,7 @@ public class ProductFlipper extends AbstractProductBuilder {
         }
     }
 
-    private static void addGeoCodingToProduct(final Product product) {
-        TiePointGrid latGrid = product.getTiePointGrid("latitude");
-        TiePointGrid lonGrid = product.getTiePointGrid("longitude");
-        if (latGrid != null && lonGrid != null) {
-            product.setGeoCoding(new TiePointGeoCoding(latGrid, lonGrid, Datum.WGS_84));
-        }
-
+    private void addGeoCodingToProduct(final Product product) {
+        getSourceProduct().transferGeoCodingTo(product, null);
     }
 }
