@@ -150,7 +150,7 @@ public class KMeansClusterOp extends Operator {
             double[] point = new double[sourceTiles.length];
             for (int y = targetRectangle.y; y < targetRectangle.y + targetRectangle.height; y++) {
                 for (int x = targetRectangle.x; x < targetRectangle.x + targetRectangle.width; x++) {
-                    if (roi.contains(x, y)) {
+                    if (roi == null || roi.contains(x, y)) {
                         for (int i = 0; i < sourceTiles.length; i++) {
                             point[i] = sourceTiles[i].getSampleDouble(x, y);
                         }

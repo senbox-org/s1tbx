@@ -48,7 +48,7 @@ public class PixelIter {
     public void next() {
         while (iterator.hasNext()) {
             nextPos = iterator.next();
-            if (roi.contains(nextPos.x, nextPos.y)) {
+            if (roi == null || roi.contains(nextPos.x, nextPos.y)) {
                 return;
             }
         }
