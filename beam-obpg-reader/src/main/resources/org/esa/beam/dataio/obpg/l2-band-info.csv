@@ -1,0 +1,9 @@
+chlor_a;        chlor_a >= 0
+K_490;          K_490 > -1
+tau_869;        tau_869 >= 0
+angstrom_531;	angstrom_531 > 6.5534
+eps_78;	        eps_78 >= 0
+sst;            sst > -100
+sst4;           sst4 > -100
+
+

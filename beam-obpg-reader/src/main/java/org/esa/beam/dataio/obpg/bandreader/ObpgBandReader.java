@@ -90,7 +90,7 @@ abstract public class ObpgBandReader {
     /**
      * Closes the band reader.
      *
-     * @throws ncsa.hdf.hdflib.HDFException
+     * @throws ncsa.hdf.hdflib.HDFException  on HDF error
      */
     public void close() throws HDFException {
         HDF.getInstance().SDendaccess(_sdsId);
@@ -162,21 +162,6 @@ abstract public class ObpgBandReader {
      * @return the data type
      */
     abstract public int getDataType();
-
-    /**
-     * @deprecated in 4.0, use {@link #readBandData(int, int, int, int, int, int, org.esa.beam.framework.datamodel.ProductData, com.bc.ceres.core.ProgressMonitor)} instead
-     */
-    public void readBandData(int sourceOffsetX, int sourceOffsetY, int sourceWidth,
-                             int sourceHeight, int sourceStepX, int sourceStepY,
-                             int destOffsetX, int destOffsetY, int destWidth,
-                             int destHeight, ProductData destBuffer) throws HDFException,
-                                                                            ProductIOException {
-        readBandData(sourceOffsetX, sourceOffsetY,
-                     sourceWidth, sourceHeight,
-                     sourceStepX, sourceStepY,
-                     destBuffer,
-                     ProgressMonitor.NULL);
-    }
 
     /**
      * <p>The destination band, buffer and region parameters are exactly the ones passed to the original  call. Since

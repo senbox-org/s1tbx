@@ -33,7 +33,7 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
 
     public static final String DEFAULT_FILE_EXTENSION = ".hdf";
     public static final String READER_DESCRIPTION = "NASA OBPG Level-2 Data Products";
-    public static final String FORMAT_NAME = "NASA_OBPG";
+    public static final String FORMAT_NAME = "NASA-OBPG";
 
     private static final String[] magicStrings = {
                 "MODISA Level-2 Data",

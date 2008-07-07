@@ -21,12 +21,16 @@ import org.esa.beam.dataio.obpg.hdf.HdfAttribute;
 import org.esa.beam.dataio.obpg.hdf.ObpgUtils;
 import org.esa.beam.dataio.obpg.hdf.SdsInfo;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.BitmaskDef;
 import static org.mockito.Mockito.*;
 import org.mockito.InOrder;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 
 import junit.framework.TestCase;
 
@@ -80,10 +84,50 @@ public class ObpgProductReader_Test extends TestCase {
         order.verify(obpgUtilsMock, times(1)).addGlobalMetadata(prodRet, new ArrayList<HdfAttribute>());
         order.verify(obpgUtilsMock, times(1)).extractSdsData(sdStart);
         order.verify(obpgUtilsMock, times(1)).addScientificMetadata(prodRet, sdsInfos);
-        order.verify(obpgUtilsMock, times(1)).addBands(prodRet, sdsInfos);
-        order.verify(obpgUtilsMock, times(1)).addGeocoding(prodRet, sdsInfos);
-        order.verify(obpgUtilsMock, times(1)).addBismaskDefinitions(prodRet);
+        order.verify(obpgUtilsMock, times(1)).addBands(prodRet, sdsInfos, new HashMap<String, String>());
+        order.verify(obpgUtilsMock, times(1)).addGeocoding(prodRet, sdsInfos, false);
+        order.verify(obpgUtilsMock, times(1)).addBitmaskDefinitions(prodRet, new BitmaskDef[0]);
         order.verify(obpgUtilsMock, times(1)).closeHdfFile(fileID);
         verifyNoMoreInteractions(obpgUtilsMock);
+    }
+
+    public void testFlipDataInt() {
+
+        final int[] data = {
+                11, 12, 13, 14, 15,
+                16, 17, 18, 19, 20,
+                21, 22, 23, 24, 25,
+                26, 27, 28, 29, 30,
+        };
+        ObpgProductReader.reverse(ProductData.createInstance(data));
+
+        final int[] expected = {
+                30, 29, 28, 27, 26,
+                25, 24, 23, 22, 21,
+                20, 19, 18, 17, 16,
+                15, 14, 13, 12, 11,
+        };
+
+        assertTrue(Arrays.equals(expected, data));
+    }
+
+    public void testFlipDataDouble() {
+
+        final double[] data = {
+                11.1, 12.1, 13.1, 14.1, 15.1,
+                16.1, 17.1, 18.1, 19.1, 20.1,
+                21.1, 22.1, 23.1, 24.1, 25.1,
+                26.1, 27.1, 28.1, 29.1, 30.1,
+        };
+        ObpgProductReader.reverse(ProductData.createInstance(data));
+
+        final double[] expected = {
+                30.1, 29.1, 28.1, 27.1, 26.1,
+                25.1, 24.1, 23.1, 22.1, 21.1,
+                20.1, 19.1, 18.1, 17.1, 16.1,
+                15.1, 14.1, 13.1, 12.1, 11.1,
+        };
+
+        assertTrue(Arrays.equals(expected, data));
     }
 }

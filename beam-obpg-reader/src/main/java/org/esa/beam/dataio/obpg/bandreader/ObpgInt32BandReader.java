@@ -27,6 +27,7 @@ public class ObpgInt32BandReader extends ObpgBandReader {
         return ProductData.TYPE_INT32;
     }
 
+    @Override
     protected void prepareForReading(final int sourceOffsetX, final int sourceOffsetY, final int sourceWidth,
                                      final int sourceHeight, final int sourceStepX, final int sourceStepY,
                                      final ProductData destBuffer) {
@@ -43,10 +44,12 @@ public class ObpgInt32BandReader extends ObpgBandReader {
         ensureLineWidth(sourceWidth);
     }
 
+    @Override
     protected void readLine() throws HDFException {
         HDF.getInstance().SDreaddata(_sdsId, _start, _stride, _count, _line);
     }
 
+    @Override
     protected void validate(final int x) {
         final int value = _line[x];
         if (value < min || value > max) {
@@ -54,6 +57,7 @@ public class ObpgInt32BandReader extends ObpgBandReader {
         }
     }
 
+    @Override
     protected void assign(final int x) {
         targetData[targetIdx++] = _line[x];
     }

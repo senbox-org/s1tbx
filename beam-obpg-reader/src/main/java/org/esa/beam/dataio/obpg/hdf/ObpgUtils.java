@@ -21,14 +21,9 @@ import ncsa.hdf.hdflib.HDFConstants;
 import ncsa.hdf.hdflib.HDFException;
 import org.esa.beam.dataio.obpg.bandreader.ObpgBandReader;
 import org.esa.beam.dataio.obpg.bandreader.ObpgBandReaderFactory;
+import org.esa.beam.dataio.obpg.ObpgProductReader;
 import org.esa.beam.framework.dataio.ProductIOException;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.FlagCoding;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.PixelGeoCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Debug;
 
 import java.io.File;
@@ -44,6 +39,8 @@ public class ObpgUtils {
     static final String KEY_TYPE = "Title";
     static final String KEY_WIDTH = "Pixels per Scan Line";
     static final String KEY_HEIGHT = "Number of Scan Lines";
+    static final String KEY_START_NODE = "Start Node";
+    static final String KEY_END_NODE = "End Node";
     static final String SENSOR_BAND_PARAMETERS = "Sensor_Band_Parameters";
     static final String SCAN_LINE_ATTRIBUTES = "Scan_Line_Attributes";
 
@@ -53,7 +50,6 @@ public class ObpgUtils {
      * Converts a <code>HdfAttribute</code> to a <code>MetadataAttribute</code>
      *
      * @param hdfAttribute the hdf attribute to convert
-     *
      * @return the product metadata attribute
      */
     public MetadataAttribute attributeToMetadata(final HdfAttribute hdfAttribute) {
@@ -61,27 +57,27 @@ public class ObpgUtils {
         MetadataAttribute attrib = null;
 
         switch (hdfAttribute.getHdfType()) {
-        case HDFConstants.DFNT_CHAR:
-        case HDFConstants.DFNT_UCHAR8:
-            prodData = ProductData.createInstance(hdfAttribute.getStringValue());
-            break;
+            case HDFConstants.DFNT_CHAR:
+            case HDFConstants.DFNT_UCHAR8:
+                prodData = ProductData.createInstance(hdfAttribute.getStringValue());
+                break;
 
-        case HDFConstants.DFNT_UINT8:
-        case HDFConstants.DFNT_INT8:
-        case HDFConstants.DFNT_UINT16:
-        case HDFConstants.DFNT_INT16:
-        case HDFConstants.DFNT_INT32:
-        case HDFConstants.DFNT_UINT32:
-            prodData = ProductData.createInstance(hdfAttribute.getIntValues());
-            break;
+            case HDFConstants.DFNT_UINT8:
+            case HDFConstants.DFNT_INT8:
+            case HDFConstants.DFNT_UINT16:
+            case HDFConstants.DFNT_INT16:
+            case HDFConstants.DFNT_INT32:
+            case HDFConstants.DFNT_UINT32:
+                prodData = ProductData.createInstance(hdfAttribute.getIntValues());
+                break;
 
-        case HDFConstants.DFNT_FLOAT32:
-            prodData = ProductData.createInstance(hdfAttribute.getFloatValues());
-            break;
+            case HDFConstants.DFNT_FLOAT32:
+                prodData = ProductData.createInstance(hdfAttribute.getFloatValues());
+                break;
 
-        case HDFConstants.DFNT_DOUBLE:
-            prodData = ProductData.createInstance(hdfAttribute.getDoubleValues());
-            break;
+            case HDFConstants.DFNT_DOUBLE:
+                prodData = ProductData.createInstance(hdfAttribute.getDoubleValues());
+                break;
         }
 
         if (prodData != null) {
@@ -94,41 +90,39 @@ public class ObpgUtils {
      * Decodes the hdf data type into a product data type.
      *
      * @param hdfType
-     *
      * @return product data type
-     *
      * @see ProductData
      */
     public int decodeHdfDataType(final int hdfType) {
         switch (hdfType) {
-        case HDFConstants.DFNT_UCHAR8:
-        case HDFConstants.DFNT_UINT8:
-            return ProductData.TYPE_UINT8;
+            case HDFConstants.DFNT_UCHAR8:
+            case HDFConstants.DFNT_UINT8:
+                return ProductData.TYPE_UINT8;
 
-        case HDFConstants.DFNT_CHAR8:
-        case HDFConstants.DFNT_INT8:
-            return ProductData.TYPE_INT8;
+            case HDFConstants.DFNT_CHAR8:
+            case HDFConstants.DFNT_INT8:
+                return ProductData.TYPE_INT8;
 
-        case HDFConstants.DFNT_INT16:
-            return ProductData.TYPE_INT16;
+            case HDFConstants.DFNT_INT16:
+                return ProductData.TYPE_INT16;
 
-        case HDFConstants.DFNT_UINT16:
-            return ProductData.TYPE_UINT16;
+            case HDFConstants.DFNT_UINT16:
+                return ProductData.TYPE_UINT16;
 
-        case HDFConstants.DFNT_INT32:
-            return ProductData.TYPE_INT32;
+            case HDFConstants.DFNT_INT32:
+                return ProductData.TYPE_INT32;
 
-        case HDFConstants.DFNT_UINT32:
-            return ProductData.TYPE_UINT32;
+            case HDFConstants.DFNT_UINT32:
+                return ProductData.TYPE_UINT32;
 
-        case HDFConstants.DFNT_FLOAT32:
-            return ProductData.TYPE_FLOAT32;
+            case HDFConstants.DFNT_FLOAT32:
+                return ProductData.TYPE_FLOAT32;
 
-        case HDFConstants.DFNT_FLOAT64:
-            return ProductData.TYPE_FLOAT64;
+            case HDFConstants.DFNT_FLOAT64:
+                return ProductData.TYPE_FLOAT64;
 
-        default:
-            return ProductData.TYPE_UNDEFINED;
+            default:
+                return ProductData.TYPE_UNDEFINED;
         }
     }
 
@@ -136,10 +130,8 @@ public class ObpgUtils {
      * Reads the global attributes from the hdf file passed in.
      *
      * @param sdStart the HD interface identifier of the file
-     *
      * @return an instance of HdfGlobalAttributes which contains all the
      *         global hdf attributes read from file.
-     *
      * @throws ncsa.hdf.hdflib.HDFException -
      */
     public List<HdfAttribute> readGlobalAttributes(final int sdStart) throws HDFException {
@@ -150,7 +142,7 @@ public class ObpgUtils {
         if (fileInfo1 != null) {
             return hdf.readAttributes(sdStart, fileInfo1.attributeCount);
         } else {
-            final String message = "Unable to read global metadata";
+            final String message = "Unable to read global metadata.";
             Debug.trace("... " + message);
             throw new HDFException(message);
         }
@@ -175,28 +167,42 @@ public class ObpgUtils {
         Integer sceneRasterHeight = null;
         for (HdfAttribute attribute : globalAttributes) {
             final String name = attribute.getName();
-            if (KEY_NAME.equals(name)) {
+            if (KEY_NAME.equalsIgnoreCase(name)) {
                 productName = attribute.getStringValue().trim();
-            } else if (KEY_TYPE.equals(name)) {
+            } else if (KEY_TYPE.equalsIgnoreCase(name)) {
                 productType = "OBPG " + attribute.getStringValue().trim();
-            } else if (KEY_WIDTH.equals(name) && attribute.getElemCount() == 1) {
+            } else if (KEY_WIDTH.equalsIgnoreCase(name) && attribute.getElemCount() == 1) {
                 sceneRasterWidth = attribute.getIntValues()[0];
-            } else if (KEY_HEIGHT.equals(name) && attribute.getElemCount() == 1) {
+            } else if (KEY_HEIGHT.equalsIgnoreCase(name) && attribute.getElemCount() == 1) {
                 sceneRasterHeight = attribute.getIntValues()[0];
             }
         }
         if (productName == null) {
-            throw new ProductIOException("Global attribute <" + KEY_NAME + "> is missing");
+            throw new ProductIOException("Global attribute '" + KEY_NAME + "' is missing.");
         } else if (productType == null) {
-            throw new ProductIOException("Global attribute <" + KEY_TYPE + "> is missing");
+            throw new ProductIOException("Global attribute '" + KEY_TYPE + "' is missing.");
         } else if (sceneRasterWidth == null) {
-            throw new ProductIOException("Global attribute <" + KEY_WIDTH + "> is missing");
+            throw new ProductIOException("Global attribute '" + KEY_WIDTH + "' is missing.");
         } else if (sceneRasterHeight == null) {
-            throw new ProductIOException("Global attribute <" + KEY_HEIGHT + "> is missing");
+            throw new ProductIOException("Global attribute '" + KEY_HEIGHT + "' is missing.");
         }
         final Product product = new Product(productName, productType, sceneRasterWidth, sceneRasterHeight);
         product.setDescription(productName);
         return product;
+    }
+
+    public boolean mustFlip(final List<HdfAttribute> globalAttributes) throws ProductIOException {
+        Boolean startNodeAscending = null;
+        Boolean endNodeAscending = null;
+        for (HdfAttribute attribute : globalAttributes) {
+            final String name = attribute.getName();
+            if (KEY_START_NODE.equalsIgnoreCase(name)) {
+                startNodeAscending = "Ascending".equalsIgnoreCase(attribute.getStringValue().trim());
+            } else if (KEY_END_NODE.equalsIgnoreCase(name)) {
+                endNodeAscending = "Ascending".equalsIgnoreCase(attribute.getStringValue().trim());
+            }
+        }
+        return (startNodeAscending != null && endNodeAscending != null) && (startNodeAscending && endNodeAscending);
     }
 
     public void addGlobalMetadata(final Product product, final List<HdfAttribute> globalAttributes) {
@@ -218,13 +224,11 @@ public class ObpgUtils {
     }
 
     public int openHdfFileReadOnly(final String path) throws HDFException {
-        final int fileId = hdf.openHdfFileReadOnly(path);
-        return fileId;
+        return hdf.openHdfFileReadOnly(path);
     }
 
     public int openSdInterfaceReadOnly(final String path) throws HDFException {
-        final int sdStart = hdf.openSdInterfaceReadOnly(path);
-        return sdStart;
+        return hdf.openSdInterfaceReadOnly(path);
     }
 
     public boolean closeHdfFile(final int fileId) throws HDFException {
@@ -288,7 +292,7 @@ public class ObpgUtils {
         return namedElem;
     }
 
-    public Map<Band, ObpgBandReader> addBands(final Product product, final SdsInfo[] sdsInfos) throws HDFException {
+    public Map<Band, ObpgBandReader> addBands(final Product product, final SdsInfo[] sdsInfos, HashMap<String, String> validExpressionMap) throws HDFException {
         final HashMap<Band, ObpgBandReader> readerMap = new HashMap<Band, ObpgBandReader>();
         final int sceneRasterWidth = product.getSceneRasterWidth();
         final int sceneRasterHeight = product.getSceneRasterHeight();
@@ -302,6 +306,10 @@ public class ObpgUtils {
                     final String name = sdsInfo.getName();
                     final int dataType = decodeHdfDataType(sdsInfo.getHdfDataType());
                     final Band band = new Band(name, dataType, width, height);
+                    final String validExpression = validExpressionMap.get(name);
+                    if (validExpression != null && !validExpression.equals("")) {
+                        band.setValidPixelExpression(validExpression);
+                    }
                     product.addBand(band);
                     if (name.matches("nLw_\\d{3,}")) {
                         final float wavelength = Float.parseFloat(name.substring(4));
@@ -342,44 +350,46 @@ public class ObpgUtils {
         return readerMap;
     }
 
-    public void addGeocoding(final Product product, final SdsInfo[] sdsInfos) throws HDFException, IOException {
+    public void addGeocoding(final Product product, final SdsInfo[] sdsInfos, boolean mustFlip) throws HDFException, IOException {
         SdsInfo longitudeSds = null;
         SdsInfo latitudeSds = null;
         for (SdsInfo sdsInfo : sdsInfos) {
             final String name = sdsInfo.getName();
-            if ("longitude".equals(name)) {
+            if ("longitude".equalsIgnoreCase(name)) {
                 longitudeSds = sdsInfo;
-            } else if ("latitude".equals(name)) {
+            } else if ("latitude".equalsIgnoreCase(name)) {
                 latitudeSds = sdsInfo;
             }
         }
-        if (latitudeSds == null || longitudeSds == null) {
-            throw new ProductIOException("Unable to applay a Geocoding");
+        if (latitudeSds != null && longitudeSds != null) {
+            final ProductData lonRawData = readData(longitudeSds);
+            final ProductData latRawData = readData(latitudeSds);
+            final Band latBand = product.addBand(latitudeSds.getName(), ProductData.TYPE_FLOAT32);
+            final Band lonBand = product.addBand(longitudeSds.getName(), ProductData.TYPE_FLOAT32);
+
+            final MetadataElement scientificElement = product.getMetadataRoot().getElement(SENSOR_BAND_PARAMETERS);
+            final MetadataElement cntlPointElem = scientificElement.getElement("cntl_pt_cols");
+            final MetadataAttribute attribute = cntlPointElem.getAttribute("data");
+            final int[] colPoints = (int[]) attribute.getDataElems();
+
+            computeLatLonBandData(latBand, lonBand, latRawData, lonRawData, colPoints, mustFlip);
+
+            product.setGeoCoding(new PixelGeoCoding(latBand, lonBand, null, 5, ProgressMonitor.NULL));
         }
-        final ProductData lonRawData = readData(longitudeSds);
-        final ProductData latRawData = readData(latitudeSds);
-        final Band latBand = product.addBand(latitudeSds.getName(), ProductData.TYPE_FLOAT32);
-        final Band lonBand = product.addBand(longitudeSds.getName(), ProductData.TYPE_FLOAT32);
-
-        final MetadataElement scientificElement = product.getMetadataRoot().getElement(SENSOR_BAND_PARAMETERS);
-        final MetadataElement cntlPointElem = scientificElement.getElement("cntl_pt_cols");
-        final MetadataAttribute attribute = cntlPointElem.getAttribute("data");
-        final int[] colPoints = (int[]) attribute.getDataElems();
-
-        computeLatLonBandData(latBand, lonBand, latRawData, lonRawData, colPoints);
-
-        product.setGeoCoding(new PixelGeoCoding(latBand, lonBand, null, 5, ProgressMonitor.NULL));
     }
 
-    public void addBismaskDefinitions(Product product) {
-        //@todo   
+    public void addBitmaskDefinitions(Product product, BitmaskDef[] defaultBitmaskDefs) {
+        for (BitmaskDef defaultBitmaskDef : defaultBitmaskDefs) {
+            product.addBitmaskDef(defaultBitmaskDef);
+        }
     }
 
     private void computeLatLonBandData(final Band latBand, final Band lonBand,
                                        final ProductData latRawData, final ProductData lonRawData,
-                                       final int[] colPoints) {
+                                       final int[] colPoints, boolean mustFlip) {
         latBand.ensureRasterData();
         lonBand.ensureRasterData();
+
         final float[] latRawFloats = (float[]) latRawData.getElems();
         final float[] lonRawFloats = (float[]) lonRawData.getElems();
         final float[] latFloats = (float[]) latBand.getDataElems();
@@ -407,6 +417,12 @@ public class ObpgUtils {
                 lonFloats[pos] = computePixel(lonRawFloats[rawPos1], lonRawFloats[rawPos2], weight);
             }
         }
+
+        if (mustFlip) {
+            ObpgProductReader.reverse(latFloats);
+            ObpgProductReader.reverse(lonFloats);
+        }
+
         latBand.setSynthetic(true);
         lonBand.setSynthetic(true);
     }
