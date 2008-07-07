@@ -21,6 +21,7 @@
         <![CDATA[<p>Changes in 4.2:<br/>
         [BEAM-801] TiePointGeoCoding should consider non-linear distribution of longitude values across-track<br/>
         [BEAM-796] Index coding for classification bands<br/>
+        [BEAM-775] "Write" operator not invoked if last node in graph<br/>
         [BEAM-767] Band arithmetic shall handle String types<br/>
         [BEAM-733] Albers Equal Area Conic map projection missing<br/>
         [BEAM-732] Pixel position is not recalculated for GCPs imported from a placemark file<br/>

@@ -120,19 +120,20 @@ class CommandLineTool {
                     graph.addNode(sourceNode);
                 }
             }
-
             String writeOperatorAlias = OperatorSpi.getOperatorAlias(WriteOp.class);
-            Node targetNode = new Node("WriteProduct$" + lastNode.getId(), writeOperatorAlias);
-            targetNode.addSource(new NodeSource("input", lastNode.getId()));
-            Xpp3Dom configDom = new Xpp3Dom("parameters");
-            Xpp3Dom dom1 = new Xpp3Dom("file");
-            dom1.setValue(lineArgs.getTargetFilepath());
-            configDom.addChild(dom1);
-            Xpp3Dom dom2 = new Xpp3Dom("formatName");
-            dom2.setValue(lineArgs.getTargetFormatName());
-            configDom.addChild(dom2);
-            targetNode.setConfiguration(configDom);
-            graph.addNode(targetNode);
+            if (!lastNode.getOperatorName().equals(writeOperatorAlias)) {
+                Node targetNode = new Node("WriteProduct$" + lastNode.getId(), writeOperatorAlias);
+                targetNode.addSource(new NodeSource("input", lastNode.getId()));
+                Xpp3Dom configDom = new Xpp3Dom("parameters");
+                Xpp3Dom dom1 = new Xpp3Dom("file");
+                dom1.setValue(lineArgs.getTargetFilepath());
+                configDom.addChild(dom1);
+                Xpp3Dom dom2 = new Xpp3Dom("formatName");
+                dom2.setValue(lineArgs.getTargetFormatName());
+                configDom.addChild(dom2);
+                targetNode.setConfiguration(configDom);
+                graph.addNode(targetNode);
+            }
 
             executeGraph(graph);
         }
