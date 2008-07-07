@@ -179,8 +179,10 @@ public class EMClusterOp extends Operator {
 
             final Tile clusterMapTile = targetTileMap.get(clusterMapBand);
             final Tile[] targetTiles = new Tile[clusterCount];
-            for (int i = 0; i < targetTiles.length; i++) {
-                targetTiles[i] = targetTileMap.get(probabilityBands[i]);
+            if (includeProbabilityBands) {
+                for (int i = 0; i < targetTiles.length; i++) {
+                    targetTiles[i] = targetTileMap.get(probabilityBands[i]);
+                }
             }
             double[] point = new double[sourceTiles.length];
             for (int y = targetRectangle.y; y < targetRectangle.y + targetRectangle.height; y++) {
