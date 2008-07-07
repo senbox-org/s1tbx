@@ -56,7 +56,7 @@ public class ParameterDescriptorFactoryTest extends TestCase{
         assertEquals(null, valueDescriptor.getItemAlias());
         assertEquals("double", valueDescriptor.getType().getName());
         assertEquals("", valueDescriptor.getUnit());
-        assertSame(MultiValidator.class, valueDescriptor.getValidator().getClass());
+        assertNull(valueDescriptor.getValidator());
         assertEquals("(0,100]", valueDescriptor.getValueRange().toString());
         assertEquals(0.0, valueDescriptor.getValueRange().getMin(), 0.000001);
         assertEquals(100.0, valueDescriptor.getValueRange().getMax(), 0.000001);
@@ -78,7 +78,7 @@ public class ParameterDescriptorFactoryTest extends TestCase{
         assertEquals(null, valueDescriptor.getItemAlias());
         assertFalse(valueDescriptor.getType().isArray());
         assertEquals("", valueDescriptor.getUnit());
-        assertSame(MultiValidator.class, valueDescriptor.getValidator().getClass());
+        assertNull(valueDescriptor.getValidator());
         assertEquals(null, valueDescriptor.getValueRange());
         assertNotNull(valueDescriptor.getValueSet());
         assertEquals(3, valueDescriptor.getValueSet().getItems().length);
@@ -87,7 +87,7 @@ public class ParameterDescriptorFactoryTest extends TestCase{
         assertEquals(42.0, valueDescriptor.getValueSet().getItems()[2]);
         ValueAccessor valueAccessor = new DefaultValueAccessor();
         ValueModel valueModel = new ValueModel(valueDescriptor, valueAccessor);
-        Validator validator = valueDescriptor.getValidator();
+        Validator validator = valueModel.getValidator();
         assertNotNull(validator);
         assertNotNull(valueModel);
         try {
@@ -114,7 +114,7 @@ public class ParameterDescriptorFactoryTest extends TestCase{
         assertTrue(type.isArray());
         assertEquals(Double.TYPE, type.getComponentType());
         assertEquals("", valueDescriptor.getUnit());
-        assertSame(MultiValidator.class, valueDescriptor.getValidator().getClass());
+        assertNull(valueDescriptor.getValidator());
         assertEquals(null, valueDescriptor.getValueRange());
         assertNotNull(valueDescriptor.getValueSet());
         assertEquals(3, valueDescriptor.getValueSet().getItems().length);
@@ -123,7 +123,7 @@ public class ParameterDescriptorFactoryTest extends TestCase{
         assertEquals(42.0, valueDescriptor.getValueSet().getItems()[2]);
         ValueAccessor valueAccessor = new DefaultValueAccessor();
         ValueModel valueModel = new ValueModel(valueDescriptor, valueAccessor);
-        Validator validator = valueDescriptor.getValidator();
+        Validator validator = valueModel.getValidator();
         assertNotNull(validator);
         assertNotNull(valueModel);
         try {
