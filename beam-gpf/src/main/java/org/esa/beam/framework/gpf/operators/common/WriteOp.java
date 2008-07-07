@@ -7,6 +7,9 @@ import org.esa.beam.framework.dataio.ProductWriter;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.ProductNodeListenerAdapter;
+import org.esa.beam.framework.datamodel.ProductNodeEvent;
+import org.esa.beam.framework.datamodel.DataNode;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -15,14 +18,19 @@ import org.esa.beam.framework.gpf.annotations.OperatorMetadata;
 import org.esa.beam.framework.gpf.annotations.Parameter;
 import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
+import org.esa.beam.framework.gpf.internal.OperatorImage;
 import org.esa.beam.util.math.MathUtils;
 
 import javax.media.jai.JAI;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @OperatorMetadata(alias = "Write",
                   description = "Writes a product to disk.")
@@ -45,6 +53,9 @@ public class WriteOp extends Operator {
     private ProductWriter productWriter;
     private List<Band> writableBands;
     private boolean productFileWritten;
+    private Map<OperatorImage, List<Point>> notComputedTileIndexList;
+    private boolean headerChanged;
+    private ProductNodeChangeListener productNodeChangeListener;
 
     public WriteOp() {
     }
@@ -75,6 +86,10 @@ public class WriteOp extends Operator {
                 writableBands.add(band);
             }
         }
+        notComputedTileIndexList = new HashMap<OperatorImage, List<Point>>(writableBands.size());
+        headerChanged = false;
+        productNodeChangeListener = new ProductNodeChangeListener();
+        targetProduct.addProductNodeListener(productNodeChangeListener);
     }
 
     @Override
@@ -89,9 +104,9 @@ public class WriteOp extends Operator {
                 final Rectangle rectangle = targetTile.getRectangle();
                 final Tile sourceTile = getSourceTile(targetBand, rectangle, pm);
                 final ProductData rawSamples = sourceTile.getRawSamples();
-
                 targetProduct.setProductWriter(productWriter);
                 targetBand.writeRasterData(rectangle.x, rectangle.y, rectangle.width, rectangle.height, rawSamples, pm);
+                updateComputedTileMap(targetBand, targetTile);
             } catch (Exception e) {
                 if (deleteOutputOnFailure) {
                     try {
@@ -111,6 +126,44 @@ public class WriteOp extends Operator {
         }
     }
 
+    private void updateComputedTileMap(Band targetBand, Tile targetTile) throws IOException {
+        synchronized (notComputedTileIndexList) {
+            if (targetBand.getImage() instanceof OperatorImage) {
+                OperatorImage operatorImage = (OperatorImage) targetBand.getImage();
+
+                final List<Point> currentList = getTileList(operatorImage);
+                currentList.remove(new Point(operatorImage.XToTileX(targetTile.getMinX()),
+                                             operatorImage.YToTileY(targetTile.getMinY())));
+
+                for (List<Point> points : notComputedTileIndexList.values()) {
+                    if (!points.isEmpty()) {
+                        return;
+                    }
+                }
+                // If we get here all tiles are written
+                if(headerChanged) {   // ask if we have to update the header
+                    productWriter.writeProductNodes(targetProduct, file);                    
+                }
+            }
+        }
+    }
+
+    private List<Point> getTileList(OperatorImage operatorImage) {
+        List<Point> list = notComputedTileIndexList.get(operatorImage);
+        if (list == null) {
+            final int numXTiles = operatorImage.getNumXTiles();
+            final int numYTiles = operatorImage.getNumYTiles();
+            list = new ArrayList<Point>(numXTiles * numYTiles);
+            for (int y = 0; y < numYTiles; y++) {
+                for (int x = 0; x < numXTiles; x++) {
+                    list.add(new Point(x, y));
+                }
+            }
+            notComputedTileIndexList.put(operatorImage, list);
+        }
+        return list;
+    }
+
     @Override
     public void dispose() {
         try {
@@ -122,6 +175,7 @@ public class WriteOp extends Operator {
     }
 
     public static class Spi extends OperatorSpi {
+
         public Spi() {
             super(WriteOp.class);
         }
@@ -181,6 +235,26 @@ public class WriteOp extends Operator {
             } catch (IOException ignored) {
             }
             pm.done();
+        }
+    }
+
+    private class ProductNodeChangeListener extends ProductNodeListenerAdapter {
+
+        @Override
+        public void nodeChanged(ProductNodeEvent event) {
+            if(!DataNode.PROPERTY_NAME_DATA.equalsIgnoreCase(event.getPropertyName()))  {
+                headerChanged = true;
+            }
+        }
+
+        @Override
+        public void nodeAdded(ProductNodeEvent event) {
+            headerChanged = true;
+        }
+
+        @Override
+        public void nodeRemoved(ProductNodeEvent event) {
+            headerChanged = true;
         }
     }
 }

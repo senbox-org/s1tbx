@@ -23,6 +23,11 @@ import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.Pin;
+import org.esa.beam.framework.datamodel.PinDescriptor;
+import org.esa.beam.framework.datamodel.PinSymbol;
+import org.esa.beam.framework.datamodel.PixelPos;
+import org.esa.beam.framework.datamodel.ProductNodeGroup;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -97,6 +102,8 @@ public class WriteOpTest extends TestCase {
             outputProducts[0].dispose();
 
             Product readProduct = ProductIO.readProduct(file, null);
+            final ProductNodeGroup<Pin> pinProductNodeGroup = readProduct.getPinGroup();
+            assertEquals(4, pinProductNodeGroup.getNodeCount());     // one for each tile, we have 4 tiles
             assertEquals("writtenProduct", readProduct.getName());
             assertEquals(1, readProduct.getNumBands());
             Band band1 = readProduct.getBandAt(0);
@@ -141,6 +148,7 @@ public class WriteOpTest extends TestCase {
         public void initialize() {
             targetProduct = new Product("Op1Name", "Op1Type", RASTER_SIZE, RASTER_SIZE);
             targetProduct.addBand(new Band("Op1A", ProductData.TYPE_INT8, RASTER_SIZE, RASTER_SIZE));
+            targetProduct.setPreferredTileSize(2,2);
         }
 
         @Override
@@ -148,6 +156,13 @@ public class WriteOpTest extends TestCase {
             for (Pos pos : targetTile) {
                 targetTile.setSample(pos.x, pos.y, 42);
             }
+            final int minX = targetTile.getMinX();
+            final int minY = targetTile.getMinY();
+            final PinSymbol symbol = PinDescriptor.INSTANCE.createDefaultSymbol();
+            band.getProduct().getPinGroup().add(new Pin(band.getName() + minX + "," + minY,
+                                                        "label", "descr",
+                                                        new PixelPos(minX, minY), null,
+                                                        symbol));
         }
 
         public static class Spi extends OperatorSpi {
