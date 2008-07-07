@@ -32,8 +32,8 @@ class MoreOptionsForm {
     MoreOptionsForm(ColorManipulationForm parentForm) {
         this.parentForm = parentForm;
         ValueContainer valueContainer = new ValueContainer();
-        valueContainer.addModel(ValueModel.createModel(NO_DATA_COLOR_PROPERTY, ImageInfo.NO_COLOR));
-        valueContainer.addModel(ValueModel.createModel(HISTOGRAM_MATCHING_PROPERTY, ImageInfo.HistogramMatching.None));
+        valueContainer.addModel(ValueModel.createValueModel(NO_DATA_COLOR_PROPERTY, ImageInfo.NO_COLOR));
+        valueContainer.addModel(ValueModel.createValueModel(HISTOGRAM_MATCHING_PROPERTY, ImageInfo.HistogramMatching.None));
 
         valueContainer.getModel(HISTOGRAM_MATCHING_PROPERTY).getDescriptor().setNotNull(true);
         valueContainer.getModel(HISTOGRAM_MATCHING_PROPERTY).getDescriptor().setValueSet(new ValueSet(

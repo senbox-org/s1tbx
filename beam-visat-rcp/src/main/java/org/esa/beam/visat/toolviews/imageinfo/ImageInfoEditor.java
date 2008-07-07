@@ -793,7 +793,7 @@ class ImageInfoEditor extends JPanel {
         hidePopup();
 
         final ValueContainer vc = new ValueContainer();
-        vc.addModel(ValueModel.createModel("sample", getSliderSample(sliderIndex)));
+        vc.addModel(ValueModel.createValueModel("sample", getSliderSample(sliderIndex)));
         vc.getValueDescriptor("sample").setDisplayName("sample");
         vc.getValueDescriptor("sample").setValueRange(new ValueRange(getMinSliderSample(sliderIndex), getMaxSliderSample(sliderIndex)));
         vc.getValueDescriptor("sample").setUnit(getModel().getUnit());
