@@ -78,7 +78,6 @@ public class ObpgProductReader extends AbstractProductReader {
                 final String path = inFile.getPath();
                 fileId = obpgUtils.openHdfFileReadOnly(path);
                 sdStart = obpgUtils.openSdInterfaceReadOnly(path);
-
                 final List<HdfAttribute> globalAttributes = obpgUtils.readGlobalAttributes(sdStart);
                 final Product product = obpgUtils.createProductBody(globalAttributes);
                 mustFlip = obpgUtils.mustFlip(globalAttributes);
