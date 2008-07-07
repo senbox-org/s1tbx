@@ -19,6 +19,7 @@ package org.esa.beam.framework.gpf.operators.common;
 import com.bc.ceres.core.ProgressMonitor;
 import junit.framework.TestCase;
 import org.esa.beam.GlobalTestConfig;
+import org.esa.beam.util.SystemUtils;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
@@ -53,26 +54,26 @@ public class WriteOpTest extends TestCase {
     private static final int RASTER_SIZE = 4;
     private MockFillerOp.Spi fillOpSpi = new MockFillerOp.Spi();
     private WriteOp.Spi writeSpi = new WriteOp.Spi();
+    private File outputFile;
 
     @Override
     protected void setUp() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(fillOpSpi);
         GPF.getDefaultInstance().getOperatorSpiRegistry().addOperatorSpi(writeSpi);
+        outputFile = GlobalTestConfig.getBeamTestDataOutputFile("DIMAP/writtenProduct.dim");
+        outputFile.getParentFile().mkdirs();
+        outputFile.createNewFile();
     }
 
     @Override
     protected void tearDown() throws Exception {
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(fillOpSpi);
         GPF.getDefaultInstance().getOperatorSpiRegistry().removeOperatorSpi(writeSpi);
+        File parentFile = outputFile.getParentFile();
+        SystemUtils.deleteFileTree(parentFile);
     }
 
     public void testWrite() throws Exception {
-        File file = GlobalTestConfig.getBeamTestDataOutputFile("DIMAP/writtenProduct.dim");
-        try {
-            file.getParentFile().mkdirs();
-            file.createNewFile();
-            file.deleteOnExit();
-
             String graphOpXml = "<graph id=\"myOneNodeGraph\">\n"
                     + "  <version>1.0</version>\n"
                     + "  <header>\n"
@@ -87,7 +88,7 @@ public class WriteOpTest extends TestCase {
                     + "      <input refid=\"node1\"/>\n"
                     + "    </sources>\n"
                     + "    <parameters>\n"
-                    + "       <file>" + file.getAbsolutePath() + "</file>\n"
+                    + "       <file>" + outputFile.getAbsolutePath() + "</file>\n"
                     + "       <deleteOutputOnFailure>false</deleteOutputOnFailure>\n"
                     + "    </parameters>\n"
                     + "  </node>\n"
@@ -101,7 +102,7 @@ public class WriteOpTest extends TestCase {
             Product[] outputProducts = graphContext.getOutputProducts();
             outputProducts[0].dispose();
 
-            Product readProduct = ProductIO.readProduct(file, null);
+            Product readProduct = ProductIO.readProduct(outputFile, null);
             final ProductNodeGroup<Pin> pinProductNodeGroup = readProduct.getPinGroup();
             assertEquals(4, pinProductNodeGroup.getNodeCount());     // one for each tile, we have 4 tiles
             assertEquals("writtenProduct", readProduct.getName());
@@ -112,30 +113,6 @@ public class WriteOpTest extends TestCase {
             band1.loadRasterData();
             assertEquals(42, band1.getPixelInt(0, 0));
             readProduct.dispose();
-        } finally {
-            File parentFile = file.getParentFile();
-            deleteDirectory(parentFile);
-        }
-    }
-
-    private static void emptyDirectory(File directory) {
-        final File[] files = directory.listFiles();
-        if (files == null) {
-            return;
-        }
-        for (final File file : files) {
-            if (file.isDirectory()) {
-                deleteDirectory(file);
-                file.delete();
-            } else {
-                file.delete();
-            }
-        }
-    }
-
-    private static void deleteDirectory(File file) {
-        emptyDirectory(file);
-        file.delete();
     }
 
     @OperatorMetadata(alias = "MockFiller")
