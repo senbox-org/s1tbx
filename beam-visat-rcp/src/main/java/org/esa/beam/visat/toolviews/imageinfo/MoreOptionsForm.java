@@ -58,8 +58,9 @@ class MoreOptionsForm {
         Binding noDataColorBinding = bindingContext.bind(NO_DATA_COLOR_PROPERTY, new ColorComboBoxAdapter(noDataColorComboBox));
         noDataColorBinding.addComponent(noDataColorLabel);
 
-        bindingContext.bind(HISTOGRAM_MATCHING_PROPERTY, histogramMatchingBox);
-        bindingContext.getBinding(HISTOGRAM_MATCHING_PROPERTY).addComponent(histogramMatchingLabel);
+        Binding histogramMatchingBinding = bindingContext.bind(HISTOGRAM_MATCHING_PROPERTY, histogramMatchingBox);
+        histogramMatchingBinding.addComponent(histogramMatchingLabel);
+
         contentPanel = new JPanel(new GridBagLayout());
 
         constraints = new GridBagConstraints();
