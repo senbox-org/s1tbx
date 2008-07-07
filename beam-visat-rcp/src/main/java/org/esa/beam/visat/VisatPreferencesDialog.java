@@ -610,7 +610,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             Parameter param;
 
             param = new Parameter(PROPERTY_KEY_SAVE_PRODUCT_HEADERS, DEFAULT_VALUE_SAVE_PRODUCT_HEADERS);
-            param.getProperties().setLabel("Save product header (MPH, SPH)"); /*I18N*/
+            param.getProperties().setLabel("Save product header (MPH, SPH, Global_Attributes)"); /*I18N*/
             param.addParamChangeListener(new ParamChangeListener() {
                 public void parameterValueChanged(ParamChangeEvent event) {
                     Parameter configParam = getConfigParam(PROPERTY_KEY_SAVE_PRODUCT_ANNOTATIONS);
@@ -633,7 +633,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             configParams.addParameter(param);
 
             param = new Parameter(PROPERTY_KEY_SAVE_INCREMENTAL, DEFAULT_VALUE_SAVE_INCREMENTAL);
-            param.getProperties().setLabel("Use incremental Save"); /*I18N*/
+            param.getProperties().setLabel("Use incremental save (only save modified items)"); /*I18N*/
             configParams.addParameter(param);
         }
 
