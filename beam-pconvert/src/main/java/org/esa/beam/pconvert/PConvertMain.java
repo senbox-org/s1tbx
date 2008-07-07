@@ -17,13 +17,10 @@
 package org.esa.beam.pconvert;
 
 import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.dataio.dimap.DimapProductWriterPlugIn;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.BitmaskDef;
-import org.esa.beam.framework.datamodel.BitmaskOverlayInfo;
 import org.esa.beam.framework.datamodel.ColorPaletteDef;
 import org.esa.beam.framework.datamodel.ImageInfo;
 import org.esa.beam.framework.datamodel.Product;
@@ -622,23 +619,28 @@ public class PConvertMain {
         return geoTIFFWritten;
     }
 
-    private static int[] createRGBBands(final Product product, final RGBImageProfile rgbImageProfile) throws
-                                                                                                      IOException {
-        final int w = product.getSceneRasterWidth();
-        final int h = product.getSceneRasterHeight();
-        // add virtual RGB bands to product
-        product.addBand(
-                new VirtualBand("virtual_red", ProductData.TYPE_FLOAT32, w, h, rgbImageProfile.getRedExpression()));
-        product.addBand(
-                new VirtualBand("virtual_green", ProductData.TYPE_FLOAT32, w, h, rgbImageProfile.getGreenExpression()));
-        product.addBand(
-                new VirtualBand("virtual_blue", ProductData.TYPE_FLOAT32, w, h, rgbImageProfile.getBlueExpression()));
-        // retrieve band indices
+    private static int[] createRGBBands(final Product product, final RGBImageProfile rgbImageProfile) {
         return new int[]{
-                product.getBandIndex("virtual_red"),
-                product.getBandIndex("virtual_green"),
-                product.getBandIndex("virtual_blue")
+                getBandIndex(product, rgbImageProfile.getRedExpression(), "virtual_red"),
+                getBandIndex(product, rgbImageProfile.getGreenExpression(), "virtual_green"),
+                getBandIndex(product, rgbImageProfile.getBlueExpression(), "virtual_blue")
         };
+    }
+
+    private static int getBandIndex(Product product, String expression, String virtualBandName) {
+        final int index;
+        if(product.getBand(expression) != null) {
+            index = product.getBandIndex(expression);
+        }else {
+            final VirtualBand virtualBand = new VirtualBand(virtualBandName,
+                                                            ProductData.TYPE_FLOAT32,
+                                                            product.getSceneRasterWidth(),
+                                                            product.getSceneRasterHeight(),
+                                                            expression);
+            product.addBand(virtualBand);
+            index = product.getBandIndex(virtualBand.getName());
+        }
+        return index;
     }
 
     // todo - move this to JAI utils
