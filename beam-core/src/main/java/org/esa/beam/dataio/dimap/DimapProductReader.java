@@ -21,13 +21,7 @@ import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.IllegalFileFormatException;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.dataio.DecodeQualification;
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.FilterBand;
-import org.esa.beam.framework.datamodel.GeoCoding;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.util.logging.BeamLogManager;
@@ -188,7 +182,12 @@ public class DimapProductReader extends AbstractProductReader {
                     product.getBandAt(i).setGeoCoding(geoCodings[i]);
                 }
             }
-
+        } else {
+            final Band lonBand = product.getBand("longitude");
+            final Band latBand = product.getBand("latitude");
+            if (latBand != null && lonBand != null)  {
+                product.setGeoCoding(new PixelGeoCoding(latBand, lonBand, null, 6, ProgressMonitor.NULL));
+            }
         }
 
         sourceRasterWidth = product.getSceneRasterWidth();
