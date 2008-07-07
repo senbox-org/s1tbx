@@ -812,7 +812,7 @@ class ImageInfoEditor extends JPanel {
 
             public void propertyChange(PropertyChangeEvent evt) {
                 hidePopup();
-                setSliderSample(sliderIndex, (Double) ctx.getBinding("sample").getValue());
+                setSliderSample(sliderIndex, (Double) ctx.getBinding("sample").getPropertyValue());
             }
         });
     }

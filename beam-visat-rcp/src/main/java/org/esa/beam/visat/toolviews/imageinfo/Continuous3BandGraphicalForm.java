@@ -228,8 +228,8 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
         final ImageInfoEditorModel3B model = models[channel];
         model.setDisplayProperties(channelSource);
         imageInfoEditor.setModel(model);
-        moreOptionsForm.getBindingContext().getBinding(CHANNEL_SOURCE_NAME_PROPERTY).setValue(channelSource.getName());
-        moreOptionsForm.getBindingContext().getBinding(GAMMA_PROPERTY).setValue(model.getGamma());
+        moreOptionsForm.getBindingContext().getBinding(CHANNEL_SOURCE_NAME_PROPERTY).setPropertyValue(channelSource.getName());
+        moreOptionsForm.getBindingContext().getBinding(GAMMA_PROPERTY).setPropertyValue(model.getGamma());
     }
 
     private void handleGammaChanged(PropertyChangeEvent evt) {
@@ -266,7 +266,7 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
                 this.parentForm.setApplyEnabled(true);
             } else {
                 final Object value = evt.getOldValue();
-                moreOptionsForm.getBindingContext().getBinding(CHANNEL_SOURCE_NAME_PROPERTY).setValue(value == null ? "" : value);
+                moreOptionsForm.getBindingContext().getBinding(CHANNEL_SOURCE_NAME_PROPERTY).setPropertyValue(value == null ? "" : value);
             }
         }
     }

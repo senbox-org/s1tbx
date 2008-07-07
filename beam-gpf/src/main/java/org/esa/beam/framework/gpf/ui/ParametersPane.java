@@ -80,7 +80,7 @@ public class ParametersPane {
                         JFileChooser fileChooser = new JFileChooser();
                         int i = fileChooser.showDialog(panel, "Select");
                         if (i == JFileChooser.APPROVE_OPTION && fileChooser.getSelectedFile() != null) {
-                            binding.setValue(fileChooser.getSelectedFile());
+                            binding.setPropertyValue(fileChooser.getSelectedFile());
                         }
                     }
                 });

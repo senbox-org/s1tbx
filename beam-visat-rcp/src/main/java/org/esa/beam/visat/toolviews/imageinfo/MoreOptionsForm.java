@@ -56,10 +56,10 @@ class MoreOptionsForm {
         bindingContext = new BindingContext(valueContainer);
 
         Binding noDataColorBinding = bindingContext.bind(NO_DATA_COLOR_PROPERTY, new ColorComboBoxAdapter(noDataColorComboBox));
-        noDataColorBinding.attachSecondaryComponent(noDataColorLabel);
+        noDataColorBinding.addComponent(noDataColorLabel);
 
         bindingContext.bind(HISTOGRAM_MATCHING_PROPERTY, histogramMatchingBox);
-        bindingContext.getBinding(HISTOGRAM_MATCHING_PROPERTY).attachSecondaryComponent(histogramMatchingLabel);
+        bindingContext.getBinding(HISTOGRAM_MATCHING_PROPERTY).addComponent(histogramMatchingLabel);
         contentPanel = new JPanel(new GridBagLayout());
 
         constraints = new GridBagConstraints();
@@ -110,19 +110,19 @@ class MoreOptionsForm {
     }
 
     public Color getNoDataColor() {
-        return (Color) getBindingContext().getBinding(NO_DATA_COLOR_PROPERTY).getValue();
+        return (Color) getBindingContext().getBinding(NO_DATA_COLOR_PROPERTY).getPropertyValue();
     }
 
     public void setNoDataColor(Color color) {
-        getBindingContext().getBinding(NO_DATA_COLOR_PROPERTY).setValue(color);
+        getBindingContext().getBinding(NO_DATA_COLOR_PROPERTY).setPropertyValue(color);
     }
 
     public ImageInfo.HistogramMatching getHistogramMatching() {
-        return (ImageInfo.HistogramMatching) getBindingContext().getBinding(HISTOGRAM_MATCHING_PROPERTY).getValue();
+        return (ImageInfo.HistogramMatching) getBindingContext().getBinding(HISTOGRAM_MATCHING_PROPERTY).getPropertyValue();
     }
 
     public void setHistogramMatching(ImageInfo.HistogramMatching histogramMatching) {
-        getBindingContext().getBinding(HISTOGRAM_MATCHING_PROPERTY).setValue(histogramMatching);
+        getBindingContext().getBinding(HISTOGRAM_MATCHING_PROPERTY).setPropertyValue(histogramMatching);
     }
 
     public JPanel getContentPanel() {

@@ -27,8 +27,8 @@ class ColorComboBoxAdapter extends ComponentAdapter implements PropertyChangeLis
     }
 
     @Override
-    public JComponent getPrimaryComponent() {
-        return colorComboBox;
+    public JComponent[] getComponents() {
+        return new JComponent[] {colorComboBox};
     }
 
     @Override
@@ -43,13 +43,13 @@ class ColorComboBoxAdapter extends ComponentAdapter implements PropertyChangeLis
 
     @Override
     public void adjustComponents() {
-        final Color color = (Color) getBinding().getValue();
+        final Color color = (Color) getBinding().getPropertyValue();
         colorComboBox.setSelectedColor(ImageInfo.NO_COLOR.equals(color) ? null : color);
     }
 
     private void adjustPropertyValue() {
         final Color color = colorComboBox.getSelectedColor();
-        getBinding().setValue(color == null ? ImageInfo.NO_COLOR : color);
+        getBinding().setPropertyValue(color == null ? ImageInfo.NO_COLOR : color);
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
