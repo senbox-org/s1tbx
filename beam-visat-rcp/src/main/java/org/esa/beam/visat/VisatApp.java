@@ -137,7 +137,7 @@ public class VisatApp extends BasicApp {
      */
     public static final String PROPERTY_KEY_SAVE_PRODUCT_HEADERS = "save.product.headers";
     /**
-     * Preferences key for save product annotations (ADS) or not
+     * Preferences key for save product history or not
      */
     public static final String PROPERTY_KEY_SAVE_PRODUCT_HISTORY = "save.product.history";
     /**
