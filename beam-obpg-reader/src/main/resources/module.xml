@@ -29,11 +29,11 @@
         <action>
             <id>importObpgProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
-            <formatName>OBPG(MODIS)</formatName>
+            <formatName>NASA_OBPG</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>O</mnemonic>
-            <shortDescr>Import a OBPG(MODIS) L2 data product or subset.</shortDescr>
-            <description>Import a OBPG(MODIS) L2 data product or product subset.</description>
+            <shortDescr>Import a NASA OBPG L2 data product or subset.</shortDescr>
+            <description>Import a NASA OBPG L2 data product or product subset.</description>
             <helpId>importObpgProduct</helpId>
         </action>
     </extension>
