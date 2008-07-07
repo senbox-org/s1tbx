@@ -37,7 +37,7 @@ class TextFieldVerifier extends InputVerifier {
     public boolean verify(JComponent input) {
         try {
             final String text = ((JTextField) input).getText();
-            final String name = adapter.getBinding().getName();
+            final String name = adapter.getBinding().getPropertyName();
             final ValueContainer valueContainer = adapter.getBinding().getContext().getValueContainer();
             final ValueDescriptor descriptor = valueContainer.getValueDescriptor(name);
             final Converter converter = descriptor.getConverter();

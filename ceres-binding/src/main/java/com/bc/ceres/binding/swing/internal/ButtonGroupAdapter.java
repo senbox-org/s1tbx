@@ -3,7 +3,6 @@ package com.bc.ceres.binding.swing.internal;
 import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.swing.ComponentAdapter;
-import com.bc.ceres.binding.swing.Binding;
 
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
@@ -23,7 +22,7 @@ import java.awt.event.ActionEvent;
  */
 public class ButtonGroupAdapter extends ComponentAdapter implements ActionListener {
     private final ButtonGroup buttonGroup;
-    private AbstractButton firstButton;
+    private AbstractButton[] buttons;
     private final Map<AbstractButton, Object> buttonToValueMap;
     private final Map<Object, AbstractButton> valueToButtonMap;
 
@@ -38,23 +37,20 @@ public class ButtonGroupAdapter extends ComponentAdapter implements ActionListen
     }
 
     @Override
-    public JComponent getPrimaryComponent() {
-        return firstButton;
+    public JComponent[] getComponents() {
+        return buttons.clone();
     }
 
     @Override
     public void bindComponents() {
         Enumeration<AbstractButton> buttonEnum = buttonGroup.getElements();
         int count = buttonGroup.getButtonCount();
+        buttons = new AbstractButton[count];
         for (int i = 0; i < count; i++) {
             AbstractButton button = buttonEnum.nextElement();
             button.addActionListener(this);
+            buttons[i] = button;
             valueToButtonMap.put(buttonToValueMap.get(button), button);
-            if (i == 0) {
-                firstButton = button;
-            } else {
-                getBinding().attachSecondaryComponent(button);
-            }
         }
     }
 
@@ -66,16 +62,13 @@ public class ButtonGroupAdapter extends ComponentAdapter implements ActionListen
             AbstractButton button = buttonEnum.nextElement();
             button.removeActionListener(this);
             valueToButtonMap.remove(buttonToValueMap.get(button));
-            if (i > 0) {
-                getBinding().detachSecondaryComponent(button);
-            }
         }
         valueToButtonMap.clear();
     }
 
     @Override
     public void adjustComponents() {
-        Object value = getBinding().getValue();
+        Object value = getBinding().getPropertyValue();
         if (value != null) {
             AbstractButton button = valueToButtonMap.get(value);
             if (button != null) {
@@ -86,7 +79,7 @@ public class ButtonGroupAdapter extends ComponentAdapter implements ActionListen
 
     public void actionPerformed(ActionEvent e) {
         AbstractButton button = (AbstractButton) e.getSource();
-        getBinding().setValue(buttonToValueMap.get(button));
+        getBinding().setPropertyValue(buttonToValueMap.get(button));
     }
 
     public static Map<AbstractButton, Object> createButtonToValueMap(ButtonGroup buttonGroup, ValueContainer valueContainer, String propertyName) {

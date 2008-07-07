@@ -3,14 +3,7 @@ package com.bc.ceres.binding.swing;
 import com.bc.ceres.binding.*;
 import junit.framework.TestCase;
 
-import javax.swing.ButtonGroup;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JList;
-import javax.swing.JRadioButton;
-import javax.swing.JSpinner;
-import javax.swing.JTextField;
-import javax.swing.JFormattedTextField;
+import javax.swing.*;
 import java.util.Arrays;
 
 /**
@@ -44,9 +37,9 @@ public class BindingContextTest extends TestCase {
         JSpinner spinner = new JSpinner();
         Binding binding = bindingContextVB.bind("intValue", spinner);
         assertNotNull(binding);
-        assertSame(spinner, binding.getPrimaryComponent());
-        assertNotNull(binding.getSecondaryComponents());
-        assertEquals(0, binding.getSecondaryComponents().length);
+        assertSame(spinner, getPrimaryComponent(binding));
+        assertNotNull(binding.getComponents());
+        assertEquals(1, binding.getComponents().length);
 
         assertEquals("intValue", spinner.getName());
 
@@ -62,9 +55,9 @@ public class BindingContextTest extends TestCase {
         JComboBox combobox = new JComboBox(new Integer[]{1, 3, 7});
         Binding binding = bindingContextVB.bind("intValue", combobox);
         assertNotNull(binding);
-        assertSame(combobox, binding.getPrimaryComponent());
-        assertNotNull(binding.getSecondaryComponents());
-        assertEquals(0, binding.getSecondaryComponents().length);
+        assertSame(combobox, getPrimaryComponent(binding));
+        assertNotNull(binding.getComponents());
+        assertEquals(1, binding.getComponents().length);
 
         assertEquals("intValue", combobox.getName());
 
@@ -79,9 +72,9 @@ public class BindingContextTest extends TestCase {
         JTextField textField = new JTextField();
         Binding binding = bindingContextVB.bind("stringValue", textField);
         assertNotNull(binding);
-        assertSame(textField, binding.getPrimaryComponent());
-        assertNotNull(binding.getSecondaryComponents());
-        assertEquals(0, binding.getSecondaryComponents().length);
+        assertSame(textField, getPrimaryComponent(binding));
+        assertNotNull(binding.getComponents());
+        assertEquals(1, binding.getComponents().length);
 
         assertEquals("stringValue", textField.getName());
 
@@ -97,9 +90,9 @@ public class BindingContextTest extends TestCase {
         JTextField textField = new JTextField();
         Binding binding = bindingContextOB.bind("stringValue", textField);
         assertNotNull(binding);
-        assertSame(textField, binding.getPrimaryComponent());
-        assertNotNull(binding.getSecondaryComponents());
-        assertEquals(0, binding.getSecondaryComponents().length);
+        assertSame(textField, getPrimaryComponent(binding));
+        assertNotNull(binding.getComponents());
+        assertEquals(1, binding.getComponents().length);
 
         assertEquals("stringValue", textField.getName());
 
@@ -120,9 +113,9 @@ public class BindingContextTest extends TestCase {
         JFormattedTextField textField = new JFormattedTextField();
         Binding binding = bindingContextVB.bind("stringValue", textField);
         assertNotNull(binding);
-        assertSame(textField, binding.getPrimaryComponent());
-        assertNotNull(binding.getSecondaryComponents());
-        assertEquals(0, binding.getSecondaryComponents().length);
+        assertSame(textField, getPrimaryComponent(binding));
+        assertNotNull(binding.getComponents());
+        assertEquals(1, binding.getComponents().length);
 
         assertEquals("stringValue", textField.getName());
 
@@ -137,9 +130,9 @@ public class BindingContextTest extends TestCase {
         JFormattedTextField textField = new JFormattedTextField();
         Binding binding = bindingContextVB.bind("doubleValue", textField);
         assertNotNull(binding);
-        assertSame(textField, binding.getPrimaryComponent());
-        assertNotNull(binding.getSecondaryComponents());
-        assertEquals(0, binding.getSecondaryComponents().length);
+        assertSame(textField, getPrimaryComponent(binding));
+        assertNotNull(binding.getComponents());
+        assertEquals(1, binding.getComponents().length);
 
         assertEquals("doubleValue", textField.getName());
 
@@ -154,9 +147,9 @@ public class BindingContextTest extends TestCase {
         JCheckBox checkBox = new JCheckBox();
         Binding binding = bindingContextVB.bind("booleanValue", checkBox);
         assertNotNull(binding);
-        assertSame(checkBox, binding.getPrimaryComponent());
-        assertNotNull(binding.getSecondaryComponents());
-        assertEquals(0, binding.getSecondaryComponents().length);
+        assertSame(checkBox, getPrimaryComponent(binding));
+        assertNotNull(binding.getComponents());
+        assertEquals(1, binding.getComponents().length);
 
         assertEquals("booleanValue", checkBox.getName());
 
@@ -171,9 +164,9 @@ public class BindingContextTest extends TestCase {
         JRadioButton radioButton = new JRadioButton();
         Binding binding = bindingContextVB.bind("booleanValue", radioButton);
         assertNotNull(binding);
-        assertSame(radioButton, binding.getPrimaryComponent());
-        assertNotNull(binding.getSecondaryComponents());
-        assertEquals(0, binding.getSecondaryComponents().length);
+        assertSame(radioButton, getPrimaryComponent(binding));
+        assertNotNull(binding.getComponents());
+        assertEquals(1, binding.getComponents().length);
 
         assertEquals("booleanValue", radioButton.getName());
 
@@ -200,11 +193,12 @@ public class BindingContextTest extends TestCase {
 
         Binding binding = bindingContextVB.bind("valueSetBoundIntValue", buttonGroup);
         assertNotNull(binding);
-        assertSame(radioButton1, binding.getPrimaryComponent());
-        assertNotNull(binding.getSecondaryComponents());
-        assertEquals(2, binding.getSecondaryComponents().length);
-        assertSame(radioButton2, binding.getSecondaryComponents()[0]);
-        assertSame(radioButton3, binding.getSecondaryComponents()[1]);
+        assertSame(radioButton1, getPrimaryComponent(binding));
+        assertNotNull(binding.getComponents());
+        assertEquals(3, binding.getComponents().length);
+        assertSame(radioButton1, binding.getComponents()[0]);
+        assertSame(radioButton2, binding.getComponents()[1]);
+        assertSame(radioButton3, binding.getComponents()[2]);
 
         assertEquals(true, radioButton1.isSelected());
         assertEquals(false, radioButton2.isSelected());
@@ -246,9 +240,9 @@ public class BindingContextTest extends TestCase {
         JList list = new JList(new Integer[]{3, 4, 5, 6, 7});
         Binding binding = bindingContextVB.bind("listValue", list, true);
         assertNotNull(binding);
-        assertSame(list, binding.getPrimaryComponent());
-        assertNotNull(binding.getSecondaryComponents());
-        assertEquals(0, binding.getSecondaryComponents().length);
+        assertSame(list, getPrimaryComponent(binding));
+        assertNotNull(binding.getComponents());
+        assertEquals(1, binding.getComponents().length);
 
         assertEquals("listValue", list.getName());
 
@@ -257,6 +251,10 @@ public class BindingContextTest extends TestCase {
 
         valueContainerVB.setValue("listValue", new int[]{6});
         assertEquals(6, list.getSelectedValue());
+    }
+
+    private JComponent getPrimaryComponent(Binding binding) {
+        return binding.getComponents()[0];
     }
 
     private static class TestPojo {

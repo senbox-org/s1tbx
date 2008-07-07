@@ -16,11 +16,35 @@ public abstract class ComponentAdapter {
         this.binding = binding;
     }
 
-    public abstract JComponent getPrimaryComponent();
+    /**
+     * Gets the components participating in the binding.
+     * @return The array of components. Must not be empty.
+     */
+    public abstract JComponent[] getComponents();
 
     public abstract void bindComponents();
 
     public abstract void unbindComponents();
 
+    /**
+     * Adjusts the bound Swing components in reaction to a property change event in the
+     * associated {@code ValueContainer} in the {@link BindingContext}.
+     */
     public abstract void adjustComponents();
+
+    /**
+     * Handles an error occured while transferring data from the bound property to the
+     * Swing component or vice versa.
+     * Delegates the call to {@link BindingContext#handleError(Exception, javax.swing.JComponent) handleError()}
+     * of the binding context using this adapters's first component:
+     * <pre>
+     * getBinding().getContext().handleError(exception, getComponents()[0]);
+     * </pre>
+     *
+     * @param exception The error.
+     * @see #getComponents()
+     */
+    public void handleError(Exception exception) {
+        getBinding().getContext().handleError(exception, getComponents()[0]);
+    }
 }

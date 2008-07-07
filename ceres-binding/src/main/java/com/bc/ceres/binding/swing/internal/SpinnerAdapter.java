@@ -2,7 +2,6 @@ package com.bc.ceres.binding.swing.internal;
 
 import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.swing.ComponentAdapter;
-import com.bc.ceres.binding.swing.Binding;
 
 import javax.swing.JComponent;
 import javax.swing.JSpinner;
@@ -27,8 +26,8 @@ public class SpinnerAdapter extends ComponentAdapter implements ChangeListener {
     }
 
     @Override
-    public JComponent getPrimaryComponent() {
-        return spinner;
+    public JComponent[] getComponents() {
+        return new JComponent[]{spinner};
     }
 
     @Override
@@ -44,16 +43,16 @@ public class SpinnerAdapter extends ComponentAdapter implements ChangeListener {
 
     @Override
     public void adjustComponents() {
-        Object value = getBinding().getValue();
+        Object value = getBinding().getPropertyValue();
         spinner.setValue(value);
     }
 
     public void stateChanged(ChangeEvent evt) {
-        getBinding().setValue(spinner.getValue());
+        getBinding().setPropertyValue(spinner.getValue());
     }
 
     private void updateSpinnerModel() {
-        ValueDescriptor valueDescriptor = getBinding().getContext().getValueContainer().getValueDescriptor(getBinding().getName());
+        ValueDescriptor valueDescriptor = getBinding().getContext().getValueContainer().getValueDescriptor(getBinding().getPropertyName());
         if (valueDescriptor.getValueRange() != null) {
             Class<?> type = valueDescriptor.getType();
 

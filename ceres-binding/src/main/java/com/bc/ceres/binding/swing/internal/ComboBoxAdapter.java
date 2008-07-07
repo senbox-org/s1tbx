@@ -3,7 +3,6 @@ package com.bc.ceres.binding.swing.internal;
 import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.swing.ComponentAdapter;
-import com.bc.ceres.binding.swing.Binding;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
@@ -29,7 +28,7 @@ public class ComboBoxAdapter extends ComponentAdapter implements ActionListener,
     }
 
     public void actionPerformed(ActionEvent event) {
-        getBinding().setValue(comboBox.getSelectedItem());
+        getBinding().setPropertyValue(comboBox.getSelectedItem());
     }
 
     @Override
@@ -47,13 +46,13 @@ public class ComboBoxAdapter extends ComponentAdapter implements ActionListener,
 
     @Override
     public void adjustComponents() {
-        Object value = getBinding().getValue();
+        Object value = getBinding().getPropertyValue();
         comboBox.setSelectedItem(value);
     }
 
     @Override
-    public JComponent getPrimaryComponent() {
-        return comboBox;
+    public JComponent[] getComponents() {
+        return new JComponent[]{comboBox};
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
@@ -63,13 +62,13 @@ public class ComboBoxAdapter extends ComponentAdapter implements ActionListener,
     }
 
     private ValueDescriptor getValueDescriptor() {
-        return getBinding().getContext().getValueContainer().getValueDescriptor(getBinding().getName());
+        return getBinding().getContext().getValueContainer().getValueDescriptor(getBinding().getPropertyName());
     }
 
     private void updateComboBoxModel() {
         ValueSet valueSet = getValueDescriptor().getValueSet();
         if (valueSet != null) {
-            final Object oldValue = getBinding().getValue();
+            final Object oldValue = getBinding().getPropertyValue();
             final DefaultComboBoxModel aModel = new DefaultComboBoxModel(valueSet.getItems());
             if (!valueSet.contains(oldValue)) {
                 aModel.addElement(oldValue);

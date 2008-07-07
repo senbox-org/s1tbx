@@ -5,7 +5,6 @@ import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.ValueSet;
 import com.bc.ceres.binding.swing.ComponentAdapter;
-import com.bc.ceres.binding.swing.Binding;
 
 import javax.swing.JComponent;
 import javax.swing.JList;
@@ -33,8 +32,8 @@ public class ListSelectionAdapter extends ComponentAdapter implements ListSelect
     }
 
     @Override
-    public JComponent getPrimaryComponent() {
-        return list;
+    public JComponent[] getComponents() {
+        return new JComponent[]{list};
     }
 
     @Override
@@ -52,7 +51,7 @@ public class ListSelectionAdapter extends ComponentAdapter implements ListSelect
 
     @Override
     public void adjustComponents() {
-        Object array = getBinding().getValue();
+        Object array = getBinding().getPropertyValue();
         if (array != null) {
             ListModel model = list.getModel();
             int size = model.getSize();
@@ -80,7 +79,7 @@ public class ListSelectionAdapter extends ComponentAdapter implements ListSelect
     }
 
     private ValueDescriptor getValueDescriptor() {
-        return getBinding().getContext().getValueContainer().getValueDescriptor(getBinding().getName());
+        return getBinding().getContext().getValueContainer().getValueDescriptor(getBinding().getPropertyName());
     }
 
     private void updateListModel() {
@@ -97,7 +96,7 @@ public class ListSelectionAdapter extends ComponentAdapter implements ListSelect
         if (getBinding().isAdjustingComponents()) {
             return;
         }
-        final ValueModel model = getBinding().getContext().getValueContainer().getModel(getBinding().getName());
+        final ValueModel model = getBinding().getContext().getValueContainer().getModel(getBinding().getPropertyName());
         Object[] selectedValues = list.getSelectedValues();
         Object array = Array.newInstance(model.getDescriptor().getType().getComponentType(), selectedValues.length);
         for (int i = 0; i < selectedValues.length; i++) {
@@ -106,7 +105,7 @@ public class ListSelectionAdapter extends ComponentAdapter implements ListSelect
         try {
             model.setValue(array);
         } catch (ValidationException e1) {
-            getBinding().handleError(e1);
+            handleError(e1);
         }
     }
 }

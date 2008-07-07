@@ -1,7 +1,6 @@
 package com.bc.ceres.binding.swing.internal;
 
 import com.bc.ceres.binding.swing.ComponentAdapter;
-import com.bc.ceres.binding.swing.Binding;
 
 import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
@@ -24,8 +23,8 @@ public class FormattedTextFieldAdapter extends ComponentAdapter implements Prope
     }
 
     @Override
-    public JComponent getPrimaryComponent() {
-        return textField;
+    public JComponent[] getComponents() {
+        return new JComponent[]{textField};
     }
 
     @Override
@@ -40,11 +39,11 @@ public class FormattedTextFieldAdapter extends ComponentAdapter implements Prope
 
     @Override
     public void adjustComponents() {
-        Object value = getBinding().getValue();
+        Object value = getBinding().getPropertyValue();
         textField.setValue(value);
     }
 
     public void propertyChange(PropertyChangeEvent e) {
-        getBinding().setValue(textField.getValue());
+        getBinding().setPropertyValue(textField.getValue());
     }
 }

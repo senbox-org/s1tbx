@@ -1,6 +1,5 @@
 package com.bc.ceres.binding.swing.internal;
 
-import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.swing.Binding;
 import com.bc.ceres.binding.swing.BindingContext;
 import com.bc.ceres.binding.swing.ComponentAdapter;
@@ -10,6 +9,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
 
 public final class BindingImpl implements Binding,PropertyChangeListener {
 
@@ -46,19 +46,19 @@ public final class BindingImpl implements Binding,PropertyChangeListener {
         return context;
     }
 
-    public final String getName() {
+    public final String getPropertyName() {
         return name;
     }
 
-    public Object getValue() {
-        return context.getValueContainer().getValue(getName());
+    public Object getPropertyValue() {
+        return context.getValueContainer().getValue(getPropertyName());
     }
 
-    public void setValue(Object value) {
+    public void setPropertyValue(Object value) {
         try {
-            context.getValueContainer().setValue(getName(), value);
+            context.getValueContainer().setValue(getPropertyName(), value);
         } catch (Exception e) {
-            handleError(e);
+            componentAdapter.handleError(e);
         }
     }
 
@@ -68,59 +68,54 @@ public final class BindingImpl implements Binding,PropertyChangeListener {
 
     public final void adjustComponents() {
         if (!adjustingComponents) {
+            Exception error = null;
             try {
                 adjustingComponents = true;
                 componentAdapter.adjustComponents();
             } catch (Exception e) {
-                handleError(e);
+                error = e;
             } finally {
                 adjustingComponents = false;
             }
+            if (error != null) {
+                componentAdapter.handleError(error);
+            }
         }
-    }
-
-    /**
-     * Handles an error occured while transferring data from the bound property to the
-     * Swing component or vice versa.
-     * Delegates the call to the binding context using the binding's primary Swing component.
-     *
-     * @param exception The error.
-     */
-    public void handleError(Exception exception) {
-        context.handleError(exception, getPrimaryComponent());
     }
 
     /**
      * Gets the primary Swing component used for the binding, e.g. a {@link javax.swing.JTextField}.
      *
      * @return the primary Swing component.
-     * @see #getSecondaryComponents()
+     * @see #getComponents()
      */
     public JComponent getPrimaryComponent() {
-        return componentAdapter.getPrimaryComponent();
+        return componentAdapter.getComponents()[0];
     }
 
     /**
      * Gets the secondary Swing components attached to the binding, e.g. some {@link javax.swing.JLabel}s.
      *
      * @return the secondary Swing components. The returned array may be empty.
-     * @see #getPrimaryComponent()
-     * @see #attachSecondaryComponent(javax.swing.JComponent)
+     * @see #addComponent(javax.swing.JComponent)
      */
-    public JComponent[] getSecondaryComponents() {
+    public JComponent[] getComponents() {
         if (secondaryComponents == null) {
-            return new JComponent[0];
+            return componentAdapter.getComponents();
+        } else {
+            final List<JComponent> list = Arrays.asList(componentAdapter.getComponents());
+            list.addAll(secondaryComponents);
+            return list.toArray(new JComponent[list.size()]);
         }
-        return secondaryComponents.toArray(new JComponent[secondaryComponents.size()]);
     }
 
     /**
      * Attaches a secondary Swing component to this binding.
      *
      * @param component The secondary component.
-     * @see #detachSecondaryComponent(javax.swing.JComponent)
+     * @see #removeComponent(javax.swing.JComponent)
      */
-    public void attachSecondaryComponent(JComponent component) {
+    public void addComponent(JComponent component) {
         synchronized (this) {
             if (secondaryComponents == null) {
                 secondaryComponents = new ArrayList<JComponent>(3);
@@ -135,9 +130,9 @@ public final class BindingImpl implements Binding,PropertyChangeListener {
      * Detaches a secondary Swing component from this binding.
      *
      * @param component The secondary component.
-     * @see #attachSecondaryComponent(javax.swing.JComponent)
+     * @see #addComponent(javax.swing.JComponent)
      */
-    public void detachSecondaryComponent(JComponent component) {
+    public void removeComponent(JComponent component) {
         if (secondaryComponents != null) {
             secondaryComponents.remove(component);
         }
@@ -148,8 +143,7 @@ public final class BindingImpl implements Binding,PropertyChangeListener {
      * @param state The state to be propagated.
      */
     public void setComponentsEnabledState(boolean state) {
-        getPrimaryComponent().setEnabled(state);
-        for (JComponent component : getSecondaryComponents()) {
+        for (JComponent component : getComponents()) {
             component.setEnabled(state);
         }
     }
@@ -159,8 +153,7 @@ public final class BindingImpl implements Binding,PropertyChangeListener {
      * @param state The state to be propagated.
      */
     public void setComponentsVisibleState(boolean state) {
-        getPrimaryComponent().setVisible(state);
-        for (JComponent component : getSecondaryComponents()) {
+        for (JComponent component : getComponents()) {
             component.setVisible(state);
         }
     }

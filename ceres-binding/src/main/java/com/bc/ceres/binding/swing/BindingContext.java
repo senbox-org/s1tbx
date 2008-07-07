@@ -6,7 +6,6 @@ import com.bc.ceres.binding.ValueContainer;
 import com.bc.ceres.binding.ValueDescriptor;
 import com.bc.ceres.binding.ValueModel;
 import com.bc.ceres.binding.swing.internal.*;
-import com.bc.ceres.core.Assert;
 
 import javax.swing.*;
 import java.awt.Window;
@@ -55,23 +54,23 @@ public class BindingContext {
         return bindingMap.get(propertyName);
     }
 
-    public Binding addBinding(BindingImpl binding) {
-        return bindingMap.put(binding.getName(), binding);
-    }
-
-    public Binding removeBinding(String propertyName) {
-        return bindingMap.remove(propertyName);
-    }
-
-    public BindingImpl bind(String propertyName, ComponentAdapter adapter) {
+    public Binding bind(String propertyName, ComponentAdapter adapter) {
         BindingImpl binding = new BindingImpl(this, propertyName, adapter);
         addBinding(binding);
         adapter.setBinding(binding);
         adapter.bindComponents();
         binding.bindProperty();
         binding.adjustComponents();
-        configurePrimaryComponent(binding.getName(), binding.getPrimaryComponent());
+        configureComponents(binding);
         return binding;
+    }
+
+    public void unbind(Binding binding) {
+        removeBinding(binding.getPropertyName());
+        if (binding instanceof BindingImpl) {
+            ((BindingImpl)binding).unbindProperty();
+        }
+        binding.getComponentAdapter().unbindComponents();        
     }
 
     public Binding bind(final String propertyName, final JTextField textField) {
@@ -115,12 +114,12 @@ public class BindingContext {
         return bind(propertyName, adapter);
     }
 
-    public void enable(final String propertyName, final JComponent component, final Object propertyCondition) {
-        bindEnabling(propertyName, component, propertyCondition, true);
+    public void enable(final String propertyName, final Object propertyCondition, final JComponent component) {
+        bindEnabling(propertyName, propertyCondition, true, component);
     }
 
-    public void disable(final String propertyName, final JComponent component, final Object propertyCondition) {
-        bindEnabling(propertyName, component, propertyCondition, false);
+    public void disable(final String propertyName, final Object propertyCondition, final JComponent component) {
+        bindEnabling(propertyName, propertyCondition, false, component);
     }
 
     public void addPropertyChangeListener(PropertyChangeListener l) {
@@ -151,38 +150,44 @@ public class BindingContext {
         errorHandler.handleError(exception, component);
     }
 
-    private void configurePrimaryComponent(String propertyName, JComponent component) {
-        Assert.notNull(component, "component");
-        Assert.notNull(propertyName, "propertyName");
-        final ValueModel valueModel = valueContainer.getModel(propertyName);
-        Assert.argument(valueModel != null, "Undefined property '" + propertyName + "'");
-        if (component.getName() == null) {
-            component.setName(propertyName);
-        }
-        if (valueModel != null) {
-            if (component.getToolTipText() == null) {
-                StringBuilder toolTipText = new StringBuilder(32);
-                final ValueDescriptor valueDescriptor = valueModel.getDescriptor();
-                if (valueDescriptor.getDescription() != null) {
-                    toolTipText.append(valueDescriptor.getDescription());
-                }
-                if (valueDescriptor.getUnit() != null && !valueDescriptor.getUnit().isEmpty()) {
-                    toolTipText.append(" (");
-                    toolTipText.append(valueDescriptor.getUnit());
-                    toolTipText.append(")");
-                }
-                if (toolTipText.length() > 0) {
-                    component.setToolTipText(toolTipText.toString());
-                }
-            }
+    private void configureComponents(Binding binding) {
+        final String propertyName = binding.getPropertyName();
+        final String toolTipTextStr = getToolTipText(propertyName);
+        final JComponent[] components = binding.getComponents();
+        JComponent primaryComponent =  components[0];
+        configureComponent(primaryComponent, propertyName, toolTipTextStr);
+        for (int i = 1; i < components.length; i++) {
+            JComponent component = components[i];
+            configureComponent(component, propertyName + "." + i, toolTipTextStr);
         }
     }
 
+    private String getToolTipText(String propertyName) {
+        final ValueModel valueModel = valueContainer.getModel(propertyName);
+        StringBuilder toolTipText = new StringBuilder(32);
+        final ValueDescriptor valueDescriptor = valueModel.getDescriptor();
+        if (valueDescriptor.getDescription() != null) {
+            toolTipText.append(valueDescriptor.getDescription());
+        }
+        if (valueDescriptor.getUnit() != null && !valueDescriptor.getUnit().isEmpty()) {
+            toolTipText.append(" (");
+            toolTipText.append(valueDescriptor.getUnit());
+            toolTipText.append(")");
+        }
+        return toolTipText.toString();
+    }
+
+    private void configureComponent(JComponent component, String name, String toolTipText) {
+        if (component.getName() == null) {
+            component.setName(name);
+        }
+        if (component.getToolTipText() == null && !toolTipText.isEmpty()) {
+            component.setToolTipText(toolTipText);
+        }
+    }
 
     private void bindEnabling(final String propertyName,
-                              final JComponent component,
-                              final Object propertyCondition,
-                              final boolean componentEnabled) {
+                              final Object propertyCondition, final boolean componentEnabled, final JComponent component) {
         valueContainer.addPropertyChangeListener(propertyName, new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
                 setEnabled(propertyName, component, propertyCondition, componentEnabled);
@@ -199,6 +204,14 @@ public class BindingContext {
         boolean conditionIsTrue = propertyValue == propertyCondition
                 || (propertyValue != null && propertyValue.equals(propertyCondition));
         component.setEnabled(conditionIsTrue ? componentEnabled : !componentEnabled);
+    }
+
+    private Binding addBinding(BindingImpl binding) {
+        return bindingMap.put(binding.getPropertyName(), binding);
+    }
+
+    private Binding removeBinding(String propertyName) {
+        return bindingMap.remove(propertyName);
     }
 
     public interface ErrorHandler {

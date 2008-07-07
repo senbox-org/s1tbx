@@ -77,7 +77,7 @@ public class BindingContextUI {
         gbc.gridx=0;
         panel.add(new JLabel("Name: "), gbc);
         gbc.gridx=1;
-        panel.add(ctx.getBinding("name").getPrimaryComponent(), gbc);
+        panel.add(getPrimaryComponent(ctx, "name"), gbc);
 
         gbc.gridy++;
         gbc.gridx=0;
@@ -89,24 +89,24 @@ public class BindingContextUI {
         gbc.gridx=0;
         panel.add(new JLabel("Age: "), gbc);
         gbc.gridx=1;
-        panel.add(ctx.getBinding("age").getPrimaryComponent(), gbc);
+        panel.add(getPrimaryComponent(ctx, "age"), gbc);
 
         gbc.gridy++;
         gbc.gridx=0;
         panel.add(new JLabel("Height: "), gbc);
         gbc.gridx=1;
-        panel.add(ctx.getBinding("height").getPrimaryComponent(), gbc);
+        panel.add(getPrimaryComponent(ctx, "height"), gbc);
 
         gbc.gridy++;
         gbc.gridx=0;
         panel.add(new JLabel("Country: "), gbc);
         gbc.gridx=1;
-        panel.add(ctx.getBinding("country").getPrimaryComponent(), gbc);
+        panel.add(getPrimaryComponent(ctx, "country"), gbc);
 
         gbc.gridy++;
         gbc.gridx=0;
         gbc.gridwidth = 2;
-        panel.add(ctx.getBinding("healthy").getPrimaryComponent(), gbc);
+        panel.add(getPrimaryComponent(ctx, "healthy"), gbc);
 
 
         final JFrame jFrame = new JFrame(getClass().getSimpleName());
@@ -114,6 +114,10 @@ public class BindingContextUI {
         jFrame.add(panel);
         jFrame.pack();
         jFrame.setVisible(true);
+    }
+
+    private JComponent getPrimaryComponent(BindingContext ctx, String s) {
+        return ctx.getBinding(s).getComponents()[0];
     }
 
     public static void main(String[] args) {

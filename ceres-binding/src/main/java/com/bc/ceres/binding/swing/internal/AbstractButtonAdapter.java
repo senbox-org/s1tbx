@@ -1,6 +1,5 @@
 package com.bc.ceres.binding.swing.internal;
 
-import com.bc.ceres.binding.swing.Binding;
 import com.bc.ceres.binding.swing.ComponentAdapter;
 
 import javax.swing.AbstractButton;
@@ -29,8 +28,8 @@ public class AbstractButtonAdapter extends ComponentAdapter implements ActionLis
     }
 
     @Override
-    public JComponent getPrimaryComponent() {
-        return getButton();
+    public JComponent[] getComponents() {
+        return new JComponent[]{button};
     }
 
     @Override
@@ -45,11 +44,11 @@ public class AbstractButtonAdapter extends ComponentAdapter implements ActionLis
 
     @Override
     public void adjustComponents() {
-        boolean selected = (Boolean) getBinding().getValue();
+        boolean selected = (Boolean) getBinding().getPropertyValue();
         button.setSelected(selected);
     }
 
     public void actionPerformed(ActionEvent e) {
-        getBinding().setValue(getButton().isSelected());
+        getBinding().setPropertyValue(getButton().isSelected());
     }
 }
