@@ -190,7 +190,7 @@ public class ValueContainer {
         getModel(propertyName).setValueFromText(text);
     }
 
-    public ValueDescriptor getValueDescriptor(String propertyName) {
+    public ValueDescriptor getDescriptor(String propertyName) {
         return getModel(propertyName).getDescriptor();
     }
 

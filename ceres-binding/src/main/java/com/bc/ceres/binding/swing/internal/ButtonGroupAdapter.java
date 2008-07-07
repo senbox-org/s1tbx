@@ -83,7 +83,7 @@ public class ButtonGroupAdapter extends ComponentAdapter implements ActionListen
     }
 
     public static Map<AbstractButton, Object> createButtonToValueMap(ButtonGroup buttonGroup, ValueContainer valueContainer, String propertyName) {
-        ValueSet valueSet = valueContainer.getValueDescriptor(propertyName).getValueSet();
+        ValueSet valueSet = valueContainer.getDescriptor(propertyName).getValueSet();
         if (valueSet == null) {
             throw new IllegalStateException("valueSet == null");
         }

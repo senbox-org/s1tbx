@@ -145,7 +145,7 @@ public class DefaultDomConverter implements DomConverter {
             for (Map.Entry<String, List<Object>> entry : inlinedArrays.entrySet()) {
                 final String valueName = entry.getKey();
                 final List<Object> valueList = entry.getValue();
-                final Class<?> valueType = valueContainer.getValueDescriptor(valueName).getType();
+                final Class<?> valueType = valueContainer.getDescriptor(valueName).getType();
                 final Object array = Array.newInstance(valueType.getComponentType(), valueList.size());
                 valueContainer.getModel(valueName).setValue(valueList.toArray((Object[]) array));
             }

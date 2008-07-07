@@ -1,14 +1,15 @@
 package com.bc.ceres.binding;
 
 import com.bc.ceres.binding.accessors.ClassFieldAccessor;
-import com.bc.ceres.binding.accessors.MapEntryAccessor;
 import com.bc.ceres.binding.accessors.DefaultValueAccessor;
+import com.bc.ceres.binding.accessors.MapEntryAccessor;
 import com.bc.ceres.binding.validators.TypeValidator;
 
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
-import java.lang.reflect.Field;
 
 /**
  * A model for a value, e.g. a field of an object instance. A value model is composed of a {@link ValueDescriptor} and
@@ -37,11 +38,14 @@ public class ValueModel {
 
     private final ValueAccessor accessor;
 
+    private Validator validator;
+
     private ValueContainer container;
 
     public ValueModel(ValueDescriptor descriptor, ValueAccessor accessor) {
         this.descriptor = descriptor;
         this.accessor = accessor;
+        this.descriptor.addPropertyChangeListener(new ValidatorPCL());
     }
 
     public static ValueModel createClassFieldModel(Object object, String name) {
@@ -80,6 +84,17 @@ public class ValueModel {
 
     public void setContainer(ValueContainer container) {
         this.container = container;
+    }
+
+    public synchronized Validator getValidator() {
+        if (validator == null) {
+            validator = descriptor.createValidator();
+        }
+        return validator;
+    }
+
+    synchronized void setValidator(Validator validator) {
+        this.validator = validator;
     }
 
     public String getValueAsText() {
@@ -122,9 +137,11 @@ public class ValueModel {
     }
 
     public void validate(Object value) throws ValidationException {
-        final Validator validator = descriptor.getValidator();
-        if (validator != null) {
-            validator.validateValue(this, value);
+        synchronized (this) {
+            final Validator validator = getValidator();
+            if (validator != null) {
+                validator.validateValue(this, value);
+            }
         }
     }
 
@@ -153,7 +170,6 @@ public class ValueModel {
 
     private static ValueModel createModel(ValueDescriptor descriptor, ValueAccessor accessor) {
         ValueModel vm = new ValueModel(descriptor, accessor);
-        vm.getDescriptor().setValidator(new TypeValidator());
         vm.getDescriptor().setConverter(ConverterRegistry.getInstance().getConverter(descriptor.getType()));
         return vm;
     }
@@ -179,5 +195,13 @@ public class ValueModel {
             throw new IllegalStateException(e);
         }
         return field;
+    }
+
+    private class ValidatorPCL implements PropertyChangeListener {
+
+        public void propertyChange(PropertyChangeEvent evt) {
+            // Force recreation of validator
+            setValidator(null);
+        }
     }
 }

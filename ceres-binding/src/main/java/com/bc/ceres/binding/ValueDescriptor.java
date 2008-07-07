@@ -267,9 +267,6 @@ public class ValueDescriptor {
         if (getConverter() == null) {
             setDefaultConverter();
         }
-        if (getValidator() == null) {
-            setValidator(createValidator());
-        }
         if (getDefaultValue() == null && getType().isPrimitive()) {
             setDefaultValue(ValueModel.PRIMITIVE_ZERO_VALUES.get(getType()));
         }
@@ -295,7 +292,7 @@ public class ValueDescriptor {
         return v != null && (Boolean) v;
     }
 
-    private Validator createValidator() {
+    Validator createValidator() {
         List<Validator> validators = new ArrayList<Validator>(3);
     
         validators.add(new TypeValidator());

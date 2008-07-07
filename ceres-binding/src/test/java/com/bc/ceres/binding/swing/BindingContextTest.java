@@ -24,12 +24,12 @@ public class BindingContextTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         valueContainerVB = ValueContainer.createValueBacked(TestPojo.class);
-        valueContainerVB.getValueDescriptor("valueSetBoundIntValue").setValueSet(new ValueSet(TestPojo.intValueSet));
+        valueContainerVB.getDescriptor("valueSetBoundIntValue").setValueSet(new ValueSet(TestPojo.intValueSet));
         bindingContextVB = new BindingContext(valueContainerVB);
 
         pojo = new TestPojo();
         valueContainerOB = ValueContainer.createObjectBacked(pojo);
-        valueContainerOB.getValueDescriptor("valueSetBoundIntValue").setValueSet(new ValueSet(TestPojo.intValueSet));
+        valueContainerOB.getDescriptor("valueSetBoundIntValue").setValueSet(new ValueSet(TestPojo.intValueSet));
         bindingContextOB = new BindingContext(valueContainerOB);
     }
 

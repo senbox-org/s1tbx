@@ -79,7 +79,7 @@ public class ListSelectionAdapter extends ComponentAdapter implements ListSelect
     }
 
     private ValueDescriptor getValueDescriptor() {
-        return getBinding().getContext().getValueContainer().getValueDescriptor(getBinding().getPropertyName());
+        return getBinding().getContext().getValueContainer().getDescriptor(getBinding().getPropertyName());
     }
 
     private void updateListModel() {

@@ -48,7 +48,7 @@ public class ValueModelTest extends TestCase {
         assertEquals("plong", vm.getDescriptor().getName());
         assertSame(Long.TYPE, vm.getDescriptor().getType());
         assertNotNull(vm.getDescriptor().getConverter());
-        assertTrue(vm.getDescriptor().getValidator() instanceof TypeValidator);
+        assertTrue(vm.getValidator() instanceof TypeValidator);
         assertTrue(vm.getValue() instanceof Long);
         assertEquals(expectedValue, vm.getValue());
         testSetLegalValue(vm);
@@ -60,7 +60,7 @@ public class ValueModelTest extends TestCase {
         assertEquals("olong", vm.getDescriptor().getName());
         assertSame(Long.class, vm.getDescriptor().getType());
         assertNotNull(vm.getDescriptor().getConverter());
-        assertTrue(vm.getDescriptor().getValidator() instanceof TypeValidator);
+        assertTrue(vm.getValidator() instanceof TypeValidator);
         assertEquals(expectedValue, vm.getValue());
         testSetLegalValue(vm);
         testSetIllegalValue(vm);

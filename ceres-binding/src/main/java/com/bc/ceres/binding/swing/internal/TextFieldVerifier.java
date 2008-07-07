@@ -1,9 +1,6 @@
 package com.bc.ceres.binding.swing.internal;
 
-import com.bc.ceres.binding.Converter;
-import com.bc.ceres.binding.Validator;
-import com.bc.ceres.binding.ValueDescriptor;
-import com.bc.ceres.binding.ValueContainer;
+import com.bc.ceres.binding.*;
 import com.bc.ceres.core.Assert;
 
 import javax.swing.InputVerifier;
@@ -39,11 +36,12 @@ class TextFieldVerifier extends InputVerifier {
             final String text = ((JTextField) input).getText();
             final String name = adapter.getBinding().getPropertyName();
             final ValueContainer valueContainer = adapter.getBinding().getContext().getValueContainer();
-            final ValueDescriptor descriptor = valueContainer.getValueDescriptor(name);
+            final ValueModel model = valueContainer.getModel(name);
+            final ValueDescriptor descriptor = model.getDescriptor();
             final Converter converter = descriptor.getConverter();
             Assert.notNull(converter);
             final Object value = converter.parse(text);
-            final Validator validator = descriptor.getValidator();
+            final Validator validator = model.getValidator();
             if (validator != null) {
                 validator.validateValue(valueContainer.getModel(name), value);
             }
