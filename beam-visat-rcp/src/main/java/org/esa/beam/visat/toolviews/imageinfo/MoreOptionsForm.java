@@ -35,8 +35,8 @@ class MoreOptionsForm {
         valueContainer.addModel(ValueModel.createValueModel(NO_DATA_COLOR_PROPERTY, ImageInfo.NO_COLOR));
         valueContainer.addModel(ValueModel.createValueModel(HISTOGRAM_MATCHING_PROPERTY, ImageInfo.HistogramMatching.None));
 
-        valueContainer.getModel(HISTOGRAM_MATCHING_PROPERTY).getDescriptor().setNotNull(true);
-        valueContainer.getModel(HISTOGRAM_MATCHING_PROPERTY).getDescriptor().setValueSet(new ValueSet(
+        valueContainer.getDescriptor(HISTOGRAM_MATCHING_PROPERTY).setNotNull(true);
+        valueContainer.getDescriptor(HISTOGRAM_MATCHING_PROPERTY).setValueSet(new ValueSet(
                 new ImageInfo.HistogramMatching[]{
                         ImageInfo.HistogramMatching.None,
                         ImageInfo.HistogramMatching.Equalize,
