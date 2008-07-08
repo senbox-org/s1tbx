@@ -6,10 +6,10 @@ package com.bc.ceres.binding;
  * @since 0.6
  */
 public class ValueRange {
-    private double min;
-    private double max;
-    private boolean minIncluded;
-    private boolean maxIncluded;
+    private final double min;
+    private final double max;
+    private final boolean minIncluded;
+    private final boolean maxIncluded;
 
     public ValueRange(double min, double max) {
         this(min, max, true, true);
@@ -36,6 +36,14 @@ public class ValueRange {
 
     public boolean isMaxIncluded() {
         return maxIncluded;
+    }
+
+    public boolean hasMin() {
+        return min > Double.NEGATIVE_INFINITY;
+    }
+
+    public boolean hasMax() {
+        return max < Double.POSITIVE_INFINITY;
     }
 
     public boolean contains(double v) {
@@ -100,9 +108,9 @@ public class ValueRange {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(minIncluded ? '[' : '(');
-        sb.append(min == Double.NEGATIVE_INFINITY ? "*" : toString(min));
+        sb.append(hasMin() ? toString(min) : "*");
         sb.append(',');
-        sb.append(max == Double.POSITIVE_INFINITY ? "*" : toString(max));
+        sb.append(hasMax() ? toString(max) : "*");
         sb.append(maxIncluded ? ']' : ')');
         return sb.toString();
     }

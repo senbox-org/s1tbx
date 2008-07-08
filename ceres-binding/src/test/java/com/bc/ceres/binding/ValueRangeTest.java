@@ -26,8 +26,10 @@ public class ValueRangeTest extends TestCase {
     public void testParse() throws ConversionException {
         ValueRange valueRange = ValueRange.parseValueRange("[10,20)");
         assertEquals(10.0, valueRange.getMin(), 1e-10);
+        assertEquals(true, valueRange.hasMin());
         assertEquals(true, valueRange.isMinIncluded());
         assertEquals(20.0, valueRange.getMax(), 1e-10);
+        assertEquals(true, valueRange.hasMax());
         assertEquals(false, valueRange.isMaxIncluded());
 
         valueRange = ValueRange.parseValueRange("(-10,20]");
@@ -35,18 +37,24 @@ public class ValueRangeTest extends TestCase {
         assertEquals(false, valueRange.isMinIncluded());
         assertEquals(20.0, valueRange.getMax(), 1e-10);
         assertEquals(true, valueRange.isMaxIncluded());
+        assertEquals(true, valueRange.hasMin());
+        assertEquals(true, valueRange.hasMax());
 
         valueRange = ValueRange.parseValueRange("(*, 20]");
         assertEquals(Double.NEGATIVE_INFINITY, valueRange.getMin(), 1e-10);
+        assertEquals(false, valueRange.hasMin());
         assertEquals(false, valueRange.isMinIncluded());
         assertEquals(20.0, valueRange.getMax(), 1e-10);
+        assertEquals(true, valueRange.hasMax());
         assertEquals(true, valueRange.isMaxIncluded());
 
         valueRange = ValueRange.parseValueRange("[-10,*]");
         assertEquals(-10.0, valueRange.getMin(), 1e-10);
         assertEquals(true, valueRange.isMinIncluded());
         assertEquals(Double.POSITIVE_INFINITY, valueRange.getMax(), 1e-10);
+        assertEquals(false, valueRange.hasMax());
         assertEquals(true, valueRange.isMaxIncluded());
+        assertEquals(true, valueRange.hasMin());
     }
 
     public void testContains() {
