@@ -89,7 +89,6 @@ public class WriteOp extends Operator {
         notComputedTileIndexList = new HashMap<OperatorImage, List<Point>>(writableBands.size());
         headerChanged = false;
         productNodeChangeListener = new ProductNodeChangeListener();
-        targetProduct.addProductNodeListener(productNodeChangeListener);
     }
 
     @Override
@@ -100,6 +99,7 @@ public class WriteOp extends Operator {
                 if (!productFileWritten) {
                     productWriter.writeProductNodes(targetProduct, file);
                     productFileWritten = true;
+                    targetProduct.addProductNodeListener(productNodeChangeListener);
                 }
                 final Rectangle rectangle = targetTile.getRectangle();
                 final Tile sourceTile = getSourceTile(targetBand, rectangle, pm);
@@ -136,13 +136,15 @@ public class WriteOp extends Operator {
                                              operatorImage.YToTileY(targetTile.getMinY())));
 
                 for (List<Point> points : notComputedTileIndexList.values()) {
-                    if (!points.isEmpty()) {
+                    if (points.isEmpty()) {
+                        targetProduct.removeProductNodeListener(productNodeChangeListener);
+                    } else { // not empty; there are more tiles to come
                         return;
                     }
                 }
                 // If we get here all tiles are written
                 if(headerChanged) {   // ask if we have to update the header
-                    productWriter.writeProductNodes(targetProduct, file);                    
+                    productWriter.writeProductNodes(targetProduct, file);
                 }
             }
         }
