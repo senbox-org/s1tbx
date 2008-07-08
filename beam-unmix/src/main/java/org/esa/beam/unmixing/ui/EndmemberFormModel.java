@@ -162,6 +162,7 @@ class EndmemberFormModel {
         public AddAction() {
             super("Add");
             putValue(LARGE_ICON_KEY, new ImageIcon(getClass().getResource("list-add.png")));
+            putValue(SHORT_DESCRIPTION, "Add Endmembers");
         }
 
         public void actionPerformed(ActionEvent e) {
@@ -182,6 +183,7 @@ class EndmemberFormModel {
         public RemoveAction() {
             super("Remove");
             putValue(LARGE_ICON_KEY, new ImageIcon(getClass().getResource("list-remove.png")));
+            putValue(SHORT_DESCRIPTION, "Remove Endmember");
         }
 
         public void actionPerformed(ActionEvent e) {
@@ -199,6 +201,7 @@ class EndmemberFormModel {
         public ClearAction() {
             super("Clear");
             putValue(LARGE_ICON_KEY, new ImageIcon(getClass().getResource("edit-clear.png")));
+            putValue(SHORT_DESCRIPTION, "Clear List");
         }
 
         public void actionPerformed(ActionEvent e) {
@@ -212,6 +215,7 @@ class EndmemberFormModel {
         public ExportAction() {
             super("Export");
             putValue(LARGE_ICON_KEY, new ImageIcon(getClass().getResource("document-save-as.png")));
+            putValue(SHORT_DESCRIPTION, "Export Endmembers");
         }
 
         public void actionPerformed(ActionEvent e) {
