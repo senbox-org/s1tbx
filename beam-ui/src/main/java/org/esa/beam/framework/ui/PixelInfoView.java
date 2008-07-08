@@ -677,10 +677,13 @@ public class PixelInfoView extends JPanel {
 
     private int getBandRowCount() {
         int rowCount = 0;
-        Band[] bands = getCurrentProduct().getBands();
-        for (final Band band : bands) {
-            if (shouldDisplayBand(band)) {
-                rowCount++;
+        final Product currentProduct = getCurrentProduct();
+        if (currentProduct != null) {
+            Band[] bands = currentProduct.getBands();
+            for (final Band band : bands) {
+                if (shouldDisplayBand(band)) {
+                    rowCount++;
+                }
             }
         }
         return rowCount;
