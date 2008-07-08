@@ -171,7 +171,9 @@ public class KMeansClusterOp extends Operator {
                 pm.worked(1);
                 final KMeansClusterer clusterer = createClusterer();
                 pm.worked(1);
-                for (int i = 0; i < iterationCount; ++i) {
+                
+                boolean endIteration = false;
+                for (int i = 0; (i < iterationCount && !endIteration); ++i) {
                     clusterer.startIteration();
                     for (Rectangle rectangle : tileRectangles) {
                         checkForCancelation(pm);
@@ -179,7 +181,7 @@ public class KMeansClusterOp extends Operator {
                         clusterer.iterateTile(pixelIterr);
                         pm.worked(1);
                     }
-                    clusterer.endIteration();
+                    endIteration = clusterer.endIteration();
                 }
                 clusterSet = clusterer.getClusters();
             } catch (IOException e) {

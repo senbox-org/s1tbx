@@ -30,13 +30,15 @@ public class KMeansClusterer {
     private final int clusterCount;
     private final double[][] means;
     private final int[] memberCounts;
-    private double[][] newMeans;
+    private double[][] sums;
 
     /**
      * Constructs a new instance of this class.
      *
      * @param clusterCount      the number of clusters.
      * @param dimensionCount    the number of dimensions.
+     * @param height 
+     * @param width 
      */
     public KMeansClusterer(int clusterCount, int dimensionCount) {
         this.clusterCount = clusterCount;
@@ -64,7 +66,7 @@ public class KMeansClusterer {
     }
     
     public void startIteration() {
-        newMeans = new double[clusterCount][dimensionCount];
+        sums = new double[clusterCount][dimensionCount];
         Arrays.fill(memberCounts, 0);
     }
     
@@ -76,31 +78,27 @@ public class KMeansClusterer {
         iter.next();
         while (iter.hasNext()) {
             iter.getSample(point);
-            double minDistance = Double.MAX_VALUE;
-            int closestCluster = 0;
-            for (int c = 0; c < clusterCount; ++c) {
-                final double distance = squaredDistance(means[c], point);
-                if (distance < minDistance) {
-                    closestCluster = c;
-                    minDistance = distance;
-                }
-            }
+            final int closestCluster = getClosesestCluster(means, point);
             for (int d = 0; d < dimensionCount; ++d) {
-                newMeans[closestCluster][d] += point[d];
+                sums[closestCluster][d] += point[d];
             }
             memberCounts[closestCluster]++;
             iter.next();
         }
     }
     
-    public void endIteration() {
+    public boolean endIteration() {
+        double diff = 0;
         for (int c = 0; c < clusterCount; ++c) {
             for (int d = 0; d < dimensionCount; ++d) {
                 if (memberCounts[c] > 0) {
-                    means[c][d] = newMeans[c][d] / memberCounts[c];
+                    final double newMean = sums[c][d] / memberCounts[c];
+                    diff += (newMean-means[c][d])*(newMean-means[c][d]);
+                    means[c][d] = newMean;
                 }
             }
         }
+        return diff == 0.0;
     }
 
     /**
@@ -116,6 +114,19 @@ public class KMeansClusterer {
         Arrays.sort(clusters, new ClusterComparator());
         return new KMeansClusterSet(clusters);
     }
+    
+    public static int getClosesestCluster(double[][] mean, final double[] point) {
+        double minDistance = Double.MAX_VALUE;
+        int closestCluster = 0;
+        for (int c = 0; c < mean.length; ++c) {
+            final double distance = squaredDistance(mean[c], point);
+            if (distance < minDistance) {
+                closestCluster = c;
+                minDistance = distance;
+            }
+        }
+        return closestCluster;
+    }
 
     /**
      * Distance measure used by the k-means method.
@@ -125,9 +136,9 @@ public class KMeansClusterer {
      *
      * @return squared Euclidean distance between x and y.
      */
-    private double squaredDistance(double[] x, double[] y) {
+    public static double squaredDistance(double[] x, double[] y) {
         double distance = 0.0;
-        for (int d = 0; d < dimensionCount; ++d) {
+        for (int d = 0; d < x.length; ++d) {
             final double difference = y[d] - x[d];
             distance += difference * difference;
         }

@@ -23,38 +23,16 @@ package org.esa.beam.cluster;
  */
 public class KMeansClusterSet {
 
-    private final KMeansCluster[] clusters;
+    private final double[][] means;
 
     public KMeansClusterSet(KMeansCluster[] clusters) {
-        this.clusters = clusters;
+        this.means = new double[clusters.length][0];
+        for (int c = 0; c < clusters.length; c++) {
+            means[c] = clusters[c].getMean().clone();
+        }
     }
 
     public int getMembership(double[] point) {
-        double minDistance = Double.MAX_VALUE;
-        int closestCluster = 0;
-        for (int k = 0; k < getClusterCount(); ++k) {
-            final double distance = squaredDistance(getMean(k), point);
-            if (distance < minDistance) {
-                closestCluster = k;
-                minDistance = distance;
-            }
-        }
-        return closestCluster;
-    }
-
-     private double squaredDistance(double[] x, double[] y) {
-        double d = 0.0;
-        for (int l = 0; l < x.length; ++l) {
-            d += (y[l] - x[l]) * (y[l] - x[l]);
-        }
-        return d;
-    }
-
-    public final int getClusterCount() {
-        return clusters.length;
-    }
-
-    public double[] getMean(int i) {
-        return clusters[i].getMean();
+        return KMeansClusterer.getClosesestCluster(means, point);
     }
 }
