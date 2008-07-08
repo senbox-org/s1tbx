@@ -14,24 +14,16 @@
  */
 package org.esa.beam.cluster;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.IndexColorModel;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
-import javax.media.jai.PlanarImage;
 import javax.media.jai.ROI;
 
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.RasterDataNode;
 import org.esa.beam.framework.gpf.Operator;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.OperatorSpi;
@@ -42,7 +34,6 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
-import org.esa.beam.util.jai.ValidMaskOpImage;
 import org.esa.beam.util.math.MathUtils;
 
 import com.bc.ceres.core.ProgressMonitor;
@@ -111,7 +102,7 @@ public class KMeansClusterOp extends Operator {
         targetProduct.addBand(clusterMapBand);
 
         final IndexCoding indexCoding = new IndexCoding("clusters");
-        for (int i = 0; i < clusterCount+1; i++) {
+        for (int i = 0; i < clusterCount; i++) {
             indexCoding.addIndex("cluster_" + (i + 1), i, "Cluster label");
         }
         targetProduct.getIndexCodingGroup().add(indexCoding);
