@@ -4,6 +4,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductWriter;
+import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -20,6 +21,11 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.internal.OperatorImage;
 import org.esa.beam.util.math.MathUtils;
+import org.esa.beam.util.SystemUtils;
+import org.esa.beam.util.ProductUtils;
+import org.esa.beam.util.ObjectUtils;
+import org.esa.beam.util.ArrayUtils;
+import org.esa.beam.dataio.dimap.DimapProductWriter;
 
 import javax.media.jai.JAI;
 import java.awt.Dimension;
@@ -31,6 +37,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Arrays;
+import java.util.Collections;
 
 @OperatorMetadata(alias = "Write",
                   description = "Writes a product to disk.")
@@ -99,7 +107,10 @@ public class WriteOp extends Operator {
                 if (!productFileWritten) {
                     productWriter.writeProductNodes(targetProduct, file);
                     productFileWritten = true;
-                    targetProduct.addProductNodeListener(productNodeChangeListener);
+                    // rewrite of product header is only supported for DIMAP
+                    if(productWriter instanceof DimapProductWriter) {
+                        targetProduct.addProductNodeListener(productNodeChangeListener);
+                    }
                 }
                 final Rectangle rectangle = targetTile.getRectangle();
                 final Tile sourceTile = getSourceTile(targetBand, rectangle, pm);
