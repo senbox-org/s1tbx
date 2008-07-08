@@ -195,6 +195,9 @@ public class TargetProductSelector {
     private class UIStateUpdater implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
+            if (!canReadOutputFormat(model.getFormatName())) {
+                model.setOpenInAppSelected(false);
+            }
             updateUIState();
         }
     }
