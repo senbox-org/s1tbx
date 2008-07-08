@@ -280,8 +280,7 @@ public class ChrisProductReader extends AbstractProductReader {
             band.setSpectralBandwidth(chrisFile.getBandwidth(i));
             band.setUnit(units);
             band.setDescription(MessageFormat.format("Radiance for spectral band {0}", i + 1));
-            band.setValidPixelExpression(MessageFormat.format("mask_{0} == 0 || mask_{0} == {1}", i + 1,
-                                                              Flags.DROPOUT_CORRECTED.getMask()));
+            band.setValidPixelExpression(MessageFormat.format("mask_{0} != {1}", i + 1, Flags.DROPOUT.getMask()));
 
             rciBands[i] = band;
         }
@@ -304,9 +303,9 @@ public class ChrisProductReader extends AbstractProductReader {
         for (final Flags flag : Flags.values()) {
             flagCoding.addFlag(flag.toString(), flag.getMask(), flag.getDescription());
         }
-        product.addFlagCoding(flagCoding);
+        product.getFlagCodingGroup().add(flagCoding);
         for (final Band band : maskBands) {
-            band.setFlagCoding(flagCoding);
+            band.setSampleCoding(flagCoding);
         }
 
         addSpectrumBitmask(product, Flags.DROPOUT, "spectrum_dropout",
