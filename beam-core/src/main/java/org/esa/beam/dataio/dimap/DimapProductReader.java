@@ -172,24 +172,6 @@ public class DimapProductReader extends AbstractProductReader {
             }
         }
 
-        final GeoCoding[] geoCodings = DimapProductHelpers.createGeoCoding(jDomDocument, product);
-
-        if (geoCodings != null) {
-            if (geoCodings.length == 1) {
-                product.setGeoCoding(geoCodings[0]);
-            } else {
-                for (int i = 0; i < geoCodings.length; i++) {
-                    product.getBandAt(i).setGeoCoding(geoCodings[i]);
-                }
-            }
-        } else {
-            final Band lonBand = product.getBand("longitude");
-            final Band latBand = product.getBand("latitude");
-            if (latBand != null && lonBand != null)  {
-                product.setGeoCoding(new PixelGeoCoding(latBand, lonBand, null, 6, ProgressMonitor.NULL));
-            }
-        }
-
         sourceRasterWidth = product.getSceneRasterWidth();
         sourceRasterHeight = product.getSceneRasterHeight();
         int sceneRasterWidth = sourceRasterWidth;
@@ -216,6 +198,23 @@ public class DimapProductReader extends AbstractProductReader {
                         "DimapProductReader: Unable to read file '" + dataFile + "' referenced by '" + band.getName() + "'.");
                 BeamLogManager.getSystemLogger().warning(
                         "DimapProductReader: Removed band '" + band.getName() + "' from product '" + product.getFileLocation() + "'.");
+            }
+        }
+        final GeoCoding[] geoCodings = DimapProductHelpers.createGeoCoding(jDomDocument, product);
+
+        if (geoCodings != null) {
+            if (geoCodings.length == 1) {
+                product.setGeoCoding(geoCodings[0]);
+            } else {
+                for (int i = 0; i < geoCodings.length; i++) {
+                    product.getBandAt(i).setGeoCoding(geoCodings[i]);
+                }
+            }
+        } else {
+            final Band lonBand = product.getBand("longitude");
+            final Band latBand = product.getBand("latitude");
+            if (latBand != null && lonBand != null)  {
+                product.setGeoCoding(new PixelGeoCoding(latBand, lonBand, null, 6, ProgressMonitor.NULL));
             }
         }
 
