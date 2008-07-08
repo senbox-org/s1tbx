@@ -352,17 +352,21 @@ public class OperatorContext {
     private void convertOperatorContextToMetadata(OperatorContext context, MetadataElement targetGraphME) {
         String opId = context.getId();
         boolean contains = false;
+        int nodeElementCount = 0;
         for (MetadataElement element : targetGraphME.getElements()) {
             MetadataAttribute idAttribute = element.getAttribute("id");
             if (idAttribute.getData().getElemString().equals(opId)) {
                 contains = true;
+            }
+            if(element.getName().startsWith("node")) {
+                nodeElementCount++;
             }
         }
         if (contains) {
             return;
         }
         final String opName = OperatorSpi.getOperatorAlias(context.operator.getClass());
-        MetadataElement targetNodeME = new MetadataElement("node");
+        MetadataElement targetNodeME = new MetadataElement(String.format("node.%d",nodeElementCount));
         targetGraphME.addElement(targetNodeME);
         targetNodeME.addAttribute(new MetadataAttribute("id", ProductData.createInstance(opId), false));
         targetNodeME.addAttribute(new MetadataAttribute("operator", ProductData.createInstance(opName), false));
