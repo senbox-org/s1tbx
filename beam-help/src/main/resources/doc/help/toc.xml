@@ -44,8 +44,8 @@
                 <tocitem text="Export GeoTIFF Product" target="exportGeoTIFF"/>
                 <tocitem text="Export Roi Pixels" target="exportROIPixels"/>
                 <tocitem text="Export Transect Pixels" target="exportTransectPixels"/>
-                <tocitem text="Export Color Legend" target="exportLegendImageFile"/>
-                <tocitem text="Export Color Palette" target="exportColorPalette"/>
+                <tocitem text="Export Colour Legend" target="exportLegendImageFile"/>
+                <tocitem text="Export Colour Palette" target="exportColorPalette"/>
 
                 <tocitem text="Product Subset Dialog" target="subsetDialog"/>
                 <tocitem text="Product Grabber" target="productGrabber"/>
@@ -54,7 +54,7 @@
             <tocitem text="Imaging Tools">
                 <tocitem text="Image View" target="imageView"/>
                 <tocitem text="Navigation Window" target="showNavigationWnd"/>
-                <tocitem text="Contrast Stretch / Color Palette" target="showContrastStretchWnd"/>
+                <tocitem text="Contrast Stretch / Colour Palette" target="showContrastStretchWnd"/>
                 <tocitem text="RGB-Image Profile" target="rgbImageProfile"/>
                 <tocitem text="No Data Overlay" target="noDataOverlay"/>
                 <tocitem text="Bitmask Overlay" target="showBitmaskOverlayWnd"/>

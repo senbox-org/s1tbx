@@ -121,10 +121,10 @@
         <toolView>
             <id>org.esa.beam.visat.toolviews.imageinfo.ColorManipulationToolView</id>
             <class>org.esa.beam.visat.toolviews.imageinfo.ColorManipulationToolView</class>
-            <title>Color Manipulation</title>
+            <title>Colour Manipulation</title>
             <mnemonic>C</mnemonic>
             <accelerator>ctrl alt C</accelerator>
-            <description>Allows image color manipulation and contrast stretching.</description>
+            <description>Allows image colour manipulation and contrast stretching.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/ContrastStretch16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/ContrastStretch24.gif</largeIcon>
             <!--<helpId>TODO</helpId>-->
@@ -565,10 +565,10 @@
             <id>exportLegendImageFile</id>
             <class>org.esa.beam.visat.actions.ExportLegendImageAction</class>
             <parent>export</parent>
-            <text>Export Color Legend...</text>
+            <text>Export Colour Legend...</text>
             <mnemonic>C</mnemonic>
-            <shortDescr>Export the color legend.</shortDescr>
-            <description>Export the color legend for the currently displayed image.</description>
+            <shortDescr>Export the colour legend.</shortDescr>
+            <description>Export the colour legend for the currently displayed image.</description>
             <context>image</context>
             <helpId>exportLegendImageFile</helpId>
         </action>
@@ -577,10 +577,10 @@
             <id>exportColorPalette</id>
             <class>org.esa.beam.visat.actions.ExportColorPaletteAction</class>
             <parent>export</parent>
-            <text>Export Color Palette...</text>
+            <text>Export Colour Palette...</text>
             <mnemonic>a</mnemonic>
-            <shortDescr>Export the color palette.</shortDescr>
-            <description>Export the color palette for the currently displayed image.</description>
+            <shortDescr>Export the colour palette.</shortDescr>
+            <description>Export the colour palette for the currently displayed image.</description>
             <context>image</context>
             <helpId>exportColorPalette</helpId>
         </action>
