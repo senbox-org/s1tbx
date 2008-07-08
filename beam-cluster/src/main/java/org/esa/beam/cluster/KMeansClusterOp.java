@@ -181,12 +181,14 @@ public class KMeansClusterOp extends Operator {
                 final KMeansClusterer clusterer = createClusterer();
                 pm.worked(1);
                 for (int i = 0; i < iterationCount; ++i) {
+                    clusterer.startIteration();
                     for (Rectangle rectangle : tileRectangles) {
                         checkForCancelation(pm);
                         PixelIter pixelIterr = createPixelIterr(rectangle, SubProgressMonitor.create(pm, 1));
-                        clusterer.iterate(pixelIterr);
+                        clusterer.iterateTile(pixelIterr);
                         pm.worked(1);
                     }
+                    clusterer.endIteration();
                 }
                 clusterSet = clusterer.getClusters();
             } catch (IOException e) {

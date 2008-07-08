@@ -30,6 +30,7 @@ public class KMeansClusterer {
     private final int clusterCount;
     private final double[][] means;
     private final int[] memberCounts;
+    private double[][] newMeans;
 
     /**
      * Constructs a new instance of this class.
@@ -62,12 +63,15 @@ public class KMeansClusterer {
         }
     }
     
+    public void startIteration() {
+        newMeans = new double[clusterCount][dimensionCount];
+        Arrays.fill(memberCounts, 0);
+    }
+    
     /**
      * Carries out a single EM iteration.
      */
-    public void iterate(PixelIter iter) {
-        final double[][] newMeans = new double[clusterCount][dimensionCount];
-        Arrays.fill(memberCounts, 0);
+    public void iterateTile(PixelIter iter) {
         final double[] point = new double[dimensionCount];
         iter.next();
         while (iter.hasNext()) {
@@ -87,6 +91,9 @@ public class KMeansClusterer {
             memberCounts[closestCluster]++;
             iter.next();
         }
+    }
+    
+    public void endIteration() {
         for (int c = 0; c < clusterCount; ++c) {
             for (int d = 0; d < dimensionCount; ++d) {
                 if (memberCounts[c] > 0) {
