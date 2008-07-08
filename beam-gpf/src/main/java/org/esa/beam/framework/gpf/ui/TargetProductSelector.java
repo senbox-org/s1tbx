@@ -1,7 +1,6 @@
 package org.esa.beam.framework.gpf.ui;
 
 import com.bc.ceres.binding.swing.BindingContext;
-import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.util.io.FileChooserFactory;
 
@@ -12,8 +11,6 @@ import java.awt.FlowLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -59,15 +56,6 @@ public class TargetProductSelector {
         productDirChooserButton.setPreferredSize(size);
         productDirChooserButton.setMinimumSize(size);
         saveToFileCheckBox.addActionListener(new UIStateUpdater());
-        formatNameComboBox.addItemListener(new ItemListener() {
-
-            public void itemStateChanged(ItemEvent e) {
-                final String formatName = (String) formatNameComboBox.getSelectedItem();
-                if(!canReadOutputFormat(formatName)) {
-                    model.setOpenInAppSelected(false);
-                }
-            }
-        });
     }
 
     private void bindComponents() {
@@ -82,11 +70,6 @@ public class TargetProductSelector {
         model.getValueContainer().addPropertyChangeListener("productDir", new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
                 productDirTextField.setToolTipText(model.getProductDir().getPath());
-            }
-        });
-        model.getValueContainer().addPropertyChangeListener("formatName", new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent evt) {
-                updateUIState();
             }
         });
     }
@@ -163,7 +146,7 @@ public class TargetProductSelector {
 
     private void updateUIState() {
         if (model.isSaveToFileSelected()) {
-            openInAppCheckBox.setEnabled(canReadOutputFormat(model.getFormatName()));
+            openInAppCheckBox.setEnabled(true);
             formatNameComboBox.setEnabled(true);
             productDirLabel.setEnabled(true);
             productDirTextField.setEnabled(true);
@@ -188,10 +171,6 @@ public class TargetProductSelector {
         openInAppCheckBox.setEnabled(enabled);
     }
 
-    private static boolean canReadOutputFormat(String formatName) {
-        return ProductIOPlugInManager.getInstance().getReaderPlugIns(formatName).hasNext();
-    }
-
     private class UIStateUpdater implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
@@ -214,8 +193,7 @@ public class TargetProductSelector {
             }
             final JFileChooser chooser = FileChooserFactory.getInstance().createDirChooser(model.getProductDir());
             chooser.setDialogTitle("Select Target Directory");
-            if (chooser.showDialog(SwingUtilities.getWindowAncestor(button),
-                                   APPROVE_BUTTON_TEXT) == JFileChooser.APPROVE_OPTION) {
+            if (chooser.showDialog(SwingUtilities.getWindowAncestor(button), APPROVE_BUTTON_TEXT) == JFileChooser.APPROVE_OPTION) {
 
                 final File selectedDir = chooser.getSelectedFile();
                 if (selectedDir != null) {
