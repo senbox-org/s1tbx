@@ -5,6 +5,7 @@ import junit.framework.TestCase;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
+import org.esa.beam.framework.datamodel.TiePointGrid;
 import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.util.jai.SingleBandedSampleModel;
@@ -61,6 +62,7 @@ public class JaiOpTest extends TestCase {
 
         final Product targetProduct = op.getTargetProduct();
         assertNotNull(targetProduct);
+        assertEquals(2, targetProduct.getNumBands());
         assertEquals(8, targetProduct.getSceneRasterWidth());
         assertEquals(8, targetProduct.getSceneRasterHeight());
 
@@ -105,6 +107,7 @@ public class JaiOpTest extends TestCase {
 
         final Product targetProduct = op.getTargetProduct();
         assertNotNull(targetProduct);
+        assertEquals(2, targetProduct.getNumBands());
         assertEquals(4, targetProduct.getSceneRasterWidth());
         assertEquals(4, targetProduct.getSceneRasterHeight());
 
@@ -143,6 +146,11 @@ public class JaiOpTest extends TestCase {
     private Product createSourceProduct() {
         final Product sourceProduct = new Product("sp", "spt", 4, 4);
         sourceProduct.addBand("b1", ProductData.TYPE_INT32);
+        sourceProduct.addTiePointGrid(new TiePointGrid("tpg1", 3,3, 0,0,2,2,new float[] {
+                0.1f,0.2f,0.3f,
+                0.2f,0.3f,0.4f,
+                0.3f,0.4f,0.5f,
+        }));
         return sourceProduct;
     }
 }
