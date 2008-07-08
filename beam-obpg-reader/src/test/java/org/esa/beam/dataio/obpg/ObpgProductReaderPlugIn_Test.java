@@ -52,7 +52,7 @@ public class ObpgProductReaderPlugIn_Test extends TestCase {
 
         assertNotNull(formatNames);
         assertEquals(1, formatNames.length);
-        assertEquals("NASA_OBPG", formatNames[0]);
+        assertEquals("NASA-OBPG", formatNames[0]);
     }
 
     public void testGetInputTypes() {
@@ -72,6 +72,6 @@ public class ObpgProductReaderPlugIn_Test extends TestCase {
         assertNotNull(extensions);
         assertEquals(1, extensions.length);
         assertEquals(".hdf", extensions[0]);
-        assertEquals("NASA_OBPG", beamFileFilter.getFormatName());
+        assertEquals("NASA-OBPG", beamFileFilter.getFormatName());
     }
 }
