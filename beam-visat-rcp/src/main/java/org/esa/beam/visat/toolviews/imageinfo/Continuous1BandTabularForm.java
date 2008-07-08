@@ -17,6 +17,9 @@ import java.awt.Color;
 import java.awt.Component;
 
 class Continuous1BandTabularForm implements ColorManipulationChildForm {
+    private static final String[] COLUMN_NAMES = new String[]{"Color", "Value"};
+    private static final Class<?>[] COLUMN_TYPES = new Class<?>[]{Color.class, Double.class};
+
     private final ColorManipulationForm parentForm;
     private ImageInfoTableModel tableModel;
     private JScrollPane contentPanel;
@@ -25,7 +28,7 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
 
     public Continuous1BandTabularForm(ColorManipulationForm parentForm) {
         this.parentForm = parentForm;
-        tableModel = new ImageInfoTableModel(null);
+        tableModel = new ImageInfoTableModel();
         applyEnablerTML = parentForm.createApplyEnablerTableModelListener();
         moreOptionsForm = new MoreOptionsForm(parentForm);
 
@@ -46,19 +49,18 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
 
     @Override
     public void handleFormShown(ProductSceneView productSceneView) {
-        tableModel.setImageInfo(parentForm.getImageInfo());
+        updateFormModel(productSceneView);
         tableModel.addTableModelListener(applyEnablerTML);
     }
 
     @Override
     public void handleFormHidden(ProductSceneView productSceneView) {
         tableModel.removeTableModelListener(applyEnablerTML);
-        tableModel.setImageInfo(null);
     }
 
     @Override
     public void updateFormModel(ProductSceneView productSceneView) {
-        tableModel.setImageInfo(parentForm.getImageInfo());
+        tableModel.fireTableDataChanged();
     }
 
     @Override
@@ -85,23 +87,13 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
         return parentForm.getProductSceneView().getRasters();
     }
 
-    private static class ImageInfoTableModel extends AbstractTableModel {
+    private class ImageInfoTableModel extends AbstractTableModel {
 
-        private ImageInfo imageInfo;
-        private static final String[] COLUMN_NAMES = new String[]{"Color", "Value"};
-        private static final Class<?>[] COLUMN_TYPES = new Class<?>[]{Color.class, Double.class};
-
-        private ImageInfoTableModel(ImageInfo imageInfo) {
-            this.imageInfo = imageInfo;
+        private ImageInfoTableModel() {
         }
 
         public ImageInfo getImageInfo() {
-            return imageInfo;
-        }
-
-        public void setImageInfo(ImageInfo imageInfo) {
-            this.imageInfo = imageInfo;
-            fireTableDataChanged();
+            return parentForm.getImageInfo();
         }
 
         @Override
@@ -119,11 +111,14 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
         }
 
         public int getRowCount() {
-            return imageInfo != null ? imageInfo.getColorPaletteDef().getNumPoints() : 0;
+            if (getImageInfo() == null) {
+                return 0;
+            }
+            return getImageInfo().getColorPaletteDef().getNumPoints();
         }
 
         public Object getValueAt(int rowIndex, int columnIndex) {
-            final ColorPaletteDef.Point point = imageInfo.getColorPaletteDef().getPointAt(rowIndex);
+            final ColorPaletteDef.Point point = getImageInfo().getColorPaletteDef().getPointAt(rowIndex);
             if (columnIndex == 0) {
                 final Color color = point.getColor();
                 return color.equals(ImageInfo.NO_COLOR) ? null : color;
@@ -135,7 +130,7 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
 
         @Override
         public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-            final ColorPaletteDef.Point point = imageInfo.getColorPaletteDef().getPointAt(rowIndex);
+            final ColorPaletteDef.Point point = getImageInfo().getColorPaletteDef().getPointAt(rowIndex);
             if (columnIndex == 0) {
                 final Color color = (Color) aValue;
                 point.setColor(color == null ? ImageInfo.NO_COLOR : color);

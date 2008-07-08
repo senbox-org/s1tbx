@@ -207,6 +207,8 @@ class ColorManipulationForm {
                 oldForm.handleFormHidden(productSceneViewOld);
             }
             childForm.handleFormShown(productSceneView);
+        } else {
+            childForm.updateFormModel(productSceneView);
         }
     }
 
