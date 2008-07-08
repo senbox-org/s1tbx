@@ -1193,7 +1193,7 @@ public class BitmaskOverlayToolView extends AbstractToolView {
             _descrParam.addParamChangeListener(_paramChangeListener);
 
             _colorParam = new Parameter("color", _bitmask.getColor());
-            _colorParam.getProperties().setLabel("Color");                      /*I18N*/
+            _colorParam.getProperties().setLabel("Colour");                      /*I18N*/
             _colorParam.getProperties().setEditorClass(ColorEditor.class);
             _colorParam.addParamChangeListener(_paramChangeListener);
 

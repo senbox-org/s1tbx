@@ -64,7 +64,7 @@ public class ColorEditor extends AbstractParamXEditor {
 
     protected void invokeXEditor() {
         Color color = JColorChooser.showDialog(getEditorComponent(),
-                                               "Select Color", /*I18N*/
+                                               "Select Colour", /*I18N*/
                                                getParameterColorValue());
         if (color != null) {
             setParameterColorValue(color);

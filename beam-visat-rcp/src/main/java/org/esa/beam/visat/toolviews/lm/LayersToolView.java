@@ -265,10 +265,10 @@ public class LayersToolView extends AbstractToolView {
         property = new SampleProperty("Transparency", "Sets the layer transparency. Enter values between 0 and 1.", Double.class, "Layer Style");
         list.add(property);
 
-        property = new SampleProperty("Fill colour", "The row is intended to show how to create a cell to input color in RGB format.", Color.class, "Layer Style");
+        property = new SampleProperty("Fill colour", "The row is intended to show how to create a cell to input colour in RGB format.", Color.class, "Layer Style");
         list.add(property);
 
-        property = new SampleProperty("Line colour", "The row is intended to show how to create a cell to input color in HEX format.", Color.class, "Layer Style");
+        property = new SampleProperty("Line colour", "The row is intended to show how to create a cell to input colour in HEX format.", Color.class, "Layer Style");
         list.add(property);
 
         property = new SampleProperty("Font", "The row is intended to show how to create a cell to choose a font", Font.class);

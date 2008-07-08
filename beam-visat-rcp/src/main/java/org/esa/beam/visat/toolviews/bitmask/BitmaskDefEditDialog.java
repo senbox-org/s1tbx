@@ -63,8 +63,8 @@ public class BitmaskDefEditDialog extends ModalDialog {
                                                            "org.esa.beam.framework.ui.validators.BitmaskExprValidator");
 
         _bitmaskColorParam = new Parameter("bitmaskColor", Color.red);
-        _bitmaskColorParam.getProperties().setLabel("Bitmask overlay color"); /*I18N*/
-        _bitmaskColorParam.getProperties().setDescription("Bitmask overlay color"); /*I18N*/
+        _bitmaskColorParam.getProperties().setLabel("Bitmask overlay colour"); /*I18N*/
+        _bitmaskColorParam.getProperties().setDescription("Bitmask overlay colour"); /*I18N*/
 
         _bitmaskTransparencyParam = new Parameter("bitmaskTransparency", new Float(0.5));
         _bitmaskTransparencyParam.getProperties().setMinValue(new Float(0.0));

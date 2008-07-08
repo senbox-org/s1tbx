@@ -82,7 +82,7 @@ public class ExportLegendImageAction extends AbstractExportImageAction {
         legendParamGroup = createLegendParamGroup();
         legendParamGroup.setParameterValues(getVisatApp().getPreferences(), null);
         modifyHeaderText(legendParamGroup, view.getRaster());
-        fileChooser.setDialogTitle(getVisatApp().getAppName() + " - Export Color Legend Image"); /*I18N*/
+        fileChooser.setDialogTitle(getVisatApp().getAppName() + " - Export Colour Legend Image"); /*I18N*/
         fileChooser.setCurrentFilename(imageBaseName + "_legend");
         final RasterDataNode raster = view.getRaster();
         imageLegend = new ImageLegend(raster.getImageInfo(), raster);
@@ -130,11 +130,11 @@ public class ExportLegendImageAction extends AbstractExportImageAction {
         paramGroup.addParameter(param);
 
         param = new Parameter("legend.foregroundColor", Color.black);
-        param.getProperties().setLabel("Foreground color");
+        param.getProperties().setLabel("Foreground colour");
         paramGroup.addParameter(param);
 
         param = new Parameter("legend.backgroundColor", Color.white);
-        param.getProperties().setLabel("Background color");
+        param.getProperties().setLabel("Background colour");
         paramGroup.addParameter(param);
 
         param = new Parameter("legend.backgroundTransparency", 0.0f);
@@ -232,7 +232,7 @@ public class ExportLegendImageAction extends AbstractExportImageAction {
 
         public ImageLegendDialog(VisatApp visatApp, ParamGroup paramGroup, ImageLegend imageLegend,
                                  boolean transparencyEnabled) {
-            super(visatApp.getMainFrame(), visatApp.getAppName() + " - Color Legend Properties", ID_OK_CANCEL, _HELP_ID);
+            super(visatApp.getMainFrame(), visatApp.getAppName() + " - Colour Legend Properties", ID_OK_CANCEL, _HELP_ID);
             this.visatApp = visatApp;
             imageInfo = imageLegend.getImageInfo();
             raster = imageLegend.getRaster();
@@ -393,7 +393,7 @@ public class ExportLegendImageAction extends AbstractExportImageAction {
 //                    showPopup(e, image, imageDisplay);
                 }
             });
-            final ModalDialog dialog = new ModalDialog(getParent(), VisatApp.getApp().getAppName() + " - Color Legend Preview", imageDisplay,
+            final ModalDialog dialog = new ModalDialog(getParent(), VisatApp.getApp().getAppName() + " - Colour Legend Preview", imageDisplay,
                                                        ID_OK, null);
             dialog.getJDialog().setResizable(false);
             dialog.show();

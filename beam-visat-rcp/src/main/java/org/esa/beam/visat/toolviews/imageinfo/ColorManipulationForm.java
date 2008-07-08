@@ -535,7 +535,7 @@ class ColorManipulationForm {
     private BeamFileFilter getOrCreateColorPaletteDefinitionFileFilter() {
         if (beamFileFilter == null) {
             final String formatName = "COLOR_PALETTE_DEFINITION_FILE";
-            final String description = "Color palette definition files (*" + FILE_EXTENSION + ")";  /*I18N*/
+            final String description = "Colour palette files (*" + FILE_EXTENSION + ")";  /*I18N*/
             beamFileFilter = new BeamFileFilter(formatName, FILE_EXTENSION, description);
         }
         return beamFileFilter;
@@ -549,7 +549,7 @@ class ColorManipulationForm {
             return;
         }
         final BeamFileChooser fileChooser = new BeamFileChooser();
-        fileChooser.setDialogTitle("Import Color Palette Definition"); /*I18N*/
+        fileChooser.setDialogTitle("Import Colour Palette"); /*I18N*/
         fileChooser.setFileFilter(getOrCreateColorPaletteDefinitionFileFilter());
         fileChooser.setCurrentDirectory(getIODir());
         final int result = fileChooser.showOpenDialog(getToolViewPaneControl());
@@ -566,7 +566,7 @@ class ColorManipulationForm {
                     childForm.updateFormModel(getProductSceneView());
                     setApplyEnabled(true);
                 } catch (IOException e) {
-                    showErrorDialog("Failed to import color palette definition.\n" + e.getMessage());
+                    showErrorDialog("Failed to import colour palette:\n" + e.getMessage());
                 }
             }
         }
@@ -598,7 +598,7 @@ class ColorManipulationForm {
             return;
         }
         final BeamFileChooser fileChooser = new BeamFileChooser();
-        fileChooser.setDialogTitle("Export Color Palette Definition"); /*I18N*/
+        fileChooser.setDialogTitle("Export Colour Palette"); /*I18N*/
         fileChooser.setFileFilter(getOrCreateColorPaletteDefinitionFileFilter());
         fileChooser.setCurrentDirectory(getIODir());
         final int result = fileChooser.showSaveDialog(getToolViewPaneControl());
@@ -616,7 +616,7 @@ class ColorManipulationForm {
                     final ColorPaletteDef colorPaletteDef = imageInfo.getColorPaletteDef();
                     ColorPaletteDef.storeColorPaletteDef(colorPaletteDef, file);
                 } catch (IOException e) {
-                    showErrorDialog("Failed to export color palette definition.\n" + e.getMessage());  /*I18N*/
+                    showErrorDialog("Failed to export colour palette:\n" + e.getMessage());  /*I18N*/
                 }
             }
         }

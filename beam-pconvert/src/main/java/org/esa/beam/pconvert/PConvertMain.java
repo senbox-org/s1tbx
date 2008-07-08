@@ -157,12 +157,12 @@ public class PConvertMain {
         sb.append("\n");
         sb.append("  -c or --color-palette <file-path>\n");
         sb.append("     Valid only for image output of a single band.\n");
-        sb.append("     Specifies the file path to a text file containing a color\n");
+        sb.append("     Specifies the file path to a text file containing a colour\n");
         sb.append("     palette definition.\n");
         sb.append("\n");
         sb.append("  -n or --no-data-color <red>,<green>,<blue>[,<alpha>]\n");
         sb.append("     Valid for greyscale or RGB image output only.\n");
-        sb.append("     Specifies the color that should be used for the no-data layer.\n");
+        sb.append("     Specifies the colour that should be used for the no-data layer.\n");
         sb.append("     The alpha value is optional. All component values have to be between\n");
         sb.append("     0 and 255. An alpha value of 255 means fully opaque and 0 means\n");
         sb.append("     fully transparent.\n");
@@ -370,7 +370,7 @@ public class PConvertMain {
             }
         }
         if (!_imageFormat && _noDataColor != null) {
-            error("No-Data color is only valid for image output");
+            error("No-Data colour is only valid for image output");
         }
 
         /////////////////////////////////////////////////////////////////////////
@@ -526,10 +526,10 @@ public class PConvertMain {
         ColorPaletteDef colorPaletteDef = null;
         if (_colorPalette != null) {
             try {
-                log("loading color palette definition from: " + _colorPalette.getAbsolutePath());
+                log("loading colour palette from: " + _colorPalette.getAbsolutePath());
                 colorPaletteDef = ColorPaletteDef.loadColorPaletteDef(_colorPalette);
             } catch (IOException e) {
-                error("failed to load color palette definition: " + e.getMessage());
+                error("failed to load colour palette: " + e.getMessage());
             }
         }
 

@@ -16,7 +16,7 @@ import java.awt.Component;
 import java.text.NumberFormat;
 
 class Discrete1BandTabularForm implements ColorManipulationChildForm {
-    private static final String[] COLUMN_NAMES = new String[]{"Label", "Color", "Value", "Frequency", "Description"};
+    private static final String[] COLUMN_NAMES = new String[]{"Label", "Colour", "Value", "Frequency", "Description"};
     private static final Class<?>[] COLUMN_TYPES = new Class<?>[]{String.class, Color.class, String.class, Double.class, String.class};
 
     private final ColorManipulationForm parentForm;

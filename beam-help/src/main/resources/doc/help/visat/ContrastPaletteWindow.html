@@ -18,7 +18,7 @@
 <p>
     When you are looking at satellite data, you might be interested in a certain
     area of the image. If this area shows few dynamics in the values, you'd like
-    to adjust the contrast or even assign colors to value ranges. This can all be
+    to adjust the contrast or even assign colours to value ranges. This can all be
     done with the contrast/palette dialog of VISAT. <br>
     A click on the <img src="images/icons/ContrastStretch24.gif" alt="Contrast/Palette Window" border="0">
     icon in the <a href="Toolbars.html">main toolbar</a> or selecting &quot;Contrast Stretch /Color Palette&quot;
@@ -29,25 +29,25 @@
 
 <p>
     A histogram is used to visualize the distribution of sample values of the current band.
-    You can see three sliders on a greyscale color palette: a black one on the left,
-    a white one on the right, and a grey one in the middle. They all give their color
-    to the color palette. As the white diagonal line in the histogram indicates, the greyscale is
+    You can see three sliders on a greyscale colour palette: a black one on the left,
+    a white one on the right, and a grey one in the middle. They all give their colour
+    to the colour palette. As the white diagonal line in the histogram indicates, the greyscale is
     applied linearily to the band <a href="ProductSceneView.html">image view</a>.
     Additionally, the number below the slider indicates the sample value assigned to the
     position of the slider in the histogram.
     You may also <a href="#valuechanging">exactly adjust</a> the slider sample value by clicking
     on it's displayed text.
-    By moving a slider with the mouse you can easily change it's sample value. The colors in the palette
+    By moving a slider with the mouse you can easily change it's sample value. The colours in the palette
     will change accordingly. You can also click between two sliders in order to move the nearest
-    slider of both under the mouse cursor. All changes of the color palette will enable the 'Apply' button
+    slider of both under the mouse cursor. All changes of the colour palette will enable the 'Apply' button
     which you have to press in order to make changes effective.
 </p>
 
 <h4>Export of Color Palette Informations</h4>
 <ul>
-    <li>The color palette information used for the current image can be exported into an image file.<br>
+    <li>The colour palette information used for the current image can be exported into an image file.<br>
         Click the context menu item <a href="ExportColorLegend.html">Export Color Legend</a>
-        over an open image view in order export the color legend.<br></li>
+        over an open image view in order export the colour legend.<br></li>
     <li>It can be also exported as a <a href="ExportColorPalette.html">Color Palette Table</a>.<br>
         Choose from the <i>File</i> menu <i>Color Palette</i> to export the table as a *.csv or *.txt file.</li>
 </ul>
@@ -67,7 +67,7 @@ for each of the RGB components. Default (virtual) source bands are created from 
 
 <p>
     A click on the <img src="images/icons/MultiAssign24.gif"> icon opens a dialog where you can select
-    the bands to which you can assign the current color palette. If the destination band has a similar
+    the bands to which you can assign the current colour palette. If the destination band has a similar
     pixel value range, the slider positions are exacly preserved otherwise they are proportionally distributed
     over the valid range of the destination band.</p>
 <h4><a name="autoadjust"></a>Slider Auto-Adjustment</h4>
@@ -96,7 +96,7 @@ for each of the RGB components. Default (virtual) source bands are created from 
     - 'Add new gradient slider' which is described <a href="#creatingnewsliders">below</a>,<br>
     - 'Remove gradient slider' removes the slider currently selected,<br>
     - 'Center position': this will center the slider between the two adjacent ones,<br>
-    - 'Center gradient': this will assign the center color of the gradient between
+    - 'Center gradient': this will assign the center colour of the gradient between
     the two adjacent sliders to the slider. </p>
 
 
@@ -110,7 +110,7 @@ for each of the RGB components. Default (virtual) source bands are created from 
 <h4><a name="creatingnewsliders"></a>Creating new sliders</h4>
 
 <p>
-    Right-clicking into the color palette gives you a
+    Right-clicking into the colour palette gives you a
     context-menu 'Add new gradient slider'.
 </p>
 
@@ -156,9 +156,9 @@ for each of the RGB components. Default (virtual) source bands are created from 
 <h4><a name="assigncolourtoslider"></a>Coloring the <a href="ProductSceneView.html">image view</a></h4>
 
 <p>
-    If you click on a slider, a color chooser window appears. Select the color
-    you want to assign to that slider. Click OK. The color palette below the histogram
-    now shows a gradient from the new color to the one of the adjacent slider.
+    If you click on a slider, a colour chooser window appears. Select the colour
+    you want to assign to that slider. Click OK. The colour palette below the histogram
+    now shows a gradient from the new colour to the one of the adjacent slider.
     This function is not available if the current image is a RGB image.
 </p>
 
@@ -170,20 +170,20 @@ for each of the RGB components. Default (virtual) source bands are created from 
     - auto-adjusted the histogram to 95%<br>
     - clicked several times on the vertical zoom icon<br>
     - added two more sliders<br>
-    - assigned colors to all sliders.
+    - assigned colours to all sliders.
 </p>
 <h4><a name="importexportpalette"></a>Importing/Exporting the Contrast Stretch / Color Palette Settings</h4>
 
 <p>The Contrast palette Window offers the possibility to store the settings for later use. </p>
 
-<p class="inote">Note: VISAT's contrast stretch / color palette tool is now supported by a couple of predefined color
+<p class="inote">Note: VISAT's contrast stretch / colour palette tool is now supported by a couple of predefined colour
     palettes. They are stored in <code><i>BEAM-install-dir</i>/auxdata/color_palettes</code>. For convenience, the
-    import/export file choosers in the contrast stretch / color palette dialog now use this folder by default.</p>
+    import/export file choosers in the contrast stretch / colour palette dialog now use this folder by default.</p>
 
 <p>
-    Click the <img src="images/icons/Import24.gif"> icon to import color palette definition files and the <img
+    Click the <img src="images/icons/Import24.gif"> icon to import colour palette definition files and the <img
         src="images/icons/Export24.gif">
-    icon to export the current contrast stretch / color palette settings.</p>
+    icon to export the current contrast stretch / colour palette settings.</p>
 
 <h4>Undoing your changes</h4>
 

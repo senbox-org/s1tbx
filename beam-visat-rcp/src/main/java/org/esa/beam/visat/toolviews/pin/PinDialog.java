@@ -300,13 +300,13 @@ public class PinDialog extends ModalDialog {
         };
 
         paramColorOutline = new Parameter("outlineColor", symbol.getOutlineColor());
-        paramColorOutline.getProperties().setLabel("Outline color");
+        paramColorOutline.getProperties().setLabel("Outline colour");
         paramColorOutline.getProperties().setNullValueAllowed(true);
         paramColorOutline.addParamChangeListener(colorChangelistener);
         paramColorOutline.setUIEnabled(symbol.getIcon() == null);
 
         paramColorFill = new Parameter("fillColor", symbol.getFillPaint());
-        paramColorFill.getProperties().setLabel("Fill color");
+        paramColorFill.getProperties().setLabel("Fill colour");
         paramColorFill.getProperties().setNullValueAllowed(true);
         paramColorFill.addParamChangeListener(colorChangelistener);
         paramColorFill.setUIEnabled(symbol.getIcon() == null);

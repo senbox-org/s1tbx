@@ -750,7 +750,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             configParams.addParameter(param);
 
             param = new Parameter("image.background.color", ProductSceneView.DEFAULT_IMAGE_BACKGROUND_COLOR);
-            param.getProperties().setLabel("Background color"); /*I18N*/
+            param.getProperties().setLabel("Background colour"); /*I18N*/
             configParams.addParameter(param);
 
             param = new Parameter("image.border.shown", Boolean.TRUE);
@@ -768,7 +768,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             configParams.addParameter(param);
 
             param = new Parameter("image.border.color", ProductSceneView.DEFAULT_IMAGE_BORDER_COLOR);
-            param.getProperties().setLabel("Image border color"); /*I18N*/
+            param.getProperties().setLabel("Image border colour"); /*I18N*/
             configParams.addParameter(param);
 
             param = new Parameter("pixel.border.shown", Boolean.TRUE);
@@ -930,7 +930,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             configParams.addParameter(param);
 
             param = new Parameter("graticule.line.color", new Color(204, 204, 255));
-            param.getProperties().setLabel("Line color"); /*I18N*/
+            param.getProperties().setLabel("Line colour"); /*I18N*/
             configParams.addParameter(param);
 
             param = new Parameter("graticule.line.width", 0.5);
@@ -949,11 +949,11 @@ public class VisatPreferencesDialog extends ConfigDialog {
             configParams.addParameter(param);
 
             param = new Parameter("graticule.text.fg.color", Color.white);
-            param.getProperties().setLabel("Text foreground color"); /*I18N*/
+            param.getProperties().setLabel("Text foreground colour"); /*I18N*/
             configParams.addParameter(param);
 
             param = new Parameter("graticule.text.bg.color", Color.black);
-            param.getProperties().setLabel("Text background color"); /*I18N*/
+            param.getProperties().setLabel("Text background colour"); /*I18N*/
             configParams.addParameter(param);
 
             param = new Parameter("graticule.text.bg.transparency", 0.7);
@@ -1119,11 +1119,11 @@ public class VisatPreferencesDialog extends ConfigDialog {
             configParams.addParameter(param);
 
             param = new Parameter("pin.text.fg.color", Color.white);
-            param.getProperties().setLabel("Text foreground color"); /*I18N*/
+            param.getProperties().setLabel("Text foreground colour"); /*I18N*/
             configParams.addParameter(param);
 
             param = new Parameter("pin.text.bg.color", Color.black);
-            param.getProperties().setLabel("Text background color"); /*I18N*/
+            param.getProperties().setLabel("Text background colour"); /*I18N*/
             configParams.addParameter(param);
 
             param = new Parameter("pin.text.bg.transparency", 0.7);
@@ -1215,11 +1215,11 @@ public class VisatPreferencesDialog extends ConfigDialog {
             configParams.addParameter(param);
 
             param = new Parameter("gcp.text.fg.color", Color.white);
-            param.getProperties().setLabel("Text foreground color"); /*I18N*/
+            param.getProperties().setLabel("Text foreground colour"); /*I18N*/
             configParams.addParameter(param);
 
             param = new Parameter("gcp.text.bg.color", Color.black);
-            param.getProperties().setLabel("Text background color"); /*I18N*/
+            param.getProperties().setLabel("Text background colour"); /*I18N*/
             configParams.addParameter(param);
 
             param = new Parameter("gcp.text.bg.transparency", 0.7);
@@ -1318,7 +1318,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             configParams.addParameter(param);
 
             param = new Parameter("shape.outl.color", FigureLayer.DEFAULT_SHAPE_OUTL_COLOR);
-            param.getProperties().setLabel("Shape outline color"); /*I18N*/
+            param.getProperties().setLabel("Shape outline colour"); /*I18N*/
             configParams.addParameter(param);
 
             param = new Parameter("shape.outl.width", FigureLayer.DEFAULT_SHAPE_OUTL_WIDTH);
@@ -1339,7 +1339,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             configParams.addParameter(param);
 
             param = new Parameter("shape.fill.color", FigureLayer.DEFAULT_SHAPE_FILL_COLOR);
-            param.getProperties().setLabel("Shape fill color"); /*I18N*/
+            param.getProperties().setLabel("Shape fill colour"); /*I18N*/
             configParams.addParameter(param);
         }
 
@@ -1440,7 +1440,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             Parameter param;
 
             param = new Parameter("roi.color", Color.red);
-            param.getProperties().setLabel("ROI color"); /*I18N*/
+            param.getProperties().setLabel("ROI colour"); /*I18N*/
             configParams.addParameter(param);
 
             param = new Parameter("roi.transparency", 0.5);
@@ -1501,7 +1501,7 @@ public class VisatPreferencesDialog extends ConfigDialog {
             Parameter param;
 
             param = new Parameter("noDataOverlay.color", Color.ORANGE);
-            param.getProperties().setLabel("No-data overlay color"); /*I18N*/
+            param.getProperties().setLabel("No-data overlay colour"); /*I18N*/
             configParams.addParameter(param);
 
             param = new Parameter("noDataOverlay.transparency", 0.3);

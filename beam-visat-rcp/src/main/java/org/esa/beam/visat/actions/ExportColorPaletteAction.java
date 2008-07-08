@@ -73,7 +73,7 @@ public class ExportColorPaletteAction extends ExecCommand {
             try {
                 writeColorPalette(raster, file);
             } catch (IOException e) {
-                getVisatApp().showErrorDialog(VPI_TEXT, "Failed to export color palette:\n" + e.getMessage());
+                getVisatApp().showErrorDialog(VPI_TEXT, "Failed to export colour palette:\n" + e.getMessage());
             }
         }
     }
