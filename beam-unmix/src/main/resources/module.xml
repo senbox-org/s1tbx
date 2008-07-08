@@ -31,7 +31,7 @@
 
     <categories>VISAT,Processing,Image Analysis</categories>
 
-    <extension point="beam-visat:actions">
+    <extension point="beam-ui:actions">
         <action>
             <class>org.esa.beam.unmixing.visat.SpectralUnmixingAction</class>
             <id>spectralUnmixing</id>
