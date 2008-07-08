@@ -222,10 +222,10 @@ class ColorManipulationForm {
     }
 
     private void updateToolButtons() {
-        final boolean enabled = this.productSceneView != null;
-        resetButton.setEnabled(enabled);
-        importButton.setEnabled(enabled);
-        exportButton.setEnabled(enabled);
+        final boolean hasSceneView = this.productSceneView != null;
+        resetButton.setEnabled(hasSceneView);
+        importButton.setEnabled(hasSceneView && !isRgbMode());
+        exportButton.setEnabled(hasSceneView && !isRgbMode());
     }
 
     private ColorManipulationChildForm getContinuous3BandGraphicalForm() {
