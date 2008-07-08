@@ -4,7 +4,7 @@
     <version>4.2-SNAPSHOT</version>
     <name>BEAM Graph Processing Framework (GPF)</name>
     
-    <description>The basic framework for processing using Operators and the GTP.</description>
+    <description>The basic framework for processing using Operators and the GPT.</description>
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
