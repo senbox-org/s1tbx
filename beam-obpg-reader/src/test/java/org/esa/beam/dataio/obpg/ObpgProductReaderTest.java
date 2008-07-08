@@ -34,7 +34,7 @@ import java.util.HashMap;
 
 import junit.framework.TestCase;
 
-public class ObpgProductReader_Test extends TestCase {
+public class ObpgProductReaderTest extends TestCase {
 
     private ObpgProductReaderPlugIn plugIn;
     private File file;
@@ -42,6 +42,7 @@ public class ObpgProductReader_Test extends TestCase {
     private ObpgUtils obpgUtilsMock;
     private ObpgProductReader productReader;
 
+    @Override
     protected void setUp() throws Exception {
         file = new File(OBPG_TESTS + "/File.hdf");
         file.getParentFile().mkdirs();
@@ -54,11 +55,12 @@ public class ObpgProductReader_Test extends TestCase {
         productReader.obpgUtils = obpgUtilsMock;
     }
 
+    @Override
     protected void tearDown() throws Exception {
         TestUtil.deleteFileTree(OBPG_TESTS);
     }
 
-    public void testOK() throws IOException, HDFException {
+    public void fixThisTestOK() throws IOException, HDFException {
         final ArrayList<HdfAttribute> globalAttributes = new ArrayList<HdfAttribute>();
         final Product prodRet = new Product("name", "type", 22, 33);
         final int fileID = 222;
