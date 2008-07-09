@@ -9,6 +9,7 @@ import com.bc.ceres.binding.swing.ComponentAdapter;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.ListModel;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -85,7 +86,21 @@ public class ListSelectionAdapter extends ComponentAdapter implements ListSelect
     private void updateListModel() {
         ValueSet valueSet = getValueDescriptor().getValueSet();
         if (valueSet != null) {
+            Object oldElems = getBinding().getPropertyValue();
             list.setListData(valueSet.getItems());
+            if (oldElems != null) {    
+                ListSelectionModel selectionModel = list.getSelectionModel();
+                int arrayLength = Array.getLength(oldElems);
+                ListModel listModel = list.getModel();
+                for (int i = 0; i < listModel.getSize(); i++) {
+                    Object element = listModel.getElementAt(i);
+                    for (int j = 0; j < arrayLength; j++) {
+                        if (element.equals((Array.get(oldElems, j)))) {
+                            selectionModel.addSelectionInterval(i, i);
+                        }
+                    }
+                }
+            }
         }
     }
 
