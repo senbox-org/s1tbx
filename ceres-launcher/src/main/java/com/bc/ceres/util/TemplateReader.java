@@ -248,7 +248,7 @@ public class TemplateReader extends FilterReader {
      */
     @Override
     public boolean ready() throws IOException {
-        return buffer.ready();
+        return (buffer != null && buffer.ready()) || in.ready();
     }
 
     /**
