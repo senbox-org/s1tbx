@@ -256,8 +256,9 @@ public class OperatorContext {
             sourceProductList.clear();
             Collection<RasterDataNodeOpImage> operatorImages = targetImageMap.values();
             for (RasterDataNodeOpImage image : operatorImages) {
-                if (image.getRasterDataNode().getImage() instanceof OperatorImage) {
-                    image.getRasterDataNode().setImage(null);
+                RasterDataNode rdn = image.getRasterDataNode();
+                if (rdn != null && rdn.getImage() instanceof OperatorImage) {
+                    rdn.setImage(null);
                 }
                 image.dispose();
                 JAI.getDefaultInstance().getTileCache().removeTiles(image);
