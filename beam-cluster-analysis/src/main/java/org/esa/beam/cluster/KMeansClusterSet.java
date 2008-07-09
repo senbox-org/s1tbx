@@ -33,6 +33,6 @@ public class KMeansClusterSet {
     }
 
     public int getMembership(double[] point) {
-        return KMeansClusterer.getClosesestCluster(means, point);
+        return KMeansClusterer.getClosestCluster(means, point);
     }
 }

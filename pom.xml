@@ -99,7 +99,7 @@
         <module>beam-mosaic</module>
         <module>beam-binning</module>
         <module>beam-unmix</module>
-        <module>beam-cluster</module>
+        <module>beam-cluster-analysis</module>
         <module>beam-collocation</module>
 
         <module>beam-avhrr-reader</module>

@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.Random;
 
 /**
- * Tests for class {@link FindClustersOp}.
+ * Tests for cluster analysis algorithms. Not useful yet.
  *
  * @author Ralf Quast
  * @version $Revision$ $Date$

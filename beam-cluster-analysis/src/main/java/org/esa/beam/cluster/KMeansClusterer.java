@@ -37,8 +37,6 @@ public class KMeansClusterer {
      *
      * @param clusterCount      the number of clusters.
      * @param dimensionCount    the number of dimensions.
-     * @param height 
-     * @param width 
      */
     public KMeansClusterer(int clusterCount, int dimensionCount) {
         this.clusterCount = clusterCount;
@@ -71,14 +69,14 @@ public class KMeansClusterer {
     }
     
     /**
-     * Carries out a single EM iteration.
+     * Carries out a single k-means iteration.
      */
     public void iterateTile(PixelIter iter) {
         final double[] point = new double[dimensionCount];
         iter.next();
         while (iter.hasNext()) {
             iter.getSample(point);
-            final int closestCluster = getClosesestCluster(means, point);
+            final int closestCluster = getClosestCluster(means, point);
             for (int d = 0; d < dimensionCount; ++d) {
                 sums[closestCluster][d] += point[d];
             }
@@ -115,7 +113,7 @@ public class KMeansClusterer {
         return new KMeansClusterSet(clusters);
     }
     
-    public static int getClosesestCluster(double[][] mean, final double[] point) {
+    public static int getClosestCluster(double[][] mean, final double[] point) {
         double minDistance = Double.MAX_VALUE;
         int closestCluster = 0;
         for (int c = 0; c < mean.length; ++c) {
