@@ -168,7 +168,10 @@ public class BeamUiActivator implements Activator, ToolViewDescriptorRegistry {
             ConfigurationElement confElem = extension.getConfigurationElement();
             ConfigurationElement[] helpSetElements = confElem.getChildren("helpSet");
             for (ConfigurationElement helpSetElement : helpSetElements) {
-                registerHelpSet(helpSetElement, extension.getDeclaringModule());
+                final Module declaringModule = extension.getDeclaringModule();
+                if (declaringModule.getState().is(ModuleState.RESOLVED)) {
+                    registerHelpSet(helpSetElement, declaringModule);
+                }
             }
         }
 
