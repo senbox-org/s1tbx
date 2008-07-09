@@ -104,23 +104,10 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
 
     @Override
     protected void onApply() {
-        final String productName = targetProductSelector.getModel().getProductName();
-        if (productName == null || productName.isEmpty()) {
-            showErrorDialog("Please specify a target product name.");
-            targetProductSelector.getProductNameTextField().requestFocus();
+        if (!canApply()) {
             return;
         }
-        File productFile = targetProductSelector.getModel().getProductFile();
-        if (productFile.exists() && targetProductSelector.getModel().isSaveToFileSelected()) {
-            String message = "The specified output file\n\"{0}\"\n already exists.\n\n" +
-                    "Do you want to overwrite the existing file?";
-            String formatedMessage = MessageFormat.format(message, productFile.getAbsolutePath());
-            final int answer = JOptionPane.showConfirmDialog(getJDialog(), formatedMessage,
-                                                             getTitle(), JOptionPane.YES_NO_OPTION);
-            if (answer != JOptionPane.YES_OPTION) {
-                return;
-            }
-        }
+
         String productDir = targetProductSelector.getModel().getProductDir().getAbsolutePath();
         appContext.getPreferences().setPropertyString(BasicApp.PROPERTY_KEY_APP_LAST_SAVE_DIR, productDir);
 
@@ -135,15 +122,53 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
         }
 
         targetProduct.setName(targetProductSelector.getModel().getProductName());
-
         if (targetProductSelector.getModel().isSaveToFileSelected()) {
-            targetProduct.setFileLocation(productFile);
+            targetProduct.setFileLocation(targetProductSelector.getModel().getProductFile());
             final ProgressMonitorSwingWorker worker = new ProductWriterSwingWorker(targetProduct);
             worker.executeWithBlocking();
         } else if (targetProductSelector.getModel().isOpenInAppSelected()) {
             appContext.getProductManager().addProduct(targetProduct);
             showOpenInAppInfo();
         }
+    }
+
+    private boolean canApply() {
+        final String productName = targetProductSelector.getModel().getProductName();
+        if (productName == null || productName.isEmpty()) {
+            showErrorDialog("Please specify a target product name.");
+            targetProductSelector.getProductNameTextField().requestFocus();
+            return false;
+        }
+
+        if (targetProductSelector.getModel().isOpenInAppSelected()) {
+            final Product existingProduct = appContext.getProductManager().getProduct(productName);
+            if (existingProduct != null) {
+                String message = MessageFormat.format(
+                        "A product with the name ''{0}'' is already opened in {1}.\n\n" +
+                                "Do you want to continue?",
+                        productName, appContext.getApplicationName());
+                final int answer = JOptionPane.showConfirmDialog(getJDialog(), message,
+                                                                 getTitle(), JOptionPane.YES_NO_OPTION);
+                if (answer != JOptionPane.YES_OPTION) {
+                    return false;
+                }
+            }
+        }
+        if (targetProductSelector.getModel().isSaveToFileSelected()) {
+            File productFile = targetProductSelector.getModel().getProductFile();
+            if (productFile.exists()) {
+                String message = MessageFormat.format(
+                        "The specified output file\n\"{0}\"\n already exists.\n\n" +
+                                "Do you want to overwrite the existing file?",
+                        productFile.getPath());
+                final int answer = JOptionPane.showConfirmDialog(getJDialog(), message,
+                                                                 getTitle(), JOptionPane.YES_NO_OPTION);
+                if (answer != JOptionPane.YES_OPTION) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private void showSaveInfo() {
