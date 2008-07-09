@@ -31,12 +31,11 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 
-import java.awt.*;
+import javax.media.jai.ROI;
+import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Map;
-
-import javax.media.jai.ROI;
 
 /**
  * Operator for cluster analysis.
@@ -52,23 +51,23 @@ import javax.media.jai.ROI;
 public class EMClusterOp extends Operator {
 
     private static final int NO_DATA_VALUE = -1;
-    
+
     @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(label = "Number of clusters", defaultValue = "14", interval = "(0,*)")
+    @Parameter(label = "Number of clusters", defaultValue = "14", interval = "(0,100]")
     private int clusterCount;
-    @Parameter(label = "Number of iterations", defaultValue = "30", interval = "(0,*)")
+    @Parameter(label = "Number of iterations", defaultValue = "30", interval = "(0,100]")
     private int iterationCount;
     @Parameter(label = "Source band names",
                description = "The names of the bands being used for the cluster analysis.",
                sourceProductId = "source")
     private String[] sourceBandNames;
     @Parameter(label = "Region of interest",
-            description = "The name of the band which contains a ROI that should be used.",
-            sourceProductId = "source")
+               description = "The name of the band which contains a ROI that should be used.",
+               sourceProductId = "source")
     private String roiBandName;
     @Parameter(label = "Include probabilities", defaultValue = "false",
                description = "Determines whether the posterior probabilities are included as band data.")
@@ -85,11 +84,11 @@ public class EMClusterOp extends Operator {
     }
 
     public EMClusterOp(Product sourceProduct,
-                          int clusterCount,
-                          int iterationCount,
-                          String[] sourceBandNames,
-                          boolean includeProbabilityBands,
-                          Comparator<EMCluster> clusterComparator) {
+                       int clusterCount,
+                       int iterationCount,
+                       String[] sourceBandNames,
+                       boolean includeProbabilityBands,
+                       Comparator<EMCluster> clusterComparator) {
         this.sourceProduct = sourceProduct;
         this.clusterCount = clusterCount;
         this.iterationCount = iterationCount;
@@ -112,7 +111,7 @@ public class EMClusterOp extends Operator {
         ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
         targetProduct.setStartTime(sourceProduct.getStartTime());
         targetProduct.setEndTime(sourceProduct.getEndTime());
-        
+
         targetProduct.setPreferredTileSize(width, height);  //TODO ????
 
         if (includeProbabilityBands) {
@@ -127,7 +126,7 @@ public class EMClusterOp extends Operator {
 
         final IndexCoding indexCoding = new IndexCoding("clusters");
         for (int i = 0; i < clusterCount; i++) {
-            indexCoding.addIndex("cluster_" + (i + 1), i, "Cluster label");
+            indexCoding.addIndex("cluster_" + (i + 1), i, "Cluster " + (i + 1));
         }
         targetProduct.getIndexCodingGroup().add(indexCoding);
         clusterMapBand.setSampleCoding(indexCoding);
@@ -171,7 +170,7 @@ public class EMClusterOp extends Operator {
 
         try {
             final EMClusterSet theClusterSet = getClusterSet(SubProgressMonitor.create(pm, 1));
-            
+
             final Tile[] sourceTiles = new Tile[sourceBands.length];
             for (int i = 0; i < sourceTiles.length; i++) {
                 sourceTiles[i] = getSourceTile(sourceBands[i], targetRectangle, ProgressMonitor.NULL);
@@ -187,7 +186,7 @@ public class EMClusterOp extends Operator {
             double[] point = new double[sourceTiles.length];
             for (int y = targetRectangle.y; y < targetRectangle.y + targetRectangle.height; y++) {
                 for (int x = targetRectangle.x; x < targetRectangle.x + targetRectangle.width; x++) {
-                    if (roi ==null || roi.contains(x, y)) {
+                    if (roi == null || roi.contains(x, y)) {
                         for (int i = 0; i < sourceTiles.length; i++) {
                             point[i] = sourceTiles[i].getSampleDouble(x, y);
                         }
@@ -225,7 +224,7 @@ public class EMClusterOp extends Operator {
 
         return index;
     }
-    
+
     private synchronized EMClusterSet getClusterSet(ProgressMonitor pm) {
         if (clusterSet == null) {
             pm.beginTask("Extracting data points...", iterationCount + 2);
@@ -237,7 +236,7 @@ public class EMClusterOp extends Operator {
                 RoiCombiner roiCombiner = new RoiCombiner(sourceBands, roiBand);
                 roi = roiCombiner.getCombinedRoi();
                 pm.worked(1);
-                
+
                 final EMClusterer clusterer = createClusterer(SubProgressMonitor.create(pm, 1));
 
                 for (int i = 0; i < iterationCount; ++i) {

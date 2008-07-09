@@ -5,7 +5,7 @@ import org.esa.beam.framework.gpf.ui.DefaultSingleTargetProductDialog;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.visat.actions.AbstractVisatAction;
 
-public class ClusterAnalysisAction extends AbstractVisatAction {
+public class ClucovClusterAnalysisAction extends AbstractVisatAction {
 
     @Override
     public void updateState(CommandEvent commandEvent) {

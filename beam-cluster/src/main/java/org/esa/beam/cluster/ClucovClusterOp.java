@@ -40,13 +40,15 @@ import java.util.Set;
                   copyright = "(c) 2007 by Brockmann Consult",
                   description = "Cluster analysis using the CLUCOV algorithm.",
                   internal = true)
-public class ClusterAnalysisOp extends Operator {
-    @SourceProduct
+public class ClucovClusterOp extends Operator {
+    @SourceProduct(alias = "source")
     Product sourceProduct;
     @TargetProduct
     Product targetProduct;
-    @Parameter
-    String[] featureBandNames;
+    @Parameter(label = "Source band names",
+               description = "The names of the bands being used for the cluster analysis.",
+               sourceProductId = "source")
+    String[] sourceBandNames;
     @Parameter
     String roiExpression;
 
@@ -58,9 +60,9 @@ public class ClusterAnalysisOp extends Operator {
 
     @Override
     public void initialize() throws OperatorException {
-        featureBands = new Band[featureBandNames.length];
-        for (int i = 0; i < featureBandNames.length; i++) {
-            String featureBandName = featureBandNames[i];
+        featureBands = new Band[sourceBandNames.length];
+        for (int i = 0; i < sourceBandNames.length; i++) {
+            String featureBandName = sourceBandNames[i];
             Band band = sourceProduct.getBand(featureBandName);
             if (band == null) {
                 throw new OperatorException("Feature band not found: " + featureBandName);
@@ -168,7 +170,7 @@ public class ClusterAnalysisOp extends Operator {
      */
     public static class Spi extends OperatorSpi {
         public Spi() {
-            super(ClusterAnalysisOp.class);
+            super(ClucovClusterOp.class);
         }
     }
 }

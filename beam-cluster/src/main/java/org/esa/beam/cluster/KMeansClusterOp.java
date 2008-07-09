@@ -14,12 +14,8 @@
  */
 package org.esa.beam.cluster;
 
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.io.IOException;
-
-import javax.media.jai.ROI;
-
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.IndexCoding;
 import org.esa.beam.framework.datamodel.Product;
@@ -36,8 +32,10 @@ import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 import org.esa.beam.util.math.MathUtils;
 
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
+import javax.media.jai.ROI;
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.io.IOException;
 
 /**
  * Operator for k-means cluster analysis.
@@ -53,15 +51,15 @@ import com.bc.ceres.core.SubProgressMonitor;
 public class KMeansClusterOp extends Operator {
 
     private static final int NO_DATA_VALUE = -1;
-    
+
     @SourceProduct(alias = "source")
     private Product sourceProduct;
     @TargetProduct
     private Product targetProduct;
 
-    @Parameter(label = "Number of clusters", defaultValue = "14", interval = "(0,*)")
+    @Parameter(label = "Number of clusters", defaultValue = "14", interval = "(0,100]")
     private int clusterCount;
-    @Parameter(label = "Number of iterations", defaultValue = "30", interval = "(0,*)")
+    @Parameter(label = "Number of iterations", defaultValue = "30", interval = "(0,100]")
     private int iterationCount;
     @Parameter(label = "Source band names",
                description = "The names of the bands being used for the cluster analysis.",
@@ -71,7 +69,7 @@ public class KMeansClusterOp extends Operator {
                description = "The name of the band which contains a ROI that should be used.",
                sourceProductId = "source")
     private String roiBandName;
-    
+
     private transient ROI roi;
     private transient Band[] sourceBands;
     private transient Band clusterMapBand;
@@ -83,7 +81,7 @@ public class KMeansClusterOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
         collectSourceBands();
-        
+
         int width = sourceProduct.getSceneRasterWidth();
         int height = sourceProduct.getSceneRasterHeight();
         final String name = sourceProduct.getName() + "_CLUSTERS";
@@ -94,7 +92,7 @@ public class KMeansClusterOp extends Operator {
         ProductUtils.copyGeoCoding(sourceProduct, targetProduct);
         targetProduct.setStartTime(sourceProduct.getStartTime());
         targetProduct.setEndTime(sourceProduct.getEndTime());
-        
+
         clusterMapBand = new Band("cluster_map", ProductData.TYPE_INT16, width, height);
         clusterMapBand.setDescription("Cluster map");
         clusterMapBand.setNoDataValue(NO_DATA_VALUE);
@@ -103,11 +101,11 @@ public class KMeansClusterOp extends Operator {
 
         final IndexCoding indexCoding = new IndexCoding("clusters");
         for (int i = 0; i < clusterCount; i++) {
-            indexCoding.addIndex("cluster_" + (i + 1), i, "Cluster label");
+            indexCoding.addIndex("cluster_" + (i + 1), i, "Cluster " + (i + 1));
         }
         targetProduct.getIndexCodingGroup().add(indexCoding);
         clusterMapBand.setSampleCoding(indexCoding);
-        
+
         setTargetProduct(targetProduct);
     }
 
@@ -197,13 +195,13 @@ public class KMeansClusterOp extends Operator {
         final KMeansClusterer clusterer = new KMeansClusterer(clusterCount, sourceBands.length);
         RandomSceneIter randomSceneIter = new RandomSceneIter(this, sourceBands, roi, 42);
         if (randomSceneIter.getRoiMemberCount() < clusterCount) {
-            throw new IllegalArgumentException("The ROI contains "+
-                    randomSceneIter.getRoiMemberCount()+" pixel. These are too few to initialize the clustering.");
+            throw new IllegalArgumentException("The ROI contains " +
+                    randomSceneIter.getRoiMemberCount() + " pixel. These are too few to initialize the clustering.");
         }
         clusterer.initialize(randomSceneIter);
         return clusterer;
     }
-    
+
     private Rectangle[] getAllTileRactangles() {
         Dimension tileSize = targetProduct.getPreferredTileSize();
         final int rasterHeight = targetProduct.getSceneRasterHeight();
@@ -217,9 +215,9 @@ public class KMeansClusterOp extends Operator {
         for (int tileY = 0; tileY < tileCountY; tileY++) {
             for (int tileX = 0; tileX < tileCountX; tileX++) {
                 final Rectangle tileRectangle = new Rectangle(tileX * tileSize.width,
-                                                                  tileY * tileSize.height,
-                                                                  tileSize.width,
-                                                                  tileSize.height);
+                                                              tileY * tileSize.height,
+                                                              tileSize.width,
+                                                              tileSize.height);
                 final Rectangle intersection = boundary.intersection(tileRectangle);
                 rectangles[index] = intersection;
                 index++;
@@ -241,11 +239,11 @@ public class KMeansClusterOp extends Operator {
         }
         return new PixelIter(sourceTiles, roi);
     }
-    
+
     public static class Spi extends OperatorSpi {
 
         public Spi() {
             super(KMeansClusterOp.class);
         }
-    }    
+    }
 }
