@@ -161,8 +161,8 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
 
         paramGroup.addParamChangeListener(new ParamChangeListener() {
             public void parameterValueChanged(ParamChangeEvent event) {
-                updateUIState();
                 setApplyEnabled(true);
+                updateUIState();
             }
         });
 
@@ -193,13 +193,11 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
             resetBitmaskFlagNames();
             bitmaskExprParam.getProperties().setPropertyValue(BooleanExpressionEditor.PROPERTY_KEY_SELECTED_PRODUCT,
                                                               this.productSceneView.getProduct());
-            updateUIState();
         } else {
             bitmaskExprParam.getProperties().setPropertyValue(BooleanExpressionEditor.PROPERTY_KEY_SELECTED_PRODUCT,
                                                               null);
-            updateUIState();
         }
-
+        updateUIState();
         updateTitle();
 
         setApplyEnabled(false);
@@ -691,7 +689,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
     private void setApplyEnabled(boolean enabled) {
         final boolean canApply = productSceneView != null;
         applyButton.setEnabled(canApply && enabled);
-        multiAssignToBandsButton.setEnabled(canApply && (!enabled && visatApp != null));
+        multiAssignToBandsButton.setEnabled(canApply && !enabled);
     }
 
     private void setIODir(File dir) {
@@ -923,7 +921,8 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
             multiAssignToProductsButton.setEnabled(visatApp != null
                                                     && visatApp.getProductManager().getProductCount() > 1);
         } else {
-            setApplyEnabled(false);
+            applyButton.setEnabled(false);
+            multiAssignToBandsButton.setEnabled(false);
             multiAssignToProductsButton.setEnabled(false);
             resetButton.setEnabled(false);
             undoButton.setEnabled(false);
