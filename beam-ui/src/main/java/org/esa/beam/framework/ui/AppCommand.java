@@ -20,5 +20,11 @@ import org.esa.beam.framework.ui.command.ExecCommand;
 
 public abstract class AppCommand extends ExecCommand {
 
-    public abstract AppContext getAppContext();
+    public AppContext getAppContext() {
+        return (AppContext) getProperty("appContext");
+    }
+
+    public void setAppContext(AppContext appContext) {
+        setProperty("appContext", appContext);
+    }
 }

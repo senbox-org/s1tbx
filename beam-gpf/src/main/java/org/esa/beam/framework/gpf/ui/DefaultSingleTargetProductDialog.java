@@ -13,6 +13,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.border.EmptyBorder;
 
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.datamodel.ProductFilter;
 import org.esa.beam.framework.gpf.GPF;
 import org.esa.beam.framework.gpf.OperatorSpi;
 import org.esa.beam.framework.gpf.annotations.ParameterDescriptorFactory;
@@ -94,8 +95,8 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         try {
             valueContainer.setDefaultValues();
         } catch (ValidationException e) {
-// todo - handle exception here
             e.printStackTrace();
+            showErrorDialog(e.getMessage());
         }
         if (valueContainer.getModels().length > 0) {
             BindingContext context = new BindingContext(valueContainer);

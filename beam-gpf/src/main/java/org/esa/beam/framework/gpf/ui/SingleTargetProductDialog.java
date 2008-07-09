@@ -19,24 +19,22 @@ package org.esa.beam.framework.gpf.ui;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
-import com.sun.media.jai.codec.PNGEncodeParam;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.operators.common.WriteOp;
-import org.esa.beam.framework.ui.BasicApp;
-import org.esa.beam.framework.ui.ModalDialog;
-import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.framework.ui.AppContext;
+import org.esa.beam.framework.ui.BasicApp;
+import org.esa.beam.framework.ui.ModelessDialog;
+import org.esa.beam.framework.ui.SuppressibleOptionPane;
 import org.esa.beam.util.SystemUtils;
 
+import javax.swing.AbstractButton;
+import javax.swing.JOptionPane;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.concurrent.ExecutionException;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
-
-import javax.swing.JOptionPane;
-import javax.swing.AbstractButton;
 
 /**
  * WARNING: This class belongs to a preliminary API and may change in future releases.
@@ -65,38 +63,35 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
         targetProductSelector.getModel().getValueContainer().addPropertyChangeListener(new PropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent evt) {
-                 if (evt.getPropertyName().equals("saveToFileSelected") ||
-                         evt.getPropertyName().equals("openInAppSelected")) {
-                     updateApplyButton();
-                 }
+                if (evt.getPropertyName().equals("saveToFileSelected") ||
+                        evt.getPropertyName().equals("openInAppSelected")) {
+                    updateRunButton();
+                }
             }
         });
-        updateApplyButton();
+        AbstractButton button = getButton(ID_APPLY);
+        button.setText("Run");
+        button.setMnemonic('R');
+        updateRunButton();
     }
 
-    private void updateApplyButton() {
+    private void updateRunButton() {
+        AbstractButton button = getButton(ID_APPLY);
         boolean save = targetProductSelector.getModel().isSaveToFileSelected();
         boolean open = targetProductSelector.getModel().isOpenInAppSelected();
-
-        AbstractButton button = getButton(ID_APPLY);
+        String toolTipText = "";
+        boolean enabled = true;
         if (save && open) {
-            button.setText("Save & Open");
-            button.setMnemonic('S');
-            button.setEnabled(true);
+            toolTipText = "Save target product and open it in " + getAppContext().getApplicationName();
         } else if (save) {
-            button.setText("Save");
-            button.setMnemonic('S');
-            button.setEnabled(true);
+            toolTipText = "Save target product";
         } else if (open) {
-            button.setText("Open");
-            button.setMnemonic('O');
-            button.setEnabled(true);
+            toolTipText = "Open target product in " + getAppContext().getApplicationName();
         } else {
-            button.setText("Save");
-            button.setMnemonic('S');
-            button.setEnabled(false);
+            enabled = false;
         }
-
+        button.setToolTipText(toolTipText);
+        button.setEnabled(enabled);
     }
 
     public AppContext getAppContext() {
@@ -117,11 +112,11 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
         }
         File productFile = targetProductSelector.getModel().getProductFile();
         if (productFile.exists() && targetProductSelector.getModel().isSaveToFileSelected()) {
-            String message = "The specified output file\n\"{0}\"\n already exists.\n\n" + 
+            String message = "The specified output file\n\"{0}\"\n already exists.\n\n" +
                     "Do you want to overwrite the existing file?";
             String formatedMessage = MessageFormat.format(message, productFile.getAbsolutePath());
             final int answer = JOptionPane.showConfirmDialog(getJDialog(), formatedMessage,
-                    getJDialog().getTitle(), JOptionPane.YES_NO_OPTION);
+                                                             getTitle(), JOptionPane.YES_NO_OPTION);
             if (answer != JOptionPane.YES_OPTION) {
                 return;
             }
@@ -146,12 +141,52 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
             final ProgressMonitorSwingWorker worker = new ProductWriterSwingWorker(targetProduct);
             worker.executeWithBlocking();
         } else if (targetProductSelector.getModel().isOpenInAppSelected()) {
-            // todo - check for existance
             appContext.getProductManager().addProduct(targetProduct);
+            showOpenInAppInfo();
         }
     }
 
+    private void showSaveInfo() {
+        final String message = MessageFormat.format(
+                "The target product has been successfully written to\n{0}",
+                getTargetProductSelector().getModel().getProductFile());
+        showSuppressibleInformationDialog(message, "saveInfo");
+    }
 
+    private void showOpenInAppInfo() {
+        final String message = MessageFormat.format(
+                "The target product has successfully been created and opened in {0}.\n\n" +
+                        "Actual processing of source to target data will be performed only on demand,\n" +
+                        "for example, if the target product is saved or an image view is opened.",
+                appContext.getApplicationName());
+        showSuppressibleInformationDialog(message, "openInAppInfo");
+    }
+
+    private void showSaveAndOpenInAppInfo() {
+        final String message = MessageFormat.format(
+                "The target product has been successfully written to\n{0}\n" +
+                        "and has been opened in {1}.",
+                getTargetProductSelector().getModel().getProductFile(),
+                appContext.getApplicationName());
+        showSuppressibleInformationDialog(message, "saveAndOpenInAppInfo");
+    }
+
+
+    /**
+     * Shows an information dialog on top of this dialog.
+     * The shown dialog will contain a user option allowing to not show the message anymore.
+     *
+     * @param infoMessage  The message.
+     * @param propertyName The (simple) property name used to store the user option in the application's preferences.
+     */
+    public void showSuppressibleInformationDialog(String infoMessage, String propertyName) {
+        final SuppressibleOptionPane optionPane = new SuppressibleOptionPane(appContext.getPreferences());
+        optionPane.showMessageDialog(getClass().getName() + "." + propertyName,
+                                     getJDialog(),
+                                     infoMessage,
+                                     getTitle(),
+                                     JOptionPane.INFORMATION_MESSAGE);
+    }
 
     private class ProductWriterSwingWorker extends ProgressMonitorSwingWorker<Product, Object> {
         private final Product targetProduct;
@@ -193,6 +228,9 @@ public abstract class SingleTargetProductDialog extends ModelessDialog {
                 final Product targetProduct = get();
                 if (model.isOpenInAppSelected()) {
                     appContext.getProductManager().addProduct(targetProduct);
+                    showSaveAndOpenInAppInfo();
+                } else {
+                    showSaveInfo();
                 }
             } catch (InterruptedException e) {
                 // ignore

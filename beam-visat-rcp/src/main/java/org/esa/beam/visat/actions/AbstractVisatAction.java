@@ -36,6 +36,7 @@ public abstract class AbstractVisatAction extends AppCommand {
     public AppContext getAppContext() {
         if (context == null) {
             context = new VisatContext(getText());
+            setAppContext(context);
         }
         return context;
     }

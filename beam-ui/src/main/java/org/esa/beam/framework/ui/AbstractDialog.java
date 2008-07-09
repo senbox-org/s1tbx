@@ -106,6 +106,20 @@ public abstract class AbstractDialog {
     }
 
     /**
+     * @return The dialog's title.
+     */
+    public String getTitle() {
+        return dialog.getTitle();
+    }
+
+    /**
+     * @param title The dialog's title.
+     */
+    public void setTitle(String title) {
+        dialog.setTitle(title);
+    }
+
+    /**
      * Gets the button mask passed to the constructor.
      * @return The button mask.
      */
@@ -492,6 +506,7 @@ public abstract class AbstractDialog {
                     onClose();
                 }
             });
+            button.setToolTipText("Close dialog window");
             buttons.add(button);
             button.setVerifyInputWhenFocusTarget(false);
             registerButton(ID_CLOSE, button);
@@ -523,6 +538,7 @@ public abstract class AbstractDialog {
                     onHelp();
                 }
             });
+            button.setToolTipText("Show help on this topic.");
             buttons.add(button);
             registerButton(ID_HELP, button);
         }

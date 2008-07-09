@@ -1,6 +1,7 @@
 package org.esa.beam.framework.gpf.ui;
 
 import org.esa.beam.framework.ui.AppCommand;
+import org.esa.beam.framework.ui.AppContext;
 import org.esa.beam.framework.ui.command.CommandEvent;
 
 
@@ -14,15 +15,22 @@ import org.esa.beam.framework.ui.command.CommandEvent;
  * @author Norman Fomferra
  * @version $Revision$ $Date$
  */
-public abstract class SingleTargetProductDialogAction extends AppCommand {
+public class SingleTargetProductDialogAction extends AppCommand {
+
+    private SingleTargetProductDialog dialog;
 
     public SingleTargetProductDialogAction() {
     }
 
-    private SingleTargetProductDialog dialog;
+    public SingleTargetProductDialogAction(AppContext appContext) {
+        setAppContext(appContext);
+    }
 
     @Override
     public void actionPerformed(CommandEvent event) {
+        if (getAppContext() == null) {
+            throw new IllegalStateException("Missing action property 'appContext'.");
+        }
         final String operatorName = getProperty("operatorName", (String) null);
         if (operatorName == null) {
             throw new IllegalStateException("Missing action property 'operatorName'.");
@@ -30,8 +38,17 @@ public abstract class SingleTargetProductDialogAction extends AppCommand {
         String dialogTitle = getProperty("dialogTitle", operatorName);
         String helpId = getProperty("helpId", operatorName);
         if (dialog == null) {
-            dialog = new DefaultSingleTargetProductDialog(operatorName, getAppContext(), dialogTitle, helpId);
+            dialog = createDialog(operatorName, dialogTitle, helpId);
         }
         dialog.show();
+    }
+
+    protected SingleTargetProductDialog createDialog(String operatorName,
+                                                     String dialogTitle,
+                                                     String helpId) {
+        return new DefaultSingleTargetProductDialog(operatorName,
+                                                    getAppContext(),
+                                                    dialogTitle,
+                                                    helpId);
     }
 }

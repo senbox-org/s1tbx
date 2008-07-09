@@ -5,6 +5,7 @@ import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.dataio.ProductReaderPlugIn;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductManager;
+import org.esa.beam.framework.datamodel.ProductFilter;
 import org.esa.beam.framework.ui.BasicApp;
 import org.esa.beam.framework.ui.TableLayout;
 import org.esa.beam.framework.ui.AppContext;
