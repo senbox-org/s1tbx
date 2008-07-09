@@ -18,7 +18,7 @@
             <fileset dir="${helpdir}/JavaHelpSearch"/>
         </delete>
         <exec dir="${helpdir}" executable="${jhindexer}">
-            <arg line="./*"></arg>
+            <arg line="."/>
         </exec>
     </target>
 
