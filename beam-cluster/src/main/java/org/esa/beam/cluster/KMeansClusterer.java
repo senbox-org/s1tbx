@@ -154,9 +154,7 @@ public class KMeansClusterer {
     private static class ClusterComparator implements Comparator<KMeansCluster> {
 
         public int compare(KMeansCluster c1, KMeansCluster c2) {
-            int thisVal = c1.getMemberCount();
-            int anotherVal = c2.getMemberCount();
-            return (thisVal<anotherVal ? -1 : (thisVal==anotherVal ? 0 : 1));
+            return Double.compare(c2.getMemberCount(), c1.getMemberCount());
         }
     }
 }
