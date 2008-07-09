@@ -28,6 +28,10 @@ public class BindingContext {
     private BindingContext.ErrorHandler errorHandler;
     private Map<String, BindingImpl> bindingMap;
 
+    public BindingContext() {
+        this(new ValueContainer());
+    }
+
     public BindingContext(ValueContainer valueContainer) {
         this(valueContainer, new BindingContext.DefaultErrorHandler());
     }
@@ -68,9 +72,9 @@ public class BindingContext {
     public void unbind(Binding binding) {
         removeBinding(binding.getPropertyName());
         if (binding instanceof BindingImpl) {
-            ((BindingImpl)binding).unbindProperty();
+            ((BindingImpl) binding).unbindProperty();
         }
-        binding.getComponentAdapter().unbindComponents();        
+        binding.getComponentAdapter().unbindComponents();
     }
 
     public Binding bind(final String propertyName, final JTextField textField) {
@@ -114,14 +118,6 @@ public class BindingContext {
         return bind(propertyName, adapter);
     }
 
-    public void enable(final String propertyName, final Object propertyCondition, final JComponent component) {
-        bindEnabling(propertyName, propertyCondition, true, component);
-    }
-
-    public void disable(final String propertyName, final Object propertyCondition, final JComponent component) {
-        bindEnabling(propertyName, propertyCondition, false, component);
-    }
-
     public void addPropertyChangeListener(PropertyChangeListener l) {
         valueContainer.addPropertyChangeListener(l);
     }
@@ -154,7 +150,7 @@ public class BindingContext {
         final String propertyName = binding.getPropertyName();
         final String toolTipTextStr = getToolTipText(propertyName);
         final JComponent[] components = binding.getComponents();
-        JComponent primaryComponent =  components[0];
+        JComponent primaryComponent = components[0];
         configureComponent(primaryComponent, propertyName, toolTipTextStr);
         for (int i = 1; i < components.length; i++) {
             JComponent component = components[i];
@@ -186,24 +182,36 @@ public class BindingContext {
         }
     }
 
-    private void bindEnabling(final String propertyName,
-                              final Object propertyCondition, final boolean componentEnabled, final JComponent component) {
-        valueContainer.addPropertyChangeListener(propertyName, new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent evt) {
-                setEnabled(propertyName, component, propertyCondition, componentEnabled);
-            }
-        });
-        setEnabled(propertyName, component, propertyCondition, componentEnabled);
+    /**
+     * Sets the <i>enabled</i> state of the components associated with {@code targetProperty}.
+     * If the current value of {@code targetProperty} equals {@code sourcePropertyValue} then
+     * the enabled state will be set to the value of {@code enabled}, otherwise it is the negated value
+     * of {@code enabled}. The source property doesn't need to have an active binding.
+     *
+     * @param targetPropertyName  The name of the target property.
+     * @param enabled             The enabled state.
+     * @param sourcePropertyName  The name of the source property.
+     * @param sourcePropertyValue The value of the source property.
+     */
+    public void bindEnabledState(final String targetPropertyName,
+                                     final boolean enabled,
+                                     final String sourcePropertyName,
+                                     final Object sourcePropertyValue) {
+        final EnablePCL enablePCL = new EnablePCL(targetPropertyName, enabled, sourcePropertyName, sourcePropertyValue);
+        enablePCL.apply();
+        valueContainer.addPropertyChangeListener(sourcePropertyName, enablePCL);
     }
 
-    private void setEnabled(final String propertyName,
-                            final JComponent component,
-                            final Object propertyCondition,
-                            final boolean componentEnabled) {
-        Object propertyValue = valueContainer.getValue(propertyName);
-        boolean conditionIsTrue = propertyValue == propertyCondition
-                || (propertyValue != null && propertyValue.equals(propertyCondition));
-        component.setEnabled(conditionIsTrue ? componentEnabled : !componentEnabled);
+    private void setComponentsEnabled(final JComponent[] components,
+                                      final boolean enabled,
+                                      final String sourcePropertyName,
+                                      final Object sourcePropertyValue) {
+        Object propertyValue = valueContainer.getValue(sourcePropertyName);
+        boolean conditionIsTrue = propertyValue == sourcePropertyValue
+                || (propertyValue != null && propertyValue.equals(sourcePropertyValue));
+        for (JComponent component : components) {
+            component.setEnabled(conditionIsTrue ? enabled : !enabled);
+        }
     }
 
     private Binding addBinding(BindingImpl binding) {
@@ -233,6 +241,31 @@ public class BindingContext {
             if (component != null) {
                 component.requestFocus();
             }
+        }
+    }
+
+    private class EnablePCL implements PropertyChangeListener {
+        private final String targetPropertyName;
+        private final boolean enabled;
+        private final String sourcePropertyName;
+        private final Object sourcePropertyValue;
+
+        public EnablePCL(String targetPropertyName, boolean enabled, String sourcePropertyName, Object sourcePropertyValue) {
+            this.targetPropertyName = targetPropertyName;
+            this.enabled = enabled;
+            this.sourcePropertyName = sourcePropertyName;
+            this.sourcePropertyValue = sourcePropertyValue;
+        }
+
+        public void propertyChange(PropertyChangeEvent evt) {
+            apply();
+        }
+
+        public void apply() {
+            setComponentsEnabled(getBinding(targetPropertyName).getComponents(),
+                                 enabled,
+                                 sourcePropertyName,
+                                 sourcePropertyValue);
         }
     }
 }

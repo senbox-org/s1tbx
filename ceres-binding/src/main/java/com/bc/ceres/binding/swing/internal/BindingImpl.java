@@ -84,16 +84,6 @@ public final class BindingImpl implements Binding,PropertyChangeListener {
     }
 
     /**
-     * Gets the primary Swing component used for the binding, e.g. a {@link javax.swing.JTextField}.
-     *
-     * @return the primary Swing component.
-     * @see #getComponents()
-     */
-    public JComponent getPrimaryComponent() {
-        return componentAdapter.getComponents()[0];
-    }
-
-    /**
      * Gets the secondary Swing components attached to the binding, e.g. some {@link javax.swing.JLabel}s.
      *
      * @return the secondary Swing components. The returned array may be empty.
@@ -135,26 +125,6 @@ public final class BindingImpl implements Binding,PropertyChangeListener {
     public void removeComponent(JComponent component) {
         if (secondaryComponents != null) {
             secondaryComponents.remove(component);
-        }
-    }
-
-    /**
-     * Sets the <i>enabled</i> state of the primary Swing component and all secondary components, if any.
-     * @param state The state to be propagated.
-     */
-    public void setComponentsEnabledState(boolean state) {
-        for (JComponent component : getComponents()) {
-            component.setEnabled(state);
-        }
-    }
-
-    /**
-     * Sets the <i>visible</i> state of the primary Swing component and all secondary components, if any.
-     * @param state The state to be propagated.
-     */
-    public void setComponentsVisibleState(boolean state) {
-        for (JComponent component : getComponents()) {
-            component.setVisible(state);
         }
     }
 }

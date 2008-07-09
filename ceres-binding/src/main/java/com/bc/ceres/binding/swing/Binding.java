@@ -72,25 +72,15 @@ public interface Binding {
     boolean isAdjustingComponents();
 
     /**
-     * Gets the primary Swing component used for the binding, e.g. a {@link javax.swing.JTextField}.
+     * Gets all components participating in this binding: the one returned by the associated {@link ComponentAdapter}
+     * plus the ones added to this binding using the {@link #addComponent(javax.swing.JComponent)} method.
      *
-     * @return the primary Swing component.
-     * @see #getComponents()
-     */
-    JComponent getPrimaryComponent();
-
-    /**
-     * Gets the components of the associated {@link ComponentAdapter} plus the ones added to this
-     * binding using the {@link #addComponent(javax.swing.JComponent)} method.
-     *
-     * @return The components.
+     * @return All components participating in this binding.
      */
     JComponent[] getComponents();
 
     /**
-     * Adds a secondary Swing component to this binding, e.g. a {@link javax.swing.JLabel} whose
-     * {@code enabled} or {@code visible} states will also be set by a call to {@link  #setComponentsEnabledState(boolean)}
-     * or {@link #setComponentsVisibleState(boolean)}.
+     * Adds a secondary Swing component to this binding, e.g. a {@link javax.swing.JLabel}.
      *
      * @param component The secondary component.
      * @see #removeComponent(javax.swing.JComponent)
@@ -104,16 +94,4 @@ public interface Binding {
      * @see #addComponent(javax.swing.JComponent)
      */
     void removeComponent(JComponent component);
-
-    /**
-     * Sets the <i>enabled</i> state of all components associated with this binding.
-     * @param state The state to be propagated.
-     */
-    void setComponentsEnabledState(boolean state);
-
-    /**
-     * Sets the <i>visible</i> state of all components associated with this binding.
-     * @param state The state to be propagated.
-     */
-    void setComponentsVisibleState(boolean state);
 }
