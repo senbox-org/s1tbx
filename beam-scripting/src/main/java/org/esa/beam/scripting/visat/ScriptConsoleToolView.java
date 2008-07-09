@@ -6,20 +6,16 @@ import com.jidesoft.swing.JideScrollPane;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.application.support.AbstractToolView;
 import org.esa.beam.framework.ui.tool.ToolButtonFactory;
-import org.esa.beam.visat.VisatApp;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.swing.*;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Writer;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -44,7 +40,6 @@ public class ScriptConsoleToolView extends AbstractToolView {
 
     private static final String DEFAULT_SCRIPT_LANGUAGE_NAME = "JavaScript";
 
-    private VisatApp visat;
     private JTextArea inputTextArea;
     private JTextArea outputTextArea;
     private ScriptEngineManager scriptEngineManager;
@@ -57,20 +52,31 @@ public class ScriptConsoleToolView extends AbstractToolView {
     private StatusBar statusBar;
 
     public ScriptConsoleToolView() {
-        this.visat = VisatApp.getApp();
     }
 
     @Override
     public JComponent createControl() {
+        String errorMessage = null;
+
         if (scriptEngine == null) {
             try {
                 initScriptEngine();
             } catch (Exception e) {
-                e.printStackTrace();
-                visat.showErrorDialog(getTitle(), e.getMessage());
-                return new JLabel("<html><b>Error:</b><br/><i>" + e.getMessage() + "</i></html>");
+                scriptEngine = null;
+                errorMessage = "Failed to initialise scripting engine.\n" + getStackTraceText(e);
             }
         }
+
+        if (scriptEngine != null) {
+            try {
+                loadInitScript();
+            } catch (Exception e) {
+                errorMessage = "Failed to load initialisation script.\n" + getStackTraceText(e);
+            }
+        }
+
+        boolean enabled = scriptEngine != null;
+
 
         inputTextArea = new JTextArea(); // todo - replace by JIDE code editor component
         inputTextArea.setWrapStyleWord(false);
@@ -79,6 +85,7 @@ public class ScriptConsoleToolView extends AbstractToolView {
         inputTextArea.setColumns(80);
         inputTextArea.setFont(new Font("Courier", Font.PLAIN, 13));
         inputTextArea.setEditable(true);
+        inputTextArea.setEnabled(enabled);
 
         outputTextArea = new JTextArea();
         outputTextArea.setWrapStyleWord(false);
@@ -88,55 +95,76 @@ public class ScriptConsoleToolView extends AbstractToolView {
         outputTextArea.setFont(new Font("Courier", Font.PLAIN, 13));
         outputTextArea.setEditable(false);
         outputTextArea.setBackground(Color.LIGHT_GRAY);
+        outputTextArea.setEnabled(enabled);
 
         statusBar = new StatusBar();
+        statusBar.setEnabled(enabled);
 
         final JToolBar toolBar = new JToolBar("scripting");
 
         runAction = new RunAction();
+        runAction.setEnabled(enabled);
         toolBar.add(ToolButtonFactory.createButton(runAction, false));
 
         stopAction = new StopAction();
+        stopAction.setEnabled(enabled);
         toolBar.add(ToolButtonFactory.createButton(stopAction, false));
 
         clearAction = new ClearAction();
+        clearAction.setEnabled(enabled);
         toolBar.add(ToolButtonFactory.createButton(clearAction, false));
-        
+
         JComboBox comboBox = createLanguageSwitcher();
+        comboBox.setEnabled(enabled);
         toolBar.add(comboBox);
 
         final JMenuBar menuBar = createMenuBar();
+        menuBar.setEnabled(enabled);
 
         final JScrollPane inputEditorScrollPane = new JideScrollPane(inputTextArea); // <JIDE>
         inputEditorScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         inputEditorScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         inputEditorScrollPane.setBorder(null);
         inputEditorScrollPane.setViewportBorder(null);
+        inputEditorScrollPane.setEnabled(enabled);
 
         final JScrollPane outputEditorScrollPane = new JideScrollPane(outputTextArea); // <JIDE>
         outputEditorScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         outputEditorScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         outputEditorScrollPane.setBorder(null);
         outputEditorScrollPane.setViewportBorder(null);
+        outputEditorScrollPane.setEnabled(enabled);
 
         final JSplitPane documentPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT, inputEditorScrollPane, outputEditorScrollPane);
         documentPanel.setDividerLocation(0.7);
+        documentPanel.setEnabled(enabled);
 
         JPanel consolePanel = new JPanel(new BorderLayout(2, 2));
         consolePanel.setPreferredSize(new Dimension(800, 300));
         consolePanel.add(toolBar, BorderLayout.NORTH);
         consolePanel.add(documentPanel, BorderLayout.CENTER);
+        consolePanel.setEnabled(enabled);
 
         JPanel windowPanel = new JPanel(new BorderLayout(2, 2));
         windowPanel.setPreferredSize(new Dimension(800, 300));
         windowPanel.add(menuBar, BorderLayout.NORTH);
         windowPanel.add(consolePanel, BorderLayout.CENTER);
         windowPanel.add(statusBar, BorderLayout.SOUTH);
+        windowPanel.setEnabled(enabled);
 
-        printEngineDetails();
+        printEngineDetails(errorMessage);
         return windowPanel;
     }
-    
+
+    private String getStackTraceText(Exception e) {
+        final StringWriter writer = new StringWriter();
+        final PrintWriter s = new PrintWriter(writer);
+        e.printStackTrace(s);
+        s.close();
+        final String s1 = writer.toString();
+        return s1;
+    }
+
     private JComboBox createLanguageSwitcher() {
         List<ScriptEngineFactory> engineFactories = scriptEngineManager.getEngineFactories();
         List<String> languageNames = new ArrayList<String>(engineFactories.size());
@@ -156,7 +184,7 @@ public class ScriptConsoleToolView extends AbstractToolView {
             public void actionPerformed(ActionEvent e) {
                 String selectedItem = (String) comboBox.getSelectedItem();
                 scriptEngine = scriptEngineManager.getEngineByName(selectedItem);
-                printEngineDetails();
+                printEngineDetails(null);
             }
         });
         return comboBox;
@@ -209,9 +237,9 @@ public class ScriptConsoleToolView extends AbstractToolView {
                     try {
                         Desktop.getDesktop().browse(new URI(target));
                     } catch (IOException e1) {
-                        visat.showErrorDialog(getTitle(), e1.getMessage());
+                        showErrorDialog(e1.getMessage());
                     } catch (URISyntaxException e1) {
-                        visat.showErrorDialog(getTitle(), e1.getMessage());
+                        showErrorDialog(e1.getMessage());
                     }
                 }
             });
@@ -219,20 +247,27 @@ public class ScriptConsoleToolView extends AbstractToolView {
         }
         return jsMenu;
     }
-    
-    private void printEngineDetails() {
-        out.append("Script engine name: ");
-        out.append(scriptEngine.getFactory().getEngineName());
-        out.append("\n");
-        out.append("Script engine version: ");
-        out.append(scriptEngine.getFactory().getEngineVersion());
-        out.append("\n");
-        out.append("Script language name: ");
-        out.append(scriptEngine.getFactory().getLanguageName());
-        out.append("\n");
-        out.append("Script language version: ");
-        out.append(scriptEngine.getFactory().getLanguageVersion());
-        out.append("\n");
+
+    private void printEngineDetails(String errorMessage) {
+        if (scriptEngine != null) {
+            out.append("Script engine name: ");
+            out.append(scriptEngine.getFactory().getEngineName());
+            out.append("\n");
+            out.append("Script engine version: ");
+            out.append(scriptEngine.getFactory().getEngineVersion());
+            out.append("\n");
+            out.append("Script language name: ");
+            out.append(scriptEngine.getFactory().getLanguageName());
+            out.append("\n");
+            out.append("Script language version: ");
+            out.append(scriptEngine.getFactory().getLanguageVersion());
+            out.append("\n");
+        }
+        if (errorMessage != null) {
+            out.append("\n");
+            out.append(errorMessage);
+            out.append("\n");
+        }
         outputTextArea.setText(out.toString());
         out.setLength(0);
     }
@@ -252,15 +287,17 @@ public class ScriptConsoleToolView extends AbstractToolView {
             final ScriptWriter writer = new ScriptWriter(); // fixme - don't get any output
             scriptEngine.getContext().setWriter(writer);
             scriptEngine.getContext().setErrorWriter(writer);
-            // dont't eval code by default
-//            final InputStreamReader streamReader = new InputStreamReader(getClass().getResourceAsStream("visat.js"));
-//            try {
-//                scriptEngine.eval(streamReader);
-//            } finally {
-//                streamReader.close();
-//            }
         } finally {
             setContextClassLoader(oldClassLoader);
+        }
+    }
+
+    private void loadInitScript() throws ScriptException, IOException {
+        final InputStreamReader streamReader = new InputStreamReader(getClass().getResourceAsStream("visat.js"));
+        try {
+            scriptEngine.eval(streamReader);
+        } finally {
+            streamReader.close();
         }
     }
 
@@ -270,6 +307,10 @@ public class ScriptConsoleToolView extends AbstractToolView {
 
     private void setContextClassLoader(ClassLoader loader) {
         Thread.currentThread().setContextClassLoader(loader);
+    }
+
+    private void showErrorDialog(String message) {
+        JOptionPane.showMessageDialog(null, message, getTitle(), JOptionPane.ERROR_MESSAGE);
     }
 
     private class RunAction extends AbstractAction {
