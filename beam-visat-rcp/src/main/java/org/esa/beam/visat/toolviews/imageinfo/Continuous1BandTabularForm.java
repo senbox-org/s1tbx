@@ -30,7 +30,7 @@ class Continuous1BandTabularForm implements ColorManipulationChildForm {
         this.parentForm = parentForm;
         tableModel = new ImageInfoTableModel();
         applyEnablerTML = parentForm.createApplyEnablerTableModelListener();
-        moreOptionsForm = new MoreOptionsForm(parentForm);
+        moreOptionsForm = new MoreOptionsForm(parentForm, true);
 
         final JTable table = new JTable(tableModel);
         final ColorCellRenderer colorCellRenderer = new ColorCellRenderer();

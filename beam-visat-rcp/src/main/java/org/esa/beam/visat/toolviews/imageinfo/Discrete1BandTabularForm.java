@@ -29,7 +29,7 @@ class Discrete1BandTabularForm implements ColorManipulationChildForm {
         this.parentForm = parentForm;
         tableModel = new ImageInfoTableModel();
         applyEnablerTML = parentForm.createApplyEnablerTableModelListener();
-        moreOptionsForm = new MoreOptionsForm(parentForm);
+        moreOptionsForm = new MoreOptionsForm(parentForm, false);
 
         final JTable table = new SortableTable(tableModel);
         final ColorCellRenderer colorCellRenderer = new ColorCellRenderer();

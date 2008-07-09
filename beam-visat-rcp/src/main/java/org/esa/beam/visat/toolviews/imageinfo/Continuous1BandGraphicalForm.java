@@ -28,7 +28,7 @@ class Continuous1BandGraphicalForm implements ColorManipulationChildForm {
         imageInfoEditorSupport = new ImageInfoEditorSupport(imageInfoEditor);
         contentPanel = new JPanel(new BorderLayout(2, 2));
         contentPanel.add(imageInfoEditor, BorderLayout.CENTER);
-        moreOptionsForm = new MoreOptionsForm(parentForm);
+        moreOptionsForm = new MoreOptionsForm(parentForm, true);
 
         evenDistButton = ImageInfoEditorSupport.createButton("icons/EvenDistribution24.gif");
         evenDistButton.setName("evenDistButton");

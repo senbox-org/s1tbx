@@ -398,8 +398,7 @@ class ColorManipulationForm {
     void installMoreOptions() {
         final MoreOptionsForm moreOptionsForm = childForm.getMoreOptionsForm();
         if (moreOptionsForm != null) {
-            moreOptionsForm.setNoDataColor(getImageInfo().getNoDataColor());
-            moreOptionsForm.setHistogramMatching(getImageInfo().getHistogramMatching());
+            moreOptionsForm.updateForm();
             moreOptionsPane.setComponent(moreOptionsForm.getContentPanel());
         }
     }

@@ -54,7 +54,7 @@ class Continuous3BandGraphicalForm implements ColorManipulationChildForm {
         imageInfoEditor = new ImageInfoEditor();
         imageInfoEditorSupport = new ImageInfoEditorSupport(imageInfoEditor);
         applyEnablerCL = parentForm.createApplyEnablerChangeListener();
-        moreOptionsForm = new MoreOptionsForm(parentForm);
+        moreOptionsForm = new MoreOptionsForm(parentForm, true);
         rasterDataUnloader = new RasterDataUnloader();
         models = new ImageInfoEditorModel3B[3];
         initialChannelSources = new RasterDataNode[3];

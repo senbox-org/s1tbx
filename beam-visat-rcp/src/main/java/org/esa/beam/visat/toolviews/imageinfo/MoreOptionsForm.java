@@ -28,38 +28,25 @@ class MoreOptionsForm {
     private BindingContext bindingContext;
 
     private ColorManipulationForm parentForm;
+    private boolean hasHistogramMatching;
 
-    MoreOptionsForm(ColorManipulationForm parentForm) {
+    MoreOptionsForm(ColorManipulationForm parentForm, boolean hasHistogramMatching) {
         this.parentForm = parentForm;
         ValueContainer valueContainer = new ValueContainer();
         valueContainer.addModel(ValueModel.createValueModel(NO_DATA_COLOR_PROPERTY, ImageInfo.NO_COLOR));
-        valueContainer.addModel(ValueModel.createValueModel(HISTOGRAM_MATCHING_PROPERTY, ImageInfo.HistogramMatching.None));
 
-        valueContainer.getDescriptor(HISTOGRAM_MATCHING_PROPERTY).setNotNull(true);
-        valueContainer.getDescriptor(HISTOGRAM_MATCHING_PROPERTY).setValueSet(new ValueSet(
-                new ImageInfo.HistogramMatching[]{
-                        ImageInfo.HistogramMatching.None,
-                        ImageInfo.HistogramMatching.Equalize,
-                        ImageInfo.HistogramMatching.Normalize,
-                })
-        );
-
-
-        JLabel noDataColorLabel = new JLabel("No-data colour: ");
-        ColorComboBox noDataColorComboBox = new ColorComboBox();
-        noDataColorComboBox.setColorValueVisible(false);
-        noDataColorComboBox.setAllowDefaultColor(true);
-
-        JLabel histogramMatchingLabel = new JLabel("Histogram matching: ");
-        JComboBox histogramMatchingBox = new JComboBox();
-
-        bindingContext = new BindingContext(valueContainer);
-
-        Binding noDataColorBinding = bindingContext.bind(NO_DATA_COLOR_PROPERTY, new ColorComboBoxAdapter(noDataColorComboBox));
-        noDataColorBinding.addComponent(noDataColorLabel);
-
-        Binding histogramMatchingBinding = bindingContext.bind(HISTOGRAM_MATCHING_PROPERTY, histogramMatchingBox);
-        histogramMatchingBinding.addComponent(histogramMatchingLabel);
+        this.hasHistogramMatching = hasHistogramMatching;
+        if (this.hasHistogramMatching) {
+            valueContainer.addModel(ValueModel.createValueModel(HISTOGRAM_MATCHING_PROPERTY, ImageInfo.HistogramMatching.None));
+            valueContainer.getDescriptor(HISTOGRAM_MATCHING_PROPERTY).setNotNull(true);
+            valueContainer.getDescriptor(HISTOGRAM_MATCHING_PROPERTY).setValueSet(new ValueSet(
+                    new ImageInfo.HistogramMatching[]{
+                            ImageInfo.HistogramMatching.None,
+                            ImageInfo.HistogramMatching.Equalize,
+                            ImageInfo.HistogramMatching.Normalize,
+                    })
+            );
+        }
 
         contentPanel = new JPanel(new GridBagLayout());
 
@@ -70,20 +57,36 @@ class MoreOptionsForm {
         constraints.weighty = 0.0;
         constraints.insets = new Insets(1, 0, 1, 0);
 
-        addRow(noDataColorLabel, noDataColorComboBox);
-        addRow(histogramMatchingLabel, histogramMatchingBox);
+        bindingContext = new BindingContext(valueContainer);
 
         final PropertyChangeListener pcl = new PropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent evt) {
-                getParentForm().getImageInfo().setNoDataColor(getNoDataColor());
-                getParentForm().getImageInfo().setHistogramMatching(getHistogramMatching());
-                getParentForm().setApplyEnabled(true);
+                updateModel();
             }
         };
 
+        JLabel noDataColorLabel = new JLabel("No-data colour: ");
+        ColorComboBox noDataColorComboBox = new ColorComboBox();
+        noDataColorComboBox.setColorValueVisible(false);
+        noDataColorComboBox.setAllowDefaultColor(true);
+        Binding noDataColorBinding = bindingContext.bind(NO_DATA_COLOR_PROPERTY, new ColorComboBoxAdapter(noDataColorComboBox));
+        noDataColorBinding.addComponent(noDataColorLabel);
+        addRow(noDataColorLabel, noDataColorComboBox);
         bindingContext.addPropertyChangeListener(NO_DATA_COLOR_PROPERTY, pcl);
-        bindingContext.addPropertyChangeListener(HISTOGRAM_MATCHING_PROPERTY, pcl);
+
+        if (hasHistogramMatching) {
+            JLabel histogramMatchingLabel = new JLabel("Histogram matching: ");
+            JComboBox histogramMatchingBox = new JComboBox();
+            Binding histogramMatchingBinding = bindingContext.bind(HISTOGRAM_MATCHING_PROPERTY, histogramMatchingBox);
+            histogramMatchingBinding.addComponent(histogramMatchingLabel);
+            addRow(histogramMatchingLabel, histogramMatchingBox);
+            bindingContext.addPropertyChangeListener(HISTOGRAM_MATCHING_PROPERTY, pcl);
+        }
+    }
+
+    private ImageInfo getImageInfo() {
+        return getParentForm().getImageInfo();
     }
 
     public ColorManipulationForm getParentForm() {
@@ -109,21 +112,20 @@ class MoreOptionsForm {
         constraints.gridx = 0;
         contentPanel.add(editor, constraints);
     }
-
-    public Color getNoDataColor() {
-        return (Color) getBindingContext().getBinding(NO_DATA_COLOR_PROPERTY).getPropertyValue();
+        
+    public void updateForm() {
+        setNoDataColor(getImageInfo().getNoDataColor());
+        if (hasHistogramMatching) {
+            setHistogramMatching(getImageInfo().getHistogramMatching());
+        }
     }
 
-    public void setNoDataColor(Color color) {
-        getBindingContext().getBinding(NO_DATA_COLOR_PROPERTY).setPropertyValue(color);
-    }
-
-    public ImageInfo.HistogramMatching getHistogramMatching() {
-        return (ImageInfo.HistogramMatching) getBindingContext().getBinding(HISTOGRAM_MATCHING_PROPERTY).getPropertyValue();
-    }
-
-    public void setHistogramMatching(ImageInfo.HistogramMatching histogramMatching) {
-        getBindingContext().getBinding(HISTOGRAM_MATCHING_PROPERTY).setPropertyValue(histogramMatching);
+    public void updateModel() {
+        getImageInfo().setNoDataColor(getNoDataColor());
+        if (hasHistogramMatching) {
+            getImageInfo().setHistogramMatching(getHistogramMatching());
+        }
+        getParentForm().setApplyEnabled(true);
     }
 
     public JPanel getContentPanel() {
@@ -138,4 +140,19 @@ class MoreOptionsForm {
         bindingContext.addPropertyChangeListener(propertyName, propertyChangeListener);
     }
 
+    private Color getNoDataColor() {
+        return (Color) getBindingContext().getBinding(NO_DATA_COLOR_PROPERTY).getPropertyValue();
+    }
+
+    private void setNoDataColor(Color color) {
+        getBindingContext().getBinding(NO_DATA_COLOR_PROPERTY).setPropertyValue(color);
+    }
+
+    private ImageInfo.HistogramMatching getHistogramMatching() {
+        return (ImageInfo.HistogramMatching) getBindingContext().getBinding(HISTOGRAM_MATCHING_PROPERTY).getPropertyValue();
+    }
+
+    private void setHistogramMatching(ImageInfo.HistogramMatching histogramMatching) {
+        getBindingContext().getBinding(HISTOGRAM_MATCHING_PROPERTY).setPropertyValue(histogramMatching);
+    }
 }
