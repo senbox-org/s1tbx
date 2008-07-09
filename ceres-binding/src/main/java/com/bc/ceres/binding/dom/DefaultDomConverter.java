@@ -170,7 +170,13 @@ public class DefaultDomConverter implements DomConverter {
             }
         } else {
             DefaultDomConverter childConverter = new DefaultDomConverter(valueType, valueDescriptorFactory);
-            childValue = childConverter.convertDomToValue(childElement, null);
+            try {
+                childValue = childConverter.convertDomToValue(childElement, null);
+            } catch (ValidationException e) {
+                throw new ValidationException("In a member of '"+childElement.getName()+"': "+e.getMessage(), e);
+            } catch (ConversionException e) {
+                throw new ConversionException("In a member of '"+childElement.getName()+"': "+e.getMessage(), e);
+            }
         }
         return childValue;
     }
