@@ -16,8 +16,11 @@ package org.esa.beam.cluster;
 
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
+
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
@@ -75,6 +78,8 @@ public class KMeansClusterOp extends Operator {
     private transient Band clusterMapBand;
     private transient KMeansClusterSet clusterSet;
 
+    private MetadataElement clusterCenterElement;
+
     public KMeansClusterOp() {
     }
 
@@ -105,6 +110,9 @@ public class KMeansClusterOp extends Operator {
         }
         targetProduct.getIndexCodingGroup().add(indexCoding);
         clusterMapBand.setSampleCoding(indexCoding);
+        
+        clusterCenterElement = new MetadataElement("Cluster_Center");
+        targetProduct.getMetadataRoot().addElement(clusterCenterElement);
 
         setTargetProduct(targetProduct);
     }
@@ -182,6 +190,17 @@ public class KMeansClusterOp extends Operator {
                     endIteration = clusterer.endIteration();
                 }
                 clusterSet = clusterer.getClusters();
+                
+                double[][] means = clusterSet.getMeans();
+                for (int i = 0; i < clusterCount; i++) {
+                    MetadataElement element = new MetadataElement("cluster_"+i);
+                    ProductData pData = ProductData.createInstance(means[i]);
+                    MetadataAttribute metadataAttribute = new MetadataAttribute("means", pData , true);
+                    element.addAttribute(metadataAttribute);
+//                    metadataAttribute.setDescription("For cluster "+i);
+//                    clusterCenterElement.addAttribute(metadataAttribute);
+                    clusterCenterElement.addElement(element);
+                }
             } catch (IOException e) {
                 throw new OperatorException(e);
             } finally {
