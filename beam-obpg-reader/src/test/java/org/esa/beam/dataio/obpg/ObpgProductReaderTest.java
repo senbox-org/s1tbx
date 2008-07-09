@@ -86,7 +86,7 @@ public class ObpgProductReaderTest extends TestCase {
         order.verify(obpgUtilsMock, times(1)).addGlobalMetadata(prodRet, new ArrayList<HdfAttribute>());
         order.verify(obpgUtilsMock, times(1)).extractSdsData(sdStart);
         order.verify(obpgUtilsMock, times(1)).addScientificMetadata(prodRet, sdsInfos);
-        order.verify(obpgUtilsMock, times(1)).addBands(prodRet, sdsInfos, new HashMap<String, String>());
+        order.verify(obpgUtilsMock, times(1)).addBands(prodRet, sdsInfos, new HashMap<String, String>(), new HashMap<String, String>());
         order.verify(obpgUtilsMock, times(1)).addGeocoding(prodRet, sdsInfos, false);
         order.verify(obpgUtilsMock, times(1)).addBitmaskDefinitions(prodRet, new BitmaskDef[0]);
         order.verify(obpgUtilsMock, times(1)).closeHdfFile(fileID);

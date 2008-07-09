@@ -1144,18 +1144,18 @@ public class DimapProductHelpers {
                     product.getFlagCodingGroup().add(flagCoding);
                     sampleCoding = flagCoding;
                 }
-                vvv(tagFlag, tagFlagName, tagFlagIndex, tagFlagDescription, flagCodingElem, sampleCoding);
+                addSamples(tagFlag, tagFlagName, tagFlagIndex, tagFlagDescription, flagCodingElem, sampleCoding);
             }
         }
 
-        private void vvv(String tagList, String tagName, String tagValue, String tagDescription, Element flagCodingElem, SampleCoding sampleCoding) {
-            final List list = flagCodingElem.getChildren(tagList);
+        private void addSamples(String tagList, String tagName, String tagValue, String tagDescription, Element sampleCodingElement, SampleCoding sampleCoding) {
+            final List list = sampleCodingElement.getChildren(tagList);
             for (Object o : list) {
                 final Element element = (Element) o;
                 final String name = element.getChildTextTrim(tagName);
                 final int value = Integer.parseInt(element.getChildTextTrim(tagValue));
                 final String description = element.getChildTextTrim(tagDescription);
-                sampleCoding.addValue(name, value, description);
+                sampleCoding.addSample(name, value, description);
             }
         }
 

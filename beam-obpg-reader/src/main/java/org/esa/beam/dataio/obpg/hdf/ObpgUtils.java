@@ -292,7 +292,10 @@ public class ObpgUtils {
         return namedElem;
     }
 
-    public Map<Band, ObpgBandReader> addBands(final Product product, final SdsInfo[] sdsInfos, HashMap<String, String> validExpressionMap) throws HDFException {
+    public Map<Band, ObpgBandReader> addBands(final Product product,
+                                              final SdsInfo[] sdsInfos,
+                                              HashMap<String, String> l2BandInfoMap,
+                                              HashMap<String, String> l2FlagsInfoMap) throws HDFException {
         final HashMap<Band, ObpgBandReader> readerMap = new HashMap<Band, ObpgBandReader>();
         final int sceneRasterWidth = product.getSceneRasterWidth();
         final int sceneRasterHeight = product.getSceneRasterHeight();
@@ -306,7 +309,7 @@ public class ObpgUtils {
                     final String name = sdsInfo.getName();
                     final int dataType = decodeHdfDataType(sdsInfo.getHdfDataType());
                     final Band band = new Band(name, dataType, width, height);
-                    final String validExpression = validExpressionMap.get(name);
+                    final String validExpression = l2BandInfoMap.get(name);
                     if (validExpression != null && !validExpression.equals("")) {
                         band.setValidPixelExpression(validExpression);
                     }
@@ -337,7 +340,7 @@ public class ObpgUtils {
                             }
                             final String flagName = hdfAttribute.getStringValue();
                             final int flagMask = convertToFlagMask(attribName);
-                            flagCoding.addFlag(flagName, flagMask, "");
+                            flagCoding.addFlag(flagName, flagMask, l2FlagsInfoMap.get(flagName));
                         }
                     }
                     if (flagCoding != null) {

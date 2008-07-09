@@ -63,9 +63,10 @@ public class FlagCoding extends SampleCoding {
      * @param flagMask    the flag's bit mask
      * @param description the description text
      * @throws IllegalArgumentException if <code>name</code> is null
+     * @return A new attribute representing the flag.
      */
-    public void addFlag(String name, int flagMask, String description) {
-        addValue(name, flagMask, description);
+    public MetadataAttribute addFlag(String name, int flagMask, String description) {
+        return addSample(name, flagMask, description);
     }
 
     /**

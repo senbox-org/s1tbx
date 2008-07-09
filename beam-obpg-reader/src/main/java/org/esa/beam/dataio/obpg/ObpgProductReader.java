@@ -74,6 +74,10 @@ public class ObpgProductReader extends AbstractProductReader {
 
         try {
             try {
+                final HashMap<String, String> l2BandInfoMap = getL2BandInfoMap();
+                final HashMap<String, String> l2FlagsInfoMap = getL2FlagsInfoMap();
+                final BitmaskDef[] defs = getDefaultBitmaskDefs(l2FlagsInfoMap);
+
                 final File inFile = ObpgUtils.getInputFile(getInput());
                 final String path = inFile.getPath();
                 fileId = obpgUtils.openHdfFileReadOnly(path);
@@ -84,9 +88,9 @@ public class ObpgProductReader extends AbstractProductReader {
                 obpgUtils.addGlobalMetadata(product, globalAttributes);
                 final SdsInfo[] sdsInfos = obpgUtils.extractSdsData(sdStart);
                 obpgUtils.addScientificMetadata(product, sdsInfos);
-                readerMap = obpgUtils.addBands(product, sdsInfos, getValidExpressionMap());
+                readerMap = obpgUtils.addBands(product, sdsInfos, l2BandInfoMap, l2FlagsInfoMap);
                 obpgUtils.addGeocoding(product, sdsInfos, mustFlip);
-                obpgUtils.addBitmaskDefinitions(product, getDefaultBitmaskDefs());
+                obpgUtils.addBitmaskDefinitions(product, defs);
                 return product;
             } finally {
                 obpgUtils.closeHdfFile(fileId);
@@ -154,7 +158,7 @@ public class ObpgProductReader extends AbstractProductReader {
         }
     }
 
-    private static BitmaskDef[] getDefaultBitmaskDefs() {
+    private static BitmaskDef[] getDefaultBitmaskDefs(HashMap<String, String> l2FlagsInfoMap) {
         final InputStream stream = ObpgProductReader.class.getResourceAsStream("l2-bitmask-definitions.xml");
         if (stream != null) {
             try {
@@ -166,7 +170,10 @@ public class ObpgProductReader extends AbstractProductReader {
                 final ArrayList<BitmaskDef> bitmaskDefList = new ArrayList<BitmaskDef>(children.size());
                 for (Object aChildren : children) {
                     Element element = (Element) aChildren;
-                    bitmaskDefList.add(BitmaskDef.createBitmaskDef(element));
+                    final BitmaskDef bitmaskDef = BitmaskDef.createBitmaskDef(element);
+                    final String description = l2FlagsInfoMap.get(bitmaskDef.getName());
+                    bitmaskDef.setDescription(description);
+                    bitmaskDefList.add(bitmaskDef);
                 }
                 return bitmaskDefList.toArray(new BitmaskDef[bitmaskDefList.size()]);
             } catch (Exception e) {
@@ -182,8 +189,16 @@ public class ObpgProductReader extends AbstractProductReader {
         return new BitmaskDef[0];
     }
 
-    private synchronized static HashMap<String, String> getValidExpressionMap() throws IOException {
-        final InputStream stream = ObpgProductReader.class.getResourceAsStream("l2-band-info.csv");
+    private synchronized static HashMap<String, String> getL2BandInfoMap() {
+        return readTwoColumnTable("l2-band-info.csv");
+    }
+
+    private synchronized static HashMap<String, String> getL2FlagsInfoMap() {
+        return readTwoColumnTable("l2-flags-info.csv");
+    }
+
+    private static HashMap<String, String> readTwoColumnTable(String resourceName)  {
+        final InputStream stream = ObpgProductReader.class.getResourceAsStream(resourceName);
         if (stream != null) {
             try {
                 HashMap<String, String> validExpressionMap = new HashMap<String, String>(32);
@@ -198,9 +213,14 @@ public class ObpgProductReader extends AbstractProductReader {
             } catch (IOException e) {
                 // ?
             } finally {
-                stream.close();
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    // ok
+                }
             }
         }
         return new HashMap<String, String>(0);
     }
+
 }

@@ -46,8 +46,9 @@ public class SampleCoding extends MetadataElement {
      * @param value       the value
      * @param description the description text
      * @throws IllegalArgumentException if <code>name</code> is null
+     * @return A new attribute representing the coded sample.
      */
-    public void addValue(String name, int value, String description) {
+    public MetadataAttribute addSample(String name, int value, String description) {
         Guardian.assertNotNull("name", name);
         MetadataAttribute attribute = new MetadataAttribute(name, ProductData.TYPE_INT32);
         attribute.setDataElems(new int[]{value});
@@ -55,6 +56,7 @@ public class SampleCoding extends MetadataElement {
             attribute.setDescription(description);
         }
         addAttribute(attribute);
+        return attribute;
     }
 
     /**

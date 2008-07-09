@@ -64,15 +64,10 @@ public class IndexCoding extends SampleCoding {
      * @param value       the index value
      * @param description the description text
      * @throws IllegalArgumentException if <code>name</code> is null
+     * @return A new attribute representing the coded index. 
      */
-    public void addIndex(String name, int value, String description) {
-        Guardian.assertNotNull("name", name);
-        MetadataAttribute attribute = new MetadataAttribute(name, ProductData.TYPE_INT32);
-        attribute.setDataElems(new int[]{value});
-        if (description != null) {
-            attribute.setDescription(description);
-        }
-        addAttribute(attribute);
+    public MetadataAttribute addIndex(String name, int value, String description) {
+        return addSample(name, value, description);
     }
 
     /**
