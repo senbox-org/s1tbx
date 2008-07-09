@@ -1,27 +1,22 @@
 package org.esa.beam.cluster.visat;
 
-import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.gpf.ui.DefaultSingleTargetProductDialog;
+import org.esa.beam.framework.ui.ModelessDialog;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.visat.actions.AbstractVisatAction;
 
 public class ClucovClusterAnalysisAction extends AbstractVisatAction {
 
-    @Override
-    public void updateState(CommandEvent commandEvent) {
-        Product selectedProduct = getAppContext().getSelectedProduct();
-        setEnabled(selectedProduct != null);
-    }
-
+    private ModelessDialog dialog;
 
     @Override
     public void actionPerformed(final CommandEvent event) {
-        Product selectedProduct = getAppContext().getSelectedProduct();
-        if (selectedProduct != null) {
-            DefaultSingleTargetProductDialog productDialog =
-                    new DefaultSingleTargetProductDialog("ClucovClusterAnalysis", getAppContext(), "Clucov Cluster Analysis", null);
-            productDialog.setTargetProductNameSuffix("_clucov");
-            productDialog.show();
+        if (dialog == null) {
+            DefaultSingleTargetProductDialog dstpDialog = 
+                new DefaultSingleTargetProductDialog("ClucovClusterAnalysis", getAppContext(), "Clucov Cluster Analysis", null);
+            dstpDialog.setTargetProductNameSuffix("_clucov");
+            dialog = dstpDialog;
         }
+        dialog.show();
     }
 }
