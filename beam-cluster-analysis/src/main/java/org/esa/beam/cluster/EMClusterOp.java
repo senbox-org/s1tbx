@@ -14,11 +14,16 @@
  */
 package org.esa.beam.cluster;
 
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
+import java.awt.Rectangle;
+import java.io.IOException;
+import java.util.Comparator;
+import java.util.Map;
+
+import javax.media.jai.ROI;
+
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.IndexCoding;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
+import org.esa.beam.framework.datamodel.MetadataElement;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
@@ -32,12 +37,8 @@ import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.StringUtils;
 
-import javax.media.jai.ROI;
-import java.awt.Rectangle;
-import java.io.IOException;
-import java.text.NumberFormat;
-import java.util.Comparator;
-import java.util.Map;
+import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.core.SubProgressMonitor;
 
 /**
  * Operator for cluster analysis.
@@ -83,6 +84,7 @@ public class EMClusterOp extends Operator {
     private transient Band clusterMapBand;
     private transient Band[] probabilityBands;
     private transient ROI roi;
+    private transient MetadataElement clusterAnalysis;
     private EMClusterSet clusterSet;
 
     public EMClusterOp() {
@@ -135,6 +137,9 @@ public class EMClusterOp extends Operator {
         }
         targetProduct.getIndexCodingGroup().add(indexCoding);
         clusterMapBand.setSampleCoding(indexCoding);
+        
+        clusterAnalysis = new MetadataElement("Cluster_Analysis");
+        targetProduct.getMetadataRoot().addElement(clusterAnalysis);
 
         setTargetProduct(targetProduct);
     }
@@ -255,24 +260,15 @@ public class EMClusterOp extends Operator {
                 } else {
                     clusterSet = clusterer.getClusters(clusterComparator);
                 }
-                
-                
-                NumberFormat numberFormat = NumberFormat.getInstance();
-                numberFormat.setMaximumFractionDigits(3);
+                double[][] means = new double[clusterCount][0];
                 for (int i = 0; i < clusterCount; i++) {
-                    double[] means = clusterSet.getMean(i);
-                    MetadataAttribute attribute = clusterMapBand.getIndexCoding().getAttributeAt(i);
-                    String description = "Cluster " + i + ", Center=(";
-                    for (int j = 0; j < sourceBands.length; j++) {
-                        String number = numberFormat.format(means[j]);
-                        description += sourceBands[j].getName()+"="+number;
-                        if (j != sourceBands.length-1) {
-                            description += ", ";
-                        }
-                    }
-                    description += ")";
-                    attribute.setDescription(description);
+                    means[i] = clusterSet.getMean(i);
                 }
+                ClusterMetaDataUtils.addCenterToIndexCoding(
+                        clusterMapBand.getIndexCoding(), sourceBands, means);
+                ClusterMetaDataUtils.addCenterToMetadata(
+                        clusterAnalysis, sourceBands, means);
+                
             } catch (IOException e) {
                 throw new OperatorException(e);
             } finally {
