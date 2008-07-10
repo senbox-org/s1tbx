@@ -34,9 +34,56 @@
             <mnemonic>O</mnemonic>
             <text>Import NASA OBPG Level-2 (MODIS,OCTS,CZCS,SeaWiFS) Product...</text>
             <shortDescr>Import a NASA OBPG Level-2 (MODIS,OCTS,CZCS,SeaWiFS) data product or subset.</shortDescr>
-            <description>Import a NASA OBPG Level-2 (MODIS,OCTS,CZCS,SeaWiFS) data product or product subset.</description>
+            <description>Import a NASA OBPG Level-2 (MODIS,OCTS,CZCS,SeaWiFS) data product or product subset.
+            </description>
             <helpId>importObpgProduct</helpId>
         </action>
     </extension>
+
+    <extension point="beam-core:rgbProfiles">
+        <rgbProfile>
+            <name>NASA OBPG SeaWiFS L2</name>
+            <red>nLw_670</red>
+            <green>nLw_510</green>
+            <blue>nLw_443</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>NASA OBPG MODIS L2</name>
+            <red>nLw_667</red>
+            <green>nLw_531</green>
+            <blue>nLw_443</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>NASA OBPG OCTS/CZCS L2</name>
+            <red>nLw_670</red>
+            <green>nLw_520</green>
+            <blue>nLw_443</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>NASA OBPG SeaWiFS L2 Tristimulus</name>
+            <red>log(1 + 0.2*nLw_443 + 1.1*nLw_670)</red>
+            <green>log(1 + 0.2*nLw_443 + 0.4*nLw_510 + 0.4*nLw_555)</green>
+            <blue>log(1 + 1.85*nLw_443)</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>NASA OBPG MODIS L2 Tristimulus</name>
+            <red>log(1 + 0.2*nLw_443 + 1.1*nLw_670)</red>
+            <green>log(1 + 0.2*nLw_443 + 0.4*nLw_531 + 0.4*nLw_551)</green>
+            <blue>log(1 + 1.85*nLw_443)</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>NASA OBPG OCTS L2 Tristimulus</name>
+            <red>log(1 + 0.2*nLw_443 + 1.1*nLw_670)</red>
+            <green>log(1 + 0.2*nLw_443 + 0.4*nLw_520 + 0.4*nLw_565)</green>
+            <blue>log(1 + 1.85*nLw_443)</blue>
+        </rgbProfile>
+        <rgbProfile>
+            <name>NASA OBPG CZCS L2 Tristimulus</name>
+            <red>log(1 + 0.2*nLw_443 + 1.1*nLw_670)</red>
+            <green>log(1 + 0.2*nLw_443 + 0.4*nLw_520 + 0.4*nLw_550)</green>
+            <blue>log(1 + 1.85*nLw_443)</blue>
+        </rgbProfile>
+    </extension>
+
 
 </module>
