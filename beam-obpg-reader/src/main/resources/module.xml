@@ -2,15 +2,14 @@
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-obpg-reader</symbolicName>
     <version>1.0</version>
-    <name>NASA OBPG Level-2 Data Product Reader</name>
-    <description>A reader for NASA OBPG (Ocean Biology Processing Group) Level-2 Data Products</description>
+    <name>NASA Ocean Color Product Reader</name>
+    <description>A reader for NASA Ocean Color (HDF) Level-2 Data Products</description>
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
     <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
-    <url>http://envisat.esa.int/beam</url>
+    <url>http://oceancolor.gsfc.nasa.gov/</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
-
 
     <dependency>
         <module>beam-core</module>
@@ -32,9 +31,9 @@
             <formatName>NASA-OBPG</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>O</mnemonic>
-            <text>Import NASA OBPG Level-2 (MODIS,OCTS,CZCS,SeaWiFS) Product...</text>
-            <shortDescr>Import a NASA OBPG Level-2 (MODIS,OCTS,CZCS,SeaWiFS) data product or subset.</shortDescr>
-            <description>Import a NASA OBPG Level-2 (MODIS,OCTS,CZCS,SeaWiFS) data product or product subset.
+            <text>Import NASA Ocean Color (MODIS,OCTS,CZCS,SeaWiFS) Product...</text>
+            <shortDescr>Import a NASA Ocean Color data product or subset.</shortDescr>
+            <description>Import a NASA Ocean Color (MODIS,OCTS,CZCS,SeaWiFS) data product or product subset.
             </description>
             <helpId>importObpgProduct</helpId>
         </action>

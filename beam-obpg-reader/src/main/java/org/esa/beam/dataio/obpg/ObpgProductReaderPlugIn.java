@@ -32,7 +32,7 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
 //    private static final String HDF4_PROPERTY_KEY = "ncsa.hdf.hdflib.HDFLibrary.hdflib";
 
     public static final String DEFAULT_FILE_EXTENSION = ".hdf";
-    public static final String READER_DESCRIPTION = "NASA OBPG Level-2 Data Products";
+    public static final String READER_DESCRIPTION = "NASA Ocean Color (OBPG) Products";
     public static final String FORMAT_NAME = "NASA-OBPG";
 
     private static final String[] magicStrings = {
