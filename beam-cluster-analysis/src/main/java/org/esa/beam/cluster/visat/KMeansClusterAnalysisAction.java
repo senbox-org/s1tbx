@@ -12,8 +12,9 @@ public class KMeansClusterAnalysisAction extends AbstractVisatAction {
     @Override
     public void actionPerformed(final CommandEvent event) {
         if (dialog == null) {
-            DefaultSingleTargetProductDialog dstpDialog = 
-                new DefaultSingleTargetProductDialog("KMeansClusterAnalysis", getAppContext(), "K-Means Cluster Analysis", null);
+            DefaultSingleTargetProductDialog dstpDialog =
+                    new DefaultSingleTargetProductDialog("KMeansClusterAnalysis", getAppContext(),
+                                                         "K-Means Cluster Analysis", "clusterAnalysisKMeans");
             dstpDialog.setTargetProductNameSuffix("_kmeans");
             dialog = dstpDialog;
         }

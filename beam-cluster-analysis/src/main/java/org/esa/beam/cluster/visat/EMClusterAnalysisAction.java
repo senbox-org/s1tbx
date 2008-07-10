@@ -12,8 +12,9 @@ public class EMClusterAnalysisAction extends AbstractVisatAction {
     @Override
     public void actionPerformed(final CommandEvent event) {
         if (dialog == null) {
-            DefaultSingleTargetProductDialog dstpDialog = 
-                new DefaultSingleTargetProductDialog("EMClusterAnalysis", getAppContext(), "EM Cluster Analysis", null);
+            DefaultSingleTargetProductDialog dstpDialog =
+                    new DefaultSingleTargetProductDialog("EMClusterAnalysis", getAppContext(), "EM Cluster Analysis",
+                                                         "clusterAnalysisEM");
             dstpDialog.setTargetProductNameSuffix("_em");
             dialog = dstpDialog;
         }
