@@ -55,7 +55,64 @@ o VISAT user interface improvements
 
 2) Other changes (consult BEAM issue tracker for detailed information)
 
-TODO
+BEAM-837 	Search in VISAT Help does not work
+BEAM-836 	Update product header if changed during computation
+BEAM-833 	GPT computes incomplete output rasters
+BEAM-832 	Coordinate list does not consider "No Data" correctly
+BEAM-831 	Export transect pixels does not consider no-data value
+BEAM-830 	Compute ROI area does not finish
+BEAM-829 	Geo-position of pins is not updated if geo-coding changes
+BEAM-827 	Standard dialogs for operators should be modeless
+BEAM-826 	Support for user defined layout
+BEAM-825 	Use JFreeChart for plots in staistic dialogs
+BEAM-822 	GPT crash with virtual bands
+BEAM-821 	MERIS L3 MGVI cannot be opened in BEAM
+BEAM-820 	Deactivate auto docking of tool views by default
+BEAM-819 	Newly opened products should not be expanded
+BEAM-818 	Rename menu entry to Radiance to TOA Reflectance Conversion
+BEAM-812 	Closing product causes Exception in ScatterPlot
+BEAM-811 	Graph should contain an application specific data section
+BEAM-810 	Provide VISAT application framework
+BEAM-808 	L3 processor doesn't set no-data value of output bands
+BEAM-806 	Default aggregation algorithm should be "Arithmetic Mean" in L3 processor
+BEAM-805 	Valid pixel expression field in L3 processor GUI should be an editable field
+BEAM-803 	Add support for all ASAR products and format versions
+BEAM-801 	TiePointGeoCoding should consider non-linear distribution of longitude values across-track
+BEAM-800 	Graph xml shall support id/refid syntax
+BEAM-799 	Introduce version element in graph xml
+BEAM-796 	Index coding for classification bands
+BEAM-795 	Computation of target properties
+BEAM-792 	Control setting of operator parameter default values
+BEAM-790 	Inherited parameter annotations of GPF operators ignored
+BEAM-787 	C-Function code for x approximation is printed twice
+BEAM-780 	Auto-generated GUI prompts for overwrite although target is not written
+BEAM-779 	Auto-generated GUI does not take over parameters
+BEAM-776 	Provide TileIterator to loop over all tile pixels
+BEAM-775 	"Write" operator not invoked if last node in graph
+BEAM-774 	gpt reports NullPointerException if called on a graph without parameters
+BEAM-773 	gpt shall no longer log warnings to console
+BEAM-770 	gpt prints stack trace when invoked without sources
+BEAM-768 	Envisat Reader shall read all types of DSDs
+BEAM-767 	Band arithmetic shall handle String types
+BEAM-764 	METOP AVHRR product have start and stop time from parent product
+BEAM-763 	Splash screen shall not be top-most
+BEAM-759 	Clearing empty endmember list leads to an exception
+BEAM-757 	Layout of help pages is not uniform
+BEAM-738 	Toolwindows sometimes disappear
+BEAM-735 	Not able to orthorectify MERIS_FRS products
+BEAM-731 	Shape-to-ROI creates initially no ROI
+BEAM-726 	Memory not fully released after closing a product
+BEAM-718 	Show all product formats in reopen menu
+BEAM-710 	Not able to copy a product using new product dialog
+BEAM-709 	Open dialog should use 'All Files' as default filter
+BEAM-694 	Bandarithmetic gives acces to latitude and longitude using the provided geocoding
+BEAM-693 	ROI not visible if converted from shape
+BEAM-655 	Fail to open MERIS L3 4.6 km sinusoidal grid
+BEAM-530 	Explicit declaration of sources, targets and parameters in graph xml
+BEAM-523 	Memory leak after closing a product subset
+BEAM-504 	Exchange existing diagrams by more professional ones
+BEAM-45 	An exeption appears on the console if you try to import the ATS_AR__2PTRAL product
+
 
 _____________________________________________________________________________
 
