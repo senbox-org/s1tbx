@@ -101,10 +101,9 @@ public class DefaultSingleTargetProductDialog extends SingleTargetProductDialog 
         if (valueContainer.getModels().length > 0) {
             BindingContext context = new BindingContext(valueContainer);
             ParametersPane parametersPane = new ParametersPane(context);
-            JComponent processingParametersPanel = new JScrollPane(parametersPane.createPanel());
-            processingParametersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
-            this.form.add("Processing Parameters", processingParametersPanel);
-            
+            final JPanel paremetersPanel = parametersPane.createPanel();
+            paremetersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
+            this.form.add("Processing Parameters", new JScrollPane(paremetersPanel));
             
             for (final Field field : sourceProductSelectorMap.keySet()) {
                 final SourceProductSelector sourceProductSelector = sourceProductSelectorMap.get(field);
