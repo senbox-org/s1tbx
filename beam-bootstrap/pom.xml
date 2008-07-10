@@ -65,7 +65,7 @@
         </dependency>
         <dependency>
             <groupId>javax.help</groupId>
-            <artifactId>jhall</artifactId>
+            <artifactId>javahelp</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.media.jai</groupId>

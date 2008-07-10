@@ -32,6 +32,10 @@
             <artifactId>beam-core</artifactId>
         </dependency>
         <dependency>
+            <groupId>javax.help</groupId>
+            <artifactId>javahelp</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.jidesoft</groupId>
             <artifactId>jide-dock</artifactId>
         </dependency>

@@ -35,7 +35,7 @@
             <id>exportGeoTIFFProduct</id>
             <class>org.esa.beam.visat.actions.ProductExportAction</class>
             <formatName>GEOTIFF</formatName>
-            <text>Export GeoTIFF Product (or Subset)...</text>
+            <text>Export GeoTIFF Product...</text>
             <mnemonic>G</mnemonic>
             <shortDescr>Export product to GeoTIFF format.</shortDescr>
             <description>Export the selected product to GeoTIFF format.</description>

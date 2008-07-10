@@ -23,10 +23,6 @@
             <artifactId>ceres-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.help</groupId>
-            <artifactId>jhall</artifactId>
-        </dependency>
-        <dependency>
             <groupId>javax.media.jai</groupId>
             <artifactId>jai-core</artifactId>
         </dependency>

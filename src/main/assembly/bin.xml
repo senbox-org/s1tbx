@@ -130,7 +130,7 @@
                             <include>com.sun.media:jai-imageio</include>
                             <include>Jama:Jama</include>
                             <include>jdom:jdom</include>
-                            <include>javax.help:jhall</include>
+                            <include>javax.help:javahelp</include>
                             <include>com.jidesoft:jide-action</include>
                             <include>com.jidesoft:jide-common</include>
                             <include>com.jidesoft:jide-components</include>

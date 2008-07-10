@@ -1,4 +1,4 @@
-<project name="beam-ant-support" basedir=".">
+<project name="beam-javahelp-index" basedir=".">
 
     <!--
         use the build.properties file to set, for instance, the jhindexer path:

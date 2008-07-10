@@ -32,8 +32,9 @@
             <formatName>NASA-OBPG</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>O</mnemonic>
-            <shortDescr>Import a NASA OBPG Level-2 data product or subset.</shortDescr>
-            <description>Import a NASA OBPG Level-2 data product or product subset.</description>
+            <text>Import NASA OBPG Level-2 (MODIS,OCTS,CZCS,SeaWiFS) Product...</text>
+            <shortDescr>Import a NASA OBPG Level-2 (MODIS,OCTS,CZCS,SeaWiFS) data product or subset.</shortDescr>
+            <description>Import a NASA OBPG Level-2 (MODIS,OCTS,CZCS,SeaWiFS) data product or product subset.</description>
             <helpId>importObpgProduct</helpId>
         </action>
     </extension>

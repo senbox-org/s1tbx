@@ -2,10 +2,10 @@
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-modis-reader</symbolicName>
     <version>1.0</version>
-    <name>MODIS Level-2 Product Reader</name>
+    <name>MODIS (MOD,MXD,MYD) Product Reader</name>
 
 
-    <description>A reader for MODIS Level-2 data products.</description>
+    <description>A reader for MODIS (MOD,MXD,MYD) products.</description>
 
     <vendor>Brockmann Consult GmbH</vendor>
     <contactAddress>Max Planck Str.2, 21502 Geesthacht (Germany)</contactAddress>
@@ -31,11 +31,12 @@
         <action>
             <id>importModisProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
+            <text>Import MODIS (MOD,MXD,MYD) Product...</text>
             <formatName>MODIS</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>M</mnemonic>
             <shortDescr>Import a MODIS data product data product or product subset.</shortDescr>
-            <description>Import a MODIS data product data product or product subset.</description>
+            <description>Import a MODIS (MOD, MXD, MYD) data product data product or product subset.</description>
             <helpId>importModisProduct</helpId>
         </action>
     </extension>

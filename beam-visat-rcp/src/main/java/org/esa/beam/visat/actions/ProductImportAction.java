@@ -110,7 +110,7 @@ public class ProductImportAction extends ExecCommand {
 
         String text = getText();
         if (text == null) {
-            setText("Import " + formatName + " Product (or Subset)...");
+            setText("Import " + getFormatName() + " Product...");
         }
 
         String parent = getParent();
@@ -158,15 +158,19 @@ public class ProductImportAction extends ExecCommand {
             }
         } else {
             // if readerPlugin not specified, try to find it by formatName
-            Iterator iter = ProductIOPlugInManager.getInstance().getReaderPlugIns(formatName);
+            Iterator iter = ProductIOPlugInManager.getInstance().getReaderPlugIns(getFormatName());
             if (iter.hasNext()) {
                 readerPlugIn = (ProductReaderPlugIn) iter.next();
             } else {
                 readerPlugIn = null;
                 BeamLogManager.getSystemLogger().severe(
-                        "no reader plug-in installed for products of type '" + formatName + "'");
+                        "no reader plug-in installed for products of type '" + getFormatName() + "'");
             }
         }
+    }
+
+    private String getFormatName() {
+        return formatName;
     }
 
     private void setFormatName(String formatName) {
@@ -258,7 +262,7 @@ public class ProductImportAction extends ExecCommand {
                             visatApp.showErrorDialog("File is empty:\n" + file.getPath());
                             file = null;
                         } else if (isFileOfFormat(file, DimapProductConstants.DIMAP_FORMAT_NAME)
-                                   && !formatName.equals(DimapProductConstants.DIMAP_FORMAT_NAME)) {
+                                   && !getFormatName().equals(DimapProductConstants.DIMAP_FORMAT_NAME)) {
                             visatApp.showInfoDialog(
                                     "The selected file\n"
                                     + "'" + file.getPath() + "'\n"

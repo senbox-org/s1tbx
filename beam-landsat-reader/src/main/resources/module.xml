@@ -33,7 +33,7 @@
             <id>importLandsatTMProduct</id>
             <class>org.esa.beam.visat.actions.ProductImportAction</class>
             <parent>import</parent>
-            <text>Import LANDSAT 5 TM Product (or Subset)...</text>
+            <text>Import LANDSAT 5 TM (FAST) Product...</text>
             <formatName>FAST L5</formatName>
             <useAllFileFilter>true</useAllFileFilter>
             <mnemonic>L</mnemonic>

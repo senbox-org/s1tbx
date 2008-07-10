@@ -11,7 +11,7 @@
 
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-modis-reader</artifactId>
-    <name>MODIS Level-2 Product Reader</name>
+    <name>MODIS (MOD,MXD,MYD) Product Reader</name>
     <version>1.0</version>
     <url>http://envisat.esa.int/beam/</url>
 

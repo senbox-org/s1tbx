@@ -65,9 +65,10 @@
             <helpId>importChrisProduct</helpId>
             <formatName>CHRIS/PROBA</formatName>
             <useAllFileFilter>true</useAllFileFilter>
+            <text>Import CHRIS/Proba Product...</text>
             <mnemonic>M</mnemonic>
-            <shortDescr>Import a CHRIS/PROBA data product or product subset.</shortDescr>
-            <description>Import a CHRIS/PROBA data product or product subset.</description>
+            <shortDescr>Import a CHRIS/Proba data product or product subset.</shortDescr>
+            <description>Import a CHRIS/Proba data product or product subset.</description>
         </action>
     </extension>
 
