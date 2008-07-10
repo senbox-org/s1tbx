@@ -69,6 +69,10 @@
         <module>beam-ui</module>
     </dependency>
     <dependency>
+        <module>beam-help</module>
+        <optional>true</optional>
+    </dependency>
+    <dependency>
         <module>beam-processing</module>
     </dependency>
     <dependency>
@@ -1153,6 +1157,18 @@
             <shortDescr>Opens the BEAM home page.</shortDescr>
             <description>Opens the BEAM home page with the default web browser.</description>
             <placeAfter>helpTopics</placeAfter>
+        </action>
+
+        <action>
+            <id>showDataSources</id>
+            <parent>help</parent>
+            <class>org.esa.beam.visat.actions.ShowDataSourcesAction</class>
+            <text>Access to Data Products</text>
+            <mnemonic>D</mnemonic>
+            <shortDescr>Provides information how different data products are accessed.</shortDescr>
+            <description>Provides information how different data products are accessed.</description>
+            <helpId>showDataSources</helpId>
+            <placeAfter>showHomePage</placeAfter>
         </action>
 
         <action>
