@@ -21,15 +21,14 @@
 
 <p>
     <em>Cluster analysis</em> (or <em>clustering</em>) is the classification of objects into different groups, or more
-    precisely, the
-    partitioning of a data set into subsets (clusters), so that the data in each subset (ideally) share some common
-    trait - often proximity according to some defined distance measure. Data clustering is a common technique for
-    statistical data analysis, which is used in many fields, including machine learning, data mining, pattern
-    recognition, image analysis and bioinformatics. The computational task of classifying the data set into k clusters
-    is often referred to as k-clustering.
+    precisely, the partitioning of a data set into subsets (clusters), so that the data in each subset (ideally) share
+    some common trait - often proximity according to some defined distance measure. Data clustering is a common
+    technique for statistical data analysis, which is used in many fields, including machine learning, data mining,
+    pattern recognition, image analysis and bioinformatics. The computational task of classifying the data set into
+    <em>k</em> clusters is often referred to as <em>k</em>-clustering.
 </p>
 
-<h3>Types of clustering</h3>
+<h5>Types of clustering</h5>
 
 <p>
     Data clustering algorithms can be hierarchical. Hierarchical algorithms find successive clusters using previously
@@ -40,7 +39,7 @@
     algorithms in the hierarchical clustering.
 </p>
 
-<h3>Distance measures</h3>
+<h5>Distance measures</h5>
 
 <p>
     An important step in any clustering is to select a distance measure, which will determine how the similarity of two
@@ -53,24 +52,25 @@
 
 <p>
     Particularly important distance measures are the <em>Euclidean distance</em> (or 2-norm distance), which probably is
-    the most common, and the <em>Mahalanobis</em> distance, which is similar to the Euclidean distance, but corrects
+    the most common, and the <em>Mahalanobis distance</em>, which is similar to the Euclidean distance, but corrects
     data for different scales and correlations in the variables.
 </p>
 
 <h3>BEAM cluster analysis tools</h3>
 
-<h5><a href="KMeans.html">K-means cluster analysis</a></h5>
+<h5>K-means cluster analysis</h5>
 
 <p>
-    The <a href="KMeans.html">K-means</a> algorithm assigns each point to the cluster whose center is nearest. The
-    center is the average of all points in the cluster Ñ that is, its coordinates are the arithmetic mean for each
-    dimension separately over all the points in the cluster. Given the number of clusters <em>k</em>, the basic
-    algorithm (as implemented in BEAM) is:
+    The <a href="KMeans.html">K-means clustering</a> algorithm assigns each point to the cluster whose center
+    is nearest. The center is the average of all points in the cluster Ñ that is, its coordinates are the arithmetic
+    mean for each dimension separately over all the points in the cluster. Given the number of clusters <em>k</em>, the
+    basic algorithm (as implemented in BEAM) is:
 </p>
 <ol>
-    <li>Randomly choose <em>k</em> pixels corresponding to the initial cluster centers.</li>
-    <li>Assign each pixel to the nearest cluster center as defined by the <em>Euclidean distance</em>.</li>
-    <li>Recompute each cluster center as the arithmetic mean of all pixels in the cluster.</li>
+    <li>Randomly choose <em>k</em> pixels whose samples define the initial cluster centers.</li>
+    <li>Assign each pixel to the nearest cluster center as defined by the Euclidean distance.</li>
+    <li>Recalculate the cluster centers as the arithmetic mean of all samples from all pixels in a cluster.
+    </li>
     <li>Repeat steps 2 and 3 until the convergence criterion is met.</li>
 </ol>
 <p>
@@ -81,10 +81,49 @@
 
 <h5>Expectation maximization (EM) cluster analysis</h5>
 
+<p>
+    Simply put, the <a href="EM.html">EM clustering</a> algorithm (as implemented in BEAM) can be regarded as a
+    generalization of the <a href="KMeans.html">K-means algorithm</a>. The main differences are:
+</p>
+<ol>
+    <li>
+        Pixels are not assigned to clusters. The membership of each pixel to any cluster is defined by a (posterior)
+        probability. For each point (or pixel), there are as many (posterior) probability values as there are clusters.
+        For each pixel the sum of (posterior) probability values is equal to unity.
+    </li>
+    <li>
+        Clusters are defined by a center and a covariance matrix. Cluster center and covariance matrix define
+        the Mahalanobis distance between the cluster center and a pixel.
+    </li>
+    <li>
+        For each cluster a pixel likelihood function is defined as a normalized Gaussian function of the Mahalanobis
+        distance between cluster center and pixels.
+    </li>
+    <li>
+        Posterior probabilities as well as cluster centers, covariance matrixes and are recalculated iteratively. In
+        the <em>E-step</em>, for each cluster, the mean posterior probability (or expectated value) is multiplied by
+        the data likelihood function to yield (after normalization) updated posteriors. In an <em>M-step</em> all
+        cluster centers and covariance matrixes are recalculated from the updated posteriors so that the resulting data
+        likelihood function is maximized.
+    </li>
+    <li>
+        When the iteration is completed, each pixel is assigned to the cluster where the posterior probability is
+        maximal.
+    </li>
+</ol>
+<p>
+    The main advantages of this algorithm is that it is not affected by different scales and correlations in the data.
+    Its disadvantage is less runtime speed, which practically limits the applicability to smaller datasets only. An EM
+    iteration never decreases the data likelihood function. However, there is no guarantee that the itaration
+    converges to a global maximum likelihood estimator since for multimodal data distributions an EM algorithm will
+    converge to a local maximum of the observed data likelihood function, which usually is not the global maximum.
+</p>
+
 <h3>Further information</h3>
 
 <p>A good starting point for obtaining further information on cluster analysis terms and algorithms is the <a
-        href="http://en.wikipedia.org/wiki/Data_clustering">Wikipedia entry on data clustering</a>.</p>
+        href="http://en.wikipedia.org/wiki/Data_clustering">Wikipedia entry on data clustering</a>.
+</p>
 
 <br>
 <hr>
