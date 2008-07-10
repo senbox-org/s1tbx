@@ -1152,20 +1152,7 @@
             <mnemonic>B</mnemonic>
             <shortDescr>Opens the BEAM home page.</shortDescr>
             <description>Opens the BEAM home page with the default web browser.</description>
-            <helpId>showDataSources</helpId>
             <placeAfter>helpTopics</placeAfter>
-        </action>
-
-        <action>
-            <id>showDataSources</id>
-            <parent>help</parent>
-            <class>org.esa.beam.visat.actions.ShowDataSourcesAction</class>
-            <text>Access to Data Products</text>
-            <mnemonic>D</mnemonic>
-            <shortDescr>Provides information how different data products are accessed.</shortDescr>
-            <description>Provides information how different data products are accessed.</description>
-            <helpId>showDataSources</helpId>
-            <placeAfter>showHomePage</placeAfter>
         </action>
 
         <action>

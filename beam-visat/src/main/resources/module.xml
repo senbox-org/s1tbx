@@ -77,4 +77,18 @@
         </applicationDescriptor>
     </extension>
 
+    <extension point="beam-ui:actions">
+        <action>
+            <id>showDataSources</id>
+            <parent>help</parent>
+            <class>org.esa.beam.visat.actions.ShowDataSourcesAction</class>
+            <text>Access to Data Products</text>
+            <mnemonic>D</mnemonic>
+            <shortDescr>Provides information how different data products are accessed.</shortDescr>
+            <description>Provides information how different data products are accessed.</description>
+            <helpId>showDataSources</helpId>
+            <placeAfter>showHomePage</placeAfter>
+        </action>
+    </extension>
+
 </module>
