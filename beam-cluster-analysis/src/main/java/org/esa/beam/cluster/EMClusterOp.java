@@ -63,6 +63,9 @@ public class EMClusterOp extends Operator {
     private int clusterCount;
     @Parameter(label = "Number of iterations", defaultValue = "30", interval = "(0,100]")
     private int iterationCount;
+    @Parameter(label = "Random seed", defaultValue = "42",
+            description = "Seed for the random generator, used for initialising the algorithm.")
+    private int randomSeed;
     @Parameter(label = "Source band names",
                description = "The names of the bands being used for the cluster analysis.",
                sourceProductId = "source")
@@ -319,7 +322,7 @@ public class EMClusterOp extends Operator {
             pm.done();
         }
 
-        return new EMClusterer(points, clusterCount);
+        return new EMClusterer(points, clusterCount, randomSeed);
     }
 
     public static class Spi extends OperatorSpi {

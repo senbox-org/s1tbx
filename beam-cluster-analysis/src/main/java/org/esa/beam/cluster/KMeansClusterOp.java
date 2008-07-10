@@ -66,6 +66,9 @@ public class KMeansClusterOp extends Operator {
     private int clusterCount;
     @Parameter(label = "Number of iterations", defaultValue = "30", interval = "(0,100]")
     private int iterationCount;
+    @Parameter(label = "Random seed", defaultValue = "42",
+            description = "Seed for the random generator, used for initialising the algorithm.")
+    private int randomSeed;
     @Parameter(label = "Source band names",
                description = "The names of the bands being used for the cluster analysis.",
                sourceProductId = "source")
@@ -215,7 +218,7 @@ public class KMeansClusterOp extends Operator {
 
     private KMeansClusterer createClusterer() {
         final KMeansClusterer clusterer = new KMeansClusterer(clusterCount, sourceBands.length);
-        RandomSceneIter randomSceneIter = new RandomSceneIter(this, sourceBands, roi, 42);
+        RandomSceneIter randomSceneIter = new RandomSceneIter(this, sourceBands, roi, randomSeed);
         if (randomSceneIter.getRoiMemberCount() < clusterCount) {
             throw new IllegalArgumentException("The ROI contains " +
                     randomSceneIter.getRoiMemberCount() + " pixel. These are too few to initialize the clustering.");

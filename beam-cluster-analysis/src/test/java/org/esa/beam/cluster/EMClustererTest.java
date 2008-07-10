@@ -38,7 +38,7 @@ public class EMClustererTest extends TestCase {
                 2, 2, 2, 3, 3, 3, 3, 3,
         });
 
-        final EMClusterSet clusters = EMClusterer.findClusters(points, 4, 10);
+        final EMClusterSet clusters = EMClusterer.findClusters(points, 4, 10, 5489);
         assertEquals(4, clusters.getClusterCount());
 
 //        assertEquals(3.0, clusters.getMean(0)[0], 0.01);

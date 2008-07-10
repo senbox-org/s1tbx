@@ -29,7 +29,6 @@ import java.util.Random;
  */
 public class EMClusterer {
 
-    private static final int SEED = 5489;
     private final int pointCount;
     private final int dimensionCount;
     private final double[][] points;
@@ -50,8 +49,8 @@ public class EMClusterer {
      *
      * @return the cluster decomposition.
      */
-    public static EMClusterSet findClusters(double[][] points, int clusterCount, int iterationCount) {
-        return new EMClusterer(points, clusterCount).findClusters(iterationCount);
+    public static EMClusterSet findClusters(double[][] points, int clusterCount, int iterationCount, int randomSeed) {
+        return new EMClusterer(points, clusterCount, randomSeed).findClusters(iterationCount);
     }
 
     /**
@@ -60,7 +59,7 @@ public class EMClusterer {
      * @param points       the data points.
      * @param clusterCount the number of clusters.
      */
-    public EMClusterer(double[][] points, int clusterCount) {
+    public EMClusterer(double[][] points, int clusterCount, int randomSeed) {
         pointCount = points.length;
         dimensionCount = points[0].length;
         this.points = points;
@@ -72,7 +71,7 @@ public class EMClusterer {
         covariances = new double[clusterCount][dimensionCount][dimensionCount];
         distributions = new Distribution[clusterCount];
 
-        initialize(new Random(SEED));
+        initialize(new Random(randomSeed));
     }
 
     /**
