@@ -258,9 +258,7 @@ class ImageInfoEditor extends JPanel {
         if (getModel() != null && isValidRange()) {
             drawPalette(g2d);
             drawSliders(g2d);
-            if (isHistogramAvailable()) {
-                drawHistogramPane(g2d);
-            }
+            drawHistogramPane(g2d);
         } else {
             FontMetrics fontMetrics = g2d.getFontMetrics();
             drawMissingBasicDisplayInfoMessage(g2d, fontMetrics);
@@ -491,10 +489,12 @@ class ImageInfoEditor extends JPanel {
     }
 
     private void drawHistogram(Graphics2D g2d) {
-        g2d.setColor(Color.black);
-        g2d.setPaint(Color.black);
 
         if (getModel().isHistogramAvailable()) {
+            final Paint oldPaint = g2d.getPaint();
+            g2d.setColor(Color.black);
+            g2d.setPaint(Color.black);
+
             final int[] histogramBins = getModel().getHistogramBins();
             final double maxHistogramCounts = getMaxVisibleHistogramCounts(histogramBins, 1.0 / 16.0);
             final double gain = getModel().getHistogramViewGain();
@@ -527,6 +527,7 @@ class ImageInfoEditor extends JPanel {
                     g2d.fill(r);
                 }
             }
+            g2d.setPaint(oldPaint);
         }
     }
 

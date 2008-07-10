@@ -40,6 +40,10 @@ abstract class ImageInfoEditorModel {
             setMinSample(raster.scale(raster.getStx().getMinSample()));
             setMaxSample(raster.scale(raster.getStx().getMaxSample()));
             setHistogramBins(raster.getStx().getSampleFrequencies());
+        } else {
+            setMinSample(imageInfo.getColorPaletteDef().getMinDisplaySample());
+            setMaxSample(imageInfo.getColorPaletteDef().getMaxDisplaySample());
+            setHistogramBins(null);
         }
         fireStateChanged();
     }

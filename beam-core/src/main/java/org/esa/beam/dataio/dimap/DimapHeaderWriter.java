@@ -281,11 +281,11 @@ public final class DimapHeaderWriter extends XmlWriter {
         Debug.assertNotNull(bands);
         for (int i = 0; i < bands.length; i++) {
             final Band band = bands[i];
-            final ImageInfo imageInfo = band.getImageInfo();
-            if (imageInfo != null) {
+            if (band.getImageInfo() != null || band.getStx() != null) {
                 final String[] bsTags = createTags(indent + 1, DimapProductConstants.TAG_BAND_STATISTICS);
                 sXmlW.println(bsTags[0]);
                 sXmlW.printLine(indent + 2, DimapProductConstants.TAG_BAND_INDEX, i);
+
                 if (band.getStx() != null) {
                     sXmlW.printLine(indent + 2, DimapProductConstants.TAG_STX_MIN, band.scale(band.getStx().getMinSample()));
                     sXmlW.printLine(indent + 2, DimapProductConstants.TAG_STX_MAX, band.scale(band.getStx().getMaxSample()));
@@ -294,19 +294,23 @@ public final class DimapHeaderWriter extends XmlWriter {
                         sXmlW.printLine(indent + 2, DimapProductConstants.TAG_HISTOGRAM, StringUtils.arrayToCsv(bins));
                     }
                 }
-                final ColorPaletteDef paletteDefinition = imageInfo.getColorPaletteDef();
-                sXmlW.printLine(indent + 2, DimapProductConstants.TAG_NUM_COLORS, paletteDefinition.getNumColors());
-                final Iterator iterator = paletteDefinition.getIterator();
-                while (iterator.hasNext()) {
-                    final ColorPaletteDef.Point point = (ColorPaletteDef.Point) iterator.next();
-                    final String[] cppTags = createTags(indent + 2, DimapProductConstants.TAG_COLOR_PALETTE_POINT);
-                    sXmlW.println(cppTags[0]);
-                    sXmlW.printLine(indent + 3, DimapProductConstants.TAG_SAMPLE, point.getSample());
-                    DimapProductHelpers.printColorTag(indent + 3, DimapProductConstants.TAG_COLOR, point.getColor(), sXmlW);
-                    sXmlW.println(cppTags[1]);
+
+                if (band.getImageInfo() != null) {
+                    final ColorPaletteDef paletteDefinition = band.getImageInfo().getColorPaletteDef();
+                    sXmlW.printLine(indent + 2, DimapProductConstants.TAG_NUM_COLORS, paletteDefinition.getNumColors());
+                    final Iterator iterator = paletteDefinition.getIterator();
+                    while (iterator.hasNext()) {
+                        final ColorPaletteDef.Point point = (ColorPaletteDef.Point) iterator.next();
+                        final String[] cppTags = createTags(indent + 2, DimapProductConstants.TAG_COLOR_PALETTE_POINT);
+                        sXmlW.println(cppTags[0]);
+                        sXmlW.printLine(indent + 3, DimapProductConstants.TAG_SAMPLE, point.getSample());
+                        DimapProductHelpers.printColorTag(indent + 3, DimapProductConstants.TAG_COLOR, point.getColor(), sXmlW);
+                        sXmlW.println(cppTags[1]);
+                    }
+                    DimapProductHelpers.printColorTag(indent + 2, DimapProductConstants.TAG_NO_DATA_COLOR, band.getImageInfo().getNoDataColor(), sXmlW);
+                    sXmlW.printLine(indent + 2, DimapProductConstants.TAG_HISTOGRAM_MATCHING, band.getImageInfo().getHistogramMatching().toString());
                 }
-                DimapProductHelpers.printColorTag(indent + 2, DimapProductConstants.TAG_NO_DATA_COLOR, imageInfo.getNoDataColor(), sXmlW);
-                sXmlW.printLine(indent + 2, DimapProductConstants.TAG_HISTOGRAM_MATCHING, imageInfo.getHistogramMatching().toString());
+
                 sXmlW.println(bsTags[1]);
             }
         }
