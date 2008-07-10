@@ -18,6 +18,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.IndexCoding;
+import org.esa.beam.framework.datamodel.MetadataAttribute;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.gpf.Operator;
@@ -34,6 +35,7 @@ import org.esa.beam.util.StringUtils;
 import javax.media.jai.ROI;
 import java.awt.Rectangle;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.Comparator;
 import java.util.Map;
 
@@ -249,6 +251,24 @@ public class EMClusterOp extends Operator {
                     clusterSet = clusterer.getClusters();
                 } else {
                     clusterSet = clusterer.getClusters(clusterComparator);
+                }
+                
+                
+                NumberFormat numberFormat = NumberFormat.getInstance();
+                numberFormat.setMaximumFractionDigits(3);
+                for (int i = 0; i < clusterCount; i++) {
+                    double[] means = clusterSet.getMean(i);
+                    MetadataAttribute attribute = clusterMapBand.getIndexCoding().getAttributeAt(i);
+                    String description = "Cluster " + i + ", Center=(";
+                    for (int j = 0; j < sourceBands.length; j++) {
+                        String number = numberFormat.format(means[j]);
+                        description += sourceBands[j].getName()+"="+number;
+                        if (j != sourceBands.length-1) {
+                            description += ", ";
+                        }
+                    }
+                    description += ")";
+                    attribute.setDescription(description);
                 }
             } catch (IOException e) {
                 throw new OperatorException(e);
