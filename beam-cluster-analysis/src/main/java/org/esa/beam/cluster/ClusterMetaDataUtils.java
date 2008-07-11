@@ -60,16 +60,21 @@ class ClusterMetaDataUtils {
         }
     }
 
-    public static void addCovarianceToMetadata(MetadataElement clusterAnalysis,
-            double[][][] covariances) {
+    public static void addEMInfoToMetadata(MetadataElement clusterAnalysis,
+            double[][][] covariances, double[] priorProbabilities) {
         int numElements = clusterAnalysis.getNumElements();
         for (int i = 0; i < numElements; i++) {
             MetadataElement element = clusterAnalysis.getElementAt(i);
+            
+            ProductData pData = ProductData.createInstance(new double[] {priorProbabilities[i]});
+            MetadataAttribute pAttribute = new MetadataAttribute("cluster_center.prior_probabilities", pData , true);
+            element.addAttribute(pAttribute);
+            
             double[][] covariance = covariances[i];
             for (int k = 0; k < covariance.length; k++) {
-                ProductData pData = ProductData.createInstance(covariance[k]);
-                MetadataAttribute metadataAttribute = new MetadataAttribute("covariance."+k, pData , true);
-                element.addAttribute(metadataAttribute);
+                ProductData cData = ProductData.createInstance(covariance[k]);
+                MetadataAttribute cAttribute = new MetadataAttribute("covariance."+k, cData , true);
+                element.addAttribute(cAttribute);
             }
         }
         

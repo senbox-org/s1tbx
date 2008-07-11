@@ -262,18 +262,20 @@ public class EMClusterOp extends Operator {
                 }
                 double[][] means = new double[clusterCount][0];
                 double[][][] covariances = new double[clusterCount][0][0];
+                double[] priorProbabilities = new double[clusterCount];
                 for (int i = 0; i < clusterCount; i++) {
                     means[i] = clusterSet.getMean(i);
                     EMCluster cluster = clusterSet.getEMCluster(i);
                     MultinormalDistribution distribution = (MultinormalDistribution) cluster.getDistribution();
                     covariances[i] = distribution.getCovariances();
+                    priorProbabilities[i] = cluster.priorProbability;
                 }
                 ClusterMetaDataUtils.addCenterToIndexCoding(
                         clusterMapBand.getIndexCoding(), sourceBands, means);
                 ClusterMetaDataUtils.addCenterToMetadata(
                         clusterAnalysis, sourceBands, means);
-                ClusterMetaDataUtils.addCovarianceToMetadata(
-                        clusterAnalysis, covariances);
+                ClusterMetaDataUtils.addEMInfoToMetadata(
+                        clusterAnalysis, covariances, priorProbabilities);
                 
             } catch (IOException e) {
                 throw new OperatorException(e);
