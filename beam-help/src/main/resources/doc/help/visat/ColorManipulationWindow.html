@@ -78,7 +78,7 @@
 <p align="center"><img src="images/ColManip1BS.png"></p>
 
 
-<h4>Palette Modifications</h4>
+<h4>Colour Palette Modifications</h4>
 
 <p> As the white diagonal line above the histogram indicates, the colour palette will
     be linearily applied to the samples of the source band of the current <a href="ProductSceneView.html">image view</a>.
@@ -91,8 +91,8 @@
 
 <p>Slider colours are changed by clicking a slider. A popup window appears, where you can select the new colour.
     If you select <b>None</b>, a fully transparent slider results. In the <b>More Options</b> panels you can adjust the
-    <b><a href="#nodata">No-Data Colour</a> and apply a
-        <b><a href="#histomatch">Histogram Matching</a></b> to enhance the contrast of the final image.</b>.
+    <b><a href="#nodata">No-Data Colour</a></b> and apply a
+        <b><a href="#histomatch">Histogram Matching</a></b> to enhance the contrast of the final image.
 </p>
 
 <p> If you right-click on a slider, a context menu will pop up. The available actions are
@@ -138,7 +138,7 @@
 </p>
 
 
-<h3>Common functions</h3>
+<h3>Common Functions</h3>
 
 <h4><a name="nodata"/>No-Data Colour</h4>
 
@@ -153,7 +153,15 @@
     histogram matching to images which can often improve image quality.
 </p>
 
-<h4>Import and Export of the Color Palette</h4>
+<h4><a name="multiassign"/>Multiple Assignment of the current Settings</h4>
+
+<p>
+    A click on the <img src="images/icons/MultiAssign24.gif"> icon opens a dialog where you can select
+    the bands to which you can assign the current colour palette. If the destination band has a similar
+    pixel value range, the slider positions are exacly preserved otherwise they are proportionally distributed
+    over the valid range of the destination band.</p>
+
+<h4>Import and Export of the Colour Palette</h4>
 
 <p> Click the <img src="images/icons/Import24.gif"> icon to import colour palette definition files and the <img
         src="images/icons/Export24.gif"> icon to export the current colour manipulation settings.
@@ -173,13 +181,6 @@
     import/export file choosers in the colour manipulation window dialog use this folder by default.
 </p>
 
-<h4><a name="multiassign"/>Multiple Assignment of the current Settings</h4>
-
-<p>
-    A click on the <img src="images/icons/MultiAssign24.gif"> icon opens a dialog where you can select
-    the bands to which you can assign the current colour palette. If the destination band has a similar
-    pixel value range, the slider positions are exacly preserved otherwise they are proportionally distributed
-    over the valid range of the destination band.</p>
 <h4><a name="autoadjust"/>Slider Auto-Adjustment</h4>
 
 <p>

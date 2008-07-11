@@ -1,7 +1,7 @@
                                  CHANGELOG
 
                          MERIS/(A)ATSR Toolbox (BEAM)
-                                Version 4.1
+                                Version 4.2
 
 
 This file contains all significant changes for each BEAM release.
@@ -34,21 +34,17 @@ _____________________________________________________________________________
 o New cluster analysis tools:
   - K-Means (fast)
   - EM, Expectaion Maximisation (slow, but outputs also probablities)
-o Enhanced image color manipulation tools:
+o Enhanced image colour manipulation tool:
   - Editor for classified images (e.g. output from cluster analysis)
   - Continuous and discrete colour palettes
   - No-data pixels can be either transparent or have a special colour
   - Transparency can also be used as colour in a palette
-o Improved statistics plots (using the JFreeChart open-source library):
-  - Zooming in/out of plot
-  - Image export
-  - Printing (also used for e.g. PDF output)
-o New reader for NASA OBPG (Ocean Biology Processing Group) products:
+o New product reader for NASA Ocean Color (OBPG) data products:
   - MODIS A/T Level-2
   - CZCS Level-2
   - OCTS Level-2
   - SeaWiFS Level-2
-o Included new Case-2 Waters Processors
+o Three new MERIS Processors for Case-2 Waters 
   - Case-2 Regional Processor
   - Boreal Lakes Processor
   - Eutrophic Lakes Processor
