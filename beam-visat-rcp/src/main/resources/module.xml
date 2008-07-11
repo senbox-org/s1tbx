@@ -635,16 +635,6 @@
         </action>
 
         <action>
-            <id>exportHdfEosProduct</id>
-            <class>org.esa.beam.visat.actions.ProductExportAction</class>
-            <formatName>HDF-EOS</formatName>
-            <mnemonic>H</mnemonic>
-            <shortDescr>Export product to HDF-EOS format.</shortDescr>
-            <description>Export the selected product to HDF-EOS format.</description>
-            <helpId>exportHdfEosProduct</helpId>
-        </action>
-
-        <action>
             <id>exportDimapProduct</id>
             <class>org.esa.beam.visat.actions.ProductExportAction</class>
             <formatName>BEAM-DIMAP</formatName>
