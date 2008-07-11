@@ -48,6 +48,10 @@ o New reader for NASA OBPG (Ocean Biology Processing Group) products:
   - CZCS Level-2
   - OCTS Level-2
   - SeaWiFS Level-2
+o Included new Case-2 Processors
+  - Case-2 Regional Processor
+  - Boreal Lakes Processor
+  - Eutrophic Lakes Processor
 o VISAT user interface improvements
   - Option to store/restore layout of all tool bars and tool windows
   - While dragging a tool window, annoying auto-docking is now active only
