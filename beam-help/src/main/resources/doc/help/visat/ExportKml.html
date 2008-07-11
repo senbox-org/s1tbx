@@ -19,10 +19,6 @@
 <p>This command allows the export of the loaded image to a KML file.
     Only images from loaded bands, that are in lat/lon projection can be exported.</p>
 
-<p>
-    The save dialog offers the possibility to choose whether pixel containing No-Data values should be
-    drawn transparent or not.</p>
-
 <p>Following features of the product are exported:
     <ul>
         <li>raster data</li>
@@ -30,16 +26,6 @@
         <li>pins</li>
     </ul><p></p>
 
-<p>To get an apealing RGB export from products which compute the red, green and blue bands
-    using a formula a trick is necessary. In a first step a RGB image must be created and
-    the calculated virtual band have to be stored in the product (tick the checkbox at the bottom of the RGB dialog).
-    Then at least for the virtual_red band (better for all three virtual colour bands)
-    either a no-data value or a valid pixel expression has to be set to mask out
-    the border which results from the projection.
-    For land or ocean products the appropriate flags must be taken into account, too.
-    As a final step a new RGB image has to be created using these three virtual bands.
-</p>
-<img src="images/ExportKmlDialog.jpg" width="507" height="431"> 
 <hr>
 
 <p>
