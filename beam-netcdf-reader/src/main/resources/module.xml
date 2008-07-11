@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-netcdf-reader</symbolicName>
-    <version>1.0.100-SNAPSHOT</version>
+    <version>1.0.100</version>
     <name>NetCDF Product Reader</name>
     <description>
         A product reader for NetCDF files conforming to the

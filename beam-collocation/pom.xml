@@ -8,13 +8,13 @@
     <parent>
         <artifactId>beam</artifactId>
         <groupId>org.esa.beam</groupId>
-        <version>4.2-SNAPSHOT</version>
+        <version>4.2</version>
     </parent>
 
     <artifactId>beam-collocation</artifactId>
     <name>BEAM Geographic Collocation Tool</name>
     <groupId>org.esa.beam</groupId>
-    <version>1.0.100-SNAPSHOT</version>
+    <version>1.0.100</version>
 
     <dependencies>
         <dependency>

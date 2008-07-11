@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-diagnostics</symbolicName>
-    <version>4.2-SNAPSHOT</version>
+    <version>4.2</version>
     <name>BEAM Diagnostics Tools</name>
     
     <description>Set of tools supporting performance diagnostics.</description>

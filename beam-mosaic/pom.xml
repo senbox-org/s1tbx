@@ -8,13 +8,13 @@
     <parent>
         <groupId>org.esa.beam</groupId>
         <artifactId>beam</artifactId>
-        <version>4.2-SNAPSHOT</version>
+        <version>4.2</version>
     </parent>
 
     <name>Level-3 Mosaic Processor</name>
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-mosaic</artifactId>
-    <version>2.2.100-SNAPSHOT</version>
+    <version>2.2.100</version>
 
     <packaging>jar</packaging>
 
