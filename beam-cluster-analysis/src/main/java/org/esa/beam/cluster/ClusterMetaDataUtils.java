@@ -33,7 +33,7 @@ class ClusterMetaDataUtils {
         final int numAttributes = indexCoding.getNumAttributes();
         for (int i = 0; i < numAttributes; i++) {
             MetadataAttribute attribute = indexCoding.getAttributeAt(i);
-            String description = "Cluster " + i + ", Center=(";
+            String description = "Cluster " + i + ", Center(";
             for (int j = 0; j < sourceBands.length; j++) {
                 String number = numberFormat.format(means[i][j]);
                 description += sourceBands[j].getName()+"="+number;
@@ -50,14 +50,29 @@ class ClusterMetaDataUtils {
             MetadataElement clusterAnalysis, Band[] sourceBands, double[][] means) {
         
         for (int i = 0; i < means.length; i++) {
-            MetadataElement element = new MetadataElement("cluster_"+i);
+            MetadataElement element = new MetadataElement("class."+i);
             for (int j = 0; j < sourceBands.length; j++) {
                 ProductData pData = ProductData.createInstance(new double[] {means[i][j]});
-                MetadataAttribute metadataAttribute = new MetadataAttribute("center."+sourceBands[j].getName(), pData , true);
+                MetadataAttribute metadataAttribute = new MetadataAttribute("cluster_center."+sourceBands[j].getName(), pData , true);
                 element.addAttribute(metadataAttribute);
             }
             clusterAnalysis.addElement(element);
         }
+    }
+
+    public static void addCovarianceToMetadata(MetadataElement clusterAnalysis,
+            double[][][] covariances) {
+        int numElements = clusterAnalysis.getNumElements();
+        for (int i = 0; i < numElements; i++) {
+            MetadataElement element = clusterAnalysis.getElementAt(i);
+            double[][] covariance = covariances[i];
+            for (int k = 0; k < covariance.length; k++) {
+                ProductData pData = ProductData.createInstance(covariance[k]);
+                MetadataAttribute metadataAttribute = new MetadataAttribute("covariance."+k, pData , true);
+                element.addAttribute(metadataAttribute);
+            }
+        }
+        
     }
 
 }

@@ -125,15 +125,15 @@ public class EMClusterOp extends Operator {
             createProbabilityBands(targetProduct);
         }
 
-        clusterMapBand = new Band("cluster_map", ProductData.TYPE_INT16, width, height);
-        clusterMapBand.setDescription("Cluster map");
+        clusterMapBand = new Band("class_indices", ProductData.TYPE_INT16, width, height);
+        clusterMapBand.setDescription("Class_indices");
         clusterMapBand.setNoDataValue(NO_DATA_VALUE);
         clusterMapBand.setNoDataValueUsed(true);
         targetProduct.addBand(clusterMapBand);
 
-        final IndexCoding indexCoding = new IndexCoding("clusters");
+        final IndexCoding indexCoding = new IndexCoding("Cluster_classes");
         for (int i = 0; i < clusterCount; i++) {
-            indexCoding.addIndex("cluster_" + (i + 1), i, "Cluster " + (i + 1));
+            indexCoding.addIndex("class_" + (i + 1), i, "Cluster " + (i + 1));
         }
         targetProduct.getIndexCodingGroup().add(indexCoding);
         clusterMapBand.setSampleCoding(indexCoding);
@@ -261,13 +261,19 @@ public class EMClusterOp extends Operator {
                     clusterSet = clusterer.getClusters(clusterComparator);
                 }
                 double[][] means = new double[clusterCount][0];
+                double[][][] covariances = new double[clusterCount][0][0];
                 for (int i = 0; i < clusterCount; i++) {
                     means[i] = clusterSet.getMean(i);
+                    EMCluster cluster = clusterSet.getEMCluster(i);
+                    MultinormalDistribution distribution = (MultinormalDistribution) cluster.getDistribution();
+                    covariances[i] = distribution.getCovariances();
                 }
                 ClusterMetaDataUtils.addCenterToIndexCoding(
                         clusterMapBand.getIndexCoding(), sourceBands, means);
                 ClusterMetaDataUtils.addCenterToMetadata(
                         clusterAnalysis, sourceBands, means);
+                ClusterMetaDataUtils.addCovarianceToMetadata(
+                        clusterAnalysis, covariances);
                 
             } catch (IOException e) {
                 throw new OperatorException(e);

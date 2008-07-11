@@ -46,4 +46,8 @@ public class EMCluster {
     public final double[] getMean() {
         return distribution.getMean();
     }
+    
+    public Distribution getDistribution() {
+        return distribution;
+    }
 }

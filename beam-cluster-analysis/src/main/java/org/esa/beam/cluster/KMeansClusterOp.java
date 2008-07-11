@@ -100,15 +100,15 @@ public class KMeansClusterOp extends Operator {
         targetProduct.setStartTime(sourceProduct.getStartTime());
         targetProduct.setEndTime(sourceProduct.getEndTime());
 
-        clusterMapBand = new Band("cluster_map", ProductData.TYPE_INT16, width, height);
-        clusterMapBand.setDescription("Cluster map");
+        clusterMapBand = new Band("class_indices", ProductData.TYPE_INT16, width, height);
+        clusterMapBand.setDescription("Class_indices");
         clusterMapBand.setNoDataValue(NO_DATA_VALUE);
         clusterMapBand.setNoDataValueUsed(true);
         targetProduct.addBand(clusterMapBand);
 
-        final IndexCoding indexCoding = new IndexCoding("clusters");
+        final IndexCoding indexCoding = new IndexCoding("Cluster_classes");
         for (int i = 0; i < clusterCount; i++) {
-            indexCoding.addIndex("cluster_" + (i + 1), i, "Cluster " + (i + 1));
+            indexCoding.addIndex("class_" + (i + 1), i, "Cluster " + (i + 1));
         }
         targetProduct.getIndexCodingGroup().add(indexCoding);
         clusterMapBand.setSampleCoding(indexCoding);

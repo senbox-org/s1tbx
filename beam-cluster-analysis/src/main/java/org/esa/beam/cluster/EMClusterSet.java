@@ -70,4 +70,8 @@ public class EMClusterSet {
     public double[] getMean(int i) {
         return clusters[i].getMean();
     }
+    
+    public final EMCluster getEMCluster(int index) {
+        return clusters[index];
+    }
 }
