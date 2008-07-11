@@ -54,7 +54,7 @@
             <tocitem text="Imaging Tools">
                 <tocitem text="Image View" target="imageView"/>
                 <tocitem text="Navigation Window" target="showNavigationWnd"/>
-                <tocitem text="Colour Manipulation" target="showContrastStretchWnd"/>
+                <tocitem text="Colour Manipulation" target="showColorManipulationWnd"/>
                 <tocitem text="RGB-Image Profile" target="rgbImageProfile"/>
                 <tocitem text="No Data Overlay" target="noDataOverlay"/>
                 <tocitem text="Bitmask Overlay" target="showBitmaskOverlayWnd"/>

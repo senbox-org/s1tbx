@@ -127,7 +127,7 @@
             <description>Allows image colour manipulation and contrast stretching.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/ContrastStretch16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/ContrastStretch24.gif</largeIcon>
-            <!--<helpId>TODO</helpId>-->
+            <helpId>showColorManipulationWnd</helpId>
             <initState>DOCKED</initState>
             <initSide>WEST</initSide>
             <initIndex>1</initIndex>

@@ -62,7 +62,7 @@
     <mapID target="preferences" url="visat/PreferencesDialog.html"/>
     <mapID target="imageView" url="visat/ProductSceneView.html"/>
     <mapID target="showNavigationWnd" url="visat/NavigationWindow.html"/>
-    <mapID target="showContrastStretchWnd" url="visat/ColorManipulationWindow.html"/>
+    <mapID target="showColorManipulationWnd" url="visat/ColorManipulationWindow.html"/>
     <mapID target="showBitmaskOverlayWnd" url="visat/BitmaskOverlayWindow.html"/>
     <mapID target="showROIDefWnd" url="visat/ShapeAndROIHandling.html"/>
     <mapID target="showSpectrumWnd" url="visat/SpectrumWindow.html"/>
