@@ -1,12 +1,6 @@
 package org.esa.beam.visat.actions;
 
-import org.esa.beam.framework.datamodel.Band;
-import org.esa.beam.framework.datamodel.MetadataAttribute;
-import org.esa.beam.framework.datamodel.MetadataElement;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.TiePointGrid;
-import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.visat.VisatApp;
@@ -24,24 +18,26 @@ public class CreateAsarNrcsBandsAction extends ExecCommand {
 
     @Override
     public void updateState(CommandEvent event) {
-        final Product product = VisatApp.getApp().getSelectedProduct();
-        setEnabled(product != null && D.create(product) != null);
+        final ProductNode node = VisatApp.getApp().getSelectedProductNode();
+        setEnabled(node instanceof Band);
     }
 
     private static void createNrcsBands() {
-        final Product product = VisatApp.getApp().getSelectedProduct();
-        if (product == null) {
+        final ProductNode node = VisatApp.getApp().getSelectedProductNode();
+
+        if (!(node instanceof Band)) {
             return;
         }
-        D d = D.create(product);
+        Band sourceBand = (Band) node;
+        D d = D.create(sourceBand);
         if (d == null) {
             return;
         }
 
         String nrcsExpression = "("
-                                + d.procDataBand.getName()
+                                + d.sourceBand.getName()
                                 + " * "
-                                + d.procDataBand.getName()
+                                + d.sourceBand.getName()
                                 + " / "
                                 + d.extCalFactAttr.getData()
                                 + ")" +
@@ -49,12 +45,12 @@ public class CreateAsarNrcsBandsAction extends ExecCommand {
                                 "sin(rad("
                                 + d.incidentAngleGrid.getName()
                                 + "))";
-        addVirtualBandToProduct(product,
+        addVirtualBandToProduct(sourceBand.getProduct(),
                                 NRCS_BAND_NAME, nrcsExpression,
                                 "1", "Normalised Radar Cross Section");
 
         String nrcsDbExpression = "10 * log10(" + NRCS_BAND_NAME + ")";
-        addVirtualBandToProduct(product,
+        addVirtualBandToProduct(sourceBand.getProduct(),
                                 NRCS_DB_BAND_NAME, nrcsDbExpression,
                                 "dB", "Normalised Radar Cross Section in dB");
     }
@@ -84,30 +80,24 @@ public class CreateAsarNrcsBandsAction extends ExecCommand {
 
     private static class D {
 
-        Band procDataBand;
+        Band sourceBand;
         TiePointGrid incidentAngleGrid;
         MetadataAttribute extCalFactAttr;
 
-        private D(Band procDataBand, TiePointGrid incidentAngleGrid, MetadataAttribute extCalFactAttr) {
-            this.procDataBand = procDataBand;
+        private D(Band sourceBand, TiePointGrid incidentAngleGrid, MetadataAttribute extCalFactAttr) {
+            this.sourceBand = sourceBand;
             this.incidentAngleGrid = incidentAngleGrid;
             this.extCalFactAttr = extCalFactAttr;
         }
 
-        public static D create(Product product) {
-            Band procDataBand = product.getBand("proc_data");
-            if (procDataBand == null) {
-                procDataBand = product.getBand("proc_data_1");
-            }
-            if (procDataBand == null) {
-                return null;
-            }
-            TiePointGrid incidentAngleGrid = product.getTiePointGrid("incident_angle");
+        public static D create(Band sourceBand) {
+            TiePointGrid incidentAngleGrid = sourceBand.getProduct().getTiePointGrid("incident_angle");
             if (incidentAngleGrid == null) {
+                VisatApp.getApp().showErrorDialog(DIALOG_TITLE, "Cant find tie-point grid 'incident_angle'.");
                 return null;
             }
 
-            MetadataElement ads = product.getMetadataRoot().getElement("MAIN_PROCESSING_PARAMS_ADS");
+            MetadataElement ads = sourceBand.getProduct().getMetadataRoot().getElement("MAIN_PROCESSING_PARAMS_ADS");
             MetadataAttribute extCalFactAttr = null;
             if (ads != null) {
                 extCalFactAttr = ads.getAttribute("calibration_factors.1.ext_cal_fact");
@@ -119,10 +109,11 @@ public class CreateAsarNrcsBandsAction extends ExecCommand {
                 }
             }
             if (extCalFactAttr == null) {
+                VisatApp.getApp().showErrorDialog(DIALOG_TITLE, "Cant find metadata 'MAIN_PROCESSING_PARAMS_ADS/calibration_factors.1.ext_cal_fact'.");
                 return null;
             }
 
-            return new D(procDataBand, incidentAngleGrid, extCalFactAttr);
+            return new D(sourceBand, incidentAngleGrid, extCalFactAttr);
         }
     }
 }
