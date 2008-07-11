@@ -16,7 +16,7 @@
     </tr>
 </table>
 
-<h4><a name="productView"></a>Product View</h4>
+<h4><a name="productView"/>Product View</h4>
 
 <p>If you create a new, open or import an existing data product, VISAT will put it into it's
     open product list. The product list is a tree view with up to four root nodes for each open product:
@@ -24,6 +24,7 @@
     <li>Bands - contains all measured spectral/geophysical and quality raster datasets of a product (mandatory)</li>
     <li>Tie-point grids - contains all tie-point grid raster datasets (optional)</li>
     <li>Flag Codings - contains flag coding metadata for quality flags datasets (optional)</li>
+    <li>Index Codings - contains index coding metadata (optional)</li>
     <li>Metadata - contains additional metadata (optional)</li>
 </ul>
 
@@ -43,7 +44,7 @@
 
 <br>
 
-<h4><a name="pixelView"></a>Pixel Info View</h4>
+<h4><a name="pixelView"/>Pixel Info View</h4>
 
 <p>If you click on the tab 'Pixel View' on the left side of the VISAT window,
     pixel information will be displayed while you move the mouse over the band image
@@ -55,26 +56,25 @@
     and dock it back by using the docking-button (<img src="images/icons/DockingButton.gif" border=0>) in the header
     bar.</p>
 
-<p>The informations displayed belong to the current image pixel beneath the mouse pointer:
-    <ul>
-        <li><b>Geo-location:</b><br>
-            Displayes the image position, the geographic-location and also the map co-ordinates if the current
-            product is map-projected.
-        </li>
-        <li><b>Tie Point Grids:</b><br>
-            Shows the values of the tie-point grids.
-        </li>
-        <li><b>Time Info:</b><br>
-            The time information associated with the current liine.
-        </li>
-        <li><b>Bands:</b><br>
-            The value of the pixel beneath the mouse pointer.
-        </li>
-        <li><b>Flags:</b><br>
-            Displayes the state of the flags at the current pixel.
-        </li>
-    </ul>
-</p>
+<p>The informations displayed belong to the current image pixel beneath the mouse pointer:</p>
+<ul>
+    <li><b>Geo-location:</b><br>
+        Displayes the image position, the geographic-location and also the map co-ordinates if the current
+        product is map-projected.
+    </li>
+    <li><b>Tie Point Grids:</b><br>
+        Shows the values of the tie-point grids.
+    </li>
+    <li><b>Time Info:</b><br>
+        The time information associated with the current liine.
+    </li>
+    <li><b>Bands:</b><br>
+        The value of the pixel beneath the mouse pointer.
+    </li>
+    <li><b>Flags:</b><br>
+        Displayes the state of the flags at the current pixel.
+    </li>
+</ul>
 
 <p>
     If a pin is selected in the current image view you can select <b>Snap to selected pin</b>
