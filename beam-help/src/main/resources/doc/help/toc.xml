@@ -29,7 +29,8 @@
                 <tocitem text="Import MERIS Binned Level-3 Data Product" target="importMerisBinnedL3Product"/>
                 <tocitem text="Import BEAM-DIMAP Data Product" target="importDimapProduct"/>
                 <tocitem text="Import LANDSAT 5 TM Data Product" target="importLandsatTMProduct"/>
-                <tocitem text="Import AVHRR/3 Data Product" target="importAVHRR"/>
+                <tocitem text="Import NOAA-AVHRR/3 Level-1b Data Product" target="importAVHRR"/>
+                <tocitem text="Import NASA Ocean Color Product" target="importNasaObpgProduct"/>
                 <tocitem text="Import ALOS/AVNIR-2 Data Product" target="importAvnir2Product"/>
                 <tocitem text="Import ALOS/PRISM Data Product" target="importPrismProduct"/>
                 <tocitem text="Import CHRIS Data Product" target="importChrisProduct"/>

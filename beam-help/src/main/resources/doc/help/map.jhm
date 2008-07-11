@@ -46,6 +46,7 @@
     <mapID target="importLandsatTMProduct" url="visat/ImportLandsatTM.html"/>
     <mapID target="importAVHRR" url="visat/ImportAVHRR.html"/>
     <mapID target="importAvnir2Product" url="visat/ImportAVNIR2.html"/>
+    <mapID target="importNasaObpgProduct" url="visat/ImportNasaObpgHDF.html"/>
     <mapID target="importChrisProduct" url="visat/ImportChris.html"/>
     <mapID target="importPrismProduct" url="visat/ImportPRISM.html"/>
     <mapID target="importNetCDF" url="visat/ImportNetCDF.html"/>
