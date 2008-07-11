@@ -490,6 +490,7 @@ public final class DimapProductConstants {
     public final static String TAG_NUM_COLORS = "NUM_COLORS";
     public final static String TAG_COLOR_PALETTE_POINT = "Color_Palette_Point";
     public final static String TAG_SAMPLE = "SAMPLE";
+    public final static String TAG_LABEL = "LABEL";
     public final static String TAG_COLOR = "COLOR";
     public final static String TAG_GAMMA = "GAMMA";
     public final static String TAG_NO_DATA_COLOR = "NO_DATA_COLOR";

@@ -304,6 +304,9 @@ public final class DimapHeaderWriter extends XmlWriter {
                         final String[] cppTags = createTags(indent + 2, DimapProductConstants.TAG_COLOR_PALETTE_POINT);
                         sXmlW.println(cppTags[0]);
                         sXmlW.printLine(indent + 3, DimapProductConstants.TAG_SAMPLE, point.getSample());
+                        if (StringUtils.isNotNullAndNotEmpty(point.getLabel())) {
+                            sXmlW.printLine(indent + 3, DimapProductConstants.TAG_LABEL, point.getLabel());
+                        }
                         DimapProductHelpers.printColorTag(indent + 3, DimapProductConstants.TAG_COLOR, point.getColor(), sXmlW);
                         sXmlW.println(cppTags[1]);
                     }

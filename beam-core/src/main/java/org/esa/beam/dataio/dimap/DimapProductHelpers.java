@@ -1052,7 +1052,8 @@ public class DimapProductHelpers {
                     final Color color = DimapProductHelpers.createColor(
                             colorPalettePointElem.getChild(DimapProductConstants.TAG_COLOR));
                     final double sample = getSample(colorPalettePointElem);
-                    points[i] = new ColorPaletteDef.Point(sample, color);
+                    final String label = getLabel(colorPalettePointElem);
+                    points[i] = new ColorPaletteDef.Point(sample, color, label);
                 }
             }
             return points;
@@ -1066,6 +1067,13 @@ public class DimapProductHelpers {
             return 0;
         }
 
+        private static String getLabel(Element colorPalettePointElem) {
+            final Element labelElem = colorPalettePointElem.getChild(DimapProductConstants.TAG_LABEL);
+            if (labelElem != null) {
+                return labelElem.getTextTrim();
+            }
+            return "";
+        }
         private void addTiePointGrids(Product product) {
             final Element child = getRootElement().getChild(DimapProductConstants.TAG_TIE_POINT_GRIDS);
             if (child != null) {
