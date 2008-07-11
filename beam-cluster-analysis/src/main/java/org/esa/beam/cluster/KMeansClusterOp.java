@@ -61,9 +61,9 @@ public class KMeansClusterOp extends Operator {
 
     @Parameter(label = "Number of clusters", defaultValue = "14", interval = "(0,100]")
     private int clusterCount;
-    @Parameter(label = "Number of iterations", defaultValue = "30", interval = "(0,100]")
+    @Parameter(label = "Number of iterations", defaultValue = "30", interval = "(0,10000]")
     private int iterationCount;
-    @Parameter(label = "Random seed", defaultValue = "42",
+    @Parameter(label = "Random seed", defaultValue = "31415",
             description = "Seed for the random generator, used for initialising the algorithm.")
     private int randomSeed;
     @Parameter(label = "Source band names",
@@ -137,9 +137,9 @@ public class KMeansClusterOp extends Operator {
 
     @Override
     public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
-        pm.beginTask("Computing clusters...", 2);
+        pm.beginTask("Computing clusters...", 10);
         try {
-            final KMeansClusterSet theClusterSet = getClusterSet(SubProgressMonitor.create(pm, 1));
+            final KMeansClusterSet theClusterSet = getClusterSet(SubProgressMonitor.create(pm, 9));
             final Rectangle targetRectangle = targetTile.getRectangle();
             final Tile[] sourceTiles = new Tile[sourceBands.length];
             for (int i = 0; i < sourceTiles.length; i++) {

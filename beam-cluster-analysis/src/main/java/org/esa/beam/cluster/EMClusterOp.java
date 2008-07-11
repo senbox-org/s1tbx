@@ -62,9 +62,9 @@ public class EMClusterOp extends Operator {
 
     @Parameter(label = "Number of clusters", defaultValue = "14", interval = "(0,100]")
     private int clusterCount;
-    @Parameter(label = "Number of iterations", defaultValue = "30", interval = "(0,100]")
+    @Parameter(label = "Number of iterations", defaultValue = "30", interval = "(0,10000]")
     private int iterationCount;
-    @Parameter(label = "Random seed", defaultValue = "42",
+    @Parameter(label = "Random seed", defaultValue = "31415",
             description = "Seed for the random generator, used for initialising the algorithm.")
     private int randomSeed;
     @Parameter(label = "Source band names",

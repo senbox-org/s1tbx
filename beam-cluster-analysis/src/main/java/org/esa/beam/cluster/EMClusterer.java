@@ -153,7 +153,7 @@ public class EMClusterer {
         for (int i = 0; i < pointCount; ++i) {
             for (int k = 0; k < dimensionCount; ++k) {
                 for (int l = k; l < dimensionCount; ++l) {
-                    covariances[k][l] += (points[i][k] - mean[k]) * (points[i][l] - mean[l]);
+                    covariances[k][l] += 0.2 * (points[i][k] - mean[k]) * (points[i][l] - mean[l]);
                 }
             }
         }
