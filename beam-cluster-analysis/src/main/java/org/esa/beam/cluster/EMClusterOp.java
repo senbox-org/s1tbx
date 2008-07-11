@@ -301,6 +301,12 @@ public class EMClusterOp extends Operator {
                 }
             }
         }
+        
+        if (roiSize < clusterCount) {
+            throw new OperatorException("The combination of ROI and valid pixel masks contain " +
+                    roiSize + " pixel. These are too few to initialize the clustering.");
+        }
+        
         final double[][] points = new double[roiSize][sourceBands.length];
 
         try {

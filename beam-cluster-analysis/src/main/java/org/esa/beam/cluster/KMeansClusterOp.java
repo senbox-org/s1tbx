@@ -210,7 +210,7 @@ public class KMeansClusterOp extends Operator {
         final KMeansClusterer clusterer = new KMeansClusterer(clusterCount, sourceBands.length);
         RandomSceneIter randomSceneIter = new RandomSceneIter(this, sourceBands, roi, randomSeed);
         if (randomSceneIter.getRoiMemberCount() < clusterCount) {
-            throw new IllegalArgumentException("The ROI contains " +
+            throw new OperatorException("The combination of ROI and valid pixel masks contain " +
                     randomSceneIter.getRoiMemberCount() + " pixel. These are too few to initialize the clustering.");
         }
         clusterer.initialize(randomSceneIter);
