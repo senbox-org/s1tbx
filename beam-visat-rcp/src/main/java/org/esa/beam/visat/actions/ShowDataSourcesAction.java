@@ -4,12 +4,15 @@ import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.util.SystemUtils;
 import org.esa.beam.visat.VisatApp;
+import org.esa.beam.visat.VisatActivator;
 
 import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+
+import com.bc.ceres.core.runtime.Module;
 
 /**
  * This action opens the default browser to display the BEAM data sources
@@ -44,6 +47,10 @@ public class ShowDataSourcesAction extends ExecCommand {
     private URI getDataSourcesUri() throws URISyntaxException {
         URI resourceUri;
         URL resourceUrl = getClass().getResource(DATASOURCES_RESOURCE_PATH);
+        if (resourceUrl == null) {
+            Module theModule = getModule("beam-help");
+            theModule.getResource(DATASOURCES_RESOURCE_PATH);
+        }
         if (resourceUrl != null) {
             resourceUri = resourceUrl.toURI();
         } else {
@@ -51,5 +58,15 @@ public class ShowDataSourcesAction extends ExecCommand {
             resourceUri = new URI(defaultUriString);
         }
         return resourceUri;
+    }
+
+    private static Module getModule(String symbolicName) {
+        final Module[] modules = VisatActivator.getInstance().getModuleContext().getModules();
+        for (Module module : modules) {
+            if (module.getSymbolicName().equals(symbolicName)) {
+                return module;
+            }
+        }
+        return null;
     }
 }
