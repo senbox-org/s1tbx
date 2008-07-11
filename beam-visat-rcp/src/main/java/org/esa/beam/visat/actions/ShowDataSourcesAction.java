@@ -22,7 +22,9 @@ import com.bc.ceres.core.runtime.Module;
  * @version $Revision$ $Date$
  */
 public class ShowDataSourcesAction extends ExecCommand {
-    private static final String DATASOURCES_RESOURCE_PATH = "/doc/help/general/BeamDataSources.html";
+    // todo - convert to properties for NEST (nf - 11.07.2008)
+    private static final String BEAM_HELP_MODULE_NAME = "beam-help";
+    private static final String DATASOURCES_RESOURCE_PATH = "doc/help/general/BeamDataSources.html";
     private static final String DATASOURCES_PROPERTY_NAME = "beam.datasources.url";
 
     /**
@@ -46,10 +48,10 @@ public class ShowDataSourcesAction extends ExecCommand {
 
     private URI getDataSourcesUri() throws URISyntaxException {
         URI resourceUri;
-        URL resourceUrl = getClass().getResource(DATASOURCES_RESOURCE_PATH);
-        if (resourceUrl == null) {
-            Module theModule = getModule("beam-help");
-            theModule.getResource(DATASOURCES_RESOURCE_PATH);
+        URL resourceUrl = null;
+        Module helpModule = getModule(BEAM_HELP_MODULE_NAME);
+        if (helpModule != null) {
+            resourceUrl = helpModule.getResource(DATASOURCES_RESOURCE_PATH);
         }
         if (resourceUrl != null) {
             resourceUri = resourceUrl.toURI();
