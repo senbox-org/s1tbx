@@ -34,7 +34,7 @@
             <id>imageAnalysis</id>
             <class>org.esa.beam.visat.actions.ActionGroup</class>
             <parent>tools</parent>
-            <text>Image Analysis Tools</text>
+            <text>Image Analysis</text>
             <mnemonic>A</mnemonic>
             <shortDescr>Image analysis tools.</shortDescr>
         </action>
