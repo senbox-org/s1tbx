@@ -816,7 +816,7 @@ This directory will be entirely removed if you select this option.</string>
                   <java class="java.beans.XMLDecoder">
                     <object class="com.install4j.runtime.beans.actions.update.CheckForUpdateAction">
                       <void property="updateDescriptorUrl">
-                        <string>http://www.brockmann-consult.de/beam/software/beam4/snapshot/updates.xml</string>
+                        <string>http://www.brockmann-consult.de/beam/software/beam4/installers/updates.xml</string>
                       </void>
                       <void property="variable">
                         <string>updateDescriptor</string>
@@ -1654,7 +1654,7 @@ if (wizardContext != null) {
       </installerScript>
     </unixInstaller>
   </mediaSets>
-  <buildIds buildAll="false">
+  <buildIds buildAll="true">
     <mediaSet refId="20" />
   </buildIds>
 </install4j>

@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-meris-ndvi</symbolicName>
-    <version>1.2.100-SNAPSHOT</version>
+    <version>1.2.100</version>
     <name>MERIS NDVI Processor</name>
 
     <description>

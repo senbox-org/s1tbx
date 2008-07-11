@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-meris-cloud</symbolicName>
-    <version>1.5.101-SNAPSHOT</version>
+    <version>1.5.101</version>
     <name>MERIS Cloud Probability Processor</name>
 
     <description>
