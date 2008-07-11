@@ -35,7 +35,7 @@ public class EMClusterSet {
         double sum = 0.0;
         final double[] h = new double[clusters.length];
         for (int k = 0; k < clusters.length; ++k) {
-            h[k] = clusters[k].priorProbability * clusters[k].getPprobabilityDensity(point);
+            h[k] = clusters[k].priorProbability * clusters[k].getProbabilityDensity(point);
             sum += h[k];
         }
         if (sum > 0.0) {

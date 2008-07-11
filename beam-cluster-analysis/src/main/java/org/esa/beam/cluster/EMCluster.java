@@ -39,7 +39,7 @@ public class EMCluster {
         return distribution.logProbabilityDensity(point);
     }
 
-    public final double getPprobabilityDensity(double[] point) {
+    public final double getProbabilityDensity(double[] point) {
         return distribution.probabilityDensity(point);
     }
 
