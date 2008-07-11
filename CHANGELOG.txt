@@ -48,7 +48,7 @@ o New reader for NASA OBPG (Ocean Biology Processing Group) products:
   - CZCS Level-2
   - OCTS Level-2
   - SeaWiFS Level-2
-o Included new Case-2 Processors
+o Included new Case-2 Waters Processors
   - Case-2 Regional Processor
   - Boreal Lakes Processor
   - Eutrophic Lakes Processor
