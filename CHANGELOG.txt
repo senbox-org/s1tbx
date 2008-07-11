@@ -33,7 +33,7 @@ _____________________________________________________________________________
 
 o New cluster analysis tools:
   - K-Means (fast)
-  - EM, Expectaion Maximisation (slow, but outputs also probablities)
+  - EM, Expectation Maximisation (slow, but outputs also probabilities)
 o Enhanced image colour manipulation tool:
   - Editor for classified images (e.g. output from cluster analysis)
   - Continuous and discrete colour palettes
@@ -64,7 +64,7 @@ BEAM-830 	Compute ROI area does not finish
 BEAM-829 	Geo-position of pins is not updated if geo-coding changes
 BEAM-827 	Standard dialogs for operators should be modeless
 BEAM-826 	Support for user defined layout
-BEAM-825 	Use JFreeChart for plots in staistic dialogs
+BEAM-825 	Use JFreeChart for plots in statistic dialogs
 BEAM-822 	GPT crash with virtual bands
 BEAM-821 	MERIS L3 MGVI cannot be opened in BEAM
 BEAM-820 	Deactivate auto docking of tool views by default
@@ -105,13 +105,13 @@ BEAM-726 	Memory not fully released after closing a product
 BEAM-718 	Show all product formats in reopen menu
 BEAM-710 	Not able to copy a product using new product dialog
 BEAM-709 	Open dialog should use 'All Files' as default filter
-BEAM-694 	Bandarithmetic gives acces to latitude and longitude using the provided geocoding
+BEAM-694 	Bandarithmetic gives access to latitude and longitude using the provided geocoding
 BEAM-693 	ROI not visible if converted from shape
 BEAM-655 	Fail to open MERIS L3 4.6 km sinusoidal grid
 BEAM-530 	Explicit declaration of sources, targets and parameters in graph xml
 BEAM-523 	Memory leak after closing a product subset
 BEAM-504 	Exchange existing diagrams by more professional ones
-BEAM-45 	An exeption appears on the console if you try to import the ATS_AR__2PTRAL product
+BEAM-45 	An exception appears on the console if you try to import the ATS_AR__2PTRAL product
 
 
 _____________________________________________________________________________
