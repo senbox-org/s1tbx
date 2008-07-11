@@ -12,6 +12,7 @@
     <changelog>
         <![CDATA[
         Changes in 4.2<br/>
+        [BEAM-837] Search in VISAT Help does not work<br/>
         [BEAM-832] Coordinate list does not consider "No Data" correctly<br/>
         [BEAM-831] Export transect pixels does not consider no-data value<br/>
         [BEAM-830] Compute ROI area does not finish<br/>
