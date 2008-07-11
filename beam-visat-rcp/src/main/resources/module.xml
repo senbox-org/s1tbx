@@ -69,10 +69,6 @@
         <module>beam-ui</module>
     </dependency>
     <dependency>
-        <module>beam-help</module>
-        <optional>true</optional>
-    </dependency>
-    <dependency>
         <module>beam-processing</module>
     </dependency>
     <dependency>
