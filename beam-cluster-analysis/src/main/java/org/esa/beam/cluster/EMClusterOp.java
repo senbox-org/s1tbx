@@ -176,7 +176,7 @@ public class EMClusterOp extends Operator {
     @Override
     public void computeTileStack(Map<Band, Tile> targetTileMap, Rectangle targetRectangle,
                                  ProgressMonitor pm) throws OperatorException {
-        pm.beginTask("Computing clusters...", iterationCount + 2);
+        pm.beginTask("Computing clusters...", 2);
 
         try {
             final EMClusterSet theClusterSet = getClusterSet(SubProgressMonitor.create(pm, 1));
