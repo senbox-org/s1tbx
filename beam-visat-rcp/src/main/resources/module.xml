@@ -96,7 +96,7 @@
             <accelerator>ctrl alt P</accelerator>
             <smallIcon>/org/esa/beam/resources/images/icons/RsProduct16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/RsProduct24.gif</largeIcon>
-            <!--<helpId>TODO</helpId>-->
+            <helpId>productBrowser</helpId>
             <description>Display all opened data products in a tree view.</description>
             <initState>DOCKED</initState>
             <initSide>WEST</initSide>
@@ -159,7 +159,7 @@
             <description>Display detailed pixel information in a table view.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/PixelInfo16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/PixelInfo24.gif</largeIcon>
-            <!--<helpId>TODO</helpId>-->
+            <helpId>pixelInfoView</helpId>
             <initState>DOCKED</initState>
             <initSide>WEST</initSide>
             <initIndex>0</initIndex>
@@ -174,7 +174,7 @@
             <description>Overlay bitmasks on top of an image view.</description>
             <smallIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay16.gif</smallIcon>
             <largeIcon>/org/esa/beam/resources/images/icons/BitmaskOverlay24.gif</largeIcon>
-            <!--<helpId>TODO</helpId>-->
+            <helpId>showBitmaskOverlayWnd</helpId>
             <initState>HIDDEN</initState>
             <initSide>SOUTH</initSide>
             <initIndex>0</initIndex>
