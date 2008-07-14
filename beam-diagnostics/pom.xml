@@ -2,13 +2,13 @@
   <parent>
     <artifactId>beam</artifactId>
     <groupId>org.esa.beam</groupId>
-    <version>4.2</version>
+    <version>4.5-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.esa.beam</groupId>
   <artifactId>beam-diagnostics</artifactId>
   <name>beam-diagnostics</name>
-  <version>4.2</version>
+  <version>4.5-SNAPSHOT</version>
   <url>http://maven.apache.org</url>
   <dependencies>
     <dependency>

@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.esa.beam</groupId>
         <artifactId>beam</artifactId>
-        <version>4.2</version>
+        <version>4.5-SNAPSHOT</version>
     </parent>
 
     <name>MERIS Smile Correction Processor</name>

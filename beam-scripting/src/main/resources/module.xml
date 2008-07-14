@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-scripting</symbolicName>
-    <version>4.2</version>
+    <version>4.5-SNAPSHOT</version>
     <name>BEAM Scripting Interface</name>
 
     <description></description>

@@ -5,13 +5,13 @@
     <parent>
         <groupId>org.esa.beam</groupId>
         <artifactId>beam</artifactId>
-        <version>4.2</version>
+        <version>4.5-SNAPSHOT</version>
     </parent>
 
     <groupId>org.esa.beam</groupId>
     <artifactId>beam-visat-rcp</artifactId>
     <packaging>jar</packaging>
-    <version>4.2</version>
+    <version>4.5-SNAPSHOT</version>
     <name>VISAT Rich Client Platform</name>
 
     <dependencies>
