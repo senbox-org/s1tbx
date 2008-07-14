@@ -2,7 +2,7 @@
     <manifestVersion>1.0.0</manifestVersion>
 
     <symbolicName>beam-cluster-analysis</symbolicName>
-    <version>1.0</version>
+    <version>1.0.101-SNAPSHOT</version>
     <name>BEAM Cluster Analysis</name>
 
     <description>
@@ -10,7 +10,11 @@
     </description>
 
     <changelog>
-        <![CDATA[ ]]>
+        <![CDATA[
+        Changes in 1.0.101:<br/>
+
+        [BEAM-839] Improper initialization of EM clustering algorithm<br/>
+        ]]>
     </changelog>
 
     <vendor>Brockmann Consult GmbH</vendor>

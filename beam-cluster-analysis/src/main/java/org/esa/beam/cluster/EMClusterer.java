@@ -125,42 +125,19 @@ public class EMClusterer {
      * @param random the random number generator used for initialization.
      */
     private void initialize(Random random) {
-        calculateMeans(random);
+        for (int k = 0; k < clusterCount; ++k) {
+            System.arraycopy(points[random.nextInt(pointCount)], 0, means[k], 0, dimensionCount);
+        }
 
         for (int k = 0; k < clusterCount; ++k) {
-            calculateCovariances(means[k], covariances[k]);
             p[k] = 1.0;
+            for (int l = 0; l < dimensionCount; ++l) {
+                // initialization of diagonal elements with unity comes close
+                // to an initial run with the k-means algorithm
+                covariances[k][l][l] = 1.0;
+            }
+
             distributions[k] = new MultinormalDistribution(means[k], covariances[k]);
-        }
-    }
-
-    private void calculateMeans(Random random) {
-        for (int k = 0; k < clusterCount; ++k) {
-            boolean accepted = true;
-            do {
-                System.arraycopy(points[random.nextInt(pointCount)], 0, means[k], 0, dimensionCount);
-                for (int i = 0; i < k; ++i) {
-                    accepted = !Arrays.equals(means[k], means[i]);
-                    if (!accepted) {
-                        break;
-                    }
-                }
-            } while (!accepted);
-        }
-    }
-
-    private void calculateCovariances(double[] mean, double[][] covariances) {
-        for (int i = 0; i < pointCount; ++i) {
-            for (int k = 0; k < dimensionCount; ++k) {
-                for (int l = k; l < dimensionCount; ++l) {
-                    covariances[k][l] += 0.2 * (points[i][k] - mean[k]) * (points[i][l] - mean[l]);
-                }
-            }
-        }
-        for (int k = 0; k < dimensionCount; ++k) {
-            for (int l = k; l < dimensionCount; ++l) {
-                covariances[l][k] = covariances[k][l];
-            }
         }
     }
 
