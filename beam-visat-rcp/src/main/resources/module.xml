@@ -493,12 +493,12 @@
 
         <action>
             <id>importTransectData</id>
-            <class>org.esa.beam.visat.actions.ImportTransectDataAction</class>
+            <class>org.esa.beam.visat.actions.ImportShapeAction</class>
             <parent>import</parent>
-            <text>Import Transect Data...</text>
-            <mnemonic>T</mnemonic>
-            <shortDescr>Import transect data from text file.</shortDescr>
-            <description>Import transect data from text file.</description>
+            <text>Import Shape...</text>
+            <mnemonic>S</mnemonic>
+            <shortDescr>Import shape from plain text or ESRI shapefile.</shortDescr>
+            <description>Import shape from plain text or ESRI shapefile.</description>
             <helpId>importTransectData</helpId>
             <separatorBefore>true</separatorBefore>
             <separatorAfter>true</separatorAfter>
