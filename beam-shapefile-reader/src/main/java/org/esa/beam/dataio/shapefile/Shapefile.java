@@ -2,6 +2,10 @@ package org.esa.beam.dataio.shapefile;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteOrder;
@@ -9,9 +13,9 @@ import java.nio.ByteOrder;
 public class Shapefile {
     public static final double MEASURE_MIN = -1.0E38;
 
-    private File mainFile;
-    private File indexFile;
-    private File dbaseFile;
+    private final File mainFile;
+    private final File indexFile;
+    private final File dbaseFile;
     private FileImageInputStream stream;
     private Header header;
 
@@ -40,7 +44,7 @@ public class Shapefile {
 
     public static Shapefile getShapefile(File file) throws IOException {
         if (file.isDirectory()) {
-           String nameBase = file.getName();
+            String nameBase = file.getName();
             File mainFile = new File(file, nameBase + ".shp");
             File indexFile = new File(file, nameBase + ".shx");
             File dbaseFile = new File(file, nameBase + ".dbf");
@@ -76,8 +80,7 @@ public class Shapefile {
         return dbaseFile;
     }
 
-
-    public Header readHeader() throws IOException {
+    public synchronized Header readHeader() throws IOException {
         openRead();
         if (header == null) {
             header = new Header();
@@ -86,18 +89,34 @@ public class Shapefile {
         return header;
     }
 
-    public void close() throws IOException {
+    public synchronized void close() throws IOException {
         if (stream != null) {
             stream.close();
             stream = null;
         }
     }
 
-    public Record readRecord() throws IOException {
+    public synchronized Record readRecord() throws IOException {
         readHeader();
+        if (isEof()) {
+            return null;
+        }
         Record record = new Record();
         record.readFrom(stream);
         return record;
+    }
+
+    private boolean isEof() throws IOException {
+        stream.mark();
+        try {
+            final int b = stream.read();
+            if (b == -1) {
+                return true;
+            }
+        } finally {
+            stream.reset();
+        }
+        return false;
     }
 
     private void openRead() throws IOException {
@@ -108,10 +127,68 @@ public class Shapefile {
 
     public static class Header {
 
-        public int fileCode, fileLength, version, shapeType;
-        public double xmin, ymin, xmax, ymax, zmin, zmax, mmin, mmax;
+        private int fileCode;
+        private int fileLength;
+        private int version;
+        private int shapeType;
+        private double xmin;
+        private double ymin;
+        private double xmax;
+        private double ymax;
+        private double zmin;
+        private double zmax;
+        private double mmin;
+        private double mmax;
 
-        public void readFrom(ImageInputStream stream) throws IOException {
+        public int getFileCode() {
+            return fileCode;
+        }
+
+        public int getFileLength() {
+            return fileLength;
+        }
+
+        public int getVersion() {
+            return version;
+        }
+
+        public int getShapeType() {
+            return shapeType;
+        }
+
+        public double getXmin() {
+            return xmin;
+        }
+
+        public double getYmin() {
+            return ymin;
+        }
+
+        public double getXmax() {
+            return xmax;
+        }
+
+        public double getYmax() {
+            return ymax;
+        }
+
+        public double getZmin() {
+            return zmin;
+        }
+
+        public double getZmax() {
+            return zmax;
+        }
+
+        public double getMmin() {
+            return mmin;
+        }
+
+        public double getMmax() {
+            return mmax;
+        }
+
+        synchronized void readFrom(ImageInputStream stream) throws IOException {
 
             stream.setByteOrder(ByteOrder.BIG_ENDIAN);
             // Position Field Value Type Order
@@ -139,10 +216,29 @@ public class Shapefile {
     }
 
     public static class Record {
-        public int recordNumber, contentLength, shapeType;
-        public Geometry geometry;
+        private int recordNumber;
+        private int contentLength;
+        private int shapeType;
+        private Geometry geometry;
 
-        public void readFrom(ImageInputStream stream) throws IOException {
+
+        public int getRecordNumber() {
+            return recordNumber;
+        }
+
+        public int getContentLength() {
+            return contentLength;
+        }
+
+        public int getShapeType() {
+            return shapeType;
+        }
+
+        public Geometry getGeometry() {
+            return geometry;
+        }
+
+        void readFrom(ImageInputStream stream) throws IOException {
             readRecordHeader(stream);
             readRecordContent(stream);
         }
@@ -161,7 +257,7 @@ public class Shapefile {
             shapeType = stream.readInt(); // Byte 0 Record Number Record Number Integer Big
 
             Geometry geometry;
-            switch (shapeType) {
+            switch (getShapeType()) {
                 case Geometry.GT_NULL:
                     geometry = new NullShape();
                     break;
@@ -178,9 +274,9 @@ public class Shapefile {
                     geometry = readMultiPoint(stream);
                     break;
                 default:
-                    System.out.println("Unhandled shape type: " + shapeType);
+                    System.out.println("Unhandled shape type: " + getShapeType());
                     geometry = new NullShape();
-                    stream.skipBytes(contentLength * 2);
+                    stream.skipBytes(getContentLength() * 2);
             }
 
             this.geometry = geometry;
@@ -237,9 +333,30 @@ public class Shapefile {
             }
             return points;
         }
-
     }
 
+    static Path2D createPath(int[] parts, Point[] points, Transform t, boolean close) {
+        if (parts.length == 0) {
+            return null;
+        } else {
+            Point[] pointsT = new Point[points.length];
+            for (int i = 0; i < points.length; i++) {
+                pointsT[i] = t.transformPoint(points[i]);
+            }
+
+            final Path2D.Double path = new Path2D.Double();
+            int j = parts[0];
+            path.moveTo(pointsT[j].x, pointsT[j].y);
+            for (int i = 1; i < parts.length; i++) {
+                j = parts[i];
+                path.lineTo(pointsT[j].x, pointsT[j].y);
+            }
+            if (parts.length >= 3 && close) {
+                path.closePath();
+            }
+            return path;
+        }
+    }
 
     public static interface Geometry {
         int GT_NULL = 0;
@@ -247,30 +364,59 @@ public class Shapefile {
         int GT_POLYLINE = 3;
         int GT_POLYGON = 5;
         int GT_MULTI_POINT = 8;
+
+        Shape toShape(Transform t);
+    }
+
+    public static interface Transform {
+       Transform IDENTITY = new Transform() {
+           public Point transformPoint(Point pt) {
+               return new Point(pt.x, pt.y);
+           }
+       };
+       Point transformPoint(Point pt);
     }
 
     public static class NullShape implements Geometry {
+        public Shape toShape(Transform t) {
+            return null;
+        }
     }
 
     public static class Point implements Geometry {
-        public double x; // X coordinate
-        public double y; // Y coordinate
+        public final double x; // X coordinate
+        public final double y; // Y coordinate
 
         public Point(double x, double y) {
             this.x = x;
             this.y = y;
         }
+
+        public Shape toShape(Transform t) {
+            final Point point = t.transformPoint(this);
+            return new Line2D.Double(point.x, point.y, point.x, point.y);
+        }
     }
 
     public static class MultiPoint implements Geometry {
-        public double[] box; // Bounding Box
-        public int numPoints; // Number of Points
-        public Point[] points; // The Points in the Set
+        public final double[] box; // Bounding Box
+        public final int numPoints; // Number of Points
+        public final Point[] points; // The Points in the Set
 
         public MultiPoint(double[] box, Point[] points) {
             this.box = box;
             this.numPoints = points.length;
             this.points = points;
+        }
+
+        public Shape toShape(Transform t) {
+            final Path2D.Double path = new Path2D.Double();
+            for (Point point : points) {
+                point = t.transformPoint(point);
+                path.moveTo(point.x, point.y);
+                path.lineTo(point.x, point.y);
+            }
+            return path;
         }
     }
 
@@ -288,6 +434,10 @@ public class Shapefile {
             this.parts = parts;
             this.points = points;
         }
+
+        public Shape toShape(Transform t) {
+            return createPath(parts, points, t, false);
+        }
     }
 
     public static class Polygon implements Geometry {
@@ -303,6 +453,11 @@ public class Shapefile {
             this.numPoints = points.length;
             this.parts = parts;
             this.points = points;
+        }
+
+        @Override
+        public Shape toShape(Transform t) {
+            return createPath(parts, points, t, true);
         }
     }
 }

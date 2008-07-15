@@ -46,9 +46,10 @@ public class ShapefileViewer {
             while (true) {
                 try {
                     Shapefile.Record record = shapefile.readRecord();
-                    geometries.add(record.geometry);
-                } catch (EOFException e) {
-                    break;
+                    if (record == null) {
+                        break;
+                    }
+                    geometries.add(record.getGeometry());
                 } catch (IOException e) {
                     e.printStackTrace();
                     break;
@@ -168,12 +169,12 @@ public class ShapefileViewer {
         }
 
         private double normY(double y) {
-            double ny = (y - header.ymin) / (header.ymax - header.ymin);
+            double ny = (y - header.getYmin()) / (header.getYmax() - header.getYmin());
             return getHeight() - ny * getHeight();
         }
 
         private double normX(double x) {
-            double nx = (x - header.xmin) / (header.xmax - header.xmin);
+            double nx = (x - header.getXmin()) / (header.getXmax() - header.getXmin());
             return nx * getWidth();
         }
     }

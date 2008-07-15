@@ -28,34 +28,34 @@ public class ShapefileTest extends TestCase {
         try {
             Shapefile.Header header = shapefile.readHeader();
             assertNotNull(header);
-            assertEquals(9994, header.fileCode);
-            assertEquals(946, header.fileLength);
-            assertEquals(1000, header.version);
-            assertEquals(Shapefile.Geometry.GT_POINT, header.shapeType);
-            assertEquals(331597.01984472736, header.xmin, 1e-10);
-            assertEquals(4681705.796398605, header.ymin, 1e-10);
-            assertEquals(349475.39837162, header.xmax, 1e-10);
-            assertEquals(4699645.082864969, header.ymax, 1e-10);
-            assertEquals(0.0, header.zmin, 1e-10);
-            assertEquals(0.0, header.zmax, 1e-10);
-            assertEquals(0.0, header.mmin, 1e-10);
-            assertEquals(0.0, header.mmax, 1e-10);
+            assertEquals(9994, header.getFileCode());
+            assertEquals(946, header.getFileLength());
+            assertEquals(1000, header.getVersion());
+            assertEquals(Shapefile.Geometry.GT_POINT, header.getShapeType());
+            assertEquals(331597.01984472736, header.getXmin(), 1e-10);
+            assertEquals(4681705.796398605, header.getYmin(), 1e-10);
+            assertEquals(349475.39837162, header.getXmax(), 1e-10);
+            assertEquals(4699645.082864969, header.getYmax(), 1e-10);
+            assertEquals(0.0, header.getZmin(), 1e-10);
+            assertEquals(0.0, header.getZmax(), 1e-10);
+            assertEquals(0.0, header.getMmin(), 1e-10);
+            assertEquals(0.0, header.getMmax(), 1e-10);
 
             Shapefile.Record firstRecord = shapefile.readRecord();
             assertNotNull(firstRecord);
-            assertEquals(1, firstRecord.recordNumber);
-            assertEquals(10, firstRecord.contentLength);
-            assertTrue(firstRecord.geometry instanceof Shapefile.Point);
-            final Shapefile.Point firstPoint = (Shapefile.Point) firstRecord.geometry;
+            assertEquals(1, firstRecord.getRecordNumber());
+            assertEquals(10, firstRecord.getContentLength());
+            assertTrue(firstRecord.getGeometry() instanceof Shapefile.Point);
+            final Shapefile.Point firstPoint = (Shapefile.Point) firstRecord.getGeometry();
             assertEquals(348373.33237328037, firstPoint.x, 1e-10);
             assertEquals(4681705.796398605, firstPoint.y, 1e-10);
 
             Shapefile.Record lastRecord = getLastRecord(shapefile, 63);
             assertNotNull(lastRecord);
-            assertEquals(64, lastRecord.recordNumber);
-            assertEquals(10, lastRecord.contentLength);
-            assertTrue(lastRecord.geometry instanceof Shapefile.Point);
-            final Shapefile.Point lastPoint = (Shapefile.Point) lastRecord.geometry;
+            assertEquals(64, lastRecord.getRecordNumber());
+            assertEquals(10, lastRecord.getContentLength());
+            assertTrue(lastRecord.getGeometry() instanceof Shapefile.Point);
+            final Shapefile.Point lastPoint = (Shapefile.Point) lastRecord.getGeometry();
             assertEquals(334893.99099277693, lastPoint.x, 1e-10);
             assertEquals(4694033.969894456, lastPoint.y, 1e-10);
 
@@ -69,25 +69,25 @@ public class ShapefileTest extends TestCase {
         try {
             Shapefile.Header header = shapefile.readHeader();
             assertNotNull(header);
-            assertEquals(9994, header.fileCode);
-            assertEquals(453320, header.fileLength);
-            assertEquals(1000, header.version);
-            assertEquals(Shapefile.Geometry.GT_POLYGON, header.shapeType);
-            assertEquals(331048.5100066487, header.xmin, 1e-10);
-            assertEquals(4680270.509783089, header.ymin, 1e-10);
-            assertEquals(350143.73828043253, header.xmax, 1e-10);
-            assertEquals(4700000.489995284, header.ymax, 1e-10);
-            assertEquals(0.0, header.zmin, 1e-10);
-            assertEquals(0.0, header.zmax, 1e-10);
-            assertEquals(0.0, header.mmin, 1e-10);
-            assertEquals(0.0, header.mmax, 1e-10);
+            assertEquals(9994, header.getFileCode());
+            assertEquals(453320, header.getFileLength());
+            assertEquals(1000, header.getVersion());
+            assertEquals(Shapefile.Geometry.GT_POLYGON, header.getShapeType());
+            assertEquals(331048.5100066487, header.getXmin(), 1e-10);
+            assertEquals(4680270.509783089, header.getYmin(), 1e-10);
+            assertEquals(350143.73828043253, header.getXmax(), 1e-10);
+            assertEquals(4700000.489995284, header.getYmax(), 1e-10);
+            assertEquals(0.0, header.getZmin(), 1e-10);
+            assertEquals(0.0, header.getZmax(), 1e-10);
+            assertEquals(0.0, header.getMmin(), 1e-10);
+            assertEquals(0.0, header.getMmax(), 1e-10);
 
             Shapefile.Record firstRecord = shapefile.readRecord();
             assertNotNull(firstRecord);
-            assertEquals(1, firstRecord.recordNumber);
-            assertEquals(32416, firstRecord.contentLength);
-            assertTrue(firstRecord.geometry instanceof Shapefile.Polygon);
-            final Shapefile.Polygon firstPolygon = (Shapefile.Polygon) firstRecord.geometry;
+            assertEquals(1, firstRecord.getRecordNumber());
+            assertEquals(32416, firstRecord.getContentLength());
+            assertTrue(firstRecord.getGeometry() instanceof Shapefile.Polygon);
+            final Shapefile.Polygon firstPolygon = (Shapefile.Polygon) firstRecord.getGeometry();
             assertEquals(4043, firstPolygon.numPoints);
             assertEquals(331330.9999909118, firstPolygon.points[0].x, 1e-10);
             assertEquals(4692193.000000373, firstPolygon.points[0].y, 1e-10);
@@ -103,10 +103,10 @@ public class ShapefileTest extends TestCase {
 
             Shapefile.Record lastRecord = getLastRecord(shapefile, 5);
             assertNotNull(lastRecord);
-            assertEquals(6, lastRecord.recordNumber);
-            assertEquals(68644, lastRecord.contentLength);
-            assertTrue(lastRecord.geometry instanceof Shapefile.Polygon);
-            final Shapefile.Polygon lastPolygon = (Shapefile.Polygon) lastRecord.geometry;
+            assertEquals(6, lastRecord.getRecordNumber());
+            assertEquals(68644, lastRecord.getContentLength());
+            assertTrue(lastRecord.getGeometry() instanceof Shapefile.Polygon);
+            final Shapefile.Polygon lastPolygon = (Shapefile.Polygon) lastRecord.getGeometry();
             assertEquals(8550, lastPolygon.numPoints);
             assertEquals(334905.65772224095, lastPolygon.points[0].x, 1e-10);
             assertEquals(4690244.781248379, lastPolygon.points[0].y, 1e-10);
@@ -126,25 +126,25 @@ public class ShapefileTest extends TestCase {
         try {
             Shapefile.Header header = shapefile.readHeader();
             assertNotNull(header);
-            assertEquals(9994, header.fileCode);
-            assertEquals(438170, header.fileLength);
-            assertEquals(1000, header.version);
-            assertEquals(Shapefile.Geometry.GT_POLYLINE, header.shapeType);
-            assertEquals(330921.8799990894, header.xmin, 1e-10);
-            assertEquals(4679933.510006693, header.ymin, 1e-10);
-            assertEquals(350057.2300009106, header.xmax, 1e-10);
-            assertEquals(4699917.389993305, header.ymax, 1e-10);
-            assertEquals(0.0, header.zmin, 1e-10);
-            assertEquals(0.0, header.zmax, 1e-10);
-            assertEquals(0.0, header.mmin, 1e-10);
-            assertEquals(0.0, header.mmax, 1e-10);
+            assertEquals(9994, header.getFileCode());
+            assertEquals(438170, header.getFileLength());
+            assertEquals(1000, header.getVersion());
+            assertEquals(Shapefile.Geometry.GT_POLYLINE, header.getShapeType());
+            assertEquals(330921.8799990894, header.getXmin(), 1e-10);
+            assertEquals(4679933.510006693, header.getYmin(), 1e-10);
+            assertEquals(350057.2300009106, header.getXmax(), 1e-10);
+            assertEquals(4699917.389993305, header.getYmax(), 1e-10);
+            assertEquals(0.0, header.getZmin(), 1e-10);
+            assertEquals(0.0, header.getZmax(), 1e-10);
+            assertEquals(0.0, header.getMmin(), 1e-10);
+            assertEquals(0.0, header.getMmax(), 1e-10);
 
             Shapefile.Record firstRecord = shapefile.readRecord();
             assertNotNull(firstRecord);
-            assertEquals(1, firstRecord.recordNumber);
-            assertEquals(120, firstRecord.contentLength);
-            assertTrue(firstRecord.geometry instanceof Shapefile.Polyline);
-            final Shapefile.Polyline firstPolyline = (Shapefile.Polyline) firstRecord.geometry;
+            assertEquals(1, firstRecord.getRecordNumber());
+            assertEquals(120, firstRecord.getContentLength());
+            assertTrue(firstRecord.getGeometry() instanceof Shapefile.Polyline);
+            final Shapefile.Polyline firstPolyline = (Shapefile.Polyline) firstRecord.getGeometry();
             assertEquals(12, firstPolyline.numPoints);
             assertEquals(331082.43999923894, firstPolyline.points[0].x, 1e-10);
             assertEquals(4692970.829986836, firstPolyline.points[0].y, 1e-10);
@@ -155,10 +155,10 @@ public class ShapefileTest extends TestCase {
 
             Shapefile.Record lastRecord = getLastRecord(shapefile, 1677);
             assertNotNull(lastRecord);
-            assertEquals(1678, lastRecord.recordNumber);
-            assertEquals(200, lastRecord.contentLength);
-            assertTrue(lastRecord.geometry instanceof Shapefile.Polyline);
-            final Shapefile.Polyline lastPolyline = (Shapefile.Polyline) lastRecord.geometry;
+            assertEquals(1678, lastRecord.getRecordNumber());
+            assertEquals(200, lastRecord.getContentLength());
+            assertTrue(lastRecord.getGeometry() instanceof Shapefile.Polyline);
+            final Shapefile.Polyline lastPolyline = (Shapefile.Polyline) lastRecord.getGeometry();
             assertEquals(22, lastPolyline.numPoints);
             assertEquals(340920.100008401, lastPolyline.points[0].x, 1e-10);
             assertEquals(4694739.700004483, lastPolyline.points[0].y, 1e-10);
@@ -176,10 +176,10 @@ public class ShapefileTest extends TestCase {
         Shapefile.Record lastRecord = null;
         int numRemaining = 0;
         while (true) {
-            try {
-                lastRecord = shapefile.readRecord();
+            lastRecord = shapefile.readRecord();
+            if (lastRecord != null) {
                 numRemaining++;
-            } catch (EOFException e) {
+            } else {
                 break;
             }
         }
