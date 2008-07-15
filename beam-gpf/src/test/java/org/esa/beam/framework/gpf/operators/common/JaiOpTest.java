@@ -10,10 +10,13 @@ import org.esa.beam.framework.gpf.OperatorException;
 import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.util.jai.SingleBandedSampleModel;
 
-import javax.media.jai.TiledImage;
+import javax.media.jai.*;
+import javax.media.jai.util.Range;
 import java.awt.Rectangle;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
+import java.awt.image.BufferedImage;
+import java.awt.image.renderable.ParameterBlock;
 import java.util.HashMap;
 
 public class JaiOpTest extends TestCase {
@@ -152,5 +155,63 @@ public class JaiOpTest extends TestCase {
                 0.3f,0.4f,0.5f,
         }));
         return sourceProduct;
+    }
+
+
+    /**
+     * Not actually a unit-test, its just a code snippet allowing
+     * to explore API specification and object state of a JAI RenderedOp.
+     */
+    public void testJaiOperationIntrospection() {
+        final BufferedImage sourceImage = new BufferedImage(16, 16, BufferedImage.TYPE_4BYTE_ABGR);
+
+        final ParameterBlockJAI params = new ParameterBlockJAI("scale");
+        params.setParameter("xScale", 2.0f);
+        params.setParameter("yScale", 3.0f);
+        params.addSource(sourceImage);
+        final RenderedOp op = JAI.create("scale", params);
+        assertEquals("scale", op.getOperationName());
+
+        final ParameterBlock parameterBlock = op.getParameterBlock();
+        assertNotNull(parameterBlock);
+        assertNotSame(params, parameterBlock);
+        assertTrue(parameterBlock instanceof ParameterBlockJAI);
+        ParameterBlockJAI parameterBlockJAI = (ParameterBlockJAI) op.getParameterBlock();
+
+        final OperationDescriptor operationDescriptor = parameterBlockJAI.getOperationDescriptor();
+        assertNotNull(operationDescriptor);
+        assertEquals("Scale", operationDescriptor.getName());
+
+        final ParameterListDescriptor parameterListDescriptor = operationDescriptor.getParameterListDescriptor("rendered");
+        assertNotNull(parameterListDescriptor);
+        assertEquals(5, parameterListDescriptor.getNumParameters());
+
+        final String[] paramNames = parameterListDescriptor.getParamNames();
+        assertNotNull(paramNames);
+        assertEquals(5, paramNames.length);
+        assertEquals("xScale", paramNames[0]);
+        assertEquals("yScale", paramNames[1]);
+        assertEquals("xTrans", paramNames[2]);
+        assertEquals("yTrans", paramNames[3]);
+        assertEquals("interpolation", paramNames[4]);
+
+        final Class[] paramClasses = parameterListDescriptor.getParamClasses();
+        assertNotNull(paramClasses);
+        assertEquals(5, paramClasses.length);
+        assertEquals(Float.class, paramClasses[0]);
+        assertEquals(Float.class, paramClasses[1]);
+        assertEquals(Float.class, paramClasses[2]);
+        assertEquals(Float.class, paramClasses[3]);
+        assertEquals(Interpolation.class, paramClasses[4]);
+
+        final Object[] paramDefaults = parameterListDescriptor.getParamDefaults();
+        assertNotNull(paramDefaults);
+        assertEquals(5, paramDefaults.length);
+        assertEquals(1.0f, paramDefaults[0]);
+        assertEquals(1.0f, paramDefaults[1]);
+        assertEquals(0.0f, paramDefaults[2]);
+        assertEquals(0.0f, paramDefaults[3]);
+        assertEquals(Interpolation.getInstance(Interpolation.INTERP_NEAREST), paramDefaults[4]);
+
     }
 }
