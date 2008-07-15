@@ -168,9 +168,14 @@ public class EMClusterer {
                         }
                     }
                 }
+                double test = 0.0;
                 for (int k = 0; k < clusterCount; ++k) {
                     final double t = 1.0 / (1.0 + sums[k]);
                     h[k][i] = t;
+                    test += t;
+                }
+                if (test == 0.0 || Double.isNaN(test)) {
+                    throw new IllegalStateException("Shit! test = " + test);
                 }
             }
         }
