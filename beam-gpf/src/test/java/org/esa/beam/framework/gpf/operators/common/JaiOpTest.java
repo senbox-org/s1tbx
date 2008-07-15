@@ -18,6 +18,8 @@ import java.awt.image.RenderedImage;
 import java.awt.image.BufferedImage;
 import java.awt.image.renderable.ParameterBlock;
 import java.util.HashMap;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
 
 public class JaiOpTest extends TestCase {
     public void testNoSourceGiven() {
@@ -213,5 +215,90 @@ public class JaiOpTest extends TestCase {
         assertEquals(0.0f, paramDefaults[3]);
         assertEquals(Interpolation.getInstance(Interpolation.INTERP_NEAREST), paramDefaults[4]);
 
+    }
+
+
+    /**
+     * Not actually a unit-test, its just a code snippet allowing
+     * to explore API specification and object state of a JAI RenderedOp.
+     */
+    public void testJaiOperationParameterChange() {
+        final BufferedImage sourceImage = new BufferedImage(16, 16, BufferedImage.TYPE_4BYTE_ABGR);
+
+        ParameterBlockJAI params = new ParameterBlockJAI("scale");
+        params.setParameter("xScale", 2.0f);
+        params.setParameter("yScale", 3.0f);
+        params.addSource(sourceImage);
+        final RenderedOp renderedOp = JAI.create("scale", params);
+
+        final MockPCL mockPCL = new MockPCL();
+        renderedOp.addPropertyChangeListener(mockPCL);
+
+        final PlanarImage rendering = renderedOp.getRendering();
+        assertSame(rendering, renderedOp.getRendering());
+        assertTrue(rendering instanceof OpImage);
+
+        final PlanarImage instance = renderedOp.createInstance();
+        assertNotSame(instance, renderedOp);
+        assertNotSame(instance, rendering);
+        assertNotSame(instance, renderedOp.createInstance());
+
+        assertEquals("", mockPCL.trace);
+
+        params = new ParameterBlockJAI("scale");
+        params.setParameter("xScale", 0.5f);
+        params.setParameter("yScale", 3.3f);
+        params.addSource(sourceImage);
+        renderedOp.setParameterBlock(params);
+
+        assertEquals("parameters;rendering;", mockPCL.trace);
+
+        assertNotSame(rendering, renderedOp.getRendering());
+        assertSame(renderedOp.getRendering(), renderedOp.getRendering());
+
+
+    }
+
+    /**
+     * Not actually a unit-test, its just a code snippet allowing
+     * to explore API specification and object state of a JAI RenderedOp.
+     */
+    public void testJaiOperationParameterChangeInDAG() {
+        final BufferedImage sourceImage = new BufferedImage(16, 16, BufferedImage.TYPE_4BYTE_ABGR);
+
+        ParameterBlockJAI params = new ParameterBlockJAI("scale");
+        params.setParameter("xScale", 2.0f);
+        params.setParameter("yScale", 3.0f);
+        params.addSource(sourceImage);
+        final RenderedOp renderedOp1 = JAI.create("scale", params);
+
+        params = new ParameterBlockJAI("rescale");
+        params.setParameter("offsets", new double[]{0.5, 0.5, 0.5,0.5});
+        params.setParameter("constants", new double[]{1.5, 1.5, 1.5,1.5});
+        params.addSource(renderedOp1);
+        final RenderedOp renderedOp2 = JAI.create("rescale", params);
+
+        final MockPCL mockPCL = new MockPCL();
+        renderedOp2.addPropertyChangeListener(mockPCL);
+
+        final PlanarImage rendering = renderedOp2.getRendering();
+        assertSame(rendering, renderedOp2.getRendering());
+        assertTrue(rendering instanceof OpImage);
+
+        params = new ParameterBlockJAI("scale");
+        params.setParameter("xScale", 0.5f);
+        params.setParameter("yScale", 3.3f);
+        params.addSource(sourceImage);
+        renderedOp1.setParameterBlock(params);
+
+        assertEquals("rendering;", mockPCL.trace);
+    }
+
+    private static class MockPCL implements PropertyChangeListener {
+        String trace = "";
+
+        public void propertyChange(PropertyChangeEvent evt) {
+            trace += evt.getPropertyName()+";";
+        }
     }
 }
