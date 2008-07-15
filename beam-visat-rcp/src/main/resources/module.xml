@@ -492,14 +492,14 @@
         </action>
 
         <action>
-            <id>importTransectData</id>
+            <id>importShape</id>
             <class>org.esa.beam.visat.actions.ImportShapeAction</class>
             <parent>import</parent>
             <text>Import Shape...</text>
             <mnemonic>S</mnemonic>
             <shortDescr>Import shape from plain text or ESRI shapefile.</shortDescr>
             <description>Import shape from plain text or ESRI shapefile.</description>
-            <helpId>importTransectData</helpId>
+            <helpId>importShape</helpId>
             <separatorBefore>true</separatorBefore>
             <separatorAfter>true</separatorAfter>
             <placeBefore>importGETASSE30Product</placeBefore>

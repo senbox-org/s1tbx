@@ -80,20 +80,16 @@ public class ImportShapeAction extends ExecCommand {
 
         final RasterDataNode raster = productSceneView.getRaster();
         final GeoCoding geoCoding = raster.getProduct().getGeoCoding();
+        if (file.getName().endsWith(".shp") && (geoCoding == null || !geoCoding.canGetPixelPos())) {
+            visatApp.showErrorDialog(DLG_TITLE,
+                                     "Failed to import shape.\n" +
+                                             "Suitable geo-coding required for reading ESRI shapefiles."); /*I18N*/
+            return;
+        }
 
         Shape shape = null;
         try {
-            if (file.getName().endsWith(".shp")) {
-                if (geoCoding == null || !geoCoding.canGetPixelPos()) {
-                    visatApp.showErrorDialog(DLG_TITLE,
-                                             "Failed to import shape.\n" +
-                                                     "Suitable geo-coding required for reading ESRI shapefiles."); /*I18N*/
-                    return;
-                }
-                shape = readShapeFromShapefile(file, geoCoding);
-            } else {
-                shape = readShapeFromTextFile(file, geoCoding);
-            }
+            shape = readShape(file, geoCoding);
             if (shape == null) {
                 visatApp.showErrorDialog(DLG_TITLE,
                                          "Failed to import shape.\n" +
@@ -122,6 +118,16 @@ public class ImportShapeAction extends ExecCommand {
 
         final Figure figure = new ShapeFigure(shape, true, null);
         productSceneView.setCurrentShapeFigure(figure);
+    }
+
+    public static Shape readShape(File file, GeoCoding geoCoding) throws IOException {
+        Shape shape;
+        if (file.getName().endsWith(".shp")) {
+            shape = readShapeFromShapefile(file, geoCoding);
+        } else {
+            shape = readShapeFromTextFile(file, geoCoding);
+        }
+        return shape;
     }
 
     public static Shape readShapeFromShapefile(File file, final GeoCoding geoCoding) throws IOException {

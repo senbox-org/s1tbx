@@ -2,7 +2,6 @@ package org.esa.beam.dataio.shapefile;
 
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
-import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
@@ -369,12 +368,13 @@ public class Shapefile {
     }
 
     public static interface Transform {
-       Transform IDENTITY = new Transform() {
-           public Point transformPoint(Point pt) {
-               return new Point(pt.x, pt.y);
-           }
-       };
-       Point transformPoint(Point pt);
+        Transform IDENTITY = new Transform() {
+            public Point transformPoint(Point pt) {
+                return new Point(pt.x, pt.y);
+            }
+        };
+
+        Point transformPoint(Point pt);
     }
 
     public static class NullShape implements Geometry {
