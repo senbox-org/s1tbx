@@ -4,7 +4,6 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.dataio.ProductWriter;
-import org.esa.beam.framework.dataio.ProductIOPlugInManager;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
@@ -21,10 +20,6 @@ import org.esa.beam.framework.gpf.annotations.SourceProduct;
 import org.esa.beam.framework.gpf.annotations.TargetProduct;
 import org.esa.beam.framework.gpf.internal.OperatorImage;
 import org.esa.beam.util.math.MathUtils;
-import org.esa.beam.util.SystemUtils;
-import org.esa.beam.util.ProductUtils;
-import org.esa.beam.util.ObjectUtils;
-import org.esa.beam.util.ArrayUtils;
 import org.esa.beam.dataio.dimap.DimapProductWriter;
 
 import javax.media.jai.JAI;
@@ -37,8 +32,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Arrays;
-import java.util.Collections;
 
 @OperatorMetadata(alias = "Write",
                   description = "Writes a product to disk.")
@@ -139,8 +132,8 @@ public class WriteOp extends Operator {
 
     private void updateComputedTileMap(Band targetBand, Tile targetTile) throws IOException {
         synchronized (notComputedTileIndexList) {
-            if (targetBand.getImage() instanceof OperatorImage) {
-                OperatorImage operatorImage = (OperatorImage) targetBand.getImage();
+            if (targetBand.getSourceImage() instanceof OperatorImage) {
+                OperatorImage operatorImage = (OperatorImage) targetBand.getSourceImage();
 
                 final List<Point> currentList = getTileList(operatorImage);
                 currentList.remove(new Point(operatorImage.XToTileX(targetTile.getMinX()),

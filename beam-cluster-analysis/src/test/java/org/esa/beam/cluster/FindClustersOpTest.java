@@ -92,7 +92,7 @@ public class FindClustersOpTest extends TestCase {
 
         band.setSynthetic(true);
         band.setRasterData(ProductData.createInstance(values));
-        band.setImage(new RasterDataNodeOpImage(band));
+        band.setSourceImage(new RasterDataNodeOpImage(band));
 
         return band;
     }

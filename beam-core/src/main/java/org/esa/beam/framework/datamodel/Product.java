@@ -2674,8 +2674,8 @@ public class Product extends ProductNode {
      * created for a {@link RasterDataNode} of this product.
      *
      * @return the preferred tile size, may be <code>null</null> if not specified
-     * @see RasterDataNode#getImage()
-     * @see RasterDataNode#setImage(java.awt.image.RenderedImage)
+     * @see RasterDataNode#getSourceImage()
+     * @see RasterDataNode# setSourceImage (java.awt.image.RenderedImage)
      */
     public Dimension getPreferredTileSize() {
         return preferredTileSize;
@@ -2698,8 +2698,8 @@ public class Product extends ProductNode {
      * created for a {@link RasterDataNode} of this product.
      *
      * @param preferredTileSize the preferred tile size, may be <code>null</null> if not specified
-     * @see RasterDataNode#getImage()
-     * @see RasterDataNode#setImage(java.awt.image.RenderedImage)
+     * @see RasterDataNode#getSourceImage()
+     * @see RasterDataNode# setSourceImage (java.awt.image.RenderedImage)
      */
     public void setPreferredTileSize(Dimension preferredTileSize) {
         this.preferredTileSize = preferredTileSize;

@@ -122,9 +122,9 @@ public class MergeOp extends Operator {
     private Band copyBandWithFeatures(Product srcProduct, Product outputProduct, String bandName) {
         Band destBand = ProductUtils.copyBand(bandName, srcProduct, outputProduct);
         Band srcBand = srcProduct.getBand(bandName);
-        RenderedImage image = srcBand.getImage();
+        RenderedImage image = srcBand.getSourceImage();
         if (image != null) {
-            destBand.setImage(image);
+            destBand.setSourceImage(image);
         }
         if (srcBand.getFlagCoding() != null) {
             FlagCoding srcFlagCoding = srcBand.getFlagCoding();

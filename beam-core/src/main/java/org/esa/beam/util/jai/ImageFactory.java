@@ -67,7 +67,7 @@ public class ImageFactory {
         PlanarImage[] sourceImages = new PlanarImage[rasterDataNodes.length];
         for (int i = 0; i < rasterDataNodes.length; i++) {
             final RasterDataNode raster = rasterDataNodes[i];
-            PlanarImage planarImage = PlanarImage.wrapRenderedImage(raster.getImage());
+            PlanarImage planarImage = PlanarImage.wrapRenderedImage(raster.getSourceImage());
 
             final ColorPaletteDef def = raster.getImageInfo().getColorPaletteDef();
             final double newMin = raster.scaleInverse(def.getMinDisplaySample());
@@ -87,16 +87,16 @@ public class ImageFactory {
 
     private static void prepareRenderedImages(RasterDataNode[] rasterDataNodes) {
         for (final RasterDataNode raster : rasterDataNodes) {
-            RenderedImage renderedImage = raster.getImage();
+            RenderedImage renderedImage = raster.getSourceImage();
             if (renderedImage == null) {
-                raster.setImage(new RasterDataNodeOpImage(raster));
+                raster.setSourceImage(new RasterDataNodeOpImage(raster));
             }
         }
     }
 
     private static void prepareImageInfos(RasterDataNode[] rasterDataNodes, ProgressMonitor pm) {
         for (final RasterDataNode raster : rasterDataNodes) {
-            final RenderedImage renderedImage = raster.getImage();
+            final RenderedImage renderedImage = raster.getSourceImage();
             Assert.notNull(renderedImage);
             final PlanarImage planarImage = PlanarImage.wrapRenderedImage(renderedImage);
             if (raster.getImageInfo() == null) {

@@ -74,7 +74,7 @@ public class OperatorImage extends RasterDataNodeOpImage {
     }
 
     private boolean isBandComputedByOperator(Band band) {
-        return band.getImage() instanceof OperatorImage;
+        return band.getSourceImage() instanceof OperatorImage;
     }
 
     private WritableRaster getWritableTile(Band band, WritableRaster targetTileRaster) {

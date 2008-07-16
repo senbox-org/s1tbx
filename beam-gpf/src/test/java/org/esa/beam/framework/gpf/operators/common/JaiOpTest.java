@@ -11,7 +11,6 @@ import org.esa.beam.framework.gpf.Tile;
 import org.esa.beam.util.jai.SingleBandedSampleModel;
 
 import javax.media.jai.*;
-import javax.media.jai.util.Range;
 import java.awt.Rectangle;
 import java.awt.image.DataBuffer;
 import java.awt.image.RenderedImage;
@@ -78,7 +77,7 @@ public class JaiOpTest extends TestCase {
         assertEquals(8, targetBand.getSceneRasterWidth());
         assertEquals(8, targetBand.getSceneRasterHeight());
 
-        final RenderedImage targetImage = targetBand.getImage();
+        final RenderedImage targetImage = targetBand.getSourceImage();
         assertNotNull(targetImage);
         assertEquals(8, targetImage.getWidth());
         assertEquals(8, targetImage.getHeight());
@@ -123,7 +122,7 @@ public class JaiOpTest extends TestCase {
         assertEquals(4, targetBand.getSceneRasterWidth());
         assertEquals(4, targetBand.getSceneRasterHeight());
 
-        final RenderedImage targetImage = targetBand.getImage();
+        final RenderedImage targetImage = targetBand.getSourceImage();
         assertNotNull(targetImage);
         assertEquals(4, targetImage.getWidth());
         assertEquals(4, targetImage.getHeight());
@@ -145,7 +144,7 @@ public class JaiOpTest extends TestCase {
         sourceImage.setSample(1, 1, 0, 234);
         sourceImage.setSample(2, 2, 0, 345);
         sourceImage.setSample(3, 3, 0, 456);
-        sourceBand.setImage(sourceImage);
+        sourceBand.setSourceImage(sourceImage);
     }
 
     private Product createSourceProduct() {

@@ -257,8 +257,8 @@ public class OperatorContext {
             Collection<RasterDataNodeOpImage> operatorImages = targetImageMap.values();
             for (RasterDataNodeOpImage image : operatorImages) {
                 RasterDataNode rdn = image.getRasterDataNode();
-                if (rdn != null && rdn.getImage() instanceof OperatorImage) {
-                    rdn.setImage(null);
+                if (rdn != null && rdn.getSourceImage() instanceof OperatorImage) {
+                    rdn.setSourceImage(null);
                 }
                 image.dispose();
                 JAI.getDefaultInstance().getTileCache().removeTiles(image);
@@ -269,10 +269,10 @@ public class OperatorContext {
     }
 
     private static RenderedImage getSourceImage(RasterDataNode rasterDataNode) {
-        RenderedImage image = rasterDataNode.getImage();
+        RenderedImage image = rasterDataNode.getSourceImage();
         if (image == null) {
             image = new RasterDataNodeOpImage(rasterDataNode);
-            rasterDataNode.setImage(image);
+            rasterDataNode.setSourceImage(image);
         }
         return image;
     }
@@ -488,8 +488,8 @@ public class OperatorContext {
                 // Create an image that calls Band.readRasterDataNode() to compute a tile (VirtualBand, FilterBand, ...)
                 image = new RasterDataNodeOpImage(band);
             }
-            if (band.getImage() == null) {
-                band.setImage(image);
+            if (band.getSourceImage() == null) {
+                band.setSourceImage(image);
             }
             targetImageMap.put(band, image);
         }

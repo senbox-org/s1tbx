@@ -132,7 +132,8 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     private static final int READ_BUFFER_MAX_SIZE = 8 * 1024 * 1024; // 8 MB
     private Pointing pointing;
 
-    private RenderedImage image;
+    private RenderedImage sourceImage;
+    private RenderedImage validMaskImage;
 
     /**
      * Constructs an object of type <code>RasterDataNode</code>.
@@ -814,7 +815,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
                                                                             newExternalName);
                 final ROIDefinition newRoiDef = roiDefinition.createCopy();
                 newRoiDef.setBitmaskExpr(newBitmaskExpression);
-                // a new roi definition must be set to inform product node listeners because a roi image
+                // a new roi definition must be set to inform product node listeners because a roi sourceImage
                 // is only automatically updated if a product node listener is informed of changes.
                 // A roi definition is not a product node so that a product node listener can not be
                 // informed if an expression is changed.
@@ -940,13 +941,13 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             roiDefinition.dispose();
             roiDefinition = null;
         }
-        if (image != null) {
-            JAI.getDefaultInstance().getTileCache().removeTiles(image);
-            if (image instanceof PlanarImage) {
-                PlanarImage planarImage = (PlanarImage) image;
+        if (sourceImage != null) {
+            JAI.getDefaultInstance().getTileCache().removeTiles(sourceImage);
+            if (sourceImage instanceof PlanarImage) {
+                PlanarImage planarImage = (PlanarImage) sourceImage;
                 planarImage.dispose();
             }
-            image = null;
+            sourceImage = null;
         }
         super.dispose();
     }
@@ -1775,7 +1776,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
         final int w = getSceneRasterWidth();
         final int h = getSceneRasterHeight();
 
-        // Create the result image
+        // Create the result sourceImage
         final IndexColorModel cm = new IndexColorModel(8, 2,
                                                        new byte[]{b00, (byte) color.getRed()},
                                                        new byte[]{b00, (byte) color.getGreen()},
@@ -1972,7 +1973,7 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
             //
             Figure roiShapeFigure = roiDefinition.getShapeFigure();
             if (roiDefinition.isShapeEnabled() && roiShapeFigure != null) {
-                // @todo 1 nf/nf - save memory by just allocating the image for the shape's bounding box
+                // @todo 1 nf/nf - save memory by just allocating the sourceImage for the shape's bounding box
                 final BufferedImage bi2 = new BufferedImage(w, h,
                                                             BufferedImage.TYPE_BYTE_INDEXED,
                                                             new IndexColorModel(8, 2,
@@ -2395,28 +2396,54 @@ public abstract class RasterDataNode extends DataNode implements Scaling {
     }
 
     /**
-     * Gets the rendered image associated with this {@code RasterDataNode}.
+     * Gets the source image associated with this {@code RasterDataNode}.
      * This image is currently not used for display purposes.
      * Used by GPF. This method belongs to preliminary API and may be removed or changed in the future.
      * @return The rendered image.
      * @since BEAM 4.2
      */
-    public RenderedImage getImage() {
-        return image;
+    public RenderedImage getSourceImage() {
+        return sourceImage;
     }
 
     /**
-     * Sets the rendered image associated with this {@code RasterDataNode}.
+     * Sets the source image associated with this {@code RasterDataNode}.
+     * This image is currently not used for display purposes.
+     * Used by GPF. This method belongs to preliminary API and may be removed or changed in the future.
+     * @param sourceImage The rendered image.
+     * @since BEAM 4.2
+     */
+    public void setSourceImage(RenderedImage sourceImage) {
+        final RenderedImage oldValue = this.sourceImage;
+        if (oldValue != sourceImage) {
+            this.sourceImage = sourceImage;
+            fireProductNodeChanged("sourceImage", oldValue);
+        }
+    }
+
+    /**
+     * Gets the valid-mask image associated with this {@code RasterDataNode}.
+     * This image is currently not used for display purposes.
+     * Used by GPF. This method belongs to preliminary API and may be removed or changed in the future.
+     * @return The rendered image.
+     * @since BEAM 4.2
+     */
+    public RenderedImage getValidMaskImage() {
+        return validMaskImage;
+    }
+
+    /**
+     * Sets the valid-mask image associated with this {@code RasterDataNode}.
      * This image is currently not used for display purposes.
      * Used by GPF. This method belongs to preliminary API and may be removed or changed in the future.
      * @param image The rendered image.
      * @since BEAM 4.2
      */
-    public void setImage(RenderedImage image) {
-        final RenderedImage oldValue = this.image;
+    public void setValidMaskImage(RenderedImage image) {
+        final RenderedImage oldValue = this.validMaskImage;
         if (oldValue != image) {
-            this.image = image;
-            fireProductNodeChanged("image", oldValue);
+            this.validMaskImage = image;
+            fireProductNodeChanged("validMaskImage", oldValue);
         }
     }
 

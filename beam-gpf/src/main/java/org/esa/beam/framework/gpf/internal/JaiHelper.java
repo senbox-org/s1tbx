@@ -60,13 +60,13 @@ public class JaiHelper {
             Band sourceBand = sourceBands[i];
             Band targetBand = new Band(sourceBand.getName(), sourceBand.getDataType(), width, height);
             ProductUtils.copyRasterDataNodeProperties(sourceBand, targetBand);
-            targetBand.setImage(bandRenderedOps[i]);
+            targetBand.setSourceImage(bandRenderedOps[i]);
             targetProduct.addBand(targetBand);
         }
         for (final TiePointGrid sourceGrid : tiePointGrids) {
             Band targetBand = new Band(sourceGrid.getName(), sourceGrid.getDataType(), width, height);
             ProductUtils.copyRasterDataNodeProperties(sourceGrid, targetBand);
-            targetBand.setImage(createTargetImage(sourceGrid, operationName, operationParameters, renderingHints));
+            targetBand.setSourceImage(createTargetImage(sourceGrid, operationName, operationParameters, renderingHints));
             targetProduct.addBand(targetBand);
         }
 
@@ -110,10 +110,10 @@ public class JaiHelper {
                                                 HashMap<String, Object> operationParameters,
                                                 RenderingHints renderingHints) {
         final ParameterBlockJAI parameterBlock = new ParameterBlockJAI(operationName);
-        RenderedImage sourceImage = sourceBand.getImage();
+        RenderedImage sourceImage = sourceBand.getSourceImage();
         if (sourceImage == null) {
             sourceImage = new RasterDataNodeOpImage(sourceBand);
-            sourceBand.setImage(sourceImage);
+            sourceBand.setSourceImage(sourceImage);
         }
         parameterBlock.addSource(sourceImage);
         for (Map.Entry<String, Object> parameter : operationParameters.entrySet()) {

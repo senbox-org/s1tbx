@@ -6,22 +6,17 @@ import com.thoughtworks.xstream.io.xml.xppdom.Xpp3Dom;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.util.jai.RasterDataNodeOpImage;
-import org.esa.beam.util.math.MathUtils;
 
-import javax.media.jai.JAI;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 /**
@@ -215,7 +210,7 @@ public class GraphProcessor {
         Map<Dimension, List<NodeContext>> tileSizeMap = new HashMap<Dimension, List<NodeContext>>(mapSize);
         for (NodeContext outputNodeContext : outputNodeContexts) {
             Product targetProduct = outputNodeContext.getTargetProduct();
-            RenderedImage image = targetProduct.getBandAt(0).getImage();
+            RenderedImage image = targetProduct.getBandAt(0).getSourceImage();
             final int numXTiles = image.getNumXTiles();
             final int numYTiles = image.getNumYTiles();
             Dimension tileDim = new Dimension(numXTiles, numYTiles);
