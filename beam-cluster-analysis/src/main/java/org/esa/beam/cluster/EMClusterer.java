@@ -38,7 +38,7 @@ public class EMClusterer {
     private final double[][] h;
     private final double[][] means;
     private final double[][][] covariances;
-    private final Distribution[] distributions;
+    private final MultinormalDistribution[] distributions;
 
     /**
      * Finds a collection of clusters for a given set of data points.
@@ -46,10 +46,11 @@ public class EMClusterer {
      * @param points         the data points.
      * @param clusterCount   the number of clusters.
      * @param iterationCount the number of EM iterations to be made.
+     * @param randomSeed     the seed used to initialize the cluster algorithm
      *
      * @return the cluster decomposition.
      */
-    public static EMClusterSet findClusters(double[][] points, int clusterCount, int iterationCount, int randomSeed) {
+    static EMClusterSet findClusters(double[][] points, int clusterCount, int iterationCount, int randomSeed) {
         return new EMClusterer(points, clusterCount, randomSeed).findClusters(iterationCount);
     }
 
@@ -58,6 +59,7 @@ public class EMClusterer {
      *
      * @param points       the data points.
      * @param clusterCount the number of clusters.
+     * @param randomSeed   the seed used to initialize the cluster algorithm
      */
     public EMClusterer(double[][] points, int clusterCount, int randomSeed) {
         pointCount = points.length;
@@ -69,7 +71,7 @@ public class EMClusterer {
         h = new double[clusterCount][pointCount];
         means = new double[clusterCount][dimensionCount];
         covariances = new double[clusterCount][dimensionCount][dimensionCount];
-        distributions = new Distribution[clusterCount];
+        distributions = new MultinormalDistribution[clusterCount];
 
         initialize(new Random(randomSeed));
     }
@@ -145,18 +147,18 @@ public class EMClusterer {
      * Performs an E-step.
      */
     private void stepE() {
+        boolean underflow = false;
         for (int i = 0; i < pointCount; ++i) {
-            double sum = 0.0;
+            // this code is duplicated in EMClusterSet.getPosteriorProbabilities()            
             for (int k = 0; k < clusterCount; ++k) {
                 h[k][i] = p[k] * distributions[k].probabilityDensity(points[i]);
-                sum += h[k][i];
-            }
-            if (sum > 0.0) {
-                for (int k = 0; k < h.length; ++k) {
-                    final double t = h[k][i] / sum;
-                    h[k][i] = t;
+                if (h[k][i] == 0.0) {
+                    underflow = true;
+                    break;
                 }
-            } else { // numerical underflow - recompute posterior cluster probabilities
+            }
+            // numerical underflow - compute probabilities using logarithm
+            if (underflow) {
                 final double[] sums = new double[clusterCount];
                 for (int k = 0; k < clusterCount; ++k) {
                     h[k][i] = distributions[k].logProbabilityDensity(points[i]);
@@ -168,15 +170,19 @@ public class EMClusterer {
                         }
                     }
                 }
-                double test = 0.0;
                 for (int k = 0; k < clusterCount; ++k) {
-                    final double t = 1.0 / (1.0 + sums[k]);
-                    h[k][i] = t;
-                    test += t;
+                    h[k][i] = 1.0 / (1.0 + sums[k]);
                 }
-                if (test == 0.0 || Double.isNaN(test)) {
-                    throw new IllegalStateException("Shit! test = " + test);
-                }
+            }
+            // ensure non-zero probabilities
+             double sum = 0.0;
+            for (int k = 0; k < clusterCount; ++k) {
+                h[k][i] += 1.0E-10;
+                sum += h[k][i];
+            }
+            // normalize probabilities
+            for (int k = 0; k < clusterCount; ++k) {
+                h[k][i] /= sum;
             }
         }
     }

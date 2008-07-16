@@ -24,16 +24,11 @@ import java.text.MessageFormat;
  */
 public class MultinormalDistribution implements Distribution {
 
-    private static final double MAX_CONDITION = 1.0E14;
-
-    private final int n;
     private final double[] mean;
-
     private final double[][] covariances;
-    private final double[][] eigenvectors;
 
-    private final double[] eigenvalues;
     private final double logNormFactor;
+    private final Eigendecomposition eigendecomposition;
 
     /**
      * Constructs a new multinormal distribution.
@@ -42,50 +37,26 @@ public class MultinormalDistribution implements Distribution {
      * @param covariances the distribution covariances.
      */
     public MultinormalDistribution(double[] mean, double[][] covariances) {
-        this(mean.length, mean, covariances, new EigenproblemSolver());
-    }
-
-    /**
-     * Constructs a new multinormal distribution.
-     *
-     * @param n           the dimension of the domain.
-     * @param mean        the distribution mean.
-     * @param covariances the distribution covariances. Only the upper triangular
-     *                    elements are used.
-     * @param solver      the {@link EigenproblemSolver} used for decomposing the covariance matrix.
-     */
-    private MultinormalDistribution(int n, double[] mean, double[][] covariances, EigenproblemSolver solver) {
-        if (mean.length != n) {
-            throw new IllegalArgumentException("mean.length != n");
+        if (covariances.length != mean.length) {
+            throw new IllegalArgumentException("covariances.length != mean.length");
         }
-        if (covariances.length != n) {
-            throw new IllegalArgumentException("covariances.length != n");
-        }
-        for (int i = 0; i < n; ++i) {
-            if (covariances[i].length != n) {
-                throw new IllegalArgumentException(MessageFormat.format("covariances[{0}].length != n", i));
+        for (int i = 0; i < mean.length; ++i) {
+            if (covariances[i].length != mean.length) {
+                throw new IllegalArgumentException(MessageFormat.format("covariances[{0}].length != mean.length", i));
             }
         }
 
-        this.n = n;
         this.mean = mean;
         this.covariances = covariances;
 
-        final Eigendecomposition eigendecomposition = solver.createEigendecomposition(n, covariances);
-        eigenvalues = eigendecomposition.getEigenvalues();
-        eigenvectors = eigendecomposition.getV();
+        eigendecomposition = new Eigendecomposition(mean.length, covariances);
 
-        // Correct eigenvalues if the covariance matrix is ill-conditioned.
-        final double t = eigenvalues[0] / MAX_CONDITION - eigenvalues[n - 1];
-        if (t > 0.0) {
-            for (int i = 0; i < n; ++i) {
-                eigenvalues[i] += t;
-                covariances[i][i] += t;
-            }
+        double logDet = Math.log(product(eigendecomposition.getEigenvalues()));
+        if (Double.isNaN(logDet) || Double.isInfinite(logDet)) {
+            throw new ArithmeticException("Matrix is ill-conditioned.");
         }
 
-        final double det = product(eigendecomposition.getEigenvalues());
-        logNormFactor = -0.5 * (n * log(2.0 * PI) + log(det));
+        logNormFactor = -0.5 * (mean.length * log(2.0 * PI) + logDet);
     }
 
     public final double probabilityDensity(double[] y) {
@@ -93,8 +64,8 @@ public class MultinormalDistribution implements Distribution {
     }
 
     public final double logProbabilityDensity(double[] y) {
-        if (y.length != n) {
-            throw new IllegalArgumentException("y.length != n");
+        if (y.length != mean.length) {
+            throw new IllegalArgumentException("y.length != mean.length");
         }
 
         return logNormFactor - 0.5 * mahalanobisSquaredDistance(y);
@@ -108,17 +79,17 @@ public class MultinormalDistribution implements Distribution {
         return covariances;
     }
 
-    private double mahalanobisSquaredDistance(double[] y) {
+    public double mahalanobisSquaredDistance(double[] y) {
         double u = 0.0;
 
-        for (int i = 0; i < n; ++i) {
+        for (int i = 0; i < mean.length; ++i) {
             double d = 0.0;
 
-            for (int j = 0; j < n; ++j) {
-                d += eigenvectors[i][j] * (y[j] - mean[j]);
+            for (int j = 0; j < mean.length; ++j) {
+                d += eigendecomposition.getV(i, j) * (y[j] - mean[j]);
             }
 
-            u += (d * d) / eigenvalues[i];
+            u += (d * d) / eigendecomposition.getEigenvalue(i);
         }
 
         return u;
@@ -139,26 +110,23 @@ public class MultinormalDistribution implements Distribution {
         private double[] eigenvalues;
         private double[][] v;
 
-        public Eigendecomposition(int n, double[][] symmetricMatrix) {
+        private Eigendecomposition(int n, double[][] symmetricMatrix) {
             final Jama.SingularValueDecomposition svd = new Jama.Matrix(symmetricMatrix, n, n).svd();
 
             eigenvalues = svd.getSingularValues();
             v = svd.getV().getArray();
         }
 
-        public final double[] getEigenvalues() {
+        public double[] getEigenvalues() {
             return eigenvalues;
         }
 
-        public final double[][] getV() {
-            return v;
+        public final double getEigenvalue(int i) {
+            return eigenvalues[i];
         }
-    }
 
-    private static class EigenproblemSolver {
-
-        public Eigendecomposition createEigendecomposition(int n, double[][] symmetricMatrix) {
-            return new Eigendecomposition(n, symmetricMatrix);
+        public final double getV(int i, int j) {
+            return v[i][j];
         }
     }
 }

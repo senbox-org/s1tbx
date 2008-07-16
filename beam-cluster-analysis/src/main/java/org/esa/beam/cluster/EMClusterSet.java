@@ -32,18 +32,18 @@ public class EMClusterSet {
     }
 
     public double[] getPosteriorProbabilities(double[] point) {
-        double sum = 0.0;
         final double[] h = new double[clusters.length];
+        // this code is duplicated in EMClusterer.stepE()
+        boolean underflow = false;
         for (int k = 0; k < clusters.length; ++k) {
-            h[k] = clusters[k].priorProbability * clusters[k].getProbabilityDensity(point);
-            sum += h[k];
-        }
-        if (sum > 0.0) {
-            for (int k = 0; k < h.length; ++k) {
-                final double t = h[k] / sum;
-                h[k] = t;
+            h[k] = clusters[k].getPriorProbability() * clusters[k].getProbabilityDensity(point);
+            if (h[k] == 0.0) {
+                underflow = true;
+                break;
             }
-        } else { // numerical underflow - recompute posterior cluster probabilities
+        }
+        // numerical underflow - compute probabilities using logarithm
+        if (underflow) {
             final double[] sums = new double[clusters.length];
             for (int k = 0; k < clusters.length; ++k) {
                 h[k] = clusters[k].getLogProbabilityDensity(point);
@@ -51,15 +51,26 @@ public class EMClusterSet {
             for (int k = 0; k < clusters.length; ++k) {
                 for (int l = 0; l < clusters.length; ++l) {
                     if (l != k) {
-                        sums[k] += (clusters[l].getPriorProbability() / clusters[k].getPriorProbability()) * exp(h[l] - h[k]);
+                        sums[k] += (clusters[l].getPriorProbability() / clusters[k].getPriorProbability()) *
+                                   exp(h[l] - h[k]);
                     }
                 }
             }
             for (int k = 0; k < clusters.length; ++k) {
-                final double t = 1.0 / (1.0 + sums[k]);
-                h[k] = t;
+                h[k] = 1.0 / (1.0 + sums[k]);
             }
         }
+        // ensure non-zero probabilities
+        double sum = 0.0;
+        for (int k = 0; k < clusters.length; ++k) {
+            h[k] += 1.0E-10;
+            sum += h[k];
+        }
+        // normalize probabilities
+        for (int k = 0; k < clusters.length; ++k) {
+            h[k] /= sum;
+        }
+
         return h;
     }
 
@@ -70,7 +81,7 @@ public class EMClusterSet {
     public double[] getMean(int i) {
         return clusters[i].getMean();
     }
-    
+
     public final EMCluster getEMCluster(int index) {
         return clusters[index];
     }

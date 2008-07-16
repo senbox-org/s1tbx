@@ -12,7 +12,7 @@
     <changelog>
         <![CDATA[
         Changes in 1.0.101:<br/>
-
+        [BEAM-841] EM clustering does not come to an end for small scenes<br/>
         [BEAM-839] Improper initialization of EM clustering algorithm<br/>
         ]]>
     </changelog>

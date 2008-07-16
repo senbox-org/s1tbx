@@ -23,10 +23,10 @@ package org.esa.beam.cluster;
  */
 public class EMCluster {
 
-    final Distribution distribution;
+    final MultinormalDistribution distribution;
     final double priorProbability;
 
-    public EMCluster(Distribution distribution, double priorProbability) {
+    public EMCluster(MultinormalDistribution distribution, double priorProbability) {
         this.priorProbability = priorProbability;
         this.distribution = distribution;
     }
@@ -43,6 +43,10 @@ public class EMCluster {
         return distribution.probabilityDensity(point);
     }
 
+    public final double getMahalanobisSquaredDistance(double[] point) {
+       return distribution.mahalanobisSquaredDistance(point);
+    }
+    
     public final double[] getMean() {
         return distribution.getMean();
     }

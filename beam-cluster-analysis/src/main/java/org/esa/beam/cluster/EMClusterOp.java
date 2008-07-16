@@ -200,7 +200,7 @@ public class EMClusterOp extends Operator {
                         for (int i = 0; i < sourceTiles.length; i++) {
                             point[i] = sourceTiles[i].getSampleDouble(x, y);
                         }
-                        double p[] = theClusterSet.getPosteriorProbabilities(point);
+                        double[] p = theClusterSet.getPosteriorProbabilities(point);
                         if (includeProbabilityBands) {
                             for (int i = 0; i < clusterCount; ++i) {
                                 targetTiles[i].setSample(x, y, p[i]);
