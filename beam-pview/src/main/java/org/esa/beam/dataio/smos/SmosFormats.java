@@ -1,8 +1,8 @@
 package org.esa.beam.dataio.smos;
 
-import binio.CompoundType;
-import binio.Format;
-import static binio.util.TypeBuilder.*;
+import com.bc.ceres.binio.CompoundType;
+import com.bc.ceres.binio.Format;
+import static com.bc.ceres.binio.util.TypeBuilder.*;
 
 import java.nio.ByteOrder;
 import java.util.HashMap;

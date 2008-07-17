@@ -88,6 +88,7 @@
         <module>beam-processing</module>
         <module>beam-scripting</module>
         <module>beam-help</module>
+        <module>beam-pview</module>
 
         <module>beam-meris-cloud</module>
         <module>beam-meris-smac</module>
@@ -151,6 +152,18 @@
                 <groupId>com.bc.ceres</groupId>
                 <artifactId>ceres-ui</artifactId>
                 <version>0.8-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-binio</artifactId>
+                <version>0.5-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.bc.ceres</groupId>
+                <artifactId>ceres-glayer</artifactId>
+                <version>0.5-SNAPSHOT</version>
             </dependency>
 
             <!-- BEAM System Level Modules ############################################# -->

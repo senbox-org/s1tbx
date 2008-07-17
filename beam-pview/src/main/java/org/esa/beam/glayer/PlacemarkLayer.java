@@ -1,7 +1,7 @@
 package org.esa.beam.glayer;
 
-import com.bc.layer.AbstractGraphicalLayer;
-import com.bc.layer.Viewport;
+import com.bc.ceres.glayer.AbstractGraphicalLayer;
+import com.bc.ceres.glayer.Viewport;
 import org.esa.beam.framework.datamodel.*;
 
 import java.awt.*;

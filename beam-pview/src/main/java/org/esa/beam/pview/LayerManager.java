@@ -1,8 +1,8 @@
 package org.esa.beam.pview;
 
-import com.bc.layer.AlphaCompositeMode;
-import com.bc.layer.CollectionLayer;
-import com.bc.layer.GraphicalLayer;
+import com.bc.ceres.glayer.AlphaCompositeMode;
+import com.bc.ceres.glayer.CollectionLayer;
+import com.bc.ceres.glayer.GraphicalLayer;
 import com.jidesoft.icons.IconsFactory;
 import com.jidesoft.swing.CheckBoxTree;
 import com.jidesoft.swing.CheckBoxTreeSelectionModel;

@@ -1,7 +1,7 @@
 package org.esa.beam.jai;
 
-import com.bc.layer.level.Downscaleable;
 import com.bc.ceres.core.Assert;
+import com.bc.ceres.glayer.level.DownscalableImage;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.SourcelessOpImage;
@@ -10,11 +10,11 @@ import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 
-public abstract class LevelOpImage extends SourcelessOpImage implements Downscaleable {
+public abstract class LevelOpImage extends SourcelessOpImage implements DownscalableImage {
     private final LevelOpImage level0Image;
     private final Map<Integer, LevelOpImage> levelNImages;
     private final int sourceWidth;
@@ -126,8 +126,8 @@ public abstract class LevelOpImage extends SourcelessOpImage implements Downscal
     protected abstract LevelOpImage createDownscaledImage(int level);
 
     public synchronized void dispose() {
-        if (levelNImages != null) 
-        levelNImages.clear();
+        if (levelNImages != null)
+            levelNImages.clear();
     }
 
     private static int double2int(double v, int min, int max) {

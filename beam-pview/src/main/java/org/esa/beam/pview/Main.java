@@ -1,9 +1,9 @@
 package org.esa.beam.pview;
 
-import binio.Format;
-import com.bc.layer.CollectionLayer;
-import com.bc.layer.ImageLayer;
-import com.bc.layer.swing.LayerCanvas;
+import com.bc.ceres.binio.Format;
+import com.bc.ceres.glayer.CollectionLayer;
+import com.bc.ceres.glayer.ImageLayer;
+import com.bc.ceres.glayer.swing.LayerCanvas;
 import com.jidesoft.utils.Lm;
 import org.esa.beam.dataio.smos.SmosFormats;
 import org.esa.beam.framework.dataio.ProductIO;
@@ -69,7 +69,7 @@ public class Main {
         } catch (IOException e) {
             // fuck!
         }
-        JAI.getDefaultInstance().getTileCache().setMemoryCapacity(32L * (1024 * 1024));
+        JAI.getDefaultInstance().getTileCache().setMemoryCapacity(256L * (1024 * 1024));
         JAI.getDefaultInstance().setImagingListener(new ImagingListener() {
             public boolean errorOccurred(String message, Throwable thrown, Object where, boolean isRetryable) throws RuntimeException {
                 System.out.println("JAI error ocurred: " + message);

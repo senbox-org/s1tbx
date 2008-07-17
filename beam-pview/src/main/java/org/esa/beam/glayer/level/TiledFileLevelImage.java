@@ -1,6 +1,6 @@
 package org.esa.beam.glayer.level;
 
-import com.bc.layer.level.AbstractMultiLevelImage;
+import com.bc.ceres.glayer.level.AbstractMultiLevelImage;
 import org.esa.beam.jai.TiledFileOpImage;
 
 import javax.media.jai.JAI;

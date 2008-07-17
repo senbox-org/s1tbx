@@ -1,6 +1,6 @@
 package org.esa.beam.dataio.smos;
 
-import com.bc.layer.level.Downscaleable;
+import com.bc.ceres.glayer.level.DownscalableImage;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.glayer.level.TiledFileLevelImage;
 import org.esa.beam.jai.ImageManager;
@@ -16,7 +16,7 @@ import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
 
-public class SmosL1BandOpImage extends SingleBandedOpImage implements Downscaleable {
+public class SmosL1BandOpImage extends SingleBandedOpImage implements DownscalableImage {
 
     private final SmosFile smosFile;
     private Band smosBand;

@@ -16,32 +16,31 @@
  */
 package org.esa.beam.dataio.smos;
 
-import java.awt.Rectangle;
-import java.awt.image.DataBuffer;
-import java.awt.image.WritableRaster;
-import java.awt.image.renderable.ParameterBlock;
-
-import javax.media.jai.JAI;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.RenderedOp;
-
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.jai.ImageManager;
 import org.esa.beam.jai.LevelOpImage;
 import org.esa.beam.jai.SingleBandedOpImage;
 
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
+import javax.media.jai.RenderedOp;
+import java.awt.*;
+import java.awt.image.DataBuffer;
+import java.awt.image.WritableRaster;
+import java.awt.image.renderable.ParameterBlock;
+
 public class SmosL1ValidImage extends SingleBandedOpImage {
-    
+
     private final Band smosBand;
     private PlanarImage rendering;
 
     public SmosL1ValidImage(Band smosBand, int level) {
         super(DataBuffer.TYPE_BYTE,
-                smosBand.getSceneRasterWidth(),
-                smosBand.getSceneRasterHeight(),
-                smosBand.getProduct().getPreferredTileSize(), null, level,
+              smosBand.getSceneRasterWidth(),
+              smosBand.getSceneRasterHeight(),
+              smosBand.getProduct().getPreferredTileSize(), null, level,
               null);
-        
+
         this.smosBand = smosBand;
         ParameterBlock pb;
 
@@ -66,7 +65,7 @@ public class SmosL1ValidImage extends SingleBandedOpImage {
 
         rendering = op.getRendering();
     }
-    
+
     @Override
     protected void computeRect(PlanarImage[] sourceImages, WritableRaster tile, Rectangle destRect) {
         rendering.copyData(tile);

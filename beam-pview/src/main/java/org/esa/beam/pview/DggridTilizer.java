@@ -1,6 +1,6 @@
 package org.esa.beam.pview;
 
-import com.bc.layer.level.DefaultMultiLevelImage;
+import com.bc.ceres.glayer.level.DefaultMultiLevelImage;
 import org.esa.beam.jai.TiledFileOpImage;
 
 import javax.imageio.stream.ImageOutputStream;

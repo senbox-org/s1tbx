@@ -16,8 +16,9 @@
  */
 package org.esa.beam.dataio.smos;
 
-import binio.*;
-import binio.util.RandomAccessFileIOHandler;
+
+import com.bc.ceres.binio.*;
+import com.bc.ceres.binio.util.RandomAccessFileIOHandler;
 
 import java.io.File;
 import java.io.IOException;

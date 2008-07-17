@@ -1,7 +1,7 @@
 package org.esa.beam.pview;
 
-import com.bc.layer.CollectionLayer;
-import com.bc.layer.GraphicalLayer;
+import com.bc.ceres.glayer.CollectionLayer;
+import com.bc.ceres.glayer.GraphicalLayer;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -36,7 +36,7 @@ class CollectionLayerTreeModel extends DefaultTreeModel {
             final Object userObject = parent.getUserObject();
             if (userObject instanceof CollectionLayer) {
                 CollectionLayer collectionLayer = (CollectionLayer) userObject;
-                if (collectionLayer.remove(treeNode.getUserObject())) {
+                if (collectionLayer.remove((GraphicalLayer) treeNode.getUserObject())) {
                     super.removeNodeFromParent(node);
                 }
             }

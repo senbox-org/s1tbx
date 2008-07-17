@@ -1,7 +1,7 @@
 package org.esa.beam.jai;
 
-import com.bc.layer.level.DefaultMultiLevelImage;
-import com.bc.layer.level.LevelImage;
+import com.bc.ceres.glayer.level.DefaultMultiLevelImage;
+import com.bc.ceres.glayer.level.LevelImage;
 
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
@@ -22,9 +22,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class PyramidBuilder {
-    private File imageFile;
-    private File outputDir;
-    private int levelCount;
+
+    public PyramidBuilder() {
+    }
 
     public static void main(String[] args) throws IOException {
 
@@ -44,8 +44,6 @@ public class PyramidBuilder {
     }
 
     private void doit(File imageFile, File outputDir, String tileFormat, int levelCount, int tileWidth0, int tileHeight0) throws IOException {
-        this.imageFile = imageFile;
-        this.outputDir = outputDir;
 
         outputDir.mkdir();
 

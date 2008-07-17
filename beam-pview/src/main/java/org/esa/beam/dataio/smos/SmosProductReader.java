@@ -16,9 +16,8 @@
  */
 package org.esa.beam.dataio.smos;
 
-import binio.Format;
+import com.bc.ceres.binio.Format;
 import com.bc.ceres.core.ProgressMonitor;
-
 import org.esa.beam.framework.dataio.AbstractProductReader;
 import org.esa.beam.framework.dataio.ProductIO;
 import org.esa.beam.framework.datamodel.*;
@@ -26,16 +25,9 @@ import org.esa.beam.glayer.level.TiledFileLevelImage;
 import org.esa.beam.util.io.FileUtils;
 
 import javax.media.jai.JAI;
-import javax.media.jai.OpImage;
-import javax.media.jai.PlanarImage;
-import javax.media.jai.RenderedOp;
-import javax.swing.JOptionPane;
-
-import java.awt.Color;
-import java.awt.Rectangle;
-import java.awt.image.DataBuffer;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.image.RenderedImage;
-import java.awt.image.renderable.ParameterBlock;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -45,6 +37,7 @@ import java.util.Map;
 
 public class SmosProductReader extends AbstractProductReader {
     private static final String SMOS_DGG_DIR_PROPERTY_NAME = "org.esa.beam.pview.smosDggDir";
+
     private static class BandDescr {
         final String bandName;
         final int btDataIndex;
@@ -54,41 +47,38 @@ public class SmosProductReader extends AbstractProductReader {
             this.btDataIndex = btDataIndex;
         }
     }
+
     private static final Map<String, BandDescr> bandDescrMap;
     private SmosFile smosFile;
+
     static {
         bandDescrMap = new HashMap<String, BandDescr>(6);
         bandDescrMap.put("BT_Value", new BandDescr("BT_Value", 1));
         bandDescrMap.put("BT_Value_Real", new BandDescr("BT_Value_Real", 1));
         bandDescrMap.put("BT_Value_Imag", new BandDescr("BT_Value_Imag", 2));
     }
+
     private static TiledFileLevelImage dggridLevelImage;
-    
+
     SmosProductReader(final SmosProductReaderPlugIn productReaderPlugIn) {
         super(productReaderPlugIn);
     }
 
-    private void openDgGrid() throws IOException {
-        String dirPath = System.getProperty(SMOS_DGG_DIR_PROPERTY_NAME);
-        if (dirPath == null || !new File(dirPath).exists()) {
-            JOptionPane.showMessageDialog(null,
-                                          "SMOS products require a DGG image.\n" +
-                                                  "Please set system property '" + SMOS_DGG_DIR_PROPERTY_NAME + "'" +
-                                                  "to a valid DGG image directory.");
-            return;
-        }
-        if (dggridLevelImage == null) {
-            dggridLevelImage = TiledFileLevelImage.create(new File(dirPath), false);
-        }
-    }
-
     @Override
     protected synchronized Product readProductNodesImpl() throws IOException {
-        openDgGrid();
         if (dggridLevelImage == null) {
-            return null;
+            String dirPath = System.getProperty(SMOS_DGG_DIR_PROPERTY_NAME);
+            if (dirPath == null || !new File(dirPath).exists()) {
+                throw new IOException(
+                        MessageFormat.format("SMOS products require a DGG image.\nPlease set system property ''{0}''to a valid DGG image directory.", SMOS_DGG_DIR_PROPERTY_NAME));
+            }
+            try {
+                dggridLevelImage = TiledFileLevelImage.create(new File(dirPath), false);
+            } catch (IOException e) {
+                throw new IOException(MessageFormat.format("Failed to load SMOS DDG ''{0}''", dirPath), e);
+            }
         }
-        
+
         final File file = FileUtils.exchangeExtension(getInputFile(), ".DBL");
         final int productWidth = 16384;
         final int productHeight = 8192;
@@ -138,17 +128,17 @@ public class SmosProductReader extends AbstractProductReader {
 
         return product;
     }
-    
+
     private RenderedImage createSourceImage(Band band) {
         final int btDataIndex = bandDescrMap.get(band.getName()).btDataIndex;
         return new SmosL1BandOpImage(smosFile, band, btDataIndex, dggridLevelImage, 0);
     }
-    
+
     private RenderedImage createValidMaksImage(Band band) {
         return new SmosL1ValidImage(band, 0);
     }
-    
-    private void applyBandProperties(Band band ) {
+
+    private void applyBandProperties(Band band) {
 
         final float min = 67.0f;
         final float max = 317.0f;

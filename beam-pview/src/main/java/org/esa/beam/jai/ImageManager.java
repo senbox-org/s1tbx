@@ -1,7 +1,7 @@
 package org.esa.beam.jai;
 
 import com.bc.ceres.core.Assert;
-import com.bc.layer.level.Downscaleable;
+import com.bc.ceres.glayer.level.DownscalableImage;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.util.Debug;
@@ -231,8 +231,8 @@ public class ImageManager {
         RenderedImage image;
         if (level == 0) {
             image = levelZeroImage;
-        } else if (levelZeroImage instanceof Downscaleable) {
-            image = ((Downscaleable) levelZeroImage).downscale(level);
+        } else if (levelZeroImage instanceof DownscalableImage) {
+            image = ((DownscalableImage) levelZeroImage).downscale(level);
         } else {
             image = createDownscaledImage(levelZeroImage, level);
         }
