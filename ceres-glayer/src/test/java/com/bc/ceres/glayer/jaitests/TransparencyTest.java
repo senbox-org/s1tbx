@@ -36,7 +36,7 @@ public class TransparencyTest {
                                           new Color((float) Math.random(), (float) Math.random(), (float) Math.random()));
             features1.add(feature);
         }
-        RenderedImage image1 = FeatureOpImage.create(width, height, features1.toArray(new Feature[0]));
+        RenderedImage image1 = FeatureOpImage.create(width, height, features1.toArray(new Feature[features1.size()]));
 
         ArrayList<Feature> features2 = new ArrayList<Feature>(featureCount);
         for (int i = 0; i < featureCount; i++) {
@@ -49,7 +49,7 @@ public class TransparencyTest {
                                           new Color((float) Math.random(), (float) Math.random(), (float) Math.random()));
             features2.add(feature);
         }
-        RenderedImage image2 = FeatureOpImage.create(width, height, features2.toArray(new Feature[0]));
+        RenderedImage image2 = FeatureOpImage.create(width, height, features2.toArray(new Feature[features2.size()]));
 
         Tools.displayImages("UhahaTest",
                             new RenderedImage[]{
@@ -58,7 +58,7 @@ public class TransparencyTest {
                             },
                             new AffineTransform[]{
                                     new AffineTransform(),
-                                    AffineTransform.getTranslateInstance(16,16)
+                                    AffineTransform.getTranslateInstance(16, 16)
                             },
                             8, true);
 
