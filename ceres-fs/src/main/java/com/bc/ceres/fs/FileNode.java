@@ -6,6 +6,8 @@ import java.io.OutputStream;
 import java.util.List;
 
 public interface FileNode {
+    String getName();
+    
     boolean isDirectory();
 
     boolean isFile();
@@ -14,7 +16,7 @@ public interface FileNode {
 
     String getParent();
 
-    List<String> getChildren(FileNodeFilter filter);
+    String[] list(FileNodeFilter filter);
 
     FileNode createChild(String path);
 
