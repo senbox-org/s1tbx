@@ -5,7 +5,7 @@
     <artifactId>ceres-glayer</artifactId>
     <packaging>jar</packaging>
     <version>0.5-SNAPSHOT</version>
-    <name>Ceres GLayer</name>
+    <name>Ceres GLayer Library</name>
 
     <parent>
 	    <groupId>com.bc.ceres</groupId>
