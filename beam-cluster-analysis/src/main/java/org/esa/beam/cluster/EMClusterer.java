@@ -147,18 +147,17 @@ public class EMClusterer {
      * Performs an E-step.
      */
     private void stepE() {
-        boolean underflow = false;
         for (int i = 0; i < pointCount; ++i) {
-            // this code is duplicated in EMClusterSet.getPosteriorProbabilities()            
+            int underflowCount = 0;
+            // this code is duplicated in EMClusterSet.getPosteriorProbabilities()
             for (int k = 0; k < clusterCount; ++k) {
                 h[k][i] = p[k] * distributions[k].probabilityDensity(points[i]);
                 if (h[k][i] == 0.0) {
-                    underflow = true;
-                    break;
+                    underflowCount++;
                 }
             }
             // numerical underflow - compute probabilities using logarithm
-            if (underflow) {
+            if (underflowCount == clusterCount) {
                 final double[] sums = new double[clusterCount];
                 for (int k = 0; k < clusterCount; ++k) {
                     h[k][i] = distributions[k].logProbabilityDensity(points[i]);
@@ -175,7 +174,7 @@ public class EMClusterer {
                 }
             }
             // ensure non-zero probabilities
-             double sum = 0.0;
+            double sum = 0.0;
             for (int k = 0; k < clusterCount; ++k) {
                 h[k][i] += 1.0E-10;
                 sum += h[k][i];
