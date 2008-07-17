@@ -37,9 +37,9 @@ public class DefaultMultiLevelImage extends AbstractMultiLevelImage {
     protected PlanarImage createPlanarImage(int level) {
         if (level == 0) {
             return sourceImage;
-        } else if (sourceImage instanceof Downscaleable) {
-            final Downscaleable downscaleable = (Downscaleable) sourceImage;
-            return PlanarImage.wrapRenderedImage(downscaleable.downscale(level));
+        } else if (sourceImage instanceof DownscalableImage) {
+            final DownscalableImage downscalableImage = (DownscalableImage) sourceImage;
+            return PlanarImage.wrapRenderedImage(downscalableImage.downscale(level));
         } else {
             float scale = (float) pow2(-level);
             return ScaleDescriptor.create(sourceImage,
