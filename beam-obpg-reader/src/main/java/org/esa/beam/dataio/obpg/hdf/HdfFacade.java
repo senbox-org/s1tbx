@@ -28,7 +28,7 @@ import java.util.List;
 
 public class HdfFacade {
 
-    public SDFileInfo getSDFileInfo(int sdStart) throws HDFException {
+    public synchronized SDFileInfo getSDFileInfo(int sdStart) throws HDFException {
         final int[] ints = new int[2];
         if (HDF.getInstance().SDfileinfo(sdStart, ints)) {
             return new SDFileInfo(ints[0], ints[1]);
@@ -36,12 +36,12 @@ public class HdfFacade {
         return null;
     }
 
-    public SdsInfo getSdsInfo(int sdStart, int index) throws HDFException {
+    public synchronized SdsInfo getSdsInfo(int sdStart, int index) throws HDFException {
         final int sdsID = HDF.getInstance().SDselect(sdStart, index);
         return getSdsInfo(sdsID);
     }
 
-    public SdsInfo getSdsInfo(int sdsID) throws HDFException {
+    public synchronized SdsInfo getSdsInfo(int sdsID) throws HDFException {
         final String[] name = new String[]{""};
         final int[] dimensions = new int[3];
         final int[] dimsDtAttribs = new int[3];
@@ -54,7 +54,7 @@ public class HdfFacade {
         return null;
     }
 
-    public List<HdfAttribute> readAttributes(final int sdsId, final int numAttributes) throws
+    public synchronized List<HdfAttribute> readAttributes(final int sdsId, final int numAttributes) throws
                                                                                        HDFException {
         final List<HdfAttribute> attributes = new ArrayList<HdfAttribute>();
 
@@ -87,7 +87,7 @@ public class HdfFacade {
      *
      * @return a new {@link HdfAttribute } with the decoded string as value.
      */
-    public HdfAttribute decodeByteBufferToAttribute(byte[] buf, int NT, int count, String name)
+    public synchronized HdfAttribute decodeByteBufferToAttribute(byte[] buf, int NT, int count, String name)
                 throws HDFException {
         final String strVal;
         final int incr = HDF.getInstance().DFKNTsize(NT);
@@ -204,13 +204,11 @@ public class HdfFacade {
     }
 
     public int openHdfFileReadOnly(final String path) throws HDFException {
-        final int fileId = HDF.getInstance().Hopen(path, HDFConstants.DFACC_RDONLY);
-        return fileId;
+        return HDF.getInstance().Hopen(path, HDFConstants.DFACC_RDONLY);
     }
 
     public int openSdInterfaceReadOnly(final String path) throws HDFException {
-        final int sdStart = HDF.getInstance().SDstart(path, HDFConstants.DFACC_RDONLY);
-        return sdStart;
+        return HDF.getInstance().SDstart(path, HDFConstants.DFACC_RDONLY);
     }
 
     public boolean closeHdfFile(final int fileId) throws HDFException {
@@ -222,7 +220,7 @@ public class HdfFacade {
         return HDF.getInstance().Hishdf(path);
     }
 
-    public ProductData readProductData(SdsInfo sdsInfo, ProductData data) throws HDFException {
+    public synchronized ProductData readProductData(SdsInfo sdsInfo, ProductData data) throws HDFException {
         final int sdsID = sdsInfo.getSdsID();
         final int[] start = new int[]{0, 0, 0};
         final int[] stride = new int[]{1, 1, 1};

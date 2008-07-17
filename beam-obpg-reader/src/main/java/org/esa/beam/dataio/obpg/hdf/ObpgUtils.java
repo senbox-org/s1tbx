@@ -19,9 +19,9 @@ package org.esa.beam.dataio.obpg.hdf;
 import com.bc.ceres.core.ProgressMonitor;
 import ncsa.hdf.hdflib.HDFConstants;
 import ncsa.hdf.hdflib.HDFException;
+import org.esa.beam.dataio.obpg.ObpgProductReader;
 import org.esa.beam.dataio.obpg.bandreader.ObpgBandReader;
 import org.esa.beam.dataio.obpg.bandreader.ObpgBandReaderFactory;
-import org.esa.beam.dataio.obpg.ObpgProductReader;
 import org.esa.beam.framework.dataio.ProductIOException;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.util.Debug;
@@ -57,27 +57,27 @@ public class ObpgUtils {
         MetadataAttribute attrib = null;
 
         switch (hdfAttribute.getHdfType()) {
-            case HDFConstants.DFNT_CHAR:
-            case HDFConstants.DFNT_UCHAR8:
-                prodData = ProductData.createInstance(hdfAttribute.getStringValue());
-                break;
+        case HDFConstants.DFNT_CHAR:
+        case HDFConstants.DFNT_UCHAR8:
+            prodData = ProductData.createInstance(hdfAttribute.getStringValue());
+            break;
 
-            case HDFConstants.DFNT_UINT8:
-            case HDFConstants.DFNT_INT8:
-            case HDFConstants.DFNT_UINT16:
-            case HDFConstants.DFNT_INT16:
-            case HDFConstants.DFNT_INT32:
-            case HDFConstants.DFNT_UINT32:
-                prodData = ProductData.createInstance(hdfAttribute.getIntValues());
-                break;
+        case HDFConstants.DFNT_UINT8:
+        case HDFConstants.DFNT_INT8:
+        case HDFConstants.DFNT_UINT16:
+        case HDFConstants.DFNT_INT16:
+        case HDFConstants.DFNT_INT32:
+        case HDFConstants.DFNT_UINT32:
+            prodData = ProductData.createInstance(hdfAttribute.getIntValues());
+            break;
 
-            case HDFConstants.DFNT_FLOAT32:
-                prodData = ProductData.createInstance(hdfAttribute.getFloatValues());
-                break;
+        case HDFConstants.DFNT_FLOAT32:
+            prodData = ProductData.createInstance(hdfAttribute.getFloatValues());
+            break;
 
-            case HDFConstants.DFNT_DOUBLE:
-                prodData = ProductData.createInstance(hdfAttribute.getDoubleValues());
-                break;
+        case HDFConstants.DFNT_DOUBLE:
+            prodData = ProductData.createInstance(hdfAttribute.getDoubleValues());
+            break;
         }
 
         if (prodData != null) {
@@ -95,34 +95,34 @@ public class ObpgUtils {
      */
     public int decodeHdfDataType(final int hdfType) {
         switch (hdfType) {
-            case HDFConstants.DFNT_UCHAR8:
-            case HDFConstants.DFNT_UINT8:
-                return ProductData.TYPE_UINT8;
+        case HDFConstants.DFNT_UCHAR8:
+        case HDFConstants.DFNT_UINT8:
+            return ProductData.TYPE_UINT8;
 
-            case HDFConstants.DFNT_CHAR8:
-            case HDFConstants.DFNT_INT8:
-                return ProductData.TYPE_INT8;
+        case HDFConstants.DFNT_CHAR8:
+        case HDFConstants.DFNT_INT8:
+            return ProductData.TYPE_INT8;
 
-            case HDFConstants.DFNT_INT16:
-                return ProductData.TYPE_INT16;
+        case HDFConstants.DFNT_INT16:
+            return ProductData.TYPE_INT16;
 
-            case HDFConstants.DFNT_UINT16:
-                return ProductData.TYPE_UINT16;
+        case HDFConstants.DFNT_UINT16:
+            return ProductData.TYPE_UINT16;
 
-            case HDFConstants.DFNT_INT32:
-                return ProductData.TYPE_INT32;
+        case HDFConstants.DFNT_INT32:
+            return ProductData.TYPE_INT32;
 
-            case HDFConstants.DFNT_UINT32:
-                return ProductData.TYPE_UINT32;
+        case HDFConstants.DFNT_UINT32:
+            return ProductData.TYPE_UINT32;
 
-            case HDFConstants.DFNT_FLOAT32:
-                return ProductData.TYPE_FLOAT32;
+        case HDFConstants.DFNT_FLOAT32:
+            return ProductData.TYPE_FLOAT32;
 
-            case HDFConstants.DFNT_FLOAT64:
-                return ProductData.TYPE_FLOAT64;
+        case HDFConstants.DFNT_FLOAT64:
+            return ProductData.TYPE_FLOAT64;
 
-            default:
-                return ProductData.TYPE_UNDEFINED;
+        default:
+            return ProductData.TYPE_UNDEFINED;
         }
     }
 
@@ -353,30 +353,42 @@ public class ObpgUtils {
         return readerMap;
     }
 
-    public void addGeocoding(final Product product, final SdsInfo[] sdsInfos, boolean mustFlip) throws HDFException, IOException {
-        SdsInfo longitudeSds = null;
-        SdsInfo latitudeSds = null;
-        for (SdsInfo sdsInfo : sdsInfos) {
-            final String name = sdsInfo.getName();
-            if ("longitude".equalsIgnoreCase(name)) {
-                longitudeSds = sdsInfo;
-            } else if ("latitude".equalsIgnoreCase(name)) {
-                latitudeSds = sdsInfo;
+    public void addGeocoding(final Product product, final SdsInfo[] sdsInfos, boolean mustFlip) throws
+                                                                                                HDFException,
+                                                                                                IOException {
+        final String longitude = "longitude";
+        final String latitude = "latitude";
+        Band latBand = null;
+        Band lonBand = null;
+        if (product.containsBand(latitude) && product.containsBand(longitude)) {
+            latBand = product.getBand(latitude);
+            lonBand = product.getBand(longitude);
+        } else {
+            SdsInfo longitudeSds = null;
+            SdsInfo latitudeSds = null;
+            for (SdsInfo sdsInfo : sdsInfos) {
+                final String name = sdsInfo.getName();
+                if (longitude.equalsIgnoreCase(name)) {
+                    longitudeSds = sdsInfo;
+                } else if (latitude.equalsIgnoreCase(name)) {
+                    latitudeSds = sdsInfo;
+                }
+            }
+            if (latitudeSds != null && longitudeSds != null) {
+                final ProductData lonRawData = readData(longitudeSds);
+                final ProductData latRawData = readData(latitudeSds);
+                latBand = product.addBand(latitudeSds.getName(), ProductData.TYPE_FLOAT32);
+                lonBand = product.addBand(longitudeSds.getName(), ProductData.TYPE_FLOAT32);
+
+                final MetadataElement scientificElement = product.getMetadataRoot().getElement(SENSOR_BAND_PARAMETERS);
+                final MetadataElement cntlPointElem = scientificElement.getElement("cntl_pt_cols");
+                final MetadataAttribute attribute = cntlPointElem.getAttribute("data");
+                final int[] colPoints = (int[]) attribute.getDataElems();
+
+                computeLatLonBandData(latBand, lonBand, latRawData, lonRawData, colPoints, mustFlip);
             }
         }
-        if (latitudeSds != null && longitudeSds != null) {
-            final ProductData lonRawData = readData(longitudeSds);
-            final ProductData latRawData = readData(latitudeSds);
-            final Band latBand = product.addBand(latitudeSds.getName(), ProductData.TYPE_FLOAT32);
-            final Band lonBand = product.addBand(longitudeSds.getName(), ProductData.TYPE_FLOAT32);
-
-            final MetadataElement scientificElement = product.getMetadataRoot().getElement(SENSOR_BAND_PARAMETERS);
-            final MetadataElement cntlPointElem = scientificElement.getElement("cntl_pt_cols");
-            final MetadataAttribute attribute = cntlPointElem.getAttribute("data");
-            final int[] colPoints = (int[]) attribute.getDataElems();
-
-            computeLatLonBandData(latBand, lonBand, latRawData, lonRawData, colPoints, mustFlip);
-
+        if (latBand != null && lonBand != null) {
             product.setGeoCoding(new PixelGeoCoding(latBand, lonBand, null, 5, ProgressMonitor.NULL));
         }
     }

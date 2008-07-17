@@ -1,7 +1,7 @@
 <module>
     <manifestVersion>1.0.0</manifestVersion>
     <symbolicName>beam-obpg-reader</symbolicName>
-    <version>1.0</version>
+    <version>1.0.101-SNAPSHOT</version>
     <name>NASA Ocean Color Product Reader</name>
     <description>A reader for NASA Ocean Color (HDF) Level-2 Data Products</description>
 
@@ -10,6 +10,13 @@
     <copyright>(C) 2007 by Brockmann Consult GmbH</copyright>
     <url>http://oceancolor.gsfc.nasa.gov/</url>
     <licenseUrl>http://www.gnu.org/licenses/gpl.html</licenseUrl>
+
+    <changelog>
+        <![CDATA[
+        Changes in 1.0.101:<br/>
+        [BEAM-840] MODIS L2 "*.x.hdf" read error<br/>
+        ]]>
+    </changelog>
 
     <dependency>
         <module>beam-core</module>

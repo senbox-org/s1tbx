@@ -29,7 +29,6 @@ import org.esa.beam.framework.datamodel.BitmaskDef;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.util.io.CsvReader;
-import org.esa.beam.util.logging.BeamLogManager;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.DOMBuilder;
@@ -44,17 +43,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 public class ObpgProductReader extends AbstractProductReader {
 
-    private final Logger logger;
     ObpgUtils obpgUtils = new ObpgUtils();
     private int fileId;
-    private int sdStart;
     private Map<Band, ObpgBandReader> readerMap;
     private boolean mustFlip;
-    private static HashMap<String, String> validExpressionMap;
 
     /**
      * Constructs a new abstract product reader.
@@ -64,9 +59,6 @@ public class ObpgProductReader extends AbstractProductReader {
      */
     protected ObpgProductReader(ObpgProductReaderPlugIn readerPlugIn) {
         super(readerPlugIn);
-        logger = BeamLogManager.getSystemLogger();
-
-
     }
 
     @Override
@@ -81,7 +73,7 @@ public class ObpgProductReader extends AbstractProductReader {
                 final File inFile = ObpgUtils.getInputFile(getInput());
                 final String path = inFile.getPath();
                 fileId = obpgUtils.openHdfFileReadOnly(path);
-                sdStart = obpgUtils.openSdInterfaceReadOnly(path);
+                final int sdStart = obpgUtils.openSdInterfaceReadOnly(path);
                 final List<HdfAttribute> globalAttributes = obpgUtils.readGlobalAttributes(sdStart);
                 final Product product = obpgUtils.createProductBody(globalAttributes);
                 mustFlip = obpgUtils.mustFlip(globalAttributes);
@@ -89,6 +81,7 @@ public class ObpgProductReader extends AbstractProductReader {
                 final SdsInfo[] sdsInfos = obpgUtils.extractSdsData(sdStart);
                 obpgUtils.addScientificMetadata(product, sdsInfos);
                 readerMap = obpgUtils.addBands(product, sdsInfos, l2BandInfoMap, l2FlagsInfoMap);
+                product.setProductReader(this);
                 obpgUtils.addGeocoding(product, sdsInfos, mustFlip);
                 obpgUtils.addBitmaskDefinitions(product, defs);
                 return product;
@@ -101,9 +94,11 @@ public class ObpgProductReader extends AbstractProductReader {
     }
 
     @Override
-    protected synchronized void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY, int sourceWidth, int sourceHeight,
+    protected synchronized void readBandRasterDataImpl(int sourceOffsetX, int sourceOffsetY, int sourceWidth,
+                                                       int sourceHeight,
                                                        int sourceStepX, int sourceStepY, Band destBand, int destOffsetX,
-                                                       int destOffsetY, int destWidth, int destHeight, ProductData destBuffer,
+                                                       int destOffsetY, int destWidth, int destHeight,
+                                                       ProductData destBuffer,
                                                        ProgressMonitor pm) throws IOException {
         readBandRasterDataImpl(sourceOffsetX, sourceOffsetY,
                                sourceWidth, sourceHeight,
@@ -122,10 +117,12 @@ public class ObpgProductReader extends AbstractProductReader {
 
         if (mustFlip) {
             sourceOffsetY = destBand.getSceneRasterHeight() - (sourceOffsetY + sourceHeight);
+            sourceOffsetX = destBand.getSceneRasterWidth() - (sourceOffsetX + sourceWidth);
         }
         final ObpgBandReader bandReader = readerMap.get(destBand);
         try {
-            bandReader.readBandData(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight, sourceStepX, sourceStepY, destBuffer, pm);
+            bandReader.readBandData(sourceOffsetX, sourceOffsetY, sourceWidth, sourceHeight, sourceStepX, sourceStepY,
+                                    destBuffer, pm);
             if (mustFlip) {
                 reverse(destBuffer);
             }
@@ -197,7 +194,7 @@ public class ObpgProductReader extends AbstractProductReader {
         return readTwoColumnTable("l2-flags-info.csv");
     }
 
-    private static HashMap<String, String> readTwoColumnTable(String resourceName)  {
+    private static HashMap<String, String> readTwoColumnTable(String resourceName) {
         final InputStream stream = ObpgProductReader.class.getResourceAsStream(resourceName);
         if (stream != null) {
             try {

@@ -32,6 +32,8 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
 //    private static final String HDF4_PROPERTY_KEY = "ncsa.hdf.hdflib.HDFLibrary.hdflib";
 
     public static final String DEFAULT_FILE_EXTENSION = ".hdf";
+    public static final String DEFAULT_FILE_EXTENSION_L2_LAC = ".L2_LAC";
+    public static final String DEFAULT_FILE_EXTENSION_L2_MLAC = ".L2_MLAC";
     public static final String READER_DESCRIPTION = "NASA Ocean Color (OBPG) Products";
     public static final String FORMAT_NAME = "NASA-OBPG";
 
@@ -163,7 +165,7 @@ public class ObpgProductReaderPlugIn implements ProductReaderPlugIn {
             return new String[0];
         }
 
-        return new String[]{DEFAULT_FILE_EXTENSION};
+        return new String[]{DEFAULT_FILE_EXTENSION, DEFAULT_FILE_EXTENSION_L2_LAC, DEFAULT_FILE_EXTENSION_L2_MLAC};
     }
 
     /**
