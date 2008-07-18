@@ -4,6 +4,7 @@ import com.bc.ceres.binio.Format;
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.ImageLayer;
 import com.bc.ceres.glayer.swing.LayerCanvas;
+import com.bc.ceres.glayer.swing.ViewportScrollPane;
 import com.jidesoft.utils.Lm;
 import org.esa.beam.dataio.smos.SmosFormats;
 import org.esa.beam.framework.dataio.ProductIO;
@@ -438,11 +439,13 @@ public class Main {
         }
 
         final LayerCanvas layerCanvas = new LayerCanvas(collectionLayer);
+        ViewportScrollPane viewportScrollPane = new ViewportScrollPane(layerCanvas);
+                
         layerCanvas.getViewport().setModelScale(initialModelScale, new Point(0, 0));
 
         final JFrame frame = new JFrame("View - [" + file.getName() + "] - " + APPNAME);
         frame.setJMenuBar(createMenuBar());
-        frame.getContentPane().add(layerCanvas, BorderLayout.CENTER);
+        frame.getContentPane().add(viewportScrollPane, BorderLayout.CENTER);
         frame.setSize(initialViewWidth, initialViewHeight);
         frame.setLocation(frameLocation, frameLocation);
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
