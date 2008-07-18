@@ -66,6 +66,7 @@ import javax.media.jai.JAI;
 import javax.swing.*;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
+import javax.swing.event.InternalFrameAdapter;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -1284,14 +1285,23 @@ public class VisatApp extends BasicApp {
                 final String title = createInternalFrameTitle(raster);
                 final Icon icon = UIUtils.loadImageIcon("icons/RsBandAsSwath16.gif");
                 final JInternalFrame internalFrame = createInternalFrame(title, icon, productSceneView, helpId);
-                final Product product = raster.getProduct();
-                product.addProductNodeListener(new ProductNodeListenerAdapter() {
+                final ProductNodeListenerAdapter pnl = new ProductNodeListenerAdapter() {
                     @Override
                     public void nodeChanged(final ProductNodeEvent event) {
                         if (event.getSourceNode() == raster &&
                                 event.getPropertyName().equalsIgnoreCase(ProductNode.PROPERTY_NAME_NAME)) {
                             internalFrame.setTitle(createInternalFrameTitle(raster));
                         }
+                    }
+                };
+                final Product product = raster.getProduct();
+                internalFrame.addInternalFrameListener(new InternalFrameAdapter() {
+                    public void internalFrameOpened(InternalFrameEvent event) {
+                        product.addProductNodeListener(pnl);
+                    }
+
+                    public void internalFrameClosed(InternalFrameEvent event) {
+                        product.removeProductNodeListener(pnl);
                     }
                 });
 
