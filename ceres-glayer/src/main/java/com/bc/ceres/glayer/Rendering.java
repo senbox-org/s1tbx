@@ -18,10 +18,4 @@ public interface Rendering {
      * @return The port through which the layer is viewed.
      */
     Viewport getViewport();
-
-
-    /**
-     * @return The (visible) region of the rendering in device coordinates.
-     */
-    Rectangle getBounds();
 }

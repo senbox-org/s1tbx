@@ -8,6 +8,10 @@ import java.awt.*;
  * rendering of invalidated regions.
  */
 public interface InteractiveRendering extends Rendering {
+    /**
+     * @return The bounds of the rendering in device coordinates.
+     */
+    Rectangle getBounds();
 
     /**
      * Invalidates the given region so that it becomes

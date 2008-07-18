@@ -5,7 +5,7 @@ import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeListener;
 
 /**
- * A layer contributes graphical elements to a drawing represented by a {@link Graphics2D} and a {@link Viewport}.
+ * A layer contributes graphical elements to a drawing represented by a {@link Rendering}.
  *
  * @author Norman Fomferra
  */
@@ -18,9 +18,9 @@ public interface GraphicalLayer {
     Rectangle2D getBoundingBox();
 
     /**
-     * Paints the layer using the given graphics context and viewport.
+     * Renders the layer.
      *
-     * @param rendering
+     * @param rendering The rendering to which the layer will be rendered.
      */
     void render(Rendering rendering);
 
@@ -34,11 +34,9 @@ public interface GraphicalLayer {
 //////////////////////////////// Common properties
 
     boolean isVisible();
-
     void setVisible(boolean visible);
 
     String getName();
-
     void setName(String name);
 
     float getTransparency();
