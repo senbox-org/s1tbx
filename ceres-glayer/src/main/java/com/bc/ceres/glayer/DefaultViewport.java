@@ -3,6 +3,7 @@ package com.bc.ceres.glayer;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 public class DefaultViewport implements Viewport {
     private static final Point2D.Double V0 = new Point2D.Double(0, 0);
@@ -10,6 +11,7 @@ public class DefaultViewport implements Viewport {
     private final AffineTransform viewToModelTransform;
     private final AffineTransform modelToViewTransform;
     private double currentRotation;
+    private Rectangle2D modelArea;
 
     public DefaultViewport() {
         this.viewToModelTransform = new AffineTransform();
@@ -30,11 +32,32 @@ public class DefaultViewport implements Viewport {
         return new AffineTransform(modelToViewTransform);
     }
 
+    public Rectangle2D getModelArea() {
+        return modelArea;
+    }
+
+    public void setModelArea(Rectangle2D modelArea) {
+        this.modelArea = modelArea;
+    }
+
     /**
      * @return The coordinate in model CS which corresponds to origin at (0,0) in the view CS.
      */
     public Point2D getModelOffset() {
         return viewToModelTransform.transform(V0, null);
+    }
+
+    public double getModelOffsetX() {
+        return getModelOffset().getX();
+    }
+
+    public double getModelOffsetY() {
+        return getModelOffset().getY();
+    }
+
+    public void setModelOffset(double mpX, double mpY) {
+        final Point2D p = getModelOffset();
+        viewToModelTransform.translate(mpX-p.getX(), mpY-p.getY());
     }
 
     /**

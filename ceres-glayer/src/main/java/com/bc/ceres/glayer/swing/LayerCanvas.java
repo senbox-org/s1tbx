@@ -1,9 +1,6 @@
 package com.bc.ceres.glayer.swing;
 
-import com.bc.ceres.glayer.CollectionLayer;
-import com.bc.ceres.glayer.DefaultViewport;
-import com.bc.ceres.glayer.InteractiveRendering;
-import com.bc.ceres.glayer.Viewport;
+import com.bc.ceres.glayer.*;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -25,7 +22,7 @@ import java.beans.PropertyChangeListener;
  *
  * @author Norman Fomferra
  */
-public class LayerCanvas extends JComponent {
+public class LayerCanvas extends JComponent implements ViewportAware {
 
     private CollectionLayer collectionLayer;
     private Viewport viewport;
@@ -40,9 +37,10 @@ public class LayerCanvas extends JComponent {
         this(collectionLayer, new DefaultViewport());
     }
 
-    public LayerCanvas(CollectionLayer collectionLayer, final Viewport viewport) {
+    public LayerCanvas(final CollectionLayer collectionLayer, final Viewport viewport) {
         this.collectionLayer = collectionLayer;
         this.viewport = viewport;
+        this.viewport.setModelArea(this.collectionLayer.getBoundingBox());
         this.sliderPopUp = new SliderPopUp();
 
         final MouseHandler mouseHandler = new MouseHandler();

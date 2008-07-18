@@ -2,6 +2,7 @@ package com.bc.ceres.glayer;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 
 /**
@@ -24,10 +25,33 @@ public interface Viewport {
      */
     AffineTransform getModelToViewTransform();
 
+     Rectangle2D getModelArea();
+
+    void setModelArea(Rectangle2D modelArea);
+
+
     /**
      * @return The coordinate in model CS which corresponds to origin at (0,0) in the view CS.
      */
     Point2D getModelOffset();
+
+    /**
+     * @return The X-coordinate in model CS which corresponds to origin at (0,0) in the view CS.
+     */
+    double getModelOffsetX();
+
+    /**
+     * @return The Y-coordinate in model CS which corresponds to origin at (0,0) in the view CS.
+     */
+    double getModelOffsetY();
+
+    /**
+     * Sets the model offset in model coordinates.
+     *
+     * @param mpX TheX-offset.
+     * @param mpY The Y-offset.
+     */
+    void setModelOffset(double mpX, double mpY);
 
     /**
      * @return The size of a view pixel in model coordinates.
@@ -63,4 +87,7 @@ public interface Viewport {
      * @param viewDelta the 'pan' vector in model coordinates
      */
     void move(Point2D viewDelta);
+
+
+
 }

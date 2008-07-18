@@ -5,7 +5,7 @@ import java.awt.*;
 
 /**
  * A rendering is used to render a {@link GraphicalLayer} to a GUI widget, printer or image.
- * The part of the layer to be rendered is specified by the {@link DefaultViewport}.
+ * The part of the layer to be rendered is specified by the {@link Viewport}.
  */
 public interface Rendering {
 
