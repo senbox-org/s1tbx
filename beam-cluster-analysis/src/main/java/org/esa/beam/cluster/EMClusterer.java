@@ -148,38 +148,39 @@ public class EMClusterer {
      */
     private void stepE() {
         for (int i = 0; i < pointCount; ++i) {
-            int underflowCount = 0;
             // this code is duplicated in EMClusterSet.getPosteriorProbabilities()
-            for (int k = 0; k < clusterCount; ++k) {
-                h[k][i] = p[k] * distributions[k].probabilityDensity(points[i]);
-                if (h[k][i] == 0.0) {
-                    underflowCount++;
-                }
-            }
-            // numerical underflow - compute probabilities using logarithm
-            if (underflowCount == clusterCount) {
-                final double[] sums = new double[clusterCount];
-                for (int k = 0; k < clusterCount; ++k) {
-                    h[k][i] = distributions[k].logProbabilityDensity(points[i]);
-                }
-                for (int k = 0; k < clusterCount; ++k) {
-                    for (int l = 0; l < clusterCount; ++l) {
-                        if (l != k) {
-                            sums[k] += (p[l] / p[k]) * exp(h[l][i] - h[k][i]);
-                        }
-                    }
-                }
-                for (int k = 0; k < clusterCount; ++k) {
-                    h[k][i] = 1.0 / (1.0 + sums[k]);
-                }
-            }
-            // ensure non-zero probabilities
             double sum = 0.0;
             for (int k = 0; k < clusterCount; ++k) {
-                h[k][i] += 1.0E-10;
+                h[k][i] = p[k] * distributions[k].probabilityDensity(points[i]);
                 sum += h[k][i];
             }
-            // normalize probabilities
+            if (sum > 0.0) {
+                for (int k = 0; k < clusterCount; ++k) {
+                    h[k][i] /= sum;
+                }
+            } else {
+                // numerical underflow - compute probabilities using inverse Mahalanobis distance
+                for (int k = 0; k < clusterCount; ++k) {
+                    h[k][i] = p[k] / (1.0 + distributions[k].mahalanobisSquaredDistance(points[i]));
+                    sum += h[k][i];
+                }
+                if (sum > 0.0) {
+                    for (int k = 0; k < clusterCount; ++k) {
+                        h[k][i] /= sum;
+                    }
+                } else {
+                    for (int k = 0; k < clusterCount; ++k) {
+                        h[k][i] = 1.0 / clusterCount;
+                    }
+                }
+            }
+            // ensure non-zero probabilities everywhere
+            sum = 0.0;
+            for (int k = 0; k < clusterCount; ++k) {
+                h[k][i] += 1.0E-4;
+                sum += h[k][i];
+            }
+            // renormalize probabilities
             for (int k = 0; k < clusterCount; ++k) {
                 h[k][i] /= sum;
             }

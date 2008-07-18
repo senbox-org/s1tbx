@@ -33,34 +33,35 @@ public class EMClusterSet {
 
     public double[] getPosteriorProbabilities(double[] point) {
         final double[] h = new double[clusters.length];
+
         // this code is duplicated in EMClusterer.stepE()
-        int underflowCount = 0;
+        double sum = 0.0;
         for (int k = 0; k < clusters.length; ++k) {
             h[k] = clusters[k].getPriorProbability() * clusters[k].getProbabilityDensity(point);
-            if (h[k] == 0.0) {
-                underflowCount++;
-            }
+            sum += h[k];
         }
-        // numerical underflow - compute probabilities using logarithm
-        if (underflowCount == clusters.length) {
-            final double[] sums = new double[clusters.length];
+        if (sum > 0.0) {
             for (int k = 0; k < clusters.length; ++k) {
-                h[k] = clusters[k].getLogProbabilityDensity(point);
+                h[k] /= sum;
             }
+        } else {
+            // numerical underflow - compute probabilities using inverse Mahalanobis distance
             for (int k = 0; k < clusters.length; ++k) {
-                for (int l = 0; l < clusters.length; ++l) {
-                    if (l != k) {
-                        sums[k] += (clusters[l].getPriorProbability() / clusters[k].getPriorProbability()) *
-                                   exp(h[l] - h[k]);
-                    }
+                h[k] = clusters[k].getPriorProbability() / (1.0 + clusters[k].getMahalanobisSquaredDistance(point));
+                sum += h[k];
+            }
+            if (sum > 0.0) {
+                for (int k = 0; k < clusters.length; ++k) {
+                    h[k] /= sum;
                 }
-            }
-            for (int k = 0; k < clusters.length; ++k) {
-                h[k] = 1.0 / (1.0 + sums[k]);
+            } else {
+                for (int k = 0; k < clusters.length; ++k) {
+                    h[k] = 1.0 / clusters.length;
+                }
             }
         }
 
-        return normalizeProbabilities(h);
+        return h;
     }
 
     public final int getClusterCount() {
@@ -74,16 +75,4 @@ public class EMClusterSet {
     public final EMCluster getEMCluster(int index) {
         return clusters[index];
     }
-
-    private double[] normalizeProbabilities(double[] h) {
-        double sum = 0.0;
-        for (int k = 0; k < clusters.length; ++k) {
-            sum += h[k];
-        }
-        for (int k = 0; k < clusters.length; ++k) {
-            h[k] /= sum;
-        }
-        return h;
-    }
-
 }
