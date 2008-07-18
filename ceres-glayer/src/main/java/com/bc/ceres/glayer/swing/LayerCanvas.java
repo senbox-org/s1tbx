@@ -275,7 +275,7 @@ public class LayerCanvas extends JComponent {
         }
 
         public Rectangle getBounds() {
-            return getBounds();
+            return LayerCanvas.this.getBounds();
         }
 
         public void invalidateRegion(Rectangle region) {
