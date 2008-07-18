@@ -117,7 +117,7 @@ public class ImageLayer extends AbstractGraphicalLayer {
     @Override
     protected void renderLayer(Rendering rendering) {
         final Viewport vp = rendering.getViewport();        
-        final double i2mScale = Viewport.getScale(getImageToModelTransform());
+        final double i2mScale = DefaultViewport.getScale(getImageToModelTransform());
         final double m2vScale = vp.getModelScale();
         final double scale = m2vScale / i2mScale;
 

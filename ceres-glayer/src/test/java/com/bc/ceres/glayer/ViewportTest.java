@@ -6,7 +6,7 @@ import java.awt.geom.Point2D;
 public class ViewportTest extends ImagingTestCase {
 
     public void testDefaultSettings() {
-        final Viewport viewport = new Viewport();
+        final Viewport viewport = new DefaultViewport();
         assertEquals(new AffineTransform(), viewport.getModelToViewTransform());
         assertEquals(new AffineTransform(), viewport.getViewToModelTransform());
         assertEquals(p(0.0, 0.0), viewport.getModelOffset());
@@ -14,7 +14,7 @@ public class ViewportTest extends ImagingTestCase {
     }
 
     public void testTransformAreNotLife() {
-        final Viewport viewport = new Viewport();
+        final Viewport viewport = new DefaultViewport();
 
         final AffineTransform m2v = viewport.getModelToViewTransform();
         assertNotSame(m2v, viewport.getModelToViewTransform());
@@ -22,14 +22,14 @@ public class ViewportTest extends ImagingTestCase {
         final AffineTransform v2u = viewport.getViewToModelTransform();
         assertNotSame(v2u, viewport.getViewToModelTransform());
 
-        viewport.pan(p(150.0, -10.0));
+        viewport.move(p(150.0, -10.0));
 
         assertNotSame(m2v, viewport.getModelToViewTransform());
         assertNotSame(v2u, viewport.getViewToModelTransform());
     }
 
     public void testInverse() {
-        final Viewport viewport = new Viewport();
+        final Viewport viewport = new DefaultViewport();
 
         final AffineTransform m2v = viewport.getModelToViewTransform();
         assertNotSame(m2v, viewport.getModelToViewTransform());
@@ -37,7 +37,7 @@ public class ViewportTest extends ImagingTestCase {
         final AffineTransform v2u = viewport.getViewToModelTransform();
         assertNotSame(v2u, viewport.getViewToModelTransform());
 
-        viewport.pan(p(150.0, -10.0));
+        viewport.move(p(150.0, -10.0));
 
         assertEquals(p(-150, 10), t(viewport.getViewToModelTransform(), p(0, 0)));
         assertEquals(p(0, 0), t(viewport.getModelToViewTransform(), p(-150, 10)));
@@ -47,17 +47,17 @@ public class ViewportTest extends ImagingTestCase {
     }
 
     public void testPanning() {
-        final Viewport viewport = new Viewport();
-        viewport.pan(p(15.0, 10.0));
+        final Viewport viewport = new DefaultViewport();
+        viewport.move(p(15.0, 10.0));
         assertEquals(p(-15.0, -10.0), viewport.getModelOffset());
-        viewport.pan(p(-15.0, -10.0));
+        viewport.move(p(-15.0, -10.0));
         assertEquals(p(0.0, 0.0), viewport.getModelOffset());
     }
 
     public void testZooming() {
-        final Viewport viewport = new Viewport();
+        final Viewport viewport = new DefaultViewport();
         Point2D vc, uc;
-        viewport.pan(p(-10, -10));
+        viewport.move(p(-10, -10));
 
         /////////////////////////////
         // view center 1

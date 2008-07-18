@@ -14,7 +14,7 @@ public class BufferedImageRendering implements Rendering {
     private Graphics2D graphics;
 
     public BufferedImageRendering(int width, int height) {
-        this(new Viewport(), new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR));
+        this(new DefaultViewport(), new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR));
     }
 
     public BufferedImageRendering(Viewport viewport, BufferedImage image) {

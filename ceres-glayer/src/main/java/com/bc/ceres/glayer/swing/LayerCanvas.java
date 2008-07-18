@@ -1,9 +1,9 @@
 package com.bc.ceres.glayer.swing;
 
-import com.bc.ceres.glayer.Viewport;
 import com.bc.ceres.glayer.CollectionLayer;
-import com.bc.ceres.glayer.Rendering;
+import com.bc.ceres.glayer.DefaultViewport;
 import com.bc.ceres.glayer.InteractiveRendering;
+import com.bc.ceres.glayer.Viewport;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -37,9 +37,12 @@ public class LayerCanvas extends JComponent {
     }
 
     public LayerCanvas(CollectionLayer collectionLayer) {
-        super();
+        this(collectionLayer, new DefaultViewport());
+    }
+
+    public LayerCanvas(CollectionLayer collectionLayer, final Viewport viewport) {
         this.collectionLayer = collectionLayer;
-        this.viewport = new Viewport();
+        this.viewport = viewport;
         this.sliderPopUp = new SliderPopUp();
 
         final MouseHandler mouseHandler = new MouseHandler();
@@ -67,7 +70,7 @@ public class LayerCanvas extends JComponent {
             }
 
             public void handleMove(double moveDirX, double moveDirY) {
-                viewport.pan(new Point2D.Double(16*moveDirX, 16*moveDirY));
+                viewport.move(new Point2D.Double(16 * moveDirX, 16 * moveDirY));
                 repaint();
             }
         });
@@ -122,7 +125,7 @@ public class LayerCanvas extends JComponent {
     }
 
     private void translate(Point2D deltaView) {
-        viewport.pan(deltaView);
+        viewport.move(deltaView);
         // todo - compute clip here, move buffered component image, redraw only clipping area
         // System.out.println("translate: deltaView = " + deltaView);
         repaint();
