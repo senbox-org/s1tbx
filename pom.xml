@@ -72,6 +72,8 @@
 
 
     <modules>
+        <module>../ceres-0.x</module>
+
         <!-- the bootstrap module has no sources,
              its only purpose is to construct a class path for VISAT
         -->

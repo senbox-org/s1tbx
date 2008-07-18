@@ -2,6 +2,7 @@ package org.esa.beam.glayer;
 
 import com.bc.ceres.glayer.AbstractGraphicalLayer;
 import com.bc.ceres.glayer.Viewport;
+import com.bc.ceres.glayer.Rendering;
 import org.esa.beam.framework.datamodel.*;
 
 import java.awt.*;
@@ -52,7 +53,9 @@ public class PlacemarkLayer extends AbstractGraphicalLayer {
         return new AffineTransform(imageToModelTransform);
     }
 
-    protected void paintLayer(Graphics2D g2d, Viewport viewport) {
+    protected void renderLayer(Rendering rendering) {
+        Graphics2D g2d = rendering.getGraphics();
+        Viewport viewport = rendering.getViewport();
         AffineTransform oldTransform = g2d.getTransform();
         Object oldAntialiasing = g2d.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
         Object oldTextAntialiasing = g2d.getRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING);
