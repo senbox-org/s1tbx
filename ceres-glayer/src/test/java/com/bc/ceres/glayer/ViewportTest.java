@@ -1,17 +1,12 @@
 package com.bc.ceres.glayer;
 
-import com.bc.ceres.glayer.ImagingTestCase;
-import com.bc.ceres.glayer.View;
-import com.bc.ceres.glayer.Viewport;
-
-import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
 public class ViewportTest extends ImagingTestCase {
 
     public void testDefaultSettings() {
-        final Viewport viewport = createViewport();
+        final Viewport viewport = new Viewport();
         assertEquals(new AffineTransform(), viewport.getModelToViewTransform());
         assertEquals(new AffineTransform(), viewport.getViewToModelTransform());
         assertEquals(p(0.0, 0.0), viewport.getModelOffset());
@@ -19,7 +14,7 @@ public class ViewportTest extends ImagingTestCase {
     }
 
     public void testTransformAreNotLife() {
-        final Viewport viewport = createViewport();
+        final Viewport viewport = new Viewport();
 
         final AffineTransform m2v = viewport.getModelToViewTransform();
         assertNotSame(m2v, viewport.getModelToViewTransform());
@@ -34,7 +29,7 @@ public class ViewportTest extends ImagingTestCase {
     }
 
     public void testInverse() {
-        final Viewport viewport = createViewport();
+        final Viewport viewport = new Viewport();
 
         final AffineTransform m2v = viewport.getModelToViewTransform();
         assertNotSame(m2v, viewport.getModelToViewTransform());
@@ -52,7 +47,7 @@ public class ViewportTest extends ImagingTestCase {
     }
 
     public void testPanning() {
-        final Viewport viewport = createViewport();
+        final Viewport viewport = new Viewport();
         viewport.pan(p(15.0, 10.0));
         assertEquals(p(-15.0, -10.0), viewport.getModelOffset());
         viewport.pan(p(-15.0, -10.0));
@@ -60,7 +55,7 @@ public class ViewportTest extends ImagingTestCase {
     }
 
     public void testZooming() {
-        final Viewport viewport = createViewport();
+        final Viewport viewport = new Viewport();
         Point2D vc, uc;
         viewport.pan(p(-10, -10));
 
@@ -182,21 +177,4 @@ public class ViewportTest extends ImagingTestCase {
     static Point2D p(double x, double y) {
         return new Point2D.Double(x, y);
     }
-
-    private static Viewport createViewport() {
-        return new Viewport(new View() {
-            public Rectangle getVisibleRegion() {
-                return new Rectangle(0, 0, 100, 100);
-            }
-
-            public void invalidateRegion(Rectangle region) {
-            }
-
-            public void invokeLater(Runnable runnable) {
-                runnable.run();
-            }
-        });
-    }
-
-
 }

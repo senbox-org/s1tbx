@@ -1,8 +1,6 @@
 package com.bc.ceres.glayer;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Rectangle2D;
@@ -63,7 +61,9 @@ public class ShapeLayer extends AbstractGraphicalLayer {
     }
 
     @Override
-    protected void paintLayer(Graphics2D g, Viewport vp) {
+    protected void renderLayer(Rendering rendering) {
+        final Graphics2D g = rendering.getGraphics();
+        final Viewport vp = rendering.getViewport();
         final AffineTransform transformSave = g.getTransform();
         try {
             final AffineTransform transform = new AffineTransform();

@@ -2,7 +2,8 @@ package com.bc.ceres.glayer.swing;
 
 import com.bc.ceres.glayer.Viewport;
 import com.bc.ceres.glayer.CollectionLayer;
-import com.bc.ceres.glayer.View;
+import com.bc.ceres.glayer.Rendering;
+import com.bc.ceres.glayer.InteractiveRendering;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -38,7 +39,7 @@ public class LayerCanvas extends JComponent {
     public LayerCanvas(CollectionLayer collectionLayer) {
         super();
         this.collectionLayer = collectionLayer;
-        this.viewport = new Viewport(new CanvasView());
+        this.viewport = new Viewport();
         this.sliderPopUp = new SliderPopUp();
 
         final MouseHandler mouseHandler = new MouseHandler();
@@ -100,7 +101,8 @@ public class LayerCanvas extends JComponent {
         if (g.getClipBounds() == null) {
             g.setClip(getX(), getY(), getWidth(), getHeight());
         }
-        collectionLayer.paint((Graphics2D) g, viewport);
+        final CanvasRendering canvasRendering = new CanvasRendering((Graphics2D) g);
+        collectionLayer.render(canvasRendering);
     }
 
     private double getZoomFactor() {
@@ -257,8 +259,22 @@ public class LayerCanvas extends JComponent {
         }
     }
 
-    private class CanvasView implements View {
-        public Rectangle getVisibleRegion() {
+    private class CanvasRendering implements InteractiveRendering {
+        private final Graphics2D graphics2D;
+
+        public CanvasRendering(Graphics2D graphics2D) {
+            this.graphics2D = graphics2D;
+        }
+
+        public Graphics2D getGraphics() {
+            return graphics2D;
+        }
+
+        public Viewport getViewport() {
+            return viewport;
+        }
+
+        public Rectangle getBounds() {
             return getBounds();
         }
 

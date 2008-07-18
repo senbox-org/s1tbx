@@ -1,5 +1,7 @@
 package com.bc.ceres.glayer.painter;
 
+import com.bc.ceres.glayer.InteractiveRendering;
+import com.bc.ceres.glayer.Rendering;
 import com.bc.ceres.glayer.Viewport;
 import com.bc.ceres.glayer.level.LevelImage;
 
@@ -11,7 +13,7 @@ import java.awt.image.*;
 import java.util.*;
 import java.util.List;
 
-public class ConcurrentImagePainter implements ImagePainter {
+public class ConcurrentImageRenderer implements ImageRenderer {
 
     private int lastLevel;
     private boolean disposed;
@@ -19,7 +21,7 @@ public class ConcurrentImagePainter implements ImagePainter {
     private final Map<TileIndex, TileRequest> scheduledTileRequests;
     private final TileImageCache localTileCache;
 
-    public ConcurrentImagePainter() {
+    public ConcurrentImageRenderer() {
         lastLevel = -1;
         scheduledTileRequests = Collections.synchronizedMap(new HashMap<TileIndex, TileRequest>(37));
         localTileCache = new TileImageCache();
@@ -52,17 +54,17 @@ public class ConcurrentImagePainter implements ImagePainter {
         }
     }
 
-    public void paint(Graphics2D graphics, Viewport viewport, LevelImage levelImage, int currentLevel) {
+    public void renderImage(Rendering rendering, LevelImage levelImage, int currentLevel) {
         final long t0 = System.nanoTime();
-        paintImpl(graphics, viewport, levelImage, currentLevel);
+        paintImpl((InteractiveRendering) rendering, levelImage, currentLevel);
         if (debug) {
             final long t1 = System.nanoTime();
             double time = (t1 - t0) / (1000.0 * 1000.0);
-            System.out.printf("ConcurrentImagePainter: paint: time=%f ms, clip=%s\n", time, graphics.getClip());
+            System.out.printf("ConcurrentImageRenderer: render: time=%f ms, clip=%s\n", time, rendering.getGraphics().getClip());
         }
     }
 
-    private void paintImpl(Graphics2D graphics, Viewport viewport, LevelImage levelImage, int currentLevel) {
+    private void paintImpl(InteractiveRendering rendering, LevelImage levelImage, int currentLevel) {
 
         // On level change, cancel all pending tile requests
         if (this.lastLevel != currentLevel) {
@@ -71,6 +73,8 @@ public class ConcurrentImagePainter implements ImagePainter {
         }
 
         final PlanarImage planarImage = levelImage.getPlanarImage(currentLevel);
+        final Graphics2D graphics = rendering.getGraphics();
+        final Viewport viewport = rendering.getViewport();
 
         // Check clipping rectangle, required for this painter
         final Rectangle clipBounds = graphics.getClipBounds();
@@ -88,7 +92,7 @@ public class ConcurrentImagePainter implements ImagePainter {
         final Rectangle clippedImageRegion = getImageRegion(viewport, levelImage, currentLevel, clipBounds);
         final Set<TileIndex> requiredTileIndexes = getTileIndexes(planarImage, currentLevel, clippedImageRegion);
         if (requiredTileIndexes.isEmpty()) {
-            return; // nothing to paint
+            return; // nothing to render
         }
 
         // Create lists of available and missing tile indexes
@@ -109,8 +113,7 @@ public class ConcurrentImagePainter implements ImagePainter {
         // Schedule missing tiles, if any
         if (!notScheduledTileIndexList.isEmpty()) {
             final TileScheduler tileScheduler = JAI.getDefaultInstance().getTileScheduler();
-            final TileComputationHandler tileComputationHandler = new TileComputationHandler(graphics.getDeviceConfiguration(),
-                                                                                             viewport,
+            final TileComputationHandler tileComputationHandler = new TileComputationHandler(rendering,
                                                                                              levelImage,
                                                                                              currentLevel);
             final TileRequest tileRequest = tileScheduler.scheduleTiles(planarImage,
@@ -133,7 +136,6 @@ public class ConcurrentImagePainter implements ImagePainter {
             drawTileImage(graphics, viewport, tileImage);
         }
 
-
         // Draw tile frames
         final AffineTransform i2m = levelImage.getImageToModelTransform(currentLevel);
         drawTileFrames(graphics, viewport, planarImage, missingTileIndexList, i2m, Color.RED);
@@ -142,7 +144,7 @@ public class ConcurrentImagePainter implements ImagePainter {
         }
 
         // Cancel any pending tile requests that are not in the visible region
-        final Rectangle visibleImageRegion = getImageRegion(viewport, levelImage, currentLevel, viewport.getView().getVisibleRegion());
+        final Rectangle visibleImageRegion = getImageRegion(viewport, levelImage, currentLevel, rendering.getBounds());
         final Set<TileIndex> visibleTileIndexSet = getTileIndexes(planarImage, currentLevel, visibleImageRegion);
         if (!visibleTileIndexSet.isEmpty()) {
             cancelTileRequests(visibleTileIndexSet);
@@ -364,14 +366,14 @@ public class ConcurrentImagePainter implements ImagePainter {
     }
 
     private class TileComputationHandler implements TileComputationListener {
+        private final InteractiveRendering rendering;
         private final GraphicsConfiguration deviceConfiguration;
-        private final Viewport viewport;
         private final LevelImage levelImage;
         private final int level;
 
-        private TileComputationHandler(GraphicsConfiguration deviceConfiguration, Viewport viewport, LevelImage levelImage, int level) {
-            this.deviceConfiguration = deviceConfiguration;
-            this.viewport = viewport;
+        private TileComputationHandler(InteractiveRendering rendering, LevelImage levelImage, int level) {
+            this.rendering = rendering;
+            this.deviceConfiguration = rendering.getGraphics().getDeviceConfiguration();
             this.levelImage = levelImage;
             this.level = level;
         }
@@ -396,7 +398,7 @@ public class ConcurrentImagePainter implements ImagePainter {
                                                         tileIndex,
                                                         tile,
                                                         levelImage.getImageToModelTransform(level));
-            synchronized (ConcurrentImagePainter.this) {
+            synchronized (ConcurrentImageRenderer.this) {
                 scheduledTileRequests.remove(tileIndex);
                 localTileCache.add(tileImage);
             }
@@ -416,12 +418,12 @@ public class ConcurrentImagePainter implements ImagePainter {
             // may have changed the viewport between the time the tile request was
             // created and the tile was computed, which is now. The EDT is the only safe
             // place to access the viewport.
-            viewport.getView().invokeLater(new Runnable() {
+            rendering.invokeLater(new Runnable() {
                 // Called from EDT.
                 public void run() {
                     if (!disposed) {
-                        final Rectangle viewRegion = getViewRegion(viewport, levelImage, level, tileBounds);
-                        viewport.getView().invalidateRegion(viewRegion);
+                        final Rectangle viewRegion = getViewRegion(rendering.getViewport(), levelImage, level, tileBounds);
+                        rendering.invalidateRegion(viewRegion);
                     }
                 }
             });
@@ -435,7 +437,7 @@ public class ConcurrentImagePainter implements ImagePainter {
             TileIndex tileIndex = new TileIndex(tileX, tileY, level);
             dropTile(tileIndex);
             if (debug) {
-                System.out.printf("ConcurrentImagePainter: tileCancelled: %s\n", tileIndex);
+                System.out.printf("ConcurrentImageRenderer: tileCancelled: %s\n", tileIndex);
             }
         }
 
@@ -448,13 +450,13 @@ public class ConcurrentImagePainter implements ImagePainter {
             TileIndex tileIndex = new TileIndex(tileX, tileY, level);
             dropTile(tileIndex);
             if (debug) {
-                System.out.printf("ConcurrentImagePainter: tileComputationFailure: %s\n", tileIndex);
+                System.out.printf("ConcurrentImageRenderer: tileComputationFailure: %s\n", tileIndex);
                 error.printStackTrace();
             }
         }
 
         private void dropTile(TileIndex tileIndex) {
-            synchronized (ConcurrentImagePainter.this) {
+            synchronized (ConcurrentImageRenderer.this) {
                 scheduledTileRequests.remove(tileIndex);
                 localTileCache.remove(tileIndex);
             }
@@ -495,7 +497,7 @@ public class ConcurrentImagePainter implements ImagePainter {
             }
             size += tileImage.size;
             if (debug) {
-                System.out.printf("ConcurrentImagePainter$TileImageCache: add: tileIndex=%s, size=%d\n", tileImage.tileIndex, size);
+                System.out.printf("ConcurrentImageRenderer$TileImageCache: add: tileIndex=%s, size=%d\n", tileImage.tileIndex, size);
             }
         }
 
@@ -504,7 +506,7 @@ public class ConcurrentImagePainter implements ImagePainter {
             if (oldTileImage != null) {
                 size -= oldTileImage.size;
                 if (debug) {
-                    System.out.printf("ConcurrentImagePainter$TileImageCache: remove: tileIndex=%s, size=%d\n", tileIndex, size);
+                    System.out.printf("ConcurrentImageRenderer$TileImageCache: remove: tileIndex=%s, size=%d\n", tileIndex, size);
                 }
             }
         }

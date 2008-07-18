@@ -1,6 +1,5 @@
 package com.bc.ceres.glayer;
 
-import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -48,12 +47,12 @@ public class CollectionLayer extends AbstractGraphicalLayer implements List<Grap
     }
 
     @Override
-    protected void paintLayer(Graphics2D g, Viewport vp) {
+    protected void renderLayer(Rendering rendering) {
         final GraphicalLayer[] graphicalLayers = layerList.toArray(new GraphicalLayer[layerList.size()]);
         for (int i = graphicalLayers.length - 1; i >= 0; i--) {
             GraphicalLayer layer = graphicalLayers[i];
             if (layer.isVisible()) {
-                layer.paint(g, vp);
+                layer.render(rendering);
             }
         }
     }

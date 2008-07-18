@@ -29,7 +29,7 @@ public class CollectionLayerTest extends ImagingTestCase {
         assertEquals(new Rectangle(-20, 0, 60, 80), cl.getBoundingBox());
     }
 
-    public void testAllLayersPainted() {
+    public void testAllLayersRendered() {
         final CollectionLayer cl = new CollectionLayer();
         final TestLayer l1 = new TestLayer();
         final TestLayer l2 = new TestLayer();
@@ -38,27 +38,26 @@ public class CollectionLayerTest extends ImagingTestCase {
         cl.add(l2);
         cl.add(l3);
         assertEquals(3, cl.size());
-        final BufferedImage image = new BufferedImage(16, 16, BufferedImage.TYPE_BYTE_GRAY);
-        final Viewport vp = null;
-        cl.paint(image.createGraphics(), vp);
+        final Rendering rendering = new BufferedImageRendering(16, 16);
+        cl.render(rendering);
         assertEquals(1, l1.paintCount);
         assertEquals(1, l2.paintCount);
         assertEquals(1, l3.paintCount);
 
         l2.setVisible(false);
-        cl.paint(image.createGraphics(), vp);
+        cl.render(rendering);
         assertEquals(2, l1.paintCount);
         assertEquals(1, l2.paintCount);
         assertEquals(2, l3.paintCount);
 
         l3.setVisible(false);
-        cl.paint(image.createGraphics(), vp);
+        cl.render(rendering);
         assertEquals(3, l1.paintCount);
         assertEquals(1, l2.paintCount);
         assertEquals(2, l3.paintCount);
 
         cl.setVisible(false);
-        cl.paint(image.createGraphics(), vp);
+        cl.render(rendering);
         assertEquals(3, l1.paintCount);
         assertEquals(1, l2.paintCount);
         assertEquals(2, l3.paintCount);

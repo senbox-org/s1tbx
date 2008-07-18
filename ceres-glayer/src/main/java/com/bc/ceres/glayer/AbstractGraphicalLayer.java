@@ -96,17 +96,18 @@ public abstract class AbstractGraphicalLayer implements GraphicalLayer {
         }
     }
 
-    public void paint(Graphics2D g, Viewport vp) {
+    public void render(Rendering rendering) {
         if (!isVisible() || getTransparency() == 1.0f) {
             return;
         }
+        final Graphics2D g = rendering.getGraphics();
         Composite composite = null;
         try {
             if (getTransparency() > 0.0f) {
                 composite = g.getComposite();
                 g.setComposite(AlphaComposite.getInstance(getAlphaCompositeMode().getValue(), 1.0f - getTransparency()));
             }
-            paintLayer(g, vp);
+            renderLayer(rendering);
         } finally {
             if (composite != null) {
                 g.setComposite(composite);
@@ -114,7 +115,7 @@ public abstract class AbstractGraphicalLayer implements GraphicalLayer {
         }
     }
 
-    protected abstract void paintLayer(Graphics2D g, Viewport vp);
+    protected abstract void renderLayer(Rendering rendering);
 
     public Rectangle2D getBoundingBox() {
         return new Rectangle();

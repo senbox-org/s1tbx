@@ -7,7 +7,7 @@ import java.awt.geom.Point2D;
 /**
  * A {@code Viewport} allows to view a certain part of the graphical layers
  * defined in the model coordinates system. Therefore a viewport comprises a
- * {@link View} and an affine transformation from model coordinates to
+ * {@link Rendering} and an affine transformation from model coordinates to
  * view coordinates and vice versa.
  *
  * @author Norman Fomferra
@@ -15,19 +15,13 @@ import java.awt.geom.Point2D;
 public class Viewport {
     private static final Point2D.Double V0 = new Point2D.Double(0, 0);
 
-    private final View view;
     private final AffineTransform viewToModelTransform;
     private final AffineTransform modelToViewTransform;
     private double currentRotation;
 
-    public Viewport(View view) {
-        this.view = view;
+    public Viewport() {
         this.viewToModelTransform = new AffineTransform();
         this.modelToViewTransform = new AffineTransform();
-    }
-
-    public View getView() {
-        return view;
     }
 
     /**

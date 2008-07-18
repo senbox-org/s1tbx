@@ -1,18 +1,21 @@
 package com.bc.ceres.glayer.painter;
 
-import com.bc.ceres.glayer.Viewport;
 import com.bc.ceres.glayer.level.LevelImage;
+import com.bc.ceres.glayer.Rendering;
+import com.bc.ceres.glayer.Viewport;
 
-import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
+import java.awt.*;
 
-public class DefaultImagePainter implements ImagePainter {
+public class DefaultImageRenderer implements ImageRenderer {
 
-    public DefaultImagePainter() {
+    public DefaultImageRenderer() {
     }
 
-    public void paint(Graphics2D graphics, Viewport viewport, LevelImage levelImage, int level) {
+    public void renderImage(Rendering rendering, LevelImage levelImage, int level) {
         final AffineTransform t = new AffineTransform(levelImage.getImageToModelTransform(level));
+        final Viewport viewport = rendering.getViewport();
+        final Graphics2D graphics = rendering.getGraphics();
         t.preConcatenate(viewport.getModelToViewTransform());
         graphics.drawRenderedImage(levelImage.getPlanarImage(level), t);
     }

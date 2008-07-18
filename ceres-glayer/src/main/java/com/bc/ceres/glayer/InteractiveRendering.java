@@ -1,17 +1,13 @@
 package com.bc.ceres.glayer;
 
-import java.awt.Rectangle;
+import java.awt.*;
 
 
 /**
- * The glue between the {@link Viewport} and the device (GUI widget or printer)
- * used to render a {@link GraphicalLayer}.
+ * An interactive rendering is used to render a {@link com.bc.ceres.glayer.GraphicalLayer} to a GUI widget, allowing for
+ * rendering of invalidated regions.
  */
-public interface View {
-    /**
-     * @return The visible region of the view in view coordinates.
-     */
-    Rectangle getVisibleRegion();
+public interface InteractiveRendering extends Rendering {
 
     /**
      * Invalidates the given region so that it becomes

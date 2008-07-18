@@ -20,10 +20,9 @@ public interface GraphicalLayer {
     /**
      * Paints the layer using the given graphics context and viewport.
      *
-     * @param g  the graphics context
-     * @param vp the viewport
+     * @param rendering
      */
-    void paint(Graphics2D g, Viewport vp);
+    void render(Rendering rendering);
 
     /**
      * Indicates that the layer will no longer be in use.

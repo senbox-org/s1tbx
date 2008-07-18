@@ -3,11 +3,10 @@ package com.bc.ceres.glayer;
 import com.bc.ceres.glayer.level.DefaultMultiLevelImage;
 import com.bc.ceres.glayer.level.LevelImage;
 import com.bc.ceres.glayer.level.SingleLevelImage;
-import com.bc.ceres.glayer.painter.ImagePainter;
-import com.bc.ceres.glayer.painter.ConcurrentImagePainter;
-import com.bc.ceres.glayer.painter.DefaultImagePainter;
+import com.bc.ceres.glayer.painter.ImageRenderer;
+import com.bc.ceres.glayer.painter.ConcurrentImageRenderer;
+import com.bc.ceres.glayer.painter.DefaultImageRenderer;
 
-import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
@@ -20,7 +19,7 @@ import java.awt.image.RenderedImage;
 public class ImageLayer extends AbstractGraphicalLayer {
 
     private LevelImage levelImage;
-    private ImagePainter imagePainter;
+    private ImageRenderer imageRenderer;
     private boolean concurrent;
     private boolean debug;
 
@@ -97,9 +96,9 @@ public class ImageLayer extends AbstractGraphicalLayer {
 
     public void setConcurrent(boolean concurrent) {
         this.concurrent = concurrent;
-        if (concurrent && imagePainter != null && !(imagePainter instanceof ConcurrentImagePainter)) {
-            imagePainter.dispose();
-            imagePainter = null;
+        if (concurrent && imageRenderer != null && !(imageRenderer instanceof ConcurrentImageRenderer)) {
+            imageRenderer.dispose();
+            imageRenderer = null;
         }
     }
 
@@ -116,34 +115,35 @@ public class ImageLayer extends AbstractGraphicalLayer {
     }
 
     @Override
-    protected void paintLayer(Graphics2D g, Viewport vp) {
+    protected void renderLayer(Rendering rendering) {
+        final Viewport vp = rendering.getViewport();        
         final double i2mScale = Viewport.getScale(getImageToModelTransform());
         final double m2vScale = vp.getModelScale();
         final double scale = m2vScale / i2mScale;
 
         final int currentLevel = levelImage.computeLevel(scale);
-        if (imagePainter == null) {
-            imagePainter = createImagePainter();
+        if (imageRenderer == null) {
+            imageRenderer = createImagePainter();
         }
-        imagePainter.paint(g, vp, levelImage, currentLevel);
+        imageRenderer.renderImage(rendering, levelImage, currentLevel);
     }
 
     public void dispose() {
-        if (imagePainter != null) {
-            imagePainter.dispose();
-            imagePainter = null;
+        if (imageRenderer != null) {
+            imageRenderer.dispose();
+            imageRenderer = null;
         }
         levelImage = null;
         super.dispose();
     }
 
-    private ImagePainter createImagePainter() {
+    private ImageRenderer createImagePainter() {
         if (concurrent) {
-            final ConcurrentImagePainter concurrentImagePainter = new ConcurrentImagePainter();
+            final ConcurrentImageRenderer concurrentImagePainter = new ConcurrentImageRenderer();
             concurrentImagePainter.setDebug(debug);
             return concurrentImagePainter;
         }
-        return new DefaultImagePainter();
+        return new DefaultImageRenderer();
     }
 
 }

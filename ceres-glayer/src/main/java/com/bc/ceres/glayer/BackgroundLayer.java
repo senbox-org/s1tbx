@@ -31,7 +31,8 @@ public class BackgroundLayer extends AbstractGraphicalLayer {
     }
 
     @Override
-    protected void paintLayer(Graphics2D g, Viewport vp) {
+    protected void renderLayer(Rendering rendering) {
+        final Graphics2D g = rendering.getGraphics();
         Paint oldPaint = g.getPaint();
         g.setPaint(paint);
         Rectangle bounds = g.getClipBounds();
