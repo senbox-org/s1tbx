@@ -12,6 +12,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -26,6 +27,7 @@ public class LayerCanvas extends JComponent implements ViewportAware {
 
     private CollectionLayer collectionLayer;
     private Viewport viewport;
+    private Rectangle2D modelArea;
 
     private SliderPopUp sliderPopUp;
 
@@ -38,9 +40,11 @@ public class LayerCanvas extends JComponent implements ViewportAware {
     }
 
     public LayerCanvas(final CollectionLayer collectionLayer, final Viewport viewport) {
+        setOpaque(false);
+
         this.collectionLayer = collectionLayer;
         this.viewport = viewport;
-        this.viewport.setModelArea(this.collectionLayer.getBoundingBox());
+        this.modelArea = collectionLayer.getBoundingBox(); // todo - register PCL for "collectionLayer.boundingBox"
         this.sliderPopUp = new SliderPopUp();
 
         final MouseHandler mouseHandler = new MouseHandler();
@@ -55,6 +59,12 @@ public class LayerCanvas extends JComponent implements ViewportAware {
             }
         });
 
+        viewport.addChangeListener(new Viewport.ChangeListener() {
+            public void handleViewportChanged(Viewport viewport) {
+                repaint();
+            }
+        });
+
         final NavControl navControl = new NavControl();
         navControl.setBounds(0, 0, 120, 120);
         add(navControl);
@@ -64,12 +74,10 @@ public class LayerCanvas extends JComponent implements ViewportAware {
                 final Point2D.Double viewCenter = new Point2D.Double(bounds.x + 0.5 * bounds.width,
                                                                      bounds.y + 0.5 * bounds.height);
                 viewport.setModelRotation(Math.toRadians(rotationAngle), viewCenter);
-                repaint();
             }
 
             public void handleMove(double moveDirX, double moveDirY) {
-                viewport.move(new Point2D.Double(16 * moveDirX, 16 * moveDirY));
-                repaint();
+                viewport.move(16 * moveDirX, 16 * moveDirY);
             }
         });
     }
@@ -80,6 +88,10 @@ public class LayerCanvas extends JComponent implements ViewportAware {
 
     public Viewport getViewport() {
         return viewport;
+    }
+
+    public Rectangle2D getModelBounds() {
+        return modelArea;
     }
 
     @Override
@@ -98,6 +110,10 @@ public class LayerCanvas extends JComponent implements ViewportAware {
 
     @Override
     protected void paintComponent(Graphics g) {
+// dont need to paint background, because I am not opaque and neither is my parent  (make sure!)
+//        g.setColor(getBackground());
+//        g.fillRect(getX(), getY(), getWidth(), getHeight());
+
         // ensure clipping is set
         if (g.getClipBounds() == null) {
             g.setClip(getX(), getY(), getWidth(), getHeight());
@@ -119,14 +135,12 @@ public class LayerCanvas extends JComponent implements ViewportAware {
 
     private void setZoomFactor(double zoomFactor, Point2D viewCenter) {
         viewport.setModelScale(1.0 / zoomFactor, viewCenter);
-        repaint();
     }
 
-    private void translate(Point2D deltaView) {
-        viewport.move(deltaView);
+    private void move(double dx, double dy) {
+        viewport.move(dx, dy);
         // todo - compute clip here, move buffered component image, redraw only clipping area
         // System.out.println("translate: deltaView = " + deltaView);
-        repaint();
     }
 
     private class MouseHandler extends MouseInputAdapter {
@@ -196,10 +210,9 @@ public class LayerCanvas extends JComponent implements ViewportAware {
         @Override
         public void mouseDragged(MouseEvent e) {
             final Point p = e.getPoint();
-            final int dx = p.x - p0.x;
-            final int dy = p.y - p0.y;
-            final Point2D.Double deltaView = new Point2D.Double(dx, dy);
-            translate(deltaView);
+            final double dx = p.x - p0.x;
+            final double dy = p.y - p0.y;
+            LayerCanvas.this.move(dx, dy);
             p0 = p;
         }
 

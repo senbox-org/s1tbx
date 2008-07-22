@@ -51,4 +51,37 @@ public interface GraphicalLayer {
     void removePropertyChangeListener(PropertyChangeListener propertyChangeListener);
     void removePropertyChangeListener(String propertyName, PropertyChangeListener propertyChangeListener);
 
+// todo - add ChangeListener support
+//    /**
+//     * Adds a change listener to this layer.
+//     *
+//     * @param listener The listener.
+//     */
+//    void addChangeListener(ChangeListener listener);
+//
+//    /**
+//     * Removes a change listener from this layer.
+//     *
+//     * @param listener The listener.
+//     */
+//    void removeChangeListener(ChangeListener listener);
+//
+//    /**
+//     * Gets all listeners added to this layer.
+//     *
+//     * @return The listeners.
+//     */
+//    ChangeListener[] getChangeListeners();
+//
+//    /**
+//     * A change listener.
+//     */
+//    static interface ChangeListener {
+//        /**
+//         * Called if the given layer has changed.
+//         *
+//         * @param layer The layer.
+//         */
+//        void handleLayerChanged(GraphicalLayer layer);
+//    }
 }

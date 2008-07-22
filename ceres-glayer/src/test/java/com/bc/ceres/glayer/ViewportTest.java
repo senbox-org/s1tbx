@@ -22,7 +22,7 @@ public class ViewportTest extends ImagingTestCase {
         final AffineTransform v2u = viewport.getViewToModelTransform();
         assertNotSame(v2u, viewport.getViewToModelTransform());
 
-        viewport.move(p(150.0, -10.0));
+        viewport.move(150.0, -10.0);
 
         assertNotSame(m2v, viewport.getModelToViewTransform());
         assertNotSame(v2u, viewport.getViewToModelTransform());
@@ -37,7 +37,7 @@ public class ViewportTest extends ImagingTestCase {
         final AffineTransform v2u = viewport.getViewToModelTransform();
         assertNotSame(v2u, viewport.getViewToModelTransform());
 
-        viewport.move(p(150.0, -10.0));
+        viewport.move(150.0, -10.0);
 
         assertEquals(p(-150, 10), t(viewport.getViewToModelTransform(), p(0, 0)));
         assertEquals(p(0, 0), t(viewport.getModelToViewTransform(), p(-150, 10)));
@@ -46,18 +46,18 @@ public class ViewportTest extends ImagingTestCase {
         assertEquals(p(0.0, 0.0), t(viewport.getViewToModelTransform(), p(150, -10)));
     }
 
-    public void testPanning() {
+    public void testMove() {
         final Viewport viewport = new DefaultViewport();
-        viewport.move(p(15.0, 10.0));
+        viewport.move(15.0, 10.0);
         assertEquals(p(-15.0, -10.0), viewport.getModelOffset());
-        viewport.move(p(-15.0, -10.0));
+        viewport.move(-15.0, -10.0);
         assertEquals(p(0.0, 0.0), viewport.getModelOffset());
     }
 
     public void testZooming() {
         final Viewport viewport = new DefaultViewport();
         Point2D vc, uc;
-        viewport.move(p(-10, -10));
+        viewport.move(-10, -10);
 
         /////////////////////////////
         // view center 1

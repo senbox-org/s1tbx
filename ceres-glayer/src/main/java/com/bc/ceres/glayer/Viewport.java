@@ -2,7 +2,6 @@ package com.bc.ceres.glayer;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 
 
 /**
@@ -25,33 +24,24 @@ public interface Viewport {
      */
     AffineTransform getModelToViewTransform();
 
-     Rectangle2D getModelArea();
-
-    void setModelArea(Rectangle2D modelArea);
-
-
     /**
      * @return The coordinate in model CS which corresponds to origin at (0,0) in the view CS.
      */
     Point2D getModelOffset();
 
     /**
-     * @return The X-coordinate in model CS which corresponds to origin at (0,0) in the view CS.
-     */
-    double getModelOffsetX();
-
-    /**
-     * @return The Y-coordinate in model CS which corresponds to origin at (0,0) in the view CS.
-     */
-    double getModelOffsetY();
-
-    /**
-     * Sets the model offset in model coordinates.
+     * Sets the offset in model coordinates.
      *
-     * @param mpX TheX-offset.
-     * @param mpY The Y-offset.
+     * @param offset The offset.
      */
-    void setModelOffset(double mpX, double mpY);
+    void setModelOffset(Point2D offset);
+
+    /**
+     * Sets the offset in model coordinates.
+     *
+     * @param offset The offset.
+     */
+    void setViewOffset(Point2D offset);
 
     /**
      * @return The size of a view pixel in model coordinates.
@@ -82,12 +72,43 @@ public interface Viewport {
 
     /**
      * Moves the model CS by translating it into the opposite direction of the given
-     * vector in model coordinates.
+     * vector in view coordinates.
      *
-     * @param viewDelta the 'pan' vector in model coordinates
+     * @param deltaX the X delta in view coordinates
+     * @param deltaY the Y delta in view coordinates
      */
-    void move(Point2D viewDelta);
+    void move(double deltaX, double deltaY);
 
+    /**
+     * Adds a change listener to this viewport.
+     *
+     * @param listener The listener.
+     */
+    void addChangeListener(ChangeListener listener);
 
+    /**
+     * Removes a change listener from this viewport.
+     *
+     * @param listener The listener.
+     */
+    void removeChangeListener(ChangeListener listener);
 
+    /**
+     * Gets all listeners added to this viewport.
+     *
+     * @return The listeners.
+     */
+    ChangeListener[] getChangeListeners();
+
+    /**
+     * A change listener.
+     */
+    static interface ChangeListener {
+        /**
+         * Called if the given viewport has changed.
+         *
+         * @param viewport The viewport.
+         */
+        void handleViewportChanged(Viewport viewport);
+    }
 }

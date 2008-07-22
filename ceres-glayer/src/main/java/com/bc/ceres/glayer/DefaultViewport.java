@@ -3,77 +3,62 @@ package com.bc.ceres.glayer;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 
 public class DefaultViewport implements Viewport {
-    private static final Point2D.Double V0 = new Point2D.Double(0, 0);
+    private static final Point2D.Double P0 = new Point2D.Double(0, 0);
 
+    private final ArrayList<ChangeListener> changeListeners;
     private final AffineTransform viewToModelTransform;
     private final AffineTransform modelToViewTransform;
     private double currentRotation;
-    private Rectangle2D modelArea;
 
     public DefaultViewport() {
+        this.changeListeners = new ArrayList<ChangeListener>(3);
         this.viewToModelTransform = new AffineTransform();
         this.modelToViewTransform = new AffineTransform();
     }
 
-    /**
-     * @return The affine transformation from view to model coordinates.
-     */
     public AffineTransform getViewToModelTransform() {
         return new AffineTransform(viewToModelTransform);
     }
 
-    /**
-     * @return The affine transformation from model to view coordinates.
-     */
     public AffineTransform getModelToViewTransform() {
         return new AffineTransform(modelToViewTransform);
     }
 
-    public Rectangle2D getModelArea() {
-        return modelArea;
-    }
-
-    public void setModelArea(Rectangle2D modelArea) {
-        this.modelArea = modelArea;
-    }
-
-    /**
-     * @return The coordinate in model CS which corresponds to origin at (0,0) in the view CS.
-     */
     public Point2D getModelOffset() {
-        return viewToModelTransform.transform(V0, null);
+        return viewToModelTransform.transform(P0, null);
     }
 
-    public double getModelOffsetX() {
-        return getModelOffset().getX();
+    public void setModelOffset(Point2D newOffset) {
+        final AffineTransform t = viewToModelTransform;
+        final Point2D oldOffset = getModelOffset();
+        final double dx = newOffset.getX() - oldOffset.getX();
+        final double dy = newOffset.getY() - oldOffset.getY();
+        t.translate(dx, dy);
+        updateModelToViewTransform();
+        fireChange();
     }
 
-    public double getModelOffsetY() {
-        return getModelOffset().getY();
+    public Point2D getViewOffset() {
+        return modelToViewTransform.transform(P0, null);
     }
 
-    public void setModelOffset(double mpX, double mpY) {
-        final Point2D p = getModelOffset();
-        viewToModelTransform.translate(mpX-p.getX(), mpY-p.getY());
+    public void setViewOffset(Point2D newOffset) {
+        final AffineTransform t = modelToViewTransform;
+        final Point2D oldOffset = getViewOffset();
+        final double dx = newOffset.getX() - oldOffset.getX();
+        final double dy = newOffset.getY() - oldOffset.getY();
+        t.translate(-dx, -dy);
+        updateViewToModelTransform();
+        fireChange();
     }
 
-    /**
-     * The size of a view pixel in model coordinates.
-     * @return size of a view pixel in model coordinates.
-     */
     public double getModelScale() {
         return getScale(viewToModelTransform);
     }
 
-    /**
-     * Sets the model-to-view scaling factor relative to a given center point in view coordinates.
-     *
-     * @param modelScale the new size of a view pixel in model coordinates
-     * @param viewCenter      the center of the zoom in the view CS
-     */
     public void setModelScale(double modelScale, Point2D viewCenter) {
         final AffineTransform t = viewToModelTransform;
         final double m00 = t.getScaleX();
@@ -85,46 +70,59 @@ public class DefaultViewport implements Viewport {
         t.translate(viewCenter.getX(), viewCenter.getY());
         t.scale(modelScale / sx, modelScale / sy);  // preserves signum & rotation of m00, m01, m10 and m11
         t.translate(-viewCenter.getX(), -viewCenter.getY());
-        updateInverse();
+        updateModelToViewTransform();
+        fireChange();
     }
 
-    /**
-     * The rotation of the  of a view pixel in model coordinates.
-     * @return size of a view pixel in model coordinates.
-     */
     public double getModelRotation() {
         return currentRotation;
     }
 
-    /**
-     * Sets the model-to-view scaling factor relative to a given center point in view coordinates.
-     *
-     * @param theta  the new rotaton angle in radians
-     * @param viewCenter      the center of the zoom in the view CS
-     */
     public void setModelRotation(double theta, Point2D viewCenter) {
         final AffineTransform t = viewToModelTransform;
         t.translate(viewCenter.getX(), viewCenter.getY());
         t.rotate(theta - currentRotation);
         t.translate(-viewCenter.getX(), -viewCenter.getY());
-        updateInverse();
+        updateModelToViewTransform();
         currentRotation = theta;
+        fireChange();
     }
 
-    /**
-     * Moves the model CS by translating it into the opposite direction of the given
-     * vector in model coordinates.
-     *
-     * @param viewDelta the 'pan' vector in model coordinates
-     */
-    public void move(Point2D viewDelta) {
-        viewToModelTransform.translate(-viewDelta.getX(), -viewDelta.getY());
-        updateInverse();
+    public void move(double deltaX, double deltaY) {
+        viewToModelTransform.translate(-deltaX, -deltaY);
+        updateModelToViewTransform();
+        fireChange();
     }
 
-    // todo - provide a rotate() method here as well
+    public void addChangeListener(ChangeListener listener) {
+        if (!changeListeners.contains(listener)) {
+            changeListeners.add(listener);
+        }
+    }
 
-    private void updateInverse() {
+    public void removeChangeListener(ChangeListener listener) {
+        changeListeners.remove(listener);
+    }
+
+    public ChangeListener[] getChangeListeners() {
+        return changeListeners.toArray(new ChangeListener[changeListeners.size()]);
+    }
+
+    protected void fireChange() {
+        for (ChangeListener listener : getChangeListeners()) {
+            listener.handleViewportChanged(this);
+        }
+    }
+
+    private void updateViewToModelTransform() {
+        try {
+            viewToModelTransform.setTransform(modelToViewTransform.createInverse());
+        } catch (NoninvertibleTransformException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void updateModelToViewTransform() {
         try {
             modelToViewTransform.setTransform(viewToModelTransform.createInverse());
         } catch (NoninvertibleTransformException e) {
