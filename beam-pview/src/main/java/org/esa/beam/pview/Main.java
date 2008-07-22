@@ -446,6 +446,7 @@ public class Main {
         final JFrame frame = new JFrame("View - [" + file.getName() + "] - " + APPNAME);
         frame.setJMenuBar(createMenuBar());
         frame.getContentPane().add(viewportScrollPane, BorderLayout.CENTER);
+//        frame.getContentPane().add(layerCanvas, BorderLayout.CENTER);
         frame.setSize(initialViewWidth, initialViewHeight);
         frame.setLocation(frameLocation, frameLocation);
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
