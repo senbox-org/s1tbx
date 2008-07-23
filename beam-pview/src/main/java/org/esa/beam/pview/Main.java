@@ -4,7 +4,7 @@ import com.bc.ceres.binio.Format;
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.ImageLayer;
 import com.bc.ceres.glayer.swing.LayerCanvas;
-import com.bc.ceres.glayer.swing.ViewportScrollPane;
+import com.bc.ceres.grendering.swing.ViewportScrollPane;
 import com.jidesoft.utils.Lm;
 import org.esa.beam.dataio.smos.SmosFormats;
 import org.esa.beam.framework.dataio.ProductIO;

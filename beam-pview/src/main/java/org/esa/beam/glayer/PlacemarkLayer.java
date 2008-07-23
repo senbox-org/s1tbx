@@ -1,8 +1,8 @@
 package org.esa.beam.glayer;
 
 import com.bc.ceres.glayer.AbstractGraphicalLayer;
-import com.bc.ceres.glayer.Viewport;
-import com.bc.ceres.glayer.Rendering;
+import com.bc.ceres.grendering.Viewport;
+import com.bc.ceres.grendering.Rendering;
 import org.esa.beam.framework.datamodel.*;
 
 import java.awt.*;
