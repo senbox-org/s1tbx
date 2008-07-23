@@ -20,6 +20,7 @@ package org.esa.beam.framework.ui.product;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.SubProgressMonitor;
+import com.bc.ceres.swing.progress.ProgressMonitorSwingWorker;
 import com.bc.jexp.ParseException;
 import com.bc.jexp.Term;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
@@ -482,7 +483,7 @@ public class ProductSubsetDialog extends ModalDialog {
         private int thumbNailSubSampling;
         private JButton setToVisibleButton;
         private JScrollPane imageScrollPane;
-        private SwingWorker thumbnailLoader;
+        private ProgressMonitorSwingWorker thumbnailLoader;
 
         public SpatialSubsetPane() {
             initParameters();
@@ -494,36 +495,22 @@ public class ProductSubsetDialog extends ModalDialog {
             setThumbnailSubsampling();
             final ProductSubsetDef psd = createThumbnailSubsetDef();
 
-            thumbnailLoader = new SwingWorker() {
-                private IOException exception;
+            thumbnailLoader = new ProgressMonitorSwingWorker<BufferedImage, Object>(this, "Loading thumbnail image...") {
 
                 @Override
-                protected Object doInBackground() throws Exception {
-                    exception = null;
-                    PlanarImage thumbnail = null;
-                    try {
-                        thumbnail = createThumbNailImage(psd, ProgressMonitor.NULL);
-                    } catch (IOException e) {
-                        exception = e;
-                    }
-                    return thumbnail;
+                protected BufferedImage doInBackground(ProgressMonitor pm) throws Exception {
+                    return  createThumbNailImage(psd, pm);
                 }
 
                 @Override
                 protected void done() {
-                    super.done();
-                    String exceptionMsg = "Failed to create thumbnail image:\n";
-                    if (exception != null) {
-                        showErrorDialog(exceptionMsg + exception.getMessage());
-                    }
-
-                    PlanarImage thumbnail = null;
+                    BufferedImage thumbnail = null;
                     try {
-                        thumbnail = (PlanarImage) get();
+                        thumbnail = get();
                     } catch (Exception e) {
-                        // occures if sbuset dialog is canceled
-                        // dont show a message to user but we can log to the console
-                        Debug.trace("Thumbnail creation interrupted");
+                        if (e instanceof IOException) {
+                            showErrorDialog("Failed to load thumbnail image:\n" + e.getMessage());
+                        }
                     }
 
                     if (thumbnail != null) {
@@ -840,7 +827,7 @@ public class ProductSubsetDialog extends ModalDialog {
             imageCanvas.setSliderBoxBounds(sliderBoxX1, sliderBoxY1, sliderBoxW, sliderBoxH);
         }
 
-        private PlanarImage createThumbNailImage(ProductSubsetDef psd, ProgressMonitor pm) throws IOException {
+        private BufferedImage createThumbNailImage(ProductSubsetDef psd, ProgressMonitor pm) throws IOException {
             Assert.notNull(pm, "pm");
             Product productSubset = product.createSubset(psd, null, null);
 
@@ -849,23 +836,22 @@ public class ProductSubsetDialog extends ModalDialog {
 
             Debug.trace("ProductSubsetDialog: Reading thumbnail data for band '" + thumbNailBandName + "'...");
             pm.beginTask("Creating thumbnail image", 3);
-            final PlanarImage planarImage;
+            final BufferedImage image;
             try {
                 thumbNailBand.readRasterDataFully(SubProgressMonitor.create(pm, 1));
                 Debug.trace("ProductSubsetDialog: Thumbnail data read.");
 
                 Debug.trace("ProductSubsetDialog: Creating thumbnail image for band '" + thumbNailBandName + "'...");
 
-                BufferedImage image = thumbNailBand.createRgbImage(SubProgressMonitor.create(pm, 1));
+                image = thumbNailBand.createRgbImage(SubProgressMonitor.create(pm, 1));
                 Debug.trace("ProductSubsetDialog: Thumbnail image created.");
 
                 productSubset.dispose();
-                planarImage = PlanarImage.wrapRenderedImage(image);
                 pm.worked(1);
             } finally {
                 pm.done();
             }
-            return planarImage;
+            return image;
         }
 
         private ProductSubsetDef createThumbnailSubsetDef() {

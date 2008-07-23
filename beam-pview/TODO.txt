@@ -16,7 +16,7 @@ Problems with existing BEAM components
 Plan
 ====
 
-1) Merge BasicImageView into ProductSceneView
-1) Replace usages of ViewModel by Viewport (use Adapter)
-2) Replace usages of LayerModel by CollectionLayer (use Adapter)
+1) Merge BasicImageView into ProductSceneView (OK)
+1) Replace usages of ViewModel by Viewport
+2) Replace usages of LayerModel by CollectionLayer
 

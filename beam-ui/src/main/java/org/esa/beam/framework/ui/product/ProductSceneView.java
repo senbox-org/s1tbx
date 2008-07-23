@@ -16,16 +16,15 @@
  */
 package org.esa.beam.framework.ui.product;
 
-import com.bc.ceres.core.ProgressMonitor;
 import com.bc.ceres.core.Assert;
+import com.bc.ceres.core.ProgressMonitor;
 import com.bc.layer.Layer;
 import com.bc.layer.LayerModel;
+import com.bc.swing.ViewPane;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.draw.ShapeFigure;
-import org.esa.beam.framework.ui.BasicImageView;
-import org.esa.beam.framework.ui.PixelInfoFactory;
-import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.*;
 import org.esa.beam.framework.ui.command.CommandUIFactory;
 import org.esa.beam.framework.ui.tool.DrawingEditor;
 import org.esa.beam.framework.ui.tool.Tool;
@@ -36,9 +35,9 @@ import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.PropertyMapChangeListener;
 import org.esa.beam.util.StopWatch;
 
-import javax.swing.JPopupMenu;
+import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.awt.geom.Area;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
@@ -51,7 +50,7 @@ import java.util.ArrayList;
  * <p>It is also capable of displaying a graticule (geographical grid) and a ROI associated with a displayed raster
  * dataset.
  */
-public class ProductSceneView extends BasicImageView implements ProductNodeView,
+public class ProductSceneView extends BasicView implements ProductNodeView,
         DrawingEditor,
         PropertyMapChangeListener,
         PixelInfoFactory {
@@ -81,12 +80,14 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
     public static final double DEFAULT_IMAGE_BORDER_SIZE = 2.0;
     public static final int DEFAULT_IMAGE_VIEW_BORDER_SIZE = 64;
 
+    private ImageDisplay imageDisplay;
     private ProductSceneImage sceneImage;
     private ArrayList<ImageUpdateListener> imageUpdateListenerList;
     private RasterChangeHandler rasterChangeHandler;
 
     public ProductSceneView(ProductSceneImage sceneImage) {
         Assert.notNull(sceneImage, "sceneImage");
+        setOpaque(false);
         this.sceneImage = sceneImage;
         setSourceImage(sceneImage.getImage());
         getImageDisplay().setLayerModel(sceneImage.getLayerModel());
@@ -103,6 +104,102 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
     }
 
     /**
+     * Gets the source image displayed in this view.
+     *
+     * @return the source image
+     */
+    public RenderedImage getSourceImage() {
+        return imageDisplay != null ? imageDisplay.getImage() : null;
+    }
+
+    /**
+     * Gets the source image to be displayed in this view.
+     *
+     * @param sourceImage the source image
+     */
+    public void setSourceImage(RenderedImage sourceImage) {
+        Guardian.assertNotNull("sourceImage", sourceImage);
+        if (imageDisplay == null) {
+            initUI(sourceImage);
+        }
+        imageDisplay.setImage(sourceImage);
+        revalidate();
+        repaint();
+    }
+
+    /**
+     * Gets the actual component used to display the source image.
+     *
+     * @return the image display component
+     */
+    public ImageDisplay getImageDisplay() {
+        return imageDisplay;
+    }
+
+    public PixelInfoFactory getPixelInfoFactory() {
+        return getImageDisplay().getPixelInfoFactory();
+    }
+
+    public void setPixelInfoFactory(PixelInfoFactory pixelInfoFactory) {
+        getImageDisplay().setPixelInfoFactory(pixelInfoFactory);
+    }
+
+    /**
+     * Adds a new pixel position listener to this image display component.
+     *
+     * @param listener the pixel position listener to be added
+     */
+    public void addPixelPositionListener(PixelPositionListener listener) {
+        imageDisplay.addPixelPositionListener(listener);
+    }
+
+    /**
+     * Removes a pixel position listener from this image display component.
+     *
+     * @param listener the pixel position listener to be removed
+     */
+    public void removePixelPositionListener(PixelPositionListener listener) {
+        imageDisplay.removePixelPositionListener(listener);
+    }
+
+    protected void initUI(RenderedImage sourceImage) {
+        PopupMenuHandler popupMenuHandler = new PopupMenuHandler(this);
+
+        imageDisplay = new ImageDisplay(sourceImage);
+        imageDisplay.setOpaque(true);
+        imageDisplay.addMouseListener(popupMenuHandler);
+        imageDisplay.addMouseWheelListener(new ZoomHandler());
+        imageDisplay.addKeyListener(popupMenuHandler);
+
+        setLayout(new BorderLayout());
+        ViewPane imageDisplayScroller = imageDisplay.createViewPane();
+        add(imageDisplayScroller, BorderLayout.CENTER);
+    }
+
+
+    /**
+     * If the <code>preferredSize</code> has been set to a
+     * non-<code>null</code> value just returns it.
+     * If the UI delegate's <code>getPreferredSize</code>
+     * method returns a non <code>null</code> value then return that;
+     * otherwise defer to the component's layout manager.
+     *
+     * @return the value of the <code>preferredSize</code> property
+     * @see #setPreferredSize
+     * @see javax.swing.plaf.ComponentUI
+     */
+    @Override
+    public Dimension getPreferredSize() {
+        if (isPreferredSizeSet()) {
+            return super.getPreferredSize();
+        } else if (imageDisplay != null) {
+            return imageDisplay.getPreferredSize();
+        } else {
+            return super.getPreferredSize();
+        }
+    }
+
+    /**
      * Releases all of the resources used by this object instance and all of its owned children. Its primary use is to
      * allow the garbage collector to perform a vanilla job.
      * <p/>
@@ -113,6 +210,7 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
      */
     @Override
     public void dispose() {
+
         getRaster().getProduct().removeProductNodeListener(rasterChangeHandler);
         for (int i = 0; i < sceneImage.getRasters().length; i++) {
             final RasterDataNode raster = sceneImage.getRasters()[i];
@@ -125,6 +223,17 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
         sceneImage = null;
         imageUpdateListenerList.clear();
         imageUpdateListenerList = null;
+
+        if (imageDisplay != null) {
+            // ensure that imageDisplay.dispose() is run in the EDT
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    imageDisplay.dispose();
+                    imageDisplay = null;
+                }
+            });
+        }
+
         super.dispose();
     }
 
@@ -138,7 +247,7 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
     }
 
     /**
-     * @return  the associated product.
+     * @return the associated product.
      */
     public Product getProduct() {
         return getRaster().getProduct();
@@ -267,8 +376,8 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
     }
 
     /**
-     * @deprecated since BEAM 4.2, no replacement
      * @return {@code sceneImage.getImageInfo().getHistogramMatching().toString()}
+     * @deprecated since BEAM 4.2, no replacement
      */
     @Deprecated
     public String getHistogramMatching() {
@@ -276,8 +385,8 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
     }
 
     /**
+     * @param histogramMatching histogram matching
      * @deprecated since BEAM 4.2, no replacement
-     * @param histogramMatching  histogram matching
      */
     @Deprecated
     public void setHistogramMatching(String histogramMatching) {
@@ -379,7 +488,10 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
 
     @Override
     public JPopupMenu createPopupMenu(MouseEvent event) {
-        JPopupMenu popupMenu = super.createPopupMenu(event.getComponent());
+        JPopupMenu popupMenu = new JPopupMenu();
+        addStandardPopupMenuItems(popupMenu);
+        addCopyPixelInfoToClipboardMenuItem(popupMenu);
+        getCommandUIFactory().addContextDependentMenuItems("image", popupMenu);
         Product product = getProduct();
         CommandUIFactory commandUIFactory = getCommandUIFactory();
         if (product.getPinGroup().getSelectedNode() != null) {
@@ -392,6 +504,26 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
         }
         return popupMenu;
     }
+
+    private static void addStandardPopupMenuItems(JPopupMenu popupMenu) {
+        popupMenu.addSeparator();
+    }
+
+    private void addCopyPixelInfoToClipboardMenuItem(JPopupMenu popupMenu) {
+        if (imageDisplay.getPixelInfoFactory() != null) {
+            JMenuItem menuItem = new JMenuItem("Copy Pixel-Info to Clipboard");
+            menuItem.setMnemonic('C');
+            menuItem.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    imageDisplay.copyPixelInfoStringToClipboard();
+                }
+            });
+            popupMenu.add(menuItem);
+            popupMenu.addSeparator();
+        }
+    }
+
 
     public void updateImage(ProgressMonitor pm) throws IOException {
         StopWatch stopWatch = new StopWatch();
@@ -716,6 +848,19 @@ public class ProductSceneView extends BasicImageView implements ProductNodeView,
 //            setCheckInvalids(true);
 //            setNoDataValue(0);
 //            setNoDataValueUsed(true);
+        }
+    }
+
+    private final class ZoomHandler implements MouseWheelListener {
+
+        public void mouseWheelMoved(MouseWheelEvent e) {
+            int notches = e.getWheelRotation();
+            double currentViewScale = imageDisplay.getViewModel().getViewScale();
+            if (notches < 0) {
+                imageDisplay.zoom(currentViewScale * 1.1f);
+            } else {
+                imageDisplay.zoom(currentViewScale * 0.9f);
+            }
         }
     }
 }

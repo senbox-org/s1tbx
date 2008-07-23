@@ -16,65 +16,60 @@
  */
 package org.esa.beam.framework.ui;
 
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
-import java.awt.image.RenderedImage;
 
-import javax.swing.JComponent;
-import javax.swing.JLabel;
+import javax.swing.*;
 
 /**
  * A component representing an image display with a draggable slider box in it.
  */
-public class SliderBoxImageDisplay extends ImageDisplay {
+public class SliderBoxImageDisplay extends JComponent {
 
-    private JComponent _sliderBox;
-    private int _sliderSectionX;
-    private int _sliderSectionY;
-    private Rectangle _sliderRectOld;
-    private Point _clickPos;
-    private boolean _imageWidthFixed;
-    private boolean _imageHeightFixed;
-    private SliderBoxChangeListener _sliderBoxChangeListener;
-    private static final int _HANDLE_SIZE = 6;
+    private static final int HANDLE_SIZE = 6;
 
-    public SliderBoxImageDisplay(RenderedImage renderedImage, SliderBoxChangeListener sliderBoxChangeListener) {
-        super(renderedImage);
-        createUI(sliderBoxChangeListener);
-    }
+    private BufferedImage image;
+    private final int imageWidth;
+    private final int imageHeight;
+    private final SliderBoxChangeListener sliderBoxChangeListener;
+    private final JComponent sliderBox;
+    private int sliderSectionX;
+    private int sliderSectionY;
+    private Rectangle sliderRectOld;
+    private Point clickPos;
+    private boolean imageWidthFixed;
+    private boolean imageHeightFixed;
 
-    public SliderBoxImageDisplay(int imgWidth, int imgHeight, SliderBoxChangeListener sliderBoxChangeListener) {
-        super(imgWidth, imgHeight);
-        createUI(sliderBoxChangeListener);
-    }
 
-    private void createUI(SliderBoxChangeListener sliderBoxChangeListener) {
+    public SliderBoxImageDisplay(int imageWidth, int imageHeight, SliderBoxChangeListener sliderBoxChangeListener) {
+        this.imageWidth = imageWidth;
+        this.imageHeight = imageHeight;
+        this.sliderBoxChangeListener = sliderBoxChangeListener;
 
-        _sliderBoxChangeListener = sliderBoxChangeListener;
-
-        _sliderBox = new JLabel();
-        _sliderBox.setBounds(0, 0, getImageWidth(), getImageHeight());
-        _sliderBox.setOpaque(false);
-        _sliderBox.setBorder(UIDefaults.SLIDER_BOX_BORDER);
+        sliderBox = new JLabel();
+        sliderBox.setBounds(0, 0, 1, 1);
+        sliderBox.setOpaque(false);
+        sliderBox.setBorder(UIDefaults.SLIDER_BOX_BORDER);
 
         setLayout(null);
-        add(_sliderBox);
+        setPreferredSize(new Dimension(imageWidth, imageHeight));
+        add(sliderBox);
         clearSliderSections();
 
         addMouseListener(new MouseAdapter() {
 
             public void mousePressed(MouseEvent e) {
-                _sliderRectOld = new Rectangle(_sliderBox.getBounds());
-                _clickPos = new Point(e.getPoint());
+                sliderRectOld = new Rectangle(sliderBox.getBounds());
+                clickPos = new Point(e.getPoint());
                 computeSliderSections(e);
             }
 
             public void mouseReleased(MouseEvent e) {
-                _sliderRectOld = null;
-                _clickPos = null;
+                sliderRectOld = null;
+                clickPos = null;
                 clearSliderSections();
             }
         });
@@ -82,7 +77,7 @@ public class SliderBoxImageDisplay extends ImageDisplay {
         addMouseMotionListener(new MouseMotionAdapter() {
 
             public void mouseDragged(MouseEvent e) {
-                if (_sliderRectOld == null || _clickPos == null) {
+                if (sliderRectOld == null || clickPos == null) {
                     return;
                 }
                 modifySliderBox(e);
@@ -90,44 +85,53 @@ public class SliderBoxImageDisplay extends ImageDisplay {
         });
     }
 
+    public void setImage(BufferedImage image) {
+        this.image = image;
+        setPreferredSize(new Dimension(image.getWidth(), image.getHeight()));
+        repaint();
+    }
+
+    protected void paintComponent(Graphics graphics) {
+        graphics.setColor(getBackground());
+        if (image != null) {
+            graphics.drawImage(image, 0, 0, null);
+        }
+    }
+
     public boolean isImageWidthFixed() {
-        return _imageWidthFixed;
+        return imageWidthFixed;
     }
 
     public void setImageWidthFixed(boolean imageWidthFixed) {
-        if (_imageWidthFixed == imageWidthFixed) {
+        if (this.imageWidthFixed == imageWidthFixed) {
             return;
         }
-        _imageWidthFixed = imageWidthFixed;
-        if (_imageWidthFixed) {
-            setSliderBoxBounds(0, _sliderBox.getY(), getImageWidth(), _sliderBox.getHeight(), true);
+        this.imageWidthFixed = imageWidthFixed;
+        if (this.imageWidthFixed) {
+            setSliderBoxBounds(0, sliderBox.getY(), imageWidth, sliderBox.getHeight(), true);
         }
     }
 
     public boolean isImageHeightFixed() {
-        return _imageHeightFixed;
+        return imageHeightFixed;
     }
 
     public void setImageHeightFixed(boolean imageHeightFixed) {
-        if (_imageHeightFixed == imageHeightFixed) {
+        if (this.imageHeightFixed == imageHeightFixed) {
             return;
         }
-        _imageHeightFixed = imageHeightFixed;
-        if (_imageHeightFixed) {
-            setSliderBoxBounds(_sliderBox.getX(), 0, _sliderBox.getWidth(), getImageHeight(), true);
+        this.imageHeightFixed = imageHeightFixed;
+        if (this.imageHeightFixed) {
+            setSliderBoxBounds(sliderBox.getX(), 0, sliderBox.getWidth(), imageHeight, true);
         }
     }
 
     public SliderBoxChangeListener getSliderBoxChangeListener() {
-        return _sliderBoxChangeListener;
-    }
-
-    public void setSliderBoxChangeListener(SliderBoxChangeListener sliderBoxChangeListener) {
-        _sliderBoxChangeListener = sliderBoxChangeListener;
+        return sliderBoxChangeListener;
     }
 
     public Rectangle getSliderBoxBounds() {
-        return _sliderBox.getBounds();
+        return sliderBox.getBounds();
     }
 
     public void setSliderBoxBounds(Rectangle rectangle) {
@@ -145,67 +149,67 @@ public class SliderBoxImageDisplay extends ImageDisplay {
     public void setSliderBoxBounds(int x, int y, int width, int height, boolean fireEvent) {
         if (isImageWidthFixed()) {
             x = 0;
-            width = getImageWidth();
+            width = imageWidth;
         }
         if (isImageHeightFixed()) {
             y = 0;
-            height = getImageHeight();
+            height = imageHeight;
         }
-        if (_sliderBox.getX() == x
-            && _sliderBox.getY() == y
-            && _sliderBox.getWidth() == width
-            && _sliderBox.getHeight() == height) {
+        if (sliderBox.getX() == x
+            && sliderBox.getY() == y
+            && sliderBox.getWidth() == width
+            && sliderBox.getHeight() == height) {
             return;
         }
-        _sliderBox.setBounds(x, y, width, height); // also repaints!
-        if (_sliderBoxChangeListener != null && fireEvent) {
-            _sliderBoxChangeListener.sliderBoxChanged(_sliderBox.getBounds());
+        sliderBox.setBounds(x, y, width, height); // also repaints!
+        if (sliderBoxChangeListener != null && fireEvent) {
+            sliderBoxChangeListener.sliderBoxChanged(sliderBox.getBounds());
         }
     }
 
 
     private void clearSliderSections() {
-        _sliderSectionX = -1;
-        _sliderSectionY = -1;
+        sliderSectionX = -1;
+        sliderSectionY = -1;
     }
 
     private void computeSliderSections(MouseEvent e) {
 
         int x = e.getX();
         int y = e.getY();
-        int x1 = _sliderBox.getX();
-        int y1 = _sliderBox.getY();
-        int x2 = _sliderBox.getX() + _sliderBox.getWidth();
-        int y2 = _sliderBox.getY() + _sliderBox.getHeight();
+        int x1 = sliderBox.getX();
+        int y1 = sliderBox.getY();
+        int x2 = sliderBox.getX() + sliderBox.getWidth();
+        int y2 = sliderBox.getY() + sliderBox.getHeight();
         int dx1 = Math.abs(x1 - x);
         int dy1 = Math.abs(y1 - y);
         int dx2 = Math.abs(x2 - x);
         int dy2 = Math.abs(y2 - y);
 
-        _sliderSectionX = -1;
-        if (dx1 <= _HANDLE_SIZE) {
-            _sliderSectionX = 0;   // left slider handle selected
-        } else if (dx2 <= _HANDLE_SIZE) {
-            _sliderSectionX = 2;   // right slider handle selected
+        sliderSectionX = -1;
+        if (dx1 <= HANDLE_SIZE) {
+            sliderSectionX = 0;   // left slider handle selected
+        } else if (dx2 <= HANDLE_SIZE) {
+            sliderSectionX = 2;   // right slider handle selected
         } else if (x >= x1 && x < x2) {
-            _sliderSectionX = 1;   // center slioder handle selected
+            sliderSectionX = 1;   // center slioder handle selected
         }
 
-        _sliderSectionY = -1;
-        if (dy1 <= _HANDLE_SIZE) {
-            _sliderSectionY = 0; // upper slider handle selected
-        } else if (dy2 <= _HANDLE_SIZE) {
-            _sliderSectionY = 2; // lower slider handle selected
+        sliderSectionY = -1;
+        if (dy1 <= HANDLE_SIZE) {
+            sliderSectionY = 0; // upper slider handle selected
+        } else if (dy2 <= HANDLE_SIZE) {
+            sliderSectionY = 2; // lower slider handle selected
         } else if (y > y1 && y < y2) {
-            _sliderSectionY = 1; // center slider handle selected
+            sliderSectionY = 1; // center slider handle selected
         }
     }
 
     private void modifySliderBox(MouseEvent e) {
         int x = e.getX();
         int y = e.getY();
-        int dx = x - _clickPos.x;
-        int dy = y - _clickPos.y;
+        int dx = x - clickPos.x;
+        int dy = y - clickPos.y;
 
         int sbx = 0;
         int sby = 0;
@@ -213,59 +217,59 @@ public class SliderBoxImageDisplay extends ImageDisplay {
         int sbh = 0;
         boolean validMode = false;
 
-        if (_sliderSectionX == 0 && _sliderSectionY == 0) {
-            sbx = _sliderRectOld.x + dx;
-            sby = _sliderRectOld.y + dy;
-            sbw = _sliderRectOld.width - dx;
-            sbh = _sliderRectOld.height - dy;
+        if (sliderSectionX == 0 && sliderSectionY == 0) {
+            sbx = sliderRectOld.x + dx;
+            sby = sliderRectOld.y + dy;
+            sbw = sliderRectOld.width - dx;
+            sbh = sliderRectOld.height - dy;
             validMode = true;
-        } else if (_sliderSectionX == 1 && _sliderSectionY == 0) {
-            sbx = _sliderRectOld.x;
-            sby = _sliderRectOld.y + dy;
-            sbw = _sliderRectOld.width;
-            sbh = _sliderRectOld.height - dy;
+        } else if (sliderSectionX == 1 && sliderSectionY == 0) {
+            sbx = sliderRectOld.x;
+            sby = sliderRectOld.y + dy;
+            sbw = sliderRectOld.width;
+            sbh = sliderRectOld.height - dy;
             validMode = true;
-        } else if (_sliderSectionX == 2 && _sliderSectionY == 0) {
-            sbx = _sliderRectOld.x;
-            sby = _sliderRectOld.y + dy;
-            sbw = _sliderRectOld.width + dx;
-            sbh = _sliderRectOld.height - dy;
+        } else if (sliderSectionX == 2 && sliderSectionY == 0) {
+            sbx = sliderRectOld.x;
+            sby = sliderRectOld.y + dy;
+            sbw = sliderRectOld.width + dx;
+            sbh = sliderRectOld.height - dy;
             validMode = true;
-        } else if (_sliderSectionX == 0 && _sliderSectionY == 1) {
-            sbx = _sliderRectOld.x + dx;
-            sby = _sliderRectOld.y;
-            sbw = _sliderRectOld.width - dx;
-            sbh = _sliderRectOld.height;
+        } else if (sliderSectionX == 0 && sliderSectionY == 1) {
+            sbx = sliderRectOld.x + dx;
+            sby = sliderRectOld.y;
+            sbw = sliderRectOld.width - dx;
+            sbh = sliderRectOld.height;
             validMode = true;
-        } else if (_sliderSectionX == 1 && _sliderSectionY == 1) {
-            sbx = _sliderRectOld.x + dx;
-            sby = _sliderRectOld.y + dy;
-            sbw = _sliderRectOld.width;
-            sbh = _sliderRectOld.height;
+        } else if (sliderSectionX == 1 && sliderSectionY == 1) {
+            sbx = sliderRectOld.x + dx;
+            sby = sliderRectOld.y + dy;
+            sbw = sliderRectOld.width;
+            sbh = sliderRectOld.height;
             validMode = true;
-        } else if (_sliderSectionX == 2 && _sliderSectionY == 1) {
-            sbx = _sliderRectOld.x;
-            sby = _sliderRectOld.y;
-            sbw = _sliderRectOld.width + dx;
-            sbh = _sliderRectOld.height;
+        } else if (sliderSectionX == 2 && sliderSectionY == 1) {
+            sbx = sliderRectOld.x;
+            sby = sliderRectOld.y;
+            sbw = sliderRectOld.width + dx;
+            sbh = sliderRectOld.height;
             validMode = true;
-        } else if (_sliderSectionX == 0 && _sliderSectionY == 2) {
-            sbx = _sliderRectOld.x + dx;
-            sby = _sliderRectOld.y;
-            sbw = _sliderRectOld.width - dx;
-            sbh = _sliderRectOld.height + dy;
+        } else if (sliderSectionX == 0 && sliderSectionY == 2) {
+            sbx = sliderRectOld.x + dx;
+            sby = sliderRectOld.y;
+            sbw = sliderRectOld.width - dx;
+            sbh = sliderRectOld.height + dy;
             validMode = true;
-        } else if (_sliderSectionX == 1 && _sliderSectionY == 2) {
-            sbx = _sliderRectOld.x;
-            sby = _sliderRectOld.y;
-            sbw = _sliderRectOld.width;
-            sbh = _sliderRectOld.height + dy;
+        } else if (sliderSectionX == 1 && sliderSectionY == 2) {
+            sbx = sliderRectOld.x;
+            sby = sliderRectOld.y;
+            sbw = sliderRectOld.width;
+            sbh = sliderRectOld.height + dy;
             validMode = true;
-        } else if (_sliderSectionX == 2 && _sliderSectionY == 2) {
-            sbx = _sliderRectOld.x;
-            sby = _sliderRectOld.y;
-            sbw = _sliderRectOld.width + dx;
-            sbh = _sliderRectOld.height + dy;
+        } else if (sliderSectionX == 2 && sliderSectionY == 2) {
+            sbx = sliderRectOld.x;
+            sby = sliderRectOld.y;
+            sbw = sliderRectOld.width + dx;
+            sbh = sliderRectOld.height + dy;
             validMode = true;
         }
 
