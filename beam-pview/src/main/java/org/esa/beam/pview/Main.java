@@ -433,15 +433,15 @@ public class Main {
         final int initialViewHeight = 800;
 
         double modelWidth = collectionLayer.getBoundingBox().getWidth();
-        double initialModelScale = modelWidth / initialViewWidth;
-        if (initialModelScale <= 1.e-3) {
-            initialModelScale = 1;
+        double initialZoomFactor = initialViewWidth / modelWidth;
+        if (initialZoomFactor <= 1.e-3) {
+            initialZoomFactor = 1;
         }
 
         final LayerCanvas layerCanvas = new LayerCanvas(collectionLayer);
         ViewportScrollPane viewportScrollPane = new ViewportScrollPane(layerCanvas);
                 
-        layerCanvas.getViewport().setModelScale(initialModelScale, new Point(0, 0));
+        layerCanvas.getViewport().setZoomFactor(initialZoomFactor, new Point(0, 0));
 
         final JFrame frame = new JFrame("View - [" + file.getName() + "] - " + APPNAME);
         frame.setJMenuBar(createMenuBar());

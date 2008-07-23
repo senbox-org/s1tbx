@@ -69,14 +69,14 @@ public class PlacemarkLayer extends AbstractGraphicalLayer {
             transform.concatenate(imageToModelTransform);
             g2d.setTransform(transform);
 
-            double modelScale = viewport.getModelScale();
+            double zoomFactor = viewport.getZoomFactor();
             ProductNodeGroup<Pin> pinGroup = getPlacemarkGroup();
             Pin[] pins = pinGroup.toArray(new Pin[pinGroup.getNodeCount()]);
             for (Pin pin : pins) {
                 final PixelPos pixelPos = pin.getPixelPos();
                 if (pixelPos != null) {
                     g2d.translate(pixelPos.getX(), pixelPos.getY());
-                    g2d.scale(modelScale, modelScale);
+                    g2d.scale(1.0 / zoomFactor, 1.0 / zoomFactor);
 
                     if (pin.isSelected()) {
                         pin.getSymbol().drawSelected(g2d);
@@ -88,7 +88,7 @@ public class PlacemarkLayer extends AbstractGraphicalLayer {
                         drawTextLabel(g2d, pin);
                     }
 
-                    g2d.scale(1 / modelScale, 1 / modelScale);
+                    g2d.scale(zoomFactor, zoomFactor);
                     g2d.translate(-pixelPos.getX(), -pixelPos.getY());
                 }
             }
