@@ -1,5 +1,8 @@
 package com.bc.ceres.glayer;
 
+import com.bc.ceres.grendering.Rendering;
+import com.bc.ceres.grendering.Viewport;
+
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;

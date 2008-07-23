@@ -1,16 +1,18 @@
 package com.bc.ceres.glayer.swing;
 
 import com.bc.ceres.glayer.*;
+import com.bc.ceres.grendering.Viewport;
+import com.bc.ceres.grendering.InteractiveRendering;
+import com.bc.ceres.grendering.DefaultViewport;
+import com.bc.ceres.grendering.swing.AdjustableView;
+import com.bc.ceres.grendering.swing.NavControl;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.MouseInputAdapter;
 import java.awt.*;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
+import java.awt.event.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
@@ -23,7 +25,7 @@ import java.beans.PropertyChangeListener;
  *
  * @author Norman Fomferra
  */
-public class LayerCanvas extends JComponent implements ViewportAware {
+public class LayerCanvas extends JComponent implements AdjustableView {
 
     private CollectionLayer collectionLayer;
     private Viewport viewport;
@@ -51,6 +53,16 @@ public class LayerCanvas extends JComponent implements ViewportAware {
         addMouseListener(mouseHandler);
         addMouseMotionListener(mouseHandler);
         addMouseWheelListener(mouseHandler);
+
+        addComponentListener(new ComponentAdapter() {
+            public void componentMoved(ComponentEvent event) {
+                viewport.setBounds(getBounds());
+            }
+
+            public void componentResized(ComponentEvent event) {
+                viewport.setBounds(getBounds());
+            }
+        });
 
         collectionLayer.addPropertyChangeListener(new PropertyChangeListener() {
 
@@ -139,8 +151,6 @@ public class LayerCanvas extends JComponent implements ViewportAware {
 
     private void move(double dx, double dy) {
         viewport.move(dx, dy);
-        // todo - compute clip here, move buffered component image, redraw only clipping area
-        // System.out.println("translate: deltaView = " + deltaView);
     }
 
     private class MouseHandler extends MouseInputAdapter {
@@ -288,7 +298,7 @@ public class LayerCanvas extends JComponent implements ViewportAware {
             return viewport;
         }
 
-        public Rectangle2D getBounds() {
+        public Rectangle getBounds() {
             return LayerCanvas.this.getBounds();
         }
 

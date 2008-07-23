@@ -1,10 +1,12 @@
-package com.bc.ceres.glayer;
+package com.bc.ceres.grendering;
+
+import com.bc.ceres.grendering.Rendering;
 
 import java.awt.*;
 
 
 /**
- * An interactive rendering is used to render a {@link com.bc.ceres.glayer.GraphicalLayer} to a GUI widget, allowing for
+ * An interactive rendering is used to render graphical data representations on a GUI widget, allowing for
  * rendering of invalidated regions.
  */
 public interface InteractiveRendering extends Rendering {

@@ -1,11 +1,12 @@
 package com.bc.ceres.glayer;
 
-import java.awt.Graphics2D;
+import com.bc.ceres.grendering.Rendering;
+
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeListener;
 
 /**
- * A layer contributes graphical elements to a drawing represented by a {@link Rendering}.
+ * A layer contributes graphical elements to a drawing represented by a {@link com.bc.ceres.grendering.Rendering}.
  *
  * @author Norman Fomferra
  */

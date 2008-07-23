@@ -1,22 +1,43 @@
-package com.bc.ceres.glayer;
+package com.bc.ceres.grendering;
+
+import com.bc.ceres.core.Assert;
+import com.bc.ceres.grendering.Viewport;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
+import java.awt.*;
 import java.util.ArrayList;
 
 public class DefaultViewport implements Viewport {
     private static final Point2D.Double P0 = new Point2D.Double(0, 0);
 
-    private final ArrayList<ChangeListener> changeListeners;
+    private final Rectangle bounds;
     private final AffineTransform viewToModelTransform;
     private final AffineTransform modelToViewTransform;
-    private double currentRotation;
+    private double rotation;
+    private final ArrayList<ChangeListener> changeListeners;
 
     public DefaultViewport() {
-        this.changeListeners = new ArrayList<ChangeListener>(3);
+        this(new Rectangle());
+    }
+
+    public DefaultViewport(Rectangle bounds) {
+        Assert.notNull(bounds, "bounds");
+        this.bounds = new Rectangle(bounds);
         this.viewToModelTransform = new AffineTransform();
         this.modelToViewTransform = new AffineTransform();
+        this.changeListeners = new ArrayList<ChangeListener>(3);
+    }
+
+    public Rectangle getBounds() {
+        return new Rectangle(bounds);
+    }
+
+    public void setBounds(Rectangle bounds) {
+        Assert.notNull(bounds, "bounds");
+        this.bounds.setRect(bounds);
+        fireChange();
     }
 
     public AffineTransform getViewToModelTransform() {
@@ -32,6 +53,7 @@ public class DefaultViewport implements Viewport {
     }
 
     public void setModelOffset(Point2D newOffset) {
+        Assert.notNull(newOffset, "newOffset");
         final AffineTransform t = viewToModelTransform;
         final Point2D oldOffset = getModelOffset();
         final double dx = newOffset.getX() - oldOffset.getX();
@@ -46,6 +68,7 @@ public class DefaultViewport implements Viewport {
     }
 
     public void setModelScale(double modelScale, Point2D viewCenter) {
+        Assert.notNull(viewCenter, "viewCenter");
         final AffineTransform t = viewToModelTransform;
         final double m00 = t.getScaleX();
         final double m10 = t.getShearY();
@@ -61,16 +84,17 @@ public class DefaultViewport implements Viewport {
     }
 
     public double getModelRotation() {
-        return currentRotation;
+        return rotation;
     }
 
     public void setModelRotation(double theta, Point2D viewCenter) {
+        Assert.notNull(viewCenter, "viewCenter");
         final AffineTransform t = viewToModelTransform;
         t.translate(viewCenter.getX(), viewCenter.getY());
-        t.rotate(theta - currentRotation);
+        t.rotate(theta - rotation);
         t.translate(-viewCenter.getX(), -viewCenter.getY());
         updateModelToViewTransform();
-        currentRotation = theta;
+        rotation = theta;
         fireChange();
     }
 
@@ -81,6 +105,7 @@ public class DefaultViewport implements Viewport {
     }
 
     public void addChangeListener(ChangeListener listener) {
+        Assert.notNull(listener, "listener");
         if (!changeListeners.contains(listener)) {
             changeListeners.add(listener);
         }

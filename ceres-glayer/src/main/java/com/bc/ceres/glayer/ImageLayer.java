@@ -3,9 +3,12 @@ package com.bc.ceres.glayer;
 import com.bc.ceres.glayer.level.DefaultMultiLevelImage;
 import com.bc.ceres.glayer.level.LevelImage;
 import com.bc.ceres.glayer.level.SingleLevelImage;
-import com.bc.ceres.glayer.painter.ImageRenderer;
-import com.bc.ceres.glayer.painter.ConcurrentImageRenderer;
-import com.bc.ceres.glayer.painter.DefaultImageRenderer;
+import com.bc.ceres.glayer.renderer.ImageRenderer;
+import com.bc.ceres.glayer.renderer.ConcurrentImageRenderer;
+import com.bc.ceres.glayer.renderer.DefaultImageRenderer;
+import com.bc.ceres.grendering.Rendering;
+import com.bc.ceres.grendering.Viewport;
+import com.bc.ceres.grendering.DefaultViewport;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
@@ -116,7 +119,7 @@ public class ImageLayer extends AbstractGraphicalLayer {
 
     @Override
     protected void renderLayer(Rendering rendering) {
-        final Viewport vp = rendering.getViewport();        
+        final Viewport vp = rendering.getViewport();
         final double i2mScale = DefaultViewport.getScale(getImageToModelTransform());
         final double m2vScale = vp.getModelScale();
         final double scale = m2vScale / i2mScale;

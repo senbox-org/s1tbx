@@ -1,10 +1,7 @@
-package com.bc.ceres.glayer.painter;
+package com.bc.ceres.glayer.renderer;
 
-import com.bc.ceres.glayer.Viewport;
-import com.bc.ceres.glayer.Rendering;
+import com.bc.ceres.grendering.Rendering;
 import com.bc.ceres.glayer.level.LevelImage;
-
-import java.awt.Graphics2D;
 
 /**
  * An {@code ImageRenderer} is used to render multi-resolution {@link LevelImage}s
@@ -12,7 +9,7 @@ import java.awt.Graphics2D;
  */
 public interface ImageRenderer {
     /**
-     * Renders a {@link LevelImage} at the specified level onto the given {@link Rendering}.
+     * Renders a {@link LevelImage} at the specified level onto the given {@link com.bc.ceres.grendering.Rendering}.
      *
      * @param rendering  The rendering.
      * @param levelImage The current level image.

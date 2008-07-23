@@ -3,11 +3,11 @@ package com.bc.ceres.glayer;
 import com.bc.ceres.glayer.ImagingTestCase;
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.ShapeLayer;
-import com.bc.ceres.glayer.Viewport;
+import com.bc.ceres.grendering.Rendering;
+import com.bc.ceres.grendering.BufferedImageRendering;
 
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.image.BufferedImage;
 
 
 public class CollectionLayerTest extends ImagingTestCase {

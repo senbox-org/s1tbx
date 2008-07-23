@@ -1,4 +1,4 @@
-package com.bc.ceres.glayer.swing;
+package com.bc.ceres.grendering.swing;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;

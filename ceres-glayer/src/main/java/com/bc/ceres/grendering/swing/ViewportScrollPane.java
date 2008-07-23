@@ -14,11 +14,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package com.bc.ceres.glayer.swing;
+package com.bc.ceres.grendering.swing;
 
 import com.bc.ceres.core.Assert;
-import com.bc.ceres.glayer.Viewport;
-import com.bc.ceres.glayer.ViewportAware;
+import com.bc.ceres.grendering.Viewport;
+import com.bc.ceres.grendering.swing.AdjustableView;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -34,7 +34,7 @@ import java.awt.geom.Rectangle2D;
  * <p/>
  * In opposite to {@link javax.swing.JScrollPane}, we don't scroll a view  given
  * by a {@link javax.swing.JComponent} but it's {@link Viewport}. For this reason
- * the view component must implement the {@link ViewportAware} interface.
+ * the view component must implement the {@link AdjustableView} interface.
  *
  * @author Norman Fomferra (norman.fomferra@brockmann-consult.de)
  * @version $Revision: 2182 $ $Date: 2008-06-12 11:09:11 +0200 (Thu, 12 Jun 2008) $
@@ -42,16 +42,18 @@ import java.awt.geom.Rectangle2D;
 public class ViewportScrollPane extends JComponent {
     private static final long serialVersionUID = -2634482999458990218L;
 
+    // Extension of model bounds in view coordinates
+    private static final int MODEL_BOUNDS_EXTENSION = 10; // pixels
+    // Maximum scroll bar value
     private static final int MAX_SB_VALUE = 10000;
 
     private JScrollBar horizontalScrollBar;
     private JScrollBar verticalScrollBar;
     private JComponent cornerComponent;
     private JComponent viewComponent;
-    private ViewportAware viewportAware;
+    private AdjustableView adjustableView;
     private Rectangle2D scrollArea;
     private boolean updatingScrollBars;
-    private boolean updatingViewport;
     private boolean scrollBarsUpdated;
     private ViewportChangeHandler viewportChangeHandler;
     private boolean debug = true;
@@ -66,11 +68,11 @@ public class ViewportScrollPane extends JComponent {
     /**
      * Constructs a new view pane with the given view viewComponent
      *
-     * @param viewComponent the view viewComponent. If not null, it must implement {@link ViewportAware}.
+     * @param viewComponent the view viewComponent. If not null, it must implement {@link AdjustableView}.
      */
     public ViewportScrollPane(JComponent viewComponent) {
         Assert.notNull(viewComponent, "viewComponent");
-        Assert.argument(viewComponent instanceof ViewportAware, "viewComponent");
+        Assert.argument(viewComponent instanceof AdjustableView, "viewComponent");
         scrollArea = new Rectangle2D.Double();
         viewportChangeHandler = new ViewportChangeHandler();
         setOpaque(false);
@@ -97,23 +99,23 @@ public class ViewportScrollPane extends JComponent {
     /**
      * Constructs a new view pane with the given view viewComponent
      *
-     * @param viewComponent the view viewComponent. If not null, it must implement {@link ViewportAware}.
+     * @param viewComponent the view viewComponent. If not null, it must implement {@link AdjustableView}.
      */
     public void setViewComponent(JComponent viewComponent) {
-        if (this.viewportAware != null) {
-            this.viewportAware.getViewport().removeChangeListener(viewportChangeHandler);
+        if (this.adjustableView != null) {
+            this.adjustableView.getViewport().removeChangeListener(viewportChangeHandler);
         }
         if (this.viewComponent != null) {
             remove(this.viewComponent);
         }
         this.viewComponent = viewComponent;
-        this.viewportAware = null;
+        this.adjustableView = null;
         if (this.viewComponent != null) {
-            this.viewportAware = (ViewportAware) viewComponent;
+            this.adjustableView = (AdjustableView) viewComponent;
             add(this.viewComponent);
         }
-        if (this.viewportAware != null) {
-            this.viewportAware.getViewport().addChangeListener(viewportChangeHandler);
+        if (this.adjustableView != null) {
+            this.adjustableView.getViewport().addChangeListener(viewportChangeHandler);
         }
         revalidate();
         validate();
@@ -249,7 +251,7 @@ public class ViewportScrollPane extends JComponent {
 
 
     private void updateViewport() {
-        if (updatingScrollBars || viewportAware == null) {
+        if (updatingScrollBars || adjustableView == null) {
             if (debug) {
                 System.out.println("ViewportScrollPane.updateViewport: return!");
             }
@@ -271,21 +273,18 @@ public class ViewportScrollPane extends JComponent {
             vy = sa.getY() + vsbValue * sa.getHeight() / MAX_SB_VALUE;
         }
         if (hsbVisible || vsbVisible) {
-            //updatingViewport = true;
             if (debug) {
                 System.out.println("ViewportScrollPane.updateViewport:");
                 System.out.println("  vx = " + vx);
                 System.out.println("  vy = " + vy);
                 System.out.println("");
             }
-            //viewportAware.getViewport().setViewOffset(new Point2D.Double(vx, vy));
-            viewportAware.getViewport().move(-vx, -vy);
-            //updatingViewport = false;
+            adjustableView.getViewport().move(-vx, -vy);
         }
     }
 
     private void updateScrollBars() {
-        if (updatingViewport || viewportAware == null) {
+        if (adjustableView == null) {
             if (debug) {
                 System.out.println("ViewportScrollPane.updateScrollBars: return!");
             }
@@ -301,10 +300,10 @@ public class ViewportScrollPane extends JComponent {
         }
 
         // Model bounds in view coordinates
-        final Rectangle2D ma = viewportAware.getViewport().getModelToViewTransform().createTransformedShape(viewportAware.getModelBounds()).getBounds2D();
-// Following code make it easier to scroll out of the model area
-//        ma.add(ma.getX() - 50, ma.getY() - 50);
-//        ma.add(ma.getX() + ma.getWidth() + 50, ma.getY() + ma.getHeight() + 50);
+        final Rectangle2D ma = adjustableView.getViewport().getModelToViewTransform().createTransformedShape(adjustableView.getModelBounds()).getBounds2D();
+        // Following code make it easier to scroll out of the model area
+        ma.add(ma.getX() - MODEL_BOUNDS_EXTENSION, ma.getY() - MODEL_BOUNDS_EXTENSION);
+        ma.add(ma.getX() + ma.getWidth() + MODEL_BOUNDS_EXTENSION, ma.getY() + ma.getHeight() + MODEL_BOUNDS_EXTENSION);
 
         // Scroll bounds in view coordinates
         final Rectangle2D sa = ma.createUnion(va);

@@ -1,5 +1,7 @@
 package com.bc.ceres.glayer;
 
+import com.bc.ceres.grendering.Rendering;
+
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;

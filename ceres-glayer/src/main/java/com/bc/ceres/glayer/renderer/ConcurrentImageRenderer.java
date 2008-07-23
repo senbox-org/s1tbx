@@ -1,8 +1,8 @@
-package com.bc.ceres.glayer.painter;
+package com.bc.ceres.glayer.renderer;
 
-import com.bc.ceres.glayer.InteractiveRendering;
-import com.bc.ceres.glayer.Rendering;
-import com.bc.ceres.glayer.Viewport;
+import com.bc.ceres.grendering.InteractiveRendering;
+import com.bc.ceres.grendering.Rendering;
+import com.bc.ceres.grendering.Viewport;
 import com.bc.ceres.glayer.level.LevelImage;
 
 import javax.media.jai.*;
@@ -76,13 +76,13 @@ public class ConcurrentImageRenderer implements ImageRenderer {
         final Graphics2D graphics = rendering.getGraphics();
         final Viewport viewport = rendering.getViewport();
 
-        // Check clipping rectangle, required for this painter
+        // Check clipping rectangle, required for this renderer
         final Rectangle clipBounds = graphics.getClipBounds();
         if (clipBounds == null) {
             throw new IllegalStateException("clipBounds == null");
         }
 
-        // Check that color model is available, required for this painter
+        // Check that color model is available, required for this renderer
         final ColorModel colorModel = planarImage.getColorModel();
         if (colorModel == null) {
             throw new IllegalStateException("colorModel == null");

@@ -1,9 +1,13 @@
-package com.bc.ceres.glayer;
+package com.bc.ceres.grendering;
+
+import com.bc.ceres.grendering.Viewport;
+import com.bc.ceres.grendering.DefaultViewport;
+import com.bc.ceres.glayer.ImagingTestCase;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
-public class ViewportTest extends ImagingTestCase {
+public class DefaultViewportTest extends ImagingTestCase {
 
     public void testDefaultSettings() {
         final Viewport viewport = new DefaultViewport();
@@ -13,7 +17,7 @@ public class ViewportTest extends ImagingTestCase {
         assertEquals(1.0, viewport.getModelScale());
     }
 
-    public void testTransformAreNotLife() {
+    public void testTransformsAreNotLife() {
         final Viewport viewport = new DefaultViewport();
 
         final AffineTransform m2v = viewport.getModelToViewTransform();

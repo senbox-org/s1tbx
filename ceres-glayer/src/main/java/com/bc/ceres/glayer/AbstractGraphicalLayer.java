@@ -1,5 +1,7 @@
 package com.bc.ceres.glayer;
 
+import com.bc.ceres.grendering.Rendering;
+
 import java.awt.AlphaComposite;
 import java.awt.Composite;
 import java.awt.Graphics2D;

@@ -1,18 +1,28 @@
-package com.bc.ceres.glayer;
+package com.bc.ceres.grendering;
 
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
 
 /**
- * A {@code Viewport} allows to view a certain part of the graphical layers
- * defined in the model coordinates system. Therefore a viewport comprises a
- * {@link Rendering} and an affine transformation from model coordinates to
+ * A {@code Viewport} allows to view a certain part of graphical data representations
+ * defined in the model coordinate. Therefore a viewport comprises the view bounds and
+ * the affine transformations from model coordinates to
  * view coordinates and vice versa.
  *
  * @author Norman Fomferra
  */
 public interface Viewport {
+    /**
+     * @return The bounds in view coordinates.
+     */
+    Rectangle getBounds();
+
+    /**
+     * @param bounds The bounds in view coordinates.
+     */
+    void setBounds(Rectangle bounds);
 
     /**
      * @return The affine transformation from view to model coordinates.

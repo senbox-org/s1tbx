@@ -1,29 +1,32 @@
-package com.bc.ceres.glayer;
+package com.bc.ceres.grendering;
 
 import com.bc.ceres.core.Assert;
+import com.bc.ceres.grendering.Rendering;
+import com.bc.ceres.grendering.Viewport;
+import com.bc.ceres.grendering.DefaultViewport;
 
 import java.awt.*;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 /**
  * A rendering which uses a buffered image as drawing surface.
  */
 public class BufferedImageRendering implements Rendering {
-    private Viewport viewport;
     private BufferedImage image;
     private Graphics2D graphics;
+    private Viewport viewport;
 
     public BufferedImageRendering(int width, int height) {
-        this(new DefaultViewport(), new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR));
+        this(new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR),
+             new DefaultViewport(new Rectangle(0, 0, width, height)));
     }
 
-    public BufferedImageRendering(Viewport viewport, BufferedImage image) {
+    public BufferedImageRendering(BufferedImage image, Viewport viewport) {
         setViewport(viewport);
         setImage(image);
     }
 
-    public Rectangle2D getBounds() {
+    public Rectangle getBounds() {
         return new Rectangle(0, 0, image.getWidth(), image.getHeight());
     }
 

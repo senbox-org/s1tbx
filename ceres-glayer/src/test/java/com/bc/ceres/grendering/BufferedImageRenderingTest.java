@@ -1,9 +1,12 @@
-package com.bc.ceres.glayer;
+package com.bc.ceres.grendering;
 
 import junit.framework.TestCase;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
+
+import com.bc.ceres.grendering.BufferedImageRendering;
+import com.bc.ceres.glayer.ShapeLayer;
 
 
 public class BufferedImageRenderingTest extends TestCase {
