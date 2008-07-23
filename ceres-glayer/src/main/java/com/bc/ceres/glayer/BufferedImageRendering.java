@@ -3,6 +3,7 @@ package com.bc.ceres.glayer;
 import com.bc.ceres.core.Assert;
 
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 /**
@@ -20,6 +21,10 @@ public class BufferedImageRendering implements Rendering {
     public BufferedImageRendering(Viewport viewport, BufferedImage image) {
         setViewport(viewport);
         setImage(image);
+    }
+
+    public Rectangle2D getBounds() {
+        return new Rectangle(0, 0, image.getWidth(), image.getHeight());
     }
 
     public Viewport getViewport() {

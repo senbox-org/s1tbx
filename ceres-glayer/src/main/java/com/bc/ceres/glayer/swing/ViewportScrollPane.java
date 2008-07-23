@@ -16,6 +16,7 @@
  */
 package com.bc.ceres.glayer.swing;
 
+import com.bc.ceres.core.Assert;
 import com.bc.ceres.glayer.Viewport;
 import com.bc.ceres.glayer.ViewportAware;
 
@@ -26,8 +27,6 @@ import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 
 /**
  * A <code>ViewPane</code> is an alternative to {@link javax.swing.JScrollPane}
@@ -52,7 +51,7 @@ public class ViewportScrollPane extends JComponent {
     private ViewportAware viewportAware;
     private Rectangle2D scrollArea;
     private boolean updatingScrollBars;
-    private boolean updatingViewModel;
+    private boolean updatingViewport;
     private boolean scrollBarsUpdated;
     private ViewportChangeHandler viewportChangeHandler;
     private boolean debug = true;
@@ -70,6 +69,8 @@ public class ViewportScrollPane extends JComponent {
      * @param viewComponent the view viewComponent. If not null, it must implement {@link ViewportAware}.
      */
     public ViewportScrollPane(JComponent viewComponent) {
+        Assert.notNull(viewComponent, "viewComponent");
+        Assert.argument(viewComponent instanceof ViewportAware, "viewComponent");
         scrollArea = new Rectangle2D.Double();
         viewportChangeHandler = new ViewportChangeHandler();
         setOpaque(false);
@@ -255,7 +256,7 @@ public class ViewportScrollPane extends JComponent {
             return;
         }
 
-        final Rectangle va = new Rectangle(0, 0, viewComponent.getWidth(), viewComponent.getHeight());
+        final Rectangle va = getViewBounds();
         double vx = va.getX();
         double vy = va.getY();
         final boolean hsbVisible = horizontalScrollBar.isVisible();
@@ -270,20 +271,21 @@ public class ViewportScrollPane extends JComponent {
             vy = sa.getY() + vsbValue * sa.getHeight() / MAX_SB_VALUE;
         }
         if (hsbVisible || vsbVisible) {
-            updatingViewModel = true;
+            //updatingViewport = true;
             if (debug) {
                 System.out.println("ViewportScrollPane.updateViewport:");
                 System.out.println("  vx = " + vx);
                 System.out.println("  vy = " + vy);
                 System.out.println("");
             }
-            viewportAware.getViewport().setViewOffset(new Point2D.Double(vx, vy));
-            updatingViewModel = false;
+            //viewportAware.getViewport().setViewOffset(new Point2D.Double(vx, vy));
+            viewportAware.getViewport().move(-vx, -vy);
+            //updatingViewport = false;
         }
     }
 
     private void updateScrollBars() {
-        if (updatingViewModel || viewComponent == null || viewportAware == null) {
+        if (updatingViewport || viewportAware == null) {
             if (debug) {
                 System.out.println("ViewportScrollPane.updateScrollBars: return!");
             }
@@ -291,7 +293,7 @@ public class ViewportScrollPane extends JComponent {
         }
 
         //.View bounds in view coordinates
-        final Rectangle2D va = new Rectangle(0, 0, viewComponent.getWidth(), viewComponent.getHeight());
+        final Rectangle2D va = getViewBounds();
         if (va.isEmpty()) {
             horizontalScrollBar.setVisible(false);
             verticalScrollBar.setVisible(false);
@@ -300,7 +302,9 @@ public class ViewportScrollPane extends JComponent {
 
         // Model bounds in view coordinates
         final Rectangle2D ma = viewportAware.getViewport().getModelToViewTransform().createTransformedShape(viewportAware.getModelBounds()).getBounds2D();
-
+// Following code make it easier to scroll out of the model area
+//        ma.add(ma.getX() - 50, ma.getY() - 50);
+//        ma.add(ma.getX() + ma.getWidth() + 50, ma.getY() + ma.getHeight() + 50);
 
         // Scroll bounds in view coordinates
         final Rectangle2D sa = ma.createUnion(va);
@@ -399,6 +403,10 @@ public class ViewportScrollPane extends JComponent {
         horizontalScrollBar.setBlockIncrement(Math.max(10, MAX_SB_VALUE / 5));
         verticalScrollBar.setUnitIncrement(Math.max(10, MAX_SB_VALUE / 50));
         verticalScrollBar.setBlockIncrement(Math.max(10, MAX_SB_VALUE / 5));
+    }
+
+    private Rectangle getViewBounds() {
+        return new Rectangle(0, 0, viewComponent.getWidth(), viewComponent.getHeight());
     }
 
     private static int clamp(int value, int min, int max) {

@@ -288,7 +288,7 @@ public class LayerCanvas extends JComponent implements ViewportAware {
             return viewport;
         }
 
-        public Rectangle getBounds() {
+        public Rectangle2D getBounds() {
             return LayerCanvas.this.getBounds();
         }
 

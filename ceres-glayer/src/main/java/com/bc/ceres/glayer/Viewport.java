@@ -30,20 +30,6 @@ public interface Viewport {
     Point2D getModelOffset();
 
     /**
-     * Sets the offset in model coordinates.
-     *
-     * @param offset The offset.
-     */
-    void setModelOffset(Point2D offset);
-
-    /**
-     * Sets the offset in model coordinates.
-     *
-     * @param offset The offset.
-     */
-    void setViewOffset(Point2D offset);
-
-    /**
      * @return The size of a view pixel in model coordinates.
      */
     double getModelScale();

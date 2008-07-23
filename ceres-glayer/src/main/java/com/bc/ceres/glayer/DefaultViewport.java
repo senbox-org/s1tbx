@@ -41,20 +41,6 @@ public class DefaultViewport implements Viewport {
         fireChange();
     }
 
-    public Point2D getViewOffset() {
-        return modelToViewTransform.transform(P0, null);
-    }
-
-    public void setViewOffset(Point2D newOffset) {
-        final AffineTransform t = modelToViewTransform;
-        final Point2D oldOffset = getViewOffset();
-        final double dx = newOffset.getX() - oldOffset.getX();
-        final double dy = newOffset.getY() - oldOffset.getY();
-        t.translate(-dx, -dy);
-        updateViewToModelTransform();
-        fireChange();
-    }
-
     public double getModelScale() {
         return getScale(viewToModelTransform);
     }
@@ -111,14 +97,6 @@ public class DefaultViewport implements Viewport {
     protected void fireChange() {
         for (ChangeListener listener : getChangeListeners()) {
             listener.handleViewportChanged(this);
-        }
-    }
-
-    private void updateViewToModelTransform() {
-        try {
-            viewToModelTransform.setTransform(modelToViewTransform.createInverse());
-        } catch (NoninvertibleTransformException e) {
-            throw new RuntimeException(e);
         }
     }
 

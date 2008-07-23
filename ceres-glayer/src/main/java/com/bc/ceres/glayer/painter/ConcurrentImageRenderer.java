@@ -329,11 +329,11 @@ public class ConcurrentImageRenderer implements ImageRenderer {
         // todo </optimize>
     }
 
-    private static Rectangle getImageRegion(Viewport vp, LevelImage levelImage, int level, Rectangle viewRegion) {
+    private static Rectangle getImageRegion(Viewport vp, LevelImage levelImage, int level, Rectangle2D viewRegion) {
         return getViewToImageTransform(vp, levelImage, level).createTransformedShape(viewRegion).getBounds();
     }
 
-    private static Rectangle getViewRegion(Viewport vp, LevelImage levelImage, int level, Rectangle imageRegion) {
+    private static Rectangle getViewRegion(Viewport vp, LevelImage levelImage, int level, Rectangle2D imageRegion) {
         return getImageToViewTransform(vp, levelImage, level).createTransformedShape(imageRegion).getBounds();
     }
 
