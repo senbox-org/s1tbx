@@ -13,7 +13,7 @@ public class DefaultViewportTest extends ImagingTestCase {
         assertEquals(new AffineTransform(), viewport.getModelToViewTransform());
         assertEquals(new AffineTransform(), viewport.getViewToModelTransform());
         assertEquals(p(0.0, 0.0), getModelOffset(viewport));
-        assertEquals(1.0, viewport.getModelScale());
+        assertEquals(1.0, viewport.getZoomFactor());
     }
 
     public void testTransformsAreNotLife() {
