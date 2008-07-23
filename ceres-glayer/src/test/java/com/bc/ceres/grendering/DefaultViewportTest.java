@@ -1,24 +1,23 @@
 package com.bc.ceres.grendering;
 
-import com.bc.ceres.grendering.Viewport;
-import com.bc.ceres.grendering.DefaultViewport;
 import com.bc.ceres.glayer.ImagingTestCase;
 
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
 public class DefaultViewportTest extends ImagingTestCase {
 
     public void testDefaultSettings() {
-        final Viewport viewport = new DefaultViewport();
+        final DefaultViewport viewport = new DefaultViewport();
         assertEquals(new AffineTransform(), viewport.getModelToViewTransform());
         assertEquals(new AffineTransform(), viewport.getViewToModelTransform());
-        assertEquals(p(0.0, 0.0), viewport.getModelOffset());
+        assertEquals(p(0.0, 0.0), getModelOffset(viewport));
         assertEquals(1.0, viewport.getModelScale());
     }
 
     public void testTransformsAreNotLife() {
-        final Viewport viewport = new DefaultViewport();
+        final DefaultViewport viewport = new DefaultViewport();
 
         final AffineTransform m2v = viewport.getModelToViewTransform();
         assertNotSame(m2v, viewport.getModelToViewTransform());
@@ -33,7 +32,7 @@ public class DefaultViewportTest extends ImagingTestCase {
     }
 
     public void testInverse() {
-        final Viewport viewport = new DefaultViewport();
+        final DefaultViewport viewport = new DefaultViewport();
 
         final AffineTransform m2v = viewport.getModelToViewTransform();
         assertNotSame(m2v, viewport.getModelToViewTransform());
@@ -51,15 +50,15 @@ public class DefaultViewportTest extends ImagingTestCase {
     }
 
     public void testMove() {
-        final Viewport viewport = new DefaultViewport();
+        final DefaultViewport viewport = new DefaultViewport();
         viewport.move(15.0, 10.0);
-        assertEquals(p(-15.0, -10.0), viewport.getModelOffset());
+        assertEquals(p(-15.0, -10.0), getModelOffset(viewport));
         viewport.move(-15.0, -10.0);
-        assertEquals(p(0.0, 0.0), viewport.getModelOffset());
+        assertEquals(p(0.0, 0.0), getModelOffset(viewport));
     }
 
     public void testZooming() {
-        final Viewport viewport = new DefaultViewport();
+        final DefaultViewport viewport = new DefaultViewport();
         Point2D vc, uc;
         viewport.move(-10, -10);
 
@@ -69,15 +68,15 @@ public class DefaultViewportTest extends ImagingTestCase {
         vc = p(15, 10);
         uc = t(viewport.getViewToModelTransform(), vc);
 
-        viewport.setModelScale(2.0, vc);
+        viewport.setZoomFactor(0.5, vc);
 
-        assertEquals(2.0, viewport.getModelScale(), 1e-10);
-        assertEquals(p(-5.0, 0.0), viewport.getModelOffset());
+        assertEquals(0.5, viewport.getZoomFactor(), 1e-10);
+        assertEquals(p(-5.0, 0.0), getModelOffset(viewport));
         assertEquals(uc, t(viewport.getViewToModelTransform(), vc));
 
-        viewport.setModelScale(0.5, vc);
-        assertEquals(0.5, viewport.getModelScale(), 1e-10);
-        assertEquals(p(17.5, 15.0), viewport.getModelOffset());
+        viewport.setZoomFactor(2, vc);
+        assertEquals(2, viewport.getZoomFactor(), 1e-10);
+        assertEquals(p(17.5, 15.0), getModelOffset(viewport));
         assertEquals(uc, t(viewport.getViewToModelTransform(), vc));
 
         /////////////////////////////
@@ -86,16 +85,16 @@ public class DefaultViewportTest extends ImagingTestCase {
         vc = p(50, 25);
         uc = t(viewport.getViewToModelTransform(), vc);
 
-        viewport.setModelScale(1.2, vc);
+        viewport.setZoomFactor(1 / 1.2, vc);
 
-        assertEquals(1.2, viewport.getModelScale(), 1e-10);
-        assertEquals(p(-17.5, -2.5), viewport.getModelOffset());
+        assertEquals(1 / 1.2, viewport.getZoomFactor(), 1e-10);
+        assertEquals(p(-17.5, -2.5), getModelOffset(viewport));
         assertEquals(uc, t(viewport.getViewToModelTransform(), vc));
 
-        viewport.setModelScale(0.8, vc);
+        viewport.setZoomFactor(1 / 0.8, vc);
 
-        assertEquals(0.8, viewport.getModelScale(), 1e-10);
-        assertEquals(p(2.5, 7.5), viewport.getModelOffset());
+        assertEquals(1 / 0.8, viewport.getZoomFactor(), 1e-10);
+        assertEquals(p(2.5, 7.5), getModelOffset(viewport));
         assertEquals(uc, t(viewport.getViewToModelTransform(), vc));
     }
 
@@ -181,4 +180,9 @@ public class DefaultViewportTest extends ImagingTestCase {
     static Point2D p(double x, double y) {
         return new Point2D.Double(x, y);
     }
+
+    public static Point2D getModelOffset(Viewport vp) {
+        return vp.getViewToModelTransform().transform(new Point(0, 0), null);
+    }
+
 }

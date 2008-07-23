@@ -35,27 +35,39 @@ public interface Viewport {
     AffineTransform getModelToViewTransform();
 
     /**
-     * @return The coordinate in model CS which corresponds to origin at (0,0) in the view CS.
-     */
-    Point2D getModelOffset();
-
-    /**
-     * @return The size of a view pixel in model coordinates.
-     */
-    double getModelScale();
-
-    /**
-     * Sets the model-to-view scaling factor relative to a given center point in view coordinates.
+     * Moves the model CS by translating it into the opposite direction of the given
+     * vector in view coordinates.
      *
-     * @param modelScale the new size of a view pixel in model coordinates
-     * @param viewCenter the center of the zoom in the view CS
+     * @param viewDeltaX the X delta in view coordinates
+     * @param viewDeltaY the Y delta in view coordinates
      */
-    void setModelScale(double modelScale, Point2D viewCenter);
+    void move(double viewDeltaX, double viewDeltaY);
+
+    /**
+     * Gets the zoom factor. The zoom factor is the number of model units per view unit.
+     * @return The zoom factor.
+     */
+    double getZoomFactor();
+
+    /**
+     * Sets the zoom factor.
+     * @param zoomFactor The zoom factor.
+     * @see #getZoomFactor()
+     */
+    void setZoomFactor(double zoomFactor);
+
+    /**
+     * Sets the zoom factor relative to the given center point in view coordinates.
+     * @param zoomFactor The zoom factor.
+     * @param viewCenter The center point in view coordinates.
+     * @see #getZoomFactor()
+     */
+    void setZoomFactor(double zoomFactor, Point2D viewCenter);
 
     /**
      * @return The rotation angle in radians.
      */
-    double getModelRotation();
+    double getRotationAngle();
 
     /**
      * Sets the rotation angle relative to a given center point in view coordinates.
@@ -63,17 +75,8 @@ public interface Viewport {
      * @param theta      the new rotaton angle in radians
      * @param viewCenter the center of the zoom in the view CS
      */
-    void setModelRotation(double theta, Point2D viewCenter);
+    void setRotationAngle(double theta, Point2D viewCenter);
 
-
-    /**
-     * Moves the model CS by translating it into the opposite direction of the given
-     * vector in view coordinates.
-     *
-     * @param deltaX the X delta in view coordinates
-     * @param deltaY the Y delta in view coordinates
-     */
-    void move(double deltaX, double deltaY);
 
     /**
      * Adds a change listener to this viewport.

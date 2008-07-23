@@ -120,7 +120,7 @@ public class Tools {
         layer.setConcurrent(concurrent);
         collectionLayer.add(layer);
 
-        layerCanvas.getViewport().setModelScale(2 << levelCount, new Point(640 / 2, 480 / 2));
+        layerCanvas.getViewport().setZoomFactor(1.0/ (2 << levelCount), new Point(640 / 2, 480 / 2));
         openFrame(layerCanvas, location.getPath(), new Rectangle(0, 0, 640, 480));
     }
 

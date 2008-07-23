@@ -121,7 +121,7 @@ public class ImageLayer extends AbstractGraphicalLayer {
     protected void renderLayer(Rendering rendering) {
         final Viewport vp = rendering.getViewport();
         final double i2mScale = DefaultViewport.getScale(getImageToModelTransform());
-        final double m2vScale = vp.getModelScale();
+        final double m2vScale = 1.0 / vp.getZoomFactor();
         final double scale = m2vScale / i2mScale;
 
         final int currentLevel = levelImage.computeLevel(scale);

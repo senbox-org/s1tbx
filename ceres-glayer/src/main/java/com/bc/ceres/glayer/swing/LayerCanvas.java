@@ -85,7 +85,7 @@ public class LayerCanvas extends JComponent implements AdjustableView {
                 final Rectangle bounds = getBounds();
                 final Point2D.Double viewCenter = new Point2D.Double(bounds.x + 0.5 * bounds.width,
                                                                      bounds.y + 0.5 * bounds.height);
-                viewport.setModelRotation(Math.toRadians(rotationAngle), viewCenter);
+                viewport.setRotationAngle(Math.toRadians(rotationAngle), viewCenter);
             }
 
             public void handleMove(double moveDirX, double moveDirY) {
@@ -132,25 +132,6 @@ public class LayerCanvas extends JComponent implements AdjustableView {
         }
         final CanvasRendering canvasRendering = new CanvasRendering((Graphics2D) g);
         collectionLayer.render(canvasRendering);
-    }
-
-    private double getZoomFactor() {
-        return 1.0 / viewport.getModelScale();
-    }
-
-    private void setZoomFactor(double zoomFactor) {
-        final Rectangle bounds = getBounds();
-        final Point2D.Double viewCenter = new Point2D.Double(bounds.x + 0.5 * bounds.width,
-                                                             bounds.y + 0.5 * bounds.height);
-        setZoomFactor(zoomFactor, viewCenter);
-    }
-
-    private void setZoomFactor(double zoomFactor, Point2D viewCenter) {
-        viewport.setModelScale(1.0 / zoomFactor, viewCenter);
-    }
-
-    private void move(double dx, double dy) {
-        viewport.move(dx, dy);
     }
 
     private class MouseHandler extends MouseInputAdapter {
@@ -222,15 +203,15 @@ public class LayerCanvas extends JComponent implements AdjustableView {
             final Point p = e.getPoint();
             final double dx = p.x - p0.x;
             final double dy = p.y - p0.y;
-            LayerCanvas.this.move(dx, dy);
+            viewport.move(dx, dy);
             p0 = p;
         }
 
         @Override
         public void mouseWheelMoved(MouseWheelEvent e) {
             final int wheelRotation = e.getWheelRotation();
-            final double newZoomFactor = getZoomFactor() * Math.pow(1.1, wheelRotation);
-            setZoomFactor(newZoomFactor);
+            final double newZoomFactor = viewport.getZoomFactor() * Math.pow(1.1, wheelRotation);
+            viewport.setZoomFactor(newZoomFactor);
         }
 
     }
@@ -243,7 +224,7 @@ public class LayerCanvas extends JComponent implements AdjustableView {
             if (window == null) {
                 initUI();
             }
-            final double oldZoomFactor = getZoomFactor();
+            final double oldZoomFactor = viewport.getZoomFactor();
             slider.setValue((int) Math.round(10.0 * Math.log(oldZoomFactor) / Math.log(2.0)));
             window.setLocation(location);
             window.setVisible(true);
@@ -263,7 +244,7 @@ public class LayerCanvas extends JComponent implements AdjustableView {
             slider.addChangeListener(new ChangeListener() {
                 public void stateChanged(ChangeEvent e) {
                     final double newZoomFactor = Math.pow(2.0, slider.getValue() / 10.0);
-                    setZoomFactor(newZoomFactor);
+                    viewport.setZoomFactor(newZoomFactor);
                     if (!slider.getValueIsAdjusting()) {
                         hide();
                     }

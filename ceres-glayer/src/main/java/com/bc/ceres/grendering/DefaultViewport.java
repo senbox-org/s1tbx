@@ -1,16 +1,14 @@
 package com.bc.ceres.grendering;
 
 import com.bc.ceres.core.Assert;
-import com.bc.ceres.grendering.Viewport;
 
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
-import java.awt.*;
 import java.util.ArrayList;
 
 public class DefaultViewport implements Viewport {
-    private static final Point2D.Double P0 = new Point2D.Double(0, 0);
 
     private final Rectangle bounds;
     private final AffineTransform viewToModelTransform;
@@ -48,26 +46,11 @@ public class DefaultViewport implements Viewport {
         return new AffineTransform(modelToViewTransform);
     }
 
-    public Point2D getModelOffset() {
-        return viewToModelTransform.transform(P0, null);
-    }
-
-    public void setModelOffset(Point2D newOffset) {
-        Assert.notNull(newOffset, "newOffset");
-        final AffineTransform t = viewToModelTransform;
-        final Point2D oldOffset = getModelOffset();
-        final double dx = newOffset.getX() - oldOffset.getX();
-        final double dy = newOffset.getY() - oldOffset.getY();
-        t.translate(dx, dy);
-        updateModelToViewTransform();
-        fireChange();
-    }
-
-    public double getModelScale() {
+    private double getModelScale() {
         return getScale(viewToModelTransform);
     }
 
-    public void setModelScale(double modelScale, Point2D viewCenter) {
+    private void setModelScale(double modelScale, Point2D viewCenter) {
         Assert.notNull(viewCenter, "viewCenter");
         final AffineTransform t = viewToModelTransform;
         final double m00 = t.getScaleX();
@@ -83,11 +66,11 @@ public class DefaultViewport implements Viewport {
         fireChange();
     }
 
-    public double getModelRotation() {
+    public double getRotationAngle() {
         return rotation;
     }
 
-    public void setModelRotation(double theta, Point2D viewCenter) {
+    public void setRotationAngle(double theta, Point2D viewCenter) {
         Assert.notNull(viewCenter, "viewCenter");
         final AffineTransform t = viewToModelTransform;
         t.translate(viewCenter.getX(), viewCenter.getY());
@@ -103,6 +86,24 @@ public class DefaultViewport implements Viewport {
         updateModelToViewTransform();
         fireChange();
     }
+
+
+    public double getZoomFactor() {
+        return 1.0 / getModelScale();
+    }
+
+    public void setZoomFactor(double zoomFactor) {
+        final Rectangle bounds = getBounds();
+        final Point2D.Double viewCenter = new Point2D.Double(bounds.x + 0.5 * bounds.width,
+                                                             bounds.y + 0.5 * bounds.height);
+        setZoomFactor(zoomFactor, viewCenter);
+    }
+
+    public void setZoomFactor(double zoomFactor, Point2D viewCenter) {
+        Assert.notNull(viewCenter, "viewCenter");
+        setModelScale(1.0 / zoomFactor, viewCenter);
+    }
+
 
     public void addChangeListener(ChangeListener listener) {
         Assert.notNull(listener, "listener");
