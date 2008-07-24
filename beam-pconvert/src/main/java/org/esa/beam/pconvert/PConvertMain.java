@@ -38,6 +38,7 @@ import org.esa.beam.util.jai.JAIUtils;
 
 import javax.media.jai.Interpolation;
 import javax.media.jai.JAI;
+import javax.media.jai.operator.BandSelectDescriptor;
 import java.awt.Color;
 import java.awt.image.RenderedImage;
 import java.io.File;
@@ -566,16 +567,16 @@ public class PConvertMain {
             }
 
             ImageInfo imageInfo = ProductUtils.createImageInfo(bands, true, ProgressMonitor.NULL);
-            if(imageInfo.getNoDataColor().getAlpha() <255 && "BMP".equalsIgnoreCase(_formatName)) {
-                if(_noDataColor != null) {
+            if (imageInfo.getNoDataColor().getAlpha() < 255 && "BMP".equalsIgnoreCase(_formatName)) {
+                if (_noDataColor != null) {
                     imageInfo.setNoDataColor(_noDataColor);
-                }else {
+                } else {
                     imageInfo.setNoDataColor(Color.BLACK);
                 }
             }
             imageInfo.setHistogramMatching(ImageInfo.getHistogramMatching(_histogramMatching));
             image = ProductUtils.createRgbImage(bands, imageInfo, ProgressMonitor.NULL);
-            if(image.getColorModel().hasAlpha() && "BMP".equalsIgnoreCase(_formatName)) {
+            if (image.getColorModel().hasAlpha() && "BMP".equalsIgnoreCase(_formatName)) {
                 error("failed to write image: BMP does not support transparency");
                 return;
             }
@@ -595,6 +596,9 @@ public class PConvertMain {
                 geoTIFFWritten = writeGeoTIFFImage(product, image, outputFile);
             }
             if (!geoTIFFWritten) {
+                if ("JPG".equalsIgnoreCase(_formatExt)) {
+                    image = BandSelectDescriptor.create(image, new int[]{0, 1, 2}, null);
+                }
                 writePlainImage(image, outputFile);
             }
         } catch (Exception e) {
@@ -629,9 +633,9 @@ public class PConvertMain {
 
     private static int getBandIndex(Product product, String expression, String virtualBandName) {
         final int index;
-        if(product.getBand(expression) != null) {
+        if (product.getBand(expression) != null) {
             index = product.getBandIndex(expression);
-        }else {
+        } else {
             final VirtualBand virtualBand = new VirtualBand(virtualBandName,
                                                             ProductData.TYPE_FLOAT32,
                                                             product.getSceneRasterWidth(),

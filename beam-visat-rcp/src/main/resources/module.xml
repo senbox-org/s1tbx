@@ -10,8 +10,11 @@
     </description>
 
     <changelog>
-        <![CDATA[
-        Changes in 4.2<br/>
+        <![CDATA[<p>Changes in 4.5:<br/>
+          [BEAM-845] Created JPEG Images have false colours<br/>
+         </p>
+
+         <p>Changes in 4.2:<br/>
         [BEAM-837] Search in VISAT Help does not work<br/>
         [BEAM-832] Coordinate list does not consider "No Data" correctly<br/>
         [BEAM-831] Export transect pixels does not consider no-data value<br/>

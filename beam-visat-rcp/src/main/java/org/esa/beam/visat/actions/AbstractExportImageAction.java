@@ -19,10 +19,10 @@ package org.esa.beam.visat.actions;
 import com.sun.media.jai.codec.ImageCodec;
 import com.sun.media.jai.codec.ImageEncoder;
 import org.esa.beam.framework.datamodel.Product;
+import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.framework.ui.command.ExecCommand;
 import org.esa.beam.framework.ui.command.SelectableCommand;
 import org.esa.beam.framework.ui.product.ProductSceneView;
-import org.esa.beam.framework.help.HelpSys;
 import org.esa.beam.util.Debug;
 import org.esa.beam.util.ProductUtils;
 import org.esa.beam.util.SystemUtils;
@@ -33,6 +33,7 @@ import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.util.io.FileUtils;
 import org.esa.beam.visat.VisatApp;
 
+import javax.media.jai.operator.BandSelectDescriptor;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import java.awt.Cursor;
@@ -194,6 +195,9 @@ public abstract class AbstractExportImageAction extends ExecCommand {
             }
 
             if (!geoTIFFWritten) {
+                if ("JPEG".equalsIgnoreCase(imageFormat)) {
+                    image = BandSelectDescriptor.create(image, new int[]{0, 1, 2}, null);
+                }
                 final OutputStream stream = new FileOutputStream(file);
                 try {
                     ImageEncoder encoder = ImageCodec.createImageEncoder(imageFormat, stream, null);
