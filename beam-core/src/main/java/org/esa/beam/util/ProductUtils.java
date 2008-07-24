@@ -1658,18 +1658,18 @@ public class ProductUtils {
                     public void eval(RasterDataEvalEnv env, int pixelIndex) {
                         if (term.evalB(env)) {
                             final int oldRGB = overlayBIm.getRGB(env.getPixelX(), env.getPixelY());
-                            final int oldAlpha = (oldRGB & 0xff000000) >> 24;
+                            final int oldAlpha = (oldRGB & 0xff000000) >>> 24;
                             final int oldRed = (oldRGB & 0x00ff0000) >> 16;
                             final int oldGreen = (oldRGB & 0x0000ff00) >> 8;
                             final int oldBlue = oldRGB & 0x000000ff;
 
                             int argb = 0;
                             argb += overlayAlpha + oldAlpha * transparency;
-                            argb = argb << 8;
+                            argb <<= 8;
                             argb += overlayAlphaRed + oldRed * transparency;
-                            argb = argb << 8;
+                            argb <<= 8;
                             argb += overlayAlphaGreen + oldGreen * transparency;
-                            argb = argb << 8;
+                            argb <<= 8;
                             argb += overlayAlphaBlue + oldBlue * transparency;
 
                             overlayBIm.setRGB(env.getPixelX(), env.getPixelY(), argb);

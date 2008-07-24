@@ -18,7 +18,11 @@
     </dependency>
 
     <changelog>
-        <![CDATA[<p>Changes in 4.2:<br/>
+        <![CDATA[<p>Changes in 4.5:<br/>
+        [BEAM-844] False computation of bitmask overlay colours<br/>
+        </p>
+
+        <p>Changes in 4.2:<br/>
         [BEAM-801] TiePointGeoCoding should consider non-linear distribution of longitude values across-track<br/>
         [BEAM-796] Index coding for classification bands<br/>
         [BEAM-775] "Write" operator not invoked if last node in graph<br/>
