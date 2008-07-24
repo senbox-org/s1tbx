@@ -176,7 +176,7 @@ public class BindingContextTest extends TestCase {
         valueContainerVB.setValue("booleanValue", false);
         assertEquals(false, radioButton.isSelected());
     }
-    
+
     public void testBindButtonGroup() throws ValidationException {
         JRadioButton radioButton1 = new JRadioButton();
         JRadioButton radioButton2 = new JRadioButton();
