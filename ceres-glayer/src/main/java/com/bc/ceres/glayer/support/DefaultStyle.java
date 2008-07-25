@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 
 /**
- * TODO - Apidoc
+ * A default {@link Style} implementation.
  *
  * @author Norman Fomferra
  * @version $revision$ $date$

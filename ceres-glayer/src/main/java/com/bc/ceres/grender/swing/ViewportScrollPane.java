@@ -71,6 +71,7 @@ public class ViewportScrollPane extends JComponent {
      * Constructs a new view pane with the given view viewComponent
      *
      * @param viewComponent the view viewComponent. If not null, it must implement {@link AdjustableView}.
+     * 
      */
     public ViewportScrollPane(JComponent viewComponent) {
         Assert.notNull(viewComponent, "viewComponent");
