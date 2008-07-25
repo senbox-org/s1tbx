@@ -2,6 +2,7 @@ package com.bc.ceres.glayer;
 
 import java.awt.AlphaComposite;
 
+// todo - remove
 public enum AlphaCompositeMode {
     CLEAR(AlphaComposite.CLEAR),
     SRC(AlphaComposite.SRC),

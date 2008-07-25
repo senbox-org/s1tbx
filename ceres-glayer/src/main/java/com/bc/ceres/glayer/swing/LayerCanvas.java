@@ -1,11 +1,13 @@
 package com.bc.ceres.glayer.swing;
 
 import com.bc.ceres.glayer.*;
-import com.bc.ceres.grendering.Viewport;
-import com.bc.ceres.grendering.InteractiveRendering;
-import com.bc.ceres.grendering.DefaultViewport;
-import com.bc.ceres.grendering.swing.AdjustableView;
-import com.bc.ceres.grendering.swing.NavControl;
+import com.bc.ceres.glayer.support.LayerViewInvalidationListener;
+import com.bc.ceres.grender.Viewport;
+import com.bc.ceres.grender.InteractiveRendering;
+import com.bc.ceres.grender.support.DefaultViewport;
+import com.bc.ceres.grender.ViewportListener;
+import com.bc.ceres.grender.swing.AdjustableView;
+import com.bc.ceres.grender.swing.NavControl;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -15,12 +17,10 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 /**
  * A preliminary UI class.
- * <p>A Swing component capable of drawing a collection of {@link com.bc.ceres.glayer.GraphicalLayer}s.
+ * <p>A Swing component capable of drawing a collection of {@link com.bc.ceres.glayer.Layer}s.
  * </p>
  *
  * @author Norman Fomferra
@@ -46,7 +46,7 @@ public class LayerCanvas extends JComponent implements AdjustableView {
 
         this.collectionLayer = collectionLayer;
         this.viewport = viewport;
-        this.modelArea = collectionLayer.getBoundingBox(); // todo - register PCL for "collectionLayer.boundingBox"
+        this.modelArea = collectionLayer.getBounds(); // todo - register PCL for "collectionLayer.boundingBox"
         this.sliderPopUp = new SliderPopUp();
 
         final MouseHandler mouseHandler = new MouseHandler();
@@ -64,14 +64,14 @@ public class LayerCanvas extends JComponent implements AdjustableView {
             }
         });
 
-        collectionLayer.addPropertyChangeListener(new PropertyChangeListener() {
-
-            public void propertyChange(PropertyChangeEvent evt) {
-                repaint(); // todo - be more specific
+        collectionLayer.addListener(new LayerViewInvalidationListener() {
+            public void handleViewInvalidation(Layer layer, Rectangle2D modelRegion) {
+                // todo - convert modelRegion to viewRegion and call repaint(viewRegion)
+                repaint();
             }
         });
 
-        viewport.addChangeListener(new Viewport.ChangeListener() {
+        viewport.addListener(new ViewportListener() {
             public void handleViewportChanged(Viewport viewport) {
                 repaint();
             }
@@ -122,7 +122,7 @@ public class LayerCanvas extends JComponent implements AdjustableView {
 
     @Override
     protected void paintComponent(Graphics g) {
-// dont need to paint background, because I am not opaque and neither is my parent  (make sure!)
+// dont need to paint background, because I am not opaque and neither is my parent  (todo - make sure!)
 //        g.setColor(getBackground());
 //        g.fillRect(getX(), getY(), getWidth(), getHeight());
 

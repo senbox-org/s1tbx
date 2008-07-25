@@ -1,13 +1,18 @@
 package com.bc.ceres.glayer;
 
-import com.bc.ceres.glayer.AbstractGraphicalLayer;
-import com.bc.ceres.grendering.Rendering;
+import com.bc.ceres.grender.Rendering;
 
-public class TestLayer extends AbstractGraphicalLayer {
-    int paintCount;
+import java.awt.geom.Rectangle2D;
+
+public class TestLayer extends Layer {
+    int renderCount;
+
+    public Rectangle2D getBounds() {
+        return null;
+    }
 
     @Override
     protected void renderLayer(Rendering rendering) {
-        paintCount++;
+        renderCount++;
     }
 }

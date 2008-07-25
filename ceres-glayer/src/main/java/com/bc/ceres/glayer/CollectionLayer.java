@@ -1,58 +1,57 @@
 package com.bc.ceres.glayer;
 
-import com.bc.ceres.grendering.Rendering;
+import com.bc.ceres.grender.Rendering;
 
 import java.awt.geom.Rectangle2D;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.*;
 
 /**
- * A collection layer is used to draw any number of layers.
+ * A layer which comprises a collection of layers.
  * Each layers is painted on top of its predecessor.
  *
  * @author Norman Fomferra
  */
-public class CollectionLayer extends AbstractGraphicalLayer implements List<GraphicalLayer> {
-    private final List<GraphicalLayer> layerList;
-    private final PropertyChangeDelegate propertyChangeDelegate;
-    private static final String SIZE_PROPERTY_NAME = "size";
+public class CollectionLayer extends Layer implements List<Layer> {
+    private final ArrayList<Layer> layerList;
 
     public CollectionLayer() {
-        this(new ArrayList<GraphicalLayer>(16));
+        this(new ArrayList<Layer>(16));
     }
 
-    public CollectionLayer(Collection<GraphicalLayer> layerList) {
-        this(new ArrayList<GraphicalLayer>(layerList));
+    public CollectionLayer(Layer[] layers) {
+        this(new ArrayList<Layer>(Arrays.asList(layers)));
     }
 
-    private CollectionLayer(List<GraphicalLayer> layerList) {
+    public CollectionLayer(Collection<Layer> layerList) {
+        this(new ArrayList<Layer>(layerList));
+    }
+
+    private CollectionLayer(ArrayList<Layer> layerList) {
         this.layerList = layerList;
-        propertyChangeDelegate = new PropertyChangeDelegate();
     }
 
     /////////////////////////////////////////////////////////////////////////
-    // GraphicalLayer implementation
+    // Layer implementation
 
     @Override
-    public Rectangle2D getBoundingBox() {
+    public Rectangle2D getBounds() {
         if (layerList.size() == 1) {
-            return get(0).getBoundingBox();
+            return get(0).getBounds();
         } else {
-            final Rectangle2D.Double boundingBox = new Rectangle2D.Double();
-            for (GraphicalLayer layer : layerList) {
-                Rectangle2D childBox = layer.getBoundingBox();
-                boundingBox.add(childBox);
+            final Rectangle2D.Double bounds = new Rectangle2D.Double();
+            for (Layer layer : layerList) {
+                Rectangle2D childBox = layer.getBounds();
+                bounds.add(childBox);
             }
-            return boundingBox;
+            return bounds;
         }
     }
 
     @Override
     protected void renderLayer(Rendering rendering) {
-        final GraphicalLayer[] graphicalLayers = layerList.toArray(new GraphicalLayer[layerList.size()]);
-        for (int i = graphicalLayers.length - 1; i >= 0; i--) {
-            GraphicalLayer layer = graphicalLayers[i];
+        final Layer[] layers = layerList.toArray(new Layer[layerList.size()]);
+        for (int i = layers.length - 1; i >= 0; i--) {
+            Layer layer = layers[i];
             if (layer.isVisible()) {
                 layer.render(rendering);
             }
@@ -64,117 +63,105 @@ public class CollectionLayer extends AbstractGraphicalLayer implements List<Grap
      */
     @Override
     public void dispose() {
-        final GraphicalLayer[] layers = layerList.toArray(new GraphicalLayer[layerList.size()]);
+        final Layer[] layers = layerList.toArray(new Layer[layerList.size()]);
         clear();
-        for (GraphicalLayer layer : layers) {
+        for (Layer layer : layers) {
             layer.dispose();
         }
         super.dispose();
     }
 
     /////////////////////////////////////////////////////////////////////////
-    // List<GraphicalLayer> implementation
+    // List<Layer> implementation
 
     @Override
-    public boolean add(GraphicalLayer layer) {
-        final int oldSize = layerList.size();
-        final boolean b = layerList.add(layer);
-        if (b) {
-            installPCD(layer);
-            firePropertyChange(SIZE_PROPERTY_NAME, oldSize, layerList.size());
-        }
-        return b;
-    }
-
-    @Override
-    public void add(int index, GraphicalLayer layer) {
-        installPCD(layer);
-        final int oldSize = layerList.size();
-        layerList.add(index, layer);
-        firePropertyChange(SIZE_PROPERTY_NAME, oldSize, layerList.size());
-    }
-
-    @Override
-    public boolean addAll(Collection<? extends GraphicalLayer> c) {
-        for (GraphicalLayer layer : c) {
-            installPCD(layer);
-        }
-        final int oldSize = layerList.size();
-        final boolean sizeChanged = layerList.addAll(c);
+    public boolean add(Layer layer) {
+        final boolean sizeChanged = layerList.add(layer);
         if (sizeChanged) {
-            firePropertyChange(SIZE_PROPERTY_NAME, oldSize, layerList.size());
+            layer.setParentLayer(this);
+            fireLayersAdded(new Layer[]{layer});
         }
         return sizeChanged;
     }
 
     @Override
-    public boolean addAll(int index, Collection<? extends GraphicalLayer> c) {
-        for (GraphicalLayer layer : c) {
-            installPCD(layer);
+    public void add(int index, Layer layer) {
+        layerList.add(index, layer);
+        layer.setParentLayer(this);
+        fireLayersAdded(new Layer[]{layer});
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends Layer> c) {
+        final boolean sizeChanged = layerList.addAll(c);
+        if (sizeChanged) {
+            setParentLayerOf(layerList);
+            fireLayersAdded(c.toArray(new Layer[c.size()]));
         }
-        final int oldSize = layerList.size();
+        return sizeChanged;
+    }
+
+    @Override
+    public boolean addAll(int index, Collection<? extends Layer> c) {
         final boolean sizeChanged = layerList.addAll(index, c);
         if (sizeChanged) {
-            firePropertyChange(SIZE_PROPERTY_NAME, oldSize, layerList.size());
+            setParentLayerOf(layerList);
+            fireLayersAdded(c.toArray(new Layer[c.size()]));
         }
         return sizeChanged;
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        final int oldSize = layerList.size();
-        final boolean b = layerList.removeAll(c);
-        if (b) {
-            firePropertyChange(SIZE_PROPERTY_NAME, oldSize, layerList.size());
-            for (Object object : c) {
-                uninstallPCD(((GraphicalLayer) object));
-            }
-        }
-        return b;
-    }
-
-    @Override
-    public boolean retainAll(Collection<?> c) {
-        final int oldSize = layerList.size();
-        final boolean sizeChanged = layerList.retainAll(c);
+        final boolean sizeChanged = layerList.removeAll(c);
         if (sizeChanged) {
-            firePropertyChange(SIZE_PROPERTY_NAME, oldSize, layerList.size());
+            final Layer[] layers = c.toArray(new Layer[c.size()]);
+            for (Layer object : layers) {
+                object.setParentLayer(null);
+            }
+            fireLayersRemoved(layers);
         }
         return sizeChanged;
     }
 
     @Override
-    public GraphicalLayer set(int index, GraphicalLayer layer) {
-        final int oldSize = layerList.size();
-        final GraphicalLayer oldValue = layerList.set(index, layer);
-        if (oldValue != null) {
-            uninstallPCD(oldValue);
-            firePropertyChange(SIZE_PROPERTY_NAME, oldSize, layerList.size());
+    public boolean retainAll(Collection<?> c) {
+        // todo
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public Layer set(int index, Layer layer) {
+        final Layer oldLayer = layerList.set(index, layer);
+        if (oldLayer != layer) {
+            if (oldLayer != null) {
+                oldLayer.setParentLayer(null);
+                fireLayersRemoved(new Layer[]{oldLayer});
+            }
+            layer.setParentLayer(this);
+            fireLayersAdded(new Layer[]{layer});
         }
-        installPCD(layer);
-        return oldValue;
+        return oldLayer;
     }
 
     @Override
     public boolean remove(Object object) {
-        final GraphicalLayer layer = (GraphicalLayer) object;
-        final int oldSize = layerList.size();
+        final Layer layer = (Layer) object;
         final boolean b = layerList.remove(layer);
         if (b) {
-            uninstallPCD(layer);
-            firePropertyChange(SIZE_PROPERTY_NAME, oldSize, layerList.size());
+            layer.setParentLayer(null);
+            fireLayersRemoved(new Layer[]{layer});
         }
         return b;
     }
 
 
     @Override
-    public GraphicalLayer remove(int index) {
-        final int oldSize = layerList.size();
-        final GraphicalLayer layer = layerList.remove(index);
+    public Layer remove(int index) {
+        final Layer layer = layerList.remove(index);
         if (layer != null) {
-            uninstallPCD(layer);
-            firePropertyChange(SIZE_PROPERTY_NAME, oldSize, layerList.size());
+            layer.setParentLayer(null);
+            fireLayersRemoved(new Layer[]{layer});
         }
         return layer;
     }
@@ -191,17 +178,13 @@ public class CollectionLayer extends AbstractGraphicalLayer implements List<Grap
 
     @Override
     public void clear() {
-        final int oldSize = layerList.size();
-        for (GraphicalLayer layer : layerList) {
-            uninstallPCD(layer);
-        }
+        final Layer[] layers = layerList.toArray(new Layer[layerList.size()]);
         layerList.clear();
-        firePropertyChange(SIZE_PROPERTY_NAME, oldSize, layerList.size());
-
+        fireLayersRemoved(layers);
     }
 
     @Override
-    public GraphicalLayer get(int index) {
+    public Layer get(int index) {
         return layerList.get(index);
     }
 
@@ -211,22 +194,22 @@ public class CollectionLayer extends AbstractGraphicalLayer implements List<Grap
     }
 
     @Override
-    public Iterator<GraphicalLayer> iterator() {
+    public Iterator<Layer> iterator() {
         return layerList.iterator();
     }
 
     @Override
-    public ListIterator<GraphicalLayer> listIterator() {
+    public ListIterator<Layer> listIterator() {
         return layerList.listIterator();
     }
 
     @Override
-    public ListIterator<GraphicalLayer> listIterator(int index) {
+    public ListIterator<Layer> listIterator(int index) {
         return layerList.listIterator(index);
     }
 
     @Override
-    public List<GraphicalLayer> subList(int fromIndex, int toIndex) {
+    public List<Layer> subList(int fromIndex, int toIndex) {
         return layerList.subList(fromIndex, toIndex);
     }
 
@@ -267,21 +250,24 @@ public class CollectionLayer extends AbstractGraphicalLayer implements List<Grap
         return layerList.containsAll(c);
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////
-    // PC support
+    //
+    /////////////////////////////////////////////////////////////////////////
 
-    private class PropertyChangeDelegate implements PropertyChangeListener {
-        public void propertyChange(PropertyChangeEvent evt) {
-            firePropertyChange(evt);
+    protected void fireLayersAdded(Layer[] layers) {
+        for (LayerListener listener : getReachableListeners()) {
+            listener.handleLayersAdded(this, layers);
         }
     }
 
-    private void installPCD(GraphicalLayer layer) {
-        layer.addPropertyChangeListener(propertyChangeDelegate);
+    protected void fireLayersRemoved(Layer[] layers) {
+        for (LayerListener listener : getReachableListeners()) {
+            listener.handleLayersRemoved(this, layers);
+        }
     }
 
-    private void uninstallPCD(GraphicalLayer layer) {
-        layer.removePropertyChangeListener(propertyChangeDelegate);
+    private void setParentLayerOf(Collection<? extends Layer> layers) {
+        for (Layer layer : layers) {
+            layer.setParentLayer(this);
+        }
     }
-
 }

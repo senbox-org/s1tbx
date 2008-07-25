@@ -1,8 +1,7 @@
 package com.bc.ceres.glayer.swing;
 
-import com.bc.ceres.glayer.GraphicalLayer;
-import com.bc.ceres.glayer.AlphaCompositeMode;
-import com.bc.ceres.glayer.CollectionLayer;
+import com.bc.ceres.glayer.*;
+import com.bc.ceres.glayer.support.AbstractLayerListener;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -15,11 +14,10 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 /**
  * Preliminary UI class.
- * <p>Provides a Swing component capable of displaying a collection of {@link com.bc.ceres.glayer.GraphicalLayer}s
+ * <p>Provides a Swing component capable of displaying a collection of {@link com.bc.ceres.glayer.Layer}s
  * in a {@link JTable}.
  * </p>
  *
@@ -68,9 +66,9 @@ public class LayerManagerForm {
             public void stateChanged(ChangeEvent e) {
                 final int selectedRow = layerTable.getSelectedRow();
                 if (selectedRow != -1) {
-                    final GraphicalLayer layer = getRootLayer().get(selectedRow);
+                    final Layer layer = getRootLayer().get(selectedRow);
                     adjusting = true;
-                    layer.setTransparency(transparencySlider.getValue() / 100.0f);
+                    layer.getStyle().setOpacity(1.0 - transparencySlider.getValue() / 100.0f);
                     adjusting = false;
                 }
             }
@@ -80,7 +78,7 @@ public class LayerManagerForm {
             public void actionPerformed(ActionEvent e) {
                 final int selectedRow = layerTable.getSelectedRow();
                 if (selectedRow != -1) {
-                    final GraphicalLayer layer = getRootLayer().get(selectedRow);
+                    final Layer layer = getRootLayer().get(selectedRow);
                     adjusting = true;
                     final AlphaCompositeMode alphaCompositeMode = (AlphaCompositeMode) alphaCompositeBox.getSelectedItem();
                     layer.setAlphaCompositeMode(alphaCompositeMode);
@@ -89,29 +87,30 @@ public class LayerManagerForm {
             }
         });
 
-        rootLayer.addPropertyChangeListener("transparency", new PropertyChangeListener() {
-
-            public void propertyChange(PropertyChangeEvent evt) {
-                if (!adjusting) {
-                    final int selectedRow = layerTable.getSelectedRow();
-                    if (selectedRow != -1) {
-                        final GraphicalLayer selectedLayer = getRootLayer().get(selectedRow);
-                        final GraphicalLayer layer = (GraphicalLayer) evt.getSource();
-                        if (selectedLayer == layer) {
-                            updateLayerStyleUI(layer);
+        rootLayer.addListener(new AbstractLayerListener() {
+            public void handleLayerStylePropertyChanged(Layer layer, PropertyChangeEvent evt) {
+                if (evt.getPropertyName().equals("opacity")) {
+                    if (!adjusting) {
+                        final int selectedRow = layerTable.getSelectedRow();
+                        if (selectedRow != -1) {
+                            final Layer selectedLayer = getRootLayer().get(selectedRow);
+                            if (selectedLayer == layer) {
+                                updateLayerStyleUI(layer);
+                            }
                         }
                     }
                 }
             }
         });
 
+
         formComponent = new JPanel(new BorderLayout(4, 4));
         formComponent.add(scrollPane, BorderLayout.CENTER);
         formComponent.add(sliderPanel, BorderLayout.SOUTH);
     }
 
-    private void updateLayerStyleUI(GraphicalLayer layer) {
-        final double transparency = layer.getTransparency();
+    private void updateLayerStyleUI(Layer layer) {
+        final double transparency = 1 - layer.getStyle().getOpacity();
         final int n = (int) Math.round(100.0 * transparency);
         transparencySlider.setValue(n);
 
@@ -145,11 +144,8 @@ public class LayerManagerForm {
 
         public LayerTableModel(CollectionLayer rootLayer) {
             this.rootLayer = rootLayer;
-            rootLayer.addPropertyChangeListener(new PropertyChangeListener() {
-
-                public void propertyChange(PropertyChangeEvent evt) {
-                    //fireTableDataChanged(); // todo - be more specific
-                }
+            rootLayer.addListener(new AbstractLayerListener() {
+                // todo - handle layer changes
             });
         }
 
@@ -166,7 +162,7 @@ public class LayerManagerForm {
         }
 
         public Object getValueAt(int rowIndex, int columnIndex) {
-            final GraphicalLayer layer = rootLayer.get(rowIndex);
+            final Layer layer = rootLayer.get(rowIndex);
             if (columnIndex == 0) {
                 return layer.isVisible();
             } else if (columnIndex == 1) {
@@ -177,7 +173,7 @@ public class LayerManagerForm {
 
         @Override
         public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-            final GraphicalLayer layer = rootLayer.get(rowIndex);
+            final Layer layer = rootLayer.get(rowIndex);
             if (columnIndex == 0) {
                 layer.setVisible((Boolean) aValue);
             } else if (columnIndex == 1) {
