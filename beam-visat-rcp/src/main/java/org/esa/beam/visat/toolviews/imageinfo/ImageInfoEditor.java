@@ -847,16 +847,19 @@ class ImageInfoEditor extends JPanel {
         public void mousePressed(MouseEvent mouseEvent) {
             hidePopup();
             resetState();
-            setDraggedSliderIndex(getNearestSliderIndex(mouseEvent.getX(), mouseEvent.getY()));
-            if (isFirstSliderDragged() || isLastSliderDragged()) {
-                computeFactors();
+            // on linux: popup is triggered on mousePressed
+            // on windows: popup is triggered on mouseReleased
+            if (!maybeShowSliderActions(mouseEvent)) {
+                setDraggedSliderIndex(getNearestSliderIndex(mouseEvent.getX(), mouseEvent.getY()));
+                if (isFirstSliderDragged() || isLastSliderDragged()) {
+                    computeFactors();
+                }
             }
         }
 
         public void mouseReleased(MouseEvent evt) {
             if (!isDragging()) {
-                maybeShowSliderActions(evt);
-                if (popup == null && SwingUtilities.isLeftMouseButton(evt)) {
+                if (!maybeShowSliderActions(evt) && SwingUtilities.isLeftMouseButton(evt)) {
                     int mode = 0;
                     int sliderIndex = getSelectedSliderIndex(evt);
                     if (sliderIndex != INVALID_INDEX && getModel().isColorEditable()) {
@@ -920,16 +923,17 @@ class ImageInfoEditor extends JPanel {
             }
         }
 
-        private void maybeShowSliderActions(MouseEvent mouseEvent) {
+        private boolean maybeShowSliderActions(MouseEvent mouseEvent) {
             if (getModel().isColorEditable() && mouseEvent.isPopupTrigger()) {
                 final int sliderIndex = getSelectedSliderIndex(mouseEvent);
                 showSliderActions(mouseEvent, sliderIndex);
+                return true;
             }
+            return false;
         }
 
         private void setDraggedSliderIndex(final int draggedSliderIndex) {
             if (this.draggedSliderIndex != draggedSliderIndex) {
-                // Debug.trace("ContrastStretchPane.setDraggedSliderIndex(" + draggedSliderIndex + ") called");
                 this.draggedSliderIndex = draggedSliderIndex;
             }
         }
@@ -939,7 +943,7 @@ class ImageInfoEditor extends JPanel {
         }
 
         private void showSliderActions(MouseEvent evt, final int sliderIndex) {
-            popup = new JidePopup(); /* I18N */
+            popup = new JidePopup();
             popup.setOwner(ImageInfoEditor.this);
             final JMenu menu = new JMenu();
             JMenuItem menuItem = createMenuItemAddNewSlider(sliderIndex, evt);
