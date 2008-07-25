@@ -1,8 +1,7 @@
 package org.esa.beam.pview;
 
-import com.bc.ceres.glayer.AlphaCompositeMode;
-import com.bc.ceres.glayer.CollectionLayer;
-import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.Composite;
+import com.bc.ceres.glayer.*;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
 import com.bc.ceres.glayer.support.LayerStyleListener;
 import com.jidesoft.icons.IconsFactory;
@@ -40,7 +39,7 @@ class LayerManager {
         initSelection(rootLayer);
 
         transparencySlider = new JSlider(0, 100, 0);
-        alphaCompositeBox = new JComboBox(AlphaCompositeMode.values());
+        alphaCompositeBox = new JComboBox(Composite.values());
 
         JPanel sliderPanel = new JPanel(new BorderLayout(4, 4));
         sliderPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
@@ -69,8 +68,8 @@ class LayerManager {
                 if (path != null) {
                     Layer layer = getLayer(path);
                     adjusting = true;
-                    final AlphaCompositeMode alphaCompositeMode = (AlphaCompositeMode) alphaCompositeBox.getSelectedItem();
-                    layer.setAlphaCompositeMode(alphaCompositeMode);
+                    final Composite composite = (com.bc.ceres.glayer.Composite) alphaCompositeBox.getSelectedItem();
+                    layer.getStyle().setComposite(composite);
                     adjusting = false;
                 }
             }
@@ -152,7 +151,7 @@ class LayerManager {
         final int n = (int) Math.round(100.0 * transparency);
         transparencySlider.setValue(n);
 
-        alphaCompositeBox.setSelectedItem(layer.getAlphaCompositeMode());
+        alphaCompositeBox.setSelectedItem(layer.getStyle().getComposite());
     }
 
     public CollectionLayer getRootLayer() {
