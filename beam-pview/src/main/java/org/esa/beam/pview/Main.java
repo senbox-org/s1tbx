@@ -2,9 +2,9 @@ package org.esa.beam.pview;
 
 import com.bc.ceres.binio.Format;
 import com.bc.ceres.glayer.CollectionLayer;
-import com.bc.ceres.glayer.ImageLayer;
+import com.bc.ceres.glayer.support.ImageLayer;
 import com.bc.ceres.glayer.swing.LayerCanvas;
-import com.bc.ceres.grendering.swing.ViewportScrollPane;
+import com.bc.ceres.grender.swing.ViewportScrollPane;
 import com.jidesoft.utils.Lm;
 import org.esa.beam.dataio.smos.SmosFormats;
 import org.esa.beam.framework.dataio.ProductIO;
@@ -305,7 +305,7 @@ public class Main {
                 final ImageLayer imageLayer = new ImageLayer(new RoiMultiLevelImage(band, color, i2m));
                 imageLayer.setName("ROI of " + band.getName());
                 imageLayer.setVisible(false);
-                imageLayer.setTransparency(0.5f);
+                imageLayer.getStyle().setOpacity(0.5);
                 imageLayer.setConcurrent(true);
                 collectionLayer.add(imageLayer);
             }
@@ -330,9 +330,9 @@ public class Main {
             final String expression = bitmaskDef.getExpr();
             final ImageLayer imageLayer = new ImageLayer(new MaskMultiLevelImage(product, color, expression, false, i2m));
             imageLayer.setName(bitmaskDef.getName());
-            imageLayer.setTransparency(1.0f - bitmaskDef.getAlpha());
             imageLayer.setVisible(false);
             imageLayer.setConcurrent(true);
+            imageLayer.getStyle().setOpacity(bitmaskDef.getAlpha());
             collectionLayer.add(imageLayer);
         }
         return collectionLayer;
@@ -379,7 +379,7 @@ public class Main {
                 final ImageLayer imageLayer = new ImageLayer(new MaskMultiLevelImage(product, color, expression, true, i2m));
                 imageLayer.setName("No-data mask of " + band.getName());
                 imageLayer.setVisible(false);
-                imageLayer.setTransparency(0.5f);
+                imageLayer.getStyle().setOpacity(0.5);
                 imageLayer.setConcurrent(true);
                 collectionLayer.add(imageLayer);
             }
@@ -432,7 +432,7 @@ public class Main {
         final int initialViewWidth = 800;
         final int initialViewHeight = 800;
 
-        double modelWidth = collectionLayer.getBoundingBox().getWidth();
+        double modelWidth = collectionLayer.getBounds().getWidth();
         double initialZoomFactor = initialViewWidth / modelWidth;
         if (initialZoomFactor <= 1.e-3) {
             initialZoomFactor = 1;

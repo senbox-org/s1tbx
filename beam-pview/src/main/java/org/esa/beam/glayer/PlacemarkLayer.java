@@ -1,8 +1,8 @@
 package org.esa.beam.glayer;
 
-import com.bc.ceres.glayer.AbstractGraphicalLayer;
-import com.bc.ceres.grendering.Viewport;
-import com.bc.ceres.grendering.Rendering;
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.grender.Rendering;
+import com.bc.ceres.grender.Viewport;
 import org.esa.beam.framework.datamodel.*;
 
 import java.awt.*;
@@ -10,7 +10,7 @@ import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 
-public class PlacemarkLayer extends AbstractGraphicalLayer {
+public class PlacemarkLayer extends Layer {
 
     private Product product;
     private PlacemarkDescriptor placemarkDescriptor;
@@ -100,7 +100,7 @@ public class PlacemarkLayer extends AbstractGraphicalLayer {
 
     }
 
-    public Rectangle2D getBoundingBox() {
+    public Rectangle2D getBounds() {
         return new Rectangle(0, 0, product.getSceneRasterWidth(), product.getSceneRasterHeight());
     }
 

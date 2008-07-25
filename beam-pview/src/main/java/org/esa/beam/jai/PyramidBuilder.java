@@ -1,7 +1,7 @@
 package org.esa.beam.jai;
 
-import com.bc.ceres.glayer.level.DefaultMultiLevelImage;
-import com.bc.ceres.glayer.level.LevelImage;
+import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
+import com.bc.ceres.glevel.LevelImage;
 
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;

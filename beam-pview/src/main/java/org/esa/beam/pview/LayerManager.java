@@ -2,7 +2,9 @@ package org.esa.beam.pview;
 
 import com.bc.ceres.glayer.AlphaCompositeMode;
 import com.bc.ceres.glayer.CollectionLayer;
-import com.bc.ceres.glayer.GraphicalLayer;
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.support.AbstractLayerListener;
+import com.bc.ceres.glayer.support.LayerStyleListener;
 import com.jidesoft.icons.IconsFactory;
 import com.jidesoft.swing.CheckBoxTree;
 import com.jidesoft.swing.CheckBoxTreeSelectionModel;
@@ -23,7 +25,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 class LayerManager {
     private JSlider transparencySlider;
@@ -53,9 +54,9 @@ class LayerManager {
 
                 TreePath path = layerTree.getSelectionPath();
                 if (path != null) {
-                    GraphicalLayer layer = getLayer(path);
+                    Layer layer = getLayer(path);
                     adjusting = true;
-                    layer.setTransparency(transparencySlider.getValue() / 100.0f);
+                    layer.getStyle().setOpacity(1.0 - transparencySlider.getValue() / 100.0f);
                     adjusting = false;
                 }
 
@@ -66,7 +67,7 @@ class LayerManager {
             public void actionPerformed(ActionEvent e) {
                 TreePath path = layerTree.getSelectionPath();
                 if (path != null) {
-                    GraphicalLayer layer = getLayer(path);
+                    Layer layer = getLayer(path);
                     adjusting = true;
                     final AlphaCompositeMode alphaCompositeMode = (AlphaCompositeMode) alphaCompositeBox.getSelectedItem();
                     layer.setAlphaCompositeMode(alphaCompositeMode);
@@ -75,33 +76,33 @@ class LayerManager {
             }
         });
 
-        rootLayer.addPropertyChangeListener("transparency", new PropertyChangeListener() {
+        rootLayer.addListener(new AbstractLayerListener() {
+        
+        });
 
-            public void propertyChange(PropertyChangeEvent evt) {
-
+        rootLayer.addListener(new LayerStyleListener() {
+            public void handleLayerStylePropertyChanged(Layer layer, PropertyChangeEvent event) {
                 if (!adjusting) {
-                    final GraphicalLayer changedLayer = (GraphicalLayer) evt.getSource();
                     TreePath path = layerTree.getSelectionPath();
                     if (path != null) {
-                        GraphicalLayer selectedLayer = getLayer(path);
-                        if (selectedLayer == changedLayer) {
-                            updateLayerStyleUI(changedLayer);
+                        Layer selectedLayer = getLayer(path);
+                        if (selectedLayer == layer) {
+                            updateLayerStyleUI(layer);
                         }
                     }
                 }
             }
         });
 
-        rootLayer.addPropertyChangeListener("visible", new PropertyChangeListener() {
-
-            public void propertyChange(PropertyChangeEvent evt) {
-
-                final Boolean oldValue = (Boolean) evt.getOldValue();
-                final Boolean newValue = (Boolean) evt.getNewValue();
-                if (!adjusting && !oldValue.equals(newValue)) {
-                    final GraphicalLayer changedLayer = (GraphicalLayer) evt.getSource();
-                    final DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) TreeUtils.findTreeNode(layerTree, changedLayer);
-                    doSelection(treeNode, newValue);
+        rootLayer.addListener(new AbstractLayerListener() {
+            public void handleLayerPropertyChanged(Layer layer, PropertyChangeEvent event) {
+                if (event.getPropertyName().equals("visible")) {
+                    final Boolean oldValue = (Boolean) event.getOldValue();
+                    final Boolean newValue = (Boolean) event.getNewValue();
+                    if (!adjusting && !oldValue.equals(newValue)) {
+                        final DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) TreeUtils.findTreeNode(layerTree, layer);
+                        doSelection(treeNode, newValue);
+                    }
                 }
             }
         });
@@ -138,16 +139,16 @@ class LayerManager {
         }
     }
 
-    private GraphicalLayer getLayer(TreePath path) {
+    private Layer getLayer(TreePath path) {
         if (path == null) {
             return null;
         }
         DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) path.getLastPathComponent();
-        return (GraphicalLayer) treeNode.getUserObject();
+        return (Layer) treeNode.getUserObject();
     }
 
-    private void updateLayerStyleUI(GraphicalLayer layer) {
-        final double transparency = layer.getTransparency();
+    private void updateLayerStyleUI(Layer layer) {
+        final double transparency = 1- layer.getStyle().getOpacity();
         final int n = (int) Math.round(100.0 * transparency);
         transparencySlider.setValue(n);
 
@@ -196,7 +197,7 @@ class LayerManager {
         tree.setTransferHandler(transferHandler);
         tree.getSelectionModel().addTreeSelectionListener(new TreeSelectionListener() {
             public void valueChanged(TreeSelectionEvent event) {
-                GraphicalLayer layer = getLayer(event.getPath());
+                Layer layer = getLayer(event.getPath());
                 updateLayerStyleUI(layer);
             }
         });
@@ -205,7 +206,7 @@ class LayerManager {
         selectionModel.addTreeSelectionListener(new TreeSelectionListener() {
             public void valueChanged(TreeSelectionEvent event) {
                 if (!adjusting) {
-                    GraphicalLayer layer = getLayer(event.getPath());
+                    Layer layer = getLayer(event.getPath());
                     layer.setVisible(selectionModel.isPathSelected(event.getPath()));
                 }
             }
@@ -218,7 +219,7 @@ class LayerManager {
     }
 
     private void initSelection(CollectionLayer rootLayer) {
-        for (GraphicalLayer layer : rootLayer) {
+        for (Layer layer : rootLayer) {
             if (layer instanceof CollectionLayer) {
                 initSelection((CollectionLayer) layer);
             } else {

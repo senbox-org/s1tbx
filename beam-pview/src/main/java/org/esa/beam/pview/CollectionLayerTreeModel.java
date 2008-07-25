@@ -1,7 +1,7 @@
 package org.esa.beam.pview;
 
 import com.bc.ceres.glayer.CollectionLayer;
-import com.bc.ceres.glayer.GraphicalLayer;
+import com.bc.ceres.glayer.Layer;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -22,7 +22,7 @@ class CollectionLayerTreeModel extends DefaultTreeModel {
             final Object userObject = parentNode.getUserObject();
             if (userObject instanceof CollectionLayer) {
                 CollectionLayer collectionLayer = (CollectionLayer) userObject;
-                collectionLayer.add(index, (GraphicalLayer) treeNode.getUserObject());
+                collectionLayer.add(index, (Layer) treeNode.getUserObject());
                 super.insertNodeInto(newChild, parent, index);
             }
         }
@@ -36,7 +36,7 @@ class CollectionLayerTreeModel extends DefaultTreeModel {
             final Object userObject = parent.getUserObject();
             if (userObject instanceof CollectionLayer) {
                 CollectionLayer collectionLayer = (CollectionLayer) userObject;
-                if (collectionLayer.remove((GraphicalLayer) treeNode.getUserObject())) {
+                if (collectionLayer.remove((Layer) treeNode.getUserObject())) {
                     super.removeNodeFromParent(node);
                 }
             }
@@ -46,7 +46,7 @@ class CollectionLayerTreeModel extends DefaultTreeModel {
 
     private static MutableTreeNode createTreeNodes(CollectionLayer collectionLayer) {
         final DefaultMutableTreeNode node = new DefaultMutableTreeNode(collectionLayer);
-        for (GraphicalLayer layer : collectionLayer) {
+        for (Layer layer : collectionLayer) {
             if (layer instanceof CollectionLayer) {
                 node.add(createTreeNodes((CollectionLayer) layer));
             } else {

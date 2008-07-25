@@ -1,7 +1,7 @@
 package org.esa.beam.jai;
 
 import com.bc.ceres.core.Assert;
-import com.bc.ceres.glayer.level.DownscalableImage;
+import com.bc.ceres.glevel.DownscalableImage;
 
 import javax.media.jai.ImageLayout;
 import javax.media.jai.SourcelessOpImage;

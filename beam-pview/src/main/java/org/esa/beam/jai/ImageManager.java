@@ -1,7 +1,7 @@
 package org.esa.beam.jai;
 
 import com.bc.ceres.core.Assert;
-import com.bc.ceres.glayer.level.DownscalableImage;
+import com.bc.ceres.glevel.DownscalableImage;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.util.Debug;

@@ -1,6 +1,6 @@
 package org.esa.beam.glayer.level;
 
-import com.bc.ceres.glayer.level.AbstractMultiLevelImage;
+import com.bc.ceres.glevel.support.AbstractMultiLevelImage;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.jai.ImageManager;
 

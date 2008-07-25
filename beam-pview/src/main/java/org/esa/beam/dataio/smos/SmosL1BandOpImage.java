@@ -1,6 +1,6 @@
 package org.esa.beam.dataio.smos;
 
-import com.bc.ceres.glayer.level.DownscalableImage;
+import com.bc.ceres.glevel.DownscalableImage;
 import org.esa.beam.framework.datamodel.Band;
 import org.esa.beam.glayer.level.TiledFileLevelImage;
 import org.esa.beam.jai.ImageManager;
