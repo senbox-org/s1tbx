@@ -2,7 +2,7 @@ package com.bc.ceres.glevel.support;
 
 import javax.media.jai.PlanarImage;
 import javax.media.jai.operator.FileLoadDescriptor;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.io.File;

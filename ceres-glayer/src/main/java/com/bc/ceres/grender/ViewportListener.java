@@ -1,7 +1,7 @@
 package com.bc.ceres.grender;
 
 /**
-     * A change listener which can be added to viewports.
+ * A change listener which can be added to viewports.
  */
 public interface ViewportListener {
     /**

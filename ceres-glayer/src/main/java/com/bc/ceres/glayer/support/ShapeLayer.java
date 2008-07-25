@@ -1,8 +1,8 @@
 package com.bc.ceres.glayer.support;
 
+import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
-import com.bc.ceres.glayer.Layer;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;

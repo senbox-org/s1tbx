@@ -3,7 +3,7 @@ package com.bc.ceres.glevel.support;
 import com.bc.ceres.glevel.LevelImage;
 
 import javax.media.jai.PlanarImage;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Rectangle2D;

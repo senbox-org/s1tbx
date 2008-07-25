@@ -1,23 +1,15 @@
 package com.bc.ceres.grender.swing;
 
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.Timer;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.MouseInputAdapter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Arc2D;
-import java.awt.geom.Area;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.*;
 import java.util.EventListener;
+
 // todo - find better name
 public class NavControl extends JComponent {
     private double rotationAngle;
@@ -257,6 +249,7 @@ public class NavControl extends JComponent {
 
     public static interface SelectionListener extends EventListener {
         void handleRotate(double rotationAngle);
+
         void handleMove(double moveDirX, double moveDirY);
     }
 

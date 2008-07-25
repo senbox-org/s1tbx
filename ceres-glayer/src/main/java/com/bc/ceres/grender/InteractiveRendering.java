@@ -1,7 +1,5 @@
 package com.bc.ceres.grender;
 
-import com.bc.ceres.grender.Rendering;
-
 import java.awt.*;
 
 

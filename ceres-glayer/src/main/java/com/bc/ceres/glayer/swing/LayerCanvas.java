@@ -1,11 +1,12 @@
 package com.bc.ceres.glayer.swing;
 
-import com.bc.ceres.glayer.*;
+import com.bc.ceres.glayer.CollectionLayer;
+import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.LayerViewInvalidationListener;
-import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.InteractiveRendering;
-import com.bc.ceres.grender.support.DefaultViewport;
+import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.ViewportListener;
+import com.bc.ceres.grender.support.DefaultViewport;
 import com.bc.ceres.grender.swing.AdjustableView;
 import com.bc.ceres.grender.swing.NavControl;
 

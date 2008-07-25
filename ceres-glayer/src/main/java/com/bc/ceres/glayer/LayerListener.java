@@ -19,7 +19,7 @@ public interface LayerListener {
     /**
      * Called if the data of the given layer has changed.
      *
-     * @param layer  The layer which triggered the change.
+     * @param layer       The layer which triggered the change.
      * @param modelRegion The region in model coordinates which are affected by the change. May be null, if not available.
      */
     void handleLayerDataChanged(Layer layer, Rectangle2D modelRegion);

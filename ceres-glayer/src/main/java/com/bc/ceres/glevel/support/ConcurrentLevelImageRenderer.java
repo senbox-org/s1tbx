@@ -1,10 +1,10 @@
 package com.bc.ceres.glevel.support;
 
+import com.bc.ceres.glevel.LevelImage;
+import com.bc.ceres.glevel.LevelImageRenderer;
 import com.bc.ceres.grender.InteractiveRendering;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
-import com.bc.ceres.glevel.LevelImage;
-import com.bc.ceres.glevel.LevelImageRenderer;
 
 import javax.media.jai.*;
 import java.awt.*;

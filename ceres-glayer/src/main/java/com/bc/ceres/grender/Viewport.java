@@ -45,12 +45,14 @@ public interface Viewport {
 
     /**
      * Gets the zoom factor. The zoom factor is the number of model units per view unit.
+     *
      * @return The zoom factor.
      */
     double getZoomFactor();
 
     /**
      * Sets the zoom factor.
+     *
      * @param zoomFactor The zoom factor.
      * @see #getZoomFactor()
      */
@@ -58,6 +60,7 @@ public interface Viewport {
 
     /**
      * Sets the zoom factor relative to the given center point in view coordinates.
+     *
      * @param zoomFactor The zoom factor.
      * @param viewCenter The center point in view coordinates.
      * @see #getZoomFactor()

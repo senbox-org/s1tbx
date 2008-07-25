@@ -3,7 +3,6 @@ package com.bc.ceres.grender.support;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
-import com.bc.ceres.grender.support.DefaultViewport;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

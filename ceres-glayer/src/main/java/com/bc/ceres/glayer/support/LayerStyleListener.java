@@ -1,12 +1,9 @@
 package com.bc.ceres.glayer.support;
 
-import com.bc.ceres.glayer.LayerListener;
 import com.bc.ceres.glayer.Layer;
-import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.Style;
 
 import java.beans.PropertyChangeEvent;
-import java.awt.geom.Rectangle2D;
 
 /**
  * An {@code LayerListener} implementation which listens solely for layer style changes.

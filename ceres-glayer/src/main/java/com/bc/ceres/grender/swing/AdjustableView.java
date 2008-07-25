@@ -11,7 +11,7 @@ import java.awt.geom.Rectangle2D;
  */
 public interface AdjustableView {
     /**
-     * @return  The viewport.
+     * @return The viewport.
      */
     Viewport getViewport();
 

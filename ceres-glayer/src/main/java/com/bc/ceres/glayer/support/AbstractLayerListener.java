@@ -1,11 +1,11 @@
 package com.bc.ceres.glayer.support;
 
-import com.bc.ceres.glayer.LayerListener;
-import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.CollectionLayer;
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerListener;
 
-import java.beans.PropertyChangeEvent;
 import java.awt.geom.Rectangle2D;
+import java.beans.PropertyChangeEvent;
 
 /**
  * An (empty) {@code LayerListener} implementation.
@@ -28,7 +28,7 @@ public abstract class AbstractLayerListener implements LayerListener {
     /**
      * Called if the data of the given layer has changed.
      *
-     * @param layer The layer which triggered the change.
+     * @param layer       The layer which triggered the change.
      * @param modelRegion The region in model coordinates which are affected by the change. May be null, if not available.
      */
     @Override

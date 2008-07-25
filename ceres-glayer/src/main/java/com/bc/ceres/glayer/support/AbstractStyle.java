@@ -1,9 +1,8 @@
 package com.bc.ceres.glayer.support;
 
-import com.bc.ceres.glayer.*;
 import com.bc.ceres.glayer.Composite;
+import com.bc.ceres.glayer.Style;
 
-import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 

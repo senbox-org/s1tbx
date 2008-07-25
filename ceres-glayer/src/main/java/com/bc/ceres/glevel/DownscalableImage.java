@@ -14,6 +14,7 @@ import java.awt.image.RenderedImage;
 public interface DownscalableImage extends RenderedImage {
     /**
      * Creates a downscaled version of this {@code RenderedImage}.
+     *
      * @param level The resolution level.
      * @return The downscaled image.
      */

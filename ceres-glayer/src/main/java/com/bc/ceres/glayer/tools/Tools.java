@@ -2,19 +2,16 @@ package com.bc.ceres.glayer.tools;
 
 import com.bc.ceres.glayer.CollectionLayer;
 import com.bc.ceres.glayer.support.ImageLayer;
-import com.bc.ceres.glevel.support.FileMultiLevelImage;
-import com.bc.ceres.glevel.LevelImage;
 import com.bc.ceres.glayer.swing.LayerCanvas;
+import com.bc.ceres.glevel.LevelImage;
+import com.bc.ceres.glevel.support.FileMultiLevelImage;
 import com.sun.media.jai.codec.TIFFEncodeParam;
 
 import javax.media.jai.*;
 import javax.media.jai.operator.*;
 import javax.media.jai.util.ImagingListener;
-import javax.swing.JFrame;
-import java.awt.BorderLayout;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.ColorModel;
 import java.awt.image.RenderedImage;
@@ -120,7 +117,7 @@ public class Tools {
         layer.setConcurrent(concurrent);
         collectionLayer.add(layer);
 
-        layerCanvas.getViewport().setZoomFactor(1.0/ (2 << levelCount), new Point(640 / 2, 480 / 2));
+        layerCanvas.getViewport().setZoomFactor(1.0 / (2 << levelCount), new Point(640 / 2, 480 / 2));
         openFrame(layerCanvas, location.getPath(), new Rectangle(0, 0, 640, 480));
     }
 

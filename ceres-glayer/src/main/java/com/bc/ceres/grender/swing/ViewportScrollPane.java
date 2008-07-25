@@ -19,7 +19,6 @@ package com.bc.ceres.grender.swing;
 import com.bc.ceres.core.Assert;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.ViewportListener;
-import com.bc.ceres.grender.swing.AdjustableView;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;

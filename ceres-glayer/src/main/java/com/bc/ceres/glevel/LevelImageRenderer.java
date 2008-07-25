@@ -1,7 +1,6 @@
 package com.bc.ceres.glevel;
 
 import com.bc.ceres.grender.Rendering;
-import com.bc.ceres.glevel.LevelImage;
 
 /**
  * An {@code ImageRenderer} is used to render multi-resolution {@link com.bc.ceres.glevel.LevelImage}s

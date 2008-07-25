@@ -1,15 +1,15 @@
 package com.bc.ceres.glayer.support;
 
-import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
+import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glevel.LevelImage;
 import com.bc.ceres.glevel.LevelImageRenderer;
-import com.bc.ceres.glevel.support.SingleLevelImage;
 import com.bc.ceres.glevel.support.ConcurrentLevelImageRenderer;
 import com.bc.ceres.glevel.support.DefaultLevelImageRenderer;
+import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
+import com.bc.ceres.glevel.support.SingleLevelImage;
 import com.bc.ceres.grender.Rendering;
 import com.bc.ceres.grender.Viewport;
 import com.bc.ceres.grender.support.DefaultViewport;
-import com.bc.ceres.glayer.Layer;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
@@ -39,7 +39,7 @@ public class ImageLayer extends Layer {
     /**
      * Constructs a single-resolution-level image layer.
      *
-     * @param image                the image
+     * @param image                 the image
      * @param imageToModelTransform the transformation from image to model CS
      */
     public ImageLayer(RenderedImage image, AffineTransform imageToModelTransform) {
@@ -49,9 +49,9 @@ public class ImageLayer extends Layer {
     /**
      * Constructs a multi-resolution-level image layer.
      *
-     * @param image                the image
+     * @param image                 the image
      * @param imageToModelTransform the transformation from image to model CS
-     * @param levelCount           the number of resolution levels
+     * @param levelCount            the number of resolution levels
      */
     public ImageLayer(RenderedImage image, AffineTransform imageToModelTransform, int levelCount) {
         this(levelCount > 1 ? new DefaultMultiLevelImage(image, imageToModelTransform, levelCount) : new SingleLevelImage(image, imageToModelTransform));

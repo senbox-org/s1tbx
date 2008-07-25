@@ -1,12 +1,12 @@
 package com.bc.ceres.glayer.support;
 
-import com.bc.ceres.glayer.LayerListener;
-import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.CollectionLayer;
+import com.bc.ceres.glayer.Layer;
+import com.bc.ceres.glayer.LayerListener;
 import com.bc.ceres.glayer.Style;
 
-import java.beans.PropertyChangeEvent;
 import java.awt.geom.Rectangle2D;
+import java.beans.PropertyChangeEvent;
 
 /**
  * An {@code LayerListener} implementation which delegates a visible layer changes to the abstract
@@ -33,7 +33,7 @@ public abstract class LayerViewInvalidationListener implements LayerListener {
     /**
      * Called if the data of the given layer has changed.
      *
-     * @param layer  The layer.
+     * @param layer       The layer.
      * @param modelRegion The region in model coordinates which are affected by the change. May be null, if not available.
      */
     @Override
@@ -68,7 +68,7 @@ public abstract class LayerViewInvalidationListener implements LayerListener {
     /**
      * Called if a visible layer change occured.
      *
-     * @param layer  The layer.
+     * @param layer       The layer.
      * @param modelRegion The region in model coordinates which are affected by the change. May be null, if not available.
      */
     public abstract void handleViewInvalidation(Layer layer, Rectangle2D modelRegion);

@@ -1,6 +1,8 @@
 package com.bc.ceres.glayer.swing;
 
-import com.bc.ceres.glayer.*;
+import com.bc.ceres.glayer.CollectionLayer;
+import com.bc.ceres.glayer.Composite;
+import com.bc.ceres.glayer.Layer;
 import com.bc.ceres.glayer.support.AbstractLayerListener;
 
 import javax.swing.*;
@@ -10,7 +12,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
-import java.awt.BorderLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
