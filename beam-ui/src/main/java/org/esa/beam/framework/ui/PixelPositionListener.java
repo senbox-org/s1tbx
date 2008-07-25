@@ -26,7 +26,6 @@ import java.awt.image.RenderedImage;
  *
  * @author Norman Fomferra
  * @version $Revision$ $Date$
- * @see ImageDisplay
  */
 public interface PixelPositionListener {
 

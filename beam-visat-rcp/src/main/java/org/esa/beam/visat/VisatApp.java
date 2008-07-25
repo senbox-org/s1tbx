@@ -1667,7 +1667,8 @@ public class VisatApp extends BasicApp {
             final JInternalFrame[] frames = findInternalFrames(raster, 1);
             if (frames.length > 0) {
                 final ProductSceneView view = (ProductSceneView) frames[0].getContentPane();
-                final LayerModel layerModel = view.getImageDisplay().getLayerModel();
+                // TODO IMAGING 4.5
+                final LayerModel layerModel = view.getLayerModel();
                 final ImageInfo imageInfo = view.getScene().getImageInfo();
                 productSceneImage = ProductSceneImage.create(raster, imageInfo, layerModel,
                                                              SubProgressMonitor.create(pm, 1));
@@ -2570,7 +2571,8 @@ public class VisatApp extends BasicApp {
                 }
 
                 // Save view-associtated objects before we dispose the view
-                final LayerModel layerModel = productSceneView.getImageDisplay().getLayerModel();
+                // TODO IMAGING 4.5
+                final LayerModel layerModel = productSceneView.getLayerModel();
                 final JInternalFrame[] otherFrames = findInternalFrames(productSceneView.getRaster(), 1);
 
                 Debug.trace("Disposing view '" + title + "'...");

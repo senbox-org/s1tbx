@@ -12,12 +12,10 @@ import org.esa.beam.layer.NoDataLayer;
 import org.esa.beam.util.Debug;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.JInternalFrame;
-import javax.swing.SwingWorker;
+import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
-import java.awt.Container;
-import java.awt.Dialog;
+import java.awt.*;
 import java.awt.image.RenderedImage;
 
 /**
@@ -162,7 +160,8 @@ public class ShowNoDataOverlayAction extends ExecCommand {
     }
 
     private static NoDataLayer getNoDataLayer(ProductSceneView psv) {
-        final LayerModel layerModel = psv.getImageDisplay().getLayerModel();
+        // TODO IMAGING 4.5
+        final LayerModel layerModel = psv.getLayerModel();
         for (int i = 0; i < layerModel.getLayerCount(); i++) {
             final Layer layer = layerModel.getLayer(i);
             if (layer instanceof NoDataLayer) {

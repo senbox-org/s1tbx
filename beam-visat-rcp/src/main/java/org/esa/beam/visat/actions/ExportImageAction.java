@@ -16,17 +16,12 @@
  */
 package org.esa.beam.visat.actions;
 
-import org.esa.beam.framework.ui.ImageDisplay;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.product.ProductSceneView;
 import org.esa.beam.util.io.BeamFileChooser;
 
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 
@@ -80,34 +75,37 @@ public class ExportImageAction extends AbstractExportImageAction {
     }
 
     static RenderedImage createImage(ProductSceneView view, boolean entireImage, boolean useAlpha) {
-        final ImageDisplay imageDisplay = view.getImageDisplay();
-        boolean oldOpaque = imageDisplay.isOpaque();
+        ////////////////////////////////////////////////////////////////////
+        // << TODO IMAGING 4.5
+        boolean oldOpaque = view.getImageDisplayComponent().isOpaque();
         final BufferedImage bi;
         try {
-            imageDisplay.setOpaque(false);
+            view.getImageDisplayComponent().setOpaque(false);
             final int imageType = useAlpha ? BufferedImage.TYPE_4BYTE_ABGR : BufferedImage.TYPE_3BYTE_BGR;
             if (entireImage) {
-                final double modelOffsetXOld = imageDisplay.getViewModel().getModelOffsetX();
-                final double modelOffsetYOld = imageDisplay.getViewModel().getModelOffsetY();
-                final double viewScaleOld = imageDisplay.getViewModel().getViewScale();
+                final double modelOffsetXOld = view.getViewModel().getModelOffsetX();
+                final double modelOffsetYOld = view.getViewModel().getModelOffsetY();
+                final double viewScaleOld = view.getViewModel().getViewScale();
                 try {
-                    imageDisplay.getViewModel().setModelOffset(0, 0, 1.0);
-                    bi = new BufferedImage(imageDisplay.getImageWidth(),
-                                           imageDisplay.getImageHeight(),
+                    view.getViewModel().setModelOffset(0, 0, 1.0);
+                    bi = new BufferedImage(view.getImageWidth(),
+                                           view.getImageHeight(),
                                            imageType);
-                    imageDisplay.paintComponent(bi.createGraphics());
+                    view.getImageDisplayComponent().paint(bi.createGraphics());
                 } finally {
-                    imageDisplay.getViewModel().setModelOffset(modelOffsetXOld, modelOffsetYOld, viewScaleOld);
+                    view.getViewModel().setModelOffset(modelOffsetXOld, modelOffsetYOld, viewScaleOld);
                 }
             } else {
-                bi = new BufferedImage(imageDisplay.getWidth(),
-                                       imageDisplay.getHeight(),
+                bi = new BufferedImage(view.getImageDisplayComponent().getWidth(),
+                                       view.getImageDisplayComponent().getHeight(),
                                        imageType);
-                imageDisplay.paint(bi.createGraphics());
+                view.getImageDisplayComponent().paint(bi.createGraphics());
             }
         } finally {
-            imageDisplay.setOpaque(oldOpaque);
+            view.getImageDisplayComponent().setOpaque(oldOpaque);
         }
+        // >> TODO IMAGING 4.5
+        ////////////////////////////////////////////////////////////////////
         return bi;
     }
 

@@ -24,7 +24,6 @@ import org.esa.beam.framework.param.ParamChangeListener;
 import org.esa.beam.framework.param.ParamGroup;
 import org.esa.beam.framework.param.Parameter;
 import org.esa.beam.framework.ui.GridBagUtils;
-import org.esa.beam.framework.ui.ImageDisplay;
 import org.esa.beam.framework.ui.ModalDialog;
 import org.esa.beam.framework.ui.command.CommandEvent;
 import org.esa.beam.framework.ui.product.ProductSceneView;
@@ -33,16 +32,9 @@ import org.esa.beam.util.io.BeamFileChooser;
 import org.esa.beam.util.io.BeamFileFilter;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.GridBagConstraints;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -367,7 +359,7 @@ public class ExportLegendImageAction extends AbstractExportImageAction {
             final ImageLegend imageLegend = new ImageLegend(getImageInfo(), raster);
             getImageLegend(imageLegend);
             final BufferedImage image = imageLegend.createImage();
-            final ImageDisplay imageDisplay = new ImageDisplay(image);
+            final JLabel imageDisplay = new JLabel(new ImageIcon(image));
             imageDisplay.setOpaque(true);
             imageDisplay.addMouseListener(new MouseAdapter() {
                 // Both events (releases & pressed) must be checked, otherwise it won't work on all
@@ -399,7 +391,7 @@ public class ExportLegendImageAction extends AbstractExportImageAction {
             dialog.show();
         }
 
-        private static void showPopup(final MouseEvent e, final BufferedImage image, final ImageDisplay imageDisplay) {
+        private static void showPopup(final MouseEvent e, final BufferedImage image, final JComponent imageDisplay) {
             if (e.isPopupTrigger()) {
                 final JPopupMenu popupMenu = new JPopupMenu();
                 final JMenuItem menuItem = new JMenuItem("Copy image to clipboard");

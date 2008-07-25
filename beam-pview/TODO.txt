@@ -1,10 +1,10 @@
 Missing Features
 ================
 
-1) Missing scrollbars
-2) Missing viewport change notification
-3) Missing available model area in viewport (for scrollbars)
-4) Missing Layer style properties, e.g. shape color, etc...
+1) Missing scrollbars (OK)
+2) Missing viewport change notification (OK)
+3) Missing available model area in viewport (OK)
+4) Missing Layer style properties, e.g. shape color, etc... (partly done)
 
 Problems with existing BEAM components
 ======================================
@@ -16,7 +16,16 @@ Problems with existing BEAM components
 Plan
 ====
 
-1) Merge BasicImageView into ProductSceneView (OK)
-1) Replace usages of ViewModel by Viewport
-2) Replace usages of LayerModel by CollectionLayer
+All changes regarding the new imaging model are marked "TODO IMAGING 4.5"
+
+* Merge BasicImageView into ProductSceneView (done)
+* Remove BasicImageView (done)
+* Hide ImageDisplay behind ProductSceneView (done)
+* Minimize ImageDisplay usages in ProductSceneView (done)
+* Remove all references to ImageDisplay in rest of BEAM API (done, still ref. in NavigationCanvas)
+* Replace usages of ImageDisplay component by LayerCanvas
+* Replace usages of ImageDisplay image by ImageLayer image
+* Replace usages of ViewModel by Viewport
+* Replace usages of LayerModel by CollectionLayer
+* Remove ImageDisplay
 

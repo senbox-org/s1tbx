@@ -173,7 +173,8 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
             return;
         }
         if (this.productSceneView != null) {
-            this.productSceneView.getImageDisplay().getLayerModel().removeLayerModelChangeListener(
+            // TODO IMAGING 4.5
+            this.productSceneView.getLayerModel().removeLayerModelChangeListener(
                     _layerModelChangeHandler);
             this.productSceneView.getProduct().removeProductNodeListener(_productNodeListener);
         }
@@ -186,7 +187,8 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
             if (shapeFigure == null) {
                 shapeFigure = this.productSceneView.getCurrentShapeFigure();
             }
-            this.productSceneView.getImageDisplay().getLayerModel().addLayerModelChangeListener(_layerModelChangeHandler);
+            // TODO IMAGING 4.5
+            this.productSceneView.getLayerModel().addLayerModelChangeListener(_layerModelChangeHandler);
             this.productSceneView.getProduct().addProductNodeListener(_productNodeListener);
             roiDefinitionUndo = getCurrentROIDefinition();
             setUIParameterValues(roiDefinitionUndo);
@@ -632,7 +634,8 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
             return;
         }
         rect.grow(50, 50);
-        productSceneView.getImageDisplay().zoom(rect);
+        // TODO IMAGING 4.5
+        productSceneView.zoom(rect);
     }
 
     private BeamFileFilter getOrCreateRoiDefinitionFileFilter() {
@@ -1141,7 +1144,8 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
                     if (contentPane instanceof ProductSceneView) {
                         final ProductSceneView view = (ProductSceneView) contentPane;
                         VisatApp.getApp().updateROIImage(view, true);
-                        view.getImageDisplay().repaint();
+                        // TODO IMAGING 4.5
+                        view.getImageDisplayComponent().repaint();
                     }
                 }
             }

@@ -109,7 +109,8 @@ class LayerObserver {
             final Container oldContentPane = internalFrame.getContentPane();
             if (oldContentPane instanceof ProductSceneView) {
                 final ProductSceneView sceneView = (ProductSceneView) oldContentPane;
-                sceneView.getImageDisplay().getLayerModel().removeLayerModelChangeListener(getLayerModelListener());
+                // TODO IMAGING 4.5
+                sceneView.getLayerModel().removeLayerModelChangeListener(getLayerModelListener());
             }
         }
     }
@@ -142,7 +143,8 @@ class LayerObserver {
             if (contentPane instanceof ProductSceneView) {
                 final ProductSceneView sceneView = (ProductSceneView) contentPane;
                 if (ArrayUtils.isMemberOf(raster, sceneView.getRasters())) {
-                    sceneView.getImageDisplay().getLayerModel().addLayerModelChangeListener(getLayerModelListener());
+                    // TODO IMAGING 4.5
+                    sceneView.getLayerModel().addLayerModelChangeListener(getLayerModelListener());
                 }
             }
         } else {
@@ -153,7 +155,8 @@ class LayerObserver {
                     if (contentPane instanceof ProductSceneView) {
                         final ProductSceneView sceneView = (ProductSceneView) contentPane;
                         if (ArrayUtils.isMemberOf(raster, sceneView.getRasters())) {
-                            sceneView.getImageDisplay().getLayerModel().addLayerModelChangeListener(
+                            // TODO IMAGING 4.5
+                            sceneView.getLayerModel().addLayerModelChangeListener(
                                     getLayerModelListener());
                             app.removeInternalFrameListener(this);
                         }

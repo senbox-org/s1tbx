@@ -28,7 +28,7 @@ import java.util.Collection;
  * Created by Marco Peters.
  *
  * @author Marco Peters
- * @version $Revision:$ $Date:$
+ * @version $Revision$ $Date$
  */
 public abstract class PlacemarkTool extends AbstractTool {
 
@@ -207,7 +207,8 @@ public abstract class PlacemarkTool extends AbstractTool {
 
     private Pin getPlacemarkForPixelPos(final int selPixelX, final int selPixelY) {
         ProductSceneView productSceneView = getProductSceneView();
-        ViewModel viewModel = productSceneView.getImageDisplay().getViewModel();
+        // TODO IMAGING 4.5
+        ViewModel viewModel = productSceneView.getViewModel();
 
         double pixelX0 = viewModel.getModelOffsetX();
         double pixelY0 = viewModel.getModelOffsetY();

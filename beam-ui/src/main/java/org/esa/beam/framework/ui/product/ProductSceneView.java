@@ -21,6 +21,7 @@ import com.bc.ceres.core.ProgressMonitor;
 import com.bc.layer.Layer;
 import com.bc.layer.LayerModel;
 import com.bc.swing.ViewPane;
+import com.bc.view.ViewModel;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.draw.ShapeFigure;
@@ -92,88 +93,15 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
         setSourceImage(sceneImage.getImage());
         getImageDisplay().setLayerModel(sceneImage.getLayerModel());
         Rectangle modelArea = sceneImage.getModelArea();
-        getImageDisplay().getViewModel().setModelArea(modelArea);
-        getImageDisplay().getViewModel().setModelOffset(modelArea.x, modelArea.y, 1.0);
-        getImageDisplay().setPreferredSize(modelArea.getSize());
+        getViewModel().setModelArea(modelArea);
+        getViewModel().setModelOffset(modelArea.x, modelArea.y, 1.0);
+        getImageDisplayComponent().setPreferredSize(modelArea.getSize());
         setPixelInfoFactory(this);
 
         rasterChangeHandler = new RasterChangeHandler();
         getRaster().getProduct().addProductNodeListener(rasterChangeHandler);
 
         imageUpdateListenerList = new ArrayList<ImageUpdateListener>();
-    }
-
-    /**
-     * Gets the source image displayed in this view.
-     *
-     * @return the source image
-     */
-    public RenderedImage getSourceImage() {
-        return imageDisplay != null ? imageDisplay.getImage() : null;
-    }
-
-    /**
-     * Gets the source image to be displayed in this view.
-     *
-     * @param sourceImage the source image
-     */
-    public void setSourceImage(RenderedImage sourceImage) {
-        Guardian.assertNotNull("sourceImage", sourceImage);
-        if (imageDisplay == null) {
-            initUI(sourceImage);
-        }
-        imageDisplay.setImage(sourceImage);
-        revalidate();
-        repaint();
-    }
-
-    /**
-     * Gets the actual component used to display the source image.
-     *
-     * @return the image display component
-     */
-    public ImageDisplay getImageDisplay() {
-        return imageDisplay;
-    }
-
-    public PixelInfoFactory getPixelInfoFactory() {
-        return getImageDisplay().getPixelInfoFactory();
-    }
-
-    public void setPixelInfoFactory(PixelInfoFactory pixelInfoFactory) {
-        getImageDisplay().setPixelInfoFactory(pixelInfoFactory);
-    }
-
-    /**
-     * Adds a new pixel position listener to this image display component.
-     *
-     * @param listener the pixel position listener to be added
-     */
-    public void addPixelPositionListener(PixelPositionListener listener) {
-        imageDisplay.addPixelPositionListener(listener);
-    }
-
-    /**
-     * Removes a pixel position listener from this image display component.
-     *
-     * @param listener the pixel position listener to be removed
-     */
-    public void removePixelPositionListener(PixelPositionListener listener) {
-        imageDisplay.removePixelPositionListener(listener);
-    }
-
-    protected void initUI(RenderedImage sourceImage) {
-        PopupMenuHandler popupMenuHandler = new PopupMenuHandler(this);
-
-        imageDisplay = new ImageDisplay(sourceImage);
-        imageDisplay.setOpaque(true);
-        imageDisplay.addMouseListener(popupMenuHandler);
-        imageDisplay.addMouseWheelListener(new ZoomHandler());
-        imageDisplay.addKeyListener(popupMenuHandler);
-
-        setLayout(new BorderLayout());
-        ViewPane imageDisplayScroller = imageDisplay.createViewPane();
-        add(imageDisplayScroller, BorderLayout.CENTER);
     }
 
 
@@ -192,8 +120,8 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
     public Dimension getPreferredSize() {
         if (isPreferredSizeSet()) {
             return super.getPreferredSize();
-        } else if (imageDisplay != null) {
-            return imageDisplay.getPreferredSize();
+        } else if (getImageDisplayComponent() != null) {
+            return getImageDisplayComponent().getPreferredSize();
         } else {
             return super.getPreferredSize();
         }
@@ -224,11 +152,11 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
         imageUpdateListenerList.clear();
         imageUpdateListenerList = null;
 
-        if (imageDisplay != null) {
+        if (getImageDisplay() != null) {
             // ensure that imageDisplay.dispose() is run in the EDT
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
-                    imageDisplay.dispose();
+                    getImageDisplay().dispose();
                     imageDisplay = null;
                 }
             });
@@ -509,21 +437,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
         popupMenu.addSeparator();
     }
 
-    private void addCopyPixelInfoToClipboardMenuItem(JPopupMenu popupMenu) {
-        if (imageDisplay.getPixelInfoFactory() != null) {
-            JMenuItem menuItem = new JMenuItem("Copy Pixel-Info to Clipboard");
-            menuItem.setMnemonic('C');
-            menuItem.addActionListener(new ActionListener() {
-
-                public void actionPerformed(ActionEvent e) {
-                    imageDisplay.copyPixelInfoStringToClipboard();
-                }
-            });
-            popupMenu.add(menuItem);
-            popupMenu.addSeparator();
-        }
-    }
-
 
     public void updateImage(ProgressMonitor pm) throws IOException {
         StopWatch stopWatch = new StopWatch();
@@ -566,102 +479,6 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
         setLayerProperties(propertyMap);
     }
 
-    /**
-     * Sets the layer properties using the given property map.
-     *
-     * @param propertyMap the layer property map
-     */
-    public void setLayerProperties(PropertyMap propertyMap) {
-
-        setImageProperties(propertyMap);
-
-        final LayerModel layerModel = getImageDisplay().getLayerModel();
-        final boolean suspendedOld = layerModel.isLayerModelChangeFireingSuspended();
-        layerModel.setLayerModelChangeFireingSuspended(true);
-
-        int layerCount = layerModel.getLayerCount();
-        for (int i = 0; i < layerCount; i++) {
-            Layer layer = layerModel.getLayer(i);
-            if (layer instanceof StyledLayer) {
-                StyledLayer styledLayer = (StyledLayer) layer;
-                styledLayer.setStyleProperties(propertyMap);
-            }
-        }
-
-        layerModel.setLayerModelChangeFireingSuspended(suspendedOld);
-        layerModel.fireLayerModelChanged();
-    }
-
-    /**
-     * @deprecated
-     */
-    public void setImageProperties(PropertyMap propertyMap) {
-        // todo 3 nf,nf - 1) move display properties of imageDisplay to imageLayer
-        // todo 3 nf/nf - 2) move the following code to ImageLayer.setProperties
-        // todo 3 nf,nf - 3) use _imageLayer.setProperties(propertyMap); instead
-
-        final boolean pixelBorderShown = propertyMap.getPropertyBool("pixel.border.shown", true);
-        final boolean imageBorderShown = propertyMap.getPropertyBool("image.border.shown", true);
-        final float imageBorderSize = (float) propertyMap.getPropertyDouble("image.border.size",
-                                                                            DEFAULT_IMAGE_BORDER_SIZE);
-        final Color imageBorderColor = propertyMap.getPropertyColor("image.border.color", DEFAULT_IMAGE_BORDER_COLOR);
-        final Color backgroundColor = propertyMap.getPropertyColor("image.background.color",
-                                                                   DEFAULT_IMAGE_BACKGROUND_COLOR);
-        final boolean antialiasing = propertyMap.getPropertyBool(PROPERTY_KEY_GRAPHICS_ANTIALIASING, false);
-        final String interpolation = propertyMap.getPropertyString(PROPERTY_KEY_IMAGE_INTERPOLATION,
-                                                                   DEFAULT_IMAGE_INTERPOLATION_METHOD);
-
-        getImageDisplay().setPixelBorderShown(pixelBorderShown);
-        getImageDisplay().setImageBorderShown(imageBorderShown);
-        getImageDisplay().setImageBorderSize(imageBorderSize);
-        getImageDisplay().setImageBorderColor(imageBorderColor);
-        getImageDisplay().setBackground(backgroundColor);
-        getImageDisplay().setAntialiasing(antialiasing ?
-                RenderingHints.VALUE_ANTIALIAS_ON :
-                RenderingHints.VALUE_ANTIALIAS_OFF);
-        getImageDisplay().setInterpolation(interpolation.equalsIgnoreCase(IMAGE_INTERPOLATION_BICUBIC) ?
-                RenderingHints.VALUE_INTERPOLATION_BICUBIC :
-                interpolation.equalsIgnoreCase(IMAGE_INTERPOLATION_BILINEAR) ?
-                        RenderingHints.VALUE_INTERPOLATION_BILINEAR :
-                        interpolation.equalsIgnoreCase(IMAGE_INTERPOLATION_NEAREST_NEIGHBOUR) ?
-                                RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR :
-                                null);
-    }
-
-    /**
-     * Returns the current tool for this drawing.
-     */
-    public Tool getTool() {
-        return getImageDisplay().getTool();
-    }
-
-    /**
-     * Sets the current tool for this drawing.
-     */
-    public void setTool(Tool tool) {
-        if (tool != null) {
-            tool.setDrawingEditor(this);
-            setCursor(tool.getCursor());
-        }
-        getImageDisplay().setTool(tool);
-    }
-
-    /**
-     * Draws the tool in an interactive mode.
-     */
-    public void repaintTool() {
-        getImageDisplay().repaintTool();
-    }
-
-    /**
-     * Displays a status message. If <code>null</code> is passed to this method, the status message is reset or
-     * cleared.
-     *
-     * @param message the message to be displayed
-     */
-    public void setStatusMessage(String message) {
-        getImageDisplay().setStatusMessage(message);
-    }
 
     /**
      * Adds a new figure to the drawing.
@@ -796,6 +613,238 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
         }
     }
 
+    ////////////////////////////////////////////////////////////////////
+    // << TODO IMAGING 4.5
+    // the follwong methods hide ImageDisplay which we want to get rid of
+
+    /**
+     * Gets the actual component used to display the source image.
+     *
+     * @return the image display component
+     */
+    private ImageDisplay getImageDisplay() {
+        return imageDisplay;
+    }
+
+    public PixelInfoFactory getPixelInfoFactory() {
+        return getImageDisplay().getPixelInfoFactory();
+    }
+
+    public void setPixelInfoFactory(PixelInfoFactory pixelInfoFactory) {
+        getImageDisplay().setPixelInfoFactory(pixelInfoFactory);
+    }
+
+    /**
+     * Adds a new pixel position listener to this image display component.
+     *
+     * @param listener the pixel position listener to be added
+     */
+    public void addPixelPositionListener(PixelPositionListener listener) {
+        getImageDisplay().addPixelPositionListener(listener);
+    }
+
+    /**
+     * Removes a pixel position listener from this image display component.
+     *
+     * @param listener the pixel position listener to be removed
+     */
+    public void removePixelPositionListener(PixelPositionListener listener) {
+        getImageDisplay().removePixelPositionListener(listener);
+    }
+
+
+    public LayerModel getLayerModel() {
+        return getImageDisplay().getLayerModel();
+    }
+
+    public ViewModel getViewModel() {
+        return getImageDisplay().getViewModel();
+    }
+
+    public int getImageWidth() {
+        return getImageDisplay().getImageWidth();
+    }
+
+    public int getImageHeight() {
+        return getImageDisplay().getImageHeight();
+    }
+
+    public JComponent getImageDisplayComponent() {
+        return getImageDisplay();
+    }
+
+    public void zoom(Rectangle rect) {
+        getImageDisplay().zoom(rect);
+    }
+
+    public void zoom(double x, double y, double viewScale) {
+        getImageDisplay().zoom(x, y, viewScale);
+    }
+
+    public void zoom(double viewScale) {
+        getImageDisplay().zoom(viewScale);
+    }
+
+    public void zoomAll() {
+        getImageDisplay().zoomAll();
+    }
+
+    /**
+     * Gets the source image displayed in this view.
+     *
+     * @return the source image
+     */
+    public RenderedImage getSourceImage() {
+        return getImageDisplay() != null ?  getImageDisplay().getImage() : null;
+    }
+    
+
+    /**
+     * Gets the source image to be displayed in this view.
+     *
+     * @param sourceImage the source image
+     */
+    public void setSourceImage(RenderedImage sourceImage) {
+        Guardian.assertNotNull("sourceImage", sourceImage);
+        if (getImageDisplayComponent() == null) {
+            initUI(sourceImage);
+        }
+        getImageDisplay().setImage(sourceImage);
+        revalidate();
+        repaint();
+    }
+
+    /**
+     * Returns the current tool for this drawing.
+     */
+    public Tool getTool() {
+        return getImageDisplay().getTool();
+    }
+
+    /**
+     * Sets the current tool for this drawing.
+     */
+    public void setTool(Tool tool) {
+        if (tool != null) {
+            tool.setDrawingEditor(this);
+            setCursor(tool.getCursor());
+        }
+        getImageDisplay().setTool(tool);
+    }
+
+    /**
+     * Draws the tool in an interactive mode.
+     */
+    public void repaintTool() {
+        getImageDisplay().repaintTool();
+    }
+
+    /**
+     * @deprecated
+     */
+    public void setImageProperties(PropertyMap propertyMap) {
+        // todo 3 nf,nf - 1) move display properties of imageDisplay to imageLayer
+        // todo 3 nf/nf - 2) move the following code to ImageLayer.setProperties
+        // todo 3 nf,nf - 3) use _imageLayer.setProperties(propertyMap); instead
+
+        final boolean pixelBorderShown = propertyMap.getPropertyBool("pixel.border.shown", true);
+        final boolean imageBorderShown = propertyMap.getPropertyBool("image.border.shown", true);
+        final float imageBorderSize = (float) propertyMap.getPropertyDouble("image.border.size",
+                                                                            DEFAULT_IMAGE_BORDER_SIZE);
+        final Color imageBorderColor = propertyMap.getPropertyColor("image.border.color", DEFAULT_IMAGE_BORDER_COLOR);
+        final Color backgroundColor = propertyMap.getPropertyColor("image.background.color",
+                                                                   DEFAULT_IMAGE_BACKGROUND_COLOR);
+        final boolean antialiasing = propertyMap.getPropertyBool(PROPERTY_KEY_GRAPHICS_ANTIALIASING, false);
+        final String interpolation = propertyMap.getPropertyString(PROPERTY_KEY_IMAGE_INTERPOLATION,
+                                                                   DEFAULT_IMAGE_INTERPOLATION_METHOD);
+
+        getImageDisplay().setPixelBorderShown(pixelBorderShown);
+        getImageDisplay().setImageBorderShown(imageBorderShown);
+        getImageDisplay().setImageBorderSize(imageBorderSize);
+        getImageDisplay().setImageBorderColor(imageBorderColor);
+        getImageDisplay().setBackground(backgroundColor);
+        getImageDisplay().setAntialiasing(antialiasing ?
+                RenderingHints.VALUE_ANTIALIAS_ON :
+                RenderingHints.VALUE_ANTIALIAS_OFF);
+        getImageDisplay().setInterpolation(interpolation.equalsIgnoreCase(IMAGE_INTERPOLATION_BICUBIC) ?
+                RenderingHints.VALUE_INTERPOLATION_BICUBIC :
+                interpolation.equalsIgnoreCase(IMAGE_INTERPOLATION_BILINEAR) ?
+                        RenderingHints.VALUE_INTERPOLATION_BILINEAR :
+                        interpolation.equalsIgnoreCase(IMAGE_INTERPOLATION_NEAREST_NEIGHBOUR) ?
+                                RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR :
+                                null);
+    }
+
+    /**
+     * Displays a status message. If <code>null</code> is passed to this method, the status message is reset or
+     * cleared.
+     *
+     * @param message the message to be displayed
+     */
+    public void setStatusMessage(String message) {
+        getImageDisplay().setStatusMessage(message);
+    }
+
+
+    /**
+     * Sets the layer properties using the given property map.
+     *
+     * @param propertyMap the layer property map
+     */
+    public void setLayerProperties(PropertyMap propertyMap) {
+
+        setImageProperties(propertyMap);
+
+        final LayerModel layerModel = getLayerModel();
+        final boolean suspendedOld = layerModel.isLayerModelChangeFireingSuspended();
+        layerModel.setLayerModelChangeFireingSuspended(true);
+
+        int layerCount = layerModel.getLayerCount();
+        for (int i = 0; i < layerCount; i++) {
+            Layer layer = layerModel.getLayer(i);
+            if (layer instanceof StyledLayer) {
+                StyledLayer styledLayer = (StyledLayer) layer;
+                styledLayer.setStyleProperties(propertyMap);
+            }
+        }
+
+        layerModel.setLayerModelChangeFireingSuspended(suspendedOld);
+        layerModel.fireLayerModelChanged();
+    }
+
+    private void addCopyPixelInfoToClipboardMenuItem(JPopupMenu popupMenu) {
+        if (getImageDisplay().getPixelInfoFactory() != null) {
+            JMenuItem menuItem = new JMenuItem("Copy Pixel-Info to Clipboard");
+            menuItem.setMnemonic('C');
+            menuItem.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    getImageDisplay().copyPixelInfoStringToClipboard();
+                }
+            });
+            popupMenu.add(menuItem);
+            popupMenu.addSeparator();
+        }
+    }
+
+    protected void initUI(RenderedImage sourceImage) {
+        PopupMenuHandler popupMenuHandler = new PopupMenuHandler(this);
+
+        imageDisplay = new ImageDisplay(sourceImage);
+
+        getImageDisplayComponent().setOpaque(true);
+        getImageDisplayComponent().addMouseListener(popupMenuHandler);
+        getImageDisplayComponent().addMouseWheelListener(new ZoomHandler());
+        getImageDisplayComponent().addKeyListener(popupMenuHandler);
+
+        setLayout(new BorderLayout());
+        ViewPane imageDisplayScroller = getImageDisplay().createViewPane();
+        add(imageDisplayScroller, BorderLayout.CENTER);
+    }
+
+    // >> TODO IMAGING 4.5
+    ////////////////////////////////////////////////////////////////////
+
     public static interface ImageUpdateListener {
 
         void handleImageUpdated(ProductSceneView view);
@@ -855,11 +904,11 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
 
         public void mouseWheelMoved(MouseWheelEvent e) {
             int notches = e.getWheelRotation();
-            double currentViewScale = imageDisplay.getViewModel().getViewScale();
+            double currentViewScale = getViewModel().getViewScale();
             if (notches < 0) {
-                imageDisplay.zoom(currentViewScale * 1.1f);
+                zoom(currentViewScale * 1.1f);
             } else {
-                imageDisplay.zoom(currentViewScale * 0.9f);
+                zoom(currentViewScale * 0.9f);
             }
         }
     }

@@ -633,7 +633,8 @@ public class PropertyEditor {
     }
 
     private static NoDataLayer getNoDataLayer(ProductSceneView psv) {
-        final LayerModel layerModel = psv.getImageDisplay().getLayerModel();
+        // TODO IMAGING 4.5
+        final LayerModel layerModel = psv.getLayerModel();
         for (int i = 0; i < layerModel.getLayerCount(); i++) {
             final Layer layer = layerModel.getLayer(i);
             if (layer instanceof NoDataLayer) {
