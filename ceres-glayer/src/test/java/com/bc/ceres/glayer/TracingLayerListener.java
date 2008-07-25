@@ -7,14 +7,6 @@ public class TracingLayerListener implements LayerListener {
 
     public String trace = "";
 
-    public void propertyChange(PropertyChangeEvent event) {
-        trace += event.getPropertyName() + ";";
-    }
-
-    public void handleLayerStylePropertyChanged(Layer layer, PropertyChangeEvent event) {
-        trace += "style." + event.getPropertyName() + ";";
-    }
-
     public void handleLayerPropertyChanged(Layer layer, PropertyChangeEvent event) {
         trace += event.getPropertyName() + ";";
     }

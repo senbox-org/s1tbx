@@ -1,9 +1,12 @@
 package com.bc.ceres.glayer.support;
 
+import com.bc.ceres.glayer.Composite;
+import com.bc.ceres.glayer.Style;
+
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.HashMap;
-import java.awt.*;
+
 
 /**
  * TODO - Apidoc
@@ -12,17 +15,29 @@ import java.awt.*;
  * @version $revision$ $date$
  */
 public class DefaultStyle extends AbstractStyle {
+    private static final Style instance = new DefaultStyle(null);
 
     private final HashMap<String, Object> propertyMap;
     private final PropertyChangeSupport propertyChangeSupport;
 
-    public DefaultStyle() {
-        propertyMap = new HashMap<String, Object>();
-        propertyChangeSupport = new PropertyChangeSupport(this);
-        setOpacity(1.0);
-        setAlphaComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
+    static {
+        instance.setOpacity(1.0);
+        instance.setComposite(Composite.SRC_OVER);
     }
 
+    public DefaultStyle() {
+        this(instance);
+    }
+
+    public DefaultStyle(Style defaultStyle) {
+        super(defaultStyle);
+        propertyMap = new HashMap<String, Object>();
+        propertyChangeSupport = new PropertyChangeSupport(this);
+    }
+
+    public static Style getInstance() {
+        return instance;
+    }
 
     @Override
     protected boolean hasPropertyNoDefault(String propertyName) {

@@ -33,7 +33,7 @@ public abstract class Layer {
         layerChangeListeners = new ArrayList<LayerListener>(8);
         stylePCL = new StylePCL();
         setStyle(new DefaultStyle());
-        setAlphaCompositeMode(AlphaCompositeMode.SRC_OVER);
+        getStyle().setComposite(Composite.SRC_OVER);
     }
 
     /**
@@ -127,14 +127,6 @@ public abstract class Layer {
         }
     }
 
-    public AlphaCompositeMode getAlphaCompositeMode() {
-        return (AlphaCompositeMode) getStyle().getProperty("alphaCompositeMode");
-    }
-
-    public void setAlphaCompositeMode(AlphaCompositeMode alphaCompositeMode) {
-        getStyle().setProperty("alphaCompositeMode", alphaCompositeMode);
-    }
-
     /**
      * Renders the layer. The base class implementation sets the layer style "opacity"
      * and then calls {@link #renderLayer(com.bc.ceres.grender.Rendering)}.
@@ -142,20 +134,21 @@ public abstract class Layer {
      * @param rendering The rendering to which the layer will be rendered.
      */
     public void render(Rendering rendering) {
-        if (!isVisible() || getStyle().getOpacity() == 0.0) {
+        final double opacity = getStyle().getOpacity();
+        if (!isVisible() || opacity == 0.0) {
             return;
         }
         final Graphics2D g = rendering.getGraphics();
-        Composite composite = null;
+        java.awt.Composite oldComposite = null;
         try {
-            if (getStyle().getOpacity() < 1.0) {
-                composite = g.getComposite();
-                g.setComposite(AlphaComposite.getInstance(getAlphaCompositeMode().getValue(), (float) getStyle().getOpacity()));
+            if (opacity < 1.0) {
+                oldComposite = g.getComposite();
+                g.setComposite(getStyle().getComposite().getAlphaComposite((float) opacity));
             }
             renderLayer(rendering);
         } finally {
-            if (composite != null) {
-                g.setComposite(composite);
+            if (oldComposite != null) {
+                g.setComposite(oldComposite);
             }
         }
     }

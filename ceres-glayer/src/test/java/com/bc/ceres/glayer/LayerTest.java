@@ -29,9 +29,9 @@ public class LayerTest extends ImagingTestCase {
         layer.getStyle().setOpacity(1.0);
         assertEquals(1.0, layer.getStyle().getOpacity());
 
-        assertEquals(AlphaCompositeMode.SRC_OVER, layer.getAlphaCompositeMode());
-        layer.setAlphaCompositeMode(AlphaCompositeMode.DST_OUT);
-        assertEquals(AlphaCompositeMode.DST_OUT, layer.getAlphaCompositeMode());
+        assertEquals(Composite.SRC_OVER, layer.getStyle().getComposite());
+        layer.getStyle().setComposite(Composite.DST_OUT);
+        assertEquals(Composite.DST_OUT, layer.getStyle().getComposite());
     }
 
     public void testPropertyChangeListeners() {
@@ -54,7 +54,7 @@ public class LayerTest extends ImagingTestCase {
         layer.setName("Raster");
         assertEquals("name;visible;opacity;opacity;visible;name;", ll.trace);
 
-        layer.setAlphaCompositeMode(AlphaCompositeMode.DST_IN);
+        layer.getStyle().setComposite(Composite.DST_IN);
         assertEquals("name;visible;opacity;opacity;visible;name;alphaCompositeMode;", ll.trace);
 
         ll.trace = "";
@@ -63,7 +63,7 @@ public class LayerTest extends ImagingTestCase {
         layer.getStyle().setOpacity(0.25);
         layer.setVisible(false);
         layer.setName("Graticule");
-        layer.setAlphaCompositeMode(AlphaCompositeMode.SRC_OUT);
+        layer.getStyle().setComposite(Composite.SRC_OUT);
         assertEquals("", ll.trace);
 
     }

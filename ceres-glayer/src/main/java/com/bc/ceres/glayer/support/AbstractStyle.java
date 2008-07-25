@@ -1,10 +1,11 @@
 package com.bc.ceres.glayer.support;
 
-import com.bc.ceres.glayer.Style;
+import com.bc.ceres.glayer.*;
+import com.bc.ceres.glayer.Composite;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
 import java.awt.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 /**
  * TODO - Apidoc
@@ -14,10 +15,15 @@ import java.awt.*;
  */
 public abstract class AbstractStyle implements Style {
     private Style defaultStyle;
-    private final DefaultPCL defaultStylePCL;
+    private final DefaultStylePCL defaultStyleStylePCL;
 
     protected AbstractStyle() {
-        defaultStylePCL = new DefaultPCL();
+        this(null);
+    }
+
+    protected AbstractStyle(Style defaultStyle) {
+        defaultStyleStylePCL = new DefaultStylePCL();
+        setDefaultStyle(defaultStyle);
     }
 
     public double getOpacity() {
@@ -28,12 +34,12 @@ public abstract class AbstractStyle implements Style {
         setProperty(PROPERTY_NAME_OPACITY, opacity);
     }
 
-    public AlphaComposite getAlphaComposite(){
-        return (AlphaComposite) getProperty(PROPERTY_NAME_ALPHA_COMPOSITE);
+    public Composite getComposite() {
+        return (Composite) getProperty(PROPERTY_NAME_COMPOSITE);
     }
 
-    public void setAlphaComposite(AlphaComposite alphaComposite){
-        setProperty(PROPERTY_NAME_ALPHA_COMPOSITE, alphaComposite);
+    public void setComposite(Composite composite) {
+        setProperty(PROPERTY_NAME_COMPOSITE, composite);
     }
 
 
@@ -46,11 +52,11 @@ public abstract class AbstractStyle implements Style {
     public void setDefaultStyle(Style defaultStyle) {
         if (this.defaultStyle != defaultStyle) {
             if (this.defaultStyle != null) {
-                this.defaultStyle.removePropertyChangeListener(defaultStylePCL);
+                this.defaultStyle.removePropertyChangeListener(defaultStyleStylePCL);
             }
             this.defaultStyle = defaultStyle;
             if (this.defaultStyle != null) {
-                this.defaultStyle.addPropertyChangeListener(defaultStylePCL);
+                this.defaultStyle.addPropertyChangeListener(defaultStyleStylePCL);
             }
         }
     }
@@ -82,10 +88,16 @@ public abstract class AbstractStyle implements Style {
         }
     }
 
-    private class DefaultPCL implements PropertyChangeListener {
+    private class DefaultStylePCL implements PropertyChangeListener {
+        /*
+         * Called if a property the default style changed.
+         */
         @Override
         public void propertyChange(PropertyChangeEvent event) {
-            firePropertyChanged(event);
+            // delegate only if this style does not overwrite the default property 
+            if (!hasPropertyNoDefault(event.getPropertyName())) {
+                firePropertyChanged(event);
+            }
         }
     }
 }

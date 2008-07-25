@@ -11,7 +11,7 @@ import java.awt.*;
  */
 public interface Style {
     final String PROPERTY_NAME_OPACITY = "opacity";
-    final String PROPERTY_NAME_ALPHA_COMPOSITE ="alphaComposite"; // todo - adjust to CSS style or SVG style prop. name
+    final String PROPERTY_NAME_COMPOSITE ="composite";
 
     Style getDefaultStyle();
     void setDefaultStyle(Style style);
@@ -33,6 +33,6 @@ public interface Style {
     double getOpacity();
     void setOpacity(double opacity);
 
-    AlphaComposite getAlphaComposite();
-    void setAlphaComposite(AlphaComposite alphaComposite);
+    Composite getComposite();
+    void setComposite(Composite composite);
 }

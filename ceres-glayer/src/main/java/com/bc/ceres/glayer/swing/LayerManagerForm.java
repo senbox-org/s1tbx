@@ -54,7 +54,7 @@ public class LayerManagerForm {
         final JScrollPane scrollPane = new JScrollPane(layerTable);
 
         transparencySlider = new JSlider(0, 100, 0);
-        alphaCompositeBox = new JComboBox(AlphaCompositeMode.values());
+        alphaCompositeBox = new JComboBox(Composite.values());
 
         JPanel sliderPanel = new JPanel(new BorderLayout(4, 4));
         sliderPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
@@ -80,8 +80,8 @@ public class LayerManagerForm {
                 if (selectedRow != -1) {
                     final Layer layer = getRootLayer().get(selectedRow);
                     adjusting = true;
-                    final AlphaCompositeMode alphaCompositeMode = (AlphaCompositeMode) alphaCompositeBox.getSelectedItem();
-                    layer.setAlphaCompositeMode(alphaCompositeMode);
+                    final Composite composite = (Composite) alphaCompositeBox.getSelectedItem();
+                    layer.getStyle().setComposite(composite);
                     adjusting = false;
                 }
             }
@@ -114,7 +114,7 @@ public class LayerManagerForm {
         final int n = (int) Math.round(100.0 * transparency);
         transparencySlider.setValue(n);
 
-        alphaCompositeBox.setSelectedItem(layer.getAlphaCompositeMode());
+        alphaCompositeBox.setSelectedItem(layer.getStyle().getComposite());
     }
 
     public CollectionLayer getRootLayer() {
