@@ -55,7 +55,7 @@ public class LayerTest extends ImagingTestCase {
         assertEquals("name;visible;opacity;opacity;visible;name;", ll.trace);
 
         layer.getStyle().setComposite(Composite.DST_IN);
-        assertEquals("name;visible;opacity;opacity;visible;name;alphaCompositeMode;", ll.trace);
+        assertEquals("name;visible;opacity;opacity;visible;name;composite;", ll.trace);
 
         ll.trace = "";
         layer.removeListener(ll);
