@@ -19,6 +19,7 @@ public class PlacemarkLayer extends StyledLayer {
     private Product product;
     private PlacemarkDescriptor placemarkDescriptor;
 
+    // TODO: IMAGING 4.5: Layer.getStyle(), SVG property names!
     private boolean textEnabled;
     private Font textFont;
     private Color textFgColor;

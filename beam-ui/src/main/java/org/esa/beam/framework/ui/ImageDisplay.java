@@ -548,15 +548,6 @@ public class ImageDisplay extends GraphicsPane {
         }
     }
 
-    /**
-     * Displays a status message. If <code>null</code> is passed to this method, the status message is reset or
-     * cleared.
-     *
-     * @param message the message to be displayed
-     */
-    public final void setStatusMessage(String message) {
-        Debug.traceMethodNotImplemented(getClass(), "setStatusMessage");
-    }
 
     private void setPixelPos(MouseEvent e, boolean showBorder) {
         Point p = e.getPoint();

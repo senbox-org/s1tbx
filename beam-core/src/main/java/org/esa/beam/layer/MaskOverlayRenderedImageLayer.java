@@ -24,6 +24,7 @@ public abstract class MaskOverlayRenderedImageLayer extends RenderedImageLayer {
     public MaskOverlayRenderedImageLayer(RasterDataNode raster) {
         super(null);
         this.raster = raster;
+        // TODO: IMAGING 4.5: Layer.getStyle(), SVG property names!
         this.propertyNameColor = getPropertyName("color");
         this.propertyNameTransparency = getPropertyName("transparency");
         setColor(DEFAULT_COLOR);

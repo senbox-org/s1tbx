@@ -42,10 +42,6 @@ public class RenderedImageLayer extends StyledLayer {
         return "image";
     }
 
-    public RenderedImageLayer(RenderedImage image, int x, int y) {
-        this(image, AffineTransform.getTranslateInstance(x, y));
-    }
-
     public RenderedImageLayer(RenderedImage image, AffineTransform transform) {
         this.image = image;
         this.transform = transform;

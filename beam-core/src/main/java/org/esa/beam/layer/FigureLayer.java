@@ -23,6 +23,7 @@ import java.util.Map;
 
 public class FigureLayer extends StyledLayer {
 
+    // TODO: IMAGING 4.5: Layer.getStyle(), SVG property names!
     public static final boolean DEFAULT_SHAPE_OUTLINED = true;
     public static final double DEFAULT_SHAPE_OUTL_TRANSPARENCY = 0.1;
     public static final Color DEFAULT_SHAPE_OUTL_COLOR = Color.yellow;
@@ -48,6 +49,7 @@ public class FigureLayer extends StyledLayer {
     @Override
     protected void setStylePropertiesImpl(final PropertyMap propertyMap) {
         super.setStylePropertiesImpl(propertyMap);
+        // TODO: IMAGING 4.5: Layer.getStyle(), SVG property names!
 
         final boolean outlined = propertyMap.getPropertyBool("shape.outlined", FigureLayer.DEFAULT_SHAPE_OUTLINED);
         final float outlTransp = (float) propertyMap.getPropertyDouble("shape.outl.transparency",

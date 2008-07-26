@@ -19,6 +19,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 
 public class ROILayer extends MaskOverlayRenderedImageLayer {
+    // TODO: IMAGING 4.5: Layer.getStyle(), SVG property names!
     public static final Color DEFAULT_COLOR = Color.RED;
     public static final float DEFAULT_TRANSPARENCY = 0.5f;
 

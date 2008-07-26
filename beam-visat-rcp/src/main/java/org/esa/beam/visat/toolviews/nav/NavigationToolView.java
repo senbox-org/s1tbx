@@ -50,7 +50,7 @@ public class NavigationToolView extends AbstractToolView {
     public static final String ID = NavigationToolView.class.getName();
     private static final int MAX_SLIDER_VALUE = 100;
     private static final double ZOOM_FACTOR = 1.2;
-    private static final double VIEW_SCALE_MAX = 16.0; // todo - obtain from global option, also refer to GraphicsPane.viewScaleMax
+    private static final double VIEW_SCALE_MAX = 16.0;
     public static final double MIN_PERCENT_VALUE = 100.0 / VIEW_SCALE_MAX;
     public static final double MAX_PERCENT_VALUE = 100.0 * VIEW_SCALE_MAX;
 
@@ -278,8 +278,8 @@ public class NavigationToolView extends AbstractToolView {
     }
 
     private void applyPercentValue() {
-        // TODO IMAGING 4.5
         final ProductSceneView view = getCurrentView();
+        // TODO IMAGING 4.5
         final double viewScaleOld = view.getViewModel().getViewScale();
         double viewScale = getPercentFieldValue();
         viewScale = roundAndCropViewScale(viewScale);
@@ -307,17 +307,16 @@ public class NavigationToolView extends AbstractToolView {
     }
 
     public void setModelOffset(final double modelOffsetX, final double modelOffsetY) {
-        // TODO IMAGING 4.5
         final ProductSceneView view = getCurrentView();
         if (view == null) {
             return;
         }
+        // TODO IMAGING 4.5
         view.getViewModel().setModelOffset(modelOffsetX, modelOffsetY);
         maybeSynchronizeCompatibleProductViews();
     }
 
     public void zoom(final double viewScale) {
-        // TODO IMAGING 4.5
         final ProductSceneView view = getCurrentView();
         if (view == null) {
             return;
@@ -327,12 +326,10 @@ public class NavigationToolView extends AbstractToolView {
     }
 
     public void zoomAll() {
-        // TODO IMAGING 4.5
         final ProductSceneView view = getCurrentView();
         if (view == null) {
             return;
         }
-        // TODO IMAGING 4.5
         view.zoomAll();
         maybeSynchronizeCompatibleProductViews();
     }
@@ -450,12 +447,13 @@ public class NavigationToolView extends AbstractToolView {
         if (canvas.isUpdatingImageDisplay()) {
             return;
         }
-        // TODO IMAGING 4.5
         final ProductSceneView view = getCurrentView();
         if (view != null) {
             canvas.updateSlider();
+            // TODO IMAGING 4.5
             final int sliderValue = viewScaleToSliderValue(view.getViewModel().getViewScale());
             zoomSlider.setValue(sliderValue);
+            // TODO IMAGING 4.5
             final double viewScalePercent = 100.0 * roundAndCropViewScale(view.getViewModel().getViewScale());
             setPercentFieldValue(viewScalePercent);
         }

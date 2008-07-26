@@ -19,6 +19,7 @@ public class GraticuleLayer extends StyledLayer {
 
     private Product _product;
     private RasterDataNode _raster;
+    private ProductNodeHandler _productNodeHandler;
 
     private Graticule _graticule;
     private boolean _resAuto;
@@ -26,16 +27,15 @@ public class GraticuleLayer extends StyledLayer {
     private float _lineResLat;
     private float _lineResLon;
 
+    // TODO: IMAGING 4.5: Layer.getStyle(), SVG property names!
     private Color _lineColor;
     private float _lineWidth;
     private float _lineTransparency;
-
     private boolean _textEnabled;
     private Font _textFont;
     private Color _textFgColor;
     private Color _textBgColor;
     private float _textBgTransparency;
-    private ProductNodeHandler _productNodeHandler;
 
     public GraticuleLayer(Product product, RasterDataNode raster) {
         Guardian.assertNotNull("product", product);

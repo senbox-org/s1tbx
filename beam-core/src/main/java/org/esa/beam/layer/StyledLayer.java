@@ -3,6 +3,8 @@ package org.esa.beam.layer;
 import com.bc.layer.AbstractLayer;
 import org.esa.beam.util.PropertyMap;
 
+// TODO IMAGING 4.5: Layer.getStyle()
+
 public abstract class StyledLayer extends AbstractLayer {
     /**
      * The default prefix for style properties.

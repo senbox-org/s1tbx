@@ -17,11 +17,13 @@ import java.awt.image.IndexColorModel;
 import java.awt.image.RenderedImage;
 
 public class NoDataLayer extends MaskOverlayRenderedImageLayer {
+    // TODO: IMAGING 4.5: Layer.getStyle(), SVG property names!
     public static final float DEFAULT_TRANSPARENCY = 0.5f;
     public static final Color DEFAULT_COLOR = Color.ORANGE;
 
     public NoDataLayer(RasterDataNode raster) {
         super(raster);
+        // TODO: IMAGING 4.5: Layer.getStyle(), SVG property names!
         setColor(DEFAULT_COLOR);
         setTransparency(DEFAULT_TRANSPARENCY);
     }

@@ -27,7 +27,7 @@ import org.esa.beam.framework.ui.command.CommandUIFactory;
  * @see org.esa.beam.framework.ui.command.CommandUIFactory
  * @see org.esa.beam.framework.ui.PopupMenuFactory
  */
-public abstract class BasicView extends JPanel implements PopupMenuFactory {
+public abstract class BasicView extends JPanel implements PopupMenuFactory, CommandUIFactoryAware, Disposable {
 
     private CommandUIFactory _commandUIFactory;
 

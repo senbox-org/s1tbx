@@ -48,14 +48,6 @@ public interface DrawingEditor {
     void repaint();
 
     /**
-     * Displays a status message. If <code>null</code> is passed to this method, the status message is reset or
-     * cleared.
-     *
-     * @param message the message to be displayed
-     */
-    void setStatusMessage(String message);
-
-    /**
      * Adds a new figure to the drawing.
      */
     void addFigure(Figure figure);
