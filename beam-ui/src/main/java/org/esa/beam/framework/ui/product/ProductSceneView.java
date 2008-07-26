@@ -91,7 +91,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
         setOpaque(false);
         this.sceneImage = sceneImage;
         setSourceImage(sceneImage.getImage());
-        getImageDisplay().setLayerModel(sceneImage.getLayerModel());
+        setLayerModel(sceneImage.getLayerModel());
         Rectangle modelArea = sceneImage.getModelArea();
         getViewModel().setModelArea(modelArea);
         getViewModel().setModelOffset(modelArea.x, modelArea.y, 1.0);
@@ -152,11 +152,11 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
         imageUpdateListenerList.clear();
         imageUpdateListenerList = null;
 
-        if (getImageDisplay() != null) {
+        if (getImageDisplayComponent() != null) {
             // ensure that imageDisplay.dispose() is run in the EDT
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
-                    getImageDisplay().dispose();
+                    disposeImageDisplayComponent();
                     imageDisplay = null;
                 }
             });
@@ -437,6 +437,20 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
         popupMenu.addSeparator();
     }
 
+    private void addCopyPixelInfoToClipboardMenuItem(JPopupMenu popupMenu) {
+        if (getPixelInfoFactory() != null) {
+            JMenuItem menuItem = new JMenuItem("Copy Pixel-Info to Clipboard");
+            menuItem.setMnemonic('C');
+            menuItem.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    copyPixelInfoStringToClipboard();
+                }
+            });
+            popupMenu.add(menuItem);
+            popupMenu.addSeparator();
+        }
+    }
 
     public void updateImage(ProgressMonitor pm) throws IOException {
         StopWatch stopWatch = new StopWatch();
@@ -626,6 +640,10 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
         return imageDisplay;
     }
 
+    private void disposeImageDisplayComponent() {
+        getImageDisplay().dispose();
+    }
+
     public PixelInfoFactory getPixelInfoFactory() {
         return getImageDisplay().getPixelInfoFactory();
     }
@@ -655,6 +673,10 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
 
     public LayerModel getLayerModel() {
         return getImageDisplay().getLayerModel();
+    }
+
+    private void setLayerModel(LayerModel layerModel) {
+        getImageDisplay().setLayerModel(layerModel);
     }
 
     public ViewModel getViewModel() {
@@ -695,7 +717,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
      * @return the source image
      */
     public RenderedImage getSourceImage() {
-        return getImageDisplay() != null ?  getImageDisplay().getImage() : null;
+        return getImageDisplayComponent() != null ?  getImageDisplay().getImage() : null;
     }
     
 
@@ -812,19 +834,8 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
         layerModel.fireLayerModelChanged();
     }
 
-    private void addCopyPixelInfoToClipboardMenuItem(JPopupMenu popupMenu) {
-        if (getImageDisplay().getPixelInfoFactory() != null) {
-            JMenuItem menuItem = new JMenuItem("Copy Pixel-Info to Clipboard");
-            menuItem.setMnemonic('C');
-            menuItem.addActionListener(new ActionListener() {
-
-                public void actionPerformed(ActionEvent e) {
-                    getImageDisplay().copyPixelInfoStringToClipboard();
-                }
-            });
-            popupMenu.add(menuItem);
-            popupMenu.addSeparator();
-        }
+    private void copyPixelInfoStringToClipboard() {
+        getImageDisplay().copyPixelInfoStringToClipboard();
     }
 
     protected void initUI(RenderedImage sourceImage) {
