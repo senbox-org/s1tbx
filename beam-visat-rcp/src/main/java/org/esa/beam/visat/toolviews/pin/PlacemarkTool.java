@@ -1,12 +1,6 @@
 package org.esa.beam.visat.toolviews.pin;
 
-import com.bc.view.ViewModel;
-import org.esa.beam.framework.datamodel.Pin;
-import org.esa.beam.framework.datamodel.PinSymbol;
-import org.esa.beam.framework.datamodel.PixelPos;
-import org.esa.beam.framework.datamodel.PlacemarkDescriptor;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductNodeGroup;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Drawable;
 import org.esa.beam.framework.ui.UIUtils;
 import org.esa.beam.framework.ui.command.Command;
@@ -17,10 +11,10 @@ import org.esa.beam.framework.ui.tool.DrawingEditor;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
 import org.esa.beam.visat.VisatApp;
 
-import javax.swing.JPopupMenu;
-import java.awt.Cursor;
-import java.awt.Image;
-import java.awt.Toolkit;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 
@@ -38,7 +32,7 @@ public abstract class PlacemarkTool extends AbstractTool {
 
     protected PlacemarkTool(PlacemarkDescriptor placemarkDescriptor) {
         this.placemarkDescriptor = placemarkDescriptor;
-        cursor =  createCursor(placemarkDescriptor);
+        cursor = createCursor(placemarkDescriptor);
     }
 
     /**
@@ -206,32 +200,24 @@ public abstract class PlacemarkTool extends AbstractTool {
     }
 
     private Pin getPlacemarkForPixelPos(final int selPixelX, final int selPixelY) {
-        ProductSceneView productSceneView = getProductSceneView();
-        // TODO IMAGING 4.5
-        ViewModel viewModel = productSceneView.getViewModel();
+        ProductSceneView view = getProductSceneView();
 
-        double pixelX0 = viewModel.getModelOffsetX();
-        double pixelY0 = viewModel.getModelOffsetY();
-        double viewScale = viewModel.getViewScale();
-        double selViewX = (selPixelX - pixelX0) * viewScale;
-        double selViewY = (selPixelY - pixelY0) * viewScale;
-        Rectangle2D.Double selViewRect = new Rectangle2D.Double(selViewX, selViewY, viewScale, viewScale);
+        final AffineTransform i2v = view.getBaseImageToViewTransform();
+
+        final Rectangle2D selViewRect = i2v.createTransformedShape(new Rectangle(selPixelX, selPixelY, 1, 1)).getBounds2D();
 
         // Compare with pin insertion points (which are in product raster pixel coordinates)
         //
-        double epsilon = 4.0; // view units!
         ProductNodeGroup<Pin> placemarkGroup = getPlacemarkGroup(getProductSceneView().getProduct());
         Pin[] placemarks = placemarkGroup.toArray(new Pin[placemarkGroup.getNodeCount()]);
         for (final Pin placemark : placemarks) {
             // Convert pin pixel to view coordinates
             PixelPos placemarkPixelPos = placemark.getPixelPos();
-            double placemarkViewX = (placemarkPixelPos.getX() - pixelX0) * viewScale;
-            double placemarkViewY = (placemarkPixelPos.getY() - pixelY0) * viewScale;
+            final Rectangle2D placemarkViewRect = i2v.createTransformedShape(new Rectangle2D.Double(Math.floor(placemarkPixelPos.getX()),
+                                                                                                    Math.floor(placemarkPixelPos.getY()),
+                                                                                                    1, 1)).getBounds2D();
             // Use a rectangular region around the insertion point for comparision
-            final Rectangle2D.Double pinViewRect = new Rectangle2D.Double(placemarkViewX - 0.5 * epsilon,
-                                                                          placemarkViewY - 0.5 * epsilon,
-                                                                          epsilon, epsilon);
-            if (pinViewRect.intersects(selViewRect)) {
+            if (selViewRect.intersects(placemarkViewRect)) {
                 return placemark;
             }
         }
@@ -243,19 +229,19 @@ public abstract class PlacemarkTool extends AbstractTool {
             PinSymbol symbol = placemark.getSymbol();
 
             // Convert pin pixel to view coordinates
-            PixelPos pinPixelPos = placemark.getPixelPos();
-            double pinViewX = (pinPixelPos.getX() - pixelX0) * viewScale;
-            double pinViewY = (pinPixelPos.getY() - pixelY0) * viewScale;
-            // Use the pixel dimension in view units (=viewScale) relative to the pin insertion point
-            final Rectangle2D.Double relViewRect = new Rectangle2D.Double(selViewX - pinViewX,
-                                                                          selViewY - pinViewY,
-                                                                          viewScale, viewScale);
-            // Move using symbol insertion point.
+            PixelPos placemarkPixelPos = placemark.getPixelPos();
+            final Point2D placemarkViewPos = i2v.transform(new Point2D.Double(placemarkPixelPos.getX(),
+                                                                              placemarkPixelPos.getY()),
+                                                           null);
+
             PixelPos refPoint = symbol.getRefPoint();
-            if (refPoint != null) {
-                relViewRect.x += refPoint.getX();
-                relViewRect.y += refPoint.getY();
+            if (refPoint == null) {
+                refPoint = new PixelPos(0, 0);
             }
+            final Rectangle2D.Double relViewRect = new Rectangle2D.Double(selViewRect.getX() - placemarkViewPos.getX() + refPoint.getX(),
+                                                                          selViewRect.getY() - placemarkViewPos.getY() + refPoint.getY(),
+                                                                          selViewRect.getWidth(),
+                                                                          selViewRect.getHeight());
 
             if (symbol.getShape().intersects(relViewRect)) {
                 return placemark;

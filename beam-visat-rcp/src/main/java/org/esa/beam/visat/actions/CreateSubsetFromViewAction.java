@@ -1,6 +1,5 @@
 package org.esa.beam.visat.actions;
 
-import com.bc.view.ViewModel;
 import org.esa.beam.framework.dataio.ProductSubsetDef;
 import org.esa.beam.framework.datamodel.Product;
 import org.esa.beam.framework.ui.command.CommandEvent;
@@ -10,6 +9,7 @@ import org.esa.beam.framework.ui.product.ProductSubsetDialog;
 import org.esa.beam.visat.VisatApp;
 
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 
 public class CreateSubsetFromViewAction extends ExecCommand {
@@ -70,17 +70,15 @@ public class CreateSubsetFromViewAction extends ExecCommand {
     }
 
     private Rectangle computeArea(final ProductSceneView psv) {
-        ////////////////////////////////////////////////////////////////////
-        // << TODO IMAGING 4.5
-        final int imageWidth = psv.getImageWidth();
-        final int imageHeight = psv.getImageHeight();
-        final ViewModel viewModel = psv.getViewModel();
-        int width = (int) Math.round(psv.getImageDisplayComponent().getWidth() / viewModel.getViewScale());
-        int height = (int) Math.round(psv.getImageDisplayComponent().getHeight() / viewModel.getViewScale());
-        int x = (int) Math.round(viewModel.getModelOffsetX());
-        int y = (int) Math.round(viewModel.getModelOffsetY());
-        // >> TODO IMAGING 4.5
-        ////////////////////////////////////////////////////////////////////
+
+        final int imageWidth = psv.getBaseImageWidth();
+        final int imageHeight = psv.getBaseImageHeight();
+        final Rectangle2D bounds2D = psv.getVisibleModelBounds();
+        int x = (int) Math.round(bounds2D.getX());
+        int y = (int) Math.round(bounds2D.getY());
+        int width = (int) Math.round(bounds2D.getWidth());
+        int height = (int) Math.round(bounds2D.getHeight());
+
         if (x < 0) {
             width += x;
             x = 0;

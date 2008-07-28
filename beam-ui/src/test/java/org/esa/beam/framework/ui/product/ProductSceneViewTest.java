@@ -23,6 +23,7 @@ import org.esa.beam.framework.datamodel.ProductData;
 import org.esa.beam.framework.datamodel.VirtualBand;
 
 import java.io.IOException;
+import java.awt.geom.AffineTransform;
 
 public class ProductSceneViewTest extends TestCase {
 
@@ -76,5 +77,27 @@ public class ProductSceneViewTest extends TestCase {
             fail();
         } catch (NullPointerException expected) {
         }
+    }
+
+
+    public void testAffineTransformReplacesManualCalculation() {
+        double modelOffsetX = 37.8;
+        double modelOffsetY = -54.1;
+        double viewScale = 2.5;
+
+        final AffineTransform transform = new AffineTransform();
+        transform.scale(viewScale, viewScale);
+        transform.translate(-modelOffsetX, -modelOffsetY);
+
+        double modelX = 10.4;
+        double modelY = 2.9;
+
+        double viewX = (modelX - modelOffsetX) * viewScale;
+        double viewY = (modelY - modelOffsetY) * viewScale;
+
+        final double[] result = new double[2];
+        transform.transform(new double[] {modelX,  modelY}, 0, result, 0, 1);
+        assertEquals(viewX, result[0], 1e-10);
+        assertEquals(viewY, result[1], 1e-10);
     }
 }

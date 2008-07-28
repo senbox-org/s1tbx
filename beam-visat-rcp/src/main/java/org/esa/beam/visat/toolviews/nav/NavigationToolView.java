@@ -101,7 +101,7 @@ public class NavigationToolView extends AbstractToolView {
                 oldView.removeImageUpdateListener(imageUpdateHandler);
                 currentView.getProduct().removeProductNodeListener(productNodeListener);
                 if (oldView.getImageDisplayComponent() != null) {
-                    oldView.getViewModel().removeViewModelChangeListener(imageDisplayCH);
+                    oldView.removeViewModelChangeListener(imageDisplayCH);
                     oldView.getImageDisplayComponent().removeComponentListener(imageDisplayRH);
                 }
             }
@@ -110,7 +110,7 @@ public class NavigationToolView extends AbstractToolView {
                 currentView.addImageUpdateListener(imageUpdateHandler);
                 currentView.getProduct().addProductNodeListener(productNodeListener);
                 if (currentView.getImageDisplayComponent() != null) {
-                    currentView.getViewModel().addViewModelChangeListener(imageDisplayCH);
+                    currentView.addViewModelChangeListener(imageDisplayCH);
                     currentView.getImageDisplayComponent().addComponentListener(imageDisplayRH);
                 }
             }
@@ -133,7 +133,7 @@ public class NavigationToolView extends AbstractToolView {
         zoomInButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 // TODO IMAGING 4.5
-                zoom(getCurrentView().getViewModel().getViewScale() * ZOOM_FACTOR);
+                zoom(getCurrentView().getViewScale() * ZOOM_FACTOR);
             }
         });
 
@@ -152,7 +152,7 @@ public class NavigationToolView extends AbstractToolView {
         zoomOutButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 // TODO IMAGING 4.5
-                zoom(getCurrentView().getViewModel().getViewScale() / ZOOM_FACTOR);
+                zoom(getCurrentView().getViewScale() / ZOOM_FACTOR);
             }
         });
 
@@ -279,8 +279,7 @@ public class NavigationToolView extends AbstractToolView {
 
     private void applyPercentValue() {
         final ProductSceneView view = getCurrentView();
-        // TODO IMAGING 4.5
-        final double viewScaleOld = view.getViewModel().getViewScale();
+        final double viewScaleOld = view.getViewScale();
         double viewScale = getPercentFieldValue();
         viewScale = roundAndCropViewScale(viewScale);
         setPercentFieldValue(100.0 * viewScale);
@@ -296,8 +295,7 @@ public class NavigationToolView extends AbstractToolView {
             final Number number = percentFormat.parse(text);
             viewScale = number.doubleValue() / 100.0;
         } catch (ParseException ignore) {
-            // TODO IMAGING 4.5
-            viewScale = getCurrentView().getViewModel().getViewScale();
+            viewScale = getCurrentView().getViewScale();
         }
         return viewScale;
     }
@@ -312,7 +310,7 @@ public class NavigationToolView extends AbstractToolView {
             return;
         }
         // TODO IMAGING 4.5
-        view.getViewModel().setModelOffset(modelOffsetX, modelOffsetY);
+        view.setModelOffset(modelOffsetX, modelOffsetY);
         maybeSynchronizeCompatibleProductViews();
     }
 
@@ -345,25 +343,17 @@ public class NavigationToolView extends AbstractToolView {
         if (currentView == null) {
             return;
         }
-        final Product currentProduct = currentView.getRaster().getProduct();
         final JInternalFrame[] internalFrames = VisatApp.getApp().getAllInternalFrames();
         for (final JInternalFrame internalFrame : internalFrames) {
             if (internalFrame.getContentPane() instanceof ProductSceneView) {
                 final ProductSceneView view = (ProductSceneView) internalFrame.getContentPane();
                 if (view != currentView) {
-                    final Product otherProduct = view.getRaster().getProduct();
-                    if (otherProduct == currentProduct ||
-                            otherProduct.isCompatibleProduct(currentProduct, 1.0e-3f)) {
-                        // TODO IMAGING 4.5
-                        view.getViewModel().setModelOffset(
-                                currentView.getViewModel().getModelOffsetX(),
-                                currentView.getViewModel().getModelOffsetY(),
-                                currentView.getViewModel().getViewScale());
-                    }
+                    currentView.synchronizeViewport(view);
                 }
             }
         }
     }
+
 
     /**
      * @param sliderValue a value between -MAX_SLIDER_VALUE and +MAX_SLIDER_VALUE
@@ -451,10 +441,10 @@ public class NavigationToolView extends AbstractToolView {
         if (view != null) {
             canvas.updateSlider();
             // TODO IMAGING 4.5
-            final int sliderValue = viewScaleToSliderValue(view.getViewModel().getViewScale());
+            final int sliderValue = viewScaleToSliderValue(view.getViewScale());
             zoomSlider.setValue(sliderValue);
             // TODO IMAGING 4.5
-            final double viewScalePercent = 100.0 * roundAndCropViewScale(view.getViewModel().getViewScale());
+            final double viewScalePercent = 100.0 * roundAndCropViewScale(view.getViewScale());
             setPercentFieldValue(viewScalePercent);
         }
     }

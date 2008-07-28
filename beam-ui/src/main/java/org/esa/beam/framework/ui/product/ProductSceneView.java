@@ -23,6 +23,7 @@ import com.bc.layer.LayerModel;
 import com.bc.layer.LayerModelChangeListener;
 import com.bc.swing.ViewPane;
 import com.bc.view.ViewModel;
+import com.bc.view.ViewModelChangeListener;
 import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.draw.ShapeFigure;
@@ -40,7 +41,10 @@ import org.esa.beam.util.StopWatch;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -91,10 +95,10 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
         Assert.notNull(sceneImage, "sceneImage");
         setOpaque(false);
         this.sceneImage = sceneImage;
-        setSourceImage(sceneImage.getImage());
+        setBaseImage(sceneImage.getImage());
         setLayerModel(sceneImage.getLayerModel());
         Rectangle modelArea = sceneImage.getModelArea();
-        getViewModel().setModelArea(modelArea);
+        setModelBounds(modelArea);
         getViewModel().setModelOffset(modelArea.x, modelArea.y, 1.0);
         getImageDisplayComponent().setPreferredSize(modelArea.getSize());
         setPixelInfoFactory(this);
@@ -136,7 +140,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
         StopWatch stopWatch = new StopWatch();
         Cursor oldCursor = UIUtils.setRootFrameWaitCursor(this);
         final RenderedImage sourceImage = createImage(pm);
-        setSourceImage(sourceImage);
+        setBaseImage(sourceImage);
         stopWatch.stopAndTrace("ProductSceneView.updateImage");
         fireImageUpdated();
         UIUtils.setRootFrameCursor(this, oldCursor);
@@ -247,21 +251,11 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     disposeImageDisplayComponent();
-                    imageDisplay = null;
                 }
             });
         }
 
         super.dispose();
-    }
-
-    /**
-     * The product scene image associated with this view.
-     *
-     * @return the product scene image
-     */
-    ProductSceneImage getSceneImage() {
-        return sceneImage;
     }
 
     /**
@@ -273,7 +267,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
 
     public String getSceneName() {
         return getSceneImage().getName();
-    }    
+    }
 
     public ImageInfo getImageInfo() {
         return getSceneImage().getImageInfo();
@@ -587,43 +581,60 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
         getImageDisplay().removePixelPositionListener(listener);
     }
 
-    public LayerModel getLayerModel() {
-        // TODO IMAGING 4.5
-        return getImageDisplay().getLayerModel();
-    }
-
     public void addLayerModelChangeListener(LayerModelChangeListener listener) {
+        // TODO IMAGING 4.5
         getImageDisplay().getLayerModel().addLayerModelChangeListener(listener);
     }
     public void removeLayerModelChangeListener(LayerModelChangeListener listener) {
+        // TODO IMAGING 4.5
         getImageDisplay().getLayerModel().removeLayerModelChangeListener(listener);
     }
 
     public int getLayerCount() {
+        // TODO IMAGING 4.5
         return getLayerModel().getLayerCount();
     }
 
     public Layer getLayer(int index) {
+        // TODO IMAGING 4.5
         return getLayerModel().getLayer(index);
     }
 
     public void disposeLayerModel() {
+        // TODO IMAGING 4.5
         getLayerModel().dispose();
     }
 
-    public ViewModel getViewModel() {
+    public AffineTransform getBaseImageToViewTransform() {
         // TODO IMAGING 4.5
-        return getImageDisplay().getViewModel();
+        final AffineTransform transform = new AffineTransform();
+        transform.scale(getViewScale(), getViewScale());
+        transform.translate(-getViewModel().getModelOffsetX(),
+                            -getViewModel().getModelOffsetY());
+        return transform;
     }
 
-    public int getImageWidth() {
+    public Rectangle2D getVisibleModelBounds() {
         // TODO IMAGING 4.5
-        return getImageDisplay().getImageWidth();
+        return new Rectangle2D.Double(getViewModel().getModelOffsetX(),
+                                      getViewModel().getModelOffsetY(),
+                                      getImageDisplayComponent().getWidth() / getViewScale(),
+                                      getImageDisplayComponent().getHeight() / getViewScale());
     }
 
-    public int getImageHeight() {
+    public double getViewScale() {
         // TODO IMAGING 4.5
-        return getImageDisplay().getImageHeight();
+        return getViewModel().getViewScale();
+    }
+
+    public Rectangle2D getModelBounds() {
+        // TODO IMAGING 4.5
+        return getViewModel().getModelArea();
+    }
+
+    private void setModelBounds(Rectangle modelArea) {
+        // TODO IMAGING 4.5
+        getViewModel().setModelArea(modelArea);
     }
 
     public JComponent getImageDisplayComponent() {
@@ -651,32 +662,113 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
         getImageDisplay().zoomAll();
     }
 
+    public void setModelOffset(double modelOffsetX, double modelOffsetY) {
+        // TODO IMAGING 4.5
+        getViewModel().setModelOffset(modelOffsetX, modelOffsetY);
+    }
+
+    public void setModelOffset(double modelOffsetX, double modelOffsetY, double viewScale) {
+        // TODO IMAGING 4.5
+        getViewModel().setModelOffset(modelOffsetX, modelOffsetY, viewScale);
+    }
+
+    public void synchronizeViewport(ProductSceneView view) {
+        final Product currentProduct = getRaster().getProduct();
+        final Product otherProduct = view.getRaster().getProduct();
+        if (otherProduct == currentProduct ||
+                otherProduct.isCompatibleProduct(currentProduct, 1.0e-3f)) {
+            // TODO IMAGING 4.5
+            view.setModelOffset(
+                    getViewModel().getModelOffsetX(),
+                    getViewModel().getModelOffsetY(),
+                    getViewScale());
+        }
+
+    }
+
+    public void addViewModelChangeListener(ViewModelChangeListener listener) {
+        // TODO IMAGING 4.5
+        getViewModel().addViewModelChangeListener(listener);
+    }
+
+    public void removeViewModelChangeListener(ViewModelChangeListener listener) {
+        // TODO IMAGING 4.5
+        getViewModel().removeViewModelChangeListener(listener);
+    }
+
+
     /**
-     * Gets the source image displayed in this view.
+     * Gets the base image displayed in this view.
      *
-     * @return the source image
+     * @return the base image
      */
-    public RenderedImage getSourceImage() {
+    public RenderedImage getBaseImage() {
         // TODO IMAGING 4.5
         return getImageDisplayComponent() != null ? getImageDisplay().getImage() : null;
     }
 
 
     /**
-     * Gets the source image to be displayed in this view.
+     * Sets the base image displayed in this view.
      *
-     * @param sourceImage the source image
+     * @param baseImage the base image
      */
-    public void setSourceImage(RenderedImage sourceImage) {
-        Guardian.assertNotNull("sourceImage", sourceImage);
+    public void setBaseImage(RenderedImage baseImage) {
+        Guardian.assertNotNull("baseImage", baseImage);
         if (getImageDisplayComponent() == null) {
-            initUI(sourceImage);
+            initUI(baseImage);
         }
         // TODO IMAGING 4.5
-        getImageDisplay().setImage(sourceImage);
+        getImageDisplay().setImage(baseImage);
         revalidate();
         repaint();
     }
+
+    public int getBaseImageWidth() {
+        // TODO IMAGING 4.5
+        return getImageDisplay().getImageWidth();
+    }
+
+    public int getBaseImageHeight() {
+        // TODO IMAGING 4.5
+        return getImageDisplay().getImageHeight();
+    }
+
+    public RenderedImage createSnapshotImage(boolean entireImage, boolean useAlpha) {
+        ////////////////////////////////////////////////////////////////////
+        // << TODO IMAGING 4.5
+        boolean oldOpaque = getImageDisplayComponent().isOpaque();
+        final BufferedImage bi;
+        try {
+            getImageDisplayComponent().setOpaque(false);
+            final int imageType = useAlpha ? BufferedImage.TYPE_4BYTE_ABGR : BufferedImage.TYPE_3BYTE_BGR;
+            if (entireImage) {
+                final double modelOffsetXOld = getViewModel().getModelOffsetX();
+                final double modelOffsetYOld = getViewModel().getModelOffsetY();
+                final double viewScaleOld = getViewScale();
+                try {
+                    getViewModel().setModelOffset(0, 0, 1.0);
+                    bi = new BufferedImage(getBaseImageWidth(),
+                                           getBaseImageHeight(),
+                                           imageType);
+                    getImageDisplayComponent().paint(bi.createGraphics());
+                } finally {
+                    getViewModel().setModelOffset(modelOffsetXOld, modelOffsetYOld, viewScaleOld);
+                }
+            } else {
+                bi = new BufferedImage(getImageDisplayComponent().getWidth(),
+                                       getImageDisplayComponent().getHeight(),
+                                       imageType);
+                getImageDisplayComponent().paint(bi.createGraphics());
+            }
+        } finally {
+            getImageDisplayComponent().setOpaque(oldOpaque);
+        }
+        // >> TODO IMAGING 4.5
+        ////////////////////////////////////////////////////////////////////
+        return bi;
+    }
+
 
     /**
      * Returns the current tool for this drawing.
@@ -707,18 +799,37 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
     }
 
     /////////////////////////////////////////////////////////////////////////
-    // Private
+    // Package/Private
 
+    /**
+     * The product scene image associated with this view.
+     *
+     * @return the product scene image
+     */
+    ProductSceneImage getSceneImage() {
+        return sceneImage;
+    }
+
+    @Deprecated
+    LayerModel getLayerModel() {
+        // TODO IMAGING 4.5
+        return getImageDisplay().getLayerModel();
+    }
+
+    @Deprecated
+    private ViewModel getViewModel() {
+        // TODO IMAGING 4.5
+        return getImageDisplay().getViewModel();
+    }
+
+
+    @Deprecated
     private void setLayerModel(LayerModel layerModel) {
         // TODO IMAGING 4.5
         getImageDisplay().setLayerModel(layerModel);
     }
 
     private void setImageProperties(PropertyMap propertyMap) {
-        // todo 3 nf,nf - 1) move display properties of imageDisplay to imageLayer
-        // todo 3 nf/nf - 2) move the following code to ImageLayer.setProperties
-        // todo 3 nf,nf - 3) use _imageLayer.setProperties(propertyMap); instead
-
         final boolean pixelBorderShown = propertyMap.getPropertyBool("pixel.border.shown", true);
         final boolean imageBorderShown = propertyMap.getPropertyBool("image.border.shown", true);
         final float imageBorderSize = (float) propertyMap.getPropertyDouble("image.border.size",
@@ -770,6 +881,8 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
         add(imageDisplayScroller, BorderLayout.CENTER);
     }
 
+
+    @Deprecated
     private ImageDisplay getImageDisplay() {
         // TODO IMAGING 4.5
         return imageDisplay;
@@ -777,7 +890,10 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
 
     private void disposeImageDisplayComponent() {
         // TODO IMAGING 4.5
-        getImageDisplay().dispose();
+        if (getImageDisplayComponent()  !=null) {
+            getImageDisplay().dispose();
+            imageDisplay = null;
+        }
     }
 
     private PixelInfoFactory getPixelInfoFactory() {
@@ -818,6 +934,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
             listener.handleImageUpdated(this);
         }
     }
+
 
     /////////////////////////////////////////////////////////////////////////
     // Inner/Nested Interfaces/Classes
@@ -878,7 +995,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
 
         public void mouseWheelMoved(MouseWheelEvent e) {
             int notches = e.getWheelRotation();
-            double currentViewScale = getViewModel().getViewScale();
+            double currentViewScale = getViewScale();
             if (notches < 0) {
                 zoom(currentViewScale * 1.1f);
             } else {

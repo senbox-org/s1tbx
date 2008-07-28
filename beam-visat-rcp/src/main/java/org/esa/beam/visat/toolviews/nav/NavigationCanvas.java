@@ -93,7 +93,7 @@ public class NavigationCanvas extends JPanel {
         // TODO IMAGING 4.5
         final ProductSceneView view = navigationWindow.getCurrentView();
         if (view != null && thumbnailImage != null) {
-            final Rectangle2D ma = view.getViewModel().getModelArea();
+            final Rectangle2D ma = view.getModelBounds();
             double mpX = ma.getX() + (slider.x - sliderArea.x) * ma.getWidth() / sliderArea.width;
             double mpY = ma.getY() + (slider.y - sliderArea.y) * ma.getHeight() / sliderArea.height;
             updatingImageDisplay = true;
@@ -103,14 +103,13 @@ public class NavigationCanvas extends JPanel {
     }
 
     public void updateImage() {
-        // TODO IMAGING 4.5
         final ProductSceneView view = navigationWindow.getCurrentView();
         if (view != null) {
             final Insets insets = getInsets();
             int imageWidth = getWidth() - (insets.left + insets.right);
             int imageHeight = getHeight() - (insets.top + insets.bottom);
             final double imageRatio = (double) imageWidth / (double) imageHeight;
-            final Rectangle2D ma = view.getViewModel().getModelArea();
+            final Rectangle2D ma = view.getModelBounds();
             final double modelRatio = ma.getWidth() / ma.getHeight();
             if (imageRatio < modelRatio) {
                 imageHeight = (int) Math.round(imageWidth / modelRatio);
@@ -142,13 +141,8 @@ public class NavigationCanvas extends JPanel {
         if (updatingImageDisplay || view == null) {
             return;
         }
-        final Rectangle2D ma = view.getViewModel().getModelArea();
-        final double vs = view.getViewModel().getViewScale();
-        int width = view.getImageDisplayComponent().getWidth();
-        int height = view.getImageDisplayComponent().getHeight();
-        final Rectangle2D va = new Rectangle2D.Double(view.getViewModel().getModelOffsetX(),
-                                                      view.getViewModel().getModelOffsetY(),
-                                                      width / vs, height / vs);
+        final Rectangle2D va = view.getVisibleModelBounds();
+        final Rectangle2D ma = view.getModelBounds();
 
         slider.x = sliderArea.x + (int) Math.round(sliderArea.width * (va.getX() - ma.getX()) / ma.getWidth());
         slider.y = sliderArea.y + (int) Math.round(sliderArea.height * (va.getY() - ma.getY()) / ma.getHeight());
@@ -182,13 +176,13 @@ public class NavigationCanvas extends JPanel {
             return;
         }
         final Graphics2D graphics = thumbnailImage.createGraphics();
-        final ImageDisplay painter = new ImageDisplay(view.getSourceImage());
+        final ImageDisplay painter = new ImageDisplay(view.getBaseImage());
         painter.setSize(thumbnailImage.getWidth(), thumbnailImage.getHeight());
         painter.setOpaque(true);
         painter.setBackground(view.getBackground());
         painter.setForeground(view.getForeground());
         painter.getViewModel().setViewScaleMax(null);
-        painter.getViewModel().setModelArea(view.getViewModel().getModelArea());
+        painter.getViewModel().setModelArea(view.getModelBounds());
         painter.zoomAll();
         painter.paintComponent(graphics);
         painter.dispose();

@@ -91,6 +91,7 @@ public class ProductSceneImage {
     }
 
 
+    @Deprecated
     private ProductSceneImage(String name, RasterDataNode[] rasters, ImageInfo imageInfo, LayerModel layerModel, ProgressMonitor pm) throws IOException {
         this.name = name;
         this.imageInfo = imageInfo;
@@ -144,34 +145,42 @@ public class ProductSceneImage {
         return modelArea;
     }
 
+    @Deprecated
     LayerModel getLayerModel() {
         return layerModel;
     }
 
+    @Deprecated
     Layer getLayer(String name) {
         return layerModel.getLayer(name);
     }
 
+    @Deprecated
     NoDataLayer getNoDataLayer() {
         return (NoDataLayer) layerModel.getLayer(1);
     }
 
+    @Deprecated
     FigureLayer getFigureLayer() {
         return (FigureLayer) layerModel.getLayer(2);
     }
 
+    @Deprecated
     ROILayer getROILayer() {
         return (ROILayer) layerModel.getLayer(3);
     }
 
+    @Deprecated
     GraticuleLayer getGraticuleLayer() {
         return (GraticuleLayer) layerModel.getLayer(4);
     }
 
+    @Deprecated
     PlacemarkLayer getPinLayer() {
         return (PlacemarkLayer) layerModel.getLayer(5);
     }
 
+    @Deprecated
     PlacemarkLayer getGcpLayer() {
         return (PlacemarkLayer) layerModel.getLayer(6);
     }
@@ -185,6 +194,7 @@ public class ProductSceneImage {
         return rasters[0];
     }
 
+    @Deprecated
     private LayerModel createLayerModel(RenderedImage image) {
         DefaultLayerModel layerModel = new DefaultLayerModel();
         layerModel.addLayer(new RenderedImageLayer(image));
@@ -197,6 +207,7 @@ public class ProductSceneImage {
         return layerModel;
     }
 
+    @Deprecated
     private void initLayerModel(LayerModel layerModel) {
         final int size = ProductSceneView.DEFAULT_IMAGE_VIEW_BORDER_SIZE;
         modelArea = new Rectangle(-size, -size,

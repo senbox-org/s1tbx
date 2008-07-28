@@ -75,38 +75,7 @@ public class ExportImageAction extends AbstractExportImageAction {
     }
 
     static RenderedImage createImage(ProductSceneView view, boolean entireImage, boolean useAlpha) {
-        ////////////////////////////////////////////////////////////////////
-        // << TODO IMAGING 4.5
-        boolean oldOpaque = view.getImageDisplayComponent().isOpaque();
-        final BufferedImage bi;
-        try {
-            view.getImageDisplayComponent().setOpaque(false);
-            final int imageType = useAlpha ? BufferedImage.TYPE_4BYTE_ABGR : BufferedImage.TYPE_3BYTE_BGR;
-            if (entireImage) {
-                final double modelOffsetXOld = view.getViewModel().getModelOffsetX();
-                final double modelOffsetYOld = view.getViewModel().getModelOffsetY();
-                final double viewScaleOld = view.getViewModel().getViewScale();
-                try {
-                    view.getViewModel().setModelOffset(0, 0, 1.0);
-                    bi = new BufferedImage(view.getImageWidth(),
-                                           view.getImageHeight(),
-                                           imageType);
-                    view.getImageDisplayComponent().paint(bi.createGraphics());
-                } finally {
-                    view.getViewModel().setModelOffset(modelOffsetXOld, modelOffsetYOld, viewScaleOld);
-                }
-            } else {
-                bi = new BufferedImage(view.getImageDisplayComponent().getWidth(),
-                                       view.getImageDisplayComponent().getHeight(),
-                                       imageType);
-                view.getImageDisplayComponent().paint(bi.createGraphics());
-            }
-        } finally {
-            view.getImageDisplayComponent().setOpaque(oldOpaque);
-        }
-        // >> TODO IMAGING 4.5
-        ////////////////////////////////////////////////////////////////////
-        return bi;
+        return view.createSnapshotImage(entireImage, useAlpha);
     }
 
     @Override

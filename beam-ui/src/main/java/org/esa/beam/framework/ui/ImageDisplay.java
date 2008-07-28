@@ -22,7 +22,6 @@ import com.bc.swing.GraphicsPane;
 import org.esa.beam.framework.ui.tool.Tool;
 import org.esa.beam.framework.ui.tool.ToolInputEvent;
 import org.esa.beam.layer.RenderedImageLayer;
-import org.esa.beam.util.Debug;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.MouseEventFilterFactory;
 import org.esa.beam.util.SystemUtils;
@@ -51,17 +50,17 @@ public class ImageDisplay extends GraphicsPane {
     /**
      * The current tool.
      */
-    private Tool _tool;
+    private Tool tool;
     /**
      * A pixel info sink.
      */
-    private PixelInfoFactory _pixelInfoFactory;
+    private PixelInfoFactory pixelInfoFactory;
 
-    private int _imageWidth;
-    private int _imageHeight;
+    private int imageWidth;
+    private int imageHeight;
 
-    private int _pixelX = -1;
-    private int _pixelY = -1;
+    private int pixelX = -1;
+    private int pixelY = -1;
 
     // Used only when painting in tool-interaction mode
     private Graphics2D dblbufG2D;
@@ -148,7 +147,7 @@ public class ImageDisplay extends GraphicsPane {
      * @return the current tool or <code>null</code> if no tool is active.
      */
     public Tool getTool() {
-        return _tool;
+        return tool;
     }
 
     /**
@@ -157,12 +156,12 @@ public class ImageDisplay extends GraphicsPane {
      * @param tool the new tool or <code>null</code> if no tool shall be active.
      */
     public void setTool(Tool tool) {
-        if (_tool == tool) {
+        if (this.tool == tool) {
             return;
         }
-        Tool oldTool = _tool;
-        _tool = tool;
-        firePropertyChange("tool", oldTool, _tool);
+        Tool oldTool = this.tool;
+        this.tool = tool;
+        firePropertyChange("tool", oldTool, this.tool);
     }
 
     public double getPixelBorderViewScale() {
@@ -222,16 +221,16 @@ public class ImageDisplay extends GraphicsPane {
     }
 
     public PixelInfoFactory getPixelInfoFactory() {
-        return _pixelInfoFactory;
+        return pixelInfoFactory;
     }
 
     public void setPixelInfoFactory(PixelInfoFactory pixelInfoFactory) {
-        PixelInfoFactory oldFactory = _pixelInfoFactory;
+        PixelInfoFactory oldFactory = this.pixelInfoFactory;
         if (oldFactory == pixelInfoFactory) {
             return;
         }
-        _pixelInfoFactory = pixelInfoFactory;
-        firePropertyChange("pixelInfoFactory", oldFactory, _pixelInfoFactory);
+        this.pixelInfoFactory = pixelInfoFactory;
+        firePropertyChange("pixelInfoFactory", oldFactory, this.pixelInfoFactory);
     }
 
     /**
@@ -277,9 +276,9 @@ public class ImageDisplay extends GraphicsPane {
                 || imgHeight != getImage().getHeight())) {
             throw new IllegalArgumentException("invalid image size");
         }
-        _imageWidth = imgWidth;
-        _imageHeight = imgHeight;
-        final Rectangle modelArea = new Rectangle(0, 0, _imageWidth, _imageHeight);
+        imageWidth = imgWidth;
+        imageHeight = imgHeight;
+        final Rectangle modelArea = new Rectangle(0, 0, imageWidth, imageHeight);
         if (getViewModel().getModelArea().isEmpty()) {
             getViewModel().setModelArea(modelArea);
         }
@@ -292,14 +291,14 @@ public class ImageDisplay extends GraphicsPane {
      * Returns the source image's width.
      */
     public int getImageWidth() {
-        return _imageWidth;
+        return imageWidth;
     }
 
     /**
      * Returns the source image's height.
      */
     public int getImageHeight() {
-        return _imageHeight;
+        return imageHeight;
     }
 
     /**
@@ -341,8 +340,8 @@ public class ImageDisplay extends GraphicsPane {
             dblbufG2D.dispose();
             dblbufG2D = null;
         }
-        _tool = null;
-        _pixelInfoFactory = null;
+        tool = null;
+        pixelInfoFactory = null;
         deregisterListeners();
         if (pixelPositionListeners != null) {
             pixelPositionListeners.clear();
@@ -352,7 +351,7 @@ public class ImageDisplay extends GraphicsPane {
 
 
     public void copyPixelInfoStringToClipboard() {
-        copyPixelInfoStringToClipboard(_pixelX, _pixelY);
+        copyPixelInfoStringToClipboard(pixelX, pixelY);
     }
 
 
@@ -494,7 +493,7 @@ public class ImageDisplay extends GraphicsPane {
     }
 
     protected void drawTool(Graphics2D g2d) {
-        if (_tool != null && _tool.isActive()) {
+        if (tool != null && tool.isActive()) {
             transformGraphics(g2d, true);
             drawToolNoTransf(g2d);
             transformGraphics(g2d, false);
@@ -505,7 +504,7 @@ public class ImageDisplay extends GraphicsPane {
         final Graphics g = getGraphics();
         g.setXORMode(Color.white);
         if (pixelBorderDrawn) {
-            drawPixelBorder(g, _pixelX, _pixelY);
+            drawPixelBorder(g, this.pixelX, this.pixelY);
             pixelBorderDrawn = false;
         }
         if (showBorder) {
@@ -530,10 +529,10 @@ public class ImageDisplay extends GraphicsPane {
     }
 
     public final void drawToolNoTransf(Graphics2D g2d) {
-        if (_tool != null) {
+        if (tool != null) {
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-            if (_tool.getDrawable() != null) {
-                _tool.getDrawable().draw(g2d);
+            if (tool.getDrawable() != null) {
+                tool.getDrawable().draw(g2d);
             }
         }
     }
@@ -542,7 +541,7 @@ public class ImageDisplay extends GraphicsPane {
      * Draws the tool in an interactive mode.
      */
     public final void repaintTool() {
-        if (_tool != null) {
+        if (tool != null) {
             toolRepaintRequested = true;
             repaint(100);
         }
@@ -553,7 +552,7 @@ public class ImageDisplay extends GraphicsPane {
         Point p = e.getPoint();
         int pixelX = (int) Math.floor(viewToModelX(p.x));
         int pixelY = (int) Math.floor(viewToModelY(p.y));
-        if (pixelX != _pixelX || pixelY != _pixelY) {
+        if (pixelX != this.pixelX || pixelY != this.pixelY) {
             if (isPixelBorderDisplayEnabled() && (showBorder || pixelBorderDrawn)) {
                 drawPixelBorder(pixelX, pixelY, showBorder);
             }
@@ -563,10 +562,10 @@ public class ImageDisplay extends GraphicsPane {
 
 
     final void setPixelPos(MouseEvent e, int pixelX, int pixelY) {
-        _pixelX = pixelX;
-        _pixelY = pixelY;
+        this.pixelX = pixelX;
+        this.pixelY = pixelY;
         if (e.getID() != MouseEvent.MOUSE_EXITED) {
-            firePixelPosChanged(e, _pixelX, _pixelY);
+            firePixelPosChanged(e, this.pixelX, this.pixelY);
         } else {
             firePixelPosNotAvailable();
         }
@@ -605,18 +604,18 @@ public class ImageDisplay extends GraphicsPane {
 
     final synchronized void fireToolEvent(MouseEvent e) {
 //        Debug.trace("fireToolEvent "  + e);
-        if (_tool != null) {
+        if (tool != null) {
             ToolInputEvent toolInputEvent = createToolInputEvent(e);
-            _tool.handleEvent(toolInputEvent);
+            tool.handleEvent(toolInputEvent);
         }
     }
 
     private ToolInputEvent createToolInputEvent(MouseEvent e) {
-        return new ToolInputEvent(this, e, _pixelX, _pixelY, isPixelPosValid(_pixelX, _pixelY));
+        return new ToolInputEvent(this, e, pixelX, pixelY, isPixelPosValid(pixelX, pixelY));
     }
 
     private ToolInputEvent createToolInputEvent(KeyEvent e) {
-        return new ToolInputEvent(this, e, _pixelX, _pixelY, isPixelPosValid(_pixelX, _pixelY));
+        return new ToolInputEvent(this, e, pixelX, pixelY, isPixelPosValid(pixelX, pixelY));
     }
 
     public final boolean isPixelPosValid(int pixelX, int pixelY) {
@@ -702,8 +701,8 @@ public class ImageDisplay extends GraphicsPane {
              * Invoked when a key has been pressed.
              */
             public void keyPressed(KeyEvent e) {
-                if (_tool != null) {
-                    _tool.handleEvent(createToolInputEvent(e));
+                if (tool != null) {
+                    tool.handleEvent(createToolInputEvent(e));
                 }
             }
 
@@ -711,8 +710,8 @@ public class ImageDisplay extends GraphicsPane {
              * Invoked when a key has been released.
              */
             public void keyReleased(KeyEvent e) {
-                if (_tool != null) {
-                    _tool.handleEvent(createToolInputEvent(e));
+                if (tool != null) {
+                    tool.handleEvent(createToolInputEvent(e));
                 }
             }
 
@@ -720,8 +719,8 @@ public class ImageDisplay extends GraphicsPane {
              * Invoked when a key has been typed. This event occurs when a key press is followed by a key dispose.
              */
             public void keyTyped(KeyEvent e) {
-                if (_tool != null) {
-                    _tool.handleEvent(createToolInputEvent(e));
+                if (tool != null) {
+                    tool.handleEvent(createToolInputEvent(e));
                 }
             }
         };
