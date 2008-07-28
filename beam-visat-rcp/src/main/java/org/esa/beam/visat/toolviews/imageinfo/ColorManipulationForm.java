@@ -148,7 +148,7 @@ class ColorManipulationForm {
         }
 
         if (this.productSceneView != null) {
-            setImageInfoCopy(this.productSceneView.getScene().getImageInfo());
+            setImageInfoCopy(this.productSceneView.getImageInfo());
         }
 
         installChildForm(productSceneViewOld);
@@ -215,7 +215,7 @@ class ColorManipulationForm {
     private void updateTitle() {
         String titlePostfix = "";
         if (productSceneView != null) {
-            titlePostfix = " - " + productSceneView.getScene().getName();
+            titlePostfix = " - " + productSceneView.getSceneName();
         }
         // todo - this doesn't work at all!!!
         toolView.setTitle(getToolViewDescriptor().getTitle() + titlePostfix);
@@ -426,10 +426,10 @@ class ColorManipulationForm {
                 getToolViewPaneControl().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 if (!isRgbMode()) {
                     productSceneView.getRaster().setImageInfo(imageInfo);
-                    productSceneView.getScene().setImageInfo(imageInfo);
+                    productSceneView.setImageInfo(imageInfo);
                 } else {
-                    productSceneView.getScene().setRasters(childForm.getRasters());
-                    productSceneView.getScene().setImageInfo(imageInfo);
+                    productSceneView.setRasters(childForm.getRasters());
+                    productSceneView.setImageInfo(imageInfo);
                 }
                 setImageInfoCopy(imageInfo);
                 childForm.updateFormModel(productSceneView);

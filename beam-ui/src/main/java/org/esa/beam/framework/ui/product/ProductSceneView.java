@@ -22,21 +22,10 @@ import com.bc.layer.Layer;
 import com.bc.layer.LayerModel;
 import com.bc.swing.ViewPane;
 import com.bc.view.ViewModel;
-import org.esa.beam.framework.datamodel.Product;
-import org.esa.beam.framework.datamodel.ProductData;
-import org.esa.beam.framework.datamodel.ProductNode;
-import org.esa.beam.framework.datamodel.ProductNodeEvent;
-import org.esa.beam.framework.datamodel.ProductNodeListener;
-import org.esa.beam.framework.datamodel.RasterDataNode;
-import org.esa.beam.framework.datamodel.VirtualBand;
+import org.esa.beam.framework.datamodel.*;
 import org.esa.beam.framework.draw.Figure;
 import org.esa.beam.framework.draw.ShapeFigure;
-import org.esa.beam.framework.ui.BasicView;
-import org.esa.beam.framework.ui.ImageDisplay;
-import org.esa.beam.framework.ui.PixelInfoFactory;
-import org.esa.beam.framework.ui.PixelPositionListener;
-import org.esa.beam.framework.ui.PopupMenuHandler;
-import org.esa.beam.framework.ui.UIUtils;
+import org.esa.beam.framework.ui.*;
 import org.esa.beam.framework.ui.command.CommandUIFactory;
 import org.esa.beam.framework.ui.tool.DrawingEditor;
 import org.esa.beam.framework.ui.tool.Tool;
@@ -47,23 +36,9 @@ import org.esa.beam.util.PropertyMap;
 import org.esa.beam.util.PropertyMapChangeListener;
 import org.esa.beam.util.StopWatch;
 
-import javax.swing.JComponent;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.Shape;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 import java.awt.geom.Area;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
@@ -254,13 +229,13 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
     public void dispose() {
 
         getRaster().getProduct().removeProductNodeListener(rasterChangeHandler);
-        for (int i = 0; i < sceneImage.getRasters().length; i++) {
-            final RasterDataNode raster = sceneImage.getRasters()[i];
+        for (int i = 0; i < getSceneImage().getRasters().length; i++) {
+            final RasterDataNode raster = getSceneImage().getRasters()[i];
             if (raster instanceof RGBChannel) {
                 RGBChannel rgbChannel = (RGBChannel) raster;
                 rgbChannel.dispose();
             }
-            sceneImage.getRasters()[i] = null;
+            getSceneImage().getRasters()[i] = null;
         }
         sceneImage = null;
         imageUpdateListenerList.clear();
@@ -284,7 +259,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
      *
      * @return the product scene image
      */
-    public ProductSceneImage getScene() {
+    ProductSceneImage getSceneImage() {
         return sceneImage;
     }
 
@@ -295,6 +270,19 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
         return getRaster().getProduct();
     }
 
+    public String getSceneName() {
+        return getSceneImage().getName();
+    }    
+
+    public ImageInfo getImageInfo() {
+        return getSceneImage().getImageInfo();
+    }
+
+    public void setImageInfo(ImageInfo imageInfo) {
+        getSceneImage().setImageInfo(imageInfo);
+    }
+
+
     /**
      * Gets the number of raster datasets.
      *
@@ -302,7 +290,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
      *         for RGB images
      */
     public int getNumRasters() {
-        return sceneImage.getRasters().length;
+        return getSceneImage().getRasters().length;
     }
 
     /**
@@ -312,7 +300,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
      * @return the product raster with the given index
      */
     public RasterDataNode getRaster(int index) {
-        return sceneImage.getRasters()[index];
+        return getSceneImage().getRasters()[index];
     }
 
     /**
@@ -321,7 +309,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
      * @return the product raster, or <code>null</code> if this is a 3-banded RGB view
      */
     public RasterDataNode getRaster() {
-        return sceneImage.getRasters()[0];
+        return getSceneImage().getRasters()[0];
     }
 
     /**
@@ -330,11 +318,15 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
      * @return all rasters of this view, array size is either 1 or 3 (RGB)
      */
     public RasterDataNode[] getRasters() {
-        return sceneImage.getRasters();
+        return getSceneImage().getRasters();
+    }
+
+    public void setRasters(RasterDataNode[] rasters) {
+        getSceneImage().setRasters(rasters);
     }
 
     public boolean isRGB() {
-        return sceneImage.getRasters().length >= 3;
+        return getSceneImage().getRasters().length >= 3;
     }
 
     /**
@@ -379,87 +371,87 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
 
     public boolean isNoDataOverlayEnabled() {
         // TODO IMAGING 4.5
-        return sceneImage.getNoDataLayer().isVisible();
+        return getSceneImage().getNoDataLayer().isVisible();
     }
 
     public void setNoDataOverlayEnabled(boolean enabled) {
         // TODO IMAGING 4.5
-        sceneImage.getNoDataLayer().setVisible(enabled);
+        getSceneImage().getNoDataLayer().setVisible(enabled);
     }
 
     public boolean isGraticuleOverlayEnabled() {
         // TODO IMAGING 4.5
-        return sceneImage.getGraticuleLayer().isVisible();
+        return getSceneImage().getGraticuleLayer().isVisible();
     }
 
     public void setGraticuleOverlayEnabled(boolean enabled) {
         // TODO IMAGING 4.5
-        sceneImage.getGraticuleLayer().setVisible(enabled);
+        getSceneImage().getGraticuleLayer().setVisible(enabled);
     }
 
     public boolean isPinOverlayEnabled() {
         // TODO IMAGING 4.5
-        return sceneImage.getPinLayer().isVisible();
+        return getSceneImage().getPinLayer().isVisible();
     }
 
     public void setPinOverlayEnabled(boolean enabled) {
         // TODO IMAGING 4.5
-        sceneImage.getPinLayer().setVisible(enabled);
+        getSceneImage().getPinLayer().setVisible(enabled);
     }
 
     public boolean isGcpOverlayEnabled() {
         // TODO IMAGING 4.5
-        return sceneImage.getGcpLayer().isVisible();
+        return getSceneImage().getGcpLayer().isVisible();
     }
 
     public void setGcpOverlayEnabled(boolean enabled) {
         // TODO IMAGING 4.5
-        sceneImage.getGcpLayer().setVisible(enabled);
+        getSceneImage().getGcpLayer().setVisible(enabled);
     }
 
     public boolean isROIOverlayEnabled() {
         // TODO IMAGING 4.5
-        return sceneImage.getROILayer().isVisible();
+        return getSceneImage().getROILayer().isVisible();
     }
 
     public void setROIOverlayEnabled(boolean enabled) {
         // TODO IMAGING 4.5
-        sceneImage.getROILayer().setVisible(enabled);
+        getSceneImage().getROILayer().setVisible(enabled);
     }
 
     public boolean isShapeOverlayEnabled() {
         // TODO IMAGING 4.5
-        return sceneImage.getFigureLayer().isVisible();
+        return getSceneImage().getFigureLayer().isVisible();
     }
 
     public void setShapeOverlayEnabled(boolean enabled) {
         // TODO IMAGING 4.5
-        sceneImage.getFigureLayer().setVisible(enabled);
+        getSceneImage().getFigureLayer().setVisible(enabled);
     }
 
     public RenderedImage getROIImage() {
         // TODO IMAGING 4.5
-        return sceneImage.getROILayer().getImage();
+        return getSceneImage().getROILayer().getImage();
     }
 
     public void setROIImage(RenderedImage roiImage) {
         // TODO IMAGING 4.5
-        sceneImage.getROILayer().setImage(roiImage);
+        getSceneImage().getROILayer().setImage(roiImage);
     }
 
     public void updateROIImage(boolean recreate, ProgressMonitor pm) throws Exception {
         // TODO IMAGING 4.5
-        sceneImage.getROILayer().updateImage(recreate, pm);
+        getSceneImage().getROILayer().updateImage(recreate, pm);
     }
 
     public Figure getRasterROIShapeFigure() {
         // TODO IMAGING 4.5
-        return sceneImage.getROILayer().getRasterROIShapeFigure();
+        return getSceneImage().getROILayer().getRasterROIShapeFigure();
     }
 
     public Figure getCurrentShapeFigure() {
         // TODO IMAGING 4.5
-        return sceneImage.getFigureLayer().getNumFigures() > 0 ? sceneImage.getFigureLayer().getFigureAt(0) : null;
+        return getSceneImage().getFigureLayer().getNumFigures() > 0 ? getSceneImage().getFigureLayer().getFigureAt(0) : null;
     }
 
     public void setCurrentShapeFigure(Figure currentShapeFigure) {
@@ -468,11 +460,11 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
         if (currentShapeFigure != oldShapeFigure) {
             if (oldShapeFigure != null) {
                 // TODO IMAGING 4.5
-                sceneImage.getFigureLayer().removeFigure(oldShapeFigure);
+                getSceneImage().getFigureLayer().removeFigure(oldShapeFigure);
             }
             if (currentShapeFigure != null) {
                 // TODO IMAGING 4.5
-                sceneImage.getFigureLayer().addFigure(currentShapeFigure);
+                getSceneImage().getFigureLayer().addFigure(currentShapeFigure);
             }
         }
     }
@@ -482,7 +474,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
      */
     public void removeFigure(Figure figure) {
         // TODO IMAGING 4.5
-        sceneImage.getFigureLayer().removeFigure(figure);
+        getSceneImage().getFigureLayer().removeFigure(figure);
     }
 
     /**
@@ -492,7 +484,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
      */
     public Figure[] getAllFigures() {
         // TODO IMAGING 4.5
-        return sceneImage.getFigureLayer().getAllFigures();
+        return getSceneImage().getFigureLayer().getAllFigures();
     }
 
     /**
@@ -502,7 +494,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
      */
     public Figure getFigureAt(int index) {
         // TODO IMAGING 4.5
-        return sceneImage.getFigureLayer().getFigureAt(index);
+        return getSceneImage().getFigureLayer().getFigureAt(index);
     }
 
     /**
@@ -513,7 +505,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
      */
     public Figure[] getFiguresWithAttribute(String name) {
         // TODO IMAGING 4.5
-        return sceneImage.getFigureLayer().getFiguresWithAttribute(name);
+        return getSceneImage().getFigureLayer().getFiguresWithAttribute(name);
     }
 
     /**
@@ -525,7 +517,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
      */
     public Figure[] getFiguresWithAttribute(String name, Object value) {
         // TODO IMAGING 4.5
-        return sceneImage.getFigureLayer().getFiguresWithAttribute(name, value);
+        return getSceneImage().getFigureLayer().getFiguresWithAttribute(name, value);
     }
 
     /**
@@ -533,7 +525,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
      */
     public int getNumFigures() {
         // TODO IMAGING 4.5
-        return sceneImage.getFigureLayer().getNumFigures();
+        return getSceneImage().getFigureLayer().getNumFigures();
     }
 
     /**
@@ -543,7 +535,7 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
      */
     public Figure[] getSelectedFigures() {
         // TODO IMAGING 4.5
-        return sceneImage.getFigureLayer().getSelectedFigures();
+        return getSceneImage().getFigureLayer().getSelectedFigures();
     }
 
 

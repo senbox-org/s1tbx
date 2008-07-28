@@ -27,7 +27,7 @@ import org.esa.beam.layer.*;
 import org.esa.beam.util.Guardian;
 import org.esa.beam.util.ProductUtils;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 
@@ -70,24 +70,26 @@ public class ProductSceneImage {
         Assert.notNull(redRaster, "redRaster");
         Assert.notNull(greenRaster, "greenRaster");
         Assert.notNull(blueRaster, "blueRaster");
+        Assert.notNull(pm, "pm");
         return new ProductSceneImage("RGB", new RasterDataNode[]{redRaster, greenRaster, blueRaster}, null, null, pm);
     }
 
     /**
-     * Creates a color indexed product scene for the given product raster.
+     * Creates a new scene image for an existing view.
      *
-     * @param raster     the product raster, must not be null
-     * @param imageInfo  the image information
-     *@param layerModel the layer model to be reused, must not be null
-     * @param pm         a monitor to inform the user about progress @return a color indexed product scene image
-     * @throws java.io.IOException if the image creation failed due to an I/O problem
+     * @param raster The product raster.
+     * @param view   An existing view.
+     * @param pm     A monitor to inform the user about progress @return a color indexed product scene image.
+     * @return A new scene image.
+     * @throws java.io.IOException if the image creation failed due to an I/O problem.
      */
-    public static ProductSceneImage create(RasterDataNode raster, ImageInfo imageInfo, LayerModel layerModel, ProgressMonitor pm) throws
-            IOException {
+    public static ProductSceneImage create(RasterDataNode raster, ProductSceneView view, ProgressMonitor pm) throws IOException {
         Assert.notNull(raster, "raster");
-        Assert.notNull(layerModel, "layerModel");
-        return new ProductSceneImage(raster.getDisplayName(), new RasterDataNode[]{raster}, imageInfo, layerModel, pm);
+        Assert.notNull(view, "view");
+        Assert.notNull(pm, "pm");
+        return new ProductSceneImage(raster.getDisplayName(), new RasterDataNode[]{raster}, view.getImageInfo(), view.getLayerModel(), pm);
     }
+
 
     private ProductSceneImage(String name, RasterDataNode[] rasters, ImageInfo imageInfo, LayerModel layerModel, ProgressMonitor pm) throws IOException {
         this.name = name;
@@ -224,7 +226,7 @@ public class ProductSceneImage {
         if (imageInfo != null) {
             return ProductUtils.createRgbImage(rasters, imageInfo, pm);
         } else {
-            pm.beginTask("Computing image", 1+3);
+            pm.beginTask("Computing image", 1 + 3);
             try {
                 imageInfo = ProductUtils.createImageInfo(rasters, true, SubProgressMonitor.create(pm, 1));
                 return ProductUtils.createRgbImage(rasters, imageInfo, SubProgressMonitor.create(pm, 3));
@@ -233,4 +235,5 @@ public class ProductSceneImage {
             }
         }
     }
+
 }

@@ -43,7 +43,7 @@ public class BandMultiLevelImage extends AbstractMultiLevelImage {
     }
 
     @Override
-    public Rectangle2D getBoundingBox(int level) {
+    public Rectangle2D getBounds(int level) {
         return boundingBox;
     }
 }

@@ -69,7 +69,7 @@ public class ProductSceneViewTest extends TestCase {
         view = new ProductSceneView(ProductSceneImage.create(r, ProgressMonitor.NULL));
 
         view.dispose();
-        assertNull(view.getScene());
+        assertNull(view.getSceneImage());
 
         try {
             assertNull(view.getImageUpdateListeners());

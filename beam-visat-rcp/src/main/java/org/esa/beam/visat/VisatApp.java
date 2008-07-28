@@ -1667,10 +1667,7 @@ public class VisatApp extends BasicApp {
             final JInternalFrame[] frames = findInternalFrames(raster, 1);
             if (frames.length > 0) {
                 final ProductSceneView view = (ProductSceneView) frames[0].getContentPane();
-                // TODO IMAGING 4.5
-                final LayerModel layerModel = view.getLayerModel();
-                final ImageInfo imageInfo = view.getScene().getImageInfo();
-                productSceneImage = ProductSceneImage.create(raster, imageInfo, layerModel,
+                productSceneImage = ProductSceneImage.create(raster, view,
                                                              SubProgressMonitor.create(pm, 1));
             } else {
                 productSceneImage = ProductSceneImage.create(raster, SubProgressMonitor.create(pm, 1));
