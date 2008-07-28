@@ -2568,8 +2568,6 @@ public class VisatApp extends BasicApp {
                 }
 
                 // Save view-associtated objects before we dispose the view
-                // TODO IMAGING 4.5
-                final LayerModel layerModel = productSceneView.getLayerModel();
                 final JInternalFrame[] otherFrames = findInternalFrames(productSceneView.getRaster(), 1);
 
                 Debug.trace("Disposing view '" + title + "'...");
@@ -2578,7 +2576,7 @@ public class VisatApp extends BasicApp {
 
                 if (otherFrames.length == 0) {
                     Debug.trace("Disposing layer model of view '" + title + "'...");
-                    layerModel.dispose();
+                    productSceneView.disposeLayerModel();
                     Debug.trace("Layer model disposed.");
                 }
 

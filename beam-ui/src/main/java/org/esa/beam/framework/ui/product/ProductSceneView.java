@@ -20,6 +20,7 @@ import com.bc.ceres.core.Assert;
 import com.bc.ceres.core.ProgressMonitor;
 import com.bc.layer.Layer;
 import com.bc.layer.LayerModel;
+import com.bc.layer.LayerModelChangeListener;
 import com.bc.swing.ViewPane;
 import com.bc.view.ViewModel;
 import org.esa.beam.framework.datamodel.*;
@@ -589,6 +590,25 @@ public class ProductSceneView extends BasicView implements ProductNodeView,
     public LayerModel getLayerModel() {
         // TODO IMAGING 4.5
         return getImageDisplay().getLayerModel();
+    }
+
+    public void addLayerModelChangeListener(LayerModelChangeListener listener) {
+        getImageDisplay().getLayerModel().addLayerModelChangeListener(listener);
+    }
+    public void removeLayerModelChangeListener(LayerModelChangeListener listener) {
+        getImageDisplay().getLayerModel().removeLayerModelChangeListener(listener);
+    }
+
+    public int getLayerCount() {
+        return getLayerModel().getLayerCount();
+    }
+
+    public Layer getLayer(int index) {
+        return getLayerModel().getLayer(index);
+    }
+
+    public void disposeLayerModel() {
+        getLayerModel().dispose();
     }
 
     public ViewModel getViewModel() {

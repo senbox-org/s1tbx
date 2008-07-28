@@ -174,8 +174,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
         }
         if (this.productSceneView != null) {
             // TODO IMAGING 4.5
-            this.productSceneView.getLayerModel().removeLayerModelChangeListener(
-                    _layerModelChangeHandler);
+            this.productSceneView.removeLayerModelChangeListener(_layerModelChangeHandler);
             this.productSceneView.getProduct().removeProductNodeListener(_productNodeListener);
         }
 
@@ -188,7 +187,7 @@ public class RoiManagerToolView extends AbstractToolView implements ParamExcepti
                 shapeFigure = this.productSceneView.getCurrentShapeFigure();
             }
             // TODO IMAGING 4.5
-            this.productSceneView.getLayerModel().addLayerModelChangeListener(_layerModelChangeHandler);
+            this.productSceneView.addLayerModelChangeListener(_layerModelChangeHandler);
             this.productSceneView.getProduct().addProductNodeListener(_productNodeListener);
             roiDefinitionUndo = getCurrentROIDefinition();
             setUIParameterValues(roiDefinitionUndo);

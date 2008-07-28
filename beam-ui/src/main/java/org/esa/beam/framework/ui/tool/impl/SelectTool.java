@@ -94,10 +94,9 @@ public class SelectTool extends AbstractTool {
     }
 
     private void handleInputEvent(ToolInputEvent e, Delegator method) {
-        final GraphicsPane graphicsPane = (GraphicsPane) e.getComponent();
-        final LayerModel layerModel = graphicsPane.getLayerModel();
-        for (int i = 0; i < layerModel.getLayerCount(); i++) {
-            final Layer layer = layerModel.getLayer(i);
+        final ProductSceneView psv = (ProductSceneView)getDrawingEditor();
+        for (int i = 0; i < psv.getLayerCount(); i++) {
+            final Layer layer = psv.getLayer(i);
             AbstractTool delegate = getDelegateTool(layer);
             if (delegate != null) {
                 method.execute(delegate, e);
@@ -106,6 +105,6 @@ public class SelectTool extends AbstractTool {
     }
 
     private interface Delegator {
-        public void execute(AbstractTool delegate, ToolInputEvent event);
+        void execute(AbstractTool delegate, ToolInputEvent event);
     }
 }
