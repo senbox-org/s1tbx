@@ -62,7 +62,7 @@ public class SingleLevelImage implements LevelImage {
      * @return Always the bounding box of the one and only image.
      */
     @Override
-    public Rectangle2D getBoundingBox(int level) {
+    public Rectangle2D getBounds(int level) {
         checkLevel(level);
         // for a MipMapMultiLevelImage, the bounding box is the same for all levels
         return new Rectangle2D.Double(boundingBox.getX(), boundingBox.getY(), boundingBox.getWidth(), boundingBox.getHeight());

@@ -33,7 +33,7 @@ public class FileMultiLevelImage extends AbstractMultiLevelImage {
     }
 
     @Override
-    public Rectangle2D getBoundingBox(int level) {
+    public Rectangle2D getBounds(int level) {
         checkLevel(level);
         final PlanarImage image = getPlanarImage(0);
         return getImageToModelTransform(0).createTransformedShape(new Rectangle(image.getMinX(), image.getMinY(), image.getWidth(), image.getHeight())).getBounds2D();

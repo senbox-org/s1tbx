@@ -55,7 +55,6 @@ public interface LevelImage {
      */
     AffineTransform getImageToModelTransform(int level);
 
-    // todo - check: can be derived, really need this here?
     /**
      * Gets a copy (non-life object) of the affine transformation from model to image coordinates for the given level.
      *
@@ -64,12 +63,11 @@ public interface LevelImage {
      */
     AffineTransform getModelToImageTransform(int level);
 
-    // todo - check: can be derived, really need this here?
     /**
      * Returns the bounding box in model coordinates for the given level.
      *
      * @param level the resolution level
      * @return the bounding box.
      */
-    Rectangle2D getBoundingBox(int level);
+    Rectangle2D getBounds(int level);
 }

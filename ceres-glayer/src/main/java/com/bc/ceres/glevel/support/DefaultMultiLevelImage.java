@@ -51,7 +51,7 @@ public class DefaultMultiLevelImage extends AbstractMultiLevelImage {
     }
 
     @Override
-    public Rectangle2D getBoundingBox(int level) {
+    public Rectangle2D getBounds(int level) {
         checkLevel(level);
         return new Rectangle2D.Double(
                 boundingBox.getX(), boundingBox.getY(),

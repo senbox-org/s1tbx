@@ -115,7 +115,7 @@ public class ImageLayer extends Layer {
     }
 
     public Rectangle2D getBounds() {
-        return levelImage.getBoundingBox(0);
+        return levelImage.getBounds(0);
     }
 
     @Override
